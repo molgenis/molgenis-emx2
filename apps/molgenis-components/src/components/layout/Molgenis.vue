@@ -44,9 +44,6 @@
         </span>
       </span>
     </MolgenisFooter>
-    <style>
-      {{ additionalCss }}
-    </style>
   </div>
 </template>
 
@@ -125,7 +122,6 @@ export default {
       timestamp: Date.now(),
       analyticsId: null,
       cookieWallContent: null,
-      additionalCss: "",
     };
   },
   computed: {
@@ -212,9 +208,6 @@ export default {
         }
       `
     ).then((data) => {
-      this.additionalCss = data._settings.find(
-        (setting) => setting.key === "additionalCss"
-      )?.value;
       const analyticsSetting = data._settings.find(
         (setting) => setting.key === "ANALYTICS_ID"
       );

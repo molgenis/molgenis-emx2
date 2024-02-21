@@ -19,10 +19,9 @@
         label="Set logo url"
         v-model="logoURL"
       />
-      <label><b>Additional Css</b></label>
       <InputText
         id="additional-css-input"
-        label="CSS"
+        label="Additional Css"
         v-model="additionalCss"
       />
 
