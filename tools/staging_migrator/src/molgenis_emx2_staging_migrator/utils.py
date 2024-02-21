@@ -91,15 +91,15 @@ def find_cohort_references(schema_schema: dict) -> dict:
     that references the 'Subcohorts' table, which references the 'Cohorts' table directly.
     """
 
-    def find_table_columns(_t_name: str, _t_values: dict):
+    def find_table_columns(_table: dict):
         _table_references = []
-        for _column in _t_values['columns']:
+        for _column in _table['columns']:
             if _column.get('columnType') in ['REF', 'REF_ARRAY']:
                 if _column.get('refTableName') in ['Cohorts', *cohort_inheritance.values()]:
                     _table_references.append(_column['id'])
-                elif _column.get('refTableName') != _t_name:
-                    _column_references = find_table_columns(_column['refTableName'],
-                                                            schema_schema[_column['refTableName']])
+                elif _column.get('refTableName') != _table['name']:
+                    ref_table, = [_t for _t in schema_schema['tables'] if _t['name'] == _column['refTableName']]
+                    _column_references = find_table_columns(ref_table)
                     if len(_column_references) > 0:
                         _table_references.append(_column['id'])
         return _table_references
@@ -107,21 +107,24 @@ def find_cohort_references(schema_schema: dict) -> dict:
     cohort_inheritance = {'Cohorts': 'Data resources', 'Data resources': 'Extended resources',
                           'Extended resources': 'Resources'}
     cohort_references = dict()
-    for t_name, t_values in schema_schema.items():
-        if t_name in cohort_inheritance.keys():
+    for table in schema_schema['tables']:
+        if table['name'] in cohort_inheritance.keys():
             table_references = ['id']
         else:
-            table_references = find_table_columns(t_name, t_values)
+            table_references = find_table_columns(table)
         if len(table_references) > 0:
-            cohort_references.update({t_name: table_references[0]})
+            cohort_references.update({table['name']: table_references[0]})
 
     # Gather all backwards references to the tables
-    ref_backs = {
-        tab: [_tab for _tab in cohort_references.keys()
-              if len([_col for _col in schema_schema[_tab]['columns']
-                      if (_col.get('columnType') in ['REF', 'REF_ARRAY']) & (_col.get('refTableName') == tab)]) > 0]
-        for tab in cohort_references.keys()
-    }
+    ref_backs = {}
+    for tab in cohort_references.keys():
+        ref_backs[tab] = []
+        for _tab in cohort_references.keys():
+            _cols = [_col for _col in [t for t in schema_schema['tables'] if t['name'] == _tab][0].get('columns')
+                     if (_col.get('columnType') in ['REF', 'REF_ARRAY']) & (_col.get('refTableName') == tab) > 0]
+            if len(_cols) > 0:
+                ref_backs[tab].append(_tab)
+
     for coh, inh in cohort_inheritance.items():
         if coh in ref_backs.keys():
             ref_backs[coh].append(inh)
@@ -142,24 +145,6 @@ def find_cohort_references(schema_schema: dict) -> dict:
     cohort_references = {s: cohort_references.copy()[s] for s in sequence}
 
     return cohort_references
-
-
-def construct_delete_query(db_schema: dict, table_name: str, all_columns: bool = False):
-    """Constructs a GraphQL query for deleting rows from a table."""
-    if all_columns:
-        pkeys = [prepare_pkey(db_schema, table_name, col['id']) for col in db_schema[table_name]['columns']]
-        pkeys = [pk for pk in pkeys if pk is not None]
-    else:
-        pkeys = [prepare_pkey(db_schema, table_name, col['id']) for col in db_schema[table_name]['columns'] if
-                 col.get('key') == 1]
-    table_id = db_schema[table_name]['id']
-    pkeys_print = query_columns_string(pkeys, indent=4)
-    _query = (f"query {table_id}($filter: {table_id}Filter) {{\n"
-              f"  {table_id}(filter: $filter) {{\n"
-              f"{pkeys_print}\n"
-              f"  }}\n"
-              f"}}")
-    return _query
 
 
 def construct_delete_variables(db_schema: dict, cohort_ids: list, table_name: str, ref_col: str):

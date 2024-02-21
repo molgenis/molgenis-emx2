@@ -12,8 +12,8 @@ from molgenis_emx2_pyclient.exceptions import NoSuchSchemaException
 from molgenis_emx2_pyclient import Client
 from tools.staging_migrator.src.molgenis_emx2_staging_migrator.constants import BASE_DIR
 from tools.staging_migrator.src.molgenis_emx2_staging_migrator.utils import get_table_pkey_values, \
-    find_cohort_references, construct_delete_query, construct_delete_variables, has_statement_of_consent, \
-    process_statement, prepare_pkey
+    find_cohort_references, construct_delete_variables, has_statement_of_consent, \
+    process_statement, prepare_pkey, query_columns_string
 
 log = logging.getLogger('Molgenis EMX2 Migrator')
 
@@ -137,7 +137,7 @@ class StagingMigrator(Client):
     def _query_delete_rows(self, table_name: str, ref_col: str,
                            cohort_ids: list) -> dict:
         """Queries the rows to be deleted from a table."""
-        query = construct_delete_query(self._get_schema_metadata(self.catalogue), table_name)
+        query = self.__construct_pkey_query(self._get_schema_metadata(self.catalogue), table_name)
         variables = construct_delete_variables(self._get_schema_metadata(self.catalogue),
                                                cohort_ids, table_name, ref_col)
 
@@ -243,48 +243,6 @@ class StagingMigrator(Client):
                 else:
                     log.info("Migrated successfully.")
 
-    @staticmethod
-    def _cleanup():
-        """Deletes the downloaded files after successful migration."""
-        zip_files = ['target.zip', 'source.zip', 'upload.zip']
-        for zp in zip_files:
-            filename = f"{BASE_DIR}/{zp}"
-            if os.path.exists(filename):
-                log.debug(f"Deleting file '{zp}'.")
-                os.remove(filename)
-
-    def _check_diff(self, file_name: str, source_table: bytes):
-        """Logs an overview of differences on this table compared to the table on the server."""
-        with zipfile.ZipFile(f"{BASE_DIR}/target.zip", 'r') as target_archive:
-            try:
-                target_table = target_archive.read(file_name)
-            except Exception as e:
-                print(e)
-
-        # Convert csv files to pandas DataFrame
-        source_df = pd.read_csv(BytesIO(source_table))
-        target_df = pd.read_csv(BytesIO(target_table))
-
-        if not (len(source_df) + len(target_df)):
-            return
-
-        # Get primary keys for these tables
-        p_keys = prepare_pkey(schema=self._get_schema_metadata(self.staging_area),
-                              table_name=os.path.splitext(file_name)[0])
-
-        source_df[p_keys] = source_df[p_keys].astype(str)
-        target_df[p_keys] = target_df[p_keys].astype(str)
-
-        # Filter target_table on primary keys that are the same as the ones in the source_table
-        # target_df = target_df.loc[target_df == source_df]
-        merge = pd.merge(source_df, target_df, on=p_keys)
-        if len(merge):
-            print(merge)
-        # Output in case row exists in source but not target
-
-        # Output in case row exists in target but not source
-        # Output in case all rows are the same
-
     def _upload_fallback_zip(self):
         """Restores the catalogue to the state before deletion by uploading the downloaded target zip."""
         target_filename = f"{BASE_DIR}/target.zip"
@@ -296,3 +254,31 @@ class StagingMigrator(Client):
                 upload_archive.writestr(file_name, BytesIO(target_archive.read(file_name)).getvalue())
         # Upload the stream
         self._upload_zip_stream(upload_stream, is_fallback=True)
+
+    @staticmethod
+    def _cleanup():
+        """Deletes the downloaded files after successful migration."""
+        zip_files = ['target.zip', 'source.zip', 'upload.zip']
+        for zp in zip_files:
+            filename = f"{BASE_DIR}/{zp}"
+            if os.path.exists(filename):
+                log.debug(f"Deleting file '{zp}'.")
+                os.remove(filename)
+
+    @staticmethod
+    def __construct_pkey_query(db_schema: dict, table_name: str, all_columns: bool = False):
+        """Constructs a GraphQL query for finding the primary key values in a table."""
+        if all_columns:
+            pkeys = [prepare_pkey(db_schema, table_name, col['id']) for col in db_schema[table_name]['columns']]
+            pkeys = [pk for pk in pkeys if pk is not None]
+        else:
+            pkeys = [prepare_pkey(db_schema, table_name, col['id']) for col in db_schema[table_name]['columns'] if
+                     col.get('key') == 1]
+        table_id = db_schema[table_name]['id']
+        pkeys_print = query_columns_string(pkeys, indent=4)
+        _query = (f"query {table_id}($filter: {table_id}Filter) {{\n"
+                  f"  {table_id}(filter: $filter) {{\n"
+                  f"{pkeys_print}\n"
+                  f"  }}\n"
+                  f"}}")
+        return _query
