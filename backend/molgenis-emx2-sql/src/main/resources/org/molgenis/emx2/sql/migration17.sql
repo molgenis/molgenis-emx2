@@ -28,7 +28,6 @@ BEGIN
             EXECUTE alterStatement;
         END;
     END LOOP;
-    COMMIT;
 END;
 $$
 LANGUAGE plpgsql;
