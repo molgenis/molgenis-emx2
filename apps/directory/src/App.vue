@@ -119,10 +119,13 @@ nav.navbar button.btn.btn-outline-light:not(.border-0):hover {
   color: #dbedff !important;
 }
 
-.filterbar > details.dropdown-button {
+.filterbar > details.dropdown-button > summary {
   color: #08205c !important;
 }
-.filterbar > details.dropdown-button:hover {
+.filterbar > details.dropdown-button[open] > summary {
+  color: white !important;
+}
+.filterbar > details.dropdown-button:hover > summary {
   color: white !important;
 }
 </style>
