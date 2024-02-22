@@ -186,7 +186,7 @@ class Client:
             raise PyclientException("An unknown error occurred when trying to reach this server.")
 
         response_json: dict = response.json()
-        schemas = list(map(lambda schema_data: Schema(**schema_data), response_json['data']['_schemas']))
+        schemas = [Schema(**s) for s in response_json['data']['_schemas']]
         return schemas
 
     @property
@@ -572,8 +572,7 @@ class Client:
             log.error(message)
             raise GraphQLException(message)
 
-        _metadata = response_json.get('data').get('_schema')
-        metadata = Schema(**_metadata)
+        metadata = Schema(**response_json.get('data').get('_schema'))
         return metadata
 
     @staticmethod
@@ -682,6 +681,6 @@ class Client:
             headers={"x-molgenis-token": self.token}
         )
         schema_data = Schema(**response.json().get('data').get('_schema'))
-        schema_tables = map(str, schema_data.tables)
-
-        return table in schema_tables
+        if table in map(str, schema_data.tables):
+            return True
+        return False
