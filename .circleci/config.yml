@@ -228,18 +228,6 @@ jobs:
             npx playwright test --config e2e e2e/tests
       - store_test_results:
          path: /root/project/e2e
-    
-  handleMerge:
-    <<: *build_config
-    steps:
-      - run:
-          name: Run at merge
-          command: |
-            # Extract PR number from the GitHub context
-            PR_NUMBER=$(echo "${CIRCLE_PULL_REQUEST}" | awk -F/ '{print $NF}')
-            
-            # Add your commands to delete the preview using $PR_NUMBER
-            echo "Deleting preview for pull request #$PR_NUMBER"
 
 workflows:
   version: 2
@@ -263,11 +251,3 @@ workflows:
        filters:
          branches:
            only: master
-    - handleMerge:
-        filters:
-          branches:
-            ignore:
-              - '*'
-            only:
-              - /^pull_request/
-              - master
