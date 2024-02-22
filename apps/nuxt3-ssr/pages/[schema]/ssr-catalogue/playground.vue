@@ -37,7 +37,6 @@ function handelClose() {
           class="mr-2 mt-4"
           type="radio"
           id="light"
-          §
           value="light"
           v-model="modalType"
         />
