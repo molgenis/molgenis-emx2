@@ -1,0 +1,18 @@
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: {{ template "emx2.name" . }}
+spec:
+  scaleTargetRef:
+    name: {{ template "emx2.name" . }}
+  pollingInterval: 15
+  cooldownPeriod: 60
+  minReplicaCount: 0
+  maxReplicaCount: 1
+  triggers:
+  - type: external
+    metadata:
+      metricName: http-metric
+      url: {{- range .Values.ingress.hosts }}"/apps/central/graphql"
+      threshold: "1"
+      queryType: Object
