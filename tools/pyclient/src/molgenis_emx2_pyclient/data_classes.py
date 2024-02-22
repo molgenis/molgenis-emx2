@@ -145,6 +145,7 @@ class Schema:
     id: str
     name: str
     label: str
+    description: str
     tables: list[Table]
     members: dict
     roles: dict
@@ -164,6 +165,14 @@ class Schema:
 
     def __str__(self):
         return self.name
+
+    def get(self, attr: str, default: object = None) -> object:
+        """Returns the value of an attribute. If the attribute does not exist, returns a default value.
+        If this default value is not given, returns None.
+        """
+        if hasattr(self, attr):
+            return self.__getattribute__(attr)
+        return default
 
     def get_table(self, by: Literal['id', 'name'] = 'id', *, value: str) -> Table:
         """Gets the unique table by either id or name value.

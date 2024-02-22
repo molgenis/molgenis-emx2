@@ -158,7 +158,7 @@ class Client:
         )
         return message
 
-    def get_schemas(self) -> list[dict]:
+    def get_schemas(self) -> list[Schema]:
         """Returns the schemas on the database for this user as a list of dictionaries
         containing for each schema the id, name, label and description.
         """
@@ -178,13 +178,13 @@ class Client:
             raise PyclientException("An unknown error occurred when trying to reach this server.")
 
         response_json: dict = response.json()
-        schemas = response_json['data']['_schemas']
+        schemas = list(map(lambda schema_data: Schema(**schema_data), response_json['data']['_schemas']))
         return schemas
 
     @property
     def schema_names(self):
         """Returns a list of the names of the schemas."""
-        return [schema['name'] for schema in self.schemas]
+        return list(map(str, self.schemas))
 
     @property
     def token(self):
@@ -518,7 +518,7 @@ class Client:
         if current_schema not in self.schema_names:
             raise NoSuchSchemaException(f"Schema '{current_schema}' not available.")
 
-        schema_meta = [db for db in self.schemas if db['name'] == current_schema][0]
+        schema_meta = [db for db in self.schemas if db.name == current_schema][0]
         schema_description = description if description else schema_meta.get('description', None)
 
         try:
@@ -673,6 +673,7 @@ class Client:
             json={'query': queries.list_tables()},
             headers={"x-molgenis-token": self.token}
         )
-        schema_tables = [tab['name'] for tab in
-                         response.json().get('data').get('_schema').get('tables')]
+        schema_data = Schema(**response.json().get('data').get('_schema'))
+        schema_tables = map(str, schema_data.tables)
+
         return table in schema_tables
