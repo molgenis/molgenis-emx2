@@ -1,4 +1,19 @@
 version: 2.1
+
+parameters:
+  GHA_Actor:
+    type: string
+    default: ""
+  GHA_Action:
+    type: string
+    default: ""
+  GHA_Event:
+    type: string
+    default: ""
+  GHA_Meta:
+    type: string
+    default: ""
+
 orbs:
   slack: circleci/slack@4.4.4
 
@@ -266,6 +281,7 @@ workflows:
          branches:
            only: master
   delete_preview:
+      when: << pipeline.parameters.GHA_Action >>
       jobs:
       - delete-helm-preview:
           
