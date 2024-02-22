@@ -8,4 +8,5 @@ RUN apt-get update && add-apt-repository ppa:deadsnakes/ppa
 RUN apt-get update && apt-get install python3.12 python3-venv -y
 RUN update-alternatives --install /usr/bin/python3 python /usr/bin/python3.12 1
 RUN apt-get update && apt install python-is-python3
+RUN apt-get update && apt-get install python3.12-dev python3.12-venv -y
 ENTRYPOINT ["java","-jar","app.jar"]
