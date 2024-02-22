@@ -229,9 +229,9 @@ jobs:
       - store_test_results:
          path: /root/project/e2e
     
-    handleMerge:
-      <<: *build_config
-      steps:
+  handleMerge:
+    <<: *build_config
+    steps:
       - run:
           name: Run at merge
           command: |
