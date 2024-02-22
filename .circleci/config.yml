@@ -268,6 +268,6 @@ workflows:
           branches:
             ignore:
               - '*'
-        only:
-          - /^pull_request/
-          - master
+            only:
+              - /^pull_request/
+              - master
