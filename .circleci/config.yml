@@ -249,9 +249,8 @@ jobs:
     <<: *build_config
     
     steps:
-    - run: |
-        echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
-  
+    - pre_steps
+    
     - run:
         name: delete preview on azure
         command: |
