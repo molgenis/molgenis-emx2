@@ -8,6 +8,7 @@ import requests
 
 from . import graphql_queries as queries
 from . import utils
+from .data_classes import Schema
 from .exceptions import (NoSuchSchemaException, ServiceUnavailableError, SigninError,
                          ServerNotFoundError, PyclientException, NoSuchTableException,
                          NoContextManagerException, GraphQLException, InvalidTokenException,
@@ -563,7 +564,8 @@ class Client:
             log.error(message)
             raise GraphQLException(message)
 
-        metadata = response_json.get('data').get('_schema')
+        _metadata = response_json.get('data').get('_schema')
+        metadata = Schema(**_metadata)
         return metadata
 
     @staticmethod
