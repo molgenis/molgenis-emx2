@@ -13,6 +13,9 @@ parameters:
   GHA_Meta:
     type: string
     default: ""
+  GHA_Preview_Nr:
+    type: string
+    default: ""
 
 orbs:
   slack: circleci/slack@4.4.4
@@ -247,6 +250,9 @@ jobs:
 
   delete-helm-preview:
     <<: *build_config
+
+    environment:
+      GHA_PREVIEW_NR: << pipeline.parameters.GHA_Preview_Nr >>
     
     steps:
     - pre_steps
@@ -256,7 +262,7 @@ jobs:
         command: |
           export $( cat build/ci.properties | xargs )
           bash ci/set_kubectl_config-azure.sh
-          kubectl delete namespace ${TAG_NAME} || true
+          kubectl delete namespace preview-emx2-pr-${GHA_PREVIEW_NR} || true
 
 workflows:
   version: 2
