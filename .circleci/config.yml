@@ -261,7 +261,6 @@ workflows:
        filters:
          branches:
            only: master
-               jobs:
     - runAtMerge:
         filters:
           branches:
