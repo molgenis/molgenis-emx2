@@ -43,6 +43,14 @@ class Client:
         self.schemas: list = self.get_schemas()
         self.default_schema: str = self.set_schema(schema)
 
+    def __repr__(self):
+        class_name = type(self).__name__
+        _attrs = [['url', self.url]]
+        if self.default_schema:
+            _attrs.append(['schema', self.default_schema])
+        dict_items = [f"{k}={v!r}" for k, v in _attrs]
+        return f"{class_name}({', '.join(dict_items)})"
+
     def __str__(self):
         return self.url
 

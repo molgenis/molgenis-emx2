@@ -37,6 +37,7 @@ async def main():
     # Connect to the server and sign in
     async with Client('https://emx2.dev.molgenis.org/', token=token) as client:
         # Check sign in status
+        print(client.__repr__())
         print(client.status)
 
         # Retrieve data from a table in a schema on the server using the 'get' method
@@ -61,6 +62,7 @@ async def main():
 
     # Connect to server with a default schema specified
     with Client('https://emx2.dev.molgenis.org/', schema='pet store', token=token) as client:
+        print(client.__repr__())
         client.export(fmt='csv')
         client.export(table='Pet', fmt='csv')
         client.export(table='Pet', fmt='xlsx')
