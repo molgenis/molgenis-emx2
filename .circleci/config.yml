@@ -244,7 +244,8 @@ jobs:
       - store_test_results:
          path: /root/project/e2e
 
-   delete-helm-preview:
+
+  delete-helm-preview:
     <<: *build_config
     
     steps:
@@ -283,5 +284,5 @@ workflows:
   delete_preview:
       when: << pipeline.parameters.GHA_Action >>
       jobs:
-      - delete-helm-preview:
+      - delete-helm-preview
           
