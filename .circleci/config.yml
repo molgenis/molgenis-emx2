@@ -228,8 +228,10 @@ jobs:
             npx playwright test --config e2e e2e/tests
       - store_test_results:
          path: /root/project/e2e
-  runAtMerge:
-    steps:
+    
+    handleMerge:
+      <<: *build_config
+      steps:
       - run:
           name: Run at merge
           command: |
@@ -261,7 +263,7 @@ workflows:
        filters:
          branches:
            only: master
-    - runAtMerge:
+    - handleMerge:
         filters:
           branches:
             ignore:
