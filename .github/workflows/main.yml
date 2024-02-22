@@ -8,5 +8,7 @@ jobs:
       - name: Trigger CircleCI Build
         id: "delete-pr-preview"
         uses: CircleCI-Public/trigger-circleci-pipeline-action@v1.2.0
+        with:
+          GHA_Meta: ${{ github.event.number }}
         env:
           CCI_TOKEN: ${{ secrets.CCI_TOKEN }}
