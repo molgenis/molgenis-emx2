@@ -5,7 +5,7 @@ jobs:
   trigger-circleci:
     runs-on: ubuntu-latest
     steps:
-      - name: Trigger CircleCI Build
+      - name: Trigger CircleCI delete_preview workflow
         id: "delete-pr-preview"
         uses: CircleCI-Public/trigger-circleci-pipeline-action@v1.2.0
         with:
