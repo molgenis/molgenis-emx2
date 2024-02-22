@@ -281,7 +281,7 @@ workflows:
          branches:
            only: master
   delete_preview:
-      when: << pipeline.parameters.GHA_Action >>
-      jobs:
-      - delete-helm-preview
-          
+    when:
+      equal: [ "delete-pr-preview", << pipeline.parameters.GHA_Action >> ]
+    jobs:
+    - delete-helm-preview
