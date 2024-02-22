@@ -68,7 +68,7 @@ if (!cohortOnly.value) {
 
 <template>
   <header class="antialiased px-5 lg:px-0 xl:bg-white">
-    <Container>
+    <UIContainer>
       <div class="items-center justify-between hidden xl:flex h-25">
         <Logo
           :link="`/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}`"
@@ -107,6 +107,6 @@ if (!cohortOnly.value) {
           <!-- <SearchBar /> -->
         </div>
       </div>
-    </Container>
+    </UIContainer>
   </header>
 </template>

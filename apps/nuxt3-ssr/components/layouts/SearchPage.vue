@@ -1,5 +1,4 @@
 <script setup>
-import Container from "./../Container.vue";
 const route = useRoute();
 const headerData = await useHeaderData();
 const catalogue = headerData.catalogue;
@@ -13,7 +12,7 @@ const variableCount = headerData.variableCount;
     :variableCount="variableCount"
   />
   <HeaderGlobal v-else />
-  <Container>
+  <UIContainer>
     <slot name="header"></slot>
     <div class="xl:flex">
       <aside class="xl:min-w-95 xl:w-95 hidden xl:block">
@@ -23,6 +22,6 @@ const variableCount = headerData.variableCount;
         <slot name="main"></slot>
       </div>
     </div>
-  </Container>
+  </UIContainer>
   <FooterComponent />
 </template>

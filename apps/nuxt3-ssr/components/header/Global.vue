@@ -27,7 +27,7 @@ const menu = [
 
 <template>
   <header class="antialiased px-5 lg:px-0 xl:bg-navigation">
-    <Container>
+    <UIContainer>
       <div class="items-center justify-between hidden xl:flex h-25">
         <Logo :link="`/${schema}/ssr-catalogue`" />
         <MainNavigation :navigation="menu" />
@@ -58,6 +58,6 @@ const menu = [
           <!-- <SearchBar /> -->
         </div>
       </div>
-    </Container>
+    </UIContainer>
   </header>
 </template>
