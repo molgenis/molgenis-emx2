@@ -41,7 +41,8 @@ helm upgrade --install ${NAME} ./helm-chart --namespace ${NAME} \
 --set ssrCatalogue.image.repository=$REPO2 \
 --set ssrCatalogue.environment.siteTitle="Preview Catalogue" \
 --set ssrCatalogue.environment.apiBase=https://${NAME}.dev.molgenis.org/ \
---set catalogue.includeCatalogueDemo=true
+--set catalogue.includeCatalogueDemo=true \
+--set directory.includeDirectoryDemo=true
 
 #cleanup
 rm /tmp/cert_key
