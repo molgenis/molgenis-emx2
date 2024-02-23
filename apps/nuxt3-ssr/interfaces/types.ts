@@ -269,7 +269,7 @@ export interface IMgError {
   data: { errors: { message: string }[] };
 }
 
-export type DefinitionListItemType = "ONTOLOGY" | "LINK";
+export type DefinitionListItemType = "ONTOLOGY" | "LINK" | "MAPPED";
 
 export interface IDefinitionListItem {
   label: string;
