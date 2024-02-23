@@ -5,7 +5,7 @@ RUN apt-get install python3 python3-venv python3-pip -y
 RUN python3 -m pip install --upgrade build twine
 RUN python3 --version
 
-ENV NODE_VERSION=18.17.1
+ENV NODE_VERSION=20.11.0
 RUN apt install -y curl
 RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash
 ENV NVM_DIR=/root/.nvm

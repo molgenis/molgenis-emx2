@@ -1,5 +1,9 @@
 <script setup lang="ts">
-import type { ICohort, INameObject } from "~/interfaces/types";
+import type {
+  DefinitionListItemType,
+  ICohort,
+  INameObject,
+} from "~/interfaces/types";
 import type { IOntologyItem } from "meta-data-utils";
 
 const { cohort, mainMedicalCondition } = defineProps<{
@@ -13,7 +17,7 @@ let generalDesign: {
   label: string;
   content: any;
   tooltip?: string;
-  type?: "ONTOLOGY";
+  type?: DefinitionListItemType;
 }[] = [];
 watch(cohort, setData, {
   deep: true,
@@ -94,21 +98,45 @@ function setData() {
       content: cohort?.otherInclusionCriteria,
     },
     {
-      label: "Marker paper",
-      content: cohort?.designPaper?.map((dp) => {
-        return dp.title + (dp.doi ? ` (doi: ${dp.doi})` : "");
-      }),
-    },
-    {
-      label: "Main medical condition",
-      content: mainMedicalCondition,
-      type: "ONTOLOGY",
+      label:
+        cohort?.designPaper && cohort.designPaper?.length > 1
+          ? "Marker papers"
+          : "Marker paper",
+      type: "LINK",
+      content: cohort?.designPaper
+        ? designPaperToItem(cohort?.designPaper)
+        : undefined,
     },
     {
       label: "PID",
       content: cohort?.pid,
     },
   ];
+
+  if (mainMedicalCondition && mainMedicalCondition.length > 0) {
+    generalDesign.splice(generalDesign.length - 2, 0, {
+      label: "Main medical condition",
+      content: mainMedicalCondition,
+      type: "ONTOLOGY",
+    });
+  }
+
+  function designPaperToItem(designPaper: any[]) {
+    if (designPaper.length === 0) {
+      return undefined;
+    } else if (designPaper.length === 1) {
+      return {
+        type: "LINK",
+        label: designPaper[0].title,
+        url: designPaper[0].doi,
+      };
+    } else if (designPaper.length > 1)
+      return designPaper.map((paper) => ({
+        type: "LINK",
+        label: paper.title,
+        url: paper.doi,
+      }));
+  }
 }
 </script>
 

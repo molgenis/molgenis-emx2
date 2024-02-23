@@ -44,6 +44,6 @@ helm upgrade --install ${NAME} ./helm-chart --namespace ${NAME} \
 --set catalogue.includeCatalogueDemo=true \
 --set directory.includeDirectoryDemo=true
 
-#cleanup
 rm /tmp/cert_key
 rm /tmp/cert_pem
+
