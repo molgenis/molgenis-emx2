@@ -852,7 +852,7 @@ public class SqlQuery extends QueryBean {
         mg_tableclass = inheritedTable.getLocalColumn(MG_TABLECLASS);
       }
     }
-    // join subclass tables also (todo: can we make this less expensive?)
+    // join subclass tables also
     for (TableMetadata subclassTable : table.getSubclassTables()) {
       List<Field<?>> using = subclassTable.getPrimaryKeyFields();
       mg_tableclass = subclassTable.getLocalColumn(MG_TABLECLASS);
