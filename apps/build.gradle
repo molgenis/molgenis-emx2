@@ -11,92 +11,110 @@ def nodeSpec = {
     version = '20.11.0'
     yarnVersion = '1.22.19'
     npmVersion = "9.5.1"
-    download = !isCI
 }
 
 node {
     with nodeSpec
+    download = !isCI
 }
 
-task cleanJavascript(type: YarnTask, dependsOn: yarn_install) {
-    outputs.upToDateWhen { false }
-    args = ['run', 'nx', 'reset']
-    delete fileTree(dir: projectDir, include: '**/dist')
-}
-clean.dependsOn cleanJavascript
+subprojects { subproject ->
+    apply plugin: 'com.github.node-gradle.node'
 
-task format(type: YarnTask, dependsOn: yarn_install) {
-    if (!isCI) {
-        args = ['run', 'nx', 'run-many', '--target=format']
-        inputs.files fileTree(projectDir).matching {
-            // Exclude 'build', 'dist', and 'showCase' directories
-            exclude "**${File.separator}build${File.separator}**"
-            exclude "**${File.separator}dist${File.separator}**"
-            exclude "**${File.separator}showCase${File.separator}**"
-            exclude "**${File.separator}node_modules${File.separator}**"
-        }
-        outputs.files fileTree(projectDir).matching {
-            exclude "**${File.separator}build${File.separator}**"
-            exclude "**${File.separator}dist${File.separator}**"
-            exclude "**${File.separator}node_modules${File.separator}**"
-            exclude "**${File.separator}showCase${File.separator}**"
-        }
-    } else {
-        args = ['run', 'nx', 'run-many','--target=checkFormat']
-        inputs.files fileTree(projectDir).matching {
-            // Exclude 'build', 'dist', and 'showCase' directories
-            exclude "**${File.separator}build${File.separator}**"
-            exclude "**${File.separator}dist${File.separator}**"
-            exclude "**${File.separator}showCase${File.separator}**"
-            exclude "**${File.separator}node_modules${File.separator}**"
-        }
+    node {
+        with nodeSpec
+        download = false
     }
-}
 
-task testJavaScript(type: YarnTask, dependsOn: format) {
-    args = ['run', 'nx', 'run-many', '--target=test-ci']
-    inputs.files fileTree(projectDir).matching {
-        // Exclude 'build', 'dist', and 'showCase' directories
-        exclude "**${File.separator}build${File.separator}**"
-        exclude "**${File.separator}dist${File.separator}**"
-        exclude "**${File.separator}showCase${File.separator}**"
-        exclude "**${File.separator}node_modules${File.separator}**"
+    task cleanJavascript() {
+        delete 'dist'
+        delete 'showCase'
     }
-}
-test.dependsOn testJavaScript
+    clean.dependsOn cleanJavascript
 
-task buildJavascript(type: YarnTask, dependsOn: format) {
-    environment = ["NODE_OPTIONS": "--max-old-space-size=4096"]
-    args = ['run', 'nx', 'run-many', '--target=build,build-showcase', "--parallel=${Math.ceil(Runtime.runtime.availableProcessors() / 2)}", '--verbose']
-    doLast {
-        file("${project.projectDir}").eachDir { dir ->
-            if (dir.name == 'molgenis-components' || dir.name == 'molgenis-viz') {
-                copy {
-                    from dir.path + "/showCase"
-                    into "${buildDir}/generated/main/resources/public_html/apps/" + dir.name
-                }
-            } else if (dir.name != ".gradle" && dir.name != 'build' && dir.name != 'node_modules') {
-                println dir.path + "/dist"
-                copy {
-                    from dir.name + "/dist"
-                    into "${buildDir}/generated/main/resources/public_html/apps/" + dir.name
-                }
+    task format(type: YarnTask, dependsOn: parent.yarn_install) {
+        if (!isCI) {
+            args = ['run', 'format']
+            inputs.files fileTree(projectDir).matching {
+                // Exclude 'build', 'dist', and 'showCase' directories
+                exclude "build"
+                exclude "dist"
+                exclude "showCase"
+                exclude "node_modules"
+            }
+            outputs.files fileTree(projectDir).matching {
+                exclude "build"
+                exclude "dist"
+                exclude "node_modules"
+                exclude "showCase"
+            }
+        } else {
+            args = ['run', 'checkFormat']
+            inputs.files fileTree(projectDir).matching {
+                // Exclude 'build', 'dist', and 'showCase' directories
+                exclude "build"
+                exclude "dist"
+                exclude "showCase"
+                exclude "node_modules"
             }
         }
     }
-    inputs.files fileTree(projectDir).matching {
-        // Exclude 'build', 'dist', and 'showCase' directories
-        exclude "**${File.separator}build${File.separator}**"
-        exclude "**${File.separator}dist${File.separator}**"
-        exclude "**${File.separator}node_modules${File.separator}**"
-        exclude "**${File.separator}showCase${File.separator}**"
+
+    task buildJavascript(type: YarnTask, dependsOn: format) {
+        environment = ["NODE_OPTIONS": "--max-old-space-size=4096"]
+        def packageJson = file("package.json").text
+        if(packageJson.contains('"meta-data-utils": "*"')) {
+            dependsOn ":apps:meta-data-utils:buildJavascript";
+        }
+        if(packageJson.contains('"molgenis-components": "*"')) {
+            dependsOn ":apps:molgenis-components:buildJavascript";
+        }
+        if(packageJson.contains('"molgenis-viz": "*"')) {
+            dependsOn ":apps:molgenis-viz:buildJavascript";
+        }
+
+        if (project.name == 'molgenis-components' || project.name == 'molgenis-viz') {
+            args = ['run', 'build-showcase']
+            doLast {
+                copy {
+                    from "showCase"
+                    into "${parent.buildDir}/generated/main/resources/public_html/apps/" + project.name
+                }
+            }
+        } else {
+            args = ['run', 'build']
+            doLast {
+                copy {
+                    from "dist"
+                    into "${parent.buildDir}/generated/main/resources/public_html/apps/" + project.name
+                }
+            }
+        }
+        inputs.files fileTree(projectDir).matching {
+            // Exclude 'build', 'dist', and 'showCase' directories
+            exclude "build"
+            exclude "dist"
+            exclude "node_modules"
+            exclude "showCase"
+        }
+        outputs.dir(file("dist"))
+        outputs.dir(file("showCase"))
     }
-    outputs.dir(file("**${File.separator}dist"))
-    outputs.dir(file("**${File.separator}showCase"))
+
+    task testJavaScript(type: YarnTask, dependsOn: buildJavascript) {
+        args = ['run', 'test-ci']
+        inputs.files fileTree(projectDir).matching {
+            // Exclude 'build', 'dist', and 'showCase' directories
+            exclude "build"
+            exclude "dist"
+            exclude "showCase"
+            exclude "node_modules"
+        }
+    }
+    test.dependsOn testJavaScript
 }
 
-processResources.dependsOn buildJavascript
-
+processResources.dependsOn subprojects.tasks.buildJavascript
 sourceSets {
     main {
         resources {

@@ -20,7 +20,7 @@
   "scripts": {
     "dev": "vite",
     "build-lib": "vite build -m lib",
-    "build": "vite build -m app --outDir showCase && vite build -m lib",
+    "build-showcase": "vite build -m app --outDir showCase && vite build -m lib",
     "serve": "vite serve",
     "preview": "vite preview",
     "docs": "vuese gen",
