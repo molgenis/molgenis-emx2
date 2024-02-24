@@ -91,9 +91,12 @@ subprojects { subproject ->
     }
 
     task testJavaScript(type: YarnTask, dependsOn: buildJavascript) {
-        args = ['run', 'test-ci']
-        inputs.files fileTree(projectDir).matching {
-            with excludeDef
+        def packageJson = file("package.json").text
+        if (packageJson.contains("test-ci")) {
+            args = ['run', 'test-ci']
+            inputs.files fileTree(projectDir).matching {
+                with excludeDef
+            }
         }
     }
     test.dependsOn testJavaScript
