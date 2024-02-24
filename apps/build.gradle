@@ -13,6 +13,17 @@ def nodeSpec = {
     npmVersion = "9.5.1"
 }
 
+def excludeDef = {
+    // Exclude 'build', 'dist', and 'showCase' directories
+    exclude "dist"
+    exclude "node_modules"
+    exclude "showCase"
+    exclude ".output"
+    exclude ".fingerprint.js"
+    exclude ".nuxt"
+    exclude "public/_nuxt-styles"
+}
+
 node {
     with nodeSpec
     download = !isCI
@@ -23,57 +34,37 @@ subprojects { subproject ->
 
     node {
         with nodeSpec
-        download = false
+        yarnWorkDir = file("${parent.projectDir}/.gradle/yarn")
+        npmWorkDir = file("${parent.projectDir}/.gradle/npm")
+        workDir = file("${parent.projectDir}/.gradle/nodejs")
     }
-
-    task cleanJavascript() {
-        delete 'dist'
-        delete 'showCase'
-    }
-    clean.dependsOn cleanJavascript
 
     task format(type: YarnTask, dependsOn: parent.yarn_install) {
         if (!isCI) {
             args = ['run', 'format']
             inputs.files fileTree(projectDir).matching {
-                // Exclude 'build', 'dist', and 'showCase' directories
-                exclude "build"
-                exclude "dist"
-                exclude "showCase"
-                exclude "node_modules"
+               with excludeDef
             }
             outputs.files fileTree(projectDir).matching {
-                exclude "build"
-                exclude "dist"
-                exclude "node_modules"
-                exclude "showCase"
+               with excludeDef
             }
         } else {
             args = ['run', 'checkFormat']
             inputs.files fileTree(projectDir).matching {
-                // Exclude 'build', 'dist', and 'showCase' directories
-                exclude "build"
-                exclude "dist"
-                exclude "showCase"
-                exclude "node_modules"
+                with excludeDef
             }
         }
     }
 
     task buildJavascript(type: YarnTask, dependsOn: format) {
         environment = ["NODE_OPTIONS": "--max-old-space-size=4096"]
+        //automatically get the internal dependencies
         def packageJson = file("package.json").text
-        if(packageJson.contains('"meta-data-utils": "*"')) {
-            dependsOn ":apps:meta-data-utils:buildJavascript";
+        (packageJson =~ /"([^"]+)":\s*"\*"/).each { match ->
+            dependsOn ":apps:${match[1]}:buildJavascript";
         }
-        if(packageJson.contains('"molgenis-components": "*"')) {
-            dependsOn ":apps:molgenis-components:buildJavascript";
-        }
-        if(packageJson.contains('"molgenis-viz": "*"')) {
-            dependsOn ":apps:molgenis-viz:buildJavascript";
-        }
-
-        if (project.name == 'molgenis-components' || project.name == 'molgenis-viz') {
+        //component libs have an showCase, the others don't
+        if (packageJson.contains("build-showcase")) {
             args = ['run', 'build-showcase']
             doLast {
                 copy {
@@ -81,6 +72,8 @@ subprojects { subproject ->
                     into "${parent.buildDir}/generated/main/resources/public_html/apps/" + project.name
                 }
             }
+            outputs.dir "dist"
+            outputs.dir "showCase"
         } else {
             args = ['run', 'build']
             doLast {
@@ -89,26 +82,18 @@ subprojects { subproject ->
                     into "${parent.buildDir}/generated/main/resources/public_html/apps/" + project.name
                 }
             }
+            outputs.dir "dist"
         }
+        //for caching
         inputs.files fileTree(projectDir).matching {
-            // Exclude 'build', 'dist', and 'showCase' directories
-            exclude "build"
-            exclude "dist"
-            exclude "node_modules"
-            exclude "showCase"
+            with excludeDef
         }
-        outputs.dir(file("dist"))
-        outputs.dir(file("showCase"))
     }
 
     task testJavaScript(type: YarnTask, dependsOn: buildJavascript) {
         args = ['run', 'test-ci']
         inputs.files fileTree(projectDir).matching {
-            // Exclude 'build', 'dist', and 'showCase' directories
-            exclude "build"
-            exclude "dist"
-            exclude "showCase"
-            exclude "node_modules"
+            with excludeDef
         }
     }
     test.dependsOn testJavaScript
