@@ -4,7 +4,6 @@
     :tableId="tableId"
     :schemaId="schemaId"
     @close="$emit('reload')"
-    class="cl"
   />
   <div v-if="!data.length" class="alert alert-warning">No results found</div>
   <div class="card-columns">
