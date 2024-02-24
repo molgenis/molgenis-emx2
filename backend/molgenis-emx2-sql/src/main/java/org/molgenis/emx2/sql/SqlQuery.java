@@ -839,10 +839,18 @@ public class SqlQuery extends QueryBean {
 
     Table<org.jooq.Record> result = table.getJooqTable();
     TableMetadata inheritedTable = table.getInheritedTable();
+    // root and intermediate levels have mg_tableclass column
+    Column mg_tableclass = table.getLocalColumn(MG_TABLECLASS);
     while (inheritedTable != null) {
       List<Field<?>> using = inheritedTable.getPrimaryKeyFields();
+      if (mg_tableclass != null) {
+        using.add(mg_tableclass.getJooqField());
+      }
       result = result.join(inheritedTable.getJooqTable()).using(using.toArray(new Field<?>[0]));
       inheritedTable = inheritedTable.getInheritedTable();
+      if (inheritedTable != null) {
+        mg_tableclass = inheritedTable.getLocalColumn(MG_TABLECLASS);
+      }
     }
     return result;
   }

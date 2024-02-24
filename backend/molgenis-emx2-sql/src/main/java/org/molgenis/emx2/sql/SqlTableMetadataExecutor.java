@@ -151,14 +151,14 @@ class SqlTableMetadataExecutor {
     // create foreign key to parent
     jooq.alterTable(table.getJooqTable())
         .add(
-            constraint(table.getTableName() + "_extends_" + other.getTableName())
+            constraint("fkey_" + table.getTableName() + "_extends_" + other.getTableName())
                 .foreignKey(other.getPrimaryKeyFields())
                 .references(other.getJooqTable(), other.getPrimaryKeyFields())
                 .onUpdateCascade()
                 .onDeleteCascade())
         .execute();
     // add column to superclass table
-    if (other.getColumn(MG_TABLECLASS) == null) {
+    if (other.getLocalColumn(MG_TABLECLASS) == null) {
       other.add(column(MG_TABLECLASS).setReadonly(true).setPosition(10005));
 
       // should not be user editable, we add trigger
@@ -252,10 +252,17 @@ class SqlTableMetadataExecutor {
     //                  .map(field -> name(field.getName()).toString())
     //                  .collect(Collectors.joining(","))));
     //    } else {
-    jooq.alterTable(getJooqTable(table))
-        .add(constraint(name(uniqueName)).unique(keyFields.toArray(new Field[keyFields.size()])))
-        .execute();
-    //    }
+    if (index == 1) {
+      jooq.alterTable(getJooqTable(table))
+          .add(
+              constraint(name(uniqueName))
+                  .primaryKey(keyFields.toArray(new Field[keyFields.size()])))
+          .execute();
+    } else {
+      jooq.alterTable(getJooqTable(table))
+          .add(constraint(name(uniqueName)).unique(keyFields.toArray(new Field[keyFields.size()])))
+          .execute();
+    }
   }
 
   static void executeDropTable(DSLContext jooq, TableMetadata table) {

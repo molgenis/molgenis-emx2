@@ -217,6 +217,29 @@ public class TestInherits {
             .retrieveRows()
             .size());
 
+    // verify that you can't delete a parent row when having child rows that are refered to,
+    // regression #3144
+    try {
+      employee.delete(row("fullName", "Katrien Duck"));
+      // refered to by the manager
+      fail("should not be able to delete inherited rows when having reference");
+    } catch (Exception e) {
+      assertTrue(e.getMessage().contains("foreign key"));
+      System.out.println("Errored correctly: " + e.getMessage());
+    }
+
+    // verify that you can't delete a parent row when having child rows that are refered to,
+    // also not via the 'root' table
+    // regression #3144
+    try {
+      person.delete(row("fullName", "Katrien Duck"));
+      // refered to by the manager
+      fail("should not be able to delete inherited rows when having reference");
+    } catch (Exception e) {
+      assertTrue(e.getMessage().contains("foreign key"));
+      System.out.println("Errored correctly: " + e.getMessage());
+    }
+
     // delete
     ceoTable.delete(managerRow);
     assertEquals(2, personTable.retrieveRows().size());
@@ -259,20 +282,22 @@ public class TestInherits {
       System.out.println("Errored correctly: " + e.getMessage());
     }
 
-    // test that we can delete sub via super
-    int count = personTable.retrieveRows().size();
-    personTable.delete(row("fullName", "popeye")); // is a manager!!!
-    assertEquals(count - 1, personTable.retrieveRows().size());
-
-    // test that we cannot rename pkey columns in case of inheritance (future feature request)
-    Column pkey = personTable.getMetadata().getPrimaryKeyColumns().get(0);
-    Column pkeyNew = new Column(pkey).setName("newFullName");
-    try {
-      personTable.getMetadata().alterColumn(pkey.getName(), pkeyNew);
-      fail("shouldn't be able to rename pkey columns in case of inheritance");
-    } catch (Exception e) {
-      System.out.println("Errored correctly: " + e.getMessage());
-    }
+    // try to rename pkey column, should also change the pkey columns of sublcasss
+    person
+        .getMetadata()
+        .alterColumn("fullName", person.getMetadata().getColumn("fullName").setName("displayName"));
+    assertEquals(
+        "displayName",
+        ((SqlSchema) s)
+            .getJooq()
+            .meta()
+            .getSchemas("TestInherits")
+            .get(0)
+            .getTable("Employee")
+            .getPrimaryKey()
+            .getFields()
+            .get(0)
+            .getName());
 
     // can also drop the table without errors when trigger is removed
     ceoTable.getMetadata().drop();

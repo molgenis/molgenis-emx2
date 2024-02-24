@@ -167,7 +167,6 @@ class SqlTable implements Table {
   // use static to ensure we don't touch 'this' until transaction completed
   private static void truncateTransaction(
       SqlDatabase database, String schemaName, String tableName) {
-    // if part of inheritance tree then truncate filtering on mg_tableclass
     SqlTable t = database.getSchema(schemaName).getTable(tableName);
     if (t.getMetadata().getColumn(MG_TABLECLASS) != null) {
       SqlTable rootTable = (SqlTable) t.getMetadata().getRootTable().getTable();
@@ -185,14 +184,6 @@ class SqlTable implements Table {
       database.getJooq().deleteFrom(t.getJooqTable()).execute();
     }
     logger.info(database.getActiveUser() + " truncated table " + tableName);
-  }
-
-  private void truncate(String mg_table) {
-    if (getMetadata().getInheritName() != null) {
-      // todo: need root table function from other PR
-      getInheritedTable().truncate(mg_table);
-    } else {
-    }
   }
 
   private static String getMgTableClass(TableMetadata table) {
