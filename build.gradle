@@ -8,9 +8,6 @@ plugins {
     id 'maven-publish'
     id 'com.github.johnrengelman.shadow' version '8.1.1'
     id 'application'
-    id 'fr.rozanc.helm' version '1.7.0-rzc.2'
-    id 'fr.rozanc.helm-publish' version '1.7.0-rzc.2'
-    id 'fr.rozanc.helm-commands' version '1.7.0-rzc.2'
     id 'com.palantir.docker' version '0.35.0'
 }
 
@@ -44,9 +41,6 @@ tasks.withType(Test) {
 repositories {
     mavenLocal()
     mavenCentral()
-    maven {
-        url = "https://registry.molgenis.org/repository/maven-public"
-    }
 }
 
 dependencies {
@@ -91,39 +85,6 @@ docker {
     buildArgs(['JAR_FILE': shadowJar.archiveFile.get().asFile.name])
 }
 tasks.dockerPrepare.dependsOn(shadowJar)
-
-//ssr build moved to apps/build.gradle
-
-def nexusUser = System.getenv('NEXUS_USER') ? System.getenv('NEXUS_USER') : null
-def nexusPassword = System.getenv('NEXUS_PWD') ? System.getenv('NEXUS_PWD') : null
-helm {
-    downloadClient {
-        enabled = true
-    }
-
-    publishing {
-        repositories {
-            nexus {
-                url = uri('https://registry.molgenis.org/')
-                repository = 'helm'
-                apiVersion = 'v1'
-                credentials {
-                    username = "${nexusUser}"
-                    password = "${nexusPassword}"
-                }
-            }
-        }
-    }
-
-    charts {
-        main {
-            sourceDir = file('helm-chart')
-            lint {
-                strict = false
-            }
-        }
-    }
-}
 
 String getGitHash() {
     // git hash

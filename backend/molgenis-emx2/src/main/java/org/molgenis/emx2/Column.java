@@ -375,6 +375,14 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     return field(name(getName()), getJooqType());
   }
 
+  public List<Field> getCompositeFields() {
+    if (this.isReference()) {
+      return getReferences().stream().map(ref -> ref.getJooqField()).toList();
+    } else {
+      return List.of(getJooqField());
+    }
+  }
+
   public org.jooq.Table getJooqTable() {
     return getTable().getJooqTable();
   }
@@ -661,11 +669,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   }
 
   public String getRootTableName() {
-    TableMetadata table = this.getTable();
-    while (table.getInheritName() != null) {
-      table = table.getInheritedTable();
-    }
-    return table.getTableName();
+    return getTable().getRootTable().getTableName();
   }
 
   @Override

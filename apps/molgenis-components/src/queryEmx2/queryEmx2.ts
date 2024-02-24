@@ -218,19 +218,10 @@ class QueryEMX2 {
    * @returns
    */
   orFilter(columnId: string) {
-    const firstDot = columnId.indexOf(".");
-    const subColumn = columnId.substring(firstDot + 1);
-    let secondDot = subColumn.indexOf(".");
     this.type = "_or";
-
-    if (secondDot > 0) {
-      this.branch = this._toCamelCase(subColumn.substring(0, secondDot));
-      this.column = this._toCamelCase(subColumn.substring(secondDot + 1));
-    } else {
-      const queryParts = columnId.split(".");
-      this.branch = this._toCamelCase(queryParts[0]);
-      this.column = this._toCamelCase(queryParts[1]);
-    }
+    const firstDot = columnId.indexOf(".");
+    this.branch = this._toCamelCase(columnId.substring(0, firstDot));
+    this.column = this._toCamelCase(columnId.substring(firstDot + 1));
 
     return this;
   }

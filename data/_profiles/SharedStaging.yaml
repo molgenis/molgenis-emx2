@@ -9,5 +9,6 @@ demoData: _demodata/applications/datacatalogue_sharedstaging
 settings: _settings/datacatalogue_sharedstaging
 
 # special options
+setEditPermission: user
 ontologiesToFixedSchema: CatalogueOntologies
-setViewPermission: anonymous # applies to both the 'main' schema and CatalogueOntologies, required for anonymous viewing of catalogue shared staging
+setFixedSchemaViewPermission: anonymous
