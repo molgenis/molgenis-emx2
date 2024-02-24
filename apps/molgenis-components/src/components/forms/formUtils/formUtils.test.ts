@@ -8,6 +8,7 @@ import {
   removeKeyColumns,
   splitColumnIdsByHeadings,
   isMissingValue,
+  isRequired,
 } from "./formUtils";
 import type { ITableMetaData, IColumn } from "meta-data-utils";
 const { AUTO_ID, HEADING } = constants;
@@ -416,5 +417,25 @@ describe("isMissingValue", () => {
     expect(isMissingValue([null, "field1", ""])).toBe(true);
     expect(isMissingValue([["field1", "field2"], "field3"])).toBe(false);
     expect(isMissingValue([[undefined, "field1"], "field2"])).toBe(true);
+  });
+});
+
+describe("isRequired", () => {
+  test("should return true for boolean type true and true strings", () => {
+    expect(isRequired(true)).toBe(true);
+    expect(isRequired("true")).toBe(true);
+    expect(isRequired("True")).toBe(true);
+    expect(isRequired("TRUE")).toBe(true);
+  });
+
+  test("should return false for boolean type false and true strings", () => {
+    expect(isRequired(false)).toBe(false);
+    expect(isRequired("false")).toBe(false);
+    expect(isRequired("False")).toBe(false);
+    expect(isRequired("FALSE")).toBe(false);
+  });
+
+  test("should return false for strings with an expression", () => {
+    expect(isRequired("someValue > 0")).toBe(false);
   });
 });

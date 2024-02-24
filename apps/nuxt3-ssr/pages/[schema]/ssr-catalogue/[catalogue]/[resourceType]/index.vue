@@ -103,7 +103,6 @@ const { data, pending, error, refresh } = await useFetch(
   `/${route.params.schema}/api/graphql`,
   {
     key: `${tableId}-list-${offset.value}`,
-    baseURL: config.public.apiBase,
     method: "POST",
     body: {
       query,

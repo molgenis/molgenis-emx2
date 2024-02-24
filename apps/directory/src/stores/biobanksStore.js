@@ -129,10 +129,12 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
       biobankCards.value = [];
       const biobankResult = await baseQuery.execute();
 
-      /** only show biobanks that have collections */
-      const foundBiobanks = biobankResult.Biobanks
-        ? biobankResult.Biobanks.filter((biobank) => biobank.collections)
-        : [];
+      /** depending on whether filters have been selected display the correct count of biobanks */
+      let foundBiobanks = biobankResult.Biobanks;
+      if (filtersStore.hasActiveFilters) {
+        foundBiobanks = foundBiobanks.filter((biobank) => biobank.collections);
+      }
+
       biobankCards.value = filterWithdrawn(foundBiobanks);
       waitingForResponse.value = false;
 

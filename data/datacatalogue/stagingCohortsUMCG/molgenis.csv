@@ -1,5 +1,5 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description
-Version,,,,,,,,,,,,3.10
+Version,,,,,,,,,,,,3.11
 Resources,,,,,,,,,,,,"Generic listing of all resources. Should not be used directly, instead use specific types such as Databanks and Studies"
 Extended resources,Resources,,,,,,,,,,,
 Data resources,Extended resources,,,,,,,,,,,
@@ -57,7 +57,7 @@ Extended resources,,documentation,refback,,,,Documentation,,resource,,,List of d
 Extended resources,,funding statement,text,,,,,,,,,Statement listing funding that was obtained for this resource
 Extended resources,,acknowledgements,text,,,,,,,,,Acknowledgement statement and citation regulation for this resource
 Publications,,,,,,,,,,,,Publications following bibtex format
-Publications,,doi,,1,TRUE,,,,,,,Digital object identifier
+Publications,,doi,hyperlink,1,TRUE,,,,,,,Digital object identifier. Enter a valid hyperlink, i.e., starting with 'https://doi.org/'
 Publications,,title,,,TRUE,,,,,,,Publication title
 Contacts,,resource,ref,1,TRUE,,Resources,,,,,Resource the contact is affiliated with
 Contacts,,role,ontology_array,,,CatalogueOntologies,Contribution types,,,,,Type(s) of contribution or role in the resource
