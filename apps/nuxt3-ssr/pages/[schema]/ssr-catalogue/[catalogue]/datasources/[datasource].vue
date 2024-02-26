@@ -50,7 +50,10 @@ if (route.params.catalogue) {
 
 function datasetMapper(item: { name: string; description: string }) {
   return {
-    id: item.name,
+    id: {
+      name: item.name,
+      resourceId: route.params.datasource,
+    },
     name: item.name,
     description: item.description,
   };
@@ -167,7 +170,10 @@ function datasetMapper(item: { name: string; description: string }) {
           :rowMapper="datasetMapper"
           v-slot="slotProps"
         >
-          <DatasetDisplay :id="slotProps.id" />
+          <DatasetDisplay
+            :name="slotProps.id.name"
+            :resourceId="slotProps.id.resourceId"
+          />
         </TableContent>
 
         <ContentBlock title="Contents" id="contents">

@@ -58,7 +58,7 @@ public class TestLoaders {
   public void test2DataCatalogueLoader() {
     Schema dataCatalogue = database.createSchema(DATA_CATALOGUE);
     AvailableDataModels.DATA_CATALOGUE.install(dataCatalogue, true);
-    assertEquals(33, dataCatalogue.getTableNames().size());
+    assertEquals(34, dataCatalogue.getTableNames().size());
 
     // test composite pkey having refs that are linked via refLink
     dataCatalogue
@@ -72,7 +72,7 @@ public class TestLoaders {
   public void test7DataCatalogueCohortStagingLoader() {
     Schema cohortStaging = database.createSchema(COHORT_STAGING);
     AvailableDataModels.DATA_CATALOGUE_COHORT_STAGING.install(cohortStaging, true);
-    assertEquals(19, cohortStaging.getTableNames().size());
+    assertEquals(20, cohortStaging.getTableNames().size());
   }
 
   @Test

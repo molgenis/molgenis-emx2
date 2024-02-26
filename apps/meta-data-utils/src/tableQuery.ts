@@ -103,6 +103,7 @@ export const buildRecordListQueryFields = (
   const additionalFields: any = [
     "id",
     "label",
+    "name",
     "description",
     "pid",
     "acronym",

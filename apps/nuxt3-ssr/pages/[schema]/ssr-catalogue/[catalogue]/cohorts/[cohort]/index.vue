@@ -214,10 +214,12 @@ function collectionEventMapper(item: any) {
 
 function datasetMapper(item: any) {
   return {
-    id: item.name,
+    id: {
+      name: item.name,
+      resourceId: route.params.cohort,
+    },
     name: item.name,
     description: item.descriptions,
-    _path: `/${route.params.schema}/ssr-catalogue/all/datasets`,
   };
 }
 
@@ -258,6 +260,9 @@ let tocItems = computed(() => {
       label: "Collection events",
       id: "CollectionEvents",
     });
+  }
+  if (cohort.value.datasets) {
+    tableOffContents.push({ label: "Datasets", id: "Datasets" });
   }
   if (cohort.value.networks) {
     tableOffContents.push({ label: "Networks", id: "Networks" });
@@ -478,7 +483,10 @@ if (route.params.catalogue) {
           :rowMapper="datasetMapper"
           v-slot="slotProps"
         >
-          {{ slotProps }}
+          <DatasetDisplay
+            :name="slotProps.id.name"
+            :resourceId="slotProps.id.resourceId"
+          />
         </TableContent>
 
         <ContentBlockPartners
