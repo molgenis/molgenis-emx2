@@ -42,6 +42,7 @@ if (dataset.value.keywords) {
   items.push({
     label: "Keywords",
     content: dataset.value.keywords,
+    type: "ONTOLOGY",
   });
 }
 
