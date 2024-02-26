@@ -220,14 +220,13 @@ export interface IContactFormData {
   body: string;
 }
 
-export enum INotificationType {
-  light,
-  dark,
-  success,
-  error,
-  warning,
-  info,
-}
+export type INotificationType =
+  | "light"
+  | "dark"
+  | "success"
+  | "error"
+  | "warning"
+  | "info";
 
 export interface ISectionField {
   meta: IColumn;
