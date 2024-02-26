@@ -4,7 +4,7 @@
   </Molgenis>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from "vue";
 import { Molgenis } from "molgenis-components";
 

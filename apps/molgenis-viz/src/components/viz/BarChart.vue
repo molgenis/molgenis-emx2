@@ -44,7 +44,7 @@
               class="label"
               :x="xAxis(row[xvar])"
               :y="yAxis(row[yvar])"
-              dx="1.1em"
+              dx="1.4em"
               :dy="yAxis.bandwidth() / 1.65"
             >
               {{ row[xvar] }}

@@ -45,7 +45,7 @@
               :x="xAxis(row[xvar])"
               :y="yAxis(row[yvar])"
               :dx="xAxis.bandwidth() / 2"
-              dy="-3px"
+              dy="-0.4em"
             >
               {{ row[yvar] }}
             </text>
