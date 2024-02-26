@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { INotificationType } from "~/interfaces/types";
+import type { INotificationType } from "~/interfaces/types";
 
 const { title, subTitle, description, type } = withDefaults(
   defineProps<{
@@ -9,23 +9,23 @@ const { title, subTitle, description, type } = withDefaults(
     type?: INotificationType;
   }>(),
   {
-    type: INotificationType.light,
+    type: "light",
   }
 );
 
 const bgClass = computed(() => {
   switch (type) {
-    case INotificationType.light:
+    case "light":
       return "bg-white";
-    case INotificationType.dark:
+    case "dark":
       return "bg-black";
-    case INotificationType.success:
+    case "success":
       return "bg-green-500";
-    case INotificationType.error:
+    case "error":
       return "bg-red-500";
-    case INotificationType.warning:
+    case "warning":
       return "bg-yellow-500";
-    case INotificationType.info:
+    case "info":
       return "bg-blue-500";
   }
 });
