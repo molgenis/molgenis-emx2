@@ -11,10 +11,11 @@ def nodeSpec = {
     version = '20.11.0'
     yarnVersion = '1.22.19'
     npmVersion = "9.5.1"
+    download = !isCI
 }
 
 def excludeDef = {
-    // Exclude 'build', 'dist', and 'showCase' directories
+    // Exclude 'build', 'dist', and 'showCase' directories from inputs
     exclude "dist"
     exclude "node_modules"
     exclude "showCase"
@@ -26,7 +27,6 @@ def excludeDef = {
 
 node {
     with nodeSpec
-    download = !isCI
 }
 
 subprojects { subproject ->
@@ -34,11 +34,7 @@ subprojects { subproject ->
 
     node {
         with nodeSpec
-        yarnWorkDir = file("${parent.projectDir}/.gradle/yarn")
-        npmWorkDir = file("${parent.projectDir}/.gradle/npm")
-        workDir = file("${parent.projectDir}/.gradle/nodejs")
     }
-    yarn_install.dependsOn parent.yarn_install
 
     task format(type: YarnTask, dependsOn: parent.yarn_install) {
         if (!isCI) {
