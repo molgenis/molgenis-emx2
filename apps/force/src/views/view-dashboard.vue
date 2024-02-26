@@ -28,8 +28,8 @@
             <TrashIcon class="heroicons" />
           </button>
           <button id="runQuery" @click="renderCharts">
-            <span>Update Charts</span>
-            <ArrowPathIcon class="heroicons" />
+            <span>Apply Filters</span>
+            <ChevronRightIcon class="heroicons" />
           </button>
         </div>
       </fieldset>
@@ -159,7 +159,6 @@ import {
   Dashboard,
   DashboardChart,
   DashboardRow,
-  PageHeader,
   DataTable,
   BarChart,
   PieChart2,
@@ -168,7 +167,7 @@ import {
 } from "molgenis-viz";
 import {
   MinusCircleIcon,
-  ArrowPathIcon,
+  ChevronRightIcon,
   TrashIcon,
 } from "@heroicons/vue/24/outline";
 import { schemeGnBu as scheme } from "d3-scale-chromatic";
