@@ -49,14 +49,13 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
 
   const biobankCardsSubcollectionCount = computed(() => {
     if (!biobankCards.value.length) return 0;
-    const collections = biobankCards.value
+    return biobankCards.value
       .filter((bc) => bc.collections)
-      .flatMap((biobank) => biobank.collections);
-    const subcollectionCount = collections
-      .flatMap((collection) => collection.sub_collections || [])
-      .filter((subcollection) => !subcollection.withdrawn).length;
-
-    return subcollectionCount;
+      .flatMap((biobank) =>
+        biobank.collections.filter(
+          (collection) => !collection.withdrawn && collection.parent_collection
+        )
+      ).length;
   });
 
   const biobankCardsCollectionCount = computed(() => {
@@ -65,7 +64,7 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
       .flatMap((biobank) =>
         biobank.collections.filter((collection) => !collection.withdrawn)
       ).length;
-    return totalCount;
+    return totalCount - biobankCardsSubcollectionCount.value;
   });
 
   function getFacetColumnDetails() {
