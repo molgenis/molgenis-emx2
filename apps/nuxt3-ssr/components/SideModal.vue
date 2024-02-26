@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { INotificationType } from "~/interfaces/types";
+import type { INotificationType } from "~/interfaces/types";
 const props = withDefaults(
   defineProps<{
     slideInRight?: boolean;
@@ -15,7 +15,7 @@ const props = withDefaults(
     fullScreen: true,
     buttonAlignment: "center",
     includeFooter: true,
-    type: INotificationType.info,
+    type: "info",
   }
 );
 
@@ -63,17 +63,17 @@ const buttonAlignmentClass = buttonAlignmentSet[props.buttonAlignment];
 
 const bgClass = computed(() => {
   switch (props.type) {
-    case INotificationType.light:
+    case "light":
       return "bg-white";
-    case INotificationType.dark:
+    case "dark":
       return "bg-black";
-    case INotificationType.success:
+    case "success":
       return "bg-green-500";
-    case INotificationType.error:
+    case "error":
       return "bg-red-500";
-    case INotificationType.warning:
+    case "warning":
       return "bg-yellow-500";
-    case INotificationType.info:
+    case "info":
       return "bg-blue-500";
   }
 });

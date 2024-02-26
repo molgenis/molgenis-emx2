@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { INotificationType } from "~/interfaces/types";
-const modalType = ref(INotificationType.success);
+const modalType = ref("success");
 let showModal = ref(false);
 let label = ref("Show modal");
 
@@ -38,7 +37,8 @@ function handelClose() {
           class="mr-2 mt-4"
           type="radio"
           id="light"
-          :value="INotificationType.light"
+          §
+          value="light"
           v-model="modalType"
         />
         <label for="light">light</label>
@@ -47,7 +47,7 @@ function handelClose() {
           class="mr-2 ml-4"
           type="radio"
           id="success"
-          :value="INotificationType.success"
+          value="success"
           v-model="modalType"
         />
         <label for="success">success</label>
@@ -56,7 +56,7 @@ function handelClose() {
           class="mr-2 ml-4"
           type="radio"
           id="error"
-          :value="INotificationType.error"
+          value="error"
           v-model="modalType"
         />
         <label for="error">error</label>
