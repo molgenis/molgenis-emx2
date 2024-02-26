@@ -17,9 +17,9 @@ public class OpenApiUiFactory {
     return String.format(
         "<html>"
             + "<head>"
-            + "    <script src=\"http://unpkg.com/swagger-ui-dist@%s/swagger-ui-bundle.js\"></script>"
-            + "    <script src=\"http://unpkg.com/swagger-ui-dist@%s/swagger-ui-standalone-preset.js\"> </script>\n"
-            + "    <link rel=\"stylesheet\" type=\"text/css\" href=\"http://unpkg.com/swagger-ui-dist@%s/swagger-ui.css\">"
+            + "    <script src=\"https://unpkg.com/swagger-ui-dist@%s/swagger-ui-bundle.js\"></script>"
+            + "    <script src=\"https://unpkg.com/swagger-ui-dist@%s/swagger-ui-standalone-preset.js\"> </script>\n"
+            + "    <link rel=\"stylesheet\" type=\"text/css\" href=\"https://unpkg.com/swagger-ui-dist@%s/swagger-ui.css\">"
             + "</head>"
             + "<body>"
             + "<div id=\"swagger\"/>"

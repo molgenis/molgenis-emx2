@@ -11,6 +11,7 @@ export interface IResource {
 }
 export interface ICohort {
   id: string;
+  pid: string;
   name: string;
   acronym?: string;
   description?: string;
@@ -219,14 +220,13 @@ export interface IContactFormData {
   body: string;
 }
 
-export enum INotificationType {
-  light,
-  dark,
-  success,
-  error,
-  warning,
-  info,
-}
+export type INotificationType =
+  | "light"
+  | "dark"
+  | "success"
+  | "error"
+  | "warning"
+  | "info";
 
 export interface ISectionField {
   meta: IColumn;
@@ -268,10 +268,12 @@ export interface IMgError {
   data: { errors: { message: string }[] };
 }
 
+export type DefinitionListItemType = "ONTOLOGY" | "LINK";
+
 export interface IDefinitionListItem {
   label: string;
   tooltip?: string;
-  type?: string;
+  type?: DefinitionListItemType;
   content: any;
 }
 export interface IOntologyItem {

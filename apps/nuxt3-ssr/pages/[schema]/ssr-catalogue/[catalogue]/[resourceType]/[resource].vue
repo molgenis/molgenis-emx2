@@ -56,9 +56,8 @@ let sections: any;
 let tocItems: { label: string; id: string }[];
 
 const { data, pending, error, refresh } = await useFetch(
-  `/${route.params.schema}/catalogue/graphql`,
+  `/${route.params.schema}/graphql`,
   {
-    baseURL: config.public.apiBase,
     method: "POST",
     body: { query, variables: { filter: filter } },
   }
@@ -111,10 +110,12 @@ function buildSections(
 }
 
 function buildTOC(sections: ISection[]) {
-  return sections.map((section) => ({
-    label: sectionTitle(section),
-    id: section.meta.id,
-  }));
+  return sections
+    .filter((section) => section.fields.length)
+    .map((section) => ({
+      label: sectionTitle(section),
+      id: section.meta.id,
+    }));
 }
 
 function sectionTitle(section: ISection) {
@@ -176,18 +177,20 @@ if (route.params.catalogue) {
           :description="resource?.description"
         />
 
-        <ContentBlock
-          v-for="section in sections"
-          :id="section.meta.id"
-          :title="sectionTitle(section)"
-        >
-          <ContentGenericItemList>
-            <ContentGenericItem
-              v-for="field in section.fields"
-              :field="field"
-            ></ContentGenericItem>
-          </ContentGenericItemList>
-        </ContentBlock>
+        <template v-for="section in sections">
+          <ContentBlock
+            v-if="section.fields.length"
+            :id="section.meta.id"
+            :title="sectionTitle(section)"
+          >
+            <ContentGenericItemList>
+              <ContentGenericItem
+                v-for="field in section.fields"
+                :field="field"
+              ></ContentGenericItem>
+            </ContentGenericItemList>
+          </ContentBlock>
+        </template>
       </ContentBlocks>
     </template>
   </LayoutsDetailPage>

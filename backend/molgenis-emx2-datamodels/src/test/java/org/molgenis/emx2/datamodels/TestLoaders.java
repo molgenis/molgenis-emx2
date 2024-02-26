@@ -20,6 +20,7 @@ public class TestLoaders {
   public static final String RD3_TEST = "RD3Test";
   public static final String JRC_CDE_TEST = "JRCCDETest";
   public static final String FAIR_GENOMES = "FAIRGenomesTest";
+  public static final String DCAT = "DCATTest";
   public static final String PROJECT_MANAGER = "ProjectManager";
   public static final String CATALOGUE_ONTOLOGIES = "CatalogueOntologies";
 
@@ -39,6 +40,7 @@ public class TestLoaders {
     database.dropSchemaIfExists(RD3_TEST);
     database.dropSchemaIfExists(JRC_CDE_TEST);
     database.dropSchemaIfExists(FAIR_GENOMES);
+    database.dropSchemaIfExists(DCAT);
     database.dropSchemaIfExists(PROJECT_MANAGER);
   }
 
@@ -56,7 +58,7 @@ public class TestLoaders {
   public void test2DataCatalogueLoader() {
     Schema dataCatalogue = database.createSchema(DATA_CATALOGUE);
     AvailableDataModels.DATA_CATALOGUE.install(dataCatalogue, true);
-    assertEquals(33, dataCatalogue.getTableNames().size());
+    assertEquals(34, dataCatalogue.getTableNames().size());
 
     // test composite pkey having refs that are linked via refLink
     dataCatalogue
@@ -70,7 +72,7 @@ public class TestLoaders {
   public void test7DataCatalogueCohortStagingLoader() {
     Schema cohortStaging = database.createSchema(COHORT_STAGING);
     AvailableDataModels.DATA_CATALOGUE_COHORT_STAGING.install(cohortStaging, true);
-    assertEquals(19, cohortStaging.getTableNames().size());
+    assertEquals(20, cohortStaging.getTableNames().size());
   }
 
   @Test
@@ -113,5 +115,12 @@ public class TestLoaders {
     Schema ProjectManagerSchema = database.createSchema(PROJECT_MANAGER);
     AvailableDataModels.PROJECTMANAGER.install(ProjectManagerSchema, true);
     assertEquals(5, ProjectManagerSchema.getTableNames().size());
+  }
+
+  @Test
+  void test14DCATLoader() {
+    Schema DCATSchema = database.createSchema(DCAT);
+    AvailableDataModels.DCAT.install(DCATSchema, true);
+    assertEquals(10, DCATSchema.getTableNames().size());
   }
 }

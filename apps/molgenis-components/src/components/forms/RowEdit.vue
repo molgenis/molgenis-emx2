@@ -28,8 +28,7 @@
 </template>
 
 <script lang="ts">
-import type { IColumn, ITableMetaData } from "meta-data-utils";
-import type { IRow } from "../../Interfaces/IRow";
+import { IColumn, ITableMetaData } from "meta-data-utils";
 import constants from "../constants.js";
 import { deepClone } from "../utils";
 import FormInput from "./FormInput.vue";
@@ -116,22 +115,6 @@ export default {
         : [];
       return columnsWithoutMeta.filter(this.showColumn);
     },
-    graphqlFilter() {
-      if (this.tableMetaData && this.pkey) {
-        return this.tableMetaData.columns
-          .filter((column: IColumn) => column.key === 1)
-          .reduce(
-            (accum: Record<string, { equals: IRow }>, column: IColumn) => {
-              accum[column.id] = {
-                equals: this.pkey ? this.pkey[column.id] : undefined,
-              };
-              return accum;
-            }
-          );
-      } else {
-        return {};
-      }
-    },
   },
   methods: {
     showColumn(column: IColumn) {
@@ -143,7 +126,6 @@ export default {
         const isColumnVisible = this.visibleColumns
           ? this.visibleColumns.includes(column.id)
           : true;
-
         return (
           isColumnVisible &&
           this.isVisible(column) &&
@@ -159,6 +141,7 @@ export default {
           this.tableMetaData as ITableMetaData
         );
       } catch (error: any) {
+        console.log("isVisible expression error: ", error);
         this.errorPerColumn[column.id] = error;
         return true;
       }
@@ -173,15 +156,9 @@ export default {
               this.tableMetaData as ITableMetaData
             );
           } catch (error) {
-            this.errorPerColumn[column.id] = "Computation failed: " + error;
-          }
-        } else if (this.applyDefaultValues && column.defaultValue) {
-          if (column.defaultValue.startsWith("=")) {
-            this.internalValues[column.id] = executeExpression(
-              "(" + column.defaultValue.substr(1) + ")",
-              this.internalValues,
-              this.tableMetaData as ITableMetaData
-            );
+            console.log("Computed expression failed:", error);
+            this.errorPerColumn[column.id] =
+              "Computed expression failed: " + error;
           }
         }
       });
@@ -218,8 +195,8 @@ export default {
         return filter;
       }
     },
-    handleModelValueUpdate(event: any, columnId: string) {
-      this.internalValues[columnId] = event;
+    handleModelValueUpdate(newValue: any, columnId: string) {
+      this.internalValues[columnId] = newValue;
       this.onValuesUpdate();
     },
     onValuesUpdate() {
@@ -237,8 +214,25 @@ export default {
   },
   created() {
     this.tableMetaData.columns.forEach((column: IColumn) => {
-      if (column.defaultValue && !this.internalValues[column.id]) {
-        this.internalValues[column.id] = column.defaultValue;
+      if (
+        this.applyDefaultValues &&
+        column.defaultValue &&
+        !this.internalValues[column.id]
+      ) {
+        if (column.defaultValue.startsWith("=")) {
+          try {
+            this.internalValues[column.id] = executeExpression(
+              "(" + column.defaultValue.substr(1) + ")",
+              this.internalValues,
+              this.tableMetaData as ITableMetaData
+            );
+          } catch (error) {
+            this.errorPerColumn[column.id] =
+              "Default value expression failed: " + error;
+          }
+        } else {
+          this.internalValues[column.id] = column.defaultValue;
+        }
       }
     });
     this.onValuesUpdate();
@@ -259,6 +253,7 @@ export default {
             :tableId="tableId"
             :tableMetaData="tableMetadata"
             :schemaMetaData="schemaMetadata"
+            :applyDefaultValues="true"
         />
       </div>
       <div class="col-6 border-left">
