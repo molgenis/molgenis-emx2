@@ -20,7 +20,7 @@
   "scripts": {
     "dev": "cross-env CLEAR_GEN_FOLDERS=on vite",
     "build": "cross-env SHOW_CASE=off vite build",
-    "build-showcase": "cross-env SHOW_CASE=on vite build && cross-env SHOW_CASE=off vite build",
+    "build-showcase": "cross-env SHOW_CASE=on vite build",
     "preview": "vite preview",
     "test": "vitest",
     "test-ci": "vitest run",

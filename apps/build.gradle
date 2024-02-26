@@ -38,15 +38,16 @@ subprojects { subproject ->
         npmWorkDir = file("${parent.projectDir}/.gradle/npm")
         workDir = file("${parent.projectDir}/.gradle/nodejs")
     }
+    yarn_install.dependsOn parent.yarn_install
 
     task format(type: YarnTask, dependsOn: parent.yarn_install) {
         if (!isCI) {
             args = ['run', 'format']
             inputs.files fileTree(projectDir).matching {
-               with excludeDef
+                with excludeDef
             }
             outputs.files fileTree(projectDir).matching {
-               with excludeDef
+                with excludeDef
             }
         } else {
             args = ['run', 'checkFormat']
@@ -56,42 +57,32 @@ subprojects { subproject ->
         }
     }
 
+    def packageJson = file("package.json").text
+
     task buildJavascript(type: YarnTask, dependsOn: format) {
         environment = ["NODE_OPTIONS": "--max-old-space-size=4096"]
+
         //automatically get the internal dependencies
-        def packageJson = file("package.json").text
         (packageJson =~ /"([^"]+)":\s*"\*"/).each { match ->
             dependsOn ":apps:${match[1]}:buildJavascript";
         }
-        //component libs have an showCase, the others don't
-        if (packageJson.contains("build-showcase")) {
-            args = ['run', 'build-showcase']
-            doLast {
-                copy {
-                    from "showCase"
-                    into "${parent.buildDir}/generated/main/resources/public_html/apps/" + project.name
-                }
+        //run the build
+        args = ['run', 'build']
+        doLast {
+            copy {
+                from "dist"
+                into "${parent.buildDir}/generated/main/resources/public_html/apps/" + project.name
             }
-            outputs.dir "dist"
-            outputs.dir "showCase"
-        } else {
-            args = ['run', 'build']
-            doLast {
-                copy {
-                    from "dist"
-                    into "${parent.buildDir}/generated/main/resources/public_html/apps/" + project.name
-                }
-            }
-            outputs.dir "dist"
         }
+        outputs.dir "dist"
         //for caching
         inputs.files fileTree(projectDir).matching {
             with excludeDef
         }
     }
+    parent.tasks.processResources.dependsOn buildJavascript
 
     task testJavaScript(type: YarnTask, dependsOn: buildJavascript) {
-        def packageJson = file("package.json").text
         if (packageJson.contains("test-ci")) {
             args = ['run', 'test-ci']
             inputs.files fileTree(projectDir).matching {
@@ -100,9 +91,27 @@ subprojects { subproject ->
         }
     }
     test.dependsOn testJavaScript
+
+    if (packageJson.contains("build-showcase")) {
+        task buildShowcase(type: YarnTask, dependsOn: buildJavascript) {
+            environment = ["NODE_OPTIONS": "--max-old-space-size=4096"]
+            args = ['run', 'build-showcase']
+            doLast {
+                copy {
+                    from "showCase"
+                    into "${parent.buildDir}/generated/main/resources/public_html/apps/" + project.name
+                }
+            }
+            outputs.dir "showCase"
+            //for caching
+            inputs.files fileTree(projectDir).matching {
+                with excludeDef
+            }
+        }
+        parent.tasks.processResources.dependsOn buildShowcase
+    }
 }
 
-processResources.dependsOn subprojects.tasks.buildJavascript
 sourceSets {
     main {
         resources {
