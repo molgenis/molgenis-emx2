@@ -19,7 +19,7 @@ class Column:
             value = self.__parse_arg(key, kwargs[key])
             setattr(self, key, value)
         if not hasattr(self, 'name'):
-            raise AttributeError("Supply 'name' value when creating 'Table' object.")
+            raise AttributeError("Supply 'name' value when creating 'Column' object.")
 
     def __repr__(self):
         class_name = type(self).__name__
