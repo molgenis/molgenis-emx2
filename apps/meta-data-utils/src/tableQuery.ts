@@ -6,7 +6,7 @@ import {
 } from "./fieldHelpers";
 import { ISchemaMetaData, ITableMetaData, IColumn, KeyObject } from "./types";
 
-const FILE_FRAGMENT = "{ id, size, extension, url }";
+const FILE_FRAGMENT = "{ id, size, filename, extension, url }";
 
 export const buildRecordDetailsQueryFields = (
   schemas: Record<string, ISchemaMetaData>,
@@ -112,7 +112,7 @@ export const buildRecordListQueryFields = (
 
   // Special case for logo, expand to include all fields
   if (additionalFields[additionalFields.length - 1] === "logo") {
-    additionalFields.push(["id", "size", "extension", "url"]);
+    additionalFields.push(["id", "size", "filename", "extension", "url"]);
   }
 
   const queryFields = [...new Set([...keyFields, ...additionalFields])];

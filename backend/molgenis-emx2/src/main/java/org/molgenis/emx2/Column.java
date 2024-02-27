@@ -421,8 +421,8 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     return List.of(
         field(name(getName()), SQLDataType.VARCHAR),
         field(name(getName() + "_mimetype"), SQLDataType.VARCHAR),
-        field(name(getName() + "_extension"), SQLDataType.VARCHAR),
         field(name(getName() + "_filename"), SQLDataType.VARCHAR),
+        field(name(getName() + "_extension"), SQLDataType.VARCHAR),
         field(name(getName() + "_size"), SQLDataType.INTEGER),
         field(name(getName() + "_contents"), SQLDataType.BINARY));
   }

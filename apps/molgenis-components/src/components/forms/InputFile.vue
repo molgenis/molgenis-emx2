@@ -49,7 +49,7 @@
     </div>
     <div v-if="modelValue">
       <a v-if="modelValue && modelValue.url" :href="modelValue.url">
-        Previous value: {{ modelValue.id }}.{{ modelValue.extension }}
+        Previous value: {{ modelValue.filename }}
       </a>
     </div>
   </FormGroup>
