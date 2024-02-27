@@ -12,6 +12,7 @@ import GroupedColumnChart from "../views/viz-grouped-column-chart.vue";
 import PieChart from "../views/viz-pie-chart.vue";
 import PieChart2 from "../views/viz-pie-chart-2.vue";
 import ScatterPlot from "../views/viz-scatter-plot.vue";
+import DashboardDemo from "../views/view-dashboard.vue";
 
 const router = createRouter({
   history: createWebHashHistory(),
@@ -20,6 +21,14 @@ const router = createRouter({
       name: "home",
       path: "/",
       component: HomePage,
+    },
+    {
+      name: "dashboard",
+      path: "/dashboard",
+      component: DashboardDemo,
+      meta: {
+        title: "Dashboard Demo",
+      },
     },
     {
       name: "bar-chart",
