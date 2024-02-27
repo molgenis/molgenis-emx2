@@ -5,8 +5,8 @@ from typing import Literal
 
 import requests
 
-from tools.pyclient.src.molgenis_emx2_pyclient import graphql_queries
-from tools.pyclient.src.molgenis_emx2_pyclient.exceptions import NoSuchColumnException, NoSuchTableException
+from .graphql_queries import list_schema_meta
+from .exceptions import NoSuchColumnException, NoSuchTableException
 
 
 class Column:
@@ -175,9 +175,8 @@ class Schema:
 if __name__ == '__main__':
 
     # Get the emx2 dev catalogue schema
-    query = graphql_queries.list_schema_meta()
     response = requests.post(url="https://emx2.dev.molgenis.org/catalogue/graphql",
-                             json={'query': query})
+                             json={'query': list_schema_meta()})
 
     schema = Schema(**response.json().get('data').get('_schema'))
 
