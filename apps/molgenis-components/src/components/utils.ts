@@ -201,6 +201,6 @@ export function deepEqual(
   return true;
 }
 
-function isObject(object: Record<string, any>): object is Object {
+function isObject(object: Record<string, any> | null): object is Object {
   return object !== null && typeof object === "object";
 }
