@@ -45,6 +45,9 @@
         :locales="locales"
       />
     </div>
+    <component is="style">
+      {{ session.settings.additionalCss }}
+    </component>
   </div>
 </template>
 
@@ -65,7 +68,7 @@ import { ISetting } from "meta-data-utils";
 const { cookies } = useCookies();
 const query = `{
   _session { email, roles, schemas, token, settings{key,value} },
-  _settings (keys: ["menu", "page.", "cssURL", "logoURL", "isOidcEnabled","locales"]){ key, value },
+  _settings (keys: ["menu", "page.", "cssURL", "logoURL", "isOidcEnabled","locales", "additionalCss"]){ key, value },
   _manifest { ImplementationVersion,SpecificationVersion,DatabaseVersion }
 }`;
 const defaultSession = { locale: "en", settings: {} };
