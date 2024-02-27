@@ -1,26 +1,43 @@
+import "ontology.jslt" as ontology
 {
     "id": .id,
-    "sex": {
-           "id": .sex.codesystem + ":" + .sex.code,
-           "label": .sex.name
-    },
-    "age": {
-           "ageGroup": {
-                 "id": .age_ageGroup.name,
-                 "label": .age_ageGroup.codesystem + ":" + .age_ageGroup.code
-           },
-           "age": .age_age_iso8601duration
+    "sex": ontology(.sex),
+    "age":
+    {
+        "ageGroup": ontology(.age_ageGroup),
+        "age": { "iso8601duration": .age_age_iso8601duration }
     },
     "diseaseCausalGenes":
-            [for (.diseaseCausalGenes)
-                 {
-                     "id": .codesystem + ":" + .code,
-                     "label": .name
-                 }
-            ],
-    "ethnicity": {
-                 "id": .ethnicity.codesystem + ":" + .code,
-                 "label": .ethnicity.name
-    }
+    [for (.diseaseCausalGenes)
+         ontology(.)
+    ],
+    "ethnicity": ontology(.ethnicity),
+    "geographicOrigin": ontology(.geographicOrigin),
+    "disease":
+    [for (.diseases)
+        {
+            "diseaseCode": ontology(.diseaseCode),
+            "ageOfOnset":
+            {
+                "ageGroup": ontology(.ageOfOnset_ageGroup),
+                "age": { "iso8601duration": .ageOfOnset_age_iso8601duration }
+            },
+            "severity": ontology(.severity)
+        }
+    ],
+    "measures":
+    [for (.measures)
+        {
+            "assayCode": ontology(.assayCode),
+            "date": .date,
+            "measurementVariable": .measurementVariable,
+            "measurementValue": {
+                "value": .measurementValue_value,
+                "units": ontology(.measurementValue_units)
+            },
+            "observationMoment": { "age": { "iso8601duration": .observationMoment_age_iso8601duration } }
+        }
+    ]
 }
+
 
