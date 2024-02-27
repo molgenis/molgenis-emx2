@@ -474,33 +474,29 @@ class QueryEMX2 {
   _createFilterFromPath(path: string, operator: string, value: any) {
     const valueArray = Array.isArray(value) ? value : [value];
 
+    /** set the correct operators for graphQl */
+    if (operator === "in") {
+      operator = "equals";
+    }
+
+    if (operator === "orLike") {
+      operator = "like";
+    }
+
     for (const value of valueArray) {
-      /** reverse the path, so we can build it from the inside out */
-      const reversedPathParts = path.split(".").reverse();
+
       let graphqlValue = typeof value === "boolean" ? `${value}` : `"${value}"`;
 
-      /** if it is an _or and a like, concat them */
-      const queryType = !this.type ? "_and" : this.type;
-      if (operator === "orLike") {
-        graphqlValue = `["${valueArray.join('", "')}"]`;
-        operator = "like"; /** set it to the correct operator for graphQl */
-      }
-
-      if (operator === "in") {
-        graphqlValue = `["${valueArray.join('", "')}"]`;
-        operator = "equals";
-      }
-
-      /** most inner part of the query e.g. 'like: "red" */
       let filter = `{ ${operator}: ${graphqlValue} }`;
 
+      /** reverse the path, so we can build it from the inside out */
+      const reversedPathParts = path.split(".").reverse();
       for (const pathPart of reversedPathParts) {
+        /** most inner part of the query e.g. 'like: "red" */
         filter = `{ ${pathPart}: ${filter} }`;
       }
-      this.filters[this.branch][queryType].push(filter);
 
-      /** we folded all into one so just return */
-      if (graphqlValue.includes("[")) return;
+      this.filters[this.branch][this.type].push(filter);
     }
   }
 
