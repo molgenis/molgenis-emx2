@@ -29,6 +29,14 @@ class Column:
     def __str__(self):
         return self.name
 
+    def get(self, attr: str, default: object = None) -> object:
+        """Returns the value of an attribute. If the attribute does not exist, returns a default value.
+        If this default value is not given, returns None.
+        """
+        if hasattr(self, attr):
+            return self.__getattribute__(attr)
+        return default
+
     def to_dict(self) -> dict:
         """Returns a dictionary representation of the Column object."""
         return self.__dict__
@@ -72,6 +80,14 @@ class Table:
 
     def __str__(self):
         return self.name
+
+    def get(self, attr: str, default: object = None) -> object:
+        """Returns the value of an attribute. If the attribute does not exist, returns a default value.
+        If this default value is not given, returns None.
+        """
+        if hasattr(self, attr):
+            return self.__getattribute__(attr)
+        return default
 
     def get_column(self, by: Literal['id', 'name'], value: str) -> Column:
         """Gets the unique column by either id or name value.
