@@ -1,5 +1,21 @@
+import type { ITreeNode } from "~/types/types";
 import TreeFilter from "./TreeFilter.vue";
 import type { Meta, StoryObj } from "@storybook/vue3";
+
+function generateTreeData(width: number, depth: number) {
+  const nodes = [];
+  for (let i = 0; i < width; i++) {
+    const node: ITreeNode = {
+      name: `Node ${i}`,
+      selected: "none",
+      expanded: false,
+      children: depth > 0 ? generateTreeData(width, depth - 1) : [],
+    };
+
+    nodes.push(node);
+  }
+  return nodes;
+}
 
 const meta = {
   title: "fiter/TreeFilter",
@@ -52,5 +68,11 @@ export const TreeFilterStory: Story = {
         ],
       },
     ],
+  },
+};
+
+export const LargeTreeFilterStory: Story = {
+  args: {
+    rootNodes: generateTreeData(5, 3),
   },
 };
