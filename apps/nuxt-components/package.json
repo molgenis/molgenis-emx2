@@ -10,15 +10,19 @@
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "storybook": "storybook dev --port 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "format": "prettier components  --write --config ../.prettierrc.js --gitignore",
+    "checkFormat": "prettier components --check --config ../.prettierrc.js --gitignore"
   },
   "dependencies": {
+    "floating-vue": "^5.2.2",
     "nuxt": "^3.10.2",
     "vue": "^3.4.19",
     "vue-router": "^4.2.5"
   },
   "devDependencies": {
     "@nuxtjs/storybook": "7.0.0",
+    "@nuxtjs/tailwindcss": "^6.11.4",
     "@storybook-vue/nuxt": "0.2.1",
     "@storybook/addon-essentials": "^7.6.17",
     "@storybook/addon-interactions": "^7.6.17",
@@ -29,6 +33,7 @@
     "@storybook/vue3": "^7.6.17",
     "@storybook/vue3-vite": "^7.6.17",
     "@types/node": "^18.17.5",
+    "prettier": "2.8.8",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "storybook": "^7.6.17"

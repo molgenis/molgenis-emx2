@@ -3,9 +3,6 @@ import type { StorybookConfig } from "@storybook-vue/nuxt";
 
 const config: StorybookConfig = {
   stories: [
-    "../stories/**/*.mdx",
-    "../stories/**/*.stories.@(js|jsx|mjs|ts|tsx)",
-    "../components/**/*.mdx",
     "../components/**/*.stories.@(js|jsx|mjs|ts|tsx)",
   ],
   addons: [
@@ -15,7 +12,7 @@ const config: StorybookConfig = {
     getAbsolutePath("@storybook/addon-mdx-gfm")
   ],
   framework: {
-    name: getAbsolutePath("@storybook/vue3-vite"),
+    name: "@storybook-vue/nuxt",
     options: {},
   },
   docs: {

@@ -13,24 +13,21 @@ const props = withDefaults(
 );
 
 function clearAndUpper(text: string) {
-    return text.replace(/-/, "").toUpperCase();
+  return text.replace(/-/, "").toUpperCase();
 }
 
 function toPascalCase(text: string) {
-    return text.replace(/(^\w|-\w)/g, clearAndUpper);
+  return text.replace(/(^\w|-\w)/g, clearAndUpper);
 }
 
 const AsyncComp = computed(() => {
-    const name = props.name || "star-solid";
-    return defineAsyncComponent(() =>
-        import(`./icons/${toPascalCase(name)}.vue`)
-    )
-})
-
+  const name = props.name || "star-solid";
+  return defineAsyncComponent(
+    () => import(`./icons/${toPascalCase(name)}.vue`)
+  );
+});
 </script>
 
 <template>
-    {{ name }}
-    <AsyncComp :width="width" />
+  <AsyncComp :width="width" />
 </template>
-

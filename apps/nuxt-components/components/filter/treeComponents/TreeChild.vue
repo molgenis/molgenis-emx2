@@ -1,35 +1,36 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, reactive } from "vue";
+import type { ITreeNode } from "../../../types/types";
+import BaseIcon from "../../BaseIcon.vue";
 
-const props = defineProps({
-  title: {
-    type: String,
-  },
-  visible: {
-    type: Boolean,
-    default: true,
-  },
-  items: {
-    type: Array,
-  },
-});
+const props = withDefaults(
+  defineProps<{
+    nodes: ITreeNode[];
+    visible?: boolean;
+  }>(),
+  { visible: true }
+);
 
 const emit = defineEmits(["select", "deselect"]);
 
-var itemMap = props.items.reduce(function (map, obj) {
-  map[obj.name] = obj;
+var itemMap = props.nodes.reduce(function (
+  map: Record<string, ITreeNode>,
+  node
+) {
+  map[node.name] = node;
   return map;
-}, {});
+},
+{});
 
 let terms = reactive(itemMap);
 
 let key = ref(1);
-function toggleExpand(term) {
+function toggleExpand(term: ITreeNode) {
   terms[term.name].expanded = !terms[term.name].expanded;
-  key++;
+  key.value++;
 }
 
-function toggleSelect(term) {
+function toggleSelect(term: ITreeNode) {
   //if selecting then also expand
   //if deselection we keep it open
   if (term.selected == "complete") {
@@ -42,17 +43,20 @@ function toggleSelect(term) {
 
 <template>
   <div>
-    <li v-for="child in items" :key="child.name" class="mt-2.5 relative">
+    <li v-for="child in nodes" :key="child.name" class="mt-2.5 relative">
       <span class="flex items-center">
         <span
-          v-if="child.children"
+          v-if="child.children?.length"
           @click="toggleExpand(child)"
           class="-left-[11px] top-0 text-search-filter-group-toggle rounded-full hover:bg-search-filter-group-toggle hover:cursor-pointer h-6 w-6 flex items-center justify-center absolute z-20"
         >
-          <BaseIcon name="caret-up" :width="20" />
+          <BaseIcon
+            :name="child.expanded ? 'caret-down' : 'caret-up'"
+            :width="20"
+          />
         </span>
         <BaseIcon
-          v-if="child.children"
+          v-if="child.children?.length"
           name="collapsible-list-item-sub"
           :width="20"
           class="text-blue-200 absolute -top-[9px]"
@@ -107,7 +111,7 @@ function toggleSelect(term) {
       >
         <TreeChild
           :key="key"
-          :items="child.children"
+          :nodes="child.children"
           @select="$emit('select', $event)"
           @deselect="$emit('deselect', $event)"
         />
