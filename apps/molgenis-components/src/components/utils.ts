@@ -136,7 +136,7 @@ export function isInvalidBigInt(value: string): boolean {
 }
 
 export function applyJsTemplate(
-  object: object,
+  object: Record<string, any>,
   labelTemplate: string
 ): string | undefined {
   if (object === undefined || object === null) {
@@ -145,8 +145,12 @@ export function applyJsTemplate(
   const ids = Object.keys(object);
   const vals = Object.values(object);
   try {
-    // @ts-ignore
-    return new Function(...ids, "return `" + labelTemplate + "`;")(...vals);
+    const label = new Function(...ids, "return `" + labelTemplate + "`;")(
+      ...vals
+    );
+    if (label) {
+      return label;
+    }
   } catch (err: any) {
     // The template is not working, lets try and fail gracefully
     console.log(
@@ -158,20 +162,19 @@ export function applyJsTemplate(
         " and template: " +
         labelTemplate
     );
-
-    if (object.hasOwnProperty("primaryKey")) {
-      return flattenObject((object as any).primaryKey);
-    }
-
-    if (object.hasOwnProperty("name")) {
-      return (object as any).name;
-    }
-
-    if (object.hasOwnProperty("id")) {
-      return (object as any).id;
-    }
-    return flattenObject(object);
   }
+  if (object.hasOwnProperty("primaryKey")) {
+    return flattenObject(object.primaryKey);
+  }
+
+  if (object.hasOwnProperty("name")) {
+    return object.name;
+  }
+
+  if (object.hasOwnProperty("id")) {
+    return object.id;
+  }
+  return flattenObject(object);
 }
 
 /** horrible that this is not standard, found this here https://dmitripavlutin.com/how-to-compare-objects-in-javascript/#4-deep-equality*/

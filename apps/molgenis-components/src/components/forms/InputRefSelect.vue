@@ -177,6 +177,18 @@ export default {
       />
       Selection: {{ value4 }}
     </div>
+    
+    <label for="input-ref-select-5"> Example with different label and initial value</label>
+    <div>
+      <InputRefSelect
+        id="input-ref-select-5"
+        v-model="value5"
+        tableId="Pet"
+        schemaId="pet store"
+        refLabel="${status}"
+      />
+      Selection: {{ value5 }}
+    </div>
   </div>
 </template>
 
@@ -188,6 +200,8 @@ export default {
       value2: { name: "spike" },
       value3: { name: "pooky" },
       value4: null,
+      value5: { name: "pooky" },
+      
     };
   },
 };
