@@ -2,11 +2,13 @@ package org.molgenis.emx2.beaconv2.endpoints;
 
 import static org.molgenis.emx2.SelectColumn.s;
 
-import java.util.ArrayList;
-import java.util.List;
+import graphql.ExecutionResult;
+import graphql.GraphQL;
+import java.util.*;
 import java.util.Map;
 import org.jooq.tools.StringUtils;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.graphql.GraphqlApiFactory;
 import org.molgenis.emx2.utils.TypeUtils;
 
 // todo: do we still need this if we use retrieveRows?
@@ -49,6 +51,54 @@ public class QueryHelper {
     }
 
     return query;
+  }
+
+  public static ExecutionResult queryTable(Table table) {
+    GraphQL graphQL = new GraphqlApiFactory().createGraphqlForSchema(table.getSchema());
+    StringBuilder sb = new StringBuilder("{");
+    sb.append(table.getName()).append("{");
+
+    queryColumns(table.getMetadata().getColumnsWithoutHeadings(), sb);
+
+    sb.append("}}");
+    return graphQL.execute(sb.toString());
+  }
+
+  private static void queryColumns(List<Column> columns, StringBuilder sb) {
+    Set<String> seenTables = new HashSet<>();
+    seenTables.add(columns.get(0).getTable().getIdentifier());
+    int currentDepth = 0;
+    int maxDepth = 4;
+    queryColumnsRecursively(columns, seenTables, sb, maxDepth, currentDepth);
+  }
+
+  private static int queryColumnsRecursively(
+      List<Column> columns,
+      Set<String> seenTables,
+      StringBuilder sb,
+      int maxDepth,
+      int currentDepth) {
+    for (Column column : columns) {
+      if (column.isOntology() || column.isReference()) {
+        if (currentDepth < maxDepth) {
+          TableMetadata refTable = column.getRefTable();
+          // Don't select the same table twice
+          //          if (seenTables.contains(refTable.getIdentifier())) continue;
+          seenTables.add(refTable.getIdentifier());
+
+          currentDepth++;
+          sb.append(column.getIdentifier()).append("{");
+          currentDepth =
+              queryColumnsRecursively(
+                  refTable.getColumnsWithoutHeadings(), seenTables, sb, maxDepth, currentDepth);
+          sb.append("}");
+        }
+      } else if (!column.isSystemColumn()) {
+        sb.append(column.getIdentifier()).append(",");
+      }
+    }
+    currentDepth--;
+    return currentDepth;
   }
 
   /**

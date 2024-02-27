@@ -6,9 +6,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.schibsted.spt.data.jslt.Expression;
 import com.schibsted.spt.data.jslt.Parser;
+import graphql.ExecutionResult;
 import java.util.ArrayList;
 import java.util.List;
-import org.molgenis.emx2.Query;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.beaconv2.endpoints.QueryHelper;
 
@@ -32,9 +32,8 @@ public class QueryIndividuals {
 
     List<IndividualsResultSets> resultSetsList = new ArrayList<>();
     for (Table table : tables) {
-
-      Query query = QueryHelper.selectColumns(table, filters);
-      JsonNode individuals = mapper.readTree(query.retrieveJSON()).get("Individuals");
+      ExecutionResult result = QueryHelper.queryTable(table);
+      JsonNode individuals = mapper.valueToTree(result.getData()).get("Individuals");
 
       ArrayNode individualsOutput = mapper.createArrayNode();
       for (JsonNode individual : individuals) individualsOutput.add(jslt.apply(individual));
