@@ -4,6 +4,9 @@ Classes for the data types Schema, Table and Column.
 from dataclasses import dataclass
 from typing import Literal
 
+import requests
+
+from tools.pyclient.src.molgenis_emx2_pyclient import graphql_queries
 from tools.pyclient.src.molgenis_emx2_pyclient.exceptions import NoSuchColumnException, NoSuchTableException
 
 
@@ -60,10 +63,14 @@ class Column:
     @staticmethod
     def __parse_arg(_k: str, _v: str | list | dict):
         if _k == 'inherited':
+            if isinstance(_v, bool):
+                return _v
             if _v.lower() == 'true':
                 return True
             return False
         if _k == 'required':
+            if isinstance(_v, bool):
+                return _v
             if _v.lower() == 'true':
                 return True
             elif _v.lower() == 'false':
@@ -210,79 +217,21 @@ class Schema:
 
 
 if __name__ == '__main__':
-    tab_values = {
-          "name": "Cohorts",
-          "id": "Cohorts",
-          "description": "Group of individuals sharing a defining demographic characteristic",
-          "schemaName": "catalogue",
-          "schemaId": "catalogue",
-          "inheritName": "Data resources",
-          "inheritId": "DataResources",
-          "tableType": "DATA",
-          "columns": [
-            {
-              "id": "overview",
-              "name": "overview",
-              "description": "General information",
-              "columnType": "HEADING",
-            },
-            {
-              "id": "id",
-              "name": "id",
-              "description": "Internal identifier",
-              "key": 1,
-              "columnType": "STRING",
-              "required": "TRUE",
-            },
-            {
-              "id": "acronym",
-              "name": "acronym",
-              "description": "Acronym if applicable",
-              "columnType": "STRING",
-            },
-            {
-              "table": "Extended resources",
-              "id": "leadOrganisation",
-              "name": "lead organisation",
-              "description": "lead organisation (e.g. research department or group) for this resource",
-              "columnType": "REF_ARRAY",
-              "inherited": 'true',
-              "refSchemaName": "catalogue",
-              "refTableName": "Organisations",
-              "refTableId": "Organisations",
-              "descriptions": [
-                {
-                  "locale": "en",
-                  "value": "lead organisation (e.g. research department or group) for this resource"
-                }
-              ],
-              "position": 29
-            }
-          ]}
 
-    schema_values = {
-        'id': 'catalogue',
-        'name': 'catalogue',
-        'label': 'catalogue',
-        'tables': [tab_values]
-    }
+    # Get the emx2 dev catalogue schema
+    query = graphql_queries.list_schema_meta()
+    response = requests.post(url="https://emx2.dev.molgenis.org/catalogue/graphql",
+                             json={'query': query})
 
-    table = Table(**tab_values)
-    # Get the column with name 'acronym'
-    acronym = table.get_column(by='name', value='acronym')
-    print(acronym)
-    # Columns referencing the table 'Organisation'
-    orgs_refs = table.get_columns(by='refTableName', value='Organisations')
-    print(orgs_refs)
-    # Represent the Table object as a dictionary
-    table_dict = table.to_dict()
-    print(table_dict)
-    print(table.__repr__())
-    print(table)
+    schema = Schema(**response.json().get('data').get('_schema'))
 
-    schema = Schema(**schema_values)
-    schema_dict = schema.to_dict()
-    print(schema_dict)
-    print(schema.__repr__())
-    print(schema)
+    # Find the Cohorts table
+    cohorts = schema.get_table(by='name', value='Cohorts')
 
+    # Find the columns in the Cohorts table referencing the Organisations table
+    orgs_refs = cohorts.get_columns(by='refTableName', value='Organisations')
+
+    # Print the __str__ and __repr__ representations of these columns
+    print("Columns in the Cohorts table referencing the Organisations table.")
+    for orgs_ref in orgs_refs:
+        print(f"{orgs_ref!s}\n{orgs_ref!r}\n")
