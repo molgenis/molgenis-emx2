@@ -117,8 +117,8 @@ export default {
       <InputRefSelect
         id="input-ref-select-1"
         v-model="value1"
-        tableId="QualityInfoBiobanks"
-        schemaId="Directory demo"
+        tableId="Pet"
+        schemaId="pet store"
         refLabel="${name}"
       />
       Selection: {{ value1 }}
