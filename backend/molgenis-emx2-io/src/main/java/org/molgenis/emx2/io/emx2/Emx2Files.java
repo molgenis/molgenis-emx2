@@ -27,7 +27,14 @@ public class Emx2Files {
             // get the files one by one
             List<Row> fileRows =
                 table
-                    .select(s(c.getName(), s("id"), s("contents"), s("mimetype"), s("extension")))
+                    .select(
+                        s(
+                            c.getName(),
+                            s("id"),
+                            s("contents"),
+                            s("mimetype"),
+                            s("filename"),
+                            s("extension")))
                     .where(f(c.getName(), Operator.EQUALS, r.getString(c.getName())))
                     .retrieveRows();
 
@@ -35,7 +42,7 @@ public class Emx2Files {
             for (Row f : fileRows) {
               store.writeFile(
                   "_files/"
-                      + f.getString(c.getName())
+                      + f.getString(c.getName() + "_filename")
                       + "."
                       + f.getString(c.getName() + "_extension"),
                   f.getBinary(c.getName() + "_contents"));

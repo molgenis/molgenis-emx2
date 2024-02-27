@@ -47,7 +47,7 @@ public class FileApi {
                     .map(f -> s(f.getName()))
                     .toArray(SelectColumn[]::new))
             // select file details
-            .select(s(columnName, s("contents"), s("mimetype"), s("extension")))
+            .select(s(columnName, s("contents"), s("mimetype"), s("filename"), s("extension")))
             .where(f(columnName, f("id", EQUALS, id)))
             .retrieveRows();
     if (result.size() != 1) {
@@ -60,12 +60,13 @@ public class FileApi {
 
   public static void addFileColumnToResponse(Response response, String columnName, Row row)
       throws IOException {
-    String ext = row.getString(columnName + "_extension");
+    String fileName = row.getString(columnName + "_filename");
+    String extension = row.getString(columnName + "_extension");
     String mimetype = row.getString(columnName + "_mimetype");
     byte[] contents = row.getBinary(columnName + "_contents");
     response
         .raw()
-        .setHeader("Content-Disposition", "attachment; filename=" + columnName + "." + ext);
+        .setHeader("Content-Disposition", "attachment; filename=" + fileName + "." + extension);
     response.raw().setContentType(mimetype);
     try (OutputStream out = response.raw().getOutputStream()) {
       out.write(contents); // autoclosing

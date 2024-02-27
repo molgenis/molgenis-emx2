@@ -32,7 +32,9 @@ public class TestFileType {
         t.query().select(s("image", s("size"))).retrieveRows().get(0).getInteger("image_size"));
 
     String result =
-        t.query().select(s("image", s("size"), s("extension"), s("mimetype"))).retrieveJSON();
+        t.query()
+            .select(s("image", s("size"), s("filename"), s("extension"), s("mimetype")))
+            .retrieveJSON();
     System.out.println(result);
     assertTrue(result.contains("37458"));
   }
@@ -42,6 +44,7 @@ public class TestFileType {
     BinaryFileWrapper w = new BinaryFileWrapper(getFile());
     assertEquals("image/png", w.getMimeType());
     assertEquals("png", w.getExtension());
+    assertEquals("molgenis", w.getFileName());
     assertEquals(37458, w.getSize());
     assertNotNull(w.getContents());
     assertEquals(37458, w.getContents().length);

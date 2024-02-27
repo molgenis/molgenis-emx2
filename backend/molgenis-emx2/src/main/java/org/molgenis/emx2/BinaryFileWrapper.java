@@ -11,6 +11,7 @@ public class BinaryFileWrapper implements Binary {
   // these we calculate on construction
   String mimetype;
   String extension = "";
+  String fileName = "";
   // this is used to skip file updates
   boolean skip = false;
 
@@ -21,12 +22,14 @@ public class BinaryFileWrapper implements Binary {
   public BinaryFileWrapper(File file) {
     this.file = file;
     this.mimetype = URLConnection.getFileNameMap().getContentTypeFor(file.getName());
+    this.fileName = file.getName();
     this.extension = deriveExtension(file.getName());
   }
 
   public BinaryFileWrapper(String contentType, String fileName, byte[] contents) {
     this.contents = contents;
     this.mimetype = contentType;
+    this.fileName = fileName;
     this.extension = deriveExtension(fileName);
   }
 
@@ -51,6 +54,11 @@ public class BinaryFileWrapper implements Binary {
   @Override
   public String getExtension() {
     return extension;
+  }
+
+  @Override
+  public String getFileName() {
+    return fileName;
   }
 
   @Override

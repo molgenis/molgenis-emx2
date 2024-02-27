@@ -222,6 +222,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
             c.getName() + "_contents",
             new Column(c.getTable(), c.getName() + "_contents").setType(FILE));
         result.put(c.getName() + "_mimetype", new Column(c.getTable(), c.getName() + "_mimetype"));
+        result.put(c.getName() + "_filename", new Column(c.getTable(), c.getName() + "_filename"));
         result.put(
             c.getName() + "_extension", new Column(c.getTable(), c.getName() + "_extension"));
         result.put(
