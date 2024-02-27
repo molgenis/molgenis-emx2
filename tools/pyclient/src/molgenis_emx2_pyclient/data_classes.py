@@ -1,7 +1,6 @@
 """
 Classes for the data types Schema, Table and Column.
 """
-from dataclasses import dataclass
 from typing import Literal
 
 import requests
@@ -10,36 +9,10 @@ from tools.pyclient.src.molgenis_emx2_pyclient import graphql_queries
 from tools.pyclient.src.molgenis_emx2_pyclient.exceptions import NoSuchColumnException, NoSuchTableException
 
 
-@dataclass(eq=True, kw_only=True)
 class Column:
     """Class for representing a column in the database."""
     id: str
     name: str
-    table: str
-    label: str
-    description: str
-    labels: dict
-    description: dict
-    position: int
-    columnType: str
-    inherited: bool
-    key: int
-    required: str
-    defaultValue: str
-    refSchemaId: str
-    refSchemaName: str
-    refTableName: str
-    refTableId: str
-    refLinkName: str
-    refLinkId: str
-    refBackName: str
-    refLabel: str
-    refLabelDefault: str
-    validation: str
-    visible: str
-    readonly: bool
-    computed: str
-    semantics: list[str]
 
     def __init__(self, **kwargs):
         for key in kwargs.keys():
@@ -79,23 +52,11 @@ class Column:
         return _v
 
 
-@dataclass(kw_only=True)
 class Table:
     """Class for representing a table in the database."""
     id: str
     name: str
-    label: str
-    description: str
-    labels: dict
-    schemaName: str
-    schemaId: str
-    inheritName: str
-    inheritId: str
-    descriptions: dict
     columns: list[Column]
-    settings: dict
-    semantics: str
-    tableType: str
 
     def __init__(self, **kwargs):
         for key in kwargs.keys():
@@ -112,7 +73,7 @@ class Table:
     def __str__(self):
         return self.name
 
-    def get_column(self, by: Literal['id', 'name'] = 'id', *, value: str) -> Column:
+    def get_column(self, by: Literal['id', 'name'], value: str) -> Column:
         """Gets the unique column by either id or name value.
         Raises NoSuchColumnException if the column could not be retrieved from the table.
         """
@@ -151,12 +112,7 @@ class Schema:
     """Class for representing a schema on the server."""
     id: str
     name: str
-    label: str
-    description: str
     tables: list[Table]
-    members: dict
-    roles: dict
-    settings: dict
 
     def __init__(self, **kwargs):
         for key in kwargs.keys():
@@ -181,7 +137,7 @@ class Schema:
             return self.__getattribute__(attr)
         return default
 
-    def get_table(self, by: Literal['id', 'name'] = 'id', *, value: str) -> Table:
+    def get_table(self, by: Literal['id', 'name'], value: str) -> Table:
         """Gets the unique table by either id or name value.
         Raises NoSuchTableException if the table could not be retrieved from the schema.
         """
