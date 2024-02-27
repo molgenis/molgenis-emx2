@@ -7,6 +7,7 @@ from io import BytesIO
 import pandas as pd
 import requests
 
+from molgenis_emx2_pyclient import Schema, Table, Column
 from molgenis_emx2_pyclient.exceptions import NoSuchTableException
 from tools.staging_migrator.src.molgenis_emx2_staging_migrator.graphql_queries import Queries
 
@@ -85,45 +86,46 @@ def query_columns_string(column: str | list | dict, indent: int) -> str:
         return return_val
 
 
-def find_cohort_references(schema_schema: dict) -> dict:
+def find_cohort_references(schema_schema: Schema) -> dict:
     """Finds the references in the target catalogue to the Cohorts table.
     References may be direct or indirect, such as the 'Subcohort counts' table
     that references the 'Subcohorts' table, which references the 'Cohorts' table directly.
     """
 
-    def find_table_columns(_table: dict):
+    def find_table_columns(_table: Table):
         _table_references = []
-        for _column in _table['columns']:
+        for _column in _table.columns:
             if _column.get('columnType') in ['REF', 'REF_ARRAY']:
                 if _column.get('refTableName') in ['Cohorts', *cohort_inheritance.values()]:
-                    _table_references.append(_column['id'])
-                elif _column.get('refTableName') != _table['name']:
-                    ref_table, = [_t for _t in schema_schema['tables'] if _t['name'] == _column['refTableName']]
+                    _table_references.append(_column.id)
+                elif _column.get('refTableName') != _table.name:
+                    ref_table, = [_t for _t in schema_schema.tables if _t.name == _column.get('refTableName')]
                     _column_references = find_table_columns(ref_table)
                     if len(_column_references) > 0:
-                        _table_references.append(_column['id'])
+                        _table_references.append(_column.id)
         return _table_references
 
     cohort_inheritance = {'Cohorts': 'Data resources', 'Data resources': 'Extended resources',
                           'Extended resources': 'Resources'}
     cohort_references = dict()
-    for table in schema_schema['tables']:
-        if table['name'] in cohort_inheritance.keys():
+    for table in schema_schema.tables:
+        if table.name in cohort_inheritance.keys():
             table_references = ['id']
         else:
             table_references = find_table_columns(table)
         if len(table_references) > 0:
-            cohort_references.update({table['name']: table_references[0]})
+            cohort_references.update({table.name: table_references[0]})
 
     # Gather all backwards references to the tables
     ref_backs = {}
     for tab in cohort_references.keys():
         ref_backs[tab] = []
         for _tab in cohort_references.keys():
-            _cols = [_col for _col in [t for t in schema_schema['tables'] if t['name'] == _tab][0].get('columns')
+            _cols = [_col for _col in [t for t in schema_schema.tables if t.name == _tab][0].get('columns')
                      if (_col.get('columnType') in ['REF', 'REF_ARRAY']) & (_col.get('refTableName') == tab) > 0]
             if len(_cols) > 0:
                 ref_backs[tab].append(_tab)
+
 
     for coh, inh in cohort_inheritance.items():
         if coh in ref_backs.keys():
