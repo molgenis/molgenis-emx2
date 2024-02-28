@@ -121,7 +121,7 @@ export default {
       fullscreen: false,
       timestamp: Date.now(),
       analyticsId: null,
-      cookieWallContent: "",
+      cookieWallContent: null,
     };
   },
   computed: {
@@ -222,7 +222,7 @@ export default {
       );
       this.cookieWallContent = analyticsCookieWallContentSetting
         ? analyticsCookieWallContentSetting.value
-        : "";
+        : null;
     });
   },
 };
