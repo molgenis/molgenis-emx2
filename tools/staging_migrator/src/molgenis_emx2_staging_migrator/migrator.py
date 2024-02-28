@@ -6,13 +6,13 @@ import zipfile
 from io import BytesIO
 from typing import TypeAlias, Literal
 
-import pandas as pd
-from molgenis_emx2_pyclient.exceptions import NoSuchSchemaException
-
 from molgenis_emx2_pyclient import Client
+from molgenis_emx2_pyclient.exceptions import NoSuchSchemaException, NoSuchTableException
+
 from tools.staging_migrator.src.molgenis_emx2_staging_migrator.constants import BASE_DIR
-from tools.staging_migrator.src.molgenis_emx2_staging_migrator.utils import get_table_pkey_values, \
-    find_cohort_references, construct_delete_variables, has_statement_of_consent, \
+from tools.staging_migrator.src.molgenis_emx2_staging_migrator.graphql_queries import Queries
+from tools.staging_migrator.src.molgenis_emx2_staging_migrator.utils import find_cohort_references, \
+    construct_delete_variables, has_statement_of_consent, \
     process_statement, prepare_pkey, query_columns_string
 
 log = logging.getLogger('Molgenis EMX2 Migrator')
@@ -35,6 +35,15 @@ class StagingMigrator(Client):
         self.staging_area = staging_area
         self.catalogue = catalogue
         self.table = table
+
+    def __repr__(self):
+        class_name = type(self).__name__
+        args = [
+            f"staging_area={self.staging_area!r}",
+            f"catalogue={self.catalogue!r}",
+            f"table={self.table!r}"
+        ]
+        return f"{class_name}({', '.join(args)})"
 
     def signin(self, username: str, password: str):
         """Signs the user in to the server using the Client's signin method
@@ -109,13 +118,15 @@ class StagingMigrator(Client):
         """
 
         # Gather the tables to delete from the target catalogue
-        tables_to_delete = find_cohort_references(self._get_schema_metadata(self.catalogue))
+        tables_to_delete = find_cohort_references(self._get_schema_metadata(self.catalogue), self.catalogue)
 
-        cohort_ids = get_table_pkey_values(self.url, self.session, self.staging_area, self.table)
+        cohort_ids = self._get_table_pkey_values()
+        metadata = self._get_schema_metadata(self.catalogue)
         for table_name, ref_col in tables_to_delete.items():
             # Iterate over the tables that reference the core table of the staging area
             # Check if any row matches this core table
-            table_id = self._get_schema_metadata(self.catalogue).get(table_name).get('id')
+            table_meta, = [_t for _t in metadata['tables'] if _t.get('name') == self.table]
+            table_id = table_meta.get('id')
 
             delete_rows = self._query_delete_rows(table_name, ref_col, cohort_ids)
 
@@ -137,12 +148,14 @@ class StagingMigrator(Client):
     def _query_delete_rows(self, table_name: str, ref_col: str,
                            cohort_ids: list) -> dict:
         """Queries the rows to be deleted from a table."""
-        query = self.__construct_pkey_query(self._get_schema_metadata(self.catalogue), table_name)
+        schema_meta = self._get_schema_metadata(self.catalogue)
+        query = self.__construct_pkey_query(schema_meta, table_name)
         variables = construct_delete_variables(self._get_schema_metadata(self.catalogue),
                                                cohort_ids, table_name, ref_col)
 
         response = self.session.post(url=f"{self.url}/{self.catalogue}/graphql",
-                                     json={"query": query, "variables": variables})
+                                     json={"query": query, "variables": variables},
+                                     headers={'x-molgenis-token': self.token})
         return response.json().get('data')
 
     def _delete_table_entries(self, table_id: str, pkeys: list):
@@ -171,16 +184,16 @@ class StagingMigrator(Client):
     def _verify_schemas(self):
         """Ensures the staging area and catalogue are available."""
         if self.staging_area is not None:
-            if self.staging_area not in self.schemas:
+            if self.staging_area not in self.schema_names:
                 raise NoSuchSchemaException(f"Schema '{self.staging_area}' not found on server."
-                                            f" Available schemas: {', '.join(self.schemas)}.")
-        if self.catalogue not in self.schemas:
+                                            f" Available schemas: {', '.join(self.schema_names)}.")
+        if self.catalogue not in self.schema_names:
             raise NoSuchSchemaException(f"Schema '{self.catalogue}' not found on server."
-                                        f" Available schemas: {', '.join(self.schemas)}.")
+                                        f" Available schemas: {', '.join(self.schema_names)}.")
 
     def _create_upload_zip(self) -> BytesIO:
         """Combines the relevant tables of the staging area into a zipfile."""
-        tables_to_sync = find_cohort_references(self._get_schema_metadata(self.staging_area))
+        tables_to_sync = find_cohort_references(self._get_schema_metadata(self.staging_area), self.staging_area)
 
         source_file_path = self._download_schema_zip(schema=self.staging_area, schema_type='source',
                                                      include_system_columns=False)
@@ -213,7 +226,8 @@ class StagingMigrator(Client):
 
         response = self.session.post(
             url=upload_url,
-            files={'file': (f'{BASE_DIR}/upload.zip', zip_stream.getvalue())}
+            files={'file': (f'{BASE_DIR}/upload.zip', zip_stream.getvalue())},
+            headers={'x-molgenis-token': self.token}
         )
 
         response_status = response.status_code
@@ -223,15 +237,18 @@ class StagingMigrator(Client):
             self._upload_fallback_zip()
         else:
             response_url = f"{self.url}{response.json().get('url')}"
-            upload_status = self.session.get(response_url).json().get('status')
+            upload_status = self.session.get(response_url,
+                                             headers={'x-molgenis-token': self.token}).json().get('status')
             while upload_status == 'RUNNING':
                 time.sleep(2)
-                upload_status = self.session.get(response_url).json().get('status')
-            upload_description = self.session.get(response_url).json().get('description')
+                upload_status = self.session.get(response_url,
+                                                 headers={'x-molgenis-token': self.token}).json().get('status')
+            upload_description = self.session.get(response_url,
+                                                  headers={'x-molgenis-token': self.token}).json().get('description')
 
             if upload_status == 'ERROR':
                 log.error(f"Migration failed, reason: {upload_description}.")
-                log.debug(self.session.get(response_url).json())
+                log.debug(self.session.get(response_url, headers={'x-molgenis-token': self.token}).json())
                 if not is_fallback:
                     log.info("Uploading fallback zip.")
                     self._upload_fallback_zip()
@@ -255,6 +272,35 @@ class StagingMigrator(Client):
         # Upload the stream
         self._upload_zip_stream(upload_stream, is_fallback=True)
 
+    def _get_table_pkey_values(self):
+        """Fetches the primary key values associated with the staging area's table."""
+
+        # Query server for cohort id
+        query = Queries.Cohorts
+        staging_url = f"{self.url}/{self.staging_area}/graphql"
+        response = self.session.post(url=staging_url,
+                                     headers={'x-molgenis-token': self.token},
+                                     json={"query": query})
+        response_data = response.json().get('data')
+        if response_data is None:
+            # Raise new error
+            raise NoSuchTableException(f"Table '{self.table}' not found on schema '{self.staging_area}'.")
+
+        # Return only if there is exactly one id/cohort in the Cohorts table
+        if self.table in response_data.keys():
+            if len(response_data[self.table]) < 1:
+                log.warning(
+                    f"Expected a value in table {self.table!r} in staging area {self.staging_area!r}"
+                    f" but found {len(response_data[self.table])!r}")
+                return None
+        else:
+            log.warning(
+                f"Expected a single value in table {self.table!r} in staging area {self.staging_area!r}"
+                f" but found none.")
+            return None
+
+        return [cohort['id'] for cohort in response_data[self.table]]
+
     @staticmethod
     def _cleanup():
         """Deletes the downloaded files after successful migration."""
@@ -268,13 +314,14 @@ class StagingMigrator(Client):
     @staticmethod
     def __construct_pkey_query(db_schema: dict, table_name: str, all_columns: bool = False):
         """Constructs a GraphQL query for finding the primary key values in a table."""
+        table_schema, = [_t for _t in db_schema['tables'] if _t.get('name') == table_name]
         if all_columns:
-            pkeys = [prepare_pkey(db_schema, table_name, col['id']) for col in db_schema[table_name]['columns']]
+            pkeys = [prepare_pkey(db_schema, table_name, col['id']) for col in table_schema['columns']]
             pkeys = [pk for pk in pkeys if pk is not None]
         else:
-            pkeys = [prepare_pkey(db_schema, table_name, col['id']) for col in db_schema[table_name]['columns'] if
+            pkeys = [prepare_pkey(db_schema, table_name, col['id']) for col in table_schema['columns'] if
                      col.get('key') == 1]
-        table_id = db_schema[table_name]['id']
+        table_id = table_schema['id']
         pkeys_print = query_columns_string(pkeys, indent=4)
         _query = (f"query {table_id}($filter: {table_id}Filter) {{\n"
                   f"  {table_id}(filter: $filter) {{\n"

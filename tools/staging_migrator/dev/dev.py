@@ -8,6 +8,8 @@ from dotenv import load_dotenv
 
 from tools.staging_migrator.src.molgenis_emx2_staging_migrator import StagingMigrator
 
+CATALOGUE_TEST = 'catalogue test'
+
 
 def main():
     """
@@ -29,10 +31,19 @@ def main():
     #     migrator.signin(username, password)
     #     print(migrator.status)
     #     migrator.migrate()
-    migrator = StagingMigrator(url='https://ype.molgeniscloud.org', token=token,
-                               staging_area='ABCD', catalogue='catalogue demo')
-    print(migrator.status)
-    migrator.migrate()
+    with StagingMigrator(url='https://ype.molgeniscloud.org', token=token,
+                         staging_area='ABCD') as migrator:
+        print(migrator.__repr__())
+        if CATALOGUE_TEST in migrator.schema_names:
+            migrator.delete_schema(CATALOGUE_TEST)
+        migrator.create_schema(name=CATALOGUE_TEST, template='DATA_CATALOGUE')
+        migrator.set_catalogue(CATALOGUE_TEST)
+        print(migrator.status)
+        try:
+            migrator.migrate()
+        except Exception as e:
+            print(e)
+        migrator.delete_schema(CATALOGUE_TEST)
 
 
 if __name__ == '__main__':

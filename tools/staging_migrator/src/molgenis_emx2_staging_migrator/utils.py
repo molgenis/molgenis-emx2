@@ -5,49 +5,17 @@ import logging
 from io import BytesIO
 
 import pandas as pd
-import requests
-
-from molgenis_emx2_pyclient.exceptions import NoSuchTableException
-from tools.staging_migrator.src.molgenis_emx2_staging_migrator.graphql_queries import Queries
 
 log = logging.getLogger(__name__)
 
 
-def get_table_pkey_values(server_url: str, session: requests.Session, staging_area: str, table_name: str) -> list | None:
-    """Fetches the primary key values associated with the staging area's table."""
-
-    # Query server for cohort id
-    query = Queries.Cohorts
-    staging_url = f"{server_url}/{staging_area}/graphql"
-    response = session.post(url=staging_url,
-                            json={"query": query})
-    response_data = response.json().get('data')
-    if response_data is None:
-        # Raise new error
-        raise NoSuchTableException(f"Table '{table_name}' not found on schema '{staging_area}'.")
-
-    # Return only if there is exactly one id/cohort in the Cohorts table
-    if table_name in response_data.keys():
-        if len(response_data[table_name]) < 1:
-            log.warning(
-                f"Expected a value in table '{table_name}' in staging area '{staging_area}'"
-                f" but found {len(response_data[table_name])}")
-            return None
-    else:
-        log.warning(
-            f"Expected a single value in table '{table_name}' in staging area '{staging_area}'"
-            f" but found none.")
-        return None
-
-    return [cohort['id'] for cohort in response_data[table_name]]
-
-
 def prepare_pkey(schema: dict, table_name: str, col_id: str | list = None) -> str | list | dict | None:
     """Prepares a primary key by adding a reference to a table if necessary."""
+    table_schema, = [_t for _t in schema['tables'] if _t.get('name') == table_name]
     if not col_id:
         # Return the primary keys of a table if no column name is specified
-        return [col['id'] for col in schema[table_name]['columns'] if col.get('key') == 1]
-    col_data, = [col for col in schema[table_name]['columns'] if col['id'] == col_id]
+        return [col['id'] for col in table_schema['columns'] if col.get('key') == 1]
+    col_data, = [col for col in table_schema['columns'] if col['id'] == col_id]
     if col_id.startswith('mg_'):
         return None
     if col_data.get('columnType') == 'HEADING':
@@ -85,11 +53,14 @@ def query_columns_string(column: str | list | dict, indent: int) -> str:
         return return_val
 
 
-def find_cohort_references(schema_schema: dict) -> dict:
+def find_cohort_references(schema_schema: dict, schema_name: str) -> dict:
     """Finds the references in the target catalogue to the Cohorts table.
     References may be direct or indirect, such as the 'Subcohort counts' table
     that references the 'Subcohorts' table, which references the 'Cohorts' table directly.
     """
+    schema_schema['tables'] = [
+        t for t in schema_schema['tables'] if t['schemaName'] in [schema_name, 'SharedStaging']
+    ]
 
     def find_table_columns(_table: dict):
         _table_references = []
@@ -167,7 +138,8 @@ def has_statement_of_consent(table_name: str, schema: dict) -> int:
     """Checks whether this table has a column that asks for a statement of consent."""
     consent_cols = ['statement of consent personal data',
                     'statement of consent email']
-    col_names = [_col['name'] for _col in schema[table_name]['columns']]
+    table_schema, = [t for t in schema['tables'] if (t['name'] == table_name) & (t['schemaName'] == schema['name'])]
+    col_names = [_col['name'] for _col in table_schema['columns']]
 
     return 1*(consent_cols[0] in col_names) + 2*(consent_cols[1] in col_names)
 
