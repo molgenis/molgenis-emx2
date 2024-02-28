@@ -14,7 +14,7 @@
     "graphql-request": "5.2.0",
     "import": "^0.0.6",
     "molgenis-components": "*",
-    "vue": "3.4.15",
+    "vue": "3.4.21",
     "vue-router": "4.2.5",
     "vue-tabler-icons": "2.21.0",
     "vue-scrollto": "2.20.0",

@@ -15,7 +15,7 @@
     "graphql-tag": "2.12.6",
     "meta-data-utils": "*",
     "molgenis-components": "*",
-    "vue": "3.4.15",
+    "vue": "3.4.21",
     "vue-router": "4.2.5",
     "vue-scrollto": "2.20.0",
     "vuedraggable": "4.1.0",
