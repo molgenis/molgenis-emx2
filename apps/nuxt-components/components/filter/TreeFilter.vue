@@ -7,13 +7,12 @@ import CustomTooltip from "../CustomTooltip.vue";
 const props = withDefaults(
   defineProps<{
     rootNodes?: ITreeNode[];
-    selectedNodes?: ITreeNode[];
-    isMultiSelect: boolean;
+    selectedNodes: ITreeNode[];
+    isMultiSelect?: boolean;
     mobileDisplay?: boolean;
   }>(),
   {
     isMultiSelect: true,
-    modelValue: [],
     mobileDisplay: false,
   }
 );
@@ -60,17 +59,10 @@ function toggleDeselect(node: ITreeNode) {
             type="checkbox"
             :id="rootNode.name"
             :name="rootNode.name"
-            :checked="
-              rootNode.selected === 'complete' ||
-              rootNode.selected === 'partial'
-            "
+            :checked="rootNode.selected"
             @click.stop="toggleSelect(rootNode)"
-            :class="{
-              'text-yellow-500': rootNode.selected === 'complete',
-              'text-search-filter-group-checkbox':
-                rootNode.selected !== 'complete',
-            }"
-            class="w-5 h-5 rounded-3px ml-[6px] mr-2.5 mt-0.5 border border-checkbox hover:cursor-pointer"
+            
+            class="w-5 h-5 rounded-3px ml-[6px] mr-2.5 mt-0.5 text-search-filter-group-checkbox border border-checkbox hover:cursor-pointer"
           />
         </div>
         <label

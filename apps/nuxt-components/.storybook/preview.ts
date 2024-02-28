@@ -3,6 +3,8 @@ import type { Preview } from "@storybook/vue3";
 // import(`../../nuxt3-ssr/public/_nuxt-styles/css/styles.${hash}.css`).then(() => {
 //   console.log('loaded tailwind styles')
 // });
+import '../public/_nuxt-styles/css/main.css'
+
 const preview: Preview = {
   parameters: {
     actions: { argTypesRegex: "^on[A-Z].*" },

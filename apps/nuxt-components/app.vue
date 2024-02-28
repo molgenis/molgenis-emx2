@@ -1,7 +1,6 @@
 
-import type Comp1Vue from './components/Comp1.vue';
 <template>
   <div>
-    <UIComp1/>
+    <h1 class="text-search-filter-group-checkbox">Hello Nuxt</h1>
   </div>
 </template>
