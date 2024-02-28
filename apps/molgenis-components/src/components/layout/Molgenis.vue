@@ -29,7 +29,7 @@
       </div>
     </div>
     <MolgenisFooter>
-      <span v-if="session && session.manifest">
+      <span v-if="session?.manifest">
         Software version:
         <a
           :href="
@@ -47,7 +47,7 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import MolgenisMenu from "./MolgenisMenu.vue";
 import MolgenisSession from "../account/MolgenisSession.vue";
 import MolgenisFooter from "./MolgenisFooter.vue";
@@ -116,36 +116,41 @@ export default {
   },
   data: function () {
     return {
-      session: null,
+      session: {} as Record<string, any>,
       logoURL: null,
       fullscreen: false,
       timestamp: Date.now(),
       analyticsId: null,
-      cookieWallContent: null,
+      cookieWallContent: "",
     };
   },
   computed: {
     schemaUrlsForCrumbs() {
-      var result = {};
+      let result: Record<string, any> = {
+        "list all databases": "/apps/central/",
+      };
       //all databases
-      result["list all databases"] = "/apps/central/";
-      if (this.session && this.session.schemas) {
-        this.session.schemas.forEach((s) => {
-          result[s] = "../../" + s; // all paths are of form /:schema/:app
+      if (this.session?.schemas) {
+        this.session.schemas.forEach((schema: string) => {
+          result[schema] = "../../" + schema; // all paths are of form /:schema/:app
         });
       }
       return result;
     },
     crumbs() {
+      const canEdit =
+        this.session?.roles?.filter((role: string) => {
+          return role === "Editor" || role === "Owner" || role === "Manager";
+        }).length > 0 || this.session?.email === "admin";
+      let result: Record<string, any> = {};
       if (window && location) {
         let path = decodeURI(
           window.location.pathname.replace(location.search, "")
         ).split("/");
         let url = "/";
-        let result = {};
         if (window.location.pathname != "/apps/central/") {
           path.forEach((el) => {
-            if (el != "") {
+            if (el !== "" && (canEdit || el !== "pages")) {
               url += el + "/";
               result[el] = url;
             }
@@ -155,15 +160,14 @@ export default {
           path = decodeURI(location.hash.split("?")[0]).substr(1).split("/");
           url += "#";
           path.forEach((el) => {
-            if (el != "") {
+            if (el !== "" && (canEdit || el !== "pages")) {
               url += "/" + el;
               result[el] = url;
             }
           });
         }
-        return result;
       }
-      return {};
+      return result;
     },
     logoURLorDefault() {
       return (
@@ -207,17 +211,18 @@ export default {
           }
         }
       `
-    ).then((data) => {
+    ).then((data: any) => {
       const analyticsSetting = data._settings.find(
-        (setting) => setting.key === "ANALYTICS_ID"
+        (setting: Record<string, any>) => setting.key === "ANALYTICS_ID"
       );
       this.analyticsId = analyticsSetting ? analyticsSetting.value : null;
       const analyticsCookieWallContentSetting = data._settings.find(
-        (setting) => setting.key === "ANALYTICS_COOKIE_WALL_CONTENT"
+        (setting: Record<string, any>) =>
+          setting.key === "ANALYTICS_COOKIE_WALL_CONTENT"
       );
       this.cookieWallContent = analyticsCookieWallContentSetting
         ? analyticsCookieWallContentSetting.value
-        : null;
+        : "";
     });
   },
 };
