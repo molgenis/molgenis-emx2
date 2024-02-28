@@ -4,7 +4,7 @@ import type { Meta, StoryObj } from "@storybook/vue3";
 const meta = {
   title: "filter/tree-components/TreeChild",
   component: TreeChild,
-} satisfies Meta<typeof TreeChild>;
+};
 
 export default meta;
 type Story = StoryObj<typeof meta>;

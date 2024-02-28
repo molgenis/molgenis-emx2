@@ -4,7 +4,7 @@ import type { Meta, StoryObj } from "@storybook/vue3";
 const meta = {
   title: "icons/CustomTooltip",
   component: CustomTooltip,
-} satisfies Meta<typeof CustomTooltip>;
+};
 
 export default meta;
 type Story = StoryObj<typeof meta>;

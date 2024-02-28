@@ -22,8 +22,8 @@ function toPascalCase(text: string) {
 
 const AsyncComp = computed(() => {
   const name = props.name || "star-solid";
-  return defineAsyncComponent(
-    () => import(`./icons/${toPascalCase(name)}.vue`)
+  return defineAsyncComponent(() =>
+    import(`./icons/${toPascalCase(name)}.vue`)
   );
 });
 </script>

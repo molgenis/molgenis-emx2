@@ -11,8 +11,8 @@
     "postinstall": "nuxt prepare",
     "storybook": "storybook dev --port 6006",
     "build-storybook": "storybook build",
-    "format": "prettier components  --write --config ../.prettierrc.js --gitignore",
-    "checkFormat": "prettier components --check --config ../.prettierrc.js --gitignore"
+    "format": "prettier components  --write --config ../.prettierrc.js",
+    "checkFormat": "prettier components --check --config ../.prettierrc.js"
   },
   "dependencies": {
     "floating-vue": "^5.2.2",

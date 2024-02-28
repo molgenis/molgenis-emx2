@@ -4,7 +4,7 @@ import type { Meta, StoryObj } from "@storybook/vue3";
 const meta = {
   title: "icons/BaseIcon",
   component: BaseIcon,
-} satisfies Meta<typeof BaseIcon>;
+};
 
 export default meta;
 type Story = StoryObj<typeof meta>;

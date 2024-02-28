@@ -20,7 +20,7 @@ function generateTreeData(width: number, depth: number) {
 const meta = {
   title: "fiter/TreeFilter",
   component: TreeFilter,
-} satisfies Meta<typeof TreeFilter>;
+};
 
 export default meta;
 type Story = StoryObj<typeof meta>;

@@ -61,7 +61,6 @@ function toggleDeselect(node: ITreeNode) {
             :name="rootNode.name"
             :checked="rootNode.selected"
             @click.stop="toggleSelect(rootNode)"
-            
             class="w-5 h-5 rounded-3px ml-[6px] mr-2.5 mt-0.5 text-search-filter-group-checkbox border border-checkbox hover:cursor-pointer"
           />
         </div>
