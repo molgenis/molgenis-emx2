@@ -1,33 +1,26 @@
-<script setup lang="ts">
-import { computed, defineAsyncComponent } from "vue";
+<script setup>
+const props = defineProps({
+  name: {
+    type: String,
+    required: true,
+  },
+  width: {
+    type: Number,
+    default: 24,
+  },
+});
 
-const props = withDefaults(
-  defineProps<{
-    name: string;
-    width?: number;
-  }>(),
-  {
-    name: "star-solid",
-    width: 24,
-  }
-);
-
-function clearAndUpper(text: string) {
+function clearAndUpper(text) {
   return text.replace(/-/, "").toUpperCase();
 }
 
-function toPascalCase(text: string) {
+function toPascalCase(text) {
   return text.replace(/(^\w|-\w)/g, clearAndUpper);
 }
 
-const AsyncComp = computed(() => {
-  const name = props.name || "star-solid";
-  return defineAsyncComponent(
-    () => import(`./icons/${toPascalCase(name)}.vue`)
-  );
-});
+const componentName = computed(() => "Icons" + toPascalCase(props.name));
 </script>
 
 <template>
-  <AsyncComp :width="width" />
+  <component :is="componentName" :width="width"></component>
 </template>

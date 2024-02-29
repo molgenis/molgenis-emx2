@@ -2,8 +2,8 @@
 export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: ['@nuxtjs/tailwindcss', 'floating-vue/nuxt'],
-  components: [{ path: "./components", prefix: "UI" }],
+  // components: [{ path: "./components", prefix: "UI" }],
   tailwindcss: {
     cssPath: '~/assets/css/main.css',
-  }
+  },
 })
