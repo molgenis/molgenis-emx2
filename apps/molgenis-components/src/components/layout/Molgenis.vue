@@ -146,7 +146,7 @@ export default {
         let url = "/";
         if (window.location.pathname != "/apps/central/") {
           path.forEach((el) => {
-            if (el !== "" && el !== "pages") {
+            if (el !== "") {
               url += el + "/";
               result[el] = url;
             }
@@ -156,7 +156,7 @@ export default {
           path = decodeURI(location.hash.split("?")[0]).substr(1).split("/");
           url += "#";
           path.forEach((el) => {
-            if (el !== "" && el !== "pages") {
+            if (el !== "") {
               url += "/" + el;
               result[el] = url;
             }
