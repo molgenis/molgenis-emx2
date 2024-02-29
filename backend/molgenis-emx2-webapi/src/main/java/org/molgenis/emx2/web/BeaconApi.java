@@ -5,6 +5,7 @@ import static spark.Spark.get;
 import static spark.Spark.post;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -13,6 +14,7 @@ import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.beaconv2.endpoints.*;
+import org.molgenis.emx2.beaconv2.endpoints.QueryDatatype;
 import org.molgenis.emx2.beaconv2.endpoints.individuals.ejp_rd_vp.EJP_VP_IndividualsQuery;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
 import spark.Request;
@@ -97,7 +99,8 @@ public class BeaconApi {
     // TODO pass request to response to set limits, offsets etc
     // result should be BeaconBooleanResponse, BeaconCountResponse or BeaconCollectionResponse
     List<Table> tables = getTableFromAllSchemas("Dataset", request);
-    return getWriter().writeValueAsString(new Datasets(request, tables));
+    JsonNode jsonNode = QueryDatatype.query(tables, "Dataset");
+    return getWriter().writeValueAsString(jsonNode);
   }
 
   private static String getAnalyses(Request request, Response response) throws Exception {
@@ -120,8 +123,10 @@ public class BeaconApi {
 
   private static String getIndividuals(Request request, Response response) throws Exception {
     response.type(APPLICATION_JSON_MIME_TYPE);
-    List<Table> tables = getTableFromAllSchemas("Individuals", request);
-    return getWriter().writeValueAsString(new Individuals(request, tables));
+    String id = "Individuals";
+    List<Table> tables = getTableFromAllSchemas(id, request);
+    JsonNode jsonNode = QueryDatatype.query(tables, id);
+    return getWriter().writeValueAsString(jsonNode);
   }
 
   private static String queryIndividuals_EJP_VP(Request request, Response response)

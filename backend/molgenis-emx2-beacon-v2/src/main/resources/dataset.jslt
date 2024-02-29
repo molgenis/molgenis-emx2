@@ -1,0 +1,30 @@
+import "ontology.jslt" as ontology
+import "meta.jslt" as meta
+{
+    "meta": meta(.),
+    "responseSummary": {
+        "exist": true
+    },
+    "response": {
+        "resultSets":
+        [for (.resultSets)
+        {
+            "id": .id,
+            "type": "dataset",
+            "setType": "datasets",
+            "exists": true,
+            "resultsCount": size(.results),
+            "results":
+            [for (.results) {
+                "createDateTime": .mg_insertedOn,
+                "description": .description,
+                "externalUrl": "externalUrl",
+                "id": .id,
+                "info": "info",
+                "name": .title,
+                "updateDateTime": .mg_updatedOn,
+                "version": .mg_updatedOn
+            }]
+        }]
+    }
+}

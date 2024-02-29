@@ -1,7 +1,6 @@
 package org.molgenis.emx2.beaconv2.endpoints.individuals.ejp_rd_vp;
 
 import static org.molgenis.emx2.beaconv2.endpoints.QueryHelper.findColumnPath;
-import static org.molgenis.emx2.beaconv2.endpoints.individuals.QueryIndividuals.queryIndividuals;
 import static org.molgenis.emx2.json.JsonUtil.getWriter;
 import static org.molgenis.emx2.rdf.RDFUtils.extractHost;
 import static org.molgenis.emx2.rdf.RDFUtils.getURI;
@@ -168,8 +167,7 @@ public class EJP_VP_IndividualsQuery {
     }
 
     // execute query with all filters combined
-    List<IndividualsResultSets> resultSetsList =
-        queryIndividuals(tables, filters.toArray(new String[0]));
+    List<IndividualsResultSets> resultSetsList = null;
 
     // only works because we only do AND queries, so one unmatched filter means no hit
     List<String> removeIndividualIDs = removeIndividualIDs(ageQueries, resultSetsList);

@@ -1,43 +1,57 @@
 import "ontology.jslt" as ontology
+import "meta.jslt" as meta
 {
-    "id": .id,
-    "sex": ontology(.sex),
-    "age":
-    {
-        "ageGroup": ontology(.age_ageGroup),
-        "age": { "iso8601duration": .age_age_iso8601duration }
+    "meta": meta(.),
+    "responseSummary": {
+        "exist": true
     },
-    "diseaseCausalGenes":
-    [for (.diseaseCausalGenes)
-         ontology(.)
-    ],
-    "ethnicity": ontology(.ethnicity),
-    "geographicOrigin": ontology(.geographicOrigin),
-    "disease":
-    [for (.diseases)
+    "response": {
+        "resultSets":
+        [for (.resultSets)
         {
-            "diseaseCode": ontology(.diseaseCode),
-            "ageOfOnset":
-            {
-                "ageGroup": ontology(.ageOfOnset_ageGroup),
-                "age": { "iso8601duration": .ageOfOnset_age_iso8601duration }
-            },
-            "severity": ontology(.severity)
-        }
-    ],
-    "measures":
-    [for (.measures)
-        {
-            "assayCode": ontology(.assayCode),
-            "date": .date,
-            "measurementVariable": .measurementVariable,
-            "measurementValue": {
-                "value": .measurementValue_value,
-                "units": ontology(.measurementValue_units)
-            },
-            "observationMoment": { "age": { "iso8601duration": .observationMoment_age_iso8601duration } }
-        }
-    ]
+            "id": .id,
+            "type": "dataset",
+            "setType": "biosamples",
+            "exists": true,
+            "resultsCount": size(.results),
+            "results":
+            [for (.results) {
+                "id": .id,
+                "sex": ontology(.sex),
+                "age": {
+                    "ageGroup": ontology(.age_ageGroup),
+                    "age": { "iso8601duration": .age_age_iso8601duration }
+                },
+                "diseaseCausalGenes":
+                [for (.diseaseCausalGenes)
+                     ontology(.)
+                ],
+                "ethnicity": ontology(.ethnicity),
+                "geographicOrigin": ontology(.geographicOrigin),
+                "disease":
+                [for (.diseases) {
+                        "diseaseCode": ontology(.diseaseCode),
+                        "ageOfOnset":
+                        {
+                            "ageGroup": ontology(.ageOfOnset_ageGroup),
+                            "age": { "iso8601duration": .ageOfOnset_age_iso8601duration }
+                        },
+                        "severity": ontology(.severity)
+                    }
+                ],
+                "measures":
+                [for (.measures) {
+                        "assayCode": ontology(.assayCode),
+                        "date": .date,
+                        "measurementVariable": .measurementVariable,
+                        "measurementValue": {
+                            "value": .measurementValue_value,
+                            "units": ontology(.measurementValue_units)
+                        },
+                        "observationMoment": { "age": { "iso8601duration": .observationMoment_age_iso8601duration } }
+                    }
+                ]
+            }]
+        }]
+    }
 }
-
-

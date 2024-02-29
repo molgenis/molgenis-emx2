@@ -93,7 +93,7 @@ public class QueryHelper {
                   refTable.getColumnsWithoutHeadings(), seenTables, sb, maxDepth, currentDepth);
           sb.append("}");
         }
-      } else if (!column.isSystemColumn()) {
+      } else {
         sb.append(column.getIdentifier()).append(",");
       }
     }
