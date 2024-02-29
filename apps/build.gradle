@@ -16,7 +16,13 @@ def nodeSpec = {
 
 def excludeDef = {
     // Exclude 'build', 'dist', and 'showCase' directories from inputs
-
+    exclude "dist"
+    exclude "node_modules"
+    exclude "showCase"
+    exclude ".output"
+    exclude ".fingerprint.js"
+    exclude ".nuxt"
+    exclude "public/_nuxt-styles"
 }
 
 node {
