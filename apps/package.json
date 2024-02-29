@@ -25,9 +25,5 @@
     "tasks",
     "gportal",
     "projectmanager"
-  ],
-  "devDependencies": {
-    "nx": "16.10.0",
-    "nx-cloud": "latest"
-  }
+  ]
 }
