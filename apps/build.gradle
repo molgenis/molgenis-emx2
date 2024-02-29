@@ -16,13 +16,7 @@ def nodeSpec = {
 
 def excludeDef = {
     // Exclude 'build', 'dist', and 'showCase' directories from inputs
-    exclude "dist"
-    exclude "node_modules"
-    exclude "showCase"
-    exclude ".output"
-    exclude ".fingerprint.js"
-    exclude ".nuxt"
-    exclude "public/_nuxt-styles"
+
 }
 
 node {
@@ -94,11 +88,11 @@ subprojects { subproject ->
             args = ['run', 'build-showcase']
             doLast {
                 copy {
-                    from "showCase"
+                    from packageJson.contains("\"name\": \"tailwind-components\"") ? ".output/public" : "showCase"
                     into "${parent.buildDir}/generated/main/resources/public_html/apps/" + project.name
                 }
             }
-            outputs.dir "showCase"
+            outputs.dir packageJson.contains("\"name\": \"tailwind-components\"") ? ".output/public" : "showCase"
             //for caching
             inputs.files fileTree(projectDir).matching {
                 with excludeDef

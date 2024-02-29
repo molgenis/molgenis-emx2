@@ -6,9 +6,10 @@ export default defineNuxtConfig({
   tailwindcss: {
     cssPath: '~/assets/css/main.css',
   },
+  ssr: process.env.NUXT_PUBLIC_IS_SSR === 'false' ? false : true,
   nitro: {
     prerender: {
       ignore: ['/_tailwind/']
     }
-  },
+  }
 })
