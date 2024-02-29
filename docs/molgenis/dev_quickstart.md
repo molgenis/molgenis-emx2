@@ -100,16 +100,8 @@ last updated 24 nov 2022
 
 ### Pre-commit hook
 
-We use `gradle checkFormat spotlessCheck` to verify code follows standard format. You can use pre-commit build hook in .git/hooks/pre-commit to ensure we don't
-push stuff that breaks the build. We have included two gradle task for this if you like.
-
-To only run the checks (which you could fix by running `gradle format spotlessApply`), you can add:
-
-```
-./gradlew installPreCommitGitFormatCheckHook
-```
-
-To automatically apply the formatting and update your commit, you can add:
+We use `gradle format spotlessApply` to ensure code follows standard format. You can use pre-commit build hook in .git/hooks/pre-commit to ensure we don't
+push stuff that breaks the build. We have included a gradle task for this if you like. To automatically apply the formatting and update your commit, you can add:
 
 ```
 ./gradlew installPreCommitGitFormatApplyHook

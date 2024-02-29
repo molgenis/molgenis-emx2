@@ -15,13 +15,25 @@
       />
       {{ primaryColor }}
       <InputString
+        class="mt-3"
         id="theme-url-input"
         label="Set logo url"
         v-model="logoURL"
       />
+      <InputText
+        id="additional-css-input"
+        label="Additional Css"
+        v-model="additionalCss"
+      />
+
       <ButtonAction @click="saveSettings">Save theme</ButtonAction>
       <br /><br />
-      <a :href="this.session.settings.cssURL">view theme css</a>
+      <a
+        v-if="this.session.settings.cssURL"
+        :href="this.session.settings.cssURL"
+      >
+        view theme css
+      </a>
     </div>
   </div>
 </template>
@@ -30,6 +42,7 @@
 import {
   ButtonAction,
   InputString,
+  InputText,
   MessageError,
   MessageSuccess,
   Spinner,
@@ -41,6 +54,7 @@ import { request } from "graphql-request";
 export default {
   components: {
     InputString,
+    InputText,
     ButtonAction,
     MessageError,
     MessageSuccess,
@@ -58,6 +72,7 @@ export default {
       loading: false,
       graphqlError: null,
       success: null,
+      additionalCss: null,
     };
   },
   created() {
@@ -70,6 +85,7 @@ export default {
   },
   methods: {
     loadSettings() {
+      this.additionalCss = this.session?.settings?.additionalCss;
       if (this.session?.settings?.cssURL) {
         this.logoURL = this.session.settings.logoURL;
         const urlParams = new URL(
@@ -102,6 +118,11 @@ export default {
         settingsAlter.push({ key: "logoURL", value: this.logoURL });
       } else {
         settingsDrop.push({ key: "logoURL" });
+      }
+      if (this.additionalCss) {
+        settingsAlter.push({ key: "additionalCss", value: this.additionalCss });
+      } else {
+        settingsDrop.push({ key: "additionalCss" });
       }
       this.$emit("reload");
       this.loading = true;
