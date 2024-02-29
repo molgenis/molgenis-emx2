@@ -1,4 +1,19 @@
 version: 2.1
+
+parameters:
+  GHA_Actor:
+    type: string
+    default: ""
+  GHA_Event:
+    type: string
+    default: ""
+  GHA_Action:
+    type: string
+    default: ""
+  GHA_Meta:
+    type: string
+    default: ""
+
 orbs:
   slack: circleci/slack@4.4.4
 
@@ -199,7 +214,7 @@ jobs:
     - post_steps
   e2e-preview:
     docker:
-      - image: mcr.microsoft.com/playwright:v1.41.2-jammy
+      - image: mcr.microsoft.com/playwright:v1.42.0-jammy
     steps:
       - checkout
       - run: npm i -D @playwright/test
@@ -227,11 +242,30 @@ jobs:
             echo $E2E_BASE_URL
             npx playwright test --config e2e e2e/tests
       - store_test_results:
-         path: test-results
+         path: /root/project/e2e
+
+
+  delete-helm-preview:
+    <<: *build_config
+
+    environment:
+      GHA_PREVIEW_NR: << pipeline.parameters.GHA_Meta >>
+    
+    steps:
+    - pre_steps
+    
+    - run:
+        name: delete preview on azure
+        command: |
+          export $( cat build/ci.properties | xargs )
+          bash ci/set_kubectl_config-azure.sh
+          kubectl delete namespace preview-emx2-pr-${GHA_PREVIEW_NR} || true
 
 workflows:
   version: 2
   build_and_test_and_preview_or_release:
+    unless:
+      equal: [ "delete-pr-preview", << pipeline.parameters.GHA_Action >> ]
     jobs:
     - preview:
         filters:
@@ -251,3 +285,8 @@ workflows:
        filters:
          branches:
            only: master
+  delete_preview:
+    when:
+      equal: [ "delete-pr-preview", << pipeline.parameters.GHA_Action >> ]
+    jobs:
+    - delete-helm-preview

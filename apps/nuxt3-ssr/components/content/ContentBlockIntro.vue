@@ -1,5 +1,5 @@
-<script setup>
-import { INotificationType } from "~/interfaces/types";
+<script setup lang="ts">
+import type { INotificationType } from "~/interfaces/types";
 const props = defineProps({
   image: {
     type: String,
@@ -63,7 +63,7 @@ watch(
 );
 
 const showMessageStatusModal = ref(false);
-const notificationType = ref(INotificationType.success);
+const notificationType = ref("success" as INotificationType);
 const notificationTitle = ref("The message has been sent");
 const notificationMessage = ref("");
 const timeoutInMills = ref(3000);
@@ -100,11 +100,11 @@ const submitForm = async () => {
   senderEmail.message = "";
 
   if (isSendSuccess) {
-    notificationType.value = INotificationType.success;
+    notificationType.value = "success";
     notificationTitle.value = "The message has been sent";
     timeoutInMills.value = 3000;
   } else {
-    notificationType.value = INotificationType.error;
+    notificationType.value = "error";
     notificationTitle.value = "Error";
     notificationMessage.value =
       "Your message could not be sent. Please try again later";
