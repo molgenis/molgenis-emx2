@@ -16,6 +16,7 @@ export const initialBiobankReportColumns = [
           quality: [{ quality_standard: ["name"] }],
         },
         { sub_collections: ["id"] },
+        { parent_collection: ["id"] },
       ],
     },
   },
