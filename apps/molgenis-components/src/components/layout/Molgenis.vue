@@ -138,10 +138,6 @@ export default {
       return result;
     },
     crumbs() {
-      const canEdit =
-        this.session?.roles?.filter((role: string) => {
-          return role === "Editor" || role === "Owner" || role === "Manager";
-        }).length > 0 || this.session?.email === "admin";
       let result: Record<string, any> = {};
       if (window && location) {
         let path = decodeURI(
@@ -150,7 +146,7 @@ export default {
         let url = "/";
         if (window.location.pathname != "/apps/central/") {
           path.forEach((el) => {
-            if (el !== "" && (canEdit || el !== "pages")) {
+            if (el !== "" && el !== "pages") {
               url += el + "/";
               result[el] = url;
             }
@@ -160,7 +156,7 @@ export default {
           path = decodeURI(location.hash.split("?")[0]).substr(1).split("/");
           url += "#";
           path.forEach((el) => {
-            if (el !== "" && (canEdit || el !== "pages")) {
+            if (el !== "" && el !== "pages") {
               url += "/" + el;
               result[el] = url;
             }
