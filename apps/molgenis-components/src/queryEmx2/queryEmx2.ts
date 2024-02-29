@@ -484,7 +484,6 @@ class QueryEMX2 {
     }
 
     for (const value of valueArray) {
-
       let graphqlValue = typeof value === "boolean" ? `${value}` : `"${value}"`;
 
       let filter = `{ ${operator}: ${graphqlValue} }`;
