@@ -1,9 +1,8 @@
 import logging
-import os
-import pathlib
 import time
 import zipfile
 from io import BytesIO
+from pathlib import Path
 from typing import TypeAlias, Literal
 
 from molgenis_emx2_pyclient import Client
@@ -95,8 +94,9 @@ class StagingMigrator(Client):
                              include_system_columns: bool = True) -> str:
         """Download target schema as zip, save in case upload fails."""
         filename = f"{BASE_DIR}/{schema_type}.zip"
-        if os.path.exists(filename):
-            os.remove(filename)
+        if Path(filename).exists():
+            Path(filename).unlink()
+
         api_zip_url = f"{self.url}/{schema}/api/zip"
         if include_system_columns:
             api_zip_url += '?includeSystemColumns=true'
@@ -105,8 +105,8 @@ class StagingMigrator(Client):
                                 allow_redirects=True)
 
         if resp.content:
-            pathlib.Path(filename).write_bytes(resp.content)
-            log.debug(f"Downloaded '{schema_type}' schema to '{filename}'.")
+            Path(filename).write_bytes(resp.content)
+            log.debug(f"Downloaded {schema_type!r} schema to {filename!r}.")
         else:
             log.error("Error: download failed.")
         return filename
@@ -206,7 +206,7 @@ class StagingMigrator(Client):
                 if '_files/' in file_name:
                     upload_archive.writestr(file_name, BytesIO(source_archive.read(file_name)).getvalue())
                     continue
-                elif (table_name := os.path.splitext(file_name)[0]) not in tables_to_sync.keys():
+                elif table_name := Path(file_name).stem not in tables_to_sync.keys():
                     continue
 
                 _table = source_archive.read(file_name)
@@ -307,9 +307,9 @@ class StagingMigrator(Client):
         zip_files = ['target.zip', 'source.zip', 'upload.zip']
         for zp in zip_files:
             filename = f"{BASE_DIR}/{zp}"
-            if os.path.exists(filename):
-                log.debug(f"Deleting file '{zp}'.")
-                os.remove(filename)
+            if Path(filename).exists():
+                log.debug(f"Deleting file {zp!r}.")
+                Path(filename).unlink()
 
     @staticmethod
     def __construct_pkey_query(db_schema: dict, table_name: str, all_columns: bool = False):

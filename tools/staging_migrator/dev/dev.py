@@ -17,8 +17,8 @@ def main():
     """
     # Set up the logger
     logging.basicConfig(level='DEBUG')
-    logging.getLogger("requests").setLevel(logging.WARNING)
-    logging.getLogger("urllib3").setLevel(logging.WARNING)
+    # logging.getLogger("requests").setLevel(logging.WARNING)
+    # logging.getLogger("urllib3").setLevel(logging.WARNING)
 
     # Load the login details into the environment
     load_dotenv()
@@ -34,16 +34,12 @@ def main():
     with StagingMigrator(url='https://ype.molgeniscloud.org', token=token,
                          staging_area='ABCD') as migrator:
         print(migrator.__repr__())
-        if CATALOGUE_TEST in migrator.schema_names:
-            migrator.delete_schema(CATALOGUE_TEST)
-        migrator.create_schema(name=CATALOGUE_TEST, template='DATA_CATALOGUE')
+        if CATALOGUE_TEST not in migrator.schema_names:
+            migrator.create_schema(name=CATALOGUE_TEST, template='DATA_CATALOGUE')
         migrator.set_catalogue(CATALOGUE_TEST)
         print(migrator.status)
-        try:
-            migrator.migrate()
-        except Exception as e:
-            print(e)
-        migrator.delete_schema(CATALOGUE_TEST)
+
+        migrator.migrate()
 
 
 if __name__ == '__main__':
