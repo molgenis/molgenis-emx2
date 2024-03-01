@@ -43,6 +43,6 @@
     "floating-vue": "5.2.2",
     "meta-data-utils": "*",
     "vite": "5.1.1",
-    "vue": "3.4.19"
+    "vue": "3.4.21"
   }
 }

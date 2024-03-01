@@ -20,7 +20,7 @@
     "molgenis-components": "*",
     "monaco-editor": "0.44.0",
     "pinia": "2.1.7",
-    "vue": "3.4.15",
+    "vue": "3.4.21",
     "vue-gtag": "2.0.1",
     "vue-router": "4.2.5",
     "vuedraggable": "4.1.0"

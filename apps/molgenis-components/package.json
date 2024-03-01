@@ -38,7 +38,7 @@
     "cross-env": "7.0.3",
     "meta-data-utils": "*",
     "universal-cookie": "4.0.4",
-    "vue": "3.4.15",
+    "vue": "3.4.21",
     "vue-gtag": "2.0.1",
     "vue-flatpickr-component": "11.0.3",
     "vue3-cookies": "^1.0.6",
