@@ -14,56 +14,99 @@ def nodeSpec = {
     download = !isCI
 }
 
+def excludeDef = {
+    // Exclude 'build', 'dist', and 'showCase' directories from inputs
+    exclude "dist"
+    exclude "node_modules"
+    exclude "showCase"
+    exclude ".output"
+    exclude ".fingerprint.js"
+    exclude ".nuxt"
+    exclude "public/_nuxt-styles"
+}
+
 node {
     with nodeSpec
 }
 
-task cleanJavascript(type: YarnTask, dependsOn: yarn_install) {
-    outputs.upToDateWhen { false }
-    args = ['run', 'nx', 'reset']
-}
-clean.dependsOn cleanJavascript
+subprojects { subproject ->
+    apply plugin: 'com.github.node-gradle.node'
 
-task format(type: YarnTask, dependsOn: yarn_install) {
-    if (!isCI) {
-        outputs.upToDateWhen { false }
-        args = ['run', 'nx', 'run-many','--target=format']
+    node {
+        with nodeSpec
     }
-}
 
-task checkFormat(type: YarnTask, dependsOn: format) {
-    outputs.upToDateWhen { false }
-    args = ['run', 'nx', 'run-many','--target=checkFormat']
-}
-
-task testJavaScript(type: YarnTask, dependsOn: checkFormat) {
-    outputs.upToDateWhen { false }
-    args = ['run', 'nx', 'run-many', '--target=test-ci']
-}
-
-task buildJavascript(type: YarnTask, dependsOn: testJavaScript) {
-    environment = ["NODE_OPTIONS": "--max-old-space-size=4096"]
-    args = ['run', 'nx', 'run-many', '--target=format:write,build,build-showcase', "--parallel=${Math.ceil(Runtime.runtime.availableProcessors() / 2)}", '--verbose']
-    doLast {
-        file("${project.projectDir}").eachDir { dir ->
-            if (dir.name == 'molgenis-components' || dir.name == 'molgenis-viz') {
-                copy {
-                    from dir.path + "/showCase"
-                    into "${buildDir}/generated/main/resources/public_html/apps/" + dir.name
-                }
-            } else if (dir.name != ".gradle" && dir.name != 'build' && dir.name != 'node_modules') {
-                println dir.path + "/dist"
-                copy {
-                    from dir.name + "/dist"
-                    into "${buildDir}/generated/main/resources/public_html/apps/" + dir.name
-                }
+    task format(type: YarnTask, dependsOn: parent.yarn_install) {
+        if (!isCI) {
+            args = ['run', 'format']
+            inputs.files fileTree(projectDir).matching {
+                with excludeDef
+            }
+            outputs.files fileTree(projectDir).matching {
+                with excludeDef
+            }
+        } else {
+            args = ['run', 'checkFormat']
+            inputs.files fileTree(projectDir).matching {
+                with excludeDef
             }
         }
     }
-    outputs.upToDateWhen { false }
-}
 
-compileJava.dependsOn buildJavascript
+    def packageJson = file("package.json").text
+
+    task buildJavascript(type: YarnTask, dependsOn: format) {
+        environment = ["NODE_OPTIONS": "--max-old-space-size=4096"]
+
+        //automatically get the internal dependencies
+        (packageJson =~ /"([^"]+)":\s*"\*"/).each { match ->
+            dependsOn ":apps:${match[1]}:buildJavascript";
+        }
+        //run the build
+        args = ['run', 'build']
+        doLast {
+            copy {
+                from "dist"
+                into "${parent.buildDir}/generated/main/resources/public_html/apps/" + project.name
+            }
+        }
+        outputs.dir "dist"
+        //for caching
+        inputs.files fileTree(projectDir).matching {
+            with excludeDef
+        }
+    }
+    parent.tasks.processResources.dependsOn buildJavascript
+
+    task testJavaScript(type: YarnTask, dependsOn: buildJavascript) {
+        if (packageJson.contains("test-ci")) {
+            args = ['run', 'test-ci']
+            inputs.files fileTree(projectDir).matching {
+                with excludeDef
+            }
+        }
+    }
+    test.dependsOn testJavaScript
+
+    if (packageJson.contains("build-showcase")) {
+        task buildShowcase(type: YarnTask, dependsOn: buildJavascript) {
+            environment = ["NODE_OPTIONS": "--max-old-space-size=4096"]
+            args = ['run', 'build-showcase']
+            doLast {
+                copy {
+                    from "showCase"
+                    into "${parent.buildDir}/generated/main/resources/public_html/apps/" + project.name
+                }
+            }
+            outputs.dir "showCase"
+            //for caching
+            inputs.files fileTree(projectDir).matching {
+                with excludeDef
+            }
+        }
+        parent.tasks.processResources.dependsOn buildShowcase
+    }
+}
 
 sourceSets {
     main {
