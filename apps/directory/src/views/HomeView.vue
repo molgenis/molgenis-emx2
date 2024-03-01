@@ -21,7 +21,11 @@ onMounted(() => {
 <template>
   <div class="main-view">
     <application-header-partial-view />
-    <h1 style="text-align: center; font-size: 100px;"><a href="https://www.myinstants.com/media/sounds/allbase.mp3">All your bases are belong to us</a></h1>
+    <h1 style="text-align: center; font-size: 100px">
+      <a href="https://www.myinstants.com/media/sounds/allbase.mp3"
+        >All your bases are belong to us</a
+      >
+    </h1>
     <biobank-cards-partial-view />
   </div>
 </template>
