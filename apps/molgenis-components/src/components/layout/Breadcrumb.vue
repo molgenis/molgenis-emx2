@@ -10,7 +10,7 @@
         <a v-if="label == lastKey" aria-current="page">{{ label }}</a>
         <a v-else :href="url">{{ label }}</a>
         <span class="dropdown">
-          <span v-if="dropdown && index == 0">
+          <span v-if="dropdown && index === 0">
             <i
               class="text-primary dropdown-toggle dropdown-toggle-split pr-0"
               @click="toggleDropdown"
