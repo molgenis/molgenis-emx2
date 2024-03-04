@@ -20,7 +20,7 @@ orbs:
 definitions:
   build_config: &build_config
     docker:
-    - image: molgenis/ci-build:1.2.0
+    - image: molgenis/ci-build:1.2.2
     working_directory: ~/repo
     resource_class: large
     environment:
@@ -29,7 +29,7 @@ definitions:
       TERM: dumb
   test_config: &test_config
     docker:
-    - image: molgenis/ci-build:1.2.0
+    - image: molgenis/ci-build:1.2.2
     - image: postgres:15-alpine
       environment:
         POSTGRES_USER: postgres
@@ -147,9 +147,7 @@ jobs:
 
     - run:
         name: prepare sql test database
-        command: |
-          apt-get update && apt-get install postgresql-client -y
-          psql -h 127.0.0.1 -p 5432 -U postgres < .docker/initdb.sql
+        command: psql -h 127.0.0.1 -p 5432 -U postgres < .docker/initdb.sql
 
     - run:
         name: run tests and push to sonar
@@ -169,9 +167,7 @@ jobs:
     
     - run:
         name: prepare sql test database
-        command: |
-          apt-get update && apt-get install postgresql-client -y
-          psql -h 127.0.0.1 -p 5432 -U postgres < .docker/initdb.sql
+        command: psql -h 127.0.0.1 -p 5432 -U postgres < .docker/initdb.sql
 
     # we might be optimistic and skip tests here
     - run:
