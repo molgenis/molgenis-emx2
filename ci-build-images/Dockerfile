@@ -1,3 +1,4 @@
+FROM bitnami/kubectl:1.20.9 as kubectl
 FROM gradle:jdk17-jammy
 
 RUN apt-get update && apt-get install python3 python3-venv -y
@@ -25,10 +26,7 @@ RUN install -m 0755 -d /etc/apt/keyrings
 RUN curl -sSL https://get.docker.com/ | sh
 
 # kubectl repo
-RUN curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add
-RUN echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | tee /etc/apt/sources.list.d/kubernetes.list
-RUN apt-get update
-RUN apt-get install kubectl -y
+COPY --from=kubectl /opt/bitnami/kubectl/bin/kubectl /usr/local/bin/
 
 #
 ##helm repo
