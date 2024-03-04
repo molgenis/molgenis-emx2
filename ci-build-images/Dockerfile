@@ -1,3 +1,8 @@
+# docker file for the ci
+# to build and publish (n.b. on apple silicon you need to set --platform)
+# docker buildx build -t molgenis/ci-build:1.2.2 --platform linux/amd64 .
+# docker push molgenis/ci-build:1.2.2
+
 FROM gradle:jdk17-jammy
 
 RUN apt-get update && apt-get install python3 python3-venv -y
@@ -44,5 +49,6 @@ RUN  AZ_DIST=$(lsb_release -cs) && echo "deb [arch=`dpkg --print-architecture` s
 RUN apt-get update
 RUN apt-get install azure-cli
 
+# postgresl client
 RUN apt-get update
 RUN apt-get install postgresql-client -y
