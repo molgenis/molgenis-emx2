@@ -22,7 +22,11 @@ function setSideMenuStyle(hash: string) {
     </div>
     <ul>
       <li v-for="item in items">
-        <a :href="'#' + item.id" :class="setSideMenuStyle('#' + item.id)">
+        <a
+          class="capitalize"
+          :href="'#' + item.id"
+          :class="setSideMenuStyle('#' + item.id)"
+        >
           {{ item.label }}
         </a>
       </li>

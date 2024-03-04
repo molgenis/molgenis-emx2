@@ -5,6 +5,7 @@
     "strict": true,
     "isolatedModules": true,
     "allowJs": true,
-    "types": ["vite/client"]
+    "types": ["vite/client"],
+    "lib": ["es2021", "dom"]
   }
 }
