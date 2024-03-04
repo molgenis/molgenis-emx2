@@ -6,12 +6,17 @@ from io import BytesIO
 
 import pandas as pd
 
+from molgenis_emx2_pyclient.exceptions import NoSuchTableException
+
 log = logging.getLogger(__name__)
 
 
 def prepare_pkey(schema: dict, table_name: str, col_id: str | list = None) -> str | list | dict | None:
     """Prepares a primary key by adding a reference to a table if necessary."""
-    table_schema, = [_t for _t in schema['tables'] if _t.get('name') == table_name]
+    try:
+        table_schema, = [_t for _t in schema['tables'] if _t.get('name') == table_name]
+    except ValueError:
+        raise NoSuchTableException(f"{table_name!r} not found in schema.")
     if not col_id:
         # Return the primary keys of a table if no column name is specified
         return [col['id'] for col in table_schema['columns'] if col.get('key') == 1]
@@ -23,9 +28,10 @@ def prepare_pkey(schema: dict, table_name: str, col_id: str | list = None) -> st
     elif col_data.get('columnType') == 'REFBACK':
         return None
     elif col_data.get('columnType') in ['ONTOLOGY', 'ONTOLOGY_ARRAY']:
-        ont_keys = prepare_pkey(schema, col_data.get('refTableName'))
-        ont_cols = [prepare_pkey(schema, col_data['refTableName'], ok) for ok in ont_keys]
-        return {col_id: ont_cols}
+        return {col_id: 'name'}
+    #     ont_keys = prepare_pkey(schema, col_data.get('refTableName'))
+    #     ont_cols = [prepare_pkey(schema, col_data['refTableName'], ok) for ok in ont_keys]
+    #     return {col_id: ont_cols}
     elif col_data.get('columnType') in ['REF', 'REF_ARRAY']:
         ref_keys = prepare_pkey(schema, col_data.get('refTableName'))
         ref_cols = [prepare_pkey(schema, col_data['refTableName'], rk) for rk in ref_keys]
@@ -138,7 +144,10 @@ def has_statement_of_consent(table_name: str, schema: dict) -> int:
     """Checks whether this table has a column that asks for a statement of consent."""
     consent_cols = ['statement of consent personal data',
                     'statement of consent email']
-    table_schema, = [t for t in schema['tables'] if (t['name'] == table_name) & (t['schemaName'] == schema['name'])]
+    try:
+        table_schema, = [t for t in schema['tables'] if (t['name'] == table_name) & (t['schemaName'] == schema['name'])]
+    except ValueError:
+        raise NoSuchTableException(f"Table {table_name!r} not in schema.")
     col_names = [_col['name'] for _col in table_schema['columns']]
 
     return 1*(consent_cols[0] in col_names) + 2*(consent_cols[1] in col_names)

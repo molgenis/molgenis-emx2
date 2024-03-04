@@ -125,7 +125,7 @@ class StagingMigrator(Client):
         for table_name, ref_col in tables_to_delete.items():
             # Iterate over the tables that reference the core table of the staging area
             # Check if any row matches this core table
-            table_meta, = [_t for _t in metadata['tables'] if _t.get('name') == self.table]
+            table_meta, = [_t for _t in metadata['tables'] if _t.get('name') == table_name]
             table_id = table_meta.get('id')
 
             delete_rows = self._query_delete_rows(table_name, ref_col, cohort_ids)
@@ -206,7 +206,7 @@ class StagingMigrator(Client):
                 if '_files/' in file_name:
                     upload_archive.writestr(file_name, BytesIO(source_archive.read(file_name)).getvalue())
                     continue
-                elif table_name := Path(file_name).stem not in tables_to_sync.keys():
+                elif (table_name := Path(file_name).stem) not in tables_to_sync.keys():
                     continue
 
                 _table = source_archive.read(file_name)
