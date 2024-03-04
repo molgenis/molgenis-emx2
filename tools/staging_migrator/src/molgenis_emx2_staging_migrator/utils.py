@@ -79,6 +79,10 @@ def find_cohort_references(schema_schema: dict, schema_name: str) -> dict:
                     _column_references = find_table_columns(ref_table)
                     if len(_column_references) > 0:
                         _table_references.append(_column['id'])
+            elif _column.get('columnType') == 'REFBACK':
+                if _column.get('refTableName') in ['Cohorts', *cohort_inheritance.values()]:
+                    _table_references.append(_column['id'])
+
         return _table_references
 
     cohort_inheritance = {'Cohorts': 'Data resources', 'Data resources': 'Extended resources',

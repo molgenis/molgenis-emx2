@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 
 from tools.staging_migrator.src.molgenis_emx2_staging_migrator import StagingMigrator
 
-CATALOGUE_TEST = 'catalogue test'
+CATALOGUE_TEST = 'UMCG'
 
 
 def main():
@@ -16,7 +16,7 @@ def main():
     Main function for executing developing actions.
     """
     # Set up the logger
-    logging.basicConfig(level='DEBUG')
+    logging.basicConfig(level='INFO')
     # logging.getLogger("requests").setLevel(logging.WARNING)
     # logging.getLogger("urllib3").setLevel(logging.WARNING)
 

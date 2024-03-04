@@ -169,15 +169,19 @@ class StagingMigrator(Client):
             variables = {'pkey': pkeys[_batch:_batch + batch_size]}
             response = self.session.post(
                 url=f"{self.url}/{self.catalogue}/graphql",
-                json={"query": query, "variables": variables}
+                json={"query": query, "variables": variables},
+                headers={'x-molgenis-token': self.token}
             )
             if response.status_code != 200:
                 log.error(response)
                 log.error(f"Deleting entries from table {table_id} failed.")
 
-    def _cohorts_in_ref_array(self, _table: str) -> bool:
+    def _cohorts_in_ref_array(self, _table_name: str) -> bool:
         """Returns True if cohorts are referenced in a referenced array in any column in this table."""
-        _table_schema = self._get_schema_metadata(self.catalogue)[_table]
+        try:
+            _table_schema, = [_t for _t in self._get_schema_metadata(self.catalogue)['tables'] if _t.get('name') == _table_name]
+        except ValueError:
+            raise NoSuchTableException(f"No table {_table_name!r} in schema {self.catalogue!r}.")
         return (len([col for col in _table_schema['columns']
                      if ((col.get('columnType') == 'REF_ARRAY') & (col.get('refTable') == 'Cohorts'))]) > 0)
 
@@ -268,7 +272,8 @@ class StagingMigrator(Client):
         with (zipfile.ZipFile(target_filename, 'r') as target_archive,
               zipfile.ZipFile(upload_stream, 'w', zipfile.ZIP_DEFLATED) as upload_archive):
             for file_name in target_archive.namelist():
-                upload_archive.writestr(file_name, BytesIO(target_archive.read(file_name)).getvalue())
+                if not file_name.startswith('molgenis'):
+                    upload_archive.writestr(file_name, BytesIO(target_archive.read(file_name)).getvalue())
         # Upload the stream
         self._upload_zip_stream(upload_stream, is_fallback=True)
 
