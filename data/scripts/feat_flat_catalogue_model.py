@@ -6,6 +6,7 @@ TODO: delete when pull request is ready for merging
 """
 
 import warnings
+from pathlib import Path
 
 import pandas as pd
 
@@ -26,8 +27,9 @@ class Tables:
     DB = 'Databanks'
 
 
-SHARED_DIR = '../_models/shared'
-SPECIFIC_DIR = '../_models/specific'
+SHARED_DIR = Path().cwd().joinpath('..', '_models', 'shared')
+SPECIFIC_DIR = Path().cwd().joinpath('..', '_models', 'specific')
+
 
 VERSION = 4.0
 
@@ -56,13 +58,13 @@ class Flattener(pd.DataFrame):
 
     def __init__(self, simple_mode: bool = False):
         """Initializes the Flattener object by loading the original dataset."""
-        super().__init__(data=pd.read_csv(f"{SHARED_DIR}/DataCatalogue-TODO.csv"))
+        super().__init__(data=pd.read_csv(SHARED_DIR.joinpath('DataCatalogue-TODO.csv')))
         self._prepare_data()
         if simple_mode:
             self.drop(columns=['key', 'required', 'validation', 'semantics', 'description'], inplace=True)
 
     def __str__(self):
-        return f"{pd.DataFrame(self)}"
+        return f"{pd.DataFrame(self)!s}"
 
     def __repr__(self):
         return pd.DataFrame(self)
@@ -198,15 +200,15 @@ class Flattener(pd.DataFrame):
     def save_df(self, old_profiles: bool = False):
         """Saves the pandas DataFrame of the model to disk."""
         if not old_profiles:
-            self.to_csv(f"{SHARED_DIR}/DataCatalogue-FLAT.csv", index=False)
+            self.to_csv(SHARED_DIR.joinpath('DataCatalogue-FLAT.csv'), index=False)
         profiles = list(set([p for _l in list(self['profiles'].str.split(',')) for p in _l]))
 
-        file_dir = f"{SPECIFIC_DIR}"
+        file_dir = SPECIFIC_DIR
         if old_profiles:
-            file_dir += "/old_profiles"
+            file_dir = file_dir.joinpath('old_profiles')
         for prof in profiles:
-            self.loc[self['profiles'].str.contains(prof)].drop(columns=['profiles']).to_csv(f"{file_dir}/{prof}.csv",
-                                                                                            index=False)
+            self.loc[self['profiles'].str.contains(prof)].drop(
+                columns=['profiles']).to_csv(file_dir.joinpath(f"{prof}.csv"), index=False)
 
 
 def main():
@@ -214,6 +216,7 @@ def main():
     flattener = Flattener(simple_mode=False)
     flattener.save_df(old_profiles=True)
     flattener.flatten()
+    print(flattener)
 
 
 if __name__ == '__main__':
