@@ -118,7 +118,8 @@ class StagingMigrator(Client):
         """
 
         # Gather the tables to delete from the target catalogue
-        tables_to_delete = find_cohort_references(self._get_schema_metadata(self.catalogue), self.catalogue)
+        tables_to_delete = find_cohort_references(self._get_schema_metadata(self.catalogue),
+                                                  self.catalogue, self.table)
 
         cohort_ids = self._get_table_pkey_values()
         metadata = self._get_schema_metadata(self.catalogue)
@@ -179,7 +180,8 @@ class StagingMigrator(Client):
     def _cohorts_in_ref_array(self, _table_name: str) -> bool:
         """Returns True if cohorts are referenced in a referenced array in any column in this table."""
         try:
-            _table_schema, = [_t for _t in self._get_schema_metadata(self.catalogue)['tables'] if _t.get('name') == _table_name]
+            _table_schema, = [_t for _t in self._get_schema_metadata(self.catalogue)['tables'] if
+                              _t.get('name') == _table_name]
         except ValueError:
             raise NoSuchTableException(f"No table {_table_name!r} in schema {self.catalogue!r}.")
         return (len([col for col in _table_schema['columns']
@@ -197,7 +199,8 @@ class StagingMigrator(Client):
 
     def _create_upload_zip(self) -> BytesIO:
         """Combines the relevant tables of the staging area into a zipfile."""
-        tables_to_sync = find_cohort_references(self._get_schema_metadata(self.staging_area), self.staging_area)
+        tables_to_sync = find_cohort_references(self._get_schema_metadata(self.staging_area),
+                                                self.staging_area, self.table)
 
         source_file_path = self._download_schema_zip(schema=self.staging_area, schema_type='source',
                                                      include_system_columns=False)
@@ -282,6 +285,7 @@ class StagingMigrator(Client):
 
         # Query server for cohort id
         query = Queries.Cohorts
+        query = """{{\n  {} {{\n    id\n    name\n  }}\n}}""".format(self.table)
         staging_url = f"{self.url}/{self.staging_area}/graphql"
         response = self.session.post(url=staging_url,
                                      headers={'x-molgenis-token': self.token},
@@ -294,15 +298,15 @@ class StagingMigrator(Client):
         # Return only if there is exactly one id/cohort in the Cohorts table
         if self.table in response_data.keys():
             if len(response_data[self.table]) < 1:
-                log.warning(
+                raise ValueError(
                     f"Expected a value in table {self.table!r} in staging area {self.staging_area!r}"
-                    f" but found {len(response_data[self.table])!r}")
-                return None
+                    f" but found {len(response_data[self.table])!r}"
+                )
         else:
-            log.warning(
-                f"Expected a single value in table {self.table!r} in staging area {self.staging_area!r}"
-                f" but found none.")
-            return None
+            raise ValueError(
+                f"Expected a value in table {self.table!r} in staging area {self.staging_area!r}"
+                f" but found none."
+            )
 
         return [cohort['id'] for cohort in response_data[self.table]]
 

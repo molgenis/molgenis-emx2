@@ -8,7 +8,8 @@ from dotenv import load_dotenv
 
 from tools.staging_migrator.src.molgenis_emx2_staging_migrator import StagingMigrator
 
-CATALOGUE_TEST = 'UMCG'
+STAGING_AREA = 'CohortStaging'
+CATALOGUE_TEST = 'catalogue'
 
 
 def main():
@@ -32,7 +33,7 @@ def main():
     #     print(migrator.status)
     #     migrator.migrate()
     with StagingMigrator(url='https://ype.molgeniscloud.org', token=token,
-                         staging_area='ABCD') as migrator:
+                         staging_area=STAGING_AREA, table='Resources') as migrator:
         print(migrator.__repr__())
         if CATALOGUE_TEST not in migrator.schema_names:
             migrator.create_schema(name=CATALOGUE_TEST, template='DATA_CATALOGUE')

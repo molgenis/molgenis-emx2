@@ -59,7 +59,7 @@ def query_columns_string(column: str | list | dict, indent: int) -> str:
         return return_val
 
 
-def find_cohort_references(schema_schema: dict, schema_name: str) -> dict:
+def find_cohort_references(schema_schema: dict, schema_name: str, base_table: str) -> dict:
     """Finds the references in the target catalogue to the Cohorts table.
     References may be direct or indirect, such as the 'Subcohort counts' table
     that references the 'Subcohorts' table, which references the 'Cohorts' table directly.
@@ -72,7 +72,7 @@ def find_cohort_references(schema_schema: dict, schema_name: str) -> dict:
         _table_references = []
         for _column in _table['columns']:
             if _column.get('columnType') in ['REF', 'REF_ARRAY']:
-                if _column.get('refTableName') in ['Cohorts', *cohort_inheritance.values()]:
+                if _column.get('refTableName') in [base_table, *inheritance.values()]:
                     _table_references.append(_column['id'])
                 elif _column.get('refTableName') != _table['name']:
                     ref_table, = [_t for _t in schema_schema['tables'] if _t['name'] == _column['refTableName']]
@@ -80,16 +80,23 @@ def find_cohort_references(schema_schema: dict, schema_name: str) -> dict:
                     if len(_column_references) > 0:
                         _table_references.append(_column['id'])
             elif _column.get('columnType') == 'REFBACK':
-                if _column.get('refTableName') in ['Cohorts', *cohort_inheritance.values()]:
+                if _column.get('refTableName') in [base_table, *inheritance.values()]:
                     _table_references.append(_column['id'])
 
         return _table_references
 
-    cohort_inheritance = {'Cohorts': 'Data resources', 'Data resources': 'Extended resources',
-                          'Extended resources': 'Resources'}
+    inheritance = {}
+    table = base_table
+    inherit = [t for t in schema_schema['tables'] if t['name'] == table][0].get('inheritName')
+    inheritance.update({table: inherit})
+    while inherit is not None:
+        table = inherit
+        inherit = [t for t in schema_schema['tables'] if t['name'] == table][0].get('inheritName')
+        inheritance.update({table: inherit})
+
     cohort_references = dict()
     for table in schema_schema['tables']:
-        if table['name'] in cohort_inheritance.keys():
+        if table['name'] in inheritance.keys():
             table_references = ['id']
         else:
             table_references = find_table_columns(table)
@@ -106,7 +113,7 @@ def find_cohort_references(schema_schema: dict, schema_name: str) -> dict:
             if len(_cols) > 0:
                 ref_backs[tab].append(_tab)
 
-    for coh, inh in cohort_inheritance.items():
+    for coh, inh in inheritance.items():
         if coh in ref_backs.keys():
             ref_backs[coh].append(inh)
         else:
