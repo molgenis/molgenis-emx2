@@ -5,8 +5,8 @@ from typing import Literal
 
 import requests
 
-from .graphql_queries import list_schema_meta
-from .exceptions import NoSuchColumnException, NoSuchTableException
+from tools.pyclient.src.molgenis_emx2_pyclient.graphql_queries import list_schema_meta
+from tools.pyclient.src.molgenis_emx2_pyclient.exceptions import NoSuchColumnException, NoSuchTableException
 
 
 class Column:
@@ -42,22 +42,22 @@ class Column:
         return self.__dict__
 
     @staticmethod
-    def __parse_arg(_k: str, _v: str | list | dict):
-        if _k == 'inherited':
-            if isinstance(_v, bool):
-                return _v
-            if _v.lower() == 'true':
+    def __parse_arg(k: str, v: str | list | dict):
+        if k == 'inherited':
+            if isinstance(v, bool):
+                return v
+            if v.lower() == 'true':
                 return True
             return False
-        if _k == 'required':
-            if isinstance(_v, bool):
-                return _v
-            if _v.lower() == 'true':
+        if k == 'required':
+            if isinstance(v, bool):
+                return v
+            if v.lower() == 'true':
                 return True
-            elif _v.lower() == 'false':
+            elif v.lower() == 'false':
                 return False
-            return _v
-        return _v
+            return v
+        return v
 
 
 class Table:
@@ -98,7 +98,7 @@ class Table:
             if col.__getattribute__(by) == value:
                 columns.append(col)
         if len(columns) == 0:
-            raise NoSuchColumnException(f"Column with {by} '{value}' not found in table '{self}'.")
+            raise NoSuchColumnException(f"Column with {by} {value!r} not found in table {self.name!r}.")
         return columns[0]
 
     def get_columns(self, by: str, value: str) -> list[Column]:
@@ -118,10 +118,10 @@ class Table:
         return _dict
 
     @staticmethod
-    def __parse_arg(_k: str, _v: str | list | dict):
-        if _k == 'columns':
-            return [Column(**__v) for __v in _v]
-        return _v
+    def __parse_arg(k: str, v: str | list | dict):
+        if k == 'columns':
+            return [Column(**c) for c in v]
+        return v
 
 
 class Schema:
@@ -162,7 +162,7 @@ class Schema:
             if tab.__getattribute__(by) == value:
                 tables.append(tab)
         if len(tables) == 0:
-            raise NoSuchTableException(f"Table with {by} '{value}' not found in schema '{self}'.")
+            raise NoSuchTableException(f"Table with {by} {value!r} not found in schema {self.name!r}.")
         return tables[0]
 
     def get_tables(self, by: str, value: str) -> list[Table]:
@@ -178,14 +178,14 @@ class Schema:
         """Returns a dictionary representation of the Table object."""
         _dict = self.__dict__
         if 'tables' in _dict.keys():
-            _dict['tables'] = [_tab.to_dict() for _tab in self.tables]
+            _dict['tables'] = [table.to_dict() for table in self.tables]
         return _dict
 
     @staticmethod
-    def __parse_arg(_k: str, _v: str | list | dict):
-        if _k == 'tables':
-            return [Table(**__v) for __v in _v]
-        return _v
+    def __parse_arg(k: str, v: str | list | dict):
+        if k == 'tables':
+            return [Table(**t) for t in v]
+        return v
 
 
 if __name__ == '__main__':
