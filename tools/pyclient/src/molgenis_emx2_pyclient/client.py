@@ -1,6 +1,7 @@
 import csv
 import io
 import logging
+from functools import cache
 from typing import TypeAlias, Literal
 
 import pandas as pd
@@ -545,6 +546,7 @@ class Client:
 
         self.schemas = self.get_schemas()
 
+    @cache
     def _get_schema_metadata(self, name: str = None):
         """Retrieves a schema's metadata.
         
