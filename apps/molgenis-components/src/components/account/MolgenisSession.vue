@@ -46,7 +46,7 @@
       />
     </div>
     <component is="style">
-      {{ session.settings.additionalCss }}
+      {{ session?.settings?.additionalCss }}
     </component>
   </div>
 </template>

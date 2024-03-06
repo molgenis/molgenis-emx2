@@ -37,7 +37,7 @@
             @deselect="deselect(selectIdx)"
           >
             <template v-slot:rowheader="slotProps">
-              <ButtonAction @click="select(slotProps.rowKey)">
+              <ButtonAction @click="select(slotProps.row)">
                 Select
               </ButtonAction>
             </template>
@@ -88,9 +88,6 @@ export default {
       type: String,
       required: true,
     },
-    /**
-     * if table that this input is selecting from can be edited by the current user
-     *  */
     canEdit: {
       type: Boolean,
       required: false,
@@ -113,17 +110,16 @@ export default {
 </script>
 
 <docs>
-
 <template>
   <div>
     <div>
       <label for="input-ref-select-1">Example </label>
       <InputRefSelect
-          id="input-ref-select-1"
-          v-model="value1"
-          tableId="Pet"
-          schemaId="pet store"
-          refLabel="${name}"
+        id="input-ref-select-1"
+        v-model="value1"
+        tableId="Pet"
+        schemaId="pet store"
+        refLabel="${name}"
       />
       Selection: {{ value1 }}
     </div>
@@ -131,58 +127,83 @@ export default {
     <div>
       <label for="input-ref-select-1">Example readonly </label>
       <InputRefSelect
-          id="input-ref-select-1b"
-          v-model="value1"
-          tableId="Pet"
-          schemaId="pet store"
-          refLabel="${name}"
-          :readonly="true"
+        id="input-ref-select-1b"
+        v-model="value1"
+        tableId="Pet"
+        schemaId="pet store"
+        refLabel="${name}"
+        :readonly="true"
       />
       Selection: {{ value1 }}
     </div>
 
-
-    <label for="input-ref-select-2" class="mt-3">Example with default value</label>
+    <label for="input-ref-select-2" class="mt-3">
+      Example with default value
+    </label>
     <div>
       <InputRefSelect
-          id="input-ref-select-2"
-          v-model="value2"
-          tableId="Pet"
-          schemaId="pet store"
-          refLabel="${name}"
+        id="input-ref-select-2"
+        v-model="value2"
+        tableId="Pet"
+        schemaId="pet store"
+        refLabel="${name}"
       />
       Selection: {{ value2 }}
     </div>
 
-    <label for="input-ref-select-3" class="mt-3">Example with filter (category.name = dog)</label>
+    <label for="input-ref-select-3" class="mt-3">
+      Example with filter (category.name = dog)
+    </label>
     <div>
       <InputRefSelect
-          id="input-ref-select-3"
-          v-model="value3"
-          tableId="Pet"
-          :filter="{category:{name: {equals:'dog'}}}"
-          schemaId="pet store"
-          refLabel="${name}"
+        id="input-ref-select-3"
+        v-model="value3"
+        tableId="Pet"
+        :filter="{ category: { name: { equals: 'dog' } } }"
+        schemaId="pet store"
+        refLabel="${name}"
       />
       Selection: {{ value3 }}
     </div>
 
-
+    <label for="input-ref-select-4"> Example with different label </label>
+    <div>
+      <InputRefSelect
+        id="input-ref-select-4"
+        v-model="value4"
+        tableId="Pet"
+        schemaId="pet store"
+        refLabel="${status}"
+      />
+      Selection: {{ value4 }}
+    </div>
+    
+    <label for="input-ref-select-5"> Example with different label and initial value</label>
+    <div>
+      <InputRefSelect
+        id="input-ref-select-5"
+        v-model="value5"
+        tableId="Pet"
+        schemaId="pet store"
+        refLabel="${status}"
+      />
+      Selection: {{ value5 }}
+    </div>
   </div>
-
-
 </template>
 
 <script>
-  export default {
-    data: function () {
-      return {
-        value1: null,
-        value2: {name: 'spike'},
-        value3: {name: 'pooky'}
-      };
-    }
-  };
+export default {
+  data: function () {
+    return {
+      value1: null,
+      value2: { name: "spike" },
+      value3: { name: "pooky" },
+      value4: null,
+      value5: { name: "pooky" },
+      
+    };
+  },
+};
 </script>
-
 </docs>
