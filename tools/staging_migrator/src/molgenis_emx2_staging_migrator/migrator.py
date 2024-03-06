@@ -81,6 +81,9 @@ class StagingMigrator(Client):
         log.info("Deleting staging area cohorts from the catalogue.")
         self._delete_staging_from_catalogue()
 
+        # Synchronize the organisations with SharedStaging
+        self.sync_shared_staging()
+
         # Create zipfile for uploading
         zip_stream = self._create_upload_zip()
 
@@ -145,6 +148,26 @@ class StagingMigrator(Client):
                 # TODO: implement following
                 # self._delete_from_ref_array(schema=catalogue, table_id=table_schema['id'],
                 #                             pkeys=response.json().get('data').get(table_schema['id']))
+
+    def sync_shared_staging(self):
+        """Synchronizes the records in the SharedStaging schema that are referenced
+        from the staging area with the relevant records in the catalogue.
+        """
+        staging_schema = self._get_schema_metadata(self.staging_area)
+        # Collect the tables in which a column references a table in the SharedStaging schema
+        ss_ref_tables = [_t for _t in staging_schema['tables']
+                         if any(map(lambda c: c.get('refSchemaName') == 'SharedStaging', _t['columns'])) and _t.get('schemaName') == self.staging_area]
+        if len(ss_ref_tables) == 0:
+            return
+        for table in ss_ref_tables:
+            ref_cols = [col for col in table['columns'] if col.get('refSchemaName') == 'SharedStaging']
+            ref_col_strs = [f"{rc['id']} {{\n      id\n    }}" for rc in ref_cols]
+            query = """query {} {{\n  {} {{\n    {}\n  }}\n}}""".format(
+                table['id'], table['id'], "    \n    ".join(ref_col_strs))
+            response = self.session.post(url=f"{self.url}/{self.staging_area}/graphql",
+                                         json={"query": query},
+                                         headers={'x-molgenis-token': self.token})
+            # TODO combine the ids of Organisations in the responses
 
     def _query_delete_rows(self, table_name: str, ref_col: str,
                            cohort_ids: list) -> dict:

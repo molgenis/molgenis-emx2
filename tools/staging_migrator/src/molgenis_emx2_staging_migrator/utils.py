@@ -123,7 +123,8 @@ def find_cohort_references(schema_schema: dict, schema_name: str, base_table: st
         ref_backs.pop(key)
         return key
 
-    other_tabs = [key for key in schema_schema.keys() if key not in ref_backs.keys()]
+    table_names = [_t['name'] for _t in schema_schema['tables']]
+    other_tabs = [key for key in table_names if key not in ref_backs.keys()]
     sequence = [pop_dict(tab) for (tab, refs) in ref_backs.copy().items() if len(refs) == 0]
     while len(ref_backs) > 0:
         for tab, refs in ref_backs.copy().items():
