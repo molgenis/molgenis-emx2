@@ -95,8 +95,6 @@ commands:
         when: always
     - store_test_results:
         path: ~/test-results
-#    - store_artifacts:
-#        path: ./build/libs
 
 # jobs for pull request and master
 jobs:
