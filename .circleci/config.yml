@@ -1,11 +1,26 @@
 version: 2.1
+
+parameters:
+  GHA_Actor:
+    type: string
+    default: ""
+  GHA_Event:
+    type: string
+    default: ""
+  GHA_Action:
+    type: string
+    default: ""
+  GHA_Meta:
+    type: string
+    default: ""
+
 orbs:
   slack: circleci/slack@4.4.4
 
 definitions:
   build_config: &build_config
     docker:
-    - image: molgenis/ci-build:1.2.0
+    - image: molgenis/ci-build:1.2.3
     working_directory: ~/repo
     resource_class: large
     environment:
@@ -14,7 +29,7 @@ definitions:
       TERM: dumb
   test_config: &test_config
     docker:
-    - image: molgenis/ci-build:1.2.0
+    - image: molgenis/ci-build:1.2.3
     - image: postgres:15-alpine
       environment:
         POSTGRES_USER: postgres
@@ -80,8 +95,8 @@ commands:
         when: always
     - store_test_results:
         path: ~/test-results
-    - store_artifacts:
-        path: ./build/libs
+#    - store_artifacts:
+#        path: ./build/libs
 
 # jobs for pull request and master
 jobs:
@@ -95,8 +110,8 @@ jobs:
     - pre_steps
 
     - run:
-        name: build and push emx2 java docker images and helm for the preview
-        command: ./gradlew -s --no-daemon shadowJar dockerPush helmPublishMainChart ci -x test
+        name: build and push emx2 java docker images for the preview
+        command: ./gradlew -s --no-daemon shadowJar dockerPush ci -x test
 
     - run:
         name: push ssr-catalogue docker images
@@ -132,9 +147,7 @@ jobs:
 
     - run:
         name: prepare sql test database
-        command: |
-          apt-get update && apt-get install postgresql-client -y
-          psql -h 127.0.0.1 -p 5432 -U postgres < .docker/initdb.sql
+        command: psql -h 127.0.0.1 -p 5432 -U postgres < .docker/initdb.sql
 
     - run:
         name: run tests and push to sonar
@@ -154,9 +167,7 @@ jobs:
     
     - run:
         name: prepare sql test database
-        command: |
-          apt-get update && apt-get install postgresql-client -y
-          psql -h 127.0.0.1 -p 5432 -U postgres < .docker/initdb.sql
+        command: psql -h 127.0.0.1 -p 5432 -U postgres < .docker/initdb.sql
 
     # we might be optimistic and skip tests here
     - run:
@@ -171,11 +182,11 @@ jobs:
         command: |
           export $( cat build/ci.properties | xargs )
           if [[ "$TAG_NAME" == *"SNAPSHOT"* ]]; then
-            ./gradlew -s --no-daemon dockerPush helmPublishMainChart
+            ./gradlew -s --no-daemon dockerPush
             docker build apps/nuxt3-ssr/ -t molgenis/ssr-catalogue-snapshot:latest -t molgenis/ssr-catalogue-snapshot:${TAG_NAME}
             docker push molgenis/ssr-catalogue-snapshot --all-tags
           else
-            ./gradlew -s --no-daemon dockerPush helmPublishMainChart release
+            ./gradlew -s --no-daemon dockerPush release
             docker build apps/nuxt3-ssr/ -t molgenis/ssr-catalogue:latest -t molgenis/ssr-catalogue:${TAG_NAME}
             docker push molgenis/ssr-catalogue --all-tags
           fi
@@ -197,20 +208,81 @@ jobs:
           -X POST https://slack.com/api/chat.postMessage  
 
     - post_steps
+  e2e-preview:
+    docker:
+      - image: mcr.microsoft.com/playwright:v1.42.0-jammy
+    steps:
+      - checkout
+      - run: npm i -D @playwright/test
+      - run: npx playwright install chrome
+      - run:
+          name: Wait for preview to be up, poll every 10 seconds
+          command: |
+            GETURL="https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/"
+            while true; 
+                do 
+                    STATUS=$(curl --silent --head $GETURL | awk '/^HTTP/{print $2}')
+                    echo ${STATUS}
+                    if [[ "$STATUS" == "200" ]]; then 
+                        echo "preview is up";
+                        break; 
+                    else 
+                        echo "preview is not ready yet, waiting 10 seconds...";
+                    fi; 
+                    sleep 10; 
+                done
+      - run:
+          command: | 
+            echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
+            export E2E_BASE_URL=https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/
+            echo $E2E_BASE_URL
+            npx playwright test --config e2e e2e/tests
+      - store_test_results:
+         path: /root/project/e2e
+
+
+  delete-helm-preview:
+    <<: *build_config
+
+    environment:
+      GHA_PREVIEW_NR: << pipeline.parameters.GHA_Meta >>
+    
+    steps:
+    - pre_steps
+    
+    - run:
+        name: delete preview on azure
+        command: |
+          export $( cat build/ci.properties | xargs )
+          bash ci/set_kubectl_config-azure.sh
+          kubectl delete namespace preview-emx2-pr-${GHA_PREVIEW_NR} || true
 
 workflows:
   version: 2
   build_and_test_and_preview_or_release:
+    unless:
+      equal: [ "delete-pr-preview", << pipeline.parameters.GHA_Action >> ]
     jobs:
     - preview:
         filters:
           branches:
             ignore: master
+    - e2e-preview:
+        requires:
+          - preview
+        filters:
+            branches:
+              ignore: master
     - test:
-        filters:
-          branches:
-            ignore: master
+       filters:
+         branches:
+           ignore: master
     - release:
-        filters:
-          branches:
-            only: master
+       filters:
+         branches:
+           only: master
+  delete_preview:
+    when:
+      equal: [ "delete-pr-preview", << pipeline.parameters.GHA_Action >> ]
+    jobs:
+    - delete-helm-preview

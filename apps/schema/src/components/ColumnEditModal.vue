@@ -136,7 +136,7 @@
                 />
               </div>
               <div class="col-4" v-if="isEditable(column)">
-                <InputString
+                <InputText
                   id="column_default"
                   v-model="column.defaultValue"
                   label="defaultValue"
@@ -524,9 +524,13 @@ export default {
       this.loading = false;
     },
     setupRequiredSelect() {
-      if (this.column.required === "true") {
+      if (this.column.required === "true" || this.column.required === true) {
         this.requiredSelect = true;
-      } else if (this.column.required === "false") {
+      } else if (
+        this.column.required === "false" ||
+        this.column.required === false ||
+        this.column.required === undefined
+      ) {
         this.requiredSelect = false;
       } else {
         this.requiredSelect = "condition";

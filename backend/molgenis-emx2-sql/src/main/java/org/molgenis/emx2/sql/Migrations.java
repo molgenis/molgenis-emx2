@@ -4,6 +4,7 @@ import static org.jooq.impl.DSL.*;
 import static org.jooq.impl.SQLDataType.VARCHAR;
 import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 import static org.molgenis.emx2.sql.MetadataUtils.*;
+import static org.molgenis.emx2.sql.SqlDatabase.TEN_SECONDS;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.MG_TABLECLASS_UPDATE;
 
 import java.io.IOException;
@@ -20,7 +21,8 @@ import org.slf4j.LoggerFactory;
 
 public class Migrations {
   // version the current software needs to work
-  private static final int SOFTWARE_DATABASE_VERSION = 16;
+  private static final int SOFTWARE_DATABASE_VERSION = 17;
+  public static final int THREE_MINUTES = 180;
   private static Logger logger = LoggerFactory.getLogger(Migrations.class);
 
   public static synchronized void initOrMigrate(SqlDatabase db) {
@@ -104,6 +106,10 @@ public class Migrations {
             executeMigrationFile(tdb, "migration16.sql", "make required nullable");
           }
 
+          if (version < 17) {
+            executeMigrationFile(tdb, "migration17.sql", "add fkey to inherit table");
+          }
+
           // if success, update version to SOFTWARE_DATABASE_VERSION
           updateDatabaseVersion((SqlDatabase) tdb, SOFTWARE_DATABASE_VERSION);
         });
@@ -167,12 +173,16 @@ public class Migrations {
   }
 
   static void executeMigrationFile(Database db, String sqlFile, String message) {
+    DSLContext jooq = ((SqlDatabase) db).getJooq();
     try {
+      jooq.settings().setQueryTimeout(THREE_MINUTES);
       String sql = new String(Migrations.class.getResourceAsStream(sqlFile).readAllBytes());
-      ((SqlDatabase) db).getJooq().execute(sql);
+      jooq.execute(sql);
       logger.debug(message + "(file = " + sqlFile);
     } catch (IOException e) {
       throw new MolgenisException("Execute migration failed", e);
+    } finally {
+      jooq.settings().setQueryTimeout(TEN_SECONDS);
     }
   }
 
