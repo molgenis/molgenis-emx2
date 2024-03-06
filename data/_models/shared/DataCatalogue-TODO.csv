@@ -1,7 +1,7 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
 Version,,,,,,,,,,,,3.12,"DataCatalogue,EMA,SharedStaging,CohortStaging"
-Catalogues,,,,,,,,,,,,A collection of resources within a network or consortium or about a common topic,DataCatalogue
-Catalogues,,network,ref,1,TRUE,,Networks,,,,dcat:catalog,Network or consortium that leads this catalogue,DataCatalogue
+Catalogues,,,,,,,,,,,dcat:Catalog,A collection of resources within a network or consortium or about a common topic,DataCatalogue
+Catalogues,,network,ref,1,TRUE,,Networks,,,,,Network or consortium that leads this catalogue,DataCatalogue
 Catalogues,,type,ontology,,TRUE,CatalogueOntologies,CatalogueTypes,,,,dcat:theme,Type of catalogue,DataCatalogue
 Catalogues,,publisher,ontology,,,CatalogueOntologies,CatalogueTypes,,,,dcat:publisher,Publisher todo should default to molgenis team,DataCatalogue
 Resources,,,,,,,,,,,dcat:Resource,"Generic listing of all resources. Should not be used directly, instead use specific types such as Databanks and Studies","DataCatalogue,EMA,SharedStaging,CohortStaging"
@@ -42,7 +42,7 @@ RWE resources,,type,ontology_array,,,CatalogueOntologies,Datasource types,,,,dct
 RWE resources,,type other,text,,,,,,,,,"If other, describe the type of datasource","DataCatalogue,EMA"
 Data resources,,keywords,text,,,,,,,,dcat:keyword,Keywords to increase findability of this resource. Try to use words that are not used in the description,"DataCatalogue,CohortStaging"
 Resources,,website,hyperlink,,,,,,,,dcat:landingPage,Link to the website or homepage,"DataCatalogue,EMA,CohortStaging"
-Extended resources,,lead organisation,ref_array,,,,Organisations,,,,"dcterms:creator",lead organisation (e.g. research department or group) for this resource,"DataCatalogue,EMA"
+Extended resources,,lead organisation,ref_array,,,,Organisations,,,,dcterms:creator,lead organisation (e.g. research department or group) for this resource,"DataCatalogue,EMA"
 Extended resources,,additional organisations,ref_array,,,,Organisations,,,,dcterms:contributor,List the names of any additional organisations that contributed to the resource,"DataCatalogue,EMA"
 Extended resources,,lead organisation,ref_array,,,SharedStaging,Organisations,,,,,lead organisation (e.g. research department or group) for this resource,CohortStaging
 Extended resources,,additional organisations,ref_array,,,SharedStaging,Organisations,,,,,List the names of any additional organisations that contributed to the resource,CohortStaging
@@ -250,8 +250,8 @@ Quantitative information,,mean observation years,int,,,,,,,,,Median years for wh
 Quantitative information,,mean years active,int,,,,,,,,,Median time for which unique individuals with records captured in the data source are observable (most recent count),"DataCatalogue,EMA"
 Quantitative information,,median age,int,,,,,,,,,Median age of individuals within data source,DataCatalogue
 Quantitative information,,proportion female,int,,,,,,,,,Proportion of females in the data source,DataCatalogue
-Collection events,,,,,,,,,,,dcat:Datasets,Definition of a data collection event for a resource,"DataCatalogue,CohortStaging"
-Collection events,,resource,ref,1,TRUE,,Extended resources,,,,,Resource this collection event is part of,"DataCatalogue,CohortStaging"
+Collection events,,,,,,,,,,,dcterms:PeriodOfTime,Definition of a data collection event for a resource,"DataCatalogue,CohortStaging"
+Collection events,,resource,ref,1,TRUE,,Extended resources,,,,dcterms:isPartOf,Resource this collection event is part of,"DataCatalogue,CohortStaging"
 Collection events,,name,,1,TRUE,,,,,,dcterms:title,Name of the collection event,"DataCatalogue,CohortStaging"
 Collection events,,description,text,,,,,,,,dcterms:description,Description of the collection event,"DataCatalogue,CohortStaging"
 Collection events,,subcohorts,ref_array,,,,Subcohorts,resource,,,dcterms:isReferencedBy,Subcohorts that are targetted by this collection event,"DataCatalogue,CohortStaging"
@@ -460,7 +460,7 @@ DAPs,,process time,int,,,,,,,,,"On average, how many DAYS does it take for appro
 Aggregates,,,,,,,,,,,,"Resource counts for e.g. samples, clinical data","DataCatalogue,CohortStaging"
 Aggregates,,resource,ref,1,TRUE,,Extended resources,,,,,Resource this sample or data count refers to,"DataCatalogue,CohortStaging"
 Aggregates,,research center,ref,1,TRUE,,Organisations,,,,,,DataCatalogue
-Aggregates,,research center,ref,1,TRUE,SharedStaging,Organisations,,,,,,"CohortStaging"
+Aggregates,,research center,ref,1,TRUE,SharedStaging,Organisations,,,,,,CohortStaging
 Aggregates,,primary tumor,ontology,1,TRUE,CatalogueOntologies,Tumor types,,,,,,"DataCatalogue,CohortStaging"
 Aggregates,,sample type,ontology,1,TRUE,CatalogueOntologies,Sample types,,,,,,"DataCatalogue,CohortStaging"
 Aggregates,,sampling period,ontology,1,TRUE,CatalogueOntologies,Sampling periods,,,,,,"DataCatalogue,CohortStaging"
