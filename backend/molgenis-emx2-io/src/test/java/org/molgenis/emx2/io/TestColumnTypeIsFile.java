@@ -110,6 +110,7 @@ public class TestColumnTypeIsFile {
             .retrieveRows()
             .get(0);
     assertEquals("test", new String(result.getBinary("picture_contents")));
+    assertEquals("molgenis", result.getString("picture_filename"));
     assertEquals("txt", result.getString("picture_extension"));
     assertEquals("text/plain", result.getString("picture_mimetype"));
   }
