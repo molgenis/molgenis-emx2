@@ -71,7 +71,7 @@ class StagingMigrator(Client):
         except NoSuchSchemaException:
             self.catalogue = old_catalogue
 
-    def migrate(self):
+    def migrate(self, keep_zips: bool = False):
         """Performs the migration of the staging area to the catalogue."""
 
         # Download the target catalogue for upload in case of an error during execution
@@ -90,8 +90,9 @@ class StagingMigrator(Client):
         # Upload the zip to the target schema
         self._upload_zip_stream(zip_stream)
 
-        # Remove any downloaded files from disk
-        self._cleanup()
+        if not keep_zips:
+            # Remove any downloaded files from disk
+            self._cleanup()
 
     def _download_schema_zip(self, schema: str, schema_type: SchemaType,
                              include_system_columns: bool = True) -> str:
