@@ -108,6 +108,11 @@ public class Migrations {
             executeMigrationFile(tdb, "migration17.sql", "add fkey to inherit table");
           }
 
+          if (version < 18) {
+            executeMigrationFile(
+                tdb, "migration18.sql", "add filename to tables contain FILE datatype");
+          }
+
           // if success, update version to SOFTWARE_DATABASE_VERSION
           updateDatabaseVersion((SqlDatabase) tdb, SOFTWARE_DATABASE_VERSION);
         });
