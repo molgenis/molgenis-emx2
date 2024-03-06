@@ -87,7 +87,7 @@ const iconStarClasses = computed(() => {
 
     <div v-if="!compact">
       <template v-if="resource.description">
-        <ContentReadMore :text="resource.description" />
+        <ContentReadMore class="text-body-base" :text="resource.description" />
       </template>
 
       <!-- TODO think about generic way to add additional context -->
