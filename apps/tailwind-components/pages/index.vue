@@ -1,27 +1,25 @@
 <script setup lang="ts">
-const modules = import.meta.glob('./*.story.vue',{
+const modules = import.meta.glob('./*.story.vue', {
   import: 'default',
   eager: true,
-} )
+})
 
-const stories = []
-const components = []
-Object.entries(modules).forEach(([key, value]) => {
-    console.log(key)
-    console.log(value)
-    stories.push(key)
-    components.push(value)
+const stories = Object.entries(modules).map(([key, value]) => {
+  const title = key.replace('./', '').replace('.story.vue', '')
+  return { title, component: value }
 })
 
 </script>
-<template>
-    <ul>
-        <li v-for="story in stories">{{ story }}</li>
 
-    </ul>
-    <div v-for="component in components">
-        <div>
-            <component :is="component" />
-        </div>
+<template>
+
+  <div v-for="story in stories" class="mt-6 pb-12 border-b border-y-gray-300">
+
+    <h3 class="text-heading-3xl my-3">{{ story.title }}</h3>
+
+    <div>
+      <component :is="story.component" />
     </div>
+  
+  </div>
 </template>
