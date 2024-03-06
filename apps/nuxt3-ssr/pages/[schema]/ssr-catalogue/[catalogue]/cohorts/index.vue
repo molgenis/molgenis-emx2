@@ -61,14 +61,14 @@ let filters: IFilter[] = reactive([
   {
     title: "Cohort Types",
     refTableId: "ResourceTypes",
-    collumnId: "type",
+    columnId: "type",
     columnType: "ONTOLOGY",
     conditions: [],
   },
   {
     title: "Design",
     refTableId: "CohortDesigns",
-    collumnId: "design",
+    columnId: "design",
     columnType: "ONTOLOGY",
     conditions: [],
   },
@@ -137,7 +137,7 @@ const { data } = await useFetch<any, IMgError>(
   }
 );
 
-const cohorts = computed(() => data.value.data.Cohorts);
+const cohorts = computed(() => data.value.data.Cohorts || []);
 
 function setCurrentPage(pageNumber: number) {
   router.push({ path: route.path, query: { page: pageNumber } });
