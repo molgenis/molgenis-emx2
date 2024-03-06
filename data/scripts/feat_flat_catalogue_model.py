@@ -93,8 +93,6 @@ class Flattener(pd.DataFrame):
 
         self._add_cohorts_label()
 
-        self._add_profile_column()
-
         self._remove_shared_staging_resources()
 
         # Save result to file
@@ -192,27 +190,12 @@ class Flattener(pd.DataFrame):
         self.sort_index(inplace=True)
         self.reset_index(drop=True, inplace=True)
 
-    def _add_profile_column(self):
-        """Adds a column named 'profile' to the Resources table for DataCatalogue and CohortStaging.
-        The CohortStaging column will get 'CohortStaging' as default, hidden value.
-        """
-        idx = self.loc[(self['tableName'] == 'Resources') & (self['label'] == 'Cohorts')].index[0]
-        # self['visible'] = None
-        self['defaultValue'] = None
-        self.loc[idx+0.5] = None
-        self.loc[idx+0.5, ['tableName', 'columnName', 'profiles']] = ['Resources', 'profile', 'DataCatalogue']
-        self.loc[idx+0.8] = self.loc[idx+0.5]
-        self.loc[idx+0.8, ['profiles', 'defaultValue']] = ['CohortStaging', 'CohortStaging']
-        self.sort_index(inplace=True)
-        self.reset_index(drop=True, inplace=True)
-
-
     def _remove_shared_staging_resources(self):
         """Removes the 'SharedStaging' profile from the Resources table."""
         staging_resources = self.loc[(self['tableName'] == 'Resources')
                                      & self['profiles'].str.contains('SharedStaging')]
-        self.loc[staging_resources.index, 'profiles'] = staging_resources['profiles'].apply(lambda pfs:
-                                                                                            pfs.replace('SharedStaging', '').replace(',,', ','))
+        self.loc[staging_resources.index, 'profiles'] = staging_resources['profiles'].apply(
+            lambda pfs: pfs.replace('SharedStaging', '').replace(',,', ','))
 
     def save_df(self, old_profiles: bool = False):
         """Saves the pandas DataFrame of the model to disk."""
