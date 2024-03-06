@@ -51,9 +51,9 @@
       <a v-if="modelValue && modelValue.url" :href="modelValue.url">
         Previous value:
         {{
-          modelValue.filename
+          modelValue?.filename
             ? modelValue.filename
-            : modelValue.id + "." + modelValue.extension
+            : modelValue.name + "." + modelValue.extension
         }}
       </a>
     </div>

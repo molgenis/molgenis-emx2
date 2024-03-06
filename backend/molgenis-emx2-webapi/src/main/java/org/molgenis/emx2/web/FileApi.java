@@ -64,7 +64,11 @@ public class FileApi {
     String extension = row.getString(columnName + "_extension");
     String mimetype = row.getString(columnName + "_mimetype");
     byte[] contents = row.getBinary(columnName + "_contents");
-    response.raw().setHeader("Content-Disposition", "attachment; filename=" + fileName);
+    response
+        .raw()
+        .setHeader(
+            "Content-Disposition",
+            "attachment; filename=" + (fileName != null ? fileName : columnName + "." + extension));
     response.raw().setContentType(mimetype);
     try (OutputStream out = response.raw().getOutputStream()) {
       out.write(contents); // autoclosing
