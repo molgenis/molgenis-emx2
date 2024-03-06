@@ -30,6 +30,15 @@ public class CafeVariomeQueryService {
    */
   public static QueryResponse query(Request request, List<Table> tables) throws Exception {
     JsonQuery requestBody = new ObjectMapper().readValue(request.body(), JsonQuery.class);
+
+    // implement auth via keycloak, see:
+    // https://github.com/CafeVariomeUoL/CafeVariomeFlask/blob/main/cvf_app/models/node.py
+    // assuming user is logged in, steps:
+    // extract access token from header
+    // validate against public key from a keycloak server
+    // check 3 things:
+    // (1) key valid, (2) expiration time, (3) azp (authorized party)
+
     Query query = new Query(requestBody);
     List<String> filters = new ArrayList<>();
     if (query.hasHPO()) {
