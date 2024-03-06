@@ -156,18 +156,48 @@ class StagingMigrator(Client):
         staging_schema = self._get_schema_metadata(self.staging_area)
         # Collect the tables in which a column references a table in the SharedStaging schema
         ss_ref_tables = [_t for _t in staging_schema['tables']
-                         if any(map(lambda c: c.get('refSchemaName') == 'SharedStaging', _t['columns'])) and _t.get('schemaName') == self.staging_area]
+                         if any(map(lambda c: c.get('refSchemaName') == 'SharedStaging', _t['columns'])) and _t.get(
+                'schemaName') == self.staging_area]
         if len(ss_ref_tables) == 0:
             return
+
+        organisations = set()
         for table in ss_ref_tables:
             ref_cols = [col for col in table['columns'] if col.get('refSchemaName') == 'SharedStaging']
             ref_col_strs = [f"{rc['id']} {{\n      id\n    }}" for rc in ref_cols]
-            query = """query {} {{\n  {} {{\n    {}\n  }}\n}}""".format(
-                table['id'], table['id'], "    \n    ".join(ref_col_strs))
+            query = """{{\n  {} {{\n    {}\n  }}\n}}""".format(
+                table['id'], "    \n    ".join(ref_col_strs))
             response = self.session.post(url=f"{self.url}/{self.staging_area}/graphql",
                                          json={"query": query},
                                          headers={'x-molgenis-token': self.token})
-            # TODO combine the ids of Organisations in the responses
+            data_response = response.json().get('data')
+            if len(data_response) > 0:
+                for record in data_response.values():
+                    for column in list(record[0].values())[0]:
+                        for entry in column.values():
+                            organisations.add(entry)
+        organisations = list(organisations)
+        if len(organisations) < 1:
+            return
+        # TODO combine the ids of Organisations in the responses
+        shared_schema = self._get_schema_metadata('SharedStaging')
+        search_query = self.__construct_pkey_query(shared_schema, 'Organisations', all_columns=True)
+        search_variables = construct_delete_variables(shared_schema, organisations, 'Organisations', 'id')
+        search_response = self.session.post(url=f"{self.url}/SharedStaging/graphql",
+                                            json={"query": search_query, "variables": search_variables},
+                                            headers={'x-molgenis-token': self.token})
+
+        mutation_query = "mutation insert($value: [OrganisationsInput]){insert(Organisations:$value){message}}"
+        mutation_variables = {"value": search_response.json().get('data').get('Organisations')}
+
+        mutation_response = self.session.post(url=f"{self.url}/{self.catalogue}/graphql",
+                                              json={"query": mutation_query, "variables": mutation_variables},
+                                            headers={'x-molgenis-token': self.token})
+
+        if mutation_response.status_code != 200:
+            log.error("Unable to synchronize SharedStaging.")
+        else:
+            log.info(f"Successfully migrated organisations {', '.join(organisations)} to catalogue.")
 
     def _query_delete_rows(self, table_name: str, ref_col: str,
                            cohort_ids: list) -> dict:
@@ -307,7 +337,6 @@ class StagingMigrator(Client):
         """Fetches the primary key values associated with the staging area's table."""
 
         # Query server for cohort id
-        query = Queries.Cohorts
         query = """{{\n  {} {{\n    id\n    name\n  }}\n}}""".format(self.table)
         staging_url = f"{self.url}/{self.staging_area}/graphql"
         response = self.session.post(url=staging_url,
