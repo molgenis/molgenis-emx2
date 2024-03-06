@@ -1,5 +1,8 @@
 <template>
-  <a v-if="data.id" :href="data.url"> {{ data.filename }} ({{ fileSize }}) </a>
+  <a v-if="data.id" :href="data.url">
+    {{ date.filename ? data.filename : metaData.name + "." + data.extension }}
+    ({{ fileSize }})
+  </a>
 </template>
 
 <script>
