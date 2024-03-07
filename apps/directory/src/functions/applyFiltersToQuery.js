@@ -92,7 +92,7 @@ export async function applyFiltersToQuery(
               }
             } else {
               baseQuery.orWhere(column).in(values);
-              baseQuery.filter(column).in(values);
+              baseQuery.orFilter(column).in(values);
             }
           }
         }

@@ -471,36 +471,35 @@ class QueryEMX2 {
     return filledModifiers.length ? `(${filledModifiers.join(", ")})` : "";
   }
 
-  _createFilterFromPath(path: string, operator: string, value: any) {
+  _createFilterFromPath(path: string, originalOperator: string, value: any) {
     const valueArray = Array.isArray(value) ? value : [value];
+    let operator = this._getGqlOperator(originalOperator);
 
-    for (const value of valueArray) {
-      /** reverse the path, so we can build it from the inside out */
-      const reversedPathParts = path.split(".").reverse();
-      let graphqlValue = typeof value === "boolean" ? `${value}` : `"${value}"`;
+    for (const itemValue of valueArray) {
+      let graphqlValue =
+        typeof itemValue === "boolean" ? `${itemValue}` : `"${itemValue}"`;
 
-      /** if it is an _or and a like, concat them */
-      const queryType = !this.type ? "_and" : this.type;
-      if (operator === "orLike") {
-        graphqlValue = `["${valueArray.join('", "')}"]`;
-        operator = "like"; /** set it to the correct operator for graphQl */
-      }
-
-      if (operator === "in") {
-        graphqlValue = `["${valueArray.join('", "')}"]`;
-        operator = "equals";
-      }
-
-      /** most inner part of the query e.g. 'like: "red" */
       let filter = `{ ${operator}: ${graphqlValue} }`;
 
+      /** reverse the path, so we can build it from the inside out */
+      const reversedPathParts = path.split(".").reverse();
       for (const pathPart of reversedPathParts) {
+        /** most inner part of the query e.g. 'like: "red" */
         filter = `{ ${pathPart}: ${filter} }`;
       }
-      this.filters[this.branch][queryType].push(filter);
 
-      /** we folded all into one so just return */
-      if (graphqlValue.includes("[")) return;
+      this.filters[this.branch][this.type].push(filter);
+    }
+  }
+
+  _getGqlOperator(operator: string) {
+    switch (operator) {
+      case "in":
+        return "equals";
+      case "orLike":
+        return "like";
+      default:
+        return operator;
     }
   }
 
