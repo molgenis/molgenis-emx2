@@ -2,8 +2,8 @@ import { reactive, toRefs } from "vue";
 import { gql, request } from "graphql-request";
 
 interface useFetchProps {
-  url: String;
-  query: String;
+  url: string;
+  query: string;
 }
 
 interface useFetchState {
@@ -15,7 +15,7 @@ interface useFetchState {
 
 export async function useFetch<useFetchProps>(url, query) {
   const state = reactive<useFetchState>({
-    loading: true,
+    loading: false,
     success: false,
     error: null,
     data: [],
@@ -26,14 +26,17 @@ export async function useFetch<useFetchProps>(url, query) {
 
     try { 
       const response = await request(url, query);
-  
-      if (!response.ok) {
-        throw new Error(response.errors[0].message);
+      
+      if (!response) {
+        const err = response.json().errors[0].message;
+        throw new Error(err)
       }
+      
       state.data = response;
       state.success = true;
     } catch (error: Error) {
-      state.error = error.message;
+      console.log(error.message)
+      // state.error = error.message;
     } finally {
       state.loading = false;
     }

@@ -1,10 +1,12 @@
 <template>
-  <p>Test: {{ loading }}</p>
+  <p v-if="chartLoading">Chart is loading...</p>
+  <p v-if="chartError">{{ chartError }}</p>
+  <p v-if="chartSuccess">{{ chartData }}</p>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
-import { gql } from "graphql-request";
+import { gql, request } from "graphql-request";
 import BarChart from "./BarChart.vue";
 import type { BarChartParams } from "../../utils/types/viz";
 import { useFetch, UseFetchState } from "../../utils/useFetch.js";
@@ -24,10 +26,17 @@ let chartError = ref<Error | null>(null);
 
 onMounted(async () => {
   const { loading, success, data, error } = await useFetch(
-    "/api/graphql", gql`ClinicalData { n }`
+    "../api/graphql",
+    gql`query {
+      ClinicalDta {
+      n
+    }
+    }`
   )
   
-  console.log(loading, success, data, error);
+  chartLoading.value = loading;
+  chartSuccess.value = success;
+  chartData.value = data;
 })
 
 </script>
