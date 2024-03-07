@@ -471,20 +471,13 @@ class QueryEMX2 {
     return filledModifiers.length ? `(${filledModifiers.join(", ")})` : "";
   }
 
-  _createFilterFromPath(path: string, operator: string, value: any) {
+  _createFilterFromPath(path: string, originalOperator: string, value: any) {
     const valueArray = Array.isArray(value) ? value : [value];
+    let operator = this._getGqlOperator(originalOperator);
 
-    /** set the correct operators for graphQl */
-    if (operator === "in") {
-      operator = "equals";
-    }
-
-    if (operator === "orLike") {
-      operator = "like";
-    }
-
-    for (const value of valueArray) {
-      let graphqlValue = typeof value === "boolean" ? `${value}` : `"${value}"`;
+    for (const itemValue of valueArray) {
+      let graphqlValue =
+        typeof itemValue === "boolean" ? `${itemValue}` : `"${itemValue}"`;
 
       let filter = `{ ${operator}: ${graphqlValue} }`;
 
@@ -496,6 +489,18 @@ class QueryEMX2 {
       }
 
       this.filters[this.branch][this.type].push(filter);
+    }
+  }
+
+  /** set the correct operators for graphQl */
+  _getGqlOperator(operator: string) {
+    switch (operator) {
+      case "in":
+        return "equals";
+      case "orLike":
+        return "like";
+      default:
+        return operator;
     }
   }
 
