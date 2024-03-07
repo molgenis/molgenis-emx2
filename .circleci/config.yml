@@ -210,7 +210,7 @@ jobs:
     - post_steps
   e2e-preview:
     docker:
-      - image: mcr.microsoft.com/playwright:v1.42.0-jammy
+      - image: mcr.microsoft.com/playwright:v1.42.1-jammy
     steps:
       - checkout
       - run: npm i -D @playwright/test
