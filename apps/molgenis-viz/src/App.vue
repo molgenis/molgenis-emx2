@@ -1,17 +1,21 @@
 <template>
-  <Molgenis>
-    <RouterView />
+  <Molgenis :v-model="session">
+    <RouterView :session="session" :page="page" />
     <PageFooter>
       <MolgenisLogo />
     </PageFooter>
   </Molgenis>
 </template>
 
-<script setup>
+<script setup lang="ts">
+import { ref } from "vue";
 import { RouterView } from "vue-router";
 import { Molgenis } from "molgenis-components";
 import PageFooter from "./components/layouts/PageFooter.vue";
 import MolgenisLogo from "./components/display/MolgenisLogo.vue";
+
+const session = ref(null);
+const page = ref(null);
 </script>
 
 <style lang="scss">

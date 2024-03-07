@@ -3,7 +3,7 @@ import path from "path";
 import vue from "@vitejs/plugin-vue";
 
 const host = "https://emx2.dev.molgenis.org";
-const schema = "DataViz";
+const schema = "VizConfig";
 const opts = { changeOrigin: true, secure: false, logLevel: "debug" };
 
 // basic build conf fo both library
