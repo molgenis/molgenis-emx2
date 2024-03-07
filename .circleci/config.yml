@@ -239,6 +239,8 @@ jobs:
             npx playwright test --config e2e e2e/tests
       - store_test_results:
          path: /root/project/e2e
+      - store_artifacts:
+          path: /root/project/e2e/test-results
 
 
   delete-helm-preview:
