@@ -15,7 +15,7 @@ const props = withDefaults(
 const pluralizedLabel = computed(() => {
   return props.value > 1 || props.value === 0
     ? `${props.label}${props.suffix}`
-    : label;
+    : props.label;
 });
 </script>
 

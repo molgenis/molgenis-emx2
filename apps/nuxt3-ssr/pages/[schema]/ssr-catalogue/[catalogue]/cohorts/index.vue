@@ -138,7 +138,7 @@ const { data } = await useFetch<any, IMgError>(
 );
 
 const cohorts = computed(() => data.value.data.Cohorts || []);
-const cohortsAgg = computed(() => data.value.data.Cohorts_agg.count || 0);
+const numberOfCohorts = computed(() => data.value.data.Cohorts_agg.count || 0);
 
 function setCurrentPage(pageNumber: number) {
   router.push({ path: route.path, query: { page: pageNumber } });
@@ -228,7 +228,7 @@ crumbs[
         </template>
 
         <template #search-results>
-          <SearchResultsCount label="cohort" :value="cohortsAgg" />
+          <SearchResultsCount label="cohort" :value="numberOfCohorts" />
           <FilterWell :filters="filters"></FilterWell>
           <SearchResultsList>
             <CardList v-if="cohorts.length > 0">
