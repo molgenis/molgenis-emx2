@@ -115,7 +115,10 @@ const links = [];
         </header>
 
         <div v-if="!compact">
-          <ContentReadMore :text="network.description"></ContentReadMore>
+          <ContentReadMore
+            class="text-body-base"
+            :text="network.description"
+          ></ContentReadMore>
         </div>
 
         <a
