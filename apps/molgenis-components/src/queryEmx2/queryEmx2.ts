@@ -492,7 +492,6 @@ class QueryEMX2 {
     }
   }
 
-  /** set the correct operators for graphQl */
   _getGqlOperator(operator: string) {
     switch (operator) {
       case "in":
