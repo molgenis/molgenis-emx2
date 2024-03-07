@@ -8,12 +8,6 @@ defineProps<{
 const config = useRuntimeConfig();
 const route = useRoute();
 const logoFileName = (route.query.logo as string) || config.public.emx2Logo;
-
-// load the svg data from the assets folder
-let svg = shallowRef();
-if (logoFileName) {
-  svg.value = await assetLoader.load(logoFileName);
-}
 </script>
 <template>
   <NuxtLink :to="link" class="block">
@@ -25,7 +19,11 @@ if (logoFileName) {
       height="50"
       style="background-color: white"
     />
-    <i v-else-if="svg" v-html="svg"></i>
+    <img
+      v-if="logoFileName"
+      :src="`/_nuxt/assets/logos/${logoFileName}.svg`"
+      :alt="logoFileName"
+    />
     <img
       v-else
       class="w-50px h-auto"
