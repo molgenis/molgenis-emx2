@@ -1,6 +1,6 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,label
 Version,,,,,,,,,,,,3.11,
-Resources,,,,,,,,,,,,Studies conducted in the realm of Biomedical Engineering,Studies BBT
+Resources,,,,,,,,,,,,Studies conducted in the realm of Biomaterials & Biomedical Technology,Studies BBT
 Collection events,,,,,,,,,,,,List of collection events defined for this resource (fill in at least one collection event),
 Documentation,,,,,,,,,,,,Documentation attached to a resource,
 Publications,,,,,,,,,,,,Publications following bibtex format,
@@ -19,12 +19,12 @@ Resources,,additional organisations,ref_array,,,SharedStaging,Organisations,,,,,
 Resources,,logo,file,,,,,,,,,"Logo of the resource, for use on homepages etc.",
 Resources,,contact email,,,,,,,,,,"Contact e-mail address for this resource. Note: this email address will be displayed in the catalogue, which is openly accessible.",
 Resources,,contacts,refback,,,,Contacts,,resource,,,Listing who is/has been involved in the creation and maintenance of this resource,
-Resources,,publications,ref_array,,,,Publications,,,,,Other publication(s) about this resource,
+Resources,,publications,ref_array,,,,Publications,,,,,Publication(s) about this resource,
 Resources,,contents,heading,,,,,,,,,Data model and contents,
 Resources,,areas of information,ontology_array,,,CatalogueOntologies,Areas of information cohorts,,,,,Areas of information that were extracted for this resource,
 Resources,,data categories,ontology_array,,,CatalogueOntologies,Data categories,,,,,Methods of data collection used for this resource,
 Resources,,sample categories,ontology_array,,,CatalogueOntologies,Sample categories,,,,,Samples that were collected for this resource,
-Resources,,subject type,ontology,,,CatalogueOntologies,Subject types,,,,,Human or animal,
+Resources,,subject type,ontology,,,CatalogueOntologies,Subject types,,,,,"Whether the study subject is human, animal, or neither"
 Resources,,imaging,heading,,,,,,,,,,
 Resources,,imaging type,ontology_array,,,CatalogueOntologies,Imaging types,,,,,"E.g. diagnostic imaging, interventional radiology",
 Resources,,imaging modality,ontology_array,,,CatalogueOntologies,Biological imaging methods,,,,,,
