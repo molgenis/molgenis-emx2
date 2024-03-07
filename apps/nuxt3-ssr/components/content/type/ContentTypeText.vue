@@ -6,5 +6,5 @@ defineProps<{
 </script>
 
 <template>
-  <ContentReadMore :text="field.value" :cutoff="500" />
+  <ContentReadMore class="text-body-base" :text="field.value" :cutoff="500" />
 </template>

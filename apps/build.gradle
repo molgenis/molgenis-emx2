@@ -16,6 +16,7 @@ def nodeSpec = {
 
 def excludeDef = {
     // Exclude 'build', 'dist', and 'showCase' directories from inputs
+    exclude ".gradle"
     exclude "dist"
     exclude "node_modules"
     exclude "showCase"
@@ -23,6 +24,7 @@ def excludeDef = {
     exclude ".fingerprint.js"
     exclude ".nuxt"
     exclude "public/_nuxt-styles"
+    exclude "build"
 }
 
 node {
@@ -71,7 +73,7 @@ subprojects { subproject ->
             }
         }
         outputs.dir "dist"
-        //for caching
+//        for caching
         inputs.files fileTree(projectDir).matching {
             with excludeDef
         }
