@@ -23,20 +23,13 @@ export async function useFetch<useFetchProps>(url, query) {
   
   async function fetchData() {
     state.loading = true;
-
+  
     try { 
       const response = await request(url, query);
-      
-      if (!response) {
-        const err = response.json().errors[0].message;
-        throw new Error(err)
-      }
-      
       state.data = response;
       state.success = true;
     } catch (error: Error) {
-      console.log(error.message)
-      // state.error = error.message;
+      state.error = error; 
     } finally {
       state.loading = false;
     }

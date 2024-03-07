@@ -1,44 +1,44 @@
 export interface ChartOptions {
-  id: String;
-  chart: String;
-  title?: String;
-  description?: String;
-  table: String;
-  x: String;
-  y: String;
-  x_type: String;
-  y_type: String;
-  aggregation?: Boolean;
-  sort?: Boolean;
+  id: string;
+  chart: string;
+  title?: string;
+  description?: string;
+  table: string;
+  x: string;
+  y: string;
+  x_type: string;
+  y_type: string;
+  aggregation?: boolean;
+  sort?: boolean;
 }
 
 export interface chartMargins {
-  top: Number;
-  right?: Number;
-  bottom?: Number;
-  left?: Number;
+  top: number;
+  right?: number;
+  bottom?: number;
+  left?: number;
 }
 
 export interface BarChartParams {
-  chartId: String;
-  title?: String;
-  description?: String;
-  xvar: String;
-  yvar: String;
-  xMax?: Number;
+  chartId: string;
+  title?: string;
+  description?: string;
+  xvar?: string;
+  yvar?: string;
+  xMax?: number;
   yTickValues?: Array<Number>;
-  xAxisLabel?: String;
-  yAxisLabel?: String;
-  yAxisLineBreaker?: String;
+  xAxisLabel?: string;
+  yAxisLabel?: string;
+  yAxisLineBreaker?: string;
   chartData: Array[];
-  chartHeight?: Number;
-  chartMargins: vizChartMargins;
-  barFill?: String;
-  barHoverFill?: String;
-  barColorPalette?: Object;
-  barPaddingInner?: Number;
-  barPaddingOuter?: Number;
-  barAlign?: Number;
-  enableClicks?: Boolean;
-  enableAnimation?: Boolean;
+  chartHeight?: number;
+  chartMargins?: vizChartMargins;
+  barFill?: string;
+  barHoverFill?: string;
+  barColorPalette?: object;
+  barPaddingInner?: number;
+  barPaddingOuter?: number;
+  barAlign?: number;
+  enableClicks?: boolean;
+  enableAnimation?: boolean;
 }
