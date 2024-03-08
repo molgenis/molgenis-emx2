@@ -240,8 +240,8 @@ Linked resources,,linkage variable unique,bool,,,,,,,,,"If a single variable is 
 Linked resources,,linkage completeness,text,,,,,,,,,Provide a high-level description of the completeness of linkages that are currently available between data banks in the data source (max 100 words),"DataCatalogue,EMA"
 Linked resources,,pre linked,bool,,,,,,,,,Does the data source constitute of linked data sources?,"DataCatalogue,EMA"
 Quantitative information,,,,,,,,,,,,Quantitative information on the resource,"DataCatalogue,EMA"
-Quantitative information,,resource,ref,1,,,Extended resources,,,,,,"DataCatalogue,EMA"
-Quantitative information,,age group,ontology,1,,CatalogueOntologies,Age groups,,,,,Select the relevant age group for this quantitative information,"DataCatalogue,EMA"
+Quantitative information,,resource,ref,1,TRUE,,Extended resources,,,,,,"DataCatalogue,EMA"
+Quantitative information,,age group,ontology,1,TRUE,CatalogueOntologies,Age groups,,,,,Select the relevant age group for this quantitative information,"DataCatalogue,EMA"
 Quantitative information,,population size,int,,,,,,,,,"Total number of unique individuals with records captured in the data source (most recent count). In the catalogue, this will accommodate counts per year","DataCatalogue,EMA"
 Quantitative information,,active size,int,,,,,,,,,"Number of unique, active, or currently registered individuals with records captured in the data source (most recent count). In the catalogue, this will accommodate counts per year","DataCatalogue,EMA"
 Quantitative information,,no individuals with samples,int,,,,,,,,,"Number of unique individuals with records of biological samples (e.g., blood, urine) (most recent count). In the catalogue, this will accommodate counts per year ",DataCatalogue
