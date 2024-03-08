@@ -25,7 +25,7 @@ if (logoFileName) {
       height="50"
       style="background-color: white"
     />
-    <i v-else-if="svg" v-html="svg"></i>
+    <i v-else-if="svg" v-html="svg.default"></i>
     <img
       v-else
       class="w-50px h-auto"
