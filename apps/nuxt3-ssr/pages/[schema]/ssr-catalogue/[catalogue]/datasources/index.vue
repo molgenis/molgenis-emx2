@@ -101,7 +101,9 @@ if (error.value) {
   throw new Error("Error on datasources data fetch");
 }
 
-const numberOfDataSources = computed(() => (data?.value.data.DataSources_agg?.count || 0));
+const numberOfDataSources = computed(
+  () => data?.value.data.DataSources_agg?.count || 0
+);
 
 function setCurrentPage(pageNumber: number) {
   router.push({ path: route.path, query: { page: pageNumber } });
@@ -187,7 +189,10 @@ crumbs[
         </template>
 
         <template #search-results>
-          <SearchResultsCount :value="numberOfDataSources" label="data source"/>
+          <SearchResultsCount
+            :value="numberOfDataSources"
+            label="data source"
+          />
           <FilterWell :filters="filters"></FilterWell>
           <SearchResultsList>
             <CardList v-if="data?.data?.DataSources?.length > 0">

@@ -105,13 +105,15 @@ const query = computed(() => {
   `;
 });
 
-const numberOfVariables = computed(() => data?.value.data?.Variables_agg.count || 0);
+const numberOfVariables = computed(
+  () => data?.value.data?.Variables_agg.count || 0
+);
 const numberOfCohorts = computed(() => {
   if (data?.value.data?.Cohorts) {
     return data?.value.data?.Cohorts.length;
   }
   return false;
-})
+});
 
 let search = computed(() => {
   // @ts-ignore
