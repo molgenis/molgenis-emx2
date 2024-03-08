@@ -178,6 +178,7 @@ crumbs[
         </template>
 
         <template #search-results>
+          <SearchResultsCount :value="numberOfNetworks" label="network" />
           <FilterWell :filters="filters"></FilterWell>
           <SearchResultsList>
             <CardList v-if="networks?.length > 0">

@@ -4,11 +4,13 @@ const props = withDefaults(
     value: number;
     label?: string;
     suffix?: string;
+    valuePrefix?: string;
   }>(),
   {
     value: 0,
     label: "result",
     suffix: "s",
+    valuePrefix: null,
   }
 );
 
@@ -21,6 +23,8 @@ const pluralizedLabel = computed(() => {
 
 <template>
   <div class="mt-1 mb-0 lg:mb-3 text-body-lg flex flex-col text-title">
-    <p>{{ value }} {{ pluralizedLabel }}</p>
+    <p class="search-results-count">
+      {{ valuePrefix }} {{ value }} {{ pluralizedLabel }}
+    </p>
   </div>
 </template>
