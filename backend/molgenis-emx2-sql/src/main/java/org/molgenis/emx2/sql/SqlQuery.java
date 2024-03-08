@@ -1037,8 +1037,7 @@ public class SqlQuery extends QueryBean {
                   .map(f -> whereConditionsFilter(table, tableAlias, f))
                   .toList()));
     } else {
-      Column column =
-          getColumnByName(table, filters.getColumn(), filters.getSubfilters().isEmpty());
+      Column column = getColumnByName(table, filters.getColumn());
       if (column.isReference()
           && column.getReferences().size() > 1
           && filters.getSubfilters().isEmpty()) {
