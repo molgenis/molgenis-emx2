@@ -18,7 +18,7 @@ function generateTreeData(width: number, depth: number, parentName?: string) {
   return nodes;
 }
 
-const rootNodes = generateTreeData(3, 2);
+const rootNodes = generateTreeData(2, 2);
 
 const selectedNodes = ref([]);
 
@@ -28,7 +28,7 @@ const selectedNodes = ref([]);
   
  
   <div class="flex mb-4">
-    <div class="flex-1  h-12"><FilterTree :rootNodes="rootNodes" v-model="selectedNodes" class=" bg-blue-500 p-4" /></div>
+    <div class="flex-1  h-12"><FilterTree :rootNodes="rootNodes" v-model="selectedNodes" :expandSelected="true" class=" bg-blue-500 p-4" /></div>
     <div class="flex-1  h-12 p-4"> selected nodes: {{ selectedNodes.map((n: ITreeNode) => n.name) }}</div>
   </div>
 </template>

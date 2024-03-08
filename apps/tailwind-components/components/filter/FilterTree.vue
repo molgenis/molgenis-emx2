@@ -10,10 +10,12 @@ const props = withDefaults(
     modelValue?: ITreeNode[];
     isMultiSelect?: boolean;
     mobileDisplay?: boolean;
+    expandSelected?: boolean;
   }>(),
   {
     isMultiSelect: true,
     mobileDisplay: false,
+    expandSelected: false,
   }
 );
 
@@ -25,9 +27,33 @@ function toggleExpand(index: number) {
   nodes.value[index].expanded = !nodes.value[index].expanded;
 }
 
+// select all children of a node recursively
+function expandSelection(node: ITreeNode) {
+  node.children?.forEach((child) => {
+    child.selected = true;
+    props.modelValue?.push(child);
+    expandSelection(child);
+  });
+}
+
+// deselect all children of a node recursively
+function expandDeselection(node: ITreeNode) {
+  node.children?.forEach((child) => {
+    child.selected = false;
+    props.modelValue?.splice(
+      props.modelValue.findIndex((n) => n.name === child.name),
+      1
+    );
+    expandDeselection(child);
+  });
+}
+
 function toggleSelect(index: number) {
   nodes.value[index].selected = true;
   props.modelValue?.push(nodes.value[index]);
+  if (props.expandSelected) {
+    expandSelection(nodes.value[index]);
+  }
 }
 
 function toggleDeselect(index: number) {
@@ -36,6 +62,9 @@ function toggleDeselect(index: number) {
     props.modelValue.findIndex((n) => n.name === nodes.value[index].name),
     1
   );
+  if (props.expandSelected) {
+    expandDeselection(nodes.value[index]);
+  }
 }
 
 function handleChildSelect(child: ITreeNode) {
@@ -85,7 +114,7 @@ function handleChildDeselect(child: ITreeNode) {
             @click.stop="
               node.selected ? toggleDeselect(index) : toggleSelect(index)
             "
-            class="w-5 h-5 rounded-3px ml-[6px] mr-2.5 mt-0.5 text-search-filter-group-checkbox border border-checkbox hover:cursor-pointer"
+            class="w-5 h-5 rounded-3px ml-[6px] mr-2.5 mt-0.5 accent-yellow-500 border border-checkbox hover:cursor-pointer"
           />
         </div>
         <label :for="node.name" class="hover:cursor-pointer text-body-sm group">

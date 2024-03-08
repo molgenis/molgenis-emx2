@@ -9,16 +9,16 @@
 
         <ul class="list-none">
           <li class="py-2">
-            <NuxtLink to="/">Home</NuxtLink>
+            <NuxtLink class="hover:underline" to="/">Home</NuxtLink>
           </li>
           <li class="py-2">
-            <NuxtLink to="Comp1.story">Comp1</NuxtLink>
+            <NuxtLink class="hover:underline" to="Comp1.story">Comp1</NuxtLink>
           </li>
           <li class="py-2">
-            <NuxtLink to="CustomTooltip.story">CustomTooltip</NuxtLink>
+            <NuxtLink class="hover:underline" to="CustomTooltip.story">CustomTooltip</NuxtLink>
           </li>
           <li class="py-2">
-            <NuxtLink to="FilterTree.story">Filter Tree</NuxtLink>
+            <NuxtLink class="hover:underline" to="FilterTree.story">Filter Tree</NuxtLink>
           </li>
         </ul>
 
@@ -27,7 +27,7 @@
         </div>
         <div class="mt-3">
           
-          <a c href="/_tailwind/" target="_blank">Styles </a>
+          <a class="hover:underline" href="/_tailwind/" target="_blank">Styles </a>
         </div>
 
       
