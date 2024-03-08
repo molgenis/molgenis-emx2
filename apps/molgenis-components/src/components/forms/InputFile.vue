@@ -53,7 +53,7 @@
         {{
           modelValue?.filename
             ? modelValue.filename
-            : modelValue.name + "." + modelValue.extension
+            : modelValue.id + "." + modelValue.extension
         }}
       </a>
     </div>
