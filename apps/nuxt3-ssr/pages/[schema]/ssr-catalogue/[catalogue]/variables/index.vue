@@ -105,6 +105,14 @@ const query = computed(() => {
   `;
 });
 
+const numberOfVariables = computed(() => data?.value.data?.Variables_agg.count || 0);
+const numberOfCohorts = computed(() => {
+  if (data?.value.data?.Cohorts) {
+    return data?.value.data?.Cohorts.length;
+  }
+  return false;
+})
+
 let search = computed(() => {
   // @ts-ignore
   return filters.find((f) => f.columnType === "_SEARCH").search;
@@ -248,14 +256,15 @@ const data = await loadPageData();
         </template>
 
         <template #search-results>
-          <p class="mt-1 mb-0 lg:mb-3 text-body-lg flex flex-col text-title">
-            <span
-              >{{ data?.data?.Variables_agg.count }} variables
-              <span v-if="data?.data?.Cohorts"
-                >in {{ data?.data?.Cohorts.length }} cohorts
-              </span>
-            </span>
-          </p>
+          <div class="flex align-start gap-1">
+            <SearchResultsCount :value="numberOfVariables" label="variable" />
+            <SearchResultsCount
+              v-if="numberOfCohorts"
+              :value="numberOfCohorts"
+              value-prefix="in"
+              label="cohort"
+            />
+          </div>
           <FilterWell :filters="filters"></FilterWell>
 
           <SearchResultsList>
