@@ -108,11 +108,9 @@ const query = computed(() => {
 const numberOfVariables = computed(
   () => data?.value.data?.Variables_agg.count || 0
 );
+
 const numberOfCohorts = computed(() => {
-  if (data?.value.data?.Cohorts) {
-    return data?.value.data?.Cohorts.length;
-  }
-  return false;
+  return data?.value.data?.Cohorts ? data?.value.data?.Cohorts.length : 0;
 });
 
 let search = computed(() => {
@@ -261,7 +259,7 @@ const data = await loadPageData();
           <div class="flex align-start gap-1">
             <SearchResultsCount :value="numberOfVariables" label="variable" />
             <SearchResultsCount
-              v-if="numberOfCohorts"
+              v-if="numberOfCohorts > 0"
               :value="numberOfCohorts"
               value-prefix="in"
               label="cohort"
