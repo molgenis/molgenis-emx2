@@ -21,6 +21,7 @@ export interface chartMargins {
 
 export interface BarChartParams {
   chartId: string;
+  table: string,
   title?: string;
   description?: string;
   xvar?: string;
@@ -30,7 +31,7 @@ export interface BarChartParams {
   xAxisLabel?: string;
   yAxisLabel?: string;
   yAxisLineBreaker?: string;
-  chartData: Array[];
+  chartData?: Array[];
   chartHeight?: number;
   chartMargins?: vizChartMargins;
   barFill?: string;

@@ -20,16 +20,16 @@ export async function useFetch<useFetchProps>(url, query) {
     error: null,
     data: [],
   });
-  
+
   async function fetchData() {
     state.loading = true;
-  
-    try { 
+
+    try {
       const response = await request(url, query);
       state.data = response;
       state.success = true;
     } catch (error: Error) {
-      state.error = error; 
+      state.error = error;
     } finally {
       state.loading = false;
     }
@@ -37,6 +37,6 @@ export async function useFetch<useFetchProps>(url, query) {
 
   await fetchData();
   return {
-    ...toRefs(state)
-  }
+    ...toRefs(state),
+  };
 }
