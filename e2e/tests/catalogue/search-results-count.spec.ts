@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-const numberOfResultsPattern = new RegExp(/^(([a-zA-Z]{1,})?(\s)?(([0-9]{1,})\s(cohort([s])?|variable([s])?|data\ssource([s])?|result([s])?)))$/);
+const numberOfResultsPattern = new RegExp(/^(([a-zA-Z]{1,})?(\s)?(([0-9]{1,})\s(cohort([s])?|variable([s])?|data\ssource([s])?|result([s])?|networks([s])? )))$/);
 
 test('validate cohort search result counts @cohort-view @search-result-counts',
   async ({ page }) => {
