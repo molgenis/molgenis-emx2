@@ -108,7 +108,7 @@ Collections,,policies,Policies,heading,,false,,Policies belonging to the collect
 Collections,,collaboration_commercial,Commercial Collaboration,bool,,false,,The collection can be used for collaboration with commercial partners.,,,,,,,,
 Collections,,collaboration_non_for_profit,Non-for-profit Collaboration,bool,,false,,The collection can be used for collaboration with non-for-profit partners.,,,,,,,,
 Collections,,data_use,Data Use Ontologies,ontology_array,,false,,Data Use Ontologies (DUO),DataUseOntologies,,${label},,,,,
-Collections,,duc,DUC,hyperlink,,false,,Data Use Conditions (DUC),,,,,,,,
+Collections,,duc,DUC,hyperlink,,false,,Digital Use Conditions (DUC),,,,,,,,
 Collections,,commercial_use,Available for Commercial Use,bool,,false,,Can commercial users request access to samples and/or data?,,,,,,,,
 Collections,,access_fee,Fee-based access to,ontology_array,,false,,"Denotes whether access to samples, data or images may be obtained on fee-based basis.",AccessTypes,,${label},,,,,
 Collections,,access_joint_project,Access via Join Projects to,ontology_array,,false,,"Denotes whether access to samples, data or images may be obtained on joint project basis.",AccessTypes,,${label},,,,,
