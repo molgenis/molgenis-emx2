@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ref, reactive } from "vue";
 import type { ITreeNode } from "../../../types/types";
 import BaseIcon from "../../BaseIcon.vue";
 
@@ -20,10 +19,12 @@ function toggleExpand(node: ITreeNode) {
 function toggleSelect(node: ITreeNode) {
   //if selecting then also expand
   //if deselection we keep it open
-  if (node.selected == "complete") {
-    emit("deselect", node.name);
+  if (node.selected) {
+    node.selected = false;
+    emit("deselect", node);
   } else {
-    emit("select", node.name);
+    node.selected = true;
+    emit("select", node);
   }
 }
 </script>
@@ -62,14 +63,14 @@ function toggleSelect(node: ITreeNode) {
             :id="node.name"
             :name="node.name"
             @click.stop="toggleSelect(node)"
-            :checked="
-              node.selected === 'complete' || node.selected === 'partial'
-            "
+            :checked="node.selected"
             class="w-5 h-5 rounded-3px ml-2.5 mr-2.5 mt-0.5 text-search-filter-group-checkbox border border-checkbox"
           />
         </div>
         <label :for="node.name" class="hover:cursor-pointer text-body-sm group">
-          <span class="group-hover:underline">{{ node.name }}</span>
+          <span class="group-hover:underline whitespace-nowrap">{{
+            node.name
+          }}</span>
           <div class="inline-flex items-center whitespace-nowrap">
             <div class="inline-block">
               <CustomTooltip

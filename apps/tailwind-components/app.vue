@@ -17,6 +17,9 @@
           <li class="py-2">
             <NuxtLink to="CustomTooltip.story">CustomTooltip</NuxtLink>
           </li>
+          <li class="py-2">
+            <NuxtLink to="FilterTree.story">Filter Tree</NuxtLink>
+          </li>
         </ul>
 
         <div class="pr-6 mt-6">
