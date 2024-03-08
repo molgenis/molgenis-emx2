@@ -187,7 +187,7 @@ crumbs[
         </template>
 
         <template #search-results>
-          <SearchResultsCount :value="numberOfDataSources" label="Data source"/>
+          <SearchResultsCount :value="numberOfDataSources" label="data source"/>
           <FilterWell :filters="filters"></FilterWell>
           <SearchResultsList>
             <CardList v-if="data?.data?.DataSources?.length > 0">

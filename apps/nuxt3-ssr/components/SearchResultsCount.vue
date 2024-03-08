@@ -23,6 +23,6 @@ const pluralizedLabel = computed(() => {
 
 <template>
   <div class="mt-1 mb-0 lg:mb-3 text-body-lg flex flex-col text-title">
-    <p>{{ valuePrefix }} {{ value }} {{ pluralizedLabel }}</p>
+    <p class="search-results-count">{{ valuePrefix }} {{ value }} {{ pluralizedLabel }}</p>
   </div>
 </template>
