@@ -79,7 +79,13 @@ spec:
               value: {{ .Values.postgres.username }}
             - name: PGDATA
               value: /var/lib/postgresql/data/pgdata
-
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "1"
+            limits:
+              memory: "1Gi"
+              cpu: "2"
           ports:
             - containerPort: 5432
           volumeMounts:
