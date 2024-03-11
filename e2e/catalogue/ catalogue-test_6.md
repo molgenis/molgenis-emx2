@@ -22,8 +22,8 @@ A researcher searches for specific variables (*example: all ADHD variables*) acr
 | 6 |Click on the name of first variable | Should redirect to variable detailed view; Details should show: 1) description, 2) table with all repeats and all cohorts that have information about this variable, 3) harmonization status per repeat per cohort (green fully harmonized, yellow partially harmonized, white no harmonization), 4) tabs for each cohorts with further details (variables used, syntax) | | |
 | 7 | Click on second cohort tab | Tab should show information for second cohort | | |
 | 8 | Click first variable used | Dialog should show information available for the source variable | | |
-| 9 | Click back button to return to previous page | Should be redirected to network variable explorer with previously selected filters | | |
-| 10 | Open 'Harmonizations' tab (after filtering) | Harmonizations tab should show all ADHD variables and cohorts; Show correct statuses for harmonization | | |
-| 11 | Click 'about statuses' | Should show pop up/dialog with information about statuses | | |
+| 9 | Click back button to return to previous page | Should be redirected to network variable explorer with previously selected filters | #2419 | |
+| 10 | Repeat filtering as in step 9 and open 'Harmonizations' tab | Harmonizations tab should show all ADHD variables and cohorts; Show correct statuses for harmonization | | |
+| 11 | Click 'about statuses' | Should show pop up/dialog with information about statuses | #3423 | |
 | 12 | Click first variable| Should show pop up/dialog with information about variable | | |
 | 13 | Click 'more details' in dialog| Should redirect variable detailed view | | |
