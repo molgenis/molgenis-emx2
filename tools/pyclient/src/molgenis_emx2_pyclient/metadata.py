@@ -1,12 +1,13 @@
 """
 Classes for the data types Schema, Table and Column.
 """
+from itertools import starmap
 from typing import Literal
 
 import requests
 
-from tools.pyclient.src.molgenis_emx2_pyclient.graphql_queries import list_schema_meta
 from tools.pyclient.src.molgenis_emx2_pyclient.exceptions import NoSuchColumnException, NoSuchTableException
+from tools.pyclient.src.molgenis_emx2_pyclient.graphql_queries import list_schema_meta
 
 
 class Column:
@@ -101,13 +102,22 @@ class Table:
             raise NoSuchColumnException(f"Column with {by} {value!r} not found in table {self.name!r}.")
         return columns[0]
 
-    def get_columns(self, by: str, value: str) -> list[Column]:
-        """Gets the columns by an attribute of the Column objects."""
+    def get_columns(self, by: str | list, value: str | list) -> list[Column]:
+        """Gets the columns by one or multiple attributes of the Column objects."""
         columns = []
+        assert type(by) == type(value), f"Supply both 'by' and 'value' as either strings or lists."
+        if isinstance(by, str):
+            for col in self.columns:
+                if hasattr(col, by):
+                    if col.__getattribute__(by) == value:
+                        columns.append(col)
+            return columns
+
+        assert len(by) == len(value), f"'by' and 'value' should be of same length if supplied as lists."
         for col in self.columns:
-            if hasattr(col, by):
-                if col.__getattribute__(by) == value:
-                    columns.append(col)
+            if all(starmap(lambda _by, _value: hasattr(col, _by)
+                                               and (col.__getattribute__(_by) == _value), zip(by, value))):
+                columns.append(col)
         return columns
 
     def to_dict(self) -> dict:
@@ -120,7 +130,7 @@ class Table:
     @staticmethod
     def __parse_arg(k: str, v: str | list | dict):
         if k == 'columns':
-            return [Column(**c) for c in v]
+            return [c if isinstance(c, Column) else Column(**c) for c in v]
         return v
 
 
@@ -196,11 +206,21 @@ if __name__ == '__main__':
 
     schema = Schema(**response.json().get('data').get('_schema'))
 
+    # Find the tables inheriting from the 'Resources' table
+    resource_children = schema.get_tables(by='inheritName', value='Resources')
+
+    print("Tables in the schema inheriting from the 'Resources' table.")
+    for res_chi in resource_children:
+        print(f"{res_chi!s}\n{res_chi!r}")
+
     # Find the Cohorts table
     cohorts = schema.get_table(by='name', value='Cohorts')
 
     # Find the columns in the Cohorts table referencing the Organisations table
     orgs_refs = cohorts.get_columns(by='refTableName', value='Organisations')
+
+    # Find the columns in the Cohorts table referencing the Organisations table in a reference array
+    orgs_array_refs = cohorts.get_columns(by=['columnType', 'refTableName'], value=['REF_ARRAY', 'Organisations'])
 
     # Print the __str__ and __repr__ representations of these columns
     print("Columns in the Cohorts table referencing the Organisations table.")
