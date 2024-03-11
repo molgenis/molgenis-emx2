@@ -61,7 +61,9 @@ function toggleDeselect(index: number) {
 
 function handleChildSelect(child: ITreeNode, parent: ITreeNode) {
   const rootIndex = nodes.value.findIndex((n) => n.name === parent.name);
-  nodes.value[rootIndex].selected = true;
+  if(nodes.value[rootIndex].children?.every((c) => c.selected)) {
+    nodes.value[rootIndex].selected = true;
+  }
   updateModelValue(nodes.value);
 }
 

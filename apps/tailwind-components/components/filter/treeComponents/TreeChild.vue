@@ -51,7 +51,9 @@ function toggleSelect(node: ITreeNode) {
 }
 
 function handleChildSelect(child: ITreeNode, parent: ITreeNode) {
-  parent.selected = true;
+  if(parent.children?.every((c) => c.selected)) {
+    parent.selected = true;
+  }
   emit("select", parent);
 }
 

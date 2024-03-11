@@ -1,3 +1,3 @@
 <template>
-    <Comp1/>
+  <Comp1 />
 </template>
