@@ -218,7 +218,7 @@ class Client:
 
     def save_schema(self, table: str, name: str = None, file: str = None, data: list = None):
         """Imports or updates records in a table of a named schema.
-        
+
         :param name: name of a schema
         :type name: str
         :param table: the name of the table
@@ -227,7 +227,7 @@ class Client:
         :type file: str
         :param data: a dataset containing records to import or update (list of dictionaries)
         :type data: list
-        
+
         :returns: status message or response
         :rtype: str
         """
@@ -265,7 +265,7 @@ class Client:
 
     def delete_records(self, table: str, schema: str = None, file: str = None, data: list = None):
         """Deletes records from a table.
-        
+
         :param schema: name of a schema
         :type schema: str
         :param table: the name of the table
@@ -306,7 +306,7 @@ class Client:
     def get(self, table: str, schema: str = None, as_df: bool = False) -> list | pd.DataFrame:
         """Retrieves data from a schema and returns as a list of dictionaries or as
         a pandas DataFrame (as pandas is used to parse the response).
-        
+
         :param schema: name of a schema
         :type schema: str
         :param table: the name of the table
@@ -314,7 +314,7 @@ class Client:
         :param as_df: if True, the response will be returned as a
                       pandas DataFrame. Otherwise, a recordset will be returned.
         :type as_df: bool
-        
+
         :returns: list of dictionaries, status message or data frame
         :rtype: list | pd.DataFrame
         """
@@ -345,14 +345,14 @@ class Client:
 
     def export(self, schema: str = None, table: str = None, fmt: OutputFormat = 'csv'):
         """Exports data from a schema to a file in the desired format.
-        
+
         :param schema: the name of the schema
         :type schema: str
         :param table: the name of the table
         :type table: str
         :param fmt: the export format of the schema and or table (csv or xlsx)
         :type fmt: str
-        
+
         """
         current_schema = schema if schema is not None else self.default_schema
         if current_schema not in self.schema_names:
@@ -409,17 +409,17 @@ class Client:
                       template: str = None,
                       include_demo_data: bool = None):
         """Creates a new schema on the EMX2 server.
-        
+
         :param name: the name of the new schema
         :type name: str
         :param description: additional text that provides context for a schema
         :type description: str
         :param template: (optional) the name of a template to set as the schema
         :type template: str
-        :param include_demo_data: If true and a template schema is selected, 
+        :param include_demo_data: If true and a template schema is selected,
                                 any example data will be loaded into the schema
         :type include_demo_data: bool
-        
+
         :returns: a success or error message
         :rtype: string
         """
@@ -443,10 +443,10 @@ class Client:
 
     def delete_schema(self, name: str = None):
         """Deletes a schema from the EMX2 server.
-        
+
         :param name: the name of the new schema
         :type name: str
-        
+
         :returns: a success or error message
         :rtype: string
         """
@@ -473,12 +473,12 @@ class Client:
 
     def update_schema(self, name: str = None, description: str = None):
         """Updates a schema's description.
-        
+
         :param name: the name of the new schema
         :type name: str
         :param description: additional text that provides context for a schema
         :type description: str
-        
+
         :returns: a success or error message
         :rtype: string
         """
@@ -509,7 +509,7 @@ class Client:
                         include_demo_data: bool = None):
         """Recreates a schema on the EMX2 server by deleting and subsequently
         creating it without data on the EMX2 server.
-        
+
         :param name: the name of the new schema
         :type name: str
         :param description: additional text that provides context for a schema
@@ -519,7 +519,7 @@ class Client:
         :param include_demo_data: If true and a template schema is selected,
                                 any example data will be loaded into the schema
         :type include_demo_data: bool
-        
+
         :returns: a success or error message
         :rtype: string
         """
@@ -547,18 +547,18 @@ class Client:
         self.schemas = self.get_schemas()
 
     @cache
-    def _get_schema_metadata(self, name: str = None):
-        """Retrieves a schema's metadata.
-        
-        :param name: the name of the new schema
+    def get_schema_metadata(self, name: str = None) -> Schema:
+        """Retrieves a schema's metadata and returns it in a metadata.Schema object.
+
+        :param name: the name of the schema
         :type name: str
-        
+
         :returns: schema metadata
-        :rtype: dict
+        :rtype: metadata.Schema
         """
         current_schema = name if name is not None else self.default_schema
         if current_schema not in self.schema_names:
-            raise NoSuchSchemaException(f"Schema '{current_schema}' not available.")
+            raise NoSuchSchemaException(f"Schema {current_schema!r} not available.")
 
         query = queries.list_schema_meta()
         response = self.session.post(
@@ -570,7 +570,7 @@ class Client:
         response_json = response.json()
 
         if 'id' not in response_json.get('data').get('_schema'):
-            message = f"Unable to retrieve metadata for schema '{current_schema}'"
+            message = f"Unable to retrieve metadata for schema {current_schema!r}"
             log.error(message)
             raise GraphQLException(message)
 

@@ -7,7 +7,7 @@ The releases of the package are hosted at [PyPI](https://pypi.org/project/molgen
 The recommended way to install the latest
 
 ```commandline
-pip install molgenis_emx2_pyclient
+pip install molgenis-emx2-pyclient
 ```
 
 ## Setting up the client
@@ -116,6 +116,19 @@ Throws the `NoSuchSchemaException` if the user does not have at least _viewer_ p
 | table    | str  | the name of a table                                                            | True     | None    |
 | schema   | str  | the name of a schema                                                           | False    | None    |
 | as_df    | bool | if true: returns data as pandas DataFrame <br/> else as a list of dictionaries | False    | False   |
+
+
+### get_metadata_schema
+```python
+client.get_metadata_schema(name='My Schema')
+```
+Retrieves the metadata of a schema and returns it in the metadata.Schema format.
+
+
+| argument | type | description          | required | default |
+|----------|------|----------------------|----------|---------|
+| name     | str  | the name of the schema | False    | None    |
+
 
 ### export
 ```python
@@ -268,3 +281,125 @@ Throws the `NoSuchSchemaException` if the schema is not found on the server.
 | description       | str  | new description of the schema | False    | None    |
 | template          | str  | the template for this schema  | False    | None    |
 | include_demo_data | bool | whether to include demo data  | False    | False   |
+
+
+## Additional classes
+In addition to the Client class, the package contains classes to access metadata on the column, table, and schema level.
+These classes can be imported from `metadata.py` as follows
+
+```python
+from molgenis_emx2_pyclient.metadata import Column, Table, Schema
+```
+### Column
+This class contains information about a column of a table in a Molgenis EMX2 schema.
+An object of this class can be constructed by supplying its attributes as keyword arguments
+```python
+column = Column(name='First column', columnType='string', key=1)
+```
+or by supplying a dictionary of attributes
+```python
+column_data = {'name': 'First column', 'columnType': 'STRING', 'key': 1}
+column = Column(**column_data)
+```
+In both cases, the keyword `name` must be supplied. 
+#### get
+```python
+column.get('columnType')
+```
+Its attributes can be retrieved by accessing them directly, e.g. `column.name` or by the `get` method.
+#### to_dict
+```python
+column.to_dict()
+```
+A _Column_ object can be parsed to a dictionary object by calling the `to_dict` method.
+
+### Table
+A _Table_ object represents a table in an EMX2 schema. 
+It can be constructed in a similar way as a Column object
+```python
+table = Table(name='My table', description='My table contains some data.', 
+              columns=[Column(name='First column', columnType='STRING', key=1),
+                       Column(name='organisations', columnType='REF_ARRAY', refTableName='Organisations')])
+```
+```python
+table_data = {'name': 'My table', 'description': 'My table contains some data.',
+              columns: [{'name': 'First column', 'columnType': 'STRING', 'key': 1},
+                        {'name': 'organisations', 'columnType': 'REF_ARRAY', 'refTableName': 'Organisations'}]}
+```
+In both cases, the keyword `name` must be supplied. 
+The `columns` attribute can be supplied either as list of _Column_ objects or as a list of dictionaries from which _Column_ objects can be constructed.
+
+#### get
+```python
+table.get('description')
+```
+A _Table_'s attributes can be retrieved by accessing them directly, e.g. `table.name` or by the `get` method.
+
+#### to_dict
+```python
+table.to_dict()
+```
+Analogous to _Column_, a _Table_ object can be parsed to a dictionary object by calling the `to_dict` method.
+The columns in its `columns` attribute are also parsed to dictionaries.
+
+#### get_column
+```python
+table.get_column(by='name', value='My table')
+```
+Gets a unique _Column_ object in its `columns` attribute by either its `name` or `id` attribute.
+Raises a NoSuchColumnException if the column could not be found.
+
+#### get_columns
+```python
+table.get_columns(by='refTableName', value='Organisations')
+table.get_columns(by=['columnType', 'refTableName'], value=['REF_ARRAY', 'Organisations'])
+```
+Gets the columns of which an attribute matches a particular value.
+It is possible to filter the columns by multiple conditions, the attributes and values are then be supplied as lists. 
+The length of the `by` argument must then match the length of the `value` argument.
+
+
+### Schema
+A _Schema_ object represents the metadata of an EMX2 schema.
+It can be constructed similarly to the _Table_ and _Column_ classes.
+
+```python
+schema = Schema(name='My schema', description='This is my schema!',
+                tables=[
+                    Table(name='My table', description='My table contains some data.', 
+                          columns=[Column(name='First column', columnType='STRING', key=1),
+                                   Column(name='organisations', columnType='REF_ARRAY', refTableName='Organisations')]),
+                    Table(name='Organisations', description='A table containing data about organisations.',
+                          columns=[Column(name='name', columnType='STRING', key=1, required=True),
+                                   Column(name='acronym', columnType='STRING', description='The acronym for this organisation.')])
+                ])
+```
+
+```python
+schema_data = {'name': 'My schema', description: 'This is my schema!',
+               'tables': [
+                   {'name': 'My table', 'description': 'My table contains some data.',
+                    'columns': [
+                        {'name': 'First column', 'columnType': 'string', 'key': 1},
+                        {'name': 'organisations', 'columnType': 'REF_ARRAY', 'refTableName': 'Organisations'}
+                    ]},
+                   {'name': 'Organisations', 'description': 'A table containing data about organisations.',
+                    'columns': [
+                        {'name': 'name', 'columnType': 'STRING', 'key': 1, 'required': True},
+                        {'name': 'acronym', 'columnType': 'STRING', 'description': 'The acronym for this organisation.'}
+                    ]}
+               ]}
+schema = Schema(**schema_data)
+```
+
+#### get
+TODO
+
+#### to_dict
+TODO
+
+#### get_table
+TODO
+
+#### get_tables
+TODO
