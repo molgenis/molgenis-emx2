@@ -34,6 +34,9 @@ const resourcePathId = resourceIdPath(variableKey.value);
           {{ variable?.label }}
         </p>
       </div>
+      <!-- <div class="hidden basis-1/5 xl:flex xl:justify-end">
+        <IconButton icon="star" class="text-blue-500" />
+      </div> -->
       <div class="hidden basis-1/5 xl:flex xl:justify-end">
         <NuxtLink
           :to="`/${schema}/ssr-catalogue/${catalogue}/variables/${resourcePathId}`"
