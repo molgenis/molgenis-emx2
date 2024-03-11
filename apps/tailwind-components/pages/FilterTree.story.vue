@@ -18,7 +18,9 @@ function generateTreeData(width: number, depth: number, parentName?: string) {
   return nodes;
 }
 
-const rootNodes = generateTreeData(2, 2);
+const width = 2;
+const depth = 3;
+const rootNodes = generateTreeData(width, depth);
 
 const selectedNodes = ref([]);
 

@@ -5,7 +5,9 @@ import BaseIcon from "../../BaseIcon.vue";
 const props = withDefaults(
   defineProps<{
     nodes: ITreeNode[];
+    parent: ITreeNode;
     visible?: boolean;
+    expandSelected: boolean;
   }>(),
   { visible: true }
 );
@@ -16,15 +18,47 @@ function toggleExpand(node: ITreeNode) {
   node.expanded = !node.expanded;
 }
 
+function expandSelection(node: ITreeNode) {
+  node.children?.forEach((child) => {
+    child.selected = true;
+    expandSelection(child);
+  });
+}
+
+function expandDeselectionDown(node: ITreeNode) {
+  node.children?.forEach((child) => {
+    child.selected = false;
+    expandDeselectionDown(child);
+  });
+}
+
 function toggleSelect(node: ITreeNode) {
   //if selecting then also expand
   //if deselection we keep it open
   if (node.selected) {
     node.selected = false;
+    if (props.expandSelected) {
+      expandDeselectionDown(node);
+    }
     emit("deselect", node);
   } else {
     node.selected = true;
+    if (props.expandSelected) {
+      expandSelection(node);
+    }
     emit("select", node);
+  }
+}
+
+function handleChildSelect(child: ITreeNode, parent: ITreeNode) {
+  parent.selected = true;
+  emit("select", parent);
+}
+
+function handleChildDeselect(child: ITreeNode, parent: ITreeNode) {
+  if (parent.children?.every((c) => !c.selected)) {
+    parent.selected = false;
+    emit("deselect", parent);
   }
 }
 </script>
@@ -90,8 +124,10 @@ function toggleSelect(node: ITreeNode) {
       >
         <TreeChild
           :nodes="node.children"
-          @select="$emit('select', $event)"
-          @deselect="$emit('deselect', $event)"
+          :parent="node"
+          @select="handleChildSelect($event, node)"
+          @deselect="handleChildDeselect($event, node)"
+          :expandSelected="expandSelected"
         />
       </ul>
     </li>

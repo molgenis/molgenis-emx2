@@ -67,17 +67,42 @@ function toggleDeselect(index: number) {
   }
 }
 
-function handleChildSelect(child: ITreeNode) {
+function handleChildSelect(child: ITreeNode, parent: ITreeNode) {
   props.modelValue?.push(child);
-  console.log("child selected", child.name);
+  const rootIndex = nodes.value.findIndex((n) => n.name === parent.name);
+  nodes.value[rootIndex].selected = true;
+  props.modelValue?.push(nodes.value[rootIndex]);
 }
 
-function handleChildDeselect(child: ITreeNode) {
+function getSelectedChildren(node: ITreeNode): ITreeNode[] {
+  let selection: ITreeNode[] = [];
+  if (node.children) {
+    node.children.forEach((child) => {
+      if (child.selected) {
+        selection.push(child);
+      }
+      selection = [...selection, ...getSelectedChildren(child)];
+    });
+  }
+
+  return selection;
+}
+
+function handleChildDeselect(child: ITreeNode, parent: ITreeNode) {
   props.modelValue?.splice(
     props.modelValue.findIndex((n) => n.name === child.name),
     1
   );
-  console.log("child de-selected", child.name);
+  if (props.expandSelected) {
+    if (getSelectedChildren(parent).length === 0) {
+      const rootIndex = nodes.value.findIndex((n) => n.name === parent.name);
+      nodes.value[rootIndex].selected = false;
+      props.modelValue?.splice(
+        props.modelValue.findIndex((n) => n.name === parent.name),
+        1
+      );
+    }
+  }
 }
 </script>
 
@@ -141,8 +166,10 @@ function handleChildDeselect(child: ITreeNode) {
       >
         <TreeChild
           :nodes="node.children"
-          @select="handleChildSelect"
-          @deselect="handleChildDeselect"
+          :parent="node"
+          @select="handleChildSelect($event, node)"
+          @deselect="handleChildDeselect($event, node)"
+          :expandSelected="expandSelected"
         />
       </ul>
     </li>
