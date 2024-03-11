@@ -23,7 +23,7 @@ const resourcePathId = resourceIdPath(variableKey.value);
         <h2 class="min-w-[160px] mr-4 md:inline-block block">
           <NuxtLink
             :to="`/${schema}/ssr-catalogue/${catalogue}/variables/${resourcePathId}`"
-            class="text-body-base font-extrabold text-blue-500 hover:underline hover:bg-blue-50"
+            class="text-body-base font-extrabold text-blue-500 hover:underline hover:bg-blue-50 break-words"
           >
             {{ variable?.name }}
           </NuxtLink>
