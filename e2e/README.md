@@ -49,6 +49,8 @@ The manual test is formatted as markdown and minimally should contain the follow
   - Step number
   - Action(s)
   - Expected result(s)
+  - Github bug/issue (If step has known bug or issue set to: bug/issue number)
+  - Playwright test (If step is covered by playwright set to: true)
 
 ## Catalogue playwright test
 
