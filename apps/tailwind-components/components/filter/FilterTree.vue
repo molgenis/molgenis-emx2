@@ -7,7 +7,7 @@ import CustomTooltip from "../CustomTooltip.vue";
 const props = withDefaults(
   defineProps<{
     rootNodes: ITreeNode[];
-    modelValue?: ITreeNode[];
+    modelValue: ITreeNode[];
     isMultiSelect?: boolean;
     mobileDisplay?: boolean;
     expandSelected?: boolean;
@@ -31,7 +31,6 @@ function toggleExpand(index: number) {
 function expandSelection(node: ITreeNode) {
   node.children?.forEach((child) => {
     child.selected = true;
-    props.modelValue?.push(child);
     expandSelection(child);
   });
 }
@@ -40,38 +39,30 @@ function expandSelection(node: ITreeNode) {
 function expandDeselection(node: ITreeNode) {
   node.children?.forEach((child) => {
     child.selected = false;
-    props.modelValue?.splice(
-      props.modelValue.findIndex((n) => n.name === child.name),
-      1
-    );
     expandDeselection(child);
   });
 }
 
 function toggleSelect(index: number) {
   nodes.value[index].selected = true;
-  props.modelValue?.push(nodes.value[index]);
   if (props.expandSelected) {
     expandSelection(nodes.value[index]);
   }
+  updateModelValue(nodes.value);
 }
 
 function toggleDeselect(index: number) {
   nodes.value[index].selected = false;
-  props.modelValue?.splice(
-    props.modelValue.findIndex((n) => n.name === nodes.value[index].name),
-    1
-  );
   if (props.expandSelected) {
     expandDeselection(nodes.value[index]);
   }
+  updateModelValue(nodes.value);
 }
 
 function handleChildSelect(child: ITreeNode, parent: ITreeNode) {
-  props.modelValue?.push(child);
   const rootIndex = nodes.value.findIndex((n) => n.name === parent.name);
   nodes.value[rootIndex].selected = true;
-  props.modelValue?.push(nodes.value[rootIndex]);
+  updateModelValue(nodes.value);
 }
 
 function getSelectedChildren(node: ITreeNode): ITreeNode[] {
@@ -89,19 +80,36 @@ function getSelectedChildren(node: ITreeNode): ITreeNode[] {
 }
 
 function handleChildDeselect(child: ITreeNode, parent: ITreeNode) {
-  props.modelValue?.splice(
-    props.modelValue.findIndex((n) => n.name === child.name),
-    1
-  );
   if (props.expandSelected) {
     if (getSelectedChildren(parent).length === 0) {
       const rootIndex = nodes.value.findIndex((n) => n.name === parent.name);
       nodes.value[rootIndex].selected = false;
-      props.modelValue?.splice(
-        props.modelValue.findIndex((n) => n.name === parent.name),
-        1
-      );
     }
+  }
+  updateModelValue(nodes.value);
+}
+
+function updateModelValue(nodes: ITreeNode[]) {
+  // inner function to recursively update the model value
+  function updateChildSelection(node: ITreeNode) {
+    if (node.children) {
+      for (let i = 0; i < node.children.length; i++) {
+        if (node.children[i].selected) {
+          props.modelValue.push(node.children[i]);
+        }
+        updateChildSelection(node.children[i]);
+      }
+    }
+  }
+
+  // clearout without changing reference
+  props.modelValue.splice(0, props.modelValue.length);
+  // add all selected
+  for (let i = 0; i < nodes.length; i++) {
+    if (nodes[i].selected) {
+      props.modelValue.push(nodes[i]);
+    }
+    updateChildSelection(nodes[i]);
   }
 }
 </script>

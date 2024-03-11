@@ -58,8 +58,8 @@ function handleChildSelect(child: ITreeNode, parent: ITreeNode) {
 function handleChildDeselect(child: ITreeNode, parent: ITreeNode) {
   if (parent.children?.every((c) => !c.selected)) {
     parent.selected = false;
-    emit("deselect", parent);
   }
+  emit("deselect", parent);
 }
 </script>
 

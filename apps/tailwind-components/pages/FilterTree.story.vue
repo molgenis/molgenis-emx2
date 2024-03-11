@@ -31,6 +31,10 @@ const selectedNodes = ref([]);
  
   <div class="flex mb-4">
     <div class="flex-1  h-12"><FilterTree :rootNodes="rootNodes" v-model="selectedNodes" :expandSelected="true" class=" bg-blue-500 p-4" /></div>
-    <div class="flex-1  h-12 p-4"> selected nodes: {{ selectedNodes.map((n: ITreeNode) => n.name) }}</div>
+  
+    <div class="  h-12 p-4"> 
+      <div > Number off selected nodes: {{ selectedNodes.length }}</div>
+      <div> Selected nodes: {{ selectedNodes.map((n: ITreeNode) => n.name) }}</div>
+    </div>
   </div>
 </template>
