@@ -1,7 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   devtools: { enabled: true },
-  modules: ['@nuxtjs/tailwindcss', 'floating-vue/nuxt'],
+  modules: ['@nuxtjs/tailwindcss', 'floating-vue/nuxt', '@nuxt/test-utils/module'],
   // components: [{ path: "./components", prefix: "UI" }],
   tailwindcss: {
     cssPath: '~/assets/css/main.css',
