@@ -17,7 +17,7 @@ A researcher working in consortium X (*example: testNetwork1*) searches for spec
 | 1 | Navigate to `[MOLGENIS ACC test catalogue](https://data-catalogue-acc.molgeniscloud.org/testCat2/ssr-catalogue/)` | Landing page: European health research data and sample catalogue| | 
 | 2 | Go to the catalogue, under 'project catalogues' | From left to right the network logo, testNetwork1 name (link) and description, arrow right (link) | | 
 | 3 | Hover over the testNetwork1 row | Row should be highlighted | | 
-| 4 | Click on the testNetwork1 logo | Should be redirected to the Athlete 'browse all catalogue contents' | | 
+| 4 | Click on the testNetwork1 logo | Should be redirected to the testNetwork1 'browse all catalogue contents' | | 
 | 5 | Click on the testNework1 name | Should be redirected to the testNetwork1 'browse all catalogue contents'. Cohorts should show 19, variables should show X. | | 
 | 6 | Hover over yellow Variables button | Button should be highlighted | | 
 | 7 | Click Variables button | Should be redirected to testNetwork1 variable explorer | | 
