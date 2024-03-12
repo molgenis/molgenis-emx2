@@ -21,19 +21,9 @@ function generateTreeData(width: number, depth: number, parentName?: string) {
 }
 
 describe("FilterTree", () => {
-  it("is a Vue instance", () => {
-    const wrapper = mount(FilterTree, {
-      props: {
-        rootNodes: [],
-        modelValue: [],
-      },
-    });
-    expect(wrapper.vm).toBeTruthy();
-  });
-
   it("show top level nodes as list by default ( tree is collapes)", () => {
     const width = 2;
-    const depth = 3;
+    const depth = 4;
     const rootNodes = generateTreeData(width, depth);
     const wrapper = mount(FilterTree, {
       props: {
@@ -45,5 +35,8 @@ describe("FilterTree", () => {
     // 3 ul 's for depth of 3
     expect(wrapper.find("ul > li > ul > li > ul ").exists()).toBe(true);
     expect(wrapper.findAll("ul:first-child > li").length).toEqual(width);
+
+    // now try using a snapshot
+    expect(wrapper.element).toMatchSnapshot();
   });
 });
