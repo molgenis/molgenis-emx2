@@ -41,7 +41,10 @@ public class Emx2Files {
             // only one row
             for (Row f : fileRows) {
               store.writeFile(
-                  "_files/" + f.getString(c.getName() + "_filename"),
+                  "_files/"
+                      + f.getString(c.getName())
+                      + "."
+                      + f.getString(c.getName() + "_extension"),
                   f.getBinary(c.getName() + "_contents"));
             }
           }
