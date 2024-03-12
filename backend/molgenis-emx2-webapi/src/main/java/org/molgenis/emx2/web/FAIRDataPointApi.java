@@ -1,9 +1,11 @@
 package org.molgenis.emx2.web;
 
-import static org.molgenis.emx2.web.BeaconApi.getSchemasHavingTable;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 import static spark.Spark.get;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.fairdatapoint.*;
@@ -78,5 +80,20 @@ public class FAIRDataPointApi {
   private static String getDistributionProfile(Request request, Response res) {
     res.type(TEXT_TURTLE_MIME_TYPE);
     return FAIRDataPointProfile.DISTRIBUTION_SHACL;
+  }
+
+  static Schema[] getSchemasHavingTable(String tableName, Request request) {
+    List<Schema> schemas = new ArrayList<>();
+    Collection<String> schemaNames = MolgenisWebservice.getSchemaNames(request);
+    for (String sn : schemaNames) {
+      Schema schema = sessionManager.getSession(request).getDatabase().getSchema(sn);
+      Table t = schema.getTable(tableName);
+      if (t != null) {
+        schemas.add(schema);
+      }
+    }
+    Schema[] schemaArr = new Schema[schemas.size()];
+    schemaArr = schemas.toArray(schemaArr);
+    return schemaArr;
   }
 }

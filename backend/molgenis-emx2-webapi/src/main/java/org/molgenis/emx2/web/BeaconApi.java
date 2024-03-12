@@ -6,21 +6,23 @@ import static spark.Spark.post;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import org.molgenis.emx2.Database;
+import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
-import org.molgenis.emx2.beaconv2.QueryDatatype;
+import org.molgenis.emx2.beaconv2.EntryType;
+import org.molgenis.emx2.beaconv2.QueryEntryType;
 import org.molgenis.emx2.beaconv2.endpoints.*;
-import org.molgenis.emx2.beaconv2.endpoints.individuals.ejp_rd_vp.EJP_VP_IndividualsQuery;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
+import org.molgenis.emx2.beaconv2.requests.Filter;
 import spark.Request;
 import spark.Response;
 
-// is a beacon on level of database, schema or table?
 public class BeaconApi {
 
   private static MolgenisSessionManager sessionManager;
@@ -33,33 +35,33 @@ public class BeaconApi {
     get("/api/beacon/", BeaconApi::getInfo);
     get("/api/beacon/info", BeaconApi::getInfo);
     get("/api/beacon/service-info", BeaconApi::getInfo);
+
     get("/api/beacon/configuration", BeaconApi::getConfiguration);
     get("/api/beacon/map", BeaconApi::getMap);
-    get("/api/beacon/entry_types", BeaconApi::getEntryTypes);
-    get("/api/beacon/datasets", BeaconApi::getDatasets);
-    get("/api/beacon/g_variants", BeaconApi::getGenomicVariants);
-    get("/api/beacon/analyses", BeaconApi::getAnalyses);
-    get("/api/beacon/biosamples", BeaconApi::getBiosamples);
-    get("/api/beacon/cohorts", BeaconApi::getCohorts);
-    get("/api/beacon/individuals", BeaconApi::getIndividuals);
-    get("/api/beacon/runs", BeaconApi::getRuns);
     get("/api/beacon/filtering_terms", BeaconApi::getFilteringTerms);
+    get("/api/beacon/entry_types", BeaconApi::getEntryTypes);
 
-    post("/api/beacon/individuals", BeaconApi::queryIndividuals_EJP_VP);
+    get("/api/beacon/g_variants", BeaconApi::getGenomicVariants);
+    get("/api/beacon/runs", BeaconApi::getRuns);
 
-    /*
-    both GET and POST are used to retrieve data, implement both?
-    https://docs.genomebeacons.org/variant-queries/#beacon-sequence-queries
-     */
+    get("/api/beacon/:entry_type", BeaconApi::getEntryType);
 
-    //    get("/:schema/api/beacon/filtering_terms", BeaconApi::getFilteringTerms);
-    //
-    //    // datasets model
-    //    get("/:schema/api/beacon/datasets", BeaconApi::getDatasets);
-    //    get("/:schema/api/beacon/datasets/:table", BeaconApi::getDatasetsForTable);
-    //    // these are the interesting queries
-    //    post("/:schema/api/beacon/datasets", BeaconApi::postDatasets);
-    //    post("/:schema/api/beacon/datasets/:table", BeaconApi::postDatasetsForTable);
+    post("/api/beacon/individuals", BeaconApi::postIndividuals);
+  }
+
+  private static String getEntryType(Request request, Response response)
+      throws JsonProcessingException {
+
+    EntryType entryType = EntryType.findByName(request.params("entry_type"));
+    if (entryType == null) {
+      throw new MolgenisException("Invalid entry type: %s".formatted(request.params("entry_type")));
+    }
+
+    response.type(APPLICATION_JSON_MIME_TYPE);
+    Database database = sessionManager.getSession(request).getDatabase();
+    JsonNode jsonNode = QueryEntryType.query(database, entryType);
+
+    return getWriter().writeValueAsString(jsonNode);
   }
 
   private static String getInfo(Request request, Response response)
@@ -91,50 +93,17 @@ public class BeaconApi {
     return getWriter().writeValueAsString(new FilteringTerms(database));
   }
 
-  private static String getDatasets(Request request, Response response) throws Exception {
+  private static String postIndividuals(Request request, Response response) throws Exception {
     response.type(APPLICATION_JSON_MIME_TYPE);
-    String skip = request.queryParams("skip");
-    String limit = request.queryParams("limit");
+    BeaconRequestBody beaconRequestBody =
+        new ObjectMapper().readValue(request.body(), BeaconRequestBody.class);
 
-    // TODO pass request to response to set limits, offsets etc
-    // result should be BeaconBooleanResponse, BeaconCountResponse or BeaconCollectionResponse
-    List<Table> tables = getTableFromAllSchemas("Dataset", request);
-    JsonNode jsonNode = QueryDatatype.query(tables, "Dataset");
+    Filter[] filters = beaconRequestBody.getQuery().getFilters();
+    Database database = sessionManager.getSession(request).getDatabase();
+    //    JsonNode jsonNode = QueryEntryType.query(database, "Individuals", filters);
+    JsonNode jsonNode = null;
+
     return getWriter().writeValueAsString(jsonNode);
-  }
-
-  private static String getAnalyses(Request request, Response response) throws Exception {
-    response.type(APPLICATION_JSON_MIME_TYPE);
-    List<Table> tables = getTableFromAllSchemas("Analyses", request);
-    return getWriter().writeValueAsString(new Analyses(request, tables));
-  }
-
-  private static String getBiosamples(Request request, Response response) throws Exception {
-    response.type(APPLICATION_JSON_MIME_TYPE);
-    List<Table> tables = getTableFromAllSchemas("Biosamples", request);
-    return getWriter().writeValueAsString(new Biosamples(request, tables));
-  }
-
-  private static String getCohorts(Request request, Response response) throws Exception {
-    response.type(APPLICATION_JSON_MIME_TYPE);
-    List<Table> tables = getTableFromAllSchemas("Cohorts", request);
-    return getWriter().writeValueAsString(new Cohorts(request, tables));
-  }
-
-  private static String getIndividuals(Request request, Response response) throws Exception {
-    response.type(APPLICATION_JSON_MIME_TYPE);
-    String id = "Individuals";
-    List<Table> tables = getTableFromAllSchemas(id, request);
-    JsonNode jsonNode = QueryDatatype.query(tables, id);
-    return getWriter().writeValueAsString(jsonNode);
-  }
-
-  private static String queryIndividuals_EJP_VP(Request request, Response response)
-      throws Exception {
-    response.type(APPLICATION_JSON_MIME_TYPE);
-    List<Table> tables = getTableFromAllSchemas("Individuals", request);
-    String responseBody = new EJP_VP_IndividualsQuery(request, response, tables).getPostResponse();
-    return responseBody;
   }
 
   private static String getRuns(Request request, Response response) throws Exception {
@@ -161,21 +130,6 @@ public class BeaconApi {
       }
     }
     return tables;
-  }
-
-  static Schema[] getSchemasHavingTable(String tableName, Request request) {
-    List<Schema> schemas = new ArrayList<>();
-    Collection<String> schemaNames = MolgenisWebservice.getSchemaNames(request);
-    for (String sn : schemaNames) {
-      Schema schema = sessionManager.getSession(request).getDatabase().getSchema(sn);
-      Table t = schema.getTable(tableName);
-      if (t != null) {
-        schemas.add(schema);
-      }
-    }
-    Schema[] schemaArr = new Schema[schemas.size()];
-    schemaArr = schemas.toArray(schemaArr);
-    return schemaArr;
   }
 
   private static String postDatasets(Request request, Response response)

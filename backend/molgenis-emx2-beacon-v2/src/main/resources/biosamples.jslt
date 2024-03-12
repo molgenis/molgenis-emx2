@@ -1,0 +1,28 @@
+import "ontology.jslt" as ontology
+import "meta.jslt" as meta
+{
+    "meta": meta(.),
+    "responseSummary": { "exist": true },
+    "response": {
+        "resultSets":
+        [for (.resultSets)
+            {
+                "id": .id,
+                "type": "dataset",
+                "setType": "biosamples",
+                "exists": true,
+                "resultsCount": size(.results),
+                "results":
+                [for (.results) {
+                    "id": .id,
+                    "biosampleStatus": ontology(.biosampleStatus),
+                    "sampleOriginType": ontology(.sampleOriginType),
+                    "collectionMoment": .collectionMoment,
+                    "collectionDate": .collectionDate,
+                    "obtentionProcedure": {
+                        "procedureCode": ontology(.obtentionProcedure)
+                    }
+                }]
+            }]
+    }
+}

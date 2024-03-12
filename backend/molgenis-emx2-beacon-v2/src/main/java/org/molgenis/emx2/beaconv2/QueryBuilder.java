@@ -1,5 +1,6 @@
 package org.molgenis.emx2.beaconv2;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -11,13 +12,14 @@ import org.molgenis.emx2.beaconv2.requests.Filter;
 public class QueryBuilder {
 
   private Table table;
-  private List<Filter> filters;
+  private List<String> filters;
   private List<Column> columns;
   private StringBuilder columnSb;
   private StringBuilder query;
 
   public QueryBuilder(Table table) {
     this.table = table;
+    this.filters = new ArrayList<>();
     this.columnSb = new StringBuilder();
   }
 
@@ -35,11 +37,15 @@ public class QueryBuilder {
     return this;
   }
 
-  public QueryBuilder addFilters(List<Filter> filters) {
+  public QueryBuilder addFilters(Filter[] filters) {
+    if (filters != null) {
+      this.filters = new FilterParser().parseFilters(filters);
+    }
     return this;
   }
 
-  public QueryBuilder addFilters(String[] filters) {
+  public QueryBuilder addFilters(List<String> filters) {
+    this.filters = filters;
     return this;
   }
 
@@ -57,8 +63,8 @@ public class QueryBuilder {
 
   private void addFilters() {
     query.append("(filter: { _and: [ ");
-    for (Filter filter : filters) {
-      query.append(filter.toString()).append(",");
+    for (String filter : filters) {
+      query.append(filter).append(",");
     }
     if (!filters.isEmpty()) {
       query.deleteCharAt(query.length() - 1);
