@@ -51,7 +51,7 @@ function toggleSelect(node: ITreeNode) {
 }
 
 function handleChildSelect(child: ITreeNode, parent: ITreeNode) {
-  if(parent.children?.every((c) => c.selected)) {
+  if (parent.children?.every((c) => c.selected)) {
     parent.selected = true;
   }
   emit("select", parent);
@@ -96,12 +96,15 @@ function handleChildDeselect(child: ITreeNode, parent: ITreeNode) {
         <div class="flex items-center">
           <input
             type="checkbox"
-            :id="node.name"
-            :name="node.name"
-            @click.stop="toggleSelect(node)"
-            :checked="node.selected"
-            class="w-5 h-5 rounded-3px ml-2.5 mr-2.5 mt-0.5 accent-yellow-500 border border-checkbox"
+            <!--
+            :indeterminate="
+              node.selected && !node.children?.every((c) => c.selected)
+            "
+            --
           />
+          :id="node.name" :name="node.name" @click.stop="toggleSelect(node)"
+          :checked="node.selected" class="w-5 h-5 rounded-3px ml-2.5 mr-2.5
+          mt-0.5 accent-yellow-500 border border-checkbox" />
         </div>
         <label :for="node.name" class="hover:cursor-pointer text-body-sm group">
           <span class="group-hover:underline whitespace-nowrap">{{
