@@ -62,76 +62,74 @@ function handleChildDeselect(child: ITreeNode, parent: ITreeNode) {
 </script>
 
 <template>
-  <div>
-    <li v-for="node in nodes" class="mt-2.5 relative">
-      <span class="flex items-center">
-        <span
-          v-if="node.children?.length"
-          @click="toggleExpand(node)"
-          class="-left-[11px] top-0 text-search-filter-group-toggle rounded-full hover:bg-search-filter-group-toggle hover:cursor-pointer h-6 w-6 flex items-center justify-center absolute z-20"
-        >
-          <BaseIcon
-            :name="node.expanded ? 'caret-down' : 'caret-up'"
-            :width="20"
-          />
-        </span>
+  <li v-for="node in nodes" class="mt-2.5 relative">
+    <span class="flex items-center">
+      <span
+        v-if="node.children?.length"
+        @click="toggleExpand(node)"
+        class="-left-[11px] top-0 text-search-filter-group-toggle rounded-full hover:bg-search-filter-group-toggle hover:cursor-pointer h-6 w-6 flex items-center justify-center absolute z-20"
+      >
         <BaseIcon
-          v-if="node.children?.length"
-          name="collapsible-list-item-sub"
+          :name="node.expanded ? 'caret-down' : 'caret-up'"
           :width="20"
-          class="text-blue-200 absolute -top-[9px]"
-        />
-        <BaseIcon
-          v-else
-          name="collapsible-list-item"
-          :width="20"
-          class="text-blue-200 absolute -top-[9px]"
         />
       </span>
-      <div class="flex items-start ml-3">
-        <div class="flex items-center">
-          <input
-            type="checkbox"
-            :indeterminate="
-              node.children?.some((c) => c.selected) &&
-              !node.children?.every((c) => c.selected)
-            "
-            :id="node.name"
-            :name="node.name"
-            @click.stop="toggleSelect(node)"
-            :checked="node.selected"
-            class="w-5 h-5 rounded-3px ml-2.5 mr-2.5 mt-0.5 accent-yellow-500 indeterminate:accent-yellow-500 border border-checkbox"
-          />
-        </div>
-        <label :for="node.name" class="hover:cursor-pointer text-body-sm group">
-          <span class="group-hover:underline whitespace-nowrap">{{
-            node.name
-          }}</span>
-          <div class="inline-flex items-center whitespace-nowrap">
-            <div class="inline-block">
-              <CustomTooltip
-                v-if="node.description"
-                label="Description"
-                hoverColor="white"
-                :content="node.description"
-              />
-            </div>
-          </div>
-        </label>
-      </div>
-      <ul
-        v-if="node.children"
-        :class="{ hidden: !node.expanded }"
-        class="ml-[31px]"
-      >
-        <TreeChild
-          :nodes="node.children"
-          :parent="node"
-          @select="handleChildSelect($event, node)"
-          @deselect="handleChildDeselect($event, node)"
-          :expandSelected="expandSelected"
+      <BaseIcon
+        v-if="node.children?.length"
+        name="collapsible-list-item-sub"
+        :width="20"
+        class="text-blue-200 absolute -top-[9px]"
+      />
+      <BaseIcon
+        v-else
+        name="collapsible-list-item"
+        :width="20"
+        class="text-blue-200 absolute -top-[9px]"
+      />
+    </span>
+    <div class="flex items-start ml-3">
+      <div class="flex items-center">
+        <input
+          type="checkbox"
+          :indeterminate="
+            node.children?.some((c) => c.selected) &&
+            !node.children?.every((c) => c.selected)
+          "
+          :id="node.name"
+          :name="node.name"
+          @click.stop="toggleSelect(node)"
+          :checked="node.selected"
+          class="w-5 h-5 rounded-3px ml-2.5 mr-2.5 mt-0.5 accent-yellow-500 indeterminate:accent-yellow-500 border border-checkbox"
         />
-      </ul>
-    </li>
-  </div>
+      </div>
+      <label :for="node.name" class="hover:cursor-pointer text-body-sm group">
+        <span class="group-hover:underline whitespace-nowrap">{{
+          node.name
+        }}</span>
+        <div class="inline-flex items-center whitespace-nowrap">
+          <div class="inline-block">
+            <CustomTooltip
+              v-if="node.description"
+              label="Description"
+              hoverColor="white"
+              :content="node.description"
+            />
+          </div>
+        </div>
+      </label>
+    </div>
+    <ul
+      v-if="node.children"
+      :class="{ hidden: !node.expanded }"
+      class="ml-[31px]"
+    >
+      <TreeChild
+        :nodes="node.children"
+        :parent="node"
+        @select="handleChildSelect($event, node)"
+        @deselect="handleChildDeselect($event, node)"
+        :expandSelected="expandSelected"
+      />
+    </ul>
+  </li>
 </template>
