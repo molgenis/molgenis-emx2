@@ -32,7 +32,7 @@ describe("FilterTree", () => {
       },
     });
     expect(wrapper.find("ul").exists()).toBe(true);
-    // 3 ul 's for depth of 3
+    // 3 ul 's for depth of 4, but we only get 3 (and a <treechild> stub) because of shallow mount, stange
     expect(wrapper.find("ul > li > ul > li > ul ").exists()).toBe(true);
     expect(wrapper.findAll("ul:first-child > li").length).toEqual(width);
 
