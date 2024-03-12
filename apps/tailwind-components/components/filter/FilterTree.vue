@@ -143,6 +143,10 @@ function updateModelValue(nodes: ITreeNode[]) {
         <div class="flex items-center">
           <input
             type="checkbox"
+            :indeterminate="
+              node.children?.some((c) => c.selected) &&
+              !node.children?.every((c) => c.selected)
+            "
             :id="node.name"
             :name="node.name"
             :checked="node.selected"

@@ -96,6 +96,10 @@ function handleChildDeselect(child: ITreeNode, parent: ITreeNode) {
         <div class="flex items-center">
           <input
             type="checkbox"
+            :indeterminate="
+              node.children?.some((c) => c.selected) &&
+              !node.children?.every((c) => c.selected)
+            "
             :id="node.name"
             :name="node.name"
             @click.stop="toggleSelect(node)"
