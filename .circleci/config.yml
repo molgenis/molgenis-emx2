@@ -217,20 +217,25 @@ jobs:
       - run: npx playwright install chrome
       - run:
           name: Wait for preview to be up, poll every 10 seconds
-          command: |
+          command: |  
             GETURL="https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/"
-            while true; 
-                do 
-                    STATUS=$(curl --silent --head $GETURL | awk '/^HTTP/{print $2}')
-                    echo ${STATUS}
-                    if [[ "$STATUS" == "200" ]]; then 
-                        echo "preview is up";
-                        break; 
-                    else 
-                        echo "preview is not ready yet, waiting 10 seconds...";
-                    fi; 
-                    sleep 10; 
-                done
+            TIMEOUT=$((SECONDS+600))  # Set timeout to 10 minutes
+            while [ $SECONDS -lt $TIMEOUT ]; do
+              STATUS=$(curl --silent --head $GETURL | awk '/^HTTP/{print $2}')
+              echo ${STATUS}
+              if [[ "$STATUS" == "200" ]]; then
+                echo "Preview is up."
+                break
+              else
+                echo "Preview is not ready yet, waiting 10 seconds..."
+              fi
+              sleep 10
+            done
+            if [ $SECONDS -ge $TIMEOUT ]; then
+              echo "Timeout reached. Preview did not become ready within 10 minutes."
+              return 1 
+              # You can add additional actions or exit the script here if needed.
+            fi
       - run:
           command: | 
             echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
