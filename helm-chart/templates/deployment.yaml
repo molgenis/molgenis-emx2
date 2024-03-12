@@ -71,7 +71,7 @@ spec:
             - max_locks_per_transaction=1024
             - -c
             - effective_cache_size=2GB
-            - shared_preload_libraries='pg_stat_statements'
+            - shared_preload_libraries=pg_stat_statements
             - pg_stat_statements.track=all
           env:
             - name: POSTGRES_DB
@@ -88,10 +88,10 @@ spec:
           resources:
             requests:
               memory: "1Gi"
-              cpu: "500m"
+              cpu: "1"
             limits:
               memory: "2Gi"
-              cpu: "1"
+              cpu: "2"
           ports:
             - containerPort: 5432
           volumeMounts:
