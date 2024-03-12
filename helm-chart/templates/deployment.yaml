@@ -71,6 +71,8 @@ spec:
             - max_locks_per_transaction=1024
             - -c
             - effective_cache_size=2GB
+            - shared_preload_libraries='pg_stat_statements'
+            - pg_stat_statements.track=all
           env:
             - name: POSTGRES_DB
               value: {{ .Values.postgres.name }}
