@@ -44,7 +44,7 @@ public class TestFileType {
     BinaryFileWrapper w = new BinaryFileWrapper(getFile());
     assertEquals("image/png", w.getMimeType());
     assertEquals("png", w.getExtension());
-    assertEquals("molgenis", w.getFileName());
+    assertEquals("molgenis.png", w.getFileName());
     assertEquals(37458, w.getSize());
     assertNotNull(w.getContents());
     assertEquals(37458, w.getContents().length);
