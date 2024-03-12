@@ -81,10 +81,10 @@ spec:
               value: /var/lib/postgresql/data/pgdata
           resources:
             requests:
-              memory: "512Mi"
+              memory: "1Gi"
               cpu: "1"
             limits:
-              memory: "1Gi"
+              memory: "2Gi"
               cpu: "2"
           ports:
             - containerPort: 5432
