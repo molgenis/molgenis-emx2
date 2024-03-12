@@ -1,4 +1,4 @@
-package org.molgenis.emx2.beaconv2.endpoints;
+package org.molgenis.emx2.beaconv2;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -7,8 +7,10 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.schibsted.spt.data.jslt.Expression;
 import com.schibsted.spt.data.jslt.Parser;
 import graphql.ExecutionResult;
+import graphql.GraphQL;
 import java.util.List;
 import org.molgenis.emx2.Table;
+import org.molgenis.emx2.graphql.GraphqlApiFactory;
 
 public class QueryDatatype {
 
@@ -29,8 +31,11 @@ public class QueryDatatype {
 
     ArrayNode resultSets = mapper.createArrayNode();
     for (Table table : tables) {
-      ExecutionResult executionResult = QueryHelper.queryTable(table);
-      JsonNode results = mapper.valueToTree(executionResult.getData()).get(tableId);
+      GraphQL graphQL = new GraphqlApiFactory().createGraphqlForSchema(table.getSchema());
+      String query = new QueryBuilder(table).addColumns(2).addFilters(filters).getQuery();
+
+      ExecutionResult result = graphQL.execute(query);
+      JsonNode results = mapper.valueToTree(result.getData()).get(tableId);
 
       ObjectNode resultSet = mapper.createObjectNode();
       resultSet.put("id", table.getSchema().getName());

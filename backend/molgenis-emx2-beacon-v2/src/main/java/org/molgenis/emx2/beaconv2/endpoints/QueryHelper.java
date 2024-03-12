@@ -53,10 +53,13 @@ public class QueryHelper {
     return query;
   }
 
-  public static ExecutionResult queryTable(Table table) {
+  public static ExecutionResult queryTable(Table table, String... filters) {
     GraphQL graphQL = new GraphqlApiFactory().createGraphqlForSchema(table.getSchema());
     StringBuilder sb = new StringBuilder("{");
-    sb.append(table.getName()).append("{");
+
+    sb.append(table.getName());
+    if (filters != null) addFilters(sb, filters);
+    sb.append("{");
 
     queryColumns(table.getMetadata().getColumnsWithoutHeadings(), sb);
 
@@ -64,11 +67,22 @@ public class QueryHelper {
     return graphQL.execute(sb.toString());
   }
 
+  private static void addFilters(StringBuilder sb, String[] filters) {
+    sb.append("(filter: { _and: [ ");
+    for (String filter : filters) {
+      sb.append(filter).append(",");
+    }
+    if (filters.length > 0) {
+      sb.deleteCharAt(sb.length() - 1);
+    }
+    sb.append(" ] }  )");
+  }
+
   private static void queryColumns(List<Column> columns, StringBuilder sb) {
     Set<String> seenTables = new HashSet<>();
     seenTables.add(columns.get(0).getTable().getIdentifier());
     int currentDepth = 0;
-    int maxDepth = 4;
+    int maxDepth = 2;
     queryColumnsRecursively(columns, seenTables, sb, maxDepth, currentDepth);
   }
 
@@ -82,7 +96,7 @@ public class QueryHelper {
       if (column.isOntology() || column.isReference()) {
         if (currentDepth < maxDepth) {
           TableMetadata refTable = column.getRefTable();
-          // Don't select the same table twice
+          // Don't select the same table twice // todo: Doesn't work for ontology tables
           //          if (seenTables.contains(refTable.getIdentifier())) continue;
           seenTables.add(refTable.getIdentifier());
 

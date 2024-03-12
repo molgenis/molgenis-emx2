@@ -1,6 +1,6 @@
 package org.molgenis.emx2.beaconv2.endpoints.individuals;
 
-import static org.molgenis.emx2.beaconv2.endpoints.QueryDatatype.query;
+import static org.molgenis.emx2.beaconv2.QueryDatatype.query;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnore;

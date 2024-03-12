@@ -30,26 +30,25 @@ import "meta.jslt" as meta
                 "geographicOrigin": ontology(.geographicOrigin),
                 "disease":
                 [for (.diseases) {
-                        "diseaseCode": ontology(.diseaseCode),
-                        "ageOfOnset":
-                        {
-                            "ageGroup": ontology(.ageOfOnset_ageGroup),
-                            "age": { "iso8601duration": .ageOfOnset_age_iso8601duration }
-                        },
-                        "severity": ontology(.severity)
-                    }
+                    "diseaseCode": ontology(.diseaseCode),
+                    "ageOfOnset": {
+                        "ageGroup": ontology(.ageOfOnset_ageGroup),
+                        "age": { "iso8601duration": .ageOfOnset_age_iso8601duration }
+                    },
+                    "severity": ontology(.severity)
+                }
                 ],
                 "measures":
                 [for (.measures) {
-                        "assayCode": ontology(.assayCode),
-                        "date": .date,
-                        "measurementVariable": .measurementVariable,
-                        "measurementValue": {
-                            "value": .measurementValue_value,
-                            "units": ontology(.measurementValue_units)
-                        },
-                        "observationMoment": { "age": { "iso8601duration": .observationMoment_age_iso8601duration } }
-                    }
+                    "assayCode": ontology(.assayCode),
+                    "date": .date,
+                    "measurementVariable": .measurementVariable,
+                    "measurementValue": {
+                        "value": .measurementValue_value,
+                        "units": ontology(.measurementValue_units)
+                    },
+                    "observationMoment": { "age": { "iso8601duration": .observationMoment_age_iso8601duration } }
+                }
                 ]
             }]
         }]
