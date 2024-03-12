@@ -61,7 +61,7 @@ function closeModal() {
         <DefinitionListDefinition>
           cohort was able to fully map to the harmonized variables
         </DefinitionListDefinition>
-        
+
         <DefinitionListTerm>Partial</DefinitionListTerm>
         <DefinitionListDefinition>
           cohort was able to partially map to the harmonized variable
