@@ -102,20 +102,20 @@ class Client:
         )
 
         if response.status_code == 404:
-            raise ServerNotFoundError(f"Server '{self.url}' could not be found. "
+            raise ServerNotFoundError(f"Server {self.url!r} could not be found. "
                                       f"Ensure the spelling of the url is correct.")
         if response.status_code == 503:
-            raise ServiceUnavailableError(f"Server '{self.url}' not available. "
+            raise ServiceUnavailableError(f"Server {self.url!r} not available. "
                                           f"Try again later.")
         if response.status_code != 200:
-            raise PyclientException(f"Server '{self.url}' could not be reached due to a connection problem."
-                                    f"\nStatus code: {response.status_code}. Reason: '{response.reason}'.")
+            raise PyclientException(f"Server {self.url!r} could not be reached due to a connection problem."
+                                    f"\nStatus code: {response.status_code}. Reason: {response.reason!r}.")
 
         response_json: dict = response.json().get('data', {}).get('signin', {})
 
         if response_json.get('status') == 'SUCCESS':
             self.signin_status = 'success'
-            message = f"User '{self.username}' is signed in to '{self.url}'."
+            message = f"User {self.username!r} is signed in to {self.url!r}."
             log.info(message)
             print(message)
         elif response_json.get('status') == 'FAILED':
@@ -141,7 +141,7 @@ class Client:
 
         status = response.json().get('data', {}).get('signout', {}).get('status')
         if status == 'SUCCESS':
-            print(f"User '{self.username}' is signed out of '{self.url}'.")
+            print(f"User {self.username!r} is signed out of {self.url!r}.")
             self.signin_status = 'signed out'
         else:
             print(f"Unable to sign out of {self.url}.")
@@ -180,7 +180,7 @@ class Client:
         )
 
         if response.status_code == 404:
-            raise ServerNotFoundError(f"Server with url '{self.url}'")
+            raise ServerNotFoundError(f"Server with url {self.url!r}")
         if response.status_code == 400:
             if 'Invalid token or token expired' in response.text:
                 raise InvalidTokenException("Invalid token or token expired.")
@@ -236,10 +236,10 @@ class Client:
             current_schema = self.default_schema
 
         if current_schema not in self.schema_names:
-            raise NoSuchSchemaException(f"Schema '{current_schema}' not available.")
+            raise NoSuchSchemaException(f"Schema {current_schema!r} not available.")
 
         if not self._table_in_schema(table, current_schema):
-            raise NoSuchTableException(f"Table '{table}' not found in schema '{current_schema}'.")
+            raise NoSuchTableException(f"Table {table!r} not found in schema {current_schema!r}.")
 
         import_data = self._prep_data_or_file(file_path=file, data=data)
 
@@ -283,10 +283,10 @@ class Client:
             current_schema = self.default_schema
 
         if current_schema not in self.schema_names:
-            raise NoSuchSchemaException(f"Schema '{current_schema}' not available.")
+            raise NoSuchSchemaException(f"Schema {current_schema!r} not available.")
 
         if not self._table_in_schema(table, current_schema):
-            raise NoSuchTableException(f"Table '{table}' not found in schema '{current_schema}'.")
+            raise NoSuchTableException(f"Table {table!r} not found in schema {current_schema!r}.")
 
         import_data = self._prep_data_or_file(file_path=file, data=data)
 
@@ -323,16 +323,16 @@ class Client:
             current_schema = self.default_schema
 
         if current_schema not in self.schema_names:
-            raise NoSuchSchemaException(f"Schema '{current_schema}' not available.")
+            raise NoSuchSchemaException(f"Schema {current_schema!r} not available.")
 
         if not self._table_in_schema(table, current_schema):
-            raise NoSuchTableException(f"Table '{table}' not found in schema '{current_schema}'.")
+            raise NoSuchTableException(f"Table {table!r} not found in schema {current_schema!r}.")
 
         response = self.session.get(url=f"{self.url}/{current_schema}/api/csv/{table}",
                                     headers={'x-molgenis-token': self.token})
 
         if response.status_code != 200:
-            message = f"Failed to retrieve data from '{current_schema}::{table}'." \
+            message = f"Failed to retrieve data from {current_schema}::{table!r}." \
                       f"\nStatus code: {response.status_code}."
             log.error(message)
             raise PyclientException(message)
@@ -356,10 +356,10 @@ class Client:
         """
         current_schema = schema if schema is not None else self.default_schema
         if current_schema not in self.schema_names:
-            raise NoSuchSchemaException(f"Schema '{current_schema}' not available.")
+            raise NoSuchSchemaException(f"Schema {current_schema!r} not available.")
 
         if table is not None and not self._table_in_schema(table, current_schema):
-            raise NoSuchTableException(f"Table '{table}' not found in schema '{current_schema}'.")
+            raise NoSuchTableException(f"Table {table!r} not found in schema {current_schema!r}.")
 
         if fmt == 'xlsx':
             if table is None:
@@ -437,7 +437,7 @@ class Client:
         self._validate_graphql_response(
             response_json=response_json,
             mutation='createSchema',
-            fallback_error_message=f"Failed to create schema '{name}'"
+            fallback_error_message=f"Failed to create schema {name!r}"
         )
         self.schemas = self.get_schemas()
 
@@ -452,7 +452,7 @@ class Client:
         """
         current_schema = name if name is not None else self.default_schema
         if current_schema not in self.schema_names:
-            raise NoSuchSchemaException(f"Schema '{current_schema}' not available.")
+            raise NoSuchSchemaException(f"Schema {current_schema!r} not available.")
 
         query = queries.delete_schema()
         variables = {'id': current_schema}
@@ -467,7 +467,7 @@ class Client:
         self._validate_graphql_response(
             response_json=response_json,
             mutation='deleteSchema',
-            fallback_error_message=f"Failed to delete schema '{current_schema}'"
+            fallback_error_message=f"Failed to delete schema {current_schema!r}"
         )
         self.schemas = self.get_schemas()
 
@@ -484,7 +484,7 @@ class Client:
         """
         current_schema = name if name is not None else self.default_schema
         if current_schema not in self.schema_names:
-            raise NoSuchSchemaException(f"Schema '{current_schema}' not available.")
+            raise NoSuchSchemaException(f"Schema {current_schema!r} not available.")
 
         query = queries.update_schema()
         variables = {'name': current_schema, 'description': description}
@@ -499,7 +499,7 @@ class Client:
         self._validate_graphql_response(
             response_json=response_json,
             mutation='updateSchema',
-            fallback_error_message=f"Failed to update schema '{current_schema}'"
+            fallback_error_message=f"Failed to update schema {current_schema!r}"
         )
         self.schemas = self.get_schemas()
 
@@ -525,7 +525,7 @@ class Client:
         """
         current_schema = name if name is not None else self.default_schema
         if current_schema not in self.schema_names:
-            raise NoSuchSchemaException(f"Schema '{current_schema}' not available.")
+            raise NoSuchSchemaException(f"Schema {current_schema!r} not available.")
 
         schema_meta = [db for db in self.schemas if db.name == current_schema][0]
         schema_description = description if description else schema_meta.get('description', None)
@@ -540,7 +540,7 @@ class Client:
             )
 
         except GraphQLException:
-            message = f"Failed to recreate '{current_schema}'"
+            message = f"Failed to recreate {current_schema!r}"
             log.error(message)
             print(message)
 
@@ -610,7 +610,7 @@ class Client:
         :rtype: str
         """
         if name not in [*self.schema_names, None]:
-            raise NoSuchSchemaException(f"Schema '{name}' not available.")
+            raise NoSuchSchemaException(f"Schema {name!r} not available.")
         self.default_schema = name
 
         return name
