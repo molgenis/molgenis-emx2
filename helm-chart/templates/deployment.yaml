@@ -64,9 +64,13 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           args:
             - -c
-            - shared_buffers=256MB
+            - shared_buffers=512MB
+            - -c
+            - work_mem=64MB
             - -c
             - max_locks_per_transaction=1024
+            - -c
+            - effective_cache_size=2GB
           env:
             - name: POSTGRES_DB
               value: {{ .Values.postgres.name }}
@@ -82,10 +86,10 @@ spec:
           resources:
             requests:
               memory: "1Gi"
-              cpu: "1"
+              cpu: "500m"
             limits:
               memory: "2Gi"
-              cpu: "2"
+              cpu: "1"
           ports:
             - containerPort: 5432
           volumeMounts:
