@@ -105,7 +105,7 @@ class Table:
     def get_columns(self, by: str | list, value: str | list) -> list[Column]:
         """Gets the columns by one or multiple attributes of the Column objects."""
         columns = []
-        assert type(by) == type(value), f"Supply both 'by' and 'value' as either strings or lists."
+        assert type(by) is type(value), "Supply both 'by' and 'value' as either strings or lists."
         if isinstance(by, str):
             for col in self.columns:
                 if hasattr(col, by):
@@ -113,10 +113,10 @@ class Table:
                         columns.append(col)
             return columns
 
-        assert len(by) == len(value), f"'by' and 'value' should be of same length if supplied as lists."
+        assert len(by) == len(value), "'by' and 'value' should be of same length if supplied as lists."
         for col in self.columns:
-            if all(starmap(lambda _by, _value: hasattr(col, _by)
-                                               and (col.__getattribute__(_by) == _value), zip(by, value))):
+            if all(starmap(lambda _by, _value: (hasattr(col, _by)
+                                                and (col.__getattribute__(_by) == _value)), zip(by, value))):
                 columns.append(col)
         return columns
 

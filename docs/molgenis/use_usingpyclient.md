@@ -118,16 +118,17 @@ Throws the `NoSuchSchemaException` if the user does not have at least _viewer_ p
 | as_df    | bool | if true: returns data as pandas DataFrame <br/> else as a list of dictionaries | False    | False   |
 
 
-### get_metadata_schema
+### get_schema_metadata
 ```python
-client.get_metadata_schema(name='My Schema')
+client.get_schema_metadata(name='My Schema')
 ```
-Retrieves the metadata of a schema and returns it in the metadata.Schema format.
+Retrieves the metadata of a schema and returns it in the _metadata.Schema_ format.
+See the description of the [Schema](use_usingpyclient.md#schema) metadata object below.
 
 
 | argument | type | description          | required | default |
 |----------|------|----------------------|----------|---------|
-| name     | str  | the name of the schema | False    | None    |
+| name     | str  | the name of the schema | True     | None    |
 
 
 ### export
@@ -167,7 +168,7 @@ Throws the `NoSuchSchemaException` if the schema is not found on the server.
 
 ### delete_records
 ```python
-client.delete_records(table='Data Table', name='My Schema',  
+client.delete_records(table='Data Table', schema='My Schema',  
                       file='location/of/data/file.csv', data=[{'col1': value1, ...}, {'col2': value2, ...}, ...])
 ```
 Deletes data records from a table.
@@ -344,7 +345,7 @@ The columns in its `columns` attribute are also parsed to dictionaries.
 
 #### get_column
 ```python
-table.get_column(by='name', value='My table')
+table.get_column(by='name', value='First column')
 ```
 Gets a unique _Column_ object in its `columns` attribute by either its `name` or `id` attribute.
 Raises a NoSuchColumnException if the column could not be found.
@@ -357,6 +358,7 @@ table.get_columns(by=['columnType', 'refTableName'], value=['REF_ARRAY', 'Organi
 Gets the columns of which an attribute matches a particular value.
 It is possible to filter the columns by multiple conditions, the attributes and values are then be supplied as lists. 
 The length of the `by` argument must then match the length of the `value` argument.
+Returns an empty list if no matching column can be found.
 
 
 ### Schema
@@ -391,15 +393,33 @@ schema_data = {'name': 'My schema', description: 'This is my schema!',
                ]}
 schema = Schema(**schema_data)
 ```
+In both cases, the keyword `name` must be supplied. 
+The `tables` attribute can be supplied either as list of _Table_ objects or as a list of dictionaries from which _Table_ objects can be constructed.
+
 
 #### get
-TODO
+```python
+schema.get('description')
+```
+A _Schema_'s attributes can be retrieved by accessing them directly, e.g. `schema.name` or by the `get` method.
 
 #### to_dict
-TODO
+```python
+schema.to_dict()
+```
+Analogous to _Table_ and _Column_, a _Schema_ object can be parsed to a dictionary object by calling the `to_dict` method.
+The _Table_ objects in its `tables` attribute are also parsed to dictionaries.
 
 #### get_table
-TODO
+```python
+schema.get_table(by='name', value='My table')
+```
+Gets a unique _Table_ object in its `table` attribute by either its `name` or `id` attribute.
+Raises a NoSuchTableException if the table could not be found.
 
 #### get_tables
-TODO
+```python
+table.get_tables(by='inheritName', value='Resources')
+```
+Gets the table of which an attribute matches a particular value.
+Returns an empty list if no matching table can be found.
