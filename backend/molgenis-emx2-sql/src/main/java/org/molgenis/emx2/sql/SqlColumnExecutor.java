@@ -469,6 +469,11 @@ public class SqlColumnExecutor {
           .execute();
     }
     MetadataUtils.deleteColumn(jooq, column);
+    var tableMetadata =
+        MetadataUtils.loadTable(jooq, column.getSchemaName(), column.getTableName());
+    tableMetadata.setSchema(column.getSchema());
+    SqlTableMetadataExecutor.updateSearchIndexTriggerFunction(
+        jooq, tableMetadata, tableMetadata.getTableName());
   }
 
   static void executeRemoveRefConstraints(DSLContext jooq, Column column) {
