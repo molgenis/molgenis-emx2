@@ -21,7 +21,7 @@ const width = 2;
 const depth = 3;
 const rootNodes = generateTreeData(width, depth);
 
-const selectedNodes = ref([]);
+const selectedNodes: Ref<ITreeNode[]> = ref([]);
 
 const clearSelection = () => {
   selectedNodes.value = [];
