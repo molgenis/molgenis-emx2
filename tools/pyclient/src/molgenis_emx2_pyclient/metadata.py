@@ -196,33 +196,3 @@ class Schema:
         if k == 'tables':
             return [Table(**t) for t in v]
         return v
-
-
-if __name__ == '__main__':
-
-    # Get the emx2 dev catalogue schema
-    response = requests.post(url="https://emx2.dev.molgenis.org/catalogue/graphql",
-                             json={'query': list_schema_meta()})
-
-    schema = Schema(**response.json().get('data').get('_schema'))
-
-    # Find the tables inheriting from the 'Resources' table
-    resource_children = schema.get_tables(by='inheritName', value='Resources')
-
-    print("Tables in the schema inheriting from the 'Resources' table.")
-    for res_chi in resource_children:
-        print(f"{res_chi!s}\n{res_chi!r}")
-
-    # Find the Cohorts table
-    cohorts = schema.get_table(by='name', value='Cohorts')
-
-    # Find the columns in the Cohorts table referencing the Organisations table
-    orgs_refs = cohorts.get_columns(by='refTableName', value='Organisations')
-
-    # Find the columns in the Cohorts table referencing the Organisations table in a reference array
-    orgs_array_refs = cohorts.get_columns(by=['columnType', 'refTableName'], value=['REF_ARRAY', 'Organisations'])
-
-    # Print the __str__ and __repr__ representations of these columns
-    print("Columns in the Cohorts table referencing the Organisations table.")
-    for orgs_ref in orgs_refs:
-        print(f"{orgs_ref!s}\n{orgs_ref!r}\n")
