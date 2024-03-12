@@ -20,8 +20,30 @@ const props = withDefaults(
 );
 
 const emit = defineEmits(["update:modelValue"]);
-
 const nodes = ref(props.rootNodes);
+
+watch(
+  () => props.modelValue,
+  (newValue) => {
+    const selectedNodesNames = newValue.map((n) => n.name);
+    updateSelectionStatus(nodes.value, selectedNodesNames);
+  }
+);
+
+function updateSelectionStatus(
+  nodes: ITreeNode[],
+  selectedNodesNames: string[]
+) {
+  for (let i = 0; i < nodes.length; i++) {
+    nodes[i].selected = selectedNodesNames.includes(nodes[i].name);
+    if (nodes[i].children) {
+      updateSelectionStatus(
+        nodes[i].children as ITreeNode[],
+        selectedNodesNames
+      );
+    }
+  }
+}
 
 function toggleExpand(index: number) {
   nodes.value[index].expanded = !nodes.value[index].expanded;
@@ -153,7 +175,7 @@ function updateModelValue(nodes: ITreeNode[]) {
             @click.stop="
               node.selected ? toggleDeselect(index) : toggleSelect(index)
             "
-            class="w-5 h-5 rounded-3px ml-[6px] mr-2.5 mt-0.5 accent-yellow-500 border border-checkbox hover:cursor-pointer"
+            class="w-5 h-5 rounded-3px ml-[6px] mr-2.5 mt-0.5 accent-yellow-500 indeterminate:accent-yellow-500 border border-checkbox hover:cursor-pointer"
           />
         </div>
         <label :for="node.name" class="hover:cursor-pointer text-body-sm group">

@@ -2,15 +2,11 @@
 import type { ITreeNode } from "../../../types/types";
 import BaseIcon from "../../BaseIcon.vue";
 
-const props = withDefaults(
-  defineProps<{
-    nodes: ITreeNode[];
-    parent: ITreeNode;
-    visible?: boolean;
-    expandSelected: boolean;
-  }>(),
-  { visible: true }
-);
+const props = defineProps<{
+  nodes: ITreeNode[];
+  parent: ITreeNode;
+  expandSelected: boolean;
+}>();
 
 const emit = defineEmits(["select", "deselect"]);
 
@@ -104,7 +100,7 @@ function handleChildDeselect(child: ITreeNode, parent: ITreeNode) {
             :name="node.name"
             @click.stop="toggleSelect(node)"
             :checked="node.selected"
-            class="w-5 h-5 rounded-3px ml-2.5 mr-2.5 mt-0.5 accent-yellow-500 border border-checkbox"
+            class="w-5 h-5 rounded-3px ml-2.5 mr-2.5 mt-0.5 accent-yellow-500 indeterminate:accent-yellow-500 border border-checkbox"
           />
         </div>
         <label :for="node.name" class="hover:cursor-pointer text-body-sm group">
