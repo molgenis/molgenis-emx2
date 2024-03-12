@@ -119,13 +119,25 @@ const filter = computed(() => {
   return result;
 });
 
-const { data, error } = await useGqlFetch<any, IMgError>(query, {
-  variables: { filter, orderby },
-});
+const { data } = await useFetch<any, IMgError>(
+  `/${useRoute().params.schema}/graphql`,
+  {
+    method: "POST",
+    body: {
+      query: query,
+      variables: { filter, orderby },
+    },
+    onResponseError(_ctx) {
+      logError({
+        message: "onResponseError fetching data from GraphQL endpoint",
+        statusCode: _ctx.response.status,
+        data: _ctx.response._data,
+      });
+    },
+  }
+);
 
-if (error.value) {
-  throw new Error("Error on cohorts-page data fetch");
-}
+const cohorts = computed(() => data.value.data.Cohorts);
 
 function setCurrentPage(pageNumber: number) {
   router.push({ path: route.path, query: { page: pageNumber } });
@@ -217,11 +229,8 @@ crumbs[
         <template #search-results>
           <FilterWell :filters="filters"></FilterWell>
           <SearchResultsList>
-            <CardList v-if="data?.data?.Cohorts?.length > 0">
-              <CardListItem
-                v-for="cohort in data?.data?.Cohorts"
-                :key="cohort.name"
-              >
+            <CardList v-if="cohorts.length > 0">
+              <CardListItem v-for="cohort in cohorts" :key="cohort.name">
                 <CohortCard
                   :cohort="cohort"
                   :schema="route.params.schema"
@@ -238,7 +247,7 @@ crumbs[
           </SearchResultsList>
         </template>
 
-        <template v-if="data?.data?.Cohorts?.length > 0" #pagination>
+        <template v-if="cohorts.length > 0" #pagination>
           <Pagination
             :current-page="currentPage"
             :totalPages="Math.ceil(data?.data?.Cohorts_agg.count / pageSize)"

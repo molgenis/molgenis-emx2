@@ -38,7 +38,7 @@ class QueryEMX2 {
    * @param {string | string[]} columns
    * When you supply an object the Key is the table or REF property and the value is a string or string array
    */
-  select(columns: IColumn[]) {
+  select(columns: any[] | string) {
     let requestedColumns = [];
 
     if (!Array.isArray(columns)) {

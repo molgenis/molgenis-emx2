@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ISectionField, IOntologyNode } from "~/interfaces/types";
+import type { ISectionField, IOntologyNode } from "~/interfaces/types";
 const { field } = defineProps<{
   field: ISectionField;
 }>();

@@ -220,14 +220,13 @@ export interface IContactFormData {
   body: string;
 }
 
-export enum INotificationType {
-  light,
-  dark,
-  success,
-  error,
-  warning,
-  info,
-}
+export type INotificationType =
+  | "light"
+  | "dark"
+  | "success"
+  | "error"
+  | "warning"
+  | "info";
 
 export interface ISectionField {
   meta: IColumn;
@@ -269,7 +268,7 @@ export interface IMgError {
   data: { errors: { message: string }[] };
 }
 
-export type DefinitionListItemType = "ONTOLOGY" | "LINK";
+export type DefinitionListItemType = "ONTOLOGY" | "LINK" | "MAPPED";
 
 export interface IDefinitionListItem {
   label: string;
