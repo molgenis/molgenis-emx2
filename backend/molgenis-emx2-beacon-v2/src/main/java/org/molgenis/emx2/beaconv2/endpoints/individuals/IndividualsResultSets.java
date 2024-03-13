@@ -15,7 +15,7 @@ public class IndividualsResultSets {
   public IndividualsResultSets(String id, IndividualsResultSetsItem[] results) {
     this.id = id;
     this.type = "dataset";
-    this.setType = "biosamples";
+    this.setType = "individuals";
     this.exists = true;
     this.resultsCount = results.length;
     this.results = results;

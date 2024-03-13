@@ -318,7 +318,7 @@ public class EJP_VP_IndividualsQuery {
    * @param values
    * @return
    */
-  private String valueArrayFilterBuilder(String[] queries, String[] values) {
+  public static String valueArrayFilterBuilder(String[] queries, String[] values) {
     StringBuilder filter = new StringBuilder();
     filter.append("{ _or: [");
     for (String query : queries) {
@@ -331,7 +331,11 @@ public class EJP_VP_IndividualsQuery {
     return filter.toString();
   }
 
-  private String valueArrayFilterBuilder(String query, String[] values) {
+  public static String valueArrayFilterBuilder(String query, String[] values) {
     return valueArrayFilterBuilder(new String[] {query}, values);
+  }
+
+  public static String valueArrayFilterBuilder(String query, String value) {
+    return valueArrayFilterBuilder(new String[] {query}, new String[] {value});
   }
 }

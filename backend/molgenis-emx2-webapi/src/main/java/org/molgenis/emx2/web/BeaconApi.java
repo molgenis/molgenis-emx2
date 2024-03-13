@@ -22,7 +22,7 @@ import spark.Response;
 public class BeaconApi {
 
   private static MolgenisSessionManager sessionManager;
-  private static final String APPLICATION_JSON_MIME_TYPE = "application/json";
+  public static final String APPLICATION_JSON_MIME_TYPE = "application/json";
 
   public static void create(MolgenisSessionManager sm) {
     sessionManager = sm;

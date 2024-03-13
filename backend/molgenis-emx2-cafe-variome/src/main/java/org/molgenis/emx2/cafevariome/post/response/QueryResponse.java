@@ -1,0 +1,22 @@
+package org.molgenis.emx2.cafevariome.post.response;
+
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import java.util.Map;
+
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
+public class QueryResponse {
+
+  public QueryResponse() {}
+
+  @JsonInclude(JsonInclude.Include.ALWAYS)
+  Map<String, QueryResult> sources;
+
+  public Map<String, QueryResult> getSources() {
+    return sources;
+  }
+
+  public void setSources(Map<String, QueryResult> sources) {
+    this.sources = sources;
+  }
+}
