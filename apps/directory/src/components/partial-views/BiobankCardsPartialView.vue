@@ -68,17 +68,6 @@ export default {
         : "No biobanks were found";
     },
   },
-  watch: {
-    /** on hydrating the state we can have a race condition where biobanks gets queried too soon. */
-    "filtersStore.bookmarkWaitingForApplication"() {
-      if (this.biobanksShown.length === 0) {
-        this.biobanksStore.getBiobankCards();
-      }
-    },
-    biobanksShown() {
-      this.calculateCardWidth();
-    },
-  },
   methods: {
     calculateCardWidth() {
       const mainviewElements = document.getElementsByClassName("main-view");
