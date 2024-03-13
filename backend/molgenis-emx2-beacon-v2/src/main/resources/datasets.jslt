@@ -1,5 +1,6 @@
 import "ontology.jslt" as ontology
 import "meta.jslt" as meta
+let host = .host
 {
     "meta": meta(.),
     "responseSummary": {
@@ -9,7 +10,8 @@ import "meta.jslt" as meta
         "resultSets":
         [for (.resultSets)
         {
-            "id": .id,
+            let id = .id
+            "id": $id,
             "type": "dataset",
             "setType": "datasets",
             "exists": true,
@@ -18,7 +20,7 @@ import "meta.jslt" as meta
             [for (.results) {
                 "createDateTime": .mg_insertedOn,
                 "description": .description,
-                "externalUrl": "externalUrl",
+                "externalUrl": $host + "/api/fdp/dataset/" + $id + "/" + .id,
                 "id": .id,
                 "info": "info",
                 "name": .title,

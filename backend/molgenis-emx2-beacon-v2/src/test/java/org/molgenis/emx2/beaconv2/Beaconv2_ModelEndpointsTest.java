@@ -50,100 +50,100 @@ public class Beaconv2_ModelEndpointsTest {
     assertTrue(json.contains("\"label\" : \"Whole Transcriptome Sequencing\","));
     assertTrue(json.contains("\"scope\" : \"runs\""));
   }
-  //
-  //  @Test
-  //  public void testGenomicVariants_NoParams() throws Exception {
-  //    Request request = mock(Request.class);
-  //    GenomicVariants genomicVariations =
-  //        new GenomicVariants(request, List.of(beaconSchema.getTable("GenomicVariations")));
-  //    String json = JsonUtil.getWriter().writeValueAsString(genomicVariations);
-  //
-  //    // check correct empty resultset structure (must be exactly this!)
-  //    assertTrue(
-  //        json.contains(
-  //            """
-  //                                "response" : {
-  //                                    "resultSets" : [ ]
-  //                                  }"""));
-  //  }
 
-  //  @Test
-  //  public void testGenomicVariants_SequenceQuery() throws Exception {
-  //
-  //    // todo test multiple valid and some invalid query parameter combinations
-  //    // todo support and test optional arguments
-  //
-  //    Request request = mock(Request.class);
-  //    when(request.queryParams("referenceName")).thenReturn("20");
-  //    when(request.queryParams("start")).thenReturn("2447955");
-  //    when(request.queryParams("referenceBases")).thenReturn("c");
-  //    when(request.queryParams("alternateBases"))
-  //        .thenReturn("G"); // 'g' in database, test case insensitivity
-  //    GenomicVariants genomicVariations =
-  //        new GenomicVariants(request, List.of(beaconSchema.getTable("GenomicVariations")));
-  //    String json = JsonUtil.getWriter().writeValueAsString(genomicVariations);
-  //    assertTrue(json.contains("\"variantInternalId\" : \"20:2447955..2447958c>g\","));
-  //    assertTrue(json.contains("\"resultsCount\" : 1,"));
-  //  }
-  //
-  //  @Test
-  //  public void testGenomicVariants_NoHits() throws Exception {
-  //    Request request = mock(Request.class);
-  //    when(request.queryParams("referenceName")).thenReturn("20");
-  //    when(request.queryParams("start")).thenReturn("2447955");
-  //    when(request.queryParams("referenceBases")).thenReturn("c");
-  //    when(request.queryParams("alternateBases")).thenReturn("a");
-  //    GenomicVariants genomicVariations =
-  //        new GenomicVariants(request, List.of(beaconSchema.getTable("GenomicVariations")));
-  //    String json = JsonUtil.getWriter().writeValueAsString(genomicVariations);
-  //    assertTrue(json.contains("\"response\" : {\n" + "    \"resultSets\" : [ ]"));
-  //    assertFalse(json.contains("\"variantInternalId\" : \"20:2447955..2447958c>g\","));
-  //    assertFalse(json.contains("\"resultsCount\" : 1,"));
-  //  }
-  //
-  //  @Test
-  //  public void testGenomicVariants_RangeQuery() throws Exception {
-  //    Request request = mock(Request.class);
-  //    when(request.queryParams("start")).thenReturn("2447952");
-  //    when(request.queryParams("end")).thenReturn("2447955");
-  //    when(request.queryParams("referenceName")).thenReturn("20");
-  //    GenomicVariants genomicVariations =
-  //        new GenomicVariants(request, List.of(beaconSchema.getTable("GenomicVariations")));
-  //    String json = JsonUtil.getWriter().writeValueAsString(genomicVariations);
-  //    assertTrue(json.contains("\"resultsCount\" : 2,"));
-  //    assertTrue(json.contains("\"variantInternalId\" : \"20:2447951..2447952c>g\","));
-  //    assertTrue(json.contains("\"variantInternalId\" : \"20:2447955..2447958c>g\","));
-  //  }
-  //
-  //  @Test
-  //  public void testGenomicVariants_GeneIdQuery() throws Exception {
-  //    Request request = mock(Request.class);
-  //    when(request.queryParams("geneId")).thenReturn("SNRPB");
-  //    GenomicVariants genomicVariations =
-  //        new GenomicVariants(request, List.of(beaconSchema.getTable("GenomicVariations")));
-  //    String json = JsonUtil.getWriter().writeValueAsString(genomicVariations);
-  //    assertTrue(json.contains("\"resultsCount\" : 3,"));
-  //    assertTrue(json.contains("\"variantInternalId\" : \"20:2447951..2447952c>g\","));
-  //    assertTrue(json.contains("\"variantInternalId\" : \"20:2447955..2447958c>g\","));
-  //    assertTrue(json.contains("\"variantInternalId\" : \"20:2447946..2447950c>g\","));
-  //    assertTrue(json.contains("\"id\" : \"Orphanet:391665\""));
-  //    assertTrue(json.contains("clinicalRelevance"));
-  //    assertTrue(json.contains("\"id\" : \"NCIT:C168799\""));
-  //    assertTrue(json.contains("\"label\" : \"Pathogenic\""));
-  //  }
-  //
-  //  @Test
-  //  public void testGenomicVariants_BracketQuery() throws Exception {
-  //    Request request = mock(Request.class);
-  //    when(request.queryParams("start")).thenReturn("2447945,2447951");
-  //    when(request.queryParams("end")).thenReturn("2447952,2447953");
-  //    when(request.queryParams("referenceName")).thenReturn("20");
-  //    GenomicVariants genomicVariations =
-  //        new GenomicVariants(request, List.of(beaconSchema.getTable("GenomicVariations")));
-  //    String json = JsonUtil.getWriter().writeValueAsString(genomicVariations);
-  //    assertTrue(json.contains("\"resultsCount\" : 1,"));
-  //    assertTrue(json.contains("\"variantInternalId\" : \"20:2447951..2447952c>g\","));
-  //  }
+  @Test
+  public void testGenomicVariants_NoParams() throws Exception {
+    Request request = mock(Request.class);
+    GenomicVariants genomicVariations =
+        new GenomicVariants(request, List.of(beaconSchema.getTable("GenomicVariations")));
+    String json = JsonUtil.getWriter().writeValueAsString(genomicVariations);
+
+    // check correct empty resultset structure (must be exactly this!)
+    assertTrue(
+        json.contains(
+            """
+                                "response" : {
+                                    "resultSets" : [ ]
+                                  }"""));
+  }
+
+  @Test
+  public void testGenomicVariants_SequenceQuery() throws Exception {
+
+    // todo test multiple valid and some invalid query parameter combinations
+    // todo support and test optional arguments
+
+    Request request = mock(Request.class);
+    when(request.queryParams("referenceName")).thenReturn("20");
+    when(request.queryParams("start")).thenReturn("2447955");
+    when(request.queryParams("referenceBases")).thenReturn("c");
+    when(request.queryParams("alternateBases"))
+        .thenReturn("G"); // 'g' in database, test case insensitivity
+    GenomicVariants genomicVariations =
+        new GenomicVariants(request, List.of(beaconSchema.getTable("GenomicVariations")));
+    String json = JsonUtil.getWriter().writeValueAsString(genomicVariations);
+    assertTrue(json.contains("\"variantInternalId\" : \"20:2447955..2447958c>g\","));
+    assertTrue(json.contains("\"resultsCount\" : 1,"));
+  }
+
+  @Test
+  public void testGenomicVariants_NoHits() throws Exception {
+    Request request = mock(Request.class);
+    when(request.queryParams("referenceName")).thenReturn("20");
+    when(request.queryParams("start")).thenReturn("2447955");
+    when(request.queryParams("referenceBases")).thenReturn("c");
+    when(request.queryParams("alternateBases")).thenReturn("a");
+    GenomicVariants genomicVariations =
+        new GenomicVariants(request, List.of(beaconSchema.getTable("GenomicVariations")));
+    String json = JsonUtil.getWriter().writeValueAsString(genomicVariations);
+    assertTrue(json.contains("\"response\" : {\n" + "    \"resultSets\" : [ ]"));
+    assertFalse(json.contains("\"variantInternalId\" : \"20:2447955..2447958c>g\","));
+    assertFalse(json.contains("\"resultsCount\" : 1,"));
+  }
+
+  @Test
+  public void testGenomicVariants_RangeQuery() throws Exception {
+    Request request = mock(Request.class);
+    when(request.queryParams("start")).thenReturn("2447952");
+    when(request.queryParams("end")).thenReturn("2447955");
+    when(request.queryParams("referenceName")).thenReturn("20");
+    GenomicVariants genomicVariations =
+        new GenomicVariants(request, List.of(beaconSchema.getTable("GenomicVariations")));
+    String json = JsonUtil.getWriter().writeValueAsString(genomicVariations);
+    assertTrue(json.contains("\"resultsCount\" : 2,"));
+    assertTrue(json.contains("\"variantInternalId\" : \"20:2447951..2447952c>g\","));
+    assertTrue(json.contains("\"variantInternalId\" : \"20:2447955..2447958c>g\","));
+  }
+
+  @Test
+  public void testGenomicVariants_GeneIdQuery() throws Exception {
+    Request request = mock(Request.class);
+    when(request.queryParams("geneId")).thenReturn("SNRPB");
+    GenomicVariants genomicVariations =
+        new GenomicVariants(request, List.of(beaconSchema.getTable("GenomicVariations")));
+    String json = JsonUtil.getWriter().writeValueAsString(genomicVariations);
+    assertTrue(json.contains("\"resultsCount\" : 3,"));
+    assertTrue(json.contains("\"variantInternalId\" : \"20:2447951..2447952c>g\","));
+    assertTrue(json.contains("\"variantInternalId\" : \"20:2447955..2447958c>g\","));
+    assertTrue(json.contains("\"variantInternalId\" : \"20:2447946..2447950c>g\","));
+    assertTrue(json.contains("\"id\" : \"Orphanet:391665\""));
+    assertTrue(json.contains("clinicalRelevance"));
+    assertTrue(json.contains("\"id\" : \"NCIT:C168799\""));
+    assertTrue(json.contains("\"label\" : \"Pathogenic\""));
+  }
+
+  @Test
+  public void testGenomicVariants_BracketQuery() throws Exception {
+    Request request = mock(Request.class);
+    when(request.queryParams("start")).thenReturn("2447945,2447951");
+    when(request.queryParams("end")).thenReturn("2447952,2447953");
+    when(request.queryParams("referenceName")).thenReturn("20");
+    GenomicVariants genomicVariations =
+        new GenomicVariants(request, List.of(beaconSchema.getTable("GenomicVariations")));
+    String json = JsonUtil.getWriter().writeValueAsString(genomicVariations);
+    assertTrue(json.contains("\"resultsCount\" : 1,"));
+    assertTrue(json.contains("\"variantInternalId\" : \"20:2447951..2447952c>g\","));
+  }
 
   @Test
   public void testAnalyses_NoParams() throws Exception {

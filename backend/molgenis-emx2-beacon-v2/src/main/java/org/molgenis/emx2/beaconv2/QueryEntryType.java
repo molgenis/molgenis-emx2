@@ -14,13 +14,17 @@ import java.util.List;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
-import org.molgenis.emx2.beaconv2.requests.Filter;
+import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
 import org.molgenis.emx2.graphql.GraphqlApiFactory;
 
 public class QueryEntryType {
 
-  public static JsonNode query(Database database, EntryType entryType, Filter... filters)
-      throws JsltException {
+  public static JsonNode query(Database database, EntryType entryType) {
+    return query(database, entryType, new BeaconRequestBody());
+  }
+
+  public static JsonNode query(
+      Database database, EntryType entryType, BeaconRequestBody requestBody) throws JsltException {
 
     ObjectMapper mapper = new ObjectMapper();
     Expression jslt = Parser.compileResource(entryType.getName().toLowerCase() + ".jslt");
@@ -28,7 +32,14 @@ public class QueryEntryType {
     ArrayNode resultSets = mapper.createArrayNode();
     for (Table table : getTableFromAllSchemas(database, entryType.getId())) {
       GraphQL graphQL = new GraphqlApiFactory().createGraphqlForSchema(table.getSchema());
-      String query = new QueryBuilder(table).addColumns(2).addFilters(filters).getQuery();
+
+      String query =
+          new QueryBuilder(table)
+              .addColumns(2)
+              .addFilters(requestBody.getQuery().getFilters())
+              .setLimit(requestBody.getQuery().getPagination().getLimit())
+              .setOffset(requestBody.getQuery().getPagination().getSkip())
+              .getQuery();
 
       ExecutionResult result = graphQL.execute(query);
       JsonNode results = mapper.valueToTree(result.getData()).get(entryType.getId());
@@ -40,6 +51,7 @@ public class QueryEntryType {
     }
 
     ObjectNode response = mapper.createObjectNode();
+    response.put("host", requestBody.getMeta().getHost());
     response.set("resultSets", resultSets);
 
     return jslt.apply(response);

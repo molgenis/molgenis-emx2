@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class BeaconRequestBody {
   private String $schema;
-  private BeaconRequestMeta meta;
-  private BeaconQuery query;
+  private BeaconRequestMeta meta = new BeaconRequestMeta();
+  private BeaconQuery query = new BeaconQuery();
 
   public String get$schema() {
     return $schema;

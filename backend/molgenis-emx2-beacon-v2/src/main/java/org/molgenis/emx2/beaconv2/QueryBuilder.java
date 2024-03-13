@@ -1,9 +1,7 @@
 package org.molgenis.emx2.beaconv2;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.TableMetadata;
@@ -16,6 +14,8 @@ public class QueryBuilder {
   private List<Column> columns;
   private StringBuilder columnSb;
   private StringBuilder query;
+  private Integer limit;
+  private Integer offset;
 
   public QueryBuilder(Table table) {
     this.table = table;
@@ -29,10 +29,8 @@ public class QueryBuilder {
   }
 
   public QueryBuilder addColumns(List<Column> columns, int maxDepth) {
-    Set<String> seenTables = new HashSet<>();
-    seenTables.add(columns.get(0).getTable().getIdentifier());
     int currentDepth = 0;
-    queryColumnsRecursively(columns, seenTables, maxDepth, currentDepth);
+    queryColumnsRecursively(columns, maxDepth, currentDepth);
 
     return this;
   }
@@ -49,12 +47,27 @@ public class QueryBuilder {
     return this;
   }
 
+  public QueryBuilder setLimit(int limit) {
+    this.limit = limit;
+    return this;
+  }
+
+  public QueryBuilder setOffset(int offset) {
+    this.offset = offset;
+    return this;
+  }
+
   public String getQuery() {
     query = new StringBuilder("{");
-    query.append(table.getName());
-
+    query.append(table.getName()).append("(");
+    if (limit != null) {
+      query.append("limit: ").append(limit).append(",");
+    }
+    if (offset != null) {
+      query.append("offset: ").append(offset).append(",");
+    }
     if (filters != null) addFilters();
-    query.append("{");
+    query.append("){");
     query.append(columnSb);
     query.append("}}");
 
@@ -62,31 +75,26 @@ public class QueryBuilder {
   }
 
   private void addFilters() {
-    query.append("(filter: { _and: [ ");
+    query.append("filter: { _and: [ ");
     for (String filter : filters) {
       query.append(filter).append(",");
     }
     if (!filters.isEmpty()) {
       query.deleteCharAt(query.length() - 1);
     }
-    query.append(" ] }  )");
+    query.append(" ] }");
   }
 
-  private int queryColumnsRecursively(
-      List<Column> columns, Set<String> seenTables, int maxDepth, int currentDepth) {
+  private int queryColumnsRecursively(List<Column> columns, int maxDepth, int currentDepth) {
     for (Column column : columns) {
       if (column.isOntology() || column.isReference()) {
         if (currentDepth < maxDepth) {
           TableMetadata refTable = column.getRefTable();
-          // Don't select the same table twice // todo: Doesn't work for ontology tables
-          //          if (seenTables.contains(refTable.getIdentifier())) continue;
-          seenTables.add(refTable.getIdentifier());
 
           currentDepth++;
           columnSb.append(column.getIdentifier()).append("{");
           currentDepth =
-              queryColumnsRecursively(
-                  refTable.getColumnsWithoutHeadings(), seenTables, maxDepth, currentDepth);
+              queryColumnsRecursively(refTable.getColumnsWithoutHeadings(), maxDepth, currentDepth);
           columnSb.append("}");
         }
       } else {

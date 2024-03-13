@@ -1,6 +1,7 @@
 package org.molgenis.emx2.web;
 
 import static org.molgenis.emx2.json.JsonUtil.getWriter;
+import static org.molgenis.emx2.rdf.RDFUtils.extractHost;
 import static spark.Spark.get;
 import static spark.Spark.post;
 
@@ -11,9 +12,9 @@ import java.net.URISyntaxException;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.beaconv2.EntryType;
 import org.molgenis.emx2.beaconv2.QueryEntryType;
+import org.molgenis.emx2.beaconv2.common.misc.Granularity;
 import org.molgenis.emx2.beaconv2.endpoints.*;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
-import org.molgenis.emx2.beaconv2.requests.Filter;
 import spark.Request;
 import spark.Response;
 
@@ -78,7 +79,11 @@ public class BeaconApi {
       return getWriter().writeValueAsString(new GenomicVariants(request, database));
     }
 
-    JsonNode jsonNode = QueryEntryType.query(database, entryType);
+    BeaconRequestBody requestBody = new BeaconRequestBody();
+    String host = extractHost(request.url());
+    requestBody.getMeta().setHost(host);
+
+    JsonNode jsonNode = QueryEntryType.query(database, entryType, requestBody);
     return getWriter().writeValueAsString(jsonNode);
   }
 
@@ -89,10 +94,28 @@ public class BeaconApi {
     BeaconRequestBody beaconRequestBody =
         new ObjectMapper().readValue(request.body(), BeaconRequestBody.class);
 
-    Filter[] filters = beaconRequestBody.getQuery().getFilters();
-    Database database = sessionManager.getSession(request).getDatabase();
-    JsonNode jsonNode = QueryEntryType.query(database, entryType, filters);
+    String host = extractHost(request.url());
+    beaconRequestBody.getMeta().setHost(host);
 
-    return getWriter().writeValueAsString(jsonNode);
+    Database database = sessionManager.getSession(request).getDatabase();
+    JsonNode jsonNode = QueryEntryType.query(database, entryType, beaconRequestBody);
+
+    Granularity granularity = beaconRequestBody.getQuery().getRequestGranularity();
+    switch (granularity) {
+      case BOOLEAN -> {
+        return getWriter().writeValueAsString("true");
+      }
+      case COUNT -> {
+        return getWriter().writeValueAsString("counts");
+      }
+      case AGGREGATED -> {
+        return getWriter().writeValueAsString("aggregated");
+      }
+      case RECORD -> {
+        return getWriter().writeValueAsString(jsonNode);
+      }
+    }
+
+    return null;
   }
 }
