@@ -60,4 +60,4 @@ The manual test is formatted as markdown and minimally should contain the follow
 
 ## Catalogue playwright test
 
-The folder `e2e/catalogue` also contains the playwright tests. These follow the same naming schema but their extension end with `spec.ts`. For example the manual test `catalogue-test_1.md` is saved as playwright test: `catalogue-test_1.spec.ts`
+The folder `e2e/catalogue` also contains the playwright tests. These follow the same naming schema but their extension end with `spec.ts`. For example the manual test `catalogue-test_1.md` is saved in the folder `e2e/tests/catalogue/` as playwright test: `catalogue-test_1.spec.ts`
