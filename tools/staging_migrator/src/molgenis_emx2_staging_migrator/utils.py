@@ -7,14 +7,16 @@ from io import BytesIO
 import pandas as pd
 
 from molgenis_emx2_pyclient.exceptions import NoSuchTableException
+from molgenis_emx2_pyclient.metadata import Schema, Table
 
 log = logging.getLogger(__name__)
 
 
-def prepare_pkey(schema: dict, table_name: str, col_id: str | list = None) -> str | list | dict | None:
+def prepare_pkey(schema: Schema, table_name: str, col_id: str | list = None) -> str | list | dict | None:
     """Prepares a primary key by adding a reference to a table if necessary."""
     try:
         table_schema, = [_t for _t in schema['tables'] if _t.get('name') == table_name]
+        table_schema.get_table('name', table_name)
     except ValueError:
         raise NoSuchTableException(f"{table_name!r} not found in schema.")
     if not col_id:
@@ -59,56 +61,60 @@ def query_columns_string(column: str | list | dict, indent: int) -> str:
         return return_val
 
 
-def find_cohort_references(schema_schema: dict, schema_name: str, base_table: str) -> dict:
+def find_cohort_references(schema_schema: Schema, schema_name: str, base_table: str) -> dict:
     """Finds the references in the target catalogue to the Cohorts table.
     References may be direct or indirect, such as the 'Subcohort counts' table
     that references the 'Subcohorts' table, which references the 'Cohorts' table directly.
     """
-    schema_schema['tables'] = [
-        t for t in schema_schema['tables'] if t['schemaName'] in [schema_name, 'SharedStaging']
-    ]
+    # schema_schema['tables'] = [
+    #     t for t in schema_schema['tables'] if t['schemaName'] in [schema_name, 'SharedStaging']
+    # ]
+    schema_schema.tables = schema_schema.get_tables(by='schemaName', value=schema_name)
 
-    def find_table_columns(_table: dict):
+    def find_table_columns(_table: Table):
         _table_references = []
-        for _column in _table['columns']:
+        for _column in _table.columns:
             if _column.get('columnType') in ['REF', 'REF_ARRAY']:
                 if _column.get('refTableName') in [base_table, *inheritance.values()]:
-                    _table_references.append(_column['id'])
-                elif _column.get('refTableName') != _table['name']:
-                    ref_table, = [_t for _t in schema_schema['tables'] if _t['name'] == _column['refTableName']]
+                    _table_references.append(_column.id)
+                elif _column.get('refTableName') != _table.name:
+                    # ref_table, = [_t for _t in schema_schema['tables'] if _t['name'] == _column['refTableName']]
+                    ref_table = schema_schema.get_table(by='name', value=str(_column.get('refTableName')))
                     _column_references = find_table_columns(ref_table)
                     if len(_column_references) > 0:
-                        _table_references.append(_column['id'])
+                        _table_references.append(_column.id)
             elif _column.get('columnType') == 'REFBACK':
                 if _column.get('refTableName') in [base_table, *inheritance.values()]:
-                    _table_references.append(_column['id'])
+                    _table_references.append(_column.id)
 
         return _table_references
 
     inheritance = {}
-    table = base_table
-    inherit = [t for t in schema_schema['tables'] if t['name'] == table][0].get('inheritName')
-    inheritance.update({table: inherit})
+    table_name = base_table
+    # inherit = [t for t in schema_schema['tables'] if t['name'] == table][0].get('inheritName')
+    inherit = schema_schema.get_table(by='name', value=table_name).get('inheritName')
+    inheritance.update({table_name: inherit})
     while inherit is not None:
-        table = inherit
-        inherit = [t for t in schema_schema['tables'] if t['name'] == table][0].get('inheritName')
-        inheritance.update({table: inherit})
+        table_name = inherit
+        # inherit = [t for t in schema_schema['tables'] if t['name'] == table_name][0].get('inheritName')
+        inherit = schema_schema.get_table(by='name', value=str(table_name)).get('inheritName')
+        inheritance.update({table_name: inherit})
 
     cohort_references = dict()
-    for table in schema_schema['tables']:
-        if table['name'] in inheritance.keys():
+    for table_name in schema_schema.tables:
+        if table_name.name in inheritance.keys():
             table_references = ['id']
         else:
-            table_references = find_table_columns(table)
+            table_references = find_table_columns(table_name)
         if len(table_references) > 0:
-            cohort_references.update({table['name']: table_references[0]})
+            cohort_references.update({table_name.name: table_references[0]})
 
     # Gather all backwards references to the tables
     ref_backs = {}
     for tab in cohort_references.keys():
         ref_backs[tab] = []
         for _tab in cohort_references.keys():
-            _cols = [_col for _col in [t for t in schema_schema['tables'] if t['name'] == _tab][0].get('columns')
+            _cols = [_col for _col in schema_schema.get_table(by='name', value=_tab).columns
                      if (_col.get('columnType') in ['REF', 'REF_ARRAY']) & (_col.get('refTableName') == tab) > 0]
             if len(_cols) > 0:
                 ref_backs[tab].append(_tab)
@@ -123,7 +129,7 @@ def find_cohort_references(schema_schema: dict, schema_name: str, base_table: st
         ref_backs.pop(key)
         return key
 
-    table_names = [_t['name'] for _t in schema_schema['tables']]
+    table_names = [_t.name for _t in schema_schema.tables]
     other_tabs = [key for key in table_names if key not in ref_backs.keys()]
     sequence = [pop_dict(tab) for (tab, refs) in ref_backs.copy().items() if len(refs) == 0]
     while len(ref_backs) > 0:

@@ -7,12 +7,11 @@ from typing import TypeAlias, Literal
 
 from molgenis_emx2_pyclient import Client
 from molgenis_emx2_pyclient.exceptions import NoSuchSchemaException, NoSuchTableException
+from molgenis_emx2_pyclient.metadata import Schema, Table
 
-from tools.staging_migrator.src.molgenis_emx2_staging_migrator.constants import BASE_DIR
-from tools.staging_migrator.src.molgenis_emx2_staging_migrator.graphql_queries import Queries
-from tools.staging_migrator.src.molgenis_emx2_staging_migrator.utils import find_cohort_references, \
-    construct_delete_variables, has_statement_of_consent, \
-    process_statement, prepare_pkey, query_columns_string
+from .constants import BASE_DIR
+from .utils import (find_cohort_references, construct_delete_variables, has_statement_of_consent,
+                    process_statement, prepare_pkey, query_columns_string)
 
 log = logging.getLogger('Molgenis EMX2 Migrator')
 
@@ -122,16 +121,17 @@ class StagingMigrator(Client):
         """
 
         # Gather the tables to delete from the target catalogue
-        tables_to_delete = find_cohort_references(self._get_schema_metadata(self.catalogue),
+        tables_to_delete = find_cohort_references(self.get_schema_metadata(self.catalogue),
                                                   self.catalogue, self.table)
 
         cohort_ids = self._get_table_pkey_values()
-        metadata = self._get_schema_metadata(self.catalogue)
+        metadata: Schema = self.get_schema_metadata(self.catalogue)
         for table_name, ref_col in tables_to_delete.items():
             # Iterate over the tables that reference the core table of the staging area
             # Check if any row matches this core table
-            table_meta, = [_t for _t in metadata['tables'] if _t.get('name') == table_name]
-            table_id = table_meta.get('id')
+            # table_meta, = [_t for _t in metadata['tables'] if _t.get('name') == table_name]
+            table_meta = metadata.get_table(by='name', value=table_name)
+            table_id = table_meta.id
 
             delete_rows = self._query_delete_rows(table_name, ref_col, cohort_ids)
 
@@ -154,7 +154,7 @@ class StagingMigrator(Client):
         """Synchronizes the records in the SharedStaging schema that are referenced
         from the staging area with the relevant records in the catalogue.
         """
-        staging_schema = self._get_schema_metadata(self.staging_area)
+        staging_schema = self.get_schema_metadata(self.staging_area)
         # Collect the tables in which a column references a table in the SharedStaging schema
         ss_ref_tables = [_t for _t in staging_schema['tables']
                          if any(map(lambda c: c.get('refSchemaName') == 'SharedStaging', _t['columns'])) and _t.get(
@@ -181,7 +181,7 @@ class StagingMigrator(Client):
         if len(organisations) < 1:
             return
         # TODO combine the ids of Organisations in the responses
-        shared_schema = self._get_schema_metadata('SharedStaging')
+        shared_schema = self.get_schema_metadata('SharedStaging')
         search_query = self.__construct_pkey_query(shared_schema, 'Organisations', all_columns=True)
         search_variables = construct_delete_variables(shared_schema, organisations, 'Organisations', 'id')
         search_response = self.session.post(url=f"{self.url}/SharedStaging/graphql",
@@ -193,7 +193,7 @@ class StagingMigrator(Client):
 
         mutation_response = self.session.post(url=f"{self.url}/{self.catalogue}/graphql",
                                               json={"query": mutation_query, "variables": mutation_variables},
-                                            headers={'x-molgenis-token': self.token})
+                                              headers={'x-molgenis-token': self.token})
 
         if mutation_response.status_code != 200:
             log.error("Unable to synchronize SharedStaging.")
@@ -203,9 +203,9 @@ class StagingMigrator(Client):
     def _query_delete_rows(self, table_name: str, ref_col: str,
                            cohort_ids: list) -> dict:
         """Queries the rows to be deleted from a table."""
-        schema_meta = self._get_schema_metadata(self.catalogue)
+        schema_meta = self.get_schema_metadata(self.catalogue)
         query = self.__construct_pkey_query(schema_meta, table_name)
-        variables = construct_delete_variables(self._get_schema_metadata(self.catalogue),
+        variables = construct_delete_variables(self.get_schema_metadata(self.catalogue),
                                                cohort_ids, table_name, ref_col)
 
         response = self.session.post(url=f"{self.url}/{self.catalogue}/graphql",
@@ -234,7 +234,7 @@ class StagingMigrator(Client):
     def _cohorts_in_ref_array(self, _table_name: str) -> bool:
         """Returns True if cohorts are referenced in a referenced array in any column in this table."""
         try:
-            _table_schema, = [_t for _t in self._get_schema_metadata(self.catalogue)['tables'] if
+            _table_schema, = [_t for _t in self.get_schema_metadata(self.catalogue)['tables'] if
                               _t.get('name') == _table_name]
         except ValueError:
             raise NoSuchTableException(f"No table {_table_name!r} in schema {self.catalogue!r}.")
@@ -253,7 +253,7 @@ class StagingMigrator(Client):
 
     def _create_upload_zip(self) -> BytesIO:
         """Combines the relevant tables of the staging area into a zipfile."""
-        tables_to_sync = find_cohort_references(self._get_schema_metadata(self.staging_area),
+        tables_to_sync = find_cohort_references(self.get_schema_metadata(self.staging_area),
                                                 self.staging_area, self.table)
 
         source_file_path = self._download_schema_zip(schema=self.staging_area, schema_type='source',
@@ -271,7 +271,7 @@ class StagingMigrator(Client):
                     continue
 
                 _table = source_archive.read(file_name)
-                if consent_val := has_statement_of_consent(table_name, self._get_schema_metadata(self.staging_area)):
+                if consent_val := has_statement_of_consent(table_name, self.get_schema_metadata(self.staging_area)):
                     _table = process_statement(table=_table, consent_val=consent_val)
                 # self._check_diff(file_name, _table)
                 upload_archive.writestr(file_name, BytesIO(_table).getvalue())
@@ -374,9 +374,10 @@ class StagingMigrator(Client):
                 Path(filename).unlink()
 
     @staticmethod
-    def __construct_pkey_query(db_schema: dict, table_name: str, all_columns: bool = False):
+    def __construct_pkey_query(db_schema: Schema, table_name: str, all_columns: bool = False):
         """Constructs a GraphQL query for finding the primary key values in a table."""
-        table_schema, = [_t for _t in db_schema['tables'] if _t.get('name') == table_name]
+        # table_schema, = [_t for _t in db_schema['tables'] if _t.get('name') == table_name]
+        table_schema: Table = db_schema.get_table(by='name', value=table_name)
         if all_columns:
             pkeys = [prepare_pkey(db_schema, table_name, col['id']) for col in table_schema['columns']]
             pkeys = [pk for pk in pkeys if pk is not None]
