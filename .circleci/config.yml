@@ -45,11 +45,6 @@ definitions:
 
 commands:
   pre_steps:
-    parameters:
-      release2pypi:
-        description: A boolean parameter indicating if a new version of the emx2-pyclient needs to be released
-        type: boolean
-        default: false
     steps:
     - checkout
     - run: git fetch --all --tags
@@ -124,6 +119,12 @@ commands:
 jobs:
   preview:
     <<: *build_config
+
+    parameters:
+      release2pypi:
+        description: A boolean parameter indicating if a new version of the emx2-pyclient needs to be released
+        type: boolean
+        default: false
 
     steps:
     - run: |
