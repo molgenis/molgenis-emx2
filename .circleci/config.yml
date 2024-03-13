@@ -179,11 +179,11 @@ jobs:
         condition: <<parameters.release2pypi>>
         steps:
           - pypi-release
-    -when:
-      condition:
+    - when:
+        condition:
           matches: { pattern: "*(emx2-pyclient)*", value: <<parameters.commit-message>> }
-      steps:
-        - run: echo "MATCH ON MESSAGE"
+        steps:
+          - run: echo "MATCH ON MESSAGE"
 
   test:
     <<: *test_config
