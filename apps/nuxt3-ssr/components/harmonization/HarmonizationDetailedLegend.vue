@@ -22,16 +22,18 @@ const props = withDefaults(
         Partial
       </li>
     </ul>
-    <VDropdown
-      :triggers="['hover', 'focus']"
-      :distance="12"
-      theme="tooltip"
-    >
-      <span class="text-blue-500 hover:underline cursor-pointer">About statuses</span>
+    <VDropdown :triggers="['hover', 'focus']" :distance="12" theme="tooltip">
+      <span class="text-blue-500 hover:underline cursor-pointer"
+        >About statuses</span
+      >
       <template #popper>
         <ul class="pl-3 min-w-95 list-disc">
-          <li>Completed: cohort was able to fully map to the harmonized variables</li>
-          <li>Partial: cohort was able to partially map to the harmonized variable</li>
+          <li>
+            Completed: cohort was able to fully map to the harmonized variables
+          </li>
+          <li>
+            Partial: cohort was able to partially map to the harmonized variable
+          </li>
         </ul>
       </template>
     </VDropdown>

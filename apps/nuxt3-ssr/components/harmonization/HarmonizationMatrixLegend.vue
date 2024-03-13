@@ -18,12 +18,10 @@ const props = withDefaults(
         Available
       </li>
     </ul>
-    <VDropdown
-      :triggers="['hover', 'focus']"
-      :distance="12"
-      theme="tooltip"
-    >
-      <span class="text-blue-500 hover:underline cursor-pointer">About statuses</span>
+    <VDropdown :triggers="['hover', 'focus']" :distance="12" theme="tooltip">
+      <span class="text-blue-500 hover:underline cursor-pointer"
+        >About statuses</span
+      >
       <template #popper>
         <ul class="pl-3 min-w-95 list-none">
           <li>Available: cohort has data available for the variable</li>
