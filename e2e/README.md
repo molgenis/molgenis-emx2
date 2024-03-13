@@ -21,12 +21,11 @@ The test is part of .circleci/config.yml running that same command
 
 ## playwright vscode plugin
 
-TODO
+[Playwright: Getting started - VS Code](https://playwright.dev/docs/getting-started-vscode)
 
-### Adding tests 
+### Adding tests
 
-We suggest to use the vscode plugin for creating/recording new (tests https://playwright.dev/docs/codegen)
-The `playwright.config.ts` file contains the test configuration including the default server path. It is suggested to use relative server paths ( instead of `https://my-server.com/my-page` use `/my-page` ) to make it possible for test to run against different servers.
+We suggest to use the vscode plugin for [creating/recording](https://playwright.dev/docs/codegen) new tests. The `playwright.config.ts` file contains the test configuration including the default server path. It is suggested to use relative server paths ( instead of `https://my-server.com/my-page` use `/my-page` ) to make it possible for test to run against different servers.
 
 By default tests are run for all pull requests, on the server connected to the pull request preview ( i.e. test for pr `007` will  by ( default ) run on `https://preview-emx2-pr-3404.dev.molgenis.org/`
 
