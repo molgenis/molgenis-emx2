@@ -87,5 +87,5 @@ const aggregatedHarmonizationStatus = computed(() => {
       </ul>
     </div>
   </div>
-  <!-- <HarmonizationLegend class="mt-12" /> -->
+  <HarmonizationDetailedLegend class="mt-12" />
 </template>
