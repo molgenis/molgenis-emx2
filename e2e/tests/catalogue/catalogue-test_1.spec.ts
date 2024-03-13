@@ -82,12 +82,15 @@ test('Catalogue test number 1: Naïve user of the data catalogue', async ({ page
   await expect(page.getByRole('main')).toContainText('testNetworkofNetworks');
   // Step 13
 
+  await expect(page.getByRole('button', { name: 'More' })).toBeVisible();
+  await page.getByRole('button', { name: 'More' }).click();
   await page.getByRole('link', { name: 'About' }).click();
   await expect(page.getByRole('main')).toContainText('testNetworkofNetworksNetworks');
   await expect(page.locator('h1')).toContainText('acronym for test network of networks');
   await expect(page.getByRole('main')).toContainText('name for test network of networks');
   // Step 14
-
+  await expect(page.getByRole('button', { name: 'More' })).toBeVisible();
+  await page.getByRole('button', { name: 'More' }).click();
   await page.getByRole('link', { name: 'Other catalogues' }).click();
   await expect(page.locator('h1')).toContainText('European Health Research Data and Sample Catalogue');
   await expect(page.getByRole('main')).toContainText('A collaborative effort to integrate the catalogues of diverse EU research projects and networks to accelerate reuse and improve citizens health.');
