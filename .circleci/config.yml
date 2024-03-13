@@ -109,9 +109,10 @@ commands:
              export TWINE_PASSWORD=$PYPI_TOKEN
           fi
           echo $TWINE_PASSWORD
-#    - run:
-#       name: Publish to testpypi or pypi
-#       command: |
+    - run:
+       name: Publish to testPyPI or PyPI
+       command: |
+         echo "RELEASE TO PYPI"
 #         export $( cat build/ci.properties | xargs )
 #         ./gradlew -s --no-daemon publishPython
 
