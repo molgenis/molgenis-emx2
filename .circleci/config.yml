@@ -45,10 +45,22 @@ definitions:
 
 commands:
   pre_steps:
+    parameters:
+      release2pypi:
+        description: A boolean parameter indicating if a new version of the emx2-pyclient needs to be released
+        type: boolean
+        default: false
     steps:
     - checkout
     - run: git fetch --all --tags
-    - run: export COMMIT_MESSAGE=$(git log -1 --pretty=format:%s)
+    - run:
+        command: |
+          export COMMIT_MESSAGE=$(git log -1 --pretty=format:%s)
+          if [[ $COMMIT_MESSAGE == *"(emx2-pyclient)"* ]]; then
+            release2pypi: true
+          else
+            echo "NO PYPI RELEASE"
+          fi
     - run:
         name: Setup git, todo, move to molgenisci user
         command: |
@@ -98,6 +110,21 @@ commands:
 #    - store_artifacts:
 #        path: ./build/libs
 
+  pypi-release:
+    steps:
+    - run:
+        name: reset PyPI credentials
+        command: |
+          if [ -z "$CIRCLE_PULL_REQUEST" ]; then
+             export TWINE_PASSWORD=$PYPI_TOKEN
+          fi
+          echo $TWINE_PASSWORD
+#    - run:
+#       name: Publish to testpypi or pypi
+#       command: |
+#         export $( cat build/ci.properties | xargs )
+#         ./gradlew -s --no-daemon publishPython
+
 # jobs for pull request and master
 jobs:
   preview:
@@ -138,6 +165,10 @@ jobs:
           -X POST https://slack.com/api/chat.postMessage
 
     - post_steps
+    - when:
+        condition: <<parameters.release2pypi>>
+        steps:
+          - pypi-release
 
   test:
     <<: *test_config
@@ -275,14 +306,15 @@ workflows:
         filters:
             branches:
               ignore: master
-    - test:
-       filters:
-         branches:
-           ignore: master
+#    - test:
+#       filters:
+#         branches:
+#           ignore: master
     - release:
        filters:
          branches:
            only: master
+
   delete_preview:
     when:
       equal: [ "delete-pr-preview", << pipeline.parameters.GHA_Action >> ]
