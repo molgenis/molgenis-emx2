@@ -56,11 +56,6 @@ commands:
     - run:
         command: |
           export COMMIT_MESSAGE=$(git log -1 --pretty=format:%s)
-          if [[ $COMMIT_MESSAGE == *"(emx2-pyclient)"* ]]; then
-            release2pypi: true
-          else
-            echo "NO PYPI RELEASE"
-          fi
     - run:
         name: Setup git, todo, move to molgenisci user
         command: |
@@ -135,6 +130,13 @@ jobs:
         echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
 
     - pre_steps
+    - run:
+        command: |
+          if [[ $COMMIT_MESSAGE == *"(emx2-pyclient)"* ]]; then
+            release2pypi: true
+          else
+            echo "NO PYPI RELEASE"
+          fi
 
     - run:
         name: build and push emx2 java docker images for the preview
