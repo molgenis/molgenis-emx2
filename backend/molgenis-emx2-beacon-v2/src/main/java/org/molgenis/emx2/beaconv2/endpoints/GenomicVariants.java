@@ -1,8 +1,7 @@
 package org.molgenis.emx2.beaconv2.endpoints;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import java.util.List;
-import org.molgenis.emx2.Table;
+import org.molgenis.emx2.Database;
 import org.molgenis.emx2.beaconv2.endpoints.datasets.DatasetsMeta;
 import org.molgenis.emx2.beaconv2.endpoints.datasets.ResponseSummary;
 import org.molgenis.emx2.beaconv2.endpoints.genomicvariants.GenomicVariantsResponse;
@@ -16,9 +15,9 @@ public class GenomicVariants {
   private ResponseSummary responseSummary;
   private GenomicVariantsResponse response;
 
-  public GenomicVariants(Request request, List<Table> genomicVariantTables) throws Exception {
+  public GenomicVariants(Request request, Database database) throws Exception {
     this.meta = new DatasetsMeta("../beaconDatasetResponse.json", "datasets");
     this.responseSummary = new ResponseSummary();
-    this.response = new GenomicVariantsResponse(request, genomicVariantTables);
+    this.response = new GenomicVariantsResponse(request, database);
   }
 }

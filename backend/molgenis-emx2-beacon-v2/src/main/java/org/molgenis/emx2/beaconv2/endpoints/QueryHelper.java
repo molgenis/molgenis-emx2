@@ -1,7 +1,5 @@
 package org.molgenis.emx2.beaconv2.endpoints;
 
-import static org.molgenis.emx2.SelectColumn.s;
-
 import java.util.*;
 import java.util.Map;
 import org.jooq.tools.StringUtils;
@@ -12,65 +10,6 @@ import org.molgenis.emx2.utils.TypeUtils;
 public class QueryHelper {
   private QueryHelper() {
     // static only
-  }
-
-  /**
-   * Select query columns from table, including the columns of any reference.
-   *
-   * @param table
-   * @throws Exception
-   */
-  public static Query selectColumns(Table table, String... filters) {
-    Query query = table.query();
-    for (Column column : table.getMetadata().getColumns()) {
-      if (column.isOntology() || column.isReference()) {
-        List<Column> ontoRefCols = column.getRefTable().getColumns().stream().toList();
-        ArrayList<String> colNames = new ArrayList<>();
-        for (Column ontoRefCol : ontoRefCols) {
-          colNames.add(ontoRefCol.getName());
-        }
-        query.select(new SelectColumn(column.getName(), colNames));
-      } else if (column.isFile()) {
-        ArrayList<String> colNames = new ArrayList<>();
-        colNames.add("id");
-        colNames.add("mimetype");
-        colNames.add("extension");
-        // skip contents, which is served by file api
-        query.select(new SelectColumn(column.getName(), colNames));
-      } else if (column.isHeading()) {
-        // ignore headings, not part of rows
-      } else {
-        query.select(s(column.getName()));
-      }
-    }
-    if (filters != null && filters.length != 0 && filters[0] != null) {
-      query.search(filters);
-    }
-
-    return query;
-  }
-
-  /**
-   * Convert list of maps to an array of ontology terms
-   *
-   * @param mapListObj
-   * @return
-   */
-  public static OntologyTerm[] mapListToOntologyTerms(Object mapListObj) {
-    if (mapListObj == null) {
-      return null;
-    }
-    List<Map<String, Object>> mapList = (List<Map<String, Object>>) mapListObj;
-    OntologyTerm[] result = new OntologyTerm[mapList.size()];
-    for (int i = 0; i < mapList.size(); i++) {
-      OntologyTerm ontologyTerm = new OntologyTerm();
-      ontologyTerm.setId(
-          mapList.get(i).get("codesystem") + ":" + TypeUtils.toString(mapList.get(i).get("code")));
-      ontologyTerm.setLabel(TypeUtils.toString(mapList.get(i).get("name")));
-      ontologyTerm.setUri(TypeUtils.toString(mapList.get(i).get("ontologyTermURI")));
-      result[i] = ontologyTerm;
-    }
-    return result;
   }
 
   /**

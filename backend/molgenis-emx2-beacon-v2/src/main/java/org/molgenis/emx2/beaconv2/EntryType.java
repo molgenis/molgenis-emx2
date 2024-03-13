@@ -1,11 +1,15 @@
 package org.molgenis.emx2.beaconv2;
 
+import org.molgenis.emx2.MolgenisException;
+
 public enum EntryType {
   INDIVIDUALS("Individuals", "individuals", "Individual"),
   DATASETS("Dataset", "datasets", "Dataset"),
   ANALYSES("Analyses", "analyses", "Analysis"),
   COHORTS("Cohorts", "cohorts", "Cohort"),
-  BIOSAMPLES("Biosamples", "biosamples", "Biosample");
+  BIOSAMPLES("Biosamples", "biosamples", "Biosample"),
+  RUNS("Runs", "runs", "Run"),
+  GENOMIC_VARIANT("GenomicVariations", "genomicVariations", "GENOMIC_VARIANT");
 
   EntryType(String id, String name, String partOfSpecification) {
     this.id = id;
@@ -21,6 +25,8 @@ public enum EntryType {
         break;
       }
     }
+    if (result == null) throw new MolgenisException("Invalid entry type: %s".formatted(name));
+
     return result;
   }
 

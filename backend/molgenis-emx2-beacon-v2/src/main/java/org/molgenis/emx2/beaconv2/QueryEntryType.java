@@ -45,7 +45,7 @@ public class QueryEntryType {
     return jslt.apply(response);
   }
 
-  static List<Table> getTableFromAllSchemas(Database database, String tableName) {
+  public static List<Table> getTableFromAllSchemas(Database database, String tableName) {
     List<Table> tables = new ArrayList<>();
     for (String sn : database.getSchemaNames()) {
       Schema schema = database.getSchema(sn);
