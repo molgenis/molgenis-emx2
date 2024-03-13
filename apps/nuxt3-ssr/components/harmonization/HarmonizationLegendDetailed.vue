@@ -21,6 +21,10 @@ const props = withDefaults(
         <HarmonizationStatusIcon :size="size" status="partial" />
         Partial
       </li>
+      <li>
+        <HarmonizationStatusIcon :size="size" status="unmapped" />
+        No data
+      </li>
     </ul>
     <VDropdown :triggers="['hover', 'focus']" :distance="12" theme="tooltip">
       <span class="text-blue-500 hover:underline cursor-pointer"
@@ -34,6 +38,7 @@ const props = withDefaults(
           <li>
             Partial: cohort was able to partially map to the harmonized variable
           </li>
+          <li>No data: no harmonization information is available</li>
         </ul>
       </template>
     </VDropdown>

@@ -17,6 +17,10 @@ const props = withDefaults(
         <HarmonizationStatusIcon :size="size" status="available" />
         Available
       </li>
+      <li>
+        <HarmonizationStatusIcon :size="size" status="unmapped" />
+        No data
+      </li>
     </ul>
     <VDropdown :triggers="['hover', 'focus']" :distance="12" theme="tooltip">
       <span class="text-blue-500 hover:underline cursor-pointer"
@@ -25,6 +29,7 @@ const props = withDefaults(
       <template #popper>
         <ul class="pl-3 min-w-95 list-none">
           <li>Available: cohort has data available for the variable</li>
+          <li>No data: cohort does not have data available for the variable</li>
         </ul>
       </template>
     </VDropdown>
