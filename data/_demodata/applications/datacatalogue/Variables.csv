@@ -1,7 +1,7 @@
 resource,dataset,name,label,collection event.resource,collection event.name,since version,until version,format,unit,references.dataset,references.name,mandatory,description,order,example values,keywords,vocabularies,notes
 testCohort1,test dataset for testCohort1,var1,variable 1,,,,,continuous,pmol/L,,,,,,,,,
 testCohort1,test dataset for testCohort1,var2,variable 2,,,,,continuous,pmol/L,,,,,,,,,
-testNetwork1_CDM,cdm_1,testVarRepeats_,test variable with repeats,,,,,continuous,pmol/L,,,,,,,,,
+testNetwork1_CDM,cdm_1,testVarRepeats_,test variable with repeats,,,,,continuous,pmol/L,,,,,,,ADHD symptoms,,
 testNetwork1_CDM,cdm_1,testVarCategorical_,categorical test variable,,,,,categorical,,,,,,,,,,
 testCohort1,test dataset for testCohort1,var3,variable 3,,,,,continuous,pmol/L,,,,,,,,,
 testCohort1,test dataset for testCohort1,var4,variable 4,,,,,continuous,pmol/L,,,,,,,,,
@@ -45,7 +45,7 @@ testCohort4,test dataset for testCohort4,var8,variable 8,,,,,continuous,pmol/L,,
 testCohort4,test dataset for testCohort4,var9,variable 9,,,,,continuous,pmol/L,,,,,,,,,
 testCohort4,test dataset for testCohort4,var10,variable 10,,,,,continuous,pmol/L,,,,,,,,,
 testCohort4,test dataset for testCohort4,var11,variable 11,,,,,integer,,,,,,,,,,
-testNetwork1_CDM,cdm_1,testVarNoRepeats,test variable without repeats,,,,,integer,,,,,,,,,,
+testNetwork1_CDM,cdm_1,testVarNoRepeats,test variable without repeats,,,,,integer,,,,,,,,ADHD symptoms,,
 PELAGIE,harmonized,lan_instr_5,,,,1.0.0,,categorical,,,,,,,,,,
 OOM_CDM,EUROCAT,genrem,,,,2.2,,,,,,false,General additional comments.,,Table reference: EUROCAT/EUROmediCAT. Free text,,,
 OOM_CDM,EUROCAT,gentest,,,,2.2,,,,,,false,"GENETIC TEST
