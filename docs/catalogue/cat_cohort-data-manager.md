@@ -122,8 +122,8 @@ The variables of the datasets specified in the *Datasets* sheet are defined in t
 | description | Description of the variable | |
 | exampleValues | Examples of values in a comma separated list | Makes your data more insightful. E.g. 1,2,3 or TRUE,FALSE or 1.23,4.56,3.14 |
 | vocabularies<sup>1</sup> | Refer to ontologies being used | Find list to choose from in CatalogueOntologies [Vocabularies](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/Vocabularies) |
-| collection event.resource | Your cohort id | The collectionEvent needs to be predefined in the _CollectionEvents_ sheet; e.g. y1 or y2 |
-| collection event.name | Refer to the name of a collection event | The collection event needs to be predefined in the _CollectionEvents_ sheet; e.g. y1 or y2 |
+| collection event.resource | Your cohort id | The collection event needs to be predefined via forms; e.g. y1 or y2 |
+| collection event.name | Refer to the name of a collection event | The collection event needs to be predefined in the Collection events table in the cohort or data source staging area; e.g. y1 or y2 |
 | keywords<sup>1</sup> | Enables grouping of variables into topics and helps to display variables in a tree | Find list to choose from in Catalogue [Keywords](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/Keywords)|
 | since version | Version of the data model when this variable was introduced | e.g. 1.0.0 or 2.1 |
 | until version | Version of the data model when this variable was deleted | e.g. 2.0.0 or 2.1 |
@@ -166,7 +166,7 @@ that has to be repeated when filling out repeated variables. This sheet is optio
 | is repeat of.dataset \* | Dataset that contains the variable that is repeated | Tables must be predefined in the _Datasets_ sheet; e.g. core |
 | is repeat of.name \* | Name of the variable that is repeated | Variables must be predefined in the _Variables_ sheet; e.g. height\_0 |
 | collection event.resource | Your cohort id | The collection event needs to be predefined via forms; e.g. y1 or y2 |
-| collection event.name | Refer to the name of a collection event | The collection event needs to be predefined via forms; e.g. y1 or y2 |
+| collection event.name | Refer to the name of a collection event | The collection event needs to be predefined in the table Collection Events in the cohort or data source staging area; e.g. y1 or y2 |
 | since version | Version of the data model when this variable was introduced | e.g. 1.0.0 or 2.1 |
 | until version | Version of the data model when this variable was deleted | e.g. 2.0.0 or 2.1 |
 

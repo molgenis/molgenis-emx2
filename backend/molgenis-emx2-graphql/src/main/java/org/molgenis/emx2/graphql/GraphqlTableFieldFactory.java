@@ -36,7 +36,7 @@ public class GraphqlTableFieldFactory {
           .field(
               GraphQLFieldDefinition.newFieldDefinition().name("url").type(Scalars.GraphQLString))
           .build();
-  final List<String> agg_fields = List.of("max", "min", "sum", "avg");
+  final List<String> agg_fields = List.of("max", "min", SUM_FIELD, "avg");
   private final Schema schema;
 
   // cache so we can reuse types between tables
@@ -292,6 +292,27 @@ public class GraphqlTableFieldFactory {
           GraphQLObjectType.newObject().name(tableGroupByType);
       groupByBuilder.field(
           GraphQLFieldDefinition.newFieldDefinition().name("count").type(Scalars.GraphQLInt));
+      List<Column> aggCols =
+          table.getColumns().stream()
+              .filter(
+                  c ->
+                      ColumnType.INT.equals(c.getColumnType())
+                          || ColumnType.DECIMAL.equals(c.getColumnType())
+                          || ColumnType.LONG.equals(c.getColumnType()))
+              .toList();
+      if (aggCols.size() > 0) {
+        GraphQLObjectType.Builder sumBuilder =
+            GraphQLObjectType.newObject().name(tableGroupByType + "_" + SUM_FIELD);
+        for (Column aggCol : aggCols) {
+          sumBuilder.field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(aggCol.getIdentifier())
+                  .type(graphQLTypeOf(aggCol)));
+        }
+        groupByBuilder.field(
+            GraphQLFieldDefinition.newFieldDefinition().name(SUM_FIELD).type(sumBuilder.build()));
+      }
+
       for (Column column : table.getColumns()) {
         // for now only 'ref' types. We might want to have truncating actions for the other types.
         if (column.isReference() && (hasViewPermission(table) || column.isOntology())) {

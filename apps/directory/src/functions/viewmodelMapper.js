@@ -2,12 +2,8 @@ import { useSettingsStore } from "../stores/settingsStore";
 import { sortCollectionsByName } from "./sorting";
 
 export const getName = (contact) => {
-  const {
-    title_before_name,
-    first_name,
-    last_name,
-    title_after_name,
-  } = contact;
+  const { title_before_name, first_name, last_name, title_after_name } =
+    contact;
 
   let name = "";
 
@@ -238,18 +234,20 @@ function mapSubcollections(collections, level) {
   return sub_collections;
 }
 
-export function getCollectionDetails(collection) {
+export function getCollectionDetails(collection, isBiobankWithdrawn) {
   const settingsStore = useSettingsStore();
   const viewmodel = getViewmodel(
     collection,
     settingsStore.config.collectionColumns
   );
 
-  if (collection.sub_collections && collection.sub_collections.length) {
-    viewmodel.sub_collections = mapSubcollections(
-      collection.sub_collections,
-      1
-    );
+  if (collection.sub_collections?.length) {
+    const filteredSubCollections = isBiobankWithdrawn
+      ? collection.sub_collections
+      : collection.sub_collections.filter(
+          (subcollection) => !subcollection.withdrawn
+        );
+    viewmodel.sub_collections = mapSubcollections(filteredSubCollections, 1);
   }
 
   return {
@@ -261,7 +259,7 @@ export function getCollectionDetails(collection) {
 export const getBiobankDetails = (biobank) => {
   const settingsStore = useSettingsStore();
 
-  if (biobank.collections && biobank.collections.length) {
+  if (biobank.collections?.length) {
     biobank.collections.type = [];
     biobank.collections.type = Object.keys(
       extractCollectionTypes(biobank.collections)
@@ -438,7 +436,7 @@ export const mapQualityStandards = (instance) => {
 
   if (instance) {
     for (const quality of instance) {
-      arr.push(quality.quality_standard.label);
+      arr.push(quality.quality_standard.name);
     }
   }
 

@@ -74,14 +74,16 @@ export const useCollectionStore = defineStore("collectionStore", () => {
         .select("id")
         .where("commercial_use")
         .equals(true);
-      const commercialAvailableCollectionsResponse = await commercialCollectionQuery.execute();
+      const commercialAvailableCollectionsResponse =
+        await commercialCollectionQuery.execute();
       if (
         commercialAvailableCollectionsResponse.Collections &&
         commercialAvailableCollectionsResponse.Collections.length
       ) {
-        commercialAvailableCollections.value = commercialAvailableCollectionsResponse.Collections.map(
-          (collection) => collection.id
-        );
+        commercialAvailableCollections.value =
+          commercialAvailableCollectionsResponse.Collections.map(
+            (collection) => collection.id
+          );
       }
     }
 
@@ -110,7 +112,7 @@ export const useCollectionStore = defineStore("collectionStore", () => {
         "disease.label",
         "disease.name",
       ])
-      .where("id")
+      .where("collection.id")
       .like(id);
 
     const factResults = await factQuery.execute();

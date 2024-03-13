@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { DocumentNode } from "graphql";
+import type { DocumentNode } from "graphql";
 
 const props = defineProps<{
   title: string;

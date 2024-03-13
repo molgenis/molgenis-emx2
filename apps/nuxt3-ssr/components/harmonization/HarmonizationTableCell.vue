@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { HarmonizationStatus } from "~/interfaces/types";
+import type { HarmonizationStatus } from "~/interfaces/types";
 
 // Note: component similar to HarmonizationStatusIcon.vue but with different due to table cell styling details
 

@@ -6,7 +6,6 @@ import static org.mockito.Mockito.when;
 import static org.molgenis.emx2.fairdatapoint.FormatMimeTypes.formatToMediaType;
 
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
@@ -31,7 +30,7 @@ public class FAIRDataPointTest {
     fdpSchema = database.dropCreateSchema("fdpTest");
     Schema fairDataHub_nr1 = database.dropCreateSchema("fairDataHub_nr1");
     Schema fairDataHub_nr2 = database.dropCreateSchema("fairDataHub_nr2 with a whitespace");
-    ProfileLoader fairDataHubLoader = new ProfileLoader("fairdatahub/FAIRDataHub.yaml");
+    ProfileLoader fairDataHubLoader = new ProfileLoader("_profiles/FAIRDataHub.yaml");
     fairDataHubLoader.load(fairDataHub_nr1, true);
     fairDataHubLoader.load(fairDataHub_nr2, true);
     fairDataHubSchemas = new Schema[2];
@@ -40,7 +39,6 @@ public class FAIRDataPointTest {
   }
 
   @Test
-  @Disabled
   public void FDPMetadataSchemaService() throws Exception {
     Request request = mock(Request.class);
     when(request.url()).thenReturn("http://localhost:8080/api/fdp");
@@ -50,9 +48,7 @@ public class FAIRDataPointTest {
     assertTrue(
         result.contains(
             "<http://localhost:8080/api/fdp> a fdp-o:MetadataService, dcat:Resource, dcat:DataService,"));
-    assertTrue(
-        result.contains(
-            "dcterms:title \"FAIR Data Point hosted by MOLGENIS-EMX2 at http://localhost:8080/api/fdp\";"));
+    assertTrue(result.contains("dcterms:title \"FAIR Data Point hosted by MOLGENIS-EMX2\";"));
     assertTrue(result.contains("dcterms:publisher [ a foaf:Agent;"));
     assertTrue(result.contains("foaf:name \"MOLGENIS-EMX2 FAIR Data Point API\""));
     assertTrue(

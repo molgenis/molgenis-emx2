@@ -43,6 +43,7 @@ export async function applyFiltersToQuery(
         baseQuery.orFilter("collections.id").like(filterValue);
         baseQuery.orFilter("collections.name").like(filterValue);
         baseQuery.orFilter("collections.acronym").like(filterValue);
+        baseQuery.orFilter("collections.biobank.name").like(filterValue);
         baseQuery
           .orFilter("collections.diagnosis_available.name")
           .like(filterValue);
@@ -56,7 +57,7 @@ export async function applyFiltersToQuery(
           .orFilter("collections.diagnosis_available.definition")
           .like(filterValue);
 
-        /** cant search in the searchbox on any filter that is set to 'adaptive' because the items will not show. */
+        /** cant search in the search box on any filter that is set to 'adaptive' because the items will not show. */
         break;
       }
       case "ToggleFilter":
@@ -91,7 +92,7 @@ export async function applyFiltersToQuery(
               }
             } else {
               baseQuery.orWhere(column).in(values);
-              baseQuery.filter(column).in(values);
+              baseQuery.orFilter(column).in(values);
             }
           }
         }
@@ -99,7 +100,7 @@ export async function applyFiltersToQuery(
       }
       case "OntologyFilter": {
         const values = filterValue.map((fv) => fv.code);
-        baseQuery.where(filterDetail.applyToColumn).in(values);
+        baseQuery.filter(filterDetail.applyToColumn).in(values);
         break;
       }
     }

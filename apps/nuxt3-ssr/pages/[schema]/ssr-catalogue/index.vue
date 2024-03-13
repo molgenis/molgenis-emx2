@@ -63,10 +63,9 @@ const query = computed(() => {
 
 const filter = computed(() => buildQueryFilter(filters, search.value));
 
-let graphqlURL = computed(() => `/${route.params.schema}/api/graphql`);
+let graphqlURL = computed(() => `/${route.params.schema}/graphql`);
 const { data, pending, error, refresh } = await useFetch(graphqlURL.value, {
   key: "catalogues",
-  baseURL: config.public.apiBase,
   method: "POST",
   body: {
     query,

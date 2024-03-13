@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import variableQuery from "~~/gql/variable";
-import { KeyObject } from "meta-data-utils";
+import type { KeyObject } from "meta-data-utils";
 import { buildFilterFromKeysObject } from "meta-data-utils";
 
 const query = moduleToString(variableQuery);
@@ -9,17 +9,17 @@ const props = defineProps<{
   variableKey: KeyObject;
 }>();
 
-const config = useRuntimeConfig();
 const route = useRoute();
 
 const { data, pending, error } = await useFetch(
-  `/${route.params.schema}/catalogue/graphql`,
+  `/${route.params.schema}/graphql`,
   {
-    baseURL: config.public.apiBase,
     method: "POST",
     body: {
       query: query,
-      variables: { filter: buildFilterFromKeysObject(props.variableKey) },
+      variables: {
+        variableFilter: buildFilterFromKeysObject(props.variableKey),
+      },
     },
   }
 ).catch((e) => console.log(e));

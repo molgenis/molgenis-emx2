@@ -29,7 +29,7 @@ public class FAIRDataPointDistributionNotInDatasetTest {
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
     fairDataHub_distribnotindataset = database.dropCreateSchema("fairDataHub_distribnotindataset");
-    ProfileLoader fairDataHubLoader = new ProfileLoader("fairdatahub/FAIRDataHub.yaml");
+    ProfileLoader fairDataHubLoader = new ProfileLoader("_profiles/FAIRDataHub.yaml");
     fairDataHubLoader.load(fairDataHub_distribnotindataset, true);
   }
 

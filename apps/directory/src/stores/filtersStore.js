@@ -37,7 +37,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
 
   watch(
     () => settingsStore.configurationFetched,
-    (e) => {
+    () => {
       filterFacets.value = createFilters(settingsStore.config.filterFacets);
       filtersReadyToRender.value = true;
     }
@@ -178,22 +178,22 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     return codeFound || nameFound || labelFound;
   }
 
-  function flattenOntologyBranch(branch, flattendBranches) {
+  function flattenOntologyBranch(branch, flattenedBranches) {
     if (!branch.children || !branch.children.length) {
-      if (!flattendBranches) {
+      if (!flattenedBranches) {
         return [branch];
       } else {
-        flattendBranches.push(branch);
+        flattenedBranches.push(branch);
       }
-      return flattendBranches;
+      return flattenedBranches;
     } else {
       for (const child of branch.children) {
-        flattendBranches = flattenOntologyBranch(child, flattendBranches);
+        flattenedBranches = flattenOntologyBranch(child, flattenedBranches);
         delete child.children;
-        flattendBranches.push(child);
+        flattenedBranches.push(child);
       }
     }
-    return flattendBranches;
+    return flattenedBranches;
   }
 
   /**
@@ -270,9 +270,8 @@ export const useFiltersStore = defineStore("filtersStore", () => {
       const filterOptionsToAdd = value.filter(
         (newValue) => !existingValues.includes(newValue.name)
       );
-      filters.value[filterName] = filters.value[filterName].concat(
-        filterOptionsToAdd
-      );
+      filters.value[filterName] =
+        filters.value[filterName].concat(filterOptionsToAdd);
     } else {
       filters.value[filterName] = value;
     }
@@ -382,10 +381,13 @@ export const useFiltersStore = defineStore("filtersStore", () => {
       checkoutStore.setSearchHistory(`Filter ${filterName} removed`);
     } else {
       filters.value[filterName] = value;
-
-      checkoutStore.setSearchHistory(
-        `${filterName} filtered on ${value.map((v) => v.text).join(", ")}`
-      );
+      if (typeof value === "string" || typeof value === "boolean") {
+        checkoutStore.setSearchHistory(`${filterName} filtered on ${value}`);
+      } else {
+        checkoutStore.setSearchHistory(
+          `${filterName} filtered on ${value.map((v) => v.text).join(", ")}`
+        );
+      }
     }
   }
 

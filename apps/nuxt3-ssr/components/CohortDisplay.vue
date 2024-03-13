@@ -5,26 +5,21 @@ const props = defineProps<{
   id: string;
 }>();
 
-const config = useRuntimeConfig();
 const route = useRoute();
 
 const query = moduleToString(cohortGql);
 
 let cohort: ICohort = ref();
 
-const { data: cohortData } = await useFetch(
-  `/${route.params.schema}/catalogue/graphql`,
-  {
-    baseURL: config.public.apiBase,
-    method: "POST",
-    body: {
-      query,
-      variables: {
-        id: props.id,
-      },
+const { data: cohortData } = await useFetch(`/${route.params.schema}/graphql`, {
+  method: "POST",
+  body: {
+    query,
+    variables: {
+      id: props.id,
     },
-  }
-).catch((e) => console.log(e));
+  },
+}).catch((e) => console.log(e));
 
 watch(
   cohortData,

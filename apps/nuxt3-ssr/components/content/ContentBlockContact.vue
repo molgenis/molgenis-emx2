@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { IContributor } from "~/interfaces/types";
+import type { IContributor } from "~/interfaces/types";
 
 defineProps<{
   title: string;

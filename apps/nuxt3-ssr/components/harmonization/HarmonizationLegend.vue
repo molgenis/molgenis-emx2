@@ -3,7 +3,7 @@ import type { HarmonizationIconSize } from "../../interfaces/types";
 
 const props = withDefaults(
   defineProps<{
-    size: HarmonizationIconSize;
+    size?: HarmonizationIconSize;
   }>(),
   { size: "large" }
 );

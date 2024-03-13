@@ -5,7 +5,7 @@ import collectionEventsQuery from "~~/gql/collectionEvents";
 import datasetQuery from "~~/gql/datasets";
 import ontologyFragment from "~~/gql/fragments/ontology";
 import fileFragment from "~~/gql/fragments/file";
-import type { ICohort } from "~/interfaces/types";
+import type { ICohort, IMgError, IOntologyItem } from "~/interfaces/types";
 const config = useRuntimeConfig();
 const route = useRoute();
 
@@ -13,6 +13,7 @@ const query = gql`
   query Cohorts($id: String) {
     Cohorts(filter: { id: { equals: [$id] } }) {
       id
+      pid
       acronym
       name
       description
@@ -132,6 +133,12 @@ const query = gql`
         name
       }
     }
+     Subcohorts(
+      filter: { resource: { id: { equals: [$id] } },  }
+    ) {
+      name
+      mainMedicalCondition ${moduleToString(ontologyFragment)}
+    }
     CollectionEvents_agg(filter: { resource: { id: { equals: [$id] } } }) {
       count
     }
@@ -141,28 +148,51 @@ const query = gql`
   }
 `;
 const variables = { id: route.params.cohort };
-
-let cohort: ICohort;
-
-const {
-  data: cohortData,
-  pending,
-  error,
-  refresh,
-} = await useFetch(`/${route.params.schema}/catalogue/graphql`, {
-  baseURL: config.public.apiBase,
-  method: "POST",
-  body: { query, variables },
-});
-
-watch(cohortData, setData, {
-  deep: true,
-  immediate: true,
-});
-
-function setData(data: any) {
-  cohort = data?.data?.Cohorts[0];
+interface IResponse {
+  data: {
+    Cohorts: ICohort[];
+    Subcohorts: any[];
+    CollectionEvents_agg: { count: number };
+    Subcohorts_agg: { count: number };
+  };
 }
+const { data, error } = await useFetch<IResponse, IMgError>(
+  `/${route.params.schema}/graphql`,
+  {
+    method: "POST",
+    body: { query, variables },
+  }
+);
+
+if (error.value) {
+  logError(error.value, "Error fetching cohort data");
+}
+
+const cohort = computed(() => data.value?.data?.Cohorts[0] as ICohort);
+const subcohorts = computed(() => data.value?.data?.Subcohorts as any[]);
+const mainMedicalConditions = computed(() => {
+  if (!subcohorts.value || !subcohorts.value.length) {
+    return [];
+  } else {
+    const allItems = subcohorts.value
+      .map((s: { mainMedicalCondition?: IOntologyItem[] }) => {
+        const combinedItems = s.mainMedicalCondition
+          ? s.mainMedicalCondition
+          : [];
+
+        return combinedItems as IOntologyItem[];
+      })
+      .flat();
+
+    const uniqueItems = [...new Map(allItems.map((v) => [v.name, v])).values()];
+    return uniqueItems;
+  }
+});
+
+const collectionEventCount = computed(
+  () => data.value?.data?.CollectionEvents_agg?.count
+);
+const subcohortCount = computed(() => data.value?.data?.Subcohorts_agg?.count);
 
 function collectionEventMapper(item: any) {
   return {
@@ -184,10 +214,12 @@ function collectionEventMapper(item: any) {
 
 function datasetMapper(item: any) {
   return {
-    id: item.name,
+    id: {
+      name: item.name,
+      resourceId: route.params.cohort,
+    },
     name: item.name,
     description: item.descriptions,
-    _path: `/${route.params.schema}/ssr-catalogue/all/datasets`,
   };
 }
 
@@ -207,40 +239,43 @@ let tocItems = computed(() => {
     { label: "Description", id: "Description" },
     { label: "General design", id: "GeneralDesign" },
   ];
-  if (cohort?.contacts) {
+  if (cohort.value.contacts) {
     tableOffContents.push({
       label: "Contact & contributors",
       id: "Contributors",
     });
   }
-  if (cohort?.collectionEvents) {
+  if (cohort.value.collectionEvents) {
     tableOffContents.push({
       label: "Available data & samples",
       id: "AvailableData",
     });
   }
   // { label: 'Variables & topics', id: 'Variables' },
-  if (cohortData.value.data.Subcohorts_agg?.count > 0) {
+  if (subcohortCount.value ?? 0 > 0) {
     tableOffContents.push({ label: "Subpopulations", id: "Subpopulations" });
   }
-  if (cohortData.value.data.CollectionEvents_agg?.count > 0) {
+  if (collectionEventCount.value ?? 0 > 0) {
     tableOffContents.push({
       label: "Collection events",
       id: "CollectionEvents",
     });
   }
-  if (cohort?.networks) {
+  if (cohort.value.datasets) {
+    tableOffContents.push({ label: "Datasets", id: "Datasets" });
+  }
+  if (cohort.value.networks) {
     tableOffContents.push({ label: "Networks", id: "Networks" });
   }
-  if (cohort?.additionalOrganisations) {
+  if (cohort.value.additionalOrganisations) {
     tableOffContents.push({ label: "Partners", id: "Partners" });
   }
 
   if (
-    cohort?.dataAccessConditions?.length ||
-    cohort?.dataAccessConditionsDescription ||
-    cohort?.releaseDescription ||
-    cohort?.linkageOptions
+    cohort.value.dataAccessConditions?.length ||
+    cohort.value.dataAccessConditionsDescription ||
+    cohort.value.releaseDescription ||
+    cohort.value.linkageOptions
   ) {
     tableOffContents.push({
       label: "Access Conditions",
@@ -248,14 +283,14 @@ let tocItems = computed(() => {
     });
   }
 
-  if (cohort?.fundingStatement || cohort?.acknowledgements) {
+  if (cohort.value.fundingStatement || cohort.value.acknowledgements) {
     tableOffContents.push({
       label: "Funding & Citation requirements ",
       id: "funding-and-acknowledgement",
     });
   }
 
-  if (cohort?.documentation) {
+  if (cohort.value.documentation) {
     tableOffContents.push({ label: "Attached files", id: "Files" });
   }
 
@@ -264,22 +299,22 @@ let tocItems = computed(() => {
 
 let accessConditionsItems = computed(() => {
   let items = [];
-  if (cohort?.dataAccessConditions?.length) {
+  if (cohort.value.dataAccessConditions?.length) {
     items.push({
       label: "Conditions",
-      content: cohort.dataAccessConditions.map((c) => c.name),
+      content: cohort.value.dataAccessConditions.map((c) => c.name),
     });
   }
-  if (cohort?.releaseDescription) {
+  if (cohort.value.releaseDescription) {
     items.push({
       label: "Release",
-      content: cohort.releaseDescription,
+      content: cohort.value.releaseDescription,
     });
   }
-  if (cohort?.linkageOptions) {
+  if (cohort.value.linkageOptions) {
     items.push({
       label: "Linkage options",
-      content: cohort.linkageOptions,
+      content: cohort.value.linkageOptions,
     });
   }
 
@@ -288,23 +323,23 @@ let accessConditionsItems = computed(() => {
 
 let fundingAndAcknowledgementItems = computed(() => {
   let items = [];
-  if (cohort?.fundingStatement) {
+  if (cohort.value.fundingStatement) {
     items.push({
       label: "Funding",
-      content: cohort.fundingStatement,
+      content: cohort.value.fundingStatement,
     });
   }
-  if (cohort?.acknowledgements) {
+  if (cohort.value.acknowledgements) {
     items.push({
       label: "Citation requirements ",
-      content: cohort.acknowledgements,
+      content: cohort.value.acknowledgements,
     });
   }
 
   return items;
 });
 
-useHead({ title: cohort?.acronym || cohort?.name });
+useHead({ title: cohort.value.acronym || cohort.value.name });
 
 const messageFilter = `{"filter": {"id":{"equals":"${route.params.cohort}"}}}`;
 
@@ -363,11 +398,12 @@ if (route.params.catalogue) {
           :description="cohort?.description"
         />
 
-        <ContentBlockGeneralDesign
+        <ContentCohortGeneralDesign
           id="GeneralDesign"
           title="General Design"
           :description="cohort?.designDescription"
           :cohort="cohort"
+          :main-medical-condition="mainMedicalConditions"
         />
 
         <ContentBlockContact
@@ -390,7 +426,7 @@ if (route.params.catalogue) {
         />
 
         <TableContent
-          v-if="cohortData.data.Subcohorts_agg.count > 0"
+          v-if="subcohortCount ?? 0 > 0"
           id="Subpopulations"
           title="Subpopulations"
           description="List of subcohorts or subpopulations for this resource"
@@ -409,7 +445,7 @@ if (route.params.catalogue) {
         </TableContent>
 
         <TableContent
-          v-if="cohortData.data.CollectionEvents_agg.count > 0"
+          v-if="collectionEventCount ?? 0 > 0"
           id="CollectionEvents"
           title="Collection events"
           description="List of collection events defined for this resource"
@@ -447,7 +483,10 @@ if (route.params.catalogue) {
           :rowMapper="datasetMapper"
           v-slot="slotProps"
         >
-          {{ slotProps }}
+          <DatasetDisplay
+            :name="slotProps.id.name"
+            :resourceId="slotProps.id.resourceId"
+          />
         </TableContent>
 
         <ContentBlockPartners
@@ -493,7 +532,7 @@ if (route.params.catalogue) {
           title="Attached Files"
           :documents="cohort.documentation"
         />
-      </ContentBlocks> </template
-    >f
+      </ContentBlocks>
+    </template>
   </LayoutsDetailPage>
 </template>

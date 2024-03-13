@@ -26,14 +26,14 @@
       <span v-else>
         <span
           v-if="
-            !quality.certification_image_link && getQualityInfo(quality.label)
+            !quality.certification_image_link && 'quality_standard' in quality
           "
         >
-          {{ getQualityInfo(quality.label).label }}
+          {{ getQualityInfo(quality.quality_standard.name).label }}
         </span>
         <span v-else>
           <img
-            v-if="getQualityInfo(quality.label)"
+            v-if="quality.quality_standard"
             :src="quality.certification_image_link"
             class="quality-logo"
             :alt="generateQualityLabel(quality)"
@@ -41,16 +41,18 @@
         </span>
       </span>
       <info-popover
-        v-if="qualityInfo && Object.keys(qualityInfo).length"
+        v-if="quality.quality_standard"
         class="ml-2"
         popover-placement="bottom"
       >
         <div class="popover-content">
           <div>
-            <b> {{ getQualityInfo(quality.label).label }}</b>
+            <b> {{ getQualityInfo(quality.quality_standard.name)?.label }}</b>
           </div>
           <div>
-            <span> {{ getQualityInfo(quality.label).definition }}</span>
+            <span>
+              {{ getQualityInfo(quality.quality_standard.name)?.definition }}
+            </span>
           </div>
         </div>
       </info-popover>
@@ -83,7 +85,7 @@ export default {
   methods: {
     generateQualityLabel(quality) {
       return quality.label !== "Others"
-        ? this.getQualityInfo(quality.label).label
+        ? this.getQualityInfo(quality.quality_standard.name).label
         : quality.certification_number;
     },
     getQualityInfo(key) {

@@ -83,14 +83,3 @@ export default {
   },
 };
 </script>
-
-<style>
-/* removing the built-in nav because it conflicts */
-nav[aria-label="breadcrumb"]:not(.directory-nav) {
-  display: none;
-}
-ol.breadcrumb {
-  margin-top: 0.25rem !important;
-  margin-bottom: 0.25rem !important;
-}
-</style>

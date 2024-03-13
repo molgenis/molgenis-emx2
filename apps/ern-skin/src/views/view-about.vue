@@ -4,7 +4,7 @@
       class="project-header main-header"
       title="ERN-Skin Registry"
       subtitle="About Us"
-      imageSrc="app-header-background.png"
+      imageSrc="erras-header.jpg"
     />
     <PageSection aria-labelledby="the-european-reference-networks-title">
       <h2 id="the-european-reference-networks-title">

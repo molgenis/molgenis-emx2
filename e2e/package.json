@@ -5,7 +5,7 @@
   "repository": "git@github.com:molgenis/molgenis-emx2.git",
   "license": "LGPLv3",
   "devDependencies": {
-    "@playwright/test": "1.40.1"
+    "@playwright/test": "1.41.2"
   },
   "scripts": {
     "e2e": "playwright test"

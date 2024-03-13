@@ -11,7 +11,14 @@ The easiest way to enable FDP in MOLGENIS EMX2 is by choosing 'FAIR_DATA_HUB' as
 This will add three tables that will define the content of your FAIR Data Point:
 [Catalog](https://github.com/molgenis/molgenis-emx2/blob/master/data/fairdatahub/fairdatapoint/demodata/Catalog.csv), [Dataset](https://github.com/molgenis/molgenis-emx2/blob/master/data/fairdatahub/fairdatapoint/demodata/Dataset.csv) and [Distribution](https://github.com/molgenis/molgenis-emx2/blob/master/data/fairdatahub/fairdatapoint/demodata/Distribution.csv).
 Loading the 'FAIR_DATA_HUB' template including the example data will result in a fully operational FAIR Data Point.
-The example data can be used as a reference on how to enter data into the system, but can be safely removed or replaced.
+The example data can be used as a reference on how to enter data into the system.
+It can be safely removed or replaced.
+
+Before the FDP can be used, log in as the `admin` user and visit your FDP at `<server>/api/fdp`.
+This will add a database setting called _FAIR Data Point root metadata_ to the schema that enables your FDP.
+This setting contains a piece of RDF/TTL that is part of your FDP root endpoint which is fully customizable.
+Here, you can change the information about your FDP such as title, publisher, contact point and language.
+To make changes, go to your FDP-enabling schema, go to Settings, Advanced settings, and click the Edit button for  _FAIR Data Point root metadata_.
 
 After setting up these tables, this is how its contents are translated to the FDP structure:
 - Each Dataset contains a reference to one or multiple Catalogs via the `belongsToCatalog` field.

@@ -68,8 +68,7 @@ const {
   pending,
   error,
   refresh,
-} = await useFetch(`/${route.params.schema}/catalogue/graphql`, {
-  baseURL: config.public.apiBase,
+} = await useFetch(`/${route.params.schema}/graphql`, {
   method: "POST",
   body: { query, variables },
 });
@@ -98,8 +97,7 @@ async function fetchVariableCount(models: { id: string }[]) {
       }
     }
   `;
-  const { data } = await useFetch(`/${route.params.schema}/catalogue/graphql`, {
-    baseURL: config.public.apiBase,
+  const { data } = await useFetch(`/${route.params.schema}/graphql`, {
     method: "POST",
     body: { query, variables: networkVariablesFilter.value },
   });

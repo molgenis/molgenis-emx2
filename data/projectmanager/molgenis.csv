@@ -1,0 +1,28 @@
+tableName,tableExtends,tableType,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,refLabel,defaultValue,validation,visible,computed,semantics,profiles,label,description
+Persons,,,,,,,,,,,,,,,,,,,
+Projects,,,,,,,,,,,,,,,,,,,
+ProjectUnits,,,,,,,,,,,,,,,,,,,export 'Uren op projectonderdelen' from panama to update the planned/reghours and import new projects
+PanamaExport,,,,,,,,,,,,,,,,,,,
+Planning,,,,,,,,,,,,,,,,,,,Listing of who should write hours on what project
+PanamaExport,,,projectUnit,ref,1,true,,ProjectUnits,,,,,,,,,,,
+PanamaExport,,,regHours,decimal,,,,,,,,,,,,,,,
+Persons,,,Name,,1,true,,,,,,,,,,,,,Name conform panama
+Persons,,,FTE,decimal,,,,,,,,,,,,,,,
+Persons,,,Planning,refback,,,,Planning,,Person,${fTE}fte on ${projectUnit.project.name} from ${projectUnit.unit} until ${startDate}:${endDate},,,,,,,,
+Persons,,,Notes,text,,,,,,,,,,,,,,,
+Planning,,,Person,ref,1,true,,Persons,,,,,,,,,,,
+Planning,,,ProjectUnit,ref,1,true,,ProjectUnits,,,,,,,,,,,
+Planning,,,FTE,decimal,,,,,,,,,,,,,,,
+Planning,,,StartDate,date,1,true,,,,,,,,,,,,,
+Planning,,,EndDate,date,,true,,,,,,,,,,,,,
+ProjectUnits,,,Project,ref,1,true,,Projects,,,,,,,,,,,
+ProjectUnits,,,Unit,,1,true,,,,,,,,,,,,,
+ProjectUnits,,,PlanHours,decimal,,,,,,,,,,,,,,,"planned hours, can be exported from panama"
+ProjectUnits,,,regHoursKorade,decimal,,,,,,,,,,,,,,,
+ProjectUnits,,,Planning,refback,,,,Planning,,ProjectUnit,${fTE}fte ${person.name} from ${startDate} until ${endDate},,,,,,,,
+ProjectUnits,,,panama,refback,,,,PanamaExport,,projectUnit,,,,,,,,,
+Projects,,,Name,,1,true,,,,,,,,,,,,,
+Projects,,,StartDate,date,,,,,,,,,,,,,,,
+Projects,,,EndDate,date,,,,,,,,,,,,,,,
+Projects,,,completed,bool,,,,,,,,,,,,,,,
+Projects,,,projectUnits,refback,,,,ProjectUnits,,Project,,,,,,,,,

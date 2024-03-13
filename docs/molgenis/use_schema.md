@@ -60,9 +60,9 @@ Special types:
 Relationships:
 
 - ref : foreign key (aka many to one)
-    - ontology: is a ref that is rendered as ontology tree (if refTable has 'parent'). In case of ontology, the refTable is automatically generated.
+  - ontology: is a ref that is rendered as ontology tree (if refTable has 'parent'). In case of ontology, the refTable is automatically generated.
 - ref_array : multiple foreign key (aka many to many).
-    - ontology_array: is ref_array that is rendered as ontology tree (if refTable has 'parent'). In case of ontology, the refTable is automatically generated.
+  - ontology_array: is ref_array that is rendered as ontology tree (if refTable has 'parent'). In case of ontology, the refTable is automatically generated.
 - refback : to describe link back to ref/ref_array (aka one_to_many/many_to_many)
 
 Arrays (i.e. list of values)
@@ -93,16 +93,40 @@ is used as the primary key in the user interface, upload and API. Other key>1 ca
 
 When required=TRUE then values in this column must be filled. When required=FALSE then this column can be left empty. Default value: FALSE.
 
+Besides TRUE and FALSE, it is also possible to provide a JavaScript expression using conditional logic based on the values of other columns.
+
+For instance, consider a table with 'name' and 'surname' fields. If the 'name' field is provided, the 'surname' field should also be populated. The expression for the surname field could look like:
+`if(name!=null) 'Surname should be provided when name is not null'`
+
+The string after the expression is the validation message returned when the expression yields `true`, and the field is not provided.
+
+It's also possible to use an expression without an error message:
+`name != null`.
+Will return the expression as an error message.
+
+Expressions can also reference multiple fields. For example, consider a 'pet' table with the following fields:
+
+- `species` (string)
+- `onMedication` (bool)
+- `age` (int)
+- `weight` (decimal)
+- `medicalStatus` (string)
+
+The following expression would make 'medicalStatus' required if a cat is old, heavy, and on medication:
+`if(onMedication && age > 10 && weight > 3 && species === 'cat')
+'Medical status should be provided when an old fat cat is on drugs'`
+
 ### defaultValue
 
 Using 'defaultValue' you can set a default value for a column. In forms, this value will be pre-filled.
 When uploading csv/excel all empty cells will receive the defaultValue (in insert and update)
 Optionally you can also use javascript expressions. For example:
-* ```duck``` would set a string value
-* ```1``` would set a numeric value
-* ```=new Date().toISOString()``` provides automatic date/dateTime
-* ```={name:"green"}``` could be default value for an ontology_
-* ```=[{name:"green"}]``` could be default value for an ontology_array
+
+- `duck` would set a string value
+- `1` would set a numeric value
+- `=new Date().toISOString()` provides automatic date/dateTime
+- `={name:"green"}` could be default value for an ontology\_
+- `=[{name:"green"}]` could be default value for an ontology_array
 
 Known limitation: doesn't work for columns refering to a table with composite primary key (i.e. having multiple key=1 fields).
 
@@ -111,8 +135,8 @@ Known limitation: doesn't work for columns refering to a table with composite pr
 Using label you can change the labels in forms. Typically useful for data capture and surveys. Using :suffix you can give labels for multiple languages, e.g.
 label:fr is for the french language. The shorthand 'label' is synonymous to 'label:en'.
 
-N.B. to enable localized labels you must change database setting 'locale' to value ```["en","fr","de"]``` from default
-```["en"]``` (use the locales you want to define in your models, we recommend to use the ISO language codes);
+N.B. to enable localized labels you must change database setting 'locale' to value `["en","fr","de"]` from default
+`["en"]` (use the locales you want to define in your models, we recommend to use the ISO language codes);
 
 ### description
 
@@ -178,9 +202,31 @@ Explanation:
 
 ## Expressions
 
-You can further fine tune the behaviour of tables using molgenis expressions. For more information on the expression syntax you can have a look at
-the [expressions readme](https://github.com/molgenis/molgenis-expressions/blob/master/README.md)
-Expressions refer to the id property of columns.
+You can further fine tune the behavior of tables using molgenis expressions.
+
+### Helper functions
+
+Expressions can use a helper function `simplePostClient(query: string, variables: object, schemaId?: string)` to do a blocking GraphQL request. Providing a GraphQL query, variables and a optional schemaId the function will return the requested data in json format. Please use sparingly, this may slowdown interface reactivity.
+
+Example usage of `simplePostClient` as a default value expression.
+
+```
+=(function () {
+
+  let result = simplePostClient(
+    `query Visits_synostosis( $filter:Visits_synostosisFilter, $orderby:Visits_synostosisorderby ) { Visits_synostosis( filter:$filter, limit:20, offset:0, orderby:$orderby ) { suture {name, label} mg_insertedOn }}`,
+    {
+      filter: { belongsToSubject: { equals: [{ id: belongsToSubject.id }] } },
+      orderby: { mg_insertedOn: "ASC" },
+    }
+  );
+
+  return {
+    name: result?.Visits_synostosis[0]?.suture?.name,
+  };
+
+})()
+```
 
 ### computed
 
@@ -201,11 +247,11 @@ In combination with data type AUTO_ID this will generate an value for a column b
 
 For example:
 
-| tableName | columnName | key | type     | computed             |
-|-----------| ---------- | --- |----------|----------------------|
-| parts     | id         | 1   | AUTO_ID  | foo-${mg_autoid}-bar |
+| tableName | columnName | key | type    | computed             |
+| --------- | ---------- | --- | ------- | -------------------- |
+| parts     | id         | 1   | AUTO_ID | foo-${mg_autoid}-bar |
 
-Auto id with pre and post fix ```foo-${mg_autoid}-bar'``` would result in something like ```foo-ae6e3b15-c9e2-4d16-8ab3-5984ba64ce09-bar```
+Auto id with pre and post fix `foo-${mg_autoid}-bar'` would result in something like `foo-ae6e3b15-c9e2-4d16-8ab3-5984ba64ce09-bar`
 
 ### validation expression, visible expression
 
@@ -258,12 +304,38 @@ should make sure that the refLabel is unique and not null. To make sure, we reco
 
 Example:
 
-| tableName | columnName | type  | key | required | refTable                 | refLabel |
-|-----------|------------|-------|-----|----------|--------------------------|----------|
-| person    | id         |       | 1   | true     |                          |          |
-| person    | firstName  |       | 2   | true     |                          |          |
-| person    | lastName   |       | 2   | true     |                          |          |
-| person    | mother     | ref   |     | person   | ${firstName} ${lastName} |          | 
+| tableName | columnName | type | key | required | refTable                 | refLabel |
+| --------- | ---------- | ---- | --- | -------- | ------------------------ | -------- |
+| person    | id         |      | 1   | true     |                          |          |
+| person    | firstName  |      | 2   | true     |                          |          |
+| person    | lastName   |      | 2   | true     |                          |          |
+| person    | mother     | ref  |     | person   | ${firstName} ${lastName} |          |
+
+## Simple migrations
+
+An advanced use case is if you want to use the molgenis.csv upload for simple migrations such as to rename or drop tables and/or columns in batch.
+This functionality is also available in GraphQL (and is used by the schema editor app)
+
+To use migrations you can annotate your molgenis.csv with
+
+- oldName - will be used to rename columns or tables
+- drop - will mark tables or columns to be deleted.
+
+For example
+
+| tableName | columnName | oldName  | drop |
+| --------- | ---------- | -------- | ---- |
+| newTable  |            | oldTable |      |
+| newName   | columnB    | columnA  |      |
+| newName   | columnC    |          | true |
+| tableC    |            |          | true |
+
+Will respectively
+
+- rename oldName to newName
+- rename columnA to columnB (even if it was in table oldTable)
+- drop columnC
+  - drop TableC
 
 ## Changelog
 

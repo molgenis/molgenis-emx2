@@ -119,24 +119,6 @@
               </li>
             </ul>
           </template>
-          <template
-            v-if="info.certifications && info.certifications.length > 0"
-          >
-            <h5>Quality</h5>
-            <ul class="right-content-list">
-              <li>
-                <span class="font-weight-bold mr-2">Certification(s):</span>
-                <span
-                  v-for="(cert, index) in info.certifications"
-                  :key="`${cert}-${index}`"
-                >
-                  <span class="cert-badge badge badge-success">
-                    {{ cert }}
-                  </span>
-                </span>
-              </li>
-            </ul>
-          </template>
           <template v-if="info.collaboration.length > 0">
             <h5>Collaboration</h5>
             <div class="container p-0">

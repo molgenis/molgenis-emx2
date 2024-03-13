@@ -33,7 +33,7 @@ public class FAIRDataPointBadDistributionInDatasetTest {
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
     fairDataHub_baddistribution = database.dropCreateSchema("fairDataHub_baddistribution");
-    ProfileLoader fairDataHubLoader = new ProfileLoader("fairdatahub/FAIRDataHub.yaml");
+    ProfileLoader fairDataHubLoader = new ProfileLoader("_profiles/FAIRDataHub.yaml");
     fairDataHubLoader.load(fairDataHub_baddistribution, true);
   }
 

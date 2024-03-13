@@ -31,7 +31,7 @@ public class Beaconv2_ModelEndpointsTest {
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
     beaconSchema = database.dropCreateSchema("fairdatahub");
-    ProfileLoader b2l = new ProfileLoader("fairdatahub/FAIRDataHub.yaml");
+    ProfileLoader b2l = new ProfileLoader("_profiles/FAIRDataHub.yaml");
     b2l.load(beaconSchema, true);
     tables = List.of(beaconSchema.getTable("Individuals"));
   }

@@ -8,6 +8,7 @@ import {
   removeKeyColumns,
   splitColumnIdsByHeadings,
   isMissingValue,
+  isRequired,
 } from "./formUtils";
 import type { ITableMetaData, IColumn } from "meta-data-utils";
 const { AUTO_ID, HEADING } = constants;
@@ -39,7 +40,7 @@ describe("getRowErrors", () => {
           id: "required",
           label: "required",
           columnType: "STRING",
-          required: true,
+          required: "true",
         },
       ],
     } as ITableMetaData;
@@ -55,12 +56,68 @@ describe("getRowErrors", () => {
           id: "required",
           label: "required",
           columnType: "DECIMAL",
-          required: true,
+          required: "true",
         },
       ],
     } as ITableMetaData;
     const result = getRowErrors(metaData, rowData);
     expect(result).to.deep.equal({ required: "required is required" });
+  });
+
+  test("it should give an error if a field is conditionally required on another field", () => {
+    const rowData = {
+      status: null,
+      quantity: 6,
+    };
+    const metaData = {
+      columns: [
+        {
+          id: "status",
+          label: "status",
+          columnType: "STRING",
+          required: "if(quantity>5) 'if quantity > 5 required'",
+        },
+        {
+          id: "quantity",
+          label: "quantity",
+          columnType: "DECIMAL",
+          required: "true",
+        },
+      ],
+    } as ITableMetaData;
+    const result = getRowErrors(metaData, rowData);
+    expect(result).to.deep.equal({
+      quantity: undefined,
+      status: "if quantity > 5 required",
+    });
+  });
+
+  test("it should return undefined if a field is conditionally required on another field and provided", () => {
+    const rowData = {
+      status: "RECEIVED",
+      quantity: 6,
+    };
+    const metaData = {
+      columns: [
+        {
+          id: "status",
+          label: "status",
+          columnType: "STRING",
+          required: "if(quantity>5) 'if quantity > 5 required'",
+        },
+        {
+          id: "quantity",
+          label: "quantity",
+          columnType: "DECIMAL",
+          required: "true",
+        },
+      ],
+    } as ITableMetaData;
+    const result = getRowErrors(metaData, rowData);
+    expect(result).to.deep.equal({
+      quantity: undefined,
+      status: undefined,
+    });
   });
 
   test("it should return undefined it has no value and isn't required", () => {
@@ -360,5 +417,25 @@ describe("isMissingValue", () => {
     expect(isMissingValue([null, "field1", ""])).toBe(true);
     expect(isMissingValue([["field1", "field2"], "field3"])).toBe(false);
     expect(isMissingValue([[undefined, "field1"], "field2"])).toBe(true);
+  });
+});
+
+describe("isRequired", () => {
+  test("should return true for boolean type true and true strings", () => {
+    expect(isRequired(true)).toBe(true);
+    expect(isRequired("true")).toBe(true);
+    expect(isRequired("True")).toBe(true);
+    expect(isRequired("TRUE")).toBe(true);
+  });
+
+  test("should return false for boolean type false and true strings", () => {
+    expect(isRequired(false)).toBe(false);
+    expect(isRequired("false")).toBe(false);
+    expect(isRequired("False")).toBe(false);
+    expect(isRequired("FALSE")).toBe(false);
+  });
+
+  test("should return false for strings with an expression", () => {
+    expect(isRequired("someValue > 0")).toBe(false);
   });
 });

@@ -1,6 +1,0 @@
-id,pid,acronym,name,website,lead organisation,additional organisations,description,release frequency,logo,countries,publications,funding statement,acknowledgements
-LongITools_CDM,,,LongITools common data model,,,,,,,,,,
-LifeCycle_CDM,,,LifeCycle common data model,,,,,,,,,,
-ATHLETE_CDM,,,ATHLETE common data model,,,,,,,,,,
-IPEC_CDM,,,IPEC common data model,,,,,,,,,,
-OOM_CDM,,OOM_CDM,OOM_CDM,,,,Common data model of OOM,,,,,,

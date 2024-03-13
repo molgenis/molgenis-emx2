@@ -1,0 +1,11 @@
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
+Catalog,,,,,,,,,,,http://www.w3.org/ns/dcat#Catalog,DCAT v2 catalog entries.,DCAT
+Catalog,,id,string,1,TRUE,,,,,,http://purl.allotrope.org/ontologies/result#AFR_0000919,Local database identifier of the catalog.,DCAT
+Catalog,,title,string,,TRUE,,,,,,http://purl.org/dc/terms/title,Name of the catalog with the language tag.,DCAT
+Catalog,,hasVersion,string,,,,,,,,http://purl.org/dc/terms/hasVersion,Version of the catalog.,DCAT
+Catalog,,description,string,,,,,,,,http://purl.org/dc/terms/description,Description of the catalog with the language tag.,DCAT
+Catalog,,publisher,string,,TRUE,,,,,,http://purl.org/dc/terms/publisher,The entity(ies) (person or organization) responsible for the catalog.,DCAT
+Catalog,,language,ontology_array,,,,Languages,,,,http://purl.org/dc/terms/language,The language(s) used in the catalog.,DCAT
+Catalog,,license,hyperlink,,TRUE,,,,,,http://purl.org/dc/terms/license,The reference to the usage license of the catalog.,DCAT
+Catalog,,themeTaxonomy,hyperlink,,TRUE,,,,,,http://www.w3.org/ns/dcat#themeTaxonomy,"A knowledge organization system (KOS) used to classify the cataloged resources that are part of this catalog. It is recommended that the taxonomy is organized in a skos:ConceptScheme, skos:Collection, owl:Ontology or similar.",DCAT
+Catalog,,dataset,refBack,,,,Dataset,,belongsToCatalog,,http://www.w3.org/ns/dcat#dataset,"The relation between the catalog and its items. This is the most general predicate for membership of a catalog. It is recommended to use more specific sub-properties such as dcat:dataset, dcat:catalog, dcat:service, or a custom sub-property.",DCAT

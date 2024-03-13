@@ -9,27 +9,14 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: "Subcollection",
-  components: {
-    // required because of recursion, else Vue will give component not found error
-    ViewGenerator: () => import("../ViewGenerator.vue"),
-  },
-  props: {
-    collection: {
-      type: Object,
-      required: true,
-    },
-    level: {
-      type: Number,
-      default: () => 1,
-    },
-  },
-  computed: {
-    indentationLevel() {
-      return `ml-${this.level}`;
-    },
-  },
-};
+<script setup lang="ts">
+import { computed } from "vue";
+import ViewGenerator from "../ViewGenerator.vue";
+
+const { collection, level } = withDefaults(
+  defineProps<{ collection: any; level?: number }>(),
+  { level: 1 }
+);
+
+const indentationLevel = computed(() => `ml-${level}`);
 </script>
