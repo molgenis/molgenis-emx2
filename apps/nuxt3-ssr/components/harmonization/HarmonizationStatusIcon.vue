@@ -33,6 +33,8 @@ const iconName = computed(() => {
       return "percent";
     case "complete":
       return "check";
+    case "available":
+      return "check";
   }
 });
 
@@ -44,6 +46,8 @@ const fillClass = computed(() => {
       return "text-yellow-800 fill-current";
     case "complete":
       return "text-green-800 fill-current";
+    case "available":
+      return "bg-blue-500 fill-white";
   }
 });
 </script>
