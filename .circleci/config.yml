@@ -138,13 +138,13 @@ jobs:
     - pre_steps
     - run:
         command: |
-          echo "COMMIT MESSAGE: $COMMIT_MESSAGE"
-          if [[ $COMMIT_MESSAGE == *"(emx2-pyclient)"* ]]; then
+          echo "COMMIT MESSAGE: $(git log -1 --pretty=format:%s)"
+          if [[ $(git log -1 --pretty=format:%s) == *"(emx2-pyclient)"* ]]; then
             release2pypi: true
           else
             echo "NO PYPI RELEASE"
           fi
-          commit-message: $COMMIT_MESSAGE
+          commit-message: $(git log -1 --pretty=format:%s)
 
     - run:
         name: build and push emx2 java docker images for the preview
