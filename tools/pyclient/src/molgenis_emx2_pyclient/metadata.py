@@ -4,10 +4,7 @@ Classes for the data types Schema, Table and Column.
 from itertools import starmap
 from typing import Literal
 
-import requests
-
-from tools.pyclient.src.molgenis_emx2_pyclient.exceptions import NoSuchColumnException, NoSuchTableException
-from tools.pyclient.src.molgenis_emx2_pyclient.graphql_queries import list_schema_meta
+from .exceptions import NoSuchColumnException, NoSuchTableException
 
 
 class Column:
