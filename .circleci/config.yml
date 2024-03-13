@@ -133,9 +133,9 @@ jobs:
     steps:
     - run: |
         echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
-
+    - run: COMMIT_MESSAGE=$(git log -1 --pretty=format:%s)
     - pre_steps:
-        commit-message: $(git log -1 --pretty=format:%s)
+        commit-message: COMMIT_MESSAGE
     - run:
         command: |
           echo "COMMIT MESSAGE: $(git log -1 --pretty=format:%s)"
