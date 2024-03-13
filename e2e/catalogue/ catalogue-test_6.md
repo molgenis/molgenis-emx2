@@ -14,7 +14,7 @@ A researcher searches for specific variables (*example: all ADHD variables*) acr
 
 | Step | Action | Expected result | Playwright test |
 | -----| -------| ----------------| ----------------|
-| 1 | Navigate to `[https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/)` | Landing page: European health research data and sample catalogue| | 
+| 1 | Navigate to [https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/) | Landing page: European health research data and sample catalogue| | 
 | 2 | Hover over 'All variables' button in menu bar | Button should be underlined | | 
 | 3 | Click 'All variables' button | Should be redirected to  variable explorer (project agnostic) | | 
 | 4 | Search 'ADHD' in search bar | Variables should be filtered on ADHD variables (14variables shown); topics should be filtered on ADHD; active filters should show 'ADHD' | | 
