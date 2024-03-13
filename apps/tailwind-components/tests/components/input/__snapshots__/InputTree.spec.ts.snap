@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`FilterTree > show top level nodes as list by default ( tree is collapes) 1`] = `
+exports[`InputTree > show top level nodes as list by default ( tree is collapes) 1`] = `
 <ul
   class="text-search-filter-group-title"
 >

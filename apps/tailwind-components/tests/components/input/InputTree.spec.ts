@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { mount } from "@vue/test-utils";
 
-import FilterTree from "@/components/filter/FilterTree.vue";
+import InputTree from "@/components/input/Tree.vue";
 import type { ITreeNode } from "~/types/types";
 
 function generateTreeData(width: number, depth: number, parentName?: string) {
@@ -20,12 +20,12 @@ function generateTreeData(width: number, depth: number, parentName?: string) {
   return nodes;
 }
 
-describe("FilterTree", () => {
+describe("InputTree", () => {
   it("show top level nodes as list by default ( tree is collapes)", () => {
     const width = 2;
     const depth = 4;
     const rootNodes = generateTreeData(width, depth);
-    const wrapper = mount(FilterTree, {
+    const wrapper = mount(InputTree, {
       props: {
         rootNodes,
         modelValue: [],

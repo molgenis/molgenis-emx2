@@ -35,7 +35,7 @@ const deselect = (node: ITreeNode) => {
 <template>
   <div class="flex mb-4">
     <div class="flex-1 h-12">
-      <FilterTree
+      <InputTree
         :rootNodes="rootNodes"
         v-model="selectedNodes"
         :expandSelected="true"

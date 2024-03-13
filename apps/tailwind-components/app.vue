@@ -12,13 +12,13 @@
             <NuxtLink class="hover:underline" to="/">Home</NuxtLink>
           </li>
           <li class="py-2">
-            <NuxtLink class="hover:underline" to="Comp1.story">Comp1</NuxtLink>
+            <NuxtLink class="hover:underline" to="Comp1.story">Comp 1</NuxtLink>
           </li>
           <li class="py-2">
-            <NuxtLink class="hover:underline" to="CustomTooltip.story">CustomTooltip</NuxtLink>
+            <NuxtLink class="hover:underline" to="CustomTooltip.story">Custom tooltip</NuxtLink>
           </li>
           <li class="py-2">
-            <NuxtLink class="hover:underline" to="FilterTree.story">Filter Tree</NuxtLink>
+            <NuxtLink class="hover:underline" to="InputTree.story">Input Tree</NuxtLink>
           </li>
         </ul>
 
