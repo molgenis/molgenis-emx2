@@ -20,9 +20,15 @@ if [ ! -z "$DELETE" ]
 then
   kubectl delete namespace $NAME || true
 fi
+# Create certs from environement
+echo ${CERTDEVMOLGENIS_KEY} | base64 --decode >> /tmp/cert_key 
+echo ${CERTDEVMOLGENIS_PEM} | base64 --decode >> /tmp/cert_pem
+
 # wait for deletion to complete
 sleep 15s
 kubectl create namespace $NAME
+kubectl create secret tls "dev.molgenis.org" --key /tmp/cert_key --cert /tmp/cert_pem -n ${NAME}
+
 helm upgrade --install ${NAME} ./helm-chart --namespace ${NAME} \
 --set ingress.hosts[0].host=${NAME}.dev.molgenis.org \
 --set spec.tls[0].hosts[0].host=${NAME}.dev.molgenis.org \
@@ -37,3 +43,7 @@ helm upgrade --install ${NAME} ./helm-chart --namespace ${NAME} \
 --set ssrCatalogue.environment.apiBase=https://${NAME}.dev.molgenis.org/ \
 --set catalogue.includeCatalogueDemo=true \
 --set directory.includeDirectoryDemo=true
+
+rm /tmp/cert_key
+rm /tmp/cert_pem
+

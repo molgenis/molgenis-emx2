@@ -1,6 +1,7 @@
-import { describe, assert, test, expect, vi } from "vitest";
+import { describe, assert, test, expect, vi, it } from "vitest";
 import constants from "./constants";
 import {
+  applyJsTemplate,
   convertRowToPrimaryKey,
   deepClone,
   deepEqual,
@@ -96,6 +97,7 @@ describe("flattenObject", () => {
     assert.deepEqual(expectedResult, result);
   });
 });
+
 describe("deepClone", () => {
   test("it should make a clone of the input", () => {
     const input = {
@@ -211,5 +213,35 @@ describe("getBigIntError", () => {
 
   test("it should return an error for only a minus", () => {
     expect(getBigIntError("-")).toEqual(BIG_INT_ERROR);
+  });
+});
+
+describe("applyJsTemplate", () => {
+  test("it should return the label according to the template", () => {
+    const object = { id: "someid", name: "naam", otherField: "bla" };
+    const labelTemplate = "${otherField}";
+    const result = applyJsTemplate(object, labelTemplate);
+    expect(result).toEqual("bla");
+  });
+
+  test("it should return the name if the label is empty and there is no primaryKey", () => {
+    const object = { id: "someid", primaryKey: { id: "primKey" } };
+    const labelTemplate = "${nonExistantField}";
+    const result = applyJsTemplate(object, labelTemplate);
+    expect(result).toEqual(" primKey");
+  });
+
+  test("it should return the name if the label is empty and there is no primaryKey", () => {
+    const object = { id: "someid", name: "naam" };
+    const labelTemplate = "${nonExistantField}";
+    const result = applyJsTemplate(object, labelTemplate);
+    expect(result).toEqual("naam");
+  });
+
+  test("it should return the id if the label is empty and there is no primaryKey or name", () => {
+    const object = { id: "someid" };
+    const labelTemplate = "${nonExistantField}";
+    const result = applyJsTemplate(object, labelTemplate);
+    expect(result).toEqual("someid");
   });
 });

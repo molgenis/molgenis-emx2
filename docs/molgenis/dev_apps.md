@@ -1,8 +1,9 @@
 # To develop javascript/frontend 'apps'
 
-Frontend apps are developed using [vuejs](https://vuejs.org/) and [vue-cli](https://cli.vuejs.org/) for the logic, and
+Frontend apps are developed using [vuejs](https://vuejs.org/) for the logic, and
 using [Bootstrap 4.x](https://getbootstrap.com/) for the layout. In addition we
-use [yarn workspaces](https://classic.yarnpkg.com/en/docs/workspaces/) to autowire local dependencies.
+use [yarn workspaces](https://classic.yarnpkg.com/en/docs/workspaces/) to autowire local dependencies. 
+Gradle will build all apps (using the 'build' script in package.json) and bundle it with the java apps, e.g. during 'gradle run'.
 
 Therefore to develop, first cd into to folder 'apps' and install all dependencies for all apps. This will activate yarn
 workspaces that also automatically links local dependencies using:
@@ -12,16 +13,17 @@ cd apps
 yarn install
 ```
 
-There is one shared library called 'molgenis-components' that contains all shared components (using bootstrap for styling). Note
-it is also an 'app' so it can be shown inside MOLGENIS. To view this run:
+There is two shared library called 'molgenis-components' and 'molgenis-viz' that contains all shared components (using bootstrap for styling). 
+They produce a 'lib' that is used by the other apps, but also a 'showCase' that is served as the app code. 
+Note it is also an 'app' so it can be shown inside MOLGENIS. To view this run:
 
 ```console
 cd apps
 yarn molgenis-components
 ```
 
-All other folders contain apps created using vue-cli. In order to develop you need to start a molgenis-exm2 backend as
-described above, e.g. docker-compose up. The /api and /graphql path is then proxied, see vue.config.js In order to
+All other folders contain apps created using vite. In order to develop you need to start a molgenis-exm2 backend as
+described above, e.g. docker-compose up. The /api and /graphql path is then proxied, see dev-proxy.config.js In order to
 preview individual apps using yarn serve. For example, to preview the app 'schema' do:
 
 ```console
@@ -30,17 +32,13 @@ yarn serve
 ```
 
 To create a new app
-* use ```vue create [name]```
+* copy from 'hello-world' app as a template
 * add to apps/package.json 'workspaces' so it can be used as dependency
-* copy a vue.config.js from another app to have the proxy.
+* apps/build.gradle will run the 'build' script in package.json automatically scan for internal dependencies in all package.json files to determine build order
 
 To create a new library
-* use ```vue create [name]```
+* check molgenis-components and molgenis-viz as examples
 * add to apps/package.json 'workspaces' so it can be used as dependency
-* copy a vue.config.js from another app to have the proxy.
-* look at molgenis-components how to include a showCase
-* in build.gradle add the package showCase to the buildJavascript task
-
-
-We use [nx](https://nx.dev/recipes/adopting-nx/adding-to-monorepo) to build all (also when using gradle)
-* to build all in 'apps' use command ```yarn nx run-many --target=build,build-showcase```
+* look at molgenis-components how to include a showCase 
+* your package.json should also include a 'build-showcase' if you want to have showCase app
+* apps/build.gradle will scan for 'build-showcase' script in your package.json and then add a build step for the showCase app
