@@ -126,6 +126,10 @@ jobs:
         description: A boolean parameter indicating if a new version of the emx2-pyclient needs to be released
         type: boolean
         default: false
+      commit-message:
+        description: A boolean parameter indicating if a new version of the emx2-pyclient needs to be released
+        type: string
+        default: ""
 
     steps:
     - run: |
@@ -134,11 +138,13 @@ jobs:
     - pre_steps
     - run:
         command: |
+          echo "COMMIT MESSAGE: $COMMIT_MESSAGE"
           if [[ $COMMIT_MESSAGE == *"(emx2-pyclient)"* ]]; then
             release2pypi: true
           else
             echo "NO PYPI RELEASE"
           fi
+          commit-message: $COMMIT_MESSAGE
 
     - run:
         name: build and push emx2 java docker images for the preview
@@ -173,6 +179,11 @@ jobs:
         condition: <<parameters.release2pypi>>
         steps:
           - pypi-release
+    -when:
+      condition:
+          matches: { pattern: "*(emx2-pyclient)*", value: <<parameters.commit-message>> }
+      steps:
+        - run: echo "MATCH ON MESSAGE"
 
   test:
     <<: *test_config
