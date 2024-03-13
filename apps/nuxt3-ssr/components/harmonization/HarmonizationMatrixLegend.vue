@@ -15,7 +15,7 @@ const props = withDefaults(
     >
       <li v-tooltip="'cohort has data available for the variable'">
         <HarmonizationStatusIcon :size="size" status="complete" />
-        available
+        Available
       </li>
     </ul>
   </div>
