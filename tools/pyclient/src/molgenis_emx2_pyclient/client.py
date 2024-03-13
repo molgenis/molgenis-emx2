@@ -9,11 +9,11 @@ import requests
 
 from . import graphql_queries as queries
 from . import utils
-from .metadata import Schema
 from .exceptions import (NoSuchSchemaException, ServiceUnavailableError, SigninError,
                          ServerNotFoundError, PyclientException, NoSuchTableException,
                          NoContextManagerException, GraphQLException, InvalidTokenException,
                          PermissionDeniedException, TokenSigninException, NonExistentTemplateException)
+from .metadata import Schema
 
 log = logging.getLogger("Molgenis EMX2 Pyclient")
 
