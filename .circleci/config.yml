@@ -181,7 +181,7 @@ jobs:
 #          - pypi-release
     - when:
         condition:
-          matches: { pattern: "^.*(emx2-pyclient).*$", value: ${ <<parameters.commit-message>> } }
+          matches: { pattern: "^.*(emx2-pyclient).*$", value: <<parameters.commit-message>>  }
         steps:
           - run: echo "START RELEASE"
           - pypi-release
