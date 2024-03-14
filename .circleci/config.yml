@@ -138,7 +138,7 @@ jobs:
 #        type: env_var_name
 #        default: COMMIT_MESSAGE
     steps:
-    - run: echo << parameters.commit-message >>
+#    - run: echo << parameters.commit-message >>
     - run: |
         echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
 #    - run: COMMIT_MESSAGE=$(git log -1 --pretty=format:%s)
