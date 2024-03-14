@@ -52,8 +52,8 @@ commands:
 #        default: false
       commit-message:
         description: commit message to check if a new version of the emx2-pyclient needs to be released
-        type: env_var_name
-        default: COMMIT_MESSAGE_ENV
+        type: string
+        default: ""
     steps:
     - checkout
     - run: git fetch --all --tags
@@ -142,7 +142,8 @@ jobs:
     - run: |
         echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
 #    - run: COMMIT_MESSAGE=$(git log -1 --pretty=format:%s)
-    - pre_steps
+    - pre_steps:
+        - commit-message:"echo ${COMMIT_MESSAGE_ENV}"
     - run:
         command: |
           echo "COMMIT MESSAGE ENV in preview: $COMMIT_MESSAGE_ENV"
