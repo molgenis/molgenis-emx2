@@ -15,5 +15,7 @@ fetchSetting(CATALOGUE_LANDING_TITLE).then((resp) => {
 });
 </script>
 <template>
-  <div v-if="message" class="pl-3 text-body-base">{{ message }}</div>
+  <div v-if="message" class="pl-3">
+    <p class="text-body-base">{{ message }}</p>
+  </div>
 </template>
