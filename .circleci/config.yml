@@ -120,8 +120,8 @@ commands:
     parameters:
       commit-message:
         description: commit message to check if a new version of the emx2-pyclient needs to be released
-        type: boolean
-        default: false
+        type: env_var_name
+        default: COMMIT_MESSAGE_ENV
     steps:
     - run: echo "RELEASE2PYPI? << parameters.commit-message >>"
     - when:
@@ -196,11 +196,8 @@ jobs:
           -X POST https://slack.com/api/chat.postMessage
 
     - post_steps
-    - run:
-        command: |
-          export release=true
     - release2pypi:
-        commit-message: $release
+        commit-message: $COMMIT_MESSAGE_ENV
 
   test:
     <<: *test_config
