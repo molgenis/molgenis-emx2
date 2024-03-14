@@ -116,7 +116,7 @@ commands:
     #            steps:
     #              - pypi-release
 
-  pypi-release:
+  release2pypi:
     parameters:
       commit-message:
         description: commit message to check if a new version of the emx2-pyclient needs to be released
@@ -165,8 +165,6 @@ jobs:
 #          else
 #            echo "NO PYPI RELEASE"
 #          fi
-
-
     - run:
         name: build and push emx2 java docker images for the preview
         command: ./gradlew -s --no-daemon shadowJar dockerPush ci -x test
@@ -196,7 +194,7 @@ jobs:
           -X POST https://slack.com/api/chat.postMessage
 
     - post_steps
-    - pypi-release:
+    - release2pypi:
         commit-message: $COMMIT_MESSAGE_ENV
 
   test:
