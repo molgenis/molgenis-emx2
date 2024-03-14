@@ -61,7 +61,7 @@ commands:
         command: |
           export COMMIT_MESSAGE=$(git log -1 --pretty=format:%s)
           echo "COMMIT MESSAGE: $COMMIT_MESSAGE"
-          export COMMIT_MESSAGE_ENV=$(git log -1 --pretty=format:%s) >> "$BASH_ENV"
+          echo "export COMMIT_MESSAGE_ENV=$(git log -1 --pretty=format:%s)" >> "$BASH_ENV"
           echo "COMMIT MESSAGE ENV: $COMMIT_MESSAGE_ENV"
     - run:
         name: Setup git, todo, move to molgenisci user
