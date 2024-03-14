@@ -45,21 +45,24 @@ definitions:
 
 commands:
   pre_steps:
-    parameters:
-      release2pypi:
-        description: A boolean parameter indicating if a new version of the emx2-pyclient needs to be released
-        type: boolean
-        default: false
-      commit-message:
-        description: commit message to check if a new version of the emx2-pyclient needs to be released
-        type: env_var_name
-        default: COMMIT_MESSAGE
+#    parameters:
+#      release2pypi:
+#        description: A boolean parameter indicating if a new version of the emx2-pyclient needs to be released
+#        type: boolean
+#        default: false
+#      commit-message:
+#        description: commit message to check if a new version of the emx2-pyclient needs to be released
+#        type: env_var_name
+#        default: COMMIT_MESSAGE
     steps:
     - checkout
     - run: git fetch --all --tags
     - run:
         command: |
           export COMMIT_MESSAGE=$(git log -1 --pretty=format:%s)
+          echo "COMMIT MESSAGE: $COMMIT_MESSAGE"
+          export COMMIT_MESSAGE_ENV=$(git log -1 --pretty=format:%s) "$BASH_ENV"
+          echo "COMMIT MESSAGE ENV: $COMMIT_MESSAGE_ENV"
     - run:
         name: Setup git, todo, move to molgenisci user
         command: |
@@ -129,16 +132,21 @@ commands:
 jobs:
   preview:
     <<: *build_config
-
+#    parameters:
+#      commit-message:
+#        description: commit message to check if a new version of the emx2-pyclient needs to be released
+#        type: env_var_name
+#        default: COMMIT_MESSAGE
     steps:
+#    - run: echo << parameters.commit-message >>
     - run: |
         echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
-    - run: COMMIT_MESSAGE=$(git log -1 --pretty=format:%s)
-    - pre_steps:
-        commit-message: COMMIT_MESSAGE
+#    - run: COMMIT_MESSAGE=$(git log -1 --pretty=format:%s)
+    - pre_steps
     - run:
         command: |
-          echo "COMMIT MESSAGE: $(git log -1 --pretty=format:%s)"
+          echo "COMMIT MESSAGE in preview: $COMMIT_MESSAGE"
+          echo "COMMIT MESSAGE ENV in preview: $COMMIT_MESSAGE_ENV"
 #          if [[ $(git log -1 --pretty=format:%s) == *"(emx2-pyclient)"* ]]; then
 #            release2pypi: true
 #          else
@@ -179,12 +187,12 @@ jobs:
 #        condition: <<parameters.release2pypi>>
 #        steps:
 #          - pypi-release
-    - when:
-        condition:
-          matches: { pattern: "^.*(emx2-pyclient).*$", value: <<parameters.commit-message>>  }
-        steps:
-          - run: echo "START RELEASE"
-          - pypi-release
+#    - when:
+#        condition:
+#          matches: { pattern: "^.*(emx2-pyclient).*$", value: <<parameters.commit-message>>  }
+#        steps:
+#          - run: echo "START RELEASE"
+#          - pypi-release
 
   test:
     <<: *test_config
