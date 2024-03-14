@@ -123,7 +123,7 @@ commands:
         type: string
         default: "IETS"
     steps:
-    - run: echo << parameters.commit-message >>
+    - run: echo "RELEASE2PYPI? << parameters.commit-message >>"
     - when:
         condition:
           matches: { pattern: "^.*(emx2-pyclient).*$", value: <<parameters.commit-message>>  }
@@ -142,6 +142,11 @@ commands:
              echo "RELEASE TO PYPI"
     #         export $( cat build/ci.properties | xargs )
     #         ./gradlew -s --no-daemon publishPython
+    - unless:
+        condition:
+          matches: { pattern: "^.*(emx2-pyclient).*$", value: <<parameters.commit-message>>  }
+        steps:
+        - run: echo "RELEASE2PYPI NO RELEASE << parameters.commit-message >>"
 
 # jobs for pull request and master
 jobs:
