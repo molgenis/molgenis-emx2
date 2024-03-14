@@ -126,7 +126,7 @@ commands:
     - run: echo "RELEASE2PYPI? ${<< parameters.commit-message >>}
     - when:
         condition:
-          matches: { pattern: "build(emx2-pyclient): test commit message", value: ${<< parameters.commit-message >>} }
+          matches: { pattern: "build(emx2-pyclient): test commit message", value: $<< parameters.commit-message >> }
         steps:
         - run: echo "START RELEASE"
         - run:
