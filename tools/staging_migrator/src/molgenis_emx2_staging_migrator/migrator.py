@@ -366,6 +366,8 @@ class StagingMigrator(Client):
         else:
             pkeys = [prepare_pkey(db_schema, table_name, col.id) for col in table_schema.columns if
                      col.get('key') == 1]
+            # pkeys = list(map(lambda c: prepare_pkey(db_schema, table_name, c.id),
+            #                  table_schema.get_columns(by='key', value='1')))
         table_id = table_schema.id
         pkeys_print = query_columns_string(pkeys, indent=4)
         _query = (f"query {table_id}($filter: {table_id}Filter) {{\n"

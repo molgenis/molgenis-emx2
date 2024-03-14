@@ -7,7 +7,7 @@ from io import BytesIO
 import pandas as pd
 
 from molgenis_emx2_pyclient.exceptions import NoSuchTableException
-from molgenis_emx2_pyclient.metadata import Schema, Table
+from molgenis_emx2_pyclient.metadata import Schema, Table, Column
 
 log = logging.getLogger(__name__)
 
@@ -22,8 +22,8 @@ def prepare_pkey(schema: Schema, table_name: str, col_id: str | list = None) -> 
         # Return the primary keys of a table if no column name is specified
         return table_schema.get_columns(by='key', value=1)
         # return [col['id'] for col in table_schema['columns'] if col.get('key') == 1]
-    col_data, = [col for col in table_schema['columns'] if col['id'] == col_id]
-    col_data = table_schema.get_columns(by='id', value=col_id)
+    # col_data, = [col for col in table_schema['columns'] if col['id'] == col_id]
+    col_data: Column = table_schema.get_column(by='id', value=col_id)
     if col_id.startswith('mg_'):
         return None
     if col_data.get('columnType') == 'HEADING':
@@ -37,7 +37,7 @@ def prepare_pkey(schema: Schema, table_name: str, col_id: str | list = None) -> 
     #     return {col_id: ont_cols}
     elif col_data.get('columnType') in ['REF', 'REF_ARRAY']:
         ref_keys = prepare_pkey(schema, col_data.get('refTableName'))
-        ref_cols = [prepare_pkey(schema, col_data['refTableName'], rk) for rk in ref_keys]
+        ref_cols = [prepare_pkey(schema, col_data.get('refTableName'), rk) for rk in ref_keys]
         return {col_id: ref_cols}
     elif col_data.get('columnType') == 'FILE':
         return {col_id: 'id'}
@@ -143,7 +143,7 @@ def find_cohort_references(schema_schema: Schema, schema_name: str, base_table: 
     return cohort_references
 
 
-def construct_delete_variables(db_schema: dict, cohort_ids: list, table_name: str, ref_col: str):
+def construct_delete_variables(db_schema: Schema, cohort_ids: list, table_name: str, ref_col: str):
     """Constructs a variables filter for querying the GraphQL table on the desired column values."""
     pkeys = prepare_pkey(db_schema, table_name, ref_col)
 
@@ -159,15 +159,17 @@ def construct_delete_variables(db_schema: dict, cohort_ids: list, table_name: st
     return variables
 
 
-def has_statement_of_consent(table_name: str, schema: dict) -> int:
+def has_statement_of_consent(table_name: str, schema: Schema) -> int:
     """Checks whether this table has a column that asks for a statement of consent."""
     consent_cols = ['statement of consent personal data',
                     'statement of consent email']
     try:
-        table_schema, = [t for t in schema['tables'] if (t['name'] == table_name) & (t['schemaName'] == schema['name'])]
+        # table_schema, = [t for t in schema['tables'] if (t['name'] == table_name) & (t['schemaName'] == schema['name'])]
+        table_schema = schema.get_table(by='name', value=table_name)
     except ValueError:
         raise NoSuchTableException(f"Table {table_name!r} not in schema.")
-    col_names = [_col['name'] for _col in table_schema['columns']]
+    # col_names = [_col['name'] for _col in table_schema['columns']]
+    col_names = map(str, table_schema.columns)
 
     return 1*(consent_cols[0] in col_names) + 2*(consent_cols[1] in col_names)
 
