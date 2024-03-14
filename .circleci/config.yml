@@ -123,35 +123,30 @@ commands:
         type: string
         default: "IETS"
     steps:
-      - run: echo << parameters.commit-message >>
-      - when:
-          condition:
-            matches: { pattern: "^.*(emx2-pyclient).*$", value: <<parameters.commit-message>>  }
-          steps:
-            - run: echo "START RELEASE"
-            - run:
-                name: reset PyPI credentials
-                command: |
-                  if [ -z "$CIRCLE_PULL_REQUEST" ]; then
-                     export TWINE_PASSWORD=$PYPI_TOKEN
-                  fi
-                  echo $TWINE_PASSWORD
-            - run:
-               name: Publish to testPyPI or PyPI
-               command: |
-                 echo "RELEASE TO PYPI"
-      #         export $( cat build/ci.properties | xargs )
-      #         ./gradlew -s --no-daemon publishPython
+    - run: echo << parameters.commit-message >>
+    - when:
+        condition:
+          matches: { pattern: "^.*(emx2-pyclient).*$", value: <<parameters.commit-message>>  }
+        steps:
+        - run: echo "START RELEASE"
+        - run:
+            name: reset PyPI credentials
+            command: |
+              if [ -z "$CIRCLE_PULL_REQUEST" ]; then
+                 export TWINE_PASSWORD=$PYPI_TOKEN
+              fi
+              echo $TWINE_PASSWORD
+        - run:
+           name: Publish to testPyPI or PyPI
+           command: |
+             echo "RELEASE TO PYPI"
+    #         export $( cat build/ci.properties | xargs )
+    #         ./gradlew -s --no-daemon publishPython
 
 # jobs for pull request and master
 jobs:
   preview:
     <<: *build_config
-#    parameters:
-#      commit-message:
-#        description: commit message to check if a new version of the emx2-pyclient needs to be released
-#        type: env_var_name
-#        default: COMMIT_MESSAGE
     steps:
     - run: |
         echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
