@@ -90,4 +90,8 @@ public class BinaryFileWrapper implements Binary {
   public boolean isSkip() {
     return skip;
   }
+
+  public void setFileName(String fileName) {
+    this.fileName = fileName;
+  }
 }
