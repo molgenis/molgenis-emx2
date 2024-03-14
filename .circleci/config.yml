@@ -126,7 +126,7 @@ commands:
     - run: echo "RELEASE2PYPI? << parameters.commit-message >>"
     - when:
         condition:
-          matches: { pattern: "test", value: << parameters.commit-message >>  }
+          matches: { pattern: "build(emx2-pyclient): test commit message", value: << parameters.commit-message >>  }
         steps:
         - run: echo "START RELEASE"
         - run:
@@ -197,7 +197,7 @@ jobs:
 
     - post_steps
     - release2pypi:
-        commit-message: "$COMMIT_MESSAGE_ENV"
+        commit-message: echo "$COMMIT_MESSAGE_ENV"
 
   test:
     <<: *test_config
