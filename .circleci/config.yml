@@ -151,7 +151,7 @@ jobs:
     - run: |
         echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
 #    - run: COMMIT_MESSAGE=$(git log -1 --pretty=format:%s)
-    - pre_steps:
+    - pre_steps
     - run:
         command: |
           echo "COMMIT MESSAGE ENV in preview: $COMMIT_MESSAGE_ENV"
