@@ -197,7 +197,7 @@ jobs:
 
     - post_steps
     - release2pypi:
-        commit-message: "$COMMIT_MESSAGE"
+        commit-message: "$COMMIT_MESSAGE_ENV"
 
   test:
     <<: *test_config
