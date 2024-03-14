@@ -62,28 +62,6 @@ def find_cohort_references(schema_schema: Schema, schema_name: str, base_table: 
     References may be direct or indirect, such as the 'Subcohort counts' table
     that references the 'Subcohorts' table, which references the 'Cohorts' table directly.
     """
-    schema_schema.tables = schema_schema.get_tables(by='schemaName', value=schema_name)
-
-    def find_table_columns(_table: Table):
-        _table_references = []
-        for _column in _table.columns:
-            if _column.get('columnType') in ['REF', 'REF_ARRAY']:
-                if _column.get('refSchemaName') != schema_name:
-                    continue
-                if _column.get('refTableName') in [base_table, *inheritance.values()]:
-                    _table_references.append(_column.id)
-                elif _column.get('refTableName') != _table.name:
-                    ref_table = schema_schema.get_table(by='name', value=str(_column.get('refTableName')))
-                    _column_references = find_table_columns(ref_table)
-                    if len(_column_references) > 0:
-                        _table_references.append(_column.id)
-            elif _column.get('columnType') == 'REFBACK':
-                if _column.get('refSchemaName') != schema_name:
-                    continue
-                if _column.get('refTableName') in [base_table, *inheritance.values()]:
-                    _table_references.append(_column.id)
-
-        return _table_references
 
     inheritance = {}
     table_name = base_table
@@ -94,23 +72,21 @@ def find_cohort_references(schema_schema: Schema, schema_name: str, base_table: 
         inherit = schema_schema.get_table(by='name', value=str(table_name)).get('inheritName')
         inheritance.update({table_name: inherit})
 
-    cohort_references = dict()
-    for schema_table in schema_schema.tables:
-        if schema_table.name in inheritance.keys():
-            table_references = ['id']
-        else:
-            table_references = find_table_columns(schema_table)
-        if len(table_references) > 0:
-            cohort_references.update({schema_table.name: table_references[0]})
+    cohort_references = {
+        tab.name: list(set(map(lambda c: c.get('refTableName'),
+                           [*tab.get_columns(by=['columnType', 'refSchemaName'], value=['REF', schema_name]),
+                            *tab.get_columns(by=['columnType', 'refSchemaName'], value=['REF_ARRAY', schema_name])])))
+        for tab in schema_schema.get_tables(by='schemaName', value=schema_name)
+    }
 
     # Gather all backwards references to the tables
     ref_backs = {}
     for tab in cohort_references.keys():
         ref_backs[tab] = []
         for _tab in cohort_references.keys():
-            _cols = [_col for _col in schema_schema.get_table(by='name', value=_tab).columns
-                     if (_col.get('columnType') in ['REF', 'REF_ARRAY']) & (_col.get('refTableName') == tab) > 0]
-            if len(_cols) > 0:
+            if tab == _tab:
+                continue
+            if tab in cohort_references[_tab]:
                 ref_backs[tab].append(_tab)
 
     for coh, inh in inheritance.items():
@@ -128,7 +104,7 @@ def find_cohort_references(schema_schema: Schema, schema_name: str, base_table: 
     sequence = [pop_dict(tab) for (tab, refs) in ref_backs.copy().items() if len(refs) == 0]
     while len(ref_backs) > 0:
         for tab, refs in ref_backs.copy().items():
-            if all((ref in [*sequence, *other_tabs, ref]) for ref in refs):
+            if all(map(lambda ref: ref in [*sequence, *other_tabs, None], refs)):
                 sequence.append(pop_dict(tab))
 
     cohort_references = {s: cohort_references.copy()[s] for s in sequence}
@@ -162,7 +138,7 @@ def has_statement_of_consent(table_name: str, schema: Schema) -> int:
         raise NoSuchTableException(f"Table {table_name!r} not in schema.")
     col_names = map(str, table_schema.columns)
 
-    return 1*(consent_cols[0] in col_names) + 2*(consent_cols[1] in col_names)
+    return 1 * (consent_cols[0] in col_names) + 2 * (consent_cols[1] in col_names)
 
 
 def process_statement(table: bytes, consent_val: int) -> bytes:
