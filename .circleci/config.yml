@@ -120,13 +120,13 @@ commands:
     parameters:
       commit-message:
         description: commit message to check if a new version of the emx2-pyclient needs to be released
-        type: string
-        default: "IETS"
+        type: boolean
+        default: false
     steps:
     - run: echo "RELEASE2PYPI? << parameters.commit-message >>"
     - when:
-        condition:
-          matches: { pattern: "build(emx2-pyclient): test commit message", value: << parameters.commit-message >>  }
+        condition: << parameters.commit-message >>
+          # matches: { pattern: "build(emx2-pyclient): test commit message", value: << parameters.commit-message >>  }
         steps:
         - run: echo "START RELEASE"
         - run:
@@ -145,8 +145,8 @@ commands:
     #         ./gradlew -s --no-daemon publishPython
     # ^.*(emx2-pyclient).*$
     - unless:
-        condition:
-          matches: { pattern: "build(emx2-pyclient): test commit message", value: << parameters.commit-message >>  }
+        condition: << parameters.commit-message >>
+        #  matches: { pattern: "build(emx2-pyclient): test commit message", value: << parameters.commit-message >>  }
         steps:
         - run: echo "RELEASE2PYPI NO RELEASE << parameters.commit-message >>"
 
@@ -196,8 +196,11 @@ jobs:
           -X POST https://slack.com/api/chat.postMessage
 
     - post_steps
+    - run:
+        command: |
+          export release=true
     - release2pypi:
-        commit-message: echo "$COMMIT_MESSAGE_ENV"
+        commit-message: $release
 
   test:
     <<: *test_config
