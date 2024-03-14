@@ -45,15 +45,15 @@ definitions:
 
 commands:
   pre_steps:
-    parameters:
+#    parameters:
 #      release2pypi:
 #        description: A boolean parameter indicating if a new version of the emx2-pyclient needs to be released
 #        type: boolean
 #        default: false
-      commit-message:
-        description: commit message to check if a new version of the emx2-pyclient needs to be released
-        type: string
-        default: ""
+#      commit-message:
+#        description: commit message to check if a new version of the emx2-pyclient needs to be released
+#        type: string
+#        default: ""
     steps:
     - checkout
     - run: git fetch --all --tags
@@ -111,22 +111,37 @@ commands:
         path: ~/test-results
 #    - store_artifacts:
 #        path: ./build/libs
+    #        - when:
+    #            condition: <<parameters.release2pypi>>
+    #            steps:
+    #              - pypi-release
 
   pypi-release:
+    parameters:
+      commit-message:
+        description: commit message to check if a new version of the emx2-pyclient needs to be released
+        type: string
+        default: "IETS"
     steps:
-    - run:
-        name: reset PyPI credentials
-        command: |
-          if [ -z "$CIRCLE_PULL_REQUEST" ]; then
-             export TWINE_PASSWORD=$PYPI_TOKEN
-          fi
-          echo $TWINE_PASSWORD
-    - run:
-       name: Publish to testPyPI or PyPI
-       command: |
-         echo "RELEASE TO PYPI"
-#         export $( cat build/ci.properties | xargs )
-#         ./gradlew -s --no-daemon publishPython
+      - run: echo << parameters.commit-message >>
+      - when:
+          condition:
+            matches: { pattern: "^.*(emx2-pyclient).*$", value: <<parameters.commit-message>>  }
+          steps:
+            - run: echo "START RELEASE"
+            - run:
+                name: reset PyPI credentials
+                command: |
+                  if [ -z "$CIRCLE_PULL_REQUEST" ]; then
+                     export TWINE_PASSWORD=$PYPI_TOKEN
+                  fi
+                  echo $TWINE_PASSWORD
+            - run:
+               name: Publish to testPyPI or PyPI
+               command: |
+                 echo "RELEASE TO PYPI"
+      #         export $( cat build/ci.properties | xargs )
+      #         ./gradlew -s --no-daemon publishPython
 
 # jobs for pull request and master
 jobs:
@@ -138,16 +153,13 @@ jobs:
 #        type: env_var_name
 #        default: COMMIT_MESSAGE
     steps:
-#    - run: echo << parameters.commit-message >>
     - run: |
         echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
 #    - run: COMMIT_MESSAGE=$(git log -1 --pretty=format:%s)
     - pre_steps:
-        commit-message: "IETS"
     - run:
         command: |
           echo "COMMIT MESSAGE ENV in preview: $COMMIT_MESSAGE_ENV"
-          echo << parameters.commit-message >>
 #          if [[ $(git log -1 --pretty=format:%s) == *"(emx2-pyclient)"* ]]; then
 #            release2pypi: true
 #          else
@@ -184,16 +196,8 @@ jobs:
           -X POST https://slack.com/api/chat.postMessage
 
     - post_steps
-#    - when:
-#        condition: <<parameters.release2pypi>>
-#        steps:
-#          - pypi-release
-#    - when:
-#        condition:
-#          matches: { pattern: "^.*(emx2-pyclient).*$", value: <<parameters.commit-message>>  }
-#        steps:
-#          - run: echo "START RELEASE"
-#          - pypi-release
+    - pypi-release:
+        commit-message: $COMMIT_MESSAGE_ENV
 
   test:
     <<: *test_config
