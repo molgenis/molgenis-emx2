@@ -40,35 +40,6 @@ public class BeaconApi {
     post("/api/beacon/:entry_type", BeaconApi::postEntryType);
   }
 
-  private static String getInfo(Request request, Response response)
-      throws JsonProcessingException, URISyntaxException {
-    response.type(APPLICATION_JSON_MIME_TYPE);
-    return getWriter().writeValueAsString(new Info(request));
-  }
-
-  private static Object getConfiguration(Request request, Response response)
-      throws JsonProcessingException {
-    response.type(APPLICATION_JSON_MIME_TYPE);
-    return getWriter().writeValueAsString(new Configuration());
-  }
-
-  private static Object getMap(Request request, Response response) throws JsonProcessingException {
-    response.type(APPLICATION_JSON_MIME_TYPE);
-    return getWriter().writeValueAsString(new Map(request));
-  }
-
-  private static Object getEntryTypes(Request request, Response response)
-      throws JsonProcessingException {
-    response.type(APPLICATION_JSON_MIME_TYPE);
-    return getWriter().writeValueAsString(new EntryTypes());
-  }
-
-  private static String getFilteringTerms(Request request, Response response) throws Exception {
-    response.type(APPLICATION_JSON_MIME_TYPE);
-    Database database = sessionManager.getSession(request).getDatabase();
-    return getWriter().writeValueAsString(new FilteringTerms(database));
-  }
-
   private static String getEntryType(Request request, Response response) throws Exception {
     EntryType entryType = EntryType.findByName(request.params("entry_type"));
 
@@ -117,5 +88,34 @@ public class BeaconApi {
     }
 
     return null;
+  }
+
+  private static String getInfo(Request request, Response response)
+      throws JsonProcessingException, URISyntaxException {
+    response.type(APPLICATION_JSON_MIME_TYPE);
+    return getWriter().writeValueAsString(new Info(request));
+  }
+
+  private static Object getConfiguration(Request request, Response response)
+      throws JsonProcessingException {
+    response.type(APPLICATION_JSON_MIME_TYPE);
+    return getWriter().writeValueAsString(new Configuration());
+  }
+
+  private static Object getMap(Request request, Response response) throws JsonProcessingException {
+    response.type(APPLICATION_JSON_MIME_TYPE);
+    return getWriter().writeValueAsString(new Map(request));
+  }
+
+  private static Object getEntryTypes(Request request, Response response)
+      throws JsonProcessingException {
+    response.type(APPLICATION_JSON_MIME_TYPE);
+    return getWriter().writeValueAsString(new EntryTypes());
+  }
+
+  private static String getFilteringTerms(Request request, Response response) throws Exception {
+    response.type(APPLICATION_JSON_MIME_TYPE);
+    Database database = sessionManager.getSession(request).getDatabase();
+    return getWriter().writeValueAsString(new FilteringTerms(database));
   }
 }
