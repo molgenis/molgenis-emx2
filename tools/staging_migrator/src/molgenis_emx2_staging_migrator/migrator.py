@@ -7,7 +7,7 @@ from typing import TypeAlias, Literal
 
 from molgenis_emx2_pyclient import Client
 from molgenis_emx2_pyclient.exceptions import NoSuchSchemaException, NoSuchTableException
-from molgenis_emx2_pyclient.metadata import Schema, Table
+from molgenis_emx2_pyclient.metadata import Schema, Table, Column
 from .constants import BASE_DIR
 from .utils import (find_cohort_references, construct_delete_variables, has_statement_of_consent,
                     process_statement, prepare_pkey, query_columns_string)
@@ -91,7 +91,7 @@ class StagingMigrator(Client):
 
         if resp.content:
             Path(filepath).write_bytes(resp.content)
-            log.debug(f"Downloaded {schema_type!r} schema to {filepath!r}.")
+            log.debug(f"Downloaded {schema_type!r} schema to {filepath!s}.")
         else:
             log.error("Error: download failed.")
         return filepath
@@ -138,17 +138,17 @@ class StagingMigrator(Client):
         """
         staging_schema = self.get_schema_metadata(self.staging_area)
         # Collect the tables in which a column references a table in the SharedStaging schema
-        ss_ref_tables = [_t for _t in staging_schema.get_tables(by='schemaName', value=self.staging_area)
+        ss_ref_tables: list[Table] = [_t for _t in staging_schema.get_tables(by='schemaName', value=self.staging_area)
                          if len(_t.get_columns(by='refSchemaName', value='SharedStaging'))]
         if len(ss_ref_tables) == 0:
             return
 
         organisations = set()
         for table in ss_ref_tables:
-            ref_cols = [col for col in table['columns'] if col.get('refSchemaName') == 'SharedStaging']
-            ref_col_strs = [f"{rc['id']} {{\n      id\n    }}" for rc in ref_cols]
+            ref_cols: list[Column] = table.get_columns(by='refSchemaName', value='SharedStaging')
+            ref_col_strs = [f"{rc.id} {{\n      id\n    }}" for rc in ref_cols]
             query = """{{\n  {} {{\n    {}\n  }}\n}}""".format(
-                table['id'], "    \n    ".join(ref_col_strs))
+                table.id, "    \n    ".join(ref_col_strs))
             response = self.session.post(url=f"{self.url}/{self.staging_area}/graphql",
                                          json={"query": query},
                                          headers={'x-molgenis-token': self.token})
@@ -215,12 +215,14 @@ class StagingMigrator(Client):
     def _cohorts_in_ref_array(self, _table_name: str) -> bool:
         """Returns True if cohorts are referenced in a referenced array in any column in this table."""
         try:
-            _table_schema, = [_t for _t in self.get_schema_metadata(self.catalogue)['tables'] if
-                              _t.get('name') == _table_name]
+            # _table_schema, = [_t for _t in self.get_schema_metadata(self.catalogue)['tables'] if
+            #                   _t.get('name') == _table_name]
+            _table_schema: Table = self.get_schema_metadata(self.catalogue).get_table(by='name', value=_table_name)
         except ValueError:
             raise NoSuchTableException(f"No table {_table_name!r} in schema {self.catalogue!r}.")
-        return (len([col for col in _table_schema['columns']
-                     if ((col.get('columnType') == 'REF_ARRAY') & (col.get('refTable') == 'Cohorts'))]) > 0)
+        return len(_table_schema.get_columns(by=['columnType', 'refTable'], value=['REF_ARRAY', self.table])) > 0
+        # return (len([col for col in _table_schema['columns']
+        #              if ((col.get('columnType') == 'REF_ARRAY') & (col.get('refTable') == 'Cohorts'))]) > 0)
 
     def _verify_schemas(self):
         """Ensures the staging area and catalogue are available."""

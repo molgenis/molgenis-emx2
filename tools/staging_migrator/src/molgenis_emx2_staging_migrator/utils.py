@@ -21,8 +21,6 @@ def prepare_pkey(schema: Schema, table_name: str, col_id: str | list = None) -> 
     if not col_id:
         # Return the primary keys of a table if no column name is specified
         return table_schema.get_columns(by='key', value=1)
-        # return [col['id'] for col in table_schema['columns'] if col.get('key') == 1]
-    # col_data, = [col for col in table_schema['columns'] if col['id'] == col_id]
     col_data: Column = table_schema.get_column(by='id', value=col_id)
     if col_id.startswith('mg_'):
         return None
@@ -32,9 +30,6 @@ def prepare_pkey(schema: Schema, table_name: str, col_id: str | list = None) -> 
         return None
     elif col_data.get('columnType') in ['ONTOLOGY', 'ONTOLOGY_ARRAY']:
         return {col_id: 'name'}
-    #     ont_keys = prepare_pkey(schema, col_data.get('refTableName'))
-    #     ont_cols = [prepare_pkey(schema, col_data['refTableName'], ok) for ok in ont_keys]
-    #     return {col_id: ont_cols}
     elif col_data.get('columnType') in ['REF', 'REF_ARRAY']:
         ref_keys = prepare_pkey(schema, col_data.get('refTableName'))
         ref_cols = [prepare_pkey(schema, col_data.get('refTableName'), rk.id) for rk in ref_keys]
@@ -67,24 +62,24 @@ def find_cohort_references(schema_schema: Schema, schema_name: str, base_table: 
     References may be direct or indirect, such as the 'Subcohort counts' table
     that references the 'Subcohorts' table, which references the 'Cohorts' table directly.
     """
-    # schema_schema['tables'] = [
-    #     t for t in schema_schema['tables'] if t['schemaName'] in [schema_name, 'SharedStaging']
-    # ]
     schema_schema.tables = schema_schema.get_tables(by='schemaName', value=schema_name)
 
     def find_table_columns(_table: Table):
         _table_references = []
         for _column in _table.columns:
             if _column.get('columnType') in ['REF', 'REF_ARRAY']:
+                if _column.get('refSchemaName') != schema_name:
+                    continue
                 if _column.get('refTableName') in [base_table, *inheritance.values()]:
                     _table_references.append(_column.id)
                 elif _column.get('refTableName') != _table.name:
-                    # ref_table, = [_t for _t in schema_schema['tables'] if _t['name'] == _column['refTableName']]
                     ref_table = schema_schema.get_table(by='name', value=str(_column.get('refTableName')))
                     _column_references = find_table_columns(ref_table)
                     if len(_column_references) > 0:
                         _table_references.append(_column.id)
             elif _column.get('columnType') == 'REFBACK':
+                if _column.get('refSchemaName') != schema_name:
+                    continue
                 if _column.get('refTableName') in [base_table, *inheritance.values()]:
                     _table_references.append(_column.id)
 
@@ -92,23 +87,21 @@ def find_cohort_references(schema_schema: Schema, schema_name: str, base_table: 
 
     inheritance = {}
     table_name = base_table
-    # inherit = [t for t in schema_schema['tables'] if t['name'] == table][0].get('inheritName')
     inherit = schema_schema.get_table(by='name', value=table_name).get('inheritName')
     inheritance.update({table_name: inherit})
     while inherit is not None:
         table_name = inherit
-        # inherit = [t for t in schema_schema['tables'] if t['name'] == table_name][0].get('inheritName')
         inherit = schema_schema.get_table(by='name', value=str(table_name)).get('inheritName')
         inheritance.update({table_name: inherit})
 
     cohort_references = dict()
-    for table_name in schema_schema.tables:
-        if table_name.name in inheritance.keys():
+    for schema_table in schema_schema.tables:
+        if schema_table.name in inheritance.keys():
             table_references = ['id']
         else:
-            table_references = find_table_columns(table_name)
+            table_references = find_table_columns(schema_table)
         if len(table_references) > 0:
-            cohort_references.update({table_name.name: table_references[0]})
+            cohort_references.update({schema_table.name: table_references[0]})
 
     # Gather all backwards references to the tables
     ref_backs = {}
@@ -164,11 +157,9 @@ def has_statement_of_consent(table_name: str, schema: Schema) -> int:
     consent_cols = ['statement of consent personal data',
                     'statement of consent email']
     try:
-        # table_schema, = [t for t in schema['tables'] if (t['name'] == table_name) & (t['schemaName'] == schema['name'])]
         table_schema = schema.get_table(by='name', value=table_name)
     except ValueError:
         raise NoSuchTableException(f"Table {table_name!r} not in schema.")
-    # col_names = [_col['name'] for _col in table_schema['columns']]
     col_names = map(str, table_schema.columns)
 
     return 1*(consent_cols[0] in col_names) + 2*(consent_cols[1] in col_names)
