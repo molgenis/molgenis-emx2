@@ -134,6 +134,7 @@ commands:
             command: |
               if [ -z "$CIRCLE_PULL_REQUEST" ]; then
                  export TWINE_PASSWORD=$PYPI_TOKEN
+                 echo "Reset PyPI Password"
               fi
               echo $TWINE_PASSWORD
         - run:
@@ -196,7 +197,7 @@ jobs:
 
     - post_steps
     - release2pypi:
-        commit-message: "test"
+        commit-message: "$COMMIT_MESSAGE"
 
   test:
     <<: *test_config
