@@ -37,7 +37,7 @@ def prepare_pkey(schema: Schema, table_name: str, col_id: str | list = None) -> 
     #     return {col_id: ont_cols}
     elif col_data.get('columnType') in ['REF', 'REF_ARRAY']:
         ref_keys = prepare_pkey(schema, col_data.get('refTableName'))
-        ref_cols = [prepare_pkey(schema, col_data.get('refTableName'), rk) for rk in ref_keys]
+        ref_cols = [prepare_pkey(schema, col_data.get('refTableName'), rk.id) for rk in ref_keys]
         return {col_id: ref_cols}
     elif col_data.get('columnType') == 'FILE':
         return {col_id: 'id'}

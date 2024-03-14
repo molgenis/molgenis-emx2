@@ -138,9 +138,8 @@ class StagingMigrator(Client):
         """
         staging_schema = self.get_schema_metadata(self.staging_area)
         # Collect the tables in which a column references a table in the SharedStaging schema
-        ss_ref_tables = [_t for _t in staging_schema['tables']
-                         if any(map(lambda c: c.get('refSchemaName') == 'SharedStaging', _t['columns'])) and _t.get(
-                'schemaName') == self.staging_area]
+        ss_ref_tables = [_t for _t in staging_schema.get_tables(by='schemaName', value=self.staging_area)
+                         if len(_t.get_columns(by='refSchemaName', value='SharedStaging'))]
         if len(ss_ref_tables) == 0:
             return
 
@@ -364,10 +363,9 @@ class StagingMigrator(Client):
             pkeys = [prepare_pkey(db_schema, table_name, col.id) for col in table_schema.columns]
             pkeys = [pk for pk in pkeys if pk is not None]
         else:
-            pkeys = [prepare_pkey(db_schema, table_name, col.id) for col in table_schema.columns if
-                     col.get('key') == 1]
+            pkeys = [prepare_pkey(db_schema, table_name, col.id) for col in table_schema.get_columns(by='key', value=1)]
             # pkeys = list(map(lambda c: prepare_pkey(db_schema, table_name, c.id),
-            #                  table_schema.get_columns(by='key', value='1')))
+            #                  table_schema.get_columns(by='key', value=1)))
         table_id = table_schema.id
         pkeys_print = query_columns_string(pkeys, indent=4)
         _query = (f"query {table_id}($filter: {table_id}Filter) {{\n"
