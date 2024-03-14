@@ -24,10 +24,10 @@ export interface BarChartParams {
   table: string,
   title?: string;
   description?: string;
-  xvar?: string;
-  yvar?: string;
+  xvar: string | object;
+  yvar: string | object;
   xMax?: number;
-  yTickValues?: Array<Number>;
+  xTickValues?: Array<Number>;
   xAxisLabel?: string;
   yAxisLabel?: string;
   yAxisLineBreaker?: string;

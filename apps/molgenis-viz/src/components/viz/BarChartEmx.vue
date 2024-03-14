@@ -1,43 +1,59 @@
 <template>
-  {{ chartData }}
   <LoadingScreen v-if="chartLoading" message="" />
   <MessageBox v-if="chartError" type="error">
     <output>{{ chartError }}</output>
   </MessageBox>
-  <BarChart
-    v-if="!chartLoading && !chartError && chartSuccess"
-    chartId="myChart"
-    title="Test"
-    description="Some description"
-    :chartData="chartData"
-    xvar="_sum"
-    yvar="researchCenter"
-  />
+  <div v-if="chartSuccess"> 
+    <BarChart
+      chartId="myChart"
+      :title="title"
+      :description="description"
+      :chartData="chartData"
+      :xvar="xVar"
+      :yvar="yVar"
+      :xMax="xMax"
+      :xTickValues="xTickValues"
+      :xAxisLabel="xAxisLabel"
+      :yAxisLabel="yAxisLabel"
+      yAxisLineBreaker=" "
+      :chartMargins="chartMargins"
+    />
+    <div>
+      <code>x: {{ xVar }}</code><br />
+      <code>nested: {{ xSubSelection }}</code>
+    </div>
+    <div>
+      <code>y: {{ yVar }}</code><br />
+      <code>nested: {{ ySubSelection }}</code>
+    </div> 
+    <pre>{{ chartData }}</pre>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onBeforeMount, watch } from "vue";
-import { gql, request } from "graphql-request";
+import { ref, onBeforeMount, onMounted, watch } from "vue";
+import { gql } from "graphql-tag";
+import { request } from "graphql-request";
+import { parse } from "graphql";
 import BarChart from "./BarChart.vue";
 import type { BarChartParams } from "../../utils/types/viz";
 import { useFetch, UseFetchState } from "../../utils/useFetch.js";
 import MessageBox from "../display/MessageBox.vue";
 import LoadingScreen from "../display/LoadingScreen.vue";
 
-// const props = withDefaults(defineProps<BarChartParams>(), {
-//   chartHeight: 200,
-//   xvar: "",
-//   yvar: "",
-//   chartData: [],
-// });
+const props = withDefaults(defineProps<BarChartParams>(), {
+  chartHeight: 150,
+});
 
-defineProps<BarChartParams>();
-
-let chartLoading = ref<Boolean>(false);
-let chartSuccess = ref<Boolean>(true);
+let chartLoading = ref<Boolean>(true)
+let chartSuccess = ref<Boolean>(false);
 let chartError = ref<Error | null>(null);
 let chartData = ref<Array[]>([]);
-let rawData = ref<Array[]>([]);
+let chartDataQuery = ref<string | null>(null);
+let xVar = ref<string | null>(null);
+let yVar = ref<string | null>(null);
+let xSubSelection = ref<string | null>(null);
+let ySubSelection = ref<string | null>(null);
 
 function extractNestedRowData(
   row: object,
@@ -47,49 +63,82 @@ function extractNestedRowData(
   return typeof row[key] === "object" ? row[key][nestedKey] : row[key];
 }
 
-function prepRowData(
-  data: Array[],
-  x: string,
-  y: string,
-  nested_x_key: string,
-  nested_y_key: string
-) {
+function prepRowData(data: Array[]) {
   return data.map((row: object) => {
     const newRow: object = {};
-    newRow[x] = extractNestedRowData(row, x, nested_x_key);
-    newRow[y] = extractNestedRowData(row, y, nested_y_key);
+    newRow[xVar.value] = extractNestedRowData(row, xVar.value, xSubSelection.value);
+    newRow[yVar.value] = extractNestedRowData(row, yVar.value, ySubSelection.value);
     return newRow;
-  });
+  });  
 }
 
-onBeforeMount(async () => {
-  const { loading, success, data, error } = await useFetch(
-    "../api/graphql",
-    gql`
-      query {
-        ClinicalData_groupBy {
-          researchCenter {
-            name
-          }
-          _sum {
-            n
-          }
-        }
-      }
-    `
-  );
-  
-  rawData.value = data.value.ClinicalData_groupBy;
-  chartData.value = prepRowData(
-    rawData.value,
-    "researchCenter",
-    "_sum",
-    "name",
-    "n"
-  );
-  
-  chartLoading.value = loading.value;
-  chartSuccess.value = success.value;
-  chartError.value = error.value;
-});
+
+function buildQuery(table, xvar, yvar) {
+  chartDataQuery.value = `{
+    ${props.table} {
+      ${props.yvar}
+      ${props.xvar}
+    }
+  }`
+}
+
+function getSelectionName (variable: string) {
+  if (variable.match(/[\{\}]/)) {
+    const query = gql`query { ${variable} }`;
+    const selectionName = query.definitions[0].selectionSet?.selections[0].name?.value;
+    if (selectionName) {
+      return selectionName;
+    }
+  }
+  return variable;
+}
+
+function getSubSelectionNames (variable: string) {
+  if (variable.match(/[\{\}]/)) {
+    const query = gql`query { ${variable} }`
+    const selectionSet = query.definitions[0].selectionSet?.selections[0].selectionSet?.selections;
+    if (selectionSet.length > 0) {
+      const subSelections = selectionSet[0].name?.value;
+      return subSelections;
+    }
+  }
+}
+
+function setQuerySelections () {
+  xVar.value = getSelectionName(props.xvar);
+  yVar.value = getSelectionName(props.yvar);
+  xSubSelection.value = getSubSelectionNames(props.xvar);
+  ySubSelection.value = getSubSelectionNames(props.yvar);
+}
+
+async function fetchChartData () {
+  chartLoading.value = true;
+  try {
+    const response = await request("../api/graphql", chartDataQuery.value);
+    const data = await response[props.table as string];
+    chartData.value = await prepRowData(data)
+    chartSuccess.value = true;
+  } catch (error) {
+    chartError.value = error;
+  } finally {
+    chartLoading.value = false;
+  }
+}
+
+onBeforeMount(() => {
+  buildQuery();
+  setQuerySelections();  
+})
+
+onMounted(async () => {
+  await fetchChartData()
+})
+
+watch(props, async () => {
+  buildQuery();
+  setQuerySelections();
+  await fetchChartData();
+})
+
+
 </script>
