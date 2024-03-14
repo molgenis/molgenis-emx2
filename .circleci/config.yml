@@ -126,7 +126,7 @@ commands:
     - run: echo "RELEASE2PYPI? << parameters.commit-message >>"
     - when:
         condition:
-          matches: { pattern: "^.*(emx2-pyclient).*$", value: << parameters.commit-message >>  }
+          matches: { pattern: "build(emx2-pyclient): test commit message", value: << parameters.commit-message >>  }
         steps:
         - run: echo "START RELEASE"
         - run:
@@ -142,9 +142,10 @@ commands:
              echo "RELEASE TO PYPI"
     #         export $( cat build/ci.properties | xargs )
     #         ./gradlew -s --no-daemon publishPython
+    # ^.*(emx2-pyclient).*$
     - unless:
         condition:
-          matches: { pattern: "^.*(emx2-pyclient).*$", value: << parameters.commit-message >>  }
+          matches: { pattern: "build(emx2-pyclient): test commit message", value: << parameters.commit-message >>  }
         steps:
         - run: echo "RELEASE2PYPI NO RELEASE << parameters.commit-message >>"
 
