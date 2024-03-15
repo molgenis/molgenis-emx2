@@ -124,6 +124,7 @@ commands:
         type: string
         default: ""
     steps:
+    - run: echot "PIPELINE GIT REVISION << pipeline.git.revision >> "
     - run: echo "PIPELINE BRANCH << pipeline.git.branch >>"
     - run: echo "commit parameter << parameters.commit-message >>"
 #    - run:
