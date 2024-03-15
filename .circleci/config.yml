@@ -118,8 +118,14 @@ commands:
     #              - pypi-release
 
   release2pypi:
+    parameters:
+      commit-message:
+        description: commit message to check if a new version of the emx2-pyclient needs to be released
+        type: string
+        default: ""
     steps:
     - run: echo "PIPELINE BRANCH << pipeline.git.branch >>"
+    - run: echo "commit parameter << parameter.commit-message >>"
 #    - run:
 #        command: |
 #          if [[ $COMMIT_ENV_VAR =~ "^.*(emx2-pyclient).*$" ]]; then
@@ -127,9 +133,10 @@ commands:
     - when:
         condition:
           matches:
-      #      pattern: ^.*(emx2-pyclient).*$
-            pattern: ^.*python-release.*$
-            value: << pipeline.git.branch >>
+            pattern: ^.*(emx2-pyclient).*$
+            value: << parameters.commit-message >>
+      #      pattern: ^.*python-release.*$
+      #      value: << pipeline.git.branch >>
         steps:
         - run: echo "START RELEASE"
         - run:
@@ -199,8 +206,8 @@ jobs:
           -X POST https://slack.com/api/chat.postMessage
 
     - post_steps
-    - release2pypi
-      #  commit-message: COMMIT_MESSAGE_ENV
+    - release2pypi:
+        commit-message: $COMMIT_MESSAGE_ENV
 
   test:
     <<: *test_config
