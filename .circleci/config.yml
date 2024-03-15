@@ -127,7 +127,8 @@ commands:
     - when:
         condition:
           matches:
-            pattern: ^.*(emx2-pyclient).*$
+      #      pattern: ^.*(emx2-pyclient).*$
+            pattern: ^.*python-release.*$
             value: << pipeline.git.branch >>
         steps:
         - run: echo "START RELEASE"
@@ -148,7 +149,7 @@ commands:
     # ^.*(emx2-pyclient).*$
     - unless:
         condition:
-          matches: { pattern: test, value: << pipeline.git.branch >>  }
+          matches: { pattern: ^.*python-release.*$, value: << pipeline.git.branch >>  }
         steps:
         - run: echo "RELEASE2PYPI NO RELEASE << pipeline.git.branch >>"
 
