@@ -23,7 +23,7 @@ const props = defineProps({
     type: String,
   },
   htmlContentString: {
-    type: String,
+    type: String | null,
     default: null,
   },
 });

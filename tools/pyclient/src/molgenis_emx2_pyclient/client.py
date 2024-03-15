@@ -1,6 +1,7 @@
 import csv
 import io
 import logging
+from functools import cache
 from typing import TypeAlias, Literal
 
 import pandas as pd
@@ -12,6 +13,7 @@ from .exceptions import (NoSuchSchemaException, ServiceUnavailableError, SigninE
                          ServerNotFoundError, PyclientException, NoSuchTableException,
                          NoContextManagerException, GraphQLException, InvalidTokenException,
                          PermissionDeniedException, TokenSigninException, NonExistentTemplateException)
+from .metadata import Schema
 
 log = logging.getLogger("Molgenis EMX2 Pyclient")
 
@@ -41,6 +43,14 @@ class Client:
 
         self.schemas: list = self.get_schemas()
         self.default_schema: str = self.set_schema(schema)
+
+    def __repr__(self):
+        class_name = type(self).__name__
+        _attrs = [['url', self.url]]
+        if self.default_schema:
+            _attrs.append(['schema', self.default_schema])
+        dict_items = [f"{k}={v!r}" for k, v in _attrs]
+        return f"{class_name}({', '.join(dict_items)})"
 
     def __str__(self):
         return self.url
@@ -92,20 +102,20 @@ class Client:
         )
 
         if response.status_code == 404:
-            raise ServerNotFoundError(f"Server '{self.url}' could not be found. "
+            raise ServerNotFoundError(f"Server {self.url!r} could not be found. "
                                       f"Ensure the spelling of the url is correct.")
         if response.status_code == 503:
-            raise ServiceUnavailableError(f"Server '{self.url}' not available. "
+            raise ServiceUnavailableError(f"Server {self.url!r} not available. "
                                           f"Try again later.")
         if response.status_code != 200:
-            raise PyclientException(f"Server '{self.url}' could not be reached due to a connection problem."
-                                    f"\nStatus code: {response.status_code}. Reason: '{response.reason}'.")
+            raise PyclientException(f"Server {self.url!r} could not be reached due to a connection problem."
+                                    f"\nStatus code: {response.status_code}. Reason: {response.reason!r}.")
 
         response_json: dict = response.json().get('data', {}).get('signin', {})
 
         if response_json.get('status') == 'SUCCESS':
             self.signin_status = 'success'
-            message = f"User '{self.username}' is signed in to '{self.url}'."
+            message = f"User {self.username!r} is signed in to {self.url!r}."
             log.info(message)
             print(message)
         elif response_json.get('status') == 'FAILED':
@@ -131,7 +141,7 @@ class Client:
 
         status = response.json().get('data', {}).get('signout', {}).get('status')
         if status == 'SUCCESS':
-            print(f"User '{self.username}' is signed out of '{self.url}'.")
+            print(f"User {self.username!r} is signed out of {self.url!r}.")
             self.signin_status = 'signed out'
         else:
             print(f"Unable to sign out of {self.url}.")
@@ -157,7 +167,7 @@ class Client:
         )
         return message
 
-    def get_schemas(self) -> list[dict]:
+    def get_schemas(self) -> list[Schema]:
         """Returns the schemas on the database for this user as a list of dictionaries
         containing for each schema the id, name, label and description.
         """
@@ -170,20 +180,20 @@ class Client:
         )
 
         if response.status_code == 404:
-            raise ServerNotFoundError(f"Server with url '{self.url}'")
+            raise ServerNotFoundError(f"Server with url {self.url!r}")
         if response.status_code == 400:
             if 'Invalid token or token expired' in response.text:
                 raise InvalidTokenException("Invalid token or token expired.")
             raise PyclientException("An unknown error occurred when trying to reach this server.")
 
         response_json: dict = response.json()
-        schemas = response_json['data']['_schemas']
+        schemas = [Schema(**s) for s in response_json['data']['_schemas']]
         return schemas
 
     @property
     def schema_names(self):
         """Returns a list of the names of the schemas."""
-        return [schema['name'] for schema in self.schemas]
+        return list(map(str, self.schemas))
 
     @property
     def token(self):
@@ -208,7 +218,7 @@ class Client:
 
     def save_schema(self, table: str, name: str = None, file: str = None, data: list = None):
         """Imports or updates records in a table of a named schema.
-        
+
         :param name: name of a schema
         :type name: str
         :param table: the name of the table
@@ -217,7 +227,7 @@ class Client:
         :type file: str
         :param data: a dataset containing records to import or update (list of dictionaries)
         :type data: list
-        
+
         :returns: status message or response
         :rtype: str
         """
@@ -226,10 +236,10 @@ class Client:
             current_schema = self.default_schema
 
         if current_schema not in self.schema_names:
-            raise NoSuchSchemaException(f"Schema '{current_schema}' not available.")
+            raise NoSuchSchemaException(f"Schema {current_schema!r} not available.")
 
         if not self._table_in_schema(table, current_schema):
-            raise NoSuchTableException(f"Table '{table}' not found in schema '{current_schema}'.")
+            raise NoSuchTableException(f"Table {table!r} not found in schema {current_schema!r}.")
 
         import_data = self._prep_data_or_file(file_path=file, data=data)
 
@@ -255,7 +265,7 @@ class Client:
 
     def delete_records(self, table: str, schema: str = None, file: str = None, data: list = None):
         """Deletes records from a table.
-        
+
         :param schema: name of a schema
         :type schema: str
         :param table: the name of the table
@@ -273,10 +283,10 @@ class Client:
             current_schema = self.default_schema
 
         if current_schema not in self.schema_names:
-            raise NoSuchSchemaException(f"Schema '{current_schema}' not available.")
+            raise NoSuchSchemaException(f"Schema {current_schema!r} not available.")
 
         if not self._table_in_schema(table, current_schema):
-            raise NoSuchTableException(f"Table '{table}' not found in schema '{current_schema}'.")
+            raise NoSuchTableException(f"Table {table!r} not found in schema {current_schema!r}.")
 
         import_data = self._prep_data_or_file(file_path=file, data=data)
 
@@ -296,7 +306,7 @@ class Client:
     def get(self, table: str, schema: str = None, as_df: bool = False) -> list | pd.DataFrame:
         """Retrieves data from a schema and returns as a list of dictionaries or as
         a pandas DataFrame (as pandas is used to parse the response).
-        
+
         :param schema: name of a schema
         :type schema: str
         :param table: the name of the table
@@ -304,7 +314,7 @@ class Client:
         :param as_df: if True, the response will be returned as a
                       pandas DataFrame. Otherwise, a recordset will be returned.
         :type as_df: bool
-        
+
         :returns: list of dictionaries, status message or data frame
         :rtype: list | pd.DataFrame
         """
@@ -313,16 +323,16 @@ class Client:
             current_schema = self.default_schema
 
         if current_schema not in self.schema_names:
-            raise NoSuchSchemaException(f"Schema '{current_schema}' not available.")
+            raise NoSuchSchemaException(f"Schema {current_schema!r} not available.")
 
         if not self._table_in_schema(table, current_schema):
-            raise NoSuchTableException(f"Table '{table}' not found in schema '{current_schema}'.")
+            raise NoSuchTableException(f"Table {table!r} not found in schema {current_schema!r}.")
 
         response = self.session.get(url=f"{self.url}/{current_schema}/api/csv/{table}",
                                     headers={'x-molgenis-token': self.token})
 
         if response.status_code != 200:
-            message = f"Failed to retrieve data from '{current_schema}::{table}'." \
+            message = f"Failed to retrieve data from {current_schema}::{table!r}." \
                       f"\nStatus code: {response.status_code}."
             log.error(message)
             raise PyclientException(message)
@@ -335,21 +345,21 @@ class Client:
 
     def export(self, schema: str = None, table: str = None, fmt: OutputFormat = 'csv'):
         """Exports data from a schema to a file in the desired format.
-        
+
         :param schema: the name of the schema
         :type schema: str
         :param table: the name of the table
         :type table: str
         :param fmt: the export format of the schema and or table (csv or xlsx)
         :type fmt: str
-        
+
         """
         current_schema = schema if schema is not None else self.default_schema
         if current_schema not in self.schema_names:
-            raise NoSuchSchemaException(f"Schema '{current_schema}' not available.")
+            raise NoSuchSchemaException(f"Schema {current_schema!r} not available.")
 
         if table is not None and not self._table_in_schema(table, current_schema):
-            raise NoSuchTableException(f"Table '{table}' not found in schema '{current_schema}'.")
+            raise NoSuchTableException(f"Table {table!r} not found in schema {current_schema!r}.")
 
         if fmt == 'xlsx':
             if table is None:
@@ -399,17 +409,17 @@ class Client:
                       template: str = None,
                       include_demo_data: bool = None):
         """Creates a new schema on the EMX2 server.
-        
+
         :param name: the name of the new schema
         :type name: str
         :param description: additional text that provides context for a schema
         :type description: str
         :param template: (optional) the name of a template to set as the schema
         :type template: str
-        :param include_demo_data: If true and a template schema is selected, 
+        :param include_demo_data: If true and a template schema is selected,
                                 any example data will be loaded into the schema
         :type include_demo_data: bool
-        
+
         :returns: a success or error message
         :rtype: string
         """
@@ -427,22 +437,22 @@ class Client:
         self._validate_graphql_response(
             response_json=response_json,
             mutation='createSchema',
-            fallback_error_message=f"Failed to create schema '{name}'"
+            fallback_error_message=f"Failed to create schema {name!r}"
         )
         self.schemas = self.get_schemas()
 
     def delete_schema(self, name: str = None):
         """Deletes a schema from the EMX2 server.
-        
+
         :param name: the name of the new schema
         :type name: str
-        
+
         :returns: a success or error message
         :rtype: string
         """
         current_schema = name if name is not None else self.default_schema
         if current_schema not in self.schema_names:
-            raise NoSuchSchemaException(f"Schema '{current_schema}' not available.")
+            raise NoSuchSchemaException(f"Schema {current_schema!r} not available.")
 
         query = queries.delete_schema()
         variables = {'id': current_schema}
@@ -457,24 +467,24 @@ class Client:
         self._validate_graphql_response(
             response_json=response_json,
             mutation='deleteSchema',
-            fallback_error_message=f"Failed to delete schema '{current_schema}'"
+            fallback_error_message=f"Failed to delete schema {current_schema!r}"
         )
         self.schemas = self.get_schemas()
 
     def update_schema(self, name: str = None, description: str = None):
         """Updates a schema's description.
-        
+
         :param name: the name of the new schema
         :type name: str
         :param description: additional text that provides context for a schema
         :type description: str
-        
+
         :returns: a success or error message
         :rtype: string
         """
         current_schema = name if name is not None else self.default_schema
         if current_schema not in self.schema_names:
-            raise NoSuchSchemaException(f"Schema '{current_schema}' not available.")
+            raise NoSuchSchemaException(f"Schema {current_schema!r} not available.")
 
         query = queries.update_schema()
         variables = {'name': current_schema, 'description': description}
@@ -489,7 +499,7 @@ class Client:
         self._validate_graphql_response(
             response_json=response_json,
             mutation='updateSchema',
-            fallback_error_message=f"Failed to update schema '{current_schema}'"
+            fallback_error_message=f"Failed to update schema {current_schema!r}"
         )
         self.schemas = self.get_schemas()
 
@@ -499,7 +509,7 @@ class Client:
                         include_demo_data: bool = None):
         """Recreates a schema on the EMX2 server by deleting and subsequently
         creating it without data on the EMX2 server.
-        
+
         :param name: the name of the new schema
         :type name: str
         :param description: additional text that provides context for a schema
@@ -509,15 +519,15 @@ class Client:
         :param include_demo_data: If true and a template schema is selected,
                                 any example data will be loaded into the schema
         :type include_demo_data: bool
-        
+
         :returns: a success or error message
         :rtype: string
         """
         current_schema = name if name is not None else self.default_schema
         if current_schema not in self.schema_names:
-            raise NoSuchSchemaException(f"Schema '{current_schema}' not available.")
+            raise NoSuchSchemaException(f"Schema {current_schema!r} not available.")
 
-        schema_meta = [db for db in self.schemas if db['name'] == current_schema][0]
+        schema_meta = [db for db in self.schemas if db.name == current_schema][0]
         schema_description = description if description else schema_meta.get('description', None)
 
         try:
@@ -530,24 +540,25 @@ class Client:
             )
 
         except GraphQLException:
-            message = f"Failed to recreate '{current_schema}'"
+            message = f"Failed to recreate {current_schema!r}"
             log.error(message)
             print(message)
 
         self.schemas = self.get_schemas()
 
-    def _get_schema_metadata(self, name: str = None):
-        """Retrieves a schema's metadata.
-        
-        :param name: the name of the new schema
+    @cache
+    def get_schema_metadata(self, name: str = None) -> Schema:
+        """Retrieves a schema's metadata and returns it in a metadata.Schema object.
+
+        :param name: the name of the schema
         :type name: str
-        
+
         :returns: schema metadata
-        :rtype: dict
+        :rtype: metadata.Schema
         """
         current_schema = name if name is not None else self.default_schema
         if current_schema not in self.schema_names:
-            raise NoSuchSchemaException(f"Schema '{current_schema}' not available.")
+            raise NoSuchSchemaException(f"Schema {current_schema!r} not available.")
 
         query = queries.list_schema_meta()
         response = self.session.post(
@@ -559,11 +570,11 @@ class Client:
         response_json = response.json()
 
         if 'id' not in response_json.get('data').get('_schema'):
-            message = f"Unable to retrieve metadata for schema '{current_schema}'"
+            message = f"Unable to retrieve metadata for schema {current_schema!r}"
             log.error(message)
             raise GraphQLException(message)
 
-        metadata = response_json.get('data').get('_schema')
+        metadata = Schema(**response_json.get('data').get('_schema'))
         return metadata
 
     @staticmethod
@@ -599,7 +610,7 @@ class Client:
         :rtype: str
         """
         if name not in [*self.schema_names, None]:
-            raise NoSuchSchemaException(f"Schema '{name}' not available.")
+            raise NoSuchSchemaException(f"Schema {name!r} not available.")
         self.default_schema = name
 
         return name
@@ -671,6 +682,7 @@ class Client:
             json={'query': queries.list_tables()},
             headers={"x-molgenis-token": self.token}
         )
-        schema_tables = [tab['name'] for tab in
-                         response.json().get('data').get('_schema').get('tables')]
-        return table in schema_tables
+        schema_data = Schema(**response.json().get('data').get('_schema'))
+        if table in map(str, schema_data.tables):
+            return True
+        return False
