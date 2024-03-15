@@ -57,12 +57,12 @@ commands:
     steps:
     - checkout
     - run: git fetch --all --tags
-      # echo "export COMMIT_MESSAGE_ENV=\"$(git log -1 --pretty=format:%s)\"" >> "$BASH_ENV"
+
     - run:
         command: |
           export COMMIT_MESSAGE=$(git log -1 --pretty=format:%s)
           echo "COMMIT MESSAGE: $COMMIT_MESSAGE"
-          echo "export COMMIT_MESSAGE_ENV=test"
+          echo "export COMMIT_MESSAGE_ENV=\"$(git log -1 --pretty=format:%s)\"" >> "$BASH_ENV"
           echo "COMMIT MESSAGE ENV: $COMMIT_MESSAGE_ENV"
     - run:
         name: Setup git, todo, move to molgenisci user
@@ -119,7 +119,7 @@ commands:
 
   release2pypi:
     steps:
-    - run: echo << pipeline.git.tag >>
+    - run: echo "PIPELINE BRANCH << pipeline.git.branch >>"
 #    - run:
 #        command: |
 #          if [[ $COMMIT_ENV_VAR =~ "^.*(emx2-pyclient).*$" ]]; then
@@ -128,7 +128,7 @@ commands:
         condition:
           matches:
             pattern: ^.*(emx2-pyclient).*$
-            value: << pipeline.git.tag >>
+            value: << pipeline.git.branch >>
         steps:
         - run: echo "START RELEASE"
         - run:
@@ -148,9 +148,9 @@ commands:
     # ^.*(emx2-pyclient).*$
     - unless:
         condition:
-          matches: { pattern: test, value: << pipeline.git.tag >>  }
+          matches: { pattern: test, value: << pipeline.git.branch >>  }
         steps:
-        - run: echo "RELEASE2PYPI NO RELEASE << pipeline.git.tag >>"
+        - run: echo "RELEASE2PYPI NO RELEASE << pipeline.git.branch >>"
 
 # jobs for pull request and master
 jobs:
