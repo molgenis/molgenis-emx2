@@ -118,16 +118,17 @@ commands:
     #              - pypi-release
 
   release2pypi:
-    parameters:
-      commit-message:
-        description: commit message to check if a new version of the emx2-pyclient needs to be released
-        type: env_var_name
-        default: COMMIT_MESSAGE_ENV
     steps:
-    - run: echo "RELEASE2PYPI? ${<< parameters.commit-message >>}"
+    - run: echo << pipeline.git.tag >>
+#    - run:
+#        command: |
+#          if [[ $COMMIT_ENV_VAR =~ "^.*(emx2-pyclient).*$" ]]; then
+#            << parameters.commit-message >>
     - when:
         condition:
-          matches: { pattern: "test", value: $<< parameters.commit-message >> }
+          matches:
+            pattern: ^.*(emx2-pyclient).*$
+            value: << pipeline.git.tag >>
         steps:
         - run: echo "START RELEASE"
         - run:
@@ -147,9 +148,9 @@ commands:
     # ^.*(emx2-pyclient).*$
     - unless:
         condition:
-          matches: { pattern: "test", value: << parameters.commit-message >>  }
+          matches: { pattern: test, value: << pipeline.git.tag >>  }
         steps:
-        - run: echo "RELEASE2PYPI NO RELEASE << parameters.commit-message >>"
+        - run: echo "RELEASE2PYPI NO RELEASE << pipeline.git.tag >>"
 
 # jobs for pull request and master
 jobs:
