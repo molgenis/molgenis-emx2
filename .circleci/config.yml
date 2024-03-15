@@ -57,11 +57,12 @@ commands:
     steps:
     - checkout
     - run: git fetch --all --tags
+      # echo "export COMMIT_MESSAGE_ENV=\"$(git log -1 --pretty=format:%s)\"" >> "$BASH_ENV"
     - run:
         command: |
           export COMMIT_MESSAGE=$(git log -1 --pretty=format:%s)
           echo "COMMIT MESSAGE: $COMMIT_MESSAGE"
-          echo "export COMMIT_MESSAGE_ENV=\"$(git log -1 --pretty=format:%s)\"" >> "$BASH_ENV"
+          echo "export COMMIT_MESSAGE_ENV=test
           echo "COMMIT MESSAGE ENV: $COMMIT_MESSAGE_ENV"
     - run:
         name: Setup git, todo, move to molgenisci user
@@ -126,7 +127,7 @@ commands:
     - run: echo "RELEASE2PYPI? ${<< parameters.commit-message >>}"
     - when:
         condition:
-          matches: { pattern: "build(emx2-pyclient): test commit message", value: $<< parameters.commit-message >> }
+          matches: { pattern: "test", value: $<< parameters.commit-message >> }
         steps:
         - run: echo "START RELEASE"
         - run:
@@ -146,7 +147,7 @@ commands:
     # ^.*(emx2-pyclient).*$
     - unless:
         condition:
-          matches: { pattern: "build(emx2-pyclient): test commit message", value: << parameters.commit-message >>  }
+          matches: { pattern: "test", value: << parameters.commit-message >>  }
         steps:
         - run: echo "RELEASE2PYPI NO RELEASE << parameters.commit-message >>"
 
