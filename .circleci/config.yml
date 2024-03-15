@@ -133,7 +133,7 @@ commands:
     - when:
         condition:
           matches:
-            pattern: ^.*(emx2-pyclient).*$
+            pattern: ^.*\(emx2-pyclient\).*$
             value: << parameters.commit-message >>
       #      pattern: ^.*python-release.*$
       #      value: << pipeline.git.branch >>
