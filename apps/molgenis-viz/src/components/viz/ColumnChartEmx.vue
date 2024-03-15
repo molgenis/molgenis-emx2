@@ -3,7 +3,7 @@
   <MessageBox v-if="chartError" type="error">
     <output>{{ chartError }}</output>
   </MessageBox>
-  <BarChart
+  <ColumnChart
     v-if="chartSuccess"
     :chartId="chartId"
     :title="title"
@@ -11,19 +11,19 @@
     :chartData="chartData"
     :xvar="xVar"
     :yvar="yVar"
-    :xMax="xMax"
-    :xTickValues="xTickValues"
+    :yMax="yMax"
+    :yTickValues="yTickValues"
     :xAxisLabel="xAxisLabel"
     :yAxisLabel="yAxisLabel"
-    :yAxisLineBreaker="yAxisLineBreaker"
+    :xAxisLineBreaker="xAxisLineBreaker"
     :chartHeight="chartHeight"
     :chartMargins="chartMargins"
-    :barFill="barFill"
-    :barHoverFill="barHoverFill"
-    :barColorPalette="barColorPalette"
-    :barPaddingInner="barPaddingInner"
-    :barPaddingOuter="barPaddingOuter"
-    :barAlign="barAlign"
+    :columnFill="columnFill"
+    :columnHoverFill="columnHoverFill"
+    :columnColorPalette="columnColorPalette"
+    :columnPaddingInner="columnPaddingInner"
+    :columnPaddingOuter="columnPaddingOuter"
+    :columnAlign="columnAlign"
     :enableClicks="enableClicks"
     :enableAnimation="enableAnimation"
   />
@@ -42,7 +42,7 @@
 import { ref, onBeforeMount, watch } from "vue";
 import { gql } from "graphql-tag";
 import { request } from "graphql-request";
-import type { BarChartParams } from "../../interfaces/viz.ts";
+import type { ColumnChartParams } from "../../interfaces/viz.ts";
 import {
   buildQuery,
   gqlExtractSelectionName,
@@ -50,11 +50,11 @@ import {
   prepareChartData,
 } from "../../utils/emxViz.ts";
 
-import BarChart from "./BarChart.vue";
+import ColumnChart from "./ColumnChart.vue";
 import MessageBox from "../display/MessageBox.vue";
 import LoadingScreen from "../display/LoadingScreen.vue";
 
-const props = defineProps<BarChartParams>();
+const props = defineProps<ColumnChartParams>();
 
 let chartLoading = ref<Boolean>(true);
 let chartSuccess = ref<Boolean>(false);

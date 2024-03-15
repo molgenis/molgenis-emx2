@@ -54,8 +54,8 @@ import PageForm from "../components/layouts/PageForm.vue";
 import MessageBox from "../components/display/MessageBox.vue";
 import NewChartSettings from "../app-components/settings_new_chart.vue";
 
-import { query_schema_meta } from "../utils/index";
-import { SchemaMeta } from "../utils/types";
+import { getSchemaMetadata } from "../utils/index";
+import { SchemaMeta } from "../interfaces/schema";
 
 let loading = ref(true);
 let error = ref(false);
@@ -69,7 +69,7 @@ function addNewChart(event: Element) {
 }
 
 onMounted(() => {
-  query_schema_meta()
+  getSchemaMetadata()
     .then((data) => (schema.value = data))
     .catch((err) => (error.value = err))
     .finally(() => (loading.value = false));

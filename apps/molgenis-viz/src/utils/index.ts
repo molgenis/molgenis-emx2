@@ -1,39 +1,6 @@
-import { gql, request } from "graphql-request";
+import { request } from "graphql-request";
 import { emxTypes } from "../utils/defaults";
-
-/**
- * Query schema metadata including tables and columns
- */
-export async function query_schema_meta() {
-  const query = gql`
-    query {
-      _schema {
-        name
-        tables {
-          name
-          tableType
-          columns {
-            name
-            label
-            columnType
-          }
-        }
-      }
-    }
-  `;
-  const response = await request("../api/graphql", query);
-  const data = response._schema;
-  data.tables = data.tables
-    .filter((table) => table.tableType === "DATA")
-    .map((table) => {
-      const columns = table.columns.filter(
-        (column) => column.name.indexOf("mg_") === -1
-      );
-      table.columns = columns;
-      return table;
-    });
-  return data;
-}
+import schema from "../gql/schema";
 
 /**
  * Map color values to one or more groups
@@ -50,6 +17,36 @@ export function createPalette(labels: Array, palette: Array): Object {
 }
 
 /**
+ * Generate a psuedo-random string of numbers and letters
+ * @param length number of characters to return in the string
+ * @returns String of letters and numbers
+ */
+export function generateIdString(length: Number = 6) {
+  return Math.random()
+    .toString(36)
+    .substring(2, 2 + length);
+}
+
+/**
+ * Query schema metadata including tables and columns
+ */
+export async function getSchemaMetadata() {
+  const query = schema;
+  const response = await request("../api/graphql", query);
+  const data = response._schema;
+  data.tables = data.tables
+    .filter((table) => table.tableType === "DATA")
+    .map((table) => {
+      const columns = table.columns.filter(
+        (column) => column.name.indexOf("mg_") === -1
+      );
+      table.columns = columns;
+      return table;
+    });
+  return data;
+}
+
+/**
  * Generate a sequence between two numbers by a specific interval
  * @param start the number to start the sequence
  * @param stop the number to stop the sequence
@@ -61,15 +58,6 @@ export function seqAlongBy(start: Number, stop: Number, by: Number): Array {
     { length: (stop - start) / by + 1 },
     (_, i) => start + i * by
   );
-}
-
-/**
- * Check to see if number is between 0 and 1
- * @param value a value that is between 0 and 1
- * @returns boolean
- */
-export function validateNumRange(value: number) {
-  return value >= 0 && value <= 1;
 }
 
 /**
@@ -96,12 +84,10 @@ export function setChartType(xType: String, yType: String) {
 }
 
 /**
- * Generate a psuedo-random string of numbers and letters
- * @param length number of characters to return in the string
- * @returns String of letters and numbers
+ * Check to see if number is between 0 and 1
+ * @param value a value that is between 0 and 1
+ * @returns boolean
  */
-export function generateIdString(length: Number = 6) {
-  return Math.random()
-    .toString(36)
-    .substring(2, 2 + length);
+export function validateNumRange(value: number) {
+  return value >= 0 && value <= 1;
 }
