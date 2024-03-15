@@ -156,7 +156,7 @@ commands:
     # ^.*(emx2-pyclient).*$
     - unless:
         condition:
-          matches: { pattern: ^.*python-release.*$, value: << pipeline.git.branch >>  }
+          matches: { pattern: ^.*\(emx2-pyclient\).*$, value: << parameters.commit-message >>  }
         steps:
         - run: echo "RELEASE2PYPI NO RELEASE << pipeline.git.branch >>"
 
@@ -207,8 +207,8 @@ jobs:
 
     - post_steps
     - release2pypi:
-        commit-message: $COMMIT_MESSAGE_ENV
-
+        commit-message: "build(emx2-pyclient): test commit message"
+  # $COMMIT_MESSAGE_ENV
   test:
     <<: *test_config
 
