@@ -124,7 +124,7 @@ commands:
         type: string
         default: ""
     steps:
-    - run: echot "PIPELINE GIT REVISION << pipeline.git.revision >> "
+    - run: echo "PIPELINE GIT REVISION << pipeline.git.revision >> "
     - run: echo "PIPELINE BRANCH << pipeline.git.branch >>"
     - run: echo "commit parameter << parameters.commit-message >>"
 #    - run:
@@ -208,7 +208,7 @@ jobs:
 
     - post_steps
     - release2pypi:
-        commit-message: "build(emx2-pyclient): test commit message"
+        commit-message: $(git log -n 1 --pretty=format:%s $CIRCLE_SHA1)
   # $COMMIT_MESSAGE_ENV
   test:
     <<: *test_config
