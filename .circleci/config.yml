@@ -125,7 +125,7 @@ commands:
         default: ""
     steps:
     - run: echo "PIPELINE BRANCH << pipeline.git.branch >>"
-    - run: echo "commit parameter << parameter.commit-message >>"
+    - run: echo "commit parameter << parameters.commit-message >>"
 #    - run:
 #        command: |
 #          if [[ $COMMIT_ENV_VAR =~ "^.*(emx2-pyclient).*$" ]]; then
