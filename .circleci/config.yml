@@ -138,7 +138,7 @@ commands:
           name: Release to PyPI if needed
           command: |
             echo "commit message $COMMIT_MESSAGE_ENV"
-            export REGEX="^.*\(emx2-pyclient\).*$"
+            export REGEX="^.*(emx2-pyclient).*$"
             if [[ $COMMIT_MESSAGE_ENV =~ $REGEX ]]; then  
               echo "RELEASE TO PYPI"
               export $( cat build/ci.properties | xargs )
