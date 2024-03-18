@@ -138,7 +138,8 @@ commands:
           name: Release to PyPI if needed
           command: |
             echo "commit message $COMMIT_MESSAGE_ENV"
-            if [[ $COMMIT_MESSAGE_ENV =~ "^.*\(emx2-pyclient\).*$" ]]; then  
+            export REGEX="^.*\(emx2-pyclient\).*$"
+            if [[ $COMMIT_MESSAGE_ENV =~ $REGEX ]]; then  
               echo "RELEASE TO PYPI"
               export $( cat build/ci.properties | xargs )
               ./gradlew -s --no-daemon publishPython
