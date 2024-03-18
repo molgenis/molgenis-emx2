@@ -52,9 +52,7 @@ commands:
     - run:
         command: |
           export COMMIT_MESSAGE=$(git log -1 --pretty=format:%s)
-          echo "COMMIT MESSAGE: $COMMIT_MESSAGE"
           echo "export COMMIT_MESSAGE_ENV=\"$(git log -1 --pretty=format:%s)\"" >> "$BASH_ENV"
-          echo "COMMIT MESSAGE ENV: $COMMIT_MESSAGE_ENV"
     - run:
         name: Setup git, todo, move to molgenisci user
         command: |
@@ -110,13 +108,12 @@ commands:
           name: reset PyPI credentials
           command: |
             if [ -z "$CIRCLE_PULL_REQUEST" ]; then
-               echo "export TWINE_PASSWORD=$PYPI_PASSWORD" >> "$BASH_ENV"
                echo "Reset PyPI Password"
+               echo "export TWINE_PASSWORD=$PYPI_PASSWORD" >> "$BASH_ENV"
             fi
       - run:
           name: Release to PyPI if needed
           command: |
-            echo "commit message $COMMIT_MESSAGE_ENV"
             export REGEX="^.*(emx2-pyclient).*$"
             if [[ $COMMIT_MESSAGE_ENV =~ $REGEX ]]; then  
               echo "RELEASE TO PYPI"
