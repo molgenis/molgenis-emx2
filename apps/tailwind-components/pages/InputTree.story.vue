@@ -7,9 +7,8 @@ function generateTreeData(width: number, depth: number, parentName?: string) {
     const name = parentName ? parentName + `.${i}` : `Node ${i}`;
     const node: ITreeNode = {
       name,
-      selected: false,
-      expanded: false,
       children: depth > 0 ? generateTreeData(width, depth - 1, name) : [],
+      description: `Description for ${name}`,
     };
 
     nodes.push(node);
@@ -19,16 +18,18 @@ function generateTreeData(width: number, depth: number, parentName?: string) {
 
 const width = 2;
 const depth = 3;
-const rootNodes = generateTreeData(width, depth);
+const nodes = generateTreeData(width, depth);
 
-const selectedNodes: Ref<ITreeNode[]> = ref([]);
+const selectedNodesNames: Ref<string[]> = ref([]);
 
 const clearSelection = () => {
-  selectedNodes.value = [];
+  selectedNodesNames.value = [];
 };
 
-const deselect = (node: ITreeNode) => {
-  selectedNodes.value = selectedNodes.value.filter((n) => n !== node);
+const deselect = (selectedNodeName: string) => {
+  selectedNodesNames.value = selectedNodesNames.value.filter(
+    (n) => n !== selectedNodeName
+  );
 };
 </script>
 
@@ -36,8 +37,8 @@ const deselect = (node: ITreeNode) => {
   <div class="flex mb-4">
     <div class="flex-1 h-12">
       <InputTree
-        :rootNodes="rootNodes"
-        v-model="selectedNodes"
+        :nodes="nodes"
+        v-model="selectedNodesNames"
         :expandSelected="true"
         class="bg-blue-500 p-4"
       />
@@ -45,7 +46,7 @@ const deselect = (node: ITreeNode) => {
 
     <div class="h-12 p-4">
       <div>
-        Number off selected nodes: {{ selectedNodes.length }}
+        Number off selected nodes: {{ selectedNodesNames.length }}
         <button
           @click="clearSelection"
           class="bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded"
@@ -56,10 +57,10 @@ const deselect = (node: ITreeNode) => {
       <div>
         Selected nodes:
         <ul>
-          <li v-for="node in selectedNodes">
-            {{ node.name }}
+          <li v-for="selectedNodeName in selectedNodesNames">
+            {{ selectedNodeName }}
             <button
-              @click="deselect(node)"
+              @click="deselect(selectedNodeName)"
               class="bg-gray-400 hover:bg-gray-600 text-white py-0 px-1 mx-1 rounded"
             >
               x
