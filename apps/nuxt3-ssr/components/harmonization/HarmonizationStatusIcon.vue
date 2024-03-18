@@ -22,6 +22,8 @@ const tableClass = computed(() => {
       return "bg-yellow-200";
     case "complete":
       return "bg-green-500";
+    case "available":
+      return "bg-blue-500";
   }
 });
 

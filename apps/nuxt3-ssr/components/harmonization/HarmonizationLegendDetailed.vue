@@ -27,18 +27,35 @@ const props = withDefaults(
       </li>
     </ul>
     <VDropdown :triggers="['hover', 'focus']" :distance="12" theme="tooltip">
-      <span class="text-blue-500 hover:underline cursor-pointer"
-        >About statuses</span
-      >
+      <div class="flex gap-1 text-blue-500 hover:underline cursor-pointer">
+        <BaseIcon name="info" />
+        <span> About statuses </span>
+      </div>
       <template #popper>
-        <ul class="pl-3 min-w-95 list-disc">
+        <ul class="list-none [&_li]:flex [&_li]:gap-1">
           <li>
-            Completed: cohort was able to fully map to the harmonized variables
+            <HarmonizationStatusIcon size="small" status="complete" />
+            <span>Completed</span>
+            <span
+              >cohort was able to fully map to the harmonized variables</span
+            >
           </li>
           <li>
-            Partial: cohort was able to partially map to the harmonized variable
+            <HarmonizationStatusIcon size="small" status="partial" />
+            <span>Partial</span>
+            <span
+              >cohort was able to partially map to the harmonized variable</span
+            >
           </li>
-          <li>No data: no harmonization information is available</li>
+          <li>
+            <HarmonizationStatusIcon
+              size="small"
+              status="unmapped"
+              class="bg-white"
+            />
+            <span>No data</span>
+            <span>no harmonization information is available</span>
+          </li>
         </ul>
       </template>
     </VDropdown>
