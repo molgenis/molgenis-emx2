@@ -130,8 +130,8 @@ commands:
       - run:
           name: reset PyPI credentials
           command: |
-            if [ -z "$CIRCLE_PULL_REQUEST" ]; then
-               export TWINE_PASSWORD=$PYPI_TOKEN
+            if [ -n "$CIRCLE_PULL_REQUEST" ]; then
+               export TWINE_PASSWORD=$PYPI_PASSWORD
                echo "Reset PyPI Password"
             fi
       - run:
