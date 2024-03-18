@@ -45,15 +45,6 @@ definitions:
 
 commands:
   pre_steps:
-#    parameters:
-#      release2pypi:
-#        description: A boolean parameter indicating if a new version of the emx2-pyclient needs to be released
-#        type: boolean
-#        default: false
-#      commit-message:
-#        description: commit message to check if a new version of the emx2-pyclient needs to be released
-#        type: string
-#        default: ""
     steps:
     - checkout
     - run: git fetch --all --tags
@@ -114,23 +105,11 @@ commands:
 #        path: ./build/libs
 
   release2pypi:
-#    parameters:
-#      commit-message:
-#        description: commit message to check if a new version of the emx2-pyclient needs to be released
-#        type: string
-#        default: ""
-    #    - when:
-    #        condition:
-    #          matches:
-    #            pattern: ^.*\(emx2-pyclient\).*$
-    #            value: << parameters.commit-message >>
-    #      pattern: ^.*python-release.*$
-    #      value: << pipeline.git.branch >>
     steps:
       - run:
           name: reset PyPI credentials
           command: |
-            if [ -n "$CIRCLE_PULL_REQUEST" ]; then
+            if [ -z "$CIRCLE_PULL_REQUEST" ]; then
                echo "export TWINE_PASSWORD=$PYPI_PASSWORD" >> "$BASH_ENV"
                echo "Reset PyPI Password"
             fi
@@ -142,7 +121,13 @@ commands:
             if [[ $COMMIT_MESSAGE_ENV =~ $REGEX ]]; then  
               echo "RELEASE TO PYPI"
               export $( cat build/ci.properties | xargs )
-              ./gradlew -s --no-daemon publishPython
+              ./gradlew -s --no-daemon publishPython > pypi_output
+              curl -d "token=${SLACK_TOKEN}" \
+              -d "text=*<${CIRCLE_PULL_REQUEST}|Circle-CI » Molgenis » Molgenis-emx2 » PR-${CIRCLE_PULL_REQUEST##*/} #${CIRCLE_BUILD_NUM}>*
+              A new molgenis-emx2-pyclient version is released: $( grep 'View at:' pypi_output -A 1 | grep -v 'View at:' )" \
+              -d "channel=C02AZDG6QQ7" \
+              -X POST https://slack.com/api/chat.postMessage
+            
             else
               echo "NO RELEASE NECESSARY"
             fi
@@ -158,11 +143,6 @@ jobs:
     - run:
         command: |
           echo "COMMIT MESSAGE ENV in preview: $COMMIT_MESSAGE_ENV"
-#          if [[ $(git log -1 --pretty=format:%s) == *"(emx2-pyclient)"* ]]; then
-#            release2pypi: true
-#          else
-#            echo "NO PYPI RELEASE"
-#          fi
     - run:
         name: build and push emx2 java docker images for the preview
         command: ./gradlew -s --no-daemon shadowJar dockerPush ci -x test
@@ -263,6 +243,7 @@ jobs:
           -X POST https://slack.com/api/chat.postMessage  
 
     - post_steps
+    - release2pypi
   e2e-preview:
     docker:
       - image: mcr.microsoft.com/playwright:v1.42.1-jammy
