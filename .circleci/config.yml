@@ -131,7 +131,7 @@ commands:
           name: reset PyPI credentials
           command: |
             if [ -n "$CIRCLE_PULL_REQUEST" ]; then
-               export TWINE_PASSWORD=$PYPI_PASSWORD
+               echo "export TWINE_PASSWORD=$PYPI_PASSWORD" >> "$BASH_ENV"
                echo "Reset PyPI Password"
             fi
       - run:
