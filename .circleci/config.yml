@@ -134,15 +134,15 @@ commands:
                export TWINE_PASSWORD=$PYPI_TOKEN
                echo "Reset PyPI Password"
             fi
-            test=$TWINE_PASSWORD
-            echo $test
       - run:
           name: Release to PyPI if needed
           command: |
+            echo $COMMIT_ENV_VAR
             if [[ $COMMIT_ENV_VAR =~ "^.*(emx2-pyclient).*$" ]]; then  
               echo "RELEASE TO PYPI"
-#         export $( cat build/ci.properties | xargs )
-#         ./gradlew -s --no-daemon publishPython
+              export $( cat build/ci.properties | xargs )
+              ./gradlew -s --no-daemon publishPython
+            fi
 
 # jobs for pull request and master
 jobs:
@@ -151,7 +151,6 @@ jobs:
     steps:
     - run: |
         echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
-#    - run: COMMIT_MESSAGE=$(git log -1 --pretty=format:%s)
     - pre_steps
     - run:
         command: |
