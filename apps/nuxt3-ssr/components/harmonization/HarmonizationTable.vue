@@ -66,7 +66,13 @@ let activeVariablePath = computed(() =>
 
         <template #cell="cell">
           <HarmonizationTableCellAvailableIcon
-            :status="statusMap[cell.value.rowIndex][cell.value.columnIndex]"
+            :status="
+              ['complete', 'partial'].includes(
+                statusMap[cell.value.rowIndex][cell.value.columnIndex]
+              )
+                ? 'available'
+                : 'unmapped'
+            "
             @click="activeRowIndex = cell.value.rowIndex"
           ></HarmonizationTableCellAvailableIcon>
         </template>
