@@ -105,7 +105,7 @@ commands:
   release2pypi:
     steps:
       - run:
-          name: reset PyPI credentials
+          name: Reset PyPI credentials
           command: |
             if [ -z "$CIRCLE_PULL_REQUEST" ]; then
                echo "Reset PyPI Password"
