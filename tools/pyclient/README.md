@@ -6,7 +6,7 @@ The releases of the package are hosted at [PyPI](https://pypi.org/project/molgen
 The recommended way to install the latest version is through `pip`.
 
 ```console
-pip install molgenis_emx2_pyclient
+pip install molgenis-emx2-pyclient
 ```
 
 ## How to use
