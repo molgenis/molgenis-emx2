@@ -1,0 +1,29 @@
+import "ontology.jslt" as ontology
+import "meta.jslt" as meta
+{
+    "meta": meta(.),
+    "responseSummary": { "exist": true },
+    "response": {
+        "resultSets":
+        [for (.resultSets)
+            {
+                "id": .id,
+                "type": "dataset",
+                "setType": "analyses",
+                "exists": true,
+                "resultsCount": size(.results),
+                "results":
+                [for (.results) {
+                    "id": .id,
+                    "runId": .runId,
+                    "biosampleId": .biosampleId,
+                    "individualId": .individualId,
+                    "analysisDate": .analysisDate,
+                    "pipelineName": .pipelineName,
+                    "pipelineRef": .pipelineRef,
+                    "aligner": .aligner,
+                    "variantCaller": .variantCaller
+                }]
+            }]
+    }
+}

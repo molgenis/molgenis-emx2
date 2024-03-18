@@ -8,7 +8,7 @@ public class NCITToGSSOSexMapping {
     super();
   }
 
-  public HashMap getMapping() {
+  public HashMap<String, String> getMapping() {
     HashMap<String, String> mapping = new HashMap<>();
 
     // NCIT "Female". A person who belongs to the sex that normally produces ova. The term is

@@ -1,0 +1,32 @@
+import "ontology.jslt" as ontology
+import "meta.jslt" as meta
+let host = .host
+{
+    "meta": meta(.),
+    "responseSummary": {
+        "exist": true
+    },
+    "response": {
+        "resultSets":
+        [for (.resultSets)
+        {
+            let id = .id
+            "id": $id,
+            "type": "dataset",
+            "setType": "datasets",
+            "exists": true,
+            "resultsCount": size(.results),
+            "results":
+            [for (.results) {
+                "createDateTime": .mg_insertedOn,
+                "description": .description,
+                "externalUrl": $host + "/api/fdp/dataset/" + $id + "/" + .id,
+                "id": .id,
+                "info": "info",
+                "name": .title,
+                "updateDateTime": .mg_updatedOn,
+                "version": .mg_updatedOn
+            }]
+        }]
+    }
+}

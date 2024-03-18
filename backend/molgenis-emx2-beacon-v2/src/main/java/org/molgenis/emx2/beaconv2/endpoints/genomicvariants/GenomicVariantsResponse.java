@@ -1,6 +1,7 @@
 package org.molgenis.emx2.beaconv2.endpoints.genomicvariants;
 
 import static org.molgenis.emx2.FilterBean.*;
+import static org.molgenis.emx2.beaconv2.QueryEntryType.getTableFromAllSchemas;
 import static org.molgenis.emx2.beaconv2.endpoints.genomicvariants.GenomicQueryType.*;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
@@ -8,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.ArrayList;
 import java.util.List;
+import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Table;
 import spark.Request;
 
@@ -32,8 +34,9 @@ public class GenomicVariantsResponse {
   @JsonIgnore private final String qAlternateBases;
   @JsonIgnore private String qGeneId;
 
-  public GenomicVariantsResponse(Request request, List<Table> genomicVariantTables)
-      throws Exception {
+  public GenomicVariantsResponse(Request request, Database database) throws Exception {
+
+    List<Table> genomicVariantTables = getTableFromAllSchemas(database, "GenomicVariations");
 
     List<GenomicVariantsResultSets> resultSetsList = new ArrayList<>();
     qReferenceName = request.queryParams("referenceName");

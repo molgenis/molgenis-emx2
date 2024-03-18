@@ -54,6 +54,7 @@ subprojects {
         implementation 'org.pac4j:spark-pac4j:5.0.0'
         implementation 'org.javers:javers-core:6.14.0'
         implementation 'com.nimbusds:nimbus-jose-jwt:9.37'
+        implementation 'com.schibsted.spt.data:jslt:0.1.14'
 
         //also used outside test
         implementation 'org.junit.jupiter:junit-jupiter:5.10.1'

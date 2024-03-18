@@ -1,0 +1,30 @@
+import "ontology.jslt" as ontology
+import "meta.jslt" as meta
+{
+    "meta": meta(.),
+    "responseSummary": { "exist": true },
+    "response": {
+        "resultSets":
+        [for (.resultSets)
+            {
+                "id": .id,
+                "type": "dataset",
+                "setType": "runs",
+                "exists": true,
+                "resultsCount": size(.results),
+                "results":
+                [for (.results) {
+                    "id": .id,
+                    "biosampleId": .biosampleId.id,
+                    "individualId": .individualId.id,
+                    "runDate": .runDate,
+                    "librarySource": ontology(.librarySource),
+                    "librarySelection": .librarySelection,
+                    "libraryStrategy": ontology(.libraryStrategy),
+                    "libraryLayout": .libraryLayout,
+                    "platform": ontology(.platform),
+                    "platformModel": ontology(.platformModel)
+                }]
+            }]
+    }
+}
