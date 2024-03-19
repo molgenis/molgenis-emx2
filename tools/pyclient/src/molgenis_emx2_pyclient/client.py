@@ -671,22 +671,17 @@ class Client:
             args['includeDemoData'] = args.pop('include_demo_data')
         return args
 
-    def _table_in_schema(self, table: str, schema: str) -> bool:
+    def _table_in_schema(self, table_name: str, schema_name: str) -> bool:
         """Checks whether the requested table is present in the schema.
 
-        :param table: the name of the table
-        :type table: str
-        :param schema: the name of the schema
-        :type schema: str
+        :param table_name: the name of the table
+        :type table_name: str
+        :param schema_name: the name of the schema
+        :type schema_name: str
         :returns: boolean indicating whether table is present
         :rtype: bool
         """
-        response = self.session.post(
-            url=f"{self.url}/{schema}/graphql",
-            json={'query': queries.list_tables()},
-            headers={"x-molgenis-token": self.token}
-        )
-        schema_data = Schema(**response.json().get('data').get('_schema'))
-        if table in map(str, schema_data.tables):
+        schema_data = self.get_schema_metadata(schema_name)
+        if table_name in map(str, schema_data.tables):
             return True
         return False
