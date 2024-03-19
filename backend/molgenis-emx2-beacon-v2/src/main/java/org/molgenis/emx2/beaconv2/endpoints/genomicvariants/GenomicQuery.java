@@ -27,7 +27,7 @@ public class GenomicQuery {
       String qReferenceBases,
       String qAlternateBases) {
     List<GenomicVariantsResultSets> resultSetsList = new ArrayList<>();
-    GraphQL grapql = new GraphqlApiFactory().createGraphqlForSchema(table.getSchema());
+    GraphQL grapql = new GraphqlApiFactory().createGraphqlForSchema(null, table.getSchema());
     ExecutionResult executionResult =
         grapql.execute(
             "{"

@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.datamodels.DataCatalogueCohortStagingLoader.DATA_CATALOGUE;
 import static org.molgenis.emx2.datamodels.DataCatalogueCohortStagingLoader.SHARED_STAGING;
+import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
 
 import org.junit.jupiter.api.*;
 import org.molgenis.emx2.Database;
@@ -28,7 +29,7 @@ public class TestLoaders {
 
   @BeforeAll
   public static void setup() {
-    database = TestDatabaseFactory.getTestDatabase();
+    database = TestDatabaseFactory.getTestDatabase(ADMIN_USER);
     // prevend previous dangling test results
     database.dropSchemaIfExists(COHORT_STAGING);
     database.dropSchemaIfExists(NETWORK_STAGING);

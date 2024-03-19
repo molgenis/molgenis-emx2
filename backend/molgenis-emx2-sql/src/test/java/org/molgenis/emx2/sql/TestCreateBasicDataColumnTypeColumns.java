@@ -41,8 +41,7 @@ public class TestCreateBasicDataColumnTypeColumns {
 
     // retrieve this table from metadataa
 
-    db.clearCache();
-
+    db = new SqlDatabase(SqlDatabase.ADMIN_USER);
     Table t2 = db.getSchema(SCHEMA_NAME).getTable(SimpleTypeTestExample.TYPE_TEST);
 
     StopWatch.print("created TypeTest table");

@@ -8,11 +8,11 @@ import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeCreateSchem
 
 import com.zaxxer.hikari.HikariDataSource;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import javax.sql.DataSource;
 import org.jooq.DSLContext;
 import org.jooq.SQLDialect;
 import org.jooq.conf.Settings;
-import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.EnvironmentProperty;
@@ -34,8 +34,9 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
 
   private Integer databaseVersion;
   private DSLContext jooq;
+  private DSLContext adminJooq;
   private final SqlUserAwareConnectionProvider connectionProvider;
-  private final Map<String, SqlSchemaMetadata> schemaCache = new LinkedHashMap<>(); // cache
+  private final Map<String, SqlSchemaMetadata> schemaCache = new ConcurrentHashMap<>(); // cache
   private Collection<String> schemaNames = new ArrayList<>();
   private Collection<SchemaInfo> schemaInfos = new ArrayList<>();
   private boolean inTx;
@@ -53,13 +54,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   private DatabaseListener listener =
       new DatabaseListener() {
         @Override
-        public void userChanged() {
-          clearCache();
-        }
-
-        @Override
         public void afterCommit() {
-          clearCache();
           super.afterCommit();
           logger.info("cleared caches after commit that includes changes on schema(s)");
         }
@@ -68,20 +63,12 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   // for acting on save/deletes on tables
   private List<TableListener> tableListeners = new ArrayList<>();
 
-  // copy constructor for transactions; only with its own jooq instance that contains tx
-  private SqlDatabase(DSLContext jooq, SqlDatabase copy) {
-    this.connectionProvider = new SqlUserAwareConnectionProvider(source);
-    this.connectionProvider.setActiveUser(copy.connectionProvider.getActiveUser());
-    this.jooq = jooq;
-    databaseVersion = MetadataUtils.getVersion(jooq);
+  public SqlDatabase() {
+    this(false);
+  }
 
-    // copy all schemas
-    this.schemaNames.addAll(copy.schemaNames);
-    this.schemaInfos.addAll(copy.schemaInfos);
-    this.setSettingsWithoutReload(copy.getSettings());
-    for (Map.Entry<String, SqlSchemaMetadata> schema : copy.schemaCache.entrySet()) {
-      this.schemaCache.put(schema.getKey(), new SqlSchemaMetadata(this, schema.getValue()));
-    }
+  public SqlDatabase(String user) {
+    this(false, user);
   }
 
   private void setJooq(DSLContext ctx) {
@@ -89,21 +76,18 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   }
 
   public SqlDatabase(boolean init) {
+    this(init, ANONYMOUS);
+  }
+
+  public SqlDatabase(boolean init, String user) {
     initDataSource();
-    this.connectionProvider = new SqlUserAwareConnectionProvider(source);
+    this.connectionProvider = new SqlUserAwareConnectionProvider(source, user);
     final Settings settings = new Settings().withQueryTimeout(TEN_SECONDS);
     this.jooq = DSL.using(connectionProvider, SQLDialect.POSTGRES, settings);
     if (init) {
-      try {
-        // elevate privileges for init (prevent reload)
-        this.connectionProvider.setActiveUser(ADMIN_USER);
-        this.init();
-      } finally {
-        // always sure to return to anonymous
-        this.connectionProvider.clearActiveUser();
-      }
+      this.init();
     }
-    // get database version if exists
+    this.setSettingsWithoutReload(MetadataUtils.loadDatabaseSettings(getJooq()));
     databaseVersion = MetadataUtils.getVersion(jooq);
     logger.info("Database was created using version: {} ", this.databaseVersion);
   }
@@ -158,9 +142,6 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
         addUser(ADMIN_USER);
         setUserPassword(ADMIN_USER, initialAdminPassword);
       }
-
-      // get the settings
-      clearCache();
 
       if (getSetting(Constants.IS_OIDC_ENABLED) == null) {
         // use environment property unless overridden in settings
@@ -241,8 +222,6 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
           if (db.getActiveUser() != null && !db.getActiveUser().equals(ADMIN_USER)) {
             schema.addMember(db.getActiveUser(), Privileges.MANAGER.toString());
           }
-          // refresh
-          db.clearCache();
         });
     getListener().schemaChanged(name);
     this.log(start, "created schema " + name);
@@ -268,9 +247,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
         db -> {
           SqlSchemaMetadata metadata = new SqlSchemaMetadata(db, name, description);
           MetadataUtils.saveSchemaMetadata(((SqlDatabase) db).getJooq(), metadata);
-
-          // refresh
-          db.clearCache();
+          schemaCache.put(name, metadata);
         });
     getListener().schemaChanged(name);
     this.log(start, "updated schema " + name);
@@ -382,16 +359,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       long start = System.currentTimeMillis();
       // need elevated privileges, so clear user and run as root
       // this is not thread safe therefore must be in a transaction
-      tx(
-          db -> {
-            String currentUser = db.getActiveUser();
-            try {
-              db.becomeAdmin();
-              executeCreateUser((SqlDatabase) db, userName);
-            } finally {
-              db.setActiveUser(currentUser);
-            }
-          });
+      tx(db -> executeCreateUser(new SqlDatabase(ADMIN_USER), userName));
       log(start, "created user " + userName);
     }
     return getUser(userName);
@@ -465,32 +433,6 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   }
 
   @Override
-  public void setActiveUser(String username) {
-    if (username == null || username.isEmpty()) {
-      throw new MolgenisException("setActiveUser failed: username cannot be null");
-    }
-    if (inTx) {
-      try {
-        if (username.equals(ADMIN_USER)) {
-          // admin user is session user, so remove role
-          jooq.execute("RESET ROLE;");
-        } else {
-          // any other user should be set
-          jooq.execute("RESET ROLE; SET ROLE {0}", name(MG_USER_PREFIX + username));
-        }
-      } catch (DataAccessException dae) {
-        throw new SqlMolgenisException("Set active user failed", dae);
-      }
-    } else {
-      if (!Objects.equals(username, connectionProvider.getActiveUser())) {
-        listener.userChanged();
-      }
-    }
-    this.connectionProvider.setActiveUser(username);
-    this.clearCache();
-  }
-
-  @Override
   public String getActiveUser() {
     String user = jooq.fetchOne("SELECT CURRENT_USER").get(0, String.class);
     if (user.equals(postgresUser)) {
@@ -506,27 +448,14 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   }
 
   @Override
-  public void clearActiveUser() {
-    if (inTx) {
-      // then we don't use the connection provider
-      try {
-        setActiveUser(ANONYMOUS);
-      } catch (DataAccessException dae) {
-        throw new SqlMolgenisException("Clear active user failed", dae);
-      }
-    }
-    this.connectionProvider.clearActiveUser();
-  }
-
-  @Override
   public void tx(Transaction transaction) {
     if (inTx) {
       // we do not nest transactions
       transaction.run(this);
     } else {
       // we create a new instance, isolated from 'this' until end of transaction
-      SqlDatabase db = new SqlDatabase(jooq, this);
-      this.tableListeners.forEach(listener -> db.addTableListener(listener));
+      SqlDatabase db = new SqlDatabase(getActiveUser());
+      this.tableListeners.forEach(db::addTableListener);
       try {
         jooq.transaction(
             config -> {
@@ -539,9 +468,6 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
             });
         // only when commit succeeds we copy state to 'this'
         this.sync(db);
-        if (!Objects.equals(db.getActiveUser(), getActiveUser())) {
-          this.getListener().userChanged();
-        }
         if (db.getListener().isDirty()) {
           this.getListener().afterCommit();
         }
@@ -559,9 +485,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
 
   private synchronized void sync(SqlDatabase from) {
     if (from != this) {
-      this.connectionProvider.setActiveUser(from.connectionProvider.getActiveUser());
       this.databaseVersion = from.databaseVersion;
-
       this.schemaNames = from.schemaNames;
       this.schemaInfos = from.schemaInfos;
       this.setSettingsWithoutReload(from.getSettings());
@@ -597,21 +521,6 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     return inTx;
   }
 
-  @Override
-  public void clearCache() {
-    this.schemaCache.clear();
-    this.schemaNames.clear();
-    this.schemaInfos.clear();
-    // elevate privileges for loading settings
-    String user = this.connectionProvider.getActiveUser();
-    try {
-      this.connectionProvider.setActiveUser(ADMIN_USER);
-      this.setSettingsWithoutReload(MetadataUtils.loadDatabaseSettings(getJooq()));
-    } finally {
-      this.connectionProvider.setActiveUser(user);
-    }
-  }
-
   public DSLContext getJooq() {
     return jooq;
   }
@@ -645,11 +554,6 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   }
 
   @Override
-  public void becomeAdmin() {
-    this.setActiveUser(getAdminUserName());
-  }
-
-  @Override
   public boolean isOidcEnabled() {
     return this.isOidcEnabled;
   }
@@ -670,7 +574,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   @Override
   public User getUser(String userName) {
     if (hasUser(userName)) {
-      User user = MetadataUtils.loadUserMetadata(this, userName);
+      User user = MetadataUtils.loadUserMetadata(getAdminDatabase(), userName);
       // might not yet have any metadata saved
       return user != null ? user : new User(this, userName);
     }
@@ -693,5 +597,18 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       return result.get();
     }
     return null;
+  }
+
+  public DSLContext getAdminJooq() {
+    if (adminJooq == null) {
+      SqlUserAwareConnectionProvider adminProvider =
+          new SqlUserAwareConnectionProvider(source, ADMIN_USER);
+      this.adminJooq = DSL.using(adminProvider, SQLDialect.POSTGRES);
+    }
+    return adminJooq;
+  }
+
+  public static SqlDatabase getAdminDatabase() {
+    return new SqlDatabase(ADMIN_USER);
   }
 }

@@ -679,7 +679,6 @@ public class WebApiSmokeTests {
         .get("/pet store/");
 
     schema.getMetadata().removeSetting("menu");
-    db.becomeAdmin();
   }
 
   @Test

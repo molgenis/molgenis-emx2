@@ -108,8 +108,6 @@ public class TestBatchRequestsForSpeed {
 
     // reinitialise database to see if it can recreate from background
     StopWatch.print("reloading database from disk");
-
-    db.clearCache();
     schema = db.getSchema("testCreate");
     assertEquals(11, schema.getTableNames().size());
     StopWatch.print("reloading complete");
@@ -158,7 +156,7 @@ public class TestBatchRequestsForSpeed {
     assertNull(db.getSchema("testCreate").getTable(personTable.getName()));
 
     // make sure nothing was left behind in backend
-    db.clearCache();
+    db = new SqlDatabase(SqlDatabase.ADMIN_USER);
     assertNull(db.getSchema("testCreate").getTable(personTable.getName()));
   }
 }

@@ -3,6 +3,7 @@ package org.molgenis.emx2.graphql;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.molgenis.emx2.graphql.GraphqlApiFactory.convertExecutionResultToJson;
+import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -27,15 +28,17 @@ public class TestGraphqlCrossSchemaRefs {
 
   @BeforeAll
   public static void setup() {
-    Database database = TestDatabaseFactory.getTestDatabase();
-    database.becomeAdmin();
+    Database database = TestDatabaseFactory.getTestDatabase(ADMIN_USER);
     database.dropSchemaIfExists(schemaName2);
     database.dropSchemaIfExists(schemaName1);
     schema1 = database.createSchema(schemaName1);
     schema2 = database.createSchema(schemaName2);
 
     CrossSchemaReferenceExample.create(schema1, schema2);
-    graphql = new GraphqlApiFactory().createGraphqlForSchema(schema2);
+    graphql =
+        new GraphqlApiFactory()
+            .createGraphqlForSchema(
+                new MolgenisSession(null).setSessionUser(ADMIN_USER), schema2.getName());
   }
 
   @Test

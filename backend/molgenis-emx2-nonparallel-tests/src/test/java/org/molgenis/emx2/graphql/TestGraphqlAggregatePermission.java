@@ -16,6 +16,7 @@ import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.datamodels.PetStoreLoader;
+import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import org.molgenis.emx2.tasks.TaskService;
 import org.molgenis.emx2.tasks.TaskServiceInMemory;
@@ -34,10 +35,11 @@ public class TestGraphqlAggregatePermission {
     new PetStoreLoader().load(schema, true);
     schema.removeMember(ANONYMOUS);
     schema.addMember("AGGREGATE_TEST_USER", AGGREGATOR.toString());
-    database.setActiveUser("AGGREGATE_TEST_USER");
+    database = new SqlDatabase("AGGREGATE_TEST_USER");
     taskService = new TaskServiceInMemory();
     grapql =
-        new GraphqlApiFactory().createGraphqlForSchema(database.getSchema(schemaName), taskService);
+        new GraphqlApiFactory()
+            .createGraphqlForSchema(null, database.getSchema(schemaName), taskService);
   }
 
   @Test

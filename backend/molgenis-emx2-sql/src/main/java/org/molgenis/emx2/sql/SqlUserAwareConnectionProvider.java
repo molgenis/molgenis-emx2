@@ -15,8 +15,9 @@ import org.jooq.impl.DataSourceConnectionProvider;
 public class SqlUserAwareConnectionProvider extends DataSourceConnectionProvider {
   private String activeUser;
 
-  public SqlUserAwareConnectionProvider(DataSource source) {
+  public SqlUserAwareConnectionProvider(DataSource source, String activeUser) {
     super(source);
+    this.activeUser = activeUser;
   }
 
   @Override
@@ -55,13 +56,5 @@ public class SqlUserAwareConnectionProvider extends DataSourceConnectionProvider
   public String getActiveUser() {
     // default user is ANONYMOUS, not admin! (never null)
     return activeUser == null ? ANONYMOUS : activeUser;
-  }
-
-  public void setActiveUser(String activeUser) {
-    this.activeUser = activeUser;
-  }
-
-  public void clearActiveUser() {
-    this.activeUser = null;
   }
 }

@@ -3,6 +3,7 @@ package org.molgenis.emx2.beaconv2;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.List;
@@ -29,7 +30,7 @@ public class Beaconv2_ModelEndpointsTest {
 
   @BeforeAll
   public static void setup() {
-    database = TestDatabaseFactory.getTestDatabase();
+    database = TestDatabaseFactory.getTestDatabase(ADMIN_USER);
     beaconSchema = database.dropCreateSchema("fairdatahub");
     ProfileLoader b2l = new ProfileLoader("_profiles/FAIRDataHub.yaml");
     b2l.load(beaconSchema, true);

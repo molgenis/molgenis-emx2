@@ -13,6 +13,7 @@ import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.executeCreateTable;
 import static org.molgenis.emx2.utils.TableSort.sortTableByDependency;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import org.jooq.DSLContext;
 import org.molgenis.emx2.*;
@@ -23,7 +24,7 @@ import org.slf4j.LoggerFactory;
 public class SqlSchemaMetadata extends SchemaMetadata {
   private static Logger logger = LoggerFactory.getLogger(SqlSchemaMetadata.class);
   // cache for retrieved roles
-  private List<String> rolesCache = null;
+  private Map<String, List<String>> rolesCache = new ConcurrentHashMap<>();
 
   // copy constructor
   protected SqlSchemaMetadata(Database db, SqlSchemaMetadata copy) {
@@ -43,6 +44,8 @@ public class SqlSchemaMetadata extends SchemaMetadata {
               .collect(Collectors.toSet());
       remove.forEach(t -> this.tables.remove(t));
 
+      rolesCache.putAll(from.rolesCache);
+
       // sync tables metadata
       from.tables
           .entrySet()
@@ -61,18 +64,14 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   }
 
   public SqlSchemaMetadata(Database db, String name, String description) {
-    super(
-        db,
-        MetadataUtils.loadSchemaMetadata(((SqlDatabase) db).getJooq(), new SchemaMetadata(name)));
+    super(name, description);
+    this.database = db;
     this.reload();
     this.setDescription(description);
   }
 
   public SqlSchemaMetadata(Database db, String name) {
-    super(
-        db,
-        MetadataUtils.loadSchemaMetadata(((SqlDatabase) db).getJooq(), new SchemaMetadata(name)));
-    this.reload();
+    this(db, name, null);
   }
 
   public void reload() {
@@ -82,7 +81,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     long start = System.currentTimeMillis();
     MetadataUtils.loadSchemaMetadata(getDatabase().getJooq(), this);
     this.tables.clear();
-    this.rolesCache = null;
+    this.rolesCache = new ConcurrentHashMap<>();
     for (TableMetadata table : MetadataUtils.loadTables(getDatabase().getJooq(), this)) {
       super.create(new SqlTableMetadata(this, table));
     }
@@ -262,36 +261,27 @@ public class SqlSchemaMetadata extends SchemaMetadata {
 
   public List<String> getIneritedRolesForUser(String user) {
     if (user == null) return new ArrayList<>();
+    if (rolesCache.containsKey(user)) {
+      return rolesCache.get(user);
+    }
     if (ADMIN_USER.equals(user)) {
       // admin has all roles
       return executeGetRoles(getJooq(), getName());
     }
     final String username = user.trim();
     List<String> result = new ArrayList<>();
-    // need elevated privileges, so clear user and run as root
-    // this is not thread safe therefore must be in a transaction
-    getDatabase()
-        .tx(
-            tdb -> {
-              String current = tdb.getActiveUser();
-              try {
-                tdb.becomeAdmin(); // elevate privileges
-                result.addAll(
-                    SqlSchemaMetadataExecutor.getInheritedRoleForUser(
-                        ((SqlDatabase) tdb).getJooq(), getName(), username));
-              } finally {
-                tdb.setActiveUser(current); // reset privileges
-              }
-            });
+    result.addAll(
+        SqlSchemaMetadataExecutor.getInheritedRoleForUser(getAdminJooq(), getName(), username));
+    rolesCache.put(user, result);
     return result;
   }
 
+  private DSLContext getAdminJooq() {
+    return ((SqlDatabase) database).getAdminJooq();
+  }
+
   public List<String> getInheritedRolesForActiveUser() {
-    // add cache because this function is called often
-    if (rolesCache == null) {
-      rolesCache = getIneritedRolesForUser(getDatabase().getActiveUser());
-    }
-    return rolesCache;
+    return getIneritedRolesForUser(getDatabase().getActiveUser());
   }
 
   public String getRoleForUser(String user) {

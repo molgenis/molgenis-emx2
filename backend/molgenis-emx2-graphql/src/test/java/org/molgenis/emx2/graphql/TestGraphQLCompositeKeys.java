@@ -2,6 +2,7 @@ package org.molgenis.emx2.graphql;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.molgenis.emx2.graphql.GraphqlApiFactory.convertExecutionResultToJson;
+import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -26,9 +27,9 @@ public class TestGraphQLCompositeKeys {
 
   @BeforeAll
   public static void setup() {
-    database = TestDatabaseFactory.getTestDatabase();
+    database = TestDatabaseFactory.getTestDatabase(ADMIN_USER);
     Schema schema = database.dropCreateSchema(schemaName);
-    grapql = new GraphqlApiFactory().createGraphqlForSchema(schema);
+    grapql = new GraphqlApiFactory().createGraphqlForSchema(null, schema.getName());
   }
 
   @Test
@@ -66,7 +67,7 @@ public class TestGraphQLCompositeKeys {
     grapql =
         new GraphqlApiFactory()
             .createGraphqlForSchema(
-                database.getSchema(TestGraphQLCompositeKeys.class.getSimpleName()));
+                new MolgenisSession(null), TestGraphQLCompositeKeys.class.getSimpleName());
 
     // insert some data, enough to check if foreign keys are joined correctly
     execute(

@@ -64,17 +64,9 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           args:
             - -c
-            - shared_buffers=512MB
-            - -c
-            - work_mem=64MB
+            - shared_buffers=256MB
             - -c
             - max_locks_per_transaction=1024
-            - -c
-            - effective_cache_size=2GB
-            - -c
-            - shared_preload_libraries=pg_stat_statements
-            - -c
-            - pg_stat_statements.track=all
           env:
             - name: POSTGRES_DB
               value: {{ .Values.postgres.name }}
@@ -87,13 +79,7 @@ spec:
               value: {{ .Values.postgres.username }}
             - name: PGDATA
               value: /var/lib/postgresql/data/pgdata
-          resources:
-            requests:
-              memory: "1Gi"
-              cpu: "1"
-            limits:
-              memory: "2Gi"
-              cpu: "2"
+
           ports:
             - containerPort: 5432
           volumeMounts:

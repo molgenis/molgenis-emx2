@@ -41,18 +41,15 @@ public class RunMolgenisEmx2 {
             + " (change either via java properties or via ENV variables)");
 
     // setup database
-    Database database = new SqlDatabase(true);
+    Database database = new SqlDatabase();
 
     // elevate privileges for init
     database.tx(
         db -> {
-          db.becomeAdmin();
-
           if (!EXCLUDE_PETSTORE_DEMO && db.getSchema("pet store") == null) {
             Schema schema = db.createSchema("pet store");
             new PetStoreLoader().load(schema, true);
           }
-
           if (INCLUDE_CATALOGUE_DEMO && db.getSchema(CATALOGUE_DEMO) == null) {
             Schema schema = db.createSchema(CATALOGUE_DEMO, "from DataCatalogue demo data loader");
             new ProfileLoader("_profiles/DataCatalogue.yaml").load(schema, true);

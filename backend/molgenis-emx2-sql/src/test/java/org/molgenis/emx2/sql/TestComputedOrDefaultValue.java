@@ -29,7 +29,6 @@ public class TestComputedOrDefaultValue {
         schema.create(table("Test1", column("id").setPkey(), column("computed").setComputed("5;")));
 
     // reload to make sure 'computed' is really in backend
-    db.clearCache();
     schema = db.getSchema(TestComputedOrDefaultValue.class.getSimpleName());
 
     t.insert(new Row().set("id", 1));
