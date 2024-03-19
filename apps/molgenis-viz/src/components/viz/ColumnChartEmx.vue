@@ -75,6 +75,7 @@ function setQuerySelections() {
 
 async function fetchChartData() {
   chartLoading.value = true;
+  chartSuccess.value = false;
   try {
     const response = await request("../api/graphql", chartDataQuery.value);
     const data = await response[props.table as string];
