@@ -27,7 +27,7 @@ class Column:
     def __str__(self):
         return self.name
 
-    def get(self, attr: str, default: object = None) -> object:
+    def get(self, attr: str, default: object = None):
         """Returns the value of an attribute. If the attribute does not exist, returns a default value.
         If this default value is not given, returns None.
         """
@@ -79,7 +79,7 @@ class Table:
     def __str__(self):
         return self.name
 
-    def get(self, attr: str, default: object = None) -> object:
+    def get(self, attr: str, default: object = None):
         """Returns the value of an attribute. If the attribute does not exist, returns a default value.
         If this default value is not given, returns None.
         """
@@ -99,23 +99,23 @@ class Table:
             raise NoSuchColumnException(f"Column with {by} {value!r} not found in table {self.name!r}.")
         return columns[0]
 
-    def get_columns(self, by: str | list, value: str | list) -> list[Column]:
+    def get_columns(self, by: str | list, value: str | int | bool | list) -> list[Column]:
         """Gets the columns by one or multiple attributes of the Column objects."""
         columns = []
-        assert type(by) is type(value), "Supply both 'by' and 'value' as either strings or lists."
-        if isinstance(by, str):
+        if type(by) is list:
+            assert len(by) == len(value), "'by' and 'value' should be of same length if supplied as lists."
+            for col in self.columns:
+                if all(starmap(lambda _by, _value: (hasattr(col, _by)
+                                                    and (str(col.__getattribute__(_by)) == str(_value))),
+                               zip(by, value))):
+                    columns.append(col)
+            return columns
+        else:
             for col in self.columns:
                 if hasattr(col, by):
-                    if col.__getattribute__(by) == value:
+                    if str(col.__getattribute__(by)) == str(value):
                         columns.append(col)
             return columns
-
-        assert len(by) == len(value), "'by' and 'value' should be of same length if supplied as lists."
-        for col in self.columns:
-            if all(starmap(lambda _by, _value: (hasattr(col, _by)
-                                                and (col.__getattribute__(_by) == _value)), zip(by, value))):
-                columns.append(col)
-        return columns
 
     def to_dict(self) -> dict:
         """Returns a dictionary representation of the Table object."""
@@ -152,7 +152,7 @@ class Schema:
     def __str__(self):
         return self.name
 
-    def get(self, attr: str, default: object = None) -> object:
+    def get(self, attr: str, default: object = None):
         """Returns the value of an attribute. If the attribute does not exist, returns a default value.
         If this default value is not given, returns None.
         """
@@ -175,11 +175,20 @@ class Schema:
     def get_tables(self, by: str, value: str) -> list[Table]:
         """Gets the tables by an attribute of the Table objects."""
         tables = []
-        for tab in self.tables:
-            if hasattr(tab, by):
-                if tab.__getattribute__(by) == value:
+        if type(by) is list:
+            assert len(by) == len(value), "'by' and 'value' should be of same length if supplied as lists."
+            for tab in self.tables:
+                if all(starmap(lambda _by, _value: (hasattr(tab, _by)
+                                                    and (str(tab.__getattribute__(_by)) == str(_value))),
+                               zip(by, value))):
                     tables.append(tab)
-        return tables
+            return tables
+        else:
+            for tab in self.tables:
+                if hasattr(tab, by):
+                    if str(tab.__getattribute__(by)) == str(value):
+                        tables.append(tab)
+            return tables
 
     def to_dict(self) -> dict:
         """Returns a dictionary representation of the Table object."""
