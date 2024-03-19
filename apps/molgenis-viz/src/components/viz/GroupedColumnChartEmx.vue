@@ -1,11 +1,34 @@
 <template>
-  <code>{{ props }}</code>
-  <ul>
-    <li><code>x: {{ xVar }}</code></li>
-    <li><code>y: {{ yVar }}</code></li>
-    <li><code>group: {{ groupVar }}</code></li>
-  </ul>
-  <code>{{ chartDataQuery }}</code>
+  <LoadingScreen v-if="chartLoading" message="" />
+  <MessageBox v-if="chartError" type="error">
+    <output>{{ chartError }}</output>
+  </MessageBox>
+  <GroupedColumnChart
+    v-if="chartSuccess"
+    :chartId="chartId"
+    :title="title"
+    :description="description"
+    :chartData="chartData"
+    :xvar="xVar"
+    :yvar="yVar"
+    :group="groupVar"
+    :yMax="yMax"
+    :yTickValues="yTickValues"
+    :xAxisLabel="xAxisLabel"
+    :yAxisLabel="yAxisLabel"
+    :xAxisLineBreaker="xAxisLineBreaker"
+    :chartHeight="chartHeight"
+    :columnColorPalette="columnColorPalette"
+    :columnHoverFill="columnHoverFill"
+    :columnPaddingInner="columnPaddingInner"
+    :columnPaddingOuter="columnPaddingOuter"
+    :columnAlign="columnAlign"
+    :enableClicks="enableClicks"
+    :enableAnimation="enableAnimation"
+    :enableChartLegend="enableChartLegend"
+    :stackLegend="stackLegend"
+    :enableLegendClicks="enableLegendClicks"
+  />
 </template>
 
 <script lang="ts" setup>
@@ -25,9 +48,11 @@ import GroupedColumnChart from "./GroupedColumnChart.vue";
 import LoadingScreen from "../display/LoadingScreen.vue";
 import MessageBox from "../display/MessageBox.vue";
 
-const props = defineProps<GroupedColumnChartParams>();
+const props = withDefaults(defineProps<GroupedColumnChartParams>(), {
+  enableChartLegend: true,
+});
 
-let chartLoading = ref<Boolean>(false);
+let chartLoading = ref<Boolean>(true);
 let chartError = ref<Error | null>(null);
 let chartSuccess = ref<Boolean>(false);
 
@@ -40,18 +65,56 @@ let xSubSelection = ref<string | null>(null);
 let ySubSelection = ref<string | null>(null);
 let groupSubSelection = ref<string | null>(null);
 
-function setQuerySelections() {
+function setChartVariables() {
   xVar.value = gqlExtractSelectionName(props.xvar);
   yVar.value = gqlExtractSelectionName(props.yvar);
   groupVar.value = gqlExtractSelectionName(props.group);
   xSubSelection.value = gqlExtractSubSelectionNames(props.xvar);
   ySubSelection.value = gqlExtractSubSelectionNames(props.yvar);
   groupSubSelection.value = gqlExtractSubSelectionNames(props.group);
+  chartDataQuery.value = buildQuery({
+    table: props.table,
+    x: props.xvar,
+    y: props.yvar,
+    group: props.group,
+  });
 }
 
-onBeforeMount(() => {
-  chartDataQuery.value = buildQuery(props.table, props.xvar, props.yvar)
-  setQuery();
-})
+async function fetchChartData() {
+  chartLoading.value = true;
+  chartSuccess.value = false;
+  try {
+    const response = await request("../api/graphql", chartDataQuery.value);
+    const data = await response[props.table as string];
+    const preppedData = await prepareChartData({
+      data: data,
+      x: xVar.value,
+      y: yVar.value,
+      group: groupVar.value,
+      nestedXKey: xSubSelection.value,
+      nestedYKey: ySubSelection.value,
+      nestedGroupKey: groupSubSelection.value,
+    });
 
+    chartData.value = preppedData.sort((current, next) => {
+      return (
+        current[groupVar.value].localeCompare(next[groupVar.value]) ||
+        current[xVar.value].localeCompare(next[xVar.value])
+      );
+    });
+    chartSuccess.value = true;
+  } catch (error) {
+    chartError.value = error;
+  } finally {
+    chartLoading.value = false;
+  }
+}
+
+onBeforeMount(() => setChartVariables());
+
+watch(props, () => setChartVariables());
+
+watch([chartDataQuery, xSubSelection, ySubSelection], async () => {
+  await fetchChartData();
+});
 </script>

@@ -66,11 +66,16 @@ let yVar = ref<string | null>(null);
 let xSubSelection = ref<string | null>(null);
 let ySubSelection = ref<string | null>(null);
 
-function setQuerySelections() {
+function setChartVariables() {
   xVar.value = gqlExtractSelectionName(props.xvar);
   yVar.value = gqlExtractSelectionName(props.yvar);
   xSubSelection.value = gqlExtractSubSelectionNames(props.xvar);
   ySubSelection.value = gqlExtractSubSelectionNames(props.yvar);
+  chartDataQuery.value = buildQuery({
+    table: props.table,
+    x: props.xvar,
+    y: props.yvar,
+  });
 }
 
 async function fetchChartData() {
@@ -79,13 +84,13 @@ async function fetchChartData() {
   try {
     const response = await request("../api/graphql", chartDataQuery.value);
     const data = await response[props.table as string];
-    chartData.value = await prepareChartData(
-      data,
-      xVar.value,
-      yVar.value,
-      xSubSelection.value,
-      ySubSelection.value
-    );
+    chartData.value = await prepareChartData({
+      data: data,
+      x: xVar.value,
+      y: yVar.value,
+      nestedXKey: xSubSelection.value,
+      nestedYKey: ySubSelection.value,
+    });
     chartSuccess.value = true;
   } catch (error) {
     chartError.value = error;
@@ -94,15 +99,8 @@ async function fetchChartData() {
   }
 }
 
-onBeforeMount(() => {
-  chartDataQuery.value = buildQuery(props.table, props.xvar, props.yvar);
-  setQuerySelections();
-});
-
-watch(props, () => {
-  chartDataQuery.value = buildQuery(props.table, props.xvar, props.yvar);
-  setQuerySelections();
-});
+onBeforeMount(() => setChartVariables());
+watch(props, () => setChartVariables());
 
 watch([chartDataQuery, xSubSelection, ySubSelection], async () => {
   await fetchChartData();

@@ -10,11 +10,22 @@ import { gql } from "graphql-tag";
  *
  * @returns string
  */
-export function buildQuery(table: string, x: string, y: string): string {
+
+export interface BuildQueryIF {
+  table: string;
+  x: string;
+  y: string;
+  group?: string;
+}
+
+export function buildQuery({ table, x, y, group }: BuildQueryIF): string {
+  const subSelection: Array<String> = [x, y];
+  if (group) {
+    subSelection.push(group);
+  }
   const query = gql`query {
     ${table} {
-      ${x}
-      ${y}
+      ${subSelection}
     }
   }`;
   return query;
@@ -93,22 +104,42 @@ export function extractNestedRowValue(
  * @param data dataset return from a graphql quert (array of objects)
  * @param x the name of the column to plot along the x-axis
  * @param y the name of the column to plot along the y-axis
+ * @param group the name of the column to plot along the second x-axis
  * @param nestedXKey for ref data types, the name of the nested column to target
  * @param nestedYKey for ref data types, the name of the nested column to target
+ * @param nestedGroupKey for ref data types, the name of the nested column to target
  *
  * @returns array of objects reduced and flattened to x and y variables
  */
-export function prepareChartData(
-  data: Array[],
-  x: string,
-  y: string,
-  nestedXKey: string,
-  nestedYKey: string
-): array {
+
+export interface PrepareChartDataIF {
+  data: Array[];
+  x: string;
+  y: string;
+  group?: string;
+  nestedXKey?: string;
+  nestedYKey?: string;
+  nestedGroupKey?: string;
+}
+
+export function prepareChartData({
+  data,
+  x,
+  y,
+  group,
+  nestedXKey,
+  nestedYKey,
+  nestedGroupKey,
+}: PrepareChartDataIF): array {
   return data.map((row: object) => {
     const newRow: object = {};
     newRow[x] = extractNestedRowValue(row, x, nestedXKey);
     newRow[y] = extractNestedRowValue(row, y, nestedYKey);
+
+    if (group) {
+      newRow[group] = extractNestedRowValue(row, group, nestedGroupKey);
+    }
+
     return newRow;
   });
 }

@@ -5,9 +5,15 @@
       subtitle="Create visualizations from your database"
     /> -->
     <PageSection>
+      <!-- <ColumnChartEmx
+        chartId="test"
+        table="ClinicalData_groupBy"
+        xvar="researchCenter { name }"
+        yvar="_sum { n }"
+      /> -->
       <GroupedColumnChartEmx
         chartId="grouped-chart-test"
-        table="clinicalData_groupedBy"
+        table="ClinicalData_groupBy"
         xvar="researchCenter { name }"
         yvar="_sum { n }"
         group="sex { name }"

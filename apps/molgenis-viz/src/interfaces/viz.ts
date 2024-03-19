@@ -39,6 +39,7 @@ export interface vizInteractivityParams {
 }
 
 export interface vizLegendParams {
+  enableChartLegend?: boolean;
   stackLegend?: boolean;
   enableLegendClicks?: boolean;
 }
@@ -72,7 +73,8 @@ export interface ColumnChartParams
 }
 
 export interface GroupedColumnChartParams
-  extends vizStandardParams,
+  extends ColumnChartParams,
+    vizStandardParams,
     vizInteractivityParams,
     vizLegendParams {
   group: string;
