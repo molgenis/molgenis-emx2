@@ -243,8 +243,11 @@ class Client:
 
         import_data = self._prep_data_or_file(file_path=file, data=data)
 
+        schema_metadata: Schema = self.get_schema_metadata(current_schema)
+        table_id = schema_metadata.get_table(by='name', value=table).id
+
         response = self.session.post(
-            url=f"{self.url}/{current_schema}/api/csv/{table}",
+            url=f"{self.url}/{current_schema}/api/csv/{table_id}",
             headers={'x-molgenis-token': self.token,
                      'Content-Type': 'text/csv'},
             data=import_data
@@ -290,8 +293,11 @@ class Client:
 
         import_data = self._prep_data_or_file(file_path=file, data=data)
 
+        schema_metadata: Schema = self.get_schema_metadata(current_schema)
+        table_id = schema_metadata.get_table(by='name', value=table).id
+
         response = self.session.delete(
-            url=f"{self.url}/{current_schema}/api/csv/{table}",
+            url=f"{self.url}/{current_schema}/api/csv/{table_id}",
             headers={'x-molgenis-token': self.token,
                      'Content-Type': 'text/csv'},
             data=import_data
@@ -328,7 +334,10 @@ class Client:
         if not self._table_in_schema(table, current_schema):
             raise NoSuchTableException(f"Table {table!r} not found in schema {current_schema!r}.")
 
-        response = self.session.get(url=f"{self.url}/{current_schema}/api/csv/{table}",
+        schema_metadata: Schema = self.get_schema_metadata(current_schema)
+        table_id = schema_metadata.get_table(by='name', value=table).id
+
+        response = self.session.get(url=f"{self.url}/{current_schema}/api/csv/{table_id}",
                                     headers={'x-molgenis-token': self.token})
 
         if response.status_code != 200:
@@ -361,6 +370,8 @@ class Client:
         if table is not None and not self._table_in_schema(table, current_schema):
             raise NoSuchTableException(f"Table {table!r} not found in schema {current_schema!r}.")
 
+        schema_metadata: Schema = self.get_schema_metadata(current_schema)
+
         if fmt == 'xlsx':
             if table is None:
                 # Export the whole schema
@@ -374,7 +385,8 @@ class Client:
                 log.info("Exported data from schema %s to '%s'.", current_schema, filename)
             else:
                 # Export the single table
-                url = f"{self.url}/{current_schema}/api/excel/{table}"
+                table_id = schema_metadata.get_table(by='name', value=table).id
+                url = f"{self.url}/{current_schema}/api/excel/{table_id}"
                 response = self.session.get(url=url,
                                             headers={'x-molgenis-token': self.token})
 
@@ -395,7 +407,8 @@ class Client:
                 log.info("Exported data from schema %s to '%s'.", current_schema, filename)
             else:
                 # Export the single table
-                url = f"{self.url}/{current_schema}/api/csv/{table}"
+                table_id = schema_metadata.get_table(by='name', value=table).id
+                url = f"{self.url}/{current_schema}/api/csv/{table_id}"
                 response = self.session.get(url=url,
                                             headers={'x-molgenis-token': self.token})
 
@@ -428,7 +441,7 @@ class Client:
                                                  template=template, include_demo_data=include_demo_data)
 
         response = self.session.post(
-            url=f"{self.url}/api/graphql",
+            url=self.api_graphql,
             json={'query': query, 'variables': variables},
             headers={'x-molgenis-token': self.token}
         )
@@ -458,7 +471,7 @@ class Client:
         variables = {'id': current_schema}
 
         response = self.session.post(
-            url=f"{self.url}/api/graphql",
+            url=self.api_graphql,
             json={'query': query, 'variables': variables},
             headers={'x-molgenis-token': self.token}
         )
@@ -490,7 +503,7 @@ class Client:
         variables = {'name': current_schema, 'description': description}
 
         response = self.session.post(
-            url=f"{self.url}/api/graphql",
+            url=self.api_graphql,
             json={'query': query, 'variables': variables},
             headers={'x-molgenis-token': self.token}
         )
