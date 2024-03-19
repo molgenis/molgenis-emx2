@@ -263,7 +263,7 @@ class Client:
             # log.error(f"Failed to import data into {current_schema}::{table}\n{errors}.")
             log.error("Failed to import data into %s::%s\n%s", current_schema, table, errors)
 
-    def delete_records(self, table: str, schema: str = None, file: str = None, data: list = None):
+    def delete_records(self, table: str, schema: str = None, file: str = None, data: list | pd.DataFrame = None):
         """Deletes records from a table.
 
         :param schema: name of a schema
