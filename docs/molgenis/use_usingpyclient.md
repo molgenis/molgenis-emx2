@@ -178,12 +178,12 @@ Throws the `NoSuchSchemaException` if the schema is not found on the server.
 
 [//]: # (&#40;In order to delete records from a table the data must specify the row values with principal keys)
 
-| argument | type | description                            | required | default |
-|----------|------|----------------------------------------|----------|---------|
-| table    | str  | the name of a table                    | True     |         |
-| schema   | str  | the name of a schema                   | False    | None    |
-| file     | str  | the location of a `csv` file with data | False    | None    |
-| data     | list | data as a list of dictionaries         | False    | None    |
+| argument | type | description                                        | required | default |
+|----------|------|----------------------------------------------------|----------|---------|
+| table    | str  | the name of a table                                | True     |         |
+| schema   | str  | the name of a schema                               | False    | None    |
+| file     | str  | the location of a `csv` file with data             | False    | None    |
+| data     | list | data as a list of dictionaries or pandas DataFrame | False    | None    |
 
 
 ### create_schema
