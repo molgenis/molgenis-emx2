@@ -1,6 +1,7 @@
 package org.molgenis.emx2.datamodels;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
 
 import org.junit.jupiter.api.*;
 import org.molgenis.emx2.Database;
@@ -20,7 +21,7 @@ public class TestProfileLoader {
 
   @BeforeAll
   public static void setup() {
-    database = TestDatabaseFactory.getTestDatabase();
+    database = TestDatabaseFactory.getTestDatabase(ADMIN_USER);
     database.dropSchemaIfExists(TEST_PROFILE);
     database.dropSchemaIfExists(TEST_INCLUDE);
   }

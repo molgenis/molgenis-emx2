@@ -7,6 +7,7 @@ import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.TableMetadata.table;
+import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
 import static org.molgenis.emx2.sql.SqlQuery.SUM_FIELD;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -33,7 +34,7 @@ public class TestSumQuery {
 
   @BeforeAll
   public static void setUp() {
-    database = TestDatabaseFactory.getTestDatabase();
+    database = TestDatabaseFactory.getTestDatabase(ADMIN_USER);
 
     // createColumn a schema to test with
     schema = database.dropCreateSchema(TEST_SUM_QUERY);
@@ -92,7 +93,8 @@ public class TestSumQuery {
     assertTrue(json.contains("9")); // for Type b, Type a
 
     // test that the graphql also works
-    GraphQL graphql = new GraphqlApiFactory().createGraphqlForSchema(schema, null);
+    GraphQL graphql =
+        new GraphqlApiFactory().createGraphqlForSchema(new MolgenisSession(null), schema.getName());
     ExecutionResult result =
         graphql.execute(
             """

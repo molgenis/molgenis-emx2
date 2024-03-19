@@ -100,7 +100,6 @@ public class OIDCController {
       logger.info("Add new OIDC user({}) to database", user);
       database.addUser(user);
     }
-    database.setActiveUser(user);
     logger.info("OIDC sign in for user: {}", user);
 
     response.status(302);

@@ -22,6 +22,7 @@ import org.molgenis.emx2.email.EmailMessage;
 import org.molgenis.emx2.email.EmailService;
 import org.molgenis.emx2.email.EmailSettings;
 import org.molgenis.emx2.email.EmailValidator;
+import org.molgenis.emx2.graphql.MolgenisSession;
 import org.molgenis.emx2.web.actions.SendMessageAction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

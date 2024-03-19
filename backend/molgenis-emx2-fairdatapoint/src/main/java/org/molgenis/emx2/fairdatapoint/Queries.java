@@ -14,7 +14,7 @@ import org.molgenis.emx2.graphql.GraphqlApiFactory;
 public class Queries {
 
   public static List<Map<String, Object>> queryDataset(Schema schema, String idField, String id) {
-    GraphQL grapql = new GraphqlApiFactory().createGraphqlForSchema(schema);
+    GraphQL grapql = new GraphqlApiFactory().createGraphqlForSchema(null, schema);
     ExecutionResult executionResult =
         grapql.execute(
             "{Dataset("
@@ -61,7 +61,7 @@ public class Queries {
 
   public static List<Map<String, Object>> queryDistribution(
       Schema schema, String idField, String id) {
-    GraphQL grapql = new GraphqlApiFactory().createGraphqlForSchema(schema);
+    GraphQL grapql = new GraphqlApiFactory().createGraphqlForSchema(null, schema);
     ExecutionResult executionResult =
         grapql.execute(
             "{Distribution("

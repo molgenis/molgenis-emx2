@@ -20,7 +20,6 @@ public class TestCreateTransactionForMultipleOperations {
 
   @Test
   public void testCommit() {
-
     db.tx(
         db -> {
           Schema schema = db.dropCreateSchema("testCommit");
@@ -28,7 +27,6 @@ public class TestCreateTransactionForMultipleOperations {
           testTable.insert(new Row().setString("ColA", "test"));
           testTable.insert(new Row().setString("ColA", "DependencyOrderOutsideTransactionFails"));
         });
-    db.clearCache();
     assertEquals(2, db.getSchema("testCommit").getTable("testCommit").retrieveRows().size());
   }
 

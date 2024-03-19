@@ -44,8 +44,8 @@ public class TestTableAndColumnMetadataNotTestedElseWhere {
     assertEquals("col1", new ArrayList<>(t.getColumnNames()).get(0));
     t.add(column("col3"));
     assertEquals((Integer) 2, t.getColumn("col3").getPosition());
-    db.clearCache();
 
+    db = new SqlDatabase(SqlDatabase.ADMIN_USER);
     t = db.getSchema("testColumnPosition").getTable("test").getMetadata();
     assertEquals("col1", new ArrayList<>(t.getColumnNames()).get(0));
     assertEquals((Integer) 2, t.getColumn("col3").getPosition());
@@ -55,13 +55,15 @@ public class TestTableAndColumnMetadataNotTestedElseWhere {
 
     // when alter without position given then position should be untouched
     t.alterColumn("col3", column("col3").setType(ColumnType.TEXT));
-    db.clearCache();
+
+    db = new SqlDatabase(SqlDatabase.ADMIN_USER);
     t = db.getSchema("testColumnPosition").getTable("test").getMetadata();
     assertEquals((Integer) 1, t.getColumn("col3").getPosition());
 
     t.alterColumn("col1", column("col1").setPosition(2));
     assertEquals(new ArrayList<>(t.getColumnNames()).get(0), "col2");
-    db.clearCache();
+
+    db = new SqlDatabase(SqlDatabase.ADMIN_USER);
     t = db.getSchema("testColumnPosition").getTable("test").getMetadata();
     assertEquals(new ArrayList<>(t.getColumnNames()).get(0), "col2");
   }

@@ -1,14 +1,14 @@
 package org.molgenis.emx2.datamodels.util;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
+
+import java.util.*;
 import org.javers.core.Javers;
 import org.javers.core.JaversBuilder;
 import org.javers.core.diff.Diff;
 import org.jooq.DSLContext;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.utils.TypeUtils;
 
 public class CompareTools {
@@ -96,11 +96,8 @@ public class CompareTools {
     String schemaName = schema.getMetadata().getName();
     Collection<String> tableNames = schema.getTableNames();
 
-    // empty the cache
-    database.clearCache();
-
     // check reload from drive
-    Schema schemaLoadedFromDisk = database.getSchema(schemaName);
+    Schema schemaLoadedFromDisk = new SqlDatabase(ADMIN_USER).getSchema(schemaName);
 
     for (String tableName : tableNames) {
       TableMetadata t1 = schema.getTable(tableName).getMetadata();

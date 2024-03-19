@@ -45,7 +45,7 @@ public class QueryIndividuals {
     for (Table table : tables) {
       List<IndividualsResultSetsItem> individualsItemList = new ArrayList<>();
 
-      GraphQL grapql = new GraphqlApiFactory().createGraphqlForSchema(table.getSchema());
+      GraphQL grapql = new GraphqlApiFactory().createGraphqlForSchema(null, table.getSchema());
       ExecutionResult executionResult =
           grapql.execute(
               "{Individuals"

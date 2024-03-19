@@ -116,8 +116,6 @@ public class TestQueryExpandIntoReferences {
     StopWatch.print("query completed");
 
     // restart database and see if it is still there
-
-    db.clearCache();
     schema = db.getSchema("TestQueryWithRefArray");
 
     StopWatch.print("cleared cache");

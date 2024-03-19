@@ -7,6 +7,7 @@ import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
 import static org.molgenis.emx2.graphql.GraphqlConstants.*;
 import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.outputSettingsType;
+import static org.molgenis.emx2.sql.SqlDatabase.getAdminDatabase;
 
 import graphql.Scalars;
 import graphql.schema.GraphQLArgument;
@@ -24,14 +25,14 @@ public class GraphqlSessionFieldFactory {
     // no instance
   }
 
-  public GraphQLFieldDefinition signoutField(Database database) {
+  public GraphQLFieldDefinition signoutField(MolgenisSession session) {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("signout")
         .type(GraphqlApiMutationResult.typeForMutationResult)
         .dataFetcher(
             dataFetchingEnvironment -> {
-              String user = database.getActiveUser();
-              database.setActiveUser(GraphqlConstants.ANONYMOUS);
+              String user = session.getSessionUser();
+              session.clearSessionUser();
               return new GraphqlApiMutationResult(
                   GraphqlApiMutationResult.Status.SUCCESS, "User '%s' has signed out", user);
             })
@@ -57,26 +58,19 @@ public class GraphqlSessionFieldFactory {
               if (database.hasUser(userName)) {
                 return new GraphqlApiMutationResult(FAILED, "Email already exists");
               }
-              database.tx(
-                  db -> {
-                    // uplift permissions
-                    String activeUser = db.getActiveUser();
-                    try {
-                      db.becomeAdmin();
-                      db.addUser(userName);
-                      db.setUserPassword(userName, passWord);
-                    } finally {
-                      // always lift down again
-                      db.setActiveUser(activeUser);
-                    }
-                  });
+              getAdminDatabase()
+                  .tx(
+                      db -> {
+                        db.addUser(userName);
+                        db.setUserPassword(userName, passWord);
+                      });
               return new GraphqlApiMutationResult(
                   GraphqlApiMutationResult.Status.SUCCESS, "User '%s' added", userName);
             })
         .build();
   }
 
-  public GraphQLFieldDefinition signinField(Database database) {
+  public GraphQLFieldDefinition signinField(MolgenisSession session) {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("signin")
         .type(GraphqlApiMutationResultWithToken.typeForSignResult)
@@ -87,12 +81,13 @@ public class GraphqlSessionFieldFactory {
               String userName = dataFetchingEnvironment.getArgument(EMAIL);
               String passWord = dataFetchingEnvironment.getArgument(PASSWORD);
 
-              if (database.hasUser(userName) && database.checkUserPassword(userName, passWord)) {
-                database.setActiveUser(userName);
+              if (session.getDatabase().hasUser(userName)
+                  && session.getDatabase().checkUserPassword(userName, passWord)) {
+                session.setSessionUser(userName);
                 GraphqlApiMutationResultWithToken result =
                     new GraphqlApiMutationResultWithToken(
                         GraphqlApiMutationResult.Status.SUCCESS,
-                        JWTgenerator.createTemporaryToken(database, userName),
+                        JWTgenerator.createTemporaryToken(session.getDatabase(), userName),
                         "Signed in as '%s'",
                         userName);
                 return result;

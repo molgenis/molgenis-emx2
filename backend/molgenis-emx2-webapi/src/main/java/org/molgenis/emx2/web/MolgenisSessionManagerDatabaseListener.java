@@ -1,6 +1,7 @@
 package org.molgenis.emx2.web;
 
 import org.molgenis.emx2.DatabaseListener;
+import org.molgenis.emx2.graphql.MolgenisSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

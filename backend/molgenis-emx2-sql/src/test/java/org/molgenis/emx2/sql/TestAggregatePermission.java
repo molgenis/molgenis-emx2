@@ -29,7 +29,8 @@ public class TestAggregatePermission {
     new PetStoreLoader().load(schema, true);
     schema.removeMember(ANONYMOUS);
     schema.addMember("AGGREGATE_TEST_USER", AGGREGATOR.toString());
-    db.setActiveUser("AGGREGATE_TEST_USER");
+    db = new SqlDatabase("AGGREGATE_TEST_USER");
+    schema = db.getSchema(TestAggregatePermission.class.getSimpleName());
   }
 
   @Test

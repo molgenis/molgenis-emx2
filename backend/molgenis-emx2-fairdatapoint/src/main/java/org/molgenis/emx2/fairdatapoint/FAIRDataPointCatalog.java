@@ -57,7 +57,7 @@ public class FAIRDataPointCatalog {
   }
 
   public static List<Map<String, Object>> getFDPCatalogRecords(Schema schema, String id) {
-    GraphQL grapql = new GraphqlApiFactory().createGraphqlForSchema(schema);
+    GraphQL grapql = new GraphqlApiFactory().createGraphqlForSchema(null, schema);
     ExecutionResult executionResult =
         grapql.execute(
             "{Catalog"

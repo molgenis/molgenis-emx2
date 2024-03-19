@@ -15,6 +15,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.graphql.MolgenisSession;
 import org.molgenis.emx2.tasks.*;
 import spark.Request;
 import spark.Response;

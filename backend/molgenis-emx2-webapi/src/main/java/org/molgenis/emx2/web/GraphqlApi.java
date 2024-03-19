@@ -23,6 +23,7 @@ import javax.servlet.http.Part;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.graphql.GraphqlApiFactory;
 import org.molgenis.emx2.graphql.GraphqlException;
+import org.molgenis.emx2.graphql.MolgenisSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;
@@ -86,13 +87,15 @@ public class GraphqlApi {
     Map<String, Object> variables = getVariablesFromRequest(request);
 
     long start = System.currentTimeMillis();
-
     // we don't log password calls
     if (logger.isInfoEnabled()) {
       if (query.contains("password")) {
         logger.info("query: obfuscated because contains parameter with name 'password'");
       } else {
-        logger.info("query: {}", query.replaceAll("[\n|\r|\t]", "").replaceAll(" +", " "));
+        logger.info(
+            "graphql request {} started: {}",
+            start,
+            query.replaceAll("[\n|\r|\t]", "").replaceAll(" +", " "));
       }
     }
 
@@ -116,7 +119,8 @@ public class GraphqlApi {
     }
 
     if (logger.isInfoEnabled())
-      logger.info("graphql request completed in {}ms", +(System.currentTimeMillis() - start));
+      logger.info(
+          "graphql request {} completed in {}ms", start, +(System.currentTimeMillis() - start));
 
     return result;
   }
