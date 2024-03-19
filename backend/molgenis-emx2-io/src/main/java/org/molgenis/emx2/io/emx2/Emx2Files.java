@@ -27,14 +27,7 @@ public class Emx2Files {
             // get the files one by one
             List<Row> fileRows =
                 table
-                    .select(
-                        s(
-                            c.getName(),
-                            s("id"),
-                            s("contents"),
-                            s("mimetype"),
-                            s("filename"),
-                            s("extension")))
+                    .select(s(c.getName(), s("id"), s("contents"), s("mimetype"), s("extension")))
                     .where(f(c.getName(), Operator.EQUALS, r.getString(c.getName())))
                     .retrieveRows();
 

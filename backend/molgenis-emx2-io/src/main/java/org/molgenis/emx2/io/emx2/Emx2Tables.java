@@ -33,7 +33,7 @@ public class Emx2Tables {
                         // directory
                         // get original metadata because download columns are format string instead
                         // of file
-                        || isFileType(c, metadata)
+                        || !metadata.getColumn(c.getName()).isFile()
                         || store instanceof TableAndFileStore)
             .map(Column::getName)
             .filter(n -> !n.startsWith("mg_") || includeSystemColumns)
@@ -62,11 +62,5 @@ public class Emx2Tables {
     if (store instanceof TableAndFileStore tableAndFileStore) {
       Emx2Files.outputFiles(tableAndFileStore, table);
     }
-  }
-
-  private static boolean isFileType(Column c, TableMetadata metadata) {
-    if (metadata.getColumn(c.getName()) == null && c.getName().endsWith("_filename")) {
-      return true;
-    } else return !metadata.getColumn(c.getName()).isFile();
   }
 }

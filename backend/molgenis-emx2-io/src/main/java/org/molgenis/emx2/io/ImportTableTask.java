@@ -168,12 +168,9 @@ public class ImportTableTask extends Task {
           if (c.isFile()
               && source instanceof TableAndFileStore
               && row.getValueMap().get(c.getName()) != null) {
-            BinaryFileWrapper wrapper =
-                ((TableAndFileStore) source).getBinaryFileWrapper(row.getString(c.getName()));
-            if (row.containsName(c.getName() + "_filename")) {
-              wrapper.setFileName(row.getString(c.getName() + "_filename"));
-            }
-            row.setBinary(c.getName(), wrapper);
+            row.setBinary(
+                c.getName(),
+                ((TableAndFileStore) source).getBinaryFileWrapper(row.getString(c.getName())));
           }
         }
         batch.add(row);

@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 
 public class Migrations {
   // version the current software needs to work
-  private static final int SOFTWARE_DATABASE_VERSION = 18;
+  private static final int SOFTWARE_DATABASE_VERSION = 17;
   public static final int THREE_MINUTES = 180;
   private static Logger logger = LoggerFactory.getLogger(Migrations.class);
 
@@ -108,11 +108,6 @@ public class Migrations {
 
           if (version < 17) {
             executeMigrationFile(tdb, "migration17.sql", "add fkey to inherit table");
-          }
-
-          if (version < 18) {
-            executeMigrationFile(
-                tdb, "migration18.sql", "add filename to tables contain FILE datatype");
           }
 
           // if success, update version to SOFTWARE_DATABASE_VERSION

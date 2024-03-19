@@ -85,7 +85,7 @@ public class TestColumnTypeIsFile {
         new String(
             userTable
                 .query()
-                .select(s("picture", s("contents"), s("mimetype"), s("filename"), s("extension")))
+                .select(s("picture", s("contents"), s("mimetype"), s("extension")))
                 .retrieveRows()
                 .get(0)
                 .getBinary("picture_contents")));
@@ -106,11 +106,10 @@ public class TestColumnTypeIsFile {
     Row result =
         userTable
             .query()
-            .select(s("picture", s("contents"), s("mimetype"), s("filename"), s("extension")))
+            .select(s("picture", s("contents"), s("mimetype"), s("extension")))
             .retrieveRows()
             .get(0);
     assertEquals("test", new String(result.getBinary("picture_contents")));
-    assertEquals("test.txt", result.getString("picture_filename"));
     assertEquals("txt", result.getString("picture_extension"));
     assertEquals("text/plain", result.getString("picture_mimetype"));
   }
