@@ -27,15 +27,13 @@ public class QueryEntryType {
       Database database, EntryType entryType, BeaconRequestBody requestBody) throws JsltException {
 
     ObjectMapper mapper = new ObjectMapper();
-    Expression jslt = Parser.compileResource(entryType.getName().toLowerCase() + ".jslt");
-
     ArrayNode resultSets = mapper.createArrayNode();
     for (Table table : getTableFromAllSchemas(database, entryType.getId())) {
       GraphQL graphQL = new GraphqlApiFactory().createGraphqlForSchema(table.getSchema());
 
       String query =
           new QueryBuilder(table)
-              .addColumns(2)
+              .addAllColumns(2)
               .addFilters(requestBody.getQuery().getFilters())
               .setLimit(requestBody.getQuery().getPagination().getLimit())
               .setOffset(requestBody.getQuery().getPagination().getSkip())
@@ -54,6 +52,7 @@ public class QueryEntryType {
     response.put("host", requestBody.getMeta().getHost());
     response.set("resultSets", resultSets);
 
+    Expression jslt = Parser.compileResource(entryType.getName().toLowerCase() + ".jslt");
     return jslt.apply(response);
   }
 

@@ -47,6 +47,10 @@ public class Filter {
     if (this.id instanceof ArrayList<?>) {
       ArrayList<String> idArrList = (ArrayList<String>) this.id;
       this.ids = idArrList.toArray(new String[idArrList.size()]);
+      for (int i = 0; i < ids.length; i++) {
+        String id = ids[i];
+        ids[i] = !id.contains(":") ? id : id.substring(id.indexOf(":") + 1);
+      }
     } else {
       this.ids = this.id == null ? null : new String[] {this.id + ""};
     }

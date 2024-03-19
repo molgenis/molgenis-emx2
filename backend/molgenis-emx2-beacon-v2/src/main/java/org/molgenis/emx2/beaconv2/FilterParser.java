@@ -26,10 +26,6 @@ public class FilterParser {
     for (Filter filter : filters) {
 
       String[] ids = filter.getIds();
-      for (int i = 0; i < ids.length; i++) {
-        String id = ids[i];
-        ids[i] = !id.contains(":") ? id : id.substring(id.indexOf(":") + 1);
-      }
 
       String operator = filter.getOperator();
       String[] values = filter.getValues();
@@ -75,19 +71,18 @@ public class FilterParser {
                 "{phenotypicFeatures: { featureType: { ontologyTermURI: {like:", values));
       }
 
-      //            /** Anything else: create filter dynamically. */
-      //            else {
-      //                ColumnPath columnPath = findColumnPath(new ArrayList<>(), id,
-      // this.tables.get(0));
-      //                if (columnPath != null && columnPath.getColumn().isOntology()) {
-      //                    filters.add(valueArrayFilterBuilder(columnPath + "ontologyTermURI:
-      // {like:", values));
-      //                } else {
-      //                    return getWriter()
-      //                            .writeValueAsString(new BeaconCountResponse(host,
-      // beaconRequestBody, false, 0));
-      //                }
-      //            }
+      //                  /** Anything else: create filter dynamically. */
+      //                  else {
+      //                      ColumnPath columnPath = findColumnPath(new ArrayList<>(), id,
+      //       this.tables.get(0));
+      //                      if (columnPath != null && columnPath.getColumn().isOntology()) {
+      //                          filters.add(valueArrayFilterBuilder(columnPath + "ontologyTermURI:
+      //       {like:", values));
+      //                      } else {
+      //                          return getWriter()
+      //                                  .writeValueAsString(new BeaconCountResponse(host,
+      //       beaconRequestBody, false, 0));
+      //                      }}}
     }
     return filtersOutput;
   }

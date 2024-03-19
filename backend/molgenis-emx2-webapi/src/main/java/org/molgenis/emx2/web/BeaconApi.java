@@ -69,9 +69,14 @@ public class BeaconApi {
     beaconRequestBody.getMeta().setHost(host);
 
     Database database = sessionManager.getSession(request).getDatabase();
-    JsonNode jsonNode = QueryEntryType.query(database, entryType, beaconRequestBody);
+    JsonNode dataResult = QueryEntryType.query(database, entryType, beaconRequestBody);
 
-    Granularity granularity = beaconRequestBody.getQuery().getRequestGranularity();
+    return determineResponse(beaconRequestBody, dataResult);
+  }
+
+  private static String determineResponse(BeaconRequestBody requestBody, JsonNode dataResult)
+      throws JsonProcessingException {
+    Granularity granularity = requestBody.getQuery().getRequestGranularity();
     switch (granularity) {
       case BOOLEAN -> {
         return getWriter().writeValueAsString("true");
@@ -83,11 +88,12 @@ public class BeaconApi {
         return getWriter().writeValueAsString("aggregated");
       }
       case RECORD -> {
-        return getWriter().writeValueAsString(jsonNode);
+        return getWriter().writeValueAsString(dataResult);
+      }
+      default -> {
+        return getWriter().writeValueAsString(dataResult);
       }
     }
-
-    return null;
   }
 
   private static String getInfo(Request request, Response response)

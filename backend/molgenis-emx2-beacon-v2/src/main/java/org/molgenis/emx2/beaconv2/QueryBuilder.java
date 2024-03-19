@@ -23,7 +23,7 @@ public class QueryBuilder {
     this.columnSb = new StringBuilder();
   }
 
-  public QueryBuilder addColumns(int maxDepth) {
+  public QueryBuilder addAllColumns(int maxDepth) {
     this.addColumns(this.table.getMetadata().getColumnsWithoutHeadings(), maxDepth);
     return this;
   }
