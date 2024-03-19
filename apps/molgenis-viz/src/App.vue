@@ -1,5 +1,23 @@
 <template>
   <Molgenis :v-model="session">
+    <div class="app-nav">
+      <div>
+        <span>molgenis-viz</span>
+      </div>
+      <nav>
+        <ul>
+          <li><router-link :to="{ name: 'docs' }">Docs</router-link></li>
+          <li>
+            <router-link :to="{ name: 'charts' }">View Charts</router-link>
+          </li>
+          <li>
+            <router-link :to="{ name: 'chartSettings' }">
+              Add Chart
+            </router-link>
+          </li>
+        </ul>
+      </nav>
+    </div>
     <RouterView :session="session" :page="page" />
     <PageFooter>
       <MolgenisLogo />
@@ -22,6 +40,27 @@ const page = ref(null);
 body {
   padding: 0;
   margin: 0;
+}
+
+.app-nav {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  align-items: center;
+  padding: 1em 2em;
+
+  nav {
+    ul {
+      padding: 0;
+      margin: 0;
+      display: flex;
+      justify-content: flex-end;
+      gap: 1.5em;
+
+      li {
+        display: block;
+      }
+    }
+  }
 }
 
 .molgenis-logo {

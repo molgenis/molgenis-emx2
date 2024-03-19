@@ -24,16 +24,16 @@ const router = createRouter({
       name: "home",
       path: "/",
       redirect: {
-        name: "schema-dashboard",
+        name: "charts",
       },
       children: [
         {
-          name: "schema-dashboard",
+          name: "charts",
           path: "/",
           component: schema_home,
         },
         {
-          names: "schema-settings",
+          name: "chartSettings",
           path: "/settings",
           component: schema_settings,
           meta: {
