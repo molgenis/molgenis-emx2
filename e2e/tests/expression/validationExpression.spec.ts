@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-test("test", async ({ page }) => {
+test("validation expression", async ({ page }) => {
   await page.goto("/apps/central/#/");
   await page.getByRole("button", { name: "Sign in" }).click();
   await page.getByPlaceholder("Enter username").click();
