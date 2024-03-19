@@ -38,6 +38,11 @@ export interface vizInteractivityParams {
   enableAnimation?: boolean;
 }
 
+export interface vizLegendParams {
+  stackLegend?: boolean;
+  enableLegendClicks?: boolean;
+}
+
 export interface BarChartParams
   extends vizStandardParams,
     vizInteractivityParams {
@@ -64,4 +69,21 @@ export interface ColumnChartParams
   columnPaddingInner?: number;
   columnPaddingOuter?: number;
   columnAlign?: number;
+}
+
+export interface GroupedColumnChartParams
+  extends vizStandardParams,
+    vizInteractivityParams,
+    vizLegendParams {
+  group: string;
+}
+
+export interface DataTableParams {
+  tableId: string;
+  table: string;
+  columnOrder: string;
+  caption?: string;
+  enableRowHighlighting?: boolean;
+  enableRowClicks?: boolean;
+  renderHtml?: boolean;
 }

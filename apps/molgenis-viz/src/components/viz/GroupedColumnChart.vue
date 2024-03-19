@@ -211,7 +211,7 @@ export default {
     // Subcategories must match the value in the data otherwise fills colors will
     // not be joined with the data. If you would like to change the labels, you
     // must recode the data before passing it into this component.
-    columnFillPalette: {
+    columnColorPalette: {
       type: Object,
       default: {},
     },
@@ -383,13 +383,13 @@ export default {
 
     // create color palette for grouping variable and legend
     palette() {
-      const domain = Object.keys(this.columnFillPalette).length
-        ? Object.keys(this.columnFillPalette)
+      const domain = Object.keys(this.columnColorPalette).length
+        ? Object.keys(this.columnColorPalette)
         : this.subCategories;
 
-      const range = Object.keys(this.columnFillPalette).length
-        ? Object.keys(this.columnFillPalette).map(
-            (key) => this.columnFillPalette[key]
+      const range = Object.keys(this.columnColorPalette).length
+        ? Object.keys(this.columnColorPalette).map(
+            (key) => this.columnColorPalette[key]
           )
         : d3.schemePuBuGn[this.subCategories.size];
 
