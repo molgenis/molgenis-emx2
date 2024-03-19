@@ -21,6 +21,9 @@ def prepare_pkey(schema: Schema, table_name: str, col_id: str | list = None) -> 
     if not col_id:
         # Return the primary keys of a table if no column name is specified
         return table_schema.get_columns(by='key', value=1)
+    if isinstance(col_id, list):
+        return {_col_id: prepare_pkey(schema, table_name, _col_id)[_col_id] for _col_id in col_id}
+
     col_data: Column = table_schema.get_column(by='id', value=col_id)
     if col_id.startswith('mg_'):
         return None
@@ -73,7 +76,7 @@ def find_cohort_references(schema_schema: Schema, schema_name: str, base_table: 
         inheritance.update({table_name: inherit})
 
     cohort_references = {
-        tab.name: list(set(map(lambda c: c.get('refTableName'),
+        tab.name: list(set(map(lambda c: c.get('id'),
                            [*tab.get_columns(by=['columnType', 'refSchemaName'], value=['REF', schema_name]),
                             *tab.get_columns(by=['columnType', 'refSchemaName'], value=['REF_ARRAY', schema_name])])))
         for tab in schema_schema.get_tables(by='schemaName', value=schema_name)
@@ -109,6 +112,10 @@ def find_cohort_references(schema_schema: Schema, schema_name: str, base_table: 
 
     cohort_references = {s: cohort_references.copy()[s] for s in sequence}
 
+    cohort_references = {
+        tab: refs for (tab, refs) in cohort_references.items() if len(refs) > 0
+    }
+
     return cohort_references
 
 
@@ -121,6 +128,8 @@ def construct_delete_variables(db_schema: Schema, cohort_ids: list, table_name: 
             return {"equals": [{_pkey: _id} for _id in cohort_ids]}
         if isinstance(_pkey, dict):
             _key, _val = list(_pkey.items())[0]
+            for _key, _val in _pkey.items():
+                pass
             return {_key: prepare_key_part(_val[0])}
 
     variables = {"filter": prepare_key_part(pkeys)}

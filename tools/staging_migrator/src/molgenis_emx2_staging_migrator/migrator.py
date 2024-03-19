@@ -108,13 +108,13 @@ class StagingMigrator(Client):
 
         cohort_ids = self._get_table_pkey_values()
         metadata: Schema = self.get_schema_metadata(self.catalogue)
-        for table_name, ref_col in tables_to_delete.items():
+        for table_name, ref_cols in tables_to_delete.items():
             # Iterate over the tables that reference the core table of the staging area
             # Check if any row matches this core table
             table_meta = metadata.get_table(by='name', value=table_name)
             table_id = table_meta.id
 
-            delete_rows = self._query_delete_rows(table_name, ref_col, cohort_ids)
+            delete_rows = self._query_delete_rows(table_name, ref_cols, cohort_ids)
 
             if len(delete_rows) == 0:
                 continue
@@ -182,18 +182,22 @@ class StagingMigrator(Client):
         else:
             log.info(f"Successfully migrated organisations {', '.join(organisations)} to catalogue.")
 
-    def _query_delete_rows(self, table_name: str, ref_col: str,
+    def _query_delete_rows(self, table_name: str, ref_cols: str | list,
                            cohort_ids: list) -> dict:
         """Queries the rows to be deleted from a table."""
-        schema_meta = self.get_schema_metadata(self.catalogue)
+        schema_meta: Schema = self.get_schema_metadata(self.catalogue)
         query = self.__construct_pkey_query(schema_meta, table_name)
         variables = construct_delete_variables(self.get_schema_metadata(self.catalogue),
-                                               cohort_ids, table_name, ref_col)
+                                               cohort_ids, table_name, ref_cols)
 
         response = self.session.post(url=f"{self.url}/{self.catalogue}/graphql",
                                      json={"query": query, "variables": variables},
                                      headers={'x-molgenis-token': self.token})
-        return response.json().get('data')
+
+        data = response.json().get('data')
+        if data is None:
+            data = {}
+        return data
 
     def _delete_table_entries(self, table_id: str, pkeys: list):
         """Deletes the rows marked by the primary keys from the table."""
@@ -212,6 +216,8 @@ class StagingMigrator(Client):
             if response.status_code != 200:
                 log.error(response)
                 log.error(f"Deleting entries from table {table_id} failed.")
+            else:
+                log.info(response.json().get('data').get('delete').get('message'))
 
     def _cohorts_in_ref_array(self, _table_name: str) -> bool:
         """Returns True if cohorts are referenced in a referenced array in any column in this table."""
