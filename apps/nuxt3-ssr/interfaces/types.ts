@@ -294,4 +294,17 @@ export interface IOntologyItem {
 
 export interface IOntologyParentTreeItem
   extends Omit<IOntologyItem, "children"> {}
-export interface IOntologyChildTreeItem extends Omit<IOntologyItem, "parent"> {}
+
+// generic emx2 graphql api response type, pass in query structure a T
+export interface GqlResp<T> {
+  data: T;
+}
+export interface IOntologyRespItem {
+  name: string;
+  definition?: string;
+  code: string;
+  order: number;
+  parent: {
+    name: string;
+  };
+}
