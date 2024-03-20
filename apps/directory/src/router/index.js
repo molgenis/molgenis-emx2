@@ -5,6 +5,7 @@ import Landingpage from "../views/Landingpage.vue";
 import BiobankReport from "../views/BiobankReport.vue";
 import NetworkReport from "../views/NetworkReport.vue";
 import CollectionReport from "../views/CollectionReport.vue";
+import StudyReport from "../views/StudyReport.vue";
 import ConfigurationScreen from "../views/ConfigurationScreen.vue";
 import { useSettingsStore } from "../stores/settingsStore";
 
@@ -32,6 +33,11 @@ const router = createRouter({
       component: BiobankReport,
     },
     { path: "/network/:id", name: "networkdetails", component: NetworkReport },
+    {
+      path: "/study/:id",
+      name: "studydetails",
+      component: StudyReport,
+    },
     {
       path: "/configuration",
       component: ConfigurationScreen,
