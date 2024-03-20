@@ -50,6 +50,8 @@ import MessageBox from "../display/MessageBox.vue";
 
 const props = withDefaults(defineProps<GroupedColumnChartParams>(), {
   enableChartLegend: true,
+  enableLegendClicks: true,
+  enableAnimation: true,
 });
 
 let chartLoading = ref<Boolean>(true);
@@ -96,6 +98,7 @@ async function fetchChartData() {
       nestedGroupKey: groupSubSelection.value,
     });
 
+    // chartData.value = preppedData;
     chartData.value = preppedData.sort((current, next) => {
       return (
         current[groupVar.value].localeCompare(next[groupVar.value]) ||

@@ -37,10 +37,10 @@
           >
             <g class="column-subgroup" v-for="subgroup in group[1]">
               <rect
-                :data-group="group[0]"
+                class="column"
                 :data-x="subgroup[xvar]"
                 :data-y="subgroup[yvar]"
-                class="column"
+                :data-group="group[0]"
                 :x="xSubAxis(subgroup[xvar])"
                 :width="xSubAxis.bandwidth()"
                 :fill="palette(subgroup[xvar])"
@@ -53,7 +53,7 @@
                 :x="xSubAxis(subgroup[xvar])"
                 :y="yAxis(subgroup[yvar])"
                 :dx="xSubAxis.bandwidth() / 2"
-                dy="-6px"
+                dy="-0.4em"
               >
                 {{ subgroup[yvar] }}
               </text>
@@ -383,6 +383,9 @@ export default {
 
     // create color palette for grouping variable and legend
     palette() {
+      const subCategorySize =
+        this.subCategories.size === 2 ? 3 : this.subCategories.size;
+
       const domain = Object.keys(this.columnColorPalette).length
         ? Object.keys(this.columnColorPalette)
         : this.subCategories;
@@ -391,7 +394,7 @@ export default {
         ? Object.keys(this.columnColorPalette).map(
             (key) => this.columnColorPalette[key]
           )
-        : d3.schemePuBuGn[this.subCategories.size];
+        : d3.schemePuBuGn[subCategorySize];
 
       const scale = d3
         .scaleOrdinal()

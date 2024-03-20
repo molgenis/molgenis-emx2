@@ -47,6 +47,7 @@ body {
   grid-template-columns: 2fr 1fr;
   align-items: center;
   padding: 1em 2em;
+  box-shadow: $box-shadow;
 
   nav {
     ul {

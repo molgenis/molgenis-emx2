@@ -13,10 +13,11 @@
       /> -->
       <GroupedColumnChartEmx
         chartId="grouped-chart-test"
+        title="Test group chart"
         table="ClinicalData_groupBy"
-        xvar="researchCenter { name }"
+        xvar="sampleType { name }"
         yvar="_sum { n }"
-        group="sex { name }"
+        group="researchCenter { name }"
       />
     </PageSection>
   </Page>
