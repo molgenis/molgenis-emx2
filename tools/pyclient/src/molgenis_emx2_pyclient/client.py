@@ -9,11 +9,11 @@ import requests
 
 from . import graphql_queries as queries
 from . import utils
-from .metadata import Schema
 from .exceptions import (NoSuchSchemaException, ServiceUnavailableError, SigninError,
                          ServerNotFoundError, PyclientException, NoSuchTableException,
                          NoContextManagerException, GraphQLException, InvalidTokenException,
                          PermissionDeniedException, TokenSigninException, NonExistentTemplateException)
+from .metadata import Schema
 
 log = logging.getLogger("Molgenis EMX2 Pyclient")
 
@@ -216,7 +216,7 @@ class Client:
         )
         return response.json().get('data').get('_manifest').get('SpecificationVersion')
 
-    def save_schema(self, table: str, name: str = None, file: str = None, data: list = None):
+    def save_schema(self, table: str, name: str = None, file: str = None, data: list | pd.DataFrame = None):
         """Imports or updates records in a table of a named schema.
 
         :param name: name of a schema
@@ -263,7 +263,7 @@ class Client:
             # log.error(f"Failed to import data into {current_schema}::{table}\n{errors}.")
             log.error("Failed to import data into %s::%s\n%s", current_schema, table, errors)
 
-    def delete_records(self, table: str, schema: str = None, file: str = None, data: list = None):
+    def delete_records(self, table: str, schema: str = None, file: str = None, data: list | pd.DataFrame = None):
         """Deletes records from a table.
 
         :param schema: name of a schema
@@ -578,7 +578,7 @@ class Client:
         return metadata
 
     @staticmethod
-    def _prep_data_or_file(file_path: str = None, data: list = None) -> str | None:
+    def _prep_data_or_file(file_path: str = None, data: list | pd.DataFrame = None) -> str | None:
         """Prepares the data from memory or loaded from disk for addition or deletion action.
 
         :param file_path: path to the file to be prepared
@@ -594,10 +594,14 @@ class Client:
             return utils.read_file(file_path=file_path)
 
         if data is not None:
-            return pd.DataFrame(data).to_csv(index=False, quoting=csv.QUOTE_NONNUMERIC, encoding='UTF-8')
+            if type(data) is pd.DataFrame:
+                return data.to_csv(index=False, quoting=csv.QUOTE_NONNUMERIC, encoding='UTF-8')
+            else:
+                return pd.DataFrame(data).to_csv(index=False, quoting=csv.QUOTE_NONNUMERIC, encoding='UTF-8')
 
-        print("No data to import. Specify a file location or a dataset.")
-        return None
+        message = "No data to import. Specify a file location or a dataset."
+        log.error(message)
+        raise FileNotFoundError(message)
 
     def set_schema(self, name: str) -> str:
         """Sets the default schema to the schema supplied as argument.
