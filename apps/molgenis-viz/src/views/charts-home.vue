@@ -1,24 +1,16 @@
 <template>
   <Page>
-    <!-- <PageHeader
+    <PageHeader
       title="MOLGENIS VIZ"
       subtitle="Create visualizations from your database"
-    /> -->
-    <PageSection>
-      <!-- <ColumnChartEmx
-        chartId="test"
-        table="ClinicalData_groupBy"
-        xvar="researchCenter { name }"
-        yvar="_sum { n }"
-      /> -->
-      <GroupedColumnChartEmx
-        chartId="grouped-chart-test"
-        title="Test group chart"
-        table="ClinicalData_groupBy"
-        xvar="sampleType { name }"
-        yvar="_sum { n }"
-        group="researchCenter { name }"
-      />
+      height="medium"
+      class="bg-gray-050"
+    />
+    <PageSection aria-labelledby="available-charts-title" :verticalPadding="2">
+      <h2 id="available-charts-title">Available charts</h2>
+      <MessageBox type="warning">
+        <p>No charts found.</p>
+      </MessageBox>
     </PageSection>
   </Page>
 </template>
@@ -30,6 +22,7 @@ import PageSection from "../components/layouts/PageSection.vue";
 import Dashboard from "../components/layouts/Dashboard.vue";
 import DashboardRow from "../components/layouts/DashboardRow.vue";
 import DashboardChart from "../components/layouts/DashboardChart.vue";
+import MessageBox from "../components/display/MessageBox.vue";
 
 import BarChartEmx from "../components/viz/BarChartEmx.vue";
 import ColumnChartEmx from "../components/viz/ColumnChartEmx.vue";

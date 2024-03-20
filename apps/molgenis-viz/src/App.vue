@@ -8,10 +8,10 @@
         <ul>
           <li><router-link :to="{ name: 'docs' }">Docs</router-link></li>
           <li>
-            <router-link :to="{ name: 'charts' }">View Charts</router-link>
+            <router-link :to="{ name: 'charts-home' }">View Charts</router-link>
           </li>
           <li>
-            <router-link :to="{ name: 'chartSettings' }">
+            <router-link :to="{ name: 'charts-builder' }">
               Add Chart
             </router-link>
           </li>

@@ -1,7 +1,7 @@
 import { createRouter, createWebHashHistory } from "vue-router";
 
-import schema_home from "../views/schema-home.vue";
-import schema_settings from "../views/schema-settings.vue";
+import charts_home from "../views/charts-home.vue";
+import charts_builder from "../views/charts-builder.vue";
 
 import docs_home_page from "../views/view-home.vue";
 import docs_demo from "../views/viz-demo.vue";
@@ -28,14 +28,17 @@ const router = createRouter({
       },
       children: [
         {
-          name: "charts",
+          name: "charts-home",
           path: "/",
-          component: schema_home,
+          component: charts_home,
+          meta: {
+            title: "MolgenisViz"
+          }
         },
         {
-          name: "chartSettings",
-          path: "/settings",
-          component: schema_settings,
+          name: "charts-builder",
+          path: "/builder",
+          component: charts_builder,
           meta: {
             title: "Visualization Settings",
           },

@@ -27,15 +27,6 @@
     :enableClicks="enableClicks"
     :enableAnimation="enableAnimation"
   />
-  <!-- <div>
-      <code>x: {{ xVar }}</code><br />
-      <code>nested: {{ xSubSelection }}</code>
-    </div>
-    <div>
-      <code>y: {{ yVar }}</code><br />
-      <code>nested: {{ ySubSelection }}</code>
-    </div> 
-    <pre>{{ chartData }}</pre> -->
 </template>
 
 <script setup lang="ts">
