@@ -256,6 +256,16 @@ export function getCollectionDetails(collection, isBiobankWithdrawn) {
   };
 }
 
+export function getStudyDetails(study) {
+  const settingsStore = useSettingsStore();
+  const viewmodel = getViewmodel(study, settingsStore.config.studyColumns);
+
+  return {
+    ...study,
+    viewmodel,
+  };
+}
+
 export const getBiobankDetails = (biobank) => {
   const settingsStore = useSettingsStore();
 
@@ -325,6 +335,14 @@ export const collectionReportInformation = (collection) => {
     });
   }
 
+  if (collection.study) {
+    collectionReport.study = {
+      id: collection.study.id,
+      title: collection.study.title,
+      report: `/study/${collection.study.id}`,
+    };
+  }
+
   collectionReport.certifications = mapQualityStandards(collection.quality);
 
   collectionReport.collaboration = [];
@@ -345,6 +363,14 @@ export const collectionReportInformation = (collection) => {
   }
 
   return collectionReport;
+};
+
+export const studyReportInformation = (study) => {
+  const studyReport = {};
+
+  studyReport.also_known = study.also_known ? mapAlsoKnownIn(study) : undefined;
+
+  return studyReport;
 };
 
 export const mapNetworkInfo = (data) => {

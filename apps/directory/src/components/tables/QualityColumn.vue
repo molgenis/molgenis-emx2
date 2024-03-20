@@ -29,7 +29,7 @@
             !quality.certification_image_link && 'quality_standard' in quality
           "
         >
-          {{ getQualityInfo(quality.quality_standard.name).label }}
+          {{ getQualityInfo(quality.quality_standard.name)?.label }}
         </span>
         <span v-else>
           <img
