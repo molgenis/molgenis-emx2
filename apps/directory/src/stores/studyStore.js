@@ -24,7 +24,6 @@ export const useStudyStore = defineStore("studyStore", () => {
     return properties;
   }
 
-
   async function getStudyReport(id) {
     const studyReportQuery = new QueryEMX2(graphqlEndpoint)
       .table("Studies")
