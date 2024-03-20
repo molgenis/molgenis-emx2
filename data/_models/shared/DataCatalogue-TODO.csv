@@ -461,7 +461,7 @@ Aggregates,,,,,,,,,,,,"Resource counts for e.g. samples, clinical data","DataCat
 Aggregates,,resource,ref,1,TRUE,,Extended resources,,,,,Resource this sample or data count refers to,"DataCatalogue,CohortStaging"
 Aggregates,,research center,ref_array,1,TRUE,,Organisations,,,,,,DataCatalogue
 Aggregates,,research center,ref_array,1,TRUE,SharedStaging,Organisations,,,,,,CohortStaging
-Aggregates,,primary tumor,ontology,1,TRUE,CatalogueOntologies,Tumor types,,,,,,"DataCatalogue,CohortStaging"
+Aggregates,,primary tumor site,ontology,1,TRUE,CatalogueOntologies,ICDO topologies,,,,,,"DataCatalogue,CohortStaging"
 Aggregates,,metastasis,ontology,1,TRUE,CatalogueOntologies,NoYesUnknown,,,,,Distant metastasis at diagnosis,"DataCatalogue,CohortStaging"
 Aggregates,,year of diagnosis,ontology,1,TRUE,CatalogueOntologies,Time periods,,,,,,"DataCatalogue,CohortStaging"
 Aggregates,,sex,ontology,1,TRUE,CatalogueOntologies,Sex,,,,,,"DataCatalogue,CohortStaging"
