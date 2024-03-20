@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.molgenis.emx2.Table;
-import org.molgenis.emx2.graphql.GraphqlApiFactory;
+import org.molgenis.emx2.graphql.MolgenisSession;
 import org.molgenis.emx2.utils.TypeUtils;
 
 public class GenomicQuery {
@@ -18,6 +18,7 @@ public class GenomicQuery {
   public static final String GENOMIC_VARIATIONS_TABLE_NAME = "GenomicVariations";
 
   public static List<GenomicVariantsResultSets> genomicQuery(
+      MolgenisSession session,
       Table table,
       GenomicQueryType genomicQueryType,
       String qReferenceName,
@@ -27,7 +28,7 @@ public class GenomicQuery {
       String qReferenceBases,
       String qAlternateBases) {
     List<GenomicVariantsResultSets> resultSetsList = new ArrayList<>();
-    GraphQL grapql = new GraphqlApiFactory().createGraphqlForSchema(table.getSchema());
+    GraphQL grapql = session.getGraphqlForSchema(table.getSchema().getName());
     ExecutionResult executionResult =
         grapql.execute(
             "{"

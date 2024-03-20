@@ -23,6 +23,7 @@ import javax.servlet.http.Part;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.graphql.GraphqlApiFactory;
 import org.molgenis.emx2.graphql.GraphqlException;
+import org.molgenis.emx2.graphql.MolgenisSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;

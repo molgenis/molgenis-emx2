@@ -56,8 +56,6 @@ public interface Schema {
 
   String getRoleForUser(String user);
 
-  List<String> getInheritedRolesForUser(String user);
-
   String getRoleForActiveUser();
 
   String getName();

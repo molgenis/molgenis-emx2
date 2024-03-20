@@ -11,14 +11,13 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 public class TestGraphQLCompositeKeys {
 
-  private static GraphQL grapql;
   private static Database database;
   private static final String schemaName = TestGraphQLCompositeKeys.class.getSimpleName();
+  private static MolgenisSession session;
 
   // need ref
   // need mref
@@ -27,8 +26,8 @@ public class TestGraphQLCompositeKeys {
   @BeforeAll
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
-    Schema schema = database.dropCreateSchema(schemaName);
-    grapql = new GraphqlApiFactory().createGraphqlForSchema(schema);
+    database.dropCreateSchema(schemaName);
+    session = new MolgenisSession(database, null);
   }
 
   @Test
@@ -63,10 +62,7 @@ public class TestGraphQLCompositeKeys {
             + " \"REFBACK\" refTableName: \"RefTable\" refBackName: \"ref\"}]) {message}}");
 
     // have to reload graphql
-    grapql =
-        new GraphqlApiFactory()
-            .createGraphqlForSchema(
-                database.getSchema(TestGraphQLCompositeKeys.class.getSimpleName()));
+    session.clearCache();
 
     // insert some data, enough to check if foreign keys are joined correctly
     execute(
@@ -202,7 +198,8 @@ public class TestGraphQLCompositeKeys {
   //  }
 
   private static JsonNode execute(String query) throws IOException {
-    String result = convertExecutionResultToJson(grapql.execute(query));
+    GraphQL graphql = session.getGraphqlForSchema(schemaName);
+    String result = convertExecutionResultToJson(graphql.execute(query));
     JsonNode node = new ObjectMapper().readTree(result);
     if (node.get("errors") != null) {
       throw new MolgenisException(node.get("errors").get(0).get("message").asText());

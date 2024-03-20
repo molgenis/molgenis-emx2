@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.*;
 import org.molgenis.emx2.Table;
+import org.molgenis.emx2.graphql.MolgenisSession;
 import spark.Request;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
@@ -19,10 +20,11 @@ public class IndividualsResponse {
   // query parameters, ignore from output
   @JsonIgnore private String idForQuery;
 
-  public IndividualsResponse(Request request, List<Table> tables) throws Exception {
+  public IndividualsResponse(MolgenisSession session, Request request, List<Table> tables)
+      throws Exception {
     idForQuery = request.queryParams("id");
     String idFilter = (idForQuery != null ? "{id: {equals:\"" + idForQuery + "\"}}" : "");
-    List<IndividualsResultSets> resultSetsList = queryIndividuals(tables, idFilter);
+    List<IndividualsResultSets> resultSetsList = queryIndividuals(session, tables, idFilter);
     this.resultSets = resultSetsList.toArray(new IndividualsResultSets[resultSetsList.size()]);
   }
 }

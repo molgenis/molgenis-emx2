@@ -20,7 +20,7 @@ import org.eclipse.rdf4j.rio.WriterConfig;
 import org.eclipse.rdf4j.rio.helpers.BasicWriterSettings;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
-import org.molgenis.emx2.graphql.GraphqlApiFactory;
+import org.molgenis.emx2.graphql.MolgenisSession;
 import org.molgenis.emx2.utils.TypeUtils;
 import spark.Request;
 
@@ -45,10 +45,10 @@ public class FAIRDataPointCatalog {
    * @throws Exception
    */
   public static Map<String, List<Map<String, Object>>> getFDPCatalogRecords(
-      String id, Schema... schemas) {
+      MolgenisSession session, String id, Schema... schemas) {
     Map<String, List<Map<String, Object>>> allCatalogsFromJSON = new HashMap<>();
     for (Schema schema : schemas) {
-      List<Map<String, Object>> catalogsFromJSON = getFDPCatalogRecords(schema, id);
+      List<Map<String, Object>> catalogsFromJSON = getFDPCatalogRecords(session, schema, id);
       if (catalogsFromJSON != null) {
         allCatalogsFromJSON.put(schema.getName(), catalogsFromJSON);
       }
@@ -56,8 +56,9 @@ public class FAIRDataPointCatalog {
     return allCatalogsFromJSON;
   }
 
-  public static List<Map<String, Object>> getFDPCatalogRecords(Schema schema, String id) {
-    GraphQL grapql = new GraphqlApiFactory().createGraphqlForSchema(schema);
+  public static List<Map<String, Object>> getFDPCatalogRecords(
+      MolgenisSession session, Schema schema, String id) {
+    GraphQL grapql = session.getGraphqlForSchema(schema.getName());
     ExecutionResult executionResult =
         grapql.execute(
             "{Catalog"
@@ -84,12 +85,13 @@ public class FAIRDataPointCatalog {
     }
   }
 
-  public FAIRDataPointCatalog(Request request, Table fdpCatalogTable) throws Exception {
+  public FAIRDataPointCatalog(MolgenisSession session, Request request, Table fdpCatalogTable)
+      throws Exception {
 
     String id = request.params("id");
     Schema schema = fdpCatalogTable.getSchema();
 
-    List<Map<String, Object>> catalogsFromJSON = getFDPCatalogRecords(schema, id);
+    List<Map<String, Object>> catalogsFromJSON = getFDPCatalogRecords(session, schema, id);
     if (catalogsFromJSON == null) {
       throw new Exception("catalogsFromJSON is null");
     }

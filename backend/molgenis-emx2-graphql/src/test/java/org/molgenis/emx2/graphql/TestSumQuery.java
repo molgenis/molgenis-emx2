@@ -31,6 +31,8 @@ public class TestSumQuery {
   private static final String GENDER = "Gender";
   private static final String N = "N";
 
+  private static MolgenisSession session;
+
   @BeforeAll
   public static void setUp() {
     database = TestDatabaseFactory.getTestDatabase();
@@ -57,6 +59,8 @@ public class TestSumQuery {
         row(N, 5, TYPE, "Type a", GENDER, "F", TYPE_ARRAY, List.of("Type a")),
         row(N, 2, TYPE, "Type b", GENDER, "M", TYPE_ARRAY, List.of("Type b")),
         row(N, 9, TYPE, "Type b", GENDER, "F", TYPE_ARRAY, List.of("Type a", "Type b")));
+
+    session = new MolgenisSession(database, null);
   }
 
   @Test
@@ -92,7 +96,7 @@ public class TestSumQuery {
     assertTrue(json.contains("9")); // for Type b, Type a
 
     // test that the graphql also works
-    GraphQL graphql = new GraphqlApiFactory().createGraphqlForSchema(schema, null);
+    GraphQL graphql = new GraphqlApiFactory().createGraphqlForSchema(session, schema.getName());
     ExecutionResult result =
         graphql.execute(
             """

@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import java.net.URISyntaxException;
 import java.util.List;
 import org.molgenis.emx2.Table;
+import org.molgenis.emx2.graphql.MolgenisSession;
 import spark.Request;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
@@ -20,10 +21,11 @@ public class DatasetsResponse {
   // query parameters, ignore from output
   @JsonIgnore private String idForQuery;
 
-  public DatasetsResponse(Request request, List<Table> tables) throws URISyntaxException {
+  public DatasetsResponse(MolgenisSession session, Request request, List<Table> tables)
+      throws URISyntaxException {
     idForQuery = request.queryParams("id");
     String idFilter = (idForQuery != null ? "{id: {equals:\"" + idForQuery + "\"}}" : "");
-    List<DatasetsResultSets> resultSetsList = queryDatasets(request, tables, idFilter);
+    List<DatasetsResultSets> resultSetsList = queryDatasets(session, request, tables, idFilter);
     this.resultSets = resultSetsList.toArray(new DatasetsResultSets[resultSetsList.size()]);
   }
 }

@@ -25,14 +25,14 @@ public class GraphqlSessionFieldFactory {
     // no instance
   }
 
-  public GraphQLFieldDefinition signoutField(Database database) {
+  public GraphQLFieldDefinition signoutField(MolgenisSession session) {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("signout")
         .type(GraphqlApiMutationResult.typeForMutationResult)
         .dataFetcher(
             dataFetchingEnvironment -> {
-              String user = database.getActiveUser();
-              database.setActiveUser(GraphqlConstants.ANONYMOUS);
+              String user = session.getSessionUser();
+              session.setSessionUser(ANONYMOUS);
               return new GraphqlApiMutationResult(
                   GraphqlApiMutationResult.Status.SUCCESS, "User '%s' has signed out", user);
             })
@@ -70,7 +70,7 @@ public class GraphqlSessionFieldFactory {
         .build();
   }
 
-  public GraphQLFieldDefinition signinField(Database database) {
+  public GraphQLFieldDefinition signinField(MolgenisSession session) {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("signin")
         .type(GraphqlApiMutationResultWithToken.typeForSignResult)
@@ -81,12 +81,14 @@ public class GraphqlSessionFieldFactory {
               String userName = dataFetchingEnvironment.getArgument(EMAIL);
               String passWord = dataFetchingEnvironment.getArgument(PASSWORD);
 
+              Database database = session.getDatabase();
               if (database.hasUser(userName) && database.checkUserPassword(userName, passWord)) {
-                database.setActiveUser(userName);
+                session.setSessionUser(userName);
                 GraphqlApiMutationResultWithToken result =
                     new GraphqlApiMutationResultWithToken(
                         GraphqlApiMutationResult.Status.SUCCESS,
-                        JWTgenerator.createTemporaryToken(database, userName),
+                        JWTgenerator.createTemporaryToken(
+                            new SqlDatabase(SqlDatabase.ADMIN_USER), userName),
                         "Signed in as '%s'",
                         userName);
                 return result;

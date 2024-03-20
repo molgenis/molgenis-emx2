@@ -37,26 +37,29 @@ public class FAIRDataPointApi {
   private static String getFDP(Request request, Response res) throws Exception {
     res.type(TEXT_TURTLE_MIME_TYPE);
     Schema[] schemas = getSchemasHavingTable("Catalog", request);
-    return new FAIRDataPoint(request, schemas).getResult();
+    return new FAIRDataPoint(request, schemas).getResult(sessionManager.getSession(request));
   }
 
   private static String getCatalog(Request request, Response res) throws Exception {
     res.type(TEXT_TURTLE_MIME_TYPE);
     Schema schema = getSchema(request);
     Table table = schema.getTable("Catalog");
-    return new FAIRDataPointCatalog(request, table).getResult();
+    return new FAIRDataPointCatalog(sessionManager.getSession(request), request, table).getResult();
   }
 
   private static String getDataset(Request request, Response res) throws Exception {
     res.type(TEXT_TURTLE_MIME_TYPE);
     Schema schema = getSchema(request);
     Table table = schema.getTable("Dataset");
-    return new FAIRDataPointDataset(request, table).getResult();
+    return new FAIRDataPointDataset(request, table).getResult(sessionManager.getSession(request));
   }
 
   private static String getDistribution(Request request, Response res) throws Exception {
     res.type(TEXT_TURTLE_MIME_TYPE);
-    return new FAIRDataPointDistribution(request, sessionManager.getSession(request).getDatabase())
+    return new FAIRDataPointDistribution(
+            sessionManager.getSession(request),
+            request,
+            sessionManager.getSession(request).getDatabase())
         .getResult();
   }
 

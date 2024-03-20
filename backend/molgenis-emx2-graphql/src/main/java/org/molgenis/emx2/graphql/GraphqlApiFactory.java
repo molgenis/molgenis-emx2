@@ -39,7 +39,9 @@ public class GraphqlApiFactory {
     }
   }
 
-  public GraphQL createGraphqlForDatabase(Database database, TaskService taskService) {
+  public GraphQL createGraphqlForDatabase(MolgenisSession session) {
+    Database database = session.getDatabase();
+    TaskService taskService = session.getTaskService();
 
     GraphQLObjectType.Builder queryBuilder = GraphQLObjectType.newObject().name("Query");
     GraphQLObjectType.Builder mutationBuilder = GraphQLObjectType.newObject().name("Save");
@@ -66,14 +68,14 @@ public class GraphqlApiFactory {
     mutationBuilder.field(db.changeMutation(database));
 
     // account operations
-    GraphqlSessionFieldFactory session = new GraphqlSessionFieldFactory();
-    queryBuilder.field(session.sessionQueryField(database, null));
-    mutationBuilder.field(session.signinField(database));
-    mutationBuilder.field(session.signupField(database));
+    GraphqlSessionFieldFactory sessionFieldFactory = new GraphqlSessionFieldFactory();
+    queryBuilder.field(sessionFieldFactory.sessionQueryField(database, null));
+    mutationBuilder.field(sessionFieldFactory.signinField(session));
+    mutationBuilder.field(sessionFieldFactory.signupField(database));
     if (!database.isAnonymous()) {
-      mutationBuilder.field(session.signoutField(database));
-      mutationBuilder.field(session.changePasswordField(database));
-      mutationBuilder.field(session.createTokenField(database));
+      mutationBuilder.field(sessionFieldFactory.signoutField(session));
+      mutationBuilder.field(sessionFieldFactory.changePasswordField(database));
+      mutationBuilder.field(sessionFieldFactory.createTokenField(database));
     }
 
     // notice we here add custom exception handler for mutations
@@ -83,11 +85,12 @@ public class GraphqlApiFactory {
         .build();
   }
 
-  public GraphQL createGraphqlForSchema(Schema schema) {
-    return createGraphqlForSchema(schema, null);
-  }
+  //  //public GraphQL createGraphqlForSchema(Schema schema) {
+  //    return createGraphqlForSchema(schema, null);
+  //  }
 
-  public GraphQL createGraphqlForSchema(Schema schema, TaskService taskService) {
+  public GraphQL createGraphqlForSchema(MolgenisSession session, String schemaName) {
+    Schema schema = session.getDatabase().getSchema(schemaName);
     long start = System.currentTimeMillis();
     logger.info("creating graphql for schema: {}", schema.getMetadata().getName());
 
@@ -105,17 +108,17 @@ public class GraphqlApiFactory {
 
     // _tasks query
     GraphqlDatabaseFieldFactory db = new GraphqlDatabaseFieldFactory();
-    queryBuilder.field(db.tasksQueryField(taskService));
+    queryBuilder.field(db.tasksQueryField(session.getTaskService()));
 
     // _session query
     GraphqlSessionFieldFactory sessionFieldFactory = new GraphqlSessionFieldFactory();
     queryBuilder.field(sessionFieldFactory.sessionQueryField(schema.getDatabase(), schema));
-    mutationBuilder.field(sessionFieldFactory.signinField(schema.getDatabase()));
+    mutationBuilder.field(sessionFieldFactory.signinField(session));
     mutationBuilder.field(sessionFieldFactory.signupField(schema.getDatabase()));
 
     // authenticated user operations
     if (!schema.getDatabase().isAnonymous()) {
-      mutationBuilder.field(sessionFieldFactory.signoutField(schema.getDatabase()));
+      mutationBuilder.field(sessionFieldFactory.signoutField(session));
       mutationBuilder.field(sessionFieldFactory.changePasswordField(schema.getDatabase()));
       mutationBuilder.field(sessionFieldFactory.createTokenField(schema.getDatabase()));
     }

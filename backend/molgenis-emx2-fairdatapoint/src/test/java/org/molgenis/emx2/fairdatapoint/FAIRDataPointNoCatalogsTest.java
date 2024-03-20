@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.datamodels.PetStoreLoader;
+import org.molgenis.emx2.graphql.MolgenisSession;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import spark.Request;
 
@@ -17,6 +18,7 @@ public class FAIRDataPointNoCatalogsTest {
 
   static Database database;
   static Schema fairDataHub_nocatalogs;
+  static MolgenisSession session;
 
   @BeforeAll
   public static void setup() {
@@ -24,6 +26,7 @@ public class FAIRDataPointNoCatalogsTest {
     fairDataHub_nocatalogs = database.dropCreateSchema("fairDataHub_nocatalogs");
     PetStoreLoader petStoreLoader = new PetStoreLoader();
     petStoreLoader.load(fairDataHub_nocatalogs, true);
+    session = new MolgenisSession(database, null);
   }
 
   @Test
@@ -33,7 +36,7 @@ public class FAIRDataPointNoCatalogsTest {
     when(request.url()).thenReturn("http://localhost:8080/api/fdp");
     FAIRDataPoint fairDataPoint = new FAIRDataPoint(request, fairDataHub_nocatalogs);
     fairDataPoint.setVersion("setversionforjtest");
-    String result = fairDataPoint.getResult();
+    String result = fairDataPoint.getResult(session);
     assertFalse(result.contains("fdp-o:metadataCatalog"));
     assertFalse(result.contains("ldp:DirectContainer"));
     assertFalse(result.contains("dcterms:title \"Catalogs\";"));

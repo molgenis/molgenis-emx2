@@ -6,6 +6,7 @@ import org.molgenis.emx2.Table;
 import org.molgenis.emx2.beaconv2.endpoints.datasets.DatasetsMeta;
 import org.molgenis.emx2.beaconv2.endpoints.datasets.ResponseSummary;
 import org.molgenis.emx2.beaconv2.endpoints.genomicvariants.GenomicVariantsResponse;
+import org.molgenis.emx2.graphql.MolgenisSession;
 import spark.Request;
 
 /** Genomic variants, analyses, cohorts, sequencing runs, individuals, samples */
@@ -16,9 +17,10 @@ public class GenomicVariants {
   private ResponseSummary responseSummary;
   private GenomicVariantsResponse response;
 
-  public GenomicVariants(Request request, List<Table> genomicVariantTables) throws Exception {
+  public GenomicVariants(MolgenisSession session, Request request, List<Table> genomicVariantTables)
+      throws Exception {
     this.meta = new DatasetsMeta("../beaconDatasetResponse.json", "datasets");
     this.responseSummary = new ResponseSummary();
-    this.response = new GenomicVariantsResponse(request, genomicVariantTables);
+    this.response = new GenomicVariantsResponse(session, request, genomicVariantTables);
   }
 }

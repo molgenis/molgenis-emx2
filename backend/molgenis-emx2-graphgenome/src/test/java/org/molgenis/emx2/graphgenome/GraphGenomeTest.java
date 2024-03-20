@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
+import org.molgenis.emx2.graphql.MolgenisSession;
 import org.molgenis.emx2.io.MolgenisIO;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
@@ -24,6 +25,7 @@ public class GraphGenomeTest {
   static List<Table> genomicVariationsTables;
   static final String GRAPH_GENOME_API_LOCATION = "/api/graphgenome";
   static final String RDF_API_LOCATION = "/api/rdf";
+  static MolgenisSession session;
 
   @BeforeAll
   public static void setup() {
@@ -32,6 +34,7 @@ public class GraphGenomeTest {
     createSchema(graphGenomeSchema, "fairdatahub/beaconv2/molgenis.csv");
     MolgenisIO.fromClasspathDirectory("graphgenome", graphGenomeSchema, false);
     genomicVariationsTables = List.of(graphGenomeSchema.getTable("GenomicVariations"));
+    session = new MolgenisSession(database, null);
   }
 
   @Test
@@ -42,6 +45,7 @@ public class GraphGenomeTest {
             RDF_API_LOCATION,
             null)
         .graphGenomeAsRDF(
+            session,
             outputStream,
             "TERC",
             "GRCh37",

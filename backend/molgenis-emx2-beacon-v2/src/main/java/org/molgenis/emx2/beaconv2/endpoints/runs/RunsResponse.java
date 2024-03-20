@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.molgenis.emx2.Table;
-import org.molgenis.emx2.graphql.GraphqlApiFactory;
+import org.molgenis.emx2.graphql.MolgenisSession;
 import org.molgenis.emx2.utils.TypeUtils;
 import spark.Request;
 
@@ -26,7 +26,8 @@ public class RunsResponse {
   // query parameters, ignore from output
   @JsonIgnore private String idForQuery;
 
-  public RunsResponse(Request request, List<Table> tables) throws Exception {
+  public RunsResponse(MolgenisSession session, Request request, List<Table> tables)
+      throws Exception {
 
     List<RunsResultSets> resultSetsList = new ArrayList<>();
     idForQuery = request.queryParams("id");
@@ -34,7 +35,7 @@ public class RunsResponse {
     for (Table table : tables) {
       List<RunsResultSetsItem> runsItemList = new ArrayList<>();
 
-      GraphQL grapql = new GraphqlApiFactory().createGraphqlForSchema(table.getSchema());
+      GraphQL grapql = session.getGraphqlForSchema(table.getSchema().getName());
       ExecutionResult executionResult =
           grapql.execute(
               "{Runs"

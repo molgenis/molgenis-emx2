@@ -12,7 +12,6 @@ import javax.sql.DataSource;
 import org.jooq.DSLContext;
 import org.jooq.SQLDialect;
 import org.jooq.conf.Settings;
-import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.EnvironmentProperty;
@@ -91,7 +90,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   public SqlDatabase(String user) {
     this(false);
     if (hasUser(user)) {
-      this.setActiveUser(user);
+      this.connectionProvider.setActiveUser(user);
     } else {
       throw new MolgenisException("User " + user + " unknown");
     }
@@ -114,6 +113,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     }
     // get database version if exists
     databaseVersion = MetadataUtils.getVersion(jooq);
+    this.setSettingsWithoutReload(MetadataUtils.loadDatabaseSettings(getJooq()));
     logger.info("Database was created using version: {} ", this.databaseVersion);
   }
 
@@ -392,7 +392,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       // need elevated privileges, so clear user and run as root
       // this is not thread safe therefore must be in a transaction
       SqlDatabase adminDatabase = new SqlDatabase(ADMIN_USER);
-      executeCreateUser(adminDatabase, userName);
+      adminDatabase.tx(db -> executeCreateUser((SqlDatabase) db, userName));
       log(start, "created user " + userName);
     }
     return getUser(userName);
@@ -466,32 +466,6 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   }
 
   @Override
-  public void setActiveUser(String username) {
-    if (username == null || username.isEmpty()) {
-      throw new MolgenisException("setActiveUser failed: username cannot be null");
-    }
-    if (inTx) {
-      try {
-        if (username.equals(ADMIN_USER)) {
-          // admin user is session user, so remove role
-          jooq.execute("RESET ROLE;");
-        } else {
-          // any other user should be set
-          jooq.execute("RESET ROLE; SET ROLE {0}", name(MG_USER_PREFIX + username));
-        }
-      } catch (DataAccessException dae) {
-        throw new SqlMolgenisException("Set active user failed", dae);
-      }
-    } else {
-      if (!Objects.equals(username, connectionProvider.getActiveUser())) {
-        listener.userChanged();
-      }
-    }
-    this.connectionProvider.setActiveUser(username);
-    this.clearCache();
-  }
-
-  @Override
   public String getActiveUser() {
     String user = jooq.fetchOne("SELECT CURRENT_USER").get(0, String.class);
     if (user.equals(postgresUser)) {
@@ -504,19 +478,6 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     }
     // user is either valid MG_USER_* or postgresUser, otherwise error state
     throw new MolgenisException("Unexpected user found as activeUser " + user);
-  }
-
-  @Override
-  public void clearActiveUser() {
-    if (inTx) {
-      // then we don't use the connection provider
-      try {
-        setActiveUser(ANONYMOUS);
-      } catch (DataAccessException dae) {
-        throw new SqlMolgenisException("Clear active user failed", dae);
-      }
-    }
-    this.connectionProvider.clearActiveUser();
   }
 
   @Override
@@ -631,11 +592,6 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   }
 
   @Override
-  public String getAdminUserName() {
-    return ADMIN_USER;
-  }
-
-  @Override
   public boolean isAdmin() {
     return ADMIN_USER.equals(getActiveUser());
   }
@@ -643,11 +599,6 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   @Override
   public boolean isAnonymous() {
     return ANONYMOUS.equals(getActiveUser());
-  }
-
-  @Override
-  public void becomeAdmin() {
-    this.setActiveUser(getAdminUserName());
   }
 
   @Override

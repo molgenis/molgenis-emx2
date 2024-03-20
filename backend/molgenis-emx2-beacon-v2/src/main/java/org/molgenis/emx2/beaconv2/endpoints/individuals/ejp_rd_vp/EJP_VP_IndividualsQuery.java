@@ -21,6 +21,7 @@ import org.molgenis.emx2.beaconv2.endpoints.individuals.IndividualsResultSetsIte
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
 import org.molgenis.emx2.beaconv2.requests.Filter;
 import org.molgenis.emx2.beaconv2.responses.BeaconCountResponse;
+import org.molgenis.emx2.graphql.MolgenisSession;
 import spark.Request;
 import spark.Response;
 
@@ -31,6 +32,8 @@ public class EJP_VP_IndividualsQuery {
   private Response response;
   private List<Table> tables;
 
+  private MolgenisSession session;
+
   public static final String SEX = "NCIT_C28421";
   public static final String DISEASE = "NCIT_C2991";
   public static final String PHENOTYPE = "SIO_010056";
@@ -39,10 +42,12 @@ public class EJP_VP_IndividualsQuery {
   public static final String AGE_OF_ONSET = "NCIT_C124353";
   public static final String AGE_AT_DIAG = "NCIT_C156420";
 
-  public EJP_VP_IndividualsQuery(Request request, Response response, List<Table> tables) {
+  public EJP_VP_IndividualsQuery(
+      MolgenisSession session, Request request, Response response, List<Table> tables) {
     this.request = request;
     this.response = response;
     this.tables = tables;
+    this.session = session;
   }
 
   public String getPostResponse() throws Exception {
@@ -169,7 +174,7 @@ public class EJP_VP_IndividualsQuery {
 
     // execute query with all filters combined
     List<IndividualsResultSets> resultSetsList =
-        queryIndividuals(tables, filters.toArray(new String[0]));
+        queryIndividuals(session, tables, filters.toArray(new String[0]));
 
     // only works because we only do AND queries, so one unmatched filter means no hit
     List<String> removeIndividualIDs = removeIndividualIDs(ageQueries, resultSetsList);

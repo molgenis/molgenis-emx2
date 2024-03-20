@@ -21,6 +21,7 @@ import org.eclipse.rdf4j.rio.WriterConfig;
 import org.eclipse.rdf4j.rio.helpers.BasicWriterSettings;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
+import org.molgenis.emx2.graphql.MolgenisSession;
 import org.molgenis.emx2.utils.TypeUtils;
 import spark.Request;
 
@@ -52,10 +53,10 @@ public class FAIRDataPointDataset {
   }
 
   /** Create and get resulting FDP */
-  public String getResult() throws Exception {
+  public String getResult(MolgenisSession session) throws Exception {
     String id = request.params("id");
     Schema schema = fdpDataseTable.getSchema();
-    List<Map<String, Object>> datasetsFromJSON = queryDataset(schema, "id", id);
+    List<Map<String, Object>> datasetsFromJSON = queryDataset(session, schema, "id", id);
     if (datasetsFromJSON == null) {
       throw new Exception("datasetsFromJSON is null");
     }

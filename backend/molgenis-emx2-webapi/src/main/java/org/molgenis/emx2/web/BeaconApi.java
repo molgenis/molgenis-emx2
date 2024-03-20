@@ -97,7 +97,8 @@ public class BeaconApi {
     // TODO pass request to response to set limits, offsets etc
     // result should be BeaconBooleanResponse, BeaconCountResponse or BeaconCollectionResponse
     List<Table> tables = getTableFromAllSchemas("Dataset", request);
-    return getWriter().writeValueAsString(new Datasets(request, tables));
+    return getWriter()
+        .writeValueAsString(new Datasets(sessionManager.getSession(request), request, tables));
   }
 
   private static String getAnalyses(Request request, Response response) throws Exception {
@@ -121,27 +122,33 @@ public class BeaconApi {
   private static String getIndividuals(Request request, Response response) throws Exception {
     response.type(APPLICATION_JSON_MIME_TYPE);
     List<Table> tables = getTableFromAllSchemas("Individuals", request);
-    return getWriter().writeValueAsString(new Individuals(request, tables));
+    return getWriter()
+        .writeValueAsString(new Individuals(sessionManager.getSession(request), request, tables));
   }
 
   private static String queryIndividuals_EJP_VP(Request request, Response response)
       throws Exception {
     response.type(APPLICATION_JSON_MIME_TYPE);
     List<Table> tables = getTableFromAllSchemas("Individuals", request);
-    String responseBody = new EJP_VP_IndividualsQuery(request, response, tables).getPostResponse();
+    String responseBody =
+        new EJP_VP_IndividualsQuery(sessionManager.getSession(request), request, response, tables)
+            .getPostResponse();
     return responseBody;
   }
 
   private static String getRuns(Request request, Response response) throws Exception {
     response.type(APPLICATION_JSON_MIME_TYPE);
     List<Table> tables = getTableFromAllSchemas("Runs", request);
-    return getWriter().writeValueAsString(new Runs(request, tables));
+    return getWriter()
+        .writeValueAsString(new Runs(sessionManager.getSession(request), request, tables));
   }
 
   private static String getGenomicVariants(Request request, Response response) throws Exception {
     response.type(APPLICATION_JSON_MIME_TYPE);
     List<Table> tables = getTableFromAllSchemas("GenomicVariations", request);
-    return getWriter().writeValueAsString(new GenomicVariants(request, tables));
+    return getWriter()
+        .writeValueAsString(
+            new GenomicVariants(sessionManager.getSession(request), request, tables));
   }
 
   static List<Table> getTableFromAllSchemas(String tableName, Request request) {

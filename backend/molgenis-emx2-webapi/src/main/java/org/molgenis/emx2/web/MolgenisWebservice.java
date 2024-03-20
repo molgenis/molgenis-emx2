@@ -3,6 +3,7 @@ package org.molgenis.emx2.web;
 import static org.molgenis.emx2.Constants.OIDC_CALLBACK_PATH;
 import static org.molgenis.emx2.Constants.OIDC_LOGIN_PATH;
 import static org.molgenis.emx2.json.JsonExceptionMapper.molgenisExceptionToJson;
+import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
 import static org.molgenis.emx2.web.Constants.*;
 import static spark.Spark.*;
 
@@ -156,7 +157,7 @@ public class MolgenisWebservice {
                 .filter(
                     el ->
                         role == null
-                            || role.equals(schema.getDatabase().getAdminUserName())
+                            || role.equals(ADMIN_USER)
                             || el.get(ROLE) == null
                             || el.get(ROLE).equals(VIEWER)
                                 && List.of(VIEWER, EDITOR, MANAGER).contains(role)

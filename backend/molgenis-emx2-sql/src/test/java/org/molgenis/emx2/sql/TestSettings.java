@@ -21,136 +21,105 @@ public class TestSettings {
   @Test
   public void testSchemaSettings() {
 
-    database.tx(
-        // prevent side effect of user changes on other tests using tx
-        db -> {
-          Schema schema = db.dropCreateSchema("testSchemaSettings");
+    Schema schema = database.dropCreateSchema("testSchemaSettings");
 
-          // set roles
-          // viewer should only be able to see, not change
-          // manager should be able to set values
-          schema.addMember("testsettingseditor", EDITOR.toString());
-          schema.addMember("testsettingsmanager", MANAGER.toString());
+    // set roles
+    // viewer should only be able to see, not change
+    // manager should be able to set values
+    schema.addMember("testsettingseditor", EDITOR.toString());
+    schema.addMember("testsettingsmanager", MANAGER.toString());
 
-          db.setActiveUser("testsettingseditor");
-          try {
-            schema = db.getSchema("testSchemaSettings"); // reload schema
-            schema.getMetadata().setSetting("key", "value");
-            fail("editors should not be able to change schema settings");
-          } catch (Exception e) {
-            // failed correctly
-          }
+    SqlDatabase editorDb = new SqlDatabase("testsettingseditor");
+    try {
+      schema = editorDb.getSchema("testSchemaSettings"); // reload schema
+      schema.getMetadata().setSetting("key", "value");
+      fail("editors should not be able to change schema settings");
+    } catch (Exception e) {
+      // failed correctly
+    }
 
-          db.setActiveUser("testsettingsmanager");
-          try {
-            schema = db.getSchema("testSchemaSettings"); // reload schema
-            schema.getMetadata().setSetting("key", "value");
-          } catch (Exception e) {
-            e.printStackTrace();
-            fail("managers should  be able to change schema settings");
-          }
+    SqlDatabase managerDb = new SqlDatabase("testsettingsmanager");
+    try {
+      schema = managerDb.getSchema("testSchemaSettings"); // reload schema
+      schema.getMetadata().setSetting("key", "value");
+    } catch (Exception e) {
+      fail("managers should  be able to change schema settings, got error: " + e.getMessage());
+    }
 
-          assertEquals("value", schema.getMetadata().getSetting("key"));
+    assertEquals("value", schema.getMetadata().getSetting("key"));
 
-          assertEquals("value", db.getSchema("testSchemaSettings").getMetadata().getSetting("key"));
+    database.clearCache();
 
-          db.clearCache();
-
-          assertEquals("value", db.getSchema("testSchemaSettings").getMetadata().getSetting("key"));
-
-          db.becomeAdmin();
-        });
+    assertEquals("value", database.getSchema("testSchemaSettings").getMetadata().getSetting("key"));
   }
 
   @Test
   public void testTableSettings() {
-    database.tx(
-        // prevent side effect of user changes on other tests using tx
-        db -> {
-          Schema s = db.dropCreateSchema("testTableSettings");
+    Schema s = database.dropCreateSchema("testTableSettings");
 
-          // set roles
-          // viewer should only be able to see, not change
-          // editor should be able to set values
-          s.addMember("testtablesettingsviewer", VIEWER.toString());
-          s.addMember("testtablesettingseditor", EDITOR.toString());
+    // set roles
+    // viewer should only be able to see, not change
+    // editor should be able to set values
+    s.addMember("testtablesettingsviewer", VIEWER.toString());
+    s.addMember("testtablesettingseditor", EDITOR.toString());
 
-          s.create(table("test").add(column("test")));
+    s.create(table("test").add(column("test")));
 
-          db.setActiveUser("testtablesettingsviewer");
-          try {
-            Table t = db.getSchema("testTableSettings").getTable("test");
-            t.getMetadata().setSetting("key", "value");
-            fail("viewers should not be able to change schema settings");
-          } catch (Exception e) {
-            // failed correctly
-          }
+    SqlDatabase viewerDb = new SqlDatabase("testtablesettingsviewer");
+    try {
+      Table t = viewerDb.getSchema("testTableSettings").getTable("test");
+      t.getMetadata().setSetting("key", "value");
+      fail("viewers should not be able to change schema settings");
+    } catch (Exception e) {
+      // failed correctly
+    }
 
-          db.setActiveUser("testtablesettingseditor");
-          try {
-            Table t = db.getSchema("testTableSettings").getTable("test");
-            t.getMetadata().setSetting("key", "value");
-          } catch (Exception e) {
-            e.printStackTrace();
-            fail("managers should  be able to change schema settings");
-          }
+    SqlDatabase editorDb = new SqlDatabase("testtablesettingseditor");
+    try {
+      Table t = editorDb.getSchema("testTableSettings").getTable("test");
+      t.getMetadata().setSetting("key", "value");
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("managers should  be able to change schema settings");
+    }
 
-          db.clearCache();
-          Map<String, String> test =
-              db.getSchema("testTableSettings").getTable("test").getMetadata().getSettings();
-          assertEquals(1, test.size());
-          assertEquals("value", test.get("key"));
+    database.clearCache();
+    Map<String, String> test =
+        database.getSchema("testTableSettings").getTable("test").getMetadata().getSettings();
+    assertEquals(1, test.size());
+    assertEquals("value", test.get("key"));
 
-          assertEquals(
-              "value",
-              db.getSchema("testTableSettings").getTable("test").getMetadata().getSetting("key"));
-
-          db.becomeAdmin();
-        });
+    assertEquals(
+        "value",
+        database.getSchema("testTableSettings").getTable("test").getMetadata().getSetting("key"));
   }
 
   @Test
   public void testDatabaseSetting() {
-    database.tx(
-        db -> {
-          db.setActiveUser("admin");
-          db.setSetting("it-db-setting-key", "it-db-setting-value");
-          assertEquals("it-db-setting-value", db.getSetting("it-db-setting-key"));
-        });
+    database.setSetting("it-db-setting-key", "it-db-setting-value");
+    assertEquals("it-db-setting-value", database.getSetting("it-db-setting-key"));
   }
 
   @Test
   public void testDatabaseSettingCanNotBeSetByNonAdmin() {
     assertThrows(
         MolgenisException.class,
-        () -> {
-          database.tx(
-              db -> {
-                db.setActiveUser("testsettingsmanager");
-                db.setSetting("it-db-setting-key", "it-db-setting-value");
-              });
-        });
+        () ->
+            new SqlDatabase("testsettingsmanager")
+                .setSetting("it-db-setting-key", "it-db-setting-value"));
   }
 
   @Test
   public void testDeleteDatabaseSetting() {
     // setup
-    database.tx(
-        db -> {
-          db.setActiveUser("admin");
-          db.setSetting("delete-me", "life is short");
-        });
+    database.setSetting("delete-me", "life is short");
 
     // note, we refresh session on these changes so reload db
     database = TestDatabaseFactory.getTestDatabase();
     assertEquals(database.getSetting("delete-me"), "life is short");
 
     // execute
-    database.tx(
-        db -> {
-          db.setActiveUser("admin");
-          db.removeSetting("delete-me");
-        });
+    database.removeSetting("delete-me");
 
     database = TestDatabaseFactory.getTestDatabase();
     assertNull(database.getSetting("delete-me"));
@@ -161,11 +130,11 @@ public class TestSettings {
     assertThrows(
         MolgenisException.class,
         () -> {
-          database.tx(
-              db -> {
-                db.setActiveUser("testsettingsmanager");
-                db.removeSetting("delete-me");
-              });
+          new SqlDatabase("testsettingsmanager")
+              .tx(
+                  db -> {
+                    db.removeSetting("delete-me");
+                  });
         });
   }
 

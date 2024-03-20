@@ -34,9 +34,9 @@ public class TestGraphqlAdminFields {
     // put in transaction so user count is not affected by other operations
     database.tx(
         tdb -> {
-          tdb.becomeAdmin();
           Schema schema = tdb.dropCreateSchema(schemaName);
-          grapql = new GraphqlApiFactory().createGraphqlForDatabase(tdb, null);
+          MolgenisSession session = new MolgenisSession(database, null);
+          grapql = new GraphqlApiFactory().createGraphqlForDatabase(session);
 
           try {
             JsonNode result = execute("{_admin{users{email} userCount}}");
@@ -45,15 +45,14 @@ public class TestGraphqlAdminFields {
             throw new RuntimeException(e);
           }
           // test that only admin can do this
-          tdb.setActiveUser(ANONYMOUS);
-          grapql = new GraphqlApiFactory().createGraphqlForDatabase(tdb, null);
+          session.setSessionUser(ANONYMOUS);
+          grapql = new GraphqlApiFactory().createGraphqlForDatabase(session);
 
           try {
             assertEquals(null, execute("{_admin{userCount}}").textValue());
           } catch (Exception e) {
             assertTrue(e.getMessage().contains("FieldUndefined"));
           }
-          tdb.becomeAdmin();
         });
   }
 

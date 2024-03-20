@@ -28,7 +28,7 @@ public class TestCreateTransactionForMultipleOperations {
           testTable.insert(new Row().setString("ColA", "test"));
           testTable.insert(new Row().setString("ColA", "DependencyOrderOutsideTransactionFails"));
         });
-    db.clearCache();
+    db = new SqlDatabase(SqlDatabase.ADMIN_USER);
     assertEquals(2, db.getSchema("testCommit").getTable("testCommit").retrieveRows().size());
   }
 

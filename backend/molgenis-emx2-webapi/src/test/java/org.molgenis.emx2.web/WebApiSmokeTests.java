@@ -14,8 +14,7 @@ import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
-import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_PW_DEFAULT;
-import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
+import static org.molgenis.emx2.sql.SqlDatabase.*;
 import static org.molgenis.emx2.web.Constants.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -81,7 +80,7 @@ public class WebApiSmokeTests {
         given()
             .body(
                 "{\"query\":\"mutation{signin(email:\\\""
-                    + db.getAdminUserName()
+                    + ADMIN_USER
                     + "\\\",password:\\\""
                     + adminPass
                     + "\\\"){message}}\"}")
@@ -531,7 +530,7 @@ public class WebApiSmokeTests {
             .sessionId(sessionId)
             .body(
                 "{\"query\":\"mutation{signin(email:\\\""
-                    + db.getAdminUserName()
+                    + ADMIN_USER
                     + "\\\",password:\\\""
                     + adminPass
                     + "\\\"){message}}\"}")
@@ -547,7 +546,7 @@ public class WebApiSmokeTests {
             .when()
             .post(path)
             .asString();
-    assertTrue(result.contains(db.getAdminUserName()));
+    assertTrue(result.contains(ADMIN_USER));
 
     // if admin then should  be able to see users
     result =
@@ -679,7 +678,6 @@ public class WebApiSmokeTests {
         .get("/pet store/");
 
     schema.getMetadata().removeSetting("menu");
-    db.becomeAdmin();
   }
 
   @Test

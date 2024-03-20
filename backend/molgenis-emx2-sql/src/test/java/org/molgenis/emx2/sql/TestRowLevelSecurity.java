@@ -28,72 +28,67 @@ public class TestRowLevelSecurity {
   @Disabled("because it tests unimplemented features")
   @Test
   public void testRls() {
-    try {
-      // create schema
-      Schema s = database.dropCreateSchema(TEST_RLS);
+    // create schema
+    Schema s = database.dropCreateSchema(TEST_RLS);
 
-      // create two users
-      database.addUser(TEST_RLS_HAS_NO_PERMISSION);
-      assertEquals(true, database.hasUser(TEST_RLS_HAS_NO_PERMISSION));
+    // create two users
+    database.addUser(TEST_RLS_HAS_NO_PERMISSION);
+    assertEquals(true, database.hasUser(TEST_RLS_HAS_NO_PERMISSION));
 
-      database.addUser(TESTRLS_HAS_RLS_VIEW);
+    database.addUser(TESTRLS_HAS_RLS_VIEW);
 
-      // grant both owner on TestRLS schema so can add row level security
-      s.addMember("testrls1", Privileges.OWNER.toString());
-      s.addMember("testrls2", Privileges.OWNER.toString());
+    // grant both owner on TestRLS schema so can add row level security
+    s.addMember("testrls1", Privileges.OWNER.toString());
+    s.addMember("testrls2", Privileges.OWNER.toString());
 
-      s.addMember(
-          TESTRLS_HAS_RLS_VIEW,
-          Privileges.VIEWER.toString()); // can view table but only rows with right RLS
+    s.addMember(
+        TESTRLS_HAS_RLS_VIEW,
+        Privileges.VIEWER.toString()); // can view table but only rows with right RLS
 
-      // let one user create the table
-      database.setActiveUser("testrls1");
-      database.tx(
-          db -> {
-            db.getSchema(TEST_RLS).create(table(TEST_RLS).add(column("col1").setPkey()));
-          });
+    // let one user create the table
+    new SqlDatabase("testrls1")
+        .tx(
+            db -> {
+              db.getSchema(TEST_RLS).create(table(TEST_RLS).add(column("col1").setPkey()));
+            });
 
-      // let the other user add RLS
-      database.setActiveUser("testrls2");
-      database.tx(
-          db -> {
-            db.getSchema(TEST_RLS).getTable(TEST_RLS).getMetadata().enableRowLevelSecurity();
-          });
+    // let the other user add RLS
+    new SqlDatabase("testrls2")
+        .tx(
+            db -> {
+              db.getSchema(TEST_RLS).getTable(TEST_RLS).getMetadata().enableRowLevelSecurity();
+            });
 
-      // let the first add a row (checks if admin permissions are setup correctly)
-      database.setActiveUser("testrls1");
-      database.tx(
-          db -> {
-            db.getSchema(TEST_RLS)
-                .getTable(TEST_RLS)
-                .insert(
-                    new Row()
-                        .setString("col1", "Hello World")
-                        .set(MG_EDIT_ROLE, TESTRLS_HAS_RLS_VIEW),
-                    new Row()
-                        .setString("col1", "Hello World2")
-                        .set(MG_EDIT_ROLE, TEST_RLS_HAS_NO_PERMISSION));
-          });
+    // let the first add a row (checks if admin permissions are setup correctly)
+    new SqlDatabase("testrls1")
+        .tx(
+            db -> {
+              db.getSchema(TEST_RLS)
+                  .getTable(TEST_RLS)
+                  .insert(
+                      new Row()
+                          .setString("col1", "Hello World")
+                          .set(MG_EDIT_ROLE, TESTRLS_HAS_RLS_VIEW),
+                      new Row()
+                          .setString("col1", "Hello World2")
+                          .set(MG_EDIT_ROLE, TEST_RLS_HAS_NO_PERMISSION));
+            });
 
-      // let the second admin see it
-      database.setActiveUser("testrls2");
-      database.tx(
-          db -> {
-            assertEquals(2, db.getSchema(TEST_RLS).getTable(TEST_RLS).retrieveRows().size());
-          });
+    // let the second admin see it
+    new SqlDatabase("testrls2")
+        .tx(
+            db -> {
+              assertEquals(2, db.getSchema(TEST_RLS).getTable(TEST_RLS).retrieveRows().size());
+            });
 
-      // have RLS user query and see one row
-      database.setActiveUser(TESTRLS_HAS_RLS_VIEW);
-      database.tx(
-          db -> {
-            assertEquals(1, db.getSchema(TEST_RLS).getTable(TEST_RLS).retrieveRows().size());
-          });
+    // have RLS user query and see one row
+    new SqlDatabase(TESTRLS_HAS_RLS_VIEW)
+        .tx(
+            db -> {
+              assertEquals(1, db.getSchema(TEST_RLS).getTable(TEST_RLS).retrieveRows().size());
+            });
 
-      database.becomeAdmin();
-      database.removeUser(TESTRLS_HAS_RLS_VIEW);
-      assertEquals(false, database.hasUser(TESTRLS_HAS_RLS_VIEW));
-    } finally {
-      database.becomeAdmin();
-    }
+    database.removeUser(TESTRLS_HAS_RLS_VIEW);
+    assertEquals(false, database.hasUser(TESTRLS_HAS_RLS_VIEW));
   }
 }

@@ -43,11 +43,7 @@ public interface Database extends HasSettingsInterface<Database> {
 
   void removeUser(String name);
 
-  void setActiveUser(String username);
-
   String getActiveUser();
-
-  void clearActiveUser();
 
   void grantCreateSchema(String user);
 
@@ -63,22 +59,12 @@ public interface Database extends HasSettingsInterface<Database> {
 
   int countUsers();
 
-  /** for testing purposes */
-  String getAdminUserName();
-
   /**
    * check if the user that is logged in is admin
    *
    * <p>Shorthand for getAdminUserName().equals(getActiveUser()) to help understand code
    */
   boolean isAdmin();
-
-  /**
-   * change active user to admin
-   *
-   * <p>Shorthand for setActiveUser(getAdminUserName()) to help understand code
-   */
-  void becomeAdmin();
 
   boolean isOidcEnabled();
 

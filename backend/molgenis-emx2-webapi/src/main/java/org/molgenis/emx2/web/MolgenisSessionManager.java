@@ -8,6 +8,7 @@ import javax.servlet.http.HttpSessionListener;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.util.thread.ThreadPool;
 import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.graphql.MolgenisSession;
 import org.molgenis.emx2.sql.JWTgenerator;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.tasks.ScriptTableListener;
@@ -58,11 +59,12 @@ public class MolgenisSessionManager {
   }
 
   private MolgenisSession getNonPersistedSessionBasedOnToken(Request request, String authTokenKey) {
-    SqlDatabase database = new SqlDatabase(false);
+    String user =
+        JWTgenerator.getUserFromToken(
+            new SqlDatabase(SqlDatabase.ADMIN_USER), request.headers(authTokenKey));
+    SqlDatabase database = new SqlDatabase(user);
     database.addTableListener(new ScriptTableListener(TaskApi.taskSchedulerService));
-    String user = JWTgenerator.getUserFromToken(database, request.headers(authTokenKey));
-    database.setActiveUser(user);
-    return new MolgenisSession(database);
+    return new MolgenisSession(database, TaskApi.taskService);
   }
 
   /**
@@ -145,13 +147,12 @@ public class MolgenisSessionManager {
       public void sessionCreated(HttpSessionEvent httpSessionEvent) {
         logger.info("Initializing session");
         // create private database wrapper to session
-        SqlDatabase database = new SqlDatabase(false);
-        database.setActiveUser("anonymous"); // set default use to "anonymous"
+        SqlDatabase database = new SqlDatabase(SqlDatabase.ANONYMOUS);
         database.addTableListener(new ScriptTableListener(TaskApi.taskSchedulerService));
 
         // create session and add to sessions lists so we can also access all active
         // sessions
-        MolgenisSession molgenisSession = new MolgenisSession(database);
+        MolgenisSession molgenisSession = new MolgenisSession(database, TaskApi.taskService);
         sessions.put(httpSessionEvent.getSession().getId(), molgenisSession);
         logger.info("session created: " + httpSessionEvent.getSession().getId());
 

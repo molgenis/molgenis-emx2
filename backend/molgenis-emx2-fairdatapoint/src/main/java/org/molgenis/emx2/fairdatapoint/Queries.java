@@ -9,12 +9,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.graphql.GraphqlApiFactory;
+import org.molgenis.emx2.graphql.MolgenisSession;
 
 public class Queries {
 
-  public static List<Map<String, Object>> queryDataset(Schema schema, String idField, String id) {
-    GraphQL grapql = new GraphqlApiFactory().createGraphqlForSchema(schema);
+  public static List<Map<String, Object>> queryDataset(
+      MolgenisSession session, Schema schema, String idField, String id) {
+    GraphQL grapql = session.getGraphqlForSchema(schema.getName());
     ExecutionResult executionResult =
         grapql.execute(
             "{Dataset("
@@ -60,8 +61,8 @@ public class Queries {
   }
 
   public static List<Map<String, Object>> queryDistribution(
-      Schema schema, String idField, String id) {
-    GraphQL grapql = new GraphqlApiFactory().createGraphqlForSchema(schema);
+      MolgenisSession session, Schema schema, String idField, String id) {
+    GraphQL grapql = session.getGraphqlForSchema(schema.getName());
     ExecutionResult executionResult =
         grapql.execute(
             "{Distribution("

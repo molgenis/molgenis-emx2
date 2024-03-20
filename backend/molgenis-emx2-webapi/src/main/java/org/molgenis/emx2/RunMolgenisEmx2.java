@@ -46,8 +46,6 @@ public class RunMolgenisEmx2 {
     // elevate privileges for init
     database.tx(
         db -> {
-          db.becomeAdmin();
-
           if (!EXCLUDE_PETSTORE_DEMO && db.getSchema("pet store") == null) {
             Schema schema = db.createSchema("pet store");
             new PetStoreLoader().load(schema, true);

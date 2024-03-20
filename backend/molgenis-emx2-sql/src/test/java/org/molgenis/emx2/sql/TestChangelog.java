@@ -28,7 +28,6 @@ public class TestChangelog {
         // prevent side effect of user changes on other tests using tx
         db -> {
           db.dropSchemaIfExists("testSchemaChanges");
-          db.becomeAdmin();
           db.createSchema("testSchemaChanges");
           Schema schema = db.getSchema("testSchemaChanges");
           schema.getMetadata().setSetting(Constants.IS_CHANGELOG_ENABLED, Boolean.TRUE.toString());
@@ -47,7 +46,6 @@ public class TestChangelog {
         // prevent side effect of user changes on other tests using tx
         db -> {
           db.dropSchemaIfExists("testSchemaChangesChangeCount");
-          db.becomeAdmin();
           db.createSchema("testSchemaChangesChangeCount", "my desc");
           Schema schema = db.getSchema("testSchemaChangesChangeCount");
           schema.getMetadata().setSetting(Constants.IS_CHANGELOG_ENABLED, Boolean.TRUE.toString());

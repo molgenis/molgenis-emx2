@@ -6,6 +6,7 @@ import org.molgenis.emx2.Table;
 import org.molgenis.emx2.beaconv2.endpoints.datasets.DatasetsMeta;
 import org.molgenis.emx2.beaconv2.endpoints.datasets.ResponseSummary;
 import org.molgenis.emx2.beaconv2.endpoints.runs.RunsResponse;
+import org.molgenis.emx2.graphql.MolgenisSession;
 import spark.Request;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
@@ -15,9 +16,9 @@ public class Runs {
   private ResponseSummary responseSummary;
   private RunsResponse response;
 
-  public Runs(Request request, List<Table> tables) throws Exception {
+  public Runs(MolgenisSession session, Request request, List<Table> tables) throws Exception {
     this.meta = new DatasetsMeta("../beaconDatasetResponse.json", "datasets");
-    this.response = new RunsResponse(request, tables);
+    this.response = new RunsResponse(session, request, tables);
     this.responseSummary = new ResponseSummary();
   }
 }

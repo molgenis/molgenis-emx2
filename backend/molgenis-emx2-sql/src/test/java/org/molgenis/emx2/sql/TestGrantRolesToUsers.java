@@ -50,7 +50,6 @@ public class TestGrantRolesToUsers {
     StopWatch.start("start: testRolePermissions()");
 
     // createColumn some schema to test with
-    database.becomeAdmin(); // admin
     Schema schema = database.dropCreateSchema("testRolePermissions");
 
     // test that admin has all roles
@@ -71,19 +70,28 @@ public class TestGrantRolesToUsers {
     schema.addMember("user_testRolePermissions_manager", MANAGER.toString());
 
     // test that manager also had editor and viewer roles
-    roles = schema.getInheritedRolesForUser("user_testRolePermissions_manager");
+    roles =
+        new SqlDatabase("user_testRolePermissions_manager")
+            .getSchema(schema.getName())
+            .getInheritedRolesForActiveUser();
     assertTrue(roles.contains(VIEWER.toString()));
     assertTrue(roles.contains(EDITOR.toString()));
     assertTrue(roles.contains(MANAGER.toString()));
 
     // test that editor also had editor and viewer roles
-    roles = schema.getInheritedRolesForUser("user_testRolePermissions_editor");
+    roles =
+        new SqlDatabase("user_testRolePermissions_editor")
+            .getSchema(schema.getName())
+            .getInheritedRolesForActiveUser();
     assertTrue(roles.contains(VIEWER.toString()));
     assertTrue(roles.contains(EDITOR.toString()));
     assertFalse(roles.contains(MANAGER.toString()));
 
     // test that editor also had editor and viewer roles
-    roles = schema.getInheritedRolesForUser("user_testRolePermissions_viewer");
+    roles =
+        new SqlDatabase("user_testRolePermissions_viewer")
+            .getSchema(schema.getName())
+            .getInheritedRolesForActiveUser();
     assertTrue(roles.contains(VIEWER.toString()));
     assertFalse(roles.contains(EDITOR.toString()));
     assertFalse(roles.contains(MANAGER.toString()));
@@ -92,46 +100,43 @@ public class TestGrantRolesToUsers {
 
     // test that viewer and editor cannot createColumn, and manager can
     try {
-      database.setActiveUser("user_testRolePermissions_viewer");
-      database.tx(
-          db -> {
-            db.getSchema("testRolePermissions").create(table("Test"));
-            fail("role(viewers) should not be able to createColumn tables");
-            // should not happen
-          });
-      database.becomeAdmin();
+      new SqlDatabase("user_testRolePermissions_viewer")
+          .tx(
+              db -> {
+                db.getSchema("testRolePermissions").create(table("Test"));
+                fail("role(viewers) should not be able to createColumn tables");
+                // should not happen
+              });
     } catch (Exception e) {
     }
 
     StopWatch.print("test editor permission");
 
     try {
-      database.setActiveUser("user_testRolePermissions_editor");
-      database.tx(
-          db -> {
-            db.getSchema("testRolePermissions").create(table("Test"));
-            fail("role(editors) should not be able to createColumn tables");
-            // should not happen
-          });
-      database.becomeAdmin();
+      new SqlDatabase("user_testRolePermissions_editor")
+          .tx(
+              db -> {
+                db.getSchema("testRolePermissions").create(table("Test"));
+                fail("role(editors) should not be able to createColumn tables");
+                // should not happen
+              });
     } catch (Exception e) {
     }
     StopWatch.print("test editor permission success");
 
     try {
-      database.setActiveUser("user_testRolePermissions_manager");
-      database.tx(
-          db -> {
-            try {
-              db.getSchema("testRolePermissions").create(table("Test"));
-              //                  .getMetadata()
-              //                  .addColumn("ID", ColumnType.INT);
-            } catch (Exception e) {
-              e.printStackTrace();
-              throw e;
-            }
-          });
-      database.becomeAdmin();
+      new SqlDatabase("user_testRolePermissions_manager")
+          .tx(
+              db -> {
+                try {
+                  db.getSchema("testRolePermissions").create(table("Test"));
+                  //                  .getMetadata()
+                  //                  .addColumn("ID", ColumnType.INT);
+                } catch (Exception e) {
+                  e.printStackTrace();
+                  throw e;
+                }
+              });
     } catch (Exception e) {
       fail("role(manager) should be able to createColumn tables"); // should not happen
       throw e;
@@ -140,56 +145,48 @@ public class TestGrantRolesToUsers {
 
     // test that all can query
     try {
-      database.setActiveUser("user_testRolePermissions_viewer");
-      database.tx(
-          db -> {
-            StopWatch.print("getting Table");
-            Table t = db.getSchema("testRolePermissions").getTable("Test");
-            StopWatch.print("got table");
-            t.retrieveRows();
-            StopWatch.print("completed query");
-          });
+      new SqlDatabase("user_testRolePermissions_viewer")
+          .tx(
+              db -> {
+                StopWatch.print("getting Table");
+                Table t = db.getSchema("testRolePermissions").getTable("Test");
+                StopWatch.print("got table");
+                t.retrieveRows();
+                StopWatch.print("completed query");
+              });
     } catch (Exception e) {
       e.printStackTrace();
       fail("role(viewers) should  be able to query "); // should not happen
-    } finally {
-      database.becomeAdmin();
     }
     StopWatch.print("test viewer query, success");
 
     // test that owner manager can assign roles and normal users cant
     try {
-      database.setActiveUser("user_testRolePermissions_viewer");
-      database.tx(
-          db -> {
-            StopWatch.print("settings permissions Table");
-            db.getSchema("testRolePermissions").addMember("fail", VIEWER.toString());
-          });
+      new SqlDatabase("user_testRolePermissions_viewer")
+          .tx(
+              db -> {
+                StopWatch.print("settings permissions Table");
+                db.getSchema("testRolePermissions").addMember("fail", VIEWER.toString());
+              });
       fail("role(viewers) should not be able to add members");
     } catch (Exception e) {
       // correct
-    } finally {
-      database.becomeAdmin();
     }
 
     try {
       database.addUser(
           "user_testRolePermissions_success"); // manager cannot create users, needs elevated
       // privilegs
-      database.setActiveUser("user_testRolePermissions_manager");
-      database.tx(
-          db -> {
-            StopWatch.print("settings permissions Table");
-            db.getSchema("testRolePermissions")
-                .addMember("user_testRolePermissions_success", VIEWER.toString());
-            db.becomeAdmin();
-            db.removeUser("user_testRolePermissions_success");
-          });
+      new SqlDatabase("user_testRolePermissions_manager")
+          .tx(
+              db -> {
+                StopWatch.print("settings permissions Table");
+                db.getSchema("testRolePermissions")
+                    .addMember("user_testRolePermissions_success", VIEWER.toString());
+              });
     } catch (Exception e) {
       e.printStackTrace();
       fail("roles(manager) should be able to assign roles, found exception " + e);
-    } finally {
-      database.becomeAdmin();
     }
   }
 
@@ -202,22 +199,23 @@ public class TestGrantRolesToUsers {
       database.addUser("testuser");
 
       // should not be able to see as user, until permission (later)
-      database.setActiveUser("testuser");
+      database = new SqlDatabase("testuser");
       assertNull(schema.getRoleForActiveUser()); // should have no role in this schema
       assertFalse(database.getSchemaNames().contains("testRole"));
       assertNull(database.getSchema("testRole"));
 
-      database.becomeAdmin();
+      database = new SqlDatabase(SqlDatabase.ADMIN_USER);
 
       schema.addMember("testadmin", OWNER.toString());
       assertEquals(OWNER.toString(), schema.getRoleForUser("testadmin"));
 
-      assertTrue(schema.getInheritedRolesForUser("testadmin").contains(OWNER.toString()));
-      assertEquals(5, schema.getInheritedRolesForUser("testadmin").size());
+      assertTrue(schema.getInheritedRolesForActiveUser().contains(OWNER.toString()));
+      assertEquals(5, schema.getInheritedRolesForActiveUser().size());
 
-      database.setActiveUser("testadmin");
-      assertEquals(OWNER.toString(), schema.getRoleForActiveUser());
-      database.becomeAdmin();
+      database = new SqlDatabase("testadmin");
+      assertEquals(OWNER.toString(), database.getSchema(schema.getName()).getRoleForActiveUser());
+
+      database = new SqlDatabase(SqlDatabase.ADMIN_USER);
 
       schema.create(
           table("Person")
@@ -226,7 +224,7 @@ public class TestGrantRolesToUsers {
               .add(column("LastName")));
 
       try {
-        database.setActiveUser(Constants.MG_ROLE_PREFIX + "TESTROLE_VIEW");
+        database = new SqlDatabase(Constants.MG_ROLE_PREFIX + "TESTROLE_VIEW");
         database.tx(
             db -> {
               db.getSchema("testRole").create(table("Test"));
@@ -236,10 +234,10 @@ public class TestGrantRolesToUsers {
       } catch (MolgenisException e) {
         System.out.println("erorred correclty:\n" + e);
       }
-      database.becomeAdmin();
+      database = new SqlDatabase(SqlDatabase.ADMIN_USER);
 
       try {
-        database.setActiveUser("testadmin");
+        database = new SqlDatabase("testadmin");
         database.tx(
             db -> {
               db.getSchema("testRole").create(table("Test"));
@@ -253,7 +251,7 @@ public class TestGrantRolesToUsers {
         fail();
       }
     } finally {
-      database.becomeAdmin();
+      database = new SqlDatabase(SqlDatabase.ADMIN_USER);
     }
   }
 
@@ -272,19 +270,19 @@ public class TestGrantRolesToUsers {
     assertEquals(0, s2.getMembers().size());
 
     // proof that USER can only add tables in one schema/drop in one schema
-    database.setActiveUser(USER);
+    database = new SqlDatabase(USER);
     s1.create(table("ATable", column("id").setPkey()));
 
     // proof that user can NOT add in other schema
     try {
-      s2.create(table("ATable", column("id").setPkey()));
+      database.getSchema(s2.getName()).create(table("ATable", column("id").setPkey()));
       fail("user should not be able to add tables in schema it has no permissions on");
     } catch (Exception e) {
       // correct
     }
 
     // proof user can drop
-    database.becomeAdmin(); // reset to admin
+    database = new SqlDatabase(SqlDatabase.ADMIN_USER); // reset to admin
     database.dropSchema(s1.getName()); // clean up
     database.dropSchema(s2.getName()); // clean up
     database.removeUser(USER);

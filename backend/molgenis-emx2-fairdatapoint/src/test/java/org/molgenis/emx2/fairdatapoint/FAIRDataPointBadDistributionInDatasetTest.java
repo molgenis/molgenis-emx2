@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.datamodels.ProfileLoader;
+import org.molgenis.emx2.graphql.MolgenisSession;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import spark.Request;
 
@@ -28,6 +29,7 @@ public class FAIRDataPointBadDistributionInDatasetTest {
 
   static Database database;
   static Schema fairDataHub_baddistribution;
+  static MolgenisSession session;
 
   @BeforeAll
   public static void setup() {
@@ -35,6 +37,7 @@ public class FAIRDataPointBadDistributionInDatasetTest {
     fairDataHub_baddistribution = database.dropCreateSchema("fairDataHub_baddistribution");
     ProfileLoader fairDataHubLoader = new ProfileLoader("_profiles/FAIRDataHub.yaml");
     fairDataHubLoader.load(fairDataHub_baddistribution, true);
+    session = new MolgenisSession(database, null);
   }
 
   @Test
@@ -49,7 +52,7 @@ public class FAIRDataPointBadDistributionInDatasetTest {
     when(request.params("id")).thenReturn("datasetId01");
     FAIRDataPointDataset fairDataPointDataset =
         new FAIRDataPointDataset(request, fairDataHub_baddistribution.getTable("Dataset"));
-    String result = fairDataPointDataset.getResult();
+    String result = fairDataPointDataset.getResult(session);
     assertTrue(
         result.contains(
             "dcat:distribution <http://localhost:8080/api/fdp/distribution/fairDataHub_baddistribution/Analyses/csv>,"));
@@ -74,7 +77,7 @@ public class FAIRDataPointBadDistributionInDatasetTest {
             Exception.class,
             () ->
                 new FAIRDataPointDataset(request, fairDataHub_baddistribution.getTable("Dataset"))
-                    .getResult());
+                    .getResult(session));
     String expectedMessage =
         "Schema does not contain the requested table for distribution. Make sure the value of 'distribution' in your Dataset matches a table name (from the same schema) you want to publish.";
     String actualMessage = exception.getMessage();

@@ -12,14 +12,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.molgenis.emx2.Table;
-import org.molgenis.emx2.graphql.GraphqlApiFactory;
+import org.molgenis.emx2.graphql.MolgenisSession;
 import org.molgenis.emx2.utils.TypeUtils;
 import spark.Request;
 
 public class Queries {
 
   public static List<DatasetsResultSets> queryDatasets(
-      Request request, List<Table> tables, String... filters) throws URISyntaxException {
+      MolgenisSession session, Request request, List<Table> tables, String... filters)
+      throws URISyntaxException {
     List<DatasetsResultSets> resultSetsList = new ArrayList<>();
 
     StringBuffer concatFilters = new StringBuffer();
@@ -37,7 +38,7 @@ public class Queries {
     for (Table table : tables) {
       List<DatasetsResultSetsItem> datasetsItemList = new ArrayList<>();
 
-      GraphQL grapql = new GraphqlApiFactory().createGraphqlForSchema(table.getSchema());
+      GraphQL grapql = session.getGraphqlForSchema(table.getMetadata().getSchemaName());
       ExecutionResult executionResult =
           grapql.execute(
               "{Dataset"

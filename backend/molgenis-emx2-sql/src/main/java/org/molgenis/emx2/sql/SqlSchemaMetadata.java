@@ -260,28 +260,23 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     return sm;
   }
 
-  public List<String> getIneritedRolesForUser(String user) {
-    if (user == null) return new ArrayList<>();
-    if (ADMIN_USER.equals(user)) {
-      // admin has all roles
-      return executeGetRoles(getJooq(), getName());
-    }
-    final String username = user.trim();
-    List<String> result = new ArrayList<>();
-    // need elevated privileges, so clear user and run as root
-    // this is not thread safe therefore must be in a transaction
-    SqlDatabase adminDatabase = new SqlDatabase(ADMIN_USER);
-    // todo, cache this call
-    result.addAll(
-        SqlSchemaMetadataExecutor.getInheritedRoleForUser(
-            adminDatabase.getJooq(), getName(), username));
-    return result;
-  }
-
   public List<String> getInheritedRolesForActiveUser() {
     // add cache because this function is called often
     if (rolesCache == null) {
-      rolesCache = getIneritedRolesForUser(getDatabase().getActiveUser());
+      String user = getDatabase().getActiveUser();
+      if (ADMIN_USER.equals(user)) {
+        // admin has all roles
+        rolesCache = executeGetRoles(getJooq(), getName());
+      } else {
+        rolesCache = new ArrayList<>();
+        // need elevated privileges, so clear user and run as root
+        // this is not thread safe therefore must be in a transaction
+        SqlDatabase adminDatabase = new SqlDatabase(ADMIN_USER);
+        // todo, cache this call
+        rolesCache.addAll(
+            SqlSchemaMetadataExecutor.getInheritedRoleForUser(
+                adminDatabase.getJooq(), getName(), user));
+      }
     }
     return rolesCache;
   }
@@ -301,5 +296,12 @@ public class SqlSchemaMetadata extends SchemaMetadata {
 
   public Integer getChangesCount() {
     return executeGetChangesCount(getJooq(), this);
+  }
+
+  public String getRoleForActiveUser() {
+    for (Member m : executeGetMembers(getJooq(), this)) {
+      if (m.getUser().equals(getDatabase().getActiveUser())) return m.getRole();
+    }
+    return null;
   }
 }

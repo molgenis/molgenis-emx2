@@ -23,6 +23,7 @@ import org.eclipse.rdf4j.rio.WriterConfig;
 import org.eclipse.rdf4j.rio.helpers.BasicWriterSettings;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Version;
+import org.molgenis.emx2.graphql.MolgenisSession;
 import spark.Request;
 
 public class FAIRDataPoint {
@@ -85,14 +86,14 @@ public class FAIRDataPoint {
    * @return
    * @throws Exception
    */
-  public String getResult() throws Exception {
+  public String getResult(MolgenisSession session) throws Exception {
     // get all Catalog records from all of the supplied tables
     if (schemas.length == 0) {
       throw new Exception("No data available");
     }
 
     Map<String, List<Map<String, Object>>> allCatalogFromJSON =
-        FAIRDataPointCatalog.getFDPCatalogRecords(null, schemas);
+        FAIRDataPointCatalog.getFDPCatalogRecords(session, null, schemas);
 
     // All prefixes and namespaces
     Map<String, String> prefixToNamespace = new HashMap<>();

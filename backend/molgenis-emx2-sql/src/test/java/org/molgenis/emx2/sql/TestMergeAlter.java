@@ -211,7 +211,7 @@ public class TestMergeAlter {
     schema.migrate(migration);
     assertNull(schema.getTable("testRenameTableRefOld"));
     assertNotNull(schema.getTable("testRenameTableRefNew"));
-    db.clearCache();
+    db = new SqlDatabase(SqlDatabase.ADMIN_USER);
     schema = db.getSchema(schema.getName());
     assertNull(schema.getTable("testRenameTableRefOld"));
     assertNotNull(schema.getTable("testRenameTableRefNew"));

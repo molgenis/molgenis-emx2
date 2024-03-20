@@ -6,6 +6,7 @@ import org.molgenis.emx2.Table;
 import org.molgenis.emx2.beaconv2.endpoints.datasets.DatasetsMeta;
 import org.molgenis.emx2.beaconv2.endpoints.datasets.ResponseSummary;
 import org.molgenis.emx2.beaconv2.endpoints.individuals.IndividualsResponse;
+import org.molgenis.emx2.graphql.MolgenisSession;
 import spark.Request;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
@@ -15,9 +16,10 @@ public class Individuals {
   private ResponseSummary responseSummary;
   private IndividualsResponse response;
 
-  public Individuals(Request request, List<Table> tables) throws Exception {
+  public Individuals(MolgenisSession session, Request request, List<Table> tables)
+      throws Exception {
     this.meta = new DatasetsMeta("../beaconDatasetResponse.json", "datasets");
-    this.response = new IndividualsResponse(request, tables);
+    this.response = new IndividualsResponse(session, request, tables);
     this.responseSummary = new ResponseSummary();
   }
 }

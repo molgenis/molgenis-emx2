@@ -20,6 +20,7 @@ import org.eclipse.rdf4j.rio.Rio;
 import org.eclipse.rdf4j.rio.WriterConfig;
 import org.eclipse.rdf4j.rio.helpers.BasicWriterSettings;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.graphql.MolgenisSession;
 import org.molgenis.emx2.utils.TypeUtils;
 import spark.Request;
 
@@ -39,7 +40,8 @@ public class FAIRDataPointDistribution {
    * @param database
    * @throws Exception
    */
-  public FAIRDataPointDistribution(Request request, Database database) throws Exception {
+  public FAIRDataPointDistribution(MolgenisSession session, Request request, Database database)
+      throws Exception {
 
     String schemaParam = request.params("schema");
     String distributionParam = request.params("distribution");
@@ -57,9 +59,10 @@ public class FAIRDataPointDistribution {
     // 'distribution' must either refer to the name of existing and visible 'Distribution' by a
     // file contained therein
     Schema schemaObj = database.getSchema(schemaParam);
-    List<Map<String, Object>> distrByName = queryDistribution(schemaObj, "name", distributionParam);
+    List<Map<String, Object>> distrByName =
+        queryDistribution(session, schemaObj, "name", distributionParam);
     List<Map<String, Object>> distrByFile =
-        queryDistribution(schemaObj, "files:{identifier", distributionParam);
+        queryDistribution(session, schemaObj, "files:{identifier", distributionParam);
 
     if (distrByName.size() == 0 && distrByFile.size() == 0) {
       throw new Exception("Distribution or file therein not found");

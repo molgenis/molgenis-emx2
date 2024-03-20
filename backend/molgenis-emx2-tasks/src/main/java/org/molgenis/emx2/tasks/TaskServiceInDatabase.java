@@ -6,6 +6,7 @@ import static org.molgenis.emx2.FilterBean.or;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
+import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
 import static org.molgenis.emx2.utils.TypeUtils.millisecondsToLocalDateTime;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,7 +23,7 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
   private String systemSchemaName;
 
   public TaskServiceInDatabase(String systemSchemaName) {
-    this.database = new SqlDatabase(false);
+    this.database = new SqlDatabase(ADMIN_USER);
     this.systemSchemaName = systemSchemaName;
     this.init();
   }
@@ -59,19 +60,16 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
 
   public Task getTaskFromDatabase(String id) {
     final StringBuilder json = new StringBuilder();
-    database.tx(
-        db -> {
-          db.becomeAdmin();
-          List<Row> rows =
-              db.getSchema(systemSchemaName)
-                  .getTable("Jobs")
-                  .where(f("id", EQUALS, id))
-                  .retrieveRows();
-          if (rows.size() > 0) {
-            Row jobRow = rows.get(0);
-            json.append(jobRow.getString("log"));
-          }
-        });
+    List<Row> rows =
+        database
+            .getSchema(systemSchemaName)
+            .getTable("Jobs")
+            .where(f("id", EQUALS, id))
+            .retrieveRows();
+    if (rows.size() > 0) {
+      Row jobRow = rows.get(0);
+      json.append(jobRow.getString("log"));
+    }
     try {
       return (new ObjectMapper().readValue(json.toString(), Task.class));
     } catch (Exception e) {
@@ -83,41 +81,33 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
   public String submitTaskFromName(final String scriptName, final String parameters) {
     StringBuilder result = new StringBuilder();
     String defaultUser = database.getActiveUser();
-    database.tx(
-        db -> {
-          db.becomeAdmin();
-          Schema systemSchema = db.getSchema(this.systemSchemaName);
-          // retrieve the script from database
-          List<Row> rows =
-              systemSchema.getTable("Scripts").where(f("name", EQUALS, scriptName)).retrieveRows();
-          if (rows.size() != 1) {
-            throw new MolgenisException("Script " + scriptName + " not found");
-          }
-          Row scriptMetadata = rows.get(0);
-          String user = scriptMetadata.getString("cronUser");
-          if (user == null) {
-            user = defaultUser;
-          }
-          db.setActiveUser(user);
-          if (scriptMetadata != null) {
-            if (scriptMetadata.getBoolean("disable") != null
-                && scriptMetadata.getBoolean("disable")) {
-              throw new MolgenisException("Script " + scriptName + " is disabled");
-            }
-            // submit the script
-            result.append(
-                this.submit(
-                    new ScriptTask(scriptMetadata)
-                        .parameters(parameters)
-                        .token(
-                            JWTgenerator.createTemporaryToken(
-                                systemSchema.getDatabase(),
-                                systemSchema.getDatabase().getActiveUser()))
-                        .submitUser(user)));
-          } else {
-            throw new MolgenisException("Script execution failed: " + scriptName + " not found");
-          }
-        });
+    Schema systemSchema = database.getSchema(this.systemSchemaName);
+    // retrieve the script from database
+    List<Row> rows =
+        systemSchema.getTable("Scripts").where(f("name", EQUALS, scriptName)).retrieveRows();
+    if (rows.size() != 1) {
+      throw new MolgenisException("Script " + scriptName + " not found");
+    }
+    Row scriptMetadata = rows.get(0);
+    String user = scriptMetadata.getString("cronUser");
+    if (user == null) {
+      user = defaultUser;
+    }
+    if (scriptMetadata != null) {
+      if (scriptMetadata.getBoolean("disable") != null && scriptMetadata.getBoolean("disable")) {
+        throw new MolgenisException("Script " + scriptName + " is disabled");
+      }
+      // submit the script with user token
+      result.append(
+          this.submit(
+              new ScriptTask(scriptMetadata)
+                  .parameters(parameters)
+                  .token(JWTgenerator.createTemporaryToken(systemSchema.getDatabase(), user))
+                  .submitUser(user)));
+    } else {
+      throw new MolgenisException("Script execution failed: " + scriptName + " not found");
+    }
+
     return result.toString();
   }
 
@@ -137,19 +127,16 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
       jobRow.set("parameters", scriptTask.getParameters());
     }
 
-    database.tx(
-        db -> {
-          db.becomeAdmin();
-          if (db.getSchema(systemSchemaName)
-              .getTable("Jobs")
-              .where(f("id", EQUALS, jobRow.getString("id")))
-              .retrieveRows()
-              .isEmpty()) {
-            db.getSchema(systemSchemaName).getTable("Jobs").insert(jobRow);
-          } else {
-            db.getSchema(systemSchemaName).getTable("Jobs").update(jobRow);
-          }
-        });
+    if (database
+        .getSchema(systemSchemaName)
+        .getTable("Jobs")
+        .where(f("id", EQUALS, jobRow.getString("id")))
+        .retrieveRows()
+        .isEmpty()) {
+      database.getSchema(systemSchemaName).getTable("Jobs").insert(jobRow);
+    } else {
+      database.getSchema(systemSchemaName).getTable("Jobs").update(jobRow);
+    }
   }
 
   private Row getRowFromTask(Task task) {
@@ -177,8 +164,6 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
   private void init() {
     this.database.tx(
         db -> {
-          db.becomeAdmin();
-
           Schema schema = null;
           if (!db.hasSchema(this.systemSchemaName)) {
             schema = db.createSchema(this.systemSchemaName);

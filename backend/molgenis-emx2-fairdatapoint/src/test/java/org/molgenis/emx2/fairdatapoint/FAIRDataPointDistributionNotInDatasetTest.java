@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.datamodels.ProfileLoader;
+import org.molgenis.emx2.graphql.MolgenisSession;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import spark.Request;
 
@@ -24,6 +25,7 @@ public class FAIRDataPointDistributionNotInDatasetTest {
 
   static Database database;
   static Schema fairDataHub_distribnotindataset;
+  static MolgenisSession session;
 
   @BeforeAll
   public static void setup() {
@@ -31,6 +33,7 @@ public class FAIRDataPointDistributionNotInDatasetTest {
     fairDataHub_distribnotindataset = database.dropCreateSchema("fairDataHub_distribnotindataset");
     ProfileLoader fairDataHubLoader = new ProfileLoader("_profiles/FAIRDataHub.yaml");
     fairDataHubLoader.load(fairDataHub_distribnotindataset, true);
+    session = new MolgenisSession(database, null);
   }
 
   @Test
@@ -45,7 +48,7 @@ public class FAIRDataPointDistributionNotInDatasetTest {
     when(request.params("distribution")).thenReturn("Analyses");
     when(request.params("format")).thenReturn("jsonld");
     FAIRDataPointDistribution fairDataPointDistribution =
-        new FAIRDataPointDistribution(request, database);
+        new FAIRDataPointDistribution(session, request, database);
     String result = fairDataPointDistribution.getResult();
     assertTrue(
         result.contains(
@@ -64,7 +67,7 @@ public class FAIRDataPointDistributionNotInDatasetTest {
         assertThrows(
             Exception.class,
             () -> {
-              new FAIRDataPointDistribution(finalRequest2, database);
+              new FAIRDataPointDistribution(session, finalRequest2, database);
             });
     String expectedMessage2 = "Distribution or file therein not found";
     String actualMessage2 = exception2.getMessage();

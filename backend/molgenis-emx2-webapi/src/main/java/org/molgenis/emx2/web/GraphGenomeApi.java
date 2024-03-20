@@ -42,7 +42,13 @@ public class GraphGenomeApi {
     var format = RDFApi.selectFormat(request);
     new GraphGenome(baseURL, RDFApi.RDF_API_LOCATION, format)
         .graphGenomeAsRDF(
-            outputStream, gene, assembly, ucscgenome, GRAPH_GENOME_API_LOCATION, tables);
+            sessionManager.getSession(request),
+            outputStream,
+            gene,
+            assembly,
+            ucscgenome,
+            GRAPH_GENOME_API_LOCATION,
+            tables);
     outputStream.flush();
     outputStream.close();
     return 200;

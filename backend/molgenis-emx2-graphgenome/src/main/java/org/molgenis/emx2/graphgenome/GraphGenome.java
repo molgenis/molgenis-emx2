@@ -14,6 +14,7 @@ import org.eclipse.rdf4j.rio.Rio;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.beaconv2.endpoints.genomicvariants.*;
+import org.molgenis.emx2.graphql.MolgenisSession;
 import org.molgenis.emx2.rdf.RDFService;
 
 public class GraphGenome extends RDFService {
@@ -29,6 +30,7 @@ public class GraphGenome extends RDFService {
 
   /** Construct graph genome based on Beacon v2 variants and output as RDF */
   public void graphGenomeAsRDF(
+      MolgenisSession session,
       OutputStream outputStream,
       String gene,
       String assembly,
@@ -54,7 +56,8 @@ public class GraphGenome extends RDFService {
       List<GenomicVariantsResultSets> variants = new ArrayList<>();
       for (Table table : tables) {
         variants.addAll(
-            GenomicQuery.genomicQuery(table, GENEID, assembly, gene, null, null, null, null));
+            GenomicQuery.genomicQuery(
+                session, table, GENEID, assembly, gene, null, null, null, null));
       }
       if (variants.size() == 0) {
         throw new Exception("No data available for this gene");
@@ -260,6 +263,7 @@ public class GraphGenome extends RDFService {
 
   /** Overload with default FALSE for offline mode */
   public void graphGenomeAsRDF(
+      MolgenisSession session,
       OutputStream outputStream,
       String gene,
       String assembly,
@@ -268,6 +272,6 @@ public class GraphGenome extends RDFService {
       List<Table> tables) {
 
     this.graphGenomeAsRDF(
-        outputStream, gene, assembly, ucscgenome, graphGenomeApiLocation, tables, false);
+        session, outputStream, gene, assembly, ucscgenome, graphGenomeApiLocation, tables, false);
   }
 }

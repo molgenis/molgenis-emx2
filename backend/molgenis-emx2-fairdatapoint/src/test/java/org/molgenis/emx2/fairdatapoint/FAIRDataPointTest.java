@@ -12,6 +12,7 @@ import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.datamodels.ProfileLoader;
+import org.molgenis.emx2.graphql.MolgenisSession;
 import org.molgenis.emx2.io.tablestore.TableStoreForXlsxFile;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import org.molgenis.emx2.utils.StopWatch;
@@ -23,6 +24,7 @@ public class FAIRDataPointTest {
   static Database database;
   static Schema[] fairDataHubSchemas;
   static Schema fdpSchema;
+  static MolgenisSession session;
 
   @BeforeAll
   public static void setup() {
@@ -36,6 +38,7 @@ public class FAIRDataPointTest {
     fairDataHubSchemas = new Schema[2];
     fairDataHubSchemas[0] = fairDataHub_nr1;
     fairDataHubSchemas[1] = fairDataHub_nr2;
+    session = new MolgenisSession(database, null);
   }
 
   @Test
@@ -44,7 +47,7 @@ public class FAIRDataPointTest {
     when(request.url()).thenReturn("http://localhost:8080/api/fdp");
     FAIRDataPoint fairDataPoint = new FAIRDataPoint(request, fairDataHubSchemas);
     fairDataPoint.setVersion("setversionforjtest");
-    String result = fairDataPoint.getResult();
+    String result = fairDataPoint.getResult(session);
     assertTrue(
         result.contains(
             "<http://localhost:8080/api/fdp> a fdp-o:MetadataService, dcat:Resource, dcat:DataService,"));
@@ -78,7 +81,7 @@ public class FAIRDataPointTest {
         .thenReturn("http://localhost:8080/api/fdp/catalog/fairDataHub_nr1/catalogId01");
     when(request.params("id")).thenReturn("catalogId01");
     FAIRDataPointCatalog fairDataPointCatalog =
-        new FAIRDataPointCatalog(request, fairDataHubSchemas[0].getTable("Catalog"));
+        new FAIRDataPointCatalog(session, request, fairDataHubSchemas[0].getTable("Catalog"));
     String result = fairDataPointCatalog.getResult();
     assertTrue(
         result.contains(
@@ -100,7 +103,7 @@ public class FAIRDataPointTest {
         new FAIRDataPointDataset(request, fairDataHubSchemas[0].getTable("Dataset"));
     fairDataPointDataset.setIssued("2022-09-19T11:57:06");
     fairDataPointDataset.setModified("2022-09-19T11:57:07");
-    String result = fairDataPointDataset.getResult();
+    String result = fairDataPointDataset.getResult(session);
     assertTrue(
         result.contains(
             "http://localhost:8080/api/fdp/dataset/fairDataHub_nr1/datasetId01> a dcat:Dataset"));
@@ -131,7 +134,7 @@ public class FAIRDataPointTest {
     when(request.params("distribution")).thenReturn("Analyses");
     when(request.params("format")).thenReturn("ttl");
     FAIRDataPointDistribution fairDataPointDistribution =
-        new FAIRDataPointDistribution(request, database);
+        new FAIRDataPointDistribution(session, request, database);
     String result = fairDataPointDistribution.getResult();
     assertTrue(
         result.contains(
@@ -178,7 +181,7 @@ public class FAIRDataPointTest {
   private static void testFormatToMediaType(Request request, String format) throws Exception {
     when(request.params("format")).thenReturn(format);
     FAIRDataPointDistribution fairDataPointDistribution =
-        new FAIRDataPointDistribution(request, database);
+        new FAIRDataPointDistribution(session, request, database);
     String result = fairDataPointDistribution.getResult();
     assertTrue(result.contains(formatToMediaType(format)));
   }

@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.ColumnType.STRING;
 import static org.molgenis.emx2.graphql.GraphqlApiFactory.convertExecutionResultToJson;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_PW_DEFAULT;
+import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -23,22 +24,23 @@ import org.molgenis.emx2.utils.EnvironmentProperty;
 
 public class TestGraphqlDatabaseFields {
 
-  private static GraphQL grapql;
-  private static Database database;
-  private static TaskService taskService;
   private static final String schemaName = "TestGraphqlDatabaseFields";
+  private static MolgenisSession session;
 
   @BeforeAll
   public static void setup() {
-    database = TestDatabaseFactory.getTestDatabase();
-    taskService = new TaskServiceInMemory();
+    Database database = TestDatabaseFactory.getTestDatabase();
+    TaskService taskService = new TaskServiceInMemory();
     Schema schema = database.dropCreateSchema(schemaName);
-    new PetStoreLoader().load(schema, false);
-    grapql = new GraphqlApiFactory().createGraphqlForDatabase(database, taskService);
+    new PetStoreLoader().load(schema, true);
+    session = new MolgenisSession(database, taskService);
   }
 
   @Test
   public void testCreateAndDeleteSchema() throws IOException {
+    session.setSessionUser(ADMIN_USER);
+    Database database = session.getDatabase();
+
     // ensure schema doesn't exist
     if (database.getSchema(schemaName + "B") != null) {
       database.dropSchema(schemaName + "B");
@@ -49,7 +51,7 @@ public class TestGraphqlDatabaseFields {
     assertFalse(result.contains(schemaName + "B"));
 
     execute("mutation{createSchema(name:\"" + schemaName + "B\"){message}}");
-    assertNotNull(database.getSchema(schemaName + "B"));
+    assertNotNull(session.getDatabase().getSchema(schemaName + "B"));
     result = execute("{_schemas{name}}").at("/data/_schemas").toString();
     assertTrue(result.contains(schemaName + "B"));
 
@@ -105,7 +107,7 @@ public class TestGraphqlDatabaseFields {
   public void testRegisterAndLoginUsers() throws IOException {
 
     // todo: default user should be anonymous?
-    assertTrue(database.isAdmin());
+    assertTrue(session.getDatabase().isAdmin());
 
     // read admin password from environment if necessary
     String adminPass =
@@ -114,16 +116,16 @@ public class TestGraphqlDatabaseFields {
                 org.molgenis.emx2.Constants.MOLGENIS_ADMIN_PW, ADMIN_PW_DEFAULT, STRING);
     execute(
         "mutation { signin(email: \""
-            + database.getAdminUserName()
+            + ADMIN_USER
             + "\",password:\""
             + adminPass
             + "\") {message}}");
-    assertTrue(database.isAdmin());
+    assertTrue(session.getDatabase().isAdmin());
 
-    if (database.hasUser("pietje")) database.removeUser("pietje");
+    if (session.getDatabase().hasUser("pietje")) session.getDatabase().removeUser("pietje");
     execute("mutation{signup(email:\"pietje\",password:\"blaat123\"){message}}");
-    assertTrue(database.hasUser("pietje"));
-    assertTrue(database.checkUserPassword("pietje", "blaat123"));
+    assertTrue(session.getDatabase().hasUser("pietje"));
+    assertTrue(session.getDatabase().checkUserPassword("pietje", "blaat123"));
 
     assertTrue(
         execute("mutation{signin(email:\"pietje\",password:\"blaat12\"){message}}")
@@ -131,27 +133,24 @@ public class TestGraphqlDatabaseFields {
             .textValue()
             .contains("failed"));
     // still admin
-    assertTrue(database.isAdmin());
+    assertTrue(session.getDatabase().isAdmin());
 
     assertTrue(
         execute("mutation{signin(email:\"pietje\",password:\"blaat123\"){message}}")
             .at("/data/signin/message")
             .textValue()
             .contains("Signed in"));
-    assertEquals("pietje", database.getActiveUser());
+    assertEquals("pietje", session.getDatabase().getActiveUser());
 
     assertTrue(
         execute("mutation{changePassword(password:\"blaat124\"){message}}")
             .at("/data/changePassword/message")
             .textValue()
             .contains("Password changed"));
-    assertTrue(database.checkUserPassword("pietje", "blaat124"));
+    assertTrue(session.getDatabase().checkUserPassword("pietje", "blaat124"));
 
     execute("mutation{signout{message}}");
-    assertEquals("anonymous", database.getActiveUser());
-
-    // back to superuser
-    database.becomeAdmin();
+    assertEquals("anonymous", session.getDatabase().getActiveUser());
   }
 
   @Test
@@ -168,7 +167,7 @@ public class TestGraphqlDatabaseFields {
               .textValue());
 
       // test that we can this only for 'ourselves'
-      database.setActiveUser("pietje");
+      session.setSessionUser("pietje");
       execute(
           "mutation{change(users:{email:\"pietje\", settings: {key: \"mykey\", value:\"myvalue\"}}){message}}");
       assertEquals(
@@ -186,7 +185,7 @@ public class TestGraphqlDatabaseFields {
         assertTrue(e.getMessage().contains("permission denied"));
       }
     } finally {
-      database.becomeAdmin();
+      session.setSessionUser(ADMIN_USER);
     }
   }
 
@@ -199,6 +198,7 @@ public class TestGraphqlDatabaseFields {
   }
 
   private JsonNode execute(String query) throws IOException {
+    GraphQL grapql = session.getGraphqlForDatabase();
     JsonNode result =
         new ObjectMapper().readTree(convertExecutionResultToJson(grapql.execute(query)));
     if (result.get("errors") != null) {

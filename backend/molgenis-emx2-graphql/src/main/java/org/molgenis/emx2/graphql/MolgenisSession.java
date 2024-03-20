@@ -1,4 +1,4 @@
-package org.molgenis.emx2.web;
+package org.molgenis.emx2.graphql;
 
 import graphql.GraphQL;
 import java.util.LinkedHashMap;
@@ -6,7 +6,8 @@ import java.util.Map;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.graphql.GraphqlApiFactory;
+import org.molgenis.emx2.sql.SqlDatabase;
+import org.molgenis.emx2.tasks.TaskService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,15 +16,16 @@ public class MolgenisSession {
   private Database database;
   private GraphQL graphqlForDatabase;
   private Map<String, GraphQL> graphqlPerSchema = new LinkedHashMap<>();
+  private TaskService taskService;
 
-  public MolgenisSession(Database database) {
+  public MolgenisSession(Database database, TaskService taskService) {
     this.database = database;
+    this.taskService = taskService;
   }
 
   public GraphQL getGraphqlForDatabase() {
     if (graphqlForDatabase == null) {
-      graphqlForDatabase =
-          new GraphqlApiFactory().createGraphqlForDatabase(database, TaskApi.taskService);
+      graphqlForDatabase = new GraphqlApiFactory().createGraphqlForDatabase(this);
       logger.info("created graphql for user {}", getSessionUser());
     }
     return graphqlForDatabase;
@@ -39,7 +41,7 @@ public class MolgenisSession {
                 + schemaName
                 + "' does not exist or permission denied");
       graphqlPerSchema.put(
-          schemaName, new GraphqlApiFactory().createGraphqlForSchema(schema, TaskApi.taskService));
+          schemaName, new GraphqlApiFactory().createGraphqlForSchema(this, schemaName));
       logger.info("created graphql schema '{}' for user '{}'", schemaName, getSessionUser());
     }
     logger.info("return graphql schema '{}' for user '{}'", schemaName, getSessionUser());
@@ -54,10 +56,20 @@ public class MolgenisSession {
     return database.getActiveUser();
   }
 
+  public void setSessionUser(String userName) {
+    this.graphqlPerSchema.clear();
+    this.graphqlForDatabase = null;
+    this.database = new SqlDatabase(userName);
+  }
+
   public void clearCache() {
     this.graphqlPerSchema.clear();
     this.graphqlForDatabase = null;
     this.database.clearCache();
     logger.info("cleared database and caches for user {}", getSessionUser());
+  }
+
+  public TaskService getTaskService() {
+    return this.taskService;
   }
 }

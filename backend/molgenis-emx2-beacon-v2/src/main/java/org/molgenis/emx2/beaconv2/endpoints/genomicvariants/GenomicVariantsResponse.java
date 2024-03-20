@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.ArrayList;
 import java.util.List;
 import org.molgenis.emx2.Table;
+import org.molgenis.emx2.graphql.MolgenisSession;
 import spark.Request;
 
 /**
@@ -32,8 +33,8 @@ public class GenomicVariantsResponse {
   @JsonIgnore private final String qAlternateBases;
   @JsonIgnore private String qGeneId;
 
-  public GenomicVariantsResponse(Request request, List<Table> genomicVariantTables)
-      throws Exception {
+  public GenomicVariantsResponse(
+      MolgenisSession session, Request request, List<Table> genomicVariantTables) throws Exception {
 
     List<GenomicVariantsResultSets> resultSetsList = new ArrayList<>();
     qReferenceName = request.queryParams("referenceName");
@@ -90,6 +91,7 @@ public class GenomicVariantsResponse {
     for (Table table : genomicVariantTables) {
       resultSetsList.addAll(
           GenomicQuery.genomicQuery(
+              session,
               table,
               genomicQueryType,
               qReferenceName,

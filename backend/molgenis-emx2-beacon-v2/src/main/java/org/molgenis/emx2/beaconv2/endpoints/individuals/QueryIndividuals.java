@@ -13,7 +13,7 @@ import java.util.Map;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.beaconv2.common.AgeAndAgeGroup;
 import org.molgenis.emx2.beaconv2.endpoints.genomicvariants.CaseLevelData;
-import org.molgenis.emx2.graphql.GraphqlApiFactory;
+import org.molgenis.emx2.graphql.MolgenisSession;
 import org.molgenis.emx2.utils.TypeUtils;
 
 public class QueryIndividuals {
@@ -31,7 +31,7 @@ public class QueryIndividuals {
    * @return
    */
   public static List<IndividualsResultSets> queryIndividuals(
-      List<Table> tables, String... filters) {
+      MolgenisSession session, List<Table> tables, String... filters) {
     List<IndividualsResultSets> resultSetsList = new ArrayList<>();
 
     StringBuffer concatFilters = new StringBuffer();
@@ -45,7 +45,7 @@ public class QueryIndividuals {
     for (Table table : tables) {
       List<IndividualsResultSetsItem> individualsItemList = new ArrayList<>();
 
-      GraphQL grapql = new GraphqlApiFactory().createGraphqlForSchema(table.getSchema());
+      GraphQL grapql = session.getGraphqlForSchema(table.getSchema().getName());
       ExecutionResult executionResult =
           grapql.execute(
               "{Individuals"
