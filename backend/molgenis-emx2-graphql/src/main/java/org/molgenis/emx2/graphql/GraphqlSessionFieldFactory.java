@@ -17,6 +17,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.sql.JWTgenerator;
+import org.molgenis.emx2.sql.SqlDatabase;
 
 public class GraphqlSessionFieldFactory {
 
@@ -57,18 +58,11 @@ public class GraphqlSessionFieldFactory {
               if (database.hasUser(userName)) {
                 return new GraphqlApiMutationResult(FAILED, "Email already exists");
               }
-              database.tx(
+              SqlDatabase adminDatabase = new SqlDatabase(SqlDatabase.ADMIN_USER);
+              adminDatabase.tx(
                   db -> {
-                    // uplift permissions
-                    String activeUser = db.getActiveUser();
-                    try {
-                      db.becomeAdmin();
-                      db.addUser(userName);
-                      db.setUserPassword(userName, passWord);
-                    } finally {
-                      // always lift down again
-                      db.setActiveUser(activeUser);
-                    }
+                    db.addUser(userName);
+                    db.setUserPassword(userName, passWord);
                   });
               return new GraphqlApiMutationResult(
                   GraphqlApiMutationResult.Status.SUCCESS, "User '%s' added", userName);

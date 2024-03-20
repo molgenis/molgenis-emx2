@@ -88,6 +88,15 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     this.jooq = ctx;
   }
 
+  public SqlDatabase(String user) {
+    this(false);
+    if (hasUser(user)) {
+      this.setActiveUser(user);
+    } else {
+      throw new MolgenisException("User " + user + " unknown");
+    }
+  }
+
   public SqlDatabase(boolean init) {
     initDataSource();
     this.connectionProvider = new SqlUserAwareConnectionProvider(source);
@@ -382,16 +391,8 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       long start = System.currentTimeMillis();
       // need elevated privileges, so clear user and run as root
       // this is not thread safe therefore must be in a transaction
-      tx(
-          db -> {
-            String currentUser = db.getActiveUser();
-            try {
-              db.becomeAdmin();
-              executeCreateUser((SqlDatabase) db, userName);
-            } finally {
-              db.setActiveUser(currentUser);
-            }
-          });
+      SqlDatabase adminDatabase = new SqlDatabase(ADMIN_USER);
+      executeCreateUser(adminDatabase, userName);
       log(start, "created user " + userName);
     }
     return getUser(userName);

@@ -270,19 +270,11 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     List<String> result = new ArrayList<>();
     // need elevated privileges, so clear user and run as root
     // this is not thread safe therefore must be in a transaction
-    getDatabase()
-        .tx(
-            tdb -> {
-              String current = tdb.getActiveUser();
-              try {
-                tdb.becomeAdmin(); // elevate privileges
-                result.addAll(
-                    SqlSchemaMetadataExecutor.getInheritedRoleForUser(
-                        ((SqlDatabase) tdb).getJooq(), getName(), username));
-              } finally {
-                tdb.setActiveUser(current); // reset privileges
-              }
-            });
+    SqlDatabase adminDatabase = new SqlDatabase(ADMIN_USER);
+    // todo, cache this call
+    result.addAll(
+        SqlSchemaMetadataExecutor.getInheritedRoleForUser(
+            adminDatabase.getJooq(), getName(), username));
     return result;
   }
 
