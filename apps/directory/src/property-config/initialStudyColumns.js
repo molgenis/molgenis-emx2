@@ -4,7 +4,7 @@ const initialStudyColumns = [
   { label: "Description:", column: "description", type: "string" },
   { label: "Type:", column: "type", type: "string" },
   { label: "Sex:", column: { sex: ["label"] }, type: "array" },
-  { label: 'Number of subjects:', column: 'number_of_subjects', type: 'int' },
+  { label: "Number of subjects:", column: "number_of_subjects", type: "int" },
   {
     label: "Age:",
     type: "range",
