@@ -33,8 +33,7 @@ const props = withDefaults(
         <ul class="list-none [&_li]:flex [&_li]:gap-1">
           <li>
             <HarmonizationStatusIcon size="small" status="available" />
-            <span>Available</span>
-            <span>cohort has data available for the variable</span>
+            <span>Available: cohort has data available for the variable</span>
           </li>
           <li>
             <HarmonizationStatusIcon
@@ -42,8 +41,10 @@ const props = withDefaults(
               status="unmapped"
               class="bg-white"
             />
-            <span>No data</span>
-            <span>cohort does not have data available for the variable</span>
+            <span
+              >No data: cohort does not have data available for the
+              variable</span
+            >
           </li>
         </ul>
       </template>
