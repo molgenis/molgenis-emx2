@@ -20,9 +20,12 @@ def prepare_pkey(schema: Schema, table_name: str, col_id: str | list = None) -> 
         raise NoSuchTableException(f"{table_name!r} not found in schema.")
     if not col_id:
         # Return the primary keys of a table if no column name is specified
-        return table_schema.get_columns(by='key', value=1)
+        return list(map(lambda col: col.id, table_schema.get_columns(by='key', value=1)))
     if isinstance(col_id, list):
         return {_col_id: prepare_pkey(schema, table_name, _col_id)[_col_id] for _col_id in col_id}
+    if isinstance(col_id, dict):
+        return [*prepare_pkey(schema, table_name),
+                *[{key: prepare_pkey(schema, value)} for (key, value) in col_id.items()]]
 
     col_data: Column = table_schema.get_column(by='id', value=col_id)
     if col_id.startswith('mg_'):
@@ -35,7 +38,7 @@ def prepare_pkey(schema: Schema, table_name: str, col_id: str | list = None) -> 
         return {col_id: 'name'}
     elif col_data.get('columnType') in ['REF', 'REF_ARRAY']:
         ref_keys = prepare_pkey(schema, col_data.get('refTableName'))
-        ref_cols = [prepare_pkey(schema, col_data.get('refTableName'), rk.id) for rk in ref_keys]
+        ref_cols = [prepare_pkey(schema, col_data.get('refTableName'), rk) for rk in ref_keys]
         return {col_id: ref_cols}
     elif col_data.get('columnType') == 'FILE':
         return {col_id: 'id'}
@@ -76,9 +79,9 @@ def find_cohort_references(schema_schema: Schema, schema_name: str, base_table: 
         inheritance.update({table_name: inherit})
 
     cohort_references = {
-        tab.name: list(set(map(lambda c: c.get('id'),
-                           [*tab.get_columns(by=['columnType', 'refSchemaName'], value=['REF', schema_name]),
-                            *tab.get_columns(by=['columnType', 'refSchemaName'], value=['REF_ARRAY', schema_name])])))
+        tab.name: {c.id: c.get('refTableName')
+                   for c in [*tab.get_columns(by=['columnType', 'refSchemaName'], value=['REF', schema_name]),
+                             *tab.get_columns(by=['columnType', 'refSchemaName'], value=['REF_ARRAY', schema_name])]}
         for tab in schema_schema.get_tables(by='schemaName', value=schema_name)
     }
 
@@ -89,7 +92,7 @@ def find_cohort_references(schema_schema: Schema, schema_name: str, base_table: 
         for _tab in cohort_references.keys():
             if tab == _tab:
                 continue
-            if tab in cohort_references[_tab]:
+            if tab in cohort_references[_tab].values():
                 ref_backs[tab].append(_tab)
 
     for coh, inh in inheritance.items():
@@ -121,9 +124,11 @@ def find_cohort_references(schema_schema: Schema, schema_name: str, base_table: 
 
 def construct_delete_variables(db_schema: Schema, cohort_ids: list, table_name: str, ref_col: str):
     """Constructs a variables filter for querying the GraphQL table on the desired column values."""
-    pkeys = prepare_pkey(db_schema, table_name, ref_col)
+    table_schema: Table = db_schema.get_table(by='name', value=table_name)
+    # pkeys = prepare_pkey(db_schema, table_name, ref_col)
+    pkeys = [prepare_pkey(db_schema, table_name, col.id) for col in table_schema.get_columns(by='key', value=1)]
 
-    def prepare_key_part(_pkey: str | dict):
+    def prepare_key_part(_pkey: str | dict | list):
         if isinstance(_pkey, str):
             return {"equals": [{_pkey: _id} for _id in cohort_ids]}
         if isinstance(_pkey, dict):
@@ -131,6 +136,8 @@ def construct_delete_variables(db_schema: Schema, cohort_ids: list, table_name: 
             for _key, _val in _pkey.items():
                 pass
             return {_key: prepare_key_part(_val[0])}
+        if isinstance(_pkey, list):
+            pass
 
     variables = {"filter": prepare_key_part(pkeys)}
 
