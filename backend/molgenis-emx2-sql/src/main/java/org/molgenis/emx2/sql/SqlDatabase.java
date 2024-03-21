@@ -90,6 +90,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   public SqlDatabase(String user) {
     this(false);
     this.connectionProvider.setActiveUser(user);
+    this.clearCache();
   }
 
   public SqlDatabase(boolean init) {
