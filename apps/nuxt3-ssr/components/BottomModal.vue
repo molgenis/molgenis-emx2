@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const ariaId = useId();
 const preAnimation = () => {
   document.body.classList.add("v-popper_bottom");
 };
@@ -29,6 +30,7 @@ const emit = defineEmits(["close"]);
 
 <template>
   <VDropdown
+    :aria-id="ariaId"
     :shown="show"
     :positioning-disabled="true"
     @show="preAnimation()"
