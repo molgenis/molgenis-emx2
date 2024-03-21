@@ -134,7 +134,7 @@ public class TaskApi {
               .getTable("Jobs")
               .query()
               // make sure we include all file metadata
-              .select(s("output", s("contents"), s("mimetype"), s("extension")))
+              .select(s("output", s("contents"), s("mimetype"), s("filename"), s("extension")))
               .where(f("id", Operator.EQUALS, jobId))
               .retrieveRows()
               .get(0);

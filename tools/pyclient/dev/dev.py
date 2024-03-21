@@ -2,7 +2,7 @@
 # FILE: dev.py
 # AUTHOR: David Ruvolo, Ype Zijlstra
 # CREATED: 2023-05-22
-# MODIFIED: 2024-01-19
+# MODIFIED: 2024-03-12
 # PURPOSE: development script for initial testing of the py-client
 # STATUS: ongoing
 # PACKAGES: pandas, python-dotenv
@@ -37,6 +37,7 @@ async def main():
     # Connect to the server and sign in
     async with Client('https://emx2.dev.molgenis.org/', token=token) as client:
         # Check sign in status
+        print(client.__repr__())
         print(client.status)
 
         # Retrieve data from a table in a schema on the server using the 'get' method
@@ -61,6 +62,7 @@ async def main():
 
     # Connect to server with a default schema specified
     with Client('https://emx2.dev.molgenis.org/', schema='pet store', token=token) as client:
+        print(client.__repr__())
         client.export(fmt='csv')
         client.export(table='Pet', fmt='csv')
         client.export(table='Pet', fmt='xlsx')
@@ -117,6 +119,43 @@ async def main():
         # ///////////////////////////////////////
 
         # ~ 1b ~
+        # Check import via the `data` parameters as pandas DataFrames
+        # Add new record to the pet store with new tags
+
+        new_tags = pd.DataFrame(data=[{'name': 'brown', 'parent': 'colors'},
+                                      {'name': 'canis', 'parent': 'species'}])
+
+        new_pets = pd.DataFrame(data=[{
+            'name': 'Woofie',
+            'category': 'dog',
+            'status': 'available',
+            'weight': 6.8,
+            'tags': 'brown,canis'
+        }])
+
+        # Import new data
+        try:
+            client.save_schema(name='pet store', table='Tag', data=new_tags)
+            client.save_schema(name='pet store', table='Pet', data=new_pets)
+
+            # Retrieve records
+            tags_data = client.get(schema='pet store', table='Tag', as_df=True)
+            print(tags_data)
+            pets_data = client.get(schema='pet store', table='Pet', as_df=True)
+            print(pets_data)
+
+            # Drop records
+            tags_to_remove = new_tags.loc[new_tags['name'] == 'canis']
+            client.delete_records(schema='pet store', table='Pet', data=new_pets)
+            client.delete_records(schema='pet store', table='Tag', data=tags_to_remove)
+        except PermissionDeniedException:
+            print(f"Permission denied for importing or deleting data. "
+                  f"Ensure correct authorization.")
+
+        # ///////////////////////////////////////
+
+        # ~ 1c ~
+
         # Check import via the `file` parameter
         try:
             # Save datasets
@@ -164,6 +203,32 @@ async def main():
         except (GraphQLException, NoSuchSchemaException) as e:
             print(e)
 
+    print("\n\n")
+
+    # Use the Schema, Table, and Column classes
+    catalogue_schema = Client('https://emx2.dev.molgenis.org/').get_schema_metadata('catalogue')
+
+    # Find the tables inheriting from the 'Resources' table
+    resource_children = catalogue_schema.get_tables(by='inheritName', value='Resources')
+
+    print("Tables in the schema inheriting from the 'Resources' table.")
+    for res_chi in resource_children:
+        print(f"{res_chi!s}\n{res_chi!r}")
+    print("\n")
+
+    # Find the Cohorts table
+    cohorts = catalogue_schema.get_table(by='name', value='Cohorts')
+
+    # Find the columns in the Cohorts table referencing the Organisations table
+    orgs_refs = cohorts.get_columns(by='refTableName', value='Organisations')
+
+    # Find the columns in the Cohorts table referencing the Organisations table in a reference array
+    orgs_array_refs = cohorts.get_columns(by=['columnType', 'refTableName'], value=['REF_ARRAY', 'Organisations'])
+
+    # Print the __str__ and __repr__ representations of these columns
+    print("Columns in the Cohorts table referencing the Organisations table in an array.")
+    for orgs_ref in orgs_array_refs:
+        print(f"{orgs_ref!s}\n{orgs_ref!r}\n")
 
 if __name__ == '__main__':
     asyncio.run(main())
