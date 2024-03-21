@@ -267,22 +267,13 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     final String username = user.trim();
     List<String> result = new ArrayList<>();
     // need elevated privileges, so clear user and run as root
-    if (getDatabase().inTx()) {
-      String current = getDatabase().getActiveUser();
-      getDatabase().becomeAdmin();
-      try {
-        result.addAll(
-            SqlSchemaMetadataExecutor.getInheritedRoleForUser(
-                getDatabase().getJooq(), getName(), username));
-      } finally {
-        getDatabase().setActiveUser(current);
-      }
-    } else {
-      // bypass reload by using seperate jooq instance
-      result.addAll(
-          SqlSchemaMetadataExecutor.getInheritedRoleForUser(
-              getDatabase().getAdminJooq(), getName(), username));
-    }
+    getDatabase()
+        .asAdmin(
+            adminJooq -> {
+              result.addAll(
+                  SqlSchemaMetadataExecutor.getInheritedRoleForUser(
+                      adminJooq, getName(), username));
+            });
     return result;
   }
 
