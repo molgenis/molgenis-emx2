@@ -266,9 +266,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     }
     final String username = user.trim();
     List<String> result = new ArrayList<>();
-
     // need elevated privileges, so clear user and run as root
-    // this is not thread safe therefore must be in a transaction
     if (getDatabase().inTx()) {
       String current = getDatabase().getActiveUser();
       getDatabase().becomeAdmin();
@@ -280,6 +278,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
         getDatabase().setActiveUser(current);
       }
     } else {
+      // bypass reload by using seperate jooq instance
       result.addAll(
           SqlSchemaMetadataExecutor.getInheritedRoleForUser(
               getDatabase().getAdminJooq(), getName(), username));
