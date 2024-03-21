@@ -380,21 +380,18 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   public User addUser(String userName) {
     if (!hasUser(userName)) {
       long start = System.currentTimeMillis();
-      // need elevated privileges, so clear user and run as root
-      // this is not thread safe therefore must be in a transaction
-      tx(
-          db -> {
-            String currentUser = db.getActiveUser();
-            try {
-              db.becomeAdmin();
-              executeCreateUser((SqlDatabase) db, userName);
-            } finally {
-              db.setActiveUser(currentUser);
-            }
-          });
+      // only root users can do this
+      executeCreateUser(getAdminJooq(), userName);
       log(start, "created user " + userName);
     }
     return getUser(userName);
+  }
+
+  public DSLContext getAdminJooq() {
+    final Settings settings = new Settings().withQueryTimeout(TEN_SECONDS);
+    SqlUserAwareConnectionProvider adminProvider = new SqlUserAwareConnectionProvider(source);
+    adminProvider.setActiveUser(ADMIN_USER);
+    return DSL.using(adminProvider, SQLDialect.POSTGRES, settings);
   }
 
   @Override
