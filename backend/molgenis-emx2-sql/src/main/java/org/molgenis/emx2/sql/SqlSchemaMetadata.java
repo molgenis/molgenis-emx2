@@ -5,8 +5,7 @@ import static org.molgenis.emx2.Privileges.MANAGER;
 import static org.molgenis.emx2.sql.ChangeLogExecutor.executeGetChanges;
 import static org.molgenis.emx2.sql.ChangeLogExecutor.executeGetChangesCount;
 import static org.molgenis.emx2.sql.SqlColumnExecutor.getOntologyTableDefinition;
-import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
-import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
+import static org.molgenis.emx2.sql.SqlDatabase.*;
 import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeGetMembers;
 import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeGetRoles;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.executeCreateTable;
@@ -22,6 +21,8 @@ import org.slf4j.LoggerFactory;
 
 public class SqlSchemaMetadata extends SchemaMetadata {
   private static Logger logger = LoggerFactory.getLogger(SqlSchemaMetadata.class);
+  // cache for retrieved roles
+  private List<String> rolesCache = null;
 
   // copy constructor
   protected SqlSchemaMetadata(Database db, SqlSchemaMetadata copy) {
@@ -265,17 +266,33 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     }
     final String username = user.trim();
     List<String> result = new ArrayList<>();
+
     // need elevated privileges, so clear user and run as root
     // this is not thread safe therefore must be in a transaction
-    result.addAll(
-        SqlSchemaMetadataExecutor.getInheritedRoleForUser(
-            getDatabase().getAdminJooq(), getName(), username));
-
+    if (getDatabase().inTx()) {
+      String current = getDatabase().getActiveUser();
+      getDatabase().becomeAdmin();
+      try {
+        result.addAll(
+            SqlSchemaMetadataExecutor.getInheritedRoleForUser(
+                getDatabase().getJooq(), getName(), username));
+      } finally {
+        getDatabase().setActiveUser(current);
+      }
+    } else {
+      result.addAll(
+          SqlSchemaMetadataExecutor.getInheritedRoleForUser(
+              getDatabase().getAdminJooq(), getName(), username));
+    }
     return result;
   }
 
   public List<String> getInheritedRolesForActiveUser() {
-    return getIneritedRolesForUser(getDatabase().getActiveUser());
+    // add cache because this function is called often
+    if (rolesCache == null) {
+      rolesCache = getIneritedRolesForUser(getDatabase().getActiveUser());
+    }
+    return rolesCache;
   }
 
   public String getRoleForUser(String user) {
