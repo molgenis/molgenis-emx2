@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test('computedExpression', async ({ page }) => {
+test('computedExpressionCONCAT', async ({ page }) => {
   //make new database
   await page.goto('/apps/central/#/');
   await page.getByRole('button', { name: 'Sign in' }).click();
@@ -15,7 +15,7 @@ test('computedExpression', async ({ page }) => {
   await page.getByLabel('template').selectOption('PET_STORE');
   await page.getByLabel('true').check();
   await page.getByRole('button', { name: 'Create database' }).click();
-  //create computedExpression
+  //create computedExpression concat string and REF
   await page.getByRole('link', { name: 'computedTest' }).click();
   await page.getByRole('link', { name: 'Schema' }).click();
   await expect(page.locator('#molgenis_tables_container')).toContainText('status');
@@ -25,7 +25,7 @@ test('computedExpression', async ({ page }) => {
   await page.locator('div:nth-child(6) > div:nth-child(3) > .form-group > .input-group > .form-control').fill('name+"_"+category?.name');
   await page.getByRole('button', { name: 'Apply' }).click();
   await page.getByRole('button', { name: 'Save' }).click();
-  //check if computed works
+  //test if computedExpression works
   await page.getByRole('link', { name: 'Tables' }).click();
   await page.getByRole('link', { name: 'Pet' }).click();
   await page.getByRole('button', { name: '' }).click();
@@ -49,5 +49,114 @@ test('computedExpression', async ({ page }) => {
   await page.getByRole('row', { name: '  computedTest' }).getByRole('button').nth(1).click();
   await page.getByRole('button', { name: 'Delete database' }).click();
   await page.getByText('Close').click();
-  
+});
+test('computedExpressionComplex', async ({ page }) => {
+  //make new database
+  await page.goto('/apps/central/#/');
+  await page.getByRole('button', { name: 'Sign in' }).click();
+  await page.getByPlaceholder('Enter username').click();
+  await page.getByPlaceholder('Enter username').fill('admin');
+  await page.getByPlaceholder('Enter username').press('Tab');
+  await page.getByPlaceholder('Password').fill('admin');
+  await page.getByPlaceholder('Password').press('Enter');
+  await page.getByRole('button', { name: '' }).click();
+  await page.getByLabel('name').click();
+  await page.getByLabel('name').fill('testComputedComplex');
+  await page.getByLabel('template').selectOption('PET_STORE');
+  await page.getByLabel('true').check();
+  await page.getByRole('button', { name: 'Create database' }).click();
+  //create computedExpression complex
+  await page.getByRole('link', { name: 'testComputedComplex' }).click();
+  await page.getByRole('link', { name: 'Tag' }).click();
+  await page.getByRole('button', { name: '' }).click();
+  await page.locator('span').filter({ hasText: 'name (required) name is' }).locator('#Tag-edit-modal-name').click();
+  await page.locator('span').filter({ hasText: 'name (required) name is' }).locator('#Tag-edit-modal-name').fill('1');
+  await page.locator('span').filter({ hasText: 'labelUser-friendly label for' }).locator('#Tag-edit-modal-label').click();
+  await page.locator('span').filter({ hasText: 'labelUser-friendly label for' }).locator('#Tag-edit-modal-label').fill('test1');
+  await page.getByRole('button', { name: 'Save Tag' }).click();
+  await page.getByRole('button', { name: '' }).click();
+  await page.locator('span').filter({ hasText: 'name (required) name is' }).locator('#Tag-edit-modal-name').click();
+  await page.locator('span').filter({ hasText: 'name (required) name is' }).locator('#Tag-edit-modal-name').fill('2');
+  await page.locator('span').filter({ hasText: 'labelUser-friendly label for' }).locator('#Tag-edit-modal-label').click();
+  await page.locator('span').filter({ hasText: 'labelUser-friendly label for' }).locator('#Tag-edit-modal-label').fill('test2');
+  await page.getByRole('button', { name: 'Save Tag' }).click();
+  await page.getByRole('link', { name: 'Schema' }).click();
+  await page.getByText('Tables:').click();
+  await page.getByRole('button', { name: '' }).click();
+  await page.getByLabel('Name').click();
+  await page.getByLabel('Name').fill('complexVraag');
+  await page.getByRole('button', { name: 'Apply' }).click();
+  await page.locator('div').filter({ hasText: /^Columns: None\.$/ }).locator('label').click();
+  await page.getByRole('button', { name: '' }).click();
+  await page.getByLabel('columnName').click();
+  await page.getByLabel('columnName').fill('total');
+  await page.getByLabel('columnType').selectOption('INT');
+  await page.getByText('computed', { exact: true }).click();
+  await page.locator('div:nth-child(6) > div:nth-child(3) > .form-group > .input-group > .form-control').click();
+  await page.locator('div:nth-child(6) > div:nth-child(3) > .form-group > .input-group > .form-control').fill('parseInt(((typeof vraag1=== \'undefined\')?0:vraag1?.name) || 0 )+parseInt(((typeof vraag2=== \'undefined\')?0:vraag2?.name) || 0)');
+  await page.getByRole('button', { name: 'Apply' }).click();
+  await page.getByText('Columns:').nth(4).click();
+  await page.getByRole('button', { name: '' }).click();
+  await page.getByLabel('columnName').click();
+  await page.getByLabel('columnName').fill('vraag2');
+  await page.getByLabel('columnType').selectOption('ONTOLOGY');
+  await page.getByLabel('refTable').selectOption('Tag');
+  await page.getByRole('button', { name: 'Apply' }).click();
+  await page.getByText('Columns:').nth(4).click();
+  await page.getByRole('button', { name: '' }).click();
+  await page.getByLabel('columnName').click();
+  await page.getByLabel('columnName').fill('vraag1');
+  await page.getByLabel('columnType').selectOption('ONTOLOGY');
+  await page.getByLabel('refTable').selectOption('Tag');
+  await page.getByRole('button', { name: 'Apply' }).click();
+  await page.getByText('Columns:').nth(4).click();
+  await page.getByRole('button', { name: '' }).click();
+  await page.getByLabel('columnName').click();
+  await page.getByLabel('columnName').fill('id');
+  await page.locator('#column_required_radio0').check();
+  await page.getByLabel('key').selectOption('1');
+  await page.getByRole('button', { name: 'Apply' }).click();
+  await page.getByRole('button', { name: 'Save' }).click();
+  await page.getByRole('link', { name: 'Tables' }).click();
+  await page.getByRole('link', { name: 'complexVraag' }).click();
+  await page.getByRole('button', { name: '' }).click();
+  await page.locator('span').filter({ hasText: 'id (required) id is required' }).locator('#ComplexVraag-edit-modal-id').click();
+  await page.locator('span').filter({ hasText: 'id (required) id is required' }).locator('#ComplexVraag-edit-modal-id').fill('test1');
+  await page.locator('#ComplexVraag-edit-modal-vraag1').getByRole('textbox').click();
+  await page.getByRole('button', { name: '' }).first().click();
+  await page.locator('.overflow-auto').first().click();
+  await page.getByText('vraag1test1 test1 test2').click();
+  await page.locator('#ComplexVraag-edit-modal-vraag2').getByRole('textbox').click();
+  await page.getByRole('button', { name: '' }).nth(1).click();
+  await page.locator('.overflow-auto').first().click();
+  await page.getByRole('button', { name: 'Save complexVraag' }).click();
+  await page.getByRole('button', { name: '' }).click();
+  await page.locator('span').filter({ hasText: 'id (required) id is required' }).locator('#ComplexVraag-edit-modal-id').click();
+  await page.locator('span').filter({ hasText: 'id (required) id is required' }).locator('#ComplexVraag-edit-modal-id').fill('test2');
+  await page.locator('#ComplexVraag-edit-modal-vraag1').getByRole('textbox').click();
+  await page.getByRole('button', { name: '' }).nth(1).click();
+  await page.locator('.overflow-auto').first().click();
+  await page.getByText('vraag1test2 test1 test2').click();
+  await page.locator('#ComplexVraag-edit-modal-vraag2').getByRole('textbox').click();
+  await page.getByRole('button', { name: 'test2' }).click();
+  await page.getByRole('button', { name: 'Save complexVraag' }).click();
+  //test if computedExpression works
+  await page.getByRole('button', { name: 'filters ' }).click();
+  await page.getByLabel('id').check();
+  await page.getByRole('heading', { name: 'filters' }).click();
+  await page.getByRole('button', { name: '' }).click();
+  await page.locator('#filter-id1').click();
+  await page.locator('#filter-id1').fill('test1');
+  await page.getByRole('heading', { name: 'total' }).click();
+  await expect(page.getByRole('row')).toContainText('3');
+  await page.getByRole('button', { name: 'id = test1 ' }).click();
+  await page.locator('#filter-id1').click();
+  await page.locator('#filter-id1').fill('test2');
+  await page.getByRole('heading', { name: 'total ' }).click();
+  await expect(page.getByRole('row')).toContainText('4');
+  //remove database
+  await page.getByRole('link', { name: 'brand-logo' }).click();
+  await page.getByRole('row', { name: '  computedTest' }).getByRole('button').nth(1).click();
+  await page.getByRole('button', { name: 'Delete database' }).click();
+  await page.getByText('Close').click();
 });
