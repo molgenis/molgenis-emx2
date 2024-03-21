@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { HarmonizationIconSize } from "../../interfaces/types";
+const ariaId = useId();
 
 const props = withDefaults(
   defineProps<{
@@ -28,7 +29,12 @@ const props = withDefaults(
         No data
       </li>
     </ul>
-    <VDropdown :triggers="['hover', 'focus']" :distance="12" theme="tooltip">
+    <VDropdown
+      :aria-id="ariaId"
+      :triggers="['hover', 'focus']"
+      :distance="12"
+      theme="tooltip"
+    >
       <div class="flex gap-1 text-blue-500 hover:underline cursor-pointer">
         <BaseIcon name="info" />
         <span> About statuses </span>
