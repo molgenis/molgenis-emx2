@@ -28,7 +28,8 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   public static final String USER = "user";
   public static final String WITH = "with {} = {} ";
   public static final int TEN_SECONDS = 10;
-  final Settings DEFAULT_JOOQ_SETTINGS = new Settings().withQueryTimeout(TEN_SECONDS);
+  private static final Settings DEFAULT_JOOQ_SETTINGS =
+      new Settings().withQueryTimeout(TEN_SECONDS);
 
   // shared between all instances
   private static DataSource source;
@@ -620,9 +621,11 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     if (ADMIN_USER.equals(getActiveUser())) {
       transaction.run(getJooq());
     } else if (inTx()) {
-      // need to do this because changes in current tx might affect result
+      // need to do this because updates before this call in current tx
+      // might affect result
       // e.g. TestSettings will fail if we don't do this
-      // because it does permission changes in same tx
+      // because it does permission changes in same tx before calling the method
+      // that uses getJooqAsAdmin.
       String user = connectionProvider.getActiveUser();
       try {
         connectionProvider.setActiveUser(ADMIN_USER);
