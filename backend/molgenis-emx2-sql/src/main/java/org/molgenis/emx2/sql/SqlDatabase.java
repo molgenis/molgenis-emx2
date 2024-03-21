@@ -397,7 +397,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     return getUser(userName);
   }
 
-  void asAdmin(JooqTransaction transaction) {
+  void getJooqAsAdmin(JooqTransaction transaction) {
     if (inTx()) {
       String user = connectionProvider.getActiveUser();
       try {

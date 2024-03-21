@@ -268,7 +268,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     List<String> result = new ArrayList<>();
     // need elevated privileges, so clear user and run as root
     getDatabase()
-        .asAdmin(
+        .getJooqAsAdmin(
             adminJooq -> {
               result.addAll(
                   SqlSchemaMetadataExecutor.getInheritedRoleForUser(
