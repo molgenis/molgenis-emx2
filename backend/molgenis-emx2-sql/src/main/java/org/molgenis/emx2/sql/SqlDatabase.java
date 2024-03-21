@@ -380,10 +380,19 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   public User addUser(String userName) {
     if (!hasUser(userName)) {
       long start = System.currentTimeMillis();
-      // only root users can do this
-      executeCreateUser(getAdminJooq(), userName);
+      // need elevated privileges, so clear user and run as root
+      // this is not thread safe therefore must be in a transaction
+      tx(
+          db -> {
+            String currentUser = db.getActiveUser();
+            try {
+              db.becomeAdmin();
+              executeCreateUser((SqlDatabase) db, userName);
+            } finally {
+              db.setActiveUser(currentUser);
+            }
+          });
       log(start, "created user " + userName);
-      clearCache();
     }
     return getUser(userName);
   }
