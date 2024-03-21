@@ -634,8 +634,8 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       final Settings settings = new Settings().withQueryTimeout(TEN_SECONDS);
       SqlUserAwareConnectionProvider adminProvider = new SqlUserAwareConnectionProvider(source);
       adminProvider.setActiveUser(ADMIN_USER);
-      DSLContext jooq = DSL.using(adminProvider, SQLDialect.POSTGRES, settings);
-      transaction.run(jooq);
+      DSLContext adminJooq = DSL.using(adminProvider, SQLDialect.POSTGRES, settings);
+      transaction.run(adminJooq);
     }
   }
 
