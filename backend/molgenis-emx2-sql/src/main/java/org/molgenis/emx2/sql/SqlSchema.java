@@ -52,7 +52,7 @@ public class SqlSchema implements Schema {
           executeAddMembers(
               ((SqlDatabase) db).getJooq(), db.getSchema(getName()), new Member(user, role));
           // force reload
-          getDatabase().getListener().userChanged();
+          db.clearCache();
         });
   }
 
