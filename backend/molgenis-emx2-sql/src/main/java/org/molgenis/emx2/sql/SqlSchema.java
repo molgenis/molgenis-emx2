@@ -48,12 +48,9 @@ public class SqlSchema implements Schema {
   @Override
   public void addMember(String user, String role) {
     tx(
-        db -> {
-          executeAddMembers(
-              ((SqlDatabase) db).getJooq(), db.getSchema(getName()), new Member(user, role));
-          // force reload
-          db.clearCache();
-        });
+        db ->
+            executeAddMembers(
+                ((SqlDatabase) db).getJooq(), db.getSchema(getName()), new Member(user, role)));
   }
 
   @Override

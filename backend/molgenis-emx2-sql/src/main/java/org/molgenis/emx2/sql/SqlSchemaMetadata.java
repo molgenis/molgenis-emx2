@@ -22,8 +22,6 @@ import org.slf4j.LoggerFactory;
 
 public class SqlSchemaMetadata extends SchemaMetadata {
   private static Logger logger = LoggerFactory.getLogger(SqlSchemaMetadata.class);
-  // cache for retrieved roles
-  private List<String> rolesCache = null;
 
   // copy constructor
   protected SqlSchemaMetadata(Database db, SqlSchemaMetadata copy) {
@@ -82,7 +80,6 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     long start = System.currentTimeMillis();
     MetadataUtils.loadSchemaMetadata(getDatabase().getJooq(), this);
     this.tables.clear();
-    this.rolesCache = null;
     for (TableMetadata table : MetadataUtils.loadTables(getDatabase().getJooq(), this)) {
       super.create(new SqlTableMetadata(this, table));
     }
@@ -278,11 +275,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   }
 
   public List<String> getInheritedRolesForActiveUser() {
-    // add cache because this function is called often
-    if (rolesCache == null) {
-      rolesCache = getIneritedRolesForUser(getDatabase().getActiveUser());
-    }
-    return rolesCache;
+    return getIneritedRolesForUser(getDatabase().getActiveUser());
   }
 
   public String getRoleForUser(String user) {
