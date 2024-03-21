@@ -1,154 +1,226 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from "@playwright/test";
 
-test('visibleExpressionDECIMAL', async ({ page }) => {
+test("visibleExpressionDECIMAL", async ({ page }) => {
   //make new database
-  await page.goto('/apps/central/#/');
-  await page.getByRole('button', { name: 'Sign in' }).click();
-  await page.getByPlaceholder('Enter username').click();
-  await page.getByPlaceholder('Enter username').fill('admin');
-  await page.getByPlaceholder('Enter username').press('Tab');
-  await page.getByPlaceholder('Password').fill('admin');
-  await page.getByPlaceholder('Password').press('Enter');
-  await page.getByRole('button', { name: '' }).click();
-  await page.getByLabel('name').click();
-  await page.getByLabel('name').fill('testVisibleINT');
-  await page.getByLabel('template').selectOption('PET_STORE');
-  await page.getByLabel('true').check();
-  await page.getByRole('button', { name: 'Create database' }).click();
+  await page.goto("/apps/central/#/");
+  await page.getByRole("button", { name: "Sign in" }).click();
+  await page.getByPlaceholder("Enter username").click();
+  await page.getByPlaceholder("Enter username").fill("admin");
+  await page.getByPlaceholder("Enter username").press("Tab");
+  await page.getByPlaceholder("Password").fill("admin");
+  await page.getByPlaceholder("Password").press("Enter");
+  await page.getByRole("button", { name: "" }).click();
+  await page.getByLabel("name").click();
+  await page.getByLabel("name").fill("testVisibleINT");
+  await page.getByLabel("template").selectOption("PET_STORE");
+  await page.getByLabel("true").check();
+  await page.getByRole("button", { name: "Create database" }).click();
   //create visibleExpression
-  await page.getByRole('link', { name: 'testVisibleINT' }).click();
-  await page.getByRole('link', { name: 'Schema' }).click();
-  await page.getByText('complete').click();
-  await page.getByRole('button', { name: ' ' }).click();
-  await page.locator('div:nth-child(2) > .form-group > .input-group > .form-control').click();
-  await page.locator('div:nth-child(2) > .form-group > .input-group > .form-control').fill('price >7');
-  await page.getByRole('button', { name: 'Apply' }).click();
-  await page.getByRole('button', { name: 'Save' }).click();
+  await page.getByRole("link", { name: "testVisibleINT" }).click();
+  await page.getByRole("link", { name: "Schema" }).click();
+  await page.getByText("complete").click();
+  await page.getByRole("button", { name: " " }).click();
+  await page
+    .locator("div:nth-child(2) > .form-group > .input-group > .form-control")
+    .click();
+  await page
+    .locator("div:nth-child(2) > .form-group > .input-group > .form-control")
+    .fill("price >7");
+  await page.getByRole("button", { name: "Apply" }).click();
+  await page.getByRole("button", { name: "Save" }).click();
   //test if visibleExpression DECIMAL/INT works
-  await page.getByRole('link', { name: 'Tables' }).click();
-  await page.getByRole('link', { name: 'Order' }).click();
-  await page.getByRole('button', { name: '' }).click();
-  await page.getByRole('spinbutton').click();
-  await page.getByRole('spinbutton').fill('8');
-  await page.getByLabel('true').check();
-  await expect(page.locator('#Order-edit-modal-complete').getByText('complete')).toBeVisible();
-  await expect(page.locator('#Order-edit-modal-complete')).toContainText('true');
-  await page.getByRole('button', { name: 'Save Order' }).click();
-  await page.getByRole('button', { name: '' }).click();
-  await page.getByRole('spinbutton').click();
-  await page.getByRole('spinbutton').fill('7');
-  await expect(page.locator('#Order-edit-modal-complete').getByText('complete')).toBeHidden();
-  await page.getByRole('button', { name: 'Save Order' }).click();
+  await page.getByRole("link", { name: "Tables" }).click();
+  await page.getByRole("link", { name: "Order" }).click();
+  await page.getByRole("button", { name: "" }).click();
+  await page.getByRole("spinbutton").click();
+  await page.getByRole("spinbutton").fill("8");
+  await page.getByLabel("true").check();
+  await expect(
+    page.locator("#Order-edit-modal-complete").getByText("complete")
+  ).toBeVisible();
+  await expect(page.locator("#Order-edit-modal-complete")).toContainText(
+    "true"
+  );
+  await page.getByRole("button", { name: "Save Order" }).click();
+  await page.getByRole("button", { name: "" }).click();
+  await page.getByRole("spinbutton").click();
+  await page.getByRole("spinbutton").fill("7");
+  await expect(
+    page.locator("#Order-edit-modal-complete").getByText("complete")
+  ).toBeHidden();
+  await page.getByRole("button", { name: "Save Order" }).click();
   //remove database
-  await page.getByRole('link', { name: 'brand-logo' }).click();
-  await page.getByRole('row', { name: '  testVisibleINT' }).getByRole('button').nth(1).click();
-  await page.getByRole('button', { name: 'Delete database' }).click();
-  await page.getByText('Close').click();
+  await page.getByRole("link", { name: "brand-logo" }).click();
+  await page
+    .getByRole("row", { name: "  testVisibleINT" })
+    .getByRole("button")
+    .nth(1)
+    .click();
+  await page.getByRole("button", { name: "Delete database" }).click();
+  await page.getByText("Close").click();
 });
-test('visibleExpressionREF', async ({ page }) => {
+
+test("visibleExpressionREF", async ({ page }) => {
   //make new database
-  await page.goto('/apps/central/#/');
-  await page.getByRole('button', { name: 'Sign in' }).click();
-  await page.getByPlaceholder('Enter username').click();
-  await page.getByPlaceholder('Enter username').fill('admin');
-  await page.getByPlaceholder('Enter username').press('Tab');
-  await page.getByPlaceholder('Password').fill('admin');
-  await page.getByPlaceholder('Password').press('Enter');
-  await page.getByRole('button', { name: '' }).click();
-  await page.getByLabel('name').click();
-  await page.getByLabel('name').fill('testVisibleREF');
-  await page.getByLabel('template').selectOption('PET_STORE');
-  await page.getByLabel('true').check();
-  await page.getByRole('button', { name: 'Create database' }).click();
+  await page.goto("/apps/central/#/");
+  await page.getByRole("button", { name: "Sign in" }).click();
+  await page.getByPlaceholder("Enter username").click();
+  await page.getByPlaceholder("Enter username").fill("admin");
+  await page.getByPlaceholder("Enter username").press("Tab");
+  await page.getByPlaceholder("Password").fill("admin");
+  await page.getByPlaceholder("Password").press("Enter");
+  await page.getByRole("button", { name: "" }).click();
+  await page.getByLabel("name").click();
+  await page.getByLabel("name").fill("testVisibleREF");
+  await page.getByLabel("template").selectOption("PET_STORE");
+  await page.getByLabel("true").check();
+  await page.getByRole("button", { name: "Create database" }).click();
   //create visibleExpression
-  await page.getByRole('link', { name: 'testVisibleREF' }).click();
-  await page.getByRole('link', { name: 'Schema' }).click();
-  await page.getByText('status').first().click();
-  await page.getByRole('button', { name: ' ' }).click();
-  await page.locator('div:nth-child(2) > .form-group > .input-group > .form-control').click();
-  await page.locator('div:nth-child(2) > .form-group > .input-group > .form-control').fill(' pet?.name==="spike"');
-  await page.getByRole('button', { name: 'Apply' }).click();
-  await page.getByRole('button', { name: 'Save' }).click();
+  await page.getByRole("link", { name: "testVisibleREF" }).click();
+  await page.getByRole("link", { name: "Schema" }).click();
+  await page.getByText("status").first().click();
+  await page.getByRole("button", { name: " " }).click();
+  await page
+    .locator("div:nth-child(2) > .form-group > .input-group > .form-control")
+    .click();
+  await page
+    .locator("div:nth-child(2) > .form-group > .input-group > .form-control")
+    .fill(' pet?.name==="spike"');
+  await page.getByRole("button", { name: "Apply" }).click();
+  await page.getByRole("button", { name: "Save" }).click();
   //test if visibleExpression REF works
-  await page.getByRole('link', { name: 'Tables' }).click();
-  await page.getByRole('link', { name: 'Order' }).click();
-  await page.getByRole('button', { name: '' }).click();
-  await page.locator('#Order-edit-modal-pet').getByRole('textbox').click();
-  await page.getByRole('row', { name: 'Select   spike dog sold red' }).getByRole('button').first().click();
-  await expect(page.getByRole('dialog').getByText('status')).toBeVisible();
-  await page.getByRole('button', { name: 'Save Order' }).click();
-  await page.getByRole('button', { name: '' }).click();
-  await page.locator('#Order-edit-modal-pet').getByRole('textbox').click();
-  await page.getByRole('row', { name: 'Select   pooky cat' }).getByRole('button').first().click();
-  await expect(page.getByRole('dialog').getByText('status')).toBeHidden();
-  await page.getByRole('button', { name: 'Save Order' }).click();
+  await page.getByRole("link", { name: "Tables" }).click();
+  await page.getByRole("link", { name: "Order" }).click();
+  await page.getByRole("button", { name: "" }).click();
+  await page.locator("#Order-edit-modal-pet").getByRole("textbox").click();
+  await page
+    .getByRole("row", { name: "Select   spike dog sold red" })
+    .getByRole("button")
+    .first()
+    .click();
+  await expect(page.getByRole("dialog").getByText("status")).toBeVisible();
+  await page.getByRole("button", { name: "Save Order" }).click();
+  await page.getByRole("button", { name: "" }).click();
+  await page.locator("#Order-edit-modal-pet").getByRole("textbox").click();
+  await page
+    .getByRole("row", { name: "Select   pooky cat" })
+    .getByRole("button")
+    .first()
+    .click();
+  await expect(page.getByRole("dialog").getByText("status")).toBeHidden();
+  await page.getByRole("button", { name: "Save Order" }).click();
   //remove database
-  await page.getByRole('link', { name: 'brand-logo' }).click();
-  await page.getByRole('row', { name: '  testVisibleREF' }).getByRole('button').nth(1).click();
-  await page.getByRole('button', { name: 'Delete database' }).click();
-  await page.getByText('Close').click();
+  await page.getByRole("link", { name: "brand-logo" }).click();
+  await page
+    .getByRole("row", { name: "  testVisibleREF" })
+    .getByRole("button")
+    .nth(1)
+    .click();
+  await page.getByRole("button", { name: "Delete database" }).click();
+  await page.getByText("Close").click();
 });
-test('visibleExpressionONTOLOGY_ARRAY', async ({ page }) => {
+
+test("visibleExpressionONTOLOGY_ARRAY", async ({ page }) => {
   //make new database
-  await page.goto('/apps/central/#/');
-  await page.getByRole('button', { name: 'Sign in' }).click();
-  await page.getByPlaceholder('Enter username').click();
-  await page.getByPlaceholder('Enter username').fill('admin');
-  await page.getByPlaceholder('Enter username').press('Tab');
-  await page.getByPlaceholder('Password').fill('admin');
-  await page.getByPlaceholder('Password').press('Enter');
-  await page.getByRole('button', { name: '' }).click();
-  await page.getByLabel('name').click();
-  await page.getByLabel('name').fill('testVisible');
-  await page.getByLabel('template').selectOption('PET_STORE');
-  await page.getByLabel('true').check();
-  await page.getByRole('button', { name: 'Create database' }).click();
+  await page.goto("/apps/central/#/");
+  await page.getByRole("button", { name: "Sign in" }).click();
+  await page.getByPlaceholder("Enter username").click();
+  await page.getByPlaceholder("Enter username").fill("admin");
+  await page.getByPlaceholder("Enter username").press("Tab");
+  await page.getByPlaceholder("Password").fill("admin");
+  await page.getByPlaceholder("Password").press("Enter");
+  await page.getByRole("button", { name: "" }).click();
+  await page.getByLabel("name").click();
+  await page.getByLabel("name").fill("testVisibleONTOLOGY_ARRAY");
+  await page.getByLabel("template").selectOption("PET_STORE");
+  await page.getByLabel("true").check();
+  await page.getByRole("button", { name: "Create database" }).click();
   //create visibleExpression
-  await page.getByRole('link', { name: 'testVisible' }).click();
-  await page.getByRole('link', { name: 'Schema' }).click();
-  await page.getByRole('heading', { name: 'Table: Pet' }).click();
-  await page.getByText('status').nth(1).click();
-  await page.getByRole('button', { name: ' ' }).click();
-  await page.locator('div:nth-child(2) > .form-group > .input-group > .form-control').click();
-  await page.locator('div:nth-child(2) > .form-group > .input-group > .form-control').fill('tags?.some(tags=>tags.name === "colors")');
-  await page.getByRole('button', { name: 'Apply' }).click();
-  await page.getByRole('button', { name: 'Save' }).click();
+  await page.getByRole("link", { name: "testVisibleONTOLOGY_ARRAY" }).click();
+  await page.getByRole("link", { name: "Schema" }).click();
+  await page.getByRole("heading", { name: "Table: Pet" }).click();
+  await page.getByText("status").nth(1).click();
+  await page.getByRole("button", { name: " " }).click();
+  await page
+    .locator("div:nth-child(2) > .form-group > .input-group > .form-control")
+    .click();
+  await page
+    .locator("div:nth-child(2) > .form-group > .input-group > .form-control")
+    .fill('tags?.some(tags=>tags.name === "colors")');
+  await page.getByRole("button", { name: "Apply" }).click();
+  await page.getByRole("button", { name: "Save" }).click();
   //test if visibleExpression ONTOLOGY_ARRAY works
-  await page.getByRole('link', { name: 'Tables' }).click();
-  await page.getByRole('link', { name: 'Pet' }).click();
-  await page.getByRole('button', { name: '' }).click();
-  await page.locator('span').filter({ hasText: 'name (required) name is' }).locator('#Pet-edit-modal-name').click();
-  await page.locator('span').filter({ hasText: 'name (required) name is' }).locator('#Pet-edit-modal-name').fill('test');
-  await page.locator('#Pet-edit-modal-category').getByRole('textbox').click();
-  await page.getByRole('row', { name: 'Select   cat', exact: true }).getByRole('button').first().click();
-  await page.getByRole('button', { name: 'details' }).click();
-  await page.locator('#Pet-edit-modal-tags div').nth(2).click();
-  await page.getByRole('button', { name: '' }).first().click();
-  await expect(page.getByRole('dialog').getByText('status')).toBeVisible();
-  await page.locator('span').filter({ hasText: 'status' }).locator('#Pet-edit-modal-status').click();
-  await page.locator('span').filter({ hasText: 'status' }).locator('#Pet-edit-modal-status').fill('2');
-  await page.getByRole('spinbutton').click();
-  await page.getByRole('spinbutton').fill('2');
-  await page.getByRole('button', { name: 'Save Pet' }).click();
-  await page.getByRole('button', { name: '' }).click();
-  await page.locator('span').filter({ hasText: 'name (required) name is' }).locator('#Pet-edit-modal-name').click();
-  await page.locator('span').filter({ hasText: 'name (required) name is' }).locator('#Pet-edit-modal-name').fill('test2');
-  await page.locator('#Pet-edit-modal-category').getByRole('textbox').click();
-  await page.getByRole('row', { name: 'Select   cat', exact: true }).getByRole('button').first().click();
-  await page.getByRole('button', { name: 'details' }).click();
-  await page.locator('#Pet-edit-modal-tags').getByRole('textbox').click();
-  await page.getByRole('button', { name: 'species (3)' }).click();
-  await page.getByRole('button', { name: '' }).nth(1).click();
-  await expect(page.getByRole('dialog').getByText('status')).toBeHidden();
-  await page.locator('.overflow-auto').first().click();
-  await page.getByText('Chaptersnamedetails').click();
-  await page.getByRole('spinbutton').click();
-  await page.getByRole('spinbutton').fill('2');
-  await page.getByRole('spinbutton').click();
-  await page.getByRole('button', { name: 'Save Pet' }).click();
+  await page.getByRole("link", { name: "Tables" }).click();
+  await page.getByRole("link", { name: "Pet" }).click();
+  await page.getByRole("button", { name: "" }).click();
+  await page
+    .locator("span")
+    .filter({ hasText: "name (required) name is" })
+    .locator("#Pet-edit-modal-name")
+    .click();
+  await page
+    .locator("span")
+    .filter({ hasText: "name (required) name is" })
+    .locator("#Pet-edit-modal-name")
+    .fill("test");
+  await page.locator("#Pet-edit-modal-category").getByRole("textbox").click();
+  await page
+    .getByRole("row", { name: "Select   cat", exact: true })
+    .getByRole("button")
+    .first()
+    .click();
+  await page.getByRole("button", { name: "details" }).click();
+  await page.locator("#Pet-edit-modal-tags div").nth(2).click();
+  await page.getByRole("button", { name: "" }).first().click();
+  await expect(page.getByRole("dialog").getByText("status")).toBeVisible();
+  await page
+    .locator("span")
+    .filter({ hasText: "status" })
+    .locator("#Pet-edit-modal-status")
+    .click();
+  await page
+    .locator("span")
+    .filter({ hasText: "status" })
+    .locator("#Pet-edit-modal-status")
+    .fill("2");
+  await page.getByRole("spinbutton").click();
+  await page.getByRole("spinbutton").fill("2");
+  await page.getByRole("button", { name: "Save Pet" }).click();
+  await page.getByRole("button", { name: "" }).click();
+  await page
+    .locator("span")
+    .filter({ hasText: "name (required) name is" })
+    .locator("#Pet-edit-modal-name")
+    .click();
+  await page
+    .locator("span")
+    .filter({ hasText: "name (required) name is" })
+    .locator("#Pet-edit-modal-name")
+    .fill("test2");
+  await page.locator("#Pet-edit-modal-category").getByRole("textbox").click();
+  await page
+    .getByRole("row", { name: "Select   cat", exact: true })
+    .getByRole("button")
+    .first()
+    .click();
+  await page.getByRole("button", { name: "details" }).click();
+  await page.locator("#Pet-edit-modal-tags").getByRole("textbox").click();
+  await page.getByRole("button", { name: "species (3)" }).click();
+  await page.getByRole("button", { name: "" }).nth(1).click();
+  await expect(page.getByRole("dialog").getByText("status")).toBeHidden();
+  await page.locator(".overflow-auto").first().click();
+  await page.getByText("Chaptersnamedetails").click();
+  await page.getByRole("spinbutton").click();
+  await page.getByRole("spinbutton").fill("2");
+  await page.getByRole("spinbutton").click();
+  await page.getByRole("button", { name: "Save Pet" }).click();
   //remove database
-  await page.getByRole('link', { name: 'brand-logo' }).click();
-  await page.getByRole('row', { name: '  testVisible' }).getByRole('button').nth(1).click();
-  await page.getByRole('button', { name: 'Delete database' }).click();
-  await page.getByText('Close').click();
+  await page.getByRole("link", { name: "brand-logo" }).click();
+  await page
+    .getByRole("row", { name: "  testVisibleONTOLOGY_ARRAY" })
+    .getByRole("button")
+    .nth(1)
+    .click();
+  await page.getByRole("button", { name: "Delete database" }).click();
+  await page.getByText("Close").click();
 });
