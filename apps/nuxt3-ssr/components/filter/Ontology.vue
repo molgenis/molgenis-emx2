@@ -6,7 +6,7 @@ const props = withDefaults(
   defineProps<{
     tableId: string;
     modelValue: { name: string }[];
-    options?: ITreeNode[];
+    options?: IOntologyRespItem[];
     isMultiSelect?: boolean;
     mobileDisplay: boolean;
   }>(),
@@ -18,15 +18,9 @@ const props = withDefaults(
 
 const emit = defineEmits(["update:modelValue"]);
 
-let data: any[] = [];
-if (!props.options) {
-  const resp = await fetchOntology(props.tableId);
-
-  data = resp?.data[props.tableId];
-  let count = resp?.data[props.tableId + "_agg"].count;
-} else {
-  data = props.options;
-}
+const data = !props.options
+  ? (await fetchOntology(props.tableId)).data[props.tableId]
+  : props.options;
 
 function listToTree(list: IOntologyRespItem[]): ITreeNode[] {
   const allNodes = list.map((repsElement: IOntologyRespItem) => {
