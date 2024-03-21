@@ -38,6 +38,7 @@ public class QueryHelper {
         ArrayList<String> colNames = new ArrayList<>();
         colNames.add("id");
         colNames.add("mimetype");
+        colNames.add("filename");
         colNames.add("extension");
         // skip contents, which is served by file api
         query.select(new SelectColumn(column.getName(), colNames));

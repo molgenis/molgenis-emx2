@@ -152,7 +152,7 @@ public class SqlQuery extends QueryBean {
       Column column = getColumnByName(table, select.getColumn());
       String columnAlias = prefix.equals("") ? column.getName() : prefix + "-" + column.getName();
       if (column.isFile()) {
-        // check what they want to get, contents, mimetype, size and/or extension
+        // check what they want to get, contents, mimetype, size, filename and/or extension
         if (select.getSubselect().isEmpty() || select.has("id")) {
           fields.add(field(name(column.getName())));
         }
@@ -164,6 +164,9 @@ public class SqlQuery extends QueryBean {
         }
         if (select.has("mimetype")) {
           fields.add(field(name(column.getName() + "_mimetype")));
+        }
+        if (select.has("filename")) {
+          fields.add(field(name(column.getName() + "_filename")));
         }
         if (select.has("extension")) {
           fields.add(field(name(column.getName() + "_extension")));
@@ -617,7 +620,8 @@ public class SqlQuery extends QueryBean {
       SqlTableMetadata table, String tableAlias, SelectColumn select, Column column) {
     DSLContext jooq = table.getJooq();
     List<Field<?>> subFields = new ArrayList<>();
-    for (String ext : new String[] {"id", "contents", "size", "extension", "mimetype", "url"}) {
+    for (String ext :
+        new String[] {"id", "contents", "size", "filename", "extension", "mimetype", "url"}) {
       if (select.has(ext)) {
         if (ext.equals("id")) {
           subFields.add(field(name(alias(tableAlias), column.getName())).as(ext));
@@ -1409,6 +1413,7 @@ public class SqlQuery extends QueryBean {
             && columnName.startsWith(c.getName())
             && (columnName.equals(c.getName())
                 || columnName.endsWith("_mimetype")
+                || columnName.endsWith("_filename")
                 || columnName.endsWith("_extension")
                 || columnName.endsWith("_size")
                 || columnName.endsWith("_contents"))) {
