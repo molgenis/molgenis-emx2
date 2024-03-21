@@ -383,6 +383,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       // only root users can do this
       executeCreateUser(getAdminJooq(), userName);
       log(start, "created user " + userName);
+      clearCache();
     }
     return getUser(userName);
   }
