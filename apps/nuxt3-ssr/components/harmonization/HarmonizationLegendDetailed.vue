@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { HarmonizationIconSize } from "../../interfaces/types";
+const ariaId = useId();
 
 const props = withDefaults(
   defineProps<{
@@ -28,7 +29,12 @@ const props = withDefaults(
         No data
       </li>
     </ul>
-    <VDropdown :triggers="['hover', 'focus']" :distance="12" theme="tooltip">
+    <VDropdown
+      :aria-id="ariaId"
+      :triggers="['hover', 'focus']"
+      :distance="12"
+      theme="tooltip"
+    >
       <div class="flex gap-1 text-blue-500 hover:underline cursor-pointer">
         <BaseIcon name="info" />
         <span> About statuses </span>
@@ -37,16 +43,16 @@ const props = withDefaults(
         <ul class="list-none [&_li]:flex [&_li]:gap-1">
           <li>
             <HarmonizationStatusIcon size="small" status="complete" />
-            <span>Completed</span>
             <span
-              >cohort was able to fully map to the harmonized variables</span
+              >Completed: cohort was able to fully map to the harmonized
+              variables</span
             >
           </li>
           <li>
             <HarmonizationStatusIcon size="small" status="partial" />
-            <span>Partial</span>
             <span
-              >cohort was able to partially map to the harmonized variable</span
+              >Partial: cohort was able to partially map to the harmonized
+              variable</span
             >
           </li>
           <li>
@@ -55,8 +61,7 @@ const props = withDefaults(
               status="unmapped"
               class="bg-white"
             />
-            <span>No data</span>
-            <span>no harmonization information is available</span>
+            <span>No data: no harmonization information is available</span>
           </li>
         </ul>
       </template>
