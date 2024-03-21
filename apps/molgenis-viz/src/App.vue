@@ -2,11 +2,10 @@
   <Molgenis :v-model="session">
     <div class="app-nav">
       <div>
-        <span>molgenis-viz</span>
+        <router-link :to="{ name: 'charts-home' }">molgenis-viz</router-link>
       </div>
       <nav>
         <ul>
-          <li><router-link :to="{ name: 'docs' }">Docs</router-link></li>
           <li>
             <router-link :to="{ name: 'charts-home' }">View Charts</router-link>
           </li>
@@ -15,6 +14,7 @@
               Add Chart
             </router-link>
           </li>
+          <li><router-link :to="{ name: 'docs' }">Docs</router-link></li>
         </ul>
       </nav>
     </div>

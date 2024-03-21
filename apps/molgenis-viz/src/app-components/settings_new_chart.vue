@@ -1,10 +1,5 @@
 <template>
-  <Accordion
-    class="chart-builder"
-    :is-open-by-default="true"
-    :id="`${formId}-accordion`"
-    :title="chartTitle ? `Chart: ${chartTitle}` : 'Chart'"
-  >
+  <div class="chart-builder" :id="`${formId}-accordion`">
     <fieldset class="chart-form">
       <div class="form-instructions">
         <legend class="form-title">
@@ -152,7 +147,7 @@
       </pre>
       <pre v-if="showChartPreview">{{ chartQuery }}</pre>
     </div>
-  </Accordion>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -363,20 +358,13 @@ watch([chartType, tableName, xVar, yVar, groupVar], (params: Array<String>) => {
 
 <style lang="scss">
 .chart-builder {
-  &.accordion {
-    background-color: $gray-000;
-
-    .accordion-heading {
-      background-color: transparent;
-    }
-
-    .accordion-content {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1em;
-      padding: 1em;
-    }
-  }
+  background-color: $gray-000;
+  box-sizing: content-box;
+  padding: 2em;
+  border-radius: 8px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1em;
 }
 
 .chart-form {

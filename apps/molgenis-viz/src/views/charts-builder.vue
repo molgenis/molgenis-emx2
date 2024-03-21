@@ -8,7 +8,7 @@
       height="medium"
     />
     <PageSection class="bg-gray-050" width="large">
-      <h2>Design your dashboard</h2>
+      <h2>Build your own chart</h2>
       <template v-if="loading">
         <MessageBox>
           <p>Loading...</p>
@@ -25,19 +25,8 @@
           picker.
         </p>
         <form title="Create charts" ref="chartBuilderForm">
-          <!-- <div v-if="!charts.length" class="padding-v-1 padding-h-1">
-            <p style="margin: 0;">No chart configurations found.</p>
-          </div>
-          <NewChartSettings v-else
-            :tables="schema.tables"
-            v-for="chart in charts"
-          /> -->
           <NewChartSettings :tables="schema.tables" />
         </form>
-        <button id="addNewChart" @click="addNewChart">
-          Add new chart
-          <PlusCircleIcon class="heroicons" />
-        </button>
       </template>
     </PageSection>
   </Page>
