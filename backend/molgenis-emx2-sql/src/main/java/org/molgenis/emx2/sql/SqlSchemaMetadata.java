@@ -81,6 +81,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     long start = System.currentTimeMillis();
     MetadataUtils.loadSchemaMetadata(getDatabase().getJooq(), this);
     this.tables.clear();
+    this.rolesCache = null;
     for (TableMetadata table : MetadataUtils.loadTables(getDatabase().getJooq(), this)) {
       super.create(new SqlTableMetadata(this, table));
     }

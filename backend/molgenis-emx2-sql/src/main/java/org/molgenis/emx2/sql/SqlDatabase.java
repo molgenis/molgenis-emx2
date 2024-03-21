@@ -397,24 +397,6 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     return getUser(userName);
   }
 
-  void getJooqAsAdmin(JooqTransaction transaction) {
-    if (inTx()) {
-      String user = connectionProvider.getActiveUser();
-      try {
-        connectionProvider.setActiveUser(ADMIN_USER);
-        transaction.run(getJooq());
-      } finally {
-        connectionProvider.setActiveUser(user);
-      }
-    } else {
-      final Settings settings = new Settings().withQueryTimeout(TEN_SECONDS);
-      SqlUserAwareConnectionProvider adminProvider = new SqlUserAwareConnectionProvider(source);
-      adminProvider.setActiveUser(ADMIN_USER);
-      DSLContext jooq = DSL.using(adminProvider, SQLDialect.POSTGRES, settings);
-      transaction.run(jooq);
-    }
-  }
-
   @Override
   public boolean checkUserPassword(String user, String password) {
     return MetadataUtils.checkUserPassword(getJooq(), user, password);
@@ -632,6 +614,24 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
 
   public DSLContext getJooq() {
     return jooq;
+  }
+
+  void getJooqAsAdmin(JooqTransaction transaction) {
+    if (inTx()) {
+      String user = connectionProvider.getActiveUser();
+      try {
+        connectionProvider.setActiveUser(ADMIN_USER);
+        transaction.run(getJooq());
+      } finally {
+        connectionProvider.setActiveUser(user);
+      }
+    } else {
+      final Settings settings = new Settings().withQueryTimeout(TEN_SECONDS);
+      SqlUserAwareConnectionProvider adminProvider = new SqlUserAwareConnectionProvider(source);
+      adminProvider.setActiveUser(ADMIN_USER);
+      DSLContext jooq = DSL.using(adminProvider, SQLDialect.POSTGRES, settings);
+      transaction.run(jooq);
+    }
   }
 
   @Override
