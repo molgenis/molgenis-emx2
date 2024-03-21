@@ -617,7 +617,12 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   }
 
   void getJooqAsAdmin(JooqTransaction transaction) {
-    if (inTx()) {
+    if (ADMIN_USER.equals(getActiveUser())) {
+      transaction.run(getJooq());
+    } else if (inTx()) {
+      // need to do this because changes in current tx might affect result
+      // e.g. TestSettings will fail if we don't do this
+      // because it does permission changes in same tx
       String user = connectionProvider.getActiveUser();
       try {
         connectionProvider.setActiveUser(ADMIN_USER);
