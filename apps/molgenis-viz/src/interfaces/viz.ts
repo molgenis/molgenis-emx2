@@ -12,11 +12,16 @@ export interface ChartOptions {
   sort?: boolean;
 }
 
-export interface vizStandardParams {
-  chartId: string;
-  table: string;
+export interface vizChartContenxt {
   title?: string;
   description?: string;
+}
+
+export type vizLegendPosition = "top" | "right" | "bottom" | "left";
+
+export interface vizStandardParams extends vizChartContenxt {
+  chartId: string;
+  table: string;
   chartData?: Array[];
   xvar: string;
   yvar: string;
@@ -88,4 +93,24 @@ export interface DataTableParams {
   enableRowHighlighting?: boolean;
   enableRowClicks?: boolean;
   renderHtml?: boolean;
+}
+
+export interface PieChartParams extends vizChartContenxt, vizLegendParams {
+  chartId: string;
+  table: string;
+  categories: string;
+  values: string;
+  valuesAreShown?: boolean;
+  valuesArePercents?: boolean;
+  chartHeight?: number;
+  chartMargins?: vizChartMargins;
+  chartScale?: number;
+  chartColors?: object;
+  strokeColor?: string;
+  asDonutChart?: boolean;
+  centerAlignChart?: boolean;
+  legendPosition?: vizLegendPosition;
+  enableHoverEvents?: boolean;
+  enableClicks?: boolean;
+  enableLegendHovering?: boolean;
 }
