@@ -387,7 +387,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     return getUser(userName);
   }
 
-  public DSLContext getAdminJooq() {
+  DSLContext getAdminJooq() {
     final Settings settings = new Settings().withQueryTimeout(TEN_SECONDS);
     SqlUserAwareConnectionProvider adminProvider = new SqlUserAwareConnectionProvider(source);
     adminProvider.setActiveUser(ADMIN_USER);
