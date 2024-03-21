@@ -271,11 +271,13 @@ public class SqlSchemaMetadata extends SchemaMetadata {
         rolesCache = new ArrayList<>();
         // need elevated privileges, so clear user and run as root
         // this is not thread safe therefore must be in a transaction
-        SqlDatabase adminDatabase = new SqlDatabase(ADMIN_USER);
-        // todo, cache this call
-        rolesCache.addAll(
-            SqlSchemaMetadataExecutor.getInheritedRoleForUser(
-                adminDatabase.getJooq(), getName(), user));
+        getDatabase()
+            .asAdmin(
+                tdb -> {
+                  rolesCache.addAll(
+                      SqlSchemaMetadataExecutor.getInheritedRoleForUser(
+                          ((SqlDatabase) tdb).getJooq(), getName(), user));
+                });
       }
     }
     return rolesCache;
