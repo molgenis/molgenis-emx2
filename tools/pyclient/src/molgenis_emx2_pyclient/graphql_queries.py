@@ -233,6 +233,7 @@ def list_tables():
     return """
         {
           _schema {
+            name
             tables {
               name
             }

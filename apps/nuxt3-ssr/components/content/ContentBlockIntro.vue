@@ -139,7 +139,7 @@ const submitForm = async () => {
         >
           <template v-if="contactMessageFilter">
             <ContactForm :fields="fields" @submit-form="submitForm" />
-            <div class="pl-3 pb-3">
+            <div class="pl-3">
               <span class="text-body-base">or contact us at: </span>
               <a
                 class="text-blue-500 hover:underline"
@@ -158,6 +158,9 @@ const submitForm = async () => {
               {{ contact }}
             </a>
           </template>
+          <ClientOnly>
+            <SettingsMessage />
+          </ClientOnly>
         </ContentBlockModal>
 
         <template #footer>

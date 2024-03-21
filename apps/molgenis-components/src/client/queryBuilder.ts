@@ -46,7 +46,7 @@ export const getColumnIds = (
         } else if (["ONTOLOGY", "ONTOLOGY_ARRAY"].includes(col.columnType)) {
           result = result + " " + col.id + " {name, label}";
         } else if (col.columnType === "FILE") {
-          result += ` ${col.id} { id, size, extension, url }`;
+          result += ` ${col.id} { id, size, filename, extension, url }`;
         } else if (col.columnType !== "HEADING") {
           result += ` ${col.id}`;
         }

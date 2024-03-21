@@ -779,7 +779,10 @@ public class TestGraphqlSchemaFields {
               .variables(Map.of("value", data))
               .build());
       assertEquals(
-          0, execute("{TestFile{image{size,extension,url}}}").at("/TestFile/0/image/size").asInt());
+          0,
+          execute("{TestFile{image{size,filename,extension,url}}}")
+              .at("/TestFile/0/image/size")
+              .asInt());
 
       // reset
     } finally {

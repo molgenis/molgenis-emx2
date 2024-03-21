@@ -22,6 +22,8 @@ const tableClass = computed(() => {
       return "bg-yellow-200";
     case "complete":
       return "bg-green-500";
+    case "available":
+      return "bg-blue-500";
   }
 });
 
@@ -32,6 +34,8 @@ const iconName = computed(() => {
     case "partial":
       return "percent";
     case "complete":
+      return "check";
+    case "available":
       return "check";
   }
 });
@@ -44,6 +48,8 @@ const fillClass = computed(() => {
       return "text-yellow-800 fill-current";
     case "complete":
       return "text-green-800 fill-current";
+    case "available":
+      return "bg-blue-500 fill-white";
   }
 });
 </script>
