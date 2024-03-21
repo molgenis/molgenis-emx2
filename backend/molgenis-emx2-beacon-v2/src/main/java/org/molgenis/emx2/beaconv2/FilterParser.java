@@ -2,89 +2,111 @@ package org.molgenis.emx2.beaconv2;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.beaconv2.common.misc.NCITToGSSOSexMapping;
 import org.molgenis.emx2.beaconv2.endpoints.QueryHelper;
-import org.molgenis.emx2.beaconv2.endpoints.individuals.ejp_rd_vp.NCITToGSSOSexMapping;
 import org.molgenis.emx2.beaconv2.requests.Filter;
 
 public class FilterParser {
 
-  public static final String SEX = "NCIT_C28421";
-  public static final String DISEASE = "NCIT_C2991";
-  public static final String PHENOTYPE = "SIO_010056";
-  public static final String CAUSAL_GENE = "data_2295";
-  public static final String AGE_THIS_YEAR = "NCIT_C83164";
-  public static final String AGE_OF_ONSET = "NCIT_C124353";
-  public static final String AGE_AT_DIAG = "NCIT_C156420";
+  private final List<Filter> unsupportedFilters = new ArrayList<>();
 
   public FilterParser() {}
 
   public List<String> parseFilters(Filter[] filters) {
-    List<Filter> ageQueries = new ArrayList<>();
 
     List<String> filtersOutput = new ArrayList<>();
     for (Filter filter : filters) {
 
-      String[] ids = filter.getIds();
+      if (isOntologyFilter(filter)) {
+        FilterType filterType = FilterType.ONTOLOGY;
+        filter.setFilterType(filterType);
+        filtersOutput.add(filter.getGraphQlFilter());
+      } else if (filter.getIds().length == 1) {
+        String id = filter.getIds()[0];
+        try {
+          Concept concept = Concept.findId(id);
+          filter.setConcept(concept);
+          filter.setFilterType(concept.getFilterType());
+          if (concept == Concept.SEX) {
+            String[] filterTerms = NCITToGSSOSexMapping.toGSSO(filter.getValues());
+            filtersOutput.add(filter.getGraphQlFilter());
 
-      String operator = filter.getOperator();
-      String[] values = filter.getValues();
-
-      if (operator == null && values == null) {
-        String[] queries =
-            new String[] {
-              "{diseases: { diseaseCode: { ontologyTermURI: {like:",
-              "{phenotypicFeatures: { featureType: { ontologyTermURI: {like:"
-            };
-        filtersOutput.add(valueArrayFilterBuilder(queries, ids));
-        continue;
-      }
-
-      // if not ontology filter, assume 1 ID to be present (regular query)
-      String id = ids[0];
-
-      // strip away prefixes for values as well
-      for (int i = 0; i < values.length; i++) {
-        String value = values[i];
-        values[i] = !value.contains(":") ? value : value.substring(value.indexOf(":") + 1);
-      }
-
-      boolean isAgeQuery =
-          id.endsWith(AGE_THIS_YEAR) || id.endsWith(AGE_OF_ONSET) || id.endsWith(AGE_AT_DIAG);
-      if (isAgeQuery) {
-        ageQueries.add(filter);
-      } else if (id.endsWith(SEX)) {
-        Map<String, String> mapping = new NCITToGSSOSexMapping().getMapping();
-        String[] filterTerms = new String[values.length];
-        for (int i = 0; i < values.length; i++) {
-          filterTerms[i] = mapping.containsKey(values[i]) ? mapping.get(values[i]) : values[i];
+            filtersOutput.add(
+                valueArrayFilterBuilder("{sex: {ontologyTermURI: {like:", filterTerms));
+          }
+        } catch (MolgenisException e) {
+          this.unsupportedFilters.add(filter);
         }
-        filtersOutput.add(valueArrayFilterBuilder("{sex: {ontologyTermURI: {like:", filterTerms));
-      } else if (id.endsWith(CAUSAL_GENE)) {
-        filtersOutput.add(valueArrayFilterBuilder("{diseaseCausalGenes: {name: {equals:", values));
-      } else if (id.endsWith(DISEASE)) {
-        filtersOutput.add(
-            valueArrayFilterBuilder("{diseases: { diseaseCode: { ontologyTermURI: {like:", values));
-      } else if (id.endsWith(PHENOTYPE)) {
-        filtersOutput.add(
-            valueArrayFilterBuilder(
-                "{phenotypicFeatures: { featureType: { ontologyTermURI: {like:", values));
-      }
-
-      //                  /** Anything else: create filter dynamically. */
-      //                  else {
-      //                      ColumnPath columnPath = findColumnPath(new ArrayList<>(), id,
-      //       this.tables.get(0));
-      //                      if (columnPath != null && columnPath.getColumn().isOntology()) {
-      //                          filters.add(valueArrayFilterBuilder(columnPath + "ontologyTermURI:
-      //       {like:", values));
-      //                      } else {
-      //                          return getWriter()
-      //                                  .writeValueAsString(new BeaconCountResponse(host,
-      //       beaconRequestBody, false, 0));
-      //                      }}}
+      } else throw new MolgenisException("Invalid filter in query: " + filter);
     }
+    //
+    //            boolean isAgeQuery =
+    //                id.endsWith(AGE_THIS_YEAR) || id.endsWith(AGE_OF_ONSET) ||
+    //       id.endsWith(AGE_AT_DIAG);
+    //            if (isAgeQuery) {
+    //              ageQueries.add(filter);
+    //            } else if (id.endsWith(SEX)) {
+    //              Map<String, String> mapping = new NCITToGSSOSexMapping().getMapping();
+    //              String[] filterTerms = new String[values.length];
+    //              for (int i = 0; i < values.length; i++) {
+    //                filterTerms[i] = mapping.containsKey(values[i]) ? mapping.get(values[i]) :
+    //       values[i];
+    //              }
+    //              filtersOutput.add(valueArrayFilterBuilder("{sex: {ontologyTermURI: {like:",
+    //       filterTerms));
+    //            } else if (id.endsWith(CAUSAL_GENE)) {
+    //              filtersOutput.add(valueArrayFilterBuilder("{diseaseCausalGenes: {name:
+    // {equals:",
+    //       values));
+    //            } else if (id.endsWith(DISEASE)) {
+    //              filtersOutput.add(
+    //                  valueArrayFilterBuilder("{diseases: { diseaseCode: { ontologyTermURI:
+    // {like:",
+    //       values));
+    //            } else if (id.endsWith(PHENOTYPE)) {
+    //              filtersOutput.add(
+    //                  valueArrayFilterBuilder(
+    //                      "{phenotypicFeatures: { featureType: { ontologyTermURI: {like:",
+    // values));
+    //            }
+    //
+    //                        /** Anything else: create filter dynamically. */
+    //                        else {
+    //                            ColumnPath columnPath = findColumnPath(new ArrayList<>(), id,
+    //             this.tables.get(0));
+    //                            if (columnPath != null && columnPath.getColumn().isOntology()) {
+    //                                filters.add(valueArrayFilterBuilder(columnPath +
+    // "ontologyTermURI:
+    //             {like:", values));
+    //                            } else {
+    //                                return getWriter()
+    //                                        .writeValueAsString(new BeaconCountResponse(host,
+    //             beaconRequestBody, false, 0));
+    //                            }}}
+    //    }
+
     return filtersOutput;
+  }
+
+  public List<Filter> getUnsupportedFilters() {
+    return this.unsupportedFilters;
+  }
+
+  public List<String> getWarnings() {
+    List<String> warnings = new ArrayList<>();
+    for (Filter filter : unsupportedFilters) {
+      warnings.add(filter.getId().toString());
+    }
+    return warnings;
+  }
+
+  public boolean hasWarnings() {
+    return !getUnsupportedFilters().isEmpty();
+  }
+
+  private boolean isOntologyFilter(Filter filter) {
+    return filter.getOperator() == null && filter.getValues() == null;
   }
 
   /**

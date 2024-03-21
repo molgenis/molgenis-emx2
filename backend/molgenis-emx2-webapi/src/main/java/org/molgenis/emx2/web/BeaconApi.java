@@ -76,7 +76,7 @@ public class BeaconApi {
 
   private static String determineResponse(BeaconRequestBody requestBody, JsonNode dataResult)
       throws JsonProcessingException {
-    Granularity granularity = requestBody.getQuery().getRequestGranularity();
+    Granularity granularity = requestBody.getQuery().getRequestedGranularity();
     switch (granularity) {
       case BOOLEAN -> {
         return getWriter().writeValueAsString("true");

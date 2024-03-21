@@ -1,14 +1,10 @@
-package org.molgenis.emx2.beaconv2.endpoints.individuals.ejp_rd_vp;
+package org.molgenis.emx2.beaconv2.common.misc;
 
 import java.util.HashMap;
 
 public class NCITToGSSOSexMapping {
 
-  public NCITToGSSOSexMapping() {
-    super();
-  }
-
-  public HashMap<String, String> getMapping() {
+  public static HashMap<String, String> getMapping() {
     HashMap<String, String> mapping = new HashMap<>();
 
     // NCIT "Female". A person who belongs to the sex that normally produces ova. The term is
@@ -35,5 +31,13 @@ public class NCITToGSSOSexMapping {
     // todo also map Undetermined/Unknown to "assigned no gender at birth" ?
 
     return mapping;
+  }
+
+  public static String[] toGSSO(String[] NCITT) {
+    String[] GSSO = new String[NCITT.length];
+    for (int i = 0; i < NCITT.length; i++) {
+      GSSO[i] = getMapping().containsKey(NCITT[i]) ? getMapping().get(NCITT[i]) : GSSO[i];
+    }
+    return GSSO;
   }
 }

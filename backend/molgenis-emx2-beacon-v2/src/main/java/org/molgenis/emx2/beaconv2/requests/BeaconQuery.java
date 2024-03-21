@@ -14,7 +14,7 @@ public class BeaconQuery {
   private Filter[] filters;
   private IncludedResultsetResponses includeResultsetResponses = HIT;
   private Pagination pagination = new Pagination();
-  private Granularity requestGranularity;
+  private Granularity requestedGranularity;
   private boolean testMode;
 
   public String getDescription() {
@@ -37,8 +37,8 @@ public class BeaconQuery {
     return pagination;
   }
 
-  public Granularity getRequestGranularity() {
-    return requestGranularity;
+  public Granularity getRequestedGranularity() {
+    return requestedGranularity;
   }
 
   public boolean isTestMode() {

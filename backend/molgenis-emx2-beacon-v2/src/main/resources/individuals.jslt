@@ -1,5 +1,6 @@
 import "ontology.jslt" as ontology
 import "meta.jslt" as meta
+import "info.jslt" as info
 {
     "meta": meta(.),
     "responseSummary": {
@@ -52,5 +53,6 @@ import "meta.jslt" as meta
                 ]
             }]
         }]
-    }
+    },
+    "info": info(.info)
 }

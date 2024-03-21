@@ -26,15 +26,19 @@ public class QueryEntryType {
   public static JsonNode query(
       Database database, EntryType entryType, BeaconRequestBody requestBody) throws JsltException {
 
+    FilterParser filterParser = new FilterParser();
+    List<String> filters = filterParser.parseFilters(requestBody.getQuery().getFilters());
+
     ObjectMapper mapper = new ObjectMapper();
     ArrayNode resultSets = mapper.createArrayNode();
+
     for (Table table : getTableFromAllSchemas(database, entryType.getId())) {
       GraphQL graphQL = new GraphqlApiFactory().createGraphqlForSchema(table.getSchema());
 
       String query =
           new QueryBuilder(table)
               .addAllColumns(2)
-              .addFilters(requestBody.getQuery().getFilters())
+              .addFilters(filters)
               .setLimit(requestBody.getQuery().getPagination().getLimit())
               .setOffset(requestBody.getQuery().getPagination().getSkip())
               .getQuery();
@@ -49,8 +53,16 @@ public class QueryEntryType {
     }
 
     ObjectNode response = mapper.createObjectNode();
-    response.put("host", requestBody.getMeta().getHost());
     response.set("resultSets", resultSets);
+    response.put("host", requestBody.getMeta().getHost());
+
+    if (filterParser.hasWarnings()) {
+      ObjectNode info =
+          mapper
+              .createObjectNode()
+              .put("unsupportedFilters", filterParser.getWarnings().toString());
+      response.set("info", info);
+    }
 
     Expression jslt = Parser.compileResource(entryType.getName().toLowerCase() + ".jslt");
     return jslt.apply(response);

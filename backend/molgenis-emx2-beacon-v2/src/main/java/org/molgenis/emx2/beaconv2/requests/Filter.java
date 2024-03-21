@@ -4,12 +4,21 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.ArrayList;
 import java.util.Arrays;
+import org.molgenis.emx2.beaconv2.Concept;
+import org.molgenis.emx2.beaconv2.FilterType;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class Filter {
   private Object id;
-  private String operator; // todo: use BeaconFilterOperator but serialization is tricky
+  private String operator;
   private Object value;
+
+  private Concept concept;
+
+  private FilterType filterType;
+
+  boolean includeDescendantTerms;
+  Similarity similarity;
 
   // must deal with values as either 'string' or 'string array' hence this workaround
   @JsonIgnore private String[] values;
@@ -90,6 +99,26 @@ public class Filter {
     return value;
   }
 
+  public FilterType getFilterType() {
+    return filterType;
+  }
+
+  public void setFilterType(FilterType filterType) {
+    this.filterType = filterType;
+  }
+
+  public Concept getConcept() {
+    return concept;
+  }
+
+  public void setConcept(Concept concept) {
+    this.concept = concept;
+  }
+
+  public Object getId() {
+    return id;
+  }
+
   @Override
   public String toString() {
     return "Filter{"
@@ -105,5 +134,21 @@ public class Filter {
         + ", ids="
         + Arrays.toString(ids)
         + '}';
+  }
+
+  public String getGraphQlFilter() {
+    StringBuilder filter = new StringBuilder();
+    filter.append("{ _or: [");
+
+    String[] filterTerms;
+    if (filterType == FilterType.ONTOLOGY) filterTerms = this.getIds();
+    else filterTerms = this.getValues();
+
+    for (String id : filterTerms) {
+      filter.append(this.filterType.getGraphQlFilter().formatted(id)).append(",");
+    }
+    filter.deleteCharAt(filter.length() - 1);
+    filter.append("] }");
+    return filter.toString();
   }
 }
