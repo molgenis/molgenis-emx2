@@ -75,11 +75,7 @@ const iconStarClasses = computed(() => {
     </header>
 
     <div v-if="!compact">
-      <ContentReadMore
-        class="text-body-base"
-        :text="cohort.description"
-        :cutoff="cutoff"
-      />
+      <ContentReadMore :text="cohort.description" :cutoff="cutoff" />
 
       <dl class="hidden xl:flex gap-5 xl:gap-14 text-body-base">
         <div>
