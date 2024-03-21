@@ -115,7 +115,7 @@ public class TestSettings {
     database.setSetting("delete-me", "life is short");
 
     // note, we refresh session on these changes so reload db
-    database = TestDatabaseFactory.getTestDatabase();
+    database.clearCache();
     assertEquals(database.getSetting("delete-me"), "life is short");
 
     // execute

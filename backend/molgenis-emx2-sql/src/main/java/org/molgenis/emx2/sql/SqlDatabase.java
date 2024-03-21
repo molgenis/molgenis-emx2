@@ -113,7 +113,6 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     }
     // get database version if exists
     databaseVersion = MetadataUtils.getVersion(jooq);
-    this.setSettingsWithoutReload(MetadataUtils.loadDatabaseSettings(getJooq()));
     logger.info("Database was created using version: {} ", this.databaseVersion);
   }
 
@@ -392,7 +391,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       // need elevated privileges, so clear user and run as root
       // this is not thread safe therefore must be in a transaction
       SqlDatabase adminDatabase = new SqlDatabase(ADMIN_USER);
-      adminDatabase.tx(db -> executeCreateUser((SqlDatabase) db, userName));
+      adminDatabase.tx(db -> executeCreateUser(getJooq(), userName));
       log(start, "created user " + userName);
     }
     return getUser(userName);
