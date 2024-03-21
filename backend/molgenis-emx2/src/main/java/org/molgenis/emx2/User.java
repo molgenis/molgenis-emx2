@@ -12,8 +12,8 @@ public class User extends HasSettings<User> {
   private String username;
   private Database database;
 
-  public User(String username) {
-    // will result in exceptions if you use methods that need database
+  User(String username) {
+    // for testing protected
     requireNonNull(username);
     this.username = username;
   }
@@ -65,10 +65,6 @@ public class User extends HasSettings<User> {
   }
 
   public void addToken(String tokenId) {
-    if (database == null) {
-      throw new MolgenisException(
-          "Cannot call user.addToken  unless you instantiate using constructor including database parameter");
-    }
     String tokensString = getSetting(TOKENS);
     if (tokensString == null) {
       tokensString = tokenId;
