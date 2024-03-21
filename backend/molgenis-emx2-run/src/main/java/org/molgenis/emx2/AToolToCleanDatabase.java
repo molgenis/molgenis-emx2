@@ -19,6 +19,7 @@ public class AToolToCleanDatabase {
 
   public static void deleteAll() {
     SqlDatabase db = new SqlDatabase(true);
+    db = new SqlDatabase(SqlDatabase.ADMIN_USER);
     jooq = db.getJooq();
     jooq.dropSchemaIfExists("MOLGENIS").cascade().execute();
     deleteAllForeignKeyConstraints();
