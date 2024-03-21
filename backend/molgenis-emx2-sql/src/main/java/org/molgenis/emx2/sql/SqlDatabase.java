@@ -89,11 +89,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
 
   public SqlDatabase(String user) {
     this(false);
-    if (hasUser(user)) {
-      this.connectionProvider.setActiveUser(user);
-    } else {
-      throw new MolgenisException("User " + user + " unknown");
-    }
+    this.connectionProvider.setActiveUser(user);
   }
 
   public SqlDatabase(boolean init) {
