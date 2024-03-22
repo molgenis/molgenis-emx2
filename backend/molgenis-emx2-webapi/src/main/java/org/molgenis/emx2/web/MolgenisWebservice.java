@@ -265,6 +265,7 @@ public class MolgenisWebservice {
       throw new MolgenisException(
           "Schema '" + request.params(SCHEMA) + "' is unknown or permission denied");
     }
+    return schema;
   }
 
   public static Collection<String> getSchemaNames(Request request) {
