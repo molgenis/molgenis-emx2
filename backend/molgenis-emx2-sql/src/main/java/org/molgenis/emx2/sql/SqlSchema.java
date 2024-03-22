@@ -434,10 +434,15 @@ public class SqlSchema implements Schema {
     if (table == null) {
       Optional<String> name =
           getTableNames().stream()
-              .filter(value -> value.toLowerCase().replace(" ", "").equals(tableName))
+              .filter(
+                  value ->
+                      value
+                          .toLowerCase()
+                          .replace(" ", "")
+                          .equals(tableName.replace(" ", "").toLowerCase()))
               .findFirst();
       if (name.isPresent()) {
-        table = getTable(tableName);
+        table = getTable(name.get());
       }
     }
     return table;

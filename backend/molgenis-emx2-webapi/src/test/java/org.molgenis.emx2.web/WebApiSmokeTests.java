@@ -267,6 +267,8 @@ public class WebApiSmokeTests {
     byte[] contentsPetData = getContentAsByteArray(ACCEPT_CSV, "/pet store/api/csv/Pet");
     byte[] contentsUserData = getContentAsByteArray(ACCEPT_CSV, "/pet store/api/csv/User");
     byte[] contentsTagData = getContentAsByteArray(ACCEPT_CSV, "/pet store/api/csv/Tag");
+    byte[] contentsTableWithSpacesData =
+        getContentAsByteArray(ACCEPT_CSV, "/pet store/api/csv/" + TABLE_WITH_SPACES);
 
     // create tmp files for csv metadata and data
     File contentsMetaFile = createTempFile(contentsMeta, ".csv");
@@ -275,6 +277,7 @@ public class WebApiSmokeTests {
     File contentsPetDataFile = createTempFile(contentsPetData, ".csv");
     File contentsUserDataFile = createTempFile(contentsUserData, ".csv");
     File contentsTagDataFile = createTempFile(contentsTagData, ".csv");
+    File contentsTableWithSpacesDataFile = createTempFile(contentsTableWithSpacesData, ".csv");
 
     // upload csv metadata and data into the new schema
     // here we use 'body' (instead of 'multiPart' in e.g. testCsvApi_zipUploadDownload) because csv,
@@ -285,6 +288,7 @@ public class WebApiSmokeTests {
     acceptFileUpload(contentsPetDataFile, "Pet");
     acceptFileUpload(contentsOrderDataFile, "Order");
     acceptFileUpload(contentsUserDataFile, "User");
+    acceptFileUpload(contentsTableWithSpacesDataFile, TABLE_WITH_SPACES);
 
     // download csv from the new schema
     String contentsMetaNew = getContentAsString("/api/csv");
@@ -293,6 +297,9 @@ public class WebApiSmokeTests {
     String contentsPetDataNew = getContentAsString("/api/csv/Pet");
     String contentsUserDataNew = getContentAsString("/api/csv/User");
     String contentsTagDataNew = getContentAsString("/api/csv/Tag");
+    String contentsTableWithSpacesDataNew =
+        getContentAsString(
+            "/api/csv/" + TABLE_WITH_SPACES.toUpperCase()); // to test for case insensitive match
 
     // test if existing and new schema are equal
     assertEquals(new String(contentsMeta), contentsMetaNew);
@@ -301,6 +308,7 @@ public class WebApiSmokeTests {
     assertEquals(new String(contentsPetData), contentsPetDataNew);
     assertEquals(new String(contentsUserData), contentsUserDataNew);
     assertEquals(new String(contentsTagData), contentsTagDataNew);
+    assertEquals(new String(contentsTableWithSpacesData), contentsTableWithSpacesDataNew);
   }
 
   @Test
