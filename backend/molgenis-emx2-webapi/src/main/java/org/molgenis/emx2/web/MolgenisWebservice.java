@@ -241,12 +241,8 @@ public class MolgenisWebservice {
    */
   public static Table getTableByIdOrName(Request request, String tableName) {
     Schema schema = getSchema(request);
-    Table table = schema.getTable(tableName);
+    Table table = schema.getTableByNameOrIdCaseInsensitive(tableName);
     if (table == null) {
-      table = schema.getTableById(tableName);
-    }
-    if (table == null) {
-      // todo: make it also match case insensitive???
       throw new MolgenisException("Table " + tableName + " unknown");
     }
     return table;
