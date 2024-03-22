@@ -224,8 +224,8 @@ public class MolgenisWebservice {
    * @return the table object corresponding to the table id. Never null.
    * @throws MolgenisException if the table or the schema is not found or accessible.
    */
-  public static Table getTableById(Request request) {
-    Table table = getTableById(request, request.params(TABLE));
+  public static Table getTableByIdOrName(Request request) {
+    Table table = getTableByIdOrName(request, request.params(TABLE));
     if (table == null) {
       throw new MolgenisException("Table " + request.params(TABLE) + " unknown");
     }
@@ -236,17 +236,20 @@ public class MolgenisWebservice {
    * Get the table by its id.
    *
    * @param request the request
-   * @return the table object corresponding to the table id. Never null.
+   * @return the table object corresponding to the table id or name. Never null.
    * @throws MolgenisException if the schema is not found or accessible.
    */
-  public static Table getTableById(Request request, String tableName) {
-    String schemaName = request.params(SCHEMA);
-    Schema schema =
-        sessionManager.getSession(request).getDatabase().getSchema(sanitize(schemaName));
-    if (schema == null) {
-      throw new MolgenisException("Schema " + schemaName + " unknown or access denied");
+  public static Table getTableByIdOrName(Request request, String tableName) {
+    Schema schema = getSchema(request);
+    Table table = schema.getTable(tableName);
+    if (table == null) {
+      table = schema.getTableById(tableName);
     }
-    return schema.getTableById(sanitize(tableName));
+    if (table == null) {
+      // todo: make it also match case insensitive???
+      throw new MolgenisException("Table " + tableName + " unknown");
+    }
+    return table;
   }
 
   public static String sanitize(String string) {
