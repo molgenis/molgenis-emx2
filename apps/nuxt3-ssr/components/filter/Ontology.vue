@@ -22,6 +22,8 @@ const data = !props.options
   ? (await fetchOntology(props.tableId)).data[props.tableId]
   : props.options;
 
+const showSearch = computed(() => data?.length > 10);
+
 function listToTree(list: IOntologyRespItem[]): ITreeNode[] {
   const allNodes = list.map((repsElement: IOntologyRespItem) => {
     return {
@@ -57,9 +59,44 @@ const selectedNodesNames = computed({
     emit("update:modelValue", newConditions);
   },
 });
+
+const isSearchModalOpen = ref(false);
 </script>
 
 <template>
+  <div v-if="showSearch" class="flex items-center py-1 -ml-2">
+    <button class="flex items-center" @click="isSearchModalOpen = true">
+      <BaseIcon name="search" class="text-search-filter-expand" :width="18" />
+      <span class="ml-3 text-search-filter-expand text-body-sm hover:underline">
+        Search
+      </span>
+    </button>
+    <CustomTooltip
+      label="Search"
+      hoverColor="white"
+      content="Search the ontology tree for options to filter on."
+      class="ml-3"
+    />
+    <Modal :shown="isSearchModalOpen" @close="isSearchModalOpen = false">
+      <section class="lg:px-12.5 px-4 text-gray-900 xl:rounded-3px py-8">
+        <h2 class="mb-5 uppercase text-heading-4xl font-display">
+          Search tree for filter options
+        </h2>
+        <div>{{ selectedNodesNames }}</div>
+        <div class="mb-5 prose max-w-none">
+          <InputTree
+            :nodes="rootNodes"
+            v-model="selectedNodesNames"
+            :isMultiSelect="true"
+            :mobileDisplay="mobileDisplay"
+            :expandSelected="true"
+            :inverted="true"
+          >
+          </InputTree>
+        </div>
+      </section>
+    </Modal>
+  </div>
   <InputTree
     :nodes="rootNodes"
     v-model="selectedNodesNames"

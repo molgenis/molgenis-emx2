@@ -31,6 +31,8 @@ const deselect = (selectedNodeName: string) => {
     (n) => n !== selectedNodeName
   );
 };
+
+const inverted = ref(false);
 </script>
 
 <template>
@@ -40,13 +42,18 @@ const deselect = (selectedNodeName: string) => {
         :nodes="nodes"
         v-model="selectedNodesNames"
         :expandSelected="true"
-        class="bg-blue-500 p-4"
+        class="p-4"
+        :class="inverted ? 'bg-white' : 'bg-blue-500'"
+        :inverted="inverted"
       />
     </div>
 
     <div class="h-12 p-4">
       <div>
-        Number off selected nodes: {{ selectedNodesNames.length }}
+        <input id="inverted" type="checkbox" v-model="inverted" />
+        <label class="ml-1" for="inverted">inverted colors</label>
+      </div>
+      <div>
         <button
           @click="clearSelection"
           class="bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded"
@@ -54,8 +61,12 @@ const deselect = (selectedNodeName: string) => {
           Clear selection
         </button>
       </div>
+      <hr />
+      <div class="my-2">
+        Number off selected nodes: {{ selectedNodesNames.length }}
+      </div>
       <div>
-        Selected nodes:
+        <h3 class="font-bold">Selected nodes:</h3>
         <ul>
           <li v-for="selectedNodeName in selectedNodesNames">
             {{ selectedNodeName }}

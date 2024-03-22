@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { normalizeClass } from "vue";
 import type { ITreeNode } from "../../types/types";
 import BaseIcon from "../BaseIcon.vue";
 import CustomTooltip from "../CustomTooltip.vue";
@@ -12,12 +11,14 @@ const props = withDefaults(
     mobileDisplay?: boolean;
     expandSelected?: boolean;
     isRoot?: boolean;
+    inverted?: boolean;
   }>(),
   {
     isMultiSelect: true,
     mobileDisplay: false,
     expandSelected: false,
     isRoot: true,
+    inverted: false,
   }
 );
 
@@ -79,13 +80,24 @@ function handleChildSelect(selected: string[], parent: ITreeNode) {
 </script>
 
 <template>
-  <ul class="text-search-filter-group-title">
+  <ul
+    :class="[
+      inverted
+        ? 'text-search-filter-group-title-inverted'
+        : 'text-search-filter-group-title',
+    ]"
+  >
     <li v-for="node in nodes" :key="node.name" class="mt-2.5 relative">
       <span class="flex items-center">
         <span
           v-if="node.children?.length"
           @click.stop="toggleExpand(node.name)"
-          class="-left-[11px] top-0 text-search-filter-group-toggle rounded-full hover:bg-search-filter-group-toggle hover:cursor-pointer h-6 w-6 flex items-center justify-center absolute z-20"
+          class="-left-[11px] top-0 rounded-full hover:cursor-pointer h-6 w-6 flex items-center justify-center absolute z-20"
+          :class="[
+            inverted
+              ? 'text-search-filter-group-toggle-inverted hover:bg-search-filter-group-toggle-inverted'
+              : 'text-search-filter-group-toggle hover:bg-search-filter-group-toggle',
+          ]"
         >
           <BaseIcon
             :name="
@@ -134,7 +146,7 @@ function handleChildSelect(selected: string[], parent: ITreeNode) {
             <CustomTooltip
               v-if="node.description"
               label="Read more"
-              hoverColor="white"
+              :hoverColor="inverted ? 'none' : 'white'"
               :content="node.description"
             />
           </div>
@@ -150,6 +162,7 @@ function handleChildSelect(selected: string[], parent: ITreeNode) {
         :expandSelected="expandSelected"
         :isRoot="false"
         @update:modelValue="handleChildSelect($event, node)"
+        :inverted="inverted"
       />
     </li>
   </ul>
