@@ -1,0 +1,4 @@
+order,name,label,parent,codesystem,code,ontologyTermURI,definition
+,animal,Animal,,,,,Animal
+,environment,Environment,,,,,Environment
+,human,Human,,,,,Human

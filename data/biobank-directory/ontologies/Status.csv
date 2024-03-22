@@ -1,0 +1,4 @@
+order,name,label,parent,codesystem,code,ontologyTermURI,definition
+,active,Active,,,,,Active state
+,ended,Ended,,,,,Ended
+,other,Other,,,,,Other

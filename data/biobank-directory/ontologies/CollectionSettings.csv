@@ -1,0 +1,9 @@
+order,name,label,parent,codesystem,code,ontologyTermURI,definition
+,routine,Routine health care,,,,,Routine health care setting
+,clinical,Clinical trial,,,,,Clinical trial setting
+,research,Research study,,,,,Research study
+,public_population,Public health/population based,,,,,Public health/population based study
+,museum_archeological,Museum/Archeological,,,,,Museum and/or archeological collection
+,environment,Environment,,,,,"Environment,"
+,unknown,Unknown,,,,,Unknown
+,other,Other,,,,,Other

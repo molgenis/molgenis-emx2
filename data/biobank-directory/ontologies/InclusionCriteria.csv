@@ -1,0 +1,13 @@
+order,name,label,parent,codesystem,code,ontologyTermURI,definition
+,health_status,Health status,,,,,Animal
+,hospital_patient,Hospital patient,,,,,Environment
+,medication_use,Use of medication,,,,,Human
+,gravidity,Gravidity,,,,,Gravidity
+,age_group,Age group,,,,,Age group
+,familial_status,Familial status,,,,,Familial status
+,sex,Sex,,,,,Sex
+,county_residence,Country of residence,,,,,Country of residence
+,ethnic_origin,Ethnic origin,,,,,Ethnic origin
+,population_representative_sampling,Population representative sampling,,,,,Population representative sampling
+,lifestyle_exposure,Lifestyle/Exposure,,,,,Lifestyle/Exposure
+,other,Other,,,,,Other
