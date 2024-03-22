@@ -225,11 +225,7 @@ public class MolgenisWebservice {
    * @throws MolgenisException if the table or the schema is not found or accessible.
    */
   public static Table getTableByIdOrName(Request request) {
-    Table table = getTableByIdOrName(request, request.params(TABLE));
-    if (table == null) {
-      throw new MolgenisException("Table " + request.params(TABLE) + " unknown");
-    }
-    return table;
+    return getTableByIdOrName(request, request.params(TABLE));
   }
 
   /**
