@@ -48,10 +48,10 @@ commands:
     steps:
     - checkout
     - run: git fetch --all --tags
-    - run:
-        command: |
-          export COMMIT_MESSAGE=$(git log -1 --pretty=format:%s)
-          echo "export COMMIT_MESSAGE_ENV=\"$(git log -1 --pretty=format:%s)\"" >> "$BASH_ENV"
+#    - run:
+#        command: |
+#          export COMMIT_MESSAGE=$(git log -1 --pretty=format:%s)
+#          echo "export COMMIT_MESSAGE_ENV=\"$(git log -1 --pretty=format:%s)\"" >> "$BASH_ENV"
     - run:
         name: Setup git, todo, move to molgenisci user
         command: |
@@ -114,15 +114,15 @@ commands:
           name: Release to PyPI if needed
           command: |
             export REGEX="^.*(emx2-pyclient).*$"
-            if [[ $COMMIT_MESSAGE_ENV =~ $REGEX ]]; then  
+            if [[ $(git log -1 --pretty=format:%s) =~ $REGEX ]]; then  
               echo "RELEASE TO PYPI"
               export $( cat build/ci.properties | xargs )
               ./gradlew -s --no-daemon publishPython > pypi_output
-              curl -d "token=${SLACK_TOKEN}" \
-              -d "text=*<${CIRCLE_PULL_REQUEST}|Circle-CI » Molgenis » Molgenis-emx2 » PR-${CIRCLE_PULL_REQUEST##*/} #${CIRCLE_BUILD_NUM}>*
-              A new molgenis-emx2-pyclient version is released: $( grep 'View at:' pypi_output -A 1 | grep -v 'View at:' )" \
-              -d "channel=C02AZDG6QQ7" \
-              -X POST https://slack.com/api/chat.postMessage            
+#              curl -d "token=${SLACK_TOKEN}" \
+#              -d "text=*<${CIRCLE_PULL_REQUEST}|Circle-CI » Molgenis » Molgenis-emx2 » PR-${CIRCLE_PULL_REQUEST##*/} #${CIRCLE_BUILD_NUM}>*
+#              A new molgenis-emx2-pyclient version is released: $( grep 'View at:' pypi_output -A 1 | grep -v 'View at:' )" \
+#              -d "channel=C02AZDG6QQ7" \
+#              -X POST https://slack.com/api/chat.postMessage
             else
               echo "NO RELEASE NECESSARY"
             fi
