@@ -10,83 +10,50 @@ import org.molgenis.emx2.beaconv2.requests.Filter;
 public class FilterParser {
 
   private final List<Filter> unsupportedFilters = new ArrayList<>();
+  private List<Filter> graphQlFilters = new ArrayList<>();
+  private List<Filter> postFetchFilters = new ArrayList<>();
 
   public FilterParser() {}
 
-  public List<String> parseFilters(Filter[] filters) {
+  public FilterParser parse(Filter[] filters) {
+    if (filters == null) return this;
 
-    List<String> filtersOutput = new ArrayList<>();
     for (Filter filter : filters) {
-
+      filter.setFilterType(FilterType.UNDEFINED);
       if (isOntologyFilter(filter)) {
-        FilterType filterType = FilterType.ONTOLOGY;
-        filter.setFilterType(filterType);
-        filtersOutput.add(filter.getGraphQlFilter());
+        filter.setFilterType(FilterType.ONTOLOGY);
+        graphQlFilters.add(filter);
       } else if (filter.getIds().length == 1) {
         String id = filter.getIds()[0];
         try {
-          Concept concept = Concept.findId(id);
+          Concept concept = Concept.findById(id);
           filter.setConcept(concept);
-          filter.setFilterType(concept.getFilterType());
-          if (concept == Concept.SEX) {
-            String[] filterTerms = NCITToGSSOSexMapping.toGSSO(filter.getValues());
-            filtersOutput.add(filter.getGraphQlFilter());
-
-            filtersOutput.add(
-                valueArrayFilterBuilder("{sex: {ontologyTermURI: {like:", filterTerms));
+          switch (concept) {
+            case SEX:
+              String[] filterTerms = NCITToGSSOSexMapping.toGSSO(filter.getValues());
+              filter.setValues(filterTerms);
+            case CAUSAL_GENE:
+              filter.setFilterType(FilterType.ALPHANUMERICAL);
+              graphQlFilters.add(filter);
+              break;
+            case DISEASE:
+            case PHENOTYPE:
+              filter.setFilterType(FilterType.ONTOLOGY);
+              graphQlFilters.add(filter);
+              break;
+            case AGE_THIS_YEAR:
+            case AGE_OF_ONSET:
+            case AGE_AT_DIAG:
+              filter.setFilterType(FilterType.NUMERICAL);
+              postFetchFilters.add(filter);
+              break;
           }
         } catch (MolgenisException e) {
           this.unsupportedFilters.add(filter);
         }
       } else throw new MolgenisException("Invalid filter in query: " + filter);
     }
-    //
-    //            boolean isAgeQuery =
-    //                id.endsWith(AGE_THIS_YEAR) || id.endsWith(AGE_OF_ONSET) ||
-    //       id.endsWith(AGE_AT_DIAG);
-    //            if (isAgeQuery) {
-    //              ageQueries.add(filter);
-    //            } else if (id.endsWith(SEX)) {
-    //              Map<String, String> mapping = new NCITToGSSOSexMapping().getMapping();
-    //              String[] filterTerms = new String[values.length];
-    //              for (int i = 0; i < values.length; i++) {
-    //                filterTerms[i] = mapping.containsKey(values[i]) ? mapping.get(values[i]) :
-    //       values[i];
-    //              }
-    //              filtersOutput.add(valueArrayFilterBuilder("{sex: {ontologyTermURI: {like:",
-    //       filterTerms));
-    //            } else if (id.endsWith(CAUSAL_GENE)) {
-    //              filtersOutput.add(valueArrayFilterBuilder("{diseaseCausalGenes: {name:
-    // {equals:",
-    //       values));
-    //            } else if (id.endsWith(DISEASE)) {
-    //              filtersOutput.add(
-    //                  valueArrayFilterBuilder("{diseases: { diseaseCode: { ontologyTermURI:
-    // {like:",
-    //       values));
-    //            } else if (id.endsWith(PHENOTYPE)) {
-    //              filtersOutput.add(
-    //                  valueArrayFilterBuilder(
-    //                      "{phenotypicFeatures: { featureType: { ontologyTermURI: {like:",
-    // values));
-    //            }
-    //
-    //                        /** Anything else: create filter dynamically. */
-    //                        else {
-    //                            ColumnPath columnPath = findColumnPath(new ArrayList<>(), id,
-    //             this.tables.get(0));
-    //                            if (columnPath != null && columnPath.getColumn().isOntology()) {
-    //                                filters.add(valueArrayFilterBuilder(columnPath +
-    // "ontologyTermURI:
-    //             {like:", values));
-    //                            } else {
-    //                                return getWriter()
-    //                                        .writeValueAsString(new BeaconCountResponse(host,
-    //             beaconRequestBody, false, 0));
-    //                            }}}
-    //    }
-
-    return filtersOutput;
+    return this;
   }
 
   public List<Filter> getUnsupportedFilters() {
@@ -131,5 +98,13 @@ public class FilterParser {
 
   private String valueArrayFilterBuilder(String query, String[] values) {
     return valueArrayFilterBuilder(new String[] {query}, values);
+  }
+
+  public List<String> getGraphQlFilters() {
+    List<String> filters = new ArrayList<>();
+    for (Filter filter : graphQlFilters) {
+      filters.add(filter.getGraphQlFilter());
+    }
+    return filters;
   }
 }

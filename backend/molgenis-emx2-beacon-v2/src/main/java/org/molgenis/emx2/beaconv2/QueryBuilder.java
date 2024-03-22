@@ -37,7 +37,7 @@ public class QueryBuilder {
 
   public QueryBuilder addFilters(Filter[] filters) {
     if (filters != null) {
-      this.filters = new FilterParser().parseFilters(filters);
+      this.filters = new FilterParser().parse(filters).getGraphQlFilters();
     }
     return this;
   }
@@ -75,14 +75,13 @@ public class QueryBuilder {
   }
 
   private void addFilters() {
-    query.append("filter: { _and: [ ");
+    query.append("filter: ");
     for (String filter : filters) {
       query.append(filter).append(",");
     }
     if (!filters.isEmpty()) {
       query.deleteCharAt(query.length() - 1);
     }
-    query.append(" ] }");
   }
 
   private int queryColumnsRecursively(List<Column> columns, int maxDepth, int currentDepth) {

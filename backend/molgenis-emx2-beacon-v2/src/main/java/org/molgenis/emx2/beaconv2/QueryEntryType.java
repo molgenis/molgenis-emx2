@@ -26,8 +26,7 @@ public class QueryEntryType {
   public static JsonNode query(
       Database database, EntryType entryType, BeaconRequestBody requestBody) throws JsltException {
 
-    FilterParser filterParser = new FilterParser();
-    List<String> filters = filterParser.parseFilters(requestBody.getQuery().getFilters());
+    FilterParser filterParser = new FilterParser().parse(requestBody.getQuery().getFilters());
 
     ObjectMapper mapper = new ObjectMapper();
     ArrayNode resultSets = mapper.createArrayNode();
@@ -38,7 +37,7 @@ public class QueryEntryType {
       String query =
           new QueryBuilder(table)
               .addAllColumns(2)
-              .addFilters(filters)
+              .addFilters(filterParser.getGraphQlFilters())
               .setLimit(requestBody.getQuery().getPagination().getLimit())
               .setOffset(requestBody.getQuery().getPagination().getSkip())
               .getQuery();

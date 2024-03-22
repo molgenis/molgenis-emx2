@@ -14,7 +14,6 @@ public class Filter {
   private Object value;
 
   private Concept concept;
-
   private FilterType filterType;
 
   boolean includeDescendantTerms;
@@ -99,6 +98,10 @@ public class Filter {
     return value;
   }
 
+  public void setValues(String[] values) {
+    this.values = values;
+  }
+
   public FilterType getFilterType() {
     return filterType;
   }
@@ -113,6 +116,12 @@ public class Filter {
 
   public void setConcept(Concept concept) {
     this.concept = concept;
+    //    this.filterType = concept.getFilterType();
+    this.filterType.setConcept(concept);
+  }
+
+  public void setIds(String[] ids) {
+    this.ids = ids;
   }
 
   public Object getId() {
@@ -145,7 +154,11 @@ public class Filter {
     else filterTerms = this.getValues();
 
     for (String id : filterTerms) {
-      filter.append(this.filterType.getGraphQlFilter().formatted(id)).append(",");
+      if (concept != null) {
+        filter.append(this.concept.getGraphQlQuery().formatted(id)).append(",");
+      } else {
+        filter.append(this.filterType.getGraphQlFilter().formatted(id)).append(",");
+      }
     }
     filter.deleteCharAt(filter.length() - 1);
     filter.append("] }");
