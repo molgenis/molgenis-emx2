@@ -40,6 +40,18 @@ public class Filter {
     this.value = value;
   }
 
+  public Filter(Filter filter) {
+    this.id = filter.id;
+    this.ids = filter.ids;
+    this.operator = filter.operator;
+    this.value = filter.value;
+    this.values = filter.values;
+    this.filterType = filter.filterType;
+    this.concept = filter.concept;
+    this.includeDescendantTerms = filter.includeDescendantTerms;
+    this.similarity = filter.similarity;
+  }
+
   /** Helper function to support both 'string' and 'string array' inputs for Values */
   public void parseValues() {
     if (this.value instanceof ArrayList<?>) {
@@ -147,7 +159,6 @@ public class Filter {
 
   public String getGraphQlFilter() {
     StringBuilder filter = new StringBuilder();
-    filter.append("{ _or: [");
 
     String[] filterTerms;
     if (filterType == FilterType.ONTOLOGY) filterTerms = this.getIds();
@@ -156,12 +167,9 @@ public class Filter {
     for (String id : filterTerms) {
       if (concept != null) {
         filter.append(this.concept.getGraphQlQuery().formatted(id)).append(",");
-      } else {
-        filter.append(this.filterType.getGraphQlFilter().formatted(id)).append(",");
       }
     }
     filter.deleteCharAt(filter.length() - 1);
-    filter.append("] }");
     return filter.toString();
   }
 }

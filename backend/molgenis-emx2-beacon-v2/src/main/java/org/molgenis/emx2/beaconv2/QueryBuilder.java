@@ -75,13 +75,14 @@ public class QueryBuilder {
   }
 
   private void addFilters() {
-    query.append("filter: ");
+    query.append("filter: { _or: [");
     for (String filter : filters) {
       query.append(filter).append(",");
     }
     if (!filters.isEmpty()) {
       query.deleteCharAt(query.length() - 1);
     }
+    query.append("] }");
   }
 
   private int queryColumnsRecursively(List<Column> columns, int maxDepth, int currentDepth) {

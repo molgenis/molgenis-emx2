@@ -20,18 +20,21 @@ public class FilterParser {
 
     for (Filter filter : filters) {
       filter.setFilterType(FilterType.UNDEFINED);
-      if (isOntologyFilter(filter)) {
+      if (isOntologySearch(filter)) {
         filter.setFilterType(FilterType.ONTOLOGY);
+        filter.setConcept(Concept.DISEASE);
         graphQlFilters.add(filter);
-      } else if (filter.getIds().length == 1) {
+        Filter phenotTypeFilter = new Filter(filter);
+        phenotTypeFilter.setConcept(Concept.PHENOTYPE);
+        graphQlFilters.add(phenotTypeFilter);
+      } else if (isValidFilter(filter)) {
         String id = filter.getIds()[0];
         try {
           Concept concept = Concept.findById(id);
           filter.setConcept(concept);
           switch (concept) {
             case SEX:
-              String[] filterTerms = NCITToGSSOSexMapping.toGSSO(filter.getValues());
-              filter.setValues(filterTerms);
+              filter.setValues(NCITToGSSOSexMapping.toGSSO(filter.getValues()));
             case CAUSAL_GENE:
               filter.setFilterType(FilterType.ALPHANUMERICAL);
               graphQlFilters.add(filter);
@@ -72,8 +75,13 @@ public class FilterParser {
     return !getUnsupportedFilters().isEmpty();
   }
 
-  private boolean isOntologyFilter(Filter filter) {
+  private boolean isOntologySearch(Filter filter) {
     return filter.getOperator() == null && filter.getValues() == null;
+  }
+
+  // todo add more validation
+  private boolean isValidFilter(Filter filter) {
+    return filter.getIds().length == 1;
   }
 
   /**

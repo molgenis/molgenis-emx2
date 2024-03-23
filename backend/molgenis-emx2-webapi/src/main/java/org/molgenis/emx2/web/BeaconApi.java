@@ -77,23 +77,12 @@ public class BeaconApi {
   private static String determineResponse(BeaconRequestBody requestBody, JsonNode dataResult)
       throws JsonProcessingException {
     Granularity granularity = requestBody.getQuery().getRequestedGranularity();
-    switch (granularity) {
-      case BOOLEAN -> {
-        return getWriter().writeValueAsString("true");
-      }
-      case COUNT -> {
-        return getWriter().writeValueAsString("counts");
-      }
-      case AGGREGATED -> {
-        return getWriter().writeValueAsString("aggregated");
-      }
-      case RECORD -> {
-        return getWriter().writeValueAsString(dataResult);
-      }
-      default -> {
-        return getWriter().writeValueAsString(dataResult);
-      }
-    }
+    return switch (granularity) {
+      case BOOLEAN -> getWriter().writeValueAsString("true");
+      case COUNT -> getWriter().writeValueAsString("counts");
+      case AGGREGATED -> getWriter().writeValueAsString("aggregated");
+      case RECORD -> getWriter().writeValueAsString(dataResult);
+    };
   }
 
   private static String getInfo(Request request, Response response)
