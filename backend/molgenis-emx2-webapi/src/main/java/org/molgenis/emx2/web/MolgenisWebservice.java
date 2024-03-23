@@ -237,6 +237,9 @@ public class MolgenisWebservice {
    */
   public static Table getTableByIdOrName(Request request, String tableName) {
     Schema schema = getSchema(request);
+    if (schema == null) {
+      throw new MolgenisException("Schema " + request.params(SCHEMA) + " unknown");
+    }
     Table table = schema.getTableByNameOrIdCaseInsensitive(tableName);
     if (table == null) {
       throw new MolgenisException("Table " + tableName + " unknown");
