@@ -1,7 +1,6 @@
 package org.molgenis.emx2.io.tablestore;
 
 import static org.apache.poi.ss.usermodel.CellType.BLANK;
-import static org.apache.poi.ss.usermodel.CellType.FORMULA;
 import static org.molgenis.emx2.io.FileUtils.getTempFile;
 
 import com.github.pjfanning.xlsx.StreamingReader;
@@ -16,15 +15,12 @@ import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /** Now caches all data. Might want to change to SAX parser for XLSX. */
 public class TableStoreForXlsxFile implements TableStore {
   public static final int ROW_ACCESS_WINDOW_SIZE = 100;
   private Path excelFilePath;
-
-  private static Logger logger = LoggerFactory.getLogger(TableStoreForXlsxFile.class);
+  private List<String> sheetNames;
 
   public TableStoreForXlsxFile(Path excelFilePath) {
     this.excelFilePath = excelFilePath;
@@ -32,20 +28,23 @@ public class TableStoreForXlsxFile implements TableStore {
 
   @Override
   public Collection<String> tableNames() {
-    try (InputStream is = new FileInputStream(excelFilePath.toFile());
-        Workbook workbook =
-            StreamingReader.builder()
-                .rowCacheSize(ROW_ACCESS_WINDOW_SIZE)
-                .bufferSize(4096)
-                .open(is); ) {
-      List<String> sheetNames = new ArrayList<>();
-      for (int i = 0; i < workbook.getNumberOfSheets(); i++) {
-        sheetNames.add(workbook.getSheetName(i));
+    if (sheetNames == null) {
+      try (InputStream is = new FileInputStream(excelFilePath.toFile());
+          Workbook workbook =
+              StreamingReader.builder()
+                  .rowCacheSize(ROW_ACCESS_WINDOW_SIZE)
+                  .bufferSize(4096)
+                  .open(is); ) {
+        sheetNames = new ArrayList<>();
+        for (int i = 0; i < workbook.getNumberOfSheets(); i++) {
+          sheetNames.add(workbook.getSheetName(i));
+        }
+        return sheetNames;
+      } catch (Exception e) {
+        throw new MolgenisException("Error reading excel file", e);
       }
-      return sheetNames;
-    } catch (Exception e) {
-      throw new MolgenisException("Error reading excel file", e);
     }
+    return sheetNames;
   }
 
   @Override
@@ -187,17 +186,8 @@ public class TableStoreForXlsxFile implements TableStore {
       public RowIterator(String tableName, Iterator<org.apache.poi.ss.usermodel.Row> iterator) {
         this.tableName = tableName;
         this.iterator = iterator;
-      }
-
-      @Override
-      public boolean hasNext() {
-        return iterator.hasNext();
-      }
-
-      @Override
-      public Row next() {
-        if (columnNames == null) {
-          columnNames = new LinkedHashMap<>();
+        columnNames = new LinkedHashMap<>();
+        if (iterator.hasNext())
           for (Cell cell : iterator.next()) {
             if (!BLANK.equals(cell.getCellType())) {
               String value = cell.getStringCellValue();
@@ -207,7 +197,15 @@ public class TableStoreForXlsxFile implements TableStore {
               columnNames.put(cell.getColumnIndex(), value);
             }
           }
-        }
+      }
+
+      @Override
+      public boolean hasNext() {
+        return iterator.hasNext();
+      }
+
+      @Override
+      public Row next() {
         return convertRow(tableName, columnNames, iterator.next());
       }
 
@@ -237,6 +235,7 @@ public class TableStoreForXlsxFile implements TableStore {
       }
 
       private Object getTypedCellValue(Cell cell) {
+
         switch (cell.getCellType()) {
           case BLANK:
             return null;
