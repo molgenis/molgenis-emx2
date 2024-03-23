@@ -1,6 +1,5 @@
 package org.molgenis.emx2.io.tablestore;
 
-import static org.apache.poi.ss.usermodel.CellType.BLANK;
 import static org.molgenis.emx2.io.FileUtils.getTempFile;
 
 import com.github.pjfanning.xlsx.StreamingReader;
@@ -19,7 +18,7 @@ import org.molgenis.emx2.Row;
 /** Now caches all data. Might want to change to SAX parser for XLSX. */
 public class TableStoreForXlsxFile implements TableStore {
   public static final int ROW_ACCESS_WINDOW_SIZE = 100;
-  private Path excelFilePath;
+  private final Path excelFilePath;
   private List<String> sheetNames;
 
   public TableStoreForXlsxFile(Path excelFilePath) {
@@ -34,7 +33,7 @@ public class TableStoreForXlsxFile implements TableStore {
               StreamingReader.builder()
                   .rowCacheSize(ROW_ACCESS_WINDOW_SIZE)
                   .bufferSize(4096)
-                  .open(is); ) {
+                  .open(is)) {
         sheetNames = new ArrayList<>();
         for (int i = 0; i < workbook.getNumberOfSheets(); i++) {
           sheetNames.add(workbook.getSheetName(i));
@@ -57,7 +56,7 @@ public class TableStoreForXlsxFile implements TableStore {
       if (!Files.exists(excelFilePath)) {
         wb = new SXSSFWorkbook(ROW_ACCESS_WINDOW_SIZE);
       } else {
-        // move to a temp file so we can merge result into the original file location
+        // move to a temp file, so we can merge result into the original file location
         File tempFile = getTempFile("temp", ".xlsx");
         Path temp =
             Files.move(excelFilePath, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
@@ -139,9 +138,9 @@ public class TableStoreForXlsxFile implements TableStore {
     return this.tableNames().contains(name);
   }
 
-  public class WorkbookRowIterable implements Iterable<Row>, Closeable {
-    private Workbook workbook;
-    private InputStream is;
+  public class WorkbookRowIterable implements Iterable<Row>, AutoCloseable {
+    private final Workbook workbook;
+    private final InputStream is;
     private final String tableName;
 
     public WorkbookRowIterable(String tableName) {
@@ -162,46 +161,62 @@ public class TableStoreForXlsxFile implements TableStore {
     public Iterator<Row> iterator() {
       try {
         Sheet sheet = workbook.getSheet(tableName);
-        return new RowIterator(this.tableName, sheet.iterator());
+        return new RowIterator(this, this.tableName, sheet.iterator());
       } catch (Exception e) {
         throw new MolgenisException("Failed to read sheet '" + tableName + "'.", e);
       }
     }
 
     @Override
-    public void close() throws IOException {
-      if (workbook != null) {
-        workbook.close();
-      }
-      if (is != null) {
-        is.close();
+    public void close() {
+      try {
+        if (workbook != null) {
+          workbook.close();
+        }
+        if (is != null) {
+          is.close();
+        }
+      } catch (Exception e) {
+        throw new MolgenisException("Couldn't close workbook");
       }
     }
 
     private static class RowIterator implements Iterator<Row> {
       private final Iterator<org.apache.poi.ss.usermodel.Row> iterator;
-      private Map<Integer, String> columnNames;
-      private String tableName;
+      private final Map<Integer, String> columnNames;
+      private final String tableName;
+      private final WorkbookRowIterable container;
 
-      public RowIterator(String tableName, Iterator<org.apache.poi.ss.usermodel.Row> iterator) {
+      public RowIterator(
+          WorkbookRowIterable container,
+          String tableName,
+          Iterator<org.apache.poi.ss.usermodel.Row> iterator) {
         this.tableName = tableName;
         this.iterator = iterator;
+        this.container = container;
         columnNames = new LinkedHashMap<>();
-        if (iterator.hasNext())
+
+        if (iterator.hasNext()) {
           for (Cell cell : iterator.next()) {
-            if (!BLANK.equals(cell.getCellType())) {
-              String value = cell.getStringCellValue();
-              if (value != null) {
-                value = value.trim();
-              }
-              columnNames.put(cell.getColumnIndex(), value);
+            String value = cell.getStringCellValue();
+            if (value != null) {
+              value = value.trim();
             }
+            columnNames.put(cell.getColumnIndex(), value);
           }
+        } else {
+          container.close();
+        }
       }
 
       @Override
       public boolean hasNext() {
-        return iterator.hasNext();
+        if (!iterator.hasNext()) {
+          container.close();
+          return false;
+        } else {
+          return true;
+        }
       }
 
       @Override
@@ -214,7 +229,7 @@ public class TableStoreForXlsxFile implements TableStore {
         Row row = new Row();
         for (Cell cell : excelRow) {
           String colName = columnNames.get(cell.getColumnIndex());
-          if (!cell.getStringCellValue().trim().equals("")) {
+          if (!cell.getStringCellValue().trim().isEmpty()) {
             if (colName == null) {
               throw new MolgenisException(
                   "Read of table '"
@@ -225,10 +240,7 @@ public class TableStoreForXlsxFile implements TableStore {
                       + cell.getStringCellValue()
                       + "'");
             }
-            Object value = getTypedCellValue(cell);
-            if (value != null) {
-              row.set(colName, value);
-            }
+            row.set(colName, getTypedCellValue(cell));
           }
         }
         return row;
