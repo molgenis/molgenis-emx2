@@ -1,6 +1,7 @@
 package org.molgenis.emx2.io;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -10,6 +11,7 @@ import java.util.List;
 import java.util.stream.StreamSupport;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.io.tablestore.TableStoreForXlsxFile;
 
@@ -42,5 +44,10 @@ public class TestExcelStore {
 
     assertEquals(10, StreamSupport.stream(rows2.spliterator(), false).count());
     assertEquals(10, StreamSupport.stream(rows3.spliterator(), false).count());
+
+    excelFile = tmp.resolve("error.xlsx");
+    final TableStoreForXlsxFile errorStore = new TableStoreForXlsxFile(excelFile);
+    assertThrows(MolgenisException.class, () -> errorStore.tableNames());
+    assertThrows(MolgenisException.class, () -> errorStore.readTable("test"));
   }
 }
