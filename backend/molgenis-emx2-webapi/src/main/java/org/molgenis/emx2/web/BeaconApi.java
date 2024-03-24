@@ -12,7 +12,6 @@ import java.net.URISyntaxException;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.beaconv2.EntryType;
 import org.molgenis.emx2.beaconv2.QueryEntryType;
-import org.molgenis.emx2.beaconv2.common.misc.Granularity;
 import org.molgenis.emx2.beaconv2.endpoints.*;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
 import spark.Request;
@@ -42,8 +41,6 @@ public class BeaconApi {
 
   private static String getEntryType(Request request, Response response) throws Exception {
     EntryType entryType = EntryType.findByName(request.params("entry_type"));
-
-    response.type(APPLICATION_JSON_MIME_TYPE);
     Database database = sessionManager.getSession(request).getDatabase();
 
     if (entryType == EntryType.GENOMIC_VARIANT) {
@@ -55,13 +52,11 @@ public class BeaconApi {
     requestBody.getMeta().setHost(host);
 
     JsonNode jsonNode = QueryEntryType.query(database, entryType, requestBody);
-    return getWriter().writeValueAsString(jsonNode);
+    return determineResponse(requestBody, response, jsonNode);
   }
 
   private static String postEntryType(Request request, Response response) throws Exception {
     EntryType entryType = EntryType.findByName(request.params("entry_type"));
-
-    response.type(APPLICATION_JSON_MIME_TYPE);
     BeaconRequestBody beaconRequestBody =
         new ObjectMapper().readValue(request.body(), BeaconRequestBody.class);
 
@@ -70,14 +65,14 @@ public class BeaconApi {
 
     Database database = sessionManager.getSession(request).getDatabase();
     JsonNode dataResult = QueryEntryType.query(database, entryType, beaconRequestBody);
-
-    return determineResponse(beaconRequestBody, dataResult);
+    return determineResponse(beaconRequestBody, response, dataResult);
   }
 
-  private static String determineResponse(BeaconRequestBody requestBody, JsonNode dataResult)
+  private static String determineResponse(
+      BeaconRequestBody requestBody, Response response, JsonNode dataResult)
       throws JsonProcessingException {
-    Granularity granularity = requestBody.getQuery().getRequestedGranularity();
-    return switch (granularity) {
+    response.type(APPLICATION_JSON_MIME_TYPE);
+    return switch (requestBody.getQuery().getRequestedGranularity()) {
       case BOOLEAN -> getWriter().writeValueAsString("true");
       case COUNT -> getWriter().writeValueAsString("counts");
       case AGGREGATED -> getWriter().writeValueAsString("aggregated");

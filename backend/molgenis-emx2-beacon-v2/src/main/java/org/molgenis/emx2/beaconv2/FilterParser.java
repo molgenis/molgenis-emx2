@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.beaconv2.common.misc.NCITToGSSOSexMapping;
-import org.molgenis.emx2.beaconv2.endpoints.QueryHelper;
 import org.molgenis.emx2.beaconv2.requests.Filter;
 
 public class FilterParser {
@@ -82,30 +81,6 @@ public class FilterParser {
   // todo add more validation
   private boolean isValidFilter(Filter filter) {
     return filter.getIds().length == 1;
-  }
-
-  /**
-   * Help build OR queries based on value arrays
-   *
-   * @param queries
-   * @param values
-   * @return
-   */
-  private String valueArrayFilterBuilder(String[] queries, String[] values) {
-    StringBuilder filter = new StringBuilder();
-    filter.append("{ _or: [");
-    for (String query : queries) {
-      for (String value : values) {
-        filter.append(QueryHelper.finalizeFilter(query + " \"" + value + "\"") + ",");
-      }
-    }
-    filter.deleteCharAt(filter.length() - 1);
-    filter.append("] }");
-    return filter.toString();
-  }
-
-  private String valueArrayFilterBuilder(String query, String[] values) {
-    return valueArrayFilterBuilder(new String[] {query}, values);
   }
 
   public List<String> getGraphQlFilters() {
