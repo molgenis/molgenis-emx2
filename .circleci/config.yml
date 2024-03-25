@@ -271,6 +271,7 @@ jobs:
       - run:
           name: Message slack about a new molgenis-emx2-pyclient version
           command: |
+            export REGEX="^.*(emx2-pyclient).*$"
             if [[ $(git log -1 --pretty=format:%s) =~ $REGEX ]]; then
               curl -d "token=${SLACK_TOKEN}" \
               -d "text=*<${CIRCLE_PULL_REQUEST}|Circle-CI » Molgenis » Molgenis-emx2 » PR-${CIRCLE_PULL_REQUEST##*/} #${CIRCLE_BUILD_NUM}>*
