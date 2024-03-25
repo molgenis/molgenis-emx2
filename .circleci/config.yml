@@ -118,15 +118,14 @@ commands:
               echo "RELEASE TO PYPI"
               export $( cat build/ci.properties | xargs )
               ./gradlew -s --no-daemon publishPython > pypi_output
+            else
+              echo "NO RELEASE NECESSARY"
+            fi
 #              curl -d "token=${SLACK_TOKEN}" \
 #              -d "text=*<${CIRCLE_PULL_REQUEST}|Circle-CI » Molgenis » Molgenis-emx2 » PR-${CIRCLE_PULL_REQUEST##*/} #${CIRCLE_BUILD_NUM}>*
 #              A new molgenis-emx2-pyclient version is released: $( grep 'View at:' pypi_output -A 1 | grep -v 'View at:' )" \
 #              -d "channel=C02AZDG6QQ7" \
 #              -X POST https://slack.com/api/chat.postMessage
-            else
-              echo "NO RELEASE NECESSARY"
-            fi
-
 # jobs for pull request and master
 jobs:
   preview:
