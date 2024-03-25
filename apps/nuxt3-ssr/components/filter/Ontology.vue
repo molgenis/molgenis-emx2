@@ -9,6 +9,7 @@ const props = withDefaults(
     options?: IOntologyRespItem[];
     isMultiSelect?: boolean;
     mobileDisplay: boolean;
+    filterLabel: string;
   }>(),
   {
     isMultiSelect: true,
@@ -61,6 +62,42 @@ const selectedNodesNames = computed({
 });
 
 const isSearchModalOpen = ref(false);
+
+const optionsFilter = ref("");
+
+const filteredNodes = computed(() => {
+  function addParents(
+    node: IOntologyRespItem,
+    parents: Set<IOntologyRespItem>
+  ) {
+    if (node.parent) {
+      const parentName = node.parent.name;
+      const parent = data.find((n) => n.name === parentName);
+      if (parent) {
+        parents.add(parent);
+        addParents(parent, parents);
+      }
+    }
+  }
+
+  const parents: Set<IOntologyRespItem> = new Set();
+
+  const filteredNodes = data.filter((node) => {
+    const searchValue = optionsFilter.value.toLowerCase();
+
+    if (
+      node.name.toLowerCase().includes(searchValue) ||
+      node.definition?.toLowerCase().includes(searchValue)
+    ) {
+      addParents(node, parents);
+      return true;
+    }
+  });
+
+  return Array.from(new Set([...parents, ...filteredNodes]));
+});
+
+const filteredTree = computed(() => listToTree(filteredNodes.value));
 </script>
 
 <template>
@@ -80,12 +117,15 @@ const isSearchModalOpen = ref(false);
     <Modal :shown="isSearchModalOpen" @close="isSearchModalOpen = false">
       <section class="lg:px-12.5 px-4 text-gray-900 xl:rounded-3px py-8">
         <h2 class="mb-5 uppercase text-heading-4xl font-display">
-          Search tree for filter options
+          {{ filterLabel }}
         </h2>
-        <div>{{ selectedNodesNames }}</div>
+        <FilterSearch v-model="optionsFilter" :inverted="true"></FilterSearch>
+        <div v-if="selectedNodesNames.length" class="py-2">
+          Active filters: {{ selectedNodesNames.join(", ") }}
+        </div>
         <div class="mb-5 prose max-w-none">
           <InputTree
-            :nodes="rootNodes"
+            :nodes="filteredTree"
             v-model="selectedNodesNames"
             :isMultiSelect="true"
             :mobileDisplay="mobileDisplay"

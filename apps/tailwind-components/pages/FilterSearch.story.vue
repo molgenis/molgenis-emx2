@@ -1,8 +1,11 @@
 <script setup lang="ts">
 const searchValue = ref("");
+const inverted = ref(false);
 </script>
 <template>
-  <FilterSearch v-model="searchValue" />
+  <div class="p-5" :class="inverted ? '' : 'bg-blue-500'">
+    <FilterSearch v-model="searchValue" :inverted="inverted" />
+  </div>
 
   <div class="mt-4">
     <hr />
@@ -15,6 +18,10 @@ const searchValue = ref("");
       >
         clear value
       </button>
+    </div>
+    <div>
+      <input id="inverted" type="checkbox" v-model="inverted" />
+      <label class="ml-1" for="inverted">inverted colors</label>
     </div>
   </div>
 </template>

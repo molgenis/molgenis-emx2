@@ -2,12 +2,12 @@
 const props = withDefaults(
   defineProps<{
     modelValue: string;
-    mobileDisplay?: boolean;
     placeholder?: string;
+    inverted?: boolean;
   }>(),
   {
-    mobileDisplay: false,
     placeholder: "Type to search..",
+    inverted: false,
   }
 );
 
@@ -32,9 +32,11 @@ function handleInput(input: string) {
       :value="modelValue"
       @input="(event) => handleInput((event.target as HTMLInputElement).value)"
       class="w-full pr-16 font-sans text-black text-gray-300 bg-white outline-none rounded-search-input h-10 ring-red-500 pl-3 shadow-search-input focus:shadow-search-input hover:shadow-search-input"
-      :class="`border-search-input${
-        mobileDisplay ? '-mobile border' : ' focus:border-white'
-      }`"
+      :class="[
+        inverted
+          ? 'border-search-input-mobile border'
+          : 'border-search-input focus:border-white',
+      ]"
       :placeholder="placeholder"
     />
     <button
