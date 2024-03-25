@@ -115,7 +115,7 @@ commands:
           command: |
             export REGEX="^.*(emx2-pyclient).*$"
             if [[ $(git log -1 --pretty=format:%s) =~ $REGEX ]]; then  
-              echo "RELEASE TO PYPI"
+              echo "RELEASE TO PYPI!"
               export $( cat build/ci.properties | xargs )
               ./gradlew -s --no-daemon publishPython > pypi_output
             else
