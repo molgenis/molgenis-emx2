@@ -114,27 +114,41 @@ const filteredTree = computed(() => listToTree(filteredNodes.value));
       content="Search the ontology tree for options to filter on."
       class="ml-3"
     />
-    <Modal :shown="isSearchModalOpen" @close="isSearchModalOpen = false">
-      <section class="lg:px-12.5 px-4 text-gray-900 xl:rounded-3px py-8">
+    <Modal
+      :shown="isSearchModalOpen"
+      @close="isSearchModalOpen = false"
+      :includeFooter="true"
+    >
+      <template #header>
         <h2 class="mb-5 uppercase text-heading-4xl font-display">
           {{ filterLabel }}
         </h2>
         <FilterSearch v-model="optionsFilter" :inverted="true"></FilterSearch>
-        <div v-if="selectedNodesNames.length" class="py-2">
+        <div v-if="selectedNodesNames.length" class="py-2 text-gray-900">
           Active filters: {{ selectedNodesNames.join(", ") }}
         </div>
-        <div class="mb-5 prose max-w-none">
-          <InputTree
-            :nodes="filteredTree"
-            v-model="selectedNodesNames"
-            :isMultiSelect="true"
-            :mobileDisplay="mobileDisplay"
-            :expandSelected="true"
-            :inverted="true"
-          >
-          </InputTree>
-        </div>
-      </section>
+      </template>
+
+      <div class="pl-1 pb-3">
+        <InputTree
+          :nodes="filteredTree"
+          v-model="selectedNodesNames"
+          :isMultiSelect="true"
+          :mobileDisplay="mobileDisplay"
+          :expandSelected="true"
+          :inverted="true"
+        >
+        </InputTree>
+      </div>
+
+      <template #footer>
+        <button
+          @click="isSearchModalOpen = true"
+          class="flex items-center border rounded-full h-10.5 px-5 text-heading-lg gap-3 tracking-widest uppercase font-display bg-button-primary text-button-primary border-button-primary hover:bg-button-primary-hover hover:text-button-primary-hover hover:border-button-primary-hover"
+        >
+          Show results
+        </button>
+      </template>
     </Modal>
   </div>
   <InputTree

@@ -5,9 +5,11 @@ withDefaults(
   defineProps<{
     shown: boolean;
     autoHide?: boolean;
+    includeFooter?: boolean;
   }>(),
   {
     autoHide: true,
+    includeFooter: false,
   }
 );
 
@@ -44,15 +46,23 @@ const onHide = () => {
     <template #popper="{ hide }">
       <div class="flex justify-center">
         <div
-          class="fixed top-10 bg-white overflow-hidden rounded-50px w-[60vw] min-h-[50vh] max-h-[80vh]"
+          class="fixed top-10 bg-white overflow-hidden rounded-50px w-[60vw] min-h-[50vh] max-h-[90vh]"
         >
-          <div class="w-full overflow-auto">
-            <button @click="hide()" class="absolute top-7 right-8">
-              <BaseIcon name="cross" />
-            </button>
-
+          <header class="py-[36px] px-[50px]">
+            <slot name="header"></slot>
+          </header>
+          <button @click="hide()" class="absolute top-7 right-8 p-1">
+            <BaseIcon name="cross" />
+          </button>
+          <div class="px-[50px] calc-remaining-max-height overflow-auto">
             <slot></slot>
           </div>
+          <footer v-if="includeFooter" class="">
+            <!-- <div class="`flex items-center left px-[50px] bg-modal-footer h-19`"></div> -->
+            <div class="bg-modal-footer px-[50px] py-3">
+              <slot name="footer"></slot>
+            </div>
+          </footer>
         </div>
       </div>
     </template>
@@ -60,6 +70,10 @@ const onHide = () => {
 </template>
 
 <style>
+.calc-remaining-max-height {
+  max-height: calc(80vh - 4rem);
+}
+
 .v-popper--theme-dropdown .v-popper__inner {
   background: none;
   border-radius: 0;
