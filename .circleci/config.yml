@@ -272,6 +272,16 @@ jobs:
             else
               echo "No release to (test)PyPI needed"
             fi
+      - run:
+          name: Message slack about a new molgenis-emx2-pyclient version
+          command: |
+            if [[ $(git log -1 --pretty=format:%s) =~ $REGEX ]]; then
+              curl -d "token=${SLACK_TOKEN}" \
+              -d "text=*<${CIRCLE_PULL_REQUEST}|Circle-CI » Molgenis » Molgenis-emx2 » PR-${CIRCLE_PULL_REQUEST##*/} #${CIRCLE_BUILD_NUM}>*
+              A new molgenis-emx2-pyclient version is released: $( grep 'View at:' pypi_output -A 1 | grep -v 'View at:' )" \
+              -d "channel=C02AZDG6QQ7" \
+              -X POST https://slack.com/api/chat.postMessage
+            fi           
 
   delete-helm-preview:
     <<: *build_config
@@ -310,6 +320,7 @@ workflows:
          branches:
            ignore: master
     - emx2-pyclient:
+        name: testPyPI release
         filters:
           branches:
             ignore: master
@@ -318,6 +329,7 @@ workflows:
          branches:
            only: master
     - emx2-pyclient:
+        name: PyPI release
         requires:
           - release
         filters:
