@@ -249,6 +249,7 @@ jobs:
     <<: *build_config
 
     steps:
+      - pre-steps
       - run:
           name: Reset TWINE_PASSWORD in case of release to PyPI (default is testPyPI token)
           command: |
