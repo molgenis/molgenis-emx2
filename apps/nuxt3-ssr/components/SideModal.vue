@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { INotificationType } from "~/interfaces/types";
+const ariaId = useId();
 const props = withDefaults(
   defineProps<{
     slideInRight?: boolean;
@@ -81,6 +82,7 @@ const bgClass = computed(() => {
 
 <template>
   <VDropdown
+    :aria-id="ariaId"
     :shown="show"
     :positioning-disabled="true"
     @show="preAnimation()"

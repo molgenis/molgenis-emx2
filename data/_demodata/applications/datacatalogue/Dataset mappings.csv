@@ -1,4 +1,7 @@
 source,source dataset,target,target dataset,order,description,syntax
+VCN,VCN,OOM_CDM,VACCINES,,"For each record:
+● Create a record of VACCINES
+● Copy the values of VCN into VACCINES according to the following table",
 DHL,CPA1,OOM_CDM,EVENTS,,,
 DHL,CPA2,OOM_CDM,EVENTS,,,
 AP,AP,OOM_CDM,VISIT_OCCURRENCE,,"For each record 
@@ -52,6 +55,3 @@ SPA,SPA,OOM_CDM,VISIT_OCCURRENCE,,"For each record with CODPRES=’89.01’ or �
 SPF,SPF,OOM_CDM,MEDICINES,,"For each record
 ● Create a record of MEDICINES 
 ● Copy the values of SPF into MEDICINES according to the following table",
-VCN,VCN,OOM_CDM,VACCINES,,"For each record:
-● Create a record of VACCINES
-● Copy the values of VCN into VACCINES according to the following table",
