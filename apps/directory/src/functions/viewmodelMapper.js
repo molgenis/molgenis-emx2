@@ -266,9 +266,7 @@ export const getBiobankDetails = (biobank) => {
     );
     biobank.collectionDetails = [];
 
-    const parentCollections = biobank.collections.filter(
-      (collection) => !collection.parent_collection
-    );
+    const parentCollections = biobank.collections;
 
     const sortedParentCollections = sortCollectionsByName(parentCollections);
 
