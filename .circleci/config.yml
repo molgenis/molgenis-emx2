@@ -101,31 +101,6 @@ commands:
 #    - store_artifacts:
 #        path: ./build/libs
 
-  release2pypi:
-    steps:
-      - run:
-          name: Reset PyPI credentials
-          command: |
-            if [ -z "$CIRCLE_PULL_REQUEST" ]; then
-               echo "Reset PyPI Password"
-               echo "export TWINE_PASSWORD=$PYPI_PASSWORD" >> "$BASH_ENV"
-            fi
-      - run:
-          name: Release to PyPI if needed
-          command: |
-            export REGEX="^.*(emx2-pyclient).*$"
-            if [[ $(git log -1 --pretty=format:%s) =~ $REGEX ]]; then  
-              echo "RELEASE TO PYPI!"
-              export $( cat build/ci.properties | xargs )
-              ./gradlew -s --no-daemon publishPython > pypi_output
-            else
-              echo "NO RELEASE NECESSARY"
-            fi
-#              curl -d "token=${SLACK_TOKEN}" \
-#              -d "text=*<${CIRCLE_PULL_REQUEST}|Circle-CI » Molgenis » Molgenis-emx2 » PR-${CIRCLE_PULL_REQUEST##*/} #${CIRCLE_BUILD_NUM}>*
-#              A new molgenis-emx2-pyclient version is released: $( grep 'View at:' pypi_output -A 1 | grep -v 'View at:' )" \
-#              -d "channel=C02AZDG6QQ7" \
-#              -X POST https://slack.com/api/chat.postMessage
 # jobs for pull request and master
 jobs:
   preview:
@@ -166,7 +141,6 @@ jobs:
           -X POST https://slack.com/api/chat.postMessage
 
     - post_steps
-    - release2pypi
 
   test:
     <<: *test_config
@@ -237,7 +211,6 @@ jobs:
           -X POST https://slack.com/api/chat.postMessage  
 
     - post_steps
-    - release2pypi
   e2e-preview:
     docker:
       - image: mcr.microsoft.com/playwright:v1.42.1-jammy
@@ -272,6 +245,32 @@ jobs:
       - store_artifacts:
           path: /root/project/e2e/test-results
 
+  emx2-pyclient:
+    <<: *build_config
+
+    steps:
+      - run:
+          name: Reset TWINE_PASSWORD in case of release to PyPI (default is testPyPI token)
+          command: |
+            if [ -z "$CIRCLE_PULL_REQUEST" ]; then
+               echo "Reset testPyPI token to PyPI token"
+               echo "export TWINE_PASSWORD=$PYPI_PASSWORD" >> "$BASH_ENV"
+            fi
+      - run:
+          name: Release to (test)PyPI based on commit message
+          command: |
+            export REGEX="^.*(emx2-pyclient).*$"
+            if [[ $(git log -1 --pretty=format:%s) =~ $REGEX ]]; then
+              export $( cat build/ci.properties | xargs )
+              ./gradlew -s --no-daemon publishPython > pypi_output
+              curl -d "token=${SLACK_TOKEN}" \
+              -d "text=*<${CIRCLE_PULL_REQUEST}|Circle-CI » Molgenis » Molgenis-emx2 » PR-${CIRCLE_PULL_REQUEST##*/} #${CIRCLE_BUILD_NUM}>*
+              A new molgenis-emx2-pyclient version is released: $( grep 'View at:' pypi_output -A 1 | grep -v 'View at:' )" \
+              -d "channel=C02AZDG6QQ7" \
+              -X POST https://slack.com/api/chat.postMessage
+            else
+              echo "No release to (test)PyPI needed"
+            fi
 
   delete-helm-preview:
     <<: *build_config
@@ -309,10 +308,21 @@ workflows:
        filters:
          branches:
            ignore: master
+    - emx2-pyclient:
+        filters:
+          branches:
+            ignore: master
     - release:
        filters:
          branches:
            only: master
+    - emx2-pyclient:
+        requires:
+          - release
+        filters:
+          branches:
+            only: master
+
   delete_preview:
     when:
       equal: [ "delete-pr-preview", << pipeline.parameters.GHA_Action >> ]
