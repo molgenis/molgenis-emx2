@@ -48,10 +48,6 @@ commands:
     steps:
     - checkout
     - run: git fetch --all --tags
-#    - run:
-#        command: |
-#          export COMMIT_MESSAGE=$(git log -1 --pretty=format:%s)
-#          echo "export COMMIT_MESSAGE_ENV=\"$(git log -1 --pretty=format:%s)\"" >> "$BASH_ENV"
     - run:
         name: Setup git, todo, move to molgenisci user
         command: |
