@@ -1,4 +1,3 @@
-/* istanbul ignore file */
 //@ts-ignore
 import { QueryEMX2 } from "molgenis-components";
 import { useFiltersStore } from "../stores/filtersStore";
@@ -130,7 +129,6 @@ export const ontologyFilterOptions = (filterFacet: any) => {
 
       if (!cachedOptions.length) {
         /** make it query after all the others, saves 50% of initial load */
-        //@ts-ignore
         const waitAfterBiobanks = setTimeout(() => {
           new QueryEMX2("graphql")
             .table(sourceTable)
@@ -146,7 +144,6 @@ export const ontologyFilterOptions = (filterFacet: any) => {
               cache(facetIdentifier, itemsSplitByOntology);
               resolve(itemsSplitByOntology);
             });
-          //@ts-ignore
           clearTimeout(waitAfterBiobanks);
         }, 1000);
       } else {
@@ -165,22 +162,42 @@ interface OntologyItem {
 function getItemsSplitByOntology(
   ontologyItems: OntologyItem[],
   ontologyIdentifiers: string[]
-) {
-  const itemsSplitByOntology: Record<string, any[]> = {};
-
+): Record<string, OntologyItem[]> {
   const childrenPerParent = getChildrenPerParent(ontologyItems);
-  const itemsWithChildren = ontologyItems.map((item) => {
+  const itemsWithChildren = getItemsWithChildren(
+    ontologyItems,
+    childrenPerParent
+  );
+
+  const rootNodes = itemsWithChildren.filter(
+    (item: any) => !item.parent?.length
+  );
+
+  const itemsSplitByOntology = splitItemsByOntology(
+    rootNodes,
+    ontologyIdentifiers
+  );
+  return itemsSplitByOntology;
+}
+
+function getItemsWithChildren(
+  items: OntologyItem[],
+  childrenPerParent: Record<string, OntologyItem[]>
+) {
+  return items.map((item) => {
     if (childrenPerParent[item.name]) {
       item.children = childrenPerParent[item.name];
     }
     return item;
   });
+}
 
-  const onlyParents = itemsWithChildren.filter(
-    (item: any) => !item.parent?.length
-  );
-
-  for (const ontologyItem of onlyParents) {
+function splitItemsByOntology(
+  rootNodes: OntologyItem[],
+  ontologyIdentifiers: string[]
+): Record<string, OntologyItem[]> {
+  const itemsSplitByOntology: Record<string, OntologyItem[]> = {};
+  for (const ontologyItem of rootNodes) {
     for (const ontologyId of ontologyIdentifiers) {
       if (ontologyItem.name.toLowerCase().includes(ontologyId.toLowerCase())) {
         if (!itemsSplitByOntology[ontologyId]) {
@@ -191,20 +208,6 @@ function getItemsSplitByOntology(
       }
     }
   }
-
-  // for (const ontologyId of ontologyIdentifiers) {
-  //   console.log(ontologyId);
-  //   for (let parentItem of itemsSplitByOntology[ontologyId]) {
-  //     const children = ontologyItems.filter((item) => {
-  //       return item.parent?.find((parent) => parent.name === parentItem.name);
-  //     });
-  //     console.log(children);
-  //     if (children.length) {
-  //       parentItem.children = children;
-  //     }
-  //   }
-  // }
-
   return itemsSplitByOntology;
 }
 
