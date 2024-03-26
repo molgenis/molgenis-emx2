@@ -47,7 +47,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onBeforeMount, onMounted, watch } from "vue";
+import { ref, onBeforeMount } from "vue";
 import { Molgenis } from "molgenis-components";
 import {
   Page,
