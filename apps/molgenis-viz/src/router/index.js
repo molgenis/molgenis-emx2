@@ -32,8 +32,8 @@ const router = createRouter({
           path: "/",
           component: charts_home,
           meta: {
-            title: "MolgenisViz"
-          }
+            title: "MolgenisViz",
+          },
         },
         {
           name: "charts-builder",

@@ -62,7 +62,11 @@ function setChartVariables() {
   yVar.value = gqlExtractSelectionName(props.yvar);
   xSubSelection.value = gqlExtractSubSelectionNames(props.xvar);
   ySubSelection.value = gqlExtractSubSelectionNames(props.yvar);
-  chartDataQuery.value = buildQuery(props.table, props.xvar, props.yvar);
+  chartDataQuery.value = buildQuery({
+    table: props.table,
+    x: props.xvar,
+    y: props.yvar
+  });
 }
 
 async function fetchChartData() {
