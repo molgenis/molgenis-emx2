@@ -4,7 +4,7 @@
       <LoadingScreen v-if="loading && !error" />
       <div class="message-box-container" v-else-if="!loading && error">
         <MessageBox type="error">
-          <p>Unable to retrieve results. {{ error }}</p>
+          <p><{{ error }}</p>
         </MessageBox>
       </div>
       <div v-else>
@@ -86,11 +86,13 @@ async function getCranioPublicSchema() {
   const result = response._settings?.filter(
     (row) => row.key === "CRANIO_PUBLIC_SCHEMA"
   )[0];
-  try {
+
+  if (!result.value) {
+    throw new Error(
+      "Missing the name of the schema that controls the vue application cranio_public. In the current schema, navigate to the settings table. Add a new setting with the key 'CRANIO_PUBLIC_SCHEMA' and enter the name in the value column. Hit save and refresh the page."
+    );
+  } else {
     cranioPublicSchema.value = result.value;
-  } catch (err) {
-    error.value =
-      "Missing the name of the schema that controls the vue application `cranio_public`. In the current schema, navigate to the settings table. Add a new setting with the key 'CRANIO_PUBLIC_SCHEMA' and enter the name in the value column. Hit save and refresh the page.";
   }
 }
 
@@ -146,7 +148,7 @@ async function loadData() {
 }
 
 onBeforeMount(async () => {
-  await getCranioPublicSchema();
+  await getCranioPublicSchema().catch((err) => (error.value = err));
   await loadData()
     .catch((err) => (error.value = err))
     .finally(() => (loading.value = false));
