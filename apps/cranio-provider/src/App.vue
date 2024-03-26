@@ -73,25 +73,30 @@ let cranioPublicSchema = ref<string | null>(null);
 let schema = ref<object | null>(null);
 let provider = ref<object | null>(null);
 
-
-async function getCranioPublicSchema () {
-  const query = gql`{
-    _settings {
-      key
-      value
+async function getCranioPublicSchema() {
+  const query = gql`
+    {
+      _settings {
+        key
+        value
+      }
     }
-  }`
+  `;
   const response = await request("../api/graphql", query);
-  const result = response._settings?.filter(row => row.key === "CRANIO_PUBLIC_SCHEMA")[0];
+  const result = response._settings?.filter(
+    (row) => row.key === "CRANIO_PUBLIC_SCHEMA"
+  )[0];
   try {
     cranioPublicSchema.value = result.value;
   } catch (err) {
-    error.value = "Missing the name of the schema that controls the vue application `cranio_public`. In the current schema, navigate to the settings table. Add a new setting with the key 'CRANIO_PUBLIC_SCHEMA' and enter the name in the value column. Hit save and refresh the page."
+    error.value =
+      "Missing the name of the schema that controls the vue application `cranio_public`. In the current schema, navigate to the settings table. Add a new setting with the key 'CRANIO_PUBLIC_SCHEMA' and enter the name in the value column. Hit save and refresh the page.";
   }
 }
 
 async function getSchemaMeta() {
-  const query = gql`{
+  const query = gql`
+    {
       _schema {
         name
       }
@@ -125,7 +130,10 @@ async function getProviderMeta() {
     }
   }`;
 
-  const result = await request(`/${cranioPublicSchema.value}/api/graphql`, query);
+  const result = await request(
+    `/${cranioPublicSchema.value}/api/graphql`,
+    query
+  );
   const data = result.Organisations[0];
   data.id = data.providerInformation[0].providerIdentifier;
   delete data.providerInformation;
@@ -138,10 +146,9 @@ async function loadData() {
 }
 
 onBeforeMount(async () => {
-  await getCranioPublicSchema()
+  await getCranioPublicSchema();
   await loadData()
     .catch((err) => (error.value = err))
     .finally(() => (loading.value = false));
 });
-
 </script>
