@@ -42,12 +42,12 @@
         </Dashboard>
       </div>
     </Page>
-    <AppFooter />
+    <AppFooter :publicSchema="cranioPublicSchema" />
   </Molgenis>
 </template>
 
-<script setup>
-import { ref, onBeforeMount } from "vue";
+<script setup lang="ts">
+import { ref, onBeforeMount, onMounted, watch } from "vue";
 import { Molgenis } from "molgenis-components";
 import {
   Page,
@@ -57,6 +57,7 @@ import {
   MessageBox,
   LoadingScreen,
 } from "molgenis-viz";
+
 import ProviderSidebar from "./components/ProviderSidebar.vue";
 import AppFooter from "./components/AppFooter.vue";
 
@@ -66,14 +67,31 @@ import { request } from "graphql-request";
 const session = ref(null);
 const page = ref(null);
 
-let loading = ref(true);
-let error = ref(null);
-let schema = ref(null);
-let provider = ref(null);
+let loading = ref<boolean>(true);
+let error = ref<Error | null>(null);
+let cranioPublicSchema = ref<string | null>(null);
+let schema = ref<object | null>(null);
+let provider = ref<object | null>(null);
+
+
+async function getCranioPublicSchema () {
+  const query = gql`{
+    _settings {
+      key
+      value
+    }
+  }`
+  const response = await request("../api/graphql", query);
+  const result = response._settings?.filter(row => row.key === "CRANIO_PUBLIC_SCHEMA")[0];
+  try {
+    cranioPublicSchema.value = result.value;
+  } catch (err) {
+    error.value = "Missing the name of the schema that controls the vue application `cranio_public`. In the current schema, navigate to the settings table. Add a new setting with the key 'CRANIO_PUBLIC_SCHEMA' and enter the name in the value column. Hit save and refresh the page."
+  }
+}
 
 async function getSchemaMeta() {
-  const query = gql`
-    {
+  const query = gql`{
       _schema {
         name
       }
@@ -107,7 +125,7 @@ async function getProviderMeta() {
     }
   }`;
 
-  const result = await request("/CranioStats/api/graphql", query);
+  const result = await request(`/${cranioPublicSchema.value}/api/graphql`, query);
   const data = result.Organisations[0];
   data.id = data.providerInformation[0].providerIdentifier;
   delete data.providerInformation;
@@ -119,12 +137,11 @@ async function loadData() {
   await getProviderMeta();
 }
 
-onBeforeMount(() => {
-  loadData()
-    .then(() => (loading.value = false))
-    .catch((err) => {
-      loading.value = false;
-      error.value = err;
-    });
+onBeforeMount(async () => {
+  await getCranioPublicSchema()
+  await loadData()
+    .catch((err) => (error.value = err))
+    .finally(() => (loading.value = false));
 });
+
 </script>

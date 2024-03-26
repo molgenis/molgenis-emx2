@@ -6,13 +6,13 @@
           <p><strong>ERN CRANIO</strong></p>
           <UnorderedList listType="none">
             <li>
-              <a href="/CranioStats/cranio-public/#/">Home</a>
+              <a :href="`/${publicSchema}/cranio-public/#/`">Home</a>
             </li>
             <li>
-              <a href="/CranioStats/cranio-public/#/about">About</a>
+              <a :href="`/${publicSchema}/cranio-public/#/about`">About</a>
             </li>
             <li>
-              <a href="/CranioStats/cranio-public/#/dashboard">Dashboard</a>
+              <a :href="`/${publicSchema}/cranio-public/#/dashboard`">Dashboard</a>
             </li>
           </UnorderedList>
         </div>
@@ -20,17 +20,17 @@
           <p><strong>For Members</strong></p>
           <UnorderedList listType="none">
             <li>
-              <a href="/CranioStats/cranio-public/#/Providers">Providers</a>
+              <a :href="`/${publicSchema}/cranio-public/#/Providers`">Providers</a>
             </li>
             <li>
-              <a href="/CranioStats/cranio-public/#/Documents">Documents</a>
+              <a :href="`/${publicSchema}/cranio-public/#/Documents`">Documents</a>
             </li>
           </UnorderedList>
         </div>
         <div class="footer-column footer-logos">
           <UnorderedList listType="none">
             <li id="project-logo-link">
-              <a href="/CranioStats/cranio-public/#/">
+              <a :href="`/${publicSchema}/cranio-public/#/`">
                 <img
                   src="/ern-cranio-logo.png"
                   alt="ERN CRANIO: European Reference Network for rare and/or complex craniofacial anomalies and ear, nose and throat (ENT) disorders"
@@ -58,10 +58,12 @@
   </PageFooter>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { PageFooter, UnorderedList } from "molgenis-viz";
-import viewProps from "../data/props";
-const props = defineProps(viewProps);
+
+const props = defineProps<{
+  publicSchema: string | null
+}>();
 </script>
 
 <style lang="scss">
