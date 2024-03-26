@@ -32,7 +32,7 @@ export const useQualitiesStore = defineStore("qualitiesStore", () => {
       }
     }
   }
-
+  console.log(qualityStandardsDictionary);
   return {
     getQualityStandardInformation,
     qualityStandardsDictionary,
