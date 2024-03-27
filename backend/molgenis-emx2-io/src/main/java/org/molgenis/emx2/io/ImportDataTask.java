@@ -58,7 +58,7 @@ public class ImportDataTask extends Task {
     // check what files we skipped
     Collection<String> tableNames = schema.getTableNames();
     try {
-      for (String sheet : tableStore.tableNames()) {
+      for (String sheet : tableStore.getTableNames()) {
         if (!sheet.startsWith("_files/")
             && !"molgenis".equals(sheet)
             && !"molgenis_settings".equals(sheet)

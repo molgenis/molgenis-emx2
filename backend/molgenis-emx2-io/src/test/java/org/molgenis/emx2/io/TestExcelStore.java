@@ -47,7 +47,7 @@ public class TestExcelStore {
 
     excelFile = tmp.resolve("error.xlsx");
     final TableStoreForXlsxFile errorStore = new TableStoreForXlsxFile(excelFile);
-    assertThrows(MolgenisException.class, () -> errorStore.tableNames());
+    assertThrows(MolgenisException.class, () -> errorStore.getTableNames());
     assertThrows(MolgenisException.class, () -> errorStore.readTable("test"));
   }
 }

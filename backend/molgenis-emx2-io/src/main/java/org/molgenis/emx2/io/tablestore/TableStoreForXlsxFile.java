@@ -26,7 +26,7 @@ public class TableStoreForXlsxFile implements TableStore {
   }
 
   @Override
-  public Collection<String> tableNames() {
+  public Collection<String> getTableNames() {
     if (sheetNames == null) {
       try (InputStream is = new FileInputStream(excelFilePath.toFile());
           Workbook workbook =
@@ -124,7 +124,7 @@ public class TableStoreForXlsxFile implements TableStore {
   }
 
   @Override
-  public Iterable<Row> readTable(String name) {
+  public AutoCloseableIterable<Row> readTable(String name) {
     return new WorkbookRowIterable(name);
   }
 
@@ -135,10 +135,10 @@ public class TableStoreForXlsxFile implements TableStore {
 
   @Override
   public boolean containsTable(String name) {
-    return this.tableNames().contains(name);
+    return this.getTableNames().contains(name);
   }
 
-  public class WorkbookRowIterable implements Iterable<Row>, AutoCloseable {
+  public class WorkbookRowIterable implements AutoCloseableIterable<Row> {
     private final Workbook workbook;
     private final InputStream is;
     private final String tableName;
