@@ -3,7 +3,11 @@
     <p><strong>Unable to retrieve files</strong></p>
     <p>{{ error }}</p>
   </MessageBox>
-  <MessageBox type="error" v-else-if="!files && !error" class="file-list-error">
+  <MessageBox
+    type="error"
+    v-else-if="!data.length && !error"
+    class="file-list-error"
+  >
     <div class="p-2">
       <p>
         No files are available for download. To import files, follow the steps
@@ -35,58 +39,51 @@
     </div>
   </MessageBox>
   <ul class="file-list" v-else>
-    <li class="file" v-for="file in files" :key="file[path].id">
-      <p class="file-element file-name">{{ file[filename] }}</p>
+    <li class="file" v-for="file in data" :key="file.id">
+      <p class="file-element file-name">{{ file.filename }}</p>
       <p class="file-element file-format">
-        {{ file[path].extension }}
+        {{ file.extension }}
       </p>
       <p class="file-element file-size">
-        {{ Math.round((file[path].size / 1000) * 100) / 100 }} KB
+        {{ Math.round((file.size / 1000) * 100) / 100 }} KB
       </p>
-      <a class="file-element file-url" :href="file[path].url">
-        <span class="visually-hidden">Download {{ file[filename] }}</span>
+      <a class="file-element file-url" :href="file.url">
+        <span class="visually-hidden">Download {{ file.filename }}</span>
         <ArrowDownTrayIcon class="heroicons" />
       </a>
     </li>
   </ul>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted } from "vue";
 import gql from "graphql-tag";
 import { request } from "graphql-request";
 import MessageBox from "./MessageBox.vue";
 import { ArrowDownTrayIcon, PlusIcon } from "@heroicons/vue/24/outline";
 
-let error = ref(null);
-let files = ref([]);
+let error = ref<Error | null>(null);
+let data = ref<Array[]>([]);
 
-const props = defineProps({
-  // name of the table in the schema that contains the file metadata
-  table: {
-    type: String,
-    required: true,
-  },
+interface FileProperties {
+  id: string;
+  filename: string;
+  extension: string;
+  size: int;
+  url: string;
+}
 
-  // name of the column that contains the file names to display
-  filename: {
-    type: String,
-    required: true,
-  },
-
-  // name of the column that contains the location of the file
-  path: {
-    type: String,
-    required: true,
-  },
-});
+const props = defineProps<{
+  table: string;
+  fileColumn: string;
+}>();
 
 async function getFiles() {
-  const query = gql`{
+  const query = gql`query {
     ${props.table} {
-      ${props.filename}
-      ${props.path} {
+      ${props.fileColumn} {
         id
+        filename
         size
         extension
         url
@@ -94,7 +91,9 @@ async function getFiles() {
     }
   }`;
   const response = await request("../api/graphql", query);
-  files.value = response[props.table];
+  data.value = response[props.table].map((row: FileProperties) => {
+    return row[props.fileColumn as string];
+  });
 }
 
 onMounted(() => {
