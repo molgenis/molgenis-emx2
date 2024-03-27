@@ -58,6 +58,11 @@ function showAsFile(item: IDefinitionListItem) {
           :collapse-all="true"
         ></ContentOntology>
 
+        <ContentMapped
+          v-else-if="item?.type === 'MAPPED'"
+          :mapped="item.content"
+        ></ContentMapped>
+
         <ul
           v-else-if="isArray(item.content) && item.content.length > 1"
           class="grid gap-1 pl-4 list-disc list-outside"

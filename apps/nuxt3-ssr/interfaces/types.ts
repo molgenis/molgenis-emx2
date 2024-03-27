@@ -220,14 +220,13 @@ export interface IContactFormData {
   body: string;
 }
 
-export enum INotificationType {
-  light,
-  dark,
-  success,
-  error,
-  warning,
-  info,
-}
+export type INotificationType =
+  | "light"
+  | "dark"
+  | "success"
+  | "error"
+  | "warning"
+  | "info";
 
 export interface ISectionField {
   meta: IColumn;
@@ -260,7 +259,11 @@ export interface IMapping {
   targetVariable: IVariableBase | IVariable;
 }
 
-export type HarmonizationStatus = "unmapped" | "partial" | "complete";
+export type HarmonizationStatus =
+  | "unmapped"
+  | "partial"
+  | "complete"
+  | "available";
 
 export type HarmonizationIconSize = "small" | "large";
 export interface IMgError {
@@ -269,7 +272,7 @@ export interface IMgError {
   data: { errors: { message: string }[] };
 }
 
-export type DefinitionListItemType = "ONTOLOGY" | "LINK";
+export type DefinitionListItemType = "ONTOLOGY" | "LINK" | "MAPPED";
 
 export interface IDefinitionListItem {
   label: string;

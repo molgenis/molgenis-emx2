@@ -10,6 +10,7 @@ import { deepClone } from "../components/utils";
 import { IClient, INewClient } from "./IClient";
 import { IQueryMetaData } from "./IQueryMetaData";
 import { getColumnIds } from "./queryBuilder";
+import type { aggFunction } from "./IClient";
 
 // application wide cache for schema meta data
 const schemaCache = new Map<string, ISchemaMetaData>();
@@ -91,12 +92,14 @@ const client: IClient = {
         tableId: string,
         selectedColumn: { id: string; column: string }, //should these be id?
         selectedRow: { id: string; column: string }, //should these be id?
-        filter: Object
+        filter: Object,
+        aggFunction?: aggFunction,
+        aggField?: string
       ) => {
         const aggregateQuery = `
         query ${tableId}_groupBy($filter: ${tableId}Filter){
           ${tableId}_groupBy(filter: $filter) {
-            count,
+            ${aggFunction} ${aggFunction === "_sum" ? `{ ${aggField} }` : ""},
             ${selectedColumn.id} {
               ${selectedColumn.column}
             },

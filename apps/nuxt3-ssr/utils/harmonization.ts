@@ -75,7 +75,7 @@ const calcStatusForSingleVariable = (
     case "na":
       return "unmapped";
     case "partial":
-      return "complete";
+      return "partial";
     case "complete":
       return "complete";
     default:
