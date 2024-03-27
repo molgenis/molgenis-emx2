@@ -15,10 +15,11 @@ A researcher working in consortium X (*example: testNetwork1*) searches for spec
 | Step | Action | Expected result |  Playwright test |
 | -----| -------| ----------------| -----------------| 
 | 1 | Navigate to [https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/) | Landing page: European health research data and sample catalogue| | 
-| 2 | Go to the catalogue, under 'project catalogues' | From left to right the network logo, testNetwork1 name (link) and description, arrow right (link) | | 
+| 2 | Go to the catalogue 'testNetwork1', under 'Thematic catalogues' | From left to right the network logo, testNetwork1 name (link) and description, arrow right (link) | | 
 | 3 | Hover over the testNetwork1 row | Row should be highlighted | | 
-| 4 | Click on the testNetwork1 logo | Should be redirected to the testNetwork1 'browse all catalogue contents' | | 
-| 5 | Click on the testNework1 name | Should be redirected to the testNetwork1 'browse all catalogue contents'. Cohorts should show 4, variables should show X. | | 
+| 4 | Click on the testNetwork1 logo | Should be redirected to the testNetwork1 'Welcome to... Select one of the content categories listed below.' | | 
+| 4a |  Go back | Return to the European Health Research Data and Sample Catalogue page
+| 5 | Click on the testNework1 name | Should be redirected to the testNetwork1 'Welcome to... Select one of the content categories listed below.'. Cohorts should show 4, variables should show 3. | | 
 | 6 | Hover over yellow Variables button | Button should be highlighted | | 
 | 7 | Click Variables button | Should be redirected to testNetwork1 variable explorer | | 
 | 8 | Search 'repeats' in search bar | Variables should be filtered on repeats variables ('testVarrepeats' and 'testVarNoRepeats'); topics should be filtered on repeats; active filters should show 'repeats'  | | 
