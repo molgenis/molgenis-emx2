@@ -1,22 +1,19 @@
-<!-- eslint-disable vue/multi-word-component-names -->
-<script setup>
+<script setup lang="ts">
 import { computed } from "vue";
+import BaseIcon from "./BaseIcon.vue";
+import "floating-vue/dist/style.css";
+const ariaId = useId();
 
-const props = defineProps({
-  label: {
-    type: String,
-    required: true,
-  },
-  content: {
-    type: String,
-    required: true,
-  },
-  hoverColor: {
-    type: String,
-    default: "blue",
-    enum: ["none", "white", "gray"],
-  },
-});
+const props = withDefaults(
+  defineProps<{
+    label: string;
+    content: string;
+    hoverColor?: "none" | "white" | "blue";
+  }>(),
+  {
+    hoverColor: "blue",
+  }
+);
 
 const HOVER_COLOR_MAPPING = {
   none: "",
@@ -31,7 +28,11 @@ const hoverColorClass = computed(() => {
 
 <template>
   <div class="flex items-center justify-center w-6 h-6">
-    <VTooltip :showTriggers="['hover', 'touch']" :distance="12">
+    <VTooltip
+      :aria-id="ariaId"
+      :showTriggers="['hover', 'touch']"
+      :distance="12"
+    >
       <button
         class="w-6 h-6 text-blue-200 cursor-default select-none"
         :class="hoverColorClass"

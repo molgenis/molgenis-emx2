@@ -50,6 +50,7 @@ watch(props.filters, (filters) => {
           v-else-if="filter.columnType === 'ONTOLOGY'"
           :table-id="filter.refTableId"
           :mobileDisplay="mobileDisplay"
+          :filterLabel="filter.title"
           v-model="filter.conditions"
         />
         <FilterList

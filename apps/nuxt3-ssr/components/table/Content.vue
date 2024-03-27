@@ -30,12 +30,12 @@ const rows = ref([]);
 const count = ref(0);
 
 async function fetchRows() {
-  const resp = await fetchGql(props.query, {
+  const resp = await fetchGql<any>(props.query, {
     ...props.filter,
     limit: pageSize,
     offset: offset.value,
     orderby,
-  }).catch((e) => console.log(e));
+  });
 
   rows.value = resp.data[props.type]?.map(props.rowMapper);
   count.value = resp.data[`${props.type}_agg`].count;
