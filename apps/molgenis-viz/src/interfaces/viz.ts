@@ -116,28 +116,28 @@ export interface PieChartParams extends vizChartContext, vizLegendParams {
 }
 
 export interface ScatterPlotParams extends vizChartContext {
-  chartId: string,
-  chartData: Array[],
-  xvar: string,
-  yvar: string,
-  group?: string,
-  xMin?: number,
-  xMax?: number,
-  yMin?: number,
-  yMax?: number,
-  xTickValues?: Array<number>,
-  yTickValues?: Array<number>,
-  xAxisLabel?: string,
-  yAxisLabel?: string,
-  pointRadius?: number
-  pointFill?: string,
-  pointFillPalette?: object,
-  chartHeight?: number,
-  chartMargins: vizChartMargins,
-  enableClicks?: boolean,
-  enabledTooltips?: boolean,
-  tooltipTemplate?: function,
-  enableChartLegend?: boolean,
-  stackLegend?: boolean,
-  enableLegendClicks?: boolean
+  chartId: string;
+  chartData: Array[];
+  xvar: string;
+  yvar: string;
+  group?: string;
+  xMin?: number;
+  xMax?: number;
+  yMin?: number;
+  yMax?: number;
+  xTickValues?: Array<Number>;
+  yTickValues?: Array<Number>;
+  xAxisLabel?: string;
+  yAxisLabel?: string;
+  pointRadius?: number;
+  pointFill?: string;
+  pointFillPalette?: object;
+  chartHeight?: number;
+  chartMargins?: vizChartMargins;
+  enableClicks?: boolean;
+  enabledTooltips?: boolean;
+  tooltipTemplate?: Function;
+  enableChartLegend?: boolean;
+  stackLegend?: boolean;
+  enableLegendClicks?: boolean;
 }
