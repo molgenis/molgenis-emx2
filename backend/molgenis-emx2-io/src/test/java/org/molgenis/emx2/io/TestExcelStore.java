@@ -1,14 +1,17 @@
 package org.molgenis.emx2.io;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.StreamSupport;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.io.tablestore.TableStoreForXlsxFile;
 
@@ -36,10 +39,15 @@ public class TestExcelStore {
 
     // and read
     store = new TableStoreForXlsxFile(excelFile);
-    List<Row> rows2 = store.readTable("test2");
-    List<Row> rows3 = store.readTable("test");
+    Iterable<Row> rows2 = store.readTable("test2");
+    Iterable<Row> rows3 = store.readTable("test");
 
-    assertEquals(10, rows2.size());
-    assertEquals(10, rows3.size());
+    assertEquals(10, StreamSupport.stream(rows2.spliterator(), false).count());
+    assertEquals(10, StreamSupport.stream(rows3.spliterator(), false).count());
+
+    excelFile = tmp.resolve("error.xlsx");
+    final TableStoreForXlsxFile errorStore = new TableStoreForXlsxFile(excelFile);
+    assertThrows(MolgenisException.class, () -> errorStore.getTableNames());
+    assertThrows(MolgenisException.class, () -> errorStore.readTable("test"));
   }
 }

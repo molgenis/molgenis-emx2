@@ -142,7 +142,7 @@ public class TableStoreForCsvInZipFile implements TableAndFileStore {
   }
 
   @Override
-  public Collection<String> tableNames() {
+  public Collection<String> getTableNames() {
     List<String> result = new ArrayList<>();
     try (ZipFile zf = new ZipFile(zipFilePath.toFile())) {
       zf.stream()

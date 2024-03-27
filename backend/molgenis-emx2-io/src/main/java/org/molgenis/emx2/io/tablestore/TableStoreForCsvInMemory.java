@@ -73,7 +73,7 @@ public class TableStoreForCsvInMemory implements TableStore {
   }
 
   @Override
-  public Collection<String> tableNames() {
+  public Collection<String> getTableNames() {
     return this.store.keySet();
   }
 

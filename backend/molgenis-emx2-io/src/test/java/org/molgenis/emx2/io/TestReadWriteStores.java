@@ -146,7 +146,7 @@ public class TestReadWriteStores {
 
     // test that reading store that doesn't exist errors properly
     try {
-      store.readTable("fake");
+      store.readTable("fake").forEach(row -> {});
       fail("should have failed");
     } catch (MolgenisException me) {
       System.out.println("errored correctly:" + me);
