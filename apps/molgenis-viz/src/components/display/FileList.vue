@@ -3,7 +3,11 @@
     <p><strong>Unable to retrieve files</strong></p>
     <p>{{ error }}</p>
   </MessageBox>
-  <MessageBox type="error" v-else-if="!data.length && !error" class="file-list-error">
+  <MessageBox
+    type="error"
+    v-else-if="!data.length && !error"
+    class="file-list-error"
+  >
     <div class="p-2">
       <p>
         No files are available for download. To import files, follow the steps
