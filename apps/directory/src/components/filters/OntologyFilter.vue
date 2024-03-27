@@ -22,14 +22,14 @@
     <div class="ontology pt-3 d-flex justify-content-center">
       <template v-for="ontologyId of ontologyIdentifiers" :key="ontologyId">
         <tree-component
+          v-if="displayOptions && selectedOntology === ontologyId"
           :facetIdentifier="facetIdentifier"
-          v-if="displayOptions && selectedOntology == ontologyId"
           :options="displayOptions"
           :filter="ontologyQuery"
         />
         <spinner
+          v-if="!displayOptions.length && selectedOntology === ontologyId"
           class="mt-4 mb-5"
-          v-if="!displayOptions.length && selectedOntology == ontologyId"
         />
       </template>
     </div>
@@ -83,8 +83,9 @@ export default {
       return this.resolvedOptions || {};
     },
     displayOptions() {
-      if (!this.ontologyQuery)
+      if (!this.ontologyQuery) {
         return this.ontologyOptions[this.selectedOntology] || [];
+      }
       const matchingOptions = [];
 
       for (const ontologyItem of this.ontologyOptions[this.selectedOntology]) {
@@ -112,9 +113,13 @@ export default {
     },
   },
   created() {
-    this.options().then((response) => {
-      this.resolvedOptions = response;
-    });
+    this.options()
+      .then((response) => {
+        this.resolvedOptions = response;
+      })
+      .catch((error) => {
+        console.log(`Error resolving ontology facet options: ${error}`);
+      });
   },
 };
 </script>
