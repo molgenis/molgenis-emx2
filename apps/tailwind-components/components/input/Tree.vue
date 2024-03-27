@@ -137,9 +137,7 @@ function handleChildSelect(selected: string[], parent: ITreeNode) {
           />
         </div>
         <label :for="node.name" class="hover:cursor-pointer text-body-sm group">
-          <span class="group-hover:underline whitespace-nowrap">{{
-            node.name
-          }}</span>
+          <span class="group-hover:underline">{{ node.name }}</span>
         </label>
         <div class="inline-flex items-center whitespace-nowrap">
           <div class="inline-block pl-1">

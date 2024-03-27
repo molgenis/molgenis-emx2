@@ -1,128 +1,79 @@
 <script setup lang="ts">
-const ariaId = useId();
+defineProps<{
+  title: string;
+  subTitle?: string;
+}>();
 
-withDefaults(
-  defineProps<{
-    shown: boolean;
-    autoHide?: boolean;
-    includeFooter?: boolean;
-  }>(),
-  {
-    autoHide: true,
-    includeFooter: false,
+const dialog = ref<HTMLDialogElement>();
+const visible = ref(false);
+
+function showModal() {
+  dialog.value?.showModal();
+  visible.value = true;
+}
+
+const closeModal = (returnVal?: string) => {
+  dialog.value?.close(returnVal);
+  visible.value = false;
+};
+
+function handleClick(e: MouseEvent) {
+  if (e.target === dialog.value) {
+    closeModal("close from dialog");
   }
-);
+}
 
-const emit = defineEmits(["close"]);
-
-const preAnimation = () => {
-  document.body.classList.add("v-popper_bottom");
-};
-
-const onShow = () => {
-  document.body.classList.add("no-scroll");
-};
-
-const onHide = () => {
-  document.body.classList.remove("no-scroll");
-  setTimeout(() => {
-    document.body.classList.remove("v-popper_bottom");
-  }, 150);
-  emit("close");
-};
+defineExpose({
+  show: showModal,
+  close: closeModal,
+  visible,
+});
 </script>
-
 <template>
-  <VDropdown
-    :aria-id="ariaId"
-    :shown="shown"
-    :positioning-disabled="true"
-    @show="preAnimation()"
-    @apply-show="onShow()"
-    @apply-hide="onHide()"
-    :autoHide="autoHide"
+  <dialog
+    ref="dialog"
+    class="w-[60vw] rounded-50px backdrop:backdrop-blur-sm"
+    @click="handleClick"
   >
-    <slot name="button"></slot>
-    <template #popper="{ hide }">
-      <div class="flex justify-center">
-        <div
-          class="fixed top-10 bg-white overflow-hidden rounded-50px w-[60vw] min-h-[50vh] max-h-[90vh]"
-        >
-          <header class="py-[36px] px-[50px]">
-            <slot name="header"></slot>
-          </header>
-          <button @click="hide()" class="absolute top-7 right-8 p-1">
-            <BaseIcon name="cross" />
-          </button>
-          <div class="px-[50px] calc-remaining-max-height overflow-auto">
-            <slot></slot>
+    <header class="pt-[36px] px-[50px]">
+      <div class="text-gray-900" v-if="subTitle">{{ subTitle }}</div>
+      <h2 v-if="title" class="mb-5 uppercase text-heading-4xl font-display">
+        {{ title }}
+      </h2>
+
+      <button
+        @click="closeModal('close from btn')"
+        class="absolute top-7 right-8 p-1"
+      >
+        <BaseIcon class="text-blue-500" name="cross" />
+      </button>
+
+      <slot name="header"></slot>
+    </header>
+
+    <div class="px-[50px] h-[calc(80vh-232px)] overflow-y-auto py-4">
+      <slot></slot>
+    </div>
+
+    <footer class="bg-modal-footer px-[50px]">
+      <menu class="flex items-center justify-left h-[116px]">
+        <slot name="footer">
+          <div class="flex flex-wrap gap-5">
+            <button
+              @click="closeModal('close from btn')"
+              class="flex items-center border rounded-full h-10.5 px-5 text-heading-lg gap-3 tracking-widest uppercase font-display bg-button-primary text-button-primary border-button-primary hover:bg-button-primary-hover hover:text-button-primary-hover hover:border-button-primary-hover"
+            >
+              Primary
+            </button>
+            <button
+              @click="closeModal('close from btn')"
+              class="flex items-center border rounded-full h-10.5 px-5 text-heading-lg gap-3 tracking-widest uppercase font-display bg-button-secondary text-button-secondary border-button-secondary hover:bg-button-secondary-hover hover:text-button-secondary-hover hover:border-button-secondary-hover"
+            >
+              Secondary
+            </button>
           </div>
-          <footer v-if="includeFooter" class="">
-            <!-- <div class="`flex items-center left px-[50px] bg-modal-footer h-19`"></div> -->
-            <div class="bg-modal-footer px-[50px] py-3">
-              <slot name="footer"></slot>
-            </div>
-          </footer>
-        </div>
-      </div>
-    </template>
-  </VDropdown>
+        </slot>
+      </menu>
+    </footer>
+  </dialog>
 </template>
-
-<style>
-.calc-remaining-max-height {
-  max-height: calc(80vh - 4rem);
-}
-
-.v-popper--theme-dropdown .v-popper__inner {
-  background: none;
-  border-radius: 0;
-  border: 0;
-  box-shadow: none;
-}
-
-.v-popper__popper--no-positioning {
-  position: fixed;
-  z-index: 9999;
-  top: 0;
-  left: 0;
-  height: 100%;
-  display: flex;
-  width: 100%;
-}
-
-.v-popper_fullscreen .v-popper__popper--no-positioning {
-  width: 100%;
-  max-width: none;
-}
-
-.v-popper_bottom .v-popper__popper--no-positioning {
-  top: auto;
-  bottom: 0;
-}
-
-.v-popper__popper--no-positioning .v-popper__backdrop {
-  display: block;
-  background: rgba(0 0 0 / 60%);
-}
-
-.v-popper__popper--no-positioning .v-popper__wrapper {
-  width: 100%;
-  pointer-events: auto;
-  transition: transform 0.15s ease-out;
-}
-
-.v-popper__popper--no-positioning.v-popper__popper--hidden .v-popper__wrapper {
-  transform: translateY(-100%);
-}
-
-.v-popper_bottom
-  .v-popper__popper--no-positioning.v-popper__popper--hidden
-  .v-popper__wrapper {
-  transform: translateY(100%);
-}
-
-body.no-scroll {
-  overflow: hidden;
-}
-</style>

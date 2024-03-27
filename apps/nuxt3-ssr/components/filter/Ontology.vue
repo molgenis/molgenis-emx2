@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { Modal } from "#build/components";
 import type { ITreeNode } from "../../../tailwind-components/types/types";
 import type { IOntologyRespItem } from "~/interfaces/types";
 
@@ -98,11 +99,29 @@ const filteredNodes = computed(() => {
 });
 
 const filteredTree = computed(() => listToTree(filteredNodes.value));
+
+const modal = ref<InstanceType<typeof Modal>>();
+
+function showModal() {
+  modal.value?.show();
+}
+
+function closeModal() {
+  modal.value?.close();
+}
+
+function removeSelectedNode(node: string) {
+  selectedNodesNames.value = selectedNodesNames.value.filter((n) => n !== node);
+}
+
+function clearAll() {
+  selectedNodesNames.value = [];
+}
 </script>
 
 <template>
   <div v-if="showSearch" class="flex items-center py-1 -ml-2">
-    <button class="flex items-center" @click="isSearchModalOpen = true">
+    <button class="flex items-center" @click="showModal">
       <BaseIcon name="search" class="text-search-filter-expand" :width="18" />
       <span class="ml-3 text-search-filter-expand text-body-sm hover:underline">
         Search
@@ -114,18 +133,35 @@ const filteredTree = computed(() => listToTree(filteredNodes.value));
       content="Search the ontology tree for options to filter on."
       class="ml-3"
     />
-    <Modal
-      :shown="isSearchModalOpen"
-      @close="isSearchModalOpen = false"
-      :includeFooter="true"
-    >
+    <Modal ref="modal" title="Search" :sub-title="filterLabel">
       <template #header>
-        <h2 class="mb-5 uppercase text-heading-4xl font-display">
-          {{ filterLabel }}
-        </h2>
         <FilterSearch v-model="optionsFilter" :inverted="true"></FilterSearch>
+
         <div v-if="selectedNodesNames.length" class="py-2 text-gray-900">
-          Active filters: {{ selectedNodesNames.join(", ") }}
+          <span class="text-heading-sm">Active filters:</span>
+          {{ selectedNodesNames.join(", ") }}
+
+          <div class="flex flex-wrap gap-3 content-around p-3">
+            <template v-for="selectedNodeName in selectedNodesNames">
+              <Button
+                @click="removeSelectedNode(selectedNodeName)"
+                icon="trash"
+                icon-position="right"
+                size="tiny"
+                type="filterWell"
+              >
+                {{ selectedNodeName }}
+              </Button>
+            </template>
+            <Button
+              icon="trash"
+              icon-position="right"
+              size="tiny"
+              type="filterWell"
+              @click="clearAll"
+              >Remove all
+            </Button>
+          </div>
         </div>
       </template>
 
@@ -143,7 +179,7 @@ const filteredTree = computed(() => listToTree(filteredNodes.value));
 
       <template #footer>
         <button
-          @click="isSearchModalOpen = true"
+          @click="closeModal"
           class="flex items-center border rounded-full h-10.5 px-5 text-heading-lg gap-3 tracking-widest uppercase font-display bg-button-primary text-button-primary border-button-primary hover:bg-button-primary-hover hover:text-button-primary-hover hover:border-button-primary-hover"
         >
           Show results
