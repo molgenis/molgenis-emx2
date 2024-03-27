@@ -49,22 +49,13 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
 
   const biobankCardsSubcollectionCount = computed(() => {
     if (!biobankCards.value.length) return 0;
-    const collections = biobankCards.value
+    return biobankCards.value
       .filter((bc) => bc.collections)
-      .flatMap((biobank) => biobank.collections);
-    if (!collections.length) return 0;
-    return collections
-      .filter((c) => c.sub_collections)
-      .flatMap((collection) =>
-        collection.sub_collections.filter(
-          (subcollection) => !subcollection.withdrawn
+      .flatMap((biobank) =>
+        biobank.collections.filter(
+          (collection) => !collection.withdrawn && collection.parent_collection
         )
-      )
-      .filter((subcollection) => {
-        return collections.find((collection) => {
-          return collection.id === subcollection.id;
-        });
-      }).length;
+      ).length;
   });
 
   const biobankCardsCollectionCount = computed(() => {
@@ -129,8 +120,12 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
       biobankCards.value = [];
       const biobankResult = await baseQuery.execute();
 
-      /** also show biobanks that don't have collections */
-      const foundBiobanks = biobankResult.Biobanks || [];
+      /** depending on whether filters have been selected display the correct count of biobanks */
+      let foundBiobanks = biobankResult.Biobanks;
+      if (filtersStore.hasActiveFilters) {
+        foundBiobanks = foundBiobanks.filter((biobank) => biobank.collections);
+      }
+
       biobankCards.value = filterWithdrawn(foundBiobanks);
       waitingForResponse.value = false;
 

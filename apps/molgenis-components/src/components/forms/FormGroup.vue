@@ -3,7 +3,7 @@
     <label v-if="label !== null && label !== undefined" :for="id">
       <b> {{ label }}</b>
     </label>
-    <span v-if="required" class="float-right">(required)</span>
+    <span v-if="isRequired(required)" class="float-right"> (required) </span>
     <slot></slot>
     <small v-if="errorMessage" class="text-danger form-text">
       {{ errorMessage }}
@@ -19,6 +19,8 @@
 </template>
 
 <script>
+import { isRequired } from "./formUtils/formUtils";
+
 export default {
   name: "FormGroup",
   props: {
@@ -35,7 +37,7 @@ export default {
       required: false,
     },
     required: {
-      type: Boolean,
+      type: [String, Boolean],
       required: false,
       default: () => false,
     },
@@ -45,6 +47,7 @@ export default {
     },
   },
   methods: {
+    isRequired,
     hasDescription(description) {
       return (
         description !== null && description !== undefined && description.length
@@ -72,12 +75,24 @@ export default {
       <label for="my-id2">required field form group</label>
       <FormGroup id="my-id2"
         label="my label"
-        required
+        required="true"
         description="my description">
         <InputGroup>
           <InputString id="my-id2"></InputString>
         </InputGroup>
         </FormGroup>
+    </div>
+
+    <div class="mt-5">
+      <label for="my-id3">required field form group boolean type</label>
+      <FormGroup id="my-id3"
+                 label="my label"
+                 required
+                 description="my description">
+        <InputGroup>
+          <InputString id="my-id3"></InputString>
+        </InputGroup>
+      </FormGroup>
     </div>
   </demo-item>
 </template>

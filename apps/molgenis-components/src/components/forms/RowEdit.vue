@@ -140,7 +140,8 @@ export default {
           this.internalValues,
           this.tableMetaData as ITableMetaData
         );
-      } catch (error) {
+      } catch (error: any) {
+        console.log("isVisible expression error: ", error);
         this.errorPerColumn[column.id] = error;
         return true;
       }
@@ -155,7 +156,9 @@ export default {
               this.tableMetaData as ITableMetaData
             );
           } catch (error) {
-            this.errorPerColumn[column.id] = "Computation failed: " + error;
+            console.log("Computed expression failed:", error);
+            this.errorPerColumn[column.id] =
+              "Computed expression failed: " + error;
           }
         }
       });

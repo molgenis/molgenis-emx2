@@ -43,5 +43,6 @@ const fillClass = computed(() => {
 <template>
   <td class="text-center" :class="tableClass">
     <BaseIcon v-if="iconName" :name="iconName" :class="fillClass" />
+    <span class="sr-only">{{ status }}</span>
   </td>
 </template>

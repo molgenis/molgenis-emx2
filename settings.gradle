@@ -53,12 +53,18 @@ nyx {
 
 rootProject.name = 'emx2'
 include(':apps')
+//include all apps folders automatically
+file('apps').eachDir { dir ->
+    def packageJsonFile = new File(dir, 'package.json')
+    if (packageJsonFile.exists() && !['build', '.gradle'].contains(dir.name)) {
+        include "apps:${dir.name}"
+    }
+}
 include(':docs')
 include(':backend:molgenis-emx2')
 include(':backend:molgenis-emx2-datamodels')
 include(':backend:molgenis-emx2-io')
 include(':backend:molgenis-emx2-sql')
-include(':backend:molgenis-emx2-sql-it')
 include(':backend:molgenis-emx2-webapi')
 include(':backend:molgenis-emx2-graphql')
 include(':backend:molgenis-emx2-run')

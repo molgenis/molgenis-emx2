@@ -152,7 +152,7 @@ public class SqlQuery extends QueryBean {
       Column column = getColumnByName(table, select.getColumn());
       String columnAlias = prefix.equals("") ? column.getName() : prefix + "-" + column.getName();
       if (column.isFile()) {
-        // check what they want to get, contents, mimetype, size and/or extension
+        // check what they want to get, contents, mimetype, size, filename and/or extension
         if (select.getSubselect().isEmpty() || select.has("id")) {
           fields.add(field(name(column.getName())));
         }
@@ -164,6 +164,9 @@ public class SqlQuery extends QueryBean {
         }
         if (select.has("mimetype")) {
           fields.add(field(name(column.getName() + "_mimetype")));
+        }
+        if (select.has("filename")) {
+          fields.add(field(name(column.getName() + "_filename")));
         }
         if (select.has("extension")) {
           fields.add(field(name(column.getName() + "_extension")));
@@ -617,7 +620,8 @@ public class SqlQuery extends QueryBean {
       SqlTableMetadata table, String tableAlias, SelectColumn select, Column column) {
     DSLContext jooq = table.getJooq();
     List<Field<?>> subFields = new ArrayList<>();
-    for (String ext : new String[] {"id", "contents", "size", "extension", "mimetype", "url"}) {
+    for (String ext :
+        new String[] {"id", "contents", "size", "filename", "extension", "mimetype", "url"}) {
       if (select.has(ext)) {
         if (ext.equals("id")) {
           subFields.add(field(name(alias(tableAlias), column.getName())).as(ext));
@@ -1037,12 +1041,15 @@ public class SqlQuery extends QueryBean {
                   .map(f -> whereConditionsFilter(table, tableAlias, f))
                   .toList()));
     } else {
-      Column column = getColumnByName(table, filters.getColumn());
-      if (column.isReference() && column.getReferences().size() > 1) {
+      Column column =
+          getColumnByName(table, filters.getColumn(), filters.getSubfilters().isEmpty());
+      if (column.isReference()
+          && column.getReferences().size() > 1
+          && filters.getSubfilters().isEmpty()) {
         throw new MolgenisException(
             "Filter of '"
                 + column.getName()
-                + " not supported for compound key, use individual elements.");
+                + " not supported for compound key, use individual elements or nested filters.");
       }
       if (!filters.getSubfilters().isEmpty()) {
         for (Filter subfilter : filters.getSubfilters()) {
@@ -1377,13 +1384,18 @@ public class SqlQuery extends QueryBean {
   }
 
   private static Column getColumnByName(TableMetadata table, String columnName) {
+    return getColumnByName(table, columnName, false);
+  }
+
+  private static Column getColumnByName(
+      TableMetadata table, String columnName, boolean isRowQuery) {
     // is search?
     if (TEXT_SEARCH_COLUMN_NAME.equals(columnName)) {
       return new Column(table, searchColumnName(table.getTableName()));
     }
     // is scalar column
     Column column = table.getColumn(columnName);
-    if (column == null) {
+    if (column == null || (isRowQuery && column.isReference())) {
       // is reference?
       for (Column c : table.getColumns()) {
         if (c.isReference()) {
@@ -1401,6 +1413,7 @@ public class SqlQuery extends QueryBean {
             && columnName.startsWith(c.getName())
             && (columnName.equals(c.getName())
                 || columnName.endsWith("_mimetype")
+                || columnName.endsWith("_filename")
                 || columnName.endsWith("_extension")
                 || columnName.endsWith("_size")
                 || columnName.endsWith("_contents"))) {
