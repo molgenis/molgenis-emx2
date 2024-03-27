@@ -1,4 +1,12 @@
 resource,name,description,number of participants,inclusion start,inclusion end,age groups,main medical condition,comorbidity,countries,regions,inclusion criteria,supplementary information
+FORCE-NEN collections,AvL,,,,,,,,,,,
+FORCE-NEN collections,EMC,,,,,,,,,,,
+FORCE-NEN collections,Amsterdam UMC,,,,,,,,,,,
+FORCE-NEN collections,UMCU,,,,,,,,,,,
+FORCE-NEN collections,MUMC,,,,,,,,,,,
+FORCE-NEN collections,Maxima MC,,,,,,,,,,,
+FORCE-NEN collections,AvL/UMCU,,,,,,,,,,,
+FORCE-NEN collections,Maxima MC/MUMC,,,,,,,,,,,
 BIB,Children,,,,,,,,,Bradford,,
 ALSPAC,Mothers,,14541,,,,,,United Kingdom of Great Britain and Northern Ireland (the),,,
 ALSPAC,Partners,,,,,,,,United Kingdom of Great Britain and Northern Ireland (the),,,
