@@ -28,7 +28,7 @@
             :options="displayOptions"
             :filter="ontologyQuery"
           />
-          <div v-else>No results found</div>
+          <div v-else class="pb-3">No results found</div>
         </div>
       </template>
     </div>
