@@ -19,17 +19,14 @@ public class FilterParser {
 
     for (Filter filter : filters) {
       filter.setFilterType(FilterType.UNDEFINED);
-      if (isOntologySearch(filter)) {
-        filter.setFilterType(FilterType.ONTOLOGY);
-        filter.setConcept(Concept.DISEASE);
-        graphQlFilters.add(filter);
-        Filter phenotTypeFilter = new Filter(filter);
-        phenotTypeFilter.setConcept(Concept.PHENOTYPE);
-        graphQlFilters.add(phenotTypeFilter);
+      if (isIdSearch(filter)) {
+        createOntologyFilters(filter);
       } else if (isValidFilter(filter)) {
         String id = filter.getIds()[0];
         try {
           Concept concept = Concept.findById(id);
+          if (!concept.isPermittedValue(filter.getValues()))
+            throw new MolgenisException("Invalid values");
           filter.setConcept(concept);
           switch (concept) {
             case SEX:
@@ -58,6 +55,15 @@ public class FilterParser {
     return this;
   }
 
+  private void createOntologyFilters(Filter filter) {
+    filter.setFilterType(FilterType.ONTOLOGY);
+    filter.setConcept(Concept.DISEASE);
+    graphQlFilters.add(filter);
+    Filter phenotTypeFilter = new Filter(filter);
+    phenotTypeFilter.setConcept(Concept.PHENOTYPE);
+    graphQlFilters.add(phenotTypeFilter);
+  }
+
   public List<Filter> getUnsupportedFilters() {
     return this.unsupportedFilters;
   }
@@ -74,13 +80,17 @@ public class FilterParser {
     return !getUnsupportedFilters().isEmpty();
   }
 
-  private boolean isOntologySearch(Filter filter) {
-    return filter.getOperator() == null && filter.getValues() == null;
+  private boolean isIdSearch(Filter filter) {
+    return filter.getOperator() == null && filter.getValues() == null && filter.getIds() != null;
   }
 
   // todo add more validation
   private boolean isValidFilter(Filter filter) {
     return filter.getIds().length == 1;
+  }
+
+  public List<Filter> getPostFetchFilters() {
+    return postFetchFilters;
   }
 
   public List<String> getGraphQlFilters() {

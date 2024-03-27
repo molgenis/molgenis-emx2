@@ -20,7 +20,6 @@ import spark.Response;
 public class BeaconApi {
 
   private static MolgenisSessionManager sessionManager;
-  private static final String APPLICATION_JSON_MIME_TYPE = "application/json";
 
   public static void create(MolgenisSessionManager sm) {
     sessionManager = sm;
@@ -71,40 +70,40 @@ public class BeaconApi {
   private static String determineResponse(
       BeaconRequestBody requestBody, Response response, JsonNode dataResult)
       throws JsonProcessingException {
-    response.type(APPLICATION_JSON_MIME_TYPE);
+    response.type(Constants.ACCEPT_JSON);
     return switch (requestBody.getQuery().getRequestedGranularity()) {
       case BOOLEAN -> getWriter().writeValueAsString("true");
       case COUNT -> getWriter().writeValueAsString("counts");
       case AGGREGATED -> getWriter().writeValueAsString("aggregated");
-      case RECORD -> getWriter().writeValueAsString(dataResult);
+      case RECORD, UNDEFINED -> getWriter().writeValueAsString(dataResult);
     };
   }
 
   private static String getInfo(Request request, Response response)
       throws JsonProcessingException, URISyntaxException {
-    response.type(APPLICATION_JSON_MIME_TYPE);
+    response.type(Constants.ACCEPT_JSON);
     return getWriter().writeValueAsString(new Info(request));
   }
 
   private static Object getConfiguration(Request request, Response response)
       throws JsonProcessingException {
-    response.type(APPLICATION_JSON_MIME_TYPE);
+    response.type(Constants.ACCEPT_JSON);
     return getWriter().writeValueAsString(new Configuration());
   }
 
   private static Object getMap(Request request, Response response) throws JsonProcessingException {
-    response.type(APPLICATION_JSON_MIME_TYPE);
+    response.type(Constants.ACCEPT_JSON);
     return getWriter().writeValueAsString(new Map(request));
   }
 
   private static Object getEntryTypes(Request request, Response response)
       throws JsonProcessingException {
-    response.type(APPLICATION_JSON_MIME_TYPE);
+    response.type(Constants.ACCEPT_JSON);
     return getWriter().writeValueAsString(new EntryTypes());
   }
 
   private static String getFilteringTerms(Request request, Response response) throws Exception {
-    response.type(APPLICATION_JSON_MIME_TYPE);
+    response.type(Constants.ACCEPT_JSON);
     Database database = sessionManager.getSession(request).getDatabase();
     return getWriter().writeValueAsString(new FilteringTerms(database));
   }

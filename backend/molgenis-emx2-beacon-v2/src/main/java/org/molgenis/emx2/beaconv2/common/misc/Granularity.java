@@ -7,7 +7,8 @@ public enum Granularity {
   BOOLEAN("boolean"),
   COUNT("count"),
   AGGREGATED("aggregated"),
-  RECORD("record");
+  RECORD("record"),
+  UNDEFINED("undefined");
 
   private String key;
 

@@ -66,7 +66,7 @@ public class QueryBuilder {
     if (offset != null) {
       query.append("offset: ").append(offset).append(",");
     }
-    if (filters != null) addFilters();
+    if (filters != null && !filters.isEmpty()) addFilters();
     query.append("){");
     query.append(columnSb);
     query.append("}}");

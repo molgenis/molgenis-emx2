@@ -42,7 +42,7 @@ public enum Concept {
     return result;
   }
 
-  public String getId() {
+  private String getId() {
     return id;
   }
 
@@ -50,7 +50,10 @@ public enum Concept {
     return graphQlQuery;
   }
 
-  public List<String> getPermittedValues() {
-    return permittedValues;
+  public boolean isPermittedValue(String[] values) {
+    if (permittedValues != null) {
+      return permittedValues.contains(values);
+    }
+    return true;
   }
 }

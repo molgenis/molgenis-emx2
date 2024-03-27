@@ -2,8 +2,11 @@ package org.molgenis.emx2.beaconv2.requests;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.time.Period;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.beaconv2.Concept;
 import org.molgenis.emx2.beaconv2.FilterType;
 
@@ -119,6 +122,17 @@ public class Filter {
   }
 
   public void setFilterType(FilterType filterType) {
+    if (this.getValues() != null) {
+      for (String value : getValues()) {
+        if (filterType == FilterType.NUMERICAL) {
+          try {
+            Integer.parseInt(value);
+          } catch (NumberFormatException e) {
+            throw new MolgenisException("Invalid value expected Integer");
+          }
+        }
+      }
+    }
     this.filterType = filterType;
   }
 
@@ -155,6 +169,32 @@ public class Filter {
         + ", ids="
         + Arrays.toString(ids)
         + '}';
+  }
+
+  public boolean filter(List<String> values) {
+    if (filterType == FilterType.NUMERICAL) {
+      for (String value : values) {
+        if (value == null) return false;
+        Period period = Period.parse(value);
+        int age = period.getYears();
+        for (String thisValue : this.getValues()) {
+          int thisNumerical = Integer.parseInt(thisValue);
+          switch (operator) {
+            case ">":
+              if (age > thisNumerical) return true;
+            case ">=":
+              if (age >= thisNumerical) return true;
+            case "<":
+              if (age < thisNumerical) return true;
+            case "<=":
+              if (age <= thisNumerical) return true;
+            case "=":
+              if (age == thisNumerical) return true;
+          }
+        }
+      }
+    }
+    return false;
   }
 
   public String getGraphQlFilter() {
