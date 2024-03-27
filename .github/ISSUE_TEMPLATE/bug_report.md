@@ -6,6 +6,15 @@ labels: ''
 assignees: ''
 
 ---
+Before you submit a new issue, please take a moment to check if it hasn't already been reported. This helps us streamline our efforts and ensures that your concern is addressed efficiently.
+
+#### How to Check for Existing Issues
+Search:
+Use the GitHub search bar to look for keywords related to your issue. This includes error messages, feature names, or any relevant terms.
+
+Issues Section:
+Navigate to the "Issues" tab on our GitHub repository to see a list of reported problems and feature requests. Filter through open and closed issues to find similar cases.
+
 **What version of EMX2 are you using (see footer)**
 vxx.yy.zz
 
