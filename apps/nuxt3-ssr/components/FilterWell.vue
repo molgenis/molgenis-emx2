@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const ariaId = useId();
 const props = defineProps<{
   filters: [];
 }>();
@@ -51,7 +52,7 @@ function isAFilterSet(filters) {
       Active filters
     </div>
     <div class="flex flex-wrap gap-3 content-around p-3">
-      <template v-for="filter in filters">
+      <template v-for="(filter, index) in filters">
         <Button
           v-if="filter?.columnType === '_SEARCH' && isFilterSet(filter)"
           @click="clearSearch(filter)"
@@ -64,6 +65,7 @@ function isAFilterSet(filters) {
         </Button>
 
         <VDropdown
+          :aria-id="ariaId + '_' + index"
           :triggers="['hover', 'focus']"
           :distance="12"
           theme="tooltip"
