@@ -104,7 +104,8 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
     return facetBiobankColumnDetails;
   }
 
-  /** GraphQL query to get all the data necessary for the home screen 'aka biobank card view */
+  /** This method is called upon page load and when a filter is applied. */
+  /** Therefore it can be executed multiple times in parallel. */
   async function getBiobankCards() {
     if (!filtersStore.bookmarkWaitingForApplication) {
       waitingForResponse.value = true;
