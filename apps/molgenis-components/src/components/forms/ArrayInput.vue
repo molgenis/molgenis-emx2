@@ -3,7 +3,7 @@
     :id="id + '-0'"
     :label="label"
     :required="required"
-    description="description"
+    :description="description"
     :errorMessage="errorMessage"
   >
     <div v-for="(value, index) in values" :key="index">
@@ -108,6 +108,7 @@ export default {
           id="array-string"
           columnType="STRING_ARRAY"
           v-model="stringValue"
+          description="this is the description"
         />
       </div>
       <div>
