@@ -102,34 +102,30 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
     return facetBiobankColumnDetails;
   }
 
+  let lastRequestTime = 0;
+
   /** GraphQL query to get all the data necessary for the home screen 'aka biobank card view */
   async function getBiobankCards() {
     if (!filtersStore.bookmarkWaitingForApplication) {
       waitingForResponse.value = true;
-      if (biobankCards.value.length === 0) {
-        const biobankResult = await baseQuery.execute();
-        biobankCards.value = filterWithdrawn(biobankResult.Biobanks);
-      }
-      waitingForResponse.value = false;
-    }
-  }
 
-  async function updateBiobankCards() {
-    if (!waitingForResponse.value) {
-      waitingForResponse.value = true;
-      biobankCards.value = [];
+      const requestTime = Date.now();
+      lastRequestTime = requestTime;
+
       const biobankResult = await baseQuery.execute();
 
-      /** depending on whether filters have been selected display the correct count of biobanks */
-      let foundBiobanks = biobankResult.Biobanks;
-      if (filtersStore.hasActiveFilters) {
-        foundBiobanks = foundBiobanks.filter((biobank) => biobank.collections);
+      /* Update biobankCards only if the result is the most recent one*/
+      if (requestTime === lastRequestTime) {
+        let foundBiobanks = biobankResult.Biobanks;
+        if (filtersStore.hasActiveFilters) {
+          foundBiobanks = foundBiobanks.filter(
+            (biobank) => biobank.collections
+          );
+        }
+        biobankCards.value = filterWithdrawn(biobankResult.Biobanks);
+        waitingForResponse.value = false;
+        filtersStore.bookmarkWaitingForApplication = false;
       }
-
-      biobankCards.value = filterWithdrawn(foundBiobanks);
-      waitingForResponse.value = false;
-
-      filtersStore.bookmarkWaitingForApplication = false;
     }
   }
 
@@ -207,7 +203,6 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
   }
 
   return {
-    updateBiobankCards,
     getBiobankCards,
     getBiobank,
     getPresentFilterOptions,
