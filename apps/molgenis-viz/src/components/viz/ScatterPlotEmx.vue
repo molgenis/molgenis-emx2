@@ -19,7 +19,7 @@
     :xTickValues="xTickValues"
     :yTickValues="yTickValues"
     :xAxisLabel="xAxisLabel"
-    :yxAxisLabel="yAxisLabel"
+    :yAxisLabel="yAxisLabel"
     :pointRadius="pointRadius"
     :pointFill="pointFill"
     :pointFillPalette="pointFillPalette"
@@ -51,11 +51,58 @@ import ScatterPlot from "./ScatterPlot.vue";
 import LoadingScreen from "../display/LoadingScreen.vue";
 import MessageBox from "../display/MessageBox.vue";
 
-const props = withDefaults(defineProps<>(), {
-  
+const props = withDefaults(defineProps<ScatterPlotParams>(), {
+  enableTooltip: true,
 });
 
 let chartLoading = ref<Boolean>(true);
-let chartError = ref<Error | null>(null);
 let chartSuccess = ref<Boolean>(false);
+let chartError = ref<Error | null>(null);
+let chartData = ref<Array[]>([]);
+let chartDataQuery = ref<string | null>(null);
+
+let xVar = ref<string | null>(null);
+let yVar = ref<string | null>(null);
+let xSubSelection = ref<string | null>(null);
+let ySubSelection = ref<string | null>(null);
+
+function setChartVariables() {
+  xVar.value = gqlExtractSelectionName(props.xvar);
+  yVar.value = gqlExtractSelectionName(props.yvar);
+  xSubSelection.value = gqlExtractSubSelectionNames(props.xvar);
+  ySubSelection.value = gqlExtractSubSelectionNames(props.yvar);
+  chartDataQuery.value = buildQuery({
+    table: props.table,
+    x: props.xvar,
+    y: props.yvar,
+  });
+}
+
+async function fetchChartData() {
+  chartLoading.value = true;
+  chartSuccess.value = false;
+  try {
+    const response = await request("../api/graphql", chartDataQuery.value);
+    const data = await response[props.table as string];
+    chartData.value = await prepareChartData({
+      data: data,
+      x: xVar.value,
+      y: yVar.value,
+      nestedXKey: xSubSelection.value,
+      nestedYKey: ySubSelection.value,
+    });
+    chartSuccess.value = true;
+  } catch (error) {
+    chartError.value = error;
+  } finally {
+    chartLoading.value = false;
+  }
+}
+
+onBeforeMount(() => setChartVariables());
+watch(props, () => setChartVariables());
+
+watch([chartDataQuery, xSubSelection, ySubSelection], async () => {
+  await fetchChartData();
+});
 </script>

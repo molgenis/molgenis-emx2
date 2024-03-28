@@ -12,24 +12,7 @@ export interface ChartOptions {
   sort?: boolean;
 }
 
-export interface vizChartContext {
-  title?: string;
-  description?: string;
-}
-
 export type vizLegendPosition = "top" | "right" | "bottom" | "left";
-
-export interface vizStandardParams extends vizChartContext {
-  chartId: string;
-  table: string;
-  chartData?: Array[];
-  xvar: string;
-  yvar: string;
-  xAxisLabel?: string;
-  yAxisLabel?: string;
-  chartHeight?: number;
-  chartMargins?: vizChartMargins;
-}
 
 export interface vizChartMargins {
   top: number;
@@ -38,20 +21,18 @@ export interface vizChartMargins {
   left?: number;
 }
 
-export interface vizInteractivityParams {
-  enableClicks?: boolean;
-  enableAnimation?: boolean;
-}
-
-export interface vizLegendParams {
-  enableChartLegend?: boolean;
-  stackLegend?: boolean;
-  enableLegendClicks?: boolean;
-}
-
-export interface BarChartParams
-  extends vizStandardParams,
-    vizInteractivityParams {
+export interface BarChartParams {
+  chartId: string;
+  title?: string;
+  description?: string;
+  table: string;
+  chartData?: Array[];
+  xvar: string;
+  yvar: string;
+  xAxisLabel?: string;
+  yAxisLabel?: string;
+  chartHeight?: number;
+  chartMargins?: vizChartMargins;
   xMax?: number;
   xTickValues?: Array<Number>;
   yAxisLineBreaker?: string;
@@ -61,11 +42,22 @@ export interface BarChartParams
   barPaddingInner?: number;
   barPaddingOuter?: number;
   barAlign?: number;
+  enableClicks?: boolean;
+  enableAnimation?: boolean;
 }
 
-export interface ColumnChartParams
-  extends vizStandardParams,
-    vizInteractivityParams {
+export interface ColumnChartParams {
+  chartId: string;
+  title?: string;
+  description?: string;
+  table: string;
+  chartData?: Array[];
+  xvar: string;
+  yvar: string;
+  xAxisLabel?: string;
+  yAxisLabel?: string;
+  chartHeight?: number;
+  chartMargins?: vizChartMargins;
   yMax?: number;
   yTickValues?: Array<Number>;
   xAxisLineBreaker?: string;
@@ -75,14 +67,37 @@ export interface ColumnChartParams
   columnPaddingInner?: number;
   columnPaddingOuter?: number;
   columnAlign?: number;
+  enableClicks?: boolean;
+  enableAnimation?: boolean;
 }
 
-export interface GroupedColumnChartParams
-  extends ColumnChartParams,
-    vizStandardParams,
-    vizInteractivityParams,
-    vizLegendParams {
+export interface GroupedColumnChartParams {
+  chartId: string;
+  title?: string;
+  description?: string;
+  table: string;
+  chartData?: Array[];
+  xvar: string;
+  yvar: string;
   group: string;
+  xAxisLabel?: string;
+  yAxisLabel?: string;
+  chartHeight?: number;
+  chartMargins?: vizChartMargins;
+  yMax?: number;
+  yTickValues?: Array<Number>;
+  xAxisLineBreaker?: string;
+  columnFill?: string;
+  columnHoverFill?: string;
+  columnColorPalette?: string;
+  columnPaddingInner?: number;
+  columnPaddingOuter?: number;
+  columnAlign?: number;
+  enableClicks?: boolean;
+  enableAnimation?: boolean;
+  enableChartLegend?: boolean;
+  stackLegend?: boolean;
+  enableLegendClicks?: boolean;
 }
 
 export interface DataTableParams {
@@ -95,8 +110,10 @@ export interface DataTableParams {
   renderHtml?: boolean;
 }
 
-export interface PieChartParams extends vizChartContext, vizLegendParams {
+export interface PieChartParams {
   chartId: string;
+  title?: string;
+  description?: string;
   table: string;
   categories: string;
   values: string;
@@ -113,11 +130,16 @@ export interface PieChartParams extends vizChartContext, vizLegendParams {
   enableHoverEvents?: boolean;
   enableClicks?: boolean;
   enableLegendHovering?: boolean;
+  enableChartLegend?: boolean;
+  stackLegend?: boolean;
+  enableLegendClicks?: boolean;
 }
 
-export interface ScatterPlotParams extends vizChartContext {
+export interface ScatterPlotParams {
   chartId: string;
-  chartData: Array[];
+  title?: string;
+  description?: string;
+  table: string;
   xvar: string;
   yvar: string;
   group?: string;
@@ -135,7 +157,7 @@ export interface ScatterPlotParams extends vizChartContext {
   chartHeight?: number;
   chartMargins?: vizChartMargins;
   enableClicks?: boolean;
-  enabledTooltips?: boolean;
+  enableTooltip?: boolean;
   tooltipTemplate?: Function;
   enableChartLegend?: boolean;
   stackLegend?: boolean;
