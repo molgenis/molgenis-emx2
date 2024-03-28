@@ -53,7 +53,7 @@ export default {
   extends: BaseInput,
   components: { FormGroup },
   data() {
-    return { values: this.modelValue || [null] };
+    return { values: this.modelValue?.length ? this.modelValue : [null] };
   },
   props: {
     columnType: {
@@ -108,11 +108,23 @@ export default {
           id="array-string"
           columnType="STRING_ARRAY"
           v-model="stringValue"
-          description="this is the description"
         />
       </div>
       <div>
         {{ stringValue }}
+      </div> 
+    </DemoItem>   
+    <DemoItem>
+      <div>
+        <h3><label>Empty String array</label></h3>
+        <ArrayInput
+          id="array-empty-string"
+          columnType="STRING_ARRAY"
+          v-model="emptyStringValue"
+        />
+      </div>
+      <div>
+        {{ emptyStringValue }}
       </div> 
     </DemoItem>
     <DemoItem>
@@ -250,6 +262,7 @@ export default {
   data() {
     return {
       stringValue: ["String array value"],
+      emptyStringValue: [],
       intValue: [1, 3, 3, 7],
       decimalValue: [3.7, 4.2],
       longValue: ["1234567890123456789"],
