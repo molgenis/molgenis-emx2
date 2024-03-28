@@ -23,6 +23,8 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
   let biobankCards = ref([]);
   let waitingForResponse = ref(false);
 
+  let lastRequestTime = 0;
+
   const collectionColumns = collectionStore.getCollectionColumns();
   const biobankProperties = biobankColumns
     .flatMap((biobankColumn) => biobankColumn.column)
@@ -102,8 +104,6 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
     return facetBiobankColumnDetails;
   }
 
-  let lastRequestTime = 0;
-
   /** GraphQL query to get all the data necessary for the home screen 'aka biobank card view */
   async function getBiobankCards() {
     if (!filtersStore.bookmarkWaitingForApplication) {
@@ -116,9 +116,9 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
 
       /* Update biobankCards only if the result is the most recent one*/
       if (requestTime === lastRequestTime) {
-        let foundBiobanks = biobankResult.Biobanks;
+        let biobanksWithCollections = biobankResult.Biobanks;
         if (filtersStore.hasActiveFilters) {
-          foundBiobanks = foundBiobanks.filter(
+          biobanksWithCollections = biobanksWithCollections.filter(
             (biobank) => biobank.collections
           );
         }
