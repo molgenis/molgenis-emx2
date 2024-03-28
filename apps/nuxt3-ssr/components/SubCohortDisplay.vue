@@ -99,7 +99,7 @@ if (subcohort?.comorbidity) {
 
 if (subcohort?.countries) {
   items.push({
-    label: "Population",
+    label: "Countries",
     type: "ONTOLOGY",
     content: subcohort.countries,
   });
