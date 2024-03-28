@@ -32,10 +32,10 @@ defineExpose({
 <template>
   <dialog
     ref="dialog"
-    class="w-[60vw] rounded-50px backdrop:backdrop-blur-sm"
+    class="w-[60vw] rounded-50px backdrop:backdrop-blur-sm open:flex flex-col"
     @click="handleClick"
   >
-    <header class="pt-[36px] px-[50px]">
+    <header class="pt-[36px] px-[50px] overflow-y-auto">
       <div class="text-gray-900" v-if="subTitle">{{ subTitle }}</div>
       <h2 v-if="title" class="mb-5 uppercase text-heading-4xl font-display">
         {{ title }}
@@ -51,7 +51,7 @@ defineExpose({
       <slot name="header"></slot>
     </header>
 
-    <div class="px-[50px] h-[calc(80vh-232px)] overflow-y-auto py-4">
+    <div class="px-[50px] overflow-y-auto py-4 h-[calc(80vh-232px)]">
       <slot></slot>
     </div>
 
