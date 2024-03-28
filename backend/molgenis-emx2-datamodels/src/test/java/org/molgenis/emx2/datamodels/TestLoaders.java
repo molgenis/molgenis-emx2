@@ -23,6 +23,7 @@ public class TestLoaders {
   public static final String DCAT = "DCATTest";
   public static final String PROJECT_MANAGER = "ProjectManager";
   public static final String CATALOGUE_ONTOLOGIES = "CatalogueOntologies";
+//  public static final String ONTOLOGIES = "Ontologies";
 
   static Database database;
 
@@ -37,6 +38,7 @@ public class TestLoaders {
     database.dropSchemaIfExists(SHARED_STAGING);
     database.dropSchemaIfExists(CATALOGUE_ONTOLOGIES);
     database.dropSchemaIfExists(DIRECTORY_TEST);
+ //   database.dropSchemaIfExists(ONTOLOGIES);
     database.dropSchemaIfExists(RD3_TEST);
     database.dropSchemaIfExists(JRC_CDE_TEST);
     database.dropSchemaIfExists(FAIR_GENOMES);
@@ -84,9 +86,9 @@ public class TestLoaders {
 
   @Test
   public void test9DirectoryLoader() {
-    Schema networkStaging = database.createSchema(DIRECTORY_TEST);
-    AvailableDataModels.BIOBANK_DIRECTORY.install(networkStaging, true);
-    assertEquals(32, networkStaging.getTableNames().size());
+    Schema directory = database.createSchema(DIRECTORY_TEST);
+    AvailableDataModels.BIOBANK_DIRECTORY.install(directory, true);
+    assertEquals(10, directory.getTableNames().size());
   }
 
   @Test
