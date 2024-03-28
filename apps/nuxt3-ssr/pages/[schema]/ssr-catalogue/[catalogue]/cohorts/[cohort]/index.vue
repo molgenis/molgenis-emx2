@@ -501,7 +501,7 @@ if (route.params.catalogue) {
           v-if="cohort?.networks"
           id="Networks"
           title="Networks"
-          description="Networks Explanation about networks from this cohort and the functionality seen here."
+          description="List of networks with this cohort is involved in"
           :networks="cohort?.networks"
         />
 
