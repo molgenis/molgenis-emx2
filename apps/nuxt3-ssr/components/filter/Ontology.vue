@@ -138,10 +138,11 @@ function clearAll() {
         <FilterSearch v-model="optionsFilter" :inverted="true"></FilterSearch>
 
         <div v-if="selectedNodesNames.length" class="py-2 text-gray-900">
-          <span class="text-heading-sm">Active filters:</span>
-          {{ selectedNodesNames.join(", ") }}
-
           <div class="flex flex-wrap gap-3 content-around p-3">
+            <span
+              class="text-heading-sm text-gray-600 h-8 flex-row-reverse flex items-center"
+              >Active filters:</span
+            >
             <template v-for="selectedNodeName in selectedNodesNames">
               <Button
                 @click="removeSelectedNode(selectedNodeName)"

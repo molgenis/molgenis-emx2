@@ -308,3 +308,13 @@ export interface IOntologyRespItem {
     name: string;
   };
 }
+
+export type ButtonType =
+  | "primary"
+  | "secondary"
+  | "tertiary"
+  | "outline"
+  | "disabled"
+  | "filterWell";
+export type ButtonSize = "tiny" | "small" | "medium" | "large";
+export type ButtonIconPosition = "left" | "right";
