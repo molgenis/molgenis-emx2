@@ -765,7 +765,7 @@ Percent Ulcer Area,Percent Ulcer Area,NCIT,C176291,http://purl.obolibrary.org/ob
 Picogram Per Cell,Picogram Per Cell,NCIT,C176377,http://purl.obolibrary.org/obo/NCIT_C176377,
 Gram per Liter per Day,Gram per Liter per Day,NCIT,C176378,http://purl.obolibrary.org/obo/NCIT_C176378,
 Nanomole per Kilogram per Day,Nanomole per Kilogram per Day,NCIT,C176379,http://purl.obolibrary.org/obo/NCIT_C176379,
-Hour per Day,Hour per Day,NCIT,C176380,http://purl.obolibrary.org/obo/NCIT_C176380,
+Hour per Day,Hour per Day,NCIT,C176380,http://purl.obolibrary.org/obo/NCIT_C176380,hours/day
 Minute per Day,Minute per Day,NCIT,C176381,http://purl.obolibrary.org/obo/NCIT_C176381,
 Nanokatal per Gram Hemoglobin,Nanokatal per Gram Hemoglobin,NCIT,C176383,http://purl.obolibrary.org/obo/NCIT_C176383,
 European Pharmacopoeia Unit,European Pharmacopoeia Unit,NCIT,C176384,http://purl.obolibrary.org/obo/NCIT_C176384,
@@ -809,7 +809,7 @@ Teaspoon Equivalent,Teaspoon Equivalent,NCIT,C172603,http://purl.obolibrary.org/
 Cup Equivalent,Cup Equivalent,NCIT,C172604,http://purl.obolibrary.org/obo/NCIT_C172604,
 Ounce Equivalent,Ounce Equivalent,NCIT,C172605,http://purl.obolibrary.org/obo/NCIT_C172605,
 Juvenile Diabetes Foundation Unit,Juvenile Diabetes Foundation Unit,NCIT,C172606,http://purl.obolibrary.org/obo/NCIT_C172606,
-Centimeter,Centimeter,NCIT,C49668,http://purl.obolibrary.org/obo/NCIT_C49668,
+Centimeter,Centimeter,NCIT,C49668,http://purl.obolibrary.org/obo/NCIT_C49668,cm
 Millimeter of Mercury,Millimeter of Mercury,NCIT,C49670,http://purl.obolibrary.org/obo/NCIT_C49670,mmHg
 Kilogram per Square Meter,Kilogram per Square Meter,NCIT,C49671,http://purl.obolibrary.org/obo/NCIT_C49671,
 Business Day,Business Day,NCIT,C52592,http://purl.obolibrary.org/obo/NCIT_C52592,
@@ -963,7 +963,7 @@ Picogram of Prostaglandin E2 per Milligram of Protein,Picogram of Prostaglandin 
 Attoliter,Attoliter,NCIT,C67565,http://purl.obolibrary.org/obo/NCIT_C67565,
 Survey Inch,Survey Inch,NCIT,C67566,http://purl.obolibrary.org/obo/NCIT_C67566,
 Dietary Folate Equivalent,Dietary Folate Equivalent,NCIT,C68511,http://purl.obolibrary.org/obo/NCIT_C68511,
-Kilojoule,Kilojoule,NCIT,C68547,http://purl.obolibrary.org/obo/NCIT_C68547,
+Kilojoule,Kilojoule,NCIT,C68547,http://purl.obolibrary.org/obo/NCIT_C68547,kJ
 Foot per Second Squared,Foot per Second Squared,NCIT,C68670,http://purl.obolibrary.org/obo/NCIT_C68670,
 Inch per Second Squared,Inch per Second Squared,NCIT,C68671,http://purl.obolibrary.org/obo/NCIT_C68671,
 Kilometer per Hour per Second,Kilometer per Hour per Second,NCIT,C68672,http://purl.obolibrary.org/obo/NCIT_C68672,
@@ -1291,14 +1291,14 @@ Centimeter of Water Times Second per Milliliter,Centimeter of Water Times Second
 Centimeter of Water Times Second Squared per Milliliter,Centimeter of Water Times Second Squared per Milliliter,NCIT,C135519,http://purl.obolibrary.org/obo/NCIT_C135519,
 Centimeter of Water per Milliliter,Centimeter of Water per Milliliter,NCIT,C135520,http://purl.obolibrary.org/obo/NCIT_C135520,
 Milliliter Times Centimeter of Water,Milliliter Times Centimeter of Water,NCIT,C135521,http://purl.obolibrary.org/obo/NCIT_C135521,
-Week,Week,NCIT,C29844,http://purl.obolibrary.org/obo/NCIT_C29844,week
+Week,Week,NCIT,C29844,http://purl.obolibrary.org/obo/NCIT_C29844,"week,weeks"
 Month,Month,NCIT,C29846,http://purl.obolibrary.org/obo/NCIT_C29846,
 Year,Year,NCIT,C29848,http://purl.obolibrary.org/obo/NCIT_C29848,"year,years"
 Byte,Byte,NCIT,C48047,http://purl.obolibrary.org/obo/NCIT_C48047,
 Microgram,Microgram,NCIT,C48152,http://purl.obolibrary.org/obo/NCIT_C48152,
 Microliter,Microliter,NCIT,C48153,http://purl.obolibrary.org/obo/NCIT_C48153,
 Minute,Minute,NCIT,C48154,http://purl.obolibrary.org/obo/NCIT_C48154,
-Gram,Gram,NCIT,C48155,http://purl.obolibrary.org/obo/NCIT_C48155,
+Gram,Gram,NCIT,C48155,http://purl.obolibrary.org/obo/NCIT_C48155,gram
 Square Centimeter,Square Centimeter,NCIT,C48460,http://purl.obolibrary.org/obo/NCIT_C48460,
 Square Foot,Square Foot,NCIT,C48461,http://purl.obolibrary.org/obo/NCIT_C48461,
 Square Yard,Square Yard,NCIT,C48462,http://purl.obolibrary.org/obo/NCIT_C48462,
@@ -1431,7 +1431,7 @@ Dram Mass Unit,Dram Mass Unit,NCIT,C64564,http://purl.obolibrary.org/obo/NCIT_C6
 Apothecaries Dram Mass Unit,Apothecaries Dram Mass Unit,NCIT,C64565,http://purl.obolibrary.org/obo/NCIT_C64565,
 Kilogram per Liter,Kilogram per Liter,NCIT,C64566,http://purl.obolibrary.org/obo/NCIT_C64566,
 Molinity Unit,Molinity Unit,NCIT,C64570,http://purl.obolibrary.org/obo/NCIT_C64570,
-Microgram per Milliliter,Microgram per Milliliter,NCIT,C64572,http://purl.obolibrary.org/obo/NCIT_C64572,ug/ml
+Microgram per Milliliter,Microgram per Milliliter,NCIT,C64572,http://purl.obolibrary.org/obo/NCIT_C64572,"ug/ml,microgram_per_milli_liter"
 microgram per millilitre,microgram per millilitre,NCIT,C64572,http://purl.obolibrary.org/obo/NCIT_C64572,
 Centigray,Centigray,NCIT,C64693,http://purl.obolibrary.org/obo/NCIT_C64693,
 Caplet Dosing Unit,Caplet Dosing Unit,NCIT,C64696,http://purl.obolibrary.org/obo/NCIT_C64696,
@@ -1638,7 +1638,7 @@ Lux,Lux,NCIT,C42561,http://purl.obolibrary.org/obo/NCIT_C42561,
 Becquerel,Becquerel,NCIT,C42562,http://purl.obolibrary.org/obo/NCIT_C42562,
 Gal,Gal,NCIT,C42565,http://purl.obolibrary.org/obo/NCIT_C42565,
 Katal,Katal,NCIT,C42566,http://purl.obolibrary.org/obo/NCIT_C42566,
-Square Meter,Square Meter,NCIT,C42569,http://purl.obolibrary.org/obo/NCIT_C42569,
+Square Meter,Square Meter,NCIT,C42569,http://purl.obolibrary.org/obo/NCIT_C42569,square_meter
 Cubic Meter,Cubic Meter,NCIT,C42570,http://purl.obolibrary.org/obo/NCIT_C42570,
 Meter per Second,Meter per Second,NCIT,C42571,http://purl.obolibrary.org/obo/NCIT_C42571,metre_per_second
 Meter per Second Squared,Meter per Second Squared,NCIT,C42572,http://purl.obolibrary.org/obo/NCIT_C42572,
@@ -1668,25 +1668,16 @@ Beats per Minute,The number of heartbeats measured per minute time.,NCIT,C49673,
 Millimole per Liter,A unit of concentration (molarity unit) equal to one thousandth of a mole (10E-3 mole) of solute per one liter of solution.,NCIT,C64387,http://purl.obolibrary.org/obo/NCIT_C64387,mmol/litre
 gram per liter,,UO,0000175,http://purl.obolibrary.org/obo/UO_0000175,gram/litre
 picogram per milliliter,,UO,0010070,http://purl.obolibrary.org/obo/UO_0010070,pg/ml
-mu/litre,,,,,
+Milliunit per Liter,,NCIT,C67408,http://purl.obolibrary.org/obo/NCIT_C67408,mu/litre
+Milligram per Liter,A metric unit of mass concentration defined as the concentration of one gram of a substance per unit volume of the mixture equal to one cubic meter. The concept also refers to the metric unit of mass density (volumic mass) defined as the density of a substance which mass equal to one gram occupies the volume of one cubic meter.,NCIT,C64572,http://purl.obolibrary.org/obo/NCIT_C64572,mg/litre
+Meter,,NCIT,C41139,http://purl.obolibrary.org/obo/NCIT_C41139,m
+Kilogram,,NCIT,C28252,http://purl.obolibrary.org/obo/NCIT_C28252,kg
+Minute,A unit measure of time equal to 60 seconds.,NCIT,C48154,http://purl.obolibrary.org/obo/NCIT_C48154,minutes
+Unit,,NCIT,C68553,http://purl.obolibrary.org/obo/NCIT_C68553,unit
+Nanogram per Milliliter,,NCIT,C67306,http://purl.obolibrary.org/obo/NCIT_C67306,ng/ml
 ,,,,,
-square_meter,,,,,
-square_meter_per_square_kilometer,,,,,
-mg/litre,,,,,
-cm,,,,,
-m,,,,,
-kg,,,,,
-minutes,,,,,
-vocabulary_table,,,,,
-free_text,,,,,
-weeks,,,,,
-unit,,,,,
-microgram_per_milli_liter,,,,,
-ng/ml,,,,,
-gram,,,,,
-kJ,,UO,21,http://purl.obolibrary.org/obo/UO_0000021,
-hours/day,,,,,
-hours/week,,,,,
+Hour per Week,,,,,hours/week
+,,,,,
 servings/day,,,,,
 mg/day,,,,,
 kcal/day,,,,,
@@ -1764,5 +1755,5 @@ Hectopascal,,,,,
 watt per square meter,"A SI derived unit of pressure equivalent to one hundred pascals, 1 millibar or 0.0145 pounds per square inch.",NCIT,C105487,http://purl.obolibrary.org/obo/NCIT_C105487,
 pmol/L,,UO,155,http://purl.obolibrary.org/obo/UO_0000155,
 ug/g,,,,,
-radiation,,,,,
-,,,,http://www.ontology-of-units-of-measure.org/resource/Valerie-9/radiation,
+radiation,,,,http://www.ontology-of-units-of-measure.org/resource/Valerie-9/radiation,
+square_meter_per_square_kilometer,,,,,
