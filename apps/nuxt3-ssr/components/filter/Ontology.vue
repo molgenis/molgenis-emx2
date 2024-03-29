@@ -62,8 +62,6 @@ const selectedNodesNames = computed({
   },
 });
 
-const isSearchModalOpen = ref(false);
-
 const optionsFilter = ref("");
 
 const filteredNodes = computed(() => {
@@ -107,6 +105,7 @@ function showModal() {
 }
 
 function closeModal() {
+  optionsFilter.value = "";
   modal.value?.close();
 }
 
@@ -121,18 +120,13 @@ function clearAll() {
 
 <template>
   <div v-if="showSearch" class="flex items-center py-1 -ml-2">
-    <button class="flex items-center" @click="showModal">
+    <button class="flex items-center ml-8" @click="showModal">
       <BaseIcon name="search" class="text-search-filter-expand" :width="18" />
-      <span class="ml-3 text-search-filter-expand text-body-sm hover:underline">
+      <span class="ml-2 text-search-filter-expand text-body-sm hover:underline">
         Search
       </span>
     </button>
-    <CustomTooltip
-      label="Search"
-      hoverColor="white"
-      content="Search the ontology tree for options to filter on."
-      class="ml-3"
-    />
+
     <Modal ref="modal" title="Search" :sub-title="filterLabel">
       <template #header>
         <FilterSearch v-model="optionsFilter" :inverted="true"></FilterSearch>
@@ -143,16 +137,29 @@ function clearAll() {
               class="text-heading-sm text-gray-600 h-8 flex-row-reverse flex items-center"
               >Active filters:</span
             >
-            <template v-for="selectedNodeName in selectedNodesNames">
+            <template v-if="selectedNodesNames.length > 5">
               <Button
-                @click="removeSelectedNode(selectedNodeName)"
+                @click="clearAll"
                 icon="trash"
                 icon-position="right"
                 size="tiny"
                 type="filterWell"
               >
-                {{ selectedNodeName }}
+                {{ selectedNodesNames.length }} items selected
               </Button>
+            </template>
+            <template v-else>
+              <template v-for="selectedNodeName in selectedNodesNames">
+                <Button
+                  @click="removeSelectedNode(selectedNodeName)"
+                  icon="trash"
+                  icon-position="right"
+                  size="tiny"
+                  type="filterWell"
+                >
+                  {{ selectedNodeName }}
+                </Button>
+              </template>
             </template>
             <Button
               icon="trash"
@@ -168,14 +175,15 @@ function clearAll() {
 
       <div class="pl-1 pb-3">
         <InputTree
+          v-if="filteredTree.length"
           :nodes="filteredTree"
           v-model="selectedNodesNames"
           :isMultiSelect="true"
           :mobileDisplay="mobileDisplay"
           :expandSelected="true"
           :inverted="true"
-        >
-        </InputTree>
+        />
+        <div v-else class="text-gray-900 text-body-sm">No results found</div>
       </div>
 
       <template #footer>
