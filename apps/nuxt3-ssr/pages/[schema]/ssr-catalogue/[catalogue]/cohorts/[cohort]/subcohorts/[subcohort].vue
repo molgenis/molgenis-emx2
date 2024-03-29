@@ -86,7 +86,7 @@ if (subcohort?.inclusionStart || subcohort?.inclusionEnd) {
 
 if (subcohort?.countries) {
   items.push({
-    label: "Population",
+    label: "Countries",
     content: renderList(
       subcohort.countries.sort((a, b) => b.order - a.order),
       toName

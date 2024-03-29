@@ -13,7 +13,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
   const biobankStore = useBiobanksStore();
   const checkoutStore = useCheckoutStore();
 
-  const { baseQuery, updateBiobankCards } = biobankStore;
+  const { baseQuery, getBiobankCards } = biobankStore;
 
   const settingsStore = useSettingsStore();
 
@@ -98,7 +98,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
         }
         bookmarkTriggeredFilter.value = false;
 
-        await updateBiobankCards();
+        await getBiobankCards();
         clearTimeout(queryDelay);
       }, 750);
     },
@@ -130,7 +130,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
         bookmarkTriggeredFilter.value = false;
 
         if (hasActiveFilters.value) {
-          await updateBiobankCards();
+          await getBiobankCards();
           clearTimeout(queryDelay);
         }
       }, 750);
