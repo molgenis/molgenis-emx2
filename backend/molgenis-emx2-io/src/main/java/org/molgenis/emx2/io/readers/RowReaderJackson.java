@@ -4,14 +4,12 @@ import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.Reader;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.io.input.BOMInputStream;
 import org.molgenis.emx2.Row;
 
 public class RowReaderJackson {
@@ -23,7 +21,7 @@ public class RowReaderJackson {
   private static ObjectReader reader = new CsvMapper().readerFor(Map.class);
 
   public static Iterable<Row> read(File f, Character separator) throws IOException {
-    return read(new FileReader(f), separator);
+    return read(new InputStreamReader(new BOMInputStream(new FileInputStream(f))), separator);
   }
 
   public static List<Row> readList(Reader in, Character separator) throws IOException {
