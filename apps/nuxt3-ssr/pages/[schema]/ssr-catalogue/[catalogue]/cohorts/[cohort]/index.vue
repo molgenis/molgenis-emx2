@@ -401,7 +401,6 @@ if (route.params.catalogue) {
         <ContentCohortGeneralDesign
           id="GeneralDesign"
           title="General Design"
-          :description="cohort?.designDescription"
           :cohort="cohort"
           :main-medical-condition="mainMedicalConditions"
         />
