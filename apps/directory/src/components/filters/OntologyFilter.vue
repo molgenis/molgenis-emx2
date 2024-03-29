@@ -21,16 +21,15 @@
     <hr class="p-0 m-0" />
     <div class="ontology pt-3 d-flex justify-content-center">
       <template v-for="ontologyId of ontologyIdentifiers" :key="ontologyId">
-        <tree-component
-          :facetIdentifier="facetIdentifier"
-          v-if="displayOptions && selectedOntology == ontologyId"
-          :options="displayOptions"
-          :filter="ontologyQuery"
-        />
-        <spinner
-          class="mt-4 mb-5"
-          v-if="!displayOptions.length && selectedOntology == ontologyId"
-        />
+        <div v-show="selectedOntology === ontologyId">
+          <spinner class="mt-4 mb-5" v-if="!ontologyOptions" />
+          <tree-component
+            v-else-if="displayOptions.length"
+            :options="displayOptions"
+            :filter="ontologyQuery"
+          />
+          <div v-else class="pb-3">No results found</div>
+        </div>
       </template>
     </div>
   </div>
@@ -73,18 +72,19 @@ export default {
   data() {
     return {
       ontologyQuery: "",
-      resolvedOptions: {},
+      resolvedOptions: undefined,
       selectedOntology:
         this.ontologyIdentifiers[0] /** we start with the top one */,
     };
   },
   computed: {
     ontologyOptions() {
-      return this.resolvedOptions || {};
+      return this.resolvedOptions;
     },
     displayOptions() {
-      if (!this.ontologyQuery)
+      if (!this.ontologyQuery) {
         return this.ontologyOptions[this.selectedOntology] || [];
+      }
       const matchingOptions = [];
 
       for (const ontologyItem of this.ontologyOptions[this.selectedOntology]) {
@@ -112,9 +112,13 @@ export default {
     },
   },
   created() {
-    this.options().then((response) => {
-      this.resolvedOptions = response;
-    });
+    this.options()
+      .then((response) => {
+        this.resolvedOptions = response;
+      })
+      .catch((error) => {
+        console.log(`Error resolving ontology facet options: ${error}`);
+      });
   },
 };
 </script>
