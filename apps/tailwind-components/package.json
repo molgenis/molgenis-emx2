@@ -15,19 +15,19 @@
     "test": "vitest"
   },
   "dependencies": {
-    "floating-vue": "^5.2.2",
-    "nuxt": "^3.10.2",
-    "vue": "^3.4.19",
-    "vue-router": "^4.2.5"
+    "floating-vue": "5.2.2",
+    "nuxt": "3.10.3",
+    "vue": "3.4.19",
+    "vue-router": "4.2.5"
   },
   "devDependencies": {
-    "@nuxt/test-utils": "^3.11.0",
-    "@nuxtjs/tailwindcss": "^6.11.4",
-    "@vue/test-utils": "^2.4.4",
+    "@nuxt/test-utils": "3.11.0",
+    "@nuxtjs/tailwindcss": "6.11.4",
+    "@vue/test-utils": "2.4.5",
     "cross-env": "7.0.3",
-    "happy-dom": "^13.8.1",
-    "playwright-core": "^1.42.1",
+    "happy-dom": "13.8.6",
+    "playwright-core": "1.42.1",
     "prettier": "2.8.8",
-    "vitest": "^1.3.1"
+    "vitest": "1.3.1"
   }
 }
