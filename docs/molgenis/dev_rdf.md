@@ -9,8 +9,9 @@ RDF API retrieve data in different scopes ranging from broad (retrieve everythin
 All data is exported as a stream, which means that the response does not include a size estimate.
 Listed below are the available options.
 
-### Retrieve everything
+### Retrieve everything / multiple schemas
 Using `<server>/api/rdf`, all data from this MOLGENIS instance is retrieved and exported as RDF.
+Optionally use 'schemas' parameter to filter what schemas to be included. E.g. `<server>/api/rdf?schemas=foo,bar` will only retrieve from schemas 'foo' and 'bar'
 Of course, this is limited to data to which the currently logged-in user (or anonymous user) has access to.
 
 ### Retrieve one schema

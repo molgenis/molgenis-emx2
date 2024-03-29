@@ -147,12 +147,12 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
       // we create copies so we don't need worry on changes
       for (Column col : getInheritedTable().getColumns()) {
         if (col.isSystemColumn()) {
-          meta.put(col.getName(), new Column(getInheritedTable(), col));
+          meta.put(col.getName(), col);
           // sorting of external schema is seperate from internal schema
         } else if (!Objects.equals(col.getTable().getSchemaName(), getSchemaName())) {
-          external.put(col.getName(), new Column(getInheritedTable(), col));
+          external.put(col.getName(), col);
         } else {
-          internal.put(col.getName(), new Column(getInheritedTable(), col));
+          internal.put(col.getName(), col);
         }
       }
     }
@@ -200,11 +200,18 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   }
 
   public List<Column> getDownloadColumnNames() {
-    return getExpandedColumns(
-        getColumns().stream()
-            .filter(c -> !c.isRefback() && !c.isHeading())
-            .map(c2 -> c2.isFile() ? column(c2.getName()) : c2)
-            .collect(Collectors.toList()));
+    List<Column> list = new ArrayList<>();
+    for (Column column : getColumns()) {
+      if (!column.isRefback() && !column.isHeading()) {
+        if (column.isFile()) {
+          list.add(column(column.getName()));
+          list.add(column(column.getName() + "_filename"));
+        } else {
+          list.add(column);
+        }
+      }
+    }
+    return getExpandedColumns(list);
   }
 
   public List<Column> getMutationColumns() {
@@ -222,6 +229,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
             c.getName() + "_contents",
             new Column(c.getTable(), c.getName() + "_contents").setType(FILE));
         result.put(c.getName() + "_mimetype", new Column(c.getTable(), c.getName() + "_mimetype"));
+        result.put(c.getName() + "_filename", new Column(c.getTable(), c.getName() + "_filename"));
         result.put(
             c.getName() + "_extension", new Column(c.getTable(), c.getName() + "_extension"));
         result.put(
@@ -582,5 +590,13 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
     } else {
       return null;
     }
+  }
+
+  public TableMetadata getRootTable() {
+    TableMetadata table = this;
+    while (table.getInheritName() != null) {
+      table = table.getInheritedTable();
+    }
+    return table;
   }
 }

@@ -12,6 +12,7 @@ import java.io.StringReader;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.util.Values;
 import org.eclipse.rdf4j.model.vocabulary.OWL;
@@ -35,7 +36,7 @@ public class RDFTest {
    * their values separately. Column names and values are separated by an ampersand and multiple
    * column / value pairs by a semicolon. Colums are sorted alphabetically for a stable order.
    */
-  public static final String POOKY_ROWID = "bmFtZQ==&cG9va3k=";
+  public static final String POOKY_ROWID = "name=pooky";
 
   static Database database;
   static List<Schema> petStoreSchemas;
@@ -267,7 +268,7 @@ public class RDFTest {
     var subjectWithCompositeKey =
         "http://localhost:8080/"
             + compositeKeyTest.getName()
-            + "/api/rdf/Samples/aWQ=&c2FtcGxlMQ==;cGF0aWVudC5maXJzdE5hbWU=&RG9uYWxk;cGF0aWVudC5sYXN0TmFtZQ==&RHVjaw==";
+            + "/api/rdf/Samples?id=sample1&patient.firstName=Donald&patient.lastName=Duck";
     var iris = handler.resources.keySet().stream().map(Objects::toString).toList();
     assertTrue(
         iris.contains(subjectWithCompositeKey),
@@ -278,11 +279,10 @@ public class RDFTest {
   void testThatRowCanBeFetchedByCompositeKey() throws IOException {
     var handler = new InMemoryRDFHandler() {};
     // Encoded version of patient.firstName=Donald & patient.lastName=Duck & id=sample1
-    var rowId =
-        "aWQ=&c2FtcGxlMQ==;cGF0aWVudC5maXJzdE5hbWU=&RG9uYWxk;cGF0aWVudC5sYXN0TmFtZQ==&RHVjaw==";
+    var rowId = "id=sample2&patient.firstName=Donald&patient.lastName=Duck";
     getAndParseRDF(Selection.ofRow(compositeKeyTest, "Samples", rowId), handler);
     var subjectWithCompositeKey =
-        "http://localhost:8080/" + compositeKeyTest.getName() + "/api/rdf/Samples/" + rowId;
+        "http://localhost:8080/" + compositeKeyTest.getName() + "/api/rdf/Samples?" + rowId;
     var iris = handler.resources.keySet().stream().map(Objects::toString).toList();
     assertTrue(
         iris.contains(subjectWithCompositeKey),
@@ -399,7 +399,7 @@ public class RDFTest {
     getAndParseRDF(Selection.of(ontologyTest), handler);
     var subject =
         Values.iri(
-            "http://localhost:8080/OntologyTest/api/rdf/Diseases/bmFtZQ==&QzAwLUMxNCBNYWxpZ25hbnQgbmVvcGxhc21zIG9mIGxpcCwgb3JhbCBjYXZpdHkgYW5kIHBoYXJ5bng=");
+            "http://localhost:8080/OntologyTest/api/rdf/Diseases?name=C00-C14+Malignant+neoplasms+of+lip%2C+oral+cavity+and+pharynx");
 
     var parents = handler.resources.get(subject).get(RDFS.SUBCLASSOF);
     assertEquals(
@@ -416,7 +416,9 @@ public class RDFTest {
             column("id", ColumnType.STRING).setKey(1),
             column("website", ColumnType.HYPERLINK)));
     schema.create(table("Extended Resources").setInheritName("Resources"));
-    schema.create(table("Data Resources").setInheritName("Extended Resources"));
+    Table dataResources =
+        schema.create(table("Data Resources", column("data")).setInheritName("Extended Resources"));
+
     var handler = new InMemoryRDFHandler() {};
     getAndParseRDF(Selection.of(schema), handler);
     // The table Data Resources extends Extended Resources, which extends Resources.
@@ -438,6 +440,24 @@ public class RDFTest {
     assertFalse(
         handler.resources.containsKey(websitePredicateDR),
         "There should not be a predicate for the column in the Data Resources table");
+
+    dataResources.insert(row("id", "demo1", "data", "my data"));
+    getAndParseRDF(Selection.ofRow(schema, "Resources", "id=demo1"), handler);
+    var columnPredicate =
+        Values.iri("http://localhost:8080/iriTest/api/rdf/DataResources/column/data");
+    assertTrue(
+        handler.resources.containsKey(columnPredicate), "should include the subclass column");
+    var dataValue =
+        ((Literal)
+                handler
+                    .resources
+                    .get(Values.iri("http://localhost:8080/iriTest/api/rdf/Resources?id=demo1"))
+                    .get(
+                        Values.iri(
+                            "http://localhost:8080/iriTest/api/rdf/DataResources/column/data"))
+                    .toArray()[0])
+            .stringValue();
+    assertEquals("my data", dataValue);
     database.dropSchema(schema.getName());
   }
 

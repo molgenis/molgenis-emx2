@@ -4,12 +4,11 @@ export default gql`
     Datasets(
       filter: { resource: { id: { equals: [$id] } }, name: { equals: [$name] } }
     ) {
-      name
-      description
       resource {
         id
       }
       name
+      description
       label
       unitOfObservation {
         name
@@ -19,7 +18,6 @@ export default gql`
         name
         code
       }
-      description
       numberOfRows
       mappedTo {
         source {

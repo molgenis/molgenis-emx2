@@ -31,6 +31,10 @@ public class GraphqlTableFieldFactory {
           .field(GraphQLFieldDefinition.newFieldDefinition().name("size").type(Scalars.GraphQLInt))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
+                  .name("filename")
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
                   .name("extension")
                   .type(Scalars.GraphQLString))
           .field(
