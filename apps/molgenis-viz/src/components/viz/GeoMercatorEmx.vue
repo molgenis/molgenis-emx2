@@ -1,0 +1,157 @@
+<template>
+  <LoadingScreen v-if="chartLoading" message="" />
+  <MessageBox v-if="chartError" type="error">
+    <output>{{ chartError }}</output>
+  </MessageBox>
+  <GeoMercator
+    v-if="chartSuccess"
+    :chartId="chartId"
+    :title="title"
+    :description="description"
+    :chartData="chartData"
+    :geojson="WorldGeoJson"
+    :rowId="rowId"
+    :latitude="latVar"
+    :longitude="lngVar"
+    :group="groupVar"
+    :groupColorMappings="groupColorMappings"
+    :markerColor="markerColor"
+    :markerStroke="markerStroke"
+    :chartHeight="chartHeight"
+    :mapCenter="mapCenter"
+    :chartSize="chartSize"
+    :chartScale="chartScale"
+    :pointRadius="pointRadius"
+    :legendData="legendData"
+    :showTooltip="showTooltip"
+    :tooltipTemplate="tooltipTemplate"
+    :enableMarkerClicks="enableMarkerClicks"
+    :enableLegendClicks="enableLegendClicks"
+    :enableZoom="enableZoom"
+    :zoomLimits="zoomLimits"
+    :mapColors="mapColors"
+  />
+</template>
+
+<script setup lang="ts">
+import { ref, onBeforeMount, watch } from "vue";
+import { gql } from "graphql-tag";
+import { request } from "graphql-request";
+
+import type { GeoMercatorParams } from "../../interfaces/viz";
+import {
+  buildQuery,
+  gqlExtractSelectionName,
+  gqlExtractSubSelectionNames,
+  prepareChartData,
+} from "../../utils/emxViz";
+
+import WorldGeoJson from "../../data/world.geo.json";
+import GeoMercator from "./GeoMercator.vue";
+import LoadingScreen from "../display/LoadingScreen.vue";
+import MessageBox from "../display/MessageBox.vue";
+
+interface GeoMercatorEmxParams extends GeoMercatorParams {
+  geojson?: object;
+  chartData?: Array[];
+  legendData?: object;
+}
+
+const props = withDefaults(defineProps<GeoMercatorEmxParams>(), {
+  showTooltip: true,
+});
+
+let chartLoading = ref<Boolean>(true);
+let chartError = ref<Error | null>(null);
+let chartSuccess = ref<Boolean>(false);
+let chartData = ref<Array[]>([]);
+let chartDataQuery = ref<string | null>(null);
+
+let rowId = ref<string | null>(null);
+let rowIdSubSelection = ref<string | null>(null);
+
+let latVar = ref<string | null>(null);
+let latSubSelection = ref<string | null>(null);
+
+let lngVar = ref<string | null>(null);
+let lngSubSelection = ref<string | null>(null);
+
+let groupVar = ref<string | null>(null);
+let groupSubSelection = ref<string | null>(null);
+
+let legendData = ref<Object | null>(null);
+
+interface TooltipSelectionsIF {
+  key: string;
+  nestedKey?: string;
+}
+
+let tooltipVars = ref<TooltipSelectionsIF[] | null>(null);
+
+function setChartVariables() {
+  rowId.value = gqlExtractSelectionName(props.rowId);
+  latVar.value = gqlExtractSelectionName(props.latitude);
+  lngVar.value = gqlExtractSelectionName(props.longitude);
+  rowIdSubSelection.value = gqlExtractSubSelectionNames(props.rowId);
+  latSubSelection.value = gqlExtractSubSelectionNames(props.latitude);
+  lngSubSelection.value = gqlExtractSubSelectionNames(props.longitude);
+
+  const chartSelections = [
+    props.latitude,
+    props.longitude,
+    props.rowId,
+    props.group,
+  ];
+
+  if (props.group) {
+    groupVar.value = gqlExtractSelectionName(props.group);
+    groupSubSelection.value = gqlExtractSubSelectionNames(props.group);
+  }
+
+  if (props.tooltipVariables) {
+    chartSelections.push(...props.tooltipVariables);
+    tooltipVars.value = props.tooltipVariables.map((variable: string) => {
+      return {
+        key: gqlExtractSelectionName(variable),
+        nestedKey: gqlExtractSubSelectionNames(variable),
+      };
+    });
+  }
+
+  chartDataQuery.value = buildQuery({
+    table: props.table,
+    selections: chartSelections,
+  });
+}
+
+async function fetchChartData() {
+  chartLoading.value = true;
+  chartSuccess.value = false;
+  try {
+    const response = await request("../api/graphql", chartDataQuery.value);
+    const data = await response[props.table as string].slice(0, 20);
+    chartData.value = await prepareChartData({
+      data: data,
+      chartVariables: [
+        { key: rowId.value, nestedKey: rowIdSubSelection.value },
+        { key: latVar.value, nestedKey: latSubSelection.value },
+        { key: lngVar.value, nestedKey: lngSubSelection.value },
+        { key: groupVar.value, nestedKey: groupSubSelection.value },
+        ...tooltipVars.value,
+      ],
+    });
+    chartSuccess.value = true;
+  } catch (error) {
+    chartError.value = error;
+  } finally {
+    chartLoading.value = false;
+  }
+}
+
+onBeforeMount(() => setChartVariables());
+watch(props, () => setChartVariables());
+
+watch([chartDataQuery], async () => {
+  await fetchChartData();
+});
+</script>

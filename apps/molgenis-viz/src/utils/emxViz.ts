@@ -5,24 +5,35 @@ import { gql } from "graphql-tag";
  * Compile a query into graphql format
  *
  * @param table name of the table where the data is stored
+ * @param selections an array containing one or more columns to selection
  * @param x name of the column to plot along the x-axis
  * @param y name of the column to plot along the y-axis
+ * @param group name of the column used to group data
+ * @param rowId name of the column that contains row identifiers (applies to maps)
  *
  * @returns string
  */
 
 export interface BuildQueryIF {
   table: string;
-  x: string;
-  y: string;
+  x?: string;
+  y?: string;
   group?: string;
+  rowId?: string;
+  selections?: Array<string>;
 }
 
-export function buildQuery({ table, x, y, group }: BuildQueryIF): string {
-  const subSelection: Array<String> = [x, y];
-  if (group) {
-    subSelection.push(group);
-  }
+export function buildQuery({
+  table,
+  x,
+  y,
+  group,
+  rowId,
+  selections,
+}: BuildQueryIF): string {
+  const subSelection: Array<string> = selections.filter(
+    (entry: string) => typeof entry !== undefined
+  );
   const query = gql`query {
     ${table} {
       ${subSelection}
@@ -108,18 +119,25 @@ export function extractNestedRowValue(
  * @param nestedXKey for ref data types, the name of the nested column to target
  * @param nestedYKey for ref data types, the name of the nested column to target
  * @param nestedGroupKey for ref data types, the name of the nested column to target
+ * @param chartVariables an array of objects containing variables to select for the chart dataset
  *
  * @returns array of objects reduced and flattened to x and y variables
  */
 
+export interface chartVariablesIF {
+  key: string;
+  nestedKey?: string;
+}
+
 export interface PrepareChartDataIF {
   data: Array[];
-  x: string;
-  y: string;
+  x?: string;
+  y?: string;
   group?: string;
   nestedXKey?: string;
   nestedYKey?: string;
   nestedGroupKey?: string;
+  chartVariables?: Array<SupplementaryVarIF>;
 }
 
 export function prepareChartData({
@@ -130,15 +148,24 @@ export function prepareChartData({
   nestedXKey,
   nestedYKey,
   nestedGroupKey,
+  chartVariables,
 }: PrepareChartDataIF): array {
   return data.map((row: object) => {
     const newRow: object = {};
-    newRow[x] = extractNestedRowValue(row, x, nestedXKey);
-    newRow[y] = extractNestedRowValue(row, y, nestedYKey);
+    // newRow[x] = extractNestedRowValue(row, x, nestedXKey);
+    // newRow[y] = extractNestedRowValue(row, y, nestedYKey);
 
-    if (group) {
-      newRow[group] = extractNestedRowValue(row, group, nestedGroupKey);
-    }
+    // if (group) {
+    //   newRow[group] = extractNestedRowValue(row, group, nestedGroupKey);
+    // }
+
+    chartVariables.forEach((variable: string) => {
+      newRow[variable.key] = extractNestedRowValue(
+        row,
+        variable.key,
+        variable.nestedKey
+      );
+    });
 
     return newRow;
   });

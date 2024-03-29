@@ -63,18 +63,25 @@ let chartDataQuery = ref<string | null>(null);
 
 let xVar = ref<string | null>(null);
 let yVar = ref<string | null>(null);
+let groupVar = ref<string | null>(null);
 let xSubSelection = ref<string | null>(null);
 let ySubSelection = ref<string | null>(null);
+let groupSubSelection = ref<string | null>(null);
 
 function setChartVariables() {
   xVar.value = gqlExtractSelectionName(props.xvar);
   yVar.value = gqlExtractSelectionName(props.yvar);
   xSubSelection.value = gqlExtractSubSelectionNames(props.xvar);
   ySubSelection.value = gqlExtractSubSelectionNames(props.yvar);
+
+  if (props.group) {
+    groupVar.value = gqlExtractSelectionName(props.group);
+    groupSubSelection.value = gqlExtractSubSelectionNames(props.group);
+  }
+
   chartDataQuery.value = buildQuery({
     table: props.table,
-    x: props.xvar,
-    y: props.yvar,
+    selections: [props.xvar, props.yvar, props.group],
   });
 }
 
@@ -86,10 +93,11 @@ async function fetchChartData() {
     const data = await response[props.table as string];
     chartData.value = await prepareChartData({
       data: data,
-      x: xVar.value,
-      y: yVar.value,
-      nestedXKey: xSubSelection.value,
-      nestedYKey: ySubSelection.value,
+      chartVariables: [
+        { key: xVar.value, nestedKey: xSubSelection.value },
+        { key: yVar.value, nestedKey: ySubSelection.value },
+        { key: groupVar.value, nestedKey: groupSubSelection.value },
+      ],
     });
     chartSuccess.value = true;
   } catch (error) {

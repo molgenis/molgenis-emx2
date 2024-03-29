@@ -64,8 +64,7 @@ function setChartVariables() {
   ySubSelection.value = gqlExtractSubSelectionNames(props.yvar);
   chartDataQuery.value = buildQuery({
     table: props.table,
-    x: props.xvar,
-    y: props.yvar
+    selections: [props.xvar, props.yvar],
   });
 }
 
@@ -77,10 +76,10 @@ async function fetchChartData() {
     const data = await response[props.table as string];
     chartData.value = await prepareChartData({
       data: data,
-      x: xVar.value,
-      y: yVar.value,
-      nestedXKey: xSubSelection.value,
-      nestedYKey: ySubSelection.value,
+      chartVariables: [
+        { key: xVar.value, nestedKey: xSubSelection.value },
+        { key: yVar.value, nestedKey: ySubSelection.value },
+      ],
     });
     chartSuccess.value = true;
   } catch (error) {

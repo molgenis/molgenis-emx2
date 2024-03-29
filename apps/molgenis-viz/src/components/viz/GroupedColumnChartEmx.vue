@@ -76,9 +76,7 @@ function setChartVariables() {
   groupSubSelection.value = gqlExtractSubSelectionNames(props.group);
   chartDataQuery.value = buildQuery({
     table: props.table,
-    x: props.xvar,
-    y: props.yvar,
-    group: props.group,
+    selections: [props.xvar, props.yvar, props.group],
   });
 }
 
@@ -90,15 +88,13 @@ async function fetchChartData() {
     const data = await response[props.table as string];
     const preppedData = await prepareChartData({
       data: data,
-      x: xVar.value,
-      y: yVar.value,
-      group: groupVar.value,
-      nestedXKey: xSubSelection.value,
-      nestedYKey: ySubSelection.value,
-      nestedGroupKey: groupSubSelection.value,
+      chartVariables: [
+        { key: xVar.value, nestedKey: xSubSelection.value },
+        { key: yVar.value, nestedKey: ySubSelection.value },
+        { key: groupVar.value, nestedKey: groupSubSelection.value },
+      ],
     });
 
-    // chartData.value = preppedData;
     chartData.value = preppedData.sort((current, next) => {
       return (
         current[groupVar.value].localeCompare(next[groupVar.value]) ||

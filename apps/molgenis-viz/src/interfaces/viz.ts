@@ -163,3 +163,37 @@ export interface ScatterPlotParams {
   stackLegend?: boolean;
   enableLegendClicks?: boolean;
 }
+
+export interface GeoMercatorParams {
+  chartId: string;
+  title?: string;
+  description?: string;
+  table: string;
+  rowId: string;
+  latitude: string;
+  longitude: string;
+  group?: string;
+  groupColorMappings?: string;
+  markerColor?: string;
+  markerStroke?: string;
+  chartHeight?: number;
+  mapCenter?: {
+    latitude?: number;
+    longitude?: number;
+  };
+  chartSize?: number;
+  chartScale?: number;
+  pointRadius?: number;
+  showTooltip?: boolean;
+  tooltipVariables?: Array<string>;
+  tooltipTemplate?: Function;
+  enableMarkerClicks?: boolean;
+  enableLegendClicks?: boolean;
+  enableZoom?: boolean;
+  zoomLimits?: Array<Number>;
+  mapColors?: {
+    land?: string;
+    border?: string;
+    water?: string;
+  };
+}
