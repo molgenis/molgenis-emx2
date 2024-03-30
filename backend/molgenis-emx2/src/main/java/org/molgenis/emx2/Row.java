@@ -369,7 +369,7 @@ public class Row {
     return "ROW("
         + values.entrySet().stream()
             .map(col -> col.getKey() + "='" + TypeUtils.toString(col.getValue()) + "'")
-            .collect(Collectors.joining(", "))
+            .collect(Collectors.joining(" "))
         + ")";
   }
 
