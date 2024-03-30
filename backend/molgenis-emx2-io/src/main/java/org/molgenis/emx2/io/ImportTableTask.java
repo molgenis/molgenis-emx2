@@ -143,7 +143,7 @@ public class ImportTableTask extends Task {
       }
       if (hasEmptyKeys)
         task.completeWithError(
-            "Missing keys found in table " + metadata.getTableName() + "." + errorMessage);
+            "Missing keys found in table '" + metadata.getTableName() + "': " + errorMessage);
     }
   }
 
@@ -169,7 +169,7 @@ public class ImportTableTask extends Task {
         for (Column c : columns) {
           if (c.isFile()
               && source instanceof TableAndFileStore
-              && row.getString(c.getName()) != null) {
+              && row.getValueMap().get(c.getName()) != null) {
             BinaryFileWrapper wrapper =
                 ((TableAndFileStore) source).getBinaryFileWrapper(row.getString(c.getName()));
             if (row.containsName(c.getName() + "_filename")) {
