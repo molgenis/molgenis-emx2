@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { ISchemaMetaData, ITableMetaData } from "meta-data-utils";
-import type { IFilter } from "~~/interfaces/types";
+import type { IFilter, IMgError } from "~~/interfaces/types";
 import {
   buildRecordListQueryFields,
   extractExternalSchemas,
@@ -99,17 +99,14 @@ let search = computed(() => {
 const filter = computed(() => buildQueryFilter(filters, search.value));
 
 console.log("query: ", query.value);
-const { data, pending, error, refresh } = await useFetch(
-  `/${route.params.schema}/api/graphql`,
-  {
-    key: `${tableId}-list-${offset.value}`,
-    method: "POST",
-    body: {
-      query,
-      variables: { orderby, filter },
-    },
-  }
-);
+
+const { data, error } = await useGqlFetch<any, IMgError>(query, {
+  variables: { filter, orderby },
+});
+
+if (error.value) {
+  throw new Error("Error on cohorts-page data fetch");
+}
 
 function buildRecordId(record: any) {
   return extractKeyFromRecord(

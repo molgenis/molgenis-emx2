@@ -50,10 +50,10 @@ public class TestRenameAndDelete {
     store = new TableStoreForCsvInMemory();
     store.writeTable(
         "molgenis",
-        List.of("tableName", "columnName", "oldName"),
+        List.of("tableName", "columnName", "oldName", "key"),
         List.of(
             new Row("tableName", "otherTable", "oldName", "myTable"),
-            new Row("tableName", "otherTable", "columnName", "b", "oldName", "a")));
+            new Row("tableName", "otherTable", "columnName", "b", "oldName", "a", "key", "1")));
     imt = new ImportMetadataTask(schema, store, true);
     imt.run();
 

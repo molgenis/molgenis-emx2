@@ -1,5 +1,5 @@
-/* eslint-disable no-undef */
-import { QueryEMX2 } from "molgenis-components";
+import { describe, expect, it } from "vitest";
+import QueryEMX2 from "./queryEmx2";
 
 describe("QueryEMX2 Interface", () => {
   it("can create a simple query on the biobanks table", () => {

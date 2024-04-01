@@ -1,5 +1,6 @@
 id,pid,acronym,name,type,type other,institution,institution acronym,email,logo,address,expertise,country,features,role,website,description
 UU,,UU,University of Utrecht ,University,,,,,,,,Netherlands (the),,,,
+AvL,,AvL,Antoni van Leeuwenhoek,Teaching hospital,,,,,,,,Netherlands (the),,,,
 USEY,,USEY,University of Surrey ,University,,,,,,,,United Kingdom of Great Britain and Northern Ireland (the),,,,
 AMC,,AMC,Amsterdam Medical Center ,University,,,,,,,,Netherlands (the),,,,
 CYN,,CYN,Cynexo ,SME,,,,,,,,Italy,,,,
@@ -131,3 +132,15 @@ Among FISABIO the main objectives are:
 ULST,,ULST,University of Ulster,Academic institution,,,,,,,,United Kingdom of Great Britain and Northern Ireland (the),,,,
 UMCG,,UMCG,University Medical Center Groningen,Academic institution,,,,,,,,Netherlands (the),,,,The University Medical Center Groningen (UMCG) is one of 8 university medical centers in the Netherlands.
 LIPRE,,LIPRE,Leibniz Institute for Prevention Research and Epidemiology,Research centre,,,,,,,,Germany,,,,
+Test lead organisation 1,PID FOR LEADORG1,ACRONYM FOR LEADORG1,Name for lead organisation 1,Regulatory Authority,other type of lead organisation,Test lead organisation institution,TLOI,molgenis-support@umcg.nl,,"test lead organisation address line 1
+test lead organisation address line 2
+test lead organisation address line 3",test lead organisation expertise,Botswana,"Research interest,ENCePP center,Experience","Data originator,Data holder,Data provider,Researcher,Surveillance,Other",,
+Test additional organisation 1,PID for test additional organisation 1,acronym for test additional organisation 1,name of test additional organisation 1,"Company,Pharmaceutical company,Non-Pharmaceutical company,SME",other type of additional organisation 1,Institution for additional organisation 1,acronym for institution for additional organisation 1,molgenis-support@umcg.nl,,"test address for additional organisation line 1
+test address for additional organisation line 2
+test address for additional organisation line 3",test expertise of additional organisation,Canada,Experience,Surveillance,,
+test lead organisation 2,pid for test lead organisation 2,acronym for test lead organisation 2,name for test lead organisation 2,EU Institution/Body/Agency,test other type of lead organisation,test lead organisation institution,acronym for test lead organisation institution,testemailforleadorg@testdomain.nl,,"test address for lead org 2 line 1
+test address for lead org 2 line 2
+test address for lead org 2 line 3",test expertise for lead org 2,"""Bonaire, Sint Eustatius and Saba""","Research interest,ENCePP center,Experience",Data provider,,
+id for test additional organisation 2,pid for test additional organisation 2,acronym for test additional organisation 2,name for test additional organisation 2,Research centre,test other type of additional organisation,test institution for additional organisation 2,acronym for institution for additional organisation 2,testemailaddorg@testdomain.nl,,"test address for additional org 2 line 1
+test address for additional org 2 line 2
+test address for additional org 2 line 3",test expertise for additional org 2,Bosnia and Herzegovina,Experience,"Data provider,Surveillance",,

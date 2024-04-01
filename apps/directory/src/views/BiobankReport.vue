@@ -105,10 +105,10 @@
   </div>
 </template>
 
-<!-- eslint-disable no-useless-escape -->
-<script>
+<script lang="ts">
 import { ref } from "vue";
 import { useRoute } from "vue-router";
+//@ts-ignore
 import { Breadcrumb, Spinner } from "../../../molgenis-components";
 import CheckOut from "../components/checkout-components/CheckOut.vue";
 import CollectionSelector from "../components/checkout-components/CollectionSelector.vue";
@@ -149,23 +149,47 @@ export default {
     const biobanksStore = useBiobanksStore();
     const qualitiesStore = useQualitiesStore();
 
-    const biobank = ref({});
+    const biobank: Record<string, any> = ref({});
     const route = useRoute();
 
-    biobanksStore.getBiobank(route.params.id).then((result) => {
-      biobank.value = result.Biobanks.length
-        ? getBiobankDetails(result.Biobanks[0])
-        : {};
-    });
+    biobanksStore
+      .getBiobank(route.params.id)
+      .then((result: Record<string, any>) => {
+        biobank.value = result.Biobanks.length
+          ? getBiobankDetails(result.Biobanks[0])
+          : {};
+      });
 
     return { settingsStore, biobanksStore, qualitiesStore, biobank };
   },
   methods: {
-    wrapBioschema(schemaData) {
+    wrapBioschema(schemaData: Record<string, any>) {
       /** ignore because it is not useless ;) */
       return `<script type="application/ld+json">${JSON.stringify(
         schemaData
       )}<\/script>`;
+    },
+    filterAndSortCollectionsData(collections: Record<string, any>[]) {
+      return collections
+        .filter(
+          (collection: Record<string, any>) => !collection.parent_collection
+        )
+        .filter(
+          (collection: Record<string, any>): Boolean =>
+            this.biobank.withdrawn || !collection.withdrawn
+        )
+        .map((collection: Record<string, any>) =>
+          getCollectionDetails(collection, this.biobank.withdrawn)
+        )
+        .sort(
+          (
+            collection1: Record<string, any>,
+            collection2: Record<string, any>
+          ) =>
+            collection1.name.localeCompare(collection2.name, "en", {
+              sensitivity: "base",
+            })
+        );
     },
   },
   computed: {
@@ -179,17 +203,10 @@ export default {
       return this.biobankDataAvailable &&
         this.biobank.collections &&
         this.biobank.collections.length
-        ? this.detailedChildCollections
+        ? this.filterAndSortCollectionsData(this.biobank.collections)
         : [];
     },
-    detailedChildCollections() {
-      return this.biobank.collections
-        .filter((it) => !it.parent_collection)
-        .map((col) => getCollectionDetails(col))
-        .sort((a, b) =>
-          a.name.localeCompare(b.name, "en", { sensitivity: "base" })
-        );
-    },
+
     networks() {
       return this.biobankDataAvailable && this.biobank.network
         ? mapNetworkInfo(this.biobank)
@@ -208,7 +225,7 @@ export default {
     alsoKnownIn() {
       return this.biobankDataAvailable && this.biobank.also_known
         ? mapAlsoKnownIn(this.biobank)
-        : {};
+        : [];
     },
     quality() {
       return {
@@ -225,7 +242,6 @@ export default {
     },
   },
   async mounted() {
-    this.showCollections = this.settingsStore.config.biobankCardShowCollections;
     await this.qualitiesStore.getQualityStandardInformation();
   },
 };

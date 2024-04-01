@@ -3,7 +3,6 @@ package org.molgenis.emx2.sql;
 import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.name;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.sql.Migrations.executeMigrationFile;
@@ -17,17 +16,12 @@ import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 
-class InitTestDatabaseAndRunNonParallelTests {
+public class TestMigration {
 
-  @Test
-  void createDatabase() {
-    // we want this run only once and NOT parallel for total test suite
-    // AND we want run all other tests in parallel
-    // so tests are in molgenis-emx2-sql-it ('integration test')
-    // and 'init' only happens once, here
-    System.out.println("INITIALIZING DATABASE");
-    Database db = new SqlDatabase(true);
-    assertTrue(db.getDatabaseVersion() > 0);
+  static Database database;
+
+  public static void setup() {
+    database = TestDatabaseFactory.getTestDatabase();
   }
 
   @Test
@@ -97,8 +91,7 @@ class InitTestDatabaseAndRunNonParallelTests {
             .size());
 
     // create test schema and run migration 5
-    Schema testSchemm =
-        database.dropCreateSchema(InitTestDatabaseAndRunNonParallelTests.class.getSimpleName());
+    Schema testSchemm = database.dropCreateSchema(TestMigration.class.getSimpleName());
     testSchemm.getMetadata().create(table("pet", column("name").setPkey()));
     testSchemm.getMetadata().create(table("cat").setInheritName("pet"));
 

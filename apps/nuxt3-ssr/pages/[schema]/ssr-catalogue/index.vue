@@ -126,7 +126,7 @@ const projectCatalogues = computed(() => {
     <ContentBlockCatalogues
       v-if="projectCatalogues.length > 0"
       title="Project catalogues"
-      description="Catalogues maintained by individual research projects or consortia, such as EC RIA."
+      description="Catalogues maintained by individual research projects or consortia:"
       :catalogues="projectCatalogues"
     />
   </LayoutsLandingPage>

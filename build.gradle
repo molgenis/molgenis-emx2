@@ -134,11 +134,3 @@ task installPreCommitGitFormatApplyHook(type: Copy) {
     into { new File(rootProject.rootDir, '.git/hooks') }
     fileMode 0775
 }
-
-//task to install pre-commit hook that only checks formatting
-task installPreCommitGitFormatCheckHook(type: Copy) {
-    from new File(rootProject.rootDir, 'pre-commit-format-check')
-    rename 'pre-commit-format-check', 'pre-commit'
-    into { new File(rootProject.rootDir, '.git/hooks') }
-    fileMode 0775
-}

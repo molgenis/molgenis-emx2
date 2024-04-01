@@ -1,1 +1,3 @@
 resource,identifier,external identifier type,external identifier type other
+testCohort1,test external identifier for cohort 1,Clinical Trials.gov,other type of external identifier
+testCohort2,test external identifier for cohort 2,EUDRACT number,test external identifier other type
