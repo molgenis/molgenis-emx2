@@ -1292,7 +1292,7 @@ Centimeter of Water Times Second Squared per Milliliter,Centimeter of Water Time
 Centimeter of Water per Milliliter,Centimeter of Water per Milliliter,NCIT,C135520,http://purl.obolibrary.org/obo/NCIT_C135520,
 Milliliter Times Centimeter of Water,Milliliter Times Centimeter of Water,NCIT,C135521,http://purl.obolibrary.org/obo/NCIT_C135521,
 Week,Week,NCIT,C29844,http://purl.obolibrary.org/obo/NCIT_C29844,"week,weeks"
-Month,Month,NCIT,C29846,http://purl.obolibrary.org/obo/NCIT_C29846,
+Month,Month,NCIT,C29846,http://purl.obolibrary.org/obo/NCIT_C29846,"month,months"
 Year,Year,NCIT,C29848,http://purl.obolibrary.org/obo/NCIT_C29848,"year,years"
 Byte,Byte,NCIT,C48047,http://purl.obolibrary.org/obo/NCIT_C48047,
 Microgram,Microgram,NCIT,C48152,http://purl.obolibrary.org/obo/NCIT_C48152,
@@ -1675,19 +1675,17 @@ Kilogram,,NCIT,C28252,http://purl.obolibrary.org/obo/NCIT_C28252,kg
 Minute,A unit measure of time equal to 60 seconds.,NCIT,C48154,http://purl.obolibrary.org/obo/NCIT_C48154,minutes
 Unit,,NCIT,C68553,http://purl.obolibrary.org/obo/NCIT_C68553,unit
 Nanogram per Milliliter,,NCIT,C67306,http://purl.obolibrary.org/obo/NCIT_C67306,ng/ml
-,,,,,
 Hour per Week,,,,,hours/week
+Hour per Day,,,,,hours_per_day
+Servings per Day,,,,,"servings/day,servings_per_day"
 ,,,,,
-servings/day,,,,,
 mg/day,,,,,
 kcal/day,,,,,
 kg/m2,,,,,
 mg,,,,,
-month,,,,,
 meter_per_square_kilometer,,,,,
 percent_energy_intake,,,,,
 inverse_meter,,,,,
-hours_per_day,,,,,
 A_weighted_decibel,,,,,
 gram_per_dl,,,,,
 percent_total_food,,,,,
@@ -1709,7 +1707,7 @@ ndvi_value,,,,,
 sympercent_change,,,,,
 number_per_square_kilometer,,,,,
 ýýg/ml,,,,,
-servings_per_day,,,,,
+,,,,,
 kilojoules_per_square_meter,,,,,
 gram/ml,,,,,
 times_per_day,,,,,
@@ -1729,7 +1727,6 @@ days,,,,,
 times/day,,,,,
 mmhg,,,,,
 Kcal/day,,,,,
-months,,,,,
 kUa/L,,,,,
 L,,,,,
 g,,,,,
