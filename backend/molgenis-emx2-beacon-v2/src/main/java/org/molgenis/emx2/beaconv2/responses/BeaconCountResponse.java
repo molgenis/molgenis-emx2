@@ -21,6 +21,8 @@ public class BeaconCountResponse {
     this.responseSummary = new BeaconSummaryResponseSection(exists, numTotalResults);
   }
 
+  public BeaconCountResponse() {}
+
   public String get$schema() {
     return $schema;
   }

@@ -11,7 +11,6 @@ public class QueryBuilder {
 
   private Table table;
   private List<String> filters;
-  private List<Column> columns;
   private StringBuilder columnSb;
   private StringBuilder query;
   private Integer limit;
@@ -75,7 +74,11 @@ public class QueryBuilder {
   }
 
   private void addFilters() {
-    query.append("filter: { _or: [");
+    addFilters("or");
+  }
+
+  private void addFilters(String operator) {
+    query.append("filter: { _%s: [".formatted(operator));
     for (String filter : filters) {
       query.append(filter).append(",");
     }
@@ -87,7 +90,9 @@ public class QueryBuilder {
 
   private int queryColumnsRecursively(List<Column> columns, int maxDepth, int currentDepth) {
     for (Column column : columns) {
-      if (column.isOntology() || column.isReference()) {
+      if (
+      //          column.isOntology() ||
+      column.isReference()) {
         if (currentDepth < maxDepth) {
           TableMetadata refTable = column.getRefTable();
 

@@ -14,6 +14,8 @@ import org.molgenis.emx2.beaconv2.EntryType;
 import org.molgenis.emx2.beaconv2.QueryEntryType;
 import org.molgenis.emx2.beaconv2.endpoints.*;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
+import org.molgenis.emx2.beaconv2.responses.BeaconBooleanResponse;
+import org.molgenis.emx2.beaconv2.responses.BeaconCountResponse;
 import spark.Request;
 import spark.Response;
 
@@ -72,9 +74,8 @@ public class BeaconApi {
       throws JsonProcessingException {
     response.type(Constants.ACCEPT_JSON);
     return switch (requestBody.getQuery().getRequestedGranularity()) {
-      case BOOLEAN -> getWriter().writeValueAsString("true");
-      case COUNT -> getWriter().writeValueAsString("counts");
-      case AGGREGATED -> getWriter().writeValueAsString("aggregated");
+      case BOOLEAN -> getWriter().writeValueAsString(new BeaconBooleanResponse());
+      case AGGREGATED, COUNT -> getWriter().writeValueAsString(new BeaconCountResponse());
       case RECORD, UNDEFINED -> getWriter().writeValueAsString(dataResult);
     };
   }

@@ -47,6 +47,33 @@ public class GenomicVariantsResponse {
     qAlternateBases = request.queryParams("alternateBases");
     qGeneId = request.queryParams("geneId");
 
+    GenomicQueryType genomicQueryType = getGenomicQueryType();
+
+    if (genomicQueryType == GenomicQueryType.NO_REQUEST_PARAMS) {
+      // must return an empty resultSets object
+      this.resultSets = resultSetsList.toArray(new GenomicVariantsResultSets[0]);
+      return;
+    }
+
+    // each schema has 0 or 1 'GenomicVariations' table
+    // each table match yields 1 GenomicVariantsResultSets
+    // each row becomes a GenomicVariantsResultSetsItem
+    for (Table table : genomicVariantTables) {
+      resultSetsList.addAll(
+          GenomicQuery.genomicQuery(
+              table,
+              genomicQueryType,
+              qReferenceName,
+              qGeneId,
+              qStart,
+              qEnd,
+              qReferenceBases,
+              qAlternateBases));
+    }
+    this.resultSets = resultSetsList.toArray(new GenomicVariantsResultSets[0]);
+  }
+
+  private GenomicQueryType getGenomicQueryType() throws Exception {
     GenomicQueryType genomicQueryType;
     if ((qReferenceName != null && qStart != null) && (qGeneId == null)) {
       if (qEnd != null) {
@@ -80,29 +107,7 @@ public class GenomicVariantsResponse {
             "Bad request. Must at least supply: referenceName and start, or geneId");
       }
     }
-
-    if (genomicQueryType == GenomicQueryType.NO_REQUEST_PARAMS) {
-      // must return an empty resultSets object
-      this.resultSets = resultSetsList.toArray(new GenomicVariantsResultSets[0]);
-      return;
-    }
-
-    // each schema has 0 or 1 'GenomicVariations' table
-    // each table match yields 1 GenomicVariantsResultSets
-    // each row becomes a GenomicVariantsResultSetsItem
-    for (Table table : genomicVariantTables) {
-      resultSetsList.addAll(
-          GenomicQuery.genomicQuery(
-              table,
-              genomicQueryType,
-              qReferenceName,
-              qGeneId,
-              qStart,
-              qEnd,
-              qReferenceBases,
-              qAlternateBases));
-    }
-    this.resultSets = resultSetsList.toArray(new GenomicVariantsResultSets[0]);
+    return genomicQueryType;
   }
 
   /** Helper function to extract coordinate long arrays from request */

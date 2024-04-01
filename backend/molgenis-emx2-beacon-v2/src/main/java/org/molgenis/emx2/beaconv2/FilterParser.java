@@ -9,8 +9,8 @@ import org.molgenis.emx2.beaconv2.requests.Filter;
 public class FilterParser {
 
   private final List<Filter> unsupportedFilters = new ArrayList<>();
-  private List<Filter> graphQlFilters = new ArrayList<>();
-  private List<Filter> postFetchFilters = new ArrayList<>();
+  private final List<Filter> graphQlFilters = new ArrayList<>();
+  private final List<Filter> postFetchFilters = new ArrayList<>();
 
   public FilterParser() {}
 

@@ -52,7 +52,11 @@ public enum Concept {
 
   public boolean isPermittedValue(String[] values) {
     if (permittedValues != null) {
-      return permittedValues.contains(values);
+      for (String value : values) {
+        if (!permittedValues.contains(value)) {
+          return false;
+        }
+      }
     }
     return true;
   }

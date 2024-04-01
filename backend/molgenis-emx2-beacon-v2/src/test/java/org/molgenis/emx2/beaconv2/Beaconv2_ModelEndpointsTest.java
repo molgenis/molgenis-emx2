@@ -143,16 +143,16 @@ public class Beaconv2_ModelEndpointsTest {
     String json = JsonUtil.getWriter().writeValueAsString(analyses);
     assertTrue(json.contains("\"resultsCount\" : 5,"));
   }
+
+  //  @Test
+  //  public void testAnalyses_NoHits() throws Exception {
+  //    Request request = mock(Request.class);
+  //    when(request.queryParams("id")).thenReturn("A05");
   //
-  //    @Test
-  //    public void testAnalyses_NoHits() throws Exception {
-  //      Request request = mock(Request.class);
-  //      when(request.queryParams("id")).thenReturn("A05");
-  //
-  //      Analyses analyses = new Analyses(request, List.of(beaconSchema.getTable("Analyses")));
-  //      String json = JsonUtil.getWriter().writeValueAsString(analyses);
-  //      assertTrue(json.contains("\"response\" : {\n" + "    \"resultSets\" : [ ]"));
-  //    }
+  //    Analyses analyses = new Analyses(request, List.of(beaconSchema.getTable("Analyses")));
+  //    String json = JsonUtil.getWriter().writeValueAsString(analyses);
+  //    assertTrue(json.contains("\"response\" : {\n" + "    \"resultSets\" : [ ]"));
+  //  }
 
   //  @Test
   //  public void testAnalyses_IdQuery() throws Exception {
