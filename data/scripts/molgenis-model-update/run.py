@@ -22,7 +22,9 @@ CATALOGUE_SCHEMA_NAME = config('MG_CATALOGUE_SCHEMA_NAME')
 ONTOLOGIES_SCHEMA_NAME = config('MG_ONTOLOGIES_SCHEMA_NAME')
 SHARED_STAGING_NAME = config('MG_SHARED_STAGING_NAME')
 
-COHORTS = config('MG_COHORTS', cast=lambda v: [s.strip() for s in v.split(',')])
+if SERVER_TYPE == 'data_catalogue' or 'UMCG_catalogue':
+    COHORTS = config('MG_COHORTS', cast=lambda v: [s.strip() for s in v.split(',')])
+
 if SERVER_TYPE == 'catalogue':
     DATA_SOURCES = config('MG_DATA_SOURCES', cast=lambda v: [s.strip() for s in v.split(',')])
     NETWORKS = config('MG_NETWORKS', cast=lambda v: [s.strip() for s in v.split(',')])
@@ -50,6 +52,9 @@ session = Session(
 )
 
 # --------------------------------------------------------------
+# Catalogue schema update
+print('-----------------------')
+print('Catalogue schema update to data model ' + DATA_MODEL_VERSION)
 
 # extract data from catalogue schema
 print('Extract data from ' + CATALOGUE_SCHEMA_NAME + ': ' + CATALOGUE_SCHEMA_NAME + '_data.zip')
@@ -69,46 +74,46 @@ update.transform_data()
 zip_handling.zip_data()
 
 # --------------------------------------------------------------
+if SERVER_TYPE == 'data_catalogue' or 'cohort_catalogue':
+    # Cohorts update
+    print('-----------------------')
+    print('Cohort staging schema update to data model ' + DATA_MODEL_VERSION)
 
-# Cohorts update
-print('-----------------------')
-print('Cohort data update to data model ' + DATA_MODEL_VERSION)
+    for cohort in COHORTS:
+        # sign in to server
+        print('Sign in to server: ' + SERVER_URL)
+        session = Session(
+            url=SERVER_URL,
+            email=SERVER_USERNAME,
+            password=SERVER_PASSWORD
+        )
+        # extract data
+        print('Extract data for ' + cohort + ': ' + cohort + '_data.zip')
+        session.download_zip(database_name=cohort)
 
-for cohort in COHORTS:
-    # sign in to server
-    print('Sign in to server: ' + SERVER_URL)
-    session = Session(
-        url=SERVER_URL,
-        email=SERVER_USERNAME,
-        password=SERVER_PASSWORD
-    )
-    # extract data
-    print('Extract data for ' + cohort + ': ' + cohort + '_data.zip')
-    session.download_zip(database_name=cohort)
+        # transform data from cohorts
+        print('Transform data from ' + cohort)
+        zip_handling = Zip(cohort)
+        if SERVER_TYPE == 'catalogue':
+            update = Transform(cohort, 'cohort')
+        elif SERVER_TYPE == 'UMCG_catalogue':
+            update = Transform(cohort, 'cohort_UMCG')
 
-    # transform data from cohorts
-    print('Transform data from ' + cohort)
-    zip_handling = Zip(cohort)
-    if SERVER_TYPE == 'catalogue':
-        update = Transform(cohort, 'cohort')
-    elif SERVER_TYPE == 'UMCG_catalogue':
-        update = Transform(cohort, 'cohort_UMCG')
+        zip_handling.remove_unzipped_data()
+        zip_handling.unzip_data()
+        update.delete_data_model_file()
+        update.transform_data()
+        update.update_data_model_file()
+        zip_handling.zip_data()
+        zip_handling.remove_unzipped_data()
 
-    zip_handling.remove_unzipped_data()
-    zip_handling.unzip_data()
-    update.delete_data_model_file()
-    update.transform_data()
-    update.update_data_model_file()
-    zip_handling.zip_data()
-    zip_handling.remove_unzipped_data()
-
-    # delete and create new cohort schema
-    schema_description = session.get_database_description(database_name=cohort)
-    session.drop_database(database_name=cohort)
-    session.create_database(database_name=cohort, database_description=schema_description)
+        # delete and create new cohort schema
+        schema_description = session.get_database_description(database_name=cohort)
+        session.drop_database(database_name=cohort)
+        session.create_database(database_name=cohort, database_description=schema_description)
 
 # --------------------------------------------------------------
-if SERVER_TYPE == 'catalogue':
+if SERVER_TYPE == 'data_catalogue':
     # Data sources update
     print('-----------------------')
     print('Data source update to data model ' + DATA_MODEL_VERSION)
