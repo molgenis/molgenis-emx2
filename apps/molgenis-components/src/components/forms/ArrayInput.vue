@@ -108,6 +108,7 @@ export default {
           id="array-string"
           columnType="STRING_ARRAY"
           v-model="stringValue"
+          description="this is the description"
         />
       </div>
       <div>
