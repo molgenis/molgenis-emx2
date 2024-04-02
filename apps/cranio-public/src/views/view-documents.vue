@@ -16,7 +16,7 @@
     >
       <h2 id="section-documents-title">Download Documents</h2>
       <p>Download additional information about the CRANIO Registry.</p>
-      <FileList table="Files" filename="name" path="path" />
+      <FileList table="Files" fileColumn="file" />
     </PageSection>
   </Page>
 </template>
