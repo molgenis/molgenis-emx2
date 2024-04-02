@@ -6,10 +6,6 @@ import { gql } from "graphql-tag";
  *
  * @param table name of the table where the data is stored
  * @param selections an array containing one or more columns to selection
- * @param x name of the column to plot along the x-axis
- * @param y name of the column to plot along the y-axis
- * @param group name of the column used to group data
- * @param rowId name of the column that contains row identifiers (applies to maps)
  *
  * @returns string
  */
@@ -23,14 +19,7 @@ export interface BuildQueryIF {
   selections?: Array<string>;
 }
 
-export function buildQuery({
-  table,
-  x,
-  y,
-  group,
-  rowId,
-  selections,
-}: BuildQueryIF): string {
+export function buildQuery({ table, selections }: BuildQueryIF): string {
   const subSelection: Array<string> = selections.filter(
     (entry: string) => typeof entry !== undefined
   );
@@ -111,14 +100,8 @@ export function extractNestedRowValue(
 
 /**
  * prepareChartData
- * This function should be used to prepare a chart
+ *
  * @param data dataset return from a graphql quert (array of objects)
- * @param x the name of the column to plot along the x-axis
- * @param y the name of the column to plot along the y-axis
- * @param group the name of the column to plot along the second x-axis
- * @param nestedXKey for ref data types, the name of the nested column to target
- * @param nestedYKey for ref data types, the name of the nested column to target
- * @param nestedGroupKey for ref data types, the name of the nested column to target
  * @param chartVariables an array of objects containing variables to select for the chart dataset
  *
  * @returns array of objects reduced and flattened to x and y variables
@@ -131,34 +114,15 @@ export interface chartVariablesIF {
 
 export interface PrepareChartDataIF {
   data: Array[];
-  x?: string;
-  y?: string;
-  group?: string;
-  nestedXKey?: string;
-  nestedYKey?: string;
-  nestedGroupKey?: string;
   chartVariables?: Array<SupplementaryVarIF>;
 }
 
 export function prepareChartData({
   data,
-  x,
-  y,
-  group,
-  nestedXKey,
-  nestedYKey,
-  nestedGroupKey,
   chartVariables,
 }: PrepareChartDataIF): array {
   return data.map((row: object) => {
     const newRow: object = {};
-    // newRow[x] = extractNestedRowValue(row, x, nestedXKey);
-    // newRow[y] = extractNestedRowValue(row, y, nestedYKey);
-
-    // if (group) {
-    //   newRow[group] = extractNestedRowValue(row, group, nestedGroupKey);
-    // }
-
     chartVariables.forEach((variable: string) => {
       newRow[variable.key] = extractNestedRowValue(
         row,

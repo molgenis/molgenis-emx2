@@ -1,0 +1,103 @@
+<template>
+  <LoadingScreen v-if="tableLoading" message="" />
+  <MessageBox v-if="tableError" type="error">
+    <output>{{ tableError }}</output>
+  </MessageBox>
+  <DataTable
+    v-if="tableSuccess"
+    :tableId="tableId"
+    :data="tableData"
+    :columnOrder="columnOrder"
+    :enable-row-highlighting="enableRowHighlighting"
+    :enable-row-clicks="enableRowClicks"
+    :render-html="renderHtml"
+    @row-clicked="(row) => (clickedRow = row)"
+  />
+</template>
+
+<script setup lang="ts">
+import { ref, onBeforeMount, watch } from "vue";
+import { gql } from "graphql-tag";
+import { request } from "graphql-request";
+
+import type { DataTableParams } from "../../interfaces/viz";
+import {
+  buildQuery,
+  gqlExtractSelectionName,
+  gqlExtractSubSelectionNames,
+  prepareChartData,
+} from "../../utils/emxViz";
+
+import DataTable from "./DataTable.vue";
+import LoadingScreen from "../display/LoadingScreen.vue";
+import MessageBox from "../display/MessageBox.vue";
+
+const props = withDefaults(defineProps<DataTableParams>(), {
+  renderHtml: true,
+  enableRowHighlighting: true,
+});
+
+const emit = defineEmits<{
+  (e: "rowClicked", row: object): void;
+}>();
+
+let tableLoading = ref<Boolean>(true);
+let tableError = ref<Error | null>(null);
+let tableSuccess = ref<Boolean>(false);
+let tableData = ref<Array[]>([]);
+let tableDataQuery = ref<string | null>(null);
+
+let tableColumnMappings = ref<Array | null>(null);
+let columnOrder = ref<Array | null>(null);
+
+let clickedRow = ref<Object | null>({});
+
+function setChartVariables() {
+  tableDataQuery.value = buildQuery({
+    table: props.table,
+    selections: [props.columns],
+  });
+
+  const selections =
+    tableDataQuery.value.definitions[0].selectionSet?.selections[0].selectionSet
+      ?.selections;
+  tableColumnMappings.value = selections.map((selection: object) => {
+    return {
+      key: selection.name?.value,
+      nestedKey: selection.selectionSet?.selections[0].name?.value,
+    };
+  });
+
+  columnOrder.value = tableColumnMappings.value.map((row: Object) => row.key);
+}
+
+async function fetchChartData() {
+  tableLoading.value = true;
+  tableSuccess.value = false;
+  tableError.value = null;
+
+  try {
+    const response = await request("../api/graphql", tableDataQuery.value);
+    const data = await response[props.table as string];
+    tableData.value = await prepareChartData({
+      data: data,
+      chartVariables: [...tableColumnMappings.value],
+    });
+    tableSuccess.value = true;
+  } catch (error) {
+    tableError.value = error;
+  } finally {
+    tableLoading.value = false;
+  }
+}
+
+onBeforeMount(() => setChartVariables());
+watch(props, () => setChartVariables());
+watch([tableDataQuery], async () => await fetchChartData());
+
+watch(clickedRow, () => {
+  if (props.enableRowClicks) {
+    emit("rowClicked", clickedRow.value);
+  }
+});
+</script>

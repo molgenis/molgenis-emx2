@@ -103,7 +103,7 @@ export interface GroupedColumnChartParams {
 export interface DataTableParams {
   tableId: string;
   table: string;
-  columnOrder: string;
+  columns: string;
   caption?: string;
   enableRowHighlighting?: boolean;
   enableRowClicks?: boolean;
