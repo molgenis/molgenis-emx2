@@ -1,7 +1,8 @@
 <template>
   <Page>
     <PageSection :verticalPadding="2">
-      <DataTableEmx
+      {{ row }}
+      <!-- <DataTableEmx
         tableId="data-table-test"
         table="ClinicalData_groupBy"
         columns="
@@ -11,7 +12,9 @@
           _sum {
             n
           }"
-      />
+        :enable-row-clicks="true"
+        @viz-data-clicked="(data) => row = data"
+      /> -->
       <!-- <GeoMercatorEmx
         chartId="patients-by-recruitment-center"
         table="Organisations"
@@ -20,6 +23,8 @@
         longitude="longitude"
         group="organisationType"
         :tooltipVariables="['name', 'city', 'country']"
+        :enableMarkerClicks="true"
+        @viz-data-clicked="(data) => row = data"
       /> -->
       <!-- <BarChartEmx
         chartId="patients-by-recruitment-center"
@@ -27,14 +32,17 @@
         table="ClinicalData_groupBy"
         xvar="_sum { n }"
         yvar="researchCenter { name }"
-      />
-       -->
+        :enable-clicks="true"
+        @viz-data-clicked="(data) => row = data"
+      /> -->
       <!-- <ColumnChartEmx
         chartId="sample-types-chart"
         title="Overview of submitted samples"
         table="ClinicalData_groupBy"
         xvar="sampleType { name }"
         yvar="_sum { n }"
+        :enable-clicks="true"
+        @viz-data-clicked="(data) => row = data"
       /> -->
       <!-- <GroupedColumnChartEmx
         chartId="patients-by-recruitment-center-grouped"
@@ -52,12 +60,16 @@
           bottom: 80,
           left: 90
         }"
+        :enable-clicks="true"
+        @viz-data-clicked="(data) => row = data"
       /> -->
       <!-- <ScatterPlotEmx
         chartId="scatter-plot-demo"
         table="Organisations" 
         xvar="longitude"
         yvar="latitude"
+        :enable-clicks="true"
+        @viz-data-clicked="data => row = data"
       /> -->
       <!-- <PieChart2Emx
         chartId="number-of-patients-by-sex"
@@ -85,10 +97,10 @@ import DashboardChart from "../components/layouts/DashboardChart.vue";
 import MessageBox from "../components/display/MessageBox.vue";
 
 import DataTableEmx from "../components/viz/DataTableEmx.vue";
-// import BarChartEmx from "../components/viz/BarChartEmx.vue";
-// import PieChart2Emx from "../components/viz/PieChart2Emx.vue";
-// import ColumnChartEmx from "../components/viz/ColumnChartEmx.vue";
-// import GroupedColumnChartEmx from "../components/viz/GroupedColumnChartEmx.vue";
-// import ScatterPlotEmx from "../components/viz/ScatterPlotEmx.vue";
-// import GeoMercatorEmx from "../components/viz/GeoMercatorEmx.vue";
+import BarChartEmx from "../components/viz/BarChartEmx.vue";
+import PieChart2Emx from "../components/viz/PieChart2Emx.vue";
+import ColumnChartEmx from "../components/viz/ColumnChartEmx.vue";
+import GroupedColumnChartEmx from "../components/viz/GroupedColumnChartEmx.vue";
+import ScatterPlotEmx from "../components/viz/ScatterPlotEmx.vue";
+import GeoMercatorEmx from "../components/viz/GeoMercatorEmx.vue";
 </script>
