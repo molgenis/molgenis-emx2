@@ -11,7 +11,7 @@
     :enable-row-highlighting="enableRowHighlighting"
     :enable-row-clicks="enableRowClicks"
     :render-html="renderHtml"
-    @row-clicked="(row) => (clickedRow = row)"
+    @row-clicked="(data: object) => (tableRowClicked = data)"
   />
 </template>
 
@@ -38,7 +38,7 @@ const props = withDefaults(defineProps<DataTableParams>(), {
 });
 
 const emit = defineEmits<{
-  (e: "rowClicked", row: object): void;
+  (e: "viz-data-clicked", row: object): void;
 }>();
 
 let tableLoading = ref<Boolean>(true);
@@ -46,11 +46,10 @@ let tableError = ref<Error | null>(null);
 let tableSuccess = ref<Boolean>(false);
 let tableData = ref<Array[]>([]);
 let tableDataQuery = ref<string | null>(null);
+let tableRowClicked = ref<Object | null>({});
 
 let tableColumnMappings = ref<Array | null>(null);
 let columnOrder = ref<Array | null>(null);
-
-let clickedRow = ref<Object | null>({});
 
 function setChartVariables() {
   tableDataQuery.value = buildQuery({
@@ -95,9 +94,9 @@ onBeforeMount(() => setChartVariables());
 watch(props, () => setChartVariables());
 watch([tableDataQuery], async () => await fetchChartData());
 
-watch(clickedRow, () => {
+watch(tableRowClicked, () => {
   if (props.enableRowClicks) {
-    emit("rowClicked", clickedRow.value);
+    emit("viz-data-clicked", tableRowClicked.value);
   }
 });
 </script>

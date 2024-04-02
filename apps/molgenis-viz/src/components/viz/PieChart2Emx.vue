@@ -25,6 +25,7 @@
     :legendPosition="legendPosition"
     :enableLegendClicks="enableLegendClicks"
     :enableLegendHovering="enableLegendHovering"
+    @slice-clicked="(data: object) => chartDataClicked = data"
   />
 </template>
 
@@ -52,9 +53,14 @@ const props = withDefaults(defineProps<PieChartParams>(), {
   asDonutChart: true,
 });
 
+const emit = defineEmits<{
+  (e: "viz-data-clicked", row: object): void;
+}>();
+
 let chartLoading = ref<Boolean>(true);
 let chartError = ref<Error | null>(null);
 let chartSuccess = ref<Boolean>(false);
+let chartDataClicked = ref<object | null>(null);
 
 let chartData = ref<Array[]>([]);
 let chartDataQuery = ref<string | null>(null);
@@ -113,4 +119,10 @@ watch(
     await fetchChartData();
   }
 );
+
+watch(chartDataClicked, () => {
+  if (props.enableClicks) {
+    emit("viz-data-clicked", chartDataClicked.value);
+  }
+});
 </script>

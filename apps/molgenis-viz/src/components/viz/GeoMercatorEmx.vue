@@ -30,6 +30,7 @@
     :enableZoom="enableZoom"
     :zoomLimits="zoomLimits"
     :mapColors="mapColors"
+    @marker-clicked="(data: object) => chartDataClicked = data"
   />
 </template>
 
@@ -59,26 +60,28 @@ interface GeoMercatorEmxParams extends GeoMercatorParams {
 
 const props = withDefaults(defineProps<GeoMercatorEmxParams>(), {
   showTooltip: true,
+  enableZoom: true,
 });
+
+const emit = defineEmits<{
+  (e: "viz-data-clicked", row: object): void;
+}>();
 
 let chartLoading = ref<Boolean>(true);
 let chartError = ref<Error | null>(null);
 let chartSuccess = ref<Boolean>(false);
 let chartData = ref<Array[]>([]);
 let chartDataQuery = ref<string | null>(null);
+let chartDataClicked = ref<object | null>(null);
 
 let rowId = ref<string | null>(null);
-let rowIdSubSelection = ref<string | null>(null);
-
 let latVar = ref<string | null>(null);
-let latSubSelection = ref<string | null>(null);
-
 let lngVar = ref<string | null>(null);
-let lngSubSelection = ref<string | null>(null);
-
 let groupVar = ref<string | null>(null);
+let rowIdSubSelection = ref<string | null>(null);
+let latSubSelection = ref<string | null>(null);
+let lngSubSelection = ref<string | null>(null);
 let groupSubSelection = ref<string | null>(null);
-
 let legendData = ref<Object | null>(null);
 
 interface TooltipSelectionsIF {
@@ -153,5 +156,11 @@ watch(props, () => setChartVariables());
 
 watch([chartDataQuery], async () => {
   await fetchChartData();
+});
+
+watch(chartDataClicked, () => {
+  if (props.enableMarkerClicks) {
+    emit("viz-data-clicked", chartDataClicked.value);
+  }
 });
 </script>

@@ -26,6 +26,7 @@
     :columnAlign="columnAlign"
     :enableClicks="enableClicks"
     :enableAnimation="enableAnimation"
+    @column-clicked="(data: object) => chartDataClicked = data"
   />
 </template>
 
@@ -46,12 +47,17 @@ import MessageBox from "../display/MessageBox.vue";
 import LoadingScreen from "../display/LoadingScreen.vue";
 
 const props = defineProps<ColumnChartParams>();
+const emit = defineEmits<{
+  (e: "viz-data-clicked", row: object): void;
+}>();
 
 let chartLoading = ref<Boolean>(true);
 let chartSuccess = ref<Boolean>(false);
 let chartError = ref<Error | null>(null);
 let chartData = ref<Array[]>([]);
 let chartDataQuery = ref<string | null>(null);
+let chartDataClicked = ref<object | null>(null);
+
 let xVar = ref<string | null>(null);
 let yVar = ref<string | null>(null);
 let xSubSelection = ref<string | null>(null);
@@ -94,5 +100,11 @@ watch(props, () => setChartVariables());
 
 watch([chartDataQuery, xSubSelection, ySubSelection], async () => {
   await fetchChartData();
+});
+
+watch(chartDataClicked, () => {
+  if (props.enableClicks) {
+    emit("viz-data-clicked", chartDataClicked.value);
+  }
 });
 </script>
