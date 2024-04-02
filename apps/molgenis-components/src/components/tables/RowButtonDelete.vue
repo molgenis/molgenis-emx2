@@ -7,7 +7,7 @@
       actionLabel="Delete"
       actionType="danger"
       :tableId="tableId"
-      :tableLable="tableLabel"
+      :tableLabel="tableLabel"
       :pkey="pkey"
       @close="handleClose"
       @confirmed="handleExecuteDelete"
@@ -34,7 +34,7 @@ export default {
     },
     tableLabel: {
       type: String,
-      required: true,
+      required: false,
     },
     pkey: {
       type: Object,
