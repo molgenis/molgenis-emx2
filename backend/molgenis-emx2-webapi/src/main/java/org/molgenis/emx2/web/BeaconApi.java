@@ -37,6 +37,8 @@ public class BeaconApi {
     get("/api/beacon/entry_types", BeaconApi::getEntryTypes);
 
     get("/api/beacon/:entry_type", BeaconApi::getEntryType);
+    get("/api/beacon/:entry_type/:id", BeaconApi::getEntryType);
+    get("/api/beacon/:entry_type_id/:id/:entry_type", BeaconApi::getEntryType);
     post("/api/beacon/:entry_type", BeaconApi::postEntryType);
   }
 
@@ -48,7 +50,7 @@ public class BeaconApi {
       return getWriter().writeValueAsString(new GenomicVariants(request, database));
     }
 
-    BeaconRequestBody requestBody = new BeaconRequestBody();
+    BeaconRequestBody requestBody = new BeaconRequestBody(request.params());
     String host = extractHost(request.url());
     requestBody.getMeta().setHost(host);
 

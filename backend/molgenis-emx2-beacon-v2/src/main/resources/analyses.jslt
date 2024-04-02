@@ -2,7 +2,7 @@ import "ontology.jslt" as ontology
 import "meta.jslt" as meta
 {
     "meta": meta(.),
-    "responseSummary": { "exist": true },
+    "responseSummary": { "exists": true },
     "response": {
         "resultSets":
         [for (.resultSets)
@@ -15,9 +15,9 @@ import "meta.jslt" as meta
                 "results":
                 [for (.results) {
                     "id": .id,
-                    "runId": .runId,
-                    "biosampleId": .biosampleId,
-                    "individualId": .individualId,
+                    "runId": .runId.id,
+                    "biosampleId": .biosampleId.id,
+                    "individualId": .individualId.id,
                     "analysisDate": .analysisDate,
                     "pipelineName": .pipelineName,
                     "pipelineRef": .pipelineRef,

@@ -4,20 +4,28 @@ import java.util.ArrayList;
 import java.util.List;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.beaconv2.common.misc.NCITToGSSOSexMapping;
+import org.molgenis.emx2.beaconv2.requests.BeaconQuery;
+import org.molgenis.emx2.beaconv2.requests.BeaconRequestParameters;
 import org.molgenis.emx2.beaconv2.requests.Filter;
 
 public class FilterParser {
 
+  private BeaconQuery beaconQuery;
   private final List<Filter> unsupportedFilters = new ArrayList<>();
   private final List<Filter> graphQlFilters = new ArrayList<>();
   private final List<Filter> postFetchFilters = new ArrayList<>();
 
-  public FilterParser() {}
+  public FilterParser(BeaconQuery beaconQuery) {
+    this.beaconQuery = beaconQuery;
+  }
 
-  public FilterParser parse(Filter[] filters) {
-    if (filters == null) return this;
+  public FilterParser parse() {
+    parseRegularFilters();
+    return this;
+  }
 
-    for (Filter filter : filters) {
+  private void parseRegularFilters() {
+    for (Filter filter : beaconQuery.getFilters()) {
       filter.setFilterType(FilterType.UNDEFINED);
       if (isIdSearch(filter)) {
         createOntologyFilters(filter);
@@ -52,7 +60,6 @@ public class FilterParser {
         }
       } else throw new MolgenisException("Invalid filter in query: " + filter);
     }
-    return this;
   }
 
   private void createOntologyFilters(Filter filter) {
@@ -89,6 +96,26 @@ public class FilterParser {
     return filter.getIds().length == 1;
   }
 
+  private String getUrlPathFilter() {
+    String id = null;
+    String entryTypeId = null;
+    for (BeaconRequestParameters param : beaconQuery.getRequestParameters()) {
+      if (param.getRef().equals("id")) {
+        id = param.getDescription();
+      } else if (param.getRef().equals("entry_type_id")) {
+        entryTypeId = param.getDescription();
+      }
+    }
+    if (id != null && entryTypeId != null) {
+      EntryType entryType = EntryType.findByName(entryTypeId);
+      String graphQlId = entryType.getPartOfSpecification().toLowerCase();
+      return "{ %sId: { id: { equals: \"%s\" } } }".formatted(graphQlId, id);
+    } else if (id != null) {
+      return "{ id: { equals: \"%s\" } }".formatted(id);
+    }
+    return null;
+  }
+
   public List<Filter> getPostFetchFilters() {
     return postFetchFilters;
   }
@@ -98,6 +125,10 @@ public class FilterParser {
     for (Filter filter : graphQlFilters) {
       filters.add(filter.getGraphQlFilter());
     }
+
+    String urlPathFilter = getUrlPathFilter();
+    if (urlPathFilter != null) filters.add(urlPathFilter);
+
     return filters;
   }
 }

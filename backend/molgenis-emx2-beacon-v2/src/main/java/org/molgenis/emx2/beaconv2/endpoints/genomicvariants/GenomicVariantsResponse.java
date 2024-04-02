@@ -1,8 +1,6 @@
 package org.molgenis.emx2.beaconv2.endpoints.genomicvariants;
 
-import static org.molgenis.emx2.FilterBean.*;
 import static org.molgenis.emx2.beaconv2.QueryEntryType.getTableFromAllSchemas;
-import static org.molgenis.emx2.beaconv2.endpoints.genomicvariants.GenomicQueryType.*;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnore;

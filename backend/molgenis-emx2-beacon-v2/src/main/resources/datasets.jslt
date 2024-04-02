@@ -4,7 +4,7 @@ let host = .host
 {
     "meta": meta(.),
     "responseSummary": {
-        "exist": true
+        "exists": true
     },
     "response": {
         "resultSets":

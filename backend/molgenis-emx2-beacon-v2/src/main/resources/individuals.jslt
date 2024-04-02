@@ -4,7 +4,7 @@ import "info.jslt" as info
 {
     "meta": meta(.),
     "responseSummary": {
-        "exist": true
+        "exists": true
     },
     "response": {
         "resultSets":

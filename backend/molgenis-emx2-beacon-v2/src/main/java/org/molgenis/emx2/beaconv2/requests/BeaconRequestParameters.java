@@ -25,4 +25,20 @@ public class BeaconRequestParameters {
     this.ref = null;
     this.description = null;
   }
+
+  public String getRef() {
+    return ref;
+  }
+
+  public void setRef(String ref) {
+    this.ref = ref;
+  }
+
+  public String getDescription() {
+    return description;
+  }
+
+  public void setDescription(String description) {
+    this.description = description;
+  }
 }

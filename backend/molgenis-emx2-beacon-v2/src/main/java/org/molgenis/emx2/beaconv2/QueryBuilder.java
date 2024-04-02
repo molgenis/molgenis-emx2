@@ -5,7 +5,6 @@ import java.util.List;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.TableMetadata;
-import org.molgenis.emx2.beaconv2.requests.Filter;
 
 public class QueryBuilder {
 
@@ -31,13 +30,6 @@ public class QueryBuilder {
     int currentDepth = 0;
     queryColumnsRecursively(columns, maxDepth, currentDepth);
 
-    return this;
-  }
-
-  public QueryBuilder addFilters(Filter[] filters) {
-    if (filters != null) {
-      this.filters = new FilterParser().parse(filters).getGraphQlFilters();
-    }
     return this;
   }
 
@@ -74,7 +66,7 @@ public class QueryBuilder {
   }
 
   private void addFilters() {
-    addFilters("or");
+    addFilters("and");
   }
 
   private void addFilters(String operator) {

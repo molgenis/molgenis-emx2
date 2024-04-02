@@ -1,5 +1,7 @@
 package org.molgenis.emx2.beaconv2;
 
+import static org.molgenis.emx2.Privileges.VIEWER;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -28,7 +30,7 @@ public class QueryEntryType {
   public static JsonNode query(
       Database database, EntryType entryType, BeaconRequestBody requestBody) throws JsltException {
 
-    FilterParser filterParser = new FilterParser().parse(requestBody.getQuery().getFilters());
+    FilterParser filterParser = new FilterParser(requestBody.getQuery()).parse();
     List<String> graphQlFilters = filterParser.getGraphQlFilters();
 
     ObjectMapper mapper = new ObjectMapper();
@@ -36,6 +38,10 @@ public class QueryEntryType {
 
     for (Table table : getTableFromAllSchemas(database, entryType.getId())) {
       GraphQL graphQL = new GraphqlApiFactory().createGraphqlForSchema(table.getSchema());
+
+      List<String> roles = table.getSchema().getInheritedRolesForActiveUser();
+      roles.contains(VIEWER.toString());
+      requestBody.getQuery().getRequestedGranularity();
 
       String graphQlQuery =
           new QueryBuilder(table)

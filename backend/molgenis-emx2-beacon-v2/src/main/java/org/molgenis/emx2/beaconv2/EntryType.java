@@ -9,7 +9,7 @@ public enum EntryType {
   COHORTS("Cohorts", "cohorts", "Cohort"),
   BIOSAMPLES("Biosamples", "biosamples", "Biosample"),
   RUNS("Runs", "runs", "Run"),
-  GENOMIC_VARIANT("GenomicVariations", "genomicVariations", "GENOMIC_VARIANT");
+  GENOMIC_VARIANT("GenomicVariations", "g_variants", "GenomicVariant");
 
   EntryType(String id, String name, String partOfSpecification) {
     this.id = id;
@@ -36,6 +36,10 @@ public enum EntryType {
 
   public String getId() {
     return id;
+  }
+
+  public String getPartOfSpecification() {
+    return partOfSpecification;
   }
 
   private String id;
