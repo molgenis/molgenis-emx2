@@ -88,7 +88,7 @@ public class TableStoreForCsvFilesDirectory implements TableAndFileStore {
   }
 
   @Override
-  public Collection<String> tableNames() {
+  public Collection<String> getTableNames() {
     List<String> result = new ArrayList<>();
     for (File f : directoryPath.toFile().listFiles()) {
       result.add(f.getName());

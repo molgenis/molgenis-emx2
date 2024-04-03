@@ -120,10 +120,10 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
         let biobanksWithCollections = biobankResult.Biobanks;
         if (filtersStore.hasActiveFilters) {
           biobanksWithCollections = biobanksWithCollections.filter(
-            (biobank) => biobank.collections
+            (biobank) => biobank.collections?.length
           );
         }
-        biobankCards.value = filterWithdrawn(biobankResult.Biobanks);
+        biobankCards.value = filterWithdrawn(biobanksWithCollections);
         waitingForResponse.value = false;
         filtersStore.bookmarkWaitingForApplication = false;
       }
