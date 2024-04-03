@@ -60,7 +60,7 @@ public class TableStoreForCsvFilesClasspath implements TableAndFileStore {
   }
 
   @Override
-  public Collection<String> tableNames() {
+  public Collection<String> getTableNames() {
     throw new UnsupportedOperationException("Cannot list files in classpath");
   }
 
