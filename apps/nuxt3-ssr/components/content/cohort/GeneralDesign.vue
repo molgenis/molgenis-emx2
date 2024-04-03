@@ -63,7 +63,7 @@ function setData() {
       content: filters.startEndYear(cohort?.startYear, cohort?.endYear),
     },
     {
-      label: "Population",
+      label: "Countries",
       content: cohort?.countries
         ? [...cohort?.countries]
             .sort((a, b) => b.order - a.order)
