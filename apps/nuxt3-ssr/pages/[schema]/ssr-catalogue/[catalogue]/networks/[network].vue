@@ -242,7 +242,7 @@ function variableMapper(variable: {
     label: variable.label,
     model: variable.resource.id,
     _renderComponent: "VariableDisplay",
-    _path: `${pathPrefix}/variables/${variable.resource.id}`,
+    _path: `/${route.params.schema}/ssr-catalogue/${route.params.network}/variables/${variable.resource.id}`,
   };
 }
 
