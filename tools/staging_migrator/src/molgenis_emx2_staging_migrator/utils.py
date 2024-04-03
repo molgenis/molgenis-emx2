@@ -68,6 +68,11 @@ def find_cohort_references(schema_schema: Schema, schema_name: str, base_table: 
     References may be direct or indirect, such as the 'Subcohort counts' table
     that references the 'Subcohorts' table, which references the 'Cohorts' table directly.
     """
+    forward_refs = {
+        c.id: c.get('refTableName')
+        for c in schema_schema.get_table(by='name', value=base_table).get_columns(by='refSchemaName', value=schema_name)
+        if c.get('columnType') != 'REFBACK'
+    }
 
     inheritance = {}
     table_name = base_table
@@ -78,7 +83,15 @@ def find_cohort_references(schema_schema: Schema, schema_name: str, base_table: 
         inherit = schema_schema.get_table(by='name', value=str(table_name)).get('inheritName')
         inheritance.update({table_name: inherit})
 
-    cohort_references = {
+    backward_refs = {
+        tab.name: [c.id for c in tab.get_columns(by='refSchemaName', value=schema_name)
+                   if c.get('refTableName') in inheritance.keys() and c.get('columnType') != 'REFBACK']
+        for tab in schema_schema.get_tables(by='schemaName', value=schema_name)
+        # if len([c.id for c in tab.get_columns(by='refSchemaName', value=schema_name)
+        #         if c.get('refTableName') in inheritance.keys() and c.get('columnType') != 'REFBACK']) and tab.name != base_table
+    }
+
+    table_references = {
         tab.name: {c.id: c.get('refTableName')
                    for c in [*tab.get_columns(by=['columnType', 'refSchemaName'], value=['REF', schema_name]),
                              *tab.get_columns(by=['columnType', 'refSchemaName'], value=['REF_ARRAY', schema_name])]}
@@ -87,12 +100,12 @@ def find_cohort_references(schema_schema: Schema, schema_name: str, base_table: 
 
     # Gather all backwards references to the tables
     ref_backs = {}
-    for tab in cohort_references.keys():
+    for tab in table_references.keys():
         ref_backs[tab] = []
-        for _tab in cohort_references.keys():
+        for _tab in table_references.keys():
             if tab == _tab:
                 continue
-            if tab in cohort_references[_tab].values():
+            if tab in table_references[_tab].values():
                 ref_backs[tab].append(_tab)
 
     for coh, inh in inheritance.items():
@@ -113,13 +126,14 @@ def find_cohort_references(schema_schema: Schema, schema_name: str, base_table: 
             if all(map(lambda ref: ref in [*sequence, *other_tabs, None], refs)):
                 sequence.append(pop_dict(tab))
 
-    cohort_references = {s: cohort_references.copy()[s] for s in sequence}
+    table_references = {s: table_references.copy()[s] for s in sequence}
+    backward_refs = {s: backward_refs.copy()[s] for s in sequence if len(backward_refs.copy()[s])}
 
-    cohort_references = {
-        tab: refs for (tab, refs) in cohort_references.items() if len(refs) > 0
+    table_references = {
+        tab: refs for (tab, refs) in table_references.items() if len(refs) > 0
     }
 
-    return cohort_references
+    return backward_refs
 
 
 def construct_delete_variables(db_schema: Schema, cohort_ids: list, table_name: str, ref_col: str):
