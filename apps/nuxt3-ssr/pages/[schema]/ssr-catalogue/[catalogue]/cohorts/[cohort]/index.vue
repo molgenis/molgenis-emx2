@@ -401,7 +401,6 @@ if (route.params.catalogue) {
         <ContentCohortGeneralDesign
           id="GeneralDesign"
           title="General Design"
-          :description="cohort?.designDescription"
           :cohort="cohort"
           :main-medical-condition="mainMedicalConditions"
         />
@@ -501,7 +500,7 @@ if (route.params.catalogue) {
           v-if="cohort?.networks"
           id="Networks"
           title="Networks"
-          description="Networks Explanation about networks from this cohort and the functionality seen here."
+          description="List of networks which this cohort is involved in"
           :networks="cohort?.networks"
         />
 

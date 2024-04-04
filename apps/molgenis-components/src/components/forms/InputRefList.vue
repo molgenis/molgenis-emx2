@@ -32,7 +32,7 @@
       >
         <Spinner v-if="loading" />
         <div
-          v-else
+          v-else-if="data.length"
           class="form-check custom-control custom-checkbox"
           :class="showMultipleColumns ? 'col-12 col-md-6 col-lg-4' : ''"
           v-for="(row, index) in data"
@@ -56,6 +56,7 @@
             {{ applyJsTemplate(row, refLabel) }}
           </label>
         </div>
+        <div v-else>No entries found for {{ label }}</div>
       </div>
       <div class="m-1">
         <RowButtonAdd
@@ -234,7 +235,7 @@ export default {
         orderby: this.orderby,
       };
       const response = await this.client.fetchTableData(this.tableId, options);
-      this.data = response[this.tableId];
+      this.data = response[this.tableId] || [];
       this.count = response[this.tableId + "_agg"].count;
 
       await Promise.all(
@@ -245,7 +246,11 @@ export default {
             this.schemaId
           );
         })
-      ).then(() => (this.loading = false));
+      )
+        .catch((error) => {
+          console.log(error);
+        })
+        .finally(() => (this.loading = false));
       this.$emit("optionsLoaded", this.data);
     },
   },
