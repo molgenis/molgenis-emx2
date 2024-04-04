@@ -330,30 +330,6 @@ watch([chartType, tableName, xVar, yVar, groupVar], (params: Array<String>) => {
     });
   }
 });
-
-//   chartConfig,
-//   () => {
-//     const currentProgress: Number = Object.keys(chartConfig.value)
-//       .map((key: string) => {
-//         return chartConfig.value[key] !== "" ? 1 : 0;
-//       })
-//       .reduce((sum, value) => sum + value, 0);
-//     showChartPreview.value = currentProgress >= showChartThreshold.value;
-
-//     chartQuery.value = createQuery({
-//       table: chartConfig.value.table,
-//       x: { column: chartConfig.value.x, columnType: chartConfig.value.x_type },
-//       y: { column: chartConfig.value.y, columnType: chartConfig.value.y_type },
-//     });
-//   },
-//   { deep: true }
-// );
-
-// watch(showChartPreview, (status: Boolean) => {
-//   if (status) {
-//     console.log("fetching data....");
-//   }
-// });
 </script>
 
 <style lang="scss">
