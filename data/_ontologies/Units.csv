@@ -161,7 +161,7 @@ Therapeutic Cells per Square Meter,Therapeutic Cells per Square Meter,NCIT,C1862
 Hour,Hour,NCIT,C25529,http://purl.obolibrary.org/obo/NCIT_C25529,
 Millimeter,Millimeter,NCIT,C28251,http://purl.obolibrary.org/obo/NCIT_C28251,mm
 Kilogram,Kilogram,NCIT,C28252,http://purl.obolibrary.org/obo/NCIT_C28252,
-Milligram,Milligram,NCIT,C28253,http://purl.obolibrary.org/obo/NCIT_C28253,
+Milligram,Milligram,NCIT,C28253,http://purl.obolibrary.org/obo/NCIT_C28253,mg
 Milliliter,Milliliter,NCIT,C28254,http://purl.obolibrary.org/obo/NCIT_C28254,
 Frames Per Second,Frames Per Second,NCIT,C106524,http://purl.obolibrary.org/obo/NCIT_C106524,
 Milliliters Per Millimeter of Mercury,Milliliters Per Millimeter of Mercury,NCIT,C106542,http://purl.obolibrary.org/obo/NCIT_C106542,
@@ -811,7 +811,7 @@ Ounce Equivalent,Ounce Equivalent,NCIT,C172605,http://purl.obolibrary.org/obo/NC
 Juvenile Diabetes Foundation Unit,Juvenile Diabetes Foundation Unit,NCIT,C172606,http://purl.obolibrary.org/obo/NCIT_C172606,
 Centimeter,Centimeter,NCIT,C49668,http://purl.obolibrary.org/obo/NCIT_C49668,cm
 Millimeter of Mercury,Millimeter of Mercury,NCIT,C49670,http://purl.obolibrary.org/obo/NCIT_C49670,mmHg
-Kilogram per Square Meter,Kilogram per Square Meter,NCIT,C49671,http://purl.obolibrary.org/obo/NCIT_C49671,
+Kilogram per Square Meter,Kilogram per Square Meter,NCIT,C49671,http://purl.obolibrary.org/obo/NCIT_C49671,kg/m2
 Business Day,Business Day,NCIT,C52592,http://purl.obolibrary.org/obo/NCIT_C52592,
 Bead Dosing Unit,Bead Dosing Unit,NCIT,C53495,http://purl.obolibrary.org/obo/NCIT_C53495,
 Block Dosing Unit,Block Dosing Unit,NCIT,C53498,http://purl.obolibrary.org/obo/NCIT_C53498,
@@ -1160,7 +1160,7 @@ Hour Times Percent,Hour Times Percent,NCIT,C139131,http://purl.obolibrary.org/ob
 Second Times Kilopascal,Second Times Kilopascal,NCIT,C139132,http://purl.obolibrary.org/obo/NCIT_C139132,
 Liter per Second per Kilopascal,Liter per Second per Kilopascal,NCIT,C139133,http://purl.obolibrary.org/obo/NCIT_C139133,
 Linear Foot Pound,Linear Foot Pound,NCIT,C139134,http://purl.obolibrary.org/obo/NCIT_C139134,
-Kilocalorie per Day,Kilocalorie per Day,NCIT,C139135,http://purl.obolibrary.org/obo/NCIT_C139135,
+Kilocalorie per Day,Kilocalorie per Day,NCIT,C139135,http://purl.obolibrary.org/obo/NCIT_C139135,"kcal/day,Kcal_per_day"
 Early Third Trimester,Early Third Trimester,NCIT,C141437,http://purl.obolibrary.org/obo/NCIT_C141437,
 Late Third Trimester,Late Third Trimester,NCIT,C141438,http://purl.obolibrary.org/obo/NCIT_C141438,
 Greatest Percentage of Core Involvement by Cancer in Any Core,Greatest Percentage of Core Involvement by Cancer in Any Core,NCIT,C148279,http://purl.obolibrary.org/obo/NCIT_C148279,
@@ -1632,7 +1632,7 @@ Siemens,Siemens,NCIT,C42555,http://purl.obolibrary.org/obo/NCIT_C42555,
 Weber,Weber,NCIT,C42556,http://purl.obolibrary.org/obo/NCIT_C42556,
 Tesla,Tesla,NCIT,C42557,http://purl.obolibrary.org/obo/NCIT_C42557,
 Henry,Henry,NCIT,C42558,http://purl.obolibrary.org/obo/NCIT_C42558,
-Degree Celsius,Degree Celsius,NCIT,C42559,http://purl.obolibrary.org/obo/NCIT_C42559,
+Degree Celsius,Degree Celsius,NCIT,C42559,http://purl.obolibrary.org/obo/NCIT_C42559,degree_celsius
 Lumen,Lumen,NCIT,C42560,http://purl.obolibrary.org/obo/NCIT_C42560,
 Lux,Lux,NCIT,C42561,http://purl.obolibrary.org/obo/NCIT_C42561,
 Becquerel,Becquerel,NCIT,C42562,http://purl.obolibrary.org/obo/NCIT_C42562,
@@ -1678,11 +1678,8 @@ Nanogram per Milliliter,,NCIT,C67306,http://purl.obolibrary.org/obo/NCIT_C67306,
 Hour per Week,,,,,hours/week
 Hour per Day,,,,,hours_per_day
 Servings per Day,,,,,"servings/day,servings_per_day"
-,,,,,
-mg/day,,,,,
-kcal/day,,,,,
-kg/m2,,,,,
-mg,,,,,
+milligram per day,,EFO,0004419,http://www.ebi.ac.uk/efo/EFO_0004419,mg/day
+times_per_week,,,,,
 meter_per_square_kilometer,,,,,
 percent_energy_intake,,,,,
 inverse_meter,,,,,
@@ -1691,7 +1688,6 @@ gram_per_dl,,,,,
 percent_total_food,,,,,
 ng_per_ml,,,,,
 dogs,,,,,
-Kcal_per_day,,,,,
 mg_per_dl,,,,,
 vehicles_per_day,,,,,
 ten_power_minus_five_per_inverse_meter,,,,,
@@ -1707,15 +1703,12 @@ ndvi_value,,,,,
 sympercent_change,,,,,
 number_per_square_kilometer,,,,,
 ýýg/ml,,,,,
-,,,,,
 kilojoules_per_square_meter,,,,,
 gram/ml,,,,,
-times_per_day,,,,,
+times per day,Occurring or done each day.,NCIT,C25473,http://purl.obolibrary.org/obo/NCIT_C25473,times_per_day
 cats,,,,,
-degree_celsius,,,,,
 z-score,,,,,
 kua_l,,,,,
-times_per_week,,,,,
 numeric,,,,,
 mU/L,,,,,
 gr/day,,,,,
