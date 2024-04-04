@@ -42,7 +42,7 @@
     "@vueuse/core": "10.7.0",
     "floating-vue": "5.2.2",
     "meta-data-utils": "*",
-    "vite": "5.1.1",
+    "vite": "4.5.3",
     "vue": "3.4.19"
   }
 }

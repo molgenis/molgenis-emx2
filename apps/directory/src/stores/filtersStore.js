@@ -208,14 +208,14 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     /** value can be a child (single value), or a parent with its children > make it into an array of values */
     let processedValue = value;
 
-    if (value.children && value.children.length) {
-      const copyBranch = JSON.parse(JSON.stringify(value));
+    if (value.children?.length) {
+      let copyBranch = JSON.parse(JSON.stringify(value));
       let allChildrenValues = flattenOntologyBranch(copyBranch);
       delete copyBranch.children;
       allChildrenValues.push(copyBranch);
 
-      const deduplicatedValues = [];
-      const codesProcessed = [];
+      let deduplicatedValues = [];
+      let codesProcessed = [];
 
       for (const childValue of allChildrenValues) {
         if (!codesProcessed.includes(childValue.code)) {
@@ -398,8 +398,8 @@ export const useFiltersStore = defineStore("filtersStore", () => {
   function updateFilterType(filterName, value, fromBookmark) {
     bookmarkTriggeredFilter.value = fromBookmark;
 
-    /** filter reset, so delete */
     if (value === "" || value === undefined || value.length === 0) {
+      /** filter reset, so delete */
       delete filterType.value[filterName];
     } else {
       filterType.value[filterName] = value;
