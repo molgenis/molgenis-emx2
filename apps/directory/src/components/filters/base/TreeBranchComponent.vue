@@ -7,7 +7,7 @@
       </span>
       <input
         @click.stop
-        @change="(e) => selectOption(e.target.checked, option)"
+        @change="(e:Event) => selectOption(e.target?.checked, option)"
         type="checkbox"
         :ref="`${option.name}-checkbox`"
         class="mr-1"
@@ -34,108 +34,98 @@
   </ul>
 </template>
 
-<script>
-import { defineAsyncComponent } from "vue";
-import { useSettingsStore } from "../../../stores/settingsStore";
+<script setup lang="ts">
+import { computed, defineAsyncComponent, ref } from "vue";
+import { IOntologyItem } from "../../../filter-config/filterOptions";
 import { useFiltersStore } from "../../../stores/filtersStore";
 
 /** need to lazy load because it gets toooo large quickly. Over 9000! */
 const TreeComponent = defineAsyncComponent(() => import("./TreeComponent.vue"));
-export default {
-  setup() {
-    const settingsStore = useSettingsStore();
-    const filtersStore = useFiltersStore();
-    return { settingsStore, filtersStore };
-  },
-  emits: ["indeterminate-update"],
-  props: {
-    facetIdentifier: {
-      type: String,
-      required: true,
-    },
-    option: {
-      type: Object,
-      required: true,
-    },
-    parentSelected: {
-      type: Boolean,
-      required: false,
-      default: () => false,
-    },
-    filter: {
-      type: String,
-      required: false,
-      default: () => "",
-    },
-  },
-  name: "TreeBranchComponent",
-  components: {
-    TreeComponent,
-  },
-  data() {
-    return {
-      open: false,
-      childIsIndeterminate: false,
-      selectedChildren: [],
-    };
-  },
-  watch: {
-    indeterminateState(status) {
-      this.signalParentOurIndeterminateStatus(status);
-    },
-  },
-  computed: {
-    currentFilterSelection() {
-      if (!this.filtersStore) return [];
-      return this.filtersStore.getFilterValue(this.facetIdentifier) || [];
-    },
-    selected() {
-      if (this.parentSelected) return true;
 
-      if (!this.currentFilterSelection || !this.currentFilterSelection.length)
-        return false;
-      else
-        return this.currentFilterSelection.some(
-          (selectedValue) => selectedValue.name === this.option.name
-        );
-    },
-    numberOfChildrenInSelection() {
-      if (!this.option.children) return 0;
-      const childNames = this.option.children.map(
-        (childOption) => childOption.name
-      );
-      const selectedChildren = this.currentFilterSelection.filter(
-        (selectedOption) => childNames.includes(selectedOption.name)
-      );
-      return selectedChildren.length;
-    },
-    indeterminateState() {
-      if (this.parentSelected) return false;
-      if (this.childIsIndeterminate) return true;
-      if (!this.option.children) return false;
+const filtersStore = useFiltersStore();
 
-      return (
-        this.numberOfChildrenInSelection !== this.option.children.length &&
-        this.numberOfChildrenInSelection > 0
-      );
-    },
-  },
+const emit = defineEmits(["indeterminate-update"]);
 
-  methods: {
-    selectOption(checked, option) {
-      /** if it is checked we add */
-      this.filtersStore.updateOntologyFilter(
-        this.facetIdentifier,
-        option,
-        checked
-      );
-    },
-    signalParentOurIndeterminateStatus(status) {
-      this.childIsIndeterminate = status;
-      this.$emit("indeterminate-update", status);
-    },
-  },
-};
+const props = withDefaults(
+  defineProps<{
+    facetIdentifier: string;
+    option: IOntologyItem;
+    parentSelected?: boolean;
+    filter?: string;
+  }>(),
+  { parentSelected: false, filter: "" }
+);
+const { facetIdentifier, option, filter } = props;
+
+let open = ref(false);
+let childIsIndeterminate = ref(false);
+
+let currentFilterSelection = computed<string[]>(() => {
+  return filtersStore.getFilterValue(facetIdentifier) || [];
+});
+
+let selected = computed<boolean>(() => {
+  if (props.parentSelected) {
+    console.log(props.parentSelected);
+    return true;
+  } else if (
+    !currentFilterSelection.value ||
+    !currentFilterSelection.value.length
+  ) {
+    return false;
+  } else {
+    return currentFilterSelection.value.some(
+      (selectedValue: string) => selectedValue === option.name
+    );
+  }
+});
+
+let numberOfChildrenInSelection = computed<number>(() => {
+  if (!option.children) return 0;
+  const childNames = option.children.map(
+    (childOption: IOntologyItem) => childOption.name
+  );
+  const selectedChildren = currentFilterSelection.value.filter(
+    (selectedOption: string) => childNames.includes(selectedOption)
+  );
+  return selectedChildren.length;
+});
+
+let indeterminateState = computed<boolean>(() => {
+  const state = getIndeterminateState(
+    props.parentSelected,
+    childIsIndeterminate.value,
+    option,
+    numberOfChildrenInSelection.value
+  );
+  emit("indeterminate-update", state);
+  childIsIndeterminate.value = state;
+  return state;
+});
+
+function selectOption(checked: boolean, option: IOntologyItem) {
+  filtersStore.updateOntologyFilter(facetIdentifier, option.name, checked);
+}
+
+function signalParentOurIndeterminateStatus(status: boolean) {
+  childIsIndeterminate.value = status;
+}
+
+function getIndeterminateState(
+  parentSelected: boolean,
+  childIsIndeterminate: boolean,
+  option: IOntologyItem,
+  numberOfChildrenInSelection: number
+) {
+  if (parentSelected) return false;
+  if (childIsIndeterminate) return true;
+  if (!option.children) return false;
+
+  return (
+    numberOfChildrenInSelection !== option.children.length &&
+    numberOfChildrenInSelection > 0
+  );
+}
 </script>
 <style scoped>
 li {

@@ -9,16 +9,17 @@
         :filter="filter"
       />
     </div>
-    <span v-if="totalOptions > 100" class="badge badge-info mx-5 mb-2"
-      >Too many results, showing the first {{ displaySize }}. Please use the
-      search functionality.</span
-    >
+    <span v-if="totalOptions > 100" class="badge badge-info mx-5 mb-2">
+      Too many results, showing the first {{ displaySize }}. Please use the
+      search functionality.
+    </span>
   </div>
 </template>
 
 <script>
 import { useFiltersStore } from "../../../stores/filtersStore";
 import TreeBranchComponent from "./TreeBranchComponent.vue";
+
 export default {
   name: "TreeComponent",
   components: {

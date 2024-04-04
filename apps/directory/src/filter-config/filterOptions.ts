@@ -151,18 +151,18 @@ export const ontologyFilterOptions = (filterFacet: any) => {
       }
     });
 };
-interface OntologyItem {
+export interface IOntologyItem {
   label: string;
   name: string;
   code: string;
   parent?: { name: string }[];
-  children?: OntologyItem[];
+  children?: IOntologyItem[];
 }
 
 function getItemsSplitByOntology(
-  ontologyItems: OntologyItem[],
+  ontologyItems: IOntologyItem[],
   ontologyIdentifiers: string[]
-): Record<string, OntologyItem[]> {
+): Record<string, IOntologyItem[]> {
   const childrenPerParent = getChildrenPerParent(ontologyItems);
   const itemsWithChildren = getItemsWithChildren(
     ontologyItems,
@@ -181,8 +181,8 @@ function getItemsSplitByOntology(
 }
 
 function getItemsWithChildren(
-  items: OntologyItem[],
-  childrenPerParent: Record<string, OntologyItem[]>
+  items: IOntologyItem[],
+  childrenPerParent: Record<string, IOntologyItem[]>
 ) {
   return items.map((item) => {
     if (childrenPerParent[item.name]) {
@@ -193,10 +193,10 @@ function getItemsWithChildren(
 }
 
 function splitItemsByOntology(
-  rootNodes: OntologyItem[],
+  rootNodes: IOntologyItem[],
   ontologyIdentifiers: string[]
-): Record<string, OntologyItem[]> {
-  const itemsSplitByOntology: Record<string, OntologyItem[]> = {};
+): Record<string, IOntologyItem[]> {
+  const itemsSplitByOntology: Record<string, IOntologyItem[]> = {};
   for (const ontologyItem of rootNodes) {
     for (const ontologyId of ontologyIdentifiers) {
       if (ontologyItem.name.toLowerCase().includes(ontologyId.toLowerCase())) {
@@ -212,9 +212,9 @@ function splitItemsByOntology(
 }
 
 function getChildrenPerParent(
-  items: OntologyItem[]
-): Record<string, OntologyItem[]> {
-  let childrenPerParent: Record<string, OntologyItem[]> = {};
+  items: IOntologyItem[]
+): Record<string, IOntologyItem[]> {
+  let childrenPerParent: Record<string, IOntologyItem[]> = {};
   items.forEach((item) => {
     item.parent?.forEach((parent) => {
       if (childrenPerParent[parent.name]) {

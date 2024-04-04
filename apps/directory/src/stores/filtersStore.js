@@ -202,7 +202,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
    * @param {string | Array<string>} value array with identifiers or a string with an identifier
    * @param {boolean} add
    */
-  function updateOntologyFilter(filterName, value, add, fromBookmark) {
+  function updateOntologyFilter(filterName, value, add, fromBookmark = false) {
     bookmarkTriggeredFilter.value = fromBookmark;
 
     /** value can be a child (single value), or a parent with its children > make it into an array of values */
