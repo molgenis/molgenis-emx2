@@ -25,7 +25,7 @@
     :legendPosition="legendPosition"
     :enableLegendClicks="enableLegendClicks"
     :enableLegendHovering="enableLegendHovering"
-    @slice-clicked="(data: object) => chartDataClicked = data"
+    @slice-clicked="onClick"
   />
 </template>
 
@@ -61,7 +61,6 @@ const chartLoading = ref<boolean>(true);
 const chartSuccess = ref<boolean>(false);
 const chartError = ref<Error | null>(null);
 const chartDataQuery = ref<string | null>(null);
-const chartDataClicked = ref<object | null>(null);
 
 const chartData = ref<object>([]);
 const categoriesVar = ref<string | null>(null);
@@ -112,6 +111,12 @@ async function fetchChartData() {
   }
 }
 
+function onClick(data: object): object | null {
+  if (props.enableClicks) {
+    emit("viz-data-clicked", data);
+  }
+}
+
 onBeforeMount(() => setChartVariables());
 watch(props, () => setChartVariables());
 
@@ -121,10 +126,4 @@ watch(
     await fetchChartData();
   }
 );
-
-watch(chartDataClicked, () => {
-  if (props.enableClicks) {
-    emit("viz-data-clicked", chartDataClicked.value);
-  }
-});
 </script>

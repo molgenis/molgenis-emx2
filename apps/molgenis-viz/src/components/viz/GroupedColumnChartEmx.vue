@@ -28,7 +28,7 @@
     :enableChartLegend="enableChartLegend"
     :stackLegend="stackLegend"
     :enableLegendClicks="enableLegendClicks"
-    @column-clicked="(data: object) => chartDataClicked = data"
+    @column-clicked="onClick"
   />
 </template>
 
@@ -64,7 +64,6 @@ const chartSuccess = ref<boolean>(false);
 const chartError = ref<Error | null>(null);
 const chartData = ref<object[]>([]);
 const chartDataQuery = ref<string | null>(null);
-const chartDataClicked = ref<object | null>(null);
 
 const xVar = ref<string | null>(null);
 const yVar = ref<string | null>(null);
@@ -117,17 +116,17 @@ async function fetchChartData() {
   }
 }
 
+function onClick(data: object): object | null {
+  if (props.enableClicks) {
+    emit("viz-data-clicked", data);
+  }
+}
+
 onBeforeMount(() => setChartVariables());
 
 watch(props, () => setChartVariables());
 
 watch([chartDataQuery, xSubSelection, ySubSelection], async () => {
   await fetchChartData();
-});
-
-watch(chartDataClicked, () => {
-  if (props.enableClicks) {
-    emit("viz-data-clicked", chartDataClicked.value);
-  }
 });
 </script>

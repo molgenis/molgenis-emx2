@@ -30,7 +30,7 @@
     :enableZoom="enableZoom"
     :zoomLimits="zoomLimits"
     :mapColors="mapColors"
-    @marker-clicked="(data: object) => chartDataClicked = data"
+    @marker-clicked="onClick"
   />
 </template>
 
@@ -75,7 +75,6 @@ const chartSuccess = ref<boolean>(false);
 const chartError = ref<Error | null>(null);
 const chartData = ref<object[]>([]);
 const chartDataQuery = ref<string | null>(null);
-const chartDataClicked = ref<object | null>(null);
 
 const rowId = ref<string | null>(null);
 const latVar = ref<string | null>(null);
@@ -151,16 +150,16 @@ async function fetchChartData() {
   }
 }
 
+function onClick(data: object): object | null {
+  if (props.enableMarkerClicks) {
+    emit("viz-data-clicked", data);
+  }
+}
+
 onBeforeMount(() => setChartVariables());
 watch(props, () => setChartVariables());
 
-watch([chartDataQuery], async () => {
+watch(chartDataQuery, async () => {
   await fetchChartData();
-});
-
-watch(chartDataClicked, () => {
-  if (props.enableMarkerClicks) {
-    emit("viz-data-clicked", chartDataClicked.value);
-  }
 });
 </script>

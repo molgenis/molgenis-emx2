@@ -11,7 +11,7 @@
     :enable-row-highlighting="enableRowHighlighting"
     :enable-row-clicks="enableRowClicks"
     :render-html="renderHtml"
-    @row-clicked="(data: object) => (tableRowClicked = data)"
+    @row-clicked="onClick"
   />
 </template>
 
@@ -49,7 +49,6 @@ const tableSuccess = ref<boolean>(false);
 const tableError = ref<Error | null>(null);
 const tableData = ref<object[]>([]);
 const tableDataQuery = ref<string | null>(null);
-const tableRowClicked = ref<object | null>({});
 
 const tableColumnMappings = ref<gqlVariableSubSelectionIF[] | null>(null);
 const columnOrder = ref<string[] | null>(null);
@@ -93,13 +92,13 @@ async function fetchChartData() {
   }
 }
 
+function onClick(data: object): object | null {
+  if (props.enableRowClicks) {
+    emit("viz-data-clicked", data);
+  }
+}
+
 onBeforeMount(() => setChartVariables());
 watch(props, () => setChartVariables());
-watch([tableDataQuery], async () => await fetchChartData());
-
-watch(tableRowClicked, () => {
-  if (props.enableRowClicks) {
-    emit("viz-data-clicked", tableRowClicked.value);
-  }
-});
+watch(tableDataQuery, async () => await fetchChartData());
 </script>
