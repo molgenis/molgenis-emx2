@@ -23,7 +23,7 @@ public class TestLoaders {
   public static final String DCAT = "DCATTest";
   public static final String PROJECT_MANAGER = "ProjectManager";
   public static final String CATALOGUE_ONTOLOGIES = "CatalogueOntologies";
-//  public static final String ONTOLOGIES = "Ontologies";
+  public static final String DIRECTORY_ONTOLOGIES = "DirectoryOntologies";
 
   static Database database;
 
@@ -38,7 +38,7 @@ public class TestLoaders {
     database.dropSchemaIfExists(SHARED_STAGING);
     database.dropSchemaIfExists(CATALOGUE_ONTOLOGIES);
     database.dropSchemaIfExists(DIRECTORY_TEST);
- //   database.dropSchemaIfExists(ONTOLOGIES);
+    database.dropSchemaIfExists(DIRECTORY_ONTOLOGIES);
     database.dropSchemaIfExists(RD3_TEST);
     database.dropSchemaIfExists(JRC_CDE_TEST);
     database.dropSchemaIfExists(FAIR_GENOMES);

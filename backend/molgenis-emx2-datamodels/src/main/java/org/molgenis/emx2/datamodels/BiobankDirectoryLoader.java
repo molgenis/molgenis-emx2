@@ -8,7 +8,7 @@ import org.molgenis.emx2.sql.SqlDatabase;
 
 public class BiobankDirectoryLoader extends AbstractDataLoader {
 
-  public static final String ONTOLOGIES = "Ontologies";
+  public static final String ONTOLOGIES = "DirectoryOntologies";
 
   @Override
   void loadInternalImplementation(Schema schema, boolean includeDemoData) {
