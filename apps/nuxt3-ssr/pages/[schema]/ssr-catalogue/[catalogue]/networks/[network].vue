@@ -208,7 +208,7 @@ function cohortMapper(cohort: {
     design: cohort.design?.name,
     numberOfParticipants: cohort.numberOfParticipants,
     _renderComponent: "CohortDisplay",
-    _path: `/${route.params.schema}/ssr-catalogue/cohorts/${cohort.id}`,
+    _path: `/${route.params.schema}/ssr-catalogue/${route.params.network}/cohorts/${cohort.id}`,
   };
 }
 
@@ -225,7 +225,7 @@ function dataSourcesMapper(dataSource: {
     type: dataSource.type?.name,
     numberOfParticipants: dataSource.numberOfParticipants,
     _renderComponent: "DataSourceDisplay",
-    _path: `/${route.params.schema}/ssr-catalogue/datasources/${dataSource.id}`,
+    _path: `/${route.params.schema}/ssr-catalogue/${route.params.network}/datasources/${dataSource.id}`,
   };
 }
 
@@ -242,7 +242,7 @@ function variableMapper(variable: {
     label: variable.label,
     model: variable.resource.id,
     _renderComponent: "VariableDisplay",
-    _path: `/${route.params.schema}/ssr-catalogue/variables/${variable.resource.id}`,
+    _path: `/${route.params.schema}/ssr-catalogue/${route.params.network}/variables/${variable.resource.id}`,
   };
 }
 
