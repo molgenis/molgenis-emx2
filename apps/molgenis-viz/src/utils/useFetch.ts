@@ -6,15 +6,15 @@ interface useFetchProps {
   query: string;
 }
 
-interface useFetchState {
-  loading: Boolean;
-  success: Boolean;
-  data: Array[];
-  error?: String;
+interface useFetchIF {
+  loading: boolean;
+  success: boolean;
+  data: object[];
+  error?: string;
 }
 
-export async function useFetch<useFetchProps>(url, query) {
-  const state = reactive<useFetchState>({
+export async function useFetch<useFetchProps>(url, query): Promise<useFetchIF> {
+  const state = reactive<useFetchIF>({
     loading: false,
     success: false,
     error: null,

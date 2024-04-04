@@ -1,3 +1,13 @@
+export interface gqlVariableSubSelectionIF {
+  key: string;
+  nestedKey?: string;
+}
+
+export interface PrepareChartDataIF {
+  data: object[];
+  chartVariables?: gqlVariableSubSelectionIF[];
+}
+
 export interface ChartOptions {
   id: string;
   chart: string;
@@ -26,7 +36,7 @@ export interface BarChartParams {
   title?: string;
   description?: string;
   table: string;
-  chartData?: Array[];
+  chartData?: object[];
   xvar: string;
   yvar: string;
   xAxisLabel?: string;
@@ -34,7 +44,7 @@ export interface BarChartParams {
   chartHeight?: number;
   chartMargins?: vizChartMargins;
   xMax?: number;
-  xTickValues?: Array<Number>;
+  xTickValues?: number[];
   yAxisLineBreaker?: string;
   barFill?: string;
   barHoverFill?: string;
@@ -51,7 +61,7 @@ export interface ColumnChartParams {
   title?: string;
   description?: string;
   table: string;
-  chartData?: Array[];
+  chartData?: object[];
   xvar: string;
   yvar: string;
   xAxisLabel?: string;
@@ -59,7 +69,7 @@ export interface ColumnChartParams {
   chartHeight?: number;
   chartMargins?: vizChartMargins;
   yMax?: number;
-  yTickValues?: Array<Number>;
+  yTickValues?: number[];
   xAxisLineBreaker?: string;
   columnFill?: string;
   columnHoverFill?: string;
@@ -76,7 +86,7 @@ export interface GroupedColumnChartParams {
   title?: string;
   description?: string;
   table: string;
-  chartData?: Array[];
+  chartData?: object[];
   xvar: string;
   yvar: string;
   group: string;
@@ -85,7 +95,7 @@ export interface GroupedColumnChartParams {
   chartHeight?: number;
   chartMargins?: vizChartMargins;
   yMax?: number;
-  yTickValues?: Array<Number>;
+  yTickValues?: number[];
   xAxisLineBreaker?: string;
   columnFill?: string;
   columnHoverFill?: string;
@@ -147,8 +157,8 @@ export interface ScatterPlotParams {
   xMax?: number;
   yMin?: number;
   yMax?: number;
-  xTickValues?: Array<Number>;
-  yTickValues?: Array<Number>;
+  xTickValues?: number[];
+  yTickValues?: number[];
   xAxisLabel?: string;
   yAxisLabel?: string;
   pointRadius?: number;
@@ -185,12 +195,12 @@ export interface GeoMercatorParams {
   chartScale?: number;
   pointRadius?: number;
   showTooltip?: boolean;
-  tooltipVariables?: Array<string>;
+  tooltipVariables?: string[];
   tooltipTemplate?: Function;
   enableMarkerClicks?: boolean;
   enableLegendClicks?: boolean;
   enableZoom?: boolean;
-  zoomLimits?: Array<Number>;
+  zoomLimits?: number[];
   mapColors?: {
     land?: string;
     border?: string;

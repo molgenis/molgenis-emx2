@@ -39,7 +39,10 @@ import { ref, onBeforeMount, watch } from "vue";
 import { gql } from "graphql-tag";
 import { request } from "graphql-request";
 
-import type { GeoMercatorParams } from "../../interfaces/viz";
+import type {
+  GeoMercatorParams,
+  gqlVariableSubSelectionIF,
+} from "../../interfaces/viz";
 import {
   buildQuery,
   gqlExtractSelectionName,
@@ -54,7 +57,7 @@ import MessageBox from "../display/MessageBox.vue";
 
 interface GeoMercatorEmxParams extends GeoMercatorParams {
   geojson?: object;
-  chartData?: Array[];
+  chartData?: object[];
   legendData?: object;
 }
 
@@ -67,29 +70,24 @@ const emit = defineEmits<{
   (e: "viz-data-clicked", row: object): void;
 }>();
 
-let chartLoading = ref<Boolean>(true);
-let chartError = ref<Error | null>(null);
-let chartSuccess = ref<Boolean>(false);
-let chartData = ref<Array[]>([]);
-let chartDataQuery = ref<string | null>(null);
-let chartDataClicked = ref<object | null>(null);
+const chartLoading = ref<boolean>(true);
+const chartSuccess = ref<boolean>(false);
+const chartError = ref<Error | null>(null);
+const chartData = ref<object[]>([]);
+const chartDataQuery = ref<string | null>(null);
+const chartDataClicked = ref<object | null>(null);
 
-let rowId = ref<string | null>(null);
-let latVar = ref<string | null>(null);
-let lngVar = ref<string | null>(null);
-let groupVar = ref<string | null>(null);
-let rowIdSubSelection = ref<string | null>(null);
-let latSubSelection = ref<string | null>(null);
-let lngSubSelection = ref<string | null>(null);
-let groupSubSelection = ref<string | null>(null);
-let legendData = ref<Object | null>(null);
+const rowId = ref<string | null>(null);
+const latVar = ref<string | null>(null);
+const lngVar = ref<string | null>(null);
+const groupVar = ref<string | null>(null);
+const rowIdSubSelection = ref<string | null>(null);
+const latSubSelection = ref<string | null>(null);
+const lngSubSelection = ref<string | null>(null);
+const groupSubSelection = ref<string | null>(null);
+const legendData = ref<object | null>(null);
 
-interface TooltipSelectionsIF {
-  key: string;
-  nestedKey?: string;
-}
-
-let tooltipVars = ref<TooltipSelectionsIF[] | null>(null);
+let tooltipVars = ref<gqlVariableSubSelectionIF[] | null>(null);
 
 function setChartVariables() {
   rowId.value = gqlExtractSelectionName(props.rowId);
@@ -130,6 +128,8 @@ function setChartVariables() {
 async function fetchChartData() {
   chartLoading.value = true;
   chartSuccess.value = false;
+  chartError.value = null;
+
   try {
     const response = await request("../api/graphql", chartDataQuery.value);
     const data = await response[props.table as string].slice(0, 20);

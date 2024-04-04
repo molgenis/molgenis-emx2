@@ -3,9 +3,9 @@ export const emxTypes = {
   categorical: ["STRING", "REF", "ONTOLOGY"],
 };
 
-export function emxTypeAsDataClass(value: String) {
+export function emxTypeAsDataClass(value: string): string {
   return Object.keys(emxTypes)
-    .map((key: String) => {
+    .map((key: string) => {
       if (emxTypes[key as string].includes(value)) {
         return key;
       }

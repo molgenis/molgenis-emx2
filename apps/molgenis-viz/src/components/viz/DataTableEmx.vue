@@ -20,7 +20,10 @@ import { ref, onBeforeMount, watch } from "vue";
 import { gql } from "graphql-tag";
 import { request } from "graphql-request";
 
-import type { DataTableParams } from "../../interfaces/viz";
+import type {
+  DataTableParams,
+  gqlVariableSubSelectionIF,
+} from "../../interfaces/viz";
 import {
   buildQuery,
   gqlExtractSelectionName,
@@ -41,15 +44,15 @@ const emit = defineEmits<{
   (e: "viz-data-clicked", row: object): void;
 }>();
 
-let tableLoading = ref<Boolean>(true);
-let tableError = ref<Error | null>(null);
-let tableSuccess = ref<Boolean>(false);
-let tableData = ref<Array[]>([]);
-let tableDataQuery = ref<string | null>(null);
-let tableRowClicked = ref<Object | null>({});
+const tableLoading = ref<boolean>(true);
+const tableSuccess = ref<boolean>(false);
+const tableError = ref<Error | null>(null);
+const tableData = ref<object[]>([]);
+const tableDataQuery = ref<string | null>(null);
+const tableRowClicked = ref<object | null>({});
 
-let tableColumnMappings = ref<Array | null>(null);
-let columnOrder = ref<Array | null>(null);
+const tableColumnMappings = ref<gqlVariableSubSelectionIF[] | null>(null);
+const columnOrder = ref<string[] | null>(null);
 
 function setChartVariables() {
   tableDataQuery.value = buildQuery({

@@ -98,8 +98,8 @@ const router = createRouter({
           },
         },
         {
-          name: "docs_datatables",
-          path: "/docs/docs_datatables",
+          name: "datatable",
+          path: "/docs/datatables",
           component: docs_datatables,
           meta: {
             title: "Data Table",

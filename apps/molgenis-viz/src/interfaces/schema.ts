@@ -1,5 +1,5 @@
 export interface baseIF {
-  name: String;
+  name: string;
 }
 
 export interface ColumnSchema {
@@ -10,7 +10,7 @@ export interface ColumnSchema {
 
 export interface TableSchema {
   name: string;
-  label?: String;
+  label?: string;
   columns: ColumnSchema[];
 }
 
@@ -20,6 +20,6 @@ export interface SchemaMeta {
 }
 
 export interface onChangeIF {
-  for: String;
-  value: String;
+  for: string;
+  value: string;
 }

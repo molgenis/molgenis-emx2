@@ -59,19 +59,19 @@ const emit = defineEmits<{
   (e: "viz-data-clicked", row: object): void;
 }>();
 
-let chartLoading = ref<Boolean>(true);
-let chartError = ref<Error | null>(null);
-let chartSuccess = ref<Boolean>(false);
-let chartData = ref<Array[]>([]);
-let chartDataQuery = ref<string | null>(null);
-let chartDataClicked = ref<object | null>(null);
+const chartLoading = ref<boolean>(true);
+const chartSuccess = ref<boolean>(false);
+const chartError = ref<Error | null>(null);
+const chartData = ref<object[]>([]);
+const chartDataQuery = ref<string | null>(null);
+const chartDataClicked = ref<object | null>(null);
 
-let xVar = ref<string | null>(null);
-let yVar = ref<string | null>(null);
-let groupVar = ref<string | null>(null);
-let xSubSelection = ref<string | null>(null);
-let ySubSelection = ref<string | null>(null);
-let groupSubSelection = ref<string | null>(null);
+const xVar = ref<string | null>(null);
+const yVar = ref<string | null>(null);
+const groupVar = ref<string | null>(null);
+const xSubSelection = ref<string | null>(null);
+const ySubSelection = ref<string | null>(null);
+const groupSubSelection = ref<string | null>(null);
 
 function setChartVariables() {
   xVar.value = gqlExtractSelectionName(props.xvar);
@@ -89,6 +89,8 @@ function setChartVariables() {
 async function fetchChartData() {
   chartLoading.value = true;
   chartSuccess.value = false;
+  chartError.value = null;
+
   try {
     const response = await request("../api/graphql", chartDataQuery.value);
     const data = await response[props.table as string];

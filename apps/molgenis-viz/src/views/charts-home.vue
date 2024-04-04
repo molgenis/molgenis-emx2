@@ -1,6 +1,11 @@
 <template>
   <Page>
+    <PageHeader title="sfsf" subtitle="Chart library" />
     <PageSection :verticalPadding="2">
+      <h2>Available charts</h2>
+      <MessageBox type="warning">
+        <p>No charts founds. Charts that you have built will appear here.</p>
+      </MessageBox>
       {{ row }}
       <!-- <DataTableEmx
         tableId="data-table-test"
@@ -63,14 +68,14 @@
         :enable-clicks="true"
         @viz-data-clicked="(data) => row = data"
       /> -->
-      <!-- <ScatterPlotEmx
+      <ScatterPlotEmx
         chartId="scatter-plot-demo"
-        table="Organisations" 
+        table="Organisations"
         xvar="longitude"
         yvar="latitude"
         :enable-clicks="true"
-        @viz-data-clicked="data => row = data"
-      /> -->
+        @viz-data-clicked="(data) => (row = data)"
+      />
       <!-- <PieChart2Emx
         chartId="number-of-patients-by-sex"
         title="Number of Submitted Patients by Sex"
@@ -86,14 +91,9 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-let row = ref<object | null>(null);
-
 import Page from "../components/layouts/Page.vue";
 import PageHeader from "../components/layouts/PageHeader.vue";
 import PageSection from "../components/layouts/PageSection.vue";
-import Dashboard from "../components/layouts/Dashboard.vue";
-import DashboardRow from "../components/layouts/DashboardRow.vue";
-import DashboardChart from "../components/layouts/DashboardChart.vue";
 import MessageBox from "../components/display/MessageBox.vue";
 
 import DataTableEmx from "../components/viz/DataTableEmx.vue";
@@ -103,4 +103,6 @@ import ColumnChartEmx from "../components/viz/ColumnChartEmx.vue";
 import GroupedColumnChartEmx from "../components/viz/GroupedColumnChartEmx.vue";
 import ScatterPlotEmx from "../components/viz/ScatterPlotEmx.vue";
 import GeoMercatorEmx from "../components/viz/GeoMercatorEmx.vue";
+
+const row = ref<object | null>(null);
 </script>

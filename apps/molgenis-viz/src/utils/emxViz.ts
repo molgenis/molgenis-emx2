@@ -1,4 +1,8 @@
 import { gql } from "graphql-tag";
+import type {
+  gqlVariableSubSelectionIF,
+  PrepareChartDataIF,
+} from "../interfaces/viz";
 
 /**
  * buildQuery
@@ -12,11 +16,7 @@ import { gql } from "graphql-tag";
 
 export interface BuildQueryIF {
   table: string;
-  x?: string;
-  y?: string;
-  group?: string;
-  rowId?: string;
-  selections?: Array<string>;
+  selections?: string[];
 }
 
 export function buildQuery({ table, selections }: BuildQueryIF): string {
@@ -42,7 +42,7 @@ export function buildQuery({ table, selections }: BuildQueryIF): string {
  *
  * @returns string
  */
-export function gqlExtractSelectionName(variable: string) {
+export function gqlExtractSelectionName(variable: string): string {
   if (variable.match(/[\{\}]/)) {
     const query = gql`query { ${variable} }`;
     const definitions = query.definitions[0];
@@ -64,7 +64,7 @@ export function gqlExtractSelectionName(variable: string) {
  *
  * @returns name of the first subselection
  */
-export function gqlExtractSubSelectionNames(variable: string) {
+export function gqlExtractSubSelectionNames(variable: string): string | null {
   if (variable.match(/[\{\}]/)) {
     const query = gql`query { ${variable} }`;
     const selectionSet =
@@ -107,20 +107,10 @@ export function extractNestedRowValue(
  * @returns array of objects reduced and flattened to x and y variables
  */
 
-export interface chartVariablesIF {
-  key: string;
-  nestedKey?: string;
-}
-
-export interface PrepareChartDataIF {
-  data: Array[];
-  chartVariables?: Array<SupplementaryVarIF>;
-}
-
 export function prepareChartData({
   data,
   chartVariables,
-}: PrepareChartDataIF): array {
+}: PrepareChartDataIF): object[] {
   return data.map((row: object) => {
     const newRow: object = {};
     chartVariables.forEach((variable: string) => {
