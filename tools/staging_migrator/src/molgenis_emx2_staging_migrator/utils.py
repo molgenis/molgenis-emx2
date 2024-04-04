@@ -83,6 +83,7 @@ def find_cohort_references(schema_schema: Schema, schema_name: str, base_table: 
                    if c.get('refTableName') in inheritance.keys() and c.get('columnType') != 'REFBACK']
         for tab in schema_schema.get_tables(by='schemaName', value=schema_name)
     }
+    backward_refs[base_table] = 'id'
 
     table_references = {
         tab.name: {c.id: c.get('refTableName')
@@ -119,19 +120,13 @@ def find_cohort_references(schema_schema: Schema, schema_name: str, base_table: 
             if all(map(lambda ref: ref in [*sequence, *other_tabs, None], refs)):
                 sequence.append(pop_dict(tab))
 
-    table_references = {s: table_references.copy()[s] for s in sequence}
     backward_refs = {s: backward_refs.copy()[s] for s in sequence if len(backward_refs.copy()[s])}
-
-    table_references = {
-        tab: refs for (tab, refs) in table_references.items() if len(refs) > 0
-    }
 
     return backward_refs
 
 
 def construct_delete_variables(db_schema: Schema, cohort_ids: list, table_name: str, ref_col: str):
     """Constructs a variables filter for querying the GraphQL table on the desired column values."""
-    table_schema: Table = db_schema.get_table(by='name', value=table_name)
     pkeys = prepare_pkey(db_schema, table_name, ref_col)
     # pkeys = [prepare_pkey(db_schema, table_name, col.id) for col in table_schema.get_columns(by='key', value=1)]
 
