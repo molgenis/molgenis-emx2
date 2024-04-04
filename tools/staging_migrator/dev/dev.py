@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 
 from tools.staging_migrator.src.molgenis_emx2_staging_migrator import StagingMigrator
 
-STAGING_AREA = 'ACUTELINES'
+STAGING_AREA = 'AHON'
 CATALOGUE = 'UMCG'
 
 

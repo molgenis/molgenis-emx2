@@ -68,11 +68,6 @@ def find_cohort_references(schema_schema: Schema, schema_name: str, base_table: 
     References may be direct or indirect, such as the 'Subcohort counts' table
     that references the 'Subcohorts' table, which references the 'Cohorts' table directly.
     """
-    forward_refs = {
-        c.id: c.get('refTableName')
-        for c in schema_schema.get_table(by='name', value=base_table).get_columns(by='refSchemaName', value=schema_name)
-        if c.get('columnType') != 'REFBACK'
-    }
 
     inheritance = {}
     table_name = base_table
@@ -87,8 +82,6 @@ def find_cohort_references(schema_schema: Schema, schema_name: str, base_table: 
         tab.name: [c.id for c in tab.get_columns(by='refSchemaName', value=schema_name)
                    if c.get('refTableName') in inheritance.keys() and c.get('columnType') != 'REFBACK']
         for tab in schema_schema.get_tables(by='schemaName', value=schema_name)
-        # if len([c.id for c in tab.get_columns(by='refSchemaName', value=schema_name)
-        #         if c.get('refTableName') in inheritance.keys() and c.get('columnType') != 'REFBACK']) and tab.name != base_table
     }
 
     table_references = {
@@ -139,8 +132,8 @@ def find_cohort_references(schema_schema: Schema, schema_name: str, base_table: 
 def construct_delete_variables(db_schema: Schema, cohort_ids: list, table_name: str, ref_col: str):
     """Constructs a variables filter for querying the GraphQL table on the desired column values."""
     table_schema: Table = db_schema.get_table(by='name', value=table_name)
-    # pkeys = prepare_pkey(db_schema, table_name, ref_col)
-    pkeys = [prepare_pkey(db_schema, table_name, col.id) for col in table_schema.get_columns(by='key', value=1)]
+    pkeys = prepare_pkey(db_schema, table_name, ref_col)
+    # pkeys = [prepare_pkey(db_schema, table_name, col.id) for col in table_schema.get_columns(by='key', value=1)]
 
     def prepare_key_part(_pkey: str | dict | list):
         if isinstance(_pkey, str):
