@@ -121,9 +121,16 @@ function clearAll() {
 <template>
   <div v-if="showSearch" class="flex items-center py-1 -ml-2">
     <button class="flex items-center ml-8" @click="showModal">
-      <BaseIcon name="search" class="text-search-filter-expand" :width="18" />
-      <span class="ml-2 text-search-filter-expand text-body-sm hover:underline">
-        Search
+      <BaseIcon
+        name="search"
+        :class="`text-search-filter-expand${mobileDisplay ? '-mobile' : ''}`"
+        :width="18"
+      />
+      <span
+        class="ml-2 text-body-sm hover:underline"
+        :class="`text-search-filter-expand${mobileDisplay ? '-mobile' : ''}`"
+      >
+        Search for options
       </span>
     </button>
 
@@ -179,9 +186,8 @@ function clearAll() {
           :nodes="filteredTree"
           v-model="selectedNodesNames"
           :isMultiSelect="true"
-          :mobileDisplay="mobileDisplay"
-          :expandSelected="true"
           :inverted="true"
+          :expandSelected="true"
         />
         <div v-else class="text-gray-900 text-body-sm">No results found</div>
       </div>
@@ -200,7 +206,7 @@ function clearAll() {
     :nodes="rootNodes"
     v-model="selectedNodesNames"
     :isMultiSelect="true"
-    :mobileDisplay="mobileDisplay"
+    :inverted="mobileDisplay"
     :expandSelected="true"
   >
   </InputTree>
