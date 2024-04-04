@@ -5,6 +5,11 @@ plugins {
     id "com.github.node-gradle.node" version "7.0.1"
 }
 
+java {
+    targetCompatibility = rootProject.ext.javaVersion
+    sourceCompatibility = rootProject.ext.javaVersion
+}
+
 def isCI = System.getenv('CI') ? true : false
 
 def nodeSpec = {
