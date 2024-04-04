@@ -668,18 +668,23 @@ public class SqlQuery extends QueryBean {
         for (SelectColumn sub : field.getSubselect()) {
           Column c = getColumnByName(table, sub.getColumn());
           switch (field.getColumn()) {
-            case MAX_FIELD -> result.add(
-                key(c.getIdentifier()).value(max(field(name(alias(subAlias), c.getName())))));
-            case MIN_FIELD -> result.add(
-                key(c.getIdentifier()).value(min(field(name(alias(subAlias), c.getName())))));
-            case AVG_FIELD -> result.add(
-                key(c.getIdentifier())
-                    .value(avg(field(name(alias(subAlias), c.getName()), c.getJooqType()))));
-            case SUM_FIELD -> result.add(
-                key(c.getIdentifier())
-                    .value(sum(field(name(alias(subAlias), c.getName()), c.getJooqType()))));
-            default -> throw new MolgenisException(
-                "Unknown aggregate type provided: " + field.getColumn());
+            case MAX_FIELD ->
+                result.add(
+                    key(c.getIdentifier()).value(max(field(name(alias(subAlias), c.getName())))));
+            case MIN_FIELD ->
+                result.add(
+                    key(c.getIdentifier()).value(min(field(name(alias(subAlias), c.getName())))));
+            case AVG_FIELD ->
+                result.add(
+                    key(c.getIdentifier())
+                        .value(avg(field(name(alias(subAlias), c.getName()), c.getJooqType()))));
+            case SUM_FIELD ->
+                result.add(
+                    key(c.getIdentifier())
+                        .value(sum(field(name(alias(subAlias), c.getName()), c.getJooqType()))));
+            default ->
+                throw new MolgenisException(
+                    "Unknown aggregate type provided: " + field.getColumn());
           }
         }
         fields.add(jsonObject(result.toArray(new JSONEntry[result.size()])).as(field.getColumn()));
