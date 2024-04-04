@@ -98,6 +98,8 @@ function handleChildSelect(selected: string[], parent: ITreeNode) {
               ? 'text-search-filter-group-toggle-inverted hover:bg-search-filter-group-toggle-inverted'
               : 'text-search-filter-group-toggle hover:bg-search-filter-group-toggle',
           ]"
+          :aria-expanded="expandedNodes.includes(node.name)"
+          :aria-controls="node.name"
         >
           <BaseIcon
             :name="
