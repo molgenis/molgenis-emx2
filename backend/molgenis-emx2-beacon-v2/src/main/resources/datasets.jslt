@@ -1,6 +1,6 @@
 import "ontology.jslt" as ontology
 import "meta.jslt" as meta
-let host = .host
+let host = .requestBody.meta.host
 {
     "meta": meta(.),
     "responseSummary": {

@@ -59,6 +59,7 @@ public class QueryBuilder {
     }
     if (filters != null && !filters.isEmpty()) addFilters();
     query.append("){");
+    //    query.append("_reports,");
     query.append(columnSb);
     query.append("}}");
 
@@ -66,7 +67,7 @@ public class QueryBuilder {
   }
 
   private void addFilters() {
-    addFilters("and");
+    addFilters("or");
   }
 
   private void addFilters(String operator) {

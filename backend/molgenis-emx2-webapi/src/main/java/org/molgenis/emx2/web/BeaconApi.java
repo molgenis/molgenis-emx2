@@ -13,6 +13,7 @@ import org.molgenis.emx2.Database;
 import org.molgenis.emx2.beaconv2.EntryType;
 import org.molgenis.emx2.beaconv2.QueryEntryType;
 import org.molgenis.emx2.beaconv2.endpoints.*;
+import org.molgenis.emx2.beaconv2.endpoints.genomicvariants.GenomicVariantsResponse;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
 import org.molgenis.emx2.beaconv2.responses.BeaconBooleanResponse;
 import org.molgenis.emx2.beaconv2.responses.BeaconCountResponse;
@@ -47,7 +48,8 @@ public class BeaconApi {
     Database database = sessionManager.getSession(request).getDatabase();
 
     if (entryType == EntryType.GENOMIC_VARIANT) {
-      return getWriter().writeValueAsString(new GenomicVariants(request, database));
+      return getWriter()
+          .writeValueAsString(new GenomicVariantsResponse(request, database).getResponse());
     }
 
     BeaconRequestBody requestBody = new BeaconRequestBody(request.params());

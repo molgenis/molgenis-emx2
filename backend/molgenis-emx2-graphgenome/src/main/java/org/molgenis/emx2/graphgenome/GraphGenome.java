@@ -1,6 +1,5 @@
 package org.molgenis.emx2.graphgenome;
 
-import static org.molgenis.emx2.beaconv2.endpoints.genomicvariants.GenomicQueryType.GENEID;
 import static org.molgenis.emx2.graphgenome.Formatting.formatNodeId;
 import static org.molgenis.emx2.graphgenome.Formatting.shorten;
 import static org.molgenis.emx2.graphgenome.RetrieveRefSeq.getDnaFromUCSC;
@@ -53,8 +52,9 @@ public class GraphGenome extends RDFService {
       // query variants
       List<GenomicVariantsResultSets> variants = new ArrayList<>();
       for (Table table : tables) {
-        variants.addAll(
-            GenomicQuery.genomicQuery(table, GENEID, assembly, gene, null, null, null, null));
+        //        variants.addAll(
+        //            GenomicQuery.genomicQuery(table, GENEID, assembly, gene, null, null, null,
+        // null));
       }
       if (variants.size() == 0) {
         throw new Exception("No data available for this gene");

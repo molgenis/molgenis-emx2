@@ -10,11 +10,11 @@
     "receivedRequestSummary":
     {
         "apiVersion": "v2.0.0",
-        "requestedGranularity": "record",
+        "requestedGranularity": .requestBody.query.requestedGranularity,
         "pagination":
         {
-            "skip": 0,
-            "limit": 10
+            "skip": .requestBody.query.pagination.skip,
+            "limit": .requestBody.query.pagination.limit
         },
         "requestedSchemas": [{
              "entityType": "datasets",
@@ -25,5 +25,5 @@
         "testMode": false,
         "filters": [ ]
     },
-    "returnedGranularity": "record"
+    "returnedGranularity": .requestBody.query.requestedGranularity
 }

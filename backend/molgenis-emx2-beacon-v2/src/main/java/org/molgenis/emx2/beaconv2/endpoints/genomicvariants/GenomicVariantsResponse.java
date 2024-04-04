@@ -2,10 +2,12 @@ package org.molgenis.emx2.beaconv2.endpoints.genomicvariants;
 
 import static org.molgenis.emx2.beaconv2.QueryEntryType.getTableFromAllSchemas;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import java.util.ArrayList;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.schibsted.spt.data.jslt.Expression;
+import com.schibsted.spt.data.jslt.Parser;
 import java.util.List;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Table;
@@ -18,25 +20,22 @@ import spark.Request;
  *
  * <p>see: https://docs.genomebeacons.org/variant-queries/#beacon-sequence-queries
  */
-@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class GenomicVariantsResponse {
 
-  // annotation to print empty array as "[ ]" as required per Beacon spec
-  @JsonInclude() GenomicVariantsResultSets[] resultSets;
-
   // query parameters, ignore from output
-  @JsonIgnore private final String qReferenceName;
-  @JsonIgnore private final Long[] qStart;
-  @JsonIgnore private final Long[] qEnd;
-  @JsonIgnore private final String qReferenceBases;
-  @JsonIgnore private final String qAlternateBases;
-  @JsonIgnore private String qGeneId;
+  private final String qReferenceName;
+  private final Long[] qStart;
+  private final Long[] qEnd;
+  private final String qReferenceBases;
+  private final String qAlternateBases;
+  private String qGeneId;
+
+  private JsonNode response;
 
   public GenomicVariantsResponse(Request request, Database database) throws Exception {
 
     List<Table> genomicVariantTables = getTableFromAllSchemas(database, "GenomicVariations");
 
-    List<GenomicVariantsResultSets> resultSetsList = new ArrayList<>();
     qReferenceName = request.queryParams("referenceName");
     qStart = parseCoordinatesFromRequest(request, "start");
     qEnd = parseCoordinatesFromRequest(request, "end");
@@ -47,17 +46,22 @@ public class GenomicVariantsResponse {
 
     GenomicQueryType genomicQueryType = getGenomicQueryType();
 
+    ObjectMapper mapper = new ObjectMapper();
+    ObjectNode response = mapper.createObjectNode();
+    ArrayNode resultSets = mapper.createArrayNode();
+
     if (genomicQueryType == GenomicQueryType.NO_REQUEST_PARAMS) {
-      // must return an empty resultSets object
-      this.resultSets = resultSetsList.toArray(new GenomicVariantsResultSets[0]);
+      response.set("resultSets", resultSets);
+      this.response = response;
       return;
     }
 
     // each schema has 0 or 1 'GenomicVariations' table
     // each table match yields 1 GenomicVariantsResultSets
     // each row becomes a GenomicVariantsResultSetsItem
+
     for (Table table : genomicVariantTables) {
-      resultSetsList.addAll(
+      ArrayNode results =
           GenomicQuery.genomicQuery(
               table,
               genomicQueryType,
@@ -66,9 +70,22 @@ public class GenomicVariantsResponse {
               qStart,
               qEnd,
               qReferenceBases,
-              qAlternateBases));
+              qAlternateBases);
+
+      ObjectNode resultSet = mapper.createObjectNode();
+      resultSet.put("id", table.getSchema().getName());
+      resultSet.set("results", results);
+      resultSets.add(resultSet);
     }
-    this.resultSets = resultSetsList.toArray(new GenomicVariantsResultSets[0]);
+
+    response.set("resultSets", resultSets);
+
+    Expression jslt = Parser.compileResource("genomicvariations.jslt");
+    this.response = jslt.apply(response);
+  }
+
+  public JsonNode getResponse() {
+    return response;
   }
 
   private GenomicQueryType getGenomicQueryType() throws Exception {

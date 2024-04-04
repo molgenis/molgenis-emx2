@@ -10,7 +10,7 @@ import org.molgenis.emx2.beaconv2.requests.Filter;
 
 public class FilterParser {
 
-  private BeaconQuery beaconQuery;
+  private final BeaconQuery beaconQuery;
   private final List<Filter> unsupportedFilters = new ArrayList<>();
   private final List<Filter> graphQlFilters = new ArrayList<>();
   private final List<Filter> postFetchFilters = new ArrayList<>();
@@ -29,7 +29,7 @@ public class FilterParser {
       filter.setFilterType(FilterType.UNDEFINED);
       if (isIdSearch(filter)) {
         createOntologyFilters(filter);
-      } else if (isValidFilter(filter)) {
+      } else if (isValid(filter)) {
         String id = filter.getIds()[0];
         try {
           Concept concept = Concept.findById(id);
@@ -92,7 +92,7 @@ public class FilterParser {
   }
 
   // todo add more validation
-  private boolean isValidFilter(Filter filter) {
+  private boolean isValid(Filter filter) {
     return filter.getIds().length == 1;
   }
 

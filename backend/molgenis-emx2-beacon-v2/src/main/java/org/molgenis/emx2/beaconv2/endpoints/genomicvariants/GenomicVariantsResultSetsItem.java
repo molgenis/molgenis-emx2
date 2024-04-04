@@ -1,9 +1,5 @@
 package org.molgenis.emx2.beaconv2.endpoints.genomicvariants;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class GenomicVariantsResultSetsItem {
 
   private String variantInternalId;
@@ -17,9 +13,7 @@ public class GenomicVariantsResultSetsItem {
   private String[] transcriptHGVSIds;
   private VariantLevelData variantLevelData;
   private CaseLevelData[] caseLevelData;
-
-  // hidden helper variable to remember schema name for graph genome API
-  @JsonIgnore private String GenomicVariantsResultSetId;
+  private String GenomicVariantsResultSetId;
 
   public void setVariantInternalId(String variantInternalId) {
     this.variantInternalId = variantInternalId;

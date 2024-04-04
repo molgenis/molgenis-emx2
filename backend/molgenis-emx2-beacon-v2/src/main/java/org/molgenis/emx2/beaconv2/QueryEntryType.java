@@ -1,5 +1,6 @@
 package org.molgenis.emx2.beaconv2;
 
+import static org.molgenis.emx2.Privileges.AGGREGATOR;
 import static org.molgenis.emx2.Privileges.VIEWER;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -30,49 +31,60 @@ public class QueryEntryType {
   public static JsonNode query(
       Database database, EntryType entryType, BeaconRequestBody requestBody) throws JsltException {
 
-    FilterParser filterParser = new FilterParser(requestBody.getQuery()).parse();
-    List<String> graphQlFilters = filterParser.getGraphQlFilters();
-
     ObjectMapper mapper = new ObjectMapper();
     ArrayNode resultSets = mapper.createArrayNode();
-
-    for (Table table : getTableFromAllSchemas(database, entryType.getId())) {
-      GraphQL graphQL = new GraphqlApiFactory().createGraphqlForSchema(table.getSchema());
-
-      List<String> roles = table.getSchema().getInheritedRolesForActiveUser();
-      roles.contains(VIEWER.toString());
-      requestBody.getQuery().getRequestedGranularity();
-
-      String graphQlQuery =
-          new QueryBuilder(table)
-              .addAllColumns(2)
-              .addFilters(graphQlFilters)
-              .setLimit(requestBody.getQuery().getPagination().getLimit())
-              .setOffset(requestBody.getQuery().getPagination().getSkip())
-              .getQuery();
-
-      ExecutionResult result = graphQL.execute(graphQlQuery);
-      ArrayNode results = (ArrayNode) mapper.valueToTree(result.getData()).get(entryType.getId());
-      filterResults(results, filterParser.getPostFetchFilters());
-
-      ObjectNode resultSet = mapper.createObjectNode();
-      resultSet.put("id", table.getSchema().getName());
-      resultSet.set("results", results);
-      resultSets.add(resultSet);
-    }
-
     ObjectNode response = mapper.createObjectNode();
-    response.set("resultSets", resultSets);
-    response.put("host", requestBody.getMeta().getHost());
+    response.set("requestBody", mapper.valueToTree(requestBody));
 
+    FilterParser filterParser = new FilterParser(requestBody.getQuery()).parse();
+    List<String> graphQlFilters = filterParser.getGraphQlFilters();
     if (filterParser.hasWarnings()) {
       ObjectNode info = mapper.createObjectNode();
       info.put("unsupportedFilters", filterParser.getWarnings().toString());
       response.set("info", info);
     }
 
+    for (Table table : getTableFromAllSchemas(database, entryType.getId())) {
+      if (isAuthorized(requestBody, table)) {
+        GraphQL graphQL = new GraphqlApiFactory().createGraphqlForSchema(table.getSchema());
+
+        String graphQlQuery =
+            new QueryBuilder(table)
+                .addAllColumns(2)
+                .addFilters(graphQlFilters)
+                .setLimit(requestBody.getQuery().getPagination().getLimit())
+                .setOffset(requestBody.getQuery().getPagination().getSkip())
+                .getQuery();
+
+        ExecutionResult result = graphQL.execute(graphQlQuery);
+        JsonNode results = mapper.valueToTree(result.getData()).get(entryType.getId());
+        if (results == null || results.isNull()) continue;
+
+        ArrayNode resultsArray = (ArrayNode) results;
+        filterResults(resultsArray, filterParser.getPostFetchFilters());
+
+        ObjectNode resultSet = mapper.createObjectNode();
+        resultSet.put("id", table.getSchema().getName());
+        resultSet.set("results", resultsArray);
+        resultSets.add(resultSet);
+      }
+    }
+
+    response.set("resultSets", resultSets);
     Expression jslt = Parser.compileResource(entryType.getName().toLowerCase() + ".jslt");
     return jslt.apply(response);
+  }
+
+  private static boolean isAuthorized(BeaconRequestBody requestBody, Table table) {
+    List<String> roles = table.getSchema().getInheritedRolesForActiveUser();
+    switch (requestBody.getQuery().getRequestedGranularity()) {
+      case BOOLEAN, COUNT, AGGREGATED:
+        if (roles.contains(AGGREGATOR.toString())) return true;
+      case RECORD, UNDEFINED:
+        if (roles.contains(VIEWER.toString())) return true;
+      default:
+        return false;
+    }
   }
 
   private static void filterResults(ArrayNode results, List<Filter> postFetchFilters) {

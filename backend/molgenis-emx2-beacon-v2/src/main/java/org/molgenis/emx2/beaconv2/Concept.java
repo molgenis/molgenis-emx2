@@ -17,7 +17,30 @@ public enum Concept {
   CAUSAL_GENE("data_2295", "{ diseaseCausalGenes: { name: { equals: \"%s\" } } }", null),
   AGE_THIS_YEAR("NCIT_C83164", null, null),
   AGE_OF_ONSET("NCIT_C124353", null, null),
-  AGE_AT_DIAG("NCIT_C156420", null, null);
+  AGE_AT_DIAG("NCIT_C156420", null, null),
+  BIOSPECIMIN_TYPE(
+      "NCIT_C70713",
+      null,
+      List.of(
+          "OBI_0000655",
+          "OBI_0002512",
+          "OBIB_0000036",
+          "CL_2000001",
+          "OBI_0100016",
+          "OBI_0100017",
+          "UBERON_0007795",
+          "OBI_0002502",
+          "OBI_0002507",
+          "OBI_0002503",
+          "OBI_0000651",
+          "OBI_0002599",
+          "OBI_2000009",
+          "OBI_1200000",
+          "OBI_0000922",
+          "OBI_0001472",
+          "OBI_0001051",
+          "OBI_0000880",
+          "OBI_0001479"));
 
   private final String id;
   private final String graphQlQuery;

@@ -13,7 +13,7 @@ import org.molgenis.emx2.beaconv2.endpoints.datasets.Pagination;
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class BeaconQuery {
   private String description;
-  private List<BeaconRequestParameters> requestParameters;
+  private List<BeaconRequestParameters> requestParameters = new ArrayList<>();
   private List<Filter> filters = new ArrayList<>();
   private IncludedResultsetResponses includeResultsetResponses = HIT;
   private Pagination pagination = new Pagination();
@@ -23,8 +23,6 @@ public class BeaconQuery {
   public BeaconQuery() {}
 
   public BeaconQuery(Map<String, String> params) {
-    if (requestParameters == null) requestParameters = new ArrayList<>();
-
     for (var entry : params.entrySet()) {
       String ref = entry.getKey().replaceAll(":", "");
       requestParameters.add(new BeaconRequestParameters(ref, entry.getValue()));
