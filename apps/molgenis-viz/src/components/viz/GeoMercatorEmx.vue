@@ -133,21 +133,21 @@ async function fetchChartData() {
   try {
     const response = await request("../api/graphql", chartDataQuery.value);
     const data = await response[props.table as string];
-    
+
     const chartColumns = [
-        { key: rowId.value, nestedKey: rowIdSubSelection.value },
-        { key: latVar.value, nestedKey: latSubSelection.value },
-        { key: lngVar.value, nestedKey: lngSubSelection.value },
-        { key: groupVar.value, nestedKey: groupSubSelection.value }
-      ]
-      
+      { key: rowId.value, nestedKey: rowIdSubSelection.value },
+      { key: latVar.value, nestedKey: latSubSelection.value },
+      { key: lngVar.value, nestedKey: lngSubSelection.value },
+      { key: groupVar.value, nestedKey: groupSubSelection.value },
+    ];
+
     if (tooltipVars.value?.length) {
-      chartColumns.push(...tooltipVars.value)
+      chartColumns.push(...tooltipVars.value);
     }
-    
+
     chartData.value = await prepareChartData({
       data: data,
-      chartVariables: chartColumns
+      chartVariables: chartColumns,
     });
     chartSuccess.value = true;
   } catch (error) {

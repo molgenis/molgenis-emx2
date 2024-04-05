@@ -23,7 +23,10 @@
     <Dashboard>
       <DashboardRow :columns="1">
         <MessageBox type="warning">
-          <p>This demo only works with the schema `ERN_DASHBOARD`. Create a new schema using the template and load in the demo data.</p>
+          <p>
+            This demo only works with the schema `ERN_DASHBOARD`. Create a new
+            schema using the template and load in the demo data.
+          </p>
         </MessageBox>
       </DashboardRow>
       <DashboardRow :columns="1">
@@ -40,10 +43,10 @@
             :groupColorMappings="{
               Healthcare: '#f0f0f0',
               Education: 'orange',
-              Facility: 'red'
+              Facility: 'red',
             }"
             :showTooltip="true"
-            :zoomLimits="[0.5,5.0]"
+            :zoomLimits="[0.5, 5.0]"
           />
         </DashboardChart>
       </DashboardRow>
