@@ -3,14 +3,14 @@ const searchValue = ref("");
 const inverted = ref(false);
 </script>
 <template>
-  <div class="p-5" :class="inverted ? '' : 'bg-blue-500'">
+  <div class="p-5">
     <FilterSearch v-model="searchValue" :inverted="inverted" />
   </div>
 
   <div class="mt-4">
     <hr />
     <p>Search value: {{ searchValue }}</p>
-    <span> (note: the search inoujt has a fixed 500ms update delay)</span>
+    <span> (note: the search inout has a fixed 500ms update delay)</span>
     <div class="mt-4">
       <button
         @click="searchValue = ''"

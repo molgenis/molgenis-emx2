@@ -5,11 +5,19 @@ export default defineNuxtConfig({
   // components: [{ path: "./components", prefix: "UI" }],
   tailwindcss: {
     cssPath: '~/assets/css/main.css',
+    configPath: '~/tailwind.config.js'
   },
   ssr: process.env.NUXT_PUBLIC_IS_SSR === 'false' ? false : true,
   nitro: {
     prerender: {
       ignore: ['/_tailwind/']
     }
-  }
+  },
+  app: {
+    head: {
+      htmlAttrs: {
+        'data-theme': ''
+      }
+    }
+  },
 })

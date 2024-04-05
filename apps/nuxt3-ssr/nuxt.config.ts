@@ -5,6 +5,10 @@ export default defineNuxtConfig({
   modules: ["@nuxt/image"],
   devtools: { enabled: true },
   extends: ["../tailwind-components"],
+  tailwindcss: {
+    cssPath: '../tailwind-components/assets/css/main.css',
+    configPath: '../tailwind-components/tailwind.config.js'
+  },
   runtimeConfig: {
     public: {
       emx2Theme: "",

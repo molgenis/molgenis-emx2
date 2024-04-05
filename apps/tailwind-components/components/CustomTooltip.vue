@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { computed } from "vue";
 import BaseIcon from "./BaseIcon.vue";
 import "floating-vue/dist/style.css";
 const ariaId = useId();
@@ -47,22 +46,3 @@ const hoverColorClass = computed(() => {
     </VTooltip>
   </div>
 </template>
-
-<style>
-.v-popper--theme-tooltip {
-  @apply text-body-sm font-sans flex items-center justify-center;
-}
-
-.v-popper--theme-tooltip .v-popper__inner {
-  @apply p-3 bg-black;
-}
-
-.v-popper__popper .v-popper__arrow-inner,
-.v-popper__popper .v-popper__arrow-outer {
-  @apply border-black;
-}
-
-.v-popper--theme-tooltip {
-  @apply max-w-tooltip;
-}
-</style>

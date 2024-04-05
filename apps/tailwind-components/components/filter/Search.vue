@@ -40,7 +40,7 @@ function handleInput(input: string) {
       :placeholder="placeholder"
     />
     <button
-      class="rounded-search-button text-black absolute top-0 right-0 flex items-center pl-8 pr-6 tracking-wider text-search-button border-search-button border-[1px] transition-colors bg-search-button h-10 font-display text-heading-xl hover:text-search-button-hover"
+      class="rounded-search-button absolute top-0 right-0 flex items-center pl-8 pr-6 tracking-wider text-search-button border-search-button border-[1px] transition-colors bg-search-button h-10 font-display text-heading-xl hover:text-search-button-hover"
     >
       Search
     </button>
