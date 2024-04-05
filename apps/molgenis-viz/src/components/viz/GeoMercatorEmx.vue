@@ -22,7 +22,7 @@
     :chartSize="chartSize"
     :chartScale="chartScale"
     :pointRadius="pointRadius"
-    :legendData="legendData"
+    :legendData="groupColorMappings"
     :showTooltip="showTooltip"
     :tooltipTemplate="tooltipTemplate"
     :enableMarkerClicks="enableMarkerClicks"
@@ -64,6 +64,7 @@ interface GeoMercatorEmxParams extends GeoMercatorParams {
 const props = withDefaults(defineProps<GeoMercatorEmxParams>(), {
   showTooltip: true,
   enableZoom: true,
+  enableLegendClicks: true,
 });
 
 const emit = defineEmits<{
@@ -131,16 +132,22 @@ async function fetchChartData() {
 
   try {
     const response = await request("../api/graphql", chartDataQuery.value);
-    const data = await response[props.table as string].slice(0, 20);
-    chartData.value = await prepareChartData({
-      data: data,
-      chartVariables: [
+    const data = await response[props.table as string];
+    
+    const chartColumns = [
         { key: rowId.value, nestedKey: rowIdSubSelection.value },
         { key: latVar.value, nestedKey: latSubSelection.value },
         { key: lngVar.value, nestedKey: lngSubSelection.value },
-        { key: groupVar.value, nestedKey: groupSubSelection.value },
-        ...tooltipVars.value,
-      ],
+        { key: groupVar.value, nestedKey: groupSubSelection.value }
+      ]
+      
+    if (tooltipVars.value?.length) {
+      chartColumns.push(...tooltipVars.value)
+    }
+    
+    chartData.value = await prepareChartData({
+      data: data,
+      chartVariables: chartColumns
     });
     chartSuccess.value = true;
   } catch (error) {

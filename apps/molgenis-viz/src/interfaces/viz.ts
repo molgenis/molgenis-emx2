@@ -183,7 +183,7 @@ export interface GeoMercatorParams {
   latitude: string;
   longitude: string;
   group?: string;
-  groupColorMappings?: string;
+  groupColorMappings?: object;
   markerColor?: string;
   markerStroke?: string;
   chartHeight?: number;
