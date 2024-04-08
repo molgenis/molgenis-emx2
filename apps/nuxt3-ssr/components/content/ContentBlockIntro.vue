@@ -179,7 +179,7 @@ const submitForm = async () => {
 
         <template #footer>
           <Button
-            v-if="contactMessageFilter"
+            v-if="contactMessageFilter && useEmailService"
             type="primary"
             size="small"
             label="Send"
