@@ -194,8 +194,8 @@
     --backgroud-color-navigation: var(--color-white);
     --backgroud-color-search-results-view-tabs: var(--color-umcg-dark-blue);
     --backgroud-color-search-filter-group-toggle: #bdcce4;
-    --backgroud-color-app-wrapper: var(--colors.transparent);
-    --backgroud-color-pagination: var(--colors.transparent);
+    --backgroud-color-app-wrapper: var(--color-transparent);
+    --backgroud-color-pagination: var(--color-transparent);
     --backgroud-color-pagination-hover: var(--color-umcg-dark-blue);
     --backgroud-color-footer: var(--color-white);
     --backgroud-color-modal-footer: #E3EFF8;
