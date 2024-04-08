@@ -295,3 +295,15 @@ export interface IOntologyItem {
 export interface IOntologyParentTreeItem
   extends Omit<IOntologyItem, "children"> {}
 export interface IOntologyChildTreeItem extends Omit<IOntologyItem, "parent"> {}
+
+export interface IManifest {
+  ImplementationVersion: string;
+  SpecificationVersion: string;
+  DatabaseVersion: string;
+}
+
+export interface IManifestResponse {
+  data: {
+    _manifest: IManifest;
+  };
+}
