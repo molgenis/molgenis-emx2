@@ -62,10 +62,10 @@ public class TestTruncate {
     assertEquals(2, table2.retrieveRows().size());
     assertEquals(1, table3.retrieveRows().size());
 
-    table2.truncate(); // leaves subclass?!!! is this expected behavior?
+    table2.truncate();
 
     assertEquals(2, table1.retrieveRows().size());
-    assertEquals(1, table2.retrieveRows().size()); // !!!
+    assertEquals(1, table2.retrieveRows().size()); // this 1 is only for the subclass in table 3
     assertEquals(1, table3.retrieveRows().size());
 
     table3.truncate();

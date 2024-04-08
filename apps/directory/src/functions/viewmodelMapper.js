@@ -234,7 +234,7 @@ function mapSubcollections(collections, level) {
   return sub_collections;
 }
 
-export function getCollectionDetails(collection) {
+export function getCollectionDetails(collection, isBiobankWithdrawn) {
   const settingsStore = useSettingsStore();
   const viewmodel = getViewmodel(
     collection,
@@ -242,10 +242,12 @@ export function getCollectionDetails(collection) {
   );
 
   if (collection.sub_collections?.length) {
-    viewmodel.sub_collections = mapSubcollections(
-      collection.sub_collections,
-      1
-    );
+    const filteredSubCollections = isBiobankWithdrawn
+      ? collection.sub_collections
+      : collection.sub_collections.filter(
+          (subcollection) => !subcollection.withdrawn
+        );
+    viewmodel.sub_collections = mapSubcollections(filteredSubCollections, 1);
   }
 
   return {
@@ -264,9 +266,7 @@ export const getBiobankDetails = (biobank) => {
     );
     biobank.collectionDetails = [];
 
-    const parentCollections = biobank.collections.filter(
-      (collection) => !collection.parent_collection
-    );
+    const parentCollections = biobank.collections;
 
     const sortedParentCollections = sortCollectionsByName(parentCollections);
 

@@ -1,13 +1,17 @@
 <template>
-  <div
-    :class="{
-      'font-weight-bold': boldText,
-    }"
-  >
-    <div class="w3tooltip" tabindex="0" @click.prevent="">
+  <div :class="{ 'font-weight-bold': boldText }">
+    <div
+      class="w3tooltip"
+      tabindex="0"
+      @click.prevent=""
+      @mouseenter="activateTooltip"
+      @mouseleave="deactivateTooltip"
+      @focus="activateTooltip"
+      @blur="deactivateTooltip"
+      ref="tooltipTrigger"
+    >
       <span v-if="label && !iconBeforeLabel">{{ label }}</span>
       <span
-        :ref="uniqueLabelId"
         class="fa d-inline-block"
         :class="[
           label ? (iconBeforeLabel ? 'mr-1' : 'ml-1') : '',
@@ -16,18 +20,17 @@
         ]"
         aria-hidden="true"
       ></span>
-      <span :ref="uniqueLabelId" v-if="label && iconBeforeLabel">{{
-        label
-      }}</span>
-
+      <span v-if="label && iconBeforeLabel">{{ label }}</span>
+    </div>
+    <teleport to="body">
       <span
         class="tooltiptext"
-        :ref="uniqueContentsId"
-        :class="placementClass"
-        :style="placementStyle"
-        ><slot
-      /></span>
-    </div>
+        :class="[placementClass, { active: isActive }]"
+        ref="tooltipContent"
+      >
+        <slot />
+      </span>
+    </teleport>
   </div>
 </template>
 
@@ -35,35 +38,22 @@
 export default {
   name: "InfoPopover",
   props: {
-    /**
-     * Wether the label is bold
-     */
     boldText: {
       type: Boolean,
-      required: false,
       default: false,
     },
     faIcon: {
       type: String,
-      required: false,
-      default: () => "fa-question-circle",
+      default: "fa-question-circle",
     },
     textColor: {
       type: String,
-      required: false,
-      default: () => "text-info",
+      default: "text-info",
     },
-    /**
-     * If set the ( ? ) icon wil be shown before the label
-     */
     iconBeforeLabel: {
       type: Boolean,
-      required: false,
       default: false,
     },
-    /**
-     * The text to show before or after the ( ? ) icon
-     */
     label: {
       type: String,
       required: false,
@@ -75,43 +65,85 @@ export default {
   },
   data() {
     return {
-      uniqueLabelId: `label-${Date.now() + "" + Math.random()}`,
-      uniqueContentsId: `content-${Date.now() + "" + Math.random()}`,
-      elementWidth: 0,
-      elementHeight: 0,
-      contentWidth: 0,
+      isActive: false,
     };
   },
   computed: {
     placementClass() {
       return `tooltip-${this.popoverPlacement}`;
     },
-    placementStyle() {
-      switch (this.popoverPlacement) {
-        case "right": {
-          const left = this.elementWidth + 12;
-          return `top: 50%; left:${left}px; transform: translateY(-50%);`;
-        }
-        case "left": {
-          const right = this.elementWidth + 12;
-          return `top: 50%; right:${right}px; transform: translateY(-50%);`;
-        }
-        case "bottom": {
-          const top = this.elementHeight + 12;
-          return `top: ${top}px; left: 50%; transform: translateX(-50%);`;
-        }
-        default: {
-          const bottom = this.elementHeight + 12;
-          return `bottom: ${bottom}px; left: 50%; transform: translateX(-50%);`;
-        }
-      }
-    },
   },
-  mounted() {
-    const tooltipEl = this.$refs[this.uniqueLabelId];
-    this.elementHeight = tooltipEl.clientHeight;
-    this.elementWidth = tooltipEl.clientWidth;
-    this.contentWidth = this.$refs[this.uniqueContentsId].clientWidth;
+  methods: {
+    activateTooltip() {
+      this.updateTooltipPlacement();
+      this.isActive = true;
+    },
+    deactivateTooltip() {
+      this.isActive = false;
+    },
+    updateTooltipPlacement() {
+      if (!this.$refs.tooltipTrigger || !this.$refs.tooltipContent) {
+        return;
+      }
+
+      const triggerRect = this.$refs.tooltipTrigger.getBoundingClientRect();
+      const contentRect = this.$refs.tooltipContent.getBoundingClientRect();
+      const placementStyle = this.calculatePlacementStyle(
+        triggerRect,
+        contentRect
+      );
+
+      Object.assign(this.$refs.tooltipContent.style, placementStyle);
+    },
+    calculatePlacementStyle(triggerRect, contentRect) {
+      const placementStyle = {};
+      const offset = 8;
+
+      switch (this.popoverPlacement) {
+        case "right":
+          placementStyle.left = `${
+            triggerRect.right + window.scrollX + offset
+          }px`;
+          placementStyle.top = `${
+            triggerRect.top +
+            window.scrollY -
+            (contentRect.height - triggerRect.height) / 2
+          }px`;
+          break;
+        case "left":
+          placementStyle.right = `${
+            window.innerWidth - triggerRect.left + window.scrollX - offset
+          }px`;
+          placementStyle.top = `${
+            triggerRect.top +
+            window.scrollY -
+            (contentRect.height - triggerRect.height) / 2
+          }px`;
+          break;
+        case "bottom":
+          placementStyle.top = `${
+            triggerRect.bottom + window.scrollY + offset
+          }px`;
+          placementStyle.left = `${
+            triggerRect.left +
+            window.scrollX -
+            (contentRect.width - triggerRect.width) / 2
+          }px`;
+          break;
+        default:
+          placementStyle.bottom = `${
+            window.innerHeight - triggerRect.top + window.scrollY + offset
+          }px`;
+          placementStyle.left = `${
+            triggerRect.left +
+            window.scrollX -
+            (contentRect.width - triggerRect.width) / 2
+          }px`;
+          break;
+      }
+
+      return placementStyle;
+    },
   },
 };
 </script>
@@ -119,8 +151,9 @@ export default {
 .w3tooltip {
   position: relative;
   display: inline-block;
+  cursor: pointer;
 }
-.w3tooltip .tooltiptext {
+.tooltiptext {
   visibility: hidden;
   position: absolute;
   width: max-content;
@@ -129,21 +162,15 @@ export default {
   line-height: normal;
   padding: 6px 10px;
   border-radius: 6px;
-  z-index: 1;
+  z-index: 1000;
   opacity: 0;
-  transition: opacity 0.6s;
+  transition: opacity 0.6s, visibility 0.6s;
   box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
 }
-.w3tooltip:hover {
-  cursor: pointer;
-}
-
-.w3tooltip:hover .tooltiptext,
-.w3tooltip:focus .tooltiptext {
-  visibility: visible;
+.tooltiptext.active {
   opacity: 1;
+  visibility: visible;
 }
-
 .tooltip-right::after {
   content: "";
   position: absolute;
@@ -153,8 +180,8 @@ export default {
   border-width: 5px;
   border-style: solid;
   border-color: transparent var(--dark) transparent transparent;
+  pointer-events: none;
 }
-
 .tooltip-bottom::after {
   content: "";
   position: absolute;
@@ -164,8 +191,8 @@ export default {
   border-width: 5px;
   border-style: solid;
   border-color: transparent transparent var(--dark) transparent;
+  pointer-events: none;
 }
-
 .tooltip-top::after {
   content: "";
   position: absolute;
@@ -175,8 +202,8 @@ export default {
   border-width: 5px;
   border-style: solid;
   border-color: var(--dark) transparent transparent transparent;
+  pointer-events: none;
 }
-
 .tooltip-left::after {
   content: "";
   position: absolute;
@@ -186,6 +213,7 @@ export default {
   border-width: 5px;
   border-style: solid;
   border-color: transparent transparent transparent var(--dark);
+  pointer-events: none;
 }
 </style>
 

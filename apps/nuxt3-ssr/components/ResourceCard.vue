@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { ContentReadMore } from "#build/components";
+
 let truncate = ref(true);
 const cutoff = 250;
 
@@ -85,28 +87,7 @@ const iconStarClasses = computed(() => {
 
     <div v-if="!compact">
       <template v-if="resource.description">
-        <p class="text-body-base my-5 xl:block hidden">
-          {{ resource?.description }}
-        </p>
-
-        <p
-          v-if="resource?.description"
-          class="text-body-base mt-5 block xl:hidden"
-        >
-          {{
-            truncate
-              ? `${resource?.description?.substring(0, cutoff)}...`
-              : resource?.description
-          }}
-        </p>
-
-        <button
-          v-if="truncate && resource?.description?.length > cutoff"
-          class="text-blue-500 hover:underline hover:bg-blue-50 mt-5 xl:hidden"
-          @click="truncate = false"
-        >
-          Read more
-        </button>
+        <ContentReadMore :text="resource.description" />
       </template>
 
       <!-- TODO think about generic way to add additional context -->
