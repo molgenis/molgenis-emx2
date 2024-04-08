@@ -296,19 +296,10 @@
 </template>
 
 <script setup lang="ts">
-import type { IMgError } from "~~/interfaces/types";
+import type { IManifestResponse, IMgError } from "~~/interfaces/types";
 
 useHead({ title: "About" });
 
-interface IManifestResponse {
-  data: {
-    _manifest: {
-      ImplementationVersion: string;
-      SpecificationVersion: string;
-      DatabaseVersion: string;
-    };
-  };
-}
 const { data, error } = await useGqlFetch<IManifestResponse, IMgError>(
   ` 
     query manifest{
