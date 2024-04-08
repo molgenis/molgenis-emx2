@@ -26,7 +26,11 @@ const { data, pending, error, refresh } = await useFetch(
 );
 
 const variable = computed(
-  () => data.value.data.Variables[0] as VariableDetailsWithMapping
+  () =>
+    data.value.data.Variables.map((variable: VariableDetailsWithMapping) => {
+      variable.repeats?.sort((a, b) => a.name.localeCompare(b.name));
+      return variable;
+    })[0] as VariableDetailsWithMapping
 );
 const nRepeats = computed(() => data.value.data.RepeatedVariables_agg.count);
 const cohorts = computed(() => data.value.data.Cohorts as { id: string }[]);
