@@ -1,6 +1,8 @@
 package org.molgenis.emx2.beaconv2;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import org.molgenis.emx2.MolgenisException;
 
 public enum Concept {
@@ -53,16 +55,10 @@ public enum Concept {
   }
 
   public static Concept findById(String id) {
-    Concept result = null;
-    for (Concept concept : values()) {
-      if (concept.getId().equalsIgnoreCase(id)) {
-        result = concept;
-        break;
-      }
-    }
-    if (result == null) throw new MolgenisException("Invalid concept: %s".formatted(id));
+    Optional<Concept> result = Arrays.stream(values()).findFirst();
+    if (result.isEmpty()) throw new MolgenisException("Invalid concept: %s".formatted(id));
 
-    return result;
+    return result.get();
   }
 
   private String getId() {
@@ -75,11 +71,7 @@ public enum Concept {
 
   public boolean isPermittedValue(String[] values) {
     if (permittedValues != null) {
-      for (String value : values) {
-        if (!permittedValues.contains(value)) {
-          return false;
-        }
-      }
+      return Arrays.stream(values).allMatch(permittedValues::contains);
     }
     return true;
   }

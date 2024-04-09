@@ -53,8 +53,10 @@ public class Beaconv2_ModelEndpointsTest {
   @Test
   public void testGenomicVariants_NoParams() throws Exception {
     Request request = mock(Request.class);
-    GenomicVariants genomicVariations = new GenomicVariants(request, database);
-    String json = JsonUtil.getWriter().writeValueAsString(genomicVariations);
+    when(request.queryParams("entry_type")).thenReturn("g_variants");
+    BeaconRequestBody requestBody = new BeaconRequestBody(request.params());
+    JsonNode result = QueryEntryType.query(database, requestBody);
+    String json = JsonUtil.getWriter().writeValueAsString(result);
 
     // check correct empty resultset structure (must be exactly this!)
     assertTrue(

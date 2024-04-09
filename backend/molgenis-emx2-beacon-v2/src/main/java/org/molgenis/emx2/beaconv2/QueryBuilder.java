@@ -102,4 +102,11 @@ public class QueryBuilder {
     currentDepth--;
     return currentDepth;
   }
+
+  private void queryOntologyRecursively(List<Column> ontologies) {
+    for (Column ontology : ontologies) {
+      ontology.getSemantics();
+      // do something Joris doesn't like
+    }
+  }
 }

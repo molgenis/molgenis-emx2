@@ -93,33 +93,38 @@ public class QueryEntryType {
   }
 
   private static void filterResults(ArrayNode results, List<Filter> postFetchFilters) {
-    for (Filter filter : postFetchFilters) {
-      Iterator<JsonNode> resultsElements = results.elements();
-      while (resultsElements.hasNext()) {
-        JsonNode result = resultsElements.next();
-        List<String> ageIso8601durations = new ArrayList<>();
-        switch (filter.getConcept()) {
-          case AGE_THIS_YEAR:
-            ageIso8601durations.add(result.get("age_age_iso8601duration").textValue());
-            break;
-          case AGE_OF_ONSET:
-            for (JsonNode disease : result.get("diseases")) {
-              String age = disease.get("ageOfOnset_age_iso8601duration").textValue();
-              ageIso8601durations.add(age);
+    postFetchFilters.forEach(
+        filter -> {
+          Iterator<JsonNode> resultsElements = results.elements();
+          while (resultsElements.hasNext()) {
+            JsonNode result = resultsElements.next();
+            List<String> ageIso8601durations = new ArrayList<>();
+            switch (filter.getConcept()) {
+              case AGE_THIS_YEAR:
+                ageIso8601durations.add(result.get("age_age_iso8601duration").textValue());
+                break;
+              case AGE_OF_ONSET:
+                result
+                    .get("diseases")
+                    .forEach(
+                        disease ->
+                            ageIso8601durations.add(
+                                disease.get("ageOfOnset_age_iso8601duration").textValue()));
+                break;
+              case AGE_AT_DIAG:
+                result
+                    .get("diseases")
+                    .forEach(
+                        disease ->
+                            ageIso8601durations.add(
+                                disease.get("ageAtDiagnosis_age_iso8601duration").textValue()));
+                break;
             }
-            break;
-          case AGE_AT_DIAG:
-            for (JsonNode disease : result.get("diseases")) {
-              String age = disease.get("ageAtDiagnosis_age_iso8601duration").textValue();
-              ageIso8601durations.add(age);
+            if (!filter.filter(ageIso8601durations)) {
+              resultsElements.remove();
             }
-            break;
-        }
-        if (!filter.filter(ageIso8601durations)) {
-          resultsElements.remove();
-        }
-      }
-    }
+          }
+        });
   }
 
   public static List<Table> getTableFromAllSchemas(Database database, String tableName) {

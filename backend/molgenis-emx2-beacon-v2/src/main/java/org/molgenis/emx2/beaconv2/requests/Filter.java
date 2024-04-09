@@ -142,8 +142,6 @@ public class Filter {
 
   public void setConcept(Concept concept) {
     this.concept = concept;
-    //    this.filterType = concept.getFilterType();
-    this.filterType.setConcept(concept);
   }
 
   public void setIds(String[] ids) {

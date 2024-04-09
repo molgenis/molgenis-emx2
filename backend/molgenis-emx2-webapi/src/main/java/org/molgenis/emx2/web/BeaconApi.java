@@ -43,15 +43,14 @@ public class BeaconApi {
 
   private static String getEntryType(Request request, Response response) throws Exception {
     BeaconRequestBody requestBody = new BeaconRequestBody(request.params());
-    Database database = sessionManager.getSession(request).getDatabase();
+    String host = extractHost(request.url());
+    requestBody.getMeta().setHost(host);
 
+    Database database = sessionManager.getSession(request).getDatabase();
     if (requestBody.getQuery().getEntryType() == EntryType.GENOMIC_VARIANT) {
       return getWriter()
           .writeValueAsString(new GenomicVariantsResponse(request, database).getResponse());
     }
-
-    String host = extractHost(request.url());
-    requestBody.getMeta().setHost(host);
 
     JsonNode dataResult = QueryEntryType.query(database, requestBody);
     return getWriter().writeValueAsString(dataResult);

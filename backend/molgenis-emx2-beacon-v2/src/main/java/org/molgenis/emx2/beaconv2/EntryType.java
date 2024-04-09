@@ -2,6 +2,7 @@ package org.molgenis.emx2.beaconv2;
 
 import static org.molgenis.emx2.beaconv2.Concept.*;
 
+import java.util.Arrays;
 import java.util.List;
 import org.molgenis.emx2.MolgenisException;
 
@@ -30,17 +31,11 @@ public enum EntryType {
     this.permittedSearchConcepts = permittedSearchConcepts;
   }
 
-  public static EntryType findByName(String name) {
-    EntryType result = null;
-    for (EntryType entryType : values()) {
-      if (entryType.getName().equalsIgnoreCase(name)) {
-        result = entryType;
-        break;
-      }
-    }
-    if (result == null) throw new MolgenisException("Invalid entry type: %s".formatted(name));
-
-    return result;
+  public static EntryType findByName(String nameOther) {
+    return Arrays.stream(values())
+        .filter(entryType -> entryType.getName().equalsIgnoreCase(nameOther))
+        .findFirst()
+        .orElseThrow(() -> new MolgenisException("Invalid entry type: " + nameOther));
   }
 
   public String getName() {

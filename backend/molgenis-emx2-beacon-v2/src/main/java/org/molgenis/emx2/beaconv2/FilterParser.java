@@ -2,6 +2,7 @@ package org.molgenis.emx2.beaconv2;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.beaconv2.common.misc.NCITToGSSOSexMapping;
 import org.molgenis.emx2.beaconv2.requests.BeaconQuery;
@@ -47,14 +48,11 @@ public class FilterParser {
               filter.setFilterType(FilterType.ALPHANUMERICAL);
               graphQlFilters.add(filter);
               break;
-            case DISEASE:
-            case PHENOTYPE:
+            case DISEASE, PHENOTYPE:
               filter.setFilterType(FilterType.ONTOLOGY);
               graphQlFilters.add(filter);
               break;
-            case AGE_THIS_YEAR:
-            case AGE_OF_ONSET:
-            case AGE_AT_DIAG:
+            case AGE_THIS_YEAR, AGE_OF_ONSET, AGE_AT_DIAG:
               filter.setFilterType(FilterType.NUMERICAL);
               postFetchFilters.add(filter);
               break;
@@ -80,11 +78,9 @@ public class FilterParser {
   }
 
   public List<String> getWarnings() {
-    List<String> warnings = new ArrayList<>();
-    for (Filter filter : unsupportedFilters) {
-      warnings.add(filter.getId().toString());
-    }
-    return warnings;
+    return unsupportedFilters.stream()
+        .map(filter -> filter.getId().toString())
+        .collect(Collectors.toList());
   }
 
   public boolean hasWarnings() {
@@ -125,10 +121,8 @@ public class FilterParser {
   }
 
   public List<String> getGraphQlFilters() {
-    List<String> filters = new ArrayList<>();
-    for (Filter filter : graphQlFilters) {
-      filters.add(filter.getGraphQlFilter());
-    }
+    List<String> filters =
+        graphQlFilters.stream().map(Filter::getGraphQlFilter).collect(Collectors.toList());
 
     String urlPathFilter = getUrlPathFilter();
     if (urlPathFilter != null) filters.add(urlPathFilter);
