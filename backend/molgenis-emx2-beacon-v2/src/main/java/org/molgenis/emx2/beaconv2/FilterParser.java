@@ -25,6 +25,8 @@ public class FilterParser {
   }
 
   private void parseRegularFilters() {
+    EntryType entryType = beaconQuery.getEntryType();
+    List<Concept> permittedConcepts = entryType.getPermittedSearchConcepts();
     for (Filter filter : beaconQuery.getFilters()) {
       filter.setFilterType(FilterType.UNDEFINED);
       if (isIdSearch(filter)) {
@@ -32,11 +34,13 @@ public class FilterParser {
       } else if (isValid(filter)) {
         String id = filter.getIds()[0];
         try {
-          Concept concept = Concept.findById(id);
-          if (!concept.isPermittedValue(filter.getValues()))
-            throw new MolgenisException("Invalid values");
-          filter.setConcept(concept);
-          switch (concept) {
+          Concept searchConcept = Concept.findById(id);
+          if (!permittedConcepts.contains(searchConcept)
+              || !searchConcept.isPermittedValue(filter.getValues()))
+            throw new MolgenisException(
+                "Invalid filter arguments for entry type: " + entryType.getName());
+          filter.setConcept(searchConcept);
+          switch (searchConcept) {
             case SEX:
               filter.setValues(NCITToGSSOSexMapping.toGSSO(filter.getValues()));
             case CAUSAL_GENE:
