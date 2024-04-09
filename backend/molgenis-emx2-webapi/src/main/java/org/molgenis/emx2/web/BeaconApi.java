@@ -15,8 +15,6 @@ import org.molgenis.emx2.beaconv2.QueryEntryType;
 import org.molgenis.emx2.beaconv2.endpoints.*;
 import org.molgenis.emx2.beaconv2.endpoints.genomicvariants.GenomicVariantsResponse;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
-import org.molgenis.emx2.beaconv2.responses.BeaconBooleanResponse;
-import org.molgenis.emx2.beaconv2.responses.BeaconCountResponse;
 import spark.Request;
 import spark.Response;
 
@@ -44,24 +42,22 @@ public class BeaconApi {
   }
 
   private static String getEntryType(Request request, Response response) throws Exception {
-    EntryType entryType = EntryType.findByName(request.params("entry_type"));
+    BeaconRequestBody requestBody = new BeaconRequestBody(request.params());
     Database database = sessionManager.getSession(request).getDatabase();
 
-    if (entryType == EntryType.GENOMIC_VARIANT) {
+    if (requestBody.getQuery().getEntryType() == EntryType.GENOMIC_VARIANT) {
       return getWriter()
           .writeValueAsString(new GenomicVariantsResponse(request, database).getResponse());
     }
 
-    BeaconRequestBody requestBody = new BeaconRequestBody(request.params());
     String host = extractHost(request.url());
     requestBody.getMeta().setHost(host);
 
-    JsonNode jsonNode = QueryEntryType.query(database, entryType, requestBody);
-    return determineResponse(requestBody, response, jsonNode);
+    JsonNode dataResult = QueryEntryType.query(database, requestBody);
+    return getWriter().writeValueAsString(dataResult);
   }
 
   private static String postEntryType(Request request, Response response) throws Exception {
-    EntryType entryType = EntryType.findByName(request.params("entry_type"));
     BeaconRequestBody beaconRequestBody =
         new ObjectMapper().readValue(request.body(), BeaconRequestBody.class);
 
@@ -69,19 +65,8 @@ public class BeaconApi {
     beaconRequestBody.getMeta().setHost(host);
 
     Database database = sessionManager.getSession(request).getDatabase();
-    JsonNode dataResult = QueryEntryType.query(database, entryType, beaconRequestBody);
-    return determineResponse(beaconRequestBody, response, dataResult);
-  }
-
-  private static String determineResponse(
-      BeaconRequestBody requestBody, Response response, JsonNode dataResult)
-      throws JsonProcessingException {
-    response.type(Constants.ACCEPT_JSON);
-    return switch (requestBody.getQuery().getRequestedGranularity()) {
-      case BOOLEAN -> getWriter().writeValueAsString(new BeaconBooleanResponse());
-      case AGGREGATED, COUNT -> getWriter().writeValueAsString(new BeaconCountResponse());
-      case RECORD, UNDEFINED -> getWriter().writeValueAsString(dataResult);
-    };
+    JsonNode dataResult = QueryEntryType.query(database, beaconRequestBody);
+    return getWriter().writeValueAsString(dataResult);
   }
 
   private static String getInfo(Request request, Response response)

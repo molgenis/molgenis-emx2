@@ -24,12 +24,9 @@ import org.molgenis.emx2.graphql.GraphqlApiFactory;
 
 public class QueryEntryType {
 
-  public static JsonNode query(Database database, EntryType entryType) {
-    return query(database, entryType, new BeaconRequestBody());
-  }
-
-  public static JsonNode query(
-      Database database, EntryType entryType, BeaconRequestBody requestBody) throws JsltException {
+  public static JsonNode query(Database database, BeaconRequestBody requestBody)
+      throws JsltException {
+    EntryType entryType = requestBody.getQuery().getEntryType();
 
     ObjectMapper mapper = new ObjectMapper();
     ArrayNode resultSets = mapper.createArrayNode();
@@ -37,7 +34,6 @@ public class QueryEntryType {
     response.set("requestBody", mapper.valueToTree(requestBody));
 
     FilterParser filterParser = new FilterParser(requestBody.getQuery()).parse();
-    List<String> graphQlFilters = filterParser.getGraphQlFilters();
     if (filterParser.hasWarnings()) {
       ObjectNode info = mapper.createObjectNode();
       info.put("unsupportedFilters", filterParser.getWarnings().toString());
@@ -46,26 +42,7 @@ public class QueryEntryType {
 
     for (Table table : getTableFromAllSchemas(database, entryType.getId())) {
       if (isAuthorized(requestBody, table)) {
-        GraphQL graphQL = new GraphqlApiFactory().createGraphqlForSchema(table.getSchema());
-
-        String graphQlQuery =
-            new QueryBuilder(table)
-                .addAllColumns(2)
-                .addFilters(graphQlFilters)
-                .setLimit(requestBody.getQuery().getPagination().getLimit())
-                .setOffset(requestBody.getQuery().getPagination().getSkip())
-                .getQuery();
-
-        ExecutionResult result = graphQL.execute(graphQlQuery);
-        JsonNode results = mapper.valueToTree(result.getData()).get(entryType.getId());
-        if (results == null || results.isNull()) continue;
-
-        ArrayNode resultsArray = (ArrayNode) results;
-        filterResults(resultsArray, filterParser.getPostFetchFilters());
-
-        ObjectNode resultSet = mapper.createObjectNode();
-        resultSet.put("id", table.getSchema().getName());
-        resultSet.set("results", resultsArray);
+        JsonNode resultSet = doQuery(table, filterParser, requestBody);
         resultSets.add(resultSet);
       }
     }
@@ -73,6 +50,34 @@ public class QueryEntryType {
     response.set("resultSets", resultSets);
     Expression jslt = Parser.compileResource(entryType.getName().toLowerCase() + ".jslt");
     return jslt.apply(response);
+  }
+
+  private static JsonNode doQuery(
+      Table table, FilterParser filterParser, BeaconRequestBody requestBody) {
+    GraphQL graphQL = new GraphqlApiFactory().createGraphqlForSchema(table.getSchema());
+
+    String graphQlQuery =
+        new QueryBuilder(table)
+            .addAllColumns(2)
+            .addFilters(filterParser.getGraphQlFilters())
+            .setLimit(requestBody.getQuery().getPagination().getLimit())
+            .setOffset(requestBody.getQuery().getPagination().getSkip())
+            .getQuery();
+    ExecutionResult result = graphQL.execute(graphQlQuery);
+
+    ObjectMapper mapper = new ObjectMapper();
+    JsonNode results = mapper.valueToTree(result.getData());
+    JsonNode entryTypeResult = results.get(requestBody.getQuery().getEntryType().getId());
+    if (entryTypeResult == null || entryTypeResult.isNull()) return null;
+
+    ArrayNode resultsArray = (ArrayNode) entryTypeResult;
+    filterResults(resultsArray, filterParser.getPostFetchFilters());
+
+    ObjectNode resultSet = mapper.createObjectNode();
+    resultSet.put("id", table.getSchema().getName());
+    resultSet.set("results", resultsArray);
+
+    return resultSet;
   }
 
   private static boolean isAuthorized(BeaconRequestBody requestBody, Table table) {
