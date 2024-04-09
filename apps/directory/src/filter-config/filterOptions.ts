@@ -230,9 +230,6 @@ function getChildrenPerParent(
 }
 
 export function getSchema(sourceSchema: string | undefined) {
-  console.log(
-    `${window.location.protocol}//${window.location.host}/${sourceSchema}`
-  );
   return sourceSchema
     ? `${window.location.protocol}//${window.location.host}/${sourceSchema}`
     : "graphql";
