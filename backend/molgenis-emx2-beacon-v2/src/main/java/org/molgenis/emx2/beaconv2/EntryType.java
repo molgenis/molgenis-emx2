@@ -12,14 +12,14 @@ public enum EntryType {
       "individuals",
       "Individual",
       List.of(SEX, DISEASE, PHENOTYPE, CAUSAL_GENE, AGE_THIS_YEAR, AGE_OF_ONSET, AGE_AT_DIAG)),
-  DATASETS("Dataset", "datasets", "Dataset", null),
-  ANALYSES("Analyses", "analyses", "Analysis", null),
-  COHORTS("Cohorts", "cohorts", "Cohort", null),
   BIOSAMPLES(
       "Biosamples",
       "biosamples",
       "Biosample",
       List.of(SEX, DISEASE, AGE_THIS_YEAR, AGE_AT_DIAG, BIOSPECIMIN_TYPE)),
+  DATASETS("Dataset", "datasets", "Dataset", null),
+  ANALYSES("Analyses", "analyses", "Analysis", null),
+  COHORTS("Cohorts", "cohorts", "Cohort", null),
   RUNS("Runs", "runs", "Run", null),
   GENOMIC_VARIANT("GenomicVariations", "g_variants", "GenomicVariant", null);
 
@@ -38,6 +38,11 @@ public enum EntryType {
         .orElseThrow(() -> new MolgenisException("Invalid entry type: " + nameOther));
   }
 
+  private final String id;
+  private final String name;
+  private final String partOfSpecification;
+  private final List<Concept> permittedSearchConcepts;
+
   public String getName() {
     return name;
   }
@@ -53,9 +58,4 @@ public enum EntryType {
   public List<Concept> getPermittedSearchConcepts() {
     return permittedSearchConcepts;
   }
-
-  private String id;
-  private String name;
-  private String partOfSpecification;
-  private List<Concept> permittedSearchConcepts;
 }
