@@ -119,13 +119,13 @@ class StagingMigrator(Client):
             if len(delete_rows) == 0:
                 continue
             if not self._cohorts_in_ref_array(table_name):
-                log.debug(f"\nDeleting in table {table_name!r} row(s) with primary keys {delete_rows.get(table_id)}.")
+                log.debug(f"Deleting in table {table_name!r} row(s) with primary keys {delete_rows.get(table_id)}.")
 
                 # Delete the matching rows from the target catalogue table
                 self._delete_table_entries(table_id=table_id,
                                            pkeys=delete_rows.get(table_id))
             else:
-                log.debug(f"\nUpdating row(s) with primary keys {delete_rows.get(table_id)}"
+                log.debug(f"Updating row(s) with primary keys {delete_rows.get(table_id)}"
                           f"\n in table {table_name}. (Not yet implemented)")
                 # TODO: implement following
                 # self._delete_from_ref_array(schema=catalogue, table_id=table_schema['id'],
