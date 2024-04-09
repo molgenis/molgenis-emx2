@@ -72,7 +72,7 @@ Collections,,contact,Contact Person,ref,,true,,Contact person of the collection.
 Collections,,national_node,National Node,ref,,true,,The collection originates from this national node.,NationalNodes,,${description},,,,,
 Collections,,withdrawn,Withdrawn,bool,,true,,This collection is withdrawn from the Directory.,,,,false,,,,
 Collections,,belongs_to,Belongs to,heading,,false,,The collection belongs to ...,,,,,,,,
-Collections,,parent_collection,Parent Collection,ref,,false,,"Reference to a collection ID, refers to the superior collection.",Collections,,${name},,parent_collection != id,,,
+Collections,,parent_collection,Parent Collection,ref,,false,,"Reference to a collection ID, refers to the superior collection.",Collections,,${name},,,,,
 Collections,,sub_collections,Sub Collections,refback,,false,,"Reference to a collection ID, refers to one or more sub-collections.",Collections,parent_collection,${name},,,,,
 Collections,,biobank,Biobank,ref,,true,,"Reference to a biobank ID, to which the collection belongs.",Biobanks,,${name},,,,,
 Collections,,biobank_label,Biobank Label,string,,true,,"Name of the biobank, to which the collection belongs to.",,,,,,,,
