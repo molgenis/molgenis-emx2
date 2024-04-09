@@ -2,6 +2,7 @@ export const initialFilterFacets = [
   {
     facetTitle: "Diagnosis available",
     component: "OntologyFilter",
+    sourceSchema: "DirectoryOntologies/graphql",
     sourceTable: "DiseaseTypes",
     applyToColumn: "collections.diagnosis_available.code",
     filterValueAttribute: "name",
@@ -16,6 +17,7 @@ export const initialFilterFacets = [
   {
     facetTitle: "Countries",
     component: "CheckboxFilter",
+    sourceSchema: "DirectoryOntologies/graphql",
     sourceTable: "Countries",
     applyToColumn: ["country.name", "collections.country.name"],
     filterValueAttribute: "name",
@@ -31,6 +33,7 @@ export const initialFilterFacets = [
   {
     facetTitle: "Collection type",
     component: "CheckboxFilter",
+    sourceSchema: "DirectoryOntologies/graphql",
     sourceTable: "CollectionTypes",
     applyToColumn: "collections.type.name",
     filterValueAttribute: "name",
@@ -46,6 +49,7 @@ export const initialFilterFacets = [
   {
     facetTitle: "Categories",
     component: "CheckboxFilter",
+    sourceSchema: "DirectoryOntologies/graphql",
     sourceTable: "Categories",
     applyToColumn: "collections.categories.name",
     filterValueAttribute: "name",
@@ -61,6 +65,7 @@ export const initialFilterFacets = [
   {
     facetTitle: "Material type",
     component: "CheckboxFilter",
+    sourceSchema: "DirectoryOntologies/graphql",
     sourceTable: "MaterialTypes",
     applyToColumn: "collections.materials.name",
     filterValueAttribute: "name",
@@ -88,6 +93,7 @@ export const initialFilterFacets = [
   {
     facetTitle: "Biobank services",
     component: "CheckboxFilter",
+    sourceSchema: "DirectoryOntologies/graphql",
     sourceTable: "Capabilities",
     applyToColumn: "capabilities.name",
     filterValueAttribute: "name",
@@ -100,6 +106,7 @@ export const initialFilterFacets = [
   {
     facetTitle: "Quality labels",
     component: "CheckboxFilter",
+    sourceSchema: "DirectoryOntologies/graphql",
     sourceTable: "AssessmentLevels",
     applyToColumn: "collections.combined_quality.name",
     filterValueAttribute: "name",
@@ -124,6 +131,7 @@ export const initialFilterFacets = [
   {
     facetTitle: "Data category",
     component: "CheckboxFilter",
+    sourceSchema: "DirectoryOntologies/graphql",
     sourceTable: "DataCategories",
     applyToColumn: "collections.data_categories.name",
     filterValueAttribute: "name",
