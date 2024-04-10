@@ -152,6 +152,7 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
     ) {
       return [];
     }
+
     let columnPath = applyToColumn;
     if (!Array.isArray(applyToColumn)) {
       columnPath = [applyToColumn];
