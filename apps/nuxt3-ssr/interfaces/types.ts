@@ -318,3 +318,17 @@ export type ButtonType =
   | "filterWell";
 export type ButtonSize = "tiny" | "small" | "medium" | "large";
 export type ButtonIconPosition = "left" | "right";
+
+export interface IOntologyChildTreeItem extends Omit<IOntologyItem, "parent"> {}
+
+export interface IManifest {
+  ImplementationVersion: string;
+  SpecificationVersion: string;
+  DatabaseVersion: string;
+}
+
+export interface IManifestResponse {
+  data: {
+    _manifest: IManifest;
+  };
+}
