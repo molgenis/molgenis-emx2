@@ -177,7 +177,9 @@ async function loadPageData() {
         variablesFilter: scoped
           ? { ...filter.value, ...resourceCondition }
           : filter.value,
-        cohortsFilter: { networks: { equals: [{ id: catalogueRouteParam }] } },
+        cohortsFilter: scoped
+          ? { networks: { equals: [{ id: catalogueRouteParam }] } }
+          : {},
       };
 
       return $fetch(graphqlURL.value, {
