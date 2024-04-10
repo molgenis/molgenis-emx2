@@ -193,6 +193,12 @@ module.exports = {
         "search-filter-group-checkbox": theme("colors.yellow.500"),
         "search-filter-group-toggle": theme("colors.white"),
 
+        "search-filter-title-inverted": theme("colors.back"),
+        "search-filter-expand-inverted": theme("colors.yellow.500"),
+        "search-filter-group-title-inverted": theme("colors.black"),
+        "search-filter-group-checkbox-inverted": theme("colors.yellow.500"),
+        "search-filter-group-toggle-inverted": theme("colors.black"),
+
         "tooltip-hover-dark": theme("colors.blue.500"),
         "tooltip-hover-light": theme("colors.white"),
 
