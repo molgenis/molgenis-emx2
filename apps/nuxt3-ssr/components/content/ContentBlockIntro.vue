@@ -29,6 +29,20 @@ const props = defineProps({
   },
 });
 
+const useEmailService = ref(false);
+
+fetchSetting("contactRecipientsQuery").then((resp) => {
+  const setting = resp.data["_settings"].find(
+    (setting: { key: string; value: string }) => {
+      return setting.key === "contactRecipientsQuery";
+    }
+  );
+
+  if (setting) {
+    useEmailService.value = !!setting.value;
+  }
+});
+
 let showContactInformation = ref(false);
 
 const fields = reactive([
@@ -137,7 +151,7 @@ const submitForm = async () => {
           :sub-title="contactName"
           class="flex flex-col gap-3"
         >
-          <template v-if="contactMessageFilter">
+          <template v-if="contactMessageFilter && useEmailService">
             <ContactForm :fields="fields" @submit-form="submitForm" />
             <div class="pl-3">
               <span class="text-body-base">or contact us at: </span>
@@ -165,7 +179,7 @@ const submitForm = async () => {
 
         <template #footer>
           <Button
-            v-if="contactMessageFilter"
+            v-if="contactMessageFilter && useEmailService"
             type="primary"
             size="small"
             label="Send"
