@@ -70,7 +70,7 @@ module.exports = {
         "button-tertiary": "#FFFFFF",
         "button-tertiary-hover": "#FFFFFF",
         "button-outline": "#003183",
-        "button-outline-hover": "#0z03183",
+        "button-outline-hover": "#003183",
         "button-disabled": theme("colors.gray.600"),
         "button-disabled-hover": theme("colors.gray.600"),
 

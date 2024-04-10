@@ -41,6 +41,20 @@ definitions:
       JVM_OPTS: -Xmx3200m
       GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
       TERM: dumb
+  release_config: &release_config
+    docker:
+      - image: molgenis/ci-build:1.2.3
+      - image: postgres:15-alpine
+        environment:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+    working_directory: ~/repo
+    resource_class: large
+    environment:
+      JVM_OPTS: -Xmx3200m
+      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2 -Dorg.gradle.caching=false"
+      TERM: dumb
 
 
 commands:
@@ -159,7 +173,7 @@ jobs:
     - post_steps
 
   release:
-    <<: *test_config
+    <<: *release_config
 
     steps:
     - pre_steps
@@ -209,7 +223,7 @@ jobs:
     - post_steps
   e2e-preview:
     docker:
-      - image: mcr.microsoft.com/playwright:v1.42.1-jammy
+      - image: mcr.microsoft.com/playwright:v1.43.0-jammy
     steps:
       - checkout
       - run: npm i -D @playwright/test

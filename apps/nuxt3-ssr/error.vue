@@ -1,5 +1,4 @@
 <script setup>
-import BackgroundGradient from "./components/BackgroundGradient.vue";
 import { hash } from ".fingerprint.js";
 
 defineProps(["error"]);
