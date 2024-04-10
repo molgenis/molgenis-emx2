@@ -8,7 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.beaconv2.Concept;
-import org.molgenis.emx2.beaconv2.FilterType;
+import org.molgenis.emx2.beaconv2.filter.FilterType;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class Filter {
@@ -199,8 +199,11 @@ public class Filter {
     StringBuilder filter = new StringBuilder();
 
     String[] filterTerms;
-    if (filterType == FilterType.ONTOLOGY) filterTerms = this.getIds();
-    else filterTerms = this.getValues();
+    if (filterType == FilterType.ONTOLOGY) {
+      filterTerms = this.getIds();
+    } else {
+      filterTerms = this.getValues();
+    }
 
     for (String id : filterTerms) {
       if (concept != null) {

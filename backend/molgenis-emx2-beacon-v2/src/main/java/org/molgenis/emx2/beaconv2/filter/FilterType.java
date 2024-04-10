@@ -1,4 +1,4 @@
-package org.molgenis.emx2.beaconv2;
+package org.molgenis.emx2.beaconv2.filter;
 
 public enum FilterType {
   ONTOLOGY,

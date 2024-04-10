@@ -10,10 +10,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.net.URISyntaxException;
 import org.molgenis.emx2.Database;
-import org.molgenis.emx2.beaconv2.EntryType;
 import org.molgenis.emx2.beaconv2.QueryEntryType;
 import org.molgenis.emx2.beaconv2.endpoints.*;
-import org.molgenis.emx2.beaconv2.endpoints.genomicvariants.GenomicVariantsResponse;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
 import spark.Request;
 import spark.Response;
@@ -42,16 +40,11 @@ public class BeaconApi {
   }
 
   private static String getEntryType(Request request, Response response) throws Exception {
-    BeaconRequestBody requestBody = new BeaconRequestBody(request.params());
+    BeaconRequestBody requestBody = new BeaconRequestBody(request);
     String host = extractHost(request.url());
     requestBody.getMeta().setHost(host);
 
     Database database = sessionManager.getSession(request).getDatabase();
-    if (requestBody.getQuery().getEntryType() == EntryType.GENOMIC_VARIANT) {
-      return getWriter()
-          .writeValueAsString(new GenomicVariantsResponse(request, database).getResponse());
-    }
-
     JsonNode dataResult = QueryEntryType.query(database, requestBody);
     return getWriter().writeValueAsString(dataResult);
   }

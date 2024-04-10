@@ -1,7 +1,7 @@
 package org.molgenis.emx2.beaconv2.requests;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import java.util.Map;
+import spark.Request;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class BeaconRequestBody {
@@ -11,8 +11,8 @@ public class BeaconRequestBody {
 
   public BeaconRequestBody() {}
 
-  public BeaconRequestBody(Map<String, String> params) {
-    query = new BeaconQuery(params);
+  public BeaconRequestBody(Request request) {
+    query = new BeaconQuery(request);
   }
 
   public String get$schema() {

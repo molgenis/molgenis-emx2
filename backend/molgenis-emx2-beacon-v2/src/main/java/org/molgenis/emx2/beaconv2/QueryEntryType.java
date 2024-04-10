@@ -18,22 +18,23 @@ import java.util.List;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
+import org.molgenis.emx2.beaconv2.filter.FilterParser;
+import org.molgenis.emx2.beaconv2.filter.FilterParserFactory;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
 import org.molgenis.emx2.beaconv2.requests.Filter;
 import org.molgenis.emx2.graphql.GraphqlApiFactory;
 
 public class QueryEntryType {
 
-  public static JsonNode query(Database database, BeaconRequestBody requestBody)
-      throws JsltException {
-    EntryType entryType = requestBody.getQuery().getEntryType();
+  public static JsonNode query(Database database, BeaconRequestBody request) throws JsltException {
+    EntryType entryType = request.getQuery().getEntryType();
 
     ObjectMapper mapper = new ObjectMapper();
     ArrayNode resultSets = mapper.createArrayNode();
     ObjectNode response = mapper.createObjectNode();
-    response.set("requestBody", mapper.valueToTree(requestBody));
+    response.set("requestBody", mapper.valueToTree(request));
 
-    FilterParser filterParser = new FilterParser(requestBody.getQuery()).parse();
+    FilterParser filterParser = FilterParserFactory.getParserForRequest(request).parse();
     if (filterParser.hasWarnings()) {
       ObjectNode info = mapper.createObjectNode();
       info.put("unsupportedFilters", filterParser.getWarnings().toString());
@@ -41,8 +42,8 @@ public class QueryEntryType {
     }
 
     for (Table table : getTableFromAllSchemas(database, entryType.getId())) {
-      if (isAuthorized(requestBody, table)) {
-        JsonNode resultSet = doQuery(table, filterParser, requestBody);
+      if (isAuthorized(request, table)) {
+        JsonNode resultSet = doQuery(table, filterParser, request);
         resultSets.add(resultSet);
       }
     }
@@ -76,7 +77,6 @@ public class QueryEntryType {
     ObjectNode resultSet = mapper.createObjectNode();
     resultSet.put("id", table.getSchema().getName());
     resultSet.set("results", resultsArray);
-
     return resultSet;
   }
 
@@ -92,6 +92,7 @@ public class QueryEntryType {
     }
   }
 
+  // todo: move some code to Filter class
   private static void filterResults(ArrayNode results, List<Filter> postFetchFilters) {
     postFetchFilters.forEach(
         filter -> {

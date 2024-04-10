@@ -4,17 +4,19 @@ import static org.molgenis.emx2.beaconv2.common.misc.IncludedResultsetResponses.
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.molgenis.emx2.beaconv2.EntryType;
 import org.molgenis.emx2.beaconv2.common.misc.Granularity;
 import org.molgenis.emx2.beaconv2.common.misc.IncludedResultsetResponses;
 import org.molgenis.emx2.beaconv2.endpoints.datasets.Pagination;
+import spark.Request;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class BeaconQuery {
   private String description;
-  private List<BeaconRequestParameters> requestParameters = new ArrayList<>();
+  private Map<String, BeaconRequestParameters> requestParameters = new HashMap<>();
   private List<Filter> filters = new ArrayList<>();
   private IncludedResultsetResponses includeResultsetResponses = HIT;
   private Pagination pagination = new Pagination();
@@ -24,13 +26,19 @@ public class BeaconQuery {
 
   public BeaconQuery() {}
 
-  public BeaconQuery(Map<String, String> params) {
+  public BeaconQuery(Request request) {
+    Map<String, String> params = request.params();
     if (params.containsKey(":entry_type")) {
       entryType = EntryType.findByName(params.get(":entry_type"));
     }
-    for (var entry : params.entrySet()) {
-      String ref = entry.getKey().replaceAll(":", "");
-      requestParameters.add(new BeaconRequestParameters(ref, entry.getValue()));
+    for (var param : params.entrySet()) {
+      String ref = param.getKey().replaceAll(":", "");
+      requestParameters.put(ref, new BeaconRequestParameters(ref, param.getValue()));
+    }
+    for (var queryParam : request.queryMap().toMap().entrySet()) {
+      requestParameters.put(
+          queryParam.getKey(),
+          new BeaconRequestParameters(queryParam.getKey(), queryParam.getValue()[0]));
     }
   }
 
@@ -39,7 +47,7 @@ public class BeaconQuery {
   }
 
   public List<BeaconRequestParameters> getRequestParameters() {
-    return requestParameters;
+    return requestParameters.values().stream().toList();
   }
 
   public List<Filter> getFilters() {
@@ -64,5 +72,9 @@ public class BeaconQuery {
 
   public EntryType getEntryType() {
     return entryType;
+  }
+
+  public Map<String, BeaconRequestParameters> getRequestParametersMap() {
+    return requestParameters;
   }
 }

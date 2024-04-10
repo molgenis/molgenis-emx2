@@ -50,15 +50,15 @@ public class GraphGenome extends RDFService {
       }
 
       // query variants
-      List<GenomicVariantsResultSets> variants = new ArrayList<>();
+      //      List<GenomicVariantsResultSets> variants = new ArrayList<>();
       for (Table table : tables) {
         //        variants.addAll(
         //            GenomicQuery.genomicQuery(table, GENEID, assembly, gene, null, null, null,
         // null));
       }
-      if (variants.size() == 0) {
-        throw new Exception("No data available for this gene");
-      }
+      //      if (variants.size() == 0) {
+      //        throw new Exception("No data available for this gene");
+      //      }
 
       // get first and last positions across all starting positions
       // compatible with 'uncertainty range' SV start positions
@@ -66,37 +66,38 @@ public class GraphGenome extends RDFService {
       String chromosome = null;
       Long earliestStart = Long.MAX_VALUE;
       Long latestEnd = Long.MIN_VALUE;
-      ArrayList<GenomicVariantsResultSetsItem> sortedVariants = new ArrayList<>();
-      for (GenomicVariantsResultSets variantSet : variants) {
-        for (GenomicVariantsResultSetsItem variant : variantSet.getResults()) {
-          // skip variants without a start position
-          if (variant.getPosition().getStart() == null) {
-            continue;
-          }
-          variant.setGenomicVariantsResultSetId(variantSet.getId());
-          sortedVariants.add(variant);
-          Position position = variant.getPosition();
-          if (chromosome == null) {
-            chromosome = position.getRefseqId();
-          } else if (position.getRefseqId() != null && !chromosome.equals(position.getRefseqId())) {
-            throw new Exception(
-                "At least 2 different chromosomes present: "
-                    + chromosome
-                    + " and "
-                    + position.getRefseqId());
-          }
-          for (Long stLong : position.getStart()) {
-            if (stLong < earliestStart) {
-              earliestStart = stLong;
-            }
-          }
-          for (Long endLong : position.getEnd()) {
-            if (endLong != null && endLong > latestEnd) {
-              latestEnd = endLong;
-            }
-          }
-        }
-      }
+      ArrayList<GenomicVariant> sortedVariants = new ArrayList<>();
+      //      for (GenomicVariantsResultSets variantSet : variants) {
+      //        for (GenomicVariantsResultSetsItem variant : variantSet.getResults()) {
+      //          // skip variants without a start position
+      //          if (variant.getPosition().getStart() == null) {
+      //            continue;
+      //          }
+      //          variant.setGenomicVariantsResultSetId(variantSet.getId());
+      //          sortedVariants.add(variant);
+      //          Position position = variant.getPosition();
+      //          if (chromosome == null) {
+      //            chromosome = position.getRefseqId();
+      //          } else if (position.getRefseqId() != null &&
+      // !chromosome.equals(position.getRefseqId())) {
+      //            throw new Exception(
+      //                "At least 2 different chromosomes present: "
+      //                    + chromosome
+      //                    + " and "
+      //                    + position.getRefseqId());
+      //          }
+      //          for (Long stLong : position.getStart()) {
+      //            if (stLong < earliestStart) {
+      //              earliestStart = stLong;
+      //            }
+      //          }
+      //          for (Long endLong : position.getEnd()) {
+      //            if (endLong != null && endLong > latestEnd) {
+      //              latestEnd = endLong;
+      //            }
+      //          }
+      //        }
+      //      }
 
       // get corresponding full DNA sequence
       if (earliestStart == Long.MAX_VALUE || latestEnd == Long.MIN_VALUE) {
@@ -137,7 +138,7 @@ public class GraphGenome extends RDFService {
       List<String> upstreamVariantAltNodes = new ArrayList<>();
       String previousVariantConnectedTo = null;
 
-      for (GenomicVariantsResultSetsItem variant : sortedVariants) {
+      for (GenomicVariant variant : sortedVariants) {
 
         int refSeqStart = previousRefSeqEnd + previousVariantRefBaseLength;
         int refSeqEnd =

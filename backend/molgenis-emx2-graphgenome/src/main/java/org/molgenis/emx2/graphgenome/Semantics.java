@@ -10,7 +10,7 @@ import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.model.vocabulary.RDFS;
 import org.eclipse.rdf4j.model.vocabulary.SKOS;
 import org.molgenis.emx2.beaconv2.endpoints.genomicvariants.ClinicalInterpretations;
-import org.molgenis.emx2.beaconv2.endpoints.genomicvariants.GenomicVariantsResultSetsItem;
+import org.molgenis.emx2.beaconv2.endpoints.genomicvariants.GenomicVariant;
 
 public class Semantics {
 
@@ -63,7 +63,7 @@ public class Semantics {
       ModelBuilder builder,
       String nodeId,
       String type,
-      GenomicVariantsResultSetsItem variant,
+      GenomicVariant variant,
       String downstreamOfRef,
       List<String> downstreamOfAlts,
       String value)

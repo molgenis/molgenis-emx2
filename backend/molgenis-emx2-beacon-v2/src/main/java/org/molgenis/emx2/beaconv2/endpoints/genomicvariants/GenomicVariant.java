@@ -1,6 +1,6 @@
 package org.molgenis.emx2.beaconv2.endpoints.genomicvariants;
 
-public class GenomicVariantsResultSetsItem {
+public class GenomicVariant {
 
   private String variantInternalId;
   private String variantType;

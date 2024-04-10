@@ -2,11 +2,10 @@
     "beaconId": "org.molgenis.beaconv2",
     "apiVersion": "v2.0.0",
     "$schema": "../beaconDatasetResponse.json",
-    "returnedSchemas":
-    [{
-            "entityType": "datasets",
-            "schema": "beacon-info-v2.0.0"
-     }],
+    "returnedSchemas": [{
+        "entityType": "datasets",
+        "schema": "beacon-info-v2.0.0"
+    }],
     "receivedRequestSummary":
     {
         "apiVersion": "v2.0.0",
@@ -19,11 +18,11 @@
         "requestedSchemas": [{
              "entityType": "datasets",
              "schema": "beacon-info-v2.0.0"
-                             }],
+        }],
+        "filters": .requestBody.query.filters,
         "requestParameters": { },
         "includeResultsetResponses": "HIT",
-        "testMode": false,
-        "filters": [ ]
+        "testMode": false
     },
     "returnedGranularity": .requestBody.query.requestedGranularity
 }

@@ -1,28 +1,63 @@
-package org.molgenis.emx2.beaconv2;
+package org.molgenis.emx2.beaconv2.filter;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.beaconv2.Concept;
+import org.molgenis.emx2.beaconv2.EntryType;
 import org.molgenis.emx2.beaconv2.common.misc.NCITToGSSOSexMapping;
 import org.molgenis.emx2.beaconv2.requests.BeaconQuery;
-import org.molgenis.emx2.beaconv2.requests.BeaconRequestParameters;
 import org.molgenis.emx2.beaconv2.requests.Filter;
 
-public class FilterParser {
+public class FilterParserEjpRd implements FilterParser {
 
   private final BeaconQuery beaconQuery;
   private final List<Filter> unsupportedFilters = new ArrayList<>();
   private final List<Filter> graphQlFilters = new ArrayList<>();
   private final List<Filter> postFetchFilters = new ArrayList<>();
 
-  public FilterParser(BeaconQuery beaconQuery) {
+  public FilterParserEjpRd(BeaconQuery beaconQuery) {
     this.beaconQuery = beaconQuery;
   }
 
-  public FilterParser parse() {
+  @Override
+  public FilterParserEjpRd parse() {
     parseRegularFilters();
     return this;
+  }
+
+  @Override
+  public List<Filter> getUnsupportedFilters() {
+    return this.unsupportedFilters;
+  }
+
+  @Override
+  public List<String> getWarnings() {
+    return unsupportedFilters.stream()
+        .map(filter -> filter.getId().toString())
+        .collect(Collectors.toList());
+  }
+
+  @Override
+  public boolean hasWarnings() {
+    return !getUnsupportedFilters().isEmpty();
+  }
+
+  @Override
+  public List<Filter> getPostFetchFilters() {
+    return postFetchFilters;
+  }
+
+  @Override
+  public List<String> getGraphQlFilters() {
+    List<String> filters =
+        graphQlFilters.stream().map(Filter::getGraphQlFilter).collect(Collectors.toList());
+
+    String urlPathFilter = getUrlPathFilter(beaconQuery);
+    if (urlPathFilter != null) filters.add(urlPathFilter);
+
+    return filters;
   }
 
   private void parseRegularFilters() {
@@ -73,20 +108,6 @@ public class FilterParser {
     graphQlFilters.add(phenotTypeFilter);
   }
 
-  public List<Filter> getUnsupportedFilters() {
-    return this.unsupportedFilters;
-  }
-
-  public List<String> getWarnings() {
-    return unsupportedFilters.stream()
-        .map(filter -> filter.getId().toString())
-        .collect(Collectors.toList());
-  }
-
-  public boolean hasWarnings() {
-    return !getUnsupportedFilters().isEmpty();
-  }
-
   private boolean isIdSearch(Filter filter) {
     return filter.getOperator() == null && filter.getValues() == null && filter.getIds() != null;
   }
@@ -94,39 +115,5 @@ public class FilterParser {
   // todo add more validation
   private boolean isValid(Filter filter) {
     return filter.getIds().length == 1;
-  }
-
-  private String getUrlPathFilter() {
-    String id = null;
-    String entryTypeId = null;
-    for (BeaconRequestParameters param : beaconQuery.getRequestParameters()) {
-      if (param.getRef().equals("id")) {
-        id = param.getDescription();
-      } else if (param.getRef().equals("entry_type_id")) {
-        entryTypeId = param.getDescription();
-      }
-    }
-    if (id != null && entryTypeId != null) {
-      EntryType entryType = EntryType.findByName(entryTypeId);
-      String graphQlId = entryType.getPartOfSpecification().toLowerCase();
-      return "{ %sId: { id: { equals: \"%s\" } } }".formatted(graphQlId, id);
-    } else if (id != null) {
-      return "{ id: { equals: \"%s\" } }".formatted(id);
-    }
-    return null;
-  }
-
-  public List<Filter> getPostFetchFilters() {
-    return postFetchFilters;
-  }
-
-  public List<String> getGraphQlFilters() {
-    List<String> filters =
-        graphQlFilters.stream().map(Filter::getGraphQlFilter).collect(Collectors.toList());
-
-    String urlPathFilter = getUrlPathFilter();
-    if (urlPathFilter != null) filters.add(urlPathFilter);
-
-    return filters;
   }
 }
