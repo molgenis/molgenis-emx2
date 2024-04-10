@@ -171,16 +171,20 @@ class StagingMigrator(Client):
                                             headers={'x-molgenis-token': self.token})
 
         mutation_query = "mutation insert($value: [OrganisationsInput]){insert(Organisations:$value){message}}"
-        mutation_variables = {"value": search_response.json().get('data').get('Organisations')}
+        for org in search_response.json().get('data').get('Organisations'):
+            mutation_variables = {"value": org}
 
-        mutation_response = self.session.post(url=f"{self.url}/{self.catalogue}/graphql",
-                                              json={"query": mutation_query, "variables": mutation_variables},
-                                              headers={'x-molgenis-token': self.token})
+            mutation_response = self.session.post(url=f"{self.url}/{self.catalogue}/graphql",
+                                                  json={"query": mutation_query, "variables": mutation_variables},
+                                                  headers={'x-molgenis-token': self.token})
 
-        if mutation_response.status_code != 200:
-            log.error("Unable to synchronize SharedStaging.")
-        else:
-            log.info(f"Successfully migrated organisations {', '.join(organisations)} to catalogue.")
+            if mutation_response.status_code != 200:
+                if f"Key (id)=({org.get('id')}) already exists." in mutation_response.text:
+                    log.debug(f"Organisation {org.get('id')!r} already present.")
+                else:
+                    log.error(f"Unable to synchronize {org.get('id')!r} to {self.catalogue!r}.")
+            else:
+                log.debug(f"Successfully migrated organisation {org.get('id')!r} to {self.catalogue!r}.")
 
     def _query_delete_rows(self, table_name: str, ref_cols: str | list,
                            cohort_ids: list) -> dict:
