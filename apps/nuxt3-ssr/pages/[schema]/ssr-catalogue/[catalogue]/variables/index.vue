@@ -205,6 +205,10 @@ watch(filters, () => {
   loadPageData();
 });
 
+watch(offset, () => {
+  loadPageData();
+});
+
 let crumbs: any = {};
 crumbs[
   `${route.params.catalogue}`
