@@ -41,6 +41,7 @@ public class BeaconApi {
 
   private static String getEntryType(Request request, Response response) throws Exception {
     BeaconRequestBody requestBody = new BeaconRequestBody(request);
+
     String host = extractHost(request.url());
     requestBody.getMeta().setHost(host);
 

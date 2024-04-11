@@ -50,20 +50,23 @@ public class QueryBuilder {
 
   public String getQuery() {
     query = new StringBuilder("{");
-    query.append(table.getName()).append("(");
-    if (limit != null) {
-      query.append("limit: ").append(limit).append(",");
+    query.append(table.getName());
+    if (hasFilterArguments()) {
+      query.append("(");
+      if (limit != null) query.append("limit: ").append(limit).append(",");
+      if (offset != null) query.append("offset: ").append(offset).append(",");
+      if (filters != null && !filters.isEmpty()) addFilters();
+      query.append(")");
     }
-    if (offset != null) {
-      query.append("offset: ").append(offset).append(",");
-    }
-    if (filters != null && !filters.isEmpty()) addFilters();
-    query.append("){");
-    //    query.append("_reports,");
+    query.append("{");
     query.append(columnSb);
     query.append("}}");
 
     return query.toString();
+  }
+
+  private boolean hasFilterArguments() {
+    return limit != null || offset != null || (filters != null && !filters.isEmpty());
   }
 
   private void addFilters() {

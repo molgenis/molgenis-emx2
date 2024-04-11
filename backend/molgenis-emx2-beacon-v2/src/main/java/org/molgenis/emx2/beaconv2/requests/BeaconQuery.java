@@ -20,7 +20,7 @@ public class BeaconQuery {
   private List<Filter> filters = new ArrayList<>();
   private IncludedResultsetResponses includeResultsetResponses = HIT;
   private Pagination pagination = new Pagination();
-  private Granularity requestedGranularity = Granularity.UNDEFINED;
+  private Granularity requestedGranularity = Granularity.RECORD;
   private boolean testMode;
   private EntryType entryType;
 

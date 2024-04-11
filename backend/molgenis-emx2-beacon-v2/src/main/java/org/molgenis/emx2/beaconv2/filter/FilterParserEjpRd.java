@@ -34,9 +34,7 @@ public class FilterParserEjpRd implements FilterParser {
 
   @Override
   public List<String> getWarnings() {
-    return unsupportedFilters.stream()
-        .map(filter -> filter.getId().toString())
-        .collect(Collectors.toList());
+    return unsupportedFilters.stream().map(filter -> filter.getId().toString()).toList();
   }
 
   @Override

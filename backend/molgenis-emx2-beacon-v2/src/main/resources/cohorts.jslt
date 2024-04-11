@@ -1,8 +1,9 @@
 import "ontology.jslt" as ontology
+import "response_summary.jslt" as responseSummary
 import "meta.jslt" as meta
 {
     "meta": meta(.),
-    "responseSummary": { "exists": true },
+    "responseSummary": responseSummary(.),
     "response": {
         "collections":
         [for (.resultSets[0].results)

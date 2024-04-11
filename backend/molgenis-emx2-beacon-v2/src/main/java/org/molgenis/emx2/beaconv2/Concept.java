@@ -6,6 +6,10 @@ import java.util.Optional;
 import org.molgenis.emx2.MolgenisException;
 
 public enum Concept {
+  AGE_THIS_YEAR("NCIT_C83164", null, null),
+  AGE_OF_ONSET("NCIT_C124353", null, null),
+  AGE_AT_DIAG("NCIT_C156420", null, null),
+  CAUSAL_GENE("data_2295", "{ diseaseCausalGenes: { name: { equals: \"%s\" } } }", null),
   DISEASE(
       "NCIT_C2991", "{ diseases: { diseaseCode: { ontologyTermURI: { like: \"%s\" } } } }", null),
   PHENOTYPE(
@@ -16,10 +20,6 @@ public enum Concept {
       "NCIT_C28421",
       "{ sex: { ontologyTermURI: { like: \"%s\" } } }",
       List.of("NCIT_C16576", "NCIT_C20197", "NCIT_C124294", "NCIT_C17998")),
-  CAUSAL_GENE("data_2295", "{ diseaseCausalGenes: { name: { equals: \"%s\" } } }", null),
-  AGE_THIS_YEAR("NCIT_C83164", null, null),
-  AGE_OF_ONSET("NCIT_C124353", null, null),
-  AGE_AT_DIAG("NCIT_C156420", null, null),
   BIOSPECIMIN_TYPE(
       "NCIT_C70713",
       null,

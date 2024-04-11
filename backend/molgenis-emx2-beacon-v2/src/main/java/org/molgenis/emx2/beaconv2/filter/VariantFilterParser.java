@@ -47,8 +47,9 @@ public class VariantFilterParser implements FilterParser {
               .formatted(qReferenceName, qStart[0], qStart[1], qEnd[0], qEnd[1]);
           case NO_PARAMS -> null;
         };
-    graphQlFilters.add(graphQlFilter);
-
+    if (graphQlFilter != null) {
+      graphQlFilters.add(graphQlFilter);
+    }
     return this;
   }
 
@@ -74,7 +75,11 @@ public class VariantFilterParser implements FilterParser {
 
   @Override
   public List<String> getGraphQlFilters() {
-    return graphQlFilters;
+    List<String> filters = new ArrayList<>(graphQlFilters);
+    String urlPathFilter = getUrlPathFilter(beaconQuery);
+    if (urlPathFilter != null) filters.add(urlPathFilter);
+
+    return filters;
   }
 
   private String getParam(String param) {

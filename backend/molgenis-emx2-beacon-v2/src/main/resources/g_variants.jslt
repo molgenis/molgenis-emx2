@@ -1,47 +1,49 @@
 import "ontology.jslt" as ontology
 import "meta.jslt" as meta
+import "response_summary.jslt" as responseSummary
 import "info.jslt" as info
 {
     "meta": meta(.),
-    "responseSummary": {
-        "exists": true
-    },
+    "responseSummary": responseSummary(.),
     "response": {
         "resultSets":
-        [for (.resultSets)
-            {
-                "id": .id,
-                "type": "dataset",
-                "setType": "genomicVariant",
-                "exists": true,
-                "resultsCount": size(.results),
-                "results":
-                [for (.results) {
-                    "variantInternalId": .variantInternalId,
-                    "variantType": .variantType,
-                    "referenceBases": .referenceBases,
-                    "alternateBases": .alternateBases,
-                    "geneId": .geneId,
-                    "position": {
-                        "assemblyId": .position_assemblyId,
-                        "refseqId": .position_refseqId,
-                        "start": [ number(.position_start) ],
-                        "end": [ number(.position_end) ]
-                    },
-                    "genomicHGVSId": .genomicHGVSId,
-                    "proteinHGVSIds": .proteinHGVSIds,
-                    "transcriptHGVSIds": .transcriptHGVSIds,
-                    "variantLevelData": {
-                        "clinicalInterpretations":
-                        [for (.clinicalInterpretations) {
-                            "category": ontology(.category),
-                            "clinicalRelevance": ontology (.clinicalRelevance),
-                            "conditionId": .conditionId,
-                            "effect": ontology(.effect)
+            if (.resultSets)
+                [for (.resultSets)
+                    {
+                        "id": .id,
+                        "type": "dataset",
+                        "setType": "genomicVariant",
+                        "exists": true,
+                        "resultsCount": size(.results),
+                        "results":
+                        [for (.results) {
+                            "variantInternalId": .variantInternalId,
+                            "variantType": .variantType,
+                            "referenceBases": uppercase(.referenceBases),
+                            "alternateBases": uppercase(.alternateBases),
+                            "geneId": .geneId,
+                            "position": {
+                                "assemblyId": .position_assemblyId,
+                                "refseqId": .position_refseqId,
+                                "start": [ number(.position_start) ],
+                                "end": [ number(.position_end) ]
+                            },
+                            "genomicHGVSId": .genomicHGVSId,
+                            "proteinHGVSIds": .proteinHGVSIds,
+                            "transcriptHGVSIds": .transcriptHGVSIds,
+                            "variantLevelData": {
+                                "clinicalInterpretations":
+                                [for (.clinicalInterpretations) {
+                                    "category": ontology(.category),
+                                    "clinicalRelevance": ontology(.clinicalRelevance),
+                                    "conditionId": .conditionId,
+                                    "effect": ontology(.effect)
+                                }]
+                            }
                         }]
-                    }
-                }]
-            }]
-        },
+                    }]
+            else
+                { "results" : [] }
+    },
     "info": info(.info)
 }

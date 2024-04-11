@@ -6,6 +6,7 @@ import static org.molgenis.emx2.Privileges.VIEWER;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.schibsted.spt.data.jslt.Expression;
 import com.schibsted.spt.data.jslt.JsltException;
@@ -20,6 +21,7 @@ import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.beaconv2.filter.FilterParser;
 import org.molgenis.emx2.beaconv2.filter.FilterParserFactory;
+import org.molgenis.emx2.beaconv2.requests.BeaconQuery;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
 import org.molgenis.emx2.beaconv2.requests.Filter;
 import org.molgenis.emx2.graphql.GraphqlApiFactory;
@@ -30,7 +32,6 @@ public class QueryEntryType {
     EntryType entryType = request.getQuery().getEntryType();
 
     ObjectMapper mapper = new ObjectMapper();
-    ArrayNode resultSets = mapper.createArrayNode();
     ObjectNode response = mapper.createObjectNode();
     response.set("requestBody", mapper.valueToTree(request));
 
@@ -41,19 +42,28 @@ public class QueryEntryType {
       response.set("info", info);
     }
 
+    int numTotalResults = 0;
+    ArrayNode resultSets = mapper.createArrayNode();
     for (Table table : getTableFromAllSchemas(database, entryType.getId())) {
       if (isAuthorized(request, table)) {
-        JsonNode resultSet = doQuery(table, filterParser, request);
-        resultSets.add(resultSet);
+        ArrayNode resultsArray = doGraphQlQuery(table, filterParser, request);
+        if (resultsArray != null && !resultsArray.isNull()) {
+          numTotalResults += resultsArray.size();
+          ArrayNode paginatedResults = paginateResults(resultsArray, request.getQuery());
+          ObjectNode resultSet = mapper.createObjectNode();
+          resultSet.put("id", table.getSchema().getName());
+          resultSet.set("results", paginatedResults);
+          resultSets.add(resultSet);
+        }
       }
     }
-
+    response.put("numTotalResults", numTotalResults);
     response.set("resultSets", resultSets);
     Expression jslt = Parser.compileResource(entryType.getName().toLowerCase() + ".jslt");
     return jslt.apply(response);
   }
 
-  private static JsonNode doQuery(
+  private static ArrayNode doGraphQlQuery(
       Table table, FilterParser filterParser, BeaconRequestBody requestBody) {
     GraphQL graphQL = new GraphqlApiFactory().createGraphqlForSchema(table.getSchema());
 
@@ -61,8 +71,6 @@ public class QueryEntryType {
         new QueryBuilder(table)
             .addAllColumns(2)
             .addFilters(filterParser.getGraphQlFilters())
-            .setLimit(requestBody.getQuery().getPagination().getLimit())
-            .setOffset(requestBody.getQuery().getPagination().getSkip())
             .getQuery();
     ExecutionResult result = graphQL.execute(graphQlQuery);
 
@@ -74,10 +82,20 @@ public class QueryEntryType {
     ArrayNode resultsArray = (ArrayNode) entryTypeResult;
     filterResults(resultsArray, filterParser.getPostFetchFilters());
 
-    ObjectNode resultSet = mapper.createObjectNode();
-    resultSet.put("id", table.getSchema().getName());
-    resultSet.set("results", resultsArray);
-    return resultSet;
+    return resultsArray;
+  }
+
+  private static ArrayNode paginateResults(ArrayNode results, BeaconQuery query) {
+    if (results == null || results.isNull()) return null;
+
+    int skip = query.getPagination().getSkip();
+    int limit = query.getPagination().getLimit();
+
+    ArrayNode paginatedResults = JsonNodeFactory.instance.arrayNode();
+    for (int i = skip; i < Math.min(skip + limit, results.size()); i++) {
+      paginatedResults.add(results.get(i));
+    }
+    return paginatedResults;
   }
 
   private static boolean isAuthorized(BeaconRequestBody requestBody, Table table) {
@@ -105,20 +123,16 @@ public class QueryEntryType {
                 ageIso8601durations.add(result.get("age_age_iso8601duration").textValue());
                 break;
               case AGE_OF_ONSET:
-                result
-                    .get("diseases")
-                    .forEach(
-                        disease ->
-                            ageIso8601durations.add(
-                                disease.get("ageOfOnset_age_iso8601duration").textValue()));
+                for (JsonNode disease : result.get("diseases")) {
+                  ageIso8601durations.add(
+                      disease.get("ageOfOnset_age_iso8601duration").textValue());
+                }
                 break;
               case AGE_AT_DIAG:
-                result
-                    .get("diseases")
-                    .forEach(
-                        disease ->
-                            ageIso8601durations.add(
-                                disease.get("ageAtDiagnosis_age_iso8601duration").textValue()));
+                for (JsonNode disease : result.get("diseases")) {
+                  ageIso8601durations.add(
+                      disease.get("ageAtDiagnosis_age_iso8601duration").textValue());
+                }
                 break;
             }
             if (!filter.filter(ageIso8601durations)) {
