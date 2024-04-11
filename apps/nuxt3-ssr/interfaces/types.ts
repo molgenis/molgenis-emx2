@@ -259,7 +259,11 @@ export interface IMapping {
   targetVariable: IVariableBase | IVariable;
 }
 
-export type HarmonizationStatus = "unmapped" | "partial" | "complete";
+export type HarmonizationStatus =
+  | "unmapped"
+  | "partial"
+  | "complete"
+  | "available";
 
 export type HarmonizationIconSize = "small" | "large";
 export interface IMgError {
@@ -290,4 +294,41 @@ export interface IOntologyItem {
 
 export interface IOntologyParentTreeItem
   extends Omit<IOntologyItem, "children"> {}
+
+// generic emx2 graphql api response type, pass in query structure as T
+export interface GqlResp<T> {
+  data: Record<string, T[]>;
+}
+export interface IOntologyRespItem {
+  name: string;
+  definition?: string;
+  code?: string;
+  order?: number;
+  parent: {
+    name: string;
+  };
+}
+
+export type ButtonType =
+  | "primary"
+  | "secondary"
+  | "tertiary"
+  | "outline"
+  | "disabled"
+  | "filterWell";
+export type ButtonSize = "tiny" | "small" | "medium" | "large";
+export type ButtonIconPosition = "left" | "right";
+
 export interface IOntologyChildTreeItem extends Omit<IOntologyItem, "parent"> {}
+
+export interface IManifest {
+  ImplementationVersion: string;
+  SpecificationVersion: string;
+  DatabaseVersion: string;
+}
+
+export interface IManifestResponse {
+  data: {
+    _manifest: IManifest;
+  };
+}
