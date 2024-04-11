@@ -143,7 +143,7 @@ module.exports = {
         "search-results-view-tabs": "var(--backgroud-color-search-results-view-tabs)",
         "search-filter-group-toggle": "var(--backgroud-color-search-filter-group-toggle)",
         "app-wrapper": "var(--backgroud-color-app-wrapper)",
-        "pagination": "var(--color-blue-800)",
+        "pagination": "var(--backgroud-color-pagination)",
         "pagination-hover": "var(--backgroud-color-pagination)",
         "footer": "var(--backgroud-color-footer)",
         "modal-footer": "var(--backgroud-color-modal-footer)",
