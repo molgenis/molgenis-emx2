@@ -12,7 +12,10 @@
       <div class="align-self-stretch">
         <header class="border-0 biobank-card-header p-1">
           <h5 class="pt-1 pl-1 pr-1 mt-1">
-            <router-link :to="'/biobank/' + biobank.id" class="text-dark">
+            <router-link
+              :to="{ path: '/biobank/' + biobank.id, query: route.query }"
+              class="text-dark"
+            >
               <span
                 class="fa fa-server mr-2 text-primary"
                 aria-hidden="true"
@@ -68,7 +71,7 @@
               <view-generator :viewmodel="biobankcardViewmodel" />
               <matches-on :viewmodel="biobank" />
               <router-link
-                :to="'/biobank/' + biobank.id"
+                :to="{ path: '/biobank/' + biobank.id, query: route.query }"
                 :title="`${biobank.name} details`"
                 class="text-info ml-1"
               >
@@ -122,7 +125,10 @@
               <div v-if="showCollections" class="mb-2">
                 <div class="pl-2 pt-2 d-flex">
                   <router-link
-                    :to="'/collection/' + collectionDetail.id"
+                    :to="{
+                      path: '/collection/' + collectionDetail.id,
+                      query: route.query,
+                    }"
                     title="Collection details"
                     class="text-dark"
                   >
@@ -153,7 +159,10 @@
 
                   <matches-on :viewmodel="collectionDetail" class="px-1 ml-1" />
                   <router-link
-                    :to="'/collection/' + collectionDetail.id"
+                    :to="{
+                      path: '/collection/' + collectionDetail.id,
+                      query: route.query,
+                    }"
                     :title="`${collectionDetail.name} details`"
                     class="text-info ml-1 pl-1"
                   >
@@ -176,6 +185,7 @@ import {
   getBiobankDetails,
   getCollectionDetails,
 } from "../../functions/viewmodelMapper";
+import { useRoute } from "vue-router";
 import ViewGenerator from "../generators/ViewGenerator.vue";
 import CollectionSelector from "../checkout-components/CollectionSelector.vue";
 import { InfoPopover } from "molgenis-components";
@@ -191,7 +201,15 @@ export default {
     const qualitiesStore = useQualitiesStore();
     const checkoutStore = useCheckoutStore();
     const filtersStore = useFiltersStore();
-    return { settingsStore, qualitiesStore, checkoutStore, filtersStore };
+    const route = useRoute();
+
+    return {
+      settingsStore,
+      qualitiesStore,
+      checkoutStore,
+      filtersStore,
+      route,
+    };
   },
   components: {
     ViewGenerator,

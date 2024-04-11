@@ -19,7 +19,7 @@
           <Breadcrumb
             class="directory-nav"
             :crumbs="{
-              [uiText['home']]: '../#/',
+              [uiText['home']]: '../#/?' + urlWithProps(route.query),
               [biobank.name]: '/',
             }"
           />
@@ -160,9 +160,12 @@ export default {
           : {};
       });
 
-    return { settingsStore, biobanksStore, qualitiesStore, biobank };
+    return { settingsStore, biobanksStore, qualitiesStore, biobank, route };
   },
   methods: {
+    urlWithProps(props: string) {
+      return new URLSearchParams(props).toString();
+    },
     wrapBioschema(schemaData: Record<string, any>) {
       /** ignore because it is not useless ;) */
       return `<script type="application/ld+json">${JSON.stringify(
