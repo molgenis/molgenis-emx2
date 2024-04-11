@@ -108,7 +108,14 @@ public class ScriptTask extends Task<ScriptTask> {
             new BufferedReader(new InputStreamReader(process.getInputStream()))) {
           String line;
           while ((line = bfr.readLine()) != null) {
-            this.addSubTask(line).complete();
+            if (line.startsWith('ERROR')) {
+              this.addSubTask(line).setStatus(ERROR);
+            } else if (line.startsWith('DEBUG')) {
+              this.addSubTask(line).setStatus(RUNNING);
+            } else {
+              this.addSubTask(line).complete();
+            }
+
           }
         }
 
