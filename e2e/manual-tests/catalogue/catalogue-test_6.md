@@ -25,7 +25,6 @@ A researcher searches for specific variables (*example: all ADHD variables*) acr
 | 9 | Click first variable used | Dialog should show information available for the source variable | | 
 | 10 | Click back button to return to previous page | Should be redirected to network variable explorer with previously selected filters | |
 | 11 | Open 'Harmonizations' tab | Harmonizations tab should show all ADHD variables and cohorts | | 
-| 12 | Hover 'about statuses' | Pop up should show 'Available: cohort has data available for the variable'; 'No data: cohort does not have data available for the variable'||
-| 13 | Click 'about statuses' | Should show pop up/dialog with information about statuses | | 
-| 14 | Click first variable| Should show pop up/dialog with information about variable | | 
-| 15 | Click 'more details' in dialog| Should redirect variable detailed view | | 
+| 12 | Hover 'about statuses' | Pop up should show 'Available: cohort has data available for the variable'; 'No data: cohort does not have data available for the variable'| |
+| 13 | Click first variable| Should show pop up/dialog with information about variable | | 
+| 14 | Click 'more details' in dialog| Should redirect variable detailed view | | 
