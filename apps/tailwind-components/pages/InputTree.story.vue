@@ -59,9 +59,9 @@ const expandSelected = ref(true);
             type="checkbox"
             v-model="expandSelected"
           />
-          <label class="ml-1 hover:cursor-pointer" for="tree-expand-selected"
-            >expand selected</label
-          >
+          <label class="ml-1 hover:cursor-pointer" for="tree-expand-selected">
+            expand Selected
+          </label>
         </div>
         <div class="mb-2">
           <input
@@ -70,9 +70,9 @@ const expandSelected = ref(true);
             type="checkbox"
             v-model="inverted"
           />
-          <label class="ml-1 hover:cursor-pointer" for="tree-inverted"
-            >inverted colors</label
-          >
+          <label class="ml-1 hover:cursor-pointer" for="tree-inverted">
+            inverted colors
+          </label>
         </div>
       </fieldset>
 
