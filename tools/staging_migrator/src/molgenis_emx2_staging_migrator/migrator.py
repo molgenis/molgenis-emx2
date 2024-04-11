@@ -157,8 +157,13 @@ class StagingMigrator(Client):
                     for column in list(record[0].values()):
                         if len(column) == 0:
                             continue
-                        for entry in column[0].values():
-                            organisations.add(entry)
+                        if isinstance(column, list):
+                            for entry in column:
+                                organisations.add(list(entry.values())[0])
+                        elif isinstance(column, dict):
+                            for entry in column.values():
+                                organisations.add(entry)
+
         organisations = list(organisations)
         if len(organisations) < 1:
             return
