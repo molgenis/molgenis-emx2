@@ -94,7 +94,11 @@ def find_cohort_references(schema_schema: Schema, schema_name: str, base_table: 
 
     # Add columns referencing the base table indirectly to the backward_refs dictionary
     for k, v in table_references.items():
+        if k == base_table:
+            continue
         for c, t in v.items():
+            if t == k:
+                continue
             if len(backward_refs.get(t)) and c not in backward_refs.get(k, []):
                 backward_refs.get(k).append(c)
 

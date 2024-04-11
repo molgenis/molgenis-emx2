@@ -331,8 +331,11 @@ class StagingMigrator(Client):
     def _get_table_pkey_values(self):
         """Fetches the primary key values associated with the staging area's table."""
 
-        # Query server for cohort id
-        query = """{{\n  {} {{\n    id\n    name\n  }}\n}}""".format(self.table)
+        staging_schema = self.get_schema_metadata(self.staging_area)
+        table_id = staging_schema.get_table(by='name', value=self.table).id
+
+        # Query server for resource id
+        query = """{{\n  {} {{\n    id\n    name\n  }}\n}}""".format(table_id)
         staging_url = f"{self.url}/{self.staging_area}/graphql"
         response = self.session.post(url=staging_url,
                                      headers={'x-molgenis-token': self.token},
@@ -343,11 +346,11 @@ class StagingMigrator(Client):
             raise NoSuchTableException(f"Table {self.table!r} not found on schema {self.staging_area!r}.")
 
         # Return only if there is exactly one id/cohort in the Cohorts table
-        if self.table in response_data.keys():
-            if len(response_data[self.table]) < 1:
+        if table_id in response_data.keys():
+            if len(response_data[table_id]) < 1:
                 raise ValueError(
                     f"Expected a value in table {self.table!r} in staging area {self.staging_area!r}"
-                    f" but found {len(response_data[self.table])!r}"
+                    f" but found {len(response_data[table_id])!r}"
                 )
         else:
             raise ValueError(
@@ -355,7 +358,7 @@ class StagingMigrator(Client):
                 f" but found none."
             )
 
-        return [cohort['id'] for cohort in response_data[self.table]]
+        return [cohort['id'] for cohort in response_data[table_id]]
 
     @staticmethod
     def _cleanup():
