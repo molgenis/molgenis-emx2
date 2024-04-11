@@ -9,7 +9,6 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare",
     "format": "prettier components pages tests --write --config ../.prettierrc.js",
     "checkFormat": "prettier components pages tests --check --config ../.prettierrc.js",
     "test": "vitest"
