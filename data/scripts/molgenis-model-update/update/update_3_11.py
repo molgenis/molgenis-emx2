@@ -69,8 +69,8 @@ class Transform:
             path = './catalogue_data_model'
             if not os.path.isdir(path):
                 os.mkdir(path)
-                shutil.copyfile(data_model, os.path.abspath(os.path.join(path, 'molgenis.csv')))
-                shutil.make_archive('./catalogue_data_model_upload', 'zip', path)
+            shutil.copyfile(data_model, os.path.abspath(os.path.join(path, 'molgenis.csv')))
+            shutil.make_archive('./catalogue_data_model_upload', 'zip', path)
         else:
             shutil.copyfile(data_model, os.path.abspath(os.path.join(self.path, 'molgenis.csv')))
 
