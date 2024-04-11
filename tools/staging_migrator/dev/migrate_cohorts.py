@@ -1,5 +1,5 @@
 """
-Script to migrate UMCG staging areas to a catalogue using the StagingMigrator class.
+Script to migrate Cohort staging areas to a catalogue using the StagingMigrator class.
 Supply the cohorts to be migrated as command line arguments.
 """
 
@@ -13,7 +13,7 @@ from dotenv import load_dotenv
 from tools.staging_migrator.src.molgenis_emx2_staging_migrator import StagingMigrator
 
 
-CATALOGUE = 'UMCG'
+CATALOGUE = 'catalogue'
 
 
 def main(args):
