@@ -59,10 +59,11 @@ class StagingMigrator(Client):
         self._download_schema_zip(schema=self.catalogue, schema_type='target', include_system_columns=False)
 
         # Delete the source tables from the target database
-        log.info("Deleting staging area cohorts from the catalogue.")
+        log.info("Deleting staging area resource from the catalogue.")
         self._delete_staging_from_catalogue()
 
         # Synchronize the organisations with SharedStaging
+        log.info("Synchronizing staging area with SharedStaging and catalogue.")
         self.sync_shared_staging()
 
         # Create zipfile for uploading
@@ -223,8 +224,13 @@ class StagingMigrator(Client):
                 headers={'x-molgenis-token': self.token}
             )
             if response.status_code != 200:
-                log.error(response)
-                log.error(f"Deleting entries from table {table_id} failed.")
+                message = response.json().get('errors')[0].get('message')
+                if 'is still referenced' in message:
+                    log.error(f"Deleting entries from table {table_id} failed.")
+                    log.error(message.split('Details: ')[-1])
+                else:
+                    log.error(response)
+                    log.error(f"Deleting entries from table {table_id} failed.")
             else:
                 log.info(response.json().get('data').get('delete').get('message'))
 
