@@ -24,6 +24,14 @@ public class GraphqlTableFieldFactory {
           .value(Order.ASC.name(), Order.ASC)
           .value(Order.DESC.name(), Order.DESC)
           .build();
+
+  private static final GraphQLEnumType nullEnum =
+      GraphQLEnumType.newEnum()
+          .name("MolgenisNullEnum")
+          .value("_null", "_null")
+          .value("_not_null", "_not_null")
+          .build();
+
   private static GraphQLObjectType fileDownload =
       GraphQLObjectType.newObject()
           .name("MolgenisFileDownload")
@@ -50,6 +58,7 @@ public class GraphqlTableFieldFactory {
   private Map<String, GraphQLNamedOutputType> tableGroupByTypes = new LinkedHashMap();
   private Map<String, GraphQLNamedInputType> tableFilterInputTypes = new LinkedHashMap<>();
   private Map<String, GraphQLNamedInputType> tableOrderByInputTypes = new LinkedHashMap<>();
+  private Map<String, GraphQLNamedInputType> tableNullInputTypes = new LinkedHashMap<>();
   private Map<String, GraphQLNamedInputType> rowInputTypes = new LinkedHashMap<>();
   private Map<String, GraphQLNamedInputType> refTypes = new LinkedHashMap<>();
 
@@ -419,6 +428,11 @@ public class GraphqlTableFieldFactory {
               .name(FILTER_AND)
               .type(GraphQLList.list(GraphQLTypeReference.typeRef(tableFilterInputType)))
               .build());
+      filterBuilder.field(
+          GraphQLInputObjectField.newInputObjectField()
+              .name("_is_null")
+              .type(GraphQLList.list(createTableNullInputType(table)))
+              .build());
       for (Column col : table.getColumns()) {
         if (col.isReference()) {
           filterBuilder.field(
@@ -458,6 +472,21 @@ public class GraphqlTableFieldFactory {
       tableOrderByInputTypes.put(tableOrderByInputType, orderByBuilder.build());
     }
     return tableOrderByInputTypes.get(tableOrderByInputType);
+  }
+
+  private GraphQLNamedInputType createTableNullInputType(TableMetadata table) {
+    String tableNullInputType = getTableTypeIdentifier(table) + "_null";
+    if (!tableNullInputTypes.containsKey(tableNullInputType)) {
+      tableNullInputTypes.put(tableNullInputType, GraphQLTypeReference.typeRef(tableNullInputType));
+      GraphQLInputObjectType.Builder nullBuilder =
+          GraphQLInputObjectType.newInputObject().name(tableNullInputType);
+      for (Column col : table.getColumns()) {
+        nullBuilder.field(
+            GraphQLInputObjectField.newInputObjectField().name(col.getIdentifier()).type(nullEnum));
+      }
+      tableNullInputTypes.put(tableNullInputType, nullBuilder.build());
+    }
+    return tableNullInputTypes.get(tableNullInputType);
   }
 
   private GraphQLInputObjectType getColumnFilterInputType(Column column) {
