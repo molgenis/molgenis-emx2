@@ -18,9 +18,9 @@ public class BiobankDirectoryLoader extends AbstractDataLoader {
 
   @Override
   void loadInternalImplementation(Schema schema, boolean includeDemoData) {
-    String LOCATION = "biobank-directory/";
+    String location = "biobank-directory/";
     if (this.staging) {
-      LOCATION = "biobank-directory/stagingArea/";
+      location = "biobank-directory/stagingArea/";
     }
 
     // create ontology schema
@@ -33,7 +33,7 @@ public class BiobankDirectoryLoader extends AbstractDataLoader {
     }
 
     // create biobank-directory or staging schema (which will create tables in ontology schema)
-    createSchema(schema, LOCATION + "molgenis.csv");
+    createSchema(schema, location + "molgenis.csv");
     schema.addMember(SqlDatabase.ANONYMOUS, Privileges.VIEWER.toString());
 
     if (ontologySchema == null || !this.staging) {
@@ -44,7 +44,7 @@ public class BiobankDirectoryLoader extends AbstractDataLoader {
 
     // optionally, load demo data
     if (includeDemoData) {
-      MolgenisIO.fromClasspathDirectory(LOCATION + "demo", schema, false);
+      MolgenisIO.fromClasspathDirectory(location + "demo", schema, false);
     }
   }
 }
