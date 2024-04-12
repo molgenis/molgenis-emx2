@@ -15,8 +15,8 @@ public enum AvailableDataModels {
   DCAT(new ProfileLoader("_profiles/DCAT.yaml")),
   BEACON_V2(new ProfileLoader("_profiles/BeaconV2.yaml")),
   ERN_DASHBOARD(new DashboardLoader()),
-  BIOBANK_DIRECTORY(new BiobankDirectoryLoader()),
-  BIOBANK_DIRECTORY_STAGING(new BiobankDirectoryStagingLoader()),
+  BIOBANK_DIRECTORY(new BiobankDirectoryLoader(false)),
+  BIOBANK_DIRECTORY_STAGING(new BiobankDirectoryLoader(true)),
   PROJECTMANAGER(new ProjectManagerLoader()),
   SHARED_STAGING(new ProfileLoader("_profiles/SharedStaging.yaml"));
 

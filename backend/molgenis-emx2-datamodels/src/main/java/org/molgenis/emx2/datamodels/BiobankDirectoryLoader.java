@@ -10,8 +10,19 @@ public class BiobankDirectoryLoader extends AbstractDataLoader {
 
   public static final String ONTOLOGIES = "DirectoryOntologies";
 
+  private final boolean staging;
+
+  public BiobankDirectoryLoader(boolean staging) {
+    this.staging = staging;
+  }
+
   @Override
   void loadInternalImplementation(Schema schema, boolean includeDemoData) {
+    String LOCATION = "biobank-directory/";
+    if (this.staging) {
+      LOCATION = "biobank-directory/stagingArea/";
+    }
+
     // create ontology schema
     Database db = schema.getDatabase();
     Schema ontologySchema = db.getSchema(ONTOLOGIES);
@@ -21,17 +32,19 @@ public class BiobankDirectoryLoader extends AbstractDataLoader {
       ontologies.addMember(SqlDatabase.ANONYMOUS, Privileges.VIEWER.toString());
     }
 
-    // create biobank-directory schema (which will create tables in ontology schema)
-    createSchema(schema, "biobank-directory/molgenis.csv");
+    // create biobank-directory or staging schema (which will create tables in ontology schema)
+    createSchema(schema, LOCATION + "molgenis.csv");
     schema.addMember(SqlDatabase.ANONYMOUS, Privileges.VIEWER.toString());
 
-    // load data into ontology schema
-    MolgenisIO.fromClasspathDirectory(
-        "biobank-directory/ontologies", db.getSchema(ONTOLOGIES), false);
+    if (ontologySchema == null || !this.staging) {
+      // load data into ontology schema
+      MolgenisIO.fromClasspathDirectory(
+          "biobank-directory/ontologies", db.getSchema(ONTOLOGIES), false);
+    }
 
     // optionally, load demo data
     if (includeDemoData) {
-      MolgenisIO.fromClasspathDirectory("biobank-directory/demo", schema, false);
+      MolgenisIO.fromClasspathDirectory(LOCATION + "demo", schema, false);
     }
   }
 }
