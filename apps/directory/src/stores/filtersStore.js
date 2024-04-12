@@ -196,12 +196,6 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     return flattenedBranches;
   }
 
-  /**
-   *
-   * @param {string} filterName the name of the ontology filter
-   * @param {string | Array<string>} value array with identifiers or a string with an identifier
-   * @param {boolean} add
-   */
   function updateOntologyFilter(filterName, value, add, fromBookmark) {
     bookmarkTriggeredFilter.value = fromBookmark;
 
