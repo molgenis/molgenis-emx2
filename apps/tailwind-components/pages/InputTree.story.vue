@@ -33,6 +33,7 @@ const deselect = (selectedNodeName: string) => {
 };
 
 const inverted = ref(false);
+const expandSelected = ref(true);
 </script>
 
 <template>
@@ -41,22 +42,44 @@ const inverted = ref(false);
       <InputTree
         :nodes="nodes"
         v-model="selectedNodesNames"
-        :expandSelected="true"
+        :expandSelected="expandSelected"
         class="p-4"
-        :class="inverted ? 'bg-white' : 'bg-blue-500'"
+        :class="inverted ? 'bg-white' : 'bg-sidebar-gradient'"
         :inverted="inverted"
       />
     </div>
 
-    <div class="h-12 p-4">
-      <div>
-        <input id="inverted" type="checkbox" v-model="inverted" />
-        <label class="ml-1" for="inverted">inverted colors</label>
-      </div>
-      <div>
+    <div class="h-12 ml-4 mt-2">
+      <fieldset class="border border-gray-900 mb-2">
+        <legend class="m-2 px-2">Props</legend>
+        <div class="mb-2">
+          <input
+            id="tree-expand-selected"
+            class="ml-2 hover:cursor-pointer"
+            type="checkbox"
+            v-model="expandSelected"
+          />
+          <label class="ml-1 hover:cursor-pointer" for="tree-expand-selected">
+            expand Selected
+          </label>
+        </div>
+        <div class="mb-2">
+          <input
+            id="tree-inverted"
+            class="ml-2 hover:cursor-pointer"
+            type="checkbox"
+            v-model="inverted"
+          />
+          <label class="ml-1 hover:cursor-pointer" for="tree-inverted">
+            inverted colors
+          </label>
+        </div>
+      </fieldset>
+
+      <div class="mb-2">
         <button
           @click="clearSelection"
-          class="bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded"
+          class="bg-orange-500 hover:bg-white py-2 px-4 rounded border border-gray-900"
         >
           Clear selection
         </button>
