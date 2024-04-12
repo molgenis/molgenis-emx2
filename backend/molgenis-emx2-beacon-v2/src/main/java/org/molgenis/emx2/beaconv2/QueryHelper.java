@@ -1,15 +1,22 @@
-package org.molgenis.emx2.beaconv2.endpoints;
+package org.molgenis.emx2.beaconv2;
 
 import java.util.*;
 import java.util.Map;
 import org.jooq.tools.StringUtils;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.beaconv2.endpoints.ColumnPath;
+import org.molgenis.emx2.beaconv2.endpoints.OntologyTerm;
 import org.molgenis.emx2.utils.TypeUtils;
 
 // todo: do we still need this if we use retrieveRows?
 public class QueryHelper {
+
   private QueryHelper() {
     // static only
+  }
+
+  private void queryOntologyRecursively(List<Column> ontologies) {
+    for (Column ontology : ontologies) {}
   }
 
   /**

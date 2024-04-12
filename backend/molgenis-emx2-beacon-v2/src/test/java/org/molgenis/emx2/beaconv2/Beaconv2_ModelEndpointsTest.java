@@ -54,7 +54,8 @@ public class Beaconv2_ModelEndpointsTest {
   public void testGenomicVariants_NoParams() throws Exception {
     Request request = mock(Request.class);
     when(request.queryParams("entry_type")).thenReturn("g_variants");
-    BeaconRequestBody requestBody = new BeaconRequestBody(request);
+    BeaconRequestBody requestBody = new BeaconRequestBody();
+    requestBody.addUrlParameters(request);
     JsonNode result = QueryEntryType.query(database, requestBody);
     String json = JsonUtil.getWriter().writeValueAsString(result);
 
@@ -80,7 +81,8 @@ public class Beaconv2_ModelEndpointsTest {
     when(request.queryParams("referenceBases")).thenReturn("c");
     when(request.queryParams("alternateBases"))
         .thenReturn("G"); // 'g' in database, test case insensitivity
-    BeaconRequestBody requestBody = new BeaconRequestBody(request);
+    BeaconRequestBody requestBody = new BeaconRequestBody();
+    requestBody.addUrlParameters(request);
     JsonNode result = QueryEntryType.query(database, requestBody);
     String json = JsonUtil.getWriter().writeValueAsString(result);
     assertTrue(json.contains("\"variantInternalId\" : \"20:2447955..2447958c>g\","));
@@ -96,7 +98,8 @@ public class Beaconv2_ModelEndpointsTest {
     when(request.queryParams("referenceBases")).thenReturn("c");
     when(request.queryParams("alternateBases")).thenReturn("a");
 
-    BeaconRequestBody requestBody = new BeaconRequestBody(request);
+    BeaconRequestBody requestBody = new BeaconRequestBody();
+    requestBody.addUrlParameters(request);
     JsonNode result = QueryEntryType.query(database, requestBody);
     String json = JsonUtil.getWriter().writeValueAsString(result);
 
@@ -113,7 +116,8 @@ public class Beaconv2_ModelEndpointsTest {
     when(request.queryParams("end")).thenReturn("2447955");
     when(request.queryParams("referenceName")).thenReturn("20");
 
-    BeaconRequestBody requestBody = new BeaconRequestBody(request);
+    BeaconRequestBody requestBody = new BeaconRequestBody();
+    requestBody.addUrlParameters(request);
     JsonNode result = QueryEntryType.query(database, requestBody);
 
     String json = JsonUtil.getWriter().writeValueAsString(result);
@@ -127,7 +131,8 @@ public class Beaconv2_ModelEndpointsTest {
     Request request = mock(Request.class);
     when(request.queryParams("entry_type")).thenReturn("g_variants");
     when(request.queryParams("geneId")).thenReturn("SNRPB");
-    BeaconRequestBody requestBody = new BeaconRequestBody(request);
+    BeaconRequestBody requestBody = new BeaconRequestBody();
+    requestBody.addUrlParameters(request);
     JsonNode result = QueryEntryType.query(database, requestBody);
 
     String json = JsonUtil.getWriter().writeValueAsString(result);

@@ -1,4 +1,4 @@
-package org.molgenis.emx2.beaconv2.requests;
+package org.molgenis.emx2.beaconv2.filter;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -8,19 +8,20 @@ import java.util.Arrays;
 import java.util.List;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.beaconv2.Concept;
-import org.molgenis.emx2.beaconv2.filter.FilterType;
+import org.molgenis.emx2.beaconv2.requests.Similarity;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class Filter {
+
   private Object id;
   private String operator;
   private Object value;
 
-  private Concept concept;
-  private FilterType filterType;
-
   boolean includeDescendantTerms;
   Similarity similarity;
+
+  @JsonIgnore private Concept concept;
+  @JsonIgnore private FilterType filterType;
 
   // must deal with values as either 'string' or 'string array' hence this workaround
   @JsonIgnore private String[] values;
@@ -195,12 +196,16 @@ public class Filter {
     return false;
   }
 
+  @JsonIgnore
   public String getGraphQlFilter() {
     StringBuilder filter = new StringBuilder();
 
     String[] filterTerms;
     if (filterType == FilterType.ONTOLOGY) {
       filterTerms = this.getIds();
+      if (includeDescendantTerms) {
+        // todo add logic to get include descending terms
+      }
     } else {
       filterTerms = this.getValues();
     }

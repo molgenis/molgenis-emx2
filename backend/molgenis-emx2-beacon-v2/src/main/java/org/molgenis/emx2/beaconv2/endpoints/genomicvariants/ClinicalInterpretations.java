@@ -1,6 +1,6 @@
 package org.molgenis.emx2.beaconv2.endpoints.genomicvariants;
 
-import static org.molgenis.emx2.beaconv2.endpoints.QueryHelper.mapToOntologyTerm;
+import static org.molgenis.emx2.beaconv2.QueryHelper.mapToOntologyTerm;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import java.util.List;

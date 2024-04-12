@@ -19,34 +19,30 @@ import java.util.List;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
+import org.molgenis.emx2.beaconv2.filter.Filter;
 import org.molgenis.emx2.beaconv2.filter.FilterParser;
 import org.molgenis.emx2.beaconv2.filter.FilterParserFactory;
 import org.molgenis.emx2.beaconv2.requests.BeaconQuery;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
-import org.molgenis.emx2.beaconv2.requests.Filter;
 import org.molgenis.emx2.graphql.GraphqlApiFactory;
 
 public class QueryEntryType {
 
+  private static final ObjectMapper mapper = new ObjectMapper();
+
   public static JsonNode query(Database database, BeaconRequestBody request) throws JsltException {
     EntryType entryType = request.getQuery().getEntryType();
 
-    ObjectMapper mapper = new ObjectMapper();
     ObjectNode response = mapper.createObjectNode();
     response.set("requestBody", mapper.valueToTree(request));
-
-    FilterParser filterParser = FilterParserFactory.getParserForRequest(request).parse();
-    if (filterParser.hasWarnings()) {
-      ObjectNode info = mapper.createObjectNode();
-      info.put("unsupportedFilters", filterParser.getWarnings().toString());
-      response.set("info", info);
-    }
+    FilterParser filterParser = parseFilters(request, response);
 
     int numTotalResults = 0;
     ArrayNode resultSets = mapper.createArrayNode();
     for (Table table : getTableFromAllSchemas(database, entryType.getId())) {
       if (isAuthorized(request, table)) {
         ArrayNode resultsArray = doGraphQlQuery(table, filterParser, request);
+
         if (resultsArray != null && !resultsArray.isNull()) {
           numTotalResults += resultsArray.size();
           ArrayNode paginatedResults = paginateResults(resultsArray, request.getQuery());
@@ -63,13 +59,23 @@ public class QueryEntryType {
     return jslt.apply(response);
   }
 
+  private static FilterParser parseFilters(BeaconRequestBody request, ObjectNode response) {
+    FilterParser filterParser = FilterParserFactory.getParserForRequest(request).parse();
+    if (filterParser.hasWarnings()) {
+      ObjectNode info = mapper.createObjectNode();
+      info.put("unsupportedFilters", filterParser.getWarnings().toString());
+      response.set("info", info);
+    }
+    return filterParser;
+  }
+
   private static ArrayNode doGraphQlQuery(
       Table table, FilterParser filterParser, BeaconRequestBody requestBody) {
     GraphQL graphQL = new GraphqlApiFactory().createGraphqlForSchema(table.getSchema());
 
     String graphQlQuery =
         new QueryBuilder(table)
-            .addAllColumns(2)
+            .addAllColumns(3)
             .addFilters(filterParser.getGraphQlFilters())
             .getQuery();
     ExecutionResult result = graphQL.execute(graphQlQuery);

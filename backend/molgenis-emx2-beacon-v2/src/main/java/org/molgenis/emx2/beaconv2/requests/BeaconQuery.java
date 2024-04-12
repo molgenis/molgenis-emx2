@@ -11,6 +11,7 @@ import org.molgenis.emx2.beaconv2.EntryType;
 import org.molgenis.emx2.beaconv2.common.misc.Granularity;
 import org.molgenis.emx2.beaconv2.common.misc.IncludedResultsetResponses;
 import org.molgenis.emx2.beaconv2.endpoints.datasets.Pagination;
+import org.molgenis.emx2.beaconv2.filter.Filter;
 import spark.Request;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
@@ -25,22 +26,6 @@ public class BeaconQuery {
   private EntryType entryType;
 
   public BeaconQuery() {}
-
-  public BeaconQuery(Request request) {
-    Map<String, String> params = request.params();
-    if (params.containsKey(":entry_type")) {
-      entryType = EntryType.findByName(params.get(":entry_type"));
-    }
-    for (var param : params.entrySet()) {
-      String ref = param.getKey().replaceAll(":", "");
-      requestParameters.put(ref, new BeaconRequestParameters(ref, param.getValue()));
-    }
-    for (var queryParam : request.queryMap().toMap().entrySet()) {
-      requestParameters.put(
-          queryParam.getKey(),
-          new BeaconRequestParameters(queryParam.getKey(), queryParam.getValue()[0]));
-    }
-  }
 
   public String getDescription() {
     return description;
@@ -76,5 +61,21 @@ public class BeaconQuery {
 
   public Map<String, BeaconRequestParameters> getRequestParametersMap() {
     return requestParameters;
+  }
+
+  public void addUrlParameters(Request request) {
+    Map<String, String> params = request.params();
+    if (params.containsKey(":entry_type")) {
+      entryType = EntryType.findByName(params.get(":entry_type"));
+    }
+    for (var urlParam : params.entrySet()) {
+      String ref = urlParam.getKey().replaceAll(":", "");
+      requestParameters.put(ref, new BeaconRequestParameters(ref, urlParam.getValue()));
+    }
+    for (var queryParam : request.queryMap().toMap().entrySet()) {
+      requestParameters.put(
+          queryParam.getKey(),
+          new BeaconRequestParameters(queryParam.getKey(), queryParam.getValue()[0]));
+    }
   }
 }

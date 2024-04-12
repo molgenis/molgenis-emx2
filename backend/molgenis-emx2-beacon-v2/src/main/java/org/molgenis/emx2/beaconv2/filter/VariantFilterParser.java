@@ -6,7 +6,6 @@ import java.util.Map;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.beaconv2.requests.BeaconQuery;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestParameters;
-import org.molgenis.emx2.beaconv2.requests.Filter;
 
 public class VariantFilterParser implements FilterParser {
 

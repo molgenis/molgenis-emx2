@@ -6,8 +6,8 @@ import org.molgenis.emx2.beaconv2.common.misc.Granularity;
 import org.molgenis.emx2.beaconv2.common.misc.IncludedResultsetResponses;
 import org.molgenis.emx2.beaconv2.common.misc.SchemasPerEntity;
 import org.molgenis.emx2.beaconv2.endpoints.datasets.Pagination;
+import org.molgenis.emx2.beaconv2.filter.Filter;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
-import org.molgenis.emx2.beaconv2.requests.Filter;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class BeaconResponseMeta {

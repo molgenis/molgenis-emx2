@@ -8,7 +8,6 @@ import org.molgenis.emx2.beaconv2.Concept;
 import org.molgenis.emx2.beaconv2.EntryType;
 import org.molgenis.emx2.beaconv2.common.misc.NCITToGSSOSexMapping;
 import org.molgenis.emx2.beaconv2.requests.BeaconQuery;
-import org.molgenis.emx2.beaconv2.requests.Filter;
 
 public class FilterParserEjpRd implements FilterParser {
 

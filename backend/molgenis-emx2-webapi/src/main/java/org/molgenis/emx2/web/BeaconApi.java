@@ -1,7 +1,6 @@
 package org.molgenis.emx2.web;
 
 import static org.molgenis.emx2.json.JsonUtil.getWriter;
-import static org.molgenis.emx2.rdf.RDFUtils.extractHost;
 import static spark.Spark.get;
 import static spark.Spark.post;
 
@@ -40,25 +39,21 @@ public class BeaconApi {
   }
 
   private static String getEntryType(Request request, Response response) throws Exception {
-    BeaconRequestBody requestBody = new BeaconRequestBody(request);
-
-    String host = extractHost(request.url());
-    requestBody.getMeta().setHost(host);
-
-    Database database = sessionManager.getSession(request).getDatabase();
-    JsonNode dataResult = QueryEntryType.query(database, requestBody);
-    return getWriter().writeValueAsString(dataResult);
+    return entryTypeRequest(request, new BeaconRequestBody());
   }
 
   private static String postEntryType(Request request, Response response) throws Exception {
-    BeaconRequestBody beaconRequestBody =
-        new ObjectMapper().readValue(request.body(), BeaconRequestBody.class);
+    ObjectMapper mapper = new ObjectMapper();
+    BeaconRequestBody beaconRequest = mapper.readValue(request.body(), BeaconRequestBody.class);
+    return entryTypeRequest(request, beaconRequest);
+  }
 
-    String host = extractHost(request.url());
-    beaconRequestBody.getMeta().setHost(host);
+  private static String entryTypeRequest(Request request, BeaconRequestBody requestBody)
+      throws JsonProcessingException {
+    requestBody.addUrlParameters(request);
 
     Database database = sessionManager.getSession(request).getDatabase();
-    JsonNode dataResult = QueryEntryType.query(database, beaconRequestBody);
+    JsonNode dataResult = QueryEntryType.query(database, requestBody);
     return getWriter().writeValueAsString(dataResult);
   }
 

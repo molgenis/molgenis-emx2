@@ -4,7 +4,6 @@ import java.util.List;
 import org.molgenis.emx2.beaconv2.EntryType;
 import org.molgenis.emx2.beaconv2.requests.BeaconQuery;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestParameters;
-import org.molgenis.emx2.beaconv2.requests.Filter;
 
 public interface FilterParser {
 
