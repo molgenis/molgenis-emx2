@@ -20,56 +20,84 @@ let offset = computed(() => (currentPage.value - 1) * pageSize);
 
 let filters: IFilter[] = reactive([
   {
-    title: "Search in cohorts",
-    columnType: "_SEARCH",
+    id: "search",
+    config: {
+      label: "Search in cohorts",
+      type: "SEARCH",
+      searchTables: ["collectionEvents", "subcohorts"],
+      initialCollapsed: false,
+    },
     search: "",
-    searchTables: ["collectionEvents", "subcohorts"],
-    initialCollapsed: false,
   },
   {
-    title: "Areas of information",
-    refTableId: "AreasOfInformationCohorts",
-    columnId: "areasOfInformation",
-    columnType: "ONTOLOGY",
-    filterTable: "collectionEvents",
+    id: "areasOfInformation",
+    config: {
+      label: "Areas of information",
+      type: "ONTOLOGY",
+      ontologyTableId: "AreasOfInformationCohorts",
+      ontologySchema: "CatalogueOntologies",
+      columnId: "areasOfInformation",
+      filterTable: "collectionEvents",
+    },
     conditions: [],
   },
   {
-    title: "Data categories",
-    refTableId: "DataCategories",
-    columnId: "dataCategories",
-    columnType: "ONTOLOGY",
-    filterTable: "collectionEvents",
+    id: "dataCategories",
+    config: {
+      label: "Data categories",
+      type: "ONTOLOGY",
+      ontologyTableId: "DataCategories",
+      ontologySchema: "CatalogueOntologies",
+      columnId: "dataCategories",
+      filterTable: "collectionEvents",
+    },
     conditions: [],
   },
   {
-    title: "Population age groups",
-    refTableId: "AgeGroups",
-    columnId: "ageGroups",
-    columnType: "ONTOLOGY",
-    filterTable: "collectionEvents",
+    id: "populationAgeGroups",
+    config: {
+      label: "Population age groups",
+      type: "ONTOLOGY",
+      ontologyTableId: "AgeGroups",
+      ontologySchema: "CatalogueOntologies",
+      columnId: "ageGroups",
+      filterTable: "collectionEvents",
+    },
     conditions: [],
   },
   {
-    title: "Sample categories",
-    refTableId: "SampleCategories",
-    columnId: "sampleCategories",
-    columnType: "ONTOLOGY",
-    filterTable: "collectionEvents",
+    id: "sampleCategories",
+    config: {
+      label: "Sample categories",
+      type: "ONTOLOGY",
+      ontologyTableId: "SampleCategories",
+      ontologySchema: "CatalogueOntologies",
+      columnId: "sampleCategories",
+      filterTable: "collectionEvents",
+    },
     conditions: [],
   },
   {
-    title: "Cohort Types",
-    refTableId: "ResourceTypes",
-    columnId: "type",
-    columnType: "ONTOLOGY",
+    id: "cohortTypes",
+    config: {
+      label: "Cohort types",
+      type: "ONTOLOGY",
+      ontologyTableId: "CohortTypes",
+      ontologySchema: "CatalogueOntologies",
+      columnId: "type",
+      filterTable: "Cohorts",
+    },
     conditions: [],
   },
   {
-    title: "Design",
-    refTableId: "CohortDesigns",
-    columnId: "design",
-    columnType: "ONTOLOGY",
+    id: "cohortDesigns",
+    config: {
+      label: "Design",
+      type: "ONTOLOGY",
+      ontologyTableId: "CohortDesigns",
+      ontologySchema: "CatalogueOntologies",
+      columnId: "design",
+    },
     conditions: [],
   },
 ]);
@@ -111,8 +139,8 @@ const query = computed(() => {
 
 const orderby = { acronym: "ASC" };
 
-const filter = computed(() => {
-  let result = buildQueryFilter(filters, search.value);
+const gqlFilter = computed(() => {
+  let result = buildQueryFilter(filters);
   if ("all" !== route.params.catalogue) {
     result["networks"] = { id: { equals: route.params.catalogue } };
   }
@@ -125,7 +153,7 @@ const { data } = await useFetch<any, IMgError>(
     method: "POST",
     body: {
       query: query,
-      variables: { filter, orderby },
+      variables: { filter: gqlFilter, orderby },
     },
     onResponseError(_ctx) {
       logError({
@@ -150,8 +178,6 @@ watch(filters, () => {
 });
 
 let activeName = ref("detailed");
-
-const underConstructionNotice = ref();
 
 const cohortOnly = computed(() => {
   const routeSetting = route.query["cohort-only"] as string;
