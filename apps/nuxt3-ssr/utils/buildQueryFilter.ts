@@ -4,6 +4,8 @@ import type {
   IConditionsFilter,
 } from "~/interfaces/types";
 
+import { isConditionFilter } from "./filterUtils";
+
 const buildFilterVariables = (filters: IConditionsFilter[]) => {
   const filtersVariables = filters.reduce<
     Record<string, Record<string, any | string>>
@@ -32,10 +34,8 @@ export const buildQueryFilter = (filters: IFilter[]) => {
   const conditionsFilters = filters.filter(isConditionFilter);
 
   let filterBuilder = buildFilterVariables(conditionsFilters);
-  const searchFilter = filters.find(
-    (f) => f.config.type === "SEARCH"
-  ) as ISearchFilter;
-  if (searchFilter.search) {
+  const searchFilter = filters.find((f) => f.config.type === "SEARCH");
+  if (searchFilter?.search) {
     // add the search to the filters
     filterBuilder = {
       ...filterBuilder,
@@ -43,7 +43,7 @@ export const buildQueryFilter = (filters: IFilter[]) => {
     };
 
     // expand the search to the sub tables
-    searchFilter.config.searchTables?.forEach((sub) => {
+    (searchFilter as ISearchFilter).config.searchTables?.forEach((sub) => {
       filterBuilder["_or"].push({ [sub]: { _search: searchFilter.search } });
     });
   }

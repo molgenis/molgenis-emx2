@@ -353,7 +353,6 @@ export interface IFilterConfig {
 
 export interface ISearchFilterConfig extends IFilterConfig {
   type: "SEARCH";
-  search?: string;
   searchTables?: string[];
 }
 
@@ -391,4 +390,18 @@ export type IConditionsFilter = IOntologyFilter | IRefArrayFilter;
 export interface IRefArrayFilter extends IAbstractFilter {
   conditions: IFilterCondition[];
   config: IRefArrayFilterConfig;
+}
+
+export interface IPathCondition {
+  id: string;
+  search?: string;
+  conditions?: IFilterCondition[];
+}
+
+export interface IPathSearchCondition extends IPathCondition {
+  search: string;
+}
+
+export interface IPathConditionsCondition extends IPathCondition {
+  conditions: IFilterCondition[];
 }

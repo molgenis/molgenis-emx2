@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { IFilter, IMgError } from "~/interfaces/types";
+import type { IConditionsFilter, IFilter, IMgError } from "~/interfaces/types";
 
 const route = useRoute();
 const router = useRouter();
@@ -102,11 +102,6 @@ let filters: IFilter[] = reactive([
   },
 ]);
 
-let search = computed(() => {
-  // @ts-ignore
-  return filters.find((f) => f.columnType === "_SEARCH").search;
-});
-
 const query = computed(() => {
   return `
   query Cohorts($filter:CohortsFilter, $orderby:Cohortsorderby){
@@ -140,7 +135,44 @@ const query = computed(() => {
 const orderby = { acronym: "ASC" };
 
 const gqlFilter = computed(() => {
-  let result = buildQueryFilter(filters);
+  let result: any = {};
+
+  // if there are conditions in the query, use them
+  if (route.query?.conditions) {
+    // get conditions from query
+    const conditions = conditionsFromPathQuery(
+      route.query.conditions as string
+    );
+
+    // merge conditions with filters
+    const gqlConditions: IFilter[] = [];
+    conditions.forEach((condition) => {
+      const filter = filters.find((f) => f.id === condition.id);
+      if (!filter) {
+        console.error(`Filter with id ${condition.id} not found`);
+        return;
+      }
+
+      // clone to serve as base for gql query, but do not edit the page filter state
+      const gqlFilter: IFilter = { ...filter };
+      if (gqlFilter.config.type === "SEARCH") {
+        gqlFilter.search = condition.search;
+        gqlConditions.push(gqlFilter);
+      } else {
+        const conditionFilter = gqlFilter as IConditionsFilter;
+        if (!conditionFilter.conditions) {
+          conditionFilter.conditions = [];
+        }
+        if (condition.conditions) {
+          conditionFilter.conditions = condition.conditions;
+        }
+        gqlConditions.push(conditionFilter);
+      }
+    });
+    result = buildQueryFilter(gqlConditions);
+  }
+
+  // add hard coded page sepsific filters
   if ("all" !== route.params.catalogue) {
     result["networks"] = { id: { equals: route.params.catalogue } };
   }
@@ -173,8 +205,18 @@ function setCurrentPage(pageNumber: number) {
   currentPage.value = pageNumber;
 }
 
+function onFilterChange(filters: IFilter[]) {
+  const conditions = toPathQueryConditions(filters) || undefined; // undefined is used to remove the query param from the URL;
+
+  router.push({
+    path: route.path,
+    query: { ...route.query, page: 1, conditions: conditions },
+  });
+}
+
 watch(filters, () => {
   setCurrentPage(1);
+  onFilterChange(filters);
 });
 
 let activeName = ref("detailed");
