@@ -23,6 +23,8 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
   let biobankCards = ref([]);
   let waitingForResponse = ref(false);
 
+  let lastRequestTime = 0;
+
   const collectionColumns = collectionStore.getCollectionColumns();
   const biobankProperties = biobankColumns
     .flatMap((biobankColumn) => biobankColumn.column)
@@ -102,34 +104,30 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
     return facetBiobankColumnDetails;
   }
 
-  /** GraphQL query to get all the data necessary for the home screen 'aka biobank card view */
+  /** This method is called upon page load and when a filter is applied. */
+  /** Therefore it can be executed multiple times in parallel. */
   async function getBiobankCards() {
     if (!filtersStore.bookmarkWaitingForApplication) {
       waitingForResponse.value = true;
-      if (biobankCards.value.length === 0) {
-        const biobankResult = await baseQuery.execute();
-        biobankCards.value = filterWithdrawn(biobankResult.Biobanks);
-      }
-      waitingForResponse.value = false;
-    }
-  }
 
-  async function updateBiobankCards() {
-    if (!waitingForResponse.value) {
-      waitingForResponse.value = true;
-      biobankCards.value = [];
+      const requestTime = Date.now();
+      lastRequestTime = requestTime;
+
       const biobankResult = await baseQuery.execute();
 
-      /** depending on whether filters have been selected display the correct count of biobanks */
-      let foundBiobanks = biobankResult.Biobanks;
-      if (filtersStore.hasActiveFilters) {
-        foundBiobanks = foundBiobanks.filter((biobank) => biobank.collections);
+      /* Update biobankCards only if the result is the most recent one*/
+      if (requestTime === lastRequestTime) {
+        let biobanksWithCollections = biobankResult.Biobanks;
+        if (!biobanksWithCollections) biobanksWithCollections = [];
+        if (filtersStore.hasActiveFilters) {
+          biobanksWithCollections = biobanksWithCollections.filter(
+            (biobank) => biobank.collections?.length
+          );
+        }
+        biobankCards.value = filterWithdrawn(biobanksWithCollections);
+        waitingForResponse.value = false;
+        filtersStore.bookmarkWaitingForApplication = false;
       }
-
-      biobankCards.value = filterWithdrawn(foundBiobanks);
-      waitingForResponse.value = false;
-
-      filtersStore.bookmarkWaitingForApplication = false;
     }
   }
 
@@ -155,6 +153,7 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
     ) {
       return [];
     }
+
     let columnPath = applyToColumn;
     if (!Array.isArray(applyToColumn)) {
       columnPath = [applyToColumn];
@@ -207,7 +206,6 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
   }
 
   return {
-    updateBiobankCards,
     getBiobankCards,
     getBiobank,
     getPresentFilterOptions,
