@@ -100,7 +100,14 @@ export async function applyFiltersToQuery(
       }
       case "OntologyFilter": {
         const values = filterValue.map((filterValue) => filterValue.code);
-        baseQuery.orFilter(filterDetail.applyToColumn).in(values);
+        if (
+          filterType[filterDetail.facetIdentifier] === "all" ||
+          values.length === 1
+        ) {
+          baseQuery.filter(filterDetail.applyToColumn).in(values);
+        } else {
+          baseQuery.orFilter(filterDetail.applyToColumn).in(values);
+        }
         break;
       }
     }
