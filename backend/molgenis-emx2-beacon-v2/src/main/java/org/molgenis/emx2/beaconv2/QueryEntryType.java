@@ -19,6 +19,7 @@ import java.util.List;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
+import org.molgenis.emx2.beaconv2.common.misc.Granularity;
 import org.molgenis.emx2.beaconv2.filter.Filter;
 import org.molgenis.emx2.beaconv2.filter.FilterParser;
 import org.molgenis.emx2.beaconv2.filter.FilterParserFactory;
@@ -32,6 +33,7 @@ public class QueryEntryType {
 
   public static JsonNode query(Database database, BeaconRequestBody request) throws JsltException {
     EntryType entryType = request.getQuery().getEntryType();
+    Granularity granularity = request.getQuery().getRequestedGranularity();
 
     ObjectNode response = mapper.createObjectNode();
     response.set("requestBody", mapper.valueToTree(request));
@@ -42,20 +44,27 @@ public class QueryEntryType {
     for (Table table : getTableFromAllSchemas(database, entryType.getId())) {
       if (isAuthorized(request, table)) {
         ArrayNode resultsArray = doGraphQlQuery(table, filterParser, request);
-
         if (resultsArray != null && !resultsArray.isNull()) {
           numTotalResults += resultsArray.size();
-          ArrayNode paginatedResults = paginateResults(resultsArray, request.getQuery());
           ObjectNode resultSet = mapper.createObjectNode();
           resultSet.put("id", table.getSchema().getName());
-          resultSet.set("results", paginatedResults);
+          switch (granularity) {
+            case RECORD, UNDEFINED:
+              ArrayNode paginatedResults = paginateResults(resultsArray, request.getQuery());
+              resultSet.set("results", paginatedResults);
+            case COUNT, AGGREGATED:
+              resultSet.put("count", resultsArray.size());
+          }
           resultSets.add(resultSet);
         }
       }
     }
-    response.put("numTotalResults", numTotalResults);
+    if (!granularity.equals(Granularity.BOOLEAN)) {
+      response.put("numTotalResults", numTotalResults);
+    }
     response.set("resultSets", resultSets);
-    Expression jslt = Parser.compileResource(entryType.getName().toLowerCase() + ".jslt");
+    Expression jslt =
+        Parser.compileResource("entry-types/" + entryType.getName().toLowerCase() + ".jslt");
     return jslt.apply(response);
   }
 

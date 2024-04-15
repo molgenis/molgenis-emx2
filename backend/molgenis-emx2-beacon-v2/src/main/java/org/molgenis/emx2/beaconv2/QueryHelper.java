@@ -15,10 +15,6 @@ public class QueryHelper {
     // static only
   }
 
-  private void queryOntologyRecursively(List<Column> ontologies) {
-    for (Column ontology : ontologies) {}
-  }
-
   /**
    * Convert a single map to an ontology term
    *

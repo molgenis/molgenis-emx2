@@ -64,7 +64,7 @@ public class FilterParserEjpRd implements FilterParser {
       filter.setFilterType(FilterType.UNDEFINED);
       if (isIdSearch(filter)) {
         createOntologyFilters(filter);
-      } else if (isValid(filter)) {
+      } else if (isValidFormat(filter)) {
         String id = filter.getIds()[0];
         try {
           Concept searchConcept = Concept.findById(id);
@@ -81,8 +81,7 @@ public class FilterParserEjpRd implements FilterParser {
               graphQlFilters.add(filter);
               break;
             case DISEASE, PHENOTYPE:
-              filter.setFilterType(FilterType.ONTOLOGY);
-              graphQlFilters.add(filter);
+              processOntologyFilter(filter);
               break;
             case AGE_THIS_YEAR, AGE_OF_ONSET, AGE_AT_DIAG:
               filter.setFilterType(FilterType.NUMERICAL);
@@ -96,13 +95,18 @@ public class FilterParserEjpRd implements FilterParser {
     }
   }
 
-  private void createOntologyFilters(Filter filter) {
+  private void processOntologyFilter(Filter filter) {
     filter.setFilterType(FilterType.ONTOLOGY);
-    filter.setConcept(Concept.DISEASE);
     graphQlFilters.add(filter);
+  }
+
+  private void createOntologyFilters(Filter filter) {
+    filter.setConcept(Concept.DISEASE);
+    processOntologyFilter(filter);
+
     Filter phenotTypeFilter = new Filter(filter);
     phenotTypeFilter.setConcept(Concept.PHENOTYPE);
-    graphQlFilters.add(phenotTypeFilter);
+    processOntologyFilter(phenotTypeFilter);
   }
 
   private boolean isIdSearch(Filter filter) {
@@ -110,7 +114,7 @@ public class FilterParserEjpRd implements FilterParser {
   }
 
   // todo add more validation
-  private boolean isValid(Filter filter) {
+  private boolean isValidFormat(Filter filter) {
     return filter.getIds().length == 1;
   }
 }

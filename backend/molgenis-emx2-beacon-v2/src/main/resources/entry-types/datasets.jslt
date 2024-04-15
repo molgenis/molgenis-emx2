@@ -14,7 +14,7 @@ let host = .requestBody.meta.host
             "type": "dataset",
             "setType": "datasets",
             "exists": true,
-            "resultsCount": size(.results),
+            "resultsCount": .count,
             "results":
             [for (.results) {
                 "createDateTime": .mg_insertedOn,

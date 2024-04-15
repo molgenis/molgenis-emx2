@@ -12,7 +12,7 @@ import "ontology.jslt" as ontology
                 "type": "dataset",
                 "setType": "analyses",
                 "exists": true,
-                "resultsCount": size(.results),
+                "resultsCount": .count,
                 "results":
                 [for (.results) {
                     "id": .id,

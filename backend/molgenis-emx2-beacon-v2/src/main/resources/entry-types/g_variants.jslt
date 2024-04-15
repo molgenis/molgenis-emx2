@@ -12,7 +12,7 @@ import "info.jslt" as info
             "type": "dataset",
             "setType": "genomicVariant",
             "exists": true,
-            "resultsCount": size(.results),
+            "resultsCount": .count,
             "results":
             [for (.results) {
                 "variantInternalId": .variantInternalId,

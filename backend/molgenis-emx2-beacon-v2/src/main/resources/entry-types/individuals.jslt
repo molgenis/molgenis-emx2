@@ -13,7 +13,7 @@ import "info.jslt" as info
             "type": "dataset",
             "setType": "biosamples",
             "exists": true,
-            "resultsCount": size(.results),
+            "resultsCount": .count,
             "results":
             [for (.results) {
                 "id": .id,
