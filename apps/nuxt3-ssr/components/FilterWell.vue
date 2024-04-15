@@ -9,24 +9,26 @@ const ariaId = useId();
 const props = defineProps<{
   filters: IFilter[];
 }>();
-const { filters } = toRefs(props);
 
-function clearSearch(searchFilter: ISearchFilter) {
-  searchFilter.search = "";
-}
+const emit = defineEmits(["update:filters"]);
 
-function clearConditions(conditionsFilter: IConditionsFilter) {
-  conditionsFilter.conditions = [];
+function handleFilerUpdate(filter: IFilter) {
+  const index = props.filters.findIndex((f: IFilter) => f.id === filter.id);
+  const newFilters = [...props.filters];
+  newFilters[index] = filter;
+  emit("update:filters", newFilters);
 }
 
 function clearAll() {
-  filters.value.forEach((filter) => {
+  const cleared = props.filters.map((filter) => {
     if (filter.config.type === "SEARCH") {
-      clearSearch(filter as ISearchFilter);
+      (filter as ISearchFilter).search = "";
     } else {
-      clearConditions(filter as IConditionsFilter);
+      (filter as IConditionsFilter).conditions = [];
     }
+    return filter;
   });
+  emit("update:filters", cleared);
 }
 
 function isFilterSet(filter: IFilter) {
@@ -65,7 +67,12 @@ function isAFilterSet(filters: IFilter[]) {
       <template v-for="(filter, index) in filters">
         <Button
           v-if="filter.config.type === 'SEARCH' && isFilterSet(filter)"
-          @click="clearSearch(filter as ISearchFilter)"
+          @click="
+            (value) => {
+              filter.search = '';
+              handleFilerUpdate(filter);
+            }
+          "
           icon="trash"
           icon-position="right"
           size="tiny"
@@ -82,7 +89,12 @@ function isAFilterSet(filters: IFilter[]) {
         >
           <Button
             v-if="filter.config.type !== 'SEARCH' && isFilterSet(filter)"
-            @click="clearConditions(filter as IConditionsFilter)"
+            @click="
+              (value) => {
+                filter.conditions = [];
+                handleFilerUpdate(filter);
+              }
+            "
             icon="trash"
             icon-position="right"
             size="tiny"

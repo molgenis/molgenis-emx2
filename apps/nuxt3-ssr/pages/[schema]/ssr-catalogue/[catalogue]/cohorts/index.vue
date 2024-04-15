@@ -1,5 +1,10 @@
 <script setup lang="ts">
-import type { IConditionsFilter, IFilter, IMgError } from "~/interfaces/types";
+import type {
+  IConditionsFilter,
+  IFilter,
+  IMgError,
+  IOntologyFilter,
+} from "~/interfaces/types";
 
 const route = useRoute();
 const router = useRouter();
@@ -18,7 +23,7 @@ if (route.query?.page) {
 }
 let offset = computed(() => (currentPage.value - 1) * pageSize);
 
-let filters: IFilter[] = reactive([
+const pageFilterTemplate: IFilter[] = [
   {
     id: "search",
     config: {
@@ -100,7 +105,51 @@ let filters: IFilter[] = reactive([
     },
     conditions: [],
   },
-]);
+];
+
+const filters = computed(() => {
+  const filters = [...pageFilterTemplate];
+
+  // if there are not query conditions just use the page defaults
+  if (!route.query?.conditions) {
+    return filters;
+  }
+
+  // get conditions from query
+  const conditions = conditionsFromPathQuery(route.query.conditions as string);
+
+  // apply the query conditions to the filter object
+  conditions.forEach((condition) => {
+    // find the filter object that matches the condition
+    const filter = filters.find((f) => f.id === condition.id);
+    if (!filter) {
+      console.error(`Filter with id ${condition.id} not found`);
+      return;
+    }
+
+    switch (filter.config.type) {
+      case "SEARCH":
+        const searchFilter = filter as IFilter;
+        searchFilter.search = condition.search;
+        break;
+      case "ONTOLOGY":
+      case "REF_ARRAY":
+        const ontologyFilter = filter as IConditionsFilter;
+        if (!ontologyFilter.conditions) {
+          ontologyFilter.conditions = [];
+        }
+        if (condition.conditions) {
+          ontologyFilter.conditions = condition.conditions;
+        }
+        break;
+      default:
+        //@ts-ignore
+        throw new Error(`Filter type ${filter.config.type} not supported`);
+    }
+  });
+
+  return filters;
+});
 
 const query = computed(() => {
   return `
@@ -137,40 +186,7 @@ const orderby = { acronym: "ASC" };
 const gqlFilter = computed(() => {
   let result: any = {};
 
-  // if there are conditions in the query, use them
-  if (route.query?.conditions) {
-    // get conditions from query
-    const conditions = conditionsFromPathQuery(
-      route.query.conditions as string
-    );
-
-    // merge conditions with filters
-    const gqlConditions: IFilter[] = [];
-    conditions.forEach((condition) => {
-      const filter = filters.find((f) => f.id === condition.id);
-      if (!filter) {
-        console.error(`Filter with id ${condition.id} not found`);
-        return;
-      }
-
-      // clone to serve as base for gql query, but do not edit the page filter state
-      const gqlFilter: IFilter = { ...filter };
-      if (gqlFilter.config.type === "SEARCH") {
-        gqlFilter.search = condition.search;
-        gqlConditions.push(gqlFilter);
-      } else {
-        const conditionFilter = gqlFilter as IConditionsFilter;
-        if (!conditionFilter.conditions) {
-          conditionFilter.conditions = [];
-        }
-        if (condition.conditions) {
-          conditionFilter.conditions = condition.conditions;
-        }
-        gqlConditions.push(conditionFilter);
-      }
-    });
-    result = buildQueryFilter(gqlConditions);
-  }
+  result = buildQueryFilter(filters.value);
 
   // add hard coded page sepsific filters
   if ("all" !== route.params.catalogue) {
@@ -214,11 +230,6 @@ function onFilterChange(filters: IFilter[]) {
   });
 }
 
-watch(filters, () => {
-  setCurrentPage(1);
-  onFilterChange(filters);
-});
-
 let activeName = ref("detailed");
 
 const cohortOnly = computed(() => {
@@ -234,7 +245,11 @@ crumbs[
 <template>
   <LayoutsSearchPage>
     <template #side>
-      <FilterSidebar title="Filters" :filters="filters" />
+      <FilterSidebar
+        title="Filters"
+        :filters="filters"
+        @update:filters="onFilterChange"
+      />
     </template>
     <template #main>
       <SearchResults>
@@ -263,6 +278,7 @@ crumbs[
                 <FilterSidebar
                   title="Filters"
                   :filters="filters"
+                  @update:filters="onFilterChange"
                   :mobileDisplay="true"
                 />
               </SearchResultsViewTabsMobile>
@@ -272,7 +288,10 @@ crumbs[
 
         <template #search-results>
           <SearchResultsCount label="cohort" :value="numberOfCohorts" />
-          <FilterWell :filters="filters"></FilterWell>
+          <FilterWell
+            :filters="filters"
+            @update:filters="onFilterChange"
+          ></FilterWell>
           <SearchResultsList>
             <CardList v-if="cohorts.length > 0">
               <CardListItem v-for="cohort in cohorts" :key="cohort.name">
