@@ -3,16 +3,11 @@ import datasourceGql from "~~/gql/datasourceDetails";
 import datasetQuery from "~~/gql/datasets";
 const query = moduleToString(datasourceGql);
 const route = useRoute();
-const config = useRuntimeConfig();
 
-const { data, error } = await useFetch(
-  `/${route.params.schema}/catalogue/graphql`,
-  {
-    baseURL: config.public.apiBase,
-    method: "POST",
-    body: { query, variables: { id: route.params.datasource as string } },
-  }
-);
+const { data, error } = await useFetch(`/${route.params.schema}/graphql`, {
+  method: "POST",
+  body: { query, variables: { id: route.params.datasource as string } },
+});
 
 const dataSource = computed(() => {
   return data.value.data.DataSources[0];
@@ -55,7 +50,10 @@ if (route.params.catalogue) {
 
 function datasetMapper(item: { name: string; description: string }) {
   return {
-    id: item.name,
+    id: {
+      name: item.name,
+      resourceId: route.params.datasource,
+    },
     name: item.name,
     description: item.description,
   };
@@ -172,7 +170,10 @@ function datasetMapper(item: { name: string; description: string }) {
           :rowMapper="datasetMapper"
           v-slot="slotProps"
         >
-          <DatasetDisplay :id="slotProps.id" />
+          <DatasetDisplay
+            :name="slotProps.id.name"
+            :resourceId="slotProps.id.resourceId"
+          />
         </TableContent>
 
         <ContentBlock title="Contents" id="contents">

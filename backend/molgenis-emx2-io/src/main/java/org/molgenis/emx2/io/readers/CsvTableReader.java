@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.apache.commons.io.input.BOMInputStream;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.simpleflatmapper.csv.CsvParser;
@@ -16,7 +17,7 @@ public class CsvTableReader {
   }
 
   public static Iterable<Row> read(File f) throws IOException {
-    return read(new FileReader(f));
+    return read(new InputStreamReader(new BOMInputStream(new FileInputStream(f))));
   }
 
   public static Iterable<Row> read(Reader in) {

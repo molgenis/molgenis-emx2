@@ -11,6 +11,7 @@
     "updownload",
     "pages",
     "graphql-playground",
+    "tailwind-components",
     "nuxt3-ssr",
     "molgenis-components",
     "molgenis-viz",
@@ -25,9 +26,5 @@
     "tasks",
     "gportal",
     "projectmanager"
-  ],
-  "devDependencies": {
-    "nx": "16.10.0",
-    "nx-cloud": "latest"
-  }
+  ]
 }

@@ -228,19 +228,6 @@ def list_schema_meta():
     """
 
 
-def list_tables():
-    """GraphQL query to list the tables in a schema."""
-    return """
-        {
-          _schema {
-            tables {
-              name
-            }
-          }
-        }
-    """
-
-
 def version_number():
     """GraphQL query to retrieve the server's version number."""
     return (

@@ -61,14 +61,14 @@ let filters: IFilter[] = reactive([
   {
     title: "Cohort Types",
     refTableId: "ResourceTypes",
-    collumnId: "type",
+    columnId: "type",
     columnType: "ONTOLOGY",
     conditions: [],
   },
   {
     title: "Design",
     refTableId: "CohortDesigns",
-    collumnId: "design",
+    columnId: "design",
     columnType: "ONTOLOGY",
     conditions: [],
   },
@@ -119,13 +119,26 @@ const filter = computed(() => {
   return result;
 });
 
-const { data, error } = await useGqlFetch<any, IMgError>(query, {
-  variables: { filter, orderby },
-});
+const { data } = await useFetch<any, IMgError>(
+  `/${useRoute().params.schema}/graphql`,
+  {
+    method: "POST",
+    body: {
+      query: query,
+      variables: { filter, orderby },
+    },
+    onResponseError(_ctx) {
+      logError({
+        message: "onResponseError fetching data from GraphQL endpoint",
+        statusCode: _ctx.response.status,
+        data: _ctx.response._data,
+      });
+    },
+  }
+);
 
-if (error.value) {
-  throw new Error("Error on cohorts-page data fetch");
-}
+const cohorts = computed(() => data.value.data.Cohorts || []);
+const numberOfCohorts = computed(() => data.value.data.Cohorts_agg.count || 0);
 
 function setCurrentPage(pageNumber: number) {
   router.push({ path: route.path, query: { page: pageNumber } });
@@ -138,20 +151,7 @@ watch(filters, () => {
 
 let activeName = ref("detailed");
 
-const NOTICE_SETTING_KEY = "CATALOGUE_NOTICE";
 const underConstructionNotice = ref();
-
-fetchSetting(NOTICE_SETTING_KEY).then((resp) => {
-  const setting = resp.data["_settings"].find(
-    (setting: { key: string; value: string }) => {
-      return setting.key === NOTICE_SETTING_KEY;
-    }
-  );
-
-  if (setting) {
-    underConstructionNotice.value = setting.value;
-  }
-});
 
 const cohortOnly = computed(() => {
   const routeSetting = route.query["cohort-only"] as string;
@@ -181,18 +181,6 @@ crumbs[
               <BreadCrumbs :crumbs="crumbs" current="cohorts" />
             </template>
             <template #suffix>
-              <div
-                v-if="underConstructionNotice"
-                class="mt-1 mb-5 text-left bg-yellow-200 rounded-lg text-black py-5 px-5 flex"
-              >
-                <BaseIcon
-                  name="info"
-                  :width="55"
-                  class="hidden md:block mr-3"
-                />
-                <div class="inline-block">{{ underConstructionNotice }}</div>
-              </div>
-
               <SearchResultsViewTabs
                 class="hidden xl:flex"
                 buttonLeftLabel="Detailed"
@@ -215,13 +203,11 @@ crumbs[
         </template>
 
         <template #search-results>
+          <SearchResultsCount label="cohort" :value="numberOfCohorts" />
           <FilterWell :filters="filters"></FilterWell>
           <SearchResultsList>
-            <CardList v-if="data?.data?.Cohorts?.length > 0">
-              <CardListItem
-                v-for="cohort in data?.data?.Cohorts"
-                :key="cohort.name"
-              >
+            <CardList v-if="cohorts.length > 0">
+              <CardListItem v-for="cohort in cohorts" :key="cohort.name">
                 <CohortCard
                   :cohort="cohort"
                   :schema="route.params.schema"
@@ -238,7 +224,7 @@ crumbs[
           </SearchResultsList>
         </template>
 
-        <template v-if="data?.data?.Cohorts?.length > 0" #pagination>
+        <template v-if="cohorts.length > 0" #pagination>
           <Pagination
             :current-page="currentPage"
             :totalPages="Math.ceil(data?.data?.Cohorts_agg.count / pageSize)"

@@ -7,9 +7,8 @@ const query = moduleToString(subcohortGql);
 
 let subcohort: Ref = ref();
 const { data: subcohortData } = await useFetch(
-  `/${route.params.schema}/catalogue/graphql`,
+  `/${route.params.schema}/graphql`,
   {
-    baseURL: config.public.apiBase,
     method: "POST",
     body: {
       query,
@@ -87,7 +86,7 @@ if (subcohort?.inclusionStart || subcohort?.inclusionEnd) {
 
 if (subcohort?.countries) {
   items.push({
-    label: "Population",
+    label: "Countries",
     content: renderList(
       subcohort.countries.sort((a, b) => b.order - a.order),
       toName

@@ -13,7 +13,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
   const biobankStore = useBiobanksStore();
   const checkoutStore = useCheckoutStore();
 
-  const { baseQuery, updateBiobankCards } = biobankStore;
+  const { baseQuery, getBiobankCards } = biobankStore;
 
   const settingsStore = useSettingsStore();
 
@@ -98,7 +98,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
         }
         bookmarkTriggeredFilter.value = false;
 
-        await updateBiobankCards();
+        await getBiobankCards();
         clearTimeout(queryDelay);
       }, 750);
     },
@@ -130,7 +130,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
         bookmarkTriggeredFilter.value = false;
 
         if (hasActiveFilters.value) {
-          await updateBiobankCards();
+          await getBiobankCards();
           clearTimeout(queryDelay);
         }
       }, 750);
@@ -196,26 +196,20 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     return flattenedBranches;
   }
 
-  /**
-   *
-   * @param {string} filterName the name of the ontology filter
-   * @param {string | Array<string>} value array with identifiers or a string with an identifier
-   * @param {boolean} add
-   */
   function updateOntologyFilter(filterName, value, add, fromBookmark) {
     bookmarkTriggeredFilter.value = fromBookmark;
 
     /** value can be a child (single value), or a parent with its children > make it into an array of values */
     let processedValue = value;
 
-    if (value.children && value.children.length) {
-      const copyBranch = JSON.parse(JSON.stringify(value));
+    if (value.children?.length) {
+      let copyBranch = JSON.parse(JSON.stringify(value));
       let allChildrenValues = flattenOntologyBranch(copyBranch);
       delete copyBranch.children;
       allChildrenValues.push(copyBranch);
 
-      const deduplicatedValues = [];
-      const codesProcessed = [];
+      let deduplicatedValues = [];
+      let codesProcessed = [];
 
       for (const childValue of allChildrenValues) {
         if (!codesProcessed.includes(childValue.code)) {
@@ -276,6 +270,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
       filters.value[filterName] = value;
     }
   }
+
   /** did not move this to be used in filteroptions because the store is async. */
   function getOntologyAttributes(filterFacet) {
     const { filterLabelAttribute, filterValueAttribute } = filterFacet;
@@ -398,8 +393,8 @@ export const useFiltersStore = defineStore("filtersStore", () => {
   function updateFilterType(filterName, value, fromBookmark) {
     bookmarkTriggeredFilter.value = fromBookmark;
 
-    /** filter reset, so delete */
     if (value === "" || value === undefined || value.length === 0) {
+      /** filter reset, so delete */
       delete filterType.value[filterName];
     } else {
       filterType.value[filterName] = value;

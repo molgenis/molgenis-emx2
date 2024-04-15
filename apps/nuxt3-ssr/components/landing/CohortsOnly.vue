@@ -3,9 +3,8 @@ const route = useRoute();
 const config = useRuntimeConfig();
 
 const { data, pending, error, refresh } = await useFetch(
-  `/${route.params.schema}/catalogue/graphql`,
+  `/${route.params.schema}/graphql`,
   {
-    baseURL: config.public.apiBase,
     method: "POST",
     body: {
       query: `{
@@ -14,7 +13,7 @@ const { data, pending, error, refresh } = await useFetch(
         }
         Cohorts_agg { 
           count
-          sum {
+          _sum {
             numberOfParticipants
             numberOfParticipantsWithSamples 
           }
@@ -154,7 +153,7 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
         <b>
           {{
             new Intl.NumberFormat("nl-NL").format(
-              data.data.Cohorts_agg.sum.numberOfParticipants
+              data.data.Cohorts_agg._sum.numberOfParticipants
             )
           }}
           {{
@@ -177,7 +176,7 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
         <b
           >{{
             new Intl.NumberFormat("nl-NL").format(
-              data.data.Cohorts_agg.sum.numberOfParticipantsWithSamples
+              data.data.Cohorts_agg._sum.numberOfParticipantsWithSamples
             )
           }}
           {{

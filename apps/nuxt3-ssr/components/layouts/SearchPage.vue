@@ -1,5 +1,4 @@
 <script setup>
-import Container from "./../Container.vue";
 const route = useRoute();
 const headerData = await useHeaderData();
 const catalogue = headerData.catalogue;

@@ -63,10 +63,9 @@ const query = computed(() => {
 
 const filter = computed(() => buildQueryFilter(filters, search.value));
 
-let graphqlURL = computed(() => `/${route.params.schema}/api/graphql`);
+let graphqlURL = computed(() => `/${route.params.schema}/graphql`);
 const { data, pending, error, refresh } = await useFetch(graphqlURL.value, {
   key: "catalogues",
-  baseURL: config.public.apiBase,
   method: "POST",
   body: {
     query,
@@ -127,7 +126,7 @@ const projectCatalogues = computed(() => {
     <ContentBlockCatalogues
       v-if="projectCatalogues.length > 0"
       title="Project catalogues"
-      description="Catalogues maintained by individual research projects or consortia, such as EC RIA."
+      description="Catalogues maintained by individual research projects or consortia:"
       :catalogues="projectCatalogues"
     />
   </LayoutsLandingPage>

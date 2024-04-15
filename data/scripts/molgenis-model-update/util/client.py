@@ -96,14 +96,14 @@ class Session:
         except:
             errors = responseJson['errors'][0]
             print(f'Upload failed: {errors}')
-        finally:
-            try:
-                if database_name not in ['UMCG', 'catalogue', 'DataCatalogue']:  # otherwise data to upload >>
-                    # << deleted when schema is uploaded
-                    if os.path.exists(database_name + '_upload.zip'):
-                        os.remove(database_name + '_upload.zip')
-            except PermissionError:
-                sys.exit('Error deleting upload.zip')
+        # finally:
+        #     try:
+        #         if database_name not in ['UMCG', 'catalogue', 'DataCatalogue']:  # otherwise data to upload >>
+        #             # << deleted when schema is uploaded
+        #             if os.path.exists(database_name + '_upload.zip'):
+        #                 os.remove(database_name + '_upload.zip')
+        #     except PermissionError:
+        #         sys.exit('Error deleting upload.zip')
 
     def get_database_description(self, database_name) -> str:
         """ Get description of database

@@ -6,6 +6,8 @@ public interface Binary {
 
   String getMimeType();
 
+  String getFileName();
+
   String getExtension();
 
   long getSize();

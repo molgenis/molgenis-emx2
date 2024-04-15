@@ -6,8 +6,6 @@ import { type ISchemaMetaData } from "meta-data-utils";
 const query = moduleToString(metadataGql);
 
 export default async (schemaId: string): Promise<ISchemaMetaData> => {
-  const config = useRuntimeConfig();
-
   // Use sessionStorage to cache data
   const cached = useSessionStorage<ISchemaMetaData>(schemaId, null, {
     serializer: StorageSerializers.object,
@@ -16,7 +14,6 @@ export default async (schemaId: string): Promise<ISchemaMetaData> => {
   if (!cached.value) {
     const resp = await $fetch(`/${schemaId}/graphql`, {
       method: "POST",
-      baseURL: config.public.apiBase,
       body: {
         query,
       },

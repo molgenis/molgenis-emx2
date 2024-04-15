@@ -32,7 +32,7 @@
       >
         <Spinner v-if="loading" />
         <div
-          v-else
+          v-else-if="data.length"
           class="form-check custom-control custom-checkbox"
           :class="showMultipleColumns ? 'col-12 col-md-6 col-lg-4' : ''"
           v-for="(row, index) in data"
@@ -56,30 +56,29 @@
             {{ applyJsTemplate(row, refLabel) }}
           </label>
         </div>
+        <div v-else>No entries found for {{ label }}</div>
       </div>
-      <div v-if="canEdit">
-        <Tooltip value="New entry">
-          <RowButtonAdd
-            id="add-entry"
-            :tableId="tableId"
-            :schemaId="schemaId"
-            @update:newRow="selectNew"
-          />
-        </Tooltip>
-      </div>
-      <div>
-        <ButtonAlt
-          class="pl-0"
+      <div class="m-1">
+        <RowButtonAdd
+          id="add-entry"
+          v-if="canEdit"
+          :label="`Add new ${label}`"
+          :tableId="tableId"
+          :schemaId="schemaId"
+          @update:newRow="selectNew"
+          class="mr-1"
+        />
+        <ButtonOutline
           :class="showMultipleColumns ? 'col-12 col-md-6 col-lg-4' : ''"
           icon="fa fa-search"
           @click="openSelect"
         >
           {{
             count > maxNum
-              ? `show all ${count} options with details`
-              : "more details"
+              ? `Show all ${count} options with details `
+              : "More details "
           }}
-        </ButtonAlt>
+        </ButtonOutline>
       </div>
       <LayoutModal v-if="showSelect" :title="title" @close="closeSelect">
         <template v-slot:body>
@@ -119,7 +118,7 @@ import {
   deepClone,
   deepEqual,
 } from "../utils";
-import ButtonAlt from "./ButtonAlt.vue";
+import ButtonOutline from "./ButtonOutline.vue";
 import FormGroup from "./FormGroup.vue";
 import Tooltip from "./Tooltip.vue";
 import BaseInput from "./baseInputs/BaseInput.vue";
@@ -142,7 +141,7 @@ export default {
     TableSearch,
     LayoutModal,
     FormGroup,
-    ButtonAlt,
+    ButtonOutline,
     Spinner,
     RowButtonAdd,
     Tooltip,
@@ -236,7 +235,7 @@ export default {
         orderby: this.orderby,
       };
       const response = await this.client.fetchTableData(this.tableId, options);
-      this.data = response[this.tableId];
+      this.data = response[this.tableId] || [];
       this.count = response[this.tableId + "_agg"].count;
 
       await Promise.all(
@@ -247,7 +246,11 @@ export default {
             this.schemaId
           );
         })
-      ).then(() => (this.loading = false));
+      )
+        .catch((error) => {
+          console.log(error);
+        })
+        .finally(() => (this.loading = false));
       this.$emit("optionsLoaded", this.data);
     },
   },

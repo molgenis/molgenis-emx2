@@ -105,12 +105,20 @@ const query = computed(() => {
   `;
 });
 
+const numberOfVariables = computed(
+  () => data?.value.data?.Variables_agg.count || 0
+);
+
+const numberOfCohorts = computed(() => {
+  return data?.value.data?.Cohorts ? data?.value.data?.Cohorts.length : 0;
+});
+
 let search = computed(() => {
   // @ts-ignore
   return filters.find((f) => f.columnType === "_SEARCH").search;
 });
 
-let graphqlURL = computed(() => `/${route.params.schema}/catalogue/graphql`);
+let graphqlURL = computed(() => `/${route.params.schema}/graphql`);
 
 const orderby = { label: "ASC" };
 const typeFilter = { resource: { mg_tableclass: { like: ["Models"] } } };
@@ -129,9 +137,8 @@ async function loadPageData() {
       let resourceCondition = {};
       if (scoped) {
         const { data, error } = await $fetch(
-          `/${route.params.schema}/catalogue/graphql`,
+          `/${route.params.schema}/graphql`,
           {
-            baseURL: config.public.apiBase,
             method: "POST",
             body: {
               query: `
@@ -170,12 +177,13 @@ async function loadPageData() {
         variablesFilter: scoped
           ? { ...filter.value, ...resourceCondition }
           : filter.value,
-        cohortsFilter: { networks: { equals: [{ id: catalogueRouteParam }] } },
+        cohortsFilter: scoped
+          ? { networks: { equals: [{ id: catalogueRouteParam }] } }
+          : {},
       };
 
       return $fetch(graphqlURL.value, {
         key: `variables-${offset.value}`,
-        baseURL: config.public.apiBase,
         method: "POST",
         body: {
           query: query.value,
@@ -196,6 +204,10 @@ async function loadPageData() {
 
 watch(filters, () => {
   setCurrentPage(1);
+  loadPageData();
+});
+
+watch(offset, () => {
   loadPageData();
 });
 
@@ -250,14 +262,15 @@ const data = await loadPageData();
         </template>
 
         <template #search-results>
-          <p class="mt-1 mb-0 lg:mb-3 text-body-lg flex flex-col text-title">
-            <span
-              >{{ data?.data?.Variables_agg.count }} variables
-              <span v-if="data?.data?.Cohorts"
-                >in {{ data?.data?.Cohorts.length }} cohorts
-              </span>
-            </span>
-          </p>
+          <div class="flex align-start gap-1">
+            <SearchResultsCount :value="numberOfVariables" label="variable" />
+            <SearchResultsCount
+              v-if="numberOfCohorts > 0"
+              :value="numberOfCohorts"
+              value-prefix="in"
+              label="cohort"
+            />
+          </div>
           <FilterWell :filters="filters"></FilterWell>
 
           <SearchResultsList>
