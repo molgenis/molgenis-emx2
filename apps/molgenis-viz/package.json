@@ -19,8 +19,8 @@
   },
   "scripts": {
     "dev": "vite",
-    "build-lib": "vite build -m lib",
-    "build": "vite build -m app --outDir showCase && vite build -m lib",
+    "build": "vite build -m lib",
+    "build-showcase": "vite build -m app --outDir showCase",
     "serve": "vite serve",
     "preview": "vite preview",
     "docs": "vuese gen",
@@ -41,7 +41,7 @@
     "@vuese/cli": "2.14.3",
     "prettier": "2.8.8",
     "sass": "1.70.0",
-    "vite": "4.5.2",
+    "vite": "4.5.3",
     "vue-router": "4.2.5"
   }
 }

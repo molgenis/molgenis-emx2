@@ -29,16 +29,13 @@ export async function useHeaderData() {
     return { catalogue: null, variableCount: 0 };
   }
 
-  const config = useRuntimeConfig();
-  const apiPath = `/${route.params.schema}/catalogue/graphql`;
-  const baseURL = config.public.apiBase;
+  const apiPath = `/${route.params.schema}/graphql`;
   const { data, error } = await useAsyncData<any, IMgError>(
     `catalogue-${route.params.catalogue}`,
     async () => {
       const modelsResp = await $fetch<{
         data: { Networks: { models: { id: string }[] }[] };
       }>(apiPath, {
-        baseURL,
         method,
         body: {
           query: modelQuery,
@@ -68,7 +65,6 @@ export async function useHeaderData() {
 
       return $fetch(apiPath, {
         key: `header-${route.params.catalogue}`,
-        baseURL,
         method,
         body: {
           query: headerQuery,

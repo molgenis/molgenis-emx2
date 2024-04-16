@@ -51,7 +51,7 @@ if (cohortOnly.value) {
     label: "About",
     link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/about`,
   });
-} else {
+} else if (catalogueRouteParam && catalogueRouteParam !== "all") {
   menu.push({
     label: "About",
     link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/networks/${catalogueRouteParam}`,

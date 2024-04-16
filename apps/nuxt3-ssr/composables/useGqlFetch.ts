@@ -11,8 +11,6 @@ export function useGqlFetch<T, E>(
   query: string | Ref<string> | DocumentNode,
   options: UseGqlFetchOptions<T> = {}
 ) {
-  const config = useRuntimeConfig();
-
   const queryString = isRef(query)
     ? query.value
     : typeof query !== "string"
@@ -30,9 +28,8 @@ export function useGqlFetch<T, E>(
     body.variables = variablesValue;
   }
   const schema = options.schemaId ?? useRoute().params.schema;
-  const url = `/${schema}/catalogue/graphql`;
+  const url = `/${schema}/graphql`;
   const defaults: UseFetchOptions<T> = {
-    baseURL: config.public.apiBase,
     method: "POST",
     key: `gql-${url}-${queryString}`,
     body,

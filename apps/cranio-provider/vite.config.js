@@ -2,7 +2,7 @@ import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 
 const host = "https://beta-erncranio.molgeniscloud.org";
-const schema = "NL2";
+const schema = "DK1";
 const opts = { changeOrigin: true, secure: false, logLevel: "debug" };
 
 export default defineConfig(() => {
@@ -28,6 +28,10 @@ export default defineConfig(() => {
           ...opts,
         },
         "^/[a-zA-Z0-9_.%-]+/api/graphql": {
+          target: host,
+          ...opts,
+        },
+        "^/[a-zA-Z0-9_.%-]+/api/file": {
           target: host,
           ...opts,
         },

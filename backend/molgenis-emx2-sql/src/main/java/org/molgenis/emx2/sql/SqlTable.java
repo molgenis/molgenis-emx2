@@ -167,28 +167,23 @@ class SqlTable implements Table {
   // use static to ensure we don't touch 'this' until transaction completed
   private static void truncateTransaction(
       SqlDatabase database, String schemaName, String tableName) {
-    // if part of inheritance tree then only delete the relevant part
     SqlTable t = database.getSchema(schemaName).getTable(tableName);
-    if (t.getMetadata().getLocalColumn(MG_TABLECLASS) != null) {
-      t.truncate(t.getMgTableClass(t.getMetadata()));
+    if (t.getMetadata().getColumn(MG_TABLECLASS) != null) {
+      SqlTable rootTable = (SqlTable) t.getMetadata().getRootTable().getTable();
+      String mg_table = t.getMgTableClass(t.getMetadata());
+      // cascading delete will take care of subclass deletes
+      database
+          .getJooq()
+          .deleteFrom(rootTable.getJooqTable())
+          .where(field(MG_TABLECLASS).equal(mg_table))
+          .execute();
     }
-    // in normal table delete
+    // else in normal table simply call delete
     else {
       // truncate would be faster, but then we need add code to remove and re-add foreign keys
       database.getJooq().deleteFrom(t.getJooqTable()).execute();
     }
-    // in case inherited we must also truncate parent
-    if (t.getMetadata().getInheritName() != null) {
-      t.getInheritedTable().truncate(t.getMgTableClass(t.getMetadata()));
-    }
     logger.info(database.getActiveUser() + " truncated table " + tableName);
-  }
-
-  private void truncate(String mg_table) {
-    if (getMetadata().getInheritName() != null) {
-      getInheritedTable().truncate(mg_table);
-    }
-    db.getJooq().deleteFrom(getJooqTable()).where(field(MG_TABLECLASS).equal(mg_table)).execute();
   }
 
   private static String getMgTableClass(TableMetadata table) {

@@ -157,9 +157,8 @@ interface IResponse {
   };
 }
 const { data, error } = await useFetch<IResponse, IMgError>(
-  `/${route.params.schema}/catalogue/graphql`,
+  `/${route.params.schema}/graphql`,
   {
-    baseURL: config.public.apiBase,
     method: "POST",
     body: { query, variables },
   }
@@ -215,10 +214,12 @@ function collectionEventMapper(item: any) {
 
 function datasetMapper(item: any) {
   return {
-    id: item.name,
+    id: {
+      name: item.name,
+      resourceId: route.params.cohort,
+    },
     name: item.name,
     description: item.descriptions,
-    _path: `/${route.params.schema}/ssr-catalogue/all/datasets`,
   };
 }
 
@@ -259,6 +260,9 @@ let tocItems = computed(() => {
       label: "Collection events",
       id: "CollectionEvents",
     });
+  }
+  if (cohort.value.datasets) {
+    tableOffContents.push({ label: "Datasets", id: "Datasets" });
   }
   if (cohort.value.networks) {
     tableOffContents.push({ label: "Networks", id: "Networks" });
@@ -397,7 +401,6 @@ if (route.params.catalogue) {
         <ContentCohortGeneralDesign
           id="GeneralDesign"
           title="General Design"
-          :description="cohort?.designDescription"
           :cohort="cohort"
           :main-medical-condition="mainMedicalConditions"
         />
@@ -479,7 +482,10 @@ if (route.params.catalogue) {
           :rowMapper="datasetMapper"
           v-slot="slotProps"
         >
-          {{ slotProps }}
+          <DatasetDisplay
+            :name="slotProps.id.name"
+            :resourceId="slotProps.id.resourceId"
+          />
         </TableContent>
 
         <ContentBlockPartners
@@ -494,7 +500,7 @@ if (route.params.catalogue) {
           v-if="cohort?.networks"
           id="Networks"
           title="Networks"
-          description="Networks Explanation about networks from this cohort and the functionality seen here."
+          description="List of networks which this cohort is involved in"
           :networks="cohort?.networks"
         />
 

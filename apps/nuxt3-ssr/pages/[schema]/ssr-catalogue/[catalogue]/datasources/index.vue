@@ -101,6 +101,10 @@ if (error.value) {
   throw new Error("Error on datasources data fetch");
 }
 
+const numberOfDataSources = computed(
+  () => data?.value.data.DataSources_agg?.count || 0
+);
+
 function setCurrentPage(pageNumber: number) {
   router.push({ path: route.path, query: { page: pageNumber } });
   currentPage.value = pageNumber;
@@ -112,20 +116,7 @@ watch(filters, () => {
 
 let activeName = ref("detailed");
 
-const NOTICE_SETTING_KEY = "CATALOGUE_NOTICE";
 const underConstructionNotice = ref();
-
-fetchSetting(NOTICE_SETTING_KEY).then((resp) => {
-  const setting = resp.data["_settings"].find(
-    (setting: { key: string; value: string }) => {
-      return setting.key === NOTICE_SETTING_KEY;
-    }
-  );
-
-  if (setting) {
-    underConstructionNotice.value = setting.value;
-  }
-});
 
 const crumbs: any = {};
 crumbs[
@@ -151,18 +142,6 @@ crumbs[
               <BreadCrumbs :crumbs="crumbs" current="data sources" />
             </template>
             <template #suffix>
-              <div
-                v-if="underConstructionNotice"
-                class="mt-1 mb-5 text-left bg-yellow-200 rounded-lg text-black py-5 px-5 flex"
-              >
-                <BaseIcon
-                  name="info"
-                  :width="55"
-                  class="hidden md:block mr-3"
-                />
-                <div class="inline-block">{{ underConstructionNotice }}</div>
-              </div>
-
               <SearchResultsViewTabs
                 class="hidden xl:flex"
                 buttonLeftLabel="Detailed"
@@ -185,6 +164,10 @@ crumbs[
         </template>
 
         <template #search-results>
+          <SearchResultsCount
+            :value="numberOfDataSources"
+            label="data source"
+          />
           <FilterWell :filters="filters"></FilterWell>
           <SearchResultsList>
             <CardList v-if="data?.data?.DataSources?.length > 0">

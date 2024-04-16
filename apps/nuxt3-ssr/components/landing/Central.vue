@@ -4,9 +4,8 @@ const route = useRoute();
 const config = useRuntimeConfig();
 
 const { data, pending, error, refresh } = await useFetch(
-  `/${route.params.schema}/catalogue/graphql`,
+  `/${route.params.schema}/graphql`,
   {
-    baseURL: config.public.apiBase,
     method: "POST",
     body: {
       query: `{
@@ -15,7 +14,7 @@ const { data, pending, error, refresh } = await useFetch(
         }
         Cohorts_agg { 
           count
-          sum {
+          _sum {
             numberOfParticipants
             numberOfParticipantsWithSamples 
           }
@@ -150,7 +149,7 @@ function percentageLongitudinal(
       <LandingCardSecondary
         icon="person"
         title="Individuals"
-        :count="data.data.Cohorts_agg.sum.numberOfParticipants"
+        :count="data.data.Cohorts_agg._sum.numberOfParticipants"
       >
         {{
           "The cumulative number of participants of all (sub)cohorts combined."
@@ -159,7 +158,7 @@ function percentageLongitudinal(
       <LandingCardSecondary
         icon="colorize"
         title="Samples"
-        :count="data.data.Cohorts_agg.sum.numberOfParticipantsWithSamples"
+        :count="data.data.Cohorts_agg._sum.numberOfParticipantsWithSamples"
       >
         {{
           "The cumulative number of participants with samples collected of all (sub)cohorts combined"

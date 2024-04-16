@@ -1,5 +1,5 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
-Version,,,,,,,,,,,,3.10,EMA
+Version,,,,,,,,,,,,3.11,EMA
 Resources,,,,,,,,,,,,"Generic listing of all resources. Should not be used directly, instead use specific types such as Databanks and Studies",EMA
 Extended resources,Resources,,,,,,,,,,,,EMA
 Data resources,Extended resources,,,,,,,,,,,Resources for data,EMA
@@ -127,7 +127,7 @@ Extended resources,,documentation,refback,,,,Documentation,,resource,,,"Descript
 Data resources,,supplementary information,text,,,,,,,,,Any other information that needs to be disclosed for this resource,
 Data resources,,collaborations,heading,,,,,,,,,List of relevant collaborations,
 Publications,,,,,,,,,,,,Publications following bibtex format,
-Publications,,doi,,1,TRUE,,,,,,,Digital object identifier,
+Publications,,doi,hyperlink,1,TRUE,,,,,,,Digital object identifier,
 Publications,,title,text,,,,,,,,,Publication title,
 Publications,,authors,string_array,,,,,,,,,"List of authors, one entry per author",
 Publications,,year,int,,,,,,,,,"Year of publication (or, if unpublished, year of creation)",

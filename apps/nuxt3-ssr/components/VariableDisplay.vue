@@ -9,13 +9,11 @@ const props = defineProps<{
   variableKey: KeyObject;
 }>();
 
-const config = useRuntimeConfig();
 const route = useRoute();
 
 const { data, pending, error } = await useFetch(
-  `/${route.params.schema}/catalogue/graphql`,
+  `/${route.params.schema}/graphql`,
   {
-    baseURL: config.public.apiBase,
     method: "POST",
     body: {
       query: query,

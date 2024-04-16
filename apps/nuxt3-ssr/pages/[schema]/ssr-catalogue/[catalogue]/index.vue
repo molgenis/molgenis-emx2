@@ -32,7 +32,7 @@ const query = `query CataloguePage($networksFilter:NetworksFilter,$variablesFilt
         }
         Cohorts_agg(filter:$cohortsFilter) {
           count
-          sum {
+          _sum {
             numberOfParticipants
             numberOfParticipantsWithSamples
           }
@@ -110,8 +110,7 @@ const dataSourcesFilter = scoped
 const { data, error } = await useAsyncData<any, IMgError>(
   `lading-page-${catalogueRouteParam}`,
   async () => {
-    const models = await $fetch(`/${route.params.schema}/catalogue/graphql`, {
-      baseURL: config.public.apiBase,
+    const models = await $fetch(`/${route.params.schema}/graphql`, {
       method: "POST",
       body: {
         query: `
@@ -136,8 +135,7 @@ const { data, error } = await useAsyncData<any, IMgError>(
         }
       : undefined;
 
-    return $fetch(`/${route.params.schema}/catalogue/graphql`, {
-      baseURL: config.public.apiBase,
+    return $fetch(`/${route.params.schema}/graphql`, {
       method: "POST",
       body: {
         query,
@@ -196,7 +194,7 @@ const title = computed(() => {
   }
 });
 
-let description = computed(() => {
+const description = computed(() => {
   if (getSettingValue("CATALOGUE_LANDING_DESCRIPTION", settings.value)) {
     return getSettingValue("CATALOGUE_LANDING_DESCRIPTION", settings.value);
   } else {
@@ -223,9 +221,9 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
         >{{ network.id && network.name ? ": " : "" }}{{ network.name }}. Select
         one of the content categories listed below.</template
       >
-      <template v-else v-slot:description
-        ><ContentReadMore>{{ description }}</ContentReadMore></template
-      >
+      <template v-else v-slot:description>
+        <ContentReadMore :text="description" />
+      </template>
     </PageHeader>
 
     <LandingPrimary>
@@ -234,13 +232,11 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
         image="image-link"
         title="Cohorts"
         :description="
-          getSettingValue(
-            'CATALOGUE_LANDING_COHORTS_TEXT',
-            data.data._settings
-          ) || 'Cohorts &amp; Biobanks'
+          getSettingValue('CATALOGUE_LANDING_COHORTS_TEXT', settings) ||
+          'Cohorts &amp; Biobanks'
         "
         :callToAction="
-          getSettingValue('CATALOGUE_LANDING_COHORTS_CTA', data.data._settings)
+          getSettingValue('CATALOGUE_LANDING_COHORTS_CTA', settings)
         "
         :count="data.data.Cohorts_agg.count"
         :link="`/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/cohorts`"
@@ -250,16 +246,11 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
         image="image-data-warehouse"
         title="Data sources"
         :description="
-          getSettingValue(
-            'CATALOGUE_LANDING_DATASOURCES_TEXT',
-            data.data._settings
-          ) || 'Databanks &amp; Registries'
+          getSettingValue('CATALOGUE_LANDING_DATASOURCES_TEXT', settings) ||
+          'Databanks &amp; Registries'
         "
         :callToAction="
-          getSettingValue(
-            'CATALOGUE_LANDING_DATASOURCES_CTA',
-            data.data._settings
-          )
+          getSettingValue('CATALOGUE_LANDING_DATASOURCES_CTA', settings)
         "
         :count="data.data.DataSources_agg.count"
         :link="`/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/datasources`"
@@ -269,17 +260,12 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
         image="image-diagram-2"
         title="Variables"
         :description="
-          getSettingValue(
-            'CATALOGUE_LANDING_VARIABLES_TEXT',
-            data.data._settings
-          ) || 'Harmonized variables'
+          getSettingValue('CATALOGUE_LANDING_VARIABLES_TEXT', settings) ||
+          'Harmonized variables'
         "
         :count="data.data.Variables_agg.count"
         :callToAction="
-          getSettingValue(
-            'CATALOGUE_LANDING_VARIABLES_CTA',
-            data.data._settings
-          )
+          getSettingValue('CATALOGUE_LANDING_VARIABLES_CTA', settings)
         "
         :link="`/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/variables`"
       />
@@ -289,14 +275,12 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
         image="image-diagram"
         title="Networks"
         :description="
-          getSettingValue(
-            'CATALOGUE_LANDING_NETWORKS_TEXT',
-            data.data._settings
-          ) || 'Networks &amp; Consortia'
+          getSettingValue('CATALOGUE_LANDING_NETWORKS_TEXT', settings) ||
+          'Networks &amp; Consortia'
         "
         :count="numberOfNetworks"
         :callToAction="
-          getSettingValue('CATALOGUE_LANDING_NETWORKS_CTA', data.data._settings)
+          getSettingValue('CATALOGUE_LANDING_NETWORKS_CTA', settings)
         "
         :link="`/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/networks`"
       />
@@ -305,52 +289,42 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
     <LandingSecondary>
       <LandingCardSecondary
         icon="people"
-        v-if="data.data.Cohorts_agg?.sum?.numberOfParticipants"
+        v-if="data.data.Cohorts_agg?._sum?.numberOfParticipants"
       >
         <b>
           {{
             new Intl.NumberFormat("nl-NL").format(
-              data.data.Cohorts_agg?.sum?.numberOfParticipants
+              data.data.Cohorts_agg?._sum?.numberOfParticipants
             )
           }}
           {{
-            getSettingValue(
-              "CATALOGUE_LANDING_PARTICIPANTS_LABEL",
-              data.data._settings
-            ) || "Participants"
+            getSettingValue("CATALOGUE_LANDING_PARTICIPANTS_LABEL", settings) ||
+            "Participants"
           }}
         </b>
         <br />{{
-          getSettingValue(
-            "CATALOGUE_LANDING_PARTICIPANTS_TEXT",
-            data.data._settings
-          ) ||
+          getSettingValue("CATALOGUE_LANDING_PARTICIPANTS_TEXT", settings) ||
           "The cumulative number of participants of all (sub)cohorts combined."
         }}
       </LandingCardSecondary>
 
       <LandingCardSecondary
         icon="colorize"
-        v-if="data.data.Cohorts_agg?.sum?.numberOfParticipantsWithSamples"
+        v-if="data.data.Cohorts_agg?._sum?.numberOfParticipantsWithSamples"
       >
         <b
           >{{
             new Intl.NumberFormat("nl-NL").format(
-              data.data.Cohorts_agg?.sum?.numberOfParticipantsWithSamples
+              data.data.Cohorts_agg?._sum?.numberOfParticipantsWithSamples
             )
           }}
           {{
-            getSettingValue(
-              "CATALOGUE_LANDING_SAMPLES_LABEL",
-              data.data._settings
-            ) || "Samples"
+            getSettingValue("CATALOGUE_LANDING_SAMPLES_LABEL", settings) ||
+            "Samples"
           }}</b
         >
         <br />{{
-          getSettingValue(
-            "CATALOGUE_LANDING_SAMPLES_TEXT",
-            data.data._settings
-          ) ||
+          getSettingValue("CATALOGUE_LANDING_SAMPLES_TEXT", settings) ||
           "The cumulative number of participants with samples collected of all (sub)cohorts combined"
         }}
       </LandingCardSecondary>
@@ -361,10 +335,8 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
       >
         <b
           >{{
-            getSettingValue(
-              "CATALOGUE_LANDING_DESIGN_LABEL",
-              data.data._settings
-            ) || "Longitudinal"
+            getSettingValue("CATALOGUE_LANDING_DESIGN_LABEL", settings) ||
+            "Longitudinal"
           }}
           {{
             percentageLongitudinal(
@@ -373,10 +345,8 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
             )
           }}%</b
         ><br />{{
-          getSettingValue(
-            "CATALOGUE_LANDING_DESIGN_TEXT",
-            data.data._settings
-          ) || "Percentage of longitudinal datasets. The remaining datasets are"
+          getSettingValue("CATALOGUE_LANDING_DESIGN_TEXT", settings) ||
+          "Percentage of longitudinal datasets. The remaining datasets are"
         }}
         cross-sectional.
       </LandingCardSecondary>
@@ -388,18 +358,14 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
         <b>
           {{ data.data.Subcohorts_agg.count }}
           {{
-            getSettingValue(
-              "CATALOGUE_LANDING_SUBCOHORTS_LABEL",
-              data.data._settings
-            ) || "Subcohorts"
+            getSettingValue("CATALOGUE_LANDING_SUBCOHORTS_LABEL", settings) ||
+            "Subcohorts"
           }}
         </b>
         <br />
         {{
-          getSettingValue(
-            "CATALOGUE_LANDING_SUBCOHORTS_TEXT",
-            data.data._settings
-          ) || "The total number of subcohorts included"
+          getSettingValue("CATALOGUE_LANDING_SUBCOHORTS_TEXT", settings) ||
+          "The total number of subcohorts included"
         }}
       </LandingCardSecondary>
     </LandingSecondary>

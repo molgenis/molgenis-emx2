@@ -7,6 +7,8 @@ export interface IClient {
   newClient: (schemaId?: string, externalAxios?: Axios) => INewClient;
 }
 
+export type aggFunction = "count" | "_sum";
+
 export interface INewClient {
   insertDataRow: (
     rowData: IRow,
@@ -36,7 +38,9 @@ export interface INewClient {
     tableId: string,
     selectedColumn: { id: string; column: string },
     selectedRow: { id: string; column: string },
-    filter: Object
+    filter: Object,
+    aggFunction?: aggFunction,
+    aggField?: string
   ) => Promise<any>;
   fetchSettings: () => Promise<any>;
   fetchSettingValue: (name: string) => Promise<any>;

@@ -73,6 +73,7 @@
       :clone="editMode === 'clone'"
       :schemaId="schemaId"
       :defaultValue="defaultValue"
+      :applyDefaultValues="true"
       @close="handleModalClose"
     />
 
