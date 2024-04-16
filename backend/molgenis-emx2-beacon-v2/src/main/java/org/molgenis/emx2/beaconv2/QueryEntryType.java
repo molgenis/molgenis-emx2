@@ -57,9 +57,9 @@ public class QueryEntryType {
             case COUNT, AGGREGATED:
               resultSet.put("count", resultsArray.size());
           }
-          resultSets.add(resultSets);
+          resultSets.add(resultSet);
         } else if (includeStrategy.equals(IncludedResultsetResponses.ALL)) {
-          resultSets.add(resultSets);
+          resultSets.add(resultSet);
         }
       }
     }
