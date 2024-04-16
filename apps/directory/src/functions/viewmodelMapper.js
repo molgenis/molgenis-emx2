@@ -45,7 +45,7 @@ export function mapObjArray(objects) {
 }
 
 export function mapUrl(url) {
-  return url ? (url.startsWith("http") ? url : "http://" + url) : url;
+  return url ? (url.startsWith("http") ? url : "https://" + url) : url;
 }
 
 export function mapRange(min, max, unit) {
@@ -399,7 +399,7 @@ export const mapContactInfo = (instance) => {
         value: getName(instance.contact),
         type: "string",
       },
-      website: { value: mapUrl(instance.contact.url), type: "url" },
+      website: { value: mapUrl(instance.url), type: "url" },
       email: {
         value: instance.contact.email,
         type: "email",

@@ -6,33 +6,15 @@
           <template v-if="info.contact">
             <h5>Contact Information</h5>
             <ul class="right-content-list">
-              <template v-if="info.head">
-                <li>
-                  <span class="font-weight-bold mr-1">Head/PI:</span>
-                  <div>{{ info.head }}</div>
-                </li>
-              </template>
-              <li v-if="info.contact.name">
-                <span class="font-weight-bold mr-1">Contact:</span>
-                <div>{{ info.contact.name }}</div>
+              <li v-if="info.head">
+                <span class="font-weight-bold mr-1">Head/PI:</span>
+                <div>{{ info.head }}</div>
               </li>
-              <li v-if="info.contact.email">
-                <span
-                  class="fa fa-fw fa-paper-plane mr-2"
-                  aria-hidden="true"
-                ></span>
-                <a :href="'mailto:' + info.contact.email">
-                  <span>{{ uiText["email"] }}</span>
-                </a>
-                <div v-if="info.contact.phone">
-                  <span
-                    class="fa fa-fw fa-phone mr-1"
-                    aria-hidden="true"
-                  ></span>
-                  <a :href="'tel:' + info.contact.phone">
-                    <span> {{ info.contact.phone }}</span></a
-                  >
-                </div>
+              <li>
+                <ContactInformation
+                  :contactInformation="collection.contact"
+                  :website="collection.url"
+                />
               </li>
             </ul>
           </template>
@@ -146,11 +128,12 @@
 import { computed, toRefs } from "vue";
 import { useSettingsStore } from "../../stores/settingsStore";
 import ReportDetailsList from "../../components/report-components/ReportDetailsList.vue";
+import ContactInformation from "./ContactInformation.vue";
 
 const settingsStore = useSettingsStore();
 const uiText = computed(() => settingsStore.uiText);
-const props = defineProps(["info"]);
-let { info } = toRefs(props);
+const props = defineProps(["info", "collection"]);
+let { info, collection } = toRefs(props);
 </script>
 
 <style scoped>

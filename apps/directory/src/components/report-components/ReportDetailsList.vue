@@ -100,8 +100,6 @@ interface IReportDetail {
   badgeColor?: IBadgeColor; // is this actually being used or dead code?
 }
 
-interface IType {}
-
 interface IBadgeColor {
   type: EBadgeColors;
 }

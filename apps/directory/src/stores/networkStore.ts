@@ -29,7 +29,6 @@ export const useNetworkStore = defineStore("networkStore", () => {
         "description",
         "common_network_elements.label",
         "common_network_elements.definition",
-
         "also_known.url",
         "also_known.name_system",
         ...ContactInfoColumns,

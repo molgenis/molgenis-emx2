@@ -72,12 +72,16 @@
                     <div class="card-text">
                       <h5>Contact Information</h5>
                       <ul class="right-content-list">
-                        <li>
+                        <li v-if="head">
                           <span class="font-weight-bold mr-1">Head/PI:</span>
+                          <div>{{ head }}</div>
                         </li>
-                        <ReportDetailsList :reportDetails="head" />
-                        <span class="font-weight-bold mr-1">Contact:</span>
-                        <ReportDetailsList :reportDetails="contact" />
+                        <li>
+                          <ContactInformation
+                            :contactInformation="contact"
+                            :website="biobank.url"
+                          />
+                        </li>
                         <h5 v-if="networks && networks.length > 0">Networks</h5>
                         <ReportDetailsList
                           :reportDetails="network"
@@ -111,17 +115,17 @@ import CollectionSelector from "../components/checkout-components/CollectionSele
 import ViewGenerator from "../components/generators/ViewGenerator.vue";
 import CollapseComponent from "../components/report-components/CollapseComponent.vue";
 import CollectionTitle from "../components/report-components/CollectionTitle.vue";
+import ContactInformation from "../components/report-components/ContactInformation.vue";
 import ReportDetailsList from "../components/report-components/ReportDetailsList.vue";
 import ReportTitle from "../components/report-components/ReportTitle.vue";
 import { mapBiobankToBioschemas } from "../functions/bioschemasMapper";
 import {
   getBiobankDetails,
   getCollectionDetails,
+  mapAlsoKnownIn,
   mapHeadInfo,
-  mapContactInfo,
   mapNetworkInfo,
   mapQualityStandards,
-  mapAlsoKnownIn,
 } from "../functions/viewmodelMapper";
 import { useBiobanksStore } from "../stores/biobanksStore";
 import { useQualitiesStore } from "../stores/qualitiesStore";
@@ -130,15 +134,16 @@ import { useSettingsStore } from "../stores/settingsStore";
 export default {
   name: "biobank-report-card",
   components: {
-    Spinner,
-    ReportTitle,
-    CollectionTitle,
-    ViewGenerator,
-    ReportDetailsList,
-    CollapseComponent,
-    CheckOut,
-    CollectionSelector,
     Breadcrumb,
+    CheckOut,
+    CollapseComponent,
+    CollectionTitle,
+    CollectionSelector,
+    ContactInformation,
+    ReportDetailsList,
+    ReportTitle,
+    Spinner,
+    ViewGenerator,
   },
   setup() {
     const settingsStore = useSettingsStore();
@@ -154,6 +159,7 @@ export default {
         biobank.value = result.Biobanks.length
           ? getBiobankDetails(result.Biobanks[0])
           : {};
+        console.log(biobank.value);
       });
 
     return { settingsStore, biobanksStore, qualitiesStore, biobank };
@@ -210,12 +216,12 @@ export default {
     },
     head() {
       return this.biobankDataAvailable && this.biobank.head
-        ? mapHeadInfo(this.biobank)
-        : {};
+        ? this.biobank.head
+        : null;
     },
     contact() {
       return this.biobankDataAvailable && this.biobank.contact
-        ? mapContactInfo(this.biobank)
+        ? this.biobank.contact
         : {};
     },
     alsoKnownIn() {

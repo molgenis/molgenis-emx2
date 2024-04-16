@@ -96,7 +96,9 @@
                   <div class="card-body">
                     <div class="card-text">
                       <h5>Contact Information</h5>
-                      <ReportDetailsList :reportDetails="contact" />
+                      <ContactInformation
+                        :contactInformation="network.contact"
+                      />
                       <template v-if="alsoKnownIn.length > 0">
                         <h5>Also Known In</h5>
                         <ReportDetailsList :reportDetails="alsoKnownIn" />
@@ -119,12 +121,12 @@ import { computed, ref } from "vue";
 import { useRoute } from "vue-router";
 import ViewGenerator from "../components/generators/ViewGenerator.vue";
 import CollectionTitle from "../components/report-components/CollectionTitle.vue";
+import ContactInformation from "../components/report-components/ContactInformation.vue";
 import ReportDescription from "../components/report-components/ReportDescription.vue";
 import ReportDetailsList from "../components/report-components/ReportDetailsList.vue";
 import ReportTitle from "../components/report-components/ReportTitle.vue";
 import {
   getCollectionDetails,
-  mapContactInfo,
   mapAlsoKnownIn,
 } from "../functions/viewmodelMapper";
 import { useNetworkStore } from "../stores/networkStore";
@@ -152,7 +154,6 @@ const collectionsAvailable = computed(() => collections.value?.length);
 const biobanks = computed(() => networkReport.value.biobanks);
 const biobanksAvailable = computed(() => biobanks.value?.length);
 const network = computed(() => networkReport.value.network);
-const contact = computed(() => mapContactInfo(network.value));
 const alsoKnownIn = computed(() => mapAlsoKnownIn(network.value));
 
 function filterCollections() {
