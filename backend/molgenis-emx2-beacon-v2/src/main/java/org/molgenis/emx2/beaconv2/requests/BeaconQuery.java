@@ -72,10 +72,12 @@ public class BeaconQuery {
       String ref = urlParam.getKey().replaceAll(":", "");
       requestParameters.put(ref, new BeaconRequestParameters(ref, urlParam.getValue()));
     }
-    for (var queryParam : request.queryMap().toMap().entrySet()) {
-      requestParameters.put(
-          queryParam.getKey(),
-          new BeaconRequestParameters(queryParam.getKey(), queryParam.getValue()[0]));
+    if (request.queryMap() != null) {
+      for (var queryParam : request.queryMap().toMap().entrySet()) {
+        requestParameters.put(
+            queryParam.getKey(),
+            new BeaconRequestParameters(queryParam.getKey(), queryParam.getValue()[0]));
+      }
     }
   }
 }

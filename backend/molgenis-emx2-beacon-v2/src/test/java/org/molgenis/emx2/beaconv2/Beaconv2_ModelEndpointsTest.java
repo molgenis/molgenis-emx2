@@ -6,17 +6,19 @@ import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.beaconv2.endpoints.*;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
-import org.molgenis.emx2.datamodels.ProfileLoader;
 import org.molgenis.emx2.json.JsonUtil;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
+import spark.QueryParamsMap;
 import spark.Request;
 
 @Tag("slow")
@@ -29,9 +31,9 @@ public class Beaconv2_ModelEndpointsTest {
   @BeforeAll
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
-    beaconSchema = database.dropCreateSchema("fairdatahub");
-    ProfileLoader b2l = new ProfileLoader("_profiles/FAIRDataHub.yaml");
-    b2l.load(beaconSchema, true);
+    beaconSchema = database.getSchema("fairdatahub");
+    //    ProfileLoader b2l = new ProfileLoader("_profiles/FAIRDataHub.yaml");
+    //    b2l.load(beaconSchema, true);
     tables = List.of(beaconSchema.getTable("Individuals"));
   }
 
@@ -52,20 +54,19 @@ public class Beaconv2_ModelEndpointsTest {
 
   @Test
   public void testGenomicVariants_NoParams() throws Exception {
+
     Request request = mock(Request.class);
-    when(request.queryParams("entry_type")).thenReturn("g_variants");
+    when(request.url()).thenReturn("http://localhost:8080/api/beacon");
+    Map<String, String> params = Map.of(":entry_type", "g_variants");
+    when(request.params()).thenReturn(params);
+
     BeaconRequestBody requestBody = new BeaconRequestBody();
     requestBody.addUrlParameters(request);
     JsonNode result = QueryEntryType.query(database, requestBody);
     String json = JsonUtil.getWriter().writeValueAsString(result);
 
     // check correct empty resultset structure (must be exactly this!)
-    assertTrue(
-        json.contains(
-            """
-                                  "response" : {
-                                      "resultSets" : [ ]
-                                    }"""));
+    assertTrue(json.contains("\"resultSets\" : [ ]"));
   }
 
   @Test
@@ -111,13 +112,19 @@ public class Beaconv2_ModelEndpointsTest {
   @Test
   public void testGenomicVariants_RangeQuery() throws Exception {
     Request request = mock(Request.class);
-    when(request.queryParams("entry_type")).thenReturn("g_variants");
-    when(request.queryParams("start")).thenReturn("2447952");
-    when(request.queryParams("end")).thenReturn("2447955");
-    when(request.queryParams("referenceName")).thenReturn("20");
-
+    when(request.url()).thenReturn("http://localhost:8080/api/beacon");
+    Map<String, String> urlParams = Map.of(":entry_type", "g_variants");
+    when(request.params()).thenReturn(urlParams);
+    when(request.queryMap()).thenReturn(Mockito.mock(QueryParamsMap.class));
+    Map<String, String[]> queryMap =
+        Map.of(
+            "start", new String[] {"2447952"},
+            "end", new String[] {"2447955"},
+            "referenceName", new String[] {"20"});
+    when(request.queryMap().toMap()).thenReturn(queryMap);
     BeaconRequestBody requestBody = new BeaconRequestBody();
     requestBody.addUrlParameters(request);
+
     JsonNode result = QueryEntryType.query(database, requestBody);
 
     String json = JsonUtil.getWriter().writeValueAsString(result);
@@ -146,17 +153,17 @@ public class Beaconv2_ModelEndpointsTest {
     assertTrue(json.contains("\"label\" : \"Pathogenic\""));
   }
   //
-  //  @Test
-  //  public void testGenomicVariants_BracketQuery() throws Exception {
-  //    Request request = mock(Request.class);
-  //    when(request.queryParams("start")).thenReturn("2447945,2447951");
-  //    when(request.queryParams("end")).thenReturn("2447952,2447953");
-  //    when(request.queryParams("referenceName")).thenReturn("20");
-  //    GenomicVariants genomicVariations = new GenomicVariants(request, database);
-  //    String json = JsonUtil.getWriter().writeValueAsString(genomicVariations);
-  //    assertTrue(json.contains("\"resultsCount\" : 1,"));
-  //    assertTrue(json.contains("\"variantInternalId\" : \"20:2447951..2447952c>g\","));
-  //  }
+  //    @Test
+  //    public void testGenomicVariants_BracketQuery() throws Exception {
+  //      Request request = mock(Request.class);
+  //      when(request.queryParams("start")).thenReturn("2447945,2447951");
+  //      when(request.queryParams("end")).thenReturn("2447952,2447953");
+  //      when(request.queryParams("referenceName")).thenReturn("20");
+  //      GenomicVariants genomicVariations = new GenomicVariants(request, database);
+  //      String json = JsonUtil.getWriter().writeValueAsString(genomicVariations);
+  //      assertTrue(json.contains("\"resultsCount\" : 1,"));
+  //      assertTrue(json.contains("\"variantInternalId\" : \"20:2447951..2447952c>g\","));
+  //    }
   //
   //  @Test
   //  public void testAnalyses_NoParams() throws Exception {

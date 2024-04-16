@@ -20,6 +20,7 @@ import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.beaconv2.common.misc.Granularity;
+import org.molgenis.emx2.beaconv2.common.misc.IncludedResultsetResponses;
 import org.molgenis.emx2.beaconv2.filter.Filter;
 import org.molgenis.emx2.beaconv2.filter.FilterParser;
 import org.molgenis.emx2.beaconv2.filter.FilterParserFactory;
@@ -34,6 +35,7 @@ public class QueryEntryType {
   public static JsonNode query(Database database, BeaconRequestBody request) throws JsltException {
     EntryType entryType = request.getQuery().getEntryType();
     Granularity granularity = request.getQuery().getRequestedGranularity();
+    IncludedResultsetResponses includeStrategy = request.getQuery().getIncludeResultsetResponses();
 
     ObjectNode response = mapper.createObjectNode();
     response.set("requestBody", mapper.valueToTree(request));
@@ -43,11 +45,11 @@ public class QueryEntryType {
     ArrayNode resultSets = mapper.createArrayNode();
     for (Table table : getTableFromAllSchemas(database, entryType.getId())) {
       if (isAuthorized(request, table)) {
+        ObjectNode resultSet = mapper.createObjectNode();
+        resultSet.put("id", table.getSchema().getName());
         ArrayNode resultsArray = doGraphQlQuery(table, filterParser, request);
-        if (resultsArray != null && !resultsArray.isNull()) {
+        if (hasResult(resultsArray)) {
           numTotalResults += resultsArray.size();
-          ObjectNode resultSet = mapper.createObjectNode();
-          resultSet.put("id", table.getSchema().getName());
           switch (granularity) {
             case RECORD, UNDEFINED:
               ArrayNode paginatedResults = paginateResults(resultsArray, request.getQuery());
@@ -55,7 +57,9 @@ public class QueryEntryType {
             case COUNT, AGGREGATED:
               resultSet.put("count", resultsArray.size());
           }
-          resultSets.add(resultSet);
+          resultSets.add(resultSets);
+        } else if (includeStrategy.equals(IncludedResultsetResponses.ALL)) {
+          resultSets.add(resultSets);
         }
       }
     }
@@ -66,6 +70,10 @@ public class QueryEntryType {
     Expression jslt =
         Parser.compileResource("entry-types/" + entryType.getName().toLowerCase() + ".jslt");
     return jslt.apply(response);
+  }
+
+  private static boolean hasResult(ArrayNode resultsArray) {
+    return resultsArray != null && !resultsArray.isNull();
   }
 
   private static FilterParser parseFilters(BeaconRequestBody request, ObjectNode response) {

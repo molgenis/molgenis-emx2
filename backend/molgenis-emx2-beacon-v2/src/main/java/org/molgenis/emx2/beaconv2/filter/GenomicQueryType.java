@@ -14,11 +14,11 @@ public enum GenomicQueryType {
       { _or: [
         { _and: [
           { position_refseqId: { equals: "%1$s" } },
-          { position_start: { between: %1$d , %1$d ] } }
+          { position_start: { between: [%2$d , %2$d] } }
         ]},
         { _and: [
-          { position_refseqId: { equals: %1$s } },
-          { position_end: { between: %1$d , %1$d ] } }
+          { position_refseqId: { equals: "%1$s" } },
+          { position_end: { between: [%3$d , %3$d] } }
         ]}
       ]}"""),
   GENE_ID("{ geneId: { equals: \"%s\" } }"),
