@@ -1,3 +1,5 @@
+import { ContactInfoColumns } from "./contactInfoColumns";
+
 const initialCollectionColumns = [
   { label: "Id:", column: "id", type: "string", showCopyIcon: true },
   { label: "Website:", column: "url", type: "hyperlink" },
@@ -89,11 +91,6 @@ const initialCollectionColumns = [
       "biobank.contact.last_name",
       "biobank.contact.email",
       "biobank.contact.role",
-      "contact.first_name",
-      "contact.last_name",
-      "contact.email",
-      "contact.role",
-      "contact.country.label",
       "head.first_name",
       "head.last_name",
       "head.role",
@@ -115,6 +112,7 @@ const initialCollectionColumns = [
       "sub_collections.withdrawn",
       "collaboration_commercial",
       "collaboration_non_for_profit",
+      ...ContactInfoColumns,
     ],
   },
 ];

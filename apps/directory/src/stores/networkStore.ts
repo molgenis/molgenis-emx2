@@ -4,6 +4,7 @@ import { ref } from "vue";
 import { QueryEMX2 } from "molgenis-components";
 import { useSettingsStore } from "./settingsStore";
 import { useCollectionStore } from "./collectionStore";
+import { ContactInfoColumns } from "../property-config/contactInfoColumns";
 
 export const useNetworkStore = defineStore("networkStore", () => {
   const settingsStore = useSettingsStore();
@@ -28,13 +29,10 @@ export const useNetworkStore = defineStore("networkStore", () => {
         "description",
         "common_network_elements.label",
         "common_network_elements.definition",
-        "contact.first_name",
-        "contact.last_name",
-        "contact.email",
-        "contact.role",
-        "contact.country.label",
+
         "also_known.url",
         "also_known.name_system",
+        ...ContactInfoColumns,
       ])
       .where("id")
       .like(netWorkId);
