@@ -1,21 +1,17 @@
-<script setup>
-defineProps({
-  imageUrl: {
-    type: String,
-  },
-  title: {
-    type: String,
-  },
-  description: {
-    type: String,
-  },
-  url: {
-    type: String,
-  },
-  links: {
-    type: Array,
-  },
-});
+<script setup lang="ts">
+withDefaults(
+  defineProps<{
+    imageUrl: string;
+    title: string;
+    description: string;
+    url: string;
+    links: { title: string; url: string }[];
+    target?: "_self" | "_blank";
+  }>(),
+  {
+    target: "_self",
+  }
+);
 </script>
 
 <template>
@@ -23,7 +19,7 @@ defineProps({
     <article class="grid grid-cols-12 gap-6 p-12.5">
       <div class="col-span-3">
         <div class="items-center flex h-full w-full justify-center">
-          <a :href="url">
+          <a :href="url" :target="target">
             <img :src="imageUrl" />
           </a>
         </div>
@@ -34,7 +30,11 @@ defineProps({
             <h2
               class="min-w-[160px] inline-block mr-4 text-heading-base sm:text-heading-3xl font-extrabold text-blue-500"
             >
-              <a :href="url" class="hover:underline hover:bg-blue-50">
+              <a
+                :href="url"
+                :target="target"
+                class="hover:underline hover:bg-blue-50"
+              >
                 {{ title }}
               </a>
             </h2>
@@ -42,7 +42,7 @@ defineProps({
           <div class="hidden sm:block">
             <div class="flex">
               <!-- <IconButton icon="star" class="text-blue-500" /> -->
-              <a :href="url">
+              <a :href="url" :target="target">
                 <IconButton icon="arrow-right" class="text-blue-500" />
               </a>
             </div>
@@ -57,6 +57,7 @@ defineProps({
           v-for="(link, index) in links"
           v-bind:key="index"
           :href="link.url"
+          :target="target"
           class="text-blue-500 hover:underline hover:bg-blue-50 mr-7.5 hidden sm:inline-block"
         >
           <BaseIcon name="caret-right" class="inline w-5 h-5 -ml-1.5" />{{

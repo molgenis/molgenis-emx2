@@ -1,5 +1,12 @@
 <template>
   <div>
+    <div class="d-flex float-right">
+      <MatchTypeRadiobutton
+        v-if="showMatchTypeSelector"
+        class="p-2 pb-0"
+        :matchTypeForFilter="facetIdentifier"
+      />
+    </div>
     <div class="px-2 py-2 d-flex">
       <div class="buttonbar">
         <button
@@ -22,11 +29,12 @@
     <div class="ontology pt-3 d-flex justify-content-center">
       <template v-for="ontologyId of ontologyIdentifiers" :key="ontologyId">
         <div v-show="selectedOntology === ontologyId">
-          <spinner class="mt-4 mb-5" v-if="!ontologyOptions" />
+          <spinner class="mt-4 mb-5" v-if="!resolvedOptions" />
           <tree-component
             v-else-if="displayOptions.length"
             :options="displayOptions"
             :filter="ontologyQuery"
+            :facetIdentifier="facetIdentifier"
           />
           <div v-else class="pb-3">No results found</div>
         </div>
@@ -35,92 +43,63 @@
   </div>
 </template>
 
-<script>
+<script setup lang="ts">
 import { useFiltersStore } from "../../stores/filtersStore";
 import TreeComponent from "./base/TreeComponent.vue";
+import { computed, ref } from "vue";
+//@ts-ignore
 import { Spinner } from "../../../../molgenis-components";
+import MatchTypeRadiobutton from "./base/MatchTypeRadiobutton.vue";
 
-export default {
-  name: "OntologyFilter",
-  components: {
-    TreeComponent,
-    Spinner,
-  },
-  setup() {
-    const filtersStore = useFiltersStore();
-    return { filtersStore };
-  },
-  props: {
-    /** a JSON friendly identifier */
-    facetIdentifier: {
-      type: String,
-      required: true,
-    },
-    ontologyIdentifiers: {
-      type: Array,
-      required: true,
-    },
-    /**
-     * A Promise-function that resolves with an array of options.
-     * { text: 'foo', value: 'bar' }
-     */
-    options: {
-      type: [Function],
-      required: true,
-    },
-  },
-  data() {
-    return {
-      ontologyQuery: "",
-      resolvedOptions: undefined,
-      selectedOntology:
-        this.ontologyIdentifiers[0] /** we start with the top one */,
-    };
-  },
-  computed: {
-    ontologyOptions() {
-      return this.resolvedOptions;
-    },
-    displayOptions() {
-      if (!this.ontologyQuery) {
-        return this.ontologyOptions[this.selectedOntology] || [];
-      }
-      const matchingOptions = [];
+const filtersStore = useFiltersStore();
 
-      for (const ontologyItem of this.ontologyOptions[this.selectedOntology]) {
-        if (
-          this.filtersStore.ontologyItemMatchesQuery(
-            ontologyItem,
-            this.ontologyQuery
-          )
-        ) {
-          matchingOptions.push(ontologyItem);
-          continue;
-        } else if (ontologyItem.children) {
-          if (
-            this.filtersStore.checkOntologyDescendantsIfMatches(
-              ontologyItem.children,
-              this.ontologyQuery
-            )
-          ) {
-            matchingOptions.push(ontologyItem);
-            continue;
-          }
-        }
+const { facetIdentifier, ontologyIdentifiers, options, showMatchTypeSelector } =
+  defineProps<{
+    facetIdentifier: string;
+    ontologyIdentifiers: string[];
+    options: Function;
+    showMatchTypeSelector: boolean;
+  }>();
+
+let ontologyQuery = ref("");
+let resolvedOptions = ref<Record<string, any> | undefined>(undefined);
+let selectedOntology = ref(ontologyIdentifiers[0]);
+
+options()
+  .then((response: any) => {
+    resolvedOptions.value = response || {};
+  })
+  .catch((error: any) => {
+    console.log(`Error resolving ontology facet options: ${error}`);
+  });
+
+let displayOptions = computed(() => {
+  if (!resolvedOptions.value) return [];
+  if (!ontologyQuery.value) {
+    return resolvedOptions.value[selectedOntology.value] || [];
+  }
+
+  let matchingOptions = [];
+  for (const ontologyItem of resolvedOptions.value[selectedOntology.value]) {
+    if (
+      filtersStore.ontologyItemMatchesQuery(ontologyItem, ontologyQuery.value)
+    ) {
+      matchingOptions.push(ontologyItem);
+      continue;
+    } else if (ontologyItem.children) {
+      if (
+        filtersStore.checkOntologyDescendantsIfMatches(
+          ontologyItem.children,
+          ontologyQuery.value
+        )
+      ) {
+        matchingOptions.push(ontologyItem);
+        continue;
       }
-      return matchingOptions;
-    },
-  },
-  created() {
-    this.options()
-      .then((response) => {
-        this.resolvedOptions = response;
-      })
-      .catch((error) => {
-        console.log(`Error resolving ontology facet options: ${error}`);
-      });
-  },
-};
+    }
+  }
+  return matchingOptions;
+});
 </script>
 
 <style scoped>
