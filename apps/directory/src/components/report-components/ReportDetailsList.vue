@@ -16,7 +16,7 @@
           <span v-else class="badge badge-info">no</span>
         </td>
         <!--Type string-->
-        <td v-else-if="detail.type.toString().includes('string')" colspan="2">
+        <td v-else-if="detail.type.includes('string')" colspan="2">
           {{ detail.value }}
         </td>
         <!--Type url-->

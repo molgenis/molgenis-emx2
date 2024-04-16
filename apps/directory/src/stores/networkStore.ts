@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
+//@ts-ignore
 import { QueryEMX2 } from "molgenis-components";
 import { useSettingsStore } from "./settingsStore";
 import { useCollectionStore } from "./collectionStore";
