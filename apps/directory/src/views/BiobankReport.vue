@@ -75,19 +75,15 @@
                         <li>
                           <span class="font-weight-bold mr-1">Head/PI:</span>
                         </li>
-                        <report-details-list
-                          :reportDetails="head"
-                        ></report-details-list>
+                        <ReportDetailsList :reportDetails="head" />
                         <span class="font-weight-bold mr-1">Contact:</span>
-                        <report-details-list
-                          :reportDetails="contact"
-                        ></report-details-list>
+                        <ReportDetailsList :reportDetails="contact" />
                         <h5 v-if="networks && networks.length > 0">Networks</h5>
-                        <report-details-list
+                        <ReportDetailsList
                           :reportDetails="network"
                           v-for="network in networks"
                           :key="network.id"
-                        ></report-details-list>
+                        />
                         <template v-if="alsoKnownIn.length > 0">
                           <h5>Also Known In</h5>
                           <ReportDetailsList :reportDetails="alsoKnownIn" />
