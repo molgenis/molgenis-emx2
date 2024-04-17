@@ -41,7 +41,7 @@
   <ul class="file-list" v-else>
     <li class="file" v-for="file in data" :key="file.id">
       <p class="file-element file-name">
-        <span v-if="Object.hasOwn(file, labelsColumn)">
+        <span v-if="labelsColumn && Object.hasOwn(file, labelsColumn)">
           {{ file[labelsColumn as string] }}
         </span>
         <span v-else>
