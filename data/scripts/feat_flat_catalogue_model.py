@@ -25,6 +25,7 @@ class Tables:
     RWE = 'RWE resources'
     DS = 'Data sources'
     DB = 'Databanks'
+    COL = 'Collections'
 
 
 SHARED_DIR = Path().cwd().joinpath('..', '_models', 'shared')
@@ -43,7 +44,8 @@ inherit_tables = [[Tables.O, Tables.R], [Tables.M, Tables.ER],
 
 rename_tables = [[Tables.C, Tables.DR], [Tables.RWE, Tables.DR],
                  [Tables.DR, Tables.ER],
-                 [Tables.ER, Tables.R]]
+                 [Tables.ER, Tables.R],
+                 [Tables.R, Tables.COL]]
 
 table_profiles = {
     'Resources': 'RWEStaging',
@@ -97,6 +99,8 @@ class Flattener(pd.DataFrame):
 
         # Save result to file
         self.save_df()
+
+        self.save_dev_df()
 
         return self
 
@@ -180,7 +184,7 @@ class Flattener(pd.DataFrame):
         And replaces its description by that of the original Cohorts table.
         """
         description = "Group of individuals sharing a defining demographic characteristic"
-        idx = self.loc[(self['tableName'] == 'Resources') & (self['columnName'].isna())].index[0]
+        idx = self.loc[(self['tableName'] == 'Collections') & (self['columnName'].isna())].index[0]
         self['label'] = None
         self.loc[idx+0.5] = self.loc[idx]
         self.loc[idx+0.5, 'description'] = description
@@ -206,6 +210,17 @@ class Flattener(pd.DataFrame):
         file_dir = SPECIFIC_DIR
         if old_profiles:
             file_dir = file_dir.joinpath('old_profiles')
+        for prof in profiles:
+            self.loc[self['profiles'].str.contains(prof)].drop(
+                columns=['profiles']).to_csv(file_dir.joinpath(f"{prof}.csv"), index=False)
+
+    def save_dev_df(self):
+        """Saves the pandas DataFrame of the test model to disk."""
+
+        self.replace('catalogue', 'catalogueFLAT', inplace=True)
+        file_dir = SPECIFIC_DIR.joinpath('dev')
+
+        profiles = list(set([p for _l in list(self['profiles'].str.split(',')) for p in _l]))
         for prof in profiles:
             self.loc[self['profiles'].str.contains(prof)].drop(
                 columns=['profiles']).to_csv(file_dir.joinpath(f"{prof}.csv"), index=False)
