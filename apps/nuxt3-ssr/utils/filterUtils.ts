@@ -30,6 +30,47 @@ export const conditionsFromPathQuery = (
   return JSON.parse(conditionsString);
 };
 
+export const mergeWithPageDefaults = (
+  pageDefaults: IFilter[],
+  pathConditions: IPathCondition[]
+) => {
+  const filters = [...pageDefaults];
+  // apply the path conditions to the filter object
+  pathConditions.forEach((condition) => {
+    // find the filter object that matches the condition
+    const filter = filters.find((f) => f.id === condition.id);
+    if (!filter) {
+      console.error(`Filter with id ${condition.id} not found`);
+      return;
+    }
+
+    switch (filter.config.type) {
+      case "SEARCH":
+        const searchFilter = filter as IFilter;
+        searchFilter.search = condition.search;
+        break;
+      case "ONTOLOGY":
+      case "REF_ARRAY":
+        const ontologyFilter = filter as IConditionsFilter;
+        if (!ontologyFilter.conditions) {
+          ontologyFilter.conditions = [];
+        }
+        if (condition.conditions) {
+          ontologyFilter.conditions = condition.conditions;
+        }
+        break;
+      default:
+        //@ts-ignore
+        throw new Error(`Filter type ${filter.config.type} not supported`);
+    }
+
+    // unfold all filters that have conditions set
+    filter.config.initialCollapsed = false;
+  });
+
+  return filters;
+};
+
 const isEmpty = (filter: IFilter) => {
   const type = filter.config.type;
   switch (type) {

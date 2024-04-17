@@ -1,27 +1,22 @@
 <script setup lang="ts">
-import type {
-  IConditionsFilter,
-  IFilter,
-  IMgError,
-  IOntologyFilter,
-} from "~/interfaces/types";
+import type { IFilter, IMgError } from "~/interfaces/types";
 
 const route = useRoute();
 const router = useRouter();
 const config = useRuntimeConfig();
-const pageSize = 10;
+const pageSize = 3;
 
 const titlePrefix =
   route.params.catalogue === "all" ? "" : route.params.catalogue + " ";
 useHead({ title: titlePrefix + "Cohorts" });
 
-const currentPage = ref(1);
-if (route.query?.page) {
+const currentPage = computed(() => {
   const queryPageNumber = Number(route.query?.page);
-  currentPage.value =
-    typeof queryPageNumber === "number" ? Math.round(queryPageNumber) : 1;
-}
-let offset = computed(() => (currentPage.value - 1) * pageSize);
+  return !isNaN(queryPageNumber) && typeof queryPageNumber === "number"
+    ? Math.round(queryPageNumber)
+    : 1;
+});
+const offset = computed(() => (currentPage.value - 1) * pageSize);
 
 const pageFilterTemplate: IFilter[] = [
   {
@@ -108,48 +103,15 @@ const pageFilterTemplate: IFilter[] = [
 ];
 
 const filters = computed(() => {
-  const filters = [...pageFilterTemplate];
-
   // if there are not query conditions just use the page defaults
   if (!route.query?.conditions) {
-    return filters;
+    return [...pageFilterTemplate];
   }
 
   // get conditions from query
   const conditions = conditionsFromPathQuery(route.query.conditions as string);
-
-  // apply the query conditions to the filter object
-  conditions.forEach((condition) => {
-    // find the filter object that matches the condition
-    const filter = filters.find((f) => f.id === condition.id);
-    if (!filter) {
-      console.error(`Filter with id ${condition.id} not found`);
-      return;
-    }
-
-    switch (filter.config.type) {
-      case "SEARCH":
-        const searchFilter = filter as IFilter;
-        searchFilter.search = condition.search;
-        break;
-      case "ONTOLOGY":
-      case "REF_ARRAY":
-        const ontologyFilter = filter as IConditionsFilter;
-        if (!ontologyFilter.conditions) {
-          ontologyFilter.conditions = [];
-        }
-        if (condition.conditions) {
-          ontologyFilter.conditions = condition.conditions;
-        }
-        break;
-      default:
-        //@ts-ignore
-        throw new Error(`Filter type ${filter.config.type} not supported`);
-    }
-
-    // unfold all filters that have conditions set
-    filter.config.initialCollapsed = false;
-  });
+  // merge with page defaults
+  const filters = mergeWithPageDefaults(pageFilterTemplate, conditions);
 
   return filters;
 });
@@ -187,6 +149,7 @@ const query = computed(() => {
 const orderby = { acronym: "ASC" };
 
 const gqlFilter = computed(() => {
+  console.log("gqlFilter computed");
   let result: any = {};
 
   result = buildQueryFilter(filters.value);
@@ -220,8 +183,10 @@ const cohorts = computed(() => data.value.data.Cohorts || []);
 const numberOfCohorts = computed(() => data.value.data.Cohorts_agg.count || 0);
 
 function setCurrentPage(pageNumber: number) {
-  router.push({ path: route.path, query: { page: pageNumber } });
-  currentPage.value = pageNumber;
+  router.push({
+    path: route.path,
+    query: { ...route.query, page: pageNumber },
+  });
 }
 
 function onFilterChange(filters: IFilter[]) {
