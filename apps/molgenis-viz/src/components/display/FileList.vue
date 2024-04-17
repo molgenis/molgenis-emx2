@@ -51,11 +51,13 @@
       <p class="file-element file-format">
         {{ file[fileColumn].extension }}
       </p>
-      <p class="file-element file-size"> 
-        {{ (file[fileColumn].size / Math.pow(1024,2)).toFixed(2) }} MB
+      <p class="file-element file-size">
+        {{ (file[fileColumn].size / Math.pow(1024, 2)).toFixed(2) }} MB
       </p>
       <a class="file-element file-url" :href="file[fileColumn].url">
-        <span class="visually-hidden">Download {{ file[fileColumn].filename }}</span>
+        <span class="visually-hidden"
+          >Download {{ file[fileColumn].filename }}</span
+        >
         <ArrowDownTrayIcon class="heroicons" />
       </a>
     </li>
@@ -89,7 +91,7 @@ const props = defineProps<{
 async function getFiles() {
   const query = gql`query {
     ${props.table} {
-      ${props.labelsColumn ? props.labelsColumn : ''}
+      ${props.labelsColumn ? props.labelsColumn : ""}
       ${props.fileColumn} {
         id
         filename
