@@ -124,7 +124,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed, toRefs } from "vue";
 import { useSettingsStore } from "../../stores/settingsStore";
 import ReportDetailsList from "../../components/report-components/ReportDetailsList.vue";
