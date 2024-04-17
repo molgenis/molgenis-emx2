@@ -78,12 +78,24 @@ public class QueryEntryType {
         Parser.compileResource("entry-types/" + entryType.getName().toLowerCase() + ".jslt");
 
     ObjectNode jsltResponse = (ObjectNode) jslt.apply(response);
+
     if (granularity.equals(Granularity.RECORD) && resultSets.isEmpty()) {
-      jsltResponse.set(
-          "response", mapper.createObjectNode().set("resultSets", mapper.createArrayNode()));
+      addEmptyResultSet(entryType, jsltResponse);
     }
 
     return jsltResponse;
+  }
+
+  private static void addEmptyResultSet(EntryType entryType, ObjectNode jsltResponse) {
+    switch (entryType) {
+      case COHORTS, DATASETS:
+        jsltResponse.set(
+            "response", mapper.createObjectNode().set("collections", mapper.createArrayNode()));
+        break;
+      default:
+        jsltResponse.set(
+            "response", mapper.createObjectNode().set("resultSets", mapper.createArrayNode()));
+    }
   }
 
   private static boolean hasResult(ArrayNode resultsArray) {

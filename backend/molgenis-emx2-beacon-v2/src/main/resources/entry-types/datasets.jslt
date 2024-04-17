@@ -6,26 +6,17 @@ let host = .requestBody.meta.host
     "meta": meta(.),
     "responseSummary": responseSummary(.),
     "response": {
-        "resultSets":
-        [for (.resultSets)
-        {
-            let id = .id
-            "id": $id,
-            "type": "dataset",
-            "setType": "datasets",
-            "exists": true,
-            "resultsCount": .count,
-            "results":
-            [for (.results) {
-                "createDateTime": .mg_insertedOn,
-                "description": .description,
-                "externalUrl": $host + "/api/fdp/dataset/" + $id + "/" + .id,
-                "id": .id,
-                "info": "info",
-                "name": .title,
-                "updateDateTime": .mg_updatedOn,
-                "version": .mg_updatedOn
-            }]
+        let schemaId = .resultSets[0].id
+        "collections":
+        [for (.resultSets[0].results) {
+            "createDateTime": .mg_insertedOn,
+            "description": .description,
+            "externalUrl": $host + "/api/fdp/dataset/" + $schemaId + "/" + .id,
+            "id": .id,
+            "info": "info",
+            "name": .title,
+            "updateDateTime": .mg_updatedOn,
+            "version": .mg_updatedOn
         }]
     }
 }
