@@ -15,6 +15,7 @@ export const initialFilterFacets = [
     sortDirection: "asc",
     negotiatorRequestString: "Disease type(s):",
     showFacet: true,
+    showMatchTypeSelector: true,
   },
   {
     facetTitle: "Countries",

@@ -270,6 +270,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
       filters.value[filterName] = value;
     }
   }
+
   /** did not move this to be used in filteroptions because the store is async. */
   function getOntologyAttributes(filterFacet) {
     const { filterLabelAttribute, filterValueAttribute } = filterFacet;
