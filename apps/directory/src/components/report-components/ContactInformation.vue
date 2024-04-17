@@ -1,7 +1,7 @@
 <template>
   <div class="mg-report-details-list mb-3">
-    <h5>Contact:</h5>
-    <div v-if="infoMap.name">{{ infoMap.name.value }}</div>
+    <div class="font-weight-bold mr-1">Contact:</div>
+    <div v-if="name">{{ name }}</div>
     <div v-if="contactInformation.email">
       <a :href="'mailto:' + contactInformation.email">
         <i class="fa fa-fw fa-paper-plane" aria-hidden="true" />
@@ -22,7 +22,7 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { mapContactInfo } from "../../functions/viewmodelMapper";
+import { getName } from "../../functions/viewmodelMapper";
 import { useSettingsStore } from "../../stores/settingsStore";
 
 const settingsStore = useSettingsStore();
@@ -33,10 +33,7 @@ const { contactInformation } = defineProps<{
 }>();
 
 const uiText = computed(() => settingsStore.uiText);
-
-const infoMap = computed(() => {
-  return mapContactInfo({ contact: contactInformation });
-});
+const name = computed(() => getName(contactInformation));
 
 interface IContactInformation {
   title_before_name: string;

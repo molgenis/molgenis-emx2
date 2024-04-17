@@ -85,7 +85,7 @@ function showKey(type: string) {
   return ["bool", "string-with-key", "list"].includes(type);
 }
 
-interface IReportDetail {
+export interface IReportDetail {
   value: string;
   type:
     | "string"

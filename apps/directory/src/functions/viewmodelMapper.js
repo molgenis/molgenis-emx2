@@ -15,6 +15,20 @@ export const getName = (contact) => {
   return name !== "" ? name.trim() : undefined;
 };
 
+export const getNameOfHead = (head) => {
+  if (!head) return "";
+
+  const { first_name, last_name, role } = head;
+
+  let name = "";
+
+  if (first_name) name += `${first_name} `;
+  if (last_name) name += `${last_name} `;
+  if (role) name += `(${role})`;
+
+  return name !== "" ? name.trim() : undefined;
+};
+
 export const mapToString = (object, property, prefix, suffix) => {
   if (!object) return "";
 
@@ -66,7 +80,7 @@ export function mapRange(min, max, unit) {
 }
 
 function getObjectForValueExtraction(object, propertyKey) {
-  /** this column is a nested propery */
+  /** this column is a nested property */
   if (typeof propertyKey === "object") {
     const nextKey = Object.keys(propertyKey)[0];
 
@@ -354,89 +368,14 @@ export const mapNetworkInfo = (data) => {
   });
 };
 
-export const getNameOfHead = (head) => {
-  if (!head) return "";
-
-  const { first_name, last_name, role } = head;
-
-  let name = "";
-
-  if (first_name) name += `${first_name} `;
-  if (last_name) name += `${last_name} `;
-  if (role) name += `(${role})`;
-
-  return name !== "" ? name.trim() : undefined;
-};
-
-export const mapHeadInfo = (instance) => {
-  if (instance.head) {
-    return {
-      name: {
-        value: getName(instance.head),
-        type: "string",
-      },
-      website: { value: mapUrl(instance.head.url), type: "url" },
-      email: {
-        value: instance.head.email,
-        type: "email",
-      },
-      country: {
-        value: instance.head.country
-          ? instance.head.country.label || instance.head.country.name
-          : undefined,
-        type: "string",
-      },
-    };
-  } else {
-    return {};
-  }
-};
-
-export const mapContactInfo = (instance) => {
-  if (instance.contact) {
-    return {
-      name: {
-        value: getName(instance.contact),
-        type: "string",
-      },
-      website: { value: mapUrl(instance.url), type: "url" },
-      email: {
-        value: instance.contact.email,
-        type: "email",
-      },
-      juridical_person: { value: instance.juridical_person, type: "string" },
-      country: {
-        value: instance.contact.country
-          ? instance.contact.country.label || instance.contact.country.name
-          : undefined,
-        type: "string",
-      },
-    };
-  } else {
-    return {};
-  }
-};
-
 export const mapAlsoKnownIn = (instance) => {
-  let arr = [];
-
-  if (instance.also_known) {
-    for (const item of instance.also_known) {
-      arr.push({ value: item.url, type: "url", label: item.name_system });
-    }
-  }
-
-  return arr;
+  return (
+    instance.also_known?.map((item) => {
+      return { value: item.url, type: "url", label: item.name_system };
+    }) || []
+  );
 };
 
 export const mapQualityStandards = (instance) => {
-  let arr = [];
-
-  if (instance) {
-    for (const quality of instance) {
-      arr.push(quality.quality_standard.name);
-    }
-  }
-
-  return arr;
+  return instance.map((quality) => quality.quality_standard.name) || [];
 };

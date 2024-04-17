@@ -73,7 +73,7 @@
                       <h5>Contact Information</h5>
                       <ul class="right-content-list">
                         <li v-if="head">
-                          <span class="font-weight-bold mr-1">Head/PI:</span>
+                          <div class="font-weight-bold mr-1">Head/PI:</div>
                           <div>{{ head }}</div>
                         </li>
                         <li>
@@ -82,16 +82,18 @@
                             :website="biobank.url"
                           />
                         </li>
-                        <h5 v-if="networks && networks.length > 0">Networks</h5>
-                        <ReportDetailsList
-                          :reportDetails="network"
-                          v-for="network in networks"
-                          :key="network.id"
-                        />
-                        <template v-if="alsoKnownIn.length > 0">
+                        <li v-if="networks?.length">
+                          <h5>Networks</h5>
+                          <ReportDetailsList
+                            :reportDetails="network"
+                            v-for="network in networks"
+                            :key="network.id"
+                          />
+                        </li>
+                        <li v-if="alsoKnownIn?.length">
                           <h5>Also Known In</h5>
                           <ReportDetailsList :reportDetails="alsoKnownIn" />
-                        </template>
+                        </li>
                       </ul>
                     </div>
                   </div>
@@ -122,8 +124,9 @@ import { mapBiobankToBioschemas } from "../functions/bioschemasMapper";
 import {
   getBiobankDetails,
   getCollectionDetails,
+  getName,
+  getNameOfHead,
   mapAlsoKnownIn,
-  mapHeadInfo,
   mapNetworkInfo,
   mapQualityStandards,
 } from "../functions/viewmodelMapper";
@@ -159,7 +162,6 @@ export default {
         biobank.value = result.Biobanks.length
           ? getBiobankDetails(result.Biobanks[0])
           : {};
-        console.log(biobank.value);
       });
 
     return { settingsStore, biobanksStore, qualitiesStore, biobank };
@@ -215,8 +217,9 @@ export default {
         : [];
     },
     head() {
+      console.log(this.biobank.head);
       return this.biobankDataAvailable && this.biobank.head
-        ? this.biobank.head
+        ? getNameOfHead(this.biobank.head)
         : null;
     },
     contact() {
