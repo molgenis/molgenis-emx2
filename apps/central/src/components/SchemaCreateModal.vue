@@ -137,6 +137,7 @@ export default {
         "CAFE_VARIOME",
         "ERN_DASHBOARD",
         "BIOBANK_DIRECTORY",
+        "BIOBANK_DIRECTORY_STAGING",
         "SHARED_STAGING",
         "PROJECTMANAGER",
       ],

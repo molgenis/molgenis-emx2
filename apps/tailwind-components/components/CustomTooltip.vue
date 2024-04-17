@@ -26,7 +26,7 @@ const hoverColorClass = computed(() => {
 </script>
 
 <template>
-  <div class="flex items-center justify-center w-6 h-6">
+  <div class="flex justify-center w-6 h-6">
     <VTooltip
       :aria-id="ariaId"
       :showTriggers="['hover', 'touch']"

@@ -8,14 +8,12 @@ const props = withDefaults(
     nodes: ITreeNode[];
     modelValue: string[];
     isMultiSelect?: boolean;
-    mobileDisplay?: boolean;
     expandSelected?: boolean;
     isRoot?: boolean;
     inverted?: boolean;
   }>(),
   {
     isMultiSelect: true,
-    mobileDisplay: false,
     expandSelected: false,
     isRoot: true,
     inverted: false,
@@ -51,11 +49,15 @@ function expandSelection(node: ITreeNode) {
 
 function toggleSelect(node: ITreeNode) {
   if (props.modelValue.includes(node.name)) {
-    // remove node from selected nodes and emit new model
-    emit(
-      "update:modelValue",
-      props.modelValue.filter((n) => n !== node.name)
+    // remove node(s) from selected nodes and emit new model
+    let deSelectionList = [node.name];
+    if (props.expandSelected) {
+      deSelectionList = deSelectionList.concat(expandSelection(node));
+    }
+    const newSelection = props.modelValue.filter(
+      (n) => !deSelectionList.includes(n)
     );
+    emit("update:modelValue", newSelection);
   } else {
     let currnetSelection = [...props.modelValue, node.name];
     if (props.expandSelected) {

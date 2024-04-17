@@ -1,21 +1,19 @@
-<script setup>
-import { hash } from ".fingerprint.js";
-
+<script setup lang="ts">
 defineProps(["error"]);
 
 const config = useRuntimeConfig();
 
-let themeFilename = "styles";
-if (config.public.emx2Theme) {
-  themeFilename += `.${config.public.emx2Theme}`;
-}
-if (hash) {
-  themeFilename += `.${hash}`;
-}
+const faviconHref = config.public.emx2Theme
+  ? `/_nuxt-styles/img/${config.public.emx2Theme}.ico`
+  : "/_nuxt-styles/img/molgenis.ico";
 
-const styleHref = `/_nuxt-styles/css/${themeFilename}.css`;
 useHead({
-  link: [{ rel: "stylesheet", type: "text/css", href: styleHref }],
+  htmlAttrs: {
+    'data-theme': route.query.theme as string || config.public.emx2Theme || "",
+  },
+  link: [
+    { rel: "icon", href: faviconHref },
+  ],
   titleTemplate: (titleChunk) => {
     return titleChunk
       ? `${titleChunk} | ${config.public.siteTitle}`
