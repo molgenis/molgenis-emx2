@@ -4,7 +4,7 @@ import type { IFilter, IMgError, activeTabType } from "~/interfaces/types";
 const route = useRoute();
 const router = useRouter();
 const config = useRuntimeConfig();
-const pageSize = 3;
+const pageSize = 10;
 
 const titlePrefix =
   route.params.catalogue === "all" ? "" : route.params.catalogue + " ";
