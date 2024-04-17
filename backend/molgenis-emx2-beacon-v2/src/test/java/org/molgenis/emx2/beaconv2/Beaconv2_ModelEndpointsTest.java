@@ -5,7 +5,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.JsonNode;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -78,13 +77,14 @@ public class Beaconv2_ModelEndpointsTest {
     String json = JsonUtil.getWriter().writeValueAsString(result);
 
     // check correct empty resultset structure (must be exactly this!)
-//    assertTrue(json.contains("\"resultSets\" : [ ]"));
+    //    assertTrue(json.contains("\"resultSets\" : [ ]"));
   }
 
   @Test
   public void testGenomicVariants_SequenceQuery() throws Exception {
     Request request =
-        mockEntryTypeRequest("g_variants",
+        mockEntryTypeRequest(
+            "g_variants",
             Map.of(
                 "referenceName", new String[] {"20"},
                 "start", new String[] {"2447955"},
@@ -101,7 +101,8 @@ public class Beaconv2_ModelEndpointsTest {
   @Test
   public void testGenomicVariants_NoHits() throws Exception {
     Request request =
-        mockEntryTypeRequest("g_variants",
+        mockEntryTypeRequest(
+            "g_variants",
             Map.of(
                 "referenceName", new String[] {"20"},
                 "start", new String[] {"2447955"},
@@ -112,7 +113,7 @@ public class Beaconv2_ModelEndpointsTest {
     JsonNode result = QueryEntryType.query(database, requestBody);
     String json = JsonUtil.getWriter().writeValueAsString(result);
 
-    //assertTrue(json.contains("\"response\" : {\n" + "    \"resultSets\" : [ ]"));
+    // assertTrue(json.contains("\"response\" : {\n" + "    \"resultSets\" : [ ]"));
     assertFalse(json.contains("\"variantInternalId\" : \"20:2447955..2447958c>g\","));
     assertFalse(json.contains("\"resultsCount\" : 1,"));
   }
@@ -120,7 +121,8 @@ public class Beaconv2_ModelEndpointsTest {
   @Test
   public void testGenomicVariants_RangeQuery() throws Exception {
     Request request =
-        mockEntryTypeRequest("g_variants",
+        mockEntryTypeRequest(
+            "g_variants",
             Map.of(
                 "start", new String[] {"2447952"},
                 "end", new String[] {"2447955"},
@@ -139,8 +141,7 @@ public class Beaconv2_ModelEndpointsTest {
 
   @Test
   public void testGenomicVariants_GeneIdQuery() throws Exception {
-    Request request = mockEntryTypeRequest("g_variants",
-        Map.of("geneId", new String[] {"SNRPB"}));
+    Request request = mockEntryTypeRequest("g_variants", Map.of("geneId", new String[] {"SNRPB"}));
     BeaconRequestBody requestBody = new BeaconRequestBody();
     requestBody.addUrlParameters(request);
     JsonNode result = QueryEntryType.query(database, requestBody);
@@ -158,11 +159,13 @@ public class Beaconv2_ModelEndpointsTest {
 
   @Test
   public void testGenomicVariants_BracketQuery() throws Exception {
-    Request request = mockEntryTypeRequest("g_variants", Map.of(
-        "start", new String[] {"2447945,2447951"},
-        "end", new String[] {"2447952,2447953"},
-        "referenceName", new String[]{"20"})
-    );
+    Request request =
+        mockEntryTypeRequest(
+            "g_variants",
+            Map.of(
+                "start", new String[] {"2447945,2447951"},
+                "end", new String[] {"2447952,2447953"},
+                "referenceName", new String[] {"20"}));
     BeaconRequestBody requestBody = new BeaconRequestBody();
     requestBody.addUrlParameters(request);
     JsonNode result = QueryEntryType.query(database, requestBody);

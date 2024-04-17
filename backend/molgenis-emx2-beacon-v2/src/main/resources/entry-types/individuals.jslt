@@ -11,7 +11,7 @@ import "info.jslt" as info
         {
             "id": .id,
             "type": "dataset",
-            "setType": "biosamples",
+            "setType": "individuals",
             "exists": true,
             "resultsCount": .count,
             "results":
@@ -48,8 +48,7 @@ import "info.jslt" as info
                         "units": ontology(.measurementValue_units)
                     },
                     "observationMoment": { "age": { "iso8601duration": .observationMoment_age_iso8601duration } }
-                }
-                ]
+                }]
             }]
         }]
     },

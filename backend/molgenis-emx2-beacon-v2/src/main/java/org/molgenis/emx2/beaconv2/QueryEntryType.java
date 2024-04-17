@@ -67,9 +67,23 @@ public class QueryEntryType {
       response.put("numTotalResults", numTotalResults);
     }
     response.set("resultSets", resultSets);
+    return getJsltResponse(response, request);
+  }
+
+  private static ObjectNode getJsltResponse(ObjectNode response, BeaconRequestBody request) {
+    EntryType entryType = request.getQuery().getEntryType();
+    Granularity granularity = request.getQuery().getRequestedGranularity();
+    ArrayNode resultSets = response.withArray("resultSets");
     Expression jslt =
         Parser.compileResource("entry-types/" + entryType.getName().toLowerCase() + ".jslt");
-    return jslt.apply(response);
+
+    ObjectNode jsltResponse = (ObjectNode) jslt.apply(response);
+    if (granularity.equals(Granularity.RECORD) && resultSets.isEmpty()) {
+      jsltResponse.set(
+          "response", mapper.createObjectNode().set("resultSets", mapper.createArrayNode()));
+    }
+
+    return jsltResponse;
   }
 
   private static boolean hasResult(ArrayNode resultsArray) {
