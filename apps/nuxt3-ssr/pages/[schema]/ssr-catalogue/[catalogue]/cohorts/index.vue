@@ -146,6 +146,9 @@ const filters = computed(() => {
         //@ts-ignore
         throw new Error(`Filter type ${filter.config.type} not supported`);
     }
+
+    // unfold all filters that have conditions set
+    filter.config.initialCollapsed = false;
   });
 
   return filters;
