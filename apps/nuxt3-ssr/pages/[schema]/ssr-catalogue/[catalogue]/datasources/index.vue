@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import type { IFilter, IMgError } from "~/interfaces/types";
+import type { IFilter, IMgError, activeTabType } from "~/interfaces/types";
 
 const route = useRoute();
 const router = useRouter();
-const config = useRuntimeConfig();
 const pageSize = 10;
 
 const titlePrefix =
@@ -18,48 +17,57 @@ if (route.query?.page) {
 }
 let offset = computed(() => (currentPage.value - 1) * pageSize);
 
-let filters: IFilter[] = reactive([
+const pageFilterTemplate: IFilter[] = [
   {
-    title: "Search in datasources",
-    columnType: "_SEARCH",
+    id: "search",
+    config: {
+      label: "Search in datasources",
+      type: "SEARCH",
+      initialCollapsed: false,
+    },
     search: "",
-    initialCollapsed: false,
   },
   {
-    title: "Areas of information",
-    refTableId: "AreasOfInformationDs",
-    columnId: "areasOfInformation",
-    columnType: "ONTOLOGY",
+    id: "areasOfInformation",
+    config: {
+      label: "Areas of information",
+      type: "ONTOLOGY",
+      ontologyTableId: "AreasOfInformationDs",
+      ontologySchema: "CatalogueOntologies",
+      columnId: "areasOfInformation",
+    },
     conditions: [],
   },
   {
-    title: "Datasource Types",
-    refTableId: "DatasourceTypes",
-    columnId: "type",
-    columnType: "ONTOLOGY",
+    id: "dataCategories",
+    config: {
+      label: "Data categories",
+      type: "ONTOLOGY",
+      ontologyTableId: "DatasourceTypes",
+      ontologySchema: "CatalogueOntologies",
+      columnId: "type",
+    },
     conditions: [],
   },
-]);
+];
 
 if ("all" === route.params.catalogue) {
-  filters.push({
-    title: "Networks",
-    columnId: "networks",
-    columnType: "REF_ARRAY",
-    refTableId: "Networks",
-    refFields: {
-      key: "id",
-      name: "id",
-      description: "name",
+  pageFilterTemplate.push({
+    id: "networks",
+    config: {
+      label: "Networks",
+      type: "REF_ARRAY",
+      columnId: "networks",
+      refTableId: "Networks",
+      refFields: {
+        key: "id",
+        name: "id",
+        description: "name",
+      },
     },
     conditions: [],
   });
 }
-
-let search = computed(() => {
-  // @ts-ignore
-  return filters.find((f) => f.columnType === "_SEARCH").search;
-});
 
 const query = computed(() => {
   return `
@@ -82,52 +90,96 @@ const query = computed(() => {
 
 const orderby = { acronym: "ASC" };
 
-const filter = computed(() => {
-  let result = buildQueryFilter(filters, search.value);
+const filters = computed(() => {
+  // if there are not query conditions just use the page defaults
+  if (!route.query?.conditions) {
+    return [...pageFilterTemplate];
+  }
+
+  // get conditions from query
+  const conditions = conditionsFromPathQuery(route.query.conditions as string);
+  // merge with page defaults
+  const filters = mergeWithPageDefaults(pageFilterTemplate, conditions);
+
+  return filters;
+});
+
+const gqlFilter = computed(() => {
+  let result: any = {};
+
+  result = buildQueryFilter(filters.value);
+
+  // add hard coded page sepsific filters
   if ("all" !== route.params.catalogue) {
     result["networks"] = { id: { equals: route.params.catalogue } };
   }
   return result;
 });
 
-const { data, error } = await useGqlFetch<any, IMgError>(query, {
-  variables: {
-    orderby,
-    filter,
-  },
-});
+const { data } = await useFetch<any, IMgError>(
+  `/${useRoute().params.schema}/graphql`,
+  {
+    method: "POST",
+    body: {
+      query: query,
+      variables: { filter: gqlFilter, orderby },
+    },
+    onResponseError(_ctx) {
+      logError({
+        message: "onResponseError fetching data from GraphQL endpoint",
+        statusCode: _ctx.response.status,
+        data: _ctx.response._data,
+      });
+    },
+  }
+);
 
-if (error.value) {
-  throw new Error("Error on datasources data fetch");
-}
-
+const dataSources = computed(() => data?.value.data.DataSources || []);
 const numberOfDataSources = computed(
   () => data?.value.data.DataSources_agg?.count || 0
 );
 
 function setCurrentPage(pageNumber: number) {
-  router.push({ path: route.path, query: { page: pageNumber } });
+  router.push({
+    path: route.path,
+    query: { ...route.query, page: pageNumber },
+  });
   currentPage.value = pageNumber;
 }
 
-watch(filters, () => {
-  setCurrentPage(1);
-});
+function onFilterChange(filters: IFilter[]) {
+  const conditions = toPathQueryConditions(filters) || undefined; // undefined is used to remove the query param from the URL;
 
-let activeName = ref("detailed");
+  router.push({
+    path: route.path,
+    query: { ...route.query, page: 1, conditions: conditions },
+  });
+}
 
-const underConstructionNotice = ref();
+const activeTabName = ref((route.query.view as string) || "detailed");
+
+function onActiveTabChange(tabName: activeTabType) {
+  activeTabName.value = tabName;
+  router.push({
+    path: route.path,
+    query: { ...route.query, view: tabName },
+  });
+}
 
 const crumbs: any = {};
 crumbs[
-  route.params.catalogue
+  route.params.catalogue as string
 ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}`;
 </script>
 
 <template>
   <LayoutsSearchPage>
     <template #side>
-      <FilterSidebar title="Filters" :filters="filters" />
+      <FilterSidebar
+        title="Filters"
+        :filters="filters"
+        @update:filters="onFilterChange"
+      />
     </template>
     <template #main>
       <SearchResults>
@@ -150,12 +202,14 @@ crumbs[
                 buttonRightLabel="Compact"
                 buttonRightName="compact"
                 buttonRightIcon="view-compact"
-                v-model:activeName="activeName"
+                :activeName="activeTabName"
+                @update:activeName="onActiveTabChange"
               />
               <SearchResultsViewTabsMobile class="flex xl:hidden">
                 <FilterSidebar
                   title="Filters"
                   :filters="filters"
+                  @update:filters="onFilterChange"
                   :mobileDisplay="true"
                 />
               </SearchResultsViewTabsMobile>
@@ -168,17 +222,20 @@ crumbs[
             :value="numberOfDataSources"
             label="data source"
           />
-          <FilterWell :filters="filters"></FilterWell>
+          <FilterWell
+            :filters="filters"
+            @update:filters="onFilterChange"
+          ></FilterWell>
           <SearchResultsList>
-            <CardList v-if="data?.data?.DataSources?.length > 0">
+            <CardList v-if="dataSources.length > 0">
               <CardListItem
-                v-for="datasource in data?.data?.DataSources"
+                v-for="datasource in dataSources"
                 :key="datasource.name"
               >
                 <DataSourceCard
                   :datasource="datasource"
                   :schema="route.params.schema"
-                  :compact="activeName !== 'detailed'"
+                  :compact="activeTabName !== 'detailed'"
                   :catalogue="route.params.catalogue"
                 />
               </CardListItem>
@@ -191,12 +248,10 @@ crumbs[
           </SearchResultsList>
         </template>
 
-        <template v-if="data?.data?.Cohorts?.length > 0" #pagination>
+        <template v-if="dataSources.length > 0" #pagination>
           <Pagination
             :current-page="currentPage"
-            :totalPages="
-              Math.ceil(data?.data?.DataSources_agg.count / pageSize)
-            "
+            :totalPages="Math.ceil(numberOfDataSources / pageSize)"
             @update="setCurrentPage($event)"
           />
         </template>

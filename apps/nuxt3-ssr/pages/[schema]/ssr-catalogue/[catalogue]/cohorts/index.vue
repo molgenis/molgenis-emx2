@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { IFilter, IMgError } from "~/interfaces/types";
+import type { IFilter, IMgError, activeTabType } from "~/interfaces/types";
 
 const route = useRoute();
 const router = useRouter();
@@ -149,7 +149,6 @@ const query = computed(() => {
 const orderby = { acronym: "ASC" };
 
 const gqlFilter = computed(() => {
-  console.log("gqlFilter computed");
   let result: any = {};
 
   result = buildQueryFilter(filters.value);
@@ -198,12 +197,21 @@ function onFilterChange(filters: IFilter[]) {
   });
 }
 
-let activeName = ref("detailed");
+const activeTabName = ref((route.query.view as string) || "detailed");
+
+function onActiveTabChange(tabName: activeTabType) {
+  activeTabName.value = tabName;
+  router.push({
+    path: route.path,
+    query: { ...route.query, view: tabName },
+  });
+}
 
 const cohortOnly = computed(() => {
   const routeSetting = route.query["cohort-only"] as string;
   return routeSetting === "true" || config.public.cohortOnly;
 });
+
 const crumbs: any = {};
 crumbs[
   cohortOnly.value ? "home" : (route.params.catalogue as string)
@@ -240,7 +248,8 @@ crumbs[
                 buttonRightLabel="Compact"
                 buttonRightName="compact"
                 buttonRightIcon="view-compact"
-                v-model:activeName="activeName"
+                :activeName="activeTabName"
+                @update:activeName="onActiveTabChange"
               />
               <SearchResultsViewTabsMobile class="flex xl:hidden">
                 <FilterSidebar
@@ -282,7 +291,7 @@ crumbs[
         <template v-if="cohorts.length > 0" #pagination>
           <Pagination
             :current-page="currentPage"
-            :totalPages="Math.ceil(data?.data?.Cohorts_agg.count / pageSize)"
+            :totalPages="Math.ceil(numberOfCohorts / pageSize)"
             @update="setCurrentPage($event)"
           />
         </template>

@@ -185,26 +185,6 @@ export interface IOntologyNode extends ITreeNode {
   ontologyTermURI?: string;
 }
 
-// interface IBaseFilter {
-//   title: string;
-//   initialCollapsed?: boolean;
-// }
-
-// interface ISearchFilter extends IBaseFilter {
-//   columnType: "_SEARCH";
-//   search?: string;
-// }
-
-// export interface IFilter extends IBaseFilter {
-//   columnType: "_SEARCH" | "ONTOLOGY" | "REF_ARRAY";
-//   refTableId?: string;
-//   columnId?: string;
-//   filterTable?: string;
-//   conditions?: [] | { [key: string]: string }[];
-//   searchTables?: string[];
-//   search?: string;
-// }
-
 export interface IFormField {
   name: string;
   label: string;
@@ -367,7 +347,7 @@ export interface IOntologyFilterConfig extends IFilterConfig {
 export interface IRefArrayFilterConfig extends IFilterConfig {
   type: "REF_ARRAY";
   refTableId: string;
-  refSchema: string;
+  refSchema?: string;
   columnId: string;
   refFields?: filterRefField;
 }
@@ -405,3 +385,5 @@ export interface IPathSearchCondition extends IPathCondition {
 export interface IPathConditionsCondition extends IPathCondition {
   conditions: IFilterCondition[];
 }
+
+export type activeTabType = "detailed" | "compact";

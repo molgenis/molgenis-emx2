@@ -78,7 +78,8 @@ function handleFilerUpdate(filter: IFilter) {
           :key-field="filter.config.refFields.key"
           :name-field="filter.config.refFields?.name"
           :descriptionField="filter.config.refFields?.description"
-          v-model="(filter as IRefArrayFilter).conditions"
+          :model-value="(filter as IRefArrayFilter).conditions"
+          @update:model-value="(value) => {(filter as IRefArrayFilter).conditions = value; handleFilerUpdate(filter)}"
         />
       </FilterContainer>
     </template>
