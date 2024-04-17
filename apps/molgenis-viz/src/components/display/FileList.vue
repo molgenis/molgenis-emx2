@@ -40,15 +40,22 @@
   </MessageBox>
   <ul class="file-list" v-else>
     <li class="file" v-for="file in data" :key="file.id">
-      <p class="file-element file-name">{{ file.filename }}</p>
+      <p class="file-element file-name">
+        <span v-if="Object.hasOwn(file, labelsColumn)">
+          {{ file[labelsColumn as string] }}
+        </span>
+        <span v-else>
+          {{ file[fileColumn].filename }}
+        </span>
+      </p>
       <p class="file-element file-format">
-        {{ file.extension }}
+        {{ file[fileColumn].extension }}
       </p>
-      <p class="file-element file-size">
-        {{ Math.round((file.size / 1000) * 100) / 100 }} KB
+      <p class="file-element file-size"> 
+        {{ (file[fileColumn].size / Math.pow(1024,2)).toFixed(2) }} MB
       </p>
-      <a class="file-element file-url" :href="file.url">
-        <span class="visually-hidden">Download {{ file.filename }}</span>
+      <a class="file-element file-url" :href="file[fileColumn].url">
+        <span class="visually-hidden">Download {{ file[fileColumn].filename }}</span>
         <ArrowDownTrayIcon class="heroicons" />
       </a>
     </li>
@@ -75,12 +82,14 @@ interface FileProperties {
 
 const props = defineProps<{
   table: string;
+  labelsColumn?: string;
   fileColumn: string;
 }>();
 
 async function getFiles() {
   const query = gql`query {
     ${props.table} {
+      ${props.labelsColumn ? props.labelsColumn : ''}
       ${props.fileColumn} {
         id
         filename
@@ -91,9 +100,7 @@ async function getFiles() {
     }
   }`;
   const response = await request("../api/graphql", query);
-  data.value = response[props.table].map((row: FileProperties) => {
-    return row[props.fileColumn as string];
-  });
+  data.value = response[props.table as string];
 }
 
 onMounted(() => {
