@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import type { IFilter, IMgError } from "~/interfaces/types";
+import type { IFilter, IMgError, activeTabType } from "~/interfaces/types";
 
 const route = useRoute();
 const router = useRouter();
-const config = useRuntimeConfig();
 const pageSize = 10;
 
 const scoped = route.params.catalogue !== "all";
@@ -11,39 +10,50 @@ const catalogue = scoped ? route.params.catalogue : undefined;
 
 useHead({ title: scoped ? `${catalogue} networks` : "Networks" });
 
-const currentPage = ref(1);
-if (route.query?.page) {
+const currentPage = computed(() => {
   const queryPageNumber = Number(route.query?.page);
-  currentPage.value =
-    typeof queryPageNumber === "number" ? Math.round(queryPageNumber) : 1;
-}
-let offset = computed(() => (currentPage.value - 1) * pageSize);
+  return !isNaN(queryPageNumber) && typeof queryPageNumber === "number"
+    ? Math.round(queryPageNumber)
+    : 1;
+});
+const offset = computed(() => (currentPage.value - 1) * pageSize);
 
-let filters: IFilter[] = reactive([
+const pageFilterTemplate: IFilter[] = [
   {
-    title: "Search in networks",
-    columnType: "_SEARCH",
+    id: "search",
+    config: {
+      label: "Search in networks",
+      type: "SEARCH",
+      initialCollapsed: false,
+    },
     search: "",
-    initialCollapsed: false,
   },
   {
-    title: "Type",
-    columnId: "type",
-    columnType: "ONTOLOGY",
-    refTableId: "NetworkTypes",
-    refFields: {
-      key: "name",
-      name: "name",
-      description: "name",
+    id: "type",
+    config: {
+      label: "Type",
+      type: "ONTOLOGY",
+      ontologyTableId: "NetworkTypes",
+      ontologySchema: "CatalogueOntologies",
+      columnId: "type",
+      initialCollapsed: false,
     },
     conditions: [],
-    initialCollapsed: false,
   },
-]);
+];
 
-let search = computed(() => {
-  // @ts-ignore
-  return filters.find((f) => f.columnType === "_SEARCH").search;
+const filters = computed(() => {
+  // if there are not query conditions just use the page defaults
+  if (!route.query?.conditions) {
+    return [...pageFilterTemplate];
+  }
+
+  // get conditions from query
+  const conditions = conditionsFromPathQuery(route.query.conditions as string);
+  // merge with page defaults
+  const filters = mergeWithPageDefaults(pageFilterTemplate, conditions);
+
+  return filters;
 });
 
 const cardFields = `id
@@ -88,34 +98,29 @@ query items($filter:NetworksFilter, $orderby:Networksorderby){
 
 const orderby = { acronym: "ASC" };
 
-const filter = computed(() => {
-  return buildQueryFilter(filters, search.value);
+const gqlFilter = computed(() => {
+  return buildQueryFilter(filters.value);
 });
 
 const catalogueFilter = scoped ? { id: { equals: catalogue } } : undefined;
 
-const { data, error } = await useGqlFetch<any, IMgError>(query, {
-  variables: {
-    orderby,
-    filter,
-    catalogueFilter,
-  },
-});
-
-if (error.value) {
-  throw new Error("Error on networks page data-fetch");
-}
-
-function setCurrentPage(pageNumber: number) {
-  router.push({ path: route.path, query: { page: pageNumber } });
-  currentPage.value = pageNumber;
-}
-
-watch(filters, () => {
-  setCurrentPage(1);
-});
-
-let activeName = ref("detailed");
+const { data } = await useFetch<any, IMgError>(
+  `/${useRoute().params.schema}/graphql`,
+  {
+    method: "POST",
+    body: {
+      query: query,
+      variables: { filter: gqlFilter, orderby, catalogueFilter },
+    },
+    onResponseError(_ctx) {
+      logError({
+        message: "onResponseError fetching data from GraphQL endpoint",
+        statusCode: _ctx.response.status,
+        data: _ctx.response._data,
+      });
+    },
+  }
+);
 
 const numberOfNetworks = computed(() => {
   return scoped
@@ -129,6 +134,32 @@ const networks = computed(() => {
     : data.value?.data?.Networks;
 });
 
+function setCurrentPage(pageNumber: number) {
+  router.push({
+    path: route.path,
+    query: { ...route.query, page: pageNumber },
+  });
+}
+
+function onFilterChange(filters: IFilter[]) {
+  const conditions = toPathQueryConditions(filters) || undefined; // undefined is used to remove the query param from the URL;
+
+  router.push({
+    path: route.path,
+    query: { ...route.query, page: 1, conditions: conditions },
+  });
+}
+
+const activeTabName = ref((route.query.view as string) || "detailed");
+
+function onActiveTabChange(tabName: activeTabType) {
+  activeTabName.value = tabName;
+  router.push({
+    path: route.path,
+    query: { ...route.query, view: tabName },
+  });
+}
+
 const crumbs: any = {};
 crumbs[
   route.params.catalogue
@@ -138,7 +169,11 @@ crumbs[
 <template>
   <LayoutsSearchPage>
     <template #side>
-      <FilterSidebar title="Filters" :filters="filters" />
+      <FilterSidebar
+        title="Filters"
+        :filters="filters"
+        @update:filters="onFilterChange"
+      />
     </template>
     <template #main>
       <SearchResults>
@@ -161,15 +196,17 @@ crumbs[
                 buttonRightLabel="Compact"
                 buttonRightName="compact"
                 buttonRightIcon="view-compact"
-                v-model:activeName="activeName"
+                :activeName="activeTabName"
+                @update:activeName="onActiveTabChange"
               />
               <SearchResultsViewTabsMobile
                 class="flex xl:hidden"
-                v-model:activeName="activeName"
+                v-model:activeName="activeTabName"
               >
                 <FilterSidebar
                   title="Filters"
                   :filters="filters"
+                  @update:filters="onFilterChange"
                   :mobileDisplay="true"
                 />
               </SearchResultsViewTabsMobile>
@@ -179,14 +216,17 @@ crumbs[
 
         <template #search-results>
           <SearchResultsCount :value="numberOfNetworks" label="network" />
-          <FilterWell :filters="filters"></FilterWell>
+          <FilterWell
+            :filters="filters"
+            @update:filters="onFilterChange"
+          ></FilterWell>
           <SearchResultsList>
             <CardList v-if="networks?.length > 0">
               <CardListItem v-for="network in networks" :key="network.name">
                 <NetworkCard
                   :network="network"
                   :schema="route.params.schema"
-                  :compact="activeName !== 'detailed'"
+                  :compact="activeTabName !== 'detailed'"
                 />
               </CardListItem>
             </CardList>
