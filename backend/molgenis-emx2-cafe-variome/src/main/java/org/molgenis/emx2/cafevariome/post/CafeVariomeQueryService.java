@@ -31,6 +31,11 @@ public class CafeVariomeQueryService {
   public static QueryResponse query(Request request, List<Table> tables) throws Exception {
     JsonQuery requestBody = new ObjectMapper().readValue(request.body(), JsonQuery.class);
 
+    // normally, we authenticate using sessions or via JWT token
+    // here, we need to automate communication across CV-MOLGENIS
+    // and use keycloak, so we must do a bit extra: accept keycloak tokens for authentication
+    // steps to doing this:
+
     // implement auth via keycloak, see:
     // https://github.com/CafeVariomeUoL/CafeVariomeFlask/blob/main/cvf_app/models/node.py
     // assuming user is logged in, steps:
