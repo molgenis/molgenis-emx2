@@ -1,21 +1,12 @@
 import { test, expect } from "@playwright/test";
+import { login, optionallyRemoveDatabase, createDatabase } from "../utils";
 
 test("visibleExpressionDECIMAL", async ({ page }) => {
-  //make new database
+  await login(page);
+  await optionallyRemoveDatabase(page, "testVisibleINT");
+  await createDatabase(page, "testVisibleINT", "PET_STORE", true);
   await page.goto("/apps/central/#/");
-  await page.getByRole("button", { name: "Sign in" }).click();
-  await page.getByPlaceholder("Enter username").click();
-  await page.getByPlaceholder("Enter username").fill("admin");
-  await page.getByPlaceholder("Enter username").press("Tab");
-  await page.getByPlaceholder("Password").fill("admin");
-  await page.getByPlaceholder("Password").press("Enter");
-  await page.getByRole("button", { name: "" }).click();
-  await page.getByLabel("name").click();
-  await page.getByLabel("name").fill("testVisibleINT");
-  await page.getByLabel("template").selectOption("PET_STORE");
-  await page.getByLabel("true").check();
-  await page.getByRole("button", { name: "Create database" }).click();
-  //create visibleExpression
+
   await page.getByRole("link", { name: "testVisibleINT" }).click();
   await page.getByRole("link", { name: "Schema" }).click();
   await page.getByText("complete").click();
@@ -49,33 +40,14 @@ test("visibleExpressionDECIMAL", async ({ page }) => {
     page.locator("#Order-edit-modal-complete").getByText("complete")
   ).toBeHidden();
   await page.getByRole("button", { name: "Save Order" }).click();
-  //remove database
-  await page.getByRole("link", { name: "brand-logo" }).click();
-  await page
-    .getByRole("row", { name: "  testVisibleINT" })
-    .getByRole("button")
-    .nth(1)
-    .click();
-  await page.getByRole("button", { name: "Delete database" }).click();
-  await page.getByText("Close").click();
 });
 
 test("visibleExpressionREF", async ({ page }) => {
-  //make new database
+  await login(page);
+  await optionallyRemoveDatabase(page, "testVisibleREF");
+  await createDatabase(page, "testVisibleREF", "PET_STORE", true);
   await page.goto("/apps/central/#/");
-  await page.getByRole("button", { name: "Sign in" }).click();
-  await page.getByPlaceholder("Enter username").click();
-  await page.getByPlaceholder("Enter username").fill("admin");
-  await page.getByPlaceholder("Enter username").press("Tab");
-  await page.getByPlaceholder("Password").fill("admin");
-  await page.getByPlaceholder("Password").press("Enter");
-  await page.getByRole("button", { name: "" }).click();
-  await page.getByLabel("name").click();
-  await page.getByLabel("name").fill("testVisibleREF");
-  await page.getByLabel("template").selectOption("PET_STORE");
-  await page.getByLabel("true").check();
-  await page.getByRole("button", { name: "Create database" }).click();
-  //create visibleExpression
+
   await page.getByRole("link", { name: "testVisibleREF" }).click();
   await page.getByRole("link", { name: "Schema" }).click();
   await page.getByText("status").first().click();
@@ -109,32 +81,14 @@ test("visibleExpressionREF", async ({ page }) => {
     .click();
   await expect(page.getByRole("dialog").getByText("status")).toBeHidden();
   await page.getByRole("button", { name: "Save Order" }).click();
-  //remove database
-  await page.getByRole("link", { name: "brand-logo" }).click();
-  await page
-    .getByRole("row", { name: "  testVisibleREF" })
-    .getByRole("button")
-    .nth(1)
-    .click();
-  await page.getByRole("button", { name: "Delete database" }).click();
-  await page.getByText("Close").click();
 });
 
 test("visibleExpressionONTOLOGY_ARRAY", async ({ page }) => {
-  //make new database
+  await login(page);
+  await optionallyRemoveDatabase(page, "testVisibleONTOLOGY_ARRAY");
+  await createDatabase(page, "testVisibleONTOLOGY_ARRAY", "PET_STORE", true);
   await page.goto("/apps/central/#/");
-  await page.getByRole("button", { name: "Sign in" }).click();
-  await page.getByPlaceholder("Enter username").click();
-  await page.getByPlaceholder("Enter username").fill("admin");
-  await page.getByPlaceholder("Enter username").press("Tab");
-  await page.getByPlaceholder("Password").fill("admin");
-  await page.getByPlaceholder("Password").press("Enter");
-  await page.getByRole("button", { name: "" }).click();
-  await page.getByLabel("name").click();
-  await page.getByLabel("name").fill("testVisibleONTOLOGY_ARRAY");
-  await page.getByLabel("template").selectOption("PET_STORE");
-  await page.getByLabel("true").check();
-  await page.getByRole("button", { name: "Create database" }).click();
+
   //create visibleExpression
   await page.getByRole("link", { name: "testVisibleONTOLOGY_ARRAY" }).click();
   await page.getByRole("link", { name: "Schema" }).click();
@@ -214,13 +168,4 @@ test("visibleExpressionONTOLOGY_ARRAY", async ({ page }) => {
   await page.getByRole("spinbutton").fill("2");
   await page.getByRole("spinbutton").click();
   await page.getByRole("button", { name: "Save Pet" }).click();
-  //remove database
-  await page.getByRole("link", { name: "brand-logo" }).click();
-  await page
-    .getByRole("row", { name: "  testVisibleONTOLOGY_ARRAY" })
-    .getByRole("button")
-    .nth(1)
-    .click();
-  await page.getByRole("button", { name: "Delete database" }).click();
-  await page.getByText("Close").click();
 });

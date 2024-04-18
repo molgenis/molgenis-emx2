@@ -1,20 +1,20 @@
 import { test, expect } from "@playwright/test";
+import { login, optionallyRemoveDatabase, createDatabase } from "../utils";
 
 test("computedExpressionCONCAT", async ({ page }) => {
-  //make new database
+  await login(page);
+  await optionallyRemoveDatabase(page, "computedTest");
+  await createDatabase(page, "computedTest", "PET_STORE", true);
   await page.goto("/apps/central/#/");
-  await page.getByRole("button", { name: "Sign in" }).click();
-  await page.getByPlaceholder("Enter username").click();
-  await page.getByPlaceholder("Enter username").fill("admin");
-  await page.getByPlaceholder("Enter username").press("Tab");
-  await page.getByPlaceholder("Password").fill("admin");
-  await page.getByPlaceholder("Password").press("Enter");
+
+  await page.goto("/apps/central/#/");
   await page.getByRole("button", { name: "" }).click();
   await page.getByLabel("name").click();
   await page.getByLabel("name").fill("computedTest");
   await page.getByLabel("template").selectOption("PET_STORE");
   await page.getByLabel("true").check();
   await page.getByRole("button", { name: "Create database" }).click();
+  await page.getByText("Close").click();
   //create computedExpression concat string and REF
   await page.getByRole("link", { name: "computedTest" }).click();
   await page.getByRole("link", { name: "Schema" }).click();
@@ -82,21 +82,11 @@ test("computedExpressionCONCAT", async ({ page }) => {
 });
 
 test("computedExpressionComplex", async ({ page }) => {
-  //make new database
+  await login(page);
+  await optionallyRemoveDatabase(page, "testComputedComplex");
+  await createDatabase(page, "testComputedComplex", "PET_STORE", true);
   await page.goto("/apps/central/#/");
-  await page.getByRole("button", { name: "Sign in" }).click();
-  await page.getByPlaceholder("Enter username").click();
-  await page.getByPlaceholder("Enter username").fill("admin");
-  await page.getByPlaceholder("Enter username").press("Tab");
-  await page.getByPlaceholder("Password").fill("admin");
-  await page.getByPlaceholder("Password").press("Enter");
-  await page.getByRole("button", { name: "" }).click();
-  await page.getByLabel("name").click();
-  await page.getByLabel("name").fill("testComputedComplex");
-  await page.getByLabel("template").selectOption("PET_STORE");
-  await page.getByLabel("true").check();
-  await page.getByRole("button", { name: "Create database" }).click();
-  //create computedExpression complex
+
   await page.getByRole("link", { name: "testComputedComplex" }).click();
   await page.getByRole("link", { name: "Tag" }).click();
   await page.getByRole("button", { name: "" }).click();
@@ -259,13 +249,4 @@ test("computedExpressionComplex", async ({ page }) => {
   await page.locator("#filter-id1").fill("test2");
   await page.getByRole("heading", { name: "total " }).click();
   await expect(page.getByRole("row")).toContainText("4");
-  //remove database
-  await page.getByRole("link", { name: "brand-logo" }).click();
-  await page
-    .getByRole("row", { name: "  computedTest" })
-    .getByRole("button")
-    .nth(1)
-    .click();
-  await page.getByRole("button", { name: "Delete database" }).click();
-  await page.getByText("Close").click();
 });
