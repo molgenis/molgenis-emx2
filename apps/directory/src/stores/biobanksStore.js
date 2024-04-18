@@ -117,13 +117,7 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
 
       /* Update biobankCards only if the result is the most recent one*/
       if (requestTime === lastRequestTime) {
-        let biobanksWithCollections = biobankResult.Biobanks;
-        if (filtersStore.hasActiveFilters) {
-          biobanksWithCollections = biobanksWithCollections.filter(
-            (biobank) => biobank.collections
-          );
-        }
-        biobankCards.value = filterWithdrawn(biobankResult.Biobanks);
+        biobankCards.value = filterWithdrawn(biobankResult.Biobanks || []);
         waitingForResponse.value = false;
         filtersStore.bookmarkWaitingForApplication = false;
       }
@@ -152,6 +146,7 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
     ) {
       return [];
     }
+
     let columnPath = applyToColumn;
     if (!Array.isArray(applyToColumn)) {
       columnPath = [applyToColumn];
