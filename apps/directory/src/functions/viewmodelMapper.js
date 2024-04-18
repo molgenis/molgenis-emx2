@@ -311,7 +311,7 @@ export const collectionReportInformation = (collection) => {
       country: collection.country.label,
       report: `/biobank/${collection.biobank.id}`,
       website: collection.biobank.url,
-      email: collection.biobank.contact?.email || undefined,
+      email: collection.biobank.contact?.email,
     };
   }
 

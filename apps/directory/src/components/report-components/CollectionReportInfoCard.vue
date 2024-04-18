@@ -43,12 +43,9 @@
                   </router-link>
                 </div>
                 <div v-if="info.biobank.website">
-                  <span
-                    class="fa fa-fw fa-globe mr-2"
-                    aria-hidden="true"
-                  ></span>
+                  <span class="fa fa-fw fa-globe mr-2" aria-hidden="true" />
                   <a
-                    :href="info.biobank.url"
+                    :href="info.biobank.website"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
