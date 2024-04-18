@@ -292,8 +292,8 @@ export const collectionReportInformation = (collection) => {
   if (collection.contact) {
     collectionReport.contact = {
       name: getName(collection.contact),
-      email: collection.contact.email ? collection.contact.email : undefined,
-      phone: collection.contact.phone ? collection.contact.phone : undefined,
+      email: collection.contact.email,
+      phone: collection.contact.phone,
     };
   }
 
@@ -308,12 +308,10 @@ export const collectionReportInformation = (collection) => {
       id: collection.biobank.id,
       name: collection.biobank.name,
       juridical_person: collection.biobank.juridical_person,
-      country: collection.country.label || collection.country.name,
+      country: collection.country.label,
       report: `/biobank/${collection.biobank.id}`,
       website: collection.biobank.url,
-      email: collection.biobank.contact
-        ? collection.biobank.contact.email
-        : undefined,
+      email: collection.biobank.contact?.email || undefined,
     };
   }
 
