@@ -42,7 +42,7 @@
     <li class="file" v-for="file in data" :key="file.id">
       <p class="file-element file-name">
         <span v-if="labelsColumn && Object.hasOwn(file, labelsColumn)">
-          {{ file[labelsColumn as string] }}
+          {{ file[labelsColumn] }}
         </span>
         <span v-else>
           {{ file[fileColumn].filename }}
@@ -71,22 +71,22 @@ import { request } from "graphql-request";
 import MessageBox from "./MessageBox.vue";
 import { ArrowDownTrayIcon, PlusIcon } from "@heroicons/vue/24/outline";
 
-let error = ref<Error | null>(null);
-let data = ref<Array[]>([]);
-
-interface FileProperties {
-  id: string;
-  filename: string;
-  extension: string;
-  size: int;
-  url: string;
-}
-
 const props = defineProps<{
   table: string;
   labelsColumn?: string;
   fileColumn: string;
 }>();
+
+interface FileProperties {
+  id: string;
+  filename: string;
+  extension: string;
+  size: number;
+  url: string;
+}
+
+const error = ref<Error | null>(null);
+const data: Record<string, FileProperties>[] = ref([]);
 
 async function getFiles() {
   const query = gql`query {
@@ -102,7 +102,7 @@ async function getFiles() {
     }
   }`;
   const response = await request("../api/graphql", query);
-  data.value = response[props.table as string];
+  data.value = response[props.table];
 }
 
 onMounted(() => {
