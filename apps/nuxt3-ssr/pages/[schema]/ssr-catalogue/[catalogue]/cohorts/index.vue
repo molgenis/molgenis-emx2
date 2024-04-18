@@ -274,9 +274,9 @@ crumbs[
               <CardListItem v-for="cohort in cohorts" :key="cohort.name">
                 <CohortCard
                   :cohort="cohort"
-                  :schema="route.params.schema"
-                  :catalogue="route.params.catalogue"
-                  :compact="activeName !== 'detailed'"
+                  :schema="route.params.schema as string"
+                  :catalogue="route.params.catalogue as string"
+                  :compact="activeTabName !== 'detailed'"
                 />
               </CardListItem>
             </CardList>

@@ -162,7 +162,7 @@ function onActiveTabChange(tabName: activeTabType) {
 
 const crumbs: any = {};
 crumbs[
-  route.params.catalogue
+  route.params.catalogue as string
 ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}`;
 </script>
 
@@ -225,7 +225,7 @@ crumbs[
               <CardListItem v-for="network in networks" :key="network.name">
                 <NetworkCard
                   :network="network"
-                  :schema="route.params.schema"
+                  :schema="route.params.schema as string"
                   :compact="activeTabName !== 'detailed'"
                 />
               </CardListItem>

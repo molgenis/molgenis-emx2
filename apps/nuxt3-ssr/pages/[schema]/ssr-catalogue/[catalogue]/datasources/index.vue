@@ -234,9 +234,9 @@ crumbs[
               >
                 <DataSourceCard
                   :datasource="datasource"
-                  :schema="route.params.schema"
+                  :schema="route.params.schema as string"
                   :compact="activeTabName !== 'detailed'"
-                  :catalogue="route.params.catalogue"
+                  :catalogue="route.params.catalogue as string"
                 />
               </CardListItem>
             </CardList>

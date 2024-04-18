@@ -300,8 +300,8 @@ crumbs[
               >
                 <VariableCard
                   :variable="variable"
-                  :schema="route.params.schema"
-                  :catalogue="route.params.catalogue"
+                  :schema="route.params.schema as string"
+                  :catalogue="route.params.catalogue as string"
                 />
               </CardListItem>
             </CardList>
