@@ -24,6 +24,7 @@
 import { computed } from "vue";
 import { getName } from "../../functions/viewmodelMapper";
 import { useSettingsStore } from "../../stores/settingsStore";
+import { IContactInformation } from "./reportInterfaces";
 
 const settingsStore = useSettingsStore();
 
@@ -34,14 +35,4 @@ const { contactInformation } = defineProps<{
 
 const uiText = computed(() => settingsStore.uiText);
 const name = computed(() => getName(contactInformation));
-
-interface IContactInformation {
-  title_before_name: string;
-  first_name: string;
-  last_name: string;
-  email: string;
-  role: string;
-  address: string;
-  country: { name: string; label: string };
-}
 </script>

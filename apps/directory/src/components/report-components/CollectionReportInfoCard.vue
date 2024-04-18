@@ -131,9 +131,12 @@ import ReportDetailsList from "../../components/report-components/ReportDetailsL
 import ContactInformation from "./ContactInformation.vue";
 
 const settingsStore = useSettingsStore();
+const props = defineProps<{
+  info: Record<string, any>;
+  collection: Record<string, any>;
+}>();
+const { info, collection } = toRefs(props);
 const uiText = computed(() => settingsStore.uiText);
-const props = defineProps(["info", "collection"]);
-let { info, collection } = toRefs(props);
 </script>
 
 <style scoped>

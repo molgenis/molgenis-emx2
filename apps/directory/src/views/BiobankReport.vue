@@ -216,7 +216,6 @@ export default {
         : [];
     },
     head() {
-      console.log(this.biobank.head);
       return this.biobankDataAvailable && this.biobank.head
         ? getName(this.biobank.head)
         : null;
