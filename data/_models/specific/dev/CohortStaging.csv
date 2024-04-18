@@ -12,11 +12,9 @@ Collections,,website,hyperlink,,,,,,,,dcat:landingPage,Link to the website or ho
 Collections,,lead organisation,ref_array,,,SharedStaging,Organisations,,,,,lead organisation (e.g. research department or group) for this resource
 Collections,,additional organisations,ref_array,,,SharedStaging,Organisations,,,,,List the names of any additional organisations that contributed to the resource
 Collections,,description,text,,,,,,,,dcterms:description,Short description
-Collections,,external identifiers,refback,,,,External identifiers,,resource,,dcterms:identifier,"External identifier(s) for this resource (e.g. EUPASS number, UMCG register number)"
 Collections,,contact email,,,,,,,,,dcat:contactPoint,Contact e-mail address for this cohort
-Collections,,contacts,refback,,,,Contacts,,resource,,dcat:contactPoint,Contact person(s)
-Collections,,type,ontology_array,,,CatalogueOntologies,Resource types,,,,dcterms:type,"Type of resource, e.g. registry, cohort, biobank"
-Collections,,type other,,,,,,,,,,"If other, describe the type of resource"
+Collections,,cohort type,ontology_array,,,CatalogueOntologies,Resource types,,,,dcterms:type,"Type of resource, e.g. registry, cohort, biobank"
+Collections,,cohort type other,,,,,,,,,,"If other, describe the type of resource"
 Collections,,design,ontology,,,CatalogueOntologies,Cohort designs,,,,,"The study design of this cohort, i.e. cross-sectional or longitudinal"
 Collections,,design description,text,,,,,,,,,Short description of the study design of this cohort
 Collections,,design schematic,file,,,,,,,,,A schematic depiction of the study design of this cohort
@@ -35,11 +33,7 @@ Collections,,end year,int,,,,,,,,,Year when last data was collected. Leave empty
 Collections,,population disease,ontology_array,,,CatalogueOntologies,Diseases,,,,,"Does the resource collect information on a specific disease subpopulation (e.g., as in a disease-specific registry)?"
 Collections,,population oncology topology,ontology_array,,,CatalogueOntologies,ICDO topologies,,,,,"Does the resource collect information on specific cancer subtype(s)? If yes, select topology specifications."
 Collections,,population oncology morphology,ontology_array,,,CatalogueOntologies,ICDO morphologies,,,,,"Does the resource collect information on specific cancer subtype(s)? If yes, select morphology specifications."
-Collections,,subcohorts,refback,,,,Subcohorts,,resource,,,List of subcohorts or subpopulations for this resource
 Collections,,contents,heading,,,,,,,,,Data model and contents
-Collections,,datasets,refback,,,,Datasets,,resource,,,
-Collections,,collection events,refback,,,,Collection events,,resource,,dcterms:hasPart,List of collection events defined for this resource
-Collections,,aggregates,refback,,,,Aggregates,,resource,,,Counts of e.g. samples defined for this resource
 Collections,,prelinked,bool,,,,,,,,,Is the data from this data source linked to other data sources?
 Collections,,linkage possibility description,text,,,,,,,,,Can the data from this data source be linked to other data sources?
 Collections,,release type,ontology,,,CatalogueOntologies,Release types,,,,,Select whether this resource is a closed dataset or whether new data is released continuously or at a termly basis
@@ -56,11 +50,10 @@ Collections,,publications,ref_array,,,,Publications,,,,,Other publication(s) abo
 Collections,,informed consent type,ontology,,,CatalogueOntologies,Informed consent types,,,,,What type of informed consent was given for data collection?
 Collections,,funding statement,text,,,,,,,,,Statement listing funding that was obtained for this resource
 Collections,,acknowledgements,text,,,,,,,,,Acknowledgement statement and citation regulation for this resource
-Collections,,documentation,refback,,,,Documentation,,resource,,,"Descriptive document(s) available for this resource, e.g. informed consent"
 Collections,,supplementary information,text,,,,,,,,,Any other information that needs to be disclosed for this resource
 Collections,,collaborations,heading,,,,,,,,,List of relevant collaborations
-Collections,,studies,ref_array,,,catalogueFLAT,Studies,,cohorts,,,Listing of studies that used this cohort
-Collections,,networks,ref_array,,,catalogueFLAT,Networks,,cohorts,,,The consortia or networks that this cohort is involved in
+Collections,,studies,ref_array,,,catalogueFLAT,Collections,,cohorts,,,Listing of studies that used this cohort
+Collections,,networks,ref_array,,,catalogueFLAT,Collections,,cohorts,,,The consortia or networks that this cohort is involved in
 Publications,,,,,,,,,,,,Publications following bibtex format
 Publications,,doi,hyperlink,1,true,,,,,,,Digital object identifier
 Publications,,title,text,,,,,,,,,Publication title

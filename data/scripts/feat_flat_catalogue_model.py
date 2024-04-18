@@ -31,23 +31,31 @@ class Tables:
 SHARED_DIR = Path().cwd().joinpath('..', '_models', 'shared')
 SPECIFIC_DIR = Path().cwd().joinpath('..', '_models', 'specific')
 
-
 VERSION = 4.0
 
-inherit_tables = [[Tables.O, Tables.R], [Tables.M, Tables.ER],
-                  [Tables.N, Tables.ER], [Tables.S, Tables.ER],
-                  [Tables.S, Tables.R], [Tables.M, Tables.R], [Tables.N, Tables.R]] #,
-                  # [Tables.DS, Tables.RWE], [Tables.DS, Tables.DR],
-                  # [Tables.DS, Tables.ER], [Tables.DS, Tables.R],
-                  # [Tables.DB, Tables.RWE], [Tables.DB, Tables.DR],
-                  # [Tables.DB, Tables.ER], [Tables.DB, Tables.R]]
+inherit_tables = [[Tables.O, Tables.R]]
+# [Tables.M, Tables.ER],
+# [Tables.N, Tables.ER], [Tables.S, Tables.ER],
+# [Tables.S, Tables.R], [Tables.M, Tables.R], [Tables.N, Tables.R]] #,
+# [Tables.DS, Tables.RWE], [Tables.DS, Tables.DR],
+# [Tables.DS, Tables.ER], [Tables.DS, Tables.R],
+# [Tables.DB, Tables.RWE], [Tables.DB, Tables.DR],
+# [Tables.DB, Tables.ER], [Tables.DB, Tables.R]]
 
 rename_tables = [[Tables.C, Tables.DR],
-                 # [Tables.DB, Tables.RWE], [Tables.DS, Tables.RWE],
+                 [Tables.DB, Tables.RWE], [Tables.DS, Tables.RWE], [Tables.M, Tables.ER],
+                 [Tables.N, Tables.ER], [Tables.S, Tables.ER],
                  [Tables.RWE, Tables.DR],
                  [Tables.DR, Tables.ER],
                  [Tables.ER, Tables.R],
                  [Tables.R, Tables.COL]]
+
+rename_columns = {
+    'Cohorts': [['type', 'cohort type'], ['type other', 'cohort type other']],
+    'Networks': [['type', 'network type'], ['type other', 'network type other']],
+    'Studies': [['type', 'study type'], ['type other', 'study type other']],
+    'RWE resources': [['type', 'datasource type'], ['type other', 'datasource type other']]
+}
 
 table_profiles = {
     # 'Databanks': 'DatabanksStaging',
@@ -86,11 +94,14 @@ class Flattener(pd.DataFrame):
 
         self._version_bump()
 
+        self._rename_columns()
+
         for tables in inherit_tables:
             self._duplicate_columns(*tables)
 
         for tp in table_profiles.items():
             self._add_profile_tag(*tp)
+
 
         for rn in rename_tables:
             self._rename_table(*rn)
@@ -100,6 +111,8 @@ class Flattener(pd.DataFrame):
         # self._add_table_label()
 
         self._remove_shared_staging_resources()
+
+        self._remove_refbacks()
 
         # Save result to file
         self.save_df()
@@ -132,7 +145,7 @@ class Flattener(pd.DataFrame):
             self.loc[idx + 1] = inherited_columns.loc[idx]
             self.loc[idx + 1, 'tableName'] = new_tab
             # Ensure the correct profiles for the duplicated column
-            self.loc[idx + 1, 'profiles'] = ','.join(p for p in self.profiles[idx+1].split(',')
+            self.loc[idx + 1, 'profiles'] = ','.join(p for p in self.profiles[idx + 1].split(',')
                                                      if p in profiles.split(','))
             # Sort the index
             self.sort_index(inplace=True)
@@ -168,10 +181,17 @@ class Flattener(pd.DataFrame):
 
         print(f"Renamed tableName for columns of table '{old_name}' to '{new_name}'")
 
+    def _rename_columns(self):
+        """Renames columns."""
+        for table_name, cols in rename_columns.items():
+            for old, new in cols:
+                self.loc[self['tableName'] == table_name, 'columnName'] \
+                    = self.loc[self['tableName'] == table_name, 'columnName'].replace(old, new)
+
     def _remove_duplicates(self):
         """Removes duplicate rows from the DataFrame."""
         # Drop exact duplicates
-        self.drop_duplicates(inplace=True)
+        self[['tableName', 'columnName', 'profiles']].drop_duplicates(inplace=True)
 
         # Remove columns without any profiles
         self.drop(index=self.loc[self['profiles'] == ''].index, axis=1, inplace=True)
@@ -180,38 +200,15 @@ class Flattener(pd.DataFrame):
         duplicates = self[['tableName', 'columnName']].duplicated()
         print(self.loc[duplicates, ['tableName', 'columnName', 'profiles']])
 
+    def _remove_refbacks(self):
+        """Removes columns with refbacks from the Collections table."""
+        # self = self.loc[self['tableName'] != 'Collections' or self['columnType'] != 'refback']
+        self.drop(index=self.loc[(self['tableName'] == 'Collections') & (self['columnType'] == 'refback')].index, inplace=True)
+
     def _prepare_data(self):
         """Prepares the dtype of the 'key' column."""
         self['key'] = self['key'].convert_dtypes()
         self['required'] = self['required'].apply(lambda r: 'true' if r in [True, 'TRUE', 'true', 'True'] else '')
-
-    def _add_table_label(self):
-        """Adds the label 'Cohorts' to the 'Resources' table in the CohortsStaging schema.
-        And replaces its description by that of the original Cohorts table.
-        """
-        descriptions = {
-            'Cohorts': "Group of individuals sharing a defining demographic characteristic",
-            # 'Databanks': "Data collection from real world databases such as health records, registries",
-            # 'Data sources': "Collections of multiple data banks covering the same population"
-        }
-        stagings = {
-            'Cohorts': "CohortStaging",
-            # 'Databanks': "DatabanksStaging",
-            # 'Data sources': "DatasourcesStaging"
-        }
-
-        description = "Group of individuals sharing a defining demographic characteristic"
-        idx = self.loc[(self['tableName'] == 'Collections') & (self['columnName'].isna())].index[0]
-        self['label'] = None
-        self.loc[idx, 'profiles'] = ','.join(p for p in self.loc[idx, 'profiles'].split(',')
-                                             if p not in ['CohortStaging', 'DatabanksStaging', 'DatasourcesStaging'])
-        for inc, table in enumerate(descriptions.keys()):
-            self.loc[idx+0.1*(inc+1)] = self.loc[idx]
-            self.loc[idx+0.1*(inc+1), 'description'] = descriptions[table]
-            self.loc[idx+0.1*(inc+1), 'profiles'] = stagings[table]
-            self.loc[idx+0.1*(inc+1), 'label'] = table
-        self.sort_index(inplace=True)
-        self.reset_index(drop=True, inplace=True)
 
     def _remove_shared_staging_resources(self):
         """Removes the 'SharedStaging' profile from the Resources table."""

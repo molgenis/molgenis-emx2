@@ -2,29 +2,13 @@ tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,ref
 Version,,,,,,,,,,,,4.0
 Collections,,,,,,,,,,,dcat:Resource,"Generic listing of all resources. Should not be used directly, instead use specific types such as Databanks and Studies"
 Organisations,,,,,,,,,,,"org:Organization,foaf:Agent",Research departments and research groups
-Models,,,,,,,,,,,dcat:Dataset,Data models
-Data sources,Collections,,,,,,,,,,dcat:Dataset,Collections of multiple data banks covering the same population
-Networks,,,,,,,,,,,dcat:Catalog,Collaborations of multiple institutions
-Studies,,,,,,,,,,,dcat:Dataset,"Collaborations of multiple institutions, addressing research questions using data sources and/or data banks"
 Collections,,id,,1,true,,,,,,dcterms:identifier,Internal identifier
-Networks,,id,,1,true,,,,,,dcterms:identifier,Internal identifier
-Models,,id,,1,true,,,,,,dcterms:identifier,Internal identifier
-Studies,,id,,1,true,,,,,,dcterms:identifier,Internal identifier
 Organisations,,id,,1,true,,,,,,dcterms:identifier,Internal identifier
 Collections,,pid,,2,,,,,,,dcterms:identifier,Persistent identifier
-Networks,,pid,,2,,,,,,,dcterms:identifier,Persistent identifier
-Models,,pid,,2,,,,,,,dcterms:identifier,Persistent identifier
-Studies,,pid,,2,,,,,,,dcterms:identifier,Persistent identifier
 Organisations,,pid,,2,,,,,,,dcterms:identifier,Persistent identifier
 Collections,,acronym,,,,,,,,,dcterms:identifier,Acronym if applicable
-Networks,,acronym,,,,,,,,,dcterms:identifier,Acronym if applicable
-Models,,acronym,,,,,,,,,dcterms:identifier,Acronym if applicable
-Studies,,acronym,,,,,,,,,dcterms:identifier,Acronym if applicable
 Organisations,,acronym,,,,,,,,,dcterms:identifier,Acronym if applicable
 Collections,,name,text,3,true,,,,,,"dcterms:title,foaf:name",Name used in European projects
-Networks,,name,text,3,true,,,,,,"dcterms:title,foaf:name",Name used in European projects
-Models,,name,text,3,true,,,,,,"dcterms:title,foaf:name",Name used in European projects
-Studies,,name,text,3,true,,,,,,"dcterms:title,foaf:name",Name used in European projects
 Organisations,,name,text,3,true,,,,,,"dcterms:title,foaf:name",Name used in European projects
 Organisations,,type,ontology_array,,,CatalogueOntologies,Organisation types,,,,,Type of organisation; in which sector is the organisation active?
 Organisations,,institution,text,,,,,,,,org:FormalOrganization,"University, company, medical centre or research institutes this organisation is part of"
@@ -34,51 +18,28 @@ Organisations,,features,ontology_array,,,CatalogueOntologies,Organisation featur
 Organisations,,role,ontology_array,,,CatalogueOntologies,Organisation roles,,,,org:Role,Roles of the institution in connection with data sources in the catalogue. Select one or more of the following:
 Organisations,,leading resources,refback,,,,Collections,,lead organisation,,,"Listing of data sources, cohorts, studies (etc)"
 Organisations,,additional resources,refback,,,,Collections,,additional organisations,,,"Listing of data sources, cohorts, studies (etc)"
-Networks,,features,ontology_array,,,CatalogueOntologies,Network features,,,,,Characterizations of the network
-Studies,,type,ontology,,,CatalogueOntologies,Study types,,,,,Select 1 of the following types of study
-Studies,,type other,,,,,,,,,,"If other, describe the type of study"
-Collections,,type,ontology_array,,,CatalogueOntologies,Datasource types,,,,dcterms:type,Which of the following families of databanks best describe this data source
-Collections,,type other,text,,,,,,,,,"If other, describe the type of datasource"
+Collections,,features,ontology_array,,,CatalogueOntologies,Network features,,,,,Characterizations of the network
+Collections,,study type,ontology,,,CatalogueOntologies,Study types,,,,,Select 1 of the following types of study
+Collections,,study type other,,,,,,,,,,"If other, describe the type of study"
+Collections,,datasource type,ontology_array,,,CatalogueOntologies,Datasource types,,,,dcterms:type,Which of the following families of databanks best describe this data source
+Collections,,datasource type other,text,,,,,,,,,"If other, describe the type of datasource"
 Collections,,website,hyperlink,,,,,,,,dcat:landingPage,Link to the website or homepage
-Networks,,website,hyperlink,,,,,,,,dcat:landingPage,Link to the website or homepage
-Models,,website,hyperlink,,,,,,,,dcat:landingPage,Link to the website or homepage
-Studies,,website,hyperlink,,,,,,,,dcat:landingPage,Link to the website or homepage
 Organisations,,website,hyperlink,,,,,,,,dcat:landingPage,Link to the website or homepage
 Collections,,lead organisation,ref_array,,,,Organisations,,,,dcterms:creator,lead organisation (e.g. research department or group) for this resource
-Studies,,lead organisation,ref_array,,,,Organisations,,,,dcterms:creator,lead organisation (e.g. research department or group) for this resource
-Networks,,lead organisation,ref_array,,,,Organisations,,,,dcterms:creator,lead organisation (e.g. research department or group) for this resource
-Models,,lead organisation,ref_array,,,,Organisations,,,,dcterms:creator,lead organisation (e.g. research department or group) for this resource
 Collections,,additional organisations,ref_array,,,,Organisations,,,,dcterms:contributor,List the names of any additional organisations that contributed to the resource
-Studies,,additional organisations,ref_array,,,,Organisations,,,,dcterms:contributor,List the names of any additional organisations that contributed to the resource
-Networks,,additional organisations,ref_array,,,,Organisations,,,,dcterms:contributor,List the names of any additional organisations that contributed to the resource
-Models,,additional organisations,ref_array,,,,Organisations,,,,dcterms:contributor,List the names of any additional organisations that contributed to the resource
-Studies,,other organisations,text,,,,,,,,,List the names of any other organisations that are not listed and contributed to this resource
-Networks,,other organisations,text,,,,,,,,dcterms:contributor,List the names of any other organisations that are not listed and contributed to this resource
+Collections,,other organisations,text,,,,,,,,,List the names of any other organisations that are not listed and contributed to this resource
+Collections,,other organisations,text,,,,,,,,dcterms:contributor,List the names of any other organisations that are not listed and contributed to this resource
 Collections,,description,text,,,,,,,,dcterms:description,Short description
-Networks,,description,text,,,,,,,,dcterms:description,Short description
-Models,,description,text,,,,,,,,dcterms:description,Short description
-Studies,,description,text,,,,,,,,dcterms:description,Short description
 Organisations,,description,text,,,,,,,,dcterms:description,Short description
 Collections,,data collection description,text,,,,,,,,,Describe the process of collection and recording of data.
 Collections,,date established,date,,,,,,,,,"Date when the data source was first established. If the exact day of the month is not known, please enter 15. If the exact month is not known then please enter 15/06"
 Collections,,start data collection,date,,,,,,,,dcat:startDate,"The date when data started to be collected or extracted. If the exact day of the month is not known, please enter 15. If the exact month is not known then please enter 15/06"
 Collections,,end data collection,date,,,,,,,,dcat:endDate,"If data collection in the data source has ceased, on what date did new records last enter the data source?. If the exact day of the month is not known, please enter 15. If the exact month is not known then please enter 15/06"
-Collections,,external identifiers,refback,,,,External identifiers,,resource,,dcterms:identifier,"External identifier(s) for this resource (e.g. EUPASS number, UMCG register number)"
-Studies,,external identifiers,refback,,,,External identifiers,,resource,,dcterms:identifier,"External identifier(s) for this resource (e.g. EUPASS number, UMCG register number)"
-Networks,,external identifiers,refback,,,,External identifiers,,resource,,dcterms:identifier,"External identifier(s) for this resource (e.g. EUPASS number, UMCG register number)"
-Models,,external identifiers,refback,,,,External identifiers,,resource,,dcterms:identifier,"External identifier(s) for this resource (e.g. EUPASS number, UMCG register number)"
-Studies,,status,ontology,,,CatalogueOntologies,Study status,,,,,Status of the study
-Models,,release frequency,int,,,,,,,,,Refreshing rate (in months)
-Collections,,contacts,refback,,,,Contacts,,resource,,dcat:contactPoint,Contact person(s)
-Networks,,contacts,refback,,,,Contacts,,resource,,dcat:contactPoint,Contact person(s)
-Models,,contacts,refback,,,,Contacts,,resource,,dcat:contactPoint,Contact person(s)
-Studies,,contacts,refback,,,,Contacts,,resource,,dcat:contactPoint,Contact person(s)
+Collections,,status,ontology,,,CatalogueOntologies,Study status,,,,,Status of the study
+Collections,,release frequency,int,,,,,,,,,Refreshing rate (in months)
 Organisations,,contacts,refback,,,,Contacts,,resource,,dcat:contactPoint,Contact person(s)
 Collections,,number of participants,int,,,,,,,,,Total number of individuals for which data is collected
 Collections,,countries,ontology_array,,,CatalogueOntologies,Countries,,,,dcterms:spatial,Countries where data from this resource largely originate from
-Studies,,countries,ontology_array,,,CatalogueOntologies,Countries,,,,dcterms:spatial,Countries where data from this resource largely originate from
-Networks,,countries,ontology_array,,,CatalogueOntologies,Countries,,,,dcterms:spatial,Countries where data from this resource largely originate from
-Models,,countries,ontology_array,,,CatalogueOntologies,Countries,,,,dcterms:spatial,Countries where data from this resource largely originate from
 Collections,,regions,ontology_array,,,CatalogueOntologies,Regions,,,,dcterms:spatial,Geographical regions where data from this resource largely originate from
 Collections,,population age groups,ontology_array,,,CatalogueOntologies,Age groups,,,,,Which population age groups are captured in this resource? Select all that are relevant.
 Collections,,population entry,ontology_array,,,CatalogueOntologies,Population entry,,,,,Select the possible causes / events that trigger the registration of a person in the data source
@@ -87,7 +48,6 @@ Collections,,population exit,ontology_array,,,CatalogueOntologies,Population exi
 Collections,,population exit other,text,,,,,,,,,"If other, specify the causes of exit from the underlying population"
 Collections,,population coverage,text,,,,,,,,,Estimated percentage of the population covered by the data source in the catchment area. Please describe the denominator.
 Collections,,population not covered,text,,,,,,,,,"Description of the population covered by the data source in the catchment area whose data are not collected, where applicable (e.g.: people who are registered only for private care) "
-Collections,,quantantitative information,refback,,,,Quantitative information,,resource,,,Numerical summaries describing data bank population
 Collections,,areas of information,ontology_array,,,CatalogueOntologies,Areas of information ds,,,,,Areas of information that were collected
 Collections,,quality of life other,text,,,,,,,,,"If other, specify additional quality of life measures"
 Collections,,cause of death code other,text,,,,,,,,,"If 'other,' what cause of death vocabulary is used?"
@@ -108,7 +68,6 @@ Collections,,prelinked,bool,,,,,,,,,Is the data from this data source linked to 
 Collections,,linkage description,text,,,,,,,,,Provide a high-level description of the linkages that are currently available between data sources in the data source (when pre-linked = yes)
 Collections,,linkage possibility,bool,,,,,,,,,Can this data source be linked to other data sources?
 Collections,,linkage possibility description,text,,,,,,,,,Can the data from this data source be linked to other data sources?
-Collections,,linked resources,refback,,,,Linked resources,,main resource,,,List of resources that are or can be linked to this main resource
 Collections,,data holder,ref,,,,Organisations,,,,,The name of the organisation that is responsible for governance of the data bank
 Collections,,informed consent,ontology,,,CatalogueOntologies,Informed consents,,,,,Is informed consent required for use of the data for research purposes?
 Collections,,informed consent other,text,,,,,,,,,"If other, describe the conditions when informed consent is required"
@@ -123,25 +82,12 @@ Collections,,date last refresh,date,,,,,,,,,Date of last update/refresh
 Collections,,qualification,bool,,,,,,,,,"Has the data source successfully undergone a formal qualification process (e.g., from the EMA, or ISO or other certifications)?"
 Collections,,qualifications description,text,,,,,,,,,"Has the resource successfully undergone a qualification process (e.g., from the EMA)? If yes, describe the qualification(s) granted"
 Collections,,access for validation,bool,,,,,,,,,"Can validity of the data in the data bank be verified, e.g., by review of origin medical charts?"
-Collections,,cdms,refback,,,,Mappings,,source,,,Common data models used or ETL-ed to by this data source
 Collections,,cdms other,text,,,,,,,,,"If not in list above, give the name of cdm(s) used by this data source"
 Collections,,publications,ref_array,,,,Publications,,,,,Other publication(s) about this resource
-Studies,,publications,ref_array,,,,Publications,,,,,Other publication(s) about this resource
-Networks,,publications,ref_array,,,,Publications,,,,,Other publication(s) about this resource
-Models,,publications,ref_array,,,,Publications,,,,,Other publication(s) about this resource
 Collections,,funding sources,ontology_array,,,CatalogueOntologies,Funding types,,,,,Specify the main financial support sources for the data source in the last 3 years. Select all that apply
-Studies,,funding scheme,ontology_array,,,CatalogueOntologies,Study funding,,,,,The source of funding for the study. Select all that apply
+Collections,,funding scheme,ontology_array,,,CatalogueOntologies,Study funding,,,,,The source of funding for the study. Select all that apply
 Collections,,funding statement,text,,,,,,,,,Statement listing funding that was obtained for this resource
-Studies,,funding statement,text,,,,,,,,,Statement listing funding that was obtained for this resource
-Networks,,funding statement,text,,,,,,,,,Statement listing funding that was obtained for this resource
-Models,,funding statement,text,,,,,,,,,Statement listing funding that was obtained for this resource
-Collections,,documentation,refback,,,,Documentation,,resource,,,"Descriptive document(s) available for this resource, e.g. informed consent"
-Studies,,documentation,refback,,,,Documentation,,resource,,,"Descriptive document(s) available for this resource, e.g. informed consent"
-Networks,,documentation,refback,,,,Documentation,,resource,,,"Descriptive document(s) available for this resource, e.g. informed consent"
-Models,,documentation,refback,,,,Documentation,,resource,,,"Descriptive document(s) available for this resource, e.g. informed consent"
-Studies,,networks,ref_array,,,,Networks,,,,,The consortia or networks that this study is part of
-Collections,,networks,refback,,,,Networks,,data sources,,,List of networks that this datasource is associated with
-Collections,,studies,refback,,,,Studies,,data sources,,,List of studies that this datasource is associated with
+Collections,,networks,ref_array,,,,Collections,,,,,The consortia or networks that this study is part of
 Publications,,doi,hyperlink,1,true,,,,,,,Digital object identifier
 Publications,,title,text,,,,,,,,,Publication title
 Contacts,,,,,,,,,,,vcard:Individual,Listing of contact persons per resource
@@ -171,57 +117,55 @@ Quantitative information,,population size,int,,,,,,,,,"Total number of unique in
 Quantitative information,,active size,int,,,,,,,,,"Number of unique, active, or currently registered individuals with records captured in the data source (most recent count). In the catalogue, this will accommodate counts per year"
 Quantitative information,,mean observation years,int,,,,,,,,,Median years for which unique individuals with records captured in the data source are observable (most recent count)
 Quantitative information,,mean years active,int,,,,,,,,,Median time for which unique individuals with records captured in the data source are observable (most recent count)
-Networks,,data sources,ref_array,,,,Data sources,,,,dcterms:dataset,
-Networks,,studies,refback,,,,Studies,,networks,,dcterms:dataset,
-Studies,,study requirements,ontology_array,,,CatalogueOntologies,Study requirements,,,,,Study requirements
-Studies,,regulatory procedure number,string,,,,,,,,,"Regulatory procedure number, for RMP Category 1 and 2 studies only"
-Studies,,date of signing funding contract planned,date,,,,,,,,,"Date when funding contract was signed, planned"
-Studies,,date of signing funding contract actual,date,,,,,,,,,"Date when funding contract was signed, actual"
-Studies,,collection start planned,date,,,,,,,,,When was the data collection planned to start?
-Studies,,collection start actual,date,,,,,,,,,When was the data collection actually start?
-Studies,,analysis start planned,date,,,,,,,,,When was the data analysis planned to start?
-Studies,,analysis start actual,date,,,,,,,,,When did the data analysis actually start?
-Studies,,interim report planned,date,,,,,,,,,"Planned date of interim report, if expected"
-Studies,,interim report actual,date,,,,,,,,,"Actual date of interim report, if expected"
-Studies,,final report planned,date,,,,,,,,,"Date of final study report, planned"
-Studies,,final report actual,date,,,,,,,,,"Date of final study report, actual"
-Studies,,data sources,ref_array,,,,Data sources,,,,,Data sources that provided data into this study
-Studies,,data sources other,text,,,,,,,,,Other not listed data sources that provided data into this study
-Studies,,cdms,refback,,,,Mappings,,source,,,Common data model(s) used in this study
-Studies,,study features,ontology_array,,,CatalogueOntologies,Study features,,,,,Data features
-Studies,,data characterisation details,text,,,,,,,,,Provide a summary description of the data characterisation or quality check process
-Studies,,data source types,ontology_array,,,CatalogueOntologies,Study datasource types,,,,,Types of data sources used
-Studies,,data source types other,text,,,,,,,,,"Sources of data, if other"
-Studies,,quality marks,ontology_array,,,CatalogueOntologies,Study quality marks,,,,,"Quality marks, such as ENCePP seal"
-Studies,,number of data sources,,,,,,,,,,Total number of data sources included in the study
-Studies,,medicines studied INN codes,ontology_array,,,CatalogueOntologies,INN,,,,,INN codes of medicines studied
-Studies,,medicines studied ATC codes,ontology_array,,,CatalogueOntologies,ATC,,,,,ATC codes of medicines studied
-Studies,,medicines studies brands,ontology_array,,,CatalogueOntologies,Medicine brand names,,,,,Brand names of the medicines studied
-Studies,,medicines studied other,text,,,,,,,,,If the medicinal product information (e.g. brand name or active substance or ATC code) does not appear in the available look-ups please enter it here
-Studies,,medical conditions studied,ontology_array,,,CatalogueOntologies,MedDRA,,,,,Codes of the medical conditions studied
-Studies,,medical conditions studied other,text,,,,,,,,,Codes of the medical conditions studied
-Studies,,population description,text,,,,,,,,,A short description of the study population
-Studies,,number of subjects,int,,,,,,,,,Estimated number of subjects
-Studies,,age groups,ontology_array,,,CatalogueOntologies,Age groups,,,,,Which population age groups are studied
-Studies,,objectives,text,,,,,,,,,A short description of the study objective
-Studies,,interventions,text,,,,,,,,,A short description of the study interventions
-Studies,,comparators,text,,,,,,,,,A short description of the study comparators
-Studies,,outcomes,text,,,,,,,,,A short description of the study outcomes
-Studies,,study design,text,,,,,,,,,A brief summary of the study design
-Studies,,results,text,,,,,,,,,A brief summary of the results of the study on study completion (from abstract)
-Studies,,topic,ontology_array,,,CatalogueOntologies,Study topics,,,,,An initial classification of the study purpose
-Studies,,topic other,text,,,,,,,,,"If the study is not concerning any of the proposed categories, please specify the details"
-Studies,,trial regulatory scope,ontology_array,,,CatalogueOntologies,Study trial regulatory scopes,,,,,Classification of the clinical trial in relation to the medicines authorisation
-Studies,,study design classification,ontology_array,,,CatalogueOntologies,Study design classification,,,,,Study design classifications
-Studies,,study design classification other,text,,,,,,,,,Further details on design
-Studies,,study scope,ontology_array,,,CatalogueOntologies,Study scopes,,,,,Scope of the study
-Studies,,study scope other,text,,,,,,,,,If scope 'other'
-Studies,,population of interest,ontology_array,,,CatalogueOntologies,Population of interest,,,,,"If population of interest is 'Other', please specify which other population has been studied"
-Studies,,population of interest other,text,,,,,,,,,"If population of interest is 'Other', please specify which other population has been studied"
+Collections,,data sources,ref_array,,,,Collections,,,,dcterms:dataset,
+Collections,,study requirements,ontology_array,,,CatalogueOntologies,Study requirements,,,,,Study requirements
+Collections,,regulatory procedure number,string,,,,,,,,,"Regulatory procedure number, for RMP Category 1 and 2 studies only"
+Collections,,date of signing funding contract planned,date,,,,,,,,,"Date when funding contract was signed, planned"
+Collections,,date of signing funding contract actual,date,,,,,,,,,"Date when funding contract was signed, actual"
+Collections,,collection start planned,date,,,,,,,,,When was the data collection planned to start?
+Collections,,collection start actual,date,,,,,,,,,When was the data collection actually start?
+Collections,,analysis start planned,date,,,,,,,,,When was the data analysis planned to start?
+Collections,,analysis start actual,date,,,,,,,,,When did the data analysis actually start?
+Collections,,interim report planned,date,,,,,,,,,"Planned date of interim report, if expected"
+Collections,,interim report actual,date,,,,,,,,,"Actual date of interim report, if expected"
+Collections,,final report planned,date,,,,,,,,,"Date of final study report, planned"
+Collections,,final report actual,date,,,,,,,,,"Date of final study report, actual"
+Collections,,data sources,ref_array,,,,Collections,,,,,Data sources that provided data into this study
+Collections,,data sources other,text,,,,,,,,,Other not listed data sources that provided data into this study
+Collections,,study features,ontology_array,,,CatalogueOntologies,Study features,,,,,Data features
+Collections,,data characterisation details,text,,,,,,,,,Provide a summary description of the data characterisation or quality check process
+Collections,,data source types,ontology_array,,,CatalogueOntologies,Study datasource types,,,,,Types of data sources used
+Collections,,data source types other,text,,,,,,,,,"Sources of data, if other"
+Collections,,quality marks,ontology_array,,,CatalogueOntologies,Study quality marks,,,,,"Quality marks, such as ENCePP seal"
+Collections,,number of data sources,,,,,,,,,,Total number of data sources included in the study
+Collections,,medicines studied INN codes,ontology_array,,,CatalogueOntologies,INN,,,,,INN codes of medicines studied
+Collections,,medicines studied ATC codes,ontology_array,,,CatalogueOntologies,ATC,,,,,ATC codes of medicines studied
+Collections,,medicines studies brands,ontology_array,,,CatalogueOntologies,Medicine brand names,,,,,Brand names of the medicines studied
+Collections,,medicines studied other,text,,,,,,,,,If the medicinal product information (e.g. brand name or active substance or ATC code) does not appear in the available look-ups please enter it here
+Collections,,medical conditions studied,ontology_array,,,CatalogueOntologies,MedDRA,,,,,Codes of the medical conditions studied
+Collections,,medical conditions studied other,text,,,,,,,,,Codes of the medical conditions studied
+Collections,,population description,text,,,,,,,,,A short description of the study population
+Collections,,number of subjects,int,,,,,,,,,Estimated number of subjects
+Collections,,age groups,ontology_array,,,CatalogueOntologies,Age groups,,,,,Which population age groups are studied
+Collections,,objectives,text,,,,,,,,,A short description of the study objective
+Collections,,interventions,text,,,,,,,,,A short description of the study interventions
+Collections,,comparators,text,,,,,,,,,A short description of the study comparators
+Collections,,outcomes,text,,,,,,,,,A short description of the study outcomes
+Collections,,study design,text,,,,,,,,,A brief summary of the study design
+Collections,,results,text,,,,,,,,,A brief summary of the results of the study on study completion (from abstract)
+Collections,,topic,ontology_array,,,CatalogueOntologies,Study topics,,,,,An initial classification of the study purpose
+Collections,,topic other,text,,,,,,,,,"If the study is not concerning any of the proposed categories, please specify the details"
+Collections,,trial regulatory scope,ontology_array,,,CatalogueOntologies,Study trial regulatory scopes,,,,,Classification of the clinical trial in relation to the medicines authorisation
+Collections,,study design classification,ontology_array,,,CatalogueOntologies,Study design classification,,,,,Study design classifications
+Collections,,study design classification other,text,,,,,,,,,Further details on design
+Collections,,study scope,ontology_array,,,CatalogueOntologies,Study scopes,,,,,Scope of the study
+Collections,,study scope other,text,,,,,,,,,If scope 'other'
+Collections,,population of interest,ontology_array,,,CatalogueOntologies,Population of interest,,,,,"If population of interest is 'Other', please specify which other population has been studied"
+Collections,,population of interest other,text,,,,,,,,,"If population of interest is 'Other', please specify which other population has been studied"
 Mappings,,,,,,,,,,,,"Mapping from collected datasets to standard/harmonised datasets, optionally including ETL syntaxes"
 Mappings,,source,ref,1,true,,Collections,,,,,Data source that is being mapped to a (common) data model
 Mappings,,source version,string,,,,,,,,,version of the datasource that is being mapped
-Mappings,,target,ref,1,true,,Models,,,,,model being mapped to
+Mappings,,target,ref,1,true,,Collections,,,,,model being mapped to
 Mappings,,target version,string,,,,,,,,,version of the model being mapped to
 Mappings,,cdms other,,,,,,,,,,"if cdm is not under targets, which cdm was mapped to? (default = not applicable)"
 Mappings,,mapping status,ontology,,,CatalogueOntologies,Mapping status,,,,,"Mapping from collected datasets to standard/harmonised datasets, optionally including ETL syntaxes"
