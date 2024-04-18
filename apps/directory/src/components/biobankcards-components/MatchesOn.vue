@@ -26,33 +26,14 @@ export default {
       required: true,
     },
   },
-  methods: {
-    extractValue(fullPath: string, object: Record<string, any>) {
-      if (!fullPath) return "";
-
-      const pathParts = fullPath.split(".");
-
-      let value;
-      for (const path of pathParts) {
-        if (!value) {
-          value = object[path];
-        } else if (Array.isArray(value)) {
-          return value;
-        } else {
-          value = value[path];
-        }
-      }
-      return value;
-    },
-  },
   computed: {
     filterInfoDictionary() {
       return this.filtersStore.filterFacets.reduce(
         (
-          accum: Record<string, { column: string; label: string }>,
+          accum: Record<string, { column: any; label: string }>,
           filter: {
             facetIdentifier: string;
-            applyToColumn: string;
+            applyToColumn: any;
             facetTitle: string;
           }
         ) => {
@@ -89,7 +70,7 @@ export default {
           for (const column of columns) {
             const filterLabel =
               this.filterInfoDictionary[facetIdentifier].label;
-            const potentialMatch = this.extractValue(column, this.viewmodel);
+            const potentialMatch = extractValue(column, this.viewmodel);
 
             if (!potentialMatch) {
               continue;
@@ -165,6 +146,24 @@ export default {
     },
   },
 };
+
+function extractValue(fullPath: string, object: Record<string, any>) {
+  if (!fullPath) return "";
+
+  const pathParts = fullPath.split(".");
+
+  let value;
+  for (const path of pathParts) {
+    if (!value) {
+      value = object[path];
+    } else if (Array.isArray(value)) {
+      return value;
+    } else {
+      value = value[path];
+    }
+  }
+  return value;
+}
 
 interface IMatch {
   name: string;
