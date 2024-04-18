@@ -11,6 +11,12 @@
     <div v-if="contactInformation.address">
       {{ contactInformation.address }}
     </div>
+    <div v-if="contactInformation.zip && contactInformation.city">
+      {{ contactInformation.zip }} {{ contactInformation.city }}
+    </div>
+    <div v-if="contactInformation.country">
+      {{ contactInformation.country.label || contactInformation.country.name }}
+    </div>
     <div v-if="website">
       <a :href="website" target="_blank" rel="noopener noreferrer">
         <i class="fa fa-fw fa-globe" aria-hidden="true" />

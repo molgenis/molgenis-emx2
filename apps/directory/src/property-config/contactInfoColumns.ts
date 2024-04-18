@@ -5,6 +5,8 @@ export const ContactInfoColumns = [
   "contact.role",
   "contact.email",
   "contact.address",
+  "contact.zip",
+  "contact.city",
   "contact.country.name",
   "contact.country.label",
 ];

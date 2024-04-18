@@ -5,6 +5,8 @@ export interface IContactInformation {
   email: string;
   role: string;
   address: string;
+  zip: string;
+  city: string;
   country: { name: string; label: string };
 }
 
