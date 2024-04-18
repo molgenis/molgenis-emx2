@@ -14,21 +14,14 @@
           <router-link
             :to="{ name: 'charts-builder' }"
             style="text-decoration: underline"
-            >Chart Builder</router-link
           >
+            Chart Builder
+          </router-link>
           will appear here.
         </p>
       </MessageBox>
     </PageSection>
     <Dashboard>
-      <DashboardRow :columns="1">
-        <MessageBox type="warning">
-          <p>
-            This demo only works with the schema `ERN_DASHBOARD`. Create a new
-            schema using the template and load in the demo data.
-          </p>
-        </MessageBox>
-      </DashboardRow>
       <DashboardRow :columns="1">
         <DashboardChart>
           <GeoMercatorEmx
