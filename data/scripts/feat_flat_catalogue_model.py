@@ -97,7 +97,7 @@ class Flattener(pd.DataFrame):
 
         self._remove_duplicates()
 
-        self._add_table_label()
+        # self._add_table_label()
 
         self._remove_shared_staging_resources()
 
