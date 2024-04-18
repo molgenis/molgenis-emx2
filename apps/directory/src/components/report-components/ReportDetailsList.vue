@@ -70,6 +70,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { useSettingsStore } from "../../stores/settingsStore";
+import { IReportDetail } from "./reportInterfaces";
 const settingsStore = useSettingsStore();
 
 const { reportDetails } = defineProps<{
@@ -83,34 +84,5 @@ function showRow(value: IReportDetail) {
 
 function showKey(type: string) {
   return ["bool", "string-with-key", "list"].includes(type);
-}
-
-export interface IReportDetail {
-  value: string;
-  type:
-    | "string"
-    | "email"
-    | "url"
-    | "bool"
-    | "list"
-    | "phone"
-    | "report"
-    | "string-with-key";
-  label?: string;
-  badgeColor?: IBadgeColor; // is this actually being used or dead code?
-}
-
-interface IBadgeColor {
-  type: EBadgeColors;
-}
-
-enum EBadgeColors {
-  "success",
-  "warning",
-  "info",
-  "secondary",
-  "danger",
-  "light",
-  "dark",
 }
 </script>

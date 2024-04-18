@@ -203,9 +203,7 @@ export default {
       return Object.keys(this.biobank).length;
     },
     collectionsData() {
-      return this.biobankDataAvailable &&
-        this.biobank.collections &&
-        this.biobank.collections.length
+      return this.biobankDataAvailable && this.biobank.collections?.length
         ? this.filterAndSortCollectionsData(this.biobank.collections)
         : [];
     },
@@ -216,14 +214,10 @@ export default {
         : [];
     },
     head() {
-      return this.biobankDataAvailable && this.biobank.head
-        ? getName(this.biobank.head)
-        : null;
+      return this.biobank?.head ? getName(this.biobank.head) : null;
     },
     contact() {
-      return this.biobankDataAvailable && this.biobank.contact
-        ? this.biobank.contact
-        : {};
+      return this.biobank?.contact || {};
     },
     alsoKnownIn() {
       return this.biobankDataAvailable && this.biobank.also_known
