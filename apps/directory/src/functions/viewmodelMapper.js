@@ -283,9 +283,11 @@ export const getBiobankDetails = (biobank) => {
 };
 
 export const collectionReportInformation = (collection) => {
-  const collectionReport = {};
+  let collectionReport = {};
 
-  collectionReport.head = getName(collection.head) || undefined;
+  if (collection.head) {
+    collectionReport.head = getName(collection.head);
+  }
 
   if (collection.contact) {
     collectionReport.contact = {
@@ -324,13 +326,16 @@ export const collectionReportInformation = (collection) => {
     });
   }
 
-  collectionReport.certifications = mapQualityStandards(collection.quality);
+  if (collection.quality) {
+    collectionReport.certifications = mapQualityStandards(collection.quality);
+  }
 
   collectionReport.collaboration = [];
 
   if (collection.collaboration_commercial) {
     collectionReport.collaboration.push({ name: "Commercial", value: "yes" });
   }
+
   if (collection.collaboration_non_for_profit) {
     collectionReport.collaboration.push({
       name: "Not for profit",
