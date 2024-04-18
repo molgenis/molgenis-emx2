@@ -2,7 +2,7 @@ import { useSettingsStore } from "../stores/settingsStore";
 import { sortCollectionsByName } from "./sorting";
 
 export const getName = (contact) => {
-  const { title_before_name, first_name, last_name, title_after_name } =
+  const { title_before_name, first_name, last_name, title_after_name, role } =
     contact;
 
   let name = "";
@@ -11,19 +11,6 @@ export const getName = (contact) => {
   if (first_name) name += `${first_name} `;
   if (last_name) name += `${last_name} `;
   if (title_after_name) name += ` ${title_after_name}`;
-
-  return name !== "" ? name.trim() : undefined;
-};
-
-export const getNameOfHead = (head) => {
-  if (!head) return "";
-
-  const { first_name, last_name, role } = head;
-
-  let name = "";
-
-  if (first_name) name += `${first_name} `;
-  if (last_name) name += `${last_name} `;
   if (role) name += `(${role})`;
 
   return name !== "" ? name.trim() : undefined;
@@ -298,7 +285,7 @@ export const getBiobankDetails = (biobank) => {
 export const collectionReportInformation = (collection) => {
   const collectionReport = {};
 
-  collectionReport.head = getNameOfHead(collection.head) || undefined;
+  collectionReport.head = getName(collection.head) || undefined;
 
   if (collection.contact) {
     collectionReport.contact = {

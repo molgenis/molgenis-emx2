@@ -1,4 +1,5 @@
 import { ContactInfoColumns } from "./contactInfoColumns";
+import { HeadInfoColumns } from "./headInfoColumns";
 
 export const initialBiobankColumns = [
   { label: "Id:", column: "id", type: "string", showCopyIcon: true },
@@ -40,10 +41,6 @@ export const initialBiobankColumns = [
   {
     column: [
       "name",
-      "head.title_before_name",
-      "head.first_name",
-      "head.last_name",
-      "head.role",
       "country.label",
       "network.name",
       "network.id",
@@ -53,6 +50,7 @@ export const initialBiobankColumns = [
       "also_known.url",
       "also_known.name_system",
       ...ContactInfoColumns,
+      ...HeadInfoColumns,
     ],
   },
 ];

@@ -125,7 +125,6 @@ import {
   getBiobankDetails,
   getCollectionDetails,
   getName,
-  getNameOfHead,
   mapAlsoKnownIn,
   mapNetworkInfo,
   mapQualityStandards,
@@ -219,7 +218,7 @@ export default {
     head() {
       console.log(this.biobank.head);
       return this.biobankDataAvailable && this.biobank.head
-        ? getNameOfHead(this.biobank.head)
+        ? getName(this.biobank.head)
         : null;
     },
     contact() {

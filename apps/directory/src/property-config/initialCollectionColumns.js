@@ -1,4 +1,5 @@
 import { ContactInfoColumns } from "./contactInfoColumns";
+import { HeadInfoColumns } from "./headInfoColumns";
 
 const initialCollectionColumns = [
   { label: "Id:", column: "id", type: "string", showCopyIcon: true },
@@ -91,9 +92,6 @@ const initialCollectionColumns = [
       "biobank.contact.last_name",
       "biobank.contact.email",
       "biobank.contact.role",
-      "head.first_name",
-      "head.last_name",
-      "head.role",
       "country.label",
       "network.name",
       "network.id",
@@ -113,6 +111,7 @@ const initialCollectionColumns = [
       "collaboration_commercial",
       "collaboration_non_for_profit",
       ...ContactInfoColumns,
+      ...HeadInfoColumns,
     ],
   },
 ];
