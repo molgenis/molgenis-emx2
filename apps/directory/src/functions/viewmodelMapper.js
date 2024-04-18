@@ -11,7 +11,7 @@ export const getName = (contact) => {
   if (first_name) name += `${first_name} `;
   if (last_name) name += `${last_name} `;
   if (title_after_name) name += ` ${title_after_name}`;
-  if (role) name += `(${role})`;
+  if (role) name += `\n${role}`;
 
   return name !== "" ? name.trim() : undefined;
 };
