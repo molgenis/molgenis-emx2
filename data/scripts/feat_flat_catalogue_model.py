@@ -43,17 +43,17 @@ inherit_tables = [[Tables.O, Tables.R], [Tables.M, Tables.ER],
                   # [Tables.DB, Tables.ER], [Tables.DB, Tables.R]]
 
 rename_tables = [[Tables.C, Tables.DR],
-                 [Tables.DB, Tables.RWE], [Tables.DS, Tables.RWE],
+                 # [Tables.DB, Tables.RWE], [Tables.DS, Tables.RWE],
                  [Tables.RWE, Tables.DR],
                  [Tables.DR, Tables.ER],
                  [Tables.ER, Tables.R],
                  [Tables.R, Tables.COL]]
 
 table_profiles = {
-    'Databanks': 'DatabanksStaging',
-    'Datasources': 'DatasourcesStaging',
-    'Resources': ['DatabanksStaging', 'DatasourcesStaging'],
-    'Contacts': ['DatabanksStaging', 'DatasourcesStaging']
+    # 'Databanks': 'DatabanksStaging',
+    # 'Datasources': 'DatasourcesStaging',
+    # 'Resources': ['DatabanksStaging', 'DatasourcesStaging'],
+    # 'Contacts': ['DatabanksStaging', 'DatasourcesStaging']
 }
 
 
@@ -191,13 +191,13 @@ class Flattener(pd.DataFrame):
         """
         descriptions = {
             'Cohorts': "Group of individuals sharing a defining demographic characteristic",
-            'Databanks': "Data collection from real world databases such as health records, registries",
-            'Data sources': "Collections of multiple data banks covering the same population"
+            # 'Databanks': "Data collection from real world databases such as health records, registries",
+            # 'Data sources': "Collections of multiple data banks covering the same population"
         }
         stagings = {
             'Cohorts': "CohortStaging",
-            'Databanks': "DatabanksStaging",
-            'Data sources': "DatasourcesStaging"
+            # 'Databanks': "DatabanksStaging",
+            # 'Data sources': "DatasourcesStaging"
         }
 
         description = "Group of individuals sharing a defining demographic characteristic"
