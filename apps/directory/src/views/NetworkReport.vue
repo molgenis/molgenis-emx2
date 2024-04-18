@@ -115,7 +115,8 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
+//@ts-ignore
 import { Breadcrumb, Spinner, Tab, Tabs } from "molgenis-components";
 import { computed, ref } from "vue";
 import { useRoute } from "vue-router";
@@ -141,7 +142,9 @@ const settingsStore = useSettingsStore();
 const networkStore = useNetworkStore();
 const qualitiesStore = useQualitiesStore();
 
-const networkPromise = networkStore.loadNetworkReport(route.params.id);
+const networkPromise = networkStore.loadNetworkReport(
+  route.params.id as string
+);
 const qualitiesPromise = qualitiesStore.getQualityStandardInformation();
 Promise.all([qualitiesPromise, networkPromise]).then(
   () => (loaded.value = true)
@@ -159,10 +162,12 @@ const alsoKnownIn = computed(() => mapAlsoKnownIn(network.value));
 function filterCollections() {
   return (
     networkReport.value.collections
-      ?.filter((collection) => {
+      ?.filter((collection: Record<string, any>) => {
         return !collection.parentCollection;
       })
-      .map((col) => getCollectionDetails(col)) || []
+      .map((collection: Record<string, any>) =>
+        getCollectionDetails(collection)
+      ) || []
   );
 }
 </script>
