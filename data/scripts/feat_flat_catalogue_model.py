@@ -51,7 +51,8 @@ rename_tables = [[Tables.C, Tables.DR],
                  [Tables.R, Tables.COL]]
 
 rename_columns = {
-    'Cohorts': [['type', 'cohort type'], ['type other', 'cohort type other']],
+    'Cohorts': [['type', 'cohort type'], ['type other', 'cohort type other'],
+                ['collection type', 'cohort collection type']],
     'Networks': [['type', 'network type'], ['type other', 'network type other']],
     'Studies': [['type', 'study type'], ['type other', 'study type other']],
     'RWE resources': [['type', 'datasource type'], ['type other', 'datasource type other']]
@@ -62,6 +63,18 @@ table_profiles = {
     # 'Datasources': 'DatasourcesStaging',
     # 'Resources': ['DatabanksStaging', 'DatasourcesStaging'],
     # 'Contacts': ['DatabanksStaging', 'DatasourcesStaging']
+}
+
+visibility = {
+    Tables.ER: ['Cohort', 'Databank', 'Data source', 'Model', 'Network', 'Study'],
+    Tables.DR: ['Cohort', 'Databank', 'Data source'],
+    Tables.RWE: ['Databank', 'Data source'],
+    Tables.C: ['Cohort'],
+    Tables.DB: ['Databank'],
+    Tables.DS: ['Data source'],
+    Tables.M: ['Model'],
+    Tables.N: ['Network'],
+    Tables.S: ['Study']
 }
 
 
@@ -96,23 +109,26 @@ class Flattener(pd.DataFrame):
 
         self._rename_columns()
 
+        self._add_some_columns()
+
+        self._add_visibility()
+
         for tables in inherit_tables:
             self._duplicate_columns(*tables)
 
         for tp in table_profiles.items():
             self._add_profile_tag(*tp)
 
-
         for rn in rename_tables:
             self._rename_table(*rn)
 
         self._remove_duplicates()
 
-        # self._add_table_label()
-
         self._remove_shared_staging_resources()
 
         self._remove_refbacks()
+
+        self._remove_some_columns()
 
         # Save result to file
         self.save_df()
@@ -124,6 +140,26 @@ class Flattener(pd.DataFrame):
     def _version_bump(self):
         """Bumps the data model to a new version."""
         self.loc[self['tableName'] == 'Version', 'description'] = VERSION
+
+    def _add_some_columns(self):
+        """Adds some columns."""
+
+        resources_name_idx = self.loc[(self['tableName'] == 'Resources')
+                                      & (self['columnName'] == 'name')].index[0]
+        self.loc[resources_name_idx+0.5, ['tableName', 'columnName', 'columnType',
+                                          'refSchema', 'refTable', 'profiles']] = ['Resources', 'collection type',
+                                                                                   'ontology', 'CatalogueOntologies',
+                                                                                   'Collection types',
+                                                                                   'DataCatalogue,CohortStaging']
+        self.sort_index(inplace=True)
+        self.reset_index(drop=True, inplace=True)
+
+    def _add_visibility(self):
+        """Adds visibility conditions for columns belonging to certain tables."""
+        self['visible'] = None
+        self.loc[self['tableName'] == 'Cohorts', 'visible'] = f"{['Cohort']}.includes(collectionType?.name)"
+        for table, types in visibility.items():
+            self.loc[self['tableName'] == table, 'visible'] = f"{types}.includes(collectionType?.name)"
 
     def _duplicate_columns(self, new_tab: str, old_tab: str):
         """Duplicates columns of an inherited table for the inheriting table."""
@@ -140,15 +176,16 @@ class Flattener(pd.DataFrame):
         # to correctly place the duplicated columns
         for idx in reversed(inherited_columns.index):
             # Increase the index from the duplicated column's index onwards
-            self.index = [*self.index[:idx + 1], *self.index[idx + 2:], len(self.index)]
+            # self.index = [*self.index[:idx + 1], *self.index[idx + 2:], len(self.index)]
             # Copy the values of the ancestor table and rename the tableName to the new table
-            self.loc[idx + 1] = inherited_columns.loc[idx]
-            self.loc[idx + 1, 'tableName'] = new_tab
+            self.loc[idx + 0.5] = inherited_columns.loc[idx]
+            self.loc[idx + 0.5, 'tableName'] = new_tab
             # Ensure the correct profiles for the duplicated column
-            self.loc[idx + 1, 'profiles'] = ','.join(p for p in self.profiles[idx + 1].split(',')
-                                                     if p in profiles.split(','))
+            self.loc[idx + 0.5, 'profiles'] = ','.join(p for p in self.profiles[idx + 0.5].split(',')
+                                                       if p in profiles.split(','))
             # Sort the index
             self.sort_index(inplace=True)
+            self.reset_index(drop=True, inplace=True)
 
         # Keep the column in which the table is defined and replace the old table's name by the ancestor's
         # dc = drop column
@@ -202,8 +239,12 @@ class Flattener(pd.DataFrame):
 
     def _remove_refbacks(self):
         """Removes columns with refbacks from the Collections table."""
-        # self = self.loc[self['tableName'] != 'Collections' or self['columnType'] != 'refback']
-        self.drop(index=self.loc[(self['tableName'] == 'Collections') & (self['columnType'] == 'refback')].index, inplace=True)
+        self.drop(index=self.loc[(self['tableName'] == 'Collections')
+                                 & (self['columnType'] == 'refback')].index, inplace=True)
+
+    def _remove_some_columns(self):
+        self.drop(index=self.loc[(self['tableName'] == 'Organisations')
+                                 & (self['columnName'] == 'collection type')].index, inplace=True)
 
     def _prepare_data(self):
         """Prepares the dtype of the 'key' column."""
