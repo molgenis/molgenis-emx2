@@ -146,12 +146,12 @@
                 </div>
 
                 <small>
-                  <view-generator
+                  <ViewGenerator
                     class="p-1"
                     :viewmodel="collectionViewmodel(collectionDetail)"
                   />
 
-                  <matches-on :viewmodel="collectionDetail" class="px-1 ml-1" />
+                  <MatchesOn :viewmodel="collectionDetail" class="px-1 ml-1" />
                   <router-link
                     :to="'/collection/' + collectionDetail.id"
                     :title="`${collectionDetail.name} details`"
@@ -171,13 +171,14 @@
   </article>
 </template>
 
-<script>
+<script lang="ts">
 import {
   getBiobankDetails,
   getCollectionDetails,
 } from "../../functions/viewmodelMapper";
 import ViewGenerator from "../generators/ViewGenerator.vue";
 import CollectionSelector from "../checkout-components/CollectionSelector.vue";
+//@ts-ignore
 import { InfoPopover } from "molgenis-components";
 import MatchesOn from "../biobankcards-components/MatchesOn.vue";
 import { useSettingsStore } from "../../stores/settingsStore";
@@ -205,7 +206,8 @@ export default {
       default: () => false,
     },
     biobank: {
-      type: [Object, String],
+      type: [Object],
+      required: true,
     },
   },
   data() {
@@ -216,20 +218,20 @@ export default {
   },
   methods: {
     getCollectionDetails,
-    collectionViewmodel(collectiondetails) {
+    collectionViewmodel(collectiondetails: Record<string, any>) {
       const attributes = [];
       for (const item of this.settingsStore.config.collectionColumns) {
         if (item.showOnBiobankCard) {
           attributes.push(
             collectiondetails.viewmodel.attributes.find(
-              (vm) => vm.label === item.label
+              (vm: Record<string, any>) => vm.label === item.label
             )
           );
         }
       }
       return { attributes };
     },
-    getQualityInfo(key) {
+    getQualityInfo(key: string) {
       return this.qualityStandardsDictionary[key];
     },
   },
@@ -269,7 +271,9 @@ export default {
       for (const item of this.settingsStore.config.biobankColumns) {
         if (item.showOnBiobankCard) {
           attributes.push(
-            viewmodel.attributes.find((vm) => vm.label === item.label)
+            viewmodel.attributes.find(
+              (vm: Record<string, any>) => vm.label === item.label
+            )
           );
         }
       }
@@ -285,12 +289,13 @@ export default {
         (attr) => attr.type === "quality"
       ).value;
     },
-    qualityStandardsDictionary() {
+    qualityStandardsDictionary(): Record<string, any> {
       return this.qualitiesStore.qualityStandardsDictionary;
     },
-    biobankInSelection() {
-      const biobankIdentifier = this.biobank.label || this.biobank.name;
+    biobankInSelection(): boolean {
+      const biobankIdentifier: string = this.biobank.label || this.biobank.name;
       return (
+        //@ts-ignore can be removed once checkoutStore is ts
         this.checkoutStore.selectedCollections[biobankIdentifier] !== undefined
       );
     },
