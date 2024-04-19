@@ -65,8 +65,8 @@
           </div>
           <div class="p-2 pt-1 biobank-section" :style="cardContainerHeight">
             <small>
-              <view-generator :viewmodel="biobankcardViewmodel" />
-              <matches-on :viewmodel="biobank" />
+              <ViewGenerator :viewmodel="biobankcardViewmodel" />
+              <MatchesOn :viewmodel="biobank" />
               <router-link
                 :to="'/biobank/' + biobank.id"
                 :title="`${biobank.name} details`"
@@ -104,7 +104,7 @@
                 bookmark
                 iconOnly
                 multi
-              ></collection-selector>
+              />
             </div>
             <hr class="mt-1" v-if="numberOfCollections" />
             <div v-else class="pl-2">
@@ -129,10 +129,10 @@
                     <span
                       class="fa fa-server collection-icon fa-lg mr-2 text-primary"
                       aria-hidden="true"
-                    ></span>
-                    <span class="collection-name">{{
-                      collectionDetail.name
-                    }}</span>
+                    />
+                    <span class="collection-name">
+                      {{ collectionDetail.name }}
+                    </span>
                   </router-link>
                   <div class="ml-auto">
                     <collection-selector
@@ -141,7 +141,7 @@
                       :collectionData="collectionDetail"
                       iconOnly
                       bookmark
-                    ></collection-selector>
+                    />
                   </div>
                 </div>
 
