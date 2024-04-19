@@ -82,10 +82,9 @@ const pageFilterTemplate: IFilter[] = [
     config: {
       label: "Cohort types",
       type: "ONTOLOGY",
-      ontologyTableId: "CohortTypes",
+      ontologyTableId: "ResourceTypes",
       ontologySchema: "CatalogueOntologies",
       columnId: "type",
-      filterTable: "Cohorts",
     },
     conditions: [],
   },
