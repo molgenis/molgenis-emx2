@@ -14,6 +14,8 @@ const props = withDefaults(
   }
 );
 
+const emit = defineEmits(["update:modelValue"]);
+
 const query = `
     query 
     ${props.tableId}( $filter:${props.tableId}Filter )
@@ -43,34 +45,6 @@ const options: IOption[] = (
     selected: selectedKeyValues.includes(respItem[props.keyField]),
   };
 });
-
-const emit = defineEmits(["update:modelValue"]);
-watch(() => props.modelValue, updateSelection, { deep: true });
-
-function updateSelection() {
-  options.forEach((option) => {
-    const selectedKeyValues = props.modelValue.map(
-      (selectedItem) => selectedItem[props.keyField]
-    );
-    option.selected = selectedKeyValues.includes(option.id);
-  });
-}
-
-function toggleSelect(option: IOption) {
-  if (option.selected) {
-    // remove from selection
-    emit(
-      "update:modelValue",
-      props.modelValue.filter((item) => item[props.keyField] !== option.id)
-    );
-  } else {
-    // add to selection
-    emit("update:modelValue", [
-      ...props.modelValue,
-      { [props.keyField]: option.id },
-    ]);
-  }
-}
 
 const selectedNodesNames = computed({
   get() {
