@@ -2,6 +2,9 @@ package org.molgenis.emx2.datamodels.profiles;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import org.molgenis.emx2.*;
 
 public record ProfileDocGen(String outputFile) {
@@ -19,22 +22,33 @@ public record ProfileDocGen(String outputFile) {
       bw.write("# EMX2 profile documentation" + LE);
       bw.write(LE);
       bw.write(
-          "The complete EMX2 data model contains %s tables and XX columns. There are %s application profiles drawing from this model by using XX profile tags."
-                  .formatted(fullSchema.getTableNames().size(), ap.getAllProfiles().size())
+          "The complete EMX2 data model contains %s tables and %s columns. There are %s application profiles drawing from this model by using %s profile tags."
+                  .formatted(
+                      fullSchema.getTableNames().size(),
+                      countAllColumns(fullSchema),
+                      ap.getAllProfiles().size(),
+                      countAllTags(fullSchema))
               + LE);
       bw.write(LE);
+
       bw.write("## Application profiles" + LE);
-      bw.write("| Name | Description | Profile tags | xx |" + LE);
-      bw.write("|---|---|---|---|" + LE);
+      bw.write("| Name | Description | Profile tags |" + LE);
+      bw.write("|---|---|---|" + LE);
       for (Profiles profiles : ap.getAllProfiles()) {
         bw.write(
-            "| %s | %s | %s |---|"
+            "| %s | %s | %s |"
                     .formatted(
                         profiles.getName(),
                         profiles.getDescription(),
                         (String.join(", ", profiles.getProfileTagsList())))
                 + LE);
       }
+      bw.write(LE);
+
+      bw.write("## Tags" + LE);
+      bw.write("| Name |" + LE);
+      bw.write("|---|" + LE);
+      bw.write("| %s |".formatted(getAllTags(fullSchema)) + LE);
       bw.write(LE);
 
       bw.write("## Tables" + LE);
@@ -80,6 +94,36 @@ public record ProfileDocGen(String outputFile) {
       bw.write(LE);
       bw.flush();
     }
+  }
+
+  public int countAllColumns(SchemaMetadata fullSchema) {
+    int cols = 0;
+    for (TableMetadata t : fullSchema.getTables()) {
+      cols += t.getColumns().size();
+    }
+    return cols;
+  }
+
+  public int countAllTags(SchemaMetadata fullSchema) {
+    int tags = 0;
+    for (TableMetadata t : fullSchema.getTables()) {
+      tags += t.getProfiles().length;
+      for (Column c : t.getColumns()) {
+        tags += c.getProfiles().length;
+      }
+    }
+    return tags;
+  }
+
+  public Set<String> getAllTags(SchemaMetadata fullSchema) {
+    Set<String> tags = new HashSet<>();
+    for (TableMetadata t : fullSchema.getTables()) {
+      tags.addAll(Arrays.asList(t.getProfiles()));
+      for (Column c : t.getColumns()) {
+        tags.addAll(Arrays.asList(c.getProfiles()));
+      }
+    }
+    return tags;
   }
 
   public static void main(String[] args) throws Exception {
