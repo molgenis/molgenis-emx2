@@ -64,7 +64,26 @@ const pageFilterTemplate: IFilter[] = [
       ontologyTableId: "Keywords",
       ontologySchema: "CatalogueOntologies",
       columnId: "keywords",
-      initialCollapsed: false,
+      initialCollapsed: true,
+    },
+    conditions: [],
+  },
+  {
+    id: "cohorts",
+    config: {
+      label: "Cohorts",
+      type: "REF_ARRAY",
+      refTableId: "Cohorts",
+      columnId: "mappings",
+      buildFilterFunction: (conditions: IFilterCondition[]) => {
+        // convert generic conditions to specific filter form
+        return { source: { equals: conditions.map((c) => ({ id: c.name })) } };
+      },
+      refFields: {
+        key: "id",
+        name: "id",
+        description: "name",
+      },
     },
     conditions: [],
   },

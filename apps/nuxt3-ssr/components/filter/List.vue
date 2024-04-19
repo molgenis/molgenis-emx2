@@ -2,26 +2,17 @@
 const props = withDefaults(
   defineProps<{
     tableId: string;
+    modelValue: { name: string }[];
     nameField?: string;
     keyField?: string;
     descriptionField?: string;
-    isMultiSelect?: boolean;
-    modelValue: [];
   }>(),
   {
-    isMultiSelect: true,
     nameField: "name",
     keyField: "id",
     descriptionField: undefined,
   }
 );
-
-interface IOption {
-  id: string;
-  name: string;
-  description?: string;
-  selected: boolean;
-}
 
 const query = `
     query 
@@ -80,51 +71,23 @@ function toggleSelect(option: IOption) {
     ]);
   }
 }
+
+const selectedNodesNames = computed({
+  get() {
+    return props.modelValue ? props.modelValue.map((n) => n.name) : [];
+  },
+  set(newValue) {
+    // transform the names back to the original data structure for use in gql query
+    const newConditions = newValue.map((name) => ({ name: name }));
+    emit("update:modelValue", newConditions);
+  },
+});
 </script>
 <template>
-  <ul>
-    <li v-for="option in options" :key="option.name" class="mb-2.5">
-      <div class="flex items-start">
-        <span
-          class="flex items-center justify-center w-6 h-6 rounded-full text-search-filter-group-toggle hover:bg-search-filter-group-toggle hover:cursor-pointer"
-        >
-        </span>
-        <div class="flex items-center">
-          <input
-            type="checkbox"
-            :id="option.name"
-            :name="option.name"
-            :checked="option.selected"
-            @click.stop="toggleSelect(option)"
-            :class="{ 'text-search-filter-group-checkbox': option.selected }"
-            class="w-5 h-5 rounded-3px ml-[6px] mr-2.5 mt-0.5 border border-checkbox"
-          />
-        </div>
-        <label
-          :for="option.name"
-          class="hover:cursor-pointer text-body-sm group"
-        >
-          <span class="group-hover:underline">{{ option.name }}</span>
-          <div class="inline-flex items-center whitespace-nowrap">
-            <!--
-            <span
-              v-if="option?.result?.count"
-              class="inline-block mr-2 text-blue-200 group-hover:underline decoration-blue-200 fill-black"
-              hoverColor="white"
-              >&nbsp;- {{ option.result.count }}
-            </span>
-            -->
-            <div class="inline-block">
-              <CustomTooltip
-                v-if="option.description"
-                label="Read more"
-                hoverColor="white"
-                :content="option.description"
-              />
-            </div>
-          </div>
-        </label>
-      </div>
-    </li>
-  </ul>
+  <InputList
+    :nodes="options"
+    v-model="selectedNodesNames"
+    :inverted="mobileDisplay"
+  >
+  </InputList>
 </template>

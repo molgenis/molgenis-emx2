@@ -18,6 +18,10 @@ const buildFilterVariables = (filters: IConditionsFilter[]) => {
         accum[filter.config.filterTable][filter.config.columnId] = {
           equals: filter.conditions,
         };
+      } else if (filter.config.buildFilterFunction) {
+        accum[filter.config.columnId] = filter.config.buildFilterFunction(
+          filter.conditions
+        );
       } else {
         accum[filter.config.columnId] = { equals: filter.conditions };
       }

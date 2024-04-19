@@ -329,6 +329,7 @@ export interface IFilterConfig {
   label: string;
   initialCollapsed?: boolean;
   filterTable?: string;
+  buildFilterFunction?: Function;
 }
 
 export interface ISearchFilterConfig extends IFilterConfig {
