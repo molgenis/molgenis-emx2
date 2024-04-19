@@ -1,16 +1,19 @@
 <script setup lang="ts">
+import type { INode } from "../../../tailwind-components/types/types";
+import type { IFilterCondition } from "~/interfaces/types";
+
 const props = withDefaults(
   defineProps<{
     tableId: string;
-    modelValue: { name: string }[];
+    modelValue: IFilterCondition[];
     nameField?: string;
-    keyField?: string;
     descriptionField?: string;
+    mobileDisplay?: boolean;
   }>(),
   {
     nameField: "name",
-    keyField: "id",
     descriptionField: undefined,
+    mobileDisplay: false,
   }
 );
 
@@ -22,29 +25,24 @@ const query = `
     {   
         ${props.tableId}( filter:$filter, limit:100000,  offset:0, orderby:{${props.nameField}: ASC} )
         {          
-            ${props.keyField} ${props.nameField} ${props.descriptionField}
+             ${props.nameField} ${props.descriptionField}
         }       
         ${props.tableId}_agg( filter:$filter ) { count }
         }
     `;
 
-const options: IOption[] = (
-  await fetchGql<any>(query).catch((e) => {
-    console.error(e);
-  })
-)?.data[props.tableId]?.map((respItem: any) => {
-  const selectedKeyValues = props.modelValue.map(
-    (selectedItem) => selectedItem[props.keyField]
-  );
+const nodes = (await fetchGql<INode>(query)).data[props.tableId].map(
+  dataToNode
+);
+
+function dataToNode(respObject: any): INode {
   return {
-    id: respItem[props.keyField],
-    name: respItem[props.nameField],
+    name: respObject[props.nameField],
     description: props.descriptionField
-      ? respItem[props.descriptionField]
+      ? respObject[props.descriptionField]
       : undefined,
-    selected: selectedKeyValues.includes(respItem[props.keyField]),
   };
-});
+}
 
 const selectedNodesNames = computed({
   get() {
@@ -59,7 +57,7 @@ const selectedNodesNames = computed({
 </script>
 <template>
   <InputList
-    :nodes="options"
+    :nodes="nodes"
     v-model="selectedNodesNames"
     :inverted="mobileDisplay"
   >

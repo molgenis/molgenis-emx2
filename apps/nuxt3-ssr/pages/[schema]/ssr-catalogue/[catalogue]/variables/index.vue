@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { IFilter, IMgError } from "~/interfaces/types";
+import type { IFilter, IMgError, IFilterCondition } from "~/interfaces/types";
 import mappingsFragment from "~~/gql/fragments/mappings";
 
 const route = useRoute();
@@ -80,7 +80,6 @@ const pageFilterTemplate: IFilter[] = [
         return { source: { equals: conditions.map((c) => ({ id: c.name })) } };
       },
       refFields: {
-        key: "id",
         name: "id",
         description: "name",
       },
