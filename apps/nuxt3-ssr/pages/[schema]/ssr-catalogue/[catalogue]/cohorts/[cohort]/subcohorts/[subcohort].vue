@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import dateUtils from "~/utils/dateUtils";
 import subcohortGql from "~~/gql/subcohort";
 const config = useRuntimeConfig();
 const route = useRoute();
@@ -77,7 +78,7 @@ if (subcohort?.numberOfParticipants) {
 if (subcohort?.inclusionStart || subcohort?.inclusionEnd) {
   items.push({
     label: "Start/end year",
-    content: filters.startEndYear(
+    content: dateUtils.startEndYear(
       subcohort.inclusionStart,
       subcohort.inclusionEnd
     ),

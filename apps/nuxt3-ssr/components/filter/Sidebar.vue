@@ -1,23 +1,28 @@
-<script setup>
-const props = defineProps({
-  title: {
-    type: String,
-  },
-  filters: {
-    type: Array,
-  },
-  mobileDisplay: {
-    type: Boolean,
-    default: false,
-  },
-});
+<script setup lang="ts">
+import type {
+  IFilter,
+  IOntologyFilter,
+  IRefArrayFilter,
+} from "~/interfaces/types";
+const props = withDefaults(
+  defineProps<{
+    title: string;
+    filters: IFilter[];
+    mobileDisplay?: boolean;
+  }>(),
+  {
+    mobileDisplay: false,
+  }
+);
 
-watch(props.filters, (filters) => {
-  const search = filters.filter((f) => f.columnType === "_SEARCH")[0].search;
-  const conditions = JSON.stringify(
-    filters.filter((f) => f?.conditions?.length).map((f) => f.conditions)
-  );
-});
+const emit = defineEmits(["update:filters"]);
+
+function handleFilerUpdate(filter: IFilter) {
+  const index = props.filters.findIndex((f: IFilter) => f.id === filter.id);
+  const newFilters = [...props.filters];
+  newFilters[index] = filter;
+  emit("update:filters", newFilters);
+}
 </script>
 
 <template>
@@ -35,31 +40,46 @@ watch(props.filters, (filters) => {
     <template v-if="filters">
       <FilterContainer
         v-for="filter in filters"
-        :title="filter.title"
-        v-model:conditions="filter.conditions"
-        v-model:search="filter.search"
+        :title="filter.config.label"
+        :conditions="filter.conditions"
+        @update:conditions="(value) => {(filter as IOntologyFilter).conditions = value; handleFilerUpdate(filter)}"
+        :search="filter.search"
+        @update:search="
+          (value) => {
+            filter.search = value;
+            handleFilerUpdate(filter);
+          }
+        "
         :mobileDisplay="mobileDisplay"
-        :initialCollapsed="filter.initialCollapsed"
+        :initialCollapsed="filter.config.initialCollapsed"
       >
         <FilterSearch
-          v-if="filter.columnType === '_SEARCH'"
+          v-if="filter.config.type === 'SEARCH'"
           :mobileDisplay="mobileDisplay"
-          v-model="filter.search"
+          :model-value="filter.search || ''"
+          @update:model-value="
+            (value) => {
+              filter.search = value;
+              handleFilerUpdate(filter);
+            }
+          "
         />
         <FilterOntology
-          v-else-if="filter.columnType === 'ONTOLOGY'"
-          :table-id="filter.refTableId"
+          v-else-if="filter.config.type === 'ONTOLOGY'"
+          :table-id="filter.config.ontologyTableId"
           :mobileDisplay="mobileDisplay"
-          :filterLabel="filter.title"
-          v-model="filter.conditions"
+          :filterLabel="filter.config.label"
+          :model-value="(filter as IOntologyFilter).conditions "
+          @update:model-value="(value) => {(filter as IOntologyFilter).conditions = value; handleFilerUpdate(filter)}"
         />
         <FilterList
-          v-else-if="filter.columnType === 'REF_ARRAY'"
-          :table-id="filter.refTableId"
-          :key-field="filter.refFields.key"
-          :name-field="filter.refFields.name"
-          :descriptionField="filter.refFields.description"
-          v-model="filter.conditions"
+          v-else-if="filter.config.type === 'REF_ARRAY'"
+          :table-id="filter.config.refTableId"
+          :key-field="filter.config.refFields.key"
+          :name-field="filter.config.refFields?.name"
+          :descriptionField="filter.config.refFields?.description"
+          :model-value="(filter as IRefArrayFilter).conditions"
+          @update:model-value="(value) => {(filter as IRefArrayFilter).conditions = value; handleFilerUpdate(filter)}"
         />
       </FilterContainer>
     </template>

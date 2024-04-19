@@ -4,6 +4,7 @@
     <p v-if="description" class="chart-description">{{ description }}</p>
     <ChartLegend
       v-if="enableChartLegend && group !== ''"
+      :legend-id="`${chartId}-legend`"
       :data="legendData"
       :stackLegend="stackLegend"
       :enableClicks="enableLegendClicks"
