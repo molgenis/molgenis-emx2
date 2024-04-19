@@ -5,6 +5,7 @@ import type {
   INameObject,
 } from "~/interfaces/types";
 import type { IOntologyItem } from "meta-data-utils";
+import dateUtils from "~/utils/dateUtils";
 
 const { cohort, mainMedicalCondition } = defineProps<{
   title: string;
@@ -60,7 +61,7 @@ function setData() {
     },
     {
       label: "Start/End year",
-      content: filters.startEndYear(cohort?.startYear, cohort?.endYear),
+      content: dateUtils.startEndYear(cohort?.startYear, cohort?.endYear),
     },
     {
       label: "Countries",
