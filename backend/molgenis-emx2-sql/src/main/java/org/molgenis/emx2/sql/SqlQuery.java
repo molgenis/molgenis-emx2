@@ -276,7 +276,8 @@ public class SqlQuery extends QueryBean {
     }
 
     // asemble final query
-    SelectSelectStep<Record1<JSON>> query = sql.select(jsonObject(fields));
+    SelectSelectStep<Record1<Object>> query =
+        sql.select(field("jsonb_strip_nulls({0})", jsonbObject(fields)));
     long start = System.currentTimeMillis();
     String result = query.fetchOne().get(0, String.class);
     if (logger.isInfoEnabled()) {
@@ -333,11 +334,11 @@ public class SqlQuery extends QueryBean {
         || select.getColumn().endsWith("_groupBy")
         || column != null && column.isRef() && !column.isArray()) {
       // single json object is expected
-      selectJoinStep = jooq.select(jsonObject(selection)).from(from.as(alias(subAlias)));
+      selectJoinStep = jooq.select(jsonbObject(selection)).from(from.as(alias(subAlias)));
     } else {
       // list of json objects is to be expected
       selectJoinStep =
-          jooq.select(jsonArrayAgg(jsonObject(selection))).from(from.as(alias(subAlias)));
+          jooq.select(jsonbArrayAgg(jsonbObject(selection))).from(from.as(alias(subAlias)));
     }
     selectJoinStep = limitOffsetOrderBy(table, select, selectJoinStep);
     if (!conditions.isEmpty()) {
@@ -610,7 +611,7 @@ public class SqlQuery extends QueryBean {
     return fields;
   }
 
-  private JSONEntry<JSON> jsonFileField(
+  private JSONEntry<JSONB> jsonFileField(
       SqlTableMetadata table, String tableAlias, SelectColumn select, Column column) {
     List<JSONEntry<?>> subFields = new ArrayList<>();
     for (String ext :
@@ -637,7 +638,7 @@ public class SqlQuery extends QueryBean {
         }
       }
     }
-    return key(select.getColumn()).value(jsonObject(subFields));
+    return key(select.getColumn()).value(jsonbObject(subFields));
   }
 
   private JSONEntry<?> jsonAggregateSelect(
@@ -676,7 +677,7 @@ public class SqlQuery extends QueryBean {
                 "Unknown aggregate type provided: " + field.getColumn());
           }
         }
-        fields.add(key(field.getColumn()).value(jsonObject(result)));
+        fields.add(key(field.getColumn()).value(jsonbObject(result)));
       }
     }
     return jsonField(table, column, tableAlias, select, filters, searchTerms, subAlias, fields);
@@ -815,7 +816,7 @@ public class SqlQuery extends QueryBean {
     }
     return key(groupBy.getColumn())
         .value(
-            jooq.select(jsonArrayAgg(jsonObject(jsonFields)))
+            jooq.select(jsonbArrayAgg(jsonbObject(jsonFields)))
                 .from(
                     sourceQuery
                         .groupBy(groupByFields)

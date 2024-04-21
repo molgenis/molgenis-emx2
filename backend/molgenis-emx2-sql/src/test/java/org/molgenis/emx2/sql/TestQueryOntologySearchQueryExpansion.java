@@ -45,12 +45,12 @@ public class TestQueryOntologySearchQueryExpansion {
   @Test
   void testOntologySearchExpansionForSingleOntologyValue() {
     Query q = schema.query(MY_TABLE, s("ID")).search("red");
-    assertEquals("{\"MY_TABLE\" : [{\"iD\" : 1}]}", q.retrieveJSON());
+    assertEquals("{\"MY_TABLE\": [{\"iD\": 1}]}", q.retrieveJSON());
   }
 
   @Test
   void testOntologySearchExpansionForArrayOntologyValue() {
     Query q = schema.query(MY_TABLE, s("ID")).search("green");
-    assertEquals("{\"MY_TABLE\" : [{\"iD\" : 2}]}", q.retrieveJSON());
+    assertEquals("{\"MY_TABLE\": [{\"iD\": 2}]}", q.retrieveJSON());
   }
 }
