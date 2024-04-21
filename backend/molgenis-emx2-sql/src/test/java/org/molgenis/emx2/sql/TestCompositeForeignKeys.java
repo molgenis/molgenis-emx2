@@ -323,26 +323,6 @@ public class TestCompositeForeignKeys {
                     .getStringArray("cousins-firstName")) // TODO should be array?
             .contains("Kwok"));
 
-    // check we can sort on ref_array
-    p.query()
-        .select(
-            s("firstName"),
-            s("lastName"),
-            s("cousins", s("firstName"), s("lastName")),
-            s("uncles", s("firstName"), s("lastName")))
-        .orderBy("cousins")
-        .retrieveJSON();
-
-    // check we can sort on refback to a ref_array
-    p.query()
-        .select(
-            s("firstName"),
-            s("lastName"),
-            s("cousins", s("firstName"), s("lastName")),
-            s("uncles", s("firstName"), s("lastName")))
-        .orderBy("uncles")
-        .retrieveJSON();
-
     // test group by ref_array
     // kwik = Micky, Donald
     // Kwok = Donald

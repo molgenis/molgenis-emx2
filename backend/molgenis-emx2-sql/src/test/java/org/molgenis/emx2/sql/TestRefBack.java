@@ -132,18 +132,20 @@ public class TestRefBack {
     System.out.println(query.retrieveJSON());
 
     query = parts.agg(s("count"));
-    assertTrue(query.retrieveJSON().contains("\"count\": 5"));
+    assertTrue(query.retrieveJSON().contains("{\"Parts_agg\" : {\"count\" : 5}}"));
 
     query = products.agg(s("count"));
-    assertTrue(query.retrieveJSON().contains("\"count\": 2"));
+    assertTrue(query.retrieveJSON().contains("{\"Products_agg\" : {\"count\" : 2}}"));
 
     query = products.select(s("parts_agg", s("count"))).where(f("productname", EQUALS, "bigphone"));
 
-    assertTrue(query.retrieveJSON().contains("\"count\": 3"));
+    assertTrue(
+        query.retrieveJSON().contains("{\"Products\" : [{\"parts_agg\" : {\"count\" : 3}}]}"));
 
     query = parts.select(s("products_agg", s("count"))).where(f("partname", EQUALS, "battery"));
 
-    assertTrue(query.retrieveJSON().contains("\"count\": 2"));
+    assertTrue(
+        query.retrieveJSON().contains("{\"Parts\" : [{\"products_agg\" : {\"count\" : 2}}]}"));
 
     query = products.select(s("parts", s("partname")));
     System.out.println(query.retrieveJSON());
@@ -220,7 +222,7 @@ public class TestRefBack {
 
     // check graph query
     Query query = users.agg(s("count"));
-    assertTrue(query.retrieveJSON().contains("\"count\": 2"));
+    assertTrue(query.retrieveJSON().contains("{\"User_agg\" : {\"count\" : 2}}"));
 
     query =
         users
@@ -229,7 +231,7 @@ public class TestRefBack {
     assertTrue(query.retrieveJSON().contains("jacks post"));
 
     query = users.agg(s("count")).where(f("posts", f("title", EQUALS, "jacks post")));
-    assertTrue(query.retrieveJSON().contains("\"count\": 1"));
+    assertTrue(query.retrieveJSON().contains("{\"User_agg\" : {\"count\" : 1}}"));
 
     // delete of user should fail as long as there are posts refering to this user, unless cascading
     // delete
