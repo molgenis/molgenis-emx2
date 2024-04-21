@@ -93,7 +93,10 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   public SqlDatabase(boolean init) {
     initDataSource();
     this.connectionProvider = new SqlUserAwareConnectionProvider(source);
-    this.jooq = DSL.using(connectionProvider, SQLDialect.POSTGRES, DEFAULT_JOOQ_SETTINGS);
+    // TODO undo the pretty printing
+    this.jooq =
+        DSL.using(
+            connectionProvider, SQLDialect.POSTGRES, new Settings().withRenderFormatted(true));
     if (init) {
       try {
         // elevate privileges for init (prevent reload)

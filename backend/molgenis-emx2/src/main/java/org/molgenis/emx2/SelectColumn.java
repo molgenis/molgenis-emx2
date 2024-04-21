@@ -50,6 +50,10 @@ public class SelectColumn {
     return column;
   }
 
+  public void setColumn(String column) {
+    this.column = column;
+  }
+
   public boolean has(String name) {
     return children.containsKey(name);
   }

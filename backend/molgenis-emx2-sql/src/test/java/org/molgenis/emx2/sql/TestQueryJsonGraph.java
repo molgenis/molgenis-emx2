@@ -272,7 +272,7 @@ public class TestQueryJsonGraph {
                 .select(s("count"), s("tag_array"), s("tag_array2"))
                 .retrieveJSON(),
             Map.class);
-    assertEquals(3, result.get("Test_groupBy").get(0).get("count"));
+    assertEquals(2, result.get("Test_groupBy").get(1).get("count")); // blue,yellow is only with 2
 
     // create a simple test table to pet store just to make sure
     Table table =

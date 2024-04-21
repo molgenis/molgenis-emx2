@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SqlQuery extends QueryBean {
+  public static final String REFBACK_PREFIX = "_refback_";
   public static int AGGREGATE_COUNT_THRESHOLD = Integer.MIN_VALUE; // threshold disabled by default
   public static final String COUNT_FIELD = "count";
   public static final String MAX_FIELD = "max";
@@ -255,14 +256,17 @@ public class SqlQuery extends QueryBean {
               + schema.getName());
     }
     if (select.getColumn().endsWith("_agg")) {
+      select.setColumn(table.getIdentifier() + "_agg");
       fields.add(
           jsonAggregateSelect(
               table, null, table.getTableName(), select, getFilter(), getSearchTerms()));
     } else if (select.getColumn().endsWith("_groupBy")) {
+      select.setColumn(table.getIdentifier() + "_groupBy");
       fields.add(
           jsonGroupBySelect(
               table, null, table.getTableName(), select, getFilter(), getSearchTerms()));
     } else {
+      select.setColumn(table.getIdentifier());
       // select all on root level as default
       if (select.getSubselect().isEmpty()) {
         for (Column c : table.getColumns()) {
@@ -279,6 +283,8 @@ public class SqlQuery extends QueryBean {
     SelectSelectStep<Record1<Object>> query =
         sql.select(field("jsonb_strip_nulls({0})", jsonbObject(fields)));
     long start = System.currentTimeMillis();
+    // TODO remove before merge!!!
+    logger.info(query.getSQL(ParamType.INLINED));
     String result = query.fetchOne().get(0, String.class);
     if (logger.isInfoEnabled()) {
       logger.info(
@@ -709,8 +715,7 @@ public class SqlQuery extends QueryBean {
     List<JSONEntry<?>> jsonFields = new ArrayList<>();
     Set<Field> aggregationFields = new HashSet<>(); // sum(x), count, etc
     Set<Field> groupByFields = new HashSet<>(); // name, ref{otherName}, etc
-    List<SelectConnectByStep> refArraySubqueries = new ArrayList<>(); // for the ref_array columns
-
+    Set<Column> refbackColumns = new HashSet<>();
     for (SelectColumn field : groupBy.getSubselect()) {
       if (COUNT_FIELD.equals(field.getColumn())) {
         if (schema.hasActiveUserRole(VIEWER.toString())) {
@@ -729,22 +734,34 @@ public class SqlQuery extends QueryBean {
                 sub -> {
                   Column col = getColumnByName(table, sub.getColumn());
                   sumFields.add(
-                      key(col.getIdentifier())
-                          .value(
-                              field(
-                                  "SUM({0})",
-                                  field(name(alias(subAlias), col.getName())),
-                                  AGGREGATE_COUNT_THRESHOLD)));
+                      key(col.getIdentifier()).value(field(name(SUM_FIELD + "_" + col.getName()))));
+                  aggregationFields.add(
+                      field("SUM({0})", col.getJooqField()).as(SUM_FIELD + "_" + col.getName()));
                 });
-        jsonFields.add(key(field.getColumn()).value(field(field.getColumn())));
+        jsonFields.add(key(field.getColumn()).value(jsonbObject(sumFields)));
       } else {
         Column col = getColumnByName(table, field.getColumn());
         if (!col.isOntology()) {
           checkHasViewPermission(table);
         }
-        String subQueryAlias = tableAlias + "_" + col.getIdentifier();
-        // in case of 'ref' we need a subselect
-        if (col.isReference()) {
+        if (col.isRef() || col.isRefback()) {
+          Column copy = new Column(col.getTable(), col);
+          if (col.isRefback()) {
+            refbackColumns.add(col);
+            copy.setName(REFBACK_PREFIX + copy.getName());
+            copy.setType(ColumnType.REF); // ref_back should be treated as ref
+          }
+          jsonFields.add(
+              jsonSubselect(
+                  (SqlTableMetadata) col.getRefTable(),
+                  copy,
+                  tableAlias,
+                  field,
+                  field.getFilter(),
+                  new String[0]));
+          aggregationFields.addAll(copy.getCompositeFields());
+          groupByFields.addAll(copy.getCompositeFields());
+        } else if (col.isRefArray()) {
           Column copy = new Column(col.getTable(), col);
           copy.setType(ColumnType.REF); // ref_array should be treated as ref
           jsonFields.add(
@@ -755,47 +772,23 @@ public class SqlQuery extends QueryBean {
                   field,
                   field.getFilter(),
                   new String[0]));
+          aggregationFields.addAll(
+              col.getCompositeFields().stream()
+                  .map(f -> field("unnest(coalesce({0}, array[null]))", f).as(col.getName()))
+                  .toList());
+          groupByFields.addAll(
+              col.getCompositeFields().stream()
+                  .map(f -> field("unnest(coalesce({0},array[null]))", f))
+                  .toList());
+        } else if (col.isArray()) {
+          jsonFields.add(key(field.getColumn()).value(col.getJooqField()));
+          aggregationFields.add(
+              field("unnest(coalesce({0},array[null]))", col.getJooqField()).as(col.getName()));
+          groupByFields.add(field("unnest(coalesce({0},array[null]))", col.getJooqField()));
         } else {
           jsonFields.add(key(field.getColumn()).value(col.getJooqField()));
+          aggregationFields.add(col.getJooqField());
           groupByFields.add(col.getJooqField());
-        }
-
-        if (col.isRef() || !col.isArray()) {
-          groupByFields.addAll(col.getCompositeFields());
-        } else if (col.isRefback()) {
-          // convert so it looks like a ref_array
-          Set<Field> subselectFields = new HashSet<>();
-          if (col.getRefBackColumn().isRefArray()) {
-            subselectFields.addAll(
-                col.getRefBackColumn().getReferences().stream()
-                    .map(ref -> field("unnest({0})", name(ref.getName())).as(ref.getRefTo()))
-                    .toList());
-          } else {
-            subselectFields.addAll(
-                col.getRefBackColumn().getReferences().stream()
-                    .map(ref -> field(name(ref.getName())).as(ref.getRefTo()))
-                    .toList());
-          }
-          subselectFields.addAll(
-              col.getReferences().stream()
-                  .map(ref -> field(name(ref.getRefTo())).as(ref.getName()))
-                  .toList());
-          refArraySubqueries.add(
-              jooq.select(subselectFields)
-                  .from(tableWithInheritanceJoin(col.getRefTable()).as(alias(subQueryAlias))));
-          groupByFields.addAll(
-              subselectFields.stream().map(f -> field(name(subQueryAlias, f.getName()))).toList());
-        } else {
-          // must be array or ref_array
-          // need subquery to unnest ref_array fields
-          Set<Field> subselectFields = new HashSet<>();
-          subselectFields.addAll(table.getPrimaryKeyFields());
-          for (Field compositeField : col.getCompositeFields()) {
-            subselectFields.add(field("unnest({0})", compositeField).as(compositeField.getName()));
-          }
-          refArraySubqueries.add(
-              jooq.select(subselectFields)
-                  .from(tableWithInheritanceJoin(table).as(alias(subQueryAlias))));
         }
       }
     }
@@ -805,14 +798,36 @@ public class SqlQuery extends QueryBean {
     groupByFields.forEach(field -> orderByFields.add(field.asc().nullsLast()));
 
     // aggregate into one field
-    List<Field> selectFields = new ArrayList<>();
-    selectFields.addAll(aggregationFields);
-    selectFields.addAll(groupByFields);
     SelectJoinStep<org.jooq.Record> sourceQuery =
-        jooq.select(selectFields).from(tableWithInheritanceJoin(table).where(condition));
-    for (SelectConnectByStep unnestQuery : refArraySubqueries) {
-      // joining on primary key
-      sourceQuery = sourceQuery.leftJoin(unnestQuery).using(table.getPrimaryKeyFields());
+        jooq.select(aggregationFields)
+            .from(tableWithInheritanceJoin(table).as(name(tableAlias)).where(condition));
+    // if refback we need nasty join
+    if (!refbackColumns.isEmpty()) {
+      sourceQuery = jooq.select(asterisk()).from(tableWithInheritanceJoin(table));
+      for (Column col : refbackColumns) {
+        Set<Field> subselectFields = new HashSet<>();
+        if (col.getRefBackColumn().isRefArray()) {
+          subselectFields.addAll(
+              col.getRefBackColumn().getReferences().stream()
+                  .map(ref -> field("unnest({0})", name(ref.getName())).as(ref.getRefTo()))
+                  .toList());
+        } else {
+          subselectFields.addAll(
+              col.getRefBackColumn().getReferences().stream()
+                  .map(ref -> field(name(ref.getName())).as(ref.getRefTo()))
+                  .toList());
+        }
+        subselectFields.addAll(
+            col.getReferences().stream()
+                .map(ref -> field(name(ref.getRefTo())).as(REFBACK_PREFIX + ref.getName()))
+                .toList());
+        String subQueryAlias = tableAlias + "_" + col.getIdentifier();
+        sourceQuery =
+            sourceQuery.naturalLeftOuterJoin(
+                jooq.select(subselectFields)
+                    .from(col.getRefTable().getJooqTable().as(name(subQueryAlias))));
+      }
+      sourceQuery = jooq.select(aggregationFields).from(sourceQuery);
     }
     return key(groupBy.getColumn())
         .value(

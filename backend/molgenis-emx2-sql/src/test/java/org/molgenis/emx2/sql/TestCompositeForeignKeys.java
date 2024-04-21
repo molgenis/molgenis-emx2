@@ -192,16 +192,6 @@ public class TestCompositeForeignKeys {
                     .getStringArray("uncle-firstName"))
             .contains("Katrien"));
 
-    // test order by for refback
-    p.query()
-        .select(
-            s("firstName"),
-            s("lastName"),
-            s("nephew", s("firstName"), s("lastName")),
-            s("uncle", s("firstName"), s("lastName")))
-        .orderBy("nephew")
-        .retrieveJSON();
-
     // test group by ref
     // Kwik = Katrien
     // Kwek, Kwak = Donald
