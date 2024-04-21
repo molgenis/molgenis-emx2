@@ -36,7 +36,7 @@ const query = `
     `;
 
 const options: IOption[] = (
-  await fetchGql(query).catch((e) => {
+  await fetchGql<any>(query).catch((e) => {
     console.error(e);
   })
 )?.data[props.tableId]?.map((respItem: any) => {

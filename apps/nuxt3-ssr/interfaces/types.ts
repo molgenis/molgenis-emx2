@@ -185,26 +185,6 @@ export interface IOntologyNode extends ITreeNode {
   ontologyTermURI?: string;
 }
 
-interface IBaseFilter {
-  title: string;
-  initialCollapsed?: boolean;
-}
-
-interface ISearchFilter extends IBaseFilter {
-  columnType: "_SEARCH";
-  search?: string;
-}
-
-export interface IFilter extends IBaseFilter {
-  columnType: "_SEARCH" | "ONTOLOGY" | "REF_ARRAY";
-  refTableId?: string;
-  columnId?: string;
-  filterTable?: string;
-  conditions?: [] | { [key: string]: string }[];
-  searchTables?: string[];
-  search?: string;
-}
-
 export interface IFormField {
   name: string;
   label: string;
@@ -294,4 +274,116 @@ export interface IOntologyItem {
 
 export interface IOntologyParentTreeItem
   extends Omit<IOntologyItem, "children"> {}
+
+// generic emx2 graphql api response type, pass in query structure as T
+export interface GqlResp<T> {
+  data: Record<string, T[]>;
+}
+export interface IOntologyRespItem {
+  name: string;
+  definition?: string;
+  code?: string;
+  order?: number;
+  parent: {
+    name: string;
+  };
+}
+
+export type ButtonType =
+  | "primary"
+  | "secondary"
+  | "tertiary"
+  | "outline"
+  | "disabled"
+  | "filterWell";
+export type ButtonSize = "tiny" | "small" | "medium" | "large";
+export type ButtonIconPosition = "left" | "right";
+
 export interface IOntologyChildTreeItem extends Omit<IOntologyItem, "parent"> {}
+
+export interface IManifest {
+  ImplementationVersion: string;
+  SpecificationVersion: string;
+  DatabaseVersion: string;
+}
+
+export interface IManifestResponse {
+  data: {
+    _manifest: IManifest;
+  };
+}
+
+export type IFilter = ISearchFilter | IOntologyFilter | IRefArrayFilter;
+
+interface IAbstractFilter {
+  id: string;
+  search?: string;
+  config: ISearchFilterConfig | IOntologyFilterConfig | IRefArrayFilterConfig;
+}
+export interface ISearchFilter extends IAbstractFilter {
+  search: string;
+  config: ISearchFilterConfig;
+}
+
+export interface IFilterConfig {
+  label: string;
+  initialCollapsed?: boolean;
+  filterTable?: string;
+}
+
+export interface ISearchFilterConfig extends IFilterConfig {
+  type: "SEARCH";
+  searchTables?: string[];
+}
+
+export interface IOntologyFilterConfig extends IFilterConfig {
+  type: "ONTOLOGY";
+  ontologyTableId: string;
+  ontologySchema: string;
+  columnId: string;
+  refFields?: filterRefField;
+}
+
+export interface IRefArrayFilterConfig extends IFilterConfig {
+  type: "REF_ARRAY";
+  refTableId: string;
+  refSchema?: string;
+  columnId: string;
+  refFields?: filterRefField;
+}
+
+type filterRefField = {
+  [key: string]: string;
+};
+
+export type IFilterCondition = {
+  [id: string]: IFilterCondition | string;
+};
+
+export interface IOntologyFilter extends IAbstractFilter {
+  conditions: IFilterCondition[];
+  config: IOntologyFilterConfig;
+}
+
+export type IConditionsFilter = IOntologyFilter | IRefArrayFilter;
+
+export interface IRefArrayFilter extends IAbstractFilter {
+  conditions: IFilterCondition[];
+  config: IRefArrayFilterConfig;
+}
+
+export interface IPathCondition {
+  id: string;
+  search?: string;
+  conditions?: IFilterCondition[];
+}
+
+export interface IPathSearchCondition extends IPathCondition {
+  search: string;
+}
+
+export interface IPathConditionsCondition extends IPathCondition {
+  conditions: IFilterCondition[];
+}
+
+export type activeTabType = "detailed" | "compact";

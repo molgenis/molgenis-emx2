@@ -73,7 +73,6 @@ export default {
         } /** no need to check further if there are no active filters */
 
         const filterColumn = this.filterInfoDictionary[facetIdentifier].column;
-
         const columns = Array.isArray(filterColumn)
           ? filterColumn
           : [filterColumn];
