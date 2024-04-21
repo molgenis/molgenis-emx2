@@ -774,10 +774,10 @@ public class SqlQuery extends QueryBean {
                   new String[0]));
           aggregationFields.addAll(
               col.getCompositeFields().stream()
-                  .map(f -> field("unnest(coalesce({0}, array[null]))", f).as(col.getName()))
+                  .map(f -> field("unnest(coalesce({0}, array[null]))", f).as(f.getName()))
                   .toList());
           groupByFields.addAll(
-              col.getCompositeFields().stream()
+              copy.getCompositeFields().stream()
                   .map(f -> field("unnest(coalesce({0},array[null]))", f))
                   .toList());
         } else if (col.isArray()) {
