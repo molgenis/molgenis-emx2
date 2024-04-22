@@ -1,5 +1,10 @@
 import { describe, expect, test } from "vitest";
-import { getName, mapObjArray, propertyToString } from "./viewmodelMapper";
+import {
+  getName,
+  mapObjArray,
+  urlToString,
+  propertyToString,
+} from "./viewmodelMapper";
 
 describe("getName", () => {
   test("it should create a name in de order: title, first, last, title, role", () => {
@@ -83,4 +88,29 @@ describe("mapObjArray", () => {
     const result = mapObjArray(undefined);
     expect(result).toEqual([]);
   });
+});
+
+describe("urlToString", () => {
+  test("return the url if the starts with 'http'", () => {
+    const url = "https://molgenis.org";
+    const result = urlToString(url);
+    expect(result).toEqual(url);
+  });
+
+  test("return the input if it is falsy", () => {
+    const url = "";
+    const result = urlToString(url);
+    expect(result).toEqual(url);
+  });
+
+  test("return the url with 'https' as prefix if doesn't start with 'http'", () => {
+    const url = "molgenis.org";
+    const result = urlToString(url);
+    const expectedResult = "https://molgenis.org";
+    expect(result).toEqual(expectedResult);
+  });
+});
+
+describe("mapRange", () => {
+  test("", () => {});
 });

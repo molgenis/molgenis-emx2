@@ -18,12 +18,12 @@ export const getName = (contact) => {
 
 export const propertyToString = (object, property, prefix, suffix) => {
   if (!object) return "";
-
   if (typeof object === "string") return object;
+  if (!object[property]) return "";
 
-  prefix = prefix ? `${prefix} ` : "";
-  suffix = suffix ? ` ${suffix}` : "";
-  return object[property] ? `${prefix}${object[property]}${suffix}` : "";
+  const spacedPrefix = prefix ? `${prefix} ` : "";
+  const spacedSuffix = suffix ? ` ${suffix}` : "";
+  return `${spacedPrefix}${object[property]}${spacedSuffix}`;
 };
 
 function getUriIfAvailable(item) {
@@ -45,8 +45,12 @@ export function mapObjArray(objects) {
     }));
 }
 
-export function mapUrl(url) {
-  return url ? (url.startsWith("http") ? url : "https://" + url) : url;
+export function urlToString(url) {
+  if (url) {
+    return url.startsWith("http") ? url : "https://" + url;
+  } else {
+    return url;
+  }
 }
 
 export function mapRange(min, max, unit) {
