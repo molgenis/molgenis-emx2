@@ -83,6 +83,34 @@ const pageFilterTemplate: IFilter[] = [
         name: "id",
         description: "name",
       },
+      optionsQuery: `
+        query CohortsWithVariableMapping {
+          Variables_groupBy {
+            count
+            mappings {
+              source {
+                id
+                name
+              }
+            }
+          }
+        }
+      `,
+      optionsRespResolver: (respObject: any) => {
+        return respObject.Variables_groupBy.filter(
+          (respRow: any) => respRow.mappings // filter out rows without mappings, i.e. the count all row
+        ).map(
+          (variableGroupBy: {
+            count: number;
+            mappings: { source: { id: string; name: string } };
+          }) => {
+            return {
+              name: variableGroupBy.mappings.source.id,
+              description: variableGroupBy.mappings.source.name,
+            };
+          }
+        );
+      },
     },
     conditions: [],
   },

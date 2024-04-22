@@ -9,6 +9,8 @@ const props = withDefaults(
     nameField?: string;
     descriptionField?: string;
     mobileDisplay?: boolean;
+    optionsQuery?: string;
+    optionsRespResolver?: (respObject: any) => INode[];
   }>(),
   {
     nameField: "name",
@@ -19,7 +21,9 @@ const props = withDefaults(
 
 const emit = defineEmits(["update:modelValue"]);
 
-const query = `
+const query =
+  props.optionsQuery ||
+  `
     query 
     ${props.tableId}( $filter:${props.tableId}Filter )
     {   
@@ -31,9 +35,13 @@ const query = `
         }
     `;
 
-const nodes = (await fetchGql<INode>(query)).data[props.tableId].map(
-  dataToNode
-);
+const optionsResp = await fetchGql<INode>(query);
+
+const nodes = props.optionsRespResolver
+  ? // use the resolver pased via the config
+    props.optionsRespResolver(optionsResp.data)
+  : // use the default resolver
+    optionsResp.data[props.tableId].map(dataToNode);
 
 function dataToNode(respObject: any): INode {
   return {

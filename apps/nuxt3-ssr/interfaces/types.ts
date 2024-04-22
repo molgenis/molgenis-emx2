@@ -1,4 +1,5 @@
 import type { IColumn } from "meta-data-utils";
+import type { INode } from "../../tailwind-components/types/types";
 export interface IResource {
   id: string;
   pid: string;
@@ -329,7 +330,6 @@ export interface IFilterConfig {
   label: string;
   initialCollapsed?: boolean;
   filterTable?: string;
-  buildFilterFunction?: Function;
 }
 
 export interface ISearchFilterConfig extends IFilterConfig {
@@ -351,6 +351,15 @@ export interface IRefArrayFilterConfig extends IFilterConfig {
   refSchema?: string;
   columnId: string;
   refFields?: filterRefField;
+  // optional function to build the filter bases on the selected options
+  // if empty the defualt builder will be used
+  buildFilterFunction?: Function;
+  // optional query to get the options for the filter
+  // if empty the defualt builder will be used
+  optionsQuery?: string;
+  // optional function to resolve the options for the filter
+  // takes the response from the optionsQuery and returns the options
+  optionsRespResolver?: (respObject: any) => INode[];
 }
 
 type filterRefField = {
