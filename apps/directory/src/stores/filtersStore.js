@@ -30,7 +30,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
   let filters = ref({});
   let filterType = ref({});
   let filterOptionsCache = ref({});
-  let filterFacets = ref({});
+  let filterFacets = ref([]);
   const facetDetailsDictionary = ref({});
 
   let filtersReadyToRender = ref(false);
