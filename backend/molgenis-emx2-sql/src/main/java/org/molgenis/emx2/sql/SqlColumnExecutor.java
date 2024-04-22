@@ -119,7 +119,7 @@ public class SqlColumnExecutor {
                 .toList();
         for (Record subclassRecord : tableList) {
           jooq.execute(
-              "ALTER TABLE {0} TO {2}",
+              "ALTER TABLE {0} RENAME COLUMN {1} TO {2}",
               table(
                   name(
                       subclassRecord.get(TABLE_SCHEMA, String.class),
