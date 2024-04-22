@@ -446,20 +446,20 @@ public class TestGraphqlSchemaFields {
     assertEquals("ant", result.at("/Pet_groupBy/0/categoryTest/nameTest").textValue());
     assertEquals("bird", result.at("/Pet_groupBy/1/categoryTest/nameTest").textValue());
 
-    // currently doensn't contain cat because somehow 'null' are not included
     result = execute("{Pet_groupBy{count,tagsTest{nameTest},categoryTest{nameTest}}}");
     // 1 <untagged> cat
-    assertEquals(1, result.at("/Pet_groupBy/6/count").intValue());
-    assertEquals("cat", result.at("/Pet_groupBy/6/categoryTest/nameTest").textValue());
-    assertEquals(null, result.at("/Pet_groupBy/6/tagsTest/nameTest").textValue());
-    // 1 blue mouse
     assertEquals(1, result.at("/Pet_groupBy/10/count").intValue());
-    assertEquals("mouse", result.at("/Pet_groupBy/10/categoryTest/nameTest").textValue());
-    assertEquals("blue", result.at("/Pet_groupBy/10/tagsTest/nameTest").textValue());
-    // 1 green ant
+    assertEquals("cat", result.at("/Pet_groupBy/10/categoryTest/nameTest").textValue());
+    assertEquals(null, result.at("/Pet_groupBy/10/tagsTest/nameTest").textValue());
+
+    // 1 blue mouse
     assertEquals(1, result.at("/Pet_groupBy/0/count").intValue());
-    assertEquals("ant", result.at("/Pet_groupBy/0/categoryTest/nameTest").textValue());
-    assertEquals("green", result.at("/Pet_groupBy/0/tagsTest/nameTest").textValue());
+    assertEquals("mouse", result.at("/Pet_groupBy/0/categoryTest/nameTest").textValue());
+    assertEquals("blue", result.at("/Pet_groupBy/0/tagsTest/nameTest").textValue());
+    // 1 green ant
+    assertEquals(1, result.at("/Pet_groupBy/1/count").intValue());
+    assertEquals("ant", result.at("/Pet_groupBy/1/categoryTest/nameTest").textValue());
+    assertEquals("green", result.at("/Pet_groupBy/1/tagsTest/nameTest").textValue());
 
     // N.B. in case arrays are involved total might more than count!!!
 
