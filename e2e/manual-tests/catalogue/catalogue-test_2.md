@@ -36,7 +36,7 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | 18 | Go back to the catalogue window | | | |
 | 19 | DESCRIPTION | test description for new test network | | |
 | 20 | PARTNERS | Amsterdam Medical Centre, Cynexo | | |
-| 21 | FUNDING & CITATION REQUIREMENTS | lorem ipsum text
+| 21 | FUNDING & CITATION REQUIREMENTS | lorem ipsum text | | |
 | 22 | COHORTS | A list of cohorts you can explore. | | |
 |    |  | Name, Design, Number of participants, --> | | |
 |    |  | Name for test cohort 1   Longitudinal  600   --> | | |
@@ -53,7 +53,7 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | 28 | Go back | Come back to network overview page for testNetwork1 | | |
 | 29 | VARIABLES | Variables in this network | | |
 |   |   | Name  Label   Model   --> | | |
-|  |    | testVarCategorical_ categorical test variable  testNetwork1_CDM  --> | | |
-|  |    | testVarNoRepeats   test variable without repeats 	testNetwork1_CDM --> | | |
-|  |    | testVarRepeats_  test variable with repeats  	testNetwork1_CDM  -->  | | |
+|  |    | testVarCategorical_ categorical test variable testNetwork1_CDM  --> | | |
+|  |    | testVarNoRepeats test variable without repeats testNetwork1_CDM --> | | |
+|  |    | testVarRepeats_ test variable with repeats testNetwork1_CDM  -->  | | |
 | 30 | Click on testVarNoRepeats | Variable information in pop-up UNDER CONSTRUCTION | | |
