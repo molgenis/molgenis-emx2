@@ -16,7 +16,7 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | ---- | ------ | --------------- | -----------------| ----------------|
 | 1 | Navigate to [https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/) | Landing page: European health research data and sample catalogue| | |
 | 2 | In section 'Thematic catalogues' hover over the testNetwork1 row | Row should be highlighted | | |
-| 3 | Click on the testNetwork1 logo (to be implemented, now MOLGENIS logo) | Should be directed to the testNetwork1 home page with 'Welcome to the catalogue of testNetwork1: [etc]', and Cohorts (4), Data sources (1), Variables (3) buttons | | |
+| 3 | Click on the testNetwork1 logo (to be implemented, click on 'testNetwork1') | Should be directed to the testNetwork1 home page with 'Welcome to the catalogue of testNetwork1: [etc]', and Cohorts (4), Data sources (1), Variables (3) buttons | | |
 | 3a | | There should be 700 participants, 250 samples and 50% Longitudinal given. | | |
 | 3b | | In the ribbon at the top of the page there should be: Left: testnetwerk1 logo, Right: (L-R) Overview, Cohorts, Data sources, Variables, More | | |
 | 4 | Click on the testNetwork1 logo (to be implemented, now MOLGENIS logo) | The page doesn't change | | |
