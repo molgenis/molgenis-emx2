@@ -16,7 +16,7 @@ export const getName = (contact) => {
   return name !== "" ? name.trim() : undefined;
 };
 
-export const mapToString = (object, property, prefix, suffix) => {
+export const propertyToString = (object, property, prefix, suffix) => {
   if (!object) return "";
 
   if (typeof object === "string") return object;
@@ -28,7 +28,7 @@ export const mapToString = (object, property, prefix, suffix) => {
 
 function getUriIfAvailable(item) {
   if (item.uri) return "uri";
-  if (item.url) return "uri";
+  if (item.url) return "url";
   if (item.ontologyTermURI) return "ontologyTermURI";
 
   return "";
@@ -115,7 +115,7 @@ export function getViewmodel(object, columns) {
         break;
       }
       case "object": {
-        attributeValue = mapToString(
+        attributeValue = propertyToString(
           objectToExtractValueFrom,
           columnInfo.property,
           columnInfo.prefix,
@@ -140,7 +140,7 @@ export function getViewmodel(object, columns) {
         break;
       }
       default: {
-        attributeValue = mapToString(
+        attributeValue = propertyToString(
           object,
           columnInfo.column,
           columnInfo.prefix,
