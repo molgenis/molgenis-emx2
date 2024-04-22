@@ -1,5 +1,5 @@
 <template>
-  <div class="mx-1" v-if="notEmpty">
+  <div class="mx-1" v-if="matches.length">
     <div class="d-flex align-items-center flex-wrap">
       <label class="font-weight-bold mr-1">Because you searched for:</label>
       <span
@@ -13,7 +13,7 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { useFiltersStore } from "../../stores/filtersStore";
 export default {
   setup() {
@@ -26,127 +26,158 @@ export default {
       required: true,
     },
   },
-  methods: {
-    extractValue(path, object) {
-      if (!path) return "";
-
-      const pathParts = path.split(".");
-
-      let value;
-      for (const path of pathParts) {
-        if (!value) {
-          value = object[path];
-        } else if (Array.isArray(value)) {
-          return value;
-        } else {
-          value = value[path];
-        }
-      }
-      return value;
-    },
-  },
   computed: {
     filterInfoDictionary() {
-      const filterInfoDictionary = {};
-      this.filtersStore.filterFacets.forEach((filter) => {
-        filterInfoDictionary[filter.facetIdentifier] = {
-          column: filter.applyToColumn,
-          label: filter.facetTitle,
-        };
-      });
-      return filterInfoDictionary;
+      return this.filtersStore.filterFacets.reduce(
+        (
+          accum: Record<string, { column: any; label: string }>,
+          filter: {
+            facetIdentifier: string;
+            applyToColumn: any;
+            facetTitle: string;
+          }
+        ) => {
+          accum[filter.facetIdentifier] = {
+            column: filter.applyToColumn,
+            label: filter.facetTitle,
+          };
+          return accum;
+        },
+        {}
+      );
     },
-    activeFilters() {
+    activeFilters(): Record<string, any> {
       return this.filtersStore.filters;
     },
-    filterOptionsCache() {
+    filterOptionsCache(): Record<string, { value: string; text: string }[]> {
       return this.filtersStore.filterOptionsCache;
     },
     matches() {
-      let matches = [];
+      let matches: IMatch[] = [];
       const facetIdentifiers = Object.keys(this.activeFilters);
       for (const facetIdentifier of facetIdentifiers) {
         const activeFilterValues = this.activeFilters[facetIdentifier];
 
-        if (!activeFilterValues || !Array.isArray(activeFilterValues)) {
-          continue;
-        } /** no need to check further if there are no active filters */
+        if (activeFilterValues?.length) {
+          /** no need to check further if there are no active filters */
 
-        const filterColumn = this.filterInfoDictionary[facetIdentifier].column;
-        const columns = Array.isArray(filterColumn)
-          ? filterColumn
-          : [filterColumn];
+          const filterColumn: string | string[] =
+            this.filterInfoDictionary[facetIdentifier].column;
+          const columns: string[] = Array.isArray(filterColumn)
+            ? filterColumn
+            : [filterColumn];
 
-        for (const column of columns) {
-          const filterLabel = this.filterInfoDictionary[facetIdentifier].label;
-          const potentialMatch = this.extractValue(column, this.viewmodel);
+          for (const columnId of columns) {
+            const filterLabel =
+              this.filterInfoDictionary[facetIdentifier].label;
+            const potentialMatch = extractValue(columnId, this.viewmodel);
 
-          if (!potentialMatch) {
-            continue;
-          }
-
-          const isArray = Array.isArray(potentialMatch);
-
-          const match = { name: filterLabel, value: [] };
-
-          for (const activeFilterValue of activeFilterValues) {
-            /** need to find the correct filter value instead of the name */
-
-            const optionsCache = this.filterOptionsCache[facetIdentifier];
-            if (!optionsCache) {
-              continue; /** if the filteroption does not exist */
-            }
-            /** we are dealing with a multiple ontology, e.g. diagnosis available we can not deal with that yet */
-            if (!Array.isArray(optionsCache)) {
+            if (!potentialMatch) {
               continue;
             }
-
-            const filterOption = this.filterOptionsCache[facetIdentifier].find(
-              (fo) => fo.value === activeFilterValue.value
+            const match: IMatch = getMatch(
+              potentialMatch,
+              filterLabel,
+              activeFilterValues,
+              this.filterOptionsCache,
+              facetIdentifier
             );
 
-            if (!filterOption) continue;
-
-            const filterValue = filterOption.value;
-
-            if (
-              (isArray &&
-                potentialMatch.some(
-                  (item) =>
-                    item.id === filterValue ||
-                    item.name === filterValue ||
-                    item.label === filterValue
-                )) /** if the value is an array */ ||
-              (typeof potentialMatch === "object" &&
-                filterValue ===
-                  potentialMatch.id) /** if value is an object */ ||
-              filterValue.toString() ===
-                potentialMatch.toString() /** if it is a single value */
-            ) {
-              match.value.push(filterOption.text);
+            if (match.value.length > 0) {
+              /** check if it is there, because it can already have been matched on biobank / collection. Do not need it twice */
+              const existingMatch = matches.find(
+                (match) => match.name === filterLabel
+              );
+              if (existingMatch) {
+                match.value = [
+                  //@ts-ignore
+                  ...new Set(match.value.concat(existingMatch.value)),
+                ];
+                matches = matches.filter((match) => match.name !== filterLabel);
+              }
+              matches.push(match);
             }
-          }
-
-          if (match.value.length > 0) {
-            /** check if it is there, because it can already have been matched on biobank / collection. Do not need it twicer */
-            const existingMatch = matches.find(
-              (match) => match.name === filterLabel
-            );
-            if (existingMatch) {
-              match.value = [
-                ...new Set(match.value.concat(existingMatch.value)),
-              ];
-              matches = matches.filter((match) => match.name !== filterLabel);
-            }
-            matches.push(match);
           }
         }
       }
       return matches;
     },
-    notEmpty() {
-      return this.matches.length > 0;
-    },
   },
 };
+
+function getMatch(
+  potentialMatch:
+    | { id: string; name: string; label: string }
+    | { id: string; name: string; label: string }[],
+  filterLabel: string,
+  activeFilterValues: any[],
+  filterOptionsCache: Record<string, any>,
+  facetIdentifier: string
+): IMatch {
+  const match: IMatch = {
+    name: filterLabel,
+    value: [],
+  };
+
+  for (const activeFilterValue of activeFilterValues) {
+    const optionsCache = filterOptionsCache[facetIdentifier];
+    if (!optionsCache) {
+      continue; /** if the filteroption does not exist */
+    }
+    /** we are dealing with a multiple ontology, e.g. diagnosis available we can not deal with that yet */
+    if (!Array.isArray(optionsCache)) {
+      continue;
+    }
+
+    const filterOption = optionsCache.find(
+      (option: Record<string, any>) => option.value === activeFilterValue.value
+    );
+
+    if (!filterOption) continue;
+
+    const filterValue = filterOption.value;
+
+    const isArrayMatch: boolean =
+      Array.isArray(potentialMatch) &&
+      potentialMatch.some(
+        (item) =>
+          item.id === filterValue ||
+          item.name === filterValue ||
+          item.label === filterValue
+      );
+
+    const isObjectMatch: boolean =
+      typeof potentialMatch === "object" && filterValue === potentialMatch.id;
+    const isValueMatch: boolean =
+      filterValue.toString() === potentialMatch.toString();
+
+    if (isArrayMatch || isObjectMatch || isValueMatch) {
+      match.value.push(filterOption.text);
+    }
+  }
+  return match;
+}
+
+function extractValue(columnId: string, viewModel: Record<string, any>) {
+  if (!columnId) return "";
+
+  const pathParts = columnId.split(".");
+
+  let value;
+  for (const path of pathParts) {
+    if (!value) {
+      value = viewModel[path];
+    } else if (Array.isArray(value)) {
+      return value;
+    } else {
+      value = value[path];
+    }
+  }
+  return value;
+}
+
+interface IMatch {
+  name: string;
+  value: string[];
+}
 </script>
