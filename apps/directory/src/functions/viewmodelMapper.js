@@ -7,9 +7,9 @@ export const getName = (contact) => {
 
   let name = "";
 
-  if (title_before_name) name += `${title_before_name} `;
-  if (first_name) name += `${first_name} `;
-  if (last_name) name += `${last_name} `;
+  if (title_before_name) name += `${title_before_name}`;
+  if (first_name) name += ` ${first_name}`;
+  if (last_name) name += ` ${last_name}`;
   if (title_after_name) name += ` ${title_after_name}`;
   if (role) name += `\n${role}`;
 
