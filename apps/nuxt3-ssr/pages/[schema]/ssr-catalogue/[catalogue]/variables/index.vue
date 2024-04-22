@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { IFilter, IMgError, IFilterCondition } from "~/interfaces/types";
 import mappingsFragment from "~~/gql/fragments/mappings";
+import type { INode } from "../../../../../../tailwind-components/types/types";
 
 const route = useRoute();
 const router = useRouter();
@@ -83,38 +84,50 @@ const pageFilterTemplate: IFilter[] = [
         name: "id",
         description: "name",
       },
-      optionsQuery: `
-        query CohortsWithVariableMapping {
-          Variables_groupBy {
-            count
-            mappings {
-              source {
-                id
-                name
-              }
-            }
-          }
-        }
-      `,
-      optionsRespResolver: (respObject: any) => {
-        return respObject.Variables_groupBy.filter(
-          (respRow: any) => respRow.mappings // filter out rows without mappings, i.e. the count all row
-        ).map(
-          (variableGroupBy: {
-            count: number;
-            mappings: { source: { id: string; name: string } };
-          }) => {
-            return {
-              name: variableGroupBy.mappings.source.id,
-              description: variableGroupBy.mappings.source.name,
-            };
-          }
-        );
-      },
     },
+    options: fetchCohortOptions,
     conditions: [],
   },
 ];
+
+async function fetchCohortOptions(): Promise<INode[]> {
+  const variables = scoped
+    ? { variablesFilter: await buildScopedModelFilter() }
+    : {};
+  const { data, error } = await $fetch(`/${route.params.schema}/graphql`, {
+    method: "POST",
+    body: {
+      query: `
+            query CohortsWithVariableMapping {
+              Variables_groupBy {
+                count
+                mappings {
+                  source {
+                    id
+                    name
+                  }
+                }
+              }
+            }
+          `,
+      variables,
+    },
+  });
+
+  return data.Variables_groupBy.filter(
+    (respRow: any) => respRow.mappings // filter out rows without mappings, i.e. the count all row
+  ).map(
+    (variableGroupBy: {
+      count: number;
+      mappings: { source: { id: string; name: string } };
+    }) => {
+      return {
+        name: variableGroupBy.mappings.source.id,
+        description: variableGroupBy.mappings.source.name,
+      } as INode;
+    }
+  );
+}
 
 const filters = computed(() => {
   // if there are not query conditions just use the page defaults
@@ -182,22 +195,21 @@ const numberOfCohorts = computed(() => {
 const graphqlURL = computed(() => `/${route.params.schema}/graphql`);
 
 const orderby = { label: "ASC" };
-const typeFilter = { resource: { mg_tableclass: { like: ["Models"] } } };
 
 const filter = computed(() => {
-  return {
-    ...buildQueryFilter(filters.value),
-    ...typeFilter,
-  };
+  return buildQueryFilter(filters.value);
 });
 
-const fetchData = async () => {
-  let resourceCondition = {};
-  if (scoped) {
-    const { data, error } = await $fetch(`/${route.params.schema}/graphql`, {
-      method: "POST",
-      body: {
-        query: `
+const cachedScopedResouceFilter = ref();
+
+async function buildScopedModelFilter() {
+  if (cachedScopedResouceFilter.value) {
+    return cachedScopedResouceFilter.value;
+  }
+  const { data, error } = await $fetch(`/${route.params.schema}/graphql`, {
+    method: "POST",
+    body: {
+      query: `
             query Networks($filter:NetworksFilter) {
               Networks(filter:$filter){
                  models {
@@ -205,35 +217,48 @@ const fetchData = async () => {
                  }
               }
             }`,
-        variables: { filter: { id: { equals: catalogueRouteParam } } },
-      },
-    });
+      variables: { filter: { id: { equals: catalogueRouteParam } } },
+    },
+  });
 
-    if (error) {
-      console.log("models error: ", error);
-      return { error };
-    }
-
-    const modelIds = data.Networks[0].models.map((m: { id: string }) => m.id);
-
-    resourceCondition = {
-      resource: {
-        id: {
-          equals: modelIds,
-        },
-      },
-    };
+  if (error) {
+    console.log("models error: ", error);
+    return { error };
   }
 
-  const variables = {
-    orderby,
-    variablesFilter: scoped
-      ? { ...filter.value, ...resourceCondition }
-      : filter.value,
-    cohortsFilter: scoped
-      ? { networks: { equals: [{ id: catalogueRouteParam }] } }
-      : {},
+  const modelIds = data.Networks[0].models.map((m: { id: string }) => m.id);
+
+  const scopedResourceFilter = {
+    resource: {
+      mg_tableclass: { like: ["Models"] },
+      id: {
+        equals: modelIds,
+      },
+    },
   };
+
+  cachedScopedResouceFilter.value = scopedResourceFilter;
+
+  return scopedResourceFilter;
+}
+
+const fetchData = async () => {
+  const variables = scoped
+    ? {
+        orderby,
+        variablesFilter: {
+          ...filter.value,
+          ...(await buildScopedModelFilter()),
+        },
+        cohortsFilter: { networks: { equals: [{ id: catalogueRouteParam }] } },
+      }
+    : {
+        orderby,
+        variablesFilter: {
+          ...filter.value,
+          resource: { mg_tableclass: { like: ["Models"] } },
+        },
+      };
 
   return $fetch(graphqlURL.value, {
     key: `variables-${offset.value}`,

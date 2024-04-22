@@ -354,12 +354,6 @@ export interface IRefArrayFilterConfig extends IFilterConfig {
   // optional function to build the filter bases on the selected options
   // if empty the defualt builder will be used
   buildFilterFunction?: Function;
-  // optional query to get the options for the filter
-  // if empty the defualt builder will be used
-  optionsQuery?: string;
-  // optional function to resolve the options for the filter
-  // takes the response from the optionsQuery and returns the options
-  optionsRespResolver?: (respObject: any) => INode[];
 }
 
 type filterRefField = {
@@ -377,9 +371,14 @@ export interface IOntologyFilter extends IAbstractFilter {
 
 export type IConditionsFilter = IOntologyFilter | IRefArrayFilter;
 
+export interface optionsFetchFn {
+  (): Promise<INode[]>;
+}
+
 export interface IRefArrayFilter extends IAbstractFilter {
   conditions: IFilterCondition[];
   config: IRefArrayFilterConfig;
+  options?: INode[] | optionsFetchFn;
 }
 
 export interface IPathCondition {

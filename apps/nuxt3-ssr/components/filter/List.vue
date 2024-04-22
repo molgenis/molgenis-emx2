@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { INode } from "../../../tailwind-components/types/types";
-import type { IFilterCondition } from "~/interfaces/types";
+import type { IFilterCondition, optionsFetchFn } from "~/interfaces/types";
 
 const props = withDefaults(
   defineProps<{
@@ -9,8 +9,7 @@ const props = withDefaults(
     nameField?: string;
     descriptionField?: string;
     mobileDisplay?: boolean;
-    optionsQuery?: string;
-    optionsRespResolver?: (respObject: any) => INode[];
+    options?: INode[] | optionsFetchFn;
   }>(),
   {
     nameField: "name",
@@ -21,10 +20,7 @@ const props = withDefaults(
 
 const emit = defineEmits(["update:modelValue"]);
 
-const query =
-  props.optionsQuery ||
-  `
-    query 
+const query = ` query 
     ${props.tableId}( $filter:${props.tableId}Filter )
     {   
         ${props.tableId}( filter:$filter, limit:100000,  offset:0, orderby:{${props.nameField}: ASC} )
@@ -35,13 +31,11 @@ const query =
         }
     `;
 
-const optionsResp = await fetchGql<INode>(query);
-
-const nodes = props.optionsRespResolver
-  ? // use the resolver pased via the config
-    props.optionsRespResolver(optionsResp.data)
-  : // use the default resolver
-    optionsResp.data[props.tableId].map(dataToNode);
+const nodes = props.options
+  ? typeof props.options === "function"
+    ? await props.options()
+    : props.options
+  : (await fetchGql<INode>(query)).data[props.tableId].map(dataToNode);
 
 function dataToNode(respObject: any): INode {
   return {

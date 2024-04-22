@@ -77,8 +77,7 @@ function handleFilerUpdate(filter: IFilter) {
           :table-id="filter.config.refTableId"
           :name-field="filter.config.refFields?.name"
           :descriptionField="filter.config.refFields?.description"
-          :optionsQuery="filter.config.optionsQuery"
-          :optionsRespResolver="filter.config.optionsRespResolver"
+          :options="(filter as IRefArrayFilter).options"
           :model-value="(filter as IRefArrayFilter).conditions"
           @update:model-value="(value) => {(filter as IRefArrayFilter).conditions = value; handleFilerUpdate(filter)}"
         />
