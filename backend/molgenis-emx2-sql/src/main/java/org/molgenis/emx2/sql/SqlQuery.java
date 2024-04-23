@@ -286,6 +286,8 @@ public class SqlQuery extends QueryBean {
         sql.select(field(ROW_TO_JSON_SQL)).from(table(sql.select(fields)).as(ITEM));
 
     long start = System.currentTimeMillis();
+    // TODO remove before merge!!!
+    logger.info(query.getSQL(ParamType.INLINED));
     String result = query.fetchOne().get(0, String.class);
     if (logger.isInfoEnabled()) {
       logger.info(
@@ -320,15 +322,15 @@ public class SqlQuery extends QueryBean {
     DSLContext jooq = table.getJooq();
     SelectJoinStep<org.jooq.Record> from =
         jooq.select(selection).from(tableWithInheritanceJoin(table).as(alias(subAlias)));
-    from = limitOffsetOrderBy(table, select, from);
     List<Condition> conditions = new ArrayList<>();
-    Select<org.jooq.Record> filterQuery =
-        jsonFilterQuery(table, column, tableAlias, subAlias, filters, searchTerms);
-    if (filters != null
+    if (filters != null && !filters.getSubfilters().isEmpty()
         || searchTerms.length > 0
         || select.getLimit() > 0
         || select.getOffset() > 0) {
       List<Field<?>> pkeyFields = table.getPrimaryKeyFields();
+      SelectConnectByStep<org.jooq.Record> filterQuery =
+          jsonFilterQuery(table, column, tableAlias, subAlias, filters, searchTerms);
+      filterQuery = limitOffsetOrderBy(table, select, filterQuery);
       if (pkeyFields.size() > 0) {
         conditions.add(row(pkeyFields).in(filterQuery));
       }
@@ -339,7 +341,7 @@ public class SqlQuery extends QueryBean {
     if (!conditions.isEmpty()) {
       from = (SelectJoinStep<org.jooq.Record>) from.where(conditions);
     }
-
+    from = (SelectJoinStep<Record>) SqlQueryBuilderHelpers.orderBy(table, select, from);
     String agg =
         select.getColumn().endsWith("_agg")
                 || select.getColumn().endsWith("_groupBy")
