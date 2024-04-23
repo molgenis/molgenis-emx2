@@ -123,8 +123,8 @@ public class Filter {
   }
 
   public void setFilterType(FilterType filterType) {
-    if (this.getValues() != null) {
-      for (String value : getValues()) {
+    if (this.values != null) {
+      for (String value : values) {
         if (filterType == FilterType.NUMERICAL) {
           try {
             Integer.parseInt(value);
@@ -180,15 +180,15 @@ public class Filter {
           int thisNumerical = Integer.parseInt(thisValue);
           switch (operator) {
             case ">":
-              if (age > thisNumerical) return true;
+              return (age > thisNumerical);
             case ">=":
-              if (age >= thisNumerical) return true;
+              return (age >= thisNumerical);
             case "<":
-              if (age < thisNumerical) return true;
+              return (age < thisNumerical);
             case "<=":
-              if (age <= thisNumerical) return true;
+              return (age <= thisNumerical);
             case "=":
-              if (age == thisNumerical) return true;
+              return (age == thisNumerical);
           }
         }
       }
@@ -200,19 +200,13 @@ public class Filter {
   public String getGraphQlFilter() {
     StringBuilder filter = new StringBuilder();
 
-    String[] filterTerms;
-    if (filterType == FilterType.ONTOLOGY) {
-      filterTerms = this.getIds();
-      if (includeDescendantTerms) {
-        // todo add logic to get include descending terms
-      }
-    } else {
-      filterTerms = this.getValues();
+    if (filterType == FilterType.ONTOLOGY && includeDescendantTerms) {
+      // todo add logic to get include descending terms
     }
 
-    for (String id : filterTerms) {
+    for (String value : values) {
       if (concept != null) {
-        filter.append(this.concept.getGraphQlQuery().formatted(id)).append(",");
+        filter.append(this.concept.getGraphQlQuery().formatted(value)).append(",");
       }
     }
     filter.deleteCharAt(filter.length() - 1);

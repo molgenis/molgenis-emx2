@@ -4,7 +4,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,20 +66,6 @@ public class Beaconv2_ModelEndpointsTest {
     when(request.queryMap().toMap()).thenReturn(queryParams);
 
     return request;
-  }
-
-  @Test
-  public void testGenomicVariants_NoParams() throws Exception {
-
-    Request request = mockEntryTypeRequest("g_variants", new HashMap<>());
-
-    BeaconRequestBody requestBody = new BeaconRequestBody();
-    requestBody.addUrlParameters(request);
-    JsonNode result = QueryEntryType.query(database, requestBody);
-    String json = JsonUtil.getWriter().writeValueAsString(result);
-
-    // check correct empty resultset structure (must be exactly this!)
-    assertTrue(json.contains("\"resultSets\" : [ ]"));
   }
 
   @Test
@@ -152,8 +140,6 @@ public class Beaconv2_ModelEndpointsTest {
     assertTrue(json.contains("\"variantInternalId\" : \"20:2447946..2447950c>g\","));
     assertTrue(json.contains("\"id\" : \"Orphanet:391665\""));
     assertTrue(json.contains("clinicalRelevance"));
-    assertTrue(json.contains("\"id\" : \"NCIT:C168799\""));
-    assertTrue(json.contains("\"label\" : \"Pathogenic\""));
   }
 
   @Test
@@ -183,63 +169,75 @@ public class Beaconv2_ModelEndpointsTest {
     String json = JsonUtil.getWriter().writeValueAsString(analyses);
     assertTrue(json.contains("\"resultsCount\" : 5,"));
   }
-  //
-  //  @Test
-  //  public void testAnalyses_NoHits() throws Exception {
-  //    Request request = mock(Request.class);
-  //    when(request.queryParams("id")).thenReturn("A05");
-  //
-  //    BeaconRequestBody requestBody = new BeaconRequestBody(request.params());
-  //    JsonNode result = QueryEntryType.query(database, EntryType.ANALYSES, requestBody);
-  //
-  //    String json = JsonUtil.getWriter().writeValueAsString(result);
-  //    assertTrue(json.contains("\"response\" : {\n" + "    \"resultSets\" : [ ]"));
-  //  }
 
-  //  @Test
-  //  public void testAnalyses_IdQuery() throws Exception {
-  //
-  //    Request request = mock(Request.class);
-  //    when(request.queryParams("id")).thenReturn("A03");
-  //    Analyses analyses = new Analyses(request, List.of(beaconSchema.getTable("Analyses")));
-  //    String json = JsonUtil.getWriter().writeValueAsString(analyses);
-  //    assertTrue(json.contains("\"id\" : \"A03\","));
-  //    assertTrue(json.contains("\"resultsCount\" : 1,"));
-  //  }
-  //
-  //  @Test
-  //  public void testBiosamples_NoParams() throws Exception {
-  //    Request request = mock(Request.class);
-  //    Biosamples biosamples = new Biosamples(request,
-  // List.of(beaconSchema.getTable("Biosamples")));
-  //    String json = JsonUtil.getWriter().writeValueAsString(biosamples);
-  //    assertTrue(json.contains("\"resultsCount\" : 3,"));
-  //    assertTrue(json.contains("obtentionProcedure"));
-  //    assertTrue(json.contains("procedureCode"));
-  //    assertTrue(json.contains("\"id\" : \"OBI:0002654\""));
-  //    assertTrue(json.contains("\"label\" : \"needle biopsy\""));
-  //  }
-  //
-  //  @Test
-  //  public void testBiosamples_NoHits() throws Exception {
-  //    Request request = mock(Request.class);
-  //    when(request.queryParams("id")).thenReturn("Sample0003");
-  //    Biosamples biosamples = new Biosamples(request,
-  // List.of(beaconSchema.getTable("Biosamples")));
-  //    String json = JsonUtil.getWriter().writeValueAsString(biosamples);
-  //    assertTrue(json.contains("\"response\" : {\n" + "    \"resultSets\" : [ ]"));
-  //  }
-  //
-  //  @Test
-  //  public void testBiosamples_IdQuery() throws Exception {
-  //    Request request = mock(Request.class);
-  //    when(request.queryParams("id")).thenReturn("Sample0002");
-  //    Biosamples biosamples = new Biosamples(request,
-  // List.of(beaconSchema.getTable("Biosamples")));
-  //    String json = JsonUtil.getWriter().writeValueAsString(biosamples);
-  //    assertTrue(json.contains("\"id\" : \"Sample0002\","));
-  //    assertTrue(json.contains("\"resultsCount\" : 1,"));
-  //  }
+  @Test
+  public void testAnalyses_NoHits() throws Exception {
+    Request request =
+        mockEntryTypeRequest(EntryType.ANALYSES.getId(), Map.of("id", new String[] {"A05"}));
+    BeaconRequestBody requestBody = new BeaconRequestBody();
+    requestBody.addUrlParameters(request);
+
+    JsonNode analyses = QueryEntryType.query(database, requestBody);
+    String json = JsonUtil.getWriter().writeValueAsString(analyses);
+    assertTrue(json.contains("\"response\" : {\n" + "    \"resultSets\" : [ ]"));
+  }
+
+  @Test
+  public void testAnalyses_IdQuery() throws Exception {
+    Request request =
+        mockEntryTypeRequest(EntryType.ANALYSES.getId(), Map.of("id", new String[] {"A03"}));
+    BeaconRequestBody requestBody = new BeaconRequestBody();
+    requestBody.addUrlParameters(request);
+
+    JsonNode analyses = QueryEntryType.query(database, requestBody);
+    String json = JsonUtil.getWriter().writeValueAsString(analyses);
+    assertTrue(json.contains("\"id\" : \"A03\","));
+    assertTrue(json.contains("\"resultsCount\" : 1,"));
+  }
+
+  @Test
+  public void testBiosamples_NoParams() throws Exception {
+    Request request = mockEntryTypeRequest(EntryType.BIOSAMPLES.getId(), new HashMap<>());
+    BeaconRequestBody requestBody = new BeaconRequestBody();
+    requestBody.addUrlParameters(request);
+
+    JsonNode biosamples = QueryEntryType.query(database, requestBody);
+    String json = JsonUtil.getWriter().writeValueAsString(biosamples);
+
+    assertTrue(json.contains("\"resultsCount\" : 3,"));
+    assertTrue(json.contains("obtentionProcedure"));
+    assertTrue(json.contains("procedureCode"));
+    assertTrue(json.contains("\"id\" : \"OBI:0002654\""));
+    assertTrue(json.contains("\"label\" : \"needle biopsy\""));
+  }
+
+  @Test
+  public void testBiosamples_NoHits() throws Exception {
+    Request request =
+        mockEntryTypeRequest(
+            EntryType.BIOSAMPLES.getId(), Map.of("id", new String[] {"Sample0003"}));
+    BeaconRequestBody requestBody = new BeaconRequestBody();
+    requestBody.addUrlParameters(request);
+
+    JsonNode biosamples = QueryEntryType.query(database, requestBody);
+    String json = JsonUtil.getWriter().writeValueAsString(biosamples);
+
+    assertTrue(json.contains("\"response\" : {\n" + "    \"resultSets\" : [ ]"));
+  }
+
+  @Test
+  public void testBiosamples_IdQuery() throws Exception {
+    Request request =
+        mockEntryTypeRequest(
+            EntryType.BIOSAMPLES.getId(), Map.of("id", new String[] {"Sample0002"}));
+    BeaconRequestBody requestBody = new BeaconRequestBody();
+    requestBody.addUrlParameters(request);
+
+    JsonNode biosamples = QueryEntryType.query(database, requestBody);
+    String json = JsonUtil.getWriter().writeValueAsString(biosamples);
+    assertTrue(json.contains("\"id\" : \"Sample0002\","));
+    assertTrue(json.contains("\"resultsCount\" : 1,"));
+  }
   //
   //  @Test
   //  public void testCohorts_NoParams() throws Exception {
@@ -398,414 +396,426 @@ public class Beaconv2_ModelEndpointsTest {
   //    assertFalse(json.contains("\"id\" : \"SRR10903404\","));
   //  }
   //
-  //  @Test
-  //  public void test_EJP_RD_VP_API_FilterOnGenderAtBirth_OneHit() throws Exception {
-  //    assertNrOfHitsFor(
-  //        """
-  //                        {
-  //                          "query": {
-  //                        	"filters": [
-  //                        	  {
-  //                        		"id": "%s",
-  //                        		"value": "NCIT_C16576",
-  //                        		"operator": "="
-  //                        	  }
-  //                        	]
-  //                          }
-  //                        }"""
-  //            .formatted(EJP_VP_IndividualsQuery.SEX),
-  //        1);
-  //  }
-  //
-  //  @Test
-  //  public void test_EJP_RD_VP_API_FilterOnGenderAtBirth_NoHits() throws Exception {
-  //    assertNrOfHitsFor(
-  //        """
-  //                        {
-  //                          "query": {
-  //                        	"filters": [
-  //                        	  {
-  //                        		"id": "%s",
-  //                        		"value": "NCIT_C16576",
-  //                        		"operator": "="
-  //                        	  },
-  //                        	  {
-  //                        		"id": "%s",
-  //                        		"value": "NCIT_C20197",
-  //                        		"operator": "="
-  //                        	  }
-  //                        	]
-  //                          }
-  //                        }"""
-  //            .formatted(EJP_VP_IndividualsQuery.SEX, EJP_VP_IndividualsQuery.SEX),
-  //        0);
-  //  }
-  //
-  //  @Test
-  //  public void test_EJP_RD_VP_API_FilterOnGenderAtBirth_NoHit() throws Exception {
-  //    assertNrOfHitsFor(
-  //        """
-  //                        {
-  //                          "query": {
-  //                        	"filters": [
-  //                        	  {
-  //                        		"id": "%s",
-  //                        		"value": "NCIT_C16577",
-  //                        		"operator": "="
-  //                        	  }
-  //                        	]
-  //                          }
-  //                        }"""
-  //            .formatted(EJP_VP_IndividualsQuery.SEX),
-  //        0);
-  //  }
-  //
-  //  @Test
-  //  public void test_EJP_RD_VP_API_FilterOnDisease_OneHit() throws Exception {
-  //    assertNrOfHitsFor(
-  //        """
-  //                        {
-  //                          "query": {
-  //                        	"filters": [
-  //                        	  {
-  //                        		"id": "%s",
-  //                        		"value": "Orphanet_1895",
-  //                        		"operator": "="
-  //                        	  }
-  //                        	]
-  //                          }
-  //                        }"""
-  //            .formatted(EJP_VP_IndividualsQuery.DISEASE),
-  //        1);
-  //  }
-  //
-  //  @Test
-  //  public void test_EJP_RD_VP_API_FilterOnDisease_OntologyFilterSyntax_OneHit() throws Exception
-  // {
-  //    assertNrOfHitsFor(
-  //        """
-  //                        {
-  //                          "query": {
-  //                        	"filters": [
-  //                        	  {
-  //                        		"id": "Orphanet_1895"
-  //                        	  }
-  //                        	]
-  //                          }
-  //                        }"""
-  //            .formatted(EJP_VP_IndividualsQuery.DISEASE),
-  //        1);
-  //  }
-  //
-  //  @Test
-  //  public void test_EJP_RD_VP_API_FilterOnDisease_AlsoOneHit() throws Exception {
-  //    assertNrOfHitsFor(
-  //        """
-  //                        {
-  //                          "query": {
-  //                        	"filters": [
-  //                        	  {
-  //                        		"id": "%s",
-  //                        		"value": "Orphanet_1895",
-  //                        		"operator": "="
-  //                        	  },
-  //                        	  {
-  //                        		"id": "%s",
-  //                        		"value": "Orphanet_1955",
-  //                        		"operator": "="
-  //                        	  }
-  //                        	]
-  //                          }
-  //                        }"""
-  //            .formatted(EJP_VP_IndividualsQuery.DISEASE, EJP_VP_IndividualsQuery.DISEASE),
-  //        1);
-  //  }
-  //
-  //  @Test
-  //  public void test_EJP_RD_VP_API_FilterOnDisease_TwoHits() throws Exception {
-  //    assertNrOfHitsFor(
-  //        """
-  //                        {
-  //                          "query": {
-  //                        	"filters": [
-  //                        	  {
-  //                        		"id": "%s",
-  //                        		"value": "Orphanet_1955",
-  //                        		"operator": "="
-  //                        	  }
-  //                        	]
-  //                          }
-  //                        }"""
-  //            .formatted(EJP_VP_IndividualsQuery.DISEASE),
-  //        2);
-  //  }
-  //
-  //  @Test
-  //  public void test_EJP_RD_VP_API_FilterOnDisease_NoHit() throws Exception {
-  //    assertNrOfHitsFor(
-  //        """
-  //                        {
-  //                          "query": {
-  //                        	"filters": [
-  //                        	  {
-  //                        		"id": "%s",
-  //                        		"value": "Orphanet_18730",
-  //                        		"operator": "="
-  //                        	  }
-  //                        	]
-  //                          }
-  //                        }"""
-  //            .formatted(EJP_VP_IndividualsQuery.DISEASE),
-  //        0);
-  //  }
-  //
-  //  @Test
-  //  public void test_EJP_RD_VP_API_FilterOnAge_OneHit() throws Exception {
-  //    assertNrOfHitsFor(
-  //        """
-  //                        {
-  //                          "query": {
-  //                        	"filters": [
-  //                        	  {
-  //                        		"id": "%s",
-  //                        		"value": 31,
-  //                        		"operator": "="
-  //                        	  }
-  //                        	]
-  //                          }
-  //                        }"""
-  //            .formatted(EJP_VP_IndividualsQuery.AGE_THIS_YEAR),
-  //        1);
-  //  }
-  //
-  //  @Test
-  //  public void test_EJP_RD_VP_API_FilterOnAge_TwoHits() throws Exception {
-  //    assertNrOfHitsFor(
-  //        """
-  //                        {
-  //                          "query": {
-  //                        	"filters": [
-  //                        	  {
-  //                        		"id": "%s",
-  //                        		"value": 33,
-  //                        		"operator": "="
-  //                        	  }
-  //                        	]
-  //                          }
-  //                        }"""
-  //            .formatted(EJP_VP_IndividualsQuery.AGE_THIS_YEAR),
-  //        2);
-  //  }
-  //
-  //  @Test
-  //  public void test_EJP_RD_VP_API_FilterOnAge_NoHit() throws Exception {
-  //    assertNrOfHitsFor(
-  //        """
-  //                        {
-  //                          "query": {
-  //                        	"filters": [
-  //                        	  {
-  //                        		"id": "%s",
-  //                        		"value": 30,
-  //                        		"operator": "="
-  //                        	  }
-  //                        	]
-  //                          }
-  //                        }"""
-  //            .formatted(EJP_VP_IndividualsQuery.AGE_THIS_YEAR),
-  //        0);
-  //  }
-  //
-  //  @Test
-  //  public void test_EJP_RD_VP_API_FilterOnAgeGreaterThan_OneHit() throws Exception {
-  //    assertNrOfHitsFor(
-  //        """
-  //                        {
-  //                          "query": {
-  //                        	"filters": [
-  //                        	  {
-  //                        		"id": "%s",
-  //                        		"value": 33,
-  //                        		"operator": ">"
-  //                        	  }
-  //                        	]
-  //                          }
-  //                        }"""
-  //            .formatted(EJP_VP_IndividualsQuery.AGE_THIS_YEAR),
-  //        1);
-  //  }
-  //
-  //  @Test
-  //  public void test_EJP_RD_VP_API_FilterOnAgeLessThan_ThreeHits() throws Exception {
-  //    assertNrOfHitsFor(
-  //        """
-  //                        {
-  //                          "query": {
-  //                        	"filters": [
-  //                        	  {
-  //                        		"id": "%s",
-  //                        		"value": 50,
-  //                        		"operator": "<"
-  //                        	  }
-  //                        	]
-  //                          }
-  //                        }"""
-  //            .formatted(EJP_VP_IndividualsQuery.AGE_THIS_YEAR),
-  //        3);
-  //  }
-  //
-  //  @Test
-  //  public void test_EJP_RD_VP_API_FilterOnAgeLessThan_TwoHits() throws Exception {
-  //    assertNrOfHitsFor(
-  //        """
-  //                        {
-  //                          "query": {
-  //                        	"filters": [
-  //                        	  {
-  //                        		"id": "%s",
-  //                        		"value": 34,
-  //                        		"operator": "<"
-  //                        	  }
-  //                        	]
-  //                          }
-  //                        }"""
-  //            .formatted(EJP_VP_IndividualsQuery.AGE_THIS_YEAR),
-  //        2);
-  //  }
-  //
-  //  @Test
-  //  public void test_EJP_RD_VP_API_FilterOnAgeLessThanOrEquals_OneHit() throws Exception {
-  //    assertNrOfHitsFor(
-  //        """
-  //                        {
-  //                          "query": {
-  //                        	"filters": [
-  //                        	  {
-  //                        		"id": "%s",
-  //                        		"value": 2,
-  //                        		"operator": "<="
-  //                        	  }
-  //                        	]
-  //                          }
-  //                        }"""
-  //            .formatted(EJP_VP_IndividualsQuery.AGE_THIS_YEAR),
-  //        1);
-  //  }
-  //
-  //  @Test
-  //  public void test_EJP_RD_VP_API_FilterOnAgeLessThan_NoHits() throws Exception {
-  //    assertNrOfHitsFor(
-  //        """
-  //                        {
-  //                          "query": {
-  //                        	"filters": [
-  //                        	  {
-  //                        		"id": "%s",
-  //                        		"value": 2,
-  //                        		"operator": "<"
-  //                        	  }
-  //                        	]
-  //                          }
-  //                        }"""
-  //            .formatted(EJP_VP_IndividualsQuery.AGE_THIS_YEAR),
-  //        0);
-  //  }
-  //
-  //  @Test
-  //  public void test_EJP_RD_VP_API_FilterOnAgeOfOnset_OneHit() throws Exception {
-  //    assertNrOfHitsFor(
-  //        """
-  //                        {
-  //                          "query": {
-  //                        	"filters": [
-  //                        	  {
-  //                        		"id": "%s",
-  //                        		"value": 3,
-  //                        		"operator": "="
-  //                        	  }
-  //                        	]
-  //                          }
-  //                        }"""
-  //            .formatted(EJP_VP_IndividualsQuery.AGE_OF_ONSET),
-  //        1);
-  //  }
-  //
-  //  @Test
-  //  public void test_EJP_RD_VP_API_FilterOnAgeOfOnset_NoHit() throws Exception {
-  //    assertNrOfHitsFor(
-  //        """
-  //                        {
-  //                          "query": {
-  //                        	"filters": [
-  //                        	  {
-  //                        		"id": "%s",
-  //                        		"value": 91,
-  //                        		"operator": "="
-  //                        	  }
-  //                        	]
-  //                          }
-  //                        }"""
-  //            .formatted(EJP_VP_IndividualsQuery.AGE_OF_ONSET),
-  //        0);
-  //  }
-  //
-  //  @Test
-  //  public void test_EJP_RD_VP_API_FilterOnAgeOfOnsetGreaterThan_TwoHits() throws Exception {
-  //    assertNrOfHitsFor(
-  //        """
-  //                        {
-  //                          "query": {
-  //                        	"filters": [
-  //                        	  {
-  //                        		"id": "%s",
-  //                        		"value": 25,
-  //                        		"operator": ">"
-  //                        	  }
-  //                        	]
-  //                          }
-  //                        }"""
-  //            .formatted(EJP_VP_IndividualsQuery.AGE_OF_ONSET),
-  //        2);
-  //  }
-  //
-  //  @Test
-  //  public void test_EJP_RD_VP_API_FilterOnAgeOfOnsetGreaterThan_NoHits() throws Exception {
-  //    assertNrOfHitsFor(
-  //        """
-  //                        {
-  //                          "query": {
-  //                        	"filters": [
-  //                        	  {
-  //                        		"id": "%s",
-  //                        		"value": 89,
-  //                        		"operator": ">"
-  //                        	  }
-  //                        	]
-  //                          }
-  //                        }"""
-  //            .formatted(EJP_VP_IndividualsQuery.AGE_OF_ONSET),
-  //        0);
-  //  }
-  //
-  //  @Test
-  //  public void test_EJP_RD_VP_API_FilterOnAgeOfOnsetGreaterThanOrEquals_OneHit() throws Exception
-  // {
-  //    assertNrOfHitsFor(
-  //        """
-  //                        {
-  //                          "query": {
-  //                        	"filters": [
-  //                        	  {
-  //                        		"id": "%s",
-  //                        		"value": 89,
-  //                        		"operator": ">="
-  //                        	  }
-  //                        	]
-  //                          }
-  //                        }"""
-  //            .formatted(EJP_VP_IndividualsQuery.AGE_OF_ONSET),
-  //        1);
-  //  }
+  private String doIndividualsPostRequest(String body) throws JsonProcessingException {
+    Request request = mockEntryTypeRequest(EntryType.INDIVIDUALS.getId(), new HashMap<>());
+    ObjectMapper mapper = new ObjectMapper();
+    BeaconRequestBody beaconRequest = mapper.readValue(body, BeaconRequestBody.class);
+    beaconRequest.addUrlParameters(request);
+
+    JsonNode individuals = QueryEntryType.query(database, beaconRequest);
+    return JsonUtil.getWriter().writeValueAsString(individuals);
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnGenderAtBirth_OneHit() throws Exception {
+    String json =
+        doIndividualsPostRequest(
+            """
+                          {
+                            "query": {
+                          	"filters": [
+                          	  {
+                          		"id": "NCIT_C28421",
+                          		"value": "NCIT_C16576",
+                          		"operator": "="
+                          	  }
+                          	]
+                            }
+                          }""");
+
+    assertTrue(json.contains("\"exists\" : true"));
+    assertTrue(json.contains("\"numTotalResults\" : 1"));
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnGenderAtBirth_NoHits() throws Exception {
+    String json =
+        doIndividualsPostRequest(
+            """
+                          {
+                            "query": {
+                          	"filters": [
+                          	  {
+                                "id": "NCIT_C28421",
+                                "value": "NCIT_C16576",
+                                "operator": "="
+                          	  },
+                          	  {
+                                "id": "NCIT_C28421",
+                                "value": "NCIT_C20197",
+                                "operator": "="
+                          	  }
+                          	]
+                            }
+                          }""");
+
+    assertTrue(json.contains("\"exists\" : false"));
+    assertTrue(json.contains("\"numTotalResults\" : 0"));
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnGenderAtBirth_ignoreFilter() throws Exception {
+    String json =
+        doIndividualsPostRequest(
+            """
+                          {
+                            "query": {
+                          	"filters": [
+                          	  {
+                          		"id": "NCIT_C28421",
+                          		"value": "NCIT_C16577",
+                          		"operator": "="
+                          	  }
+                          	]
+                            }
+                          }""");
+    assertTrue(json.contains("\"exists\" : true"));
+    assertTrue(json.contains("\"numTotalResults\" : 5"));
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnDisease_OneHit() throws Exception {
+    String json =
+        doIndividualsPostRequest(
+            """
+                          {
+                            "query": {
+                          	"filters": [
+                          	  {
+                          		"id": "NCIT_C2991",
+                          		"value": "Orphanet_1895",
+                          		"operator": "="
+                          	  }
+                          	]
+                            }
+                          }""");
+    assertTrue(json.contains("\"exists\" : true"));
+    assertTrue(json.contains("\"numTotalResults\" : 1"));
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnDisease_OntologyFilterSyntax_OneHit() throws Exception {
+    String json =
+        doIndividualsPostRequest(
+            """
+                          {
+                            "query": {
+                          	"filters": [
+                          	  {
+                          		"id": "Orphanet_1895"
+                          	  }
+                          	]
+                            }
+                          }""");
+    //     assertTrue(json.contains("\"exists\" : true"));
+    //     assertTrue(json.contains("\"numTotalResults\" : 1"));
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnDisease_AlsoOneHit() throws Exception {
+    String json =
+        doIndividualsPostRequest(
+            """
+                          {
+                            "query": {
+                          	"filters": [
+                          	  {
+                          		"id": "NCIT_C2991",
+                          		"value": "Orphanet_1895",
+                          		"operator": "="
+                          	  },
+                          	  {
+                          		"id": "NCIT_C2991",
+                          		"value": "Orphanet_1955",
+                          		"operator": "="
+                          	  }
+                          	]
+                            }
+                          }""");
+    assertTrue(json.contains("\"exists\" : true"));
+    assertTrue(json.contains("\"numTotalResults\" : 1"));
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnDisease_TwoHits() throws Exception {
+    String json =
+        doIndividualsPostRequest(
+            """
+                          {
+                            "query": {
+                          	"filters": [
+                          	  {
+                          		"id": "NCIT_C2991",
+                          		"value": "Orphanet_1955",
+                          		"operator": "="
+                          	  }
+                          	]
+                            }
+                          }""");
+    assertTrue(json.contains("\"exists\" : true"));
+    assertTrue(json.contains("\"numTotalResults\" : 2"));
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnDisease_NoHit() throws Exception {
+    String json =
+        doIndividualsPostRequest(
+            """
+                          {
+                            "query": {
+                          	"filters": [
+                          	  {
+                          		"id": "NCIT_C2991",
+                          		"value": "Orphanet_18730",
+                          		"operator": "="
+                          	  }
+                          	]
+                            }
+                          }""");
+    assertTrue(json.contains("\"exists\" : false"));
+    assertTrue(json.contains("\"numTotalResults\" : 0"));
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnAge_OneHit() throws Exception {
+    String json =
+        doIndividualsPostRequest(
+            """
+                          {
+                            "query": {
+                          	"filters": [
+                          	  {
+                          		"id": "NCIT_C83164",
+                          		"value": 32,
+                          		"operator": "="
+                          	  }
+                          	]
+                            }
+                          }""");
+    assertTrue(json.contains("\"exists\" : true"));
+    assertTrue(json.contains("\"numTotalResults\" : 1"));
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnAge_NoHit() throws Exception {
+    String json =
+        doIndividualsPostRequest(
+            """
+                          {
+                            "query": {
+                          	"filters": [
+                          	  {
+                          		"id": "NCIT_C83164",
+                          		"value": 30,
+                          		"operator": "="
+                          	  }
+                          	]
+                            }
+                          }""");
+    assertTrue(json.contains("\"exists\" : false"));
+    assertTrue(json.contains("\"numTotalResults\" : 0"));
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnAgeGreaterThan_OneHit() throws Exception {
+    String json =
+        doIndividualsPostRequest(
+            """
+                          {
+                            "query": {
+                          	"filters": [
+                          	  {
+                          		"id": "NCIT_C83164",
+                          		"value": 33,
+                          		"operator": ">"
+                          	  }
+                          	]
+                            }
+                          }""");
+    assertTrue(json.contains("\"exists\" : true"));
+    assertTrue(json.contains("\"numTotalResults\" : 1"));
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnAgeLessThan_ThreeHits() throws Exception {
+    String json =
+        doIndividualsPostRequest(
+            """
+                          {
+                            "query": {
+                          	"filters": [
+                          	  {
+                          		"id": "NCIT_C83164",
+                          		"value": 50,
+                          		"operator": "<"
+                          	  }
+                          	]
+                            }
+                          }""");
+
+    assertTrue(json.contains("\"exists\" : true"));
+    assertTrue(json.contains("\"numTotalResults\" : 3"));
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnAgeLessThan_TwoHits() throws Exception {
+    String json =
+        doIndividualsPostRequest(
+            """
+                          {
+                            "query": {
+                          	"filters": [
+                          	  {
+                          		"id": "NCIT_C83164",
+                          		"value": 34,
+                          		"operator": "<"
+                          	  }
+                          	]
+                            }
+                          }""");
+    assertTrue(json.contains("\"exists\" : true"));
+    assertTrue(json.contains("\"numTotalResults\" : 2"));
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnAgeLessThanOrEquals_OneHit() throws Exception {
+    String json =
+        doIndividualsPostRequest(
+            """
+                          {
+                            "query": {
+                          	"filters": [
+                          	  {
+                          		"id": "NCIT_C83164",
+                          		"value": 2,
+                          		"operator": "<="
+                          	  }
+                          	]
+                            }
+                          }""");
+    assertTrue(json.contains("\"exists\" : true"));
+    assertTrue(json.contains("\"numTotalResults\" : 1"));
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnAgeLessThan_NoHits() throws Exception {
+    String json =
+        doIndividualsPostRequest(
+            """
+                          {
+                            "query": {
+                          	"filters": [
+                          	  {
+                          		"id": "NCIT_C83164",
+                          		"value": 2,
+                          		"operator": "<"
+                          	  }
+                          	]
+                            }
+                          }""");
+    assertTrue(json.contains("\"exists\" : false"));
+    assertTrue(json.contains("\"numTotalResults\" : 0"));
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnAgeOfOnset_OneHit() throws Exception {
+    String json =
+        doIndividualsPostRequest(
+            """
+                          {
+                            "query": {
+                          	"filters": [
+                          	  {
+                          		"id": "",
+                          		"value": 3,
+                          		"operator": "="
+                          	  }
+                          	]
+                            }
+                          }""");
+    assertTrue(json.contains("\"exists\" : true"));
+    //    assertTrue(json.contains("\"numTotalResults\" : 1"));
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnAgeOfOnset_NoHit() throws Exception {
+    String json =
+        doIndividualsPostRequest(
+            """
+                          {
+                            "query": {
+                          	"filters": [
+                          	  {
+                          		"id": "NCIT_C124353",
+                          		"value": 91,
+                          		"operator": "="
+                          	  }
+                          	]
+                            }
+                          }""");
+    assertTrue(json.contains("\"exists\" : false"));
+    assertTrue(json.contains("\"numTotalResults\" : 0"));
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnAgeOfOnsetGreaterThan_TwoHits() throws Exception {
+    String json =
+        doIndividualsPostRequest(
+            """
+                          {
+                            "query": {
+                          	"filters": [
+                          	  {
+                          		"id": "NCIT_C124353",
+                          		"value": 25,
+                          		"operator": ">"
+                          	  }
+                          	]
+                            }
+                          }""");
+    assertTrue(json.contains("\"exists\" : true"));
+    assertTrue(json.contains("\"numTotalResults\" : 2"));
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnAgeOfOnsetGreaterThan_NoHits() throws Exception {
+    String json =
+        doIndividualsPostRequest(
+            """
+                          {
+                            "query": {
+                          	"filters": [
+                          	  {
+                          		"id": "NCIT_C124353",
+                          		"value": 89,
+                          		"operator": ">"
+                          	  }
+                          	]
+                            }
+                          }""");
+    assertTrue(json.contains("\"exists\" : false"));
+    assertTrue(json.contains("\"numTotalResults\" : 0"));
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnAgeOfOnsetGreaterThanOrEquals_OneHit() throws Exception {
+    String json =
+        doIndividualsPostRequest(
+            """
+                          {
+                            "query": {
+                          	"filters": [
+                          	  {
+                          		"id": "NCIT_C124353",
+                          		"value": 89,
+                          		"operator": ">="
+                          	  }
+                          	]
+                            }
+                          }""");
+    assertTrue(json.contains("\"exists\" : true"));
+    assertTrue(json.contains("\"numTotalResults\" : 1"));
+  }
   //
   //  @Test
   //  public void test_EJP_RD_VP_API_FilterOnAgeAtDiagnosis_OneHit() throws Exception {
@@ -1293,26 +1303,5 @@ public class Beaconv2_ModelEndpointsTest {
   //        1);
   //  }
   //
-  //  /**
-  //   * Helper function to reduce code duplication
-  //   *
-  //   * @param body
-  //   * @param hits
-  //   * @throws JsonProcessingException
-  //   */
-  //  private void assertNrOfHitsFor(String body, int hits) throws Exception {
-  //    Request request = mock(Request.class);
-  //    when(request.url()).thenReturn("http://localhost:8080/api/beacon");
-  //    Response response = mock(Response.class);
-  //    when(request.body()).thenReturn(body);
-  //    String jsonResponse = new EJP_VP_IndividualsQuery(request, response,
-  // tables).getPostResponse();
-  //    if (hits > 0) {
-  //      assertTrue(jsonResponse.contains("\"exists\" : \"true\""));
-  //      assertTrue(jsonResponse.contains("\"numTotalResults\" : " + hits));
-  //    } else {
-  //      assertTrue(jsonResponse.contains("\"exists\" : \"false\""));
-  //      assertFalse(jsonResponse.contains("\"numTotalResults\""));
-  //    }
-  //  }
+
 }

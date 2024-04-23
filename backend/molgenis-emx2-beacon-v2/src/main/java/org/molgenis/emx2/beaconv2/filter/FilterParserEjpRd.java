@@ -63,7 +63,7 @@ public class FilterParserEjpRd implements FilterParser {
     for (Filter filter : beaconQuery.getFilters()) {
       filter.setFilterType(FilterType.UNDEFINED);
       if (isIdSearch(filter)) {
-        createOntologyFilters(filter);
+        createOntologyFiltersFromIds(filter);
       } else if (isValidFormat(filter)) {
         String id = filter.getIds()[0];
         try {
@@ -100,8 +100,9 @@ public class FilterParserEjpRd implements FilterParser {
     graphQlFilters.add(filter);
   }
 
-  private void createOntologyFilters(Filter filter) {
+  private void createOntologyFiltersFromIds(Filter filter) {
     filter.setConcept(Concept.DISEASE);
+    filter.setValues(filter.getIds());
     processOntologyFilter(filter);
 
     Filter phenotTypeFilter = new Filter(filter);

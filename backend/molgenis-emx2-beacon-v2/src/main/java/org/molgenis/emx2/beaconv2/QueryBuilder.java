@@ -70,7 +70,7 @@ public class QueryBuilder {
   }
 
   private void addFilters() {
-    addFilters("or");
+    addFilters("and");
   }
 
   private void addFilters(String operator) {

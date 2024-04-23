@@ -99,7 +99,7 @@ public class QueryEntryType {
   }
 
   private static boolean hasResult(ArrayNode resultsArray) {
-    return resultsArray != null && !resultsArray.isNull();
+    return resultsArray != null && !resultsArray.isNull() && !resultsArray.isEmpty();
   }
 
   private static FilterParser parseFilters(BeaconRequestBody request, ObjectNode response) {
@@ -161,34 +161,33 @@ public class QueryEntryType {
 
   // todo: move some code to Filter class
   private static void filterResults(ArrayNode results, List<Filter> postFetchFilters) {
-    postFetchFilters.forEach(
-        filter -> {
-          Iterator<JsonNode> resultsElements = results.elements();
-          while (resultsElements.hasNext()) {
-            JsonNode result = resultsElements.next();
-            List<String> ageIso8601durations = new ArrayList<>();
-            switch (filter.getConcept()) {
-              case AGE_THIS_YEAR:
-                ageIso8601durations.add(result.get("age_age_iso8601duration").textValue());
-                break;
-              case AGE_OF_ONSET:
-                for (JsonNode disease : result.get("diseases")) {
-                  ageIso8601durations.add(
-                      disease.get("ageOfOnset_age_iso8601duration").textValue());
-                }
-                break;
-              case AGE_AT_DIAG:
-                for (JsonNode disease : result.get("diseases")) {
-                  ageIso8601durations.add(
-                      disease.get("ageAtDiagnosis_age_iso8601duration").textValue());
-                }
-                break;
+    for (Filter filter : postFetchFilters) {
+      Iterator<JsonNode> resultsElements = results.elements();
+      while (resultsElements.hasNext()) {
+        JsonNode result = resultsElements.next();
+        List<String> ageIso8601durations = new ArrayList<>();
+        switch (filter.getConcept()) {
+          case AGE_THIS_YEAR:
+            ageIso8601durations.add(result.get("age_age_iso8601duration").textValue());
+            break;
+          case AGE_OF_ONSET:
+            for (JsonNode disease : result.get("diseases")) {
+              String age = disease.get("ageOfOnset_age_iso8601duration").textValue();
+              ageIso8601durations.add(age);
             }
-            if (!filter.filter(ageIso8601durations)) {
-              resultsElements.remove();
+            break;
+          case AGE_AT_DIAG:
+            for (JsonNode disease : result.get("diseases")) {
+              String age = disease.get("ageAtDiagnosis_age_iso8601duration").textValue();
+              ageIso8601durations.add(age);
             }
-          }
-        });
+            break;
+        }
+        if (!filter.filter(ageIso8601durations)) {
+          resultsElements.remove();
+        }
+      }
+    }
   }
 
   public static List<Table> getTableFromAllSchemas(Database database, String tableName) {
