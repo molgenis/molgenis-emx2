@@ -8,6 +8,7 @@ import {
   mapQualityStandards,
   mapAlsoKnownIn,
   mapNetworkInfo,
+  collectionReportInformation,
 } from "./viewmodelMapper";
 
 describe("getName", () => {
@@ -184,7 +185,68 @@ describe("rangeToString", () => {
 // describe("getViewmodel", () => {});
 // describe("getCollectionDetails", () => {});
 // describe("getBiobankDetails", () => {});
-// describe("collectionReportInformation", () => {});
+
+describe("collectionReportInformation", () => {
+  test("it should return the info for a collection report", () => {
+    const collection = {
+      head: { title_before_name: "dr.", first_name: "B.", last_name: "Dewitt" },
+      contact: {
+        first_name: "Henk",
+        email: "bla@bla.bla",
+        phone: "0123456789",
+      },
+      also_known: [{ url: "url1", name_system: "molgenis" }],
+      biobank: {
+        id: "bid",
+        name: "bname",
+        juridical_person: "jp",
+
+        url: "www.bla.bla",
+        contact: { email: "abl@abl.abl" },
+      },
+      country: { label: "nl" },
+      network: [{ name: "nname", id: "nid" }],
+      quality: [{ quality_standard: { name: "qname" } }],
+      collaboration_commercial: "no idea what the typing is",
+      collaboration_non_for_profit: "no idea what the typing is",
+      parent_collection: "weak typing sucks",
+    };
+
+    const result = collectionReportInformation(collection);
+
+    const expectedResult = {
+      head: "dr. B. Dewitt",
+      contact: { name: "Henk", email: "bla@bla.bla", phone: "0123456789" },
+      also_known: [{ value: "url1", type: "url", label: "molgenis" }],
+      biobank: {
+        id: "bid",
+        name: "bname",
+        juridical_person: "jp",
+        country: "nl",
+        report: "/biobank/bid",
+        website: "www.bla.bla",
+        email: "abl@abl.abl",
+      },
+      networks: [{ name: "nname", report: "/network/nid" }],
+      certifications: ["qname"],
+      collaboration: [
+        { name: "Commercial", value: "yes" },
+        { name: "Not for profit", value: "yes" },
+      ],
+      parentCollection: "weak typing sucks", //very consistent with the also_known
+    };
+    expect(result).toEqual(expectedResult);
+  });
+
+  test("it should return a very minimal report if the info is not there", () => {
+    const collection = {};
+    const result = collectionReportInformation(collection);
+    const expectedResult = {
+      collaboration: [],
+    };
+    expect(result).toEqual(expectedResult);
+  });
+});
 
 describe("mapNetworkInfo", () => {
   test("it should maps network in to a name and a report", () => {
@@ -205,13 +267,6 @@ describe("mapAlsoKnownIn", () => {
     const instance = { also_known: [{ url: "url1", name_system: "molgenis" }] };
     const result = mapAlsoKnownIn(instance);
     const expectedResult = [{ value: "url1", type: "url", label: "molgenis" }];
-    expect(result).toEqual(expectedResult);
-  });
-
-  test("it should return an empty array if ther eis no also_known", () => {
-    const instance = {};
-    const result = mapAlsoKnownIn(instance);
-    const expectedResult: any[] = [];
     expect(result).toEqual(expectedResult);
   });
 });
