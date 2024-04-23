@@ -45,7 +45,7 @@ import "info.jslt" as info
                     "measurementVariable": .measurementVariable,
                     "measurementValue": {
                         "value": .measurementValue_value,
-                        "units": ontology(.measurementValue_units)
+                        "unit": ontology(.measurementValue_units)
                     },
                     "observationMoment": { "age": { "iso8601duration": .observationMoment_age_iso8601duration } }
                 }]

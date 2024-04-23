@@ -1,4 +1,5 @@
+if (.)
 {
     "id": .codesystem + ":" + .code,
-    "label": .name
+    "label": lowercase(.name)
 }

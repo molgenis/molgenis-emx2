@@ -21,9 +21,9 @@ import "meta.jslt" as meta
                     "runDate": .runDate,
                     "librarySource": ontology(.librarySource),
                     "librarySelection": .librarySelection,
-                    "libraryStrategy": ontology(.libraryStrategy),
+                    "libraryStrategy": .libraryStrategy.name,
                     "libraryLayout": .libraryLayout,
-                    "platform": ontology(.platform),
+                    "platform": .platform.name,
                     "platformModel": ontology(.platformModel)
                 }]
             }]

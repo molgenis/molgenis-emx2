@@ -77,7 +77,7 @@ public class Beaconv2_ModelEndpointsTest {
     String json = JsonUtil.getWriter().writeValueAsString(result);
 
     // check correct empty resultset structure (must be exactly this!)
-    //    assertTrue(json.contains("\"resultSets\" : [ ]"));
+    assertTrue(json.contains("\"resultSets\" : [ ]"));
   }
 
   @Test
@@ -132,7 +132,6 @@ public class Beaconv2_ModelEndpointsTest {
     requestBody.addUrlParameters(request);
 
     JsonNode result = QueryEntryType.query(database, requestBody);
-
     String json = JsonUtil.getWriter().writeValueAsString(result);
     assertTrue(json.contains("\"resultsCount\" : 2,"));
     assertTrue(json.contains("\"variantInternalId\" : \"20:2447951..2447952c>g\","));

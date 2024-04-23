@@ -13,7 +13,6 @@ let host = .requestBody.meta.host
             "description": .description,
             "externalUrl": $host + "/api/fdp/dataset/" + $schemaId + "/" + .id,
             "id": .id,
-            "info": "info",
             "name": .title,
             "updateDateTime": .mg_updatedOn,
             "version": .mg_updatedOn

@@ -8,8 +8,8 @@ import "meta.jslt" as meta
         "collections":
         [for (.resultSets[0].results)
             {
-                "cohortId": .cohortId,
-                "cohortName": .cohortName,
+                "id": .cohortId,
+                "name": .cohortName,
                 "cohortType": .cohortType,
                 "cohortDesign": ontology(.cohortDesign),
                 "cohortSize": .cohortSize,

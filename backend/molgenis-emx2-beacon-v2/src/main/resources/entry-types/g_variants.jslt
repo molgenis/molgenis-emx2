@@ -8,50 +8,58 @@ import "info.jslt" as info
     "response": {
         "resultSets":
         [for (.resultSets)
-        {
-            "id": .id,
-            "type": "dataset",
-            "setType": "genomicVariant",
-            "exists": true,
-            "resultsCount": .count,
-            "results":
-            [for (.results) {
-                "variantInternalId": .variantInternalId,
-                "variantType": .variantType,
-                "referenceBases": uppercase(.referenceBases),
-                "alternateBases": uppercase(.alternateBases),
-                "geneId": .geneId,
-                "position": {
-                    "assemblyId": .position_assemblyId,
-                    "refseqId": .position_refseqId,
-                    "start": [ number(.position_start) ],
-                    "end": [ number(.position_end) ]
-                },
-                "genomicHGVSId": .genomicHGVSId,
-                "proteinHGVSIds": .proteinHGVSIds,
-                "transcriptHGVSIds": .transcriptHGVSIds,
-                "variantLevelData": {
-                    "clinicalInterpretations":
-                    [for (.clinicalInterpretations) {
-                        "category": ontology(.category),
-                        "clinicalRelevance": ontology(.clinicalRelevance),
-                        "conditionId": .conditionId,
-                        "effect": ontology(.effect)
-                    }]
-                },
-                "caseLevelData":
-                [for (.caseLevelData) {
-                    "individualId": .individualId.id,
-                    "clinicalInterpretations":
-                    [for (.clinicalInterpretations) {
-                        "category": ontology(.category),
-                        "clinicalRelevance": ontology(.clinicalRelevance),
-                        "conditionId": .conditionId,
-                        "effect": ontology(.effect)
-                    }]
+            {
+                "id": .id,
+                "type": "dataset",
+                "setType": "genomicVariant",
+                "exists": true,
+                "resultsCount": .count,
+                "results":
+                [for (.results) {
+                    "variantInternalId": .variantInternalId,
+                    "variation": {
+                        "variantType": .variantType,
+                        "referenceBases": uppercase(.referenceBases),
+                        "alternateBases": uppercase(.alternateBases),
+                        "location": {
+                            "sequence_id": .position_refseqId,
+                            "type": "SequenceInterval",
+                            "interval": {
+                                "start": {
+                                    "type": "Number",
+                                    "value": number(.position_start)
+                                },
+                                "end": {
+                                    "type": "Number",
+                                    "value": number(.position_end)
+                                }
+                            }
+                        }
+                    },
+                    "identifiers": {
+                        "clinVarIds": [ ],
+                        "genomicHGVSId": .genomicHGVSId,
+                        "proteinHGVSIds": .proteinHGVSIds,
+                        "transcriptHGVSIds": .transcriptHGVSIds,
+                        "variantAlternativeIds": [ ]
+                    },
+                    "molecularAttributes": {
+                        "geneIds": if (.geneId) [.geneId ],
+                        "aminoacidChanges": [ ]
+                    },
+                    "variantLevelData": {
+                        "clinicalInterpretations":
+                        [for (.clinicalInterpretations)
+                            if (.conditionId and .conditionId)
+                            {
+                                "category": ontology(.category),
+                                "clinicalRelevance": lowercase(.clinicalRelevance.name),
+                                "conditionId": .conditionId,
+                                "effect": ontology(.effect)
+                            }]
+                    }
                 }]
             }]
-        }]
     },
     "info": info(.info)
 }
