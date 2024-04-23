@@ -53,46 +53,24 @@ export function urlToString(url) {
   }
 }
 
-export function mapRange(min, max, unit) {
-  let range = "";
-  if ((min || min === 0) && max) {
-    range = `${min}-${max} `;
-  } else if (min || min === 0) {
-    range = `> ${min} `;
-  } else if (max) {
-    range = `< ${max} `;
-  }
+export function rangeToString(min, max, unit) {
+  const range = getRange(min, max);
   if (range.length > 0 && unit?.label) {
-    range += unit.label;
+    return range + unit.label;
   } else {
-    range = undefined;
+    return "";
   }
-  return range;
 }
 
-function getObjectForValueExtraction(object, propertyKey) {
-  /** this column is a nested property */
-  if (typeof propertyKey === "object") {
-    const nextKey = Object.keys(propertyKey)[0];
-
-    return getObjectForValueExtraction(object, nextKey);
-  } else if (typeof object[propertyKey] === "object") {
-    const keys = Object.keys(object[propertyKey]);
-    let nextKey = "";
-
-    /** find the next non-digit key in the array. */
-    for (const key of keys) {
-      if (isNaN(key)) {
-        nextKey = key;
-        break;
-      }
-    }
-    /** found a pure array, return that */
-    if (!nextKey) return object[propertyKey];
-
-    return getObjectForValueExtraction(object[propertyKey], nextKey);
+function getRange(min, max) {
+  if ((min || min === 0) && max) {
+    return `${min}-${max} `;
+  } else if (min || min === 0) {
+    return `> ${min} `;
+  } else if (max) {
+    return `< ${max} `;
   } else {
-    return object[propertyKey];
+    return "";
   }
 }
 
@@ -115,7 +93,7 @@ export function getViewmodel(object, columns) {
     switch (columnInfo.type) {
       case "range": {
         const { min, max, unit } = columnInfo;
-        attributeValue = mapRange(object[min], object[max], object[unit]) || "";
+        attributeValue = rangeToString(object[min], object[max], object[unit]);
         break;
       }
       case "object": {
@@ -169,6 +147,32 @@ export function getViewmodel(object, columns) {
   }
 
   return { attributes };
+}
+
+function getObjectForValueExtraction(object, propertyKey) {
+  /** this column is a nested property */
+  if (typeof propertyKey === "object") {
+    const nextKey = Object.keys(propertyKey)[0];
+
+    return getObjectForValueExtraction(object, nextKey);
+  } else if (typeof object[propertyKey] === "object") {
+    const keys = Object.keys(object[propertyKey]);
+    let nextKey = "";
+
+    /** find the next non-digit key in the array. */
+    for (const key of keys) {
+      if (isNaN(key)) {
+        nextKey = key;
+        break;
+      }
+    }
+    /** found a pure array, return that */
+    if (!nextKey) return object[propertyKey];
+
+    return getObjectForValueExtraction(object[propertyKey], nextKey);
+  } else {
+    return object[propertyKey];
+  }
 }
 
 /**

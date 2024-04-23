@@ -4,6 +4,7 @@ import {
   mapObjArray,
   urlToString,
   propertyToString,
+  rangeToString,
 } from "./viewmodelMapper";
 
 describe("getName", () => {
@@ -111,6 +112,78 @@ describe("urlToString", () => {
   });
 });
 
-describe("mapRange", () => {
+describe("rangeToString", () => {
+  test("it should return the min and max with unit", () => {
+    const min = -5;
+    const max = 5;
+    const unit = { label: "kgs" };
+    const result = rangeToString(min, max, unit);
+    const expectedResult = "-5-5 kgs";
+    expect(result).toEqual(expectedResult);
+  });
+
+  test("it should return an empty string when the unit is undefined", () => {
+    const min = -5;
+    const max = 5;
+    const unit = undefined;
+    const result = rangeToString(min, max, unit);
+    const expectedResult = "";
+    expect(result).toEqual(expectedResult);
+  });
+
+  test("it should return an empty string when min and max are undefined", () => {
+    const min = undefined;
+    const max = undefined;
+    const unit = { label: "kgs" };
+    const result = rangeToString(min, max, unit);
+    const expectedResult = "";
+    expect(result).toEqual(expectedResult);
+  });
+
+  test("it should return an empty string when min is undefined and max is 0", () => {
+    // this test is sus, is this really how the function should behave?
+    const min = undefined;
+    const max = 0;
+    const unit = { label: "kgs" };
+    const result = rangeToString(min, max, unit);
+    const expectedResult = "";
+    expect(result).toEqual(expectedResult);
+  });
+
+  test("it should return the min and max with unit when min is 0", () => {
+    const min = 0;
+    const max = 5;
+    const unit = { label: "kgs" };
+    const result = rangeToString(min, max, unit);
+    const expectedResult = "0-5 kgs";
+    expect(result).toEqual(expectedResult);
+  });
+
+  test("it should return the min with unit", () => {
+    const min = -5;
+    const max = undefined;
+    const unit = { label: "kgs" };
+    const result = rangeToString(min, max, unit);
+    const expectedResult = "> -5 kgs";
+    expect(result).toEqual(expectedResult);
+  });
+
+  test("it should return the max with unit", () => {
+    const min = undefined;
+    const max = -5;
+    const unit = { label: "kgs" };
+    const result = rangeToString(min, max, unit);
+    const expectedResult = "< -5 kgs";
+    expect(result).toEqual(expectedResult);
+  });
+});
+
+// describe("getViewmodel", () => {});
+// describe("getCollectionDetails", () => {});
+// describe("getBiobankDetails", () => {});
+// describe("collectionReportInformation", () => {});
+// describe("mapNetworkInfo", () => {});
+// describe("mapAlsoKnownIn", () => {});
+describe("mapQualityStandards", () => {
   test("", () => {});
 });
