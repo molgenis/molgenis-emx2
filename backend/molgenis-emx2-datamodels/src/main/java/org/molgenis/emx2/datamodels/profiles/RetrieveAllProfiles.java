@@ -64,7 +64,7 @@ public class RetrieveAllProfiles {
           String tableName = tableMetadata.getTableName();
           // add table to schema simply by name, may miss tables with the same name
           if (!mergedSchema.getTableNames().contains(tableName)) {
-            mergedSchema.addTable(tableName, tableMetadata);
+            mergedSchema.create(tableMetadata);
           }
           // add columns to table simply by name, may miss columns with the same name
           for (Column column : tableMetadata.getColumns()) {
