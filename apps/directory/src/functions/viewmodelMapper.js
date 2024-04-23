@@ -375,5 +375,5 @@ export const mapAlsoKnownIn = (instance) => {
 };
 
 export const mapQualityStandards = (instance) => {
-  return instance.map((quality) => quality.quality_standard.name) || [];
+  return instance.map((quality) => quality.quality_standard.name);
 };

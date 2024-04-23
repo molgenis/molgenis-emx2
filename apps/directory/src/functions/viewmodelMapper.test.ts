@@ -5,6 +5,9 @@ import {
   urlToString,
   propertyToString,
   rangeToString,
+  mapQualityStandards,
+  mapAlsoKnownIn,
+  mapNetworkInfo,
 } from "./viewmodelMapper";
 
 describe("getName", () => {
@@ -182,8 +185,52 @@ describe("rangeToString", () => {
 // describe("getCollectionDetails", () => {});
 // describe("getBiobankDetails", () => {});
 // describe("collectionReportInformation", () => {});
-// describe("mapNetworkInfo", () => {});
-// describe("mapAlsoKnownIn", () => {});
+
+describe("mapNetworkInfo", () => {
+  test("it should maps network in to a name and a report", () => {
+    const data = { network: [{ name: "name1", id: "id1" }] };
+    const result = mapNetworkInfo(data);
+    const expectedResult = [
+      {
+        name: { value: "name1", type: "string" },
+        report: { value: "/network/id1", type: "report" },
+      },
+    ];
+    expect(result).toEqual(expectedResult);
+  });
+});
+
+describe("mapAlsoKnownIn", () => {
+  test("it should map the AlsoKnowIn to their value, type and label", () => {
+    const instance = { also_known: [{ url: "url1", name_system: "molgenis" }] };
+    const result = mapAlsoKnownIn(instance);
+    const expectedResult = [{ value: "url1", type: "url", label: "molgenis" }];
+    expect(result).toEqual(expectedResult);
+  });
+
+  test("it should return an empty array if ther eis no also_known", () => {
+    const instance = {};
+    const result = mapAlsoKnownIn(instance);
+    const expectedResult: any[] = [];
+    expect(result).toEqual(expectedResult);
+  });
+});
+
 describe("mapQualityStandards", () => {
-  test("", () => {});
+  test("it should map the qualities into an array of names", () => {
+    const instance = [
+      { quality_standard: { name: "name1" } },
+      { quality_standard: { name: "name2" } },
+    ];
+    const result = mapQualityStandards(instance);
+    const expectedResult = ["name1", "name2"];
+    expect(result).toEqual(expectedResult);
+  });
+
+  test("it should map an empty array into an empty array", () => {
+    const instance: any[] = [];
+    const result = mapQualityStandards(instance);
+    const expectedResult: string[] = [];
+    expect(result).toEqual(expectedResult);
+  });
 });
