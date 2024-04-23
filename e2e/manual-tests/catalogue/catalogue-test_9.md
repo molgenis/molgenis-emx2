@@ -26,7 +26,7 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 ||NB not all fields are tested in this test plan| | | |
 | 9 |Collection type|Retrospective, Prospective | | |
 | 10 |Start/End year|1900 - 1967 | | |
-| 11 |Population|Armenia, Bermuda, Réunion | | |
+| 11 |Countries|Armenia, Bermuda, Réunion | | |
 | 12 |Regions|Bradford, Lapland, Gipuzkoa | | |
 | 13 |Population age groups|Adult (18+ years) | | |
 | 14 |Inclusion criteria|Clinically relevant exposure inclusion criterion | | |
