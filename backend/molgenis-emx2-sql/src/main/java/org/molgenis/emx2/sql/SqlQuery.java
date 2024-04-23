@@ -286,8 +286,8 @@ public class SqlQuery extends QueryBean {
         sql.select(field(ROW_TO_JSON_SQL)).from(table(sql.select(fields)).as(ITEM));
 
     long start = System.currentTimeMillis();
-    // TODO remove before merge!!!
-    logger.info(query.getSQL(ParamType.INLINED));
+    // UNCOMMENT TO SEE QUERIES
+    // logger.info(query.getSQL(ParamType.INLINED));
     String result = query.fetchOne().get(0, String.class);
     if (logger.isInfoEnabled()) {
       logger.info(
