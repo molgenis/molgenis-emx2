@@ -110,10 +110,6 @@ public class SchemaMetadata extends HasSettings<SchemaMetadata> {
     return sb.toString();
   }
 
-  public void addTable(String tableName, TableMetadata tableMetadata) {
-    this.tables.put(tableName, tableMetadata);
-  }
-
   public List<TableMetadata> getTables() {
     List<TableMetadata> result = new ArrayList<>();
     for (String tableName : getTableNames()) {
