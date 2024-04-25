@@ -179,7 +179,7 @@ function getItemsSplitByOntology(
     rootNodes,
     ontologyIdentifiers
   );
-  return itemsSplitByOntology;
+  return { ...itemsSplitByOntology, allItems: ontologyItems };
 }
 
 function getItemsWithChildren(

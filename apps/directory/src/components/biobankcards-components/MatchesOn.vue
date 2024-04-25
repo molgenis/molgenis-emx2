@@ -147,6 +147,7 @@ function getMatch(
         );
 
       const isObjectMatch: boolean =
+        //@ts-ignore
         typeof potentialMatch === "object" && filterValue === potentialMatch.id;
       const isValueMatch: boolean =
         filterValue.toString() === potentialMatch.toString();
@@ -166,17 +167,13 @@ function getMultiOntologyMatch(
   >,
   activeFilterValue: { label: string; name: string; code: string }
 ) {
-  const ontologyIds = Object.keys(options);
-  return ontologyIds.flatMap((id) => {
-    const flatOntology = flattenOntology(options[id]);
-    return flatOntology
-      .filter((option) => {
-        return option.name === activeFilterValue.name;
-      })
-      .map((option) => {
-        return option.label;
-      });
-  });
+  return options.allItems
+    .filter((option) => {
+      return option.name === activeFilterValue.name;
+    })
+    .map((option) => {
+      return option.label;
+    });
 }
 
 function flattenOntology(
