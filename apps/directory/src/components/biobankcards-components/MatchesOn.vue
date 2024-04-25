@@ -176,16 +176,6 @@ function getMultiOntologyMatch(
     });
 }
 
-function flattenOntology(
-  ontology: Record<string, any>[]
-): Record<string, any>[] {
-  return ontology.reduce((accum: Record<string, any>[], item) => {
-    const children = item.children ? flattenOntology(item.children) : [];
-    accum.push(item, ...children);
-    return accum;
-  }, []);
-}
-
 function extractValue(columnId: string, viewModel: Record<string, any>) {
   if (!columnId) return "";
 
