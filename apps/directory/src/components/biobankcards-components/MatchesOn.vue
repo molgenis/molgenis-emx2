@@ -14,6 +14,7 @@
 </template>
 
 <script lang="ts">
+import { IOntologyItem } from "../../interfaces/interfaces";
 import { useFiltersStore } from "../../stores/filtersStore";
 export default {
   setup() {
@@ -125,8 +126,13 @@ function getMatch(
       continue; /** if the filteroption does not exist */
     }
     if (!Array.isArray(optionsCache)) {
-      const matches = getMultiOntologyMatch(optionsCache, activeFilterValue);
-      match.value.push(...matches);
+      const ontologyMatch = getMultiOntologyMatch(
+        optionsCache,
+        activeFilterValue
+      );
+      if (ontologyMatch) {
+        match.value.push(ontologyMatch);
+      }
     } else {
       const filterOption = optionsCache.find(
         (option: Record<string, any>) =>
@@ -161,19 +167,11 @@ function getMatch(
 }
 
 function getMultiOntologyMatch(
-  options: Record<
-    string,
-    { label: string; name: string; code: string; children: any; parent: any }[]
-  >,
-  activeFilterValue: { label: string; name: string; code: string }
+  options: Record<string, IOntologyItem[]>,
+  activeFilterValue: IOntologyItem
 ) {
-  return options.allItems
-    .filter((option) => {
-      return option.name === activeFilterValue.name;
-    })
-    .map((option) => {
-      return option.label;
-    });
+  return options.allItems.find((value) => value.name === activeFilterValue.name)
+    ?.name;
 }
 
 function extractValue(columnId: string, viewModel: Record<string, any>) {
