@@ -64,7 +64,7 @@ signed in.
 
 Remove the ```MOLGENIS_OIDC_CLIENT_ID``` environment variable and restart the server
 
-### FAQ: hints to setup keycloak
+### FAQ: hints to setup Keycloak and providers such as Life Science AAI (LS-AAI)
 
 We learnt the following settings helped to get all running properly:
 
