@@ -47,17 +47,12 @@ export default {
         {}
       );
     },
-    activeFilters(): Record<string, any> {
-      return this.filtersStore.filters;
-    },
-    filterOptionsCache(): Record<string, { value: string; text: string }[]> {
-      return this.filtersStore.filterOptionsCache;
-    },
     matches() {
       let matches: IMatch[] = [];
-      const facetIdentifiers = Object.keys(this.activeFilters);
+      const facetIdentifiers = Object.keys(this.filtersStore.filters);
       for (const facetIdentifier of facetIdentifiers) {
-        const activeFilterValues = this.activeFilters[facetIdentifier];
+        //@ts-ignore
+        const activeFilterValues = this.filtersStore.filters[facetIdentifier];
 
         if (activeFilterValues?.length) {
           /** no need to check further if there are no active filters */
@@ -80,7 +75,7 @@ export default {
               potentialMatch,
               filterLabel,
               activeFilterValues,
-              this.filterOptionsCache,
+              this.filtersStore.filterOptionsCache,
               facetIdentifier
             );
 
@@ -112,7 +107,7 @@ function getMatch(
     | { id: string; name: string; label: string }[],
   filterLabel: string,
   activeFilterValues: any[],
-  filterOptionsCache: Record<string, any>,
+  filterOptions: Record<string, any>,
   facetIdentifier: string
 ): IMatch {
   let match: IMatch = {
@@ -121,20 +116,17 @@ function getMatch(
   };
 
   for (const activeFilterValue of activeFilterValues) {
-    const optionsCache = filterOptionsCache[facetIdentifier];
-    if (!optionsCache) {
+    const options = filterOptions[facetIdentifier];
+    if (!options) {
       continue; /** if the filteroption does not exist */
     }
-    if (!Array.isArray(optionsCache)) {
-      const ontologyMatch = getMultiOntologyMatch(
-        optionsCache,
-        activeFilterValue
-      );
+    if (!Array.isArray(options)) {
+      const ontologyMatch = getMultiOntologyMatch(options, activeFilterValue);
       if (ontologyMatch) {
         match.value.push(ontologyMatch);
       }
     } else {
-      const filterOption = optionsCache.find(
+      const filterOption = options.find(
         (option: Record<string, any>) =>
           option.value === activeFilterValue.value
       );
