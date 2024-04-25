@@ -13,93 +13,84 @@
   </div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
+import { computed } from "vue";
 import { IOntologyItem } from "../../interfaces/interfaces";
 import { useFiltersStore } from "../../stores/filtersStore";
-export default {
-  setup() {
-    const filtersStore = useFiltersStore();
-    return { filtersStore };
-  },
-  props: {
-    viewmodel: {
-      type: Object,
-      required: true,
+const filtersStore = useFiltersStore();
+
+const { viewmodel } = defineProps<{ viewmodel: Record<string, any> }>();
+
+const filterInfoDictionary = computed(() => {
+  return filtersStore.filterFacets.reduce(
+    (
+      accum: Record<string, { column: any; label: string }>,
+      filter: {
+        facetIdentifier: string;
+        applyToColumn: any;
+        facetTitle: string;
+      }
+    ) => {
+      accum[filter.facetIdentifier] = {
+        column: filter.applyToColumn,
+        label: filter.facetTitle,
+      };
+      return accum;
     },
-  },
-  computed: {
-    filterInfoDictionary() {
-      return this.filtersStore.filterFacets.reduce(
-        (
-          accum: Record<string, { column: any; label: string }>,
-          filter: {
-            facetIdentifier: string;
-            applyToColumn: any;
-            facetTitle: string;
+    {}
+  );
+});
+
+const matches = computed(() => {
+  let matches: IMatch[] = [];
+  const facetIdentifiers = Object.keys(filtersStore.filters);
+  for (const facetIdentifier of facetIdentifiers) {
+    //@ts-ignore
+    const activeFilterValues = filtersStore.filters[facetIdentifier];
+
+    if (activeFilterValues?.length) {
+      /** no need to check further if there are no active filters */
+
+      const filterColumn: string | string[] =
+        filterInfoDictionary.value[facetIdentifier].column;
+      const columns: string[] = Array.isArray(filterColumn)
+        ? filterColumn
+        : [filterColumn];
+
+      for (const columnId of columns) {
+        const filterLabel = filterInfoDictionary.value[facetIdentifier].label;
+        const potentialMatch = extractValue(columnId, viewmodel);
+
+        if (!potentialMatch) {
+          continue;
+        }
+        const match: IMatch = getMatch(
+          potentialMatch,
+          filterLabel,
+          activeFilterValues,
+          filtersStore.filterOptionsCache,
+          facetIdentifier
+        );
+
+        if (match.value.length > 0) {
+          /** check if it is there, because it can already have been matched on biobank / collection. Do not need it twice */
+          const existingMatch = matches.find(
+            (match) => match.name === filterLabel
+          );
+          if (existingMatch) {
+            match.value = [
+              //@ts-ignore
+              ...new Set(match.value.concat(existingMatch.value)),
+            ];
+            matches = matches.filter((match) => match.name !== filterLabel);
           }
-        ) => {
-          accum[filter.facetIdentifier] = {
-            column: filter.applyToColumn,
-            label: filter.facetTitle,
-          };
-          return accum;
-        },
-        {}
-      );
-    },
-    matches() {
-      let matches: IMatch[] = [];
-      const facetIdentifiers = Object.keys(this.filtersStore.filters);
-      for (const facetIdentifier of facetIdentifiers) {
-        //@ts-ignore
-        const activeFilterValues = this.filtersStore.filters[facetIdentifier];
-
-        if (activeFilterValues?.length) {
-          /** no need to check further if there are no active filters */
-
-          const filterColumn: string | string[] =
-            this.filterInfoDictionary[facetIdentifier].column;
-          const columns: string[] = Array.isArray(filterColumn)
-            ? filterColumn
-            : [filterColumn];
-
-          for (const columnId of columns) {
-            const filterLabel =
-              this.filterInfoDictionary[facetIdentifier].label;
-            const potentialMatch = extractValue(columnId, this.viewmodel);
-
-            if (!potentialMatch) {
-              continue;
-            }
-            const match: IMatch = getMatch(
-              potentialMatch,
-              filterLabel,
-              activeFilterValues,
-              this.filtersStore.filterOptionsCache,
-              facetIdentifier
-            );
-
-            if (match.value.length > 0) {
-              /** check if it is there, because it can already have been matched on biobank / collection. Do not need it twice */
-              const existingMatch = matches.find(
-                (match) => match.name === filterLabel
-              );
-              if (existingMatch) {
-                match.value = [
-                  //@ts-ignore
-                  ...new Set(match.value.concat(existingMatch.value)),
-                ];
-                matches = matches.filter((match) => match.name !== filterLabel);
-              }
-              matches.push(match);
-            }
-          }
+          matches.push(match);
         }
       }
-      return matches;
-    },
-  },
-};
+    }
+  }
+  return matches;
+});
 
 function getMatch(
   potentialMatch:
