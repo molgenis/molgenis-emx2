@@ -10,6 +10,7 @@ defineProps<{
 
 <template>
   <ContentBlock :title="title">
+    <slot></slot>
     <ContactCardList>
       <ContactCard v-for="contributor in contributors" :contact="contributor" />
     </ContactCardList>

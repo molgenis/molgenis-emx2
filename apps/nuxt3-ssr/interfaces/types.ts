@@ -1,4 +1,5 @@
 import type { IColumn } from "meta-data-utils";
+import { s } from "vitest/dist/reporters-1evA5lom.js";
 export interface IResource {
   id: string;
   pid: string;
@@ -18,6 +19,26 @@ export interface ICohort {
   website?: string;
   logo?: IUrlObject;
   contactEmail?: string;
+  leadOrganisation?: {
+    id: string;
+    name: string;
+    email: string;
+    description: string;
+    website: string;
+    acronym: string;
+    type: {
+      name: string;
+    };
+    institution: any;
+    institutionAcronym: string;
+    typeOther: string;
+    address: string;
+    expertise: string;
+    country: {
+      name: string;
+    };
+    logo: IUrlObject;
+  };
   institution?: {
     acronym: string;
   };

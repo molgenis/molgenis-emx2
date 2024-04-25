@@ -24,7 +24,24 @@ const query = gql`
       }
       contactEmail
       leadOrganisation {
+        id
+        name
+        email
+        description
+        website
         acronym
+        type {
+          name
+        }
+        institution
+        institutionAcronym
+        typeOther
+        address
+        expertise
+        country {
+          name
+        }
+        logo ${moduleToString(fileFragment)}
       }
       type {
         name
@@ -411,7 +428,12 @@ if (route.params.catalogue) {
           id="Contributors"
           title="Contact and Contributors"
           :contributors="cohort?.contacts"
-        />
+        >
+          <div class="mb-5 prose max-w-none" v-if="cohort.leadOrganisation">
+            Lead Organisation
+            {{ cohort.leadOrganisation }}
+          </div>
+        </ContentBlockContact>
 
         <!-- <ContentBlockVariables
           id="Variables"
