@@ -114,7 +114,7 @@ function getMatch(
   filterOptionsCache: Record<string, any>,
   facetIdentifier: string
 ): IMatch {
-  const match: IMatch = {
+  let match: IMatch = {
     name: filterLabel,
     value: [],
   };
@@ -124,38 +124,69 @@ function getMatch(
     if (!optionsCache) {
       continue; /** if the filteroption does not exist */
     }
-    /** we are dealing with a multiple ontology, e.g. diagnosis available we can not deal with that yet */
     if (!Array.isArray(optionsCache)) {
-      continue;
-    }
-
-    const filterOption = optionsCache.find(
-      (option: Record<string, any>) => option.value === activeFilterValue.value
-    );
-
-    if (!filterOption) continue;
-
-    const filterValue = filterOption.value;
-
-    const isArrayMatch: boolean =
-      Array.isArray(potentialMatch) &&
-      potentialMatch.some(
-        (item) =>
-          item.id === filterValue ||
-          item.name === filterValue ||
-          item.label === filterValue
+      const matches = getMultiOntologyMatch(optionsCache, activeFilterValue);
+      match.value.push(...matches);
+    } else {
+      const filterOption = optionsCache.find(
+        (option: Record<string, any>) =>
+          option.value === activeFilterValue.value
       );
 
-    const isObjectMatch: boolean =
-      typeof potentialMatch === "object" && filterValue === potentialMatch.id;
-    const isValueMatch: boolean =
-      filterValue.toString() === potentialMatch.toString();
+      if (!filterOption) continue;
 
-    if (isArrayMatch || isObjectMatch || isValueMatch) {
-      match.value.push(filterOption.text);
+      const filterValue = filterOption.value;
+
+      const isArrayMatch: boolean =
+        Array.isArray(potentialMatch) &&
+        potentialMatch.some(
+          (item) =>
+            item.id === filterValue ||
+            item.name === filterValue ||
+            item.label === filterValue
+        );
+
+      const isObjectMatch: boolean =
+        typeof potentialMatch === "object" && filterValue === potentialMatch.id;
+      const isValueMatch: boolean =
+        filterValue.toString() === potentialMatch.toString();
+
+      if (isArrayMatch || isObjectMatch || isValueMatch) {
+        match.value.push(filterOption.text);
+      }
     }
   }
   return match;
+}
+
+function getMultiOntologyMatch(
+  options: Record<
+    string,
+    { label: string; name: string; code: string; children: any; parent: any }[]
+  >,
+  activeFilterValue: { label: string; name: string; code: string }
+) {
+  const ontologyIds = Object.keys(options);
+  return ontologyIds.flatMap((id) => {
+    const flatOntology = flattenOntology(options[id]);
+    return flatOntology
+      .filter((option) => {
+        return option.name === activeFilterValue.name;
+      })
+      .map((option) => {
+        return option.label;
+      });
+  });
+}
+
+function flattenOntology(
+  ontology: Record<string, any>[]
+): Record<string, any>[] {
+  return ontology.reduce((accum: Record<string, any>[], item) => {
+    const children = item.children ? flattenOntology(item.children) : [];
+    accum.push(item, ...children);
+    return accum;
+  }, []);
 }
 
 function extractValue(columnId: string, viewModel: Record<string, any>) {
