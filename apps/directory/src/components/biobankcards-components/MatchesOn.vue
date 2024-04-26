@@ -19,8 +19,22 @@ import { IOntologyItem } from "../../interfaces/interfaces";
 import { useFiltersStore } from "../../stores/filtersStore";
 const filtersStore = useFiltersStore();
 
-const { viewmodel } = defineProps<{ viewmodel: Record<string, any> }>();
-
+const { viewmodel } = defineProps<{
+  viewmodel: Record<string, any>;
+}>();
+// console.log(viewmodel);
+// {
+//     id: string;
+//     name: string;
+//     type: any[];
+//     withdrawn: boolean;
+//     viewmodel: {
+//       attributes: { label: string; type: string; value?: any }[];
+//     };
+//     country: { label: string; name: string };
+//     combined_network: any[];
+//     data_categories: { label: string; name: string }[];
+//   }
 const filterInfoDictionary = computed(() => {
   return filtersStore.filterFacets.reduce(
     (
@@ -43,22 +57,22 @@ const filterInfoDictionary = computed(() => {
 
 const matches = computed(() => {
   let matches: IMatch[] = [];
-  const facetIdentifiers = Object.keys(filtersStore.filters);
-  for (const facetIdentifier of facetIdentifiers) {
-    //@ts-ignore
-    const activeFilterValues = filtersStore.filters[facetIdentifier];
+  const filters: Record<string, any> = filtersStore.filters;
+  const filterIds = Object.keys(filters);
+  for (const filterId of filterIds) {
+    const activeFilterValues = filters[filterId];
 
     if (activeFilterValues?.length) {
       /** no need to check further if there are no active filters */
 
       const filterColumn: string | string[] =
-        filterInfoDictionary.value[facetIdentifier].column;
+        filterInfoDictionary.value[filterId].column;
       const columns: string[] = Array.isArray(filterColumn)
         ? filterColumn
         : [filterColumn];
 
       for (const columnId of columns) {
-        const filterLabel = filterInfoDictionary.value[facetIdentifier].label;
+        const filterName = filterInfoDictionary.value[filterId].label;
         const potentialMatch = extractValue(columnId, viewmodel);
 
         if (!potentialMatch) {
@@ -66,23 +80,23 @@ const matches = computed(() => {
         }
         const match: IMatch = getMatch(
           potentialMatch,
-          filterLabel,
+          filterName,
           activeFilterValues,
           filtersStore.filterOptionsCache,
-          facetIdentifier
+          filterId
         );
 
         if (match.value.length > 0) {
           /** check if it is there, because it can already have been matched on biobank / collection. Do not need it twice */
           const existingMatch = matches.find(
-            (match) => match.name === filterLabel
+            (match) => match.name === filterName
           );
           if (existingMatch) {
             match.value = [
               //@ts-ignore
               ...new Set(match.value.concat(existingMatch.value)),
             ];
-            matches = matches.filter((match) => match.name !== filterLabel);
+            matches = matches.filter((match) => match.name !== filterName);
           }
           matches.push(match);
         }
@@ -154,7 +168,7 @@ function getMultiOntologyMatch(
   activeFilterValue: IOntologyItem
 ) {
   return options.allItems.find((value) => value.name === activeFilterValue.name)
-    ?.name;
+    ?.label;
 }
 
 function extractValue(columnId: string, viewModel: Record<string, any>) {
