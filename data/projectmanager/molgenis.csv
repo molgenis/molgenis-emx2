@@ -15,6 +15,7 @@ Planning,,,ProjectUnit,ref,1,true,,ProjectUnits,,,,,,,,,,,
 Planning,,,FTE,decimal,,,,,,,,,,,,,,,
 Planning,,,StartDate,date,1,true,,,,,,,,,,,,,
 Planning,,,EndDate,date,,true,,,,,,,,,,,,,
+Planning,,,notes,text,,,,,,,,,,,,,,,
 ProjectUnits,,,Project,ref,1,true,,Projects,,,,,,,,,,,
 ProjectUnits,,,Unit,,1,true,,,,,,,,,,,,,
 ProjectUnits,,,PlanHours,decimal,,,,,,,,,,,,,,,"planned hours, can be exported from panama"
