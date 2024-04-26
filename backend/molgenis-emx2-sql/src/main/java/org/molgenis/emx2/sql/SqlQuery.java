@@ -370,8 +370,7 @@ public class SqlQuery extends QueryBean {
     }
     // apply limit offset before JSON building, therefore we first filter the ids (from index) and
     // then feed the result to the json building select query.
-    if (select != null
-        && (select.getOffset() > 0 || select.getLimit() > 0 || !select.getOrderBy().isEmpty())) {
+    if (select != null && !select.getOrderBy().isEmpty()) {
       // source columns for the selection
       SelectConnectByStep query =
           table
@@ -385,16 +384,14 @@ public class SqlQuery extends QueryBean {
       query = table.getJooq().select(selection).from(query.asTable(alias(subAlias)));
       return query;
     } else {
-      // if no limit/offset then we apply json bulding and filtering in one query
       SelectConnectByStep query =
           table
               .getJooq()
               .select(selection)
               .from(tableWithInheritanceJoin(table).as(alias(subAlias)))
               .where(conditions);
-      // add order by if needed, without limit/offset we can do it after json building
-      if (select != null && !select.getOrderBy().isEmpty()) {
-        query = SqlQueryBuilderHelpers.orderBy(table, select, query);
+      if (select != null) {
+        query = limitOffsetOrderBy(table, select, query);
       }
       return query;
     }
