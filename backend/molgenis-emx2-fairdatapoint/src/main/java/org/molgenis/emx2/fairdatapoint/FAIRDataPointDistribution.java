@@ -178,6 +178,16 @@ public class FAIRDataPointDistribution {
     builder.add(reqURL, DCTERMS.FORMAT, formatParam);
 
     for (Map distribution : distributions) {
+      if (distribution.get("propertyValue") != null) {
+        for (String propertyValue : (List<String>) distribution.get("propertyValue")) {
+          String[] propertyValueSplit = propertyValue.split(" ", -1);
+          if (propertyValueSplit.length != 2) {
+            throw new Exception(
+                "propertyValue should contain strings that each consist of 2 elements separated by 1 whitespace");
+          }
+          builder.add(reqURL, iri(propertyValueSplit[0]), iri(propertyValueSplit[1]));
+        }
+      }
       builder.add(
           reqURL,
           DCTERMS.ISSUED,

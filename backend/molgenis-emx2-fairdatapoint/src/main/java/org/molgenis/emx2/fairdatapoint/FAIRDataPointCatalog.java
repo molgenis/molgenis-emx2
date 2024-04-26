@@ -71,6 +71,7 @@ public class FAIRDataPointCatalog {
                 + "language{ontologyTermURI},"
                 + "license,"
                 + "themeTaxonomy,"
+                + "propertyValue,"
                 + "dataset{id},"
                 + "mg_insertedOn,"
                 + "mg_updatedOn"
@@ -191,6 +192,16 @@ public class FAIRDataPointCatalog {
               (List<LinkedHashMap>) catalogFromJSON.get("language"), "ontologyTermURI");
       for (IRI language : languages) {
         builder.add(reqUrl, DCTERMS.LANGUAGE, language);
+      }
+    }
+    if (catalogFromJSON.get("propertyValue") != null) {
+      for (String propertyValue : (List<String>) catalogFromJSON.get("propertyValue")) {
+        String[] propertyValueSplit = propertyValue.split(" ", -1);
+        if (propertyValueSplit.length != 2) {
+          throw new Exception(
+              "propertyValue should contain strings that each consist of 2 elements separated by 1 whitespace");
+        }
+        builder.add(reqUrl, iri(propertyValueSplit[0]), iri(propertyValueSplit[1]));
       }
     }
 

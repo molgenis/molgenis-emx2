@@ -166,6 +166,16 @@ public class FAIRDataPoint {
           IRI catalogIriEnc = encodedIRI(apiFdpCatalog + "/" + schemaName + "/" + map.get("id"));
           builder.add(apiFdpCatalogEnc, iri("http://www.w3.org/ns/ldp#contains"), catalogIriEnc);
           builder.add(apiFdpEnc, iri("https://w3id.org/fdp/fdp-o#metadataCatalog"), catalogIriEnc);
+          if (map.get("propertyValue") != null) {
+            for (String propertyValue : (List<String>) map.get("propertyValue")) {
+              String[] propertyValueSplit = propertyValue.split(" ", -1);
+              if (propertyValueSplit.length != 2) {
+                throw new Exception(
+                    "propertyValue should contain strings that each consist of 2 elements separated by 1 whitespace");
+              }
+              builder.add(catalogIriEnc, iri(propertyValueSplit[0]), iri(propertyValueSplit[1]));
+            }
+          }
         }
       }
     }
