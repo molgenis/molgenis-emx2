@@ -370,7 +370,8 @@ public class SqlQuery extends QueryBean {
     }
     // apply limit offset before JSON building, therefore we first filter the ids (from index) and
     // then feed the result to the json building select query.
-    if (select != null && !select.getOrderBy().isEmpty()) {
+    if (select != null
+        && (!select.getOrderBy().isEmpty() || select.getLimit() > 0 || select.getOffset() > 0)) {
       // source columns for the selection
       SelectConnectByStep query =
           table
@@ -390,9 +391,6 @@ public class SqlQuery extends QueryBean {
               .select(selection)
               .from(tableWithInheritanceJoin(table).as(alias(subAlias)))
               .where(conditions);
-      if (select != null) {
-        query = limitOffsetOrderBy(table, select, query);
-      }
       return query;
     }
   }
