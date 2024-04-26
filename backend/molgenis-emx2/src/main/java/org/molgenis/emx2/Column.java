@@ -378,6 +378,8 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   public List<Field> getCompositeFields() {
     if (this.isReference()) {
       return getReferences().stream().map(ref -> ref.getJooqField()).toList();
+    } else if (this.isFile()) {
+      return getJooqFileFields();
     } else {
       return List.of(getJooqField());
     }

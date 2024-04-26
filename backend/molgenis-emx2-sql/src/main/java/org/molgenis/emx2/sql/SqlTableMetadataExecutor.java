@@ -152,8 +152,10 @@ class SqlTableMetadataExecutor {
     jooq.alterTable(table.getJooqTable())
         .add(
             constraint("fkey_" + table.getTableName() + "_extends_" + other.getTableName())
-                .foreignKey(other.getPrimaryKeyFields())
-                .references(other.getJooqTable(), other.getPrimaryKeyFields())
+                .foreignKey(other.getPrimaryKeyFields().stream().map(f -> (Field<?>) f).toList())
+                .references(
+                    other.getJooqTable(),
+                    other.getPrimaryKeyFields().stream().map(f -> (Field<?>) f).toList())
                 .onUpdateCascade()
                 .onDeleteCascade())
         .execute();
@@ -237,7 +239,7 @@ class SqlTableMetadataExecutor {
   }
 
   static void createOrReplaceKey(
-      DSLContext jooq, TableMetadata table, Integer index, List<Field<?>> keyFields) {
+      DSLContext jooq, TableMetadata table, Integer index, List<Field> keyFields) {
     Name uniqueName = name(table.getTableName() + "_KEY" + index);
     jooq.execute("ALTER TABLE {0} DROP CONSTRAINT IF EXISTS {1}", getJooqTable(table), uniqueName);
     // when we upgrade to psql 15 we can enable this

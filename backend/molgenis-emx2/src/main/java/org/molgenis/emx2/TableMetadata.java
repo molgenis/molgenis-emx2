@@ -471,7 +471,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
     return keyColumns;
   }
 
-  public List<Field<?>> getKeyFields(int key) {
+  public List<Field> getKeyFields(int key) {
     // references might be overlapping so need to deduplicate via this map
     Map<String, Field<?>> result = new LinkedHashMap<>();
     for (Column c : getKey(key)) {
@@ -515,7 +515,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
     return DSL.table(name(getSchemaName(), getTableName()));
   }
 
-  public List<Field<?>> getPrimaryKeyFields() {
+  public List<Field> getPrimaryKeyFields() {
     return getKeyFields(1);
   }
 
