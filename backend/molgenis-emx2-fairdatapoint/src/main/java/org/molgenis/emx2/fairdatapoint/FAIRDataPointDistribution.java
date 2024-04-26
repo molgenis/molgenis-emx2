@@ -127,7 +127,6 @@ public class FAIRDataPointDistribution {
 
     if (refersToTable) {
       if (formatParam.equals("csv")
-          || formatParam.equals("jsonld")
           || formatParam.equals("ttl")
           || formatParam.equals("excel")
           || formatParam.equals("zip")) {
@@ -141,7 +140,7 @@ public class FAIRDataPointDistribution {
                 .getSchema(schemaParam)
                 .getTable(distributionParam)
                 .getMetadata()
-                .getColumnNames();
+                .getNonReferencingColumnNames();
         // GraphQL, e.g. http://localhost:8080/fdh/graphql?query={Analyses{id,etc}}
         builder.add(
             reqURL,
@@ -155,19 +154,6 @@ public class FAIRDataPointDistribution {
                     + "{"
                     + (String.join(",", columnNames))
                     + "}}"));
-      } else {
-        // all "rdf-" flavours
-        builder.add(
-            reqURL,
-            DCAT.DOWNLOAD_URL,
-            encodedIRI(
-                host
-                    + "/"
-                    + schemaParam
-                    + "/api/rdf/"
-                    + distributionParam
-                    + "?format="
-                    + formatParam.replace("rdf-", "")));
       }
       builder.add(reqURL, DCAT.MEDIA_TYPE, iri(formatToMediaType(formatParam)));
     } else {
