@@ -151,63 +151,72 @@ public class SqlQuery extends QueryBean {
 
     List<Field> fields = new ArrayList<>();
     for (SelectColumn select : selection.getSubselect()) {
-      Column column = getColumnByName(table, select.getColumn());
-      String columnAlias = prefix.equals("") ? column.getName() : prefix + "-" + column.getName();
-      if (column.isFile()) {
-        // check what they want to get, contents, mimetype, size, filename and/or extension
-        if (select.getSubselect().isEmpty() || select.has("id")) {
-          fields.add(field(name(column.getName())));
-        }
-        if (select.has("contents")) {
-          fields.add(field(name(column.getName() + "_contents")));
-        }
-        if (select.has("size")) {
-          fields.add(field(name(column.getName() + "_size")));
-        }
-        if (select.has("mimetype")) {
-          fields.add(field(name(column.getName() + "_mimetype")));
-        }
-        if (select.has("filename")) {
-          fields.add(field(name(column.getName() + "_filename")));
-        }
-        if (select.has("extension")) {
-          fields.add(field(name(column.getName() + "_extension")));
-        }
-      } else if (column.isReference()
-          // if subselection, then we will add it as subselect
-          && !select.getSubselect().isEmpty()) {
-        fields.addAll(
-            rowSelectFields(
-                column.getRefTable(),
-                tableAlias + "-" + column.getName(),
-                columnAlias,
-                selection.getSubselect(column.getName())));
-      } else if (column.isRefback()) {
-        fields.add(
-            field("array({0})", rowBackrefSubselect(column, tableAlias)).as(column.getName()));
-      } else if (column.isReference()) { // REF and REF_ARRAY
-        // might be composite column with same name
-        Reference ref = null;
-        for (Reference r : column.getReferences()) {
-          if (r.getName().equals(column.getName())) {
-            ref = r;
-          }
-        }
-        if (ref == null) {
-          throw new MolgenisException(
-              "Select of column '"
-                  + column.getName()
-                  + "' failed: composite foreign key requires subselection or explicit naming of underlying fields");
-        } else {
-          fields.add(
-              field(name(alias(tableAlias), column.getName()), ref.getJooqType()).as(columnAlias));
-        }
-      } else if (!column.isHeading()) {
-        fields.add(
-            field(name(alias(tableAlias), column.getName()), column.getJooqType()).as(columnAlias));
-      }
+      rowSelectField(table, tableAlias, prefix, selection, select, fields);
     }
     return fields;
+  }
+
+  private void rowSelectField(
+      TableMetadata table,
+      String tableAlias,
+      String prefix,
+      SelectColumn selection,
+      SelectColumn select,
+      List<Field> fields) {
+    Column column = getColumnByName(table, select.getColumn());
+    String columnAlias = prefix.equals("") ? column.getName() : prefix + "-" + column.getName();
+    if (column.isFile()) {
+      // check what they want to get, contents, mimetype, size, filename and/or extension
+      if (select.getSubselect().isEmpty() || select.has("id")) {
+        fields.add(field(name(column.getName())));
+      }
+      if (select.has("contents")) {
+        fields.add(field(name(column.getName() + "_contents")));
+      }
+      if (select.has("size")) {
+        fields.add(field(name(column.getName() + "_size")));
+      }
+      if (select.has("mimetype")) {
+        fields.add(field(name(column.getName() + "_mimetype")));
+      }
+      if (select.has("filename")) {
+        fields.add(field(name(column.getName() + "_filename")));
+      }
+      if (select.has("extension")) {
+        fields.add(field(name(column.getName() + "_extension")));
+      }
+    } else if (column.isReference()
+        // if subselection, then we will add it as subselect
+        && !select.getSubselect().isEmpty()) {
+      fields.addAll(
+          rowSelectFields(
+              column.getRefTable(),
+              tableAlias + "-" + column.getName(),
+              columnAlias,
+              selection.getSubselect(column.getName())));
+    } else if (column.isRefback()) {
+      fields.add(field("array({0})", rowBackrefSubselect(column, tableAlias)).as(column.getName()));
+    } else if (column.isReference()) { // REF and REF_ARRAY
+      // might be composite column with same name
+      Reference ref = null;
+      for (Reference r : column.getReferences()) {
+        if (r.getName().equals(column.getName())) {
+          ref = r;
+        }
+      }
+      if (ref == null) {
+        throw new MolgenisException(
+            "Select of column '"
+                + column.getName()
+                + "' failed: composite foreign key requires subselection or explicit naming of underlying fields");
+      } else {
+        fields.add(
+            field(name(alias(tableAlias), column.getName()), ref.getJooqType()).as(columnAlias));
+      }
+    } else if (!column.isHeading()) {
+      fields.add(
+          field(name(alias(tableAlias), column.getName()), column.getJooqType()).as(columnAlias));
+    }
   }
 
   private SelectConditionStep<org.jooq.Record> rowBackrefSubselect(
@@ -364,36 +373,16 @@ public class SqlQuery extends QueryBean {
     if (select != null
         && (select.getOffset() > 0 || select.getLimit() > 0 || !select.getOrderBy().isEmpty())) {
       // source columns for the selection
-      Set<Field> subselect = new HashSet<>();
-      for (SelectColumn col : select.getSubselect()) {
-        Column selectColumn =
-            col.getColumn().endsWith("_agg") || col.getColumn().endsWith("_groupBy")
-                ? getColumnByName(
-                    table, col.getColumn().replace("_agg", "").replace("_groupBy", ""))
-                : getColumnByName(table, col.getColumn());
-        subselect.addAll(selectColumn.getCompositeFields());
-      }
       SelectConnectByStep query =
           table
               .getJooq()
-              .select(subselect) // ideally we would only retrieve what we need
+              .select(
+                  jsonSourceFields(table, select)) // ideally we would only retrieve what we need
               .from(tableWithInheritanceJoin(table).as(alias(subAlias)))
               .where(conditions);
-      // creating subquery for natural join
-      //      SelectConnectByStep query =
-      //          table
-      //              .getJooq()
-      //              .select(table.getPrimaryKeyFields())
-      //              .from(tableWithInheritanceJoin(table).as(alias(subAlias)).where(conditions));
-      // apply limit/offset/orderby to this selection
       query = limitOffsetOrderBy(table, select, query);
       // return using inner join, slower it seems
       query = table.getJooq().select(selection).from(query.asTable(alias(subAlias)));
-      // .naturalJoin(tableWithInheritanceJoin(table)
-      // need to order the result again unfortunately
-      //      if (!select.getOrderBy().isEmpty()) {
-      //        query = SqlQueryBuilderHelpers.orderBy(table, select, query);
-      //      }
       return query;
     } else {
       // if no limit/offset then we apply json bulding and filtering in one query
@@ -409,6 +398,18 @@ public class SqlQuery extends QueryBean {
       }
       return query;
     }
+  }
+
+  private static Set<Field> jsonSourceFields(SqlTableMetadata table, SelectColumn select) {
+    Set<Field> subselect = new HashSet<>();
+    for (SelectColumn col : select.getSubselect()) {
+      Column selectColumn =
+          col.getColumn().endsWith("_agg") || col.getColumn().endsWith("_groupBy")
+              ? getColumnByName(table, col.getColumn().replace("_agg", "").replace("_groupBy", ""))
+              : getColumnByName(table, col.getColumn());
+      subselect.addAll(selectColumn.getCompositeFields());
+    }
+    return subselect;
   }
 
   private List<Condition> jsonFilterQueryConditions(
