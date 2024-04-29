@@ -18,8 +18,6 @@ const icons = Object.entries(modules).map(([key, value]) => {
 });
 
 const selectedAnimationClass = ref<string | null>(null);
-
-
 </script>
 <template>
   <div class="flex mb-4">
@@ -27,7 +25,9 @@ const selectedAnimationClass = ref<string | null>(null);
       <div class="grid grid-cols-4 gap-4">
         <div v-for="icon in icons">
           <label>{{ icon }}</label>
-          <div class="p-4"><BaseIcon :name="icon" :class="selectedAnimationClass"/></div>
+          <div class="p-4">
+            <BaseIcon :name="icon" :class="selectedAnimationClass" />
+          </div>
         </div>
       </div>
     </div>
@@ -35,20 +35,22 @@ const selectedAnimationClass = ref<string | null>(null);
     <div class="h-12 ml-4 mt-2">
       <fieldset class="border border-gray-900 mb-2 p-1">
         <legend class="m-2 px-2">Added classes</legend>
-  
-       
+
         <label class="ml-1 hover:cursor-pointer" for="animation-select">
-            Animation
-          </label>  
+          Animation
+        </label>
         <div class="mb-2">
-            <select id="animation-select" v-model="selectedAnimationClass" class="h-full rounded-md border-1 bg-transparent py-0 pl-2 pr-7 text-gray-500 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm">
+          <select
+            id="animation-select"
+            v-model="selectedAnimationClass"
+            class="h-full rounded-md border-1 bg-transparent py-0 pl-2 pr-7 text-gray-500 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm"
+          >
             <option value="null">None</option>
             <option value="animate-spin">animate-spin</option>
             <option value="animate-ping">animate-ping</option>
             <option value="animate-pulse">animate-pulse</option>
-            <option value="animate-bounce ">animate-bounce </option>
-        </select>
-         
+            <option value="animate-bounce ">animate-bounce</option>
+          </select>
         </div>
       </fieldset>
     </div>
