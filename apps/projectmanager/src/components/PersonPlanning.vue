@@ -3,19 +3,23 @@
     <h1>Person planning:</h1>
     <table class="planning-table">
       <thead>
-        <colgroup span="2"></colgroup>
+        <colgroup span="4"></colgroup>
         <colgroup span="5"></colgroup>
         <tr>
-          <th colspan="2" scope="colgroup">Person Info</th>
+          <th colspan="4" scope="colgroup">Person Info</th>
           <th colspan="5" scope="colgroup">Planning</th>
         </tr>
         <tr>
           <th scope="col" data-col-name="Name">Name</th>
           <th scope="col" data-col-name="FTE">FTE</th>
+          <th scope="col" data-col-name="Notes">Notes</th>
+          <th scope="col" data-col-name="options">
+            <span class="sr-only">options</span>
+          </th>
           <th scope="col" data-col-name="FTE">FTE</th>
-          <th scope="col" data-col-name="projectUnit">projectUnit</th>
-          <th scope="col" data-col-name="period">period</th>
-          <th scope="col" data-col-name="notes">notes</th>
+          <th scope="col" data-col-name="projectUnit">Project Units</th>
+          <th scope="col" data-col-name="period">Period</th>
+          <th scope="col" data-col-name="notes">Notes</th>
           <th scope="col" data-col-name="options">
             <span class="sr-only">options</span>
           </th>
@@ -25,6 +29,31 @@
         <tr v-for="person in rows">
           <th class="align-top" data-col-name="Name">{{ person.name }}</th>
           <td class="align-top" data-col-name="FTE">{{ person.fTE }}</td>
+          <td class="align-top" data-col-name="Notes">{{ person.notes }}</td>
+          <td class="align-top" data-col-name="options">
+            <div class="row-options">
+              <RowButtonEdit
+                :id="`person-info-${person.name}`"
+                tableId="Persons"
+                tableLabel="Persons"
+                :pkey="person"
+                @close="reload"
+              />
+              <RowButtonDelete
+                :id="`person-info-${person.name}`"
+                tableId="Persons"
+                tableLabel="Persons"
+                :pkey="person"
+                @success="reload"
+              />
+              <RowButtonAdd
+                :id="`person-info-${person.name}`"
+                tableId="Persons"
+                :defaultValue="{ person: { name: person.name } }"
+                @close="reload"
+              />
+            </div>
+          </td>
           <td class="align-top" data-col-name="FTE">
             <span v-for="planning in person.planning">{{ planning.fTE }}</span>
           </td>
@@ -50,18 +79,21 @@
             <template v-for="planning in person.planning">
               <div class="row-options">
                 <RowButtonEdit
+                  :id="`person-planning-${person.name}-${planning.name}`"
                   tableId="Planning"
                   tableLabel="Planning"
                   :pkey="planning"
                   @close="reload"
                 />
                 <RowButtonDelete
+                  :id="`person-planning-${person.name}-${planning.name}`"
                   tableId="Planning"
                   tableLabel="Planning"
                   :pkey="planning"
                   @success="reload"
                 />
                 <RowButtonAdd
+                  :id="`person-planning-${person.name}-${planning.name}`"
                   tableId="Planning"
                   :defaultValue="{ person: { name: person.name } }"
                   @close="reload"
@@ -136,7 +168,7 @@ $border-gray-100: 1px solid #e4e4e4;
       border-bottom: $border-gray-100;
       background-color: #ffffff;
 
-      &:nth-child(2) {
+      &:nth-child(4) {
         border-right: $border-gray-300;
       }
 
@@ -145,14 +177,6 @@ $border-gray-100: 1px solid #e4e4e4;
       }
     }
     tr {
-      &:first-child {
-        th {
-          &:nth-child(2) {
-            border-right: $border-gray-300;
-          }
-        }
-      }
-
       &:last-child {
         th,
         td {
@@ -170,7 +194,7 @@ $border-gray-100: 1px solid #e4e4e4;
         border-bottom: $border-gray-100;
         border-right: $border-gray-100;
 
-        &:nth-child(2) {
+        &:nth-child(4) {
           border-right: $border-gray-300;
         }
       }
