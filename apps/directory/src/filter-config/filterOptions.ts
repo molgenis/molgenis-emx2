@@ -158,7 +158,7 @@ export const ontologyFilterOptions = (filterFacet: any) => {
 function getItemsSplitByOntology(
   ontologyItems: IOntologyItem[],
   ontologyIdentifiers: string[]
-): Record<string, IOntologyItem[]> {
+): Record<string, IOntologyItem[] | Record<string, IOntologyItem>> {
   const childrenPerParent = getChildrenPerParent(ontologyItems);
   const itemsWithChildren = getItemsWithChildren(
     ontologyItems,
@@ -173,7 +173,15 @@ function getItemsSplitByOntology(
     rootNodes,
     ontologyIdentifiers
   );
-  return { ...itemsSplitByOntology, allItems: ontologyItems };
+  const itemsPerName = ontologyItems.reduce(
+    (accum: Record<string, IOntologyItem>, item) => {
+      accum[item.name] = item;
+      return accum;
+    },
+    {}
+  );
+
+  return { ...itemsSplitByOntology, allItems: itemsPerName };
 }
 
 function getItemsWithChildren(

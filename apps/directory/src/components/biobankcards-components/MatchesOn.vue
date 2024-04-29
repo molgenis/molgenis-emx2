@@ -126,7 +126,7 @@ function getMatch(
       continue; /** if the filteroption does not exist */
     }
     if (!Array.isArray(options)) {
-      const ontologyMatch = getMultiOntologyMatch(options, activeFilterValue);
+      const ontologyMatch = options.allItems[activeFilterValue.name]?.label;
       if (ontologyMatch) {
         match.value.push(ontologyMatch);
       }
@@ -161,14 +161,6 @@ function getMatch(
     }
   }
   return match;
-}
-
-function getMultiOntologyMatch(
-  options: Record<string, IOntologyItem[]>,
-  activeFilterValue: IOntologyItem
-) {
-  return options.allItems.find((value) => value.name === activeFilterValue.name)
-    ?.label;
 }
 
 function extractValue(columnId: string, viewModel: Record<string, any>) {
