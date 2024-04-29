@@ -51,6 +51,9 @@ useHead({
                 <li class="py-2">
                   <NuxtLink class="hover:underline" to="FilterSearch.story">Filer search</NuxtLink>
                 </li>
+                <li class="py-2">
+                  <NuxtLink class="hover:underline" to="Icons.story">Icons</NuxtLink>
+                </li>
               </ul>
 
               <div class="pr-6 mt-6">
