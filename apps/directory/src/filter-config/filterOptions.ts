@@ -173,15 +173,8 @@ function getItemsSplitByOntology(
     rootNodes,
     ontologyIdentifiers
   );
-  const itemsPerName = ontologyItems.reduce(
-    (accum: Record<string, IOntologyItem>, item) => {
-      accum[item.name] = item;
-      return accum;
-    },
-    {}
-  );
 
-  return { ...itemsSplitByOntology, allItems: itemsPerName };
+  return { ...itemsSplitByOntology };
 }
 
 function getItemsWithChildren(

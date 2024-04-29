@@ -106,47 +106,59 @@ function getMatch(
     value: [],
   };
 
-  for (const activeFilterValue of activeFilterValues) {
+  for (const filter of activeFilterValues) {
     const options = filterOptions[facetIdentifier];
     if (!options) {
       continue; /** if the filteroption does not exist */
     }
     if (!Array.isArray(options)) {
-      const ontologyMatch = options.allItems[activeFilterValue.name]?.label;
-      if (ontologyMatch) {
-        match.value.push(ontologyMatch);
+      if (doesMatch(potentialMatch, filter.name)) {
+        match.value.push(filter.label);
       }
     } else {
       const filterOption = options.find(
-        (option: Record<string, any>) =>
-          option.value === activeFilterValue.value
+        (option: Record<string, any>) => option.value === filter.value
       );
 
       if (!filterOption) continue;
 
       const filterValue = filterOption.value;
-
-      const isArrayMatch: boolean =
-        Array.isArray(potentialMatch) &&
-        potentialMatch.some(
-          (item) =>
-            item.id === filterValue ||
-            item.name === filterValue ||
-            item.label === filterValue
-        );
-
-      const isObjectMatch: boolean =
-        //@ts-ignore
-        typeof potentialMatch === "object" && filterValue === potentialMatch.id;
-      const isValueMatch: boolean =
-        filterValue.toString() === potentialMatch.toString();
-
-      if (isArrayMatch || isObjectMatch || isValueMatch) {
+      if (doesMatch(potentialMatch, filterValue)) {
         match.value.push(filterOption.text);
       }
     }
   }
   return match;
+}
+
+function doesMatch(potentialMatch: any, filterValue: any) {
+  return (
+    isArrayMatch(potentialMatch, filterValue) ||
+    isObjectMatch(potentialMatch, filterValue) ||
+    isStringMatch(potentialMatch, filterValue)
+  );
+}
+
+function isStringMatch(potentialMatch: any, filterValue: string) {
+  return filterValue.toString() === potentialMatch.toString();
+}
+
+function isObjectMatch(potentialMatch: any, filterValue: string) {
+  return (
+    typeof potentialMatch === "object" && filterValue === potentialMatch.id
+  );
+}
+
+function isArrayMatch(potentialMatch: any, filterValue: string): boolean {
+  return (
+    Array.isArray(potentialMatch) &&
+    potentialMatch.some(
+      (item) =>
+        item.id === filterValue ||
+        item.name === filterValue ||
+        item.label === filterValue
+    )
+  );
 }
 
 function extractValue(columnId: string, viewModel: Record<string, any>) {
