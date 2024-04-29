@@ -93,20 +93,20 @@ const pageFilterTemplate: IFilter[] = [
 async function fetchCohortOptions(): Promise<INode[]> {
   const variables = scoped
     ? { variablesFilter: await buildScopedModelFilter() }
-    : {};
+    : { resource: { mg_tableclass: { like: ["Models"] } } };
   const { data, error } = await $fetch(`/${route.params.schema}/graphql`, {
     method: "POST",
     body: {
       query: `
-            query CohortsWithVariableMapping {
-              Variables_groupBy {
+            query CohortsWithVariableMapping($variablesFilter: VariablesFilter) {
+              Variables_groupBy(filter: $variablesFilter) {
                 count
                 mappings {
                   source {
                     id
                     name
                   }
-                }
+                } 
               }
             }
           `,
@@ -243,6 +243,17 @@ async function buildScopedModelFilter() {
 }
 
 const fetchData = async () => {
+  let cohortsFilter: any = {};
+  if (scoped) {
+    cohortsFilter.networks = { equals: [{ id: catalogueRouteParam }] };
+  }
+
+  // if the cohort filter is active, also filter the columns (the cohorts)
+  // we know this fiter is not perfect but its the best we can do given the current datamodel
+  if (filter.value.mappings) {
+    cohortsFilter = { ...cohortsFilter, ...filter.value.mappings.source };
+  }
+
   const variables = scoped
     ? {
         orderby,
@@ -250,7 +261,7 @@ const fetchData = async () => {
           ...filter.value,
           ...(await buildScopedModelFilter()),
         },
-        cohortsFilter: { networks: { equals: [{ id: catalogueRouteParam }] } },
+        cohortsFilter,
       }
     : {
         orderby,
@@ -258,6 +269,7 @@ const fetchData = async () => {
           ...filter.value,
           resource: { mg_tableclass: { like: ["Models"] } },
         },
+        cohortsFilter,
       };
 
   return $fetch(graphqlURL.value, {
