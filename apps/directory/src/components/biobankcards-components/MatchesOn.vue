@@ -15,26 +15,12 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { IOntologyItem } from "../../interfaces/interfaces";
 import { useFiltersStore } from "../../stores/filtersStore";
 const filtersStore = useFiltersStore();
 
 const { viewmodel } = defineProps<{
   viewmodel: Record<string, any>;
 }>();
-// console.log(viewmodel);
-// {
-//     id: string;
-//     name: string;
-//     type: any[];
-//     withdrawn: boolean;
-//     viewmodel: {
-//       attributes: { label: string; type: string; value?: any }[];
-//     };
-//     country: { label: string; name: string };
-//     combined_network: any[];
-//     data_categories: { label: string; name: string }[];
-//   }
 const filterInfoDictionary = computed(() => {
   return filtersStore.filterFacets.reduce(
     (
