@@ -49,6 +49,7 @@
               <RowButtonAdd
                 :id="`person-info-${person.name}`"
                 tableId="Persons"
+                :schemaId="schema"
                 :defaultValue="{ person: { name: person.name } }"
                 @close="reload"
               />
@@ -110,18 +111,22 @@
 </template>
 
 <script setup lang="ts">
+import { ref} from "vue";
 import { request } from "graphql-request";
-import { ref } from "vue";
-import query from "../gql/persons";
 import {
   RowButtonEdit,
   RowButtonAdd,
   RowButtonDelete,
 } from "molgenis-components";
+import query from "../gql/persons";
+import type { RouterViewPropsIF } from "../interfaces/props";
+
+const props = defineProps<RouterViewPropsIF>();
 
 const rows = ref<object[]>();
 const loading = ref<boolean>(true);
 const graphqlError = ref<Error | null>(null);
+const schemaName = ref<String | null>(null);
 
 function reload() {
   request("graphql", query)
