@@ -107,6 +107,7 @@ export default {
 
 function getMatch(
   potentialMatch:
+    | string
     | { id: string; name: string; label: string }
     | { id: string; name: string; label: string }[],
   filterLabel: string,
