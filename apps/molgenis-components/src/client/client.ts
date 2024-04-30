@@ -261,7 +261,7 @@ const fetchTableData = async (
   tableId: string,
   properties: IQueryMetaData,
   metaData: ISchemaMetaData,
-  expandLevel: number = 2
+  expandLevel: number = 1
 ) => {
   const limit = properties.limit ? properties.limit : 20;
   const offset = properties.offset ? properties.offset : 0;
