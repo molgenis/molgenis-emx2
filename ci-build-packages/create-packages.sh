@@ -19,6 +19,7 @@ mkdir -p buildroot/etc/systemd/system/
 cp log4j2.xml buildroot/usr/local/share/molgenis/
 cp molgenis-emx2.service buildroot/etc/systemd/system/
 #CP JAR FILE TO BUILDROOT
+cp ${FILE_NAME} buildroot/usr/local/share/molgenis/ 
 
 
 
