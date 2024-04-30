@@ -5,7 +5,7 @@
       :analyticsId="analyticsId"
       :htmlContentString="cookieWallContent"
     />
-    <div style="min-height: calc(100vh - 70px)">
+    <main style="min-height: calc(100vh - 70px)">
       <MolgenisMenu
         :logo="logoURLorDefault"
         active="My search"
@@ -27,8 +27,8 @@
         <h1 v-if="title">{{ title }}</h1>
         <slot />
       </div>
-    </div>
-    <div>
+    </main>
+    <footer>
       <slot v-if="$slots.footer" name="footer" />
       <MolgenisFooter v-else>
         <span v-if="session?.manifest">
@@ -46,7 +46,7 @@
           </span>
         </span>
       </MolgenisFooter>
-    </div>
+    </footer>
   </div>
 </template>
 
