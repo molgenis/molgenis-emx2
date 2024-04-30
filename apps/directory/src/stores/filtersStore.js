@@ -279,21 +279,6 @@ export const useFiltersStore = defineStore("filtersStore", () => {
       filterValueAttribute,
       "code",
       `parent.${filterValueAttribute}`,
-      `children.${filterValueAttribute}`,
-      `children.children.${filterValueAttribute}`,
-      `children.children.children.${filterValueAttribute}`,
-      `children.children.children.children.${filterValueAttribute}`,
-      `children.children.children.children.children.${filterValueAttribute}`,
-      "children.code",
-      "children.children.code",
-      "children.children.children.code",
-      "children.children.children.children.code",
-      "children.children.children.children.children.code",
-      `children.${filterLabelAttribute}`,
-      `children.children.${filterLabelAttribute}`,
-      `children.children.children.${filterLabelAttribute}`,
-      `children.children.children.children.${filterLabelAttribute}`,
-      `children.children.children.children.children.${filterLabelAttribute}`,
     ];
   }
 
