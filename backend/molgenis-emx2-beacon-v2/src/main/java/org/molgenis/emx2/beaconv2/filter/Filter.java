@@ -37,13 +37,6 @@ public class Filter {
     super();
   }
 
-  // regular constructor
-  public Filter(Object id, String operator, Object value) {
-    this.id = id;
-    this.operator = operator;
-    this.value = value;
-  }
-
   public Filter(Filter filter) {
     this.id = filter.id;
     this.ids = filter.ids;
@@ -170,7 +163,7 @@ public class Filter {
         + '}';
   }
 
-  public boolean filter(List<String> values) {
+  public boolean matches(List<String> values) {
     if (filterType == FilterType.NUMERICAL) {
       for (String otherValue : values) {
         if (otherValue == null) continue;
@@ -187,11 +180,21 @@ public class Filter {
 
   private boolean passesIntFilter(int otherInt, int thisInt) {
     switch (operator) {
-      case ">": if (otherInt > thisInt) return true; break;
-      case ">=": if (otherInt >= thisInt) return true; break;
-      case "<": if (otherInt < thisInt) return true; break;
-      case "<=": if (otherInt <= thisInt) return true; break;
-      case "=": if (otherInt == thisInt) return true; break;
+      case ">":
+        if (otherInt > thisInt) return true;
+        break;
+      case ">=":
+        if (otherInt >= thisInt) return true;
+        break;
+      case "<":
+        if (otherInt < thisInt) return true;
+        break;
+      case "<=":
+        if (otherInt <= thisInt) return true;
+        break;
+      case "=":
+        if (otherInt == thisInt) return true;
+        break;
     }
     return false;
   }

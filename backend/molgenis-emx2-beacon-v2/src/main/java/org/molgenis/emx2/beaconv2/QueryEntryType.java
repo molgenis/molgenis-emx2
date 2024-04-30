@@ -31,7 +31,7 @@ import org.molgenis.emx2.graphql.GraphqlApiFactory;
 public class QueryEntryType {
 
   private static final ObjectMapper mapper = new ObjectMapper();
-  public static final int MAX_QUERY_DEPTH = 2;
+  private static final int MAX_QUERY_DEPTH = 2;
 
   public static JsonNode query(Database database, BeaconRequestBody request) throws JsltException {
     EntryType entryType = request.getQuery().getEntryType();
@@ -50,7 +50,7 @@ public class QueryEntryType {
         resultSet.put("id", table.getSchema().getName());
 
         ArrayNode resultsArray = doGraphQlQuery(table, filterParser, request);
-        filterResults(resultsArray, filterParser.getPostFetchFilters());
+        resultsArray = applyPostFetchFilters(resultsArray, filterParser.getPostFetchFilters());
         if (hasResult(resultsArray)) {
           numTotalResults += resultsArray.size();
           switch (granularity) {
@@ -160,35 +160,38 @@ public class QueryEntryType {
   }
 
   // todo: move some code to Filter class
-  private static void filterResults(ArrayNode results, List<Filter> postFetchFilters) {
-    if (!hasResult(results)) return;
+  private static ArrayNode applyPostFetchFilters(ArrayNode results, List<Filter> postFetchFilters) {
+    if (!hasResult(results)) return results;
     for (Filter filter : postFetchFilters) {
       Iterator<JsonNode> resultsElements = results.elements();
       while (resultsElements.hasNext()) {
         JsonNode result = resultsElements.next();
-        List<String> ageIso8601durations = new ArrayList<>();
-        switch (filter.getConcept()) {
-          case AGE_THIS_YEAR:
-            ageIso8601durations.add(result.get("age_age_iso8601duration").textValue());
-            break;
-          case AGE_OF_ONSET:
-            for (JsonNode disease : result.get("diseases")) {
-              String age = disease.get("ageOfOnset_age_iso8601duration").textValue();
-              ageIso8601durations.add(age);
-            }
-            break;
-          case AGE_AT_DIAG:
-            for (JsonNode disease : result.get("diseases")) {
-              String age = disease.get("ageAtDiagnosis_age_iso8601duration").textValue();
-              ageIso8601durations.add(age);
-            }
-            break;
-        }
-        if (!filter.filter(ageIso8601durations)) {
+        List<String> ageIso8601durations =
+            getIso8601DurationsForConcept(filter.getConcept(), result);
+        if (!filter.matches(ageIso8601durations)) {
           resultsElements.remove();
         }
       }
     }
+    return results;
+  }
+
+  private static List<String> getIso8601DurationsForConcept(Concept concept, JsonNode result) {
+    List<String> ageIso8601durations = new ArrayList<>();
+    if (concept == Concept.AGE_THIS_YEAR) {
+      ageIso8601durations.add(result.get("age_age_iso8601duration").textValue());
+    } else if (concept == Concept.AGE_OF_ONSET) {
+      for (JsonNode disease : result.get("diseases")) {
+        String age = disease.get("ageOfOnset_age_iso8601duration").textValue();
+        ageIso8601durations.add(age);
+      }
+    } else if (concept == Concept.AGE_AT_DIAG) {
+      for (JsonNode disease : result.get("diseases")) {
+        String age = disease.get("ageAtDiagnosis_age_iso8601duration").textValue();
+        ageIso8601durations.add(age);
+      }
+    }
+    return ageIso8601durations;
   }
 
   public static List<Table> getTableFromAllSchemas(Database database, String tableName) {

@@ -1161,12 +1161,7 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  @Disabled("unstable")
   public void testBeaconApiSmokeTests() {
-    // todo: ideally we would here validate the responses against json schemas, are those schemas
-    // easily available?
-    // todo: can we put in some relevant filter parameters so we really test if they are functional?
-
     String result = given().get("/api/beacon").getBody().asString();
     assertTrue(result.contains("info"));
 

@@ -35,7 +35,7 @@ public class Beaconv2_ModelEndpointsTest {
   @BeforeAll
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
-    //  beaconSchema = database.getSchema("fairdatahub");
+    // beaconSchema = database.getSchema("fairdatahub");
     beaconSchema = database.dropCreateSchema("fairdatahub");
     ProfileLoader b2l = new ProfileLoader("_profiles/FAIRDataHub.yaml");
     b2l.load(beaconSchema, true);
@@ -204,11 +204,11 @@ public class Beaconv2_ModelEndpointsTest {
     JsonNode biosamples = QueryEntryType.query(database, requestBody);
     String json = JsonUtil.getWriter().writeValueAsString(biosamples);
 
-//    assertTrue(json.contains("\"resultsCount\" : 3,"));
-//    assertTrue(json.contains("obtentionProcedure"));
-//    assertTrue(json.contains("procedureCode"));
-//    assertTrue(json.contains("\"id\" : \"OBI:0002654\""));
-//    assertTrue(json.contains("\"label\" : \"needle biopsy\""));
+    //    assertTrue(json.contains("\"resultsCount\" : 3,"));
+    //    assertTrue(json.contains("obtentionProcedure"));
+    //    assertTrue(json.contains("procedureCode"));
+    //    assertTrue(json.contains("\"id\" : \"OBI:0002654\""));
+    //    assertTrue(json.contains("\"label\" : \"needle biopsy\""));
   }
 
   @Test
@@ -238,164 +238,32 @@ public class Beaconv2_ModelEndpointsTest {
     assertTrue(json.contains("\"id\" : \"Sample0002\","));
     assertTrue(json.contains("\"resultsCount\" : 1,"));
   }
-  //
-  //  @Test
-  //  public void testCohorts_NoParams() throws Exception {
-  //    Request request = mock(Request.class);
-  //    Cohorts cohorts = new Cohorts(request, List.of(beaconSchema.getTable("Cohorts")));
-  //    String json = JsonUtil.getWriter().writeValueAsString(cohorts);
-  //    // 'collections' structure, different from 'resultSet'
-  //    assertTrue(
-  //        json.contains(
-  //            """
-  //                                "response" : {
-  //                                    "collections" : [
-  //                                      {
-  //                                        "cohortId" : "Cohort0001","""));
-  //    assertTrue(
-  //        json.contains(
-  //            """
-  //                                "locations" : [
-  //                                          {
-  //                                            "id" : "ISO3166:FR",
-  //                                            "label" : "France"
-  //                                          },
-  //                                          {
-  //                                            "id" : "ISO3166:ES",
-  //                                            "label" : "Spain\""""));
-  //  }
-  //
-  //  @Test
-  //  public void testCohorts_NoHits() throws Exception {
-  //    Request request = mock(Request.class);
-  //    when(request.queryParams("cohortId")).thenReturn("Cohort0003");
-  //    Cohorts cohorts = new Cohorts(request, List.of(beaconSchema.getTable("Cohorts")));
-  //    String json = JsonUtil.getWriter().writeValueAsString(cohorts);
-  //    assertTrue(
-  //        json.contains(
-  //            """
-  //                                "response" : {
-  //                                    "collections" : [ ]
-  //                                  }"""));
-  //  }
-  //
-  //  @Test
-  //  public void testCohorts_IdQuery() throws Exception {
-  //    Request request = mock(Request.class);
-  //    when(request.queryParams("cohortId")).thenReturn("Cohort0001");
-  //    Cohorts cohorts = new Cohorts(request, List.of(beaconSchema.getTable("Cohorts")));
-  //    String json = JsonUtil.getWriter().writeValueAsString(cohorts);
-  //    assertTrue(json.contains("\"cohortId\" : \"Cohort0001\","));
-  //    assertFalse(json.contains("\"cohortId\" : \"Cohort0002\","));
-  //  }
-  //
-  //  @Test
-  //  public void testIndividuals_NoParams() throws Exception {
-  //    Request request = mock(Request.class);
-  //    Individuals individuals =
-  //        new Individuals(request, List.of(beaconSchema.getTable("Individuals")));
-  //    String json = JsonUtil.getWriter().writeValueAsString(individuals);
-  //    assertTrue(json.contains("\"id\" : \"Ind001\","));
-  //    assertTrue(json.contains("\"id\" : \"Ind002\","));
-  //  }
-  //
-  //  @Test
-  //  public void testIndividuals_IdQuery() throws Exception {
-  //    Request request = mock(Request.class);
-  //    when(request.queryParams("id")).thenReturn("Ind002");
-  //    Individuals individuals =
-  //        new Individuals(request, List.of(beaconSchema.getTable("Individuals")));
-  //    String json = JsonUtil.getWriter().writeValueAsString(individuals);
-  //    assertFalse(json.contains("\"id\" : \"Ind001\","));
-  //    assertTrue(json.contains("\"id\" : \"Ind002\","));
-  //    // check if nested references and other key structures are present
-  //    assertTrue(
-  //        json.contains(
-  //            """
-  //                                "measures" : [
-  //                                  {
-  //                                    "assayCode" : {
-  //                                      "id" : "EDAM:topic_3308","""
-  //                .indent(12)));
-  //    assertTrue(
-  //        json.contains(
-  //            """
-  //                                "assayCode" : {
-  //                                  "id" : "EDAM:topic_0121",
-  //                                  "label" : "Proteomics\""""
-  //                .indent(16)));
-  //    assertTrue(
-  //        json.contains(
-  //            """
-  //                                "date" : "2019-07-06",
-  //                                                "measurementVariable" : "TTN peptipe",
-  //                                                "measurementValue" : {
-  //                                                  "value" : 6853,
-  //                                                  "units" : {
-  //                                                    "id" : "NCIT:C67433",
-  //                                                    "label" : "Nanomole per Milligram of
-  // Protein\""""));
-  //    assertTrue(
-  //        json.contains(
-  //            """
-  //                                "observationMoment" : {
-  //                                  "age" : {
-  //                                    "iso8601duration" : "P75Y9M11D\""""
-  //                .indent(16)));
-  //  }
-  //
-  //  @Test
-  //  public void testIndividuals_NoHits() throws Exception {
-  //    Request request = mock(Request.class);
-  //    when(request.queryParams("id")).thenReturn("Ind003");
-  //    Individuals individuals =
-  //        new Individuals(request, List.of(beaconSchema.getTable("Individuals")));
-  //    String json = JsonUtil.getWriter().writeValueAsString(individuals);
-  //    assertTrue(
-  //        json.contains(
-  //            """
-  //                                "response" : {
-  //                                    "resultSets" : [ ]
-  //                                  }"""));
-  //  }
-  //
-  //  @Test
-  //  public void testRuns_NoParams() throws Exception {
-  //    Request request = mock(Request.class);
-  //    Runs runs = new Runs(request, List.of(beaconSchema.getTable("Runs")));
-  //    String json = JsonUtil.getWriter().writeValueAsString(runs);
-  //    assertTrue(json.contains("\"resultsCount\" : 5,"));
-  //    assertTrue(
-  //        json.contains("\"librarySource\" : {\n" + "              \"id\" :
-  // \"GENEPIO:0001966\","));
-  //  }
-  //
-  //  @Test
-  //  public void testRuns_NoHits() throws Exception {
-  //    Request request = mock(Request.class);
-  //    when(request.queryParams("id")).thenReturn("SRR10903405");
-  //    Runs runs = new Runs(request, List.of(beaconSchema.getTable("Runs")));
-  //    String json = JsonUtil.getWriter().writeValueAsString(runs);
-  //    assertTrue(
-  //        json.contains(
-  //            """
-  //                                "response" : {
-  //                                    "resultSets" : [ ]
-  //                                  }"""));
-  //  }
-  //
-  //  @Test
-  //  public void testRuns_IdQuery() throws Exception {
-  //    Request request = mock(Request.class);
-  //    when(request.queryParams("id")).thenReturn("SRR10903403");
-  //    Runs runs = new Runs(request, List.of(beaconSchema.getTable("Runs")));
-  //    String json = JsonUtil.getWriter().writeValueAsString(runs);
-  //    assertTrue(json.contains("\"id\" : \"SRR10903403\","));
-  //    assertFalse(json.contains("\"id\" : \"SRR10903401\","));
-  //    assertFalse(json.contains("\"id\" : \"SRR10903402\","));
-  //    assertFalse(json.contains("\"id\" : \"SRR10903404\","));
-  //  }
-  //
+
+  @Test
+  public void testCohorts_NoParams() throws Exception {
+    Request request = mockEntryTypeRequest(EntryType.COHORTS.getId(), new HashMap<>());
+    BeaconRequestBody requestBody = new BeaconRequestBody();
+    requestBody.addUrlParameters(request);
+
+    JsonNode cohorts = QueryEntryType.query(database, requestBody);
+
+    String json = JsonUtil.getWriter().writeValueAsString(cohorts);
+    assertTrue(json.contains("\"id\" : \"Cohort0001\""));
+    assertTrue(json.contains("\"id\" : \"ISO3166:FR\""));
+  }
+
+  @Test
+  public void testCohorts_NoHits() throws Exception {
+    Request request =
+        mockEntryTypeRequest(EntryType.COHORTS.getId(), Map.of("id", new String[] {"Cohort0003"}));
+    BeaconRequestBody requestBody = new BeaconRequestBody();
+    requestBody.addUrlParameters(request);
+
+    JsonNode cohorts = QueryEntryType.query(database, requestBody);
+    String json = JsonUtil.getWriter().writeValueAsString(cohorts);
+    assertTrue(json.contains("\"collections\" : [ ]"));
+  }
+
   private String doIndividualsPostRequest(String body) throws JsonProcessingException {
     Request request = mockEntryTypeRequest(EntryType.INDIVIDUALS.getId(), new HashMap<>());
     ObjectMapper mapper = new ObjectMapper();
@@ -837,10 +705,11 @@ public class Beaconv2_ModelEndpointsTest {
     assertTrue(json.contains("\"numTotalResults\" : 1"));
   }
 
-    @Test
-    public void test_EJP_RD_VP_API_FilterOnAgeAtDiagnosisLessThan_OneHit() throws Exception {
-      String json =
-          doIndividualsPostRequest("""
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnAgeAtDiagnosisLessThan_OneHit() throws Exception {
+    String json =
+        doIndividualsPostRequest(
+            """
                           {
                             "query": {
                           	"filters": [
@@ -852,15 +721,35 @@ public class Beaconv2_ModelEndpointsTest {
                           	]
                             }
                           }""");
-      assertTrue(json.contains("\"exists\" : true"));
-      assertTrue(json.contains("\"numTotalResults\" : 1"));
-    }
+    assertTrue(json.contains("\"exists\" : true"));
+    assertTrue(json.contains("\"numTotalResults\" : 1"));
+  }
 
-    @Test
-    public void test_EJP_RD_VP_API_FilterOnCausalGenes_OneHit() throws Exception {
-      String json =
-          doIndividualsPostRequest(
-              """
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnAgeAtDiagnosisUnsupportedFilter() throws Exception {
+    String json =
+        doIndividualsPostRequest(
+            """
+                          {
+                            "query": {
+                          	"filters": [
+                          	  {
+                          		"id": "NCIT_C15642",
+                          		"value": 50,
+                          		"operator": "<"
+                          	  }
+                          	]
+                            }
+                          }""");
+    assertTrue(json.contains("\"unsupportedFilters\" : \"[NCIT_C15642]\""));
+    assertTrue(json.contains("\"numTotalResults\" : 5"));
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnCausalGenes_OneHit() throws Exception {
+    String json =
+        doIndividualsPostRequest(
+            """
                           {
                             "query": {
                           	"filters": [
@@ -872,15 +761,15 @@ public class Beaconv2_ModelEndpointsTest {
                           	]
                             }
                           }""");
-      assertTrue(json.contains("\"exists\" : true"));
-      assertTrue(json.contains("\"numTotalResults\" : 1"));
-    }
+    assertTrue(json.contains("\"exists\" : true"));
+    assertTrue(json.contains("\"numTotalResults\" : 1"));
+  }
 
-    @Test
-    public void test_EJP_RD_VP_API_FilterOnCausalGenes_asArray_OneHit() throws Exception {
-      String json =
-          doIndividualsPostRequest(
-              """
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnCausalGenes_asArray_OneHit() throws Exception {
+    String json =
+        doIndividualsPostRequest(
+            """
                           {
                             "query": {
                           	"filters": [
@@ -892,15 +781,15 @@ public class Beaconv2_ModelEndpointsTest {
                           	]
                             }
                           }""");
-      assertTrue(json.contains("\"exists\" : true"));
-      assertTrue(json.contains("\"numTotalResults\" : 1"));
-    }
+    assertTrue(json.contains("\"exists\" : true"));
+    assertTrue(json.contains("\"numTotalResults\" : 1"));
+  }
 
-    @Test
-    public void test_EJP_RD_VP_API_FilterOnCausalGenes_TwoHits() throws Exception {
-      String json =
-          doIndividualsPostRequest(
-              """
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnCausalGenes_TwoHits() throws Exception {
+    String json =
+        doIndividualsPostRequest(
+            """
                           {
                             "query": {
                           	"filters": [
@@ -912,9 +801,9 @@ public class Beaconv2_ModelEndpointsTest {
                           	]
                             }
                           }""");
-      assertTrue(json.contains("\"exists\" : true"));
-      assertTrue(json.contains("\"numTotalResults\" : 2"));
-    }
+    assertTrue(json.contains("\"exists\" : true"));
+    assertTrue(json.contains("\"numTotalResults\" : 2"));
+  }
   //
   //  @Test
   //  public void test_EJP_RD_VP_API_FilterOnCausalGenes_usingAND_OneHit() throws Exception {
