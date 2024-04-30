@@ -203,6 +203,7 @@ public class Beaconv2_ModelEndpointsTest {
 
     JsonNode biosamples = QueryEntryType.query(database, requestBody);
     String json = JsonUtil.getWriter().writeValueAsString(biosamples);
+    System.out.println(json); //todo remove me!!
 
     assertTrue(json.contains("\"resultsCount\" : 3,"));
     assertTrue(json.contains("obtentionProcedure"));
