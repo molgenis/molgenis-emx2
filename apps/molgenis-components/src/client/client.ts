@@ -38,10 +38,11 @@ const client: IClient = {
       },
       fetchTableData: async (
         tableId: string,
-        properties: IQueryMetaData = {}
+        properties: IQueryMetaData = {},
+        expandLevel: number = 1
       ) => {
         const schemaMetaData = await fetchSchemaMetaData(schemaId);
-        return fetchTableData(tableId, properties, schemaMetaData);
+        return fetchTableData(tableId, properties, schemaMetaData, expandLevel);
       },
       fetchTableDataValues: async (
         tableId: string,
