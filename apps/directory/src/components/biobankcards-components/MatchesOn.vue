@@ -16,6 +16,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { useFiltersStore } from "../../stores/filtersStore";
+import { IOntologyItem } from "../../interfaces/interfaces";
 const filtersStore = useFiltersStore();
 
 const { viewmodel } = defineProps<{
@@ -93,14 +94,11 @@ const matches = computed(() => {
 });
 
 function getMatch(
-  potentialMatch:
-    | string
-    | { id: string; name: string; label: string }
-    | { id: string; name: string; label: string }[],
+  potentialMatch: string | IOntologyItem | IOntologyItem[],
   filterLabel: string,
   activeFilterValues: any[],
   filterOptions: Record<string, any>,
-  facetIdentifier: string
+  filterId: string
 ): IMatch {
   let match: IMatch = {
     name: filterLabel,
@@ -108,7 +106,7 @@ function getMatch(
   };
 
   for (const filter of activeFilterValues) {
-    const options = filterOptions[facetIdentifier];
+    const options = filterOptions[filterId];
     if (!options) {
       continue; /** if the filteroption does not exist */
     }
