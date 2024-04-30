@@ -161,6 +161,7 @@ public class QueryEntryType {
 
   // todo: move some code to Filter class
   private static void filterResults(ArrayNode results, List<Filter> postFetchFilters) {
+    if (!hasResult(results)) return;
     for (Filter filter : postFetchFilters) {
       Iterator<JsonNode> resultsElements = results.elements();
       while (resultsElements.hasNext()) {
