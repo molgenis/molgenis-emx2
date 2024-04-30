@@ -35,7 +35,7 @@ public class Beaconv2_ModelEndpointsTest {
   @BeforeAll
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
-    //    beaconSchema = database.getSchema("fairdatahub");
+    //  beaconSchema = database.getSchema("fairdatahub");
     beaconSchema = database.dropCreateSchema("fairdatahub");
     ProfileLoader b2l = new ProfileLoader("_profiles/FAIRDataHub.yaml");
     b2l.load(beaconSchema, true);
@@ -836,82 +836,85 @@ public class Beaconv2_ModelEndpointsTest {
     assertTrue(json.contains("\"exists\" : true"));
     assertTrue(json.contains("\"numTotalResults\" : 1"));
   }
-  //
-  //  @Test
-  //  public void test_EJP_RD_VP_API_FilterOnAgeAtDiagnosisLessThan_OneHit() throws Exception {
-  //    assertNrOfHitsFor(
-  //        """
-  //                        {
-  //                          "query": {
-  //                        	"filters": [
-  //                        	  {
-  //                        		"id": "%s",
-  //                        		"value": 50,
-  //                        		"operator": "<"
-  //                        	  }
-  //                        	]
-  //                          }
-  //                        }"""
-  //            .formatted(EJP_VP_IndividualsQuery.AGE_AT_DIAG),
-  //        1);
-  //  }
-  //
-  //  @Test
-  //  public void test_EJP_RD_VP_API_FilterOnCausalGenes_OneHit() throws Exception {
-  //    assertNrOfHitsFor(
-  //        """
-  //                        {
-  //                          "query": {
-  //                        	"filters": [
-  //                        	  {
-  //                        		"id": "%s",
-  //                        		"value": "TTN",
-  //                        		"operator": "="
-  //                        	  }
-  //                        	]
-  //                          }
-  //                        }"""
-  //            .formatted(EJP_VP_IndividualsQuery.CAUSAL_GENE),
-  //        1);
-  //  }
-  //
-  //  @Test
-  //  public void test_EJP_RD_VP_API_FilterOnCausalGenes_asArray_OneHit() throws Exception {
-  //    assertNrOfHitsFor(
-  //        """
-  //                        {
-  //                          "query": {
-  //                        	"filters": [
-  //                        	  {
-  //                        		"id": "%s",
-  //                        		"value": ["TTN"],
-  //                        		"operator": "="
-  //                        	  }
-  //                        	]
-  //                          }
-  //                        }"""
-  //            .formatted(EJP_VP_IndividualsQuery.CAUSAL_GENE),
-  //        1);
-  //  }
-  //
-  //  @Test
-  //  public void test_EJP_RD_VP_API_FilterOnCausalGenes_TwoHits() throws Exception {
-  //    assertNrOfHitsFor(
-  //        """
-  //                        {
-  //                          "query": {
-  //                        	"filters": [
-  //                        	  {
-  //                        		"id": "%s",
-  //                        		"value": "COL7A1",
-  //                        		"operator": "="
-  //                        	  }
-  //                        	]
-  //                          }
-  //                        }"""
-  //            .formatted(EJP_VP_IndividualsQuery.CAUSAL_GENE),
-  //        2);
-  //  }
+
+    @Test
+    public void test_EJP_RD_VP_API_FilterOnAgeAtDiagnosisLessThan_OneHit() throws Exception {
+      String json =
+          doIndividualsPostRequest("""
+                          {
+                            "query": {
+                          	"filters": [
+                          	  {
+                          		"id": "NCIT_C156420",
+                          		"value": 50,
+                          		"operator": "<"
+                          	  }
+                          	]
+                            }
+                          }""");
+      assertTrue(json.contains("\"exists\" : true"));
+      assertTrue(json.contains("\"numTotalResults\" : 1"));
+    }
+
+    @Test
+    public void test_EJP_RD_VP_API_FilterOnCausalGenes_OneHit() throws Exception {
+      String json =
+          doIndividualsPostRequest(
+              """
+                          {
+                            "query": {
+                          	"filters": [
+                          	  {
+                          		"id": "data_2295",
+                          		"value": "TTN",
+                          		"operator": "="
+                          	  }
+                          	]
+                            }
+                          }""");
+      assertTrue(json.contains("\"exists\" : true"));
+      assertTrue(json.contains("\"numTotalResults\" : 1"));
+    }
+
+    @Test
+    public void test_EJP_RD_VP_API_FilterOnCausalGenes_asArray_OneHit() throws Exception {
+      String json =
+          doIndividualsPostRequest(
+              """
+                          {
+                            "query": {
+                          	"filters": [
+                          	  {
+                          		"id": "data_2295",
+                          		"value": ["TTN"],
+                          		"operator": "="
+                          	  }
+                          	]
+                            }
+                          }""");
+      assertTrue(json.contains("\"exists\" : true"));
+      assertTrue(json.contains("\"numTotalResults\" : 1"));
+    }
+
+    @Test
+    public void test_EJP_RD_VP_API_FilterOnCausalGenes_TwoHits() throws Exception {
+      String json =
+          doIndividualsPostRequest(
+              """
+                          {
+                            "query": {
+                          	"filters": [
+                          	  {
+                          		"id": "data_2295",
+                          		"value": "COL7A1",
+                          		"operator": "="
+                          	  }
+                          	]
+                            }
+                          }""");
+      assertTrue(json.contains("\"exists\" : true"));
+      assertTrue(json.contains("\"numTotalResults\" : 2"));
+    }
   //
   //  @Test
   //  public void test_EJP_RD_VP_API_FilterOnCausalGenes_usingAND_OneHit() throws Exception {
