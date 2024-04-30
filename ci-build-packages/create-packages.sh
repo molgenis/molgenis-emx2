@@ -19,7 +19,8 @@ mkdir -p buildroot/etc/systemd/system/
 cp log4j2.xml buildroot/usr/local/share/molgenis/
 cp molgenis-emx2.service buildroot/etc/systemd/system/
 #CP JAR FILE TO BUILDROOT
-cp ${FILE_NAME} buildroot/usr/local/share/molgenis/ 
+cp ~/repo/builds/libs/${FILE_NAME} buildroot/usr/local/share/molgenis/ 
+ln -s buildroot/usr/local/share/molgenis/${FILE_NAME} buildroot/usr/local/share/molgenis/molgenis-emx2.jar
 
 
 
@@ -49,6 +50,6 @@ fpm -t deb -s dir \
 
 # Upload to repository
 
-curl -v -u $REGISTRY_USER:$REGISTRY_PASS --upload-file molgenis-emx2-$VERSION-$RELEASE.noarch.rpm     https://registry.molgenis.org/repository/molgenis-emx2/10/unstable/
-curl -v -u $REGISTRY_USER:$REGISTRY_PASS -H Content-Type: multipart/form-data --data-binary @./molgenis-emx2_$VERSION-$RELEASE_all.deb https://registry.molgenis.org/repository/molgenis-emx2-jammy-unstable/
+curl -v -u $NEXUS_USER:$NEXUS_PASS --upload-file molgenis-emx2-$VERSION-$RELEASE.noarch.rpm     https://registry.molgenis.org/repository/molgenis-emx2/10/unstable/
+curl -v -u $NEXUS_USER:$NEXUS_PASS -H Content-Type: multipart/form-data --data-binary @./molgenis-emx2_$VERSION-$RELEASE_all.deb https://registry.molgenis.org/repository/molgenis-emx2-jammy-unstable/
 
