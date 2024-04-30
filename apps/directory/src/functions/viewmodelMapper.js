@@ -16,19 +16,19 @@ export const getName = (contact) => {
   return name !== "" ? name.trim() : undefined;
 };
 
-export const mapToString = (object, property, prefix, suffix) => {
+export const propertyToString = (object, property, prefix, suffix) => {
   if (!object) return "";
-
   if (typeof object === "string") return object;
+  if (!object[property]) return "";
 
-  prefix = prefix ? `${prefix} ` : "";
-  suffix = suffix ? ` ${suffix}` : "";
-  return object[property] ? `${prefix}${object[property]}${suffix}` : "";
+  const spacedPrefix = prefix ? `${prefix} ` : "";
+  const spacedSuffix = suffix ? ` ${suffix}` : "";
+  return `${spacedPrefix}${object[property]}${spacedSuffix}`;
 };
 
 function getUriIfAvailable(item) {
   if (item.uri) return "uri";
-  if (item.url) return "uri";
+  if (item.url) return "url";
   if (item.ontologyTermURI) return "ontologyTermURI";
 
   return "";
@@ -45,25 +45,108 @@ export function mapObjArray(objects) {
     }));
 }
 
-export function mapUrl(url) {
-  return url ? (url.startsWith("http") ? url : "https://" + url) : url;
+export function urlToString(url) {
+  if (url) {
+    return url.startsWith("http") ? url : "https://" + url;
+  } else {
+    return url;
+  }
 }
 
-export function mapRange(min, max, unit) {
-  let range = "";
-  if ((min || min === 0) && max) {
-    range = `${min}-${max} `;
-  } else if (min || min === 0) {
-    range = `> ${min} `;
-  } else if (max) {
-    range = `< ${max} `;
-  }
+export function rangeToString(min, max, unit) {
+  const range = getRange(min, max);
   if (range.length > 0 && unit?.label) {
-    range += unit.label;
+    return range + unit.label;
   } else {
-    range = undefined;
+    return "";
   }
-  return range;
+}
+
+function getRange(min, max) {
+  if ((min || min === 0) && max) {
+    return `${min}-${max} `;
+  } else if (min || min === 0) {
+    return `> ${min} `;
+  } else if (max) {
+    return `< ${max} `;
+  } else {
+    return "";
+  }
+}
+
+/**
+ *
+ * @param {*} object collection / biobank
+ * @param {*} columns column config
+ * @returns an array of generator attributes: { label: columnInfo.label, type: columnInfo.type, value: attributeValue, component: columnInfo.component }
+ */
+export function getViewmodel(object, columns) {
+  const attributes = [];
+
+  for (const columnInfo of columns) {
+    let attributeValue;
+    let objectToExtractValueFrom = getObjectForValueExtraction(
+      object,
+      columnInfo.column
+    );
+
+    switch (columnInfo.type) {
+      case "range": {
+        const { min, max, unit } = columnInfo;
+        attributeValue = rangeToString(object[min], object[max], object[unit]);
+        break;
+      }
+      case "object": {
+        attributeValue = propertyToString(
+          objectToExtractValueFrom,
+          columnInfo.property,
+          columnInfo.prefix,
+          columnInfo.suffix
+        );
+        break;
+      }
+      case "custom": {
+        attributeValue = objectToExtractValueFrom;
+        break;
+      }
+      case "array": {
+        attributeValue = objectToExtractValueFrom;
+        break;
+      }
+      case "quality":
+        attributeValue = object.quality;
+        break;
+      case "mref":
+      case "categoricalmref": {
+        attributeValue = mapObjArray(objectToExtractValueFrom);
+        break;
+      }
+      default: {
+        attributeValue = propertyToString(
+          object,
+          columnInfo.column,
+          columnInfo.prefix,
+          columnInfo.suffix
+        );
+      }
+    }
+    /** component is only used as an override. undefined by default, the generator will handle this by type. */
+    const attribute = {
+      label: columnInfo.label,
+      type: columnInfo.type,
+      value: attributeValue,
+      component: columnInfo.component,
+    };
+
+    if (columnInfo.showCopyIcon) {
+      attribute.linkValue = columnInfo.copyValuePrefix
+        ? `${columnInfo.copyValuePrefix}${attributeValue}`
+        : attributeValue;
+    }
+    attributes.push(attribute);
+  }
+
+  return { attributes };
 }
 
 function getObjectForValueExtraction(object, propertyKey) {
@@ -90,81 +173,6 @@ function getObjectForValueExtraction(object, propertyKey) {
   } else {
     return object[propertyKey];
   }
-}
-
-/**
- *
- * @param {*} object collection / biobank
- * @param {*} columns column config
- * @returns an array of generator attributes: { label: columnInfo.label, type: columnInfo.type, value: attributeValue, component: columnInfo.component }
- */
-export function getViewmodel(object, columns) {
-  const attributes = [];
-
-  for (const columnInfo of columns) {
-    let attributeValue;
-    let objectToExtractValueFrom = getObjectForValueExtraction(
-      object,
-      columnInfo.column
-    );
-
-    switch (columnInfo.type) {
-      case "range": {
-        const { min, max, unit } = columnInfo;
-        attributeValue = mapRange(object[min], object[max], object[unit]) || "";
-        break;
-      }
-      case "object": {
-        attributeValue = mapToString(
-          objectToExtractValueFrom,
-          columnInfo.property,
-          columnInfo.prefix,
-          columnInfo.suffix
-        );
-        break;
-      }
-      case "custom": {
-        attributeValue = objectToExtractValueFrom;
-        break;
-      }
-      case "array": {
-        attributeValue = objectToExtractValueFrom;
-        break;
-      }
-      case "quality":
-        attributeValue = object.quality;
-        break;
-      case "mref":
-      case "categoricalmref": {
-        attributeValue = mapObjArray(objectToExtractValueFrom);
-        break;
-      }
-      default: {
-        attributeValue = mapToString(
-          object,
-          columnInfo.column,
-          columnInfo.prefix,
-          columnInfo.suffix
-        );
-      }
-    }
-    /** component is only used as an override. undefined by default, the generator will handle this by type. */
-    const attribute = {
-      label: columnInfo.label,
-      type: columnInfo.type,
-      value: attributeValue,
-      component: columnInfo.component,
-    };
-
-    if (columnInfo.showCopyIcon) {
-      attribute.linkValue = columnInfo.copyValuePrefix
-        ? `${columnInfo.copyValuePrefix}${attributeValue}`
-        : attributeValue;
-    }
-    attributes.push(attribute);
-  }
-
-  return { attributes };
 }
 
 /**
@@ -298,9 +306,7 @@ export const collectionReportInformation = (collection) => {
   }
 
   if (collection.also_known) {
-    collectionReport.also_known = collection.also_known
-      ? mapAlsoKnownIn(collection)
-      : undefined;
+    collectionReport.also_known = mapAlsoKnownIn(collection);
   }
 
   if (collection.biobank) {
@@ -308,7 +314,7 @@ export const collectionReportInformation = (collection) => {
       id: collection.biobank.id,
       name: collection.biobank.name,
       juridical_person: collection.biobank.juridical_person,
-      country: collection.country.label,
+      country: collection.country?.label,
       report: `/biobank/${collection.biobank.id}`,
       website: collection.biobank.url,
       email: collection.biobank.contact?.email,
@@ -359,13 +365,11 @@ export const mapNetworkInfo = (data) => {
 };
 
 export const mapAlsoKnownIn = (instance) => {
-  return (
-    instance.also_known?.map((item) => {
-      return { value: item.url, type: "url", label: item.name_system };
-    }) || []
-  );
+  return instance.also_known.map((item) => {
+    return { value: item.url, type: "url", label: item.name_system };
+  });
 };
 
 export const mapQualityStandards = (instance) => {
-  return instance.map((quality) => quality.quality_standard.name) || [];
+  return instance.map((quality) => quality.quality_standard.name);
 };

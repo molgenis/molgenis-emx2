@@ -34,7 +34,10 @@ public class BiobankDirectoryLoader extends AbstractDataLoader {
 
     // create biobank-directory or staging schema (which will create tables in ontology schema)
     createSchema(schema, location + "molgenis.csv");
-    schema.addMember(SqlDatabase.ANONYMOUS, Privileges.VIEWER.toString());
+
+    if (!this.staging) {
+      schema.addMember(SqlDatabase.ANONYMOUS, Privileges.VIEWER.toString());
+    }
 
     if (ontologySchema == null || !this.staging) {
       // load data into ontology schema
