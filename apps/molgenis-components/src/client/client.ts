@@ -46,13 +46,15 @@ const client: IClient = {
       },
       fetchTableDataValues: async (
         tableId: string,
-        properties: IQueryMetaData = {}
+        properties: IQueryMetaData = {},
+        expandLevel: number = 1
       ) => {
         const schemaMetaData = await fetchSchemaMetaData(schemaId);
         const dataResp = await fetchTableData(
           tableId,
           properties,
-          schemaMetaData
+          schemaMetaData,
+          expandLevel
         );
         return dataResp[tableId];
       },
@@ -262,7 +264,7 @@ const fetchTableData = async (
   tableId: string,
   properties: IQueryMetaData,
   metaData: ISchemaMetaData,
-  expandLevel: number = 1
+  expandLevel: number
 ) => {
   const limit = properties.limit ? properties.limit : 20;
   const offset = properties.offset ? properties.offset : 0;
