@@ -5,7 +5,7 @@
       :analyticsId="analyticsId"
       :htmlContentString="cookieWallContent"
     />
-    <main style="min-height: calc(100vh - 70px)">
+    <div style="min-height: calc(100vh - 70px)">
       <MolgenisMenu
         :logo="logoURLorDefault"
         active="My search"
@@ -23,11 +23,11 @@
         :crumbs="crumbs"
         :dropdown="schemaUrlsForCrumbs"
       />
-      <div class="container-fluid p-3" style="padding-bottom: 50px">
+      <main class="container-fluid p-3" style="padding-bottom: 50px">
         <h1 v-if="title">{{ title }}</h1>
         <slot />
-      </div>
-    </main>
+      </main>
+    </div>
     <footer>
       <slot v-if="$slots.footer" name="footer" />
       <MolgenisFooter v-else>
