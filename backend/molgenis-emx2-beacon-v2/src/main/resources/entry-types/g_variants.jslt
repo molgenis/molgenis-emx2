@@ -23,8 +23,9 @@ import "info.jslt" as info
                         "alternateBases": uppercase(.alternateBases),
                         "location": {
                             "sequence_id": .position_refseqId,
-                            "type": "SequenceInterval",
+                            "type": "SequenceLocation",
                             "interval": {
+                                "type": "SequenceInterval",
                                 "start": {
                                     "type": "Number",
                                     "value": number(.position_start)
@@ -47,11 +48,9 @@ import "info.jslt" as info
                         "geneIds": if (.geneId) [.geneId ],
                         "aminoacidChanges": [ ]
                     },
-                    "variantLevelData": {
+                    "variantLevelData": if (.clinicalInterpretations) {
                         "clinicalInterpretations":
-                        [for (.clinicalInterpretations)
-                            if (.conditionId and .conditionId)
-                            {
+                        [for (.clinicalInterpretations) {
                                 "category": ontology(.category),
                                 "clinicalRelevance": lowercase(.clinicalRelevance.name),
                                 "conditionId": .conditionId,

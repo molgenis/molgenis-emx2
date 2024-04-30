@@ -172,26 +172,26 @@ public class Filter {
 
   public boolean filter(List<String> values) {
     if (filterType == FilterType.NUMERICAL) {
-      for (String value : values) {
-        if (value == null) return false;
-        Period period = Period.parse(value);
-        int age = period.getYears();
+      for (String otherValue : values) {
+        if (otherValue == null) continue;
+        Period period = Period.parse(otherValue);
+        int otherAge = period.getYears();
         for (String thisValue : this.getValues()) {
-          int thisNumerical = Integer.parseInt(thisValue);
-          switch (operator) {
-            case ">":
-              return (age > thisNumerical);
-            case ">=":
-              return (age >= thisNumerical);
-            case "<":
-              return (age < thisNumerical);
-            case "<=":
-              return (age <= thisNumerical);
-            case "=":
-              return (age == thisNumerical);
-          }
+          int thisAge = Integer.parseInt(thisValue);
+          if (passesIntFilter(otherAge, thisAge)) return true;
         }
       }
+    }
+    return false;
+  }
+
+  private boolean passesIntFilter(int otherInt, int thisInt) {
+    switch (operator) {
+      case ">": if (otherInt > thisInt) return true; break;
+      case ">=": if (otherInt >= thisInt) return true; break;
+      case "<": if (otherInt < thisInt) return true; break;
+      case "<=": if (otherInt <= thisInt) return true; break;
+      case "=": if (otherInt == thisInt) return true; break;
     }
     return false;
   }

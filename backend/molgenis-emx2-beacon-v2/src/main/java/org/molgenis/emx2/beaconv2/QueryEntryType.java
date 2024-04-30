@@ -31,6 +31,7 @@ import org.molgenis.emx2.graphql.GraphqlApiFactory;
 public class QueryEntryType {
 
   private static final ObjectMapper mapper = new ObjectMapper();
+  public static final int MAX_QUERY_DEPTH = 3;
 
   public static JsonNode query(Database database, BeaconRequestBody request) throws JsltException {
     EntryType entryType = request.getQuery().getEntryType();
@@ -47,7 +48,9 @@ public class QueryEntryType {
       if (isAuthorized(request, table)) {
         ObjectNode resultSet = mapper.createObjectNode();
         resultSet.put("id", table.getSchema().getName());
+
         ArrayNode resultsArray = doGraphQlQuery(table, filterParser, request);
+        filterResults(resultsArray, filterParser.getPostFetchFilters());
         if (hasResult(resultsArray)) {
           numTotalResults += resultsArray.size();
           switch (granularity) {
@@ -118,7 +121,7 @@ public class QueryEntryType {
 
     String graphQlQuery =
         new QueryBuilder(table)
-            .addAllColumns(3)
+            .addAllColumns(MAX_QUERY_DEPTH)
             .addFilters(filterParser.getGraphQlFilters())
             .getQuery();
     ExecutionResult result = graphQL.execute(graphQlQuery);
@@ -128,10 +131,7 @@ public class QueryEntryType {
     JsonNode entryTypeResult = results.get(requestBody.getQuery().getEntryType().getId());
     if (entryTypeResult == null || entryTypeResult.isNull()) return null;
 
-    ArrayNode resultsArray = (ArrayNode) entryTypeResult;
-    filterResults(resultsArray, filterParser.getPostFetchFilters());
-
-    return resultsArray;
+    return (ArrayNode) entryTypeResult;
   }
 
   private static ArrayNode paginateResults(ArrayNode results, BeaconQuery query) {

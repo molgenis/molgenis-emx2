@@ -816,31 +816,26 @@ public class Beaconv2_ModelEndpointsTest {
     assertTrue(json.contains("\"exists\" : true"));
     assertTrue(json.contains("\"numTotalResults\" : 1"));
   }
-  //
-  //  @Test
-  //  public void test_EJP_RD_VP_API_FilterOnAgeAtDiagnosis_OneHit() throws Exception {
-  //    assertNrOfHitsFor(
-  //        """
-  //                        {
-  //                          "query": {
-  //                        	"filters": [
-  //                        	  {
-  //                        		"id": "%s",
-  //                        		"value": 20,
-  //                        		"operator": "="
-  //                        	  },
-  //                        	  {
-  //                        		"id": "%s",
-  //                        		"value": 2,
-  //                        		"operator": "="
-  //                        	  }
-  //                        	]
-  //                          }
-  //                        }"""
-  //            .formatted(EJP_VP_IndividualsQuery.AGE_AT_DIAG,
-  // EJP_VP_IndividualsQuery.AGE_AT_DIAG),
-  //        1);
-  //  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnAgeAtDiagnosis_OneHit() throws Exception {
+    String json =
+        doIndividualsPostRequest(
+            """
+                          {
+                            "query": {
+                          	"filters": [
+                          	  {
+                          		"id": "NCIT_C156420",
+                          		"value": 2,
+                          		"operator": "="
+                          	  }
+                          	]
+                            }
+                          }""");
+    assertTrue(json.contains("\"exists\" : true"));
+    assertTrue(json.contains("\"numTotalResults\" : 1"));
+  }
   //
   //  @Test
   //  public void test_EJP_RD_VP_API_FilterOnAgeAtDiagnosisLessThan_OneHit() throws Exception {
