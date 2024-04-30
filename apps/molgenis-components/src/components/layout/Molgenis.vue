@@ -28,22 +28,25 @@
         <slot />
       </div>
     </div>
-    <MolgenisFooter>
-      <span v-if="session?.manifest">
-        Software version:
-        <a
-          :href="
-            'https://github.com/molgenis/molgenis-emx2/releases/tag/v' +
-            session.manifest.SpecificationVersion
-          "
-        >
-          {{ session.manifest.SpecificationVersion }} </a
-        >.
-        <span v-if="session.manifest.DatabaseVersion">
-          Database version: {{ session.manifest.DatabaseVersion }}.
+    <div>
+      <slot v-if="$slots.footer" name="footer" />
+      <MolgenisFooter v-else>
+        <span v-if="session?.manifest">
+          Software version:
+          <a
+            :href="
+              'https://github.com/molgenis/molgenis-emx2/releases/tag/v' +
+              session.manifest.SpecificationVersion
+            "
+          >
+            {{ session.manifest.SpecificationVersion }} </a
+          >.
+          <span v-if="session.manifest.DatabaseVersion">
+            Database version: {{ session.manifest.DatabaseVersion }}.
+          </span>
         </span>
-      </span>
-    </MolgenisFooter>
+      </MolgenisFooter>
+    </div>
   </div>
 </template>
 
@@ -226,23 +229,48 @@ export default {
 
 <docs>
 <template>
-  <Molgenis :menuItems="[
-        {label:'Home',href:'/'},
-        {label:'My search',href:'http://google.com'},
-        {label:'My movies',href:'http://youtube.com'}
-     ]" title="My title" v-model="molgenis">
-    <template>
-      <p>Some contents and I can see the molgenis state via v-model = {{ JSON.stringify(molgenis) }}</p>
-    </template>
-  </Molgenis>
+  <DemoItem>
+    <Molgenis
+      :menuItems="[
+        { label: 'Home', href: '/' },
+        { label: 'My search', href: 'http://google.com' },
+        { label: 'My movies', href: 'http://youtube.com' },
+      ]"
+      title="My title"
+      v-model="molgenis"
+    >
+      <template>
+        <p>
+          Some contents and I can see the molgenis state via v-model =
+          {{ JSON.stringify(molgenis) }}
+        </p>
+      </template>
+    </Molgenis>
+  </DemoItem>
+  <DemoItem>
+    <Molgenis
+      :menuItems="[
+        { label: 'Home', href: '/' },
+        { label: 'My search', href: 'http://google.com' },
+        { label: 'My movies', href: 'http://youtube.com' },
+      ]"
+      title="Footer title"
+      v-model="molgenis"
+    >
+      <template>
+        <p>WithCustom Footer</p>
+      </template>
+      <template #footer>A fully custom footer</template>
+    </Molgenis>
+  </DemoItem>
 </template>
 <script>
-  export default {
-    data() {
-      return {
-        molgenis: null
-      }
-    }
-  }
+export default {
+  data() {
+    return {
+      molgenis: null,
+    };
+  },
+};
 </script>
 </docs>
