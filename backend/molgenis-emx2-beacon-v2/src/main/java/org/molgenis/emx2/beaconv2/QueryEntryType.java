@@ -31,7 +31,7 @@ import org.molgenis.emx2.graphql.GraphqlApiFactory;
 public class QueryEntryType {
 
   private static final ObjectMapper mapper = new ObjectMapper();
-  public static final int MAX_QUERY_DEPTH = 3;
+  public static final int MAX_QUERY_DEPTH = 2;
 
   public static JsonNode query(Database database, BeaconRequestBody request) throws JsltException {
     EntryType entryType = request.getQuery().getEntryType();
