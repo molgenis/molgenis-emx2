@@ -75,10 +75,29 @@ const pageFilterTemplate: IFilter[] = [
       label: "Cohorts",
       type: "REF_ARRAY",
       refTableId: "Cohorts",
-      columnId: "mappings",
-      buildFilterFunction: (conditions: IFilterCondition[]) => {
-        // convert generic conditions to specific filter form
-        return { source: { equals: conditions.map((c) => ({ id: c.name })) } };
+      buildFilterFunction: (
+        filterBuilder: Record<string, Record<string, any>>,
+        conditions: IFilterCondition[]
+      ) => {
+        return {
+          ...filterBuilder,
+          ...{
+            _or: [
+              {
+                mappings: {
+                  source: { equals: conditions.map((c) => ({ id: c.name })) },
+                },
+              },
+              {
+                repeats: {
+                  mappings: {
+                    source: { equals: conditions.map((c) => ({ id: c.name })) },
+                  },
+                },
+              },
+            ],
+          },
+        };
       },
       refFields: {
         name: "id",
@@ -90,10 +109,22 @@ const pageFilterTemplate: IFilter[] = [
   },
 ];
 
+const schema = route.params.schema as string;
+
 async function fetchCohortOptions(): Promise<INode[]> {
+  const mappings = {
+    source: { mg_tableclass: { equals: `${schema}.Cohorts` } },
+  };
+
   const variables = scoped
-    ? { variablesFilter: await buildScopedModelFilter() }
-    : { resource: { mg_tableclass: { like: ["Models"] } } };
+    ? {
+        variablesFilter: { ...(await buildScopedModelFilter()), mappings },
+      }
+    : {
+        variablesFilter: {
+          mappings,
+        },
+      };
   const { data, error } = await $fetch(`/${route.params.schema}/graphql`, {
     method: "POST",
     body: {
@@ -105,6 +136,7 @@ async function fetchCohortOptions(): Promise<INode[]> {
                   source {
                     id
                     name
+                    mg_tableclass
                   }
                 } 
               }
@@ -148,11 +180,10 @@ const query = computed(() => {
   query VariablesPage(
     $variablesFilter:VariablesFilter,
     $cohortsFilter:CohortsFilter,
-    $orderby:Variablesorderby
   ){
     Variables(limit: ${pageSize} offset: ${
     offset.value
-  } filter:$variablesFilter  orderby:$orderby) {
+  } filter:$variablesFilter  orderby: { name: ASC }) {
       name
       resource {
         id
@@ -193,8 +224,6 @@ const numberOfCohorts = computed(() => {
 });
 
 const graphqlURL = computed(() => `/${route.params.schema}/graphql`);
-
-const orderby = { label: "ASC" };
 
 const filter = computed(() => {
   return buildQueryFilter(filters.value);
@@ -248,15 +277,16 @@ const fetchData = async () => {
     cohortsFilter.networks = { equals: [{ id: catalogueRouteParam }] };
   }
 
-  // if the cohort filter is active, also filter the columns (the cohorts)
-  // we know this fiter is not perfect but its the best we can do given the current datamodel
-  if (filter.value.mappings) {
-    cohortsFilter = { ...cohortsFilter, ...filter.value.mappings.source };
+  if (filter.value["_or"]) {
+    cohortsFilter = {
+      ...cohortsFilter,
+      ...filter.value["_or"][0].mappings.source,
+      ...filter.value["_or"][1].repeats.mappings.source,
+    };
   }
 
   const variables = scoped
     ? {
-        orderby,
         variablesFilter: {
           ...filter.value,
           ...(await buildScopedModelFilter()),
@@ -264,7 +294,6 @@ const fetchData = async () => {
         cohortsFilter,
       }
     : {
-        orderby,
         variablesFilter: {
           ...filter.value,
           resource: { mg_tableclass: { like: ["Models"] } },

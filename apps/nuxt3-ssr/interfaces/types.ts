@@ -345,12 +345,23 @@ export interface IOntologyFilterConfig extends IFilterConfig {
   refFields?: filterRefField;
 }
 
-export interface IRefArrayFilterConfig extends IFilterConfig {
+export interface IRefArrayFilterAbstractConfig extends IFilterConfig {
   type: "REF_ARRAY";
   refTableId: string;
   refSchema?: string;
-  columnId: string;
   refFields?: filterRefField;
+  // optional function to build the filter bases on the selected options
+  // if empty the defualt builder will be used
+  buildFilterFunction?: Function;
+}
+
+export interface IRefArrayFilterDefaultConfig
+  extends IRefArrayFilterAbstractConfig {
+  columnId: string;
+}
+
+export interface IRefArrayFilterCustomConfig
+  extends IRefArrayFilterAbstractConfig {
   // optional function to build the filter bases on the selected options
   // if empty the defualt builder will be used
   buildFilterFunction?: Function;

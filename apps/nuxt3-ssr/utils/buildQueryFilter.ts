@@ -2,6 +2,7 @@ import type {
   IFilter,
   ISearchFilter,
   IConditionsFilter,
+  IRefArrayFilterCustomConfig,
 } from "~/interfaces/types";
 
 import { isConditionFilter } from "./filterUtils";
@@ -10,7 +11,11 @@ const buildFilterVariables = (filters: IConditionsFilter[]) => {
   const filtersVariables = filters.reduce<
     Record<string, Record<string, any | string>>
   >((accum, filter) => {
-    if (filter.config.columnId && filter?.conditions?.length) {
+    if (
+      (filter.config.columnId ||
+        (filter.config as IRefArrayFilterCustomConfig).buildFilterFunction) &&
+      filter?.conditions?.length
+    ) {
       if (filter.config.filterTable) {
         if (!accum[filter.config.filterTable]) {
           accum[filter.config.filterTable] = {};
@@ -18,10 +23,15 @@ const buildFilterVariables = (filters: IConditionsFilter[]) => {
         accum[filter.config.filterTable][filter.config.columnId] = {
           equals: filter.conditions,
         };
-      } else if (filter.config.buildFilterFunction) {
-        accum[filter.config.columnId] = filter.config.buildFilterFunction(
-          filter.conditions
-        );
+      } else if (
+        (filter.config as IRefArrayFilterCustomConfig).buildFilterFunction
+      ) {
+        const buildFilterFunction = (
+          filter.config as IRefArrayFilterCustomConfig
+        ).buildFilterFunction;
+        if (buildFilterFunction) {
+          accum = buildFilterFunction(accum, filter.conditions);
+        }
       } else {
         accum[filter.config.columnId] = { equals: filter.conditions };
       }
