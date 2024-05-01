@@ -87,42 +87,37 @@ public class Semantics {
     if (variant != null && type.equals(ALTERNATIVE)) {
 
       builder.add(
-          nodeId,
-          "http://purl.obolibrary.org/obo/GENO_0000894",
-          variant.getPosition().getStart()[0]);
+          nodeId, "http://purl.obolibrary.org/obo/GENO_0000894", variant.position().getStart()[0]);
       builder.add(
-          nodeId, "http://purl.obolibrary.org/obo/GENO_0000895", variant.getPosition().getEnd()[0]);
+          nodeId, "http://purl.obolibrary.org/obo/GENO_0000895", variant.position().getEnd()[0]);
       String variantIRI =
           host
               + "/"
-              + variant.getGenomicVariantsResultSetId()
+              + variant.GenomicVariantsResultSetId()
               + "/api/rdf/GenomicVariations/"
-              + variant.getVariantInternalId();
+              + variant.variantInternalId();
       builder.add(nodeId, RDFS.ISDEFINEDBY, iri(variantIRI));
-      if (variant.getVariantType() != null) {
-        builder.add(
-            nodeId, "http://purl.obolibrary.org/obo/GENO_0000773", variant.getVariantType());
+      if (variant.variantType() != null) {
+        builder.add(nodeId, "http://purl.obolibrary.org/obo/GENO_0000773", variant.variantType());
       }
-      if (variant.getGenomicHGVSId() != null) {
-        builder.add(
-            nodeId, "http://purl.obolibrary.org/obo/NCIT_C172243", variant.getGenomicHGVSId());
+      if (variant.genomicHGVSId() != null) {
+        builder.add(nodeId, "http://purl.obolibrary.org/obo/NCIT_C172243", variant.genomicHGVSId());
       }
-      if (variant.getProteinHGVSIds() != null) {
-        for (String proteinHGVSId : variant.getProteinHGVSIds()) {
+      if (variant.proteinHGVSIds() != null) {
+        for (String proteinHGVSId : variant.proteinHGVSIds()) {
           builder.add(nodeId, "http://ensembl.org/glossary/ENSGLOSSARY_0000274", proteinHGVSId);
         }
       }
-      if (variant.getTranscriptHGVSIds() != null) {
-        for (String transcriptHGVSId : variant.getTranscriptHGVSIds()) {
+      if (variant.transcriptHGVSIds() != null) {
+        for (String transcriptHGVSId : variant.transcriptHGVSIds()) {
           builder.add(nodeId, "http://purl.obolibrary.org/obo/NCIT_C172244", transcriptHGVSId);
         }
       }
 
       // todo predicate IRIs
       int clinIntCounter = 0;
-      if (variant.getVariantLevelData() != null) {
-        for (ClinicalInterpretations ci :
-            variant.getVariantLevelData().getClinicalInterpretations()) {
+      if (variant.variantLevelData() != null) {
+        for (ClinicalInterpretations ci : variant.variantLevelData().getClinicalInterpretations()) {
           String clinIntNode = nodeId + "/clinical_interpretation" + (clinIntCounter++);
           builder.add(nodeId, "http://snomed.info/id/363713009", iri(clinIntNode));
           builder.add(clinIntNode, RDF.TYPE, "http://purl.obolibrary.org/obo/NCIT_C125009");

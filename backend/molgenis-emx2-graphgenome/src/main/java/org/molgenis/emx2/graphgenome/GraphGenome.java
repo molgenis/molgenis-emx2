@@ -141,8 +141,7 @@ public class GraphGenome extends RDFService {
       for (GenomicVariant variant : sortedVariants) {
 
         int refSeqStart = previousRefSeqEnd + previousVariantRefBaseLength;
-        int refSeqEnd =
-            (int) (variant.getPosition().getStart()[0] - earliestStart) + DNA_PADDING - 1;
+        int refSeqEnd = (int) (variant.position().getStart()[0] - earliestStart) + DNA_PADDING - 1;
 
         Situation situation;
         if (refSeqEnd == previousRefSeqEnd) {
@@ -197,7 +196,7 @@ public class GraphGenome extends RDFService {
 
         // define variant alt first because we need it later for linking
         String variantAltNode =
-            formatNodeId(apiContext, gene, nodeCounter++, ALTERNATIVE, variant.getAlternateBases());
+            formatNodeId(apiContext, gene, nodeCounter++, ALTERNATIVE, variant.alternateBases());
         addNode(
             host,
             builder,
@@ -206,12 +205,12 @@ public class GraphGenome extends RDFService {
             variant,
             upstreamRefSeqNode,
             null,
-            variant.getAlternateBases());
+            variant.alternateBases());
 
         // define variant ref next, except for Situation 1
         if (situation != Situation.SITUATION_1) {
           String variantRefNode =
-              formatNodeId(apiContext, gene, nodeCounter++, REFERENCE, variant.getReferenceBases());
+              formatNodeId(apiContext, gene, nodeCounter++, REFERENCE, variant.referenceBases());
           addNode(
               host,
               builder,
@@ -220,7 +219,7 @@ public class GraphGenome extends RDFService {
               variant,
               upstreamRefSeqNode,
               (situation == Situation.SITUATION_2 ? upstreamVariantAltNodes : null),
-              variant.getReferenceBases());
+              variant.referenceBases());
 
           // make explicit which alts replace which refs because we now do not revisit nodes,
           // causing less-than-ideal representation of graph genome when variants are within indels
@@ -236,7 +235,7 @@ public class GraphGenome extends RDFService {
         }
 
         upstreamVariantAltNodes.add(variantAltNode);
-        previousVariantRefBaseLength = variant.getReferenceBases().length();
+        previousVariantRefBaseLength = variant.referenceBases().length();
         previousRefSeqEnd = refSeqEnd;
         previousRefSeqStart = refSeqStart;
       }
