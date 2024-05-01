@@ -178,19 +178,25 @@ public class QueryEntryType {
 
   private static List<String> getIso8601DurationsForConcept(Concept concept, JsonNode result) {
     List<String> ageIso8601durations = new ArrayList<>();
+
     if (concept == Concept.AGE_THIS_YEAR) {
-      ageIso8601durations.add(result.get("age_age_iso8601duration").textValue());
+      if (result.hasNonNull("age_age_iso8601duration")) {
+        ageIso8601durations.add(result.get("age_age_iso8601duration").textValue());
+      }
     } else if (concept == Concept.AGE_OF_ONSET) {
       for (JsonNode disease : result.get("diseases")) {
-        String age = disease.get("ageOfOnset_age_iso8601duration").textValue();
-        ageIso8601durations.add(age);
+        if (disease.hasNonNull("ageOfOnset_age_iso8601duration")) {
+          ageIso8601durations.add(disease.get("ageOfOnset_age_iso8601duration").textValue());
+        }
       }
     } else if (concept == Concept.AGE_AT_DIAG) {
       for (JsonNode disease : result.get("diseases")) {
-        String age = disease.get("ageAtDiagnosis_age_iso8601duration").textValue();
-        ageIso8601durations.add(age);
+        if (disease.hasNonNull("ageAtDiagnosis_age_iso8601duration")) {
+          ageIso8601durations.add(disease.get("ageAtDiagnosis_age_iso8601duration").textValue());
+        }
       }
     }
+
     return ageIso8601durations;
   }
 
