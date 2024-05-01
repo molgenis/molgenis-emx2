@@ -234,7 +234,7 @@ export default {
         filter: this.filter,
         orderby: this.orderby,
       };
-      const response = await this.client.fetchTableData(this.tableId, options, 0); //0 = only keys
+      const response = await this.client.fetchTableData(this.tableId, options, 0);
       this.data = response[this.tableId] || [];
       this.count = response[this.tableId + "_agg"].count;
 
