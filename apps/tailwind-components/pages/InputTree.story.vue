@@ -38,7 +38,7 @@ const expandSelected = ref(true);
 
 <template>
   <div class="flex mb-4">
-    <div class="flex-1 h-12">
+    <div class="flex-1">
       <InputTree
         :nodes="nodes"
         v-model="selectedNodesNames"
