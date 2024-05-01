@@ -1,4 +1,4 @@
-import { defineStore } from "pinia";
+import { defineStore, storeToRefs } from "pinia";
 import { computed, ref, watch } from "vue";
 import { createFilters } from "../filter-config/facetConfigurator";
 import { applyFiltersToQuery } from "../functions/applyFiltersToQuery";
@@ -17,6 +17,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
 
   const { baseQuery, getBiobankCards } = biobankStore;
 
+  const { biobankCards } = storeToRefs(biobankStore);
   const settingsStore = useSettingsStore();
 
   const graphqlEndpoint = settingsStore.config.graphqlEndpoint;
@@ -29,10 +30,11 @@ export const useFiltersStore = defineStore("filtersStore", () => {
   /** check for filter manipulations */
   let filterTriggeredBookmark = ref(false);
 
-  let filters = ref<Record<string, any>>({});
+  let filters = ref<Record<string, any[]>>({});
   let filterType = ref<Record<string, any>>({});
   let filterOptionsCache = ref<Record<string, any>>({});
   let filterFacets = ref<any[]>([]);
+  let filteredBiobankCards = ref<any[]>([]);
   const facetDetailsDictionary = ref<Record<string, any>>({});
 
   let filtersReadyToRender = ref(false);
@@ -74,34 +76,46 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     return Object.keys(filters.value).length > 0;
   });
 
-  let queryDelay: any;
+  function applyFilter(filter: Record<string, any>, card: any): boolean {
+    console.log(filter);
+    return true;
+  }
+
+  // let queryDelay: any;
   watch(
-    filters,
-    (filters) => {
-      if (queryDelay) {
-        clearTimeout(queryDelay);
-      }
-      /** reset pagination */
-      settingsStore.currentPage = 1;
+    [filters, filterType, biobankCards],
+    ([newFilters, newFilterTypes, newBiobankCards]) => {
+      let filteredCards = newBiobankCards;
+      Object.values(newFilters).forEach((filterCategory: any[]) => {
+        filteredCards = filteredCards.filter((card: any) => {
+          return applyFilter(filterCategory, card);
+        });
+      });
+      filteredBiobankCards.value = filteredCards;
+      // if (queryDelay) {
+      //   clearTimeout(queryDelay);
+      // }
+      // /** reset pagination */
+      // settingsStore.currentPage = 1;
 
-      /** when we reset the filters on bookmark update, we do not want to search, so hold your horses */
+      // /** when we reset the filters on bookmark update, we do not want to search, so hold your horses */
 
-      queryDelay = setTimeout(async () => {
-        applyFiltersToQuery(
-          baseQuery,
-          filters,
-          facetDetails.value,
-          filterType.value
-        );
+      // queryDelay = setTimeout(async () => {
+      //   applyFiltersToQuery(
+      //     baseQuery,
+      //     filters,
+      //     facetDetails.value,
+      //     filterType.value
+      //   );
 
-        if (!bookmarkTriggeredFilter.value) {
-          createBookmark(filters, checkoutStore.selectedCollections);
-        }
-        bookmarkTriggeredFilter.value = false;
+      //   if (!bookmarkTriggeredFilter.value) {
+      //     createBookmark(filters, checkoutStore.selectedCollections);
+      //   }
+      //   bookmarkTriggeredFilter.value = false;
 
-        await getBiobankCards();
-        clearTimeout(queryDelay);
-      }, 750);
+      //   await getBiobankCards();
+      //   clearTimeout(queryDelay);
+      // }, 750);
     },
     { deep: true }
   );
@@ -109,32 +123,29 @@ export const useFiltersStore = defineStore("filtersStore", () => {
   watch(
     filterType,
     (filterType) => {
-      if (queryDelay) {
-        clearTimeout(queryDelay);
-      }
-      /** reset pagination */
-      settingsStore.currentPage = 1;
-
-      /** when we reset the filters on bookmark update, we do not want to search, so hold your horses */
-      queryDelay = setTimeout(async () => {
-        clearTimeout(queryDelay);
-        applyFiltersToQuery(
-          baseQuery,
-          filters.value,
-          facetDetails.value,
-          filterType
-        );
-
-        if (!bookmarkTriggeredFilter.value) {
-          createBookmark(filters.value, checkoutStore.selectedCollections);
-        }
-        bookmarkTriggeredFilter.value = false;
-
-        if (hasActiveFilters.value) {
-          await getBiobankCards();
-          clearTimeout(queryDelay);
-        }
-      }, 750);
+      // if (queryDelay) {
+      //   clearTimeout(queryDelay);
+      // }
+      // /** reset pagination */
+      // settingsStore.currentPage = 1;
+      // /** when we reset the filters on bookmark update, we do not want to search, so hold your horses */
+      // queryDelay = setTimeout(async () => {
+      //   clearTimeout(queryDelay);
+      //   applyFiltersToQuery(
+      //     baseQuery,
+      //     filters.value,
+      //     facetDetails.value,
+      //     filterType
+      //   );
+      //   if (!bookmarkTriggeredFilter.value) {
+      //     createBookmark(filters.value, checkoutStore.selectedCollections);
+      //   }
+      //   bookmarkTriggeredFilter.value = false;
+      //   if (hasActiveFilters.value) {
+      //     await getBiobankCards();
+      //     clearTimeout(queryDelay);
+      //   }
+      // }, 750);
     },
     { deep: true, immediate: true }
   );
@@ -408,5 +419,6 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     bookmarkWaitingForApplication,
     filterTriggeredBookmark,
     filtersReadyToRender,
+    filteredBiobankCards,
   };
 });

@@ -107,21 +107,21 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
   /** This method is called upon page load and when a filter is applied. */
   /** Therefore it can be executed multiple times in parallel. */
   async function getBiobankCards() {
-    if (!filtersStore.bookmarkWaitingForApplication) {
-      waitingForResponse.value = true;
+    // if (!filtersStore.bookmarkWaitingForApplication) {
+    waitingForResponse.value = true;
 
-      const requestTime = Date.now();
-      lastRequestTime = requestTime;
+    // const requestTime = Date.now();
+    // lastRequestTime = requestTime;
 
-      const biobankResult = await baseQuery.execute();
+    const biobankResult = await baseQuery.execute();
 
-      /* Update biobankCards only if the result is the most recent one*/
-      if (requestTime === lastRequestTime) {
-        biobankCards.value = filterWithdrawn(biobankResult.Biobanks || []);
-        waitingForResponse.value = false;
-        filtersStore.bookmarkWaitingForApplication = false;
-      }
-    }
+    /* Update biobankCards only if the result is the most recent one*/
+    // if (requestTime === lastRequestTime) {
+    biobankCards.value = filterWithdrawn(biobankResult.Biobanks || []);
+    waitingForResponse.value = false;
+    // filtersStore.bookmarkWaitingForApplication = false;
+    // }
+    // }
   }
 
   async function getBiobank(id) {
