@@ -30,7 +30,7 @@
     </div>
     <footer>
       <slot v-if="$slots.footer" name="footer" />
-      <MolgenisFooter v-else>
+      <MolgenisFooter>
         <span v-if="session?.manifest">
           Software version:
           <a
