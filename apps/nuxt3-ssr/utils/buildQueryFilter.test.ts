@@ -4,21 +4,35 @@ import { buildQueryFilter } from "./buildQueryFilter";
 import type { IFilter } from "~/interfaces/types";
 
 describe("buildQueryFilter", () => {
-  let filters: IFilter[] = [
+  const filters: IFilter[] = [
     {
-      title: "Search in cohorts",
-      columnType: "_SEARCH",
-      search: "",
-      searchTables: ["collectionEvents", "subcohorts"],
-      initialCollapsed: false,
+      id: "search",
+      config: {
+        label: "Search in cohorts",
+        type: "SEARCH",
+        searchTables: ["collectionEvents", "subcohorts"],
+        initialCollapsed: false,
+      },
+      search: "test",
     },
     {
-      title: "Sample categories",
-      refTableId: "SampleCategories",
-      columnId: "sampleCategories",
-      columnType: "ONTOLOGY",
-      filterTable: "collectionEvents",
-      conditions: [{ name: "Adipocytes" }, { name: "Myocytes, Cardiac" }],
+      id: "sampleCategories",
+      config: {
+        label: "Sample categories",
+        columnId: "sampleCategories",
+        type: "ONTOLOGY",
+        ontologyTableId: "SampleCategories",
+        ontologySchema: "public",
+        filterTable: "collectionEvents",
+      },
+      conditions: [
+        {
+          name: "Adipocytes",
+        },
+        {
+          name: "Myocytes, Cardiac",
+        },
+      ],
     },
   ];
 
@@ -52,7 +66,7 @@ describe("buildQueryFilter", () => {
         },
       },
     };
-    const filterString = buildQueryFilter(filters, "test");
+    const filterString = buildQueryFilter(filters);
     expect(expectedFilter).toEqual(filterString);
   });
 });

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { IFilter, IMgError } from "~/interfaces/types";
+import type { IFilter, IMgError, activeTabType } from "~/interfaces/types";
 
 const route = useRoute();
 const router = useRouter();
@@ -10,73 +10,109 @@ const titlePrefix =
   route.params.catalogue === "all" ? "" : route.params.catalogue + " ";
 useHead({ title: titlePrefix + "Cohorts" });
 
-const currentPage = ref(1);
-if (route.query?.page) {
+const currentPage = computed(() => {
   const queryPageNumber = Number(route.query?.page);
-  currentPage.value =
-    typeof queryPageNumber === "number" ? Math.round(queryPageNumber) : 1;
-}
-let offset = computed(() => (currentPage.value - 1) * pageSize);
+  return !isNaN(queryPageNumber) && typeof queryPageNumber === "number"
+    ? Math.round(queryPageNumber)
+    : 1;
+});
+const offset = computed(() => (currentPage.value - 1) * pageSize);
 
-let filters: IFilter[] = reactive([
+const pageFilterTemplate: IFilter[] = [
   {
-    title: "Search in cohorts",
-    columnType: "_SEARCH",
+    id: "search",
+    config: {
+      label: "Search in cohorts",
+      type: "SEARCH",
+      searchTables: ["collectionEvents", "subcohorts"],
+      initialCollapsed: false,
+    },
     search: "",
-    searchTables: ["collectionEvents", "subcohorts"],
-    initialCollapsed: false,
   },
   {
-    title: "Areas of information",
-    refTableId: "AreasOfInformationCohorts",
-    columnId: "areasOfInformation",
-    columnType: "ONTOLOGY",
-    filterTable: "collectionEvents",
+    id: "areasOfInformation",
+    config: {
+      label: "Areas of information",
+      type: "ONTOLOGY",
+      ontologyTableId: "AreasOfInformationCohorts",
+      ontologySchema: "CatalogueOntologies",
+      columnId: "areasOfInformation",
+      filterTable: "collectionEvents",
+    },
     conditions: [],
   },
   {
-    title: "Data categories",
-    refTableId: "DataCategories",
-    columnId: "dataCategories",
-    columnType: "ONTOLOGY",
-    filterTable: "collectionEvents",
+    id: "dataCategories",
+    config: {
+      label: "Data categories",
+      type: "ONTOLOGY",
+      ontologyTableId: "DataCategories",
+      ontologySchema: "CatalogueOntologies",
+      columnId: "dataCategories",
+      filterTable: "collectionEvents",
+    },
     conditions: [],
   },
   {
-    title: "Population age groups",
-    refTableId: "AgeGroups",
-    columnId: "ageGroups",
-    columnType: "ONTOLOGY",
-    filterTable: "collectionEvents",
+    id: "populationAgeGroups",
+    config: {
+      label: "Population age groups",
+      type: "ONTOLOGY",
+      ontologyTableId: "AgeGroups",
+      ontologySchema: "CatalogueOntologies",
+      columnId: "ageGroups",
+      filterTable: "collectionEvents",
+    },
     conditions: [],
   },
   {
-    title: "Sample categories",
-    refTableId: "SampleCategories",
-    columnId: "sampleCategories",
-    columnType: "ONTOLOGY",
-    filterTable: "collectionEvents",
+    id: "sampleCategories",
+    config: {
+      label: "Sample categories",
+      type: "ONTOLOGY",
+      ontologyTableId: "SampleCategories",
+      ontologySchema: "CatalogueOntologies",
+      columnId: "sampleCategories",
+      filterTable: "collectionEvents",
+    },
     conditions: [],
   },
   {
-    title: "Cohort Types",
-    refTableId: "ResourceTypes",
-    columnId: "type",
-    columnType: "ONTOLOGY",
+    id: "cohortTypes",
+    config: {
+      label: "Cohort types",
+      type: "ONTOLOGY",
+      ontologyTableId: "ResourceTypes",
+      ontologySchema: "CatalogueOntologies",
+      columnId: "type",
+    },
     conditions: [],
   },
   {
-    title: "Design",
-    refTableId: "CohortDesigns",
-    columnId: "design",
-    columnType: "ONTOLOGY",
+    id: "cohortDesigns",
+    config: {
+      label: "Design",
+      type: "ONTOLOGY",
+      ontologyTableId: "CohortDesigns",
+      ontologySchema: "CatalogueOntologies",
+      columnId: "design",
+    },
     conditions: [],
   },
-]);
+];
 
-let search = computed(() => {
-  // @ts-ignore
-  return filters.find((f) => f.columnType === "_SEARCH").search;
+const filters = computed(() => {
+  // if there are not query conditions just use the page defaults
+  if (!route.query?.conditions) {
+    return [...pageFilterTemplate];
+  }
+
+  // get conditions from query
+  const conditions = conditionsFromPathQuery(route.query.conditions as string);
+  // merge with page defaults
+  const filters = mergeWithPageDefaults(pageFilterTemplate, conditions);
+
+  return filters;
 });
 
 const query = computed(() => {
@@ -111,8 +147,12 @@ const query = computed(() => {
 
 const orderby = { acronym: "ASC" };
 
-const filter = computed(() => {
-  let result = buildQueryFilter(filters, search.value);
+const gqlFilter = computed(() => {
+  let result: any = {};
+
+  result = buildQueryFilter(filters.value);
+
+  // add hard coded page sepsific filters
   if ("all" !== route.params.catalogue) {
     result["networks"] = { id: { equals: route.params.catalogue } };
   }
@@ -125,7 +165,7 @@ const { data } = await useFetch<any, IMgError>(
     method: "POST",
     body: {
       query: query,
-      variables: { filter, orderby },
+      variables: { filter: gqlFilter, orderby },
     },
     onResponseError(_ctx) {
       logError({
@@ -141,22 +181,36 @@ const cohorts = computed(() => data.value.data.Cohorts || []);
 const numberOfCohorts = computed(() => data.value.data.Cohorts_agg.count || 0);
 
 function setCurrentPage(pageNumber: number) {
-  router.push({ path: route.path, query: { page: pageNumber } });
-  currentPage.value = pageNumber;
+  router.push({
+    path: route.path,
+    query: { ...route.query, page: pageNumber },
+  });
 }
 
-watch(filters, () => {
-  setCurrentPage(1);
-});
+function onFilterChange(filters: IFilter[]) {
+  const conditions = toPathQueryConditions(filters) || undefined; // undefined is used to remove the query param from the URL;
 
-let activeName = ref("detailed");
+  router.push({
+    path: route.path,
+    query: { ...route.query, page: 1, conditions: conditions },
+  });
+}
 
-const underConstructionNotice = ref();
+const activeTabName = ref((route.query.view as string) || "detailed");
+
+function onActiveTabChange(tabName: activeTabType) {
+  activeTabName.value = tabName;
+  router.push({
+    path: route.path,
+    query: { ...route.query, view: tabName },
+  });
+}
 
 const cohortOnly = computed(() => {
   const routeSetting = route.query["cohort-only"] as string;
   return routeSetting === "true" || config.public.cohortOnly;
 });
+
 const crumbs: any = {};
 crumbs[
   cohortOnly.value ? "home" : (route.params.catalogue as string)
@@ -166,7 +220,11 @@ crumbs[
 <template>
   <LayoutsSearchPage>
     <template #side>
-      <FilterSidebar title="Filters" :filters="filters" />
+      <FilterSidebar
+        title="Filters"
+        :filters="filters"
+        @update:filters="onFilterChange"
+      />
     </template>
     <template #main>
       <SearchResults>
@@ -189,12 +247,14 @@ crumbs[
                 buttonRightLabel="Compact"
                 buttonRightName="compact"
                 buttonRightIcon="view-compact"
-                v-model:activeName="activeName"
+                :activeName="activeTabName"
+                @update:activeName="onActiveTabChange"
               />
               <SearchResultsViewTabsMobile class="flex xl:hidden">
                 <FilterSidebar
                   title="Filters"
                   :filters="filters"
+                  @update:filters="onFilterChange"
                   :mobileDisplay="true"
                 />
               </SearchResultsViewTabsMobile>
@@ -204,15 +264,18 @@ crumbs[
 
         <template #search-results>
           <SearchResultsCount label="cohort" :value="numberOfCohorts" />
-          <FilterWell :filters="filters"></FilterWell>
+          <FilterWell
+            :filters="filters"
+            @update:filters="onFilterChange"
+          ></FilterWell>
           <SearchResultsList>
             <CardList v-if="cohorts.length > 0">
               <CardListItem v-for="cohort in cohorts" :key="cohort.name">
                 <CohortCard
                   :cohort="cohort"
-                  :schema="route.params.schema"
-                  :catalogue="route.params.catalogue"
-                  :compact="activeName !== 'detailed'"
+                  :schema="route.params.schema as string"
+                  :catalogue="route.params.catalogue as string"
+                  :compact="activeTabName !== 'detailed'"
                 />
               </CardListItem>
             </CardList>
@@ -227,7 +290,7 @@ crumbs[
         <template v-if="cohorts.length > 0" #pagination>
           <Pagination
             :current-page="currentPage"
-            :totalPages="Math.ceil(data?.data?.Cohorts_agg.count / pageSize)"
+            :totalPages="Math.ceil(numberOfCohorts / pageSize)"
             @update="setCurrentPage($event)"
           />
         </template>

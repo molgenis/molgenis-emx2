@@ -4,7 +4,6 @@ import mappingsFragment from "~~/gql/fragments/mappings";
 
 const route = useRoute();
 const router = useRouter();
-const config = useRuntimeConfig();
 const pageSize = 30;
 
 const titlePrefix =
@@ -22,7 +21,7 @@ const activeName = ref((route.query.view as view | undefined) || "list");
 watch([currentPage, activeName], () => {
   router.push({
     path: route.path,
-    query: { page: currentPage.value, view: activeName.value },
+    query: { ...route.query, page: currentPage.value, view: activeName.value },
   });
 });
 
@@ -47,22 +46,43 @@ let pageIcon = computed(() => {
 
 let offset = computed(() => (currentPage.value - 1) * pageSize);
 
-let filters: IFilter[] = reactive([
+const pageFilterTemplate: IFilter[] = [
   {
-    title: "Search in variables",
-    columnType: "_SEARCH",
+    id: "search",
+    config: {
+      label: "Search in variables",
+      type: "SEARCH",
+      initialCollapsed: false,
+    },
     search: "",
-    initialCollapsed: false,
   },
   {
-    title: "Topics",
-    refTableId: "Keywords",
-    columnId: "keywords",
-    columnType: "ONTOLOGY",
+    id: "topics",
+    config: {
+      label: "Topics",
+      type: "ONTOLOGY",
+      ontologyTableId: "Keywords",
+      ontologySchema: "CatalogueOntologies",
+      columnId: "keywords",
+      initialCollapsed: false,
+    },
     conditions: [],
-    initialCollapsed: false,
   },
-]);
+];
+
+const filters = computed(() => {
+  // if there are not query conditions just use the page defaults
+  if (!route.query?.conditions) {
+    return [...pageFilterTemplate];
+  }
+
+  // get conditions from query
+  const conditions = conditionsFromPathQuery(route.query.conditions as string);
+  // merge with page defaults
+  const filters = mergeWithPageDefaults(pageFilterTemplate, conditions);
+
+  return filters;
+});
 
 const query = computed(() => {
   return `
@@ -113,35 +133,25 @@ const numberOfCohorts = computed(() => {
   return data?.value.data?.Cohorts ? data?.value.data?.Cohorts.length : 0;
 });
 
-let search = computed(() => {
-  // @ts-ignore
-  return filters.find((f) => f.columnType === "_SEARCH").search;
-});
-
-let graphqlURL = computed(() => `/${route.params.schema}/graphql`);
+const graphqlURL = computed(() => `/${route.params.schema}/graphql`);
 
 const orderby = { label: "ASC" };
 const typeFilter = { resource: { mg_tableclass: { like: ["Models"] } } };
 
 const filter = computed(() => {
   return {
-    ...buildQueryFilter(filters, search.value),
+    ...buildQueryFilter(filters.value),
     ...typeFilter,
   };
 });
 
-async function loadPageData() {
-  const { data, error } = await useAsyncData<any, IMgError>(
-    `variables-page-${catalogueRouteParam}`,
-    async () => {
-      let resourceCondition = {};
-      if (scoped) {
-        const { data, error } = await $fetch(
-          `/${route.params.schema}/graphql`,
-          {
-            method: "POST",
-            body: {
-              query: `
+const fetchData = async () => {
+  let resourceCondition = {};
+  if (scoped) {
+    const { data, error } = await $fetch(`/${route.params.schema}/graphql`, {
+      method: "POST",
+      body: {
+        query: `
             query Networks($filter:NetworksFilter) {
               Networks(filter:$filter){
                  models {
@@ -149,80 +159,77 @@ async function loadPageData() {
                  }
               }
             }`,
-              variables: { filter: { id: { equals: catalogueRouteParam } } },
-            },
-          }
-        );
+        variables: { filter: { id: { equals: catalogueRouteParam } } },
+      },
+    });
 
-        if (error) {
-          console.log("models error: ", error);
-          return { error };
-        }
-
-        const modelIds = data.Networks[0].models.map(
-          (m: { id: string }) => m.id
-        );
-
-        resourceCondition = {
-          resource: {
-            id: {
-              equals: modelIds,
-            },
-          },
-        };
-      }
-
-      const variables = {
-        orderby,
-        variablesFilter: scoped
-          ? { ...filter.value, ...resourceCondition }
-          : filter.value,
-        cohortsFilter: scoped
-          ? { networks: { equals: [{ id: catalogueRouteParam }] } }
-          : {},
-      };
-
-      return $fetch(graphqlURL.value, {
-        key: `variables-${offset.value}`,
-        method: "POST",
-        body: {
-          query: query.value,
-          variables,
-        },
-      });
+    if (error) {
+      console.log("models error: ", error);
+      return { error };
     }
-  );
 
-  if (error.value) {
-    const contextMsg = "Error on fetching variable data";
-    logError(error.value, contextMsg);
-    throw new Error(contextMsg);
+    const modelIds = data.Networks[0].models.map((m: { id: string }) => m.id);
+
+    resourceCondition = {
+      resource: {
+        id: {
+          equals: modelIds,
+        },
+      },
+    };
   }
 
-  return data;
+  const variables = {
+    orderby,
+    variablesFilter: scoped
+      ? { ...filter.value, ...resourceCondition }
+      : filter.value,
+    cohortsFilter: scoped
+      ? { networks: { equals: [{ id: catalogueRouteParam }] } }
+      : {},
+  };
+
+  return $fetch(graphqlURL.value, {
+    key: `variables-${offset.value}`,
+    method: "POST",
+    body: {
+      query: query.value,
+      variables,
+    },
+  });
+};
+
+// We need to use the useAsyncData hook to fetch the data because sadly multiple backendend calls need to be synchronized to create the final query
+// todo: update datamodel to allow for single fetch from single indexed table
+const { data, error } = await useAsyncData<any, IMgError>(
+  `variables-page-${catalogueRouteParam}-${route.query}`,
+  fetchData,
+  { watch: [filters, offset] }
+);
+
+function onFilterChange(filters: IFilter[]) {
+  const conditions = toPathQueryConditions(filters) || undefined; // undefined is used to remove the query param from the URL;
+
+  router.push({
+    path: route.path,
+    query: { ...route.query, page: 1, conditions: conditions },
+  });
 }
-
-watch(filters, () => {
-  setCurrentPage(1);
-  loadPageData();
-});
-
-watch(offset, () => {
-  loadPageData();
-});
 
 let crumbs: any = {};
 crumbs[
   `${route.params.catalogue}`
 ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}`;
-
-const data = await loadPageData();
 </script>
 
 <template>
   <LayoutsSearchPage>
     <template #side>
-      <FilterSidebar title="Filters" :filters="filters" />
+      <FilterSidebar
+        title="Filters"
+        :filters="filters"
+        @update:filters="onFilterChange"
+      />
     </template>
     <template #main>
       <SearchResults>
@@ -254,6 +261,7 @@ const data = await loadPageData();
                 <FilterSidebar
                   title="Filters"
                   :filters="filters"
+                  @update:filters="onFilterChange"
                   :mobileDisplay="true"
                 />
               </SearchResultsViewTabsMobile>
@@ -271,7 +279,10 @@ const data = await loadPageData();
               label="cohort"
             />
           </div>
-          <FilterWell :filters="filters"></FilterWell>
+          <FilterWell
+            :filters="filters"
+            @update:filters="onFilterChange"
+          ></FilterWell>
 
           <SearchResultsList>
             <div
@@ -289,8 +300,8 @@ const data = await loadPageData();
               >
                 <VariableCard
                   :variable="variable"
-                  :schema="route.params.schema"
-                  :catalogue="route.params.catalogue"
+                  :schema="route.params.schema as string"
+                  :catalogue="route.params.catalogue as string"
                 />
               </CardListItem>
             </CardList>
