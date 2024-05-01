@@ -1,42 +1,27 @@
-<!-- eslint-disable vue/multi-word-component-names -->
-<script setup>
-import BaseIcon from "./BaseIcon.vue";
-import { computed } from "vue";
+<script setup lang="ts">
+import type {
+  ButtonIconPosition,
+  ButtonSize,
+  ButtonType,
+} from "~/interfaces/types";
 
-const props = defineProps({
-  type: {
-    type: String,
-    default: "primary",
-    enum: [
-      "primary",
-      "secondary",
-      "tertiary",
-      "outline",
-      "disabled",
-      "filterWell",
-    ],
-  },
-  size: {
-    type: String,
-    default: "medium",
-    enum: ["small", "medium", "large"],
-  },
-  label: {
-    type: String,
-    default: "",
-  },
-  icon: {
-    type: String,
-  },
-  iconPosition: {
-    type: String,
-    default: "left",
-    enum: ["left", "right"],
-  },
-  disabled: {
-    type: Boolean,
-  },
-});
+const props = withDefaults(
+  defineProps<{
+    type?: ButtonType;
+    size?: ButtonSize;
+    label?: string;
+    icon?: string;
+    iconPosition?: ButtonIconPosition;
+    disabled?: boolean;
+  }>(),
+  {
+    type: "primary",
+    size: "medium",
+    label: "",
+    iconPosition: "left",
+    disabled: false,
+  }
+);
 
 const COLOR_MAPPING = {
   primary:

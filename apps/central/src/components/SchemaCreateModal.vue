@@ -136,6 +136,7 @@ export default {
         "BEACON_V2",
         "ERN_DASHBOARD",
         "BIOBANK_DIRECTORY",
+        "BIOBANK_DIRECTORY_STAGING",
         "SHARED_STAGING",
         "PROJECTMANAGER",
       ],
