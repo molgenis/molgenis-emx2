@@ -37,7 +37,7 @@ watch(
       newQuery &&
       Object.keys(newQuery).length === 0
     ) {
-      filtersStore.clearAllFilters();
+      //filtersStore.clearAllFilters();
       applyBookmark(newQuery);
     }
 
