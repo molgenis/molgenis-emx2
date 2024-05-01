@@ -10,7 +10,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -35,7 +37,7 @@ public class Beaconv2_ModelEndpointsTest {
   @BeforeAll
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
-    // beaconSchema = database.getSchema("fairdatahub");
+    //    beaconSchema = database.getSchema("fairdatahub");
     beaconSchema = database.dropCreateSchema("fairdatahub");
     ProfileLoader b2l = new ProfileLoader("_profiles/FAIRDataHub.yaml");
     b2l.load(beaconSchema, true);
@@ -101,7 +103,7 @@ public class Beaconv2_ModelEndpointsTest {
     JsonNode result = QueryEntryType.query(database, requestBody);
     String json = JsonUtil.getWriter().writeValueAsString(result);
 
-    // assertTrue(json.contains("\"response\" : {\n" + "    \"resultSets\" : [ ]"));
+    assertTrue(json.contains("\"response\" : {\n" + "    \"resultSets\" : [ ]"));
     assertFalse(json.contains("\"variantInternalId\" : \"20:2447955..2447958c>g\","));
     assertFalse(json.contains("\"resultsCount\" : 1,"));
   }
@@ -204,11 +206,11 @@ public class Beaconv2_ModelEndpointsTest {
     JsonNode biosamples = QueryEntryType.query(database, requestBody);
     String json = JsonUtil.getWriter().writeValueAsString(biosamples);
 
-    //    assertTrue(json.contains("\"resultsCount\" : 3,"));
-    //    assertTrue(json.contains("obtentionProcedure"));
-    //    assertTrue(json.contains("procedureCode"));
-    //    assertTrue(json.contains("\"id\" : \"OBI:0002654\""));
-    //    assertTrue(json.contains("\"label\" : \"needle biopsy\""));
+    assertTrue(json.contains("\"resultsCount\" : 3,"));
+    assertTrue(json.contains("obtentionProcedure"));
+    assertTrue(json.contains("procedureCode"));
+    assertTrue(json.contains("\"id\" : \"OBI:0002654\""));
+    assertTrue(json.contains("\"label\" : \"needle biopsy\""));
   }
 
   @Test
@@ -264,19 +266,19 @@ public class Beaconv2_ModelEndpointsTest {
     assertTrue(json.contains("\"collections\" : [ ]"));
   }
 
-  private String doIndividualsPostRequest(String body) throws JsonProcessingException {
+  private JsonNode doIndividualsPostRequest(String body) throws JsonProcessingException {
     Request request = mockEntryTypeRequest(EntryType.INDIVIDUALS.getId(), new HashMap<>());
     ObjectMapper mapper = new ObjectMapper();
     BeaconRequestBody beaconRequest = mapper.readValue(body, BeaconRequestBody.class);
     beaconRequest.addUrlParameters(request);
 
     JsonNode individuals = QueryEntryType.query(database, beaconRequest);
-    return JsonUtil.getWriter().writeValueAsString(individuals);
+    return individuals;
   }
 
   @Test
   public void test_EJP_RD_VP_API_FilterOnGenderAtBirth_OneHit() throws Exception {
-    String json =
+    JsonNode json =
         doIndividualsPostRequest(
             """
                           {
@@ -291,13 +293,14 @@ public class Beaconv2_ModelEndpointsTest {
                             }
                           }""");
 
-    assertTrue(json.contains("\"exists\" : true"));
-    assertTrue(json.contains("\"numTotalResults\" : 1"));
+    String jsonString = JsonUtil.getWriter().writeValueAsString(json);
+    assertTrue(jsonString.contains("\"exists\" : true"));
+    assertTrue(jsonString.contains("\"numTotalResults\" : 1"));
   }
 
   @Test
   public void test_EJP_RD_VP_API_FilterOnGenderAtBirth_NoHits() throws Exception {
-    String json =
+    JsonNode json =
         doIndividualsPostRequest(
             """
                           {
@@ -317,13 +320,14 @@ public class Beaconv2_ModelEndpointsTest {
                             }
                           }""");
 
-    assertTrue(json.contains("\"exists\" : false"));
-    assertTrue(json.contains("\"numTotalResults\" : 0"));
+    String jsonString = JsonUtil.getWriter().writeValueAsString(json);
+    assertTrue(jsonString.contains("\"exists\" : false"));
+    assertTrue(jsonString.contains("\"numTotalResults\" : 0"));
   }
 
   @Test
   public void test_EJP_RD_VP_API_FilterOnGenderAtBirth_ignoreFilter() throws Exception {
-    String json =
+    JsonNode json =
         doIndividualsPostRequest(
             """
                           {
@@ -337,13 +341,14 @@ public class Beaconv2_ModelEndpointsTest {
                           	]
                             }
                           }""");
-    assertTrue(json.contains("\"exists\" : true"));
-    assertTrue(json.contains("\"numTotalResults\" : 5"));
+    String jsonString = JsonUtil.getWriter().writeValueAsString(json);
+    assertTrue(jsonString.contains("\"exists\" : true"));
+    assertTrue(jsonString.contains("\"numTotalResults\" : 5"));
   }
 
   @Test
   public void test_EJP_RD_VP_API_FilterOnDisease_OneHit() throws Exception {
-    String json =
+    JsonNode json =
         doIndividualsPostRequest(
             """
                           {
@@ -357,13 +362,15 @@ public class Beaconv2_ModelEndpointsTest {
                           	]
                             }
                           }""");
-    assertTrue(json.contains("\"exists\" : true"));
-    assertTrue(json.contains("\"numTotalResults\" : 1"));
+    String jsonString = JsonUtil.getWriter().writeValueAsString(json);
+    assertTrue(jsonString.contains("\"exists\" : true"));
+    assertTrue(jsonString.contains("\"numTotalResults\" : 1"));
   }
 
   @Test
+  @Disabled
   public void test_EJP_RD_VP_API_FilterOnDisease_OntologyFilterSyntax_OneHit() throws Exception {
-    String json =
+    JsonNode json =
         doIndividualsPostRequest(
             """
                           {
@@ -375,13 +382,14 @@ public class Beaconv2_ModelEndpointsTest {
                           	]
                             }
                           }""");
-    //     assertTrue(json.contains("\"exists\" : true"));
-    //     assertTrue(json.contains("\"numTotalResults\" : 1"));
+    String jsonString = JsonUtil.getWriter().writeValueAsString(json);
+    assertTrue(jsonString.contains("\"exists\" : true"));
+    assertTrue(jsonString.contains("\"numTotalResults\" : 1"));
   }
 
   @Test
   public void test_EJP_RD_VP_API_FilterOnDisease_AlsoOneHit() throws Exception {
-    String json =
+    JsonNode json =
         doIndividualsPostRequest(
             """
                           {
@@ -400,13 +408,14 @@ public class Beaconv2_ModelEndpointsTest {
                           	]
                             }
                           }""");
-    assertTrue(json.contains("\"exists\" : true"));
-    assertTrue(json.contains("\"numTotalResults\" : 1"));
+    String jsonString = JsonUtil.getWriter().writeValueAsString(json);
+    assertTrue(jsonString.contains("\"exists\" : true"));
+    assertTrue(jsonString.contains("\"numTotalResults\" : 1"));
   }
 
   @Test
   public void test_EJP_RD_VP_API_FilterOnDisease_TwoHits() throws Exception {
-    String json =
+    JsonNode json =
         doIndividualsPostRequest(
             """
                           {
@@ -420,13 +429,14 @@ public class Beaconv2_ModelEndpointsTest {
                           	]
                             }
                           }""");
-    assertTrue(json.contains("\"exists\" : true"));
-    assertTrue(json.contains("\"numTotalResults\" : 2"));
+    String jsonString = JsonUtil.getWriter().writeValueAsString(json);
+    assertTrue(jsonString.contains("\"exists\" : true"));
+    assertTrue(jsonString.contains("\"numTotalResults\" : 2"));
   }
 
   @Test
   public void test_EJP_RD_VP_API_FilterOnDisease_NoHit() throws Exception {
-    String json =
+    JsonNode json =
         doIndividualsPostRequest(
             """
                           {
@@ -440,13 +450,14 @@ public class Beaconv2_ModelEndpointsTest {
                           	]
                             }
                           }""");
-    assertTrue(json.contains("\"exists\" : false"));
-    assertTrue(json.contains("\"numTotalResults\" : 0"));
+    String jsonString = JsonUtil.getWriter().writeValueAsString(json);
+    assertTrue(jsonString.contains("\"exists\" : false"));
+    assertTrue(jsonString.contains("\"numTotalResults\" : 0"));
   }
 
   @Test
   public void test_EJP_RD_VP_API_FilterOnAge_OneHit() throws Exception {
-    String json =
+    JsonNode json =
         doIndividualsPostRequest(
             """
                           {
@@ -460,13 +471,14 @@ public class Beaconv2_ModelEndpointsTest {
                           	]
                             }
                           }""");
-    assertTrue(json.contains("\"exists\" : true"));
-    assertTrue(json.contains("\"numTotalResults\" : 1"));
+    String jsonString = JsonUtil.getWriter().writeValueAsString(json);
+    assertTrue(jsonString.contains("\"exists\" : true"));
+    assertTrue(jsonString.contains("\"numTotalResults\" : 1"));
   }
 
   @Test
   public void test_EJP_RD_VP_API_FilterOnAge_NoHit() throws Exception {
-    String json =
+    JsonNode json =
         doIndividualsPostRequest(
             """
                           {
@@ -480,13 +492,14 @@ public class Beaconv2_ModelEndpointsTest {
                           	]
                             }
                           }""");
-    assertTrue(json.contains("\"exists\" : false"));
-    assertTrue(json.contains("\"numTotalResults\" : 0"));
+    String jsonString = JsonUtil.getWriter().writeValueAsString(json);
+    assertTrue(jsonString.contains("\"exists\" : false"));
+    assertTrue(jsonString.contains("\"numTotalResults\" : 0"));
   }
 
   @Test
   public void test_EJP_RD_VP_API_FilterOnAgeGreaterThan_OneHit() throws Exception {
-    String json =
+    JsonNode json =
         doIndividualsPostRequest(
             """
                           {
@@ -500,13 +513,14 @@ public class Beaconv2_ModelEndpointsTest {
                           	]
                             }
                           }""");
-    assertTrue(json.contains("\"exists\" : true"));
-    assertTrue(json.contains("\"numTotalResults\" : 1"));
+    String jsonString = JsonUtil.getWriter().writeValueAsString(json);
+    assertTrue(jsonString.contains("\"exists\" : true"));
+    assertTrue(jsonString.contains("\"numTotalResults\" : 1"));
   }
 
   @Test
   public void test_EJP_RD_VP_API_FilterOnAgeLessThan_ThreeHits() throws Exception {
-    String json =
+    JsonNode json =
         doIndividualsPostRequest(
             """
                           {
@@ -520,14 +534,14 @@ public class Beaconv2_ModelEndpointsTest {
                           	]
                             }
                           }""");
-
-    assertTrue(json.contains("\"exists\" : true"));
-    assertTrue(json.contains("\"numTotalResults\" : 3"));
+    String jsonString = JsonUtil.getWriter().writeValueAsString(json);
+    assertTrue(jsonString.contains("\"exists\" : true"));
+    assertTrue(jsonString.contains("\"numTotalResults\" : 3"));
   }
 
   @Test
   public void test_EJP_RD_VP_API_FilterOnAgeLessThan_TwoHits() throws Exception {
-    String json =
+    JsonNode json =
         doIndividualsPostRequest(
             """
                           {
@@ -541,13 +555,14 @@ public class Beaconv2_ModelEndpointsTest {
                           	]
                             }
                           }""");
-    assertTrue(json.contains("\"exists\" : true"));
-    assertTrue(json.contains("\"numTotalResults\" : 2"));
+    String jsonString = JsonUtil.getWriter().writeValueAsString(json);
+    assertTrue(jsonString.contains("\"exists\" : true"));
+    assertTrue(jsonString.contains("\"numTotalResults\" : 2"));
   }
 
   @Test
   public void test_EJP_RD_VP_API_FilterOnAgeLessThanOrEquals_OneHit() throws Exception {
-    String json =
+    JsonNode json =
         doIndividualsPostRequest(
             """
                           {
@@ -561,13 +576,14 @@ public class Beaconv2_ModelEndpointsTest {
                           	]
                             }
                           }""");
-    assertTrue(json.contains("\"exists\" : true"));
-    assertTrue(json.contains("\"numTotalResults\" : 1"));
+    String jsonString = JsonUtil.getWriter().writeValueAsString(json);
+    assertTrue(jsonString.contains("\"exists\" : true"));
+    assertTrue(jsonString.contains("\"numTotalResults\" : 1"));
   }
 
   @Test
   public void test_EJP_RD_VP_API_FilterOnAgeLessThan_NoHits() throws Exception {
-    String json =
+    JsonNode json =
         doIndividualsPostRequest(
             """
                           {
@@ -581,13 +597,14 @@ public class Beaconv2_ModelEndpointsTest {
                           	]
                             }
                           }""");
-    assertTrue(json.contains("\"exists\" : false"));
-    assertTrue(json.contains("\"numTotalResults\" : 0"));
+    String jsonString = JsonUtil.getWriter().writeValueAsString(json);
+    assertTrue(jsonString.contains("\"exists\" : false"));
+    assertTrue(jsonString.contains("\"numTotalResults\" : 0"));
   }
 
   @Test
   public void test_EJP_RD_VP_API_FilterOnAgeOfOnset_OneHit() throws Exception {
-    String json =
+    JsonNode json =
         doIndividualsPostRequest(
             """
                           {
@@ -601,13 +618,14 @@ public class Beaconv2_ModelEndpointsTest {
                           	]
                             }
                           }""");
-    assertTrue(json.contains("\"exists\" : true"));
+    String jsonString = JsonUtil.getWriter().writeValueAsString(json);
+    assertTrue(jsonString.contains("\"exists\" : true"));
     //    assertTrue(json.contains("\"numTotalResults\" : 1"));
   }
 
   @Test
   public void test_EJP_RD_VP_API_FilterOnAgeOfOnset_NoHit() throws Exception {
-    String json =
+    JsonNode json =
         doIndividualsPostRequest(
             """
                           {
@@ -621,13 +639,14 @@ public class Beaconv2_ModelEndpointsTest {
                           	]
                             }
                           }""");
-    assertTrue(json.contains("\"exists\" : false"));
-    assertTrue(json.contains("\"numTotalResults\" : 0"));
+    String jsonString = JsonUtil.getWriter().writeValueAsString(json);
+    assertTrue(jsonString.contains("\"exists\" : false"));
+    assertTrue(jsonString.contains("\"numTotalResults\" : 0"));
   }
 
   @Test
   public void test_EJP_RD_VP_API_FilterOnAgeOfOnsetGreaterThan_TwoHits() throws Exception {
-    String json =
+    JsonNode json =
         doIndividualsPostRequest(
             """
                           {
@@ -641,13 +660,14 @@ public class Beaconv2_ModelEndpointsTest {
                           	]
                             }
                           }""");
-    assertTrue(json.contains("\"exists\" : true"));
-    assertTrue(json.contains("\"numTotalResults\" : 2"));
+    String jsonString = JsonUtil.getWriter().writeValueAsString(json);
+    assertTrue(jsonString.contains("\"exists\" : true"));
+    assertTrue(jsonString.contains("\"numTotalResults\" : 2"));
   }
 
   @Test
   public void test_EJP_RD_VP_API_FilterOnAgeOfOnsetGreaterThan_NoHits() throws Exception {
-    String json =
+    JsonNode json =
         doIndividualsPostRequest(
             """
                           {
@@ -661,13 +681,14 @@ public class Beaconv2_ModelEndpointsTest {
                           	]
                             }
                           }""");
-    assertTrue(json.contains("\"exists\" : false"));
-    assertTrue(json.contains("\"numTotalResults\" : 0"));
+    String jsonString = JsonUtil.getWriter().writeValueAsString(json);
+    assertTrue(jsonString.contains("\"exists\" : false"));
+    assertTrue(jsonString.contains("\"numTotalResults\" : 0"));
   }
 
   @Test
   public void test_EJP_RD_VP_API_FilterOnAgeOfOnsetGreaterThanOrEquals_OneHit() throws Exception {
-    String json =
+    JsonNode json =
         doIndividualsPostRequest(
             """
                           {
@@ -681,13 +702,14 @@ public class Beaconv2_ModelEndpointsTest {
                           	]
                             }
                           }""");
-    assertTrue(json.contains("\"exists\" : true"));
-    assertTrue(json.contains("\"numTotalResults\" : 1"));
+    String jsonString = JsonUtil.getWriter().writeValueAsString(json);
+    assertTrue(jsonString.contains("\"exists\" : true"));
+    assertTrue(jsonString.contains("\"numTotalResults\" : 1"));
   }
 
   @Test
   public void test_EJP_RD_VP_API_FilterOnAgeAtDiagnosis_OneHit() throws Exception {
-    String json =
+    JsonNode json =
         doIndividualsPostRequest(
             """
                           {
@@ -701,13 +723,14 @@ public class Beaconv2_ModelEndpointsTest {
                           	]
                             }
                           }""");
-    assertTrue(json.contains("\"exists\" : true"));
-    assertTrue(json.contains("\"numTotalResults\" : 1"));
+    String jsonString = JsonUtil.getWriter().writeValueAsString(json);
+    assertTrue(jsonString.contains("\"exists\" : true"));
+    assertTrue(jsonString.contains("\"numTotalResults\" : 1"));
   }
 
   @Test
   public void test_EJP_RD_VP_API_FilterOnAgeAtDiagnosisLessThan_OneHit() throws Exception {
-    String json =
+    JsonNode json =
         doIndividualsPostRequest(
             """
                           {
@@ -721,13 +744,14 @@ public class Beaconv2_ModelEndpointsTest {
                           	]
                             }
                           }""");
-    assertTrue(json.contains("\"exists\" : true"));
-    assertTrue(json.contains("\"numTotalResults\" : 1"));
+    String jsonString = JsonUtil.getWriter().writeValueAsString(json);
+    assertTrue(jsonString.contains("\"exists\" : true"));
+    assertTrue(jsonString.contains("\"numTotalResults\" : 1"));
   }
 
   @Test
   public void test_EJP_RD_VP_API_FilterOnAgeAtDiagnosisUnsupportedFilter() throws Exception {
-    String json =
+    JsonNode json =
         doIndividualsPostRequest(
             """
                           {
@@ -741,13 +765,14 @@ public class Beaconv2_ModelEndpointsTest {
                           	]
                             }
                           }""");
-    assertTrue(json.contains("\"unsupportedFilters\" : \"[NCIT_C15642]\""));
-    assertTrue(json.contains("\"numTotalResults\" : 5"));
+    String jsonString = JsonUtil.getWriter().writeValueAsString(json);
+    assertTrue(jsonString.contains("\"unsupportedFilters\" : \"[NCIT_C15642]\""));
+    assertTrue(jsonString.contains("\"numTotalResults\" : 5"));
   }
 
   @Test
   public void test_EJP_RD_VP_API_FilterOnCausalGenes_OneHit() throws Exception {
-    String json =
+    JsonNode json =
         doIndividualsPostRequest(
             """
                           {
@@ -761,13 +786,14 @@ public class Beaconv2_ModelEndpointsTest {
                           	]
                             }
                           }""");
-    assertTrue(json.contains("\"exists\" : true"));
-    assertTrue(json.contains("\"numTotalResults\" : 1"));
+    String jsonString = JsonUtil.getWriter().writeValueAsString(json);
+    assertTrue(jsonString.contains("\"exists\" : true"));
+    assertTrue(jsonString.contains("\"numTotalResults\" : 1"));
   }
 
   @Test
   public void test_EJP_RD_VP_API_FilterOnCausalGenes_asArray_OneHit() throws Exception {
-    String json =
+    JsonNode json =
         doIndividualsPostRequest(
             """
                           {
@@ -781,13 +807,14 @@ public class Beaconv2_ModelEndpointsTest {
                           	]
                             }
                           }""");
-    assertTrue(json.contains("\"exists\" : true"));
-    assertTrue(json.contains("\"numTotalResults\" : 1"));
+    String jsonString = JsonUtil.getWriter().writeValueAsString(json);
+    assertTrue(jsonString.contains("\"exists\" : true"));
+    assertTrue(jsonString.contains("\"numTotalResults\" : 1"));
   }
 
   @Test
   public void test_EJP_RD_VP_API_FilterOnCausalGenes_TwoHits() throws Exception {
-    String json =
+    JsonNode json =
         doIndividualsPostRequest(
             """
                           {
@@ -801,394 +828,75 @@ public class Beaconv2_ModelEndpointsTest {
                           	]
                             }
                           }""");
-    assertTrue(json.contains("\"exists\" : true"));
-    assertTrue(json.contains("\"numTotalResults\" : 2"));
+    String jsonString = JsonUtil.getWriter().writeValueAsString(json);
+    assertTrue(jsonString.contains("\"exists\" : true"));
+    assertTrue(jsonString.contains("\"numTotalResults\" : 2"));
   }
-  //
-  //  @Test
-  //  public void test_EJP_RD_VP_API_FilterOnCausalGenes_usingAND_OneHit() throws Exception {
-  //    assertNrOfHitsFor(
-  //        """
-  //                        {
-  //                          "query": {
-  //                        	"filters": [
-  //                        	  {
-  //                        		"id": "%s",
-  //                        		"value": "TTN",
-  //                        		"operator": "="
-  //                        	  },
-  //                        	  {
-  //                        		"id": "%s",
-  //                        		"value": "COL7A1",
-  //                        		"operator": "="
-  //                        	  }
-  //                        	]
-  //                          }
-  //                        }"""
-  //            .formatted(EJP_VP_IndividualsQuery.CAUSAL_GENE,
-  // EJP_VP_IndividualsQuery.CAUSAL_GENE),
-  //        1);
-  //  }
-  //
-  //  @Test
-  //  public void test_EJP_RD_VP_API_FilterOnCausalGenes_usingAND_NoHit() throws Exception {
-  //    assertNrOfHitsFor(
-  //        """
-  //                        {
-  //                          "query": {
-  //                        	"filters": [
-  //                        	  {
-  //                        		"id": "%s",
-  //                        		"value": "TTN",
-  //                        		"operator": "="
-  //                        	  },
-  //                        	  {
-  //                        		"id": "%s",
-  //                        		"value": "CHD7",
-  //                        		"operator": "="
-  //                        	  }
-  //                        	]
-  //                          }
-  //                        }"""
-  //            .formatted(EJP_VP_IndividualsQuery.CAUSAL_GENE,
-  // EJP_VP_IndividualsQuery.CAUSAL_GENE),
-  //        0);
-  //  }
-  //
-  //  @Test
-  //  public void test_EJP_RD_VP_API_FilterOnCausalGenes_CombinedArrayAndString_OneHit()
-  //      throws Exception {
-  //    assertNrOfHitsFor(
-  //        """
-  //                        {
-  //                          "query": {
-  //                        	"filters": [
-  //                        	  {
-  //                        		"id": "%s",
-  //                        		"value": ["TTN","CHD7"],
-  //                        		"operator": "="
-  //                        	  },
-  //                        	  {
-  //                        		"id": "%s",
-  //                        		"value": "COL7A1",
-  //                        		"operator": "="
-  //                        	  }
-  //                        	]
-  //                          }
-  //                        }"""
-  //            .formatted(EJP_VP_IndividualsQuery.CAUSAL_GENE,
-  // EJP_VP_IndividualsQuery.CAUSAL_GENE),
-  //        1);
-  //  }
-  //
-  //  @Test
-  //  public void test_EJP_RD_VP_API_FilterOnCausalGenes_usingOR_ThreeHits() throws Exception {
-  //    assertNrOfHitsFor(
-  //        """
-  //                        {
-  //                          "query": {
-  //                        	"filters": [
-  //                        	  {
-  //                        		"id": "%s",
-  //                        		"value": ["CHD7","COL7A1"],
-  //                        		"operator": "="
-  //                        	  }
-  //                        	]
-  //                          }
-  //                        }"""
-  //            .formatted(EJP_VP_IndividualsQuery.CAUSAL_GENE,
-  // EJP_VP_IndividualsQuery.CAUSAL_GENE),
-  //        3);
-  //  }
-  //
-  //  @Test
-  //  public void test_EJP_RD_VP_API_FilterOnCausalGenes_usingOR_TTNinList_TwoHits() throws
-  // Exception {
-  //    assertNrOfHitsFor(
-  //        """
-  //                        {
-  //                          "query": {
-  //                        	"filters": [
-  //                        	  {
-  //                        		"id": "%s",
-  //                        		"value": ["TTN","CHD7"],
-  //                        		"operator": "="
-  //                        	  }
-  //                        	]
-  //                          }
-  //                        }"""
-  //            .formatted(EJP_VP_IndividualsQuery.CAUSAL_GENE,
-  // EJP_VP_IndividualsQuery.CAUSAL_GENE),
-  //        2);
-  //  }
-  //
-  //  @Test
-  //  public void test_EJP_RD_VP_API_FilterOnCausalGenes_usingOR_TTNinList_COL7doublehit_TwoHits()
-  //      throws Exception {
-  //    assertNrOfHitsFor(
-  //        """
-  //                        {
-  //                          "query": {
-  //                        	"filters": [
-  //                        	  {
-  //                        		"id": "%s",
-  //                        		"value": ["TTN","COL7A1"],
-  //                        		"operator": "="
-  //                        	  }
-  //                        	]
-  //                          }
-  //                        }"""
-  //            .formatted(EJP_VP_IndividualsQuery.CAUSAL_GENE,
-  // EJP_VP_IndividualsQuery.CAUSAL_GENE),
-  //        2);
-  //  }
-  //
-  //  @Test
-  //  public void test_EJP_RD_VP_API_FilterOnPhenotype_OneHit() throws Exception {
-  //    assertNrOfHitsFor(
-  //        """
-  //                        {
-  //                          "query": {
-  //                        	"filters": [
-  //                        	  {
-  //                        		"id": "%s",
-  //                        		"value": "HP_0012651",
-  //                        		"operator": "="
-  //                        	  }
-  //                        	]
-  //                          }
-  //                        }"""
-  //            .formatted(EJP_VP_IndividualsQuery.PHENOTYPE),
-  //        1);
-  //  }
-  //
-  //  @Test
-  //  public void test_EJP_RD_VP_API_FilterOnPhenotype_OntologyFilterSyntax() throws Exception {
-  //    assertNrOfHitsFor(
-  //        """
-  //                        {
-  //                          "query": {
-  //                        	"filters": [
-  //                        	  {
-  //                        		"id": "HP_0012651"
-  //                        	  }
-  //                        	]
-  //                          }
-  //                        }"""
-  //            .formatted(EJP_VP_IndividualsQuery.PHENOTYPE),
-  //        1);
-  //  }
-  //
-  //  @Test
-  //  public void test_EJP_RD_VP_API_FilterOnPhenotypeOrDisease_OntologyFilterSyntax()
-  //      throws Exception {
-  //    assertNrOfHitsFor(
-  //        """
-  //                        {
-  //                          "query": {
-  //                        	"filters": [
-  //                        	  {
-  //                        		"id": ["HP_0012651","Orphanet_1895"]
-  //                        	  }
-  //                        	]
-  //                          }
-  //                        }"""
-  //            .formatted(EJP_VP_IndividualsQuery.PHENOTYPE),
-  //        2);
-  //  }
-  //
-  //  @Test
-  //  public void test_EJP_RD_VP_API_FilterOnGenderAndDisease_OneHit() throws Exception {
-  //    assertNrOfHitsFor(
-  //        """
-  //                        {
-  //                          "query": {
-  //                        	"description": "Query to get count of female (NCIT_C16576) individuals
-  // with diagnostic opinion (sio:SIO_001003) Edinburgh malformation syndrome (Orphanet_1895)",
-  //                        	"filters": [
-  //                        	  {
-  //                        		"id": "%s",
-  //                        		"value": "NCIT_C16576",
-  //                        		"operator": "="
-  //                        	  },
-  //                        	  {
-  //                        		"id": "%s",
-  //                        		"value": "Orphanet_1895",
-  //                        		"operator": "="
-  //                        	  }
-  //                        	]
-  //                          }
-  //                        }"""
-  //            .formatted(EJP_VP_IndividualsQuery.SEX, EJP_VP_IndividualsQuery.DISEASE),
-  //        1);
-  //  }
-  //
-  //  @Test
-  //  public void test_EJP_RD_VP_API_FilterOnDiseaseAndGene_OneHit() throws Exception {
-  //    assertNrOfHitsFor(
-  //        """
-  //                        {
-  //                           "query": {
-  //                        	 "filters": [
-  //                        	   {
-  //                        		 "id": "%s",
-  //                        		 "value": "Orphanet_1895",
-  //                        		 "operator": "="
-  //                        	   },
-  //                        	   {
-  //                        		 "id": "%s",
-  //                        		 "value": "COL7A1",
-  //                        		 "operator": "="
-  //                        	   }
-  //                        	 ]
-  //                           }
-  //                         }"""
-  //            .formatted(EJP_VP_IndividualsQuery.DISEASE, EJP_VP_IndividualsQuery.CAUSAL_GENE),
-  //        1);
-  //  }
-  //
-  //  @Test
-  //  public void test_EJP_RD_VP_API_FilterOnAgeLessThanAndGene_OneHit() throws Exception {
-  //    assertNrOfHitsFor(
-  //        """
-  //                        {
-  //                          "query": {
-  //                        	"filters": [
-  //                        	  {
-  //                        		"id": "%s",
-  //                        		"value": 50,
-  //                        		"operator": "<"
-  //                        	  },
-  //                        	  {
-  //                        		"id": "%s",
-  //                        		"value": "TTN",
-  //                        		"operator": "="
-  //                        	  }
-  //                        	]
-  //                          }
-  //                        }"""
-  //            .formatted(EJP_VP_IndividualsQuery.AGE_THIS_YEAR,
-  // EJP_VP_IndividualsQuery.CAUSAL_GENE),
-  //        1);
-  //  }
-  //
-  //  @Test
-  //  public void test_EJP_RD_VP_API_FilterOnDiseaseAndGeneAndGender_OneHit() throws Exception {
-  //    assertNrOfHitsFor(
-  //        """
-  //                        {
-  //                           "query": {
-  //                        	 "filters": [
-  //                        	   {
-  //                        		 "id": "%s",
-  //                        		 "value": "Orphanet_1873",
-  //                        		 "operator": "="
-  //                        	   },
-  //                        	   {
-  //                        		 "id": "%s",
-  //                        		 "value": "CHD7",
-  //                        		 "operator": "="
-  //                        	   },
-  //                        	   {
-  //                        		 "id": "%s",
-  //                        		 "value": "NCIT_C20197",
-  //                        		 "operator": "="
-  //                        	   }
-  //                        	 ]
-  //                           }
-  //                         }"""
-  //            .formatted(
-  //                EJP_VP_IndividualsQuery.DISEASE,
-  //                EJP_VP_IndividualsQuery.CAUSAL_GENE,
-  //                EJP_VP_IndividualsQuery.SEX),
-  //        1);
-  //  }
-  //
-  //  @Test
-  //  public void test_EJP_RD_VP_API_FilterOnDiseaseAndGeneAndGenderWithPrefixes_OneHit()
-  //      throws Exception {
-  //    assertNrOfHitsFor(
-  //        """
-  //                        {
-  //                           "query": {
-  //                        	 "filters": [
-  //                        	   {
-  //                        		 "id": "sio:%s",
-  //                        		 "value": "ordo:Orphanet_1873",
-  //                        		 "operator": "="
-  //                        	   },
-  //                        	   {
-  //                        		 "id": "obo:%s",
-  //                        		 "value": "CHD7",
-  //                        		 "operator": "="
-  //                        	   },
-  //                        	   {
-  //                        		 "id": "obo:%s",
-  //                        		 "value": "obo:NCIT_C20197",
-  //                        		 "operator": "="
-  //                        	   }
-  //                        	 ]
-  //                           }
-  //                         }"""
-  //            .formatted(
-  //                EJP_VP_IndividualsQuery.DISEASE,
-  //                EJP_VP_IndividualsQuery.CAUSAL_GENE,
-  //                EJP_VP_IndividualsQuery.SEX),
-  //        1);
-  //  }
-  //
-  //  @Test
-  //  public void test_EJP_RD_VP_API_FilterOnDiseaseAndGeneAndGenderWithURLs_OneHit() throws
-  // Exception {
-  //    assertNrOfHitsFor(
-  //        """
-  //                        {
-  //                           "query": {
-  //                        	 "filters": [
-  //                        	   {
-  //                        		 "id": "http://semanticscience.org/resource/%s",
-  //                        		 "value": "http://www.orpha.net/ORDO/Orphanet_1873",
-  //                        		 "operator": "="
-  //                        	   },
-  //                        	   {
-  //                        		 "id": "http://purl.obolibrary.org/obo/%s",
-  //                        		 "value": "CHD7",
-  //                        		 "operator": "="
-  //                        	   },
-  //                        	   {
-  //                        		 "id": "http://purl.obolibrary.org/obo/%s",
-  //                        		 "value": "http://purl.obolibrary.org/obo/NCIT_C20197",
-  //                        		 "operator": "="
-  //                        	   }
-  //                        	 ]
-  //                           }
-  //                         }"""
-  //            .formatted(
-  //                EJP_VP_IndividualsQuery.DISEASE,
-  //                EJP_VP_IndividualsQuery.CAUSAL_GENE,
-  //                EJP_VP_IndividualsQuery.SEX),
-  //        1);
-  //  }
-  //
-  //  @Test
-  //  public void test_EJP_RD_VP_API_FilterOnVarCaseLevelClinInt_OneHit() throws Exception {
-  //    // Find individuals, for which there are variants with case-level clinical relevance as
-  //    // 'Benign'. This works via the refback field 'hasGenomicVariations'.
-  //    assertNrOfHitsFor(
-  //        """
-  //                        {
-  //                          "query": {
-  //                        	"filters": [
-  //                        	  {
-  //                        		"id": "HP_0045088",
-  //                        		"value": "NCIT_C168802",
-  //                        		"operator": "="
-  //                        	  }
-  //                        	]
-  //                          }
-  //                        }""",
-  //        1);
-  //  }
-  //
 
+  @Test
+  public void testRequestedGranularity_requestBoolean() throws Exception {
+    JsonNode json =
+        doIndividualsPostRequest(
+            """
+                          {
+                            "query": {
+                              "requestedGranularity": "boolean"
+                            }
+                          }""");
+    assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
+    assertNull(json.get("response").get("resultSets").get(0).get("results"));
+    assertNull(json.get("response").get("resultSets").get(0).get("resultsCount"));
+  }
+
+  @Test
+  public void testRequestedGranularity_requestCount() throws Exception {
+    JsonNode json =
+        doIndividualsPostRequest(
+            """
+                          {
+                            "query": {
+                              "requestedGranularity": "count"
+                            }
+                          }""");
+    assertEquals(5, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
+    assertNull(json.get("response").get("resultSets").get(0).get("results"));
+  }
+
+  @Test
+  public void testPagination_TwoItems_Offset0() throws Exception {
+    JsonNode json =
+        doIndividualsPostRequest(
+            """
+                          {
+                            "query": {
+                              "pagination": {
+                                "limit": 2,
+                                "skip": 0
+                              }
+                            }
+                          }""");
+    JsonNode results = json.get("response").get("resultSets").get(0).get("results");
+    assertEquals(2, results.size());
+    assertEquals("Ind001", results.get(0).get("id").textValue());
+    assertEquals("Ind002", results.get(1).get("id").textValue());
+  }
+
+  @Test
+  public void testPagination_TwoItems_Offset2() throws Exception {
+    JsonNode json =
+        doIndividualsPostRequest(
+            """
+                          {
+                            "query": {
+                              "pagination": {
+                                "limit": 2,
+                                "skip": 2
+                              }
+                            }
+                          }""");
+    JsonNode results = json.get("response").get("resultSets").get(0).get("results");
+    assertEquals(2, results.size());
+    assertEquals("MinIndNoRefs003", results.get(0).get("id").textValue());
+    assertEquals("MinInd004", results.get(1).get("id").textValue());
+  }
 }
