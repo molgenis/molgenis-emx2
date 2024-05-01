@@ -111,10 +111,6 @@ public class Filter {
     this.values = values;
   }
 
-  public FilterType getFilterType() {
-    return filterType;
-  }
-
   public void setFilterType(FilterType filterType) {
     if (this.values != null) {
       for (String value : values) {
@@ -136,10 +132,6 @@ public class Filter {
 
   public void setConcept(Concept concept) {
     this.concept = concept;
-  }
-
-  public void setIds(String[] ids) {
-    this.ids = ids;
   }
 
   public Object getId() {
@@ -202,10 +194,6 @@ public class Filter {
   @JsonIgnore
   public String getGraphQlFilter() {
     StringBuilder filter = new StringBuilder();
-
-    if (filterType == FilterType.ONTOLOGY && includeDescendantTerms) {
-      // todo add logic to get include descending terms
-    }
 
     for (String value : values) {
       if (concept != null) {

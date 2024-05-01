@@ -264,14 +264,73 @@ public class Beaconv2_ModelEndpointsTest {
     assertTrue(json.contains("\"collections\" : [ ]"));
   }
 
+  @Test
+  public void testIndividuals_NoParams() {
+    Request request = mockEntryTypeRequest(EntryType.INDIVIDUALS.getId(), new HashMap<>());
+    BeaconRequestBody requestBody = new BeaconRequestBody();
+    requestBody.addUrlParameters(request);
+
+    JsonNode json = QueryEntryType.query(database, requestBody);
+
+    JsonNode results = json.get("response").get("resultSets").get(0).get("results");
+    assertEquals(5, results.size());
+  }
+
+  @Test
+  public void testIndividuals_pathIdQuery_oneResult() {
+    Request request = mock(Request.class);
+    when(request.url()).thenReturn("http://localhost:8080/api/beacon");
+    Map<String, String> urlParams =
+        Map.of(":entry_type", EntryType.INDIVIDUALS.getId(), ":id", "Ind001");
+
+    when(request.params()).thenReturn(urlParams);
+    when(request.queryMap()).thenReturn(Mockito.mock(QueryParamsMap.class));
+    when(request.queryMap().toMap()).thenReturn(new HashMap<>());
+
+    BeaconRequestBody requestBody = new BeaconRequestBody();
+    requestBody.addUrlParameters(request);
+
+    JsonNode json = QueryEntryType.query(database, requestBody);
+
+    JsonNode results = json.get("response").get("resultSets").get(0).get("results");
+    assertEquals(1, results.size());
+    assertEquals(results.get(0).get("id").textValue(), "Ind001");
+  }
+
+  @Test
+  public void testRunsOfIndividual_pathQuery_twoResults() {
+    Request request = mock(Request.class);
+    when(request.url()).thenReturn("http://localhost:8080/api/beacon");
+    Map<String, String> urlParams =
+        Map.of(
+            ":entry_type_id", EntryType.INDIVIDUALS.getId(),
+            ":entry_type", EntryType.RUNS.getId(),
+            ":id", "Ind001");
+
+    when(request.params()).thenReturn(urlParams);
+    when(request.queryMap()).thenReturn(Mockito.mock(QueryParamsMap.class));
+    when(request.queryMap().toMap()).thenReturn(new HashMap<>());
+
+    BeaconRequestBody requestBody = new BeaconRequestBody();
+    requestBody.addUrlParameters(request);
+
+    JsonNode json = QueryEntryType.query(database, requestBody);
+
+    JsonNode results = json.get("response").get("resultSets").get(0).get("results");
+    assertEquals(2, results.size());
+    assertEquals(results.get(0).get("id").textValue(), "SRR10903404");
+    assertEquals(results.get(0).get("individualId").textValue(), "Ind001");
+    assertEquals(results.get(1).get("id").textValue(), "SRR10903401");
+    assertEquals(results.get(1).get("individualId").textValue(), "Ind001");
+  }
+
   private JsonNode doIndividualsPostRequest(String body) throws JsonProcessingException {
     Request request = mockEntryTypeRequest(EntryType.INDIVIDUALS.getId(), new HashMap<>());
     ObjectMapper mapper = new ObjectMapper();
     BeaconRequestBody beaconRequest = mapper.readValue(body, BeaconRequestBody.class);
     beaconRequest.addUrlParameters(request);
 
-    JsonNode individuals = QueryEntryType.query(database, beaconRequest);
-    return individuals;
+    return QueryEntryType.query(database, beaconRequest);
   }
 
   @Test
