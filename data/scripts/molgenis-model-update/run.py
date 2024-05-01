@@ -1,6 +1,6 @@
 from decouple import config
 from util.client import Session
-from update.update_3_11 import Transform
+from update.update_4_x import Transform
 from util.zip_handling import Zip
 import os
 
@@ -205,18 +205,18 @@ session.upload_zip(database_name=CATALOGUE_SCHEMA_NAME, data_to_upload=CATALOGUE
 # Cohorts upload data
 print('-----------------------')
 
-print('Updating data for cohorts')
-
-for cohort in COHORTS:
-    # sign in to server
-    print('Sign in to server: ' + SERVER_URL)
-    session = Session(
-        url=SERVER_URL,
-        email=SERVER_USERNAME,
-        password=SERVER_PASSWORD
-    )
-    print('Upload transformed data for: ' + cohort)
-    session.upload_zip(database_name=cohort, data_to_upload=cohort)
+if SERVER_TYPE in ['data_catalogue', 'cohort_catalogue']:
+    print('Updating data for cohorts')
+    for cohort in COHORTS:
+        # sign in to server
+        print('Sign in to server: ' + SERVER_URL)
+        session = Session(
+            url=SERVER_URL,
+            email=SERVER_USERNAME,
+            password=SERVER_PASSWORD
+        )
+        print('Upload transformed data for: ' + cohort)
+        session.upload_zip(database_name=cohort, data_to_upload=cohort)
 
 if SERVER_TYPE == 'data_catalogue':
     # Data sources upload data
