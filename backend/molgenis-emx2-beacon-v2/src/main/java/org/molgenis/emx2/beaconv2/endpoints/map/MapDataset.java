@@ -10,11 +10,11 @@ public class MapDataset {
   private String singleEntryUrl;
   private String filteringTermsUrl;
 
-  public MapDataset(String entryType, String serverURL) {
+  public MapDataset(String entryType, String endPointUrl) {
     this.entryType = entryType;
     this.openAPIEndpointsDefinition = "./" + entryType + "/endpoints.json";
-    this.rootUrl = serverURL + "api/beacon/" + entryType;
+    this.rootUrl = endPointUrl;
     this.singleEntryUrl = this.rootUrl + "/{id}";
-    this.filteringTermsUrl = this.singleEntryUrl + "/filtering_terms";
+    this.filteringTermsUrl = this.rootUrl + "/filtering_terms";
   }
 }

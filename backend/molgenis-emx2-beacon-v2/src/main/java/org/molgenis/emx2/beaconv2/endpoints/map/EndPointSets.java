@@ -8,22 +8,23 @@ public class EndPointSets {
 
   @JsonIgnore private String serverURL;
 
-  private MapDataset analyses;
-  private MapDataset biosamples;
-  private MapDataset cohorts;
-  private MapDataset datasets;
-  private MapDataset g_variants;
-  private MapDataset individuals;
-  private MapDataset runs;
+  private MapDataset analysis;
+  private MapDataset biosample;
+  private MapDataset cohort;
+  private MapDataset dataset;
+  private MapDataset genomicVariant;
+  private MapDataset individual;
+  private MapDataset run;
 
   public EndPointSets(String serverURL) {
     this.serverURL = serverURL;
-    this.analyses = new MapDataset("analyses", this.serverURL);
-    this.biosamples = new MapDataset("biosamples", this.serverURL);
-    this.cohorts = new MapDataset("cohorts", this.serverURL);
-    this.datasets = new MapDataset("datasets", this.serverURL);
-    this.g_variants = new MapDataset("g_variants", this.serverURL);
-    this.individuals = new MapDataset("individuals", this.serverURL);
-    this.runs = new MapDataset("runs", this.serverURL);
+    String beaconUrl = this.serverURL + "api/beacon/";
+    this.analysis = new MapDataset("analysis", beaconUrl + "analyses");
+    this.biosample = new MapDataset("biosample", beaconUrl + "biosamples");
+    this.cohort = new MapDataset("cohort", beaconUrl + "cohorts");
+    this.dataset = new MapDataset("dataset", beaconUrl + "datasets");
+    this.genomicVariant = new MapDataset("genomicVariant", beaconUrl + "g_variants");
+    this.individual = new MapDataset("individual", beaconUrl + "individuals");
+    this.run = new MapDataset("run", beaconUrl + "runs");
   }
 }
