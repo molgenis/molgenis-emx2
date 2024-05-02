@@ -1,6 +1,6 @@
 """
 Script to flatten the DataCatalogue model to a flat, 'hierarchy-less' model
-in which all staging area models live in harmony.
+in which all resources live in harmony.
 
 TODO: delete when pull request is ready for merging
 """
@@ -130,10 +130,14 @@ class Flattener(pd.DataFrame):
 
         self._remove_some_columns()
 
-        # Save result to file
-        self.save_df()
+        self._rename_profiles()
 
-        self.save_dev_df()
+        # Save result to file
+        # self.save_df()
+
+        self.save_split_df()
+
+        # self.save_dev_df()
 
         return self
 
@@ -258,6 +262,12 @@ class Flattener(pd.DataFrame):
         self.loc[staging_resources.index, 'profiles'] = staging_resources['profiles'].apply(
             lambda pfs: pfs.replace('SharedStaging', '').replace(',,', ','))
 
+    def _rename_profiles(self):
+        """Renames profiles to distinguish between DataCatalogue and DataCatalogueFlat"""
+        self.loc[:, 'profiles'] = self['profiles'].apply(change_profiles)
+
+        return self
+
     def save_df(self, old_profiles: bool = False):
         """Saves the pandas DataFrame of the model to disk."""
         if not old_profiles:
@@ -271,6 +281,13 @@ class Flattener(pd.DataFrame):
             self.loc[self['profiles'].str.contains(prof)].drop(
                 columns=['profiles']).to_csv(file_dir.joinpath(f"{prof}.csv"), index=False)
 
+    def save_split_df(self):
+        """Saves the pandas DataFrame of the model split into tables to disk."""
+        for table_name in self['tableName'].unique().tolist():
+            df = self.drop(self[self['tableName'] != table_name].index)
+            path = SHARED_DIR.joinpath(table_name + '.csv')
+            df.to_csv(path, index=False, mode='w')
+
     def save_dev_df(self):
         """Saves the pandas DataFrame of the test model to disk."""
 
@@ -283,10 +300,21 @@ class Flattener(pd.DataFrame):
                 columns=['profiles']).to_csv(file_dir.joinpath(f"{prof}.csv"), index=False)
 
 
+def change_profiles(profiles):
+    """ Changes profile names in pandas series
+    """
+    profiles = profiles.replace('DataCatalogue', 'DataCatalogueFlat')
+    profiles = profiles.replace('CohortStaging', '')
+    profiles = profiles.replace('SharedStaging', '')
+    # profiles = profiles.replace('EMA', '')
+
+    return profiles
+
+
 def main():
     """The main function calling the execution."""
     flattener = Flattener(simple_mode=False)
-    flattener.save_df(old_profiles=True)
+    # flattener.save_df(old_profiles=True)
     flattener.flatten()
     print(flattener)
 

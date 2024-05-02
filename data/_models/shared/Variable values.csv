@@ -1,0 +1,11 @@
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,visible
+Variable values,,,,,,,,,,,,Listing of categorical value+label definition in case of a categorical variable,"DataCatalogueFlat,",
+Variable values,,resource,ref,1,true,,Collections,,,,,,"DataCatalogueFlat,",
+Variable values,,variable,ref,1,true,,Variables,resource,,,,e.g. PATO,"DataCatalogueFlat,",
+Variable values,,value,,1,true,,,,,,,e.g. '1',"DataCatalogueFlat,",
+Variable values,,label,,,true,,,,,,,,"DataCatalogueFlat,",
+Variable values,,order,int,,,,,,,,,,"DataCatalogueFlat,",
+Variable values,,is missing,bool,,,,,,,,,,"DataCatalogueFlat,",
+Variable values,,ontology term URI,,,,,,,,,,reference to ontology term that defines this categorical value,"DataCatalogueFlat,",
+Variable values,,since version,,,,,,,,,,When this variable value was introduced if applicable,"DataCatalogueFlat,",
+Variable values,,until version,,,,,,,,,,When this variable value was removed if applicable,"DataCatalogueFlat,",

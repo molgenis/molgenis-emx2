@@ -1,0 +1,10 @@
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,visible
+All variables,,,,,,,,,,,,"Generic listing of all source variables. Should not be used directly, please use SourceVariables or RepeatedSourceVariables instead","DataCatalogueFlat,",
+All variables,,resource,ref,1,true,,Collections,,,,,Data source that this variable was collected in,"DataCatalogueFlat,",
+All variables,,dataset,ref,1,true,,Datasets,resource,,,,Dataset this variable is part of,"DataCatalogueFlat,",
+All variables,,name,,1,true,,,,,,,"name of the variable, unique within a table","DataCatalogueFlat,",
+All variables,,label,,,,,,,,,,"Human friendly longer name, if applicable","DataCatalogueFlat,",
+All variables,,collection event,ref,,,,Collection events,,,,,in case of protocolised data collection this defines the moment(s) in time this variable is collected on,"DataCatalogueFlat,",
+All variables,,since version,,,,,,,,,,When this variable was introduced,"DataCatalogueFlat,",
+All variables,,until version,,,,,,,,,,When this variable was removed if applicable,"DataCatalogueFlat,",
+All variables,,mappings,refback,,,,Variable mappings,,target variable,,,in case of protocolised data collection this defines the moment in time this variable is collected on,DataCatalogueFlat,
