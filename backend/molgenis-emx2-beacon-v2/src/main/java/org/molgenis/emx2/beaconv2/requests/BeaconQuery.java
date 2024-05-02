@@ -35,6 +35,14 @@ public class BeaconQuery {
     return requestParameters.values().stream().toList();
   }
 
+  public void setRequestParameters(Map<String, String> requestParameters) {
+    for (var entry : requestParameters.entrySet()) {
+      this.requestParameters.put(
+          entry.getKey(),
+          new BeaconRequestParameters(entry.getKey(), entry.getValue()));
+    }
+  }
+
   public List<Filter> getFilters() {
     return filters;
   }

@@ -972,4 +972,41 @@ public class Beaconv2_ModelEndpointsTest {
     JsonNode results = json.get("response").get("resultSets").get(0).get("results");
     assertEquals(5, results.size());
   }
+
+  @Test
+  public void testPostGenomicVariant() throws Exception {
+    Request request = mockEntryTypeRequest(EntryType.GENOMIC_VARIANT.getName(), new HashMap<>());
+    ObjectMapper mapper = new ObjectMapper();
+    String body =
+        """
+                            {
+                                "meta":
+                                {
+                                    "apiVersion": "2.0"
+                                },
+                                "query":
+                                {
+                                    "requestParameters": {
+                                        "geneId": "SNORD119"
+                                    },
+                                    "filters": [],
+                                    "includeResultsetResponses": "ALL",
+                                    "pagination": {
+                                        "skip": 0,
+                                        "limit": 0
+                                    },
+                                    "testMode": false,
+                                    "requestedGranularity": "record"
+                                }
+                            }""";
+    BeaconRequestBody beaconRequest = mapper.readValue(body, BeaconRequestBody.class);
+    beaconRequest.addUrlParameters(request);
+    JsonNode json = QueryEntryType.query(database, beaconRequest);
+    JsonNode results = json.get("response").get("resultSets").get(0).get("results");
+    String jsonString = JsonUtil.getWriter().writeValueAsString(results);
+    assertEquals(3, results.size());
+  }
+
+
 }
+
