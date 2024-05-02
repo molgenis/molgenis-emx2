@@ -298,7 +298,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
       const ontologyResult = await new QueryEMX2(graphqlEndpointOntologyFilter)
         .table(sourceTable)
         .select(attributes)
-        .where("code")
+        .orWhere("code")
         .in(codeBlock)
         .orderBy(sourceTable, sortColumn, sortDirection)
         .execute();
