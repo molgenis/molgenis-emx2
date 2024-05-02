@@ -75,6 +75,7 @@ function handleFilerUpdate(filter: IFilter) {
         <FilterList
           v-else-if="filter.config.type === 'REF_ARRAY'"
           :table-id="filter.config.refTableId"
+          :mobileDisplay="mobileDisplay"
           :name-field="filter.config.refFields?.name"
           :descriptionField="filter.config.refFields?.description"
           :options="(filter as IRefArrayFilter).options"
