@@ -955,4 +955,21 @@ public class Beaconv2_ModelEndpointsTest {
     assertEquals("MinIndNoRefs003", results.get(0).get("id").textValue());
     assertEquals("MinInd004", results.get(1).get("id").textValue());
   }
+
+  @Test
+  public void testPagination_LimitZero_AllResult() throws Exception {
+    JsonNode json =
+        doIndividualsPostRequest(
+            """
+                          {
+                            "query": {
+                              "pagination": {
+                                "limit": 0,
+                                "skip": 0
+                              }
+                            }
+                          }""");
+    JsonNode results = json.get("response").get("resultSets").get(0).get("results");
+    assertEquals(5, results.size());
+  }
 }

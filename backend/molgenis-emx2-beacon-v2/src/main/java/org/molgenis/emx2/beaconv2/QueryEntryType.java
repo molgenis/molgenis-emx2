@@ -140,6 +140,8 @@ public class QueryEntryType {
     int skip = query.getPagination().getSkip();
     int limit = query.getPagination().getLimit();
 
+    if (limit == 0) limit = results.size();
+
     ArrayNode paginatedResults = JsonNodeFactory.instance.arrayNode();
     for (int i = skip; i < Math.min(skip + limit, results.size()); i++) {
       paginatedResults.add(results.get(i));
