@@ -233,6 +233,7 @@ export default {
         limit: this.maxNum,
         filter: this.filter,
         orderby: this.orderby,
+        expandLevel: 0,
       };
       const response = await this.client.fetchTableData(this.tableId, options);
       this.data = response[this.tableId] || [];
