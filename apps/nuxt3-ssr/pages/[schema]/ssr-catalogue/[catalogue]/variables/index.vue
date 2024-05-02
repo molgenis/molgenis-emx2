@@ -357,7 +357,7 @@ crumbs[
           <!-- <NavigationIconsMobile :link="" /> -->
           <PageHeader
             title="Variables"
-            description="A complete overview of available variables."
+            description="A complete overview of harmonised variables"
             :icon="pageIcon"
           >
             <template #prefix>
