@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 
 import { buildQueryFilter } from "./buildQueryFilter";
-import type { IFilter } from "~/interfaces/types";
+import type { IFilter, IFilterCondition } from "~/interfaces/types";
 
 describe("buildQueryFilter", () => {
   const filters: IFilter[] = [
@@ -78,10 +78,11 @@ describe("buildQueryFilter", () => {
           label: "Cohorts",
           type: "REF_ARRAY",
           refTableId: "Cohorts",
-          columnId: "mappings",
-          buildFilterFunction: (conditions: IFilterCondition[]) => {
+          buildFilterFunction: (_: any, conditions: IFilterCondition[]) => {
             return {
-              source: { equals: conditions.map((c) => ({ id: c.name })) },
+              mappings: {
+                source: { equals: conditions.map((c) => ({ id: c.name })) },
+              },
             };
           },
           refFields: {
