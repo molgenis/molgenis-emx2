@@ -319,7 +319,11 @@ export type IFilter = ISearchFilter | IOntologyFilter | IRefArrayFilter;
 interface IAbstractFilter {
   id: string;
   search?: string;
-  config: ISearchFilterConfig | IOntologyFilterConfig | IRefArrayFilterConfig;
+  config:
+    | ISearchFilterConfig
+    | IOntologyFilterConfig
+    | IRefArrayFilterDefaultConfig
+    | IRefArrayFilterCustomConfig;
 }
 export interface ISearchFilter extends IAbstractFilter {
   search: string;
@@ -388,7 +392,7 @@ export interface optionsFetchFn {
 
 export interface IRefArrayFilter extends IAbstractFilter {
   conditions: IFilterCondition[];
-  config: IRefArrayFilterConfig;
+  config: IRefArrayFilterCustomConfig | IRefArrayFilterDefaultConfig;
   options?: INode[] | optionsFetchFn;
 }
 

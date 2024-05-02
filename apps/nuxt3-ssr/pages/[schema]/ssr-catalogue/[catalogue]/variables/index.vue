@@ -1,5 +1,10 @@
 <script setup lang="ts">
-import type { IFilter, IMgError, IFilterCondition } from "~/interfaces/types";
+import type {
+  IFilter,
+  IMgError,
+  IFilterCondition,
+  IRefArrayFilter,
+} from "~/interfaces/types";
 import mappingsFragment from "~~/gql/fragments/mappings";
 import type { INode } from "../../../../../../tailwind-components/types/types";
 
@@ -277,11 +282,14 @@ const fetchData = async () => {
     cohortsFilter.networks = { equals: [{ id: catalogueRouteParam }] };
   }
 
-  if (filter.value["_or"]) {
+  // add 'special' filter for harmonization x-axis if 'cohorts' filter is set
+  const cohortConditions = (
+    pageFilterTemplate.find((f) => f.id === "cohorts") as IRefArrayFilter
+  )?.conditions;
+  if (cohortConditions.length) {
     cohortsFilter = {
       ...cohortsFilter,
-      ...filter.value["_or"][0].mappings.source,
-      ...filter.value["_or"][1].repeats.mappings.source,
+      equals: cohortConditions.map((c) => ({ id: c.name })),
     };
   }
 
