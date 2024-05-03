@@ -2,7 +2,7 @@ tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,ref
 Submissions,,,,,,,,,,,,Documentation of data submissions related to a resource,"DataCatalogueFlat,EMA",
 Submissions,,submission date,datetime,1,true,,,,,,,Date of submission,"DataCatalogueFlat,EMA",
 Submissions,,submitter name,string,1,true,,,,,,,Name of person who submitted,DataCatalogueFlat,
-Submissions,,resources,ref_array,,true,,Collections,,,,,Resource(s) that this submission is related to,"DataCatalogueFlat,EMA",
+Submissions,,collections,ref_array,,true,,Collections,,,,,Resource(s) that this submission is related to,"DataCatalogueFlat,EMA",
 Submissions,,submitter email,string,,true,,,,,,,Email of person who submitted,DataCatalogueFlat,
 Submissions,,submitter organisation,ref,,,,Organisations,,,,,Organisation of submitter,DataCatalogueFlat,
 Submissions,,submitter role,ontology,,,CatalogueOntologies,Submitter roles,,,,,Role of submitter in organisation,DataCatalogueFlat,

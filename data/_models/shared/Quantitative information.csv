@@ -1,6 +1,6 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,visible
 Quantitative information,,,,,,,,,,,,Quantitative information on the resource,"DataCatalogueFlat,EMA",
-Quantitative information,,resource,ref,1,,,Collections,,,,,,"DataCatalogueFlat,EMA",
+Quantitative information,,collection,ref,1,,,Collections,,,,,,"DataCatalogueFlat,EMA",
 Quantitative information,,age group,ontology,1,,CatalogueOntologies,Age groups,,,,,Select the relevant age group for this quantitative information,"DataCatalogueFlat,EMA",
 Quantitative information,,population size,int,,,,,,,,,"Total number of unique individuals with records captured in the data source (most recent count). In the catalogue, this will accommodate counts per year","DataCatalogueFlat,EMA",
 Quantitative information,,active size,int,,,,,,,,,"Number of unique, active, or currently registered individuals with records captured in the data source (most recent count). In the catalogue, this will accommodate counts per year","DataCatalogueFlat,EMA",

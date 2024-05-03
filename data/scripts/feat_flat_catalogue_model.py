@@ -132,6 +132,8 @@ class Flattener(pd.DataFrame):
 
         self._rename_profiles()
 
+        self._rename_tables_and_columns()
+
         # Save result to file
         # self.save_df()
 
@@ -263,8 +265,21 @@ class Flattener(pd.DataFrame):
             lambda pfs: pfs.replace('SharedStaging', '').replace(',,', ','))
 
     def _rename_profiles(self):
-        """Renames profiles to distinguish between DataCatalogue and DataCatalogueFlat"""
+        """Renames profiles to distinguish between DataCatalogue and DataCatalogueFlat. Deletes rows
+        with empty profiles column
+        """
         self.loc[:, 'profiles'] = self['profiles'].apply(change_profiles)
+        self.drop(index=self.loc[self['profiles'] == ''].index, inplace=True)
+
+        return self
+
+    def _rename_tables_and_columns(self):
+        """Renames tables and columns"""
+        self.loc[:, 'tableName'] = self['tableName'].apply(change_names)
+        self.loc[:, 'columnName'] = self['columnName'].apply(change_names)
+        self.loc[:, 'refTable'] = self['refTable'].apply(change_names)
+        self.loc[:, 'refLink'] = self['refLink'].apply(change_names)
+        self.loc[:, 'refBack'] = self['refBack'].apply(change_names)
 
         return self
 
@@ -282,11 +297,15 @@ class Flattener(pd.DataFrame):
                 columns=['profiles']).to_csv(file_dir.joinpath(f"{prof}.csv"), index=False)
 
     def save_split_df(self):
-        """Saves the pandas DataFrame of the model split into tables to disk."""
+        """Saves the pandas DataFrame of the model split into tables to disk. Some tables are merged,
+        or contain new attributes and are written outside the program.
+        """
         for table_name in self['tableName'].unique().tolist():
-            df = self.drop(self[self['tableName'] != table_name].index)
-            path = SHARED_DIR.joinpath(table_name + '.csv')
-            df.to_csv(path, index=False, mode='w')
+            if table_name not in ['Datasets', 'All variables', 'Variables', 'Repeated variables',
+                                  'Dataset mappings', 'Variable mappings']:
+                df = self.drop(self[self['tableName'] != table_name].index)
+                path = SHARED_DIR.joinpath(table_name + '.csv')
+                df.to_csv(path, index=False, mode='w')
 
     def save_dev_df(self):
         """Saves the pandas DataFrame of the test model to disk."""
@@ -307,8 +326,31 @@ def change_profiles(profiles):
     profiles = profiles.replace('CohortStaging', '')
     profiles = profiles.replace('SharedStaging', '')
     # profiles = profiles.replace('EMA', '')
+    profiles = profiles.rstrip(',,')
+    profiles = profiles.rstrip(',')
 
     return profiles
+
+
+def change_names(name):
+    """ Changes table and column names in pandas series
+    """
+    names_to_replace = {'Subcohorts': 'Collection populations',
+                        'resource': 'collection',
+                        'subcohorts': 'populations',
+                        'Linked resources': 'Linked collections',
+                        'main resource': 'main collection',
+                        'linked resource': 'linked collection',
+                        'other linked resource': 'other linked collection',
+                        'All variables': 'Variables',
+                        'resources': 'collections',
+                        'Subcohort counts': 'Population counts',
+                        }
+
+    if name in names_to_replace.keys():
+        name = names_to_replace[name]
+
+    return name
 
 
 def main():
