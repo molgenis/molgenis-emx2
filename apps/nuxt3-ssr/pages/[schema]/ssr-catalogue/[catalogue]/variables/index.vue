@@ -271,11 +271,22 @@ const fetchData = async () => {
     };
   }
 
+  const hasStatus = {
+    _or: [
+      { mappings: { match: { name: { equals: ["complete", "partial"] } } } },
+      {
+        repeats: {
+          mappings: { match: { name: { equals: ["complete", "partial"] } } },
+        },
+      },
+    ],
+  };
   const variables = scoped
     ? {
         variablesFilter: {
           ...filter.value,
           ...(await buildScopedModelFilter()),
+          ...hasStatus,
         },
         cohortsFilter,
       }
@@ -283,6 +294,7 @@ const fetchData = async () => {
         variablesFilter: {
           ...filter.value,
           resource: { mg_tableclass: { like: ["Models"] } },
+          ...hasStatus,
         },
         cohortsFilter,
       };
