@@ -1,0 +1,14 @@
+---
+name: European Health Research Data and Sample Catalogue
+description: "This catalogue contains metadata on dataset collections and the variables and samples they collect."
+
+profileTags: DataCatalogueFlat
+
+demoData: _demodata/applications/datacatalogue
+
+settings: _settings/datacatalogue
+
+# special options
+setViewPermission: anonymous
+ontologiesToFixedSchema: CatalogueOntologies
+setFixedSchemaViewPermission: anonymous
