@@ -1,5 +1,5 @@
 <template>
-  <Molgenis id="__top" v-model="session"> 
+  <Molgenis id="__top" v-model="session">
     <router-view :session="session" :page="page" :schema="schemaName" />
   </Molgenis>
 </template>
@@ -28,16 +28,16 @@ const loading = ref<boolean>(true);
 
 function getSchemaName() {
   request("graphql", schemaNameQuery)
-  .then((response: object) => {
-    schemaName.value = response._schema.name;
-  }).catch((error: Error) => {
-    graphqlError.value = error;
-    loading.value = false;
-  })
+    .then((response: object) => {
+      schemaName.value = response._schema.name;
+    })
+    .catch((error: Error) => {
+      graphqlError.value = error;
+      loading.value = false;
+    });
 }
 
 onBeforeMount(() => {
   getSchemaName();
-})
-
+});
 </script>

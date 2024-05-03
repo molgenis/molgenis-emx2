@@ -25,7 +25,7 @@ import ButtonOutline from "../forms/ButtonOutline.vue";
 import { defineAsyncComponent, ref } from "vue";
 
 const EditModal = defineAsyncComponent({
-  loader: () => import("../forms/EditModal.vue")
+  loader: () => import("../forms/EditModal.vue"),
 });
 
 withDefaults(

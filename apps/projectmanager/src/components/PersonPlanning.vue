@@ -31,7 +31,7 @@
           <td class="align-top" data-col-name="FTE">{{ person.fTE }}</td>
           <td class="align-top" data-col-name="Notes">{{ person.notes }}</td>
           <td class="align-top" data-col-name="options">
-            <div class="row-options"> 
+            <div class="row-options">
               <RowButtonEdit
                 :id="`person-info-${cleanName(person.name)}`"
                 tableId="Persons"
@@ -88,14 +88,18 @@
                   @close="reload"
                 />
                 <RowButtonDelete
-                  :id="`person-planning-${cleanName(person.name)}-${planning.name}`"
+                  :id="`person-planning-${cleanName(person.name)}-${
+                    planning.name
+                  }`"
                   tableId="Planning"
                   tableLabel="Planning"
                   :pkey="planning"
                   @success="reload"
                 />
                 <RowButtonAdd
-                  :id="`person-planning-${cleanName(person.name)}-${planning.name}`"
+                  :id="`person-planning-${cleanName(person.name)}-${
+                    planning.name
+                  }`"
                   tableId="Planning"
                   :schemaId="schema"
                   :defaultValue="{ person: { name: person.name } }"
@@ -113,7 +117,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref} from "vue";
+import { ref } from "vue";
 import { request } from "graphql-request";
 import {
   RowButtonEdit,
@@ -130,7 +134,7 @@ const loading = ref<boolean>(true);
 const graphqlError = ref<Error | null>(null);
 const schemaName = ref<String | null>(null);
 
-function cleanName (name) {
+function cleanName(name) {
   return name.toLowerCase().replaceAll(/[,.\s\s+]/g, "");
 }
 
