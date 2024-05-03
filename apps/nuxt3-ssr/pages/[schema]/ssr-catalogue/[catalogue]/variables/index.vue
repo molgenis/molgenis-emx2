@@ -114,56 +114,34 @@ const pageFilterTemplate: IFilter[] = [
   },
 ];
 
-const schema = route.params.schema as string;
-
 async function fetchCohortOptions(): Promise<INode[]> {
-  const mappings = {
-    source: { mg_tableclass: { equals: `${schema}.Cohorts` } },
-  };
-
-  const variables = scoped
-    ? {
-        variablesFilter: { ...(await buildScopedModelFilter()), mappings },
-      }
-    : {
-        variablesFilter: {
-          mappings,
-        },
-      };
   const { data, error } = await $fetch(`/${route.params.schema}/graphql`, {
     method: "POST",
     body: {
       query: `
-            query CohortsWithVariableMapping($variablesFilter: VariablesFilter) {
-              Variables_groupBy(filter: $variablesFilter) {
-                count
-                mappings {
-                  source {
-                    id
-                    name
-                    mg_tableclass
-                  }
-                } 
+            query CohortsOptions($cohortsFilter: CohortsFilter) {
+              Cohorts(filter: $cohortsFilter, orderby: { id: ASC }) {
+                id
+                name
               }
             }
           `,
-      variables,
+      variables: scoped
+        ? {
+            cohortsFilter: {
+              networks: { equals: [{ id: catalogueRouteParam }] },
+            },
+          }
+        : undefined,
     },
   });
 
-  return data.Variables_groupBy.filter(
-    (respRow: any) => respRow.mappings // filter out rows without mappings, i.e. the count all row
-  ).map(
-    (variableGroupBy: {
-      count: number;
-      mappings: { source: { id: string; name: string } };
-    }) => {
-      return {
-        name: variableGroupBy.mappings.source.id,
-        description: variableGroupBy.mappings.source.name,
-      } as INode;
-    }
-  );
+  return data.Cohorts.map((option: { id: string; name?: string }) => {
+    return {
+      name: option.id,
+      description: option.name,
+    } as INode;
+  });
 }
 
 const filters = computed(() => {
@@ -321,10 +299,10 @@ const fetchData = async () => {
 
 // We need to use the useAsyncData hook to fetch the data because sadly multiple backendend calls need to be synchronized to create the final query
 // todo: update datamodel to allow for single fetch from single indexed table
-const { data, error } = await useAsyncData<any, IMgError>(
+const { data, error, pending } = await useAsyncData<any, IMgError>(
   `variables-page-${catalogueRouteParam}-${route.query}`,
   fetchData,
-  { watch: [filters, offset] }
+  { watch: [computed(() => route.query.conditions), offset] }
 );
 
 function onFilterChange(filters: IFilter[]) {
@@ -398,13 +376,24 @@ crumbs[
               value-prefix="in"
               label="cohort"
             />
+            <div
+              v-if="pending"
+              class="mt-2 mb-0 lg:mb-3 text-body-lg flex flex-col text-title"
+            >
+              <BaseIcon name="progress-activity" class="animate-spin" />
+            </div>
           </div>
           <FilterWell
+            class="transition-opacity duration-700 ease-in opacity-100"
+            :class="{ 'opacity-25 ease-out': pending }"
             :filters="filters"
             @update:filters="onFilterChange"
           ></FilterWell>
 
-          <SearchResultsList>
+          <SearchResultsList
+            class="transition-opacity duration-700 ease-in opacity-100"
+            :class="{ 'opacity-25 ease-out': pending }"
+          >
             <div
               v-if="data?.data?.Variables_agg.count === 0"
               class="flex justify-center pt-3"
