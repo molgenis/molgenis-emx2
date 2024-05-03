@@ -1,6 +1,6 @@
 package org.molgenis.emx2.sql;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
@@ -16,6 +16,9 @@ public class InitDatabase {
   void testJitIsOff() {
     Database db = TestDatabaseFactory.getTestDatabase();
     org.jooq.Record record = ((SqlDatabase) db).getJooq().fetch("show jit").get(0);
-    assertEquals("off", record.get(0));
+    if(!"off".equals(record.get(0))) {
+      fail("ensure that postgresql SET jit='off' is applied");
+    }
+
   }
 }

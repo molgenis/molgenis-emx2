@@ -7,8 +7,6 @@ import static org.molgenis.emx2.sql.SqlDatabaseExecutor.*;
 import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeCreateSchema;
 
 import com.zaxxer.hikari.HikariDataSource;
-import java.sql.Connection;
-import java.sql.Statement;
 import java.util.*;
 import javax.sql.DataSource;
 import org.jooq.DSLContext;
@@ -133,16 +131,6 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       dataSource.setUsername(postgresUser);
       dataSource.setPassword(pass);
 
-      // set the JIT outside of use sessions
-      try (Connection conn = dataSource.getConnection();
-          Statement stmt = conn.createStatement()) {
-        stmt.execute("UPDATE pg_settings SET setting = 'off' WHERE name = 'jit';");
-        logger.info("SET jit = off");
-      } catch (Exception e) {
-        logger.warn(
-            "Could not disable JIT in postgresql. Please SET jit=off in postgresql settings. Not doing this may slow your queries a lot. Message: "
-                + e.getMessage());
-      }
       source = dataSource;
     }
   }
@@ -158,6 +146,15 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
             j.execute("CREATE EXTENSION IF NOT EXISTS pg_trgm"); // for fast fuzzy search
             j.execute("CREATE EXTENSION IF NOT EXISTS pgcrypto"); // for password hashing
           });
+
+      if (!jooq.fetch("SELECT setting FROM pg_settings WHERE name = 'jit';")
+          .get(0)
+          .get(0)
+          .equals("off")) {
+        //todo: decide if we should make this an error
+        logger.warn(
+            "Postgresql JIT must be disabled to prevent massive performance issues. Please run 'SET jit = 'off' or set jit = 'off' in your postgresql file. See installation manual");
+      }
 
       Migrations.initOrMigrate(this);
 
