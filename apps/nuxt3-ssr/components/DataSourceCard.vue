@@ -1,6 +1,7 @@
 <script setup lang="ts">
 const route = useRoute();
 import type { IResource } from "~/interfaces/types";
+import dateUtils from "~/utils/dateUtils";
 let truncate = ref(true);
 const cutoff = 250;
 
@@ -16,7 +17,7 @@ const props = withDefaults(
   }
 );
 
-const startEndYear = filters.startEndYear;
+const startEndYear = dateUtils.startEndYear;
 
 const articleClasses = computed(() => {
   return props.compact ? "py-5 lg:px-12.5 p-5" : "lg:px-12.5 py-12.5 px-5";

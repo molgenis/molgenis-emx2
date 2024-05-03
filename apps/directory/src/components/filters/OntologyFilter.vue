@@ -1,5 +1,12 @@
 <template>
   <div>
+    <div class="d-flex float-right">
+      <MatchTypeRadiobutton
+        v-if="showMatchTypeSelector"
+        class="p-2 pb-0"
+        :matchTypeForFilter="facetIdentifier"
+      />
+    </div>
     <div class="px-2 py-2 d-flex">
       <div class="buttonbar">
         <button
@@ -39,17 +46,20 @@
 <script setup lang="ts">
 import { useFiltersStore } from "../../stores/filtersStore";
 import TreeComponent from "./base/TreeComponent.vue";
+import { computed, ref } from "vue";
 //@ts-ignore
 import { Spinner } from "../../../../molgenis-components";
-import { computed, ref } from "vue";
+import MatchTypeRadiobutton from "./base/MatchTypeRadiobutton.vue";
 
 const filtersStore = useFiltersStore();
 
-const { facetIdentifier, ontologyIdentifiers, options } = defineProps<{
-  facetIdentifier: string;
-  ontologyIdentifiers: string[];
-  options: Function;
-}>();
+const { facetIdentifier, ontologyIdentifiers, options, showMatchTypeSelector } =
+  defineProps<{
+    facetIdentifier: string;
+    ontologyIdentifiers: string[];
+    options: Function;
+    showMatchTypeSelector: boolean;
+  }>();
 
 let ontologyQuery = ref("");
 let resolvedOptions = ref<Record<string, any> | undefined>(undefined);
