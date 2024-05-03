@@ -26,11 +26,11 @@ public class SqlUserAwareConnectionProvider extends DataSourceConnectionProvider
       connection = super.acquire();
       if (getActiveUser().equals(ADMIN_USER)) {
         // as admin you are actually session user
-        DSL.using(connection, SQLDialect.POSTGRES).execute("RESET ROLE;");
+        DSL.using(connection, SQLDialect.POSTGRES).execute("RESET ROLE; SET jit='off';");
       } else {
         // as non admin you are a current user
         DSL.using(connection, SQLDialect.POSTGRES)
-            .execute("RESET ROLE; SET ROLE {0}", name(MG_USER_PREFIX + getActiveUser()));
+            .execute("RESET ROLE; SET ROLE {0}; SET jit='off';", name(MG_USER_PREFIX + getActiveUser()));
       }
       return connection;
     } catch (DataAccessException dae) {
