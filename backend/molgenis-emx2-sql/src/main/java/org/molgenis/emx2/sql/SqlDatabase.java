@@ -136,7 +136,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       // set the JIT outside of use sessions
       try (Connection conn = dataSource.getConnection();
           Statement stmt = conn.createStatement()) {
-        stmt.execute("UPDATE pg_settings SET setting = 'off' WHERE name = 'jit';");
+        stmt.execute("SET jit = 'off';");
         logger.info("SET jit = off");
       } catch (Exception e) {
         logger.warn(

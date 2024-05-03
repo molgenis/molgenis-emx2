@@ -22,6 +22,7 @@ Steps:
     ```
 * Open on http://localhost:8080
 
+N.B. emx2 will SET jit = 'off' on startup because postgresql jit has performance issues.
 Optionally, you can change defaults using either java properties or using env variables:
 
 * MOLGENIS_POSTGRES_URI
