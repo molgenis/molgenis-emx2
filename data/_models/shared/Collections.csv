@@ -5,7 +5,7 @@ Collections,,id,,1,true,,,,,,dcterms:identifier,Internal identifier,"DataCatalog
 Collections,,pid,,2,,,,,,,dcterms:identifier,Persistent identifier,"DataCatalogueFlat,EMA",
 Collections,,acronym,,,,,,,,,dcterms:identifier,Acronym if applicable,"DataCatalogueFlat,EMA",
 Collections,,name,text,3,true,,,,,,"dcterms:title,foaf:name",Name used in European projects,"DataCatalogueFlat,EMA",
-Collections,,collection type,ontology,,,CatalogueOntologies,Collection types,,,,,,DataCatalogueFlat,
+Collections,,collection type,ontology,,,CatalogueOntologies,Collection types FLAT,,,,,,DataCatalogueFlat,
 Collections,,local name,,,,,,,,,rdfs:label,"If different from above, name in the national language",DataCatalogueFlat,"['Cohort', 'Databank', 'Data source'].includes(collectionType?.name)"
 Collections,,network type,ontology_array,,,CatalogueOntologies,Network types,,,,dcterms:type,"Type of network, e.g. h2020 project",DataCatalogueFlat,['Network'].includes(collectionType?.name)
 Collections,,features,ontology_array,,,CatalogueOntologies,Network features,,,,,Characterizations of the network,"DataCatalogueFlat,EMA",['Network'].includes(collectionType?.name)

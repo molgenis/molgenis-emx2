@@ -51,8 +51,7 @@ rename_tables = [[Tables.C, Tables.DR],
                  [Tables.R, Tables.COL]]
 
 rename_columns = {
-    'Cohorts': [['type', 'cohort type'], ['type other', 'cohort type other'],
-                ['collection type', 'cohort collection type']],
+    'Cohorts': [['type', 'cohort type'], ['type other', 'cohort type other']],
     'Networks': [['type', 'network type'], ['type other', 'network type other']],
     'Studies': [['type', 'study type'], ['type other', 'study type other']],
     'RWE resources': [['type', 'datasource type'], ['type other', 'datasource type other']]
@@ -155,7 +154,7 @@ class Flattener(pd.DataFrame):
         self.loc[resources_name_idx+0.5, ['tableName', 'columnName', 'columnType',
                                           'refSchema', 'refTable', 'profiles']] = ['Resources', 'collection type',
                                                                                    'ontology', 'CatalogueOntologies',
-                                                                                   'Collection types',
+                                                                                   'Collection types FLAT',
                                                                                    'DataCatalogue,CohortStaging']
         self.sort_index(inplace=True)
         self.reset_index(drop=True, inplace=True)
