@@ -15,7 +15,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
   const biobankStore = useBiobanksStore();
   const checkoutStore = useCheckoutStore();
 
-  const { baseQuery, getBiobankCards } = biobankStore;
+  // const { baseQuery, getBiobankCards } = biobankStore;
 
   const { biobankCards } = storeToRefs(biobankStore);
   const settingsStore = useSettingsStore();
