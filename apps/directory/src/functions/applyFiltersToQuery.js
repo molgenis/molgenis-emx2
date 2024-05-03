@@ -104,8 +104,10 @@ export async function applyFiltersToQuery(
           filterType[filterDetail.facetIdentifier] === "all" ||
           values.length === 1
         ) {
+          baseQuery.where(filterDetail.applyToColumn).in(values);
           baseQuery.filter(filterDetail.applyToColumn).in(values);
         } else {
+          baseQuery.orWhere(filterDetail.applyToColumn).in(values);
           baseQuery.orFilter(filterDetail.applyToColumn).in(values);
         }
         break;
