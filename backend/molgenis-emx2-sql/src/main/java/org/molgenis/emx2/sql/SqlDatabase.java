@@ -151,7 +151,8 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
           .get(0)
           .get(0)
           .equals("off")) {
-        //todo: decide if we should make this an error
+        //todo: we could try to chanbge the setting
+        //todo: we could stop the app
         logger.warn(
             "Postgresql JIT must be disabled to prevent massive performance issues. Please run 'SET jit = 'off' or set jit = 'off' in your postgresql file. See installation manual");
       }
