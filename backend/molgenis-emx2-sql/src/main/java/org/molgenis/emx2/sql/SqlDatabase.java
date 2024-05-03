@@ -7,6 +7,8 @@ import static org.molgenis.emx2.sql.SqlDatabaseExecutor.*;
 import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeCreateSchema;
 
 import com.zaxxer.hikari.HikariDataSource;
+import java.sql.Connection;
+import java.sql.Statement;
 import java.util.*;
 import javax.sql.DataSource;
 import org.jooq.DSLContext;
@@ -131,6 +133,16 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       dataSource.setUsername(postgresUser);
       dataSource.setPassword(pass);
 
+      // set the JIT outside of use sessions
+      try (Connection conn = dataSource.getConnection();
+          Statement stmt = conn.createStatement()) {
+        stmt.execute("UPDATE pg_settings SET setting = 'off' WHERE name = 'jit';");
+        logger.info("SET jit = off");
+      } catch (Exception e) {
+        logger.warn(
+            "Could not disable JIT in postgresql. Please SET jit=off in postgresql settings. Not doing this may slow your queries a lot. Message: "
+                + e.getMessage());
+      }
       source = dataSource;
     }
   }
