@@ -10,6 +10,7 @@ Steps:
 * Then in psql console paste
     ```console
     create database molgenis;
+    alter database molgenis SET jit = 'off'
     create user molgenis with login nosuperuser inherit createrole encrypted password 'molgenis';
     grant all privileges on database molgenis to molgenis;
     ```
@@ -22,7 +23,7 @@ Steps:
     ```
 * Open on http://localhost:8080
 
-N.B. emx2 will SET jit = 'off' on startup because postgresql jit has performance issues.
+N.B. emx2 will need SET jit = 'off' postgresql jit has performance issues.
 Optionally, you can change defaults using either java properties or using env variables:
 
 * MOLGENIS_POSTGRES_URI
