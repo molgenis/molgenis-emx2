@@ -1,3 +1,0 @@
-tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,visible
-Repeated variables,All variables,,,,,,,,,,,Definition of a repeated sourceVariable. Refers to another variable for its definition,DataCatalogueFlat,
-Repeated variables,,is repeat of,ref,,true,,Variables,collection,,,,reference to the definition of the sourceVariable that is being repeated,DataCatalogueFlat,
