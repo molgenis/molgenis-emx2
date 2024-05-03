@@ -6,8 +6,10 @@ import { useBiobanksStore } from "./biobanksStore";
 import { useSettingsStore } from "./settingsStore";
 import { useCheckoutStore } from "./checkoutStore";
 import { applyBookmark, createBookmark } from "../functions/bookmarkMapper";
+//@ts-ignore
 import { QueryEMX2 } from "molgenis-components";
 import { convertArrayToChunks } from "../functions/arrayUtilities";
+import { IOntologyItem } from "../interfaces/interfaces";
 
 export const useFiltersStore = defineStore("filtersStore", () => {
   const biobankStore = useBiobanksStore();
@@ -27,11 +29,11 @@ export const useFiltersStore = defineStore("filtersStore", () => {
   /** check for filter manipulations */
   let filterTriggeredBookmark = ref(false);
 
-  let filters = ref({});
-  let filterType = ref({});
-  let filterOptionsCache = ref({});
-  let filterFacets = ref([]);
-  const facetDetailsDictionary = ref({});
+  let filters = ref<Record<string, any>>({});
+  let filterType = ref<Record<string, any>>({});
+  let filterOptionsCache = ref<Record<string, any>>({});
+  let filterFacets = ref<any[]>([]);
+  const facetDetailsDictionary = ref<Record<string, any>>({});
 
   let filtersReadyToRender = ref(false);
 
@@ -43,7 +45,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     }
   );
 
-  const facetDetails = computed(() => {
+  const facetDetails = computed<Record<string, any>>(() => {
     if (
       !Object.keys(facetDetailsDictionary.value).length &&
       settingsStore.configurationFetched
@@ -64,16 +66,15 @@ export const useFiltersStore = defineStore("filtersStore", () => {
       : false;
   });
 
-  function getValuePropertyForFacet(facetIdentifier) {
-    return facetDetails[facetIdentifier].filterValueAttribute;
+  function getValuePropertyForFacet(facetIdentifier: string) {
+    return facetDetails.value[facetIdentifier].filterValueAttribute;
   }
 
   const hasActiveFilters = computed(() => {
     return Object.keys(filters.value).length > 0;
   });
 
-  let queryDelay = undefined;
-
+  let queryDelay: any;
   watch(
     filters,
     (filters) => {
@@ -148,19 +149,19 @@ export const useFiltersStore = defineStore("filtersStore", () => {
   });
 
   function checkOntologyDescendantsIfMatches(
-    ontologyDescendants,
-    ontologyQuery
-  ) {
+    ontologyDescendants: IOntologyItem[],
+    ontologyQuery: any
+  ): boolean {
     let finalVerdict = false;
 
     for (const ontologyItem of ontologyDescendants) {
       if (finalVerdict) return true;
 
-      if (this.ontologyItemMatchesQuery(ontologyItem, ontologyQuery)) {
+      if (ontologyItemMatchesQuery(ontologyItem, ontologyQuery)) {
         finalVerdict = true;
         break;
       } else if (ontologyItem.children) {
-        finalVerdict = this.checkOntologyDescendantsIfMatches(
+        finalVerdict = checkOntologyDescendantsIfMatches(
           ontologyItem.children,
           ontologyQuery
         );
@@ -169,7 +170,10 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     return finalVerdict;
   }
 
-  function ontologyItemMatchesQuery(ontologyItem, ontologyQuery) {
+  function ontologyItemMatchesQuery(
+    ontologyItem: IOntologyItem,
+    ontologyQuery: any
+  ) {
     const findString = ontologyQuery.toLowerCase();
     const codeFound = ontologyItem.code.toLowerCase().includes(findString);
     const nameFound = ontologyItem.name.toLowerCase().includes(findString);
@@ -178,25 +182,28 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     return codeFound || nameFound || labelFound;
   }
 
-  function flattenOntologyBranch(branch, flattenedBranches) {
-    if (!branch.children || !branch.children.length) {
-      if (!flattenedBranches) {
-        return [branch];
-      } else {
-        flattenedBranches.push(branch);
-      }
-      return flattenedBranches;
+  function flattenOntologyBranch(
+    branch: IOntologyItem,
+    flattenedBranches: IOntologyItem[] = []
+  ) {
+    if (!branch.children?.length) {
+      return [...flattenedBranches, branch];
     } else {
       for (const child of branch.children) {
         flattenedBranches = flattenOntologyBranch(child, flattenedBranches);
         delete child.children;
-        flattenedBranches.push(child);
+        flattenedBranches?.push(child);
       }
     }
     return flattenedBranches;
   }
 
-  function updateOntologyFilter(filterName, value, add, fromBookmark) {
+  function updateOntologyFilter(
+    filterName: string,
+    value: any,
+    add: boolean,
+    fromBookmark: any
+  ) {
     bookmarkTriggeredFilter.value = fromBookmark;
 
     /** value can be a child (single value), or a parent with its children > make it into an array of values */
@@ -208,8 +215,8 @@ export const useFiltersStore = defineStore("filtersStore", () => {
       delete copyBranch.children;
       allChildrenValues.push(copyBranch);
 
-      let deduplicatedValues = [];
-      let codesProcessed = [];
+      let deduplicatedValues: IOntologyItem[] = [];
+      let codesProcessed: string[] = [];
 
       for (const childValue of allChildrenValues) {
         if (!codesProcessed.includes(childValue.code)) {
@@ -234,15 +241,13 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     }
   }
 
-  /**
-   * @param {string} filterName name of ontology filter
-   * @param {string} value the identifier 'value' of the filter option
-   */
-  function addOntologyOption(filterName, value) {
+  function addOntologyOption(filterName: string, value: IOntologyItem) {
     if (filters.value[filterName]) {
       /** sanity check, if it is there already then the job is done */
       if (
-        filters.value[filterName].some((option) => option.name === value.name)
+        filters.value[filterName].some(
+          (option: IOntologyItem) => option.name === value.name
+        )
       )
         return;
 
@@ -252,17 +257,13 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     }
   }
 
-  /**
-   * @param {string} filterName name of ontology filter
-   * @param {Array<string>} value array with identifier 'value' of the filter option
-   */
-  function addOntologyOptions(filterName, value) {
+  function addOntologyOptions(filterName: string, value: IOntologyItem[]) {
     if (filters.value[filterName]) {
       const existingValues = filters.value[filterName].map(
-        (option) => option.name
+        (option: IOntologyItem) => option.name
       );
       const filterOptionsToAdd = value.filter(
-        (newValue) => !existingValues.includes(newValue.name)
+        (newValue: IOntologyItem) => !existingValues.includes(newValue.name)
       );
       filters.value[filterName] =
         filters.value[filterName].concat(filterOptionsToAdd);
@@ -272,32 +273,20 @@ export const useFiltersStore = defineStore("filtersStore", () => {
   }
 
   /** did not move this to be used in filteroptions because the store is async. */
-  function getOntologyAttributes(filterFacet) {
+  function getOntologyAttributes(filterFacet: Record<string, any>) {
     const { filterLabelAttribute, filterValueAttribute } = filterFacet;
     return [
       filterLabelAttribute,
       filterValueAttribute,
       "code",
       `parent.${filterValueAttribute}`,
-      `children.${filterValueAttribute}`,
-      `children.children.${filterValueAttribute}`,
-      `children.children.children.${filterValueAttribute}`,
-      `children.children.children.children.${filterValueAttribute}`,
-      `children.children.children.children.children.${filterValueAttribute}`,
-      "children.code",
-      "children.children.code",
-      "children.children.children.code",
-      "children.children.children.children.code",
-      "children.children.children.children.children.code",
-      `children.${filterLabelAttribute}`,
-      `children.children.${filterLabelAttribute}`,
-      `children.children.children.${filterLabelAttribute}`,
-      `children.children.children.children.${filterLabelAttribute}`,
-      `children.children.children.children.children.${filterLabelAttribute}`,
     ];
   }
 
-  async function getOntologyOptionsForCodes(filterFacet, codes) {
+  async function getOntologyOptionsForCodes(
+    filterFacet: Record<string, any>,
+    codes: any[][]
+  ) {
     const { sourceTable, sortColumn, sortDirection } = filterFacet;
     const attributes = getOntologyAttributes(filterFacet);
 
@@ -321,16 +310,12 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     return ontologyResults;
   }
 
-  /**
-   * @param {string} filterName name of ontology filter
-   * @param {string} value the identifier 'value' of the filter option
-   */
-  function removeOntologyOption(filterName, value) {
+  function removeOntologyOption(filterName: string, value: IOntologyItem) {
     /** can't remove an option which is not present. Jobs done. */
     if (!filters.value[filterName]) return;
 
     filters.value[filterName] = filters.value[filterName].filter(
-      (option) => option.name !== value.name
+      (option: IOntologyItem) => option.name !== value.name
     );
 
     /** everything is deselected, remove the filter entirely */
@@ -338,18 +323,14 @@ export const useFiltersStore = defineStore("filtersStore", () => {
       delete filters.value[filterName];
   }
 
-  /**
-   * @param {string} filterName name of ontology filter
-   * @param {Array<string>} value array with identifier 'value' of the filter option
-   */
-  function removeOntologyOptions(filterName, value) {
+  function removeOntologyOptions(filterName: string, value: IOntologyItem[]) {
     /** can't remove an option which is not present. Jobs done. */
     if (!filters.value[filterName]) return;
 
     const valuesToRemove = value.map((value) => value.name);
 
     filters.value[filterName] = filters.value[filterName].filter(
-      (option) => !valuesToRemove.includes(option.name)
+      (option: IOntologyItem) => !valuesToRemove.includes(option.name)
     );
 
     /** everything is deselected, remove the filter entirely */
@@ -362,7 +343,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     createBookmark(filters.value, checkoutStore.selectedCollections);
   }
 
-  function updateFilter(filterName, value, fromBookmark) {
+  function updateFilter(filterName: string, value: any, fromBookmark: any) {
     bookmarkTriggeredFilter.value = fromBookmark;
 
     /** filter reset, so delete */
@@ -380,17 +361,19 @@ export const useFiltersStore = defineStore("filtersStore", () => {
         checkoutStore.setSearchHistory(`${filterName} filtered on ${value}`);
       } else {
         checkoutStore.setSearchHistory(
-          `${filterName} filtered on ${value.map((v) => v.text).join(", ")}`
+          `${filterName} filtered on ${value
+            .map((v: Record<string, any>) => v.text)
+            .join(", ")}`
         );
       }
     }
   }
 
-  function getFilterValue(filterName) {
+  function getFilterValue(filterName: string) {
     return filters.value[filterName];
   }
 
-  function updateFilterType(filterName, value, fromBookmark) {
+  function updateFilterType(filterName: string, value: any, fromBookmark: any) {
     bookmarkTriggeredFilter.value = fromBookmark;
 
     if (value === "" || value === undefined || value.length === 0) {
@@ -401,7 +384,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     }
   }
 
-  function getFilterType(filterName) {
+  function getFilterType(filterName: string) {
     return filterType.value[filterName] || "any";
   }
 
