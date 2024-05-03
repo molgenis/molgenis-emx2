@@ -7,7 +7,6 @@ test("computedExpressionCONCAT", async ({ page }) => {
   await createDatabase(page, "computedTest", "PET_STORE", true);
   await page.goto("/apps/central/#/");
 
-  await page.goto("/apps/central/#/");
   await page.getByRole("button", { name: "" }).click();
   await page.getByLabel("name").click();
   await page.getByLabel("name").fill("computedTest");

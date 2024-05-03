@@ -15,6 +15,7 @@ export async function optionallyRemoveDatabase(
   databaseName: string
 ) {
   await page.goto("/apps/central/#/");
+  await page.waitForTimeout(1000);
   let deleteButton = await page.getByRole("row", {
     name: "  " + databaseName,
     exact: true,
@@ -22,7 +23,7 @@ export async function optionallyRemoveDatabase(
   if ((await deleteButton.count()) === 1) {
     deleteButton.getByRole("button").nth(1).click();
     await page.getByRole("button", { name: "Delete database" }).click();
-    await page.getByRole("button", { name: "Close" }).click();
+    await page.getByRole("button", { name: "Close" }).nth(1).click();
   }
 }
 
