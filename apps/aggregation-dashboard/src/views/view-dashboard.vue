@@ -71,7 +71,7 @@
     <Dashboard>
       <DashboardRow :columns="3">
         <DashboardChart>
-          <LoadingScreen style="height: 350px;" v-if="loading" />
+          <LoadingScreen style="height: 350px" v-if="loading" />
           <BarChart
             v-else
             chartId="research-centers-sum"
@@ -136,7 +136,7 @@
       </DashboardRow>
       <DashboardRow :columns="2">
         <DashboardChart>
-          <LoadingScreen style="height: 250px;" v-if="loading" />
+          <LoadingScreen style="height: 250px" v-if="loading" />
           <ColumnChart
             v-else
             chartId="sampling-period-sum"
@@ -163,7 +163,7 @@
           />
         </DashboardChart>
         <DashboardChart>
-          <LoadingScreen style="height: 250px;" v-if="loading" />
+          <LoadingScreen style="height: 250px" v-if="loading" />
           <PieChart2
             v-else
             chartId="sex-sum"
