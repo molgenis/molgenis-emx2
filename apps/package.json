@@ -25,6 +25,7 @@
     "reports",
     "tasks",
     "gportal",
-    "projectmanager"
+    "projectmanager",
+    "aggregation-dashboard"
   ]
 }
