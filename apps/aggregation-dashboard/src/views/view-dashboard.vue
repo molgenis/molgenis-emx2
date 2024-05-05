@@ -71,7 +71,7 @@
     <Dashboard>
       <DashboardRow :columns="3">
         <DashboardChart>
-          <LoadingScreen style="height: 350px" v-if="loading" />
+          <LoadingScreen style="height: 400px" v-if="loading" />
           <BarChart
             v-else
             chartId="research-centers-sum"
@@ -82,14 +82,14 @@
             :xMax="researchCenterAxis.ymax"
             :xTickValues="researchCenterAxis.ticks"
             yAxisLineBreaker=" "
-            :chartHeight="360"
+            :chartHeight="400"
             :barFill="palette[3]"
             :barHoverFill="palette[5]"
             :chartMargins="{
               top: 10,
               right: 40,
               bottom: 30,
-              left: 75,
+              left: 125,
             }"
             :enableClicks="true"
             :enableAnimation="true"
@@ -99,7 +99,7 @@
           />
         </DashboardChart>
         <DashboardChart>
-          <LoadingScreen v-if="loading" />
+          <LoadingScreen style="height: 100%" v-if="loading" />
           <DataTable
             v-else
             tableId="primary-tumors-sum"
@@ -111,7 +111,7 @@
           />
         </DashboardChart>
         <DashboardChart>
-          <LoadingScreen v-if="loading" />
+          <LoadingScreen style="height: 100%" v-if="loading" />
           <PieChart2
             v-else
             chartId="metastatis-sum"
@@ -136,7 +136,7 @@
       </DashboardRow>
       <DashboardRow :columns="2">
         <DashboardChart>
-          <LoadingScreen style="height: 250px" v-if="loading" />
+          <LoadingScreen style="height: 300px" v-if="loading" />
           <ColumnChart
             v-else
             chartId="sampling-period-sum"
@@ -148,7 +148,7 @@
             :yMax="yearOfDiagnosisAxis.ymax"
             :columnFill="palette[5]"
             :columnHoverFill="palette[3]"
-            :chartHeight="225"
+            :chartHeight="250"
             :chartMargins="{
               top: 15,
               right: 10,
@@ -163,7 +163,7 @@
           />
         </DashboardChart>
         <DashboardChart>
-          <LoadingScreen style="height: 250px" v-if="loading" />
+          <LoadingScreen style="height: 100%" v-if="loading" />
           <PieChart2
             v-else
             chartId="sex-sum"
@@ -174,7 +174,7 @@
               Female: palette[5],
             }"
             :chartScale="1"
-            :chartHeight="200"
+            :chartHeight="250"
             :asDonutChart="true"
             :enableLegendHovering="true"
             :chartMargins="0"
