@@ -285,7 +285,6 @@ const fetchData = async () => {
         variablesFilter: {
           ...filter.value,
           resource: { mg_tableclass: { like: ["Models"] } },
-          ...hasStatus,
         },
         cohortsFilter,
       };
