@@ -91,12 +91,14 @@ const pageFilterTemplate: IFilter[] = [
               {
                 mappings: {
                   source: { equals: conditions.map((c) => ({ id: c.name })) },
+                  match: { name: { equals: [ "complete" ,"partial"] }}
                 },
               },
               {
                 repeats: {
                   mappings: {
                     source: { equals: conditions.map((c) => ({ id: c.name })) },
+                    match: { name: { equals: [ "complete" ,"partial"] }}
                   },
                 },
               },
@@ -271,22 +273,11 @@ const fetchData = async () => {
     };
   }
 
-  const hasStatus = {
-    _or: [
-      { mappings: { match: { name: { equals: ["complete", "partial"] } } } },
-      {
-        repeats: {
-          mappings: { match: { name: { equals: ["complete", "partial"] } } },
-        },
-      },
-    ],
-  };
   const variables = scoped
     ? {
         variablesFilter: {
           ...filter.value,
           ...(await buildScopedModelFilter()),
-          ...hasStatus,
         },
         cohortsFilter,
       }
