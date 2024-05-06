@@ -856,7 +856,7 @@ public class WebApiSmokeTests {
         .header("Location", "\"http://localhost:\" + PORT + \"/api/fdp/")
         .contentType("text/turtle")
         .when()
-        .head("http://localhost:" + PORT + "/api/fdp");
+        .get("http://localhost:" + PORT + "/api/fdp");
   }
 
   @Test

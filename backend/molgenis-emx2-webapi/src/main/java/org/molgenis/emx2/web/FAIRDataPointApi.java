@@ -2,7 +2,10 @@ package org.molgenis.emx2.web;
 
 import static org.molgenis.emx2.web.BeaconApi.getSchemasHavingTable;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
-import static spark.Spark.*;
+import static spark.Spark.get;
+import static spark.Spark.head;
+import static spark.Spark.path;
+import static spark.Spark.redirect;
 
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
