@@ -54,7 +54,7 @@
             rowId="code"
             latitude="latitude"
             longitude="longitude"
-            groupingVariable="hasSubmittedData"
+            group="hasSubmittedData"
             :groupColorMappings="{
               'Data Submitted': '#f1681d',
               'No Data': '#f0f0f0',
