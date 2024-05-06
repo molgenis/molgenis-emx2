@@ -28,7 +28,7 @@ public class GraphGenomeApi {
   private static int graphGenomeForDatabase(Request request, Response response) throws IOException {
 
     Database database = sessionManager.getSession(request).getDatabase();
-    List<Table> tables = QueryEntryType.getTableFromAllSchemas(database, "GenomicVariations");
+    List<Table> tables = QueryEntryType.getTablesFromAllSchemas(database, "GenomicVariations");
     OutputStream outputStream = response.raw().getOutputStream();
 
     String gene = request.queryParams("gene");

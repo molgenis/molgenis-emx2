@@ -53,7 +53,8 @@ public class BeaconApi {
     requestBody.addUrlParameters(request);
 
     Database database = sessionManager.getSession(request).getDatabase();
-    JsonNode dataResult = QueryEntryType.query(database, requestBody);
+    QueryEntryType queryEntryType = new QueryEntryType(requestBody);
+    JsonNode dataResult = queryEntryType.query(database);
     return getWriter().writeValueAsString(dataResult);
   }
 

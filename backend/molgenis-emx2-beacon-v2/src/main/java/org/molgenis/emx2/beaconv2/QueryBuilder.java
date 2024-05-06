@@ -86,9 +86,7 @@ public class QueryBuilder {
 
   private int queryColumnsRecursively(List<Column> columns, int maxDepth, int currentDepth) {
     for (Column column : columns) {
-      if (
-      //          column.isOntology() ||
-      column.isReference()) {
+      if (column.isReference()) {
         if (currentDepth < maxDepth) {
           TableMetadata refTable = column.getRefTable();
 

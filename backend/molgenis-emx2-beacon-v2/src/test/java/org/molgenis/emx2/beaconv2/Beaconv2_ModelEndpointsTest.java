@@ -80,7 +80,8 @@ public class Beaconv2_ModelEndpointsTest {
                 "alternateBases", new String[] {"g"}));
     BeaconRequestBody requestBody = new BeaconRequestBody();
     requestBody.addUrlParameters(request);
-    JsonNode result = QueryEntryType.query(database, requestBody);
+    QueryEntryType queryEntryType = new QueryEntryType(requestBody);
+    JsonNode result = queryEntryType.query(database);
     String json = JsonUtil.getWriter().writeValueAsString(result);
     assertTrue(json.contains("\"variantInternalId\" : \"20:2447955..2447958c>g\","));
     assertTrue(json.contains("\"resultsCount\" : 1,"));
@@ -98,7 +99,8 @@ public class Beaconv2_ModelEndpointsTest {
                 "alternateBases", new String[] {"a"}));
     BeaconRequestBody requestBody = new BeaconRequestBody();
     requestBody.addUrlParameters(request);
-    JsonNode result = QueryEntryType.query(database, requestBody);
+    QueryEntryType queryEntryType = new QueryEntryType(requestBody);
+    JsonNode result = queryEntryType.query(database);
     String json = JsonUtil.getWriter().writeValueAsString(result);
 
     assertTrue(json.contains("\"response\" : {\n" + "    \"resultSets\" : [ ]"));
@@ -119,7 +121,8 @@ public class Beaconv2_ModelEndpointsTest {
     BeaconRequestBody requestBody = new BeaconRequestBody();
     requestBody.addUrlParameters(request);
 
-    JsonNode result = QueryEntryType.query(database, requestBody);
+    QueryEntryType queryEntryType = new QueryEntryType(requestBody);
+    JsonNode result = queryEntryType.query(database);
     String json = JsonUtil.getWriter().writeValueAsString(result);
     assertTrue(json.contains("\"resultsCount\" : 2,"));
     assertTrue(json.contains("\"variantInternalId\" : \"20:2447951..2447952c>g\","));
@@ -131,7 +134,8 @@ public class Beaconv2_ModelEndpointsTest {
     Request request = mockEntryTypeRequest("g_variants", Map.of("geneId", new String[] {"SNRPB"}));
     BeaconRequestBody requestBody = new BeaconRequestBody();
     requestBody.addUrlParameters(request);
-    JsonNode result = QueryEntryType.query(database, requestBody);
+    QueryEntryType queryEntryType = new QueryEntryType(requestBody);
+    JsonNode result = queryEntryType.query(database);
 
     String json = JsonUtil.getWriter().writeValueAsString(result);
     assertTrue(json.contains("\"resultsCount\" : 3,"));
@@ -153,7 +157,8 @@ public class Beaconv2_ModelEndpointsTest {
                 "referenceName", new String[] {"20"}));
     BeaconRequestBody requestBody = new BeaconRequestBody();
     requestBody.addUrlParameters(request);
-    JsonNode result = QueryEntryType.query(database, requestBody);
+    QueryEntryType queryEntryType = new QueryEntryType(requestBody);
+    JsonNode result = queryEntryType.query(database);
     String json = JsonUtil.getWriter().writeValueAsString(result);
     assertTrue(json.contains("\"resultsCount\" : 1,"));
     assertTrue(json.contains("\"variantInternalId\" : \"20:2447951..2447952c>g\","));
@@ -165,7 +170,8 @@ public class Beaconv2_ModelEndpointsTest {
     BeaconRequestBody requestBody = new BeaconRequestBody();
     requestBody.addUrlParameters(request);
 
-    JsonNode analyses = QueryEntryType.query(database, requestBody);
+    QueryEntryType queryEntryType = new QueryEntryType(requestBody);
+    JsonNode analyses = queryEntryType.query(database);
     String json = JsonUtil.getWriter().writeValueAsString(analyses);
     assertTrue(json.contains("\"resultsCount\" : 5,"));
   }
@@ -177,7 +183,8 @@ public class Beaconv2_ModelEndpointsTest {
     BeaconRequestBody requestBody = new BeaconRequestBody();
     requestBody.addUrlParameters(request);
 
-    JsonNode analyses = QueryEntryType.query(database, requestBody);
+    QueryEntryType queryEntryType = new QueryEntryType(requestBody);
+    JsonNode analyses = queryEntryType.query(database);
     String json = JsonUtil.getWriter().writeValueAsString(analyses);
     assertTrue(json.contains("\"response\" : {\n" + "    \"resultSets\" : [ ]"));
   }
@@ -189,7 +196,8 @@ public class Beaconv2_ModelEndpointsTest {
     BeaconRequestBody requestBody = new BeaconRequestBody();
     requestBody.addUrlParameters(request);
 
-    JsonNode analyses = QueryEntryType.query(database, requestBody);
+    QueryEntryType queryEntryType = new QueryEntryType(requestBody);
+    JsonNode analyses = queryEntryType.query(database);
     String json = JsonUtil.getWriter().writeValueAsString(analyses);
     assertTrue(json.contains("\"id\" : \"A03\","));
     assertTrue(json.contains("\"resultsCount\" : 1,"));
@@ -201,7 +209,8 @@ public class Beaconv2_ModelEndpointsTest {
     BeaconRequestBody requestBody = new BeaconRequestBody();
     requestBody.addUrlParameters(request);
 
-    JsonNode biosamples = QueryEntryType.query(database, requestBody);
+    QueryEntryType queryEntryType = new QueryEntryType(requestBody);
+    JsonNode biosamples = queryEntryType.query(database);
     String json = JsonUtil.getWriter().writeValueAsString(biosamples);
 
     assertTrue(json.contains("\"resultsCount\" : 3,"));
@@ -219,7 +228,8 @@ public class Beaconv2_ModelEndpointsTest {
     BeaconRequestBody requestBody = new BeaconRequestBody();
     requestBody.addUrlParameters(request);
 
-    JsonNode biosamples = QueryEntryType.query(database, requestBody);
+    QueryEntryType queryEntryType = new QueryEntryType(requestBody);
+    JsonNode biosamples = queryEntryType.query(database);
     String json = JsonUtil.getWriter().writeValueAsString(biosamples);
 
     assertTrue(json.contains("\"response\" : {\n" + "    \"resultSets\" : [ ]"));
@@ -233,7 +243,8 @@ public class Beaconv2_ModelEndpointsTest {
     BeaconRequestBody requestBody = new BeaconRequestBody();
     requestBody.addUrlParameters(request);
 
-    JsonNode biosamples = QueryEntryType.query(database, requestBody);
+    QueryEntryType queryEntryType = new QueryEntryType(requestBody);
+    JsonNode biosamples = queryEntryType.query(database);
     String json = JsonUtil.getWriter().writeValueAsString(biosamples);
     assertTrue(json.contains("\"id\" : \"Sample0002\","));
     assertTrue(json.contains("\"resultsCount\" : 1,"));
@@ -245,7 +256,8 @@ public class Beaconv2_ModelEndpointsTest {
     BeaconRequestBody requestBody = new BeaconRequestBody();
     requestBody.addUrlParameters(request);
 
-    JsonNode cohorts = QueryEntryType.query(database, requestBody);
+    QueryEntryType queryEntryType = new QueryEntryType(requestBody);
+    JsonNode cohorts = queryEntryType.query(database);
 
     String json = JsonUtil.getWriter().writeValueAsString(cohorts);
     assertTrue(json.contains("\"id\" : \"Cohort0001\""));
@@ -259,7 +271,9 @@ public class Beaconv2_ModelEndpointsTest {
     BeaconRequestBody requestBody = new BeaconRequestBody();
     requestBody.addUrlParameters(request);
 
-    JsonNode cohorts = QueryEntryType.query(database, requestBody);
+    QueryEntryType queryEntryType = new QueryEntryType(requestBody);
+    JsonNode cohorts = queryEntryType.query(database);
+
     String json = JsonUtil.getWriter().writeValueAsString(cohorts);
     assertTrue(json.contains("\"collections\" : [ ]"));
   }
@@ -270,7 +284,8 @@ public class Beaconv2_ModelEndpointsTest {
     BeaconRequestBody requestBody = new BeaconRequestBody();
     requestBody.addUrlParameters(request);
 
-    JsonNode json = QueryEntryType.query(database, requestBody);
+    QueryEntryType queryEntryType = new QueryEntryType(requestBody);
+    JsonNode json = queryEntryType.query(database);
 
     JsonNode results = json.get("response").get("resultSets").get(0).get("results");
     assertEquals(5, results.size());
@@ -290,7 +305,8 @@ public class Beaconv2_ModelEndpointsTest {
     BeaconRequestBody requestBody = new BeaconRequestBody();
     requestBody.addUrlParameters(request);
 
-    JsonNode json = QueryEntryType.query(database, requestBody);
+    QueryEntryType queryEntryType = new QueryEntryType(requestBody);
+    JsonNode json = queryEntryType.query(database);
 
     JsonNode results = json.get("response").get("resultSets").get(0).get("results");
     assertEquals(1, results.size());
@@ -314,7 +330,8 @@ public class Beaconv2_ModelEndpointsTest {
     BeaconRequestBody requestBody = new BeaconRequestBody();
     requestBody.addUrlParameters(request);
 
-    JsonNode json = QueryEntryType.query(database, requestBody);
+    QueryEntryType queryEntryType = new QueryEntryType(requestBody);
+    JsonNode json = queryEntryType.query(database);
 
     JsonNode results = json.get("response").get("resultSets").get(0).get("results");
     assertEquals(2, results.size());
@@ -330,7 +347,8 @@ public class Beaconv2_ModelEndpointsTest {
     BeaconRequestBody beaconRequest = mapper.readValue(body, BeaconRequestBody.class);
     beaconRequest.addUrlParameters(request);
 
-    return QueryEntryType.query(database, beaconRequest);
+    QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
+    return queryEntryType.query(database);
   }
 
   @Test
@@ -979,34 +997,26 @@ public class Beaconv2_ModelEndpointsTest {
     ObjectMapper mapper = new ObjectMapper();
     String body =
         """
-                            {
-                                "meta":
-                                {
-                                    "apiVersion": "2.0"
-                                },
-                                "query":
-                                {
-                                    "requestParameters": {
-                                        "geneId": "SNORD119"
-                                    },
-                                    "filters": [],
-                                    "includeResultsetResponses": "ALL",
-                                    "pagination": {
-                                        "skip": 0,
-                                        "limit": 0
-                                    },
-                                    "testMode": false,
-                                    "requestedGranularity": "record"
-                                }
-                            }""";
+                        {
+                          "query": {
+                            "requestParameters": {
+                              "geneId": "SNORD119"
+                            },
+                            "filters": [],
+                            "includeResultsetResponses": "ALL",
+                            "pagination": {
+                            "skip": 0,
+                              "limit": 0
+                            },
+                            "testMode": false,
+                            "requestedGranularity": "record"
+                          }
+                        }""";
     BeaconRequestBody beaconRequest = mapper.readValue(body, BeaconRequestBody.class);
     beaconRequest.addUrlParameters(request);
-    JsonNode json = QueryEntryType.query(database, beaconRequest);
+    QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
+    JsonNode json = queryEntryType.query(database);
     JsonNode results = json.get("response").get("resultSets").get(0).get("results");
-    String jsonString = JsonUtil.getWriter().writeValueAsString(results);
     assertEquals(3, results.size());
   }
-
-
 }
-
