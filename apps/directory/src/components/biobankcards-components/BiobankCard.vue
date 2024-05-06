@@ -13,10 +13,7 @@
         <header class="border-0 biobank-card-header p-1">
           <h5 class="pt-1 pl-1 pr-1 mt-1">
             <router-link :to="'/biobank/' + biobank.id" class="text-dark">
-              <span
-                class="fa fa-server mr-2 text-primary"
-                aria-hidden="true"
-              ></span>
+              <span class="fa fa-server mr-2 text-primary" aria-hidden="true" />
               <span class="biobank-name">{{ biobank.name }}</span>
               <sup
                 v-if="hasBiobankQuality"
@@ -52,6 +49,7 @@
               </sup>
             </router-link>
           </h5>
+          <MatchesOn :viewmodel="biobank" />
         </header>
 
         <div v-if="!showCollections">
