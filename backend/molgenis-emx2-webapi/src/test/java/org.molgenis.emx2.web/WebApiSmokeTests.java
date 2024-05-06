@@ -852,9 +852,10 @@ public class WebApiSmokeTests {
   public void testFDPRedirect() {
     given()
         .sessionId(SESSION_ID)
+        .redirects()
+        .follow(false)
         .expect()
-        .header("Location", "\"http://localhost:\" + PORT + \"/api/fdp/")
-        .contentType("text/turtle")
+        .header("Location", "http://localhost:" + PORT + "/api/fdp/")
         .when()
         .get("http://localhost:" + PORT + "/api/fdp");
   }
