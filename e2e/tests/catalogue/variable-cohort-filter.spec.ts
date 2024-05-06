@@ -4,7 +4,7 @@ test.beforeEach(async ({ context, baseURL }) => {
   await context.addCookies([{ name: 'mg_allow_analytics', value: 'false', domain: new URL(baseURL as string).hostname, path: '/'}])
 });
 
-test('filter varaibles by cohort', async ({ page }) => {
+test('filter variables by cohort', async ({ page }) => {
   await page.goto('/catalogue-demo/ssr-catalogue/testNetwork1/variables');
   await expect(page.getByRole('list')).toContainText('testVarCategorical_');
   await expect(page.getByRole('list')).toContainText('testVarNoRepeats');
