@@ -1,8 +1,8 @@
 <template>
-  <main class="app-page">
+  <div class="app-page">
     <!-- Main app content -->
     <slot></slot>
-  </main>
+  </div>
 </template>
 
 <script>
