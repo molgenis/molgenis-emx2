@@ -91,14 +91,14 @@ const pageFilterTemplate: IFilter[] = [
               {
                 mappings: {
                   source: { equals: conditions.map((c) => ({ id: c.name })) },
-                  match: { name: { equals: [ "complete" ,"partial"] }}
+                  match: { name: { equals: ["complete", "partial"] } },
                 },
               },
               {
                 repeats: {
                   mappings: {
                     source: { equals: conditions.map((c) => ({ id: c.name })) },
-                    match: { name: { equals: [ "complete" ,"partial"] }}
+                    match: { name: { equals: ["complete", "partial"] } },
                   },
                 },
               },
