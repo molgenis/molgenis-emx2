@@ -1,13 +1,22 @@
-version: "3.0"
 services:
+  nginx:
+    image: nginx:1.26.0-alpine
+    container_name: reverse-proxy
+    env_file: .env
+    volumes:
+      - ./apps/nuxt3-ssr/default.conf.template:/etc/nginx/templates/default.conf.template
+    ports:
+    - ${NGINX_PORT}:${NGINX_PORT}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: on-failure
   postgres:
     image: postgres:15-alpine
-    environment:
-    - POSTGRES_USER=postgres
-    - POSTGRES_PASSWORD=postgres
-    - POSTGRES_DB=postgres
+    container_name: database
+    env_file: .env
     ports:
-    - "5432:5432"
+    - ${POSTGRES_PORT}:${POSTGRES_PORT}
     volumes:
     - ./psql_data:/var/lib/postgresql/data
     - ./.docker/initdb.sql:/docker-entrypoint-initdb.d/initdb.sql
@@ -17,24 +26,23 @@ services:
       interval: 5s
       timeout: 60s
       retries: 5
-  emx2:
+  molgenis-emx2:
     image: molgenis/molgenis-emx2
-    environment:
-    - MOLGENIS_POSTGRES_URI=jdbc:postgresql://postgres/molgenis
-    - MOLGENIS_POSTGRES_USER=molgenis
-    - MOLGENIS_POSTGRES_PASS=molgenis
-    #      - MOLGENIS_OIDC_CLIENT_ID=[]
-    #      - MOLGENIS_OIDC_CLIENT_SECRET=[]
-    #      - MOLGENIS_OIDC_CLIENT_NAME=MolgenisAuth
-    #      - MOLGENIS_OIDC_DISCOVERY_URI=https://auth.molgenis.org/.well-known/openid-configuration/
-    #      - MOLGENIS_OIDC_CALLBACK_URL=http://localhost:8080
+    container_name: molgenis-emx2
+    env_file: .env
     ports:
-    - "8080:8080"
+    - ${MOLGENIS_PORT}:${MOLGENIS_PORT}
     depends_on:
       postgres:
         condition: service_healthy
     restart: on-failure
-  ssr-catalogue:
+  molgenis-ssr-catalogue:
     image: molgenis/ssr-catalogue
+    container_name: molgenis-ssr-catalogue
+    env_file: .env
     ports:
-    - "3000:3000"
+    - ${NUXT_PORT}:${NUXT_PORT}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: on-failure
