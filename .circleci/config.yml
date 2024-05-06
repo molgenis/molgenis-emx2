@@ -321,7 +321,7 @@ workflows:
         filters:
           branches:
             ignore: master
-    - e2e-preview:
+    - e2e-test:
         requires:
           - preview
         filters:
