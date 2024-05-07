@@ -74,8 +74,8 @@
           <LoadingScreen style="height: 400px" v-if="loading" />
           <BarChart
             v-else
-            chartId="research-centers-sum"
-            title="Total number of cases by research center"
+            chartId="chart-number-of-cases-by-research-center"
+            title="Number of cases by research center"
             :chartData="researchCenters"
             xvar="_sum"
             yvar="researchCenter"
@@ -102,8 +102,8 @@
           <LoadingScreen style="height: 100%" v-if="loading" />
           <DataTable
             v-else
-            tableId="primary-tumors-sum"
-            caption="Total number of primary tumors by type"
+            tableId="chart-number-of-cases-by-primary-tumor"
+            caption="Number of cases by primary tumor"
             :data="primaryTumorSite"
             :columnOrder="['primaryTumorSite', 'sum']"
             :enableRowClicks="true"
@@ -114,11 +114,11 @@
           <LoadingScreen style="height: 100%" v-if="loading" />
           <PieChart2
             v-else
-            chartId="metastatis-sum"
-            title="Total Number of Metastasis by type"
+            chartId="chart-number-cases-by-stage-at-diagnosis"
+            title="Number of cases by stage at diagnosis"
             :chartData="metastasis"
             :chartScale="1"
-            :chartHeight="300"
+            :chartHeight="350"
             :chartColors="{
               No: palette[3],
               Yes: palette[5],
@@ -127,7 +127,6 @@
             :asDonutChart="true"
             :enableLegendHovering="true"
             :chartMargins="25"
-            legendPosition="bottom"
             :valuesArePercents="false"
             :enableClicks="true"
             @slice-clicked="(data: Object) => onChartClick(data, 'metastasis', true)"
@@ -139,8 +138,8 @@
           <LoadingScreen style="height: 300px" v-if="loading" />
           <ColumnChart
             v-else
-            chartId="sampling-period-sum"
-            title="Total number of cases by sampling period"
+            chartId="chart-number-of-cases-by-year-of-diagnosis"
+            title="Number of cases by year of diagnosis"
             :chartData="yearOfDiagnosis"
             xvar="yearOfDiagnosis"
             yvar="_sum"
@@ -166,8 +165,8 @@
           <LoadingScreen style="height: 100%" v-if="loading" />
           <PieChart2
             v-else
-            chartId="sex-sum"
-            title="Number of individuals by sex"
+            chartId="chart-number-of-cases-by-sex"
+            title="Number of cases by sex"
             :chartData="sexCases"
             :chartColors="{
               Male: palette[3],
@@ -219,6 +218,8 @@ import {
   calculateIncrement,
 } from "../utils/index";
 
+import type { selectedFiltersIF } from "../interfaces/types";
+
 const palette = ref(scheme[6]);
 const loading = ref(true);
 const error = ref(false);
@@ -235,7 +236,7 @@ const sexCases = ref({});
 const resourcesInput = ref();
 
 const queryFilters = ref({ filter: {} });
-const selectedFilters = ref({
+const selectedFilters = ref<selectedFiltersIF>({
   resource: [],
   researchCenter: [],
   primaryTumorSite: [],
@@ -368,7 +369,7 @@ function resetFilters() {
   selectedFilters.value = {
     resource: [],
     researchCenter: [],
-    primaryTumor: [],
+    primaryTumorSite: [],
     metastasis: [],
     yearOfDiagnosis: [],
     sex: [],
