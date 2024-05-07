@@ -370,8 +370,6 @@ public class SqlQuery extends QueryBean {
     }
     // apply limit offset before JSON building, therefore we first filter the ids (from index) and
     // then feed the result to the json building select query.
-    if (select != null
-        && (!select.getOrderBy().isEmpty() || select.getLimit() > 0 || select.getOffset() > 0)) {
       // source columns for the selection
       SelectConnectByStep query =
           table
@@ -384,15 +382,6 @@ public class SqlQuery extends QueryBean {
       // return using inner join, slower it seems
       query = table.getJooq().select(selection).from(query.asTable(alias(subAlias)));
       return query;
-    } else {
-      SelectConnectByStep query =
-          table
-              .getJooq()
-              .select(selection)
-              .from(tableWithInheritanceJoin(table).as(alias(subAlias)))
-              .where(conditions);
-      return query;
-    }
   }
 
   private static Set<Field> jsonSourceFields(SqlTableMetadata table, SelectColumn select) {
