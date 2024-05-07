@@ -374,37 +374,12 @@ public class SqlQuery extends QueryBean {
     SelectConnectByStep query =
         table
             .getJooq()
-            .select(jsonSourceFields(table, select)) // ideally we would only retrieve what we need
+            .select(asterisk()) // ideally we would only retrieve what we need
             .from(tableWithInheritanceJoin(table).as(alias(subAlias)))
             .where(conditions);
     query = limitOffsetOrderBy(table, select, query);
     // return using inner join, slower it seems
     return table.getJooq().select(selection).from(query.asTable(alias(subAlias)));
-  }
-
-  private static Set<Field> jsonSourceFields(SqlTableMetadata table, SelectColumn select) {
-    Set<Field> subselect = new HashSet<>();
-    if (select == null) {
-      return new HashSet<>(table.getPrimaryKeyFields());
-    }
-    for (SelectColumn col :
-        select.getSubselect().stream()
-            .filter(
-                s ->
-                    !s.getColumn().equals(COUNT_FIELD)
-                        && !s.getColumn().equals(SUM_FIELD)
-                        && !s.getColumn().equals(MAX_FIELD)
-                        && !s.getColumn().equals(MIN_FIELD))
-            .toList()) {
-      Column selectColumn =
-          col.getColumn().endsWith("_agg") || col.getColumn().endsWith("_groupBy")
-              ? getColumnByName(table, col.getColumn().replace("_agg", "").replace("_groupBy", ""))
-              : getColumnByName(table, col.getColumn());
-      if (!selectColumn.isRefback()) {
-        subselect.addAll(selectColumn.getCompositeFields());
-      }
-    }
-    return subselect;
   }
 
   private List<Condition> jsonFilterQueryConditions(
@@ -425,12 +400,10 @@ public class SqlQuery extends QueryBean {
           conditions.add(
               and(jsonFilterQueryConditions(table, column, tableAlias, subAlias, f, searchTerms)));
         } else if (TRIGRAM_SEARCH.equals(f.getOperator())) {
-          // todo this doesn't work because it doesn't use the table alias.
           conditions.add(jsonSearchConditions(table, TypeUtils.toStringArray(f.getValues())));
         } else {
           Column c = getColumnByName(table, f.getColumn());
           if (c.isReference()) {
-            // todo what subAlias to use here?
             Select<org.jooq.Record> subQuery =
                 jsonFilterQuery(
                     (SqlTableMetadata) c.getRefTable(),
@@ -735,18 +708,23 @@ public class SqlQuery extends QueryBean {
     // filter conditions
     Condition condition = null;
     if (filter != null || searchTerms.length > 1) {
+      List<Condition> conditions = new ArrayList<>();
+      if (filter != null) {
+        conditions.addAll(
+            jsonFilterQueryConditions(table, column, tableAlias, subAlias, filter, searchTerms));
+      }
+      if (searchTerms.length > 0) {
+        conditions.add(jsonSearchConditions(table, searchTerms));
+      }
+      // create the subquery
       condition =
           row(table.getPrimaryKeyFields())
               .in(
-                  jsonFilterQuery(
-                      table,
-                      column,
-                      tableAlias,
-                      subAlias,
-                      null,
-                      filter,
-                      searchTerms,
-                      table.getPrimaryKeyFields()));
+                  table
+                      .getJooq()
+                      .select(table.getPrimaryKeyFields())
+                      .from(tableWithInheritanceJoin(table).as(alias(subAlias)))
+                      .where(conditions));
     }
 
     Set<Field> aggregationFields = new HashSet<>(); // sum(x), count, etc
