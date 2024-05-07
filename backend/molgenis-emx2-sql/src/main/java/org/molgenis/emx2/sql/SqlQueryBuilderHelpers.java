@@ -31,9 +31,11 @@ class SqlQueryBuilderHelpers {
 
   static SelectConnectByStep<Record> orderBy(
       TableMetadata table, SelectColumn select, SelectConnectByStep<org.jooq.Record> query) {
-    for (Map.Entry<String, Order> orderEntry : select.getOrderBy().entrySet()) {
-      Column column = getColumnByName(table, orderEntry.getKey());
-      query = setOderByForColumn(column, orderEntry.getValue(), query);
+    if (select != null) {
+      for (Map.Entry<String, Order> orderEntry : select.getOrderBy().entrySet()) {
+        Column column = getColumnByName(table, orderEntry.getKey());
+        query = setOderByForColumn(column, orderEntry.getValue(), query);
+      }
     }
     return query;
   }

@@ -343,7 +343,7 @@ public class SqlQuery extends QueryBean {
     return field(table.getJooq().select(field(agg)).from(from.asTable(ITEM)));
   }
 
-  private Select<org.jooq.Record> jsonFilterQuery(
+  private SelectJoinStep<org.jooq.Record> jsonFilterQuery(
       SqlTableMetadata table, // table to query
       Column column, // when nested json this will allow to refer to parent
       String tableAlias, // alias of the parten
@@ -370,28 +370,39 @@ public class SqlQuery extends QueryBean {
     }
     // apply limit offset before JSON building, therefore we first filter the ids (from index) and
     // then feed the result to the json building select query.
-      // source columns for the selection
-      SelectConnectByStep query =
-          table
-              .getJooq()
-              .select(
-                  jsonSourceFields(table, select)) // ideally we would only retrieve what we need
-              .from(tableWithInheritanceJoin(table).as(alias(subAlias)))
-              .where(conditions);
-      query = limitOffsetOrderBy(table, select, query);
-      // return using inner join, slower it seems
-      query = table.getJooq().select(selection).from(query.asTable(alias(subAlias)));
-      return query;
+    // source columns for the selection
+    SelectConnectByStep query =
+        table
+            .getJooq()
+            .select(jsonSourceFields(table, select)) // ideally we would only retrieve what we need
+            .from(tableWithInheritanceJoin(table).as(alias(subAlias)))
+            .where(conditions);
+    query = limitOffsetOrderBy(table, select, query);
+    // return using inner join, slower it seems
+    return table.getJooq().select(selection).from(query.asTable(alias(subAlias)));
   }
 
   private static Set<Field> jsonSourceFields(SqlTableMetadata table, SelectColumn select) {
     Set<Field> subselect = new HashSet<>();
-    for (SelectColumn col : select.getSubselect()) {
+    if (select == null) {
+      return new HashSet<>(table.getPrimaryKeyFields());
+    }
+    for (SelectColumn col :
+        select.getSubselect().stream()
+            .filter(
+                s ->
+                    !s.getColumn().equals(COUNT_FIELD)
+                        && !s.getColumn().equals(SUM_FIELD)
+                        && !s.getColumn().equals(MAX_FIELD)
+                        && !s.getColumn().equals(MIN_FIELD))
+            .toList()) {
       Column selectColumn =
           col.getColumn().endsWith("_agg") || col.getColumn().endsWith("_groupBy")
               ? getColumnByName(table, col.getColumn().replace("_agg", "").replace("_groupBy", ""))
               : getColumnByName(table, col.getColumn());
-      subselect.addAll(selectColumn.getCompositeFields());
+      if (!selectColumn.isRefback()) {
+        subselect.addAll(selectColumn.getCompositeFields());
+      }
     }
     return subselect;
   }
@@ -721,6 +732,23 @@ public class SqlQuery extends QueryBean {
       throw new MolgenisException("COUNt or SUM is required when using group by");
     }
 
+    // filter conditions
+    Condition condition = null;
+    if (filter != null || searchTerms.length > 1) {
+      condition =
+          row(table.getPrimaryKeyFields())
+              .in(
+                  jsonFilterQuery(
+                      table,
+                      column,
+                      tableAlias,
+                      subAlias,
+                      null,
+                      filter,
+                      searchTerms,
+                      table.getPrimaryKeyFields()));
+    }
+
     Set<Field> aggregationFields = new HashSet<>(); // sum(x), count, etc
     Set<Field> groupByFields = new HashSet<>(); // name, ref{otherName}, etc
     Set<Field> nonArraySourceFields = new HashSet<>(); // xo x, name, except those from ref_array
@@ -823,15 +851,9 @@ public class SqlQuery extends QueryBean {
     SelectJoinStep<org.jooq.Record> sourceQuery =
         jooq.select(asterisk())
             .from(
-                jsonFilterQuery(
-                    table,
-                    column,
-                    tableAlias,
-                    subAlias,
-                    null,
-                    filter,
-                    searchTerms,
-                    nonArraySourceFields));
+                jooq.select(nonArraySourceFields)
+                    .from(tableWithInheritanceJoin(table).as(alias(tableAlias)))
+                    .where(condition));
     for (SelectConnectByStep unnestQuery : refArraySubqueries) {
       // joining on primary key in natural join
       sourceQuery = sourceQuery.naturalLeftOuterJoin(unnestQuery);
@@ -1390,12 +1412,14 @@ public class SqlQuery extends QueryBean {
 
   private static SelectJoinStep<org.jooq.Record> limitOffsetOrderBy(
       TableMetadata table, SelectColumn select, SelectConnectByStep<org.jooq.Record> query) {
-    query = SqlQueryBuilderHelpers.orderBy(table, select, query);
-    if (select.getLimit() > 0) {
-      query = (SelectConditionStep) query.limit(select.getLimit());
-    }
-    if (select.getOffset() > 0) {
-      query = (SelectConditionStep) query.offset(select.getOffset());
+    if (select != null) {
+      query = SqlQueryBuilderHelpers.orderBy(table, select, query);
+      if (select.getLimit() > 0) {
+        query = (SelectConditionStep) query.limit(select.getLimit());
+      }
+      if (select.getOffset() > 0) {
+        query = (SelectConditionStep) query.offset(select.getOffset());
+      }
     }
     return (SelectJoinStep<org.jooq.Record>) query;
   }
