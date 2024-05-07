@@ -299,8 +299,7 @@ public class SqlQuery extends QueryBean {
     long start = System.currentTimeMillis();
     // UNCOMMENT TO SEE QUERIES EVEN IF THEY FAIL
     // logger.info(query.getSQL(ParamType.INLINED));
-    String result =
-        query.fetchOne().get(0, String.class); // todo, can we here convert it to object tree?
+    String result = query.fetchOne().get(0, String.class);
     if (logger.isInfoEnabled()) {
       logger.info(
           "query in {}ms: {}", System.currentTimeMillis() - start, query.getSQL(ParamType.INLINED));
