@@ -38,8 +38,7 @@ public class BeaconQuery {
   public void setRequestParameters(Map<String, String> requestParameters) {
     for (var entry : requestParameters.entrySet()) {
       this.requestParameters.put(
-          entry.getKey(),
-          new BeaconRequestParameters(entry.getKey(), entry.getValue()));
+          entry.getKey(), new BeaconRequestParameters(entry.getKey(), entry.getValue()));
     }
   }
 
