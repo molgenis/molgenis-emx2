@@ -147,7 +147,7 @@ jobs:
           while true; 
               do 
                   STATUS=$(curl --silent --head $GETURL | awk '/^HTTP/{print $2}')
-                  echo ${STATUS}
+                  echo ${STATUS} ${GETURL}
                   if [[ "$STATUS" == "200" ]]; then 
                       echo "preview is up";
                       break; 
@@ -242,7 +242,7 @@ jobs:
     docker:
     - image: mcr.microsoft.com/playwright:v1.43.0-jammy
     steps:
-    - checkout
+    - pre-steps
     - run: npm i -D @playwright/test
     - run: npx playwright install chrome
     - run:
@@ -252,7 +252,7 @@ jobs:
           while true; 
               do 
                   STATUS=$(curl --silent --head $GETURL | awk '/^HTTP/{print $2}')
-                  echo ${STATUS}
+                  echo ${STATUS} ${GETURL}
                   if [[ "$STATUS" == "200" ]]; then 
                       echo "preview is up";
                       break; 
