@@ -66,6 +66,8 @@ spec:
             - -c
             - shared_buffers=256MB
             - -c
+            - jit=off
+            - -c
             - max_locks_per_transaction=1024
           env:
             - name: POSTGRES_DB
