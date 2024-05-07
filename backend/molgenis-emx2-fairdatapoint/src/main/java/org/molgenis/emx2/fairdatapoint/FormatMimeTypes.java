@@ -1,13 +1,11 @@
 package org.molgenis.emx2.fairdatapoint;
 
 import java.util.Set;
-import java.util.TreeSet;
 
 public class FormatMimeTypes {
 
   /** Possible download formats for EMX2 tables */
-  public static final Set<String> FORMATS =
-      new TreeSet<>(Set.of("csv", "ttl", "excel", "zip", "graphql"));
+  public static final Set<String> FORMATS = Set.of("csv", "ttl", "excel", "zip", "graphql");
 
   /**
    * Convert a format into its corresponding MIME type

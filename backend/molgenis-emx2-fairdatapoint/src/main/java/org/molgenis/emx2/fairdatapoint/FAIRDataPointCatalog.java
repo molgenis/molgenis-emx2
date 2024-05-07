@@ -235,7 +235,7 @@ public class FAIRDataPointCatalog {
 
   private static void nullCheckOnPropVal(String[] propertyValueSplit) throws Exception {
     if (propertyValueSplit.length != 2) {
-      throw new Exception(
+      throw new IllegalArgumentException(
           "propertyValue should contain strings that each consist of 2 elements separated by 1 whitespace");
     }
   }

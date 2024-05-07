@@ -161,7 +161,8 @@ public class FAIRDataPoint {
           iri("http://www.w3.org/ns/ldp#hasMemberRelation"),
           iri("https://w3id.org/fdp/fdp-o#metadataCatalog"));
       builder.add(apiFdpCatalogEnc, iri("http://www.w3.org/ns/ldp#membershipResource"), apiFdpEnc);
-      iterateOverSchemasAddPropVal(allCatalogFromJSON, apiFdpCatalog, builder, apiFdpCatalogEnc, apiFdpEnc);
+      iterateOverSchemasAddPropVal(
+          allCatalogFromJSON, apiFdpCatalog, builder, apiFdpCatalogEnc, apiFdpEnc);
     }
 
     /*
@@ -202,13 +203,27 @@ public class FAIRDataPoint {
     return stringWriter.toString();
   }
 
-  private static void iterateOverSchemasAddPropVal(Map<String, List<Map<String, Object>>> allCatalogFromJSON, String apiFdpCatalog, ModelBuilder builder, IRI apiFdpCatalogEnc, IRI apiFdpEnc) throws Exception {
+  private static void iterateOverSchemasAddPropVal(
+      Map<String, List<Map<String, Object>>> allCatalogFromJSON,
+      String apiFdpCatalog,
+      ModelBuilder builder,
+      IRI apiFdpCatalogEnc,
+      IRI apiFdpEnc)
+      throws Exception {
     for (String schemaName : allCatalogFromJSON.keySet()) {
-      propValsPerSchema(allCatalogFromJSON, apiFdpCatalog, builder, apiFdpCatalogEnc, apiFdpEnc, schemaName);
+      propValsPerSchema(
+          allCatalogFromJSON, apiFdpCatalog, builder, apiFdpCatalogEnc, apiFdpEnc, schemaName);
     }
   }
 
-  private static void propValsPerSchema(Map<String, List<Map<String, Object>>> allCatalogFromJSON, String apiFdpCatalog, ModelBuilder builder, IRI apiFdpCatalogEnc, IRI apiFdpEnc, String schemaName) throws Exception {
+  private static void propValsPerSchema(
+      Map<String, List<Map<String, Object>>> allCatalogFromJSON,
+      String apiFdpCatalog,
+      ModelBuilder builder,
+      IRI apiFdpCatalogEnc,
+      IRI apiFdpEnc,
+      String schemaName)
+      throws Exception {
     for (Map<String, Object> map : allCatalogFromJSON.get(schemaName)) {
       IRI catalogIriEnc = encodedIRI(apiFdpCatalog + "/" + schemaName + "/" + map.get("id"));
       builder.add(apiFdpCatalogEnc, iri("http://www.w3.org/ns/ldp#contains"), catalogIriEnc);
@@ -217,13 +232,15 @@ public class FAIRDataPoint {
     }
   }
 
-  private static void nullCheckOnPropVal(ModelBuilder builder, Map<String, Object> map, IRI catalogIriEnc) throws Exception {
+  private static void nullCheckOnPropVal(
+      ModelBuilder builder, Map<String, Object> map, IRI catalogIriEnc) throws Exception {
     if (map.get("propertyValue") != null) {
       splitPropValAndAddToBuilder(builder, map, catalogIriEnc);
     }
   }
 
-  private static void splitPropValAndAddToBuilder(ModelBuilder builder, Map<String, Object> map, IRI catalogIriEnc) throws Exception {
+  private static void splitPropValAndAddToBuilder(
+      ModelBuilder builder, Map<String, Object> map, IRI catalogIriEnc) throws Exception {
     for (String propertyValue : (List<String>) map.get("propertyValue")) {
       String[] propertyValueSplit = propertyValue.split(" ", -1);
       checkPropValSplitLength(propertyValueSplit);
@@ -233,7 +250,7 @@ public class FAIRDataPoint {
 
   private static void checkPropValSplitLength(String[] propertyValueSplit) throws Exception {
     if (propertyValueSplit.length != 2) {
-      throw new Exception(
+      throw new IllegalArgumentException(
           "propertyValue should contain strings that each consist of 2 elements separated by 1 whitespace");
     }
   }
