@@ -408,7 +408,8 @@ public class SqlQuery extends QueryBean {
                     (SqlTableMetadata) c.getRefTable(),
                     column,
                     tableAlias,
-                    subAlias,
+                    // is this correct?
+                    subAlias + c.getName(),
                     null,
                     f,
                     new String[0],

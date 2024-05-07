@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.ExecutionResult;
 import graphql.GraphQL;
 import graphql.execution.AsyncExecutionStrategy;
+import graphql.parser.ParserOptions;
 import graphql.schema.GraphQLObjectType;
 import graphql.schema.GraphQLSchema;
 import java.io.IOException;
@@ -148,6 +149,11 @@ public class GraphqlApiFactory {
     mutationBuilder.field(tableField.deleteMutation(schema));
 
     // assemble and return
+    ParserOptions.setDefaultParserOptions(
+        ParserOptions.getDefaultParserOptions().transform(opts -> opts.maxTokens(1000000)));
+    ParserOptions.setDefaultOperationParserOptions(
+        ParserOptions.getDefaultOperationParserOptions()
+            .transform(opts -> opts.maxTokens(1000000)));
     GraphQL result =
         GraphQL.newGraphQL(
                 GraphQLSchema.newSchema()
