@@ -31,7 +31,7 @@ public class SqlUserAwareConnectionProvider extends DataSourceConnectionProvider
         // as non admin you are a current user
         DSL.using(connection, SQLDialect.POSTGRES)
             .execute(
-                "RESET ROLE; SET ROLE {0}; SET jit='off';", name(MG_USER_PREFIX + getActiveUser()));
+                "RESET ROLE; SET jit='off'; SET ROLE {0};", name(MG_USER_PREFIX + getActiveUser()));
       }
       return connection;
     } catch (DataAccessException dae) {
