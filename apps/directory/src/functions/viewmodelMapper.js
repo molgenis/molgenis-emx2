@@ -306,7 +306,9 @@ export const collectionReportInformation = (collection) => {
   }
 
   if (collection.also_known) {
-    collectionReport.also_known = mapAlsoKnownIn(collection);
+    collectionReport.also_known = collection.also_known
+      ? mapAlsoKnownIn(collection)
+      : undefined;
   }
 
   if (collection.biobank) {
@@ -365,9 +367,11 @@ export const mapNetworkInfo = (data) => {
 };
 
 export const mapAlsoKnownIn = (instance) => {
-  return instance.also_known.map((item) => {
-    return { value: item.url, type: "url", label: item.name_system };
-  });
+  return (
+    instance.also_known?.map((item) => {
+      return { value: item.url, type: "url", label: item.name_system };
+    }) || []
+  );
 };
 
 export const mapQualityStandards = (instance) => {
