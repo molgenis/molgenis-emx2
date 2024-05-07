@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 
 import { buildQueryFilter } from "./buildQueryFilter";
-import type { IFilter } from "~/interfaces/types";
+import type { IFilter, IFilterCondition } from "~/interfaces/types";
 
 describe("buildQueryFilter", () => {
   const filters: IFilter[] = [
@@ -68,5 +68,52 @@ describe("buildQueryFilter", () => {
     };
     const filterString = buildQueryFilter(filters);
     expect(expectedFilter).toEqual(filterString);
+  });
+
+  it("should use the buildFilterFunction to build the filter confition(s) if it is set on the filter config", () => {
+    const filtersWithFunction: IFilter[] = [
+      {
+        id: "cohorts",
+        config: {
+          label: "Cohorts",
+          type: "REF_ARRAY",
+          refTableId: "Cohorts",
+          buildFilterFunction: (_: any, conditions: IFilterCondition[]) => {
+            return {
+              mappings: {
+                source: { equals: conditions.map((c) => ({ id: c.name })) },
+              },
+            };
+          },
+          refFields: {
+            key: "id",
+            name: "id",
+            description: "name",
+          },
+        },
+        conditions: [
+          {
+            name: "foo",
+          },
+          {
+            name: "bar",
+          },
+        ],
+      },
+    ];
+    expect(buildQueryFilter(filtersWithFunction)).toEqual({
+      mappings: {
+        source: {
+          equals: [
+            {
+              id: "foo",
+            },
+            {
+              id: "bar",
+            },
+          ],
+        },
+      },
+    });
   });
 });
