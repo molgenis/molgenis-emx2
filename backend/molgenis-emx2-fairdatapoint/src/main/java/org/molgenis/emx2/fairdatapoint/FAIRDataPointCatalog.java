@@ -197,10 +197,7 @@ public class FAIRDataPointCatalog {
     if (catalogFromJSON.get("propertyValue") != null) {
       for (String propertyValue : (List<String>) catalogFromJSON.get("propertyValue")) {
         String[] propertyValueSplit = propertyValue.split(" ", -1);
-        if (propertyValueSplit.length != 2) {
-          throw new Exception(
-              "propertyValue should contain strings that each consist of 2 elements separated by 1 whitespace");
-        }
+        nullCheckOnPropVal(propertyValueSplit);
         builder.add(reqUrl, iri(propertyValueSplit[0]), iri(propertyValueSplit[1]));
       }
     }
@@ -234,6 +231,13 @@ public class FAIRDataPointCatalog {
     StringWriter stringWriter = new StringWriter();
     Rio.write(model, stringWriter, applicationOntologyFormat, config);
     this.result = stringWriter.toString();
+  }
+
+  private static void nullCheckOnPropVal(String[] propertyValueSplit) throws Exception {
+    if (propertyValueSplit.length != 2) {
+      throw new Exception(
+          "propertyValue should contain strings that each consist of 2 elements separated by 1 whitespace");
+    }
   }
 
   /**
