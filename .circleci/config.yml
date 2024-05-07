@@ -43,12 +43,12 @@ definitions:
       TERM: dumb
   release_config: &release_config
     docker:
-      - image: molgenis/ci-build:1.2.3
-      - image: postgres:15-alpine
-        environment:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: postgres
+    - image: molgenis/ci-build:1.2.3
+    - image: postgres:15-alpine
+      environment:
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: postgres
+        POSTGRES_DB: postgres
     working_directory: ~/repo
     resource_class: large
     environment:
@@ -70,14 +70,14 @@ commands:
           git config user.name "mswertz"
           git config url.https://.insteadOf git://
     - run:
-          name: Concatenate Build Files as key for cache
-          command: |
-              find . -name 'build.gradle' -type f -exec cat {} \; > concatenated-build-gradle
-          no_output_timeout: 5m
+        name: Concatenate Build Files as key for cache
+        command: |
+          find . -name 'build.gradle' -type f -exec cat {} \; > concatenated-build-gradle
+        no_output_timeout: 5m
     - restore_cache:
         keys:
-          - gradle-{{ checksum "concatenated-build-gradle" }}
-          - gradle
+        - gradle-{{ checksum "concatenated-build-gradle" }}
+        - gradle
     - restore_cache:
         keys:
         - gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
@@ -86,11 +86,11 @@ commands:
         command: ./gradlew dependencies --no-daemon
     - save_cache:
         paths:
-          - ~/.gradle/wrapper
+        - ~/.gradle/wrapper
         key: gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
     - save_cache:
         paths:
-          - ~/.gradle/caches
+        - ~/.gradle/caches
         key: gradle-{{ checksum "concatenated-build-gradle" }}
     - setup_remote_docker:
         docker_layer_caching: true
@@ -132,7 +132,7 @@ jobs:
           export $( cat build/ci.properties | xargs )
           docker build apps/nuxt3-ssr/ -t molgenis/ssr-catalogue-snapshot:latest -t molgenis/ssr-catalogue-snapshot:${TAG_NAME}
           docker push molgenis/ssr-catalogue-snapshot --all-tags
-    
+
     - run:
         name: deploy preview to azure
         command: |
@@ -194,7 +194,7 @@ jobs:
 
     steps:
     - pre_steps
-    
+
     - run:
         name: prepare sql test database
         command: psql -h 127.0.0.1 -p 5432 -U postgres < .docker/initdb.sql
@@ -240,76 +240,76 @@ jobs:
     - post_steps
   e2e-test:
     docker:
-      - image: mcr.microsoft.com/playwright:v1.43.0-jammy
+    - image: mcr.microsoft.com/playwright:v1.43.0-jammy
     steps:
-      - checkout
-      - run: npm i -D @playwright/test
-      - run: npx playwright install chrome
-      - run:
-          name: Wait for e2e test data to be loaded, poll every 10 seconds
-          command: |
-            GETURL="https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/catalogue-demo/ssr-catalogue/testNetwork1"
-            while true; 
-                do 
-                    STATUS=$(curl --silent --head $GETURL | awk '/^HTTP/{print $2}')
-                    echo ${STATUS}
-                    if [[ "$STATUS" == "200" ]]; then 
-                        echo "preview is up";
-                        break; 
-                    else 
-                        echo "preview is not ready yet, waiting 10 seconds...";
-                    fi; 
-                    sleep 10; 
-                done
-      - run:
-          command: | 
-            echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
-            export E2E_BASE_URL=https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/
-            echo $E2E_BASE_URL
-            npx playwright test --config e2e e2e/tests
-      - store_test_results:
-         path: /root/project/e2e
-      - store_artifacts:
-          path: /root/project/e2e/test-results
+    - checkout
+    - run: npm i -D @playwright/test
+    - run: npx playwright install chrome
+    - run:
+        name: Wait for e2e test data to be loaded, poll every 10 seconds
+        command: |
+          GETURL="https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/catalogue-demo/ssr-catalogue/testNetwork1"           
+          while true; 
+              do 
+                  STATUS=$(curl --silent --head $GETURL | awk '/^HTTP/{print $2}')
+                  echo ${STATUS}
+                  if [[ "$STATUS" == "200" ]]; then 
+                      echo "preview is up";
+                      break; 
+                  else 
+                      echo "preview is not ready yet, waiting 10 seconds...";
+                  fi; 
+                  sleep 10; 
+              done
+    - run:
+        command: |
+          echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
+          export E2E_BASE_URL=https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/
+          echo $E2E_BASE_URL
+          npx playwright test --config e2e e2e/tests
+    - store_test_results:
+        path: /root/project/e2e
+    - store_artifacts:
+        path: /root/project/e2e/test-results
 
   emx2-pyclient:
     <<: *build_config
 
     steps:
-      - pre_steps
-      - run:
-          name: Reset TWINE_PASSWORD in case of release to PyPI (default is testPyPI token)
-          command: |
-            if [ -z "$CIRCLE_PULL_REQUEST" ]; then
-               echo "Reset testPyPI token to PyPI token"
-               echo "export TWINE_PASSWORD=$PYPI_PASSWORD" >> "$BASH_ENV"
-            fi
-      - run:
-          name: Release to (test)PyPI based on commit message
-          command: |
-            export REGEX="^.*(emx2-pyclient).*$"
-            if [[ $(git log -1 --pretty=format:%s) =~ $REGEX ]]; then
-              export $( cat build/ci.properties | xargs )
-              ./gradlew -s --no-daemon publishPython > pypi_output
-              curl -d "token=${SLACK_TOKEN}" \
-              -d "text=*<${CIRCLE_PULL_REQUEST}|Circle-CI » Molgenis » Molgenis-emx2 » PR-${CIRCLE_PULL_REQUEST##*/} #${CIRCLE_BUILD_NUM}>*
-              A new molgenis-emx2-pyclient version is released: $( grep 'View at:' pypi_output -A 1 | grep -v 'View at:' )" \
-              -d "channel=C02AZDG6QQ7" \
-              -X POST https://slack.com/api/chat.postMessage
-            else
-              echo "No release to (test)PyPI needed"
-            fi
-      - run:
-          name: Message slack about a new molgenis-emx2-pyclient version
-          command: |
-            export REGEX="^.*(emx2-pyclient).*$"
-            if [[ $(git log -1 --pretty=format:%s) =~ $REGEX ]]; then
-              curl -d "token=${SLACK_TOKEN}" \
-              -d "text=*<${CIRCLE_PULL_REQUEST}|Circle-CI » Molgenis » Molgenis-emx2 » PR-${CIRCLE_PULL_REQUEST##*/} #${CIRCLE_BUILD_NUM}>*
-              A new molgenis-emx2-pyclient version is released: $( grep 'View at:' pypi_output -A 1 | grep -v 'View at:' )" \
-              -d "channel=C02AZDG6QQ7" \
-              -X POST https://slack.com/api/chat.postMessage
-            fi           
+    - pre_steps
+    - run:
+        name: Reset TWINE_PASSWORD in case of release to PyPI (default is testPyPI token)
+        command: |
+          if [ -z "$CIRCLE_PULL_REQUEST" ]; then
+             echo "Reset testPyPI token to PyPI token"
+             echo "export TWINE_PASSWORD=$PYPI_PASSWORD" >> "$BASH_ENV"
+          fi
+    - run:
+        name: Release to (test)PyPI based on commit message
+        command: |
+          export REGEX="^.*(emx2-pyclient).*$"
+          if [[ $(git log -1 --pretty=format:%s) =~ $REGEX ]]; then
+            export $( cat build/ci.properties | xargs )
+            ./gradlew -s --no-daemon publishPython > pypi_output
+            curl -d "token=${SLACK_TOKEN}" \
+            -d "text=*<${CIRCLE_PULL_REQUEST}|Circle-CI » Molgenis » Molgenis-emx2 » PR-${CIRCLE_PULL_REQUEST##*/} #${CIRCLE_BUILD_NUM}>*
+            A new molgenis-emx2-pyclient version is released: $( grep 'View at:' pypi_output -A 1 | grep -v 'View at:' )" \
+            -d "channel=C02AZDG6QQ7" \
+            -X POST https://slack.com/api/chat.postMessage
+          else
+            echo "No release to (test)PyPI needed"
+          fi
+    - run:
+        name: Message slack about a new molgenis-emx2-pyclient version
+        command: |
+          export REGEX="^.*(emx2-pyclient).*$"
+          if [[ $(git log -1 --pretty=format:%s) =~ $REGEX ]]; then
+            curl -d "token=${SLACK_TOKEN}" \
+            -d "text=*<${CIRCLE_PULL_REQUEST}|Circle-CI » Molgenis » Molgenis-emx2 » PR-${CIRCLE_PULL_REQUEST##*/} #${CIRCLE_BUILD_NUM}>*
+            A new molgenis-emx2-pyclient version is released: $( grep 'View at:' pypi_output -A 1 | grep -v 'View at:' )" \
+            -d "channel=C02AZDG6QQ7" \
+            -X POST https://slack.com/api/chat.postMessage
+          fi           
 
   delete-helm-preview:
     <<: *build_config
@@ -319,7 +319,7 @@ jobs:
     
     steps:
     - pre_steps
-    
+
     - run:
         name: delete preview on azure
         command: |
@@ -331,7 +331,7 @@ workflows:
   version: 2
   build_and_test_and_preview_or_release:
     unless:
-      equal: [ "delete-pr-preview", << pipeline.parameters.GHA_Action >> ]
+      equal: ["delete-pr-preview", << pipeline.parameters.GHA_Action >>]
     jobs:
     - preview:
         filters:
@@ -339,33 +339,33 @@ workflows:
             ignore: master
     - e2e-test:
         requires:
-          - preview
+        - preview
         filters:
-            branches:
-              ignore: master
+          branches:
+            ignore: master
     - test:
-       filters:
-         branches:
-           ignore: master
+        filters:
+          branches:
+            ignore: master
     - emx2-pyclient:
         name: testPyPI release
         filters:
           branches:
             ignore: master
     - release:
-       filters:
-         branches:
-           only: master
+        filters:
+          branches:
+            only: master
     - emx2-pyclient:
         name: PyPI release
         requires:
-          - release
+        - release
         filters:
           branches:
             only: master
 
   delete_preview:
     when:
-      equal: [ "delete-pr-preview", << pipeline.parameters.GHA_Action >> ]
+      equal: ["delete-pr-preview", << pipeline.parameters.GHA_Action >>]
     jobs:
     - delete-helm-preview
