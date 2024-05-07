@@ -1,6 +1,12 @@
 <script setup lang="ts">
-import type { IFilter, IMgError } from "~/interfaces/types";
+import type {
+  IFilter,
+  IMgError,
+  IFilterCondition,
+  IRefArrayFilter,
+} from "~/interfaces/types";
 import mappingsFragment from "~~/gql/fragments/mappings";
+import type { INode } from "../../../../../../tailwind-components/types/types";
 
 const route = useRoute();
 const router = useRouter();
@@ -64,11 +70,81 @@ const pageFilterTemplate: IFilter[] = [
       ontologyTableId: "Keywords",
       ontologySchema: "CatalogueOntologies",
       columnId: "keywords",
-      initialCollapsed: false,
+      initialCollapsed: true,
     },
     conditions: [],
   },
+  {
+    id: "cohorts",
+    config: {
+      label: "Cohorts",
+      type: "REF_ARRAY",
+      refTableId: "Cohorts",
+      buildFilterFunction: (
+        filterBuilder: Record<string, Record<string, any>>,
+        conditions: IFilterCondition[]
+      ) => {
+        return {
+          ...filterBuilder,
+          ...{
+            _or: [
+              {
+                mappings: {
+                  source: { equals: conditions.map((c) => ({ id: c.name })) },
+                  match: { name: { equals: ["complete", "partial"] } },
+                },
+              },
+              {
+                repeats: {
+                  mappings: {
+                    source: { equals: conditions.map((c) => ({ id: c.name })) },
+                    match: { name: { equals: ["complete", "partial"] } },
+                  },
+                },
+              },
+            ],
+          },
+        };
+      },
+      refFields: {
+        name: "id",
+        description: "name",
+      },
+    },
+    options: fetchCohortOptions,
+    conditions: [],
+  },
 ];
+
+async function fetchCohortOptions(): Promise<INode[]> {
+  const { data, error } = await $fetch(`/${route.params.schema}/graphql`, {
+    method: "POST",
+    body: {
+      query: `
+            query CohortsOptions($cohortsFilter: CohortsFilter) {
+              Cohorts(filter: $cohortsFilter, orderby: { id: ASC }) {
+                id
+                name
+              }
+            }
+          `,
+      variables: scoped
+        ? {
+            cohortsFilter: {
+              networks: { equals: [{ id: catalogueRouteParam }] },
+            },
+          }
+        : undefined,
+    },
+  });
+
+  return data.Cohorts.map((option: { id: string; name?: string }) => {
+    return {
+      name: option.id,
+      description: option.name,
+    } as INode;
+  });
+}
 
 const filters = computed(() => {
   // if there are not query conditions just use the page defaults
@@ -89,11 +165,10 @@ const query = computed(() => {
   query VariablesPage(
     $variablesFilter:VariablesFilter,
     $cohortsFilter:CohortsFilter,
-    $orderby:Variablesorderby
   ){
     Variables(limit: ${pageSize} offset: ${
     offset.value
-  } filter:$variablesFilter  orderby:$orderby) {
+  } filter:$variablesFilter  orderby: { name: ASC }) {
       name
       resource {
         id
@@ -135,23 +210,20 @@ const numberOfCohorts = computed(() => {
 
 const graphqlURL = computed(() => `/${route.params.schema}/graphql`);
 
-const orderby = { label: "ASC" };
-const typeFilter = { resource: { mg_tableclass: { like: ["Models"] } } };
-
 const filter = computed(() => {
-  return {
-    ...buildQueryFilter(filters.value),
-    ...typeFilter,
-  };
+  return buildQueryFilter(filters.value);
 });
 
-const fetchData = async () => {
-  let resourceCondition = {};
-  if (scoped) {
-    const { data, error } = await $fetch(`/${route.params.schema}/graphql`, {
-      method: "POST",
-      body: {
-        query: `
+const cachedScopedResouceFilter = ref();
+
+async function buildScopedModelFilter() {
+  if (cachedScopedResouceFilter.value) {
+    return cachedScopedResouceFilter.value;
+  }
+  const { data, error } = await $fetch(`/${route.params.schema}/graphql`, {
+    method: "POST",
+    body: {
+      query: `
             query Networks($filter:NetworksFilter) {
               Networks(filter:$filter){
                  models {
@@ -159,35 +231,63 @@ const fetchData = async () => {
                  }
               }
             }`,
-        variables: { filter: { id: { equals: catalogueRouteParam } } },
+      variables: { filter: { id: { equals: catalogueRouteParam } } },
+    },
+  });
+
+  if (error) {
+    console.log("models error: ", error);
+    return { error };
+  }
+
+  const modelIds = data.Networks[0].models.map((m: { id: string }) => m.id);
+
+  const scopedResourceFilter = {
+    resource: {
+      mg_tableclass: { like: ["Models"] },
+      id: {
+        equals: modelIds,
       },
-    });
+    },
+  };
 
-    if (error) {
-      console.log("models error: ", error);
-      return { error };
-    }
+  cachedScopedResouceFilter.value = scopedResourceFilter;
 
-    const modelIds = data.Networks[0].models.map((m: { id: string }) => m.id);
+  return scopedResourceFilter;
+}
 
-    resourceCondition = {
-      resource: {
-        id: {
-          equals: modelIds,
-        },
-      },
+const fetchData = async () => {
+  let cohortsFilter: any = {};
+  if (scoped) {
+    cohortsFilter.networks = { equals: [{ id: catalogueRouteParam }] };
+  }
+
+  // add 'special' filter for harmonization x-axis if 'cohorts' filter is set
+  const cohortConditions = (
+    pageFilterTemplate.find((f) => f.id === "cohorts") as IRefArrayFilter
+  )?.conditions;
+  if (cohortConditions.length) {
+    cohortsFilter = {
+      ...cohortsFilter,
+      equals: cohortConditions.map((c) => ({ id: c.name })),
     };
   }
 
-  const variables = {
-    orderby,
-    variablesFilter: scoped
-      ? { ...filter.value, ...resourceCondition }
-      : filter.value,
-    cohortsFilter: scoped
-      ? { networks: { equals: [{ id: catalogueRouteParam }] } }
-      : {},
-  };
+  const variables = scoped
+    ? {
+        variablesFilter: {
+          ...filter.value,
+          ...(await buildScopedModelFilter()),
+        },
+        cohortsFilter,
+      }
+    : {
+        variablesFilter: {
+          ...filter.value,
+          resource: { mg_tableclass: { like: ["Models"] } },
+        },
+        cohortsFilter,
+      };
 
   return $fetch(graphqlURL.value, {
     key: `variables-${offset.value}`,
@@ -201,10 +301,10 @@ const fetchData = async () => {
 
 // We need to use the useAsyncData hook to fetch the data because sadly multiple backendend calls need to be synchronized to create the final query
 // todo: update datamodel to allow for single fetch from single indexed table
-const { data, error } = await useAsyncData<any, IMgError>(
+const { data, error, pending } = await useAsyncData<any, IMgError>(
   `variables-page-${catalogueRouteParam}-${route.query}`,
   fetchData,
-  { watch: [filters, offset] }
+  { watch: [computed(() => route.query.conditions), offset] }
 );
 
 function onFilterChange(filters: IFilter[]) {
@@ -237,7 +337,7 @@ crumbs[
           <!-- <NavigationIconsMobile :link="" /> -->
           <PageHeader
             title="Variables"
-            description="A complete overview of available variables."
+            description="A complete overview of harmonised variables"
             :icon="pageIcon"
           >
             <template #prefix>
@@ -272,19 +372,30 @@ crumbs[
         <template #search-results>
           <div class="flex align-start gap-1">
             <SearchResultsCount :value="numberOfVariables" label="variable" />
-            <SearchResultsCount
+            <!--SearchResultsCount
               v-if="numberOfCohorts > 0"
               :value="numberOfCohorts"
               value-prefix="in"
               label="cohort"
-            />
+            /-->
+            <div
+              v-if="pending"
+              class="mt-2 mb-0 lg:mb-3 text-body-lg flex flex-col text-title"
+            >
+              <BaseIcon name="progress-activity" class="animate-spin" />
+            </div>
           </div>
           <FilterWell
+            class="transition-opacity duration-700 ease-in opacity-100"
+            :class="{ 'opacity-25 ease-out': pending }"
             :filters="filters"
             @update:filters="onFilterChange"
           ></FilterWell>
 
-          <SearchResultsList>
+          <SearchResultsList
+            class="transition-opacity duration-700 ease-in opacity-100"
+            :class="{ 'opacity-25 ease-out': pending }"
+          >
             <div
               v-if="data?.data?.Variables_agg.count === 0"
               class="flex justify-center pt-3"

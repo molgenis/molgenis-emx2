@@ -13,149 +13,151 @@
   </div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
+import { computed } from "vue";
 import { useFiltersStore } from "../../stores/filtersStore";
-export default {
-  setup() {
-    const filtersStore = useFiltersStore();
-    return { filtersStore };
-  },
-  props: {
-    viewmodel: {
-      type: Object,
-      required: true,
+import { IOntologyItem } from "../../interfaces/interfaces";
+const filtersStore = useFiltersStore();
+
+const { viewmodel } = defineProps<{
+  viewmodel: Record<string, any>;
+}>();
+const filterInfoDictionary = computed(() => {
+  return filtersStore.filterFacets.reduce(
+    (
+      accum: Record<string, { column: any; label: string }>,
+      filter: {
+        facetIdentifier: string;
+        applyToColumn: any;
+        facetTitle: string;
+      }
+    ) => {
+      accum[filter.facetIdentifier] = {
+        column: filter.applyToColumn,
+        label: filter.facetTitle,
+      };
+      return accum;
     },
-  },
-  computed: {
-    filterInfoDictionary() {
-      return this.filtersStore.filterFacets.reduce(
-        (
-          accum: Record<string, { column: any; label: string }>,
-          filter: {
-            facetIdentifier: string;
-            applyToColumn: any;
-            facetTitle: string;
+    {}
+  );
+});
+
+const matches = computed(() => {
+  let matches: IMatch[] = [];
+  const filters: Record<string, any> = filtersStore.filters;
+  const filterIds = Object.keys(filters);
+  for (const filterId of filterIds) {
+    const activeFilterValues = filters[filterId];
+
+    if (activeFilterValues?.length) {
+      /** no need to check further if there are no active filters */
+
+      const filterColumn: string | string[] =
+        filterInfoDictionary.value[filterId].column;
+      const columns: string[] = Array.isArray(filterColumn)
+        ? filterColumn
+        : [filterColumn];
+
+      for (const columnId of columns) {
+        const filterName = filterInfoDictionary.value[filterId].label;
+        const potentialMatch = extractValue(columnId, viewmodel);
+
+        if (!potentialMatch) {
+          continue;
+        }
+        const match: IMatch = getMatch(
+          potentialMatch,
+          filterName,
+          activeFilterValues,
+          filtersStore.filterOptionsCache,
+          filterId
+        );
+
+        if (match.value.length > 0) {
+          /** check if it is there, because it can already have been matched on biobank / collection. Do not need it twice */
+          const existingMatch = matches.find(
+            (match) => match.name === filterName
+          );
+          if (existingMatch) {
+            match.value = [
+              //@ts-ignore
+              ...new Set(match.value.concat(existingMatch.value)),
+            ];
+            matches = matches.filter((match) => match.name !== filterName);
           }
-        ) => {
-          accum[filter.facetIdentifier] = {
-            column: filter.applyToColumn,
-            label: filter.facetTitle,
-          };
-          return accum;
-        },
-        {}
-      );
-    },
-    activeFilters(): Record<string, any> {
-      return this.filtersStore.filters;
-    },
-    filterOptionsCache(): Record<string, { value: string; text: string }[]> {
-      return this.filtersStore.filterOptionsCache;
-    },
-    matches() {
-      let matches: IMatch[] = [];
-      const facetIdentifiers = Object.keys(this.activeFilters);
-      for (const facetIdentifier of facetIdentifiers) {
-        const activeFilterValues = this.activeFilters[facetIdentifier];
-
-        if (activeFilterValues?.length) {
-          /** no need to check further if there are no active filters */
-
-          const filterColumn: string | string[] =
-            this.filterInfoDictionary[facetIdentifier].column;
-          const columns: string[] = Array.isArray(filterColumn)
-            ? filterColumn
-            : [filterColumn];
-
-          for (const columnId of columns) {
-            const filterLabel =
-              this.filterInfoDictionary[facetIdentifier].label;
-            const potentialMatch = extractValue(columnId, this.viewmodel);
-
-            if (!potentialMatch) {
-              continue;
-            }
-            const match: IMatch = getMatch(
-              potentialMatch,
-              filterLabel,
-              activeFilterValues,
-              this.filterOptionsCache,
-              facetIdentifier
-            );
-
-            if (match.value.length > 0) {
-              /** check if it is there, because it can already have been matched on biobank / collection. Do not need it twice */
-              const existingMatch = matches.find(
-                (match) => match.name === filterLabel
-              );
-              if (existingMatch) {
-                match.value = [
-                  //@ts-ignore
-                  ...new Set(match.value.concat(existingMatch.value)),
-                ];
-                matches = matches.filter((match) => match.name !== filterLabel);
-              }
-              matches.push(match);
-            }
-          }
+          matches.push(match);
         }
       }
-      return matches;
-    },
-  },
-};
+    }
+  }
+  return matches;
+});
 
 function getMatch(
-  potentialMatch:
-    | { id: string; name: string; label: string }
-    | { id: string; name: string; label: string }[],
+  potentialMatch: string | IOntologyItem | IOntologyItem[],
   filterLabel: string,
   activeFilterValues: any[],
-  filterOptionsCache: Record<string, any>,
-  facetIdentifier: string
+  filterOptions: Record<string, any>,
+  filterId: string
 ): IMatch {
-  const match: IMatch = {
+  let match: IMatch = {
     name: filterLabel,
     value: [],
   };
 
-  for (const activeFilterValue of activeFilterValues) {
-    const optionsCache = filterOptionsCache[facetIdentifier];
-    if (!optionsCache) {
+  for (const filter of activeFilterValues) {
+    const options = filterOptions[filterId];
+    if (!options) {
       continue; /** if the filteroption does not exist */
     }
-    /** we are dealing with a multiple ontology, e.g. diagnosis available we can not deal with that yet */
-    if (!Array.isArray(optionsCache)) {
-      continue;
-    }
-
-    const filterOption = optionsCache.find(
-      (option: Record<string, any>) => option.value === activeFilterValue.value
-    );
-
-    if (!filterOption) continue;
-
-    const filterValue = filterOption.value;
-
-    const isArrayMatch: boolean =
-      Array.isArray(potentialMatch) &&
-      potentialMatch.some(
-        (item) =>
-          item.id === filterValue ||
-          item.name === filterValue ||
-          item.label === filterValue
+    if (!Array.isArray(options)) {
+      if (doesMatch(potentialMatch, filter.name)) {
+        match.value.push(filter.label);
+      }
+    } else {
+      const filterOption = options.find(
+        (option: Record<string, any>) => option.value === filter.value
       );
 
-    const isObjectMatch: boolean =
-      typeof potentialMatch === "object" && filterValue === potentialMatch.id;
-    const isValueMatch: boolean =
-      filterValue.toString() === potentialMatch.toString();
+      if (!filterOption) continue;
 
-    if (isArrayMatch || isObjectMatch || isValueMatch) {
-      match.value.push(filterOption.text);
+      const filterValue = filterOption.value;
+      if (doesMatch(potentialMatch, filterValue)) {
+        match.value.push(filterOption.text);
+      }
     }
   }
   return match;
+}
+
+function doesMatch(potentialMatch: any, filterValue: any) {
+  return (
+    isArrayMatch(potentialMatch, filterValue) ||
+    isObjectMatch(potentialMatch, filterValue) ||
+    isStringMatch(potentialMatch, filterValue)
+  );
+}
+
+function isStringMatch(potentialMatch: any, filterValue: string) {
+  return filterValue.toString() === potentialMatch.toString();
+}
+
+function isObjectMatch(potentialMatch: any, filterValue: string) {
+  return (
+    typeof potentialMatch === "object" && filterValue === potentialMatch.id
+  );
+}
+
+function isArrayMatch(potentialMatch: any, filterValue: string): boolean {
+  return (
+    Array.isArray(potentialMatch) &&
+    potentialMatch.some(
+      (item) =>
+        item.id === filterValue ||
+        item.name === filterValue ||
+        item.label === filterValue
+    )
+  );
 }
 
 function extractValue(columnId: string, viewModel: Record<string, any>) {

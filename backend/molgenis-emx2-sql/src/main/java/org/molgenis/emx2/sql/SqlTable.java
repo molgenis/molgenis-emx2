@@ -330,7 +330,9 @@ class SqlTable implements Table {
     SqlTable table = schema.getTable(subclassName.split("\\.")[1]);
     if (UPDATE.equals(transactionType)) {
       List<Column> updateColumns = getUpdateColumns(table, columnsProvided);
-      List<Row> rows = applyValidationAndComputed(updateColumns, subclassRows.get(subclassName));
+      List<Row> rows =
+          applyValidationAndComputed(
+              table.getMetadata().getColumns(), subclassRows.get(subclassName));
       count.set(count.get() + table.updateBatch(table, rows, updateColumns));
     } else if (SAVE.equals(transactionType) || INSERT.equals(transactionType)) {
       List<Column> insertColumns = getInsertColumns(table, columnsProvided);
