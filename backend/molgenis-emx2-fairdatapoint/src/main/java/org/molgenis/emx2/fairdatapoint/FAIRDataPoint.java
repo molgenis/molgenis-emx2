@@ -248,7 +248,7 @@ public class FAIRDataPoint {
     }
   }
 
-  private static void checkPropValSplitLength(String[] propertyValueSplit) throws Exception {
+  private static void checkPropValSplitLength(String[] propertyValueSplit) {
     if (propertyValueSplit.length != 2) {
       throw new IllegalArgumentException(
           "propertyValue should contain strings that each consist of 2 elements separated by 1 whitespace");
