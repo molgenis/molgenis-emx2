@@ -218,20 +218,27 @@ import {
   calculateIncrement,
 } from "../utils/index";
 
-import type { selectedFiltersIF } from "../interfaces/types";
+import type {
+  selectedFiltersIF,
+  researchCentersIF,
+  primaryTumorSiteIF,
+  metastasisIF,
+  yearOfDiagnosisIF,
+  sexCasesIF,
+} from "../interfaces/types";
 
 const palette = ref(scheme[6]);
 const loading = ref(true);
 const error = ref(false);
 
 const resources = ref([]);
-const researchCenters = ref([]);
+const researchCenters = ref<researchCentersIF[]>([]);
+const primaryTumorSite = ref<primaryTumorSiteIF[]>([]);
+const metastasis = ref<metastasisIF[]>([]);
+const yearOfDiagnosis = ref<yearOfDiagnosisIF[]>([]);
+const sexCases = ref<sexCasesIF>({});
 const researchCenterAxis = ref({ ticks: [], ymax: null });
-const primaryTumorSite = ref([]);
-const metastasis = ref([]);
-const yearOfDiagnosis = ref([]);
 const yearOfDiagnosisAxis = ref({ ticks: [], ymax: null });
-const sexCases = ref({});
 
 const resourcesInput = ref();
 

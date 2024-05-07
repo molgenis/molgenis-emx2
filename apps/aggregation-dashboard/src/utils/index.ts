@@ -169,7 +169,7 @@ export async function getChartData({
         row["percent"] = ((value / total) * 100).toFixed(2);
         return row;
       })
-      .sort((current,next) => current[values] + next[values])
+      .sort((current, next) => current[values] + next[values])
       .reduce((pieData, row) => {
         pieData[row[labels]] = row[values];
         return pieData;
