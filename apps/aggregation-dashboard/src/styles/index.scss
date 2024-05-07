@@ -25,6 +25,10 @@ main.container-fluid {
     gap: $gap;
   }
 
+  .dashboard-row-offset {
+    grid-template-columns: 2fr 1fr;
+  }
+
   .dashboard-box {
     .loading-screen {
       width: 100%;

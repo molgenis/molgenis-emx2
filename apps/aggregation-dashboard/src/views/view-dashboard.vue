@@ -134,7 +134,7 @@
           />
         </DashboardChart>
       </DashboardRow>
-      <DashboardRow :columns="2">
+      <DashboardRow class="dashboard-row-offset" :columns="2">
         <DashboardChart>
           <LoadingScreen style="height: 300px" v-if="loading" />
           <ColumnChart
