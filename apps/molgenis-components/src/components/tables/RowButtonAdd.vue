@@ -22,7 +22,11 @@
 <script setup lang="ts">
 import RowButton from "./RowButton.vue";
 import ButtonOutline from "../forms/ButtonOutline.vue";
-import { ref } from "vue";
+import { defineAsyncComponent, ref } from "vue";
+
+const EditModal = defineAsyncComponent({
+  loader: () => import("../forms/EditModal.vue"),
+});
 
 withDefaults(
   defineProps<{
