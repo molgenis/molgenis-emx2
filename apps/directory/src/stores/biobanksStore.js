@@ -40,35 +40,6 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
     () => !waitingForResponse.value && biobankCards.value?.length
   );
 
-  const biobankCardsBiobankCount = computed(() => {
-    return biobankCards.value.filter((biobankCard) => !biobankCard.withdrawn)
-      .length;
-  });
-
-  const biobankCardsSubcollectionCount = computed(() => {
-    if (!biobankCards.value.length) {
-      return 0;
-    } else {
-      return biobankCards.value
-        .filter((bc) => bc.collections)
-        .flatMap((biobank) =>
-          biobank.collections.filter(
-            (collection) =>
-              !collection.withdrawn && collection.parent_collection
-          )
-        ).length;
-    }
-  });
-
-  const biobankCardsCollectionCount = computed(() => {
-    const totalCount = biobankCards.value
-      .filter((bc) => bc.collections)
-      .flatMap((biobank) =>
-        biobank.collections.filter((collection) => !collection.withdrawn)
-      ).length;
-    return totalCount - biobankCardsSubcollectionCount.value;
-  });
-
   function getFacetColumnDetails() {
     if (!facetBiobankColumnDetails.value.length) {
       const filterFacetProperties = [];
@@ -204,9 +175,7 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
     getPresentFilterOptions,
     waiting: waitingForResponse,
     biobankCardsHaveResults,
-    biobankCardsBiobankCount,
-    biobankCardsCollectionCount,
-    biobankCardsSubcollectionCount,
+
     biobankCards,
     baseQuery,
   };

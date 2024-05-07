@@ -9,15 +9,15 @@
       <tbody>
         <tr>
           <td class="pr-1">Organisations:</td>
-          <td>{{ biobanksStore.biobankCardsBiobankCount }}</td>
+          <td>{{ filtersStore.biobankCardsBiobankCount }}</td>
         </tr>
         <tr>
           <td class="pr-1">Collection(s):</td>
-          <td>{{ biobanksStore.biobankCardsCollectionCount }}</td>
+          <td>{{ filtersStore.biobankCardsCollectionCount }}</td>
         </tr>
-        <tr v-if="biobanksStore.biobankCardsSubcollectionCount > 0">
+        <tr v-if="filtersStore.biobankCardsSubcollectionCount > 0">
           <td class="pr-1">Subcollection(s):</td>
-          <td>{{ biobanksStore.biobankCardsSubcollectionCount }}</td>
+          <td>{{ filtersStore.biobankCardsSubcollectionCount }}</td>
         </tr>
       </tbody>
     </table>
@@ -25,12 +25,12 @@
 </template>
 
 <script>
-import { useBiobanksStore } from "../../stores/biobanksStore";
+import { useFiltersStore } from "../../stores/filtersStore.ts";
 
 export default {
   setup() {
-    const biobanksStore = useBiobanksStore();
-    return { biobanksStore };
+    const filtersStore = useFiltersStore();
+    return { filtersStore };
   },
 };
 </script>

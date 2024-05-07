@@ -1,11 +1,10 @@
 import { defineStore, storeToRefs } from "pinia";
 import { computed, ref, watch } from "vue";
 import { createFilters } from "../filter-config/facetConfigurator";
-import { applyFiltersToQuery } from "../functions/applyFiltersToQuery";
-import { useBiobanksStore } from "./biobanksStore";
-import { useSettingsStore } from "./settingsStore";
-import { useCheckoutStore } from "./checkoutStore";
 import { applyBookmark, createBookmark } from "../functions/bookmarkMapper";
+import { useBiobanksStore } from "./biobanksStore";
+import { useCheckoutStore } from "./checkoutStore";
+import { useSettingsStore } from "./settingsStore";
 //@ts-ignore
 import { QueryEMX2 } from "molgenis-components";
 import { convertArrayToChunks } from "../functions/arrayUtilities";
@@ -14,12 +13,9 @@ import { IFilter, IOntologyItem } from "../interfaces/interfaces";
 export const useFiltersStore = defineStore("filtersStore", () => {
   const biobankStore = useBiobanksStore();
   const checkoutStore = useCheckoutStore();
-
-  // const { baseQuery, getBiobankCards } = biobankStore;
-
-  const { biobankCards } = storeToRefs(biobankStore);
   const settingsStore = useSettingsStore();
 
+  const { biobankCards } = storeToRefs(biobankStore);
   const graphqlEndpoint = settingsStore.config.graphqlEndpoint;
 
   let bookmarkWaitingForApplication = ref(false);
@@ -109,14 +105,14 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     filterDetails: Record<string, any>,
     filterType: string = "any"
   ): boolean {
-    console.log(
-      "details:",
-      filterDetails,
-      "\ncard: ",
-      biobankCard,
-      "\nfilter: ",
-      filters
-    );
+    // console.log(
+    //   "details:",
+    //   filterDetails,
+    //   "\ncard: ",
+    //   biobankCard,
+    //   "\nfilter: ",
+    //   filters
+    // );
     const toColumns: string[] = filterDetails.applyToColumn;
     if (filterType === "any") {
       return filters.reduce((accum, filter) => {
@@ -131,16 +127,16 @@ export const useFiltersStore = defineStore("filtersStore", () => {
 
   function applyFilter(filter: IFilter, biobankCard: any, toColumn: string) {
     const properties = toColumn.split(".");
-    const valuetoCompare = getCardValue(biobankCard, properties);
-    return filter.value === valuetoCompare;
+    const valueToCompare = getCardValue(biobankCard, properties);
+    return filter.value === valueToCompare;
   }
 
   function getCardValue(biobankCard: any, properties: string[]) {
-    let val = biobankCard;
+    let value = biobankCard;
     properties.forEach((property: string) => {
-      val = val[property];
+      value = value[property] || value;
     });
-    return val;
+    return value;
   }
 
   function getValuePropertyForFacet(facetIdentifier: string) {
@@ -387,7 +383,40 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     return filterType.value[filterName] || "any";
   }
 
+  const biobankCardsBiobankCount = computed(() => {
+    return filteredBiobankCards.value.length;
+  });
+
+  const biobankCardsSubcollectionCount = computed(() => {
+    if (!filteredBiobankCards.value.length) {
+      return 0;
+    } else {
+      return filteredBiobankCards.value
+        .filter((bc) => bc.collections)
+        .flatMap((biobank) =>
+          biobank.collections.filter(
+            (collection: Record<string, any>) =>
+              !collection.withdrawn && collection.parent_collection
+          )
+        ).length;
+    }
+  });
+
+  const biobankCardsCollectionCount = computed(() => {
+    const totalCount = filteredBiobankCards.value
+      .filter((bc) => bc.collections)
+      .flatMap((biobank) =>
+        biobank.collections.filter(
+          (collection: Record<string, any>) => !collection.withdrawn
+        )
+      ).length;
+    return totalCount - biobankCardsSubcollectionCount.value;
+  });
+
   return {
+    biobankCardsBiobankCount,
+    biobankCardsCollectionCount,
+    biobankCardsSubcollectionCount,
     facetDetails,
     updateFilter,
     clearAllFilters,
