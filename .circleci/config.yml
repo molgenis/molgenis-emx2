@@ -242,7 +242,7 @@ jobs:
     docker:
     - image: mcr.microsoft.com/playwright:v1.43.0-jammy
     steps:
-    - pre-steps
+    - pre_steps
     - run: npm i -D @playwright/test
     - run: npx playwright install chrome
     - run:
