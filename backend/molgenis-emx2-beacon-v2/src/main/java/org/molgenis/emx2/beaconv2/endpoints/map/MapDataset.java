@@ -15,6 +15,6 @@ public class MapDataset {
     this.openAPIEndpointsDefinition = "./" + entryType + "/endpoints.json";
     this.rootUrl = endPointUrl;
     this.singleEntryUrl = this.rootUrl + "/{id}";
-    this.filteringTermsUrl = this.rootUrl + "/filtering_terms";
+    this.filteringTermsUrl = this.singleEntryUrl + "/filtering_terms";
   }
 }
