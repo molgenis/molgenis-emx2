@@ -26,7 +26,7 @@ public enum EntryType {
       "catalogs",
       "Catalog",
       List.of(BEACON_VP),
-      List.of(DISEASE, PHENOTYPE, RESOURCE_TYPE, ID, NAME, DESCRIPTION)),
+      List.of(DISEASE, PHENOTYPE, RESOURCE_TYPE)),
   GENOMIC_VARIANT("GenomicVariations", "g_variants", "GenomicVariant", List.of(BEACON_V2)),
   DATASETS("Dataset", "datasets", "Dataset", List.of(BEACON_V2)),
   ANALYSES("Analyses", "analyses", "Analysis", List.of(BEACON_V2)),

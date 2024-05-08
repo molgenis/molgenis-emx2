@@ -1,5 +1,7 @@
 package org.molgenis.emx2.beaconv2.filter;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.molgenis.emx2.MolgenisException;
@@ -9,44 +11,41 @@ import org.molgenis.emx2.MolgenisException;
  * href="https://github.com/ejp-rd-vp/vp-api-specs">vp-api-specs</a>
  */
 public enum FilterConceptVP {
-  ID("id", "{ id: { equals:  \"%s\" } }"),
-  NAME("dct:title", "{ title: { equals:  \"%s\" } }"),
-  DESCRIPTION("dct:description", "{ description: { equals:  \"%s\" } }"),
-  AGE_THIS_YEAR("NCIT_C83164"),
-  AGE_OF_ONSET("NCIT_C124353"),
-  AGE_AT_DIAG("NCIT_C156420"),
-  CAUSAL_GENE("data_2295", "{ diseaseCausalGenes: { name: { equals: \"%s\" } } }"),
-  DISEASE("NCIT_C2991", "{ diseases: { diseaseCode: { ontologyTermURI: { like: \"%s\" } } } }"),
+  AGE_THIS_YEAR("ncit:C83164"),
+  AGE_OF_ONSET("ncit:C124353"),
+  AGE_AT_DIAG("ncit:C156420"),
+  CAUSAL_GENE("edam:data_2295", "{ diseaseCausalGenes: { name: { equals: \"%s\" } } }"),
+  DISEASE("ncit:C2991", "{ diseases: { diseaseCode: { ontologyTermURI: { like: \"%s\" } } } }"),
   PHENOTYPE(
-      "SIO_010056",
+      "sio:SIO_010056",
       "{ phenotypicFeatures: { featureType: { ontologyTermURI: { like: \"%s\" } } } }"),
   SEX(
-      "NCIT_C28421",
+      "ncit:C28421",
       "{ sex: { ontologyTermURI: { like: \"%s\" } } }",
-      List.of("NCIT_C16576", "NCIT_C20197", "NCIT_C124294", "NCIT_C17998")),
+      List.of("ncit:C16576", "ncit:C20197", "ncit:C124294", "ncit:C17998")),
   BIOSAMPLE_TYPE(
-      "NCIT_C70713",
+      "ncit:C70713",
       "{ sampleOriginType: { equals: \"%s\" } }",
       List.of(
-          "OBI_0000655",
-          "OBI_0002512",
-          "OBIB_0000036",
-          "CL_2000001",
-          "OBI_0100016",
-          "OBI_0100017",
-          "UBERON_0007795",
-          "OBI_0002502",
-          "OBI_0002507",
-          "OBI_0002503",
-          "OBI_0000651",
-          "OBI_0002599",
-          "OBI_2000009",
-          "OBI_1200000",
-          "OBI_0000922",
-          "OBI_0001472",
-          "OBI_0001051",
-          "OBI_0000880",
-          "OBI_0001479")),
+          "obi:0000655",
+          "obi:0002512",
+          "obi:0000036",
+          "cl_2000001",
+          "obi:0100016",
+          "obi:0100017",
+          "uberon_0007795",
+          "obi:0002502",
+          "obi:0002507",
+          "obi:0002503",
+          "obi:0000651",
+          "obi:0002599",
+          "obi:2000009",
+          "obi:1200000",
+          "obi:0000922",
+          "obi:0001472",
+          "obi:0001051",
+          "obi:0000880",
+          "obi:0001479")),
   RESOURCE_TYPE(
       "rdf:type",
       null,
@@ -94,5 +93,29 @@ public enum FilterConceptVP {
       return Arrays.stream(values).allMatch(permittedValues::contains);
     }
     return true;
+  }
+
+  public List<String> getIso8601Durations(JsonNode result) {
+    List<String> ageIso8601durations = new ArrayList<>();
+
+    if (this == FilterConceptVP.AGE_THIS_YEAR) {
+      if (result.hasNonNull("age_age_iso8601duration")) {
+        ageIso8601durations.add(result.get("age_age_iso8601duration").textValue());
+      }
+    } else if (this == FilterConceptVP.AGE_OF_ONSET) {
+      for (JsonNode disease : result.get("diseases")) {
+        if (disease.hasNonNull("ageOfOnset_age_iso8601duration")) {
+          ageIso8601durations.add(disease.get("ageOfOnset_age_iso8601duration").textValue());
+        }
+      }
+    } else if (this == FilterConceptVP.AGE_AT_DIAG) {
+      for (JsonNode disease : result.get("diseases")) {
+        if (disease.hasNonNull("ageAtDiagnosis_age_iso8601duration")) {
+          ageIso8601durations.add(disease.get("ageAtDiagnosis_age_iso8601duration").textValue());
+        }
+      }
+    }
+
+    return ageIso8601durations;
   }
 }

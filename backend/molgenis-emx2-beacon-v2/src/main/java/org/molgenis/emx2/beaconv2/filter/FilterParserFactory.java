@@ -11,12 +11,12 @@ public class FilterParserFactory {
 
     BeaconSpec beaconSpec = requestBody.getMeta().getSpecification();
     if (beaconSpec == BeaconSpec.BEACON_VP) {
-      return new FilterParserEjpRd(requestBody.getQuery());
+      return new FilterParserVP(requestBody.getQuery());
     } else if (beaconSpec == BeaconSpec.BEACON_V2) {
       if (requestBody.getQuery().getEntryType() == EntryType.GENOMIC_VARIANT) {
         return new VariantFilterParser(requestBody.getQuery());
       }
-      return new FilterParserEjpRd(requestBody.getQuery());
+      return new FilterParserVP(requestBody.getQuery());
       //      return new RegularFilterParser(requestBody.getQuery().getFilters());
     } else {
       throw new MolgenisException("Invalid beacon specification: " + beaconSpec);

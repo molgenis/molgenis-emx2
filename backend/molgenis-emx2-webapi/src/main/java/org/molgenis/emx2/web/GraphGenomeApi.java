@@ -7,7 +7,6 @@ import java.io.OutputStream;
 import java.util.List;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Table;
-import org.molgenis.emx2.beaconv2.QueryEntryType;
 import org.molgenis.emx2.graphgenome.GraphGenome;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +27,7 @@ public class GraphGenomeApi {
   private static int graphGenomeForDatabase(Request request, Response response) throws IOException {
 
     Database database = sessionManager.getSession(request).getDatabase();
-    List<Table> tables = QueryEntryType.getTablesFromAllSchemas(database, "GenomicVariations");
+    List<Table> tables = database.getTablesFromAllSchemas("GenomicVariations");
     OutputStream outputStream = response.raw().getOutputStream();
 
     String gene = request.queryParams("gene");

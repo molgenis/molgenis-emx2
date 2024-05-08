@@ -8,19 +8,19 @@ import org.molgenis.emx2.beaconv2.EntryType;
 import org.molgenis.emx2.beaconv2.common.misc.NCITToGSSOSexMapping;
 import org.molgenis.emx2.beaconv2.requests.BeaconQuery;
 
-public class FilterParserEjpRd implements FilterParser {
+public class FilterParserVP implements FilterParser {
 
   private final BeaconQuery beaconQuery;
   private final List<Filter> unsupportedFilters = new ArrayList<>();
   private final List<Filter> graphQlFilters = new ArrayList<>();
   private final List<Filter> postFetchFilters = new ArrayList<>();
 
-  public FilterParserEjpRd(BeaconQuery beaconQuery) {
+  public FilterParserVP(BeaconQuery beaconQuery) {
     this.beaconQuery = beaconQuery;
   }
 
   @Override
-  public FilterParserEjpRd parse() {
+  public FilterParserVP parse() {
     parseRegularFilters();
     return this;
   }
@@ -75,7 +75,7 @@ public class FilterParserEjpRd implements FilterParser {
           switch (searchConcept) {
             case SEX:
               filter.setValues(NCITToGSSOSexMapping.toGSSO(filter.getValues()));
-            case CAUSAL_GENE, ID, NAME, DESCRIPTION, BIOSAMPLE_TYPE:
+            case CAUSAL_GENE, BIOSAMPLE_TYPE:
               filter.setFilterType(FilterType.ALPHANUMERICAL);
               graphQlFilters.add(filter);
               break;

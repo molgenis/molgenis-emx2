@@ -13,16 +13,13 @@ import com.schibsted.spt.data.jslt.JsltException;
 import com.schibsted.spt.data.jslt.Parser;
 import graphql.ExecutionResult;
 import graphql.GraphQL;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import org.molgenis.emx2.Database;
-import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.beaconv2.common.misc.Granularity;
 import org.molgenis.emx2.beaconv2.common.misc.IncludedResultsetResponses;
 import org.molgenis.emx2.beaconv2.filter.Filter;
-import org.molgenis.emx2.beaconv2.filter.FilterConceptVP;
 import org.molgenis.emx2.beaconv2.filter.FilterParser;
 import org.molgenis.emx2.beaconv2.filter.FilterParserFactory;
 import org.molgenis.emx2.beaconv2.requests.BeaconQuery;
@@ -57,7 +54,7 @@ public class QueryEntryType {
     int numTotalResults = 0;
     ArrayNode resultSets = mapper.createArrayNode();
 
-    List<Table> entryTypeTables = getTablesFromAllSchemas(database, entryType.getId());
+    List<Table> entryTypeTables = database.getTablesFromAllSchemas(entryType.getId());
     for (Table table : entryTypeTables) {
       if (isAuthorized(table)) {
         ObjectNode resultSet = mapper.createObjectNode();
@@ -169,57 +166,17 @@ public class QueryEntryType {
     }
   }
 
-  // todo: move some code to Filter class?
   private ArrayNode applyPostFetchFilters(ArrayNode results, List<Filter> postFetchFilters) {
     if (!hasResult(results)) return results;
     for (Filter filter : postFetchFilters) {
       Iterator<JsonNode> resultsElements = results.elements();
       while (resultsElements.hasNext()) {
         JsonNode result = resultsElements.next();
-        List<String> ageIso8601durations =
-            getIso8601DurationsForConcept(filter.getConcept(), result);
-        if (!filter.matches(ageIso8601durations)) {
-          resultsElements.remove();
-        }
+        List<String> ageIso8601durations = filter.getConcept().getIso8601Durations(result);
+
+        if (!filter.matches(ageIso8601durations)) resultsElements.remove();
       }
     }
     return results;
-  }
-
-  // todo: move to searchConcept?
-  private List<String> getIso8601DurationsForConcept(FilterConceptVP concept, JsonNode result) {
-    List<String> ageIso8601durations = new ArrayList<>();
-
-    if (concept == FilterConceptVP.AGE_THIS_YEAR) {
-      if (result.hasNonNull("age_age_iso8601duration")) {
-        ageIso8601durations.add(result.get("age_age_iso8601duration").textValue());
-      }
-    } else if (concept == FilterConceptVP.AGE_OF_ONSET) {
-      for (JsonNode disease : result.get("diseases")) {
-        if (disease.hasNonNull("ageOfOnset_age_iso8601duration")) {
-          ageIso8601durations.add(disease.get("ageOfOnset_age_iso8601duration").textValue());
-        }
-      }
-    } else if (concept == FilterConceptVP.AGE_AT_DIAG) {
-      for (JsonNode disease : result.get("diseases")) {
-        if (disease.hasNonNull("ageAtDiagnosis_age_iso8601duration")) {
-          ageIso8601durations.add(disease.get("ageAtDiagnosis_age_iso8601duration").textValue());
-        }
-      }
-    }
-
-    return ageIso8601durations;
-  }
-
-  public static List<Table> getTablesFromAllSchemas(Database database, String tableName) {
-    List<Table> tables = new ArrayList<>();
-    for (String sn : database.getSchemaNames()) {
-      Schema schema = database.getSchema(sn);
-      Table t = schema.getTable(tableName);
-      if (t != null) {
-        tables.add(t);
-      }
-    }
-    return tables;
   }
 }

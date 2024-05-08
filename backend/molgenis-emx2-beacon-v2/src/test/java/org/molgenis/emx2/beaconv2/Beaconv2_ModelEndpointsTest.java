@@ -19,7 +19,6 @@ import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.beaconv2.endpoints.*;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
-import org.molgenis.emx2.datamodels.ProfileLoader;
 import org.molgenis.emx2.json.JsonUtil;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import spark.QueryParamsMap;
@@ -35,10 +34,10 @@ public class Beaconv2_ModelEndpointsTest {
   @BeforeAll
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
-    //    beaconSchema = database.getSchema("fairdatahub");
-    beaconSchema = database.dropCreateSchema("fairdatahub");
-    ProfileLoader b2l = new ProfileLoader("_profiles/FAIRDataHub.yaml");
-    b2l.load(beaconSchema, true);
+    beaconSchema = database.getSchema("fairdatahub");
+    //    beaconSchema = database.dropCreateSchema("fairdatahub");
+    //    ProfileLoader b2l = new ProfileLoader("_profiles/FAIRDataHub.yaml");
+    //    b2l.load(beaconSchema, true);
     tables = List.of(beaconSchema.getTable("Individuals"));
   }
 
@@ -347,8 +346,8 @@ public class Beaconv2_ModelEndpointsTest {
                             "query": {
                           	"filters": [
                           	  {
-                          		"id": "NCIT_C28421",
-                          		"value": "NCIT_C16576",
+                          		"id": "ncit:C28421",
+                          		"value": "ncit:C16576",
                           		"operator": "="
                           	  }
                           	]
@@ -369,13 +368,13 @@ public class Beaconv2_ModelEndpointsTest {
                             "query": {
                           	"filters": [
                           	  {
-                                "id": "NCIT_C28421",
-                                "value": "NCIT_C16576",
+                                "id": "ncit:C28421",
+                                "value": "ncit:C16576",
                                 "operator": "="
                           	  },
                           	  {
-                                "id": "NCIT_C28421",
-                                "value": "NCIT_C20197",
+                                "id": "ncit:C28421",
+                                "value": "ncit:C20197",
                                 "operator": "="
                           	  }
                           	]
@@ -397,7 +396,7 @@ public class Beaconv2_ModelEndpointsTest {
                           	"filters": [
                           	  {
                           		"id": "NCIT_C28421",
-                          		"value": "NCIT_C16577",
+                          		"value": "ncit:C16577",
                           		"operator": "="
                           	  }
                           	]
@@ -417,7 +416,7 @@ public class Beaconv2_ModelEndpointsTest {
                             "query": {
                           	"filters": [
                           	  {
-                          		"id": "NCIT_C2991",
+                          		"id": "ncit:C2991",
                           		"value": "Orphanet_1895",
                           		"operator": "="
                           	  }
@@ -457,12 +456,12 @@ public class Beaconv2_ModelEndpointsTest {
                             "query": {
                           	"filters": [
                           	  {
-                          		"id": "NCIT_C2991",
+                          		"id": "ncit:C2991",
                           		"value": "Orphanet_1895",
                           		"operator": "="
                           	  },
                           	  {
-                          		"id": "NCIT_C2991",
+                          		"id": "ncit:C2991",
                           		"value": "Orphanet_1955",
                           		"operator": "="
                           	  }
@@ -483,7 +482,7 @@ public class Beaconv2_ModelEndpointsTest {
                             "query": {
                           	"filters": [
                           	  {
-                          		"id": "NCIT_C2991",
+                          		"id": "ncit:C2991",
                           		"value": "Orphanet_1955",
                           		"operator": "="
                           	  }
@@ -504,7 +503,7 @@ public class Beaconv2_ModelEndpointsTest {
                             "query": {
                           	"filters": [
                           	  {
-                          		"id": "NCIT_C2991",
+                          		"id": "ncit:C2991",
                           		"value": "Orphanet_18730",
                           		"operator": "="
                           	  }
@@ -525,7 +524,7 @@ public class Beaconv2_ModelEndpointsTest {
                             "query": {
                           	"filters": [
                           	  {
-                          		"id": "NCIT_C83164",
+                          		"id": "ncit:C83164",
                           		"value": 32,
                           		"operator": "="
                           	  }
@@ -546,7 +545,7 @@ public class Beaconv2_ModelEndpointsTest {
                             "query": {
                           	"filters": [
                           	  {
-                          		"id": "NCIT_C83164",
+                          		"id": "ncit:C83164",
                           		"value": 30,
                           		"operator": "="
                           	  }
@@ -567,7 +566,7 @@ public class Beaconv2_ModelEndpointsTest {
                             "query": {
                           	"filters": [
                           	  {
-                          		"id": "NCIT_C83164",
+                          		"id": "ncit:C83164",
                           		"value": 33,
                           		"operator": ">"
                           	  }
@@ -588,7 +587,7 @@ public class Beaconv2_ModelEndpointsTest {
                             "query": {
                           	"filters": [
                           	  {
-                          		"id": "NCIT_C83164",
+                          		"id": "ncit:C83164",
                           		"value": 50,
                           		"operator": "<"
                           	  }
@@ -609,7 +608,7 @@ public class Beaconv2_ModelEndpointsTest {
                             "query": {
                           	"filters": [
                           	  {
-                          		"id": "NCIT_C83164",
+                          		"id": "ncit:C83164",
                           		"value": 34,
                           		"operator": "<"
                           	  }
@@ -630,7 +629,7 @@ public class Beaconv2_ModelEndpointsTest {
                             "query": {
                           	"filters": [
                           	  {
-                          		"id": "NCIT_C83164",
+                          		"id": "ncit:C83164",
                           		"value": 2,
                           		"operator": "<="
                           	  }
@@ -651,7 +650,7 @@ public class Beaconv2_ModelEndpointsTest {
                             "query": {
                           	"filters": [
                           	  {
-                          		"id": "NCIT_C83164",
+                          		"id": "ncit:C83164",
                           		"value": 2,
                           		"operator": "<"
                           	  }
@@ -693,7 +692,7 @@ public class Beaconv2_ModelEndpointsTest {
                             "query": {
                           	"filters": [
                           	  {
-                          		"id": "NCIT_C124353",
+                          		"id": "ncit:C124353",
                           		"value": 91,
                           		"operator": "="
                           	  }
@@ -714,7 +713,7 @@ public class Beaconv2_ModelEndpointsTest {
                             "query": {
                           	"filters": [
                           	  {
-                          		"id": "NCIT_C124353",
+                          		"id": "ncit:C124353",
                           		"value": 25,
                           		"operator": ">"
                           	  }
@@ -735,7 +734,7 @@ public class Beaconv2_ModelEndpointsTest {
                             "query": {
                           	"filters": [
                           	  {
-                          		"id": "NCIT_C124353",
+                          		"id": "ncit:C124353",
                           		"value": 89,
                           		"operator": ">"
                           	  }
@@ -756,7 +755,7 @@ public class Beaconv2_ModelEndpointsTest {
                             "query": {
                           	"filters": [
                           	  {
-                          		"id": "NCIT_C124353",
+                          		"id": "ncit:C124353",
                           		"value": 89,
                           		"operator": ">="
                           	  }
@@ -777,7 +776,7 @@ public class Beaconv2_ModelEndpointsTest {
                             "query": {
                           	"filters": [
                           	  {
-                          		"id": "NCIT_C156420",
+                          		"id": "ncit:C156420",
                           		"value": 2,
                           		"operator": "="
                           	  }
@@ -798,7 +797,7 @@ public class Beaconv2_ModelEndpointsTest {
                             "query": {
                           	"filters": [
                           	  {
-                          		"id": "NCIT_C156420",
+                          		"id": "ncit:C156420",
                           		"value": 50,
                           		"operator": "<"
                           	  }
@@ -819,7 +818,7 @@ public class Beaconv2_ModelEndpointsTest {
                             "query": {
                           	"filters": [
                           	  {
-                          		"id": "NCIT_C15642",
+                          		"id": "ncit:C15642",
                           		"value": 50,
                           		"operator": "<"
                           	  }
@@ -827,7 +826,7 @@ public class Beaconv2_ModelEndpointsTest {
                             }
                           }""");
     String jsonString = JsonUtil.getWriter().writeValueAsString(json);
-    assertTrue(jsonString.contains("\"unsupportedFilters\" : \"[NCIT_C15642]\""));
+    assertTrue(jsonString.contains("\"unsupportedFilters\" : \"[ncit:C15642]\""));
     assertTrue(jsonString.contains("\"numTotalResults\" : 5"));
   }
 
@@ -840,7 +839,7 @@ public class Beaconv2_ModelEndpointsTest {
                             "query": {
                           	"filters": [
                           	  {
-                          		"id": "data_2295",
+                          		"id": "edam:data_2295",
                           		"value": "TTN",
                           		"operator": "="
                           	  }
@@ -861,7 +860,7 @@ public class Beaconv2_ModelEndpointsTest {
                             "query": {
                           	"filters": [
                           	  {
-                          		"id": "data_2295",
+                          		"id": "edam:data_2295",
                           		"value": ["TTN"],
                           		"operator": "="
                           	  }
@@ -882,7 +881,7 @@ public class Beaconv2_ModelEndpointsTest {
                             "query": {
                           	"filters": [
                           	  {
-                          		"id": "data_2295",
+                          		"id": "edam:data_2295",
                           		"value": "COL7A1",
                           		"operator": "="
                           	  }

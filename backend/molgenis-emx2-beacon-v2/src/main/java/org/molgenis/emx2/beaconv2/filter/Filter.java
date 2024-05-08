@@ -46,6 +46,8 @@ public class Filter {
     this.concept = filter.concept;
     this.includeDescendantTerms = filter.includeDescendantTerms;
     this.similarity = filter.similarity;
+    this.valuesAreParsed = filter.valuesAreParsed;
+    this.idsAreParsed = filter.idsAreParsed;
   }
 
   /** Helper function to support both 'string' and 'string array' inputs for Values */
@@ -194,7 +196,7 @@ public class Filter {
   public String getGraphQlFilter() {
     StringBuilder filter = new StringBuilder();
 
-    for (String value : values) {
+    for (String value : getValues()) {
       if (concept != null) {
         filter.append(this.concept.getGraphQlQuery().formatted(value)).append(",");
       }

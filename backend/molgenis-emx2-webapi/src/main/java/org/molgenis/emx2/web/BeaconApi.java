@@ -28,7 +28,7 @@ public class BeaconApi {
     path(
         basePath,
         () -> {
-          before("/*", BeaconApi::extractSpecification);
+          before("/*", BeaconApi::processRequest);
           get("/", BeaconApi::getInfo);
           get("/info", BeaconApi::getInfo);
           get("/service-info", BeaconApi::getInfo);
@@ -43,10 +43,11 @@ public class BeaconApi {
         });
   }
 
-  private static void extractSpecification(Request request, Response response) {
+  private static void processRequest(Request request, Response response) {
     int specificationIndex = 2;
     String specification = request.matchedPath().split("/")[specificationIndex];
     request.attribute("specification", specification);
+    response.type(Constants.ACCEPT_JSON);
   }
 
   private static String getEntryType(Request request, Response response) throws Exception {
@@ -71,29 +72,24 @@ public class BeaconApi {
 
   private static String getInfo(Request request, Response response)
       throws JsonProcessingException, URISyntaxException {
-    response.type(Constants.ACCEPT_JSON);
     return getWriter().writeValueAsString(new Info(request));
   }
 
   private static Object getConfiguration(Request request, Response response)
       throws JsonProcessingException {
-    response.type(Constants.ACCEPT_JSON);
     return getWriter().writeValueAsString(new Configuration());
   }
 
   private static Object getMap(Request request, Response response) throws JsonProcessingException {
-    response.type(Constants.ACCEPT_JSON);
     return getWriter().writeValueAsString(new Map(request));
   }
 
   private static Object getEntryTypes(Request request, Response response)
       throws JsonProcessingException {
-    response.type(Constants.ACCEPT_JSON);
     return getWriter().writeValueAsString(new EntryTypes());
   }
 
   private static String getFilteringTerms(Request request, Response response) throws Exception {
-    response.type(Constants.ACCEPT_JSON);
     Database database = sessionManager.getSession(request).getDatabase();
     return getWriter().writeValueAsString(new FilteringTerms(database));
   }
