@@ -318,16 +318,10 @@ public class SqlQuery extends QueryBean {
       String subAlias,
       Collection<Field<?>> selection) {
     DSLContext jooq = table.getJooq();
-    SelectJoinStep<org.jooq.Record> from =
-        jooq.select(selection).from(tableWithInheritanceJoin(table).as(alias(subAlias)));
-    from = limitOffsetOrderBy(table, select, from);
     List<Condition> conditions = new ArrayList<>();
-    Select<org.jooq.Record> filterQuery =
-        jsonFilterQuery(table, column, tableAlias, subAlias, filters, searchTerms);
-    if (filters != null
-        || searchTerms.length > 0
-        || select.getLimit() > 0
-        || select.getOffset() > 0) {
+    if (filters != null || searchTerms.length > 0) {
+      Select<org.jooq.Record> filterQuery =
+          jsonFilterQuery(table, column, tableAlias, subAlias, filters, searchTerms);
       List<Field<?>> pkeyFields = table.getPrimaryKeyFields();
       if (pkeyFields.size() > 0) {
         conditions.add(row(pkeyFields).in(filterQuery));
@@ -336,8 +330,17 @@ public class SqlQuery extends QueryBean {
     if (column != null) {
       conditions.add(refJoinCondition(column, tableAlias, subAlias));
     }
-    if (!conditions.isEmpty()) {
-      from = (SelectJoinStep<org.jooq.Record>) from.where(conditions);
+
+    SelectJoinStep<org.jooq.Record> from;
+    if (!conditions.isEmpty() || select.getLimit() > 0 || select.getOffset() > 0) {
+      from = jooq.select(asterisk()).from(tableWithInheritanceJoin(table).as(alias(subAlias)));
+      if (!conditions.isEmpty()) {
+        from = (SelectJoinStep<org.jooq.Record>) from.where(conditions);
+      }
+      from = limitOffsetOrderBy(table, select, from);
+      from = jooq.select(selection).from(from.asTable(alias(subAlias)));
+    } else {
+      from = jooq.select(selection).from(tableWithInheritanceJoin(table).as(alias(subAlias)));
     }
 
     String agg =
