@@ -40,5 +40,5 @@ A full example of traversal from root to data:
 - An FDP root `<server>/api/fdp`, containing
 - a catalog `<server>/api/fdp/catalog/fairdemo/catalogId01`, containing
 - a dataset `<server>/api/fdp/dataset/fairdemo/datasetId01`, available as 
-- a distribution `<server>/api/fdp/distribution/fairdemo/Analyses/rdf-ttl`, downloadable at
-- a particular location `<server>/api/rdf/Analyses?format=ttl`.
+- a distribution `<server>/api/fdp/distribution/fairdemo/Analyses/ttl`, downloadable at
+- a particular location `<server>/api/rdf/Analyses`.
