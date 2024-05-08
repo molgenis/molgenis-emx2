@@ -9,6 +9,7 @@ import { useSettingsStore } from "./settingsStore";
 import { QueryEMX2 } from "molgenis-components";
 import { convertArrayToChunks } from "../functions/arrayUtilities";
 import { IFilter, IOntologyItem } from "../interfaces/interfaces";
+import * as _ from "lodash";
 
 export const useFiltersStore = defineStore("filtersStore", () => {
   const biobankStore = useBiobanksStore();
@@ -68,27 +69,9 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     }
   );
 
-  watch(
-    [filters, filterType, biobankCards],
-    ([newFilters, newFilterTypes, newBiobankCards]) => {
-      let filteredCards = newBiobankCards;
-      Object.keys(newFilters).forEach((filterId: string) => {
-        const filterCategory = newFilters[filterId];
-        const filterType = newFilterTypes[filterId];
-        const filterDetails = facetDetails.value[filterId];
-        filteredCards = filteredCards.filter((biobankCard: any) => {
-          return applyFilters(
-            filterCategory,
-            biobankCard,
-            filterDetails,
-            filterType
-          );
-        });
-      });
-      filteredBiobankCards.value = filteredCards;
-    },
-    { deep: true }
-  );
+  watch([filters, filterType, biobankCards], filterBiobankCards, {
+    deep: true,
+  });
 
   watch(filtersReady, (filtersReady) => {
     if (filtersReady) {
@@ -99,44 +82,73 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     }
   });
 
+  function filterBiobankCards([newFilters, newFilterTypes, newBiobankCards]: [
+    Record<string, any[]>,
+    Record<string, any>,
+    Record<string, any>[]
+  ]) {
+    _.debounce(() => {
+      filteredBiobankCards.value = _.reduce(
+        newFilters,
+        (accum: any[], filterCategory: IFilter[], filterId: string) => {
+          const filterType = newFilterTypes[filterId];
+          const filterDetails = facetDetails.value[filterId];
+          return accum.filter((biobankCard: any) => {
+            return applyFilters(
+              filterCategory,
+              biobankCard,
+              filterDetails,
+              filterType
+            );
+          });
+        },
+        newBiobankCards
+      );
+    }, 1000)();
+  }
+
   function applyFilters(
     filters: IFilter[],
     biobankCard: any,
     filterDetails: Record<string, any>,
     filterType: string = "any"
   ): boolean {
-    // console.log(
-    //   "details:",
-    //   filterDetails,
-    //   "\ncard: ",
-    //   biobankCard,
-    //   "\nfilter: ",
-    //   filters
-    // );
-    const toColumns: string[] = filterDetails.applyToColumn;
+    const toColumns: string[] = Array.isArray(filterDetails.applyToColumn)
+      ? filterDetails.applyToColumn
+      : [filterDetails.applyToColumn];
     if (filterType === "any") {
-      return filters.reduce((accum, filter) => {
-        return accum || applyFilter(filter, biobankCard, toColumns[0]);
-      }, false);
+      return filters.some((filter) => {
+        return _.some(toColumns, (toColumn) => {
+          return applyFilter(filter, biobankCard, toColumn);
+        });
+      });
     } else {
       return filters.reduce((accum, filter) => {
-        return accum && applyFilter(filter, biobankCard, toColumns[0]);
+        _.forEach(toColumns, (toColumn) => {
+          accum = accum && applyFilter(filter, biobankCard, toColumn);
+        });
+        return accum;
       }, true);
     }
   }
 
-  function applyFilter(filter: IFilter, biobankCard: any, toColumn: string) {
+  function applyFilter(
+    filter: IFilter,
+    biobankCard: Record<string, any>,
+    toColumn: string
+  ) {
     const properties = toColumn.split(".");
     const valueToCompare = getCardValue(biobankCard, properties);
     return filter.value === valueToCompare;
   }
 
-  function getCardValue(biobankCard: any, properties: string[]) {
-    let value = biobankCard;
-    properties.forEach((property: string) => {
-      value = value[property] || value;
-    });
-    return value;
+  function getCardValue(
+    biobankCard: Record<string, any>,
+    properties: string[]
+  ) {
+    return properties.reduce((accum, property) => {
+      return accum ? accum[property] : undefined;
+    }, biobankCard);
   }
 
   function getValuePropertyForFacet(facetIdentifier: string) {
@@ -341,13 +353,14 @@ export const useFiltersStore = defineStore("filtersStore", () => {
   function updateFilter(filterName: string, value: any, fromBookmark: any) {
     bookmarkTriggeredFilter.value = fromBookmark;
 
-    /** filter reset, so delete */
-    if (
+    const isFilterReset =
       value === null ||
       value === "" ||
       value === undefined ||
-      value.length === 0
-    ) {
+      value.length === 0;
+
+    if (isFilterReset) {
+      /** filter reset, so delete */
       delete filters.value[filterName];
       checkoutStore.setSearchHistory(`Filter ${filterName} removed`);
     } else {
@@ -417,25 +430,25 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     biobankCardsBiobankCount,
     biobankCardsCollectionCount,
     biobankCardsSubcollectionCount,
-    facetDetails,
-    updateFilter,
-    clearAllFilters,
-    updateOntologyFilter,
-    getFilterValue,
-    updateFilterType,
-    getFilterType,
-    getValuePropertyForFacet,
-    checkOntologyDescendantsIfMatches,
-    ontologyItemMatchesQuery,
-    getOntologyOptionsForCodes,
-    filterOptionsCache,
-    hasActiveFilters,
-    filters,
-    filterFacets,
-    filtersReady,
     bookmarkWaitingForApplication,
+    facetDetails,
+    filteredBiobankCards,
+    filterFacets,
+    filterOptionsCache,
+    filtersReady,
+    filters,
     filterTriggeredBookmark,
     filtersReadyToRender,
-    filteredBiobankCards,
+    hasActiveFilters,
+    checkOntologyDescendantsIfMatches,
+    clearAllFilters,
+    getFilterType,
+    getFilterValue,
+    getOntologyOptionsForCodes,
+    getValuePropertyForFacet,
+    ontologyItemMatchesQuery,
+    updateFilter,
+    updateOntologyFilter,
+    updateFilterType,
   };
 });

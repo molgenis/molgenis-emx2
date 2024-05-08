@@ -53,13 +53,18 @@ export default {
   },
   computed: {
     biobanksShown() {
-      if (this.biobanksStore.waiting || !this.filtersStore.filteredBiobankCards)
+      if (
+        this.biobanksStore.waiting ||
+        !this.filtersStore.filteredBiobankCards
+      ) {
         return [];
-      return this.filtersStore.filteredBiobankCards.slice(
-        this.settingsStore.config.pageSize *
-          (this.settingsStore.currentPage - 1),
-        this.settingsStore.config.pageSize * this.settingsStore.currentPage
-      );
+      } else {
+        return this.filtersStore.filteredBiobankCards.slice(
+          this.settingsStore.config.pageSize *
+            (this.settingsStore.currentPage - 1),
+          this.settingsStore.config.pageSize * this.settingsStore.currentPage
+        );
+      }
     },
     noResultsText() {
       return this.filtersStore.bookmarkWaitingForApplication
