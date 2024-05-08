@@ -4,7 +4,7 @@ description: "This catalogue contains metadata on dataset collections and the va
 
 profileTags: DataCatalogueFlat
 
-demoData: _demodata/applications/datacatalogue
+# demoData: _demodata/applications/datacatalogueFlat
 
 settings: _settings/datacatalogue
 
