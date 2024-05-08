@@ -2,6 +2,7 @@
 defineProps(["error"]);
 
 const config = useRuntimeConfig();
+const route = useRoute();
 
 const faviconHref = config.public.emx2Theme
   ? `/_nuxt-styles/img/${config.public.emx2Theme}.ico`
@@ -47,7 +48,7 @@ useHead({
               </div>
 
               <div v-if="error.message" class="py-5 text-xl">
-                <p>Be: {{ error.message }}</p>
+                <p>{{ error.message }}</p>
                 <p v-if="config.public.debug">
                   Details (debug): {{ JSON.stringify(error, null, 2) }}
                 </p>
