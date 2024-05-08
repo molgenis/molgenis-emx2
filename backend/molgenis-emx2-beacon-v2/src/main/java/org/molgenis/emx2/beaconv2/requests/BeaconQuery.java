@@ -70,7 +70,7 @@ public class BeaconQuery {
     return requestParameters;
   }
 
-  public void addUrlParameters(Request request) {
+  public EntryType addUrlParameters(Request request) {
     Map<String, String> params = request.params();
     if (params.containsKey(":entry_type")) {
       entryType = EntryType.findByName(params.get(":entry_type"));
@@ -86,5 +86,6 @@ public class BeaconQuery {
             new BeaconRequestParameters(queryParam.getKey(), queryParam.getValue()[0]));
       }
     }
+    return this.entryType;
   }
 }

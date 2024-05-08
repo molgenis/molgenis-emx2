@@ -1,34 +1,53 @@
 package org.molgenis.emx2.beaconv2;
 
-import static org.molgenis.emx2.beaconv2.Concept.*;
+import static org.molgenis.emx2.beaconv2.BeaconSpec.*;
+import static org.molgenis.emx2.beaconv2.filter.FilterConceptVP.*;
 
 import java.util.Arrays;
 import java.util.List;
 import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.beaconv2.filter.FilterConceptVP;
 
 public enum EntryType {
   INDIVIDUALS(
       "Individuals",
       "individuals",
       "Individual",
+      List.of(BEACON_V2, BEACON_VP),
       List.of(SEX, DISEASE, PHENOTYPE, CAUSAL_GENE, AGE_THIS_YEAR, AGE_OF_ONSET, AGE_AT_DIAG)),
   BIOSAMPLES(
       "Biosamples",
       "biosamples",
       "Biosample",
-      List.of(SEX, DISEASE, AGE_THIS_YEAR, AGE_AT_DIAG, BIOSPECIMIN_TYPE)),
-  DATASETS("Dataset", "datasets", "Dataset", null),
-  ANALYSES("Analyses", "analyses", "Analysis", null),
-  COHORTS("Cohorts", "cohorts", "Cohort", null),
-  RUNS("Runs", "runs", "Run", null),
-  GENOMIC_VARIANT("GenomicVariations", "g_variants", "GenomicVariant", null);
+      List.of(BEACON_V2, BEACON_VP),
+      List.of(SEX, DISEASE, AGE_THIS_YEAR, AGE_AT_DIAG, BIOSAMPLE_TYPE)),
+  CATALOGS(
+      "Dataset",
+      "catalogs",
+      "Catalog",
+      List.of(BEACON_VP),
+      List.of(DISEASE, PHENOTYPE, RESOURCE_TYPE, ID, NAME, DESCRIPTION)),
+  GENOMIC_VARIANT("GenomicVariations", "g_variants", "GenomicVariant", List.of(BEACON_V2)),
+  DATASETS("Dataset", "datasets", "Dataset", List.of(BEACON_V2)),
+  ANALYSES("Analyses", "analyses", "Analysis", List.of(BEACON_V2)),
+  COHORTS("Cohorts", "cohorts", "Cohort", List.of(BEACON_V2)),
+  RUNS("Runs", "runs", "Run", List.of(BEACON_V2));
 
   EntryType(
-      String id, String name, String partOfSpecification, List<Concept> permittedSearchConcepts) {
+      String id,
+      String name,
+      String singular,
+      List<BeaconSpec> spec,
+      List<FilterConceptVP> filters) {
     this.id = id;
     this.name = name;
-    this.partOfSpecification = partOfSpecification;
-    this.permittedSearchConcepts = permittedSearchConcepts;
+    this.singular = singular;
+    this.partOfSpecification = spec;
+    this.permittedFilters = filters;
+  }
+
+  EntryType(String id, String name, String singular, List<BeaconSpec> spec) {
+    this(id, name, singular, spec, null);
   }
 
   public static EntryType findByName(String nameOther) {
@@ -40,8 +59,9 @@ public enum EntryType {
 
   private final String id;
   private final String name;
-  private final String partOfSpecification;
-  private final List<Concept> permittedSearchConcepts;
+  private final String singular;
+  private final List<BeaconSpec> partOfSpecification;
+  private final List<FilterConceptVP> permittedFilters;
 
   public String getName() {
     return name;
@@ -51,11 +71,15 @@ public enum EntryType {
     return id;
   }
 
-  public String getPartOfSpecification() {
-    return partOfSpecification;
+  public String getSingular() {
+    return singular;
   }
 
-  public List<Concept> getPermittedSearchConcepts() {
-    return permittedSearchConcepts;
+  public List<FilterConceptVP> getPermittedFilters() {
+    return permittedFilters;
+  }
+
+  public boolean validateSpecification(BeaconSpec otherSpec) {
+    return this.partOfSpecification.contains(otherSpec);
   }
 }

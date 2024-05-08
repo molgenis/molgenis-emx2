@@ -19,7 +19,6 @@ import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.beaconv2.endpoints.*;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
-import org.molgenis.emx2.datamodels.ProfileLoader;
 import org.molgenis.emx2.json.JsonUtil;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import spark.QueryParamsMap;
@@ -35,10 +34,10 @@ public class Beaconv2_ModelEndpointsTest {
   @BeforeAll
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
-    //    beaconSchema = database.getSchema("fairdatahub");
-    beaconSchema = database.dropCreateSchema("fairdatahub");
-    ProfileLoader b2l = new ProfileLoader("_profiles/FAIRDataHub.yaml");
-    b2l.load(beaconSchema, true);
+    beaconSchema = database.getSchema("fairdatahub");
+    //    beaconSchema = database.dropCreateSchema("fairdatahub");
+    //    ProfileLoader b2l = new ProfileLoader("_profiles/FAIRDataHub.yaml");
+    //    b2l.load(beaconSchema, true);
     tables = List.of(beaconSchema.getTable("Individuals"));
   }
 
@@ -60,6 +59,7 @@ public class Beaconv2_ModelEndpointsTest {
   private Request mockEntryTypeRequest(String entryType, Map<String, String[]> queryParams) {
     Request request = mock(Request.class);
     when(request.url()).thenReturn("http://localhost:8080/api/beacon");
+    when(request.attribute("specification")).thenReturn("beacon");
     Map<String, String> urlParams = Map.of(":entry_type", entryType);
     when(request.params()).thenReturn(urlParams);
     when(request.queryMap()).thenReturn(Mockito.mock(QueryParamsMap.class));
@@ -78,8 +78,7 @@ public class Beaconv2_ModelEndpointsTest {
                 "start", new String[] {"2447955"},
                 "referenceBases", new String[] {"c"},
                 "alternateBases", new String[] {"g"}));
-    BeaconRequestBody requestBody = new BeaconRequestBody();
-    requestBody.addUrlParameters(request);
+    BeaconRequestBody requestBody = new BeaconRequestBody(request);
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
     JsonNode result = queryEntryType.query(database);
     String json = JsonUtil.getWriter().writeValueAsString(result);
@@ -97,8 +96,7 @@ public class Beaconv2_ModelEndpointsTest {
                 "start", new String[] {"2447955"},
                 "referenceBases", new String[] {"c"},
                 "alternateBases", new String[] {"a"}));
-    BeaconRequestBody requestBody = new BeaconRequestBody();
-    requestBody.addUrlParameters(request);
+    BeaconRequestBody requestBody = new BeaconRequestBody(request);
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
     JsonNode result = queryEntryType.query(database);
     String json = JsonUtil.getWriter().writeValueAsString(result);
@@ -118,8 +116,7 @@ public class Beaconv2_ModelEndpointsTest {
                 "end", new String[] {"2447955"},
                 "referenceName", new String[] {"20"}));
 
-    BeaconRequestBody requestBody = new BeaconRequestBody();
-    requestBody.addUrlParameters(request);
+    BeaconRequestBody requestBody = new BeaconRequestBody(request);
 
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
     JsonNode result = queryEntryType.query(database);
@@ -132,8 +129,7 @@ public class Beaconv2_ModelEndpointsTest {
   @Test
   public void testGenomicVariants_GeneIdQuery() throws Exception {
     Request request = mockEntryTypeRequest("g_variants", Map.of("geneId", new String[] {"SNRPB"}));
-    BeaconRequestBody requestBody = new BeaconRequestBody();
-    requestBody.addUrlParameters(request);
+    BeaconRequestBody requestBody = new BeaconRequestBody(request);
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
     JsonNode result = queryEntryType.query(database);
 
@@ -155,8 +151,7 @@ public class Beaconv2_ModelEndpointsTest {
                 "start", new String[] {"2447945,2447951"},
                 "end", new String[] {"2447952,2447953"},
                 "referenceName", new String[] {"20"}));
-    BeaconRequestBody requestBody = new BeaconRequestBody();
-    requestBody.addUrlParameters(request);
+    BeaconRequestBody requestBody = new BeaconRequestBody(request);
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
     JsonNode result = queryEntryType.query(database);
     String json = JsonUtil.getWriter().writeValueAsString(result);
@@ -167,8 +162,7 @@ public class Beaconv2_ModelEndpointsTest {
   @Test
   public void testAnalyses_NoParams() throws Exception {
     Request request = mockEntryTypeRequest("analyses", new HashMap<>());
-    BeaconRequestBody requestBody = new BeaconRequestBody();
-    requestBody.addUrlParameters(request);
+    BeaconRequestBody requestBody = new BeaconRequestBody(request);
 
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
     JsonNode analyses = queryEntryType.query(database);
@@ -180,8 +174,7 @@ public class Beaconv2_ModelEndpointsTest {
   public void testAnalyses_NoHits() throws Exception {
     Request request =
         mockEntryTypeRequest(EntryType.ANALYSES.getId(), Map.of("id", new String[] {"A05"}));
-    BeaconRequestBody requestBody = new BeaconRequestBody();
-    requestBody.addUrlParameters(request);
+    BeaconRequestBody requestBody = new BeaconRequestBody(request);
 
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
     JsonNode analyses = queryEntryType.query(database);
@@ -193,8 +186,7 @@ public class Beaconv2_ModelEndpointsTest {
   public void testAnalyses_IdQuery() throws Exception {
     Request request =
         mockEntryTypeRequest(EntryType.ANALYSES.getId(), Map.of("id", new String[] {"A03"}));
-    BeaconRequestBody requestBody = new BeaconRequestBody();
-    requestBody.addUrlParameters(request);
+    BeaconRequestBody requestBody = new BeaconRequestBody(request);
 
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
     JsonNode analyses = queryEntryType.query(database);
@@ -206,8 +198,7 @@ public class Beaconv2_ModelEndpointsTest {
   @Test
   public void testBiosamples_NoParams() throws Exception {
     Request request = mockEntryTypeRequest(EntryType.BIOSAMPLES.getId(), new HashMap<>());
-    BeaconRequestBody requestBody = new BeaconRequestBody();
-    requestBody.addUrlParameters(request);
+    BeaconRequestBody requestBody = new BeaconRequestBody(request);
 
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
     JsonNode biosamples = queryEntryType.query(database);
@@ -225,8 +216,7 @@ public class Beaconv2_ModelEndpointsTest {
     Request request =
         mockEntryTypeRequest(
             EntryType.BIOSAMPLES.getId(), Map.of("id", new String[] {"Sample0003"}));
-    BeaconRequestBody requestBody = new BeaconRequestBody();
-    requestBody.addUrlParameters(request);
+    BeaconRequestBody requestBody = new BeaconRequestBody(request);
 
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
     JsonNode biosamples = queryEntryType.query(database);
@@ -240,8 +230,7 @@ public class Beaconv2_ModelEndpointsTest {
     Request request =
         mockEntryTypeRequest(
             EntryType.BIOSAMPLES.getId(), Map.of("id", new String[] {"Sample0002"}));
-    BeaconRequestBody requestBody = new BeaconRequestBody();
-    requestBody.addUrlParameters(request);
+    BeaconRequestBody requestBody = new BeaconRequestBody(request);
 
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
     JsonNode biosamples = queryEntryType.query(database);
@@ -253,8 +242,7 @@ public class Beaconv2_ModelEndpointsTest {
   @Test
   public void testCohorts_NoParams() throws Exception {
     Request request = mockEntryTypeRequest(EntryType.COHORTS.getId(), new HashMap<>());
-    BeaconRequestBody requestBody = new BeaconRequestBody();
-    requestBody.addUrlParameters(request);
+    BeaconRequestBody requestBody = new BeaconRequestBody(request);
 
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
     JsonNode cohorts = queryEntryType.query(database);
@@ -268,8 +256,7 @@ public class Beaconv2_ModelEndpointsTest {
   public void testCohorts_NoHits() throws Exception {
     Request request =
         mockEntryTypeRequest(EntryType.COHORTS.getId(), Map.of("id", new String[] {"Cohort0003"}));
-    BeaconRequestBody requestBody = new BeaconRequestBody();
-    requestBody.addUrlParameters(request);
+    BeaconRequestBody requestBody = new BeaconRequestBody(request);
 
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
     JsonNode cohorts = queryEntryType.query(database);
@@ -281,8 +268,7 @@ public class Beaconv2_ModelEndpointsTest {
   @Test
   public void testIndividuals_NoParams() {
     Request request = mockEntryTypeRequest(EntryType.INDIVIDUALS.getId(), new HashMap<>());
-    BeaconRequestBody requestBody = new BeaconRequestBody();
-    requestBody.addUrlParameters(request);
+    BeaconRequestBody requestBody = new BeaconRequestBody(request);
 
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
     JsonNode json = queryEntryType.query(database);
@@ -299,11 +285,11 @@ public class Beaconv2_ModelEndpointsTest {
         Map.of(":entry_type", EntryType.INDIVIDUALS.getId(), ":id", "Ind001");
 
     when(request.params()).thenReturn(urlParams);
-    when(request.queryMap()).thenReturn(Mockito.mock(QueryParamsMap.class));
+    when(request.queryMap()).thenReturn(mock(QueryParamsMap.class));
     when(request.queryMap().toMap()).thenReturn(new HashMap<>());
+    when(request.attribute("specification")).thenReturn("beacon");
 
-    BeaconRequestBody requestBody = new BeaconRequestBody();
-    requestBody.addUrlParameters(request);
+    BeaconRequestBody requestBody = new BeaconRequestBody(request);
 
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
     JsonNode json = queryEntryType.query(database);
@@ -324,11 +310,11 @@ public class Beaconv2_ModelEndpointsTest {
             ":id", "Ind001");
 
     when(request.params()).thenReturn(urlParams);
-    when(request.queryMap()).thenReturn(Mockito.mock(QueryParamsMap.class));
+    when(request.queryMap()).thenReturn(mock(QueryParamsMap.class));
     when(request.queryMap().toMap()).thenReturn(new HashMap<>());
+    when(request.attribute("specification")).thenReturn("beacon");
 
-    BeaconRequestBody requestBody = new BeaconRequestBody();
-    requestBody.addUrlParameters(request);
+    BeaconRequestBody requestBody = new BeaconRequestBody(request);
 
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
     JsonNode json = queryEntryType.query(database);
@@ -345,7 +331,7 @@ public class Beaconv2_ModelEndpointsTest {
     Request request = mockEntryTypeRequest(EntryType.INDIVIDUALS.getId(), new HashMap<>());
     ObjectMapper mapper = new ObjectMapper();
     BeaconRequestBody beaconRequest = mapper.readValue(body, BeaconRequestBody.class);
-    beaconRequest.addUrlParameters(request);
+    beaconRequest.addRequestParameters(request);
 
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
     return queryEntryType.query(database);
@@ -1013,7 +999,7 @@ public class Beaconv2_ModelEndpointsTest {
                           }
                         }""";
     BeaconRequestBody beaconRequest = mapper.readValue(body, BeaconRequestBody.class);
-    beaconRequest.addUrlParameters(request);
+    beaconRequest.addRequestParameters(request);
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
     JsonNode json = queryEntryType.query(database);
     JsonNode results = json.get("response").get("resultSets").get(0).get("results");

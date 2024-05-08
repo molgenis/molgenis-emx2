@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.beaconv2.Concept;
 import org.molgenis.emx2.beaconv2.requests.Similarity;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
@@ -20,7 +19,7 @@ public class Filter {
   boolean includeDescendantTerms;
   Similarity similarity;
 
-  @JsonIgnore private Concept concept;
+  @JsonIgnore private FilterConceptVP concept;
   @JsonIgnore private FilterType filterType;
 
   // must deal with values as either 'string' or 'string array' hence this workaround
@@ -126,11 +125,11 @@ public class Filter {
     this.filterType = filterType;
   }
 
-  public Concept getConcept() {
+  public FilterConceptVP getConcept() {
     return concept;
   }
 
-  public void setConcept(Concept concept) {
+  public void setConcept(FilterConceptVP concept) {
     this.concept = concept;
   }
 

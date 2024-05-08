@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.beaconv2.Concept;
 import org.molgenis.emx2.beaconv2.EntryType;
 import org.molgenis.emx2.beaconv2.common.misc.NCITToGSSOSexMapping;
 import org.molgenis.emx2.beaconv2.requests.BeaconQuery;
@@ -59,7 +58,7 @@ public class FilterParserEjpRd implements FilterParser {
 
   private void parseRegularFilters() {
     EntryType entryType = beaconQuery.getEntryType();
-    List<Concept> permittedConcepts = entryType.getPermittedSearchConcepts();
+    List<FilterConceptVP> permittedConcepts = entryType.getPermittedFilters();
     for (Filter filter : beaconQuery.getFilters()) {
       filter.setFilterType(FilterType.UNDEFINED);
       if (isIdSearch(filter)) {
@@ -67,7 +66,7 @@ public class FilterParserEjpRd implements FilterParser {
       } else if (isValidFormat(filter)) {
         String id = filter.getIds()[0];
         try {
-          Concept searchConcept = Concept.findById(id);
+          FilterConceptVP searchConcept = FilterConceptVP.findById(id);
           if (!permittedConcepts.contains(searchConcept)
               || !searchConcept.isPermittedValue(filter.getValues()))
             throw new MolgenisException(
@@ -76,7 +75,7 @@ public class FilterParserEjpRd implements FilterParser {
           switch (searchConcept) {
             case SEX:
               filter.setValues(NCITToGSSOSexMapping.toGSSO(filter.getValues()));
-            case CAUSAL_GENE:
+            case CAUSAL_GENE, ID, NAME, DESCRIPTION, BIOSAMPLE_TYPE:
               filter.setFilterType(FilterType.ALPHANUMERICAL);
               graphQlFilters.add(filter);
               break;
@@ -101,12 +100,12 @@ public class FilterParserEjpRd implements FilterParser {
   }
 
   private void createOntologyFiltersFromIds(Filter filter) {
-    filter.setConcept(Concept.DISEASE);
+    filter.setConcept(FilterConceptVP.DISEASE);
     filter.setValues(filter.getIds());
     processOntologyFilter(filter);
 
     Filter phenotTypeFilter = new Filter(filter);
-    phenotTypeFilter.setConcept(Concept.PHENOTYPE);
+    phenotTypeFilter.setConcept(FilterConceptVP.PHENOTYPE);
     processOntologyFilter(phenotTypeFilter);
   }
 
@@ -114,7 +113,6 @@ public class FilterParserEjpRd implements FilterParser {
     return filter.getOperator() == null && filter.getValues() == null && filter.getIds() != null;
   }
 
-  // todo add more validation
   private boolean isValidFormat(Filter filter) {
     return filter.getIds().length == 1;
   }

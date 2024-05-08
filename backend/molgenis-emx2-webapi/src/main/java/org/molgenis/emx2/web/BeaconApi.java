@@ -1,8 +1,7 @@
 package org.molgenis.emx2.web;
 
 import static org.molgenis.emx2.json.JsonUtil.getWriter;
-import static spark.Spark.get;
-import static spark.Spark.post;
+import static spark.Spark.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -21,36 +20,48 @@ public class BeaconApi {
 
   public static void create(MolgenisSessionManager sm) {
     sessionManager = sm;
-    // framework
-    get("/api/beacon", BeaconApi::getInfo);
-    get("/api/beacon/", BeaconApi::getInfo);
-    get("/api/beacon/info", BeaconApi::getInfo);
-    get("/api/beacon/service-info", BeaconApi::getInfo);
-    get("/api/beacon/configuration", BeaconApi::getConfiguration);
+    defineRoutes("/api/beacon");
+    defineRoutes("/api/beacon_vp");
+  }
 
-    get("/api/beacon/map", BeaconApi::getMap);
-    get("/api/beacon/filtering_terms", BeaconApi::getFilteringTerms);
-    get("/api/beacon/entry_types", BeaconApi::getEntryTypes);
+  private static void defineRoutes(String basePath) {
+    path(
+        basePath,
+        () -> {
+          before("/*", BeaconApi::extractSpecification);
+          get("/", BeaconApi::getInfo);
+          get("/info", BeaconApi::getInfo);
+          get("/service-info", BeaconApi::getInfo);
+          get("/configuration", BeaconApi::getConfiguration);
+          get("/map", BeaconApi::getMap);
+          get("/filtering_terms", BeaconApi::getFilteringTerms);
+          get("/entry_types", BeaconApi::getEntryTypes);
+          get("/:entry_type", BeaconApi::getEntryType);
+          get("/:entry_type/:id", BeaconApi::getEntryType);
+          get("/:entry_type_id/:id/:entry_type", BeaconApi::getEntryType);
+          post("/:entry_type", BeaconApi::postEntryType);
+        });
+  }
 
-    get("/api/beacon/:entry_type", BeaconApi::getEntryType);
-    get("/api/beacon/:entry_type/:id", BeaconApi::getEntryType);
-    get("/api/beacon/:entry_type_id/:id/:entry_type", BeaconApi::getEntryType);
-    post("/api/beacon/:entry_type", BeaconApi::postEntryType);
+  private static void extractSpecification(Request request, Response response) {
+    int specificationIndex = 2;
+    String specification = request.matchedPath().split("/")[specificationIndex];
+    request.attribute("specification", specification);
   }
 
   private static String getEntryType(Request request, Response response) throws Exception {
-    return entryTypeRequest(request, new BeaconRequestBody());
+    return entryTypeRequest(request, new BeaconRequestBody(request));
   }
 
   private static String postEntryType(Request request, Response response) throws Exception {
     ObjectMapper mapper = new ObjectMapper();
     BeaconRequestBody beaconRequest = mapper.readValue(request.body(), BeaconRequestBody.class);
+    beaconRequest.addRequestParameters(request);
     return entryTypeRequest(request, beaconRequest);
   }
 
   private static String entryTypeRequest(Request request, BeaconRequestBody requestBody)
       throws JsonProcessingException {
-    requestBody.addUrlParameters(request);
 
     Database database = sessionManager.getSession(request).getDatabase();
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);

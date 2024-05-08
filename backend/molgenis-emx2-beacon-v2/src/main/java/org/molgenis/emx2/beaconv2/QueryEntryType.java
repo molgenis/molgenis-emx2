@@ -22,6 +22,7 @@ import org.molgenis.emx2.Table;
 import org.molgenis.emx2.beaconv2.common.misc.Granularity;
 import org.molgenis.emx2.beaconv2.common.misc.IncludedResultsetResponses;
 import org.molgenis.emx2.beaconv2.filter.Filter;
+import org.molgenis.emx2.beaconv2.filter.FilterConceptVP;
 import org.molgenis.emx2.beaconv2.filter.FilterParser;
 import org.molgenis.emx2.beaconv2.filter.FilterParserFactory;
 import org.molgenis.emx2.beaconv2.requests.BeaconQuery;
@@ -186,20 +187,20 @@ public class QueryEntryType {
   }
 
   // todo: move to searchConcept?
-  private List<String> getIso8601DurationsForConcept(Concept concept, JsonNode result) {
+  private List<String> getIso8601DurationsForConcept(FilterConceptVP concept, JsonNode result) {
     List<String> ageIso8601durations = new ArrayList<>();
 
-    if (concept == Concept.AGE_THIS_YEAR) {
+    if (concept == FilterConceptVP.AGE_THIS_YEAR) {
       if (result.hasNonNull("age_age_iso8601duration")) {
         ageIso8601durations.add(result.get("age_age_iso8601duration").textValue());
       }
-    } else if (concept == Concept.AGE_OF_ONSET) {
+    } else if (concept == FilterConceptVP.AGE_OF_ONSET) {
       for (JsonNode disease : result.get("diseases")) {
         if (disease.hasNonNull("ageOfOnset_age_iso8601duration")) {
           ageIso8601durations.add(disease.get("ageOfOnset_age_iso8601duration").textValue());
         }
       }
-    } else if (concept == Concept.AGE_AT_DIAG) {
+    } else if (concept == FilterConceptVP.AGE_AT_DIAG) {
       for (JsonNode disease : result.get("diseases")) {
         if (disease.hasNonNull("ageAtDiagnosis_age_iso8601duration")) {
           ageIso8601durations.add(disease.get("ageAtDiagnosis_age_iso8601duration").textValue());

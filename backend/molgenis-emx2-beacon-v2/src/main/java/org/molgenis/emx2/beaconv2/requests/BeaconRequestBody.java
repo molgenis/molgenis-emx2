@@ -3,6 +3,9 @@ package org.molgenis.emx2.beaconv2.requests;
 import static org.molgenis.emx2.rdf.RDFUtils.extractHost;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.beaconv2.BeaconSpec;
+import org.molgenis.emx2.beaconv2.EntryType;
 import spark.Request;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
@@ -13,6 +16,19 @@ public class BeaconRequestBody {
   private BeaconQuery query = new BeaconQuery();
 
   public BeaconRequestBody() {}
+
+  public BeaconRequestBody(Request request) {
+    this.addRequestParameters(request);
+  }
+
+  public void addRequestParameters(Request request) {
+    BeaconSpec specification = addSpecification(request);
+    EntryType entryType = addUrlParameters(request);
+    if (!entryType.validateSpecification(specification)) {
+      throw new MolgenisException(
+          "Invalid entry type: %s, for specification %s".formatted(entryType, specification));
+    }
+  }
 
   public String get$schema() {
     return $schema;
@@ -26,9 +42,16 @@ public class BeaconRequestBody {
     return query;
   }
 
-  public void addUrlParameters(Request request) {
+  private BeaconSpec addSpecification(Request request) {
+    String specification = request.attribute("specification").toString();
+    BeaconSpec beaconSpec = BeaconSpec.findByPath(specification);
+    meta.setSpecification(beaconSpec);
+    return beaconSpec;
+  }
+
+  private EntryType addUrlParameters(Request request) {
     String host = extractHost(request.url());
     this.getMeta().setHost(host);
-    query.addUrlParameters(request);
+    return query.addUrlParameters(request);
   }
 }

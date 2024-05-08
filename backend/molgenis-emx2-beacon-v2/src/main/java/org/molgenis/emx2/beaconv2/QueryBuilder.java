@@ -96,6 +96,8 @@ public class QueryBuilder {
               queryColumnsRecursively(refTable.getColumnsWithoutHeadings(), maxDepth, currentDepth);
           columnSb.append("}");
         }
+      } else if (column.isFile()) {
+        columnSb.append("%s { url },".formatted(column.getIdentifier()));
       } else {
         columnSb.append(column.getIdentifier()).append(",");
       }

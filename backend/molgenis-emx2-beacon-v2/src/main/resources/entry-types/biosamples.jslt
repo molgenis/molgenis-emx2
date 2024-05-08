@@ -4,6 +4,7 @@ import "meta.jslt" as meta
 {
     "meta": meta(.),
     "responseSummary": responseSummary(.),
+    "info": .info,
     "response": {
         "resultSets":
         [for (.resultSets)
