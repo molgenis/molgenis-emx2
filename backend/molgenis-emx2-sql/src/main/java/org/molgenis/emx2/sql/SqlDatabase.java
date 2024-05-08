@@ -147,6 +147,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
             j.execute("CREATE EXTENSION IF NOT EXISTS pgcrypto"); // for password hashing
           });
 
+      // NOSONAR
       if (!jooq.fetch("SELECT setting FROM pg_settings WHERE name = 'jit';")
           .get(0)
           .get(0)
@@ -154,7 +155,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
         String error =
             "Postgresql JIT must be disabled to prevent massive performance issues. Please run 'SET jit = 'off' or set jit = 'off' in your postgresql file. See installation manual";
         logger.error(error);
-        throw new RuntimeException(error);
+        throw new MolgenisException(error);
       }
 
       Migrations.initOrMigrate(this);
