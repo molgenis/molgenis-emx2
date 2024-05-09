@@ -318,31 +318,19 @@ public class SqlQuery extends QueryBean {
       String subAlias,
       Collection<Field<?>> selection) {
     DSLContext jooq = table.getJooq();
-    List<Condition> conditions = new ArrayList<>();
-    if (filters != null || searchTerms.length > 0) {
-      Select<org.jooq.Record> filterQuery =
-          jsonFilterQuery(table, column, tableAlias, subAlias, filters, searchTerms);
-      List<Field<?>> pkeyFields = table.getPrimaryKeyFields();
-      if (pkeyFields.size() > 0) {
-        conditions.add(row(pkeyFields).in(filterQuery));
-      }
-    }
-    if (column != null) {
-      conditions.add(refJoinCondition(column, tableAlias, subAlias));
-    }
 
-    SelectJoinStep<org.jooq.Record> from;
-    if (!conditions.isEmpty() || select.getLimit() > 0 || select.getOffset() > 0) {
-      from = jooq.select(asterisk()).from(tableWithInheritanceJoin(table).as(alias(subAlias)));
-      if (!conditions.isEmpty()) {
-        from = (SelectJoinStep<org.jooq.Record>) from.where(conditions);
-      }
-      from = limitOffsetOrderBy(table, select, from);
-      from = jooq.select(selection).from(from.asTable(alias(subAlias)));
-    } else {
-      from = jooq.select(selection).from(tableWithInheritanceJoin(table).as(alias(subAlias)));
-    }
+    // get primary keys to include in result
+    SelectConnectByStep<org.jooq.Record> filterQuery =
+        jsonFilterQuery(
+            table, List.of(asterisk()), column, tableAlias, subAlias, filters, searchTerms);
+    filterQuery = limitOffsetOrderBy(table, select, filterQuery);
 
+    // natural join to get rest of the data
+    SelectConnectByStep<org.jooq.Record> from =
+        jooq.select(selection).from(filterQuery.asTable(alias(subAlias)));
+    from = SqlQueryBuilderHelpers.orderBy(table, select, from);
+
+    // agg
     String agg =
         select.getColumn().endsWith("_agg")
                 || select.getColumn().endsWith("_groupBy")
@@ -360,26 +348,52 @@ public class SqlQuery extends QueryBean {
       String subAlias,
       Filter filters,
       String[] searchTerms) {
+    return jsonFilterQuery(
+        table,
+        table.getPrimaryKeyFields().stream().map(f -> (SelectFieldOrAsterisk) f).toList(),
+        column,
+        tableAlias,
+        subAlias,
+        filters,
+        searchTerms);
+  }
+
+  private SelectConditionStep<org.jooq.Record> jsonFilterQuery(
+      SqlTableMetadata table,
+      List<SelectFieldOrAsterisk> selection,
+      Column column,
+      String tableAlias,
+      String subAlias,
+      Filter filters,
+      String[] searchTerms) {
+
+    String filterAlias = subAlias + "_filter";
 
     List<Condition> conditions = new ArrayList<>();
     if (filters != null) {
       conditions.addAll(
-          jsonFilterQueryConditions(table, column, tableAlias, subAlias, filters, searchTerms));
+          jsonFilterQueryConditions(table, column, tableAlias, filterAlias, filters, searchTerms));
     }
     if (searchTerms.length > 0) {
-      conditions.add(jsonSearchConditions(table, searchTerms));
+      conditions.add(jsonSearchConditions(table, filterAlias, searchTerms));
+    }
+    if (column != null) {
+      conditions.add(refJoinCondition(column, tableAlias, filterAlias));
     }
 
     // create the subquery
     if (!conditions.isEmpty()) {
       return table
           .getJooq()
-          .select(table.getPrimaryKeyFields())
-          .from(tableWithInheritanceJoin(table))
+          .select(selection)
+          .from(tableWithInheritanceJoin(table).as(alias(filterAlias)))
           .where(conditions);
     } else {
       return (SelectConditionStep<org.jooq.Record>)
-          table.getJooq().select(table.getPrimaryKeyFields()).from(tableWithInheritanceJoin(table));
+          table
+              .getJooq()
+              .select(selection)
+              .from(tableWithInheritanceJoin(table).as(alias(filterAlias)));
     }
   }
 
@@ -401,7 +415,8 @@ public class SqlQuery extends QueryBean {
           conditions.add(
               and(jsonFilterQueryConditions(table, column, tableAlias, subAlias, f, searchTerms)));
         } else if (TRIGRAM_SEARCH.equals(f.getOperator())) {
-          conditions.add(jsonSearchConditions(table, TypeUtils.toStringArray(f.getValues())));
+          conditions.add(
+              jsonSearchConditions(table, subAlias, TypeUtils.toStringArray(f.getValues())));
         } else {
           Column c = getColumnByName(table, f.getColumn());
           if (c.isReference()) {
@@ -479,7 +494,7 @@ public class SqlQuery extends QueryBean {
             // simple filter
             conditions.add(
                 whereCondition(
-                    c.getTableName(),
+                    subAlias,
                     c.getName(),
                     c.getColumnType().getBaseType(),
                     f.getOperator(),
@@ -491,12 +506,13 @@ public class SqlQuery extends QueryBean {
     return conditions;
   }
 
-  private static Condition jsonSearchConditions(SqlTableMetadata table, String[] searchTerms) {
+  private Condition jsonSearchConditions(
+      SqlTableMetadata table, String subAlias, String[] searchTerms) {
     // create search
     List<Condition> search = new ArrayList<>();
     for (String term : searchTerms) {
       search.add(
-          field(name(table.getTableName(), searchColumnName(table.getTableName())))
+          field(name(alias(subAlias), searchColumnName(table.getTableName())))
               .likeIgnoreCase("%" + term + "%"));
       // also search in ontology tables linked to current table
       table.getColumns().stream()
@@ -710,7 +726,7 @@ public class SqlQuery extends QueryBean {
     if (filter != null || searchTerms.length > 1) {
       condition =
           row(table.getPrimaryKeyFields())
-              .in(jsonFilterQuery(table, column, tableAlias, subAlias, filter, searchTerms));
+              .in(jsonFilterQuery(table, null, tableAlias, subAlias, filter, searchTerms));
     }
 
     Set<Field> aggregationFields = new HashSet<>(); // sum(x), count, etc
