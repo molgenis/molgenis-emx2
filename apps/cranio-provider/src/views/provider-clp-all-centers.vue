@@ -35,7 +35,7 @@
           yvar="value"
           :yMax="100"
           :yTickValues="[0, 25, 50, 75, 100]"
-          :columnFillPalette="colors"
+          :columnColorPalette="colors"
           :chartHeight="250"
         />
       </DashboardChart>
@@ -49,7 +49,7 @@
           yvar="value"
           :yMax="10"
           :yTickValues="[0, 5, 10]"
-          :columnFillPalette="colors"
+          :columnColorPalette="colors"
           :chartHeight="250"
         />
       </DashboardChart>
