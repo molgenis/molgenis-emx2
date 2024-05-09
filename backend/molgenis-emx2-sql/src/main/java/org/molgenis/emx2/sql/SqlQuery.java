@@ -319,13 +319,14 @@ public class SqlQuery extends QueryBean {
       Collection<Field<?>> selection) {
     DSLContext jooq = table.getJooq();
 
-    // query with source data (optimization would be to only include fields needed)
+    // query without all nested joins for the json
+    // note: another optimization would be to only include fields needed instead of asterisk
     SelectConnectByStep<org.jooq.Record> filterQuery =
         jsonFilterQuery(
             table, List.of(asterisk()), column, tableAlias, subAlias, filters, searchTerms);
     filterQuery = limitOffsetOrderBy(table, select, filterQuery);
 
-    // use that to retrieve the json
+    // use filtered/sorted/limited/offsetted to produce json including only the joins needed
     SelectConnectByStep<org.jooq.Record> from =
         jooq.select(selection).from(filterQuery.asTable(alias(subAlias)));
 
@@ -340,6 +341,7 @@ public class SqlQuery extends QueryBean {
     return field(jooq.select(field(agg)).from(from.asTable(ITEM)));
   }
 
+  // overload for backwards compatibility with other uses of this part
   private SelectConditionStep<org.jooq.Record> jsonFilterQuery(
       SqlTableMetadata table,
       Column column,
