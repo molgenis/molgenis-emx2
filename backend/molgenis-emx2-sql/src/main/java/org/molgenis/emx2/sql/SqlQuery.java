@@ -319,16 +319,15 @@ public class SqlQuery extends QueryBean {
       Collection<Field<?>> selection) {
     DSLContext jooq = table.getJooq();
 
-    // get primary keys to include in result
+    // query with source data (optimization would be to only include fields needed)
     SelectConnectByStep<org.jooq.Record> filterQuery =
         jsonFilterQuery(
             table, List.of(asterisk()), column, tableAlias, subAlias, filters, searchTerms);
     filterQuery = limitOffsetOrderBy(table, select, filterQuery);
 
-    // natural join to get rest of the data
+    // use that to retrieve the json
     SelectConnectByStep<org.jooq.Record> from =
         jooq.select(selection).from(filterQuery.asTable(alias(subAlias)));
-    from = SqlQueryBuilderHelpers.orderBy(table, select, from);
 
     // agg
     String agg =
