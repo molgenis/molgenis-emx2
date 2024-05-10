@@ -300,7 +300,7 @@ class Flattener(pd.DataFrame):
         """
         for table_name in self['tableName'].unique().tolist():
             if table_name not in ['Datasets', 'All variables', 'Variables', 'Repeated variables',
-                                  'Dataset mappings', 'Variable mappings']:
+                                  'Dataset mappings', 'Variable mappings', 'Network variables']:
                 df = self.drop(self[self['tableName'] != table_name].index)
                 path = SHARED_DIR.joinpath(table_name + '.csv')
                 df.to_csv(path, index=False, mode='w')
