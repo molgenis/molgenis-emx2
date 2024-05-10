@@ -2,7 +2,6 @@
 Script to flatten the DataCatalogue model to a flat, 'hierarchy-less' model
 in which all resources live in harmony.
 
-TODO: delete when pull request is ready for merging
 """
 
 import warnings
