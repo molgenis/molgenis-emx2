@@ -2,4 +2,4 @@ tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,ref
 Samplesets,,,,,,,,,,,,Definition of a sample set,DataCatalogueFlat,
 Samplesets,,collection,ref,1,TRUE,,Collections,,,,dcterms:isPartOf,collection that these samples are part of,DataCatalogueFlat,
 Samplesets,,name,,1,TRUE,,,,,,dcterms:title,sample set name,DataCatalogueFlat,
-Samplesets,,sample types,,,,CatalogueOntologies,Sample types,,,,,"defines the types of samples in the sample set",DataCatalogueFlat,
+Samplesets,,sample types,ontology_array,,,CatalogueOntologies,Sample types,,,,,"defines the types of samples in the sample set",DataCatalogueFlat,
