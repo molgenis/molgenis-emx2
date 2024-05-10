@@ -138,7 +138,7 @@ class Flattener(pd.DataFrame):
 
         self.save_split_df()
 
-        # self.save_dev_df()
+        self.save_dev_df()
 
         return self
 
@@ -307,15 +307,38 @@ class Flattener(pd.DataFrame):
                 df.to_csv(path, index=False, mode='w')
 
     def save_dev_df(self):
-        """Saves the pandas DataFrame of the test model to disk."""
+        """Saves the pandas DataFrame of the flat model to disk."""
+        profile = 'DataCatalogueFlat'
+        path = 'C:/Users/brend/Molgenis/repos/molgenis-emx2/data/_models/shared/'
 
-        self.replace('catalogue', 'catalogueFLAT', inplace=True)
+        data_model = get_data_model(path, profile)
         file_dir = SPECIFIC_DIR.joinpath('dev')
+        data_model.to_csv(file_dir + profile + '.csv', index=None)
 
-        profiles = list(set([p for _l in list(self['profiles'].str.split(',')) for p in _l]))
-        for prof in profiles:
-            self.loc[self['profiles'].str.contains(prof)].drop(
-                columns=['profiles']).to_csv(file_dir.joinpath(f"{prof}.csv"), index=False)
+
+def get_data_model(path, profile):
+    data_model = pd.DataFrame()
+
+    for file_name in os.listdir(path):
+        if '.csv' in file_name:
+            df = pd.read_csv(path + file_name)
+            df = df.loc[df['profiles'].str.contains(profile)]
+            data_model = pd.concat([data_model, df])
+
+    data_model = float_to_int(data_model)
+
+    return data_model
+
+
+def float_to_int(df):
+    """
+    Cast float64 Series to Int64.
+    """
+    for column in df.columns:
+        if df[column].dtype == 'float64':
+            df.loc[:, column] = df[column].astype('Int64')
+
+    return df
 
 
 def change_profiles(profiles):
