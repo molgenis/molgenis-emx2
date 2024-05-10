@@ -26,7 +26,11 @@ main.container-fluid {
   }
 
   .dashboard-row-offset {
-    grid-template-columns: 2fr 1fr;
+    grid-template-columns: 1fr;
+
+    @media (min-width: 1024px) {
+      grid-template-columns: 2fr 1fr;
+    }
   }
 
   .dashboard-box {
@@ -133,7 +137,7 @@ main.container-fluid {
 .filters-form {
   position: sticky;
   top: 0px;
-  padding: 1.5em 1em;
+  padding: 1em;
   background-color: $blue-050;
   z-index: 2;
 
@@ -247,4 +251,10 @@ main.container-fluid {
       color: $gray-000;
     }
   }
+}
+
+.resource-total-cases {
+  font-size: 1.1rem;
+  color: $gray-600;
+  margin-bottom: 0;
 }

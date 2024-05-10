@@ -69,6 +69,11 @@
       </MessageBox>
     </PageSection>
     <Dashboard>
+      <DashboardRow class="dashboard-meta" :columns="1">
+        <p class="resource-total-cases">
+          Total number of cases: {{ totalNumberOfCases }}
+        </p>
+      </DashboardRow>
       <DashboardRow :columns="3">
         <DashboardChart>
           <LoadingScreen style="height: 400px" v-if="loading" />
@@ -189,7 +194,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
 import {
   Page,
   PageHeader,
@@ -225,6 +230,7 @@ import type {
   metastasisIF,
   yearOfDiagnosisIF,
   sexCasesIF,
+  chartAxisSettingsIF,
 } from "../interfaces/types";
 
 const palette = ref(scheme[6]);
@@ -237,8 +243,8 @@ const primaryTumorSite = ref<primaryTumorSiteIF[]>([]);
 const metastasis = ref<metastasisIF[]>([]);
 const yearOfDiagnosis = ref<yearOfDiagnosisIF[]>([]);
 const sexCases = ref<sexCasesIF>({});
-const researchCenterAxis = ref({ ticks: [], ymax: null });
-const yearOfDiagnosisAxis = ref({ ticks: [], ymax: null });
+const researchCenterAxis = ref<chartAxisSettingsIF>({ ticks: [], ymax: null });
+const yearOfDiagnosisAxis = ref<chartAxisSettingsIF>({ ticks: [], ymax: null });
 
 const resourcesInput = ref();
 
@@ -250,6 +256,10 @@ const selectedFilters = ref<selectedFiltersIF>({
   metastasis: [],
   yearOfDiagnosis: [],
   sex: [],
+});
+
+const totalNumberOfCases = computed(() => {
+  return researchCenters.value.reduce((sum, row) => row._sum + sum, 0);
 });
 
 function onClickPrevent(event: Event) {
@@ -311,16 +321,6 @@ async function getAllData() {
     .sort((curr, next) => curr._sum - next._sum)
     .reverse();
 
-  const centerMax = Math.max(...researchCenters.value.map((d) => d._sum));
-  const centerStep = calculateIncrement(centerMax);
-  researchCenterAxis.value.ymax =
-    Math.ceil(centerMax / centerStep) * centerStep;
-  researchCenterAxis.value.ticks = seqAlongBy(
-    0,
-    researchCenterAxis.value.ymax,
-    centerStep
-  );
-
   primaryTumorSite.value = await getChartData({
     labels: "primaryTumorSite",
     values: "_sum",
@@ -342,13 +342,8 @@ async function getAllData() {
     filters: queryFilters.value.filter,
   });
 
-  const maxValue = Math.max(...yearOfDiagnosis.value.map((d) => d._sum));
-  const step = calculateIncrement(maxValue);
-  const max = Math.ceil(maxValue / step) * step;
-  yearOfDiagnosisAxis.value.ymax = max;
-  yearOfDiagnosisAxis.value.ticks = seqAlongBy(0, max, step);
-
   const ordering = [
+    "<1991",
     "1991-2000",
     "2001-2005",
     "2006-2010",
@@ -371,6 +366,26 @@ async function getAllData() {
     filters: queryFilters.value.filter,
   });
 }
+
+watch([researchCenters], () => {
+  const centerMax = Math.max(...researchCenters.value.map((d) => d._sum));
+  const centerStep = calculateIncrement(centerMax);
+  researchCenterAxis.value.ymax =
+    Math.ceil(centerMax / centerStep) * centerStep;
+  researchCenterAxis.value.ticks = seqAlongBy(
+    0,
+    researchCenterAxis.value.ymax,
+    centerStep
+  );
+});
+
+watch([yearOfDiagnosis], () => {
+  const maxValue = Math.max(...yearOfDiagnosis.value.map((d) => d._sum));
+  const step = calculateIncrement(maxValue);
+  const max = Math.ceil(maxValue / step) * step;
+  yearOfDiagnosisAxis.value.ymax = max;
+  yearOfDiagnosisAxis.value.ticks = seqAlongBy(0, max, step);
+});
 
 function resetFilters() {
   selectedFilters.value = {
@@ -405,8 +420,8 @@ function onChartClick(
 function renderCharts() {
   loading.value = true;
   getAllData()
-    .then(() => (loading.value = false))
-    .catch((err) => (error.value = err));
+    .catch((err) => (error.value = err))
+    .finally(() => (loading.value = false));
 }
 
 onMounted(() => renderCharts());

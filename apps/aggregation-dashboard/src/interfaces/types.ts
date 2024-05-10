@@ -31,3 +31,8 @@ export interface sexCasesIF {
   sex: { name: string };
   _sum: { n: number };
 }
+
+export interface chartAxisSettingsIF {
+  ticks: string[];
+  ymax: number | null;
+}
