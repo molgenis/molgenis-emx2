@@ -1,8 +1,9 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,visible
-Datasets,,,,,,,,,,,dcat:Dataset,Definition of a dataset within a (common) data model,DataCatalogueFlat,
-Datasets,,collection,ref,1,true,,Collections,,,,dcterms:isPartOf,resources that these variables are part of,DataCatalogueFlat,
-Datasets,,name,,1,true,,,,,,dcterms:title,unique dataset name in the model,DataCatalogueFlat,
+Datasets,,,,,,,,,,,dcat:Dataset,Definition of a dataset,DataCatalogueFlat,
+Datasets,,collection,ref,1,TRUE,,Collections,,,,dcterms:isPartOf,collection that these variables are part of,DataCatalogueFlat,
+Datasets,,name,,1,TRUE,,,,,,dcterms:title,unique dataset name in the model,DataCatalogueFlat,
 Datasets,,label,,,,,,,,,,short human readable description,DataCatalogueFlat,
+Datasets,,dataset type,,,,CatalogueOntologies,Dataset types,,,,,"defines the type of dataset, e.g. genomic",DataCatalogueFlat,
 Datasets,,unit of observation,ontology,,,CatalogueOntologies,Observation targets,,,,,defines what each record in this table describes,DataCatalogueFlat,
 Datasets,,keywords,ontology_array,,,CatalogueOntologies,Keywords,,,,dcat:theme,enables grouping of table list into topic and to display tables in a tree,DataCatalogueFlat,
 Datasets,,description,text,,,,,,,,dcterms:description,description of the role/function of this table,DataCatalogueFlat,
