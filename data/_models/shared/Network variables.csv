@@ -1,4 +1,0 @@
-tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,visible
-Network variables,,,,,,,,,,,,Listing of the variables used in a network,DataCatalogueFlat,
-Network variables,,network,ref,1,true,,Collections,,,,,,DataCatalogueFlat,
-Network variables,,variable,ref,1,true,,Variables,,,,,,DataCatalogueFlat,
