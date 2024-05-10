@@ -8,6 +8,7 @@ import warnings
 from pathlib import Path
 
 import pandas as pd
+import os
 
 warnings.filterwarnings("ignore", category=FutureWarning)
 
@@ -311,8 +312,8 @@ class Flattener(pd.DataFrame):
         path = 'C:/Users/brend/Molgenis/repos/molgenis-emx2/data/_models/shared/'
 
         data_model = get_data_model(path, profile)
-        file_dir = SPECIFIC_DIR.joinpath('dev')
-        data_model.to_csv(file_dir + profile + '.csv', index=None)
+        file_dir = str(SPECIFIC_DIR.joinpath('dev'))
+        data_model.to_csv(file_dir + '/' + profile + '.csv', index=None)
 
 
 def get_data_model(path, profile):
