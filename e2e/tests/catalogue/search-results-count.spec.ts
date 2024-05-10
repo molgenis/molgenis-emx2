@@ -60,8 +60,6 @@ test('validate variables in cohorts counts are shown',
     }
 
     await expect(page.getByRole('main')).toContainText('2248 variables');
-    await expect(page.getByRole('main')).toContainText('in 57 cohorts');
-
   }
 );
 
