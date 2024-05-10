@@ -20,7 +20,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
   const settingsStore = useSettingsStore();
 
   const graphqlEndpoint = settingsStore.config.graphqlEndpoint;
-  const graphqlEndpointOntologyFilter = "DirectoryOntologies/graphql";
+  const graphqlEndpointOntologyFilter = "/DirectoryOntologies/graphql";
 
   let bookmarkWaitingForApplication = ref(false);
 
