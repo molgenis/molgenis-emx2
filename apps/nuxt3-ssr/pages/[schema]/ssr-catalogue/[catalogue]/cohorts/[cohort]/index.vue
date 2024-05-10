@@ -6,6 +6,7 @@ import datasetQuery from "~~/gql/datasets";
 import ontologyFragment from "~~/gql/fragments/ontology";
 import fileFragment from "~~/gql/fragments/file";
 import type { ICohort, IMgError, IOntologyItem } from "~/interfaces/types";
+import dateUtils from "~/utils/dateUtils";
 const config = useRuntimeConfig();
 const route = useRoute();
 
@@ -204,7 +205,7 @@ function collectionEventMapper(item: any) {
         item.startYear && item.startYear.name ? item.startYear.name : null;
       const endYear =
         item.endYear && item.endYear.name ? item.endYear.name : null;
-      return filters.startEndYear(startYear, endYear);
+      return dateUtils.startEndYear(startYear, endYear);
     })(),
     numberOfParticipants: item.numberOfParticipants,
     _renderComponent: "CollectionEventDisplay",
