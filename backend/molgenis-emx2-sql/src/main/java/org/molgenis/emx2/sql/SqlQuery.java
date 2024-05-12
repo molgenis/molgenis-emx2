@@ -43,6 +43,7 @@ public class SqlQuery extends QueryBean {
 
   private static final Logger logger = LoggerFactory.getLogger(SqlQuery.class);
   public static final String ANY_1 = "{0} = ANY({1})";
+  public static final String ALL_1 = "{0} = ALL({1})";
 
   private final SqlSchemaMetadata schema;
   private final List<String> tableAliasList = new LinkedList<>();
@@ -1183,8 +1184,11 @@ public class SqlQuery extends QueryBean {
     List<Condition> conditions = new ArrayList<>();
     boolean not = false;
     switch (operator) {
-      case EQUALS:
+      case EQUALS, MATCH_ANY:
         conditions.add(condition("{0} && {1}", values, field(columnName)));
+        break;
+      case MATCH_ALL:
+        conditions.add(condition("{0} <@ {1}", values, field(columnName)));
         break;
       case NOT_EQUALS:
         not = true;
@@ -1206,8 +1210,11 @@ public class SqlQuery extends QueryBean {
     boolean not = false;
     for (String value : values) {
       switch (operator) {
-        case EQUALS:
+        case EQUALS, MATCH_ANY:
           conditions.add(condition(ANY_1, value, field(columnName)));
+          break;
+        case MATCH_ALL:
+          conditions.add(condition("{0} <@ {1}", values, field(columnName)));
           break;
         case NOT_EQUALS:
           not = true;
