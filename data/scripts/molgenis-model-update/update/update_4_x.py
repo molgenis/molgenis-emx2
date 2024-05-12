@@ -49,7 +49,7 @@ class Transform:
         if self.database_type == 'catalogue':
             data_model = os.path.abspath('../../../datacatalogue/molgenis.csv')
             profile_path = os.path.abspath('../../../_models/shared/')
-            profile = 'DataCatalogue'
+            profile = 'DataCatalogueFlat'
             get_data_model(profile_path, data_model, profile)
         elif self.database_type == 'network':
             data_model = os.path.abspath('../../../datacatalogue/stagingNetworks/molgenis.csv')
