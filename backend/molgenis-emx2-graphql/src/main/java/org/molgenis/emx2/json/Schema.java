@@ -25,7 +25,7 @@ public class Schema {
             .map(entry -> new Setting(entry.getKey(), entry.getValue()))
             .toList();
     List<TableMetadata> list = new ArrayList<>();
-    list.addAll(schema.getTablesIncludingExternal());
+    list.addAll(schema.getTables());
     // deterministic order is important for all kinds of comparisons
     Collections.sort(list);
     // add these tables
