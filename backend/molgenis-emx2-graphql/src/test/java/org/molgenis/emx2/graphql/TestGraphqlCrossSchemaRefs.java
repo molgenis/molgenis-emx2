@@ -58,7 +58,7 @@ public class TestGraphqlCrossSchemaRefs {
   void testCrossSchemaTablesAreInSchemaEndpoint() throws IOException {
     String result =
         execute("{_schema{tables{name,id,schemaName,schemaId}}}").at("/_schema").toString();
-    assertTrue(result.contains(schemaName1));
+    // we stop with cross schema inclusion here assertTrue(result.contains(schemaName1));
     assertTrue(result.contains(schemaName2));
   }
 

@@ -53,11 +53,7 @@ public class Column {
       this.table = column.getTableName();
       this.position = column.getPosition();
     }
-    if (column.getSchema().getDatabase() != null) {
-      this.id = column.getIdentifier();
-      this.refTableId = column.getRefTable().getIdentifier();
-      this.refLabelDefault = column.getRefLabelDefault();
-    }
+    this.id = column.getIdentifier();
     this.label = column.getLabel();
     this.description = column.getDescriptions().get("en");
     this.name = column.getName();
@@ -77,6 +73,8 @@ public class Column {
             column.getRefSchemaName().equals(column.getSchemaName())
                 ? null
                 : column.getRefSchemaName();
+        this.refTableId = column.getRefTable().getIdentifier();
+        this.refLabelDefault = column.getRefLabelDefault();
       }
       this.refSchemaName = column.getRefSchemaName();
       this.refTableName = column.getRefTableName();
