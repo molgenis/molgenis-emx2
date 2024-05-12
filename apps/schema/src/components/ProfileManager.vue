@@ -1,57 +1,66 @@
 <template>
   <div class="container-fluid">
     <MessageError v-if="error">error: {{ error }} {{ search }}</MessageError>
-    <p>
-      available profiles:
-      <span
-        class="badge mr-1"
-        :style="{ 'background-color': color(profile) }"
-        v-for="profile in profiles.filter(
-          (profile) => !selectedProfiles.includes(profile)
-        )"
-        @click="selectedProfiles.push(profile)"
-        >{{ profile }}</span
-      >
-    </p>
-    <p>
-      selected profiles:
-      <span
-        class="badge mr-1"
-        :style="{ 'background-color': color(profile) }"
-        v-for="profile in selectedProfiles"
-        @click="selectedProfiles.splice(selectedProfiles.indexOf(profile), 1)"
-        >{{ profile }}</span
-      >
-    </p>
     <div class="row">
       <div class="col-4">
-        <ul class="list-group">
-          <li
-            v-for="table in tables"
-            class="list-group-item list-group-item-action"
-            :class="{
-              active: table.selected || table.columns?.some((c) => c.selected),
-            }"
-          >
-            <h5>
-              {{ table.name }}
-              <sup v-if="table.profiles"
-                ><span
-                  class="badge mr-1"
-                  :style="{ 'background-color': color(profile) }"
-                  v-for="profile in table.profiles"
-                >
-                  {{ profile }}
-                </span>
-              </sup>
-            </h5>
-          </li>
-        </ul>
+        <div class="sticky-top" style="max-height: 100vh; overflow: auto">
+          <p>
+            available profiles:
+            <span
+              class="badge mr-1"
+              :style="{ 'background-color': color(profile) }"
+              v-for="profile in profiles.filter(
+                (profile) => !selectedProfiles.includes(profile)
+              )"
+              @click="selectedProfiles.push(profile)"
+              >{{ profile }}</span
+            >
+          </p>
+          <p v-if="selectedProfiles?.length > 0">
+            selected profiles:
+            <span
+              class="badge mr-1"
+              :style="{ 'background-color': color(profile) }"
+              v-for="profile in selectedProfiles"
+              @click="
+                selectedProfiles.splice(selectedProfiles.indexOf(profile), 1)
+              "
+              >{{ profile }}</span
+            >
+          </p>
+          <InputSearch v-model="search" />
+          <ul class="list-group sticky-top">
+            <li
+              v-for="table in tables"
+              class="list-group-item list-group-item-action"
+              :class="{
+                active:
+                  table.selected || table.columns?.some((c) => c.selected),
+              }"
+              v-scroll-to="{
+                el: '#' + (table.name ? table.name.replaceAll(' ', '_') : ''),
+                offset: -50,
+              }"
+            >
+              <h5>
+                {{ table.name }}
+                <sup v-if="table.profiles"
+                  ><span
+                    class="badge mr-1"
+                    :style="{ 'background-color': color(profile) }"
+                    v-for="profile in table.profiles"
+                  >
+                    {{ profile }}
+                  </span>
+                </sup>
+              </h5>
+            </li>
+          </ul>
+        </div>
       </div>
       <div class="col-6">
-        <InputSearch v-model="search" />
         <div v-for="table in tables">
-          <h2>{{ table.name }}</h2>
+          <h2 :id="table.name.replaceAll(' ', '_')">{{ table.name }}</h2>
           <div>{{ table.description }}</div>
           <ul class="list-group">
             <template v-for="column in table.columns">
@@ -123,9 +132,16 @@
   </div>
 </template>
 
+<style scoped>
+.list-group li:hover {
+  cursor: pointer;
+}
+</style>
+
 <script setup>
 import { ref, computed, reactive } from "vue";
 import { InputSearch, MessageError } from "molgenis-components";
+import VueScrollTo from "vue-scrollto";
 
 const error = ref(null);
 const profileJson = ref({});
