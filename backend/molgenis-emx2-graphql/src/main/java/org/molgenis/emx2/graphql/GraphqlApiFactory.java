@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.ExecutionResult;
 import graphql.GraphQL;
 import graphql.execution.AsyncExecutionStrategy;
+import graphql.parser.ParserOptions;
 import graphql.schema.GraphQLObjectType;
 import graphql.schema.GraphQLSchema;
 import java.io.IOException;
@@ -19,6 +20,15 @@ import org.slf4j.LoggerFactory;
 
 public class GraphqlApiFactory {
   private static Logger logger = LoggerFactory.getLogger(GraphqlApiFactory.class);
+  private static boolean setMaxTokens = false;
+
+  public GraphqlApiFactory() {
+    if (!setMaxTokens) {
+      ParserOptions.setDefaultParserOptions(
+          ParserOptions.newParserOptions().maxTokens(1000000).build());
+      setMaxTokens = true;
+    }
+  }
 
   public static String convertExecutionResultToJson(ExecutionResult executionResult)
       throws JsonProcessingException {
