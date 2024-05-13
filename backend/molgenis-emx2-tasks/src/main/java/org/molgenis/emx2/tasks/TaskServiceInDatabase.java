@@ -1,5 +1,6 @@
 package org.molgenis.emx2.tasks;
 
+import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.FilterBean.or;
@@ -13,18 +14,26 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.jooq.Result;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.sql.JWTgenerator;
 import org.molgenis.emx2.sql.SqlDatabase;
 
 public class TaskServiceInDatabase extends TaskServiceInMemory {
-  private Database database;
+  private SqlDatabase database;
   private String systemSchemaName;
 
   public TaskServiceInDatabase(String systemSchemaName) {
     this.database = new SqlDatabase(false);
     this.systemSchemaName = systemSchemaName;
     this.init();
+  }
+
+  @Override
+  public List<ScriptTask> getScripts() {
+    Result<org.jooq.Record> result =
+        this.database.getJooq().fetch("select * from {0}", name(systemSchemaName, "Scripts"));
+    return result.stream().map(record -> new ScriptTask(new Row(record.intoMap()))).toList();
   }
 
   @Override
@@ -310,8 +319,6 @@ f.close()
                   """
 [{"label":"Tasks","href":"tasks","key":"t1yefr","submenu":[],"role":"Manager"},{"label":"Up/Download","href":"updownload","role":"Editor","key":"eq0fcp","submenu":[]},{"label":"Graphql","href":"graphql-playground","role":"Viewer","key":"bifta5","submenu":[]},{"label":"Settings","href":"settings","role":"Manager","key":"7rh3b8","submenu":[]},{"label":"Help","href":"docs","role":"Viewer","key":"gq6ixb","submenu":[]}]
 """);
-
-          // todo reload the scheduled jobs to be managed
         });
   }
 
