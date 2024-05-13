@@ -153,7 +153,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
           .get(0)
           .equals("off")) {
         String error =
-            "Postgresql JIT must be disabled to prevent massive performance issues. Please run 'SET jit = 'off' or set jit = 'off' in your postgresql file. See installation manual";
+            "Postgresql JIT must be disabled to prevent massive performance issues. Set jit = 'off' in your postgresql config. See installation manual";
         logger.error(error);
         throw new MolgenisException(error);
       }
