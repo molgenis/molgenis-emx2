@@ -557,7 +557,7 @@ public class SqlQuery extends QueryBean {
       TableMetadata parent = table.getInheritedTable();
       while (parent != null) {
         search.add(
-            field(name(subAlias, searchColumnName(parent.getTableName())))
+            field(name(alias(subAlias), searchColumnName(parent.getTableName())))
                 .likeIgnoreCase("%" + term + "%"));
         parent = parent.getInheritedTable();
       }
