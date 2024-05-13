@@ -727,7 +727,7 @@ public class SqlQuery extends QueryBean {
     if (filter != null || searchTerms.length > 1) {
       condition =
           row(table.getPrimaryKeyFields())
-              .in(jsonFilterQuery(table, null, tableAlias, subAlias, filter, searchTerms));
+              .in(jsonFilterQuery(table, column, tableAlias, subAlias, filter, searchTerms));
     }
 
     Set<Field> aggregationFields = new HashSet<>(); // sum(x), count, etc
@@ -833,7 +833,7 @@ public class SqlQuery extends QueryBean {
         jooq.select(asterisk())
             .from(
                 jooq.select(nonArraySourceFields)
-                    .from(tableWithInheritanceJoin(table).as(alias(tableAlias)))
+                    .from(tableWithInheritanceJoin(table))
                     .where(condition));
     for (SelectConnectByStep unnestQuery : refArraySubqueries) {
       // joining on primary key in natural join
