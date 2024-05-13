@@ -20,7 +20,7 @@ orbs:
 definitions:
   build_config: &build_config
     docker:
-    - image: molgenis/ci-build:1.2.3
+    - image: molgenis/ci-build:1.2.4
     working_directory: ~/repo
     resource_class: large
     environment:
@@ -29,7 +29,7 @@ definitions:
       TERM: dumb
   test_config: &test_config
     docker:
-    - image: molgenis/ci-build:1.2.3
+    - image: molgenis/ci-build:1.2.4
     - image: postgres:15-alpine
       environment:
         POSTGRES_USER: postgres
@@ -232,7 +232,7 @@ jobs:
         name: Create nightly deb & rpm package and push to registry
         command: |
           export $( cat build/ci.properties | xargs )
-          bash ci-build-packages-create-package.sh ${TAG_NAME} ${FILE_NAME}
+          bash ci-build-packages/create-packages.sh ${TAG_NAME} ${FILE_NAME}
 
 
     - run:
