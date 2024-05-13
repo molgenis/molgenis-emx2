@@ -54,6 +54,9 @@ public class TestExtends {
     schema.migrate(sm);
     validate1(schema.getMetadata());
 
+    // second load should make no errors, see #3655
+    schema.migrate(sm);
+
     // export again
     List<Row> emx = Emx2.toRowList(schema.getMetadata());
 

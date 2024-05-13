@@ -47,6 +47,7 @@ public class Queries {
                 + "title,"
                 + "type,"
                 + "qualifiedAttribution,"
+                + "propertyValue,"
                 + "mg_insertedOn,"
                 + "mg_updatedOn"
                 + "}}");
@@ -83,7 +84,8 @@ public class Queries {
                 + "title,"
                 + "mg_insertedOn,"
                 + "mg_updatedOn"
-                + "}"
+                + "},"
+                + "propertyValue,"
                 + "mg_insertedOn,"
                 + "mg_updatedOn"
                 + "}}");
