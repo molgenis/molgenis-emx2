@@ -495,14 +495,12 @@ export default {
     refBackCandidates(fromTable: string, toTable: Record<string, any>) {
       const schema =
         this.refSchema !== undefined ? this.refSchema : this.schema;
-      const table = getRefbackTable(fromTable, schema.tables);
-      return (
-        table?.columns
-          ?.filter(
-            (column: Record<string, any>) => column.refTableName === toTable
-          )
-          .map((column: Record<string, any>) => column.name) || []
-      );
+      const columns = getRefTableColumns(fromTable, schema.tables);
+      return columns
+        .filter(
+          (column: Record<string, any>) => column.refTableName === toTable
+        )
+        .map((column: Record<string, any>) => column.name);
     },
     async loadRefSchema() {
       this.error = undefined;
@@ -565,16 +563,20 @@ export default {
   emits: ["add", "update:modelValue"],
 };
 
-function getRefbackTable(fromTable: string, tables: Record<string, any>[]) {
+function getRefTableColumns(
+  fromTable: string,
+  tables: Record<string, any>[]
+): Record<string, any>[] {
   const table = tables.find(
     (table: Record<string, any>) => table.name === fromTable
   );
   if (table?.inheritName) {
-    return tables.find(
+    const inheritedTable = tables.find(
       (otherTable: Record<string, any>) => table.inheritName === otherTable.name
     );
+    return [...inheritedTable?.columns, ...table?.columns];
   } else {
-    return table;
+    return table?.columns || [];
   }
 }
 </script>
