@@ -1,4 +1,5 @@
 VERSION=$1
+FILE=$2
 RELEASE=1
 NAME=molgenis-emx2
 SUMMARY="The world's most customizable platform for (scientific) data and FAIR principles (findability, accessibility, interoperability and reusability)."
@@ -19,8 +20,8 @@ mkdir -p buildroot/etc/systemd/system/
 cp log4j2.xml buildroot/usr/local/share/molgenis/
 cp molgenis-emx2.service buildroot/etc/systemd/system/
 #CP JAR FILE TO BUILDROOT
-cp ~/repo/builds/libs/${FILE_NAME} buildroot/usr/local/share/molgenis/ 
-ln -s buildroot/usr/local/share/molgenis/${FILE_NAME} buildroot/usr/local/share/molgenis/molgenis-emx2.jar
+cp ~/repo/builds/libs/$FILE buildroot/usr/local/share/molgenis/ 
+ln -s buildroot/usr/local/share/molgenis/$FILE buildroot/usr/local/share/molgenis/molgenis-emx2.jar
 
 
 

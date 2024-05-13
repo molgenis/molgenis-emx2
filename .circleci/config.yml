@@ -43,7 +43,7 @@ definitions:
       TERM: dumb
   release_config: &release_config
     docker:
-      - image: molgenis/ci-build:1.2.3
+      - image: molgenis/ci-build:1.2.4
       - image: postgres:15-alpine
         environment:
           POSTGRES_USER: postgres
@@ -227,6 +227,13 @@ jobs:
           export $( cat build/ci.properties | xargs )
           bash ci/set_kubectl_config-azure.sh
           bash ci/create_or_update_k8s-azure.sh "emx2" ${TAG_NAME}
+
+    - run: 
+        name: Create nightly deb & rpm package and push to registry
+        command: |
+          export $( cat build/ci.properties | xargs )
+          bash ci-build-packages-create-package.sh ${TAG_NAME} ${FILE_NAME}
+
 
     - run:
         name: message slack about release and updated demo server
