@@ -75,10 +75,10 @@ public class TestTaskServiceScheduler {
     TaskServiceInDatabase service = new TaskServiceInDatabase(SCHEMA_NAME);
     TaskServiceScheduler scheduler = new TaskServiceScheduler(service);
 
-    //not there from before
-    assertEquals(1, service.getScripts().size();
+    // not there from before
+    assertEquals(1, service.getScripts().size());
 
-    //add a new script (listener will submit it)
+    // add a new script (listener will submit it)
     Row scriptRow = row("name", "test", "script", "print('hello');", "cron", "0 0 0 1 * ?");
     service.getScriptTable().save(scriptRow);
 
