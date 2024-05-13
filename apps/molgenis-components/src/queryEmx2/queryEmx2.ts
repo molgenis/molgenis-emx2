@@ -387,7 +387,6 @@ class QueryEMX2 {
   // but this requires another rewrite ;)
   _createFilterString(filters: Record<string, any>) {
     let filterString = "";
-
     if (!filters) return filterString;
 
     if (filters["_and"].length) {
@@ -461,7 +460,6 @@ class QueryEMX2 {
     );
 
     const filterString = this._createFilterString(this.filters[property]);
-
     if (filterString.length) {
       modifierParts.push(`filter: { ${filterString} }`);
     }
@@ -471,24 +469,38 @@ class QueryEMX2 {
     return filledModifiers.length ? `(${filledModifiers.join(", ")})` : "";
   }
 
-  _createFilterFromPath(path: string, originalOperator: string, value: any) {
+  _createFilterFromPath(
+    path: string,
+    originalOperator: string,
+    value: any | any[]
+  ) {
     const valueArray = Array.isArray(value) ? value : [value];
-    let operator = this._getGqlOperator(originalOperator);
+    const operator = this._getGqlOperator(originalOperator);
+    const reversedPathParts = path.split(".").reverse();
 
-    for (const itemValue of valueArray) {
-      let graphqlValue =
-        typeof itemValue === "boolean" ? `${itemValue}` : `"${itemValue}"`;
-
-      let filter = `{ ${operator}: ${graphqlValue} }`;
-
-      /** reverse the path, so we can build it from the inside out */
-      const reversedPathParts = path.split(".").reverse();
+    if (this.type === "_or" && operator === "equals") {
+      let filter = `{ ${operator}: [${valueArray.map((value) =>
+        typeof value === "boolean" ? `${value}` : `"${value}"`
+      )}] }`;
       for (const pathPart of reversedPathParts) {
-        /** most inner part of the query e.g. 'like: "red" */
         filter = `{ ${pathPart}: ${filter} }`;
       }
-
       this.filters[this.branch][this.type].push(filter);
+    } else {
+      for (const itemValue of valueArray) {
+        let graphqlValue =
+          typeof itemValue === "boolean" ? `${itemValue}` : `"${itemValue}"`;
+
+        let filter = `{ ${operator}: ${graphqlValue} }`;
+
+        /** reverse the path, so we can build it from the inside out */
+        for (const pathPart of reversedPathParts) {
+          /** most inner part of the query e.g. 'like: "red" */
+          filter = `{ ${pathPart}: ${filter} }`;
+        }
+
+        this.filters[this.branch][this.type].push(filter);
+      }
     }
   }
 
