@@ -24,7 +24,7 @@
           yvar="value"
           :yMax="100"
           :yTickValues="[0, 25, 50, 75, 100]"
-          :columnFillPalette="palette"
+          :columnColorPalette="palette"
           :chartHeight="200"
         />
       </DashboardChart>

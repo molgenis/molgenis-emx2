@@ -21,7 +21,7 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
 
   let facetBiobankColumnDetails = ref([]);
   let biobankCards = ref([]);
-  let waitingForResponse = ref(false);
+  let waitingForResponse = ref(true);
 
   let lastRequestTime = 0;
 
@@ -36,13 +36,9 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
     .orderBy("Biobanks", "name", "asc")
     .orderBy("collections", "id", "asc");
 
-  const biobankCardsHaveResults = computed(() => {
-    return (
-      !waitingForResponse.value &&
-      biobankCards.value &&
-      biobankCards.value.length > 0
-    );
-  });
+  const biobankCardsHaveResults = computed(
+    () => !waitingForResponse.value && biobankCards.value?.length
+  );
 
   const biobankCardsBiobankCount = computed(() => {
     return biobankCards.value.filter((biobankCard) => !biobankCard.withdrawn)
@@ -50,14 +46,18 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
   });
 
   const biobankCardsSubcollectionCount = computed(() => {
-    if (!biobankCards.value.length) return 0;
-    return biobankCards.value
-      .filter((bc) => bc.collections)
-      .flatMap((biobank) =>
-        biobank.collections.filter(
-          (collection) => !collection.withdrawn && collection.parent_collection
-        )
-      ).length;
+    if (!biobankCards.value.length) {
+      return 0;
+    } else {
+      return biobankCards.value
+        .filter((bc) => bc.collections)
+        .flatMap((biobank) =>
+          biobank.collections.filter(
+            (collection) =>
+              !collection.withdrawn && collection.parent_collection
+          )
+        ).length;
+    }
   });
 
   const biobankCardsCollectionCount = computed(() => {
