@@ -125,9 +125,9 @@ class Transform:
                                      'type other': 'datasource type other'}, inplace=True)
         df_databanks['collection type'] = 'Databank'
 
-        # handles exception CRC Screening CDM
+        # TODO: think about keeping Models as collection type
         df_models = pd.read_csv(self.path + 'Models.csv', keep_default_na=False)
-        df_models = df_models[df_models['id'] == 'CRC Screening CDM']
+        df_models = df_models[df_models['id'] == 'CRC Screening CDM']  # handles exception CRC Screening CDM
         df_models['collection type'] = ''  # TODO: add term here
 
         df_models = float_to_int(df_models)  # convert float back to integer
@@ -142,14 +142,17 @@ class Transform:
     def subcohorts(self):
         df = pd.read_csv(self.path + 'Subcohorts.csv')
         df.loc[:, 'resource'] = df['resource'].apply(strip_resource)
+        df.rename(columns={'resource': 'collection'}, inplace=True)
 
         df = float_to_int(df)  # convert float back to integer
-        df.to_csv(self.path + 'Subcohorts.csv', index=False)
+        df.to_csv(self.path + 'Collection populations.csv', index=False)
 
     def collection_events(self):
         df = pd.read_csv(self.path + 'Collection events.csv')
         df.loc[:, 'resource'] = df['resource'].apply(strip_resource)
         df.loc[:, 'subcohorts'] = df['subcohorts'].apply(strip_resource)
+        df.rename(columns={'resource': 'collection',
+                           'subcohort': 'populations'}, inplace=True)
 
         df = float_to_int(df)  # convert float back to integer
         df.to_csv(self.path + 'Collection events.csv', index=False)
@@ -157,6 +160,8 @@ class Transform:
     def datasets(self):
         df = pd.read_csv(self.path + 'Datasets.csv', keep_default_na=False)
         df.loc[:, 'resource'] = df['resource'].apply(strip_resource)
+        df.rename(columns={'resource': 'collection'}, inplace=True)
+        # TODO: add dataset type for LongITools, LifeCycle etc
 
         df = float_to_int(df)  # convert float back to integer
         df.to_csv(self.path + 'Datasets.csv', index=False)
@@ -165,21 +170,27 @@ class Transform:
         df = pd.read_csv(self.path + 'Variables.csv', keep_default_na=False)
         df.loc[:, 'resource'] = df['resource'].apply(strip_resource)
         df.loc[:, 'collection event.resource'] = df['collection event.resource'].apply(strip_resource)
+        df.rename(columns={'resource': 'collection',
+                           'collection event.resource': 'collection event.collection'}, inplace=True)
 
         df = float_to_int(df)  # convert float back to integer
         df.to_csv(self.path + 'Variables.csv', index=False)
 
-    def repeated_variables(self):
-        df = pd.read_csv(self.path + 'Repeated variables.csv', keep_default_na=False)
-        df.loc[:, 'resource'] = df['resource'].apply(strip_resource)
-        df.loc[:, 'collection event.resource'] = df['collection event.resource'].apply(strip_resource)
+        df_repeats = pd.read_csv(self.path + 'Repeated variables.csv', keep_default_na=False)
+        df_repeats.loc[:, 'resource'] = df_repeats['resource'].apply(strip_resource)
+        df_repeats.loc[:, 'collection event.resource'] = df_repeats['collection event.resource'].apply(strip_resource)
+        df_repeats.rename(columns={'resource': 'collection',
+                                   'collection event.resource': 'collection event.collection'}, inplace=True)
+        # TODO: add functions to restructure repeated variables
 
-        df = float_to_int(df)  # convert float back to integer
-        df.to_csv(self.path + 'Repeated variables.csv', index=False)
+        df_variables = pd.concat([df, df_repeats])
+        df_variables = float_to_int(df_variables)  # convert float back to integer
+        df_variables.to_csv(self.path + 'Variables.csv', index=False)
 
     def variable_values(self):
         df = pd.read_csv(self.path + 'Variable values.csv', keep_default_na=False)
         df.loc[:, 'resource'] = df['resource'].apply(strip_resource)
+        df.rename(columns={'resource': 'collection'}, inplace=True)
 
         df = float_to_int(df)  # convert float back to integer
         df.to_csv(self.path + 'Variable values.csv', index=False)
@@ -195,6 +206,7 @@ class Transform:
         df = pd.read_csv(self.path + 'Variable mappings.csv', keep_default_na=False)
         df.loc[:, 'target'] = df['target'].apply(strip_resource)
 
+        # TODO: add functions to rewrite mappings
         df = float_to_int(df)  # convert float back to integer
         df.to_csv(self.path + 'Variable mappings.csv', index=False)
 
