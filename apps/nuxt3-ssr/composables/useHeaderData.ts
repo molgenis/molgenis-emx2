@@ -87,8 +87,6 @@ export async function useHeaderData() {
     throw new Error(contextMsg);
   }
 
-  console.log("header data: ", data.value);
-
   const catalogue = data.value.data.Networks[0];
   const variableCount = data.value.data.Variables_agg.count || 0;
 
