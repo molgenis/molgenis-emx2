@@ -429,9 +429,33 @@ if (route.params.catalogue) {
           title="Contact and Contributors"
           :contributors="cohort?.contacts"
         >
-          <div class="mb-5 prose max-w-none" v-if="cohort.leadOrganisation">
-            Lead Organisation
-            {{ cohort.leadOrganisation }}
+          <div
+            class="mb-5 prose max-w-none"
+            v-if="cohort.leadOrganisation?.length"
+          >
+            <h3 class="font-bold text-body-base">Lead Organisation</h3>
+            <CatalogueItemList
+              v-for="organisation in cohort.leadOrganisation"
+              :items="[
+                { label: 'id', content: organisation.id },
+                { label: 'name', content: organisation.name },
+                { label: 'email', content: organisation.email },
+                { label: 'description', content: organisation.description },
+                { label: 'website', content: organisation.website },
+                { label: 'acronym', content: organisation.acronym },
+                { label: 'type', content: organisation.type?.name },
+                { label: 'institution', content: organisation.institution },
+                {
+                  label: 'institutionAcronym',
+                  content: organisation.institutionAcronym,
+                },
+                { label: 'typeOther', content: organisation.typeOther },
+                { label: 'address', content: organisation.address },
+                { label: 'expertise', content: organisation.expertise },
+                { label: 'country', content: organisation.country?.name },
+                { label: 'logo', content: organisation.logo },
+              ]"
+            />
           </div>
         </ContentBlockContact>
 
