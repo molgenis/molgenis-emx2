@@ -153,7 +153,7 @@ export default {
   },
   methods: {
     validate(name) {
-      const simpleName = /^[a-zA-Z][a-zA-Z0-9_ ]*$/;
+      const simpleName = /^[a-zA-Z][-a-zA-Z0-9_ ]*$/;
       if (name === null) {
         return undefined;
       }
