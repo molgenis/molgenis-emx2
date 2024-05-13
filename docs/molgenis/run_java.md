@@ -14,6 +14,7 @@ Steps:
     create user molgenis with login nosuperuser inherit createrole encrypted password 'molgenis';
     grant all privileges on database molgenis to molgenis;
     ```
+* In your postgresql config also set jit=off so that on restart it stays off
 * Install java (we use adopt [OpenJDK 17](https://adoptium.net/))
 * Optionally, if you want to use [scripts](use_scripts_jobs.md) then also install python3
 * Download molgenis-emx2-version-all.jar from [releases](https://github.com/molgenis/molgenis-emx2/releases).
