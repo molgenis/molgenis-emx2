@@ -9,5 +9,4 @@ files
 venv
 .env
 *catalogue_data_model*
-molgenis.csv
 External identifiers.csv

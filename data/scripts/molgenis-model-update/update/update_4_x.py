@@ -1,5 +1,6 @@
 import shutil
 import os
+from pathlib import Path
 import pandas as pd
 
 
@@ -20,7 +21,8 @@ def get_data_model(profile_path, path_to_write, profile):
 
     for file_name in os.listdir(profile_path):
         if '.csv' in file_name:
-            df = pd.read_csv(profile_path + file_name)
+            file_path = Path.joinpath(profile_path, file_name)
+            df = pd.read_csv(file_path)
             df = df.loc[df['profiles'].str.contains(profile)]
             data_model = pd.concat([data_model, df])
 
@@ -48,7 +50,7 @@ class Transform:
         # get molgenis.csv location
         if self.database_type == 'catalogue':
             data_model = os.path.abspath('../../../datacatalogue/molgenis.csv')
-            profile_path = os.path.abspath('../../../_models/shared/')
+            profile_path = Path().cwd().joinpath('..', '..', '..', '_models', 'shared')
             profile = 'DataCatalogueFlat'
             get_data_model(profile_path, data_model, profile)
         elif self.database_type == 'network':
