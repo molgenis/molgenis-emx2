@@ -150,10 +150,12 @@ function onFilterChange(filters: IFilter[]) {
   });
 }
 
-const activeTabName = ref((route.query.view as string) || "detailed");
+type view = "detailed" | "compact";
+const activeTabName = computed(() => {
+  return (route.query.view as view | undefined) || "detailed";
+});
 
 function onActiveTabChange(tabName: activeTabType) {
-  activeTabName.value = tabName;
   router.push({
     path: route.path,
     query: { ...route.query, view: tabName },
@@ -201,7 +203,8 @@ crumbs[
               />
               <SearchResultsViewTabsMobile
                 class="flex xl:hidden"
-                v-model:activeName="activeTabName"
+                :activeName="activeTabName"
+                @update:activeName="onActiveTabChange"
               >
                 <FilterSidebar
                   title="Filters"
