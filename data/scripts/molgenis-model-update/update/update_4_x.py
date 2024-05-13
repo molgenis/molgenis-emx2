@@ -173,6 +173,11 @@ class Transform:
         df.rename(columns={'resource': 'collection',
                            'collection event.resource': 'collection event.collection'}, inplace=True)
 
+        # select all non-repeated lifecycle variables
+        df_lifecycle_no_repeats = get_lifecycle_non_repeated(df)
+
+        # TODO: select all other non-repeated variables and concatenate to one dataframe
+
         df = float_to_int(df)  # convert float back to integer
         df.to_csv(self.path + 'Variables.csv', index=False)
 
@@ -183,7 +188,7 @@ class Transform:
                                    'collection event.resource': 'collection event.collection'}, inplace=True)
         # TODO: add functions to restructure repeated variables
 
-        df_variables = pd.concat([df, df_repeats])
+        df_variables = pd.concat([df_lifecycle_no_repeats, df_repeats])
         df_variables = float_to_int(df_variables)  # convert float back to integer
         df_variables.to_csv(self.path + 'Variables.csv', index=False)
 
@@ -217,3 +222,24 @@ def strip_resource(resource_name):
             resource_name = resource_name[:-4]
 
     return resource_name
+
+
+def get_lifecycle_non_repeated(df):
+    # select lifecycle variables
+    df_lifecycle = df[df['collection'] == 'LifeCycle']
+    # select all non-repeated lifecycle variables
+    df_repeats = pd.read_csv('Repeated variables.csv')
+    df_lifecycle['is_repeated'] = ''
+    df_lifecycle.loc[:, 'is_repeated'] = df_lifecycle['name'].apply(is_repeated, df_repeats=df_repeats)
+    df_lifecycle_no_repeats = df_lifecycle[df_lifecycle['is_repeated'] is not True]
+
+    return df_lifecycle_no_repeats
+
+
+def is_repeated(var_name, df_repeats):
+    if var_name in df_repeats['is repeat of.name'].to_list():
+        return True
+    elif var_name.endswith('_'):
+        return True
+    else:
+        return False
