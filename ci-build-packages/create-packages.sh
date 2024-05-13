@@ -17,10 +17,10 @@ mkdir -p buildroot/var/log/molgenis/
 mkdir -p buildroot/etc/systemd/system/
 
 #Copy files to the buildroot
-cp log4j2.xml buildroot/usr/local/share/molgenis/
-cp molgenis-emx2.service buildroot/etc/systemd/system/
+cp ci-build-packages/log4j2.xml buildroot/usr/local/share/molgenis/
+cp ci-build-packages/molgenis-emx2.service buildroot/etc/systemd/system/
 #CP JAR FILE TO BUILDROOT
-cp ~/repo/builds/libs/$FILE buildroot/usr/local/share/molgenis/ 
+cp ~/repo/build/libs/$FILE buildroot/usr/local/share/molgenis/ 
 ln -s buildroot/usr/local/share/molgenis/$FILE buildroot/usr/local/share/molgenis/molgenis-emx2.jar
 
 
@@ -32,20 +32,20 @@ fpm -t rpm -s dir \
         -f -n "$NAME" -v "$VERSION" --iteration "$RELEASE" -a "$BUILD_ARCH" \
         --description "$SUMMARY" --url "$WEB_URL" --license "$LICENSE" --vendor "$VENDOR" \
         --depends "tar" \
-        --before-install SCRIPTS/before-install.sh \
-        --after-install SCRIPTS/after-install.sh \
-        --before-remove SCRIPTS/before-remove.sh \
-        --after-remove SCRIPTS/after-remove.sh \
+        --before-install ci-build-packages/SCRIPTS/before-install.sh \
+        --after-install ci-build-packages/SCRIPTS/after-install.sh \
+        --before-remove ci-build-packages/SCRIPTS/before-remove.sh \
+        --after-remove ci-build-packages/SCRIPTS/after-remove.sh \
         --verbose -C buildroot .
 #DEB Creation
 fpm -t deb -s dir \
         -f -n "$NAME" -v "$VERSION" --iteration "$RELEASE" -a "$BUILD_ARCH" \
         --description "$SUMMARY" --url "$WEB_URL" --license "$LICENSE" --vendor "$VENDOR" \
         --depends "tar" \
-        --before-install SCRIPTS/before-install.sh \
-        --after-install SCRIPTS/after-install.sh \
-        --before-remove SCRIPTS/before-remove.sh \
-        --after-remove SCRIPTS/after-remove.sh \
+        --before-install ci-build-packages/SCRIPTS/before-install.sh \
+        --after-install ci-build-packages/SCRIPTS/after-install.sh \
+        --before-remove ci-build-packages/SCRIPTS/before-remove.sh \
+        --after-remove ci-build-packages/SCRIPTS/after-remove.sh \
         --verbose -C buildroot .
 
 
