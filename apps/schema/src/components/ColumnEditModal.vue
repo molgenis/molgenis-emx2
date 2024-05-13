@@ -267,24 +267,25 @@
 
 <script lang="ts">
 import {
-  ButtonAction,
-  ButtonAlt,
-  Client,
-  IconAction,
-  InputBoolean,
-  InputRadio,
-  InputSelect,
-  InputString,
-  InputText,
-  InputTextLocalized,
-  LayoutForm,
-  LayoutModal,
-  MessageError,
-  MessageWarning,
-  RowEdit,
-  Spinner,
-  deepClone,
-  getRowErrors, //@ts-ignore
+  //@ts-ignore
+  ButtonAction, //@ts-ignore
+  ButtonAlt, //@ts-ignore
+  Client, //@ts-ignore
+  IconAction, //@ts-ignore
+  InputBoolean, //@ts-ignore
+  InputRadio, //@ts-ignore
+  InputSelect, //@ts-ignore
+  InputString, //@ts-ignore
+  InputText, //@ts-ignore
+  InputTextLocalized, //@ts-ignore
+  LayoutForm, //@ts-ignore
+  LayoutModal, //@ts-ignore
+  MessageError, //@ts-ignore
+  MessageWarning, //@ts-ignore
+  RowEdit, //@ts-ignore
+  Spinner, //@ts-ignore
+  deepClone, //@ts-ignore
+  getRowErrors,
 } from "molgenis-components";
 import columnTypes from "../columnTypes.js";
 import { addTableIdsLabelsDescription } from "../utils";
