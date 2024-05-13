@@ -492,19 +492,17 @@ export default {
         )
         .map((c: Record<string, any>) => c.name);
     },
-    refBackCandidates(
-      fromTable: Record<string, any>,
-      toTable: Record<string, any>
-    ) {
+    refBackCandidates(fromTable: string, toTable: Record<string, any>) {
       const schema =
         this.refSchema !== undefined ? this.refSchema : this.schema;
-
-      const columns = schema.tables
-        .filter((t: Record<string, any>) => t.name === fromTable)
-        .map((t: Record<string, any>) => t.columns)[0];
-      return columns
-        ?.filter((c: Record<string, any>) => c.refTableName === toTable)
-        .map((c: Record<string, any>) => c.name);
+      const table = getRefbackTable(fromTable, schema.tables);
+      return (
+        table?.columns
+          ?.filter(
+            (column: Record<string, any>) => column.refTableName === toTable
+          )
+          .map((column: Record<string, any>) => column.name) || []
+      );
     },
     async loadRefSchema() {
       this.error = undefined;
@@ -566,4 +564,17 @@ export default {
   },
   emits: ["add", "update:modelValue"],
 };
+
+function getRefbackTable(fromTable: string, tables: Record<string, any>[]) {
+  const table = tables.find(
+    (table: Record<string, any>) => table.name === fromTable
+  );
+  if (table?.inheritName) {
+    return tables.find(
+      (otherTable: Record<string, any>) => table.inheritName === otherTable.name
+    );
+  } else {
+    return table;
+  }
+}
 </script>
