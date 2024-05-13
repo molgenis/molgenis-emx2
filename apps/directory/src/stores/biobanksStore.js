@@ -21,7 +21,7 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
 
   let facetBiobankColumnDetails = ref([]);
   let biobankCards = ref([]);
-  let waitingForResponse = ref(false);
+  let waitingForResponse = ref(true);
 
   let lastRequestTime = 0;
 
