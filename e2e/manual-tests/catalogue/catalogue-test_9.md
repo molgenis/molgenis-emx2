@@ -44,7 +44,7 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 |||dr.  D.M. (datamgr first name) datamgr surname prefix datamgr last name --- test@email.nl --- test description for data manager role | | |
 ||NB not all blocks are tested in this test plan| | | |
 | 23|SUBPOPULATIONS|List of subcohorts or subpopulations for this resource | | |
-|||table with the following columns: Name, Description, Number of participants, with an arrow to navigate to details | | |
+|||table with the following columns: Name, Description, Number of participants | | |
 |||test subcohort 1A, description for test subcohort 1A, 956 --> | | |
 |||test subcohort 1B, description for test subcohort 1B, 23487 --> | | |
 | 24|COLLECTION EVENTS|List of collection events defined for this resource | | |
@@ -53,12 +53,12 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 |||test collection event 1B, description for test collection event 1B, 286, 1992-2000 --> | | |
 | 25 |DATASETS|List of datasets for this resource | | |
 |||Table with the following columns: Name, Description | | |
-|||test dataset for testCohort1, label for test dataset 1  --> | | |
-|||name of test dataset 2 for test cohort 1, label for test dataset 2 for test cohort 1 --> | | |
+|||test dataset for testCohort1,   test description for dataset 1  --> | | |
+|||name of test dataset 2 for test cohort 1,  description for test dataset 2 for test cohort 1 --> | | |
 | 26 |PARTNERS|logo, Name of organisation, ">Read more" and arrow to navigate to details | | |
 |||name of test additional organisation 1 | | |
 |||name of test additional organisation 2 | | |
-| 27 |NETWORKS|List of networks to which this resource belongs | | |
+| 27 |NETWORKS|List of networks which this cohort is involved in | | |
 |||logo, Name of network, ">Read more?  And arrow to navigate to details | | |
 |||name of test network2 | | |
 |||> Read more | | |
