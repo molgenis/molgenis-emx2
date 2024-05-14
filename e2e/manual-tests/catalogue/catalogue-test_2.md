@@ -48,8 +48,8 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | 25 | Go back | Back to network overview page | | |
 | 26 | DATA SOURCES | Data sources connected in this network| | |
 | | | Name   Type    Number of participants | | |
-| | | EUROCAT NNL | | |
-| 27 | Click on EUROCAT NNL | Get taken to the overview page for the data source EUROCAT NNL | | |
+| | | TESTDATASOURCE Participants  3000| | |
+| 27 | Click on TESTDATASOURCE | Get taken to the overview page for the data source TESTDATASOURCE | | |
 | 28 | Go back | Come back to network overview page for testNetwork1 | | |
 | 29 | VARIABLES | Variables in this network | | |
 |   |   | Name  Label   Model    | | |
