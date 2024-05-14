@@ -16,7 +16,7 @@ A researcher searches for specific variables (*example: all ADHD variables*) acr
 | -----| -------| ----------------| -----------------| ----------------|
 | 1 | Navigate to [https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/) | Landing page: European health research data and sample catalogue| | |
 | 2 | Hover over 'All variables' button in menu bar | Button should be underlined | | |
-| 3 | Click 'All variables' button | Should be redirected to  variable explorer (project agnostic) Variable page should be shown with complete variable names, variable labels and a filters panel on the left hand side of the page.| | |
+| 3 | Click 'All variables' button | Should be redirected to  variable explorer (project agnostic) Variable page should be shown with complete variable names, variable labels and a filters panel on the left hand side of the page. Text at the top: "A complete overview of available variables."| | |
 | 4 | Search 'ADHD' in search bar | Variables should be filtered on ADHD variables (14 variables shown); active filters should show 'ADHD' | | |
 | 4a| Remove 'adhd' from the search bar | The list of variables returns to its initial form and no filters are shown above the list | | |
 | 5 | Click on 'Search for options' above the topics on the left hand side | A pop-up with the list of topics is displayed | | |
