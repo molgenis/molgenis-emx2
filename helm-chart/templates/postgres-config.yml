@@ -5,5 +5,6 @@ metadata:
 data:
   initdb.sql: |
     CREATE DATABASE {{ .Values.database.name }};
+    ALTER DATABASE {{ .Values.database.name }} SET jit = 'off';
     CREATE USER {{ .Values.database.username }}  WITH LOGIN NOSUPERUSER INHERIT CREATEROLE ENCRYPTED PASSWORD '{{ .Values.database.password }}';
     GRANT ALL PRIVILEGES ON DATABASE {{ .Values.database.name }} TO {{ .Values.database.username }};

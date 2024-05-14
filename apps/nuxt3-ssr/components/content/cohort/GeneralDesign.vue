@@ -88,7 +88,7 @@ function setData() {
       content: cohort?.numberOfParticipantsWithSamples,
     },
     {
-      label: "Age group at inclusion",
+      label: "Population age groups",
       content: removeChildIfParentSelected(cohort?.populationAgeGroups || [])
         .sort((a, b) => a.order - b.order)
         .map((ageGroup) => ageGroup.name)

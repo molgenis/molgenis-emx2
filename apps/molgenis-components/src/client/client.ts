@@ -58,7 +58,7 @@ const client: IClient = {
       fetchRowData: async (
         tableId: string,
         rowId: IRow,
-        expandLevel: number = 1
+        expandLevel: number = 2
       ) => {
         const schemaMetaData = await fetchSchemaMetaData(schemaId);
         const tableMetaData = schemaMetaData.tables.find(
@@ -76,9 +76,9 @@ const client: IClient = {
             tableId,
             {
               filter,
+              expandLevel,
             },
-            schemaMetaData,
-            expandLevel
+            schemaMetaData
           )
         )[tableId];
 
@@ -260,12 +260,14 @@ const fetchSchemaMetaData = async (
 const fetchTableData = async (
   tableId: string,
   properties: IQueryMetaData,
-  metaData: ISchemaMetaData,
-  expandLevel: number = 2
+  metaData: ISchemaMetaData
 ) => {
   const limit = properties.limit ? properties.limit : 20;
   const offset = properties.offset ? properties.offset : 0;
-
+  const expandLevel =
+    properties.expandLevel || properties.expandLevel == 0
+      ? properties.expandLevel
+      : 2;
   const search = properties.searchTerms
     ? ',search:"' + properties.searchTerms.trim() + '"'
     : "";

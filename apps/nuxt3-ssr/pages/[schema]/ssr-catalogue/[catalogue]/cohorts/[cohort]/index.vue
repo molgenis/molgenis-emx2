@@ -213,14 +213,14 @@ function collectionEventMapper(item: any) {
   };
 }
 
-function datasetMapper(item: any) {
+function datasetMapper(item: { name: string; description?: string }) {
   return {
     id: {
       name: item.name,
       resourceId: route.params.cohort,
     },
     name: item.name,
-    description: item.descriptions,
+    description: item.description,
   };
 }
 

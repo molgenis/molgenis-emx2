@@ -127,7 +127,6 @@ public class FAIRDataPointDistribution {
 
     if (refersToTable) {
       if (formatParam.equals("csv")
-          || formatParam.equals("jsonld")
           || formatParam.equals("ttl")
           || formatParam.equals("excel")
           || formatParam.equals("zip")) {
@@ -141,7 +140,7 @@ public class FAIRDataPointDistribution {
                 .getSchema(schemaParam)
                 .getTable(distributionParam)
                 .getMetadata()
-                .getColumnNames();
+                .getNonReferencingColumnNames();
         // GraphQL, e.g. http://localhost:8080/fdh/graphql?query={Analyses{id,etc}}
         builder.add(
             reqURL,
@@ -155,19 +154,6 @@ public class FAIRDataPointDistribution {
                     + "{"
                     + (String.join(",", columnNames))
                     + "}}"));
-      } else {
-        // all "rdf-" flavours
-        builder.add(
-            reqURL,
-            DCAT.DOWNLOAD_URL,
-            encodedIRI(
-                host
-                    + "/"
-                    + schemaParam
-                    + "/api/rdf/"
-                    + distributionParam
-                    + "?format="
-                    + formatParam.replace("rdf-", "")));
       }
       builder.add(reqURL, DCAT.MEDIA_TYPE, iri(formatToMediaType(formatParam)));
     } else {
@@ -178,6 +164,16 @@ public class FAIRDataPointDistribution {
     builder.add(reqURL, DCTERMS.FORMAT, formatParam);
 
     for (Map distribution : distributions) {
+      if (distribution.get("propertyValue") != null) {
+        for (String propertyValue : (List<String>) distribution.get("propertyValue")) {
+          String[] propertyValueSplit = propertyValue.split(" ", -1);
+          if (propertyValueSplit.length != 2) {
+            throw new Exception(
+                "propertyValue should contain strings that each consist of 2 elements separated by 1 whitespace");
+          }
+          builder.add(reqURL, iri(propertyValueSplit[0]), iri(propertyValueSplit[1]));
+        }
+      }
       builder.add(
           reqURL,
           DCTERMS.ISSUED,

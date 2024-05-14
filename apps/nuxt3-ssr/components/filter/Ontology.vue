@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import type { Modal } from "#build/components";
 import type { ITreeNode } from "../../../tailwind-components/types/types";
-import type { IOntologyRespItem } from "~/interfaces/types";
+import type { IFilterCondition, IOntologyRespItem } from "~/interfaces/types";
 
 const props = withDefaults(
   defineProps<{
     tableId: string;
-    modelValue: { name: string }[];
+    modelValue: IFilterCondition[];
     options?: IOntologyRespItem[];
     isMultiSelect?: boolean;
     mobileDisplay: boolean;

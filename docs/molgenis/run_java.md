@@ -10,6 +10,7 @@ Steps:
 * Then in psql console paste
     ```console
     create database molgenis;
+    alter database molgenis SET jit = 'off'
     create user molgenis with login nosuperuser inherit createrole encrypted password 'molgenis';
     grant all privileges on database molgenis to molgenis;
     ```
