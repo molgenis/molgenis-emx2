@@ -91,11 +91,17 @@ async def main():
         ]
 
         new_pets = [{
-            'name': 'NA',
+            'name': 'Woofie',
             'category': 'dog',
-            'status': numpy.nan,
+            'status': 'available',
             'weight': 6.8,
             'tags': 'brown,canis'
+        }, {
+            'name': 'NA',
+            'category': 'ant',
+            'status': numpy.nan,
+            'weight': 23.6,
+            'tags': 'purple,insect'
         }]
 
         # Import new data
@@ -132,6 +138,12 @@ async def main():
             'status': 'available',
             'weight': 6.8,
             'tags': 'brown,canis'
+        }, {
+            'name': 'NA',
+            'category': 'ant',
+            'status': numpy.nan,
+            'weight': 23.6,
+            'tags': 'purple,insect'
         }])
 
         # Import new data
