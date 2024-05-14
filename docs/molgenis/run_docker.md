@@ -3,32 +3,21 @@
 ## Requirements
 
 * Install [Docker compose](https://docs.docker.com/compose/install/).
-* Install [Git](https://github.com/git-guides/install-git).
 
-### Clone emx2 repository
+## Download docker compose file
 
-This will download the latest repository of emx2.
+Download the docker compose file to run the basic emx2 installation:
 
-`git clone https://github.com/molgenis/molgenis-emx2.git`
-
-Note: If you previously used docker compose make sure you delete the folder `psql_data` if you want a clean/empty database to work on. Linux users might need to remove this folder with root/sudo permissions.
-
-### Setup environment file
-
-Navigate to the cloned repository `molgenis-emx2` and locate and open the file `env-sample`. Leave the settings as they are and save the file as:
-
-`molgenis-emx2/.env`
-
-The dot indicates it is a hidden file so depending on your system OS you might not *see* the .env-sample and .env
+[docker-compose.yml](https://raw.githubusercontent.com/molgenis/molgenis-emx2/master/docker-compose.yml)
 
 ## Run docker compose
 
 The following examples are executed in a terminal/console.
 
-Navigate to the folder `molgenis-emx2` and in a terminal, for example:
+Navigate to the folder where you stored  the `docker-compose.yml` and open a terminal, for example:
 
 ```console
-cd git/molgenis-emx2
+cd <docker_compose_folder>
 ```
 
 Make sure docker compose is installed, you can check the installed version for example:
@@ -61,11 +50,11 @@ docker compose stop
 
 Make sure `docker compose` is up and running, open a web browser and navigate to:
 
-`localhost`
+`localhost:8080`
 
 If everything is setup correctly you should be redirected to:
 
-http://localhost/apps/central/#/
+http://localhost:8080/apps/central/#/
 
 The database `pet store` is installed by default.
 
@@ -76,23 +65,46 @@ You can login as administrator by clicking `Sign in` (top right) and use `admin`
 In order to test and see what emx2 can do we will install a demo catalogue:
 
 * Log in as admin, described previously.
-* Navigate back to: http://localhost/apps/central/#/
+* Navigate back to: http://localhost:8080/apps/central/#/
 * Create a new database by clicking on +
   * name: `catalogue`
   * template: DATA_CATALOGUE
   * load example data: true
 * Press Create database.
-* Navigate in new tab to localhost
+* Navigate in new tab to localhost:8080
 
 If you see the database `catalogue` you have installed the demo catalogue successfully!
 
 ### EMX2 Catalogue example with improved UI
 
-Make sure you have installed the `catalogue` described in the previous step.
+* Install [Git](https://github.com/git-guides/install-git).
+
+#### Clone emx2 repository
+
+This will download the latest repository of emx2.
+
+`git clone https://github.com/molgenis/molgenis-emx2.git`
+
+#### Setup environment file
+
+Navigate to the cloned repository `molgenis-emx2` and locate and open the file `apps/nuxt3-ssr/env-sample`. Leave the settings as they are and save the file as:
+
+`molgenis-emx2/apps/nuxt3-ssr/.env`
+
+The dot indicates it is a hidden file so depending on your system OS you might not *see* the .env-sample and .env
+
+#### Run SSR Catalogue
+
+Make sure you have installed the `catalogue` described in the previous [steps](run_docker.md#emx2-catalogue-installation).
 
 * Navigate to catalogue: http://localhost/catalogue/catalogue/#/
 * In the top menu bar click `SSR Catalogue`
 * You are redirected to: http://localhost/catalogue/ssr-catalogue/
+
+Note:
+
+* If you previously used docker compose make sure you delete the folder `apps/nuxt3-ssr/psql_data` if you want a clean/empty database to work on. Linux users might need to remove this folder with root/sudo permissions.
+* You might need to purge some docker settings by running `docker system prune -a`
 
 # Useful commands
 
@@ -113,10 +125,17 @@ Or to run docker compose in detached mode use:
 ```console
 docker compose up -d
 ```
+
 To stop docker compose use:
 
 ```console
 docker compose stop
+```
+
+To remove unused or conflicting volumes and networks:
+
+```console
+docker system prune -a
 ```
 
 # Notes
