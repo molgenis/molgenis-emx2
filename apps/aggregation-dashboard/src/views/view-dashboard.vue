@@ -110,7 +110,7 @@
             tableId="chart-number-of-cases-by-primary-tumor"
             caption="Number of cases by primary tumor"
             :data="primaryTumorSite"
-            :columnOrder="['primaryTumorSite', 'sum']"
+            :columnOrder="['primary tumor site', 'sum']"
             :enableRowClicks="true"
             @row-clicked="(data) => onChartClick(data, 'primaryTumorSite')"
           />
@@ -120,7 +120,7 @@
           <PieChart2
             v-else
             chartId="chart-number-cases-by-stage-at-diagnosis"
-            title="Number of cases by stage at diagnosis"
+            title="Number of cases by stage at diagnosis, distant metastasis"
             :chartData="metastasis"
             :chartScale="1"
             :chartHeight="350"
@@ -327,6 +327,9 @@ async function getAllData() {
     filters: queryFilters.value.filter,
   });
 
+  primaryTumorSite.value = primaryTumorSite.value.map((row) => {
+    return {...row, 'primary tumor site': row.primaryTumorSite}
+  })
   renameKey(primaryTumorSite.value, "_sum", "sum");
 
   metastasis.value = await getChartData({
