@@ -346,7 +346,7 @@ class Client:
             log.error(message)
             raise PyclientException(message)
 
-        response_data = pd.read_csv(io.BytesIO(response.content))
+        response_data = pd.read_csv(io.BytesIO(response.content), keep_default_na=False)
 
         if not as_df:
             return response_data.to_dict('records')
@@ -610,7 +610,7 @@ class Client:
             if type(data) is pd.DataFrame:
                 return data.to_csv(index=False, quoting=csv.QUOTE_NONNUMERIC, encoding='UTF-8')
             else:
-                return pd.DataFrame(data).to_csv(index=False, quoting=csv.QUOTE_NONNUMERIC, encoding='UTF-8')
+                return pd.DataFrame(data, dtype=str).to_csv(index=False, quoting=csv.QUOTE_NONNUMERIC, encoding='UTF-8')
 
         message = "No data to import. Specify a file location or a dataset."
         log.error(message)

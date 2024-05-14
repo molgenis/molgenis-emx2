@@ -17,6 +17,7 @@ import asyncio
 import logging
 import os
 
+import numpy
 import pandas as pd
 from dotenv import load_dotenv
 
@@ -90,9 +91,9 @@ async def main():
         ]
 
         new_pets = [{
-            'name': 'Woofie',
+            'name': 'NA',
             'category': 'dog',
-            'status': 'available',
+            'status': numpy.nan,
             'weight': 6.8,
             'tags': 'brown,canis'
         }]
