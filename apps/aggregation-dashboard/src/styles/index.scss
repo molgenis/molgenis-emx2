@@ -10,10 +10,17 @@ main.container-fluid {
 .page-footer {
   font-family: Helvetica, sans-serif;
   position: relative;
+
+  p {
+    svg {
+      width: 16pt;
+    }
+  }
 }
 
 .dashboard-container {
   background-color: $blue-050;
+  padding-top: 0;
 
   $gap: 0.75em;
   .dashboard-content {
@@ -140,6 +147,46 @@ main.container-fluid {
   padding: 1em;
   background-color: $blue-050;
   z-index: 2;
+
+  .accordion {
+    border: none;
+    font-size: 1rem;
+    margin: 0;
+    margin-top: 0.3em;
+
+    .accordion-heading {
+      background-color: transparent;
+      font-size: inherit;
+      border: none;
+      padding: 0;
+      color: $molgenis-blue-800;
+
+      .accordion-toggle {
+        align-items: flex-start;
+        .toggle-label {
+          width: auto;
+          padding-bottom: 2px;
+          border-bottom: 1px solid transparent;
+        }
+
+        .toggle-icon {
+          display: none;
+          width: 16pt;
+          height: 16pt;
+        }
+      }
+      &:hover,
+      &:focus {
+        .toggle-label {
+          border-bottom-color: currentColor;
+        }
+      }
+    }
+    .accordion-content {
+      padding: 0;
+      padding-top: 0.3em;
+    }
+  }
 
   .filters-container {
     display: grid;
