@@ -179,8 +179,10 @@ class Client:
             headers={'x-molgenis-token': self.token}
         )
 
+        if response.status_code == 503:
+            raise ServiceUnavailableError(f"Server with url {self.url!r} (temporarily) unavailable.")
         if response.status_code == 404:
-            raise ServerNotFoundError(f"Server with url {self.url!r}")
+            raise ServerNotFoundError(f"Server with url {self.url!r} not found.")
         if response.status_code == 400:
             if 'Invalid token or token expired' in response.text:
                 raise InvalidTokenException("Invalid token or token expired.")
