@@ -36,7 +36,7 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | 18 | Go back to the catalogue window | | | |
 | 19 | DESCRIPTION | test description for new test network | | |
 | 20 | PARTNERS | Amsterdam Medical Centre, Cynexo | | |
-| 21 | FUNDING & CITATION REQUIREMENTS | lorem ipsum text, check that "until now" is shown at the end of both fields | | |
+| 21 | FUNDING & CITATION REQUIREMENTS | lorem ipsum text, check that "until now" is shown at the end of both fields so that you know the full text has been displayed | | |
 | 22 | COHORTS | A list of cohorts you can explore. | | |
 |    |  | Name, Design, Number of participants, --> | | |
 |    |  | Name for test cohort 1   Longitudinal  600   --> | | |
