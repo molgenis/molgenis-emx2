@@ -3,9 +3,9 @@ import os
 import pandas as pd
 import shutil
 import sys
-sys.path.append("..")
-from util.update_client import UpdateClient
-from util.zip_handling import Zip
+sys.path.insert(1, "/".join(os.path.realpath(__file__).split("/")[0:-2]) + "/util")
+from update_client import UpdateClient  # noqa: E402
+from zip_handling import Zip  # noqa: E402
 
 
 class UpdateMeta:
