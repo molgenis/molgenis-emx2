@@ -5,3 +5,4 @@ Distribution,,description,string,,,,,,,,http://purl.org/dc/terms/description,"De
 Distribution,,type,ontology,,TRUE,,DistributionType,,,,http://purl.allotrope.org/ontologies/result#AFR_0002205,"Distribution type, either Table or File.",DCAT
 Distribution,,files,ref_array,,,,Files,,,,http://purl.obolibrary.org/obo/STATO_0000002,"One or multiple metadata for digital remote files.",DCAT
 Distribution,,belongsToDataset,ref_array,,TRUE,,Dataset,,,,http://www.w3.org/ns/dcat#Dataset,Reference to any datasets that contain this distribution.,DCAT
+Distribution,,propertyValue,string_array,,,,,,,,https://schema.org/PropertyValue,"A property-value pair, e.g. representing a feature of a product or place.",DCAT
