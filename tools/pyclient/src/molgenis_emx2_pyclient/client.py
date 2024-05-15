@@ -609,7 +609,7 @@ class Client:
             return utils.read_file(file_path=file_path)
 
         if data is not None:
-            if type(data) is pd.DataFrame:
+            if isinstance(data, pd.DataFrame):
                 return data.to_csv(index=False, quoting=csv.QUOTE_NONNUMERIC, encoding='UTF-8')
             else:
                 return pd.DataFrame(data, dtype=str).to_csv(index=False, quoting=csv.QUOTE_NONNUMERIC, encoding='UTF-8')
