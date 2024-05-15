@@ -6,7 +6,6 @@ import static spark.Spark.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.net.URISyntaxException;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.beaconv2.QueryEntryType;
 import org.molgenis.emx2.beaconv2.endpoints.*;
@@ -44,10 +43,14 @@ public class BeaconApi {
   }
 
   private static void processRequest(Request request, Response response) {
+    extractSpecification(request);
+    response.type(Constants.ACCEPT_JSON);
+  }
+
+  private static void extractSpecification(Request request) {
     int specificationIndex = 2;
     String specification = request.matchedPath().split("/")[specificationIndex];
     request.attribute("specification", specification);
-    response.type(Constants.ACCEPT_JSON);
   }
 
   private static String getEntryType(Request request, Response response) throws Exception {
@@ -70,9 +73,8 @@ public class BeaconApi {
     return getWriter().writeValueAsString(dataResult);
   }
 
-  private static String getInfo(Request request, Response response)
-      throws JsonProcessingException, URISyntaxException {
-    return getWriter().writeValueAsString(new Info(request));
+  private static String getInfo(Request request, Response response) throws JsonProcessingException {
+    return getWriter().writeValueAsString(new Info(request).getResponse());
   }
 
   private static Object getConfiguration(Request request, Response response)
@@ -81,12 +83,12 @@ public class BeaconApi {
   }
 
   private static Object getMap(Request request, Response response) throws JsonProcessingException {
-    return getWriter().writeValueAsString(new Map(request));
+    return getWriter().writeValueAsString(new Map(request).getResponse());
   }
 
   private static Object getEntryTypes(Request request, Response response)
       throws JsonProcessingException {
-    return getWriter().writeValueAsString(new EntryTypes());
+    return getWriter().writeValueAsString(new EntryTypes(request).getResponse());
   }
 
   private static String getFilteringTerms(Request request, Response response) throws Exception {
