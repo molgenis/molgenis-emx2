@@ -21,8 +21,8 @@ export const getColumnIds = (
   let result = "";
   getTable(schemaId, tableId, metaData.tables)?.columns?.forEach(
     (col: IColumn) => {
-      //we always expand the subfields of key=1, but other 'ref' fields only if they do not break server
-      if (expandLevel > 0 || col.key == 1) {
+      //we always expand the subfields of key, but other 'ref' fields only if they do not break server
+      if (expandLevel > 0 || col.key) {
         if (
           !rootLevel &&
           ["REF_ARRAY", "REFBACK", "ONTOLOGY_ARRAY"].includes(col.columnType)
@@ -46,7 +46,7 @@ export const getColumnIds = (
         } else if (["ONTOLOGY", "ONTOLOGY_ARRAY"].includes(col.columnType)) {
           result = result + " " + col.id + " {name, label}";
         } else if (col.columnType === "FILE") {
-          result += ` ${col.id} { id, size, extension, url }`;
+          result += ` ${col.id} { id, size, filename, extension, url }`;
         } else if (col.columnType !== "HEADING") {
           result += ` ${col.id}`;
         }

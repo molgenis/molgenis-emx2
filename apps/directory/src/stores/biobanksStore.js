@@ -21,7 +21,9 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
 
   let facetBiobankColumnDetails = ref([]);
   let biobankCards = ref([]);
-  let waitingForResponse = ref(false);
+  let waitingForResponse = ref(true);
+
+  let lastRequestTime = 0;
 
   const collectionColumns = collectionStore.getCollectionColumns();
   const biobankProperties = biobankColumns
@@ -34,13 +36,9 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
     .orderBy("Biobanks", "name", "asc")
     .orderBy("collections", "id", "asc");
 
-  const biobankCardsHaveResults = computed(() => {
-    return (
-      !waitingForResponse.value &&
-      biobankCards.value &&
-      biobankCards.value.length > 0
-    );
-  });
+  const biobankCardsHaveResults = computed(
+    () => !waitingForResponse.value && biobankCards.value?.length
+  );
 
   const biobankCardsBiobankCount = computed(() => {
     return biobankCards.value.filter((biobankCard) => !biobankCard.withdrawn)
@@ -48,14 +46,18 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
   });
 
   const biobankCardsSubcollectionCount = computed(() => {
-    if (!biobankCards.value.length) return 0;
-    return biobankCards.value
-      .filter((bc) => bc.collections)
-      .flatMap((biobank) =>
-        biobank.collections.filter(
-          (collection) => !collection.withdrawn && collection.parent_collection
-        )
-      ).length;
+    if (!biobankCards.value.length) {
+      return 0;
+    } else {
+      return biobankCards.value
+        .filter((bc) => bc.collections)
+        .flatMap((biobank) =>
+          biobank.collections.filter(
+            (collection) =>
+              !collection.withdrawn && collection.parent_collection
+          )
+        ).length;
+    }
   });
 
   const biobankCardsCollectionCount = computed(() => {
@@ -102,34 +104,23 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
     return facetBiobankColumnDetails;
   }
 
-  /** GraphQL query to get all the data necessary for the home screen 'aka biobank card view */
+  /** This method is called upon page load and when a filter is applied. */
+  /** Therefore it can be executed multiple times in parallel. */
   async function getBiobankCards() {
     if (!filtersStore.bookmarkWaitingForApplication) {
       waitingForResponse.value = true;
-      if (biobankCards.value.length === 0) {
-        const biobankResult = await baseQuery.execute();
-        biobankCards.value = filterWithdrawn(biobankResult.Biobanks);
-      }
-      waitingForResponse.value = false;
-    }
-  }
 
-  async function updateBiobankCards() {
-    if (!waitingForResponse.value) {
-      waitingForResponse.value = true;
-      biobankCards.value = [];
+      const requestTime = Date.now();
+      lastRequestTime = requestTime;
+
       const biobankResult = await baseQuery.execute();
 
-      /** depending on whether filters have been selected display the correct count of biobanks */
-      let foundBiobanks = biobankResult.Biobanks;
-      if (filtersStore.hasActiveFilters) {
-        foundBiobanks = foundBiobanks.filter((biobank) => biobank.collections);
+      /* Update biobankCards only if the result is the most recent one*/
+      if (requestTime === lastRequestTime) {
+        biobankCards.value = filterWithdrawn(biobankResult.Biobanks || []);
+        waitingForResponse.value = false;
+        filtersStore.bookmarkWaitingForApplication = false;
       }
-
-      biobankCards.value = filterWithdrawn(foundBiobanks);
-      waitingForResponse.value = false;
-
-      filtersStore.bookmarkWaitingForApplication = false;
     }
   }
 
@@ -155,6 +146,7 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
     ) {
       return [];
     }
+
     let columnPath = applyToColumn;
     if (!Array.isArray(applyToColumn)) {
       columnPath = [applyToColumn];
@@ -207,7 +199,6 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
   }
 
   return {
-    updateBiobankCards,
     getBiobankCards,
     getBiobank,
     getPresentFilterOptions,

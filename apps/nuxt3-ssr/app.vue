@@ -1,8 +1,6 @@
 <script setup lang="ts">
-import BackgroundGradient from "./components/BackgroundGradient.vue";
-import { hash } from "./.fingerprint.js";
-const route = useRoute();
 const config = useRuntimeConfig();
+const route = useRoute();
 
 const isAnalyticsAllowedCookie = useCookie("mg_allow_analytics", {
   maxAge: 34560000,
@@ -20,25 +18,15 @@ function setAnalyticsCookie(value: boolean) {
   }
 }
 
-let themeFilename = "styles";
-if (route.query.theme) {
-  themeFilename += `.${route.query.theme}`;
-} else if (config.public.emx2Theme) {
-  themeFilename += `.${config.public.emx2Theme}`;
-}
-
-if (hash) {
-  themeFilename += `.${hash}`;
-}
-
-const styleHref = `/_nuxt-styles/css/${themeFilename}.css`;
 const faviconHref = config.public.emx2Theme
   ? `/_nuxt-styles/img/${config.public.emx2Theme}.ico`
   : "/_nuxt-styles/img/molgenis.ico";
 useHead({
+  htmlAttrs: {
+    'data-theme': route.query.theme as string || config.public.emx2Theme || "",
+  },
   link: [
     { rel: "icon", href: faviconHref },
-    { rel: "stylesheet", type: "text/css", href: styleHref },
   ],
   titleTemplate: (titleChunk) => {
     if (titleChunk && config.public.siteTitle) {

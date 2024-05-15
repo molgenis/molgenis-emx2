@@ -2,6 +2,7 @@
 import collectionEventGql from "~~/gql/collectionEvent";
 import ContentBlockModal from "./content/ContentBlockModal.vue";
 import type { IDefinitionListItem, IMgError } from "~~/interfaces/types";
+import dateUtils from "~/utils/dateUtils";
 
 const { id: collectionEventName } = defineProps<{
   id: string;
@@ -69,7 +70,7 @@ if (collectionEvent.value?.numberOfParticipants) {
 if (collectionEvent.value?.startYear || collectionEvent.value?.endYear) {
   items.push({
     label: "Start/end year",
-    content: filters.startEndYear(
+    content: dateUtils.startEndYear(
       collectionEvent.value.startYear && collectionEvent.value.startYear.name
         ? collectionEvent.value.startYear.name
         : null,

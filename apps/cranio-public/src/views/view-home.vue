@@ -55,7 +55,7 @@
       <p>
         In case of any questions regarding the ERN CRANIO registry, please send
         us an email.
-        <a href="mailto:ern-cranio@erasmusmc.nl" class="button-link">
+        <a href="mailto:ern-cranioregistry@erasmusmc.nl" class="button-link">
           Contact Us </a
         >.
       </p>
@@ -63,7 +63,7 @@
   </Page>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { Page, PageHeader, PageSection, LinkCard } from "molgenis-viz";
 import {
   InformationCircleIcon,

@@ -38,7 +38,6 @@ const aggregatedHarmonizationStatus = computed(() => {
 </script>
 <template>
   <div class="grid grid-cols-3 gap-4">
-    {{}}
     <div>
       <ul>
         <li
@@ -49,7 +48,7 @@ const aggregatedHarmonizationStatus = computed(() => {
           class="pb-2"
         >
           <div class="flex items-center gap-2">
-            <HarmonizationStatusIcon :status="status" />
+            <HarmonizationStatusIcon :status="status" size="large" />
             <span>{{ cohort.id }}</span>
           </div>
         </li>
@@ -65,7 +64,7 @@ const aggregatedHarmonizationStatus = computed(() => {
           class="pb-2"
         >
           <div class="flex items-center gap-2">
-            <HarmonizationStatusIcon :status="status" />
+            <HarmonizationStatusIcon :status="status" size="large" />
             <span>{{ cohort.id }}</span>
           </div>
         </li>
@@ -81,12 +80,12 @@ const aggregatedHarmonizationStatus = computed(() => {
           class="pb-2"
         >
           <div class="flex items-center gap-2">
-            <HarmonizationStatusIcon :status="status" />
+            <HarmonizationStatusIcon :status="status" size="large" />
             <span>{{ cohort.id }}</span>
           </div>
         </li>
       </ul>
     </div>
   </div>
-  <HarmonizationLegend class="mt-12" />
+  <HarmonizationLegendDatailed class="mt-12" />
 </template>

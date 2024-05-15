@@ -21,8 +21,8 @@
 
     <div class="row filterbar p-2" v-if="filtersReady">
       <HtmlDropdown
-        :id="filter.facetIdentifier"
         v-for="filter in filtersToRender"
+        :id="filter.facetIdentifier"
         :key="filter.facetIdentifier"
         :button-text="filter.facetTitle"
         :active="filterIsActive(filter.facetIdentifier)"

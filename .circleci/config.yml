@@ -41,6 +41,20 @@ definitions:
       JVM_OPTS: -Xmx3200m
       GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
       TERM: dumb
+  release_config: &release_config
+    docker:
+      - image: molgenis/ci-build:1.2.3
+      - image: postgres:15-alpine
+        environment:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+    working_directory: ~/repo
+    resource_class: large
+    environment:
+      JVM_OPTS: -Xmx3200m
+      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2 -Dorg.gradle.caching=false"
+      TERM: dumb
 
 
 commands:
@@ -48,7 +62,6 @@ commands:
     steps:
     - checkout
     - run: git fetch --all --tags
-    - run: export COMMIT_MESSAGE=$(git log -1 --pretty=format:%s)
     - run:
         name: Setup git, todo, move to molgenisci user
         command: |
@@ -128,6 +141,23 @@ jobs:
           bash ci/create_or_update_k8s-azure.sh "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" ${TAG_NAME} DELETE
 
     - run:
+        name: Wait for preview to be up, poll every 10 seconds
+        command: |
+          GETURL="https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/catalogue-demo/ssr-catalogue/testNetwork1"
+          while true; 
+              do 
+                  STATUS=$(curl --silent --head $GETURL | awk '/^HTTP/{print $2}')
+                  echo ${STATUS}
+                  if [[ "$STATUS" == "200" ]]; then 
+                      echo "preview is up";
+                      break; 
+                  else 
+                      echo "preview is not ready yet, waiting 10 seconds...";
+                  fi; 
+                  sleep 10; 
+              done
+
+    - run:
         name: message slack about preview
         command: |
           export $( cat build/ci.properties | xargs )
@@ -160,7 +190,7 @@ jobs:
     - post_steps
 
   release:
-    <<: *test_config
+    <<: *release_config
 
     steps:
     - pre_steps
@@ -208,26 +238,26 @@ jobs:
           -X POST https://slack.com/api/chat.postMessage  
 
     - post_steps
-  e2e-preview:
+  e2e-test:
     docker:
-      - image: mcr.microsoft.com/playwright:v1.42.1-jammy
+      - image: mcr.microsoft.com/playwright:v1.44.0-jammy
     steps:
       - checkout
       - run: npm i -D @playwright/test
       - run: npx playwright install chrome
       - run:
-          name: Wait for preview to be up, poll every 10 seconds
+          name: Wait for e2e test data to be loaded, poll every 10 seconds
           command: |
-            GETURL="https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/"
+            GETURL="https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/catalogue-demo/ssr-catalogue/testNetwork1"           
             while true; 
                 do 
                     STATUS=$(curl --silent --head $GETURL | awk '/^HTTP/{print $2}')
-                    echo ${STATUS}
+                    echo ${STATUS} ${GETURL}
                     if [[ "$STATUS" == "200" ]]; then 
-                        echo "preview is up";
+                        echo "test data is loaded";
                         break; 
                     else 
-                        echo "preview is not ready yet, waiting 10 seconds...";
+                        echo "test data is not ready yet, waiting 10 seconds...";
                     fi; 
                     sleep 10; 
                 done
@@ -242,6 +272,44 @@ jobs:
       - store_artifacts:
           path: /root/project/e2e/test-results
 
+  emx2-pyclient:
+    <<: *build_config
+
+    steps:
+      - pre_steps
+      - run:
+          name: Reset TWINE_PASSWORD in case of release to PyPI (default is testPyPI token)
+          command: |
+            if [ -z "$CIRCLE_PULL_REQUEST" ]; then
+               echo "Reset testPyPI token to PyPI token"
+               echo "export TWINE_PASSWORD=$PYPI_PASSWORD" >> "$BASH_ENV"
+            fi
+      - run:
+          name: Release to (test)PyPI based on commit message
+          command: |
+            export REGEX="^.*(emx2-pyclient).*$"
+            if [[ $(git log -1 --pretty=format:%s) =~ $REGEX ]]; then
+              export $( cat build/ci.properties | xargs )
+              ./gradlew -s --no-daemon publishPython > pypi_output
+              curl -d "token=${SLACK_TOKEN}" \
+              -d "text=*<${CIRCLE_PULL_REQUEST}|Circle-CI » Molgenis » Molgenis-emx2 » PR-${CIRCLE_PULL_REQUEST##*/} #${CIRCLE_BUILD_NUM}>*
+              A new molgenis-emx2-pyclient version is released: $( grep 'View at:' pypi_output -A 1 | grep -v 'View at:' )" \
+              -d "channel=C02AZDG6QQ7" \
+              -X POST https://slack.com/api/chat.postMessage
+            else
+              echo "No release to (test)PyPI needed"
+            fi
+      - run:
+          name: Message slack about a new molgenis-emx2-pyclient version
+          command: |
+            export REGEX="^.*(emx2-pyclient).*$"
+            if [[ $(git log -1 --pretty=format:%s) =~ $REGEX ]]; then
+              curl -d "token=${SLACK_TOKEN}" \
+              -d "text=*<${CIRCLE_PULL_REQUEST}|Circle-CI » Molgenis » Molgenis-emx2 » PR-${CIRCLE_PULL_REQUEST##*/} #${CIRCLE_BUILD_NUM}>*
+              A new molgenis-emx2-pyclient version is released: $( grep 'View at:' pypi_output -A 1 | grep -v 'View at:' )" \
+              -d "channel=C02AZDG6QQ7" \
+              -X POST https://slack.com/api/chat.postMessage
+            fi           
 
   delete-helm-preview:
     <<: *build_config
@@ -269,7 +337,7 @@ workflows:
         filters:
           branches:
             ignore: master
-    - e2e-preview:
+    - e2e-test:
         requires:
           - preview
         filters:
@@ -279,10 +347,23 @@ workflows:
        filters:
          branches:
            ignore: master
+    - emx2-pyclient:
+        name: testPyPI release
+        filters:
+          branches:
+            ignore: master
     - release:
        filters:
          branches:
            only: master
+    - emx2-pyclient:
+        name: PyPI release
+        requires:
+          - release
+        filters:
+          branches:
+            only: master
+
   delete_preview:
     when:
       equal: [ "delete-pr-preview", << pipeline.parameters.GHA_Action >> ]
