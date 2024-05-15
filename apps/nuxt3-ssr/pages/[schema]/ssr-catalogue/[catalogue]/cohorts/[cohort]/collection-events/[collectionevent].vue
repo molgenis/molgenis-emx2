@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import dateUtils from "~/utils/dateUtils";
 import collectionEventGql from "~~/gql/collectionEvent";
 import type {
   IDefinitionListItem,
@@ -70,7 +71,7 @@ if (collectionEvent.value?.subcohorts?.length) {
 if (collectionEvent.value?.startYear || collectionEvent.value?.endYear) {
   items.push({
     label: "Start/end year",
-    content: filters.startEndYear(
+    content: dateUtils.startEndYear(
       collectionEvent.value.startYear && collectionEvent.value.startYear.name
         ? collectionEvent.value.startYear.name
         : null,

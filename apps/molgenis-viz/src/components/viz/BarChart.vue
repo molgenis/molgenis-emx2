@@ -30,11 +30,12 @@
             :data-value="row[xvar]"
           >
             <rect
-              :data-value="`${row[yvar]}-${row[xvar]}`"
               class="bar"
+              :data-value-x="row[xvar]"
+              :data-value-y="row[yvar]"
               :y="yAxis(row[yvar])"
               :height="yAxis.bandwidth()"
-              :fill="barFill"
+              :fill="colorPalatte[row[yvar]]"
               @click="onClick(row)"
               @mouseover="(event) => onMouseOver(event)"
               @mouseleave="(event) => onMouseLeave(event)"
@@ -43,7 +44,7 @@
               class="label"
               :x="xAxis(row[xvar])"
               :y="yAxis(row[yvar])"
-              dx="1.1em"
+              dx="1.4em"
               :dy="yAxis.bandwidth() / 1.65"
             >
               {{ row[xvar] }}
@@ -147,6 +148,14 @@ export default {
     // A label that describes the y-axis
     yAxisLabel: String,
 
+    // If defined, y-axis labels will be split into multiple lines. Value must
+    // be a separator that indicates where the string should be split. Please
+    // be aware that you may need to adjust the chart margins and height
+    // depending on how many lines you wish to break.
+    yAxisLineBreaker: {
+      type: String,
+    },
+
     // the dataset the plot
     chartData: {
       type: Array,
@@ -189,6 +198,17 @@ export default {
       type: String,
       // `#163D89`
       default: "#163D89",
+    },
+
+    // Define your own color palette that is passed down to each bar.
+    // You will need to create an object that maps each x-value to a
+    // specific color. The color supplied in `barHoverFill` will
+    // not be overwritten. Note: It is not recommended to use this option
+    // as it does not make sense to apply a color scheme to ungrouped data. However,
+    // this option allows you to apply a color to a category of significant interest.
+    // Please use this with the best intentions.
+    barColorPalette: {
+      type: Object,
     },
 
     // Adjust the amount of blank space inbetween bar between 0 and 1
@@ -305,16 +325,56 @@ export default {
     chartBars() {
       return this.chartArea.selectAll("rect.bar");
     },
+    colorPalatte() {
+      const domain = this.chartData.map((row) => row[this.yvar]);
+      const colorMappings = domain.map((value) => {
+        const color = this.barColorPalette
+          ? this.barColorPalette[value]
+          : this.barFill;
+        return [value, color];
+      });
+      const palatte = Object.fromEntries(colorMappings);
+      return palatte;
+    },
   },
   methods: {
     setChartDimensions() {
       const parent = this.$el.parentNode;
       this.chartWidth = parent.offsetWidth * 0.95;
     },
+    breakYAxisLines() {
+      const axisTicks = this.svg.selectAll(".chart-axis-y .tick text");
+      if (axisTicks._groups.length) {
+        axisTicks._groups[0].forEach((axisTick) => {
+          const tick = d3.select(axisTick);
+          const words = tick.text().split(this.yAxisLineBreaker);
+          if (words.length > 1) {
+            tick.text("");
+
+            const lineHeight = 1.25;
+            const dy = parseFloat(tick.attr("dy"));
+
+            words.forEach((word, index) => {
+              tick
+                .append("tspan")
+                .style("text-anchor", "end")
+                .attr("x", 0)
+                .attr("y", -this.chartMargins.top)
+                .attr("dx", "-1em")
+                .attr("dy", `${index * lineHeight + dy}em`)
+                .text(word);
+            });
+          }
+        });
+      }
+    },
     renderAxes() {
       this.chartArea.select(".chart-axis-x").call(this.chartAxisX);
-
       this.chartArea.select(".chart-axis-y").call(this.chartAxisY);
+
+      if (typeof this.yAxisLineBreaker !== "undefined") {
+        this.breakYAxisLines();
+      }
     },
     onClick(row) {
       if (this.enableClicks) {
@@ -325,13 +385,13 @@ export default {
     onMouseOver(event) {
       const column = event.target;
       const label = column.nextSibling;
-      column.style.fill = this.columnHoverFill;
+      column.style.fill = this.barHoverFill;
       label.style.opacity = 1;
     },
     onMouseLeave(event) {
       const column = event.target;
       const label = column.nextSibling;
-      column.style.fill = this.columnFill;
+      column.style.fill = this.barFill;
       label.style.opacity = 0;
     },
     drawBars() {

@@ -32,12 +32,10 @@
             <div class="col-11">
               <div v-for="unit in project.projectUnits" class="row">
                 <div class="col-1">{{ unit.unit }}</div>
-                <div class="col-1">{{ (unit.planHours / 133).toFixed(1) }}</div>
+                <div class="col-1">{{ (unit.planHours / 133).toFixed() }}</div>
                 <div class="col-1">
                   {{
-                    unit.panama
-                      ? (unit.panama[0].regHours / 133).toFixed(1)
-                      : ""
+                    unit.panama ? (unit.panama[0].regHours / 133).toFixed() : ""
                   }}
                 </div>
                 <div class="col-1">
@@ -48,7 +46,7 @@
                           (
                             (unit.planHours - unit.panama[0].regHours) /
                             133
-                          ).toFixed(1)
+                          ).toFixed()
                         )
                       : ""
                   }}
@@ -61,14 +59,14 @@
                             (accum, curr) => accum + planPm(curr, project),
                             0
                           )
-                          .toFixed(1)
+                          .toFixed()
                       : 0
                   }}PM
                 </div>
                 <div class="col-7">
                   <template v-for="planning in unit.planning"
                     ><div v-if="planPm(planning, project) > 0">
-                      {{ planPm(planning, project).toFixed(1) }}PM:
+                      {{ planPm(planning, project).toFixed() }}PM:
                       {{ planning.person.name }} ({{ planning.fTE }}fte from
                       {{ planning.startDate }} until {{ planning.endDate }})
                       <RowButtonEdit

@@ -59,7 +59,7 @@ public class RunMolgenisEmx2 {
           }
           if (INCLUDE_DIRECTORY_DEMO && db.getSchema(DIRECTORY_DEMO) == null) {
             Schema schema = db.createSchema(DIRECTORY_DEMO, "BBMRI-ERIC Directory Demo");
-            new BiobankDirectoryLoader().load(schema, true);
+            new BiobankDirectoryLoader(false).load(schema, true);
           }
         });
 

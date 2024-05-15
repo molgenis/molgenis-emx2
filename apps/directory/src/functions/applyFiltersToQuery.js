@@ -99,8 +99,17 @@ export async function applyFiltersToQuery(
         break;
       }
       case "OntologyFilter": {
-        const values = filterValue.map((fv) => fv.code);
-        baseQuery.filter(filterDetail.applyToColumn).in(values);
+        const values = filterValue.map((filterValue) => filterValue.code);
+        if (
+          filterType[filterDetail.facetIdentifier] === "all" ||
+          values.length === 1
+        ) {
+          baseQuery.where(filterDetail.applyToColumn).in(values);
+          baseQuery.filter(filterDetail.applyToColumn).in(values);
+        } else {
+          baseQuery.orWhere(filterDetail.applyToColumn).in(values);
+          baseQuery.orFilter(filterDetail.applyToColumn).in(values);
+        }
         break;
       }
     }
