@@ -1,4 +1,5 @@
 from decouple import config
+from updates.meta_data import UpdateMeta
 
 import importlib
 import os
@@ -50,4 +51,10 @@ with UpdateClient(url=SERVER_URL, token=SERVER_TOKEN, module=update_module) as s
         for nn in NATIONAL_NODES:
             print(f"\nUpdating {nn} data model to version {ERIC_VERSION}")
             session.re_create_model(nn, "BIOBANK_DIRECTORY_STAGING")
+
+            update_meta = UpdateMeta(database_name=nn,
+                                     database_type="BIOBANK_DIRECTORY_STAGING",
+                                     update_session=session)
+
+            update_meta.add_validations()
             print("-----   ----")

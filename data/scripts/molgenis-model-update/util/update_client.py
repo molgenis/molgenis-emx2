@@ -1,5 +1,6 @@
 from molgenis_emx2_pyclient import Client
-from zip_handling import Zip
+from time import sleep
+from util.zip_handling import Zip
 
 import os
 import shutil
@@ -15,6 +16,17 @@ class UpdateClient(Client):
         super().__init__(url, schema, token)
 
         self.update_module = module
+
+    @staticmethod
+    def float_to_int(df):
+        """
+        Cast float64 Series to Int64.
+        """
+        for column in df.columns:
+            if df[column].dtype == 'float64':
+                df.loc[:, column] = df[column].astype('Int64')
+
+        return df
 
     def re_create_model(self, database, database_type):
         if database in self.schema_names:
@@ -68,8 +80,22 @@ class UpdateClient(Client):
         zip_file['file'].close()
 
         if response.status_code == 200:
-            print(f"    ✅ Imported data into {database}, "
-                  f"job_id: {response.json()['id']}")
+            import_task = self.session.get(f"{self.url}{response.json()['url']}",
+                                           headers={'x-molgenis-token': self.token})
+
+            while import_task.json()['status'] == "RUNNING":
+                print('  ⏱️ Wait till job has finished')
+                sleep(5)
+                import_task = self.session.get(f"{self.url}{response.json()['url']}",
+                                               headers={'x-molgenis-token': self.token})
+            if import_task.json()['status'] == "COMPLETED":
+                print(f"✅Successfully imported data into {database}, "
+                      f"job_id: {response.json()['id']}")
+            else:
+                print(f"❌Error when importing data into {database}:"
+                      f"\n{import_task.json()['description']}"
+                      f"\njob_id: {response.json()['id']}")
+
         else:
             errors = '\n'.join([err['message']
                                 for err in response.json().get('errors')])
