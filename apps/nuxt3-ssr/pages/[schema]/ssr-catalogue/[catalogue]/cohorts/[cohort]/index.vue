@@ -424,21 +424,30 @@ if (route.params.catalogue) {
         />
 
         <ContentBlockContact
-          v-if="cohort?.contacts"
+          v-if="cohort?.contacts || cohort.leadOrganisation"
           id="Contributors"
           title="Contact and Contributors"
           :contributors="cohort?.contacts"
         >
-          <div v-for="organisation in cohort.leadOrganisation" class="my-2">
-            <span class="font-bold text-body-base">Lead Organisation </span>
-            <span class="text-blue-500 font-bold">{{ organisation.name }}</span>
-            <span>
-              <img
-                v-if="organisation.logo"
-                class="max-h-11"
-                :src="organisation.logo.url"
-            /></span>
-          </div>
+          <List
+            class="mb-5"
+            title="Lead Organisation"
+            :type="
+              cohort.leadOrganisation && cohort.leadOrganisation?.length > 1
+                ? 'standard'
+                : 'link'
+            "
+          >
+            <ListItem v-for="organisation in cohort.leadOrganisation">
+              <span
+                >{{ organisation.name }}
+                <img
+                  v-if="organisation.logo"
+                  class="max-h-11"
+                  :src="organisation.logo.url"
+              /></span>
+            </ListItem>
+          </List>
         </ContentBlockContact>
 
         <!-- <ContentBlockVariables
