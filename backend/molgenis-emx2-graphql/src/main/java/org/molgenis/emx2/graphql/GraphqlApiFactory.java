@@ -20,13 +20,11 @@ import org.slf4j.LoggerFactory;
 
 public class GraphqlApiFactory {
   private static Logger logger = LoggerFactory.getLogger(GraphqlApiFactory.class);
-  private static boolean setMaxTokens = false;
 
   public GraphqlApiFactory() {
-    if (!setMaxTokens) {
+    if (ParserOptions.getDefaultParserOptions().getMaxTokens() < 1000000) {
       ParserOptions.setDefaultParserOptions(
           ParserOptions.newParserOptions().maxTokens(1000000).build());
-      setMaxTokens = true;
     }
   }
 
