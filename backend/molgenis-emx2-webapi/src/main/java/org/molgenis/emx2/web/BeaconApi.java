@@ -79,7 +79,7 @@ public class BeaconApi {
 
   private static Object getConfiguration(Request request, Response response)
       throws JsonProcessingException {
-    return getWriter().writeValueAsString(new Configuration());
+    return getWriter().writeValueAsString(new Configuration(request).getResponse());
   }
 
   private static Object getMap(Request request, Response response) throws JsonProcessingException {

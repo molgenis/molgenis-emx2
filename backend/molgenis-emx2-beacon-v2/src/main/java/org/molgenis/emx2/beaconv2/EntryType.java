@@ -110,4 +110,12 @@ public enum EntryType {
   public boolean validateSpecification(BeaconSpec otherSpec) {
     return this.partOfSpecification.contains(otherSpec);
   }
+
+  public String getOntologyTerm() {
+    return ontologyTerm;
+  }
+
+  public String getOntologyLabel() {
+    return ontologyLabel;
+  }
 }
