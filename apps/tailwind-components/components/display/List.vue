@@ -1,7 +1,7 @@
 <script setup lang="ts">
 const props = withDefaults(
   defineProps<{
-    title: string;
+    title?: string;
     columnCount?: number;
     type?: "standard" | "link";
   }>(),
@@ -34,7 +34,7 @@ const columnCountClass = computed(() => {
 
 <template>
   <section>
-    <h3 class="mb-2.5 font-bold text-body-base">{{ title }}</h3>
+    <h3 v-if="title" class="mb-2.5 font-bold text-body-base">{{ title }}</h3>
     <ul
       class="columns-1 text-body-base"
       :class="`${columnCountClass} ${listClasses} `"

@@ -429,7 +429,7 @@ if (route.params.catalogue) {
           title="Contact and Contributors"
           :contributors="cohort?.contacts"
         >
-          <List
+          <DisplayList
             class="mb-5"
             title="Lead Organisation"
             :type="
@@ -438,7 +438,7 @@ if (route.params.catalogue) {
                 : 'link'
             "
           >
-            <ListItem v-for="organisation in cohort.leadOrganisation">
+            <DisplayListItem v-for="organisation in cohort.leadOrganisation">
               <span
                 >{{ organisation.name }}
                 <img
@@ -446,8 +446,8 @@ if (route.params.catalogue) {
                   class="max-h-11"
                   :src="organisation.logo.url"
               /></span>
-            </ListItem>
-          </List>
+            </DisplayListItem>
+          </DisplayList>
         </ContentBlockContact>
 
         <!-- <ContentBlockVariables
