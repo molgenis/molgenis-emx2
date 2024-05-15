@@ -2,6 +2,7 @@ import shutil
 import os
 from pathlib import Path
 import pandas as pd
+from string import digits
 
 
 def float_to_int(df):
@@ -167,30 +168,29 @@ class Transform:
         df.to_csv(self.path + 'Datasets.csv', index=False)
 
     def variables(self):
-        df = pd.read_csv(self.path + 'Variables.csv', keep_default_na=False)
-        df.loc[:, 'resource'] = df['resource'].apply(strip_resource)
-        df.loc[:, 'collection event.resource'] = df['collection event.resource'].apply(strip_resource)
-        df.rename(columns={'resource': 'collection',
-                           'collection event.resource': 'collection event.collection'}, inplace=True)
+        # restructure Variables
+        df_variables = pd.read_csv(self.path + 'Variables.csv', keep_default_na=False)
+        df_variables.loc[:, 'resource'] = df_variables['resource'].apply(strip_resource)
+        df_variables.loc[:, 'collection event.resource'] = \
+            df_variables['collection event.resource'].apply(strip_resource)
+        df_variables.rename(columns={'resource': 'collection',
+                                     'collection event.resource': 'collection event.collection'}, inplace=True)
 
-        # select all non-repeated lifecycle variables
-        df_lifecycle_no_repeats = get_lifecycle_non_repeated(df)
+        # select non-repeated variables
+        df_variables = get_non_repeats(df_variables)
 
-        # TODO: select all other non-repeated variables and concatenate to one dataframe
-
-        df = float_to_int(df)  # convert float back to integer
-        df.to_csv(self.path + 'Variables.csv', index=False)
-
+        # restructure Repeated variables
         df_repeats = pd.read_csv(self.path + 'Repeated variables.csv', keep_default_na=False)
         df_repeats.loc[:, 'resource'] = df_repeats['resource'].apply(strip_resource)
         df_repeats.loc[:, 'collection event.resource'] = df_repeats['collection event.resource'].apply(strip_resource)
         df_repeats.rename(columns={'resource': 'collection',
                                    'collection event.resource': 'collection event.collection'}, inplace=True)
-        # TODO: add functions to restructure repeated variables
+        df_repeats = restructure_repeats(df_repeats)
 
-        df_variables = pd.concat([df_lifecycle_no_repeats, df_repeats])
-        df_variables = float_to_int(df_variables)  # convert float back to integer
-        df_variables.to_csv(self.path + 'Variables.csv', index=False)
+        # concatenate variables and reoeats to one dataframe
+        df_all_variables = pd.concat([df_variables, df_repeats])
+        df_all_variables = float_to_int(df_all_variables)  # convert float back to integer
+        df_all_variables.to_csv(self.path + 'Variables.csv', index=False)
 
     def variable_values(self):
         df = pd.read_csv(self.path + 'Variable values.csv', keep_default_na=False)
@@ -224,12 +224,20 @@ def strip_resource(resource_name):
     return resource_name
 
 
-def get_lifecycle_non_repeated(df):
+def get_non_repeats(df_variables):
+    # select all non-repeated lifecycle variables
+    df_lifecycle_no_repeats = get_lifecycle_non_repeated(df_variables)
+
+    # TODO: select all other non-repeated variables and concatenate to one dataframe
+    return df_lifecycle_no_repeats
+
+
+def get_lifecycle_non_repeated(df_variables):
     # select lifecycle variables
-    df_lifecycle = df[df['collection'] == 'LifeCycle']
+    df_lifecycle = df_variables[df_variables['collection'] == 'LifeCycle']
+
     # select all non-repeated lifecycle variables
     df_repeats = pd.read_csv('Repeated variables.csv')
-    df_lifecycle['is_repeated'] = ''
     df_lifecycle.loc[:, 'is_repeated'] = df_lifecycle['name'].apply(is_repeated, df_repeats=df_repeats)
     df_lifecycle_no_repeats = df_lifecycle[df_lifecycle['is_repeated'] is not True]
 
@@ -237,9 +245,46 @@ def get_lifecycle_non_repeated(df):
 
 
 def is_repeated(var_name, df_repeats):
+    # Checks whether a variable is repeated or not
     if var_name in df_repeats['is repeat of.name'].to_list():
         return True
-    elif var_name.endswith('_'):
+    elif var_name.endswith('_'):  # selects 'root' variables that were used for LongITools mappings
         return True
     else:
         return False
+
+
+def restructure_repeats(df_repeats):
+    # TODO: PIAMA get all repeats into variables table as separate rows
+    # TODO: EXPANSE_CDM repeats do not have a repeatUnit
+
+    # select lifecycle repeats and rewrite repeats to one row
+    df_lifecycle = df_repeats[df_repeats['collection'] == 'LifeCycle']
+    df_lifecycle.loc[:, 'name'] = df_lifecycle['name'].apply(remove_number)  # remove trailing digits
+    df_lifecycle = df_lifecycle.drop_duplicates(subset=['name'])   # keep unique entries
+    df_lifecycle.loc[:, 'repeat unit'] = df_lifecycle['name'].apply(get_repeat_unit, df=df_repeats)  # get repeat unit from
+    df_lifecycle.loc[:, 'repeat min'] = 0
+    df_lifecycle.loc[df_lifecycle['repeat unit'] == 'Month', 'repeat max'] = 270
+    df_lifecycle.loc[df_lifecycle['repeat unit'] == 'Week', 'repeat max'] = 42
+    df_lifecycle.loc[df_lifecycle['repeat unit'] == 'Year', 'repeat max'] = 21
+    df_lifecycle.loc[df_lifecycle['repeat unit'] == 'Trimester', 'repeat max'] = 3
+
+    return df_lifecycle
+
+
+def remove_number(var_name):
+    new_var_name = var_name.strip(digits)
+
+    return new_var_name
+
+
+def get_repeat_unit(var_name, df):
+    # monthly (0-270), yearly (0-21 or 0-17), weekly (0-42), trimester (t1-t3)
+    if var_name + '270' in df['name'].to_list():
+        return 'Month'
+    elif var_name + '42' in df['name'].to_list():
+        return 'Week'
+    elif var_name + '17' in df['name'].to_list():
+        return 'Year'
+    elif var_name + '3' in df['name'].to_list():
+        return 'Trimester'
