@@ -1,9 +1,12 @@
 package org.molgenis.emx2.tasks;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 public interface TaskService {
+  List<ScriptTask> getScripts();
+
   String submit(Task task);
 
   String submitTaskFromName(String name, String parameters);
