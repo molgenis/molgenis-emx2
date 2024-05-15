@@ -23,7 +23,7 @@ A researcher searches for specific variables (*example: all ADHD variables*) acr
 | 5a| Type 'Symptoms' in the search field in the pop-up | Four sections of the topic tree with checkboxes are displayed | | |
 | 5b| Open topic 'Symptoms and signs' > 'Symptoms and signs involving cognition, perception, emotional state and behaviour (R40-R46)' > 'Behavioral problem domains' > select 'ADHD symptoms' and then choose Show Results | Variables should be filtered on ADHD variables (10); active filters should show -1 | | |
 | 6 |Click on the name of variable 'testVarRepeats_'| Should redirect to variable detailed view; Details should show: 1) description, 2) harmonisation status per repeat per cohort (green fully harmonised, yellow partially harmonised, white no harmonisation), 3) tabs for each cohorts with further details (variables used, syntax) | | |
-| 7 | Hover 'about statuses' | Pop up should show 'completed: cohort was able to fully map to the harmonised variables'; 'partial: cohort was able to partially map to the harmonised variable'; 'No data: no harmonisation  data is available'. | | |
+| 7 | In "harmonisation details per cohort", hover 'about statuses' | Pop up should show 'completed: cohort was able to fully map to the harmonised variables'; 'partial: cohort was able to partially map to the harmonised variable'; 'No data: no harmonisation  data is available'. | | |
 | 8 | Click on second cohort tab | Tab should show information for second cohort | | |
 | 9 | Click first variable used | Dialog should show information available for the source variable | | |
 | 10 | Click back button to return to previous page | Should be redirected to network variable explorer with previously selected filters | | |
