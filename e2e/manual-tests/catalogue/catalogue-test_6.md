@@ -19,7 +19,7 @@ A researcher searches for specific variables (*example: all ADHD variables*) acr
 | 3 | Click 'All variables' button | Should be redirected to  variable explorer (project agnostic) Variable page should be shown with variable names not truncated, variable labels and a filters panel on the left hand side of the page. Text at the top: "A complete overview of harmonised variables."| | |
 | 4 | Search 'ADHD' in search bar | Variables should be filtered on ADHD variables (14 variables shown); active filters should show 'ADHD' | | |
 | 4a| Remove 'adhd' from the search bar | The list of variables returns to its initial form and no filters are shown above the list | | |
-| 5 | Click on 'Search for options' above the topics on the left hand side | A pop-up with the list of topics is displayed | | |
+| 5 | Expand the Topic tree if necessary and then click on 'Search for options' above the topics on the left hand side | A pop-up with the list of topics is displayed | | |
 | 5a| Type 'Symptoms' in the search field in the pop-up | Four sections of the topic tree with checkboxes are displayed | | |
 | 5b| Open topic 'Symptoms and signs' > 'Symptoms and signs involving cognition, perception, emotional state and behaviour (R40-R46)' > 'Behavioral problem domains' > select 'ADHD symptoms' and then choose Show Results | Variables should be filtered on ADHD variables (10); active filters should show -1 | | |
 | 6 |Click on the name of variable 'testVarRepeats'| Should redirect to variable detailed view; Details should show: 1) description, 2) harmonisation status per repeat per cohort (green fully harmonised, yellow partially harmonised, white no harmonisation), 3) tabs for each cohorts with further details (variables used, syntax) | | |
