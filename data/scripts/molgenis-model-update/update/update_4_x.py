@@ -84,13 +84,10 @@ class Transform:
         self.collection_events()
         self.datasets()
         self.variables()
-        self.repeated_variables()
         self.variable_values()
         self.dataset_mappings()
         self.variable_mappings()
-        # remove selected tables
-        os.remove(self.path + 'Network variables.csv')
-        # os.remove(self.path + 'Models.csv')
+        # self.network_variables()
 
     def collections(self):
         """Transform columns in Cohorts, Networks, Studies, Data sources, Databanks
@@ -177,7 +174,8 @@ class Transform:
                                      'collection event.resource': 'collection event.collection'}, inplace=True)
 
         # select non-repeated variables
-        df_variables = get_non_repeats(df_variables)
+        df_repeats = pd.read_csv(self.path + 'Repeated variables.csv')
+        df_variables = get_non_repeats(df_variables, df_repeats)
 
         # restructure Repeated variables
         df_repeats = pd.read_csv(self.path + 'Repeated variables.csv', keep_default_na=False)
@@ -216,6 +214,17 @@ class Transform:
         df.to_csv(self.path + 'Variable mappings.csv', index=False)
 
 
+def get_lifecycle_non_repeated(df_variables, df_repeats):
+    # select lifecycle variables
+    df_lifecycle = df_variables[df_variables['collection'] == 'LifeCycle']
+
+    # select all non-repeated lifecycle variables
+    df_lifecycle.loc[:, 'is_repeated'] = df_lifecycle['name'].apply(is_repeated, df_repeats=df_repeats)
+    df_lifecycle_no_repeats = df_lifecycle[df_lifecycle['is_repeated'] == False]
+
+    return df_lifecycle_no_repeats
+
+
 def strip_resource(resource_name):
     if not pd.isna(resource_name):
         if '_CDM' in resource_name:  # TODO: handle exception CRC screening CDM under EOSC4Cancer
@@ -224,23 +233,11 @@ def strip_resource(resource_name):
     return resource_name
 
 
-def get_non_repeats(df_variables):
+def get_non_repeats(df_variables, df_repeats):
     # select all non-repeated lifecycle variables
-    df_lifecycle_no_repeats = get_lifecycle_non_repeated(df_variables)
+    df_lifecycle_no_repeats = get_lifecycle_non_repeated(df_variables, df_repeats)
 
     # TODO: select all other non-repeated variables and concatenate to one dataframe
-    return df_lifecycle_no_repeats
-
-
-def get_lifecycle_non_repeated(df_variables):
-    # select lifecycle variables
-    df_lifecycle = df_variables[df_variables['collection'] == 'LifeCycle']
-
-    # select all non-repeated lifecycle variables
-    df_repeats = pd.read_csv('Repeated variables.csv')
-    df_lifecycle.loc[:, 'is_repeated'] = df_lifecycle['name'].apply(is_repeated, df_repeats=df_repeats)
-    df_lifecycle_no_repeats = df_lifecycle[df_lifecycle['is_repeated'] is not True]
-
     return df_lifecycle_no_repeats
 
 
