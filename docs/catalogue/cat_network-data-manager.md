@@ -93,7 +93,7 @@ The network's variables are defined in the *Variables* sheet.
 | mandatory | Whether this variable is required within this collection | |
 | vocabularies<sup>1</sup> | Refer to ontologies being used | Find list to choose from in CatalogueOntologies [Vocabularies](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/Vocabularies) |
 | collection event.resource | Refer to the resource that contains the collection event | e.g. LifeCycle |
-| collection event.name | Refer to a collection event | e.g. y1 or y2 |
+| collection event.name | Refer to a collection event; The collection event needs to be predefined in the Collection events table in the network staging area | e.g. y1 or y2 |
 | since version | Version of the data model when this variable was introduced | e.g. 1.0.0 or 2.1 |
 | until version | Version of the data model when this variable was deleted | e.g. 2.0.0 or 2.1 |
 
@@ -137,7 +137,7 @@ optional.
 | is repeat of.dataset \* | Dataset that contains the variable that is repeated | Datasets must be predefined in the _Datasets_ sheet; e.g. core |
 | is repeat of.name \* | Name of the variable that is repeated | Variables must be predefined in the _Variables_ sheet; e.g. height\_0 |
 | collection event.resource | Refer to the network that contains the collection event | e.g. LifeCycle |
-| collection event.name | Refer to the name of a collection event | The collection event needs to be predefined via online forms, as described above; e.g. y1 or y2 |
+| collection event.name | Refer to a collection event; The collection event needs to be predefined in the Collection events table in the network staging area | e.g. y1 or y2 |
 | since version | Version of the data model when this variable was introduced | e.g. 1.0.0 or 2.1 |
 | until version | Version of the data model when this variable was deleted | e.g. 2.0.0 or 2.1 |
 

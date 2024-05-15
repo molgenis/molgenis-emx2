@@ -1,6 +1,7 @@
 package org.molgenis.emx2.io.emx2;
 
 import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.ColumnType.BOOL;
 import static org.molgenis.emx2.ColumnType.STRING;
 import static org.molgenis.emx2.TableMetadata.table;
 
@@ -12,6 +13,8 @@ public class Emx2 {
 
   public static final String TABLE_NAME = "tableName";
   public static final String COLUMN_NAME = "columnName";
+  public static final String OLD_NAME = "oldName";
+  public static final String DROP = "drop";
   public static final String DESCRIPTION = "description";
   public static final String TABLE_EXTENDS = "tableExtends";
   public static final String COLUMN_TYPE = "columnType";
@@ -66,6 +69,13 @@ public class Emx2 {
               .getTableMetadata(tableName)
               .setTableType(TableType.valueOf(r.getString(TABLE_TYPE)));
         }
+
+        if (r.getString(OLD_NAME) != null) {
+          schema.getTableMetadata(tableName).setOldName(r.getString(OLD_NAME));
+        }
+        if (!r.isNull(DROP, BOOL) && r.getBoolean(DROP)) {
+          schema.getTableMetadata(tableName).drop();
+        }
         if (r.containsName(LABEL)) schema.getTableMetadata(tableName).setLabel(r.getString(LABEL));
         // labels i18n
         r.getColumnNames().stream()
@@ -108,7 +118,7 @@ public class Emx2 {
           if (r.notNull(REF_TABLE)) column.setRefTable(r.getString(REF_TABLE));
           if (r.notNull(REF_LINK)) column.setRefLink(r.getString(REF_LINK));
           if (r.notNull(REF_BACK)) column.setRefBack(r.getString(REF_BACK));
-          if (r.notNull(REQUIRED)) column.setRequired(r.getBoolean(REQUIRED));
+          if (r.notNull(REQUIRED)) column.setRequired(r.getString(REQUIRED));
           if (r.notNull(DEFAULT_VALUE)) column.setDefaultValue(r.getString(DEFAULT_VALUE));
           if (r.notNull(DESCRIPTION)) column.setDescription(r.getString(DESCRIPTION));
           // description i18n
@@ -125,6 +135,8 @@ public class Emx2 {
           if (r.notNull(PROFILES)) column.setProfiles(r.getStringArray(PROFILES));
           if (r.notNull(REF_JS_TEMPLATE)) column.setRefLabel(r.getString(REF_JS_TEMPLATE));
           if (r.notNull(COLUMN_POSITION)) column.setPosition(r.getInteger(COLUMN_POSITION));
+          if (r.notNull(OLD_NAME)) column.setOldName(r.getString(OLD_NAME));
+          if (!r.isNull(DROP, BOOL) && r.getBoolean(DROP)) column.drop();
           else
             column.setPosition(
                 columnPosition++); // this ensures positions accross table hiearchy matches those in
@@ -257,7 +269,7 @@ public class Emx2 {
         row.setString(COLUMN_NAME, c.getName());
         if (!c.getColumnType().equals(STRING))
           row.setString(COLUMN_TYPE, c.getColumnType().toString().toLowerCase());
-        if (c.isRequired()) row.setBool(REQUIRED, c.isRequired());
+        if (c.getRequired() != null) row.setString(REQUIRED, c.getRequired());
         if (c.getDefaultValue() != null) row.setString(DEFAULT_VALUE, c.getDefaultValue());
         if (c.getKey() > 0) row.setInt(KEY, c.getKey());
         if (c.getRefSchemaName() != null && !c.getRefSchemaName().equals(c.getSchemaName()))

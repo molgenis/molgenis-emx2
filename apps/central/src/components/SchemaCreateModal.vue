@@ -130,9 +130,15 @@ export default {
         "DATA_CATALOGUE_COHORT_STAGING",
         "DATA_CATALOGUE_NETWORK_STAGING",
         "RD3",
+        "JRC_COMMON_DATA_ELEMENTS",
+        "FAIR_GENOMES",
+        "DCAT",
+        "BEACON_V2",
         "ERN_DASHBOARD",
-        "ERN_CRANIO",
         "BIOBANK_DIRECTORY",
+        "BIOBANK_DIRECTORY_STAGING",
+        "SHARED_STAGING",
+        "PROJECTMANAGER",
       ],
       includeDemoData: false,
     };
@@ -147,7 +153,7 @@ export default {
   },
   methods: {
     validate(name) {
-      const simpleName = /^[a-zA-Z][a-zA-Z0-9_ ]*$/;
+      const simpleName = /^[a-zA-Z][-a-zA-Z0-9_ ]*$/;
       if (name === null) {
         return undefined;
       }

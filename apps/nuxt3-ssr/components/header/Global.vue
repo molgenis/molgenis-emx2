@@ -20,8 +20,8 @@ const menu = [
   // { label: "Tables", link: "#" },
   // { label: "Manuals", link: "#" },
   config.public.cohortOnly
-    ? undefined
-    : { label: "About", link: `/${schema}/ssr-catalogue/about` },
+    ? { label: "About", link: `/${schema}/ssr-catalogue/all/about` }
+    : undefined,
 ].filter((item) => item !== undefined);
 </script>
 

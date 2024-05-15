@@ -69,10 +69,11 @@
       :id="tableId + '-edit-modal'"
       :tableId="tableId"
       :pkey="editRowPrimaryKey"
-      :visibleColumns="visibleColumns"
+      :visibleColumns="visibleColumnIds"
       :clone="editMode === 'clone'"
       :schemaId="schemaId"
       :defaultValue="defaultValue"
+      :applyDefaultValues="true"
       @close="handleModalClose"
     />
 

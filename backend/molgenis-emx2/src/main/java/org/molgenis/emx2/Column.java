@@ -37,7 +37,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
       null; // column order within the table. During import/export these may change
 
   private int key = 0; // 1 is primary key 2..n is secondary keys
-  private boolean required = false;
+  private String required = null;
   private String validation = null;
   private String visible = null; // javascript expression to influence vibility
   private String computed = null; // javascript expression to compute a value, overrides updates
@@ -249,12 +249,25 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   }
 
   public boolean isRequired() {
-    return required;
+    return required != null && required.equalsIgnoreCase("true");
   }
 
-  public Column setRequired(boolean required) {
+  public Column setRequired(Boolean required) {
+    this.required = required.toString();
+    return this;
+  }
+
+  public Column setRequired(String required) {
     this.required = required;
     return this;
+  }
+
+  public String getRequired() {
+    return this.required;
+  }
+
+  public boolean isConditionallyRequired() {
+    return !isRequired() && getRequired() != null && !"false".equalsIgnoreCase(getRequired());
   }
 
   public Boolean isCascadeDelete() {
@@ -362,6 +375,14 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     return field(name(getName()), getJooqType());
   }
 
+  public List<Field> getCompositeFields() {
+    if (this.isReference()) {
+      return getReferences().stream().map(ref -> ref.getJooqField()).toList();
+    } else {
+      return List.of(getJooqField());
+    }
+  }
+
   public org.jooq.Table getJooqTable() {
     return getTable().getJooqTable();
   }
@@ -400,6 +421,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     return List.of(
         field(name(getName()), SQLDataType.VARCHAR),
         field(name(getName() + "_mimetype"), SQLDataType.VARCHAR),
+        field(name(getName() + "_filename"), SQLDataType.VARCHAR),
         field(name(getName() + "_extension"), SQLDataType.VARCHAR),
         field(name(getName() + "_size"), SQLDataType.INTEGER),
         field(name(getName() + "_contents"), SQLDataType.BINARY));
@@ -648,11 +670,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   }
 
   public String getRootTableName() {
-    TableMetadata table = this.getTable();
-    while (table.getInheritName() != null) {
-      table = table.getInheritedTable();
-    }
-    return table.getTableName();
+    return getTable().getRootTable().getTableName();
   }
 
   @Override

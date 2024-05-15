@@ -42,7 +42,7 @@ export default {
       required: false,
     },
     required: {
-      type: Boolean,
+      type: [Boolean, String],
       default: false,
     },
     readonly: {

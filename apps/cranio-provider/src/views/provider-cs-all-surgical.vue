@@ -2,8 +2,8 @@
   <ProviderDashboard>
     <h2 class="dashboard-h2">Surgical overview for all centers</h2>
     <h3 class="dashboard-h3">Overview of all surgical interventions</h3>
-    <DashboardChartLayout :columns="2" class="dashboard-boxes-width-2-1">
-      <DashboardBox>
+    <DashboardRow :columns="2" class="dashboard-boxes-width-2-1">
+      <DashboardChart>
         <ColumnChart
           chartId="cs-all-surgical-type-of-surgery"
           title="Type of surgery"
@@ -15,10 +15,10 @@
           :yMax="100"
           :columnColorPalette="surgeryTypeColors"
           xAxisLineBreaker=" "
-          :chartHeight="250"
+          :chartHeight="200"
         />
-      </DashboardBox>
-      <DashboardBox>
+      </DashboardChart>
+      <DashboardChart>
         <PieChart2
           chartId="cs-all-surgical-complications"
           :title="surgicalComplicationsTitle"
@@ -32,40 +32,42 @@
           :chartScale="0.9"
           :valuesArePercents="false"
         />
-      </DashboardBox>
-    </DashboardChartLayout>
-    <h2 class="dashboard-h2">Surgical interventions by diagnosis</h2>
-    <DashboardBox class="mb-4">
-      <InputLabel id="diagnosisInput" label="Select a diagnosis" />
-      <select id="diagnosisInput" @change="onDiagnosisInput">
-        <option value="ORPHA:87">Apert syndrome</option>
-        <option value="ORPHA:207">Crouzon syndrome</option>
-        <option value="ORPHA:93262">
-          Crouzon syndrome-acanthosis nigricans syndrome
-        </option>
-        <option value="OSNEW1">ERF-related craniosynostosis syndrome</option>
-        <option value="ORPHA:53271">Muenke syndrome</option>
-        <option value="ORPHA:3366">
-          Non-syndromic metopic craniosynostosis
-        </option>
-        <option value="ORPHA:35093">
-          Non-syndromic sagittal craniosynostosis
-        </option>
-        <option value="ORPHA:620102">
-          Non-syndromic unicoronal craniosynostosis
-        </option>
-        <option value="ORPHA:620113">
-          Non-syndromic unilambdoid craniosynostosis
-        </option>
-        <option value="ORPHA:794">Saethre-Chotzen syndrome</option>
-        <option value="OSNEW5">TCF12-related craniosynostosis</option>
-        <option value="ORPHA:620198">
-          non-syndromic multistural craniosynostosis
-        </option>
-      </select>
-    </DashboardBox>
-    <DashboardChartLayout>
-      <DashboardBox>
+      </DashboardChart>
+    </DashboardRow>
+    <DashboardRow :columns="1">
+      <h2 class="dashboard-h2">Surgical interventions by diagnosis</h2>
+      <DashboardChart>
+        <InputLabel id="diagnosisInput" label="Select a diagnosis" />
+        <select id="diagnosisInput" @change="onDiagnosisInput">
+          <option value="ORPHA:87">Apert syndrome</option>
+          <option value="ORPHA:207">Crouzon syndrome</option>
+          <option value="ORPHA:93262">
+            Crouzon syndrome-acanthosis nigricans syndrome
+          </option>
+          <option value="OSNEW1">ERF-related craniosynostosis syndrome</option>
+          <option value="ORPHA:53271">Muenke syndrome</option>
+          <option value="ORPHA:3366">
+            Non-syndromic metopic craniosynostosis
+          </option>
+          <option value="ORPHA:35093">
+            Non-syndromic sagittal craniosynostosis
+          </option>
+          <option value="ORPHA:620102">
+            Non-syndromic unicoronal craniosynostosis
+          </option>
+          <option value="ORPHA:620113">
+            Non-syndromic unilambdoid craniosynostosis
+          </option>
+          <option value="ORPHA:794">Saethre-Chotzen syndrome</option>
+          <option value="OSNEW5">TCF12-related craniosynostosis</option>
+          <option value="ORPHA:620198">
+            non-syndromic multistural craniosynostosis
+          </option>
+        </select>
+      </DashboardChart>
+    </DashboardRow>
+    <DashboardRow :columns="2">
+      <DashboardChart>
         <PieChart2
           chartId="cs-all-surgical-interventions"
           title="Surgical Interventions"
@@ -79,8 +81,8 @@
           :chartScale="0.9"
           :valuesArePercents="false"
         />
-      </DashboardBox>
-      <DashboardBox>
+      </DashboardChart>
+      <DashboardChart>
         <ColumnChart
           chartId="cd-all-surgical-age-at-surgery"
           title="Age at first surgery"
@@ -96,16 +98,21 @@
           columnFill="#2a8f64"
           columnHoverFill="#ed7b23"
         />
-      </DashboardBox>
-    </DashboardChartLayout>
+      </DashboardChart>
+    </DashboardRow>
   </ProviderDashboard>
 </template>
 
 <script setup>
 import { ref } from "vue";
-import { DashboardBox, PieChart2, ColumnChart, InputLabel } from "molgenis-viz";
+import {
+  DashboardRow,
+  DashboardChart,
+  PieChart2,
+  ColumnChart,
+  InputLabel,
+} from "molgenis-viz";
 import ProviderDashboard from "../components/ProviderDashboard.vue";
-import DashboardChartLayout from "../components/DashboardChartLayout.vue";
 
 // create random datasets for demo purposes
 import { randomInt } from "d3";

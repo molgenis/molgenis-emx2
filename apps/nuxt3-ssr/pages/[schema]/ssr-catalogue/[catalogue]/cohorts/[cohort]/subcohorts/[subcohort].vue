@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Ref } from "vue";
+import dateUtils from "~/utils/dateUtils";
 import subcohortGql from "~~/gql/subcohort";
 const config = useRuntimeConfig();
 const route = useRoute();
@@ -8,9 +8,8 @@ const query = moduleToString(subcohortGql);
 
 let subcohort: Ref = ref();
 const { data: subcohortData } = await useFetch(
-  `/${route.params.schema}/catalogue/graphql`,
+  `/${route.params.schema}/graphql`,
   {
-    baseURL: config.public.apiBase,
     method: "POST",
     body: {
       query,
@@ -36,7 +35,7 @@ const cohortOnly = computed(() => {
 });
 const pageCrumbs: any = {};
 pageCrumbs[
-  cohortOnly ? "home" : route.params.catalogue
+  cohortOnly.value ? "home" : (route.params.catalogue as string)
 ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}`;
 pageCrumbs[
   "Cohorts"
@@ -44,7 +43,7 @@ pageCrumbs[
 
 // @ts-ignore
 pageCrumbs[
-  route.params.cohort
+  route.params.cohort as string
 ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/cohorts/${route.params.cohort}`;
 
 function renderList(
@@ -65,7 +64,7 @@ function renderList(
 }
 
 const toName = (item: any) => item.name;
-const toCommaList = (items: any) => items.join(",");
+
 let tocItems = reactive([{ label: "Details", id: "details" }]);
 
 const items: any = [];
@@ -79,7 +78,7 @@ if (subcohort?.numberOfParticipants) {
 if (subcohort?.inclusionStart || subcohort?.inclusionEnd) {
   items.push({
     label: "Start/end year",
-    content: filters.startEndYear(
+    content: dateUtils.startEndYear(
       subcohort.inclusionStart,
       subcohort.inclusionEnd
     ),
@@ -88,7 +87,7 @@ if (subcohort?.inclusionStart || subcohort?.inclusionEnd) {
 
 if (subcohort?.countries) {
   items.push({
-    label: "Population",
+    label: "Countries",
     content: renderList(
       subcohort.countries.sort((a, b) => b.order - a.order),
       toName
@@ -109,7 +108,7 @@ if (subcohort?.ageGroups?.length) {
 
 let mainMedicalConditionTree = [];
 if (subcohort?.mainMedicalCondition?.length) {
-  mainMedicalConditionTree = buildOntologyTree(subcohort.mainMedicalCondition);
+  mainMedicalConditionTree = buildTree(subcohort.mainMedicalCondition);
   tocItems.push({
     label: "Main medical condition",
     id: "main_medical_condition",
@@ -118,7 +117,7 @@ if (subcohort?.mainMedicalCondition?.length) {
 
 let comorbidityTree = [];
 if (subcohort?.comorbidity?.length) {
-  comorbidityTree = buildOntologyTree(subcohort.comorbidity);
+  comorbidityTree = buildTree(subcohort.comorbidity);
   tocItems.push({ label: "Comorbidity", id: "comorbidity" });
 }
 

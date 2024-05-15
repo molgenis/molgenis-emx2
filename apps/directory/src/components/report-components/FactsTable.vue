@@ -363,7 +363,7 @@ export default {
           next = next[trailPart];
         }
       }
-     return value ?? "Unknown";
+      return value ?? "Unknown";
     },
     hardcopy(value) {
       return JSON.parse(JSON.stringify(value));
@@ -438,12 +438,13 @@ export default {
                 }
               } else {
                 if (collapsedFact[column] !== fact[column]) {
-                  if (isFinite(collapsedFact[column]) && isFinite(fact[column])) {
+                  if (
+                    isFinite(collapsedFact[column]) &&
+                    isFinite(fact[column])
+                  ) {
                     collapsedFact[column] =
                       collapsedFact[column] + fact[column];
-                  }
-                  else if (fact[column] !== "Unknown")
-                  {
+                  } else if (fact[column] !== "Unknown") {
                     collapsedFact[column] = [
                       collapsedFact[column],
                       fact[column],

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { HarmonizationStatus } from "~/interfaces/types";
+import type { HarmonizationStatus } from "~/interfaces/types";
 
 // Note: component similar to HarmonizationStatusIcon.vue but with different due to table cell styling details
 
@@ -43,5 +43,6 @@ const fillClass = computed(() => {
 <template>
   <td class="text-center" :class="tableClass">
     <BaseIcon v-if="iconName" :name="iconName" :class="fillClass" />
+    <span class="sr-only">{{ status }}</span>
   </td>
 </template>

@@ -1,11 +1,13 @@
 package org.molgenis.emx2;
 
 import static org.molgenis.emx2.Constants.MG_DRAFT;
+import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 
 import java.io.File;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 import org.jooq.JSONB;
 import org.molgenis.emx2.utils.TypeUtils;
 
@@ -208,12 +210,14 @@ public class Row {
     if (value == null) {
       // fix: this is needed to also empty all file metadata fields
       this.values.put(name, null);
+      this.values.put(name + "_filename", null);
       this.values.put(name + "_extension", null);
       this.values.put(name + "_mimetype", null);
       this.values.put(name + "_size", null);
       this.values.put(name + "_contents", null);
     } else {
       this.values.put(name, UUID.randomUUID().toString().replace("-", ""));
+      this.values.put(name + "_filename", value.getFileName());
       this.values.put(name + "_extension", value.getExtension());
       this.values.put(name + "_mimetype", value.getMimeType());
       this.values.put(name + "_size", value.getSize());
@@ -362,17 +366,11 @@ public class Row {
   }
 
   public String toString() {
-    StringBuilder builder = new StringBuilder();
-    builder.append("ROW(");
-    for (Map.Entry<String, Object> col : values.entrySet()) {
-      builder
-          .append(col.getKey())
-          .append("='")
-          .append(TypeUtils.toString(col.getValue()))
-          .append("' ");
-    }
-    builder.append(")");
-    return builder.toString();
+    return "ROW("
+        + values.entrySet().stream()
+            .map(col -> col.getKey() + "='" + TypeUtils.toString(col.getValue()) + "'")
+            .collect(Collectors.joining(" "))
+        + ")";
   }
 
   public boolean containsName(String columnName) {
@@ -399,5 +397,19 @@ public class Row {
   public Row setDraft(boolean isDraft) {
     this.values.put(MG_DRAFT, isDraft);
     return this;
+  }
+
+  public String getSchemaName() {
+    if (getString(MG_TABLECLASS) != null) {
+      return getString(MG_TABLECLASS).split("\\.")[0];
+    }
+    return null;
+  }
+
+  public String getTableName() {
+    if (getString(MG_TABLECLASS) != null) {
+      return getString(MG_TABLECLASS).split("\\.")[1];
+    }
+    return null;
   }
 }

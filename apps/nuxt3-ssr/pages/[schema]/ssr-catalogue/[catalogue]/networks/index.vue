@@ -1,122 +1,181 @@
 <script setup lang="ts">
-import type { IFilter } from "~/interfaces/types";
+import type { IFilter, IMgError, activeTabType } from "~/interfaces/types";
 
 const route = useRoute();
 const router = useRouter();
-const config = useRuntimeConfig();
 const pageSize = 10;
 
-useHead({ title: "Networks" });
+const scoped = route.params.catalogue !== "all";
+const catalogue = scoped ? route.params.catalogue : undefined;
 
-const currentPage = ref(1);
-if (route.query?.page) {
+useHead({ title: scoped ? `${catalogue} networks` : "Networks" });
+
+const currentPage = computed(() => {
   const queryPageNumber = Number(route.query?.page);
-  currentPage.value =
-    typeof queryPageNumber === "number" ? Math.round(queryPageNumber) : 1;
-}
-let offset = computed(() => (currentPage.value - 1) * pageSize);
+  return !isNaN(queryPageNumber) && typeof queryPageNumber === "number"
+    ? Math.round(queryPageNumber)
+    : 1;
+});
+const offset = computed(() => (currentPage.value - 1) * pageSize);
 
-let filters: IFilter[] = reactive([
+const pageFilterTemplate: IFilter[] = [
   {
-    title: "Search in networks",
-    columnType: "_SEARCH",
+    id: "search",
+    config: {
+      label: "Search in networks",
+      type: "SEARCH",
+      initialCollapsed: false,
+    },
     search: "",
-    initialCollapsed: false,
   },
   {
-    title: "Countries",
-    refTableId: "Countries",
-    columnId: "countries",
-    columnType: "ONTOLOGY",
-    conditions: [],
-  },
-  {
-    title: "Organisations",
-    columnId: "dataCategories",
-    columnType: "REF_ARRAY",
-    refTableId: "Organisations",
-    refFields: {
-      key: "id",
-      name: "id",
-      description: "name",
+    id: "type",
+    config: {
+      label: "Type",
+      type: "ONTOLOGY",
+      ontologyTableId: "NetworkTypes",
+      ontologySchema: "CatalogueOntologies",
+      columnId: "type",
+      initialCollapsed: false,
     },
     conditions: [],
   },
-  {
-    title: "Topics",
-    refTableId: "AgeGroups",
-    columnId: "ageGroups",
-    columnType: "ONTOLOGY",
-    filterTable: "collectionEvents",
-    conditions: [],
-  },
-]);
+];
 
-let search = computed(() => {
-  // @ts-ignore
-  return filters.find((f) => f.columnType === "_SEARCH").search;
+const filters = computed(() => {
+  // if there are not query conditions just use the page defaults
+  if (!route.query?.conditions) {
+    return [...pageFilterTemplate];
+  }
+
+  // get conditions from query
+  const conditions = conditionsFromPathQuery(route.query.conditions as string);
+  // merge with page defaults
+  const filters = mergeWithPageDefaults(pageFilterTemplate, conditions);
+
+  return filters;
 });
 
-const query = computed(() => {
-  return `
-  query Networks($filter:NetworksFilter, $orderby:Networksorderby){
-    Networks(limit: ${pageSize} offset: ${offset.value} filter:$filter  orderby:$orderby) {
+const cardFields = `id
+    name
+    acronym
+    description
+    logo {
       id
-      name
-      acronym
-      description
-      logo {
-        id
-        size
-        extension
-        url
-      }
+      size
+      extension
+      url
+    }`;
+
+const query = computed(() => {
+  if (scoped) {
+    return `
+query items($catalogueFilter: NetworksFilter, $filter: NetworksFilter $orderby: Networksorderby) {
+  Networks(filter: $catalogueFilter) {
+    id
+    networks(limit: ${pageSize} offset: ${offset.value} orderby:$orderby filter:$filter) {
+      ${cardFields}
     }
-    Networks_agg (filter:$filter){
+    networks_agg(filter:$filter) {
       count
     }
   }
-  `;
+}
+    `;
+  } else {
+    return `
+query items($filter:NetworksFilter, $orderby:Networksorderby){
+  Networks(limit: ${pageSize} offset: ${offset.value} filter:$filter  orderby:$orderby) {
+    ${cardFields}
+  }
+  Networks_agg (filter:$filter){
+    count
+  }
+}
+    `;
+  }
 });
 
 const orderby = { acronym: "ASC" };
 
-//todo, make this filter work for subcatalogu => networks can not yet be networked
-const filter = computed(() => {
-  let result = buildQueryFilter(filters, search.value);
-  if ("all" !== route.params.catalogue) {
-    result._and["networks"] = { id: { equals: route.params.catalogue } };
-  }
-  return result;
+const gqlFilter = computed(() => {
+  return buildQueryFilter(filters.value);
 });
 
-let graphqlURL = computed(() => `/${route.params.schema}/catalogue/graphql`);
-const { data, pending, error, refresh } = await useFetch(graphqlURL.value, {
-  key: `networks-${offset.value}`,
-  baseURL: config.public.apiBase,
-  method: "POST",
-  body: {
-    query,
-    variables: { orderby, filter },
-  },
+const catalogueFilter = scoped ? { id: { equals: catalogue } } : undefined;
+
+const { data } = await useFetch<any, IMgError>(
+  `/${useRoute().params.schema}/graphql`,
+  {
+    method: "POST",
+    body: {
+      query: query,
+      variables: { filter: gqlFilter, orderby, catalogueFilter },
+    },
+    onResponseError(_ctx) {
+      logError({
+        message: "onResponseError fetching data from GraphQL endpoint",
+        statusCode: _ctx.response.status,
+        data: _ctx.response._data,
+      });
+    },
+  }
+);
+
+const numberOfNetworks = computed(() => {
+  return scoped
+    ? data?.value?.data?.Networks[0]?.networks_agg.count
+    : data?.value?.data?.Networks_agg?.count;
+});
+
+const networks = computed(() => {
+  return scoped
+    ? data.value?.data?.Networks[0]?.networks
+    : data.value?.data?.Networks;
 });
 
 function setCurrentPage(pageNumber: number) {
-  router.push({ path: route.path, query: { page: pageNumber } });
-  currentPage.value = pageNumber;
+  router.push({
+    path: route.path,
+    query: { ...route.query, page: pageNumber },
+  });
 }
 
-watch(filters, () => {
-  setCurrentPage(1);
+function onFilterChange(filters: IFilter[]) {
+  const conditions = toPathQueryConditions(filters) || undefined; // undefined is used to remove the query param from the URL;
+
+  router.push({
+    path: route.path,
+    query: { ...route.query, page: 1, conditions: conditions },
+  });
+}
+
+type view = "detailed" | "compact";
+const activeTabName = computed(() => {
+  return (route.query.view as view | undefined) || "detailed";
 });
 
-let activeName = ref("detailed");
+function onActiveTabChange(tabName: activeTabType) {
+  router.push({
+    path: route.path,
+    query: { ...route.query, view: tabName },
+  });
+}
+
+const crumbs: any = {};
+crumbs[
+  route.params.catalogue as string
+] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}`;
 </script>
 
 <template>
   <LayoutsSearchPage>
     <template #side>
-      <FilterSidebar title="Filters" :filters="filters" />
+      <FilterSidebar
+        title="Filters"
+        :filters="filters"
+        @update:filters="onFilterChange"
+      />
     </template>
     <template #main>
       <SearchResults>
@@ -127,6 +186,9 @@ let activeName = ref("detailed");
             description="Collaborations of multiple institutions and/or cohorts with a common objective."
             icon="image-diagram"
           >
+            <template #prefix>
+              <BreadCrumbs :crumbs="crumbs" current="networks" />
+            </template>
             <template #suffix>
               <SearchResultsViewTabs
                 class="hidden xl:flex"
@@ -136,30 +198,38 @@ let activeName = ref("detailed");
                 buttonRightLabel="Compact"
                 buttonRightName="compact"
                 buttonRightIcon="view-compact"
-                v-model:activeName="activeName"
+                :activeName="activeTabName"
+                @update:activeName="onActiveTabChange"
               />
               <SearchResultsViewTabsMobile
                 class="flex xl:hidden"
-                v-model:activeName="activeName"
+                :activeName="activeTabName"
+                @update:activeName="onActiveTabChange"
               >
-                <FilterSidebar title="Filters" :filters="filters" />
+                <FilterSidebar
+                  title="Filters"
+                  :filters="filters"
+                  @update:filters="onFilterChange"
+                  :mobileDisplay="true"
+                />
               </SearchResultsViewTabsMobile>
             </template>
           </PageHeader>
         </template>
 
         <template #search-results>
-          <FilterWell :filters="filters"></FilterWell>
+          <SearchResultsCount :value="numberOfNetworks" label="network" />
+          <FilterWell
+            :filters="filters"
+            @update:filters="onFilterChange"
+          ></FilterWell>
           <SearchResultsList>
-            <CardList v-if="data?.data?.Networks?.length > 0">
-              <CardListItem
-                v-for="network in data?.data?.Networks"
-                :key="network.name"
-              >
+            <CardList v-if="networks?.length > 0">
+              <CardListItem v-for="network in networks" :key="network.name">
                 <NetworkCard
                   :network="network"
-                  :schema="route.params.schema"
-                  :compact="activeName !== 'detailed'"
+                  :schema="route.params.schema as string"
+                  :compact="activeTabName !== 'detailed'"
                 />
               </CardListItem>
             </CardList>
@@ -171,10 +241,10 @@ let activeName = ref("detailed");
           </SearchResultsList>
         </template>
 
-        <template v-if="data?.data?.Networks?.length > 0" #pagination>
+        <template v-if="networks?.length > 0" #pagination>
           <Pagination
             :current-page="currentPage"
-            :totalPages="Math.ceil(data?.data?.Networks_agg.count / pageSize)"
+            :totalPages="Math.ceil(numberOfNetworks / pageSize)"
             @update="setCurrentPage($event)"
           />
         </template>

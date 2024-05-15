@@ -8,12 +8,12 @@
   >
     <div>
       <div>
-        <div v-if="count > maxNum">
+        <div>
           <FilterWell
-            v-for="(item, key) in selection"
-            :key="JSON.stringify(item)"
-            :label="applyJsTemplate(item, refLabel)"
-            @click="deselect(key)"
+            v-for="selectedRow in selection"
+            :key="JSON.stringify(selectedRow)"
+            :label="applyJsTemplate(selectedRow, refLabel)"
+            @click="deselect(selectedRow)"
           />
         </div>
         <ButtonAlt
@@ -32,7 +32,7 @@
       >
         <Spinner v-if="loading" />
         <div
-          v-else
+          v-else-if="data.length"
           class="form-check custom-control custom-checkbox"
           :class="showMultipleColumns ? 'col-12 col-md-6 col-lg-4' : ''"
           v-for="(row, index) in data"
@@ -48,33 +48,37 @@
             class="form-check-input"
             :class="{ 'is-invalid': errorMessage }"
           />
-          <label class="form-check-label" :for="`${id}-${row.primaryKey}`" @click.prevent="toggle(row.primaryKey)">
+          <label
+            class="form-check-label"
+            :for="`${id}-${row.primaryKey}`"
+            @click.prevent="toggle(row.primaryKey)"
+          >
             {{ applyJsTemplate(row, refLabel) }}
           </label>
         </div>
+        <div v-else>No entries found for {{ label }}</div>
       </div>
-      <div v-if="canEdit">
-        <Tooltip value="New entry">
-          <RowButtonAdd
-            id="add-entry"
-            :tableId="tableId"
-            :schemaId="schemaId"
-          />
-        </Tooltip>
-      </div>
-      <div>
-        <ButtonAlt
-          class="pl-0"
+      <div class="m-1">
+        <RowButtonAdd
+          id="add-entry"
+          v-if="canEdit"
+          :label="`Add new ${label}`"
+          :tableId="tableId"
+          :schemaId="schemaId"
+          @update:newRow="selectNew"
+          class="mr-1"
+        />
+        <ButtonOutline
           :class="showMultipleColumns ? 'col-12 col-md-6 col-lg-4' : ''"
           icon="fa fa-search"
           @click="openSelect"
         >
           {{
             count > maxNum
-              ? `show all ${count} options with details`
-              : "more details"
+              ? `Show all ${count} options with details `
+              : "More details "
           }}
-        </ButtonAlt>
+        </ButtonOutline>
       </div>
       <LayoutModal v-if="showSelect" :title="title" @close="closeSelect">
         <template v-slot:body>
@@ -86,9 +90,9 @@
             :showSelect="true"
             :filter="filter"
             :limit="10"
-            @update:selection="$emit('update:modelValue', $event)"
-            @select="emitSelection"
+            @select="select"
             @deselect="deselect"
+            @update:newRow="selectNew"
           />
         </template>
         <template v-slot:footer>
@@ -108,9 +112,14 @@ import LayoutModal from "../layout/LayoutModal.vue";
 import Spinner from "../layout/Spinner.vue";
 import RowButtonAdd from "../tables/RowButtonAdd.vue";
 import TableSearch from "../tables/TableSearch.vue";
+import {
+  applyJsTemplate,
+  convertRowToPrimaryKey,
+  deepClone,
+  deepEqual,
+} from "../utils";
+import ButtonOutline from "./ButtonOutline.vue";
 import FormGroup from "./FormGroup.vue";
-import ButtonAlt from "./ButtonAlt.vue";
-import { convertRowToPrimaryKey, applyJsTemplate } from "../utils";
 import Tooltip from "./Tooltip.vue";
 import BaseInput from "./baseInputs/BaseInput.vue";
 
@@ -121,7 +130,7 @@ export default {
       client: null,
       showSelect: false,
       data: [],
-      selection: this.modelValue,
+      selection: deepClone(this.modelValue),
       count: 0,
       tableMetadata: null,
       loading: false,
@@ -132,7 +141,7 @@ export default {
     TableSearch,
     LayoutModal,
     FormGroup,
-    ButtonAlt,
+    ButtonOutline,
     Spinner,
     RowButtonAdd,
     Tooltip,
@@ -170,13 +179,33 @@ export default {
   },
   methods: {
     applyJsTemplate,
-    deselect(key: any) {
-      this.selection.splice(key, 1);
+    deselect(key: IRow) {
+      this.selection = this.selection.filter(
+        (row: IRow) => !deepEqual(row, key)
+      );
       this.emitSelection();
     },
     clearValue() {
       this.selection = [];
       this.emitSelection();
+    },
+    handleUpdateSelection(newSelection: IRow[]) {
+      this.selection = [...newSelection];
+      this.emitSelection();
+    },
+    select(newRow: IRow) {
+      this.selection = [...this.selection, newRow];
+      this.emitSelection();
+    },
+    async selectNew(newRow: IRow) {
+      const rowKey = await convertRowToPrimaryKey(
+        newRow,
+        this.tableId,
+        this.schemaId
+      );
+      this.selection = [...this.selection, rowKey];
+      this.emitSelection();
+      this.loadOptions();
     },
     emitSelection() {
       this.$emit("update:modelValue", this.selection);
@@ -184,11 +213,13 @@ export default {
     openSelect() {
       this.showSelect = true;
     },
-    toggle(value: any) {
-      if(this.selection?.includes(value)) {
-        this.selection = this.selection.filter(v => v !== value);
+    toggle(value: IRow) {
+      if (this.selection?.includes(value)) {
+        this.selection = this.selection.filter(
+          (selectedValue: IRow) => selectedValue !== value
+        );
       } else {
-        this.selection =[...this.selection,value];
+        this.selection = [...this.selection, value];
       }
       this.emitSelection();
     },
@@ -204,7 +235,7 @@ export default {
         orderby: this.orderby,
       };
       const response = await this.client.fetchTableData(this.tableId, options);
-      this.data = response[this.tableId];
+      this.data = response[this.tableId] || [];
       this.count = response[this.tableId + "_agg"].count;
 
       await Promise.all(
@@ -215,13 +246,17 @@ export default {
             this.schemaId
           );
         })
-      ).then(() => (this.loading = false));
+      )
+        .catch((error) => {
+          console.log(error);
+        })
+        .finally(() => (this.loading = false));
       this.$emit("optionsLoaded", this.data);
     },
   },
   watch: {
     modelValue() {
-      this.selection = this.modelValue;
+      this.selection = deepClone(this.modelValue);
     },
     filter() {
       if (!this.loading) {
@@ -238,7 +273,7 @@ export default {
       this.selection = [];
     }
   },
-  emits: ["optionsLoaded"],
+  emits: ["optionsLoaded", "update:modelValue"],
 };
 </script>
 

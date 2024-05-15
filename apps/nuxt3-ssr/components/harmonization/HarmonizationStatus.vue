@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { HarmonizationStatus } from "~/interfaces/types";
+import type { HarmonizationStatus } from "~/interfaces/types";
 
 const props = defineProps<{
   status: HarmonizationStatus;
@@ -19,6 +19,6 @@ const label = computed(() => {
 
 <template>
   <div class="flex items-center gap-2">
-    <HarmonizationStatusIcon :status="status" /> {{ label }}
+    <HarmonizationStatusIcon :status="status" size="large" /> {{ label }}
   </div>
 </template>

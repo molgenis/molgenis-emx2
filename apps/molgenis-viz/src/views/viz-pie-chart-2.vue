@@ -2,7 +2,7 @@
   <Page>
     <PageHeader
       title="molgenis-viz"
-      subtitle="Pie Chart"
+      subtitle="Pie Chart 2"
       imageSrc="pie-chart-header.jpg"
       height="large"
     />
@@ -18,7 +18,7 @@
       <p>
         After implementing the
         <router-link :to="{ name: 'pie-chart' }">PieChart</router-link>
-        component, in several projects, it was apparent that the first iteration
+        component in several projects, it was apparent that the first iteration
         did not meet the project-specific demands. For example, some projects
         have very long names or they require more than the recommended number of
         categories. To address these issues, the <strong>PieChart2</strong> was

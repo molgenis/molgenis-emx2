@@ -72,8 +72,8 @@ public class MetadataUtils {
       field(name("columnProfiles"), VARCHAR.nullable(true).getArrayType());
   private static final Field<String> COLUMN_TYPE =
       field(name("columnType"), VARCHAR.nullable(false));
-  private static final Field<Boolean> COLUMN_REQUIRED =
-      field(name("required"), BOOLEAN.nullable(false));
+  private static final Field<String> COLUMN_REQUIRED =
+      field(name("required"), VARCHAR.nullable(true));
   private static final Field<String> COLUMN_REF_TABLE =
       field(name("ref_table"), VARCHAR.nullable(true));
   private static final Field<String> COLUMN_REF_SCHEMA =
@@ -520,7 +520,7 @@ public class MetadataUtils {
             Objects.toString(column.getColumnType(), null),
             column.getKey(),
             column.getPosition(),
-            column.isRequired(),
+            column.getRequired(),
             refSchema,
             column.getRefTableName(),
             column.getRefLink(),
@@ -542,7 +542,7 @@ public class MetadataUtils {
         .set(COLUMN_TYPE, Objects.toString(column.getColumnType(), null))
         .set(COLUMN_KEY, column.getKey())
         .set(COLUMN_POSITION, column.getPosition())
-        .set(COLUMN_REQUIRED, column.isRequired())
+        .set(COLUMN_REQUIRED, column.getRequired())
         .set(COLUMN_REF_SCHEMA, refSchema)
         .set(COLUMN_REF_TABLE, column.getRefTableName())
         .set(COLUMN_REF_LINK, column.getRefLink())
@@ -578,7 +578,7 @@ public class MetadataUtils {
     Column c = new Column(col.get(COLUMN_NAME, String.class));
     c.setLabels(col.get(COLUMN_LABEL) != null ? col.get(COLUMN_LABEL, Map.class) : new TreeMap<>());
     c.setType(ColumnType.valueOf(col.get(COLUMN_TYPE, String.class)));
-    c.setRequired(col.get(COLUMN_REQUIRED, Boolean.class));
+    c.setRequired(col.get(COLUMN_REQUIRED, String.class));
     c.setKey(col.get(COLUMN_KEY, Integer.class));
     c.setPosition(col.get(COLUMN_POSITION, Integer.class));
     c.setRefSchemaName(col.get(COLUMN_REF_SCHEMA, String.class));

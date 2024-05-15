@@ -31,7 +31,7 @@ const router = createRouter({
       component: DocumentsPage,
       meta: {
         tile: "Documents",
-        breadcrumbs: [{ name: "documents", label: "Dashboard" }],
+        breadcrumbs: [{ name: "documents", label: "Documents" }],
       },
     },
     {

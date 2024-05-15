@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { DocumentNode } from "graphql";
+import type { DocumentNode } from "graphql";
 
 const props = defineProps<{
   title: string;
@@ -30,12 +30,12 @@ const rows = ref([]);
 const count = ref(0);
 
 async function fetchRows() {
-  const resp = await fetchGql(props.query, {
+  const resp = await fetchGql<any>(props.query, {
     ...props.filter,
     limit: pageSize,
     offset: offset.value,
     orderby,
-  }).catch((e) => console.log(e));
+  });
 
   rows.value = resp.data[props.type]?.map(props.rowMapper);
   count.value = resp.data[`${props.type}_agg`].count;
@@ -144,7 +144,7 @@ function setActiveSideModal(value: string) {
             <!-- pass row id to allow slot implementer to fetch data and render side modal body data -->
             <slot :id="row.id"></slot>
 
-            <template #footer>
+            <template v-if="row._path" #footer>
               <NuxtLink :to="row._path">
                 <Button type="secondary" size="small" label="Detail page" />
               </NuxtLink>

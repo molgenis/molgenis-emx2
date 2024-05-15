@@ -26,7 +26,7 @@ the data, and use VueJS to create your own 'apps'.
 
 ## Quick start
 
-* [Demo server](https://emx2.test.molgenis.org)
+* [Demo server](https://emx2.dev.molgenis.org)
 * [java commandline + postgresql](https://molgenis.github.io/molgenis-emx2/#/molgenis/run_java)
 * [docker compose](https://molgenis.github.io/molgenis-emx2/#/molgenis/run_docker)
 * [using kubernetes](https://molgenis.github.io/molgenis-emx2/#/molgenis/run_helm)

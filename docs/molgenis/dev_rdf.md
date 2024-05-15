@@ -9,8 +9,9 @@ RDF API retrieve data in different scopes ranging from broad (retrieve everythin
 All data is exported as a stream, which means that the response does not include a size estimate.
 Listed below are the available options.
 
-### Retrieve everything
+### Retrieve everything / multiple schemas
 Using `<server>/api/rdf`, all data from this MOLGENIS instance is retrieved and exported as RDF.
+Optionally use 'schemas' parameter to filter what schemas to be included. E.g. `<server>/api/rdf?schemas=foo,bar` will only retrieve from schemas 'foo' and 'bar'
 Of course, this is limited to data to which the currently logged-in user (or anonymous user) has access to.
 
 ### Retrieve one schema
@@ -26,9 +27,9 @@ For example: `<server>/pet%20store/api/rdf/Pet`
 One particular column from a table within a schema can be retrieved by adding a column name to a URL that also contains schema and table name: `<server>/<schema>/api/rdf/<table>/column/<column-name>`.
 For example: `<server>/pet%20store/api/rdf/Pet/column/name`
 
-### Retrieve one row
-One particular row from a table within a schema can be retrieved by adding a row identifier to a URL that also contains schema and table name: `<server>/<schema>/api/rdf/<table>/<row-id>`.
-For example: `<server>/pet%20store/api/rdf/Pet/spike`
+### Filter rows
+The rows from a table within a schema can be filtered based on a column value by adding these as a `key=value` pair to a URL that also contains schema and table name: `<server>/<schema>/api/rdf/<table>?<column-name>=<value>`.
+For example: `<server>/pet%20store/api/rdf/Pet?category=cat`
 
 ## RDF data formats
 Using the content negotiation, RDF can be exported in one of many available formats. For example the following curl command will download the pet store in jsonld:

@@ -31,12 +31,16 @@ public class GraphqlTableFieldFactory {
           .field(GraphQLFieldDefinition.newFieldDefinition().name("size").type(Scalars.GraphQLInt))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
+                  .name("filename")
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
                   .name("extension")
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition().name("url").type(Scalars.GraphQLString))
           .build();
-  final List<String> agg_fields = List.of("max", "min", "sum", "avg");
+  final List<String> agg_fields = List.of("max", "min", SUM_FIELD, "avg");
   private final Schema schema;
 
   // cache so we can reuse types between tables
@@ -251,11 +255,21 @@ public class GraphqlTableFieldFactory {
             tableBuilder.field(
                 GraphQLFieldDefinition.newFieldDefinition()
                     .name(id + "_agg")
-                    .type(createTableAggregationType(col.getRefTable())));
+                    .type(createTableAggregationType(col.getRefTable()))
+                    .argument(
+                        GraphQLArgument.newArgument()
+                            .name(GraphqlConstants.FILTER_ARGUMENT)
+                            .type(getTableFilterInputType(col.getRefTable()))
+                            .build()));
             tableBuilder.field(
                 GraphQLFieldDefinition.newFieldDefinition()
                     .name(id + "_groupBy")
-                    .type(createTableGroupByType(col.getRefTable())));
+                    .type(GraphQLList.list(createTableGroupByType(col.getRefTable())))
+                    .argument(
+                        GraphQLArgument.newArgument()
+                            .name(GraphqlConstants.FILTER_ARGUMENT)
+                            .type(getTableFilterInputType(col.getRefTable()))
+                            .build()));
             break;
           default:
             throw new UnsupportedOperationException(
@@ -282,6 +296,27 @@ public class GraphqlTableFieldFactory {
           GraphQLObjectType.newObject().name(tableGroupByType);
       groupByBuilder.field(
           GraphQLFieldDefinition.newFieldDefinition().name("count").type(Scalars.GraphQLInt));
+      List<Column> aggCols =
+          table.getColumns().stream()
+              .filter(
+                  c ->
+                      ColumnType.INT.equals(c.getColumnType())
+                          || ColumnType.DECIMAL.equals(c.getColumnType())
+                          || ColumnType.LONG.equals(c.getColumnType()))
+              .toList();
+      if (aggCols.size() > 0) {
+        GraphQLObjectType.Builder sumBuilder =
+            GraphQLObjectType.newObject().name(tableGroupByType + "_" + SUM_FIELD);
+        for (Column aggCol : aggCols) {
+          sumBuilder.field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(aggCol.getIdentifier())
+                  .type(graphQLTypeOf(aggCol)));
+        }
+        groupByBuilder.field(
+            GraphQLFieldDefinition.newFieldDefinition().name(SUM_FIELD).type(sumBuilder.build()));
+      }
+
       for (Column column : table.getColumns()) {
         // for now only 'ref' types. We might want to have truncating actions for the other types.
         if (column.isReference() && (hasViewPermission(table) || column.isOntology())) {
@@ -349,7 +384,6 @@ public class GraphqlTableFieldFactory {
               .field(GraphQLFieldDefinition.newFieldDefinition().name(SUM_FIELD).type(sum));
         }
       }
-
       tableAggTypes.put(tableAggregationType, builder.build());
     }
     return tableAggTypes.get(tableAggregationType);
@@ -497,7 +531,7 @@ public class GraphqlTableFieldFactory {
           subFilters.add(
               or(
                   ((List<Map<String, Object>>) entry.getValue())
-                      .stream().map(v -> createKeyFilter(v)).collect(Collectors.toList())));
+                      .stream().map(v -> createKeyFilter(table, v)).collect(Collectors.toList())));
         }
       } else {
         // find column by escaped name
@@ -532,13 +566,24 @@ public class GraphqlTableFieldFactory {
     return subFilters.toArray(new FilterBean[subFilters.size()]);
   }
 
-  private static Filter createKeyFilter(Map<String, Object> map) {
+  private static Filter createKeyFilter(TableMetadata table, Map<String, Object> map) {
+    Objects.requireNonNull(table);
+    Objects.requireNonNull(map);
     List<Filter> result = new ArrayList<>();
     for (Map.Entry<String, Object> entry : map.entrySet()) {
+      Optional<Column> column = findColumnById(table, entry.getKey());
+      if (column.isEmpty()) {
+        throw new MolgenisException(
+            "Filter " + entry.getKey() + " unknown in table " + table.getIdentifier());
+      }
       if (entry.getValue() instanceof Map) {
-        result.add(f(entry.getKey(), createKeyFilter((Map<String, Object>) entry.getValue())));
+        result.add(
+            f(
+                column.get().getName(),
+                createKeyFilter(
+                    column.get().getRefTable(), (Map<String, Object>) entry.getValue())));
       } else {
-        result.add(f(entry.getKey(), Operator.EQUALS, entry.getValue()));
+        result.add(f(column.get().getName(), Operator.EQUALS, entry.getValue()));
       }
     }
     return and(result);
@@ -615,7 +660,7 @@ public class GraphqlTableFieldFactory {
     return result.toArray(new SelectColumn[result.size()]);
   }
 
-  private Optional<Column> findColumnById(TableMetadata aTable, String id) {
+  private static Optional<Column> findColumnById(TableMetadata aTable, String id) {
     if (aTable != null) {
       return aTable.getColumns().stream()
           .filter(

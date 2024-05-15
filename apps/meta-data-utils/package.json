@@ -18,14 +18,16 @@
   "scripts": {
     "dev": "vite",
     "test": "vitest",
+    "test-ci": "vitest run",
     "build": "vite build",
     "preview": "vite preview",
-    "format": "prettier src test --write --config ../.prettierrc.js"
+    "format": "prettier src test --write --config ../.prettierrc.js",
+    "checkFormat": "prettier src  --check --config ../.prettierrc.js"
   },
   "devDependencies": {
     "prettier": "2.8.8",
-    "vite": "4.4.5",
-    "vite-plugin-dts": "3.6.3",
+    "vite": "4.5.3",
+    "vite-plugin-dts": "3.6.4",
     "vitest": "0.34.6"
   }
 }

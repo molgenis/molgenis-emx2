@@ -11,20 +11,20 @@
     "updownload",
     "pages",
     "graphql-playground",
+    "tailwind-components",
     "nuxt3-ssr",
     "molgenis-components",
     "molgenis-viz",
     "cranio-public",
     "cranio-provider",
-    "ern-reconnet",
+    "ern-genturis",
     "ern-ithaca",
+    "ern-reconnet",
+    "ern-skin",
     "helloworld",
     "reports",
     "tasks",
-    "gportal"
-  ],
-  "devDependencies": {
-    "nx": "16.10.0",
-    "nx-cloud": "latest"
-  }
+    "gportal",
+    "projectmanager"
+  ]
 }

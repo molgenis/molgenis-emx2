@@ -57,7 +57,7 @@
         <strong>Gauge Charts</strong> can be useful, but it is better to
         simplify the display visualisation. The
         <strong>ProgressMeter</strong> is a better way to display how much
-        progress has been made. The outline shows the total possible value, and
+        progress has been made. The outline shows the total possible value and
         the filled in region shows how much progress has been made.
       </p>
       <ProgressMeter

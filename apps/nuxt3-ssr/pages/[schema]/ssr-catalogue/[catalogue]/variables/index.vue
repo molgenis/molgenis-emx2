@@ -1,36 +1,49 @@
 <script setup lang="ts">
-import type { IFilter } from "~/interfaces/types";
+import type {
+  IFilter,
+  IMgError,
+  IFilterCondition,
+  IRefArrayFilter,
+} from "~/interfaces/types";
+import mappingsFragment from "~~/gql/fragments/mappings";
+import type { INode } from "../../../../../../tailwind-components/types/types";
 
 const route = useRoute();
 const router = useRouter();
-const config = useRuntimeConfig();
 const pageSize = 30;
 
-useHead({ title: "Variables" });
+const titlePrefix =
+  route.params.catalogue === "all" ? "" : route.params.catalogue + " ";
+useHead({ title: titlePrefix + "Variables" });
 
 type view = "list" | "harmonization";
 
-const currentPage = ref(1);
-const activeName = ref((route.query.view as view | undefined) || "list");
+const scoped = route.params.catalogue !== "all";
+const catalogueRouteParam = route.params.catalogue as string;
 
-watch([currentPage, activeName], () => {
-  router.push({
-    path: route.path,
-    query: { page: currentPage.value, view: activeName.value },
-  });
+const activeName = computed(() => {
+  return (route.query.view as view | undefined) || "list";
+});
+const currentPage = computed(() => {
+  const queryPageNumber = Number(route?.query?.page);
+  return Number.isNaN(queryPageNumber) ? 1 : Math.round(queryPageNumber);
 });
 
+function onViewChange(view: view) {
+  router.push({
+    path: route.path,
+    query: { ...route.query, view },
+  });
+}
+
 function setCurrentPage(pageNumber: number) {
-  currentPage.value = pageNumber;
+  router.push({
+    path: route.path,
+    query: { ...route.query, page: pageNumber },
+  });
 }
 
-if (route.query?.page) {
-  const queryPageNumber = Number(route.query?.page);
-  currentPage.value =
-    typeof queryPageNumber === "number" ? Math.round(queryPageNumber) : 1;
-}
-
-let pageIcon = computed(() => {
+const pageIcon = computed(() => {
   switch (activeName.value) {
     case "list":
       return "image-diagram-2";
@@ -39,45 +52,125 @@ let pageIcon = computed(() => {
   }
 });
 
-let offset = computed(() => (currentPage.value - 1) * pageSize);
+const offset = computed(() => (currentPage.value - 1) * pageSize);
 
-let filters: IFilter[] = reactive([
+const pageFilterTemplate: IFilter[] = [
   {
-    title: "Search in variables",
-    columnType: "_SEARCH",
+    id: "search",
+    config: {
+      label: "Search in variables",
+      type: "SEARCH",
+      initialCollapsed: false,
+    },
     search: "",
-    initialCollapsed: false,
   },
   {
-    title: "Topics",
-    refTableId: "Keywords",
-    columnId: "keywords",
-    columnType: "ONTOLOGY",
+    id: "topics",
+    config: {
+      label: "Topics",
+      type: "ONTOLOGY",
+      ontologyTableId: "Keywords",
+      ontologySchema: "CatalogueOntologies",
+      columnId: "keywords",
+      initialCollapsed: true,
+    },
     conditions: [],
-    initialCollapsed: false,
   },
-]);
+  {
+    id: "cohorts",
+    config: {
+      label: "Cohorts",
+      type: "REF_ARRAY",
+      refTableId: "Cohorts",
+      buildFilterFunction: (
+        filterBuilder: Record<string, Record<string, any>>,
+        conditions: IFilterCondition[]
+      ) => {
+        return {
+          ...filterBuilder,
+          ...{
+            _or: [
+              {
+                mappings: {
+                  source: { equals: conditions.map((c) => ({ id: c.name })) },
+                  match: { name: { equals: ["complete", "partial"] } },
+                },
+              },
+              {
+                repeats: {
+                  mappings: {
+                    source: { equals: conditions.map((c) => ({ id: c.name })) },
+                    match: { name: { equals: ["complete", "partial"] } },
+                  },
+                },
+              },
+            ],
+          },
+        };
+      },
+      refFields: {
+        name: "id",
+        description: "name",
+      },
+    },
+    options: fetchCohortOptions,
+    conditions: [],
+  },
+];
 
-let search = computed(() => {
-  // @ts-ignore
-  return filters.find((f) => f.columnType === "_SEARCH").search;
+async function fetchCohortOptions(): Promise<INode[]> {
+  const { data, error } = await $fetch(`/${route.params.schema}/graphql`, {
+    method: "POST",
+    body: {
+      query: `
+            query CohortsOptions($cohortsFilter: CohortsFilter) {
+              Cohorts(filter: $cohortsFilter, orderby: { id: ASC }) {
+                id
+                name
+              }
+            }
+          `,
+      variables: scoped
+        ? {
+            cohortsFilter: {
+              networks: { equals: [{ id: catalogueRouteParam }] },
+            },
+          }
+        : undefined,
+    },
+  });
+
+  return data.Cohorts.map((option: { id: string; name?: string }) => {
+    return {
+      name: option.id,
+      description: option.name,
+    } as INode;
+  });
+}
+
+const filters = computed(() => {
+  // if there are not query conditions just use the page defaults
+  if (!route.query?.conditions) {
+    return [...pageFilterTemplate];
+  }
+
+  // get conditions from query
+  const conditions = conditionsFromPathQuery(route.query.conditions as string);
+  // merge with page defaults
+  const filters = mergeWithPageDefaults(pageFilterTemplate, conditions);
+
+  return filters;
 });
-
-const modelFilter =
-  route.params.catalogue === "all"
-    ? {}
-    : { id: { equals: route.params.catalogue } };
-const modelQuery = `
-  query Networks($filter:NetworksFilter) {
-    Networks(filter:$filter){models{id}}
-  }`;
-
-const models = await fetchGql(modelQuery, { filter: modelFilter });
 
 const query = computed(() => {
   return `
-  query Variables($filter:VariablesFilter, $orderby:Variablesorderby){
-    Variables(limit: ${pageSize} offset: ${offset.value} filter:$filter  orderby:$orderby) {
+  query VariablesPage(
+    $variablesFilter:VariablesFilter,
+    $cohortsFilter:CohortsFilter,
+  ){
+    Variables(limit: ${pageSize} offset: ${
+    offset.value
+  } filter:$variablesFilter  orderby: { name: ASC }) {
       name
       resource {
         id
@@ -90,92 +183,136 @@ const query = computed(() => {
       }
       label
       description
-      mappings {
-        sourceDataset {
-          resource {
-            id
-          }
-          name
-        }
-        targetVariable {
-          dataset {
-            resource {
-              id
-            }
-            name
-          }
-          name
-        }
-        match {
-          name
-        }
-      }
+      mappings ${moduleToString(mappingsFragment)}
       repeats {
         name
-        mappings {
-          match {
-            name
-          }
-          source {
-            id
-          }
-          sourceVariables {
-            name
-          }
-          sourceDataset {
-            resource {
-              id
-            }
-            name
-          }
-        }
+        mappings ${moduleToString(mappingsFragment)}
       }
     }
-    Cohorts(orderby: { id: ASC }) {
+    Cohorts(filter: $cohortsFilter, orderby: { id: ASC }) {
       id
       networks {
         id
       }
     }
-    Variables_agg (filter:$filter){
+    Variables_agg (filter:$variablesFilter){
       count
     }
   }
   `;
 });
 
-let graphqlURL = computed(() => `/${route.params.schema}/catalogue/graphql`);
+const numberOfVariables = computed(
+  () => data?.value.data?.Variables_agg.count || 0
+);
 
-const orderby = { label: "ASC" };
-const typeFilter = { resource: { mg_tableclass: { like: ["Models"] } } };
+const graphqlURL = computed(() => `/${route.params.schema}/graphql`);
 
 const filter = computed(() => {
-  let result = {
-    ...buildQueryFilter(filters, search.value),
-    ...typeFilter,
+  return buildQueryFilter(filters.value);
+});
+
+const cachedScopedResouceFilter = ref();
+
+async function buildScopedModelFilter() {
+  if (cachedScopedResouceFilter.value) {
+    return cachedScopedResouceFilter.value;
+  }
+  const { data, error } = await $fetch(`/${route.params.schema}/graphql`, {
+    method: "POST",
+    body: {
+      query: `
+            query Networks($filter:NetworksFilter) {
+              Networks(filter:$filter){
+                 models {
+                  id
+                 }
+              }
+            }`,
+      variables: { filter: { id: { equals: catalogueRouteParam } } },
+    },
+  });
+
+  if (error) {
+    console.log("models error: ", error);
+    return { error };
+  }
+
+  const modelIds = data.Networks[0].models.map((m: { id: string }) => m.id);
+
+  const scopedResourceFilter = {
+    resource: {
+      mg_tableclass: { like: ["Models"] },
+      id: {
+        equals: modelIds,
+      },
+    },
   };
-  if ("all" !== route.params.catalogue) {
-    result["resource"]["id"] = {
-      equals: models.data.Networks[0].models.map((m) => m.id),
+
+  cachedScopedResouceFilter.value = scopedResourceFilter;
+
+  return scopedResourceFilter;
+}
+
+const fetchData = async () => {
+  let cohortsFilter: any = {};
+  if (scoped) {
+    cohortsFilter.networks = { equals: [{ id: catalogueRouteParam }] };
+  }
+
+  // add 'special' filter for harmonization x-axis if 'cohorts' filter is set
+  const cohortConditions = (
+    pageFilterTemplate.find((f) => f.id === "cohorts") as IRefArrayFilter
+  )?.conditions;
+  if (cohortConditions.length) {
+    cohortsFilter = {
+      ...cohortsFilter,
+      equals: cohortConditions.map((c) => ({ id: c.name })),
     };
   }
 
-  return result;
-});
+  const variables = scoped
+    ? {
+        variablesFilter: {
+          ...filter.value,
+          ...(await buildScopedModelFilter()),
+        },
+        cohortsFilter,
+      }
+    : {
+        variablesFilter: {
+          ...filter.value,
+          resource: { mg_tableclass: { like: ["Models"] } },
+        },
+        cohortsFilter,
+      };
 
-const { data, pending, error, refresh } = await useFetch(graphqlURL.value, {
-  key: `variables-${offset.value}`,
-  baseURL: config.public.apiBase,
-  method: "POST",
-  body: {
-    query,
-    variables: { orderby, filter },
-  },
-});
+  return $fetch(graphqlURL.value, {
+    key: `variables-${offset.value}`,
+    method: "POST",
+    body: {
+      query: query.value,
+      variables,
+    },
+  });
+};
 
-watch(filters, () => {
-  setCurrentPage(1);
-});
+// We need to use the useAsyncData hook to fetch the data because sadly multiple backendend calls need to be synchronized to create the final query
+// todo: update datamodel to allow for single fetch from single indexed table
+const { data, error, pending } = await useAsyncData<any, IMgError>(
+  `variables-page-${catalogueRouteParam}-${route.query}`,
+  fetchData,
+  { watch: [computed(() => route.query.conditions), offset] }
+);
+
+function onFilterChange(filters: IFilter[]) {
+  const conditions = toPathQueryConditions(filters) || undefined; // undefined is used to remove the query param from the URL;
+
+  router.push({
+    path: route.path,
+    query: { ...route.query, page: 1, conditions: conditions },
+  });
+}
 
 let crumbs: any = {};
 crumbs[
@@ -186,7 +323,11 @@ crumbs[
 <template>
   <LayoutsSearchPage>
     <template #side>
-      <FilterSidebar title="Filters" :filters="filters" />
+      <FilterSidebar
+        title="Filters"
+        :filters="filters"
+        @update:filters="onFilterChange"
+      />
     </template>
     <template #main>
       <SearchResults>
@@ -194,7 +335,7 @@ crumbs[
           <!-- <NavigationIconsMobile :link="" /> -->
           <PageHeader
             title="Variables"
-            description="A complete overview of available variables."
+            description="A complete overview of harmonised variables"
             :icon="pageIcon"
           >
             <template #prefix>
@@ -209,21 +350,46 @@ crumbs[
                 buttonRightLabel="Harmonizations"
                 buttonRightName="harmonization"
                 buttonRightIcon="view-table"
-                v-model:activeName="activeName"
+                :activeName="activeName"
+                @update:activeName="onViewChange"
               />
               <SearchResultsViewTabsMobile
                 class="flex xl:hidden"
-                v-model:activeName="activeName"
+                :activeName="activeName"
+                @update:activeName="onViewChange"
               >
-                <FilterSidebar title="Filters" :filters="filters" />
+                <FilterSidebar
+                  title="Filters"
+                  :filters="filters"
+                  @update:filters="onFilterChange"
+                  :mobileDisplay="true"
+                />
               </SearchResultsViewTabsMobile>
             </template>
           </PageHeader>
         </template>
 
         <template #search-results>
-          <FilterWell :filters="filters"></FilterWell>
-          <SearchResultsList>
+          <div class="flex align-start gap-1">
+            <SearchResultsCount :value="numberOfVariables" label="variable" />
+            <div
+              v-if="pending"
+              class="mt-2 mb-0 lg:mb-3 text-body-lg flex flex-col text-title"
+            >
+              <BaseIcon name="progress-activity" class="animate-spin" />
+            </div>
+          </div>
+          <FilterWell
+            class="transition-opacity duration-700 ease-in opacity-100"
+            :class="{ 'opacity-25 ease-out': pending }"
+            :filters="filters"
+            @update:filters="onFilterChange"
+          ></FilterWell>
+
+          <SearchResultsList
+            class="transition-opacity duration-700 ease-in opacity-100"
+            :class="{ 'opacity-25 ease-out': pending }"
+          >
             <div
               v-if="data?.data?.Variables_agg.count === 0"
               class="flex justify-center pt-3"
@@ -239,8 +405,8 @@ crumbs[
               >
                 <VariableCard
                   :variable="variable"
-                  :schema="route.params.schema"
-                  :catalogue="route.params.catalogue"
+                  :schema="route.params.schema as string"
+                  :catalogue="route.params.catalogue as string"
                 />
               </CardListItem>
             </CardList>

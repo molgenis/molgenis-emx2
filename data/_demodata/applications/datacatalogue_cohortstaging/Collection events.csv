@@ -1,0 +1,13 @@
+resource,name,description,subcohorts,start year,start month,end year,end month,age groups,number of participants,areas of information,data categories,sample categories,standardized tools,standardized tools other,core variables,supplementary information
+testCohort,birth,data collected at time fo birth,"newborns,infants",2005,April,2007,May,Infant (0-23 months),1000,"Laboratory measures,Nutrition,Hematology,Biochemistry,Microbiology,Virology,Immunology,Toxicology,Histology,Genomics,Other laboratory measures","Biological samples,National registries,Genomics,Transcriptomics","Amniotic fluid,Follicular Fluid",Quality of Life scale,other,,
+testCohort,baseline,baseline measurements,"newborns,infants,mothers,pregnant women",,,,,Infant (0-23 months),,,,,,,,
+testCohort,second trimester,mother's data collected during second trimester,pregnant women,,,,,Adult (18+ years),,,,,,,,
+testCohort,5 months,child's data collected between 5-6 months of age,infants,,,,,Infant (0-23 months),,,,,,,,
+testCohort,first trimester,mother's data collected during first trimester,pregnant women,,,,,Adult (18+ years),,,,,,,,
+testCohort,1 months,child's data collected between 1-2 months of age,infants,,,,,Infant (0-23 months),,,,,,,,
+testCohort,third trimester,mother's data collected during third trimester,pregnant women,,,,,Adult (18+ years),,,,,,,,
+testCohort,0 months,child's data collected between 0-1 months of age,newborns,,,,,Infant (0-23 months),,,,,,,,
+testCohort,baseline mother,mother's baseline data,mothers,,,,,Adult (18+ years),,,,,,,,
+testCohort,3 months,child's data collected between 3-4 months of age,infants,,,,,Infant (0-23 months),,,,,,,,
+testCohort,2 months,child's data collected between 2-3 months of age,infants,,,,,Infant (0-23 months),,,,,,,,
+testCohort,4 months,child's data collected between 4-5 months of age,infants,,,,,Infant (0-23 months),,,,,,,,

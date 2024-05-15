@@ -54,7 +54,10 @@
                 />
               </div>
               <!-- Right side card -->
-              <collection-report-info-card :info="info" />
+              <collection-report-info-card
+                :info="info"
+                :collection="collection"
+              />
             </div>
             <!-- facts data -->
             <div class="row" v-if="facts && facts.length > 0">
@@ -67,9 +70,8 @@
   </div>
 </template>
 
-<!-- eslint-disable no-useless-escape -->
 <script setup>
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import { Breadcrumb, Spinner } from "../../../molgenis-components";
 import CheckOut from "../components/checkout-components/CheckOut.vue";
@@ -93,18 +95,10 @@ const route = useRoute();
 
 let loaded = ref(false);
 
-const collectionsPromise = collectionStore
-  .getCollectionReport(route.params.id)
-  .then((result) => {
-    collection.value = result.Collections.length ? result.Collections[0] : {};
-    facts.value =
-      result.CollectionFacts && result.CollectionFacts.length
-        ? result.CollectionFacts
-        : {};
-  });
-const qualitiesPromise = qualitiesStore.getQualityStandardInformation();
-Promise.all([qualitiesPromise, collectionsPromise]).then(() => {
-  loaded.value = true;
+loadCollectionReport(route.params.id);
+
+watch(route, async (route) => {
+  loadCollectionReport(route.params.id);
 });
 
 const uiText = computed(() => {
@@ -125,6 +119,23 @@ const bioschemasJsonld = computed(() => {
     return undefined;
   }
 });
+
+function loadCollectionReport(id) {
+  loaded.value = false;
+  const collectionsPromise = collectionStore
+    .getCollectionReport(id)
+    .then((result) => {
+      collection.value = result.Collections.length ? result.Collections[0] : {};
+      facts.value =
+        result.CollectionFacts && result.CollectionFacts.length
+          ? result.CollectionFacts
+          : {};
+    });
+  const qualitiesPromise = qualitiesStore.getQualityStandardInformation();
+  Promise.all([qualitiesPromise, collectionsPromise]).then(() => {
+    loaded.value = true;
+  });
+}
 
 function wrapBioschema(schemaData) {
   /** ignore because it is not useless ;) */

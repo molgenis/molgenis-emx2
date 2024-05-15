@@ -21,7 +21,7 @@ public class SqlSchema implements Schema {
   @Override
   public SqlTable getTable(String name) {
     SqlTableMetadata tableMetadata = getMetadata().getTableMetadata(name);
-    if (tableMetadata == null) return null;
+    if (tableMetadata == null) return getTableById(name);
     if (tableMetadata.exists()) {
       return new SqlTable(db, tableMetadata, db.getTableListener(getName(), name));
     } else return null;
@@ -418,10 +418,10 @@ public class SqlSchema implements Schema {
   }
 
   @Override
-  public Table getTableById(String id) {
+  public SqlTable getTableById(String id) {
     Optional<Table> table =
         getTablesSorted().stream().filter(t -> t.getIdentifier().equals(id)).findFirst();
-    if (table.isPresent()) return table.get();
+    if (table.isPresent()) return (SqlTable) table.get();
     else return null;
   }
 

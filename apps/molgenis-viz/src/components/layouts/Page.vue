@@ -1,8 +1,8 @@
 <template>
-  <main class="app-page">
+  <div class="app-page">
     <!-- Main app content -->
     <slot></slot>
-  </main>
+  </div>
 </template>
 
 <script>
@@ -21,6 +21,5 @@ export default {
 .app-page {
   font-size: 15pt;
   color: $gray-700;
-  min-height: 100vh;
 }
 </style>

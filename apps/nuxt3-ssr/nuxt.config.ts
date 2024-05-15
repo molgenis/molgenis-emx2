@@ -1,37 +1,28 @@
 // https://v3.nuxtjs.org/api/configuration/nuxt.config
-import { defineNuxtConfig, type NuxtConfig } from "nuxt/config";
+import { defineNuxtConfig } from "nuxt/config";
 
-const devProxy = {
-  options: {
-    target: process.env.PROXY_TARGET || "https://emx2.dev.molgenis.org/", // 'http://localhost:8080/',
-    pathFilter: ["**/*/graphql", "**/api/file/**", "**/api/message/**"],
-    changeOrigin: true,
-    secure: false,
-    logLevel: "debug",
-  },
-};
-
-const config: NuxtConfig = {
-  modules: ["nuxt-proxy", "@nuxt/image"],
+export default defineNuxtConfig({
+  modules: ["@nuxt/image"],
   devtools: { enabled: true },
+  extends: ["../tailwind-components"],
+  tailwindcss: {
+    cssPath: '../tailwind-components/assets/css/main.css',
+    configPath: '../tailwind-components/tailwind.config.js'
+  },
   runtimeConfig: {
-    // Keys within public, will be also exposed to the client-side
     public: {
-      apiBase: "http://localhost:3000/", //'https://emx2.molgeniscloud.org/',
       emx2Theme: "",
       emx2Logo: "",
-      siteTitle: "Data Catalogue",
+      siteTitle: "MOLGENIS",
       analyticsKey: "",
       cohortOnly: false,
+      apiBase: process.env.NUXT_PUBLIC_API_BASE || "https://data-catalogue-acc.molgeniscloud.org/",
     },
   },
-  nitro: {
-    compressPublicAssets: { brotli: true },
+  imports: {
+    transform: {
+      // exclude
+      exclude: [/\bmeta-data-utils\b/],
+    },
   },
-};
-
-if (process.env.NODE_ENV === "development") {
-  config.proxy = devProxy;
-}
-
-export default defineNuxtConfig(config);
+});

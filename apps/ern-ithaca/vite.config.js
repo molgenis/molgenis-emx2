@@ -1,7 +1,7 @@
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 
-const host = "https://ithaca-emx2test.molgeniscloud.org/";
+const host = "https://beta-ernithaca.molgeniscloud.org/";
 const schema = "ErnStats";
 const opts = { changeOrigin: true, secure: false, logLevel: "debug" };
 

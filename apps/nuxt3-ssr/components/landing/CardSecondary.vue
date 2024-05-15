@@ -2,7 +2,7 @@
 defineProps<{
   icon: string;
   count?: number | string;
-  title: string;
+  title?: string;
   link?: string;
 }>();
 </script>

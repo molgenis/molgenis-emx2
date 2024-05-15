@@ -7,6 +7,8 @@ import {
   getSaveDisabledMessage,
   removeKeyColumns,
   splitColumnIdsByHeadings,
+  isMissingValue,
+  isRequired,
 } from "./formUtils";
 import type { ITableMetaData, IColumn } from "meta-data-utils";
 const { AUTO_ID, HEADING } = constants;
@@ -38,7 +40,7 @@ describe("getRowErrors", () => {
           id: "required",
           label: "required",
           columnType: "STRING",
-          required: true,
+          required: "true",
         },
       ],
     } as ITableMetaData;
@@ -54,12 +56,68 @@ describe("getRowErrors", () => {
           id: "required",
           label: "required",
           columnType: "DECIMAL",
-          required: true,
+          required: "true",
         },
       ],
     } as ITableMetaData;
     const result = getRowErrors(metaData, rowData);
     expect(result).to.deep.equal({ required: "required is required" });
+  });
+
+  test("it should give an error if a field is conditionally required on another field", () => {
+    const rowData = {
+      status: null,
+      quantity: 6,
+    };
+    const metaData = {
+      columns: [
+        {
+          id: "status",
+          label: "status",
+          columnType: "STRING",
+          required: "if(quantity>5) 'if quantity > 5 required'",
+        },
+        {
+          id: "quantity",
+          label: "quantity",
+          columnType: "DECIMAL",
+          required: "true",
+        },
+      ],
+    } as ITableMetaData;
+    const result = getRowErrors(metaData, rowData);
+    expect(result).to.deep.equal({
+      quantity: undefined,
+      status: "if quantity > 5 required",
+    });
+  });
+
+  test("it should return undefined if a field is conditionally required on another field and provided", () => {
+    const rowData = {
+      status: "RECEIVED",
+      quantity: 6,
+    };
+    const metaData = {
+      columns: [
+        {
+          id: "status",
+          label: "status",
+          columnType: "STRING",
+          required: "if(quantity>5) 'if quantity > 5 required'",
+        },
+        {
+          id: "quantity",
+          label: "quantity",
+          columnType: "DECIMAL",
+          required: "true",
+        },
+      ],
+    } as ITableMetaData;
+    const result = getRowErrors(metaData, rowData);
+    expect(result).to.deep.equal({
+      quantity: undefined,
+      status: undefined,
+    });
   });
 
   test("it should return undefined it has no value and isn't required", () => {
@@ -337,5 +395,47 @@ describe("getSaveDisabledMessage", () => {
     const rowErrors = { id1: "some error", id2: "another error" };
     const result = getSaveDisabledMessage(rowErrors);
     expect(result).to.equal("There are 2 error(s) preventing saving");
+  });
+});
+
+describe("isMissingValue", () => {
+  test("should return true if variable is considered to be missing", () => {
+    expect(isMissingValue(undefined)).toBe(true);
+    expect(isMissingValue(null)).toBe(true);
+    expect(isMissingValue("")).toBe(true);
+  });
+
+  test("should return false if variable is considered not to be missing", () => {
+    expect(isMissingValue(0)).toBe(false);
+    expect(isMissingValue(false)).toBe(false);
+    expect(isMissingValue("field1")).toBe(false);
+  });
+
+  test("should handle (nested) arrays correctly", () => {
+    expect(isMissingValue([0])).toBe(false);
+    expect(isMissingValue([1, 2, 3])).toBe(false);
+    expect(isMissingValue([null, "field1", ""])).toBe(true);
+    expect(isMissingValue([["field1", "field2"], "field3"])).toBe(false);
+    expect(isMissingValue([[undefined, "field1"], "field2"])).toBe(true);
+  });
+});
+
+describe("isRequired", () => {
+  test("should return true for boolean type true and true strings", () => {
+    expect(isRequired(true)).toBe(true);
+    expect(isRequired("true")).toBe(true);
+    expect(isRequired("True")).toBe(true);
+    expect(isRequired("TRUE")).toBe(true);
+  });
+
+  test("should return false for boolean type false and true strings", () => {
+    expect(isRequired(false)).toBe(false);
+    expect(isRequired("false")).toBe(false);
+    expect(isRequired("False")).toBe(false);
+    expect(isRequired("FALSE")).toBe(false);
+  });
+
+  test("should return false for strings with an expression", () => {
+    expect(isRequired("someValue > 0")).toBe(false);
   });
 });

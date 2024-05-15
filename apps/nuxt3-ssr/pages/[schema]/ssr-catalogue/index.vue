@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import type { IFilter } from "~/interfaces/types";
+const route = useRoute();
+useHead({ title: "Health Data and Samples Catalogue" });
 
 //add redirect middleware for cohortOnly to skip this page
 definePageMeta({
@@ -17,69 +18,60 @@ definePageMeta({
   ],
 });
 
-useHead({ title: "Catalogues" });
-
-const route = useRoute();
-const config = useRuntimeConfig();
-
-let filters: IFilter[] = reactive([
-  {
-    title: "Search in catalogues",
-    columnType: "_SEARCH",
-    search: "",
-    initialCollapsed: false,
-  },
-]);
-
-let search = computed(() => {
-  // @ts-ignore
-  return filters.find((f) => f.columnType === "_SEARCH").search;
-});
-
 const query = computed(() => {
   return `
-  query Networks($filter:NetworksFilter, $orderby:Networksorderby){
-    Networks(filter:$filter  orderby:$orderby) {
-      id
-      name
-      acronym
-      description
-      logo {
+  query Catalogues($filter:CataloguesFilter){
+    Catalogues(filter:$filter) {
+      network {
         id
-        size
-        extension
-        url
+        name
+        acronym
+        description
+        logo {
+          id
+          size
+          extension
+          url
+        }
       }
+      type {name}
     }
-    Networks_agg (filter:$filter){
+    Catalogues_agg (filter:$filter){
       count
     }
   }
   `;
 });
 
-const orderby = { acronym: "ASC" };
-
-const filter = computed(() => buildQueryFilter(filters, search.value));
-
-let graphqlURL = computed(() => `/${route.params.schema}/api/graphql`);
+let graphqlURL = computed(() => `/${route.params.schema}/graphql`);
 const { data, pending, error, refresh } = await useFetch(graphqlURL.value, {
-  key: `networks`,
-  baseURL: config.public.apiBase,
+  key: "catalogues",
   method: "POST",
-  body: {
-    query,
-    variables: { orderby, filter },
-  },
+  body: { query },
 });
 let activeName = ref("compact");
+
+const thematicCatalogues = computed(() => {
+  let result = data?.value?.data?.Catalogues
+    ? data.value?.data?.Catalogues?.filter((c) => c.type?.name === "theme")
+    : [];
+  result.sort((a, b) => a.network.id.localeCompare(b.network.id));
+  return result;
+});
+const projectCatalogues = computed(() => {
+  let result = data?.value?.data?.Catalogues
+    ? data.value?.data?.Catalogues?.filter((c) => c.type?.name === "project")
+    : [];
+  result.sort((a, b) => a.network.id.localeCompare(b.network.id));
+  return result;
+});
 </script>
 
 <template>
   <LayoutsLandingPage>
     <PageHeader
-      title="health research data and sample catalogue"
-      description="MOLGENIS catalogue unites European research projects and networks cataloguing efforts."
+      title="European Health Research Data and Sample Catalogue"
+      description="A collaborative effort to integrate the catalogues of diverse EU research projects and networks to accelerate reuse and improve citizens health."
       :truncate="false"
     >
       <template #suffix>
@@ -88,33 +80,31 @@ let activeName = ref("compact");
         >
           <div class="flex flex-col items-center max-w-sm lg:mt-5">
             <NuxtLink :to="`/${route.params.schema}/ssr-catalogue/all`">
-              <Button label="Search all catalogues" />
+              <Button label="Search all" />
             </NuxtLink>
-            <p class="mt-1 mb-0 text-center lg:mt-10 text-body-lg">
+            <p
+              class="mt-1 mb-0 text-center lg:mt-10 text-body-lg"
+              v-if="
+                thematicCatalogues.length > 0 || projectCatalogues.length > 0
+              "
+            >
               or select a specific catalogue below:
             </p>
           </div>
         </div>
       </template>
     </PageHeader>
-    <SearchResultsList>
-      <CardList v-if="data?.data?.Networks?.length > 0">
-        <CardListItem
-          v-for="network in data?.data?.Networks"
-          :key="network.name"
-        >
-          <CatalogueCard
-            :network="network"
-            :schema="route.params.schema as string"
-            :compact="activeName !== 'detailed'"
-          />
-        </CardListItem>
-      </CardList>
-      <div v-else class="flex justify-center pt-3">
-        <span class="py-15 text-blue-500">
-          No Networks found with current filters
-        </span>
-      </div>
-    </SearchResultsList>
+    <ContentBlockCatalogues
+      v-if="thematicCatalogues.length > 0"
+      title="Thematic catalogues"
+      description="Catalogues focused on a particular theme, developed by a collaboration of projects, networks and/or organisations:"
+      :catalogues="thematicCatalogues"
+    />
+    <ContentBlockCatalogues
+      v-if="projectCatalogues.length > 0"
+      title="Project catalogues"
+      description="Catalogues maintained by individual research projects or consortia:"
+      :catalogues="projectCatalogues"
+    />
   </LayoutsLandingPage>
 </template>

@@ -1,5 +1,5 @@
-<script setup>
-import { INotificationType } from "~/interfaces/types";
+<script setup lang="ts">
+import type { INotificationType } from "~/interfaces/types";
 const props = defineProps({
   image: {
     type: String,
@@ -27,6 +27,20 @@ const props = defineProps({
   contactMessageFilter: {
     type: String,
   },
+});
+
+const useEmailService = ref(false);
+
+fetchSetting("contactRecipientsQuery").then((resp) => {
+  const setting = resp.data["_settings"].find(
+    (setting: { key: string; value: string }) => {
+      return setting.key === "contactRecipientsQuery";
+    }
+  );
+
+  if (setting) {
+    useEmailService.value = !!setting.value;
+  }
 });
 
 let showContactInformation = ref(false);
@@ -63,7 +77,7 @@ watch(
 );
 
 const showMessageStatusModal = ref(false);
-const notificationType = ref(INotificationType.success);
+const notificationType = ref("success" as INotificationType);
 const notificationTitle = ref("The message has been sent");
 const notificationMessage = ref("");
 const timeoutInMills = ref(3000);
@@ -100,11 +114,11 @@ const submitForm = async () => {
   senderEmail.message = "";
 
   if (isSendSuccess) {
-    notificationType.value = INotificationType.success;
+    notificationType.value = "success";
     notificationTitle.value = "The message has been sent";
     timeoutInMills.value = 3000;
   } else {
-    notificationType.value = INotificationType.error;
+    notificationType.value = "error";
     notificationTitle.value = "Error";
     notificationMessage.value =
       "Your message could not be sent. Please try again later";
@@ -137,9 +151,9 @@ const submitForm = async () => {
           :sub-title="contactName"
           class="flex flex-col gap-3"
         >
-          <template v-if="contactMessageFilter">
+          <template v-if="contactMessageFilter && useEmailService">
             <ContactForm :fields="fields" @submit-form="submitForm" />
-            <div class="pl-3 pb-3">
+            <div class="pl-3">
               <span class="text-body-base">or contact us at: </span>
               <a
                 class="text-blue-500 hover:underline"
@@ -158,11 +172,14 @@ const submitForm = async () => {
               {{ contact }}
             </a>
           </template>
+          <ClientOnly>
+            <SettingsMessage />
+          </ClientOnly>
         </ContentBlockModal>
 
         <template #footer>
           <Button
-            v-if="contactMessageFilter"
+            v-if="contactMessageFilter && useEmailService"
             type="primary"
             size="small"
             label="Send"

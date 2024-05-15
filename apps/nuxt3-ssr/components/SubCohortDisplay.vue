@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { Ref } from "vue";
 import subcohortGql from "~~/gql/subcohort";
 import ContentBlockModal from "./content/ContentBlockModal.vue";
-const config = useRuntimeConfig();
+import dateUtils from "~/utils/dateUtils";
 const route = useRoute();
 
 const { id } = defineProps<{
@@ -13,9 +12,8 @@ const query = moduleToString(subcohortGql);
 
 let subcohort: Ref = ref();
 const { data: subcohortData } = await useFetch(
-  `/${route.params.schema}/catalogue/graphql`,
+  `/${route.params.schema}/graphql`,
   {
-    baseURL: config.public.apiBase,
     method: "POST",
     body: {
       query: query,
@@ -67,7 +65,7 @@ if (subcohort?.numberOfParticipants) {
 if (subcohort?.inclusionStart || subcohort?.inclusionEnd) {
   items.push({
     label: "Start/end year",
-    content: filters.startEndYear(
+    content: dateUtils.startEndYear(
       subcohort.inclusionStart,
       subcohort.inclusionEnd
     ),
@@ -88,7 +86,7 @@ if (subcohort?.mainMedicalCondition) {
   items.push({
     label: "Main medical condition",
     type: "ONTOLOGY",
-    content: buildOntologyTree(subcohort.mainMedicalCondition),
+    content: subcohort.mainMedicalCondition,
   });
 }
 
@@ -96,15 +94,15 @@ if (subcohort?.comorbidity) {
   items.push({
     label: "Comorbidity",
     type: "ONTOLOGY",
-    content: buildOntologyTree(subcohort.comorbidity),
+    content: subcohort.comorbidity,
   });
 }
 
 if (subcohort?.countries) {
   items.push({
-    label: "Population",
+    label: "Countries",
     type: "ONTOLOGY",
-    content: buildOntologyTree(subcohort.countries),
+    content: subcohort.countries,
   });
 }
 

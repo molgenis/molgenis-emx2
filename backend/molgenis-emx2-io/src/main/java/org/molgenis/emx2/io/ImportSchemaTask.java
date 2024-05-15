@@ -8,6 +8,7 @@ import org.molgenis.emx2.tasks.Task;
 public class ImportSchemaTask<T extends ImportSchemaTask> extends Task<T> {
   private TableStore tableStore;
   private Schema schema;
+  private String[] includeTableNames;
   private Filter filter = Filter.ALL;
 
   public enum Filter {
@@ -16,16 +17,23 @@ public class ImportSchemaTask<T extends ImportSchemaTask> extends Task<T> {
     ALL
   };
 
-  public ImportSchemaTask(String description, TableStore store, Schema schema, boolean strict) {
+  public ImportSchemaTask(
+      String description,
+      TableStore store,
+      Schema schema,
+      boolean strict,
+      String... includeTableNames) {
     super(description, strict);
     Objects.requireNonNull(store, "tableStore cannot be null");
     Objects.requireNonNull(schema, "schema cannot be null");
     this.tableStore = store;
     this.schema = schema;
+    this.includeTableNames = includeTableNames;
   }
 
-  public ImportSchemaTask(TableStore store, Schema schema, boolean strict) {
-    this("Import from store", store, schema, strict);
+  public ImportSchemaTask(
+      TableStore store, Schema schema, boolean strict, String... includeTableNames) {
+    this("Import from store", store, schema, strict, includeTableNames);
   }
 
   public ImportSchemaTask setFilter(Filter filter) {
@@ -51,7 +59,7 @@ public class ImportSchemaTask<T extends ImportSchemaTask> extends Task<T> {
             }
 
             if (!filter.equals(Filter.METADATA_ONLY)) {
-              Task dataTask = new ImportDataTask(s, tableStore, isStrict());
+              Task dataTask = new ImportDataTask(s, tableStore, isStrict(), includeTableNames);
               this.addSubTask(dataTask);
               dataTask.run();
             }
