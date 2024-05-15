@@ -135,7 +135,7 @@ const props = withDefaults(
     defaultValue?: Record<string, any> | null;
     applyDefaultValues?: boolean;
   }>(),
-  { clone: false, visibleColumns: [] as any, defaultValue: null }
+  { clone: false, defaultValue: null }
 );
 
 const {
