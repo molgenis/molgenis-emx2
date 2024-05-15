@@ -131,11 +131,11 @@ const props = withDefaults(
     pkey?: Record<string, any>;
     clone?: boolean;
     visibleColumns?: string[];
-    useChapters?: boolean;
+    useChapters?: boolean | null;
     defaultValue?: Record<string, any> | null;
     applyDefaultValues?: boolean;
   }>(),
-  { clone: false, defaultValue: null }
+  { clone: false, defaultValue: null, useChapters: null }
 );
 
 const {
@@ -161,7 +161,7 @@ const client = ref<INewClient>();
 const errorMessage = ref<string>("");
 const loaded = ref<boolean>(false);
 const currentPage = ref<number>(1);
-const myUseChapters = ref<boolean>(useChapters);
+const myUseChapters = ref<boolean>();
 const saveDisabledMessage = ref<string>("");
 
 const emit = defineEmits(["update:newRow", "close"]);
@@ -250,6 +250,8 @@ onMounted(async () => {
       settings.find(
         (item: ISetting) => item.key === IS_CHAPTERS_ENABLED_FIELD_NAME
       )?.value !== "false";
+  } else {
+    myUseChapters.value = !!useChapters;
   }
 
   tableMetadata.value = await client.value.fetchTableMetaData(tableId);
@@ -298,6 +300,7 @@ async function save(formData: IRow) {
     handleClose();
   }
 }
+
 function handleSaveError(error: any) {
   if (error.response?.status === 403) {
     errorMessage.value =
