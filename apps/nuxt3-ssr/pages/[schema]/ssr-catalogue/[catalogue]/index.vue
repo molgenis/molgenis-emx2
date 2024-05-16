@@ -124,6 +124,7 @@ const { data, error } = await useAsyncData<any, IMgError>(
     const variablesFilter = scoped
       ? {
           resource: {
+            mg_tableclass: { like: ["Models"] },
             id: {
               equals: models.data.Networks[0].models
                 ? models.data.Networks[0].models.map(
@@ -133,7 +134,11 @@ const { data, error } = await useAsyncData<any, IMgError>(
             },
           },
         }
-      : undefined;
+      : {
+          resource: {
+            mg_tableclass: { like: ["Models"] },
+          },
+        };
 
     return $fetch(`/${route.params.schema}/graphql`, {
       method: "POST",

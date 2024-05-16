@@ -180,6 +180,16 @@ public class FAIRDataPointDataset {
       }
     }
 
+    if (datasetFromJSON.get("propertyValue") != null) {
+      for (String propertyValue : (List<String>) datasetFromJSON.get("propertyValue")) {
+        String[] propertyValueSplit = propertyValue.split(" ", -1);
+        if (propertyValueSplit.length != 2) {
+          throw new Exception(
+              "propertyValue should contain strings that each consist of 2 elements separated by 1 whitespace");
+        }
+        builder.add(reqUrl, iri(propertyValueSplit[0]), iri(propertyValueSplit[1]));
+      }
+    }
     if (datasetFromJSON.get("spatialResolutionInMeters") != null) {
       builder.add(
           reqUrl,

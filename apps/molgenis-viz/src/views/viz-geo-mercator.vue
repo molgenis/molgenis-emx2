@@ -37,7 +37,7 @@
         :chartData="data"
         latitude="latitude"
         longitude="longitude"
-        groupingVariable="status"
+        group="status"
         :groupColorMappings="mapColorGroups"
         :legendData="mapColorGroups"
         :chartScale="6"

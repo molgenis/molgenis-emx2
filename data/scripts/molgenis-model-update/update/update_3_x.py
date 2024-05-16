@@ -1,5 +1,6 @@
 import shutil
 import os
+from pathlib import Path
 import pandas as pd
 
 
@@ -25,6 +26,21 @@ def get_hyperlink(x):
     return x
 
 
+def get_data_model(profile_path, path_to_write, profile):
+    # get data model from profile and write to file
+    data_model = pd.DataFrame()
+
+    for file_name in os.listdir(profile_path):
+        if '.csv' in file_name:
+            file_path = Path.joinpath(profile_path, file_name)
+            df = pd.read_csv(file_path)
+            df = df.loc[df['profiles'].str.contains(profile)]
+            data_model = pd.concat([data_model, df])
+
+    data_model = float_to_int(data_model)
+    data_model.to_csv(path_to_write, index=None)
+
+
 class Transform:
     """General functions to update catalogue data model.
     """
@@ -44,7 +60,10 @@ class Transform:
         """
         # get molgenis.csv location
         if self.database_type in ['catalogue_staging', 'catalogue']:
-            data_model = os.path.abspath('../../../data/datacatalogue/molgenis.csv')
+            data_model = os.path.abspath('../../../datacatalogue/molgenis.csv')
+            profile_path = Path().cwd().joinpath('..', '..', '..', '_models', 'shared')
+            profile = 'DataCatalogue'
+            get_data_model(profile_path, data_model, profile)
         elif self.database_type == 'network':
             data_model = os.path.abspath('../../../data/datacatalogue/stagingNetworks/molgenis.csv')
         elif self.database_type == 'cohort':
