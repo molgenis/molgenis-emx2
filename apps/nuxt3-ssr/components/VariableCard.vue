@@ -27,9 +27,13 @@ const resourcePathId = resourceIdPath(variableKey.value);
           >
             {{ variable?.name }}
           </NuxtLink>
-          <span class="ml-1" v-if="variable.repeats?.length"
-            >+{{ variable.repeats?.length }}</span
+          <span
+            v-if="variable.repeats?.length"
+            v-tooltip="{ content: variable.repeats?.length + ' repeats' }"
+            class="ml-1 bg-blue-50 text-title-contrast justify-center rounded-full px-2 py-1 font-bold text-heading-sm hover:cursor-help"
           >
+            {{ variable.repeats?.length }}
+          </span>
         </h2>
       </div>
       <div class="hidden md:flex md:basis-3/5">
