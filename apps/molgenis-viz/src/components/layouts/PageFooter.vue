@@ -1,9 +1,9 @@
 <template>
-  <footer class="page-footer">
+  <div class="page-footer">
     <!-- main footer content -->
     <slot></slot>
     <PageFooterMolgenisCitation />
-  </footer>
+  </div>
 </template>
 
 <script>
