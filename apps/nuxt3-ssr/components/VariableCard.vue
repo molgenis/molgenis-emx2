@@ -26,6 +26,9 @@ const resourcePathId = resourceIdPath(variableKey.value);
             class="text-body-base font-extrabold text-blue-500 hover:underline hover:bg-blue-50"
           >
             {{ variable?.name }}
+            <span v-if="variable.repeats?.length"
+              >( {{ variable.repeats?.length }} repeats)</span
+            >
           </NuxtLink>
         </h2>
       </div>
