@@ -373,7 +373,8 @@ public class SqlQuery extends QueryBean {
     List<Condition> conditions = new ArrayList<>();
     if (filters != null) {
       conditions.addAll(
-          jsonFilterQueryConditions(table, column, tableAlias, filterAlias, filters, searchTerms));
+          // column should be null when nesting (is only used for refJoinCondition)
+          jsonFilterQueryConditions(table, null, tableAlias, filterAlias, filters, searchTerms));
     }
     if (searchTerms.length > 0) {
       conditions.add(jsonSearchConditions(table, filterAlias, searchTerms));
