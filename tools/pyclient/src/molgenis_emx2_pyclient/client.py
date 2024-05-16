@@ -132,12 +132,12 @@ class Client:
 
         status = response.json().get('data', {}).get('signout', {}).get('status')
         if status == 'SUCCESS':
-            print(f"User {self.username!r} is signed out of {self.url!r}.")
+            log.info(f"User {self.username!r} is signed out of {self.url!r}.")
             self.signin_status = 'signed out'
         else:
-            print(f"Unable to sign out of {self.url}.")
+            log.error(f"Unable to sign out of {self.url}.")
             message = response.json().get('errors')[0].get('message')
-            print(message)
+            log.error(message)
 
     @property
     def status(self):
@@ -535,7 +535,6 @@ class Client:
         except GraphQLException:
             message = f"Failed to recreate {current_schema!r}"
             log.error(message)
-            print(message)
 
         self.schemas = self.get_schemas()
 
