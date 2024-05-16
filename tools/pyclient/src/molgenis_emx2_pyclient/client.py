@@ -129,6 +129,7 @@ class Client:
             url=self.api_graphql,
             json={'query': queries.signout()}
         )
+        self._validate_graphql_response(response)
 
         status = response.json().get('data', {}).get('signout', {}).get('status')
         if status == 'SUCCESS':
@@ -169,8 +170,8 @@ class Client:
             json={'query': query},
             headers={'x-molgenis-token': self.token}
         )
-
         self._validate_graphql_response(response)
+
         response_json: dict = response.json()
         schemas = [Schema(**s) for s in response_json['data']['_schemas']]
         return schemas
@@ -199,6 +200,7 @@ class Client:
             url=self.api_graphql,
             json={'query': query}
         )
+        self._validate_graphql_response(response)
         return response.json().get('data').get('_manifest').get('SpecificationVersion')
 
     def save_schema(self, table: str, name: str = None, file: str = None, data: list | pd.DataFrame = None):
@@ -358,6 +360,7 @@ class Client:
                 url = f"{self.url}/{current_schema}/api/excel"
                 response = self.session.get(url=url,
                                             headers={'x-molgenis-token': self.token})
+                self._validate_graphql_response(response)
 
                 filename = f"{current_schema}.xlsx"
                 with open(filename, "wb") as file:
@@ -369,6 +372,7 @@ class Client:
                 url = f"{self.url}/{current_schema}/api/excel/{table_id}"
                 response = self.session.get(url=url,
                                             headers={'x-molgenis-token': self.token})
+                self._validate_graphql_response(response)
 
                 filename = f"{table}.xlsx"
                 with open(filename, "wb") as file:
@@ -380,6 +384,7 @@ class Client:
                 url = f"{self.url}/{current_schema}/api/zip"
                 response = self.session.get(url=url,
                                             headers={'x-molgenis-token': self.token})
+                self._validate_graphql_response(response)
 
                 filename = f"{current_schema}.zip"
                 with open(filename, "wb") as file:
@@ -391,6 +396,7 @@ class Client:
                 url = f"{self.url}/{current_schema}/api/csv/{table_id}"
                 response = self.session.get(url=url,
                                             headers={'x-molgenis-token': self.token})
+                self._validate_graphql_response(response)
 
                 filename = f"{table}.csv"
                 with open(filename, "wb") as file:
@@ -555,6 +561,7 @@ class Client:
             json={'query': query},
             headers={'x-molgenis-token': self.token}
         )
+        self._validate_graphql_response(response)
 
         response_json = response.json()
 
