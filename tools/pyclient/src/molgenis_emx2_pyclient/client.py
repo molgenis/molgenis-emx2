@@ -323,8 +323,8 @@ class Client:
                                     headers={'x-molgenis-token': self.token})
 
         self._validate_graphql_response(response=response,
-                                        fallback_error_message=f"Failed to retrieve data from {current_schema}::{table!r}." \
-                                                               f"\nStatus code: {response.status_code}.")
+                                        fallback_error_message=f"Failed to retrieve data from {current_schema}::"
+                                                               f"{table!r}.\nStatus code: {response.status_code}.")
 
         response_data = pd.read_csv(io.BytesIO(response.content), keep_default_na=False)
 
@@ -426,7 +426,6 @@ class Client:
             headers={'x-molgenis-token': self.token}
         )
 
-        response_json = response.json()
         self._validate_graphql_response(
             response=response,
             mutation='createSchema',
@@ -456,7 +455,6 @@ class Client:
             headers={'x-molgenis-token': self.token}
         )
 
-        response_json = response.json()
         self._validate_graphql_response(
             response=response,
             mutation='deleteSchema',
@@ -488,7 +486,6 @@ class Client:
             headers={'x-molgenis-token': self.token}
         )
 
-        response_json = response.json()
         self._validate_graphql_response(
             response=response,
             mutation='updateSchema',
@@ -545,7 +542,7 @@ class Client:
         :param name: the name of the schema
         :type name: str
 
-        :returns: schema metadata
+        :returns: metadata of the schema
         :rtype: metadata.Schema
         """
         current_schema = name if name is not None else self.default_schema
@@ -635,6 +632,12 @@ class Client:
             if 'permission denied' in response.text:
                 raise PermissionDeniedException(f"Transaction failed: permission denied.")
             raise PyclientException("An unknown error occurred when trying to reach this server.")
+
+        if response.request.method == 'GET':
+            return
+
+        if response.status_code == 200:
+            return
 
         response_json = response.json()
         response_keys = response_json.keys()
