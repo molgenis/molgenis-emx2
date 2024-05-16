@@ -9,13 +9,16 @@ export function getRowErrors(
   tableMetaData: ITableMetaData,
   rowData: Record<string, any>
 ): Record<string, string> {
-  return tableMetaData.columns.reduce((accum, column: IColumn) => {
-    const error = getColumnError(column, rowData, tableMetaData);
-    if (error) {
-      accum[column.id] = error;
-    }
-    return accum;
-  }, {} as Record<string, string>);
+  return tableMetaData.columns.reduce(
+    (accum: Record<string, string>, column: IColumn) => {
+      const error = getColumnError(column, rowData, tableMetaData);
+      if (error) {
+        accum[column.id] = error;
+      }
+      return accum;
+    },
+    {}
+  );
 }
 
 function getColumnError(
@@ -156,7 +159,7 @@ export function executeExpression(
 ) {
   //make sure all columns have keys to prevent reference errors
   const copy: Record<string, any> = deepClone(values);
-  tableMetaData.columns.forEach((column) => {
+  tableMetaData.columns.forEach((column: IColumn) => {
     if (!copy.hasOwnProperty(column.id)) {
       copy[column.id] = null;
     }
@@ -245,7 +248,7 @@ export function removeKeyColumns(tableMetaData: ITableMetaData, rowData: IRow) {
 
 export function filterVisibleColumns(
   columns: IColumn[],
-  visibleColumns: string[] | null
+  visibleColumns?: string[]
 ): IColumn[] {
   if (!visibleColumns) {
     return columns;

@@ -185,13 +185,13 @@ const title = computed(
 const columnsSplitByHeadings = computed(() => {
   const filteredByVisibilityFilters = filterVisibleColumns(
     tableMetadata.value?.columns || [],
-    visibleColumns as string[]
+    visibleColumns
   );
   const filteredByVisibilityExpressions = filteredByVisibilityFilters.filter(
     (column: IColumn) => {
       if (tableMetadata.value) {
         try {
-          return isColumnVisible(column, rowData, tableMetadata.value);
+          return isColumnVisible(column, rowData.value, tableMetadata.value);
         } catch (error: any) {
           rowErrors.value[column.id] = error;
           return true;
