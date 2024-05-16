@@ -1,3 +1,657 @@
 resource,identifier,external identifier type,external identifier type other
-testCohort1,test external identifier for cohort 1,Clinical Trials.gov,other type of external identifier
-testCohort2,test external identifier for cohort 2,EUDRACT number,test external identifier other type
+Biobank Graz,bbmri-eric:ID:AT_MUG,,BBMRI id
+Biobank Innsbruck,bbmri-eric:ID:AT_MUI,,BBMRI id
+MedUni Wien Biobank,bbmri-eric:ID:AT_MUW,,BBMRI id
+VetBioBank,bbmri-eric:ID:AT_VET,,BBMRI id
+CBIB,bbmri-eric:ID:BE_71014391000,,BBMRI id
+UBiLim,bbmri-eric:ID:BE_71024388,,BBMRI id
+Biobank Antwerpen,bbmri-eric:ID:BE_71030031000,,BBMRI id
+HIRUZ Biobank,bbmri-eric:ID:BE_71067049,,BBMRI id
+BBUZL,bbmri-eric:ID:BE_B0383,,BBMRI id
+BBOR,bbmri-eric:ID:BE_BBOR1,,BBMRI id
+BBRU,bbmri-eric:ID:BE_BBRU1,,BBMRI id
+BCHA,bbmri-eric:ID:BE_BCHA1,,BBMRI id
+BERA,bbmri-eric:ID:BE_BERA1,,BBMRI id
+BIPG,bbmri-eric:ID:BE_BIPG1,,BBMRI id
+CBP,bbmri-eric:ID:BE_CBP,,BBMRI id
+CUSL,bbmri-eric:ID:BE_CICP1,,BBMRI id
+CGOD,bbmri-eric:ID:BE_CMGO1,,BBMRI id
+ITG Biobank,bbmri-eric:ID:BE_ITG,,BBMRI id
+Jessa Biobank,bbmri-eric:ID:BE_Jessa,,BBMRI id
+LCHU,bbmri-eric:ID:BE_LCHU1,,BBMRI id
+Biothèque UCLouvain,bbmri-eric:ID:BE_UCL,,BBMRI id
+MMC biobank,bbmri-eric:ID:BG_MMC,,BBMRI id
+CHUV,bbmri-eric:ID:CH_CHUV,,BBMRI id
+Davos BioSciences AG,bbmri-eric:ID:CH_DavosBiosciences,,BBMRI id
+EPFL,bbmri-eric:ID:CH_EPFL,,BBMRI id
+ETH,bbmri-eric:ID:CH_ETH,,BBMRI id
+FEPT,bbmri-eric:ID:CH_FondazioneEpatocentroTicino,,BBMRI id
+HFR biobank infrastructure,bbmri-eric:ID:CH_HFR,,BBMRI id
+HUG,bbmri-eric:ID:CH_HopitauxUniversitairesGeneve,,BBMRI id
+ICH,bbmri-eric:ID:CH_ICH,,BBMRI id
+Kinderspital Zürich,bbmri-eric:ID:CH_KinderspitalZurich,,BBMRI id
+LBB Services,bbmri-eric:ID:CH_LBBservices,,BBMRI id
+LPA,bbmri-eric:ID:CH_LPA,,BBMRI id
+SCMB,bbmri-eric:ID:CH_SCMB,,BBMRI id
+Sun Bioscience,bbmri-eric:ID:CH_SunBioscience,,BBMRI id
+Swiss Paraplegic Research,bbmri-eric:ID:CH_SwissParaplegicResearch,,BBMRI id
+UKBB,bbmri-eric:ID:CH_UKBB,,BBMRI id
+USB,bbmri-eric:ID:CH_USB,,BBMRI id
+USZ,bbmri-eric:ID:CH_USZ,,BBMRI id
+UNIFR,bbmri-eric:ID:CH_Unifr,,BBMRI id
+Université de Genève,bbmri-eric:ID:CH_Unige,,BBMRI id
+University of Bern,bbmri-eric:ID:CH_UniversityOfBern,,BBMRI id
+Synapsy Mental Health Biobank Infrastructure,bbmri-eric:ID:CH_synapsy,,BBMRI id
+ALLBIO,bbmri-eric:ID:CY_ALLBIO,,BBMRI id
+CY,bbmri-eric:ID:CY_cybiobank,,BBMRI id
+UK_HK,bbmri-eric:ID:CZ_CUNI_HK,,BBMRI id
+UK_LF1,bbmri-eric:ID:CZ_CUNI_LF1,,BBMRI id
+UK_PILS,bbmri-eric:ID:CZ_CUNI_PILS,,BBMRI id
+MMCI,bbmri-eric:ID:CZ_MMCI,,BBMRI id
+MU_ICS,bbmri-eric:ID:CZ_MU_ICS,,BBMRI id
+REVMA,bbmri-eric:ID:CZ_REVMA,,BBMRI id
+UPOL,bbmri-eric:ID:CZ_UPOL_LF,,BBMRI id
+ACBB,bbmri-eric:ID:DE_ACBB,,BBMRI id
+ASK-Tx,bbmri-eric:ID:DE_ASK-Tx,,BBMRI id
+BioBank Bonn,bbmri-eric:ID:DE_BBB,,BBMRI id
+BBD,bbmri-eric:ID:DE_BBD,,BBMRI id
+BBM,bbmri-eric:ID:DE_BBM,,BBMRI id
+BBNM,bbmri-eric:ID:DE_BBNM,,BBMRI id
+BBR,bbmri-eric:ID:DE_BBR,,BBMRI id
+BIOLIP,bbmri-eric:ID:DE_BIOLIP,,BBMRI id
+BIPS Biobank Bremen,bbmri-eric:ID:DE_BIPS,,BBMRI id
+P2N-TRIBanK,bbmri-eric:ID:DE_BMB-CCCKiel,,BBMRI id
+BMBH,bbmri-eric:ID:DE_BMBH,,BBMRI id
+BMBN,bbmri-eric:ID:DE_BMBN,,BBMRI id
+BMBUKE,bbmri-eric:ID:DE_BMBUKE,,BBMRI id
+BioMaSOTA,bbmri-eric:ID:DE_BioMaSOTA,,BBMRI id
+BioPsy,bbmri-eric:ID:DE_BioPsy,,BBMRI id
+Bonn_ViroHumanDiag,bbmri-eric:ID:DE_Bonn_ViroHumanDiag,,BBMRI id
+CBBMR,bbmri-eric:ID:DE_CBBMR,,BBMRI id
+COSYCONET,bbmri-eric:ID:DE_COSYCONET,,BBMRI id
+CeBE,bbmri-eric:ID:DE_CeBE,,BBMRI id
+CoBi,bbmri-eric:ID:DE_CoBi,,BBMRI id
+DZHK Heart Bank,bbmri-eric:ID:DE_DZHK,,BBMRI id
+DZIF Tx-Cohort e.V.,bbmri-eric:ID:DE_DZIFTX,,BBMRI id
+EHEC,bbmri-eric:ID:DE_EHEC,,BBMRI id
+FREEZE-Biobank,bbmri-eric:ID:DE_FREEZE-Biobank,,BBMRI id
+FWS_BNITM,bbmri-eric:ID:DE_FWS,,BBMRI id
+GCKD-Biobank,bbmri-eric:ID:DE_GCKD,,BBMRI id
+HUB,bbmri-eric:ID:DE_HUB,,BBMRI id
+HMGU,bbmri-eric:ID:DE_Helmholtz-MuenchenBiobank,,BBMRI id
+IBBJ,bbmri-eric:ID:DE_IBBJ,,BBMRI id
+IBM,bbmri-eric:ID:DE_IBM,,BBMRI id
+ICB-L,bbmri-eric:ID:DE_ICBL,,BBMRI id
+IPA-Biobank,bbmri-eric:ID:DE_IPA,,BBMRI id
+IRB,bbmri-eric:ID:DE_IRB,,BBMRI id
+InfektLMU,bbmri-eric:ID:DE_InfektLMU,,BBMRI id
+LMB,bbmri-eric:ID:DE_LMB,,BBMRI id
+LTX,bbmri-eric:ID:DE_LTX,,BBMRI id
+Med Bonn,bbmri-eric:ID:DE_MedBonn,,BBMRI id
+MikroBonn,bbmri-eric:ID:DE_MikroBonn,,BBMRI id
+MIKROTUM,bbmri-eric:ID:DE_MikroTUM,,BBMRI id
+NAPKON,bbmri-eric:ID:DE_NAPKON,,BBMRI id
+NBT,bbmri-eric:ID:DE_NBT,,BBMRI id
+NRCHD,bbmri-eric:ID:DE_NRCHD,,BBMRI id
+PATH,bbmri-eric:ID:DE_PATH,,BBMRI id
+PEPSI,bbmri-eric:ID:DE_PEPSI,,BBMRI id
+P2N-Popgen,bbmri-eric:ID:DE_Popgen,,BBMRI id
+RWTH cBMB,bbmri-eric:ID:DE_RWTHCBMB,,BBMRI id
+TxChirTUM,bbmri-eric:ID:DE_TxChirTUM,,BBMRI id
+UGMLC GI Biobank,bbmri-eric:ID:DE_UGMLC-Giessen,,BBMRI id
+Central Biobank UMG,bbmri-eric:ID:DE_UMGB,,BBMRI id
+UTZBD,bbmri-eric:ID:DE_UTZBD,,BBMRI id
+VirTUM,bbmri-eric:ID:DE_VirTUM,,BBMRI id
+WBE,bbmri-eric:ID:DE_WBE,,BBMRI id
+ZBBMFM,bbmri-eric:ID:DE_ZBBMFM,,BBMRI id
+ZBR,bbmri-eric:ID:DE_ZBR,,BBMRI id
+ZeBanC,bbmri-eric:ID:DE_ZeBanC,,BBMRI id
+cBMB-CCCT,bbmri-eric:ID:DE_cBMB-CCCT,,BBMRI id
+iBDF,bbmri-eric:ID:DE_iBDF,,BBMRI id
+ibdw,bbmri-eric:ID:DE_ibdw,,BBMRI id
+MTBIO,bbmri-eric:ID:DE_mtbio,,BBMRI id
+Research biobank,bbmri-eric:ID:EE_CCRMB,,BBMRI id
+Estonian Biocentre,bbmri-eric:ID:EE_EBC,,BBMRI id
+EGCUT,bbmri-eric:ID:EE_EGCUT,,BBMRI id
+East-Tallinn Central Hospital,bbmri-eric:ID:EE_ETCH,,BBMRI id
+The North Estonia Medical Centre,bbmri-eric:ID:EE_NEMC,,BBMRI id
+National Institute for Health Development,bbmri-eric:ID:EE_NIHD,,BBMRI id
+"University of Tartu, Department of Pediatrics",bbmri-eric:ID:EE_UTDP,,BBMRI id
+BV,bbmri-eric:ID:ES_BV,,BBMRI id
+HGUVBB,bbmri-eric:ID:ES_HGUVBB,,BBMRI id
+IGTP-HUGTP Biobanc,bbmri-eric:ID:ES_IGTP-HUGTP,,BBMRI id
+IVO,bbmri-eric:ID:ES_ivo,,BBMRI id
+CC BBMRI-ERIC,bbmri-eric:ID:EU_BBMRI-ERIC,,BBMRI id
+MRC-UCL,bbmri-eric:ID:EXT_168144,,BBMRI id
+MTCC,bbmri-eric:ID:EXT_168284,,BBMRI id
+DNA biobank of the Department of Molecular Genetics and Diagnostics,bbmri-eric:ID:EXT_168416,,BBMRI id
+NLGIP,bbmri-eric:ID:EXT_168562,,BBMRI id
+NMTB UL,bbmri-eric:ID:EXT_168694,,BBMRI id
+Hacettepe DNA/Cell Bank for Rare Diseases,bbmri-eric:ID:EXT_173780,,BBMRI id
+BioNER,bbmri-eric:ID:EXT_44001,,BBMRI id
+CBK,bbmri-eric:ID:EXT_76823,,BBMRI id
+ACU Biobank,bbmri-eric:ID:EXT_ACU,,BBMRI id
+Audubon,bbmri-eric:ID:EXT_Audubon,,BBMRI id
+BB-iMM,bbmri-eric:ID:EXT_BB-iMM,,BBMRI id
+BCCHB,bbmri-eric:ID:EXT_BCCHB,,BBMRI id
+Biobanx,bbmri-eric:ID:EXT_Biobanx,,BBMRI id
+CHWTB,bbmri-eric:ID:EXT_CHWTB,,BBMRI id
+DwarnaBio,bbmri-eric:ID:EXT_DwarnaBio,,BBMRI id
+Newcastle MRC Centre Biobank for Rare and Neuromuscular Diseases,bbmri-eric:ID:EXT_GBR-1-198,,BBMRI id
+IBG,bbmri-eric:ID:EXT_IBG,,BBMRI id
+"Biobank, Institute for Regenerative Medicine, Sechenov First Moscow State Medical University (Sechenov University)",bbmri-eric:ID:EXT_NASBIO,,BBMRI id
+NCB,bbmri-eric:ID:EXT_NCB,,BBMRI id
+NHBR,bbmri-eric:ID:EXT_NHBR,,BBMRI id
+PCRC Biobank,bbmri-eric:ID:EXT_PCRC,,BBMRI id
+POB,bbmri-eric:ID:EXT_POB,,BBMRI id
+QBB,bbmri-eric:ID:EXT_QBB,,BBMRI id
+SCBBC,bbmri-eric:ID:EXT_SCBBC,,BBMRI id
+Tissue Solutions,bbmri-eric:ID:EXT_TissueSolutions,,BBMRI id
+UHN COVID-19 Biobank,bbmri-eric:ID:EXT_UHN,,BBMRI id
+UNB,bbmri-eric:ID:EXT_UNB,,BBMRI id
+USZ Biobank,bbmri-eric:ID:EXT_USZ,,BBMRI id
+VTB,bbmri-eric:ID:EXT_VTB,,BBMRI id
+iSpec,bbmri-eric:ID:EXT_iSpec,,BBMRI id
+Auria,bbmri-eric:ID:FI_001,,BBMRI id
+THLBB,bbmri-eric:ID:FI_002,,BBMRI id
+FHRB,bbmri-eric:ID:FI_003,,BBMRI id
+Helsinki Biobank,bbmri-eric:ID:FI_005,,BBMRI id
+BOR,bbmri-eric:ID:FI_006,,BBMRI id
+FCBT,bbmri-eric:ID:FI_007,,BBMRI id
+BBEF,bbmri-eric:ID:FI_008,,BBMRI id
+CFB,bbmri-eric:ID:FI_009,,BBMRI id
+BSB,bbmri-eric:ID:FI_010,,BBMRI id
+ArcticBB,bbmri-eric:ID:FI_012,,BBMRI id
+FINBB,bbmri-eric:ID:FI_NN,,BBMRI id
+BACG,bbmri-eric:ID:FR_BB-0033-00010,,BBMRI id
+Neuro-CEB,bbmri-eric:ID:FR_BB-0033-00011,,BBMRI id
+Myobank-AFM,bbmri-eric:ID:FR_BB-0033-00012,,BBMRI id
+GIS-CRB,bbmri-eric:ID:FR_BB-0033-00013,,BBMRI id
+Biobanque CHU de Toulouse,bbmri-eric:ID:FR_BB-0033-00014,,BBMRI id
+Tumorotheque CLCC Paul Strauss,bbmri-eric:ID:FR_BB-0033-00015,,BBMRI id
+CRB-BioJel,bbmri-eric:ID:FR_BB-0033-00016,,BBMRI id
+Biobanque de Picardie - Salouel,bbmri-eric:ID:FR_BB-0033-00017,,BBMRI id
+CRB/CIC-P,bbmri-eric:ID:FR_BB-0033-00018,,BBMRI id
+REFGENSEP,bbmri-eric:ID:FR_BB-0033-00019,,BBMRI id
+CRB-Bichat Claude Bernard,bbmri-eric:ID:FR_BB-0033-00020,,BBMRI id
+PRB Creteil,bbmri-eric:ID:FR_BB-0033-00021,,BBMRI id
+CRB SAT APHP.SU,bbmri-eric:ID:FR_BB-0033-00022,,BBMRI id
+CRB-Pathologie-Cochin,bbmri-eric:ID:FR_BB-0033-00023,,BBMRI id
+TRFC,bbmri-eric:ID:FR_BB-0033-00024,,BBMRI id
+Biobank06,bbmri-eric:ID:FR_BB-0033-00025,,BBMRI id
+CRB-NSPN,bbmri-eric:ID:FR_BB-0033-00026,,BBMRI id
+CRB Foie (Jean Verdier),bbmri-eric:ID:FR_BB-0033-00027,,BBMRI id
+EREN,bbmri-eric:ID:FR_BB-0033-00028,,BBMRI id
+Biobanque Cardiovasculaire - Hopital Bichat,bbmri-eric:ID:FR_BB-0033-00029,,BBMRI id
+CIC-CRB Lille,bbmri-eric:ID:FR_BB-0033-00030,,BBMRI id
+CCBH-M,bbmri-eric:ID:FR_BB-0033-00031,,BBMRI id
+Centre de Ressources Biologiques du CHU de Nimes,bbmri-eric:ID:FR_BB-0033-00032,,BBMRI id
+Cerebrotheque Toulouse,bbmri-eric:ID:FR_BB-0033-00033,,BBMRI id
+Neurosenscol,bbmri-eric:ID:FR_BB-0033-00034,,BBMRI id
+CRB-CBMP,bbmri-eric:ID:FR_BB-0033-00035,,BBMRI id
+CRB-Cancer CHU de Bordeaux,bbmri-eric:ID:FR_BB-0033-00036,,BBMRI id
+CRB-Sante-Brest,bbmri-eric:ID:FR_BB-0033-00037,,BBMRI id
+BBI,bbmri-eric:ID:IT_1384167838447460,,BBMRI id
+CRB CHU d'Angers,bbmri-eric:ID:FR_BB-0033-00038,,BBMRI id
+CRB-Clermont-Ferrand,bbmri-eric:ID:FR_BB-0033-00039,,BBMRI id
+CRB Nantes,bbmri-eric:ID:FR_BB-0033-00040,,BBMRI id
+CRB-42-TTK,bbmri-eric:ID:FR_BB-0033-00041,,BBMRI id
+Banque d'ADN et de Cellules de l'ICM,bbmri-eric:ID:FR_BB-0033-00042,,BBMRI id
+EGEA Collection,bbmri-eric:ID:FR_BB-0033-00043,,BBMRI id
+CRB Ferdinand Cabanne - Dijon,bbmri-eric:ID:FR_BB-0033-00044,,BBMRI id
+CRB-CHP,bbmri-eric:ID:FR_BB-0033-00045,,BBMRI id
+CRB - HCL,bbmri-eric:ID:FR_BB-0033-00046,,BBMRI id
+NeuroBioTec,bbmri-eric:ID:FR_BB-0033-00046-1,,BBMRI id
+CBC Biotec,bbmri-eric:ID:FR_BB-0033-00046-2,,BBMRI id
+Immunobiotec,bbmri-eric:ID:FR_BB-0033-00046-3,,BBMRI id
+Tumorotheque,bbmri-eric:ID:FR_BB-0033-00046-4,,BBMRI id
+Cytatheque onco-hematologique,bbmri-eric:ID:FR_BB-0033-00046-5,,BBMRI id
+Virobiotec,bbmri-eric:ID:FR_BB-0033-00046-6,,BBMRI id
+Cardiobiotec,bbmri-eric:ID:FR_BB-0033-00046-7,,BBMRI id
+CRB-ICR,bbmri-eric:ID:FR_BB-0033-00047,,BBMRI id
+CRB Institut Curie,bbmri-eric:ID:FR_BB-0033-00048,,BBMRI id
+CRBIP,bbmri-eric:ID:FR_BB-0033-00049,,BBMRI id
+CRB-CLB,bbmri-eric:ID:FR_BB-0033-00050,,BBMRI id
+CRB IGE-PCV,bbmri-eric:ID:FR_BB-0033-00051,,BBMRI id
+CRB-Leish,bbmri-eric:ID:FR_BB-0033-00052,,BBMRI id
+CRB Measles,bbmri-eric:ID:FR_BB-0033-00053,,BBMRI id
+EML-BRC,bbmri-eric:ID:FR_BB-0033-00054,,BBMRI id
+EPIGENETEC,bbmri-eric:ID:FR_BB-0033-00055,,BBMRI id
+CRB Sante - Rennes,bbmri-eric:ID:FR_BB-0033-00056,,BBMRI id
+CRB-TOXO,bbmri-eric:ID:FR_BB-0033-00057,,BBMRI id
+CRB HUPC APHP-Paris,bbmri-eric:ID:FR_BB-0033-00058,,BBMRI id
+CRB-ICM,bbmri-eric:ID:FR_BB-0033-00059,,BBMRI id
+Cytotheque hemopathies malignes - HIMIP - Toulouse,bbmri-eric:ID:FR_BB-0033-00060,,BBMRI id
+@inserm.fr,bbmri-eric:ID:FR_BB-0033-00061,,BBMRI id
+ICAReB,bbmri-eric:ID:FR_BB-0033-00062,,BBMRI id
+PRB - HEGP,bbmri-eric:ID:FR_BB-0033-00063,,BBMRI id
+CRB-LRB,bbmri-eric:ID:FR_BB-0033-00064,,BBMRI id
+PRB Necker - Paris,bbmri-eric:ID:FR_BB-0033-00065,,BBMRI id
+TCBN,bbmri-eric:ID:FR_BB-0033-00066,,BBMRI id
+Tumorotheque Hopital Saint-Louis,bbmri-eric:ID:FR_BB-0033-00067,,BBMRI id
+Biotheque CIC0802,bbmri-eric:ID:FR_BB-0033-00068,,BBMRI id
+CRB cancerologie du CHU Grenoble,bbmri-eric:ID:FR_BB-0033-00069,,BBMRI id
+CRB-IB,bbmri-eric:ID:FR_BB-0033-00070,,BBMRI id
+LAG-CRB,bbmri-eric:ID:FR_BB-0033-00071,,BBMRI id
+CelluloNet,bbmri-eric:ID:FR_BB-0033-00072,,BBMRI id
+GOELAMStheque,bbmri-eric:ID:FR_BB-0033-00073,,BBMRI id
+CRB IGR,bbmri-eric:ID:FR_BB-0033-00074,,BBMRI id
+CRB-CJP,bbmri-eric:ID:FR_BB-0033-00075,,BBMRI id
+Biobanque d'ADN Hopital Debre,bbmri-eric:ID:FR_BB-0033-00076,,BBMRI id
+Hematobiobanque,bbmri-eric:ID:FR_BB-0033-00077,,BBMRI id
+Biobanque Hopital Beaujon,bbmri-eric:ID:FR_BB-0033-00078,,BBMRI id
+EVA (European Virus Archive),bbmri-eric:ID:FR_BB-0033-00079,,BBMRI id
+INRA - CIRM,bbmri-eric:ID:FR_BB-0033-00080,,BBMRI id
+CECOS Germetheque,bbmri-eric:ID:FR_BB-0033-00081,,BBMRI id
+APHP - Neuropathologie du developpement,bbmri-eric:ID:FR_BB-0033-00082,,BBMRI id
+ANSES,bbmri-eric:ID:FR_BB-0033-00083,,BBMRI id
+BIOMAX,bbmri-eric:ID:FR_BB-0033-00084,,BBMRI id
+Reseau CRB Foie,bbmri-eric:ID:FR_BB-0033-00085,,BBMRI id
+Biotheque virtuelle Nationale des Cancers pediatriques,bbmri-eric:ID:FR_BB-0033-00086,,BBMRI id
+Cell&Co,bbmri-eric:ID:FR_BB-0033-00087,,BBMRI id
+Tumorotheque IRCNA-NANTES,bbmri-eric:ID:FR_BB-0033-00088,,BBMRI id
+CRB PARIS SUD,bbmri-eric:ID:FR_BB-0033-00089,,BBMRI id
+CRB - Filiere Microbiologie,bbmri-eric:ID:FR_BB-0033-00090,,BBMRI id
+CEPH Biobank,bbmri-eric:ID:FR_BB-0033-00091,,BBMRI id
+CRB-O CRCM,bbmri-eric:ID:FR_BB-0033-00092,,BBMRI id
+Base Clinico-Biologique Glioblastomes,bbmri-eric:ID:FR_BB-0033-00093,,BBMRI id
+BBS,bbmri-eric:ID:FR_BB-0033-00094,,BBMRI id
+DERMOBIOTEC,bbmri-eric:ID:FR_BB-0033-00095,,BBMRI id
+CRB Marie Lannelongue,bbmri-eric:ID:FR_BB-0033-00096,,BBMRI id
+CRB TBM- Tumorothéque et Banque de Muscles,bbmri-eric:ID:FR_BB-0033-00097,,BBMRI id
+HBOOCA,bbmri-eric:ID:GR_HBOOCA,,BBMRI id
+HBPD,bbmri-eric:ID:GR_HBPD,,BBMRI id
+clINABdb,bbmri-eric:ID:GR_clINABdb,,BBMRI id
+SCH,bbmri-eric:ID:HU_SCH,,BBMRI id
+SUB,bbmri-eric:ID:HU_SUB,,BBMRI id
+UPB,bbmri-eric:ID:HU_UPB,,BBMRI id
+IBB,bbmri-eric:ID:IARC_IARC_Biobank,,BBMRI id
+TTB,bbmri-eric:ID:IT_1382433386427702,,BBMRI id
+NBC,bbmri-eric:ID:IT_1382539370263740,,BBMRI id
+BVR,bbmri-eric:ID:IT_1382601095921860,,BBMRI id
+CRB-HSM,bbmri-eric:ID:IT_1382686156197551,,BBMRI id
+BBOP,bbmri-eric:ID:IT_1382783556249610,,BBMRI id
+IGG-GB,bbmri-eric:ID:IT_1382965524316631,,BBMRI id
+NMTB,bbmri-eric:ID:IT_1383047508168267,,BBMRI id
+daVEB,bbmri-eric:ID:IT_1383130755736614,,BBMRI id
+BiobankNMD-Milan,bbmri-eric:ID:IT_1383230735994332,,BBMRI id
+GMD-MDbank,bbmri-eric:ID:IT_1383569594559774,,BBMRI id
+CRB-OSR,bbmri-eric:ID:IT_1383758011993577,,BBMRI id
+BBINT,bbmri-eric:ID:IT_1383824434985378,,BBMRI id
+NEUMD-Besta,bbmri-eric:ID:IT_1383929642991480,,BBMRI id
+INMI-Biobank,bbmri-eric:ID:IT_1384262955037988,,BBMRI id
+BIOBANCA LRPO-ISPRO,bbmri-eric:ID:IT_1384353239378890,,BBMRI id
+CRB IOR,bbmri-eric:ID:IT_1384375808568138,,BBMRI id
+BioBank FBF,bbmri-eric:ID:IT_138442378660827,,BBMRI id
+BBB,bbmri-eric:ID:IT_1384423915353703,,BBMRI id
+SATURNE,bbmri-eric:ID:IT_138486608417577,,BBMRI id
+Biobanca Bruno Boerci,bbmri-eric:ID:IT_1384936945873731,,BBMRI id
+B4MED,bbmri-eric:ID:IT_1385115527136660,,BBMRI id
+IRCCS-CROB BBB,bbmri-eric:ID:IT_1385131091942888,,BBMRI id
+BIT-Gaslini,bbmri-eric:ID:IT_1385476091814807,,BBMRI id
+CHRIS,bbmri-eric:ID:IT_1385547708942390,,BBMRI id
+SienaGeneticBiobank,bbmri-eric:ID:IT_1385652938842205,,BBMRI id
+ARC-Net,bbmri-eric:ID:IT_1388827429929901,,BBMRI id
+BBI Bari,bbmri-eric:ID:IT_1391522619390209,,BBMRI id
+BB-LTTA,bbmri-eric:ID:IT_1407499906472780,,BBMRI id
+BB-SDN,bbmri-eric:ID:IT_1463060660514422,,BBMRI id
+BBIRE,bbmri-eric:ID:IT_1504858990324590,,BBMRI id
+CCPP Biobank,bbmri-eric:ID:IT_1539178454884969,,BBMRI id
+CRB-IGB,bbmri-eric:ID:IT_1539241927435687,,BBMRI id
+NVvR,bbmri-eric:ID:NL_NVvR,,BBMRI id
+BB-OPBG,bbmri-eric:ID:IT_1547222650173780,,BBMRI id
+BB-CRESM,bbmri-eric:ID:IT_1557158178220168,,BBMRI id
+Biobanca-FPG,bbmri-eric:ID:IT_1590093451396856,,BBMRI id
+BIOGEM-SARS-COV-2,bbmri-eric:ID:IT_1590149134681599,,BBMRI id
+ISENET,bbmri-eric:ID:IT_1590354344812714,,BBMRI id
+BioGer,bbmri-eric:ID:IT_1590402399690607,,BBMRI id
+GEFACOVID2.0,bbmri-eric:ID:IT_1590564317582177,,BBMRI id
+BCU-IB,bbmri-eric:ID:IT_1590564892796666,,BBMRI id
+BioCor,bbmri-eric:ID:IT_1590672328377759,,BBMRI id
+C19PTP,bbmri-eric:ID:IT_1590747237803484,,BBMRI id
+ASST-PG23,bbmri-eric:ID:IT_1590747895356557,,BBMRI id
+FdG,bbmri-eric:ID:IT_1591609863909539,,BBMRI id
+VirMol-Covid-19,bbmri-eric:ID:IT_1592055116108315,,BBMRI id
+BMS,bbmri-eric:ID:IT_1604913322414751,,BBMRI id
+TROPICA_Negrar,bbmri-eric:ID:IT_1605519998080235,,BBMRI id
+ALESSANDRIA BIOBANK,bbmri-eric:ID:IT_160862990617292,,BBMRI id
+BioRiRE,bbmri-eric:ID:IT_1610556003408133,,BBMRI id
+ISENET BBKG,bbmri-eric:ID:IT_161193869607896,,BBMRI id
+UPO Biobank,bbmri-eric:ID:IT_1611942116226242,,BBMRI id
+CRB IRST,bbmri-eric:ID:IT_1611958555932851,,BBMRI id
+UNIBO COVID-19 PREDI-CO,bbmri-eric:ID:IT_1617288158446137,,BBMRI id
+BioBIM,bbmri-eric:ID:IT_89cf68fdf2a4497,,BBMRI id
+BBio,bbmri-eric:ID:IT_db0099765af24c3,,BBMRI id
+NCI Biobank,bbmri-eric:ID:LT_NCI_Biobank,,BBMRI id
+VSK Biobank,bbmri-eric:ID:LT_VSK_Biobank,,BBMRI id
+LGDB,bbmri-eric:ID:LV_LGDB,,BBMRI id
+LUKPMI,bbmri-eric:ID:LV_LUKPMI,,BBMRI id
+LL,bbmri-eric:ID:NL_1,,BBMRI id
+TransplantLines Genetics,bbmri-eric:ID:NL_4,,BBMRI id
+Databiobank OncoLifeS,bbmri-eric:ID:NL_50,,BBMRI id
+BioBank Maastricht UMC,bbmri-eric:ID:NL_AAAACVKPKFJ4CZSUAVNCZ2AAAE,,BBMRI id
+DC,bbmri-eric:ID:NL_AAAACVOEPHI3IZSUAVNCZ2AAAE,,BBMRI id
+RB,bbmri-eric:ID:NL_RB,,BBMRI id
+WUR,bbmri-eric:ID:NL_AAAACW5ELBQ4WZSUAVNCZ2AAAE,,BBMRI id
+Erasmus MC Central Biobank,bbmri-eric:ID:NL_AAAACW5FCXM3MZSUAVNCZ2AAAE,,BBMRI id
+MeninGene Biobank,bbmri-eric:ID:NL_AAAACW7MF7WRMACQK2MD37AAAE,,BBMRI id
+Netherlands Brain Bank,bbmri-eric:ID:NL_AAAACXAVZYY2YACQK2MD37AAAE,,BBMRI id
+LUMC Biobank,bbmri-eric:ID:NL_AAAACXJQEK6I4ACQK2ME25QAAE,,BBMRI id
+GGD Amsterdam,bbmri-eric:ID:NL_AAAACXO74F5GMACQK2ME25QAAE,,BBMRI id
+TRAILS biobank,bbmri-eric:ID:NL_AAAACXO74P6CWACQK2ME25QAAE,,BBMRI id
+AMC Renal Transplant Biobank,bbmri-eric:ID:NL_AAAACXPAF5YXYACQK2ME25QAAM,,BBMRI id
+NUBIN Biobank,bbmri-eric:ID:NL_AAAACXPAJZC52ACQK2ME25QAAE,,BBMRI id
+HEFAS Study Biobank,bbmri-eric:ID:NL_AAAACXPAPKLICACQK2ME25QAAE,,BBMRI id
+Cluster Biobank,bbmri-eric:ID:NL_AAAACXPAPP4NIACQK2ME25QAAE,,BBMRI id
+CBCH,bbmri-eric:ID:NL_AAAACXPASAS2AACQK2ME25QAAE,,BBMRI id
+CuraSAB Biobank,bbmri-eric:ID:NL_AAAACXPASYLVKACQK2ME25QAAE,,BBMRI id
+GARP Biobank,bbmri-eric:ID:NL_AAAACXPATMOWYACQK2ME25QAAM,,BBMRI id
+EAC cohort,bbmri-eric:ID:NL_AAAACXPAUCGZWACQK2ME25QAAE,,BBMRI id
+NESDA Biobank,bbmri-eric:ID:NL_AAAACXPAVYJOOACQK2ME25QAAE,,BBMRI id
+KNOOPGenetic and Asthma together,bbmri-eric:ID:NL_AAAACXPAWIJHOACQK2ME25QAAE,,BBMRI id
+Erasmus MC Tissue Biobank,bbmri-eric:ID:NL_AAAACXPF2POVSACQK2ME25QAAI,,BBMRI id
+NL Perinatal Screening Biobank,bbmri-eric:ID:NL_AAAACXPF3FZEAACQK2ME25QAAM,,BBMRI id
+TEAM Biobank,bbmri-eric:ID:NL_AAAACXPF3ZSUWACQK2ME25QAAM,,BBMRI id
+RAAK Biobank,bbmri-eric:ID:NL_AAAACXPF4GVAEACQK2ME25QAAE,,BBMRI id
+New Hoorn Study Biobank,bbmri-eric:ID:NL_AAAACXPF4VZU4ACQK2ME25QAAM,,BBMRI id
+BRAD,bbmri-eric:ID:NL_AAAACXPF7SEQEACQK2ME25QAAE,,BBMRI id
+RECOGIDAS MUESTRAS Biobank,bbmri-eric:ID:NL_AAAACXPFMQJ7WACQK2ME25QAAM,,BBMRI id
+Utrecht Clamp Cohort Biobank,bbmri-eric:ID:NL_AAAACXPFOKGE6ACQK2ME25QAAE,,BBMRI id
+UDES Biobank,bbmri-eric:ID:NL_AAAACXPFPWGMSACQK2ME25QAAE,,BBMRI id
+LGRP Biobank,bbmri-eric:ID:NL_AAAACXPFROFN6ACQK2ME25QAAM,,BBMRI id
+TB-Indonesia Biobank,bbmri-eric:ID:NL_AAAACXPFV6EUKACQK2ME25QAAM,,BBMRI id
+FTD Biobank,bbmri-eric:ID:NL_AAAACXPFW2H7KACQK2ME25QAAE,,BBMRI id
+HIV Host genetics cohort Biobank,bbmri-eric:ID:NL_AAAACXPFWJPCYACQK2ME25QAAE,,BBMRI id
+Vrije Unversiteit Medisch Centrum Bacteriele Meningitis Biobank,bbmri-eric:ID:NL_AAAACXPFX7P3EACQK2ME25QAAE,,BBMRI id
+LUMINA Biobank,bbmri-eric:ID:NL_AAAACXPFXCFPSACQK2ME25QAAI,,BBMRI id
+ARGOS Biobank,bbmri-eric:ID:NL_AAAACXPJ3VCTUACQK2ME25QAAE,,BBMRI id
+Diabetes care system West-Friesland Biobank,bbmri-eric:ID:NL_AAAACXPJW5GJ6ACQK2ME25QAAM,,BBMRI id
+Biobank Data ILD,bbmri-eric:ID:NL_AAAACXPJX4UB6ACQK2ME25QAAE,,BBMRI id
+Binnenstebuiten Biobank,bbmri-eric:ID:NL_AAAACXPJXQJHAACQK2ME25QAAE,,BBMRI id
+Oogziekenhuis Biobank,bbmri-eric:ID:NL_AAAACXPJXYJXSACQK2ME25QAAE,,BBMRI id
+MYST Biobank,bbmri-eric:ID:NL_AAAACXPJYFQTKACQK2ME25QAAE,,BBMRI id
+Ghana Study Biobank,bbmri-eric:ID:NL_AAAACXPJYUZMIACQK2ME25QAAI,,BBMRI id
+ID1000 Biobank,bbmri-eric:ID:NL_AAAACXPJZNKPOACQK2ME25QAAE,,BBMRI id
+Hoorn Study Biobank,bbmri-eric:ID:NL_AAAACXPK6TQCOACQK2ME25QAAE,,BBMRI id
+NEO Study Biobank,bbmri-eric:ID:NL_AAAACXPKCIJ6KACQK2ME25QAAE,,BBMRI id
+NTR Biobank,bbmri-eric:ID:NL_AAAACXPKDOM6AACQK2ME25QAAE,,BBMRI id
+Generation R Biobank,bbmri-eric:ID:NL_AAAACXPKEJXLSACQK2ME25QAAE,,BBMRI id
+Erasmus Rucphen Family Study Biobank,bbmri-eric:ID:NL_AAAACXPKEZGNYACQK2ME25QAAE,,BBMRI id
+Department of Molecular Epidemiology,bbmri-eric:ID:NL_AAAACXPKFIXU4ACQK2ME25QAAE,,BBMRI id
+NESCOG Biobank,bbmri-eric:ID:NL_AAAACXPKGLJLKACQK2ME25QAAE,,BBMRI id
+ERGO Biobank,bbmri-eric:ID:NL_AAAACXPKHAQOYACQK2ME25QAAI,,BBMRI id
+U-TWIN Biobank,bbmri-eric:ID:NL_AAAACXPKIFC32ACQK2ME25QAAM,,BBMRI id
+PIAMA Biobank,bbmri-eric:ID:NL_AAAACXPKKEALKACQK2ME25QAAE,,BBMRI id
+WHISTLER Biobank,bbmri-eric:ID:NL_AAAACXPKLWV6CACQK2ME25QAAE,,BBMRI id
+ORIGO Biobank,bbmri-eric:ID:NL_AAAACXPKM4ZVGACQK2ME25QAAE,,BBMRI id
+ARREST Biobank,bbmri-eric:ID:NL_AAAACXPKMVPYIACQK2ME25QAAE,,BBMRI id
+BOSOM Biobank,bbmri-eric:ID:NL_AAAACXPKPSTGWACQK2ME25QAAE,,BBMRI id
+Occupational asthma Biobank,bbmri-eric:ID:NL_AAAACXPKSBQFGACQK2ME25QAAE,,BBMRI id
+NELSON Biobank,bbmri-eric:ID:NL_AAAACXPKSH53MACQK2ME25QAAE,,BBMRI id
+PPHVZ Biobank,bbmri-eric:ID:NL_AAAACXPKT6T6WACQK2ME25QAAM,,BBMRI id
+GenoMEL Biobank,bbmri-eric:ID:NL_AAAACXPKTCIZGACQK2ME25QAAM,,BBMRI id
+MINDACT Biobank,bbmri-eric:ID:NL_AAAACXPKTOQW6ACQK2ME25QAAE,,BBMRI id
+SMART Biobank,bbmri-eric:ID:NL_AAAACXPKUTPDUACQK2ME25QAAE,,BBMRI id
+Lipidpoli Biobank,bbmri-eric:ID:NL_AAAACXPLAX4VSACQK2ME25QAAI,,BBMRI id
+The Nightingale Study Biobank,bbmri-eric:ID:NL_AAAACXPLBYGYCACQK2ME25QAAE,,BBMRI id
+RIVM,bbmri-eric:ID:NL_AAAACXPRA5XCUACQK2ME25QAAE,,BBMRI id
+Vascular Disease Biobank,bbmri-eric:ID:NL_AAAACXPRAIR7CACQK2ME25QAAI,,BBMRI id
+PACMAN Biobank,bbmri-eric:ID:NL_AAAACXPRARQ4KACQK2ME25QAAE,,BBMRI id
+Zutphen Biobank,bbmri-eric:ID:NL_AAAACXPRBD7XQACQK2ME25QAAE,,BBMRI id
+LASA Biobank,bbmri-eric:ID:NL_AAAACXPRCP2M6ACQK2ME25QAAE,,BBMRI id
+EPOZ Biobank,bbmri-eric:ID:NL_AAAACXPRDI7YOACQK2ME25QAAE,,BBMRI id
+EUGENDA Biobank,bbmri-eric:ID:NL_AAAACXPRDNXUMACQK2ME25QAAE,,BBMRI id
+Family and Health Biobank,bbmri-eric:ID:NL_AAAACXPRDRIO6ACQK2ME25QAAE,,BBMRI id
+PAS Biobank,bbmri-eric:ID:NL_AAAACXS4EWC6CACQK2MBZ5YAAE,,BBMRI id
+Genetic risk factors in Familial Hypercholesterolemia,bbmri-eric:ID:NL_AAAACXS4EZXBQACQK2MBZ5YAAE,,BBMRI id
+BAVL,bbmri-eric:ID:NL_AAAACXSW447PSACQK2MBZ5YAAM,,BBMRI id
+Hyperlipidemia Biobank,bbmri-eric:ID:NL_AAAACXTCGNZLWACQK2MBZ5YAAE,,BBMRI id
+CDDSS Knowledge base,bbmri-eric:ID:NL_AAAACYAIDV754ACQK2MBZ5YAAI,,BBMRI id
+AGNES Biobank,bbmri-eric:ID:NL_AAAACYWY5TBZGACQK2MDM4QAAE,,BBMRI id
+PRECISION Biobank,bbmri-eric:ID:NL_AAAACYWYFU3V4ACQK2MDM4QAAM,,BBMRI id
+AMC Biobank,bbmri-eric:ID:NL_AMCBB,,BBMRI id
+BIG,bbmri-eric:ID:NL_BIG,,BBMRI id
+CBB,bbmri-eric:ID:NL_CBB,,BBMRI id
+COPP,bbmri-eric:ID:NL_COPP,,BBMRI id
+Colorectal cancer research platform,bbmri-eric:ID:NL_CRC,,BBMRI id
+Laboratory Experimental Internal Medicine,bbmri-eric:ID:NL_LEIM,,BBMRI id
+MuCo,bbmri-eric:ID:NL_MuCo,,BBMRI id
+STIBION,bbmri-eric:ID:NL_STIBION,,BBMRI id
+"Amsterdam UMC, Location VUmc",bbmri-eric:ID:NL_VUmc,,BBMRI id
+Fetal Aneuploidy Biobank,bbmri-eric:ID:NL_aaaac2dvrk2a6acqk2mpm4yaai,,BBMRI id
+DIPAK,bbmri-eric:ID:NL_aaaac2dvrk2auacqk2mpm4yabe,,BBMRI id
+Biobank Hemoglobinopathy,bbmri-eric:ID:NL_aaaac2dvrk2baacqk2mpm4yaae,,BBMRI id
+Hoofd-halskanker Biobank,bbmri-eric:ID:NL_aaaac2dvrk2baacqk2mpm4yaai,,BBMRI id
+Obesity Center CGG biobank,bbmri-eric:ID:NL_aaaac2dvrk2baacqk2mpm4yaam,,BBMRI id
+Postpartum psychosis biobank,bbmri-eric:ID:NL_aaaac2dvrk2baacqk2mpm4yaau,,BBMRI id
+Acutelines,bbmri-eric:ID:NL_aaaac56zz4iyz6qwh3dps4yaae,,BBMRI id
+PALGA,bbmri-eric:ID:NL_aaaacz5gvxsieacqk2mgyyqaae,,BBMRI id
+PARISK,bbmri-eric:ID:NL_aaaacz5nb2ytqacqk2mgyyqaae,,BBMRI id
+PSI,bbmri-eric:ID:NL_aaaacz5nbabrsacqk2mgyyqaae,,BBMRI id
+SIMPEL trials Biobank,bbmri-eric:ID:NL_aaaaczwp435cwacqk2mo6qaaae,,BBMRI id
+UCORBIO,bbmri-eric:ID:NL_aaaaczwpyvddcacqk2mo6qaaae,,BBMRI id
+Biobank of the department gerontology and nephrology - LUMC,bbmri-eric:ID:NL_aaaaczxoatpr2acqk2mo6qaaae,,BBMRI id
+BBMRI-Omics,bbmri-eric:ID:NL_aaaaczxoioaeoacqk2mo6qaaae,,BBMRI id
+CAPACITY registry,bbmri-eric:ID:NL_capacity,,BBMRI id
+CovidPredict: central national database,bbmri-eric:ID:NL_covidpredict,,BBMRI id
+hartenbank,bbmri-eric:ID:NL_hartenbank,,BBMRI id
+Hartwig,bbmri-eric:ID:NL_hartwig,,BBMRI id
+Maastricht Imaging,bbmri-eric:ID:NL_maastricht_imaging,,BBMRI id
+reade,bbmri-eric:ID:NL_reade,,BBMRI id
+The Maastricht Studie (Biobank),bbmri-eric:ID:NL_theMaastrichtBiobank,,BBMRI id
+UvA,bbmri-eric:ID:NL_uva,,BBMRI id
+Biobank1,bbmri-eric:ID:NO_BIOBANK1,,BBMRI id
+Biobank Haukeland,bbmri-eric:ID:NO_BiobankHaukeland,,BBMRI id
+Trøndelag,bbmri-eric:ID:NO_CoronaTrondelag,,BBMRI id
+HUNT,bbmri-eric:ID:NO_HUNT,,BBMRI id
+Stavanger,bbmri-eric:ID:NO_HelseStavanger,,BBMRI id
+Janus,bbmri-eric:ID:NO_Janus,,BBMRI id
+Cancer Biobank Sørlandet,bbmri-eric:ID:NO_SorlandetHospital,,BBMRI id
+OUS,bbmri-eric:ID:NO_OUS,,BBMRI id
+UNN,bbmri-eric:ID:NO_UNN,,BBMRI id
+UiT biobank,bbmri-eric:ID:NO_UiT,,BBMRI id
+GFIB,bbmri-eric:ID:PL_3THFK,,BBMRI id
+PBKM,bbmri-eric:ID:PL_A1P0T,,BBMRI id
+HARC,bbmri-eric:ID:PL_BIOBANK_HARC,,BBMRI id
+MULCB,bbmri-eric:ID:PL_BIOBANK_MULCB,,BBMRI id
+RCNT,bbmri-eric:ID:PL_BIOBANK_RCNT,,BBMRI id
+BLUL,bbmri-eric:ID:PL_BLUL,,BBMRI id
+BMPCC,bbmri-eric:ID:PL_BMPCC,,BBMRI id
+UMW Biobank,bbmri-eric:ID:PL_JD16N,,BBMRI id
+LBBK Biobank,bbmri-eric:ID:PL_LBBK,,BBMRI id
+PMUDRBL,bbmri-eric:ID:PL_PMUDRBL,,BBMRI id
+Łukasiewicz PORT-Biobank,bbmri-eric:ID:PL_PORT,,BBMRI id
+TKFGB,bbmri-eric:ID:PL_TKFGB,,BBMRI id
+LifeGene,bbmri-eric:ID:SE_1692,,BBMRI id
+The Epidemiological Investigation of Multiple Sclerosis (EIMS),bbmri-eric:ID:SE_1705,,BBMRI id
+Cardiovascular risks among 60 year old men and women in Stockholm,bbmri-eric:ID:SE_1711,,BBMRI id
+Karolinska Mammography Project for Risk Prediction of Breast Cancer,bbmri-eric:ID:SE_1714,,BBMRI id
+Cohort of Swedish Men (COSM),bbmri-eric:ID:SE_1716,,BBMRI id
+Bbk-00331,bbmri-eric:ID:SE_1718,,BBMRI id
+The Northern Swedish Cohort,bbmri-eric:ID:SE_1723,,BBMRI id
+Vital Freezing of Lymphoma Cells - A biobank for development of novel therapies in patients with malignant lymphoma,bbmri-eric:ID:SE_1725,,BBMRI id
+Periodontal disease and its relation to cardiovascular disease,bbmri-eric:ID:SE_1730,,BBMRI id
+RATSS (Roots of Autism Twin Study Sweden),bbmri-eric:ID:SE_1732,,BBMRI id
+SALTY,bbmri-eric:ID:SE_1737,,BBMRI id
+Swedish Mammography Cohort (SMC),bbmri-eric:ID:SE_1746,,BBMRI id
+Family studies of pediatric cancer,bbmri-eric:ID:SE_1750,,BBMRI id
+Uppsala Biobank,bbmri-eric:ID:SE_827,,BBMRI id
+Risk factors among consecutive breast cancer patients and controls,bbmri-eric:ID:SE_1752,,BBMRI id
+Breast Cancer-metastases study,bbmri-eric:ID:SE_1753,,BBMRI id
+The Child and Adolescent Twin Study in Sweden (CATSS),bbmri-eric:ID:SE_1756,,BBMRI id
+RAPPER,bbmri-eric:ID:UK_GBR-1-106,,BBMRI id
+"Developmental Outcomes of neurodevelopmental problem, a Genetic twin Study in Sweden (DOGSS)",bbmri-eric:ID:SE_1760,,BBMRI id
+Risk factors studies in young women of high risk of breast or ovarian cancer,bbmri-eric:ID:SE_1768,,BBMRI id
+Wife and husband DNA cohort,bbmri-eric:ID:SE_1770,,BBMRI id
+"MPP, MFM biobanks",bbmri-eric:ID:SE_1771,,BBMRI id
+MDCS Biobanks,bbmri-eric:ID:SE_1773,,BBMRI id
+MOS Biobank,bbmri-eric:ID:SE_1774,,BBMRI id
+MDS Biobank KI,bbmri-eric:ID:SE_1775,,BBMRI id
+Case control study for risk factors of melanoma,bbmri-eric:ID:SE_1777,,BBMRI id
+Melanoma Inquiry Study in South Sweden,bbmri-eric:ID:SE_1780,,BBMRI id
+SHEEP,bbmri-eric:ID:SE_1783,,BBMRI id
+Risk factors studies in hereditary breast cancer,bbmri-eric:ID:SE_1786,,BBMRI id
+TwinGene,bbmri-eric:ID:SE_1789,,BBMRI id
+WOLF,bbmri-eric:ID:SE_1802,,BBMRI id
+The Northern Sweden MONICA study,bbmri-eric:ID:SE_1807,,BBMRI id
+National Human Biological Environmental Biobank,bbmri-eric:ID:SE_1809,,BBMRI id
+U-CAN,bbmri-eric:ID:SE_1812,,BBMRI id
+SRQ,bbmri-eric:ID:SE_2188,,BBMRI id
+Sleepy Brain: an fMRI study of sleep deprivation in healthy young and old humans,bbmri-eric:ID:SE_2245,,BBMRI id
+Skolgen-2,bbmri-eric:ID:SE_2254,,BBMRI id
+The Swedish National Cord Blood Bank,bbmri-eric:ID:SE_2269,,BBMRI id
+TEDDY,bbmri-eric:ID:SE_2326,,BBMRI id
+DiPiS,bbmri-eric:ID:SE_2328,,BBMRI id
+Andis – Alla Nya Diabetiker I Skåne,bbmri-eric:ID:SE_2331,,BBMRI id
+Ungdom 2000,bbmri-eric:ID:SE_2362,,BBMRI id
+CABG,bbmri-eric:ID:SE_2382,,BBMRI id
+EpiHealth,bbmri-eric:ID:SE_2383,,BBMRI id
+IMSE II,bbmri-eric:ID:SE_2385,,BBMRI id
+SCREESCO,bbmri-eric:ID:SE_2388,,BBMRI id
+YATSS,bbmri-eric:ID:SE_2398,,BBMRI id
+BBV,bbmri-eric:ID:SE_890,,BBMRI id
+BD47,bbmri-eric:ID:SE_BD47,,BBMRI id
+BBN,bbmri-eric:ID:SE_Biobank_North,,BBMRI id
+KI biobank,bbmri-eric:ID:SE_KI_Biobank,,BBMRI id
+BBF,bbmri-eric:ID:SE_Linkoping_Biobanksfacilitet,,BBMRI id
+Region Skånes Biobank,bbmri-eric:ID:SE_Region_Skanes_Biobank,,BBMRI id
+Children's Cancer and Leukaemia Group (CCLG) Tissue Bank,bbmri-eric:ID:UK_GBR-1-1,,BBMRI id
+Oxford Radcliffe Biobank,bbmri-eric:ID:UK_GBR-1-10,,BBMRI id
+BRAIN UK,bbmri-eric:ID:UK_GBR-1-101,,BBMRI id
+Oxford Cell & Tissue Biobank,bbmri-eric:ID:UK_GBR-1-102,,BBMRI id
+Infectious Diseases BioBank at King's College London,bbmri-eric:ID:UK_GBR-1-103,,BBMRI id
+PHOTO Translational bladder cancer biorepository,bbmri-eric:ID:UK_GBR-1-104,,BBMRI id
+PTCL Biobank,bbmri-eric:ID:UK_GBR-1-105,,BBMRI id
+NIMRAD-TRANS,bbmri-eric:ID:UK_GBR-1-108,,BBMRI id
+Baby Bio Bank,bbmri-eric:ID:UK_GBR-1-11,,BBMRI id
+ICHTB,bbmri-eric:ID:UK_GBR-1-110,,BBMRI id
+Bristol Biobank,bbmri-eric:ID:UK_GBR-1-112,,BBMRI id
+POUT-T,bbmri-eric:ID:UK_GBR-1-114,,BBMRI id
+Barts CTU,bbmri-eric:ID:UK_GBR-1-117,,BBMRI id
+CEPA Biobank Newcastle,bbmri-eric:ID:UK_GBR-1-118,,BBMRI id
+UK CLL Trials Biobank,bbmri-eric:ID:UK_GBR-1-119,,BBMRI id
+"St Thomas' Hospitals Plasma, serum & DNA Bio bank from patients with antiphospholipid antibodies",bbmri-eric:ID:UK_GBR-1-121,,BBMRI id
+REQUITE,bbmri-eric:ID:UK_GBR-1-122,,BBMRI id
+UKCTOCS Longitudinal Women's Cohort (UKLWC),bbmri-eric:ID:UK_GBR-1-123,,BBMRI id
+Extracted teeth Biobank,bbmri-eric:ID:UK_GBR-1-127,,BBMRI id
+Barts Gynae Tissue Bank,bbmri-eric:ID:UK_GBR-1-128,,BBMRI id
+Molecular Investigation of Haematopoietic Malignancy Study,bbmri-eric:ID:UK_GBR-1-129,,BBMRI id
+STAMPEDE,bbmri-eric:ID:UK_GBR-1-178,,BBMRI id
+Barts Cancer Institute Breast Tissue Bank,bbmri-eric:ID:UK_GBR-1-130,,BBMRI id
+Orchid Tissue Bank,bbmri-eric:ID:UK_GBR-1-131,,BBMRI id
+GoSHARE (Genetics of the Scottish Health Research Register),bbmri-eric:ID:UK_GBR-1-132,,BBMRI id
+The Cleft Collective,bbmri-eric:ID:UK_GBR-1-133,,BBMRI id
+VinCaP,bbmri-eric:ID:UK_GBR-1-134,,BBMRI id
+DOC-MEK,bbmri-eric:ID:UK_GBR-1-136,,BBMRI id
+University of Liverpool - GCP Laboratory Facility,bbmri-eric:ID:UK_GBR-1-137,,BBMRI id
+The Airwave Health Monitoring Tissue Bank,bbmri-eric:ID:UK_GBR-1-139,,BBMRI id
+Wales Cancer Bank,bbmri-eric:ID:UK_GBR-1-14,,BBMRI id
+UK MND Collections,bbmri-eric:ID:UK_GBR-1-140,,BBMRI id
+York Tissue Bank,bbmri-eric:ID:UK_GBR-1-142,,BBMRI id
+National Unified Renal Translational Research Enterprise (NURTuRE),bbmri-eric:ID:UK_GBR-1-143,,BBMRI id
+"Oncology Clinical Trials Office, University of Oxford",bbmri-eric:ID:UK_GBR-1-145,,BBMRI id
+The PEACE Study,bbmri-eric:ID:UK_GBR-1-146,,BBMRI id
+NIHR Exeter Clinical Research Facility,bbmri-eric:ID:UK_GBR-1-148,,BBMRI id
+Obesity Research Biobank Syndicate (ORBiS),bbmri-eric:ID:UK_GBR-1-149,,BBMRI id
+Leeds Breast Research Tissue Bank,bbmri-eric:ID:UK_GBR-1-150,,BBMRI id
+TRICON8B,bbmri-eric:ID:UK_GBR-1-151,,BBMRI id
+Cancer Group CTR Cardiff trials,bbmri-eric:ID:UK_GBR-1-153,,BBMRI id
+Daisy Tumour Bank,bbmri-eric:ID:UK_GBR-1-154,,BBMRI id
+King's Health Partners Cancer Biobank,bbmri-eric:ID:UK_GBR-1-156,,BBMRI id
+King's Paediatric Liver Tissue Biobank,bbmri-eric:ID:UK_GBR-1-164,,BBMRI id
+Donate For Research Initiative (DRI),bbmri-eric:ID:UK_GBR-1-165,,BBMRI id
+UCL Infection DNA Bank,bbmri-eric:ID:UK_GBR-1-166,,BBMRI id
+UK real-world lymphoid tissue bank,bbmri-eric:ID:UK_GBR-1-167,,BBMRI id
+LBIH Biobank,bbmri-eric:ID:UK_GBR-1-17,,BBMRI id
+eLIXIR - Early Life Data Cross-Linkage in Research,bbmri-eric:ID:UK_GBR-1-173,,BBMRI id
+The Swansea Neurology Biobank,bbmri-eric:ID:UK_GBR-1-174,,BBMRI id
+IoN Trial,bbmri-eric:ID:UK_GBR-1-176,,BBMRI id
+Myeloma XII clinical trial samples,bbmri-eric:ID:UK_GBR-1-179,,BBMRI id
+HCV Research UK,bbmri-eric:ID:UK_GBR-1-18,,BBMRI id
+Oxford Musculoskeletal Biobank,bbmri-eric:ID:UK_GBR-1-181,,BBMRI id
+"Newcastle Biobank, Newcastle University",bbmri-eric:ID:UK_GBR-1-182,,BBMRI id
+RIO,bbmri-eric:ID:UK_GBR-1-183,,BBMRI id
+UNIRAD UK Sample collection,bbmri-eric:ID:UK_GBR-1-184,,BBMRI id
+IDRIS Trial,bbmri-eric:ID:UK_GBR-1-186,,BBMRI id
+INCA Trial,bbmri-eric:ID:UK_GBR-1-188,,BBMRI id
+UKALL14 Trial,bbmri-eric:ID:UK_GBR-1-189,,BBMRI id
+Tayside Biorepository,bbmri-eric:ID:UK_GBR-1-19,,BBMRI id
+RATHL Trial,bbmri-eric:ID:UK_GBR-1-190,,BBMRI id
+Watch and Wait Trial,bbmri-eric:ID:UK_GBR-1-191,,BBMRI id
+ICON9 Trial,bbmri-eric:ID:UK_GBR-1-192,,BBMRI id
+DARWIN1 Trial,bbmri-eric:ID:UK_GBR-1-193,,BBMRI id
+RJAH Biobank for Studying Health and Disease,bbmri-eric:ID:UK_GBR-1-196,,BBMRI id
+Multiple Sclerosis and Parkinson's Tissue Bank,bbmri-eric:ID:UK_GBR-1-199,,BBMRI id
+Biobank for patients with retinal degenerations & dystrophies,bbmri-eric:ID:UK_GBR-1-2,,BBMRI id
+Cardamon Clinical Trial Samples,bbmri-eric:ID:UK_GBR-1-200,,BBMRI id
+"Leeds Dental Institute/School of Dentistry Leeds,  Skeletal Tissues Bank",bbmri-eric:ID:UK_GBR-1-203,,BBMRI id
+kings college Haemato -Oncology Tissue bank,bbmri-eric:ID:UK_GBR-1-205,,BBMRI id
+GlaxoSmithKline Research Tissue Bank,bbmri-eric:ID:UK_GBR-1-206,,BBMRI id
+Cardiff University Biobank,bbmri-eric:ID:UK_GBR-1-208,,BBMRI id
+PHOENIX DDR-Anti-PD-L1 Trial,bbmri-eric:ID:UK_GBR-1-209,,BBMRI id
+SWIFT-RTB,bbmri-eric:ID:UK_GBR-1-210,,BBMRI id
+Royal Papworth Hospital Research Tissue Bank,bbmri-eric:ID:UK_GBR-1-213,,BBMRI id
+NIHR Nottingham Digestive Diseases Collection,bbmri-eric:ID:UK_GBR-1-22,,BBMRI id
+University of Sheffield,bbmri-eric:ID:UK_GBR-1-222,,BBMRI id
+Sheffield Pulmonary Hypertension Biobank,bbmri-eric:ID:UK_GBR-1-225,,BBMRI id
+Northern Ireland Biobank (NIB),bbmri-eric:ID:UK_GBR-1-23,,BBMRI id
+Bristol Dental School Saliva Bank,bbmri-eric:ID:UK_GBR-1-234,,BBMRI id
+SCOT translational sample collection,bbmri-eric:ID:UK_GBR-1-24,,BBMRI id
+Sheffield Lung Research Tissue Bank,bbmri-eric:ID:UK_GBR-1-244,,BBMRI id
+IMPORT HIGH trial blood samples,bbmri-eric:ID:UK_GBR-1-247,,BBMRI id
+Norwich Research Park Biorepository,bbmri-eric:ID:UK_GBR-1-248,,BBMRI id
+Sheffield Brain Tissue Bank (SBTB),bbmri-eric:ID:UK_GBR-1-249,,BBMRI id
+Nostra feasibility trial,bbmri-eric:ID:UK_GBR-1-250,,BBMRI id
+Tommy's National Reproductive Health Biobank,bbmri-eric:ID:UK_GBR-1-255,,BBMRI id
+plasmaMATCH,bbmri-eric:ID:UK_GBR-1-26,,BBMRI id
+Cardiff School of Dentistry Tooth Bank,bbmri-eric:ID:UK_GBR-1-29,,BBMRI id
+Manchester Eye Tissue Repository,bbmri-eric:ID:UK_GBR-1-33,,BBMRI id
+MRC Brain Banks Network,bbmri-eric:ID:UK_GBR-1-34,,BBMRI id
+NHS Grampian Biorepository,bbmri-eric:ID:UK_GBR-1-35,,BBMRI id
+UK ME/CFS Biobank,bbmri-eric:ID:UK_GBR-1-36,,BBMRI id
+Ethical Tissue - University of Bradford,bbmri-eric:ID:UK_GBR-1-37,,BBMRI id
+Cam-UroOnc Biorepository,bbmri-eric:ID:UK_GBR-1-39,,BBMRI id
+Human Developmental Biology Resource (HDBR),bbmri-eric:ID:UK_GBR-1-4,,BBMRI id
+BioDock,bbmri-eric:ID:UK_GBR-1-40,,BBMRI id
+Tissue Access for Patient Benefit (TAPb),bbmri-eric:ID:UK_GBR-1-41,,BBMRI id
+University of Southampton Faculty of Medicine Tissue Bank,bbmri-eric:ID:UK_GBR-1-42,,BBMRI id
+HPB Biobank,bbmri-eric:ID:UK_GBR-1-44,,BBMRI id
+MesobanK,bbmri-eric:ID:UK_GBR-1-47,,BBMRI id
+UK primary Sjogren's syndrome Registry,bbmri-eric:ID:UK_GBR-1-48,,BBMRI id
+Bloodwise Childhood Leukaemia Cell Bank,bbmri-eric:ID:UK_GBR-1-49,,BBMRI id
+CMFT Biobank,bbmri-eric:ID:UK_GBR-1-50,,BBMRI id
+Leeds Multidisciplinary Research Tissue Bank,bbmri-eric:ID:UK_GBR-1-51,,BBMRI id
+NHS Greater Glasgow & Clyde Bio-Repository,bbmri-eric:ID:UK_GBR-1-52,,BBMRI id
+The Christie NHS Foundation Trust,bbmri-eric:ID:UK_GBR-1-53,,BBMRI id
+Arden Tissue Bank,bbmri-eric:ID:UK_GBR-1-56,,BBMRI id
+QUOD - Quality in Organ Donation,bbmri-eric:ID:UK_GBR-1-54,,BBMRI id
+ESPAC-TPlus,bbmri-eric:ID:UK_GBR-1-59,,BBMRI id
+QTL Programme at MRC HGU,bbmri-eric:ID:UK_GBR-1-65,,BBMRI id
+MDSBio,bbmri-eric:ID:UK_GBR-1-68,,BBMRI id
+TwinsUK,bbmri-eric:ID:UK_GBR-1-69,,BBMRI id
+Human Biomaterials Resource Centre,bbmri-eric:ID:UK_GBR-1-7,,BBMRI id
+interNational Anaplastic Thyroid Cancer Tissue Bank (iNATT),bbmri-eric:ID:UK_GBR-1-70,,BBMRI id
+Scottish Human Papillomavirus Archive,bbmri-eric:ID:UK_GBR-1-72,,BBMRI id
+Leeds NIHR Biomarker Research Tissue Bank,bbmri-eric:ID:UK_GBR-1-74,,BBMRI id
+NRS Lothian Bioresource,bbmri-eric:ID:UK_GBR-1-75,,BBMRI id
+Generation Scotland,bbmri-eric:ID:UK_GBR-1-8,,BBMRI id
+HYWEL DDA BIOBANK,bbmri-eric:ID:UK_GBR-1-81,,BBMRI id
+SUN Study,bbmri-eric:ID:UK_GBR-1-82,,BBMRI id
+National Diet and Nutrition Survey (NDNS),bbmri-eric:ID:UK_GBR-1-83,,BBMRI id
+TOPARP: Ph. II Trial of Olaparib in Patients with advanced CRPC,bbmri-eric:ID:UK_GBR-1-85,,BBMRI id
+TNT: Triple Negative breast cancer Trial,bbmri-eric:ID:UK_GBR-1-86,,BBMRI id
+POETIC: Trial of perioperative endocrine therapy – individualising care,bbmri-eric:ID:UK_GBR-1-89,,BBMRI id
+Cambridge Blood and Stem Cell Biobank,bbmri-eric:ID:UK_GBR-1-9,,BBMRI id
+NICAM: Nilotinib treatment for c-KIT mutated advanced AMM,bbmri-eric:ID:UK_GBR-1-90,,BBMRI id
+EPHOS-B Trial,bbmri-eric:ID:UK_GBR-1-91,,BBMRI id
+CASPS: A Phase II trial of Cediranib in ASPS patients,bbmri-eric:ID:UK_GBR-1-92,,BBMRI id
+RE-AKT,bbmri-eric:ID:UK_GBR-1-93,,BBMRI id
+Public Health England Seroepidemiology Unit,bbmri-eric:ID:UK_GBR-1-95,,BBMRI id
+Barts Bioresourse,bbmri-eric:ID:UK_GBR-1-96,,BBMRI id
+UCL Royal Free Hospital Biobank,bbmri-eric:ID:UK_GBR-1-98,,BBMRI id
+LSC,20210420-2560,,Innsbruck Clinical Trial Center
+ENIGMA,NCT04427163,NCT number,
+EXCEED study,bbmri-eric:ID:UK_GBR-1-256,,BBMRI id
+Epilepsy Society Brain and Tissue Bank,bbmri-eric:ID:UK_GBR-1-61,,BBMRI id
+UCL / UCLH Biobank for Studying Health and Disease,bbmri-eric:ID:UK_GBR-1-62,,BBMRI id
+NIHR BioResource,bbmri-eric:ID:UK_GBR-1-67,,BBMRI id
