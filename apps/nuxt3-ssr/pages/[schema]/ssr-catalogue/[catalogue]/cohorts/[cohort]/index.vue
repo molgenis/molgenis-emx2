@@ -56,6 +56,8 @@ const query = gql`
         title
         doi
       }
+      populationOncologyTopology ${moduleToString(ontologyFragment)}
+      populationOncologyMorphology ${moduleToString(ontologyFragment)}
       inclusionCriteria ${moduleToString(ontologyFragment)}
       otherInclusionCriteria
       additionalOrganisations {
