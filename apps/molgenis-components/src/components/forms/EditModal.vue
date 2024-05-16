@@ -334,7 +334,6 @@ function checkForErrors() {
     rowErrors.value = getRowErrors(tableMetadata.value, rowData.value);
   }
   saveDisabledMessage.value = getSaveDisabledMessage(rowErrors.value);
-  console.log(rowErrors.value);
 }
 
 function getHeadingLabel(headingId: string) {

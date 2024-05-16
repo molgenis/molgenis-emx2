@@ -23,7 +23,6 @@ function getColumnError(
   rowData: Record<string, any>,
   tableMetaData: ITableMetaData
 ): string | undefined {
-  console.log(column.id, rowData);
   const value = rowData[column.id];
   const type = column.columnType;
   const missesValue = isMissingValue(value);
