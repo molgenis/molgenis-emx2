@@ -123,20 +123,11 @@ const query = gql`
           name
         }
       }
-      dataAccessConditions {
-        name
-        ontologyTermURI
-        code
-        definition
-      }
+      dataAccessConditions ${moduleToString(ontologyFragment)}
       dataAccessConditionsDescription
-      dataUseConditions {
-        name
-        ontologyTermURI
-        code
-        definition
-      }
+      dataUseConditions ${moduleToString(ontologyFragment)}
       dataAccessFee
+      releaseType ${moduleToString(ontologyFragment)}
       releaseDescription
       linkageOptions
       fundingStatement
@@ -319,13 +310,13 @@ let accessConditionsItems = computed(() => {
   let items = [];
   if (cohort.value.dataAccessConditions?.length) {
     items.push({
-      label: "Conditions",
+      label: "Data access conditions",
       content: cohort.value.dataAccessConditions.map((c) => c.name),
     });
   }
   if (cohort.value.releaseDescription) {
     items.push({
-      label: "Release",
+      label: "Release description",
       content: cohort.value.releaseDescription,
     });
   }
@@ -333,6 +324,26 @@ let accessConditionsItems = computed(() => {
     items.push({
       label: "Linkage options",
       content: cohort.value.linkageOptions,
+    });
+  }
+  if (cohort.value.dataUseConditions) {
+    items.push({
+      label: "data use conditions",
+      type: "ONTOLOGY",
+      content: cohort.value.dataUseConditions,
+    });
+  }
+  if (cohort.value.dataAccessFee) {
+    items.push({
+      label: "data access fee",
+      content: cohort.value.dataAccessFee,
+    });
+  }
+  if (cohort.value.releaseType) {
+    items.push({
+      label: "release type",
+      type: "ONTOLOGY",
+      content: cohort.value.releaseType,
     });
   }
 
