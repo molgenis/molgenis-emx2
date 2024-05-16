@@ -98,11 +98,6 @@ def find_cohort_references(schema_schema: Schema, schema_name: str, base_table: 
         for tab in schema_schema.get_tables(by='schemaName', value=schema_name)
     }
 
-    # TODO fix following
-    # # Add forward references to the backward references dictionary
-    # for col, tab in forward_refs.items():
-    #     backward_refs[base_table].append(col)
-
     # Add columns referencing the base table indirectly to the backward_refs dictionary
     for k, v in table_references.items():
         if k == base_table:
@@ -122,7 +117,6 @@ def find_cohort_references(schema_schema: Schema, schema_name: str, base_table: 
                 continue
             if tab in table_references[_tab].values():
                 ref_backs[tab].append(_tab)
-
 
     for coh, inh in inheritance.items():
         if coh in ref_backs.keys():
@@ -150,7 +144,6 @@ def find_cohort_references(schema_schema: Schema, schema_name: str, base_table: 
 def construct_delete_variables(db_schema: Schema, cohort_ids: list, table_name: str, ref_col: str):
     """Constructs a variables filter for querying the GraphQL table on the desired column values."""
     pkeys = prepare_pkey(db_schema, table_name, ref_col)
-    # pkeys = [prepare_pkey(db_schema, table_name, col.id) for col in table_schema.get_columns(by='key', value=1)]
 
     def prepare_key_part(_pkey: str | dict | list):
         if isinstance(_pkey, str):

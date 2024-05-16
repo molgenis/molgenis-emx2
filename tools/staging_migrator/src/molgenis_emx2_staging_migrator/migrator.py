@@ -128,9 +128,6 @@ class StagingMigrator(Client):
             else:
                 log.debug(f"Updating row(s) with primary keys {delete_rows.get(table_id)}"
                           f"\n in table {table_name}. (Not yet implemented)")
-                # TODO: implement following
-                # self._delete_from_ref_array(schema=catalogue, table_id=table_schema['id'],
-                #                             pkeys=response.json().get('data').get(table_schema['id']))
 
     def sync_shared_staging(self):
         """Synchronizes the records in the SharedStaging schema that are referenced
@@ -168,7 +165,7 @@ class StagingMigrator(Client):
         organisations = list(organisations)
         if len(organisations) < 1:
             return
-        # TODO combine the ids of Organisations in the responses
+
         shared_schema = self.get_schema_metadata('SharedStaging')
         search_query = self.__construct_pkey_query(shared_schema, 'Organisations', all_columns=True)
         search_variables = construct_delete_variables(shared_schema, organisations, 'Organisations', 'id')
