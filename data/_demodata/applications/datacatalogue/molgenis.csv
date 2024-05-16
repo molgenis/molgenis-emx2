@@ -33,12 +33,12 @@ Variable values,,,,,,,,,,,,,,,,,,,Listing of categorical value+label definition 
 Catalogues,,,,,,,,,,,,,,,,,,,A collection of resources within a network or consortium or about a common topic
 Studies,Extended resources,,,,,,,,,,,,,,,,,,"Collaborations of multiple institutions, addressing research questions using data sources and/or data banks"
 Network variables,,,,,,,,,,,,,,,,,,,Listing of the variables used in a network
-Aggregates,,,resource,ref,1,True,,Extended resources,,,,,,,,,"DataCatalogue,CohortStaging",,Resource this sample or data count refers to
-Aggregates,,,research center,ref,1,True,,Organisations,,,,,,,,,DataCatalogue,,
-Aggregates,,,primary tumor,ontology,1,True,CatalogueOntologies,Tumor types,,,,,,,,,"DataCatalogue,CohortStaging",,
-Aggregates,,,sample type,ontology,1,True,CatalogueOntologies,Sample types,,,,,,,,,"DataCatalogue,CohortStaging",,
-Aggregates,,,sampling period,ontology,1,True,CatalogueOntologies,Sampling periods,,,,,,,,,"DataCatalogue,CohortStaging",,
-Aggregates,,,sex,ontology,1,True,CatalogueOntologies,Sex,,,,,,,,,"DataCatalogue,CohortStaging",,
+Aggregates,,,resource,ref,1,true,,Extended resources,,,,,,,,,"DataCatalogue,CohortStaging",,Resource this sample or data count refers to
+Aggregates,,,research center,ref,1,true,,Organisations,,,,,,,,,DataCatalogue,,
+Aggregates,,,primary tumor,ontology,1,true,CatalogueOntologies,Tumor types,,,,,,,,,"DataCatalogue,CohortStaging",,
+Aggregates,,,sample type,ontology,1,true,CatalogueOntologies,Sample types,,,,,,,,,"DataCatalogue,CohortStaging",,
+Aggregates,,,sampling period,ontology,1,true,CatalogueOntologies,Sampling periods,,,,,,,,,"DataCatalogue,CohortStaging",,
+Aggregates,,,sex,ontology,1,true,CatalogueOntologies,Sex,,,,,,,,,"DataCatalogue,CohortStaging",,
 Aggregates,,,n,int,,True,,,,,,,,,,,"DataCatalogue,CohortStaging",,count
 All variables,,,resource,ref,1,true,,Extended resources,,,,,,,,,"DataCatalogue,CohortStaging",,Data source that this variable was collected in
 All variables,,,dataset,ref,1,true,,Datasets,resource,,,,,,,,"DataCatalogue,CohortStaging",,Dataset this variable is part of
