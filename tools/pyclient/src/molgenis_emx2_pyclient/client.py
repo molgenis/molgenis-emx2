@@ -6,6 +6,7 @@ from typing import TypeAlias, Literal
 
 import pandas as pd
 import requests
+from requests import Response
 
 from . import graphql_queries as queries
 from . import utils
@@ -100,16 +101,7 @@ class Client:
             url=self.api_graphql,
             json={'query': query, 'variables': variables}
         )
-
-        if response.status_code == 404:
-            raise ServerNotFoundError(f"Server {self.url!r} could not be found. "
-                                      f"Ensure the spelling of the url is correct.")
-        if response.status_code == 503:
-            raise ServiceUnavailableError(f"Server {self.url!r} not available. "
-                                          f"Try again later.")
-        if response.status_code != 200:
-            raise PyclientException(f"Server {self.url!r} could not be reached due to a connection problem."
-                                    f"\nStatus code: {response.status_code}. Reason: {response.reason!r}.")
+        self._validate_graphql_response(response, mutation='signin')
 
         response_json: dict = response.json().get('data', {}).get('signin', {})
 
@@ -117,7 +109,6 @@ class Client:
             self.signin_status = 'success'
             message = f"User {self.username!r} is signed in to {self.url!r}."
             log.info(message)
-            print(message)
         elif response_json.get('status') == 'FAILED':
             self.signin_status = 'failed'
             message = f"Error: Unable to sign in to {self.url} as {self.username}." \
@@ -179,15 +170,7 @@ class Client:
             headers={'x-molgenis-token': self.token}
         )
 
-        if response.status_code == 503:
-            raise ServiceUnavailableError(f"Server with url {self.url!r} (temporarily) unavailable.")
-        if response.status_code == 404:
-            raise ServerNotFoundError(f"Server with url {self.url!r} not found.")
-        if response.status_code == 400:
-            if 'Invalid token or token expired' in response.text:
-                raise InvalidTokenException("Invalid token or token expired.")
-            raise PyclientException("An unknown error occurred when trying to reach this server.")
-
+        self._validate_graphql_response(response)
         response_json: dict = response.json()
         schemas = [Schema(**s) for s in response_json['data']['_schemas']]
         return schemas
@@ -255,17 +238,11 @@ class Client:
             data=import_data
         )
 
-        if response.status_code == 200:
+        try:
+            self._validate_graphql_response(response)
             log.info("Imported data into %s::%s.", current_schema, table)
-        elif response.status_code == 400:
-            if 'permission denied' in response.text:
-                raise PermissionDeniedException(f"Transaction failed: permission denied for table {table}.")
+        except PyclientException:
             errors = '\n'.join([err['message'] for err in response.json().get('errors')])
-            # log.error(f"Failed to import data into {current_schema}::{table}\n{errors}.")
-            log.error("Failed to import data into %s::%s\n%s", current_schema, table, errors)
-        else:
-            errors = '\n'.join([err['message'] for err in response.json().get('errors')])
-            # log.error(f"Failed to import data into {current_schema}::{table}\n{errors}.")
             log.error("Failed to import data into %s::%s\n%s", current_schema, table, errors)
 
     def delete_records(self, table: str, schema: str = None, file: str = None, data: list | pd.DataFrame = None):
@@ -305,6 +282,9 @@ class Client:
             data=import_data
         )
 
+        self._validate_graphql_response(response, mutation='delete',
+                                        fallback_error_message=f"Failed to delete data from {current_schema}::{table}.")
+
         if response.status_code == 200:
             log.info("Deleted data from %s::%s.", current_schema, table)
         else:
@@ -342,11 +322,9 @@ class Client:
         response = self.session.get(url=f"{self.url}/{current_schema}/api/csv/{table_id}",
                                     headers={'x-molgenis-token': self.token})
 
-        if response.status_code != 200:
-            message = f"Failed to retrieve data from {current_schema}::{table!r}." \
-                      f"\nStatus code: {response.status_code}."
-            log.error(message)
-            raise PyclientException(message)
+        self._validate_graphql_response(response=response,
+                                        fallback_error_message=f"Failed to retrieve data from {current_schema}::{table!r}." \
+                                                               f"\nStatus code: {response.status_code}.")
 
         response_data = pd.read_csv(io.BytesIO(response.content), keep_default_na=False)
 
@@ -450,7 +428,7 @@ class Client:
 
         response_json = response.json()
         self._validate_graphql_response(
-            response_json=response_json,
+            response=response,
             mutation='createSchema',
             fallback_error_message=f"Failed to create schema {name!r}"
         )
@@ -480,7 +458,7 @@ class Client:
 
         response_json = response.json()
         self._validate_graphql_response(
-            response_json=response_json,
+            response=response,
             mutation='deleteSchema',
             fallback_error_message=f"Failed to delete schema {current_schema!r}"
         )
@@ -512,7 +490,7 @@ class Client:
 
         response_json = response.json()
         self._validate_graphql_response(
-            response_json=response_json,
+            response=response,
             mutation='updateSchema',
             fallback_error_message=f"Failed to update schema {current_schema!r}"
         )
@@ -634,25 +612,36 @@ class Client:
 
         return name
 
-    @staticmethod
-    def _validate_graphql_response(response_json: dict, mutation: str, fallback_error_message: str):
+    def _validate_graphql_response(self, response: Response, mutation: str = None, fallback_error_message: str = None):
         """Validates a GraphQL response and prints the appropriate message.
 
-        :param response_json: a graphql response from the server
-        :type response_json: dict
-        :param mutation: the name of the graphql mutation executed
+        :param response: a graphql response from the server
+        :type response: requests.Response
+        :param mutation: the name of the graphql mutation executed, optional
         :type mutation: str
-        :param fallback_error_message: a fallback error message
+        :param fallback_error_message: a fallback error message, optional
         :type fallback_error_message: str
 
         :returns: a success or error message
         :rtype: string
         """
+
+        if response.status_code == 503:
+            raise ServiceUnavailableError(f"Server with url {self.url!r} (temporarily) unavailable.")
+        if response.status_code == 404:
+            raise ServerNotFoundError(f"Server with url {self.url!r} not found.")
+        if response.status_code == 400:
+            if 'Invalid token or token expired' in response.text:
+                raise InvalidTokenException("Invalid token or token expired.")
+            if 'permission denied' in response.text:
+                raise PermissionDeniedException(f"Transaction failed: permission denied.")
+            raise PyclientException("An unknown error occurred when trying to reach this server.")
+
+        response_json = response.json()
         response_keys = response_json.keys()
         if 'errors' not in response_keys and 'data' not in response_keys:
             message = fallback_error_message
             log.error(message)
-            print(message)
 
         elif 'errors' in response_keys:
             message = response_json.get('errors')[0].get('message')
@@ -665,15 +654,13 @@ class Client:
             log.error(message)
             raise GraphQLException(message)
 
-        else:
+        elif mutation is not None:
             if response_json.get('data').get(mutation).get('status') == 'SUCCESS':
                 message = response_json.get('data').get(mutation).get('message')
                 log.info(message)
-                print(message)
             else:
-                message = f"Failed to validate response for {mutation}"
+                message = f"Failed to validate response for {mutation!r}"
                 log.error(message)
-                print(message)
 
     @staticmethod
     def _format_optional_params(**kwargs):
