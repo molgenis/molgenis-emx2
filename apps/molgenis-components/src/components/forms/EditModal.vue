@@ -154,7 +154,7 @@ const { isModalShown } = toRefs(props);
 
 const { IS_CHAPTERS_ENABLED_FIELD_NAME } = constants;
 const rowData = ref<Record<string, any>>({});
-const rowErrors = ref<Record<string, string | undefined>>({});
+const rowErrors = ref<Record<string, string>>({});
 const tableMetadata = ref<ITableMetaData>();
 const schemaMetadata = ref<ISchemaMetaData>();
 const client = ref<INewClient>();
@@ -331,9 +331,10 @@ function handleClose() {
 
 function checkForErrors() {
   if (tableMetadata.value) {
-    rowErrors.value = getRowErrors(tableMetadata.value, rowData);
+    rowErrors.value = getRowErrors(tableMetadata.value, rowData.value);
   }
   saveDisabledMessage.value = getSaveDisabledMessage(rowErrors.value);
+  console.log(rowErrors.value);
 }
 
 function getHeadingLabel(headingId: string) {
