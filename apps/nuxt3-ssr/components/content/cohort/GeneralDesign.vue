@@ -5,6 +5,7 @@ import type {
   INameObject,
 } from "~/interfaces/types";
 import type { IOntologyItem } from "meta-data-utils";
+import dateUtils from "~/utils/dateUtils";
 
 const { cohort, mainMedicalCondition } = defineProps<{
   title: string;
@@ -60,10 +61,10 @@ function setData() {
     },
     {
       label: "Start/End year",
-      content: filters.startEndYear(cohort?.startYear, cohort?.endYear),
+      content: dateUtils.startEndYear(cohort?.startYear, cohort?.endYear),
     },
     {
-      label: "Population",
+      label: "Countries",
       content: cohort?.countries
         ? [...cohort?.countries]
             .sort((a, b) => b.order - a.order)
@@ -87,7 +88,7 @@ function setData() {
       content: cohort?.numberOfParticipantsWithSamples,
     },
     {
-      label: "Age group at inclusion",
+      label: "Population age groups",
       content: removeChildIfParentSelected(cohort?.populationAgeGroups || [])
         .sort((a, b) => a.order - b.order)
         .map((ageGroup) => ageGroup.name)

@@ -17,6 +17,7 @@ import asyncio
 import logging
 import os
 
+import numpy
 import pandas as pd
 from dotenv import load_dotenv
 
@@ -95,6 +96,12 @@ async def main():
             'status': 'available',
             'weight': 6.8,
             'tags': 'brown,canis'
+        }, {
+            'name': 'NA',
+            'category': 'ant',
+            'status': numpy.nan,
+            'weight': 23.6,
+            'tags': 'purple,insect'
         }]
 
         # Import new data
@@ -119,6 +126,49 @@ async def main():
         # ///////////////////////////////////////
 
         # ~ 1b ~
+        # Check import via the `data` parameters as pandas DataFrames
+        # Add new record to the pet store with new tags
+
+        new_tags = pd.DataFrame(data=[{'name': 'brown', 'parent': 'colors'},
+                                      {'name': 'canis', 'parent': 'species'}])
+
+        new_pets = pd.DataFrame(data=[{
+            'name': 'Woofie',
+            'category': 'dog',
+            'status': 'available',
+            'weight': 6.8,
+            'tags': 'brown,canis'
+        }, {
+            'name': 'NA',
+            'category': 'ant',
+            'status': numpy.nan,
+            'weight': 23.6,
+            'tags': 'purple,insect'
+        }])
+
+        # Import new data
+        try:
+            client.save_schema(name='pet store', table='Tag', data=new_tags)
+            client.save_schema(name='pet store', table='Pet', data=new_pets)
+
+            # Retrieve records
+            tags_data = client.get(schema='pet store', table='Tag', as_df=True)
+            print(tags_data)
+            pets_data = client.get(schema='pet store', table='Pet', as_df=True)
+            print(pets_data)
+
+            # Drop records
+            tags_to_remove = new_tags.loc[new_tags['name'] == 'canis']
+            client.delete_records(schema='pet store', table='Pet', data=new_pets)
+            client.delete_records(schema='pet store', table='Tag', data=tags_to_remove)
+        except PermissionDeniedException:
+            print(f"Permission denied for importing or deleting data. "
+                  f"Ensure correct authorization.")
+
+        # ///////////////////////////////////////
+
+        # ~ 1c ~
+
         # Check import via the `file` parameter
         try:
             # Save datasets

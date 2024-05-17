@@ -6,6 +6,7 @@ from typing import TypeAlias, Literal
 
 import pandas as pd
 import requests
+from requests import Response
 
 from . import graphql_queries as queries
 from . import utils
@@ -100,16 +101,7 @@ class Client:
             url=self.api_graphql,
             json={'query': query, 'variables': variables}
         )
-
-        if response.status_code == 404:
-            raise ServerNotFoundError(f"Server {self.url!r} could not be found. "
-                                      f"Ensure the spelling of the url is correct.")
-        if response.status_code == 503:
-            raise ServiceUnavailableError(f"Server {self.url!r} not available. "
-                                          f"Try again later.")
-        if response.status_code != 200:
-            raise PyclientException(f"Server {self.url!r} could not be reached due to a connection problem."
-                                    f"\nStatus code: {response.status_code}. Reason: {response.reason!r}.")
+        self._validate_graphql_response(response, mutation='signin')
 
         response_json: dict = response.json().get('data', {}).get('signin', {})
 
@@ -117,7 +109,6 @@ class Client:
             self.signin_status = 'success'
             message = f"User {self.username!r} is signed in to {self.url!r}."
             log.info(message)
-            print(message)
         elif response_json.get('status') == 'FAILED':
             self.signin_status = 'failed'
             message = f"Error: Unable to sign in to {self.url} as {self.username}." \
@@ -138,15 +129,16 @@ class Client:
             url=self.api_graphql,
             json={'query': queries.signout()}
         )
+        self._validate_graphql_response(response)
 
         status = response.json().get('data', {}).get('signout', {}).get('status')
         if status == 'SUCCESS':
-            print(f"User {self.username!r} is signed out of {self.url!r}.")
+            log.info(f"User {self.username!r} is signed out of {self.url!r}.")
             self.signin_status = 'signed out'
         else:
-            print(f"Unable to sign out of {self.url}.")
+            log.error(f"Unable to sign out of {self.url}.")
             message = response.json().get('errors')[0].get('message')
-            print(message)
+            log.error(message)
 
     @property
     def status(self):
@@ -178,13 +170,7 @@ class Client:
             json={'query': query},
             headers={'x-molgenis-token': self.token}
         )
-
-        if response.status_code == 404:
-            raise ServerNotFoundError(f"Server with url {self.url!r}")
-        if response.status_code == 400:
-            if 'Invalid token or token expired' in response.text:
-                raise InvalidTokenException("Invalid token or token expired.")
-            raise PyclientException("An unknown error occurred when trying to reach this server.")
+        self._validate_graphql_response(response)
 
         response_json: dict = response.json()
         schemas = [Schema(**s) for s in response_json['data']['_schemas']]
@@ -214,9 +200,10 @@ class Client:
             url=self.api_graphql,
             json={'query': query}
         )
+        self._validate_graphql_response(response)
         return response.json().get('data').get('_manifest').get('SpecificationVersion')
 
-    def save_schema(self, table: str, name: str = None, file: str = None, data: list = None):
+    def save_schema(self, table: str, name: str = None, file: str = None, data: list | pd.DataFrame = None):
         """Imports or updates records in a table of a named schema.
 
         :param name: name of a schema
@@ -243,27 +230,24 @@ class Client:
 
         import_data = self._prep_data_or_file(file_path=file, data=data)
 
+        schema_metadata: Schema = self.get_schema_metadata(current_schema)
+        table_id = schema_metadata.get_table(by='name', value=table).id
+
         response = self.session.post(
-            url=f"{self.url}/{current_schema}/api/csv/{table}",
+            url=f"{self.url}/{current_schema}/api/csv/{table_id}",
             headers={'x-molgenis-token': self.token,
                      'Content-Type': 'text/csv'},
             data=import_data
         )
 
-        if response.status_code == 200:
+        try:
+            self._validate_graphql_response(response)
             log.info("Imported data into %s::%s.", current_schema, table)
-        elif response.status_code == 400:
-            if 'permission denied' in response.text:
-                raise PermissionDeniedException(f"Transaction failed: permission denied for table {table}.")
+        except PyclientException:
             errors = '\n'.join([err['message'] for err in response.json().get('errors')])
-            # log.error(f"Failed to import data into {current_schema}::{table}\n{errors}.")
-            log.error("Failed to import data into %s::%s\n%s", current_schema, table, errors)
-        else:
-            errors = '\n'.join([err['message'] for err in response.json().get('errors')])
-            # log.error(f"Failed to import data into {current_schema}::{table}\n{errors}.")
             log.error("Failed to import data into %s::%s\n%s", current_schema, table, errors)
 
-    def delete_records(self, table: str, schema: str = None, file: str = None, data: list = None):
+    def delete_records(self, table: str, schema: str = None, file: str = None, data: list | pd.DataFrame = None):
         """Deletes records from a table.
 
         :param schema: name of a schema
@@ -290,12 +274,18 @@ class Client:
 
         import_data = self._prep_data_or_file(file_path=file, data=data)
 
+        schema_metadata: Schema = self.get_schema_metadata(current_schema)
+        table_id = schema_metadata.get_table(by='name', value=table).id
+
         response = self.session.delete(
-            url=f"{self.url}/{current_schema}/api/csv/{table}",
+            url=f"{self.url}/{current_schema}/api/csv/{table_id}",
             headers={'x-molgenis-token': self.token,
                      'Content-Type': 'text/csv'},
             data=import_data
         )
+
+        self._validate_graphql_response(response, mutation='delete',
+                                        fallback_error_message=f"Failed to delete data from {current_schema}::{table}.")
 
         if response.status_code == 200:
             log.info("Deleted data from %s::%s.", current_schema, table)
@@ -328,16 +318,17 @@ class Client:
         if not self._table_in_schema(table, current_schema):
             raise NoSuchTableException(f"Table {table!r} not found in schema {current_schema!r}.")
 
-        response = self.session.get(url=f"{self.url}/{current_schema}/api/csv/{table}",
+        schema_metadata: Schema = self.get_schema_metadata(current_schema)
+        table_id = schema_metadata.get_table(by='name', value=table).id
+
+        response = self.session.get(url=f"{self.url}/{current_schema}/api/csv/{table_id}",
                                     headers={'x-molgenis-token': self.token})
 
-        if response.status_code != 200:
-            message = f"Failed to retrieve data from {current_schema}::{table!r}." \
-                      f"\nStatus code: {response.status_code}."
-            log.error(message)
-            raise PyclientException(message)
+        self._validate_graphql_response(response=response,
+                                        fallback_error_message=f"Failed to retrieve data from {current_schema}::"
+                                                               f"{table!r}.\nStatus code: {response.status_code}.")
 
-        response_data = pd.read_csv(io.BytesIO(response.content))
+        response_data = pd.read_csv(io.BytesIO(response.content), keep_default_na=False)
 
         if not as_df:
             return response_data.to_dict('records')
@@ -361,12 +352,15 @@ class Client:
         if table is not None and not self._table_in_schema(table, current_schema):
             raise NoSuchTableException(f"Table {table!r} not found in schema {current_schema!r}.")
 
+        schema_metadata: Schema = self.get_schema_metadata(current_schema)
+
         if fmt == 'xlsx':
             if table is None:
                 # Export the whole schema
                 url = f"{self.url}/{current_schema}/api/excel"
                 response = self.session.get(url=url,
                                             headers={'x-molgenis-token': self.token})
+                self._validate_graphql_response(response)
 
                 filename = f"{current_schema}.xlsx"
                 with open(filename, "wb") as file:
@@ -374,9 +368,11 @@ class Client:
                 log.info("Exported data from schema %s to '%s'.", current_schema, filename)
             else:
                 # Export the single table
-                url = f"{self.url}/{current_schema}/api/excel/{table}"
+                table_id = schema_metadata.get_table(by='name', value=table).id
+                url = f"{self.url}/{current_schema}/api/excel/{table_id}"
                 response = self.session.get(url=url,
                                             headers={'x-molgenis-token': self.token})
+                self._validate_graphql_response(response)
 
                 filename = f"{table}.xlsx"
                 with open(filename, "wb") as file:
@@ -388,6 +384,7 @@ class Client:
                 url = f"{self.url}/{current_schema}/api/zip"
                 response = self.session.get(url=url,
                                             headers={'x-molgenis-token': self.token})
+                self._validate_graphql_response(response)
 
                 filename = f"{current_schema}.zip"
                 with open(filename, "wb") as file:
@@ -395,9 +392,11 @@ class Client:
                 log.info("Exported data from schema %s to '%s'.", current_schema, filename)
             else:
                 # Export the single table
-                url = f"{self.url}/{current_schema}/api/csv/{table}"
+                table_id = schema_metadata.get_table(by='name', value=table).id
+                url = f"{self.url}/{current_schema}/api/csv/{table_id}"
                 response = self.session.get(url=url,
                                             headers={'x-molgenis-token': self.token})
+                self._validate_graphql_response(response)
 
                 filename = f"{table}.csv"
                 with open(filename, "wb") as file:
@@ -428,14 +427,13 @@ class Client:
                                                  template=template, include_demo_data=include_demo_data)
 
         response = self.session.post(
-            url=f"{self.url}/api/graphql",
+            url=self.api_graphql,
             json={'query': query, 'variables': variables},
             headers={'x-molgenis-token': self.token}
         )
 
-        response_json = response.json()
         self._validate_graphql_response(
-            response_json=response_json,
+            response=response,
             mutation='createSchema',
             fallback_error_message=f"Failed to create schema {name!r}"
         )
@@ -458,14 +456,13 @@ class Client:
         variables = {'id': current_schema}
 
         response = self.session.post(
-            url=f"{self.url}/api/graphql",
+            url=self.api_graphql,
             json={'query': query, 'variables': variables},
             headers={'x-molgenis-token': self.token}
         )
 
-        response_json = response.json()
         self._validate_graphql_response(
-            response_json=response_json,
+            response=response,
             mutation='deleteSchema',
             fallback_error_message=f"Failed to delete schema {current_schema!r}"
         )
@@ -490,14 +487,13 @@ class Client:
         variables = {'name': current_schema, 'description': description}
 
         response = self.session.post(
-            url=f"{self.url}/api/graphql",
+            url=self.api_graphql,
             json={'query': query, 'variables': variables},
             headers={'x-molgenis-token': self.token}
         )
 
-        response_json = response.json()
         self._validate_graphql_response(
-            response_json=response_json,
+            response=response,
             mutation='updateSchema',
             fallback_error_message=f"Failed to update schema {current_schema!r}"
         )
@@ -542,7 +538,6 @@ class Client:
         except GraphQLException:
             message = f"Failed to recreate {current_schema!r}"
             log.error(message)
-            print(message)
 
         self.schemas = self.get_schemas()
 
@@ -553,7 +548,7 @@ class Client:
         :param name: the name of the schema
         :type name: str
 
-        :returns: schema metadata
+        :returns: metadata of the schema
         :rtype: metadata.Schema
         """
         current_schema = name if name is not None else self.default_schema
@@ -566,6 +561,7 @@ class Client:
             json={'query': query},
             headers={'x-molgenis-token': self.token}
         )
+        self._validate_graphql_response(response)
 
         response_json = response.json()
 
@@ -578,7 +574,7 @@ class Client:
         return metadata
 
     @staticmethod
-    def _prep_data_or_file(file_path: str = None, data: list = None) -> str | None:
+    def _prep_data_or_file(file_path: str = None, data: list | pd.DataFrame = None) -> str | None:
         """Prepares the data from memory or loaded from disk for addition or deletion action.
 
         :param file_path: path to the file to be prepared
@@ -594,10 +590,14 @@ class Client:
             return utils.read_file(file_path=file_path)
 
         if data is not None:
-            return pd.DataFrame(data).to_csv(index=False, quoting=csv.QUOTE_NONNUMERIC, encoding='UTF-8')
+            if isinstance(data, pd.DataFrame):
+                return data.to_csv(index=False, quoting=csv.QUOTE_NONNUMERIC, encoding='UTF-8')
+            else:
+                return pd.DataFrame(data, dtype=str).to_csv(index=False, quoting=csv.QUOTE_NONNUMERIC, encoding='UTF-8')
 
-        print("No data to import. Specify a file location or a dataset.")
-        return None
+        message = "No data to import. Specify a file location or a dataset."
+        log.error(message)
+        raise FileNotFoundError(message)
 
     def set_schema(self, name: str) -> str:
         """Sets the default schema to the schema supplied as argument.
@@ -615,25 +615,42 @@ class Client:
 
         return name
 
-    @staticmethod
-    def _validate_graphql_response(response_json: dict, mutation: str, fallback_error_message: str):
+    def _validate_graphql_response(self, response: Response, mutation: str = None, fallback_error_message: str = None):
         """Validates a GraphQL response and prints the appropriate message.
 
-        :param response_json: a graphql response from the server
-        :type response_json: dict
-        :param mutation: the name of the graphql mutation executed
+        :param response: a graphql response from the server
+        :type response: requests.Response
+        :param mutation: the name of the graphql mutation executed, optional
         :type mutation: str
-        :param fallback_error_message: a fallback error message
+        :param fallback_error_message: a fallback error message, optional
         :type fallback_error_message: str
 
         :returns: a success or error message
         :rtype: string
         """
+
+        if response.status_code == 503:
+            raise ServiceUnavailableError(f"Server with url {self.url!r} (temporarily) unavailable.")
+        if response.status_code == 404:
+            raise ServerNotFoundError(f"Server with url {self.url!r} not found.")
+        if response.status_code == 400:
+            if 'Invalid token or token expired' in response.text:
+                raise InvalidTokenException("Invalid token or token expired.")
+            if 'permission denied' in response.text:
+                raise PermissionDeniedException(f"Transaction failed: permission denied.")
+            raise PyclientException("An unknown error occurred when trying to reach this server.")
+
+        if response.request.method == 'GET':
+            return
+
+        if response.status_code == 200:
+            return
+
+        response_json = response.json()
         response_keys = response_json.keys()
         if 'errors' not in response_keys and 'data' not in response_keys:
             message = fallback_error_message
             log.error(message)
-            print(message)
 
         elif 'errors' in response_keys:
             message = response_json.get('errors')[0].get('message')
@@ -646,15 +663,13 @@ class Client:
             log.error(message)
             raise GraphQLException(message)
 
-        else:
+        elif mutation is not None:
             if response_json.get('data').get(mutation).get('status') == 'SUCCESS':
                 message = response_json.get('data').get(mutation).get('message')
                 log.info(message)
-                print(message)
             else:
-                message = f"Failed to validate response for {mutation}"
+                message = f"Failed to validate response for {mutation!r}"
                 log.error(message)
-                print(message)
 
     @staticmethod
     def _format_optional_params(**kwargs):
@@ -667,22 +682,17 @@ class Client:
             args['includeDemoData'] = args.pop('include_demo_data')
         return args
 
-    def _table_in_schema(self, table: str, schema: str) -> bool:
+    def _table_in_schema(self, table_name: str, schema_name: str) -> bool:
         """Checks whether the requested table is present in the schema.
 
-        :param table: the name of the table
-        :type table: str
-        :param schema: the name of the schema
-        :type schema: str
+        :param table_name: the name of the table
+        :type table_name: str
+        :param schema_name: the name of the schema
+        :type schema_name: str
         :returns: boolean indicating whether table is present
         :rtype: bool
         """
-        response = self.session.post(
-            url=f"{self.url}/{schema}/graphql",
-            json={'query': queries.list_tables()},
-            headers={"x-molgenis-token": self.token}
-        )
-        schema_data = Schema(**response.json().get('data').get('_schema'))
-        if table in map(str, schema_data.tables):
+        schema_data = self.get_schema_metadata(schema_name)
+        if table_name in map(str, schema_data.tables):
             return True
         return False

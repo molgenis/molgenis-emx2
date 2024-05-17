@@ -18,7 +18,7 @@ defineProps<{
 </script>
 <template>
   <div class="relative">
-    <HarmonizationLegend size="small" />
+    <HarmonizationLegendDetailed size="small" />
     <div class="overflow-x-auto xl:max-w-table border-t">
       <StickyTable
         :columns="cohortsWithMapping"

@@ -5,8 +5,7 @@ import static org.molgenis.emx2.Privileges.MANAGER;
 import static org.molgenis.emx2.sql.ChangeLogExecutor.executeGetChanges;
 import static org.molgenis.emx2.sql.ChangeLogExecutor.executeGetChangesCount;
 import static org.molgenis.emx2.sql.SqlColumnExecutor.getOntologyTableDefinition;
-import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
-import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
+import static org.molgenis.emx2.sql.SqlDatabase.*;
 import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeGetMembers;
 import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeGetRoles;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.executeCreateTable;
@@ -269,20 +268,12 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     final String username = user.trim();
     List<String> result = new ArrayList<>();
     // need elevated privileges, so clear user and run as root
-    // this is not thread safe therefore must be in a transaction
     getDatabase()
-        .tx(
-            tdb -> {
-              String current = tdb.getActiveUser();
-              try {
-                tdb.becomeAdmin(); // elevate privileges
+        .getJooqAsAdmin(
+            adminJooq ->
                 result.addAll(
                     SqlSchemaMetadataExecutor.getInheritedRoleForUser(
-                        ((SqlDatabase) tdb).getJooq(), getName(), username));
-              } finally {
-                tdb.setActiveUser(current); // reset privileges
-              }
-            });
+                        adminJooq, getName(), username)));
     return result;
   }
 

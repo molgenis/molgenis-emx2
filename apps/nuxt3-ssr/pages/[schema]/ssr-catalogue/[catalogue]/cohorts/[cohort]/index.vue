@@ -6,6 +6,7 @@ import datasetQuery from "~~/gql/datasets";
 import ontologyFragment from "~~/gql/fragments/ontology";
 import fileFragment from "~~/gql/fragments/file";
 import type { ICohort, IMgError, IOntologyItem } from "~/interfaces/types";
+import dateUtils from "~/utils/dateUtils";
 const config = useRuntimeConfig();
 const route = useRoute();
 
@@ -23,7 +24,24 @@ const query = gql`
       }
       contactEmail
       leadOrganisation {
+        id
+        name
+        email
+        description
+        website
         acronym
+        type {
+          name
+        }
+        institution
+        institutionAcronym
+        typeOther
+        address
+        expertise
+        country {
+          name
+        }
+        logo ${moduleToString(fileFragment)}
       }
       type {
         name
@@ -204,7 +222,7 @@ function collectionEventMapper(item: any) {
         item.startYear && item.startYear.name ? item.startYear.name : null;
       const endYear =
         item.endYear && item.endYear.name ? item.endYear.name : null;
-      return filters.startEndYear(startYear, endYear);
+      return dateUtils.startEndYear(startYear, endYear);
     })(),
     numberOfParticipants: item.numberOfParticipants,
     _renderComponent: "CollectionEventDisplay",
@@ -212,14 +230,14 @@ function collectionEventMapper(item: any) {
   };
 }
 
-function datasetMapper(item: any) {
+function datasetMapper(item: { name: string; description?: string }) {
   return {
     id: {
       name: item.name,
       resourceId: route.params.cohort,
     },
     name: item.name,
-    description: item.descriptions,
+    description: item.description,
   };
 }
 
@@ -360,6 +378,13 @@ if (route.params.catalogue) {
   crumbs["Browse"] = `/${route.params.schema}/ssr-catalogue/all`;
   crumbs["Cohorts"] = `/${route.params.schema}/ssr-catalogue/all/cohorts`;
 }
+
+const activeLeadOrganisationSideModalIndex = ref(-1);
+
+function showLeadOrganisationSideModal(index: number) {
+  console.log("showLeadOrganisationSideModal", index);
+  activeLeadOrganisationSideModalIndex.value = index;
+}
 </script>
 <template>
   <LayoutsDetailPage>
@@ -401,17 +426,151 @@ if (route.params.catalogue) {
         <ContentCohortGeneralDesign
           id="GeneralDesign"
           title="General Design"
-          :description="cohort?.designDescription"
           :cohort="cohort"
           :main-medical-condition="mainMedicalConditions"
         />
 
         <ContentBlockContact
-          v-if="cohort?.contacts"
+          v-if="cohort?.contacts || cohort.leadOrganisation"
           id="Contributors"
           title="Contact and Contributors"
           :contributors="cohort?.contacts"
-        />
+        >
+          <DisplayList
+            class="mb-5"
+            title="Lead organisation"
+            :type="
+              cohort.leadOrganisation && cohort.leadOrganisation?.length > 1
+                ? 'standard'
+                : 'link'
+            "
+          >
+            <DisplayListItem
+              v-for="(organisation, index) in cohort.leadOrganisation"
+              @click="showLeadOrganisationSideModal(index)"
+            >
+              <span
+                class="text-blue-500 hover:underline hover:cursor-pointer"
+                >{{ organisation.name }}</span
+              >
+              <img
+                v-if="organisation.logo"
+                class="max-h-11"
+                :src="organisation.logo.url"
+              />
+            </DisplayListItem>
+          </DisplayList>
+          <SideModal
+            :show="activeLeadOrganisationSideModalIndex > -1"
+            :fullScreen="false"
+            :slideInRight="true"
+            @close="activeLeadOrganisationSideModalIndex = -1"
+            buttonAlignment="right"
+          >
+            <slot>
+              <ContentBlockModal
+                :title="
+                  cohort.leadOrganisation
+                    ? cohort.leadOrganisation[
+                        activeLeadOrganisationSideModalIndex
+                      ].name
+                    : ''
+                "
+                description="Lead organisation"
+                v-if="cohort"
+              >
+                <CatalogueItemList
+                  :items="[
+                    {
+                      label: 'email',
+                      content:
+                        cohort.leadOrganisation?.[
+                          activeLeadOrganisationSideModalIndex
+                        ].email,
+                    },
+                    {
+                      label: 'description',
+                      content:
+                        cohort.leadOrganisation?.[
+                          activeLeadOrganisationSideModalIndex
+                        ].description,
+                    },
+                    {
+                      label: 'website',
+                      content:
+                        cohort.leadOrganisation?.[
+                          activeLeadOrganisationSideModalIndex
+                        ].website,
+                    },
+                    {
+                      label: 'acronym',
+                      content:
+                        cohort.leadOrganisation?.[
+                          activeLeadOrganisationSideModalIndex
+                        ].acronym,
+                    },
+                    {
+                      label: 'type',
+                      content:
+                        cohort.leadOrganisation?.[
+                          activeLeadOrganisationSideModalIndex
+                        ].type?.name,
+                    },
+                    {
+                      label: 'institution',
+                      content:
+                        cohort.leadOrganisation?.[
+                          activeLeadOrganisationSideModalIndex
+                        ].institution,
+                    },
+                    {
+                      label: 'institutionAcronym',
+                      content:
+                        cohort.leadOrganisation?.[
+                          activeLeadOrganisationSideModalIndex
+                        ].institutionAcronym,
+                    },
+                    {
+                      label: 'typeOther',
+                      content:
+                        cohort.leadOrganisation?.[
+                          activeLeadOrganisationSideModalIndex
+                        ].typeOther,
+                    },
+                    {
+                      label: 'address',
+                      content:
+                        cohort.leadOrganisation?.[
+                          activeLeadOrganisationSideModalIndex
+                        ].address,
+                    },
+                    {
+                      label: 'expertise',
+                      content:
+                        cohort.leadOrganisation?.[
+                          activeLeadOrganisationSideModalIndex
+                        ].expertise,
+                    },
+                    {
+                      label: 'country',
+                      content:
+                        cohort.leadOrganisation?.[
+                          activeLeadOrganisationSideModalIndex
+                        ].country?.name,
+                    },
+                    {
+                      label: 'logo',
+                      content:
+                        cohort.leadOrganisation?.[
+                          activeLeadOrganisationSideModalIndex
+                        ].logo,
+                    },
+                  ]"
+                />
+              </ContentBlockModal>
+            </slot>
+          </SideModal>
+        </ContentBlockContact>
 
         <!-- <ContentBlockVariables
           id="Variables"
@@ -501,7 +660,7 @@ if (route.params.catalogue) {
           v-if="cohort?.networks"
           id="Networks"
           title="Networks"
-          description="Networks Explanation about networks from this cohort and the functionality seen here."
+          description="List of networks which this cohort is involved in"
           :networks="cohort?.networks"
         />
 
