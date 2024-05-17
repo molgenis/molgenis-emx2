@@ -79,6 +79,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
   watch(
     filters,
     (filters) => {
+      console.log("filter change ", filters);
       if (queryDelay) {
         clearTimeout(queryDelay);
       }
@@ -340,6 +341,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
   }
 
   function clearAllFilters() {
+    console.log("clearAllFilters");
     filters.value = {};
     createBookmark(filters.value, checkoutStore.selectedCollections);
   }
@@ -354,6 +356,8 @@ export const useFiltersStore = defineStore("filtersStore", () => {
       value === undefined ||
       value.length === 0
     ) {
+      console.log("updateFilter delete filter: ", filterName);
+
       delete filters.value[filterName];
       checkoutStore.setSearchHistory(`Filter ${filterName} removed`);
     } else {

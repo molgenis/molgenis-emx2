@@ -6,6 +6,8 @@ import { useCheckoutStore } from "../stores/checkoutStore";
 let bookmarkApplied = false;
 
 function setBookmark(bookmark) {
+  console.log("setBookmark");
+
   bookmarkApplied = true;
 
   router.push({
@@ -15,6 +17,7 @@ function setBookmark(bookmark) {
 }
 
 export async function applyBookmark(watchedQuery) {
+  console.log("applyBookmark");
   if (bookmarkApplied) {
     bookmarkApplied = false;
     return;
@@ -62,6 +65,8 @@ export async function applyBookmark(watchedQuery) {
       filtersStore.updateFilterType(filterName, "all", true);
     }
   }
+  console.log("filters", filters);
+
   for (const filterName of filters) {
     if (query[filterName]) {
       let filtersToAdd = decodeURIComponent(query[filterName]);
@@ -93,6 +98,8 @@ export async function applyBookmark(watchedQuery) {
 }
 
 export function createBookmark(filters, collectionCart) {
+  console.log("createBookmark");
+
   const filtersStore = useFiltersStore();
   const bookmark = {};
   const matchAll = [];

@@ -29,6 +29,7 @@
                 .name]: `../#/biobank/${collection.biobank.id}`,
               [collection.name]: `../#/collection/${collection.id}`,
             }"
+            useRouterLink
           />
           <check-out
             v-if="collection"
