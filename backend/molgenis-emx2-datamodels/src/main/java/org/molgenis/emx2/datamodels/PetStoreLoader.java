@@ -4,6 +4,7 @@ import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.TableMetadata.table;
 
+import java.io.File;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.sql.SqlDatabase;
 
@@ -205,6 +206,7 @@ public class PetStoreLoader extends AbstractDataLoader {
         .insert(
             new Row()
                 .set("username", "bofke")
+                .setBinary("picture", new File("data/_demodata/applications/emx2/_files/bofke.jpg"))
                 .set("pets", "spike,pooky,the very hungry caterpillar,fire ant"));
 
     schema.addMember(SqlDatabase.ANONYMOUS, Privileges.VIEWER.toString());
