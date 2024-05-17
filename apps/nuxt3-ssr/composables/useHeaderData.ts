@@ -24,43 +24,50 @@ const headerQuery = `
 export async function useHeaderData() {
   const route = useRoute();
 
-  // no need to do fetch if we are on the home page or on the all catalogues pages
-  if (!route.params.catalogue || route.params.catalogue == "all") {
-    return { catalogue: null, variableCount: 0 };
-  }
-
   const apiPath = `/${route.params.schema}/graphql`;
+
   const { data, error } = await useAsyncData<any, IMgError>(
     `catalogue-${route.params.catalogue}`,
     async () => {
-      const modelsResp = await $fetch<{
-        data: { Networks: { models: { id: string }[] }[] };
-      }>(apiPath, {
-        method,
-        body: {
-          query: modelQuery,
-          variables: {
-            networksFilter: { id: { equals: route.params.catalogue } },
+      let variables:
+        | {
+            networksFilter: { id: { equals: string | string[] } };
+            variablesFilter?: {
+              resource: { id: { equals: string | string[] } };
+            };
+          }
+        | undefined = undefined;
+      if (route.params.catalogue && route.params.catalogue !== "all") {
+        const modelsResp = await $fetch<{
+          data: { Networks: { models: { id: string }[] }[] };
+        }>(apiPath, {
+          method,
+          body: {
+            query: modelQuery,
+            variables: {
+              networksFilter: { id: { equals: route.params.catalogue } },
+            },
           },
-        },
-      }).catch((e) => {
-        console.log("models error: ", e);
-        return { e };
-      });
+        }).catch((e) => {
+          console.log("models error: ", e);
+          return { e };
+        });
 
-      if ("e" in modelsResp) {
-        const contextMsg = "Error on fetching page header data";
-        throw new Error(contextMsg);
-      }
+        if ("e" in modelsResp) {
+          const contextMsg = "Error on fetching page header data";
+          throw new Error(contextMsg);
+        }
 
-      const models = modelsResp.data.Networks[0].models;
-      const modelIds = models ? models.map((m) => m.id) : [];
-      let variables: {
-        networksFilter: { id: { equals: string | string[] } };
-        variablesFilter?: { resource: { id: { equals: string | string[] } } };
-      } = { networksFilter: { id: { equals: route.params.catalogue } } };
-      if (modelIds) {
-        variables.variablesFilter = { resource: { id: { equals: modelIds } } };
+        const models = modelsResp.data.Networks[0].models;
+        const modelIds = models ? models.map((m) => m.id) : [];
+        variables = {
+          networksFilter: { id: { equals: route.params.catalogue } },
+        };
+        if (modelIds) {
+          variables.variablesFilter = {
+            resource: { id: { equals: modelIds } },
+          };
+        }
       }
 
       return $fetch(apiPath, {

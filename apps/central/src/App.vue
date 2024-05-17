@@ -31,6 +31,10 @@ export default {
           href: "/apps/molgenis-components/",
         },
         {
+          label: "Tailwind Components (Beta)",
+          href: "/apps/tailwind-components/",
+        },
+        {
           label: "Help",
           href: "/apps/docs/",
         },

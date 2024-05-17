@@ -2,8 +2,8 @@ import { defineConfig } from "vite";
 import path from "path";
 import vue from "@vitejs/plugin-vue";
 
-const host = "https://david-test.molgeniscloud.org";
-const schema = "DataViz";
+const host = "https://emx2.dev.molgenis.org";
+const schema = "DASHBOARD_TEST";
 const opts = { changeOrigin: true, secure: false, logLevel: "debug" };
 
 // basic build conf fo both library

@@ -77,8 +77,8 @@ public class ImportTableTask extends Task {
 
       task.setProgress(0);
       int index = 0;
-
-      while (iterator.hasNext()) {
+      String errorMessage = null;
+      while (iterator.hasNext() && errorMessage == null) {
         Row row = iterator.next();
 
         // column warning
@@ -116,6 +116,7 @@ public class ImportTableTask extends Task {
                       "No value provided for key " + column.getName() + " at line " + (index + 1))
                   .setError();
               hasEmptyKeys = true;
+              errorMessage = "missing value for key column '" + column.getName() + "'. Row: " + row;
             }
           } else {
             String keyValue = row.getString(column.getName());
@@ -141,7 +142,8 @@ public class ImportTableTask extends Task {
             "Duplicate keys found in table " + metadata.getTableName() + ": " + duplicates);
       }
       if (hasEmptyKeys)
-        task.completeWithError("Missing keys found in table " + metadata.getTableName());
+        task.completeWithError(
+            "Missing keys found in table '" + metadata.getTableName() + "': " + errorMessage);
     }
   }
 
@@ -168,9 +170,12 @@ public class ImportTableTask extends Task {
           if (c.isFile()
               && source instanceof TableAndFileStore
               && row.getValueMap().get(c.getName()) != null) {
-            row.setBinary(
-                c.getName(),
-                ((TableAndFileStore) source).getBinaryFileWrapper(row.getString(c.getName())));
+            BinaryFileWrapper wrapper =
+                ((TableAndFileStore) source).getBinaryFileWrapper(row.getString(c.getName()));
+            if (row.containsName(c.getName() + "_filename")) {
+              wrapper.setFileName(row.getString(c.getName() + "_filename"));
+            }
+            row.setBinary(c.getName(), wrapper);
           }
         }
         batch.add(row);

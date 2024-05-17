@@ -136,6 +136,7 @@ export default {
         "BEACON_V2",
         "ERN_DASHBOARD",
         "BIOBANK_DIRECTORY",
+        "BIOBANK_DIRECTORY_STAGING",
         "SHARED_STAGING",
         "PROJECTMANAGER",
       ],
@@ -152,7 +153,7 @@ export default {
   },
   methods: {
     validate(name) {
-      const simpleName = /^[a-zA-Z][a-zA-Z0-9_ ]*$/;
+      const simpleName = /^[a-zA-Z][-a-zA-Z0-9_ ]*$/;
       if (name === null) {
         return undefined;
       }

@@ -37,18 +37,7 @@ Use virtual env to get a consistent python environment.
 
 5. Define environment variables in .env, see .env_example
 
-6. Run script for update of data catalogue staging from 2.8 to 3.x
+6. Run script for update of servers after selecting the right update program at import,
+   e.g. 'from update.update_4_x import Transform'
 
-    'run_DataCatalogueStaging2.9to3.x.py'
-
-   Run script for update of UMCG server from 2.9 to 3.x
-
-    'run_UMCG2.9to3.x.py'
-
-   Run script for update of UMCG server to 2.9
-
-    'run_UMCG2.8to2.9.py'
-
-   Run cohort-etl for UMCG server
-
-    'run_cohort_etl_umcg.py'
+    'run.py'
