@@ -21,7 +21,7 @@ A researcher working in consortium X (*example: testNetwork1*) searches for spec
 | 4a |  Go back | Return to the European Health Research Data and Sample Catalogue page | | |
 | 5 | Click on the testNetwork1 name | Should be redirected to the testNetwork1 'Welcome to... Select one of the content categories listed below.'. Cohorts should show 4, variables should show 3. | | |
 | 6 | Hover over yellow Variables button | Button should be highlighted | | |
-| 7 | Click Variables button | Should be redirected to testNetwork1 variable explorer; Variable page should show complete variable names, variable labels and a filters panel on the left hand side of the page. | | |
+| 7 | Click Variables button | Should be redirected to testNetwork1 variable explorer; Variable page should show complete variable names, variable labels and a filters panel on the left hand side of the page. Text above the list of variables reads '3 variables'. | | |
 | 8 | Search 'ADHD' in search bar | Variables should be filtered on ADHD variables ('testVarRepeats' and 'testVarNoRepeats'); active filters should show 'ADHD'  | | |
 | 8a| Remove 'ADHD' from the search bar | The list of variables returns to its initial form and no filters are shown above the list | | |
 | 9 | Expand the Topic tree if necessary and then click on 'Search for options' above the topics on the left hand side | A pop-up with the list of topics is displayed | | |
