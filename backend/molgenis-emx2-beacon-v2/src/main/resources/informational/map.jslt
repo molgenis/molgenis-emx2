@@ -11,7 +11,7 @@ let beaconPath = .host + "/api/" + .spec.path + "/"
                 "entryType": .name,
                 "openAPIEndpointsDefinition": "./" + .name + "/endpoints.json",
                 "rootUrl": $beaconPath + .name,
-                "singeEntryUrl": $beaconPath + .name + "/{id}",
+                "singleEntryUrl": $beaconPath + .name + "/{id}",
                 "filterTermsUrl": $beaconPath + .name + "/filtering_terms"
             }
         }

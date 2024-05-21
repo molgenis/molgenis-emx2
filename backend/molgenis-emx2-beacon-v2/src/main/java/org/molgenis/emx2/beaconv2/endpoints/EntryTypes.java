@@ -18,8 +18,6 @@ public class EntryTypes {
   private List<EntryType> entryTypes = new ArrayList<>();
   private BeaconSpec spec;
 
-  public EntryTypes() {}
-
   public EntryTypes(Request request) {
     this.spec = BeaconSpec.findByPath(request.attribute("specification"));
     this.entryTypes = EntryType.getEntryTypesOfSpec(spec);
