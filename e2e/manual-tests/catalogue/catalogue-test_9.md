@@ -26,19 +26,20 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 ||NB not all fields are tested in this test plan| | | |
 | 9 |Collection type|Retrospective, Prospective | | |
 | 10 |Start/End year|1900 - 1967 | | |
-| 11 |Countries|Armenia, Bermuda, Réunion | | |
-| 12 |Regions|Bradford, Lapland, Gipuzkoa | | |
-| 13 |Population age groups|Adult (18+ years) | | |
-| 14 |Inclusion criteria|Clinically relevant exposure inclusion criterion | | |
+| 11|Design paper|Cohort Profile: The French national cohort of children (ELFE): birth to 5 years | | |
+| 12|Click on the design paper|goes to the article in a new window: https://doi.org/10.1093/ije/dyz227 [Cohort Profile: The French national cohort of children (ELFE): birth to 5 years] | | |
+| 13| close the window or reselect the catalogue display window| | | |
+|  | POPULATION
+| 14 |Countries|Armenia, Bermuda, Réunion | | |
+| 15 |Regions|Bradford, Lapland, Gipuzkoa | | |
+| 16 |Population age groups|Adult (18+ years) | | |
+| 17 |Main medical condition|VII Diseases of the eye and adnexa, VIII Diseases of the ear and mastoid process | | |
+| 18 |Population disease|V Mental and behavioural disorders, IV Endocrine, nutritional and metabolic diseases | | |
+| 19 |ICDO topology|BASE OF TONGUE, UTERUS, NOS | | |
+| 20 |ICDO morphology|Carcinoma, metastatic, NOS Carcinomatosis | | |
+| 21 |Inclusion criteria|Clinically relevant exposure inclusion criterion | | |
 |||Clinically relevant lifestyle inclusion criterion | | |
 |||Country of residence inclusion criteria | | |
-| 15 |Main medical condition|VII Diseases of the eye and adnexa, VIII Diseases of the ear and mastoid process | | |
-| 16 |Population disease|V Mental and behavioural disorders, IV Endocrine, nutritional and metabolic diseases | | |
-| 17 |population oncology topology|BASE OF TONGUE, UTERUS, NOS | | |
-| 18 |population oncology morphology|Carcinoma, metastatic, NOS Carcinomatosis | | |
-| 19|Marker paper|Cohort Profile: The French national cohort of children (ELFE): birth to 5 years | | |
-| 20|Click on the marker paper|goes to the article in a new window: https://doi.org/10.1093/ije/dyz227 [Cohort Profile: The French national cohort of children (ELFE): birth to 5 years] | | |
-| 21| close the window or reselect the catalogue display window| | | |
 | 22|CONTACT AND CONTRIBUTORS|1 card per contact person with: (titles) (initials) ((first name)) (surname prefix) (surname), (email address), (description of role) | | |
 |||dr. ir.  P.I.P.M. (PIPM) surname prefix last name PIPM ---- pipm@testdomain.nl -----  Test description of PI/PM role | | |
 |||dr.  D.M. (datamgr first name) datamgr surname prefix datamgr last name --- test@email.nl --- test description for data manager role | | |
