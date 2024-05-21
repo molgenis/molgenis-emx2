@@ -286,18 +286,41 @@ function handleSaveDraftRequest() {
 async function save(formData: IRow) {
   errorMessage.value = "";
   let result;
+
+  const dataWithoutRefbacks = getDataWithoutRefbacks(
+    formData,
+    tableMetadata.value
+  );
+
   if (pkey && !clone) {
     result = await client.value
-      ?.updateDataRow(formData, tableId, schemaId)
+      ?.updateDataRow(dataWithoutRefbacks, tableId, schemaId)
       .catch(handleSaveError);
   } else {
     result = await client.value
-      ?.insertDataRow(formData, tableId, schemaId)
+      ?.insertDataRow(dataWithoutRefbacks, tableId, schemaId)
       .catch(handleSaveError);
   }
   if (result) {
     emit("update:newRow", formData);
     handleClose();
+  }
+}
+
+function getDataWithoutRefbacks(
+  formData: IRow,
+  tableMetadata: ITableMetaData | undefined
+): IRow {
+  if (!tableMetadata) {
+    return formData;
+  } else {
+    let dataCopy = { ...formData };
+    tableMetadata.columns.forEach((column: IColumn) => {
+      if (column.columnType === "REFBACK") {
+        delete dataCopy[column.id];
+      }
+    });
+    return dataCopy;
   }
 }
 
