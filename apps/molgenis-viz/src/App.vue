@@ -19,9 +19,11 @@
       </nav>
     </div>
     <RouterView :session="session" :page="page" />
-    <PageFooter>
-      <MolgenisLogo />
-    </PageFooter>
+    <template v-slot:footer>
+      <PageFooter>
+        <MolgenisLogo />
+      </PageFooter>
+    </template>
   </Molgenis>
 </template>
 
