@@ -40,7 +40,13 @@ useHead({
                   <NuxtLink class="hover:underline" to="CustomTooltip.story">Custom tooltip</NuxtLink>
                 </li>
                 <li class="py-2">
+                  <NuxtLink class="hover:underline" to="DisplayList.story">Display list</NuxtLink>
+                </li>
+                <li class="py-2">
                   <NuxtLink class="hover:underline" to="InputTree.story">Input tree</NuxtLink>
+                </li>
+                <li class="py-2">
+                  <NuxtLink class="hover:underline" to="InputList.story">Input list</NuxtLink>
                 </li>
                 <li class="py-2">
                   <NuxtLink class="hover:underline" to="Modal.story">Modal</NuxtLink>

@@ -1,4 +1,5 @@
 import type { IColumn } from "meta-data-utils";
+import type { INode } from "../../tailwind-components/types/types";
 export interface IResource {
   id: string;
   pid: string;
@@ -18,6 +19,7 @@ export interface ICohort {
   website?: string;
   logo?: IUrlObject;
   contactEmail?: string;
+  leadOrganisation?: IOrganisation[];
   institution?: {
     acronym: string;
   };
@@ -106,6 +108,21 @@ export interface IDocumentation {
   description: string;
   url: string;
   file: IFile;
+}
+
+export interface IOrganisation extends IPartner {
+  email: string;
+  type: {
+    name: string;
+  };
+  institution: any;
+  institutionAcronym: string;
+  typeOther: string;
+  address: string;
+  expertise: string;
+  country: {
+    name: string;
+  };
 }
 
 export interface IPartner {
@@ -318,7 +335,11 @@ export type IFilter = ISearchFilter | IOntologyFilter | IRefArrayFilter;
 interface IAbstractFilter {
   id: string;
   search?: string;
-  config: ISearchFilterConfig | IOntologyFilterConfig | IRefArrayFilterConfig;
+  config:
+    | ISearchFilterConfig
+    | IOntologyFilterConfig
+    | IRefArrayFilterDefaultConfig
+    | IRefArrayFilterCustomConfig;
 }
 export interface ISearchFilter extends IAbstractFilter {
   search: string;
@@ -344,12 +365,26 @@ export interface IOntologyFilterConfig extends IFilterConfig {
   refFields?: filterRefField;
 }
 
-export interface IRefArrayFilterConfig extends IFilterConfig {
+export interface IRefArrayFilterAbstractConfig extends IFilterConfig {
   type: "REF_ARRAY";
   refTableId: string;
   refSchema?: string;
-  columnId: string;
   refFields?: filterRefField;
+  // optional function to build the filter bases on the selected options
+  // if empty the defualt builder will be used
+  buildFilterFunction?: Function;
+}
+
+export interface IRefArrayFilterDefaultConfig
+  extends IRefArrayFilterAbstractConfig {
+  columnId: string;
+}
+
+export interface IRefArrayFilterCustomConfig
+  extends IRefArrayFilterAbstractConfig {
+  // optional function to build the filter bases on the selected options
+  // if empty the defualt builder will be used
+  buildFilterFunction?: Function;
 }
 
 type filterRefField = {
@@ -367,9 +402,14 @@ export interface IOntologyFilter extends IAbstractFilter {
 
 export type IConditionsFilter = IOntologyFilter | IRefArrayFilter;
 
+export interface optionsFetchFn {
+  (): Promise<INode[]>;
+}
+
 export interface IRefArrayFilter extends IAbstractFilter {
   conditions: IFilterCondition[];
-  config: IRefArrayFilterConfig;
+  config: IRefArrayFilterCustomConfig | IRefArrayFilterDefaultConfig;
+  options?: INode[] | optionsFetchFn;
 }
 
 export interface IPathCondition {

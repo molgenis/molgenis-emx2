@@ -839,6 +839,28 @@ public class WebApiSmokeTests {
   }
 
   @Test
+  public void testFDPHead() {
+    given()
+        .sessionId(SESSION_ID)
+        .expect()
+        .contentType("text/turtle")
+        .when()
+        .head("http://localhost:" + PORT + "/api/fdp/");
+  }
+
+  @Test
+  public void testFDPRedirect() {
+    given()
+        .sessionId(SESSION_ID)
+        .redirects()
+        .follow(false)
+        .expect()
+        .header("Location", "http://localhost:" + PORT + "/api/fdp/")
+        .when()
+        .get("http://localhost:" + PORT + "/api/fdp");
+  }
+
+  @Test
   public void testGraphGenome400() {
     given()
         .sessionId(SESSION_ID)
