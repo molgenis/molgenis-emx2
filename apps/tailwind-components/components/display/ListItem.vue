@@ -1,12 +1,12 @@
-<script setup>
-import { computed } from "vue";
-
-const props = defineProps({
-  type: {
-    default: "standard",
-    enum: ["standard", "link"],
-  },
-});
+<script setup lang="ts">
+const props = withDefaults(
+  defineProps<{
+    type?: "standard" | "link";
+  }>(),
+  {
+    type: "standard",
+  }
+);
 
 const LIST_ITEM_TYPE_MAPPING = {
   standard: "pr-12.5 pb-[5px]",

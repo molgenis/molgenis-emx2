@@ -20,6 +20,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
   const settingsStore = useSettingsStore();
 
   const graphqlEndpoint = settingsStore.config.graphqlEndpoint;
+  const graphqlEndpointOntologyFilter = "/DirectoryOntologies/graphql";
 
   let bookmarkWaitingForApplication = ref(false);
 
@@ -72,6 +73,10 @@ export const useFiltersStore = defineStore("filtersStore", () => {
 
   const hasActiveFilters = computed(() => {
     return Object.keys(filters.value).length > 0;
+  });
+
+  const hasActiveBiobankOnlyFilters = computed(() => {
+    return !!getFilterValue("Biobankservices");
   });
 
   let queryDelay: any;
@@ -131,6 +136,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
         bookmarkTriggeredFilter.value = false;
 
         if (hasActiveFilters.value) {
+          hasActiveBiobankOnlyFilters.value;
           await getBiobankCards();
           clearTimeout(queryDelay);
         }
@@ -294,10 +300,10 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     const ontologyResults = [];
 
     for (const codeBlock of codesToQuery) {
-      const ontologyResult = await new QueryEMX2(graphqlEndpoint)
+      const ontologyResult = await new QueryEMX2(graphqlEndpointOntologyFilter)
         .table(sourceTable)
         .select(attributes)
-        .where("code")
+        .orWhere("code")
         .in(codeBlock)
         .orderBy(sourceTable, sortColumn, sortDirection)
         .execute();
@@ -402,6 +408,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     getOntologyOptionsForCodes,
     filterOptionsCache,
     hasActiveFilters,
+    hasActiveBiobankOnlyFilters,
     filters,
     filterFacets,
     filtersReady,
