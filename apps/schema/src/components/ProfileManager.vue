@@ -63,6 +63,12 @@
           <h2 :id="table.name.replaceAll(' ', '_')">{{ table.name }}</h2>
           <div>{{ table.description }}</div>
           <ul class="list-group">
+            <li class="list-group-item nav-header">
+              <ButtonAlt @click="selectAll(table.name)">select all</ButtonAlt
+              ><ButtonAlt @click="deselectAll(table.name)"
+                >deselect all</ButtonAlt
+              >
+            </li>
             <template v-for="column in table.columns">
               <li
                 v-if="isVisible(column)"
@@ -139,8 +145,8 @@
 </style>
 
 <script setup>
-import { ref, computed, reactive } from "vue";
-import { InputSearch, MessageError } from "molgenis-components";
+import { ref, computed } from "vue";
+import { InputSearch, MessageError, ButtonAlt } from "molgenis-components";
 import VueScrollTo from "vue-scrollto";
 
 const error = ref(null);
@@ -221,6 +227,26 @@ const v = function (value) {
   } else {
     return value;
   }
+};
+
+const selectAll = function (tableName) {
+  tables.value.forEach((t) => {
+    if (t.name === tableName) {
+      t.columns?.forEach((c) => {
+        c.selected = true;
+      });
+    }
+  });
+};
+
+const deselectAll = function (tableName) {
+  tables.value.forEach((t) => {
+    if (t.name === tableName) {
+      t.columns?.forEach((c) => {
+        c.selected = false;
+      });
+    }
+  });
 };
 
 const convertToCsv = function () {
