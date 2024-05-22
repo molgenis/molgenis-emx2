@@ -80,18 +80,24 @@ class Transform:
         """
         # transformations per table
         self.collections()
-        self.subcohorts()
-        self.collection_events()
         self.datasets()
         self.variables()
         self.variable_values()
         self.dataset_mappings()
         self.variable_mappings()
+
+        # TODO: make common function to rename columns (e.g. resource > collection)
+        self.subcohorts()
+        self.collection_events()
         self.network_variables()
         self.external_identifiers()
         self.linked_resources()
         self.quantitative_information()
         self.subcohort_counts()
+        self.DAPs()
+        self.documentation()
+        self.contacts()
+        self.aggregates()
 
     def collections(self):
         """Transform columns in Cohorts, Networks, Studies, Data sources, Databanks
@@ -140,31 +146,6 @@ class Transform:
 
         df_collections = float_to_int(df_collections)  # convert float back to integer
         df_collections.to_csv(self.path + 'Collections.csv', index=False)
-
-    def subcohorts(self):
-        df = pd.read_csv(self.path + 'Subcohorts.csv')
-        df.loc[:, 'resource'] = df['resource'].apply(strip_resource)
-        df.rename(columns={'resource': 'collection'}, inplace=True)
-
-        df = float_to_int(df)  # convert float back to integer
-        df.to_csv(self.path + 'Collection populations.csv', index=False)
-
-    def collection_events(self):
-        df = pd.read_csv(self.path + 'Collection events.csv')
-        df.loc[:, 'resource'] = df['resource'].apply(strip_resource)
-        df.loc[:, 'subcohorts'] = df['subcohorts'].apply(strip_resource)
-        df.rename(columns={'resource': 'collection',
-                           'subcohort': 'populations'}, inplace=True)
-
-        df = float_to_int(df)  # convert float back to integer
-        df.to_csv(self.path + 'Collection events.csv', index=False)
-
-    def external_identifiers(self):
-        df = pd.read_csv(self.path + 'External identifiers.csv')
-        df.rename(columns={'resource': 'collection'}, inplace=True)
-
-        df = float_to_int(df)  # convert float back to integer
-        df.to_csv(self.path + 'External identifiers.csv', index=False)
 
     def datasets(self):
         df = pd.read_csv(self.path + 'Datasets.csv', keep_default_na=False)
@@ -224,11 +205,37 @@ class Transform:
         df = float_to_int(df)  # convert float back to integer
         df.to_csv(self.path + 'Variable mappings.csv', index=False)
 
+
+
+    def subcohorts(self):
+            df = pd.read_csv(self.path + 'Subcohorts.csv')
+            df.loc[:, 'resource'] = df['resource'].apply(strip_resource)
+            df.rename(columns={'resource': 'collection'}, inplace=True)
+
+            df = float_to_int(df)  # convert float back to integer
+            df.to_csv(self.path + 'Collection populations.csv', index=False)
+
+    def collection_events(self):
+        df = pd.read_csv(self.path + 'Collection events.csv')
+        df.loc[:, 'resource'] = df['resource'].apply(strip_resource)
+        df.loc[:, 'subcohorts'] = df['subcohorts'].apply(strip_resource)
+        df.rename(columns={'resource': 'collection',
+                           'subcohorts': 'populations'}, inplace=True)
+
+        df = float_to_int(df)  # convert float back to integer
+        df.to_csv(self.path + 'Collection events.csv', index=False)
+
+    def external_identifiers(self):
+        df = pd.read_csv(self.path + 'External identifiers.csv')
+        df.rename(columns={'resource': 'collection'}, inplace=True)
+
+        df = float_to_int(df)  # convert float back to integer
+        df.to_csv(self.path + 'External identifiers.csv', index=False)
+
     def network_variables(self):
         df = pd.read_csv(self.path + 'Network variables.csv', keep_default_na=False)
         df.rename(columns={'resource': 'collection'}, inplace=True)
 
-        # TODO: add functions to rewrite mappings
         df = float_to_int(df)  # convert float back to integer
         df.to_csv(self.path + 'Collection variables.csv', index=False)
 
@@ -240,7 +247,6 @@ class Transform:
 
         df = float_to_int(df)  # convert float back to integer
         df.to_csv(self.path + 'Linked collections.csv', index=False)
-
 
     def quantitative_information(self):
         df = pd.read_csv(self.path + 'Quantitative information.csv', keep_default_na=False)
@@ -255,6 +261,35 @@ class Transform:
 
         df = float_to_int(df)  # convert float back to integer
         df.to_csv(self.path + 'Population counts.csv', index=False)
+
+    def DAPs(self):
+        df = pd.read_csv(self.path + 'DAPs.csv', keep_default_na=False)
+        df.rename(columns={'resource': 'collection'}, inplace=True)
+
+        df = float_to_int(df)  # convert float back to integer
+        df.to_csv(self.path + 'DAPs.csv', index=False)
+
+    def documentation(self):
+        df = pd.read_csv(self.path + 'Documentation.csv', keep_default_na=False)
+        df.rename(columns={'resource': 'collection'}, inplace=True)
+
+        df = float_to_int(df)  # convert float back to integer
+        df.to_csv(self.path + 'Documentation.csv', index=False)
+
+    def contacts(self):
+        df = pd.read_csv(self.path + 'Contacts.csv', keep_default_na=False)
+        df.rename(columns={'resource': 'collection'}, inplace=True)
+
+        df = float_to_int(df)  # convert float back to integer
+        df.to_csv(self.path + 'Contacts.csv', index=False)
+
+    def aggregates(self):
+        df = pd.read_csv(self.path + 'Aggregates.csv', keep_default_na=False)
+        df.rename(columns={'resource': 'collection'}, inplace=True)
+
+        df = float_to_int(df)  # convert float back to integer
+        df.to_csv(self.path + 'Aggregates.csv', index=False)
+
 
 def get_lifecycle_non_repeated(df_variables, df_repeats):
     # select lifecycle variables
