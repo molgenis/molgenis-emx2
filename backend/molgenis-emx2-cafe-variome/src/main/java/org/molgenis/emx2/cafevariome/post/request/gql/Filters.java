@@ -9,22 +9,43 @@ import org.molgenis.emx2.cafevariome.post.request.query.DemographyQuery;
 import org.molgenis.emx2.cafevariome.post.request.query.GeneReactomeQuery;
 import org.molgenis.emx2.cafevariome.post.request.query.HPOQuery;
 import org.molgenis.emx2.cafevariome.post.request.query.ORDOQuery;
+import org.molgenis.emx2.cafevariome.sim.HpoSimilaritySearch;
 
 public class Filters {
 
   public static List<String> makeHPOFilter(HPOQuery hpoQuery) throws Exception {
     List<String> filters = new ArrayList<>();
+
+    // for now, create one massive 'or' filter (not according to spec)
     for (String hpoTerm : hpoQuery.getSearchTerms()) {
+
+      String hpoTermUnderscore;
       if (hpoTerm.startsWith("HP:")) {
-        hpoTerm = hpoTerm.replace("HP:", "HP_");
+        hpoTermUnderscore = hpoTerm.replace("HP:", "HP_");
       } else {
         System.out.println("hpoTerm=" + hpoTerm);
         throw new Exception("Expected input HPO term to start with 'HP:'");
       }
       String filter =
-          "{phenotypicFeatures: { featureType: { ontologyTermURI: {like:\"" + hpoTerm + "\"";
+          "{phenotypicFeatures: { featureType: { ontologyTermURI: {like:\""
+              + hpoTermUnderscore
+              + "\"";
       filter = finalizeFilter(filter);
       filters.add(filter);
+
+      // if 'r' < 1, expand this term and add expansion terms to same filter
+      if (hpoQuery.getTermPairwiseSimilarity() < 1.0) {
+        List<String> expandedTerms =
+            HpoSimilaritySearch.expandHPOTerm(hpoQuery.getTermPairwiseSimilarity(), hpoTerm, "_");
+        for (String expandedTerm : expandedTerms) {
+          filter =
+              "{phenotypicFeatures: { featureType: { ontologyTermURI: {like:\""
+                  + expandedTerm
+                  + "\"";
+          filter = finalizeFilter(filter);
+          filters.add(filter);
+        }
+      }
     }
     return filters;
   }
@@ -49,9 +70,8 @@ public class Filters {
    *
    * @param reactomeQuery
    * @return
-   * @throws Exception
    */
-  public static List<String> makeReactomeFilter(GeneReactomeQuery reactomeQuery) throws Exception {
+  public static List<String> makeReactomeFilter(GeneReactomeQuery reactomeQuery) {
     List<String> filters = new ArrayList<>();
     return filters;
   }
@@ -61,9 +81,8 @@ public class Filters {
    *
    * @param geneQuery
    * @return
-   * @throws Exception
    */
-  public static List<String> makeGeneFilter(GeneReactomeQuery[] geneQuery) throws Exception {
+  public static List<String> makeGeneFilter(GeneReactomeQuery[] geneQuery) {
     List<String> filters = new ArrayList<>();
     String[] values = new String[geneQuery.length];
     for (int i = 0; i < geneQuery.length; i++) {
@@ -80,10 +99,8 @@ public class Filters {
    *
    * @param demographyQuery
    * @return
-   * @throws Exception
    */
-  public static List<String> makeDemographyFilter(DemographyQuery demographyQuery)
-      throws Exception {
+  public static List<String> makeDemographyFilter(DemographyQuery demographyQuery) {
     List<String> filters = new ArrayList<>();
     filters.add(
         valueArrayFilterBuilder("{sex: {ontologyTermURI: {like:", demographyQuery.getGender()));

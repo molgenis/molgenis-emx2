@@ -66,6 +66,11 @@ public class CafeVariomeQueryService {
     List<IndividualsResultSets> individualsResultSets =
         queryIndividuals(tables, filters.toArray(new String[0]));
 
+    // TODO: the HPO filter is now one big 'or' filter, but that is wrong
+    // must postprocess: if 's' for HPO query was 2, select only individuals that match 2 or more
+    // HPO terms
+    // this counts per expanded term! e.g. 5 terms, all expanded, 2 + their expansion should match
+
     QueryResponse response = ResultSetToResponse.transform(tables, individualsResultSets);
     return response;
   }
