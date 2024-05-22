@@ -402,8 +402,10 @@ public class Beaconv2_ModelEndpointsTest {
                             }
                           }""");
     assertEquals("[NCIT_C28421]", json.get("info").get("unsupportedFilters").textValue());
-    assertEquals(5, json.get("responseSummary").get("numTotalResults").intValue());
     assertEquals(true, json.get("responseSummary").get("exists").booleanValue());
+
+    JsonNode results = json.get("response").get("resultSets").get(0).get("results");
+    assertEquals(5, results.size());
   }
 
   @Test
@@ -825,8 +827,10 @@ public class Beaconv2_ModelEndpointsTest {
                             }
                           }""");
     assertEquals("[ncit:C15642]", json.get("info").get("unsupportedFilters").textValue());
-    assertEquals(5, json.get("responseSummary").get("numTotalResults").intValue());
-    assertEquals(true, json.get("responseSummary").get("exists").booleanValue());
+    assertTrue(json.get("responseSummary").get("exists").booleanValue());
+
+    JsonNode results = json.get("response").get("resultSets").get(0).get("results");
+    assertEquals(5, results.size());
   }
 
   @Test
