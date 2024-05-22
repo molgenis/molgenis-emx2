@@ -117,7 +117,16 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
 
       /* Update biobankCards only if the result is the most recent one*/
       if (requestTime === lastRequestTime) {
-        biobankCards.value = filterWithdrawn(biobankResult.Biobanks || []);
+        let foundBiobanks = biobankResult.Biobanks;
+        if (
+          filtersStore.hasActiveFilters &&
+          !filtersStore.hasActiveBiobankOnlyFilters
+        ) {
+          foundBiobanks = foundBiobanks.filter(
+            (biobank) => biobank.collections
+          );
+        }
+        biobankCards.value = filterWithdrawn(foundBiobanks);
         waitingForResponse.value = false;
         filtersStore.bookmarkWaitingForApplication = false;
       }

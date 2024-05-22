@@ -17,6 +17,7 @@ import asyncio
 import logging
 import os
 
+import numpy
 import pandas as pd
 from dotenv import load_dotenv
 
@@ -95,6 +96,12 @@ async def main():
             'status': 'available',
             'weight': 6.8,
             'tags': 'brown,canis'
+        }, {
+            'name': 'NA',
+            'category': 'ant',
+            'status': numpy.nan,
+            'weight': 23.6,
+            'tags': 'purple,insect'
         }]
 
         # Import new data
@@ -131,6 +138,12 @@ async def main():
             'status': 'available',
             'weight': 6.8,
             'tags': 'brown,canis'
+        }, {
+            'name': 'NA',
+            'category': 'ant',
+            'status': numpy.nan,
+            'weight': 23.6,
+            'tags': 'purple,insect'
         }])
 
         # Import new data
