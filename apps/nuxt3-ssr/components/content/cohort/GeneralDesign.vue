@@ -2,17 +2,15 @@
 import type {
   ICohort,
   INameObject,
-  DefinitionListItemType,
   IDefinitionListItem,
 } from "~/interfaces/types";
-import type { IOntologyItem } from "meta-data-utils";
+
 import dateUtils from "~/utils/dateUtils";
 
 const props = defineProps<{
   title: string;
   description?: string;
   cohort: ICohort;
-  mainMedicalCondition?: IOntologyItem[];
 }>();
 
 const generalDesign: IDefinitionListItem[] = [
@@ -71,69 +69,6 @@ const generalDesign: IDefinitionListItem[] = [
   },
 ];
 
-const population: IDefinitionListItem[] = [
-  {
-    label: "Countries",
-    content: props.cohort?.countries
-      ? [...props.cohort?.countries]
-          .sort((a, b) => b.order - a.order)
-          .map((country) => country.name)
-          .join(", ")
-      : undefined,
-  },
-  {
-    label: "Regions",
-    content: props.cohort?.regions
-      ?.sort((a, b) => b.order - a.order)
-      .map((r) => r.name)
-      .join(", "),
-  },
-  {
-    label: "Number of participants",
-    content: props.cohort?.numberOfParticipants,
-  },
-  {
-    label: "Number of participants with samples",
-    content: props.cohort?.numberOfParticipantsWithSamples,
-  },
-  {
-    label: "Age group at inclusion",
-    content: removeChildIfParentSelected(
-      props.cohort?.populationAgeGroups || []
-    )
-      .sort((a, b) => a.order - b.order)
-      .map((ageGroup) => ageGroup.name)
-      .join(", "),
-  },
-  {
-    label: "Population oncology topology",
-    type: "ONTOLOGY",
-    content: props.cohort.populationOncologyTopology,
-  },
-  {
-    label: "Population oncology morphology",
-    type: "ONTOLOGY",
-    content: props.cohort.populationOncologyMorphology,
-  },
-  {
-    label: "Inclusion criteria",
-    type: "ONTOLOGY",
-    content: props.cohort.inclusionCriteria,
-  },
-  {
-    label: "Other inclusion criteria",
-    content: props.cohort.otherInclusionCriteria,
-  },
-];
-
-if (props.mainMedicalCondition && props.mainMedicalCondition.length > 0) {
-  population.splice(population.length - 4, 0, {
-    label: "Main medical condition",
-    content: props.mainMedicalCondition,
-    type: "ONTOLOGY",
-  });
-}
-
 function designPaperToItem(designPaper: any[]) {
   if (designPaper.length === 0) {
     return undefined;
@@ -156,12 +91,6 @@ function designPaperToItem(designPaper: any[]) {
   <ContentBlock :title="title" :description="description">
     <CatalogueItemList
       :items="generalDesign.filter((item) => item.content !== undefined)"
-    />
-
-    <h2 class="my-5 uppercase text-heading-4xl font-display">Population</h2>
-
-    <CatalogueItemList
-      :items="population.filter((item) => item.content !== undefined)"
     />
   </ContentBlock>
 </template>
