@@ -267,24 +267,25 @@
 
 <script lang="ts">
 import {
-  ButtonAction,
-  ButtonAlt,
-  Client,
-  IconAction,
-  InputBoolean,
-  InputRadio,
-  InputSelect,
-  InputString,
-  InputText,
-  InputTextLocalized,
-  LayoutForm,
-  LayoutModal,
-  MessageError,
-  MessageWarning,
-  RowEdit,
-  Spinner,
-  deepClone,
-  getRowErrors, //@ts-ignore
+  //@ts-ignore
+  ButtonAction, //@ts-ignore
+  ButtonAlt, //@ts-ignore
+  Client, //@ts-ignore
+  IconAction, //@ts-ignore
+  InputBoolean, //@ts-ignore
+  InputRadio, //@ts-ignore
+  InputSelect, //@ts-ignore
+  InputString, //@ts-ignore
+  InputText, //@ts-ignore
+  InputTextLocalized, //@ts-ignore
+  LayoutForm, //@ts-ignore
+  LayoutModal, //@ts-ignore
+  MessageError, //@ts-ignore
+  MessageWarning, //@ts-ignore
+  RowEdit, //@ts-ignore
+  Spinner, //@ts-ignore
+  deepClone, //@ts-ignore
+  getRowErrors,
 } from "molgenis-components";
 import columnTypes from "../columnTypes.js";
 import { addTableIdsLabelsDescription } from "../utils";
@@ -492,19 +493,15 @@ export default {
         )
         .map((c: Record<string, any>) => c.name);
     },
-    refBackCandidates(
-      fromTable: Record<string, any>,
-      toTable: Record<string, any>
-    ) {
+    refBackCandidates(fromTable: string, toTable: Record<string, any>) {
       const schema =
         this.refSchema !== undefined ? this.refSchema : this.schema;
-
-      const columns = schema.tables
-        .filter((t: Record<string, any>) => t.name === fromTable)
-        .map((t: Record<string, any>) => t.columns)[0];
+      const columns = getRefTableColumns(fromTable, schema.tables);
       return columns
-        ?.filter((c: Record<string, any>) => c.refTableName === toTable)
-        .map((c: Record<string, any>) => c.name);
+        .filter(
+          (column: Record<string, any>) => column.refTableName === toTable
+        )
+        .map((column: Record<string, any>) => column.name);
     },
     async loadRefSchema() {
       this.error = undefined;
@@ -566,4 +563,21 @@ export default {
   },
   emits: ["add", "update:modelValue"],
 };
+
+function getRefTableColumns(
+  fromTable: string,
+  tables: Record<string, any>[]
+): Record<string, any>[] {
+  const table = tables.find(
+    (table: Record<string, any>) => table.name === fromTable
+  );
+  if (table?.inheritName) {
+    const inheritedTable = tables.find(
+      (otherTable: Record<string, any>) => table.inheritName === otherTable.name
+    );
+    return [...inheritedTable?.columns, ...table?.columns];
+  } else {
+    return table?.columns || [];
+  }
+}
 </script>
