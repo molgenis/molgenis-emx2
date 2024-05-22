@@ -75,6 +75,10 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     return Object.keys(filters.value).length > 0;
   });
 
+  const hasActiveBiobankOnlyFilters = computed(() => {
+    return !!getFilterValue("Biobankservices");
+  });
+
   let queryDelay: any;
   watch(
     filters,
@@ -132,6 +136,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
         bookmarkTriggeredFilter.value = false;
 
         if (hasActiveFilters.value) {
+          hasActiveBiobankOnlyFilters.value;
           await getBiobankCards();
           clearTimeout(queryDelay);
         }
@@ -403,6 +408,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     getOntologyOptionsForCodes,
     filterOptionsCache,
     hasActiveFilters,
+    hasActiveBiobankOnlyFilters,
     filters,
     filterFacets,
     filtersReady,

@@ -309,9 +309,8 @@ class Flattener(pd.DataFrame):
     def save_dev_df(self):
         """Saves the pandas DataFrame of the flat model to disk."""
         profile = 'DataCatalogueFlat'
-        path = 'C:/Users/brend/Molgenis/repos/molgenis-emx2/data/_models/shared/'
+        data_model = get_data_model(SHARED_DIR, profile)
 
-        data_model = get_data_model(path, profile)
         file_dir = str(SPECIFIC_DIR.joinpath('dev'))
         data_model.to_csv(file_dir + '/' + profile + '.csv', index=None)
 
@@ -321,7 +320,7 @@ def get_data_model(path, profile):
 
     for file_name in os.listdir(path):
         if '.csv' in file_name:
-            df = pd.read_csv(path + file_name)
+            df = pd.read_csv(path.joinpath(file_name))
             df = df.loc[df['profiles'].str.contains(profile)]
             data_model = pd.concat([data_model, df])
 
