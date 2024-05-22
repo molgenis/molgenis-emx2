@@ -16,20 +16,20 @@ defineProps({
       <Button label="Harmonized variables" type="outline" size="medium" />
     </ButtonGroup>
 
-    <List
+    <DisplayList
       :columnCount="2"
       title="Variables per topic"
       class="mt-18"
       type="link"
     >
-      <ListItem
+      <DisplayListItem
         type="link"
         class="font-normal text-blue-500 before:content-['›'] before:mr-2"
       >
         <a href="#" class="hover:underline">Administrative information</a>
         <span class="text-gray-400 inline-block ml-1">- 9</span>
-      </ListItem>
-      <ListItem
+      </DisplayListItem>
+      <DisplayListItem
         type="link"
         class="font-normal text-blue-500 before:content-['›'] before:mr-2"
       >
@@ -37,15 +37,15 @@ defineProps({
           >Birth pregnany and reproductive health history</a
         >
         <span class="text-gray-400 inline-block ml-1">- 9</span>
-      </ListItem>
-      <ListItem
+      </DisplayListItem>
+      <DisplayListItem
         type="link"
         class="font-normal text-blue-500 before:content-['›'] before:mr-2"
       >
         <a href="#" class="hover:underline">Child</a>
         <span class="text-gray-400 inline-block ml-1">- 9</span>
-      </ListItem>
-      <ListItem
+      </DisplayListItem>
+      <DisplayListItem
         type="link"
         class="font-normal text-blue-500 before:content-['›'] before:mr-2"
       >
@@ -53,36 +53,36 @@ defineProps({
           >Cognition, personality and psychological measure</a
         >
         <span class="text-gray-400 inline-block ml-1">- 9</span>
-      </ListItem>
-      <ListItem
+      </DisplayListItem>
+      <DisplayListItem
         type="link"
         class="font-normal text-blue-500 before:content-['›'] before:mr-2"
       >
         <a href="#" class="hover:underline">Death</a>
         <span class="text-gray-400 inline-block ml-1">- 9</span>
-      </ListItem>
-      <ListItem
+      </DisplayListItem>
+      <DisplayListItem
         type="link"
         class="font-normal text-blue-500 before:content-['›'] before:mr-2"
       >
         <a href="#" class="hover:underline">Diseases</a>
         <span class="text-gray-400 inline-block ml-1">- 9</span>
-      </ListItem>
-      <ListItem
+      </DisplayListItem>
+      <DisplayListItem
         type="link"
         class="font-normal text-blue-500 before:content-['›'] before:mr-2"
       >
         <a href="#" class="hover:underline">Lifestyle & behaviours</a>
         <span class="text-gray-400 inline-block ml-1">- 9</span>
-      </ListItem>
-      <ListItem
+      </DisplayListItem>
+      <DisplayListItem
         type="link"
         class="font-normal text-blue-500 before:content-['›'] before:mr-2"
       >
         <a href="#" class="hover:underline">Administrative information</a>
         <span class="text-gray-400 inline-block ml-1">- 9</span>
-      </ListItem>
-      <ListItem
+      </DisplayListItem>
+      <DisplayListItem
         type="link"
         class="font-normal text-blue-500 before:content-['›'] before:mr-2"
       >
@@ -90,15 +90,15 @@ defineProps({
           >Birth pregnany and reproductive health history</a
         >
         <span class="text-gray-400 inline-block ml-1">- 9</span>
-      </ListItem>
-      <ListItem
+      </DisplayListItem>
+      <DisplayListItem
         type="link"
         class="font-normal text-blue-500 before:content-['›'] before:mr-2"
       >
         <a href="#" class="hover:underline">Child</a>
         <span class="text-gray-400 inline-block ml-1">- 9</span>
-      </ListItem>
-      <ListItem
+      </DisplayListItem>
+      <DisplayListItem
         type="link"
         class="font-normal text-blue-500 before:content-['›'] before:mr-2"
       >
@@ -106,28 +106,28 @@ defineProps({
           >Cognition, personality and psychological measure</a
         >
         <span class="text-gray-400 inline-block ml-1">- 9</span>
-      </ListItem>
-      <ListItem
+      </DisplayListItem>
+      <DisplayListItem
         type="link"
         class="font-normal text-blue-500 before:content-['›'] before:mr-2"
       >
         <a href="#" class="hover:underline">Death</a>
         <span class="text-gray-400 inline-block ml-1">- 9</span>
-      </ListItem>
-      <ListItem
+      </DisplayListItem>
+      <DisplayListItem
         type="link"
         class="font-normal text-blue-500 before:content-['›'] before:mr-2"
       >
         <a href="#" class="hover:underline">Diseases</a>
         <span class="text-gray-400 inline-block ml-1">- 9</span>
-      </ListItem>
-      <ListItem
+      </DisplayListItem>
+      <DisplayListItem
         type="link"
         class="font-normal text-blue-500 before:content-['›'] before:mr-2"
       >
         <a href="#" class="hover:underline">Lifestyle & behaviours</a>
         <span class="text-gray-400 inline-block ml-1">- 9</span>
-      </ListItem>
-    </List>
+      </DisplayListItem>
+    </DisplayList>
   </ContentBlock>
 </template>

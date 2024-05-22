@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { ICohort } from "~/interfaces/types";
 import dateUtils from "~/utils/dateUtils";
-let truncate = ref(true);
 const cutoff = 250;
 
 const props = withDefaults(
