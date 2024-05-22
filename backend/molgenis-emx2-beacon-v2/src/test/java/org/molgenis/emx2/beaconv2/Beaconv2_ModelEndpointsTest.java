@@ -401,9 +401,9 @@ public class Beaconv2_ModelEndpointsTest {
                           	]
                             }
                           }""");
-    String jsonString = JsonUtil.getWriter().writeValueAsString(json);
-    assertTrue(jsonString.contains("\"exists\" : true"));
-    assertTrue(jsonString.contains("\"numTotalResults\" : 5"));
+    assertEquals("[NCIT_C28421]", json.get("info").get("unsupportedFilters").textValue());
+    assertEquals(5, json.get("responseSummary").get("numTotalResults").intValue());
+    assertEquals(true, json.get("responseSummary").get("exists").booleanValue());
   }
 
   @Test
@@ -824,9 +824,9 @@ public class Beaconv2_ModelEndpointsTest {
                           	]
                             }
                           }""");
-    String jsonString = JsonUtil.getWriter().writeValueAsString(json);
-    assertTrue(jsonString.contains("\"unsupportedFilters\" : \"[ncit:C15642]\""));
-    assertTrue(jsonString.contains("\"numTotalResults\" : 5"));
+    assertEquals("[ncit:C15642]", json.get("info").get("unsupportedFilters").textValue());
+    assertEquals(5, json.get("responseSummary").get("numTotalResults").intValue());
+    assertEquals(true, json.get("responseSummary").get("exists").booleanValue());
   }
 
   @Test
