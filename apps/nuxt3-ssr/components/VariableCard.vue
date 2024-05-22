@@ -19,7 +19,7 @@ const resourcePathId = resourceIdPath(variableKey.value);
 <template>
   <article class="py-5 lg:px-12.5 p-5">
     <header class="flex md:flex-row gap-3 items-start md:items-center">
-      <div class="md:basis-1/5 p-2">
+      <div class="md:basis-2/5 p-2">
         <h2 class="break-all">
           <NuxtLink
             :to="`/${schema}/ssr-catalogue/${catalogue}/variables/${resourcePathId}`"
@@ -27,6 +27,17 @@ const resourcePathId = resourceIdPath(variableKey.value);
           >
             {{ variable?.name }}
           </NuxtLink>
+          <span
+            v-if="variable.repeats?.length"
+            v-tooltip="{
+              content:
+                variable.repeats.length +
+                (variable.repeats.length == 1 ? ' repeat' : 'repeats'),
+            }"
+            class="ml-1 bg-blue-50 text-title-contrast justify-center rounded-full px-2 py-1 font-bold text-heading-sm hover:cursor-help"
+          >
+            + {{ variable.repeats?.length }}
+          </span>
         </h2>
       </div>
       <div class="hidden md:flex md:basis-3/5">

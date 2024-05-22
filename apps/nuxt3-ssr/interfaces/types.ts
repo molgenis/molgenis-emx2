@@ -83,6 +83,10 @@ export interface IVariableBase {
 export interface IVariableDetails {
   unit?: IOntologyNode;
   format?: IOntologyNode;
+  repeats?: {
+    name: string;
+    mappings: IMapping[];
+  }[];
 }
 
 export interface IVariableMappings {
