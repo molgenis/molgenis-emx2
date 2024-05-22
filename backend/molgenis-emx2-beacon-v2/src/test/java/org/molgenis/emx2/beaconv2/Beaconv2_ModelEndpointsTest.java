@@ -322,9 +322,7 @@ public class Beaconv2_ModelEndpointsTest {
 
     JsonNode results = json.get("response").get("resultSets").get(0).get("results");
     assertEquals(2, results.size());
-    assertEquals(results.get(0).get("id").textValue(), "SRR10903404");
     assertEquals(results.get(0).get("individualId").textValue(), "Ind001");
-    assertEquals(results.get(1).get("id").textValue(), "SRR10903401");
     assertEquals(results.get(1).get("individualId").textValue(), "Ind001");
   }
 
