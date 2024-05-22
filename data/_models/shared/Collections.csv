@@ -33,7 +33,7 @@ Collections,,cohort type other,,,,,,,,,,"If other, describe the type of resource
 Collections,,design,ontology,,,CatalogueOntologies,Cohort designs,,,,,"The study design of this cohort, i.e. cross-sectional or longitudinal",DataCatalogueFlat,['Cohort'].includes(collectionType?.name)
 Collections,,design description,text,,,,,,,,,Short description of the study design of this cohort,DataCatalogueFlat,['Cohort'].includes(collectionType?.name)
 Collections,,design schematic,file,,,,,,,,,A schematic depiction of the study design of this cohort,DataCatalogueFlat,['Cohort'].includes(collectionType?.name)
-Collections,,collection type,ontology_array,,,CatalogueOntologies,Collection types,,,,,"The data collection type of this cohort, i.e. retrospective or prospective; if both, select both",DataCatalogueFlat,['Cohort'].includes(collectionType?.name)
+Collections,,cohort collection type,ontology_array,,,CatalogueOntologies,Collection types,,,,,"The data collection type of this cohort, i.e. retrospective or prospective; if both, select both",DataCatalogueFlat,['Cohort'].includes(collectionType?.name)
 Collections,,logo,file,,,,,,,,,"Logo of the resource, for use on homepages etc.",DataCatalogueFlat,"['Cohort', 'Databank', 'Data source', 'Model', 'Network', 'Study'].includes(collectionType?.name)"
 Collections,,population,heading,,,,,,,,,Description of the population that can potentially be captured in the resource,DataCatalogueFlat,"['Cohort', 'Databank', 'Data source'].includes(collectionType?.name)"
 Collections,,number of participants,int,,,,,,,,,Total number of individuals for which data is collected,"DataCatalogueFlat,EMA","['Cohort', 'Databank', 'Data source'].includes(collectionType?.name)"
