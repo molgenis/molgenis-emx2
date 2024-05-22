@@ -314,6 +314,26 @@ let accessConditionsItems = computed(() => {
       content: cohort.value.dataAccessConditions.map((c) => c.name),
     });
   }
+  if (cohort.value.dataUseConditions) {
+    items.push({
+      label: "Data use conditions",
+      type: "ONTOLOGY",
+      content: cohort.value.dataUseConditions,
+    });
+  }
+  if (cohort.value.dataAccessFee) {
+    items.push({
+      label: "Data access fee",
+      content: cohort.value.dataAccessFee,
+    });
+  }
+  if (cohort.value.releaseType) {
+    items.push({
+      label: "Release type",
+      type: "ONTOLOGY",
+      content: cohort.value.releaseType,
+    });
+  }
   if (cohort.value.releaseDescription) {
     items.push({
       label: "Release description",
@@ -324,26 +344,6 @@ let accessConditionsItems = computed(() => {
     items.push({
       label: "Linkage options",
       content: cohort.value.linkageOptions,
-    });
-  }
-  if (cohort.value.dataUseConditions) {
-    items.push({
-      label: "data use conditions",
-      type: "ONTOLOGY",
-      content: cohort.value.dataUseConditions,
-    });
-  }
-  if (cohort.value.dataAccessFee) {
-    items.push({
-      label: "data access fee",
-      content: cohort.value.dataAccessFee,
-    });
-  }
-  if (cohort.value.releaseType) {
-    items.push({
-      label: "release type",
-      type: "ONTOLOGY",
-      content: cohort.value.releaseType,
     });
   }
 
