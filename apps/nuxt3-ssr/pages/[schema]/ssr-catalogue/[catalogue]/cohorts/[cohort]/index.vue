@@ -436,7 +436,7 @@ let fundingAndAcknowledgementItems = computed(() => {
   }
   if (cohort.value.acknowledgements) {
     items.push({
-      label: "Citation requirements ",
+      label: "Acknowledgements",
       content: cohort.value.acknowledgements,
     });
   }
