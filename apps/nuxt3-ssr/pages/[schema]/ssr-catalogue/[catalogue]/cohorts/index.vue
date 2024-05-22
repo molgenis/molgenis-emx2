@@ -133,10 +133,6 @@ const query = computed(() => {
       design {
           name
       }
-      leadOrganisation {
-          name
-          acronym
-      }
     }
     Cohorts_agg (filter:$filter){
         count
