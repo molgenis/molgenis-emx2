@@ -176,6 +176,7 @@ public class TestRefBack {
         schema.create(
             table("Posts")
                 .add(column("title").setPkey())
+                .add(column("tags").setType(ONTOLOGY).setRefTable("Tags"))
                 .add(column("user").setType(REF).setRefTable(users.getName())));
 
     users
@@ -184,7 +185,8 @@ public class TestRefBack {
 
     users.insert(new Row().set("username", "jack"));
     users.insert(new Row().set("username", "joe"));
-    posts.insert(new Row().set("title", "joes post").set("user", "joe"));
+    schema.getTable("Tags").insert(new Row().set("name", "green"));
+    posts.insert(new Row().set("title", "joes post").set("user", "joe").set("tags", "green"));
 
     // now the magic, using refback update posts.user => 'jack'
     users.save(new Row().set("username", "jack").set("posts", "joes post"));
@@ -227,6 +229,12 @@ public class TestRefBack {
             .select(s("username"), s("posts", s("title")))
             .where(f("posts", f("title", EQUALS, "jacks post")));
     assertTrue(query.retrieveJSON().contains("jacks post"));
+
+    query =
+        users.select(
+            s("username"), s("posts", s("title")).where(f("tags", f("name", EQUALS, "green"))));
+    assertTrue(query.retrieveJSON().contains("joes post"));
+    assertFalse(query.retrieveJSON().contains("jacks post"));
 
     query = users.agg(s("count")).where(f("posts", f("title", EQUALS, "jacks post")));
     assertTrue(query.retrieveJSON().contains("\"count\": 1"));
