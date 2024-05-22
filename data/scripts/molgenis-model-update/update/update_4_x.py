@@ -78,7 +78,7 @@ class Transform:
     def transform_data(self):
         """Make changes per table
         """
-        # transformations for catalogue and cohorts
+        # transformations per table
         self.collections()
         self.subcohorts()
         self.collection_events()
@@ -87,7 +87,8 @@ class Transform:
         self.variable_values()
         self.dataset_mappings()
         self.variable_mappings()
-        # self.network_variables()
+        self.network_variables()
+        self.external_identifiers()
 
     def collections(self):
         """Transform columns in Cohorts, Networks, Studies, Data sources, Databanks
@@ -155,6 +156,13 @@ class Transform:
         df = float_to_int(df)  # convert float back to integer
         df.to_csv(self.path + 'Collection events.csv', index=False)
 
+    def external_identifiers(self):
+        df = pd.read_csv(self.path + 'External identifiers.csv')
+        df.rename(columns={'resource': 'collection'}, inplace=True)
+
+        df = float_to_int(df)  # convert float back to integer
+        df.to_csv(self.path + 'External identifiers.csv', index=False)
+
     def datasets(self):
         df = pd.read_csv(self.path + 'Datasets.csv', keep_default_na=False)
         df.loc[:, 'resource'] = df['resource'].apply(strip_resource)
@@ -212,6 +220,14 @@ class Transform:
         # TODO: add functions to rewrite mappings
         df = float_to_int(df)  # convert float back to integer
         df.to_csv(self.path + 'Variable mappings.csv', index=False)
+
+    def network_variables(self):
+        df = pd.read_csv(self.path + 'Network variables.csv', keep_default_na=False)
+        df.rename(columns={'resource': 'collection'}, inplace=True)
+
+        # TODO: add functions to rewrite mappings
+        df = float_to_int(df)  # convert float back to integer
+        df.to_csv(self.path + 'Collection variables.csv', index=False)
 
 
 def get_lifecycle_non_repeated(df_variables, df_repeats):
