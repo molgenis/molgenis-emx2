@@ -51,7 +51,7 @@ rename_tables = [[Tables.C, Tables.DR],
                  [Tables.R, Tables.COL]]
 
 rename_columns = {
-    'Cohorts': [['type', 'cohort type'], ['type other', 'cohort type other']],
+    'Cohorts': [['type', 'cohort type'], ['type other', 'cohort type other'], ['collection type', 'cohort collection type']],
     'Networks': [['type', 'network type'], ['type other', 'network type other']],
     'Studies': [['type', 'study type'], ['type other', 'study type other']],
     'RWE resources': [['type', 'datasource type'], ['type other', 'datasource type other']]
@@ -359,6 +359,7 @@ def change_names(name):
     """
     names_to_replace = {'Subcohorts': 'Collection populations',
                         'resource': 'collection',
+                        'subcohort': 'population',
                         'subcohorts': 'populations',
                         'Linked resources': 'Linked collections',
                         'main resource': 'main collection',
