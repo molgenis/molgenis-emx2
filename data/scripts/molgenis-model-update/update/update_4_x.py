@@ -89,6 +89,9 @@ class Transform:
         self.variable_mappings()
         self.network_variables()
         self.external_identifiers()
+        self.linked_resources()
+        self.quantitative_information()
+        self.subcohort_counts()
 
     def collections(self):
         """Transform columns in Cohorts, Networks, Studies, Data sources, Databanks
@@ -229,6 +232,29 @@ class Transform:
         df = float_to_int(df)  # convert float back to integer
         df.to_csv(self.path + 'Collection variables.csv', index=False)
 
+    def linked_resources(self):
+        df = pd.read_csv(self.path + 'Linked resources.csv', keep_default_na=False)
+        df.rename(columns={'main resource': 'main collection',
+                           'linked resource': 'linked collection',
+                           'other linked resource': 'other linked collection'}, inplace=True)
+
+        df = float_to_int(df)  # convert float back to integer
+        df.to_csv(self.path + 'Linked collections.csv', index=False)
+
+
+    def quantitative_information(self):
+        df = pd.read_csv(self.path + 'Quantitative information.csv', keep_default_na=False)
+        df.rename(columns={'resource': 'collection'}, inplace=True)
+
+        df = float_to_int(df)  # convert float back to integer
+        df.to_csv(self.path + 'Quantitative information.csv', index=False)
+
+    def subcohort_counts(self):
+        df = pd.read_csv(self.path + 'Subcohort counts.csv', keep_default_na=False)
+        df.rename(columns={'resource': 'collection'}, inplace=True)
+
+        df = float_to_int(df)  # convert float back to integer
+        df.to_csv(self.path + 'Population counts.csv', index=False)
 
 def get_lifecycle_non_repeated(df_variables, df_repeats):
     # select lifecycle variables
