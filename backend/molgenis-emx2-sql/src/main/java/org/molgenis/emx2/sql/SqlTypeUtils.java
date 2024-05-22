@@ -150,8 +150,9 @@ public class SqlTypeUtils extends TypeUtils {
       case DATETIME_ARRAY -> row.getDateTimeArray(name);
       case JSONB -> row.getJsonb(name);
       case JSONB_ARRAY -> row.getJsonbArray(name);
-      default -> throw new UnsupportedOperationException(
-          "Unsupported columnType found:" + c.getColumnType());
+      default ->
+          throw new UnsupportedOperationException(
+              "Unsupported columnType found:" + c.getColumnType());
     };
   }
 
@@ -178,8 +179,9 @@ public class SqlTypeUtils extends TypeUtils {
       case DATETIME -> "timestamp without time zone";
       case DATETIME_ARRAY -> "timestamp without time zone[]";
       case JSONB -> "jsonb";
-      default -> throw new MolgenisException(
-          "Unknown type: Internal error: data cannot be mapped to psqlType " + type);
+      default ->
+          throw new MolgenisException(
+              "Unknown type: Internal error: data cannot be mapped to psqlType " + type);
     };
   }
 

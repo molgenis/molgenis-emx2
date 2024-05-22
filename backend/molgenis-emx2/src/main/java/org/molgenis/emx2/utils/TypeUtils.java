@@ -350,8 +350,8 @@ public class TypeUtils {
       case UUID -> SQLDataType.UUID;
       case UUID_ARRAY -> SQLDataType.UUID.getArrayDataType();
       case STRING, EMAIL, HYPERLINK -> SQLDataType.VARCHAR(255);
-      case STRING_ARRAY, EMAIL_ARRAY, HYPERLINK_ARRAY -> SQLDataType.VARCHAR(255)
-          .getArrayDataType();
+      case STRING_ARRAY, EMAIL_ARRAY, HYPERLINK_ARRAY ->
+          SQLDataType.VARCHAR(255).getArrayDataType();
       case INT -> SQLDataType.INTEGER;
       case INT_ARRAY -> SQLDataType.INTEGER.getArrayDataType();
       case LONG -> SQLDataType.BIGINT;
@@ -369,8 +369,8 @@ public class TypeUtils {
       case JSONB -> SQLDataType.JSONB;
       case JSONB_ARRAY -> SQLDataType.JSONB.getArrayDataType();
       default ->
-      // should never happen
-      throw new IllegalArgumentException("jooqTypeOf(type) : unsupported type '" + type + "'");
+          // should never happen
+          throw new IllegalArgumentException("jooqTypeOf(type) : unsupported type '" + type + "'");
     };
   }
 
