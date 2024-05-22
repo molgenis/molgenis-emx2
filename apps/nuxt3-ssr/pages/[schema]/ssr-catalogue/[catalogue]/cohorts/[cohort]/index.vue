@@ -5,7 +5,12 @@ import collectionEventsQuery from "~~/gql/collectionEvents";
 import datasetQuery from "~~/gql/datasets";
 import ontologyFragment from "~~/gql/fragments/ontology";
 import fileFragment from "~~/gql/fragments/file";
-import type { ICohort, IMgError, IOntologyItem } from "~/interfaces/types";
+import type {
+  ICohort,
+  IDefinitionListItem,
+  IMgError,
+  IOntologyItem,
+} from "~/interfaces/types";
 import dateUtils from "~/utils/dateUtils";
 const config = useRuntimeConfig();
 const route = useRoute();
@@ -73,6 +78,8 @@ const query = gql`
         title
         doi
       }
+      populationOncologyTopology ${moduleToString(ontologyFragment)}
+      populationOncologyMorphology ${moduleToString(ontologyFragment)}
       inclusionCriteria ${moduleToString(ontologyFragment)}
       otherInclusionCriteria
       additionalOrganisations {
@@ -257,6 +264,12 @@ let tocItems = computed(() => {
     { label: "Description", id: "Description" },
     { label: "General design", id: "GeneralDesign" },
   ];
+  if (population) {
+    tableOffContents.push({
+      label: "Population",
+      id: "population",
+    });
+  }
   if (cohort.value.contacts) {
     tableOffContents.push({
       label: "Contact & contributors",
@@ -314,6 +327,69 @@ let tocItems = computed(() => {
 
   return tableOffContents;
 });
+
+const population: IDefinitionListItem[] = [
+  {
+    label: "Countries",
+    content: cohort.value?.countries
+      ? [...cohort.value?.countries]
+          .sort((a, b) => b.order - a.order)
+          .map((country) => country.name)
+          .join(", ")
+      : undefined,
+  },
+  {
+    label: "Regions",
+    content: cohort.value?.regions
+      ?.sort((a, b) => b.order - a.order)
+      .map((r) => r.name)
+      .join(", "),
+  },
+  {
+    label: "Number of participants",
+    content: cohort.value?.numberOfParticipants,
+  },
+  {
+    label: "Number of participants with samples",
+    content: cohort.value?.numberOfParticipantsWithSamples,
+  },
+  {
+    label: "Age group at inclusion",
+    content: removeChildIfParentSelected(
+      cohort.value?.populationAgeGroups || []
+    )
+      .sort((a, b) => a.order - b.order)
+      .map((ageGroup) => ageGroup.name)
+      .join(", "),
+  },
+  {
+    label: "Population oncology topology",
+    type: "ONTOLOGY",
+    content: cohort.value.populationOncologyTopology,
+  },
+  {
+    label: "Population oncology morphology",
+    type: "ONTOLOGY",
+    content: cohort.value.populationOncologyMorphology,
+  },
+  {
+    label: "Inclusion criteria",
+    type: "ONTOLOGY",
+    content: cohort.value.inclusionCriteria,
+  },
+  {
+    label: "Other inclusion criteria",
+    content: cohort.value.otherInclusionCriteria,
+  },
+];
+
+if (mainMedicalConditions.value && mainMedicalConditions.value.length > 0) {
+  population.splice(population.length - 4, 0, {
+    label: "Main medical condition",
+    content: mainMedicalConditions.value,
+    type: "ONTOLOGY",
+  });
+}
 
 let accessConditionsItems = computed(() => {
   let items = [];
@@ -427,8 +503,13 @@ function showLeadOrganisationSideModal(index: number) {
           id="GeneralDesign"
           title="General Design"
           :cohort="cohort"
-          :main-medical-condition="mainMedicalConditions"
         />
+
+        <ContentBlock id="population" title="Population">
+          <CatalogueItemList
+            :items="population.filter((item) => item.content !== undefined)"
+          />
+        </ContentBlock>
 
         <ContentBlockContact
           v-if="cohort?.contacts || cohort.leadOrganisation"

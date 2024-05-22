@@ -62,6 +62,8 @@ export interface ICohort {
   acknowledgements?: string;
   documentation?: IDocumentation[];
   datasets: { name: string }[];
+  populationOncologyTopology?: IOntologyNode[];
+  populationOncologyMorphology?: IOntologyNode[];
 }
 
 export interface IVariableBase {
