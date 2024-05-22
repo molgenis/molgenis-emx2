@@ -8,3 +8,12 @@ dependencies {
     testImplementation project(':backend:molgenis-emx2-sql')
     testImplementation project(':backend:molgenis-emx2-datamodels')
 }
+sourceSets {
+    main {
+        resources {
+            srcDirs += [
+                    "$rootDir/data"
+            ]
+        }
+    }
+}

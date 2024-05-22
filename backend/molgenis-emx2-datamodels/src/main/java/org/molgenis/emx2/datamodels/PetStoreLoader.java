@@ -29,6 +29,13 @@ public class PetStoreLoader extends AbstractDataLoader {
   public static final String SPECIES = "species";
   public static final String MAMMALS = "mammals";
 
+  private final String currentAbsPath = new File("").getAbsolutePath();
+  private final String projectRootPath =
+      currentAbsPath.substring(0, currentAbsPath.indexOf("backend"));
+  private static final String filesFolderRelativePath = "data/_demodata/applications/emx2/_files/";
+  private final File samplePicture =
+      new File(projectRootPath + filesFolderRelativePath + "bofke.jpg");
+
   public SchemaMetadata getSchemaMetadata() {
     SchemaMetadata schema = new SchemaMetadata();
     schema.create(table(CATEGORY).add(column(NAME).setPkey()));
@@ -206,7 +213,7 @@ public class PetStoreLoader extends AbstractDataLoader {
         .insert(
             new Row()
                 .set("username", "bofke")
-                .setBinary("picture", new File("data/_demodata/applications/emx2/_files/bofke.jpg"))
+                .setBinary("picture", samplePicture)
                 .set("pets", "spike,pooky,the very hungry caterpillar,fire ant"));
 
     schema.addMember(SqlDatabase.ANONYMOUS, Privileges.VIEWER.toString());

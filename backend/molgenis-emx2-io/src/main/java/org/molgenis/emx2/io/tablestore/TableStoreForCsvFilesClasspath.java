@@ -1,6 +1,7 @@
 package org.molgenis.emx2.io.tablestore;
 
 import java.io.*;
+import java.net.URL;
 import java.util.*;
 import org.molgenis.emx2.BinaryFileWrapper;
 import org.molgenis.emx2.MolgenisException;
@@ -11,6 +12,10 @@ public class TableStoreForCsvFilesClasspath implements TableAndFileStore {
   public static final String CSV_EXTENSION = ".csv";
   private final String directoryPath;
   private final Character separator;
+
+  private final String currentAbsPath = new File("").getAbsolutePath();
+  private final String projectRootPath =
+      currentAbsPath.substring(0, currentAbsPath.indexOf("backend"));
 
   public TableStoreForCsvFilesClasspath(String directoryPath, Character separator) {
     if (!directoryPath.startsWith("/")) {
@@ -65,10 +70,11 @@ public class TableStoreForCsvFilesClasspath implements TableAndFileStore {
 
   @Override
   public BinaryFileWrapper getBinaryFileWrapper(String name) {
+    URL url = getClass().getResource(directoryPath + "/_files");
+    String path = url.getPath();
     List<File> result =
-        Arrays.stream(
-                Objects.requireNonNull(new File("data" + directoryPath + "/_files").listFiles()))
-            .filter(f -> f.getName().startsWith(name + "."))
+        Arrays.stream(new File(path).listFiles())
+            .filter(f -> f.getName().toString().startsWith(name + "."))
             .toList();
     if (result.isEmpty()) {
       throw new MolgenisException("File not found for id " + name);
