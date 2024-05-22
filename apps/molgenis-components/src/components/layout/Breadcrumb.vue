@@ -8,13 +8,13 @@
         :class="{ active: label === lastKey }"
       >
         <span v-if="useRouterLink" class="router-link">
-          <a v-if="label == lastKey" aria-current="page">{{ label }}</a>
+          <a v-if="label === lastKey" aria-current="page">{{ label }}</a>
           <router-link v-else :to="url">
             {{ label }}
           </router-link>
         </span>
         <span v-else class="atag">
-          <a v-if="label == lastKey" aria-current="page">{{ label }}</a>
+          <a v-if="label === lastKey" aria-current="page">{{ label }}</a>
           <a v-else :href="url">{{ label }}</a>
         </span>
 
