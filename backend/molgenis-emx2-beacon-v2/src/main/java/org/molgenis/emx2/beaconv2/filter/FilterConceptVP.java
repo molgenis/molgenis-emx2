@@ -98,20 +98,29 @@ public enum FilterConceptVP {
   public List<String> getIso8601Durations(JsonNode result) {
     List<String> ageIso8601durations = new ArrayList<>();
 
-    if (this == FilterConceptVP.AGE_THIS_YEAR) {
-      if (result.hasNonNull("age_age_iso8601duration")) {
-        ageIso8601durations.add(result.get("age_age_iso8601duration").textValue());
-      }
-    } else if (this == FilterConceptVP.AGE_OF_ONSET) {
-      for (JsonNode disease : result.get("diseases")) {
-        if (disease.hasNonNull("ageOfOnset_age_iso8601duration")) {
-          ageIso8601durations.add(disease.get("ageOfOnset_age_iso8601duration").textValue());
+    switch (this) {
+      case AGE_THIS_YEAR -> {
+        if (result.hasNonNull("age_age_iso8601duration")) {
+          ageIso8601durations.add(result.get("age_age_iso8601duration").textValue());
         }
       }
-    } else if (this == FilterConceptVP.AGE_AT_DIAG) {
-      for (JsonNode disease : result.get("diseases")) {
-        if (disease.hasNonNull("ageAtDiagnosis_age_iso8601duration")) {
-          ageIso8601durations.add(disease.get("ageAtDiagnosis_age_iso8601duration").textValue());
+      case AGE_OF_ONSET -> {
+        if (result.hasNonNull("diseases")) {
+          for (JsonNode disease : result.get("diseases")) {
+            if (disease.hasNonNull("ageOfOnset_age_iso8601duration")) {
+              ageIso8601durations.add(disease.get("ageOfOnset_age_iso8601duration").textValue());
+            }
+          }
+        }
+      }
+      case AGE_AT_DIAG -> {
+        if (result.hasNonNull("diseases")) {
+          for (JsonNode disease : result.get("diseases")) {
+            if (disease.hasNonNull("ageAtDiagnosis_age_iso8601duration")) {
+              ageIso8601durations.add(
+                  disease.get("ageAtDiagnosis_age_iso8601duration").textValue());
+            }
+          }
         }
       }
     }
