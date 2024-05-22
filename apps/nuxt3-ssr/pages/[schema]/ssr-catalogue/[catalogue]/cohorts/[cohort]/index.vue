@@ -247,7 +247,7 @@ let tocItems = computed(() => {
     { label: "Description", id: "Description" },
     { label: "General design", id: "GeneralDesign" },
   ];
-  if(population) {
+  if (population) {
     tableOffContents.push({
       label: "Population",
       id: "population",
