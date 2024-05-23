@@ -7,16 +7,14 @@
 <script setup>
 import { Molgenis } from "molgenis-components";
 import { computed, onMounted, watch } from "vue";
-import { applyBookmark } from "./functions/bookmarkMapper";
+import { applyBookmark, createBookmark } from "./functions/bookmarkMapper";
 import { useRoute } from "vue-router";
 import { useFiltersStore } from "./stores/filtersStore";
 import { useCheckoutStore } from "./stores/checkoutStore";
 import { useSettingsStore } from "./stores/settingsStore";
 
 const route = useRoute();
-
 const query = computed(() => route.query);
-
 const filtersStore = useFiltersStore();
 const checkoutStore = useCheckoutStore();
 
@@ -37,6 +35,7 @@ watch(
       newQuery &&
       Object.keys(newQuery).length === 0
     ) {
+      createBookmark(filtersStore.filters, checkoutStore.selectedCollections);
       applyBookmark(newQuery);
     }
 
