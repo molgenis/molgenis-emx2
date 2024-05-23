@@ -1116,7 +1116,7 @@ public class SqlQuery extends QueryBean {
         return whereConditionEquals(name, operator, toUuidArray(values));
       case JSONB:
         return whereConditionEquals(name, operator, toJsonbArray(values));
-      case INT:
+      case INT, DURATION:
         return whereConditionOrdinal(name, operator, toIntArray(values));
       case LONG:
         return whereConditionOrdinal(name, operator, toLongArray(values));

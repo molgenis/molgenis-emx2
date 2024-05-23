@@ -31,6 +31,7 @@ public enum ColumnType {
   DATE_ARRAY(LocalDate[].class, ORDINAL_OPERATORS),
   DATETIME(LocalDateTime.class, ORDINAL_OPERATORS),
   DATETIME_ARRAY(LocalDateTime[].class, ORDINAL_OPERATORS),
+  DURATION(Integer.class, ORDINAL_OPERATORS),
 
   // COMPOSITE
   JSONB(org.jooq.JSONB.class),

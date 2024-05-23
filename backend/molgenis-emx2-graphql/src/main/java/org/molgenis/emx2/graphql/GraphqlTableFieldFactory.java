@@ -177,6 +177,12 @@ public class GraphqlTableFieldFactory {
             tableBuilder.field(
                 GraphQLFieldDefinition.newFieldDefinition().name(id).type(Scalars.GraphQLString));
             break;
+          case DURATION:
+            tableBuilder.field(
+                GraphQLFieldDefinition.newFieldDefinition()
+                    .name(id)
+                    .type(GraphqlCustomTypes.GraphQLDuration));
+            break;
           case STRING_ARRAY:
           case EMAIL_ARRAY:
           case HYPERLINK_ARRAY:
@@ -502,6 +508,8 @@ public class GraphqlTableFieldFactory {
           HYPERLINK_ARRAY:
       case UUID_ARRAY:
         return Scalars.GraphQLString;
+      case DURATION:
+        return GraphqlCustomTypes.GraphQLDuration;
       case REF_ARRAY, REF, REFBACK:
       default:
         throw new UnsupportedOperationException("Type not supported yet: " + col.getColumnType());
@@ -515,9 +523,7 @@ public class GraphqlTableFieldFactory {
       if (entry.getKey().equals(FILTER_OR) || entry.getKey().equals(FILTER_AND)) {
         List<Map<String, Object>> nested = (List<Map<String, Object>>) entry.getValue();
         List<Filter> nestedFilters =
-            nested.stream()
-                .map(m -> and(convertMapToFilterArray(table, m)))
-                .collect(Collectors.toList());
+            nested.stream().map(m -> and(convertMapToFilterArray(table, m))).toList();
         if (entry.getKey().equals(FILTER_OR)) {
           subFilters.add(or(nestedFilters.toArray(new Filter[nestedFilters.size()])));
         } else {
@@ -539,7 +545,7 @@ public class GraphqlTableFieldFactory {
             table.getColumns().stream()
                 .filter(c -> c.getIdentifier().equals(entry.getKey()))
                 .findFirst();
-        if (!optional.isPresent())
+        if (optional.isEmpty())
           throw new GraphqlException(
               "Graphql API error: Column "
                   + entry.getKey()
@@ -739,7 +745,7 @@ public class GraphqlTableFieldFactory {
             .type(typeForMutationResult)
             .dataFetcher(fetcher(schema, type));
     for (TableMetadata table : schema.getMetadata().getTables()) {
-      if (table.getColumnsWithoutHeadings().size() > 0) {
+      if (!table.getColumnsWithoutHeadings().isEmpty()) {
         fieldBuilder.argument(
             GraphQLArgument.newArgument()
                 .name(table.getIdentifier())
@@ -879,6 +885,7 @@ public class GraphqlTableFieldFactory {
       case LONG -> GraphQLLong;
       case DECIMAL -> Scalars.GraphQLFloat;
       case UUID, STRING, TEXT, DATE, DATETIME -> Scalars.GraphQLString;
+      case DURATION -> GraphqlCustomTypes.GraphQLDuration;
       case BOOL_ARRAY -> GraphQLList.list(Scalars.GraphQLBoolean);
       case INT_ARRAY -> GraphQLList.list(Scalars.GraphQLInt);
       case LONG_ARRAY -> GraphQLList.list(GraphQLLong);

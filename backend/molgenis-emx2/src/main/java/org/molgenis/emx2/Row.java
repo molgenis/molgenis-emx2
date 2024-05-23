@@ -142,6 +142,10 @@ public class Row {
     return TypeUtils.toTextArray(values.get(name));
   }
 
+  public Integer getDuration(String name) {
+    return TypeUtils.durationToInt(values.get(name));
+  }
+
   public LocalDate getDate(String name) {
     return TypeUtils.toDate(values.get(name));
   }
@@ -313,6 +317,10 @@ public class Row {
   }
 
   public Object get(String name, ColumnType columnType) {
+    if (columnType == ColumnType.DURATION) {
+      return getDuration(name);
+    }
+
     return get(name, columnType.getType());
   }
 
@@ -343,6 +351,8 @@ public class Row {
         return (T) getDecimal(name);
       case "Double[]":
         return (T) getDecimalArray(name);
+      case "Period":
+        return (T) getDuration(name);
       case "LocalDate":
         return (T) getDate(name);
       case "LocalDate[]":

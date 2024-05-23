@@ -1,5 +1,9 @@
 package org.molgenis.emx2.graphql;
 
+import static graphql.scalars.util.Kit.typeName;
+
+import graphql.language.StringValue;
+import graphql.language.Value;
 import graphql.schema.*;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -7,6 +11,7 @@ import java.io.InputStream;
 import java.util.Map;
 import javax.servlet.http.Part;
 import org.molgenis.emx2.BinaryFileWrapper;
+import org.molgenis.emx2.utils.TypeUtils;
 
 public class GraphqlCustomTypes {
 
@@ -62,6 +67,39 @@ public class GraphqlCustomTypes {
                 public BinaryFileWrapper parseLiteral(Object input) {
                   throw new CoercingParseLiteralException(
                       "Must use variables to specify Upload values");
+                }
+              })
+          .build();
+
+  public static final GraphQLScalarType GraphQLDuration =
+      GraphQLScalarType.newScalar()
+          .name("Duration")
+          .description("A ISO 8601 duration scalar with year, month, week and day components.")
+          .coercing(
+              new Coercing<Integer, String>() {
+                @Override
+                public String serialize(Object input) throws CoercingSerializeException {
+                  return TypeUtils.intToDuration(input);
+                }
+
+                @Override
+                public Integer parseValue(Object input) throws CoercingParseValueException {
+                  return TypeUtils.durationToInt(input);
+                }
+
+                @Override
+                public Integer parseLiteral(Object input) throws CoercingParseLiteralException {
+                  if (!(input instanceof StringValue)) {
+                    throw new CoercingParseLiteralException(
+                        "Expected AST type 'StringValue' but was '" + typeName(input) + "'.");
+                  }
+                  return TypeUtils.durationToInt(((StringValue) input).getValue());
+                }
+
+                @Override
+                public Value<?> valueToLiteral(Object input) {
+                  String s = serialize(input);
+                  return StringValue.newStringValue(s).build();
                 }
               })
           .build();

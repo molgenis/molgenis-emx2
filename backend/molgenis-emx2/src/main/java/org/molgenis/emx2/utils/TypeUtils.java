@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAccessor;
 import java.util.*;
 import java.util.function.IntFunction;
@@ -59,6 +60,35 @@ public class TypeUtils {
     // we trim string values, but not text values
     // empty string is treated as null
     return value != null && !value.trim().equals("") ? value.trim() : null;
+  }
+
+  public static String intToDuration(Object v) {
+    if (v == null) return null;
+    if (v instanceof String) return (String) v;
+    if (v instanceof Integer) {
+      int duration = (Integer) v;
+      LocalDate startDate = LocalDate.ofEpochDay(0);
+      LocalDate endDate = startDate.plusDays(duration);
+      Period period = Period.between(startDate, endDate);
+      return String.format("P%dY%dM%dD", period.getYears(), period.getMonths(), period.getDays());
+    }
+    return null;
+  }
+
+  public static Integer durationToInt(Object v) {
+    if (v == null) return null;
+    if (v instanceof Integer) return (Integer) v;
+    if (v instanceof String) {
+      String value = toString(v);
+      if (value != null) {
+        Period period = Period.parse(value);
+        LocalDate startDate = LocalDate.ofEpochDay(0);
+        LocalDate endDate = startDate.plus(period);
+        return (int) ChronoUnit.DAYS.between(startDate, endDate);
+      }
+    }
+
+    return null;
   }
 
   public static Integer toInt(Object v) {
@@ -352,7 +382,7 @@ public class TypeUtils {
       case STRING, EMAIL, HYPERLINK -> SQLDataType.VARCHAR(255);
       case STRING_ARRAY, EMAIL_ARRAY, HYPERLINK_ARRAY -> SQLDataType.VARCHAR(255)
           .getArrayDataType();
-      case INT -> SQLDataType.INTEGER;
+      case INT, DURATION -> SQLDataType.INTEGER;
       case INT_ARRAY -> SQLDataType.INTEGER.getArrayDataType();
       case LONG -> SQLDataType.BIGINT;
       case LONG_ARRAY -> SQLDataType.BIGINT.getArrayDataType();
@@ -390,6 +420,8 @@ public class TypeUtils {
         return TypeUtils.toBoolArray(v);
       case INT:
         return TypeUtils.toInt(v);
+      case DURATION:
+        return TypeUtils.durationToInt(v);
       case INT_ARRAY:
         return TypeUtils.toIntArray(v);
       case LONG:
