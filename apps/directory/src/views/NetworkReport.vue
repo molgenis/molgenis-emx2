@@ -15,6 +15,7 @@
               [uiText['home']]: '../#/',
               [network.name]: '/',
             }"
+            useRouterLink
           />
         </div>
       </div>

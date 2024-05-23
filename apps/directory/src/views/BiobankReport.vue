@@ -22,6 +22,7 @@
               [uiText['home']]: '../#/',
               [biobank.name]: '/',
             }"
+            useRouterLink
           />
           <check-out
             class="ml-auto"
