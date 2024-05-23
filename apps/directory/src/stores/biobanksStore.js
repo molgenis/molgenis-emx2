@@ -124,7 +124,7 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
           filtersStore.hasActiveFilters &&
           !filtersStore.hasActiveBiobankOnlyFilters
         ) {
-          foundBiobanks = foundBiobanks.filter(
+          foundBiobanks = foundBiobanks?.filter(
             (biobank) => biobank.collections
           );
         }

@@ -70,9 +70,9 @@ const filters = computed(() => {
 
 const currentPage = ref(1);
 
-function setCurrentPage(pageNumber: number) {
-  router.push({ path: route.path, query: { page: pageNumber } });
-  currentPage.value = pageNumber;
+async function setCurrentPage(pageNumber: number) {
+  await navigateTo({ query: { page: pageNumber } });
+  window.scrollTo({ top: 0 });
 }
 
 if (route.query?.page) {
