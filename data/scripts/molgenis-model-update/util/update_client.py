@@ -34,7 +34,12 @@ class UpdateClient(Client):
             self.save_data(database)
             self.transform_data(database, database_type)
             print(f" 🔄 Recreate {database}")
-            description = [s.description for s in self.schemas if s.name == database][0]
+            try:
+                description = [s.description for s in self.schemas
+                               if s.name == database][0]
+            except AttributeError:
+                print("   No description found")
+                description = ""
             self.recreate_schema(name=database, description=description,
                                  template=database_type, include_demo_data=False)
             print(f" ⬆️ Upload data into {database}")
