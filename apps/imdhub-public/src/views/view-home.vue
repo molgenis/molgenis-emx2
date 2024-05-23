@@ -41,8 +41,8 @@
         </LinkCard>
         <LinkCard id="quicklink-dashboard">
           <PresentationChartLineIcon />
-          <h3>Registry Dashboard</h3>
-          <p>View a summary of the entire registry</p>
+          <h3>Dashboard</h3>
+          <p>View a summary of the entire database</p>
           <router-link :to="{ name: 'dashboard' }">
             View Dashboard
           </router-link>
