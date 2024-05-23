@@ -43,13 +43,28 @@ useHead({
                   <NuxtLink class="hover:underline" to="DisplayList.story">Display list</NuxtLink>
                 </li>
                 <li class="py-2">
+                  <NuxtLink class="hover:underline" to="FooterComponent.story">Footer Component</NuxtLink>
+                </li>
+                <li class="py-2">
+                  <NuxtLink class="hover:underline" to="Header.story">Header Component</NuxtLink>
+                </li>
+                <li class="py-2">
                   <NuxtLink class="hover:underline" to="InputTree.story">Input tree</NuxtLink>
                 </li>
                 <li class="py-2">
                   <NuxtLink class="hover:underline" to="InputList.story">Input list</NuxtLink>
                 </li>
                 <li class="py-2">
+                  <NuxtLink class="hover:underline" to="Logo.story">Logo</NuxtLink>
+                </li>
+                <li class="py-2">
+                  <NuxtLink class="hover:underline" to="LogoMobile.story">Logo Mobile</NuxtLink>
+                </li>
+                <li class="py-2">
                   <NuxtLink class="hover:underline" to="Modal.story">Modal</NuxtLink>
+                </li>
+                <li class="py-2">
+                  <NuxtLink class="hover:underline" to="Navigation.story">Navigation</NuxtLink>
                 </li>
                 <li class="py-2">
                   <NuxtLink class="hover:underline" to="FilterSearch.story">Filer search</NuxtLink>

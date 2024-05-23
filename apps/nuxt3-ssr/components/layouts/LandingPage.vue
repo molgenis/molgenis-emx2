@@ -15,5 +15,9 @@ const variableCount = headerData.variableCount;
   <Container>
     <slot></slot>
   </Container>
-  <FooterComponent />
+  <FooterComponent>
+    <ClientOnly>
+      <FooterVersion />
+    </ClientOnly>
+  </FooterComponent>
 </template>

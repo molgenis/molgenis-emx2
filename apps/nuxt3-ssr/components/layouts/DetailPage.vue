@@ -24,5 +24,9 @@ const variableCount = headerData.variableCount;
       </div>
     </div>
   </Container>
-  <FooterComponent />
+  <FooterComponent>
+    <ClientOnly>
+      <FooterVersion />
+    </ClientOnly>
+  </FooterComponent>
 </template>
