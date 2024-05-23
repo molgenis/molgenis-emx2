@@ -26,6 +26,7 @@
     "tasks",
     "gportal",
     "projectmanager",
-    "aggregation-dashboard"
+    "aggregation-dashboard",
+    "imdhub-public"
   ]
 }
