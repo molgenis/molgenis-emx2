@@ -8,11 +8,10 @@ const faviconHref = config.public.emx2Theme
 
 useHead({
   htmlAttrs: {
-    'data-theme': route.query.theme as string || config.public.emx2Theme || "",
+    "data-theme":
+      (route.query.theme as string) || config.public.emx2Theme || "",
   },
-  link: [
-    { rel: "icon", href: faviconHref },
-  ],
+  link: [{ rel: "icon", href: faviconHref }],
   titleTemplate: (titleChunk) => {
     if (titleChunk && config.public.siteTitle) {
       return `${titleChunk} | ${config.public.siteTitle}`;
@@ -25,7 +24,6 @@ useHead({
     }
   },
 });
-
 </script>
 
 <template>
@@ -38,36 +36,38 @@ useHead({
       <BackgroundGradient class="z-10" />
     </div>
     <div class="z-30 relative min-h-screen flex flex-col">
-
-        <Header>
-    <template #logo>
-      <Logo />
-    </template>
-    <template #nav>
-      <Navigation :navigation="[
-        { label: 'Home', link: '#' },
-        { label: 'About', link: '#' },
-        { label: 'Contact', link: '#' },
-      ]"/>
-    </template>
-    <template #logo-mobile>
-      <LogoMobile />
-    </template>
-    <template #nav-mobile>
-      <Navigation :navigation="[
-        { label: 'Home', link: '#' },
-        { label: 'About', link: '#' },
-        { label: 'Contact', link: '#' },
-      ]"/>
-    </template>
-  </Header>
+      <Header>
+        <template #logo>
+          <Logo />
+        </template>
+        <template #nav>
+          <Navigation
+            :navigation="[
+              { label: 'Home', link: '#' },
+              { label: 'About', link: '#' },
+              { label: 'Contact', link: '#' },
+            ]"
+          />
+        </template>
+        <template #logo-mobile>
+          <LogoMobile />
+        </template>
+        <template #nav-mobile>
+          <Navigation
+            :navigation="[
+              { label: 'Home', link: '#' },
+              { label: 'About', link: '#' },
+              { label: 'Contact', link: '#' },
+            ]"
+          />
+        </template>
+      </Header>
 
       <main class="mb-auto">
-        <slot />      
+        <slot />
       </main>
 
       <FooterComponent />
-
     </div>
   </div>
 </template>

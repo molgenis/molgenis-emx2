@@ -5,12 +5,12 @@
   "type": "module",
   "scripts": {
     "build": "nuxt build",
-    "dev": "nuxt dev",
+    "dev": "cross-env API_URL='https://emx2.dev.molgenis.org/api/graphql/**' nuxt dev",
     "generate": "cross-env NUXT_APP_BASE_URL='/apps/ui/' nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "format": "prettier app.vue  --write --config ../.prettierrc.js",
-    "checkFormat": "prettier app.vue  --check --config ../.prettierrc.js"
+    "format": "prettier app.vue layouts pages  --write --config ../.prettierrc.js",
+    "checkFormat": "prettier app.vue layouts pages  --check --config ../.prettierrc.js"
   },
   "dependencies": {
     "nuxt": "^3.11.2",

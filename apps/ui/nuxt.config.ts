@@ -6,5 +6,9 @@ export default defineNuxtConfig({
   tailwindcss: {
     cssPath: '../tailwind-components/assets/css/main.css',
     configPath: '../tailwind-components/tailwind.config.js'
+  },
+  routeRules: process.env.API_URL ? { "/graphql/**": { proxy: process.env.API_URL } } : undefined,
+  vite: {
+    base: ""
   }
 })
