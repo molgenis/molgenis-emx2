@@ -4,7 +4,7 @@
 
 # Role
 
-Naïve user of the data catalogue
+Naïve user of the data catalogue 
 
 # Goal
 
