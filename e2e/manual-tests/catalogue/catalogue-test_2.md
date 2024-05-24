@@ -38,7 +38,7 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | 20 | PARTNERS | Amsterdam Medical Centre, Cynexo | | |
 | 21 | FUNDING & CITATION REQUIREMENTS | lorem ipsum text, check that "until now" is shown at the end of both fields so that you know the full text has been displayed | | |
 | 22 | COHORTS | A list of cohorts you can explore. | | |
-|    |  | Name, Design, Number of participants, --> | | |
+|    |  | Name, Design, Number of participants | | |
 |    |  | Name for test cohort 1   Longitudinal  600   --> | | |
 |    |  | Name for test cohort 2   Longitudinal  100   --> | | |
 |    |  | testCohort3                                  --> | | |
@@ -55,5 +55,5 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 |   |   | Name  Label   Model    | | |
 |  |    | testVarCategorical_ categorical test variable testNetwork1_CDM  --> | | |
 |  |    | testVarNoRepeats test variable without repeats testNetwork1_CDM --> | | |
-|  |    | testVarRepeats_ test variable with repeats testNetwork1_CDM  -->  | | |
-| 30 | Click on testVarNoRepeats | Variable information in pop-up UNDER CONSTRUCTION | | |
+|  |    | testVarRepeats_ +10 test variable with repeats testNetwork1_CDM  -->  | | |
+| 30 | Click on testVarNoRepeats | Goes to page with information about variable testVarNoRepeats | | |
