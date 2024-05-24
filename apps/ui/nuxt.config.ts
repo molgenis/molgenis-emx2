@@ -7,8 +7,12 @@ export default defineNuxtConfig({
     cssPath: '../tailwind-components/assets/css/main.css',
     configPath: '../tailwind-components/tailwind.config.js'
   },
-  routeRules: process.env.API_URL ? { "/graphql/**": { proxy: process.env.API_URL } } : undefined,
+  runtimeConfig: {
+    public: {
+      apiBase: "https://emx2.dev.molgenis.org/",
+    },
+  },
   vite: {
-    base: ""
+    base: "."
   }
 })

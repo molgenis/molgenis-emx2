@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "nuxt build",
-    "dev": "cross-env API_URL='https://emx2.dev.molgenis.org/api/graphql/**' nuxt dev",
+    "dev": "nuxt dev",
     "generate": "cross-env NUXT_APP_BASE_URL='/apps/ui/' nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
