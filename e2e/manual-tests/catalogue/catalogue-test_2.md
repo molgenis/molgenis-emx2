@@ -56,4 +56,4 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 |  |    | testVarCategorical_ categorical test variable testNetwork1_CDM  --> | | |
 |  |    | testVarNoRepeats test variable without repeats testNetwork1_CDM --> | | |
 |  |    | testVarRepeats_ +10 test variable with repeats testNetwork1_CDM  -->  | | |
-| 30 | Click on testVarNoRepeats | Goes to page with information about variable testVarNoRepeats | | |
+| 30 | Click on testVarNoRepeats | Goes to pop-up with "Under construction" |||
