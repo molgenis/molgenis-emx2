@@ -114,7 +114,6 @@ public class SchemaMetadata extends HasSettings<SchemaMetadata> {
     for (String tableName : getTableNames()) {
       result.add(getTableMetadata(tableName));
     }
-    // TableSort.sortTableByDependency(result);
     return result;
   }
 

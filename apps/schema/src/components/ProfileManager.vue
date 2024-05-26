@@ -215,14 +215,14 @@ const isVisible = function (column) {
   );
 };
 
-const v = function (value) {
+const formatValue = function (value) {
   if (value == null) {
     return "";
   } else if (Array.isArray(value)) {
     if (value.length > 1) {
       return `"${value.join(",")}"`;
     } else {
-      return v(value[0]);
+      return formatValue(value[0]);
     }
   } else {
     return value;
@@ -253,17 +253,23 @@ const convertToCsv = function () {
   var csv =
     "tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles";
   selectedTables.value.forEach((t) => {
-    csv += `${v(t.name)},${v(t.inheritName)},,,,,,,,,${v(t.semantics)},${v(
+    csv += `${formatValue(t.name)},${formatValue(
+      t.inheritName
+    )},,,,,,,,,${formatValue(t.semantics)},${formatValue(
       t.descrpition
-    )},${v(t.profiles)}\n`;
+    )},${formatValue(t.profiles)}\n`;
     t.columns
       ?.filter((c) => c.selected)
       .forEach((c) => {
-        csv += `${v(t.name)},,${v(c.name)},${v(c.columnType)},${v(c.key)},${v(
-          c.required
-        )},${v(c.refSchema)},${v(c.refTableName)},${v(c.refLink)},${v(
-          c.validation
-        )},${v(c.semantics)},${v(c.description)},${v(c.profiles)}\n`;
+        csv += `${formatValue(t.name)},,${formatValue(c.name)},${formatValue(
+          c.columnType
+        )},${formatValue(c.key)},${formatValue(c.required)},${formatValue(
+          c.refSchema
+        )},${formatValue(c.refTableName)},${formatValue(
+          c.refLink
+        )},${formatValue(c.validation)},${formatValue(
+          c.semantics
+        )},${formatValue(c.description)},${formatValue(c.profiles)}\n`;
       });
   });
   return csv;

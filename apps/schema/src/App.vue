@@ -1,9 +1,9 @@
 <template>
   <div
     v-if="
-      $route.path == '/print' ||
-      $route.path == '/print-list' ||
-      $route.path == '/profile-manager'
+      $route.path === '/print' ||
+      $route.path === '/print-list' ||
+      $route.path === '/profile-manager'
     "
   >
     <router-view />
