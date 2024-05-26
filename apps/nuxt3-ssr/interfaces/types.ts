@@ -58,10 +58,13 @@ export interface ICohort {
   linkageOptions?: string;
   dataAccessConditionsDescription?: string;
   dataAccessConditions?: { name: string }[];
+  releaseType?: boolean;
   fundingStatement?: string;
   acknowledgements?: string;
   documentation?: IDocumentation[];
   datasets: { name: string }[];
+  populationOncologyTopology?: IOntologyNode[];
+  populationOncologyMorphology?: IOntologyNode[];
 }
 
 export interface IVariableBase {
@@ -83,6 +86,10 @@ export interface IVariableBase {
 export interface IVariableDetails {
   unit?: IOntologyNode;
   format?: IOntologyNode;
+  repeats?: {
+    name: string;
+    mappings: IMapping[];
+  }[];
 }
 
 export interface IVariableMappings {
