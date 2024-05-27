@@ -155,7 +155,7 @@ jobs:
                   else 
                       echo "preview is not ready yet, waiting 10 seconds...";
                   fi; 
-                  sleep 20; 
+                  sleep 10; 
               done
 
     - run:
@@ -197,7 +197,7 @@ jobs:
     - queue/until_front_of_line:
         name: wait until any other release jobs are completed
         limit-branch-name: main
-        max-wait-time: '10'
+        max-wait-time: '20'
         my-pipeline: <<pipeline.number>>
         
     - pre_steps
