@@ -5,6 +5,9 @@
 		},
 		{
 			"path": "tailwind-components"
+		},
+		{
+			"path": "ui"
 		}
 	],
 	"settings": {}

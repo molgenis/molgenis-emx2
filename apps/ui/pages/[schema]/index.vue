@@ -48,7 +48,7 @@ const ontologies = computed(
   <Container class="my-3">
     <DisplayList class="text-white" title="Data tables" :columnCount="3">
       <DisplayListItem v-for="table in tables">
-        <NuxtLink :to="`/${table.id}`">{{ table.label }}</NuxtLink>
+        <NuxtLink :to="`/${schema}/${table.id}`">{{ table.label }}</NuxtLink>
       </DisplayListItem>
     </DisplayList>
   </Container>
@@ -56,7 +56,9 @@ const ontologies = computed(
   <Container class="my-3">
     <DisplayList class="text-white" title="Ontology tables" :columnCount="3">
       <DisplayListItem v-for="ontology in ontologies">
-        <NuxtLink :to="`/${ontology.id}`">{{ ontology.label }}</NuxtLink>
+        <NuxtLink :to="`/${schema}/${ontology.id}`">{{
+          ontology.label
+        }}</NuxtLink>
       </DisplayListItem>
     </DisplayList>
   </Container>
