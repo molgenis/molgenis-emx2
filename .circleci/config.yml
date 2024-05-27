@@ -16,7 +16,7 @@ parameters:
 
 orbs:
   slack: circleci/slack@4.4.4
-  queue: eddiewebb/queue@volatile
+  queue: eddiewebb/queue@3.1.4
 
 definitions:
   build_config: &build_config
