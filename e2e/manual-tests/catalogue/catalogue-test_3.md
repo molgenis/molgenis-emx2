@@ -23,5 +23,5 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | 5 | Click on Compact | The list of cohorts turns into a list of cohort acronyms and cohort names-in-full, with an arrow after each cohort | | |
 | 6 | Scroll down and click on the arrow next to 'acronym for test cohort 2' | Should be directed to the cohort home page with: 'testnetwork1 > COHORTS', 'ACRONYM FOR TEST COHORT 2', 'Name for test cohort 2' | | |
 |6a ||In the ribbon at the top of the page there should be: Left: testnetwork1 logo, Right: (L-R) Overview, Cohorts, Data Sources, Variables, More | | |
-| 6b ||The following elements are listed: logo, website and Contact button, Description, General design, Population, Contact & contributors, Available data & samples, Subpopulations, Collection events, Datasets, Networks, Partners, Access conditions, Funding & Citation requirements, Attached files | | |
+| 6b ||The following elements are listed: logo, website and Contact button, Description, General design, Population, Contact & contributors, Available data & samples, Subpopulations, Collection events, Datasets, Partners, Networks, Access conditions, Funding & Citation requirements, Attached files | | |
 | 7 | Click on the Cohorts button in the ribbon | Should be directed back to the list of cohorts for testnetwork1 | | |
