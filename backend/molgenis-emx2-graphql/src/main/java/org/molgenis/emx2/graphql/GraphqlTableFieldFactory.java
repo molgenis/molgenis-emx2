@@ -172,16 +172,11 @@ public class GraphqlTableFieldFactory {
           case UUID:
           case DATE:
           case DATETIME:
+          case PERIOD:
           case EMAIL:
           case HYPERLINK:
             tableBuilder.field(
                 GraphQLFieldDefinition.newFieldDefinition().name(id).type(Scalars.GraphQLString));
-            break;
-          case DURATION:
-            tableBuilder.field(
-                GraphQLFieldDefinition.newFieldDefinition()
-                    .name(id)
-                    .type(GraphqlCustomTypes.GraphQLDuration));
             break;
           case STRING_ARRAY:
           case EMAIL_ARRAY:
@@ -190,6 +185,7 @@ public class GraphqlTableFieldFactory {
           case LONG_ARRAY:
           case DATE_ARRAY:
           case DATETIME_ARRAY:
+          case PERIOD_ARRAY:
           case UUID_ARRAY:
           case JSONB_ARRAY:
             tableBuilder.field(
@@ -497,19 +493,19 @@ public class GraphqlTableFieldFactory {
         return Scalars.GraphQLFloat;
       case DATE,
           DATETIME,
+          PERIOD,
           STRING,
           TEXT,
           UUID,
           DATE_ARRAY,
           DATETIME_ARRAY,
+          PERIOD_ARRAY,
           STRING_ARRAY,
           TEXT_ARRAY,
           EMAIL_ARRAY,
           HYPERLINK_ARRAY:
       case UUID_ARRAY:
         return Scalars.GraphQLString;
-      case DURATION:
-        return GraphqlCustomTypes.GraphQLDuration;
       case REF_ARRAY, REF, REFBACK:
       default:
         throw new UnsupportedOperationException("Type not supported yet: " + col.getColumnType());
@@ -884,8 +880,7 @@ public class GraphqlTableFieldFactory {
       case INT -> Scalars.GraphQLInt;
       case LONG -> GraphQLLong;
       case DECIMAL -> Scalars.GraphQLFloat;
-      case UUID, STRING, TEXT, DATE, DATETIME -> Scalars.GraphQLString;
-      case DURATION -> GraphqlCustomTypes.GraphQLDuration;
+      case UUID, STRING, TEXT, DATE, DATETIME, PERIOD -> Scalars.GraphQLString;
       case BOOL_ARRAY -> GraphQLList.list(Scalars.GraphQLBoolean);
       case INT_ARRAY -> GraphQLList.list(Scalars.GraphQLInt);
       case LONG_ARRAY -> GraphQLList.list(GraphQLLong);
@@ -894,6 +889,7 @@ public class GraphqlTableFieldFactory {
           TEXT_ARRAY,
           DATE_ARRAY,
           DATETIME_ARRAY,
+          PERIOD_ARRAY,
           UUID_ARRAY,
           EMAIL_ARRAY,
           HYPERLINK_ARRAY -> GraphQLList.list(Scalars.GraphQLString);

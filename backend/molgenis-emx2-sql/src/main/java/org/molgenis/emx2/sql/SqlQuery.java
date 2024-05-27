@@ -1107,55 +1107,38 @@ public class SqlQuery extends QueryBean {
       org.molgenis.emx2.Operator operator,
       Object[] values) {
     Name name = name(alias(tableAlias), columnName);
-    switch (type) {
-      case TEXT, STRING, FILE:
-        return whereConditionText(name, operator, toStringArray(values));
-      case BOOL:
-        return whereConditionEquals(name, operator, toBoolArray(values));
-      case UUID:
-        return whereConditionEquals(name, operator, toUuidArray(values));
-      case JSONB:
-        return whereConditionEquals(name, operator, toJsonbArray(values));
-      case INT, DURATION:
-        return whereConditionOrdinal(name, operator, toIntArray(values));
-      case LONG:
-        return whereConditionOrdinal(name, operator, toLongArray(values));
-      case DECIMAL:
-        return whereConditionOrdinal(name, operator, toDecimalArray(values));
-      case DATE:
-        return whereConditionOrdinal(name, operator, toDateArray(values));
-      case DATETIME:
-        return whereConditionOrdinal(name, operator, toDateTimeArray(values));
-      case STRING_ARRAY, TEXT_ARRAY:
-        return whereConditionTextArray(name, operator, toStringArray(values));
-      case BOOL_ARRAY:
-        return whereConditionArrayEquals(name, operator, toBoolArray(values));
-      case UUID_ARRAY:
-        return whereConditionArrayEquals(name, operator, toUuidArray(values));
-      case INT_ARRAY:
-        return whereConditionArrayEquals(name, operator, toIntArray(values));
-      case LONG_ARRAY:
-        return whereConditionArrayEquals(name, operator, toLongArray(values));
-      case DECIMAL_ARRAY:
-        return whereConditionArrayEquals(name, operator, toDecimalArray(values));
-      case DATE_ARRAY:
-        return whereConditionArrayEquals(name, operator, toDateArray(values));
-      case DATETIME_ARRAY:
-        return whereConditionArrayEquals(name, operator, toDateTimeArray(values));
-      case JSONB_ARRAY:
-        return whereConditionArrayEquals(name, operator, toJsonbArray(values));
-      case REF:
-        return whereConditionRefEquals(name, operator, values);
-      default:
-        throw new SqlQueryException(
-            SqlQuery.QUERY_FAILED
-                + "Filter of '"
-                + name
-                + " failed: operator "
-                + operator
-                + " not supported for type "
-                + type);
-    }
+    return switch (type) {
+      case TEXT, STRING, FILE -> whereConditionText(name, operator, toStringArray(values));
+      case BOOL -> whereConditionEquals(name, operator, toBoolArray(values));
+      case UUID -> whereConditionEquals(name, operator, toUuidArray(values));
+      case JSONB -> whereConditionEquals(name, operator, toJsonbArray(values));
+      case INT -> whereConditionOrdinal(name, operator, toIntArray(values));
+      case LONG -> whereConditionOrdinal(name, operator, toLongArray(values));
+      case DECIMAL -> whereConditionOrdinal(name, operator, toDecimalArray(values));
+      case DATE -> whereConditionOrdinal(name, operator, toDateArray(values));
+      case DATETIME -> whereConditionOrdinal(name, operator, toDateTimeArray(values));
+      case PERIOD -> whereConditionOrdinal(name, operator, toPeriodArray(values));
+      case STRING_ARRAY, TEXT_ARRAY -> whereConditionTextArray(
+          name, operator, toStringArray(values));
+      case BOOL_ARRAY -> whereConditionArrayEquals(name, operator, toBoolArray(values));
+      case UUID_ARRAY -> whereConditionArrayEquals(name, operator, toUuidArray(values));
+      case INT_ARRAY -> whereConditionArrayEquals(name, operator, toIntArray(values));
+      case LONG_ARRAY -> whereConditionArrayEquals(name, operator, toLongArray(values));
+      case DECIMAL_ARRAY -> whereConditionArrayEquals(name, operator, toDecimalArray(values));
+      case DATE_ARRAY -> whereConditionArrayEquals(name, operator, toDateArray(values));
+      case DATETIME_ARRAY -> whereConditionArrayEquals(name, operator, toDateTimeArray(values));
+      case PERIOD_ARRAY -> whereConditionArrayEquals(name, operator, toPeriodArray(values));
+      case JSONB_ARRAY -> whereConditionArrayEquals(name, operator, toJsonbArray(values));
+      case REF -> whereConditionRefEquals(name, operator, values);
+      default -> throw new SqlQueryException(
+          SqlQuery.QUERY_FAILED
+              + "Filter of '"
+              + name
+              + " failed: operator "
+              + operator
+              + " not supported for type "
+              + type);
+    };
   }
 
   private Condition whereConditionRefEquals(Name columnName, Operator operator, Object[] values) {

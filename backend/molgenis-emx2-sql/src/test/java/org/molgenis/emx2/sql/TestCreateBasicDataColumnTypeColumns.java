@@ -140,6 +140,11 @@ public class TestCreateBasicDataColumnTypeColumns {
   }
 
   @Test
+  public void testPeriod() {
+    executeTest(PERIOD, new String[] {"P24Y", "P34Y11M", "P23Y10M43D"});
+  }
+
+  @Test
   public void testDecimal() {
     executeTest(DECIMAL, new Double[] {5.0, 6.0, 7.0});
   }

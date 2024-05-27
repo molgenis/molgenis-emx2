@@ -3,7 +3,7 @@ Individuals,,,,,,,,,,,"http://purl.obolibrary.org/obo/NCIT_C90492,http://purl.ob
 Individuals,,id,string,1,TRUE,,,,,,"http://purl.obolibrary.org/obo/NCIT_C164337,http://purl.obolibrary.org/obo/NCIT_C142495","A unique proper name or character sequence that identifies this particular person. In Beacon v2: id, in FAIR Genomes: PersonalIdentifier. In RD3: subjectID. In JRC-CDE: Pseudonym","Beacon v2, FAIR Genomes, RD3, JRC-CDE, DCAT examples"
 Individuals,,sex,ontology,,TRUE,,GenderAtBirth,,,,"http://purl.obolibrary.org/obo/GSSO_009418,http://purl.obolibrary.org/obo/NCIT_C28421",E.g. assigned female at birth,"Beacon v2"
 Individuals,,age_ageGroup,ontology,,,,AgeGroups,,,,http://purl.obolibrary.org/obo/NCIT_C25150,"Addition for EJP-RD Virtual Platform API. E.g. Adult 18-65 Years Old","Beacon v2 Vivify add-on"
-Individuals,,age_age_iso8601duration,duration,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25150,"Addition for EJP-RD Virtual Platform API. E.g. P32Y6M1D","Beacon v2 Vivify add-on, GDI T8.2 union"
+Individuals,,age_age_iso8601duration,period,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25150,"Addition for EJP-RD Virtual Platform API. E.g. P32Y6M1D","Beacon v2 Vivify add-on, GDI T8.2 union"
 Individuals,,YearOfBirth,int,,,,,,,,"http://purl.obolibrary.org/obo/NCIT_C83164","The year in which this person was born.","FAIR Genomes, GDI T8.2 union"
 Individuals,,dateOfBirth,int,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C83164,"The year in which a person was born. In JRC-CDE: Date of birth","RD3, JRC-CDE, GDI T8.2 union"
 Individuals,,diseaseCausalGenes,ontology_array,,,,Genes,,,,http://purl.obolibrary.org/obo/NCIT_C16612,"Addition for EJP-RD Virtual Platform API. E.g. TTN. In JRC-CDE: Genetic diagnosis","Beacon v2 Vivify add-on, JRC-CDE"

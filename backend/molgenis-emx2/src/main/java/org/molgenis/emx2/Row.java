@@ -6,6 +6,7 @@ import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 import java.io.File;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Period;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.jooq.JSONB;
@@ -142,8 +143,12 @@ public class Row {
     return TypeUtils.toTextArray(values.get(name));
   }
 
-  public Integer getDuration(String name) {
-    return TypeUtils.durationToInt(values.get(name));
+  public Period getPeriod(String name) {
+    return TypeUtils.toPeriod(values.get(name));
+  }
+
+  public Period[] getPeriodArray(String name) {
+    return TypeUtils.toPeriodArray(values.get(name));
   }
 
   public LocalDate getDate(String name) {
@@ -317,10 +322,6 @@ public class Row {
   }
 
   public Object get(String name, ColumnType columnType) {
-    if (columnType == ColumnType.DURATION) {
-      return getDuration(name);
-    }
-
     return get(name, columnType.getType());
   }
 
@@ -352,7 +353,9 @@ public class Row {
       case "Double[]":
         return (T) getDecimalArray(name);
       case "Period":
-        return (T) getDuration(name);
+        return (T) getPeriod(name);
+      case "Period[]":
+        return (T) getPeriodArray(name);
       case "LocalDate":
         return (T) getDate(name);
       case "LocalDate[]":

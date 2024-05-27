@@ -6,7 +6,6 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAccessor;
 import java.util.*;
 import java.util.function.IntFunction;
@@ -60,35 +59,6 @@ public class TypeUtils {
     // we trim string values, but not text values
     // empty string is treated as null
     return value != null && !value.trim().equals("") ? value.trim() : null;
-  }
-
-  public static String intToDuration(Object v) {
-    if (v == null) return null;
-    if (v instanceof String) return (String) v;
-    if (v instanceof Integer) {
-      int duration = (Integer) v;
-      LocalDate startDate = LocalDate.ofEpochDay(0);
-      LocalDate endDate = startDate.plusDays(duration);
-      Period period = Period.between(startDate, endDate);
-      return String.format("P%dY%dM%dD", period.getYears(), period.getMonths(), period.getDays());
-    }
-    return null;
-  }
-
-  public static Integer durationToInt(Object v) {
-    if (v == null) return null;
-    if (v instanceof Integer) return (Integer) v;
-    if (v instanceof String) {
-      String value = toString(v);
-      if (value != null) {
-        Period period = Period.parse(value);
-        LocalDate startDate = LocalDate.ofEpochDay(0);
-        LocalDate endDate = startDate.plus(period);
-        return (int) ChronoUnit.DAYS.between(startDate, endDate);
-      }
-    }
-
-    return null;
   }
 
   public static Integer toInt(Object v) {
@@ -217,6 +187,20 @@ public class TypeUtils {
     return (LocalDate[]) processArray(v, TypeUtils::toDate, LocalDate[]::new, LocalDate.class);
   }
 
+  public static Period toPeriod(Object v) {
+    if (v == null) return null;
+    if (v instanceof Period) return (Period) v;
+    String value = toString(v);
+    if (value != null) {
+      return Period.parse(value);
+    }
+    return null;
+  }
+
+  public static Period[] toPeriodArray(Object v) {
+    return (Period[]) processArray(v, TypeUtils::toPeriod, Period[]::new, Period.class);
+  }
+
   public static LocalDateTime toDateTime(Object v) {
     if (v == null) return null;
     if (v instanceof LocalDateTime) return (LocalDateTime) v;
@@ -311,28 +295,20 @@ public class TypeUtils {
   }
 
   public static ColumnType getArrayType(ColumnType columnType) {
-    switch (columnType.getBaseType()) {
-      case UUID:
-        return ColumnType.UUID_ARRAY;
-      case STRING:
-        return ColumnType.STRING_ARRAY;
-      case BOOL:
-        return ColumnType.BOOL_ARRAY;
-      case INT:
-        return ColumnType.INT_ARRAY;
-      case DECIMAL:
-        return ColumnType.DECIMAL_ARRAY;
-      case TEXT:
-        return ColumnType.TEXT_ARRAY;
-      case DATE:
-        return ColumnType.DATE_ARRAY;
-      case DATETIME:
-        return ColumnType.DATETIME_ARRAY;
-      case JSONB:
-        return ColumnType.JSONB_ARRAY;
-      default:
-        throw new UnsupportedOperationException("Unsupported array columnType found:" + columnType);
-    }
+    return switch (columnType.getBaseType()) {
+      case UUID -> ColumnType.UUID_ARRAY;
+      case STRING -> ColumnType.STRING_ARRAY;
+      case BOOL -> ColumnType.BOOL_ARRAY;
+      case INT -> ColumnType.INT_ARRAY;
+      case DECIMAL -> ColumnType.DECIMAL_ARRAY;
+      case TEXT -> ColumnType.TEXT_ARRAY;
+      case DATE -> ColumnType.DATE_ARRAY;
+      case DATETIME -> ColumnType.DATETIME_ARRAY;
+      case PERIOD -> ColumnType.PERIOD_ARRAY;
+      case JSONB -> ColumnType.JSONB_ARRAY;
+      default -> throw new UnsupportedOperationException(
+          "Unsupported array columnType found:" + columnType);
+    };
   }
 
   private static String joinCsvString(Object[] v) {
@@ -382,7 +358,7 @@ public class TypeUtils {
       case STRING, EMAIL, HYPERLINK -> SQLDataType.VARCHAR(255);
       case STRING_ARRAY, EMAIL_ARRAY, HYPERLINK_ARRAY -> SQLDataType.VARCHAR(255)
           .getArrayDataType();
-      case INT, DURATION -> SQLDataType.INTEGER;
+      case INT -> SQLDataType.INTEGER;
       case INT_ARRAY -> SQLDataType.INTEGER.getArrayDataType();
       case LONG -> SQLDataType.BIGINT;
       case LONG_ARRAY -> SQLDataType.BIGINT.getArrayDataType();
@@ -396,6 +372,10 @@ public class TypeUtils {
       case DATE_ARRAY -> SQLDataType.DATE.getArrayDataType();
       case DATETIME -> SQLDataType.TIMESTAMP;
       case DATETIME_ARRAY -> SQLDataType.TIMESTAMP.getArrayDataType();
+      case PERIOD -> SQLDataType.INTERVAL.asConvertedDataType(new PeriodConverter());
+      case PERIOD_ARRAY -> SQLDataType.INTERVAL
+          .asConvertedDataType(new PeriodConverter())
+          .getArrayDataType();
       case JSONB -> SQLDataType.JSONB;
       case JSONB_ARRAY -> SQLDataType.JSONB.getArrayDataType();
       default ->
@@ -405,53 +385,32 @@ public class TypeUtils {
   }
 
   public static Object getTypedValue(Object v, ColumnType columnType) {
-    switch (columnType.getBaseType()) {
-      case UUID:
-        return TypeUtils.toUuid(v);
-      case UUID_ARRAY:
-        return TypeUtils.toUuidArray(v);
-      case STRING, EMAIL, HYPERLINK:
-        return TypeUtils.toString(v);
-      case STRING_ARRAY, EMAIL_ARRAY, HYPERLINK_ARRAY:
-        return TypeUtils.toStringArray(v);
-      case BOOL:
-        return TypeUtils.toBool(v);
-      case BOOL_ARRAY:
-        return TypeUtils.toBoolArray(v);
-      case INT:
-        return TypeUtils.toInt(v);
-      case DURATION:
-        return TypeUtils.durationToInt(v);
-      case INT_ARRAY:
-        return TypeUtils.toIntArray(v);
-      case LONG:
-        return TypeUtils.toLong(v);
-      case LONG_ARRAY:
-        return TypeUtils.toLongArray(v);
-      case DECIMAL:
-        return TypeUtils.toDecimal(v);
-      case DECIMAL_ARRAY:
-        return TypeUtils.toDecimalArray(v);
-      case TEXT:
-        return TypeUtils.toText(v);
-      case TEXT_ARRAY:
-        return TypeUtils.toTextArray(v);
-      case DATE:
-        return TypeUtils.toDate(v);
-      case DATE_ARRAY:
-        return TypeUtils.toDateArray(v);
-      case DATETIME:
-        return TypeUtils.toDateTime(v);
-      case DATETIME_ARRAY:
-        return TypeUtils.toDateTimeArray(v);
-      case JSONB:
-        return TypeUtils.toJsonb(v);
-      case JSONB_ARRAY:
-        return TypeUtils.toJsonbArray(v);
-      default:
-        throw new UnsupportedOperationException(
-            "Unsupported columnType columnType found:" + columnType);
-    }
+    return switch (columnType.getBaseType()) {
+      case UUID -> TypeUtils.toUuid(v);
+      case UUID_ARRAY -> TypeUtils.toUuidArray(v);
+      case STRING, EMAIL, HYPERLINK -> TypeUtils.toString(v);
+      case STRING_ARRAY, EMAIL_ARRAY, HYPERLINK_ARRAY -> TypeUtils.toStringArray(v);
+      case BOOL -> TypeUtils.toBool(v);
+      case BOOL_ARRAY -> TypeUtils.toBoolArray(v);
+      case INT -> TypeUtils.toInt(v);
+      case INT_ARRAY -> TypeUtils.toIntArray(v);
+      case LONG -> TypeUtils.toLong(v);
+      case LONG_ARRAY -> TypeUtils.toLongArray(v);
+      case DECIMAL -> TypeUtils.toDecimal(v);
+      case DECIMAL_ARRAY -> TypeUtils.toDecimalArray(v);
+      case TEXT -> TypeUtils.toText(v);
+      case TEXT_ARRAY -> TypeUtils.toTextArray(v);
+      case DATE -> TypeUtils.toDate(v);
+      case DATE_ARRAY -> TypeUtils.toDateArray(v);
+      case DATETIME -> TypeUtils.toDateTime(v);
+      case DATETIME_ARRAY -> TypeUtils.toDateTimeArray(v);
+      case PERIOD -> TypeUtils.toPeriod(v);
+      case PERIOD_ARRAY -> TypeUtils.toPeriodArray(v);
+      case JSONB -> TypeUtils.toJsonb(v);
+      case JSONB_ARRAY -> TypeUtils.toJsonbArray(v);
+      default -> throw new UnsupportedOperationException(
+          "Unsupported columnType columnType found:" + columnType);
+    };
   }
 
   public static String convertToCamelCase(String value) {
