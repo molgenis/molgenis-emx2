@@ -1,4 +1,5 @@
 import type { ITableMetaData, ISchemaMetaData, IColumn } from "meta-data-utils";
+import { fetchSchemaMetaData } from "./client";
 
 /**
  * @param {String} schemaId - schema where initial table is in
@@ -9,15 +10,15 @@ import type { ITableMetaData, ISchemaMetaData, IColumn } from "meta-data-utils";
  * key=1 fields will always be expanded.
  * Other fields until level is reached
  */
-export const getColumnIds = (
+export const getColumnIds = async (
   schemaId: string,
   tableId: string,
-  metaData: ISchemaMetaData,
   //allows expansion of ref fields to add their next layer of details.
   expandLevel: number,
   //rootLevel
   rootLevel = true
 ) => {
+  const metaData = await fetchSchemaMetaData(schemaId);
   let result = "";
   getTable(schemaId, tableId, metaData.tables)?.columns?.forEach(
     (col: IColumn) => {
@@ -37,7 +38,6 @@ export const getColumnIds = (
             getColumnIds(
               col.refSchemaId || schemaId,
               col.refTableId || tableId,
-              metaData,
               //indicate that sub queries should not be expanded on ref_array, refback, ontology_array
               expandLevel - 1,
               false
