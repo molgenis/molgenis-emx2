@@ -7,7 +7,7 @@
       </span>
       <input
         @click.stop
-        @change="(e) => selectOption(e.target.checked, option)"
+        @change="(event) => selectOption(event.target.checked, option)"
         type="checkbox"
         :ref="`${option.name}-checkbox`"
         class="mr-1"
@@ -34,18 +34,16 @@
   </ul>
 </template>
 
-<script>
+<script lang="ts">
 import { defineAsyncComponent } from "vue";
-import { useSettingsStore } from "../../../stores/settingsStore";
 import { useFiltersStore } from "../../../stores/filtersStore";
 
 /** need to lazy load because it gets toooo large quickly. Over 9000! */
 const TreeComponent = defineAsyncComponent(() => import("./TreeComponent.vue"));
 export default {
   setup() {
-    const settingsStore = useSettingsStore();
     const filtersStore = useFiltersStore();
-    return { settingsStore, filtersStore };
+    return { filtersStore };
   },
   emits: ["indeterminate-update"],
   props: {
