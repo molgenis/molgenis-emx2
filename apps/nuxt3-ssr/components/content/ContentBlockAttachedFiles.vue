@@ -16,6 +16,10 @@ function looksLikeImage(document: IDocumentation) {
   );
 }
 
+function isExternalDocument(document: IDocumentation) {
+  return document?.file.url ? false : true;
+}
+
 const images = documents.filter(looksLikeImage);
 const otherDocuments = documents.filter((d) => !looksLikeImage(d));
 </script>
@@ -38,7 +42,8 @@ const otherDocuments = documents.filter((d) => !looksLikeImage(d));
         <FileDocumentCard
           v-for="document in otherDocuments"
           :title="document?.name"
-          :url="document.url ? document.url : document?.file?.url"
+          :isExternal="isExternalDocument(document)"
+          :url="document?.file?.url ? document?.file?.url : document.url"
         />
       </FileList>
     </div>
