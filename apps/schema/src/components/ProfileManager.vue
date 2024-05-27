@@ -149,7 +149,7 @@ import { ref, computed } from "vue";
 import { InputSearch, MessageError, ButtonAlt } from "molgenis-components";
 import VueScrollTo from "vue-scrollto";
 
-const error = ref(null);
+const error = ref("");
 const profileJson = ref({});
 const selectedProfiles = ref([]);
 const search = defineModel();
@@ -209,14 +209,14 @@ const profiles = computed(() => {
 
 const isVisible = function (column) {
   return (
-    (selectedProfiles?.value.length == 0 ||
+    (selectedProfiles?.value.length === 0 ||
       column.profiles?.some((p) => selectedProfiles?.value.includes(p))) &&
     (!search.value || JSON.stringify(column).includes(search.value))
   );
 };
 
 const formatValue = function (value) {
-  if (value == null) {
+  if (value === null) {
     return "";
   } else if (Array.isArray(value)) {
     if (value.length > 1) {
@@ -277,7 +277,7 @@ const convertToCsv = function () {
 
 const downloadCsv = function () {
   const text = convertToCsv();
-  var element = document.createElement("a");
+  const element = document.createElement("a");
   element.setAttribute(
     "href",
     "data:text/plain;charset=utf-8," + encodeURIComponent(text)
