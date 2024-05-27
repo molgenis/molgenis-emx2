@@ -315,7 +315,7 @@ let tocItems = computed(() => {
   }
 
   if (cohort.value.documentation) {
-    tableOffContents.push({ label: "Attached files", id: "Files" });
+    tableOffContents.push({ label: "Documentation", id: "Files" });
   }
 
   return tableOffContents;
