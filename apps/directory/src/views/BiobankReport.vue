@@ -41,7 +41,11 @@
 
                 <!-- Collection Part -->
                 <h3 class="mt-4">Collections</h3>
+                <div v-if="!collectionsData.length">
+                  This biobank does not contain any collections.
+                </div>
                 <div
+                  v-else
                   v-for="(collection, index) in collectionsData"
                   :key="collection.id"
                 >
