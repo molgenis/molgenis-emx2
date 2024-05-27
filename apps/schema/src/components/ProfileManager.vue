@@ -44,8 +44,8 @@
             >
               <h5>
                 {{ table.name }}
-                <sup v-if="table.profiles"
-                  ><span
+                <sup v-if="table.profiles">
+                  <span
                     class="badge mr-1"
                     :style="{ 'background-color': color(profile) }"
                     v-for="profile in table.profiles"
@@ -64,10 +64,10 @@
           <div>{{ table.description }}</div>
           <ul class="list-group">
             <li class="list-group-item nav-header">
-              <ButtonAlt @click="selectAll(table.name)">select all</ButtonAlt
-              ><ButtonAlt @click="deselectAll(table.name)"
-                >deselect all</ButtonAlt
-              >
+              <ButtonAlt @click="selectAll(table.name)">select all</ButtonAlt>
+              <ButtonAlt @click="deselectAll(table.name)"
+                >deselect all
+              </ButtonAlt>
             </li>
             <template v-for="column in table.columns">
               <li
@@ -82,38 +82,38 @@
               >
                 <h5>
                   {{ column.name }} {{}}
-                  <sup
-                    ><span
+                  <sup>
+                    <span
                       class="badge mr-1"
                       :style="{ 'background-color': color(profile) }"
                       v-for="profile in column.profiles"
                       >{{ profile }}</span
-                    ></sup
-                  >
+                    >
+                  </sup>
                   <div class="float-right">
-                    <small class="align-right"
-                      ><a
+                    <small class="align-right">
+                      <a
                         v-for="semantics in column.semantics"
                         href="semantics"
                         target="_blank"
                         >{{ semantics }}</a
-                      ></small
-                    >
+                      >
+                    </small>
                   </div>
                 </h5>
 
                 {{ column.description }}
                 <div>
-                  <small
-                    ><i>{{
+                  <small>
+                    <i>{{
                       Object.keys(column)
                         .filter((key) =>
                           ["key", "refTableName", "columnType"].includes(key)
                         )
                         .map((key) => key + "=" + column[key])
                         .join(", ")
-                    }}</i></small
-                  >
+                    }}</i>
+                  </small>
                 </div>
               </li>
             </template>
