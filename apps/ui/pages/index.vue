@@ -20,9 +20,6 @@ const databases = computed(
     data.value?.data?._schemas.sort((a, b) => a.label.localeCompare(b.label)) ??
     []
 );
-
-const store = useMetaStore();
-const { metaData } = storeToRefs(store);
 </script>
 <template>
   <Container>
@@ -32,5 +29,4 @@ const { metaData } = storeToRefs(store);
       </DisplayListItem>
     </DisplayList>
   </Container>
-  {{ metaData }}
 </template>
