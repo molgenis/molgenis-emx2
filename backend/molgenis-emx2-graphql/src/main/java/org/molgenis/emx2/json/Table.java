@@ -23,6 +23,7 @@ public class Table {
   private Collection<Column> columns = new ArrayList<>();
   private List<Setting> settings = new ArrayList<>();
   private String[] semantics;
+  private String[] profiles = null;
   private String id;
   private TableType tableType;
 
@@ -64,6 +65,7 @@ public class Table {
       this.columns.add(new Column(column, tableMetadata, minimal));
     }
     this.tableType = tableMetadata.getTableType();
+    this.profiles = tableMetadata.getProfiles();
   }
 
   public String getName() {
@@ -208,5 +210,13 @@ public class Table {
 
   public void setSchemaId(String schemaId) {
     this.schemaId = schemaId;
+  }
+
+  public String[] getProfiles() {
+    return profiles;
+  }
+
+  public void setProfiles(String[] profiles) {
+    this.profiles = profiles;
   }
 }
