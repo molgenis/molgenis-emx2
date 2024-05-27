@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { IDefinitionListItem } from "~/interfaces/types";
 import cohortGql from "~~/gql/cohort";
 
 const props = defineProps<{
@@ -32,12 +33,13 @@ watch(
   }
 );
 
-const items = [];
+const items: IDefinitionListItem[] = [];
 
 if (cohort?.website) {
   items.push({
     label: "Website",
-    content: cohort.website,
+    type: "LINK",
+    content: { label: cohort.website, url: cohort.website },
   });
 }
 
