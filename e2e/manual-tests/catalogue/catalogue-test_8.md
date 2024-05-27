@@ -113,4 +113,18 @@ A naïve visitor to the data catalogue can click around through items in the men
 | 88   | Use the browser's ⬅️ button                                                                                                            | The user goes back to [/ssr-catalogue/all/datasources](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/all/datasources) |                 |
 | 88b  | Hover over `MORE`                                                                                                                      | A drop-down menu with `Networks` and `Other catalogues` as options appears                                                                       |                 |
 | 89   | Click `Other catalogues`                                                                                                               | The user goes to [/ssr-catalogue/](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/)                                    |                 |
-| 90   | Use the browser's ⬅️ button                                                                                                            | The user goes back to [/ssr-catalogue/all/datasources](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/all/datasources) |                 |
+| 90   | Click on testnetwork1 | The user goes to https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/testNetwork1. Menu: Molgenis logo, Overview, Cohorts, Data Sources, Variables, More | | 
+| 91 | Click on the Molgenis logo | The page remains the same ||
+| 92 | Click on overview | The page reloads ||
+| 93 | Click on Cohorts | The user goes to https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/testNetwork1/cohorts | |
+| 94 | Click on Molgenis logo | The user goes to https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/testNetwork1||
+| 95 | Click on Data Sources | The user goes to https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/testNetwork1/datasources | |
+| 96 | Click on Overivew | The user goes to https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/testNetwork1 | |
+| 97 | Click on Variables | The user goes to https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/testNetwork1/variables | |
+| 98 | Hover on More and then click About | The user goes to https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/testNetwork1/networks/testNetwork1 | |
+| 99 | Hover on More and then click Other catalogues | The user goes to https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue ||
+|100| Click on OOM under Project Catalogues | The user goes to https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/OOM. Menu = Molgenis logo, Overview, Cohorts, Data Sources, Variables, More | |
+|101| Hover on More | 3 options are provided: Networks, About, Other catalogues ||
+|102| Hover on More and click on Other Catalogues | The user goes to  https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue ||
+|   | [THIS EXTRA TEST STEP CAN BE RENDERED INVALID BY PRODUCTION DATA FOR LONGITOOLS BEING COPIED INTO ACC - SEE IT AS A BONUS STEP!] |||
+|103| Click on LongITools under Project Catalogues | The user goes to https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/LongITools. Menu = Molgenis logo, Overview, Cohorts, About, Other Catalogues ||
