@@ -13,6 +13,7 @@ defineProps({
   <a
     class="border rounded-3px p-5 flex items-center hover:shadow-md transition-shadow"
     :href="url"
+    target="_blank"
   >
     <div class="flex-grow align-middle">
       <span class="text-blue-500 text-body-base">
