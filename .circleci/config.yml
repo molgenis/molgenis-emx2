@@ -155,7 +155,7 @@ jobs:
                   else 
                       echo "preview is not ready yet, waiting 10 seconds...";
                   fi; 
-                  sleep 10; 
+                  sleep 20; 
               done
 
     - run:
