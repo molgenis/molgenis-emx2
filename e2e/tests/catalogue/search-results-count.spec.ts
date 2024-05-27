@@ -15,11 +15,11 @@ const numberOfResultsPattern = new RegExp(/^(([a-zA-Z]{1,})?(\s)?(([0-9]{1,})\s(
 test('validate cohort search result counts @cohort-view @search-result-counts',
   async ({ page }) => {
     await page.goto('/catalogue-demo/ssr-catalogue/all/cohorts');
-    
+
     if (enableRejectCookiesClick) {
       await page.getByRole('button', { name: 'Reject' }).click();
     }
-    
+
     const text = await page.locator(".search-results-count").textContent();
     await expect(text).toMatch(numberOfResultsPattern);
   }
@@ -28,24 +28,11 @@ test('validate cohort search result counts @cohort-view @search-result-counts',
 test('validate data sources search result counts @data-sources-view @search-result-counts',
   async ({ page }) => {
     await page.goto('/catalogue-demo/ssr-catalogue/all/datasources');
-    
-    if (enableRejectCookiesClick) {
-      await page.getByRole('button', { name: 'Reject' }).click();
-    }
-    
-    const text = await page.locator(".search-results-count").textContent();
-    await expect(text).toMatch(numberOfResultsPattern);
-  }
-);
 
-test('validate variables sources search result counts @variables-view @search-result-counts',
-  async ({ page }) => {
-    await page.goto('/catalogue-demo/ssr-catalogue/all/variables');
-    
     if (enableRejectCookiesClick) {
       await page.getByRole('button', { name: 'Reject' }).click();
     }
-    
+
     const text = await page.locator(".search-results-count").textContent();
     await expect(text).toMatch(numberOfResultsPattern);
   }
@@ -54,13 +41,27 @@ test('validate variables sources search result counts @variables-view @search-re
 test('validate networks sources search result counts @networks-view @search-result-counts',
   async ({ page }) => {
     await page.goto('/catalogue-demo/ssr-catalogue/all/networks');
-    
+
     if (enableRejectCookiesClick) {
       await page.getByRole('button', { name: 'Reject' }).click();
     }
-    
+
     const text = await page.locator(".search-results-count").textContent();
     await expect(text).toMatch(numberOfResultsPattern);
   }
 );
+
+test('validate variables in cohorts counts are shown',
+  async ({ page }) => {
+    await page.goto('/catalogue-demo/ssr-catalogue/all/variables');
+
+    if (enableRejectCookiesClick) {
+      await page.getByRole('button', { name: 'Reject' }).click();
+    }
+
+    await expect(page.getByRole('main')).toContainText('2248 variables');
+  }
+);
+
+
 

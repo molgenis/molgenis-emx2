@@ -29,6 +29,7 @@
                 .name]: `../#/biobank/${collection.biobank.id}`,
               [collection.name]: `../#/collection/${collection.id}`,
             }"
+            useRouterLink
           />
           <check-out
             v-if="collection"
@@ -54,7 +55,10 @@
                 />
               </div>
               <!-- Right side card -->
-              <collection-report-info-card :info="info" />
+              <collection-report-info-card
+                :info="info"
+                :collection="collection"
+              />
             </div>
             <!-- facts data -->
             <div class="row" v-if="facts && facts.length > 0">

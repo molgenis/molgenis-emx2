@@ -19,33 +19,24 @@ export async function applyBookmark(watchedQuery) {
     bookmarkApplied = false;
     return;
   }
-
   const checkoutStore = useCheckoutStore();
   const collectionStore = useCollectionStore();
   const filtersStore = useFiltersStore();
-
   let query = watchedQuery;
-
   if (!query) {
     const route = router.currentRoute.value;
-
     if (!route.query) return;
-
     query = route.query;
   }
-
   if (!query || !Object.keys(query).length > 0) return;
-
   /**  negotiator token */
   if (query.nToken) {
     checkoutStore.nToken = query.nToken;
   }
-
   if (query.cart) {
     const decoded = decodeURIComponent(query.cart);
     const cartIdString = atob(decoded);
     const cartIds = cartIdString.split(",");
-
     const missingCollections =
       await collectionStore.getMissingCollectionInformation(cartIds);
     if (missingCollections && Object.keys(missingCollections).length) {
@@ -56,7 +47,6 @@ export async function applyBookmark(watchedQuery) {
         });
       }
     }
-
     /** add the beginning of history if from a link-back url */
     if (checkoutStore.searchHistory.length === 0) {
       checkoutStore.searchHistory.push(
@@ -64,10 +54,8 @@ export async function applyBookmark(watchedQuery) {
       );
     }
   }
-
   /** we load the filters, grab the names, so we can loop over it to map the selections */
   const filters = Object.keys(filtersStore.facetDetails);
-
   if (query.matchAll) {
     const matchAllFilters = decodeURIComponent(query.matchAll).split(",");
     for (const filterName of matchAllFilters) {
@@ -78,12 +66,10 @@ export async function applyBookmark(watchedQuery) {
   for (const filterName of filters) {
     if (query[filterName]) {
       let filtersToAdd = decodeURIComponent(query[filterName]);
-
       if (filterName === "Diagnosisavailable") {
         const diagnosisFacetDetails = filtersStore.facetDetails[filterName];
         /** the diagnosis available has been encoded, to discourage messing with the tree and breaking stuff. */
         const queryValues = atob(filtersToAdd).split(",");
-
         const options = await filtersStore.getOntologyOptionsForCodes(
           diagnosisFacetDetails,
           queryValues
@@ -92,7 +78,6 @@ export async function applyBookmark(watchedQuery) {
         /** retrieve these from the server, this is easier than tree traversal */
       } else {
         const filterOptions = filtersStore.filterOptionsCache[filterName];
-
         if (filterOptions) {
           const queryValues = filtersToAdd.split(",");
           filtersToAdd = filterOptions.filter((fo) =>
@@ -105,9 +90,9 @@ export async function applyBookmark(watchedQuery) {
       }
     }
   }
-
   filtersStore.bookmarkWaitingForApplication = false;
 }
+
 export function createBookmark(filters, collectionCart) {
   const filtersStore = useFiltersStore();
   const bookmark = {};

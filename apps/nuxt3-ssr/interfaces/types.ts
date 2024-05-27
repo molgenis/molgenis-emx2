@@ -1,4 +1,5 @@
 import type { IColumn } from "meta-data-utils";
+import type { INode } from "../../tailwind-components/types/types";
 export interface IResource {
   id: string;
   pid: string;
@@ -18,6 +19,7 @@ export interface ICohort {
   website?: string;
   logo?: IUrlObject;
   contactEmail?: string;
+  leadOrganisation?: IOrganisation[];
   institution?: {
     acronym: string;
   };
@@ -56,10 +58,13 @@ export interface ICohort {
   linkageOptions?: string;
   dataAccessConditionsDescription?: string;
   dataAccessConditions?: { name: string }[];
+  releaseType?: boolean;
   fundingStatement?: string;
   acknowledgements?: string;
   documentation?: IDocumentation[];
   datasets: { name: string }[];
+  populationOncologyTopology?: IOntologyNode[];
+  populationOncologyMorphology?: IOntologyNode[];
 }
 
 export interface IVariableBase {
@@ -81,6 +86,10 @@ export interface IVariableBase {
 export interface IVariableDetails {
   unit?: IOntologyNode;
   format?: IOntologyNode;
+  repeats?: {
+    name: string;
+    mappings: IMapping[];
+  }[];
 }
 
 export interface IVariableMappings {
@@ -106,6 +115,21 @@ export interface IDocumentation {
   description: string;
   url: string;
   file: IFile;
+}
+
+export interface IOrganisation extends IPartner {
+  email: string;
+  type: {
+    name: string;
+  };
+  institution: any;
+  institutionAcronym: string;
+  typeOther: string;
+  address: string;
+  expertise: string;
+  country: {
+    name: string;
+  };
 }
 
 export interface IPartner {
@@ -183,26 +207,6 @@ export interface IOntologyNode extends ITreeNode {
   code?: string;
   definition?: string;
   ontologyTermURI?: string;
-}
-
-interface IBaseFilter {
-  title: string;
-  initialCollapsed?: boolean;
-}
-
-interface ISearchFilter extends IBaseFilter {
-  columnType: "_SEARCH";
-  search?: string;
-}
-
-export interface IFilter extends IBaseFilter {
-  columnType: "_SEARCH" | "ONTOLOGY" | "REF_ARRAY";
-  refTableId?: string;
-  columnId?: string;
-  filterTable?: string;
-  conditions?: [] | { [key: string]: string }[];
-  searchTables?: string[];
-  search?: string;
 }
 
 export interface IFormField {
@@ -294,4 +298,139 @@ export interface IOntologyItem {
 
 export interface IOntologyParentTreeItem
   extends Omit<IOntologyItem, "children"> {}
+
+// generic emx2 graphql api response type, pass in query structure as T
+export interface GqlResp<T> {
+  data: Record<string, T[]>;
+}
+export interface IOntologyRespItem {
+  name: string;
+  definition?: string;
+  code?: string;
+  order?: number;
+  parent: {
+    name: string;
+  };
+}
+
+export type ButtonType =
+  | "primary"
+  | "secondary"
+  | "tertiary"
+  | "outline"
+  | "disabled"
+  | "filterWell";
+export type ButtonSize = "tiny" | "small" | "medium" | "large";
+export type ButtonIconPosition = "left" | "right";
+
 export interface IOntologyChildTreeItem extends Omit<IOntologyItem, "parent"> {}
+
+export interface IManifest {
+  ImplementationVersion: string;
+  SpecificationVersion: string;
+  DatabaseVersion: string;
+}
+
+export interface IManifestResponse {
+  data: {
+    _manifest: IManifest;
+  };
+}
+
+export type IFilter = ISearchFilter | IOntologyFilter | IRefArrayFilter;
+
+interface IAbstractFilter {
+  id: string;
+  search?: string;
+  config:
+    | ISearchFilterConfig
+    | IOntologyFilterConfig
+    | IRefArrayFilterDefaultConfig
+    | IRefArrayFilterCustomConfig;
+}
+export interface ISearchFilter extends IAbstractFilter {
+  search: string;
+  config: ISearchFilterConfig;
+}
+
+export interface IFilterConfig {
+  label: string;
+  initialCollapsed?: boolean;
+  filterTable?: string;
+}
+
+export interface ISearchFilterConfig extends IFilterConfig {
+  type: "SEARCH";
+  searchTables?: string[];
+}
+
+export interface IOntologyFilterConfig extends IFilterConfig {
+  type: "ONTOLOGY";
+  ontologyTableId: string;
+  ontologySchema: string;
+  columnId: string;
+  refFields?: filterRefField;
+}
+
+export interface IRefArrayFilterAbstractConfig extends IFilterConfig {
+  type: "REF_ARRAY";
+  refTableId: string;
+  refSchema?: string;
+  refFields?: filterRefField;
+  // optional function to build the filter bases on the selected options
+  // if empty the defualt builder will be used
+  buildFilterFunction?: Function;
+}
+
+export interface IRefArrayFilterDefaultConfig
+  extends IRefArrayFilterAbstractConfig {
+  columnId: string;
+}
+
+export interface IRefArrayFilterCustomConfig
+  extends IRefArrayFilterAbstractConfig {
+  // optional function to build the filter bases on the selected options
+  // if empty the defualt builder will be used
+  buildFilterFunction?: Function;
+}
+
+type filterRefField = {
+  [key: string]: string;
+};
+
+export type IFilterCondition = {
+  [id: string]: IFilterCondition | string;
+};
+
+export interface IOntologyFilter extends IAbstractFilter {
+  conditions: IFilterCondition[];
+  config: IOntologyFilterConfig;
+}
+
+export type IConditionsFilter = IOntologyFilter | IRefArrayFilter;
+
+export interface optionsFetchFn {
+  (): Promise<INode[]>;
+}
+
+export interface IRefArrayFilter extends IAbstractFilter {
+  conditions: IFilterCondition[];
+  config: IRefArrayFilterCustomConfig | IRefArrayFilterDefaultConfig;
+  options?: INode[] | optionsFetchFn;
+}
+
+export interface IPathCondition {
+  id: string;
+  search?: string;
+  conditions?: IFilterCondition[];
+}
+
+export interface IPathSearchCondition extends IPathCondition {
+  search: string;
+}
+
+export interface IPathConditionsCondition extends IPathCondition {
+  conditions: IFilterCondition[];
+}
+
+export type activeTabType = "detailed" | "compact";

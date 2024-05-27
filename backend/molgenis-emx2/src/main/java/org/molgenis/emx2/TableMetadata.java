@@ -322,6 +322,16 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
     return getColumnNames();
   }
 
+  public List<String> getNonReferencingColumnNames() {
+    List<String> result = new ArrayList<>();
+    for (Column c : getLocalColumns()) {
+      if (!c.isReference()) {
+        result.add(c.getName());
+      }
+    }
+    return result;
+  }
+
   public Column getColumn(String name) {
     if (columns.containsKey(name)) return new Column(this, columns.get(name));
     if (getInheritedTable() != null) {

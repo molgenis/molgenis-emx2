@@ -7,6 +7,7 @@ import java.io.File;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 import org.jooq.JSONB;
 import org.molgenis.emx2.utils.TypeUtils;
 
@@ -365,17 +366,11 @@ public class Row {
   }
 
   public String toString() {
-    StringBuilder builder = new StringBuilder();
-    builder.append("ROW(");
-    for (Map.Entry<String, Object> col : values.entrySet()) {
-      builder
-          .append(col.getKey())
-          .append("='")
-          .append(TypeUtils.toString(col.getValue()))
-          .append("' ");
-    }
-    builder.append(")");
-    return builder.toString();
+    return "ROW("
+        + values.entrySet().stream()
+            .map(col -> col.getKey() + "='" + TypeUtils.toString(col.getValue()) + "'")
+            .collect(Collectors.joining(" "))
+        + ")";
   }
 
   public boolean containsName(String columnName) {

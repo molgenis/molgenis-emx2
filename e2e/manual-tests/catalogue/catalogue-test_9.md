@@ -26,25 +26,26 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 ||NB not all fields are tested in this test plan| | | |
 | 9 |Collection type|Retrospective, Prospective | | |
 | 10 |Start/End year|1900 - 1967 | | |
-| 11 |Population|Armenia, Bermuda, Réunion | | |
-| 12 |Regions|Bradford, Lapland, Gipuzkoa | | |
-| 13 |Population age groups|Adult (18+ years) | | |
-| 14 |Inclusion criteria|Clinically relevant exposure inclusion criterion | | |
+| 11|Design paper|Cohort Profile: The French national cohort of children (ELFE): birth to 5 years | | |
+| 12|Click on the design paper|goes to the article in a new window: https://doi.org/10.1093/ije/dyz227 [Cohort Profile: The French national cohort of children (ELFE): birth to 5 years] | | |
+| 13| close the window or reselect the catalogue display window| | | |
+|  | POPULATION
+| 14 |Countries|Armenia, Bermuda, Réunion | | |
+| 15 |Regions|Bradford, Lapland, Gipuzkoa | | |
+| 16 |Population age groups|Adult (18+ years) | | |
+| 17 |Main medical condition|VII Diseases of the eye and adnexa, VIII Diseases of the ear and mastoid process | | |
+| 18 |Population disease|V Mental and behavioural disorders, IV Endocrine, nutritional and metabolic diseases | | |
+| 19 |ICDO topology|BASE OF TONGUE, UTERUS, NOS | | |
+| 20 |ICDO morphology|Carcinoma, metastatic, NOS Carcinomatosis | | |
+| 21 |Inclusion criteria|Clinically relevant exposure inclusion criterion | | |
 |||Clinically relevant lifestyle inclusion criterion | | |
 |||Country of residence inclusion criteria | | |
-| 15 |Main medical condition|VII Diseases of the eye and adnexa, VIII Diseases of the ear and mastoid process | | |
-| 16 |Population disease|V Mental and behavioural disorders, IV Endocrine, nutritional and metabolic diseases | | |
-| 17 |population oncology topology|BASE OF TONGUE, UTERUS, NOS | | |
-| 18 |population oncology morphology|Carcinoma, metastatic, NOS Carcinomatosis | | |
-| 19|Marker paper|Cohort Profile: The French national cohort of children (ELFE): birth to 5 years | | |
-| 20|Click on the marker paper|goes to the article in a new window: https://doi.org/10.1093/ije/dyz227 [Cohort Profile: The French national cohort of children (ELFE): birth to 5 years] | | |
-| 21| close the window or reselect the catalogue display window| | | |
 | 22|CONTACT AND CONTRIBUTORS|1 card per contact person with: (titles) (initials) ((first name)) (surname prefix) (surname), (email address), (description of role) | | |
 |||dr. ir.  P.I.P.M. (PIPM) surname prefix last name PIPM ---- pipm@testdomain.nl -----  Test description of PI/PM role | | |
 |||dr.  D.M. (datamgr first name) datamgr surname prefix datamgr last name --- test@email.nl --- test description for data manager role | | |
 ||NB not all blocks are tested in this test plan| | | |
 | 23|SUBPOPULATIONS|List of subcohorts or subpopulations for this resource | | |
-|||table with the following columns: Name, Description, Number of participants, with an arrow to navigate to details | | |
+|||table with the following columns: Name, Description, Number of participants | | |
 |||test subcohort 1A, description for test subcohort 1A, 956 --> | | |
 |||test subcohort 1B, description for test subcohort 1B, 23487 --> | | |
 | 24|COLLECTION EVENTS|List of collection events defined for this resource | | |
@@ -53,12 +54,12 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 |||test collection event 1B, description for test collection event 1B, 286, 1992-2000 --> | | |
 | 25 |DATASETS|List of datasets for this resource | | |
 |||Table with the following columns: Name, Description | | |
-|||test dataset for testCohort1, label for test dataset 1  --> | | |
-|||name of test dataset 2 for test cohort 1, label for test dataset 2 for test cohort 1 --> | | |
+|||test dataset for testCohort1,   test description for dataset 1  --> | | |
+|||name of test dataset 2 for test cohort 1,  description for test dataset 2 for test cohort 1 --> | | |
 | 26 |PARTNERS|logo, Name of organisation, ">Read more" and arrow to navigate to details | | |
 |||name of test additional organisation 1 | | |
 |||name of test additional organisation 2 | | |
-| 27 |NETWORKS|List of networks to which this resource belongs | | |
+| 27 |NETWORKS|List of networks which this cohort is involved in | | |
 |||logo, Name of network, ">Read more?  And arrow to navigate to details | | |
 |||name of test network2 | | |
 |||> Read more | | |

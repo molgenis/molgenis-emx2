@@ -1,6 +1,7 @@
 //@ts-ignore
 import { QueryEMX2 } from "molgenis-components";
 import { useFiltersStore } from "../stores/filtersStore";
+import { IOntologyItem } from "../interfaces/interfaces";
 
 /** Async so we can fire and forget for performance. */
 async function cache(facetIdentifier: any, filterOptions: any) {
@@ -55,6 +56,7 @@ function _mapToOptions(
 export const genericFilterOptions = (filterFacet: any) => {
   const {
     sourceTable,
+    sourceSchema,
     facetIdentifier,
     filterLabelAttribute,
     filterValueAttribute,
@@ -69,7 +71,7 @@ export const genericFilterOptions = (filterFacet: any) => {
       const selection = [filterLabelAttribute, filterValueAttribute];
 
       if (!cachedOptions.length) {
-        new QueryEMX2("graphql")
+        new QueryEMX2(getSchema(sourceSchema))
           .table(sourceTable)
           .select(selection)
           .orderBy(sourceTable, sortColumn, sortDirection)
@@ -108,6 +110,7 @@ export const genericFilterOptions = (filterFacet: any) => {
 export const ontologyFilterOptions = (filterFacet: any) => {
   const {
     ontologyIdentifiers,
+    sourceSchema,
     sourceTable,
     facetIdentifier,
     filterLabelAttribute,
@@ -130,7 +133,7 @@ export const ontologyFilterOptions = (filterFacet: any) => {
       if (!cachedOptions.length) {
         /** make it query after all the others, saves 50% of initial load */
         const waitAfterBiobanks = setTimeout(() => {
-          new QueryEMX2("graphql")
+          new QueryEMX2(getSchema(sourceSchema))
             .table(sourceTable)
             .select(selection)
             .orderBy(sourceTable, sortColumn, sortDirection)
@@ -151,18 +154,11 @@ export const ontologyFilterOptions = (filterFacet: any) => {
       }
     });
 };
-export interface IOntologyItem {
-  label: string;
-  name: string;
-  code: string;
-  parent?: { name: string }[];
-  children?: IOntologyItem[];
-}
 
 function getItemsSplitByOntology(
   ontologyItems: IOntologyItem[],
   ontologyIdentifiers: string[]
-): Record<string, IOntologyItem[]> {
+): Record<string, IOntologyItem[] | Record<string, IOntologyItem>> {
   const childrenPerParent = getChildrenPerParent(ontologyItems);
   const itemsWithChildren = getItemsWithChildren(
     ontologyItems,
@@ -177,7 +173,8 @@ function getItemsSplitByOntology(
     rootNodes,
     ontologyIdentifiers
   );
-  return itemsSplitByOntology;
+
+  return { ...itemsSplitByOntology };
 }
 
 function getItemsWithChildren(
@@ -225,4 +222,10 @@ function getChildrenPerParent(
     });
   });
   return childrenPerParent;
+}
+
+export function getSchema(sourceSchema: string | undefined) {
+  return sourceSchema
+    ? `${window.location.protocol}//${window.location.host}/${sourceSchema}`
+    : "graphql";
 }
