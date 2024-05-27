@@ -197,7 +197,7 @@ jobs:
     - queue/until_front_of_line:
         name: wait until any other release jobs are completed
         limit-branch-name: main
-        max-wait-time: '20'
+        max-wait-time: '25'
         my-pipeline: <<pipeline.number>>
         
     - pre_steps
