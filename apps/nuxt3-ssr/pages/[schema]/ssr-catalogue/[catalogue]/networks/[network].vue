@@ -108,7 +108,7 @@ async function fetchVariableCount(models: { id: string }[]) {
 let tocItems = computed(() => {
   let tableOffContents = [{ label: "Description", id: "Description" }];
   if (network?.documentation) {
-    tableOffContents.push({ label: "Attached files", id: "Files" });
+    tableOffContents.push({ label: "Documentation", id: "Files" });
   }
   if (network?.contacts) {
     tableOffContents.push({
