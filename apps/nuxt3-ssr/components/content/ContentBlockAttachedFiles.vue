@@ -16,9 +16,9 @@ function looksLikeImage(document: IDocumentation) {
   );
 }
 
-function isExternalDocument(document: IDocumentation) {
+const isExternalDocument = computed((document: IDocumentation) => {
   return document?.file.url ? false : true;
-}
+})
 
 const images = documents.filter(looksLikeImage);
 const otherDocuments = documents.filter((d) => !looksLikeImage(d));
