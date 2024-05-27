@@ -14,5 +14,6 @@ export default defineNuxtConfig({
   },
   vite: {
     base: "."
-  }
+  },
+  modules: [ '@pinia/nuxt' ],
 })

@@ -8,6 +8,9 @@
 		},
 		{
 			"path": "ui"
+		},
+		{
+			"path": "meta-data-utils"
 		}
 	],
 	"settings": {}

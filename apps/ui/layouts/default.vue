@@ -38,7 +38,7 @@ useHead({
     <div class="z-30 relative min-h-screen flex flex-col">
       <Header>
         <template #logo>
-          <Logo />
+          <Logo link="/" />
         </template>
         <template #nav>
           <Navigation
@@ -50,7 +50,7 @@ useHead({
           />
         </template>
         <template #logo-mobile>
-          <LogoMobile />
+          <LogoMobile link="/" />
         </template>
         <template #nav-mobile>
           <Navigation

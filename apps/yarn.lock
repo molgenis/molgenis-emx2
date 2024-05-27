@@ -1345,7 +1345,7 @@
   optionalDependencies:
     ipx "^3.0.0"
 
-"@nuxt/kit@3.11.2", "@nuxt/kit@^3.11.1", "@nuxt/kit@^3.11.2", "@nuxt/kit@^3.9.2":
+"@nuxt/kit@3.11.2", "@nuxt/kit@^3.11.1", "@nuxt/kit@^3.11.2", "@nuxt/kit@^3.5.0", "@nuxt/kit@^3.9.2":
   version "3.11.2"
   resolved "https://registry.yarnpkg.com/@nuxt/kit/-/kit-3.11.2.tgz#dfc43c05992691bcd6aa58c14f88cf43e3abb788"
   integrity sha512-yiYKP0ZWMW7T3TCmsv4H8+jEsB/nFriRAR8bKoSqSV9bkVYWPE36sf7JDux30dQ91jSlQG6LQkB3vCHYTS2cIg==
@@ -1624,6 +1624,14 @@
     pvtsutils "^1.3.5"
     tslib "^2.6.2"
     webcrypto-core "^1.7.9"
+
+"@pinia/nuxt@^0.5.1":
+  version "0.5.1"
+  resolved "https://registry.yarnpkg.com/@pinia/nuxt/-/nuxt-0.5.1.tgz#ee7c979d365a5dfda882430ddfae405fbd78d8d5"
+  integrity sha512-6wT6TqY81n+7/x3Yhf0yfaJVKkZU42AGqOR0T3+UvChcaOJhSma7OWPN64v+ptYlznat+fS1VTwNAcbi2lzHnw==
+  dependencies:
+    "@nuxt/kit" "^3.5.0"
+    pinia ">=2.1.7"
 
 "@pkgjs/parseargs@^0.11.0":
   version "0.11.0"
@@ -10181,7 +10189,7 @@ pify@^4.0.1:
   resolved "https://registry.yarnpkg.com/pify/-/pify-4.0.1.tgz#4b2cd25c50d598735c50292224fd8c6df41e3231"
   integrity sha512-uB80kBFb/tfd68bVleG9T5GGsGPjJrLAUpR5PZIrhBnIaRTQRjqdJSsIKkOP6OAIFbj7GOrcudc5pNjZ+geV2g==
 
-pinia@2.1.7:
+pinia@2.1.7, pinia@>=2.1.7, pinia@^2.1.7:
   version "2.1.7"
   resolved "https://registry.yarnpkg.com/pinia/-/pinia-2.1.7.tgz#4cf5420d9324ca00b7b4984d3fbf693222115bbc"
   integrity sha512-+C2AHFtcFqjPih0zpYuvof37SFxMQ7OEG2zV9jRI12i9BOy3YQVAHwdKtyyc8pDcDyIc33WCIsZaCFWU7WWxGQ==
