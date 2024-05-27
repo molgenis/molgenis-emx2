@@ -42,7 +42,7 @@ const otherDocuments = documents.filter((d) => !looksLikeImage(d));
         <FileDocumentCard
           v-for="document in otherDocuments"
           :title="document?.name"
-          :isExternal="isExternalDocument(document)"
+          :isExternal="isExternalDocument"
           :url="document?.file?.url ? document?.file?.url : document.url"
         />
       </FileList>
