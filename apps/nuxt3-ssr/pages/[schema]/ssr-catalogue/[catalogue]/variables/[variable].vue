@@ -25,9 +25,30 @@ const { data, pending, error, refresh } = await useFetch(
   }
 );
 
-const variable = computed(
-  () => data.value.data.Variables[0] as VariableDetailsWithMapping
-);
+const endsWithNumbers = new RegExp("\\d+$");
+
+function bestEffortNameSort(a: IVariable, b: IVariable) {
+  if (endsWithNumbers.exec(a.name) && endsWithNumbers.exec(a.name)) {
+    const aName = a.name.replace(endsWithNumbers, "");
+    const bName = b.name.replace(endsWithNumbers, "");
+    if (aName === bName) {
+      return (
+        parseInt(a.name.match(endsWithNumbers)![0]) -
+        parseInt(b.name.match(endsWithNumbers)![0])
+      );
+    }
+    return aName.localeCompare(bName);
+  }
+  return a.name.localeCompare(b.name);
+}
+
+const variable = computed(() => {
+  const variable = data.value.data.Variables[0] as VariableDetailsWithMapping;
+  if (variable.repeats) {
+    variable.repeats.sort(bestEffortNameSort);
+  }
+  return variable;
+});
 const nRepeats = computed(() => data.value.data.RepeatedVariables_agg.count);
 const cohorts = computed(() => data.value.data.Cohorts as { id: string }[]);
 const isRepeating = computed(() => variable.value.repeats);
