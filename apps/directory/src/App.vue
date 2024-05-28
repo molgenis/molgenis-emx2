@@ -1,6 +1,9 @@
 <template>
   <Molgenis v-model="session">
     <RouterView @click="closeAllDropdownButtons" />
+    <template #footer>
+      <Footer />
+    </template>
   </Molgenis>
 </template>
 
@@ -8,10 +11,12 @@
 import { Molgenis } from "molgenis-components";
 import { computed, onMounted, watch } from "vue";
 import { applyBookmark, createBookmark } from "./functions/bookmarkMapper";
+import "bootstrap-icons/font/bootstrap-icons.css";
 import { useRoute } from "vue-router";
 import { useFiltersStore } from "./stores/filtersStore";
 import { useCheckoutStore } from "./stores/checkoutStore";
 import { useSettingsStore } from "./stores/settingsStore";
+import Footer from "./components/Footer.vue";
 
 const route = useRoute();
 const query = computed(() => route.query);
