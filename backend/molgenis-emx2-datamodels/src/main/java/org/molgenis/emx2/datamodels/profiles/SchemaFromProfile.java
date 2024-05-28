@@ -84,7 +84,7 @@ public class SchemaFromProfile {
   }
 
   /** From a classpath dir, get all EMX2 model files and optionally slice for profiles */
-  private List<Row> getProfilesFromAllModels(String directory, boolean filterByProfiles)
+  public List<Row> getProfilesFromAllModels(String directory, boolean filterByProfiles)
       throws URISyntaxException, IOException {
     List<Row> keepRows = new ArrayList<>();
     String[] modelsList = new ResourceListing().retrieve(directory);

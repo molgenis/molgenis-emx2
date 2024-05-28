@@ -4,6 +4,7 @@ import App from "./App.vue";
 import Schema from "./components/Schema.vue";
 import PrintViewTable from "./components/PrintViewTable.vue";
 import PrintViewList from "./components/PrintViewList.vue";
+import ProfileManager from "./components/ProfileManager.vue";
 import VueScrollTo from "vue-scrollto";
 
 import "molgenis-components/dist/style.css";
@@ -14,6 +15,7 @@ const router = createRouter({
     { path: "/", component: Schema },
     { path: "/print", component: PrintViewTable },
     { path: "/print-list", component: PrintViewList },
+    { path: "/profile-manager", component: ProfileManager },
   ],
 });
 

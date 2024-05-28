@@ -26,7 +26,7 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | 8 | Click on the 'Variables' button at the top |  Should be directed to the list of variables for the testNetworkofNetworks | | true |
 | 9| Click on the 'Overview' button at the top |Should be directed back to the home page for testNetworkofNetworks | | true |
 | 10 | Click on the 'Networks' button at the top | Should be directed to the list of networks with which testNetworkofNetworks is associated (testNetwork1, testNetwork2) | | true |
-| 11 | Click on testNetwork1 | Should be directed to the testNetwork1 detailed network page with description, website, list of cohorts and list of variables | | true |
+| 11 | Click on testNetwork1 | Should be directed to the testNetwork1 detailed network page with website, description, partners, funding & citation requirements, list of cohorts, list of data sources and list of variables | | true |
 | 12 | Click on the 'Overview' button at the top | Should be directed back to the home page for testNetworkofNetworks | | true |
-| 13 | Click on More --> About | Should be directed to the detailed network page for testNetworkofNetworks (THIS IS NOT THE SAME AS THE HOME PAGE!) with description, website, list of cohorts and list of variables | | true |
+| 13 | Click on More --> About | Should be directed to the detailed network page for testNetworkofNetworks (THIS IS NOT THE SAME AS THE HOME PAGE!) with website, description, partners, funding & citation requirements, list of cohorts and list of variables | | true |
 | 14 | Click on More --> Other catalogues | Should be directed to the landing page showing all thematic and project catalogues, entitled "European Health Research Data and Sample Catalogue" | | true |
