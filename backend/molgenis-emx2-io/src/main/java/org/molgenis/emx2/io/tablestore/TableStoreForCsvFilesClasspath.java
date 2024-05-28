@@ -13,6 +13,10 @@ public class TableStoreForCsvFilesClasspath implements TableAndFileStore {
   private final String directoryPath;
   private final Character separator;
 
+  private final String currentAbsPath = new File("").getAbsolutePath();
+  private final String projectRootPath =
+      currentAbsPath.substring(0, currentAbsPath.indexOf("backend"));
+
   public TableStoreForCsvFilesClasspath(String directoryPath, Character separator) {
     if (!directoryPath.startsWith("/")) {
       directoryPath = "/" + directoryPath;

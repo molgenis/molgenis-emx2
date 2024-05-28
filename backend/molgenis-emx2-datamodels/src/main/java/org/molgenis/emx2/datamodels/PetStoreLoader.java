@@ -4,6 +4,7 @@ import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.TableMetadata.table;
 
+import java.io.File;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.sql.SqlDatabase;
 
@@ -27,6 +28,13 @@ public class PetStoreLoader extends AbstractDataLoader {
   public static final String COLORS = "colors";
   public static final String SPECIES = "species";
   public static final String MAMMALS = "mammals";
+
+  private final String currentAbsPath = new File("").getAbsolutePath();
+  private final String projectRootPath =
+      currentAbsPath.substring(0, currentAbsPath.indexOf("backend"));
+  private static final String filesFolderRelativePath = "data/_demodata/applications/emx2/_files/";
+  private final File samplePicture =
+      new File(projectRootPath + filesFolderRelativePath + "bofke.jpg");
 
   public SchemaMetadata getSchemaMetadata() {
     SchemaMetadata schema = new SchemaMetadata();
@@ -205,6 +213,7 @@ public class PetStoreLoader extends AbstractDataLoader {
         .insert(
             new Row()
                 .set("username", "bofke")
+                .setBinary("picture", samplePicture)
                 .set("pets", "spike,pooky,the very hungry caterpillar,fire ant"));
 
     schema.addMember(SqlDatabase.ANONYMOUS, Privileges.VIEWER.toString());
