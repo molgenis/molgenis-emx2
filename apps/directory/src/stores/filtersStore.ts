@@ -208,7 +208,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     filterName: string,
     value: any,
     add: boolean,
-    fromBookmark: any
+    fromBookmark: any = false
   ) {
     bookmarkTriggeredFilter.value = fromBookmark;
 

@@ -7,7 +7,7 @@
       </span>
       <input
         @click.stop
-        @change="(event) => selectOption(event.target.checked, option)"
+        @change="(event) => selectOption(event.target?.checked, option)"
         type="checkbox"
         :ref="`${option.name}-checkbox`"
         class="mr-1"
@@ -94,16 +94,18 @@ export default {
         return false;
       else
         return this.currentFilterSelection.some(
-          (selectedValue) => selectedValue.name === this.option.name
+          (selectedValue: Record<string, any>) =>
+            selectedValue.name === this.option.name
         );
     },
     numberOfChildrenInSelection() {
       if (!this.option.children) return 0;
       const childNames = this.option.children.map(
-        (childOption) => childOption.name
+        (childOption: Record<string, any>) => childOption.name
       );
       const selectedChildren = this.currentFilterSelection.filter(
-        (selectedOption) => childNames.includes(selectedOption.name)
+        (selectedOption: Record<string, any>) =>
+          childNames.includes(selectedOption.name)
       );
       return selectedChildren.length;
     },
@@ -120,7 +122,7 @@ export default {
   },
 
   methods: {
-    selectOption(checked, option) {
+    selectOption(checked: boolean, option: Record<string, any>) {
       /** if it is checked we add */
       this.filtersStore.updateOntologyFilter(
         this.facetIdentifier,
@@ -128,7 +130,7 @@ export default {
         checked
       );
     },
-    signalParentOurIndeterminateStatus(status) {
+    signalParentOurIndeterminateStatus(status: boolean) {
       this.childIsIndeterminate = status;
       this.$emit("indeterminate-update", status);
     },
