@@ -20,14 +20,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, toRefs } from "vue";
 import { useFiltersStore } from "../../../stores/filtersStore";
 import TreeBranchComponent from "./TreeBranchComponent.vue";
 
 const filtersStore = useFiltersStore();
 const displaySize = 100;
 
-const { facetIdentifier, options, parentSelected, filter } = withDefaults(
+const props = withDefaults(
   defineProps<{
     facetIdentifier: string;
     options: any[];
@@ -37,11 +37,14 @@ const { facetIdentifier, options, parentSelected, filter } = withDefaults(
   { filter: "" }
 );
 
+const { facetIdentifier, options, parentSelected } = props;
+const { filter } = toRefs(props);
+
 const emit = defineEmits(["indeterminate-update"]);
 
 const filteredOptions = computed(() => {
   const sortedOptions = sortOptions(options);
-  return filterOptions(sortedOptions, filter);
+  return filterOptions(sortedOptions, filter.value);
 });
 
 const displayOptions = computed(() => {
