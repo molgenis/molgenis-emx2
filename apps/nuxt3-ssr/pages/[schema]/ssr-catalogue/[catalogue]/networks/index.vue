@@ -134,11 +134,9 @@ const networks = computed(() => {
     : data.value?.data?.Networks;
 });
 
-function setCurrentPage(pageNumber: number) {
-  router.push({
-    path: route.path,
-    query: { ...route.query, page: pageNumber },
-  });
+async function setCurrentPage(pageNumber: number) {
+  await navigateTo({ query: { ...route.query, page: pageNumber } });
+  window.scrollTo({ top: 0 });
 }
 
 function onFilterChange(filters: IFilter[]) {
