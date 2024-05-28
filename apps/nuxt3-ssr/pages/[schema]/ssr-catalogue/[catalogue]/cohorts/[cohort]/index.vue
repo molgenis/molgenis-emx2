@@ -286,11 +286,13 @@ let tocItems = computed(() => {
   if (cohort.value.datasets) {
     tableOffContents.push({ label: "Datasets", id: "Datasets" });
   }
-  if (cohort.value.networks) {
-    tableOffContents.push({ label: "Networks", id: "Networks" });
-  }
+
   if (cohort.value.additionalOrganisations) {
     tableOffContents.push({ label: "Partners", id: "Partners" });
+  }
+
+  if (cohort.value.networks) {
+    tableOffContents.push({ label: "Networks", id: "Networks" });
   }
 
   if (
