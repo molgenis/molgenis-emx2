@@ -25,6 +25,8 @@ public class GraphqlApiFactory {
     if (ParserOptions.getDefaultParserOptions().getMaxTokens() < 1000000) {
       ParserOptions.setDefaultParserOptions(
           ParserOptions.newParserOptions().maxTokens(1000000).build());
+      ParserOptions.setDefaultOperationParserOptions(
+          ParserOptions.newParserOptions().maxTokens(1000000).build());
     }
   }
 
