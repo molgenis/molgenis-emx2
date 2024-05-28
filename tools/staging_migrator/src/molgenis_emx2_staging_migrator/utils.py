@@ -149,10 +149,7 @@ def construct_delete_variables(db_schema: Schema, cohort_ids: list, table_name: 
         if isinstance(_pkey, str):
             return {"equals": [{_pkey: _id} for _id in cohort_ids]}
         if isinstance(_pkey, dict):
-            _key, _val = list(_pkey.items())[0]
-            for _key, _val in _pkey.items():
-                pass
-            return {_key: prepare_key_part(_val[0])}
+            return {_key: prepare_key_part(_val[0]) for (_key, _val) in _pkey.items()}
         if isinstance(_pkey, list):
             pass
 

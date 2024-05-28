@@ -194,16 +194,26 @@ class StagingMigrator(Client):
         """Queries the rows to be deleted from a table."""
         schema_meta: Schema = self.get_schema_metadata(self.catalogue)
         query = self.__construct_pkey_query(schema_meta, table_name)
-        variables = construct_delete_variables(self.get_schema_metadata(self.catalogue),
-                                               cohort_ids, table_name, ref_cols)
+        if isinstance(ref_cols, str):
+            ref_cols = [ref_cols]
+        data = dict()
+        for ref_col in ref_cols:
+            variables = construct_delete_variables(self.get_schema_metadata(self.catalogue),
+                                                   cohort_ids, table_name, ref_col)
 
-        response = self.session.post(url=f"{self.url}/{self.catalogue}/graphql",
-                                     json={"query": query, "variables": variables},
-                                     headers={'x-molgenis-token': self.token})
+            response = self.session.post(url=f"{self.url}/{self.catalogue}/graphql",
+                                         json={"query": query, "variables": variables},
+                                         headers={'x-molgenis-token': self.token})
 
-        data = response.json().get('data')
-        if data is None:
-            data = {}
+            _data = response.json().get('data')
+            for key, values in _data.items():
+                if key in data.keys():
+                    for row in values:
+                        if row not in _data[key]:
+                            data[key].append(row)
+                else:
+                    data[key] = values
+
         return data
 
     def _delete_table_entries(self, table_id: str, pkeys: list):
