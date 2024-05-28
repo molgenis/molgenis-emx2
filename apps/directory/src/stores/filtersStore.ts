@@ -76,7 +76,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
   });
 
   const hasActiveBiobankOnlyFilters = computed(() => {
-    return !!getFilterValue("Biobankservices");
+    return !!(getFilterValue("Biobankservices") || getFilterValue("Countries"));
   });
 
   let queryDelay: any;
