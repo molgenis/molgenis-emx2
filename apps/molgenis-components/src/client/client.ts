@@ -15,7 +15,7 @@ import { getColumnIds } from "./queryBuilder";
 // application wide cache for schema meta data
 const schemaCache = new Map<string, ISchemaMetaData>();
 
-export { request };
+export { request, fetchSchemaMetaData };
 const client: IClient = {
   newClient: (schemaId?: string): INewClient => {
     return {
@@ -273,7 +273,7 @@ const fetchTableData = async (
     : "";
 
   const schemaId = metaData.id;
-  const columnIds = getColumnIds(schemaId, tableId, metaData, expandLevel);
+  const columnIds = await getColumnIds(schemaId, tableId, expandLevel);
   const tableDataQuery = `query ${tableId}( $filter:${tableId}Filter, $orderby:${tableId}orderby ) {
         ${tableId}(
           filter:$filter,
