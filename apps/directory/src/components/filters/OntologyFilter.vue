@@ -22,7 +22,8 @@
         type="text"
         placeholder="Search a disease"
         class="ml-2 ontology-search"
-        v-model="ontologyQuery"
+        :value="ontologyQuery"
+        @input="handleSearchFieldChanged"
       />
     </div>
     <hr class="p-0 m-0" />
@@ -44,12 +45,13 @@
 </template>
 
 <script setup lang="ts">
+import { computed, ref } from "vue";
 import { useFiltersStore } from "../../stores/filtersStore";
 import TreeComponent from "./base/TreeComponent.vue";
-import { computed, ref } from "vue";
 //@ts-ignore
 import { Spinner } from "../../../../molgenis-components";
 import MatchTypeRadiobutton from "./base/MatchTypeRadiobutton.vue";
+import * as _ from "lodash";
 
 const filtersStore = useFiltersStore();
 
@@ -100,6 +102,11 @@ let displayOptions = computed(() => {
   }
   return matchingOptions;
 });
+
+const handleSearchFieldChanged = _.debounce((event: any) => {
+  const newFilter = event.target?.value;
+  ontologyQuery.value = newFilter || "";
+}, 300);
 </script>
 
 <style scoped>

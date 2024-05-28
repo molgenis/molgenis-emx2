@@ -72,7 +72,7 @@ export default {
   },
   data() {
     return {
-      open: false,
+      open: !!this.filter,
       childIsIndeterminate: false,
       selectedChildren: [],
     };
@@ -80,6 +80,9 @@ export default {
   watch: {
     indeterminateState(status) {
       this.signalParentOurIndeterminateStatus(status);
+    },
+    filter(newFilter) {
+      this.open = !!newFilter;
     },
   },
   computed: {

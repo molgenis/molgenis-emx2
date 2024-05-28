@@ -10,7 +10,7 @@
       />
     </div>
     <span
-      v-if="filteredOptions.length > 100"
+      v-if="filteredOptions.length > displaySize"
       class="badge badge-info mx-5 mb-2"
     >
       Too many results, showing the first {{ displaySize }}. Please use the
