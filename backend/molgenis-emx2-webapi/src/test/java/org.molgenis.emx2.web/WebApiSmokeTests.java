@@ -1285,6 +1285,12 @@ public class WebApiSmokeTests {
         .get("/pet store/api/csv/" + table.getIdentifier());
   }
 
+  @Test
+  void testProfileApi() {
+    String result = result = given().get("/api/profiles").getBody().asString();
+    assertTrue(result.contains("Samples"));
+  }
+
   private Row waitForScriptToComplete(String scriptName) throws InterruptedException {
     Table jobs = db.getSchema(SYSTEM_SCHEMA).getTable("Jobs");
     Filter f = f("script", f("name", EQUALS, scriptName));
