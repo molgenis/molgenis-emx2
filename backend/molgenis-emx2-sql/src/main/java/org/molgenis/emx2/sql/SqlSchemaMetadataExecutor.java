@@ -224,6 +224,8 @@ class SqlSchemaMetadataExecutor {
       Collections.reverse(tables);
       tables.forEach(table -> executeDropTable(db.getJooq(), table.getMetadata()));
 
+      db.getJooq().execute("DROP COLLATION IF EXISTS {0}.numeric;", name(schemaName));
+
       // drop schema
       db.getJooq().dropSchema(name(schemaName)).execute();
 
