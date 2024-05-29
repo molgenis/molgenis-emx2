@@ -9,7 +9,7 @@ profileTags:  GDI T8.2 union,
               FAIR Genomes,
               Beacon v2
 
-demoData: _demodata/gdi
+demoData: _demodata/applications/gdi
 
 # special options
 setViewPermission: anonymous
