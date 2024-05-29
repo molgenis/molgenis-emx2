@@ -1,0 +1,10 @@
+id,sex,age_age_iso8601duration,diseases,phenotypicFeatures
+P0007498,assigned male at birth,11.1654,"P0007498-0,P0007498-1","P0007498-0,P0007498-1,P0007498-2,P0007498-3,P0007498-4,P0007498-5,P0007498-6,P0007498-7,P0007498-8,P0007498-9"
+P0007499,assigned male at birth,,,
+P0007500,assigned female at birth,,,
+P0007501,assigned male at birth,,,
+P0007502,assigned male at birth,,,
+P0007503,assigned female at birth,,,"P0007503-0,P0007503-1,P0007503-2,P0007503-3,P0007503-4"
+P0007504,assigned male at birth,22.1963,,"P0007504-0,P0007504-1,P0007504-2,P0007504-3"
+P0007505,assigned male at birth,,,
+P0007506,assigned female at birth,,,
