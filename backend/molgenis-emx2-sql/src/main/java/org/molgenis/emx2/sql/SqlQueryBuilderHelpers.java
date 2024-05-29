@@ -56,7 +56,8 @@ class SqlQueryBuilderHelpers {
       Column column, Order order, SelectConnectByStep<org.jooq.Record> query) {
     final Field<?> field =
         isCaseSensitiveField(column) ? lower(column.getJooqField()) : column.getJooqField();
-    final SortField<?> sortField = ASC.equals(order) ? field.asc() : field.desc();
+    var collatedField = field.collate("numeric");
+    final SortField<?> sortField = ASC.equals(order) ? collatedField.asc() : collatedField.desc();
     return (SelectJoinStep<org.jooq.Record>) query.orderBy(sortField);
   }
 
