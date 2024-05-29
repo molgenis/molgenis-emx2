@@ -196,11 +196,10 @@ public class Filter {
   public String getGraphQlFilter() {
     StringBuilder filter = new StringBuilder();
 
-    for (String value : getValues()) {
-      if (concept != null) {
-        filter.append(this.concept.getGraphQlQuery().formatted(value)).append(",");
-      }
+    if (concept != null) {
+      filter.append(this.concept.getGraphQlQuery().formatted(getValues())).append(",");
     }
+
     filter.deleteCharAt(filter.length() - 1);
     return filter.toString();
   }

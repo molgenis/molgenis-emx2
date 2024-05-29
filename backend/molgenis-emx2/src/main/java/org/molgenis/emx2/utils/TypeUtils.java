@@ -15,6 +15,7 @@ import java.util.stream.Stream;
 import org.jooq.DataType;
 import org.jooq.JSONB;
 import org.jooq.impl.SQLDataType;
+import org.jooq.types.YearToSecond;
 import org.molgenis.emx2.*;
 
 public class TypeUtils {
@@ -185,6 +186,18 @@ public class TypeUtils {
 
   public static LocalDate[] toDateArray(Object v) {
     return (LocalDate[]) processArray(v, TypeUtils::toDate, LocalDate[]::new, LocalDate.class);
+  }
+
+  public static YearToSecond toYearToSecond(Object v) {
+    if (v == null) return null;
+    if (v instanceof YearToSecond yearToSecond) return yearToSecond;
+    if (v instanceof Period period) return YearToSecond.valueOf(period);
+    return YearToSecond.valueOf(toPeriod(v));
+  }
+
+  public static YearToSecond[] toYearToSecondArray(Object v) {
+    return (YearToSecond[])
+        processArray(v, TypeUtils::toYearToSecond, YearToSecond[]::new, YearToSecond.class);
   }
 
   public static Period toPeriod(Object v) {

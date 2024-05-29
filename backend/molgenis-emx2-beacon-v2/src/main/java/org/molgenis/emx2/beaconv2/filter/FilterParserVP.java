@@ -82,7 +82,10 @@ public class FilterParserVP implements FilterParser {
             case DISEASE, PHENOTYPE:
               processOntologyFilter(filter);
               break;
-            case AGE_THIS_YEAR, AGE_OF_ONSET, AGE_AT_DIAG:
+            case AGE_THIS_YEAR:
+              processAgeFilter(filter);
+              break;
+            case AGE_OF_ONSET, AGE_AT_DIAG:
               filter.setFilterType(FilterType.NUMERICAL);
               postFetchFilters.add(filter);
               break;
@@ -96,6 +99,24 @@ public class FilterParserVP implements FilterParser {
 
   private void processOntologyFilter(Filter filter) {
     filter.setFilterType(FilterType.ONTOLOGY);
+    graphQlFilters.add(filter);
+  }
+
+  private void processAgeFilter(Filter filter) {
+    filter.setFilterType(FilterType.NUMERICAL);
+    String age = filter.getValues()[0];
+    String iso8106Duration = "\"P" + age + "Y\"";
+    switch (filter.getOperator()) {
+      case ">", ">=":
+        filter.setValues(new String[] {iso8106Duration, null});
+        break;
+      case "<", "<=":
+        filter.setValues(new String[] {null, iso8106Duration});
+        break;
+      case "=":
+        filter.setValues(new String[] {iso8106Duration, iso8106Duration});
+        break;
+    }
     graphQlFilters.add(filter);
   }
 

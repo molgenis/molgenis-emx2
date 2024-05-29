@@ -3,7 +3,8 @@ import { IRow } from "../../../Interfaces/IRow";
 import constants from "../../constants.js";
 import { deepClone, filterObject } from "../../utils";
 
-const { EMAIL_REGEX, HYPERLINK_REGEX, AUTO_ID, HEADING } = constants;
+const { EMAIL_REGEX, HYPERLINK_REGEX, PERIOD_REGEX, AUTO_ID, HEADING } =
+  constants;
 
 export function getRowErrors(
   tableMetaData: ITableMetaData,
@@ -68,6 +69,12 @@ function getColumnError(
   }
   if (type === "HYPERLINK_ARRAY" && containsInvalidHyperlink(value)) {
     return "Invalid hyperlink";
+  }
+  if (type === "PERIOD" && !isValidPeriod(value)) {
+    return "Invalid Period: should start with a P and should contain at least a Y(year), M(month) or D(day): e.g. 'P1Y3M14D'";
+  }
+  if (type === "PERIOD_ARRAY" && containsInvalidPeriod(value)) {
+    return "Invalid Period: should start with a P and should contain at least a Y(year), M(month) or D(day): e.g. 'P1Y3M14D'";
   }
   if (column.validation) {
     return getColumnValidationError(column.validation, rowData, tableMetaData);
@@ -225,6 +232,14 @@ function isValidEmail(value: any) {
 
 function containsInvalidEmail(emails: any) {
   return emails.find((email: any) => !isValidEmail(email));
+}
+
+function isValidPeriod(value: any) {
+  return PERIOD_REGEX.test(String(value));
+}
+
+function containsInvalidPeriod(periods: any) {
+  return periods.find((period: any) => !isValidPeriod(period));
 }
 
 export function removeKeyColumns(tableMetaData: ITableMetaData, rowData: IRow) {

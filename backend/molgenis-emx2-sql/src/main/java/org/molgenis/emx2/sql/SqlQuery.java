@@ -1117,7 +1117,7 @@ public class SqlQuery extends QueryBean {
       case DECIMAL -> whereConditionOrdinal(name, operator, toDecimalArray(values));
       case DATE -> whereConditionOrdinal(name, operator, toDateArray(values));
       case DATETIME -> whereConditionOrdinal(name, operator, toDateTimeArray(values));
-      case PERIOD -> whereConditionOrdinal(name, operator, toPeriodArray(values));
+      case PERIOD -> whereConditionOrdinal(name, operator, toYearToSecondArray(values));
       case STRING_ARRAY, TEXT_ARRAY -> whereConditionTextArray(
           name, operator, toStringArray(values));
       case BOOL_ARRAY -> whereConditionArrayEquals(name, operator, toBoolArray(values));
@@ -1127,7 +1127,7 @@ public class SqlQuery extends QueryBean {
       case DECIMAL_ARRAY -> whereConditionArrayEquals(name, operator, toDecimalArray(values));
       case DATE_ARRAY -> whereConditionArrayEquals(name, operator, toDateArray(values));
       case DATETIME_ARRAY -> whereConditionArrayEquals(name, operator, toDateTimeArray(values));
-      case PERIOD_ARRAY -> whereConditionArrayEquals(name, operator, toPeriodArray(values));
+      case PERIOD_ARRAY -> whereConditionArrayEquals(name, operator, toYearToSecondArray(values));
       case JSONB_ARRAY -> whereConditionArrayEquals(name, operator, toJsonbArray(values));
       case REF -> whereConditionRefEquals(name, operator, values);
       default -> throw new SqlQueryException(

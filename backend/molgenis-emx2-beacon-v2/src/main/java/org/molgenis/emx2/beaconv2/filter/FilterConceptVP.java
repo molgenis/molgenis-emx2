@@ -11,7 +11,7 @@ import org.molgenis.emx2.MolgenisException;
  * href="https://github.com/ejp-rd-vp/vp-api-specs">vp-api-specs</a>
  */
 public enum FilterConceptVP {
-  AGE_THIS_YEAR("ncit:C83164"),
+  AGE_THIS_YEAR("ncit:C83164", "{ age_age_iso8601duration: { between: [%s, %s] } }"),
   AGE_OF_ONSET("ncit:C124353"),
   AGE_AT_DIAG("ncit:C156420"),
   CAUSAL_GENE("edam:data_2295", "{ diseaseCausalGenes: { name: { equals: \"%s\" } } }"),
