@@ -12,7 +12,7 @@
         <button
           v-for="ontologyId of ontologyIdentifiers"
           :key="ontologyId + '-button'"
-          @click="selectedOntology = ontologyId"
+          @click="setSelectedOntology(ontologyId)"
           :class="{ active: selectedOntology === ontologyId }"
         >
           {{ ontologyId }}
@@ -107,6 +107,10 @@ const handleSearchFieldChanged = _.debounce((event: any) => {
   const newFilter = event.target?.value;
   ontologyQuery.value = newFilter || "";
 }, 500);
+
+function setSelectedOntology(ontologyId: string) {
+  selectedOntology.value = ontologyId;
+}
 </script>
 
 <style scoped>

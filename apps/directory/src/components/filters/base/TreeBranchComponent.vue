@@ -91,18 +91,22 @@ export default {
       return this.filtersStore.getFilterValue(this.facetIdentifier) || [];
     },
     selected() {
-      if (this.parentSelected) return true;
-
-      if (!this.currentFilterSelection || !this.currentFilterSelection.length)
+      if (this.parentSelected) {
+        return true;
+      } else if (!this.currentFilterSelection?.length) {
         return false;
-      else
+      } else {
         return this.currentFilterSelection.some(
           (selectedValue: Record<string, any>) =>
             selectedValue.name === this.option.name
         );
+      }
     },
     numberOfChildrenInSelection() {
-      if (!this.option.children) return 0;
+      if (!this.option.children) {
+        return 0;
+      }
+
       const childNames = this.option.children.map(
         (childOption: Record<string, any>) => childOption.name
       );

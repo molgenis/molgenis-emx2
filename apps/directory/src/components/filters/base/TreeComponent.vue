@@ -37,13 +37,13 @@ const props = withDefaults(
   { filter: "" }
 );
 
-const { facetIdentifier, options, parentSelected } = props;
-const { filter } = toRefs(props);
+const { facetIdentifier, parentSelected } = props;
+const { filter, options } = toRefs(props);
 
 const emit = defineEmits(["indeterminate-update"]);
 
 const filteredOptions = computed(() => {
-  const sortedOptions = sortOptions(options);
+  const sortedOptions = sortOptions(options.value);
   return filterOptions(sortedOptions, filter.value);
 });
 
