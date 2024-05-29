@@ -27,7 +27,7 @@
       />
     </div>
     <hr class="p-0 m-0" />
-    <div class="ontology pt-3 d-flex justify-content-center">
+    <div class="ontology pt-3 d-flex">
       <template v-for="ontologyId of ontologyIdentifiers" :key="ontologyId">
         <div v-show="selectedOntology === ontologyId">
           <spinner class="mt-4 mb-5" v-if="!resolvedOptions" />
@@ -106,7 +106,7 @@ let displayOptions = computed(() => {
 const handleSearchFieldChanged = _.debounce((event: any) => {
   const newFilter = event.target?.value;
   ontologyQuery.value = newFilter || "";
-}, 300);
+}, 500);
 </script>
 
 <style scoped>
