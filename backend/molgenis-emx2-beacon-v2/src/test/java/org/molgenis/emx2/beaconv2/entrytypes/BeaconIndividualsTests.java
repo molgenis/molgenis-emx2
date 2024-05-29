@@ -1,6 +1,7 @@
-package org.molgenis.emx2.beaconv2;
+package org.molgenis.emx2.beaconv2.entrytypes;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -8,263 +9,16 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.molgenis.emx2.Database;
-import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.Table;
-import org.molgenis.emx2.beaconv2.endpoints.*;
+import org.molgenis.emx2.beaconv2.EntryType;
+import org.molgenis.emx2.beaconv2.QueryEntryType;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
-import org.molgenis.emx2.datamodels.ProfileLoader;
 import org.molgenis.emx2.json.JsonUtil;
-import org.molgenis.emx2.sql.TestDatabaseFactory;
 import spark.QueryParamsMap;
 import spark.Request;
 
-@Tag("slow")
-public class Beaconv2_ModelEndpointsTest {
-
-  static Database database;
-  static Schema beaconSchema;
-  static List<Table> tables;
-
-  @BeforeAll
-  public static void setup() {
-    database = TestDatabaseFactory.getTestDatabase();
-    // beaconSchema = database.getSchema("fairdatahub");
-    beaconSchema = database.dropCreateSchema("fairdatahub");
-    ProfileLoader b2l = new ProfileLoader("_profiles/FAIRDataHub.yaml");
-    b2l.load(beaconSchema, true);
-    tables = List.of(beaconSchema.getTable("Individuals"));
-  }
-
-  @Test
-  void testFilteringTerms() throws Exception {
-    FilteringTerms filteringTerms = new FilteringTerms(database);
-    String json = JsonUtil.getWriter().writeValueAsString(filteringTerms);
-    assertTrue(json.contains("\"entityType\" : \"filteringterms\""));
-    assertTrue(json.contains("\"filteringTerms\" : ["));
-    assertTrue(json.contains("\"type\" : \"alphanumeric\","));
-    assertTrue(json.contains("\"id\" : \"position_assemblyId\","));
-    assertTrue(json.contains("\"scope\" : \"genomicVariations\""));
-    assertTrue(json.contains("\"type\" : \"ontology\","));
-    assertTrue(json.contains("\"id\" : \"NCIT:C124261\","));
-    assertTrue(json.contains("\"label\" : \"Whole Transcriptome Sequencing\","));
-    assertTrue(json.contains("\"scope\" : \"runs\""));
-  }
-
-  private Request mockEntryTypeRequest(String entryType, Map<String, String[]> queryParams) {
-    Request request = mock(Request.class);
-    when(request.url()).thenReturn("http://localhost:8080/api/beacon");
-    when(request.attribute("specification")).thenReturn("beacon");
-    Map<String, String> urlParams = Map.of(":entry_type", entryType);
-    when(request.params()).thenReturn(urlParams);
-    when(request.queryMap()).thenReturn(Mockito.mock(QueryParamsMap.class));
-    when(request.queryMap().toMap()).thenReturn(queryParams);
-
-    return request;
-  }
-
-  @Test
-  public void testGenomicVariants_SequenceQuery() throws Exception {
-    Request request =
-        mockEntryTypeRequest(
-            "g_variants",
-            Map.of(
-                "referenceName", new String[] {"20"},
-                "start", new String[] {"2447955"},
-                "referenceBases", new String[] {"c"},
-                "alternateBases", new String[] {"g"}));
-    BeaconRequestBody requestBody = new BeaconRequestBody(request);
-    QueryEntryType queryEntryType = new QueryEntryType(requestBody);
-    JsonNode result = queryEntryType.query(database);
-    String json = JsonUtil.getWriter().writeValueAsString(result);
-    assertTrue(json.contains("\"variantInternalId\" : \"20:2447955..2447958c>g\","));
-    assertTrue(json.contains("\"resultsCount\" : 1,"));
-  }
-
-  @Test
-  public void testGenomicVariants_NoHits() throws Exception {
-    Request request =
-        mockEntryTypeRequest(
-            "g_variants",
-            Map.of(
-                "referenceName", new String[] {"20"},
-                "start", new String[] {"2447955"},
-                "referenceBases", new String[] {"c"},
-                "alternateBases", new String[] {"a"}));
-    BeaconRequestBody requestBody = new BeaconRequestBody(request);
-    QueryEntryType queryEntryType = new QueryEntryType(requestBody);
-    JsonNode result = queryEntryType.query(database);
-    String json = JsonUtil.getWriter().writeValueAsString(result);
-
-    assertTrue(json.contains("\"response\" : {\n" + "    \"resultSets\" : [ ]"));
-    assertFalse(json.contains("\"variantInternalId\" : \"20:2447955..2447958c>g\","));
-    assertFalse(json.contains("\"resultsCount\" : 1,"));
-  }
-
-  @Test
-  public void testGenomicVariants_RangeQuery() throws Exception {
-    Request request =
-        mockEntryTypeRequest(
-            "g_variants",
-            Map.of(
-                "start", new String[] {"2447952"},
-                "end", new String[] {"2447955"},
-                "referenceName", new String[] {"20"}));
-
-    BeaconRequestBody requestBody = new BeaconRequestBody(request);
-
-    QueryEntryType queryEntryType = new QueryEntryType(requestBody);
-    JsonNode result = queryEntryType.query(database);
-    String json = JsonUtil.getWriter().writeValueAsString(result);
-    assertTrue(json.contains("\"resultsCount\" : 2,"));
-    assertTrue(json.contains("\"variantInternalId\" : \"20:2447951..2447952c>g\","));
-    assertTrue(json.contains("\"variantInternalId\" : \"20:2447955..2447958c>g\","));
-  }
-
-  @Test
-  public void testGenomicVariants_GeneIdQuery() throws Exception {
-    Request request = mockEntryTypeRequest("g_variants", Map.of("geneId", new String[] {"SNRPB"}));
-    BeaconRequestBody requestBody = new BeaconRequestBody(request);
-    QueryEntryType queryEntryType = new QueryEntryType(requestBody);
-    JsonNode result = queryEntryType.query(database);
-
-    String json = JsonUtil.getWriter().writeValueAsString(result);
-    assertTrue(json.contains("\"resultsCount\" : 3,"));
-    assertTrue(json.contains("\"variantInternalId\" : \"20:2447951..2447952c>g\","));
-    assertTrue(json.contains("\"variantInternalId\" : \"20:2447955..2447958c>g\","));
-    assertTrue(json.contains("\"variantInternalId\" : \"20:2447946..2447950c>g\","));
-    assertTrue(json.contains("\"id\" : \"Orphanet:391665\""));
-    assertTrue(json.contains("clinicalRelevance"));
-  }
-
-  @Test
-  public void testGenomicVariants_BracketQuery() throws Exception {
-    Request request =
-        mockEntryTypeRequest(
-            "g_variants",
-            Map.of(
-                "start", new String[] {"2447945,2447951"},
-                "end", new String[] {"2447952,2447953"},
-                "referenceName", new String[] {"20"}));
-    BeaconRequestBody requestBody = new BeaconRequestBody(request);
-    QueryEntryType queryEntryType = new QueryEntryType(requestBody);
-    JsonNode result = queryEntryType.query(database);
-    String json = JsonUtil.getWriter().writeValueAsString(result);
-    assertTrue(json.contains("\"resultsCount\" : 1,"));
-    assertTrue(json.contains("\"variantInternalId\" : \"20:2447951..2447952c>g\","));
-  }
-
-  @Test
-  public void testAnalyses_NoParams() throws Exception {
-    Request request = mockEntryTypeRequest("analyses", new HashMap<>());
-    BeaconRequestBody requestBody = new BeaconRequestBody(request);
-
-    QueryEntryType queryEntryType = new QueryEntryType(requestBody);
-    JsonNode analyses = queryEntryType.query(database);
-    String json = JsonUtil.getWriter().writeValueAsString(analyses);
-    assertTrue(json.contains("\"resultsCount\" : 5,"));
-  }
-
-  @Test
-  public void testAnalyses_NoHits() throws Exception {
-    Request request =
-        mockEntryTypeRequest(EntryType.ANALYSES.getId(), Map.of("id", new String[] {"A05"}));
-    BeaconRequestBody requestBody = new BeaconRequestBody(request);
-
-    QueryEntryType queryEntryType = new QueryEntryType(requestBody);
-    JsonNode analyses = queryEntryType.query(database);
-    String json = JsonUtil.getWriter().writeValueAsString(analyses);
-    assertTrue(json.contains("\"response\" : {\n" + "    \"resultSets\" : [ ]"));
-  }
-
-  @Test
-  public void testAnalyses_IdQuery() throws Exception {
-    Request request =
-        mockEntryTypeRequest(EntryType.ANALYSES.getId(), Map.of("id", new String[] {"A03"}));
-    BeaconRequestBody requestBody = new BeaconRequestBody(request);
-
-    QueryEntryType queryEntryType = new QueryEntryType(requestBody);
-    JsonNode analyses = queryEntryType.query(database);
-    String json = JsonUtil.getWriter().writeValueAsString(analyses);
-    assertTrue(json.contains("\"id\" : \"A03\","));
-    assertTrue(json.contains("\"resultsCount\" : 1,"));
-  }
-
-  @Test
-  public void testBiosamples_NoParams() throws Exception {
-    Request request = mockEntryTypeRequest(EntryType.BIOSAMPLES.getId(), new HashMap<>());
-    BeaconRequestBody requestBody = new BeaconRequestBody(request);
-
-    QueryEntryType queryEntryType = new QueryEntryType(requestBody);
-    JsonNode biosamples = queryEntryType.query(database);
-    String json = JsonUtil.getWriter().writeValueAsString(biosamples);
-
-    assertTrue(json.contains("\"resultsCount\" : 3,"));
-    assertTrue(json.contains("obtentionProcedure"));
-    assertTrue(json.contains("procedureCode"));
-    assertTrue(json.contains("\"id\" : \"OBI:0002654\""));
-    assertTrue(json.contains("\"label\" : \"needle biopsy\""));
-  }
-
-  @Test
-  public void testBiosamples_NoHits() throws Exception {
-    Request request =
-        mockEntryTypeRequest(
-            EntryType.BIOSAMPLES.getId(), Map.of("id", new String[] {"Sample0003"}));
-    BeaconRequestBody requestBody = new BeaconRequestBody(request);
-
-    QueryEntryType queryEntryType = new QueryEntryType(requestBody);
-    JsonNode biosamples = queryEntryType.query(database);
-    String json = JsonUtil.getWriter().writeValueAsString(biosamples);
-
-    assertTrue(json.contains("\"response\" : {\n" + "    \"resultSets\" : [ ]"));
-  }
-
-  @Test
-  public void testBiosamples_IdQuery() throws Exception {
-    Request request =
-        mockEntryTypeRequest(
-            EntryType.BIOSAMPLES.getId(), Map.of("id", new String[] {"Sample0002"}));
-    BeaconRequestBody requestBody = new BeaconRequestBody(request);
-
-    QueryEntryType queryEntryType = new QueryEntryType(requestBody);
-    JsonNode biosamples = queryEntryType.query(database);
-    String json = JsonUtil.getWriter().writeValueAsString(biosamples);
-    assertTrue(json.contains("\"id\" : \"Sample0002\","));
-    assertTrue(json.contains("\"resultsCount\" : 1,"));
-  }
-
-  @Test
-  public void testCohorts_NoParams() throws Exception {
-    Request request = mockEntryTypeRequest(EntryType.COHORTS.getId(), new HashMap<>());
-    BeaconRequestBody requestBody = new BeaconRequestBody(request);
-
-    QueryEntryType queryEntryType = new QueryEntryType(requestBody);
-    JsonNode cohorts = queryEntryType.query(database);
-
-    String json = JsonUtil.getWriter().writeValueAsString(cohorts);
-    assertTrue(json.contains("\"id\" : \"Cohort0001\""));
-    assertTrue(json.contains("\"id\" : \"ISO3166:FR\""));
-  }
-
-  @Test
-  public void testCohorts_NoHits() throws Exception {
-    Request request =
-        mockEntryTypeRequest(EntryType.COHORTS.getId(), Map.of("id", new String[] {"Cohort0003"}));
-    BeaconRequestBody requestBody = new BeaconRequestBody(request);
-
-    QueryEntryType queryEntryType = new QueryEntryType(requestBody);
-    JsonNode cohorts = queryEntryType.query(database);
-
-    String json = JsonUtil.getWriter().writeValueAsString(cohorts);
-    assertTrue(json.contains("\"collections\" : [ ]"));
-  }
+public class BeaconIndividualsTests extends BeaconModelEndPointTest {
 
   @Test
   public void testIndividuals_NoParams() {
@@ -298,42 +52,6 @@ public class Beaconv2_ModelEndpointsTest {
     JsonNode results = json.get("response").get("resultSets").get(0).get("results");
     assertEquals(1, results.size());
     assertEquals(results.get(0).get("id").textValue(), "Ind001");
-  }
-
-  @Test
-  public void testRunsOfIndividual_pathQuery_twoResults() {
-    Request request = mock(Request.class);
-    when(request.url()).thenReturn("http://localhost:8080/api/beacon");
-    Map<String, String> urlParams =
-        Map.of(
-            ":entry_type_id", EntryType.INDIVIDUALS.getId(),
-            ":entry_type", EntryType.RUNS.getId(),
-            ":id", "Ind001");
-
-    when(request.params()).thenReturn(urlParams);
-    when(request.queryMap()).thenReturn(mock(QueryParamsMap.class));
-    when(request.queryMap().toMap()).thenReturn(new HashMap<>());
-    when(request.attribute("specification")).thenReturn("beacon");
-
-    BeaconRequestBody requestBody = new BeaconRequestBody(request);
-
-    QueryEntryType queryEntryType = new QueryEntryType(requestBody);
-    JsonNode json = queryEntryType.query(database);
-
-    JsonNode results = json.get("response").get("resultSets").get(0).get("results");
-    assertEquals(2, results.size());
-    assertEquals(results.get(0).get("individualId").textValue(), "Ind001");
-    assertEquals(results.get(1).get("individualId").textValue(), "Ind001");
-  }
-
-  private JsonNode doIndividualsPostRequest(String body) throws JsonProcessingException {
-    Request request = mockEntryTypeRequest(EntryType.INDIVIDUALS.getId(), new HashMap<>());
-    ObjectMapper mapper = new ObjectMapper();
-    BeaconRequestBody beaconRequest = mapper.readValue(body, BeaconRequestBody.class);
-    beaconRequest.addRequestParameters(request);
-
-    QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
-    return queryEntryType.query(database);
   }
 
   @Test
@@ -402,7 +120,7 @@ public class Beaconv2_ModelEndpointsTest {
                             }
                           }""");
     assertEquals("[NCIT_C28421]", json.get("info").get("unsupportedFilters").textValue());
-    assertEquals(true, json.get("responseSummary").get("exists").booleanValue());
+    assertTrue(json.get("responseSummary").get("exists").booleanValue());
 
     JsonNode results = json.get("response").get("resultSets").get(0).get("results");
     assertEquals(5, results.size());
@@ -980,32 +698,13 @@ public class Beaconv2_ModelEndpointsTest {
     assertEquals(5, results.size());
   }
 
-  @Test
-  public void testPostGenomicVariant() throws Exception {
-    Request request = mockEntryTypeRequest(EntryType.GENOMIC_VARIANT.getName(), new HashMap<>());
+  private JsonNode doIndividualsPostRequest(String body) throws JsonProcessingException {
+    Request request = mockEntryTypeRequest(EntryType.INDIVIDUALS.getId(), new HashMap<>());
     ObjectMapper mapper = new ObjectMapper();
-    String body =
-        """
-                        {
-                          "query": {
-                            "requestParameters": {
-                              "geneId": "SNORD119"
-                            },
-                            "filters": [],
-                            "includeResultsetResponses": "ALL",
-                            "pagination": {
-                            "skip": 0,
-                              "limit": 0
-                            },
-                            "testMode": false,
-                            "requestedGranularity": "record"
-                          }
-                        }""";
     BeaconRequestBody beaconRequest = mapper.readValue(body, BeaconRequestBody.class);
     beaconRequest.addRequestParameters(request);
+
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
-    JsonNode json = queryEntryType.query(database);
-    JsonNode results = json.get("response").get("resultSets").get(0).get("results");
-    assertEquals(3, results.size());
+    return queryEntryType.query(database);
   }
 }
