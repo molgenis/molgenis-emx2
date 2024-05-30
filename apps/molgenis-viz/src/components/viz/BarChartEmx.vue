@@ -31,7 +31,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onBeforeMount, watch } from "vue";
+import { ref, onBeforeMount, watch, computed } from "vue";
 import { gql } from "graphql-tag";
 import { request } from "graphql-request";
 import type { BarChartParams } from "../../interfaces/viz.ts";
@@ -50,6 +50,11 @@ const props = defineProps<BarChartParams>();
 const emit = defineEmits<{
   (e: "viz-data-clicked", row: object): void;
 }>();
+
+const graphqlEndpoint = computed<string>(() => {
+  const root: string = props.schema ? `/${props.schema}` : "..";
+  return `${root}/api/graphql`;
+});
 
 const chartLoading = ref<boolean>(true);
 const chartSuccess = ref<boolean>(false);
@@ -79,7 +84,7 @@ async function fetchChartData() {
   chartError.value = null;
 
   try {
-    const response = await request("../api/graphql", chartDataQuery.value);
+    const response = await request(graphqlEndpoint.value, chartDataQuery.value);
     const data = await response[props.table as string];
     chartData.value = await prepareChartData({
       data: data,

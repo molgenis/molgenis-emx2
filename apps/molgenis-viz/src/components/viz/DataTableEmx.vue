@@ -16,7 +16,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onBeforeMount, watch } from "vue";
+import { ref, onBeforeMount, watch, computed } from "vue";
 import { gql } from "graphql-tag";
 import { request } from "graphql-request";
 
@@ -43,6 +43,11 @@ const props = withDefaults(defineProps<DataTableParams>(), {
 const emit = defineEmits<{
   (e: "viz-data-clicked", row: object): void;
 }>();
+
+const graphqlEndpoint = computed<string>(() => {
+  const root: string = props.schema ? `/${props.schema}` : "..";
+  return `${root}/api/graphql`;
+});
 
 const tableLoading = ref<boolean>(true);
 const tableSuccess = ref<boolean>(false);
@@ -78,7 +83,7 @@ async function fetchChartData() {
   tableError.value = null;
 
   try {
-    const response = await request("../api/graphql", tableDataQuery.value);
+    const response = await request(graphqlEndpoint.value, tableDataQuery.value);
     const data = await response[props.table as string];
     tableData.value = await prepareChartData({
       data: data,
