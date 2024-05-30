@@ -58,19 +58,31 @@ public class QueryEntryType {
         ObjectNode resultSet = mapper.createObjectNode();
         resultSet.put("id", table.getSchema().getName());
 
-        ArrayNode resultsArray = doGraphQlQuery(table, filterParser.getGraphQlFilters());
-        if (hasResult(resultsArray)) {
-          numTotalResults += resultsArray.size();
-          switch (granularity) {
-            case RECORD, UNDEFINED:
+        switch (granularity) {
+          case RECORD, UNDEFINED:
+            ArrayNode resultsArray = doGraphQlQuery(table, filterParser.getGraphQlFilters());
+            if (hasResult(resultsArray)) {
+              numTotalResults += resultsArray.size();
               ArrayNode paginatedResults = paginateResults(resultsArray);
               resultSet.set("results", paginatedResults);
-            case COUNT, AGGREGATED:
               resultSet.put("count", resultsArray.size());
-          }
-          resultSets.add(resultSet);
-        } else if (includeStrategy.equals(IncludedResultsetResponses.ALL)) {
-          resultSets.add(resultSet);
+              resultSets.add(resultSet);
+            } else if (includeStrategy.equals(IncludedResultsetResponses.ALL)) {
+              resultSets.add(resultSet);
+            }
+            break;
+          case BOOLEAN, COUNT, AGGREGATED:
+            int count = doCountQuery(table, filterParser.getGraphQlFilters());
+            if (count > 0) {
+              resultSet.put("exist", true);
+              numTotalResults += count;
+              if (!granularity.equals(Granularity.BOOLEAN)) {
+                resultSet.put("count", count);
+              }
+              resultSets.add(resultSet);
+            } else if (includeStrategy.equals(IncludedResultsetResponses.ALL)) {
+              resultSets.add(resultSet);
+            }
         }
       }
     }
@@ -134,6 +146,16 @@ public class QueryEntryType {
     if (entryTypeResult == null || entryTypeResult.isNull()) return null;
 
     return (ArrayNode) entryTypeResult;
+  }
+
+  private int doCountQuery(Table table, List<String> filters) {
+    GraphQL graphQL = new GraphqlApiFactory().createGraphqlForSchema(table.getSchema());
+    String graphQlQuery = new QueryBuilder(table).addFilters(filters).getCountQuery();
+
+    ExecutionResult result = graphQL.execute(graphQlQuery);
+    JsonNode results = mapper.valueToTree(result.getData());
+
+    return results.get(entryType.getId() + "_agg").get("count").intValue();
   }
 
   private ArrayNode paginateResults(ArrayNode results) {

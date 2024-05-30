@@ -65,6 +65,19 @@ public class QueryBuilder {
     return query.toString();
   }
 
+  public String getCountQuery() {
+    query = new StringBuilder("{");
+    query.append(table.getName()).append("_agg");
+
+    if (filters != null && !filters.isEmpty()) {
+      query.append("(");
+      addFilters();
+      query.append(")");
+    }
+    query.append("{ count }}");
+    return query.toString();
+  }
+
   private boolean hasFilterArguments() {
     return limit != null || offset != null || (filters != null && !filters.isEmpty());
   }
