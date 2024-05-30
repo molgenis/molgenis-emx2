@@ -11,7 +11,6 @@
 import { Molgenis } from "molgenis-components";
 import { computed, onMounted, watch } from "vue";
 import { applyBookmark, createBookmark } from "./functions/bookmarkMapper";
-import "bootstrap-icons/font/bootstrap-icons.css";
 import { useRoute } from "vue-router";
 import { useFiltersStore } from "./stores/filtersStore";
 import { useCheckoutStore } from "./stores/checkoutStore";
