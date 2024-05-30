@@ -152,6 +152,10 @@ public class Task<T extends Task> implements Runnable, Iterable<Task> {
   }
 
   public T start() {
+    if (this.isDisabled()) {
+      this.logger.info(getDescription() + ": not started, task is disabled");
+      return (T) this;
+    }
     this.setStatus(RUNNING);
     this.logger.info(getDescription() + ": started");
     return (T) this;
