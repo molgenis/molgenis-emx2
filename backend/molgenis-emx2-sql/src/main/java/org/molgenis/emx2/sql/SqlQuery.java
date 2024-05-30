@@ -15,6 +15,7 @@ import org.jooq.Record;
 import org.jooq.Table;
 import org.jooq.conf.ParamType;
 import org.jooq.impl.DSL;
+import org.jooq.impl.SQLDataType;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.Operator;
 import org.molgenis.emx2.Row;
@@ -200,12 +201,21 @@ public class SqlQuery extends QueryBean {
           fields.add(
               field(name(alias(tableAlias), column.getName()), ref.getJooqType()).as(columnAlias));
         }
+      } else if (column.getJooqType().getSQLDataType() == SQLDataType.INTERVAL) {
+        fields.add(intervalField(tableAlias, column));
       } else if (!column.isHeading()) {
         fields.add(
             field(name(alias(tableAlias), column.getName()), column.getJooqType()).as(columnAlias));
       }
     }
     return fields;
+  }
+
+  private Field<String> intervalField(String tableAlias, Column column) {
+    Field<?> intervalField = field(name(alias(tableAlias), column.getName()));
+    Field<String> functionCallField =
+        function("\"MOLGENIS\".interval_to_iso8601", String.class, intervalField);
+    return functionCallField.as(name(column.getIdentifier()));
   }
 
   private SelectConditionStep<org.jooq.Record> rowBackrefSubselect(
@@ -628,6 +638,8 @@ public class SqlQuery extends QueryBean {
          * Ignore headings, not part of rows. Fixme: must ignore to allow JSON subqueries, but
          * unsure if this can cause any problems elsewhere.
          */
+      } else if (column.getJooqType().getSQLDataType() == SQLDataType.INTERVAL) {
+        fields.add(intervalField(tableAlias, column));
       } else {
         // primitive fields
         fields.add(
