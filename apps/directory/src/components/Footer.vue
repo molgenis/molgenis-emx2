@@ -39,14 +39,14 @@
             </a>
             <div class="mt-2 mb-2 mb-md-0">
               <a
-                href="https://https://github.com/molgenis/molgenis-emx2"
+                href="https://github.com/molgenis/molgenis-emx2"
                 class="text-primary-text"
               >
                 <i class="bi bi-github" />
                 GitHub UI
               </a>
               <a
-                href="https://https://github.com/molgenis/molgenis-emx2"
+                href="https://github.com/molgenis/molgenis-emx2"
                 class="text-primary-text ps-2"
               >
                 <i class="bi bi-github" />
@@ -108,7 +108,8 @@
               <div class="col text-center text-light ms-4"></div>
               <div class="col text-center ms-5">
                 Need help?
-                <a href="mailto:negotiator@helpdesk.bbmri-eric.eu">Contact us</a
+                <a href="mailto:negotiator@helpdesk.bbmri-eric.eu"
+                  >Contact us </a
                 >.
               </div>
             </div>
