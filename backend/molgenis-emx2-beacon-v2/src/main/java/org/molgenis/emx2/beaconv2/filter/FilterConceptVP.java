@@ -1,7 +1,5 @@
 package org.molgenis.emx2.beaconv2.filter;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.molgenis.emx2.MolgenisException;
@@ -12,8 +10,11 @@ import org.molgenis.emx2.MolgenisException;
  */
 public enum FilterConceptVP {
   AGE_THIS_YEAR("ncit:C83164", "{ age_age_iso8601duration: { between: [%s, %s] } }"),
-  AGE_OF_ONSET("ncit:C124353"),
-  AGE_AT_DIAG("ncit:C156420"),
+  AGE_OF_ONSET(
+      "ncit:C124353", "{ diseases: { ageOfOnset_age_iso8601duration: { between: [%s, %s] } } }"),
+  AGE_AT_DIAG(
+      "ncit:C156420",
+      "{ diseases: { ageAtDiagnosis_age_iso8601duration: { between: [%s, %s] } } }"),
   CAUSAL_GENE("edam:data_2295", "{ diseaseCausalGenes: { name: { equals: \"%s\" } } }"),
   DISEASE("ncit:C2991", "{ diseases: { diseaseCode: { ontologyTermURI: { like: \"%s\" } } } }"),
   PHENOTYPE(
@@ -93,38 +94,5 @@ public enum FilterConceptVP {
       return Arrays.stream(values).allMatch(permittedValues::contains);
     }
     return true;
-  }
-
-  public List<String> getIso8601Durations(JsonNode result) {
-    List<String> ageIso8601durations = new ArrayList<>();
-
-    switch (this) {
-      case AGE_THIS_YEAR -> {
-        if (result.hasNonNull("age_age_iso8601duration")) {
-          ageIso8601durations.add(result.get("age_age_iso8601duration").textValue());
-        }
-      }
-      case AGE_OF_ONSET -> {
-        if (result.hasNonNull("diseases")) {
-          for (JsonNode disease : result.get("diseases")) {
-            if (disease.hasNonNull("ageOfOnset_age_iso8601duration")) {
-              ageIso8601durations.add(disease.get("ageOfOnset_age_iso8601duration").textValue());
-            }
-          }
-        }
-      }
-      case AGE_AT_DIAG -> {
-        if (result.hasNonNull("diseases")) {
-          for (JsonNode disease : result.get("diseases")) {
-            if (disease.hasNonNull("ageAtDiagnosis_age_iso8601duration")) {
-              ageIso8601durations.add(
-                  disease.get("ageAtDiagnosis_age_iso8601duration").textValue());
-            }
-          }
-        }
-      }
-    }
-
-    return ageIso8601durations;
   }
 }

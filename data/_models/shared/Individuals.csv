@@ -60,9 +60,9 @@ IndividualsDiseases,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C15607,Beacon 
 IndividualsDiseases,,id,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C87853,E.g. Ind001_Dis001,Beacon v2
 IndividualsDiseases,,diseaseCode,ontology,,TRUE,,Diseases,,,,"http://purl.obolibrary.org/obo/NCIT_C15607,http://semanticscience.org/resource/SIO_001003",E.g. Spinocerebellar ataxia type 34,Beacon v2
 IndividualsDiseases,,ageOfOnset_ageGroup,ontology,,,,AgeGroups,,,,"http://purl.obolibrary.org/obo/HP_0003674,http://www.ebi.ac.uk/efo/EFO_0004847",E.g. Adult 18-65 Years Old,Beacon v2
-IndividualsDiseases,,ageOfOnset_age_iso8601duration,string,,,,,,,,"http://www.orpha.net/ORDO/Orphanet_C023,http://www.ebi.ac.uk/efo/EFO_0004847",E.g. P32Y6M1D,Beacon v2
+IndividualsDiseases,,ageOfOnset_age_iso8601duration,period,,,,,,,,"http://www.orpha.net/ORDO/Orphanet_C023,http://www.ebi.ac.uk/efo/EFO_0004847",E.g. P32Y6M1D,Beacon v2
 IndividualsDiseases,,ageAtDiagnosis_ageGroup,ontology,,,,AgeGroups,,,,http://purl.obolibrary.org/obo/NCIT_C156420,"Addition for EJP-RD Virtual Platform API. E.g. Adult 18-65 Years Old",Beacon v2 Vivify add-on
-IndividualsDiseases,,ageAtDiagnosis_age_iso8601duration,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C156420,"Addition for EJP-RD Virtual Platform API. E.g. P32Y6M1D",Beacon v2 Vivify add-on
+IndividualsDiseases,,ageAtDiagnosis_age_iso8601duration,period,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C156420,"Addition for EJP-RD Virtual Platform API. E.g. P32Y6M1D",Beacon v2 Vivify add-on
 IndividualsDiseases,,familyHistory,bool,,,,,,,,http://purl.obolibrary.org/obo/HP_0032316,E.g. false,Beacon v2
 IndividualsDiseases,,severity,ontology,,,,Severity,,,,http://purl.obolibrary.org/obo/HP_0012824,E.g. Profound,Beacon v2
 IndividualsDiseases,,stage,ontology,,,,DiseaseStage,,,,http://purl.obolibrary.org/obo/OBI_0000278,E.g. acute onset,Beacon v2

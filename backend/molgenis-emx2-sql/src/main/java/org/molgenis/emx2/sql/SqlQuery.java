@@ -201,8 +201,6 @@ public class SqlQuery extends QueryBean {
           fields.add(
               field(name(alias(tableAlias), column.getName()), ref.getJooqType()).as(columnAlias));
         }
-      } else if (column.getJooqType().getSQLDataType() == SQLDataType.INTERVAL) {
-        fields.add(intervalField(tableAlias, column));
       } else if (!column.isHeading()) {
         fields.add(
             field(name(alias(tableAlias), column.getName()), column.getJooqType()).as(columnAlias));

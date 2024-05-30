@@ -13,13 +13,11 @@ import com.schibsted.spt.data.jslt.JsltException;
 import com.schibsted.spt.data.jslt.Parser;
 import graphql.ExecutionResult;
 import graphql.GraphQL;
-import java.util.Iterator;
 import java.util.List;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.beaconv2.common.misc.Granularity;
 import org.molgenis.emx2.beaconv2.common.misc.IncludedResultsetResponses;
-import org.molgenis.emx2.beaconv2.filter.Filter;
 import org.molgenis.emx2.beaconv2.filter.FilterParser;
 import org.molgenis.emx2.beaconv2.filter.FilterParserFactory;
 import org.molgenis.emx2.beaconv2.requests.BeaconQuery;
@@ -61,7 +59,6 @@ public class QueryEntryType {
         resultSet.put("id", table.getSchema().getName());
 
         ArrayNode resultsArray = doGraphQlQuery(table, filterParser.getGraphQlFilters());
-        resultsArray = applyPostFetchFilters(resultsArray, filterParser.getPostFetchFilters());
         if (hasResult(resultsArray)) {
           numTotalResults += resultsArray.size();
           switch (granularity) {
@@ -164,19 +161,5 @@ public class QueryEntryType {
       default:
         return false;
     }
-  }
-
-  private ArrayNode applyPostFetchFilters(ArrayNode results, List<Filter> postFetchFilters) {
-    if (!hasResult(results)) return results;
-    for (Filter filter : postFetchFilters) {
-      Iterator<JsonNode> resultsElements = results.elements();
-      while (resultsElements.hasNext()) {
-        JsonNode result = resultsElements.next();
-        List<String> ageIso8601durations = filter.getConcept().getIso8601Durations(result);
-
-        if (!filter.matches(ageIso8601durations)) resultsElements.remove();
-      }
-    }
-    return results;
   }
 }

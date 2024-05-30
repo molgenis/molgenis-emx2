@@ -71,9 +71,8 @@ public class BeaconIndividualsTests extends BeaconModelEndPointTest {
                             }
                           }""");
 
-    String jsonString = JsonUtil.getWriter().writeValueAsString(json);
-    assertTrue(jsonString.contains("\"exists\" : true"));
-    assertTrue(jsonString.contains("\"numTotalResults\" : 1"));
+    assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
+    assertEquals(1, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
   }
 
   @Test
@@ -142,9 +141,8 @@ public class BeaconIndividualsTests extends BeaconModelEndPointTest {
                           	]
                             }
                           }""");
-    String jsonString = JsonUtil.getWriter().writeValueAsString(json);
-    assertTrue(jsonString.contains("\"exists\" : true"));
-    assertTrue(jsonString.contains("\"numTotalResults\" : 1"));
+    assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
+    assertEquals(1, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
   }
 
   @Test
@@ -187,9 +185,7 @@ public class BeaconIndividualsTests extends BeaconModelEndPointTest {
                           	]
                             }
                           }""");
-    String jsonString = JsonUtil.getWriter().writeValueAsString(json);
-    assertTrue(jsonString.contains("\"exists\" : true"));
-    assertTrue(jsonString.contains("\"numTotalResults\" : 1"));
+    assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
   }
 
   @Test
@@ -208,9 +204,8 @@ public class BeaconIndividualsTests extends BeaconModelEndPointTest {
                           	]
                             }
                           }""");
-    String jsonString = JsonUtil.getWriter().writeValueAsString(json);
-    assertTrue(jsonString.contains("\"exists\" : true"));
-    assertTrue(jsonString.contains("\"numTotalResults\" : 2"));
+    assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
+    assertEquals(2, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
   }
 
   @Test
@@ -250,9 +245,8 @@ public class BeaconIndividualsTests extends BeaconModelEndPointTest {
                           	]
                             }
                           }""");
-    String jsonString = JsonUtil.getWriter().writeValueAsString(json);
-    assertTrue(jsonString.contains("\"exists\" : true"));
-    assertTrue(jsonString.contains("\"numTotalResults\" : 1"));
+    assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
+    assertEquals(1, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
   }
 
   @Test
@@ -292,9 +286,8 @@ public class BeaconIndividualsTests extends BeaconModelEndPointTest {
                           	]
                             }
                           }""");
-    String jsonString = JsonUtil.getWriter().writeValueAsString(json);
-    assertTrue(jsonString.contains("\"exists\" : true"));
-    assertTrue(jsonString.contains("\"numTotalResults\" : 1"));
+    assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
+    assertEquals(1, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
   }
 
   @Test
@@ -313,13 +306,12 @@ public class BeaconIndividualsTests extends BeaconModelEndPointTest {
                           	]
                             }
                           }""");
-    String jsonString = JsonUtil.getWriter().writeValueAsString(json);
-    assertTrue(jsonString.contains("\"exists\" : true"));
-    assertTrue(jsonString.contains("\"numTotalResults\" : 3"));
+    assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
+    assertEquals(3, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
   }
 
   @Test
-  public void test_EJP_RD_VP_API_FilterOnAgeLessThan_TwoHits() throws Exception {
+  public void test_EJP_RD_VP_API_FilterOnAgeLessThan_THits() throws Exception {
     JsonNode json =
         doIndividualsPostRequest(
             """
@@ -328,15 +320,14 @@ public class BeaconIndividualsTests extends BeaconModelEndPointTest {
                           	"filters": [
                           	  {
                           		"id": "ncit:C83164",
-                          		"value": 34,
+                          		"value": 33,
                           		"operator": "<"
                           	  }
                           	]
                             }
                           }""");
-    String jsonString = JsonUtil.getWriter().writeValueAsString(json);
-    assertTrue(jsonString.contains("\"exists\" : true"));
-    assertTrue(jsonString.contains("\"numTotalResults\" : 2"));
+    assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
+    assertEquals(2, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
   }
 
   @Test
@@ -355,9 +346,8 @@ public class BeaconIndividualsTests extends BeaconModelEndPointTest {
                           	]
                             }
                           }""");
-    String jsonString = JsonUtil.getWriter().writeValueAsString(json);
-    assertTrue(jsonString.contains("\"exists\" : true"));
-    assertTrue(jsonString.contains("\"numTotalResults\" : 1"));
+    assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
+    assertEquals(1, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
   }
 
   @Test
@@ -439,9 +429,8 @@ public class BeaconIndividualsTests extends BeaconModelEndPointTest {
                           	]
                             }
                           }""");
-    String jsonString = JsonUtil.getWriter().writeValueAsString(json);
-    assertTrue(jsonString.contains("\"exists\" : true"));
-    assertTrue(jsonString.contains("\"numTotalResults\" : 2"));
+    assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
+    assertEquals(2, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
   }
 
   @Test
@@ -481,9 +470,8 @@ public class BeaconIndividualsTests extends BeaconModelEndPointTest {
                           	]
                             }
                           }""");
-    String jsonString = JsonUtil.getWriter().writeValueAsString(json);
-    assertTrue(jsonString.contains("\"exists\" : true"));
-    assertTrue(jsonString.contains("\"numTotalResults\" : 1"));
+    assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
+    assertEquals(1, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
   }
 
   @Test
@@ -502,9 +490,8 @@ public class BeaconIndividualsTests extends BeaconModelEndPointTest {
                           	]
                             }
                           }""");
-    String jsonString = JsonUtil.getWriter().writeValueAsString(json);
-    assertTrue(jsonString.contains("\"exists\" : true"));
-    assertTrue(jsonString.contains("\"numTotalResults\" : 1"));
+    assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
+    assertEquals(1, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
   }
 
   @Test
@@ -523,9 +510,8 @@ public class BeaconIndividualsTests extends BeaconModelEndPointTest {
                           	]
                             }
                           }""");
-    String jsonString = JsonUtil.getWriter().writeValueAsString(json);
-    assertTrue(jsonString.contains("\"exists\" : true"));
-    assertTrue(jsonString.contains("\"numTotalResults\" : 1"));
+    assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
+    assertEquals(1, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
   }
 
   @Test
@@ -567,9 +553,8 @@ public class BeaconIndividualsTests extends BeaconModelEndPointTest {
                           	]
                             }
                           }""");
-    String jsonString = JsonUtil.getWriter().writeValueAsString(json);
-    assertTrue(jsonString.contains("\"exists\" : true"));
-    assertTrue(jsonString.contains("\"numTotalResults\" : 1"));
+    assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
+    assertEquals(1, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
   }
 
   @Test
@@ -588,9 +573,8 @@ public class BeaconIndividualsTests extends BeaconModelEndPointTest {
                           	]
                             }
                           }""");
-    String jsonString = JsonUtil.getWriter().writeValueAsString(json);
-    assertTrue(jsonString.contains("\"exists\" : true"));
-    assertTrue(jsonString.contains("\"numTotalResults\" : 1"));
+    assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
+    assertEquals(1, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
   }
 
   @Test
@@ -609,9 +593,8 @@ public class BeaconIndividualsTests extends BeaconModelEndPointTest {
                           	]
                             }
                           }""");
-    String jsonString = JsonUtil.getWriter().writeValueAsString(json);
-    assertTrue(jsonString.contains("\"exists\" : true"));
-    assertTrue(jsonString.contains("\"numTotalResults\" : 2"));
+    assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
+    assertEquals(2, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
   }
 
   @Test

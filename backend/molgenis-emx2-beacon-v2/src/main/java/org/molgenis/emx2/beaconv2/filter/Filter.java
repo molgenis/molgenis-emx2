@@ -2,10 +2,8 @@ package org.molgenis.emx2.beaconv2.filter;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import java.time.Period;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.beaconv2.requests.Similarity;
 
@@ -154,42 +152,6 @@ public class Filter {
         + ", ids="
         + Arrays.toString(ids)
         + '}';
-  }
-
-  public boolean matches(List<String> values) {
-    if (filterType == FilterType.NUMERICAL) {
-      for (String otherValue : values) {
-        if (otherValue == null) continue;
-        Period period = Period.parse(otherValue);
-        int otherAge = period.getYears();
-        for (String thisValue : this.getValues()) {
-          int thisAge = Integer.parseInt(thisValue);
-          if (passesIntFilter(otherAge, thisAge)) return true;
-        }
-      }
-    }
-    return false;
-  }
-
-  private boolean passesIntFilter(int otherInt, int thisInt) {
-    switch (operator) {
-      case ">":
-        if (otherInt > thisInt) return true;
-        break;
-      case ">=":
-        if (otherInt >= thisInt) return true;
-        break;
-      case "<":
-        if (otherInt < thisInt) return true;
-        break;
-      case "<=":
-        if (otherInt <= thisInt) return true;
-        break;
-      case "=":
-        if (otherInt == thisInt) return true;
-        break;
-    }
-    return false;
   }
 
   @JsonIgnore

@@ -11,6 +11,7 @@ import static org.molgenis.emx2.TableMetadata.table;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Period;
 import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -59,6 +60,7 @@ public class TestCreateBasicDataColumnTypeColumns {
     row.setText("Test text", "testtext");
     row.setDate("Test date", LocalDate.of(2018, 12, 13));
     row.setDateTime("Test datetime", LocalDateTime.of(2018, 12, 13, 12, 40));
+    row.setPeriod("Test period", Period.of(23, 2, 14));
     t2.insert(row);
 
     // check not null expects exception
@@ -72,6 +74,7 @@ public class TestCreateBasicDataColumnTypeColumns {
     row.setText("Test text nillable", "testtext");
     row.setDate("Test date nillable", LocalDate.of(2018, 12, 13));
     row.setDateTime("Test datetime nillable", LocalDateTime.of(2018, 12, 13, 12, 40));
+    row.setPeriod("Test period nillable", Period.of(23, 2, 14));
     try {
       // should fail on all non  nillable columns
       t2.insert(row);
@@ -94,6 +97,7 @@ public class TestCreateBasicDataColumnTypeColumns {
       assert (res.getText("Test text") instanceof String);
       assert (res.getBoolean("Test bool") instanceof Boolean);
       assert (res.getUuid("Test uuid") instanceof java.util.UUID);
+      assert (res.getPeriod("Test period") instanceof Period);
     }
 
     StopWatch.print("checked getters");

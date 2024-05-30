@@ -82,12 +82,8 @@ public class FilterParserVP implements FilterParser {
             case DISEASE, PHENOTYPE:
               processOntologyFilter(filter);
               break;
-            case AGE_THIS_YEAR:
+            case AGE_THIS_YEAR, AGE_OF_ONSET, AGE_AT_DIAG:
               processAgeFilter(filter);
-              break;
-            case AGE_OF_ONSET, AGE_AT_DIAG:
-              filter.setFilterType(FilterType.NUMERICAL);
-              postFetchFilters.add(filter);
               break;
           }
         } catch (MolgenisException e) {
@@ -104,17 +100,24 @@ public class FilterParserVP implements FilterParser {
 
   private void processAgeFilter(Filter filter) {
     filter.setFilterType(FilterType.NUMERICAL);
-    String age = filter.getValues()[0];
+    int age = (Integer) filter.getValue();
     String iso8106Duration = "\"P" + age + "Y\"";
+    String iso8106DurationPlusOne = "\"P" + (age + 1) + "Y\"";
     switch (filter.getOperator()) {
-      case ">", ">=":
+      case ">=":
         filter.setValues(new String[] {iso8106Duration, null});
         break;
-      case "<", "<=":
+      case ">":
+        filter.setValues(new String[] {iso8106DurationPlusOne, null});
+        break;
+      case "<":
         filter.setValues(new String[] {null, iso8106Duration});
         break;
+      case "<=":
+        filter.setValues(new String[] {null, iso8106DurationPlusOne});
+        break;
       case "=":
-        filter.setValues(new String[] {iso8106Duration, iso8106Duration});
+        filter.setValues(new String[] {iso8106Duration, iso8106DurationPlusOne});
         break;
     }
     graphQlFilters.add(filter);

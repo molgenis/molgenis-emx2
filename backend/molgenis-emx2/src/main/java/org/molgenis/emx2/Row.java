@@ -265,6 +265,16 @@ public class Row {
     return this;
   }
 
+  public Row setPeriod(String columnId, Period value) {
+    this.values.put(columnId, value);
+    return this;
+  }
+
+  public Row setPeriodArray(String name, Period[] value) {
+    this.values.put(name, value);
+    return this;
+  }
+
   public Row setText(String columnId, String value) {
     this.values.put(columnId, value);
     return this;
