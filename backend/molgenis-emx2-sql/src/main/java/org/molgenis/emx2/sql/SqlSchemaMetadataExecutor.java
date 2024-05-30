@@ -71,12 +71,6 @@ class SqlSchemaMetadataExecutor {
         .execute("GRANT USAGE ON SCHEMA {0} TO {1}", name(schema.getName()), name(aggregator));
     db.getJooq().execute("GRANT ALL ON SCHEMA {0} TO {1}", name(schema.getName()), name(manager));
 
-    // add collation
-    db.getJooq()
-        .execute(
-            "CREATE COLLATION IF NOT EXISTS {0}.numeric (provider = icu, locale = 'en-u-kn-true');",
-            name(schema.getName()));
-
     MetadataUtils.saveSchemaMetadata(db.getJooq(), schema);
   }
 
@@ -223,8 +217,6 @@ class SqlSchemaMetadataExecutor {
       List<Table> tables = db.getSchema(schemaName).getTablesSorted();
       Collections.reverse(tables);
       tables.forEach(table -> executeDropTable(db.getJooq(), table.getMetadata()));
-
-      db.getJooq().execute("DROP COLLATION IF EXISTS {0}.numeric;", name(schemaName));
 
       // drop schema
       db.getJooq().dropSchema(name(schemaName)).execute();
