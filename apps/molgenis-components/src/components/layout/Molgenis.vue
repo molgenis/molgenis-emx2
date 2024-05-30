@@ -29,13 +29,17 @@
       </main>
     </div>
     <footer>
+      <div
+        v-if="session?.settings?.additionalFooterHtml"
+        v-html="session?.settings?.additionalFooterHtml"
+      ></div>
       <slot v-if="$slots.footer" name="footer" />
       <MolgenisFooter>
         <span v-if="session?.manifest">
           Software version:
           <a
             :href="
-              'https://github.com/molgenis/molgenis-emx2/releases/tag/v' +
+              'https://github.com/molgenis/molgenis-emx2/releases/tag/' +
               session.manifest.SpecificationVersion
             "
           >
@@ -188,6 +192,10 @@ export default {
       handler() {
         if (this.session?.settings?.logoURL) {
           this.logoURL = this.session.settings.logoURL;
+        }
+        const additionalJs = this.session?.settings?.additionalJs;
+        if (additionalJs) {
+          eval(additionalJs);
         }
         this.$emit("update:modelValue", this.session);
       },
