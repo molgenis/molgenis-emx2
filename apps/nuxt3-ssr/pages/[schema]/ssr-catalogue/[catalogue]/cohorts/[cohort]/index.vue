@@ -773,7 +773,7 @@ function showLeadOrganisationSideModal(index: number) {
 
         <ContentBlock
           id="funding-and-acknowledgement"
-          title="Funding &amp; Acknowledgements requirements "
+          title="Funding &amp; Acknowledgements "
           v-if="cohort?.fundingStatement || cohort?.acknowledgements"
         >
           <CatalogueItemList :items="fundingAndAcknowledgementItems" />
