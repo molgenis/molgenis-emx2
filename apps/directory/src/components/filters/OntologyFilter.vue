@@ -34,7 +34,7 @@
         v-for="ontologyId of ontologyIdentifiers"
         :key="ontologyId"
       >
-        <div v-if="selectedOntology === ontologyId">
+        <div v-show="selectedOntology === ontologyId">
           <div v-if="displayOptions.length" class="w-100">
             <TreeComponent
               :options="displayOptions"
@@ -92,17 +92,14 @@ let displayOptions = computed(() => {
       filtersStore.ontologyItemMatchesQuery(ontologyItem, ontologyQuery.value)
     ) {
       matchingOptions.push(ontologyItem);
-      continue;
-    } else if (ontologyItem.children) {
-      if (
-        filtersStore.checkOntologyDescendantsIfMatches(
-          ontologyItem.children,
-          ontologyQuery.value
-        )
-      ) {
-        matchingOptions.push(ontologyItem);
-        continue;
-      }
+    } else if (
+      ontologyItem.children &&
+      filtersStore.checkOntologyDescendantsIfMatches(
+        ontologyItem.children,
+        ontologyQuery.value
+      )
+    ) {
+      matchingOptions.push(ontologyItem);
     }
   }
   return matchingOptions;
