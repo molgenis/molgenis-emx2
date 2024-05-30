@@ -849,6 +849,16 @@ public class WebApiSmokeTests {
   }
 
   @Test
+  public void testNonDefinedFDPHead() {
+    given()
+        .sessionId(SESSION_ID)
+        .expect()
+        .contentType("text/html;charset=utf-8")
+        .when()
+        .head("http://localhost:" + PORT + "/api/fdp/");
+  }
+
+  @Test
   public void testFDPRedirect() {
     given()
         .sessionId(SESSION_ID)
