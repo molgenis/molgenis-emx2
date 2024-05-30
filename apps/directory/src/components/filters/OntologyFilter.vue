@@ -27,22 +27,26 @@
       />
     </div>
     <hr class="p-0 m-0" />
-    <div class="ontology pt-3 d-flex justify-content-center">
-      <Spinner class="mt-4 mb-5" v-if="!resolvedOptions" />
+    <div class="ontology pt-3 d-flex">
+      <div v-if="!resolvedOptions" class="d-flex w-100 justify-content-center">
+        <Spinner class="mt-4 mb-5" />
+      </div>
       <template
         v-else
         v-for="ontologyId of ontologyIdentifiers"
         :key="ontologyId"
       >
-        <div v-show="selectedOntology === ontologyId">
-          <div v-if="displayOptions.length" class="w-100">
+        <div v-show="selectedOntology === ontologyId" class="w-100">
+          <div v-if="displayOptions.length">
             <TreeComponent
               :options="displayOptions"
               :filter="ontologyQuery"
               :facetIdentifier="facetIdentifier"
             />
           </div>
-          <div v-else class="pb-3">No results found</div>
+          <div v-else class="d-flex w-100 justify-content-center pb-3">
+            No results found
+          </div>
         </div>
       </template>
     </div>
