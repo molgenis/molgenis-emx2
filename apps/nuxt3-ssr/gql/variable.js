@@ -25,7 +25,7 @@ export default gql`
         name
       }
       mappings ${moduleToString(mappingsFragment)}
-      repeats {
+      repeats(orderby: {name: ASC}) {
         name
         mappings ${moduleToString(mappingsFragment)}
       }
