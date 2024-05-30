@@ -7,8 +7,17 @@
         class="breadcrumb-item"
         :class="{ active: label === lastKey }"
       >
-        <a v-if="label == lastKey" aria-current="page">{{ label }}</a>
-        <a v-else :href="url">{{ label }}</a>
+        <span v-if="useRouterLink" class="router-link">
+          <a v-if="label === lastKey" aria-current="page">{{ label }}</a>
+          <router-link v-else :to="url">
+            {{ label }}
+          </router-link>
+        </span>
+        <span v-else class="atag">
+          <a v-if="label === lastKey" aria-current="page">{{ label }}</a>
+          <a v-else :href="url">{{ label }}</a>
+        </span>
+
         <span class="dropdown">
           <span v-if="dropdown && index === 0">
             <i
@@ -16,14 +25,26 @@
               @click="toggleDropdown"
             />
             <div class="dropdown-menu" :class="{ show: showDropdown }">
-              <a
-                v-for="(url, label, index) in dropdown"
-                class="dropdown-item text-primary"
-                :href="url"
-                :key="index"
-              >
-                {{ label }}
-              </a>
+              <span v-if="useRouterLink" class="router-link">
+                <router-link
+                  v-for="(url, label, index) in dropdown"
+                  class="dropdown-item text-primary"
+                  :to="url"
+                  :key="`${index}_routerlink`"
+                >
+                  {{ label }}
+                </router-link>
+              </span>
+              <span v-else class="atag">
+                <a
+                  v-for="(url, label, index) in dropdown"
+                  class="dropdown-item text-primary"
+                  :href="url"
+                  :key="index"
+                >
+                  {{ label }}
+                </a>
+              </span>
             </div>
           </span>
         </span>
@@ -40,6 +61,10 @@ export default {
     crumbs: Object,
     /* list of dropdown, map of  {'label':'url'} */
     dropdown: Object,
+    useRouterLink: {
+      type: Boolean,
+      default: false,
+    },
   },
   data() {
     return {

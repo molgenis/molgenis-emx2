@@ -18,6 +18,7 @@ public enum AvailableDataModels {
   BIOBANK_DIRECTORY(new BiobankDirectoryLoader(false)),
   BIOBANK_DIRECTORY_STAGING(new BiobankDirectoryLoader(true)),
   PROJECTMANAGER(new ProjectManagerLoader()),
+  GDI(new ProfileLoader("_profiles/GDI.yaml")),
   SHARED_STAGING(new ProfileLoader("_profiles/SharedStaging.yaml"));
 
   private AbstractDataLoader installer;

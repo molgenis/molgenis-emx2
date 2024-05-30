@@ -140,7 +140,7 @@ let tocItems = computed(() => {
 
   if (network?.fundingStatement || network?.acknowledgements) {
     tableOffContents.push({
-      label: "Funding & Citation requirements ",
+      label: "Funding & Acknowledgements ",
       id: "funding-and-acknowledgement",
     });
   }
@@ -187,7 +187,7 @@ let fundingAndAcknowledgementItems = computed(() => {
   }
   if (network?.acknowledgements) {
     items.push({
-      label: "Citation requirements ",
+      label: "Acknowledgements ",
       content: network.acknowledgements,
     });
   }
@@ -344,7 +344,7 @@ crumbs["Networks"] = `/${route.params.schema}/ssr-catalogue/networks`;
 
         <ContentBlock
           id="funding-and-acknowledgement"
-          title="Funding &amp; Citation requirements "
+          title="Funding &amp; Acknowledgements "
           v-if="network?.fundingStatement || network?.acknowledgements"
         >
           <CatalogueItemList :items="fundingAndAcknowledgementItems" />
@@ -373,7 +373,7 @@ crumbs["Networks"] = `/${route.params.schema}/ssr-catalogue/networks`;
           v-if="network?.dataSources_agg?.count > 0"
           id="datasources"
           title="Data sources"
-          description="Datasources connected in this network"
+          description="Data sources connected in this network"
           :headers="[
             { id: 'name', label: 'Name', singleLine: true },
             { id: 'type', label: 'type' },

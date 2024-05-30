@@ -62,6 +62,7 @@ export async function applyBookmark(watchedQuery) {
       filtersStore.updateFilterType(filterName, "all", true);
     }
   }
+
   for (const filterName of filters) {
     if (query[filterName]) {
       let filtersToAdd = decodeURIComponent(query[filterName]);
