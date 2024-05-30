@@ -309,7 +309,7 @@ let tocItems = computed(() => {
 
   if (cohort.value.fundingStatement || cohort.value.acknowledgements) {
     tableOffContents.push({
-      label: "Funding & Citation requirements ",
+      label: "Funding & Acknowledgements ",
       id: "funding-and-acknowledgement",
     });
   }
@@ -773,7 +773,7 @@ function showLeadOrganisationSideModal(index: number) {
 
         <ContentBlock
           id="funding-and-acknowledgement"
-          title="Funding &amp; Citation requirements "
+          title="Funding &amp; Acknowledgements requirements "
           v-if="cohort?.fundingStatement || cohort?.acknowledgements"
         >
           <CatalogueItemList :items="fundingAndAcknowledgementItems" />
