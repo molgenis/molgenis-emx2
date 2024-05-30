@@ -2,26 +2,30 @@
   <Page>
     <PageHeader
       title="Recon4imd: IMD-hub"
-      subtitle="Dashboard"
+      subtitle="Participant recruitment dashboard"
       imageSrc="recon4imd_header.jpg"
       height="medium"
     />
-    <PageSection aria-labelledby="about-section-title" class="bg-gray-050">
-      <MessageBox type="warning">
-        <p>This page is under construction.</p>
-      </MessageBox>
-    </PageSection>
-    <div class="message-box-container" v-if="!loading && error">
+    <div v-if="!loading && error">
       <MessageBox type="error">
         <p><{{ error }}</p>
       </MessageBox>
     </div>
-    <Dashboard v-else>
+    <Dashboard
+      v-else
+      :vertical-padding="0"
+      :horizontal-padding="2"
+      class="bg-blue-050"
+    >
+      <MessageBox type="warning">
+        <p>This page is under construction.</p>
+      </MessageBox>
       <DashboardRow :columns="1">
         <DashboardChart>
           <GeoMercator
             chartId="organisations-map"
             title="Recon4imd Clinical Sites"
+            description="The map below shows the location of all sites participating in the Recon4imd project."
             :geojson="WorldGeoJson"
             :chartData="organisations"
             rowId="code"
