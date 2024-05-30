@@ -35,7 +35,7 @@
           Software version:
           <a
             :href="
-              'https://github.com/molgenis/molgenis-emx2/releases/tag/v' +
+              'https://github.com/molgenis/molgenis-emx2/releases/tag/' +
               session.manifest.SpecificationVersion
             "
           >
