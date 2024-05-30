@@ -37,8 +37,8 @@ const props = withDefaults(
   { filter: "" }
 );
 
-const { facetIdentifier, parentSelected } = props;
-const { filter, options } = toRefs(props);
+const { facetIdentifier } = props;
+const { filter, options, parentSelected } = toRefs(props);
 
 const emit = defineEmits(["indeterminate-update"]);
 
