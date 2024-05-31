@@ -96,38 +96,38 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
         db -> {
           db.becomeAdmin();
           Schema systemSchema = db.getSchema(this.systemSchemaName);
-          // retrieve the script from database
-          List<Row> rows =
-              systemSchema.getTable("Scripts").where(f("name", EQUALS, scriptName)).retrieveRows();
-          if (rows.size() != 1) {
-            throw new MolgenisException("Script " + scriptName + " not found");
-          }
-          Row scriptMetadata = rows.get(0);
-          String user = scriptMetadata.getString("cronUser");
-          if (user == null) {
-            user = defaultUser;
-          }
+
+          ScriptTask scriptTask = retrieveTaskFromDatabase(systemSchema, scriptName);
+          String user =
+              scriptTask.getCronUserName() == null ? defaultUser : scriptTask.getCronUserName();
+
           db.setActiveUser(user);
-          if (scriptMetadata != null) {
-            if (scriptMetadata.getBoolean("disable") != null
-                && scriptMetadata.getBoolean("disable")) {
-              throw new MolgenisException("Script " + scriptName + " is disabled");
-            }
-            // submit the script
-            result.append(
-                this.submit(
-                    new ScriptTask(scriptMetadata)
-                        .parameters(parameters)
-                        .token(
-                            JWTgenerator.createTemporaryToken(
-                                systemSchema.getDatabase(),
-                                systemSchema.getDatabase().getActiveUser()))
-                        .submitUser(user)));
-          } else {
-            throw new MolgenisException("Script execution failed: " + scriptName + " not found");
+          if (scriptTask.isDisabled()) {
+            throw new MolgenisException("Script " + scriptName + " is disabled");
           }
+          // submit the script
+          result.append(
+              this.submit(
+                  scriptTask
+                      .parameters(parameters)
+                      .token(
+                          JWTgenerator.createTemporaryToken(
+                              systemSchema.getDatabase(),
+                              systemSchema.getDatabase().getActiveUser()))
+                      .submitUser(user)));
         });
     return result.toString();
+  }
+
+  private ScriptTask retrieveTaskFromDatabase(Schema systemSchema, String scriptName) {
+    List<Row> rows =
+        systemSchema.getTable("Scripts").where(f("name", EQUALS, scriptName)).retrieveRows();
+    if (rows.size() != 1) {
+      throw new MolgenisException("Script " + scriptName + " not found");
+    }
+
+    Row scriptMetadata = rows.get(0);
+    return new ScriptTask(scriptMetadata);
   }
 
   private void save(Task task) {

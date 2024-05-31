@@ -36,7 +36,9 @@ public class ScriptTask extends Task<ScriptTask> {
     this.script(scriptMetadata.getString("script"))
         .outputFileExtension(scriptMetadata.getString("outputFileExtension"))
         .dependencies(scriptMetadata.getString("dependencies"))
-        .cronExpression(scriptMetadata.getString("cron"));
+        .cronExpression(scriptMetadata.getString("cron"))
+        .cronUserName(scriptMetadata.getString("cronUser"))
+        .disabled(scriptMetadata.getBoolean("disabled"));
   }
 
   @Override
