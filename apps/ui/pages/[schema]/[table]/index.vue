@@ -1,26 +1,19 @@
 <script setup lang="ts">
-import type { ITableMetaData } from "../../../../meta-data-utils/src/types";
-
-const { schema, table } = useRoute().params;
-
+const schemaId = useRoute().params.schema as string;
+const tableId = useRoute().params.table as string;
 const store = useMetaStore();
-const meta = await store.fetchSchemaMetaData(schema as string);
 
-const tableMeta = computed(() => {
-  const result = meta.tables.find(
-    (t: ITableMetaData) =>
-      t.id.toLowerCase() === (table as string).toLowerCase()
-  );
-  if (!result) {
-    throw new Error(`Table with id ${table} not found in schema ${schema}`);
-  }
-  return result;
+const meta = await store.fetchSchemaMetaData(schemaId as string);
+store.$patch((state) => {
+  state.metaData[schemaId as string] = meta;
 });
+
+const tableMeta = store.getTableMeta(schemaId as string, tableId as string);
 </script>
 <template>
   <div>
-    <h1>{{ schema }}</h1>
-    <h2>{{ table }}</h2>
+    <h1>{{ schemaId }}</h1>
+    <h2>{{ tableId }}</h2>
 
     <Container class="my-3">
       <DisplayList class="text-white" title="Data tables" :columnCount="3">

@@ -1,5 +1,5 @@
 import metadataGql from "../../nuxt3-ssr/gql/metadata";
-import { type ISchemaMetaData } from "../../meta-data-utils/src/types";
+import { type ISchemaMetaData, type ITableMetaData } from "../../meta-data-utils/src/types";
 
 const query = moduleToString(metadataGql);
 
@@ -12,8 +12,27 @@ export const useMetaStore = defineStore('meta-data',{
 
   state: () => {
     return {
-      metaData: {
-        foo: 'bar'
+      metaData: {} as Record<string, ISchemaMetaData>,
+    }
+  },
+
+  getters: {
+    getTableMeta: (state) => {
+      return (schemaId: string, tableId: string) => {
+        if (!state.metaData) {
+          throw new Error(`The store is not initialized`);
+        }
+        if(!state.metaData[schemaId]) {
+          throw new Error(`Schema with id ${schemaId} not found in store`);
+        }
+        const tableMeta = state.metaData[schemaId].tables.find(
+          (t: ITableMetaData) =>
+            t.id.toLowerCase() === tableId.toLowerCase()
+        );
+        if (!tableMeta) {
+          throw new Error(`Table with id ${tableId} not found in schema ${schemaId}`);
+        }
+        return tableMeta;
       }
     }
   },
@@ -28,7 +47,6 @@ export const useMetaStore = defineStore('meta-data',{
       });
 
       if (resp.error) {
-        console.log("handel error ");
         throw createError({
           ...resp.error,
           statusMessage: `Could not fetch metadata for schema ${schemaId}`,
