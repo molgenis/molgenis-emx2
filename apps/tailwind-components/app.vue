@@ -88,6 +88,12 @@ useHead({
                   <label class="hover:cursor-pointer" for="umcg-theme">Umcg</label>
                 </div>
               </fieldset>
+
+              <div class="pr-6 mt-6">
+                <hr>
+              </div>
+              <NuxtLink class="hover:underline" to="DataFetch.other">Data fetching</NuxtLink>
+
             </aside>
             <div class="xl:pl-7.5 xl:max-w-[54rem] 2xl:grow 2xl:max-w-none">
               <slot name="main">

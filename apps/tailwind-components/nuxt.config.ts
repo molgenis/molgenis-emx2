@@ -20,4 +20,9 @@ export default defineNuxtConfig({
       }
     }
   },
+  runtimeConfig: {
+    public: {
+      apiBase: "https://emx2.dev.molgenis.org/",
+    },
+  },
 })
