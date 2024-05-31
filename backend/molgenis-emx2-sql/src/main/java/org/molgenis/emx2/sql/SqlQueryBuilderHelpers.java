@@ -15,6 +15,7 @@ import org.jooq.Record;
 import org.jooq.SelectConnectByStep;
 import org.jooq.SelectJoinStep;
 import org.jooq.SortField;
+import org.jooq.impl.DSL;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.MolgenisException;
@@ -56,7 +57,11 @@ class SqlQueryBuilderHelpers {
       Column column, Order order, SelectConnectByStep<org.jooq.Record> query) {
     final Field<?> field =
         isCaseSensitiveField(column) ? lower(column.getJooqField()) : column.getJooqField();
-    final SortField<?> sortField = ASC.equals(order) ? field.asc() : field.desc();
+    var collatedField =
+        column.getColumnType().isStringyType()
+            ? field.collate(DSL.unquotedName("\"MOLGENIS\".numeric"))
+            : field;
+    final SortField<?> sortField = ASC.equals(order) ? collatedField.asc() : collatedField.desc();
     return (SelectJoinStep<org.jooq.Record>) query.orderBy(sortField);
   }
 
