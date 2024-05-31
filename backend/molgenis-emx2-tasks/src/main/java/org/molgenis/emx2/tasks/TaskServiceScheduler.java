@@ -110,7 +110,7 @@ public class TaskServiceScheduler {
 
   public void update(ScriptTask scriptTask) {
     // if no cron we remove
-    if (scriptTask.getCronExpression() == null) {
+    if (scriptTask.getCronExpression() == null || scriptTask.isDisabled()) {
       unschedule(scriptTask.getName());
     }
     // otherwise we schedule
