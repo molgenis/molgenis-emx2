@@ -120,15 +120,9 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: "Footer",
-  data() {
-    return {
-      isFooterFollowUsVisible: true,
-    };
-  },
-};
+<script setup lang="ts">
+import { ref } from "vue";
+const isFooterFollowUsVisible = ref<boolean>(true);
 </script>
 
 <style scoped>
