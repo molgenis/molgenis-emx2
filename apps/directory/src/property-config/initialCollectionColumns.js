@@ -79,6 +79,11 @@ const initialCollectionColumns = [
     type: "array",
   },
   {
+    label: "Study:",
+    column: { study: ["id", "title"] },
+    type: "xref",
+  },
+  {
     column: [
       "name",
       "size",
