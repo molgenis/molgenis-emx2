@@ -391,10 +391,10 @@ crumbs["Networks"] = `/${route.params.schema}/ssr-catalogue/networks`;
         <ContentBlock
           v-if="networkVariablesCount > 0"
           id="variables"
-          title="Variables">
+          title="Variables"
+        >
           <NuxtLink to="/variables">View variables</NuxtLink>
         </ContentBlock>
-         
       </ContentBlocks>
     </template>
   </LayoutsDetailPage>
