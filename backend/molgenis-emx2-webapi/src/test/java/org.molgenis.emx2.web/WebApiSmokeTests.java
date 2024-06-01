@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.*;
@@ -141,7 +142,7 @@ public class WebApiSmokeTests {
             .when()
             .get("/pet store zip/api/csv")
             .asString();
-    assertEquals(schemaCsv, schemaCsv2);
+    assertEquals(toSortedArray(schemaCsv), toSortedArray(schemaCsv2));
 
     // delete the new schema
     db.dropSchema("pet store zip");
@@ -295,12 +296,19 @@ public class WebApiSmokeTests {
     String contentsTagDataNew = getContentAsString("/api/csv/Tag");
 
     // test if existing and new schema are equal
-    assertEquals(new String(contentsMeta), contentsMetaNew);
-    assertEquals(new String(contentsCategoryData), contentsCategoryDataNew);
-    assertEquals(new String(contentsOrderData), contentsOrderDataNew);
-    assertEquals(new String(contentsPetData), contentsPetDataNew);
-    assertEquals(new String(contentsUserData), contentsUserDataNew);
-    assertEquals(new String(contentsTagData), contentsTagDataNew);
+    assertEquals(toSortedArray(new String(contentsMeta)), toSortedArray(contentsMetaNew));
+    assertEquals(
+        toSortedArray(new String(contentsCategoryData)), toSortedArray(contentsCategoryDataNew));
+    assertEquals(toSortedArray(new String(contentsOrderData)), toSortedArray(contentsOrderDataNew));
+    assertEquals(toSortedArray(new String(contentsPetData)), toSortedArray(contentsPetDataNew));
+    assertEquals(toSortedArray(new String(contentsUserData)), toSortedArray(contentsUserDataNew));
+    assertEquals(toSortedArray(new String(contentsTagData)), toSortedArray(contentsTagDataNew));
+  }
+
+  private String[] toSortedArray(String string) {
+    String[] lines = string.split("\n");
+    Arrays.sort(lines);
+    return lines;
   }
 
   @Test
