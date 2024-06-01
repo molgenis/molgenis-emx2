@@ -115,8 +115,8 @@ public class Migrations {
                 tdb, "migration18.sql", "add filename to tables contain FILE datatype");
           }
 
-          if (version < 19) {
-            executeMigrationFile(tdb, "migration19.sql", "function to convert interval to period");
+          if (version < 20) {
+            executeMigrationFile(tdb, "migration20.sql", "function to convert interval to period");
           }
 
           // if success, update version to SOFTWARE_DATABASE_VERSION
