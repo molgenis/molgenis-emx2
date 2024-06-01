@@ -12,7 +12,7 @@
         <button
           v-for="ontologyId of ontologyIdentifiers"
           :key="ontologyId + '-button'"
-          @click="selectedOntology = ontologyId"
+          @click="setSelectedOntology(ontologyId)"
           :class="{ active: selectedOntology === ontologyId }"
         >
           {{ ontologyId }}
@@ -22,21 +22,31 @@
         type="text"
         placeholder="Search a disease"
         class="ml-2 ontology-search"
-        v-model="ontologyQuery"
+        :value="ontologyQuery"
+        @input="handleSearchFieldChanged"
       />
     </div>
     <hr class="p-0 m-0" />
-    <div class="ontology pt-3 d-flex justify-content-center">
-      <template v-for="ontologyId of ontologyIdentifiers" :key="ontologyId">
-        <div v-show="selectedOntology === ontologyId">
-          <spinner class="mt-4 mb-5" v-if="!resolvedOptions" />
-          <tree-component
-            v-else-if="displayOptions.length"
-            :options="displayOptions"
-            :filter="ontologyQuery"
-            :facetIdentifier="facetIdentifier"
-          />
-          <div v-else class="pb-3">No results found</div>
+    <div class="ontology pt-3 d-flex">
+      <div v-if="!resolvedOptions" class="d-flex w-100 justify-content-center">
+        <Spinner class="mt-4 mb-5" />
+      </div>
+      <template
+        v-else
+        v-for="ontologyId of ontologyIdentifiers"
+        :key="ontologyId"
+      >
+        <div v-show="selectedOntology === ontologyId" class="w-100">
+          <div v-if="displayOptions.length">
+            <TreeComponent
+              :options="displayOptions"
+              :filter="ontologyQuery"
+              :facetIdentifier="facetIdentifier"
+            />
+          </div>
+          <div v-else class="d-flex w-100 justify-content-center pb-3">
+            No results found
+          </div>
         </div>
       </template>
     </div>
@@ -44,12 +54,13 @@
 </template>
 
 <script setup lang="ts">
+import { computed, ref } from "vue";
 import { useFiltersStore } from "../../stores/filtersStore";
 import TreeComponent from "./base/TreeComponent.vue";
-import { computed, ref } from "vue";
 //@ts-ignore
 import { Spinner } from "../../../../molgenis-components";
 import MatchTypeRadiobutton from "./base/MatchTypeRadiobutton.vue";
+import * as _ from "lodash";
 
 const filtersStore = useFiltersStore();
 
@@ -85,21 +96,27 @@ let displayOptions = computed(() => {
       filtersStore.ontologyItemMatchesQuery(ontologyItem, ontologyQuery.value)
     ) {
       matchingOptions.push(ontologyItem);
-      continue;
-    } else if (ontologyItem.children) {
-      if (
-        filtersStore.checkOntologyDescendantsIfMatches(
-          ontologyItem.children,
-          ontologyQuery.value
-        )
-      ) {
-        matchingOptions.push(ontologyItem);
-        continue;
-      }
+    } else if (
+      ontologyItem.children &&
+      filtersStore.checkOntologyDescendantsIfMatches(
+        ontologyItem.children,
+        ontologyQuery.value
+      )
+    ) {
+      matchingOptions.push(ontologyItem);
     }
   }
   return matchingOptions;
 });
+
+const handleSearchFieldChanged = _.debounce((event: any) => {
+  const newFilter = event.target?.value;
+  ontologyQuery.value = newFilter || "";
+}, 500);
+
+function setSelectedOntology(ontologyId: string) {
+  selectedOntology.value = ontologyId;
+}
 </script>
 
 <style scoped>

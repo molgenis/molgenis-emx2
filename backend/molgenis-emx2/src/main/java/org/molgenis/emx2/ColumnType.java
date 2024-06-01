@@ -158,4 +158,11 @@ public enum ColumnType {
   public boolean isAtomicType() {
     return !isFile() && !isReference() && !isHeading();
   }
+
+  public boolean isStringyType() {
+    return STRING.equals(getBaseType())
+        || STRING_ARRAY.equals(getBaseType())
+        || TEXT.equals(getBaseType())
+        || TEXT_ARRAY.equals(getBaseType());
+  }
 }
