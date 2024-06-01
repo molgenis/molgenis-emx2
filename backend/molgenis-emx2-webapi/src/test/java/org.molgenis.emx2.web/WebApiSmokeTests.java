@@ -142,7 +142,7 @@ public class WebApiSmokeTests {
             .when()
             .get("/pet store zip/api/csv")
             .asString();
-    assertEquals(toSortedArray(schemaCsv), toSortedArray(schemaCsv2));
+    assertArrayEquals(toSortedArray(schemaCsv), toSortedArray(schemaCsv2));
 
     // delete the new schema
     db.dropSchema("pet store zip");
@@ -296,13 +296,17 @@ public class WebApiSmokeTests {
     String contentsTagDataNew = getContentAsString("/api/csv/Tag");
 
     // test if existing and new schema are equal
-    assertEquals(toSortedArray(new String(contentsMeta)), toSortedArray(contentsMetaNew));
-    assertEquals(
+    assertArrayEquals(toSortedArray(new String(contentsMeta)), toSortedArray(contentsMetaNew));
+    assertArrayEquals(
         toSortedArray(new String(contentsCategoryData)), toSortedArray(contentsCategoryDataNew));
-    assertEquals(toSortedArray(new String(contentsOrderData)), toSortedArray(contentsOrderDataNew));
-    assertEquals(toSortedArray(new String(contentsPetData)), toSortedArray(contentsPetDataNew));
-    assertEquals(toSortedArray(new String(contentsUserData)), toSortedArray(contentsUserDataNew));
-    assertEquals(toSortedArray(new String(contentsTagData)), toSortedArray(contentsTagDataNew));
+    assertArrayEquals(
+        toSortedArray(new String(contentsOrderData)), toSortedArray(contentsOrderDataNew));
+    assertArrayEquals(
+        toSortedArray(new String(contentsPetData)), toSortedArray(contentsPetDataNew));
+    assertArrayEquals(
+        toSortedArray(new String(contentsUserData)), toSortedArray(contentsUserDataNew));
+    assertArrayEquals(
+        toSortedArray(new String(contentsTagData)), toSortedArray(contentsTagDataNew));
   }
 
   private String[] toSortedArray(String string) {
