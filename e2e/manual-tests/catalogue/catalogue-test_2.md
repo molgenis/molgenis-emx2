@@ -30,13 +30,13 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | 12 | Click on More --> Other catalogues | Should be directed to the landing page showing all thematic and project catalogues, entitled "European Health Research Data and Sample Catalogue" | | |
 | 13 | Click on testNetwork1 | Should be directed to the testNetwork1 home page with 'Welcome to the catalogue of testNetwork1: [etc]', and Cohorts (4), Data sources (1), Variables (3) buttons | | |
 | 14 | Click on the underlined name of the catalogue in the "Welcome to the catalogue of..." text | ACRONYM FOR TESTNETWORK 1, name for testnetwork1 | | |
-| 15 | Menu on the left hand side | ACRONYM FOR TESTNETWORK1, Description, Partners, Funding & Citation requirements, Cohorts, Data Sources, Variables | | |
+| 15 | Menu on the left hand side | ACRONYM FOR TESTNETWORK1, Description, Partners, Funding & Acknowledgements, Cohorts, Data Sources, Variables | | |
 | 16 | First block | logo, https://www.molgenis.org | | |
 | 17 | Click on URL | You are taken to the Molgenis website in a separate window | | |
 | 18 | Go back to the catalogue window | | | |
 | 19 | DESCRIPTION | test description for new test network | | |
 | 20 | PARTNERS | Amsterdam Medical Centre, Cynexo | | |
-| 21 | FUNDING & CITATION REQUIREMENTS | lorem ipsum text, check that "until now" is shown at the end of both fields so that you know the full text has been displayed | | |
+| 21 | FUNDING & ACKNOWLEDGEMENTS | lorem ipsum text, check that "until now" is shown at the end of both fields so that you know the full text has been displayed | | |
 | 22 | COHORTS | A list of cohorts you can explore. | | |
 |    |  | Name, Design, Number of participants | | |
 |    |  | Name for test cohort 1   Longitudinal  600   --> | | |
@@ -52,8 +52,6 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | 27 | Click on TESTDATASOURCE | Get taken to the overview page for the data source TESTDATASOURCE | | |
 | 28 | Go back | Come back to network overview page for testNetwork1 | | |
 | 29 | VARIABLES | Variables in this network | | |
-|   |   | Name  Label   Model    | | |
-|  |    | testVarCategorical_ categorical test variable testNetwork1_CDM  --> | | |
-|  |    | testVarNoRepeats test variable without repeats testNetwork1_CDM --> | | |
-|  |    | testVarRepeats_ +10 test variable with repeats testNetwork1_CDM  -->  | | |
-| 30 | Click on testVarNoRepeats | Goes to pop-up with "Under construction" |||
+|    | | View variables |||
+| 30 | Click on View variables | Get taken to the page with the list of variables for testNetwork1
+
