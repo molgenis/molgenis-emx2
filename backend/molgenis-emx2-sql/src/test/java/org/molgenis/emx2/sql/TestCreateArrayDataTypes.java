@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.FilterBean.f;
-import static org.molgenis.emx2.Operator.EQUALS;
+import static org.molgenis.emx2.Operator.*;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import java.io.Serializable;
@@ -105,6 +105,10 @@ public class TestCreateArrayDataTypes {
 
     // check query
     List<Row> result = tableA.query().where(f(aFieldName, EQUALS, values[0])).retrieveRows();
+    assertEquals(1, result.size());
+    result = tableA.query().where(f(aFieldName, MATCH_ANY, values[0])).retrieveRows();
+    assertEquals(1, result.size());
+    result = tableA.query().where(f(aFieldName, MATCH_ALL, values[0])).retrieveRows();
     assertEquals(1, result.size());
     for (Row r : result) {
       if (DATETIME_ARRAY.equals(columnType)) {

@@ -6,6 +6,8 @@ public enum Operator {
   AND("and", "Used to define  complex subqueries that should be combined using AND operator"),
   // equality
   EQUALS("equals", "Uses '=' operator. In case of arrays '= ANY'"),
+  MATCH_ANY("match_any", "Only for arrays '= ANY'"),
+  MATCH_ALL("match_all", "Only for arrays '= ANY'"),
   NOT_EQUALS("not_equals", "Uses != operator. In case of array 'NOT (= ANY)'"),
   // ordinal
   BETWEEN("between", "Uses BETWEEN operator"),
