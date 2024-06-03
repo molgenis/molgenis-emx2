@@ -754,7 +754,7 @@ function showLeadOrganisationSideModal(index: number) {
           v-if="cohort?.networks"
           id="Networks"
           title="Networks"
-          description="List of networks which this cohort is involved in"
+          description="List of networks in which this cohort is involved"
           :networks="cohort?.networks"
         />
 

@@ -59,7 +59,7 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | 26 |PARTNERS|logo, Name of organisation, ">Read more" and arrow to navigate to details | | |
 |||name of test additional organisation 1 | | |
 |||name of test additional organisation 2 | | |
-| 27 |NETWORKS|List of networks which this cohort is involved in | | |
+| 27 |NETWORKS|List of networks in which this cohort is involved | | |
 |||logo, Name of network, ">Read more?  And arrow to navigate to details | | |
 |||name of test network2 | | |
 |||> Read more | | |
