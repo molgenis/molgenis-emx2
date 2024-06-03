@@ -102,9 +102,6 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
               scriptTask.getCronUserName() == null ? defaultUser : scriptTask.getCronUserName();
 
           db.setActiveUser(user);
-          if (scriptTask.isDisabled()) {
-            throw new MolgenisException("Script " + scriptName + " is disabled");
-          }
           // submit the script
           result.append(
               this.submit(

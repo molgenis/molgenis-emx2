@@ -37,7 +37,7 @@ public class TaskServiceScheduler {
 
   private void loadExistingCronTasks(TaskService taskService) {
     for (ScriptTask task : taskService.getScripts()) {
-      if (task.getCronExpression() != null) {
+      if (task.getCronExpression() != null && !task.isDisabled()) {
         this.schedule(task);
       }
     }
