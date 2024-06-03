@@ -143,7 +143,7 @@ const variableList = props.variable.repeats
       <DefinitionListDefinition>
         {{ variable.name }}
       </DefinitionListDefinition>
-      <DefinitionListTerm>Harmonization status</DefinitionListTerm>
+      <DefinitionListTerm>Harmonisation status</DefinitionListTerm>
       <DefinitionListDefinition>
         <HarmonizationStatus
           :status="statusPerCohort[activeTabIndex][repeatIndex] as HarmonizationStatus"

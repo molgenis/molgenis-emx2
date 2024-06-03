@@ -62,16 +62,16 @@ let tocItems = reactive([{ label: "Description", id: "description" }]);
 
 if (cohortsWithMapping.value.length > 0) {
   tocItems.push({
-    label: "Harmonization status per Cohort",
+    label: "Harmonisation status per Cohort",
     id: "harmonization-per-cohort",
   });
   tocItems.push({
-    label: "Harmonization details per Cohort",
+    label: "Harmonisation details per Cohort",
     id: "harmonization-details-per-cohort",
   });
 } else {
   tocItems.push({
-    label: "Harmonization",
+    label: "Harmonisation",
     id: "harmonization-details-no-mapping",
   });
 }
@@ -125,8 +125,8 @@ useHead({ title: titlePrefix + variable.value.name });
         <ContentBlock
           v-if="cohortsWithMapping.length > 0"
           id="harmonization-per-cohort"
-          title="Harmonization status per Cohort"
-          description="Overview of the harmonization status per Cohort"
+          title="Harmonisation status per Cohort"
+          description="Overview of the harmonisation status per Cohort"
         >
           <HarmonizationGridPerVariable
             v-if="isRepeating"
@@ -142,8 +142,8 @@ useHead({ title: titlePrefix + variable.value.name });
         <ContentBlock
           v-if="cohortsWithMapping.length > 0"
           id="harmonization-details-per-cohort"
-          title="Harmonization details per Cohort"
-          description="Select a Cohort to see the details of the harmonization"
+          title="Harmonisation details per Cohort"
+          description="Select a Cohort to see the details of the harmonisation"
         >
           <HarmonizationVariableDetails
             :variable="variable"
@@ -153,8 +153,8 @@ useHead({ title: titlePrefix + variable.value.name });
 
         <ContentBlock
           v-if="cohortsWithMapping.length === 0"
-          id="harmonization-details-no-mapping"
-          title="Harmonization"
+          id="harmonisation-details-no-mapping"
+          title="Harmonisation"
           description="No mapping found for this variable"
         >
         </ContentBlock>

@@ -44,14 +44,14 @@ const props = withDefaults(
           <li>
             <HarmonizationStatusIcon size="small" status="complete" />
             <span
-              >Completed: cohort was able to fully map to the harmonized
+              >Completed: cohort was able to fully map to the harmonised
               variables</span
             >
           </li>
           <li>
             <HarmonizationStatusIcon size="small" status="partial" />
             <span
-              >Partial: cohort was able to partially map to the harmonized
+              >Partial: cohort was able to partially map to the harmonised
               variable</span
             >
           </li>
@@ -61,7 +61,7 @@ const props = withDefaults(
               status="unmapped"
               class="bg-white"
             />
-            <span>No data: no harmonization information is available</span>
+            <span>No data: no harmonisation information is available</span>
           </li>
         </ul>
       </template>

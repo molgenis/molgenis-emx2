@@ -91,7 +91,7 @@ function percentageLongitudinal(
         v-if="!config.public.cohortOnly"
         image="checklist"
         title="Variables"
-        description="A listing of all collected, harmonized and standard variables."
+        description="A listing of all collected, harmonised and standard variables."
         :count="data.data.Variables_agg.count"
         :link="`/${route.params.schema}/ssr-catalogue/all/variables`"
       />
@@ -136,7 +136,7 @@ function percentageLongitudinal(
       <!-- todo must split in collected and harmonized -->
       <LandingCardSecondary
         icon="harmonized-variables"
-        title="Harmonized variables"
+        title="Harmonised variables"
         :count="data.data.Organisations_agg.count"
         :link="`/${route.params.schema}/ssr-catalogue/all/variables`"
       />
