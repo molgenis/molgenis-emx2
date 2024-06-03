@@ -33,14 +33,16 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | 14 |Countries|Armenia, Bermuda, Réunion | | |
 | 15 |Regions|Bradford, Lapland, Gipuzkoa | | |
 | 16 |Population age groups|Adult (18+ years) | | |
-| 17 |Main medical condition|VII Diseases of the eye and adnexa, VIII Diseases of the ear and mastoid process | | |
-| 18 |Population disease|V Mental and behavioural disorders, IV Endocrine, nutritional and metabolic diseases | | |
-| 19 |ICDO topology|BASE OF TONGUE, UTERUS, NOS | | |
-| 20 |ICDO morphology|Carcinoma, metastatic, NOS Carcinomatosis | | |
+| 17 |Population disease|many, many items listed for population disease | | |
+| 19 |Population oncology topology|BASE OF TONGUE, UTERUS, NOS | | |
+| 20 |Population oncology morphology|Carcinoma, metastatic, NOS Carcinomatosis | | |
 | 21 |Inclusion criteria|Clinically relevant exposure inclusion criterion | | |
 |||Clinically relevant lifestyle inclusion criterion | | |
 |||Country of residence inclusion criteria | | |
-| 22|CONTACT AND CONTRIBUTORS|1 card per contact person with: (titles) (initials) ((first name)) (surname prefix) (surname), (email address), (description of role) | | |
+| 22|CONTRIBUTORS||||
+| 22a| Contact button ||||
+| | Contributors
+| | 1 card per contact person with: (titles) (initials) ((first name)) (surname prefix) (surname), (email address), (description of role) | | |
 |||dr. ir.  P.I.P.M. (PIPM) surname prefix last name PIPM ---- pipm@testdomain.nl -----  Test description of PI/PM role | | |
 |||dr.  D.M. (datamgr first name) datamgr surname prefix datamgr last name --- test@email.nl --- test description for data manager role | | |
 ||NB not all blocks are tested in this test plan| | | |
@@ -68,15 +70,13 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 |||name of test network1 | | |
 |||> Read more | | |
 | 28|ACCESS CONDITIONS|Data access conditions description text cohort 1 - yes fee | | |
-||Conditions|general research use, health or medical or biomedical research | | |
-||Release  |Release description cohort 1 | | |
-||Release type |closed dataset | | |
-||Linkage options|Linkage options cohort 1 | | |
-||Linkage possibility description|linkage possibility description cohort 1 | | |
+||Data access conditions|general research use, health or medical or biomedical research | | |
+|| Data use conditions| genetic studies only, publication required, ethics approval required |||
 ||Data access fee|true | | |
+||Release type |closed dataset | | |
+||Release description |Release description cohort 1 | | |
 ||Prelinked|true | | |
-||Data holder |test lead organisation 1 | | |
-||Data use conditions|genetic studies only, publication required, ethics approval required | | |
-| 29|ATTACHED FILES|Documents | | |
+||Linkage options|Linkage options cohort 1 | | |
+| 29|DOCUMENTATION|Documents | | |
 |||Card per document, clickable so that you open the document - test doc2 for test cohort 1 and test documentation for cohort 1 | | |
 | 30|Click on test documentation for cohort 1|test documentation for cohort 1 opens in a separate window | | |
