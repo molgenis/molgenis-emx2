@@ -70,6 +70,21 @@
                       </div>
                     </div>
                   </Tab>
+                  <Tab :title="`Subcollections (${subcollections.length})`">
+                    <div class="pt-3">
+                      <div
+                        v-for="(subcollection, index) in subcollections"
+                        :key="subcollection.id"
+                      >
+                        <hr v-if="index" />
+                        <CollectionTitle
+                          :title="subcollection.name"
+                          :id="subcollection.id"
+                        />
+                        <ViewGenerator :viewmodel="subcollection.viewmodel" />
+                      </div>
+                    </div>
+                  </Tab>
                   <Tab :title="`Biobanks (${biobanks.length})`">
                     <div class="pt-3">
                       <div
@@ -130,6 +145,7 @@ import ReportTitle from "../components/report-components/ReportTitle.vue";
 import {
   getCollectionDetails,
   mapAlsoKnownIn,
+  mapSubcollections,
 } from "../functions/viewmodelMapper";
 import { useNetworkStore } from "../stores/networkStore";
 import { useQualitiesStore } from "../stores/qualitiesStore";
@@ -155,6 +171,7 @@ const uiText = computed(() => settingsStore.uiText);
 const networkReport = computed(() => networkStore.networkReport);
 const collections = computed(filterCollections);
 const collectionsAvailable = computed(() => collections.value?.length);
+const subcollections = computed(filterSubcollections);
 const biobanks = computed(() => networkReport.value.biobanks);
 const biobanksAvailable = computed(() => biobanks.value?.length);
 const network = computed(() => networkReport.value.network);
@@ -169,6 +186,19 @@ function filterCollections() {
       .map((collection: Record<string, any>) =>
         getCollectionDetails(collection)
       ) || []
+  );
+}
+function filterSubcollections() {
+  return (
+    networkReport.value.collections
+      ?.filter(
+        (collection: Record<string, any>) =>
+          collection.sub_collections && collection.sub_collections.length
+      )
+      .map((collection: Record<string, any>) =>
+        mapSubcollections(collection.sub_collections, 1)
+      )
+      .flat() || []
   );
 }
 </script>

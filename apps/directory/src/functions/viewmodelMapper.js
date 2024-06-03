@@ -207,7 +207,7 @@ function extractCollectionTypes(collections, prevCollectionHashmap) {
   return collectionTypes;
 }
 
-function mapSubcollections(collections, level) {
+export function mapSubcollections(collections, level) {
   const settingsStore = useSettingsStore();
   const sortedCollections = sortCollectionsByName(collections);
 
