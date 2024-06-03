@@ -393,7 +393,11 @@ crumbs["Networks"] = `/${route.params.schema}/ssr-catalogue/networks`;
           id="variables"
           title="Variables"
         >
-          <NuxtLink to="/variables">View variables</NuxtLink>
+          <NuxtLink
+            class="text-body-base font-extrabold text-blue-500 hover:underline hover:bg-blue-50"
+            :to="`/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/variables`"
+            >View variables</NuxtLink
+          >
         </ContentBlock>
       </ContentBlocks>
     </template>
