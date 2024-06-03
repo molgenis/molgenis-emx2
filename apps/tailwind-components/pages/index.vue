@@ -1,10 +1,11 @@
 <script setup lang="ts">
-const modules = import.meta.glob("./*.story.vue", {
+const modules = import.meta.glob("./**/*.story.vue", {
   import: "default",
   eager: true,
 });
 
 const stories = Object.entries(modules).map(([key, value]) => {
+  console.log(key);
   const title = key.replace("./", "").replace(".story.vue", "");
   return { title, component: value };
 });

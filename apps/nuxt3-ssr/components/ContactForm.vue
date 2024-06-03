@@ -16,13 +16,13 @@ defineEmits(["submitForm"]);
         field.label
       }}</label>
 
-      <FormStringInput
+      <InputString
         v-if="field.inputType === 'string'"
         :id="field.name"
         v-model="field.fieldValue"
         :has-error="field.hasError"
       />
-      <FormTextAreaInput
+      <InputTextArea
         v-else-if="field.inputType === 'textarea'"
         :id="field.name"
         v-model="field.fieldValue"
