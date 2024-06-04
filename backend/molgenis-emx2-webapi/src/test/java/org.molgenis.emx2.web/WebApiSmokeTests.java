@@ -845,6 +845,16 @@ public class WebApiSmokeTests {
         .expect()
         .contentType("text/turtle")
         .when()
+        .head("http://localhost:" + PORT + "/api/fdp");
+  }
+
+  @Test
+  public void testNonDefinedFDPHead() {
+    given()
+        .sessionId(SESSION_ID)
+        .expect()
+        .contentType("text/html;charset=utf-8")
+        .when()
         .head("http://localhost:" + PORT + "/api/fdp/");
   }
 
@@ -855,9 +865,9 @@ public class WebApiSmokeTests {
         .redirects()
         .follow(false)
         .expect()
-        .header("Location", "http://localhost:" + PORT + "/api/fdp/")
+        .header("Location", "http://localhost:" + PORT + "/api/fdp")
         .when()
-        .get("http://localhost:" + PORT + "/api/fdp");
+        .get("http://localhost:" + PORT + "/api/fdp/");
   }
 
   @Test
