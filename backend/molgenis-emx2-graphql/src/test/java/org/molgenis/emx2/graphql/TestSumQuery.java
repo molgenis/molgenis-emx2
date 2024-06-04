@@ -96,8 +96,9 @@ public class TestSumQuery {
   public void testSumQueryGroupByRefArray() {
     Table table = schema.getTable(SAMPLES).getMetadata().getTable();
     Query query1 = table.groupBy();
-    query1.select(s(SUM_FIELD, s(N)), s(TYPE, s(NAME)));
+    query1.select(s(SUM_FIELD, s(N)), s(TYPE_ARRAY, s(NAME)));
     final String json = query1.retrieveJSON();
+    // note, should return identifier not name of column as key!
     assertTrue(json.contains("n\": 37")); // for Type A
     assertTrue(json.contains("34")); // for Type B
   }
@@ -108,11 +109,6 @@ public class TestSumQuery {
     Query query1 = table.groupBy();
     query1.select(s(SUM_FIELD, s(N)), s(TAG));
     final String json = query1.retrieveJSON();
-    assertTrue(json.contains("n\": 28")); // for Type A
-    assertTrue(json.contains("green")); // green
-    assertTrue(json.contains("red")); // red
-    assertTrue(json.contains("n\": 28")); // for green
-    assertTrue(json.contains("11")); // for red
     assertEquals(
         "{\"Samples_groupBy\": [{\"tag\": \"green\", \"_sum\": {\"n\": 28}}, {\"tag\": \"red\", \"_sum\": {\"n\": 11}}]}",
         json);
