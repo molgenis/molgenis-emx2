@@ -322,10 +322,12 @@ public class GraphqlTableFieldFactory {
 
       for (Column column : table.getColumns()) {
         // for now only 'ref' types. We might want to have truncating actions for the other types.
-        if (column.isReference()
-                && (hasViewPermission(table) && hasViewPermission(column.getRefTable())
-                    || column.isOntology())
-            || (!column.isReference() && hasViewPermission(table))) {
+        if (column.isReference() && (hasViewPermission(table) || column.isOntology())) {
+          groupByBuilder.field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(column.getIdentifier())
+                  .type(createTableObjectType(column.getRefTable())));
+        } else if (!column.isReference() && hasViewPermission(table)) {
           createTableField(column, groupByBuilder);
         }
       }
