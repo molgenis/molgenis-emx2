@@ -117,7 +117,8 @@ public class TestSumQuery {
         "{\"Samples_groupBy\": [{\"tag\": \"green\", \"_sum\": {\"n\": 28}}, {\"tag\": \"red\", \"_sum\": {\"n\": 11}}]}",
         json);
 
-    //todo, we need a permission test!
+    // todo, we need a permission test to ensure this cannot be done unless you have view permssion
+    // on the table
   }
 
   @Test
