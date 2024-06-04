@@ -7,6 +7,7 @@ import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.TableMetadata.table;
+import static org.molgenis.emx2.datamodels.PetStoreLoader.TAG;
 import static org.molgenis.emx2.sql.SqlQuery.SUM_FIELD;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -46,17 +47,39 @@ public class TestSumQuery {
 
     final Table samplesTable =
         schema.create(
-            table(SAMPLES)
-                .add(column("N").setType(INT))
-                .add(column(TYPE).setType(REF).setRefTable(TYPE).setPkey())
-                .add(column(TYPE_ARRAY).setType(REF_ARRAY).setRefTable(TYPE))
-                .add(column(GENDER).setType(REF).setRefTable(GENDER).setPkey()));
+            table(
+                SAMPLES,
+                column("N").setType(INT),
+                column(TYPE).setType(REF).setRefTable(TYPE).setPkey(),
+                column(TYPE_ARRAY).setType(REF_ARRAY).setRefTable(TYPE),
+                column(GENDER).setType(REF).setRefTable(GENDER).setPkey(),
+                column(TAG).setType(STRING)));
 
     samplesTable.insert(
-        row(N, 23, TYPE, "Type a", GENDER, "M", TYPE_ARRAY, List.of("Type a", "Type b")),
-        row(N, 5, TYPE, "Type a", GENDER, "F", TYPE_ARRAY, List.of("Type a")),
-        row(N, 2, TYPE, "Type b", GENDER, "M", TYPE_ARRAY, List.of("Type b")),
-        row(N, 9, TYPE, "Type b", GENDER, "F", TYPE_ARRAY, List.of("Type a", "Type b")));
+        row(
+            N,
+            23,
+            TYPE,
+            "Type a",
+            GENDER,
+            "M",
+            TYPE_ARRAY,
+            List.of("Type a", "Type b"),
+            TAG,
+            "green"),
+        row(N, 5, TYPE, "Type a", GENDER, "F", TYPE_ARRAY, List.of("Type a"), TAG, "green"),
+        row(N, 2, TYPE, "Type b", GENDER, "M", TYPE_ARRAY, List.of("Type b"), TAG, "red"),
+        row(
+            N,
+            9,
+            TYPE,
+            "Type b",
+            GENDER,
+            "F",
+            TYPE_ARRAY,
+            List.of("Type a", "Type b"),
+            TAG,
+            "red"));
   }
 
   @Test
@@ -73,11 +96,28 @@ public class TestSumQuery {
   public void testSumQueryGroupByRefArray() {
     Table table = schema.getTable(SAMPLES).getMetadata().getTable();
     Query query1 = table.groupBy();
-    query1.select(s(SUM_FIELD, s(N)), s(TYPE_ARRAY, s(NAME)));
+    query1.select(s(SUM_FIELD, s(N)), s(TYPE, s(NAME)));
     final String json = query1.retrieveJSON();
-    // note, should return identifier not name of column as key!
     assertTrue(json.contains("n\": 37")); // for Type A
     assertTrue(json.contains("34")); // for Type B
+  }
+
+  @Test
+  public void testSumQueryGroupByNonRef() {
+    Table table = schema.getTable(SAMPLES).getMetadata().getTable();
+    Query query1 = table.groupBy();
+    query1.select(s(SUM_FIELD, s(N)), s(TAG));
+    final String json = query1.retrieveJSON();
+    assertTrue(json.contains("n\": 28")); // for Type A
+    assertTrue(json.contains("green")); // green
+    assertTrue(json.contains("red")); // red
+    assertTrue(json.contains("n\": 28")); // for green
+    assertTrue(json.contains("11")); // for red
+    assertEquals(
+        "{\"Samples_groupBy\": [{\"tag\": \"green\", \"_sum\": {\"n\": 28}}, {\"tag\": \"red\", \"_sum\": {\"n\": 11}}]}",
+        json);
+
+    //todo, we need a permission test!
   }
 
   @Test
