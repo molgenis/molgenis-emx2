@@ -86,7 +86,7 @@ export function setChartType(xType: string, yType: string): string[] | null {
  */
 export function setGraphQlEndpoint(schema: string) {
   if (schema) {
-    return `/${schema}/api/graphql`
+    return `/${schema}/api/graphql`;
   }
   return "../api/graphql";
 }

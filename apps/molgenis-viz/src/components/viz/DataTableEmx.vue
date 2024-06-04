@@ -45,7 +45,7 @@ const emit = defineEmits<{
   (e: "viz-data-clicked", row: object): void;
 }>();
 
-const graphqlEndpoint = ref<string|null>(null);
+const graphqlEndpoint = ref<string | null>(null);
 
 const tableLoading = ref<boolean>(true);
 const tableSuccess = ref<boolean>(false);
@@ -58,7 +58,7 @@ const columnOrder = ref<string[] | null>(null);
 
 function setChartVariables() {
   graphqlEndpoint.value = setGraphQlEndpoint(props.schema);
-  
+
   tableDataQuery.value = buildQuery({
     table: props.table,
     selections: [props.columns],

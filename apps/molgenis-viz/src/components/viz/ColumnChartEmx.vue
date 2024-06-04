@@ -53,7 +53,7 @@ const emit = defineEmits<{
   (e: "viz-data-clicked", row: object): void;
 }>();
 
-const graphqlEndpoint = ref<string|null>(null);
+const graphqlEndpoint = ref<string | null>(null);
 
 const chartLoading = ref<boolean>(true);
 const chartSuccess = ref<boolean>(false);
@@ -68,7 +68,7 @@ const ySubSelection = ref<string | null>(null);
 
 function setChartVariables() {
   graphqlEndpoint.value = setGraphQlEndpoint(props.schema);
-  
+
   xVar.value = gqlExtractSelectionName(props.xvar);
   yVar.value = gqlExtractSelectionName(props.yvar);
   xSubSelection.value = gqlExtractSubSelectionNames(props.xvar);

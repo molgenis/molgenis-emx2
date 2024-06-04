@@ -73,7 +73,7 @@ const emit = defineEmits<{
   (e: "viz-data-clicked", row: object): void;
 }>();
 
-const graphqlEndpoint = ref<string|null>(null);
+const graphqlEndpoint = ref<string | null>(null);
 
 const chartLoading = ref<boolean>(true);
 const chartSuccess = ref<boolean>(false);
