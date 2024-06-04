@@ -342,6 +342,8 @@ public class GraphqlTableFieldFactory {
       GraphQLObjectType.Builder builder = GraphQLObjectType.newObject().name(tableAggregationType);
       builder.field(
           GraphQLFieldDefinition.newFieldDefinition().name("count").type(Scalars.GraphQLInt));
+      builder.field(
+          GraphQLFieldDefinition.newFieldDefinition().name("exists").type(Scalars.GraphQLBoolean));
       if (hasViewPermission(table)) {
         List<Column> aggCols =
             table.getColumns().stream()

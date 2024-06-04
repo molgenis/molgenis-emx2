@@ -1,6 +1,10 @@
 package org.molgenis.emx2;
 
 public enum Privileges {
+  // can only see if data exists on aggregate queries
+  BOOLEAN("Boolean"),
+  // can only see a certain range of counts exists on aggregate queries
+  RANGE("Range"),
   // can aggregate
   AGGREGATOR("Aggregator"),
   // can select

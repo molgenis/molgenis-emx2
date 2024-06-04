@@ -3,6 +3,7 @@ package org.molgenis.emx2.sql;
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.Operator.*;
+import static org.molgenis.emx2.Privileges.BOOLEAN;
 import static org.molgenis.emx2.Privileges.VIEWER;
 import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.searchColumnName;
@@ -26,6 +27,7 @@ import org.slf4j.LoggerFactory;
 public class SqlQuery extends QueryBean {
   public static int AGGREGATE_COUNT_THRESHOLD = Integer.MIN_VALUE; // threshold disabled by default
   public static final String COUNT_FIELD = "count";
+  public static final String EXISTS_FIELD = "exists";
   public static final String MAX_FIELD = "max";
   public static final String MIN_FIELD = "min";
   public static final String AVG_FIELD = "avg";
@@ -692,6 +694,10 @@ public class SqlQuery extends QueryBean {
           fields.add(count().as(COUNT_FIELD));
         } else {
           fields.add(field("GREATEST(COUNT(*),{0})", 10L).as(COUNT_FIELD));
+        }
+      } else if (EXISTS_FIELD.equals(field.getColumn())) {
+        if (schema.hasActiveUserRole(BOOLEAN.toString())) {
+          fields.add(field("COUNT(*) > 0").as(EXISTS_FIELD));
         }
       } else if (List.of(MAX_FIELD, MIN_FIELD, AVG_FIELD, SUM_FIELD).contains(field.getColumn())) {
         checkHasViewPermission(table);

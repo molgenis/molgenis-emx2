@@ -25,18 +25,24 @@ class SqlSchemaMetadataExecutor {
     step.execute();
 
     String schemaName = schema.getName();
+    String bool = getRolePrefix(schemaName) + BOOLEAN;
+    String range = getRolePrefix(schemaName) + RANGE;
     String aggregator = getRolePrefix(schemaName) + AGGREGATOR;
     String viewer = getRolePrefix(schemaName) + VIEWER;
     String editor = getRolePrefix(schemaName) + EDITOR;
     String manager = getRolePrefix(schemaName) + MANAGER;
-    String owner = getRolePrefix(schemaName) + Privileges.OWNER;
+    String owner = getRolePrefix(schemaName) + OWNER;
 
+    db.addRole(bool);
+    db.addRole(range);
     db.addRole(aggregator);
     db.addRole(viewer);
     db.addRole(editor);
     db.addRole(manager);
     db.addRole(owner);
 
+    db.getJooq().execute("GRANT {0} TO {1}", name(bool), name(range));
+    db.getJooq().execute("GRANT {0} TO {1}", name(range), name(aggregator));
     // make viewer also aggregator
     db.getJooq().execute("GRANT {0} TO {1}", name(aggregator), name(viewer));
 
