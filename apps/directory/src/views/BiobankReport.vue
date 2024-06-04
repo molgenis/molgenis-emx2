@@ -34,41 +34,48 @@
       <div class="row" v-if="biobankDataAvailable">
         <div class="col p-0">
           <report-title type="Biobank" :name="biobank.name"></report-title>
+
           <div class="container pl-0">
             <div class="row">
               <div class="col-md-8" v-if="biobankDataAvailable">
                 <view-generator :viewmodel="biobank.viewmodel" />
 
-                <!-- Collection Part -->
-                <h3 class="mt-4">Collections</h3>
-                <div v-if="!collectionsData.length">
-                  This biobank does not contain any collections.
-                </div>
-                <div
-                  v-else
-                  v-for="(collection, index) in collectionsData"
-                  :key="collection.id"
-                >
-                  <hr v-if="index" />
-                  <div class="d-flex align-items-center">
-                    <collection-title
-                      :title="collection.name"
-                      :id="collection.id"
-                    />
-                    <collection-selector
-                      :disabled="biobank.withdrawn"
-                      class="pl-4 ml-auto"
-                      :biobankData="biobank"
-                      :collectionData="collection"
-                    />
-                  </div>
-                  <collapse-component>
-                    <view-generator
-                      class="collection-view"
-                      :viewmodel="collection.viewmodel"
-                    />
-                  </collapse-component>
-                </div>
+                <Tabs>
+                  <template #titleAddon="{ title }">
+                    <InfoPopover
+                      v-if="title.startsWith('Collections')"
+                      faIcon="fa-regular fa-circle-question"
+                      textColor="text-info"
+                      class="tab-icon ml-2"
+                      style=""
+                      popover-placement="top"
+                    >
+                      <div class="popover-content">
+                        Collections: {{ collectionsAvailable }}<br />
+                        Subcollections: {{ subcollectionsAvailable }}
+                      </div>
+                    </InfoPopover>
+                  </template>
+                  <Tab
+                    :title="`Collections (${collectionsAvailable} / ${subcollectionsAvailable})`"
+                  >
+                    <div v-if="collectionsAvailable">
+                      <div class="pt-3">
+                        <div
+                          v-for="(collection, index) in collectionsData"
+                          :key="collection.id"
+                        >
+                          <hr v-if="index" />
+                          <CollectionTitle
+                            :title="collection.name"
+                            :id="collection.id"
+                          />
+                          <ViewGenerator :viewmodel="collection.viewmodel" />
+                        </div>
+                      </div>
+                    </div>
+                  </Tab>
+                </Tabs>
               </div>
               <!-- Right side card -->
               <div class="col-md-4">
@@ -113,10 +120,16 @@
 </template>
 
 <script lang="ts">
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { useRoute } from "vue-router";
 //@ts-ignore
-import { Breadcrumb, Spinner } from "../../../molgenis-components";
+import {
+  Breadcrumb,
+  Spinner,
+  Tabs,
+  Tab,
+  InfoPopover,
+} from "../../../molgenis-components";
 import CheckOut from "../components/checkout-components/CheckOut.vue";
 import CollectionSelector from "../components/checkout-components/CollectionSelector.vue";
 import ViewGenerator from "../components/generators/ViewGenerator.vue";
@@ -125,6 +138,7 @@ import CollectionTitle from "../components/report-components/CollectionTitle.vue
 import ContactInformation from "../components/report-components/ContactInformation.vue";
 import ReportDetailsList from "../components/report-components/ReportDetailsList.vue";
 import ReportTitle from "../components/report-components/ReportTitle.vue";
+import ReportDescription from "../components/report-components/ReportDescription.vue";
 import { mapBiobankToBioschemas } from "../functions/bioschemasMapper";
 import {
   getBiobankDetails,
@@ -133,6 +147,7 @@ import {
   mapAlsoKnownIn,
   mapNetworkInfo,
   mapQualityStandards,
+  mapSubcollections,
 } from "../functions/viewmodelMapper";
 import { useBiobanksStore } from "../stores/biobanksStore";
 import { useQualitiesStore } from "../stores/qualitiesStore";
@@ -151,14 +166,20 @@ export default {
     ReportTitle,
     Spinner,
     ViewGenerator,
+    Tabs,
+    Tab,
+    InfoPopover,
+    ReportDescription,
   },
   setup() {
     const settingsStore = useSettingsStore();
     const biobanksStore = useBiobanksStore();
     const qualitiesStore = useQualitiesStore();
-
-    const biobank: Record<string, any> = ref({});
     const route = useRoute();
+
+    const biobank = ref<Record<string, any>>({});
+    const collections = computed(filterCollections);
+    const subcollections = computed(filterSubcollections);
 
     biobanksStore
       .getBiobank(route.params.id)
@@ -168,7 +189,40 @@ export default {
           : {};
       });
 
-    return { settingsStore, biobanksStore, qualitiesStore, biobank };
+    function filterCollections() {
+      return (
+        biobank.value.collections
+          ?.filter(
+            (collection: Record<string, any>) => !collection.parent_collection
+          )
+          .map((collection: Record<string, any>) =>
+            getCollectionDetails(collection)
+          ) || []
+      );
+    }
+
+    function filterSubcollections() {
+      return (
+        biobank.value.collections
+          ?.filter(
+            (collection: Record<string, any>) =>
+              collection.sub_collections && collection.sub_collections.length
+          )
+          .map((collection: Record<string, any>) =>
+            mapSubcollections(collection.sub_collections, 1)
+          )
+          .flat() || []
+      );
+    }
+
+    return {
+      settingsStore,
+      biobanksStore,
+      qualitiesStore,
+      biobank,
+      collections,
+      subcollections,
+    };
   },
   methods: {
     wrapBioschema(schemaData: Record<string, any>) {
@@ -241,6 +295,12 @@ export default {
       return this.biobankDataAvailable
         ? this.wrapBioschema(mapBiobankToBioschemas(this.biobank))
         : undefined;
+    },
+    collectionsAvailable() {
+      return this.collections.length;
+    },
+    subcollectionsAvailable() {
+      return this.subcollections.length;
     },
   },
   async mounted() {

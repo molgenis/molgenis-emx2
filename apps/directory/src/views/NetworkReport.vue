@@ -46,7 +46,24 @@
                   </ul>
                 </div>
                 <Tabs>
-                  <Tab :title="`Collections (${collections.length})`">
+                  <template #titleAddon="{ title }">
+                    <InfoPopover
+                      v-if="title.startsWith('Collections')"
+                      faIcon="fa-regular fa-circle-question"
+                      textColor="text-info"
+                      class="tab-icon ml-2"
+                      style=""
+                      popover-placement="top"
+                    >
+                      <div class="popover-content">
+                        Collections: {{ collectionsAvailable }}<br />
+                        Subcollections: {{ subcollectionsAvailable }}
+                      </div>
+                    </InfoPopover>
+                  </template>
+                  <Tab
+                    :title="`Collections (${collectionsAvailable} / ${subcollectionsAvailable})`"
+                  >
                     <div
                       v-if="
                         !collections ||
@@ -67,21 +84,6 @@
                           />
                           <ViewGenerator :viewmodel="collection.viewmodel" />
                         </div>
-                      </div>
-                    </div>
-                  </Tab>
-                  <Tab :title="`Subcollections (${subcollections.length})`">
-                    <div class="pt-3">
-                      <div
-                        v-for="(subcollection, index) in subcollections"
-                        :key="subcollection.id"
-                      >
-                        <hr v-if="index" />
-                        <CollectionTitle
-                          :title="subcollection.name"
-                          :id="subcollection.id"
-                        />
-                        <ViewGenerator :viewmodel="subcollection.viewmodel" />
                       </div>
                     </div>
                   </Tab>
@@ -133,7 +135,13 @@
 
 <script setup lang="ts">
 //@ts-ignore
-import { Breadcrumb, Spinner, Tab, Tabs } from "molgenis-components";
+import {
+  Breadcrumb,
+  Spinner,
+  Tab,
+  Tabs,
+  InfoPopover,
+} from "molgenis-components";
 import { computed, ref } from "vue";
 import { useRoute } from "vue-router";
 import ViewGenerator from "../components/generators/ViewGenerator.vue";
@@ -172,6 +180,7 @@ const networkReport = computed(() => networkStore.networkReport);
 const collections = computed(filterCollections);
 const collectionsAvailable = computed(() => collections.value?.length);
 const subcollections = computed(filterSubcollections);
+const subcollectionsAvailable = computed(() => subcollections.value?.length);
 const biobanks = computed(() => networkReport.value.biobanks);
 const biobanksAvailable = computed(() => biobanks.value?.length);
 const network = computed(() => networkReport.value.network);
