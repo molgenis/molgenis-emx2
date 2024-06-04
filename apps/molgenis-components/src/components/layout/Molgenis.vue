@@ -195,7 +195,11 @@ export default {
         }
         const additionalJs = this.session?.settings?.additionalJs;
         if (additionalJs) {
-          eval(additionalJs);
+          try {
+            return eval?.(`"use strict";(${additionalJs})`);
+          } catch (error) {
+            console.log(error);
+          }
         }
         this.$emit("update:modelValue", this.session);
       },
