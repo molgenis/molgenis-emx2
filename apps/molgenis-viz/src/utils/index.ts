@@ -81,6 +81,17 @@ export function setChartType(xType: string, yType: string): string[] | null {
 }
 
 /**
+ * Set GraphQL Endpoint based on props.schema
+ * @param schema input value containing a name of a schema
+ */
+export function setGraphQlEndpoint(schema: string) {
+  if (schema) {
+    return `/${schema}/api/graphql`
+  }
+  return "../api/graphql";
+}
+
+/**
  * Check to see if number is between 0 and 1
  * @param value a value that is between 0 and 1
  * @returns boolean

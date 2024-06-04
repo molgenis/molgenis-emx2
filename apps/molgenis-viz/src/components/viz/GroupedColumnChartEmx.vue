@@ -37,6 +37,7 @@ import { ref, onBeforeMount, watch, computed } from "vue";
 import { gql } from "graphql-tag";
 import { request } from "graphql-request";
 
+import { setGraphQlEndpoint } from "../../utils";
 import type { GroupedColumnChartParams } from "../../interfaces/viz";
 import {
   buildQuery,
@@ -59,10 +60,7 @@ const emit = defineEmits<{
   (e: "viz-data-clicked", row: object): void;
 }>();
 
-const graphqlEndpoint = computed<string>(() => {
-  const root: string = props.schema ? `/${props.schema}` : "..";
-  return `${root}/api/graphql`;
-});
+const graphqlEndpoint = ref<string|null>(null);
 
 const chartLoading = ref<boolean>(true);
 const chartSuccess = ref<boolean>(false);
@@ -78,6 +76,8 @@ const ySubSelection = ref<string | null>(null);
 const groupSubSelection = ref<string | null>(null);
 
 function setChartVariables() {
+  graphqlEndpoint.value = setGraphQlEndpoint(props.schema);
+
   xVar.value = gqlExtractSelectionName(props.xvar);
   yVar.value = gqlExtractSelectionName(props.yvar);
   groupVar.value = gqlExtractSelectionName(props.group);

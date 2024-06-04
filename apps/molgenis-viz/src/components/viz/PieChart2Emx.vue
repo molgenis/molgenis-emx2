@@ -34,6 +34,7 @@ import { ref, onBeforeMount, watch, computed } from "vue";
 import { gql } from "graphql-tag";
 import { request } from "graphql-request";
 
+import { setGraphQlEndpoint } from "../../utils";
 import {
   buildQuery,
   gqlExtractSelectionName,
@@ -57,10 +58,7 @@ const emit = defineEmits<{
   (e: "viz-data-clicked", row: object): void;
 }>();
 
-const graphqlEndpoint = computed<string>(() => {
-  const root: string = props.schema ? `/${props.schema}` : "..";
-  return `${root}/api/graphql`;
-});
+const graphqlEndpoint = ref<string|null>(null);
 
 const chartLoading = ref<boolean>(true);
 const chartSuccess = ref<boolean>(false);
@@ -74,6 +72,8 @@ const categoriesSubSelection = ref<string | null>(null);
 const valuesSubSelection = ref<string | null>(null);
 
 function setChartVariables() {
+  graphqlEndpoint.value = setGraphQlEndpoint(props.schema);
+
   categoriesVar.value = gqlExtractSelectionName(props.categories);
   valuesVar.value = gqlExtractSelectionName(props.values);
   categoriesSubSelection.value = gqlExtractSubSelectionNames(props.categories);

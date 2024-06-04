@@ -40,6 +40,8 @@ import { ref, onBeforeMount, watch, computed } from "vue";
 import { gql } from "graphql-tag";
 import { request } from "graphql-request";
 
+import { setGraphQlEndpoint } from "../../utils";
+import type { ScatterPlotParams } from "../../interfaces/viz";
 import {
   buildQuery,
   gqlExtractSelectionName,
@@ -47,7 +49,6 @@ import {
   prepareChartData,
 } from "../../utils/emxViz";
 
-import type { ScatterPlotParams } from "../../interfaces/viz";
 import ScatterPlot from "./ScatterPlot.vue";
 import LoadingScreen from "../display/LoadingScreen.vue";
 import MessageBox from "../display/MessageBox.vue";
@@ -60,10 +61,7 @@ const emit = defineEmits<{
   (e: "viz-data-clicked", row: object): void;
 }>();
 
-const graphqlEndpoint = computed<string>(() => {
-  const root: string = props.schema ? `/${props.schema}` : "..";
-  return `${root}/api/graphql`;
-});
+const graphqlEndpoint = ref<string|null>(null);
 
 const chartLoading = ref<boolean>(true);
 const chartSuccess = ref<boolean>(false);
@@ -79,6 +77,8 @@ const ySubSelection = ref<string | null>(null);
 const groupSubSelection = ref<string | null>(null);
 
 function setChartVariables() {
+  graphqlEndpoint.value = setGraphQlEndpoint(props.schema);
+
   xVar.value = gqlExtractSelectionName(props.xvar);
   yVar.value = gqlExtractSelectionName(props.yvar);
   xSubSelection.value = gqlExtractSubSelectionNames(props.xvar);
