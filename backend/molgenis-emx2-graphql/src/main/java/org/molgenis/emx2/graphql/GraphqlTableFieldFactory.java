@@ -345,15 +345,17 @@ public class GraphqlTableFieldFactory {
     tableAggTypes.put(tableAggregationType, GraphQLTypeReference.typeRef(tableAggregationType));
     // aggregate type
     GraphQLObjectType.Builder builder = GraphQLObjectType.newObject().name(tableAggregationType);
-    if (schema.hasRole(EXISTS) || table.getTableType().equals(ONTOLOGIES)) {
+    if (schema.hasActiveUserRole(EXISTS) || table.getTableType().equals(ONTOLOGIES)) {
       builder.field(
           GraphQLFieldDefinition.newFieldDefinition().name("exists").type(Scalars.GraphQLBoolean));
     }
-    if (schema.hasRole(AGGREGATOR) || table.getTableType().equals(ONTOLOGIES)) {
+    if (schema.hasActiveUserRole(AGGREGATOR)
+        || schema.hasActiveUserRole(RANGE)
+        || table.getTableType().equals(ONTOLOGIES)) {
       builder.field(
           GraphQLFieldDefinition.newFieldDefinition().name("count").type(Scalars.GraphQLInt));
     }
-    if (schema.hasRole(VIEWER) || table.getTableType().equals(ONTOLOGIES)) {
+    if (schema.hasActiveUserRole(VIEWER) || table.getTableType().equals(ONTOLOGIES)) {
       List<Column> aggCols =
           table.getColumns().stream()
               .filter(

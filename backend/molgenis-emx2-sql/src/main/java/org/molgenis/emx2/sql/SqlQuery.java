@@ -689,11 +689,7 @@ public class SqlQuery extends QueryBean {
     List<Field<?>> fields = new ArrayList<>();
     for (SelectColumn field : select.getSubselect()) {
       if (COUNT_FIELD.equals(field.getColumn())) {
-        if (schema.hasActiveUserRole(VIEWER.toString())) {
-          fields.add(count().as(COUNT_FIELD));
-        } else {
-          fields.add(field("GREATEST(COUNT(*),{0})", 10L).as(COUNT_FIELD));
-        }
+        fields.add(getCountField().as(COUNT_FIELD));
       } else if (EXISTS_FIELD.equals(field.getColumn())) {
         if (schema.hasActiveUserRole(EXISTS.toString())) {
           fields.add(field("COUNT(*) > 0").as(EXISTS_FIELD));
@@ -722,6 +718,17 @@ public class SqlQuery extends QueryBean {
       }
     }
     return jsonField(table, column, tableAlias, select, filters, searchTerms, subAlias, fields);
+  }
+
+  private Field<?> getCountField() {
+    if (schema.hasActiveUserRole(VIEWER.toString())) {
+      return count();
+    } else if (schema.hasActiveUserRole(AGGREGATOR.toString())) {
+      return field("GREATEST(COUNT(*),{0})", 10L);
+    } else if (schema.hasActiveUserRole(RANGE.toString())) {
+      return field("CEIL(COUNT(*)::numeric / {0}) * {0}", 10L);
+    }
+    throw new MolgenisException("Need permission >= RANGE to perform count queries");
   }
 
   private Field<Object> jsonGroupBySelect(

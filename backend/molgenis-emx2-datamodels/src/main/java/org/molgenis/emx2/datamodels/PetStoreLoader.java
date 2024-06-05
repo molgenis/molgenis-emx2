@@ -108,7 +108,7 @@ public class PetStoreLoader extends AbstractDataLoader {
     schema.addMember(shopmanager, "Manager");
     schema.addMember(shopviewer, "Viewer");
     schema.addMember(shopowner, "Owner");
-    schema.addMember(costumer, "Exists");
+    schema.addMember(costumer, "Range");
 
     schema
         .getTable(CATEGORY)

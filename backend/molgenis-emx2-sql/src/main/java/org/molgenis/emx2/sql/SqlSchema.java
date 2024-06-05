@@ -110,7 +110,7 @@ public class SqlSchema implements Schema {
   }
 
   @Override
-  public boolean hasRole(Privileges privileges) {
+  public boolean hasActiveUserRole(Privileges privileges) {
     return getInheritedRolesForActiveUser().contains(privileges.toString());
   }
 
