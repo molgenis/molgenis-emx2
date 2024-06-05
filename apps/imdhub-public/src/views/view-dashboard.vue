@@ -19,7 +19,7 @@
           <GeoMercatorEmx
             chartId="organisations-map"
             title="Recon4IMD Clinical Sites"
-            description="The map below shows the location of all sites participating in the Recon4imd project." 
+            description="The map below shows the location of all sites participating in the Recon4imd project."
             schema="IMDhub Refs"
             table="Organisations"
             rowId="code"
@@ -28,7 +28,7 @@
             group="name"
             :tooltipTemplate="
               (row) => {
-                return `<p class='title'>${row.name}</p>`
+                return `<p class='title'>${row.name}</p>`;
               }
             "
             :enableLegendClicks="true"
