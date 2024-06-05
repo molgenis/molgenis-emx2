@@ -188,7 +188,13 @@ export default {
           })
           .finally((this.loading = false));
       }
-      this.$router.go();
+      /*
+        The nice wat to reload is: 
+          this.$router.go();
+        Safari is not picking up the reload (browser bug) so using the fallback: 
+          window.location.reload();
+      */
+      window.location.reload();
     },
   },
 };
