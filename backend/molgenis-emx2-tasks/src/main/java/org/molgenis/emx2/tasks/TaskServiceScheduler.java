@@ -37,7 +37,7 @@ public class TaskServiceScheduler {
 
   private void loadExistingCronTasks(TaskService taskService) {
     for (ScriptTask task : taskService.getScripts()) {
-      if (task.getCronExpression() != null) {
+      if (task.getCronExpression() != null && !task.isDisabled()) {
         this.schedule(task);
       }
     }
@@ -110,7 +110,7 @@ public class TaskServiceScheduler {
 
   public void update(ScriptTask scriptTask) {
     // if no cron we remove
-    if (scriptTask.getCronExpression() == null) {
+    if (scriptTask.getCronExpression() == null || scriptTask.isDisabled()) {
       unschedule(scriptTask.getName());
     }
     // otherwise we schedule

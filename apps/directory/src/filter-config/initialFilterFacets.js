@@ -22,7 +22,7 @@ export const initialFilterFacets = [
     component: "CheckboxFilter",
     sourceSchema: ontologySchema,
     sourceTable: "Countries",
-    applyToColumn: ["country.name", "collections.country.name"],
+    applyToColumn: "country.name",
     filterValueAttribute: "name",
     filterLabelAttribute: "label",
     removeOptions: [],

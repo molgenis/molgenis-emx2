@@ -25,6 +25,16 @@
         label="Additional Css"
         v-model="additionalCss"
       />
+      <InputText
+        id="additional-html-footer-input"
+        label="Additional footer HTML"
+        v-model="additionalFooterHtml"
+      />
+      <InputText
+        id="additional-js-input"
+        label="Additional javascript"
+        v-model="additionalJs"
+      />
 
       <ButtonAction @click="saveSettings">Save theme</ButtonAction>
       <br /><br />
@@ -73,6 +83,8 @@ export default {
       graphqlError: null,
       success: null,
       additionalCss: null,
+      additionalFooterHtml: null,
+      additionalJs: null,
     };
   },
   created() {
@@ -86,6 +98,8 @@ export default {
   methods: {
     loadSettings() {
       this.additionalCss = this.session?.settings?.additionalCss;
+      this.additionalFooterHtml = this.session?.settings?.additionalFooterHtml;
+      this.additionalJs = this.session?.settings?.additionalJs;
       if (this.session?.settings?.cssURL) {
         this.logoURL = this.session.settings.logoURL;
         const urlParams = new URL(
@@ -100,7 +114,7 @@ export default {
           : null;
       }
     },
-    saveSettings() {
+    async saveSettings() {
       let settingsAlter = [];
       let settingsDrop = [];
       let cssUrl = "theme.css?";
@@ -124,14 +138,29 @@ export default {
       } else {
         settingsDrop.push({ key: "additionalCss" });
       }
-      this.$emit("reload");
+      if (this.additionalFooterHtml) {
+        settingsAlter.push({
+          key: "additionalFooterHtml",
+          value: this.additionalFooterHtml,
+        });
+      } else {
+        settingsDrop.push({ key: "additionalFooterHtml" });
+      }
+      if (this.additionalJs) {
+        settingsAlter.push({
+          key: "additionalJs",
+          value: this.additionalJs,
+        });
+      } else {
+        settingsDrop.push({ key: "additionalJs" });
+      }
       this.loading = true;
       this.loading = true;
       this.graphqlError = null;
       this.success = null;
       //alter
       if (settingsAlter.length > 0) {
-        request(
+        await request(
           "graphql",
           `mutation change($alter:[MolgenisSettingsInput]){change(settings:$alter){message}}`,
           { alter: settingsAlter }
@@ -146,7 +175,7 @@ export default {
       }
       // drop, dunno how to do this in one call!
       if (settingsDrop.length > 0) {
-        request(
+        await request(
           "graphql",
           `mutation drop($drop:[DropSettingsInput]){drop(settings:$drop){message}}`,
           { drop: settingsDrop }
@@ -159,8 +188,8 @@ export default {
           })
           .finally((this.loading = false));
       }
+      this.$router.go();
     },
   },
-  emits: ["reload"],
 };
 </script>

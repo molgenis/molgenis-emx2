@@ -16,6 +16,7 @@ parameters:
 
 orbs:
   slack: circleci/slack@4.4.4
+  queue: eddiewebb/queue@3.1.4
 
 definitions:
   build_config: &build_config
@@ -193,6 +194,11 @@ jobs:
     <<: *release_config
 
     steps:
+    - queue/until_front_of_line:
+        limit-branch-name: main
+        max-wait-time: '25'
+        my-pipeline: <<pipeline.number>>
+        
     - pre_steps
     
     - run:
