@@ -110,6 +110,11 @@ public class SqlSchema implements Schema {
   }
 
   @Override
+  public boolean hasRole(Privileges privileges) {
+    return getInheritedRolesForActiveUser().contains(privileges.toString());
+  }
+
+  @Override
   public Table create(TableMetadata metadata) {
     getMetadata().create(metadata);
     return getTable(metadata.getTableName());

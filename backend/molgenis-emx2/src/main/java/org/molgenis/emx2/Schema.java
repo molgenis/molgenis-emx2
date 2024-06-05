@@ -14,6 +14,8 @@ public interface Schema {
 
   List<String> getInheritedRolesForActiveUser();
 
+  boolean hasRole(Privileges privileges);
+
   Table create(TableMetadata table);
 
   void create(TableMetadata... table);
