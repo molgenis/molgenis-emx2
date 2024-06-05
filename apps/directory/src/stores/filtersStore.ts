@@ -128,7 +128,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
 
   function checkOntologyDescendantsIfMatches(
     ontologyDescendants: IOntologyItem[],
-    ontologyQuery: any
+    ontologyQuery: string
   ): boolean {
     let finalVerdict = false;
 
@@ -150,7 +150,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
 
   function ontologyItemMatchesQuery(
     ontologyItem: IOntologyItem,
-    ontologyQuery: any
+    ontologyQuery: string
   ) {
     const findString = ontologyQuery.toLowerCase();
     const codeFound = ontologyItem.code.toLowerCase().includes(findString);
@@ -180,7 +180,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     filterName: string,
     value: any,
     add: boolean,
-    fromBookmark: any
+    fromBookmark: any = false
   ) {
     bookmarkTriggeredFilter.value = fromBookmark;
 

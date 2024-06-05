@@ -20,7 +20,7 @@ const resourcePathId = resourceIdPath(variableKey.value);
   <article class="py-5 lg:px-12.5 p-5">
     <header class="flex md:flex-row gap-3 items-start md:items-center">
       <div class="md:basis-2/5 p-2">
-        <h2 class="break-all">
+        <h2>
           <NuxtLink
             :to="`/${schema}/ssr-catalogue/${catalogue}/variables/${resourcePathId}`"
             class="text-body-base font-extrabold text-blue-500 hover:underline hover:bg-blue-50"

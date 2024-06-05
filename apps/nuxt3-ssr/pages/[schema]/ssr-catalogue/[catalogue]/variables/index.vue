@@ -182,7 +182,7 @@ const query = computed(() => {
       label
       description
       mappings ${moduleToString(mappingsFragment)}
-      repeats {
+      repeats(orderby: {name: ASC}) {
         name
         mappings ${moduleToString(mappingsFragment)}
       }
