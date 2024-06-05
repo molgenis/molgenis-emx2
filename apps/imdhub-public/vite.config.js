@@ -2,7 +2,7 @@ import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 
 const host = "https://demo-recon4imd.molgeniscloud.org";
-const schema = "IMDHub Refs";
+const schema = "IMDhub Refs";
 const opts = { changeOrigin: true, secure: false, logLevel: "debug" };
 
 export default defineConfig(() => {

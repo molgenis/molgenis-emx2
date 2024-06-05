@@ -6,13 +6,7 @@
       imageSrc="recon4imd_header.jpg"
       height="medium"
     />
-    <div v-if="!loading && error">
-      <MessageBox type="error">
-        <p><{{ error }}</p>
-      </MessageBox>
-    </div>
     <Dashboard
-      v-else
       :vertical-padding="0"
       :horizontal-padding="2"
       class="bg-blue-050"
@@ -22,18 +16,19 @@
       </MessageBox>
       <DashboardRow :columns="1">
         <DashboardChart>
-          <GeoMercator
+          <GeoMercatorEmx
             chartId="organisations-map"
-            title="Recon4imd Clinical Sites"
-            description="The map below shows the location of all sites participating in the Recon4imd project."
-            :geojson="WorldGeoJson"
-            :chartData="organisations"
+            title="Recon4IMD Clinical Sites"
+            description="The map below shows the location of all sites participating in the Recon4imd project." 
+            schema="IMDhub Refs"
+            table="Organisations"
             rowId="code"
             latitude="latitude"
             longitude="longitude"
+            group="name"
             :tooltipTemplate="
               (row) => {
-                return `<p class='title'>${row.name}</p><p class='location'>${row.city}, ${row.country}</p>`;
+                return `<p class='title'>${row.name}</p>`
               }
             "
             :enableLegendClicks="true"
@@ -61,42 +56,6 @@ import {
   Dashboard,
   DashboardRow,
   DashboardChart,
-  GeoMercator,
-  WorldGeoJson,
+  GeoMercatorEmx,
 } from "molgenis-viz";
-
-import { ref, onMounted } from "vue";
-import gql from "graphql-tag";
-import { request } from "graphql-request";
-import type { RouterViewIF, OrganisationsRecordIF } from "../interfaces";
-
-const props = defineProps<RouterViewIF>();
-const loading = ref<boolean>(true);
-const error = ref<Error | null>(null);
-
-const organisations = ref<OrganisationsRecordIF[]>([]);
-
-async function getData() {
-  const query = gql`
-    {
-      Organisations {
-        name
-        code
-        city
-        country
-        latitude
-        longitude
-      }
-    }
-  `;
-
-  const response = await request("../api/graphql", query);
-  organisations.value = response.Organisations;
-}
-
-onMounted(() => {
-  getData()
-    .catch((err: Error) => (error.value = err))
-    .finally(() => (loading.value = false));
-});
 </script>
