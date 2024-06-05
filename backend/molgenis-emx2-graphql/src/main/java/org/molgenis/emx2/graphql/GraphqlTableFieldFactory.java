@@ -340,10 +340,15 @@ public class GraphqlTableFieldFactory {
       tableAggTypes.put(tableAggregationType, GraphQLTypeReference.typeRef(tableAggregationType));
       // aggregate type
       GraphQLObjectType.Builder builder = GraphQLObjectType.newObject().name(tableAggregationType);
-      builder.field(
-          GraphQLFieldDefinition.newFieldDefinition().name("count").type(Scalars.GraphQLInt));
-      builder.field(
-          GraphQLFieldDefinition.newFieldDefinition().name("exists").type(Scalars.GraphQLBoolean));
+      if (schema.getInheritedRolesForActiveUser().contains(Privileges.EXISTS.toString())) {
+        builder.field(
+            GraphQLFieldDefinition.newFieldDefinition()
+                .name("exists")
+                .type(Scalars.GraphQLBoolean));
+      } else if (schema.getInheritedRolesForActiveUser().contains(Privileges.RANGE.toString())) {
+        builder.field(
+            GraphQLFieldDefinition.newFieldDefinition().name("count").type(Scalars.GraphQLInt));
+      }
       if (hasViewPermission(table)) {
         List<Column> aggCols =
             table.getColumns().stream()
