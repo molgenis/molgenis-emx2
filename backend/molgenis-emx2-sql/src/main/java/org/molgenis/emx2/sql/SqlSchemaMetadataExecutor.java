@@ -25,7 +25,7 @@ class SqlSchemaMetadataExecutor {
     step.execute();
 
     String schemaName = schema.getName();
-    String bool = getRolePrefix(schemaName) + BOOLEAN;
+    String exists = getRolePrefix(schemaName) + EXISTS;
     String range = getRolePrefix(schemaName) + RANGE;
     String aggregator = getRolePrefix(schemaName) + AGGREGATOR;
     String viewer = getRolePrefix(schemaName) + VIEWER;
@@ -33,7 +33,7 @@ class SqlSchemaMetadataExecutor {
     String manager = getRolePrefix(schemaName) + MANAGER;
     String owner = getRolePrefix(schemaName) + OWNER;
 
-    db.addRole(bool);
+    db.addRole(exists);
     db.addRole(range);
     db.addRole(aggregator);
     db.addRole(viewer);
@@ -41,11 +41,12 @@ class SqlSchemaMetadataExecutor {
     db.addRole(manager);
     db.addRole(owner);
 
-    db.getJooq().execute("GRANT {0} TO {1}", name(bool), name(range));
+    // grant range role also exists role
+    db.getJooq().execute("GRANT {0} TO {1}", name(exists), name(range));
+    // grant aggregator role also exists role
     db.getJooq().execute("GRANT {0} TO {1}", name(range), name(aggregator));
     // make viewer also aggregator
     db.getJooq().execute("GRANT {0} TO {1}", name(aggregator), name(viewer));
-
     // make editor also viewer
     db.getJooq().execute("GRANT {0} TO {1}", name(viewer), name(editor));
 
@@ -73,8 +74,8 @@ class SqlSchemaMetadataExecutor {
     db.getJooq().execute("GRANT {0} TO {1}", name(manager), name(sessionUser));
 
     // grant the permissions
-    db.getJooq()
-        .execute("GRANT USAGE ON SCHEMA {0} TO {1}", name(schema.getName()), name(aggregator));
+    db.getJooq().execute("GRANT USAGE ON SCHEMA {0} TO {1}", name(schema.getName()), name(exists));
+    // grant the permissions
     db.getJooq().execute("GRANT ALL ON SCHEMA {0} TO {1}", name(schema.getName()), name(manager));
 
     MetadataUtils.saveSchemaMetadata(db.getJooq(), schema);
