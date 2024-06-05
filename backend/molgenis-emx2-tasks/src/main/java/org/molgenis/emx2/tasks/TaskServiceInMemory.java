@@ -22,6 +22,11 @@ public class TaskServiceInMemory implements TaskService {
   }
 
   @Override
+  public List<ScriptTask> getScripts() {
+    return List.of();
+  }
+
+  @Override
   public String submit(Task task) {
     tasks.put(task.getId(), task);
     executorService.submit(task);

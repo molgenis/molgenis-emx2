@@ -5,7 +5,12 @@ import collectionEventsQuery from "~~/gql/collectionEvents";
 import datasetQuery from "~~/gql/datasets";
 import ontologyFragment from "~~/gql/fragments/ontology";
 import fileFragment from "~~/gql/fragments/file";
-import type { ICohort, IMgError, IOntologyItem } from "~/interfaces/types";
+import type {
+  ICohort,
+  IDefinitionListItem,
+  IMgError,
+  IOntologyItem,
+} from "~/interfaces/types";
 import dateUtils from "~/utils/dateUtils";
 const config = useRuntimeConfig();
 const route = useRoute();
@@ -24,7 +29,24 @@ const query = gql`
       }
       contactEmail
       leadOrganisation {
+        id
+        name
+        email
+        description
+        website
         acronym
+        type {
+          name
+        }
+        institution
+        institutionAcronym
+        typeOther
+        address
+        expertise
+        country {
+          name
+        }
+        logo ${moduleToString(fileFragment)}
       }
       type {
         name
@@ -56,6 +78,8 @@ const query = gql`
         title
         doi
       }
+      populationOncologyTopology ${moduleToString(ontologyFragment)}
+      populationOncologyMorphology ${moduleToString(ontologyFragment)}
       inclusionCriteria ${moduleToString(ontologyFragment)}
       otherInclusionCriteria
       additionalOrganisations {
@@ -106,20 +130,11 @@ const query = gql`
           name
         }
       }
-      dataAccessConditions {
-        name
-        ontologyTermURI
-        code
-        definition
-      }
+      dataAccessConditions ${moduleToString(ontologyFragment)}
       dataAccessConditionsDescription
-      dataUseConditions {
-        name
-        ontologyTermURI
-        code
-        definition
-      }
+      dataUseConditions ${moduleToString(ontologyFragment)}
       dataAccessFee
+      releaseType ${moduleToString(ontologyFragment)}
       releaseDescription
       linkageOptions
       fundingStatement
@@ -240,6 +255,12 @@ let tocItems = computed(() => {
     { label: "Description", id: "Description" },
     { label: "General design", id: "GeneralDesign" },
   ];
+  if (population) {
+    tableOffContents.push({
+      label: "Population",
+      id: "population",
+    });
+  }
   if (cohort.value.contacts) {
     tableOffContents.push({
       label: "Contact & contributors",
@@ -265,11 +286,13 @@ let tocItems = computed(() => {
   if (cohort.value.datasets) {
     tableOffContents.push({ label: "Datasets", id: "Datasets" });
   }
-  if (cohort.value.networks) {
-    tableOffContents.push({ label: "Networks", id: "Networks" });
-  }
+
   if (cohort.value.additionalOrganisations) {
     tableOffContents.push({ label: "Partners", id: "Partners" });
+  }
+
+  if (cohort.value.networks) {
+    tableOffContents.push({ label: "Networks", id: "Networks" });
   }
 
   if (
@@ -292,23 +315,106 @@ let tocItems = computed(() => {
   }
 
   if (cohort.value.documentation) {
-    tableOffContents.push({ label: "Attached files", id: "Files" });
+    tableOffContents.push({ label: "Documentation", id: "Files" });
   }
 
   return tableOffContents;
 });
 
+const population: IDefinitionListItem[] = [
+  {
+    label: "Countries",
+    content: cohort.value?.countries
+      ? [...cohort.value?.countries]
+          .sort((a, b) => b.order - a.order)
+          .map((country) => country.name)
+          .join(", ")
+      : undefined,
+  },
+  {
+    label: "Regions",
+    content: cohort.value?.regions
+      ?.sort((a, b) => b.order - a.order)
+      .map((r) => r.name)
+      .join(", "),
+  },
+  {
+    label: "Number of participants",
+    content: cohort.value?.numberOfParticipants,
+  },
+  {
+    label: "Number of participants with samples",
+    content: cohort.value?.numberOfParticipantsWithSamples,
+  },
+  {
+    label: "Age group at inclusion",
+    content: removeChildIfParentSelected(
+      cohort.value?.populationAgeGroups || []
+    )
+      .sort((a, b) => a.order - b.order)
+      .map((ageGroup) => ageGroup.name)
+      .join(", "),
+  },
+  {
+    label: "Population oncology topology",
+    type: "ONTOLOGY",
+    content: cohort.value.populationOncologyTopology,
+  },
+  {
+    label: "Population oncology morphology",
+    type: "ONTOLOGY",
+    content: cohort.value.populationOncologyMorphology,
+  },
+  {
+    label: "Inclusion criteria",
+    type: "ONTOLOGY",
+    content: cohort.value.inclusionCriteria,
+  },
+  {
+    label: "Other inclusion criteria",
+    content: cohort.value.otherInclusionCriteria,
+  },
+];
+
+if (mainMedicalConditions.value && mainMedicalConditions.value.length > 0) {
+  population.splice(population.length - 4, 0, {
+    label: "Main medical condition",
+    content: mainMedicalConditions.value,
+    type: "ONTOLOGY",
+  });
+}
+
 let accessConditionsItems = computed(() => {
   let items = [];
   if (cohort.value.dataAccessConditions?.length) {
     items.push({
-      label: "Conditions",
+      label: "Data access conditions",
       content: cohort.value.dataAccessConditions.map((c) => c.name),
+    });
+  }
+  if (cohort.value.dataUseConditions) {
+    items.push({
+      label: "Data use conditions",
+      type: "ONTOLOGY",
+      content: cohort.value.dataUseConditions,
+    });
+  }
+  if (cohort.value.dataAccessFee) {
+    items.push({
+      label: "Data access fee",
+      content: cohort.value.dataAccessFee,
+    });
+  }
+  if (cohort.value.releaseType) {
+    items.push({
+      label: "Release type",
+      type: "ONTOLOGY",
+      content: cohort.value.releaseType,
     });
   }
   if (cohort.value.releaseDescription) {
     items.push({
-      label: "Release",
+      label: "Release description",
       content: cohort.value.releaseDescription,
     });
   }
@@ -332,7 +438,7 @@ let fundingAndAcknowledgementItems = computed(() => {
   }
   if (cohort.value.acknowledgements) {
     items.push({
-      label: "Citation requirements ",
+      label: "Acknowledgements",
       content: cohort.value.acknowledgements,
     });
   }
@@ -360,6 +466,13 @@ if (route.params.catalogue) {
   crumbs["Home"] = `/${route.params.schema}/ssr-catalogue/`;
   crumbs["Browse"] = `/${route.params.schema}/ssr-catalogue/all`;
   crumbs["Cohorts"] = `/${route.params.schema}/ssr-catalogue/all/cohorts`;
+}
+
+const activeLeadOrganisationSideModalIndex = ref(-1);
+
+function showLeadOrganisationSideModal(index: number) {
+  console.log("showLeadOrganisationSideModal", index);
+  activeLeadOrganisationSideModalIndex.value = index;
 }
 </script>
 <template>
@@ -403,15 +516,155 @@ if (route.params.catalogue) {
           id="GeneralDesign"
           title="General Design"
           :cohort="cohort"
-          :main-medical-condition="mainMedicalConditions"
         />
 
+        <ContentBlock id="population" title="Population">
+          <CatalogueItemList
+            :items="population.filter((item) => item.content !== undefined)"
+          />
+        </ContentBlock>
+
         <ContentBlockContact
-          v-if="cohort?.contacts"
+          v-if="cohort?.contacts || cohort.leadOrganisation"
           id="Contributors"
           title="Contact and Contributors"
           :contributors="cohort?.contacts"
-        />
+        >
+          <DisplayList
+            class="mb-5"
+            title="Lead organisation"
+            :type="
+              cohort.leadOrganisation && cohort.leadOrganisation?.length > 1
+                ? 'standard'
+                : 'link'
+            "
+          >
+            <DisplayListItem
+              v-for="(organisation, index) in cohort.leadOrganisation"
+              @click="showLeadOrganisationSideModal(index)"
+            >
+              <span
+                class="text-blue-500 hover:underline hover:cursor-pointer"
+                >{{ organisation.name }}</span
+              >
+              <img
+                v-if="organisation.logo"
+                class="max-h-11"
+                :src="organisation.logo.url"
+              />
+            </DisplayListItem>
+          </DisplayList>
+          <SideModal
+            :show="activeLeadOrganisationSideModalIndex > -1"
+            :fullScreen="false"
+            :slideInRight="true"
+            @close="activeLeadOrganisationSideModalIndex = -1"
+            buttonAlignment="right"
+          >
+            <slot>
+              <ContentBlockModal
+                :title="
+                  cohort.leadOrganisation
+                    ? cohort.leadOrganisation[
+                        activeLeadOrganisationSideModalIndex
+                      ].name
+                    : ''
+                "
+                description="Lead organisation"
+                v-if="cohort"
+              >
+                <CatalogueItemList
+                  :items="[
+                    {
+                      label: 'email',
+                      content:
+                        cohort.leadOrganisation?.[
+                          activeLeadOrganisationSideModalIndex
+                        ].email,
+                    },
+                    {
+                      label: 'description',
+                      content:
+                        cohort.leadOrganisation?.[
+                          activeLeadOrganisationSideModalIndex
+                        ].description,
+                    },
+                    {
+                      label: 'website',
+                      content:
+                        cohort.leadOrganisation?.[
+                          activeLeadOrganisationSideModalIndex
+                        ].website,
+                    },
+                    {
+                      label: 'acronym',
+                      content:
+                        cohort.leadOrganisation?.[
+                          activeLeadOrganisationSideModalIndex
+                        ].acronym,
+                    },
+                    {
+                      label: 'type',
+                      content:
+                        cohort.leadOrganisation?.[
+                          activeLeadOrganisationSideModalIndex
+                        ].type?.name,
+                    },
+                    {
+                      label: 'institution',
+                      content:
+                        cohort.leadOrganisation?.[
+                          activeLeadOrganisationSideModalIndex
+                        ].institution,
+                    },
+                    {
+                      label: 'institutionAcronym',
+                      content:
+                        cohort.leadOrganisation?.[
+                          activeLeadOrganisationSideModalIndex
+                        ].institutionAcronym,
+                    },
+                    {
+                      label: 'typeOther',
+                      content:
+                        cohort.leadOrganisation?.[
+                          activeLeadOrganisationSideModalIndex
+                        ].typeOther,
+                    },
+                    {
+                      label: 'address',
+                      content:
+                        cohort.leadOrganisation?.[
+                          activeLeadOrganisationSideModalIndex
+                        ].address,
+                    },
+                    {
+                      label: 'expertise',
+                      content:
+                        cohort.leadOrganisation?.[
+                          activeLeadOrganisationSideModalIndex
+                        ].expertise,
+                    },
+                    {
+                      label: 'country',
+                      content:
+                        cohort.leadOrganisation?.[
+                          activeLeadOrganisationSideModalIndex
+                        ].country?.name,
+                    },
+                    {
+                      label: 'logo',
+                      content:
+                        cohort.leadOrganisation?.[
+                          activeLeadOrganisationSideModalIndex
+                        ].logo,
+                    },
+                  ]"
+                />
+              </ContentBlockModal>
+            </slot>
+          </SideModal>
+        </ContentBlockContact>
 
         <!-- <ContentBlockVariables
           id="Variables"

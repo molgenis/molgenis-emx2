@@ -21,8 +21,25 @@ public class TaskServiceScheduler {
       taskService = newTaskService;
       this.quartzScheduler = new StdSchedulerFactory().getScheduler();
       this.quartzScheduler.start();
+      this.loadExistingCronTasks(taskService);
     } catch (Exception e) {
       throw new MolgenisException("Creation of task scheduler failed", e);
+    }
+  }
+
+  public void shutdown() {
+    try {
+      quartzScheduler.shutdown();
+    } catch (SchedulerException e) {
+      throw new MolgenisException("shutdown quart failed", e);
+    }
+  }
+
+  private void loadExistingCronTasks(TaskService taskService) {
+    for (ScriptTask task : taskService.getScripts()) {
+      if (task.getCronExpression() != null) {
+        this.schedule(task);
+      }
     }
   }
 

@@ -108,7 +108,7 @@ async function fetchVariableCount(models: { id: string }[]) {
 let tocItems = computed(() => {
   let tableOffContents = [{ label: "Description", id: "Description" }];
   if (network?.documentation) {
-    tableOffContents.push({ label: "Attached files", id: "Files" });
+    tableOffContents.push({ label: "Documentation", id: "Files" });
   }
   if (network?.contacts) {
     tableOffContents.push({
@@ -373,7 +373,7 @@ crumbs["Networks"] = `/${route.params.schema}/ssr-catalogue/networks`;
           v-if="network?.dataSources_agg?.count > 0"
           id="datasources"
           title="Data sources"
-          description="Datasources connected in this network"
+          description="Data sources connected in this network"
           :headers="[
             { id: 'name', label: 'Name', singleLine: true },
             { id: 'type', label: 'type' },
