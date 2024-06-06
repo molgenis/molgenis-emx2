@@ -55,10 +55,15 @@ public class TestCreateArrayDataTypes {
   }
 
   @Test
-  public void xtestDateTimeArray() {
+  public void testDateTimeArray() {
     executeTest(
         DATETIME_ARRAY,
         new String[] {"2013-01-01T18:00:00.0", "2013-01-01T18:00:01.0", "2013-01-01T18:00:02.0"});
+  }
+
+  @Test
+  public void testPeriodArray() {
+    executeTest(PERIOD_ARRAY, new String[] {"P24Y", "P34Y11M", "P23Y10M43D"});
   }
 
   @Test

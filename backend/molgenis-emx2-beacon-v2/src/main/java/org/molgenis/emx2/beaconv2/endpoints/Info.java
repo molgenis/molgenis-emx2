@@ -1,45 +1,31 @@
 package org.molgenis.emx2.beaconv2.endpoints;
 
 import static org.molgenis.emx2.rdf.RDFUtils.extractHost;
-import static org.molgenis.emx2.rdf.RDFUtils.getURI;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import java.net.URI;
-import java.net.URISyntaxException;
-import org.molgenis.emx2.beaconv2.common.Meta;
-import org.molgenis.emx2.beaconv2.endpoints.info.InfoResponse;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.schibsted.spt.data.jslt.Expression;
+import com.schibsted.spt.data.jslt.Parser;
+import org.molgenis.emx2.beaconv2.BeaconSpec;
 import spark.Request;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class Info {
 
-  private String $schema;
-  private Meta meta;
-  private InfoResponse response;
+  private final String host;
+  private final BeaconSpec spec;
 
-  public Info() {
-    this.$schema = "../beaconInfoResponse.json";
-    this.meta = new Meta("../beaconInfoResponse.json", "info");
-    this.response = new InfoResponse("unknown host");
+  public Info(Request request) {
+    this.host = extractHost(request.url());
+    this.spec = BeaconSpec.findByPath(request.attribute("specification"));
   }
 
-  public Info(Request request) throws URISyntaxException {
-    this.$schema = "../beaconInfoResponse.json";
-    this.meta = new Meta("../beaconInfoResponse.json", "info");
-    URI requestURI = getURI(request.url());
-    String host = extractHost(requestURI);
-    this.response = new InfoResponse(host);
-  }
-
-  public String get$schema() {
-    return $schema;
-  }
-
-  public Meta getMeta() {
-    return meta;
-  }
-
-  public InfoResponse getResponse() {
-    return response;
+  @JsonIgnore
+  public JsonNode getResponse() {
+    String jsltPath = "informational/info.jslt";
+    Expression jslt = Parser.compileResource(jsltPath);
+    return jslt.apply(new ObjectMapper().valueToTree(this));
   }
 }
