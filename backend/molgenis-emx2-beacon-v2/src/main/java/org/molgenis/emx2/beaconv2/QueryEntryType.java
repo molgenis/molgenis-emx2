@@ -71,14 +71,20 @@ public class QueryEntryType {
               resultSets.add(resultSet);
             }
             break;
-          case BOOLEAN, COUNT, AGGREGATED:
+          case COUNT, AGGREGATED:
             int count = doCountQuery(table, filterParser.getGraphQlFilters());
             if (count > 0) {
               resultSet.put("exist", true);
               numTotalResults += count;
-              if (!granularity.equals(Granularity.BOOLEAN)) {
-                resultSet.put("count", count);
-              }
+              resultSet.put("count", count);
+              resultSets.add(resultSet);
+            } else if (includeStrategy.equals(IncludedResultsetResponses.ALL)) {
+              resultSets.add(resultSet);
+            }
+          case BOOLEAN:
+            boolean exists = doExistsQuery(table, filterParser.getGraphQlFilters());
+            if (exists) {
+              resultSet.put("exist", true);
               resultSets.add(resultSet);
             } else if (includeStrategy.equals(IncludedResultsetResponses.ALL)) {
               resultSets.add(resultSet);
@@ -156,6 +162,16 @@ public class QueryEntryType {
     JsonNode results = mapper.valueToTree(result.getData());
 
     return results.get(entryType.getId() + "_agg").get("count").intValue();
+  }
+
+  private boolean doExistsQuery(Table table, List<String> filters) {
+    GraphQL graphQL = new GraphqlApiFactory().createGraphqlForSchema(table.getSchema());
+    String graphQlQuery = new QueryBuilder(table).addFilters(filters).getExistsQuery();
+
+    ExecutionResult result = graphQL.execute(graphQlQuery);
+    JsonNode results = mapper.valueToTree(result.getData());
+
+    return results.get(entryType.getId() + "_agg").get("exists").booleanValue();
   }
 
   private ArrayNode paginateResults(ArrayNode results) {
