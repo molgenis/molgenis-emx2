@@ -782,7 +782,7 @@ function showLeadOrganisationSideModal(index: number) {
         <ContentBlockAttachedFiles
           v-if="cohort?.documentation?.length"
           id="Files"
-          title="Attached Files"
+          title="Documentation"
           :documents="cohort.documentation"
         />
       </ContentBlocks>
