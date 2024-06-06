@@ -10,6 +10,7 @@ import { applyBookmark, createBookmark } from "../functions/bookmarkMapper";
 import { QueryEMX2 } from "molgenis-components";
 import { convertArrayToChunks } from "../functions/arrayUtilities";
 import { IOntologyItem } from "../interfaces/interfaces";
+import * as _ from "lodash";
 
 export const useFiltersStore = defineStore("filtersStore", () => {
   const biobankStore = useBiobanksStore();
@@ -78,44 +79,24 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     return !!getFilterValue("Biobankservices") || !!getFilterValue("Countries");
   });
 
-  let queryDelay: NodeJS.Timeout;
-  watch(
-    filters,
-    (newFilters) => {
-      if (queryDelay) {
-        clearTimeout(queryDelay);
-      }
-
+  const debouncedFiltersWatch = _.debounce(
+    ([newFilters, newFilterType]: [
+      Record<string, any>,
+      Record<string, any>
+    ]) => {
       settingsStore.currentPage = 1;
-
-      queryDelay = setTimeout(async () => {
-        updateQueryAndBookmark(newFilters, filterType.value);
-        await getBiobankCards();
-        clearTimeout(queryDelay);
-      }, 750);
+      updateQueryAndBookmark(newFilters, newFilterType);
+      // if (Object.values(newFilters).length) {
+      getBiobankCards();
+      // }
     },
-    { deep: true }
+    750
   );
 
-  watch(
-    filterType,
-    (newFilterType) => {
-      if (queryDelay) {
-        clearTimeout(queryDelay);
-      }
-
-      settingsStore.currentPage = 1;
-
-      queryDelay = setTimeout(async () => {
-        updateQueryAndBookmark(filters.value, newFilterType);
-        if (hasActiveFilters.value) {
-          await getBiobankCards();
-          clearTimeout(queryDelay);
-        }
-      }, 750);
-    },
-    { deep: true, immediate: true }
-  );
+  watch([filters, filterType], debouncedFiltersWatch, {
+    deep: true,
+    immediate: true,
+  });
 
   watch(filtersReady, (filtersReady) => {
     if (filtersReady) {
