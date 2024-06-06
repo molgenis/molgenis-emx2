@@ -2,7 +2,6 @@ package org.molgenis.emx2.beaconv2.entrytypes;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.molgenis.emx2.Constants.ANONYMOUS;
 import static org.molgenis.emx2.Privileges.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -18,7 +17,6 @@ import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.beaconv2.EntryType;
 import org.molgenis.emx2.beaconv2.QueryEntryType;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
-import org.molgenis.emx2.datamodels.ProfileLoader;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import spark.QueryParamsMap;
 import spark.Request;
@@ -33,16 +31,16 @@ public class BeaconModelEndPointTest {
   public static void setup() {
     if (database == null) {
       database = TestDatabaseFactory.getTestDatabase();
-      // beaconSchema = database.getSchema("fairdatahub");
-      beaconSchema.addMember("VIEWER_TEST_USER", AGGREGATOR.toString());
-      beaconSchema.addMember("AGGREGATE_TEST_USER", AGGREGATOR.toString());
-      beaconSchema.addMember("EXISTS_TEST_USER", EXISTS.toString());
-      beaconSchema.addMember("RANGE_TEST_USER", RANGE.toString());
-      beaconSchema.removeMember(ANONYMOUS);
-      database.setActiveUser("VIEWER_TEST_USER");
-      beaconSchema = database.dropCreateSchema("fairdatahub");
-      ProfileLoader b2l = new ProfileLoader("_profiles/FAIRDataHub.yaml");
-      b2l.load(beaconSchema, true);
+      beaconSchema = database.getSchema("fairdatahub");
+      //      beaconSchema = database.dropCreateSchema("fairdatahub");
+      //      ProfileLoader b2l = new ProfileLoader("_profiles/FAIRDataHub.yaml");
+      //      b2l.load(beaconSchema, true);
+      //      beaconSchema.addMember("VIEWER_TEST_USER", VIEWER.toString());
+      //      beaconSchema.addMember("AGGREGATOR_TEST_USER", AGGREGATOR.toString());
+      //      beaconSchema.addMember("EXISTS_TEST_USER", EXISTS.toString());
+      //      beaconSchema.addMember("RANGE_TEST_USER", RANGE.toString());
+      //      beaconSchema.removeMember(ANONYMOUS);
+      //      database.setActiveUser("VIEWER_TEST_USER");
     }
   }
 
@@ -58,7 +56,7 @@ public class BeaconModelEndPointTest {
     return request;
   }
 
-  static JsonNode doIndividualsPostRequest(String body) throws JsonProcessingException {
+  static JsonNode mockIndividualsPostRequest(String body) throws JsonProcessingException {
     Request request = mockEntryTypeRequest(EntryType.INDIVIDUALS.getId(), new HashMap<>());
     ObjectMapper mapper = new ObjectMapper();
     BeaconRequestBody beaconRequest = mapper.readValue(body, BeaconRequestBody.class);

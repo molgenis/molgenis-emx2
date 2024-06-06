@@ -11,7 +11,7 @@ public class BeaconGranularityTests extends BeaconModelEndPointTest {
   @Test
   public void testRequestedGranularity_requestBoolean() throws Exception {
     JsonNode json =
-        doIndividualsPostRequest(
+        mockIndividualsPostRequest(
             """
                           {
                             "query": {
@@ -26,7 +26,7 @@ public class BeaconGranularityTests extends BeaconModelEndPointTest {
   @Test
   public void testRequestedGranularity_requestCount() throws Exception {
     JsonNode json =
-        doIndividualsPostRequest(
+        mockIndividualsPostRequest(
             """
                           {
                             "query": {

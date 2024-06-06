@@ -720,13 +720,13 @@ public class SqlQuery extends QueryBean {
     return jsonField(table, column, tableAlias, select, filters, searchTerms, subAlias, fields);
   }
 
-  private Field<?> getCountField() {
+  private Field<Integer> getCountField() {
     if (schema.hasActiveUserRole(VIEWER.toString())) {
       return count();
     } else if (schema.hasActiveUserRole(AGGREGATOR.toString())) {
-      return field("GREATEST(COUNT(*),{0})", 10L);
+      return field("GREATEST(COUNT(*),{0})", Integer.class, 10L);
     } else if (schema.hasActiveUserRole(RANGE.toString())) {
-      return field("CEIL(COUNT(*)::numeric / {0}) * {0}", 10L);
+      return field("CEIL(COUNT(*)::numeric / {0}) * {0}", Integer.class, 10L);
     }
     throw new MolgenisException("Need permission >= RANGE to perform count queries");
   }

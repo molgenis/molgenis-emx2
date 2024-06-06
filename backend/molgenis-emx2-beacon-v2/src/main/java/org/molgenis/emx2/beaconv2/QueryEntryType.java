@@ -1,7 +1,6 @@
 package org.molgenis.emx2.beaconv2;
 
-import static org.molgenis.emx2.Privileges.AGGREGATOR;
-import static org.molgenis.emx2.Privileges.VIEWER;
+import static org.molgenis.emx2.Privileges.*;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -192,8 +191,10 @@ public class QueryEntryType {
   private boolean isAuthorized(Table table) {
     List<String> roles = table.getSchema().getInheritedRolesForActiveUser();
     switch (this.granularity) {
-      case BOOLEAN, COUNT, AGGREGATED:
-        if (roles.contains(AGGREGATOR.toString())) return true;
+      case BOOLEAN:
+        if (roles.contains(EXISTS.toString())) return true;
+      case COUNT, AGGREGATED:
+        if (roles.contains(RANGE.toString())) return true;
       case RECORD, UNDEFINED:
         if (roles.contains(VIEWER.toString())) return true;
       default:

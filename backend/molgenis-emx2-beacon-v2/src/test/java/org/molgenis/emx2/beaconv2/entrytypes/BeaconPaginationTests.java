@@ -10,7 +10,7 @@ public class BeaconPaginationTests extends BeaconModelEndPointTest {
   @Test
   public void testPagination_TwoItems_Offset0() throws Exception {
     JsonNode json =
-        doIndividualsPostRequest(
+        mockIndividualsPostRequest(
             """
                           {
                             "query": {
@@ -29,7 +29,7 @@ public class BeaconPaginationTests extends BeaconModelEndPointTest {
   @Test
   public void testPagination_TwoItems_Offset2() throws Exception {
     JsonNode json =
-        doIndividualsPostRequest(
+        mockIndividualsPostRequest(
             """
                           {
                             "query": {
@@ -48,7 +48,7 @@ public class BeaconPaginationTests extends BeaconModelEndPointTest {
   @Test
   public void testPagination_LimitZero_AllResult() throws Exception {
     JsonNode json =
-        doIndividualsPostRequest(
+        mockIndividualsPostRequest(
             """
                           {
                             "query": {
