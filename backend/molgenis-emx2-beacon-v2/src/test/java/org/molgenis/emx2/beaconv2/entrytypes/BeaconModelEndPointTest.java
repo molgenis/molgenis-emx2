@@ -2,6 +2,7 @@ package org.molgenis.emx2.beaconv2.entrytypes;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.molgenis.emx2.Privileges.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -31,7 +32,10 @@ public class BeaconModelEndPointTest {
   public static void setup() {
     if (database == null) {
       database = TestDatabaseFactory.getTestDatabase();
-      //      beaconSchema = database.getSchema("fairdatahub");
+      // beaconSchema = database.getSchema("fairdatahub");
+      beaconSchema.addMember("AGGREGATE_TEST_USER", AGGREGATOR.toString());
+      beaconSchema.addMember("EXISTS_TEST_USER", EXISTS.toString());
+      beaconSchema.addMember("RANGE_TEST_USER", RANGE.toString());
       beaconSchema = database.dropCreateSchema("fairdatahub");
       ProfileLoader b2l = new ProfileLoader("_profiles/FAIRDataHub.yaml");
       b2l.load(beaconSchema, true);
