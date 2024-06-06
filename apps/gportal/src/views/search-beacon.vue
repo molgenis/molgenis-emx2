@@ -29,7 +29,7 @@
               <label>Gender at birth</label>
               <InputRefList
                 id="GenderAtBirth"
-                tableName="GenderAtBirth"
+                tableId="GenderAtBirth"
                 v-model="genderAtBirth"
                 refLabel="${name}"
                 :multi-select="true"
@@ -44,7 +44,7 @@
               <label>Choose Gene</label>
               <InputRefList
                 id="Genes"
-                tableName="Genes"
+                tableId="Genes"
                 v-model="genes"
                 refLabel="${name}"
                 :multi-select="true"
@@ -79,7 +79,7 @@
   </Page>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, watch } from "vue";
 import {
   Page,
@@ -89,15 +89,16 @@ import {
   DataTable,
 } from "molgenis-viz";
 import { InputRefList } from "molgenis-components";
+import { filterData } from "../utils/index";
 import axios from "axios";
 
-let genes = ref([]);
-let geneData = ref([]); // FIX: will only hold the initial  10 results show on screen
-let genderAtBirth = ref([]);
-let genderAtBirthData = ref([]);
-let beaconOutput = ref(null);
-let beaconResult = ref([]);
-let error = false;
+const genes = ref([]);
+const geneData = ref([]); // FIX: will only hold the initial  10 results show on screen
+const genderAtBirth = ref([]);
+const genderAtBirthData = ref([]);
+const beaconOutput = ref(null);
+const beaconResult = ref([]);
+const error = false;
 
 watch([genes, genderAtBirth], queryBeacon);
 
@@ -151,33 +152,5 @@ async function queryBeacon() {
       ];
     })
     .catch((err) => (error.value = err));
-}
-
-// filterData
-// Filter an array of objects based on inputRefList selection, and then return an array
-// of strings based on user-specified property names for use in the Beacon API.
-//
-// @param data dataset containing one or more rows (array of objects)
-// @param filters user selected filters (i.e., from InputRefList)
-// @param attribs an array containing one or more column names in order of preference
-//
-// @examples
-// const data = filterData(data=myData, filters=myFilters, attribs=['col1','col2'])
-//
-// @return array of strings
-function filterData(data, filters, attributes) {
-  return data
-    .filter((row) => {
-      return filters.map((filterItem) => filterItem.name).includes(row.name);
-    })
-    .map((row) => {
-      return attributes
-        .map((attrib) => {
-          if (row.hasOwnProperty(attrib)) {
-            return row[attrib];
-          }
-        })
-        .join("_");
-    });
 }
 </script>
