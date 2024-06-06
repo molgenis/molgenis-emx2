@@ -388,26 +388,17 @@ crumbs["Networks"] = `/${route.params.schema}/ssr-catalogue/networks`;
           {{ slotProps }}
         </TableContent>
 
-        <TableContent
+        <ContentBlock
           v-if="networkVariablesCount > 0"
           id="variables"
           title="Variables"
-          description="Variables in this network."
-          :headers="[
-            { id: 'name', label: 'Name' },
-            { id: 'label', label: 'Label' },
-            { id: 'model', label: 'Model' },
-          ]"
-          type="Variables"
-          :query="variablesQuery"
-          :filter="networkVariablesFilter"
-          :rowMapper="variableMapper"
         >
-          <ContentBlockModal
-            title="Variables"
-            description="Under construction"
-          ></ContentBlockModal>
-        </TableContent>
+          <NuxtLink
+            class="text-body-base font-extrabold text-blue-500 hover:underline hover:bg-blue-50"
+            :to="`/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/variables`"
+            >View variables</NuxtLink
+          >
+        </ContentBlock>
       </ContentBlocks>
     </template>
   </LayoutsDetailPage>
