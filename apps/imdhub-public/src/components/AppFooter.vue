@@ -32,12 +32,12 @@
         <div class="footer-column footer-logos">
           <UnorderedList listType="none">
             <li id="project-logo-link">
-              <router-link :to="{ name: 'home' }">
+              <a href="http://recon4imd.org">
                 <img
                   src="/recon4imd.png"
                   alt="Reconstruction and Computational Modelling for Inherited Metabolic Diseases"
                 />
-              </router-link>
+              </a>
             </li>
             <li>
               <a href="https://www.molgenis.org">
@@ -103,6 +103,12 @@ import { PageFooter, UnorderedList, MolgenisLogo } from "molgenis-viz";
       $size: 15px;
       width: $size;
       height: $size;
+    }
+  }
+
+  .footer-logos {
+    ul {
+      gap: 1em;
     }
   }
 

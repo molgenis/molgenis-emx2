@@ -23,35 +23,37 @@ public class FAIRDataPointApi {
   public static void create(MolgenisSessionManager sm) {
     sessionManager = sm;
 
-    head("/api/fdp", FAIRDataPointApi::getHead);
-    redirect.any("/api/fdp", "/api/fdp/");
+    redirect.any("/api/fdp/", "/api/fdp");
     path(
-        "/api/fdp/",
+        "/api/fdp",
         () -> {
-          head("*", FAIRDataPointApi::getHead);
+          head("", FAIRDataPointApi::getHead);
           get("", FAIRDataPointApi::getFDP);
-          get("", FAIRDataPointApi::getFDP);
-          get("profile", FAIRDataPointApi::getFDPProfile);
+          head("/profile", FAIRDataPointApi::getHead);
+          get("/profile", FAIRDataPointApi::getFDPProfile);
 
           path(
-              "catalog/",
+              "/catalog/",
               () -> {
                 head(":schema/:id", FAIRDataPointApi::getHead);
                 get(":schema/:id", FAIRDataPointApi::getCatalog);
+                head("profile", FAIRDataPointApi::getHead);
                 get("profile", FAIRDataPointApi::getCatalogProfile);
               });
           path(
-              "dataset/",
+              "/dataset/",
               () -> {
                 head(":schema/:id", FAIRDataPointApi::getHead);
                 get(":schema/:id", FAIRDataPointApi::getDataset);
+                head("profile", FAIRDataPointApi::getHead);
                 get("profile", FAIRDataPointApi::getDatasetProfile);
               });
           path(
-              "distribution/",
+              "/distribution/",
               () -> {
                 head(":schema/:distribution/:format", FAIRDataPointApi::getHead);
                 get(":schema/:distribution/:format", FAIRDataPointApi::getDistribution);
+                head("profile", FAIRDataPointApi::getHead);
                 get("profile", FAIRDataPointApi::getDistributionProfile);
               });
         });
