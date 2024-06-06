@@ -298,7 +298,7 @@ crumbs["Networks"] = `/${route.params.schema}/ssr-catalogue/networks`;
         <ContentBlockAttachedFiles
           v-if="network?.documentation?.length"
           id="Files"
-          title="Attached Files"
+          title="Documentation"
           :documents="network.documentation"
         />
 
