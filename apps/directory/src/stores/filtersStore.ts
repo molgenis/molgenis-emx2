@@ -86,9 +86,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     ]) => {
       settingsStore.currentPage = 1;
       updateQueryAndBookmark(newFilters, newFilterType);
-      // if (Object.values(newFilters).length) {
       getBiobankCards();
-      // }
     },
     750
   );
