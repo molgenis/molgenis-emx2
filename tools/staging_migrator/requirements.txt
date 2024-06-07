@@ -1,0 +1,3 @@
+molgenis-emx2-pyclient>=10.48.9
+requests~=2.31.0
+pandas~=2.1.3
