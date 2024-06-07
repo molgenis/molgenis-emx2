@@ -24,7 +24,6 @@
             <Accordion
               id="sex-at-birth-filter"
               title="Filter by gender at birth"
-              :isOpenByDefault="true"
             >
               <label>Gender at birth</label>
               <InputRefList
@@ -36,11 +35,7 @@
                 @optionsLoaded="genderAtBirthData = $event"
               />
             </Accordion>
-            <Accordion
-              id="gene-filter"
-              title="Filter by gene"
-              :isOpenByDefault="true"
-            >
+            <Accordion id="gene-filter" title="Filter by gene">
               <label>Choose Gene</label>
               <InputRefList
                 id="Genes"
@@ -55,11 +50,16 @@
         </aside>
         <div class="sidebar-main main-beacon-output">
           <h3>Results</h3>
+          <LoadingScreen v-if="loading" class="beacon-search-loading" />
+          <MessageBox v-if="error" type="error">
+            <p>{{ error }}</p>
+          </MessageBox>
           <div v-if="beaconOutput">
             <DataTable
               tableId="beacon-response"
               :data="beaconResult"
-              :columnOrder="['tables', 'status', 'count']"
+              :columnOrder="['schema', 'table', 'status', 'count']"
+              :renderHtml="true"
             />
             <Accordion id="beacon-query" title="View Beacon response">
               <code>
@@ -67,10 +67,10 @@
               </code>
             </Accordion>
           </div>
-          <div v-else>
+          <div v-if="!loading && !beaconOutput">
             <p>
-              A Beacon query has not been created. Build a new query to view the
-              results.
+              To get started, apply one or more filters. Results will appear in
+              this space when a selection is made or filters change.
             </p>
           </div>
         </div>
@@ -87,11 +87,14 @@ import {
   PageSection,
   Accordion,
   DataTable,
+  LoadingScreen,
+  MessageBox,
 } from "molgenis-viz";
 import { InputRefList } from "molgenis-components";
 import { filterData } from "../utils/index";
 import axios from "axios";
 
+const loading = ref<boolean>(false);
 const genes = ref([]);
 const geneData = ref([]); // FIX: will only hold the initial  10 results show on screen
 const genderAtBirth = ref([]);
@@ -100,9 +103,9 @@ const beaconOutput = ref(null);
 const beaconResult = ref([]);
 const error = false;
 
-watch([genes, genderAtBirth], queryBeacon);
-
 async function queryBeacon() {
+  loading.value = true;
+
   const jsQuery = {
     query: {
       filters: [],
@@ -113,7 +116,7 @@ async function queryBeacon() {
   if (filterGeneDataValue.length > 0) {
     jsQuery.query.filters.push({
       operator: "=",
-      id: "NCIT_C16612",
+      id: "NCIT:C16612",
       value: filterGeneDataValue,
     });
   }
@@ -126,7 +129,7 @@ async function queryBeacon() {
   if (filterGenderAtBirthDataValue.length > 0) {
     jsQuery.query.filters.push({
       operator: "=",
-      id: "NCIT_C28421",
+      id: "GSSO:009418",
       value: filterGenderAtBirthDataValue,
     });
   }
@@ -134,23 +137,21 @@ async function queryBeacon() {
   axios
     .post("/api/beacon/individuals", JSON.stringify(jsQuery, null, 2))
     .then((response) => {
-      const result = response.data;
-      beaconOutput.value = result;
-      beaconResult.value = [
-        {
-          tables: result.meta.returnedSchemas
-            .map((schema) => schema.entityType)
-            .join(", "),
-          count: result.responseSummary.numTotalResults
-            ? result.responseSummary.numTotalResults
-            : "-",
-          status:
-            result.responseSummary.exists === "true"
-              ? "Available"
-              : "Unavailable",
-        },
-      ];
+      beaconOutput.value = response.data;
+      const data = response.data;
+      const resultSets = data.response.resultSets;
+      beaconResult.value = resultSets.map((row: object) => {
+        return {
+          schema: row.id,
+          table: row.setType,
+          status: row.exists ? "Available" : "Unavailable",
+          count: row.resultsCount,
+        };
+      });
     })
-    .catch((err) => (error.value = err));
+    .catch((err) => (error.value = err))
+    .finally(() => (loading.value = false));
 }
+
+watch([genes, genderAtBirth], queryBeacon);
 </script>

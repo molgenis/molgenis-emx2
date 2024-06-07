@@ -69,6 +69,7 @@
   justify-content: flex-start;
   align-items: flex-start;
   position: relative;
+  max-width: 100%;
 
   .sidebar-menu {
     box-sizing: content-box;
@@ -91,11 +92,11 @@
     .accordion {
       margin: 0;
       margin-bottom: 1em;
-      border: none;
+      border-color: $gdi-brand-purple-light;
+
       .accordion-heading {
         background-color: transparent;
         margin: 0;
-        padding: 0;
       }
     }
   }
@@ -206,5 +207,12 @@ li {
         color: $gray-050;
       }
     }
+  }
+}
+
+.loading-screen {
+  &.beacon-search-loading {
+    max-height: 15em;
+    background-color: $gdi-brand-purple-light;
   }
 }
