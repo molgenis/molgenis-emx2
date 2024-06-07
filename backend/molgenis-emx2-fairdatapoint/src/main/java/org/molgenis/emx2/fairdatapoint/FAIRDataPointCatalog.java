@@ -2,6 +2,9 @@ package org.molgenis.emx2.fairdatapoint;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.eclipse.rdf4j.model.util.Values.literal;
+import static org.molgenis.emx2.FilterBean.f;
+import static org.molgenis.emx2.Operator.EQUALS;
+import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.rdf.RDFService.*;
 import static org.molgenis.emx2.rdf.RDFUtils.*;
 
@@ -18,6 +21,8 @@ import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.Rio;
 import org.eclipse.rdf4j.rio.WriterConfig;
 import org.eclipse.rdf4j.rio.helpers.BasicWriterSettings;
+import org.molgenis.emx2.Query;
+import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.graphql.GraphqlApiFactory;
@@ -81,14 +86,47 @@ public class FAIRDataPointCatalog {
       return (List<Map<String, Object>>)
           ((HashMap<String, Object>) result.get("data")).get("Catalog");
     } else {
-      return null;
+      Table networkTable = schema.getTable("Networks");
+      if (networkTable != null) {
+        Query q =
+            networkTable.select(
+                s("id"),
+                s("name"),
+                s("description"),
+                s("lead organisation"),
+                s("cohorts"),
+                s("mg_insertedOn"),
+                s("mg_updatedOn"));
+        if (id != null) {
+          q = q.where(f("id", EQUALS, id));
+        }
+        List<Row> networks = q.retrieveRows();
+        List<Map<String, Object>> result2 = new ArrayList<>();
+        for (Row network : networks) {
+          Map<String, Object> catalogue = new LinkedHashMap<>();
+          catalogue.put("id", network.getString("id"));
+          catalogue.put("title", network.getString("name"));
+          catalogue.put("description", network.getString("description"));
+          catalogue.put("publisher", network.getString("lead organisation"));
+          catalogue.put("mg_insertedOn", network.getDateTime("mg_insertedOn"));
+          catalogue.put("mg_updatedOn", network.getDateTime("mg_updatedOn"));
+          List<Map<String, String>> datasets = new ArrayList<>();
+          for (String cohortId : network.getStringArray("cohorts")) {
+            datasets.add(Map.of("id", cohortId));
+          }
+          catalogue.put("dataset", datasets);
+          result2.add(catalogue);
+        }
+        return result2;
+      }
     }
+    // else
+    return null;
   }
 
-  public FAIRDataPointCatalog(Request request, Table fdpCatalogTable) throws Exception {
+  public FAIRDataPointCatalog(Request request, Schema schema) throws Exception {
 
     String id = request.params("id");
-    Schema schema = fdpCatalogTable.getSchema();
 
     List<Map<String, Object>> catalogsFromJSON = getFDPCatalogRecords(schema, id);
     if (catalogsFromJSON == null) {
@@ -140,12 +178,17 @@ public class FAIRDataPointCatalog {
     BNode publisher = vf.createBNode();
     builder.add(reqUrl, DCTERMS.PUBLISHER, publisher);
     builder.add(publisher, RDF.TYPE, FOAF.AGENT);
-    builder.add(publisher, FOAF.NAME, catalogFromJSON.get("publisher"));
-    builder.add(reqUrl, DCTERMS.LICENSE, iri(TypeUtils.toString(catalogFromJSON.get("license"))));
+    if (catalogFromJSON.get("publisher") != null)
+      builder.add(publisher, FOAF.NAME, catalogFromJSON.get("publisher"));
+    if (catalogFromJSON.get("license") != null)
+      builder.add(reqUrl, DCTERMS.LICENSE, iri(TypeUtils.toString(catalogFromJSON.get("license"))));
     builder.add(reqUrl, DCTERMS.CONFORMS_TO, apiFdpCatalogProfileEnc);
     builder.add(reqUrl, DCTERMS.IS_PART_OF, apiFdpEnc);
-    builder.add(
-        reqUrl, DCAT.THEME_TAXONOMY, iri(TypeUtils.toString(catalogFromJSON.get("themeTaxonomy"))));
+    if (catalogFromJSON.get("themeTaxonomy") != null)
+      builder.add(
+          reqUrl,
+          DCAT.THEME_TAXONOMY,
+          iri(TypeUtils.toString(catalogFromJSON.get("themeTaxonomy"))));
     builder.add(apiFdpEnc, iri("https://w3id.org/fdp/fdp-o#metadataIdentifier"), reqUrl);
 
     builder.add(
