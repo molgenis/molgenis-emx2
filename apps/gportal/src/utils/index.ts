@@ -1,4 +1,4 @@
-import { filterDataIF } from "../interfaces";
+import { filterDataIF, ResultSetIF } from "../interfaces";
 
 /**
 filterData
@@ -11,7 +11,7 @@ Filter an array of objects based on inputRefList selection, and then return an a
 @examples
 const data = filterData(data=myData, filters=myFilters, attribs=['col1','col2'])
 
-@return array of strings
+@return array of strings in curie syntax
 */
 
 export function filterData(
@@ -30,6 +30,25 @@ export function filterData(
             return row[attrib];
           }
         })
-        .join("_");
+        .join(":");
     });
+}
+
+/**
+ * prepare beacon response
+ * In the response object, unpack the results sets and transform the data for use in the DataTable component.
+ *
+ * @param resultsSets an array of objects that contain beacon hits
+ *    found in `response.data.resultsets`
+ */
+
+export function transformBeaconResultSets(data: ResultSetIF[]) {
+  return data.map((row: object) => {
+    return {
+      schema: row.id,
+      table: row.setType,
+      status: row.exists ? "Available" : "Unavailable",
+      count: row.resultsCount,
+    };
+  });
 }
