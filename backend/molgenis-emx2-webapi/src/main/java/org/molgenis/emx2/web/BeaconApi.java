@@ -25,6 +25,7 @@ public class BeaconApi {
     defineRoutes("/:schema/api/beacon_vp");
     defineRoutes("/api/beacon");
     defineRoutes("/api/beacon_vp");
+    defaultResponseTransformer(null);
   }
 
   private static void defineRoutes(String basePath) {
