@@ -5,6 +5,7 @@ import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.sql.SqlDatabase;
 
 public class PetStoreLoader extends AbstractDataLoader {
 
@@ -211,7 +212,7 @@ public class PetStoreLoader extends AbstractDataLoader {
                 .set("username", "bofke")
                 .set("pets", "spike,pooky,the very hungry caterpillar,fire ant"));
 
-    //     schema.addMember(SqlDatabase.ANONYMOUS, Privileges.VIEWER.toString());
+    schema.addMember(SqlDatabase.ANONYMOUS, Privileges.VIEWER.toString());
 
     schema
         .getMetadata()
