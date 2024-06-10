@@ -27,7 +27,7 @@ Collections,,end data collection,date,,,,,,,,dcat:endDate,"If data collection in
 Collections,,time span description,text,,,,,,,,,Description of time span,DataCatalogueFlat,"['Databank', 'Data source'].includes(collectionType?.name)"
 Collections,,status,ontology,,,CatalogueOntologies,Study status,,,,,Status of the study,"DataCatalogueFlat,EMA",['Study'].includes(collectionType?.name)
 Collections,,release frequency,int,,,,,,,,,Refreshing rate (in months),"DataCatalogueFlat,EMA",['Model'].includes(collectionType?.name)
-Collections,,contact email,,,,,,,,,dcat:contactPoint,Contact e-mail address for this cohort,DataCatalogueFlat,['Cohort'].includes(collectionType?.name)
+Collections,,contact email,,,,,,,,,dcat:contactPoint,Contact e-mail address for this collection,DataCatalogueFlat,['Cohort'].includes(collectionType?.name)
 Collections,,cohort type,ontology_array,,,CatalogueOntologies,Resource types,,,,dcterms:type,"Type of resource, e.g. registry, cohort, biobank",DataCatalogueFlat,['Cohort'].includes(collectionType?.name)
 Collections,,cohort type other,,,,,,,,,,"If other, describe the type of resource",DataCatalogueFlat,['Cohort'].includes(collectionType?.name)
 Collections,,design,ontology,,,CatalogueOntologies,Cohort designs,,,,,"The study design of this cohort, i.e. cross-sectional or longitudinal",DataCatalogueFlat,['Cohort'].includes(collectionType?.name)
