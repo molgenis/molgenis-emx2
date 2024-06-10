@@ -129,7 +129,7 @@ function prepareJsQuery() {
     if (genderCodeFilters.length > 0) {
       jsQuery.value.query.filters.push({
         operator: "=",
-        id: "obo:NCIT_C28421",
+        id: "NCIT:C28421",
         value: genderCodeFilters,
       });
     }
