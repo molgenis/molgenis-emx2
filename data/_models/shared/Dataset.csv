@@ -1,9 +1,11 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
 Dataset,,,,,,,,,,,http://www.w3.org/ns/dcat#Dataset,DCAT v2 dataset entries.,DCAT
-Dataset,,id,string,1,TRUE,,,,,,http://purl.allotrope.org/ontologies/result#AFR_0000919,Local database identifier of the dataset.,DCAT
+Dataset,,id,string,1,TRUE,,,,,,http://purl.allotrope.org/ontologies/result#AFR_0000919,Local database identifier of the dataset.,DCAT local
+Dataset,,id,string,1,TRUE,,,,,,http://purl.allotrope.org/ontologies/result#AFR_0000918,Global database identifier.,DCAT global
 Dataset,,title,string,,TRUE,,,,,,http://purl.org/dc/terms/title,A name given to the record.,DCAT
-Dataset,,description,string,,TRUE,,,,,,http://purl.org/dc/terms/description,A free-text account of the item.,DCAT
-Dataset,,belongsToCatalog,ref_array,,TRUE,,Catalog,,,,http://www.w3.org/ns/dcat#Catalog,Reference back to any catalogs that contain this dataset.,DCAT
+Dataset,,description,text,,TRUE,,,,,,http://purl.org/dc/terms/description,A free-text account of the item.,DCAT
+Dataset,,belongsToCatalog,ref_array,,TRUE,,Catalog,,,,http://www.w3.org/ns/dcat#Catalog,Reference back to any catalogs that contain this dataset.,DCAT local
+Dataset,,belongsToCatalog,ref_array,,,,Catalog,,,,http://www.w3.org/ns/dcat#Catalog,Reference back to any catalogs that contain this dataset.,DCAT global
 Dataset,,distribution,refBack,,,,Distribution,,belongsToDataset,,http://purl.org/dc/terms/distribution,"Reference to one or more Distributions to make table data and/or remote file(s) metadata available in the FDP.",DCAT
 Dataset,,accrualPeriodicity,string,,,,,,,,http://purl.org/dc/terms/accrualPeriodicity,The frequency at which dataset is published.,DCAT
 Dataset,,spatial,ontology_array,,,,Countries,,,,http://purl.org/dc/terms/spatial,The geographical area covered by the dataset.,DCAT
@@ -44,3 +46,7 @@ datasets,,datausepermissions,ontology_array,,,,DataUsePermissions,,,,http://purl
 datasets,,datausemodifiers,ontology_array,,,,DataUseModifiers,,,,http://purl.obolibrary.org/obo/DUO_0000017,"Data use modifiers indicate additional conditions for use. For instance, a dataset is restricted to investigations into specific diseases or performed at specific geographical locations.",RD3
 datasets,,datasetType,,,TRUE,,,,,,,"type of dataset (raw or processed (analysed) data)",RD3
 datasets,,comments,text,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25393,"A written explanation, observation or criticism added to textual material.",RD3
+Dataset,,dateReleased,date,,,,,,,,http://purl.org/dc/terms/issued,The Dataset release date.,DCAT global
+Dataset,,dateModified,date,,,,,,,,http://purl.org/dc/terms/modified,The Dataset modification date.,DCAT global
+Dataset,,endpointSyncDate,date,,,,,,,,,The date on which the (meta)data got synchronized with the endpoint.,Endpoints
+Dataset,,endpointDateModified,date,,,,,,,,,The modification date according to the Endpoint during most recent metadata fetch.,Endpoints

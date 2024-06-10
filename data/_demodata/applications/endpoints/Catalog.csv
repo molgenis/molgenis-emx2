@@ -1,0 +1,4 @@
+id,title,hasVersion,description,publisher,language,license,themeTaxonomy,propertyValue
+https://joeri.molgeniscloud.org/api/fdp/catalog/fdh/catalogId01,catalogTitle01,,catalogDescription01,catalogPublisher01,,https://www.gnu.org/licenses/lgpl-3.0.rdf,http://purl.obolibrary.org/obo/NCIT_C71899,
+https://fdp.lovd.nl/catalog/53786324-d4c6-cf1d-33a3-e594a92591aa,Leiden Open Variation Database (LOVD) instance at https://databases.lovd.nl/shared/,,This catalog lists the metadata for the public LOVD instance at https://databases.lovd.nl/shared/.,https://fdp.lovd.nl/#publisher,,http://purl.org/net/rdflicense/cc-by-sa4.0,,
+http://data.europa.eu/88u/catalogue/opendata-swiss,opendata.swiss,,Open Data Portal Switzerland,Federal Statistical Office (https://www.bfs.admin.ch),,,,

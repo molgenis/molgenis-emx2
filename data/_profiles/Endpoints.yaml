@@ -1,0 +1,12 @@
+---
+name: "Endpoints.csv.csv storing metadata in DCAT 2 format"
+description: "Custom schema for storing and keeping track of datasets in external endpoints"
+
+profileTags:  DCAT,
+              DCAT global,
+              Endpoints
+
+demoData: _demodata/applications/endpoints
+
+# special options
+setViewPermission: anonymous

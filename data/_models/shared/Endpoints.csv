@@ -1,0 +1,7 @@
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
+Endpoints,,,,,,,,,,,http://www.w3.org/ns/dcat#Resource,Endpoint entries.,Endpoints
+Endpoints,,url,hyperlink,1,true,,,,,,,URL belonging to an Endpoint.,Endpoints
+Endpoints,,type,string,,true,,,,,if(!/^(emx2|fdp|manual)$/.test(type))'Field must be equal one of the values as mentioned between brackets in the field description.',,Type of endpoint (emx2|fdp|manual).,Endpoints
+Endpoints,,fetchDate,date,,,,,,,,,Last time metadata got fetched from the Endpoint.,Endpoints
+Endpoints,,status,string,,,,,,,,,Status of Endpoint during most recent fetch.,Endpoints
+Endpoints,,datasets,ref_array,,,,Dataset,,,,http://www.w3.org/ns/dcat#Dataset,Any datasets that are tracked through this endpoint.,Endpoints

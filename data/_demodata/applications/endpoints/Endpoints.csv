@@ -1,0 +1,4 @@
+url,type,fetchDate,status,datasets
+https://joeri.molgeniscloud.org/,emx2,,,https://joeri.molgeniscloud.org/api/fdp/dataset/fdh/datasetId01
+https://fdp.lovd.nl,fdp,,,https://fdp.lovd.nl/catalog/53786324-d4c6-cf1d-33a3-e594a92591aa/dataset/A1BG
+https://data.europa.eu/,manual,,,http://data.europa.eu/88u/dataset/100187-kanton-basel-stadt

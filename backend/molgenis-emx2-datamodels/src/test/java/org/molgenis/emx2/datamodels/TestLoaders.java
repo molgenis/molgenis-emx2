@@ -25,6 +25,7 @@ public class TestLoaders {
   public static final String PROJECT_MANAGER = "ProjectManager";
   public static final String CATALOGUE_ONTOLOGIES = "CatalogueOntologies";
   public static final String DIRECTORY_ONTOLOGIES = "DirectoryOntologies";
+  public static final String ENDPOINTS_TEST = "EndpointsTest";
 
   static Database database;
 
@@ -46,6 +47,7 @@ public class TestLoaders {
     database.dropSchemaIfExists(FAIR_GENOMES);
     database.dropSchemaIfExists(DCAT);
     database.dropSchemaIfExists(PROJECT_MANAGER);
+    database.dropSchemaIfExists(ENDPOINTS_TEST);
   }
 
   @Test
@@ -133,5 +135,13 @@ public class TestLoaders {
     Schema directoryStaging = database.createSchema(DIRECTORY_STAGING);
     AvailableDataModels.BIOBANK_DIRECTORY_STAGING.install(directoryStaging, false);
     assertEquals(6, directoryStaging.getTableNames().size());
+  }
+
+  @Test
+  void test16EndpointsLoader() {
+    Schema endpointsSchema = database.createSchema(ENDPOINTS_TEST);
+    AvailableDataModels.ENDPOINTS.install(endpointsSchema, true);
+    System.out.println(endpointsSchema.getTableNames());
+    assertEquals(8, endpointsSchema.getTableNames().size());
   }
 }
