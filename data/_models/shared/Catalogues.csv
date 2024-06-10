@@ -1,5 +1,8 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,visible
 Catalogues,,,,,,,,,,,dcat:Catalog,A collection of resources within a network or consortium or about a common topic,DataCatalogueFlat,
+Catalogues,,name,,1,true,,,,,,dterms:title,The name given to the Catalogue,DataCatalogueFlat,
 Catalogues,,network,ref,1,true,,Collections,,,,,Network or consortium that leads this catalogue,DataCatalogueFlat,
 Catalogues,,type,ontology,,true,CatalogueOntologies,CatalogueTypes,,,,dcat:theme,Type of catalogue,DataCatalogueFlat,
+Catalogues,,description,text,,true,,,,,,dcat:description,Description of this catalogue,DataCatalogueFlat,
 Catalogues,,publisher,ontology,,,CatalogueOntologies,CatalogueTypes,,,,dcat:publisher,Publisher todo should default to molgenis team,DataCatalogueFlat,
+Catalogues,,applicable legislation	,ref_array,,true,,Documentation,,,,dcat-ap:applicableLegislation,The legislation that mandates the creation or management of the Catalog,DataCatalogueFlat,
