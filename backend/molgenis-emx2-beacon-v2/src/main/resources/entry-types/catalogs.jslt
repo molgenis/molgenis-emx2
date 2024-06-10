@@ -1,0 +1,43 @@
+import "ontology.jslt" as ontology
+import "response_summary.jslt" as responseSummary
+import "meta.jslt" as meta
+{
+    "meta": meta(.),
+    "responseSummary": responseSummary(.),
+    "info": .info,
+    "response": {
+        "resultSets":
+        [for (.resultSets) {
+            "id": .id,
+            "type": "dataset",
+            "setType": "catalogs",
+            "exists": true,
+            "resultsCount": .count,
+            "results":
+            [for (.results) {
+                "@context": "https://raw.githubusercontent.com/ejp-rd-vp/vp-api-specs/main/json-ld-contexts/ejprd-context.json",
+                "@id": .id,
+                "@type": "dcat:Dataset",
+                "title": .title,
+                "description": .description,
+                "theme": .theme,
+                "keyword": .keyword,
+                "hasVersion": .belongsToCatalog.hasVersion,
+                "publisher": {
+                    "@id": .publisher.name,
+                    "title": .publisher.name,
+                    "description": .publisher.definition
+                },
+                "license": .belongsToCatalog.license,
+                "personalData": "true",
+                "conformsTo": null,
+                "landingPage": [ .landingPage ],
+                "vpConnection": "ejprd:VPContentDiscovery",
+                "language": [ for (.language) .code ],
+                "accessRights": .rights,
+                "hasPolicy": .hasPolicy,
+                "isRelatedTo": .relation
+            }]
+        }]
+    }
+}

@@ -147,138 +147,143 @@ public class GraphqlTableFieldFactory {
       // build the object
       GraphQLObjectType.Builder tableBuilder = GraphQLObjectType.newObject().name(tableObjectType);
       for (Column col : table.getColumnsWithoutHeadings()) {
-        String id = col.getIdentifier();
-        switch (col.getColumnType().getBaseType()) {
-          case HEADING:
-            // nothing to do
-            break;
-          case FILE:
-            tableBuilder.field(
-                GraphQLFieldDefinition.newFieldDefinition().name(id).type(fileDownload));
-            break;
-          case BOOL:
-            tableBuilder.field(
-                GraphQLFieldDefinition.newFieldDefinition().name(id).type(Scalars.GraphQLBoolean));
-            break;
-          case BOOL_ARRAY:
-            tableBuilder.field(
-                GraphQLFieldDefinition.newFieldDefinition()
-                    .name(id)
-                    .type(GraphQLList.list(Scalars.GraphQLBoolean)));
-            break;
-          case STRING:
-          case TEXT:
-          case LONG:
-          case UUID:
-          case DATE:
-          case DATETIME:
-          case EMAIL:
-          case HYPERLINK:
-            tableBuilder.field(
-                GraphQLFieldDefinition.newFieldDefinition().name(id).type(Scalars.GraphQLString));
-            break;
-          case STRING_ARRAY:
-          case EMAIL_ARRAY:
-          case HYPERLINK_ARRAY:
-          case TEXT_ARRAY:
-          case LONG_ARRAY:
-          case DATE_ARRAY:
-          case DATETIME_ARRAY:
-          case UUID_ARRAY:
-          case JSONB_ARRAY:
-            tableBuilder.field(
-                GraphQLFieldDefinition.newFieldDefinition()
-                    .name(id)
-                    .type(GraphQLList.list(Scalars.GraphQLString)));
-            break;
-          case DECIMAL:
-            tableBuilder.field(
-                GraphQLFieldDefinition.newFieldDefinition().name(id).type(Scalars.GraphQLFloat));
-            break;
-          case DECIMAL_ARRAY:
-            tableBuilder.field(
-                GraphQLFieldDefinition.newFieldDefinition()
-                    .name(id)
-                    .type(GraphQLList.list(Scalars.GraphQLFloat)));
-            break;
-          case INT:
-            tableBuilder.field(
-                GraphQLFieldDefinition.newFieldDefinition().name(id).type(Scalars.GraphQLInt));
-            break;
-          case INT_ARRAY:
-            tableBuilder.field(
-                GraphQLFieldDefinition.newFieldDefinition()
-                    .name(id)
-                    .type(GraphQLList.list(Scalars.GraphQLInt)));
-            break;
-          case REF:
-            if (hasViewPermission(table)) {
-              tableBuilder.field(
-                  GraphQLFieldDefinition.newFieldDefinition()
-                      .name(id)
-                      .type(createTableObjectType(col.getRefTable()))
-                      .argument(
-                          GraphQLArgument.newArgument()
-                              .name(GraphqlConstants.FILTER_ARGUMENT)
-                              .type(getTableFilterInputType(col.getRefTable()))
-                              .build()));
-            }
-            break;
-          case REF_ARRAY:
-          case REFBACK:
-            if (hasViewPermission(table)) {
-              tableBuilder.field(
-                  GraphQLFieldDefinition.newFieldDefinition()
-                      .name(id)
-                      .type(GraphQLList.list(createTableObjectType(col.getRefTable())))
-                      .argument(
-                          GraphQLArgument.newArgument()
-                              .name(GraphqlConstants.FILTER_ARGUMENT)
-                              .type(getTableFilterInputType(col.getRefTable()))
-                              .build())
-                      .argument(
-                          GraphQLArgument.newArgument()
-                              .name(GraphqlConstants.LIMIT)
-                              .type(Scalars.GraphQLInt)
-                              .build())
-                      .argument(
-                          GraphQLArgument.newArgument()
-                              .name(GraphqlConstants.OFFSET)
-                              .type(Scalars.GraphQLInt)
-                              .build())
-                      .argument(
-                          GraphQLArgument.newArgument()
-                              .name(GraphqlConstants.ORDERBY)
-                              .type(createTableOrderByInputType(col.getRefTable()))
-                              .build()));
-            }
-            tableBuilder.field(
-                GraphQLFieldDefinition.newFieldDefinition()
-                    .name(id + "_agg")
-                    .type(createTableAggregationType(col.getRefTable()))
-                    .argument(
-                        GraphQLArgument.newArgument()
-                            .name(GraphqlConstants.FILTER_ARGUMENT)
-                            .type(getTableFilterInputType(col.getRefTable()))
-                            .build()));
-            tableBuilder.field(
-                GraphQLFieldDefinition.newFieldDefinition()
-                    .name(id + "_groupBy")
-                    .type(GraphQLList.list(createTableGroupByType(col.getRefTable())))
-                    .argument(
-                        GraphQLArgument.newArgument()
-                            .name(GraphqlConstants.FILTER_ARGUMENT)
-                            .type(getTableFilterInputType(col.getRefTable()))
-                            .build()));
-            break;
-          default:
-            throw new UnsupportedOperationException(
-                "Not yet implemented type " + col.getColumnType());
-        }
+        createTableField(col, tableBuilder);
       }
       tableTypes.put(tableObjectType, tableBuilder.build());
     }
     return tableTypes.get(tableObjectType);
+  }
+
+  private void createTableField(Column col, GraphQLObjectType.Builder tableBuilder) {
+    String id = col.getIdentifier();
+    TableMetadata table = col.getTable();
+    switch (col.getColumnType().getBaseType()) {
+      case HEADING:
+        // nothing to do
+        break;
+      case FILE:
+        tableBuilder.field(GraphQLFieldDefinition.newFieldDefinition().name(id).type(fileDownload));
+        break;
+      case BOOL:
+        tableBuilder.field(
+            GraphQLFieldDefinition.newFieldDefinition().name(id).type(Scalars.GraphQLBoolean));
+        break;
+      case BOOL_ARRAY:
+        tableBuilder.field(
+            GraphQLFieldDefinition.newFieldDefinition()
+                .name(id)
+                .type(GraphQLList.list(Scalars.GraphQLBoolean)));
+        break;
+      case STRING:
+      case TEXT:
+      case LONG:
+      case UUID:
+      case DATE:
+      case DATETIME:
+      case PERIOD:
+      case EMAIL:
+      case HYPERLINK:
+        tableBuilder.field(
+            GraphQLFieldDefinition.newFieldDefinition().name(id).type(Scalars.GraphQLString));
+        break;
+      case STRING_ARRAY:
+      case EMAIL_ARRAY:
+      case HYPERLINK_ARRAY:
+      case TEXT_ARRAY:
+      case LONG_ARRAY:
+      case DATE_ARRAY:
+      case DATETIME_ARRAY:
+      case PERIOD_ARRAY:
+      case UUID_ARRAY:
+      case JSONB_ARRAY:
+        tableBuilder.field(
+            GraphQLFieldDefinition.newFieldDefinition()
+                .name(id)
+                .type(GraphQLList.list(Scalars.GraphQLString)));
+        break;
+      case DECIMAL:
+        tableBuilder.field(
+            GraphQLFieldDefinition.newFieldDefinition().name(id).type(Scalars.GraphQLFloat));
+        break;
+      case DECIMAL_ARRAY:
+        tableBuilder.field(
+            GraphQLFieldDefinition.newFieldDefinition()
+                .name(id)
+                .type(GraphQLList.list(Scalars.GraphQLFloat)));
+        break;
+      case INT:
+        tableBuilder.field(
+            GraphQLFieldDefinition.newFieldDefinition().name(id).type(Scalars.GraphQLInt));
+        break;
+      case INT_ARRAY:
+        tableBuilder.field(
+            GraphQLFieldDefinition.newFieldDefinition()
+                .name(id)
+                .type(GraphQLList.list(Scalars.GraphQLInt)));
+        break;
+      case REF:
+        if (hasViewPermission(table)) {
+          tableBuilder.field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(id)
+                  .type(createTableObjectType(col.getRefTable()))
+                  .argument(
+                      GraphQLArgument.newArgument()
+                          .name(GraphqlConstants.FILTER_ARGUMENT)
+                          .type(getTableFilterInputType(col.getRefTable()))
+                          .build()));
+        }
+        break;
+      case REF_ARRAY:
+      case REFBACK:
+        if (hasViewPermission(table)) {
+          tableBuilder.field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(id)
+                  .type(GraphQLList.list(createTableObjectType(col.getRefTable())))
+                  .argument(
+                      GraphQLArgument.newArgument()
+                          .name(GraphqlConstants.FILTER_ARGUMENT)
+                          .type(getTableFilterInputType(col.getRefTable()))
+                          .build())
+                  .argument(
+                      GraphQLArgument.newArgument()
+                          .name(GraphqlConstants.LIMIT)
+                          .type(Scalars.GraphQLInt)
+                          .build())
+                  .argument(
+                      GraphQLArgument.newArgument()
+                          .name(GraphqlConstants.OFFSET)
+                          .type(Scalars.GraphQLInt)
+                          .build())
+                  .argument(
+                      GraphQLArgument.newArgument()
+                          .name(GraphqlConstants.ORDERBY)
+                          .type(createTableOrderByInputType(col.getRefTable()))
+                          .build()));
+        }
+        tableBuilder.field(
+            GraphQLFieldDefinition.newFieldDefinition()
+                .name(id + "_agg")
+                .type(createTableAggregationType(col.getRefTable()))
+                .argument(
+                    GraphQLArgument.newArgument()
+                        .name(GraphqlConstants.FILTER_ARGUMENT)
+                        .type(getTableFilterInputType(col.getRefTable()))
+                        .build()));
+        tableBuilder.field(
+            GraphQLFieldDefinition.newFieldDefinition()
+                .name(id + "_groupBy")
+                .type(GraphQLList.list(createTableGroupByType(col.getRefTable())))
+                .argument(
+                    GraphQLArgument.newArgument()
+                        .name(GraphqlConstants.FILTER_ARGUMENT)
+                        .type(getTableFilterInputType(col.getRefTable()))
+                        .build()));
+        break;
+      default:
+        throw new UnsupportedOperationException("Not yet implemented type " + col.getColumnType());
+    }
   }
 
   private boolean hasViewPermission(TableMetadata table) {
@@ -324,6 +329,8 @@ public class GraphqlTableFieldFactory {
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(column.getIdentifier())
                   .type(createTableObjectType(column.getRefTable())));
+        } else if (!column.isReference() && hasViewPermission(table)) {
+          createTableField(column, groupByBuilder);
         }
       }
       tableGroupByTypes.put(tableGroupByType, groupByBuilder.build());
@@ -491,11 +498,13 @@ public class GraphqlTableFieldFactory {
         return Scalars.GraphQLFloat;
       case DATE,
           DATETIME,
+          PERIOD,
           STRING,
           TEXT,
           UUID,
           DATE_ARRAY,
           DATETIME_ARRAY,
+          PERIOD_ARRAY,
           STRING_ARRAY,
           TEXT_ARRAY,
           EMAIL_ARRAY,
@@ -515,9 +524,7 @@ public class GraphqlTableFieldFactory {
       if (entry.getKey().equals(FILTER_OR) || entry.getKey().equals(FILTER_AND)) {
         List<Map<String, Object>> nested = (List<Map<String, Object>>) entry.getValue();
         List<Filter> nestedFilters =
-            nested.stream()
-                .map(m -> and(convertMapToFilterArray(table, m)))
-                .collect(Collectors.toList());
+            nested.stream().map(m -> and(convertMapToFilterArray(table, m))).toList();
         if (entry.getKey().equals(FILTER_OR)) {
           subFilters.add(or(nestedFilters.toArray(new Filter[nestedFilters.size()])));
         } else {
@@ -539,7 +546,7 @@ public class GraphqlTableFieldFactory {
             table.getColumns().stream()
                 .filter(c -> c.getIdentifier().equals(entry.getKey()))
                 .findFirst();
-        if (!optional.isPresent())
+        if (optional.isEmpty())
           throw new GraphqlException(
               "Graphql API error: Column "
                   + entry.getKey()
@@ -739,7 +746,7 @@ public class GraphqlTableFieldFactory {
             .type(typeForMutationResult)
             .dataFetcher(fetcher(schema, type));
     for (TableMetadata table : schema.getMetadata().getTables()) {
-      if (table.getColumnsWithoutHeadings().size() > 0) {
+      if (!table.getColumnsWithoutHeadings().isEmpty()) {
         fieldBuilder.argument(
             GraphQLArgument.newArgument()
                 .name(table.getIdentifier())
@@ -878,7 +885,7 @@ public class GraphqlTableFieldFactory {
       case INT -> Scalars.GraphQLInt;
       case LONG -> GraphQLLong;
       case DECIMAL -> Scalars.GraphQLFloat;
-      case UUID, STRING, TEXT, DATE, DATETIME -> Scalars.GraphQLString;
+      case UUID, STRING, TEXT, DATE, DATETIME, PERIOD -> Scalars.GraphQLString;
       case BOOL_ARRAY -> GraphQLList.list(Scalars.GraphQLBoolean);
       case INT_ARRAY -> GraphQLList.list(Scalars.GraphQLInt);
       case LONG_ARRAY -> GraphQLList.list(GraphQLLong);
@@ -887,6 +894,7 @@ public class GraphqlTableFieldFactory {
           TEXT_ARRAY,
           DATE_ARRAY,
           DATETIME_ARRAY,
+          PERIOD_ARRAY,
           UUID_ARRAY,
           EMAIL_ARRAY,
           HYPERLINK_ARRAY -> GraphQLList.list(Scalars.GraphQLString);

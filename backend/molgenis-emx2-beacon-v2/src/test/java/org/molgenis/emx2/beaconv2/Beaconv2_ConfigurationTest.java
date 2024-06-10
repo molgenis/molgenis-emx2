@@ -1,38 +1,43 @@
 package org.molgenis.emx2.beaconv2;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.beaconv2.endpoints.Configuration;
 import org.molgenis.emx2.json.JsonUtil;
+import spark.Request;
 
 public class Beaconv2_ConfigurationTest {
 
+  private Request mockRequest() {
+    Request request = mock(Request.class);
+    when(request.url()).thenReturn("http://localhost:8080/api/beacon");
+    when(request.attribute("specification")).thenReturn("beacon");
+
+    return request;
+  }
+
   @Test
   public void testConfiguration() throws Exception {
-    Configuration c = new Configuration();
-    String json = JsonUtil.getWriter().writeValueAsString(c);
+    Configuration configuration = new Configuration(mockRequest());
 
-    // first line
+    JsonNode result = configuration.getResponse();
+    String json = JsonUtil.getWriter().writeValueAsString(result);
     assertTrue(json.contains("\"meta\" : {"));
 
     // last line (except for closing braces)
     assertTrue(json.contains("\"label\" : \"Sequencing run\""));
 
-    // return config schema
-    assertTrue(
-        json.contains(
-            "    \"returnedSchemas\" : [\n"
-                + "      {\n"
-                + "        \"entityType\" : \"configuration\","));
-
     // check ids of all possible return types
-    assertTrue(json.contains("\"id\" : \"analysis\","));
-    assertTrue(json.contains("\"id\" : \"biosample\","));
-    assertTrue(json.contains("\"id\" : \"cohort\","));
-    assertTrue(json.contains("\"id\" : \"dataset\","));
-    assertTrue(json.contains("\"id\" : \"genomicVariant\","));
-    assertTrue(json.contains("\"id\" : \"individual\","));
-    assertTrue(json.contains("\"id\" : \"run\","));
+    assertTrue(json.contains("\"id\" : \"Analyses\","));
+    assertTrue(json.contains("\"id\" : \"Biosamples\","));
+    assertTrue(json.contains("\"id\" : \"Cohorts\","));
+    assertTrue(json.contains("\"id\" : \"Dataset\","));
+    assertTrue(json.contains("\"id\" : \"GenomicVariations\","));
+    assertTrue(json.contains("\"id\" : \"Individuals\","));
+    assertTrue(json.contains("\"id\" : \"Runs\","));
   }
 }
