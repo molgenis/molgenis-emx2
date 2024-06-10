@@ -1,9 +1,9 @@
 import re
 from typing import List, Set
 
-from molgenis.bbmri_eric.errors import EricWarning
-from molgenis.bbmri_eric.model import NodeData, Table, TableType
-from molgenis.bbmri_eric.printer import Printer
+from molgenis_emx2.directory_client.errors import DirectoryWarning
+from molgenis_emx2.directory_client.model import NodeData, Table, TableType
+from molgenis_emx2.directory_client.printer import Printer
 
 
 class Validator:
@@ -26,9 +26,9 @@ class Validator:
         self.printer = printer
         self.node_data = node_data
         self.invalid_ids: Set[str] = set()
-        self.warnings: List[EricWarning] = list()
+        self.warnings: List[DirectoryWarning] = list()
 
-    def validate(self) -> List[EricWarning]:
+    def validate(self) -> List[DirectoryWarning]:
         for table in self.node_data.import_order:
             self._validate_ids(table)
             self._validate_hyperlinks(table)
@@ -108,7 +108,7 @@ class Validator:
 
     def _validate_ref(self, row: dict, ref_id: str):
         if ref_id in self.invalid_ids:
-            warning = EricWarning(f"{row['id']} references invalid id: {ref_id}")
+            warning = DirectoryWarning(f"{row['id']} references invalid id: {ref_id}")
             self.printer.print_warning(warning)
             self.warnings.append(warning)
 
@@ -140,6 +140,6 @@ class Validator:
             self.invalid_ids.add(id_)
 
     def _warn(self, message: str):
-        warning = EricWarning(message)
+        warning = DirectoryWarning(message)
         self.printer.print_warning(warning)
         self.warnings.append(warning)

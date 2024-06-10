@@ -1,13 +1,17 @@
 from contextlib import contextmanager
 
-from molgenis.bbmri_eric.errors import EricError, EricWarning, ErrorReport
-from molgenis.bbmri_eric.model import Node
+from molgenis_emx2.directory_client.errors import (
+    DirectoryError,
+    DirectoryWarning,
+    ErrorReport,
+)
+from molgenis_emx2.directory_client.model import Node
 
 
 class Printer:
     """
     Simple printer that keeps track of indentation levels. Also has utility methods
-    for printing some Eric objects.
+    for printing some Directory objects.
     """
 
     def __init__(self):
@@ -42,13 +46,13 @@ class Printer:
         self.print(title)
         self.print(border)
 
-    def print_error(self, error: EricError):
+    def print_error(self, error: DirectoryError):
         message = str(error)
         if error.__cause__:
             message += f" - Cause: {str(error.__cause__)}"
         self.print(f"❌ {message}")
 
-    def print_warning(self, warning: EricWarning, indent: int = 0):
+    def print_warning(self, warning: DirectoryWarning, indent: int = 0):
         self.print(f"⚠️ {warning.message}", indent)
 
     def print_summary(self, report: ErrorReport):

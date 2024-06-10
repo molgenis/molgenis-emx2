@@ -1,5 +1,5 @@
 """
-    Setup file for molgenis-py-bbmri-eric.
+    Setup file for molgenis-emx2-directory-client
     Use setup.cfg to configure your project.
 
     This file was generated with PyScaffold 4.0.2.

@@ -1,16 +1,22 @@
 from datetime import date
 
-from molgenis.bbmri_eric.categories import CategoryMapper
-from molgenis.bbmri_eric.errors import EricWarning
-from molgenis.bbmri_eric.model import Node, NodeData, OntologyTable, QualityInfo, Table
-from molgenis.bbmri_eric.printer import Printer
+from molgenis_emx2.directory_client.categories import CategoryMapper
+from molgenis_emx2.directory_client.errors import DirectoryWarning
+from molgenis_emx2.directory_client.model import (
+    Node,
+    NodeData,
+    OntologyTable,
+    QualityInfo,
+    Table,
+)
+from molgenis_emx2.directory_client.printer import Printer
 
 
 class Transformer:
     """
-    The published tables have a few extra attributes that the staging tables do not.
-    This class is responsible for adding those attributes so the staging tables can be
-    published correctly.
+    The published Directory tables have a few extra attributes that the staging tables
+    do not have. This class is responsible for adding those attributes so the staging
+    tables can be published correctly.
     """
 
     def __init__(
@@ -139,7 +145,7 @@ class Transformer:
                     # overwrite EU code that was added in previous enrichment step
                     table.rows_by_id[id_]["national_node"] = self.eu_node_data.node.code
                 else:
-                    warning = EricWarning(
+                    warning = DirectoryWarning(
                         f"{id_} is not present in {eu_table.type.base_id}"
                     )
                     self.printer.print_warning(warning, indent=1)
@@ -158,7 +164,7 @@ class Transformer:
     def _set_combined_networks(self):
         """
         For every collection of the Node, adds to the `combined_network` field, the
-        union of the networks of the collection itself and the ones of its biobank
+        union of the networks of the collection itself and the ones of its biobank.
         """
         self.printer.print("Adding combined networks")
         for collection in self.node_data.collections.rows:
@@ -170,7 +176,7 @@ class Transformer:
     def _set_combined_qualities(self):
         """
         For every collection of the Node, adds to the `combined_quality` field, the
-        union of the qualities of the collection itself and the ones of its biobank
+        union of the qualities of the collection itself and the ones of its biobank.
         """
         self.printer.print("Adding combined qualities")
 

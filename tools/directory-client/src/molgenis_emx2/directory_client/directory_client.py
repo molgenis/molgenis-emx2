@@ -4,8 +4,10 @@ from dataclasses import asdict, dataclass
 from enum import Enum
 from typing import List
 
-from molgenis.bbmri_eric.model import (
-    EricData,
+from molgenis_emx2_pyclient import Client as Session
+
+from molgenis_emx2.directory_client.model import (
+    DirectoryData,
     ExternalServerNode,
     MixedData,
     Node,
@@ -17,7 +19,7 @@ from molgenis.bbmri_eric.model import (
     TableMeta,
     TableType,
 )
-from molgenis.client import MolgenisRequestError, Session
+from molgenis_emx2.directory_client.utils import MolgenisRequestError
 
 
 @dataclass
@@ -52,16 +54,16 @@ class ImportMetadataAction(Enum):
     IGNORE = "ignore"
 
 
-class EricSession(Session):
+class DirectorySession(Session):
     """
-    A session with a BBMRI ERIC directory. Contains methods to get national nodes,
+    A session with a BBMRI Biobank Directory. Contains methods to get national nodes,
     their (staging) data and quality information.
     """
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    NODES_TABLE = "eu_bbmri_eric_national_nodes"
+    NODES_TABLE = "NationalNodes"
 
     def get_ontology(
         self,
@@ -95,13 +97,13 @@ class EricSession(Session):
         """
 
         biobank_qualities = self.get(
-            "eu_bbmri_eric_bio_qual_info",
+            "QualityInfoBiobanks",
             batch_size=10000,
             attributes="id,biobank,assess_level_bio",
             uploadable=True,
         )
         collection_qualities = self.get(
-            "eu_bbmri_eric_col_qual_info",
+            "QualityInfoCollections",
             batch_size=10000,
             attributes="id,collection,assess_level_col",
             uploadable=True,
@@ -261,12 +263,12 @@ class EricSession(Session):
         self, nodes: List[Node], attributes: AttributesRequest
     ) -> MixedData:
         """
-        Gets the six tables that belong to one or more nodes from the published tables.
+        Gets the six tables that belong to one or more nodes from the Directory tables.
         Filters the rows based on the national_node field.
 
-        :param List[Node] nodes: the node(s) to get the published data for
+        :param List[Node] nodes: the node(s) to get the Directory data for
         :param AttributesRequest attributes: the attributes to get for each table
-        :return: an EricData object
+        :return: an DirectoryData object
         """
 
         if len(nodes) == 0:
@@ -294,11 +296,11 @@ class EricSession(Session):
 
         return MixedData.from_mixed_dict(source=Source.PUBLISHED, tables=tables)
 
-    def upload_data(self, data: EricData):
+    def upload_data(self, data: DirectoryData):
         """
-        Converts the six tables of an EricData object to CSV, bundles them in
+        Converts the six tables of a DirectoryData object to CSV, bundles them in
         a ZIP archive and imports them through the import API.
-        :param data: an EricData object
+        :param data: a DirectoryData object
         """
 
         importable_data = dict()

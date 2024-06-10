@@ -7,9 +7,9 @@ import os
 
 from dotenv import load_dotenv
 
-from molgenis.bbmri_eric.bbmri_client import EricSession
-from molgenis.bbmri_eric.eric import Eric
-from molgenis.bbmri_eric.pid_service import PidService
+from molgenis_emx2.directory_client.directory import Directory
+from molgenis_emx2.directory_client.directory_client import DirectorySession
+from molgenis_emx2.directory_client.pid_service import PidService
 
 # Get credentials from .env
 load_dotenv()
@@ -18,8 +18,8 @@ target = os.getenv("TARGET")
 username = os.getenv("USERNAME")
 password = os.getenv("PASSWORD")
 
-# Login to the directory with an EricSession
-session = EricSession(url=target)
+# Login to the directory with an DirectorySession
+session = DirectorySession(url=target)
 session.login(username, password)
 
 # Get the nodes you want to work with
@@ -37,7 +37,7 @@ print(f"Script runs on server {pid_service.base_url}")
 # pid_service = NoOpPidService()
 
 # Instantiate the Eric class and do some work
-eric = Eric(session, pid_service)
+eric = Directory(session, pid_service)
 staging_report = eric.stage_external_nodes(nodes_to_stage)
 publishing_report = eric.publish_nodes(nodes_to_publish)
 

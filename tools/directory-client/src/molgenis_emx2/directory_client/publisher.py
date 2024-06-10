@@ -1,9 +1,13 @@
 from dataclasses import dataclass, field
 from typing import List
 
-from molgenis.bbmri_eric.bbmri_client import EricSession
-from molgenis.bbmri_eric.errors import EricError, EricWarning, ErrorReport
-from molgenis.bbmri_eric.model import (
+from molgenis_emx2.directory_client.directory_client import DirectorySession
+from molgenis_emx2.directory_client.errors import (
+    DirectoryError,
+    DirectoryWarning,
+    ErrorReport,
+)
+from molgenis_emx2.directory_client.model import (
     MixedData,
     Node,
     NodeData,
@@ -13,9 +17,9 @@ from molgenis.bbmri_eric.model import (
     Table,
     TableType,
 )
-from molgenis.bbmri_eric.pid_manager import BasePidManager
-from molgenis.bbmri_eric.printer import Printer
-from molgenis.client import MolgenisRequestError
+from molgenis_emx2.directory_client.pid_manager import BasePidManager
+from molgenis_emx2.directory_client.printer import Printer
+from molgenis_emx2.directory_client.utils import MolgenisRequestError
 
 
 @dataclass
@@ -41,7 +45,7 @@ class Publisher:
 
     def __init__(
         self,
-        session: EricSession,
+        session: DirectorySession,
         printer: Printer,
         pid_manager: BasePidManager,
     ):
@@ -52,14 +56,14 @@ class Publisher:
     def publish(self, state: PublishingState):
         """
         Copies staging data to the combined tables. This happens in two phases:
-        1. New/existing rows are upserted in the combined tables
-        2. Removed rows are deleted from the combined tables
+        1. New/existing rows are upserted in the Directory tables
+        2. Removed rows are deleted from the Directory tables
         """
-        self.printer.print("💾 Saving new and updated data to combined tables")
+        self.printer.print("💾 Saving new and updated data to Directory tables")
         with self.printer.indentation():
             self._upsert_data(state)
 
-        self.printer.print("🧼 Cleaning up removed data in combined tables")
+        self.printer.print("🧼 Cleaning up removed data in Directory tables")
         with self.printer.indentation():
             self._delete_data(state)
 
@@ -67,7 +71,7 @@ class Publisher:
         try:
             self.session.upload_data(state.data_to_publish)
         except MolgenisRequestError as e:
-            raise EricError("Error importing data to combined tables") from e
+            raise DirectoryError("Error importing data to combined tables") from e
 
     def _delete_data(self, state):
         for table in reversed(state.data_to_publish.import_order):
@@ -77,7 +81,9 @@ class Publisher:
                         table, state.existing_data.table_by_type[table.type], state
                     )
             except MolgenisRequestError as e:
-                raise EricError(f"Error deleting rows from {table.type.base_id}") from e
+                raise DirectoryError(
+                    f"Error deleting rows from {table.type.base_id}"
+                ) from e
 
     def _delete_rows(self, table: Table, existing_table: Table, state: PublishingState):
         """
@@ -112,7 +118,7 @@ class Publisher:
             for id_ in deletable_ids:
                 with self.printer.indentation():
                     code = existing_table.rows_by_id[id_]["national_node"]
-                    warning = EricWarning(f"ID {id_} is deleted")
+                    warning = DirectoryWarning(f"ID {id_} is deleted")
                     self.printer.print_warning(warning)
                     state.report.add_node_warnings(Node.of(code), [warning])
 
@@ -120,7 +126,7 @@ class Publisher:
         if deleted_ids != deletable_ids:
             for id_ in undeletable_ids:
                 if id_ in deleted_ids:
-                    warning = EricWarning(
+                    warning = DirectoryWarning(
                         f"Prevented the deletion of a row that is referenced from "
                         f"the quality info: {table.type.value} {id_}."
                     )

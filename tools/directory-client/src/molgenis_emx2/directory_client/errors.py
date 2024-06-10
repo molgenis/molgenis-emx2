@@ -4,12 +4,12 @@ from typing import DefaultDict, List, Optional
 
 import requests
 
-from molgenis.bbmri_eric.model import Node
-from molgenis.client import MolgenisRequestError
+from molgenis_emx2.directory_client.model import Node
+from molgenis_emx2.directory_client.utils import MolgenisRequestError
 
 
 @dataclass(frozen=True)
-class EricWarning:
+class DirectoryWarning:
     """
     Class that contains a warning message. Use this when a problem occurs that
     shouldn't cancel the current action (for example staging or publishing).
@@ -18,7 +18,7 @@ class EricWarning:
     message: str
 
 
-class EricError(Exception):
+class DirectoryError(Exception):
     """
     Raise this exception when an error occurs that we can not recover from.
     """
@@ -33,22 +33,22 @@ class ErrorReport:
     """
 
     nodes: List[Node]
-    node_errors: DefaultDict[Node, EricError] = field(
+    node_errors: DefaultDict[Node, DirectoryError] = field(
         default_factory=lambda: defaultdict(list)
     )
-    node_warnings: DefaultDict[Node, List[EricWarning]] = field(
+    node_warnings: DefaultDict[Node, List[DirectoryWarning]] = field(
         default_factory=lambda: defaultdict(list)
     )
-    error: Optional[EricError] = None
+    error: Optional[DirectoryError] = None
 
-    def add_node_error(self, node: Node, error: EricError):
+    def add_node_error(self, node: Node, error: DirectoryError):
         self.node_errors[node] = error
 
-    def add_node_warnings(self, node: Node, warnings: List[EricWarning]):
+    def add_node_warnings(self, node: Node, warnings: List[DirectoryWarning]):
         if warnings:
             self.node_warnings[node].extend(warnings)
 
-    def set_global_error(self, error: EricError):
+    def set_global_error(self, error: DirectoryError):
         self.error = error
 
     def has_errors(self) -> bool:
@@ -60,13 +60,13 @@ class ErrorReport:
 
 def requests_error_handler(func):
     """
-    Decorator that catches RequestExceptions and wraps them in an EricError.
+    Decorator that catches RequestExceptions and wraps them in a DirectoryError.
     """
 
     def inner_function(*args, **kwargs):
         try:
             return func(*args, **kwargs)
         except (requests.exceptions.RequestException, MolgenisRequestError) as e:
-            raise EricError("Request failed") from e
+            raise DirectoryError("Request failed") from e
 
     return inner_function

@@ -2,20 +2,20 @@ from collections import OrderedDict
 
 from unidecode import unidecode
 
-from molgenis.bbmri_eric.errors import EricWarning
-from molgenis.bbmri_eric.model import NodeData, Table, TableType
-from molgenis.bbmri_eric.printer import Printer
-from molgenis.bbmri_eric.utils import to_ordered_dict
+from molgenis_emx2.directory_client.errors import DirectoryWarning
+from molgenis_emx2.directory_client.model import NodeData, Table, TableType
+from molgenis_emx2.directory_client.printer import Printer
+from molgenis_emx2.directory_client.utils import to_ordered_dict
 
 
 class ModelFitter:
     """
-    Sometimes, model changes are implemented in the published tables, but can't be
-    implemented yet in all staging areas because action (adjustment of local databases,
-    API calls, etc) from the national nodes is needed.
+    Sometimes, model changes are implemented in the published Directory tables, but
+    can't be implemented yet in all staging areas because action
+    (adjustment of local databases, API calls, etc) from the national nodes is needed.
     This class contains temporary solutions to transform the staging areas data
     according to the published model. If the models of all staging areas are equal to
-    the published model this class shouldn't contain any methods.
+    the Directory model this class shouldn't contain any methods.
     """
 
     def __init__(
@@ -39,7 +39,7 @@ class ModelFitter:
         return self.warnings
 
     def _add_warning(self, message: str):
-        self.printer.print_warning(EricWarning(message), indent=1)
+        self.printer.print_warning(DirectoryWarning(message), indent=1)
         self.warnings.append(message)
 
     def _merge_covid19_capabilities(self):

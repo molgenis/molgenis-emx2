@@ -2,13 +2,12 @@ from copy import deepcopy
 from enum import Enum
 from typing import List, Set
 
-from molgenis.bbmri_eric.model import OntologyTable
+from molgenis_emx2.directory_client.model import OntologyTable
 
 
 class Category(Enum):
     """
-    Enum of Collection Categories with identifiers found in the
-    eu_bbmri_eric_category table.
+    Enum of Collection Categories with identifiers found in the Categories table.
     """
 
     AUTOIMMUNE = "autoimmune"
@@ -27,7 +26,7 @@ class Category(Enum):
 
 class AgeUnit(Enum):
     """
-    Enum of age units with identifiers found in the eu_bbmri_eric_age_units table.
+    Enum of age units with identifiers found in the AgeUnits table.
     """
 
     DAY = "DAY"

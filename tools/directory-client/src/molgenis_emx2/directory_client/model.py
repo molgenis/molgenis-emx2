@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Dict, List, Set
 
-from molgenis.bbmri_eric.utils import to_ordered_dict
+from molgenis_emx2.directory_client.utils import to_ordered_dict
 
 
 class TableType(Enum):
@@ -181,7 +181,7 @@ class OntologyTable(BaseTable):
 
 @dataclass(frozen=True)
 class Node:
-    """Represents a single national node in the BBMRI ERIC directory."""
+    """Represents a single national node in a BBMRI Biobank Directory."""
 
     code: str
     description: str | None = None
@@ -258,8 +258,8 @@ class Source(Enum):
 
 
 @dataclass
-class EricData(ABC):
-    """Abstract base class for containers storing rows from the six ERIC tables:
+class DirectoryData(ABC):
+    """Abstract base class for containers storing rows from the six Directory tables:
     persons, networks, also_known_in, biobanks, collections and facts."""
 
     source: Source
@@ -294,7 +294,7 @@ class EricData(ABC):
 
 
 @dataclass
-class NodeData(EricData):
+class NodeData(DirectoryData):
     """Container object storing the six tables of a single node."""
 
     node: Node
@@ -323,7 +323,7 @@ class NodeData(EricData):
         return NodeData(node=self.node, source=Source.STAGING, **tables)
 
 
-class MixedData(EricData):
+class MixedData(DirectoryData):
     """Container object storing the six tables with mixed origins, for example from
     the combined tables or from multiple staging areas."""
 
@@ -331,7 +331,7 @@ class MixedData(EricData):
     def from_mixed_dict(source: Source, tables: Dict[str, Table]) -> "MixedData":
         return MixedData(source=source, **tables)
 
-    def merge(self, other_data: EricData):
+    def merge(self, other_data: DirectoryData):
         self.persons.rows_by_id.update(other_data.persons.rows_by_id)
         self.networks.rows_by_id.update(other_data.networks.rows_by_id)
         self.also_known_in.rows_by_id.update(other_data.also_known_in.rows_by_id)

@@ -1,19 +1,19 @@
-from molgenis.bbmri_eric.bbmri_client import EricSession
-from molgenis.bbmri_eric.errors import ErrorReport, requests_error_handler
-from molgenis.bbmri_eric.model import Node, NodeData
-from molgenis.bbmri_eric.model_fitting import ModelFitter
-from molgenis.bbmri_eric.pid_manager import BasePidManager
-from molgenis.bbmri_eric.printer import Printer
-from molgenis.bbmri_eric.publisher import PublishingState
-from molgenis.bbmri_eric.transformer import Transformer
-from molgenis.bbmri_eric.validation import Validator
+from molgenis_emx2.directory_client.directory_client import DirectorySession
+from molgenis_emx2.directory_client.errors import ErrorReport, requests_error_handler
+from molgenis_emx2.directory_client.model import Node, NodeData
+from molgenis_emx2.directory_client.model_fitting import ModelFitter
+from molgenis_emx2.directory_client.pid_manager import BasePidManager
+from molgenis_emx2.directory_client.printer import Printer
+from molgenis_emx2.directory_client.publisher import PublishingState
+from molgenis_emx2.directory_client.transformer import Transformer
+from molgenis_emx2.directory_client.validation import Validator
 
 
 class PublicationPreparer:
     """Prepares nodes for publishing."""
 
     def __init__(
-        self, printer: Printer, pid_manager: BasePidManager, session: EricSession
+        self, printer: Printer, pid_manager: BasePidManager, session: DirectorySession
     ):
         self.printer = printer
         self.pid_manager = pid_manager

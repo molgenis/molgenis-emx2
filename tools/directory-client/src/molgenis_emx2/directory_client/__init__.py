@@ -8,7 +8,7 @@ else:
     from importlib_metadata import PackageNotFoundError, version  # pragma: no cover
 
 try:
-    dist_name = "molgenis-py-bbmri-eric"
+    dist_name = "molgenis-emx2-directory-client"
     __version__ = version(dist_name)
 except PackageNotFoundError:  # pragma: no cover
     __version__ = "unknown"

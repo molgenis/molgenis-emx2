@@ -1,15 +1,19 @@
 from abc import ABC, abstractmethod
 from typing import List
 
-from molgenis.bbmri_eric.errors import EricWarning
-from molgenis.bbmri_eric.model import Table
-from molgenis.bbmri_eric.pid_service import BasePidService, NoOpPidService, Status
-from molgenis.bbmri_eric.printer import Printer
+from molgenis_emx2.directory_client.errors import DirectoryWarning
+from molgenis_emx2.directory_client.model import Table
+from molgenis_emx2.directory_client.pid_service import (
+    BasePidService,
+    NoOpPidService,
+    Status,
+)
+from molgenis_emx2.directory_client.printer import Printer
 
 
 class BasePidManager(ABC):
     @abstractmethod
-    def assign_biobank_pids(self, biobanks: Table) -> List[EricWarning]:
+    def assign_biobank_pids(self, biobanks: Table) -> List[DirectoryWarning]:
         pass
 
     @abstractmethod
@@ -23,8 +27,8 @@ class BasePidManager(ABC):
 
 class PidManager(BasePidManager):
     """
-    This class is responsible for managing PIDs of BBMRI-ERIC entities: assignment,
-    updates en status changes are done here.
+    This class is responsible for managing PIDs of BBMRI Biobank Directory entities:
+    assignment, updates and status changes are done here.
     """
 
     def __init__(self, pid_service: BasePidService, printer: Printer):
@@ -32,7 +36,7 @@ class PidManager(BasePidManager):
         self.printer = printer
         self.biobank_url_prefix = pid_service.base_url + "#/biobank/"
 
-    def assign_biobank_pids(self, biobanks: Table) -> List[EricWarning]:
+    def assign_biobank_pids(self, biobanks: Table) -> List[DirectoryWarning]:
         """
         Registers and assigns a new PID for biobanks that have an empty "pid" attribute.
         Make sure to enrich the table with existing PIDs before using this method.
@@ -69,7 +73,7 @@ class PidManager(BasePidManager):
 
     def terminate_biobanks(self, biobank_pids: List[str]):
         """
-        Sets the STATUS of a PID to TERMINATED.
+        Sets the STATUS of a PID into TERMINATED.
         """
         for biobank_pid in biobank_pids:
             self.pid_service.set_status(biobank_pid, Status.TERMINATED)
@@ -78,7 +82,7 @@ class PidManager(BasePidManager):
             )
 
     def _register_biobank_pid(
-        self, biobank_id: str, biobank_name: str, warnings: List[EricWarning]
+        self, biobank_id: str, biobank_name: str, warnings: List[DirectoryWarning]
     ) -> str:
         """
         Registers a PID for a new biobank. If one or more PIDs for this biobank already
@@ -89,7 +93,7 @@ class PidManager(BasePidManager):
 
         if existing_pids:
             pid = existing_pids[0]
-            warning = EricWarning(
+            warning = DirectoryWarning(
                 f'PID(s) already exist for new biobank "{biobank_name}": '
                 f"{str(existing_pids)}. Please check the PID's contents!"
             )
@@ -119,7 +123,7 @@ class NoOpPidManager(BasePidManager):
     This implementation does nothing. It's used to turn off all PID features.
     """
 
-    def assign_biobank_pids(self, biobanks: Table) -> List[EricWarning]:
+    def assign_biobank_pids(self, biobanks: Table) -> List[DirectoryWarning]:
         return []
 
     def update_biobank_pids(self, biobanks: Table, existing_biobanks: Table):

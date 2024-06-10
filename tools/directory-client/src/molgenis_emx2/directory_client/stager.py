@@ -1,27 +1,34 @@
 from typing import List
 
-from molgenis.bbmri_eric.bbmri_client import EricSession, ExternalServerSession
-from molgenis.bbmri_eric.errors import EricError, EricWarning, requests_error_handler
-from molgenis.bbmri_eric.model import ExternalServerNode, NodeData, TableType
-from molgenis.bbmri_eric.printer import Printer
+from molgenis_emx2.directory_client.directory_client import (
+    DirectorySession,
+    ExternalServerSession,
+)
+from molgenis_emx2.directory_client.errors import (
+    DirectoryError,
+    DirectoryWarning,
+    requests_error_handler,
+)
+from molgenis_emx2.directory_client.model import ExternalServerNode, NodeData, TableType
+from molgenis_emx2.directory_client.printer import Printer
 
 
 class Stager:
     """
     This class is responsible for copying data from a node with an external server to
-    its staging area in the BBMRI ERIC directory.
+    its staging area in the BBMRI Biobank Directory.
     """
 
-    def __init__(self, session: EricSession, printer: Printer):
+    def __init__(self, session: DirectorySession, printer: Printer):
         self.session = session
         self.printer = printer
 
-        self.warnings: List[EricWarning] = list()
+        self.warnings: List[DirectoryWarning] = list()
 
     @requests_error_handler
     def stage(self, node: ExternalServerNode):
         """
-        Stages all data from the provided external node in the BBMRI-ERIC directory.
+        Stages all data from the provided external node in the Directory.
         """
         self.warnings = []
         source_data = self._get_source_data(node)
@@ -50,7 +57,7 @@ class Stager:
         """
         package = f"eu_bbmri_eric_{session.node.code}"
         if not session.get("sys_md_Package", q=f"id=={package}"):
-            raise EricError(
+            raise DirectoryError(
                 "The session user has invalid permissions\n       Please check the "
                 "token and permissions of this user"
             )
@@ -62,7 +69,7 @@ class Stager:
         for table_type in TableType.get_import_order():
             id_ = session.node.get_staging_id(table_type)
             if not session.get("sys_md_EntityType", q=f"id=={id_}"):
-                warning = EricWarning(
+                warning = DirectoryWarning(
                     f"Node {session.node.code} has no {table_type.value} table"
                 )
                 self.printer.print_warning(warning, indent=1)

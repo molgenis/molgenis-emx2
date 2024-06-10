@@ -1,26 +1,33 @@
 from typing import List, Optional
 
-from molgenis.bbmri_eric.bbmri_client import AttributesRequest, EricSession
-from molgenis.bbmri_eric.errors import EricError, ErrorReport, requests_error_handler
-from molgenis.bbmri_eric.model import ExternalServerNode, Node
-from molgenis.bbmri_eric.pid_manager import PidManagerFactory
-from molgenis.bbmri_eric.pid_service import BasePidService
-from molgenis.bbmri_eric.printer import Printer
-from molgenis.bbmri_eric.publication_preparer import PublicationPreparer
-from molgenis.bbmri_eric.publisher import Publisher, PublishingState
-from molgenis.bbmri_eric.stager import Stager
+from molgenis_emx2.directory_client.directory_client import (
+    AttributesRequest,
+    DirectorySession,
+)
+from molgenis_emx2.directory_client.errors import (
+    DirectoryError,
+    ErrorReport,
+    requests_error_handler,
+)
+from molgenis_emx2.directory_client.model import ExternalServerNode, Node
+from molgenis_emx2.directory_client.pid_manager import PidManagerFactory
+from molgenis_emx2.directory_client.pid_service import BasePidService
+from molgenis_emx2.directory_client.printer import Printer
+from molgenis_emx2.directory_client.publication_preparer import PublicationPreparer
+from molgenis_emx2.directory_client.publisher import Publisher, PublishingState
+from molgenis_emx2.directory_client.stager import Stager
 
 
-class Eric:
+class Directory:
     """
-    Main class for doing operations on the ERIC directory.
+    Main class for doing operations on the BBMRI Biobank Directory.
     """
 
     def __init__(
-        self, session: EricSession, pid_service: Optional[BasePidService] = None
+        self, session: DirectorySession, pid_service: Optional[BasePidService] = None
     ):
         """
-        :param session: an authenticated session with an ERIC directory
+        :param session: an authenticated session with a BBMRI Biobank Directory.
         :param pid_service: a configured PidService, required for publishing. When no
         PidService is provided, nodes can only be staged.
         """
@@ -37,7 +44,7 @@ class Eric:
 
     def stage_external_nodes(self, nodes: List[ExternalServerNode]) -> ErrorReport:
         """
-        Stages all data from the provided external nodes in the ERIC directory.
+        Stages all data from the provided external nodes in the BBMRI Biobank Directory.
 
         Parameters:
             nodes (List[ExternalServerNode]): The list of external nodes to stage
@@ -47,7 +54,7 @@ class Eric:
             self.printer.print_node_title(node)
             try:
                 self._stage_node(node, report)
-            except EricError as e:
+            except DirectoryError as e:
                 self.printer.print_error(e)
                 report.add_node_error(node, e)
 
@@ -56,8 +63,7 @@ class Eric:
 
     def publish_nodes(self, nodes: List[Node]) -> ErrorReport:
         """
-        Publishes data from the provided nodes to the production tables in the ERIC
-        directory.
+        Publishes data from the provided nodes to the tables in the Directory.
 
         Parameters:
             nodes (List[Node]): The list of nodes to publish
@@ -68,7 +74,7 @@ class Eric:
         report = ErrorReport(nodes)
         try:
             state = self._init_state(nodes, report)
-        except EricError as e:
+        except DirectoryError as e:
             self.printer.print_error(e)
             report.set_global_error(e)
         else:
@@ -103,7 +109,7 @@ class Eric:
 
         self.printer.print("📦 Retrieving disease ontologies")
         diseases = self.session.get_ontology(
-            "eu_bbmri_eric_disease_types",
+            "DiseaseTypes",
             matching_attrs=["exact_mapping", "ntbt_mapping"],
         )
 
@@ -124,7 +130,7 @@ class Eric:
                     self._stage_node(node, state.report)
                 node_data = self.preparator.prepare(node, state)
                 state.data_to_publish.merge(node_data)
-            except EricError as e:
+            except DirectoryError as e:
                 self.printer.print_error(e)
                 state.existing_data.remove_node_rows(node)
                 state.report.add_node_error(node, e)
@@ -135,7 +141,7 @@ class Eric:
         )
         try:
             self.publisher.publish(state)
-        except EricError as e:
+        except DirectoryError as e:
             self.printer.print_error(e)
             state.report.set_global_error(e)
 

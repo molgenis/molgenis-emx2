@@ -13,7 +13,7 @@ from pyhandle.handleexceptions import (
     HandleSyntaxError,
 )
 
-from molgenis.bbmri_eric.errors import EricError
+from molgenis_emx2.directory_client.errors import DirectoryError
 
 
 class Status(Enum):
@@ -24,18 +24,18 @@ class Status(Enum):
 
 def pyhandle_error_handler(func):
     """
-    Decorator that catches PyHandleExceptions and wraps them in an EricError.
+    Decorator that catches PyHandleExceptions and wraps them in a DirectoryError.
     """
 
     def inner_function(*args, **kwargs):
         try:
             return func(*args, **kwargs)
         except HandleAuthenticationError as e:
-            raise EricError("Handle authentication failed") from e
+            raise DirectoryError("Handle authentication failed") from e
         except HandleNotFoundException as e:
-            raise EricError(f"Handle not found on handle server: {e.handle}")
+            raise DirectoryError(f"Handle not found on handle server: {e.handle}")
         except HandleSyntaxError as e:
-            raise EricError(f"Handle has incorrect syntax: {e.handle}")
+            raise DirectoryError(f"Handle has incorrect syntax: {e.handle}")
 
     return inner_function
 
@@ -71,7 +71,7 @@ class BasePidService(metaclass=ABCMeta):
         Generates a new PID. Uses a cryptographically secure random, 12 digit
         hexadecimal number separated by hyphens every 4 digits (example: 6ed7-328b-2793)
         Has been tested to have <1 collisions every 10 million ids. PIDs of the
-        directory are also prefixed with "1.".
+        Directory are also prefixed with "1.".
         """
         id_ = secrets.token_hex(6)
         return f"{prefix}/{BasePidService.service_prefix}{id_[:4]}-{id_[4:8]}-{id_[8:]}"
@@ -135,7 +135,7 @@ class PidService(BasePidService):
         pids = self.client.search_handle(URL=url, prefix=self.prefix)
 
         if pids is None:
-            raise EricError("Insufficient permissions for reverse lookup")
+            raise DirectoryError("Insufficient permissions for reverse lookup")
 
         return pids
 
