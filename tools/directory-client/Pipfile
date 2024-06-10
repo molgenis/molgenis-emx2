@@ -1,0 +1,18 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+molgenis-py-bbmri-eric = {editable = true, path = "."}
+
+[dev-packages]
+pytest = "*"
+setuptools = "*"
+pytest-cov = "*"
+tox = "*"
+python-dotenv = "*"
+flake8 = "*"
+
+[requires]
+python_version = "3.10"

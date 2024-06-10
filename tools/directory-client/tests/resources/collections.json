@@ -1,0 +1,64 @@
+[
+  {
+    "id": "bbmri-eric:ID:NL_valid-collectionID-1",
+    "contact": "bbmri-eric:contactID:NL_valid-personID-1",
+    "biobank": "bbmri-eric:ID:NL_valid-biobankID-1",
+    "also_known_in": ["bbmri-eric:akiID:BE_invalid_node_code"],
+    "head_firstname": "Jan",
+    "head_lastname": "Janssen",
+    "head_role": "Director",
+    "country": "NL"
+  },
+  {
+    "id": "bbmri-eric:ID:NL_valid:collectionID-2",
+    "contact": "bbmri-eric:ID:NL_invalid_person_classifier",
+    "networks": ["bbmri-eric:network:NL_valid-networkID-1"],
+    "biobank": "bbmri-eric:test:NL_invalid_biobank_classifier",
+    "parent_collection": "bbmri-eric:collection:NL_invalid_collection_classifier",
+    "title_before_name": "Dr",
+    "head_firstname": "Piet",
+    "head_lastname": "Geluk",
+    "head_role": "Collection head",
+    "country": "NL"
+  },
+  {
+    "id": "bbmri-eric:ID:NL_valid:collectionID-3",
+    "biobank": "bbmri-eric:ID:NL_valid:biobankID-2",
+    "head_title_before_name": "Prof",
+    "head_firstname": "Bart",
+    "head_lastname": "de Vries",
+    "head_role": "Principal Investigator",
+    "head_title_after_name": "Msc",
+    "country": "NL"
+  },
+  {
+    "id": "bbmri-eric:collection:NL_invalid_collection_classifier",
+    "biobank": "bbmri-eric:ID:NL_valid-biobankID-1"
+  },
+  {
+    "id": "bbmri-eric:ID:BE_invalid_node_code:collectionID",
+    "biobank": "bbmri-eric:ID:NL_valid-biobankID-1",
+    "networks": [
+      "bbmri-eric:network:NL_valid-networkID-1",
+      "bbmri-eric:ID:NL_invalid_network_classifier"
+    ],
+    "parent_collection": "bbmri-eric:ID:NL_valid-collectionID-1"
+  },
+  {
+    "id": "bbmri-eric:ID:NL_bb1:collection:test_quality1",
+    "biobank": "bbmri-eric:ID:NL_biobank_noQual"
+  },
+  {
+    "id": "bbmri-eric:ID:NL_bb1:collection:test_quality2",
+    "biobank": "bbmri-eric:ID:NL_test_quality_biobank2"
+  },
+  {
+    "id": "bbmri-eric:ID:NL_bb3:collection:test_quality3",
+    "biobank": "bbmri-eric:ID:NL_test_quality_biobank3"
+  },
+  {
+    "id": "bbmri-eric:ID:NL_bb1:collection:test_noQual",
+    "biobank": "bbmri-eric:ID:NL_test_quality_biobank1"
+
+  }
+]
