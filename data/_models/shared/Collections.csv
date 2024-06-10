@@ -1,25 +1,25 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,visible
-Collections,,,,,,,,,,,dcat:Resource,"Generic listing of all resources. Should not be used directly, instead use specific types such as Databanks and Studies","DataCatalogueFlat,EMA",
+Collections,,,,,,,,,,,dcat:DatasetSeries,"Generic listing of all resources. Should not be used directly, instead use specific types such as Databanks and Studies","DataCatalogueFlat,EMA",
 Collections,,overview,heading,,,,,,,,,General information,DataCatalogueFlat,
-Collections,,id,,1,true,,,,,,dcterms:identifier,Internal identifier,"DataCatalogueFlat,EMA",
-Collections,,pid,,2,,,,,,,dcterms:identifier,Persistent identifier,"DataCatalogueFlat,EMA",
+Collections,,id,,1,true,,,,,,"dcterms:identifier,dct:identifier",Internal identifier,"DataCatalogueFlat,EMA",
+Collections,,pid,,2,,,,,,,"dcterms:identifier,dct:identifier",Persistent identifier,"DataCatalogueFlat,EMA",
 Collections,,acronym,,,,,,,,,dcterms:identifier,Acronym if applicable,"DataCatalogueFlat,EMA",
-Collections,,name,text,3,true,,,,,,"dcterms:title,foaf:name",Name used in European projects,"DataCatalogueFlat,EMA",
-Collections,,collection type,ontology,,,CatalogueOntologies,Collection types FLAT,,,,,,DataCatalogueFlat,
+Collections,,name,text,3,true,,,,,,"dcterms:title,foaf:name,dct:title",Name used in European projects,"DataCatalogueFlat,EMA",
+Collections,,collection type,ontology,,,CatalogueOntologies,Collection types FLAT,,,,"dcterms:type,dct:type",,DataCatalogueFlat,
 Collections,,local name,,,,,,,,,rdfs:label,"If different from above, name in the national language",DataCatalogueFlat,"['Cohort', 'Databank', 'Data source'].includes(collectionType?.name)"
 Collections,,network type,ontology_array,,,CatalogueOntologies,Network types,,,,dcterms:type,"Type of network, e.g. h2020 project",DataCatalogueFlat,['Network'].includes(collectionType?.name)
 Collections,,features,ontology_array,,,CatalogueOntologies,Network features,,,,,Characterizations of the network,"DataCatalogueFlat,EMA",['Network'].includes(collectionType?.name)
 Collections,,study type,ontology,,,CatalogueOntologies,Study types,,,,,Select 1 of the following types of study,"DataCatalogueFlat,EMA",['Study'].includes(collectionType?.name)
 Collections,,study type other,,,,,,,,,,"If other, describe the type of study","DataCatalogueFlat,EMA",['Study'].includes(collectionType?.name)
-Collections,,datasource type,ontology_array,,,CatalogueOntologies,Datasource types,,,,dcterms:type,Which of the following families of databanks best describe this data source,"DataCatalogueFlat,EMA","['Databank', 'Data source'].includes(collectionType?.name)"
+Collections,,datasource type,ontology_array,,,CatalogueOntologies,Datasource types,,,,,Which of the following families of databanks best describe this data source,"DataCatalogueFlat,EMA","['Databank', 'Data source'].includes(collectionType?.name)"
 Collections,,datasource type other,text,,,,,,,,,"If other, describe the type of datasource","DataCatalogueFlat,EMA","['Databank', 'Data source'].includes(collectionType?.name)"
 Collections,,keywords,text,,,,,,,,dcat:keyword,Keywords to increase findability of this resource. Try to use words that are not used in the description,DataCatalogueFlat,"['Cohort', 'Databank', 'Data source'].includes(collectionType?.name)"
 Collections,,website,hyperlink,,,,,,,,dcat:landingPage,Link to the website or homepage,"DataCatalogueFlat,EMA",
-Collections,,lead organisation,ref_array,,,,Organisations,,,,dcterms:creator,lead organisation (e.g. research department or group) for this resource,"DataCatalogueFlat,EMA","['Cohort', 'Databank', 'Data source', 'Model', 'Network', 'Study'].includes(collectionType?.name)"
+Collections,,lead organisation,ref_array,,,,Organisations,,,,"dcterms:creator,dct:creator",lead organisation (e.g. research department or group) for this resource,"DataCatalogueFlat,EMA","['Cohort', 'Databank', 'Data source', 'Model', 'Network', 'Study'].includes(collectionType?.name)"
 Collections,,additional organisations,ref_array,,,,Organisations,,,,dcterms:contributor,List the names of any additional organisations that contributed to the resource,"DataCatalogueFlat,EMA","['Cohort', 'Databank', 'Data source', 'Model', 'Network', 'Study'].includes(collectionType?.name)"
 Collections,,other organisations,text,,,,,,,,,List the names of any other organisations that are not listed and contributed to this resource,EMA,['Study'].includes(collectionType?.name)
 Collections,,other organisations,text,,,,,,,,dcterms:contributor,List the names of any other organisations that are not listed and contributed to this resource,EMA,['Network'].includes(collectionType?.name)
-Collections,,description,text,,,,,,,,dcterms:description,Short description,"DataCatalogueFlat,EMA",
+Collections,,description,text,,,,,,,,"dcterms:description,dct:description",Short description,"DataCatalogueFlat,EMA",
 Collections,,data collection description,text,,,,,,,,,Describe the process of collection and recording of data.,"DataCatalogueFlat,EMA","['Databank', 'Data source'].includes(collectionType?.name)"
 Collections,,date established,date,,,,,,,,,"Date when the data source was first established. If the exact day of the month is not known, please enter 15. If the exact month is not known then please enter 15/06","DataCatalogueFlat,EMA","['Databank', 'Data source'].includes(collectionType?.name)"
 Collections,,start data collection,date,,,,,,,,dcat:startDate,"The date when data started to be collected or extracted. If the exact day of the month is not known, please enter 15. If the exact month is not known then please enter 15/06","DataCatalogueFlat,EMA","['Databank', 'Data source'].includes(collectionType?.name)"
@@ -35,6 +35,7 @@ Collections,,design description,text,,,,,,,,,Short description of the study desi
 Collections,,design schematic,file,,,,,,,,,A schematic depiction of the study design of this cohort,DataCatalogueFlat,['Cohort'].includes(collectionType?.name)
 Collections,,collection type,ontology_array,,,CatalogueOntologies,Collection types,,,,,"The data collection type of this cohort, i.e. retrospective or prospective; if both, select both",DataCatalogueFlat,['Cohort'].includes(collectionType?.name)
 Collections,,logo,file,,,,,,,,,"Logo of the resource, for use on homepages etc.",DataCatalogueFlat,"['Cohort', 'Databank', 'Data source', 'Model', 'Network', 'Study'].includes(collectionType?.name)"
+Collections,,license,hyperlink,,,,,,,,dct:license,A legal document under which the resource is made available,DataCatalogueFlat,
 Collections,,population,heading,,,,,,,,,Description of the population that can potentially be captured in the resource,DataCatalogueFlat,"['Cohort', 'Databank', 'Data source'].includes(collectionType?.name)"
 Collections,,number of participants,int,,,,,,,,,Total number of individuals for which data is collected,"DataCatalogueFlat,EMA","['Cohort', 'Databank', 'Data source'].includes(collectionType?.name)"
 Collections,,number of participants with samples,int,,,,,,,,,Number of individuals for which samples are collected,DataCatalogueFlat,"['Cohort', 'Databank', 'Data source'].includes(collectionType?.name)"
@@ -117,7 +118,8 @@ Collections,,lag time,int,,,,,,,,,"How many days is the lag time after refresh b
 Collections,,preservation,bool,,,,,,,,,Are records preserved in the data bank indefinitely?,"DataCatalogueFlat,EMA","['Databank', 'Data source'].includes(collectionType?.name)"
 Collections,,preservation duration,int,,,,,,,,,"If no to the above, for how long (in years) are records preserved in the data bank?","DataCatalogueFlat,EMA","['Databank', 'Data source'].includes(collectionType?.name)"
 Collections,,refresh period,ontology_array,,,CatalogueOntologies,Refresh periods,,,,,"If data are refreshed on fixed dates (e.g., every June and December), when are the refreshes scheduled? Select all that apply from the following:","DataCatalogueFlat,EMA","['Databank', 'Data source'].includes(collectionType?.name)"
-Collections,,date last refresh,date,,,,,,,,,Date of last update/refresh,"DataCatalogueFlat,EMA","['Databank', 'Data source'].includes(collectionType?.name)"
+Collections,,issue date,date,,,,,,,,dct:issued,Date of formal issuance (e.g. publication) of the collection,"DataCatalogueFlat,EMA","['Databank', 'Data source'].includes(collectionType?.name)"
+Collections,,modified,date,,,,,,,,dct:modified,Date of last update/refresh,"DataCatalogueFlat,EMA","['Databank', 'Data source'].includes(collectionType?.name)"
 Collections,,quality,heading,,,,,,,,,List of relevant studies conducted using the data bank,DataCatalogueFlat,"['Databank', 'Data source'].includes(collectionType?.name)"
 Collections,,qualification,bool,,,,,,,,,"Has the data source successfully undergone a formal qualification process (e.g., from the EMA, or ISO or other certifications)?","DataCatalogueFlat,EMA","['Databank', 'Data source'].includes(collectionType?.name)"
 Collections,,qualifications description,text,,,,,,,,,"Has the resource successfully undergone a qualification process (e.g., from the EMA)? If yes, describe the qualification(s) granted","DataCatalogueFlat,EMA","['Databank', 'Data source'].includes(collectionType?.name)"
