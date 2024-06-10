@@ -1,12 +1,13 @@
 package org.molgenis.emx2.web;
 
 import static org.molgenis.emx2.json.JsonUtil.getWriter;
+import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 import static spark.Spark.*;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.molgenis.emx2.Database;
+import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.beaconv2.QueryEntryType;
 import org.molgenis.emx2.beaconv2.endpoints.*;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
@@ -19,6 +20,9 @@ public class BeaconApi {
 
   public static void create(MolgenisSessionManager sm) {
     sessionManager = sm;
+    defaultResponseTransformer(o -> getWriter().writeValueAsString(o));
+    defineRoutes("/:schema/api/beacon");
+    defineRoutes("/:schema/api/beacon_vp");
     defineRoutes("/api/beacon");
     defineRoutes("/api/beacon_vp");
   }
@@ -28,13 +32,13 @@ public class BeaconApi {
         basePath,
         () -> {
           before("/*", BeaconApi::processRequest);
-          get("/", BeaconApi::getInfo);
-          get("/info", BeaconApi::getInfo);
-          get("/service-info", BeaconApi::getInfo);
-          get("/configuration", BeaconApi::getConfiguration);
-          get("/map", BeaconApi::getMap);
+          get("/", new Info()::getResponse);
+          get("/info", new Info()::getResponse);
+          get("/service-info", new Info()::getResponse);
+          get("/configuration", new Configuration()::getResponse);
+          get("/map", new Map()::getResponse);
+          get("/entry_types", new EntryTypes()::getResponse);
           get("/filtering_terms", BeaconApi::getFilteringTerms);
-          get("/entry_types", BeaconApi::getEntryTypes);
           get("/:entry_type", BeaconApi::getEntryType);
           get("/:entry_type/:id", BeaconApi::getEntryType);
           get("/:entry_type_id/:id/:entry_type", BeaconApi::getEntryType);
@@ -48,51 +52,33 @@ public class BeaconApi {
   }
 
   private static void extractSpecification(Request request) {
-    int specificationIndex = 2;
-    String specification = request.matchedPath().split("/")[specificationIndex];
+    String specification = request.matchedPath().split("/api/")[1].split("/")[0];
     request.attribute("specification", specification);
   }
 
-  private static String getEntryType(Request request, Response response) throws Exception {
+  private static JsonNode getEntryType(Request request, Response response) {
     return entryTypeRequest(request, new BeaconRequestBody(request));
   }
 
-  private static String postEntryType(Request request, Response response) throws Exception {
+  private static JsonNode postEntryType(Request request, Response response) throws Exception {
     ObjectMapper mapper = new ObjectMapper();
     BeaconRequestBody beaconRequest = mapper.readValue(request.body(), BeaconRequestBody.class);
     beaconRequest.addRequestParameters(request);
     return entryTypeRequest(request, beaconRequest);
   }
 
-  private static String entryTypeRequest(Request request, BeaconRequestBody requestBody)
-      throws JsonProcessingException {
-
-    Database database = sessionManager.getSession(request).getDatabase();
+  private static JsonNode entryTypeRequest(Request request, BeaconRequestBody requestBody) {
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
-    JsonNode dataResult = queryEntryType.query(database);
-    return getWriter().writeValueAsString(dataResult);
-  }
 
-  private static String getInfo(Request request, Response response) throws JsonProcessingException {
-    return getWriter().writeValueAsString(new Info(request).getResponse());
-  }
+    Schema schema = getSchema(request);
+    if (schema != null) return queryEntryType.query(schema);
 
-  private static Object getConfiguration(Request request, Response response)
-      throws JsonProcessingException {
-    return getWriter().writeValueAsString(new Configuration(request).getResponse());
-  }
-
-  private static Object getMap(Request request, Response response) throws JsonProcessingException {
-    return getWriter().writeValueAsString(new Map(request).getResponse());
-  }
-
-  private static Object getEntryTypes(Request request, Response response)
-      throws JsonProcessingException {
-    return getWriter().writeValueAsString(new EntryTypes(request).getResponse());
-  }
-
-  private static String getFilteringTerms(Request request, Response response) throws Exception {
     Database database = sessionManager.getSession(request).getDatabase();
-    return getWriter().writeValueAsString(new FilteringTerms(database));
+    return queryEntryType.query(database);
+  }
+
+  private static Object getFilteringTerms(Request request, Response response) {
+    Database database = sessionManager.getSession(request).getDatabase();
+    return new FilteringTerms(database);
   }
 }

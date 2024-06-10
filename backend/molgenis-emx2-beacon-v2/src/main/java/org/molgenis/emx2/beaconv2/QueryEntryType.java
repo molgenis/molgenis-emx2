@@ -5,7 +5,6 @@ import static org.molgenis.emx2.Privileges.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.schibsted.spt.data.jslt.Expression;
 import com.schibsted.spt.data.jslt.JsltException;
@@ -14,6 +13,7 @@ import graphql.ExecutionResult;
 import graphql.GraphQL;
 import java.util.List;
 import org.molgenis.emx2.Database;
+import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.beaconv2.common.misc.Granularity;
 import org.molgenis.emx2.beaconv2.common.misc.IncludedResultsetResponses;
@@ -43,6 +43,25 @@ public class QueryEntryType {
     this.includeStrategy = request.getQuery().getIncludeResultsetResponses();
   }
 
+  public JsonNode query(Schema schema) {
+    ObjectNode response = mapper.createObjectNode();
+    response.set("requestBody", mapper.valueToTree(request));
+    FilterParser filterParser = parseFilters(response);
+
+    int numTotalResults = 0;
+    ArrayNode resultSets = mapper.createArrayNode();
+    if (schema != null && isAuthorized(schema.getInheritedRolesForActiveUser())) {
+      Table table = schema.getTable(entryType.getId());
+      numTotalResults = queryTable(table, filterParser, resultSets);
+    }
+
+    if (!granularity.equals(Granularity.BOOLEAN)) {
+      response.put("numTotalResults", numTotalResults);
+    }
+    response.set("resultSets", resultSets);
+    return getJsltResponse(response);
+  }
+
   public JsonNode query(Database database) throws JsltException {
     ObjectNode response = mapper.createObjectNode();
     response.set("requestBody", mapper.valueToTree(request));
@@ -53,49 +72,56 @@ public class QueryEntryType {
 
     List<Table> entryTypeTables = database.getTablesFromAllSchemas(entryType.getId());
     for (Table table : entryTypeTables) {
-      if (isAuthorized(table)) {
-        ObjectNode resultSet = mapper.createObjectNode();
-        resultSet.put("id", table.getSchema().getName());
-
-        switch (granularity) {
-          case RECORD, UNDEFINED:
-            ArrayNode resultsArray = doGraphQlQuery(table, filterParser.getGraphQlFilters());
-            if (hasResult(resultsArray)) {
-              numTotalResults += resultsArray.size();
-              ArrayNode paginatedResults = paginateResults(resultsArray);
-              resultSet.set("results", paginatedResults);
-              resultSet.put("count", resultsArray.size());
-              resultSets.add(resultSet);
-            } else if (includeStrategy.equals(IncludedResultsetResponses.ALL)) {
-              resultSets.add(resultSet);
-            }
-            break;
-          case COUNT, AGGREGATED:
-            int count = doCountQuery(table, filterParser.getGraphQlFilters());
-            if (count > 0) {
-              resultSet.put("exist", true);
-              numTotalResults += count;
-              resultSet.put("count", count);
-              resultSets.add(resultSet);
-            } else if (includeStrategy.equals(IncludedResultsetResponses.ALL)) {
-              resultSets.add(resultSet);
-            }
-          case BOOLEAN:
-            boolean exists = doExistsQuery(table, filterParser.getGraphQlFilters());
-            if (exists) {
-              resultSet.put("exist", true);
-              resultSets.add(resultSet);
-            } else if (includeStrategy.equals(IncludedResultsetResponses.ALL)) {
-              resultSets.add(resultSet);
-            }
-        }
-      }
+      numTotalResults += queryTable(table, filterParser, resultSets);
     }
     if (!granularity.equals(Granularity.BOOLEAN)) {
       response.put("numTotalResults", numTotalResults);
     }
     response.set("resultSets", resultSets);
     return getJsltResponse(response);
+  }
+
+  private int queryTable(Table table, FilterParser filterParser, ArrayNode resultSets) {
+    if (!isAuthorized(table.getSchema().getInheritedRolesForActiveUser())) return 0;
+    int numTotalResults = 0;
+    ObjectNode resultSet = mapper.createObjectNode();
+    resultSet.put("id", table.getSchema().getName());
+    resultSet.put("role", table.getSchema().getRoleForActiveUser());
+
+    switch (granularity) {
+      case RECORD, UNDEFINED:
+        ArrayNode resultsArray = doGraphQlQuery(table, filterParser.getGraphQlFilters());
+        if (hasResult(resultsArray)) {
+          numTotalResults += resultsArray.size();
+          ArrayNode paginatedResults = paginateResults(resultsArray);
+          resultSet.set("results", paginatedResults);
+          resultSet.put("count", resultsArray.size());
+          resultSets.add(resultSet);
+        } else if (includeStrategy.equals(IncludedResultsetResponses.ALL)) {
+          resultSets.add(resultSet);
+        }
+        break;
+      case COUNT, AGGREGATED:
+        int count = doCountQuery(table, filterParser.getGraphQlFilters());
+        if (count > 0) {
+          resultSet.put("exist", true);
+          numTotalResults += count;
+          resultSet.put("count", count);
+          resultSets.add(resultSet);
+        } else if (includeStrategy.equals(IncludedResultsetResponses.ALL)) {
+          resultSets.add(resultSet);
+        }
+      case BOOLEAN:
+        boolean exists = doExistsQuery(table, filterParser.getGraphQlFilters());
+        if (exists) {
+          resultSet.put("exist", true);
+          resultSets.add(resultSet);
+        } else if (includeStrategy.equals(IncludedResultsetResponses.ALL)) {
+          resultSets.add(resultSet);
+        }
+    }
+
+    return numTotalResults;
   }
 
   private ObjectNode getJsltResponse(ObjectNode response) {
@@ -181,15 +207,14 @@ public class QueryEntryType {
 
     if (limit == 0) limit = results.size();
 
-    ArrayNode paginatedResults = JsonNodeFactory.instance.arrayNode();
+    ArrayNode paginatedResults = mapper.createArrayNode();
     for (int i = skip; i < Math.min(skip + limit, results.size()); i++) {
       paginatedResults.add(results.get(i));
     }
     return paginatedResults;
   }
 
-  private boolean isAuthorized(Table table) {
-    List<String> roles = table.getSchema().getInheritedRolesForActiveUser();
+  private boolean isAuthorized(List<String> roles) {
     switch (this.granularity) {
       case BOOLEAN:
         if (roles.contains(EXISTS.toString())) return true;
