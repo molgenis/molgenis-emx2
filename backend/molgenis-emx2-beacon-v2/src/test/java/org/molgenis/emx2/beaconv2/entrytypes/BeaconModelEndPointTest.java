@@ -17,6 +17,7 @@ import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.beaconv2.BeaconSpec;
 import org.molgenis.emx2.beaconv2.EntryType;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
+import org.molgenis.emx2.datamodels.ProfileLoader;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import spark.QueryParamsMap;
 import spark.Request;
@@ -33,10 +34,10 @@ public class BeaconModelEndPointTest {
   public void setup() {
     if (database == null) {
       database = TestDatabaseFactory.getTestDatabase();
-      beaconSchema = database.getSchema("fairdatahub");
-      //      beaconSchema = database.dropCreateSchema("fairdatahub");
-      //      ProfileLoader b2l = new ProfileLoader("_profiles/FAIRDataHub.yaml");
-      //      b2l.load(beaconSchema, true);
+      // beaconSchema = database.getSchema("fairdatahub");
+      beaconSchema = database.dropCreateSchema("fairdatahub");
+      ProfileLoader b2l = new ProfileLoader("_profiles/FAIRDataHub.yaml");
+      b2l.load(beaconSchema, true);
     }
   }
 

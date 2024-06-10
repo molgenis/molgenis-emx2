@@ -31,7 +31,8 @@ public class BeaconAuthorityTests extends BeaconModelEndPointTest {
 
   @AfterAll
   public void after() {
-    database.setActiveUser("VIEWER_TEST_USER");
+    database.becomeAdmin();
+    beaconSchema.addMember(ANONYMOUS, VIEWER.toString());
   }
 
   @Test
