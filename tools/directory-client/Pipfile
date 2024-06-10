@@ -4,7 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-molgenis-py-bbmri-eric = {editable = true, path = "."}
+molgenis-emx2-directory-client = {editable = true, path = "."}
 
 [dev-packages]
 pytest = "*"

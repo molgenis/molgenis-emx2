@@ -1,27 +1,27 @@
-# molgenis-py-bbmri-eric
+# molgenis-emx2-directory-client
 
-MOLGENIS Python tooling for BBMRI-ERIC.
+MOLGENIS EMX2 Python tooling for a BBMRI Biobank Directory
 
 ## Description
-This library contains tools for the MOLGENIS BBMRI-ERIC Directory that help with
+This library contains tools for the MOLGENIS EMX2 BBMRI Biobank Directory that help with
 staging and publishing the data of the national nodes. **Staging** is the process of copying
 data from a national node's external server (for example [BBMRI-NL](https://catalogue.bbmri.nl/menu/main/home)) to
-the staging area on the ERIC directory. Not all national nodes have external servers; these
+the staging area on the Directory server. Not all national nodes have external servers; these
 do not need to be staged. **Publishing** is the process of copying and combining the data from the staging areas
-to the public combined tables of the directory.
+to the public combined tables of the Directory.
 
 ## Usage
 
 These tools can be used as a library in a script. Start by installing the library with
-`pip install molgenis-py-bbmri-eric`.
+`pip install molgenis-emx2-directory-client`.
 
-For an example of how to use this library to stage and publish nodes, see [`example.py`](scripts/example.py).
+For an example of how to use this library to stage and publish nodes, see [`dev.py`](dev/dev.py).
 
-If you just want to retrieve the data of a node for another purpose, you can use the `EricSession`
+If you just want to retrieve the data of a node for another purpose, you can use the `DirectorySession`
 and `ExternalServerSession` directly:
 
 ```python
-from molgenis.bbmri_eric.bbmri_client import EricSession, ExternalServerSession
+from molgenis.bbmri_eric.bbmri_client import DirectorySession, ExternalServerSession
 from molgenis.bbmri_eric.model import NodeData
 
 # Get the staging and published data of NL from the directory
