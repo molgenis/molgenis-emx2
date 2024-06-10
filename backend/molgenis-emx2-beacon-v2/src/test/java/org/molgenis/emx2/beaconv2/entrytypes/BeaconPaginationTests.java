@@ -4,13 +4,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.jupiter.api.Test;
+import org.molgenis.emx2.beaconv2.QueryEntryType;
+import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
 
 public class BeaconPaginationTests extends BeaconModelEndPointTest {
 
   @Test
   public void testPagination_TwoItems_Offset0() throws Exception {
-    JsonNode json =
-        mockIndividualsPostRequest(
+    BeaconRequestBody beaconRequest =
+        mockIndividualsPostRequestRegular(
             """
                           {
                             "query": {
@@ -20,6 +22,9 @@ public class BeaconPaginationTests extends BeaconModelEndPointTest {
                               }
                             }
                           }""");
+    QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
+    JsonNode json = queryEntryType.query(beaconSchema);
+
     JsonNode results = json.get("response").get("resultSets").get(0).get("results");
     assertEquals(2, results.size());
     assertEquals("Ind001", results.get(0).get("id").textValue());
@@ -28,8 +33,8 @@ public class BeaconPaginationTests extends BeaconModelEndPointTest {
 
   @Test
   public void testPagination_TwoItems_Offset2() throws Exception {
-    JsonNode json =
-        mockIndividualsPostRequest(
+    BeaconRequestBody beaconRequest =
+        mockIndividualsPostRequestRegular(
             """
                           {
                             "query": {
@@ -39,6 +44,9 @@ public class BeaconPaginationTests extends BeaconModelEndPointTest {
                               }
                             }
                           }""");
+    QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
+    JsonNode json = queryEntryType.query(beaconSchema);
+
     JsonNode results = json.get("response").get("resultSets").get(0).get("results");
     assertEquals(2, results.size());
     assertEquals("MinIndNoRefs003", results.get(0).get("id").textValue());
@@ -47,8 +55,8 @@ public class BeaconPaginationTests extends BeaconModelEndPointTest {
 
   @Test
   public void testPagination_LimitZero_AllResult() throws Exception {
-    JsonNode json =
-        mockIndividualsPostRequest(
+    BeaconRequestBody beaconRequest =
+        mockIndividualsPostRequestRegular(
             """
                           {
                             "query": {
@@ -58,6 +66,9 @@ public class BeaconPaginationTests extends BeaconModelEndPointTest {
                               }
                             }
                           }""");
+    QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
+    JsonNode json = queryEntryType.query(beaconSchema);
+
     JsonNode results = json.get("response").get("resultSets").get(0).get("results");
     assertEquals(5, results.size());
   }
