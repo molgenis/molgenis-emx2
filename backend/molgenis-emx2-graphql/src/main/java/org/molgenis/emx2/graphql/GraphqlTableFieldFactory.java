@@ -531,7 +531,7 @@ public class GraphqlTableFieldFactory {
           subFilters.add(and(nestedFilters.toArray(new Filter[nestedFilters.size()])));
         }
       } else if (entry.getKey().equals(FILTER_SEARCH)) {
-        if (entry.getValue() instanceof String && entry.getValue().toString().trim() != "") {
+        if (entry.getValue() instanceof String && !entry.getValue().toString().trim().equals("")) {
           subFilters.add(
               f(
                   Operator
