@@ -519,8 +519,9 @@ public class SqlQuery extends QueryBean {
   private Condition jsonSearchConditions(
       SqlTableMetadata table, String subAlias, String[] searchTerms) {
     // create search
-    List<Condition> search = new ArrayList<>();
+    List<Condition> searchCondition = new ArrayList<>();
     for (String term : searchTerms) {
+      List<Condition> search = new ArrayList<>();
       search.add(
           field(name(alias(subAlias), searchColumnName(table.getTableName())))
               .likeIgnoreCase("%" + term + "%"));
@@ -570,8 +571,9 @@ public class SqlQuery extends QueryBean {
                 .likeIgnoreCase("%" + term + "%"));
         parent = parent.getInheritedTable();
       }
+      searchCondition.add(or(search));
     }
-    return or(search);
+    return and(searchCondition);
   }
 
   private Collection<Field<?>> jsonSubselectFields(

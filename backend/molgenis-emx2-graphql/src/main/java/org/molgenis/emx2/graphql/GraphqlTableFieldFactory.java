@@ -531,7 +531,12 @@ public class GraphqlTableFieldFactory {
           subFilters.add(and(nestedFilters.toArray(new Filter[nestedFilters.size()])));
         }
       } else if (entry.getKey().equals(FILTER_SEARCH)) {
-        subFilters.add(f(Operator.TRIGRAM_SEARCH, entry.getValue()));
+        if (entry.getValue() instanceof String && entry.getValue().toString().trim() != "") {
+          subFilters.add(
+              f(
+                  Operator.TRIGRAM_SEARCH,
+                  Arrays.stream(entry.getValue().toString().split(" ")).toArray(String[]::new)));
+        }
       } else if (entry.getKey().equals(FILTER_EQUALS)) {
         //  complex filter, should be an list of maps per graphql contract
         if (entry.getValue() != null) {
