@@ -15,6 +15,7 @@ public class HpoSimilaritySearch {
   public static List<String> expandHPOTerm(double sim, String hpoTerm, String sep)
       throws Exception {
 
+    // todo: better do 1 request with all inputs and then loop over each term to extract output
     String jsonRaw = "{\"hpoTerms\":[\"" + hpoTerm + "\"],\"threshold\":" + sim + "}";
     String hpoSimResponse = httpJsonRawPost(HPO_SIM_SERVICE_URL, jsonRaw);
     HpoSimServiceResponse[] responseObjArr =
