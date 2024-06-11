@@ -153,7 +153,7 @@ useHead({ title: titlePrefix + variable.value.name });
 
         <ContentBlock
           v-if="cohortsWithMapping.length === 0"
-          id="harmonisation-details-no-mapping"
+          id="harmonization-details-no-mapping"
           title="Harmonisation"
           description="No mapping found for this variable"
         >
