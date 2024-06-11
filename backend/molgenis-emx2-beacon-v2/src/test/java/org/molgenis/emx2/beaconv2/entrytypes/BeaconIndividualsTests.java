@@ -102,6 +102,28 @@ public class BeaconIndividualsTests extends BeaconModelEndPointTest {
   }
 
   @Test
+  public void FilterOnGenderAtBirthGssoTerm_oneResult() throws Exception {
+    BeaconRequestBody beaconRequest =
+        mockIndividualsPostRequestRegular(
+            """
+                          {
+                            "query": {
+                          	"filters": [
+                          	  {
+                          		"id": "NCIT:C28421",
+                          		"value": "GSSO_000123",
+                          		"operator": "="
+                          	  }
+                          	]
+                            }
+                          }""");
+    QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
+    JsonNode json = queryEntryType.query(beaconSchema);
+    assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
+    assertEquals(1, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
+  }
+
+  @Test
   public void test_EJP_RD_VP_API_FilterOnGenderAtBirth_ignoreFilter() throws Exception {
     BeaconRequestBody beaconRequest =
         mockIndividualsPostRequestVp(
