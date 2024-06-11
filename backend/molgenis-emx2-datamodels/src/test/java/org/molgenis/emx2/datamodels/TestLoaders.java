@@ -91,7 +91,7 @@ public class TestLoaders {
   public void test9DirectoryLoader() {
     Schema directory = database.createSchema(DIRECTORY_TEST);
     AvailableDataModels.BIOBANK_DIRECTORY.install(directory, true);
-    assertEquals(10, directory.getTableNames().size());
+    assertEquals(11, directory.getTableNames().size());
   }
 
   @Test
