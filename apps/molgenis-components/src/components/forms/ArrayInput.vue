@@ -68,6 +68,7 @@ export default {
         DATE_ARRAY: InputDate,
         DATETIME_ARRAY: InputDateTime,
         DECIMAL_ARRAY: InputDecimal,
+        PERIOD_ARRAY: InputString,
         EMAIL_ARRAY: InputString,
         HYPERLINK_ARRAY: InputString,
         INT_ARRAY: InputInt,

@@ -1,0 +1,11 @@
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,visible
+Quantitative information,,,,,,,,,,,,Quantitative information on the resource,"DataCatalogueFlat,EMA",
+Quantitative information,,collection,ref,1,,,Collections,,,,,,"DataCatalogueFlat,EMA",
+Quantitative information,,age group,ontology,1,,CatalogueOntologies,Age groups,,,,,Select the relevant age group for this quantitative information,"DataCatalogueFlat,EMA",
+Quantitative information,,population size,int,,,,,,,,,"Total number of unique individuals with records captured in the data source (most recent count). In the catalogue, this will accommodate counts per year","DataCatalogueFlat,EMA",
+Quantitative information,,active size,int,,,,,,,,,"Number of unique, active, or currently registered individuals with records captured in the data source (most recent count). In the catalogue, this will accommodate counts per year","DataCatalogueFlat,EMA",
+Quantitative information,,no individuals with samples,int,,,,,,,,,"Number of unique individuals with records of biological samples (e.g., blood, urine) (most recent count). In the catalogue, this will accommodate counts per year ",DataCatalogueFlat,
+Quantitative information,,mean observation years,int,,,,,,,,,Median years for which unique individuals with records captured in the data source are observable (most recent count),"DataCatalogueFlat,EMA",
+Quantitative information,,mean years active,int,,,,,,,,,Median time for which unique individuals with records captured in the data source are observable (most recent count),"DataCatalogueFlat,EMA",
+Quantitative information,,median age,int,,,,,,,,,Median age of individuals within data source,DataCatalogueFlat,
+Quantitative information,,proportion female,int,,,,,,,,,Proportion of females in the data source,DataCatalogueFlat,

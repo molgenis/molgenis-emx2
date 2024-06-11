@@ -140,6 +140,7 @@ export default {
         "BIOBANK_DIRECTORY_STAGING",
         "SHARED_STAGING",
         "PROJECTMANAGER",
+        "GDI",
       ],
       includeDemoData: false,
     };

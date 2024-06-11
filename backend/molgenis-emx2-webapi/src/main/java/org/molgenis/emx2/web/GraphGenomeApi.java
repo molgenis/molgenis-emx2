@@ -1,11 +1,11 @@
 package org.molgenis.emx2.web;
 
-import static org.molgenis.emx2.web.BeaconApi.getTableFromAllSchemas;
 import static spark.Spark.get;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
+import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.graphgenome.GraphGenome;
 import org.slf4j.Logger;
@@ -25,7 +25,9 @@ public class GraphGenomeApi {
   }
 
   private static int graphGenomeForDatabase(Request request, Response response) throws IOException {
-    List<Table> tables = getTableFromAllSchemas("GenomicVariations", request);
+
+    Database database = sessionManager.getSession(request).getDatabase();
+    List<Table> tables = database.getTablesFromAllSchemas("GenomicVariations");
     OutputStream outputStream = response.raw().getOutputStream();
 
     String gene = request.queryParams("gene");

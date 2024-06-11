@@ -1,6 +1,5 @@
 package org.molgenis.emx2.graphgenome;
 
-import static org.molgenis.emx2.beaconv2.endpoints.genomicvariants.GenomicQueryType.GENEID;
 import static org.molgenis.emx2.graphgenome.Formatting.formatNodeId;
 import static org.molgenis.emx2.graphgenome.Formatting.shorten;
 import static org.molgenis.emx2.graphgenome.RetrieveRefSeq.getDnaFromUCSC;
@@ -51,14 +50,15 @@ public class GraphGenome extends RDFService {
       }
 
       // query variants
-      List<GenomicVariantsResultSets> variants = new ArrayList<>();
+      //      List<GenomicVariantsResultSets> variants = new ArrayList<>();
       for (Table table : tables) {
-        variants.addAll(
-            GenomicQuery.genomicQuery(table, GENEID, assembly, gene, null, null, null, null));
+        //        variants.addAll(
+        //            GenomicQuery.genomicQuery(table, GENEID, assembly, gene, null, null, null,
+        // null));
       }
-      if (variants.size() == 0) {
-        throw new Exception("No data available for this gene");
-      }
+      //      if (variants.size() == 0) {
+      //        throw new Exception("No data available for this gene");
+      //      }
 
       // get first and last positions across all starting positions
       // compatible with 'uncertainty range' SV start positions
@@ -66,37 +66,38 @@ public class GraphGenome extends RDFService {
       String chromosome = null;
       Long earliestStart = Long.MAX_VALUE;
       Long latestEnd = Long.MIN_VALUE;
-      ArrayList<GenomicVariantsResultSetsItem> sortedVariants = new ArrayList<>();
-      for (GenomicVariantsResultSets variantSet : variants) {
-        for (GenomicVariantsResultSetsItem variant : variantSet.getResults()) {
-          // skip variants without a start position
-          if (variant.getPosition().getStart() == null) {
-            continue;
-          }
-          variant.setGenomicVariantsResultSetId(variantSet.getId());
-          sortedVariants.add(variant);
-          Position position = variant.getPosition();
-          if (chromosome == null) {
-            chromosome = position.getRefseqId();
-          } else if (position.getRefseqId() != null && !chromosome.equals(position.getRefseqId())) {
-            throw new Exception(
-                "At least 2 different chromosomes present: "
-                    + chromosome
-                    + " and "
-                    + position.getRefseqId());
-          }
-          for (Long stLong : position.getStart()) {
-            if (stLong < earliestStart) {
-              earliestStart = stLong;
-            }
-          }
-          for (Long endLong : position.getEnd()) {
-            if (endLong != null && endLong > latestEnd) {
-              latestEnd = endLong;
-            }
-          }
-        }
-      }
+      ArrayList<GenomicVariant> sortedVariants = new ArrayList<>();
+      //      for (GenomicVariantsResultSets variantSet : variants) {
+      //        for (GenomicVariantsResultSetsItem variant : variantSet.getResults()) {
+      //          // skip variants without a start position
+      //          if (variant.getPosition().getStart() == null) {
+      //            continue;
+      //          }
+      //          variant.setGenomicVariantsResultSetId(variantSet.getId());
+      //          sortedVariants.add(variant);
+      //          Position position = variant.getPosition();
+      //          if (chromosome == null) {
+      //            chromosome = position.getRefseqId();
+      //          } else if (position.getRefseqId() != null &&
+      // !chromosome.equals(position.getRefseqId())) {
+      //            throw new Exception(
+      //                "At least 2 different chromosomes present: "
+      //                    + chromosome
+      //                    + " and "
+      //                    + position.getRefseqId());
+      //          }
+      //          for (Long stLong : position.getStart()) {
+      //            if (stLong < earliestStart) {
+      //              earliestStart = stLong;
+      //            }
+      //          }
+      //          for (Long endLong : position.getEnd()) {
+      //            if (endLong != null && endLong > latestEnd) {
+      //              latestEnd = endLong;
+      //            }
+      //          }
+      //        }
+      //      }
 
       // get corresponding full DNA sequence
       if (earliestStart == Long.MAX_VALUE || latestEnd == Long.MIN_VALUE) {
@@ -137,11 +138,10 @@ public class GraphGenome extends RDFService {
       List<String> upstreamVariantAltNodes = new ArrayList<>();
       String previousVariantConnectedTo = null;
 
-      for (GenomicVariantsResultSetsItem variant : sortedVariants) {
+      for (GenomicVariant variant : sortedVariants) {
 
         int refSeqStart = previousRefSeqEnd + previousVariantRefBaseLength;
-        int refSeqEnd =
-            (int) (variant.getPosition().getStart()[0] - earliestStart) + DNA_PADDING - 1;
+        int refSeqEnd = (int) (variant.position().getStart()[0] - earliestStart) + DNA_PADDING - 1;
 
         Situation situation;
         if (refSeqEnd == previousRefSeqEnd) {
@@ -196,7 +196,7 @@ public class GraphGenome extends RDFService {
 
         // define variant alt first because we need it later for linking
         String variantAltNode =
-            formatNodeId(apiContext, gene, nodeCounter++, ALTERNATIVE, variant.getAlternateBases());
+            formatNodeId(apiContext, gene, nodeCounter++, ALTERNATIVE, variant.alternateBases());
         addNode(
             host,
             builder,
@@ -205,12 +205,12 @@ public class GraphGenome extends RDFService {
             variant,
             upstreamRefSeqNode,
             null,
-            variant.getAlternateBases());
+            variant.alternateBases());
 
         // define variant ref next, except for Situation 1
         if (situation != Situation.SITUATION_1) {
           String variantRefNode =
-              formatNodeId(apiContext, gene, nodeCounter++, REFERENCE, variant.getReferenceBases());
+              formatNodeId(apiContext, gene, nodeCounter++, REFERENCE, variant.referenceBases());
           addNode(
               host,
               builder,
@@ -219,7 +219,7 @@ public class GraphGenome extends RDFService {
               variant,
               upstreamRefSeqNode,
               (situation == Situation.SITUATION_2 ? upstreamVariantAltNodes : null),
-              variant.getReferenceBases());
+              variant.referenceBases());
 
           // make explicit which alts replace which refs because we now do not revisit nodes,
           // causing less-than-ideal representation of graph genome when variants are within indels
@@ -235,7 +235,7 @@ public class GraphGenome extends RDFService {
         }
 
         upstreamVariantAltNodes.add(variantAltNode);
-        previousVariantRefBaseLength = variant.getReferenceBases().length();
+        previousVariantRefBaseLength = variant.referenceBases().length();
         previousRefSeqEnd = refSeqEnd;
         previousRefSeqStart = refSeqStart;
       }

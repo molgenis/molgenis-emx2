@@ -31,6 +31,8 @@ public interface Database extends HasSettingsInterface<Database> {
 
   Schema getSchema(String name);
 
+  List<Table> getTablesFromAllSchemas(String tableId);
+
   User addUser(String name);
 
   boolean checkUserPassword(String name, String password);
