@@ -424,7 +424,7 @@ public class SqlQuery extends QueryBean {
         } else if (Operator.AND.equals(f.getOperator())) {
           conditions.add(
               and(jsonFilterQueryConditions(table, column, tableAlias, subAlias, f, searchTerms)));
-        } else if (TRIGRAM_SEARCH.equals(f.getOperator())) {
+        } else if (TRIGRAM_SEARCH.equals(f.getOperator()) || TEXT_SEARCH.equals(f.getOperator())) {
           conditions.add(
               jsonSearchConditions(table, subAlias, TypeUtils.toStringArray(f.getValues())));
         } else {
