@@ -534,7 +534,9 @@ public class GraphqlTableFieldFactory {
         if (entry.getValue() instanceof String && entry.getValue().toString().trim() != "") {
           subFilters.add(
               f(
-                  Operator.TRIGRAM_SEARCH,
+                  Operator
+                      .TEXT_SEARCH, // might change to trigram search if we learn how to tune for
+                  // short terms
                   Arrays.stream(entry.getValue().toString().split(" ")).toArray(String[]::new)));
         }
       } else if (entry.getKey().equals(FILTER_EQUALS)) {

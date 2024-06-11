@@ -1384,7 +1384,7 @@ public class SqlQuery extends QueryBean {
         searchConditions.add(and(subConditions));
       }
     }
-    return searchConditions.isEmpty() ? null : or(searchConditions);
+    return searchConditions.isEmpty() ? null : and(searchConditions);
   }
 
   private static SelectJoinStep<org.jooq.Record> limitOffsetOrderBy(
