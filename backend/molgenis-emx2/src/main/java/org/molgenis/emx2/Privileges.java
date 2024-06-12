@@ -7,11 +7,13 @@ public enum Privileges {
   RANGE("Range"),
   // can aggregate
   AGGREGATOR("Aggregator"),
+  // can also see exact counts < 10
+  COUNT("Count"),
   // can select
   VIEWER("Viewer"),
   // can insert, update, delete, implies Viewer
   EDITOR("Editor"),
-  // extends Editor to create, alter, drop, implies Manager
+  // extends Editor to create, alter, drop, implies Editor
   MANAGER("Manager"),
   // can add/remove users to schema
   OWNER("Owner");

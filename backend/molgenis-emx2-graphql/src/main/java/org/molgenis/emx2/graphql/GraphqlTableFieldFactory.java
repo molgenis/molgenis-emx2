@@ -354,9 +354,7 @@ public class GraphqlTableFieldFactory {
       builder.field(
           GraphQLFieldDefinition.newFieldDefinition().name("exists").type(Scalars.GraphQLBoolean));
     }
-    if (schema.hasActiveUserRole(AGGREGATOR)
-        || schema.hasActiveUserRole(RANGE)
-        || table.getTableType().equals(ONTOLOGIES)) {
+    if (schema.hasActiveUserRole(RANGE) || table.getTableType().equals(ONTOLOGIES)) {
       builder.field(
           GraphQLFieldDefinition.newFieldDefinition().name("count").type(Scalars.GraphQLInt));
     }
