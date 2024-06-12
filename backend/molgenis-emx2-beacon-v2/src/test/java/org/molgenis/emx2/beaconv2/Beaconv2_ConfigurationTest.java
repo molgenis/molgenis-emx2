@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.beaconv2.endpoints.Configuration;
 import org.molgenis.emx2.json.JsonUtil;
 import spark.Request;
+import spark.Response;
 
 public class Beaconv2_ConfigurationTest {
 
@@ -22,9 +23,9 @@ public class Beaconv2_ConfigurationTest {
 
   @Test
   public void testConfiguration() throws Exception {
-    Configuration configuration = new Configuration(mockRequest());
+    Configuration configuration = new Configuration();
 
-    JsonNode result = configuration.getResponse();
+    JsonNode result = configuration.getResponse(mockRequest(), mock(Response.class));
     String json = JsonUtil.getWriter().writeValueAsString(result);
     assertTrue(json.contains("\"meta\" : {"));
 

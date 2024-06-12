@@ -16,7 +16,7 @@ public class BeaconCohortsTests extends BeaconModelEndPointTest {
 
   @Test
   public void testCohorts_NoParams() throws Exception {
-    Request request = mockEntryTypeRequest(EntryType.COHORTS.getId(), new HashMap<>());
+    Request request = mockEntryTypeRequestRegular(EntryType.COHORTS.getId(), new HashMap<>());
     BeaconRequestBody requestBody = new BeaconRequestBody(request);
 
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
@@ -30,7 +30,8 @@ public class BeaconCohortsTests extends BeaconModelEndPointTest {
   @Test
   public void testCohorts_NoHits() throws Exception {
     Request request =
-        mockEntryTypeRequest(EntryType.COHORTS.getId(), Map.of("id", new String[] {"Cohort0003"}));
+        mockEntryTypeRequestRegular(
+            EntryType.COHORTS.getId(), Map.of("id", new String[] {"Cohort0003"}));
     BeaconRequestBody requestBody = new BeaconRequestBody(request);
 
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
