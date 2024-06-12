@@ -32,10 +32,9 @@ public class Info {
 
     Table table = schema.getTable("Endpoint");
 
-    QueryBuilder queryBuilder = new QueryBuilder(table);
-    String graphqlQuery = queryBuilder.addAllColumns(2).getQuery();
-    GraphQL graphQL = new GraphqlApiFactory().createGraphqlForSchema(table.getSchema());
-    ExecutionResult result = graphQL.execute(graphqlQuery);
+    QueryBuilder queryBuilder = new QueryBuilder(table).addAllColumns(2);
+    GraphQL graphQL = new GraphqlApiFactory().createGraphqlForSchema(schema);
+    ExecutionResult result = graphQL.execute(queryBuilder.getQuery());
 
     ObjectMapper mapper = new ObjectMapper();
     return mapper.valueToTree(result.getData()).get("Endpoint").get(0);
