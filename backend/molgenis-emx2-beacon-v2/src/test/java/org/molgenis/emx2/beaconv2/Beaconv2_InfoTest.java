@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.beaconv2.endpoints.Info;
 import spark.Request;
+import spark.Response;
 
 public class Beaconv2_InfoTest {
 
@@ -21,8 +22,8 @@ public class Beaconv2_InfoTest {
 
   @Test
   public void testInfoRootEndpoint() {
-    Info info = new Info(mockRequest());
-    JsonNode respons = info.getResponse();
+    Info info = new Info();
+    JsonNode respons = info.getResponse(mockRequest(), mock(Response.class));
 
     assertEquals(
         "Genomics Coordination Center",

@@ -10,20 +10,20 @@ import com.schibsted.spt.data.jslt.Expression;
 import com.schibsted.spt.data.jslt.Parser;
 import org.molgenis.emx2.beaconv2.BeaconSpec;
 import spark.Request;
+import spark.Response;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class Info {
 
-  private final String host;
-  private final BeaconSpec spec;
+  private String host;
+  private BeaconSpec spec;
 
-  public Info(Request request) {
-    this.host = extractHost(request.url());
-    this.spec = BeaconSpec.findByPath(request.attribute("specification"));
-  }
+  public Info() {}
 
   @JsonIgnore
-  public JsonNode getResponse() {
+  public JsonNode getResponse(Request request, Response response) {
+    this.host = extractHost(request.url());
+    this.spec = BeaconSpec.findByPath(request.attribute("specification"));
     String jsltPath = "informational/info.jslt";
     Expression jslt = Parser.compileResource(jsltPath);
     return jslt.apply(new ObjectMapper().valueToTree(this));

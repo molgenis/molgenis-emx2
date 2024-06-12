@@ -10,20 +10,21 @@ import java.util.List;
 import org.molgenis.emx2.beaconv2.BeaconSpec;
 import org.molgenis.emx2.beaconv2.EntryType;
 import spark.Request;
+import spark.Response;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class Configuration {
 
-  private final BeaconSpec spec;
-  private final List<EntryType> entryTypes;
+  private BeaconSpec spec;
+  private List<EntryType> entryTypes;
 
-  public Configuration(Request request) {
-    this.spec = BeaconSpec.findByPath(request.attribute("specification"));
-    this.entryTypes = EntryType.getEntryTypesOfSpec(spec);
-  }
+  public Configuration() {}
 
   @JsonIgnore
-  public JsonNode getResponse() {
+  public JsonNode getResponse(Request request, Response response) {
+    this.spec = BeaconSpec.findByPath(request.attribute("specification"));
+    this.entryTypes = EntryType.getEntryTypesOfSpec(spec);
+
     String jsltPath = "informational/configuration.jslt";
     Expression jslt = Parser.compileResource(jsltPath);
     return jslt.apply(new ObjectMapper().valueToTree(this));

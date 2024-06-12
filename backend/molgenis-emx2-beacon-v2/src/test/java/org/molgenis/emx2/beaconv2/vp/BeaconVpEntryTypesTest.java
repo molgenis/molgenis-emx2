@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.beaconv2.endpoints.EntryTypes;
 import spark.Request;
+import spark.Response;
 
 public class BeaconVpEntryTypesTest {
 
@@ -23,8 +24,8 @@ public class BeaconVpEntryTypesTest {
   @Test
   public void testEntryTypes() {
     Request request = mockRequest();
-    EntryTypes entryTypes = new EntryTypes(request);
-    JsonNode result = entryTypes.getResponse();
+    EntryTypes entryTypes = new EntryTypes();
+    JsonNode result = entryTypes.getResponse(request, mock(Response.class));
 
     assertEquals("org.molgenis.beaconv2", result.get("meta").get("beaconId").textValue());
     assertEquals(
