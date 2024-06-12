@@ -13,7 +13,10 @@ import org.molgenis.emx2.graphql.GraphqlApiFactory;
 
 public class Info {
 
-  private Schema schema;
+  public static final String ENDPOINT_TABLE = "Endpoint";
+  public static final String JSLT_PATH = "informational/info.jslt";
+
+  private final Schema schema;
 
   public Info(Schema schema) {
     this.schema = schema;
@@ -21,22 +24,21 @@ public class Info {
 
   public JsonNode getResponse() {
     JsonNode info = getEndpointInfo(schema);
-    String jsltPath = "informational/info.jslt";
-    Expression jslt = Parser.compileResource(jsltPath);
+    Expression jslt = Parser.compileResource(JSLT_PATH);
     return jslt.apply(info);
   }
 
   private JsonNode getEndpointInfo(Schema schema) {
     if (schema == null) return null; // todo: get global info or schema only?
-    if (schema.getTable("Endpoint") == null) return null;
+    if (schema.getTable(ENDPOINT_TABLE) == null) return null;
 
-    Table table = schema.getTable("Endpoint");
+    Table table = schema.getTable(ENDPOINT_TABLE);
 
     QueryBuilder queryBuilder = new QueryBuilder(table).addAllColumns(2);
     GraphQL graphQL = new GraphqlApiFactory().createGraphqlForSchema(schema);
     ExecutionResult result = graphQL.execute(queryBuilder.getQuery());
 
     ObjectMapper mapper = new ObjectMapper();
-    return mapper.valueToTree(result.getData()).get("Endpoint").get(0);
+    return mapper.valueToTree(result.getData()).get(ENDPOINT_TABLE).get(0);
   }
 }
