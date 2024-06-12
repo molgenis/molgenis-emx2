@@ -721,7 +721,7 @@ public class SqlQuery extends QueryBean {
   }
 
   private Field<Integer> getCountField() {
-    if (schema.hasActiveUserRole(VIEWER.toString())) {
+    if (schema.hasActiveUserRole(COUNT.toString())) {
       return count();
     } else if (schema.hasActiveUserRole(AGGREGATOR.toString())) {
       return field("GREATEST(COUNT(*),{0})", Integer.class, 10L);

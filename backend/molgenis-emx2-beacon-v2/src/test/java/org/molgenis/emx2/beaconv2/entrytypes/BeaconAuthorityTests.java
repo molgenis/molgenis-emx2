@@ -23,6 +23,7 @@ public class BeaconAuthorityTests extends BeaconModelEndPointTest {
     super.setup();
     beaconSchema.addMember("VIEWER_TEST_USER", VIEWER.toString());
     beaconSchema.addMember("AGGREGATOR_TEST_USER", AGGREGATOR.toString());
+    beaconSchema.addMember("COUNT_TEST_USER", COUNT.toString());
     beaconSchema.addMember("EXISTS_TEST_USER", EXISTS.toString());
     beaconSchema.addMember("RANGE_TEST_USER", RANGE.toString());
     beaconSchema.removeMember(ANONYMOUS);
@@ -173,5 +174,25 @@ public class BeaconAuthorityTests extends BeaconModelEndPointTest {
     assertEquals(
         10, resultSet.get("info").get("resultCountDescription").get("maxRange").intValue());
     assertEquals(1, resultSet.get("info").get("resultCountDescription").get("minRange").intValue());
+  }
+
+  @Test
+  public void testCountQueryAsCountUser_fiveResults() throws JsonProcessingException {
+    database.setActiveUser("COUNT_TEST_USER");
+    beaconSchema = database.getSchema("fairdatahub");
+    BeaconRequestBody beaconRequestBody =
+        mockIndividualsPostRequestRegular(
+            """
+              {
+                "query": {
+                  "requestedGranularity": "count"
+                }
+              }""");
+    QueryEntryType queryEntryType = new QueryEntryType(beaconRequestBody);
+    JsonNode json = queryEntryType.query(beaconSchema);
+    assertTrue(json.get("responseSummary").get("exists").booleanValue());
+    JsonNode resultSet = json.get("response").get("resultSets").get(0);
+    assertTrue(resultSet.has("resultsCount"));
+    assertEquals(5, resultSet.get("resultsCount").intValue());
   }
 }

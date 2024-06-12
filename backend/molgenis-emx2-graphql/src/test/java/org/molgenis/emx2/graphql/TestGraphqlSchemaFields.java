@@ -53,7 +53,7 @@ public class TestGraphqlSchemaFields {
       grapql =
           new GraphqlApiFactory()
               .createGraphqlForSchema(database.getSchema(schemaName), taskService);
-      assertEquals(4, execute("{_session{email,roles}}").at("/_session/roles").size());
+      assertEquals(5, execute("{_session{email,roles}}").at("/_session/roles").size());
       execute("mutation { signin(email: \"shopmanager\",password:\"shopmanager\") {message}}");
       grapql =
           new GraphqlApiFactory()

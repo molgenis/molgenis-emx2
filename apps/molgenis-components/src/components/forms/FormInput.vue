@@ -32,12 +32,13 @@ import InputRefSelect from "../forms/InputRefSelect.vue";
 import InputString from "../forms/InputString.vue";
 import InputText from "../forms/InputText.vue";
 import BaseInput from "../forms/baseInputs/BaseInput.vue";
+import InputEmail from "./InputEmail.vue";
 import InputRefList from "./InputRefList.vue";
 
 const typeToInputMap = {
   AUTO_ID: InputString,
   HEADING: InputHeading,
-  EMAIL: InputString,
+  EMAIL: InputEmail,
   HYPERLINK: InputString,
   STRING: InputString,
   TEXT: InputText,

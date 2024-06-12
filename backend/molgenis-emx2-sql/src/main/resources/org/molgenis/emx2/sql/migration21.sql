@@ -18,10 +18,13 @@ $$
                 BEGIN
                     EXECUTE 'CREATE ROLE "MG_ROLE_' || schemaname || '/Exists"';
                     EXECUTE 'CREATE ROLE "MG_ROLE_' || schemaname || '/Range"';
+                    EXECUTE 'CREATE ROLE "MG_ROLE_' || schemaname || '/Count"';
                     EXECUTE 'GRANT USAGE ON SCHEMA "' || schemaname || '" TO "MG_ROLE_' || schemaname || '/Exists"';
                     EXECUTE 'GRANT USAGE ON SCHEMA "' || schemaname || '" TO "MG_ROLE_' || schemaname || '/Range"';
-                    EXECUTE 'GRANT "MG_ROLE_' || schemaname || '/Exists" TO "MG_ROLE_' || schemaname || '/Viewer"';
-                    EXECUTE 'GRANT "MG_ROLE_' || schemaname || '/Range" TO "MG_ROLE_' || schemaname || '/Viewer"';
+                    EXECUTE 'GRANT USAGE ON SCHEMA "' || schemaname || '" TO "MG_ROLE_' || schemaname || '/Count"';
+                    EXECUTE 'GRANT "MG_ROLE_' || schemaname || '/Exists" TO "MG_ROLE_' || schemaname || '/Range"';
+                    EXECUTE 'GRANT "MG_ROLE_' || schemaname || '/Range" TO "MG_ROLE_' || schemaname || '/Aggregator"';
+                    EXECUTE 'GRANT "MG_ROLE_' || schemaname || '/Count" TO "MG_ROLE_' || schemaname || '/Viewer"';
                     FOR tablename IN SELECT table_name FROM information_schema.tables WHERE table_schema = schemaname
                         LOOP
                             BEGIN
