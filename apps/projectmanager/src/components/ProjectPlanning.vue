@@ -77,18 +77,15 @@
                 <div class="col-1">
                   {{
                     unit.panama
-                      ? Math.max(
-                          0,
-                          (
-                            (unit.planHours - unit.panama[0].regHours) /
-                            133
-                          ).toFixed(1)
-                        )
+                      ? (
+                          (unit.planHours - unit.panama[0].regHours) /
+                          133
+                        ).toFixed(1)
                       : ""
                   }}
                 </div>
                 <div class="col-1">
-                  {{ projectHoursPlanned(unit, project) }}
+                  {{ unitHoursPlanned(unit, project).toFixed(1) }}
                 </div>
                 <div class="col-7">
                   <template v-for="planning in unit.planning"

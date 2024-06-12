@@ -112,6 +112,15 @@
                 />
               </div>
             </template>
+            <template v-if="!person.planning">
+              <RowButtonAdd
+                :id="`person-planning-${cleanName(person.name)}-add`"
+                tableId="Planning"
+                :schemaId="schema"
+                :defaultValue="{ person: { name: person.name } }"
+                @close="reload"
+              />
+            </template>
           </td>
         </tr>
       </tbody>
