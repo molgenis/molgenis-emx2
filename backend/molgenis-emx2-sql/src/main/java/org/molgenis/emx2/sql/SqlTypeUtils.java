@@ -148,6 +148,8 @@ public class SqlTypeUtils extends TypeUtils {
       case DATE_ARRAY -> row.getDateArray(name);
       case DATETIME -> row.getDateTime(name);
       case DATETIME_ARRAY -> row.getDateTimeArray(name);
+      case PERIOD -> row.getPeriod(name);
+      case PERIOD_ARRAY -> row.getPeriodArray(name);
       case JSONB -> row.getJsonb(name);
       case JSONB_ARRAY -> row.getJsonbArray(name);
       default -> throw new UnsupportedOperationException(

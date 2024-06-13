@@ -377,7 +377,7 @@ class SqlColumnRefBackExecutor {
                     .map(r -> name(r.getRefTo()).toString())
                     .collect(Collectors.joining(","))),
             // 3 refTable
-            table(name(schemaName, column.getRefTableName())),
+            table(name(schemaName, column.getRefBackColumn().getTableName())),
             // 4 inline string of table for debug message
             inline(column.getTable().getTableName()),
             // 5 inline columns

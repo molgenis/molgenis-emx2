@@ -1,4 +1,4 @@
-The Molgenis EMX2 Pyclient is Python package developed to be used for data management on Molgenis EMX2 servers.
+The Molgenis EMX2 Pyclient is a Python package developed to be used for data management on Molgenis EMX2 servers.
 A detailed overview of the capabilities is presented in the [MOLGENIS documentation](https://molgenis.github.io/molgenis-emx2/#/molgenis/use_usingpyclient).
 
 ## Installation

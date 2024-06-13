@@ -21,27 +21,27 @@ type view = "list" | "harmonization";
 const scoped = route.params.catalogue !== "all";
 const catalogueRouteParam = route.params.catalogue as string;
 
-const currentPage = ref(1);
-const activeName = ref((route.query.view as view | undefined) || "list");
-
-watch([currentPage, activeName], () => {
-  router.push({
-    path: route.path,
-    query: { ...route.query, page: currentPage.value, view: activeName.value },
-  });
+const activeName = computed(() => {
+  return (route.query.view as view | undefined) || "list";
+});
+const currentPage = computed(() => {
+  const queryPageNumber = Number(route?.query?.page);
+  return Number.isNaN(queryPageNumber) ? 1 : Math.round(queryPageNumber);
 });
 
-function setCurrentPage(pageNumber: number) {
-  currentPage.value = pageNumber;
+function onViewChange(view: view) {
+  router.push({
+    path: route.path,
+    query: { ...route.query, view },
+  });
 }
 
-if (route.query?.page) {
-  const queryPageNumber = Number(route.query?.page);
-  currentPage.value =
-    typeof queryPageNumber === "number" ? Math.round(queryPageNumber) : 1;
+async function setCurrentPage(pageNumber: number) {
+  await navigateTo({ query: { ...route.query, page: pageNumber } });
+  window.scrollTo({ top: 0 });
 }
 
-let pageIcon = computed(() => {
+const pageIcon = computed(() => {
   switch (activeName.value) {
     case "list":
       return "image-diagram-2";
@@ -50,7 +50,7 @@ let pageIcon = computed(() => {
   }
 });
 
-let offset = computed(() => (currentPage.value - 1) * pageSize);
+const offset = computed(() => (currentPage.value - 1) * pageSize);
 
 const pageFilterTemplate: IFilter[] = [
   {
@@ -182,7 +182,7 @@ const query = computed(() => {
       label
       description
       mappings ${moduleToString(mappingsFragment)}
-      repeats {
+      repeats(orderby: {name: ASC}) {
         name
         mappings ${moduleToString(mappingsFragment)}
       }
@@ -203,10 +203,6 @@ const query = computed(() => {
 const numberOfVariables = computed(
   () => data?.value.data?.Variables_agg.count || 0
 );
-
-const numberOfCohorts = computed(() => {
-  return data?.value.data?.Cohorts ? data?.value.data?.Cohorts.length : 0;
-});
 
 const graphqlURL = computed(() => `/${route.params.schema}/graphql`);
 
@@ -352,11 +348,13 @@ crumbs[
                 buttonRightLabel="Harmonizations"
                 buttonRightName="harmonization"
                 buttonRightIcon="view-table"
-                v-model:activeName="activeName"
+                :activeName="activeName"
+                @update:activeName="onViewChange"
               />
               <SearchResultsViewTabsMobile
                 class="flex xl:hidden"
-                v-model:activeName="activeName"
+                :activeName="activeName"
+                @update:activeName="onViewChange"
               >
                 <FilterSidebar
                   title="Filters"
@@ -372,12 +370,6 @@ crumbs[
         <template #search-results>
           <div class="flex align-start gap-1">
             <SearchResultsCount :value="numberOfVariables" label="variable" />
-            <!--SearchResultsCount
-              v-if="numberOfCohorts > 0"
-              :value="numberOfCohorts"
-              value-prefix="in"
-              label="cohort"
-            /-->
             <div
               v-if="pending"
               class="mt-2 mb-0 lg:mb-3 text-body-lg flex flex-col text-title"
