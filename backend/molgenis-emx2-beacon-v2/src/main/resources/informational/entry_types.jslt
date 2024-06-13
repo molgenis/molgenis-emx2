@@ -1,0 +1,27 @@
+import "meta.jslt" as meta
+{
+    "$schema" : "../beaconInfoResponse.json",
+    "meta": meta(.),
+    "response": {
+        "$schema": "../../configuration/entryTypesSchema.json",
+        "entryTypes":
+        {for (.entryTypes)
+            .name: {
+                "id": .id,
+                "name": .name,
+                "partOfSpecification": .partOfSpecification,
+                "description": .description,
+                "defaultSchema": {
+                    "id": "ga4gh-beacon-" + .name + "-v2.0.0-draft.4",
+                    "name": "Default schema for " + .name,
+                    "referenceToSchemaDefinition": "./" + .name + "/defaultSchema.json",
+                    "schemaVersion": "v2.0.0-draft.4"
+                },
+                "ontologyTermForThisType": {
+                    "id": .ontologyTerm,
+                    "label": .ontologyLabel
+                }
+            }
+        }
+    }
+}

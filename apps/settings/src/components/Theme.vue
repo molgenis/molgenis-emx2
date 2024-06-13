@@ -114,7 +114,7 @@ export default {
           : null;
       }
     },
-    saveSettings() {
+    async saveSettings() {
       let settingsAlter = [];
       let settingsDrop = [];
       let cssUrl = "theme.css?";
@@ -154,14 +154,13 @@ export default {
       } else {
         settingsDrop.push({ key: "additionalJs" });
       }
-      this.$emit("reload");
       this.loading = true;
       this.loading = true;
       this.graphqlError = null;
       this.success = null;
       //alter
       if (settingsAlter.length > 0) {
-        request(
+        await request(
           "graphql",
           `mutation change($alter:[MolgenisSettingsInput]){change(settings:$alter){message}}`,
           { alter: settingsAlter }
@@ -176,7 +175,7 @@ export default {
       }
       // drop, dunno how to do this in one call!
       if (settingsDrop.length > 0) {
-        request(
+        await request(
           "graphql",
           `mutation drop($drop:[DropSettingsInput]){drop(settings:$drop){message}}`,
           { drop: settingsDrop }
@@ -189,8 +188,8 @@ export default {
           })
           .finally((this.loading = false));
       }
+      this.$router.go();
     },
   },
-  emits: ["reload"],
 };
 </script>

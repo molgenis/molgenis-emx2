@@ -3,7 +3,7 @@ package org.molgenis.emx2.sql;
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.Operator.*;
-import static org.molgenis.emx2.Privileges.VIEWER;
+import static org.molgenis.emx2.Privileges.*;
 import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.searchColumnName;
 import static org.molgenis.emx2.utils.TypeUtils.*;
@@ -15,6 +15,7 @@ import org.jooq.Record;
 import org.jooq.Table;
 import org.jooq.conf.ParamType;
 import org.jooq.impl.DSL;
+import org.jooq.impl.SQLDataType;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.Operator;
 import org.molgenis.emx2.Row;
@@ -25,6 +26,7 @@ import org.slf4j.LoggerFactory;
 public class SqlQuery extends QueryBean {
   public static int AGGREGATE_COUNT_THRESHOLD = Integer.MIN_VALUE; // threshold disabled by default
   public static final String COUNT_FIELD = "count";
+  public static final String EXISTS_FIELD = "exists";
   public static final String MAX_FIELD = "max";
   public static final String MIN_FIELD = "min";
   public static final String AVG_FIELD = "avg";
@@ -206,6 +208,13 @@ public class SqlQuery extends QueryBean {
       }
     }
     return fields;
+  }
+
+  private Field<String> intervalField(String tableAlias, Column column) {
+    Field<?> intervalField = field(name(alias(tableAlias), column.getName()));
+    Field<String> functionCallField =
+        function("\"MOLGENIS\".interval_to_iso8601", String.class, intervalField);
+    return functionCallField.as(name(column.getIdentifier()));
   }
 
   private SelectConditionStep<org.jooq.Record> rowBackrefSubselect(
@@ -628,6 +637,8 @@ public class SqlQuery extends QueryBean {
          * Ignore headings, not part of rows. Fixme: must ignore to allow JSON subqueries, but
          * unsure if this can cause any problems elsewhere.
          */
+      } else if (column.getJooqType().getSQLDataType() == SQLDataType.INTERVAL) {
+        fields.add(intervalField(tableAlias, column));
       } else {
         // primitive fields
         fields.add(
@@ -678,10 +689,10 @@ public class SqlQuery extends QueryBean {
     List<Field<?>> fields = new ArrayList<>();
     for (SelectColumn field : select.getSubselect()) {
       if (COUNT_FIELD.equals(field.getColumn())) {
-        if (schema.hasActiveUserRole(VIEWER.toString())) {
-          fields.add(count().as(COUNT_FIELD));
-        } else {
-          fields.add(field("GREATEST(COUNT(*),{0})", 10L).as(COUNT_FIELD));
+        fields.add(getCountField().as(COUNT_FIELD));
+      } else if (EXISTS_FIELD.equals(field.getColumn())) {
+        if (schema.hasActiveUserRole(EXISTS.toString())) {
+          fields.add(field("COUNT(*) > 0").as(EXISTS_FIELD));
         }
       } else if (List.of(MAX_FIELD, MIN_FIELD, AVG_FIELD, SUM_FIELD).contains(field.getColumn())) {
         checkHasViewPermission(table);
@@ -707,6 +718,17 @@ public class SqlQuery extends QueryBean {
       }
     }
     return jsonField(table, column, tableAlias, select, filters, searchTerms, subAlias, fields);
+  }
+
+  private Field<Integer> getCountField() {
+    if (schema.hasActiveUserRole(COUNT.toString())) {
+      return count();
+    } else if (schema.hasActiveUserRole(AGGREGATOR.toString())) {
+      return field("GREATEST(COUNT(*),{0})", Integer.class, 10L);
+    } else if (schema.hasActiveUserRole(RANGE.toString())) {
+      return field("CEIL(COUNT(*)::numeric / {0}) * {0}", Integer.class, 10L);
+    }
+    throw new MolgenisException("Need permission >= RANGE to perform count queries");
   }
 
   private Field<Object> jsonGroupBySelect(
@@ -1107,55 +1129,38 @@ public class SqlQuery extends QueryBean {
       org.molgenis.emx2.Operator operator,
       Object[] values) {
     Name name = name(alias(tableAlias), columnName);
-    switch (type) {
-      case TEXT, STRING, FILE:
-        return whereConditionText(name, operator, toStringArray(values));
-      case BOOL:
-        return whereConditionEquals(name, operator, toBoolArray(values));
-      case UUID:
-        return whereConditionEquals(name, operator, toUuidArray(values));
-      case JSONB:
-        return whereConditionEquals(name, operator, toJsonbArray(values));
-      case INT:
-        return whereConditionOrdinal(name, operator, toIntArray(values));
-      case LONG:
-        return whereConditionOrdinal(name, operator, toLongArray(values));
-      case DECIMAL:
-        return whereConditionOrdinal(name, operator, toDecimalArray(values));
-      case DATE:
-        return whereConditionOrdinal(name, operator, toDateArray(values));
-      case DATETIME:
-        return whereConditionOrdinal(name, operator, toDateTimeArray(values));
-      case STRING_ARRAY, TEXT_ARRAY:
-        return whereConditionTextArray(name, operator, toStringArray(values));
-      case BOOL_ARRAY:
-        return whereConditionArrayEquals(name, operator, toBoolArray(values));
-      case UUID_ARRAY:
-        return whereConditionArrayEquals(name, operator, toUuidArray(values));
-      case INT_ARRAY:
-        return whereConditionArrayEquals(name, operator, toIntArray(values));
-      case LONG_ARRAY:
-        return whereConditionArrayEquals(name, operator, toLongArray(values));
-      case DECIMAL_ARRAY:
-        return whereConditionArrayEquals(name, operator, toDecimalArray(values));
-      case DATE_ARRAY:
-        return whereConditionArrayEquals(name, operator, toDateArray(values));
-      case DATETIME_ARRAY:
-        return whereConditionArrayEquals(name, operator, toDateTimeArray(values));
-      case JSONB_ARRAY:
-        return whereConditionArrayEquals(name, operator, toJsonbArray(values));
-      case REF:
-        return whereConditionRefEquals(name, operator, values);
-      default:
-        throw new SqlQueryException(
-            SqlQuery.QUERY_FAILED
-                + "Filter of '"
-                + name
-                + " failed: operator "
-                + operator
-                + " not supported for type "
-                + type);
-    }
+    return switch (type) {
+      case TEXT, STRING, FILE -> whereConditionText(name, operator, toStringArray(values));
+      case BOOL -> whereConditionEquals(name, operator, toBoolArray(values));
+      case UUID -> whereConditionEquals(name, operator, toUuidArray(values));
+      case JSONB -> whereConditionEquals(name, operator, toJsonbArray(values));
+      case INT -> whereConditionOrdinal(name, operator, toIntArray(values));
+      case LONG -> whereConditionOrdinal(name, operator, toLongArray(values));
+      case DECIMAL -> whereConditionOrdinal(name, operator, toDecimalArray(values));
+      case DATE -> whereConditionOrdinal(name, operator, toDateArray(values));
+      case DATETIME -> whereConditionOrdinal(name, operator, toDateTimeArray(values));
+      case PERIOD -> whereConditionOrdinal(name, operator, toYearToSecondArray(values));
+      case STRING_ARRAY, TEXT_ARRAY -> whereConditionTextArray(
+          name, operator, toStringArray(values));
+      case BOOL_ARRAY -> whereConditionArrayEquals(name, operator, toBoolArray(values));
+      case UUID_ARRAY -> whereConditionArrayEquals(name, operator, toUuidArray(values));
+      case INT_ARRAY -> whereConditionArrayEquals(name, operator, toIntArray(values));
+      case LONG_ARRAY -> whereConditionArrayEquals(name, operator, toLongArray(values));
+      case DECIMAL_ARRAY -> whereConditionArrayEquals(name, operator, toDecimalArray(values));
+      case DATE_ARRAY -> whereConditionArrayEquals(name, operator, toDateArray(values));
+      case DATETIME_ARRAY -> whereConditionArrayEquals(name, operator, toDateTimeArray(values));
+      case PERIOD_ARRAY -> whereConditionArrayEquals(name, operator, toYearToSecondArray(values));
+      case JSONB_ARRAY -> whereConditionArrayEquals(name, operator, toJsonbArray(values));
+      case REF -> whereConditionRefEquals(name, operator, values);
+      default -> throw new SqlQueryException(
+          SqlQuery.QUERY_FAILED
+              + "Filter of '"
+              + name
+              + " failed: operator "
+              + operator
+              + " not supported for type "
+              + type);
+    };
   }
 
   private Condition whereConditionRefEquals(Name columnName, Operator operator, Object[] values) {

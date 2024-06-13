@@ -63,10 +63,10 @@
         We are currently in the process of establishing a patient helpdesk.
         Please feel free to contact the Recon4IMD coordination office with any
         queries or suggestions that you may have.
-        <a href="mailto:info.recon4imd@gmail.com" class="button-link">
-          Contact Us </a
-        >.
       </p>
+      <a href="mailto:info.recon4imd@gmail.com" class="button-link">
+        Contact Us
+      </a>
     </PageSection>
   </Page>
 </template>
@@ -80,4 +80,8 @@ import {
   BuildingOffice2Icon,
   ShieldCheckIcon,
 } from "@heroicons/vue/24/outline";
+
+import type { RouterViewIF } from "../interfaces";
+
+const props = defineProps<RouterViewIF>();
 </script>

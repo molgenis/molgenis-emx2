@@ -25,7 +25,7 @@ export interface ChartOptions {
 export type vizLegendPosition = "top" | "right" | "bottom" | "left";
 
 export interface vizChartMargins {
-  top: number;
+  top?: number;
   right?: number;
   bottom?: number;
   left?: number;
@@ -37,6 +37,7 @@ export interface BarChartParams {
   description?: string;
   table: string;
   chartData?: object[];
+  schema?: string;
   xvar: string;
   yvar: string;
   xAxisLabel?: string;
@@ -60,6 +61,7 @@ export interface ColumnChartParams {
   chartId: string;
   title?: string;
   description?: string;
+  schema?: string;
   table: string;
   chartData?: object[];
   xvar: string;
@@ -85,6 +87,7 @@ export interface GroupedColumnChartParams {
   chartId: string;
   title?: string;
   description?: string;
+  schema?: string;
   table: string;
   chartData?: object[];
   xvar: string;
@@ -112,6 +115,7 @@ export interface GroupedColumnChartParams {
 
 export interface DataTableParams {
   tableId: string;
+  schema?: string;
   table: string;
   columns: string;
   caption?: string;
@@ -124,6 +128,7 @@ export interface PieChartParams {
   chartId: string;
   title?: string;
   description?: string;
+  schema?: string;
   table: string;
   categories: string;
   values: string;
@@ -149,6 +154,7 @@ export interface ScatterPlotParams {
   chartId: string;
   title?: string;
   description?: string;
+  schema?: string;
   table: string;
   xvar: string;
   yvar: string;
@@ -178,6 +184,7 @@ export interface GeoMercatorParams {
   chartId: string;
   title?: string;
   description?: string;
+  schema?: string;
   table: string;
   rowId: string;
   latitude: string;

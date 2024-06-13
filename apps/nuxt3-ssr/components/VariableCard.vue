@@ -32,9 +32,10 @@ const resourcePathId = resourceIdPath(variableKey.value);
             v-tooltip="{
               content:
                 variable.repeats.length +
-                (variable.repeats.length == 1 ? ' repeat' : 'repeats'),
+                (variable.repeats.length === 1 ? ' repeat' : 'repeats'),
             }"
             class="ml-1 bg-blue-50 text-title-contrast justify-center rounded-full px-2 py-1 font-bold text-heading-sm hover:cursor-help"
+            style="display: inline-flex; flex-wrap: wrap"
           >
             + {{ variable.repeats?.length }}
           </span>
@@ -45,9 +46,6 @@ const resourcePathId = resourceIdPath(variableKey.value);
           {{ variable?.label }}
         </p>
       </div>
-      <!-- <div class="hidden basis-1/5 xl:flex xl:justify-end">
-        <IconButton icon="star" class="text-blue-500" />
-      </div> -->
       <div class="hidden basis-1/5 xl:flex xl:justify-end">
         <NuxtLink
           :to="`/${schema}/ssr-catalogue/${catalogue}/variables/${resourcePathId}`"

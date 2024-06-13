@@ -16,10 +16,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onBeforeMount, watch } from "vue";
+import { ref, onBeforeMount, watch, computed } from "vue";
 import { gql } from "graphql-tag";
 import { request } from "graphql-request";
 
+import { setGraphQlEndpoint } from "../../utils";
 import type {
   DataTableParams,
   gqlVariableSubSelectionIF,
@@ -44,6 +45,8 @@ const emit = defineEmits<{
   (e: "viz-data-clicked", row: object): void;
 }>();
 
+const graphqlEndpoint = ref<string | null>(null);
+
 const tableLoading = ref<boolean>(true);
 const tableSuccess = ref<boolean>(false);
 const tableError = ref<Error | null>(null);
@@ -54,6 +57,8 @@ const tableColumnMappings = ref<gqlVariableSubSelectionIF[] | null>(null);
 const columnOrder = ref<string[] | null>(null);
 
 function setChartVariables() {
+  graphqlEndpoint.value = setGraphQlEndpoint(props.schema);
+
   tableDataQuery.value = buildQuery({
     table: props.table,
     selections: [props.columns],
@@ -78,7 +83,7 @@ async function fetchChartData() {
   tableError.value = null;
 
   try {
-    const response = await request("../api/graphql", tableDataQuery.value);
+    const response = await request(graphqlEndpoint.value, tableDataQuery.value);
     const data = await response[props.table as string];
     tableData.value = await prepareChartData({
       data: data,
