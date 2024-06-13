@@ -295,6 +295,19 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   }
 
   @Override
+  public List<Table> getTablesFromAllSchemas(String tableId) {
+    List<Table> tables = new ArrayList<>();
+    for (String sn : this.getSchemaNames()) {
+      Schema schema = this.getSchema(sn);
+      Table t = schema.getTable(tableId);
+      if (t != null) {
+        tables.add(t);
+      }
+    }
+    return tables;
+  }
+
+  @Override
   public void dropSchemaIfExists(String name) {
     if (getSchema(name) != null) {
       this.dropSchema(name);

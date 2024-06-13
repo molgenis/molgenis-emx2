@@ -1,6 +1,9 @@
 <template>
   <Molgenis v-model="session">
     <RouterView @click="closeAllDropdownButtons" />
+    <template #footer>
+      <Footer />
+    </template>
   </Molgenis>
 </template>
 
@@ -12,6 +15,7 @@ import { useRoute } from "vue-router";
 import { useFiltersStore } from "./stores/filtersStore";
 import { useCheckoutStore } from "./stores/checkoutStore";
 import { useSettingsStore } from "./stores/settingsStore";
+import Footer from "./components/Footer.vue";
 
 const route = useRoute();
 const query = computed(() => route.query);

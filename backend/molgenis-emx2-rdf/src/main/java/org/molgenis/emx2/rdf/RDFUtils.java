@@ -37,4 +37,9 @@ public class RDFUtils {
       throw new MolgenisException("getURI failed", e);
     }
   }
+
+  public static String extractHost(String uriString) {
+    URI uri = getURI(uriString);
+    return extractHost(uri);
+  }
 }
