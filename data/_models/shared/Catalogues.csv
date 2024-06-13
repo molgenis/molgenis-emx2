@@ -1,6 +1,6 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,visible
 Catalogues,,,,,,,,,,,dcat:Catalog,A collection of resources within a network or consortium or about a common topic,DataCatalogueFlat,
-Catalogues,,name,,1,true,,,,,,"dterms:title,dct:title",The name given to the Catalogue,DataCatalogueFlat,
+Catalogues,,name,,1,true,,,,,,dct:title,The name given to the Catalogue,DataCatalogueFlat,
 Catalogues,,network,ref,1,true,,Collections,,,,,Network or consortium that leads this catalogue,DataCatalogueFlat,
 Catalogues,,type,ontology,,true,CatalogueOntologies,CatalogueTypes,,,,dcat:theme,Type of catalogue,DataCatalogueFlat,
 Catalogues,,description,text,,true,,,,,,"dcat:description,dct:description",Description of this catalogue,DataCatalogueFlat,
