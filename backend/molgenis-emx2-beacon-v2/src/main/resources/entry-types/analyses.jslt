@@ -1,0 +1,32 @@
+import "meta.jslt" as meta
+import "response_summary.jslt" as responseSummary
+import "ontology.jslt" as ontology
+import "range.jslt" as range
+{
+    "meta": meta(.),
+    "responseSummary": responseSummary(.),
+    "response": {
+        "resultSets":
+        [for (.resultSets)
+            {
+                "id": .id,
+                "type": "dataset",
+                "setType": "analyses",
+                "exists": true,
+                "resultsCount": .count,
+                "info": range(.),
+                "results":
+                [for (.results) {
+                    "id": .id,
+                    "runId": .runId.id,
+                    "biosampleId": .biosampleId.id,
+                    "individualId": .individualId.id,
+                    "analysisDate": .analysisDate,
+                    "pipelineName": .pipelineName,
+                    "pipelineRef": .pipelineRef,
+                    "aligner": .aligner,
+                    "variantCaller": .variantCaller
+                }]
+            }]
+    }
+}

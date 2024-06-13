@@ -315,7 +315,7 @@ let tocItems = computed(() => {
   }
 
   if (cohort.value.documentation) {
-    tableOffContents.push({ label: "Attached files", id: "Files" });
+    tableOffContents.push({ label: "Documentation", id: "Files" });
   }
 
   return tableOffContents;
@@ -782,7 +782,7 @@ function showLeadOrganisationSideModal(index: number) {
         <ContentBlockAttachedFiles
           v-if="cohort?.documentation?.length"
           id="Files"
-          title="Attached Files"
+          title="Documentation"
           :documents="cohort.documentation"
         />
       </ContentBlocks>
