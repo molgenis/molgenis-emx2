@@ -388,7 +388,7 @@ class QueryEMX2 {
   _createFilterString(filters: Record<string, any>) {
     let filterString = "";
     if (!filters) return filterString;
-
+    console.log(filters);
     if (filters["_and"].length) {
       filterString += `_and: [ ${filters["_and"].join(", ")} ]`;
     }
@@ -498,7 +498,6 @@ class QueryEMX2 {
           /** most inner part of the query e.g. 'like: "red" */
           filter = `{ ${pathPart}: ${filter} }`;
         }
-
         this.filters[this.branch][this.type].push(filter);
       }
     }

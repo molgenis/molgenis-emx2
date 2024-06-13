@@ -1,4 +1,5 @@
 <template>
+  {{ JSON.stringify(matches) }}
   <div class="mx-1" v-if="matches.length">
     <div class="d-flex align-items-center flex-wrap">
       <label class="font-weight-bold mr-1">Because you searched for:</label>
@@ -17,11 +18,14 @@
 import { computed } from "vue";
 import { useFiltersStore } from "../../stores/filtersStore";
 import { IOntologyItem } from "../../interfaces/interfaces";
+import * as _ from "lodash";
+
 const filtersStore = useFiltersStore();
 
 const { viewmodel } = defineProps<{
   viewmodel: Record<string, any>;
 }>();
+
 const filterInfoDictionary = computed(() => {
   return filtersStore.filterFacets.reduce(
     (
@@ -43,54 +47,48 @@ const filterInfoDictionary = computed(() => {
 });
 
 const matches = computed(() => {
-  let matches: IMatch[] = [];
+  let foundMatches: IMatch[] = [];
   const filters: Record<string, any> = filtersStore.filters;
   const filterIds = Object.keys(filters);
   for (const filterId of filterIds) {
     const activeFilterValues = filters[filterId];
-
     if (activeFilterValues?.length) {
-      /** no need to check further if there are no active filters */
-
       const filterColumn: string | string[] =
         filterInfoDictionary.value[filterId].column;
       const columns: string[] = Array.isArray(filterColumn)
         ? filterColumn
         : [filterColumn];
-
       for (const columnId of columns) {
         const filterName = filterInfoDictionary.value[filterId].label;
         const potentialMatch = extractValue(columnId, viewmodel);
 
-        if (!potentialMatch) {
-          continue;
-        }
-        const match: IMatch = getMatch(
-          potentialMatch,
-          filterName,
-          activeFilterValues,
-          filtersStore.filterOptionsCache,
-          filterId
-        );
-
-        if (match.value.length > 0) {
-          /** check if it is there, because it can already have been matched on biobank / collection. Do not need it twice */
-          const existingMatch = matches.find(
-            (match) => match.name === filterName
+        if (potentialMatch) {
+          const match: IMatch = getMatch(
+            potentialMatch,
+            filterName,
+            activeFilterValues,
+            filtersStore.filterOptionsCache,
+            filterId
           );
-          if (existingMatch) {
-            match.value = [
-              //@ts-ignore
-              ...new Set(match.value.concat(existingMatch.value)),
-            ];
-            matches = matches.filter((match) => match.name !== filterName);
+
+          if (match.value.length) {
+            const existingMatch = foundMatches.find(
+              (match) => match.name === filterName
+            );
+
+            if (existingMatch) {
+              match.value = _.uniq(match.value.concat(existingMatch.value));
+              foundMatches = foundMatches.filter(
+                (match) => match.name !== filterName
+              );
+            }
+            foundMatches.push(match);
           }
-          matches.push(match);
         }
       }
     }
   }
-  return matches;
+  return foundMatches;
 });
 
 function getMatch(
