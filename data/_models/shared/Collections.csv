@@ -143,8 +143,8 @@ Collections,,funding statement,text,,,,,,,,,Statement listing funding that was o
 Collections,,acknowledgements,text,,,,,,,,,Acknowledgement statement and citation regulation for this resource,DataCatalogueFlat,"['Cohort', 'Databank', 'Data source', 'Model', 'Study'].includes(collectionType?.name)"
 Collections,,supplementary information,text,,,,,,,,,Any other information that needs to be disclosed for this resource,DataCatalogueFlat,"['Cohort', 'Databank', 'Data source'].includes(collectionType?.name)"
 Collections,,collaborations,heading,,,,,,,,,List of relevant collaborations,DataCatalogueFlat,"['Cohort', 'Databank', 'Data source'].includes(collectionType?.name)"
-Collections,,networks,ref_array,,,,Collections,,,,,The consortia or networks that this study is part of,"DataCatalogueFlat,EMA",['Study'].includes(collectionType?.name)
-Collections,,networks other,text,,,,,,,,,List the names of any other networks that are not listed and this resource is involved in,DataCatalogueFlat,['Study'].includes(collectionType?.name)
+Collections,,networks,ref_array,,,,Networks,,,,,The consortia or networks that this collection is part of,"DataCatalogueFlat,EMA","['Study', 'Cohort', 'Databank', 'Data source'].includes(collectionType?.name)"
+Collections,,networks other,text,,,,,,,,,List the names of any other networks that are not listed and this collection is involved in,DataCatalogueFlat,"['Cohort', 'Study'].includes(collectionType?.name)"
 Collections,,study requirements,ontology_array,,,CatalogueOntologies,Study requirements,,,,,Study requirements,"DataCatalogueFlat,EMA",['Study'].includes(collectionType?.name)
 Collections,,regulatory procedure number,string,,,,,,,,,"Regulatory procedure number, for RMP Category 1 and 2 studies only","DataCatalogueFlat,EMA",['Study'].includes(collectionType?.name)
 Collections,,date of signing funding contract planned,date,,,,,,,,,"Date when funding contract was signed, planned","DataCatalogueFlat,EMA",['Study'].includes(collectionType?.name)
