@@ -45,34 +45,37 @@ fetchSetting("contactRecipientsQuery").then((resp) => {
 
 let showContactInformation = ref(false);
 
-const fields = reactive([
-  {
-    name: "senderName",
+const fields = reactive({
+  senderName: {
     label: "Name",
     fieldValue: "",
     inputType: "string",
   },
-  {
-    name: "senderEmail",
+  senderEmail: {
     label: "Email",
     fieldValue: "",
     inputType: "string",
     hasError: false,
     message: "",
   },
-  {
+  senderMessage: {
     name: "senderMessage",
     label: "Message",
     fieldValue: "",
     inputType: "textarea",
   },
-]);
+  topic: {
+    label: "Topic",
+    fieldValue: "",
+    inputType: "select",
+  },
+});
 
 watch(
-  () => fields[1].fieldValue,
+  () => fields.senderEmail.fieldValue,
   () => {
-    fields[1].message = "";
-    fields[1].hasError = false;
+    fields.senderEmail.message = "";
+    fields.senderEmail.hasError = false;
   }
 );
 
@@ -83,14 +86,12 @@ const notificationMessage = ref("");
 const timeoutInMills = ref(3000);
 
 const submitForm = async () => {
-  const senderName = fields.find((field) => field.name === "senderName");
-  const senderEmail = fields.find((field) => field.name === "senderEmail");
-  const senderMessage = fields.find((field) => field.name === "senderMessage");
+ 
   // Validate form fields
 
-  if (!senderEmail.fieldValue) {
-    senderEmail.hasError = true;
-    senderEmail.message = "Please enter a valid email address";
+  if (!fields.senderEmail.fieldValue) {
+    fields.senderEmail.hasError = true;
+    fields.senderEmail.message = "Please enter a valid email address";
     return;
   }
 
@@ -98,20 +99,20 @@ const submitForm = async () => {
 
   try {
     isSendSuccess = await sendContactForm({
-      recipientsFilter: props.contactMessageFilter,
-      subject: "Contact request from " + senderName.fieldValue,
-      body: `Name: ${senderName.fieldValue}\nEmail: ${senderEmail.fieldValue}\nMessage: ${senderMessage.fieldValue}`,
+      recipientsFilter: props.contactMessageFilter || "",
+      subject: "Contact request from " + fields.senderName.fieldValue,
+      body: `Name: ${fields.senderName.fieldValue}\nEmail: ${fields.senderEmail.fieldValue}\nMessage: ${fields.senderMessage.fieldValue}`,
     });
   } catch (error) {
     console.log(error);
   }
 
   // Reset form fields
-  senderName.fieldValue = "";
-  senderEmail.fieldValue = "";
-  senderMessage.fieldValue = "";
-  senderEmail.hasError = false;
-  senderEmail.message = "";
+  fields.senderName.fieldValue = "";
+  fields.senderEmail.fieldValue = "";
+  fields.senderMessage.fieldValue = "";
+  fields.senderEmail.hasError = false;
+  fields.senderEmail.message = "";
 
   if (isSendSuccess) {
     notificationType.value = "success";
@@ -152,7 +153,7 @@ const submitForm = async () => {
           class="flex flex-col gap-3"
         >
           <template v-if="contactMessageFilter && useEmailService">
-            <ContactForm :fields="fields" @submit-form="submitForm" />
+            <ContactForm :fields="Object.entries(fields).map(([k, v]) => ({k, ...v}))" @submit-form="submitForm" />
             <div class="pl-3">
               <span class="text-body-base">or contact us at: </span>
               <a
