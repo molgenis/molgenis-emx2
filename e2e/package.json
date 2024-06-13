@@ -8,6 +8,7 @@
     "@playwright/test": "1.43.0"
   },
   "scripts": {
-    "e2e": "playwright test"
+    "e2e": "playwright test",
+    "codegen": "playwright codegen"
   }
 }
