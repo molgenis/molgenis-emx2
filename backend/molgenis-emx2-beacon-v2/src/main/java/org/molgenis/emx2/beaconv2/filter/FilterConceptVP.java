@@ -81,7 +81,11 @@ public enum FilterConceptVP {
         .orElseThrow(() -> new MolgenisException("Invalid concept: %s".formatted(id)));
   }
 
-  private String getId() {
+  public static boolean hasId(String id) {
+    return Arrays.stream(values()).anyMatch(concept -> concept.getId().equalsIgnoreCase(id));
+  }
+
+  public String getId() {
     return id;
   }
 

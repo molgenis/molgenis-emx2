@@ -16,8 +16,7 @@ public class FilterParserFactory {
       if (requestBody.getQuery().getEntryType() == EntryType.GENOMIC_VARIANT) {
         return new VariantFilterParser(requestBody.getQuery());
       }
-      return new FilterParserVP(requestBody.getQuery());
-      //      return new RegularFilterParser(requestBody.getQuery().getFilters());
+      return new RegularFilterParser(requestBody.getQuery());
     } else {
       throw new MolgenisException("Invalid beacon specification: " + beaconSpec);
     }
