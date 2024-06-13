@@ -5,7 +5,6 @@ const modules = import.meta.glob("./**/*.story.vue", {
 });
 
 const stories = Object.entries(modules).map(([key, value]) => {
-  console.log(key);
   const title = key.replace("./", "").replace(".story.vue", "");
   return { title, component: value };
 });
