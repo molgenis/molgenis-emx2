@@ -3,6 +3,7 @@ import os
 from pathlib import Path
 import pandas as pd
 from string import digits
+import re
 
 
 def float_to_int(df):
@@ -80,24 +81,18 @@ class Transform:
         """
         # transformations per table
         self.collections()
-        self.datasets()
         self.variables()
-        self.variable_values()
-        self.dataset_mappings()
+        self.network_variables()
         self.variable_mappings()
 
-        # TODO: make common function to rename columns (e.g. resource > collection)
-        self.subcohorts()
-        self.collection_events()
-        self.network_variables()
-        self.external_identifiers()
-        self.linked_resources()
-        self.quantitative_information()
-        self.subcohort_counts()
-        self.DAPs()
-        self.documentation()
-        self.contacts()
-        self.aggregates()
+        # TODO: add dataset type for LongITools, LifeCycle etc
+        for table_name in ['Datasets', 'Dataset mappings', 'Variable values', 'Subcohorts',
+                           'Collection events', 'External identifiers',
+                           'Linked resources', 'Quantitative information', 'Subcohort counts',
+                           'DAPs', 'Documentation', 'Contacts', 'Aggregates']:
+            self.transform_tables(table_name)
+        for table_name in ['Subcohorts', 'Subcohort counts']:
+            self.rename_tables(table_name)
 
     def collections(self):
         """Transform columns in Cohorts, Networks, Studies, Data sources, Databanks
@@ -147,14 +142,18 @@ class Transform:
         df_collections = float_to_int(df_collections)  # convert float back to integer
         df_collections.to_csv(self.path + 'Collections.csv', index=False)
 
-    def datasets(self):
-        df = pd.read_csv(self.path + 'Datasets.csv', keep_default_na=False)
-        df.loc[:, 'resource'] = df['resource'].apply(strip_resource)
+    def network_variables(self):
+        df = pd.read_csv(self.path + 'Network variables.csv', keep_default_na=False)
+        df.rename(columns={'network': 'collection',
+                           'variable.resource': 'variable.collection'}, inplace=True)
+        df.loc[:, 'collection'] = df['collection'].apply(strip_resource)
+        df.loc[:, 'variable.collection'] = df['variable.collection'].apply(strip_resource)
+        df.loc[:, 'variable.name'] = df['variable.name'].apply(remove_number)
+        df = df.drop_duplicates(subset='variable.name')
         df.rename(columns={'resource': 'collection'}, inplace=True)
-        # TODO: add dataset type for LongITools, LifeCycle etc
 
         df = float_to_int(df)  # convert float back to integer
-        df.to_csv(self.path + 'Datasets.csv', index=False)
+        df.to_csv(self.path + 'Collection variables.csv', index=False)
 
     def variables(self):
         # restructure Variables
@@ -162,144 +161,73 @@ class Transform:
         df_variables.loc[:, 'resource'] = df_variables['resource'].apply(strip_resource)
         df_variables.loc[:, 'collection event.resource'] = \
             df_variables['collection event.resource'].apply(strip_resource)
-        df_variables.rename(columns={'resource': 'collection',
-                                     'collection event.resource': 'collection event.collection'}, inplace=True)
 
-        # select non-repeated variables
+        # restructure repeated variables inside variables dataframe
         df_repeats = pd.read_csv(self.path + 'Repeated variables.csv')
-        df_variables = get_non_repeats(df_variables, df_repeats)
-
-        # restructure Repeated variables
-        df_repeats = pd.read_csv(self.path + 'Repeated variables.csv', keep_default_na=False)
         df_repeats.loc[:, 'resource'] = df_repeats['resource'].apply(strip_resource)
-        df_repeats.loc[:, 'collection event.resource'] = df_repeats['collection event.resource'].apply(strip_resource)
-        df_repeats.rename(columns={'resource': 'collection',
-                                   'collection event.resource': 'collection event.collection'}, inplace=True)
-        df_repeats = restructure_repeats(df_repeats)
+        df_variables.loc[:, 'is_repeated'] = df_variables['name'].apply(is_repeated, df_repeats=df_repeats)
 
-        # concatenate variables and reoeats to one dataframe
-        df_all_variables = pd.concat([df_variables, df_repeats])
+        # select athlete and lifecycle variables and restructure
+        df_variables_cdm = df_variables[df_variables['resource'].isin(['LifeCycle', 'ATHLETE'])]
+        df_variables_cdm.loc[:, 'name'] = df_variables_cdm['name'].apply(remove_number)
+        df_variables_cdm = restructure_repeats(df_variables_cdm, df_repeats)
+
+        # select variables that are not in LifeCycle or ATHLETE
+        df_variables_no_cdm = df_variables[~df_variables['resource'].isin(['LifeCycle', 'ATHLETE'])]
+        # select repeated variables that are not in lifecycle or ATHLETE
+        df_repeats_no_cdm = df_repeats[~df_repeats['resource'].isin(['LifeCycle', 'ATHLETE'])]
+
+        # concatenate all variables
+        df_all_variables = pd.concat([df_variables_cdm, df_variables_no_cdm, df_repeats_no_cdm])
+        df_all_variables.rename(columns={'resource': 'collection',
+                                         'collection event.resource': 'collection event.collection'}, inplace=True)
+
         df_all_variables = float_to_int(df_all_variables)  # convert float back to integer
         df_all_variables.to_csv(self.path + 'Variables.csv', index=False)
-
-    def variable_values(self):
-        df = pd.read_csv(self.path + 'Variable values.csv', keep_default_na=False)
-        df.loc[:, 'resource'] = df['resource'].apply(strip_resource)
-        df.rename(columns={'resource': 'collection'}, inplace=True)
-
-        df = float_to_int(df)  # convert float back to integer
-        df.to_csv(self.path + 'Variable values.csv', index=False)
-
-    def dataset_mappings(self):
-        df = pd.read_csv(self.path + 'Dataset mappings.csv', keep_default_na=False)
-        df.loc[:, 'target'] = df['target'].apply(strip_resource)
-
-        df = float_to_int(df)  # convert float back to integer
-        df.to_csv(self.path + 'Dataset mappings.csv', index=False)
 
     def variable_mappings(self):
         df = pd.read_csv(self.path + 'Variable mappings.csv', keep_default_na=False)
         df.loc[:, 'target'] = df['target'].apply(strip_resource)
+        df.loc[:, 'repeat_num'] = df['target variable'].apply(get_repeat_number)
+        df.loc[:, 'target variable'] = df['target variable'].apply(remove_number)
+        df = df.fillna('')
 
-        # TODO: add functions to rewrite mappings
-        df = float_to_int(df)  # convert float back to integer
-        df.to_csv(self.path + 'Variable mappings.csv', index=False)
+        # drop duplicate mappings
+        df_no_duplicates = df.drop_duplicates(subset=['source', 'source dataset', 'source variables',
+                                                      'source variables other datasets.dataset',
+                                                      'source variables other datasets.name',
+                                                      'target', 'target dataset', 'target variable',
+                                                      'match', 'syntax', 'comments', 'description'])
+        df_no_duplicates = df_no_duplicates.fillna('')
 
+        # get repeated mappings in comma separated string
+        df_no_duplicates = get_repeated_mappings(df, df_no_duplicates)
+        df_no_duplicates = float_to_int(df_no_duplicates)  # convert float back to integer
+        df_no_duplicates.to_csv(self.path + 'Variable mappings.csv', index=False)
 
-
-    def subcohorts(self):
-            df = pd.read_csv(self.path + 'Subcohorts.csv')
+    def transform_tables(self, table_name):
+        df = pd.read_csv(self.path + table_name + '.csv', keep_default_na=False)
+        if 'resource' in df.columns:
             df.loc[:, 'resource'] = df['resource'].apply(strip_resource)
-            df.rename(columns={'resource': 'collection'}, inplace=True)
+        if 'target' in df.columns:
+            df.loc[:, 'target'] = df['target'].apply(strip_resource)
+        if 'subcohorts' in df.columns:
+            df.loc[:, 'subcohorts'] = df['subcohorts'].apply(strip_resource)
 
-            df = float_to_int(df)  # convert float back to integer
-            df.to_csv(self.path + 'Collection populations.csv', index=False)
-
-    def collection_events(self):
-        df = pd.read_csv(self.path + 'Collection events.csv')
-        df.loc[:, 'resource'] = df['resource'].apply(strip_resource)
-        df.loc[:, 'subcohorts'] = df['subcohorts'].apply(strip_resource)
         df.rename(columns={'resource': 'collection',
-                           'subcohorts': 'populations'}, inplace=True)
-
-        df = float_to_int(df)  # convert float back to integer
-        df.to_csv(self.path + 'Collection events.csv', index=False)
-
-    def external_identifiers(self):
-        df = pd.read_csv(self.path + 'External identifiers.csv')
-        df.rename(columns={'resource': 'collection'}, inplace=True)
-
-        df = float_to_int(df)  # convert float back to integer
-        df.to_csv(self.path + 'External identifiers.csv', index=False)
-
-    def network_variables(self):
-        df = pd.read_csv(self.path + 'Network variables.csv', keep_default_na=False)
-        df.rename(columns={'resource': 'collection'}, inplace=True)
-
-        df = float_to_int(df)  # convert float back to integer
-        df.to_csv(self.path + 'Collection variables.csv', index=False)
-
-    def linked_resources(self):
-        df = pd.read_csv(self.path + 'Linked resources.csv', keep_default_na=False)
-        df.rename(columns={'main resource': 'main collection',
+                           'subcohorts': 'populations',
+                           'main resource': 'main collection',
                            'linked resource': 'linked collection',
                            'other linked resource': 'other linked collection'}, inplace=True)
 
         df = float_to_int(df)  # convert float back to integer
-        df.to_csv(self.path + 'Linked collections.csv', index=False)
+        df.to_csv(self.path + table_name + '.csv', index=False)
 
-    def quantitative_information(self):
-        df = pd.read_csv(self.path + 'Quantitative information.csv', keep_default_na=False)
-        df.rename(columns={'resource': 'collection'}, inplace=True)
-
-        df = float_to_int(df)  # convert float back to integer
-        df.to_csv(self.path + 'Quantitative information.csv', index=False)
-
-    def subcohort_counts(self):
-        df = pd.read_csv(self.path + 'Subcohort counts.csv', keep_default_na=False)
-        df.rename(columns={'resource': 'collection'}, inplace=True)
-
-        df = float_to_int(df)  # convert float back to integer
-        df.to_csv(self.path + 'Population counts.csv', index=False)
-
-    def DAPs(self):
-        df = pd.read_csv(self.path + 'DAPs.csv', keep_default_na=False)
-        df.rename(columns={'resource': 'collection'}, inplace=True)
-
-        df = float_to_int(df)  # convert float back to integer
-        df.to_csv(self.path + 'DAPs.csv', index=False)
-
-    def documentation(self):
-        df = pd.read_csv(self.path + 'Documentation.csv', keep_default_na=False)
-        df.rename(columns={'resource': 'collection'}, inplace=True)
-
-        df = float_to_int(df)  # convert float back to integer
-        df.to_csv(self.path + 'Documentation.csv', index=False)
-
-    def contacts(self):
-        df = pd.read_csv(self.path + 'Contacts.csv', keep_default_na=False)
-        df.rename(columns={'resource': 'collection'}, inplace=True)
-
-        df = float_to_int(df)  # convert float back to integer
-        df.to_csv(self.path + 'Contacts.csv', index=False)
-
-    def aggregates(self):
-        df = pd.read_csv(self.path + 'Aggregates.csv', keep_default_na=False)
-        df.rename(columns={'resource': 'collection'}, inplace=True)
-
-        df = float_to_int(df)  # convert float back to integer
-        df.to_csv(self.path + 'Aggregates.csv', index=False)
-
-
-def get_lifecycle_non_repeated(df_variables, df_repeats):
-    # select lifecycle variables
-    df_lifecycle = df_variables[df_variables['collection'] == 'LifeCycle']
-
-    # select all non-repeated lifecycle variables
-    df_lifecycle.loc[:, 'is_repeated'] = df_lifecycle['name'].apply(is_repeated, df_repeats=df_repeats)
-    df_lifecycle_no_repeats = df_lifecycle[df_lifecycle['is_repeated'] == False]
-
-    return df_lifecycle_no_repeats
+    def rename_tables(self, table_name):
+        if table_name == 'Subcohorts':
+            os.rename(self.path + 'Subcohorts.csv', self.path + 'Collection populations.csv')
+        if table_name == 'Subcohort counts':
+            os.rename(self.path + 'Subcohort counts.csv', self.path + 'Populations counts.csv')
 
 
 def strip_resource(resource_name):
@@ -308,14 +236,6 @@ def strip_resource(resource_name):
             resource_name = resource_name[:-4]
 
     return resource_name
-
-
-def get_non_repeats(df_variables, df_repeats):
-    # select all non-repeated lifecycle variables
-    df_lifecycle_no_repeats = get_lifecycle_non_repeated(df_variables, df_repeats)
-
-    # TODO: select all other non-repeated variables and concatenate to one dataframe
-    return df_lifecycle_no_repeats
 
 
 def is_repeated(var_name, df_repeats):
@@ -328,22 +248,19 @@ def is_repeated(var_name, df_repeats):
         return False
 
 
-def restructure_repeats(df_repeats):
-    # TODO: PIAMA get all repeats into variables table as separate rows
-    # TODO: EXPANSE_CDM repeats do not have a repeatUnit
+def restructure_repeats(df_variables, df_repeats):
+   # TODO: EXPANSE_CDM repeats do not have a repeatUnit
+    # restructuring of cdm repeats
+    df_variables = df_variables.drop_duplicates(subset=['name'])   # keep unique entries, gets rid of LongITools 'root' variables
+    df_variables.loc[:, 'repeat unit'] = df_variables['name'].apply(get_repeat_unit, df=df_repeats)  # get repeat unit from
+    df_variables.loc[:, 'repeat min'] = ''
+    df_variables.loc[df_variables['is_repeated'] == True, 'repeat min'] = 0
+    df_variables.loc[df_variables['repeat unit'] == 'Month', 'repeat max'] = 270
+    df_variables.loc[df_variables['repeat unit'] == 'Week', 'repeat max'] = 42
+    df_variables.loc[df_variables['repeat unit'] == 'Year', 'repeat max'] = 21
+    df_variables.loc[df_variables['repeat unit'] == 'Trimester', 'repeat max'] = 3
 
-    # select lifecycle repeats and rewrite repeats to one row
-    df_lifecycle = df_repeats[df_repeats['collection'] == 'LifeCycle']
-    df_lifecycle.loc[:, 'name'] = df_lifecycle['name'].apply(remove_number)  # remove trailing digits
-    df_lifecycle = df_lifecycle.drop_duplicates(subset=['name'])   # keep unique entries
-    df_lifecycle.loc[:, 'repeat unit'] = df_lifecycle['name'].apply(get_repeat_unit, df=df_repeats)  # get repeat unit from
-    df_lifecycle.loc[:, 'repeat min'] = 0
-    df_lifecycle.loc[df_lifecycle['repeat unit'] == 'Month', 'repeat max'] = 270
-    df_lifecycle.loc[df_lifecycle['repeat unit'] == 'Week', 'repeat max'] = 42
-    df_lifecycle.loc[df_lifecycle['repeat unit'] == 'Year', 'repeat max'] = 21
-    df_lifecycle.loc[df_lifecycle['repeat unit'] == 'Trimester', 'repeat max'] = 3
-
-    return df_lifecycle
+    return df_variables
 
 
 def remove_number(var_name):
@@ -362,3 +279,39 @@ def get_repeat_unit(var_name, df):
         return 'Year'
     elif var_name + '3' in df['name'].to_list():
         return 'Trimester'
+
+
+def delete_exceptions(df):
+    df.drop(df[df.name == 'occup_f1_fath'].index, inplace=True)
+
+    return df
+
+
+def get_repeat_number(s):
+    # get repeat number from target variable
+    repeat_num = re.sub('.*?([0-9]*)$',r'\1',s)
+    return repeat_num
+
+
+def get_repeated_mappings(df, df_no_duplicates):
+    df_no_duplicates.loc[:, 'repeats'] = ''
+    for i in df_no_duplicates.index:
+        # select all repeats with a matching source and target
+        df_select_repeats = df[(df['source'] == df_no_duplicates['source'][i]) &
+                               (df['source dataset'] == df_no_duplicates['source dataset'][i]) &
+                               (df['source variables'] == df_no_duplicates['source variables'][i]) &
+                               (df['source variables other datasets.dataset'] == df_no_duplicates['source variables other datasets.dataset'][i]) &
+                               (df['source variables other datasets.name'] == df_no_duplicates['source variables other datasets.name'][i]) &
+                               (df['target'] == df_no_duplicates['target'][i]) &
+                               (df['target dataset'] == df_no_duplicates['target dataset'][i]) &
+                               (df['target variable'] == df_no_duplicates['target variable'][i]) &
+                               (df['match'] == df_no_duplicates['match'][i]) &
+                               (df['syntax'] == df_no_duplicates['syntax'][i]) &
+                               (df['comments'] == df_no_duplicates['comments'][i]) &
+                               (df['description'] == df_no_duplicates['description'][i])]
+        repeats = str(df_select_repeats['repeat_num'].to_list())
+        # TODO: sort repeat_num
+        repeats = repeats.translate({ord(c): None for c in "[]'"})
+        df_no_duplicates.loc[i, 'repeats'] = repeats
+
+    return df_no_duplicates
