@@ -60,3 +60,6 @@ apps/nuxt3-ssr/utils/fingerprint.js
 #playwright
 playwright-report
 CHANGELOG.md
+
+#docker compose
+.env
