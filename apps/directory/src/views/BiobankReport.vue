@@ -11,7 +11,7 @@
       v-if="!biobankDataAvailable"
       class="d-flex justify-content-center align-items-center spinner-container"
     >
-      <spinner />
+      <Spinner />
     </div>
     <div v-else class="container-fluid pl-0">
       <div class="row">
@@ -24,7 +24,7 @@
             }"
             useRouterLink
           />
-          <check-out
+          <CheckOut
             class="ml-auto"
             :disabled="biobank.withdrawn"
             :bookmark="false"
@@ -33,12 +33,12 @@
       </div>
       <div class="row" v-if="biobankDataAvailable">
         <div class="col p-0">
-          <report-title type="Biobank" :name="biobank.name"></report-title>
+          <ReportTitle type="Biobank" :name="biobank.name"></ReportTitle>
 
           <div class="container pl-0">
             <div class="row">
               <div class="col-md-8" v-if="biobankDataAvailable">
-                <view-generator :viewmodel="biobank.viewmodel" />
+                <ViewGenerator :viewmodel="biobank.viewmodel" />
 
                 <Tabs>
                   <template #titleAddon="{ title }">
@@ -62,7 +62,7 @@
                     <div v-if="collectionsAvailable">
                       <div class="pt-3">
                         <div
-                          v-for="(collection, index) in collectionsData"
+                          v-for="(collection, index) in collections"
                           :key="collection.id"
                         >
                           <hr v-if="index" />
@@ -77,7 +77,6 @@
                   </Tab>
                 </Tabs>
               </div>
-              <!-- Right side card -->
               <div class="col-md-4">
                 <div class="card">
                   <div class="card-body">
@@ -138,16 +137,15 @@ import CollectionTitle from "../components/report-components/CollectionTitle.vue
 import ContactInformation from "../components/report-components/ContactInformation.vue";
 import ReportDetailsList from "../components/report-components/ReportDetailsList.vue";
 import ReportTitle from "../components/report-components/ReportTitle.vue";
-import ReportDescription from "../components/report-components/ReportDescription.vue";
 import { mapBiobankToBioschemas } from "../functions/bioschemasMapper";
 import {
   getBiobankDetails,
-  getCollectionDetails,
   getName,
   mapAlsoKnownIn,
   mapNetworkInfo,
   mapQualityStandards,
-  mapSubcollections,
+  filterCollections,
+  filterSubcollections,
 } from "../functions/viewmodelMapper";
 import { useBiobanksStore } from "../stores/biobanksStore";
 import { useQualitiesStore } from "../stores/qualitiesStore";
@@ -169,17 +167,18 @@ export default {
     Tabs,
     Tab,
     InfoPopover,
-    ReportDescription,
   },
   setup() {
     const settingsStore = useSettingsStore();
     const biobanksStore = useBiobanksStore();
     const qualitiesStore = useQualitiesStore();
+    const biobank = ref<Record<string, any>>({});
     const route = useRoute();
 
-    const biobank = ref<Record<string, any>>({});
-    const collections = computed(filterCollections);
-    const subcollections = computed(filterSubcollections);
+    const collections = computed(() => filterCollections(biobank.value));
+    const subcollections = computed(() => filterSubcollections(biobank.value));
+    const collectionsAvailable = computed(() => collections.value.length);
+    const subcollectionsAvailable = computed(() => subcollections.value.length);
 
     biobanksStore
       .getBiobank(route.params.id)
@@ -189,69 +188,22 @@ export default {
           : {};
       });
 
-    function filterCollections() {
-      return (
-        biobank.value.collections
-          ?.filter(
-            (collection: Record<string, any>) => !collection.parent_collection
-          )
-          .map((collection: Record<string, any>) =>
-            getCollectionDetails(collection)
-          ) || []
-      );
-    }
-
-    function filterSubcollections() {
-      return (
-        biobank.value.collections
-          ?.filter(
-            (collection: Record<string, any>) =>
-              collection.sub_collections && collection.sub_collections.length
-          )
-          .map((collection: Record<string, any>) =>
-            mapSubcollections(collection.sub_collections, 1)
-          )
-          .flat() || []
-      );
-    }
-
     return {
       settingsStore,
       biobanksStore,
       qualitiesStore,
       biobank,
       collections,
+      collectionsAvailable,
       subcollections,
+      subcollectionsAvailable,
     };
   },
   methods: {
     wrapBioschema(schemaData: Record<string, any>) {
-      /** ignore because it is not useless ;) */
       return `<script type="application/ld+json">${JSON.stringify(
         schemaData
       )}<\/script>`;
-    },
-    filterAndSortCollectionsData(collections: Record<string, any>[]) {
-      return collections
-        .filter(
-          (collection: Record<string, any>) => !collection.parent_collection
-        )
-        .filter(
-          (collection: Record<string, any>): Boolean =>
-            this.biobank.withdrawn || !collection.withdrawn
-        )
-        .map((collection: Record<string, any>) =>
-          getCollectionDetails(collection, this.biobank.withdrawn)
-        )
-        .sort(
-          (
-            collection1: Record<string, any>,
-            collection2: Record<string, any>
-          ) =>
-            collection1.name.localeCompare(collection2.name, "en", {
-              sensitivity: "base",
-            })
-        );
     },
   },
   computed: {
@@ -261,12 +213,6 @@ export default {
     biobankDataAvailable() {
       return Object.keys(this.biobank).length;
     },
-    collectionsData() {
-      return this.biobankDataAvailable && this.biobank.collections?.length
-        ? this.filterAndSortCollectionsData(this.biobank.collections)
-        : [];
-    },
-
     networks() {
       return this.biobankDataAvailable && this.biobank.network
         ? mapNetworkInfo(this.biobank)
@@ -295,12 +241,6 @@ export default {
       return this.biobankDataAvailable
         ? this.wrapBioschema(mapBiobankToBioschemas(this.biobank))
         : undefined;
-    },
-    collectionsAvailable() {
-      return this.collections.length;
-    },
-    subcollectionsAvailable() {
-      return this.subcollections.length;
     },
   },
   async mounted() {

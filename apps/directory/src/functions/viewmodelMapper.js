@@ -377,3 +377,39 @@ export const mapAlsoKnownIn = (instance) => {
 export const mapQualityStandards = (instance) => {
   return instance.map((quality) => quality.quality_standard.name);
 };
+
+export function filterCollections(entity) {
+  if (!entity || !entity.collections) return [];
+  return (
+    entity.collections
+      ?.filter(function (collection) {
+        return !collection.parentCollection;
+      })
+      .map(function (collection) {
+        return getCollectionDetails(collection);
+      }) || []
+  );
+}
+
+export function filterSubcollections(entity) {
+  if (!entity || !entity.collections) return [];
+  return (
+    entity.collections
+      ?.filter(function (collection) {
+        return (
+          (collection.sub_collections && collection.sub_collections.length) ||
+          collection.parent_collection
+        );
+      })
+      .map(function (collection) {
+        return {
+          subCollections: mapSubcollections(collection.sub_collections, 1),
+          parentCollection: collection.parent_collection,
+          length: collection.sub_collections
+            ? collection.sub_collections.length
+            : 0,
+        };
+      })
+      .flat() || []
+  );
+}
