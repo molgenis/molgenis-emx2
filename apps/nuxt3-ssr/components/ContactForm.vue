@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import type { IFormField, ISelectFormField } from "~/interfaces/types";
+
 defineProps<{
-  fields: IFormField[];
+  fields: Record<string, IFormField>;
 }>();
 
 defineEmits(["submitForm"]);
@@ -26,6 +28,13 @@ defineEmits(["submitForm"]);
         v-else-if="field.inputType === 'textarea'"
         :id="field.name"
         v-model="field.fieldValue"
+      />
+      <InputSelect
+        v-else-if="field.inputType === 'select'"
+        :id="field.name"
+        v-model="field.fieldValue"
+        :placeholder="field.placeholder"
+        :options="(field as ISelectFormField).options"
       />
       <div class="pl-3" :class="{ 'text-red-500': field.hasError }">
         {{ field.message }}

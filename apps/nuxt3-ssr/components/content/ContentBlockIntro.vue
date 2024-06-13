@@ -1,33 +1,26 @@
 <script setup lang="ts">
-import type { INotificationType } from "~/interfaces/types";
-const props = defineProps({
-  image: {
-    type: String,
-    required: false,
-  },
-  link: {
-    type: String,
-    required: true,
-  },
-  linkTarget: {
-    type: String,
-    default: "_blank",
-  },
-  contact: {
-    type: String,
-    required: false,
-  },
-  contactName: {
-    type: String,
-  },
-  contactTarget: {
-    type: String,
-    default: "_blank",
-  },
-  contactMessageFilter: {
-    type: String,
-  },
-});
+import type {
+  IFormField,
+  INotificationType,
+  linkTarget,
+} from "~/interfaces/types";
+
+const props = withDefaults(
+  defineProps<{
+    image?: string;
+    link: linkTarget;
+    linkTarget?: string;
+    contact?: string;
+    contactName: string;
+    contactTarget?: string;
+    contactMessageFilter?: string;
+    subjectTemplate?: string;
+  }>(),
+  {
+    linkTarget: "_blank",
+    contactTarget: "_blank",
+  }
+);
 
 const useEmailService = ref(false);
 
@@ -47,11 +40,13 @@ let showContactInformation = ref(false);
 
 const fields = reactive({
   senderName: {
+    name: "senderName",
     label: "Name",
     fieldValue: "",
     inputType: "string",
   },
   senderEmail: {
+    name: "senderEmail",
     label: "Email",
     fieldValue: "",
     inputType: "string",
@@ -65,9 +60,17 @@ const fields = reactive({
     inputType: "textarea",
   },
   topic: {
+    name: "topic",
     label: "Topic",
     fieldValue: "",
+    placeholder: "Please select a topic",
     inputType: "select",
+    options: [
+      "Data / sample request",
+      "Collaboration request",
+      "Information request",
+      "Other",
+    ],
   },
 });
 
@@ -86,9 +89,7 @@ const notificationMessage = ref("");
 const timeoutInMills = ref(3000);
 
 const submitForm = async () => {
- 
   // Validate form fields
-
   if (!fields.senderEmail.fieldValue) {
     fields.senderEmail.hasError = true;
     fields.senderEmail.message = "Please enter a valid email address";
@@ -97,11 +98,15 @@ const submitForm = async () => {
 
   let isSendSuccess = false;
 
+  const subject = props.subjectTemplate
+    ? props.subjectTemplate + ` ${fields.topic.fieldValue}`
+    : `Contact request for ${fields.senderName.fieldValue}`;
+
   try {
     isSendSuccess = await sendContactForm({
       recipientsFilter: props.contactMessageFilter || "",
-      subject: "Contact request from " + fields.senderName.fieldValue,
-      body: `Name: ${fields.senderName.fieldValue}\nEmail: ${fields.senderEmail.fieldValue}\nMessage: ${fields.senderMessage.fieldValue}`,
+      subject,
+      body: `Name: ${fields.senderName.fieldValue}\nEmail: ${fields.senderEmail.fieldValue}\nMessage: ${fields.senderMessage.fieldValue}\nMessage: ${fields.topic.fieldValue}`,
     });
   } catch (error) {
     console.log(error);
@@ -113,6 +118,7 @@ const submitForm = async () => {
   fields.senderMessage.fieldValue = "";
   fields.senderEmail.hasError = false;
   fields.senderEmail.message = "";
+  fields.topic.fieldValue = "";
 
   if (isSendSuccess) {
     notificationType.value = "success";
@@ -153,7 +159,11 @@ const submitForm = async () => {
           class="flex flex-col gap-3"
         >
           <template v-if="contactMessageFilter && useEmailService">
-            <ContactForm :fields="Object.entries(fields).map(([k, v]) => ({k, ...v}))" @submit-form="submitForm" />
+            <ContactForm
+              :fields="fields as Record<string, IFormField>"
+              @submit-form="submitForm"
+            />
+            <hr class="border-gray-300 my-4" />
             <div class="pl-3">
               <span class="text-body-base">or contact us at: </span>
               <a
