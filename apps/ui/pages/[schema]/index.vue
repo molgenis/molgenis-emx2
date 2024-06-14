@@ -45,21 +45,49 @@ const ontologies = computed(
 );
 </script>
 <template>
-  <Container class="my-3">
-    <DisplayList class="text-white" title="Data tables" :columnCount="3">
-      <DisplayListItem v-for="table in tables">
-        <NuxtLink :to="`/${schema}/${table.id}`">{{ table.label }}</NuxtLink>
-      </DisplayListItem>
-    </DisplayList>
-  </Container>
+  <Container>
+    <PageHeader :title="`Tables in ${data?.data._schema.label}`" />
 
-  <Container class="my-3">
-    <DisplayList class="text-white" title="Ontology tables" :columnCount="3">
-      <DisplayListItem v-for="ontology in ontologies">
-        <NuxtLink :to="`/${schema}/${ontology.id}`">{{
-          ontology.label
-        }}</NuxtLink>
-      </DisplayListItem>
-    </DisplayList>
+    <ContentBlock class="mt-1" title="data tables" description="description">
+      <Table>
+        <template #head>
+          <TableHeadRow>
+            <TableHead>label</TableHead>
+            <TableHead>description</TableHead>
+          </TableHeadRow>
+        </template>
+        <template #body>
+          <TableRow
+            v-for="table in tables"
+            @click="navigateTo(`${schema}/${table.id}`)"
+          >
+            <TableCell>{{ table.label }}</TableCell>
+            <TableCell>{{ table.description }}</TableCell>
+          </TableRow>
+        </template>
+      </Table>
+    </ContentBlock>
+
+    <ContentBlock
+      v-if="ontologies.length"
+      class="mt-1"
+      title="ontolgies"
+      description="description"
+    >
+      <Table>
+        <template #head>
+          <TableHeadRow>
+            <TableHead>label</TableHead>
+            <TableHead>description</TableHead>
+          </TableHeadRow>
+        </template>
+        <template #body>
+          <TableRow v-for="ontology in ontologies">
+            <TableCell>{{ ontology.label }}</TableCell>
+            <TableCell>{{ ontology.description }}</TableCell>
+          </TableRow>
+        </template>
+      </Table>
+    </ContentBlock>
   </Container>
 </template>
