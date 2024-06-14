@@ -98,7 +98,6 @@ export default {
     calculatePlacementStyle(triggerRect, contentRect) {
       const placementStyle = {};
       const offset = 8;
-
       switch (this.popoverPlacement) {
         case "right":
           placementStyle.left = `${
@@ -131,8 +130,8 @@ export default {
           }px`;
           break;
         default:
-          placementStyle.bottom = `${
-            window.innerHeight - triggerRect.top + window.scrollY + offset
+          placementStyle.top = `${
+            triggerRect.top - contentRect.height - offset + window.scrollY
           }px`;
           placementStyle.left = `${
             triggerRect.left +
@@ -141,7 +140,6 @@ export default {
           }px`;
           break;
       }
-
       return placementStyle;
     },
   },
@@ -214,6 +212,12 @@ export default {
   border-style: solid;
   border-color: transparent transparent transparent var(--dark);
   pointer-events: none;
+}
+
+.tab-icon {
+  position: relative;
+  top: -8px;
+  font-size: 1rem;
 }
 </style>
 

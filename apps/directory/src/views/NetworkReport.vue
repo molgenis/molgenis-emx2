@@ -46,7 +46,24 @@
                   </ul>
                 </div>
                 <Tabs>
-                  <Tab :title="`Collections (${collections.length})`">
+                  <template #titleAddon="{ title }">
+                    <InfoPopover
+                      v-if="title.startsWith('Collections')"
+                      faIcon="fa-regular fa-circle-question"
+                      textColor="text-info"
+                      class="tab-icon ml-2"
+                      style=""
+                      popover-placement="top"
+                    >
+                      <div class="popover-content">
+                        Collections: {{ collectionsAvailable }}<br />
+                        Subcollections: {{ subcollectionsAvailable }}
+                      </div>
+                    </InfoPopover>
+                  </template>
+                  <Tab
+                    :title="`Collections (${collectionsAvailable} / ${subcollectionsAvailable})`"
+                  >
                     <div
                       v-if="
                         !collections ||
@@ -117,9 +134,14 @@
 </template>
 
 <script setup lang="ts">
-//@ts-ignore
-import { Breadcrumb, Spinner, Tab, Tabs } from "molgenis-components";
-import { computed, ref } from "vue";
+import {
+  Breadcrumb,
+  Spinner,
+  Tab,
+  Tabs,
+  InfoPopover,
+} from "molgenis-components";
+import { computed, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import ViewGenerator from "../components/generators/ViewGenerator.vue";
 import CollectionTitle from "../components/report-components/CollectionTitle.vue";
@@ -130,6 +152,9 @@ import ReportTitle from "../components/report-components/ReportTitle.vue";
 import {
   getCollectionDetails,
   mapAlsoKnownIn,
+  mapSubcollections,
+  filterCollections,
+  filterSubcollections,
 } from "../functions/viewmodelMapper";
 import { useNetworkStore } from "../stores/networkStore";
 import { useQualitiesStore } from "../stores/qualitiesStore";
@@ -153,22 +178,18 @@ Promise.all([qualitiesPromise, networkPromise]).then(
 
 const uiText = computed(() => settingsStore.uiText);
 const networkReport = computed(() => networkStore.networkReport);
-const collections = computed(filterCollections);
-const collectionsAvailable = computed(() => collections.value?.length);
-const biobanks = computed(() => networkReport.value.biobanks);
-const biobanksAvailable = computed(() => biobanks.value?.length);
+
+const collections = computed(() => filterCollections(networkReport.value));
+const collectionsAvailable = computed(() => collections.value.length);
+
+const subcollections = computed(() =>
+  filterSubcollections(networkReport.value)
+);
+const subcollectionsAvailable = computed(() => subcollections.value.length);
+
+const biobanks = computed(() => networkReport.value.biobanks || []);
+const biobanksAvailable = computed(() => biobanks.value.length);
+
 const network = computed(() => networkReport.value.network);
 const alsoKnownIn = computed(() => mapAlsoKnownIn(network.value));
-
-function filterCollections() {
-  return (
-    networkReport.value.collections
-      ?.filter((collection: Record<string, any>) => {
-        return !collection.parentCollection;
-      })
-      .map((collection: Record<string, any>) =>
-        getCollectionDetails(collection)
-      ) || []
-  );
-}
 </script>

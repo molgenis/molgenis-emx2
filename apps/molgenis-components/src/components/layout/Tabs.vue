@@ -8,7 +8,10 @@
         :class="{ selected: selectedTitle === title }"
         @click="setTitle(title)"
       >
-        {{ title }}
+        <span class="tab-title-container">
+          {{ title }}
+          <slot name="titleAddon" :title="title" />
+        </span>
       </li>
       <li class="filler-line col"></li>
     </ul>
@@ -59,6 +62,15 @@ function setTitle(newTitle: string) {
   display: grid;
   border-radius: 0 0 5px 5px;
   padding: 10px;
+}
+
+.tab-title-container {
+  display: inline-flex;
+  align-items: center;
+}
+
+.tab-title-container .certificate-icon {
+  margin-left: 0.5em;
 }
 </style>
 
