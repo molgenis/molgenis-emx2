@@ -25,6 +25,8 @@ public class TestLoaders {
   public static final String DCAT_BASIC = "DCATBasicTest";
   public static final String PROJECT_MANAGER = "ProjectManager";
   public static final String CATALOGUE_ONTOLOGIES = "CatalogueOntologies";
+  public static final String BEACON_V2_TEST = "BeaconV2Test";
+  public static final String CAFE_VARIOME_TEST = "CafeVariomeTest";
   public static final String DIRECTORY_ONTOLOGIES = "DirectoryOntologies";
 
   static Database database;
@@ -137,9 +139,23 @@ public class TestLoaders {
   }
 
   @Test
+  void test16BeaconV2Loader() {
+    Schema BeaconV2Schema = database.createSchema(BEACON_V2_TEST);
+    AvailableDataModels.BEACON_V2.install(BeaconV2Schema, true);
+    assertEquals(35, BeaconV2Schema.getTableNames().size());
+  }
+
+  @Test
+  void test17CafeVariomeLoader() {
+    Schema CafeVariomeSchema = database.createSchema(CAFE_VARIOME_TEST);
+    AvailableDataModels.CAFE_VARIOME.install(CafeVariomeSchema, true);
+    assertEquals(35, CafeVariomeSchema.getTableNames().size());
+
+  @Test
   void test16DCATBasic() {
     Schema DCATSchema = database.createSchema(DCAT_BASIC);
     new ProfileLoader("_profiles/test-only/DCAT-basic.yaml").load(DCATSchema, true);
     assertEquals(7, DCATSchema.getTableNames().size());
+
   }
 }

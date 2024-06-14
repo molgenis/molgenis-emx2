@@ -134,6 +134,7 @@ export default {
         "FAIR_GENOMES",
         "DCAT",
         "BEACON_V2",
+        "CAFE_VARIOME",
         "ERN_DASHBOARD",
         "BIOBANK_DIRECTORY",
         "BIOBANK_DIRECTORY_STAGING",
