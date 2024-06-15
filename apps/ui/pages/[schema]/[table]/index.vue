@@ -1,26 +1,56 @@
 <script setup lang="ts">
 const schemaId = useRoute().params.schema as string;
 const tableId = useRoute().params.table as string;
-const store = useMetaStore();
 
-const meta = await store.fetchSchemaMetaData(schemaId as string);
-store.$patch((state) => {
-  state.metaData[schemaId as string] = meta;
+const { data, pending, error, refresh } = await useLazyAsyncData(
+  "table meta data",
+  async () => {
+    const metaData = fetchTableMetadata(schemaId, tableId);
+    const tableData = fetchTableData(schemaId, tableId);
+
+    return await Promise.all([metaData, tableData]);
+  }
+);
+
+const tableMetaData = computed(() => (data.value ? data.value[0] : null));
+const tableData = computed(() =>
+  data.value ? data.value[1] : { rows: [], count: 0 }
+);
+const numberOfRows = computed(() => tableData.value.count);
+const rows = computed(() => tableData.value.rows);
+
+const dataColumns = computed(() => {
+  if (!tableMetaData.value) return [];
+
+  return tableMetaData.value.columns.filter((c) => !c.id.startsWith("mg"));
 });
-
-const tableMeta = store.getTableMeta(schemaId as string, tableId as string);
 </script>
 <template>
-  <div>
-    <h1>{{ schemaId }}</h1>
-    <h2>{{ tableId }}</h2>
+  <Container>
+    <PageHeader :title="tableMetaData?.label" />
 
-    <Container class="my-3">
-      <DisplayList class="text-white" title="Data tables" :columnCount="3">
-        <DisplayListItem v-for="column in tableMeta.columns">
-          {{ column.id }} - {{ column.columnType }}
-        </DisplayListItem>
-      </DisplayList>
-    </Container>
-  </div>
+    <ContentBlock class="mt-1" title="data tables" description="description">
+      <div v-if="pending">Loading...</div>
+      <div v-if="error">Error: {{ error }}</div>
+      <!-- <div>{{ dataColumns }}</div> -->
+      <!-- <pre v-if="data">{{ tableMetaData }}</pre> -->
+      <!-- <pre>{{ tableData}}</pre> -->
+      <Table>
+        <template #head>
+          <TableHeadRow>
+            <TableHead v-for="colMeta in dataColumns">{{
+              colMeta.label
+            }}</TableHead>
+          </TableHeadRow>
+        </template>
+        <template #body>
+          <TableRow v-for="row in rows">
+            <TableCell v-for="colMeta in dataColumns">{{
+              row[colMeta.id]
+            }}</TableCell>
+          </TableRow>
+        </template>
+      </Table>
+    </ContentBlock>
+  </Container>
 </template>
