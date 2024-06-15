@@ -23,10 +23,26 @@ const databases = computed(
 </script>
 <template>
   <Container>
-    <DisplayList class="text-white" title="Databases" :columnCount="1">
-      <DisplayListItem v-for="database in databases">
-        <NuxtLink :to="`/${database.id}`">{{ database.label }}</NuxtLink>
-      </DisplayListItem>
-    </DisplayList>
+    <PageHeader title="Databases" />
+
+    <ContentBlock class="mt-1" title="Databases" description="description">
+      <Table>
+        <template #head>
+          <TableHeadRow>
+            <TableHead>name</TableHead>
+            <TableHead>description</TableHead>
+          </TableHeadRow>
+        </template>
+        <template #body>
+          <TableRow
+            v-for="database in databases"
+            @click="navigateTo(`/${database.id}`)"
+          >
+            <TableCell>{{ database.label }}</TableCell>
+            <TableCell>{{ database.description }}</TableCell>
+          </TableRow>
+        </template>
+      </Table>
+    </ContentBlock>
   </Container>
 </template>
