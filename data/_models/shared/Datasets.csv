@@ -1,5 +1,5 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,visible
-Datasets,,,,,,,,,,,"dcat:Dataset,dct:Dataset",Definition of a dataset,DataCatalogueFlat,
+Datasets,,,,,,,,,,,dct:Dataset,Definition of a dataset,DataCatalogueFlat,
 Datasets,,collection,ref,1,TRUE,,Collections,,,,"dct:isPartOf,dct:inSeries",collection of which the dataset is part,DataCatalogueFlat,
 Datasets,,name,,1,TRUE,,,,,,"dct:title,dct:identifier",unique dataset name in the model,DataCatalogueFlat,
 Datasets,,label,,,,,,,,,,short human readable description,DataCatalogueFlat,
@@ -7,7 +7,7 @@ Datasets,,creator,ref_array,,,,Organisations,,,,dct:creator,"The organisation(s)
 Datasets,,publisher,ref_array,,,,Organisations,,,,dct:publisher,"The organisation(s) responsible for making the dataset available",DataCatalogueFlat,
 Datasets,,dataset type,ontology_array,,,CatalogueOntologies,Dataset types,,,,dct:type,"defines the type of dataset, e.g. genomic",DataCatalogueFlat,
 Datasets,,unit of observation,ontology,,,CatalogueOntologies,Observation targets,,,,,defines what each record in this table describes,DataCatalogueFlat,
-Datasets,,keywords,ontology_array,,,CatalogueOntologies,Keywords,,,,"dcat:theme,dct:theme",enables grouping of table list into topic and to display tables in a tree,DataCatalogueFlat,
+Datasets,,keywords,ontology_array,,,CatalogueOntologies,Keywords,,,,dct:theme,enables grouping of table list into topic and to display tables in a tree,DataCatalogueFlat,
 Datasets,,description,text,,,,,,,,dct:descriptions,description of the role/function of this table,DataCatalogueFlat,
 Datasets,,contact email,email,,,,,,,,dct:contactPoint,Contact e-mail address for this dataset,DataCatalogueFlat,
 Datasets,,distributions,ref_array,,,,Distributions,,,,dct:distributions,Available distributions for this dataset,DataCatalogueFlat,

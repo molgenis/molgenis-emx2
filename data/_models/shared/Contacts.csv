@@ -1,9 +1,9 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,visible,computed
-Contacts,,,,,,,,,,,"vcard:Individual, foaf:Agent",Listing of contact persons per resource,"DataCatalogueFlat,EMA",
+Contacts,,,,,,,,,,,vcard:Kind,Listing of contact persons per resource,"DataCatalogueFlat,EMA",
 Contacts,,collection,ref,1,true,,Collections,,,,,Resource the contact is affiliated with,"DataCatalogueFlat,EMA",
 Contacts,,role,ontology_array,,,CatalogueOntologies,Contribution types,,,,vcard:hasRole,Type(s) of contribution or role in the resource,"DataCatalogueFlat,EMA",
 Contacts,,role description,text,,,,,,,,,Description of the role,DataCatalogueFlat,
-Contacts,,display name,,1,true,,,,,,foaf:name,First name of the contact person,"DataCatalogueFlat,EMA",false,${firstName} ${lastName}
+Contacts,,display name,,1,true,,,,,,"foaf:name,vcard:hasName",First name of the contact person,"DataCatalogueFlat,EMA",false,${firstName} ${lastName}
 Contacts,,first name,,1,true,,,,,,foaf:firstName,First name of the contact person,"DataCatalogueFlat,EMA",
 Contacts,,last name,,1,true,,,,,,foaf:familyName,Last name of the contact person,"DataCatalogueFlat,EMA",
 Contacts,,prefix,,,,,,,,,,"Surname prefix, if applicable",DataCatalogueFlat,
