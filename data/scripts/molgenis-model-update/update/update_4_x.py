@@ -290,7 +290,7 @@ def get_repeat_number(s):
 def rewrite_mappings(df, df_no_duplicates):
     df_no_duplicates.loc[:, 'number'] = 0
     df_no_duplicates.loc[:, 'repeats'] = ''
-    new_df = pd.DataFrame()
+    df_mappings = pd.DataFrame()
     # divide df_no_duplicates per source
     list_source = df['source'].drop_duplicates().tolist()
     for source in list_source:
@@ -301,9 +301,12 @@ def rewrite_mappings(df, df_no_duplicates):
         # select original mappings per source
         df_per_source = df[df['source'] == source]
         df_no_duplicates_per_source = get_repeated_mappings_per_source(df_per_source, df_no_duplicates_per_source)
-        new_df = pd.concat([new_df, df_no_duplicates_per_source])
+        df_mappings = pd.concat([df_mappings, df_no_duplicates_per_source])
 
-    return new_df
+    # mapping number minus one
+    df_mappings.loc[:, 'number'] = df_mappings['number'].apply(minus_one)
+
+    return df_mappings
 
 
 def get_repeated_mappings_per_source(df_per_source, df_no_duplicates_per_source):
@@ -330,3 +333,9 @@ def get_repeated_mappings_per_source(df_per_source, df_no_duplicates_per_source)
         df_no_duplicates_per_source.loc[i, 'repeats'] = repeats
 
     return df_no_duplicates_per_source
+
+
+def minus_one(x):
+    x = x - 1
+
+    return x
