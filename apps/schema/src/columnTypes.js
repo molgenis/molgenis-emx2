@@ -20,6 +20,8 @@ export default [
   "LONG_ARRAY",
   "ONTOLOGY",
   "ONTOLOGY_ARRAY",
+  "PERIOD",
+  "PERIOD_ARRAY",
   "REF",
   "REF_ARRAY",
   "REFBACK",

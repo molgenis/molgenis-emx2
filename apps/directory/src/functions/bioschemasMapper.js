@@ -214,16 +214,17 @@ export const mapBiobankToBioschemas = (biobank) => {
     },
     url: `${getBaseUrl()}/biobank/${biobank.id}`,
     alternateName: biobank.acronym,
-    dataset: Array.from(biobank.collections, (collection) => {
-      return {
-        "@type": "Dataset",
-        "@id": `${getBaseUrl()}/collection/${collection.id}`,
-        url: `${getBaseUrl()}/collection/${collection.id}`,
-        identifier: collection.id,
-        name: collection.name,
-        description: collection.description || collection.name,
-      };
-    }),
+    dataset:
+      biobank.collections?.map((collection) => {
+        return {
+          "@type": "Dataset",
+          "@id": `${getBaseUrl()}/collection/${collection.id}`,
+          url: `${getBaseUrl()}/collection/${collection.id}`,
+          identifier: collection.id,
+          name: collection.name,
+          description: collection.description || collection.name,
+        };
+      }) || [],
     identifier: biobank.id,
   };
 };

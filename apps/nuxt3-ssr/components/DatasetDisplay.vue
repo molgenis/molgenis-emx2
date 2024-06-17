@@ -48,7 +48,7 @@ if (dataset.value.keywords) {
 
 if (dataset.value.numberOfRows) {
   items.push({
-    label: "NumberOfRows",
+    label: "Number of rows",
     content: dataset.value.numberOfRows,
   });
 }

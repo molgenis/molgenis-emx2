@@ -285,7 +285,7 @@ class SqlTable implements Table {
 
           // execute any remaining batches
           for (Map.Entry<String, List<Row>> batch : subclassRows.entrySet()) {
-            if (batch.getValue().size() > 0) {
+            if (!batch.getValue().isEmpty()) {
               executeBatch(
                   (SqlSchema) db2.getSchema(batch.getKey().split("\\.")[0]),
                   transactionType,
@@ -311,11 +311,7 @@ class SqlTable implements Table {
   }
 
   private static boolean columnsProvidedAreDifferent(Set<String> columnsProvided, Row row) {
-    if (columnsProvided.size() == 0 || columnsProvided.equals(row.getColumnNames())) {
-      return false;
-    } else {
-      return true;
-    }
+    return !columnsProvided.isEmpty() && !columnsProvided.equals(row.getColumnNames());
   }
 
   private static void executeBatch(
