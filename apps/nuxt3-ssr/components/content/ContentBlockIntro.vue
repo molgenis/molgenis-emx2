@@ -78,8 +78,6 @@ const fields = reactive({
     fieldValue: "",
     inputType: "textarea",
   },
-
-  },
 });
 
 watch(

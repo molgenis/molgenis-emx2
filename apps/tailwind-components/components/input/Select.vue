@@ -29,7 +29,7 @@ const emit = defineEmits(["update:modelValue"]);
     "
     :id="id"
     :required="required"
-    class="w-full pr-16 font-sans text-black text-gray-300 bg-white rounded-search-input h-10 ring-red-500 pl-3 shadow-search-input focus:shadow-search-input hover:shadow-search-input search-input-mobile border border-transparent border-r-8 outline outline-select"
+    class="w-full pr-16 font-sans text-black text-gray-300 bg-white rounded-search-input h-10 ring-red-500 pl-3 shadow-search-input focus:shadow-search-input hover:shadow-search-input search-input-mobile border border-transparent border-r-8 outline outline-1 outline-select"
     :class="{ 'border-red-500 text-red-500': hasError }"
   >
     <option disabled value="" :selected="modelValue === ''">
