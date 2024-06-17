@@ -248,11 +248,13 @@ class Client:
             errors = '\n'.join([err['message'] for err in response.json().get('errors')])
             log.error("Failed to import data into %s::%s\n%s", current_schema, table, errors)
 
-    def upload_file(self, file_path: str | pathlib.Path):
+    def upload_file(self, file_path: str | pathlib.Path, schema: str = None):
         """Uploads a file to a database on the EMX2 server.
 
         :param file_path: the path where the file is located.
         :type file_path: str or pathlib.Path object
+        :param schema: the name of the schema where the file should be uploaded
+        :type schema: str, default None
 
         :returns: status message or response
         :rtype: str
@@ -261,6 +263,27 @@ class Client:
             file_path = pathlib.Path(file_path)
         if not file_path.exists():
             raise FileNotFoundError(f"No file found at {file_path!r}.")
+
+        schema = schema if schema else self.default_schema
+        if not schema:
+            raise NoSuchSchemaException(f"Specify the schema where the file should be uploaded.")
+        upload_url = f"{self.url}/{schema}/api/zip?async=true"
+
+        with open(file_path, 'rb') as file:
+            response = self.session.post(
+                url=upload_url,
+                files={'file': file},
+                headers={'x-molgenis-token': self.token}
+            )
+
+        # Check if status is OK
+        log.info(response.status_code)
+
+        # TODO: Catch process URL
+
+        # TODO: Report subtask progress
+
+        # TODO: Raise exception in case of error in upload
 
     def delete_records(self, table: str, schema: str = None, file: str = None, data: list | pd.DataFrame = None):
         """Deletes records from a table.
