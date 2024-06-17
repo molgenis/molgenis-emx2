@@ -1,6 +1,7 @@
 import csv
 import io
 import logging
+import pathlib
 from functools import cache
 from typing import TypeAlias, Literal
 
@@ -246,6 +247,20 @@ class Client:
         except PyclientException:
             errors = '\n'.join([err['message'] for err in response.json().get('errors')])
             log.error("Failed to import data into %s::%s\n%s", current_schema, table, errors)
+
+    def upload_file(self, file_path: str | pathlib.Path):
+        """Uploads a file to a database on the EMX2 server.
+
+        :param file_path: the path where the file is located.
+        :type file_path: str or pathlib.Path object
+
+        :returns: status message or response
+        :rtype: str
+        """
+        if not isinstance(file_path, pathlib.Path):
+            file_path = pathlib.Path(file_path)
+        if not file_path.exists():
+            raise FileNotFoundError(f"No file found at {file_path!r}.")
 
     def delete_records(self, table: str, schema: str = None, file: str = None, data: list | pd.DataFrame = None):
         """Deletes records from a table.
