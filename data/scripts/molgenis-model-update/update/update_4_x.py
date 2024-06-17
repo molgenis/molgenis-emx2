@@ -201,9 +201,9 @@ class Transform:
         df_no_duplicates = df_no_duplicates.fillna('')
 
         # get repeated mappings in comma separated string
-        df_no_duplicates = get_repeated_mappings(df, df_no_duplicates)
-        df_no_duplicates = float_to_int(df_no_duplicates)  # convert float back to integer
-        df_no_duplicates.to_csv(self.path + 'Variable mappings.csv', index=False)
+        df_mappings = rewrite_mappings(df, df_no_duplicates)
+        df_mappings = float_to_int(df_mappings)  # convert float back to integer
+        df_mappings.to_csv(self.path + 'Variable mappings.csv', index=False)
 
     def transform_tables(self, table_name):
         df = pd.read_csv(self.path + table_name + '.csv', keep_default_na=False)
@@ -281,37 +281,52 @@ def get_repeat_unit(var_name, df):
         return 'Trimester'
 
 
-def delete_exceptions(df):
-    df.drop(df[df.name == 'occup_f1_fath'].index, inplace=True)
-
-    return df
-
-
 def get_repeat_number(s):
     # get repeat number from target variable
     repeat_num = re.sub('.*?([0-9]*)$',r'\1',s)
     return repeat_num
 
 
-def get_repeated_mappings(df, df_no_duplicates):
+def rewrite_mappings(df, df_no_duplicates):
+    df_no_duplicates.loc[:, 'number'] = 0
     df_no_duplicates.loc[:, 'repeats'] = ''
-    for i in df_no_duplicates.index:
-        # select all repeats with a matching source and target
-        df_select_repeats = df[(df['source'] == df_no_duplicates['source'][i]) &
-                               (df['source dataset'] == df_no_duplicates['source dataset'][i]) &
-                               (df['source variables'] == df_no_duplicates['source variables'][i]) &
-                               (df['source variables other datasets.dataset'] == df_no_duplicates['source variables other datasets.dataset'][i]) &
-                               (df['source variables other datasets.name'] == df_no_duplicates['source variables other datasets.name'][i]) &
-                               (df['target'] == df_no_duplicates['target'][i]) &
-                               (df['target dataset'] == df_no_duplicates['target dataset'][i]) &
-                               (df['target variable'] == df_no_duplicates['target variable'][i]) &
-                               (df['match'] == df_no_duplicates['match'][i]) &
-                               (df['syntax'] == df_no_duplicates['syntax'][i]) &
-                               (df['comments'] == df_no_duplicates['comments'][i]) &
-                               (df['description'] == df_no_duplicates['description'][i])]
-        repeats = str(df_select_repeats['repeat_num'].to_list())
-        # TODO: sort repeat_num
-        repeats = repeats.translate({ord(c): None for c in "[]'"})
-        df_no_duplicates.loc[i, 'repeats'] = repeats
+    new_df = pd.DataFrame()
+    # divide df_no_duplicates per source
+    list_source = df['source'].drop_duplicates().tolist()
+    for source in list_source:
+        # select unique mappings per source
+        df_no_duplicates_per_source = df_no_duplicates[df_no_duplicates['source'] == source]
+        # get mapping numbers
+        df_no_duplicates_per_source.loc[:, 'number'] = df_no_duplicates_per_source.reset_index().index
+        # select original mappings per source
+        df_per_source = df[df['source'] == source]
+        df_no_duplicates_per_source = get_repeated_mappings_per_source(df_per_source, df_no_duplicates_per_source)
+        new_df = pd.concat([new_df, df_no_duplicates_per_source])
 
-    return df_no_duplicates
+    return new_df
+
+
+def get_repeated_mappings_per_source(df_per_source, df_no_duplicates_per_source):
+    for i in df_no_duplicates_per_source.index:
+        # select all repeats with a matching source, target, match and syntax etc.
+        df_select_repeats = df_per_source[(df_per_source['source'] == df_no_duplicates_per_source['source'][i]) &
+                                          (df_per_source['source dataset'] == df_no_duplicates_per_source['source dataset'][i]) &
+                                          (df_per_source['source variables'] == df_no_duplicates_per_source['source variables'][i]) &
+                                          (df_per_source['source variables other datasets.dataset'] == df_no_duplicates_per_source['source variables other datasets.dataset'][i]) &
+                                          (df_per_source['source variables other datasets.name'] == df_no_duplicates_per_source['source variables other datasets.name'][i]) &
+                                          (df_per_source['target'] == df_no_duplicates_per_source['target'][i]) &
+                                          (df_per_source['target dataset'] == df_no_duplicates_per_source['target dataset'][i]) &
+                                          (df_per_source['target variable'] == df_no_duplicates_per_source['target variable'][i]) &
+                                          (df_per_source['match'] == df_no_duplicates_per_source['match'][i]) &
+                                          (df_per_source['syntax'] == df_no_duplicates_per_source['syntax'][i]) &
+                                          (df_per_source['comments'] == df_no_duplicates_per_source['comments'][i]) &
+                                          (df_per_source['description'] == df_no_duplicates_per_source['description'][i])]
+        # get matching repeat numbers in repeat_num column
+        repeats = df_select_repeats['repeat_num'].to_list()  # list repeats
+        repeats = [int(x) for x in repeats if not x == '']  # cast repeats to integers
+        repeats.sort()  # sort repeat numbers
+        repeats = str(repeats)
+        repeats = repeats.translate({ord(c): None for c in "[]"})
+        df_no_duplicates_per_source.loc[i, 'repeats'] = repeats
+
+    return df_no_duplicates_per_source
