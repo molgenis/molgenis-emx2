@@ -70,7 +70,7 @@ const fields = reactive({
       "Collaboration request",
       "Information request",
       "Other",
-    ]
+    ],
   },
   senderMessage: {
     name: "senderMessage",
@@ -132,8 +132,6 @@ const submitForm = async () => {
   fields.senderEmail.message = "";
   fields.senderMessage.fieldValue = "";
   fields.senderEmail.hasError = false;
-
-
 
   if (isSendSuccess) {
     notificationType.value = "success";
