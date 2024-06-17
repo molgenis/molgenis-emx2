@@ -27,9 +27,25 @@ const dataColumns = computed(() => {
 </script>
 <template>
   <Container>
-    <PageHeader :title="tableMetaData?.label" />
+    <PageHeader :title="tableMetaData?.label">
+      <template #prefix>
+        <BreadCrumbs
+          :crumbs="{
+            databases: '/',
+            tables: `/${schemaId}`,
+            [tableMetaData?.label ||
+            tableMetaData?.id ||
+            '']: `/${schemaId}/${tableId}`,
+          }"
+        />
+      </template>
+    </PageHeader>
 
-    <ContentBlock class="mt-1" title="data tables" description="description">
+    <ContentBlock
+      class="mt-1"
+      :title="tableMetaData?.label || tableMetaData?.id || ''"
+      :description="tableMetaData?.description"
+    >
       <div v-if="pending">Loading...</div>
       <div v-if="error">Error: {{ error }}</div>
       <!-- <div>{{ dataColumns }}</div> -->

@@ -46,7 +46,16 @@ const ontologies = computed(
 </script>
 <template>
   <Container>
-    <PageHeader :title="`Tables in ${data?.data._schema.label}`" />
+    <PageHeader :title="`Tables in ${data?.data._schema.label}`">
+      <template #prefix>
+        <BreadCrumbs
+          :crumbs="{
+            databases: '/',
+            tables: `/${schema}`,
+          }"
+        />
+      </template>
+    </PageHeader>
 
     <ContentBlock class="mt-1" title="data tables" description="description">
       <Table>
