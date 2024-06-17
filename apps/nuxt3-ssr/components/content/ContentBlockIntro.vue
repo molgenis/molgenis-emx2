@@ -53,11 +53,11 @@ const fields = reactive({
     hasError: false,
     message: "",
   },
-  senderMessage: {
-    name: "senderMessage",
-    label: "Message",
+  organization: {
+    name: "organization",
+    label: "Organization",
     fieldValue: "",
-    inputType: "textarea",
+    inputType: "string",
   },
   topic: {
     name: "topic",
@@ -70,7 +70,15 @@ const fields = reactive({
       "Collaboration request",
       "Information request",
       "Other",
-    ],
+    ]
+  },
+  senderMessage: {
+    name: "senderMessage",
+    label: "Message",
+    fieldValue: "",
+    inputType: "textarea",
+  },
+
   },
 });
 
@@ -106,7 +114,13 @@ const submitForm = async () => {
     isSendSuccess = await sendContactForm({
       recipientsFilter: props.contactMessageFilter || "",
       subject,
-      body: `Name: ${fields.senderName.fieldValue}\nEmail: ${fields.senderEmail.fieldValue}\nMessage: ${fields.senderMessage.fieldValue}\nMessage: ${fields.topic.fieldValue}`,
+      body: `
+        Name: ${fields.senderName.fieldValue}
+      \nEmail: ${fields.senderEmail.fieldValue}
+      \nMessage: ${fields.organization.fieldValue}
+      \nMessage: ${fields.topic.fieldValue}
+      \nMessage: ${fields.senderMessage.fieldValue}
+    `,
     });
   } catch (error) {
     console.log(error);
@@ -115,10 +129,13 @@ const submitForm = async () => {
   // Reset form fields
   fields.senderName.fieldValue = "";
   fields.senderEmail.fieldValue = "";
+  fields.organization.fieldValue = "";
+  fields.topic.fieldValue = "";
+  fields.senderEmail.message = "";
   fields.senderMessage.fieldValue = "";
   fields.senderEmail.hasError = false;
-  fields.senderEmail.message = "";
-  fields.topic.fieldValue = "";
+
+
 
   if (isSendSuccess) {
     notificationType.value = "success";
