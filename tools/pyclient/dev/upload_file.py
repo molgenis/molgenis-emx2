@@ -14,7 +14,7 @@ from dotenv import load_dotenv
 
 from tools.pyclient.src.molgenis_emx2_pyclient import Client
 from tools.pyclient.src.molgenis_emx2_pyclient.exceptions import (NoSuchSchemaException, GraphQLException,
-                                                                  PermissionDeniedException)
+                                                                  PermissionDeniedException, PyclientException)
 
 
 def upload_file(file_name: str):
@@ -29,20 +29,26 @@ def upload_file(file_name: str):
 
     # Connect to server and create, update, and drop schemas
     with Client('https://emx2.dev.molgenis.org/', token=token) as client:
+
+        # Download catalogue.zip
+        client.export(schema='catalogue', fmt='csv')
+
         # Create a schema
         try:
-            client.create_schema(name='Upload Test', template='PET_STORE')
+            client.create_schema(name='Upload Test')
             print(client.schema_names)
-        except (GraphQLException, PermissionDeniedException) as e:
+        except (GraphQLException, PermissionDeniedException, PyclientException) as e:
             print(e)
 
         client.set_schema('Upload Test')
 
         file_path = Path(file_name).absolute()
+        try:
+            client.upload_file(file_path)
 
-        client.upload_file(file_path)
-
-        print(client.get(table='Pet', schema='Upload Test', as_df=True))
+            print(client.get(table='Cohorts', schema='Upload Test', as_df=True).to_string())
+        except PyclientException as e:
+            print(e)
 
         # Delete the schema
         try:
@@ -51,6 +57,8 @@ def upload_file(file_name: str):
         except (GraphQLException, NoSuchSchemaException) as e:
             print(e)
 
+        os.remove('catalogue.zip')
+
 
 if __name__ == '__main__':
-    upload_file(file_name='pet store.zip')
+    upload_file(file_name='catalogue.zip')

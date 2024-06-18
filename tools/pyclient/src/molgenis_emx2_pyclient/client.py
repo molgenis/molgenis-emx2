@@ -2,6 +2,7 @@ import csv
 import io
 import logging
 import pathlib
+import time
 from functools import cache
 from typing import TypeAlias, Literal
 
@@ -267,11 +268,20 @@ class Client:
         schema = schema if schema else self.default_schema
         if not schema:
             raise NoSuchSchemaException(f"Specify the schema where the file should be uploaded.")
-        upload_url = f"{self.url}/{schema}/api/zip?async=true"
+
+        api_url = f"{self.url}/{schema}/api/"
+        if file_path.suffix == '.zip':
+            api_url += "zip?async=true"
+        elif file_path.suffix == '.xlsx':
+            api_url += "excel?async=true"
+        elif file_path.suffix == '.csv':
+            api_url += "csv?async=true"
+        else:
+            raise NotImplementedError(f"Uploading files with extension {file_path.suffix!r} is not supported.")
 
         with open(file_path, 'rb') as file:
             response = self.session.post(
-                url=upload_url,
+                url=api_url,
                 files={'file': file},
                 headers={'x-molgenis-token': self.token}
             )
@@ -279,11 +289,38 @@ class Client:
         # Check if status is OK
         log.info(response.status_code)
 
-        # TODO: Catch process URL
+        # Catch process URL
+        process_id = response.json().get('id')
 
-        # TODO: Report subtask progress
+        # Report subtask progress
+        p_response = self.session.post(
+            url=self.api_graphql,
+            json={'query': queries.task_status(process_id)}
+        )
+        if p_response.status_code != 200:
+            raise PyclientException("Error uploading file")
 
-        # TODO: Raise exception in case of error in upload
+        reported_tasks = []
+        task = p_response.json().get('data').get('_tasks')[0]
+        while (status := task.get('status')) != 'COMPLETED':
+            if status == 'FAILED':
+                # TODO improve error handling
+                raise PyclientException("Error uploading file")
+            subtasks = task.get('subTasks', [])
+            for st in subtasks:
+                if st['id'] not in reported_tasks and st['status'] == 'RUNNING':
+                    log.info(f"Subtask: {st['description']}")
+                    reported_tasks.append(st['id'])
+                for sst in st.get('subTasks', []):
+                    if sst['id'] not in reported_tasks and sst['status'] == 'COMPLETED':
+                        log.info(f"    Subsubtask: {sst['description']}")
+                        reported_tasks.append(sst['id'])
+            p_response = self.session.post(
+                url=self.api_graphql,
+                json={'query': queries.task_status(process_id)}
+            )
+            task = p_response.json().get('data').get('_tasks')[0]
+        log.info(f"Completed task: {task.get('description')}")
 
     def delete_records(self, table: str, schema: str = None, file: str = None, data: list | pd.DataFrame = None):
         """Deletes records from a table.
@@ -460,6 +497,8 @@ class Client:
         :returns: a success or error message
         :rtype: string
         """
+        if name in self.schema_names:
+            raise PyclientException(f"Schema with name {name!r} already exists.")
         query = queries.create_schema()
         variables = self._format_optional_params(name=name, description=description,
                                                  template=template, include_demo_data=include_demo_data)
