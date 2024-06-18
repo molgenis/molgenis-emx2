@@ -305,7 +305,7 @@ class Client:
         while (status := task.get('status')) != 'COMPLETED':
             if status == 'ERROR':
                 # TODO improve error handling
-                raise PyclientException("Error uploading file")
+                raise PyclientException(f"Error uploading file: {task.get('description')}")
             subtasks = task.get('subTasks', [])
             for st in subtasks:
                 if st['id'] not in reported_tasks and st['status'] == 'RUNNING':
