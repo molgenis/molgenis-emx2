@@ -370,37 +370,32 @@ class QueryEMX2 {
   }
 
   _createQuery(root: string, properties: string[]) {
-    const rootModifier = this._generateModifiers("root");
+    const rootModifier = createOuterQuery(
+      "root",
+      this.findInAllColumns,
+      this.limits,
+      this.page,
+      this.orderings,
+      this.filters
+    );
 
-    let result = `{\n${root}${rootModifier} {\n`;
+    const biobankOuterQuery = `{\n${root}${rootModifier} {\n`;
 
-    let branches = this._createBranches(properties);
-    result = this._generateOutput(branches, 1, this.filters, result);
+    const branches = this._createBranches(properties);
+    const indentationLevel = 1;
+    const queryWithBranches = createInnerQuery(
+      branches,
+      indentationLevel,
+      this.filters,
+      biobankOuterQuery,
+      this.findInAllColumns,
+      this.limits,
+      this.page,
+      this.orderings
+    );
+    const finalQuery = queryWithBranches + "  }\n}";
 
-    result += "  }\n}";
-
-    return result;
-  }
-
-  // the best query would be for example"
-  // Biobanks(orderby: { name: ASC }, filter: {collections: {_and: [{materials: {name: {like: "BUFFY_COAT"}}}, {materials: {name: {like: "CELL_LINES"}}}]}})
-  // but this requires another rewrite ;)
-  _createFilterString(filters: Record<string, any>) {
-    let filterString = "";
-    if (!filters) return filterString;
-    console.log(filters);
-    if (filters["_and"].length) {
-      filterString += `_and: [ ${filters["_and"].join(", ")} ]`;
-    }
-
-    if (filters["_or"].length) {
-      if (filterString.length) {
-        filterString += ", ";
-      }
-
-      filterString += `_or: [ ${filters["_or"].join(", ")} ]`;
-    }
-    return filterString;
+    return finalQuery;
   }
 
   /** Create a nested object to represent the branches and their properties */
@@ -436,39 +431,6 @@ class QueryEMX2 {
     return branches;
   }
 
-  /** Generate the bit inside parentheses */
-  _generateModifiers(property: string) {
-    const modifierParts = [];
-
-    modifierParts.push(
-      this.findInAllColumns.length && property === "root"
-        ? `search: "${this.findInAllColumns}"`
-        : ""
-    );
-    modifierParts.push(
-      this.limits[property] ? `limit: ${this.limits[property]}` : ""
-    );
-    modifierParts.push(
-      this.page[property] ? `offset: ${this.page[property]}` : ""
-    );
-    modifierParts.push(
-      this.orderings[property]
-        ? `orderby: { ${this.orderings[property].column}: ${this.orderings[
-            property
-          ].direction.toUpperCase()} }`
-        : ""
-    );
-
-    const filterString = this._createFilterString(this.filters[property]);
-    if (filterString.length) {
-      modifierParts.push(`filter: { ${filterString} }`);
-    }
-
-    const filledModifiers = modifierParts.filter((f) => f.length > 0);
-
-    return filledModifiers.length ? `(${filledModifiers.join(", ")})` : "";
-  }
-
   _createFilterFromPath(
     path: string,
     originalOperator: string,
@@ -493,7 +455,6 @@ class QueryEMX2 {
 
         let filter = `{ ${operator}: ${graphqlValue} }`;
 
-        /** reverse the path, so we can build it from the inside out */
         for (const pathPart of reversedPathParts) {
           /** most inner part of the query e.g. 'like: "red" */
           filter = `{ ${pathPart}: ${filter} }`;
@@ -530,48 +491,6 @@ class QueryEMX2 {
   }
 
   /** Recursively generate the output string for the branches and their properties */
-  _generateOutput(
-    branches: Record<string, any>,
-    indentationLevel: number,
-    filters: Record<string, any>,
-    result: string
-  ) {
-    let indentation = "    ".repeat(indentationLevel);
-
-    /** Add properties first */
-    if (branches.properties) {
-      let properties = branches.properties;
-      for (let propertyName in properties) {
-        if (properties[propertyName] === true) {
-          result += `${indentation}${propertyName},\n`;
-        }
-      }
-
-      result = `${result.substring(0, result.length - 2)}\n`;
-    }
-
-    /** Add the branches and their properties */
-    for (let branchName in branches) {
-      /** continue with the query by adding a comma to the end of the property */
-      let branch = branches[branchName];
-      if (branchName !== "properties") {
-        result = `${result.substring(0, result.length - 1)},\n`;
-        const branchModifiers = this._generateModifiers(branchName);
-        /** Only add branches, not properties */
-        result += `${indentation}${branchName}${branchModifiers || ""} {\n`;
-
-        result = this._generateOutput(
-          branch,
-          indentationLevel + 1,
-          filters,
-          result
-        );
-        result += indentation + "}\n";
-      }
-    }
-
-    return result;
-  }
 
   _createPathFromObject(
     path: string,
@@ -600,3 +519,116 @@ class QueryEMX2 {
 }
 
 export default QueryEMX2;
+
+function createInnerQuery(
+  branches: Record<string, any>,
+  indentationLevel: number,
+  filters: Record<string, any>,
+  result: string,
+  findInAllColumns: string,
+  limits: Record<string, any>,
+  page: Record<string, any>,
+  orderings: Record<string, any>
+) {
+  let indentation = "    ".repeat(indentationLevel);
+
+  /** Add properties first */
+  if (branches.properties) {
+    let properties = branches.properties;
+    for (let propertyName in properties) {
+      if (properties[propertyName] === true) {
+        result += `${indentation}${propertyName},\n`;
+      }
+    }
+
+    result = `${result.substring(0, result.length - 2)}\n`;
+  }
+
+  /** Add the branches and their properties */
+  for (let branchName in branches) {
+    /** continue with the query by adding a comma to the end of the property */
+    let branch = branches[branchName];
+    if (branchName !== "properties") {
+      result = `${result.substring(0, result.length - 1)},\n`;
+      const branchModifiers = createOuterQuery(
+        branchName,
+        findInAllColumns,
+        limits,
+        page,
+        orderings,
+        filters
+      );
+      /** Only add branches, not properties */
+      result += `${indentation}${branchName}${branchModifiers || ""} {\n`;
+
+      result = createInnerQuery(
+        branch,
+        indentationLevel + 1,
+        filters,
+        result,
+        findInAllColumns,
+        limits,
+        page,
+        orderings
+      );
+      result += indentation + "}\n";
+    }
+  }
+
+  return result;
+}
+
+function createOuterQuery(
+  property: string,
+  findInAllColumns: string,
+  limits: Record<string, any>,
+  page: Record<string, any>,
+  orderings: Record<string, any>,
+  filters: Record<string, any>
+) {
+  const modifierParts = [];
+
+  modifierParts.push(
+    findInAllColumns.length && property === "root"
+      ? `search: "${findInAllColumns}"`
+      : ""
+  );
+  modifierParts.push(limits[property] ? `limit: ${limits[property]}` : "");
+  modifierParts.push(page[property] ? `offset: ${page[property]}` : "");
+  modifierParts.push(
+    orderings[property]
+      ? `orderby: { ${orderings[property].column}: ${orderings[
+          property
+        ].direction.toUpperCase()} }`
+      : ""
+  );
+  const filterString = createFilterString(filters[property]);
+  if (filterString) {
+    modifierParts.push(`filter: { ${filterString} }`);
+  }
+
+  const filledModifiers = modifierParts.filter((f) => f.length > 0);
+
+  return filledModifiers.length ? `(${filledModifiers.join(", ")})` : "";
+}
+
+// the best query would be for example"
+// Biobanks(orderby: { name: ASC }, filter: {collections: {_and: [{materials: {name: {like: "BUFFY_COAT"}}}, {materials: {name: {like: "CELL_LINES"}}}]}})
+// but this requires another rewrite ;)
+function createFilterString(filters: Record<string, any>) {
+  let filterString = "";
+  if (!filters) return filterString;
+
+  if (filters["_and"].length) {
+    filterString += `_and: [ ${filters["_and"].join(", ")} ]`;
+  }
+
+  if (filters["_or"].length) {
+    if (filterString.length) {
+      filterString += ", ";
+    }
+
+    filterString += `_or: [ ${filters["_or"].join(", ")} ]`;
+  }
+  return filterString;
+}
