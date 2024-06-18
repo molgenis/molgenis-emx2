@@ -43,9 +43,10 @@ def upload_file(file_name: str):
         client.set_schema('Upload Test')
 
         file_path = Path(file_name).absolute()
-        try:
-            client.upload_file(file_path)
 
+        client.upload_file(file_path)
+
+        try:
             print(client.get(table='Cohorts', schema='Upload Test', as_df=True).to_string())
         except PyclientException as e:
             print(e)

@@ -303,7 +303,7 @@ class Client:
         reported_tasks = []
         task = p_response.json().get('data').get('_tasks')[0]
         while (status := task.get('status')) != 'COMPLETED':
-            if status == 'FAILED':
+            if status == 'ERROR':
                 # TODO improve error handling
                 raise PyclientException("Error uploading file")
             subtasks = task.get('subTasks', [])
@@ -770,6 +770,8 @@ class Client:
         :rtype: bool
         """
         schema_data = self.get_schema_metadata(schema_name)
+        if not hasattr(schema_data, 'tables'):
+            return False
         if table_name in map(str, schema_data.tables):
             return True
         return False
