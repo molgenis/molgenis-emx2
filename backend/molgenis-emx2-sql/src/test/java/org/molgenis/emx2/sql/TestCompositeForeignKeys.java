@@ -65,7 +65,9 @@ public class TestCompositeForeignKeys {
       // missing completely.setString("uncle.lastName", "MISSING"));
       fail("should have failed when part for composite foreign key is null, regression #3876");
     } catch (Exception e) {
-      assertEquals("", e.getMessage());
+      assertEquals(
+          "Update into table 'Person' failed.: Transaction failed: Key (uncle.firstName,uncle.lastName)=(Donald,NULL) not present in table \"Person\"",
+          e.getMessage());
       System.out.println("errored correctly: " + e);
     }
 

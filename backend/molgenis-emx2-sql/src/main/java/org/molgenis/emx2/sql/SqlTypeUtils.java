@@ -106,13 +106,16 @@ public class SqlTypeUtils extends TypeUtils {
       List<Reference> refs = c.getReferences();
       // PostgreSQL considers the foreign key constraint not applicable if any part of the composite
       // key is NULL.therefore we must make sure it is complete
+      // exclude overlapping
+      int countNonOverlapping =
+          Math.toIntExact(refs.stream().filter(ref -> !ref.isOverlapping()).count());
       int countNotNull = 0;
       for (Reference ref : refs) {
-        if (!row.isNull(ref.getName(), ref.getPrimitiveType())) {
+        if (!ref.isOverlapping() && !row.isNull(ref.getName(), ref.getPrimitiveType())) {
           countNotNull++;
         }
       }
-      if (countNotNull > 0 && countNotNull != refs.size()) {
+      if (countNotNull > 0 && countNotNull != countNonOverlapping) {
         throw new MolgenisException(
             String.format(
                 "Key (%s)=(%s) not present in table \"%s\"",
