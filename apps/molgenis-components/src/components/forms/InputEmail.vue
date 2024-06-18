@@ -15,7 +15,10 @@
         :ref="id"
         :name="name"
         :value="modelValue"
-        @input="emit('update:modelValue', $event.target?.value)"
+        @input="
+          //@ts-ignore
+          emit('update:modelValue', $event.target?.value)
+        "
         type="text"
         class="form-control"
         :class="{ 'is-invalid': stringError }"
@@ -32,6 +35,7 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
+import constants from "../constants";
 import FormGroup from "./FormGroup.vue";
 import InputGroup from "./InputGroup.vue";
 import BaseInputProps from "./baseInputs/BaseInputProps";
@@ -57,9 +61,7 @@ const emit = defineEmits(["update:modelValue"]);
 function validateEmail(email: string) {
   return (
     props.additionalValidValidationStrings.includes(email) ||
-    email?.match(
-      /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-    )
+    email?.match(constants.EMAIL_REGEX)
   );
 }
 
