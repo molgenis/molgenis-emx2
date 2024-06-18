@@ -19,7 +19,7 @@ public class BeaconIndividualsTests extends BeaconModelEndPointTest {
 
   @Test
   public void testIndividuals_NoParams() {
-    Request request = mockEntryTypeRequest(EntryType.INDIVIDUALS.getId(), new HashMap<>());
+    Request request = mockEntryTypeRequestRegular(EntryType.INDIVIDUALS.getId(), new HashMap<>());
     BeaconRequestBody requestBody = new BeaconRequestBody(request);
 
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
@@ -53,8 +53,8 @@ public class BeaconIndividualsTests extends BeaconModelEndPointTest {
 
   @Test
   public void test_EJP_RD_VP_API_FilterOnGenderAtBirth_OneHit() throws Exception {
-    JsonNode json =
-        doIndividualsPostRequest(
+    BeaconRequestBody beaconRequest =
+        mockIndividualsPostRequestVp(
             """
                           {
                             "query": {
@@ -67,15 +67,16 @@ public class BeaconIndividualsTests extends BeaconModelEndPointTest {
                           	]
                             }
                           }""");
-
+    QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
+    JsonNode json = queryEntryType.query(beaconSchema);
     assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
     assertEquals(1, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
   }
 
   @Test
   public void test_EJP_RD_VP_API_FilterOnGenderAtBirth_NoHits() throws Exception {
-    JsonNode json =
-        doIndividualsPostRequest(
+    BeaconRequestBody beaconRequest =
+        mockIndividualsPostRequestVp(
             """
                           {
                             "query": {
@@ -93,16 +94,39 @@ public class BeaconIndividualsTests extends BeaconModelEndPointTest {
                           	]
                             }
                           }""");
-
+    QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
+    JsonNode json = queryEntryType.query(beaconSchema);
     String jsonString = JsonUtil.getWriter().writeValueAsString(json);
     assertTrue(jsonString.contains("\"exists\" : false"));
     assertTrue(jsonString.contains("\"numTotalResults\" : 0"));
   }
 
   @Test
+  public void FilterOnGenderAtBirthGssoTerm_oneResult() throws Exception {
+    BeaconRequestBody beaconRequest =
+        mockIndividualsPostRequestRegular(
+            """
+                          {
+                            "query": {
+                          	"filters": [
+                          	  {
+                          		"id": "NCIT:C28421",
+                          		"value": "GSSO_000123",
+                          		"operator": "="
+                          	  }
+                          	]
+                            }
+                          }""");
+    QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
+    JsonNode json = queryEntryType.query(beaconSchema);
+    assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
+    assertEquals(1, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
+  }
+
+  @Test
   public void test_EJP_RD_VP_API_FilterOnGenderAtBirth_ignoreFilter() throws Exception {
-    JsonNode json =
-        doIndividualsPostRequest(
+    BeaconRequestBody beaconRequest =
+        mockIndividualsPostRequestVp(
             """
                           {
                             "query": {
@@ -115,6 +139,9 @@ public class BeaconIndividualsTests extends BeaconModelEndPointTest {
                           	]
                             }
                           }""");
+    QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
+    JsonNode json = queryEntryType.query(beaconSchema);
+
     assertEquals("[NCIT_C28421]", json.get("info").get("unsupportedFilters").textValue());
     assertTrue(json.get("responseSummary").get("exists").booleanValue());
 
@@ -124,8 +151,8 @@ public class BeaconIndividualsTests extends BeaconModelEndPointTest {
 
   @Test
   public void test_EJP_RD_VP_API_FilterOnDisease_OneHit() throws Exception {
-    JsonNode json =
-        doIndividualsPostRequest(
+    BeaconRequestBody beaconRequest =
+        mockIndividualsPostRequestVp(
             """
                           {
                             "query": {
@@ -138,14 +165,17 @@ public class BeaconIndividualsTests extends BeaconModelEndPointTest {
                           	]
                             }
                           }""");
+    QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
+    JsonNode json = queryEntryType.query(beaconSchema);
+
     assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
     assertEquals(1, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
   }
 
   @Test
   public void test_EJP_RD_VP_API_FilterOnDisease_OntologyFilterSyntax_OneHit() throws Exception {
-    JsonNode json =
-        doIndividualsPostRequest(
+    BeaconRequestBody beaconRequest =
+        mockIndividualsPostRequestVp(
             """
                           {
                             "query": {
@@ -156,6 +186,9 @@ public class BeaconIndividualsTests extends BeaconModelEndPointTest {
                           	]
                             }
                           }""");
+    QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
+    JsonNode json = queryEntryType.query(beaconSchema);
+
     String jsonString = JsonUtil.getWriter().writeValueAsString(json);
     //    assertTrue(jsonString.contains("\"exists\" : true"));
     //    assertTrue(jsonString.contains("\"numTotalResults\" : 1"));
@@ -163,8 +196,8 @@ public class BeaconIndividualsTests extends BeaconModelEndPointTest {
 
   @Test
   public void test_EJP_RD_VP_API_FilterOnDisease_AlsoOneHit() throws Exception {
-    JsonNode json =
-        doIndividualsPostRequest(
+    BeaconRequestBody beaconRequest =
+        mockIndividualsPostRequestVp(
             """
                           {
                             "query": {
@@ -182,13 +215,16 @@ public class BeaconIndividualsTests extends BeaconModelEndPointTest {
                           	]
                             }
                           }""");
+    QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
+    JsonNode json = queryEntryType.query(beaconSchema);
+
     assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
   }
 
   @Test
   public void test_EJP_RD_VP_API_FilterOnDisease_TwoHits() throws Exception {
-    JsonNode json =
-        doIndividualsPostRequest(
+    BeaconRequestBody beaconRequest =
+        mockIndividualsPostRequestVp(
             """
                           {
                             "query": {
@@ -201,14 +237,17 @@ public class BeaconIndividualsTests extends BeaconModelEndPointTest {
                           	]
                             }
                           }""");
+    QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
+    JsonNode json = queryEntryType.query(beaconSchema);
+
     assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
     assertEquals(2, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
   }
 
   @Test
   public void test_EJP_RD_VP_API_FilterOnDisease_NoHit() throws Exception {
-    JsonNode json =
-        doIndividualsPostRequest(
+    BeaconRequestBody beaconRequest =
+        mockIndividualsPostRequestVp(
             """
                           {
                             "query": {
@@ -221,6 +260,9 @@ public class BeaconIndividualsTests extends BeaconModelEndPointTest {
                           	]
                             }
                           }""");
+    QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
+    JsonNode json = queryEntryType.query(beaconSchema);
+
     String jsonString = JsonUtil.getWriter().writeValueAsString(json);
     assertTrue(jsonString.contains("\"exists\" : false"));
     assertTrue(jsonString.contains("\"numTotalResults\" : 0"));
@@ -228,8 +270,8 @@ public class BeaconIndividualsTests extends BeaconModelEndPointTest {
 
   @Test
   public void test_EJP_RD_VP_API_FilterOnAge_OneHit() throws Exception {
-    JsonNode json =
-        doIndividualsPostRequest(
+    BeaconRequestBody beaconRequest =
+        mockIndividualsPostRequestVp(
             """
                           {
                             "query": {
@@ -242,14 +284,17 @@ public class BeaconIndividualsTests extends BeaconModelEndPointTest {
                           	]
                             }
                           }""");
+    QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
+    JsonNode json = queryEntryType.query(beaconSchema);
+
     assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
     assertEquals(1, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
   }
 
   @Test
   public void test_EJP_RD_VP_API_FilterOnAge_NoHit() throws Exception {
-    JsonNode json =
-        doIndividualsPostRequest(
+    BeaconRequestBody beaconRequest =
+        mockIndividualsPostRequestVp(
             """
                           {
                             "query": {
@@ -262,6 +307,9 @@ public class BeaconIndividualsTests extends BeaconModelEndPointTest {
                           	]
                             }
                           }""");
+    QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
+    JsonNode json = queryEntryType.query(beaconSchema);
+
     String jsonString = JsonUtil.getWriter().writeValueAsString(json);
     assertTrue(jsonString.contains("\"exists\" : false"));
     assertTrue(jsonString.contains("\"numTotalResults\" : 0"));
@@ -269,8 +317,8 @@ public class BeaconIndividualsTests extends BeaconModelEndPointTest {
 
   @Test
   public void test_EJP_RD_VP_API_FilterOnAgeGreaterThan_OneHit() throws Exception {
-    JsonNode json =
-        doIndividualsPostRequest(
+    BeaconRequestBody beaconRequest =
+        mockIndividualsPostRequestVp(
             """
                           {
                             "query": {
@@ -283,14 +331,17 @@ public class BeaconIndividualsTests extends BeaconModelEndPointTest {
                           	]
                             }
                           }""");
+    QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
+    JsonNode json = queryEntryType.query(beaconSchema);
+
     assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
     assertEquals(1, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
   }
 
   @Test
   public void test_EJP_RD_VP_API_FilterOnAgeLessThan_ThreeHits() throws Exception {
-    JsonNode json =
-        doIndividualsPostRequest(
+    BeaconRequestBody beaconRequest =
+        mockIndividualsPostRequestVp(
             """
                           {
                             "query": {
@@ -303,14 +354,17 @@ public class BeaconIndividualsTests extends BeaconModelEndPointTest {
                           	]
                             }
                           }""");
+    QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
+    JsonNode json = queryEntryType.query(beaconSchema);
+
     assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
     assertEquals(3, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
   }
 
   @Test
   public void test_EJP_RD_VP_API_FilterOnAgeLessThan_THits() throws Exception {
-    JsonNode json =
-        doIndividualsPostRequest(
+    BeaconRequestBody beaconRequest =
+        mockIndividualsPostRequestVp(
             """
                           {
                             "query": {
@@ -323,14 +377,17 @@ public class BeaconIndividualsTests extends BeaconModelEndPointTest {
                           	]
                             }
                           }""");
+    QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
+    JsonNode json = queryEntryType.query(beaconSchema);
+
     assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
     assertEquals(2, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
   }
 
   @Test
   public void test_EJP_RD_VP_API_FilterOnAgeLessThanOrEquals_OneHit() throws Exception {
-    JsonNode json =
-        doIndividualsPostRequest(
+    BeaconRequestBody beaconRequest =
+        mockIndividualsPostRequestVp(
             """
                           {
                             "query": {
@@ -343,14 +400,17 @@ public class BeaconIndividualsTests extends BeaconModelEndPointTest {
                           	]
                             }
                           }""");
+    QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
+    JsonNode json = queryEntryType.query(beaconSchema);
+
     assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
     assertEquals(1, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
   }
 
   @Test
   public void test_EJP_RD_VP_API_FilterOnAgeLessThan_NoHits() throws Exception {
-    JsonNode json =
-        doIndividualsPostRequest(
+    BeaconRequestBody beaconRequest =
+        mockIndividualsPostRequestVp(
             """
                           {
                             "query": {
@@ -363,6 +423,9 @@ public class BeaconIndividualsTests extends BeaconModelEndPointTest {
                           	]
                             }
                           }""");
+    QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
+    JsonNode json = queryEntryType.query(beaconSchema);
+
     String jsonString = JsonUtil.getWriter().writeValueAsString(json);
     assertTrue(jsonString.contains("\"exists\" : false"));
     assertTrue(jsonString.contains("\"numTotalResults\" : 0"));
@@ -370,8 +433,8 @@ public class BeaconIndividualsTests extends BeaconModelEndPointTest {
 
   @Test
   public void test_EJP_RD_VP_API_FilterOnAgeOfOnset_OneHit() throws Exception {
-    JsonNode json =
-        doIndividualsPostRequest(
+    BeaconRequestBody beaconRequest =
+        mockIndividualsPostRequestVp(
             """
                           {
                             "query": {
@@ -384,6 +447,9 @@ public class BeaconIndividualsTests extends BeaconModelEndPointTest {
                           	]
                             }
                           }""");
+    QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
+    JsonNode json = queryEntryType.query(beaconSchema);
+
     String jsonString = JsonUtil.getWriter().writeValueAsString(json);
     assertTrue(jsonString.contains("\"exists\" : true"));
     //    assertTrue(json.contains("\"numTotalResults\" : 1"));
@@ -391,8 +457,8 @@ public class BeaconIndividualsTests extends BeaconModelEndPointTest {
 
   @Test
   public void test_EJP_RD_VP_API_FilterOnAgeOfOnset_NoHit() throws Exception {
-    JsonNode json =
-        doIndividualsPostRequest(
+    BeaconRequestBody beaconRequest =
+        mockIndividualsPostRequestVp(
             """
                           {
                             "query": {
@@ -405,6 +471,9 @@ public class BeaconIndividualsTests extends BeaconModelEndPointTest {
                           	]
                             }
                           }""");
+    QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
+    JsonNode json = queryEntryType.query(beaconSchema);
+
     String jsonString = JsonUtil.getWriter().writeValueAsString(json);
     assertTrue(jsonString.contains("\"exists\" : false"));
     assertTrue(jsonString.contains("\"numTotalResults\" : 0"));
@@ -412,8 +481,8 @@ public class BeaconIndividualsTests extends BeaconModelEndPointTest {
 
   @Test
   public void test_EJP_RD_VP_API_FilterOnAgeOfOnsetGreaterThan_TwoHits() throws Exception {
-    JsonNode json =
-        doIndividualsPostRequest(
+    BeaconRequestBody beaconRequest =
+        mockIndividualsPostRequestVp(
             """
                           {
                             "query": {
@@ -426,14 +495,17 @@ public class BeaconIndividualsTests extends BeaconModelEndPointTest {
                           	]
                             }
                           }""");
+    QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
+    JsonNode json = queryEntryType.query(beaconSchema);
+
     assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
     assertEquals(2, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
   }
 
   @Test
   public void test_EJP_RD_VP_API_FilterOnAgeOfOnsetGreaterThan_NoHits() throws Exception {
-    JsonNode json =
-        doIndividualsPostRequest(
+    BeaconRequestBody beaconRequest =
+        mockIndividualsPostRequestVp(
             """
                           {
                             "query": {
@@ -446,6 +518,9 @@ public class BeaconIndividualsTests extends BeaconModelEndPointTest {
                           	]
                             }
                           }""");
+    QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
+    JsonNode json = queryEntryType.query(beaconSchema);
+
     String jsonString = JsonUtil.getWriter().writeValueAsString(json);
     assertTrue(jsonString.contains("\"exists\" : false"));
     assertTrue(jsonString.contains("\"numTotalResults\" : 0"));
@@ -453,8 +528,8 @@ public class BeaconIndividualsTests extends BeaconModelEndPointTest {
 
   @Test
   public void test_EJP_RD_VP_API_FilterOnAgeOfOnsetGreaterThanOrEquals_OneHit() throws Exception {
-    JsonNode json =
-        doIndividualsPostRequest(
+    BeaconRequestBody beaconRequest =
+        mockIndividualsPostRequestVp(
             """
                           {
                             "query": {
@@ -467,14 +542,17 @@ public class BeaconIndividualsTests extends BeaconModelEndPointTest {
                           	]
                             }
                           }""");
+    QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
+    JsonNode json = queryEntryType.query(beaconSchema);
+
     assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
     assertEquals(1, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
   }
 
   @Test
   public void test_EJP_RD_VP_API_FilterOnAgeAtDiagnosis_OneHit() throws Exception {
-    JsonNode json =
-        doIndividualsPostRequest(
+    BeaconRequestBody beaconRequest =
+        mockIndividualsPostRequestVp(
             """
                           {
                             "query": {
@@ -487,14 +565,17 @@ public class BeaconIndividualsTests extends BeaconModelEndPointTest {
                           	]
                             }
                           }""");
+    QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
+    JsonNode json = queryEntryType.query(beaconSchema);
+
     assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
     assertEquals(1, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
   }
 
   @Test
   public void test_EJP_RD_VP_API_FilterOnAgeAtDiagnosisLessThan_OneHit() throws Exception {
-    JsonNode json =
-        doIndividualsPostRequest(
+    BeaconRequestBody beaconRequest =
+        mockIndividualsPostRequestVp(
             """
                           {
                             "query": {
@@ -507,14 +588,17 @@ public class BeaconIndividualsTests extends BeaconModelEndPointTest {
                           	]
                             }
                           }""");
+    QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
+    JsonNode json = queryEntryType.query(beaconSchema);
+
     assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
     assertEquals(1, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
   }
 
   @Test
   public void test_EJP_RD_VP_API_FilterOnAgeAtDiagnosisUnsupportedFilter() throws Exception {
-    JsonNode json =
-        doIndividualsPostRequest(
+    BeaconRequestBody beaconRequest =
+        mockIndividualsPostRequestVp(
             """
                           {
                             "query": {
@@ -527,6 +611,9 @@ public class BeaconIndividualsTests extends BeaconModelEndPointTest {
                           	]
                             }
                           }""");
+    QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
+    JsonNode json = queryEntryType.query(beaconSchema);
+
     assertEquals("[ncit:C15642]", json.get("info").get("unsupportedFilters").textValue());
     assertTrue(json.get("responseSummary").get("exists").booleanValue());
 
@@ -536,8 +623,8 @@ public class BeaconIndividualsTests extends BeaconModelEndPointTest {
 
   @Test
   public void test_EJP_RD_VP_API_FilterOnCausalGenes_OneHit() throws Exception {
-    JsonNode json =
-        doIndividualsPostRequest(
+    BeaconRequestBody beaconRequest =
+        mockIndividualsPostRequestVp(
             """
                           {
                             "query": {
@@ -550,14 +637,17 @@ public class BeaconIndividualsTests extends BeaconModelEndPointTest {
                           	]
                             }
                           }""");
+    QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
+    JsonNode json = queryEntryType.query(beaconSchema);
+
     assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
     assertEquals(1, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
   }
 
   @Test
   public void test_EJP_RD_VP_API_FilterOnCausalGenes_asArray_OneHit() throws Exception {
-    JsonNode json =
-        doIndividualsPostRequest(
+    BeaconRequestBody beaconRequest =
+        mockIndividualsPostRequestVp(
             """
                           {
                             "query": {
@@ -570,14 +660,17 @@ public class BeaconIndividualsTests extends BeaconModelEndPointTest {
                           	]
                             }
                           }""");
+    QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
+    JsonNode json = queryEntryType.query(beaconSchema);
+
     assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
     assertEquals(1, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
   }
 
   @Test
   public void test_EJP_RD_VP_API_FilterOnCausalGenes_TwoHits() throws Exception {
-    JsonNode json =
-        doIndividualsPostRequest(
+    BeaconRequestBody beaconRequest =
+        mockIndividualsPostRequestVp(
             """
                           {
                             "query": {
@@ -590,6 +683,9 @@ public class BeaconIndividualsTests extends BeaconModelEndPointTest {
                           	]
                             }
                           }""");
+    QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
+    JsonNode json = queryEntryType.query(beaconSchema);
+
     assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
     assertEquals(2, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
   }

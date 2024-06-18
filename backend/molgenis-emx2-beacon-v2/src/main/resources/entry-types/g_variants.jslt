@@ -2,6 +2,7 @@ import "ontology.jslt" as ontology
 import "meta.jslt" as meta
 import "response_summary.jslt" as responseSummary
 import "info.jslt" as info
+import "range.jslt" as range
 {
     "meta": meta(.),
     "responseSummary": responseSummary(.),
@@ -13,6 +14,7 @@ import "info.jslt" as info
                 "type": "dataset",
                 "setType": "genomicVariant",
                 "exists": true,
+                "info": range(.),
                 "resultsCount": .count,
                 "results":
                 [for (.results) {

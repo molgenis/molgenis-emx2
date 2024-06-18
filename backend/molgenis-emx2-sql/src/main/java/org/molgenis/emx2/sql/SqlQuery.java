@@ -3,7 +3,7 @@ package org.molgenis.emx2.sql;
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.Operator.*;
-import static org.molgenis.emx2.Privileges.VIEWER;
+import static org.molgenis.emx2.Privileges.*;
 import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.searchColumnName;
 import static org.molgenis.emx2.utils.TypeUtils.*;
@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 public class SqlQuery extends QueryBean {
   public static int AGGREGATE_COUNT_THRESHOLD = Integer.MIN_VALUE; // threshold disabled by default
   public static final String COUNT_FIELD = "count";
+  public static final String EXISTS_FIELD = "exists";
   public static final String MAX_FIELD = "max";
   public static final String MIN_FIELD = "min";
   public static final String AVG_FIELD = "avg";
@@ -688,10 +689,10 @@ public class SqlQuery extends QueryBean {
     List<Field<?>> fields = new ArrayList<>();
     for (SelectColumn field : select.getSubselect()) {
       if (COUNT_FIELD.equals(field.getColumn())) {
-        if (schema.hasActiveUserRole(VIEWER.toString())) {
-          fields.add(count().as(COUNT_FIELD));
-        } else {
-          fields.add(field("GREATEST(COUNT(*),{0})", 10L).as(COUNT_FIELD));
+        fields.add(getCountField().as(COUNT_FIELD));
+      } else if (EXISTS_FIELD.equals(field.getColumn())) {
+        if (schema.hasActiveUserRole(EXISTS.toString())) {
+          fields.add(field("COUNT(*) > 0").as(EXISTS_FIELD));
         }
       } else if (List.of(MAX_FIELD, MIN_FIELD, AVG_FIELD, SUM_FIELD).contains(field.getColumn())) {
         checkHasViewPermission(table);
@@ -717,6 +718,17 @@ public class SqlQuery extends QueryBean {
       }
     }
     return jsonField(table, column, tableAlias, select, filters, searchTerms, subAlias, fields);
+  }
+
+  private Field<Integer> getCountField() {
+    if (schema.hasActiveUserRole(COUNT.toString())) {
+      return count();
+    } else if (schema.hasActiveUserRole(AGGREGATOR.toString())) {
+      return field("GREATEST(COUNT(*),{0})", Integer.class, 10L);
+    } else if (schema.hasActiveUserRole(RANGE.toString())) {
+      return field("CEIL(COUNT(*)::numeric / {0}) * {0}", Integer.class, 10L);
+    }
+    throw new MolgenisException("Need permission >= RANGE to perform count queries");
   }
 
   private Field<Object> jsonGroupBySelect(
