@@ -612,9 +612,6 @@ function createOuterQuery(
   return filledModifiers.length ? `(${filledModifiers.join(", ")})` : "";
 }
 
-// the best query would be for example"
-// Biobanks(orderby: { name: ASC }, filter: {collections: {_and: [{materials: {name: {like: "BUFFY_COAT"}}}, {materials: {name: {like: "CELL_LINES"}}}]}})
-// but this requires another rewrite ;)
 function createFilterString(filters: Record<string, any>) {
   let filterString = "";
   if (!filters) return filterString;

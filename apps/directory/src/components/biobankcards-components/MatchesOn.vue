@@ -1,5 +1,4 @@
 <template>
-  {{ JSON.stringify(matches) }}
   <div class="mx-1" v-if="matches.length">
     <div class="d-flex align-items-center flex-wrap">
       <label class="font-weight-bold mr-1">Because you searched for:</label>
