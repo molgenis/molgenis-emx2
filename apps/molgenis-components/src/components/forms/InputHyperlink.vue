@@ -89,7 +89,7 @@ span:hover .hoverIcon {
     <InputHyperlink
       id="input-hyperlink2"
       :readonly="true"
-      value="www.molgenis.org"
+      v-model="value"
       description="Should not be able to edit this"
     />
   </div>
