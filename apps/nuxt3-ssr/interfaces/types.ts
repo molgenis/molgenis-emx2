@@ -58,6 +58,7 @@ export interface ICohort {
   linkageOptions?: string;
   dataAccessConditionsDescription?: string;
   dataAccessConditions?: { name: string }[];
+  prelinked?: boolean;
   releaseType?: boolean;
   fundingStatement?: string;
   acknowledgements?: string;
