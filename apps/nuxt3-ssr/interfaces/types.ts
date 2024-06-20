@@ -442,7 +442,7 @@ export interface IPathConditionsCondition extends IPathCondition {
 }
 
 export type activeTabType = "detailed" | "compact";
-  
+
 export interface IOrganization {
   id: string;
   name?: string;
