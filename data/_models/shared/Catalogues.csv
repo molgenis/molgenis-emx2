@@ -4,5 +4,4 @@ Catalogues,,name,,1,true,,,,,,dct:title,The name given to the Catalogue,DataCata
 Catalogues,,network,ref,1,true,,Collections,,,,,Network or consortium that leads this catalogue,DataCatalogueFlat,
 Catalogues,,type,ontology,,true,CatalogueOntologies,CatalogueTypes,,,,dcat:theme,Type of catalogue,DataCatalogueFlat,
 Catalogues,,description,text,,true,,,,,,dct:description,Description of this catalogue,DataCatalogueFlat,
-Catalogues,,publisher,ontology,,,CatalogueOntologies,CatalogueTypes,,,,dct:publisher,Publisher todo should default to molgenis team,DataCatalogueFlat,
-Catalogues,,applicable legislation,ref_array,,true,,Documentation,,,,dcatap:applicableLegislation,The legislation that mandates the creation or management of the Catalog,DataCatalogueFlat,
+Catalogues,,publisher,ref,,,,Organisations,,,,dct:publisher,The organisation responsible for making the catalogue available,DataCatalogueFlat,
