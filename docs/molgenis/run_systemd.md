@@ -1,11 +1,11 @@
 
 # Install Molgenis emx2 as a system service 
-We Support redhat and ubuntu based installations.
+We support Redhat and Ubuntu based installations.
 
 
 ## Java 
 
-Molgenis-emx2 runs on java > 17
+MOLGENIS EMX2 runs on java > 17
 <!-- tabs:start -->
 
 #### **Ubuntu (apt)**
@@ -25,7 +25,7 @@ sudo yum install java-21-openjdk-headless
 ## Postgresql 
 
 
-Molgenis-emx2 depends on Posgresql 15
+MOLGENIS EMX2 depends on Postgresql 15
 
 <!-- tabs:start -->
 
@@ -144,10 +144,10 @@ sudo yum install molgenis-emx2
 Molgenis is running port 8080. 
 * Open on http://ip.or.host.of.server:8080
 
-In most cases you can proxy_pass traffic to molgenis-emx2 with an (hard of software) loadbalancer to the molgenis-emx2 (port 8080) endpoind.
+In most cases you can proxy_pass traffic to molgenis-emx2 with a (hard or software) loadbalancer to the molgenis-emx2 (port 8080) endpoind.
 Or you can use nginx to proxypass traffic.
 
-A example of nginx proxy pass:
+An example of nginx proxy pass:
 
 ```nginx
 location / {
