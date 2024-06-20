@@ -1,10 +1,8 @@
 <script setup lang="ts">
-import { ref } from "vue";
-
 withDefaults(
   defineProps<{
     id: string;
-    required: boolean;
+    required?: boolean;
     hasError?: boolean;
   }>(),
   {

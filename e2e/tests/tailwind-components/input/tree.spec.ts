@@ -4,14 +4,14 @@ import playwrightConfig from '../../../playwright.config';
 const route = playwrightConfig?.use?.baseURL?.startsWith('http://localhost:') ? '' : 'apps/tailwind-components/';
 
 test('should render the collapsed tree', async ({ page }, testInfo) => {
-  await page.goto(route + 'InputTree.story/');
+  await page.goto(route + 'input/Tree.story/');
   await expect(page.getByText('Node 0', { exact: true })).toBeVisible();
   await expect(page.getByText('Node 1', { exact: true })).toBeVisible();
   await expect(page.getByText('Node 0.0', { exact: true })).not.toBeVisible();
 });
 
 test('should expand the fist node when clicking in the icon', async ({ page }) => {
-  await page.goto(route + 'InputTree.story/');
+  await page.goto(route + 'input/Tree.story/');
   await page.getByRole('img').nth(1).click();
   await expect(page.getByText('Node 0.0', { exact: true })).toBeVisible();
   await expect(page.getByText('Node 0.1', { exact: true })).toBeVisible();
@@ -19,7 +19,7 @@ test('should expand the fist node when clicking in the icon', async ({ page }) =
 });
 
 test('should expand the selection down if expand selection is set to true', async ({ page }) => {
-  await page.goto(route + 'InputTree.story/');
+  await page.goto(route + 'input/Tree.story/');
   await expect(page.getByLabel('expand selected')).toBeChecked();
   await page.locator('.text-search-filter-group-toggle > svg').first().click();
   await page.locator('.mt-2\\.5 > ul > li > span > .text-search-filter-group-toggle > svg').first().click();
@@ -34,7 +34,7 @@ test('should expand the selection down if expand selection is set to true', asyn
 });
 
 test('should expand the the de-selection down if expand selection is set to true', async ({ page }) => {
-  await page.goto(route + 'InputTree.story/');
+  await page.goto(route + 'input/Tree.story/');
   await expect(page.getByLabel('expand selected')).toBeChecked();
 
   // select

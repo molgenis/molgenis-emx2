@@ -11,6 +11,7 @@ import type {
   IMgError,
   IOntologyItem,
   IOrganisation,
+  linkTarget,
 } from "~/interfaces/types";
 import dateUtils from "~/utils/dateUtils";
 const config = useRuntimeConfig();
@@ -553,10 +554,11 @@ const activeOrganization = computed(() => {
       <ContentBlocks v-if="cohort">
         <ContentBlockIntro
           :image="cohort?.logo?.url"
-          :link="cohort?.website"
+          :link="cohort?.website as linkTarget"
           :contact="cohort?.contactEmail"
           :contact-name="cohort.name"
           :contact-message-filter="messageFilter"
+          :subject-template="cohort.acronym"
         />
         <ContentBlockDescription
           id="Description"

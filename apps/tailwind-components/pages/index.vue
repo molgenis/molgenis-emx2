@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const modules = import.meta.glob("./*.story.vue", {
+const modules = import.meta.glob("./**/*.story.vue", {
   import: "default",
   eager: true,
 });
