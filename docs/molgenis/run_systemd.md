@@ -174,6 +174,23 @@ Optionally, you can change defaults using either java properties or using env va
 
 
 
+## Troubleshooting
+
+Check if EMX2 is running
+
+```console
+systemctl status molgenis-emx2
+```
 
 
+Check if postgresql is running
+
+```console
+systemctl status postgresql
+```
+
+Debugging log files:
+/var/log/molgenis
+ * emx2.log
+ * emx2-error.log
 
