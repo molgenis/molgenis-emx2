@@ -1,13 +1,12 @@
 from decouple import config
-from updates.meta_data import UpdateMeta
+from updates.nn_id_validations import NnIdValidations
 
 import importlib
 import os
 import shutil
-import sys
 # append the path of the parent directory
-sys.path.insert(1, "/".join(os.path.realpath(__file__).split("/")[0:-2]) + "/util")
-from update_client import UpdateClient  # noqa: E402
+# sys.path.insert(1, "/".join(os.path.realpath(__file__).split("/")[0:-2]) + "/util")
+from util.update_client import UpdateClient  # noqa: E402
 
 
 # Data model details
@@ -52,9 +51,11 @@ with UpdateClient(url=SERVER_URL, token=SERVER_TOKEN, module=update_module) as s
             print(f"\nUpdating {nn} data model to version {ERIC_VERSION}")
             session.re_create_model(nn, "BIOBANK_DIRECTORY_STAGING")
 
-            update_meta = UpdateMeta(database_name=nn,
-                                     database_type="BIOBANK_DIRECTORY_STAGING",
-                                     update_session=session)
+            if nn != "EXT":
+                id_validations = NnIdValidations(
+                    database_name=nn,
+                    database_type="BIOBANK_DIRECTORY_STAGING",
+                    update_session=session)
 
-            update_meta.add_validations()
+                id_validations.add_validations()
             print("-----   ----")
