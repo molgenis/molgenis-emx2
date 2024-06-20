@@ -1,6 +1,6 @@
 from molgenis_emx2_pyclient import Client
 from time import sleep
-from zip_handling import Zip
+from util.zip_handling import Zip
 
 import os
 import shutil
@@ -24,7 +24,9 @@ class UpdateClient(Client):
         """
         for column in df.columns:
             if df[column].dtype == 'float64':
-                df.loc[:, column] = df[column].astype('Int64')
+                # This gives future warning
+                # df.loc[:, column] = df[column].astype("Int64")
+                df[column] = df[column].astype("Int64")
 
         return df
 
