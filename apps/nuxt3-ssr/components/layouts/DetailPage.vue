@@ -10,8 +10,16 @@ const variableCount = headerData.variableCount;
     v-if="route.params.catalogue"
     :catalogue="catalogue"
     :variableCount="variableCount"
-  />
-  <HeaderGlobal v-else />
+  >
+    <template #banner>
+      <HeaderBanner />
+    </template>
+  </HeaderCatalogue>
+  <HeaderGlobal v-else>
+    <template #banner>
+      <HeaderBanner />
+    </template>
+  </HeaderGlobal>
   <Container>
     <slot name="header"></slot>
     <div class="xl:flex xl:items-start">
