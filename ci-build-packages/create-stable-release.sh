@@ -1,4 +1,4 @@
-
+#!/bin/bash 
 
 VERSION=$1
 RELEASE=1
@@ -6,9 +6,7 @@ NAME=molgenis-emx2
 SUMMARY="The world's most customizable platform for (scientific) data and FAIR principles (findability, accessibility, interoperability and reusability)."
 BUILD_ARCH=noarch
 LICENSE=LGPL3
-WEB=https://www.molgenis.org
 USER=molgenis
-GROUP=molgenis
 NEXUS_USER=$2
 NEXUS_PASS=$3
 
@@ -18,6 +16,10 @@ if [ ! "$VERSION" ]; then
   exit 1;
 fi
 
+if [ $4 ]; then
+  #for building package increase options 
+  RELEASE=$4 
+fi
 
 check_req() {
   for COMMAND in "wget" "curl" "fpm" "rpmbuild" "dpkg-deb"; do
@@ -57,7 +59,10 @@ create_buildroot() {
   
   echo "Downloading molgenis-emx2-$VERSION-all.jar from github\n"
   wget -q -O buildroot/usr/local/share/molgenis/molgenis-emx2-$VERSION-all.jar https://github.com/molgenis/molgenis-emx2/releases/download/v$VERSION/molgenis-emx2-$VERSION-all.jar 
-  ln -s molgenis-emx2-$VERSION-all.jar buildroot/usr/local/share/molgenis-emx2.jar
+  pushd .
+  cd buildroot/usr/local/share/molgenis
+  ln -s molgenis-emx2-$VERSION-all.jar molgenis-emx2.jar
+  popd
 
 }
 
