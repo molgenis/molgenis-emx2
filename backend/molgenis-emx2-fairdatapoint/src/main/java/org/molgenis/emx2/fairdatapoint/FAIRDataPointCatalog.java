@@ -71,6 +71,7 @@ public class FAIRDataPointCatalog {
                 + "language{ontologyTermURI},"
                 + "license,"
                 + "themeTaxonomy,"
+                + "propertyValue,"
                 + "dataset{id},"
                 + "mg_insertedOn,"
                 + "mg_updatedOn"
@@ -140,14 +141,11 @@ public class FAIRDataPointCatalog {
     builder.add(reqUrl, DCTERMS.PUBLISHER, publisher);
     builder.add(publisher, RDF.TYPE, FOAF.AGENT);
     builder.add(publisher, FOAF.NAME, catalogFromJSON.get("publisher"));
-    builder.add(
-        apiFdpEnc, DCTERMS.LICENSE, iri(TypeUtils.toString(catalogFromJSON.get("license"))));
-    builder.add(apiFdpEnc, DCTERMS.CONFORMS_TO, apiFdpCatalogProfileEnc);
+    builder.add(reqUrl, DCTERMS.LICENSE, iri(TypeUtils.toString(catalogFromJSON.get("license"))));
+    builder.add(reqUrl, DCTERMS.CONFORMS_TO, apiFdpCatalogProfileEnc);
     builder.add(reqUrl, DCTERMS.IS_PART_OF, apiFdpEnc);
     builder.add(
-        apiFdpEnc,
-        DCAT.THEME_TAXONOMY,
-        iri(TypeUtils.toString(catalogFromJSON.get("themeTaxonomy"))));
+        reqUrl, DCAT.THEME_TAXONOMY, iri(TypeUtils.toString(catalogFromJSON.get("themeTaxonomy"))));
     builder.add(apiFdpEnc, iri("https://w3id.org/fdp/fdp-o#metadataIdentifier"), reqUrl);
 
     builder.add(
@@ -193,36 +191,50 @@ public class FAIRDataPointCatalog {
         builder.add(reqUrl, DCTERMS.LANGUAGE, language);
       }
     }
+    if (catalogFromJSON.get("propertyValue") != null) {
+      for (String propertyValue : (List<String>) catalogFromJSON.get("propertyValue")) {
+        String[] propertyValueSplit = propertyValue.split(" ", -1);
+        nullCheckOnPropVal(propertyValueSplit);
+        builder.add(reqUrl, iri(propertyValueSplit[0]), iri(propertyValueSplit[1]));
+      }
+    }
 
     builder.add(
-        apiFdpEnc,
+        reqUrl,
         DCTERMS.ISSUED,
         literal(
             TypeUtils.toString(catalogFromJSON.get("mg_insertedOn")).substring(0, 19),
             XSD.DATETIME));
     builder.add(
-        apiFdpEnc,
+        reqUrl,
         DCTERMS.MODIFIED,
         literal(
             TypeUtils.toString(catalogFromJSON.get("mg_updatedOn")).substring(0, 19),
             XSD.DATETIME));
     BNode rights = vf.createBNode();
-    builder.add(apiFdpEnc, DCTERMS.RIGHTS, rights);
+    builder.add(reqUrl, DCTERMS.RIGHTS, rights);
     builder.add(rights, RDF.TYPE, DCTERMS.RIGHTS_STATEMENT);
     builder.add(rights, DCTERMS.DESCRIPTION, "Rights are provided on a per-dataset basis.");
     BNode accessRights = vf.createBNode();
-    builder.add(apiFdpEnc, DCTERMS.ACCESS_RIGHTS, accessRights);
+    builder.add(reqUrl, DCTERMS.ACCESS_RIGHTS, accessRights);
     builder.add(accessRights, RDF.TYPE, DCTERMS.RIGHTS_STATEMENT);
     builder.add(
         accessRights, DCTERMS.DESCRIPTION, "Access rights are provided on a per-dataset basis.");
     builder.add(
-        apiFdpEnc, FOAF.HOMEPAGE, encodedIRI(host + "/" + schema.getName() + "/tables/#/Catalog"));
+        reqUrl, FOAF.HOMEPAGE, encodedIRI(host + "/" + schema.getName() + "/tables/#/Catalog"));
 
     // Write model
     Model model = builder.build();
     StringWriter stringWriter = new StringWriter();
     Rio.write(model, stringWriter, applicationOntologyFormat, config);
     this.result = stringWriter.toString();
+  }
+
+  private static void nullCheckOnPropVal(String[] propertyValueSplit) {
+    if (propertyValueSplit.length != 2) {
+      throw new IllegalArgumentException(
+          "propertyValue should contain strings that each consist of 2 elements separated by 1 whitespace");
+    }
   }
 
   /**

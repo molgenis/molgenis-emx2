@@ -3,30 +3,35 @@ import { IRow } from "../../../Interfaces/IRow";
 import constants from "../../constants.js";
 import { deepClone, filterObject } from "../../utils";
 
-const { EMAIL_REGEX, HYPERLINK_REGEX, AUTO_ID, HEADING } = constants;
+const { EMAIL_REGEX, HYPERLINK_REGEX, PERIOD_REGEX, AUTO_ID, HEADING } =
+  constants;
 
 export function getRowErrors(
   tableMetaData: ITableMetaData,
   rowData: Record<string, any>
-) {
-  return tableMetaData.columns.reduce((accum, column: IColumn) => {
-    accum[column.id] = getColumnError(column, rowData, tableMetaData);
-    return accum;
-  }, {} as Record<string, string | undefined>);
+): Record<string, string> {
+  return tableMetaData.columns.reduce(
+    (accum: Record<string, string>, column: IColumn) => {
+      const error = getColumnError(column, rowData, tableMetaData);
+      if (error) {
+        accum[column.id] = error;
+      }
+      return accum;
+    },
+    {}
+  );
 }
 
 function getColumnError(
   column: IColumn,
   rowData: Record<string, any>,
   tableMetaData: ITableMetaData
-) {
+): string | undefined {
   const value = rowData[column.id];
   const type = column.columnType;
-  const isInvalidNumber = isInValidNumericValue(type, value);
+  const missesValue = isMissingValue(value);
   // FIXME: this function should also check all array types
   // FIXME: longs are not checked
-
-  const missesValue = isMissingValue(value);
 
   try {
     if (!isColumnVisible(column, rowData, tableMetaData)) {
@@ -39,18 +44,22 @@ function getColumnError(
   if (column.columnType === AUTO_ID || column.columnType === HEADING) {
     return undefined;
   }
+
   if (column.required) {
     if (isRequired(column.required)) {
+      const isInvalidNumber = isInValidNumericValue(type, value);
       if (missesValue || isInvalidNumber) {
         return column.label + " is required";
       }
     } else {
-      let error = getRequiredExpressionError(
-        column.required,
+      const error = getRequiredExpressionError(
+        column.required as string,
         rowData,
         tableMetaData
       );
-      if (error && missesValue) return error;
+      if (error && missesValue) {
+        return error;
+      }
     }
   }
 
@@ -69,6 +78,12 @@ function getColumnError(
   if (type === "HYPERLINK_ARRAY" && containsInvalidHyperlink(value)) {
     return "Invalid hyperlink";
   }
+  if (type === "PERIOD" && !isValidPeriod(value)) {
+    return "Invalid Period: should start with a P and should contain at least a Y(year), M(month) or D(day): e.g. 'P1Y3M14D'";
+  }
+  if (type === "PERIOD_ARRAY" && containsInvalidPeriod(value)) {
+    return "Invalid Period: should start with a P and should contain at least a Y(year), M(month) or D(day): e.g. 'P1Y3M14D'";
+  }
   if (column.validation) {
     return getColumnValidationError(column.validation, rowData, tableMetaData);
   }
@@ -82,18 +97,21 @@ function getColumnError(
 export function isMissingValue(value: any): boolean {
   if (Array.isArray(value)) {
     return value.some((element) => isMissingValue(element));
+  } else {
+    return value === undefined || value === null || value === "";
   }
-  return value === undefined || value === null || value === "";
 }
 
 export function isRequired(value: string | boolean): boolean {
   if (typeof value === "string") {
-    if (value.toLowerCase() === "true") return true;
-    if (value.toLowerCase() === "false") return false;
+    if (value.toLowerCase() === "true") {
+      return true;
+    } else {
+      return false;
+    }
   } else {
     return value;
   }
-  return false;
 }
 
 function isInValidNumericValue(columnType: string, value: number) {
@@ -148,7 +166,7 @@ export function executeExpression(
 ) {
   //make sure all columns have keys to prevent reference errors
   const copy: Record<string, any> = deepClone(values);
-  tableMetaData.columns.forEach((column) => {
+  tableMetaData.columns.forEach((column: IColumn) => {
     if (!copy.hasOwnProperty(column.id)) {
       copy[column.id] = null;
     }
@@ -180,7 +198,6 @@ export function executeExpression(
     "simplePostClient",
     //@ts-ignore
     Object.keys(copy),
-    //@ts-ignore
     "return eval(`" + expression.replaceAll("`", "\\`") + "`)"
   );
   return func(simplePostClient, ...Object.values(copy));
@@ -227,6 +244,14 @@ function containsInvalidEmail(emails: any) {
   return emails.find((email: any) => !isValidEmail(email));
 }
 
+function isValidPeriod(value: any) {
+  return PERIOD_REGEX.test(String(value));
+}
+
+function containsInvalidPeriod(periods: any) {
+  return periods.find((period: any) => !isValidPeriod(period));
+}
+
 export function removeKeyColumns(tableMetaData: ITableMetaData, rowData: IRow) {
   const keyColumnsIds = tableMetaData?.columns
     ?.filter((column: IColumn) => column.key === 1)
@@ -237,7 +262,7 @@ export function removeKeyColumns(tableMetaData: ITableMetaData, rowData: IRow) {
 
 export function filterVisibleColumns(
   columns: IColumn[],
-  visibleColumns: string[] | null
+  visibleColumns?: string[]
 ): IColumn[] {
   if (!visibleColumns) {
     return columns;

@@ -16,6 +16,7 @@ parameters:
 
 orbs:
   slack: circleci/slack@4.4.4
+  queue: eddiewebb/queue@3.1.4
 
 definitions:
   build_config: &build_config
@@ -143,7 +144,7 @@ jobs:
     - run:
         name: Wait for preview to be up, poll every 10 seconds
         command: |
-          GETURL="https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/"
+          GETURL="https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/catalogue-demo/ssr-catalogue/testNetwork1"
           while true; 
               do 
                   STATUS=$(curl --silent --head $GETURL | awk '/^HTTP/{print $2}')
@@ -193,6 +194,11 @@ jobs:
     <<: *release_config
 
     steps:
+    - queue/until_front_of_line:
+        limit-branch-name: main
+        max-wait-time: '25'
+        my-pipeline: <<pipeline.number>>
+        
     - pre_steps
     
     - run:
@@ -238,13 +244,29 @@ jobs:
           -X POST https://slack.com/api/chat.postMessage  
 
     - post_steps
-  e2e-preview:
+  e2e-test:
     docker:
-      - image: mcr.microsoft.com/playwright:v1.43.0-jammy
+      - image: mcr.microsoft.com/playwright:v1.44.0-jammy
     steps:
       - checkout
       - run: npm i -D @playwright/test
       - run: npx playwright install chrome
+      - run:
+          name: Wait for e2e test data to be loaded, poll every 10 seconds
+          command: |
+            GETURL="https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/catalogue-demo/ssr-catalogue/testNetwork1"           
+            while true; 
+                do 
+                    STATUS=$(curl --silent --head $GETURL | awk '/^HTTP/{print $2}')
+                    echo ${STATUS} ${GETURL}
+                    if [[ "$STATUS" == "200" ]]; then 
+                        echo "test data is loaded";
+                        break; 
+                    else 
+                        echo "test data is not ready yet, waiting 10 seconds...";
+                    fi; 
+                    sleep 10; 
+                done
       - run:
           command: | 
             echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
@@ -321,7 +343,7 @@ workflows:
         filters:
           branches:
             ignore: master
-    - e2e-preview:
+    - e2e-test:
         requires:
           - preview
         filters:

@@ -45,6 +45,7 @@ Basic type:
 - decimal
 - date
 - datetime
+- period : string as a ISO 8601 duration containing Years, Months and/or Days. (P2Y4M30D)
 - uuid
 - jsonb : validates json format
 - file
@@ -74,6 +75,7 @@ Arrays (i.e. list of values)
 - decimal_array
 - date_array
 - datetime_array
+- period_array
 - jsonb_array
 - uuid_array
 - text_array
@@ -300,16 +302,17 @@ the current schema. This is because in practice, the table from the other schema
 ### refLabel
 
 Using 'refLabel' you can change the way on how a reference is being shown on the screen. By default the key=1 fields of the refTable are used. Caveat: you
-should make sure that the refLabel is unique and not null. To make sure, we recommend you make the fields required and part of a secondary key.
+should make sure that the refLabel is unique and not null and only uses fields that are part of a key. To make sure, we recommend you make the fields required 
+and part of a secondary key, or that you use 'computed' to produce you ref_label as a key=x field.
 
 Example:
 
-| tableName | columnName | type | key | required | refTable                 | refLabel |
-| --------- | ---------- | ---- | --- | -------- | ------------------------ | -------- |
-| person    | id         |      | 1   | true     |                          |          |
-| person    | firstName  |      | 2   | true     |                          |          |
-| person    | lastName   |      | 2   | true     |                          |          |
-| person    | mother     | ref  |     | person   | ${firstName} ${lastName} |          |
+| tableName | columnName | type | key | required | refTable | refLabel                 |
+| --------- | ---------- | ---- | --- |----------|----------|--------------------------|
+| person    | id         |      | 1   | true     |          |                          |
+| person    | firstName  |      | 2   | true     |          |                          |
+| person    | lastName   |      | 2   | true     |          |                          |
+| person    | mother     | ref  |     |          | Person   | ${firstName} ${lastName} |
 
 ## Simple migrations
 

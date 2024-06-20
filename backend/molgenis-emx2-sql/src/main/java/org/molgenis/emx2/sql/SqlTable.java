@@ -285,7 +285,7 @@ class SqlTable implements Table {
 
           // execute any remaining batches
           for (Map.Entry<String, List<Row>> batch : subclassRows.entrySet()) {
-            if (batch.getValue().size() > 0) {
+            if (!batch.getValue().isEmpty()) {
               executeBatch(
                   (SqlSchema) db2.getSchema(batch.getKey().split("\\.")[0]),
                   transactionType,
@@ -311,11 +311,7 @@ class SqlTable implements Table {
   }
 
   private static boolean columnsProvidedAreDifferent(Set<String> columnsProvided, Row row) {
-    if (columnsProvided.size() == 0 || columnsProvided.equals(row.getColumnNames())) {
-      return false;
-    } else {
-      return true;
-    }
+    return !columnsProvided.isEmpty() && !columnsProvided.equals(row.getColumnNames());
   }
 
   private static void executeBatch(
@@ -330,7 +326,9 @@ class SqlTable implements Table {
     SqlTable table = schema.getTable(subclassName.split("\\.")[1]);
     if (UPDATE.equals(transactionType)) {
       List<Column> updateColumns = getUpdateColumns(table, columnsProvided);
-      List<Row> rows = applyValidationAndComputed(updateColumns, subclassRows.get(subclassName));
+      List<Row> rows =
+          applyValidationAndComputed(
+              table.getMetadata().getColumns(), subclassRows.get(subclassName));
       count.set(count.get() + table.updateBatch(table, rows, updateColumns));
     } else if (SAVE.equals(transactionType) || INSERT.equals(transactionType)) {
       List<Column> insertColumns = getInsertColumns(table, columnsProvided);

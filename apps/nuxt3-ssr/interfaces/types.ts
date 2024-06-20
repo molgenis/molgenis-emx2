@@ -1,4 +1,5 @@
 import type { IColumn } from "meta-data-utils";
+import type { INode } from "../../tailwind-components/types/types";
 export interface IResource {
   id: string;
   pid: string;
@@ -18,6 +19,7 @@ export interface ICohort {
   website?: string;
   logo?: IUrlObject;
   contactEmail?: string;
+  leadOrganisation?: IOrganisation[];
   institution?: {
     acronym: string;
   };
@@ -49,17 +51,21 @@ export interface ICohort {
   inclusionCriteria?: IOntologyNode[];
   otherInclusionCriteria?: string;
   collectionEvents: ICollectionEvent[];
-  additionalOrganisations: IPartner[];
+  additionalOrganisations: IOrganisation[];
   contacts: IContributor[];
   networks: INetwork[];
   releaseDescription?: string;
   linkageOptions?: string;
   dataAccessConditionsDescription?: string;
   dataAccessConditions?: { name: string }[];
+  prelinked?: boolean;
+  releaseType?: boolean;
   fundingStatement?: string;
   acknowledgements?: string;
   documentation?: IDocumentation[];
   datasets: { name: string }[];
+  populationOncologyTopology?: IOntologyNode[];
+  populationOncologyMorphology?: IOntologyNode[];
 }
 
 export interface IVariableBase {
@@ -81,6 +87,10 @@ export interface IVariableBase {
 export interface IVariableDetails {
   unit?: IOntologyNode;
   format?: IOntologyNode;
+  repeats?: {
+    name: string;
+    mappings: IMapping[];
+  }[];
 }
 
 export interface IVariableMappings {
@@ -108,6 +118,21 @@ export interface IDocumentation {
   file: IFile;
 }
 
+export interface IOrganisation extends IPartner {
+  email: string;
+  type: {
+    name: string;
+  };
+  institution: any;
+  institutionAcronym: string;
+  typeOther: string;
+  address: string;
+  expertise: string;
+  country: {
+    name: string;
+  };
+}
+
 export interface IPartner {
   id: string;
   acronym: string;
@@ -126,6 +151,7 @@ export interface IContributor {
   email: string;
   title: INameObject;
   organisation: INameObject;
+  role?: IOntologyNode[];
 }
 
 export interface INameObject {
@@ -183,15 +209,22 @@ export interface IOntologyNode extends ITreeNode {
   code?: string;
   definition?: string;
   ontologyTermURI?: string;
+  order?: number;
 }
 
 export interface IFormField {
   name: string;
   label: string;
   fieldValue: string; // value is taken by vue reactivity
-  inputType: "string" | "textarea";
+  inputType: "string" | "textarea" | "select";
   hasError?: boolean;
   message?: string;
+  placeholder?: string;
+}
+
+export interface ISelectFormField extends IFormField {
+  inputType: "select";
+  options: string[] | number[];
 }
 
 export interface IContactFormData {
@@ -318,7 +351,11 @@ export type IFilter = ISearchFilter | IOntologyFilter | IRefArrayFilter;
 interface IAbstractFilter {
   id: string;
   search?: string;
-  config: ISearchFilterConfig | IOntologyFilterConfig | IRefArrayFilterConfig;
+  config:
+    | ISearchFilterConfig
+    | IOntologyFilterConfig
+    | IRefArrayFilterDefaultConfig
+    | IRefArrayFilterCustomConfig;
 }
 export interface ISearchFilter extends IAbstractFilter {
   search: string;
@@ -344,12 +381,26 @@ export interface IOntologyFilterConfig extends IFilterConfig {
   refFields?: filterRefField;
 }
 
-export interface IRefArrayFilterConfig extends IFilterConfig {
+export interface IRefArrayFilterAbstractConfig extends IFilterConfig {
   type: "REF_ARRAY";
   refTableId: string;
   refSchema?: string;
-  columnId: string;
   refFields?: filterRefField;
+  // optional function to build the filter bases on the selected options
+  // if empty the defualt builder will be used
+  buildFilterFunction?: Function;
+}
+
+export interface IRefArrayFilterDefaultConfig
+  extends IRefArrayFilterAbstractConfig {
+  columnId: string;
+}
+
+export interface IRefArrayFilterCustomConfig
+  extends IRefArrayFilterAbstractConfig {
+  // optional function to build the filter bases on the selected options
+  // if empty the defualt builder will be used
+  buildFilterFunction?: Function;
 }
 
 type filterRefField = {
@@ -367,9 +418,14 @@ export interface IOntologyFilter extends IAbstractFilter {
 
 export type IConditionsFilter = IOntologyFilter | IRefArrayFilter;
 
+export interface optionsFetchFn {
+  (): Promise<INode[]>;
+}
+
 export interface IRefArrayFilter extends IAbstractFilter {
   conditions: IFilterCondition[];
-  config: IRefArrayFilterConfig;
+  config: IRefArrayFilterCustomConfig | IRefArrayFilterDefaultConfig;
+  options?: INode[] | optionsFetchFn;
 }
 
 export interface IPathCondition {
@@ -387,3 +443,26 @@ export interface IPathConditionsCondition extends IPathCondition {
 }
 
 export type activeTabType = "detailed" | "compact";
+
+export interface IOrganization {
+  id: string;
+  name?: string;
+  email?: string;
+  description?: string;
+  website?: string;
+  acronym?: string;
+  type?: {
+    name: string;
+  };
+  institution?: any;
+  institutionAcronym?: string;
+  typeOther?: string;
+  address?: string;
+  expertise?: string;
+  country?: {
+    name: string;
+  };
+  logo?: IUrlObject;
+}
+
+export type linkTarget = "_self" | "_blank" | "_parent" | "_top";

@@ -133,10 +133,6 @@ const query = computed(() => {
       design {
           name
       }
-      leadOrganisation {
-          name
-          acronym
-      }
     }
     Cohorts_agg (filter:$filter){
         count
@@ -180,11 +176,11 @@ const { data } = await useFetch<any, IMgError>(
 const cohorts = computed(() => data.value.data.Cohorts || []);
 const numberOfCohorts = computed(() => data.value.data.Cohorts_agg.count || 0);
 
-function setCurrentPage(pageNumber: number) {
-  router.push({
-    path: route.path,
+async function setCurrentPage(pageNumber: number) {
+  await navigateTo({
     query: { ...route.query, page: pageNumber },
   });
+  window.scrollTo({ top: 0 });
 }
 
 function onFilterChange(filters: IFilter[]) {

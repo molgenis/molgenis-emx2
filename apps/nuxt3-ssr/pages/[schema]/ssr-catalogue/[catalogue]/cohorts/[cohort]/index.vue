@@ -5,7 +5,14 @@ import collectionEventsQuery from "~~/gql/collectionEvents";
 import datasetQuery from "~~/gql/datasets";
 import ontologyFragment from "~~/gql/fragments/ontology";
 import fileFragment from "~~/gql/fragments/file";
-import type { ICohort, IMgError, IOntologyItem } from "~/interfaces/types";
+import type {
+  ICohort,
+  IDefinitionListItem,
+  IMgError,
+  IOntologyItem,
+  IOrganisation,
+  linkTarget,
+} from "~/interfaces/types";
 import dateUtils from "~/utils/dateUtils";
 const config = useRuntimeConfig();
 const route = useRoute();
@@ -24,7 +31,44 @@ const query = gql`
       }
       contactEmail
       leadOrganisation {
+        id
+        name
+        email
+        description
+        website
         acronym
+        type {
+          name
+        }
+        institution
+        institutionAcronym
+        typeOther
+        address
+        expertise
+        country {
+          name
+        }
+        logo ${moduleToString(fileFragment)}
+      }
+      additionalOrganisations  {
+         id
+        name
+        email
+        description
+        website
+        acronym
+        type {
+          name
+        }
+        institution
+        institutionAcronym
+        typeOther
+        address
+        expertise
+        country {
+          name
+        }
+        logo ${moduleToString(fileFragment)}
       }
       type {
         name
@@ -56,6 +100,8 @@ const query = gql`
         title
         doi
       }
+      populationOncologyTopology ${moduleToString(ontologyFragment)}
+      populationOncologyMorphology ${moduleToString(ontologyFragment)}
       inclusionCriteria ${moduleToString(ontologyFragment)}
       otherInclusionCriteria
       additionalOrganisations {
@@ -105,25 +151,19 @@ const query = gql`
         organisation {
           name
         }
+        role ${moduleToString(ontologyFragment)}
+        
       }
-      dataAccessConditions {
-        name
-        ontologyTermURI
-        code
-        definition
-      }
+      dataAccessConditions ${moduleToString(ontologyFragment)}
       dataAccessConditionsDescription
-      dataUseConditions {
-        name
-        ontologyTermURI
-        code
-        definition
-      }
+      dataUseConditions ${moduleToString(ontologyFragment)}
       dataAccessFee
+      releaseType ${moduleToString(ontologyFragment)}
       releaseDescription
       linkageOptions
       fundingStatement
       acknowledgements
+      prelinked
       documentation {
         name
         description
@@ -213,14 +253,14 @@ function collectionEventMapper(item: any) {
   };
 }
 
-function datasetMapper(item: any) {
+function datasetMapper(item: { name: string; description?: string }) {
   return {
     id: {
       name: item.name,
       resourceId: route.params.cohort,
     },
     name: item.name,
-    description: item.descriptions,
+    description: item.description,
   };
 }
 
@@ -240,9 +280,15 @@ let tocItems = computed(() => {
     { label: "Description", id: "Description" },
     { label: "General design", id: "GeneralDesign" },
   ];
+  if (population) {
+    tableOffContents.push({
+      label: "Population",
+      id: "population",
+    });
+  }
   if (cohort.value.contacts) {
     tableOffContents.push({
-      label: "Contact & contributors",
+      label: "Contributors",
       id: "Contributors",
     });
   }
@@ -265,11 +311,13 @@ let tocItems = computed(() => {
   if (cohort.value.datasets) {
     tableOffContents.push({ label: "Datasets", id: "Datasets" });
   }
-  if (cohort.value.networks) {
-    tableOffContents.push({ label: "Networks", id: "Networks" });
-  }
+
   if (cohort.value.additionalOrganisations) {
     tableOffContents.push({ label: "Partners", id: "Partners" });
+  }
+
+  if (cohort.value.networks) {
+    tableOffContents.push({ label: "Networks", id: "Networks" });
   }
 
   if (
@@ -286,30 +334,119 @@ let tocItems = computed(() => {
 
   if (cohort.value.fundingStatement || cohort.value.acknowledgements) {
     tableOffContents.push({
-      label: "Funding & Citation requirements ",
+      label: "Funding & Acknowledgements ",
       id: "funding-and-acknowledgement",
     });
   }
 
   if (cohort.value.documentation) {
-    tableOffContents.push({ label: "Attached files", id: "Files" });
+    tableOffContents.push({ label: "Documentation", id: "Files" });
   }
 
   return tableOffContents;
 });
 
+const population: IDefinitionListItem[] = [
+  {
+    label: "Countries",
+    content: cohort.value?.countries
+      ? [...cohort.value?.countries]
+          .sort((a, b) => b.order - a.order)
+          .map((country) => country.name)
+          .join(", ")
+      : undefined,
+  },
+  {
+    label: "Regions",
+    content: cohort.value?.regions
+      ?.sort((a, b) => b.order - a.order)
+      .map((r) => r.name)
+      .join(", "),
+  },
+  {
+    label: "Number of participants",
+    content: cohort.value?.numberOfParticipants,
+  },
+  {
+    label: "Number of participants with samples",
+    content: cohort.value?.numberOfParticipantsWithSamples,
+  },
+  {
+    label: "Population age groups",
+    content: removeChildIfParentSelected(
+      cohort.value?.populationAgeGroups || []
+    )
+      .sort((a, b) => a.order - b.order)
+      .map((ageGroup) => ageGroup.name)
+      .join(", "),
+  },
+  {
+    label: "Population oncology topology",
+    type: "ONTOLOGY",
+    content: cohort.value.populationOncologyTopology,
+  },
+  {
+    label: "Population oncology morphology",
+    type: "ONTOLOGY",
+    content: cohort.value.populationOncologyMorphology,
+  },
+  {
+    label: "Inclusion criteria",
+    type: "ONTOLOGY",
+    content: cohort.value.inclusionCriteria,
+  },
+  {
+    label: "Other inclusion criteria",
+    content: cohort.value.otherInclusionCriteria,
+  },
+];
+
+if (mainMedicalConditions.value && mainMedicalConditions.value.length > 0) {
+  population.splice(population.length - 4, 0, {
+    label: "Main medical condition",
+    content: mainMedicalConditions.value,
+    type: "ONTOLOGY",
+  });
+}
+
 let accessConditionsItems = computed(() => {
   let items = [];
   if (cohort.value.dataAccessConditions?.length) {
     items.push({
-      label: "Conditions",
+      label: "Data access conditions",
       content: cohort.value.dataAccessConditions.map((c) => c.name),
+    });
+  }
+  if (cohort.value.dataUseConditions) {
+    items.push({
+      label: "Data use conditions",
+      type: "ONTOLOGY",
+      content: cohort.value.dataUseConditions,
+    });
+  }
+  if (cohort.value.dataAccessFee) {
+    items.push({
+      label: "Data access fee",
+      content: cohort.value.dataAccessFee,
+    });
+  }
+  if (cohort.value.releaseType) {
+    items.push({
+      label: "Release type",
+      type: "ONTOLOGY",
+      content: cohort.value.releaseType,
     });
   }
   if (cohort.value.releaseDescription) {
     items.push({
-      label: "Release",
+      label: "Release description",
       content: cohort.value.releaseDescription,
+    });
+  }
+  if (cohort.value.prelinked) {
+    items.push({
+      label: "Prelinked",
+      content: cohort.value.prelinked,
     });
   }
   if (cohort.value.linkageOptions) {
@@ -332,7 +469,7 @@ let fundingAndAcknowledgementItems = computed(() => {
   }
   if (cohort.value.acknowledgements) {
     items.push({
-      label: "Citation requirements ",
+      label: "Acknowledgements",
       content: cohort.value.acknowledgements,
     });
   }
@@ -361,6 +498,42 @@ if (route.params.catalogue) {
   crumbs["Browse"] = `/${route.params.schema}/ssr-catalogue/all`;
   crumbs["Cohorts"] = `/${route.params.schema}/ssr-catalogue/all/cohorts`;
 }
+
+const activeLeadOrganisationSideModalIndex = ref(-1);
+
+function showLeadOrganisationSideModal(index: number) {
+  activeLeadOrganisationSideModalIndex.value = index;
+}
+const activeAdditionalOrganisationSideModalIndex = ref(-1);
+
+function showAdditionaOrganisationSideModal(index: number) {
+  activeAdditionalOrganisationSideModalIndex.value = index;
+}
+
+function closeOrganisationSideModal() {
+  activeLeadOrganisationSideModalIndex.value = -1;
+  activeAdditionalOrganisationSideModalIndex.value = -1;
+}
+
+const activeOrganization = computed(() => {
+  if (
+    activeLeadOrganisationSideModalIndex.value > -1 &&
+    cohort.value.leadOrganisation
+  ) {
+    return cohort.value.leadOrganisation[
+      activeLeadOrganisationSideModalIndex.value
+    ];
+  } else if (
+    activeAdditionalOrganisationSideModalIndex.value > -1 &&
+    cohort.value.additionalOrganisations
+  ) {
+    return cohort.value.additionalOrganisations[
+      activeAdditionalOrganisationSideModalIndex.value
+    ];
+  } else {
+    return null;
+  }
+});
 </script>
 <template>
   <LayoutsDetailPage>
@@ -388,10 +561,11 @@ if (route.params.catalogue) {
       <ContentBlocks v-if="cohort">
         <ContentBlockIntro
           :image="cohort?.logo?.url"
-          :link="cohort?.website"
+          :link="cohort?.website as linkTarget"
           :contact="cohort?.contactEmail"
           :contact-name="cohort.name"
           :contact-message-filter="messageFilter"
+          :subject-template="cohort.acronym"
         />
         <ContentBlockDescription
           id="Description"
@@ -403,15 +577,104 @@ if (route.params.catalogue) {
           id="GeneralDesign"
           title="General Design"
           :cohort="cohort"
-          :main-medical-condition="mainMedicalConditions"
         />
 
+        <ContentBlock id="population" title="Population">
+          <CatalogueItemList
+            :items="population.filter((item) => item.content !== undefined)"
+          />
+        </ContentBlock>
+
+        {{ activeOrganization }}
+
         <ContentBlockContact
-          v-if="cohort?.contacts"
+          v-if="
+            cohort?.contacts ||
+            cohort.leadOrganisation ||
+            cohort.additionalOrganisations
+          "
           id="Contributors"
-          title="Contact and Contributors"
+          title="Contributors"
           :contributors="cohort?.contacts"
-        />
+        >
+          <template
+            #before
+            v-if="
+              cohort.leadOrganisation && cohort.leadOrganisation?.length > 1
+            "
+          >
+            <DisplayList
+              class="mb-5"
+              v-if="cohort.leadOrganisation"
+              title="Lead organisation"
+              :type="
+                cohort.leadOrganisation && cohort.leadOrganisation?.length > 1
+                  ? 'standard'
+                  : 'link'
+              "
+            >
+              <DisplayListItem
+                v-for="(organisation, index) in cohort.leadOrganisation"
+                @click="showLeadOrganisationSideModal(index)"
+              >
+                <span
+                  class="text-blue-500 hover:underline hover:cursor-pointer"
+                  >{{ organisation.name }}</span
+                >
+                <img
+                  v-if="organisation.logo"
+                  class="max-h-11"
+                  :src="organisation.logo.url"
+                />
+              </DisplayListItem>
+            </DisplayList>
+            <h3 class="mb-2.5 font-bold text-body-base">Contributors</h3>
+          </template>
+
+          <template #after>
+            <DisplayList
+              class="mt-5"
+              title="Additional organisations"
+              v-if="cohort.additionalOrganisations"
+              :type="
+                cohort.additionalOrganisations &&
+                cohort.additionalOrganisations?.length > 1
+                  ? 'standard'
+                  : 'link'
+              "
+            >
+              <DisplayListItem
+                v-for="(organisation, index) in cohort.additionalOrganisations"
+                @click="showAdditionaOrganisationSideModal(index)"
+              >
+                <span
+                  class="text-blue-500 hover:underline hover:cursor-pointer"
+                  >{{ organisation.name }}</span
+                >
+                <img
+                  v-if="organisation.logo"
+                  class="max-h-11"
+                  :src="organisation.logo.url"
+                />
+              </DisplayListItem>
+            </DisplayList>
+          </template>
+        </ContentBlockContact>
+
+        <SideModal
+          :show="activeOrganization !== null"
+          :fullScreen="false"
+          :slideInRight="true"
+          @close="closeOrganisationSideModal"
+          buttonAlignment="right"
+        >
+          <slot>
+            <OrganizationSideContent
+              v-if="activeOrganization"
+              :organisation="activeOrganization"
+            />
+          </slot>
+        </SideModal>
 
         <!-- <ContentBlockVariables
           id="Variables"
@@ -520,7 +783,7 @@ if (route.params.catalogue) {
 
         <ContentBlock
           id="funding-and-acknowledgement"
-          title="Funding &amp; Citation requirements "
+          title="Funding &amp; Acknowledgements "
           v-if="cohort?.fundingStatement || cohort?.acknowledgements"
         >
           <CatalogueItemList :items="fundingAndAcknowledgementItems" />
@@ -529,7 +792,7 @@ if (route.params.catalogue) {
         <ContentBlockAttachedFiles
           v-if="cohort?.documentation?.length"
           id="Files"
-          title="Attached Files"
+          title="Documentation"
           :documents="cohort.documentation"
         />
       </ContentBlocks>
