@@ -10,6 +10,7 @@ import type {
   IDefinitionListItem,
   IMgError,
   IOntologyItem,
+  IOrganisation,
   linkTarget,
 } from "~/interfaces/types";
 import dateUtils from "~/utils/dateUtils";
@@ -31,6 +32,26 @@ const query = gql`
       contactEmail
       leadOrganisation {
         id
+        name
+        email
+        description
+        website
+        acronym
+        type {
+          name
+        }
+        institution
+        institutionAcronym
+        typeOther
+        address
+        expertise
+        country {
+          name
+        }
+        logo ${moduleToString(fileFragment)}
+      }
+      additionalOrganisations  {
+         id
         name
         email
         description
@@ -130,6 +151,8 @@ const query = gql`
         organisation {
           name
         }
+        role ${moduleToString(ontologyFragment)}
+        
       }
       dataAccessConditions ${moduleToString(ontologyFragment)}
       dataAccessConditionsDescription
@@ -265,7 +288,7 @@ let tocItems = computed(() => {
   }
   if (cohort.value.contacts) {
     tableOffContents.push({
-      label: "Contact & contributors",
+      label: "Contributors",
       id: "Contributors",
     });
   }
@@ -479,9 +502,38 @@ if (route.params.catalogue) {
 const activeLeadOrganisationSideModalIndex = ref(-1);
 
 function showLeadOrganisationSideModal(index: number) {
-  console.log("showLeadOrganisationSideModal", index);
   activeLeadOrganisationSideModalIndex.value = index;
 }
+const activeAdditionalOrganisationSideModalIndex = ref(-1);
+
+function showAdditionaOrganisationSideModal(index: number) {
+  activeAdditionalOrganisationSideModalIndex.value = index;
+}
+
+function closeOrganisationSideModal() {
+  activeLeadOrganisationSideModalIndex.value = -1;
+  activeAdditionalOrganisationSideModalIndex.value = -1;
+}
+
+const activeOrganization = computed(() => {
+  if (
+    activeLeadOrganisationSideModalIndex.value > -1 &&
+    cohort.value.leadOrganisation
+  ) {
+    return cohort.value.leadOrganisation[
+      activeLeadOrganisationSideModalIndex.value
+    ];
+  } else if (
+    activeAdditionalOrganisationSideModalIndex.value > -1 &&
+    cohort.value.additionalOrganisations
+  ) {
+    return cohort.value.additionalOrganisations[
+      activeAdditionalOrganisationSideModalIndex.value
+    ];
+  } else {
+    return null;
+  }
+});
 </script>
 <template>
   <LayoutsDetailPage>
@@ -533,147 +585,96 @@ function showLeadOrganisationSideModal(index: number) {
           />
         </ContentBlock>
 
+        {{ activeOrganization }}
+
         <ContentBlockContact
-          v-if="cohort?.contacts || cohort.leadOrganisation"
+          v-if="
+            cohort?.contacts ||
+            cohort.leadOrganisation ||
+            cohort.additionalOrganisations
+          "
           id="Contributors"
-          title="Contact and Contributors"
+          title="Contributors"
           :contributors="cohort?.contacts"
         >
-          <DisplayList
-            class="mb-5"
-            title="Lead organisation"
-            :type="
+          <template
+            #before
+            v-if="
               cohort.leadOrganisation && cohort.leadOrganisation?.length > 1
-                ? 'standard'
-                : 'link'
             "
           >
-            <DisplayListItem
-              v-for="(organisation, index) in cohort.leadOrganisation"
-              @click="showLeadOrganisationSideModal(index)"
+            <DisplayList
+              class="mb-5"
+              v-if="cohort.leadOrganisation"
+              title="Lead organisation"
+              :type="
+                cohort.leadOrganisation && cohort.leadOrganisation?.length > 1
+                  ? 'standard'
+                  : 'link'
+              "
             >
-              <span
-                class="text-blue-500 hover:underline hover:cursor-pointer"
-                >{{ organisation.name }}</span
+              <DisplayListItem
+                v-for="(organisation, index) in cohort.leadOrganisation"
+                @click="showLeadOrganisationSideModal(index)"
               >
-              <img
-                v-if="organisation.logo"
-                class="max-h-11"
-                :src="organisation.logo.url"
-              />
-            </DisplayListItem>
-          </DisplayList>
-          <SideModal
-            :show="activeLeadOrganisationSideModalIndex > -1"
-            :fullScreen="false"
-            :slideInRight="true"
-            @close="activeLeadOrganisationSideModalIndex = -1"
-            buttonAlignment="right"
-          >
-            <slot>
-              <ContentBlockModal
-                :title="
-                  cohort.leadOrganisation
-                    ? cohort.leadOrganisation[
-                        activeLeadOrganisationSideModalIndex
-                      ].name
-                    : ''
-                "
-                description="Lead organisation"
-                v-if="cohort"
-              >
-                <CatalogueItemList
-                  :items="[
-                    {
-                      label: 'email',
-                      content:
-                        cohort.leadOrganisation?.[
-                          activeLeadOrganisationSideModalIndex
-                        ].email,
-                    },
-                    {
-                      label: 'description',
-                      content:
-                        cohort.leadOrganisation?.[
-                          activeLeadOrganisationSideModalIndex
-                        ].description,
-                    },
-                    {
-                      label: 'website',
-                      content:
-                        cohort.leadOrganisation?.[
-                          activeLeadOrganisationSideModalIndex
-                        ].website,
-                    },
-                    {
-                      label: 'acronym',
-                      content:
-                        cohort.leadOrganisation?.[
-                          activeLeadOrganisationSideModalIndex
-                        ].acronym,
-                    },
-                    {
-                      label: 'type',
-                      content:
-                        cohort.leadOrganisation?.[
-                          activeLeadOrganisationSideModalIndex
-                        ].type?.name,
-                    },
-                    {
-                      label: 'institution',
-                      content:
-                        cohort.leadOrganisation?.[
-                          activeLeadOrganisationSideModalIndex
-                        ].institution,
-                    },
-                    {
-                      label: 'institutionAcronym',
-                      content:
-                        cohort.leadOrganisation?.[
-                          activeLeadOrganisationSideModalIndex
-                        ].institutionAcronym,
-                    },
-                    {
-                      label: 'typeOther',
-                      content:
-                        cohort.leadOrganisation?.[
-                          activeLeadOrganisationSideModalIndex
-                        ].typeOther,
-                    },
-                    {
-                      label: 'address',
-                      content:
-                        cohort.leadOrganisation?.[
-                          activeLeadOrganisationSideModalIndex
-                        ].address,
-                    },
-                    {
-                      label: 'expertise',
-                      content:
-                        cohort.leadOrganisation?.[
-                          activeLeadOrganisationSideModalIndex
-                        ].expertise,
-                    },
-                    {
-                      label: 'country',
-                      content:
-                        cohort.leadOrganisation?.[
-                          activeLeadOrganisationSideModalIndex
-                        ].country?.name,
-                    },
-                    {
-                      label: 'logo',
-                      content:
-                        cohort.leadOrganisation?.[
-                          activeLeadOrganisationSideModalIndex
-                        ].logo,
-                    },
-                  ]"
+                <span
+                  class="text-blue-500 hover:underline hover:cursor-pointer"
+                  >{{ organisation.name }}</span
+                >
+                <img
+                  v-if="organisation.logo"
+                  class="max-h-11"
+                  :src="organisation.logo.url"
                 />
-              </ContentBlockModal>
-            </slot>
-          </SideModal>
+              </DisplayListItem>
+            </DisplayList>
+            <h3 class="mb-2.5 font-bold text-body-base">Contributors</h3>
+          </template>
+
+          <template #after>
+            <DisplayList
+              class="mt-5"
+              title="Additional organisations"
+              v-if="cohort.additionalOrganisations"
+              :type="
+                cohort.additionalOrganisations &&
+                cohort.additionalOrganisations?.length > 1
+                  ? 'standard'
+                  : 'link'
+              "
+            >
+              <DisplayListItem
+                v-for="(organisation, index) in cohort.additionalOrganisations"
+                @click="showAdditionaOrganisationSideModal(index)"
+              >
+                <span
+                  class="text-blue-500 hover:underline hover:cursor-pointer"
+                  >{{ organisation.name }}</span
+                >
+                <img
+                  v-if="organisation.logo"
+                  class="max-h-11"
+                  :src="organisation.logo.url"
+                />
+              </DisplayListItem>
+            </DisplayList>
+          </template>
         </ContentBlockContact>
+
+        <SideModal
+          :show="activeOrganization !== null"
+          :fullScreen="false"
+          :slideInRight="true"
+          @close="closeOrganisationSideModal"
+          buttonAlignment="right"
+        >
+          <slot>
+            <OrganizationSideContent
+              v-if="activeOrganization"
+              :organisation="activeOrganization"
+            />
+          </slot>
+        </SideModal>
 
         <!-- <ContentBlockVariables
           id="Variables"
