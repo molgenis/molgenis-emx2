@@ -26,6 +26,9 @@ sudo yum install java-21-openjdk-headless
 
 
 MOLGENIS EMX2 depends on Postgresql 15
+Please see https://www.postgresql.org/download/ for your supported OS version. EMX2 is supported on version 15! 
+For Redhat and Ubuntu you can use below information:
+
 
 <!-- tabs:start -->
 
