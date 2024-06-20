@@ -67,7 +67,6 @@ if (!cohortOnly.value) {
 </script>
 
 <template>
-  <slot name="banner">cat slot</slot>
   <header class="antialiased px-5 lg:px-0 xl:bg-white">
     <Container>
       <div class="items-center justify-between hidden xl:flex h-25">

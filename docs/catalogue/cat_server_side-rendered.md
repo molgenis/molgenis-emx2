@@ -5,10 +5,10 @@
 ### Notice
 
 #### key
-```CATALOGUE_NOTICE```
+```CATALOGUE_BANNER_HTML```
 
 #### description
-Notice message to be shown on the main page.
+string containing html to be rendered in page banner 
 
 #### default
 none, no notice message is shown
