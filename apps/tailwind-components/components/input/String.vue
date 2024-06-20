@@ -2,7 +2,7 @@
 withDefaults(
   defineProps<{
     id: string;
-    required: boolean;
+    required?: boolean;
     hasError?: boolean;
   }>(),
   {
