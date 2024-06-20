@@ -10,6 +10,7 @@ import type {
   IDefinitionListItem,
   IMgError,
   IOntologyItem,
+  linkTarget,
 } from "~/interfaces/types";
 import dateUtils from "~/utils/dateUtils";
 const config = useRuntimeConfig();
@@ -139,6 +140,7 @@ const query = gql`
       linkageOptions
       fundingStatement
       acknowledgements
+      prelinked
       documentation {
         name
         description
@@ -347,7 +349,7 @@ const population: IDefinitionListItem[] = [
     content: cohort.value?.numberOfParticipantsWithSamples,
   },
   {
-    label: "Age group at inclusion",
+    label: "Population age groups",
     content: removeChildIfParentSelected(
       cohort.value?.populationAgeGroups || []
     )
@@ -416,6 +418,12 @@ let accessConditionsItems = computed(() => {
     items.push({
       label: "Release description",
       content: cohort.value.releaseDescription,
+    });
+  }
+  if (cohort.value.prelinked) {
+    items.push({
+      label: "Prelinked",
+      content: cohort.value.prelinked,
     });
   }
   if (cohort.value.linkageOptions) {
@@ -501,10 +509,11 @@ function showLeadOrganisationSideModal(index: number) {
       <ContentBlocks v-if="cohort">
         <ContentBlockIntro
           :image="cohort?.logo?.url"
-          :link="cohort?.website"
+          :link="cohort?.website as linkTarget"
           :contact="cohort?.contactEmail"
           :contact-name="cohort.name"
           :contact-message-filter="messageFilter"
+          :subject-template="cohort.acronym"
         />
         <ContentBlockDescription
           id="Description"

@@ -58,6 +58,7 @@ export interface ICohort {
   linkageOptions?: string;
   dataAccessConditionsDescription?: string;
   dataAccessConditions?: { name: string }[];
+  prelinked?: boolean;
   releaseType?: boolean;
   fundingStatement?: string;
   acknowledgements?: string;
@@ -213,9 +214,15 @@ export interface IFormField {
   name: string;
   label: string;
   fieldValue: string; // value is taken by vue reactivity
-  inputType: "string" | "textarea";
+  inputType: "string" | "textarea" | "select";
   hasError?: boolean;
   message?: string;
+  placeholder?: string;
+}
+
+export interface ISelectFormField extends IFormField {
+  inputType: "select";
+  options: string[] | number[];
 }
 
 export interface IContactFormData {
@@ -434,3 +441,5 @@ export interface IPathConditionsCondition extends IPathCondition {
 }
 
 export type activeTabType = "detailed" | "compact";
+
+export type linkTarget = "_self" | "_blank" | "_parent" | "_top";
