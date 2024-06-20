@@ -15,6 +15,7 @@ import org.molgenis.emx2.sql.TestDatabaseFactory;
 public class TestLoaders {
   public static final String COHORT_STAGING = "CohortStaging";
   public static final String NETWORK_STAGING = "NetworkStaging";
+  public static final String DATA_CATALOGUE_FLAT = "CatalogueFlat";
   public static final String FAIR_DATA_HUB_TEST = "FAIRDataHubTest";
   public static final String DIRECTORY_TEST = "DirectoryTest";
   public static final String DIRECTORY_STAGING = "DirectoryStaging";
@@ -35,6 +36,7 @@ public class TestLoaders {
     database.dropSchemaIfExists(COHORT_STAGING);
     database.dropSchemaIfExists(NETWORK_STAGING);
     database.dropSchemaIfExists(DATA_CATALOGUE);
+    database.dropSchemaIfExists(DATA_CATALOGUE_FLAT);
     database.dropSchemaIfExists(FAIR_DATA_HUB_TEST);
     database.dropSchemaIfExists(SHARED_STAGING);
     database.dropSchemaIfExists(CATALOGUE_ONTOLOGIES);
@@ -133,5 +135,12 @@ public class TestLoaders {
     Schema directoryStaging = database.createSchema(DIRECTORY_STAGING);
     AvailableDataModels.BIOBANK_DIRECTORY_STAGING.install(directoryStaging, false);
     assertEquals(6, directoryStaging.getTableNames().size());
+  }
+
+  @Test
+  void test16DataCatalogueFlatLoader() {
+    Schema datacatalogueflat = database.createSchema(DATA_CATALOGUE_FLAT);
+    AvailableDataModels.DATA_CATALOGUE_FLAT.install(datacatalogueflat, false);
+    assertEquals(34, datacatalogueflat.getTableNames().size());
   }
 }
