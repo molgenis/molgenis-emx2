@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import collectionEventGql from "~~/gql/collectionEvent";
-import ContentBlockModal from "./content/ContentBlockModal.vue";
 import type { IDefinitionListItem, IMgError } from "~~/interfaces/types";
 import dateUtils from "~/utils/dateUtils";
 

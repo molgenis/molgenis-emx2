@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { ICohort, IVariableWithMappings } from "~/interfaces/types";
 import { getKey } from "~/utils/variableUtils";
-import StickyTable from "../table/StickyTable.vue";
 const route = useRoute();
 
 const props = defineProps<{

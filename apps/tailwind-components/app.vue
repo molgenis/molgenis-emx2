@@ -61,13 +61,31 @@ useHead({
                   <NuxtLink class="hover:underline" to="/input/Tree.story">Input tree</NuxtLink>
                 </li>
                 <li class="py-2">
-                  <NuxtLink class="hover:underline" to="/Modal.story">Modal</NuxtLink>
+                  <NuxtLink class="hover:underline" to="FooterComponent.story">Footer Component</NuxtLink>
                 </li>
                 <li class="py-2">
-                  <NuxtLink class="hover:underline" to="/FilterSearch.story">Filer search</NuxtLink>
+                  <NuxtLink class="hover:underline" to="Header.story">Header Component</NuxtLink>
                 </li>
                 <li class="py-2">
-                  <NuxtLink class="hover:underline" to="/Icons.story">Icons</NuxtLink>
+                  <NuxtLink class="hover:underline" to="InputTree.story">Input tree</NuxtLink>
+                </li>
+                <li class="py-2">
+                  <NuxtLink class="hover:underline" to="Logo.story">Logo</NuxtLink>
+                </li>
+                <li class="py-2">
+                  <NuxtLink class="hover:underline" to="LogoMobile.story">Logo Mobile</NuxtLink>
+                </li>
+                <li class="py-2">
+                  <NuxtLink class="hover:underline" to="Modal.story">Modal</NuxtLink>
+                </li>
+                <li class="py-2">
+                  <NuxtLink class="hover:underline" to="Navigation.story">Navigation</NuxtLink>
+                </li>
+                <li class="py-2">
+                  <NuxtLink class="hover:underline" to="FilterSearch.story">Filer search</NuxtLink>
+                </li>
+                <li class="py-2">
+                  <NuxtLink class="hover:underline" to="Icons.story">Icons</NuxtLink>
                 </li>
               </ul>
 
@@ -85,6 +103,12 @@ useHead({
                   <label class="hover:cursor-pointer" for="umcg-theme">Umcg</label>
                 </div>
               </fieldset>
+
+              <div class="pr-6 mt-6">
+                <hr>
+              </div>
+              <NuxtLink class="hover:underline" to="DataFetch.other">Data fetching</NuxtLink>
+
             </aside>
             <div class="xl:pl-7.5 xl:max-w-[54rem] 2xl:grow 2xl:max-w-none">
               <slot name="main">
