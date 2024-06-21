@@ -4,7 +4,6 @@ import type {
   IVariable,
   IVariableMappings,
 } from "~/interfaces/types";
-import StickyTable from "../table/StickyTable.vue";
 
 type VariableDetailsWithMapping = IVariable & IVariableMappings;
 

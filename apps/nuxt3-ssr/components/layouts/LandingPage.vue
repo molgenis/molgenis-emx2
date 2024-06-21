@@ -22,5 +22,9 @@ const bannerHtml = computed(() => {
   <Container>
     <slot></slot>
   </Container>
-  <FooterComponent />
+  <FooterComponent>
+    <ClientOnly>
+      <FooterVersion />
+    </ClientOnly>
+  </FooterComponent>
 </template>
