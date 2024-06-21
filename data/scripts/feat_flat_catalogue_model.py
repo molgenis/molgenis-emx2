@@ -51,7 +51,7 @@ rename_tables = [[Tables.C, Tables.DR],
                  [Tables.R, Tables.COL]]
 
 rename_columns = {
-    'Cohorts': [['type', 'cohort type'], ['type other', 'cohort type other']],
+    'Cohorts': [['type', 'cohort type'], ['type other', 'cohort type other'], ['collection type', 'cohort collection type']],
     'Networks': [['type', 'network type'], ['type other', 'network type other']],
     'Studies': [['type', 'study type'], ['type other', 'study type other']],
     'RWE resources': [['type', 'datasource type'], ['type other', 'datasource type other']]
@@ -309,8 +309,8 @@ class Flattener(pd.DataFrame):
     def save_dev_df(self):
         """Saves the pandas DataFrame of the flat model to disk."""
         profile = 'DataCatalogueFlat'
-
         data_model = get_data_model(SHARED_DIR, profile)
+
         file_dir = str(SPECIFIC_DIR.joinpath('dev'))
         data_model.to_csv(file_dir + '/' + profile + '.csv', index=None)
 
@@ -358,6 +358,7 @@ def change_names(name):
     """
     names_to_replace = {'Subcohorts': 'Collection populations',
                         'resource': 'collection',
+                        'subcohort': 'population',
                         'subcohorts': 'populations',
                         'Linked resources': 'Linked collections',
                         'main resource': 'main collection',

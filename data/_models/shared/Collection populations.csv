@@ -4,7 +4,7 @@ Collection populations,,collection,ref,1,true,,Collections,,,,dcterms:isPartOf,R
 Collection populations,,name,,1,true,,,,,,dcterms:title,"Subcohort name, e.g. 'mothers in first trimester','newborns'",DataCatalogueFlat,
 Collection populations,,description,text,,,,,,,,dcterms:description,Subcohort description,DataCatalogueFlat,
 Collection populations,,number of participants,int,,,,,,,,,Number of participants in this subcohort,DataCatalogueFlat,
-Collection populations,,counts,refback,,,,Population counts,,subcohort,,,"Total number of unique individuals per age(group), gender and year",DataCatalogueFlat,
+Collection populations,,counts,refback,,,,Population counts,,population,,,"Total number of unique individuals per age(group), gender and year",DataCatalogueFlat,
 Collection populations,,inclusion start,int,,,,,,,,dcat:startDate,Year of first included participant,DataCatalogueFlat,
 Collection populations,,inclusion end,int,,,,,,,,dcat:endDate,Year of last included participant. Leave empty if collection is ongoing,DataCatalogueFlat,
 Collection populations,,age groups,ontology_array,,,CatalogueOntologies,Age groups,,,,,Age groups within this subcohort,DataCatalogueFlat,

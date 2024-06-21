@@ -1,5 +1,6 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,visible
 Variable mappings,,,,,,,,,,,,"Mappings from collected variables to standard/harmonised variables, optionally including ETL syntax",DataCatalogueFlat,
+Variable mappings,,number,int,1,TRUE,,,,,,,"Consecutive mapping number, starting at 0",DataCatalogueFlat,
 Variable mappings,,source,ref,1,TRUE,,Collections,,,,,collection that contains the source variable(s),DataCatalogueFlat,
 Variable mappings,,source dataset,ref,1,TRUE,,Datasets,source,,,,dataset that contains the source variable(s),DataCatalogueFlat,
 Variable mappings,,source variables,ref_array,,,,Variables,source dataset,,,,"optional, source variable that was mapped from. You may also indicate that a mapping to a target variable was not done and leave this field empty (match = not available)",DataCatalogueFlat,
