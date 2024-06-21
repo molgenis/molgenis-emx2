@@ -105,6 +105,7 @@ class Transform:
         df_cohorts['collection type'] = 'Cohort'
 
         # Networks to Collections
+        # TODO: Get Networks table out of Collections
         df_networks = pd.read_csv(self.path + 'Networks.csv')
         df_networks.rename(columns={'type': 'network type'}, inplace=True)
         df_networks['collection type'] = 'Network'
@@ -249,7 +250,7 @@ def is_repeated(var_name, df_repeats):
 
 
 def restructure_repeats(df_variables, df_repeats):
-   # TODO: EXPANSE_CDM repeats do not have a repeatUnit
+    # TODO: EXPANSE_CDM repeats do not have a repeatUnit
     # restructuring of cdm repeats
     df_variables = df_variables.drop_duplicates(subset=['name'])   # keep unique entries, gets rid of LongITools 'root' variables
     df_variables.loc[:, 'repeat unit'] = df_variables['name'].apply(get_repeat_unit, df=df_repeats)  # get repeat unit from
@@ -288,8 +289,8 @@ def get_repeat_number(s):
 
 
 def rewrite_mappings(df, df_no_duplicates):
-    df_no_duplicates.loc[:, 'number'] = 0
-    df_no_duplicates.loc[:, 'repeats'] = ''
+    df_no_duplicates.loc[:, 'number'] = 0  # TODO: lose numbering
+    df_no_duplicates.loc[:, 'repeats'] = ''  # TODO: make repeats part of key
     df_mappings = pd.DataFrame()
     # divide df_no_duplicates per source
     list_source = df['source'].drop_duplicates().tolist()
