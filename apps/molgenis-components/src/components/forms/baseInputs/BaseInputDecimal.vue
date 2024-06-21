@@ -10,38 +10,42 @@
     :readonly="readonly"
     :required="required"
     @keypress="handleKeyValidity"
-    @input="emitIfValid"
+    @input="handleInputChanged"
   />
 </template>
 
-<script>
-import BaseInput from "./BaseInput.vue";
-import { isNumericKey, flipSign } from "../../utils";
+<script lang="ts">
 import constants from "../../constants";
+import { flipSign, isNumericKey } from "../../utils";
+import BaseInput from "./BaseInput.vue";
 
 const { CODE_MINUS } = constants;
 
 export default {
   extends: BaseInput,
   methods: {
-    emitIfValid(event) {
-      const value = parseFloat(event.target.value);
+    handleInputChanged(event: any) {
+      const value = event.target?.value;
+      if (!value) {
+        this.$emit("update:modelValue", null);
+      } else {
+        this.emitIfValid(value);
+      }
+    },
+    emitIfValid(strValue: string) {
+      const periodValue = strValue.replace(",", ".");
+      const value = parseFloat(periodValue);
       if (!isNaN(value)) {
         this.$emit("update:modelValue", value);
       } else {
-        this.$emit("update:modelValue", null);
+        this.$emit("update:modelValue", periodValue);
       }
     },
-    handleKeyValidity(event) {
-      const keyCode = event.which ? event.which : event.keyCode;
+    handleKeyValidity(event: any) {
+      const keyCode = event.which || event.keyCode;
       if (keyCode === CODE_MINUS) {
-        this.$emit(
-          "update:modelValue",
-          parseFloat(flipSign(parseFloat(event.target.value)))
-        );
-      }
-      if (keyCode === CODE_COMMA) {
-        event.target.value = CODE_PERIOD;
+        const flipped = flipSign(event.target?.value);
+        this.emitIfValid(flipped);
       }
       if (!isNumericKey(event)) {
         event.preventDefault();

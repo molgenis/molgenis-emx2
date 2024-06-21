@@ -6,9 +6,9 @@ import type { IColumn } from "meta-data-utils";
 const {
   CODE_0,
   CODE_9,
-  CODE_BACKSPACE,
   CODE_COMMA,
-  CODE_DELETE,
+  CODE_PERIOD,
+  CODE_MINUS,
   MIN_LONG,
   MAX_LONG,
 } = constants;
@@ -23,9 +23,8 @@ export function isNumericKey(event: KeyboardEvent): boolean {
   const keyCode = event.which ?? event.keyCode;
   return (
     (keyCode >= CODE_0 && keyCode <= CODE_9) ||
-    keyCode === CODE_BACKSPACE ||
-    keyCode === CODE_DELETE ||
-    keyCode === CODE_COMMA
+    keyCode === CODE_COMMA ||
+    keyCode === CODE_PERIOD
   );
 }
 
@@ -109,15 +108,15 @@ export function filterObject(
   );
 }
 
-export function flipSign(value: string): string | null {
+export function flipSign(value: string | null): string | null {
   switch (value) {
     case "-":
-      return null;
+      return "";
     case null:
       return "-";
     default:
-      if (value.toString().charAt(0) === "-") {
-        return value.toString().substring(1);
+      if (value.charAt(0) === "-") {
+        return value.substring(1);
       } else {
         return "-" + value;
       }
