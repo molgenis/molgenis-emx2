@@ -3,8 +3,15 @@ import constants from "./constants";
 import Client from "../client/client";
 import type { IColumn } from "meta-data-utils";
 
-const { CODE_0, CODE_9, CODE_BACKSPACE, CODE_DELETE, MIN_LONG, MAX_LONG } =
-  constants;
+const {
+  CODE_0,
+  CODE_9,
+  CODE_BACKSPACE,
+  CODE_COMMA,
+  CODE_DELETE,
+  MIN_LONG,
+  MAX_LONG,
+} = constants;
 
 export function isRefType(columnType: string): boolean {
   return ["REF", "REF_ARRAY", "REFBACK", "ONTOLOGY", "ONTOLOGY_ARRAY"].includes(
@@ -17,7 +24,8 @@ export function isNumericKey(event: KeyboardEvent): boolean {
   return (
     (keyCode >= CODE_0 && keyCode <= CODE_9) ||
     keyCode === CODE_BACKSPACE ||
-    keyCode === CODE_DELETE
+    keyCode === CODE_DELETE ||
+    keyCode === CODE_COMMA
   );
 }
 

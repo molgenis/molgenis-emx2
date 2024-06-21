@@ -1,8 +1,7 @@
 <template>
   <input
     :id="id"
-    type="number"
-    step="1"
+    type="text"
     :value="modelValue"
     class="form-control"
     :class="{ 'is-invalid': errorMessage }"
@@ -40,6 +39,9 @@ export default {
           "update:modelValue",
           parseFloat(flipSign(parseFloat(event.target.value)))
         );
+      }
+      if (keyCode === CODE_COMMA) {
+        event.target.value = CODE_PERIOD;
       }
       if (!isNumericKey(event)) {
         event.preventDefault();
