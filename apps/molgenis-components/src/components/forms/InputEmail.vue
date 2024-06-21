@@ -7,9 +7,6 @@
     :errorMessage="stringError"
   >
     <InputGroup>
-      <template v-slot:prepend>
-        <slot name="prepend"></slot>
-      </template>
       <input
         :id="id"
         :ref="id"
@@ -26,9 +23,6 @@
         :placeholder="placeholder"
         :readonly="readonly"
       />
-      <template v-slot:append>
-        <slot name="append"></slot>
-      </template>
     </InputGroup>
   </FormGroup>
 </template>
