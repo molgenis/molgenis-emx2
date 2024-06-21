@@ -29,10 +29,10 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import constants from "../constants";
 import FormGroup from "./FormGroup.vue";
 import InputGroup from "./InputGroup.vue";
 import BaseInputProps from "./baseInputs/BaseInputProps";
+import constants from "../constants";
 
 let props = defineProps({
   ...BaseInputProps,
@@ -40,36 +40,23 @@ let props = defineProps({
     type: String,
     default: null,
   },
-  stringLength: {
-    type: Number,
-    default: 255,
-  },
-  additionalValidValidationStrings: {
-    type: Array,
-    default: [],
-  },
 });
 
 const emit = defineEmits(["update:modelValue"]);
 
-function validateEmail(email: string) {
-  return (
-    props.additionalValidValidationStrings.includes(email) ||
-    email?.match(constants.EMAIL_REGEX)
-  );
-}
-
 const stringError = computed(() => {
   if (typeof props.modelValue === "string") {
-    if (props.modelValue.length > props.stringLength) {
-      return `Please limit to ${props.stringLength} characters.`;
-    } else if (!validateEmail(props.modelValue)) {
-      return `Please enter a valid email address`;
+    if (!validateHyperlink(props.modelValue)) {
+      return `Please enter a valid hyperlink`;
     } else {
       return props.errorMessage;
     }
   }
 });
+
+function validateHyperlink(hyperlink: string) {
+  return hyperlink?.match(constants.HYPERLINK_REGEX);
+}
 </script>
 
 <style scoped>
@@ -85,43 +72,24 @@ span:hover .hoverIcon {
 <docs>
 <template>
   <div>
-    <InputEmail
-      id="input-email1"
+    <InputHyperlink
+      id="input-hyperlink1"
       v-model="value"
-      label="My email input label"
+      label="My hyperlink input label"
       description="Some help needed?"
     />
     You typed: {{ JSON.stringify(value) }}<br />
     <b>Readonly</b>
-    <InputEmail
-      id="input-email2"
+    <InputHyperlink
+      id="input-hyperlink2"
       :readonly="true"
-      value="info@molgenis.org"
+      v-model="value"
       description="Should not be able to edit this"
-    />
-    <b>additionalValidValidationStrings: user, admin, anonymous</b>
-    <InputEmail
-      id="input-email3"
-      v-model="value"
-      :additionalValidValidationStrings="['user', 'admin', 'anonymous']"
-      description="validates email addresses with additional valid 'user', 'admin', 'anonymous' strings "
-    />
-    <b>string length</b>
-    <InputEmail
-      id="input-email5"
-      v-model="value"
-      :stringLength="8"
-      label="maximum stringLength (4)"
     />
   </div>
 </template>
-<script>
-export default {
-  data: function () {
-    return {
-      value: "info@molgenis.org",
-    };
-  },
-};
+<script setup>
+import { ref } from "vue"
+const value = ref("https://www.molgenis.org")
 </script>
 </docs>
