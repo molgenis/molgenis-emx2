@@ -5,7 +5,7 @@ Variables,,dataset,ref,1,TRUE,,Datasets,collection,,,,dataset that this variable
 Variables,,name,,1,TRUE,,,,,,,"name of the variable, unique within a dataset",DataCatalogueFlat,
 Variables,,label,,,,,,,,,,"human readable name, if applicable",DataCatalogueFlat,
 Variables,,description,text,,,,,,,,,description of the variable,DataCatalogueFlat,
-Variables,,collection event,ref_array,,,,Collection events,,,,,in case of protocolised data collection this defines the moment(s) in time this variable is collected on,DataCatalogueFlat,
+Variables,,collection event,ref_array,,,,Collection events,collection,,,,in case of protocolised data collection this defines the moment(s) in time this variable is collected on,DataCatalogueFlat,
 Variables,,format,ontology,,,CatalogueOntologies,Formats,,,,,"data type, e.g. string, integer, decimal, date, datetime, etc.",DataCatalogueFlat,
 Variables,,unit,ontology,,,CatalogueOntologies,Units,,,,,"in case of a continuous variable, the unit that the variable values are expressed in",DataCatalogueFlat,
 Variables,,since version,,,,,,,,,,when this variable was introduced,DataCatalogueFlat,
