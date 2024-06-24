@@ -248,6 +248,7 @@ class Client:
         except PyclientException:
             errors = '\n'.join([err['message'] for err in response.json().get('errors')])
             log.error("Failed to import data into %s::%s\n%s", current_schema, table, errors)
+            raise PyclientException(errors)
 
     def upload_file(self, file_path: str | pathlib.Path, schema: str = None):
         """Uploads a file to a database on the EMX2 server.
