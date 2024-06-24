@@ -57,10 +57,15 @@
             </div>
           </td>
           <td class="align-top" data-col-name="FTE">
-            <span v-for="planning in person.planning">{{ planning.fTE }}</span>
+            <div v-for="planning in person.planning">
+              {{ new Date(planning.endDate) < new Date() ? "-" : planning.fTE }}
+            </div>
           </td>
           <td class="align-top" data-col-name="projectUnit">
-            <div v-for="planning in person.planning">
+            <div
+              v-for="planning in person.planning"
+              :class="{ 'text-muted': new Date(planning.endDate) < new Date() }"
+            >
               <span>
                 {{ planning.projectUnit.project.name }}:
                 {{ planning.projectUnit.unit }}
@@ -69,12 +74,12 @@
           </td>
           <td class="align-top" data-col-name="period">
             <div v-for="planning in person.planning">
-              <span>{{ planning.startDate }} until {{ planning.endDate }}</span>
+              <div>{{ planning.startDate }} until {{ planning.endDate }}</div>
             </div>
           </td>
           <td class="align-top" data-col-name="notes">
             <div v-for="planning in person.planning">
-              <span>{{ planning.notes }}</span>
+              <div>{{ planning.notes }}</div>
             </div>
           </td>
           <td class="align-top" data-col-name="options">
@@ -106,6 +111,15 @@
                   @close="reload"
                 />
               </div>
+            </template>
+            <template v-if="!person.planning">
+              <RowButtonAdd
+                :id="`person-planning-${cleanName(person.name)}-add`"
+                tableId="Planning"
+                :schemaId="schema"
+                :defaultValue="{ person: { name: person.name } }"
+                @close="reload"
+              />
             </template>
           </td>
         </tr>

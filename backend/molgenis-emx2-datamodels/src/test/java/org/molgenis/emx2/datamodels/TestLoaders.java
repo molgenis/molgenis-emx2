@@ -23,6 +23,7 @@ public class TestLoaders {
   public static final String JRC_CDE_TEST = "JRCCDETest";
   public static final String FAIR_GENOMES = "FAIRGenomesTest";
   public static final String DCAT = "DCATTest";
+  public static final String DCAT_BASIC = "DCATBasicTest";
   public static final String PROJECT_MANAGER = "ProjectManager";
   public static final String CATALOGUE_ONTOLOGIES = "CatalogueOntologies";
   public static final String DIRECTORY_ONTOLOGIES = "DirectoryOntologies";
@@ -127,7 +128,7 @@ public class TestLoaders {
   void test14DCATLoader() {
     Schema DCATSchema = database.createSchema(DCAT);
     AvailableDataModels.DCAT.install(DCATSchema, true);
-    assertEquals(19, DCATSchema.getTableNames().size());
+    assertEquals(21, DCATSchema.getTableNames().size());
   }
 
   @Test
@@ -138,7 +139,14 @@ public class TestLoaders {
   }
 
   @Test
-  void test16DataCatalogueFlatLoader() {
+  void test16DCATBasic() {
+    Schema DCATSchema = database.createSchema(DCAT_BASIC);
+    new ProfileLoader("_profiles/test-only/DCAT-basic.yaml").load(DCATSchema, true);
+    assertEquals(7, DCATSchema.getTableNames().size());
+  }
+  
+  @Test
+  void test17DataCatalogueFlatLoader() {
     Schema datacatalogueflat = database.createSchema(DATA_CATALOGUE_FLAT);
     AvailableDataModels.DATA_CATALOGUE_FLAT.install(datacatalogueflat, false);
     assertEquals(34, datacatalogueflat.getTableNames().size());
