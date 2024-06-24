@@ -297,7 +297,6 @@ function publicationMapper(publication: IPublication) {
     title: publication.title,
     year: publication.year,
     _renderComponent: "PublicationDisplay",
-    // _path: `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/cohorts/${route.params.cohort}/publications/${publication.doi}`,
   };
 }
 
