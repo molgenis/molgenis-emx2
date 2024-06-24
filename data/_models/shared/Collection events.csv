@@ -3,8 +3,6 @@ Collection events,,,,,,,,,,,dct:PeriodOfTime,Definition of a data collection eve
 Collection events,,collection,ref,1,true,,Collections,,,,"dct:isPartOf,dct:inSeries",Resource this collection event is part of,DataCatalogueFlat,
 Collection events,,name,,1,true,,,,,,"dct:title,dct:identifier",Name of the collection event,DataCatalogueFlat,
 Collection events,,description,text,,,,,,,,dct:description,Description of the collection event,DataCatalogueFlat,
-Collection events,,creator,ref_array,,,,Organisations,,,,dct:creator,"The organisation(s) responsible for creating the dataset",DataCatalogueFlat,
-Collection events,,publisher,ref_array,,,,Organisations,,,,dct:publisher,"The organisation(s) responsible for making the dataset available",DataCatalogueFlat,
 Collection events,,populations,ref_array,,,,Collection populations,collection,,,dct:references,Subcohorts that are targetted by this collection event,DataCatalogueFlat,
 Collection events,,start year,ontology,,,CatalogueOntologies,Years,,,,dcat:startDate,Start year of data collection,DataCatalogueFlat,
 Collection events,,start month,ontology,,,CatalogueOntologies,Months,,,,,Start month of data collection,DataCatalogueFlat,

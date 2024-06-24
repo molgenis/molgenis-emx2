@@ -25,6 +25,7 @@ Collections,,time span description,text,,,,,,,,,Description of time span,DataCat
 Collections,,external identifiers,refback,,,,External identifiers,,resource,,,"External identifier(s) for this resource (e.g. EUPASS number, UMCG register number)","DataCatalogueFlat,EMA","['Cohort', 'Databank', 'Data source', 'Model', 'Study'].includes(collectionType?.name)"
 Collections,,status,ontology,,,CatalogueOntologies,Study status,,,,,Status of the study,"DataCatalogueFlat,EMA",['Study'].includes(collectionType?.name)
 Collections,,release frequency,int,,,,,,,,,Refreshing rate (in months),"DataCatalogueFlat,EMA",['Model'].includes(collectionType?.name)
+Collections,,contact email,,,,,,,,,dcat:contactPoint,Contact e-mail address ,DataCatalogueFlat,['Cohort'].includes(collectionType?.name)
 Collections,,contacts,refback,,,,Contacts,,resource,,dcat:contactPoint,Contact person(s),"DataCatalogueFlat,EMA","['Cohort', 'Databank', 'Data source', 'Model', 'Study'].includes(collectionType?.name)"
 Collections,,cohort type,ontology_array,,,CatalogueOntologies,Resource types,,,,,"Type of resource, e.g. registry, cohort, biobank",DataCatalogueFlat,['Cohort'].includes(collectionType?.name)
 Collections,,cohort type other,,,,,,,,,,"If other, describe the type of resource",DataCatalogueFlat,['Cohort'].includes(collectionType?.name)
