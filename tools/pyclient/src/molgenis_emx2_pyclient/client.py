@@ -63,8 +63,6 @@ class Client:
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        if exc_type or exc_val or exc_tb:
-            print(exc_type, exc_val, exc_tb, sep="\n")
         if self.signin_status == 'success':
             self.signout()
         self.session.close()
@@ -74,8 +72,6 @@ class Client:
         return self
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
-        if exc_type or exc_val or exc_tb:
-            print(exc_type, exc_val, exc_tb, sep="\n")
         if self.signin_status == 'success':
             self.signout()
         self.session.close()
