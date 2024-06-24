@@ -13,14 +13,15 @@
     "checkFormat": "prettier app.vue layouts pages  --check --config ../.prettierrc.js"
   },
   "dependencies": {
-    "@pinia/nuxt": "^0.5.1",
-    "nuxt": "^3.11.2",
-    "pinia": "^2.1.7",
-    "vue": "^3.4.27",
-    "vue-router": "^4.3.2"
+    "@pinia/nuxt": "0.5.1",
+    "nuxt": "3.11.2",
+    "pinia": "2.1.7",
+    "vue": "3.4.27",
+    "vue-router": "4.3.2"
   },
   "license": "LGPL-3.0",
   "devDependencies": {
-    "cross-env": "7.0.3"
+    "cross-env": "7.0.3",
+    "nuxt": "3.12.2"
   }
 }

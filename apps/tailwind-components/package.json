@@ -27,7 +27,7 @@
     "cross-env": "7.0.3",
     "happy-dom": "13.8.6",
     "if-env": "1.0.4",
-    "nuxt": "3.11.2",
+    "nuxt": "3.12.2",
     "playwright-core": "1.42.1",
     "prettier": "2.8.8",
     "svgo": "2.8.0",

@@ -1,3 +1,3 @@
 <template>
-  <LogoMobile link="foobar"></LogoMobile>
+  <LogoMobile link="#"></LogoMobile>
 </template>
