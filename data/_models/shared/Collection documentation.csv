@@ -1,0 +1,8 @@
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,visible
+Collection documentation,,,,,,,,,,,,Documentation attached to a resource,DataCatalogueFlat,
+Collection documentation,,collection,ref,1,true,,Collections,,,,,The resource this documentation is for,"DataCatalogueFlat,EMA",
+Collection documentation,,name,,1,true,,,,,,,Document name,"DataCatalogueFlat,EMA",
+Collection documentation,,type,ontology,,,CatalogueOntologies,Document types,,,,,Type of documentation,"DataCatalogueFlat,EMA",
+Collection documentation,,description,text,,,,,,,,,Description of the document,DataCatalogueFlat,
+Collection documentation,,url,hyperlink,,,,,,,,,Hyperlink to the source of the documentation,"DataCatalogueFlat,EMA",
+Collection documentation,,file,file,,,,,,,,,Optional file attachment containing the documentation,"DataCatalogueFlat,EMA",

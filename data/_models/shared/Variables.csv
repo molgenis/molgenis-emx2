@@ -1,7 +1,7 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,visible
 Variables,,,,,,,,,,,,Definition of a variable,DataCatalogueFlat,
 Variables,,collection,ref,1,TRUE,,Collections,,,,,collection that this variable is part of,DataCatalogueFlat,
-Variables,,dataset,ref,1,TRUE,,Datasets,collection,,,,dataset that this variable is part of,DataCatalogueFlat,
+Variables,,dataset,ref,1,TRUE,,Collection datasets,collection,,,,dataset that this variable is part of,DataCatalogueFlat,
 Variables,,name,,1,TRUE,,,,,,,"name of the variable, unique within a dataset",DataCatalogueFlat,
 Variables,,label,,,,,,,,,,"human readable name, if applicable",DataCatalogueFlat,
 Variables,,description,text,,,,,,,,,description of the variable,DataCatalogueFlat,
@@ -20,4 +20,4 @@ Variables,,permitted values,refback,,,,Variable values,,variable,,,"listing of v
 Variables,,keywords,ontology_array,,,CatalogueOntologies,Keywords,,,,,keywords that will make the variable easier to find,DataCatalogueFlat,
 Variables,,vocabularies,ontology_array,,,CatalogueOntologies,Vocabularies,,,,,vocabularies used to express the values of this variable,DataCatalogueFlat,
 Variables,,notes,text,,,,,,,,,any other information on this variable,DataCatalogueFlat,
-Variables,,mappings,refback,,,,Variable mappings,,target variable,,,"listing of harmonised variables this variable was mapped to, filled out in Variable mappings table",DataCatalogueFlat,
+Variables,,mappings,refback,,,,Mapped variables,,target variable,,,"listing of harmonised variables this variable was mapped to, filled out in Variable mappings table",DataCatalogueFlat,
