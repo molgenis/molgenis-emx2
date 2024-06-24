@@ -25,7 +25,7 @@
     "checkFormat": "prettier src  --check --config ../.prettierrc.js"
   },
   "devDependencies": {
-    "prettier": "2.8.8",
+    "prettier": "3.3.2",
     "vite": "4.5.3",
     "vite-plugin-dts": "3.6.4",
     "vitest": "0.34.6"
