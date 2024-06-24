@@ -419,7 +419,8 @@ public class SqlQuery extends QueryBean {
     DSLContext jooq = table.getJooq();
     if (filters != null) {
       for (Filter f : filters.getSubfilters()) {
-        if (OR.equals(f.getOperator())) {
+        if (f == null) {
+        } else if (OR.equals(f.getOperator())) {
           conditions.add(
               or(jsonFilterQueryConditions(table, column, tableAlias, subAlias, f, searchTerms)));
         } else if (Operator.AND.equals(f.getOperator())) {
