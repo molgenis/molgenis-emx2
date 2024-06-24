@@ -28,7 +28,7 @@
             longitude="longitude"
             latitude="latitude"
             :geojson="WorldGeoJson"
-            groupingVariable="hasSubmittedData"
+            group="hasSubmittedData"
             :groupColorMappings="orgGroupMapping"
             :legendData="orgGroupMapping"
             :chartSize="114"

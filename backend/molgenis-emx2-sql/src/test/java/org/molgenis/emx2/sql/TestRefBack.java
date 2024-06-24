@@ -5,6 +5,7 @@ import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
+import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.TableMetadata.table;
 
@@ -176,6 +177,7 @@ public class TestRefBack {
         schema.create(
             table("Posts")
                 .add(column("title").setPkey())
+                .add(column("tags").setType(ONTOLOGY).setRefTable("Tags"))
                 .add(column("user").setType(REF).setRefTable(users.getName())));
 
     users
@@ -184,7 +186,8 @@ public class TestRefBack {
 
     users.insert(new Row().set("username", "jack"));
     users.insert(new Row().set("username", "joe"));
-    posts.insert(new Row().set("title", "joes post").set("user", "joe"));
+    schema.getTable("Tags").insert(new Row().set("name", "green"));
+    posts.insert(new Row().set("title", "joes post").set("user", "joe").set("tags", "green"));
 
     // now the magic, using refback update posts.user => 'jack'
     users.save(new Row().set("username", "jack").set("posts", "joes post"));
@@ -228,6 +231,12 @@ public class TestRefBack {
             .where(f("posts", f("title", EQUALS, "jacks post")));
     assertTrue(query.retrieveJSON().contains("jacks post"));
 
+    query =
+        users.select(
+            s("username"), s("posts", s("title")).where(f("tags", f("name", EQUALS, "green"))));
+    assertTrue(query.retrieveJSON().contains("joes post"));
+    assertFalse(query.retrieveJSON().contains("jacks post"));
+
     query = users.agg(s("count")).where(f("posts", f("title", EQUALS, "jacks post")));
     assertTrue(query.retrieveJSON().contains("\"count\": 1"));
 
@@ -254,5 +263,32 @@ public class TestRefBack {
             .get(0)
             .getStringArray("posts")
             .length);
+  }
+
+  @Test
+  public void testRefBackUsingSubclasses() {
+    schema.create(
+        table("subject", column("id").setPkey()),
+        table(
+            "treatments",
+            column("id").setPkey(),
+            column("partOfSubject").setType(REF).setRefTable("subject")));
+    // inherit
+    schema.create(table("treatmentxyz", column("xyz")).setInheritName("treatments"));
+    // add the refback
+    schema
+        .getTable("subject")
+        .getMetadata()
+        .add(
+            column("treatxyz")
+                .setType(REFBACK)
+                .setRefTable("treatmentxyz")
+                .setRefBack("partOfSubject"));
+    schema.getTable("subject").insert(row("id", "s1"));
+    schema.getTable("treatmentxyz").insert(row("id", "t1"));
+    schema.getTable("subject").update(row("id", "s1", "treatxyz", "t1"));
+    // verify the reference has indeed been updated.
+    assertEquals(
+        "s1", schema.getTable("treatmentxyz").retrieveRows().get(0).getString("partOfSubject"));
   }
 }

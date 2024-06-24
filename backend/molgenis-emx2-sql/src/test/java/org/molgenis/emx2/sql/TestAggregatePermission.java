@@ -33,10 +33,10 @@ public class TestAggregatePermission {
   }
 
   @Test
-  public void shouldBeAggregatorRoleOnly() {
+  public void shouldBeAggregatorRole() {
     List<String> roles = schema.getInheritedRolesForActiveUser();
-    assertEquals(1, roles.size());
-    assertEquals(AGGREGATOR.toString(), roles.get(0));
+    assertEquals(3, roles.size());
+    assertTrue(roles.contains(AGGREGATOR.toString()));
   }
 
   @Test

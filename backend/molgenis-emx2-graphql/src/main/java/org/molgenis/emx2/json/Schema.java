@@ -1,5 +1,6 @@
 package org.molgenis.emx2.json;
 
+import static org.molgenis.emx2.Constants.MOLGENIS_JWT_SHARED_SECRET;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import java.util.*;
@@ -22,10 +23,11 @@ public class Schema {
   public Schema(SchemaMetadata schema, boolean minimal) {
     this.settings =
         schema.getSettings().entrySet().stream()
+            .filter(entry -> !MOLGENIS_JWT_SHARED_SECRET.equals(entry.getKey()))
             .map(entry -> new Setting(entry.getKey(), entry.getValue()))
             .toList();
     List<TableMetadata> list = new ArrayList<>();
-    list.addAll(schema.getTablesIncludingExternal());
+    list.addAll(schema.getTables());
     // deterministic order is important for all kinds of comparisons
     Collections.sort(list);
     // add these tables

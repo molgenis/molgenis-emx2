@@ -81,7 +81,7 @@ class SqlQueryBuilderHelpersTest {
     SelectConnectByStep<Record> ascQuery =
         SqlQueryBuilderHelpers.orderBy(tableMetadata, select, from);
     assertEquals(
-        "select * from \"SqlQueryBuilderHelpersTest\".\"testTable\" order by lower(\"testColumn\") asc",
+        "select * from \"SqlQueryBuilderHelpersTest\".\"testTable\" order by ((lower(\"testColumn\")) collate \"MOLGENIS\".numeric) asc",
         ascQuery.getSQL());
   }
 
@@ -113,7 +113,7 @@ class SqlQueryBuilderHelpersTest {
     SelectConnectByStep<Record> ascQuery =
         SqlQueryBuilderHelpers.orderBy(tableMetadata, select, from);
     assertEquals(
-        "select * from \"SqlQueryBuilderHelpersTest\".\"testTable\" order by lower(\"testColumn\") desc",
+        "select * from \"SqlQueryBuilderHelpersTest\".\"testTable\" order by ((lower(\"testColumn\")) collate \"MOLGENIS\".numeric) desc",
         ascQuery.getSQL());
   }
 
@@ -130,7 +130,7 @@ class SqlQueryBuilderHelpersTest {
         SqlQueryBuilderHelpers.orderBy(
             tableMetadata, select, jooq.select().from(tableMetadata.getJooqTable()));
     assertEquals(
-        "select * from \"SqlQueryBuilderHelpersTest\".\"testTable\" order by lower(\"refColumn\") asc",
+        "select * from \"SqlQueryBuilderHelpersTest\".\"testTable\" order by ((lower(\"refColumn\")) collate \"MOLGENIS\".numeric) asc",
         ascQuery.getSQL());
 
     final SelectColumn selectDesc = new SelectColumn("refColumn");
@@ -139,7 +139,7 @@ class SqlQueryBuilderHelpersTest {
         SqlQueryBuilderHelpers.orderBy(
             tableMetadata, selectDesc, jooq.select().from(tableMetadata.getJooqTable()));
     assertEquals(
-        "select * from \"SqlQueryBuilderHelpersTest\".\"testTable\" order by lower(\"refColumn\") desc",
+        "select * from \"SqlQueryBuilderHelpersTest\".\"testTable\" order by ((lower(\"refColumn\")) collate \"MOLGENIS\".numeric) desc",
         descQuery.getSQL());
   }
 

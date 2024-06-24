@@ -15,6 +15,7 @@
               [uiText['home']]: '../#/',
               [network.name]: '/',
             }"
+            useRouterLink
           />
         </div>
       </div>
@@ -96,7 +97,9 @@
                   <div class="card-body">
                     <div class="card-text">
                       <h5>Contact Information</h5>
-                      <ReportDetailsList :reportDetails="contact" />
+                      <ContactInformation
+                        :contactInformation="network.contact"
+                      />
                       <template v-if="alsoKnownIn.length > 0">
                         <h5>Also Known In</h5>
                         <ReportDetailsList :reportDetails="alsoKnownIn" />
@@ -113,18 +116,19 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
+//@ts-ignore
 import { Breadcrumb, Spinner, Tab, Tabs } from "molgenis-components";
 import { computed, ref } from "vue";
 import { useRoute } from "vue-router";
 import ViewGenerator from "../components/generators/ViewGenerator.vue";
 import CollectionTitle from "../components/report-components/CollectionTitle.vue";
+import ContactInformation from "../components/report-components/ContactInformation.vue";
 import ReportDescription from "../components/report-components/ReportDescription.vue";
 import ReportDetailsList from "../components/report-components/ReportDetailsList.vue";
 import ReportTitle from "../components/report-components/ReportTitle.vue";
 import {
   getCollectionDetails,
-  mapContactInfo,
   mapAlsoKnownIn,
 } from "../functions/viewmodelMapper";
 import { useNetworkStore } from "../stores/networkStore";
@@ -139,7 +143,9 @@ const settingsStore = useSettingsStore();
 const networkStore = useNetworkStore();
 const qualitiesStore = useQualitiesStore();
 
-const networkPromise = networkStore.loadNetworkReport(route.params.id);
+const networkPromise = networkStore.loadNetworkReport(
+  route.params.id as string
+);
 const qualitiesPromise = qualitiesStore.getQualityStandardInformation();
 Promise.all([qualitiesPromise, networkPromise]).then(
   () => (loaded.value = true)
@@ -152,16 +158,17 @@ const collectionsAvailable = computed(() => collections.value?.length);
 const biobanks = computed(() => networkReport.value.biobanks);
 const biobanksAvailable = computed(() => biobanks.value?.length);
 const network = computed(() => networkReport.value.network);
-const contact = computed(() => mapContactInfo(network.value));
 const alsoKnownIn = computed(() => mapAlsoKnownIn(network.value));
 
 function filterCollections() {
   return (
     networkReport.value.collections
-      ?.filter((collection) => {
+      ?.filter((collection: Record<string, any>) => {
         return !collection.parentCollection;
       })
-      .map((col) => getCollectionDetails(col)) || []
+      .map((collection: Record<string, any>) =>
+        getCollectionDetails(collection)
+      ) || []
   );
 }
 </script>

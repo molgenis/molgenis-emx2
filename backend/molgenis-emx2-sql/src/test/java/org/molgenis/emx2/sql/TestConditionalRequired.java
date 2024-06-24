@@ -60,7 +60,7 @@ public class TestConditionalRequired {
     assertEquals(
         exception.getMessage(),
         "column 'field_two' is required: "
-            + "if field_one is provided field_two is required in ROW(field_one='provided' field_two='null' )");
+            + "if field_one is provided field_two is required in ROW(field_one='provided' field_two='null')");
   }
 
   @Test
@@ -98,7 +98,7 @@ public class TestConditionalRequired {
         exception.getMessage(),
         "column 'medicalStatus' is required: "
             + "Medical status should be provided when an old fat cat is on drugs "
-            + "in ROW(age='12' weight='4' species='cat' onMedication='true' )");
+            + "in ROW(age='12' weight='4' species='cat' onMedication='true')");
 
     Row validRow = invalidRow.set("medicalStatus", "old and fat");
     SqlTypeUtils.applyValidationAndComputed(tableMetadata.getColumns(), validRow); // success

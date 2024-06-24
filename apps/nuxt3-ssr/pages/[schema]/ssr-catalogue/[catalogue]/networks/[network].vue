@@ -108,7 +108,7 @@ async function fetchVariableCount(models: { id: string }[]) {
 let tocItems = computed(() => {
   let tableOffContents = [{ label: "Description", id: "Description" }];
   if (network?.documentation) {
-    tableOffContents.push({ label: "Attached files", id: "Files" });
+    tableOffContents.push({ label: "Documentation", id: "Files" });
   }
   if (network?.contacts) {
     tableOffContents.push({
@@ -140,7 +140,7 @@ let tocItems = computed(() => {
 
   if (network?.fundingStatement || network?.acknowledgements) {
     tableOffContents.push({
-      label: "Funding & Citation requirements ",
+      label: "Funding & Acknowledgements ",
       id: "funding-and-acknowledgement",
     });
   }
@@ -187,7 +187,7 @@ let fundingAndAcknowledgementItems = computed(() => {
   }
   if (network?.acknowledgements) {
     items.push({
-      label: "Citation requirements ",
+      label: "Acknowledgements ",
       content: network.acknowledgements,
     });
   }
@@ -208,7 +208,7 @@ function cohortMapper(cohort: {
     design: cohort.design?.name,
     numberOfParticipants: cohort.numberOfParticipants,
     _renderComponent: "CohortDisplay",
-    _path: `/${route.params.schema}/ssr-catalogue/cohorts/${cohort.id}`,
+    _path: `/${route.params.schema}/ssr-catalogue/${route.params.network}/cohorts/${cohort.id}`,
   };
 }
 
@@ -225,7 +225,7 @@ function dataSourcesMapper(dataSource: {
     type: dataSource.type?.name,
     numberOfParticipants: dataSource.numberOfParticipants,
     _renderComponent: "DataSourceDisplay",
-    _path: `/${route.params.schema}/ssr-catalogue/datasources/${dataSource.id}`,
+    _path: `/${route.params.schema}/ssr-catalogue/${route.params.network}/datasources/${dataSource.id}`,
   };
 }
 
@@ -242,7 +242,7 @@ function variableMapper(variable: {
     label: variable.label,
     model: variable.resource.id,
     _renderComponent: "VariableDisplay",
-    _path: `/${route.params.schema}/ssr-catalogue/variables/${variable.resource.id}`,
+    _path: `/${route.params.schema}/ssr-catalogue/${route.params.network}/variables/${variable.resource.id}`,
   };
 }
 
@@ -298,7 +298,7 @@ crumbs["Networks"] = `/${route.params.schema}/ssr-catalogue/networks`;
         <ContentBlockAttachedFiles
           v-if="network?.documentation?.length"
           id="Files"
-          title="Attached Files"
+          title="Documentation"
           :documents="network.documentation"
         />
 
@@ -344,7 +344,7 @@ crumbs["Networks"] = `/${route.params.schema}/ssr-catalogue/networks`;
 
         <ContentBlock
           id="funding-and-acknowledgement"
-          title="Funding &amp; Citation requirements "
+          title="Funding &amp; Acknowledgements "
           v-if="network?.fundingStatement || network?.acknowledgements"
         >
           <CatalogueItemList :items="fundingAndAcknowledgementItems" />
@@ -373,7 +373,7 @@ crumbs["Networks"] = `/${route.params.schema}/ssr-catalogue/networks`;
           v-if="network?.dataSources_agg?.count > 0"
           id="datasources"
           title="Data sources"
-          description="Datasources connected in this network"
+          description="Data sources connected in this network"
           :headers="[
             { id: 'name', label: 'Name', singleLine: true },
             { id: 'type', label: 'type' },
@@ -388,26 +388,17 @@ crumbs["Networks"] = `/${route.params.schema}/ssr-catalogue/networks`;
           {{ slotProps }}
         </TableContent>
 
-        <TableContent
+        <ContentBlock
           v-if="networkVariablesCount > 0"
           id="variables"
           title="Variables"
-          description="Variables in this network."
-          :headers="[
-            { id: 'name', label: 'Name' },
-            { id: 'label', label: 'Label' },
-            { id: 'model', label: 'Model' },
-          ]"
-          type="Variables"
-          :query="variablesQuery"
-          :filter="networkVariablesFilter"
-          :rowMapper="variableMapper"
         >
-          <ContentBlockModal
-            title="Variables"
-            description="Under construction"
-          ></ContentBlockModal>
-        </TableContent>
+          <NuxtLink
+            class="text-body-base font-extrabold text-blue-500 hover:underline hover:bg-blue-50"
+            :to="`/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/variables`"
+            >View variables</NuxtLink
+          >
+        </ContentBlock>
       </ContentBlocks>
     </template>
   </LayoutsDetailPage>
