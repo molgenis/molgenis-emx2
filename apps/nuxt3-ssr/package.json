@@ -27,7 +27,7 @@
     "if-env": "^1.0.4",
     "jsdom": "22.1.0",
     "meta-data-utils": "*",
-    "nuxt": "3.11.2",
+    "nuxt": "3.12.2",
     "postcss": "8.4.33",
     "postcss-custom-properties": "13.3.5",
     "prettier": "2.8.8",
