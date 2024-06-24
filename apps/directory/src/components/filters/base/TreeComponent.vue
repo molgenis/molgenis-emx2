@@ -3,6 +3,7 @@
     <div :key="option.name" v-for="option of displayOptions">
       <TreeBranchComponent
         :option="option"
+        :modelValue="modelValue"
         :facetIdentifier="facetIdentifier"
         @indeterminate-update="signalParentOurIndeterminateStatus"
         :parentSelected="parentSelected"
@@ -27,10 +28,19 @@ import TreeBranchComponent from "./TreeBranchComponent.vue";
 const filtersStore = useFiltersStore();
 const displaySize = 100;
 
+interface TreeOption {
+  name: string;
+  label: string;
+  code: string;
+  parent: { name: string }[];
+  children: TreeOption[];
+}
+
 const props = withDefaults(
   defineProps<{
     facetIdentifier: string;
-    options: any[];
+    options: TreeOption[];
+    modelValue: string[];
     parentSelected?: boolean;
     filter?: string;
   }>(),

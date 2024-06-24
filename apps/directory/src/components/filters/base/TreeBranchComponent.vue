@@ -25,6 +25,7 @@
       <tree-component
         v-if="open"
         :options="option.children"
+        :modelValue="modelValue"
         :facetIdentifier="facetIdentifier"
         :parentSelected="selected"
         @indeterminate-update="signalParentOurIndeterminateStatus"
@@ -45,10 +46,14 @@ export default {
     const filtersStore = useFiltersStore();
     return { filtersStore };
   },
-  emits: ["indeterminate-update"],
+  emits: ["indeterminate-update", "update:modelValue"],
   props: {
     facetIdentifier: {
       type: String,
+      required: true,
+    },
+    modelValue: {
+      type: Array,
       required: true,
     },
     option: {
@@ -91,16 +96,17 @@ export default {
       return this.filtersStore.getFilterValue(this.facetIdentifier) || [];
     },
     selected() {
-      if (this.parentSelected) {
-        return true;
-      } else if (!this.currentFilterSelection?.length) {
-        return false;
-      } else {
-        return this.currentFilterSelection.some(
-          (selectedValue: Record<string, any>) =>
-            selectedValue.name === this.option.name
-        );
-      }
+      // if (this.parentSelected) {
+      //   return true;
+      // } else if (!this.currentFilterSelection?.length) {
+      //   return false;
+      // } else {
+      //   return this.currentFilterSelection.some(
+      //     (selectedValue: Record<string, any>) =>
+      //       selectedValue.name === this.option.name
+      //   );
+      // }
+      return this.modelValue.includes(this.option.name);
     },
     numberOfChildrenInSelection() {
       if (!this.option.children) {
@@ -130,12 +136,15 @@ export default {
 
   methods: {
     selectOption(checked: boolean, option: Record<string, any>) {
+      console.log("selectOption", checked, option);
       /** if it is checked we add */
-      this.filtersStore.updateOntologyFilter(
-        this.facetIdentifier,
-        option,
-        checked
-      );
+      // this.filtersStore.updateOntologyFilter(
+      //   this.facetIdentifier,
+      //   option,
+      //   checked
+      // );
+
+      emit("update:modelValue", newSelection);
     },
     signalParentOurIndeterminateStatus(status: boolean) {
       this.childIsIndeterminate = status;
