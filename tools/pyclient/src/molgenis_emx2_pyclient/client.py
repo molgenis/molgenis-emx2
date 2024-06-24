@@ -271,12 +271,12 @@ class Client:
             raise NoSuchSchemaException(f"Specify the schema where the file should be uploaded.")
 
         api_url = f"{self.url}/{schema}/api/"
-        if file_path.suffix == '.zip':
+        if file_path.suffix == '.csv':
+            return self._upload_csv(file_path, schema)
+        elif file_path.suffix == '.zip':
             api_url += "zip?async=true"
         elif file_path.suffix == '.xlsx':
             api_url += "excel?async=true"
-        elif file_path.suffix == '.csv':
-            api_url += "csv?async=true"
         else:
             raise NotImplementedError(f"Uploading files with extension {file_path.suffix!r} is not supported.")
 
@@ -289,6 +289,11 @@ class Client:
 
         # Check if status is OK
         log.info(response.status_code)
+
+        if response.status_code != 200:
+            msg = '\n'.join([err['message'] for err in response.json().get('errors')])
+            log.error(msg)
+            raise PyclientException(msg)
 
         # Catch process URL
         process_id = response.json().get('id')
@@ -322,6 +327,25 @@ class Client:
             )
             task = p_response.json().get('data').get('_tasks')[0]
         log.info(f"Completed task: {task.get('description')}")
+
+    def _upload_csv(self, file_path: pathlib.Path, schema: str) -> str:
+        """Uploads the CSV file from the filename to the schema. Returns the success or error message."""
+        api_url = f"{self.url}/{schema}/api/csv"
+
+        with open(file_path, 'rb') as file:
+            response = self.session.post(
+                url=api_url,
+                data={'file': file},
+                headers={'x-molgenis-token': self.token}
+            )
+            if response.status_code == 200:
+                msg = response.text
+                log.info(f"{response.text}")
+            else:
+                msg = '\n'.join([err['message'] for err in response.json().get('errors')])
+                log.error(msg)
+                raise PyclientException(msg)
+        return msg
 
     def delete_records(self, table: str, schema: str = None, file: str = None, data: list | pd.DataFrame = None):
         """Deletes records from a table.
