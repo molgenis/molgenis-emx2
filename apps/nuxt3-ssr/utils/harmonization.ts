@@ -8,7 +8,7 @@ type IRepeatingVariableWithMapping = IVariableWithMappings;
 type INonRepeatingVariableWithMapping = IVariableBase & IVariableWithMappings;
 
 /**
- * Returns a matrix of harmonization status for each variable and cohort
+ * Returns a matrix of harmonisation status for each variable and cohort
  * In case of a repeated variable, the status for toplevel variable is based on the combined status of all its repeats
  * @param variables
  * @param cohorts
