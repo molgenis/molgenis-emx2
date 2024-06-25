@@ -37,6 +37,7 @@ When OIDC is enabled, the admin user can bypass the oidc login by using the admi
 route (```[service-location]/apps/central/#/admin```)
 
 ## Enabling OIDC
+MOLGENIS uses pac4j, see https://www.pac4j.org/docs/clients/openid-connect.html explaining some of the settings we expose.
 
 ### To enable OIDC the following environment variables need to be set:
 
@@ -46,6 +47,12 @@ MOLGENIS_OIDC_CLIENT_SECRET // the client secret as set in the authentication pr
 MOLGENIS_OIDC_CLIENT_NAME // the client name as set in the  authentication provider, defaults to MolgenisAuth
 MOLGENIS_OIDC_DISCOVERY_URI // location of authentication provider (with path to relevant service)
 MOLGENIS_OIDC_CALLBACK_URL // public available endpoint for molgenis service to handle the login action ( https://[public server location]/_callback, note the '_callback' is added by the molgenis server )
+```
+
+Optionally:
+```
+MOLGENIS_OIDC_UNSIGNED_TOKEN // boolean indicating if unsigned tokens can be used, i.e. the 'none' algorithm
+
 ```
 
 #### note: if oidc was previously disabled 

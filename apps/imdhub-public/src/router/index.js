@@ -29,7 +29,7 @@ const router = createRouter({
       path: "/dashboard",
       component: ViewDashboard,
       meta: {
-        title: "Dashboar",
+        title: "Dashboard",
       },
     },
     {

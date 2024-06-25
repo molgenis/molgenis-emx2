@@ -193,9 +193,14 @@ export default {
         if (this.session?.settings?.logoURL) {
           this.logoURL = this.session.settings.logoURL;
         }
-        const additionalJs = this.session?.settings?.additionalJs;
+        const additionalJs: string = this.session?.settings?.additionalJs;
         if (additionalJs) {
-          eval(additionalJs);
+          try {
+            ("use strict");
+            eval?.(`(function() {"use strict"; ${additionalJs}})()`);
+          } catch (error) {
+            console.log(error);
+          }
         }
         this.$emit("update:modelValue", this.session);
       },

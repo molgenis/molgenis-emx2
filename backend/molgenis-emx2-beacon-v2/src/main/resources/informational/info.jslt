@@ -1,0 +1,25 @@
+import "meta.jslt" as meta
+{
+    "$schema" : "../beaconInfoResponse.json",
+    "meta": meta(.),
+    "response": {
+        "id": "BeaconAPI.cv2.rdnexusdev.molgeniscloud.org",
+        "name": "MOLGENIS EMX2 Beacon v2 at " + .host,
+        "apiVersion": "v2.0",
+        "createDateTime": "2021-02-03 15:07 BST",
+        "updateDateTime": "2022-10-05 17:18 BST",
+        "description": "This MOLGENIS EMX2 Beacon v2 at " + .host + " is based on the GA4GH Beacon v2.0 specification, see: https://beacon-project.io/",
+        "environment": "dev",
+        "organization": {
+            "id": "https://ror.org/03cv38k47",
+            "name": "Genomics Coordination Center",
+            "description": "Genomics Coordination Center at Dept. of Genetics at the University Medical Center Groningen",
+            "address": "Genomics Coordination Center, Department of Genetics, University Medical Center Groningen, Antonius Deusinglaan 1, 9713 AV Groningen, The Netherlands",
+            "welcomeUrl": "https://www.molgenis.org/",
+            "contactUrl": "mailto:info@molgenis.org",
+            "logoUrl": "https://www.molgenis.org/assets/img/logo_blue.png"
+        },
+        "welcomeUrl": .host,
+        "alternativeUrl": "https://umcgresearch.org/w/gcc"
+    }
+}

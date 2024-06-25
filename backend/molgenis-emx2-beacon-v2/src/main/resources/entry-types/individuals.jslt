@@ -1,0 +1,63 @@
+import "ontology.jslt" as ontology
+import "meta.jslt" as meta
+import "response_summary.jslt" as responseSummary
+import "info.jslt" as info
+import "range.jslt" as range
+{
+    "meta": meta(.),
+    "responseSummary": responseSummary(.),
+    "info": .info,
+    "response": {
+        "resultSets":
+        [for (.resultSets)
+        {
+            "id": .id,
+            "type": "dataset",
+            "setType": "individuals",
+            "exists": true,
+            "resultsCount": .count,
+            "info": range(.),
+            "results":
+            [for (.results) {
+                "id": .id,
+                "sex": ontology(.sex),
+                "age": {
+                    "ageGroup": ontology(.age_ageGroup),
+                    "age": { "iso8601duration": .age_age_iso8601duration }
+                },
+                "diseaseCausalGenes":
+                [for (.diseaseCausalGenes)
+                     ontology(.)
+                ],
+                "ethnicity": ontology(.ethnicity),
+                "geographicOrigin": ontology(.geographicOrigin),
+                "disease":
+                [for (.diseases) {
+                    "diseaseCode": ontology(.diseaseCode),
+                    "ageOfOnset": {
+                        "ageGroup": ontology(.ageOfOnset_ageGroup),
+                        "age": { "iso8601duration": .ageOfOnset_age_iso8601duration }
+                    },
+                    "ageAtDiagnosis": {
+                        "ageGroup": ontology(.ageAtDiagnosis_ageGroup),
+                        "age": { "iso8601duration": .ageAtDiagnosis_age_iso8601duration }
+
+                    },
+                    "severity": ontology(.severity)
+                }
+                ],
+                "measures":
+                [for (.measures) {
+                    "assayCode": ontology(.assayCode),
+                    "date": .date,
+                    "measurementVariable": .measurementVariable,
+                    "measurementValue": {
+                        "value": .measurementValue_value,
+                        "unit": ontology(.measurementValue_units)
+                    },
+                    "observationMoment": { "age": { "iso8601duration": .observationMoment_age_iso8601duration } }
+                }]
+            }]
+        }]
+    }
+}
