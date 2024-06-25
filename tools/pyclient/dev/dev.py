@@ -73,7 +73,16 @@ async def main():
         print(data)
 
         # Retrieving data from table Pet as a pandas DataFrame
-        data = client.get(table='Pet', as_df=True)  # get Pets
+        data = client.get(table='Pet', query_filter="name == jerry and status == available", as_df=True)  # get Pets
+        print(data)
+
+        # Retrieving filtered data from table Order as pandas DataFrame
+        # Filter on 'complete == true' only
+        data = client.get(table='Order', query_filter="complete == true", as_df=True)
+        print(data)
+
+        # Filter on 'complete == true' and 'status == delivered'
+        data = client.get(table='Order', query_filter="complete == true and status == delivered", as_df=True)
         print(data)
 
         # ///////////////////////////////////////////////////////////////////////////////

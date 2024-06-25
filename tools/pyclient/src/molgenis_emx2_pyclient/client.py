@@ -1,5 +1,6 @@
 import csv
 import io
+import json
 import logging
 from functools import cache
 from typing import TypeAlias, Literal
@@ -293,12 +294,14 @@ class Client:
             errors = '\n'.join([err['message'] for err in response.json().get('errors')])
             log.error("Failed to delete data from %s::%s\n%s.", current_schema, table, errors)
 
-    def get(self, table: str, schema: str = None, as_df: bool = False) -> list | pd.DataFrame:
+    def get(self, table: str, query_filter: str = None, schema: str = None, as_df: bool = False) -> list | pd.DataFrame:
         """Retrieves data from a schema and returns as a list of dictionaries or as
         a pandas DataFrame (as pandas is used to parse the response).
 
         :param schema: name of a schema
         :type schema: str
+        :param query_filter: the query to filter the output
+        :type query_filter: str
         :param table: the name of the table
         :type table: str
         :param as_df: if True, the response will be returned as a
@@ -321,7 +324,9 @@ class Client:
         schema_metadata: Schema = self.get_schema_metadata(current_schema)
         table_id = schema_metadata.get_table(by='name', value=table).id
 
-        response = self.session.get(url=f"{self.url}/{current_schema}/api/csv/{table_id}",
+        filter_part = self._prepare_filter(query_filter) if query_filter else ""
+        query_url = f"{self.url}/{current_schema}/api/csv/{table_id}{filter_part}"
+        response = self.session.get(url=query_url,
                                     headers={'x-molgenis-token': self.token})
 
         self._validate_graphql_response(response=response,
@@ -572,6 +577,23 @@ class Client:
 
         metadata = Schema(**response_json.get('data').get('_schema'))
         return metadata
+
+    def _prepare_filter(self, expr: str) -> str:
+        """Prepares a GraphQL filter based on the expression passed into `get`."""
+        stmts = expr.split('and')
+        _filter = dict()
+        for stmt in stmts:
+            if '==' in stmt:
+                _filter.update(**self.__prepare_equals_filter(stmt))
+        return "?filter=" + json.dumps(_filter)
+
+    @staticmethod
+    def __prepare_equals_filter(stmt: str) -> dict:
+        """Prepares the filter part if the statement filters on equality."""
+        col = stmt.split('==')[0].strip()
+        val = stmt.split('==')[1].strip()
+
+        return {col: {'equals': val}}
 
     @staticmethod
     def _prep_data_or_file(file_path: str = None, data: list | pd.DataFrame = None) -> str | None:
