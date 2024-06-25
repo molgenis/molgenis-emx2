@@ -61,7 +61,7 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | 26 |PARTNERS|logo, Name of organisation, ">Read more" and arrow to navigate to details | | |
 |||name of test additional organisation 1 | | |
 |||name of test additional organisation 2 | | |
-| 27 |NETWORKS|List of networks which this cohort is involved in | | |
+| 27 |NETWORKS|List of networks in which this cohort is involved | | |
 |||logo, Name of network, ">Read more?  And arrow to navigate to details | | |
 |||name of test network2 | | |
 |||> Read more | | |
@@ -79,4 +79,4 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 ||Linkage options|Linkage options cohort 1 | | |
 | 29|DOCUMENTATION|Documents | | |
 |||Card per document, clickable so that you open the document - test doc2 for test cohort 1 and test documentation for cohort 1 | | |
-| 30|Click on test documentation for cohort 1|test documentation for cohort 1 opens in a separate window | | |
+| 30|Click on test documentation for cohort 1|test documentation for cohort 1 is downloaded locally | | |
