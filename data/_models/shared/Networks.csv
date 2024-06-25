@@ -19,8 +19,5 @@ Networks,,end year,int,,,,,,,,,Year when the network ended,DataCatalogueFlat
 Networks,,publications,ref_array,,,,Publications,,,,,Other publication(s) about this resource,"DataCatalogueFlat,EMA"
 Networks,,funding statement,text,,,,,,,,,Statement listing funding that was obtained for this resource,"DataCatalogueFlat,EMA"
 Networks,,acknowledgements,text,,,,,,,,,Acknowledgement statement and citation regulation for this resource,DataCatalogueFlat
-Networks,,data sources,refback,,,,Collections,,,,dct:dataset,,"DataCatalogueFlat,EMA"
-Networks,,databanks,refback,,,,Collections,,,,dct:dataset,,DataCatalogueFlat
-Networks,,cohorts,refback,,,,Collections,,,,dct:dataset,,DataCatalogueFlat
-Networks,,models,refback,,,,Collections,,,,dct:dataset,The common data model(s) used by this network,DataCatalogueFlat
+Networks,,collections,refback,,,,Collections,,networks,,dct:dataset,,"DataCatalogueFlat,EMA"
 Networks,,networks,ref_array,,,,Networks,,,,dct:hasPart,The consortia or networks that are involved in this network,DataCatalogueFlat

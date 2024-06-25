@@ -7,7 +7,7 @@ Variable mappings,,source variables other datasets,ref_array,,,,Variables,source
 Variable mappings,,target,ref,1,TRUE,,Collections,,,,,collection that contains the target variable,DataCatalogueFlat,
 Variable mappings,,target dataset,ref,1,TRUE,,Datasets,target,,,,dataset that contains the target variable,DataCatalogueFlat,
 Variable mappings,,target variable,ref,1,TRUE,,Variables,target dataset,,,,target variable that was mapped to,DataCatalogueFlat,
-Variable mappings,,repeats,string,1,,,,,,,,"in case of mapping to a repeated variable, specify which repeats were mapped to. Otherwise specifify 'NA'",DataCatalogueFlat,NA
+Variable mappings,,repeats,string,1,TRUE,,,,,,,"in case of mapping to a repeated variable, specify which repeats were mapped to. Otherwise specifify 'NA'",DataCatalogueFlat,NA
 Variable mappings,,match,ontology,,TRUE,CatalogueOntologies,Status details,,,,,"e.g. 'complete, partial, planned, not avialable'",DataCatalogueFlat,
 Variable mappings,,description,text,,,,,,,,,human readible description of the mapping,DataCatalogueFlat,
 Variable mappings,,syntax,text,,,,,,,,,"formal definition of the mapping, ideally executable code",DataCatalogueFlat,
