@@ -420,6 +420,7 @@ public class SqlQuery extends QueryBean {
     if (filters != null) {
       for (Filter f : filters.getSubfilters()) {
         if (f == null) {
+          // continue
         } else if (OR.equals(f.getOperator())) {
           conditions.add(
               or(jsonFilterQueryConditions(table, column, tableAlias, subAlias, f, searchTerms)));
