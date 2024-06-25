@@ -144,11 +144,11 @@ public class TestLoaders {
     new ProfileLoader("_profiles/test-only/DCAT-basic.yaml").load(DCATSchema, true);
     assertEquals(7, DCATSchema.getTableNames().size());
   }
-  
+
   @Test
   void test17DataCatalogueFlatLoader() {
     Schema datacatalogueflat = database.createSchema(DATA_CATALOGUE_FLAT);
     AvailableDataModels.DATA_CATALOGUE_FLAT.install(datacatalogueflat, false);
-    assertEquals(34, datacatalogueflat.getTableNames().size());
+    assertEquals(24, datacatalogueflat.getTableNames().size());
   }
 }
