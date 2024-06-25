@@ -133,7 +133,7 @@ function percentageLongitudinal(
         :count="data.data.Networks_agg.count"
         :link="`/${route.params.schema}/ssr-catalogue/all/variables`"
       />
-      <!-- todo must split in collected and harmonized -->
+      <!-- todo must split in collected and harmonised -->
       <LandingCardSecondary
         icon="harmonized-variables"
         title="Harmonised variables"

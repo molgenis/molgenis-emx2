@@ -63,16 +63,16 @@ let tocItems = reactive([{ label: "Description", id: "description" }]);
 if (cohortsWithMapping.value.length > 0) {
   tocItems.push({
     label: "Harmonisation status per Cohort",
-    id: "harmonization-per-cohort",
+    id: "harmonisation-per-cohort",
   });
   tocItems.push({
     label: "Harmonisation details per Cohort",
-    id: "harmonization-details-per-cohort",
+    id: "harmonisation-details-per-cohort",
   });
 } else {
   tocItems.push({
     label: "Harmonisation",
-    id: "harmonization-details-no-mapping",
+    id: "harmonisation-details-no-mapping",
   });
 }
 
@@ -124,7 +124,7 @@ useHead({ title: titlePrefix + variable.value.name });
 
         <ContentBlock
           v-if="cohortsWithMapping.length > 0"
-          id="harmonization-per-cohort"
+          id="harmonisation-per-cohort"
           title="Harmonisation status per Cohort"
           description="Overview of the harmonisation status per Cohort"
         >
@@ -141,7 +141,7 @@ useHead({ title: titlePrefix + variable.value.name });
 
         <ContentBlock
           v-if="cohortsWithMapping.length > 0"
-          id="harmonization-details-per-cohort"
+          id="harmonisation-details-per-cohort"
           title="Harmonisation details per Cohort"
           description="Select a Cohort to see the details of the harmonisation"
         >
@@ -153,7 +153,7 @@ useHead({ title: titlePrefix + variable.value.name });
 
         <ContentBlock
           v-if="cohortsWithMapping.length === 0"
-          id="harmonization-details-no-mapping"
+          id="harmonisation-details-no-mapping"
           title="Harmonisation"
           description="No mapping found for this variable"
         >
