@@ -106,6 +106,7 @@ public class MolgenisWebservice {
     FAIRDataPointApi.create(sessionManager);
     BootstrapThemeService.create();
     ProfilesApi.create();
+    RestApi.create(sessionManager);
 
     get(
         "/:schema",
