@@ -313,9 +313,15 @@ class Client:
                 if st['id'] not in reported_tasks and st['status'] == 'RUNNING':
                     log.info(f"Subtask: {st['description']}")
                     reported_tasks.append(st['id'])
+                if st['id'] not in reported_tasks and st['status'] == 'SKIPPED':
+                    log.warning(f"    Subtask: {st['description']}")
+                    reported_tasks.append(st['id'])
                 for sst in st.get('subTasks', []):
                     if sst['id'] not in reported_tasks and sst['status'] == 'COMPLETED':
                         log.info(f"    Subsubtask: {sst['description']}")
+                        reported_tasks.append(sst['id'])
+                    if sst['id'] not in reported_tasks and sst['status'] == 'SKIPPED':
+                        log.warning(f"    Subsubtask: {sst['description']}")
                         reported_tasks.append(sst['id'])
             p_response = self.session.post(
                 url=self.api_graphql,
