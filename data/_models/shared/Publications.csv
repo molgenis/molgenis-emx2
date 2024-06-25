@@ -11,4 +11,4 @@ Publications,,pagination,,,,,,,,,,"Page numbers, separated either by commas or d
 Publications,,publisher,,,,,,,,,,Publisher's name,DataCatalogueFlat,
 Publications,,school,,,,,,,,,,School where the thesis was written (in case of thesis),DataCatalogueFlat,
 Publications,,abstract,text,,,,,,,,,Publication abstract,DataCatalogueFlat,
-Publications,,collections,refback,,,,Collections,,publications,,,List of resources that this collection refers to,DataCatalogueFlat,
+Publications,,collections,ref,,,,Collections,,publications,,,List of resources that refer to this publication,DataCatalogueFlat,
