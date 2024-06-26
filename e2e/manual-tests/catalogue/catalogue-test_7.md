@@ -98,7 +98,7 @@ A researcher can filter on variables using the search filter, topics and cohorts
 41| Select the other 3 test cohorts alongside testCohort2.| 3 variables are displayed in the harmonisation matrix: 
 |||testVarLang1 mapped to cohorts1 and 4,
 |||testVarLang3Vir1 mapped to cohorts 3 and 4, 
-|||testVarNoRepeats mapped to cohorts 3 and 4. 
+|||testVarNoRepeats mapped to cohorts 1, 3 and 4. 
 |||See that testVarCategorical_ and testVarLang2 are not shown (because they have no mappings to the cohorts selected). 
 |||TestCohort2 is shown despite having no mappings to these variables, because it has been selected in the cohort filter.| | "
 42| Add the filter ‘Virology’ in the topics on the left hand side (under ‘Laboratory measures’)| See that 4 variables are displayed, with the following mappings: 
