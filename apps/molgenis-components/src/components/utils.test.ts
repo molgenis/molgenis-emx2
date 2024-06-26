@@ -27,7 +27,7 @@ vi.mock("../client/client", () => {
   };
 });
 
-const { CODE_0, CODE_9, CODE_MINUS, CODE_COMMA, CODE_PERIOD } = constants;
+const { CODE_0, CODE_9, CODE_MINUS, CODE_PERIOD } = constants;
 
 describe("isRefType", () => {
   test("it should return true for REF, REF_ARRAY, REFBACK, ONTOLOGY, and ONTOLOGY_ARRAY types", () => {
@@ -56,11 +56,6 @@ describe("isNumericKey", () => {
 
   test("code is CODE_9 (57)", () => {
     const keyboardEvent = { which: CODE_9 } as KeyboardEvent;
-    assert.isTrue(isNumericKey(keyboardEvent));
-  });
-
-  test("code is CODE_COMMA (44)", () => {
-    const keyboardEvent = { which: CODE_COMMA } as KeyboardEvent;
     assert.isTrue(isNumericKey(keyboardEvent));
   });
 

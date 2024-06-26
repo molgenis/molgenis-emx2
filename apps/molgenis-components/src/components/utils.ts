@@ -3,15 +3,8 @@ import constants from "./constants";
 import Client from "../client/client";
 import type { IColumn } from "meta-data-utils";
 
-const {
-  CODE_0,
-  CODE_9,
-  CODE_COMMA,
-  CODE_PERIOD,
-  CODE_MINUS,
-  MIN_LONG,
-  MAX_LONG,
-} = constants;
+const { CODE_0, CODE_9, CODE_PERIOD, CODE_MINUS, MIN_LONG, MAX_LONG } =
+  constants;
 
 export function isRefType(columnType: string): boolean {
   return ["REF", "REF_ARRAY", "REFBACK", "ONTOLOGY", "ONTOLOGY_ARRAY"].includes(
@@ -21,11 +14,7 @@ export function isRefType(columnType: string): boolean {
 
 export function isNumericKey(event: KeyboardEvent): boolean {
   const keyCode = event.which ?? event.keyCode;
-  return (
-    (keyCode >= CODE_0 && keyCode <= CODE_9) ||
-    keyCode === CODE_COMMA ||
-    keyCode === CODE_PERIOD
-  );
+  return (keyCode >= CODE_0 && keyCode <= CODE_9) || keyCode === CODE_PERIOD;
 }
 
 export function flattenObject(object: Record<string, any>): string {
