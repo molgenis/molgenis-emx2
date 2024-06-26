@@ -33,18 +33,19 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | 14 |Countries|Armenia, Bermuda, Réunion | | |
 | 15 |Regions|Bradford, Lapland, Gipuzkoa | | |
 | 16 |Population age groups|Adult (18+ years) | | |
-| 17 |Population disease|many, many items listed for population disease | | |
+| 17 |Main medical condition|many, many items listed for population disease | | |
 | 19 |Population oncology topology|BASE OF TONGUE, UTERUS, NOS | | |
 | 20 |Population oncology morphology|Carcinoma, metastatic, NOS Carcinomatosis | | |
 | 21 |Inclusion criteria|Clinically relevant exposure inclusion criterion | | |
 |||Clinically relevant lifestyle inclusion criterion | | |
 |||Country of residence inclusion criteria | | |
 | 22|CONTRIBUTORS||||
-| 22a| Contact button ||||
+| | Lead organisation| Name for lead organisation 1, name for test lead organisation 2 (in bullets)|||
 | | Contributors
 | | 1 card per contact person with: (titles) (initials) ((first name)) (surname prefix) (surname), (email address), (description of role) | | |
 |||dr. ir.  P.I.P.M. (PIPM) surname prefix last name PIPM ---- pipm@testdomain.nl -----  Test description of PI/PM role | | |
 |||dr.  D.M. (datamgr first name) datamgr surname prefix datamgr last name --- test@email.nl --- test description for data manager role | | |
+| | Additional organisations | name of test additional organisation 1, name for test additional organisation 2 (in bullets)|||
 ||NB not all blocks are tested in this test plan| | | |
 | 23|SUBPOPULATIONS|List of subcohorts or subpopulations for this resource | | |
 |||table with the following columns: Name, Description, Number of participants | | |
