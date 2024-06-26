@@ -797,24 +797,13 @@ const activeOrganization = computed(() => {
           :networks="cohort?.networks"
         />
 
-        <TableContent
-          v-if="publicationsCount ?? 0 > 0"
+        <ContentBlockPublications
+          v-if="cohort?.publications"
           id="publications"
           title="Publications"
-          description="Other publication(s) about this cohort"
-          :headers="[
-            { id: 'doi', label: 'DOI' },
-            { id: 'title', label: 'Title', singleLine: true },
-            { id: 'year', label: 'Year' },
-          ]"
-          type="Publications"
-          :query="publicationsQuery"
-          :filter="{ id: route.params.cohort }"
-          :rowMapper="publicationMapper"
-          v-slot="slotProps"
+          :publications="cohort.publications"
         >
-          <PublicationDisplay :doi="slotProps.id" />
-        </TableContent>
+        </ContentBlockPublications>
 
         <ContentBlock
           id="access-conditions"
