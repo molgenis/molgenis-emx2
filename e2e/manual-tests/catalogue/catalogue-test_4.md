@@ -19,9 +19,9 @@ A researcher working in consortium X (*example: testNetwork1*) searches for spec
 | 3 | Hover over the testNetwork1 row | Row should be highlighted | | |
 | 4 | Click on the testNetwork1 logo | Should be redirected to the testNetwork1 'Welcome to... Select one of the content categories listed below.' | | |
 | 4a |  Go back | Return to the European Health Research Data and Sample Catalogue page | | |
-| 5 | Click on the testNetwork1 name | Should be redirected to the testNetwork1 'Welcome to... Select one of the content categories listed below.'. Cohorts should show 4, data sources should show 1, variables should show 3. | | |
+| 5 | Click on the testNetwork1 name | Should be redirected to the testNetwork1 'Welcome to... Select one of the content categories listed below.'. Cohorts should show 4, data sources should show 1, variables should show 8. | | |
 | 6 | Hover over yellow Variables button | Button should be highlighted | | |
-| 7 | Click Variables button | Should be redirected to testNetwork1 variable explorer; Variable page should show complete variable names, variable labels and a filters panel on the left hand side of the page. Variable "testVarRepeats_" should have +10 in a bubble next to its name. Text above the list of variables reads '3 variables'. | | |
+| 7 | Click Variables button | Should be redirected to testNetwork1 variable explorer; Variable page should show complete variable names, variable labels and a filters panel on the left hand side of the page. Variable "testVarRepeats_" should have +10 in a bubble next to its name. Variable "testVarRep-with-looong-name_" should have +10 in a bubble next to its name or on the next line, not split. Text above the list of variables reads '8 variables'. | | |
 | 8 | Search 'ADHD' in search bar | Variables should be filtered on ADHD variables ('testVarRepeats_' and 'testVarNoRepeats'); variable "testVarRepeats_" should have +10 in a bubble next to its name; active filters should show 'ADHD'  | | |
 | 8a| Remove 'ADHD' from the search bar | The list of variables returns to its initial form and no filters are shown above the list | | |
 | 9 | Expand the Topic tree if necessary and then click on 'Search for options' above the topics on the left hand side | A pop-up with the list of topics is displayed | | |
@@ -32,7 +32,7 @@ A researcher working in consortium X (*example: testNetwork1*) searches for spec
 | 12 | Click on tab for testcohort3 | Tab should show information for testcohort3 | | |
 | 13 | Click first variable used | Dialog should show information available for the source variable | | |
 | 14 | Click back button to return to previous page | Should be redirected to network variable explorer with previously selected filters | | |
-| 15 | Open 'Harmonisations' tab | Harmonisations tab should show only variables ('testVarNoRepeats' and 'testVarRepeats_') and cohorts part of the network; Show correct statuses for harmonisation (testCohort1: has info; testCohort2: no info; testCohort3: has info; testCohort4: no info)| | |
+| 15 | Open 'Harmonisations' tab | Harmonisations tab should show only variables ('testVarNoRepeats' and 'testVarRepeats_') and cohorts part of the network; Show correct statuses for harmonisation (testCohort1: has info; testCohort2: no info; testCohort3: has info; testCohort4: has info)| | |
 | 16 | Hover over 'about statuses' | Pop up should show 'Available: cohort has data available for the variable'; 'No data: cohort does not have data available for the variable' | | |
 | 17 | Click first variable | Should show pop up/dialog with information about variable | | |
-| 18 | Click 'more details' in dialog| Should redirect variable detailed view | | |
+| 18 | Click 'more details' in dialog| Should redirect to variable detailed view | | |
