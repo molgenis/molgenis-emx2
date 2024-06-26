@@ -1,11 +1,13 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,visible
-Collections,,,,,,,,,,,dcat:DatasetSeries,"Generic listing of all resources. Should not be used directly, instead use specific types such as Databanks and Studies","DataCatalogueFlat,EMA",
+Collections,,,,,,,,,,,"dcat:DatasetSeries,dcat:Dataset","Collection of data and/or samples. Use 'collection type' to specify","DataCatalogueFlat,EMA",
 Collections,,overview,heading,,,,,,,,,General information,DataCatalogueFlat,
 Collections,,id,,1,true,,,,,,dct:identifier,Internal identifier,"DataCatalogueFlat,EMA",
 Collections,,pid,,2,,,,,,,dct:identifier,Persistent identifier,"DataCatalogueFlat,EMA",
 Collections,,acronym,,,,,,,,,dct:alternative,Acronym if applicable,"DataCatalogueFlat,EMA",
 Collections,,name,text,3,true,,,,,,dct:title,Name used in European projects,"DataCatalogueFlat,EMA",
 Collections,,collection type,ontology,,,CatalogueOntologies,Collection types FLAT,,,,,,DataCatalogueFlat,
+Collections,,features,ontology_array,,,CatalogueOntologies,Network features,,,,,Characterizations of the network,"DataCatalogueFlat,EMA","['Network'].includes(collectionType?.name)"
+Collections,,collections,refback,,,,Collections,,networks,,dct:dataset,,"DataCatalogueFlat,EMA","['Network'].includes(collectionType?.name)"
 Collections,,local name,,,,,,,,,rdfs:label,"If different from above, name in the national language",DataCatalogueFlat,"['Cohort', 'Databank', 'Data source'].includes(collectionType?.name)"
 Collections,,study type,ontology,,,CatalogueOntologies,Study types,,,,,Select 1 of the following types of study,"DataCatalogueFlat,EMA",['Study'].includes(collectionType?.name)
 Collections,,study type other,,,,,,,,,,"If other, describe the type of study","DataCatalogueFlat,EMA",['Study'].includes(collectionType?.name)
