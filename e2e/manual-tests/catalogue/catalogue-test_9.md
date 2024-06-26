@@ -17,7 +17,7 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | 1 | Navigate to [MOLGENIS ACC test catalogue](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue) | Landing page: European health research data and sample catalogue | | |
 | 2 | Navigate to Search All | Cohorts, Data sources, Variables and Networks buttons are shown with numbers of each under each button | | |
 | 3 | Click on the Cohorts button | Cohorts overview page with a list of all cohorts in the system | | |
-| 4 | Type "test cohort" in the Search field top left | See that two cohorts are presented in the list: "acronym for test cohort 1" and "acronym for test cohort 2" | | |
+| 4 | Type "Name for test cohort" in the Search field top left | See that two cohorts are presented in the list: "acronym for test cohort 1" and "acronym for test cohort 2" | | |
 | 5 | Click on "Acronym for test cohort 1" | See that the cohort detail page for Acronym for test cohort 1 is presented: "All > cohorts", ACRONYM FOR TEST COHORT 1, Name for test cohort 1 | | |
 | 6 | See that the fields are filled as follows:| | | |
 | 7 |DESCRIPTION|This is the Test cohort 1. It has multiple entries where possible.  Design paper and publications are random DOIs from the EUCAN project.  Yes to data access fee. The population age group is all adult options, so the population age group should be shown as "Adult 18+ years". Cohort type has both 'normal' and 'other' fields filled in --> see which is displayed | | |
