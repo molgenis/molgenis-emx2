@@ -287,13 +287,13 @@ export interface IMapping {
   targetVariable: IVariableBase | IVariable;
 }
 
-export type HarmonizationStatus =
+export type HarmonisationStatus =
   | "unmapped"
   | "partial"
   | "complete"
   | "available";
 
-export type HarmonizationIconSize = "small" | "large";
+export type HarmonisationIconSize = "small" | "large";
 export interface IMgError {
   message: string;
   statusCode: number;

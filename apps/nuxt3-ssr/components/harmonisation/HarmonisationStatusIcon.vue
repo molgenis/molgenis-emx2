@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import type {
-  HarmonizationIconSize,
-  HarmonizationStatus,
+  HarmonisationIconSize,
+  HarmonisationStatus,
 } from "~/interfaces/types";
 
 const props = withDefaults(
   defineProps<{
-    status: HarmonizationStatus;
-    size: HarmonizationIconSize;
+    status: HarmonisationStatus;
+    size: HarmonisationIconSize;
   }>(),
   { size: "large" }
 );

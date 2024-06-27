@@ -13,7 +13,7 @@
           <template v-else> -</template>
         </dd>
 
-        <dt class="col-2 mb-3">harmonization status</dt>
+        <dt class="col-2 mb-3">harmonisation status</dt>
         <dd class="col-10">
           <template v-if="variable.cohortMapping">
             {{ variable.cohortMapping.match.name }}
