@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import type { HarmonizationIconSize } from "../../interfaces/types";
+import type { HarmonisationIconSize } from "../../interfaces/types";
 
 const props = withDefaults(
   defineProps<{
-    size?: HarmonizationIconSize;
+    size?: HarmonisationIconSize;
   }>(),
   { size: "large" }
 );
@@ -24,15 +24,15 @@ function closeModal() {
       class="flex justify-end items-center gap-3 mr-3 list-none [&_li]:flex [&_li]:items-center [&_li]:gap-2"
     >
       <li>
-        <HarmonizationStatusIcon :size="size" status="complete" />
+        <HarmonisationStatusIcon :size="size" status="complete" />
         Completed
       </li>
       <li>
-        <HarmonizationStatusIcon :size="size" status="partial" />
+        <HarmonisationStatusIcon :size="size" status="partial" />
         Partial
       </li>
       <li>
-        <HarmonizationStatusIcon :size="size" status="unmapped" />
+        <HarmonisationStatusIcon :size="size" status="unmapped" />
         No Data
       </li>
     </ul>
@@ -58,22 +58,22 @@ function closeModal() {
   >
     <ContentBlockModal
       title="About statuses"
-      description="The following statuses are used to define the progress of harmonization between variables."
+      description="The following statuses are used to define the progress of harmonisation between variables."
     >
       <dl
         class="grid grid-cols-3 [&_dt]:col-span-1 [&_dd]:col-span-2 [&_*]:p-1 [&_*]:border-b-[1px] [&_*]:border-b-gray-200"
       >
         <dt>Complete</dt>
-        <dd>Harmonization is complete.</dd>
+        <dd>Harmonisation is complete.</dd>
         <dt>Partial</dt>
         <dd>
-          Harmonization is incomplete. It may be the cases that this process is
+          Harmonisation is incomplete. It may be the cases that this process is
           ongoing or cannot progress further.
         </dd>
         <dt>No Data</dt>
         <dd>
-          Harmonization is unknown. Either information is not available or it is
-          not possible to harmonize these variables.
+          Harmonisation is unknown. Either information is not available or it is
+          not possible to harmonise these variables.
         </dd>
       </dl>
     </ContentBlockModal>
