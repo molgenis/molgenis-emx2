@@ -353,6 +353,12 @@ crumbs[
               />
               <SearchResultsViewTabsMobile
                 class="flex xl:hidden"
+                button-top-label="Harmonization"
+                button-top-name="list"
+                button-top-icon="view-table"
+                button-bottom-label="Variables"
+                button-bottom-name="harmonization"
+                button-bottom-icon="view-compact"
                 :activeName="activeName"
                 @update:activeName="onViewChange"
               >
