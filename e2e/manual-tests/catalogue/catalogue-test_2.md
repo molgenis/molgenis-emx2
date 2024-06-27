@@ -28,6 +28,8 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | 10 | Click on the 'Overview' button at the top |Should be directed back to the home page for testNetwork1 | | |
 | 11 | Click on More --> 'About' button | Should be directed to the detailed network page for testNetwork1 with website, description, partners, funding & acknowledgements, list of cohorts, list of data sources and link to view the network's variables | | |
 | 12 | Click on More --> Other catalogues | Should be directed to the landing page showing all thematic and project catalogues, entitled "European Health Research Data and Sample Catalogue" | | |
+| 12a| Click on More --> Upload data | Should be directed to the 'old' interface apps/central for the user to be able to sign in and upload data
+| 12b| Click on back in the browser | Should be directed back to the landing page showing all thematic and project catalogues |||
 | 13 | Click on testNetwork1 | Should be directed to the testNetwork1 home page with 'Welcome to the catalogue of testNetwork1: [etc]', and Cohorts (4), Data sources (1), Variables (8) buttons | | |
 | 14 | Click on the underlined name of the catalogue in the "Welcome to the catalogue of..." text | ACRONYM FOR TESTNETWORK 1, name for testnetwork1 | | |
 | 15 | Menu on the left hand side | ACRONYM FOR TESTNETWORK1, Description, Partners, Funding & Acknowledgements, Cohorts, Data Sources, Variables | | |
