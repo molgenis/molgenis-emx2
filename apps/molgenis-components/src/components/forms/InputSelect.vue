@@ -12,10 +12,10 @@
     <select
       v-else-if="!readonly"
       :id="id"
-      :modelValue="modelValue"
+      :modelValue="defaultModelValue(modelValue, required, options)"
       :readonly="readonly"
       class="form-control"
-      @change="$emit('update:modelValue', $event.target.value)"
+      @change="updateModelValue($event.target.value)"
     >
       <option
         v-if="!required"
@@ -56,6 +56,19 @@ export default {
   },
   props: {
     options: { type: Array, required: true },
+  },
+  methods: {
+    defaultModelValue: function (modelValue, required, options) {
+      if ((modelValue === undefined || modelValue === null) && required) {
+        this.updateModelValue(options[0]);
+        return options[0];
+      } else {
+        return modelValue;
+      }
+    },
+    updateModelValue: function (value) {
+      this.$emit("update:modelValue", value == "" ? null : value);
+    },
   },
 };
 </script>
