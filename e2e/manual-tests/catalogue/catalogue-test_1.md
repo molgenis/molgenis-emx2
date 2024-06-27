@@ -30,3 +30,4 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | 12 | Click on the 'Overview' button at the top | Should be directed back to the home page for testNetworkofNetworks | | true |
 | 13 | Click on More --> About | Should be directed to the detailed network page for testNetworkofNetworks (THIS IS NOT THE SAME AS THE HOME PAGE!) with website, description, partners, funding & citation requirements, list of cohorts and link to view the network's variables | | true |
 | 14 | Click on More --> Other catalogues | Should be directed to the landing page showing all thematic and project catalogues, entitled "European Health Research Data and Sample Catalogue" | | true |
+| 15 | Click on More --> Upload data | Should be directed to the 'old' interface apps/central for the user to be able to sign in and upload data
