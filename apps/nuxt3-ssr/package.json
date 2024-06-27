@@ -29,7 +29,7 @@
     "meta-data-utils": "*",
     "nuxt": "3.11.2",
     "postcss": "8.4.38",
-    "postcss-custom-properties": "13.3.5",
+    "postcss-custom-properties": "13.3.10",
     "prettier": "2.8.8",
     "shelljs": "^0.8.5",
     "tailwindcss": "3.4.4",
