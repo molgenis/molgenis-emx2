@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import type { HarmonizationStatus } from "~/interfaces/types";
+import type { HarmonisationStatus } from "~/interfaces/types";
 
 const props = defineProps<{
-  status: HarmonizationStatus;
+  status: HarmonisationStatus;
 }>();
 </script>
 <template>
