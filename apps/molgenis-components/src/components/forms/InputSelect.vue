@@ -114,6 +114,7 @@ export default {
           v-model="defaultValue"
           :options="['lion', 'ape', 'monkey']"
       />
+      Selected: {{ defaultValue }}
     </DemoItem>
     <DemoItem>
       <InputSelect
