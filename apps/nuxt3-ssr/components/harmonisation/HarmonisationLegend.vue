@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import type { HarmonizationIconSize } from "../../interfaces/types";
+import type { HarmonisationIconSize } from "../../interfaces/types";
 
 const props = withDefaults(
   defineProps<{
-    size?: HarmonizationIconSize;
+    size?: HarmonisationIconSize;
   }>(),
   { size: "large" }
 );
@@ -24,15 +24,15 @@ function closeModal() {
       class="flex justify-end items-center gap-3 mr-3 list-none [&_li]:flex [&_li]:items-center [&_li]:gap-2"
     >
       <li>
-        <HarmonizationStatusIcon :size="size" status="complete" />
+        <HarmonisationStatusIcon :size="size" status="complete" />
         Completed
       </li>
       <li>
-        <HarmonizationStatusIcon :size="size" status="partial" />
+        <HarmonisationStatusIcon :size="size" status="partial" />
         Partial
       </li>
       <li>
-        <HarmonizationStatusIcon :size="size" status="unmapped" />
+        <HarmonisationStatusIcon :size="size" status="unmapped" />
         No Data
       </li>
     </ul>

@@ -353,11 +353,11 @@ crumbs[
               />
               <SearchResultsViewTabsMobile
                 class="flex xl:hidden"
-                button-top-label="Harmonization"
+                button-top-label="Harmonisation"
                 button-top-name="list"
                 button-top-icon="view-table"
                 button-bottom-label="Variables"
-                button-bottom-name="harmonization"
+                button-bottom-name="harmonisation"
                 button-bottom-icon="view-compact"
                 :activeName="activeName"
                 @update:activeName="onViewChange"
@@ -414,12 +414,12 @@ crumbs[
                 />
               </CardListItem>
             </CardList>
-            <HarmonizationTable
+            <HarmonisationTable
               v-else
               :variables="data?.data?.Variables"
               :cohorts="data?.data?.Cohorts"
             >
-            </HarmonizationTable>
+            </HarmonisationTable>
           </SearchResultsList>
         </template>
 

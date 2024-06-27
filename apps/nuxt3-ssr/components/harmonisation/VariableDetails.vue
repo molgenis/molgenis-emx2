@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type {
-  HarmonizationStatus,
+  HarmonisationStatus,
   IMapping,
   IVariable,
   IVariableBase,
@@ -12,14 +12,14 @@ const props = defineProps<{
   variable: VariableDetailsWithMapping;
   cohortsWithMapping: {
     cohort: { id: string };
-    status: HarmonizationStatus | HarmonizationStatus[];
+    status: HarmonisationStatus | HarmonisationStatus[];
   }[];
 }>();
 
 const activeTabIndex = ref(0);
 
 const statusPerCohort = computed(() =>
-  calcIndividualVariableHarmonizationStatus(
+  calcIndividualVariableHarmonisationStatus(
     props.variable,
     props.cohortsWithMapping.map((cwm) => cwm.cohort)
   )
@@ -145,8 +145,8 @@ const variableList = props.variable.repeats
       </DefinitionListDefinition>
       <DefinitionListTerm>Harmonisation status</DefinitionListTerm>
       <DefinitionListDefinition>
-        <HarmonizationStatus
-          :status="statusPerCohort[activeTabIndex][repeatIndex] as HarmonizationStatus"
+        <HarmonisationStatus
+          :status="statusPerCohort[activeTabIndex][repeatIndex] as HarmonisationStatus"
         />
       </DefinitionListDefinition>
 

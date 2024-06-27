@@ -43,7 +43,7 @@ crumbs[
 const cohortsWithMapping = computed(() => {
   return cohorts.value
     .map((cohort) => {
-      const status = calcIndividualVariableHarmonizationStatus(variable.value, [
+      const status = calcIndividualVariableHarmonisationStatus(variable.value, [
         cohort,
       ])[0];
       return {
@@ -128,12 +128,12 @@ useHead({ title: titlePrefix + variable.value.name });
           title="Harmonisation status per Cohort"
           description="Overview of the harmonisation status per Cohort"
         >
-          <HarmonizationGridPerVariable
+          <HarmonisationGridPerVariable
             v-if="isRepeating"
             :cohorts-with-mapping="cohortsWithMapping"
             :variable="variable"
           />
-          <HarmonizationListPerVariable
+          <HarmonisationListPerVariable
             v-else
             :cohortsWithMapping="cohortsWithMapping"
           />
@@ -145,7 +145,7 @@ useHead({ title: titlePrefix + variable.value.name });
           title="Harmonisation details per Cohort"
           description="Select a Cohort to see the details of the harmonisation"
         >
-          <HarmonizationVariableDetails
+          <HarmonisationVariableDetails
             :variable="variable"
             :cohortsWithMapping="cohortsWithMapping"
           />
