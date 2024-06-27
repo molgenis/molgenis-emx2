@@ -63,6 +63,10 @@ if (!cohortOnly.value) {
     label: "Other catalogues",
     link: `/${route.params.schema}/ssr-catalogue`,
   });
+  menu.push({
+    label: "Upload data",
+    link: "/apps/central/#/",
+  });
 }
 </script>
 
