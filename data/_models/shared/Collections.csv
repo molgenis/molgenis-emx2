@@ -5,7 +5,7 @@ Collections,,id,,1,true,,,,,,dct:identifier,Internal identifier,"DataCatalogueFl
 Collections,,pid,,2,,,,,,,dct:identifier,Persistent identifier,"DataCatalogueFlat,EMA",
 Collections,,acronym,,,,,,,,,dct:alternative,Acronym if applicable,"DataCatalogueFlat,EMA",
 Collections,,name,text,3,true,,,,,,dct:title,Name used in European projects,"DataCatalogueFlat,EMA",
-Collections,,collection type,ontology,,,CatalogueOntologies,Collection types FLAT,,,,,,DataCatalogueFlat,
+Collections,,collection type,ontology_array,,,CatalogueOntologies,Collection types,,,,,,DataCatalogueFlat,
 Collections,,features,ontology_array,,,CatalogueOntologies,Network features,,,,,Characterizations of the network,"DataCatalogueFlat,EMA","['Network'].includes(collectionType?.name)"
 Collections,,collections,refback,,,,Collections,,networks,,dct:dataset,,"DataCatalogueFlat,EMA","['Network'].includes(collectionType?.name)"
 Collections,,local name,,,,,,,,,rdfs:label,"If different from above, name in the national language",DataCatalogueFlat,"['Cohort', 'Databank', 'Data source'].includes(collectionType?.name)"
@@ -15,8 +15,7 @@ Collections,,datasource type,ontology_array,,,CatalogueOntologies,Datasource typ
 Collections,,datasource type other,text,,,,,,,,,"If other, describe the type of datasource","DataCatalogueFlat,EMA","['Databank', 'Data source'].includes(collectionType?.name)"
 Collections,,keywords,text,,,,,,,,dcat:keyword,Keywords to increase findability of this resource. Try to use words that are not used in the description,DataCatalogueFlat,"['Cohort', 'Databank', 'Data source'].includes(collectionType?.name)"
 Collections,,website,hyperlink,,,,,,,,dcat:landingPage,Link to the website or homepage,"DataCatalogueFlat,EMA",
-Collections,,lead organisation,ref_array,,,,Organisations,,,,dct:creator,lead organisation (e.g. research department or group) for this resource,"DataCatalogueFlat,EMA","['Cohort', 'Databank', 'Data source', 'Model', 'Study'].includes(collectionType?.name)"
-Collections,,additional organisations,ref_array,,,,Organisations,,,,dct:contributor,List the names of any additional organisations that contributed to the resource,"DataCatalogueFlat,EMA","['Cohort', 'Databank', 'Data source', 'Model', 'Study'].includes(collectionType?.name)"
+Collections,,partner organisations,refback,,,,Collection organisations,,collection,,,organisations involved and their role(s),"DataCatalogueFlat,EMA","['Cohort', 'Databank', 'Data source', 'Model', 'Study'].includes(collectionType?.name)"
 Collections,,other organisations,text,,,,,,,,,List the names of any other organisations that are not listed and contributed to this resource,EMA,['Study'].includes(collectionType?.name)
 Collections,,description,text,,,,,,,,dct:description,Short description,"DataCatalogueFlat,EMA",
 Collections,,data collection description,text,,,,,,,,,Describe the process of collection and recording of data.,"DataCatalogueFlat,EMA","['Databank', 'Data source'].includes(collectionType?.name)"
@@ -97,7 +96,6 @@ Collections,,release type,ontology,,,CatalogueOntologies,Release types,,,,,Selec
 Collections,,release description,text,,,,,,,,,Description of the release cycle of this resource,DataCatalogueFlat,['Cohort'].includes(collectionType?.name)
 Collections,,linkage options,text,,,,,,,,,Linkage options with additional data sources that are available for this resource,DataCatalogueFlat,['Cohort'].includes(collectionType?.name)
 Collections,,access,heading,,,,,,,,,Access and validation information,DataCatalogueFlat,"['Cohort', 'Databank', 'Data source'].includes(collectionType?.name)"
-Collections,,data holder,ref,,,,Organisations,,,,,The name of the organisation that is responsible for governance of the data bank,"DataCatalogueFlat,EMA","['Cohort', 'Databank', 'Data source'].includes(collectionType?.name)"
 Collections,,DAPs,refback,,,,Collection DAPs,,collection,,,List of DAPs that are listed in the catalogue as having (conditional) permission to access (an extract of) the data resource,DataCatalogueFlat,"['Cohort', 'Databank', 'Data source'].includes(collectionType?.name)"
 Collections,,reason sustained,text,,,,,,,,,"Description of the reason why the data bank is sustained by the organisation (e.g., for surveillance, clinical purposes, financial or administrative purposes, research purposes)",DataCatalogueFlat,['Databank'].includes(collectionType?.name)
 Collections,,data access conditions,ontology_array,,,CatalogueOntologies,Data access conditions,,,,,Codes defining data access terms and conditions,DataCatalogueFlat,['Cohort'].includes(collectionType?.name)
@@ -147,7 +145,7 @@ Collections,,ETL standard vocabularies,ontology_array,,,CatalogueOntologies,Voca
 Collections,,ETL standard vocabularies other,text,,,,,,,,,"If other, what other vocabularies are used?",DataCatalogueFlat,['Databank'].includes(collectionType?.name)
 Collections,,information,heading,,,,,,,,,Other information,DataCatalogueFlat,"['Cohort', 'Databank', 'Data source'].includes(collectionType?.name)"
 Collections,,design paper,string,,,,,,,,,Publication(s) that describe(s) the design of this resource,DataCatalogueFlat,"['Cohort', 'Databank', 'Data source'].includes(collectionType?.name)"
-Collections,,publications,refback,,,,Publications,,collections,,,Other publication(s) about this resource,"DataCatalogueFlat,EMA","['Cohort', 'Databank', 'Data source', 'Model', 'Study'].includes(collectionType?.name)"
+Collections,,publications,refback,,,,Collection publications,,collection,,,Other publication(s) about this resource,"DataCatalogueFlat,EMA","['Cohort', 'Databank', 'Data source', 'Model', 'Study'].includes(collectionType?.name)"
 Collections,,informed consent type,ontology,,,CatalogueOntologies,Informed consent types,,,,,What type of informed consent was given for data collection?,DataCatalogueFlat,"['Cohort', 'Databank', 'Data source'].includes(collectionType?.name)"
 Collections,,funding sources,ontology_array,,,CatalogueOntologies,Funding types,,,,,Specify the main financial support sources for the data source in the last 3 years. Select all that apply,"DataCatalogueFlat,EMA","['Databank', 'Data source'].includes(collectionType?.name)"
 Collections,,funding scheme,ontology_array,,,CatalogueOntologies,Study funding,,,,,The source of funding for the study. Select all that apply,"DataCatalogueFlat,EMA",['Study'].includes(collectionType?.name)

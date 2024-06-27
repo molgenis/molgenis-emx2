@@ -9,7 +9,7 @@ Collection contacts,,last name,,1,true,,,,,,foaf:familyName,Last name of the con
 Collection contacts,,prefix,,,,,,,,,,"Surname prefix, if applicable",DataCatalogueFlat,
 Collection contacts,,initials,,,,,,,,,,Initials of the contact person,DataCatalogueFlat,
 Collection contacts,,title,ontology,,,CatalogueOntologies,Titles,,,,foaf:title,Title of the contact person,"DataCatalogueFlat,EMA",
-Collection contacts,,organisation,ref,,,,Organisations,,,,foaf:Organization,Affiliated organisation of the contact person,"DataCatalogueFlat,EMA",
+Collection contacts,,organisation,ref,,,,Collection organisations,collection,,,foaf:Organization,Affiliated organisation of the contact person,"DataCatalogueFlat,EMA",
 Collection contacts,,email,,,,,,,,,"vcard:hasEmail,foaf:mbox",Contact's email address,DataCatalogueFlat,
 Collection contacts,,orcid,,,,,,,,,,Orcid of the contact person,DataCatalogueFlat,
 Collection contacts,,homepage,,,,,,,,,foaf:workplaceHomepage,Link to contact's homepage,DataCatalogueFlat,
