@@ -1111,7 +1111,6 @@ ATHLETE_CDM,outcome_ath,femur_length_sdsWHO_t2,Gestational age-adjusted femur le
 ATHLETE_CDM,outcome_ath,fetus_abd_circum_t2,Abdominal circumference of the fetus in 2nd trimester,,,,,decimal,cm,,,,,,,,,
 ATHLETE_CDM,outcome_ath,fetus_biparietal_diam_t1,Biparietal diameter of the fetus in 1st trimester,,,,,decimal,cm,,,,,,,,,
 ATHLETE_CDM,outcome_ath,fetus_femur_length_t2,Femur length of the fetus in 2nd trimester,,,,,decimal,cm,,,,,,,,,
-ATHLETE_CDM,outcome_ath,fetus_femur_length_t2 ,Femur length of the fetus in 2nd trimester,,,,,decimal,cm,,,,,,,,,
 ATHLETE_CDM,outcome_ath,fm_wave_1,,,,,,integer,,,,,Which wave of fine motor measurement was recorded?,,,Fine motor,,
 ATHLETE_CDM,outcome_ath,ga_us_t1,Gestational age when ultrasound in 1st trimester was performed,,,,,integer,days,,,,,,,,,
 ATHLETE_CDM,outcome_ath,int_wave_1,,,,,,integer,,,,,Which wave of internalizing symptoms measurement was recorded?,,,Internalizing problems,,
@@ -1624,18 +1623,18 @@ GenR,core,alc2,alcohol 2nd trimester complete - recategorized,,,1.0.0,,categoric
 GenR,core,alc2_original,alcohol 2nd trimester complete,,,1.0.0,,categorical,,,,,Indicates how many glassess of alcohol a participant drunk (second trimester),,,,,
 GenR,core,alc3,alcohol 3rd trimester complete - recategorized,,,1.0.0,,categorical,,,,,"Indicates how many glassess of alcohol a participant drunk (third trimester, recategorized)",,,,,
 GenR,core,alc3_original,alcohol 3rd trimester complete,,,1.0.0,,categorical,,,,,Indicates how many glassess of alcohol a participant drunk (third trimester),,,,,
-GenR,core,all_birch,"allergic sensitization to birch, y/n",,,1.0.0,,categorical,,,,,"Skin response was considered positive if the area of the wheal was ≥40% of the histamine response (ie, histamine equivalent prick index area �",,,,,
-GenR,core,all_cashew,"allergic sensitization to cashew nut, y/n",,,1.0.0,,categorical,,,,,"Skin response was considered positive if the area of the wheal was ≥40% of the histamine response (ie, histamine equivalent prick index area �",,,,,
-GenR,core,all_cat,"allergic sensitization to cat, y/n",,,1.0.0,,categorical,,,,,"Skin response was considered positive if the area of the wheal was ≥40% of the histamine response (ie, histamine equivalent prick index area �",,,,,
-GenR,core,all_dog,"allergic sensitization to dog, y/n",,,1.0.0,,categorical,,,,,"Skin response was considered positive if the area of the wheal was ≥40% of the histamine response (ie, histamine equivalent prick index area �",,,,,
+GenR,core,all_birch,"allergic sensitization to birch, y/n",,,1.0.0,,categorical,,,,,"Skin response was considered positive if the area of the wheal was ≥40% of the histamine response (ie, histamine equivalent prick index area  ",,,,,
+GenR,core,all_cashew,"allergic sensitization to cashew nut, y/n",,,1.0.0,,categorical,,,,,"Skin response was considered positive if the area of the wheal was ≥40% of the histamine response (ie, histamine equivalent prick index area  ",,,,,
+GenR,core,all_cat,"allergic sensitization to cat, y/n",,,1.0.0,,categorical,,,,,"Skin response was considered positive if the area of the wheal was ≥40% of the histamine response (ie, histamine equivalent prick index area  ",,,,,
+GenR,core,all_dog,"allergic sensitization to dog, y/n",,,1.0.0,,categorical,,,,,"Skin response was considered positive if the area of the wheal was ≥40% of the histamine response (ie, histamine equivalent prick index area  ",,,,,
 GenR,core,all_food,"food allergic sensitization (SPT), y/n",,,1.0.0,,categorical,,,,,"food allergic sensitization (peanut, hazelnut, cashew nut, peach) as measured by SPT",,,,,
-GenR,core,all_grass,"allergic sensitization to grass, y/n",,,1.0.0,,categorical,,,,,"Skin response was considered positive if the area of the wheal was ≥40% of the histamine response (ie, histamine equivalent prick index area �",,,,,
-GenR,core,all_hazel,"allergic sensitization to hazelnut, y/n",,,1.0.0,,categorical,,,,,"Skin response was considered positive if the area of the wheal was ≥40% of the histamine response (ie, histamine equivalent prick index area �",,,,,
-GenR,core,all_hdm,"allergic sensitization to house dust mite (HDM), y/n",,,1.0.0,,categorical,,,,,"Skin response was considered positive if the area of the wheal was ≥40% of the histamine response (ie, histamine equivalent prick index area �",,,,,
+GenR,core,all_grass,"allergic sensitization to grass, y/n",,,1.0.0,,categorical,,,,,"Skin response was considered positive if the area of the wheal was ≥40% of the histamine response (ie, histamine equivalent prick index area  ",,,,,
+GenR,core,all_hazel,"allergic sensitization to hazelnut, y/n",,,1.0.0,,categorical,,,,,"Skin response was considered positive if the area of the wheal was ≥40% of the histamine response (ie, histamine equivalent prick index area  ",,,,,
+GenR,core,all_hdm,"allergic sensitization to house dust mite (HDM), y/n",,,1.0.0,,categorical,,,,,"Skin response was considered positive if the area of the wheal was ≥40% of the histamine response (ie, histamine equivalent prick index area  ",,,,,
 GenR,core,all_inhalant,"inhalant allergic sensitization (SPT), y/n",,,1.0.0,,categorical,,,,,"inhalant allergic sensitization (house dust mite, birch, grass, cat, dog) as measured by SPT",,,,,
-GenR,core,all_peach,"allergic sensitization to peach, y/n",,,1.0.0,,categorical,,,,,"Skin response was considered positive if the area of the wheal was ≥40% of the histamine response (ie, histamine equivalent prick index area �",,,,,
+GenR,core,all_peach,"allergic sensitization to peach, y/n",,,1.0.0,,categorical,,,,,"Skin response was considered positive if the area of the wheal was ≥40% of the histamine response (ie, histamine equivalent prick index area  ",,,,,
 GenR,core,p06,CEREALS AND CEREAL PRODUCTS,,,1.0.0,,continuous,gram_per_day,,,,Intake of cereals and cereal products,,,,,
-GenR,core,all_peanut,"allergic sensitization to peanut, y/n",,,1.0.0,,categorical,,,,,"Skin response was considered positive if the area of the wheal was ≥40% of the histamine response (ie, histamine equivalent prick index area �",,,,,
+GenR,core,all_peanut,"allergic sensitization to peanut, y/n",,,1.0.0,,categorical,,,,,"Skin response was considered positive if the area of the wheal was ≥40% of the histamine response (ie, histamine equivalent prick index area  ",,,,,
 GenR,core,allergy9y,"Current doctor-diagnosed allergy (pollen, HDM, cats, dogs, nuts) at age 9 years, y/n",,,1.0.0,,categorical,,,,,"Allergy to pollen, housedustmite, cats, dogs, peanut or cashew diagnosed by a physician",,,,,
 GenR,core,anx_M108_p,Anxiety Partner 108 Months,,,1.0.0,,continuous,,,,,"At 9-10 years, an abbreviated version of the BSI was assesed in mothers and  fathers (only 4 subscales were assessed); and thus no global score was available. This shortened version only consisted of depression, anxiety, hostility and interpersonanl sensitivity.",,,,,
 GenR,core,FG60_44_Fruit_dried,"Dried fruit (raisins) intake, g/d [44/FG60] [FFQ 8y]",,,1.0.0,,continuous,gram_per_day,,,,"Dried fruit (raisins) intake, g/d",,,,,
@@ -3260,10 +3259,10 @@ MBRN,MBRN,ABSTINENS,"Withdrawal symptoms in the child due to medicaments, alcoho
 MBRN,MBRN,ANENCEPH,Anencephaly,,,1.0,,,,,,,,,,,,1 = Yes
 MBRN,MBRN,ANESTESI_ANALGESI,Anaesthesia/analgesia,,,1.0,,,,,,,HCP,,,,,1 = Yes
 MBRN,MBRN,ANNEN_FRACTUR,Other fracture,,,1.0,,,,,,,,,,,,1 = Yes
-MBRN,MBRN,APGAR1,Apgar score after 1 minute,,,1.0,,,,,,,,,,,,0 �
-MBRN,MBRN,APGAR10,Apgar score after 10 minutes,,,1.0,,,,,,,,,,,,0 �
+MBRN,MBRN,APGAR1,Apgar score after 1 minute,,,1.0,,,,,,,,,,,,0  
+MBRN,MBRN,APGAR10,Apgar score after 10 minutes,,,1.0,,,,,,,,,,,,0  
 MBRN,MBRN,APGAR1_MANGLER,Apgar score after 1 minute is missing,,,1.0,,,,,,,,,,,,1 = Yes
-MBRN,MBRN,APGAR5,Apgar score after 5 minutes,,,1.0,,,,,,,,,,,,0 �
+MBRN,MBRN,APGAR5,Apgar score after 5 minutes,,,1.0,,,,,,,,,,,,0  
 MBRN,MBRN,APGAR5_MANGLER,Apgar score after 5 minutes is missing,,,1.0,,,,,,,,,,,,1 = Yes
 MBRN,MBRN,ART,"Assisted Reproductive Technology treatment (IVF, ICSI or other ART treatments. See ARTMETODE)",,,1.0,,,,,,,,,,,,"1 = Reported on ART notification form
  2 = Art info from birth notification form (mother’s health) 
@@ -3431,7 +3430,8 @@ MBRN,MBRN,MORS_ALDER_K8,Mother’s age categor,,,1.0,,,,,,,HCP/automated Based o
  4 = 25 – 29 years 
  5 = 30 – 34 years 
  6 = 35 – 39 years 
- 7 = 40 – 44 years "
+ 7 = 40 – 44 years 
+"
 MBRN,MBRN,MORS_HELSE_FOER,Mother’s health prior to pregn,,,1.0,,,,,,,See explanation  of code-strings below variable list,,,,,Code-string variable.
 MBRN,MBRN,MORS_HELSE_UNDER,Mother’s health during pregn,,,1.0,,,,,,,See explanation  of code-strings below variable list,,,,,Code-string variable.
 MBRN,MBRN,MORS_HOYDE,Mother’s he,,,1.0,,,,,,,"Could be either measured or patient-reported, recorded by HCP",,,,,Centimeter
@@ -3462,7 +3462,7 @@ MBRN,MBRN,PERINAT_DODFODT_22_EP,Perinatal stillborn ≥ 22 weeks according to Eu
 MBRN,MBRN,PERINAT_DODFODT_MFR,Perinatal stillborn according to MBRNs definition. See also: Abbreviations and definitions: Perinatal mortality,,,1.0,,,,,,,,,,,,1 = Yes
 MBRN,MBRN,PERINAT_DOD_TID_MFR,Death during the early perinatal period according to MBRNs definition. See also: Abbreviations and definitions: Perinatal mortality,,,1.0,,,,,,,,,,,,1 = Yes
 MBRN,MBRN,PERINAT_DOD_TI_1000_WHO,Death during the early perinatal period ≥ 1000 gram according to WHOssecondary definition. See also: Abbreviations and definitions: Perinatal morta,,,1.0,,,,,,,,,,,,1 = Yes
-MBRN,MBRN_child,APGAR5,Apgar score after 5 minutes,,,1.0,,,,,,,,,,,,0 �
+MBRN,MBRN_child,APGAR5,Apgar score after 5 minutes,,,1.0,,,,,,,,,,,,0  
 MBRN,MBRN,PERINAT_DOD_TI_500_WHO,Death during the early perinatal period ≥ 500 gram according to WHOs primary definition. See also: Abbreviations and definitions: Perinatal morta,,,1.0,,,,,,,,,,,,1 = Yes
 MBRN,MBRN,PERINAT_FODT_1000_WHO,Perinatal born ≥ 1000 gram according to WHOs secondary definition. See also: Abbreviations and definitions: Perinatal morta,,,1.0,,,,,,,,,,,,1 = Yes
 MBRN,MBRN,PERINAT_FODT_22_EP,Perinatal born ≥ 22 weeks according to Euro-Peristat definition. See also: Abbreviations and definitions: Perinatal morta,,,1.0,,,,,,,,,,,,1 = Yes
@@ -3488,11 +3488,11 @@ MBRN,MBRN,ROBSON_10,Birth classification according to the Robson 10-group classi
 MBRN,MBRN,ROYK_AVSL,Smoking at end of pregnancy,,,1.0,,,,,,,Reporting to the registry is not mandatory. Missing values represent women who opt out of registration,,,,,"1 = No
  2 = Sometimes 
  3 = Daily"
-MBRN,MBRN,ROYK_AVSL_ANT,Number of cigarettes per day at end of pregnancy,,,1.0,,,,,,,,,,,,0 �
+MBRN,MBRN,ROYK_AVSL_ANT,Number of cigarettes per day at end of pregnancy,,,1.0,,,,,,,,,,,,0  
 MBRN,MBRN,ROYK_BEG,Smoking at start of pregnancy,,,1.0,,,,,,,Reporting to the registry is not mandatory. Missing values represent women who opt out of registration,,,,,"1 = No
  2 = Sometimes 
  3 = Daily"
-MBRN,MBRN,ROYK_BEG_ANT,Number of cigarettes per day at start of pregnancy,,,1.0,,,,,,,,,,,,0 �
+MBRN,MBRN,ROYK_BEG_ANT,Number of cigarettes per day at start of pregnancy,,,1.0,,,,,,,,,,,,0  
 MBRN,MBRN,ROYK_FOER,Smoking before pregnancy,,,1.0,,,,,,,Reporting to the registry is not mandatory. Missing values represent women who opt out of registration,,,,,"1 = No
  2 = Sometimes 
  3 = Daily"
@@ -3561,8 +3561,8 @@ MBRN,MBRN,ZSCORE_BW_GA,"Raw z_score based on child’s weight, length of gestati
 MBRN,MBRN_child,ABSTINENS,"Withdrawal symptoms in the child due to medicaments, alcohol or narcotics",,,1.0,,,,,,,,,,,,1 = Yes
 MBRN,MBRN_child,ANENCEPH,Anencephaly,,,1.0,,,,,,,,,,,,1 = Yes
 MBRN,MBRN_child,ANNEN_FRACTUR,Other fracture,,,1.0,,,,,,,,,,,,1 = Yes
-MBRN,MBRN_child,APGAR1,Apgar score after 1 minute,,,1.0,,,,,,,,,,,,0 �
-MBRN,MBRN_child,APGAR10,Apgar score after 10 minutes,,,1.0,,,,,,,,,,,,0 �
+MBRN,MBRN_child,APGAR1,Apgar score after 1 minute,,,1.0,,,,,,,,,,,,0  
+MBRN,MBRN_child,APGAR10,Apgar score after 10 minutes,,,1.0,,,,,,,,,,,,0  
 MBRN,MBRN_child,APGAR1_MANGLER,Apgar score after 1 minute is missing,,,1.0,,,,,,,,,,,,1 = Yes
 MBRN,MBRN_child,APGAR5_MANGLER,Apgar score after 5 minutes is missing,,,1.0,,,,,,,,,,,,1 = Yes
 MBRN,MBRN_child,ART,"Assisted Reproductive Technology treatment (IVF, ICSI or other ART treatments. See ARTMETODE)",,,1.0,,,,,,,,,,,,"1 = Reported on ART notification form
@@ -3764,7 +3764,8 @@ MBRN,MBRN_mother,MORS_ALDER_K8,Mother’s age categor,,,1.0,,,,,,,HCP/automated 
  4 = 25 – 29 years 
  5 = 30 – 34 years 
  6 = 35 – 39 years 
- 7 = 40 – 44 years "
+ 7 = 40 – 44 years 
+"
 MBRN,MBRN_mother,MORS_HELSE_FOER,Mother’s health prior to pregn,,,1.0,,,,,,,See explanation  of code-strings below variable list,,,,,Code-string variable.
 MBRN,MBRN_mother,MORS_HELSE_UNDER,Mother’s health during pregn,,,1.0,,,,,,,See explanation  of code-strings below variable list,,,,,Code-string variable.
 MBRN,MBRN_mother,MORS_HOYDE,Mother’s he,,,1.0,,,,,,,"Could be either measured or patient-reported, recorded by HCP",,,,,Centimeter
@@ -3800,11 +3801,11 @@ MBRN,MBRN_mother,ROBSON_10,Birth classification according to the Robson 10-group
 MBRN,MBRN_mother,ROYK_AVSL,Smoking at end of pregnancy,,,1.0,,,,,,,Reporting to the registry is not mandatory. Missing values represent women who opt out of registration,,,,,"1 = No
  2 = Sometimes 
  3 = Daily"
-MBRN,MBRN_mother,ROYK_AVSL_ANT,Number of cigarettes per day at end of pregnancy,,,1.0,,,,,,,,,,,,0 �
+MBRN,MBRN_mother,ROYK_AVSL_ANT,Number of cigarettes per day at end of pregnancy,,,1.0,,,,,,,,,,,,0  
 MBRN,MBRN_mother,ROYK_BEG,Smoking at start of pregnancy,,,1.0,,,,,,,Reporting to the registry is not mandatory. Missing values represent women who opt out of registration,,,,,"1 = No
  2 = Sometimes 
  3 = Daily"
-MBRN,MBRN_mother,ROYK_BEG_ANT,Number of cigarettes per day at start of pregnancy,,,1.0,,,,,,,,,,,,0 �
+MBRN,MBRN_mother,ROYK_BEG_ANT,Number of cigarettes per day at start of pregnancy,,,1.0,,,,,,,,,,,,0  
 MBRN,MBRN_mother,ROYK_FOER,Smoking before pregnancy,,,1.0,,,,,,,Reporting to the registry is not mandatory. Missing values represent women who opt out of registration,,,,,"1 = No
  2 = Sometimes 
  3 = Daily"
@@ -5568,8 +5569,8 @@ PELAGIE,pelagie_GC_q11,Q1CAST35_N,35.Se souciait de la manière dont il était p
 PELAGIE,pelagie_GC_q11,Q1CAST36,36.Ramenait souvent les conversations vers ses sujets de prédilection q1cast,,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_GC_q11,Q1CAST37,37.Avait des expressions étranges ou inhabituelles q1cast,,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_GC_q11,Q1CAST38,"38. Les instituteurs ou professionnels de la santé se sont déjà inquiétés de
-son d�",,,1.0.0,,categorical,,,,,,,,,,
-PELAGIE,pelagie_GC_q11,Q1CAST39,39. A été diagnostiqué(e) par un professionnel de la santé avec l’une des difficult�,,,1.0.0,,categorical,,,,,,,,,,
+son d ",,,1.0.0,,categorical,,,,,,,,,,
+PELAGIE,pelagie_GC_q11,Q1CAST39,39. A été diagnostiqué(e) par un professionnel de la santé avec l’une des difficult ,,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_GC_q11,Q1CAST5_N,5.Il était important pour lui de faire partie d'1 groupe d'amis q1cas,,,1.0.0,,categorical,,,,,reversed before summing,,,,,
 PELAGIE,pelagie_GC_q11,Q1CAST6,6.Faisait attention à des détails inhabituels que les autres ignorent q1c,,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_GC_q11,Q1CAST7,7.Avait la tendance à comprendre les choses littéralement q1c,,,1.0.0,,categorical,,,,,,,,,,
@@ -5581,7 +5582,7 @@ PELAGIE,pelagie_dosage12,Q12_HDL,HDL levels measured in blood at the 12-years ol
 PELAGIE,pelagie_dosage12,Q12_LDL,LDL levels measured in blood at the 12-years old visit,,,1.0.0,,integer,mmol/l,,,,,,,,,
 PELAGIE,pelagie_dosage12,Q12_TRIGLYCERIDES,triglycerides levels measured in blood at the 12-years old visit,,,1.0.0,,integer,mmol/l,,,,,,,,,
 PELAGIE,pelagie_dosage12,Q12_Triglycerides,triglycerides levels measured in blood at the 12-years old visit,,,1.0.0,,integer,mmol/l,,,,,,,,,
-PELAGIE,pelagie_q0,m22,Nombre d'enfants n�,,,1.0.0,,integer,,,,,,,,,,
+PELAGIE,pelagie_q0,m22,Nombre d'enfants n ,,,1.0.0,,integer,,,,,,,,,,
 PELAGIE,pelagie_exam12,AGE_EXAM,Age in year of the child at the 12-year-old examination,,,1.0.0,,integer,year,,,,,,,,,
 PELAGIE,pelagie_exam12,AGE_EXAM_JOUR,Age in day of the child at the 12-year-old examination,,,1.0.0,,integer,day,,,,,,,,,
 PELAGIE,pelagie_exam12,AGE_EXAM_MOIS,Age in month of the child at the 12-year-old examination,,,1.0.0,,integer,month,,,,,,,,,
@@ -5621,12 +5622,12 @@ PELAGIE,pelagie_q0,DEBGROSF,Date de début de grossesse estimée en fin de gross
 PELAGIE,pelagie_q0,M10,Pathologies de la grossesse : Hypertension,,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q0,M11,Pathologies de la grossesse : Pré-eclamps,,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q0,M15,Pathologies de la grossesse : Autre précis,,,1.0.0,,string,,,,,,,,,,
-PELAGIE,pelagie_q0,M16,Issue de grossesse: Fausse couche spontann�,,,1.0.0,,categorical,,,,,,,,,,
+PELAGIE,pelagie_q0,M16,Issue de grossesse: Fausse couche spontann ,,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q0,M17,Issue de grossesse: IMG,,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q0,M18,Issue de grossesse: Mort n ,,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q0,M19,Issue de grossesse: Naissance vivante,,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q0,M21,Gestational age at delivery,,,1.0.0,,integer,,,,,,,,,,
-PELAGIE,pelagie_q0,M22,Nombre d'enfants n�,,,1.0.0,,integer,,,,,,,,,,
+PELAGIE,pelagie_q0,M22,Nombre d'enfants n ,,,1.0.0,,integer,,,,,,,,,,
 PELAGIE,pelagie_q0,M23,Type d'accouchement,,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q0,M24,Cause césarien,,,1.0.0,,string,,,,,,,,,,
 PELAGIE,pelagie_q0,M25,Sexe de l'enfant,,,1.0.0,,categorical,,,,,,,,,,
@@ -5680,7 +5681,7 @@ PELAGIE,pelagie_q0,V130,Indiquez combien de verres consommez-vous actuellement p
 PELAGIE,pelagie_q0,V131,Indiquez combien de verres consommez-vous actuellement par jour: Cidre ou biè,,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q0,V132,Indiquez combien de verres consommez-vous actuellement par jour: Apériti,,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q0,V135,Fumez-vous actuellement ?,,,1.0.0,,categorical,,,,,,,,,,
-PELAGIE,pelagie_q0,V136,"Si non, avez-vous déjà fumé de façon r�",,,1.0.0,,categorical,,,,,,,,,,
+PELAGIE,pelagie_q0,V136,"Si non, avez-vous déjà fumé de façon r ",,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q0,V137,Combien de cigarettes par jour fumiez-vous en moyenne ?,,,1.0.0,,integer,,,,,,,,,,
 PELAGIE,pelagie_q0,V139,Quand avez-vous arrêt,,,1.0.0,,date,,,,,,,,,,
 PELAGIE,pelagie_q0,V14,Avez-vous suivi un traitement pour favoriser cette grossesse ?,,,1.0.0,,categorical,,,,,,,,,,
@@ -5722,7 +5723,7 @@ PELAGIE,pelagie_q0,V9,"Avant de devenir enceinte de cet enfant, quelle étaot vo
 PELAGIE,pelagie_q0,m10,Pathologies de la grossesse : Hypertension,,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q0,m11,Pathologies de la grossesse : Pré-eclamps,,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q0,m15,Pathologies de la grossesse : Autre précis,,,1.0.0,,string,,,,,,,,,,
-PELAGIE,pelagie_q0,m16,Issue de grossesse: Fausse couche spontann�,,,1.0.0,,categorical,,,,,,,,,,
+PELAGIE,pelagie_q0,m16,Issue de grossesse: Fausse couche spontann ,,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q0,m17,Issue de grossesse: IMG,,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q0,m18,Issue de grossesse: Mort n ,,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q0,m19,Issue de grossesse: Naissance vivante,,,1.0.0,,categorical,,,,,,,,,,
@@ -5754,7 +5755,7 @@ PELAGIE,pelagie_q0,v130,Indiquez combien de verres consommez-vous actuellement p
 PELAGIE,pelagie_q0,v131,Indiquez combien de verres consommez-vous actuellement par jour: Cidre ou biè,,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q0,v132,Indiquez combien de verres consommez-vous actuellement par jour: Apériti,,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q0,v135,Fumez-vous actuellement ?,,,1.0.0,,categorical,,,,,,,,,,
-PELAGIE,pelagie_q0,v136,"Si non, avez-vous déjà fumé de façon r�",,,1.0.0,,categorical,,,,,,,,,,
+PELAGIE,pelagie_q0,v136,"Si non, avez-vous déjà fumé de façon r ",,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q0,v137,Combien de cigarettes par jour fumiez-vous en moyenne ?,,,1.0.0,,integer,,,,,,,,,,
 PELAGIE,pelagie_q0,v139,Quand avez-vous arrêt,,,1.0.0,,date,,,,,,,,,,
 PELAGIE,pelagie_q0,v14,Avez-vous suivi un traitement pour favoriser cette grossesse ?,,,1.0.0,,categorical,,,,,,,,,,
@@ -5800,17 +5801,17 @@ PELAGIE,pelagie_q12,APP_Q2,"Quel niveau d’études, la mère de l’enfant a-t-
 PELAGIE,pelagie_q12,APP_Q3_1,"Actuellement, le père de l'enfant a-t-il une activité professionnel",,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q12,APP_Q4,Quel niveau d'études le père de l'enfant a-t-il atteint à ce ,,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q12,APP_q4,Quel niveau d'études le père de l'enfant a-t-il atteint à ce ,,,1.0.0,,categorical,,,,,,,,,,
-PELAGIE,pelagie_q12,CT_Q1_1,"1. Actuellement, fumez-vous du tabac�",,,1.0.0,,categorical,,,,,,,,,,
+PELAGIE,pelagie_q12,CT_Q1_1,"1. Actuellement, fumez-vous du tabac ",,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q12,CT_Q1_2,"1. Actuellement, fumez-vous du tabac ? Combien de cigarette / jour",,,1.0.0,,integer,,,,,,,,,,
 PELAGIE,pelagie_q12,CT_Q2_1,2. Est-ce qu’une autre des personnes vivant à la maison avec vous et l’enfant fume ,,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q12,CT_Q2_2,2. Est-ce qu’une autre des personnes vivant à la maison avec vous et l’enfant fume du tabac ? Combien de,,,1.0.0,,integer,,,,,,,,,,
-PELAGIE,pelagie_q12,CT_Q3_1,"3. Actuellement, votre enfant fume t-il du tabac�",,,1.0.0,,categorical,,,,,,,,,,
+PELAGIE,pelagie_q12,CT_Q3_1,"3. Actuellement, votre enfant fume t-il du tabac ",,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q12,CT_Q3_2,"3. Actuellement, votre enfant fume t-il du tabac ? Combien de cigarette / jour",,,1.0.0,,integer,,,,,,,,,,
 PELAGIE,pelagie_q12,CT_Q4_1,"4. Si l’enfant vit également dans un autre domicile, pourriez-vous préciser s’il y a des personnes qui fumen",,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pepsy,WISCC,WISC-IV: Block Design,,,1.0.0,,integer,,,,,,,,,,
 PELAGIE,pelagie_q12,CT_Q4_2,"4. Si l’enfant vit également dans un autre domicile, pourriez-vous préciser s’il y a des personnes qui fument du tabac ?  Combien ",,,1.0.0,,integer,,,,,,,,,,
 PELAGIE,pelagie_q12,DATE,date at answer to the 12 years old questionnaire,,,1.0.0,,date,,,,,,,,,,
-PELAGIE,pelagie_q12,FA_Q2_1,2. Quelle est votre situation actuelle vis-à-vis de l’autre parent de l�,,,1.0.0,,categorical,,,,,,,,,,
+PELAGIE,pelagie_q12,FA_Q2_1,2. Quelle est votre situation actuelle vis-à-vis de l’autre parent de l ,,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q12,FA_Q2_2_A,"Si vous êtes Divorcé(e), Séparé(e) ou Veuf(ve)  : Pouvez-vous nous indiquer depuis qua",,,1.0.0,,integer,,,,,,,,,,
 PELAGIE,pelagie_q12,FA_Q2_2_M,"Si vous êtes Divorcé(e), Séparé(e) ou Veuf(ve)  : Pouvez-vous nous indiquer depuis qu",,,1.0.0,,integer,,,,,,,,,,
 PELAGIE,pelagie_q12,FA_Q2_3,"Si vous êtes Divorcé(e), Séparé(e) ou Veuf(ve)  :  Quelle est votre situation ",,,1.0.0,,categorical,,,,,,,,,,
@@ -5991,7 +5992,7 @@ PELAGIE,pelagie_q2,B579,"Actuellement, avec quelle fréquence votre enfant conso
 PELAGIE,pelagie_q2,B580,"Actuellement, avec quelle fréquence votre enfant consomme-t-il les aliments suivants au cours d'une semaine habituelle : charcuterie (sauf jambo",,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q2,B581,"Actuellement, avec quelle fréquence votre enfant consomme-t-il les aliments suivants au cours d'une semaine habituelle : Poissons gras (maquereau, sardines, aumon, thon, haren",,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q2,B582,"Actuellement, avec quelle fréquence votre enfant consomme-t-il les aliments suivants au cours d'une semaine habituelle : poisson blanc (cabillaud, colin, merla",,,1.0.0,,categorical,,,,,,,,,,
-PELAGIE,pelagie_q2,B583,"Actuellement, avec quelle fréquence votre enfant consomme-t-il les aliments suivants au cours d'une semaine habituelle : �",,,1.0.0,,categorical,,,,,,,,,,
+PELAGIE,pelagie_q2,B583,"Actuellement, avec quelle fréquence votre enfant consomme-t-il les aliments suivants au cours d'une semaine habituelle :  ",,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q2,B584,"Actuellement, avec quelle fréquence votre enfant consomme-t-il les aliments suivants au cours d'une semaine habituelle : Fruits fra",,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q2,B585,"Actuellement, avec quelle fréquence votre enfant consomme-t-il les aliments suivants au cours d'une semaine habituelle : Compot",,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q2,B587,"Actuellement, avec quelle fréquence votre enfant consomme-t-il les aliments suivants au cours d'une semaine habituelle : Sodas ordinaires et sir",,,1.0.0,,categorical,,,,,,,,,,
@@ -6004,7 +6005,7 @@ PELAGIE,pelagie_q2,B592,"Actuellement, avec quelle fréquence votre enfant conso
 PELAGIE,pelagie_q2,B593,"Actuellement, avec quelle fréquence votre enfant consomme-t-il les aliments suivants au cours d'une semaine habituelle : chips, biscuits apéri",,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q2,C593,"Actuellement, fumez-vous du tabac ? - Mere",,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q2,C611,Vivez-vous avec le père de l’enfant «,,,1.0.0,,categorical,,,,,,,,,,
-PELAGIE,pelagie_q2,C612,"Quelle est votre situation familiale, d’un point de vue l�",,,1.0.0,,categorical,,,,,,,,,,
+PELAGIE,pelagie_q2,C612,"Quelle est votre situation familiale, d’un point de vue l ",,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q2,C614,Le père de l’enfant a-t-il un em,,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q2,C675,Combien de personnes vivent actuellement avec l’enfant au domicile familial ? Adultes d'au moins 18,,,1.0.0,,integer,,,,,,,,,,
 PELAGIE,pelagie_q2,C676,Combien de personnes vivent actuellement avec l’enfant au domicile familial ? Enfants de moins de 18,,,1.0.0,,integer,,,,,,,,,,
@@ -6025,7 +6026,7 @@ PELAGIE,pelagie_q2,b502,Age introduction des œu,,,1.0.0,,integer,month,,,,,,,,,
 PELAGIE,pelagie_q2,b510,Age introduction des laitages,,,1.0.0,,integer,month,,,,,,,,,
 PELAGIE,pelagie_q2,c593,"Actuellement, fumez-vous du tabac ? - Mere",,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q2,c611,Vivez-vous avec le père de l’enfant «,,,1.0.0,,categorical,,,,,,,,,,
-PELAGIE,pelagie_q2,c612,"Quelle est votre situation familiale, d’un point de vue l�",,,1.0.0,,categorical,,,,,,,,,,
+PELAGIE,pelagie_q2,c612,"Quelle est votre situation familiale, d’un point de vue l ",,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q2,c614,Le père de l’enfant a-t-il un em,,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q6,QS6_B1_poids_4_mois,Poids de l'enfant,,,1.0.0,,integer,kg,,,,,,,,,
 PELAGIE,pelagie_q2,c7,"Au cours de votre grossesse « Pélagie », combien de kilos avez-vous ",,,1.0.0,,integer,kg,,,,,,,,,
@@ -6073,11 +6074,11 @@ PELAGIE,pelagie_q6,QE6_B15_5,"Fait souvent des colères, s’énerve fa",,,1.0.0
 PELAGIE,pelagie_q6,QE6_B15_6,"Est plutôt solitaire, a tendance à jouer seu",,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q6,QE6_B15_7,Est en général obéissant(e) envers les a,,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q6,QE6_B15_8,"S’inquiète souvent, paraît souvent souc",,,1.0.0,,categorical,,,,,,,,,,
-PELAGIE,pelagie_q6,QE6_B5_ASSISTANTE_A_AMM,"Avant l'entrée à l'école de votre enfant, quels étaient les modes de garde de votre enfant : Assistante maternelle jusqu'�",,,1.0.0,,integer,,,,,,,,,,
+PELAGIE,pelagie_q6,QE6_B5_ASSISTANTE_A_AMM,"Avant l'entrée à l'école de votre enfant, quels étaient les modes de garde de votre enfant : Assistante maternelle jusqu' ",,,1.0.0,,integer,,,,,,,,,,
 PELAGIE,pelagie_q6,QE6_B5_ASSISTANTE_DE_AMM,"Avant l'entrée à l'école de votre enfant, quels étaient les modes de garde de votre enfant : Assistante maternelle à partir d",,,1.0.0,,integer,,,,,,,,,,
-PELAGIE,pelagie_q6,QE6_B5_CRECHE_A_AMM,"Avant l'entrée à l'école de votre enfant, quels étaient les modes de garde de votre enfant : Creche jusqu'�",,,1.0.0,,integer,,,,,,,,,,
+PELAGIE,pelagie_q6,QE6_B5_CRECHE_A_AMM,"Avant l'entrée à l'école de votre enfant, quels étaient les modes de garde de votre enfant : Creche jusqu' ",,,1.0.0,,integer,,,,,,,,,,
 PELAGIE,pelagie_q6,QE6_B5_CRECHE_DE_AMM,"Avant l'entrée à l'école de votre enfant, quels étaient les modes de garde de votre enfant : Creche à partir d",,,1.0.0,,integer,,,,,,,,,,
-PELAGIE,pelagie_q6,QE6_B5_Creche_a_AMM,"Avant l'entrée à l'école de votre enfant, quels étaient les modes de garde de votre enfant : Creche jusqu'�",,,1.0.0,,integer,,,,,,,,,,
+PELAGIE,pelagie_q6,QE6_B5_Creche_a_AMM,"Avant l'entrée à l'école de votre enfant, quels étaient les modes de garde de votre enfant : Creche jusqu' ",,,1.0.0,,integer,,,,,,,,,,
 PELAGIE,pelagie_q6,QE6_B5_Creche_de_AMM,"Avant l'entrée à l'école de votre enfant, quels étaient les modes de garde de votre enfant : Creche à partir d",,,1.0.0,,integer,,,,,,,,,,
 PELAGIE,pelagie_q6,QE6_D4HHMM,"Si oui, combien de temps l'avez-vous allaité",,,1.0.0,,integer,,,,,,,,,,
 PELAGIE,pelagie_q6,QE6_B5_EMPLOYEE_A_AMM,"Avant l'entrée à l'école de votre enfant, quels étaient les modes de garde de votre enfant : Employé à mon domicile jusq",,,1.0.0,,integer,,,,,,,,,,
@@ -6087,7 +6088,7 @@ PELAGIE,pelagie_q6,QE6_B5_FAMILLE_DE_AMM,"Avant l'entrée à l'école de votre e
 PELAGIE,pelagie_q6,QE6_B5_VOUS_MEME_A_AMM,"Avant l'entrée à l'école de votre enfant, quels étaient les modes de garde de votre enfant : Vous même jusqu'",,,1.0.0,,integer,,,,,,,,,,
 PELAGIE,pelagie_q6,QE6_B5_VOUS_MEME_DE_AMM,"Avant l'entrée à l'école de votre enfant, quels étaient les modes de garde de votre enfant : Vous même à partir ",,,1.0.0,,integer,,,,,,,,,,
 PELAGIE,pelagie_q6,QS6_C33,"Since birth, as your child been diagnosed with food allergy, confirmed by a doctor?",,,1.0.0,,categorical,,,,,,,,,,
-PELAGIE,pelagie_q6,QE6_B5_assistante_a_AMM,"Avant l'entrée à l'école de votre enfant, quels étaient les modes de garde de votre enfant : Assistante maternelle jusqu'�",,,1.0.0,,integer,,,,,,,,,,
+PELAGIE,pelagie_q6,QE6_B5_assistante_a_AMM,"Avant l'entrée à l'école de votre enfant, quels étaient les modes de garde de votre enfant : Assistante maternelle jusqu' ",,,1.0.0,,integer,,,,,,,,,,
 PELAGIE,pelagie_q6,QE6_B5_assistante_de_AMM,"Avant l'entrée à l'école de votre enfant, quels étaient les modes de garde de votre enfant : Assistante maternelle à partir d",,,1.0.0,,integer,,,,,,,,,,
 PELAGIE,pelagie_q6,QE6_B5_employee_a_AMM,"Avant l'entrée à l'école de votre enfant, quels étaient les modes de garde de votre enfant : Employé à mon domicile jusq",,,1.0.0,,integer,,,,,,,,,,
 PELAGIE,pelagie_q6,QE6_B5_employee_de_AMM,"Avant l'entrée à l'école de votre enfant, quels étaient les modes de garde de votre enfant : Employé à mon domicile à parti",,,1.0.0,,integer,,,,,,,,,,
