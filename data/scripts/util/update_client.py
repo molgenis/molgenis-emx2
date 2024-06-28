@@ -1,6 +1,6 @@
 from molgenis_emx2_pyclient import Client
 from time import sleep
-from util.zip_handling import Zip
+from data.scripts.util.zip_handling import Zip
 
 import os
 import shutil

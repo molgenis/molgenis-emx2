@@ -17,7 +17,7 @@ Use virtual env to get a consistent python environment.
 
 2. Create a virtual python environment at the location of the script
 
-    'cd data/scripts/molgenis-model-update/directory'
+    'cd data/scripts/directory'
 
     `python -m venv venv`
 

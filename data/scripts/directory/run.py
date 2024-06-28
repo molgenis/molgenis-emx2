@@ -6,7 +6,7 @@ import os
 import shutil
 # append the path of the parent directory
 # sys.path.insert(1, "/".join(os.path.realpath(__file__).split("/")[0:-2]) + "/util")
-from util.update_client import UpdateClient  # noqa: E402
+from data.scripts.util.update_client import UpdateClient  # noqa: E402
 
 
 # Data model details
