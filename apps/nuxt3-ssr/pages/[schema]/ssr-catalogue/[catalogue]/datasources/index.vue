@@ -204,7 +204,17 @@ crumbs[
                 :activeName="activeTabName"
                 @update:activeName="onActiveTabChange"
               />
-              <SearchResultsViewTabsMobile class="flex xl:hidden">
+              <SearchResultsViewTabsMobile
+                class="flex xl:hidden"
+                button-top-label="View"
+                button-top-name="detailed"
+                button-top-icon="view-normal"
+                button-bottom-label="View"
+                button-bottom-name="compact"
+                button-bottom-icon="view-compact"
+                :activeName="activeTabName"
+                @update:activeName="onActiveTabChange"
+              >
                 <FilterSidebar
                   title="Filters"
                   :filters="filters"

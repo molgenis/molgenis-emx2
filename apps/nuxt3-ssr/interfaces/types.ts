@@ -51,13 +51,15 @@ export interface ICohort {
   inclusionCriteria?: IOntologyNode[];
   otherInclusionCriteria?: string;
   collectionEvents: ICollectionEvent[];
-  additionalOrganisations: IPartner[];
+  additionalOrganisations: IOrganisation[];
   contacts: IContributor[];
   networks: INetwork[];
+  publications: IPublication[];
   releaseDescription?: string;
   linkageOptions?: string;
   dataAccessConditionsDescription?: string;
   dataAccessConditions?: { name: string }[];
+  prelinked?: boolean;
   releaseType?: boolean;
   fundingStatement?: string;
   acknowledgements?: string;
@@ -65,6 +67,20 @@ export interface ICohort {
   datasets: { name: string }[];
   populationOncologyTopology?: IOntologyNode[];
   populationOncologyMorphology?: IOntologyNode[];
+}
+
+export interface IPublication {
+  doi: string;
+  title?: string;
+  authors?: string[];
+  year?: number;
+  journal?: string;
+  volume?: number;
+  number?: number;
+  pagination?: number;
+  publisher?: string;
+  school?: string;
+  abstract?: string;
 }
 
 export interface IVariableBase {
@@ -150,6 +166,7 @@ export interface IContributor {
   email: string;
   title: INameObject;
   organisation: INameObject;
+  role?: IOntologyNode[];
 }
 
 export interface INameObject {
@@ -207,15 +224,22 @@ export interface IOntologyNode extends ITreeNode {
   code?: string;
   definition?: string;
   ontologyTermURI?: string;
+  order?: number;
 }
 
 export interface IFormField {
   name: string;
   label: string;
   fieldValue: string; // value is taken by vue reactivity
-  inputType: "string" | "textarea";
+  inputType: "string" | "textarea" | "select";
   hasError?: boolean;
   message?: string;
+  placeholder?: string;
+}
+
+export interface ISelectFormField extends IFormField {
+  inputType: "select";
+  options: string[] | number[];
 }
 
 export interface IContactFormData {
@@ -263,13 +287,13 @@ export interface IMapping {
   targetVariable: IVariableBase | IVariable;
 }
 
-export type HarmonizationStatus =
+export type HarmonisationStatus =
   | "unmapped"
   | "partial"
   | "complete"
   | "available";
 
-export type HarmonizationIconSize = "small" | "large";
+export type HarmonisationIconSize = "small" | "large";
 export interface IMgError {
   message: string;
   statusCode: number;
@@ -434,3 +458,26 @@ export interface IPathConditionsCondition extends IPathCondition {
 }
 
 export type activeTabType = "detailed" | "compact";
+
+export interface IOrganization {
+  id: string;
+  name?: string;
+  email?: string;
+  description?: string;
+  website?: string;
+  acronym?: string;
+  type?: {
+    name: string;
+  };
+  institution?: any;
+  institutionAcronym?: string;
+  typeOther?: string;
+  address?: string;
+  expertise?: string;
+  country?: {
+    name: string;
+  };
+  logo?: IUrlObject;
+}
+
+export type linkTarget = "_self" | "_blank" | "_parent" | "_top";

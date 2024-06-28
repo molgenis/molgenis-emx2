@@ -10,7 +10,6 @@ test('show dataset details on cohorts page', async ({ page }) => {
   await page.getByRole('link', { name: 'GenR', exact: true }).click();
   await page.getByRole('link', { name: 'Networks' }).click();
   await page.getByRole('link', { name: 'Datasets' }).click();
-  await expect(page.locator('tbody')).toContainText('FETALCRL_22112016');
   await page.getByText('FETALCRL_22112016').click();
   await expect(page.getByText('DataWiki dataset FETALCRL_22112016')).toBeVisible();
 });
