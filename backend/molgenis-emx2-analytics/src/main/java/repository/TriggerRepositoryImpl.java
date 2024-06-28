@@ -2,6 +2,8 @@ package repository;
 
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.Constants.SYSTEM_SCHEMA;
+import static org.molgenis.emx2.FilterBean.f;
+import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
 
@@ -52,6 +54,7 @@ public class TriggerRepositoryImpl implements TriggerRepository {
   @Override
   public Trigger addTrigger(Trigger trigger) {
     AtomicInteger inserted = new AtomicInteger();
+
     this.database.tx(
         db -> {
           Schema sysSchema = db.getSchema(SYSTEM_SCHEMA);
@@ -71,9 +74,12 @@ public class TriggerRepositoryImpl implements TriggerRepository {
                   trigger.schemaName());
           inserted.set(triggerTable.insert(triggerRow));
         });
+
     if (inserted.get() == 1) {
       return trigger;
-    } else throw new MolgenisException("failed to add trigger");
+    } else {
+      throw new MolgenisException("failed to add trigger");
+    }
   }
 
   @Override
@@ -98,7 +104,15 @@ public class TriggerRepositoryImpl implements TriggerRepository {
 
             Table triggerTable = sysSchema.getTable(TRIGGER_TABLE_NAME);
             List<Trigger> list =
-                triggerTable.retrieveRows().stream()
+                triggerTable
+                    .select(
+                        SelectColumn.s(NAME),
+                        SelectColumn.s(CSS_SELECTOR),
+                        SelectColumn.s(APP_NAME),
+                        SelectColumn.s(SCHEMA_NAME))
+                    .where(f(SCHEMA_NAME, EQUALS, schema.getName()))
+                    .retrieveRows()
+                    .stream()
                     .map(
                         r ->
                             new Trigger(
