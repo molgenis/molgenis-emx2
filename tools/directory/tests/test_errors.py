@@ -1,6 +1,5 @@
 import pytest
 import requests.exceptions
-
 from molgenis.bbmri_eric.errors import (
     EricError,
     EricWarning,

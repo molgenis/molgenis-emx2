@@ -2,7 +2,6 @@ from unittest import mock
 from unittest.mock import MagicMock, patch
 
 import pytest
-
 from molgenis.bbmri_eric.errors import EricWarning, ErrorReport
 from molgenis.bbmri_eric.model import (
     MixedData,

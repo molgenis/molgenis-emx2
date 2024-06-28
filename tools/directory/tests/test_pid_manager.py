@@ -2,7 +2,6 @@ from unittest import mock
 from unittest.mock import MagicMock, call
 
 import pytest
-
 from molgenis.bbmri_eric.model import Table, TableType
 from molgenis.bbmri_eric.pid_manager import (
     NoOpPidManager,

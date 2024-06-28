@@ -2,7 +2,6 @@ from typing import List
 from unittest.mock import MagicMock
 
 import pytest
-
 from molgenis.bbmri_eric.errors import EricWarning
 from molgenis.bbmri_eric.printer import Printer
 from molgenis.bbmri_eric.validation import Validator

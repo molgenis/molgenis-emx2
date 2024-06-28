@@ -1,7 +1,6 @@
 from unittest.mock import MagicMock
 
 import pytest
-
 from molgenis.bbmri_eric.model_fitting import ModelFitter
 
 

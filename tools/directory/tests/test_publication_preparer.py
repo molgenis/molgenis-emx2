@@ -1,7 +1,6 @@
 from unittest.mock import MagicMock, patch
 
 import pytest
-
 from molgenis.bbmri_eric.errors import EricWarning, ErrorReport
 from molgenis.bbmri_eric.model import Node
 from molgenis.bbmri_eric.publication_preparer import PublicationPreparer

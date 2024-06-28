@@ -2,7 +2,6 @@ from typing import List
 from unittest.mock import MagicMock, call, patch
 
 import pytest
-
 from molgenis.bbmri_eric.eric import Eric
 from molgenis.bbmri_eric.errors import EricError, ErrorReport
 from molgenis.bbmri_eric.model import ExternalServerNode, Node

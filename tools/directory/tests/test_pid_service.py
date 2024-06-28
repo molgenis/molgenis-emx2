@@ -2,7 +2,6 @@ from unittest import mock
 from unittest.mock import MagicMock
 
 import pytest
-
 from molgenis.bbmri_eric.errors import EricError
 from molgenis.bbmri_eric.pid_service import (
     DummyPidService,

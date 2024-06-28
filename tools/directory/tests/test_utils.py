@@ -1,5 +1,4 @@
 import pytest
-
 from molgenis.bbmri_eric import utils
 
 

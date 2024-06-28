@@ -4,7 +4,6 @@ from typing import List
 from unittest.mock import MagicMock
 
 import pytest
-
 from molgenis.bbmri_eric.model import Node, NodeData, Source, Table, TableType
 
 

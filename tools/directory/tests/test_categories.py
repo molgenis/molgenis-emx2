@@ -2,7 +2,6 @@ from typing import List
 from unittest.mock import MagicMock
 
 import pytest
-
 from molgenis.bbmri_eric.categories import Category, CategoryMapper
 from molgenis.bbmri_eric.model import OntologyTable
 

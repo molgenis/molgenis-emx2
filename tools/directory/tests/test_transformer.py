@@ -1,7 +1,6 @@
 from unittest.mock import MagicMock, call
 
 import pytest
-
 from molgenis.bbmri_eric.errors import EricWarning
 from molgenis.bbmri_eric.model import Node, QualityInfo, Table, TableType
 from molgenis.bbmri_eric.transformer import Transformer
