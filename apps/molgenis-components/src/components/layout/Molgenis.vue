@@ -193,10 +193,11 @@ export default {
         if (this.session?.settings?.logoURL) {
           this.logoURL = this.session.settings.logoURL;
         }
-        const additionalJs = this.session?.settings?.additionalJs;
+        const additionalJs: string = this.session?.settings?.additionalJs;
         if (additionalJs) {
           try {
-            return eval?.(`"use strict";(${additionalJs})`);
+            ("use strict");
+            eval?.(`(function() {"use strict"; ${additionalJs}})()`);
           } catch (error) {
             console.log(error);
           }

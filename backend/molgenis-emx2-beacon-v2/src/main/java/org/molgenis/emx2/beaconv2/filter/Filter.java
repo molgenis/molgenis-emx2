@@ -159,7 +159,8 @@ public class Filter {
     StringBuilder filter = new StringBuilder();
 
     if (concept != null) {
-      filter.append(this.concept.getGraphQlQuery().formatted(getValues())).append(",");
+      String graphQlQuery = concept.getGraphQlQuery().formatted(values);
+      filter.append(graphQlQuery).append(",");
     }
 
     filter.deleteCharAt(filter.length() - 1);

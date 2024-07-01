@@ -16,7 +16,7 @@ public class BeaconAnalysisTest extends BeaconModelEndPointTest {
 
   @Test
   public void testAnalyses_NoParams() throws Exception {
-    Request request = mockEntryTypeRequest("analyses", new HashMap<>());
+    Request request = mockEntryTypeRequestRegular("analyses", new HashMap<>());
     BeaconRequestBody requestBody = new BeaconRequestBody(request);
 
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
@@ -28,7 +28,7 @@ public class BeaconAnalysisTest extends BeaconModelEndPointTest {
   @Test
   public void testAnalyses_NoHits() throws Exception {
     Request request =
-        mockEntryTypeRequest(EntryType.ANALYSES.getId(), Map.of("id", new String[] {"A05"}));
+        mockEntryTypeRequestRegular(EntryType.ANALYSES.getId(), Map.of("id", new String[] {"A05"}));
     BeaconRequestBody requestBody = new BeaconRequestBody(request);
 
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
@@ -40,7 +40,7 @@ public class BeaconAnalysisTest extends BeaconModelEndPointTest {
   @Test
   public void testAnalyses_IdQuery() throws Exception {
     Request request =
-        mockEntryTypeRequest(EntryType.ANALYSES.getId(), Map.of("id", new String[] {"A03"}));
+        mockEntryTypeRequestRegular(EntryType.ANALYSES.getId(), Map.of("id", new String[] {"A03"}));
     BeaconRequestBody requestBody = new BeaconRequestBody(request);
 
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);

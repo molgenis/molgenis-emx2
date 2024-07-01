@@ -162,6 +162,8 @@
     --border-radius-pagination: 9999px;
     --border-radius-landing: 50px;
 
+    --outline-color-select: var(--color-gray-200);
+
   }
   :root[data-theme="umcg"] {
     --color-white: #fff;
