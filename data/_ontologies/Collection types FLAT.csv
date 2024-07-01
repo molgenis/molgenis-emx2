@@ -5,7 +5,6 @@ Cohort study,,Observational study
 Case-control,,Observational study,,https://spor.ema.europa.eu/rmswi/#/lists/200000030941/terms/200000030950
 Case-only,,Observational study,,https://spor.ema.europa.eu/rmswi/#/lists/200000030941/terms/200000030951
 Cross-sectional,,Observational study,,https://spor.ema.europa.eu/rmswi/#/lists/200000030941/terms/200000030952
-
 Population based,,Observational study,,,,Study done at the population level or among the population groups
 Disease specific,,,,,,A study or biobank for which material and information is collected from subjects that have already developed a particular disease.
 Rare disease,,,,,,A collection that is focusing on rare diseases
@@ -25,11 +24,11 @@ Birth registry,,Registry,,https://spor.ema.europa.eu/rmswi/#/lists/200000030015/
 Induced terminations registry,,Registry,,https://spor.ema.europa.eu/rmswi/#/lists/200000030015/terms/200000030042
 Congenital anomaly registry,,Registry,,https://spor.ema.europa.eu/rmswi/#/lists/200000030015/terms/200000030043
 Population registry,,Registry,,https://spor.ema.europa.eu/rmswi/#/lists/200000030015/terms/200000030044
-Death registry,,Secondary use,,https://spor.ema.europa.eu/rmswi/#/lists/200000030015/terms/200000030051
-Cancer registry,,Secondary use,,https://spor.ema.europa.eu/rmswi/#/lists/200000030015/terms/200000030052
-Disease registry,,Secondary use,,https://spor.ema.europa.eu/rmswi/#/lists/200000030015/terms/200000030053
-Vaccination registry,,Secondary use,,https://spor.ema.europa.eu/rmswi/#/lists/200000030015/terms/200000030054
-Drug registry,,Secondary use,,https://spor.ema.europa.eu/rmswi/#/lists/200000030015/terms/200000030055
+Death registry,,Registry,,https://spor.ema.europa.eu/rmswi/#/lists/200000030015/terms/200000030051
+Cancer registry,,Registry,,https://spor.ema.europa.eu/rmswi/#/lists/200000030015/terms/200000030052
+Disease registry,,Registry,,https://spor.ema.europa.eu/rmswi/#/lists/200000030015/terms/200000030053
+Vaccination registry,,Registry,,https://spor.ema.europa.eu/rmswi/#/lists/200000030015/terms/200000030054
+Drug registry,,Registry,,https://spor.ema.europa.eu/rmswi/#/lists/200000030015/terms/200000030055
 Health records,
 Hospital discharge records,,Secondary use,,https://spor.ema.europa.eu/rmswi/#/lists/200000030015/terms/200000030038
 Primary care medical records,,Secondary use,,https://spor.ema.europa.eu/rmswi/#/lists/200000030015/terms/200000030039
