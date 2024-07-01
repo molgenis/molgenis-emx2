@@ -24,23 +24,23 @@ class NnIdValidations:
             extra_char = f"[{self.database[2]}]"
         self.validations = {
             "AlsoKnownIn":
-                f"if(!/^bbmri-eric:akiID:{self.database}_[\\w-:]+$/.test(id))"
+                f"if(!/^bbmri-eric:akiID:{self.database}_[\\\\w-:]+$/.test(id))"
                 f"'ID should start with bbmri-eric:akiID:{self.database}_'",
-            "Biobanks": f"if(!/^bbmri-eric:ID:{self.database}_[\\w-:]+$/.test(id))"
+            "Biobanks": f"if(!/^bbmri-eric:ID:{self.database}_[\\\\w-:]+$/.test(id))"
                         f"'ID should start with bbmri-eric:ID:{self.database}_'",
-            "Collections": f"if(!/^bbmri-eric:ID:{self.database}_[\\w-]+:collection:"
+            "Collections": f"if(!/^bbmri-eric:ID:{self.database}_[\\\\w-]+:collection:"
                            f"[\\w-:]+$/.test(id))"
-                           f"'ID should start the ID of the biobank in which the "
+                           f"'ID should start with the ID of the biobank in which the "
                            f"collection resides + :collection:'",
             "CollectionFacts":
-                f"if(!/^bbmri-eric:factID:{self.database}_[\\w-:]+$/.test(id))"
+                f"if(!/^bbmri-eric:factID:{self.database}_[\\\\w-:]+$/.test(id))"
                 f"'ID should start with bbmri-eric:factID:{self.database}_'",
             "Networks": f"if(!/^bbmri-eric:networkID:[{self.database[0]}E]"
-                        f"[{self.database[1]}U]{extra_char}_[\\w-:]+$/.test(id))"
+                        f"[{self.database[1]}U]{extra_char}_[\\\\w-:]+$/.test(id))"
                         f"'ID should start with bbmri-eric:networkID:{self.database}_ "
                         f"or bbmri-eric:networkID:EU_'",
             "Persons": f"if(!/^bbmri-eric:contactID:[{self.database[0]}E]"
-                       f"[{self.database[1]}U]{extra_char}_[\\w-:]+$/.test(id))"
+                       f"[{self.database[1]}U]{extra_char}_[\\\\w-:]+$/.test(id))"
                        f"'ID should start with bbmri-eric:contactID:{self.database}_ "
                        f"or bbmri-eric:contactID:EU_'",
                             }
@@ -58,7 +58,7 @@ class NnIdValidations:
         self.session.save_data(self.database)
         self.zip_handling.unzip_data()
         self.remove_files()
-        df_meta = pd.read_csv(self.meta_file, sep=",")
+        df_meta = pd.read_csv(self.meta_file, sep=",", dtype={"required": str})
         df_meta["validation"] = (
             df_meta.apply(lambda row:
                           self.add_expression(row.tableName, row.columnName), axis=1))
