@@ -10,7 +10,7 @@ const props = defineProps<{
 }>();
 
 const statusMap = computed(() =>
-  calcAggregatedHarmonizationStatus(props.variables, props.cohorts)
+  calcAggregatedHarmonisationStatus(props.variables, props.cohorts)
 );
 
 let activeRowIndex = ref(-1);
@@ -32,7 +32,7 @@ let activeVariablePath = computed(() =>
 
 <template>
   <div class="mb-7 relative">
-    <HarmonizationLegendMatrix size="small" />
+    <HarmonisationLegendMatrix size="small" />
     <div class="overflow-x-auto xl:max-w-table border-t">
       <StickyTable
         :columns="cohorts"
@@ -65,7 +65,7 @@ let activeVariablePath = computed(() =>
         </template>
 
         <template #cell="cell">
-          <HarmonizationTableCellAvailableIcon
+          <HarmonisationTableCellAvailableIcon
             :status="
               ['complete', 'partial'].includes(
                 statusMap[cell.value.rowIndex][cell.value.columnIndex]
@@ -74,7 +74,7 @@ let activeVariablePath = computed(() =>
                 : 'unmapped'
             "
             @click="activeRowIndex = cell.value.rowIndex"
-          ></HarmonizationTableCellAvailableIcon>
+          ></HarmonisationTableCellAvailableIcon>
         </template>
       </StickyTable>
     </div>
