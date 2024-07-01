@@ -1,6 +1,7 @@
 import { createRouter, createWebHashHistory } from "vue-router";
 import HomeView from "../views/HomeView.vue";
 import AboutView from "../views/AboutView.vue";
+import PlaygroundView from "../views/PlaygroundView.vue";
 import Landingpage from "../views/Landingpage.vue";
 import BiobankReport from "../views/BiobankReport.vue";
 import NetworkReport from "../views/NetworkReport.vue";
@@ -15,6 +16,11 @@ const router = createRouter({
       path: "/catalogue",
       name: "catalogue",
       component: HomeView,
+    },
+    {
+      path: "/playground",
+      name: "playground",
+      component: PlaygroundView,
     },
     {
       path: "/about",
