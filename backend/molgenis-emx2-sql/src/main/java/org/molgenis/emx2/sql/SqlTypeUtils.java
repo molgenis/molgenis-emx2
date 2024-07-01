@@ -5,6 +5,7 @@ import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascript;
 import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascriptOnMap;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.TypeUtils;
 import org.molgenis.emx2.utils.generator.IdGenerator;
@@ -99,6 +100,36 @@ public class SqlTypeUtils extends TypeUtils {
           throw new MolgenisException(
               "column '" + c.getName() + "' is required: " + error + " in " + row);
         }
+      }
+    }
+    if (c.isReference()) {
+      List<Reference> refs = c.getReferences();
+      // PostgreSQL considers the foreign key constraint not applicable if any part of the composite
+      // key is NULL.therefore we must make sure it is complete
+      // exclude overlapping
+      int countNotNullNotOverlapping = 0;
+      int countNotNull = 0;
+      for (Reference ref : refs) {
+        if (!row.isNull(ref.getName(), ref.getPrimitiveType())) {
+          if (!ref.isOverlapping()) {
+            countNotNullNotOverlapping++;
+          }
+          countNotNull++;
+        }
+      }
+      if (countNotNullNotOverlapping > 0 && countNotNull != refs.size()) {
+        throw new MolgenisException(
+            String.format(
+                "Key (%s)=(%s) not present in table \"%s\"",
+                refs.stream().map(ref -> ref.getName()).collect(Collectors.joining(",")),
+                refs.stream()
+                    .map(
+                        ref ->
+                            row.isNull(ref.getName(), ref.getPrimitiveType())
+                                ? "NULL"
+                                : row.getValueMap().get(ref.getName()).toString())
+                    .collect(Collectors.joining(",")),
+                c.getRefTableName()));
       }
     }
   }
