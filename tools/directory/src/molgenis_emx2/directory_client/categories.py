@@ -2,7 +2,7 @@ from copy import deepcopy
 from enum import Enum
 from typing import List, Set
 
-from molgenis_emx2.directory_client.model import OntologyTable
+from tools.directory.src.molgenis_emx2.directory_client.model import OntologyTable
 
 
 class Category(Enum):

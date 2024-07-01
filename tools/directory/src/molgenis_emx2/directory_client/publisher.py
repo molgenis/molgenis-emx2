@@ -1,13 +1,15 @@
 from dataclasses import dataclass, field
 from typing import List
 
-from molgenis_emx2.directory_client.directory_client import DirectorySession
-from molgenis_emx2.directory_client.errors import (
+from tools.directory.src.molgenis_emx2.directory_client.directory_client import (
+    DirectorySession,
+)
+from tools.directory.src.molgenis_emx2.directory_client.errors import (
     DirectoryError,
     DirectoryWarning,
     ErrorReport,
 )
-from molgenis_emx2.directory_client.model import (
+from tools.directory.src.molgenis_emx2.directory_client.model import (
     MixedData,
     Node,
     NodeData,
@@ -17,9 +19,13 @@ from molgenis_emx2.directory_client.model import (
     Table,
     TableType,
 )
-from molgenis_emx2.directory_client.pid_manager import BasePidManager
-from molgenis_emx2.directory_client.printer import Printer
-from molgenis_emx2.directory_client.utils import MolgenisRequestError
+from tools.directory.src.molgenis_emx2.directory_client.pid_manager import (
+    BasePidManager,
+)
+from tools.directory.src.molgenis_emx2.directory_client.printer import Printer
+from tools.directory.src.molgenis_emx2.directory_client.utils import (
+    MolgenisRequestError,
+)
 
 
 @dataclass

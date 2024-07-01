@@ -1,11 +1,11 @@
 from contextlib import contextmanager
 
-from molgenis_emx2.directory_client.errors import (
+from tools.directory.src.molgenis_emx2.directory_client.errors import (
     DirectoryError,
     DirectoryWarning,
     ErrorReport,
 )
-from molgenis_emx2.directory_client.model import Node
+from tools.directory.src.molgenis_emx2.directory_client.model import Node
 
 
 class Printer:

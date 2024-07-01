@@ -1,15 +1,15 @@
 from datetime import date
 
-from molgenis_emx2.directory_client.categories import CategoryMapper
-from molgenis_emx2.directory_client.errors import DirectoryWarning
-from molgenis_emx2.directory_client.model import (
+from tools.directory.src.molgenis_emx2.directory_client.categories import CategoryMapper
+from tools.directory.src.molgenis_emx2.directory_client.errors import DirectoryWarning
+from tools.directory.src.molgenis_emx2.directory_client.model import (
     Node,
     NodeData,
     OntologyTable,
     QualityInfo,
     Table,
 )
-from molgenis_emx2.directory_client.printer import Printer
+from tools.directory.src.molgenis_emx2.directory_client.printer import Printer
 
 
 class Transformer:

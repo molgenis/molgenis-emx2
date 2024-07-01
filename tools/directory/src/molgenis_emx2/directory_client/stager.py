@@ -1,16 +1,20 @@
 from typing import List
 
-from molgenis_emx2.directory_client.directory_client import (
+from tools.directory.src.molgenis_emx2.directory_client.directory_client import (
     DirectorySession,
     ExternalServerSession,
 )
-from molgenis_emx2.directory_client.errors import (
+from tools.directory.src.molgenis_emx2.directory_client.errors import (
     DirectoryError,
     DirectoryWarning,
     requests_error_handler,
 )
-from molgenis_emx2.directory_client.model import ExternalServerNode, NodeData, TableType
-from molgenis_emx2.directory_client.printer import Printer
+from tools.directory.src.molgenis_emx2.directory_client.model import (
+    ExternalServerNode,
+    NodeData,
+    TableType,
+)
+from tools.directory.src.molgenis_emx2.directory_client.printer import Printer
 
 
 class Stager:

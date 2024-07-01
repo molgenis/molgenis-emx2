@@ -1,9 +1,13 @@
 import re
 from typing import List, Set
 
-from molgenis_emx2.directory_client.errors import DirectoryWarning
-from molgenis_emx2.directory_client.model import NodeData, Table, TableType
-from molgenis_emx2.directory_client.printer import Printer
+from tools.directory.src.molgenis_emx2.directory_client.errors import DirectoryWarning
+from tools.directory.src.molgenis_emx2.directory_client.model import (
+    NodeData,
+    Table,
+    TableType,
+)
+from tools.directory.src.molgenis_emx2.directory_client.printer import Printer
 
 
 class Validator:

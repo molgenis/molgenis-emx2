@@ -3,9 +3,10 @@ from dataclasses import dataclass, field
 from typing import DefaultDict, List, Optional
 
 import requests
-
-from molgenis_emx2.directory_client.model import Node
-from molgenis_emx2.directory_client.utils import MolgenisRequestError
+from tools.directory.src.molgenis_emx2.directory_client.model import Node
+from tools.directory.src.molgenis_emx2.directory_client.utils import (
+    MolgenisRequestError,
+)
 
 
 @dataclass(frozen=True)

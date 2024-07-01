@@ -1,21 +1,33 @@
 from typing import List, Optional
 
-from molgenis_emx2.directory_client.directory_client import (
+from tools.directory.src.molgenis_emx2.directory_client.directory_client import (
     AttributesRequest,
     DirectorySession,
 )
-from molgenis_emx2.directory_client.errors import (
+from tools.directory.src.molgenis_emx2.directory_client.errors import (
     DirectoryError,
     ErrorReport,
     requests_error_handler,
 )
-from molgenis_emx2.directory_client.model import ExternalServerNode, Node
-from molgenis_emx2.directory_client.pid_manager import PidManagerFactory
-from molgenis_emx2.directory_client.pid_service import BasePidService
-from molgenis_emx2.directory_client.printer import Printer
-from molgenis_emx2.directory_client.publication_preparer import PublicationPreparer
-from molgenis_emx2.directory_client.publisher import Publisher, PublishingState
-from molgenis_emx2.directory_client.stager import Stager
+from tools.directory.src.molgenis_emx2.directory_client.model import (
+    ExternalServerNode,
+    Node,
+)
+from tools.directory.src.molgenis_emx2.directory_client.pid_manager import (
+    PidManagerFactory,
+)
+from tools.directory.src.molgenis_emx2.directory_client.pid_service import (
+    BasePidService,
+)
+from tools.directory.src.molgenis_emx2.directory_client.printer import Printer
+from tools.directory.src.molgenis_emx2.directory_client.publication_preparer import (
+    PublicationPreparer,
+)
+from tools.directory.src.molgenis_emx2.directory_client.publisher import (
+    Publisher,
+    PublishingState,
+)
+from tools.directory.src.molgenis_emx2.directory_client.stager import Stager
 
 
 class Directory:

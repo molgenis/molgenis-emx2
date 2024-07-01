@@ -1,11 +1,14 @@
 from collections import OrderedDict
 
+from tools.directory.src.molgenis_emx2.directory_client.errors import DirectoryWarning
+from tools.directory.src.molgenis_emx2.directory_client.model import (
+    NodeData,
+    Table,
+    TableType,
+)
+from tools.directory.src.molgenis_emx2.directory_client.printer import Printer
+from tools.directory.src.molgenis_emx2.directory_client.utils import to_ordered_dict
 from unidecode import unidecode
-
-from molgenis_emx2.directory_client.errors import DirectoryWarning
-from molgenis_emx2.directory_client.model import NodeData, Table, TableType
-from molgenis_emx2.directory_client.printer import Printer
-from molgenis_emx2.directory_client.utils import to_ordered_dict
 
 
 class ModelFitter:
