@@ -5,8 +5,4 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 @JsonSerialize
-public record Trigger(String name, String cssSelector, String schemaName, String appName) {
-  public Trigger(String trigger1, String mySelector) {
-    this(trigger1, mySelector, null, null);
-  }
-}
+public record Trigger(String name, String cssSelector, String schemaName, String appName) {}

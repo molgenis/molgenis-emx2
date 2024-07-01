@@ -8,11 +8,11 @@ import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.analytics.model.Trigger;
 import org.molgenis.emx2.analytics.model.actions.CreateTriggerAction;
+import org.molgenis.emx2.analytics.repository.TriggerRepositoryImpl;
 import org.molgenis.emx2.analytics.service.AnalyticsServiceImpl;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.web.transformers.ActionTransformer;
 import org.molgenis.emx2.web.transformers.JsonTransformer;
-import repository.TriggerRepositoryImpl;
 import spark.Request;
 import spark.Response;
 

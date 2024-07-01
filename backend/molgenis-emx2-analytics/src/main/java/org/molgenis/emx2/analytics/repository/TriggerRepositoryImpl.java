@@ -1,4 +1,4 @@
-package repository;
+package org.molgenis.emx2.analytics.repository;
 
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.Constants.SYSTEM_SCHEMA;
@@ -14,14 +14,14 @@ import org.molgenis.emx2.*;
 import org.molgenis.emx2.analytics.model.Trigger;
 
 public class TriggerRepositoryImpl implements TriggerRepository {
-
-  private final Database database;
+  static final String TRIGGER_TABLE_NAME = "AnalyticsTrigger";
 
   private static final String NAME = "name";
   private static final String CSS_SELECTOR = "cssSelector";
   private static final String APP_NAME = "appName";
   private static final String SCHEMA_NAME = "schemaName";
-  private static final String TRIGGER_TABLE_NAME = "AnalyticsTrigger";
+
+  private final Database database;
 
   public TriggerRepositoryImpl(Database database) {
     this.database = database;
@@ -108,8 +108,8 @@ public class TriggerRepositoryImpl implements TriggerRepository {
                     .select(
                         SelectColumn.s(NAME),
                         SelectColumn.s(CSS_SELECTOR),
-                        SelectColumn.s(APP_NAME),
-                        SelectColumn.s(SCHEMA_NAME))
+                        SelectColumn.s(SCHEMA_NAME),
+                        SelectColumn.s(APP_NAME))
                     .where(f(SCHEMA_NAME, EQUALS, schema.getName()))
                     .retrieveRows()
                     .stream()
@@ -118,8 +118,8 @@ public class TriggerRepositoryImpl implements TriggerRepository {
                             new Trigger(
                                 r.getString(NAME),
                                 r.getString(CSS_SELECTOR),
-                                r.getString(APP_NAME),
-                                r.getString(SCHEMA_NAME)))
+                                r.getString(SCHEMA_NAME),
+                                r.getString(APP_NAME)))
                     .toList();
             triggers.addAll(list);
 

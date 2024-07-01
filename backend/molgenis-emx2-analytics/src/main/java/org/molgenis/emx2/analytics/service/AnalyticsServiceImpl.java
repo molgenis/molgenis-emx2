@@ -3,7 +3,7 @@ package org.molgenis.emx2.analytics.service;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.analytics.model.Trigger;
 import org.molgenis.emx2.analytics.model.actions.CreateTriggerAction;
-import repository.TriggerRepository;
+import org.molgenis.emx2.analytics.repository.TriggerRepository;
 
 public class AnalyticsServiceImpl implements AnalyticsService {
 

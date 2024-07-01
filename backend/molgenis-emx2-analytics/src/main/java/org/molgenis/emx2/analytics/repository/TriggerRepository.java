@@ -1,4 +1,4 @@
-package repository;
+package org.molgenis.emx2.analytics.repository;
 
 import java.util.List;
 import org.molgenis.emx2.Schema;
