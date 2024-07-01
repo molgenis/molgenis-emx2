@@ -12,7 +12,7 @@
     <select
       v-else-if="!readonly"
       :id="id"
-      :modelValue="defaultModelValue(modelValue, required, options)"
+      :modelValue="modelValue"
       :readonly="readonly"
       class="form-control"
       @change="updateModelValue($event.target.value)"
@@ -58,14 +58,6 @@ export default {
     options: { type: Array, required: true },
   },
   methods: {
-    defaultModelValue: function (modelValue, required, options) {
-      if ((modelValue === undefined || modelValue === null) && required) {
-        this.updateModelValue(options[0]);
-        return options[0];
-      } else {
-        return modelValue;
-      }
-    },
     updateModelValue: function (value) {
       this.$emit("update:modelValue", value == "" ? null : value);
     },
@@ -88,6 +80,16 @@ export default {
     </DemoItem>
     <DemoItem>
       <InputSelect
+          description="With default value 'ape'"
+          id="input-select-default"
+          label="Default value set"
+          v-model="defaultValue"
+          :options="['lion', 'ape', 'monkey']"
+      />
+      Selected: {{ defaultValue }}
+    </DemoItem>
+    <DemoItem>
+      <InputSelect
         id="input-select-required"
         description="Required select input"
         label="Required Animals"
@@ -96,6 +98,7 @@ export default {
         :options="['lion', 'ape', 'monkey']"
       />
       Selected: {{ requiredCheck }}
+      IMPORTANT: When using "required", always use a default value. Do not use "null"/"undefined"!
     </DemoItem>
     <DemoItem>
       <InputSelect
@@ -105,16 +108,6 @@ export default {
         v-model="check"
         :options="[]"
       />
-    </DemoItem>
-    <DemoItem>
-      <InputSelect
-          description="With default value 'ape'"
-          id="input-select-default"
-          label="Default value set"
-          v-model="defaultValue"
-          :options="['lion', 'ape', 'monkey']"
-      />
-      Selected: {{ defaultValue }}
     </DemoItem>
     <DemoItem>
       <InputSelect
@@ -133,9 +126,9 @@ export default {
   data: function () {
     return {
       check: null,
-      requiredCheck: null,
-      empty: null,
       defaultValue: 'ape',
+      requiredCheck: 'lion',
+      empty: null,
       readonlyModel: 'lion'
     };
   },
