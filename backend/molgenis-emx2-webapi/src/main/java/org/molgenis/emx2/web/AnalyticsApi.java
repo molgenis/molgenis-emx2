@@ -24,7 +24,7 @@ public class AnalyticsApi {
 
     new TriggerRepositoryImpl(new SqlDatabase(false));
 
-    post("/:schema/api/trigger", AnalyticsApi::addTrigger);
+    post("/:schema/api/trigger", AnalyticsApi::addTrigger, new JsonTransformer());
     get("/:schema/api/trigger", AnalyticsApi::listSchemaTriggers, new JsonTransformer());
   }
 
@@ -51,6 +51,6 @@ public class AnalyticsApi {
     AnalyticsServiceImpl analyticsService = new AnalyticsServiceImpl(triggerRepository);
     analyticsService.createTriggerForSchema(schema, createTriggerAction);
 
-    return "created";
+    return "{\"status\": \"success\"}";
   }
 }
