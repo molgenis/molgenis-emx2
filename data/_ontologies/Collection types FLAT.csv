@@ -1,6 +1,93 @@
-order,name,label,parent,codesystem,code,ontologyTermURI,definition
-,Cohort study,,,,,,
-,Study,,,,,,
-,Data source,,,,,,
-,Network,,,,,,
-,Databank,,,,,,
+name,label,parent,codesystem,code,ontologyTermURI,definition
+Biobank,,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030015/terms/200000030056
+Observational study,,,,,,
+Cohort study,,Observational study
+Case-control,,Observational study,,https://spor.ema.europa.eu/rmswi/#/lists/200000030941/terms/200000030950
+Case-only,,Observational study,,https://spor.ema.europa.eu/rmswi/#/lists/200000030941/terms/200000030951
+Cross-sectional,,Observational study,,https://spor.ema.europa.eu/rmswi/#/lists/200000030941/terms/200000030952
+
+Population based,,Observational study,,,,Study done at the population level or among the population groups
+Disease specific,,,,,,A study or biobank for which material and information is collected from subjects that have already developed a particular disease.
+Rare disease,,,,,,A collection that is focusing on rare diseases
+Birth cohort,,Observational study,,,,A cohort study for which the subjects are followed from the time of birth usually including information about gestation and follow up.
+Twin-study,,Observational study,,,,Twin studies measure the contribution of genetics (as opposed to environment) to a given trait or condition of interest.
+Retrospective,,Observational study,,,,Retrospective data collection
+Prospective,,Observational study,,,,Prospective data collection
+Longitudinal,,Observational study,,,,repeated observations at different time-points
+Ecological,,Observational study,,https://spor.ema.europa.eu/rmswi/#/lists/200000030941/terms/200000030953
+Cluster design,,Observational study,,https://spor.ema.europa.eu/rmswi/#/lists/200000030941/terms/200000030954
+Systematic review and meta-analysis,,Observational study,,https://spor.ema.europa.eu/rmswi/#/lists/200000030941/terms/200000030955
+Disease state design,"A study design in which the pathological condition of a part, organ, or system of an organism is studied. The etiology may be from infection, genetic defect, or environmental stress.",OBI,0001293,http://purl.obolibrary.org/obo/OBI_0001293
+Quality control,"A study design where some aspect of the experiment is quality controlled for the purposes of quality assurance.",OMIABIS,0001023,http://purl.obolibrary.org/obo/OMIABIS_0001023
+Other,,Non-interventional design,,https://spor.ema.europa.eu/rmswi/#/lists/200000030941/terms/200000031049
+Registry,,,,,,
+Birth registry,,Registry,,https://spor.ema.europa.eu/rmswi/#/lists/200000030015/terms/200000030041
+Induced terminations registry,,Registry,,https://spor.ema.europa.eu/rmswi/#/lists/200000030015/terms/200000030042
+Congenital anomaly registry,,Registry,,https://spor.ema.europa.eu/rmswi/#/lists/200000030015/terms/200000030043
+Population registry,,Registry,,https://spor.ema.europa.eu/rmswi/#/lists/200000030015/terms/200000030044
+Death registry,,Secondary use,,https://spor.ema.europa.eu/rmswi/#/lists/200000030015/terms/200000030051
+Cancer registry,,Secondary use,,https://spor.ema.europa.eu/rmswi/#/lists/200000030015/terms/200000030052
+Disease registry,,Secondary use,,https://spor.ema.europa.eu/rmswi/#/lists/200000030015/terms/200000030053
+Vaccination registry,,Secondary use,,https://spor.ema.europa.eu/rmswi/#/lists/200000030015/terms/200000030054
+Drug registry,,Secondary use,,https://spor.ema.europa.eu/rmswi/#/lists/200000030015/terms/200000030055
+Health records,
+Hospital discharge records,,Secondary use,,https://spor.ema.europa.eu/rmswi/#/lists/200000030015/terms/200000030038
+Primary care medical records,,Secondary use,,https://spor.ema.europa.eu/rmswi/#/lists/200000030015/terms/200000030039
+Pharmacy dispensing records,,Secondary use,,https://spor.ema.europa.eu/rmswi/#/lists/200000030015/terms/200000030040
+Registration with healthcare system,,Health records,,https://spor.ema.europa.eu/rmswi/#/lists/200000030015/terms/200000030045
+Hospital outpatient visit records,,Health records,,https://spor.ema.europa.eu/rmswi/#/lists/200000030015/terms/200000030046
+Hospital inpatient records,,Health records,,https://spor.ema.europa.eu/rmswi/#/lists/200000030015/terms/200000030047
+Emergency care discharge records,,Health records,,https://spor.ema.europa.eu/rmswi/#/lists/200000030015/terms/200000030048
+Exemptions from co-payment,,Health records,,https://spor.ema.europa.eu/rmswi/#/lists/200000030015/terms/200000030049
+Diagnostic tests or procedures reimbursement,,Health records,,https://spor.ema.europa.eu/rmswi/#/lists/200000030015/terms/200000030050
+Administrative healthcare claims,,Health records,,https://spor.ema.europa.eu/rmswi/#/lists/200000030015/terms/200000030057
+Spontaneous reporting of adverse drug reactions,,Health records,,https://spor.ema.europa.eu/rmswi/#/lists/200000030015/terms/200000030058
+Specialist ambulatory care records,,Health records,,https://spor.ema.europa.eu/rmswi/#/lists/200000030015/terms/200000030059
+Health records other,,Health records,,,
+Clinical trial,,,,,,
+Clinical Trial Randomisation,,Clinical trial,,,,
+Randomised clinical trial,,Clinical trial,,,Clinical Trial Randomisation,
+Non-randomised clinical trial,,Clinical trial,,,Clinical Trial Randomisation,
+Low-interventional clinical trial,,Clinical trial,,,Clinical Trial Types,https://spor.ema.europa.eu/rmswi/#/lists/200000030925/terms/200000030936
+Single-arm trial,,Clinical trial,,,Clinical Trial Types,https://spor.ema.europa.eu/rmswi/#/lists/200000030925/terms/200000030937
+Large simple trial,,Clinical trial,,,Clinical Trial Types,https://spor.ema.europa.eu/rmswi/#/lists/200000030925/terms/200000030938
+Pragmatic clinical trial,,Clinical trial,,,Clinical Trial Types,https://spor.ema.europa.eu/rmswi/#/lists/200000030925/terms/200000030939
+Cluster randomised trial,,Clinical trial,,,Clinical Trial Types,https://spor.ema.europa.eu/rmswi/#/lists/200000030925/terms/200000030940
+Clinical trail other,,
+Clinical trial phase,,,,,
+Human pharmacology (Phase I),,,,Clinical trial phase,https://spor.ema.europa.eu/rmswi/#/lists/100000075935/terms/100000076036
+Therapeutic exploratory (Phase II),,,,Clinical trial phase,https://spor.ema.europa.eu/rmswi/#/lists/100000075935/terms/100000076040
+Therapeutic confirmatory (Phase III),,,,Clinical trial phase,https://spor.ema.europa.eu/rmswi/#/lists/100000075935/terms/100000076041
+Therapeutic use (Phase IV),,,,Clinical trial phase,https://spor.ema.europa.eu/rmswi/#/lists/100000075935/terms/100000076042
+Data collection methods,,,,,
+Primary data collection,,,,Data collection methods,https://spor.ema.europa.eu/rmswi/#/lists/200000030956/terms/200000030957
+Secondary data collection,,,,Data collection methods,https://spor.ema.europa.eu/rmswi/#/lists/200000030956/terms/200000030958
+Combined primary and secondary data collection,,,,Data collection methods,https://spor.ema.europa.eu/rmswi/#/lists/200000030956/terms/200000030959
+No individual level data collected for the purpose of the study,,,,Data collection methods,https://spor.ema.europa.eu/rmswi/#/lists/200000030956/terms/200000031039
+Network,,,,,,
+h2020,,Network
+harmonization,,Network
+Topical network,,Network
+RIA - Data science,,Network
+Initiative,,Network
+CSA,,Network
+Data science,,Network
+EU4health - Diagnosis and Treatment,,Network
+RIA - Quality of Life,,Network
+CSA - Data science,,Network
+RIA - Prevention and Early Detection,,Network
+RIA - Diagnosis and treatment,,Network
+Research and development,,Network
+IMI - Research and Innovation,,Network
+Diagnosis and Treatment,,Network
+Training & Research Networks,,Network
+EU4health - Prevention,,Network
+EU4health - Early Detection,,Network
+Joint Action,,Network
+EU4health - Quality of Life,,Network
+Prognostics,,Network
+Research Group,,Network
+RIA - Research and Innovation,,Network
+RIA,,Network
+ERC - Research,,Network
+

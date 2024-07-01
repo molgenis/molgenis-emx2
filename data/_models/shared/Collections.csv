@@ -3,7 +3,7 @@ Collections,,,,,,,,,,,"dcat:DatasetSeries,dcat:Dataset","Collection of data and/
 Collections,,overview,heading,,,,,,,,,General information,DataCatalogueFlat
 Collections,,id,,1,true,,,,,,dct:identifier,Internal identifier,"DataCatalogueFlat,EMA"
 Collections,,name,text,3,true,,,,,,dct:title,Name used in European projects,"DataCatalogueFlat,EMA"
-Collections,,type,ontology_array,,,CatalogueOntologies,Collection types,,,,,,DataCatalogueFlat
+Collections,,type,ontology_array,,,CatalogueOntologies,Collection types FLAT,,,,,,DataCatalogueFlat
 Collections,,type other,,,,,,,,,,"If other, describe the type of collection","DataCatalogueFlat,EMA"
 Collections,,description,text,,,,,,,,dct:description,Short description,"DataCatalogueFlat,EMA"
 Collections,,pid,,2,,,,,,,dct:identifier,Persistent identifier,"DataCatalogueFlat,EMA"
