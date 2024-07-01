@@ -1,0 +1,43 @@
+[
+  {
+    "id": "bbmri-eric:ID:NL_valid-biobankID-1",
+    "contact": "bbmri-eric:contactID:NL_valid-personID-1",
+    "also_known_in": ["bbmri-eric:akiID:BE_invalid_node_code"],
+    "head_firstname": "Jan",
+    "head_lastname": "Janssen",
+    "head_role": "Director",
+    "country": "NL",
+    "url": "https://valid_url.nl"
+  },
+  {
+    "id": "bbmri-eric:ID:NL_valid:biobankID-2",
+    "contact": "bbmri-eric:ID:NL_invalid_person_classifier",
+    "network": ["bbmri-eric:networkID:NL_valid-networkID-1"],
+    "head_title_before_name": "Dr",
+    "head_firstname": "Piet",
+    "head_lastname": "Geluk",
+    "head_role": "Principal Investigator",
+    "country": "NL",
+    "url": "www.invalid@url.nl"
+  },
+  {"id": "bbmri-eric:test:NL_invalid_biobank_classifier"},
+  {
+    "id": "bbmri-eric:ID:BE_invalid_node_code",
+    "network": [
+      "bbmri-eric:network:NL_valid-networkID-1",
+      "bbmri-eric:ID:NL_invalid_network_classifier"
+    ]
+  },
+  {
+    "id": "bbmri-eric:ID:NL_test_quality_biobank1"
+  },
+  {
+    "id": "bbmri-eric:ID:NL_test_quality_biobank2"
+  },
+  {
+    "id": "bbmri-eric:ID:NL_test_quality_biobank3"
+  },
+  {
+    "id": "bbmri-eric:ID:NL_biobank_noQual"
+  }
+]
