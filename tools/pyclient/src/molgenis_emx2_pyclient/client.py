@@ -324,7 +324,7 @@ class Client:
         schema_metadata: Schema = self.get_schema_metadata(current_schema)
         table_id = schema_metadata.get_table(by='name', value=table).id
 
-        filter_part = self._prepare_filter(query_filter) if query_filter else ""
+        filter_part = self._prepare_filter(query_filter, table, schema) if query_filter else ""
         query_url = f"{self.url}/{current_schema}/api/csv/{table_id}{filter_part}"
         response = self.session.get(url=query_url,
                                     headers={'x-molgenis-token': self.token})
@@ -578,28 +578,42 @@ class Client:
         metadata = Schema(**response_json.get('data').get('_schema'))
         return metadata
 
-    def _prepare_filter(self, expr: str) -> str:
+    def _prepare_filter(self, expr: str, _table: str, _schema: str) -> str:
         """Prepares a GraphQL filter based on the expression passed into `get`."""
         stmts = expr.split('and')
         _filter = dict()
         for stmt in stmts:
             if '==' in stmt:
-                _filter.update(**self.__prepare_equals_filter(stmt))
+                _filter.update(**self.__prepare_equals_filter(stmt, _table, _schema))
         return "?filter=" + json.dumps(_filter)
 
-    @staticmethod
-    def __prepare_equals_filter(stmt: str) -> dict:
+    def __prepare_equals_filter(self, stmt: str, _table: str, _schema: str) -> dict:
         """Prepares the filter part if the statement filters on equality."""
-        col = stmt.split('==')[0].strip()
-        val = stmt.split('==')[1].strip()
+        _col = stmt.split('==')[0].strip()
+        _val = stmt.split('==')[1].strip()
 
-        return {col: {'equals': val}}
+        col_name = ''.join(_col.split('`'))
+
+        schema = self.get_schema_metadata(_schema)
+        col = schema.get_table(by='name', value=_table).get_column(by='name', value=col_name)
+        match col.get('columnType'):
+            case 'BOOL':
+                val = False
+                if str(_val).lower() == 'true':
+                    val = True
+            case 'REF':
+                val = {'id': _val}
+            case _:
+                val = _val
+
+        return {col.id: {'equals': [val]}}
 
     @staticmethod
     def _prep_data_or_file(file_path: str = None, data: list | pd.DataFrame = None) -> str | None:
         """Prepares the data from memory or loaded from disk for addition or deletion action.
 
         :param file_path: path to the file to be prepared
+        :type file_path: str
         :type file_path: str
         :param data: data to be prepared
         :type data: list

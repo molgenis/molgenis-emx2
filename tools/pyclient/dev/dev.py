@@ -35,6 +35,13 @@ async def main():
     # Load the login details into the environment
     load_dotenv()
     token = os.environ.get('MG_TOKEN')
+
+    async with Client('https://emx2.dev.molgenis.org/', schema='catalogue') as client:
+        data = client.get(table='Variable values',
+                          query_filter='`is missing` == False and resource == ATHLETE_CDM', as_df=True)
+
+        print(data.head())
+
     # Connect to the server and sign in
     async with Client('https://emx2.dev.molgenis.org/', token=token) as client:
         # Check sign in status
@@ -73,7 +80,7 @@ async def main():
         print(data)
 
         # Retrieving data from table Pet as a pandas DataFrame
-        data = client.get(table='Pet', query_filter="name == jerry and status == available", as_df=True)  # get Pets
+        data = client.get(table='Pet', as_df=True)  # get Pets
         print(data)
 
         # Retrieving filtered data from table Order as pandas DataFrame
