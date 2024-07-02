@@ -341,20 +341,21 @@ class Client:
     def _upload_csv(self, file_path: pathlib.Path, schema: str) -> str:
         """Uploads the CSV file from the filename to the schema. Returns the success or error message."""
         api_url = f"{self.url}/{schema}/api/csv"
+        data = self._prep_data_or_file(file_path=str(file_path))
 
-        with open(file_path, 'rb') as file:
-            response = self.session.post(
-                url=api_url,
-                data={'file': file},
-                headers={'x-molgenis-token': self.token}
-            )
-            if response.status_code == 200:
-                msg = response.text
-                log.info(f"{response.text}")
-            else:
-                msg = '\n'.join([err['message'] for err in response.json().get('errors')])
-                log.error(msg)
-                raise PyclientException(msg)
+        response = self.session.post(
+            url=api_url,
+            data=data,
+            headers={'x-molgenis-token': self.token,
+                     'Content-Type': 'text/csv'}
+        )
+        if response.status_code == 200:
+            msg = response.text
+            log.info(f"{response.text}")
+        else:
+            msg = '\n'.join([err['message'] for err in response.json().get('errors')])
+            log.error(msg)
+            raise PyclientException(msg)
         return msg
 
     def delete_records(self, table: str, schema: str = None, file: str = None, data: list | pd.DataFrame = None):
