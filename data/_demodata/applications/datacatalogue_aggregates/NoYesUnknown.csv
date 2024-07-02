@@ -1,0 +1,4 @@
+name,codesystem,code,ontologyTermURI,definition
+No,NCIT,C49487,http://purl.obolibrary.org/obo/NCIT_C49487,The non-affirmative response to a question.
+Unknown,NCIT,C17998,http://purl.obolibrary.org/obo/NCIT_C17998,"Not known, observed, recorded; or reported as unknown by the data contributor."
+Yes,NCIT,C49488,http://purl.obolibrary.org/obo/NCIT_C49488,The affirmative response to a question.
