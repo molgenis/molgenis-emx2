@@ -1,10 +1,16 @@
 resource,dataset,name,label,collection event.resource,collection event.name,since version,until version,is repeat of.dataset,is repeat of.name
+PELAGIE,harmonized,ADHD_INSTR_14,,,,1.0.0,,harmonized,adhd_instr_1
+PELAGIE,harmonized,aggr_eval_2,,,,1.0.0,,harmonized,aggr_eval_1
+PELAGIE,harmonized,AGGR_EVAL_2,,,,1.0.0,,harmonized,aggr_eval_1
+testNetwork1_CDM,cdm_1,testVarRepeats_3,,,,,,cdm_1,testVarRepeats_
+PELAGIE,harmonized,ADHD_EVAL_11,,,,1.0.0,,harmonized,adhd_eval_1
+PELAGIE,harmonized,adhd_instr_2,,,,1.0.0,,harmonized,adhd_instr_1
+PELAGIE,harmonized,ADHD_INSTR_2,,,,1.0.0,,harmonized,adhd_instr_1
+testNetwork1_CDM,cdm_1,testVarRepeats_6,,,,,,cdm_1,testVarRepeats_
 testNetwork1_CDM,cdm_1,testVarRepeats_1,,,,,,cdm_1,testVarRepeats_
 testNetwork1_CDM,cdm_1,testVarRepeats_2,,,,,,cdm_1,testVarRepeats_
-testNetwork1_CDM,cdm_1,testVarRepeats_3,,,,,,cdm_1,testVarRepeats_
 testNetwork1_CDM,cdm_1,testVarRepeats_4,,,,,,cdm_1,testVarRepeats_
 testNetwork1_CDM,cdm_1,testVarRepeats_5,,,,,,cdm_1,testVarRepeats_
-testNetwork1_CDM,cdm_1,testVarRepeats_6,,,,,,cdm_1,testVarRepeats_
 testNetwork1_CDM,cdm_1,testVarRepeats_7,,,,,,cdm_1,testVarRepeats_
 testNetwork1_CDM,cdm_1,testVarRepeats_8,,,,,,cdm_1,testVarRepeats_
 testNetwork1_CDM,cdm_1,testVarRepeats_9,,,,,,cdm_1,testVarRepeats_
@@ -124,7 +130,6 @@ LifeCycle_CDM,outcome,adhd_avg_7,,,,1.0.0,,outcome,adhd_avg_0
 LifeCycle_CDM,outcome,adhd_avg_8,,,,1.0.0,,outcome,adhd_avg_0
 LifeCycle_CDM,outcome,adhd_eval_1,,,,1.0.0,,outcome,adhd_eval_0
 LifeCycle_CDM,outcome,adhd_eval_11,,,,1.0.0,,outcome,adhd_eval_0
-PELAGIE,harmonized,ADHD_EVAL_11,,,,1.0.0,,harmonized,adhd_eval_1
 LifeCycle_CDM,outcome,adhd_eval_12,,,,1.0.0,,outcome,adhd_eval_0
 PELAGIE,harmonized,adhd_eval_12,,,,1.0.0,,harmonized,adhd_eval_1
 PELAGIE,harmonized,ADHD_EVAL_12,,,,1.0.0,,harmonized,adhd_eval_1
@@ -163,10 +168,7 @@ PELAGIE,harmonized,adhd_instr_13,,,,1.0.0,,harmonized,adhd_instr_1
 PELAGIE,harmonized,ADHD_INSTR_13,,,,1.0.0,,harmonized,adhd_instr_1
 LifeCycle_CDM,outcome,adhd_instr_14,,,,1.0.0,,outcome,adhd_instr_0
 PELAGIE,harmonized,adhd_instr_14,,,,1.0.0,,harmonized,adhd_instr_1
-PELAGIE,harmonized,ADHD_INSTR_14,,,,1.0.0,,harmonized,adhd_instr_1
 LifeCycle_CDM,outcome,adhd_instr_2,,,,1.0.0,,outcome,adhd_instr_0
-PELAGIE,harmonized,adhd_instr_2,,,,1.0.0,,harmonized,adhd_instr_1
-PELAGIE,harmonized,ADHD_INSTR_2,,,,1.0.0,,harmonized,adhd_instr_1
 LifeCycle_CDM,outcome,adhd_instr_3,,,,1.0.0,,outcome,adhd_instr_0
 PELAGIE,harmonized,adhd_instr_3,,,,1.0.0,,harmonized,adhd_instr_1
 PELAGIE,harmonized,ADHD_INSTR_3,,,,1.0.0,,harmonized,adhd_instr_1
@@ -205,7 +207,9 @@ LifeCycle_CDM,outcome,adhd_raw_1,,,,1.0.0,,outcome,adhd_raw_0
 LifeCycle_CDM,outcome,adhd_raw_11,,,,1.0.0,,outcome,adhd_raw_0
 LifeCycle_CDM,outcome,adhd_raw_12,,,,1.0.0,,outcome,adhd_raw_0
 LifeCycle_CDM,outcome,adhd_raw_13,,,,1.0.0,,outcome,adhd_raw_0
+PELAGIE,pelagie_q2,b45,,,,1.0.0,,pelagie_q2,b21
 LifeCycle_CDM,outcome,adhd_raw_14,,,,1.0.0,,outcome,adhd_raw_0
+PELAGIE,harmonized,AGGR_INSTR_7,,,,1.0.0,,harmonized,aggr_instr_1
 LifeCycle_CDM,outcome,adhd_raw_2,,,,1.0.0,,outcome,adhd_raw_0
 LifeCycle_CDM,outcome,adhd_raw_3,,,,1.0.0,,outcome,adhd_raw_0
 LifeCycle_CDM,outcome,adhd_raw_5,,,,1.0.0,,outcome,adhd_raw_0
@@ -244,8 +248,6 @@ ATHLETE_CDM,outcome_ath,aggr_eval_14,,,,,,outcome_ath,aggr_eval_0
 PELAGIE,harmonized,aggr_eval_14,,,,1.0.0,,harmonized,aggr_eval_1
 PELAGIE,harmonized,AGGR_EVAL_14,,,,1.0.0,,harmonized,aggr_eval_1
 ATHLETE_CDM,outcome_ath,aggr_eval_2,,,,,,outcome_ath,aggr_eval_0
-PELAGIE,harmonized,aggr_eval_2,,,,1.0.0,,harmonized,aggr_eval_1
-PELAGIE,harmonized,AGGR_EVAL_2,,,,1.0.0,,harmonized,aggr_eval_1
 ATHLETE_CDM,outcome_ath,aggr_eval_3,,,,,,outcome_ath,aggr_eval_0
 PELAGIE,harmonized,aggr_eval_3,,,,1.0.0,,harmonized,aggr_eval_1
 PELAGIE,harmonized,AGGR_EVAL_3,,,,1.0.0,,harmonized,aggr_eval_1
@@ -287,7 +289,6 @@ PELAGIE,harmonized,aggr_instr_6,,,,1.0.0,,harmonized,aggr_instr_1
 PELAGIE,harmonized,AGGR_INSTR_6,,,,1.0.0,,harmonized,aggr_instr_1
 ATHLETE_CDM,outcome_ath,aggr_instr_7,,,,,,outcome_ath,aggr_instr_0
 PELAGIE,harmonized,aggr_instr_7,,,,1.0.0,,harmonized,aggr_instr_1
-PELAGIE,harmonized,AGGR_INSTR_7,,,,1.0.0,,harmonized,aggr_instr_1
 ATHLETE_CDM,outcome_ath,aggr_instr_8,,,,,,outcome_ath,aggr_instr_0
 PELAGIE,harmonized,aggr_instr_8,,,,1.0.0,,harmonized,aggr_instr_1
 PELAGIE,harmonized,AGGR_INSTR_8,,,,1.0.0,,harmonized,aggr_instr_1
@@ -442,6 +443,7 @@ LifeCycle_CDM,outcome,bio_150,,,,1.0.0,,outcome,bio_0
 LifeCycle_CDM,outcome,bio_151,,,,1.0.0,,outcome,bio_0
 LifeCycle_CDM,outcome,bio_152,,,,1.0.0,,outcome,bio_0
 LifeCycle_CDM,outcome,bio_153,,,,1.0.0,,outcome,bio_0
+PELAGIE,harmonized,OCCUP_F1_7,,,,1.0.0,,harmonized,occup_f1_0
 LifeCycle_CDM,outcome,bio_154,,,,1.0.0,,outcome,bio_0
 LifeCycle_CDM,outcome,bio_155,,,,1.0.0,,outcome,bio_0
 LifeCycle_CDM,outcome,bio_156,,,,1.0.0,,outcome,bio_0
@@ -518,6 +520,7 @@ ATHLETE_CDM,chemicals_ath,c_detp_lod_6,,,,1.1.0,,chemicals_ath,c_detp_lod_0
 ATHLETE_CDM,chemicals_ath,c_detp_raw_6,,,,1.1.0,,chemicals_ath,c_detp_raw_0
 ATHLETE_CDM,chemicals_ath,c_dmdtp_lod_6,,,,1.1.0,,chemicals_ath,c_dmdtp_lod_0
 ATHLETE_CDM,chemicals_ath,c_dmdtp_raw_6,,,,1.1.0,,chemicals_ath,c_dmdtp_raw_0
+PELAGIE,pelagie_q2,B48,,,,1.0.0,,pelagie_q2,B24
 ATHLETE_CDM,chemicals_ath,c_dmp_lod_6,,,,1.1.0,,chemicals_ath,c_dmp_lod_0
 ATHLETE_CDM,chemicals_ath,c_dmp_raw_6,,,,1.1.0,,chemicals_ath,c_dmp_raw_0
 ATHLETE_CDM,chemicals_ath,c_dmtp_lod_6,,,,1.1.0,,chemicals_ath,c_dmtp_lod_0
@@ -1407,6 +1410,7 @@ LifeCycle_CDM,outcome,int_avg_3,,,,1.0.0,,outcome,int_avg_0
 LifeCycle_CDM,outcome,int_avg_5,,,,1.0.0,,outcome,int_avg_0
 LifeCycle_CDM,outcome,int_avg_6,,,,1.0.0,,outcome,int_avg_0
 LifeCycle_CDM,outcome,int_avg_7,,,,1.0.0,,outcome,int_avg_0
+PELAGIE,pelagie_q2,b46,,,,1.0.0,,pelagie_q2,b22
 LifeCycle_CDM,outcome,int_avg_8,,,,1.0.0,,outcome,int_avg_0
 LifeCycle_CDM,outcome,int_eval_1,,,,1.0.0,,outcome,int_eval_0
 LifeCycle_CDM,outcome,int_eval_11,,,,1.0.0,,outcome,int_eval_0
@@ -1637,7 +1641,6 @@ PELAGIE,harmonized,occup_f1_6,,,,1.0.0,,harmonized,occup_f1_0
 PELAGIE,harmonized,OCCUP_F1_6,,,,1.0.0,,harmonized,occup_f1_0
 LifeCycle_CDM,core,occup_f1_7,,,,1.0.0,,core,occup_f1_0
 PELAGIE,harmonized,occup_f1_7,,,,1.0.0,,harmonized,occup_f1_0
-PELAGIE,harmonized,OCCUP_F1_7,,,,1.0.0,,harmonized,occup_f1_0
 LifeCycle_CDM,core,occup_f1_8,,,,1.0.0,,core,occup_f1_0
 PELAGIE,harmonized,OCCUP_F1_8,,,,1.0.0,,harmonized,occup_f1_0
 LifeCycle_CDM,core,occup_f1_fath12,,,,1.0.0,,core,occup_f1_fath0
@@ -2402,6 +2405,7 @@ Sepages,Ultrasound_all_SLC_20220428_893,biometrie_bip_T3_2,,Sepages,T3,1.0.0,,Ul
 Sepages,Ultrasound_all_SLC_20220428_893,biometrie_bip_T3_3,,Sepages,T3,1.0.0,,Ultrasound_all_SLC_20220428_893,biometrie_bip_T1_1
 Sepages,Ultrasound_all_SLC_20220428_893,biometrie_bip_T3_4,,Sepages,T3,1.0.0,,Ultrasound_all_SLC_20220428_893,biometrie_bip_T1_1
 Sepages,Ultrasound_all_SLC_20220428_893,biometrie_bip_T3_5,,Sepages,T3,1.0.0,,Ultrasound_all_SLC_20220428_893,biometrie_bip_T1_1
+PELAGIE,pelagie_q2,B46,,,,1.0.0,,pelagie_q2,B22
 Sepages,Ultrasound_all_SLC_20220428_893,perimetre_cranien_T1_2,,Sepages,T2,1.0.0,,Ultrasound_all_SLC_20220428_893,perimetre_cranien_T1_1
 Sepages,Ultrasound_all_SLC_20220428_893,perimetre_cranien_T1_3,,Sepages,T2,1.0.0,,Ultrasound_all_SLC_20220428_893,perimetre_cranien_T1_1
 Sepages,Ultrasound_all_SLC_20220428_893,perimetre_cranien_T2_2,,Sepages,T2,1.0.0,,Ultrasound_all_SLC_20220428_893,perimetre_cranien_T1_1
@@ -2467,10 +2471,6 @@ PELAGIE,pelagie_q2,b51,,,,1.0.0,,pelagie_q2,b23
 PELAGIE,pelagie_q2,B49,,,,1.0.0,,pelagie_q2,B21
 PELAGIE,pelagie_q2,B50,,,,1.0.0,,pelagie_q2,B22
 PELAGIE,pelagie_q2,B51,,,,1.0.0,,pelagie_q2,B23
-PELAGIE,pelagie_q2,B48,,,,1.0.0,,pelagie_q2,B24
-PELAGIE,pelagie_q2,b46,,,,1.0.0,,pelagie_q2,b22
-PELAGIE,pelagie_q2,B46,,,,1.0.0,,pelagie_q2,B22
-PELAGIE,pelagie_q2,b45,,,,1.0.0,,pelagie_q2,b21
 PELAGIE,pelagie_q2,B33,,,,1.0.0,,pelagie_q2,B21
 PELAGIE,pelagie_q2,B30,,,,1.0.0,,pelagie_q2,B22
 PELAGIE,pelagie_q2,b30,,,,1.0.0,,pelagie_q2,b22

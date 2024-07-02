@@ -1,8 +1,8 @@
 resource,dataset,name,label,collection event.resource,collection event.name,since version,until version,format,unit,references.dataset,references.name,mandatory,description,order,example values,keywords,vocabularies,notes
 testCohort1,test dataset for testCohort1,var1,variable 1,,,,,continuous,pmol/L,,,,,,,,,
 testCohort1,test dataset for testCohort1,var2,variable 2,,,,,continuous,pmol/L,,,,,,,,,
-testNetwork1_CDM,cdm_1,testVarRepeats_,test variable with repeats,,,,,continuous,pmol/L,,,,,,,ADHD symptoms,,
 testNetwork1_CDM,cdm_1,testVarCategorical_,categorical test variable,,,,,categorical,,,,,,,,,,
+testNetwork1_CDM,cdm_1,testVarRepeats_,test variable with repeats,,,,,continuous,pmol/L,,,,,,,ADHD symptoms,,
 testCohort1,test dataset for testCohort1,var3,variable 3,,,,,continuous,pmol/L,,,,,,,,,
 testCohort1,test dataset for testCohort1,var4,variable 4,,,,,continuous,pmol/L,,,,,,,,,
 testCohort1,test dataset for testCohort1,var5,variable 5,,,,,continuous,pmol/L,,,,,,,,,
@@ -156,6 +156,7 @@ LifeCycle_CDM,core,blue_size_0,"area of closest blue space > 5,000m2 at birth",,
 LifeCycle_CDM,core,blue_size_preg,"area of closest blue space > 5,000m2 at pregnancy",,,1.0.0,,continuous,square_meter,,,,using URBANATLAS except for INMA GUIPUZCOA (EUNIS) and MOBA (local layer),,,blue_size,,
 LifeCycle_CDM,core,blue_size_t1,"area of closest blue space > 5,000m2 at first trimester",,,1.0.0,,continuous,square_meter,,,,using URBANATLAS except for INMA GUIPUZCOA (EUNIS) and MOBA (local layer),,,blue_size,,
 LifeCycle_CDM,core,blueyn300_0,"is there a blue space  > 5,000 m2 in a distance of 300 m? at birth",,,1.0.0,,binary,,,,,using URBANATLAS except for INMA GUIPUZCOA (EUNIS) and MOBA (local layer),,,blue_access,,
+LifeCycle_CDM,core,ln_1,night level at birth,,,1.0.0,,continuous,A_weighted_decibel,,,,"using european road traffic noise maps, which were generated under EC Directive 2002/49/EC (Assessment and Management of Environmental Noise) in the framework of the European Noise Directive (END)",,,ln,,
 LifeCycle_CDM,core,blueyn300_preg,"is there a blue space  > 5,000 m2 in a distance of 300 m? at pregnancy",,,1.0.0,,binary,,,,,using URBANATLAS except for INMA GUIPUZCOA (EUNIS) and MOBA (local layer),,,blue_access,,
 LifeCycle_CDM,core,blueyn300_t1,"is there a blue space  > 5,000 m2 in a distance of 300 m? at first trimester",,,1.0.0,,binary,,,,,using URBANATLAS except for INMA GUIPUZCOA (EUNIS) and MOBA (local layer),,,blue_access,,
 LifeCycle_CDM,core,bn_m_0,Maternal bulimia nervosa active active from ≥0 to 1 year.,,,1.0.0,,binary,,,,,"Maternal bulimia nervosa active active from ≥0 to 1 year: self-reported or registry-based. If both sources of information are available, consider registry-based BN.
@@ -423,6 +424,7 @@ LifeCycle_CDM,core,indtr_preg,"percentage of indtr (industrial, commercial, publ
 LifeCycle_CDM,core,indtr_t1,"percentage of indtr (industrial, commercial, public, military and private units) land use within a buffer of 300 m at first trimester",,,1.0.0,,continuous,percent,,,,using URBANATLAS except for INMA GUIPUZCOA (EUNIS) and MOBA (local layer),,,main_land_use_industrial,,
 LifeCycle_CDM,core,inh_all_sens_IgE_0,"Inhalant allergic sensitization, measured by specific IgE within one year of birth (child aged between >-1 year and <1 year)",,,1.0.0,,continuous,kua_l,,,,"Were data are available, allergic sensitization should be measured by specific IgE. If this is not the case, and only total IgE is measured, the variable is partially harmonized",,,Any inhalant allergic sensitization (IgE),,
 NFBC1966,core,age_fdg30,age_fdg30,,,1.0.0,,continuous,year,,,,Age of the child when father got the diagnosis of mental disorder,,,,,
+LifeCycle_CDM,core,ln_c_t1,categorized night level at first trimester,,,1.0.0,,categorical,,,,,"using european road traffic noise maps, which were generated under EC Directive 2002/49/EC (Assessment and Management of Environmental Noise) in the framework of the European Noise Directive (END)",,,ln_categorical,,
 LifeCycle_CDM,core,inh_all_sens_SPT_0,"Inhalant allergic sensitization, measured by skin prick test within one year of birth (child aged between >-1 year and <1 year)",,,1.0.0,,binary,,,,,,,,Any inhalant allergic sensitization  (Skin prick test),,
 LifeCycle_CDM,core,inhalant_all_sens_SPT_0,"Inhalant allergic sensitization, measured by skin prick test within one year of birth (child aged between >-1 year and <1 year)",,,1.0.0,,binary,,,,,,,,Any inhalant allergic sensitization  (Skin prick test),,
 LifeCycle_CDM,core,ivf,In vitro-fertilisation,,,1.0.0,,binary,,,,,Did the mother become pregnant using IVF or ICSI,,,Fertility treatment,,
@@ -450,8 +452,6 @@ LifeCycle_CDM,core,ldres_t1,percentage of ldres (discontinuous dense/medium dens
 LifeCycle_CDM,core,lfdairy_pgn,Low fat dairy during pregnancy,,,1.0.0,,continuous,servings_per_day,,,,Based on Eurocode 2 Food Coding System,,,Food groups (M),,
 LifeCycle_CDM,core,lfdairy_psc,Low fat dairy in preschool age (2-4 years),,,1.0.0,,continuous,percent_total_food,,,,,,,Food groups (Preschool),,
 LifeCycle_CDM,core,lfdairy_sch,Low fat dairy in school-age children (5-8 years),,,1.0.0,,continuous,servings_per_day,,,,,,,Food groups (School),,
-LifeCycle_CDM,core,ln_1,night level at birth,,,1.0.0,,continuous,A_weighted_decibel,,,,"using european road traffic noise maps, which were generated under EC Directive 2002/49/EC (Assessment and Management of Environmental Noise) in the framework of the European Noise Directive (END)",,,ln,,
-LifeCycle_CDM,core,ln_c_t1,categorized night level at first trimester,,,1.0.0,,categorical,,,,,"using european road traffic noise maps, which were generated under EC Directive 2002/49/EC (Assessment and Management of Environmental Noise) in the framework of the European Noise Directive (END)",,,ln_categorical,,
 LifeCycle_CDM,core,outdoorp_psc,"Child’s outdoor play duration in h /day, at preschool age",,,1.0.0,,continuous,hours_per_day,,,,,,,Preschool outdoor play,,
 LifeCycle_CDM,core,ln_preg,night level at pregnancy,,,1.0.0,,continuous,A_weighted_decibel,,,,"using european road traffic noise maps, which were generated under EC Directive 2002/49/EC (Assessment and Management of Environmental Noise) in the framework of the European Noise Directive (END)",,,ln,,
 LifeCycle_CDM,core,ln_t1,night level at first trimester,,,1.0.0,,continuous,A_weighted_decibel,,,,"using european road traffic noise maps, which were generated under EC Directive 2002/49/EC (Assessment and Management of Environmental Noise) in the framework of the European Noise Directive (END)",,,ln,,
@@ -861,6 +861,7 @@ LifeCycle_CDM,core,trafnear_preg,traffic density on nearest road at pregnancy,,,
 LifeCycle_CDM,core,trafnear_t1,traffic density on nearest road at first trimester,,,1.0.0,,continuous,vehicles_per_day,,,,using different local data for each cohort,,,traffic_density,,
 LifeCycle_CDM,core,trans_0,"percentage of trans (road and rail network and associated land, fast transit roads and associated land, other roads and associated land, railways and associated land) land use within a buffer of 300 m at birth",,,1.0.0,,continuous,percent,,,,using URBANATLAS except for INMA GUIPUZCOA (EUNIS) and MOBA (local layer),,,main_land_use_transports,,
 LifeCycle_CDM,core,trans_preg,"percentage of trans (road and rail network and associated land, fast transit roads and associated land, other roads and associated land, railways and associated land) land use within a buffer of 300 m at pregnancy",,,1.0.0,,continuous,percent,,,,using URBANATLAS except for INMA GUIPUZCOA (EUNIS) and MOBA (local layer),,,main_land_use_port,,
+NFBC1966,core,age_fdg26,age_fdg26,,,1.0.0,,continuous,year,,,,Age of the child when father got the diagnosis of mental disorder,,,,,
 LifeCycle_CDM,core,trans_t1,"percentage of trans (road and rail network and associated land, fast transit roads and associated land, other roads and associated land, railways and associated land) land use within a buffer of 300 m at first trimester",,,1.0.0,,continuous,percent,,,,using URBANATLAS except for INMA GUIPUZCOA (EUNIS) and MOBA (local layer),,,main_land_use_transports,,
 LifeCycle_CDM,core,transfat_pgn,Trans Fats intake during pregnancy,,,1.0.0,,continuous,percent_total_food,,,,,,,Nutrients (M),,
 LifeCycle_CDM,core,transfat_psc,Trans Fats intake in preschool age (2-4 years),,,1.0.0,,continuous,percent_total_food,,,,,,,Nutrients (Preschool),,
@@ -886,6 +887,7 @@ LifeCycle_CDM,core,uvdvc_preg,average of vitamin-d UV dose during pregnancy,,,1.
 LifeCycle_CDM,core,uvdvc_t1,average of vitamin-d UV dose during first trimester,,,1.0.0,,continuous,kilojoules_per_square_meter,,,,"using TEMIS (http://www.temis.nl/index.php), a web-based service to browse and download atmospheric satellite data products (version 2.0 except for MOBA that version 1.0 is used)",,,vitamin_d_UV_dose,,
 LifeCycle_CDM,core,veg_pgn,Vegetables without potatoes  during pregnancy,,,1.0.0,,continuous,servings_per_day,,,,Based on Eurocode 2 Food Coding System,,,Food groups (M),,
 LifeCycle_CDM,core,veg_psc,Vegetables without potatoes in preschool age (2-4 years),,,1.0.0,,continuous,servings_per_day,,,,,,,Food groups (Preschool),,
+LongITools_CDM,wave_01,smk_ever,"Smoking, ever",,,1.0.0,,categorical,,,,,Has the study participant ever smoked regularly? Provide repeated measures in long format with corresponding age in years.,,,,,
 LifeCycle_CDM,core,veg_sch,Vegetables without potatoes in school-age children (5-8 years),,,1.0.0,,continuous,servings_per_day,,,,,,,Food groups (School),,
 LifeCycle_CDM,core,vldres_0,percentage of vldres (discontinuous very low density urban fabric) land use within a buffer of 300 m at birth,,,1.0.0,,continuous,percent,,,,using URBANATLAS except for INMA GUIPUZCOA (EUNIS) and MOBA (local layer),,,main_land_use_low_density,,
 LifeCycle_CDM,core,vldres_preg,percentage of vldres (discontinuous very low density urban fabric) land use within a buffer of 300 m at pregnancy,,,1.0.0,,continuous,percent,,,,using URBANATLAS except for INMA GUIPUZCOA (EUNIS) and MOBA (local layer),,,main_land_use_green_urban,,
@@ -1025,6 +1027,7 @@ LifeCycle_CDM,outcome,asthma_med_spec_0,"use of asthma medication, type specifie
 LifeCycle_CDM,outcome,bicepsf_0,Child's bicep skinfold (0 and <1 month),,,1.0.0,,continuous,mm,,,,,,,Bicep skinfold,,
 LifeCycle_CDM,outcome,bicepsfage_0,Age at bicep skinfold measurement (0 and <1 month),,,1.0.0,,continuous,day,,,,,,,Bicep skinfold,,
 LifeCycle_CDM,outcome,glucose_cord,Glucose measured in cord blood,,,1.0.0,,continuous,mmol/litre,,,,,,,,,
+LongITools_CDM,wave_01,study_country,Country of study,,,1.0.0,,categorical,,,,,Country of the study,,,,,
 LifeCycle_CDM,outcome,bicepsfmes_0,Measured vs. reported child bicep skinfold (0 and <1 month),,,1.0.0,,binary,,,,,,,,Bicep skinfold,,
 LifeCycle_CDM,outcome,bio_0,Child's body fat % from bioimpedance (0 and <1 month),,,1.0.0,,continuous,%,,,,,,,Body Composition,,
 LifeCycle_CDM,outcome,bioage_0,Age at bioimpedance measurement (0 and <1 month),,,1.0.0,,continuous,day,,,,,,,Body Composition,,
@@ -1078,6 +1081,7 @@ LifeCycle_CDM,outcome,fm_age_0,exact age of the child (in years) when fine motor
 (date of test assessment - date of birth)/365.2422",,,Fine motor,,
 LifeCycle_CDM,outcome,fm_avg_0,average of available items comprising the total raw score of  fm_raw_0,,,1.0.0,,continuous,,,,,,,,Fine motor,,
 LifeCycle_CDM,outcome,fm_eval_0,who the test for measuring fine motor was administered/answered by for fm_raw_0,,,1.0.0,,categorical,,,,,“computerized” (value label 4) only applies if the child perform the test with automatic results. Any computerized rating scale or questionnaire does not apply.,,,Fine motor,,
+LongITools_CDM,wave_01,study_id,Study id,,,1.0.0,,categorical,,,,,Unique identifier number for the study,,,,,
 LifeCycle_CDM,outcome,fm_instr_0,Cohort-specific instrument used to measure the fine motor for fm_raw_0,,,1.0.0,,categorical,,,,,,,,Fine motor,,
 LifeCycle_CDM,outcome,fm_pc_0,"fine motor, percentiles of fm_pro_0",,,1.0.0,,continuous,,,,,,,,Fine motor,,
 LifeCycle_CDM,outcome,fm_pro_0,total fine motor score after prorating fm_raw_0,,,1.0.0,,continuous,,,,,"If fine motor is measured using “computerized” test, create prorated scores equals to raw scores: fm_pro_0=fm_raw_0",,,Fine motor,,
@@ -1098,6 +1102,7 @@ LifeCycle_CDM,outcome,food_all_sens_SPT_FRUIT_pea_0,"Food allergic sensitization
 LifeCycle_CDM,outcome,food_all_sens_SPT_NUT_cas_0,"Food allergic sensitization to cashew nut, measured by skin prick test within one year of birth (child aged between >-1 year and <1 year)",,,1.0.0,,binary,,,,,,,,Nut,,
 LifeCycle_CDM,outcome,food_all_sens_SPT_NUT_haz_0,"Food allergic sensitization to hazelnut, measured by skin prick test within one year of birth (child aged between >-1 year and <1 year)",,,1.0.0,,binary,,,,,,,,Nut,,
 LifeCycle_CDM,outcome,food_all_sens_SPT_NUT_mix_0,"Food allergic sensitization to nut mix, measured by skin prick test within one year of birth (child aged between >-1 year and <1 year)",,,1.0.0,,binary,,,,,Please specify in online catalogue which nuts were included in the mix,,,Nut,,
+NFBC1966,core,age_fdg24,age_fdg24,,,1.0.0,,continuous,year,,,,Age of the child when father got the diagnosis of mental disorder,,,,,
 LifeCycle_CDM,outcome,food_all_sens_SPT_NUT_wal_0,"Food allergic sensitization to walnut, measured by skin prick test within one year of birth (child aged between >-1 year and <1 year)",,,1.0.0,,binary,,,,,,,,Nut,,
 LifeCycle_CDM,outcome,food_all_sens_SPT_PNT_0,"Food allergic sensitization to peanut, measured by skin prick test within one year of birth (child aged between >-1 year and <1 year)",,,1.0.0,,binary,,,,,,,,Peanut,,
 LifeCycle_CDM,outcome,food_all_sens_SPT_SES_0,"Food allergic sensitization to sesame, measured by skin prick test within one year of birth (child aged between >-1 year and <1 year)",,,1.0.0,,binary,,,,,,,,Sesame,,
@@ -1361,9 +1366,7 @@ LongITools_CDM,wave_01,sleep_duration,Sleep duration,,,1.0.0,,continuous,hours/d
 LongITools_CDM,wave_01,smk_cess,Smoking cessation,,,1.0.0,,continuous,year,,,,Age in years when the study participant stopped smoking. Provide repeated measures in long format with corresponding age in years.,,,,,
 LongITools_CDM,wave_01,smk_cig,"Smoking, number of cigarrettes",,,1.0.0,,categorical,,,,,Average number of cigarettes smoked per day. Provide repeated measures in long format with corresponding age in years.,,,,,
 LongITools_CDM,wave_01,smk_curr,Current smoking status,,,1.0.0,,categorical,,,,,Current smoking status. Provide repeated measures in long format with corresponding age in years.,,,,,
-LongITools_CDM,wave_01,smk_ever,"Smoking, ever",,,1.0.0,,categorical,,,,,Has the study participant ever smoked regularly? Provide repeated measures in long format with corresponding age in years.,,,,,
-LongITools_CDM,wave_01,study_country,Country of study,,,1.0.0,,categorical,,,,,Country of the study,,,,,
-LongITools_CDM,wave_01,study_id,Study id,,,1.0.0,,categorical,,,,,Unique identifier number for the study,,,,,
+NFBC1966,core,age_fdg25,age_fdg25,,,1.0.0,,continuous,year,,,,Age of the child when father got the diagnosis of mental disorder,,,,,
 ATHLETE_CDM,outcome_ath,homa_ir_idefics_perc_0,Repeated HOMA-IR percentiles based on the IDEFICS study reference values,,,,,continuous,,,,,,,,,,
 LongITools_CDM,wave_01,tanner_breast,Tanner stages of breast development,,,1.0.0,,categorical,,,,,Tanner stages (I-V) of breast development (females only). Provide repeated measures in long format. Age represents the age of the study participant in years at the time of the measurement.,,,,,
 NFBC1966,core,C6600Q_F12v050,C6600Q_F12v050,,,1.0.0,,categorical,,,,,The mother considers this pregnancy (Desirability of pregnancy),,,,,
@@ -1436,9 +1439,6 @@ NFBC1966,core,age_fdg20,age_fdg20,,,1.0.0,,continuous,year,,,,Age of the child w
 NFBC1966,core,age_fdg21,age_fdg21,,,1.0.0,,continuous,year,,,,Age of the child when father got the diagnosis of mental disorder,,,,,
 NFBC1966,core,age_fdg22,age_fdg22,,,1.0.0,,continuous,year,,,,Age of the child when father got the diagnosis of mental disorder,,,,,
 NFBC1966,core,age_fdg23,age_fdg23,,,1.0.0,,continuous,year,,,,Age of the child when father got the diagnosis of mental disorder,,,,,
-NFBC1966,core,age_fdg24,age_fdg24,,,1.0.0,,continuous,year,,,,Age of the child when father got the diagnosis of mental disorder,,,,,
-NFBC1966,core,age_fdg25,age_fdg25,,,1.0.0,,continuous,year,,,,Age of the child when father got the diagnosis of mental disorder,,,,,
-NFBC1966,core,age_fdg26,age_fdg26,,,1.0.0,,continuous,year,,,,Age of the child when father got the diagnosis of mental disorder,,,,,
 NFBC1966,core,age_fdg27,age_fdg27,,,1.0.0,,continuous,year,,,,Age of the child when father got the diagnosis of mental disorder,,,,,
 NFBC1966,core,age_fdg28,age_fdg28,,,1.0.0,,continuous,year,,,,Age of the child when father got the diagnosis of mental disorder,,,,,
 NFBC1966,core,age_fdg32,age_fdg32,,,1.0.0,,continuous,year,,,,Age of the child when father got the diagnosis of mental disorder,,,,,
@@ -1534,6 +1534,7 @@ NFBC1966,wave_01,C6646Q2_5_00_7,Occupational status in 2000 (asked in 46yr quest
 NFBC1966,wave_01,C6646Q2_5_01_1,Occupational status in 2001 (asked in 46yr questionnaire): Student,NFBC1966,46yr,1.0.0,,categorical,,,,,Occupational status in 2001 (asked in 46yr questionnaire): Student,,"1,NA",,,
 NFBC1966,wave_01,C6646Q2_5_01_2,Occupational status in 2001 (asked in 46yr questionnaire): Full-time job,NFBC1966,46yr,1.0.0,,categorical,,,,,Occupational status in 2001 (asked in 46yr questionnaire): Full-time job,,"2,NA",,,
 NFBC1966,wave_01,C6646Q2_5_01_3,Occupational status in 2001 (asked in 46yr questionnaire): Part-time job,NFBC1966,46yr,1.0.0,,categorical,,,,,Occupational status in 2001 (asked in 46yr questionnaire): Part-time job,,"3,NA",,,
+PELAGIE,harmonized,ASTHMA_MED_7,,,,1.0.0,,categorical,,,,,,,,,,
 NFBC1966,wave_01,C6646Q2_5_01_4,Occupational status in 2001 (asked in 46yr questionnaire): Self-employed,NFBC1966,46yr,1.0.0,,categorical,,,,,Occupational status in 2001 (asked in 46yr questionnaire): Self-employed,,"4,NA",,,
 NFBC1966,wave_01,C6646Q2_5_01_5,Occupational status in 2001 (asked in 46yr questionnaire): Unemployed,NFBC1966,46yr,1.0.0,,categorical,,,,,Occupational status in 2001 (asked in 46yr questionnaire): Unemployed,,"5,NA",,,
 NFBC1966,wave_01,C6646Q2_5_01_6,"Occupational status in 2001 (asked in 46yr questionnaire): Maternity/parental leave, child care leave",NFBC1966,46yr,1.0.0,,categorical,,,,,"Occupational status in 2001 (asked in 46yr questionnaire): Maternity/parental leave, child care leave",,"6,NA",,,
@@ -1605,6 +1606,7 @@ NFBC1966,wave_01,C6646Q2_5_09_3,Occupational status in 2009 (asked in 46yr quest
 NFBC1966,wave_01,C6646Q2_5_09_4,Occupational status in 2009 (asked in 46yr questionnaire): Self-employed,NFBC1966,46yr,1.0.0,,categorical,,,,,Occupational status in 2009 (asked in 46yr questionnaire): Self-employed,,"4,NA",,,
 NFBC1966,wave_01,C6646Q2_5_09_5,Occupational status in 2009 (asked in 46yr questionnaire): Unemployed,NFBC1966,46yr,1.0.0,,categorical,,,,,Occupational status in 2009 (asked in 46yr questionnaire): Unemployed,,"5,NA",,,
 NFBC1966,wave_01,C6646Q2_5_09_6,"Occupational status in 2009 (asked in 46yr questionnaire): Maternity/parental leave, child care leave",NFBC1966,46yr,1.0.0,,categorical,,,,,"Occupational status in 2009 (asked in 46yr questionnaire): Maternity/parental leave, child care leave",,"6,NA",,,
+PELAGIE,BDD_OP,CREATININE_TOT,Creatinine concentration in maternal urine during pregnancy,,,1.0.0,,integer,mg/litre,,,,,,,,,
 NFBC1966,wave_01,C6646Q2_5_09_7,Occupational status in 2009 (asked in 46yr questionnaire): Job alternation leave or other,NFBC1966,46yr,1.0.0,,categorical,,,,,Occupational status in 2009 (asked in 46yr questionnaire): Job alternation leave or other,,"7,NA",,,
 NFBC1966,wave_01,C6646Q2_5_10_1,Occupational status in 2010 (asked in 46yr questionnaire): Student,NFBC1966,46yr,1.0.0,,categorical,,,,,Occupational status in 2010 (asked in 46yr questionnaire): Student,,"1,NA",,,
 NFBC1966,wave_01,C6646Q2_5_10_2,Occupational status in 2010 (asked in 46yr questionnaire): Full-time job,NFBC1966,46yr,1.0.0,,categorical,,,,,Occupational status in 2010 (asked in 46yr questionnaire): Full-time job,,"2,NA",,,
@@ -1665,6 +1667,7 @@ NFBC1966,wave_01,C6646Q2_5_84_6,"Occupational status in 1984 (asked in 46yr ques
 NFBC1966,wave_01,C6646Q2_5_84_7,Occupational status in 1984 (asked in 46yr questionnaire): Job alternation leave or other,NFBC1966,46yr,1.0.0,,categorical,,,,,Occupational status in 1984 (asked in 46yr questionnaire): Job alternation leave or other,,"7,NA",,,
 NFBC1966,wave_01,C6646Q2_5_85_1,Occupational status in 1985 (asked in 46yr questionnaire): Student,NFBC1966,46yr,1.0.0,,categorical,,,,,Occupational status in 1985 (asked in 46yr questionnaire): Student,,"1,NA",,,
 NFBC1966,wave_01,C6646Q2_5_85_2,Occupational status in 1985 (asked in 46yr questionnaire): Full-time job,NFBC1966,46yr,1.0.0,,categorical,,,,,Occupational status in 1985 (asked in 46yr questionnaire): Full-time job,,"2,NA",,,
+PELAGIE,harmonized,ATT_COM_STD_6,,,,1.0.0,,integer,,,,,,,,,,
 NFBC1966,wave_01,C6646Q2_5_85_3,Occupational status in 1985 (asked in 46yr questionnaire): Part-time job,NFBC1966,46yr,1.0.0,,categorical,,,,,Occupational status in 1985 (asked in 46yr questionnaire): Part-time job,,"3,NA",,,
 NFBC1966,wave_01,C6646Q2_5_85_4,Occupational status in 1985 (asked in 46yr questionnaire): Self-employed,NFBC1966,46yr,1.0.0,,categorical,,,,,Occupational status in 1985 (asked in 46yr questionnaire): Self-employed,,"4,NA",,,
 NFBC1966,wave_01,C6646Q2_5_85_5,Occupational status in 1985 (asked in 46yr questionnaire): Unemployed,NFBC1966,46yr,1.0.0,,categorical,,,,,Occupational status in 1985 (asked in 46yr questionnaire): Unemployed,,"5,NA",,,
@@ -1687,6 +1690,7 @@ NFBC1966,wave_01,C6646Q2_5_87_2,Occupational status in 1987 (asked in 46yr quest
 NFBC1966,wave_01,C6646Q2_5_87_3,Occupational status in 1987 (asked in 46yr questionnaire): Part-time job,NFBC1966,46yr,1.0.0,,categorical,,,,,Occupational status in 1987 (asked in 46yr questionnaire): Part-time job,,"3,NA",,,
 NFBC1966,wave_01,C6646Q2_5_87_4,Occupational status in 1987 (asked in 46yr questionnaire): Self-employed,NFBC1966,46yr,1.0.0,,categorical,,,,,Occupational status in 1987 (asked in 46yr questionnaire): Self-employed,,"4,NA",,,
 NFBC1966,wave_01,C6646Q2_5_87_5,Occupational status in 1987 (asked in 46yr questionnaire): Unemployed,NFBC1966,46yr,1.0.0,,categorical,,,,,Occupational status in 1987 (asked in 46yr questionnaire): Unemployed,,"5,NA",,,
+PELAGIE,BDD_OP,DEDTP,Diethyldithiophosphate concentration in maternal urine during pregnancy,,,1.0.0,,integer,µg/L,,,,,,,,,
 NFBC1966,wave_01,C6646Q2_5_87_6,"Occupational status in 1987 (asked in 46yr questionnaire): Maternity/parental leave, child care leave",NFBC1966,46yr,1.0.0,,categorical,,,,,"Occupational status in 1987 (asked in 46yr questionnaire): Maternity/parental leave, child care leave",,"6,NA",,,
 NFBC1966,wave_01,C6646Q2_5_87_7,Occupational status in 1987 (asked in 46yr questionnaire): Job alternation leave or other,NFBC1966,46yr,1.0.0,,categorical,,,,,Occupational status in 1987 (asked in 46yr questionnaire): Job alternation leave or other,,"7,NA",,,
 NFBC1966,wave_01,C6646Q2_5_88_1,Occupational status in 1988 (asked in 46yr questionnaire): Student,NFBC1966,46yr,1.0.0,,categorical,,,,,Occupational status in 1988 (asked in 46yr questionnaire): Student,,"1,NA",,,
@@ -1814,8 +1818,6 @@ PELAGIE,BDD_OP,CHILDDETP,Diethyl thiophosphate concentration in the urine of chi
 PELAGIE,BDD_OP,CHILDDMDTP,Dimethylphosphorodithidate concentration in the urine of children at 6 years,,,1.0.0,,integer,µg/L,,,,,,,,,
 PELAGIE,BDD_OP,CHILDDMP,Dimethylphosphate concentration in the urine of children at 6 years,,,1.0.0,,integer,µg/L,,,,,,,,,
 PELAGIE,BDD_OP,CHLORPYRIFOS,chlorpyrifos concentration in maternal urine during pregnancy,,,1.0.0,,integer,µg/L,,,,,,,,,
-PELAGIE,BDD_OP,CREATININE_TOT,Creatinine concentration in maternal urine during pregnancy,,,1.0.0,,integer,mg/litre,,,,,,,,,
-PELAGIE,BDD_OP,DEDTP,Diethyldithiophosphate concentration in maternal urine during pregnancy,,,1.0.0,,integer,µg/L,,,,,,,,,
 PELAGIE,BDD_OP,DEP,Diethylphosphate concentration in maternal urine during pregnancy,,,1.0.0,,integer,µg/L,,,,,,,,,
 PELAGIE,BDD_ethers,PHAA_ENFANT,PHAA Concentration in the urine of children at 6 years,,,1.0.0,,integer,µg/L,,,,,,,,,
 PELAGIE,BDD_ethers,SGURINEF,Gestational age at th etime of urine collection,,,1.0.0,,integer,week,,,,,,,,,
@@ -1865,6 +1867,7 @@ PELAGIE,BDD_pop,DOSAGE_POP_MERE,To which series does dosage belong,,,1.0.0,,cate
 PELAGIE,BDD_pop,HEXACHLOROBENZENE,Hexachlorobenzene concentration in cord blood,,,1.0.0,,integer,µg/L,,,,,,,,,
 PELAGIE,BDD_pop,PBDE153,Polybrominated diphenyl ether-153  concentration in cord blood,,,1.0.0,,integer,µg/L,,,,,,,,,
 PELAGIE,BDD_pop,PCB118,Polychlorinated Biphenyl-118 concentration in cord blood,,,1.0.0,,integer,µg/L,,,,,,,,,
+PELAGIE,harmonized,ASTHMA_MED_6,,,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,BDD_pop,PCB138,Polychlorinated Biphenyl-138concentration in cord blood,,,1.0.0,,integer,µg/L,,,,,,,,,
 PELAGIE,BDD_pop,PCB153,Polychlorinated Biphenyl-153 concentration in cord blood,,,1.0.0,,integer,µg/L,,,,,,,,,
 PELAGIE,BDD_pop,PCB170,Polychlorinated Biphenyl-170 concentration in cord blood,,,1.0.0,,integer,µg/L,,,,,,,,,
@@ -1898,9 +1901,6 @@ PELAGIE,harmonized,ASD_EVAL_11,,,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,harmonized,ASD_EVAL_12,,,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,harmonized,ASD_INSTR_11,,,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,harmonized,ASD_INSTR_12,,,,1.0.0,,categorical,,,,,,,,,,
-PELAGIE,harmonized,ASTHMA_MED_6,,,,1.0.0,,categorical,,,,,,,,,,
-PELAGIE,harmonized,ASTHMA_MED_7,,,,1.0.0,,categorical,,,,,,,,,,
-PELAGIE,harmonized,ATT_COM_STD_6,,,,1.0.0,,integer,,,,,,,,,,
 PELAGIE,harmonized,ATT_EVAL_5,,,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,harmonized,ATT_EVAL_6,,,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,harmonized,ATT_INSTR_5,,,,1.0.0,,categorical,,,,,,,,,,
@@ -2276,6 +2276,7 @@ PELAGIE,pelagie_dosage12,Q12_TRIGLYCERIDES,triglycerides levels measured in bloo
 PELAGIE,pelagie_dosage12,Q12_Triglycerides,triglycerides levels measured in blood at the 12-years old visit,,,1.0.0,,integer,mmol/l,,,,,,,,,
 PELAGIE,pelagie_q0,m22,Nombre d'enfants nés,PELAGIE,,1.0.0,,integer,,,,,,,,,,
 PELAGIE,pelagie_exam12,AGE_EXAM,Age in year of the child at the 12-year-old examination,,,1.0.0,,integer,year,,,,,,,,,
+ATHLETE_CDM,outcome_ath,att_hrtse_std_0,,,,,,decimal,milliseconds,,,,"Attentional function, standardized score of standard error of hit reaction time (i.e., att_hrtse_raw_0, att_hrtse_raw_1, etc.)",,,Cognitive functioning,,
 PELAGIE,pelagie_exam12,AGE_EXAM_JOUR,Age in day of the child at the 12-year-old examination,,,1.0.0,,integer,day,,,,,,,,,
 PELAGIE,pelagie_exam12,AGE_EXAM_MOIS,Age in month of the child at the 12-year-old examination,,,1.0.0,,integer,month,,,,,,,,,
 PELAGIE,pelagie_exam12,DATE,date of the clinical exam at 12 years old,,,1.0.0,,date,,,,,,,,,,
@@ -2385,6 +2386,7 @@ PELAGIE,pelagie_q0,V121,"Avant d'être enceinte, à quelle fréquence mangiez-vo
 PELAGIE,pelagie_q0,V122,"Avant d'être enceinte, à quelle fréquence mangiez-vous habituellement : Fruits et pur jus de fruits",,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q0,V123,"Avant d'être enceinte, à quelle fréquence mangiez-vous habituellement : Légumes cuits et soupes de légumes",,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q0,V124,"Avant d'être enceinte, à quelle fréquence mangiez-vous habituellement : Crudités etsalades",,,1.0.0,,categorical,,,,,,,,,,
+ATHLETE_CDM,outcome_ath,att_instr_0,,,,,,categorical,,,,,"Cohort-specific instrument used to measure the attentional function for att_raw_0, att_raw_1, etc.",,,Cognitive functioning,,
 PELAGIE,pelagie_q0,V125,"Avant d'être enceinte, à quelle fréquence mangiez-vous habituellement : Légumes secs et légumineuses",,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q0,V126,"Avant d'être enceinte, à quelle fréquence mangiez-vous habituellement : Pain",,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q0,V127,"Avant d'être enceinte, à quelle fréquence mangiez-vous habituellement : Céréales pour petit déjeuner",,,1.0.0,,categorical,,,,,,,,,,
@@ -2412,6 +2414,7 @@ PELAGIE,pelagie_q0,V165,Quelle est votre taille ?,,,1.0.0,,integer,cm,,,,,,,,,
 PELAGIE,pelagie_q0,V166,Quel était votre poids avant la grossesse ?,,,1.0.0,,integer,kg,,,,,,,,,
 PELAGIE,pelagie_q0,V168,What is your familly status,,,1.0.0,,categorical,,,,,Familly status of the mother at inclusion,,,,,
 PELAGIE,pelagie_q0,V169,Votre conjoint exerce-t-il une profession actuellement ?,,,1.0.0,,categorical,,,,,,,,,,
+ATHLETE_CDM,outcome_ath,att_om_pc_0,,,,,,decimal,,,,,"Attentional function, percentiles of number of omissions (i.e., att_om_raw_0, att_pro_raw_1, etc.)",,,Cognitive functioning,,
 PELAGIE,pelagie_q0,V181,"Au cours des 3 derniers mois, avez-vous eu de la fièvre (>38)",,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q0,V194,Votre conjoint fume-t-il actuellement ou a-t-il déjà fumé dans le passé ?,,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q0,V195,Combien de cigarette par jour en moyenne,,,1.0.0,,integer,,,,,,,,,,
@@ -2688,6 +2691,7 @@ PELAGIE,pelagie_q2,B328,"Actuellement, dans une semaine habituelle, combien de t
 il en promenade ou à jouer dehors (dans un jardin, un parc, une cour de récréation, …): un jour de semaine, en heures",,,1.0.0,,integer,,,,,,,,,,
 PELAGIE,pelagie_q2,B329,"Actuellement, dans une semaine habituelle, combien de temps en moyenne votre enfant passet-
 il en promenade ou à jouer dehors (dans un jardin, un parc, une cour de récréation, …) : un jour de semaine, en minutes",,,1.0.0,,integer,,,,,,,,,,
+PELAGIE,pelagie_q2,b462,Continuez-vous à allaiter actuellement ?,PELAGIE,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q2,B330,"Actuellement, dans une semaine habituelle, combien de temps en moyenne votre enfant passet-
 il en promenade ou à jouer dehors (dans un jardin, un parc, une cour de récréation, …) : le mercredi, en heure",,,1.0.0,,integer,,,,,,,,,,
 PELAGIE,pelagie_q2,B331,"Actuellement, dans une semaine habituelle, combien de temps en moyenne votre enfant passet-
@@ -2733,6 +2737,7 @@ PELAGIE,pelagie_q2,B581,"Actuellement, avec quelle fréquence votre enfant conso
 PELAGIE,pelagie_q2,B582,"Actuellement, avec quelle fréquence votre enfant consomme-t-il les aliments suivants au cours d'une semaine habituelle : poisson blanc (cabillaud, colin, merlan)",,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q2,B583,"Actuellement, avec quelle fréquence votre enfant consomme-t-il les aliments suivants au cours d'une semaine habituelle : œufs",,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q2,B584,"Actuellement, avec quelle fréquence votre enfant consomme-t-il les aliments suivants au cours d'une semaine habituelle : Fruits frais",,,1.0.0,,categorical,,,,,,,,,,
+ATHLETE_CDM,outcome_ath,att_om_raw_0,,,,,,decimal,,,,,"Repeated measures of attentional function, raw score of number of omissions: att_om_raw_0: assessed within one year of childbirth (>0 year and <1 year) att_om_raw_1: assessed when the child was aged between ≥ 1 year and < 2 years … att_om_raw_17: assessed when the child was aged between ≥ 17 years and < 18 years",,,Cognitive functioning,,
 PELAGIE,pelagie_q2,B585,"Actuellement, avec quelle fréquence votre enfant consomme-t-il les aliments suivants au cours d'une semaine habituelle : Compotes",,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q2,B587,"Actuellement, avec quelle fréquence votre enfant consomme-t-il les aliments suivants au cours d'une semaine habituelle : Sodas ordinaires et sirop",,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q2,B588,"Actuellement, avec quelle fréquence votre enfant consomme-t-il les aliments suivants au cours d'une semaine habituelle : Soda light",,,1.0.0,,categorical,,,,,,,,,,
@@ -2756,7 +2761,6 @@ PELAGIE,pelagie_q2,b21,Date de la mesure du poids et de la taille de l'enfant,PE
 PELAGIE,pelagie_q2,b22,Poids de l'enfant,PELAGIE,,1.0.0,,integer,kg,,,,,,,,,
 PELAGIE,pelagie_q2,b23,Taille de l'enfant,PELAGIE,,1.0.0,,integer,cm,,,,,,,,,
 PELAGIE,pelagie_q2,b461,Avez-vous allaité votre enfant ?,PELAGIE,,1.0.0,,categorical,,,,,,,,,,
-PELAGIE,pelagie_q2,b462,Continuez-vous à allaiter actuellement ?,PELAGIE,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q2,b463,"Si non, quel âge avait-il quand vous avez arrêté définitivement",PELAGIE,,1.0.0,,integer,month,,,,,,,,,
 PELAGIE,pelagie_q2,b488,Age introduction des pommes de terre,PELAGIE,,1.0.0,,integer,month,,,,,,,,,
 PELAGIE,pelagie_q2,b490,Age introduction des légumes verts,PELAGIE,,1.0.0,,integer,month,,,,,,,,,
@@ -2780,6 +2784,7 @@ PELAGIE,pelagie_q6,QE6_A3_AGE_4,Quelles sont les personnes (enfants et adultes) 
 PELAGIE,pelagie_q6,QE6_A3_AGE_5,Quelles sont les personnes (enfants et adultes) vivant avec vous et l'enfant à la maison ? Age persone 5,,,1.0.0,,integer,,,,,,,,,,
 PELAGIE,pelagie_q6,QE6_A3_AGE_6,Quelles sont les personnes (enfants et adultes) vivant avec vous et l'enfant à la maison ? Age persone 6,,,1.0.0,,integer,,,,,,,,,,
 PELAGIE,pelagie_q6,QE6_A3_AGE_7,Quelles sont les personnes (enfants et adultes) vivant avec vous et l'enfant à la maison ? Age persone 7,,,1.0.0,,integer,,,,,,,,,,
+PELAGIE,pelagie_q6,QE6_B15_23,S’entend mieux avec les adultes qu’avec d’autres enfants,,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q6,QE6_A3_Age_1,Quelles sont les personnes (enfants et adultes) vivant avec vous et l'enfant à la maison ? Age persone 1,PELAGIE,,1.0.0,,integer,,,,,,,,,,
 PELAGIE,pelagie_q6,QE6_A3_Age_2,Quelles sont les personnes (enfants et adultes) vivant avec vous et l'enfant à la maison ? Age persone 2,PELAGIE,,1.0.0,,integer,,,,,,,,,,
 PELAGIE,pelagie_q6,QE6_A3_Age_3,Quelles sont les personnes (enfants et adultes) vivant avec vous et l'enfant à la maison ? Age persone 3,PELAGIE,,1.0.0,,integer,,,,,,,,,,
@@ -2805,7 +2810,6 @@ PELAGIE,pelagie_q6,QE6_B15_19,Se fait souvent embêter par les autres enfants,,,
 PELAGIE,pelagie_q6,QE6_B15_2,"Est agité(e), turbulent(e), hyperactif(ve), ne tient pas en place",,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q6,QE6_B15_21,Réfléchit avant d’agir,,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q6,QE6_B15_22,"Vole à la maison, à l’école ou ailleurs",,,1.0.0,,categorical,,,,,,,,,,
-PELAGIE,pelagie_q6,QE6_B15_23,S’entend mieux avec les adultes qu’avec d’autres enfants,,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q6,QE6_B15_24,"A souvent peur, est facilement effrayé(e)",,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q6,QE6_B15_25,"Est capable de se concentrer sur des tâches ou jeux et de les terminer, bonne capacité d’attention",,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q6,QE6_B15_3,"Se plaint souvent de maux de tête ou d’estomac, ou de nausées",,,1.0.0,,categorical,,,,,,,,,,
@@ -2825,6 +2829,7 @@ PELAGIE,pelagie_q6,QE6_B5_EMPLOYEE_DE_AMM,"Avant l'entrée à l'école de votre 
 PELAGIE,pelagie_q6,QE6_B5_FAMILLE_A_AMM,"Avant l'entrée à l'école de votre enfant, quels étaient les modes de garde de votre enfant : Membre de la famille jusqu'à  l'âge de…",,,1.0.0,,integer,,,,,,,,,,
 PELAGIE,pelagie_q6,QE6_B5_FAMILLE_DE_AMM,"Avant l'entrée à l'école de votre enfant, quels étaient les modes de garde de votre enfant : Membre de la famille à partir de l'âge de…",,,1.0.0,,integer,,,,,,,,,,
 PELAGIE,pelagie_q6,QE6_B5_VOUS_MEME_A_AMM,"Avant l'entrée à l'école de votre enfant, quels étaient les modes de garde de votre enfant : Vous même jusqu'à l'âge de…",,,1.0.0,,integer,,,,,,,,,,
+PELAGIE,pelagie_q6,QE6_F3_1,"Dans ce domicile (numéro 1), aviez-vous un animal ?",PELAGIE,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q6,QE6_B5_VOUS_MEME_DE_AMM,"Avant l'entrée à l'école de votre enfant, quels étaient les modes de garde de votre enfant : Vous même à partir de l'âge de…",,,1.0.0,,integer,,,,,,,,,,
 PELAGIE,pelagie_q6,QS6_C33,"Since birth, as your child been diagnosed with food allergy, confirmed by a doctor?",,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q6,QE6_B5_assistante_a_AMM,"Avant l'entrée à l'école de votre enfant, quels étaient les modes de garde de votre enfant : Assistante maternelle jusqu'à l'âge de…",PELAGIE,,1.0.0,,integer,,,,,,,,,,
@@ -2841,6 +2846,7 @@ PELAGIE,pelagie_q6,QE6_D6_1,"Au cours d'une semaine ordinaire, à quelle fréque
 PELAGIE,pelagie_q6,QE6_D6_10,"Au cours d'une semaine ordinaire, à quelle fréquence votre enfant mange-t-il les aliments ci-dessous (à la maison ou en dehors) : Légumes et crudités",,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q6,QE6_D6_11,"Au cours d'une semaine ordinaire, à quelle fréquence votre enfant mange-t-il les aliments ci-dessous (à la maison ou en dehors) : Céréales de type petit déjeuner",,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q6,QE6_D6_12,"Au cours d'une semaine ordinaire, à quelle fréquence votre enfant mange-t-il les aliments ci-dessous (à la maison ou en dehors) : Pain complet",,,1.0.0,,categorical,,,,,,,,,,
+PELAGIE,pelagie_q6,QE6_F3_2,"Dans ce domicile (numéro 2), aviez-vous un animal ?",PELAGIE,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q6,QE6_D6_13,"Au cours d'une semaine ordinaire, à quelle fréquence votre enfant mange-t-il les aliments ci-dessous (à la maison ou en dehors) : Autres pains et céréales",,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q6,QE6_D6_14,"Au cours d'une semaine ordinaire, à quelle fréquence votre enfant mange-t-il les aliments ci-dessous (à la maison ou en dehors) : Viennoiseries, biscuits, gâteaux",,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q6,QE6_D6_15,"Au cours d'une semaine ordinaire, à quelle fréquence votre enfant mange-t-il les aliments ci-dessous (à la maison ou en dehors) : Bonbon, chocolat",,,1.0.0,,categorical,,,,,,,,,,
@@ -2858,8 +2864,6 @@ PELAGIE,pelagie_q6,QS6_C35,"Since your child was born, has a doctor ever said th
 PELAGIE,pelagie_q6,QE6_D6_8,"Au cours d'une semaine ordinaire, à quelle fréquence votre enfant mange-t-il les aliments ci-dessous (à la maison ou en dehors) : Coquillages et crustacés (moules, crevettes, langoustines, crabes, …)",,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q6,QE6_D6_9,"Au cours d'une semaine ordinaire, à quelle fréquence votre enfant mange-t-il les aliments ci-dessous (à la maison ou en dehors) : Fruits",,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q6,QE6_DATE_REPONSE_JJMMAAAA,date at Mental Health evaluation (at age 6),,,1.0.0,,date,,,,,,,,,,
-PELAGIE,pelagie_q6,QE6_F3_1,"Dans ce domicile (numéro 1), aviez-vous un animal ?",PELAGIE,,1.0.0,,categorical,,,,,,,,,,
-PELAGIE,pelagie_q6,QE6_F3_2,"Dans ce domicile (numéro 2), aviez-vous un animal ?",PELAGIE,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q6,QE6_F3_3,"Dans ce domicile (numéro 3), aviez-vous un animal ?",PELAGIE,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q6,QE6_F3_4,"Dans ce domicile (numéro 4), aviez-vous un animal ?",PELAGIE,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q6,QE6_F3_5,"Dans ce domicile (numéro 5), aviez-vous un animal ?",PELAGIE,,1.0.0,,categorical,,,,,,,,,,
@@ -2905,6 +2909,8 @@ PELAGIE,pelagie_q6,QS6_C1_NB_OTITE_V2,How many times before the age of 1 has you
 PELAGIE,pelagie_q6,QS6_C1_NB_PNEUMOPATHIE_V2,"How many times, before the age of 1, has your child had a lung disease, pneumonia, bronchopneumonia?",,,1.0.0,,integer,,,,,,,,,,
 PELAGIE,pelagie_q6,QS6_C23,"Since birth, has your child ever had hay fever?",,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q6,QS6_C24,"Since birth, has your child ever had any other kind of allergic rhinitis (dust, pets, etc)?",,,1.0.0,,categorical,,,,,,,,,,
+Sepages,PE_preg_mr_2021-12-02_379,mo_BUPA_LOD,LOD,,,1.0.0,,integer,,,,,,,,,,
+Sepages,PE_preg_mr_2021-12-02_379,mo_ohMiNP_LOD,LOD,,,1.0.0,,integer,,,,,,,,,,
 PELAGIE,pelagie_q6,QS6_C25,"Has your child ever had an itchy rash (red patches, pimples, etc.) on the skin that appears and disappears intermittently over a period of at least 6 months?",,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q6,QS6_C26,Has your children had this itchy rash anytime during the last 12 months?,,,1.0.0,,categorical,,,,,,,,,,
 PELAGIE,pelagie_q6,QS6_C27,"Has this itchy rash affected any of these areas: the folds of the elbows, behind the knees, in front of the ankles, the buttocks, around the neck, around the eyes or ears?",,,1.0.0,,categorical,,,,,,,,,,
@@ -2950,7 +2956,7 @@ Sepages,PE_preg_mr_2021-12-02_379,mo_BPF_total_string_t3,"BPF_total raw vals NIP
 Sepages,PE_preg_mr_2021-12-02_379,mo_BPS_LOD,LOD,,,1.0.0,,integer,,,,,,,,,,
 Sepages,PE_preg_mr_2021-12-02_379,mo_BPS_total_string_t2,"BPS_total raw vals NIPH(no imp, no std)",Sepages,T2,1.0.0,,string,,,,,,,,,,
 Sepages,PE_preg_mr_2021-12-02_379,mo_BPS_total_string_t3,"BPS_total raw vals NIPH(no imp, no std)",Sepages,T3,1.0.0,,string,,,,,,,,,,
-Sepages,PE_preg_mr_2021-12-02_379,mo_BUPA_LOD,LOD,,,1.0.0,,integer,,,,,,,,,,
+ATHLETE_CDM,outcome_ath,att_om_std_0,,,,,,decimal,,,,,"Attentional function, standardized score of number of omissions (i.e., att_om_raw_0, att_pro_raw_1, etc.)",,,Cognitive functioning,,
 Sepages,PE_preg_mr_2021-12-02_379,mo_BUPA_total_string_t2,"BUPA_total raw vals NIPH(no imp, no std)",Sepages,T2,1.0.0,,string,,,,,,,,,,
 Sepages,PE_preg_mr_2021-12-02_379,mo_BUPA_total_string_t3,"BUPA_total raw vals NIPH(no imp, no std)",Sepages,T3,1.0.0,,string,,,,,,,,,,
 Sepages,PE_preg_mr_2021-12-02_379,mo_ETPA_LOD,LOD,,,1.0.0,,integer,,,,,,,,,,
@@ -3004,7 +3010,6 @@ Sepages,PE_preg_mr_2021-12-02_379,mo_ohMINCH_string_t3,"ohMINCH_total raw vals N
 Sepages,PE_preg_mr_2021-12-02_379,mo_ohMPHP_LOD,LOD,,,1.0.0,,integer,,,,,,,,,,
 Sepages,PE_preg_mr_2021-12-02_379,mo_ohMPHP_string_t2,"ohMPHP_total raw vals NIPH(no imp, no std)",Sepages,T2,1.0.0,,string,,,,,,,,,,
 Sepages,PE_preg_mr_2021-12-02_379,mo_ohMPHP_string_t3,"ohMPHP_total raw vals NIPH(no imp, no std)",Sepages,T3,1.0.0,,string,,,,,,,,,,
-Sepages,PE_preg_mr_2021-12-02_379,mo_ohMiNP_LOD,LOD,,,1.0.0,,integer,,,,,,,,,,
 Sepages,PE_preg_mr_2021-12-02_379,mo_ohMiNP_string_t2,"ohMiNP_total raw vals NIPH(no imp, no std)",Sepages,T2,1.0.0,,string,,,,,,,,,,
 Sepages,PE_preg_mr_2021-12-02_379,mo_ohMiNP_string_t3,"ohMiNP_total raw vals NIPH(no imp, no std)",Sepages,T3,1.0.0,,string,,,,,,,,,,
 Sepages,PE_preg_mr_2021-12-02_379,mo_oxoMINCH_LOD,LOD,,,1.0.0,,integer,,,,,,,,,,
@@ -3060,6 +3065,7 @@ Sepages,Ultrasound_all_SLC_20220428_893,Date_examen_T1_3,Date of the ultrasound 
 Sepages,Ultrasound_all_SLC_20220428_893,Date_examen_T2_1,Date of the ultrasound scan in 2nd trimester,Sepages,T2,1.0.0,,date,,,,,,,,,,
 Sepages,Ultrasound_all_SLC_20220428_893,Date_examen_T2_2,Date of the ultrasound scan in 2nd trimester,Sepages,T2,1.0.0,,date,,,,,,,,,,
 Sepages,bdd_grossesse_v5_1,mt3cab2_q07,weight (measure 2),Sepages,T3,1.0.0,,integer,kg,,,,,,,,,
+AP,AP,id_universale,subject identification,,,1.0,,,,,,,,,,,,
 Sepages,Ultrasound_all_SLC_20220428_893,Date_examen_T2_3,Date of the ultrasound scan in 2nd trimester,Sepages,T2,1.0.0,,date,,,,,,,,,,
 Sepages,Ultrasound_all_SLC_20220428_893,Date_examen_T2_4,Date of the ultrasound scan in 2nd trimester,Sepages,T2,1.0.0,,date,,,,,,,,,,
 Sepages,Ultrasound_all_SLC_20220428_893,Date_examen_T3_1,Date of the ultrasound scan in 3rd trimester,Sepages,T3,1.0.0,,date,,,,,,,,,,
@@ -3083,6 +3089,7 @@ Sepages,Ultrasound_all_SLC_20220428_893,date_debut_grossesse_T2_3,Start date of 
 Sepages,Ultrasound_all_SLC_20220428_893,date_debut_grossesse_T2_4,Start date of pregnancy in 2nd trimester,Sepages,T2,1.0.0,,date,,,,,,,,,,
 Sepages,Ultrasound_all_SLC_20220428_893,date_debut_grossesse_T3_1,Start date of pregnancy in 3rd trimester,Sepages,T3,1.0.0,,date,,,,,,,,,,
 Sepages,Ultrasound_all_SLC_20220428_893,date_debut_grossesse_T3_2,Start date of pregnancy in 3rd trimester,Sepages,T3,1.0.0,,date,,,,,,,,,,
+ATHLETE_CDM,outcome_ath,att_wave_1,,,,,,integer,,,,,Which wave of attentional function measurement was recorded?,,,Cognitive functioning,,
 Sepages,Ultrasound_all_SLC_20220428_893,date_debut_grossesse_T3_3,Start date of pregnancy in 3rd trimester,Sepages,T3,1.0.0,,date,,,,,,,,,,
 Sepages,Ultrasound_all_SLC_20220428_893,date_debut_grossesse_T3_4,Start date of pregnancy in 3rd trimester,Sepages,T3,1.0.0,,date,,,,,,,,,,
 Sepages,Ultrasound_all_SLC_20220428_893,date_debut_grossesse_T3_5,Start date of pregnancy in 3rd trimester,Sepages,T3,1.0.0,,date,,,,,,,,,,
@@ -3107,6 +3114,7 @@ OOM_CDM,EUROCAT,illbef2,,,,2.2,,,,,,false,ILLNESS BEFORE PREGNANCY 2 - AS FOR IL
 Sepages,Ultrasound_all_SLC_20220428_893,perimetre_cranien_T1_1,Circumference of the head of the fetus in 2nd trimester,Sepages,T2,1.0.0,,continuous,mm,,,,,,,,,
 Sepages,base_respi_enfant_20210326,cy1hai1_q08,"Between 0 and 2 months of age, did your child have asthma?",Sepages,Y1,1.0.0,,binary,,,,,,,,,,
 Sepages,base_respi_enfant_20210326,cy1hai2_q01,"Between the ages of 2 and 12 months, did your child have a cold, nasopharyngitis or a stuffy nose?",Sepages,Y1,1.0.0,,binary,,,,,,,,,,
+FARMACEUTICA,FARMACEUTICA,NPEZZI,Numero confezioni,,,1.0,,,,,,,"Depends on the values of the ‘FLUSSO’ variable, usually it refers to number of packages",,,,,Number of units prescribed
 Sepages,base_respi_enfant_20210326,cy1hai2_q02,"Between the ages of 2 and 12 months, did your child have wheezing in the chest at any time?",Sepages,Y1,1.0.0,,binary,,,,,,,,,,
 Sepages,base_respi_enfant_20210326,cy1hai2_q04,"Between the ages of 2 and 12 months, did your child have coughing fits at night when he or she did not have any respiratory infections (neither a cold, nor rhinopharyngitis, nor flu, ...)?",Sepages,Y1,1.0.0,,binary,,,,,,,,,,
 Sepages,base_respi_enfant_20210326,cy1hai2_q04p3,Has this problem required at least one visit to a doctor?,Sepages,Y1,1.0.0,,binary,,,,,,,,,,
@@ -3149,6 +3157,7 @@ Sepages,base_respi_enfant_20210326,cy3haw1_q06p2,Has this problem required at le
 Sepages,base_respi_enfant_20210326,cy3haw1_q07p3,Has the diagnosis of asthma been confirmed by a physician?,Sepages,Y3,1.0.0,,binary,,,,,,,,,,
 Sepages,base_respi_enfant_20210326,cy3haw1_q07p4,Has this problem required treatment by a doctor at least once?,Sepages,Y3,1.0.0,,binary,,,,,,,,,,
 AP,AP,cod_topog,topographical location code,,,1.0,,,,,,,,,,,,topographical code relating to the tumor site according to SNOMED classification vers.3
+Sepages,bdd_2a_v_1_0,cy2eas3_q05,"Since the child's 12 months of age SEPAGES, I have changed spouses",Sepages,Y2,1.0.0,,binary,,,,,,,,,,
 Sepages,base_respi_enfant_20210326,cy3haw1_q09,"Since turning 2, has your child ever had sneezing, a runny nose, or a stuffy nose when he or she didn't have a respiratory infection (not a cold, not nasopharyngitis, not the flu)?",Sepages,Y3,1.0.0,,binary,,,,,,,,,,
 Sepages,base_respi_enfant_20210326,cy3haw1_q09p2,Has your child ever had allergic rhinitis?,Sepages,Y3,1.0.0,,binary,,,,,,,,,,
 Sepages,base_respi_enfant_20210326,cy3haw1_q09p3,Has your child ever had hay fever?,Sepages,Y3,1.0.0,,binary,,,,,,,,,,
@@ -3171,7 +3180,6 @@ Sepages,bdd_1a_v1_1,cy1eas2_q06,"Since the child's 6th month of age SEPAGES, I h
 Sepages,bdd_2a_v_1_0,cy2eas3_q03,"Since the child's 12 months of age SEPAGES, I separated",Sepages,Y2,1.0.0,,binary,,,,,,,,,,
 Sepages,bdd_2a_v_1_0,cy2eas3_q04,"Since the child's 12 months of age SEPAGES, I became a widow",Sepages,Y2,1.0.0,,binary,,,,,,,,,,
 ATHLETE_CDM,chemicals_ath,c_etpa_raw_birth,Newborn ETPA birth levels,,,1.1.0,,decimal,µg/L,,,,,,,Phenols,,
-Sepages,bdd_2a_v_1_0,cy2eas3_q05,"Since the child's 12 months of age SEPAGES, I have changed spouses",Sepages,Y2,1.0.0,,binary,,,,,,,,,,
 Sepages,bdd_2a_v_1_0,cy2eas3_q06,"Since the child's 12 months of age SEPAGES, I have a new spouse",Sepages,Y2,1.0.0,,binary,,,,,,,,,,
 Sepages,bdd_grossesse_v5_1,ch_sex,"Sex of child (1=male, 2=female)",Sepages,T1,1.0.0,,categorical,,,,,"1=male, 2=female",,,,,
 Sepages,bdd_grossesse_v5_1,child_no,new variable (child_no) generated for athlete,,,1.0.0,,integer,,,,,,,,,,
@@ -3198,6 +3206,7 @@ Sepages,bdd_grossesse_v5_1,mt1ean1_q167,How many drinks have you had PER MONTH s
 Sepages,bdd_grossesse_v5_1,mt1ean1_q167p1,Number of glasses of cider or beer,Sepages,T1,1.0.0,,integer,drinks/week,,,,,,,,,
 Sepages,bdd_grossesse_v5_1,mt1ean1_q167p2,"Number of glasses of white, red or rosé wine",Sepages,T1,1.0.0,,integer,drinks/week,,,,,,,,,
 Sepages,bdd_grossesse_v5_1,mt1ean1_q167p3,"Number of glasses of aperitifs (pastis, cherry, porto, martini,...)",Sepages,T1,1.0.0,,integer,drinks/week,,,,,,,,,
+AP,AP,diagnosi,full diagnosis,,,1.0,,,,,,,,,,,,"detailed description of the diagnosis, with specific information on the type and characteristics of the tumor"
 Sepages,bdd_grossesse_v5_1,mt1ean1_q167p4,"Number of glasses of strong alcohol (whisky, gin, vodka, premix,...)",Sepages,T1,1.0.0,,integer,drinks/week,,,,,,,,,
 Sepages,bdd_grossesse_v5_1,mt1haa1_date_creation,date of creation of the questionnaire mt1haa1,Sepages,T1,1.0.0,,date,,,,,,,,,,
 Sepages,bdd_grossesse_v5_1,mt1haa1_q01,General history. Insulin-dependent (or type 1) diabetes:,Sepages,T1,1.0.0,,binary,,,,,,,,,,
@@ -3251,7 +3260,6 @@ Sepages,code_helix_athlete,quest_mhelix1,Helix ident,Sepages,T1,1.0.0,,integer,,
 Sepages,ddn_pere,ddn_pere,Birth date (father),,,1.0.0,,date,,,,,,,,,,
 Sepages,efr_mere_LMAB_20210902_26,mo_ethnie,ethnic group collected at the time of respiratory exam,,,1.0.0,,categorical,,,,,,,,,,
 Sepages,efr_pere_LMAB_20210902_26,fa_ethnie,ethnic group collected at the time of respiratory exam,,,1.0.0,,categorical,,,,,,,,,,
-AP,AP,diagnosi,full diagnosis,,,1.0,,,,,,,,,,,,"detailed description of the diagnosis, with specific information on the type and characteristics of the tumor"
 Sepages,phenols_phthalates_infancy_mr_585_2021-12-02,ch_BPA_total_LOD_M2,M2 BPA_total LOD,Sepages,Y1,1.0.0,,integer,,,,,,,,,,
 Sepages,phenols_phthalates_infancy_mr_585_2021-12-02,ch_BPA_total_LOD_Y1,Y1 BPA_total LOD,Sepages,Y2,1.0.0,,integer,,,,,,,,,,
 Sepages,phenols_phthalates_infancy_mr_585_2021-12-02,ch_BPA_total_string_M2,"M2 BPA_total raw vals (no imp, no std)",Sepages,Y1,1.0.0,,string,,,,,,,,,,
@@ -3275,7 +3283,6 @@ Sepages,phenols_phthalates_infancy_mr_585_2021-12-02,ch_ETPA_total_string_Y1,"Y1
 Sepages,phenols_phthalates_infancy_mr_585_2021-12-02,ch_MBzP_LOD_M2,M2 MBzP LOD,Sepages,Y1,1.0.0,,integer,,,,,,,,,,
 Sepages,phenols_phthalates_infancy_mr_585_2021-12-02,ch_MBzP_LOD_Y1,Y1 MBzP LOD,Sepages,Y2,1.0.0,,integer,,,,,,,,,,
 Sepages,phenols_phthalates_infancy_mr_585_2021-12-02,ch_MBzP_string_M2,"M2 MBzP raw vals (no imp, no std)",Sepages,Y1,1.0.0,,string,,,,,,,,,,
-AP,AP,id_universale,subject identification,,,1.0,,,,,,,,,,,,
 Sepages,phenols_phthalates_infancy_mr_585_2021-12-02,ch_MBzP_string_Y1,"Y1 MBzP raw vals (no imp, no std)",Sepages,Y2,1.0.0,,string,,,,,,,,,,
 OOM_CDM,EUROCAT,omim,,,,2.2,,,,,,false,"OMIM / TYPE OF MENDELIAN INHERITANCE
 To be coded by medical geneticist or after advice from medical geneticist.
@@ -3331,6 +3338,7 @@ Sepages,phenols_phthalates_infancy_mr_585_2021-12-02,ch_PRPA_total_LOD_M2,M2 PRP
 Sepages,phenols_phthalates_infancy_mr_585_2021-12-02,ch_PRPA_total_LOD_Y1,Y1 PRPA_total LOD,Sepages,Y2,1.0.0,,integer,,,,,,,,,,
 Sepages,phenols_phthalates_infancy_mr_585_2021-12-02,ch_PRPA_total_string_M2,"M2 PRPA_total raw vals (no imp, no std)",Sepages,Y1,1.0.0,,string,,,,,,,,,,
 Sepages,phenols_phthalates_infancy_mr_585_2021-12-02,ch_PRPA_total_string_Y1,"Y1 PRPA_total raw vals (no imp, no std)",Sepages,Y2,1.0.0,,string,,,,,,,,,,
+ANAGRAFICA,ANAGRAFICA,MINASSISTIB,Data inizio assistibilità,,,1.0,,,,,,,,,,,,First NHS access date
 Sepages,phenols_phthalates_infancy_mr_585_2021-12-02,ch_TRCS_total_LOD_M2,M2 TRCS_total LOD,Sepages,Y1,1.0.0,,integer,,,,,,,,,,
 Sepages,phenols_phthalates_infancy_mr_585_2021-12-02,ch_TRCS_total_LOD_Y1,Y1 TRCS_total LOD,Sepages,Y2,1.0.0,,integer,,,,,,,,,,
 Sepages,phenols_phthalates_infancy_mr_585_2021-12-02,ch_TRCS_total_string_M2,"M2 TRCS_total raw vals (no imp, no std)",Sepages,Y1,1.0.0,,string,,,,,,,,,,
@@ -3354,6 +3362,7 @@ Sepages,phenols_phthalates_infancy_mr_585_2021-12-02,ch_ohMiNP_string_M2,"M2 ohM
 Sepages,phenols_phthalates_infancy_mr_585_2021-12-02,ch_ohMiNP_string_Y1,"Y1 ohMiNP raw vals (no imp, no std)",Sepages,Y2,1.0.0,,string,,,,,,,,,,
 Sepages,phenols_phthalates_infancy_mr_585_2021-12-02,ch_oxoMINCH_LOD_M2,M2 oxoMINCH LOD,Sepages,Y1,1.0.0,,integer,,,,,,,,,,
 Sepages,phenols_phthalates_infancy_mr_585_2021-12-02,ch_oxoMINCH_LOD_Y1,Y1 oxoMINCH LOD,Sepages,Y2,1.0.0,,integer,,,,,,,,,,
+ATHLETE_CDM,chemicals_ath,m_chrysene_raw_t1,Maternal urine Chrysene  trimester levels,,,1.1.0,,decimal,µg/L,,,,,,,PAHs,,
 Sepages,phenols_phthalates_infancy_mr_585_2021-12-02,ch_oxoMINCH_string_M2,"M2 oxoMINCH raw vals (no imp, no std)",Sepages,Y1,1.0.0,,string,,,,,,,,,,
 Sepages,phenols_phthalates_infancy_mr_585_2021-12-02,ch_oxoMINCH_string_Y1,"Y1 oxoMINCH raw vals (no imp, no std)",Sepages,Y2,1.0.0,,string,,,,,,,,,,
 Sepages,phenols_phthalates_infancy_mr_585_2021-12-02,ch_oxoMiNP_LOD_M2,M2 oxoMiNP LOD,Sepages,Y1,1.0.0,,integer,,,,,,,,,,
@@ -3377,6 +3386,7 @@ SALM,SALM,comorbidita_2,comorbidity 2,,,1.0,,,,,,,,,,,,"ICD9-CM code for the adu
 ATHLETE_CDM,chemicals_ath,c_benzoapyrene_raw_birth,Newborn Benzo(a)pyrene birth levels,,,1.1.0,,decimal,µg/L,,,,,,,PAHs,,
 ATHLETE_CDM,chemicals_ath,c_boscalid_lod_0,limit of detection of child urine Boscalid levels within # year of age (child was aged between # and <#+1 year),,,1.1.0,,decimal,µg/L,,,,,,,Other pesticides,,
 ATHLETE_CDM,chemicals_ath,c_boscalid_lod_birth,Limit of detection of newborn  Boscalid at birth,,,1.1.0,,decimal,µg/L,,,,,,,Other pesticides,,
+OOM_CDM,EUROCAT,malfo2,,,,2.2,,,,,,true,AS MALFO1,,Table reference: EUROCAT/EUROmediCAT. As MALF01,,,
 ATHLETE_CDM,chemicals_ath,c_boscalid_raw_0,child urine Boscalid levels within # year of age (child was aged between # and <#+1 year),,,1.1.0,,decimal,µg/L,,,,,,,Other pesticides,,
 ATHLETE_CDM,chemicals_ath,c_boscalid_raw_birth,Newborn Boscalid birth levels,,,1.1.0,,decimal,µg/L,,,,,,,Other pesticides,,
 ATHLETE_CDM,chemicals_ath,c_bpa_lod_0,limit of detection of child urine BPA levels within # year of age (child was aged between # and <#+1 year),,,1.1.0,,decimal,µg/L,,,,,,,Phenols,,
@@ -3424,6 +3434,7 @@ ATHLETE_CDM,chemicals_ath,c_creatinine_lod_birth,Limit of detection of newborn  
 ATHLETE_CDM,chemicals_ath,c_creatinine_raw_0,child urine Creatinine levels within # year of age (child was aged between # and <#+1 year),,,1.1.0,,decimal,g/L,,,,,,,Creatinine,,
 ATHLETE_CDM,chemicals_ath,c_cs_lod_0,limit of detection of child Cs levels within # year of age (child was aged between # and <#+1 year),,,1.1.0,,decimal,µg/L,,,,,,,Metals,,
 ATHLETE_CDM,chemicals_ath,c_cs_lod_birth,Limit of detection of newborn   Cs at birth,,,1.1.0,,decimal,µg/L,,,,,,,Metals,,
+FARMACEUTICA,FARMACEUTICA,NUMRICETTA,Numero ricetta,,,1.0,,,,,,,,,,,,Prescription number
 ATHLETE_CDM,chemicals_ath,c_cs_raw_0,child Cs levels within # year of age (child was aged between # and <#+1 year),,,1.1.0,,decimal,µg/L,,,,,,,Metals,,
 ATHLETE_CDM,chemicals_ath,c_cs_raw_birth,Newborn  Cs birth levels,,,1.1.0,,decimal,µg/L,,,,,,,Metals,,
 ATHLETE_CDM,chemicals_ath,c_cu_lod_0,limit of detection of child Cu levels within # year of age (child was aged between # and <#+1 year),,,1.1.0,,decimal,µg/L,,,,,,,Metals,,
@@ -3447,6 +3458,7 @@ ATHLETE_CDM,chemicals_ath,c_dedtp_lod_0,limit of detection of child urine DEDTP 
 ATHLETE_CDM,chemicals_ath,c_dedtp_lod_birth,Limit of detection of newborn  DEDTP at birth,,,1.1.0,,decimal,µg/L,,,,,,,OPs,,
 ATHLETE_CDM,chemicals_ath,c_dedtp_raw_0,child urine DEDTP levels within # year of age (child was aged between # and <#+1 year),,,1.1.0,,decimal,µg/L,,,,,,,OPs,,
 ATHLETE_CDM,chemicals_ath,c_dedtp_raw_birth,Newborn DEDTP birth levels,,,1.1.0,,decimal,µg/L,,,,,,,OPs,,
+ATHLETE_CDM,chemicals_ath,c_hg_raw_0,child Hg levels within # year of age (child was aged between # and <#+1 year),,,1.1.0,,decimal,µg/L,,,,,,,Metals,,
 ATHLETE_CDM,chemicals_ath,c_dep_lod_0,limit of detection of child urine DEP levels within # year of age (child was aged between # and <#+1 year),,,1.1.0,,decimal,µg/L,,,,,,,OPs,,
 ATHLETE_CDM,chemicals_ath,c_dep_lod_birth,Limit of detection of newborn  DEP at birth,,,1.1.0,,decimal,µg/L,,,,,,,OPs,,
 ATHLETE_CDM,chemicals_ath,c_dep_raw_0,child urine DEP levels within # year of age (child was aged between # and <#+1 year),,,1.1.0,,decimal,µg/L,,,,,,,OPs,,
@@ -3493,7 +3505,7 @@ ATHLETE_CDM,chemicals_ath,c_hch_raw_0,child HCH levels within # year of age (chi
 ATHLETE_CDM,chemicals_ath,c_hch_raw_birth,Newborn  HCH birth levels,,,1.1.0,,decimal,pg/g,,,,,,,OCs & PBDEs,,
 ATHLETE_CDM,chemicals_ath,c_hg_lod_0,limit of detection of child Hg levels within # year of age (child was aged between # and <#+1 year),,,1.1.0,,decimal,µg/L,,,,,,,Metals,,
 ATHLETE_CDM,chemicals_ath,c_hg_lod_birth,Limit of detection of newborn  Hg at birth,,,1.1.0,,decimal,µg/L,,,,,,,Metals,,
-ATHLETE_CDM,chemicals_ath,c_hg_raw_0,child Hg levels within # year of age (child was aged between # and <#+1 year),,,1.1.0,,decimal,µg/L,,,,,,,Metals,,
+ATHLETE_CDM,chemicals_ath,c_na_lod_birth,Limit of detection of newborn   Na at birth,,,1.1.0,,decimal,µg/L,,,,,,,Metals,,
 ATHLETE_CDM,chemicals_ath,c_mchp_raw_0,child urine MCHP levels within # year of age (child was aged between # and <#+1 year),,,1.1.0,,decimal,µg/L,,,,,,,Phthalates,,
 ATHLETE_CDM,chemicals_ath,c_imazalil_lod_0,limit of detection of child urine Imazalil levels within # year of age (child was aged between # and <#+1 year),,,1.1.0,,decimal,µg/L,,,,,,,Other pesticides,,
 ATHLETE_CDM,chemicals_ath,c_imazalil_lod_birth,Limit of detection of newborn  Imazalil at birth,,,1.1.0,,decimal,µg/L,,,,,,,Other pesticides,,
@@ -3517,7 +3529,7 @@ ATHLETE_CDM,chemicals_ath,c_mchp_lod_birth,Limit of detection of newborn  MCHP a
 ATHLETE_CDM,chemicals_ath,c_mchp_raw_birth,Newborn MCHP birth levels,,,1.1.0,,decimal,µg/L,,,,,,,Phthalates,,
 ATHLETE_CDM,chemicals_ath,c_meaa_lod_0,limit of detection of child urine MEAA levels within # year of age (child was aged between # and <#+1 year),,,1.1.0,,decimal,µg/L,,,,,,,Glycolethers,,
 ATHLETE_CDM,chemicals_ath,c_meaa_lod_birth,Limit of detection of newborn  MEAA at birth,,,1.1.0,,decimal,µg/L,,,,,,,Glycolethers,,
-ATHLETE_CDM,chemicals_ath,c_na_lod_birth,Limit of detection of newborn   Na at birth,,,1.1.0,,decimal,µg/L,,,,,,,Metals,,
+OOM_CDM,CDM_SOURCE,date_creation,,,,2.2,,datetime,,,,true,date when this CDM instance is populated,,"20200704,20210124",,,
 ATHLETE_CDM,chemicals_ath,c_meaa_raw_0,child urine MEAA levels within # year of age (child was aged between # and <#+1 year),,,1.1.0,,decimal,µg/L,,,,,,,Glycolethers,,
 ATHLETE_CDM,chemicals_ath,c_meaa_raw_birth,Newborn MEAA birth levels,,,1.1.0,,decimal,µg/L,,,,,,,Glycolethers,,
 ATHLETE_CDM,chemicals_ath,c_mecpp_lod_0,limit of detection of child urine MECPP levels within # year of age (child was aged between # and <#+1 year),,,1.1.0,,decimal,µg/L,,,,,,,Phthalates,,
@@ -3541,7 +3553,6 @@ ATHLETE_CDM,chemicals_ath,c_mep_raw_0,child urine MEP levels within # year of ag
 ATHLETE_CDM,chemicals_ath,c_mep_raw_birth,Newborn MEP birth levels,,,1.1.0,,decimal,µg/L,,,,,,,Phthalates,,
 ATHLETE_CDM,chemicals_ath,c_mepa_lod_0,limit of detection of child urine ETPA levels within # year of age (child was aged between # and <#+1 year),,,1.1.0,,decimal,µg/L,,,,,,,Phenols,,
 ATHLETE_CDM,chemicals_ath,c_mepa_lod_birth,Limit of detection of newborn  MEPA at birth,,,1.1.0,,decimal,µg/L,,,,,,,Phenols,,
-OOM_CDM,CDM_SOURCE,date_creation,,,,2.2,,datetime,,,,true,date when this CDM instance is populated,,"20200704,20210124",,,
 ATHLETE_CDM,chemicals_ath,c_mepa_raw_0,child urine ETPA levels within # year of age (child was aged between # and <#+1 year),,,1.1.0,,decimal,µg/L,,,,,,,Phenols,,
 ATHLETE_CDM,chemicals_ath,c_mepa_raw_birth,Newborn MEPA birth levels,,,1.1.0,,decimal,µg/L,,,,,,,Phenols,,
 ATHLETE_CDM,chemicals_ath,c_mg_lod_0,limit of detection of child Mg levels within # year of age (child was aged between # and <#+1 year),,,1.1.0,,decimal,µg/L,,,,,,,Metals,,
@@ -3565,7 +3576,7 @@ ATHLETE_CDM,chemicals_ath,c_mmchp_lod_0,limit of detection of child urine MMCHP 
 ATHLETE_CDM,chemicals_ath,c_mmchp_lod_birth,Limit of detection of newborn  MMCHP at birth,,,1.1.0,,decimal,µg/L,,,,,,,Phthalates,,
 ATHLETE_CDM,chemicals_ath,c_mmchp_raw_0,child urine MMCHP levels within # year of age (child was aged between # and <#+1 year),,,1.1.0,,decimal,µg/L,,,,,,,Phthalates,,
 ATHLETE_CDM,chemicals_ath,c_mmchp_raw_birth,Newborn MMCHP birth levels,,,1.1.0,,decimal,µg/L,,,,,,,Phthalates,,
-ATHLETE_CDM,chemicals_ath,m_chrysene_raw_t1,Maternal urine Chrysene  trimester levels,,,1.1.0,,decimal,µg/L,,,,,,,PAHs,,
+MBRN,MBRN,NAVLESNORLENGDE,Length of the umbilical cord,,,1.0,,,,,,,HCP,,,,,Centimeter
 ATHLETE_CDM,chemicals_ath,c_mmp_lod_0,limit of detection of child urine mMP levels within # year of age (child was aged between # and <#+1 year),,,1.1.0,,decimal,µg/L,,,,,,,Phthalates,,
 ATHLETE_CDM,chemicals_ath,c_mmp_lod_birth,Limit of detection of newborn  mMP at birth,,,1.1.0,,decimal,µg/L,,,,,,,Phthalates,,
 ATHLETE_CDM,chemicals_ath,c_mmp_raw_0,child urine mMP levels within # year of age (child was aged between # and <#+1 year),,,1.1.0,,decimal,µg/L,,,,,,,Phthalates,,
@@ -3589,6 +3600,7 @@ ATHLETE_CDM,chemicals_ath,c_mo_lod_0,limit of detection of child Mo levels withi
 ATHLETE_CDM,chemicals_ath,c_mo_lod_birth,Limit of detection of newborn   Mo at birth,,,1.1.0,,decimal,µg/L,,,,,,,Metals,,
 ATHLETE_CDM,chemicals_ath,c_mo_raw_0,child Mo levels within # year of age (child was aged between # and <#+1 year),,,1.1.0,,decimal,µg/L,,,,,,,Metals,,
 ATHLETE_CDM,chemicals_ath,c_mo_raw_birth,Newborn  Mo birth levels,,,1.1.0,,decimal,µg/L,,,,,,,Metals,,
+ATHLETE_CDM,chemicals_ath,c_pfda_raw_birth,Newborn  PFDA birth levels,,,1.1.0,,decimal,µg/L,,,,,,,PFASs,,
 ATHLETE_CDM,chemicals_ath,c_na_lod_0,limit of detection of child Na levels within # year of age (child was aged between # and <#+1 year),,,1.1.0,,decimal,µg/L,,,,,,,Metals,,
 ATHLETE_CDM,chemicals_ath,c_na_raw_0,child Na levels within # year of age (child was aged between # and <#+1 year),,,1.1.0,,decimal,µg/L,,,,,,,Metals,,
 ATHLETE_CDM,chemicals_ath,c_na_raw_birth,Newborn  Na birth levels,,,1.1.0,,decimal,µg/L,,,,,,,Metals,,
@@ -3611,6 +3623,7 @@ ATHLETE_CDM,chemicals_ath,c_ohmphp_raw_0,child urine ohmphp levels within # year
 ATHLETE_CDM,chemicals_ath,c_ohmphp_raw_birth,Newborn ohmphp birth levels,,,1.1.0,,decimal,µg/L,,,,,,,Phthalates,,
 ATHLETE_CDM,chemicals_ath,c_oxbe_lod_0,limit of detection of child urine OXBE levels within # year of age (child was aged between # and <#+1 year),,,1.1.0,,decimal,µg/L,,,,,,,Phenols,,
 ATHLETE_CDM,chemicals_ath,c_oxbe_lod_birth,Limit of detection of newborn  OXBE at birth,,,1.1.0,,decimal,µg/L,,,,,,,Phenols,,
+ATHLETE_CDM,chemicals_ath,c_pfda_lod_birth,Limit of detection of newborn   PFDA at birth,,,1.1.0,,decimal,µg/L,,,,,,,PFASs,,
 ATHLETE_CDM,chemicals_ath,c_oxbe_raw_0,child urine OXBE levels within # year of age (child was aged between # and <#+1 year),,,1.1.0,,decimal,µg/L,,,,,,,Phenols,,
 ATHLETE_CDM,chemicals_ath,c_oxbe_raw_birth,Newborn OXBE birth levels,,,1.1.0,,decimal,µg/L,,,,,,,Phenols,,
 OOM_CDM,CDM_SOURCE,etl_link,,,,2.2,,character,,,,false,link to a source where the current version of the ETL document of this datasurce can be found,,,,,
@@ -3637,6 +3650,7 @@ ATHLETE_CDM,chemicals_ath,c_pbde47_lod_0,limit of detection of child PBDE-47 lev
 ATHLETE_CDM,chemicals_ath,c_pbde47_lod_birth,Limit of detection of newborn   PBDE-47 at birth,,,1.1.0,,decimal,pg/g,,,,,,,OCs & PBDEs,,
 ATHLETE_CDM,chemicals_ath,c_pbde47_raw_0,child PBDE-47 levels within # year of age (child was aged between # and <#+1 year),,,1.1.0,,decimal,pg/g,,,,,,,OCs & PBDEs,,
 ATHLETE_CDM,chemicals_ath,c_pbde47_raw_birth,Newborn  PBDE-47 birth levels,,,1.1.0,,decimal,pg/g,,,,,,,OCs & PBDEs,,
+ATHLETE_CDM,chemicals_ath,c_pfda_raw_0,child PFDA levels within # year of age (child was aged between # and <#+1 year),,,1.1.0,,decimal,µg/L,,,,,,,PFASs,,
 ATHLETE_CDM,chemicals_ath,c_pcb118_lod_0,limit of detection of child PCB-118 levels within # year of age (child was aged between # and <#+1 year),,,1.1.0,,decimal,pg/g,,,,,,,OCs & PBDEs,,
 ATHLETE_CDM,chemicals_ath,c_pcb118_lod_birth,Limit of detection of newborn  PCB-118 at birth,,,1.1.0,,decimal,pg/g,,,,,,,OCs & PBDEs,,
 ATHLETE_CDM,chemicals_ath,c_pcb118_raw_0,child PCB-118 levels within # year of age (child was aged between # and <#+1 year),,,1.1.0,,decimal,pg/g,,,,,,,OCs & PBDEs,,
@@ -3661,9 +3675,6 @@ ATHLETE_CDM,chemicals_ath,c_pcb180_lod_birth,Limit of detection of newborn   PCB
 ATHLETE_CDM,chemicals_ath,c_pcb180_raw_0,child PCB-180 levels within # year of age (child was aged between # and <#+1 year),,,1.1.0,,decimal,pg/g,,,,,,,OCs & PBDEs,,
 ATHLETE_CDM,chemicals_ath,c_pcb180_raw_birth,Newborn  PCB-180 birth levels,,,1.1.0,,decimal,pg/g,,,,,,,OCs & PBDEs,,
 ATHLETE_CDM,chemicals_ath,c_pfda_lod_0,limit of detection of child PFDA levels within # year of age (child was aged between # and <#+1 year),,,1.1.0,,decimal,µg/L,,,,,,,PFASs,,
-ATHLETE_CDM,chemicals_ath,c_pfda_lod_birth,Limit of detection of newborn   PFDA at birth,,,1.1.0,,decimal,µg/L,,,,,,,PFASs,,
-ATHLETE_CDM,chemicals_ath,c_pfda_raw_0,child PFDA levels within # year of age (child was aged between # and <#+1 year),,,1.1.0,,decimal,µg/L,,,,,,,PFASs,,
-ATHLETE_CDM,chemicals_ath,c_pfda_raw_birth,Newborn  PFDA birth levels,,,1.1.0,,decimal,µg/L,,,,,,,PFASs,,
 ATHLETE_CDM,chemicals_ath,c_pfhps_lod_0,limit of detection of child PFHpS levels within # year of age (child was aged between # and <#+1 year),,,1.1.0,,decimal,µg/L,,,,,,,PFASs,,
 ATHLETE_CDM,chemicals_ath,c_pfhps_lod_birth,Limit of detection of newborn   PFHpS at birth,,,1.1.0,,decimal,µg/L,,,,,,,PFASs,,
 ATHLETE_CDM,chemicals_ath,c_pfhps_raw_0,child PFHpS levels within # year of age (child was aged between # and <#+1 year),,,1.1.0,,decimal,µg/L,,,,,,,PFASs,,
@@ -3687,6 +3698,21 @@ ATHLETE_CDM,chemicals_ath,c_pfos_raw_birth,Newborn  PFOS birth levels,,,1.1.0,,d
 ATHLETE_CDM,chemicals_ath,c_pfunda_lod_0,limit of detection of child PFUnDA levels within # year of age (child was aged between # and <#+1 year),,,1.1.0,,decimal,µg/L,,,,,,,PFASs,,
 ATHLETE_CDM,chemicals_ath,c_pfunda_lod_birth,Limit of detection of newborn   PFUnDA at birth,,,1.1.0,,decimal,µg/L,,,,,,,PFASs,,
 ATHLETE_CDM,chemicals_ath,c_pfunda_raw_0,child PFUnDA levels within # year of age (child was aged between # and <#+1 year),,,1.1.0,,decimal,µg/L,,,,,,,PFASs,,
+OOM_CDM,EUROCAT,malfo1,,,,2.2,,,,,,true,"MALFORMATION 
+A baby/fetus with ONLY minor anomalies (see exclusion list, chapter 7) should not be transmitted to Central Registry. 
+
+When a major anomaly is present, code both major and minor anomalies. 
+
+In case of conjoined twins, give full description in text in variable 33 
+
+Up to 8 malformations can be coded – if more than 8 are present, specify additional anomalies in the text variable for the 8th anomaly (text variable 47 SP_MALFO8). 
+
+Include in the 8 specified codes the most important ones, or those tabulated in EUROCAT Reports. 
+
+Give written description of the malformations available in malformation text variables 33, 35, 37, 39, 41, 43, 45 and 47.",,"Table reference: EUROCAT/EUROmediCAT. ICD 10
+First 4 digits are ICD
+5th digit = BPA classification OR
+leave blank",,,
 ATHLETE_CDM,chemicals_ath,c_pfunda_raw_birth,Newborn  PFUnDA birth levels,,,1.1.0,,decimal,µg/L,,,,,,,PFASs,,
 ATHLETE_CDM,chemicals_ath,c_pyrethroids_lod_birth,Limit of detection of newborn  Pyrethroids at birth,,,1.1.0,,decimal,µg/L,,,,,,,Other pesticides,,
 ATHLETE_CDM,chemicals_ath,c_phenanthrene_lod_0,limit of detection of child urine Phenanthrene levels within # year of age (child was aged between # and <#+1 year),,,1.1.0,,decimal,µg/L,,,,,,,PAHs,,
@@ -3709,6 +3735,7 @@ ATHLETE_CDM,chemicals_ath,c_pyrene_raw_birth,Newborn Pyrene birth levels,,,1.1.0
 ATHLETE_CDM,chemicals_ath,c_pyrethroids_lod_0,limit of detection of child urine Pyrethroids levels within # year of age (child was aged between # and <#+1 year),,,1.1.0,,decimal,µg/L,,,,,,,Other pesticides,,
 ATHLETE_CDM,outcome_ath,adhd_wave_1,,,,,,integer,,,,,Which wave of adhd scale measurement was recorded?,,,ADHD symptoms,,
 ATHLETE_CDM,chemicals_ath,c_pyrethroids_raw_0,child urine Pyrethroids levels within # year of age (child was aged between # and <#+1 year),,,1.1.0,,decimal,µg/L,,,,,,,Other pesticides,,
+ANAGRAFICA,ANAGRAFICA,MOTIVO,Motivazione fine assistibilità,,,1.0,,,,,,,,,,,,Decesso o trasferimento i.e. death or transfer out of catchment area
 ATHLETE_CDM,chemicals_ath,c_pyrethroids_raw_birth,Newborn Pyrethroids birth levels,,,1.1.0,,decimal,µg/L,,,,,,,Other pesticides,,
 ATHLETE_CDM,chemicals_ath,c_se_lod_0,limit of detection of child Se levels within # year of age (child was aged between # and <#+1 year),,,1.1.0,,decimal,µg/L,,,,,,,Metals,,
 ATHLETE_CDM,chemicals_ath,c_se_lod_birth,Limit of detection of newborn   Se at birth,,,1.1.0,,decimal,µg/L,,,,,,,Metals,,
@@ -3759,6 +3786,7 @@ ATHLETE_CDM,chemicals_ath,m_boscalid_raw_birth,Maternal  Boscalid birth levels,,
 ATHLETE_CDM,chemicals_ath,m_boscalid_raw_precon,Maternal Boscalid preconception levels,,,1.1.0,,decimal,µg/L,,,,,,,Other pesticides,,
 ATHLETE_CDM,chemicals_ath,m_boscalid_raw_preg,Maternal urine Boscalid pregnancy levels,,,1.1.0,,decimal,µg/L,,,,,,,Other pesticides,,
 ATHLETE_CDM,chemicals_ath,m_boscalid_raw_t1,Maternal urine Boscalid  trimester levels,,,1.1.0,,decimal,µg/L,,,,,,,Other pesticides,,
+ATHLETE_CDM,chemicals_ath,m_cs_raw_birth,Maternal   Cs birth levels,,,1.1.0,,decimal,µg/L,,,,,,,Metals,,
 ATHLETE_CDM,chemicals_ath,m_bpa_lod_birth,Limit of detection of maternal  BPA at birth,,,1.1.0,,decimal,µg/L,,,,,,,Phenols,,
 ATHLETE_CDM,chemicals_ath,m_bpa_lod_precon,Limit of detection of maternal  BPA at preconception,,,1.1.0,,decimal,µg/L,,,,,,,Phenols,,
 ATHLETE_CDM,chemicals_ath,m_bpa_lod_preg,Limit of detection of maternal urine BPA at pregnancy,,,1.1.0,,decimal,µg/L,,,,,,,Phenols,,
@@ -3842,7 +3870,6 @@ ATHLETE_CDM,chemicals_ath,m_creatinine_raw_t1,Maternal urine Creatinine  trimest
 ATHLETE_CDM,chemicals_ath,m_cs_lod_birth,Limit of detection of maternal   Cs at birth,,,1.1.0,,decimal,µg/L,,,,,,,Metals,,
 ATHLETE_CDM,chemicals_ath,m_cs_lod_precon,Limit of detection of maternal   Cs at preconception,,,1.1.0,,decimal,µg/L,,,,,,,Metals,,
 ATHLETE_CDM,chemicals_ath,m_cs_lod_t1,Limit of detection of maternal   Cs in  trimester,,,1.1.0,,decimal,µg/L,,,,,,,Metals,,
-ATHLETE_CDM,chemicals_ath,m_cs_raw_birth,Maternal   Cs birth levels,,,1.1.0,,decimal,µg/L,,,,,,,Metals,,
 ATHLETE_CDM,chemicals_ath,m_cs_raw_precon,Maternal  Cs preconception levels,,,1.1.0,,decimal,µg/L,,,,,,,Metals,,
 ATHLETE_CDM,chemicals_ath,m_cs_raw_t1,Maternal   Cs  trimester levels,,,1.1.0,,decimal,µg/L,,,,,,,Metals,,
 ATHLETE_CDM,chemicals_ath,m_cu_lod_birth,Limit of detection of maternal   Cu at birth,,,1.1.0,,decimal,µg/L,,,,,,,Metals,,
@@ -4027,6 +4054,7 @@ ATHLETE_CDM,chemicals_ath,m_mbzp_lod_t1,Limit of detection of maternal urine MBz
 ATHLETE_CDM,chemicals_ath,m_mbzp_raw_birth,Maternal  MBzP birth levels,,,1.1.0,,decimal,µg/ml,,,,,,,Phthalates,,
 ATHLETE_CDM,chemicals_ath,m_mbzp_raw_preg,Maternal urine MBzP pregnancy levels,,,1.1.0,,decimal,µg/ml,,,,,,,Phthalates,,
 ATHLETE_CDM,chemicals_ath,m_mbzp_raw_t1,Maternal urine MBzP  trimester levels,,,1.1.0,,decimal,µg/ml,,,,,,,Phthalates,,
+ATHLETE_CDM,chemicals_ath,m_mecpp_raw_t1,Maternal urine MECPP  trimester levels,,,1.1.0,,decimal,µg/ml,,,,,,,Phthalates,,
 ATHLETE_CDM,chemicals_ath,m_mchp_lod_birth,Limit of detection of maternal  MCHP at birth,,,1.1.0,,decimal,µg/ml,,,,,,,Phthalates,,
 ATHLETE_CDM,chemicals_ath,m_mchp_lod_precon,Limit of detection of maternal  MCHP at preconception,,,1.1.0,,decimal,µg/ml,,,,,,,Phthalates,,
 ATHLETE_CDM,chemicals_ath,m_mchp_lod_preg,Limit of detection of maternal urine MCHP at pregnancy,,,1.1.0,,decimal,µg/ml,,,,,,,Phthalates,,
@@ -4054,7 +4082,10 @@ ATHLETE_CDM,chemicals_ath,m_mecpp_raw_birth,Maternal  MECPP birth levels,,,1.1.0
 ATHLETE_CDM,chemicals_ath,m_mecpp_raw_precon,Maternal MECPP preconception levels,,,1.1.0,,decimal,µg/ml,,,,,,,Phthalates,,
 ATHLETE_CDM,chemicals_ath,m_mecpp_raw_preg,Maternal urine MECPP pregnancy levels,,,1.1.0,,decimal,µg/ml,,,,,,,Phthalates,,
 ATHLETE_CDM,outcome_ath,aggr_instr_0,,,,,,categorical,,,,,"Cohort-specific instrument used to measure the aggressive behavior for aggr_raw_0, aggr_raw_1, etc.",,,Externalizing problems,,
-ATHLETE_CDM,chemicals_ath,m_mecpp_raw_t1,Maternal urine MECPP  trimester levels,,,1.1.0,,decimal,µg/ml,,,,,,,Phthalates,,
+ATHLETE_CDM,outcome_ath,bnR_10,,,,,,binary,,,,,"Repeated measures of offspring bulimia nervosa diagnosis:
+bnR_10: assessed between ≥ 10 years and < 11 years
+….
+bnR_19: assessed between ≥ 19 years and < 20 years",,,Behavioral problem domains,,
 ATHLETE_CDM,chemicals_ath,m_mehhp_lod_birth,Limit of detection of maternal  MEHHP at birth,,,1.1.0,,decimal,µg/ml,,,,,,,Phthalates,,
 ATHLETE_CDM,chemicals_ath,m_mehhp_lod_precon,Limit of detection of maternal  MEHHP at preconception,,,1.1.0,,decimal,µg/ml,,,,,,,Phthalates,,
 ATHLETE_CDM,chemicals_ath,m_mehhp_lod_preg,Limit of detection of maternal urine MEHHP at pregnancy,,,1.1.0,,decimal,µg/ml,,,,,,,Phthalates,,
@@ -4081,6 +4112,7 @@ ATHLETE_CDM,chemicals_ath,m_meohp_raw_precon,Maternal MEOHP preconception levels
 ATHLETE_CDM,chemicals_ath,m_meohp_raw_preg,Maternal urine MEOHP pregnancy levels,,,1.1.0,,decimal,µg/ml,,,,,,,Phthalates,,
 ATHLETE_CDM,chemicals_ath,m_meohp_raw_t1,Maternal urine MEOHP  trimester levels,,,1.1.0,,decimal,µg/ml,,,,,,,Phthalates,,
 ATHLETE_CDM,chemicals_ath,m_mep_lod_birth,Limit of detection of maternal  MEP at birth,,,1.1.0,,decimal,µg/ml,,,,,,,Phthalates,,
+ATHLETE_CDM,chemicals_ath,m_mhpp_raw_preg,Maternal urine mHpP pregnancy levels,,,1.1.0,,decimal,µg/ml,,,,,,,Phthalates,,
 ATHLETE_CDM,chemicals_ath,m_mep_lod_precon,Limit of detection of maternal  MEP at preconception,,,1.1.0,,decimal,µg/ml,,,,,,,Phthalates,,
 ATHLETE_CDM,chemicals_ath,m_mep_lod_preg,Limit of detection of maternal urine MEP at pregnancy,,,1.1.0,,decimal,µg/ml,,,,,,,Phthalates,,
 ATHLETE_CDM,chemicals_ath,m_mep_lod_t1,Limit of detection of maternal urine MEP in  trimester,,,1.1.0,,decimal,µg/ml,,,,,,,Phthalates,,
@@ -4108,11 +4140,6 @@ ATHLETE_CDM,chemicals_ath,m_mhpp_lod_preg,Limit of detection of maternal urine m
 ATHLETE_CDM,chemicals_ath,m_mhpp_lod_t1,Limit of detection of maternal urine mHpP in  trimester,,,1.1.0,,decimal,µg/ml,,,,,,,Phthalates,,
 ATHLETE_CDM,chemicals_ath,m_mhpp_raw_birth,Maternal  mHpP birth levels,,,1.1.0,,decimal,µg/ml,,,,,,,Phthalates,,
 ATHLETE_CDM,chemicals_ath,m_mhpp_raw_precon,Maternal mHpP preconception levels,,,1.1.0,,decimal,µg/ml,,,,,,,Phthalates,,
-ATHLETE_CDM,outcome_ath,bnR_10,,,,,,binary,,,,,"Repeated measures of offspring bulimia nervosa diagnosis:
-bnR_10: assessed between ≥ 10 years and < 11 years
-….
-bnR_19: assessed between ≥ 19 years and < 20 years",,,Behavioral problem domains,,
-ATHLETE_CDM,chemicals_ath,m_mhpp_raw_preg,Maternal urine mHpP pregnancy levels,,,1.1.0,,decimal,µg/ml,,,,,,,Phthalates,,
 ATHLETE_CDM,chemicals_ath,m_mhpp_raw_t1,Maternal urine mHpP  trimester levels,,,1.1.0,,decimal,µg/ml,,,,,,,Phthalates,,
 ATHLETE_CDM,chemicals_ath,m_mhxp_lod_birth,Limit of detection of maternal  mHxP at birth,,,1.1.0,,decimal,µg/ml,,,,,,,Phthalates,,
 ATHLETE_CDM,chemicals_ath,m_mhxp_lod_precon,Limit of detection of maternal  mHxP at preconception,,,1.1.0,,decimal,µg/ml,,,,,,,Phthalates,,
@@ -4139,6 +4166,7 @@ ATHLETE_CDM,chemicals_ath,m_mmchp_raw_precon,Maternal MMCHP preconception levels
 ATHLETE_CDM,chemicals_ath,m_mmchp_raw_preg,Maternal urine MMCHP pregnancy levels,,,1.1.0,,decimal,µg/ml,,,,,,,Phthalates,,
 ATHLETE_CDM,chemicals_ath,m_mmchp_raw_t1,Maternal urine MMCHP  trimester levels,,,1.1.0,,decimal,µg/ml,,,,,,,Phthalates,,
 ATHLETE_CDM,chemicals_ath,m_mmp_lod_birth,Limit of detection of maternal  mMP at birth,,,1.1.0,,decimal,µg/ml,,,,,,,Phthalates,,
+ATHLETE_CDM,outcome_ath,aggr_raw_0,,,,,,decimal,,,,,"Repeated measures of aggressive behavior, total raw score: aggr_raw_0: assessed within one year of childbirth (>0 year and <1 year)",,,Externalizing problems,,
 ATHLETE_CDM,chemicals_ath,m_mmp_lod_precon,Limit of detection of maternal  mMP at preconception,,,1.1.0,,decimal,µg/ml,,,,,,,Phthalates,,
 ATHLETE_CDM,chemicals_ath,m_mmp_lod_preg,Limit of detection of maternal urine mMP at pregnancy,,,1.1.0,,decimal,µg/ml,,,,,,,Phthalates,,
 ATHLETE_CDM,chemicals_ath,m_mnpep_raw_birth,Maternal  MnPeP birth levels,,,1.1.0,,decimal,µg/ml,,,,,,,Phthalates,,
@@ -4166,6 +4194,7 @@ ATHLETE_CDM,chemicals_ath,m_mnbp_raw_t1,Maternal urine MnBP  trimester levels,,,
 ATHLETE_CDM,chemicals_ath,m_mnop_lod_birth,Limit of detection of maternal  MnOP at birth,,,1.1.0,,decimal,µg/ml,,,,,,,Phthalates,,
 ATHLETE_CDM,chemicals_ath,m_mnop_lod_precon,Limit of detection of maternal  MnOP at preconception,,,1.1.0,,decimal,µg/ml,,,,,,,Phthalates,,
 ATHLETE_CDM,chemicals_ath,m_mnop_lod_preg,Limit of detection of maternal urine MnOP at pregnancy,,,1.1.0,,decimal,µg/ml,,,,,,,Phthalates,,
+ATHLETE_CDM,outcome_ath,att_hrt_raw_0,,,,,,decimal,milliseconds,,,,"Repeated measures of attentional function, raw score of hit reaction time: att_hrt_raw_0: assessed within one year of childbirth (>0 year and <1 year) att_hrt_raw_1: assessed when the child was aged between ≥ 1 year and < 2 years … att_hrt_raw_17: assessed when the child was aged between ≥ 17 years and < 18 years",,,Cognitive functioning,,
 ATHLETE_CDM,chemicals_ath,m_mnop_lod_t1,Limit of detection of maternal urine MnOP in  trimester,,,1.1.0,,decimal,µg/ml,,,,,,,Phthalates,,
 ATHLETE_CDM,chemicals_ath,m_mnop_raw_birth,Maternal  MnOP birth levels,,,1.1.0,,decimal,µg/ml,,,,,,,Phthalates,,
 ATHLETE_CDM,chemicals_ath,m_mnop_raw_precon,Maternal MnOP preconception levels,,,1.1.0,,decimal,µg/ml,,,,,,,Phthalates,,
@@ -4193,6 +4222,7 @@ ATHLETE_CDM,chemicals_ath,m_na_raw_birth,Maternal   Na birth levels,,,1.1.0,,dec
 ATHLETE_CDM,chemicals_ath,m_na_raw_precon,Maternal  Na preconception levels,,,1.1.0,,decimal,µg/L,,,,,,,Metals,,
 ATHLETE_CDM,chemicals_ath,m_na_raw_t1,Maternal   Na  trimester levels,,,1.1.0,,decimal,µg/L,,,,,,,Metals,,
 ATHLETE_CDM,chemicals_ath,m_naphthalene_lod_birth,Limit of detection of maternal  Naphthalene at birth,,,1.1.0,,decimal,µg/L,,,,,,,PAHs,,
+ATHLETE_CDM,outcome_ath,att_hrt_std_0,,,,,,decimal,milliseconds,,,,"Attentional function, standardized score of hit reaction time (i.e., att_hrt_raw_0, att_hrt_raw_1, etc.)",,,Cognitive functioning,,
 ATHLETE_CDM,chemicals_ath,m_naphthalene_lod_precon,Limit of detection of maternal  Naphthalene at preconception,,,1.1.0,,decimal,µg/L,,,,,,,PAHs,,
 ATHLETE_CDM,chemicals_ath,m_naphthalene_lod_preg,Limit of detection of maternal urine Naphthalene at pregnancy,,,1.1.0,,decimal,µg/L,,,,,,,PAHs,,
 ATHLETE_CDM,chemicals_ath,m_naphthalene_lod_t1,Limit of detection of maternal urine Naphthalene in  trimester,,,1.1.0,,decimal,µg/L,,,,,,,PAHs,,
@@ -4272,7 +4302,6 @@ ATHLETE_CDM,chemicals_ath,m_pbde47_raw_birth,Maternal PBDE_47 birth levels,,,1.1
 ATHLETE_CDM,chemicals_ath,m_pbde47_raw_precon,Maternal  PBDE_47 preconception levels,,,1.1.0,,decimal,pg/g,,,,,,,OCs & PBDEs,,
 ATHLETE_CDM,chemicals_ath,m_pbde47_raw_t1,Maternal   PBDE_47  trimester levels,,,1.1.0,,decimal,pg/g,,,,,,,OCs & PBDEs,,
 ATHLETE_CDM,chemicals_ath,m_pcb118_lod_birth,Limit of detection of maternal  PCB_118 at birth,,,1.1.0,,decimal,pg/g,,,,,,,OCs & PBDEs,,
-ATHLETE_CDM,outcome_ath,aggr_raw_0,,,,,,decimal,,,,,"Repeated measures of aggressive behavior, total raw score: aggr_raw_0: assessed within one year of childbirth (>0 year and <1 year)",,,Externalizing problems,,
 ATHLETE_CDM,chemicals_ath,m_pcb118_lod_precon,Limit of detection of maternal  PCB_118 at preconception,,,1.1.0,,decimal,pg/g,,,,,,,OCs & PBDEs,,
 ATHLETE_CDM,chemicals_ath,m_pcb118_lod_t1,Limit of detection of maternal  PCB_118 in  trimester,,,1.1.0,,decimal,pg/g,,,,,,,OCs & PBDEs,,
 ATHLETE_CDM,chemicals_ath,m_pcb118_raw_birth,Maternal  PCB_118 birth levels,,,1.1.0,,decimal,pg/g,,,,,,,OCs & PBDEs,,
@@ -4300,6 +4329,7 @@ ATHLETE_CDM,chemicals_ath,m_pcb170_raw_precon,Maternal  PCB_170 preconception le
 ATHLETE_CDM,chemicals_ath,m_pcb170_raw_t1,Maternal   PCB_170  trimester levels,,,1.1.0,,decimal,pg/g,,,,,,,OCs & PBDEs,,
 ATHLETE_CDM,chemicals_ath,m_pcb180_lod_birth,Limit of detection of maternal   PCB_180 at birth,,,1.1.0,,decimal,pg/g,,,,,,,OCs & PBDEs,,
 ATHLETE_CDM,chemicals_ath,m_pcb180_lod_precon,Limit of detection of maternal   PCB_180 at preconception,,,1.1.0,,decimal,pg/g,,,,,,,OCs & PBDEs,,
+ATHLETE_CDM,outcome_ath,att_hrtse_pc_0,,,,,,decimal,,,,,"Attentional function, percentiles of standard error of hit reaction time (i.e., att_hrtse_raw_0, att_hrtse_raw_1, etc.)",,,Cognitive functioning,,
 ATHLETE_CDM,chemicals_ath,m_pcb180_lod_t1,Limit of detection of maternal   PCB_180 in  trimester,,,1.1.0,,decimal,pg/g,,,,,,,OCs & PBDEs,,
 ATHLETE_CDM,chemicals_ath,m_pcb180_raw_birth,Maternal   PCB_180 birth levels,,,1.1.0,,decimal,pg/g,,,,,,,OCs & PBDEs,,
 ATHLETE_CDM,chemicals_ath,m_pcb180_raw_precon,Maternal  PCB_180 preconception levels,,,1.1.0,,decimal,pg/g,,,,,,,OCs & PBDEs,,
@@ -4418,6 +4448,7 @@ ATHLETE_CDM,chemicals_ath,m_tl_raw_birth,Maternal   Tl birth levels,,,1.1.0,,dec
 ATHLETE_CDM,chemicals_ath,m_tl_raw_precon,Maternal  Tl preconception levels,,,1.1.0,,decimal,µg/L,,,,,,,Metals,,
 ATHLETE_CDM,chemicals_ath,m_tl_raw_t1,Maternal   Tl  trimester levels,,,1.1.0,,decimal,µg/L,,,,,,,Metals,,
 ATHLETE_CDM,chemicals_ath,m_trcs_lod_birth,Limit of detection of maternal  TRCS at birth,,,1.1.0,,decimal,µg/L,,,,,,,Phenols,,
+ATHLETE_CDM,outcome_ath,att_hrtse_raw_0,,,,,,decimal,milliseconds,,,,"Repeated measures of attentional function, raw score of standard error of hit reaction time: att_hrtse_raw_0: assessed within one year of childbirth (>0 year and <1 year) att_hrtse_raw_1: assessed when the child was aged between ≥ 1 year and < 2 years … att_hrtse_raw_17: assessed when the child was aged between ≥ 17 years and < 18 years",,,Cognitive functioning,,
 ATHLETE_CDM,chemicals_ath,m_trcs_lod_precon,Limit of detection of maternal  TRCS at preconception,,,1.1.0,,decimal,µg/L,,,,,,,Phenols,,
 ATHLETE_CDM,chemicals_ath,m_trcs_lod_preg,Limit of detection of maternal urine TRCS at pregnancy,,,1.1.0,,decimal,µg/L,,,,,,,Phenols,,
 ATHLETE_CDM,chemicals_ath,m_trcs_lod_t1,Limit of detection of maternal urine TRCS in  trimester,,,1.1.0,,decimal,µg/L,,,,,,,Phenols,,
@@ -4449,16 +4480,6 @@ ATHLETE_CDM,outcome_ath,att_eval_0,,,,,,categorical,,,,,"Who the attentional fun
 ATHLETE_CDM,outcome_ath,att_hrt_pc_0,,,,,,decimal,,,,,"Attentional function, percentiles of hit reaction time (i.e., att_hrt_raw_0, att_hrt_raw_1, etc.)",,,Cognitive functioning,,
 ATHLETE_CDM,outcome_ath,biparietal_diam_sdsWHO_t2,Gestational age-adjusted biparietal diameter SDS  in 2nd trimester based on overall WHO-based reference growth curves,,,,,continuous,estimated fetal weight SDS,,,,,,,,,
 MBRN,MBRN,PERINAT_DODFOD_500_WHO,Perinatal stillborn ≥ 500 gram according to WHOs primary definition. See also: Abbreviations and definitions: Perinatal mortality,,,1.0,,,,,,,,,,,,1 = Yes
-ATHLETE_CDM,outcome_ath,att_hrt_raw_0,,,,,,decimal,milliseconds,,,,"Repeated measures of attentional function, raw score of hit reaction time: att_hrt_raw_0: assessed within one year of childbirth (>0 year and <1 year) att_hrt_raw_1: assessed when the child was aged between ≥ 1 year and < 2 years … att_hrt_raw_17: assessed when the child was aged between ≥ 17 years and < 18 years",,,Cognitive functioning,,
-ATHLETE_CDM,outcome_ath,att_hrt_std_0,,,,,,decimal,milliseconds,,,,"Attentional function, standardized score of hit reaction time (i.e., att_hrt_raw_0, att_hrt_raw_1, etc.)",,,Cognitive functioning,,
-ATHLETE_CDM,outcome_ath,att_hrtse_pc_0,,,,,,decimal,,,,,"Attentional function, percentiles of standard error of hit reaction time (i.e., att_hrtse_raw_0, att_hrtse_raw_1, etc.)",,,Cognitive functioning,,
-ATHLETE_CDM,outcome_ath,att_hrtse_raw_0,,,,,,decimal,milliseconds,,,,"Repeated measures of attentional function, raw score of standard error of hit reaction time: att_hrtse_raw_0: assessed within one year of childbirth (>0 year and <1 year) att_hrtse_raw_1: assessed when the child was aged between ≥ 1 year and < 2 years … att_hrtse_raw_17: assessed when the child was aged between ≥ 17 years and < 18 years",,,Cognitive functioning,,
-ATHLETE_CDM,outcome_ath,att_hrtse_std_0,,,,,,decimal,milliseconds,,,,"Attentional function, standardized score of standard error of hit reaction time (i.e., att_hrtse_raw_0, att_hrtse_raw_1, etc.)",,,Cognitive functioning,,
-ATHLETE_CDM,outcome_ath,att_instr_0,,,,,,categorical,,,,,"Cohort-specific instrument used to measure the attentional function for att_raw_0, att_raw_1, etc.",,,Cognitive functioning,,
-ATHLETE_CDM,outcome_ath,att_om_pc_0,,,,,,decimal,,,,,"Attentional function, percentiles of number of omissions (i.e., att_om_raw_0, att_pro_raw_1, etc.)",,,Cognitive functioning,,
-ATHLETE_CDM,outcome_ath,att_om_raw_0,,,,,,decimal,,,,,"Repeated measures of attentional function, raw score of number of omissions: att_om_raw_0: assessed within one year of childbirth (>0 year and <1 year) att_om_raw_1: assessed when the child was aged between ≥ 1 year and < 2 years … att_om_raw_17: assessed when the child was aged between ≥ 17 years and < 18 years",,,Cognitive functioning,,
-ATHLETE_CDM,outcome_ath,att_om_std_0,,,,,,decimal,,,,,"Attentional function, standardized score of number of omissions (i.e., att_om_raw_0, att_pro_raw_1, etc.)",,,Cognitive functioning,,
-ATHLETE_CDM,outcome_ath,att_wave_1,,,,,,integer,,,,,Which wave of attentional function measurement was recorded?,,,Cognitive functioning,,
 ATHLETE_CDM,outcome_ath,avr_0,Repeated measures of child‘s arteriole-to-venule ratio (AVR) (mean value from right and left fundus),,,,,continuous,,,,,Repeated measures of child‘s arteriole-to-venule ratio (AVR) (mean value from right and left fundus): rmcavr_0 assessed within one year of childbirth (>0 year and <1 year) rmcavr_1: assessed when the child was aged between ≥ 1 year and < 2 years … rmcavr_17: assessed when the child was aged between ≥ 17 years and < 18 years,,,,,
 ATHLETE_CDM,outcome_ath,bedR_10,,,,,,binary,,,,,"Repeated measures of offspring binge eating disorder diagnosis:
 bedR_10: assessed between ≥ 10 years and < 11 years
@@ -4518,8 +4539,6 @@ ANAGRAFICA,ANAGRAFICA,DATADECESSO,Data della morte,,,1.0,,,,,,,,,,,,Date of deat
 ANAGRAFICA,ANAGRAFICA,DATEOFBIRTH,Data di nascita,,,1.0,,,,,,,,,,,,Date of birth
 ANAGRAFICA,ANAGRAFICA,MAXASSISTIB,Data fine assistibilità,,,1.0,,,,,,,,,,,,Last NHS access date
 ANAGRAFICA,ANAGRAFICA,MEDICO,Codice medico dell’assistito,,,1.0,,,,,,,,,,,,GP code of registered physician
-ANAGRAFICA,ANAGRAFICA,MINASSISTIB,Data inizio assistibilità,,,1.0,,,,,,,,,,,,First NHS access date
-ANAGRAFICA,ANAGRAFICA,MOTIVO,Motivazione fine assistibilità,,,1.0,,,,,,,,,,,,Decesso o trasferimento i.e. death or transfer out of catchment area
 ANAGRAFICA,ANAGRAFICA,PATID,Codice identificativo paziente criptato,,,1.0,,,,,,,,,,,,Patient ID code
 ANAGRAFICA,ANAGRAFICA,SEX,Sesso dell’assistito,,,1.0,,,,,,,,,,,,M= Male; F= Female
 AP,AP,cod_morf_1,morphology code 1,,,1.0,,,,,,,,,,,,"main morphological code, i.e. the code of the most significant pathology, relative to the topographic site of the tumor, indicated in the cod_topog field
@@ -4658,8 +4677,6 @@ FARMACEUTICA,FARMACEUTICA,ICD9,ICD9,,,1.0,,,,,,,"Up to 2015 there was a project 
   
  After 2015 there is a different way of capturing the same information, from GPs and paediatricians and specialists: 70% of all prescriptions",,,,,"Indication of use, obtained from GP records up to 2015 and from electronic prescriptions from 2015 to present"
 FARMACEUTICA,FARMACEUTICA,MEDICO,Codice medico,,,1.0,,,,,,,,,,,,Prescribing GP
-FARMACEUTICA,FARMACEUTICA,NPEZZI,Numero confezioni,,,1.0,,,,,,,"Depends on the values of the ‘FLUSSO’ variable, usually it refers to number of packages",,,,,Number of units prescribed
-FARMACEUTICA,FARMACEUTICA,NUMRICETTA,Numero ricetta,,,1.0,,,,,,,,,,,,Prescription number
 FARMACEUTICA,FARMACEUTICA,PATID,Codice identificativo paziente criptato,,,1.0,,,,,,,,,,,,Patient ID code
 MBRN,MBRN,ABRUPTIOP,Abruptio placentae,,,1.0,,,,,,,HCP,,,,,1 = Yes
 MBRN,MBRN,ABSTINENS,"Withdrawal symptoms in the child due to medicaments, alcohol or narcotics",,,1.0,,,,,,,,,,,,1 = Yes
@@ -4852,22 +4869,6 @@ MBRN,MBRN,MULTIVITF,Multivitamin supplements prior to pregnancy,,,1.0,,,,,,,,,,,
 MBRN,MBRN,MULTIVITU,Multivitamin supplements during pregnancy,,,1.0,,,,,,,,,,,,1 = Yes
 MBRN,MBRN,Microcephaly,,,,1.0,,,,,,,ICD10 code Q02. To be included in the next data delivery Q3 2021,,,,,
 MBRN,MBRN,NARKOSE,General anaesthesia,,,1.0,,,,,,,HCP,,,,,1 = Yes
-MBRN,MBRN,NAVLESNORLENGDE,Length of the umbilical cord,,,1.0,,,,,,,HCP,,,,,Centimeter
-OOM_CDM,EUROCAT,malfo1,,,,2.2,,,,,,true,"MALFORMATION 
-A baby/fetus with ONLY minor anomalies (see exclusion list, chapter 7) should not be transmitted to Central Registry. 
-
-When a major anomaly is present, code both major and minor anomalies. 
-
-In case of conjoined twins, give full description in text in variable 33 
-
-Up to 8 malformations can be coded – if more than 8 are present, specify additional anomalies in the text variable for the 8th anomaly (text variable 47 SP_MALFO8). 
-
-Include in the 8 specified codes the most important ones, or those tabulated in EUROCAT Reports. 
-
-Give written description of the malformations available in malformation text variables 33, 35, 37, 39, 41, 43, 45 and 47.",,"Table reference: EUROCAT/EUROmediCAT. ICD 10
-First 4 digits are ICD
-5th digit = BPA classification OR
-leave blank",,,
 MBRN,MBRN,NAVLESNOR_KOMPL,Umbilical cord: Complications,,,1.0,,,,,,,HCP,,,,,1 = Yes
 MBRN,MBRN,NEVRALRORSDEFEKTER,"Anencephaly, Encephalocele or Spina bifida",,,1.0,,,,,,,,,,,,1 = Yes
 MBRN,MBRN,NYRESYKDOM_KRONISK,Chronic renal disease,,,1.0,,,,,,,,,,,,1 = Yes
@@ -4966,7 +4967,6 @@ MBRN,MBRN,TERMINMETODE,Method for estimating expected date of delivery,,,1.0,,,,
  6 = Ultrasound upspecified 
  7 = Ultrasound is not performed 
  99 = Other"
-OOM_CDM,EUROCAT,malfo2,,,,2.2,,,,,,true,AS MALFO1,,Table reference: EUROCAT/EUROmediCAT. As MALF01,,,
 MBRN,MBRN,UL_TERMIN,Ultrasound estimated date of delivery,,,1.0,,,,,,,HCP. Difference date variable. Renamed diff_ul_termin in dataset.,,,,,Date
 MBRN,MBRN,UTSKRAPING,Placenta: Curettage,,,1.0,,,,,,,HCP,,,,,1 = Yes
 MBRN,MBRN,UTTREKKING,Total breech extraction,,,1.0,,,,,,,HCP,,,,,1 = Yes
@@ -5970,6 +5970,7 @@ G21,child,Idademedicao,"age of the child, in months, at the 4y follow-up",,,1,,i
 G21,child,idade_meses,"age of the child, in months, at the baseline",,,1,,integer,,,,,"age of the child, in months, at the baseline",,,,,
 G21,child,idade84m,"age of the child, in months, at the 7y follow-up",,,1,,integer,,,,,"age of the child, in months, at the 7y follow-up",,,,,
 G21,child,idade120m,"age of the child, in months, at the 10y follow-up",,,1,,integer,,,,,"age of the child, in months, at the 10y follow-up",,,,,
+GenR,core,WEIGHT_1,weight intake,,,1.0.0,,continuous,kg,,,,weight mother measured at enrollment,,,,,
 G21,child,idade156m,"age of the child, in months, at the 13y follow-up",,,1,,integer,,,,,"age of the child, in months, at the 13y follow-up",,,,,
 ENVIRONAGE,bloodpressure after birth,AgeB_BP,,ENVIRONAGE,birth,,,continuous,day,,,,Newborn age (days) at measurement blood pressure after birth,,,,,
 ENVIRONAGE,bloodpressure after birth,SBP1B,,ENVIRONAGE,birth,,,continuous,mmHg,,,,First Systolic Blood Pressure of newborn,,,,,
@@ -6038,7 +6039,6 @@ GenR,core,E0400176,GR1076 E4 Does the child’s mother smoke at home?,,,1.0.0,,c
 GenR,core,E0500176,GR1076 E5 Does the child’s father smoke at home?,,,1.0.0,,categorical,,,,,Indicates whether the father of the child smokes at home,,,,,
 GenR,core,E0800176,GR1076 E8 Do you have a cat in the house? (E0800176),,,1.0.0,,categorical,,,,,Indicates whether they own a cat,,,,,
 GenR,core,E0900176,GR1076 E9 Do you have a dog in the house? (E0900176),,,1.0.0,,categorical,,,,,Indicates whether they own a dog,,,,,
-GenR,core,WEIGHT_1,weight intake,,,1.0.0,,continuous,kg,,,,weight mother measured at enrollment,,,,,
 GenR,core,EDUCM3,GR1065 Education mother based on 36 months questionnaire (educm3),,,1.0.0,,categorical,,,,,This indicates the educational level (finished education) at age 3 years of the child,,,,,
 GenR,core,EDUCM5,GR1075 Education mother based on 5/6 year questionnaire (educm5),,,1.0.0,,categorical,,,,,This indicates the educational level (finished education) at age 5 years of the child,,,,,
 GenR,core,EDUCP3,GR1066 Education partner based on 36 months questionnaire (educp3),,,1.0.0,,categorical,,,,,This indicates the educational level (finished education) of the partner at age 3 years of the child,,,,,
@@ -6127,6 +6127,7 @@ GenR,core,TWIN,Twin birth,,,1.0.0,,categorical,,,,,Twin yes/no,,,,,
 GenR,core,FOLIUM_VALIDATED,"folic acid use, known and periconceptional - Sarah Timmermans",,,1.0.0,,categorical,,,,,Indicates whether the particpants used folic acid before or during pregnancy (until 10 weeks of gestation),,,,,
 GenR,core,FUPFASE3_9,participantion phase 3 - Focus @9,,,1.0.0,,categorical,,,,,Indicator of partiipation in 9-yr followup examination,,,,,
 GenR,core,FVC,Forced Vital Capacity (L),,,1.0.0,,continuous,,,,,Forced Vital Capacity (L),,,,,
+GenR,core,PARTBF,partner is biological father,,,1.0.0,,categorical,,,,,Indicates whether partner is biological father,,,,,
 GenR,core,Fat_total_Epct,"Total fat intake, in energy percent [FFQ 8y]",,,1.0.0,,continuous,percent,,,,"Total fat intake, in energy percent",,,,,
 GenR,core,Fat_total_g,"Total fat intake, g/d [FFQ 8y]",,,1.0.0,,continuous,gram_per_day,,,,"Total fat intake, g/d",,,,,
 GenR,core,G0100132,GR1032 G1-1 Which description applies most to you at the moment? (G0100132),,,1.0.0,,categorical,,,,,Indicates occupational status of the mother,,,,,
@@ -6305,6 +6306,7 @@ GenR,core,SUB6W,SkinSubscapulair at 6 weeks,,,1.0.0,,continuous,mm,,,,SkinSubsca
 GenR,core,SUPRA14M,SkinSuprailiacaal at 14 months,,,1.0.0,,continuous,mm,,,,SkinSuprailiacaal at 14 months,,,,,
 GenR,core,Sys4_5child,F@5 BLOODPRESSURE – child: 4th Systole (mmHg) (Sys4_5child),,,1.0.0,,continuous,mmHg,,,,Bloodpressure measured in sitting positing at right upper arm at reseach clinics,,,,,
 GenR,core,TCholmetoutliers_1,"cholesterol mother during pregnancy including outliers, minus gekke waarden",,,1.0.0,,continuous,mmol/litre,,,,cholesterol mother during pregnancy,,,,,
+GenR,core,ecz1y,eczema doctor attended age1,,,1.0.0,,categorical,,,,,Doctor attended eczema in the past 12 months,,,,,
 GenR,core,TGCH5_C,Triglycerids Child (serum) F5 mmol/l CLEANED,,,1.0.0,,continuous,mmol/litre,,,,Triglycerides from serum measured at research clinics,,,,,
 GenR,core,TGmetoutliers_1,"TG mother during pregnancy including outliers, minus gekke waarden",,,1.0.0,,continuous,mmol/litre,,,,TG mother during pregnancy,,,,,
 GenR,core,TRIC14M,SkinTriceps at 14 months,,,1.0.0,,continuous,mm,,,,SkinTriceps at 14 months,,,,,
@@ -6335,6 +6337,7 @@ GenR,core,a2200104,GR1004 A22-1 asthma (a2200104),,,1.0.0,,categorical,,,,,Indic
 GenR,core,age_GR1075_years,Age of the child in years questionnaire 1075,,,1.0.0,,continuous,year,,,,age at time of filling out the questionaire (cbcl 5 years),,,,,
 GenR,core,a2200204,GR1004 A22-2 treated in the past 12 months (a2200204) (Note: this label is incorrect. It should be GR1004 A22-2 was asthma confirmed by a doctor?),,,1.0.0,,categorical,,,,,Indicates whether asthma (if question on asthma is yes) was confirmed by a doctor,,,,,
 GenR,core,age5childmDXA,Age child DXA,,,1.0.0,,continuous,month,,,,Age in months at DXA scan at 6 years of age,,,,,
+GenR,core,ecz2y,eczema doc-attended age 2,,,1.0.0,,categorical,,,,,Doctor attended eczema in the past 12 months,,,,,
 GenR,core,ageBF_atDelivery,Age of Father at birth of the child,,,1.0.0,,continuous,year,,,,Age of Father at birth of the child,,,,,
 GenR,core,ageChildMF5,Age Child Focus at 5 years (months),,,1.0.0,,continuous,month,,,,Age Child Focus at 5 years (months),,,,,
 GenR,core,ageChildYF5,Age Child Focus at 5 years (years),,,1.0.0,,continuous,year,,,,exact child age at time of the assessment at the research center,,,,,
@@ -6400,7 +6403,6 @@ GenR,core,OUTCOMECHILD,outcome birth - child,,,1.0.0,,categorical,,,,,Indicates 
 GenR,core,OUTCOMEPREG,outcome pregnancy,,,1.0.0,,categorical,,,,,outcome of the pregnancy,,,,,
 GenR,core,P04_01,fruit,,,1.0.0,,continuous,gram_per_day,,,,Intake of fruits,,,,,
 GenR,core,PARITY,parity,,,1.0.0,,continuous,,,,,Indicates the womens parity,,,,,
-GenR,core,PARTBF,partner is biological father,,,1.0.0,,categorical,,,,,Indicates whether partner is biological father,,,,,
 GenR,core,PA_BEF_AFTER_GENR,PA_BEF_AFTER_GENR: Final variable for solutio,,,1.0.0,,categorical,,,,,"Indicates whether the mother had placental abruption before, during or after the index pregnancy",,,,,
 GenR,core,PE,PE - definition Sarah Timmermans,,,1.0.0,,categorical,,,,,Indicates whether the participant had pre-eclampsia or HELLP. Criteria pre-eclampsia: SBP ≥140 mmHg and/or DBP ≥90 mmHg after 20 weeks of gestation in a previously normotensive women plus the presence of proteinuria. Participants with gestational hypertention are set to missing.,,,,,
 GenR,core,p05,DAIRY PRODUCTS,,,1.0.0,,continuous,gram_per_day,,,,Intake of dairy products,,,,,
@@ -6433,8 +6435,6 @@ GenR,core,e0200203,GR1003 E2-2 have you suffered from bulimia in the past year? 
 GenR,core,e0300104,GR1004 E3-1 best description income (e0300104),,,1.0.0,,categorical,,,,,Indicates occupational status of the father,,,,,
 GenR,core,ec_ever9y,"Ever doctor-diagnosed eczema at age 9 years, y/n",,,1.0.0,,categorical,,,,,Ever doctor-diagnosed eczema at age 9 years,,,,,
 GenR,core,ecz,eczema 6 months_n/y,,,1.0.0,,categorical,,,,,Doctor attended eczema in the past 6 months,,,,,
-GenR,core,ecz1y,eczema doctor attended age1,,,1.0.0,,categorical,,,,,Doctor attended eczema in the past 12 months,,,,,
-GenR,core,ecz2y,eczema doc-attended age 2,,,1.0.0,,categorical,,,,,Doctor attended eczema in the past 12 months,,,,,
 GenR,core,ecz3y,eczema doc-attended age 3,,,1.0.0,,categorical,,,,,Doctor attended eczema in the past 12 months,,,,,
 GenR,core,ecz4y,eczema doc-attended age 4,,,1.0.0,,categorical,,,,,Doctor attended eczema in the past 12 months,,,,,
 GenR,core,ecz5y,doctor attended eczema age 5 n/y,,,1.0.0,,categorical,,,,,Doctor attended eczema in the past 12 months,,,,,
