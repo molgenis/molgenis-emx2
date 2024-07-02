@@ -1,5 +1,5 @@
 import type {
-  HarmonizationStatus,
+  HarmonisationStatus,
   IVariableWithMappings,
   IVariableBase,
 } from "~/interfaces/types";
@@ -8,12 +8,12 @@ type IRepeatingVariableWithMapping = IVariableWithMappings;
 type INonRepeatingVariableWithMapping = IVariableBase & IVariableWithMappings;
 
 /**
- * Returns a matrix of harmonization status for each variable and cohort
+ * Returns a matrix of harmonisation status for each variable and cohort
  * In case of a repeated variable, the status for toplevel variable is based on the combined status of all its repeats
  * @param variables
  * @param cohorts
  */
-export const calcAggregatedHarmonizationStatus = (
+export const calcAggregatedHarmonisationStatus = (
   variables: IVariableWithMappings[],
   cohorts: { id: string }[]
 ) => {
@@ -33,7 +33,7 @@ export const calcAggregatedHarmonizationStatus = (
   });
 };
 
-export const calcIndividualVariableHarmonizationStatus = (
+export const calcIndividualVariableHarmonisationStatus = (
   variable: IVariableWithMappings,
   cohorts: { id: string }[]
 ) => {
@@ -64,7 +64,7 @@ const hasAnyMapping = (variable: IVariableWithMappings) => {
 const calcStatusForSingleVariable = (
   variable: INonRepeatingVariableWithMapping,
   cohort: { id: string }
-): HarmonizationStatus => {
+): HarmonisationStatus => {
   const resourceMapping = variable.mappings?.find((mapping) => {
     return mapping.sourceDataset.resource.id === cohort.id;
   });
@@ -86,7 +86,7 @@ const calcStatusForSingleVariable = (
 const calcStatusForAggregatedRepeatingVariable = (
   variable: IRepeatingVariableWithMapping,
   cohort: { id: string }
-): HarmonizationStatus => {
+): HarmonisationStatus => {
   const statusList = !variable.repeats
     ? []
     : variable.repeats.map((repeatedVariable) => {

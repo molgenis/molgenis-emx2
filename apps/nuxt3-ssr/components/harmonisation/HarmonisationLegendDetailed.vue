@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import type { HarmonizationIconSize } from "../../interfaces/types";
+import type { HarmonisationIconSize } from "../../interfaces/types";
 const ariaId = useId();
 
 const props = withDefaults(
   defineProps<{
-    size?: HarmonizationIconSize;
+    size?: HarmonisationIconSize;
   }>(),
   { size: "large" }
 );
@@ -17,15 +17,15 @@ const props = withDefaults(
       class="flex flex-col md:flex-row gap-3 list-none p-0 [&_li]:flex [&_li]:items-center [&_li]:gap-2"
     >
       <li>
-        <HarmonizationStatusIcon :size="size" status="complete" />
+        <HarmonisationStatusIcon :size="size" status="complete" />
         Completed
       </li>
       <li>
-        <HarmonizationStatusIcon :size="size" status="partial" />
+        <HarmonisationStatusIcon :size="size" status="partial" />
         Partial
       </li>
       <li>
-        <HarmonizationStatusIcon :size="size" status="unmapped" />
+        <HarmonisationStatusIcon :size="size" status="unmapped" />
         No data
       </li>
     </ul>
@@ -42,26 +42,26 @@ const props = withDefaults(
       <template #popper>
         <ul class="list-none [&_li]:flex [&_li]:gap-1">
           <li>
-            <HarmonizationStatusIcon size="small" status="complete" />
+            <HarmonisationStatusIcon size="small" status="complete" />
             <span
-              >Completed: cohort was able to fully map to the harmonized
+              >Completed: cohort was able to fully map to the harmonised
               variables</span
             >
           </li>
           <li>
-            <HarmonizationStatusIcon size="small" status="partial" />
+            <HarmonisationStatusIcon size="small" status="partial" />
             <span
-              >Partial: cohort was able to partially map to the harmonized
+              >Partial: cohort was able to partially map to the harmonised
               variable</span
             >
           </li>
           <li>
-            <HarmonizationStatusIcon
+            <HarmonisationStatusIcon
               size="small"
               status="unmapped"
               class="bg-white"
             />
-            <span>No data: no harmonization information is available</span>
+            <span>No data: no harmonisation information is available</span>
           </li>
         </ul>
       </template>
