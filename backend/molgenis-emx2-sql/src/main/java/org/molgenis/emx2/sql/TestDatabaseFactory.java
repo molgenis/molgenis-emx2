@@ -8,6 +8,6 @@ public class TestDatabaseFactory {
     Database db = new SqlDatabase(false);
     db.setActiveUser(db.getAdminUserName());
     return db;
-    // don't share the database between tests because when setting active user that leadds to errors
+    // don't share the database between tests because when setting active user that leads to errors
   }
 }
