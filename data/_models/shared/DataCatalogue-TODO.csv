@@ -1,5 +1,5 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
-Version,,,,,,,,,,,,3.13,"DataCatalogue,EMA,SharedStaging,CohortStaging"
+Version,,,,,,,,,,,,3.14,"DataCatalogue,EMA,SharedStaging,CohortStaging"
 Catalogues,,,,,,,,,,,dcat:Catalog,A collection of resources within a network or consortium or about a common topic,DataCatalogue
 Catalogues,,network,ref,1,TRUE,,Networks,,,,,Network or consortium that leads this catalogue,DataCatalogue
 Catalogues,,type,ontology,,TRUE,CatalogueOntologies,CatalogueTypes,,,,dcat:theme,Type of catalogue,DataCatalogue
@@ -362,6 +362,7 @@ All variables,,label,,,,,,,,,,"Human friendly longer name, if applicable","DataC
 All variables,,collection event,ref,,,,Collection events,,,,,in case of protocolised data collection this defines the moment(s) in time this variable is collected on,"DataCatalogue,CohortStaging"
 All variables,,since version,,,,,,,,,,When this variable was introduced,"DataCatalogue,CohortStaging"
 All variables,,until version,,,,,,,,,,When this variable was removed if applicable,"DataCatalogue,CohortStaging"
+All variables,,network variables,refback,,,,Network variables,,variable,,,,DataCatalogue
 Variables,All variables,,,,,,,,,,,"Definition of a non-repeated variable, or of the first variable from a repeated range","DataCatalogue,CohortStaging"
 Variables,,format,ontology,,,CatalogueOntologies,Formats,,,,,"Data type, e.g. string,int,decimal,date,datetime etc","DataCatalogue,CohortStaging"
 Variables,,unit,ontology,,,CatalogueOntologies,Units,,,,,,"DataCatalogue,CohortStaging"
