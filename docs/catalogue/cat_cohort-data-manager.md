@@ -244,7 +244,7 @@ Click on "Details"
 
 ![Variable detail](../img/cat_variable-detail.png)
 
-Click on "Harmonization"
+Click on "Harmonisation"
 
 ![Variable mapping](../img/cat_variable-mapping.png)
 

@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import type { HarmonizationStatus } from "~/interfaces/types";
+import type { HarmonisationStatus } from "~/interfaces/types";
 
 const props = defineProps<{
   cohortsWithMapping: {
     cohort: { id: string };
-    status: HarmonizationStatus | HarmonizationStatus[];
+    status: HarmonisationStatus | HarmonisationStatus[];
   }[];
 }>();
 
-const aggregatedHarmonizationStatus = computed(() => {
+const aggregatedHarmonisationStatus = computed(() => {
   return props.cohortsWithMapping
     .map((cwm) => {
       const status = Array.isArray(cwm.status) ? cwm.status : [cwm.status];
@@ -41,14 +41,14 @@ const aggregatedHarmonizationStatus = computed(() => {
     <div>
       <ul>
         <li
-          v-for="{ cohort, status } in aggregatedHarmonizationStatus.slice(
+          v-for="{ cohort, status } in aggregatedHarmonisationStatus.slice(
             0,
             10
           )"
           class="pb-2"
         >
           <div class="flex items-center gap-2">
-            <HarmonizationStatusIcon :status="status" size="large" />
+            <HarmonisationStatusIcon :status="status" size="large" />
             <span>{{ cohort.id }}</span>
           </div>
         </li>
@@ -57,14 +57,14 @@ const aggregatedHarmonizationStatus = computed(() => {
     <div>
       <ul>
         <li
-          v-for="{ cohort, status } in aggregatedHarmonizationStatus.slice(
+          v-for="{ cohort, status } in aggregatedHarmonisationStatus.slice(
             10,
             20
           )"
           class="pb-2"
         >
           <div class="flex items-center gap-2">
-            <HarmonizationStatusIcon :status="status" size="large" />
+            <HarmonisationStatusIcon :status="status" size="large" />
             <span>{{ cohort.id }}</span>
           </div>
         </li>
@@ -73,19 +73,19 @@ const aggregatedHarmonizationStatus = computed(() => {
     <div>
       <ul>
         <li
-          v-for="{ cohort, status } in aggregatedHarmonizationStatus.slice(
+          v-for="{ cohort, status } in aggregatedHarmonisationStatus.slice(
             20,
             30
           )"
           class="pb-2"
         >
           <div class="flex items-center gap-2">
-            <HarmonizationStatusIcon :status="status" size="large" />
+            <HarmonisationStatusIcon :status="status" size="large" />
             <span>{{ cohort.id }}</span>
           </div>
         </li>
       </ul>
     </div>
   </div>
-  <HarmonizationLegendDatailed class="mt-12" />
+  <HarmonisationLegendDatailed class="mt-12" />
 </template>
