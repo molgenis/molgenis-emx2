@@ -25,17 +25,18 @@ import spark.Request;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class BeaconModelEndPointTest {
 
-  private static final String TEST_URL = "http://localhost:8080/api/";
+  public static final String TEST_URL = "http://localhost:8080/api/";
+  public static final String SCHEMA_NAME = "fairdatahub";
 
-  static Database database;
-  static Schema beaconSchema;
+  protected static Database database;
+  protected static Schema beaconSchema;
 
   @BeforeAll
   public void setup() {
     if (database == null) {
       database = TestDatabaseFactory.getTestDatabase();
-      // beaconSchema = database.getSchema("fairdatahub");
-      beaconSchema = database.dropCreateSchema("fairdatahub");
+      // beaconSchema = database.getSchema(SCHEMA_NAME);
+      beaconSchema = database.dropCreateSchema(SCHEMA_NAME);
       ProfileLoader b2l = new ProfileLoader("_profiles/FAIRDataHub.yaml");
       b2l.load(beaconSchema, true);
     }

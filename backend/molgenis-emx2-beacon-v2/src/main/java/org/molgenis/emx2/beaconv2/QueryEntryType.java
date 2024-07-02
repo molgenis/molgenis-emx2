@@ -171,7 +171,6 @@ public class QueryEntryType {
         new QueryBuilder(table).addAllColumns(MAX_QUERY_DEPTH).addFilters(filters).getQuery();
     ExecutionResult result = graphQL.execute(graphQlQuery);
 
-    ObjectMapper mapper = new ObjectMapper();
     JsonNode results = mapper.valueToTree(result.getData());
     JsonNode entryTypeResult = results.get(entryType.getId());
     if (entryTypeResult == null || entryTypeResult.isNull()) return null;
