@@ -123,7 +123,6 @@ export default {
       schemaDescription: null,
       template: null,
       templates: [
-        null,
         "PET_STORE",
         "FAIR_DATA_HUB",
         "DATA_CATALOGUE",
