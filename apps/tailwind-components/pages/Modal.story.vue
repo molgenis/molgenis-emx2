@@ -8,6 +8,7 @@ function showModal() {
 
 let sectionCount = ref(0);
 </script>
+
 <template>
   <button
     @click="showModal"
@@ -15,7 +16,7 @@ let sectionCount = ref(0);
   >
     Open modal 🙈
   </button>
-  <Modal ref="modal" title="Title" sub-title="Sub Title">
+  <Modal ref="modal" title="Title" subtitle="Subtitle">
     <p class="pb-2">
       Good resolutions are useless attempts to interfere with scientific laws.
       Their origin is pure vanity. Their result is absolutely nil. They give us,
