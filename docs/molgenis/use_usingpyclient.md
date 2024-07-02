@@ -172,6 +172,7 @@ client.upload_file(file_path='location/of/data/file.zip', schema='My Schema')
 ```
 Imports table data and/or metadata to a schema from a file on the disk.
 This method supports `zip`, `xlsx`, and `csv` files.
+When uploading multiple `csv` files it is recommended to archive them into a `zip` file first and upload that file using this method.
 Throws the `PermissionDeniedException` if the user does not have at least _editor_ permissions for this schema.
 Throws the `NoSuchSchemaException` if the schema is not found on the server.
 
