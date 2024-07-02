@@ -98,7 +98,7 @@ export default {
         :options="['lion', 'ape', 'monkey']"
       />
       Selected: {{ requiredCheck }}
-      IMPORTANT: When using "required", always use a default value. Do not use "null"/"undefined"!
+      <br />IMPORTANT: When using "required", always use a default value. Do not use "null"/"undefined"!
     </DemoItem>
     <DemoItem>
       <InputSelect
