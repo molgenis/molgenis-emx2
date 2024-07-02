@@ -1,6 +1,8 @@
 import csv
 import io
 import logging
+import pathlib
+import time
 from functools import cache
 from typing import TypeAlias, Literal
 
@@ -61,8 +63,6 @@ class Client:
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        if exc_type or exc_val or exc_tb:
-            print(exc_type, exc_val, exc_tb, sep="\n")
         if self.signin_status == 'success':
             self.signout()
         self.session.close()
@@ -72,8 +72,6 @@ class Client:
         return self
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
-        if exc_type or exc_val or exc_tb:
-            print(exc_type, exc_val, exc_tb, sep="\n")
         if self.signin_status == 'success':
             self.signout()
         self.session.close()
@@ -246,6 +244,123 @@ class Client:
         except PyclientException:
             errors = '\n'.join([err['message'] for err in response.json().get('errors')])
             log.error("Failed to import data into %s::%s\n%s", current_schema, table, errors)
+            raise PyclientException(errors)
+
+    def upload_file(self, file_path: str | pathlib.Path, schema: str = None):
+        """Uploads a file to a database on the EMX2 server.
+
+        :param file_path: the path where the file is located.
+        :type file_path: str or pathlib.Path object
+        :param schema: the name of the schema where the file should be uploaded
+        :type schema: str, default None
+
+        :returns: status message or response
+        :rtype: str
+        """
+        if not isinstance(file_path, pathlib.Path):
+            file_path = pathlib.Path(file_path)
+        if not file_path.exists():
+            raise FileNotFoundError(f"No file found at {file_path!r}.")
+
+        schema = schema if schema else self.default_schema
+        if not schema:
+            raise NoSuchSchemaException(f"Specify the schema where the file should be uploaded.")
+
+        api_url = f"{self.url}/{schema}/api/"
+        if file_path.suffix == '.csv':
+            return self._upload_csv(file_path, schema)
+        elif file_path.suffix == '.zip':
+            api_url += "zip?async=true"
+        elif file_path.suffix == '.xlsx':
+            api_url += "excel?async=true"
+        else:
+            raise NotImplementedError(f"Uploading files with extension {file_path.suffix!r} is not supported.")
+
+        with open(file_path, 'rb') as file:
+            response = self.session.post(
+                url=api_url,
+                files={'file': file},
+                headers={'x-molgenis-token': self.token}
+            )
+
+        # Check if status is OK
+        log.info(response.status_code)
+
+        if response.status_code != 200:
+            msg = '\n'.join([err['message'] for err in response.json().get('errors')])
+            log.error(msg)
+            raise PyclientException(msg)
+
+        # Catch process URL
+        process_id = response.json().get('id')
+
+        # Report subtask progress
+        p_response = self.session.post(
+            url=self.api_graphql,
+            json={'query': queries.task_status(process_id)}
+        )
+        if p_response.status_code != 200:
+            raise PyclientException("Error uploading file")
+
+        reported_tasks = []
+        task = p_response.json().get('data').get('_tasks')[0]
+        while (status := task.get('status')) != 'COMPLETED':
+            if status == 'ERROR':
+                # TODO improve error handling
+                raise PyclientException(f"Error uploading file: {task.get('description')}")
+            subtasks = task.get('subTasks', [])
+            for st in subtasks:
+                if st['id'] not in reported_tasks and st['status'] == 'RUNNING':
+                    log.info(f"Subtask: {st['description']}")
+                    reported_tasks.append(st['id'])
+                if st['id'] not in reported_tasks and st['status'] == 'SKIPPED':
+                    log.warning(f"    Subtask: {st['description']}")
+                    reported_tasks.append(st['id'])
+                for sst in st.get('subTasks', []):
+                    if sst['id'] not in reported_tasks and sst['status'] == 'COMPLETED':
+                        log.info(f"    Subsubtask: {sst['description']}")
+                        reported_tasks.append(sst['id'])
+                    if sst['id'] not in reported_tasks and sst['status'] == 'SKIPPED':
+                        log.warning(f"    Subsubtask: {sst['description']}")
+                        reported_tasks.append(sst['id'])
+            try:
+                p_response = self.session.post(
+                    url=self.api_graphql,
+                    json={'query': queries.task_status(process_id)}
+                )
+                task = p_response.json().get('data').get('_tasks')[0]
+            except AttributeError:
+                time.sleep(1)
+                p_response = self.session.post(
+                    url=self.api_graphql,
+                    json={'query': queries.task_status(process_id)}
+                )
+                task = p_response.json().get('data').get('_tasks')[0]
+        log.info(f"Completed task: {task.get('description')}")
+
+    def _upload_csv(self, file_path: pathlib.Path, schema: str) -> str:
+        """Uploads the CSV file from the filename to the schema. Returns the success or error message."""
+        file_name = file_path.name
+        if not file_name.startswith('molgenis'):
+            table = file_name.split(file_path.suffix)[0]
+            return self.save_schema(table=table, name=schema, file=str(file_path))
+        api_url = f"{self.url}/{schema}/api/csv"
+        data = self._prep_data_or_file(file_path=str(file_path))
+
+        response = self.session.post(
+            url=api_url,
+            data=data,
+            headers={'x-molgenis-token': self.token,
+                     'Content-Type': 'text/csv'}
+        )
+        if response.status_code == 200:
+            msg = response.text
+            log.info(f"{response.text}")
+        else:
+            msg = '\n'.join([err['message'] for err in response.json().get('errors')])
+            log.error(msg)
+            raise PyclientException(msg)
+        return msg
 
     def delete_records(self, table: str, schema: str = None, file: str = None, data: list | pd.DataFrame = None):
         """Deletes records from a table.
@@ -422,6 +537,8 @@ class Client:
         :returns: a success or error message
         :rtype: string
         """
+        if name in self.schema_names:
+            raise PyclientException(f"Schema with name {name!r} already exists.")
         query = queries.create_schema()
         variables = self._format_optional_params(name=name, description=description,
                                                  template=template, include_demo_data=include_demo_data)
@@ -438,6 +555,7 @@ class Client:
             fallback_error_message=f"Failed to create schema {name!r}"
         )
         self.schemas = self.get_schemas()
+        log.info(f"Created schema {name!r}")
 
     def delete_schema(self, name: str = None):
         """Deletes a schema from the EMX2 server.
@@ -467,6 +585,7 @@ class Client:
             fallback_error_message=f"Failed to delete schema {current_schema!r}"
         )
         self.schemas = self.get_schemas()
+        log.info(f"Deleted schema {current_schema!r}")
 
     def update_schema(self, name: str = None, description: str = None):
         """Updates a schema's description.
@@ -693,6 +812,8 @@ class Client:
         :rtype: bool
         """
         schema_data = self.get_schema_metadata(schema_name)
+        if not hasattr(schema_data, 'tables'):
+            return False
         if table_name in map(str, schema_data.tables):
             return True
         return False
