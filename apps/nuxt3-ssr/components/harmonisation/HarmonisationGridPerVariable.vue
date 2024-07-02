@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type {
-  HarmonizationStatus,
+  HarmonisationStatus,
   IVariable,
   IVariableMappings,
 } from "~/interfaces/types";
@@ -12,13 +12,13 @@ defineProps<{
   variable: VariableDetailsWithMapping;
   cohortsWithMapping: {
     cohort: { id: string };
-    status: HarmonizationStatus | HarmonizationStatus[];
+    status: HarmonisationStatus | HarmonisationStatus[];
   }[];
 }>();
 </script>
 <template>
   <div class="relative">
-    <HarmonizationLegendDetailed size="small" />
+    <HarmonisationLegendDetailed size="small" />
     <div class="overflow-x-auto xl:max-w-table border-t">
       <StickyTable
         :columns="cohortsWithMapping"
@@ -48,8 +48,8 @@ defineProps<{
         </template>
 
         <template #cell="cell">
-          <HarmonizationTableCellStatusIcon
-            :status="(cohortsWithMapping[cell.value.columnIndex].status[cell.value.rowIndex] as HarmonizationStatus)"
+          <HarmonisationTableCellStatusIcon
+            :status="(cohortsWithMapping[cell.value.columnIndex].status[cell.value.rowIndex] as HarmonisationStatus)"
           />
         </template>
       </StickyTable>

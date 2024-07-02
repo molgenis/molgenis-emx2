@@ -54,6 +54,7 @@ export interface ICohort {
   additionalOrganisations: IOrganisation[];
   contacts: IContributor[];
   networks: INetwork[];
+  publications: IPublication[];
   releaseDescription?: string;
   linkageOptions?: string;
   dataAccessConditionsDescription?: string;
@@ -66,6 +67,20 @@ export interface ICohort {
   datasets: { name: string }[];
   populationOncologyTopology?: IOntologyNode[];
   populationOncologyMorphology?: IOntologyNode[];
+}
+
+export interface IPublication {
+  doi: string;
+  title?: string;
+  authors?: string[];
+  year?: number;
+  journal?: string;
+  volume?: number;
+  number?: number;
+  pagination?: number;
+  publisher?: string;
+  school?: string;
+  abstract?: string;
 }
 
 export interface IVariableBase {
@@ -272,13 +287,13 @@ export interface IMapping {
   targetVariable: IVariableBase | IVariable;
 }
 
-export type HarmonizationStatus =
+export type HarmonisationStatus =
   | "unmapped"
   | "partial"
   | "complete"
   | "available";
 
-export type HarmonizationIconSize = "small" | "large";
+export type HarmonisationIconSize = "small" | "large";
 export interface IMgError {
   message: string;
   statusCode: number;

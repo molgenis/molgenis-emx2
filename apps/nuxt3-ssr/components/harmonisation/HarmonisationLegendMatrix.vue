@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import type { HarmonizationIconSize } from "../../interfaces/types";
+import type { HarmonisationIconSize } from "../../interfaces/types";
 const ariaId = useId();
 
 const props = withDefaults(
   defineProps<{
-    size?: HarmonizationIconSize;
+    size?: HarmonisationIconSize;
   }>(),
   { size: "large" }
 );
@@ -17,11 +17,11 @@ const props = withDefaults(
       class="flex flex-col md:flex-row gap-3 list-none p-0 [&_li]:flex [&_li]:items-center [&_li]:gap-2"
     >
       <li>
-        <HarmonizationStatusIcon :size="size" status="available" />
+        <HarmonisationStatusIcon :size="size" status="available" />
         Available
       </li>
       <li>
-        <HarmonizationStatusIcon :size="size" status="unmapped" />
+        <HarmonisationStatusIcon :size="size" status="unmapped" />
         No data
       </li>
     </ul>
@@ -38,11 +38,11 @@ const props = withDefaults(
       <template #popper>
         <ul class="list-none [&_li]:flex [&_li]:gap-1">
           <li>
-            <HarmonizationStatusIcon size="small" status="available" />
+            <HarmonisationStatusIcon size="small" status="available" />
             <span>Available: cohort has data available for the variable</span>
           </li>
           <li>
-            <HarmonizationStatusIcon
+            <HarmonisationStatusIcon
               size="small"
               status="unmapped"
               class="bg-white"

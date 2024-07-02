@@ -1,7 +1,7 @@
 from decouple import config
-from util.client import Session
-from update.update_4_x import Transform
-from util.zip_handling import Zip
+from data.scripts.util.client import Session
+from data.scripts.catalogue.update.update_4_x import Transform
+from data.scripts.util.zip_handling import Zip
 import os
 
 if not os.path.isdir('./files'):
