@@ -15,6 +15,10 @@ const menu = [
         label: "All variables",
         link: `/${schema}/ssr-catalogue/all/variables`,
       },
+  {
+    label: "Upload data",
+    link: "/apps/central/#/",
+  },
 
   // { label: "Statistical Methods", link: "#" },
   // { label: "Tables", link: "#" },
