@@ -323,11 +323,19 @@ class Client:
                     if sst['id'] not in reported_tasks and sst['status'] == 'SKIPPED':
                         log.warning(f"    Subsubtask: {sst['description']}")
                         reported_tasks.append(sst['id'])
-            p_response = self.session.post(
-                url=self.api_graphql,
-                json={'query': queries.task_status(process_id)}
-            )
-            task = p_response.json().get('data').get('_tasks')[0]
+            try:
+                p_response = self.session.post(
+                    url=self.api_graphql,
+                    json={'query': queries.task_status(process_id)}
+                )
+                task = p_response.json().get('data').get('_tasks')[0]
+            except AttributeError:
+                time.sleep(1)
+                p_response = self.session.post(
+                    url=self.api_graphql,
+                    json={'query': queries.task_status(process_id)}
+                )
+                task = p_response.json().get('data').get('_tasks')[0]
         log.info(f"Completed task: {task.get('description')}")
 
     def _upload_csv(self, file_path: pathlib.Path, schema: str) -> str:
@@ -542,6 +550,7 @@ class Client:
             fallback_error_message=f"Failed to create schema {name!r}"
         )
         self.schemas = self.get_schemas()
+        log.info(f"Created schema {name!r}")
 
     def delete_schema(self, name: str = None):
         """Deletes a schema from the EMX2 server.
@@ -571,6 +580,7 @@ class Client:
             fallback_error_message=f"Failed to delete schema {current_schema!r}"
         )
         self.schemas = self.get_schemas()
+        log.info(f"Deleted schema {current_schema!r}")
 
     def update_schema(self, name: str = None, description: str = None):
         """Updates a schema's description.
