@@ -9,8 +9,6 @@ const { operation, table } = defineProps<{
   table: string;
 }>();
 
-let sectionCount = ref(0);
-
 function show() {
   modal.value?.show();
 }
@@ -27,33 +25,45 @@ defineExpose({
 
 <template>
   <Modal ref="modal" :title="`${operation} into ${table}`" subtitle="Subtitle">
-    <p class="pb-2">
-      Good resolutions are useless attempts to interfere with scientific laws.
-      Their origin is pure vanity. Their result is absolutely nil. They give us,
-      now and then, some of those luxurious sterile emotions that have a certain
-      charm for the weak. That is all that can be said for them. They are simply
-      cheques that men draw on a bank where they have no account.
-    </p>
+    <div class="flex">
+      <div>
+        <p class="pb-2">Forminput here</p>
+      </div>
+      <div>
+        <p>Side bar</p>
+      </div>
+    </div>
     <div class="flex flex-wrap gap-5">
       <button
-        @click="sectionCount++"
+        @click="close"
         class="flex items-center border rounded-full h-10.5 px-5 text-heading-lg gap-3 tracking-widest uppercase font-display bg-button-tertiary text-button-tertiary border-button-tertiary hover:bg-button-tertiary-hover hover:text-button-tertiary-hover hover:border-button-tertiary-hover"
       >
-        add content
+        previous
       </button>
       <button
-        @click="sectionCount--"
+        @click="close"
         class="flex items-center border rounded-full h-10.5 px-5 text-heading-lg gap-3 tracking-widest uppercase font-display bg-button-tertiary text-button-tertiary border-button-tertiary hover:bg-button-tertiary-hover hover:text-button-tertiary-hover hover:border-button-tertiary-hover"
       >
-        remove content
+        next
+      </button>
+      <button
+        @click="close"
+        class="flex items-center border rounded-full h-10.5 px-5 text-heading-lg gap-3 tracking-widest uppercase font-display bg-button-tertiary text-button-tertiary border-button-tertiary hover:bg-button-tertiary-hover hover:text-button-tertiary-hover hover:border-button-tertiary-hover"
+      >
+        save
+      </button>
+      <button
+        @click="close"
+        class="flex items-center border rounded-full h-10.5 px-5 text-heading-lg gap-3 tracking-widest uppercase font-display bg-button-tertiary text-button-tertiary border-button-tertiary hover:bg-button-tertiary-hover hover:text-button-tertiary-hover hover:border-button-tertiary-hover"
+      >
+        save draft
+      </button>
+      <button
+        @click="close"
+        class="flex items-center border rounded-full h-10.5 px-5 text-heading-lg gap-3 tracking-widest uppercase font-display bg-button-tertiary text-button-tertiary border-button-tertiary hover:bg-button-tertiary-hover hover:text-button-tertiary-hover hover:border-button-tertiary-hover"
+      >
+        cancel
       </button>
     </div>
-    <p v-for="index in sectionCount" class="pb-2">
-      Good resolutions are useless attempts to interfere with scientific laws.
-      Their origin is pure vanity. Their result is absolutely nil. They give us,
-      now and then, some of those luxurious sterile emotions that have a certain
-      charm for the weak. That is all that can be said for them. They are simply
-      cheques that men draw on a bank where they have no account.
-    </p></Modal
-  >
+  </Modal>
 </template>

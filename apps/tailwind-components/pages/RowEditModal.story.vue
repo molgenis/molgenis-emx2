@@ -15,5 +15,5 @@ function showModal() {
   >
     Open modal 🙈
   </button>
-  <RowEditModal ref="rowEditModal" operation="Add"> </RowEditModal>
+  <RowEditModal ref="rowEditModal" operation="Add" table="some table" />
 </template>

@@ -34,7 +34,7 @@ defineExpose({
       class="w-full h-full absolute left-0 bg-black/60"
       href="#"
       tabindex="-1"
-    ></a>
+    />
 
     <div class="bg-white w-3/4 relative m-auto h-3/4 rounded-50px max-w-xl">
       <header class="pt-[36px] px-[50px] overflow-y-auto">
