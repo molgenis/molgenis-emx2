@@ -1,48 +1,4 @@
 source,source dataset,source variables,source variables other datasets.dataset,source variables other datasets.name,target,target dataset,target variable,match,status,description,syntax,comments
-testCohort1,test dataset for testCohort1,var1,,,testNetwork1_CDM,cdm_1,testVarRepeats_1,complete,,some description,some syntax,
-testCohort1,test dataset for testCohort1,var2,,,testNetwork1_CDM,cdm_1,testVarRepeats_2,complete,,some description,some syntax,
-testCohort1,test dataset for testCohort1,var3,,,testNetwork1_CDM,cdm_1,testVarRepeats_3,complete,,some description,some syntax,
-testCohort1,test dataset for testCohort1,var4,,,testNetwork1_CDM,cdm_1,testVarRepeats_4,complete,,some description,some syntax,
-testCohort1,test dataset for testCohort1,var5,,,testNetwork1_CDM,cdm_1,testVarRepeats_5,complete,,some description,some syntax,
-testCohort1,test dataset for testCohort1,var6,,,testNetwork1_CDM,cdm_1,testVarRepeats_6,complete,,some description,some syntax,
-testCohort1,test dataset for testCohort1,var7,,,testNetwork1_CDM,cdm_1,testVarRepeats_7,complete,,some description,some syntax,
-testCohort1,test dataset for testCohort1,var8,,,testNetwork1_CDM,cdm_1,testVarRepeats_8,complete,,some description,some syntax,
-testCohort1,test dataset for testCohort1,var9,,,testNetwork1_CDM,cdm_1,testVarRepeats_9,complete,,some description,some syntax,
-testCohort1,test dataset for testCohort1,var10,,,testNetwork1_CDM,cdm_1,testVarRepeats_10,complete,,some description,some syntax,
-testCohort1,test dataset for testCohort1,var11,,,testNetwork1_CDM,cdm_1,testVarNoRepeats,complete,,some description,some syntax,
-testCohort2,test dataset for testCohort2,var1,,,testNetwork1_CDM,cdm_1,testVarRepeats_1,na,,some description,,
-testCohort2,test dataset for testCohort2,var2,,,testNetwork1_CDM,cdm_1,testVarRepeats_2,na,,some description,,
-testCohort2,test dataset for testCohort2,var3,,,testNetwork1_CDM,cdm_1,testVarRepeats_3,na,,some description,,
-testCohort2,test dataset for testCohort2,var4,,,testNetwork1_CDM,cdm_1,testVarRepeats_4,na,,some description,,
-testCohort2,test dataset for testCohort2,var5,,,testNetwork1_CDM,cdm_1,testVarRepeats_5,na,,some description,,
-testCohort2,test dataset for testCohort2,var6,,,testNetwork1_CDM,cdm_1,testVarRepeats_6,na,,some description,,
-testCohort2,test dataset for testCohort2,var7,,,testNetwork1_CDM,cdm_1,testVarRepeats_7,na,,some description,,
-testCohort2,test dataset for testCohort2,var8,,,testNetwork1_CDM,cdm_1,testVarRepeats_8,na,,some description,,
-testCohort2,test dataset for testCohort2,var9,,,testNetwork1_CDM,cdm_1,testVarRepeats_9,na,,some description,,
-testCohort2,test dataset for testCohort2,var10,,,testNetwork1_CDM,cdm_1,testVarRepeats_10,na,,some description,,
-testCohort2,test dataset for testCohort2,var11,,,testNetwork1_CDM,cdm_1,testVarNoRepeats,na,,some description,,
-testCohort3,test dataset for testCohort3,var1,,,testNetwork1_CDM,cdm_1,testVarRepeats_1,complete,,some description,some syntax,
-testCohort3,test dataset for testCohort3,var2,,,testNetwork1_CDM,cdm_1,testVarRepeats_2,complete,,some description,some syntax,
-testCohort3,test dataset for testCohort3,var3,,,testNetwork1_CDM,cdm_1,testVarRepeats_3,na,,some description,,
-testCohort3,test dataset for testCohort3,var4,,,testNetwork1_CDM,cdm_1,testVarRepeats_4,partial,,some description,some syntax,
-testCohort3,test dataset for testCohort3,var5,,,testNetwork1_CDM,cdm_1,testVarRepeats_5,complete,,some description,some syntax,
-testCohort3,test dataset for testCohort3,var6,,,testNetwork1_CDM,cdm_1,testVarRepeats_6,complete,,some description,some syntax,
-testCohort3,test dataset for testCohort3,var7,,,testNetwork1_CDM,cdm_1,testVarRepeats_7,complete,,some description,some syntax,
-testCohort3,test dataset for testCohort3,var8,,,testNetwork1_CDM,cdm_1,testVarRepeats_8,partial,,some description,some syntax,
-testCohort3,test dataset for testCohort3,var9,,,testNetwork1_CDM,cdm_1,testVarRepeats_9,partial,,some description,some syntax,
-testCohort3,test dataset for testCohort3,var10,,,testNetwork1_CDM,cdm_1,testVarRepeats_10,na,,some description,,
-testCohort3,test dataset for testCohort3,var11,,,testNetwork1_CDM,cdm_1,testVarNoRepeats,partial,,some description,some syntax,
-testCohort4,test dataset for testCohort4,var1,,,testNetwork1_CDM,cdm_1,testVarRepeats_1,complete,,some description,some syntax,
-testCohort4,test dataset for testCohort4,var2,,,testNetwork1_CDM,cdm_1,testVarRepeats_2,partial,,some description,some syntax,
-testCohort4,test dataset for testCohort4,var3,,,testNetwork1_CDM,cdm_1,testVarRepeats_3,partial,,some description,some syntax,
-testCohort4,test dataset for testCohort4,var4,,,testNetwork1_CDM,cdm_1,testVarRepeats_4,partial,,some description,some syntax,
-testCohort4,test dataset for testCohort4,var5,,,testNetwork1_CDM,cdm_1,testVarRepeats_5,partial,,some description,some syntax,
-testCohort4,test dataset for testCohort4,var6,,,testNetwork1_CDM,cdm_1,testVarRepeats_6,complete,,some description,some syntax,
-testCohort4,test dataset for testCohort4,var7,,,testNetwork1_CDM,cdm_1,testVarRepeats_7,partial,,some description,some syntax,
-testCohort4,test dataset for testCohort4,var8,,,testNetwork1_CDM,cdm_1,testVarRepeats_8,complete,,some description,some syntax,
-testCohort4,test dataset for testCohort4,var9,,,testNetwork1_CDM,cdm_1,testVarRepeats_9,partial,,some description,some syntax,
-testCohort4,test dataset for testCohort4,var10,,,testNetwork1_CDM,cdm_1,testVarRepeats_10,na,,some description,,
-testCohort4,test dataset for testCohort4,var11,,,testNetwork1_CDM,cdm_1,testVarNoRepeats,partial,,some description,some syntax,
 GenR,core,,,,LifeCycle_CDM,outcome,dbp_18,na,,,,
 NFBC1966,core,,,,LifeCycle_CDM,core,agebirth_m_y,complete,final,,,
 GenR,core,,,,LifeCycle_CDM,outcome,dbp_182,na,,,,
@@ -74,6 +30,8 @@ ENVIRONAGE,measurements at FU1,"DBP1FU1,Age_FU",,,LifeCycle_CDM,outcome,dbp_67,c
 ENVIRONAGE,measurements at FU1,"DBP1FU1,Age_FU",,,LifeCycle_CDM,outcome,dbp_68,complete,,,"data$dbp_x<-ifelse(!is.na(data$DBP1FU1) & data$Age_FU ==x ,data$DBP1FU1,NA)",
 ENVIRONAGE,measurements at FU1,"DBP1FU1,Age_FU",,,LifeCycle_CDM,outcome,dbp_69,complete,,,"data$dbp_x<-ifelse(!is.na(data$DBP1FU1) & data$Age_FU ==x ,data$DBP1FU1,NA)",
 ENVIRONAGE,measurements at FU1,"DBP1FU1,Age_FU",,,LifeCycle_CDM,outcome,dbp_70,complete,,,"data$dbp_x<-ifelse(!is.na(data$DBP1FU1) & data$Age_FU ==x ,data$DBP1FU1,NA)",
+GenR,core,,,,LifeCycle_CDM,outcome,dbp_199,na,,,,
+GenR,core,,,,LifeCycle_CDM,outcome,dbp_201,na,,,,
 ENVIRONAGE,measurements at FU1,"DBP1FU1,Age_FU",,,LifeCycle_CDM,outcome,dbp_71,complete,,,"data$dbp_x<-ifelse(!is.na(data$DBP1FU1) & data$Age_FU ==x ,data$DBP1FU1,NA)",
 ENVIRONAGE,measurements at FU1,"DBP1FU1,Age_FU",,,LifeCycle_CDM,outcome,dbp_72,complete,,,"data$dbp_x<-ifelse(!is.na(data$DBP1FU1) & data$Age_FU ==x ,data$DBP1FU1,NA)",
 ENVIRONAGE,measurements at FU1,"DBP1FU1,Age_FU",,,LifeCycle_CDM,outcome,dbp_73,complete,,,"data$dbp_x<-ifelse(!is.na(data$DBP1FU1) & data$Age_FU ==x ,data$DBP1FU1,NA)",
@@ -102,8 +60,6 @@ GenR,core,,,,LifeCycle_CDM,outcome,dbp_196,na,,,,
 GenR,core,,,,LifeCycle_CDM,outcome,dbp_55,na,,,,
 GenR,core,,,,LifeCycle_CDM,outcome,dbp_49,na,,,,
 GenR,core,,,,LifeCycle_CDM,outcome,dbp_204,na,,,,
-GenR,core,,,,LifeCycle_CDM,outcome,dbp_199,na,,,,
-GenR,core,,,,LifeCycle_CDM,outcome,dbp_201,na,,,,
 GenR,core,,,,LifeCycle_CDM,outcome,dbp_209,na,,,,
 GenR,core,,,,LifeCycle_CDM,outcome,dbp_213,na,,,,
 GenR,core,,,,LifeCycle_CDM,outcome,dbp_198,na,,,,
@@ -355,6 +311,8 @@ temp4 <- dataset1
 
 
 table_final_dbp <- cbind(temp1[,1:74],temp2[,75:110],temp3[,111:144],temp4[,145:218])",
+GenR,core,,,,LifeCycle_CDM,outcome,dbp_149,na,,,,
+PELAGIE,harmonized,WAISTCIRCMES_0,,,LifeCycle_CDM,outcome,waistcircmes_152,complete,final,,waistcircmes_152=0;,
 G21,child,"idade48m,idade84m,idade120m,idade156m","blood_pressure,blood_pressure,blood_pressure,blood_pressure","TAD1_48m,TAD1_84m,TAD1_120m,TAD1_156m",LifeCycle_CDM,outcome,dbp_3,complete,,,"dataset1 <- dataset[, c(1:2)]
 for (i in 0:215){
   y <- paste(""dbp_"", i, sep="""")
@@ -6031,6 +5989,7 @@ temp4 <- dataset1
 
 
 table_final_dbp <- cbind(temp1[,1:74],temp2[,75:110],temp3[,111:144],temp4[,145:218])",
+GenR,core,,,,LifeCycle_CDM,outcome,dbp_151,na,,,,
 G21,child,"idade48m,idade84m,idade120m,idade156m","blood_pressure,blood_pressure,blood_pressure,blood_pressure","TAD1_48m,TAD1_84m,TAD1_120m,TAD1_156m",LifeCycle_CDM,outcome,dbp_88,complete,,,"dataset1 <- dataset[, c(1:2)]
 for (i in 0:215){
   y <- paste(""dbp_"", i, sep="""")
@@ -14543,6 +14502,9 @@ Execute.
 
 *Change levels to scale.
 variable level dbp_0 to dbp_215 (SCALE).",
+GenR,core,,,,LifeCycle_CDM,outcome,dbp_152,na,,,,
+NFBC1966,core,,,,LifeCycle_CDM,core,pets_7,partial,final,"When you were younger than 7 years old did you have in your home? A cat, A dog , Other pets with furry or feathers 1) no 2) yes . All the variables were recoded 1) yes 0) no","COMPUTE pets_7=SUM(C6631C_ZT_017_1, C6631C_ZT_017_2, C6631C_ZT_017_3).
+EXECUTE. RECODE pets_7  (0=0) (1 thru 100=1) INTO pets_7. EXECUTE.",
 GenR,core,"AGE24M_M,DIAS1_24months,ageChildYF5,Dias1_5child,agechild9_visit1,DBP1_child9",,,LifeCycle_CDM,outcome,dbp_23,complete,,variable was created by renaming the source variable since it was already in the correct units and by creating index variable by rounding ages in months down. Index variable denotes the age interval/variable to which the measurement belongs to.,"do repeat x=0 to 215/dbp=dbp_0 to dbp_215.
 IF AGE24M_M_i=x AND not missing(DIAS1_24months) dbp=DIAS1_24months.
 IF agechild5m_i=x AND not missing(Dias1_5child) dbp=Dias1_5child.
@@ -14626,6 +14588,7 @@ Execute.
 
 *Change levels to scale.
 variable level dbp_0 to dbp_215 (SCALE).",
+RMR,RMR,,,,OOM_CDM,SURVEY_OBSERVATIONS,so_unit,complete,,,,
 GenR,core,"AGE24M_M,DIAS1_24months,ageChildYF5,Dias1_5child,agechild9_visit1,DBP1_child9",,,LifeCycle_CDM,outcome,dbp_31,complete,,variable was created by renaming the source variable since it was already in the correct units and by creating index variable by rounding ages in months down. Index variable denotes the age interval/variable to which the measurement belongs to.,"do repeat x=0 to 215/dbp=dbp_0 to dbp_215.
 IF AGE24M_M_i=x AND not missing(DIAS1_24months) dbp=DIAS1_24months.
 IF agechild5m_i=x AND not missing(Dias1_5child) dbp=Dias1_5child.
@@ -14666,7 +14629,6 @@ Execute.
 
 *Change levels to scale.
 variable level dbp_0 to dbp_215 (SCALE).",
-GenR,core,,,,LifeCycle_CDM,outcome,dbp_149,na,,,,
 GenR,core,"AGE24M_M,DIAS1_24months,ageChildYF5,Dias1_5child,agechild9_visit1,DBP1_child9",,,LifeCycle_CDM,outcome,dbp_60,complete,,variable was created by renaming the source variable since it was already in the correct units and by creating index variable by rounding ages in months down. Index variable denotes the age interval/variable to which the measurement belongs to.,"do repeat x=0 to 215/dbp=dbp_0 to dbp_215.
 IF AGE24M_M_i=x AND not missing(DIAS1_24months) dbp=DIAS1_24months.
 IF agechild5m_i=x AND not missing(Dias1_5child) dbp=Dias1_5child.
@@ -14708,8 +14670,6 @@ Execute.
 *Change levels to scale.
 variable level dbp_0 to dbp_215 (SCALE).",
 GenR,core,,,,LifeCycle_CDM,outcome,dbp_148,na,,,,
-GenR,core,,,,LifeCycle_CDM,outcome,dbp_151,na,,,,
-GenR,core,,,,LifeCycle_CDM,outcome,dbp_152,na,,,,
 GenR,core,"AGE24M_M,DIAS1_24months,ageChildYF5,Dias1_5child,agechild9_visit1,DBP1_child9",,,LifeCycle_CDM,outcome,dbp_63,complete,,variable was created by renaming the source variable since it was already in the correct units and by creating index variable by rounding ages in months down. Index variable denotes the age interval/variable to which the measurement belongs to.,"do repeat x=0 to 215/dbp=dbp_0 to dbp_215.
 IF AGE24M_M_i=x AND not missing(DIAS1_24months) dbp=DIAS1_24months.
 IF agechild5m_i=x AND not missing(Dias1_5child) dbp=Dias1_5child.
@@ -14748,6 +14708,8 @@ Execute.
 
 *Change levels to scale.
 variable level dbp_0 to dbp_215 (SCALE).",
+PELAGIE,harmonized,EXT_EVAL_14,,,LifeCycle_CDM,outcome,ext_eval_14,complete,final,,eval=2;,
+PELAGIE,harmonized,WAISTCIRCMES_0,,,LifeCycle_CDM,outcome,waistcircmes_150,complete,final,,waistcircmes_150=0;,
 GenR,core,"AGE24M_M,DIAS1_24months,ageChildYF5,Dias1_5child,agechild9_visit1,DBP1_child9",,,LifeCycle_CDM,outcome,dbp_68,complete,,variable was created by renaming the source variable since it was already in the correct units and by creating index variable by rounding ages in months down. Index variable denotes the age interval/variable to which the measurement belongs to.,"do repeat x=0 to 215/dbp=dbp_0 to dbp_215.
 IF AGE24M_M_i=x AND not missing(DIAS1_24months) dbp=DIAS1_24months.
 IF agechild5m_i=x AND not missing(Dias1_5child) dbp=Dias1_5child.
@@ -15450,12 +15412,8 @@ Sepages,bdd_grossesse_v5_1,"mt1haa1_date_creation,mt1haa1_q01,mt1haa1_q02",,,Lif
 if mt1haa1_q01=1 then prepreg_dia=2;
 else if mt1haa1_q02=1 then prepreg_dia=3;
 else if ident in (15207,19237,23642,26806,27002,27084) then prepreg_dia=4;  else if mt1haa1_quest=1 then prepreg_dia=1;",
-NFBC1966,core,,,,LifeCycle_CDM,core,pets_7,partial,final,"When you were younger than 7 years old did you have in your home? A cat, A dog , Other pets with furry or feathers 1) no 2) yes . All the variables were recoded 1) yes 0) no","COMPUTE pets_7=SUM(C6631C_ZT_017_1, C6631C_ZT_017_2, C6631C_ZT_017_3).
-EXECUTE. RECODE pets_7  (0=0) (1 thru 100=1) INTO pets_7. EXECUTE.",
-PELAGIE,harmonized,EXT_EVAL_14,,,LifeCycle_CDM,outcome,ext_eval_14,complete,final,,eval=2;,
-PELAGIE,harmonized,WAISTCIRCMES_0,,,LifeCycle_CDM,outcome,waistcircmes_150,complete,final,,waistcircmes_150=0;,
 PELAGIE,harmonized,WAISTCIRCMES_0,,,LifeCycle_CDM,outcome,waistcircmes_151,complete,final,,waistcircmes_151=0;,
-PELAGIE,harmonized,WAISTCIRCMES_0,,,LifeCycle_CDM,outcome,waistcircmes_152,complete,final,,waistcircmes_152=0;,
+PELAGIE,harmonized,ADHD_EVAL_6,,,LifeCycle_CDM,outcome,adhd_eval_6,complete,final,,eval=2;,
 PELAGIE,harmonized,SUBSCAPSFMES_0,,,LifeCycle_CDM,outcome,subscapsfmes_152,complete,final,,subscapsfmes_152=0;,
 PELAGIE,harmonized,SUBSCAPSFMES_0,,,LifeCycle_CDM,outcome,subscapsfmes_153,complete,final,,subscapsfmes_153=0;,
 PELAGIE,harmonized,SUBSCAPSFMES_0,,,LifeCycle_CDM,outcome,subscapsfmes_154,complete,final,,subscapsfmes_154=0;,
@@ -15474,6 +15432,8 @@ else if (mt1haa1_quest=1 and (mt1haa1_q40p7=0 or mt1haa1_q40=0)) and (mt3haf1_qu
 VCN,VCN,iduni,,,OOM_CDM,VACCINES,person_id,complete,,,,
 Sepages,bdd_grossesse_v5_1,"mt1haa1_date_creation,mt3haf1_date_creation,mt1haa1_q40p5,mt1haa1_q40,mt3haf1_q02",,,LifeCycle_CDM,core,preeclam,partial,final,The variable is fully harmonised if data cover from 20 weeks until the end of pregnancy,"if mt1haa1_q40p5=1 or mt3haf1_q02=1 then preeclam=1;
 else if (mt1haa1_quest=1 and (mt1haa1_q40p5=0 or mt1haa1_q40=0)) and (mt3haf1_quest=. or mt3haf1_q02=0)  then preeclam=0;",
+PELAGIE,pelagie_q12,SCD_Q2,,,LifeCycle_CDM,core,height_166,complete,final,,/* too long to be provided and many case by case situations */,
+PELAGIE,pelagie_q12,SCD_Q2,,,LifeCycle_CDM,core,height_167,complete,final,,/* too long to be provided and many case by case situations */,
 Sepages,bdd_grossesse_v5_1,"mt1haa1_q40p1,mt3haf1_q01,mt1haa1_date_creation,mt1haa1_q40,mt3haf1_date_creation",,,LifeCycle_CDM,core,preg_ht,partial,final,The variable is fully harmonised if data cover from 20 weeks until the end of pregnancy,"if mt1haa1_q40p1=1 or mt3haf1_q01=1 then preg_ht=1;
 else if (mt1haa1_quest=1 and (mt1haa1_q40p1=0 or mt1haa1_q40=0)) and (mt3haf1_quest=. or mt3haf1_q01=0)  then preg_ht=0;",
 PELAGIE,harmonized,HDLCMES_146,,,LifeCycle_CDM,outcome,hdlcmes_154,complete,final,,hdlcmes_154=0;,
@@ -15492,9 +15452,7 @@ PELAGIE,BDD_cotinine,"COTININE,SGURINEF",,,ATHLETE_CDM,chemicals_ath,m_cotinine_
 PELAGIE,harmonized,ADHD_EVAL_5,,,LifeCycle_CDM,outcome,adhd_eval_5,complete,final,,eval=2;,
 PELAGIE,BDD_cotinine,SGURINEF,harmonized,M_COTININE_RAW_T1,ATHLETE_CDM,chemicals_ath,m_cotinine_lod_t1,complete,final,,"BDD_cotinine$m_cotinine_lod_t1<-ifelse(!is.na(BDD_cotinine$m_cotinine_raw_t1) & BDD_cotinine$SGurineF<=10,0.01,NA)",
 PELAGIE,pelagie_q12,SCD_Q2,,,LifeCycle_CDM,core,height_165,complete,final,,/* too long to be provided and many case by case situations */,
-PELAGIE,pelagie_q12,SCD_Q2,,,LifeCycle_CDM,core,height_166,complete,final,,/* too long to be provided and many case by case situations */,
-PELAGIE,pelagie_q12,SCD_Q2,,,LifeCycle_CDM,core,height_167,complete,final,,/* too long to be provided and many case by case situations */,
-PELAGIE,harmonized,ADHD_EVAL_6,,,LifeCycle_CDM,outcome,adhd_eval_6,complete,final,,eval=2;,
+RMR,RMR,iduni,,,OOM_CDM,SURVEY_ID,person_id,complete,,,,
 Sepages,bdd_grossesse_v5_1,mo_coupl_pr,"bdd_1a_v1_1,bdd_1a_v1_1,bdd_1a_v1_1,bdd_1a_v1_1,bdd_1a_v1_1,bdd_1a_v1_1,bdd_1a_v1_1,bdd_1a_v1_1,bdd_1a_v1_1,bdd_1a_v1_1","cy1eas1_q02,cy1eas1_q03,cy1eas1_q04,cy1eas1_q05,cy1eas1_q06,cy1eas2_q02,cy1eas2_q03,cy1eas2_q04,cy1eas2_q05,cy1eas2_q06",LifeCycle_CDM,core,cohab_0,partial,final,"if in couple during pregnancy (mo_coupl_pr) and missing thereafter, she is considered to be in couple","cohab_0=mo_coupl_pr;
 if cy1eas1_q02=1 or cy1eas1_q03=1 or cy1eas1_q04=1 or  cy1eas1_q05=1 or cy1eas1_q06=1 then cohab_0=0;
 if cy1eas2_q02=1 or cy1eas2_q03=1 or cy1eas2_q04=1 or  cy1eas2_q05=1 or cy1eas2_q06=1 then cohab_0=0;",
@@ -15690,6 +15648,7 @@ else if minAG_med=ag_med_T2_4 then do;
 	period_rank=""T2_4""; 
 end;
 ga_us_t2=gestational_age;",
+PELAGIE,pelagie_exam12,AGE_EXAM_JOUR,,,LifeCycle_CDM,outcome,cholage_152,complete,final,,cholage_152=age_exam_jour;,
 Sepages,Ultrasound_all_SLC_20220428_893,date_dernieres_regles_T3_1,"Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893","Date_examen_T3_1,date_dernieres_regles_T3_2,Date_examen_T3_2,date_dernieres_regles_T3_3,Date_examen_T3_3,date_dernieres_regles_T3_4,Date_examen_T3_4,date_dernieres_regles_T3_5,Date_examen_T3_5,date_debut_grossesse_T3_1,date_debut_grossesse_T3_2,date_debut_grossesse_T3_3,date_debut_grossesse_T3_4,date_debut_grossesse_T3_5",ATHLETE_CDM,outcome_ath,ga_us_t3,partial,final,,"ag_ddr_T3_1=intck('day',date_dernieres_regles_T3_1 ,Date_examen_T3_1);
 ag_ddr_T3_2=intck('day',date_dernieres_regles_T3_2 ,Date_examen_T3_2);
 ag_ddr_T3_3=intck('day',date_dernieres_regles_T3_3 ,Date_examen_T3_3);
@@ -15800,6 +15759,9 @@ else if period_rank=""T2_4"" then do;
 	outcome_val=strip(put(biometrie_bip_T2_4,best.));
 end;
 fetus_biparietal_diam_t2=outcome_val;",
+PELAGIE,pelagie_dosage12,Q12_CHOLESTEROL_TOTAL,"pelagie_exam12,pelagie_exam12","AGE_EXAM_MOIS,AGE_EXAM_JOUR",LifeCycle_CDM,outcome,chol_158,complete,final,,"pelagie_dosage12$chol_158<-ifelse(pelagie_dosage12$age_exam_mois >=158 & pelagie_dosage12$age_exam_mois<159,pelagie_dosage12$Q12_Cholesterol_total,NA)",
+PELAGIE,pelagie_exam12,AGE_EXAM_JOUR,,,LifeCycle_CDM,outcome,cholage_146,complete,final,,cholage_146=age_exam_jour;,
+PELAGIE,pelagie_exam12,AGE_EXAM_JOUR,,,LifeCycle_CDM,outcome,cholage_147,complete,final,,cholage_147=age_exam_jour;,
 Sepages,Ultrasound_all_SLC_20220428_893,biometrie_bip_T3_1,"Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893","biometrie_bip_T3_2,biometrie_bip_T3_3,biometrie_bip_T3_4,biometrie_bip_T3_5",ATHLETE_CDM,outcome_ath,fetus_biparietal_diam_t3,partial,final,,"if period_rank=""T3_1"" then do; 
 	outcome_val=strip(put(biometrie_bip_T3_1,best.));
 end;
@@ -15844,6 +15806,10 @@ else if period_rank=""T2_4"" then do;
 	outcome_val=strip(put(longueur_femur_T2_4,best.));
 end;
 fetus_femur_length_t2=outcome_val;",
+PELAGIE,pelagie_exam12,AGE_EXAM_JOUR,,,LifeCycle_CDM,outcome,cholage_148,complete,final,,cholage_148=age_exam_jour;,
+PELAGIE,pelagie_exam12,AGE_EXAM_JOUR,,,LifeCycle_CDM,outcome,cholage_149,complete,final,,cholage_149=age_exam_jour;,
+PELAGIE,pelagie_exam12,AGE_EXAM_JOUR,,,LifeCycle_CDM,outcome,cholage_150,complete,final,,cholage_150=age_exam_jour;,
+PELAGIE,pelagie_exam12,AGE_EXAM_JOUR,,,LifeCycle_CDM,outcome,cholage_151,complete,final,,cholage_151=age_exam_jour;,
 Sepages,Ultrasound_all_SLC_20220428_893,perimetre_cranien_T3_1,"Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893,Ultrasound_all_SLC_20220428_893","perimetre_cranien_T3_2,perimetre_cranien_T3_3,perimetre_cranien_T3_4,perimetre_cranien_T3_5",ATHLETE_CDM,outcome_ath,fetus_head_circum_t3,partial,final,,"if period_rank=""T3_1"" then do; 
 	outcome_val=strip(put(perimetre_cranien_T3_1,best.));
 end;
@@ -16134,14 +16100,6 @@ PELAGIE,pelagie_dosage12,Q12_CHOLESTEROL_TOTAL,"pelagie_exam12,pelagie_exam12","
 PELAGIE,pelagie_exam12,AGE_EXAM_JOUR,,,LifeCycle_CDM,outcome,cholage_155,complete,final,,cholage_155=age_exam_jour;,
 PELAGIE,pelagie_q12,SCD_Q2,,,LifeCycle_CDM,core,height_159,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,harmonized,CHOLMES_146,,,LifeCycle_CDM,outcome,cholmes_146,complete,final,,cholmes_146=0;,
-PELAGIE,pelagie_dosage12,Q12_CHOLESTEROL_TOTAL,"pelagie_exam12,pelagie_exam12","AGE_EXAM_MOIS,AGE_EXAM_JOUR",LifeCycle_CDM,outcome,chol_158,complete,final,,"pelagie_dosage12$chol_158<-ifelse(pelagie_dosage12$age_exam_mois >=158 & pelagie_dosage12$age_exam_mois<159,pelagie_dosage12$Q12_Cholesterol_total,NA)",
-PELAGIE,pelagie_exam12,AGE_EXAM_JOUR,,,LifeCycle_CDM,outcome,cholage_146,complete,final,,cholage_146=age_exam_jour;,
-PELAGIE,pelagie_exam12,AGE_EXAM_JOUR,,,LifeCycle_CDM,outcome,cholage_147,complete,final,,cholage_147=age_exam_jour;,
-PELAGIE,pelagie_exam12,AGE_EXAM_JOUR,,,LifeCycle_CDM,outcome,cholage_148,complete,final,,cholage_148=age_exam_jour;,
-PELAGIE,pelagie_exam12,AGE_EXAM_JOUR,,,LifeCycle_CDM,outcome,cholage_149,complete,final,,cholage_149=age_exam_jour;,
-PELAGIE,pelagie_exam12,AGE_EXAM_JOUR,,,LifeCycle_CDM,outcome,cholage_150,complete,final,,cholage_150=age_exam_jour;,
-PELAGIE,pelagie_exam12,AGE_EXAM_JOUR,,,LifeCycle_CDM,outcome,cholage_151,complete,final,,cholage_151=age_exam_jour;,
-PELAGIE,pelagie_exam12,AGE_EXAM_JOUR,,,LifeCycle_CDM,outcome,cholage_152,complete,final,,cholage_152=age_exam_jour;,
 PELAGIE,pelagie_q0,"M21,DEBGROSF",maj_ddn_2021,DDN_2021,LifeCycle_CDM,core,ga_bj,complete,final,,"ga_bj=m21;
 if ga_bj=. Then ga_bj=ga_us;",
 PELAGIE,maj_ddn_2021,DDN_2021,datenaisspere,DATE_NAIS_PERE,LifeCycle_CDM,core,agebirth_p_y,complete,final,Father date of birth provided from the 6 and/or 12-year-old follow-up.,agebirth_p_y=int((ddn_2021-Date_nais_Pere)/365.2422);,Father date of birth provided from the 6 and/or 12-year-old follow-up.
@@ -16156,6 +16114,7 @@ PELAGIE,harmonized,WEIGHT_F1,,,LifeCycle_CDM,core,weight_f1_fath,partial,final,B
 PELAGIE,pelagie_q12,SP_Q2_2,,,LifeCycle_CDM,core,height_f1,complete,final,,height_f1=sp_q2_2;,
 PELAGIE,harmonized,HEIGHT_F1,,,LifeCycle_CDM,core,height_mes_f1,complete,final,,if height_f1 ne . then do;height_mes_f1=1;height_f1_fath=1;end;,
 PELAGIE,harmonized,OCCUP_F1_6,,,LifeCycle_CDM,core,occup_f1_fath6,partial,final,Biological father by default,if  occup_f1_6 ne . then occup_f1_fath6=1;,Biological father by default
+PELAGIE,harmonized,CHOLMES_146,,,LifeCycle_CDM,outcome,cholmes_148,complete,final,,cholmes_148=0;,
 PELAGIE,pelagie_q0,"M27,M33",,,LifeCycle_CDM,core,birth_length,complete,final,,"birth_length=m27;
 if m22 eq 2 and p1 eq 2 then birth_length=m33;",
 PELAGIE,pelagie_q2,C614,,,LifeCycle_CDM,core,occup_f1_1,partial,final,"occup_f_1, _2, or _3 was filled in according to the exact age of the child when the parents answered to the 2yo questionnaire: the ""parental/childcare leave"" is considered in ""5) Domestic tasks (housewife etc.)""","if c614 eq 3 then occup_f1_2=1;
@@ -16254,7 +16213,6 @@ PELAGIE,pelagie_q12,DATE,maj_ddn_2021,DDN_2021,LifeCycle_CDM,outcome,adhd_age_12
 PELAGIE,pelagie_q12,DATE,maj_ddn_2021,DDN_2021,LifeCycle_CDM,outcome,adhd_age_13,complete,final,,adhd_age_13=(DATE-ddn_2021)/365.2422;,
 PELAGIE,pelagie_q12,DATE,maj_ddn_2021,DDN_2021,LifeCycle_CDM,outcome,adhd_age_14,complete,final,,adhd_age_14=(DATE-ddn_2021)/365.2422;,
 PELAGIE,harmonized,CHOLMES_146,,,LifeCycle_CDM,outcome,cholmes_147,complete,final,,cholmes_147=0;,
-PELAGIE,harmonized,CHOLMES_146,,,LifeCycle_CDM,outcome,cholmes_148,complete,final,,cholmes_148=0;,
 PELAGIE,harmonized,ADHD_INSTR_1,,,LifeCycle_CDM,outcome,adhd_instr_1,partial,final,"Partial CBCL scale:
 (1)	how often would you say that your child has been unable to stay put, or has been restless or hyperactive?
 (2)	how often would you say that your child was easily distracted, or had difficulty pursuing any activity?
@@ -16558,6 +16516,12 @@ else if c618 eq 3 then occup_m_2=4;
 else if c618 in (2 0) then occup_m_2=5;
 else if c618 eq 4 then occup_m_2=3;
 else if c618 eq 5 then occup_m_2=6;",
+PELAGIE,pelagie_q6,QE6_A7,,,LifeCycle_CDM,core,occup_m_5,complete,final,,"if qe6_a7 in (6 1) then occup_m_6=1;
+else if qe6_a7 eq 3 then occup_m_6=4;
+else if qe6_a7 in (2 0) then occup_m_6=5;
+else if qe6_a7 eq 4 then occup_m_6=3;
+else if qe6_a7 eq 5 then occup_m_6=6;",
+PELAGIE,harmonized,WEIGHT_F1,,,LifeCycle_CDM,core,weight_mes_f1,complete,final,,if weight_f1 ne . then do;weight_mes_f1=1;weight_f1_fath=1;end;,
 PELAGIE,pelagie_q6,"QE6_A1,QE6_A4,QE6_A4_DATE_AAMM",,,LifeCycle_CDM,core,cohab_6,partial,final,"Reported from the follow-ups at 2, 6 and 12 years of age, with extrapolation between these follow-ups when there was no split-up or a split-up with available date.","if qe6_a4_date_aamm ne . and qe6_a4_date_aamm ge 100  then
 nb_an_splitup=int(qe6_a4_date_aamm/100);
 if qe6_a4_date_aamm ne . and qe6_a4_date_aamm ge 100  then
@@ -16704,12 +16668,7 @@ else if c618 eq 3 then occup_m_2=4;
 else if c618 in (2 0) then occup_m_2=5;
 else if c618 eq 4 then occup_m_2=3;
 else if c618 eq 5 then occup_m_2=6;",
-PELAGIE,pelagie_q6,QE6_A7,,,LifeCycle_CDM,core,occup_m_5,complete,final,,"if qe6_a7 in (6 1) then occup_m_6=1;
-else if qe6_a7 eq 3 then occup_m_6=4;
-else if qe6_a7 in (2 0) then occup_m_6=5;
-else if qe6_a7 eq 4 then occup_m_6=3;
-else if qe6_a7 eq 5 then occup_m_6=6;",
-PELAGIE,harmonized,WEIGHT_F1,,,LifeCycle_CDM,core,weight_mes_f1,complete,final,,if weight_f1 ne . then do;weight_mes_f1=1;weight_f1_fath=1;end;,
+PELAGIE,harmonized,C_DEP_RAW_6,,,ATHLETE_CDM,chemicals_ath,c_dep_lod_6,complete,final,,"BDD_OP$c_dep_lod_6<-ifelse(!is.na(BDD_OP$c_dep_raw_6y),0.2,NA)",
 PELAGIE,pelagie_q6,QE6_A7,,,LifeCycle_CDM,core,occup_m_7,complete,final,,"if qe6_a7 in (6 1) then occup_m_6=1;
 else if qe6_a7 eq 3 then occup_m_6=4;
 else if qe6_a7 in (2 0) then occup_m_6=5;
@@ -16775,6 +16734,7 @@ PELAGIE,pelagie_q0,M4,,,LifeCycle_CDM,core,prepreg_dia,partial,final,partially h
 else  if m4 eq 0 then prepreg_dia=0;",partially harmonized : type of diabetes unknown
 PELAGIE,pelagie_q0,M9,,,LifeCycle_CDM,core,preg_dia,complete,final,,"preg_dia=m9;
 if prepreg_dia=1 then preg_dia=0;",
+PELAGIE,harmonized,ATT_EVAL_6,,,ATHLETE_CDM,outcome_ath,att_eval_6,complete,final,,att_eval_6=4;,
 PELAGIE,pelagie_q0,M15,,,LifeCycle_CDM,core,preg_thyroid,partial,final,"informations from the medical registry data:
 =1 if Thyroid disorders reported in free text
 otherwise =  missing","eq 1 if Thyroid disorders reported in free text
@@ -16822,6 +16782,17 @@ PELAGIE,pelagie_q0,"V135,V136,V139",,,LifeCycle_CDM,core,preg_smk,complete,final
 	                                                                                  ;
 if statutc in (2 3) then preg_smk=1;
 else if statutc in (1 0) then preg_smk=0;",information collected at the inclusion (before 19 weeks)
+PELAGIE,pelagie_q12,APP_Q4,,,LifeCycle_CDM,core,edu_f1_14,complete,final,,"if APP_q4 eq 1 then edu_f1_12=3;
+else if APP_q4 in (2) then edu_f1_12=2;
+else if APP_q4 in (3 4 5 6) then edu_f1_12=1;
+
+if ageq12 eq 13  then do; 
+edu_f1_13=edu_f1_12;edu_f1_12=.;
+end;
+
+if ageq12 eq 14  then do; 
+edu_f1_14=edu_f1_12;edu_f1_12=.;
+end;",
 PELAGIE,pelagie_q0,"V135,V136,V137,V139,V140",,,LifeCycle_CDM,core,preg_cig,complete,final,information collected at the inclusion (before 19 weeks),"if statutc=2 then nombre_cigc=V137;	* fumeuse en debut de grossesse et ayant arrete ;
 if statutc=3 then nombre_cigc=V140;	* fumeuse a l inclusion;
 if nombre_cigc lt 10 and nombre_cigc ne . then cigc=1;
@@ -16864,6 +16835,8 @@ alcoolcc=v130b*10+v131b*12.5+v132b*24;
 
 if preg_alc eq 0 then preg_alc_unit =0;
 else if preg_alc eq 1 then preg_alc_unit =alcoolccb;",information collected at the inclusion (before 19 weeks) - no data on alcohol consumption after that date
+PELAGIE,pepsy,DATE_RDV,maj_ddn_2021,DDN_2021,ATHLETE_CDM,outcome_ath,att_age_5,complete,final,,ATT_age=(date_RDV-ddn_2021)/365.2422;,
+PELAGIE,harmonized,AGGR_EVAL_2,,,ATHLETE_CDM,outcome_ath,aggr_eval_2,complete,final,,eval=2;,
 PELAGIE,pelagie_q0,"V130,V131,V132",,,LifeCycle_CDM,core,alc_t1,partial,final,information collected at the inclusion (before 19 weeks) - no data on alcohol consumption after that date,"alc=V130;
 alc2=V131*10;
 alc3=v132*100;
@@ -16938,6 +16911,15 @@ label n='parité';
 
 parity_m=n;
 if n ge 4 then parity_m=4;",
+PELAGIE,pelagie_q6,QE6_D6_9,,,LifeCycle_CDM,core,fruit_sch,complete,final,,"/* fruits */
+if QE6_d6_9=. then fruit=.;
+else if QE6_d6_9=1 then fruit=0.5;
+else if QE6_d6_9=2 then fruit=2;
+else if QE6_d6_9=3 then fruit=8;
+else if QE6_d6_9=4 then fruit=20;
+else if QE6_d6_9=5 then fruit=30;
+
+fruit_sch=fruit/30;",
 PELAGIE,pelagie_q0,"V9,V10,V13,V14",,,LifeCycle_CDM,core,preg_plan,complete,final,,"if v9=0 then contraception=0;
 else if v9=. then contraception=.;
 else if v9 ne 0 and v9 ne . then contraception=1;
@@ -16983,6 +16965,17 @@ if occup_f1_0 eq 0 then occup_f1_0=6;/*sans emploi*/","Paternal occupational sta
 For occup_f1_0: The ""6) Inactive/other"" category includes the ""Housewife status"", the ""Unemployed"", and ""the Student/apprentice"". The ""1) Employed"" category includes also the ""self-employed"""
 PELAGIE,harmonized,OCCUP_F1_0,,,LifeCycle_CDM,core,occup_f1_fath0,partial,final,Biological father by default,if  occup_f1_0 ne . then occup_f1_fath0=1;,Biological father by default
 PELAGIE,harmonized,INT_INSTR_13,,,LifeCycle_CDM,outcome,int_instr_13,complete,final,,instr=47;,
+PELAGIE,pelagie_q2,"B581,B582",,,LifeCycle_CDM,core,ffish_psc,complete,final,,"/* poisson gras*/
+if B581=. then poisson_gras=.;
+else if B581=1 then poisson_gras=0;
+else if B581=2 then poisson_gras=0.5;
+else if B581=3 then poisson_gras=2;
+else if B581=4 then poisson_gras=8;
+else if B581=5 then poisson_gras=20;
+else if B581=6 then poisson_gras=30;
+else if B581=7 then poisson_gras=60;
+
+ffish_psc=poisson_gras/30;",
 PELAGIE,pelagie_q2,C614,,,LifeCycle_CDM,core,occup_f1_3,partial,final,"occup_f_1, _2, or _3 was filled in according to the exact age of the child when the parents answered to the 2yo questionnaire: the ""parental/childcare leave"" is considered in ""5) Domestic tasks (housewife etc.)""","if c614 eq 3 then occup_f1_2=1;
 else if c614 eq 0 then occup_f1_2=4;
 else if c614 eq 1 then occup_f1_2=3;
@@ -17032,29 +17025,6 @@ PELAGIE,harmonized,C_EEAA_RAW_6,,,ATHLETE_CDM,chemicals_ath,c_eeaa_lod_6,complet
 PELAGIE,pelagie_q6,QS6_C16,,,ATHLETE_CDM,outcome_ath,rhinitis_sx_ever_5,complete,final,,"if  (5 le age_enfant_quest lt 6) then do;
 rhinitis_sx_ever_5=QS6_C16;
 end;",
-PELAGIE,pelagie_q12,APP_Q4,,,LifeCycle_CDM,core,edu_f1_14,complete,final,,"if APP_q4 eq 1 then edu_f1_12=3;
-else if APP_q4 in (2) then edu_f1_12=2;
-else if APP_q4 in (3 4 5 6) then edu_f1_12=1;
-
-if ageq12 eq 13  then do; 
-edu_f1_13=edu_f1_12;edu_f1_12=.;
-end;
-
-if ageq12 eq 14  then do; 
-edu_f1_14=edu_f1_12;edu_f1_12=.;
-end;",
-PELAGIE,pepsy,DATE_RDV,maj_ddn_2021,DDN_2021,ATHLETE_CDM,outcome_ath,att_age_5,complete,final,,ATT_age=(date_RDV-ddn_2021)/365.2422;,
-PELAGIE,pelagie_q2,"B581,B582",,,LifeCycle_CDM,core,ffish_psc,complete,final,,"/* poisson gras*/
-if B581=. then poisson_gras=.;
-else if B581=1 then poisson_gras=0;
-else if B581=2 then poisson_gras=0.5;
-else if B581=3 then poisson_gras=2;
-else if B581=4 then poisson_gras=8;
-else if B581=5 then poisson_gras=20;
-else if B581=6 then poisson_gras=30;
-else if B581=7 then poisson_gras=60;
-
-ffish_psc=poisson_gras/30;",
 PELAGIE,pelagie_q6,"QE6_B5_CRECHE_DE_AMM,QE6_B5_CRECHE_A_AMM,QE6_B5_ASSISTANTE_DE_AMM,QE6_B5_ASSISTANTE_A_AMM,QE6_B5_FAMILLE_DE_AMM,QE6_B5_FAMILLE_A_AMM,QE6_B5_EMPLOYEE_DE_AMM,QE6_B5_EMPLOYEE_A_AMM,QE6_B5_VOUS_MEME_DE_AMM,QE6_B5_VOUS_MEME_A_AMM",,,LifeCycle_CDM,core,childcare_0,complete,final,variable generated for children followed at 6 years of age only,"if childcarerel_0 eq 1 or childcareprof_0 eq 1 or childcarecentre_0 eq 1 then childcare_0=1;
 else if childcarerel_0 eq 0 and childcareprof_0 eq 0 and childcarecentre_0 eq 0 then childcare_0=0;
 else if childcareparent_0 eq 1 and childcarerel_0 eq . and childcareprof_0 eq . and childcarecentre_0 eq . then do;
@@ -17213,6 +17183,7 @@ if breastfed_any ge 12 then breastfed_any=12;
 if breastfed_any eq 0 then breastfed_ever=0;
 else if breastfed_any gt 0 then breastfed_ever=1;
 if breastfed_ever eq . and b461 eq 1 then breastfed_ever=1;","Reported from the follow-ups at 2yo and, if missing, completed by the follow-up at 6 yo"
+PELAGIE,pelagie_q12,SCD_Q1,,,LifeCycle_CDM,core,weight_161,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,pelagie_q2,"B461,B462,B463","pelagie_q6,pelagie_q6","QE6_D4,QE6_D4HHMM",LifeCycle_CDM,core,breastfed_ever,partial,final,"Reported from the follow-ups at 2yo and, if missing, completed by the follow-up at 6 yo","if breastfed_any eq 0 then breastfed_ever=0;
 else if breastfed_any gt 0 then breastfed_ever=1;
 if breastfed_ever eq . and b461 eq 1 then breastfed_ever=1;","Reported from the follow-ups at 2yo and, if missing, completed by the follow-up at 6 yo"
@@ -17389,6 +17360,15 @@ else if B592=5 then bonbons=20;
 else if B592=6 then bonbons=30;
 else if B592=7 then bonbons=60;
 sugar_psc=bonbons/30;",
+PELAGIE,pelagie_q6,"QE6_B5_CRECHE_DE_AMM,QE6_B5_CRECHE_A_AMM,QE6_B5_ASSISTANTE_DE_AMM,QE6_B5_ASSISTANTE_A_AMM,QE6_B5_FAMILLE_DE_AMM,QE6_B5_FAMILLE_A_AMM,QE6_B5_EMPLOYEE_DE_AMM,QE6_B5_EMPLOYEE_A_AMM,QE6_B5_VOUS_MEME_DE_AMM,QE6_B5_VOUS_MEME_A_AMM",,,LifeCycle_CDM,core,childcareprof_1,complete,final,variable generated for children followed at 6 years of age only,"if 0<=assistantedeb<12 and assistantefin>0 then childcareprof_0=1; 
+if 0<=assistantedeb<24 and assistantefin >=12 then childcareprof_1=1; 
+if 0<=assistantedeb<36 and assistantefin >=24 then childcareprof_2=1; 
+if 0<=assistantedeb<48 and assistantefin >=36 then childcareprof_3=1; 
+
+if childcare_intro ne . and childcareprof_0 eq . then childcareprof_0=0;
+if childcare_intro ne . and childcareprof_1 eq . then childcareprof_1=0;
+if childcare_intro ne . and childcareprof_2 eq . then childcareprof_2=0;
+if childcare_intro ne . and childcareprof_3 eq . then childcareprof_3=0;",variable generated for children followed at 6 years of age only
 PELAGIE,pelagie_q6,"QE6_B5_CRECHE_DE_AMM,QE6_B5_CRECHE_A_AMM,QE6_B5_ASSISTANTE_DE_AMM,QE6_B5_ASSISTANTE_A_AMM,QE6_B5_FAMILLE_DE_AMM,QE6_B5_FAMILLE_A_AMM,QE6_B5_EMPLOYEE_DE_AMM,QE6_B5_EMPLOYEE_A_AMM,QE6_B5_VOUS_MEME_DE_AMM,QE6_B5_VOUS_MEME_A_AMM",,,LifeCycle_CDM,core,childcarerel_0,complete,final,variable generated for children followed at 6 years of age only,"if 0<=Familledeb<12 and famillefin>0 then childcarerel_0=1; 
 else if 0<=Employeedeb<12 and employeefin>0 then childcarerel_0=1; 
 
@@ -17454,16 +17434,6 @@ if childcare_intro ne . and childcarerel_0 eq . then childcarerel_0=0;
 if childcare_intro ne . and childcarerel_1 eq . then childcarerel_1=0;
 if childcare_intro ne . and childcarerel_2 eq . then childcarerel_2=0;
 if childcare_intro ne . and childcarerel_3 eq . then childcarerel_3=0;",variable generated for children followed at 6 years of age only
-PELAGIE,pelagie_q6,"QE6_B5_CRECHE_DE_AMM,QE6_B5_CRECHE_A_AMM,QE6_B5_ASSISTANTE_DE_AMM,QE6_B5_ASSISTANTE_A_AMM,QE6_B5_FAMILLE_DE_AMM,QE6_B5_FAMILLE_A_AMM,QE6_B5_EMPLOYEE_DE_AMM,QE6_B5_EMPLOYEE_A_AMM,QE6_B5_VOUS_MEME_DE_AMM,QE6_B5_VOUS_MEME_A_AMM",,,LifeCycle_CDM,core,childcareprof_1,complete,final,variable generated for children followed at 6 years of age only,"if 0<=assistantedeb<12 and assistantefin>0 then childcareprof_0=1; 
-if 0<=assistantedeb<24 and assistantefin >=12 then childcareprof_1=1; 
-if 0<=assistantedeb<36 and assistantefin >=24 then childcareprof_2=1; 
-if 0<=assistantedeb<48 and assistantefin >=36 then childcareprof_3=1; 
-
-if childcare_intro ne . and childcareprof_0 eq . then childcareprof_0=0;
-if childcare_intro ne . and childcareprof_1 eq . then childcareprof_1=0;
-if childcare_intro ne . and childcareprof_2 eq . then childcareprof_2=0;
-if childcare_intro ne . and childcareprof_3 eq . then childcareprof_3=0;",variable generated for children followed at 6 years of age only
-PELAGIE,harmonized,C_DEP_RAW_6,,,ATHLETE_CDM,chemicals_ath,c_dep_lod_6,complete,final,,"BDD_OP$c_dep_lod_6<-ifelse(!is.na(BDD_OP$c_dep_raw_6y),0.2,NA)",
 PELAGIE,pelagie_q6,"QE6_B5_CRECHE_DE_AMM,QE6_B5_CRECHE_A_AMM,QE6_B5_ASSISTANTE_DE_AMM,QE6_B5_ASSISTANTE_A_AMM,QE6_B5_FAMILLE_DE_AMM,QE6_B5_FAMILLE_A_AMM,QE6_B5_EMPLOYEE_DE_AMM,QE6_B5_EMPLOYEE_A_AMM,QE6_B5_VOUS_MEME_DE_AMM,QE6_B5_VOUS_MEME_A_AMM",,,LifeCycle_CDM,core,childcareprof_2,complete,final,variable generated for children followed at 6 years of age only,"if 0<=assistantedeb<12 and assistantefin>0 then childcareprof_0=1; 
 if 0<=assistantedeb<24 and assistantefin >=12 then childcareprof_1=1; 
 if 0<=assistantedeb<36 and assistantefin >=24 then childcareprof_2=1; 
@@ -17532,6 +17502,9 @@ if childcare_intro ne . and childcarecentre_0 eq . then childcarecentre_0=0;
 if childcare_intro ne . and childcarecentre_1 eq . then childcarecentre_1=0;
 if childcare_intro ne . and childcarecentre_2 eq . then childcarecentre_2=0;
 if childcare_intro ne . and childcarecentre_3 eq . then childcarecentre_3=0;",variable generated for children followed at 6 years of age only
+PELAGIE,pelagie_q12,"SRA_Q7_1,SRA_Q7_2_A",,,LifeCycle_CDM,outcome,asthma_11,complete,final,,"if SRA_Q7_1=1 and SRA_Q7_2_A>=11 and SRA_Q7_2_A<12 then asthma_11=1;
+else if SRA_Q7_1=0 and age_q12>=11 then asthma_11=0;
+else asthma_11=.;",
 PELAGIE,pelagie_q6,"QE6_G1,QE6_G2",,,LifeCycle_CDM,core,smk_exp6,partial,final,smoking status of the mother and th efather but not information about exposure of the child or not,"/* _4 to _7 depending on child age at the 6yo-follow-up */
 if QE6_G1=1 or QE6_G2=1 then smk_exp6=1;
 else if QE6_G1=0 and QE6_G2=0 then smk_exp6=0;",smoking status of the mother and th efather but not information about exposure of the child or not
@@ -17578,7 +17551,6 @@ if childcare_intro ne . and childcarecentre_0 eq . then childcarecentre_0=0;
 if childcare_intro ne . and childcarecentre_1 eq . then childcarecentre_1=0;
 if childcare_intro ne . and childcarecentre_2 eq . then childcarecentre_2=0;
 if childcare_intro ne . and childcarecentre_3 eq . then childcarecentre_3=0;",variable generated for children followed at 6 years of age only
-PELAGIE,harmonized,ATT_EVAL_6,,,ATHLETE_CDM,outcome_ath,att_eval_6,complete,final,,att_eval_6=4;,
 PELAGIE,pelagie_q6,"QE6_G1,QE6_G2",,,LifeCycle_CDM,core,smk_exp5,partial,final,smoking status of the mother and th efather but not information about exposure of the child or not,"/* _4 to _7 depending on child age at the 6yo-follow-up */
 if QE6_G1=1 or QE6_G2=1 then smk_exp6=1;
 else if QE6_G1=0 and QE6_G2=0 then smk_exp6=0;",smoking status of the mother and th efather but not information about exposure of the child or not
@@ -17616,15 +17588,7 @@ else if domimult=1 then do;
 	if CT_Q1_1=1 or CT_Q2_1=1 or CT_Q4_1=1 then smk_exp12=1;
 	else if CT_Q1_1 in (0,2) and CT_Q2_1=0 and CT_Q4_1=0 then smk_exp12=0;
 	end;",smoking status of the mother and th efather but not information about exposure of the child or not
-PELAGIE,pelagie_q6,QE6_D6_9,,,LifeCycle_CDM,core,fruit_sch,complete,final,,"/* fruits */
-if QE6_d6_9=. then fruit=.;
-else if QE6_d6_9=1 then fruit=0.5;
-else if QE6_d6_9=2 then fruit=2;
-else if QE6_d6_9=3 then fruit=8;
-else if QE6_d6_9=4 then fruit=20;
-else if QE6_d6_9=5 then fruit=30;
-
-fruit_sch=fruit/30;",
+PELAGIE,pelagie_q2,B3,maj_ddn_2021,DDN_2021,LifeCycle_CDM,outcome,ext_age_3,complete,final,,ext_age_3=(b3-ddn_2021)/365.2422;,
 PELAGIE,pelagie_q2,"B413,B441,B442",,,LifeCycle_CDM,core,pets_0,partial,final,data collected at 2yo (pet from birth),"if B413=0 and B441 ne 1 then do; pets_0=0; pets_1=0;pets_2=0; end;
 if B413=0 and B441=1 then do; pets_0=1; pets_1=0;  pets_2=0;end;
  
@@ -17690,6 +17654,8 @@ else if QE6_A3_Age_6 >17 then famsize_adult6=famsize_adult6+1;
 
 if 0<=QE6_A3_Age_7<18 then famsize_child6=famsize_child6+1;
 else if QE6_A3_Age_7 >17 then famsize_adult6=famsize_adult6+1;",
+PELAGIE,pelagie_q12,FA_Q3_1,,,LifeCycle_CDM,core,famsize_adult12,partial,final,"Partial harmonization because in the 12yo questionnaire, young adults (between 18 and 21yo) are considered as children, not adults","/* _12 to _14 depending on child age at the 12yo-follow-up */
+famsize_adult12=FA_Q3_1;","Partial harmonization because in the 12yo questionnaire, young adults (between 18 and 21yo) are considered as children, not adults"
 PELAGIE,pelagie_q2,"B413,B441,B442",,,LifeCycle_CDM,core,pets_1,partial,final,data collected at 2yo (pet from birth),"if B413=0 and B441 ne 1 then do; pets_0=0; pets_1=0;pets_2=0; end;
 if B413=0 and B441=1 then do; pets_0=1; pets_1=0;  pets_2=0;end;
  
@@ -17719,6 +17685,28 @@ if B413=1 and B441=1 and B442=. then do; pets_0=1; pets_1=1;pets_2=1; end;
 if ageq2 eq 1 then pets_2=.;
 if ageq2 eq 3 then pets_3=pets_2;",data collected at 2yo (pet from birth)
 PELAGIE,pelagie_q6,"QE6_A3_AGE_1,QE6_A3_AGE_2,QE6_A3_AGE_3,QE6_A3_AGE_4,QE6_A3_AGE_5,QE6_A3_AGE_6,QE6_A3_AGE_7",,,LifeCycle_CDM,core,famsize_child8,complete,final,,"/* _5 to _8 depending on child age at 6yo follow-up */
+if QE6_A3_Age_1 ne . then do; famsize_child6=1;famsize_adult6=1;end;
+if 0<=QE6_A3_Age_1<18 then famsize_child6=famsize_child6+1;
+else if QE6_A3_Age_1 >17 then famsize_adult6=famsize_adult6+1;
+
+if 0<=QE6_A3_Age_2<18 then famsize_child6=famsize_child6+1;
+else if QE6_A3_Age_2 >17 then famsize_adult6=famsize_adult6+1;
+
+if 0<=QE6_A3_Age_3<18 then famsize_child6=famsize_child6+1;
+else if QE6_A3_Age_3 >17 then famsize_adult6=famsize_adult6+1;
+
+if 0<=QE6_A3_Age_4<18 then famsize_child6=famsize_child6+1;
+else if QE6_A3_Age_4 >17 then famsize_adult6=famsize_adult6+1;
+
+if 0<=QE6_A3_Age_5<18 then famsize_child6=famsize_child6+1;
+else if QE6_A3_Age_5 >17 then famsize_adult6=famsize_adult6+1;
+
+if 0<=QE6_A3_Age_6<18 then famsize_child6=famsize_child6+1;
+else if QE6_A3_Age_6 >17 then famsize_adult6=famsize_adult6+1;
+
+if 0<=QE6_A3_Age_7<18 then famsize_child6=famsize_child6+1;
+else if QE6_A3_Age_7 >17 then famsize_adult6=famsize_adult6+1;",
+PELAGIE,pelagie_q6,"QE6_A3_AGE_1,QE6_A3_AGE_2,QE6_A3_AGE_3,QE6_A3_AGE_4,QE6_A3_AGE_5,QE6_A3_AGE_6,QE6_A3_AGE_7",,,LifeCycle_CDM,core,famsize_adult5,complete,final,,"/* _5 to _8 depending on child age at 6yo follow-up */
 if QE6_A3_Age_1 ne . then do; famsize_child6=1;famsize_adult6=1;end;
 if 0<=QE6_A3_Age_1<18 then famsize_child6=famsize_child6+1;
 else if QE6_A3_Age_1 >17 then famsize_adult6=famsize_adult6+1;
@@ -17862,28 +17850,6 @@ if c676 ne . then famsize_child2=c676+1;",
 PELAGIE,pelagie_q12,"SRA_Q7_1,SRA_Q7_2_A",,,LifeCycle_CDM,outcome,asthma_13,complete,final,,"if SRA_Q7_1=1 and SRA_Q7_2_A>=13 and SRA_Q7_2_A<14 then asthma_13=1;
 else if SRA_Q7_1=0 and age_q12>=13 then asthma_13=0;
 else asthma_13=.;",
-PELAGIE,pelagie_q6,"QE6_A3_AGE_1,QE6_A3_AGE_2,QE6_A3_AGE_3,QE6_A3_AGE_4,QE6_A3_AGE_5,QE6_A3_AGE_6,QE6_A3_AGE_7",,,LifeCycle_CDM,core,famsize_adult5,complete,final,,"/* _5 to _8 depending on child age at 6yo follow-up */
-if QE6_A3_Age_1 ne . then do; famsize_child6=1;famsize_adult6=1;end;
-if 0<=QE6_A3_Age_1<18 then famsize_child6=famsize_child6+1;
-else if QE6_A3_Age_1 >17 then famsize_adult6=famsize_adult6+1;
-
-if 0<=QE6_A3_Age_2<18 then famsize_child6=famsize_child6+1;
-else if QE6_A3_Age_2 >17 then famsize_adult6=famsize_adult6+1;
-
-if 0<=QE6_A3_Age_3<18 then famsize_child6=famsize_child6+1;
-else if QE6_A3_Age_3 >17 then famsize_adult6=famsize_adult6+1;
-
-if 0<=QE6_A3_Age_4<18 then famsize_child6=famsize_child6+1;
-else if QE6_A3_Age_4 >17 then famsize_adult6=famsize_adult6+1;
-
-if 0<=QE6_A3_Age_5<18 then famsize_child6=famsize_child6+1;
-else if QE6_A3_Age_5 >17 then famsize_adult6=famsize_adult6+1;
-
-if 0<=QE6_A3_Age_6<18 then famsize_child6=famsize_child6+1;
-else if QE6_A3_Age_6 >17 then famsize_adult6=famsize_adult6+1;
-
-if 0<=QE6_A3_Age_7<18 then famsize_child6=famsize_child6+1;
-else if QE6_A3_Age_7 >17 then famsize_adult6=famsize_adult6+1;",
 PELAGIE,pelagie_q6,"QE6_A3_AGE_1,QE6_A3_AGE_2,QE6_A3_AGE_3,QE6_A3_AGE_4,QE6_A3_AGE_5,QE6_A3_AGE_6,QE6_A3_AGE_7",,,LifeCycle_CDM,core,famsize_adult6,complete,final,,"/* _5 to _8 depending on child age at 6yo follow-up */
 if QE6_A3_Age_1 ne . then do; famsize_child6=1;famsize_adult6=1;end;
 if 0<=QE6_A3_Age_1<18 then famsize_child6=famsize_child6+1;
@@ -17965,8 +17931,6 @@ else if QE6_A3_Age_6 >17 then famsize_adult6=famsize_adult6+1;
 
 if 0<=QE6_A3_Age_7<18 then famsize_child6=famsize_child6+1;
 else if QE6_A3_Age_7 >17 then famsize_adult6=famsize_adult6+1;",
-PELAGIE,pelagie_q12,FA_Q3_1,,,LifeCycle_CDM,core,famsize_adult12,partial,final,"Partial harmonization because in the 12yo questionnaire, young adults (between 18 and 21yo) are considered as children, not adults","/* _12 to _14 depending on child age at the 12yo-follow-up */
-famsize_adult12=FA_Q3_1;","Partial harmonization because in the 12yo questionnaire, young adults (between 18 and 21yo) are considered as children, not adults"
 PELAGIE,pelagie_q12,FA_Q3_1,,,LifeCycle_CDM,core,famsize_adult13,partial,final,"Partial harmonization because in the 12yo questionnaire, young adults (between 18 and 21yo) are considered as children, not adults","/* _12 to _14 depending on child age at the 12yo-follow-up */
 famsize_adult12=FA_Q3_1;","Partial harmonization because in the 12yo questionnaire, young adults (between 18 and 21yo) are considered as children, not adults"
 PELAGIE,pelagie_q2,B575,,,LifeCycle_CDM,core,pulses_psc,complete,final,,"/* legumes secs */
@@ -18030,6 +17994,8 @@ else if v114=4 then pdt_lait_entier=30;
 /* dairy_pgn = Milk and milk products during pregnancy
 --> we included soft-cheese (v111) + hard-cheese (v112) + skimmed dairy products (v113) + fat dairy products (v114) */
 dairy_pgn=sum(fromage_mou,fromage_dur,pdt_lait_ecrem,pdt_lait_entier)/30;",
+PELAGIE,pelagie_q2,B142,,,LifeCycle_CDM,outcome,asthma_0,complete,final,ISAAC questionnaire,"if b142=1 then asthma_0=1;
+else if b142=0 then asthma_0=0;",ISAAC questionnaire
 PELAGIE,pelagie_q2,B582,,,LifeCycle_CDM,core,nffish_psc,complete,final,,"/* poisson blanc*/
 if B582=. then poisson_blanc=.;
 else if B582=1 then poisson_blanc=0;
@@ -18441,6 +18407,22 @@ out_min_wkn=out_min_wkn*2; /* x2 jours de weekend */
 
 outdoorp_psc=sum(out_min_sem,out_min_mer,out_min_wkn);",
 PELAGIE,harmonized,INT_EVAL_6,,,LifeCycle_CDM,outcome,int_eval_6,complete,final,,eval=2;,
+PELAGIE,pelagie_q6,"QE6_D6_11,QE6_D6_12",,,LifeCycle_CDM,core,whgrains_sch,complete,final,,"/* cereales petit dejeuner */
+if QE6_d6_11=. then cereale_dej=.;
+else if QE6_d6_11=1 then cereale_dej=0.5;
+else if QE6_d6_11=2 then cereale_dej=2;
+else if QE6_d6_11=3 then cereale_dej=8;
+else if QE6_d6_11=4 then cereale_dej=20;
+else if QE6_d6_11=5 then cereale_dej=30;
+/* pain complet */
+if QE6_d6_12=. then pain_complet=.;
+else if QE6_d6_12=1 then pain_complet=0.5;
+else if QE6_d6_12=2 then pain_complet=2;
+else if QE6_d6_12=3 then pain_complet=8;
+else if QE6_d6_12=4 then pain_complet=20;
+else if QE6_d6_12=5 then pain_complet=30;
+
+whgrains_sch=sum(cereale_dej,pain_complet)/30;",
 PELAGIE,pelagie_q2,"B322,B323,B324,B325,B326,B327",,,LifeCycle_CDM,core,screenoth_psc,partial,final,"Partial harmonization because it includes watching TV (no possibility to distinguish TV, video games, computer,…)","/* semaine */
 if b323 ne . & b322=. then b322=0;
 if b322 ne . & b323=. then b323=0;
@@ -18519,26 +18501,6 @@ else if QE6_d6_15=4 then bonbon=20;
 else if QE6_d6_15=5 then bonbon=30;
 
 sugar_sch=bonbon/30;",
-PELAGIE,pelagie_q6,"QE6_D6_11,QE6_D6_12",,,LifeCycle_CDM,core,whgrains_sch,complete,final,,"/* cereales petit dejeuner */
-if QE6_d6_11=. then cereale_dej=.;
-else if QE6_d6_11=1 then cereale_dej=0.5;
-else if QE6_d6_11=2 then cereale_dej=2;
-else if QE6_d6_11=3 then cereale_dej=8;
-else if QE6_d6_11=4 then cereale_dej=20;
-else if QE6_d6_11=5 then cereale_dej=30;
-/* pain complet */
-if QE6_d6_12=. then pain_complet=.;
-else if QE6_d6_12=1 then pain_complet=0.5;
-else if QE6_d6_12=2 then pain_complet=2;
-else if QE6_d6_12=3 then pain_complet=8;
-else if QE6_d6_12=4 then pain_complet=20;
-else if QE6_d6_12=5 then pain_complet=30;
-
-whgrains_sch=sum(cereale_dej,pain_complet)/30;",
-PELAGIE,pelagie_q12,"SRA_Q7_1,SRA_Q7_2_A",,,LifeCycle_CDM,outcome,asthma_11,complete,final,,"if SRA_Q7_1=1 and SRA_Q7_2_A>=11 and SRA_Q7_2_A<12 then asthma_11=1;
-else if SRA_Q7_1=0 and age_q12>=11 then asthma_11=0;
-else asthma_11=.;",
-PELAGIE,pelagie_q2,B3,maj_ddn_2021,DDN_2021,LifeCycle_CDM,outcome,ext_age_3,complete,final,,ext_age_3=(b3-ddn_2021)/365.2422;,
 PELAGIE,pelagie_q6,"QE6_D6_17,QE6_D6_18",,,LifeCycle_CDM,core,swebev_sch,partial,final,Partial harmonization because it includes light soda,"/* sodas et sirop */
 if QE6_d6_17=. then sodas=.;
 else if QE6_d6_17=1 then sodas=0.5;
@@ -18580,6 +18542,8 @@ end;","partial - collected at 6yo, may cover the postnatal period"
 PELAGIE,pelagie_q12,"SRA_Q7_1,SRA_Q7_2_A",,,LifeCycle_CDM,outcome,asthma_12,complete,final,,"if SRA_Q7_1=1 and SRA_Q7_2_A>=12 and SRA_Q7_2_A<13 then asthma_12=1;
 else if SRA_Q7_1=0 and age_q12>=12 then asthma_12=0;
 else asthma_12=.;",
+PELAGIE,pelagie_q2,B143,,,LifeCycle_CDM,outcome,asthma_1,complete,final,ISAAC questionnaire,"if b143=1 then asthma_1=1;
+else if b143=0 then asthma_1=0;",ISAAC questionnaire
 PELAGIE,pelagie_q6,"QS6_C37,QS6_C37_CHEZ_LEQUEL,QS6_C37_LAQUELLE",,,LifeCycle_CDM,outcome,allergy_food_m,partial,final,"partial - collected at 6yo, may cover the postnatal period","if QS6_C37=0 or (QS6_C37=1 and QS6_C37_Chez_lequel=2) then do; allergy_inh_m=0; allergy_food_m=0; allergy_any_m=0; end;
 else if QS6_C37=1 and QS6_C37_Chez_lequel in (1,3) then do;
 	if QS6_C37_Laquelle in (""LIST OF FREE TEXT THAT ARE FOOD ALLERGIES"")  then allergy_food_m=1;
@@ -18618,6 +18582,7 @@ if whe_7bis=1 or (SRA_Q1_1=1 and (SRA_Q1_3_A>=7 and SRA_Q1_3_A<8) or (SRA_Q1_4_A
 else if whe_7bis=0 or (SRA_Q1_1=0 and age_q12>=7) then whe_7=0;
 else whe_7=.;
 drop whe_7bis;",ISAAC questionnaire. Updated with data from 12-year-old follow-up
+PELAGIE,pelagie_q6,"QS6_C15_SI_OUI,AGE_ENFANT_QUEST",,,LifeCycle_CDM,outcome,asthma_5,partial,final,partial - collected at the 6yo follow-up but may have been diagnosed at any age before,if  (5 le age_enfant_quest lt 6) then asthma_5=qs6_c15_si_oui;,partial - collected at the 6yo follow-up but may have been diagnosed at any age before
 PELAGIE,pelagie_q12,"SRA_Q1_1,SRA_Q1_3_A,SRA_Q1_4_A",,,LifeCycle_CDM,outcome,whe_9,partial,final,Partially harmonized because is based only on the age at the first and last episode of wheezing. No information about other episodes at this age.,"whe_9bis=whe_9;
 if whe_9bis=1 or (SRA_Q1_1=1 and (SRA_Q1_3_A>=9 and SRA_Q1_3_A<10) or (SRA_Q1_4_A>=9 and SRA_Q1_4_A<10))
  then whe_9=1;
@@ -18655,11 +18620,6 @@ if whe_ever5_10bis=1 or (SRA_Q1_1=1 and (SRA_Q1_3_A>=5 and SRA_Q1_3_A<=10) or (S
 else if whe_ever5_10bis=0 or (SRA_Q1_1=0 and age_q12>=10) then whe_ever5_10=0;
 else whe_ever5_10=.;
 drop whe_ever5_10bis;",ISAAC questionnaire. Updated with data from 12-year-old follow-up
-PELAGIE,pelagie_q2,B142,,,LifeCycle_CDM,outcome,asthma_0,complete,final,ISAAC questionnaire,"if b142=1 then asthma_0=1;
-else if b142=0 then asthma_0=0;",ISAAC questionnaire
-PELAGIE,pelagie_q2,B143,,,LifeCycle_CDM,outcome,asthma_1,complete,final,ISAAC questionnaire,"if b143=1 then asthma_1=1;
-else if b143=0 then asthma_1=0;",ISAAC questionnaire
-PELAGIE,pelagie_q6,"QS6_C15_SI_OUI,AGE_ENFANT_QUEST",,,LifeCycle_CDM,outcome,asthma_5,partial,final,partial - collected at the 6yo follow-up but may have been diagnosed at any age before,if  (5 le age_enfant_quest lt 6) then asthma_5=qs6_c15_si_oui;,partial - collected at the 6yo follow-up but may have been diagnosed at any age before
 PELAGIE,pelagie_q6,"QS6_C15_SI_OUI,AGE_ENFANT_QUEST",,,LifeCycle_CDM,outcome,asthma_6,partial,final,partial - collected at the 6yo follow-up but may have been diagnosed at any age before,if  (6 le age_enfant_quest lt 7) then asthma_6=qs6_c15_si_oui;,partial - collected at the 6yo follow-up but may have been diagnosed at any age before
 PELAGIE,harmonized,AGGR_PRO_13,,,ATHLETE_CDM,outcome_ath,aggr_pc_13,complete,final,,"SDQ12$aggr_pc_13<-xtile(SDQ12$aggr_pro_13, n=100)",Percentile variables were generated only for years where information on prorated score was available for more than 10 children
 PELAGIE,harmonized,"ASTHMA_6,WHE_6,ASTHMA_MED_6",,,LifeCycle_CDM,outcome,asthma_current_MeDALL_6,complete,final,,"medall_6=sum(asthma_6,whe_6,asthma_med_6);
@@ -18770,6 +18730,7 @@ else if allerg_alimentr2=1 and (b153=0 and b162=0) then do;  food_all_0=0; food_
 else if allerg_alimentr2=. and (b153=0 and b162=0) then do;  food_all_0=0; food_all_1=0; end;
 else if b153=1 and b154=0 and b155=. then do; food_all_0=0; food_all_1=1; end;",
 PELAGIE,pelagie_q6,"QS6_C33,AGE_ENFANT_QUEST",,,LifeCycle_CDM,outcome,food_all_5,complete,final,data collected at the 6-year-old follow-up and concerns food allergy since birth,if  (5 le age_enfant_quest lt 6) then food_all_5=qs6_C33;,data collected at the 6-year-old follow-up and concerns food allergy since birth
+PELAGIE,pelagie_q12,DATE,maj_ddn_2021,DDN_2021,ATHLETE_CDM,outcome_ath,aggr_age_14,complete,final,,aggr_age_14=(DATE-ddn_2021)/365.2422;,
 PELAGIE,pelagie_q6,"QS6_C33,AGE_ENFANT_QUEST",,,LifeCycle_CDM,outcome,food_all_6,complete,final,data collected at the 6-year-old follow-up and concerns food allergy since birth,if  (6 le age_enfant_quest lt 7) then food_all_6=qs6_C33;,data collected at the 6-year-old follow-up and concerns food allergy since birth
 PELAGIE,pelagie_q12,"SRA_Q13_1,SRA_Q13_A",,,LifeCycle_CDM,outcome,food_all_13,partial,final,"No information about different episodes, only regarding the age of child when medical diagnosis was established","if SRA_Q13_1=1 and SRA_Q13_A>=13 and SRA_Q13_A<14 then food_all_13=1;
 else if SRA_Q13_1=0 and age_q12>=13 then food_all_13=0;
@@ -18919,6 +18880,7 @@ end;
 
 if eczema_0_q2=. then eczema_0=eczema_0_q6;
 else eczema_0=eczema_0_q2;",From data collected at 2yp and completed by data collected at 6yo
+PELAGIE,pelagie_q12,DATE,maj_ddn_2021,DDN_2021,LifeCycle_CDM,outcome,int_age_14,complete,final,,int_age_14=(DATE-ddn_2021)/365.2422;,
 PELAGIE,pelagie_q12,"SRA_Q11_1,SRA_Q11_2,SRA_Q11_4_A,AGE_Q12",,,LifeCycle_CDM,outcome,rash_11,complete,final,,"if (SRA_Q11_1=1 and (SRA_Q11_4_A>=11 and SRA_Q11_4_A<12)) or (SRA_Q11_2=1 and (age_q12>=11
  and age_q12<12)) then rash_11=1;
 else if SRA_Q11_1=0 and age_q12>=11 then rash_11=0;
@@ -19034,6 +18996,7 @@ end;
 
 if qs6_c31_confirme=1 then eczema_ever_q6=1;
 else if qs6_c31_confirme=0 then eczema_ever_q6=0;",
+PELAGIE,pelagie_q12,SCD_Q1,,,LifeCycle_CDM,core,weight_159,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,pelagie_q12,"SRA_Q11_6,SRA_Q12_1,SRA_Q11_3,SRA_Q11_4_A,SRA_Q11_6_A,SRA_Q12_A",,,LifeCycle_CDM,outcome,eczema_7,partial,final,"Information only about age of first rash apparition, the age at the eczema diagnosis and age of the eczema apparition. No information regarding other specific episodes at this age. Updated with data from 12-year-old follow-up","UPDATE 12-year-old follow-up: 
 eczema_7bis=eczema_7;
 if eczema_7bis=1 or (eczema_temp_ever=1 and ((SRA_Q11_4_A>=7 and SRA_Q11_4_A<8) or (SRA_Q11_6_A>=7 and 
@@ -19057,6 +19020,18 @@ PELAGIE,pelagie_q2,"B144,B146",,,LifeCycle_CDM,outcome,rash_1,complete,final,,"i
 rash_1=b146;",
 AP,AP,,,,OOM_CDM,VISIT_OCCURRENCE,meaning_of_visit,complete,,‘pathology_report’,,
 PELAGIE,BDD_phtalates_phenols,SGURINEF,,,ATHLETE_CDM,chemicals_ath,m_oxbe_lod_t2,complete,final,,BDD_phtalates_phenols$m_oxbe_lod_t2[BDD_phtalates_phenols$SGurineF>10]<-0.04,
+PELAGIE,pelagie_q6,"QS6_C25,QS6_C26,AGE_ENFANT_QUEST","pelagie_q12,pelagie_q12","SRA_Q11_1,SRA_Q11_4_A",LifeCycle_CDM,outcome,rash_7,complete,final,Updated with data from 12-year-old follow-up,"if  (7 le age_enfant_quest lt 8) then do;
+if QS6_C25=0 then rash_7=0; 
+else if QS6_C26=0 then rash_7=0;
+else if QS6_C26=1 then rash_7=1;
+end;
+
+UPDATE:
+rash_7bis=rash_7;
+if rash_7bis=1 or (SRA_Q11_1=1 and (SRA_Q11_4_A>=7 and SRA_Q11_4_A<8)) then rash_7=1;
+else if rash_7bis=0 or (SRA_Q11_1=0 and age_q12>=7) then rash_7=0;
+else rash_7=.;
+drop rash_7bis;",Updated with data from 12-year-old follow-up
 PELAGIE,pelagie_q12,"SRA_Q11_6,SRA_Q12_1,SRA_Q11_3,SRA_Q11_4_A,SRA_Q11_6_A,SRA_Q12_A",,,LifeCycle_CDM,outcome,eczema_9,partial,final,"Information only about age of first rash apparition, the age at the eczema diagnosis and age of the eczema apparition. No information regarding other specific episodes at this age.","eczema_9bis=eczema_9;
 if eczema_9bis=1 or (eczema_temp_ever=1 and ((SRA_Q11_4_A>=9 and SRA_Q11_4_A<10) or (SRA_Q11_6_A>=9 and 
  SRA_Q11_6_A<10) or (SRA_Q12_A>=9 and SRA_Q12_A<10))) then eczema_9=1;
@@ -19086,18 +19061,6 @@ else if QS6_C26=1 then rash_5=1;
 end;",
 PELAGIE,harmonized,EXT_INSTR_8,,,LifeCycle_CDM,outcome,ext_instr_8,complete,final,,instr=47;,
 PELAGIE,BDD_phtalates_phenols,"MEPA,SGURINEF",,,ATHLETE_CDM,chemicals_ath,m_mepa_raw_t2,complete,final,,BDD_phtalates_phenols$m_mepa_raw_t2[BDD_phtalates_phenols$SGurineF>10]<-BDD_phtalates_phenols$MEPA,
-PELAGIE,pelagie_q6,"QS6_C25,QS6_C26,AGE_ENFANT_QUEST","pelagie_q12,pelagie_q12","SRA_Q11_1,SRA_Q11_4_A",LifeCycle_CDM,outcome,rash_7,complete,final,Updated with data from 12-year-old follow-up,"if  (7 le age_enfant_quest lt 8) then do;
-if QS6_C25=0 then rash_7=0; 
-else if QS6_C26=0 then rash_7=0;
-else if QS6_C26=1 then rash_7=1;
-end;
-
-UPDATE:
-rash_7bis=rash_7;
-if rash_7bis=1 or (SRA_Q11_1=1 and (SRA_Q11_4_A>=7 and SRA_Q11_4_A<8)) then rash_7=1;
-else if rash_7bis=0 or (SRA_Q11_1=0 and age_q12>=7) then rash_7=0;
-else rash_7=.;
-drop rash_7bis;",Updated with data from 12-year-old follow-up
 PELAGIE,pelagie_q12,"SRA_Q11_1,SRA_Q11_4_A",,,LifeCycle_CDM,outcome,rash_8,partial,final,Information only about age of first rash apparition. No information regarding other specific episodes at this age.,"rash_8bis=rash_8;
 if rash_8bis=1 or (SRA_Q11_1=1 and (SRA_Q11_4_A>=8 and SRA_Q11_4_A<9)) then rash_8=1;
 else if rash_8bis=0 or (SRA_Q11_1=0 and age_q12>=8) then rash_8=0;
@@ -19167,8 +19130,6 @@ if (SRA_Q8_1=1 and SRA_Q8_4_2_A>=7 and SRA_Q8_4_2_A<8) or rhinitis_sx_ever_7bis=
 else if (SRA_Q8_1=0 and age_q12>=7) or rhinitis_sx_ever_7bis=0 then rhinitis_sx_ever_7=0;
 else rhinitis_sx_ever_7=.;
 drop rhinitis_sx_ever_7bis;",Updated with data from 12-year-old follow-up
-PELAGIE,harmonized,AGGR_EVAL_2,,,ATHLETE_CDM,outcome_ath,aggr_eval_2,complete,final,,eval=2;,
-PELAGIE,pelagie_q12,SCD_Q1,,,LifeCycle_CDM,core,weight_161,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,pelagie_q12,"SRA_Q8_1,SRA_Q8_4_2_A",,,ATHLETE_CDM,outcome_ath,rhinitis_sx_ever_8,partial,final,,"if SRA_Q8_1=1 and SRA_Q8_4_2_A>=8 and SRA_Q8_4_2_A<9 then rhinitis_sx_ever_8=1;
 else if SRA_Q8_1=0 and age_q12>=8 then rhinitis_sx_ever_8=0;
 else rhinitis_sx_ever_8=.;",Partially harmonized because is based only on the age of first episode of rhinitis symptoms. No information about other episodes at that age.
@@ -19193,6 +19154,7 @@ else rhinitis_sx_ever_12=.;",
 PELAGIE,pelagie_q12,"SRA_Q8_1,SRA_Q8_4_2_A,SRA_Q8_2,AGE_Q12",,,ATHLETE_CDM,outcome_ath,rhinitis_sx_ever_13,complete,final,,"if (SRA_Q8_1=1 and SRA_Q8_4_2_A>=13 and SRA_Q8_4_2_A<14) or (SRA_Q8_2=1 and age_q12>=13 and age_q12<14) then rhinitis_sx_ever_13=1;
 else if (age_q12>=13 and age_q12<14 and SRA_Q8_2=0) or (SRA_Q8_1=0 and age_q12>=13) then rhinitis_sx_ever_13=0;
 else rhinitis_sx_ever_13=.;",
+PELAGIE,BDD_phtalates_phenols,"MIBP,SGURINEF",,,ATHLETE_CDM,chemicals_ath,m_mibp_raw_t2,complete,final,,BDD_phtalates_phenols$m_mibp_raw_t2[BDD_phtalates_phenols$SGurineF>10]<-BDD_phtalates_phenols$MiBP,
 PELAGIE,pelagie_q12,"SRA_Q8_1,SRA_Q8_4_2_A,SRA_Q8_2,AGE_Q12",,,ATHLETE_CDM,outcome_ath,rhinitis_sx_ever_14,complete,final,,"if (SRA_Q8_1=1 and SRA_Q8_4_2_A>=14 and SRA_Q8_4_2_A<15) or (SRA_Q8_2=1 and age_q12>=14 and age_q12<15) then rhinitis_sx_ever_14=1;
 else if (age_q12>=14 and age_q12<15 and SRA_Q8_2=0) or (SRA_Q8_1=0 and age_q12>=14) then rhinitis_sx_ever_14=0;
 else rhinitis_sx_ever_14=.;",
@@ -19224,7 +19186,6 @@ else rhinitis_sx_12m_9=.;",Partially harmonized because is based only on the age
 PELAGIE,pelagie_q12,"SRA_Q8_1,SRA_Q8_4_2_A",,,ATHLETE_CDM,outcome_ath,rhinitis_sx_12m_10,partial,final,,"if SRA_Q8_1=1 and SRA_Q8_4_2_A>=10 and SRA_Q8_4_2_A<11 then rhinitis_sx_12m_10=1;
 else if SRA_Q8_1=0 and age_q12>=10 then rhinitis_sx_12m_10=0;
 else rhinitis_sx_12m_10=.;",Partially harmonized because is based only on the age of first episode of symptoms. No information about other episodes at that age.
-PELAGIE,pelagie_q12,DATE,maj_ddn_2021,DDN_2021,ATHLETE_CDM,outcome_ath,aggr_age_14,complete,final,,aggr_age_14=(DATE-ddn_2021)/365.2422;,
 PELAGIE,pelagie_q12,"SRA_Q8_1,SRA_Q8_2,SRA_Q8_4_2_A,AGE_Q12",,,ATHLETE_CDM,outcome_ath,rhinitis_sx_12m_11,complete,final,,"if (SRA_Q8_1=1 and SRA_Q8_4_2_A>=11 and SRA_Q8_4_2_A<12) or (SRA_Q8_2=1 and age_q12>=11 and age_q12<12) then rhinitis_sx_12m_11=1;
 else if (SRA_Q8_1=0 and age_q12>=11) or (SRA_Q8_2=0 and age_q12>=11 and age_q12<12) then rhinitis_sx_12m_11=0;
 else rhinitis_sx_12m_11=.;",
@@ -19254,6 +19215,12 @@ if (rhinitis_temp_ever=1 and (SRA_Q8_4_2_A>=7 and SRA_Q8_4_2_A<8) or (SRA_Q9_2_A
 else if (rhinitis_temp_ever=0 and age_q12>=7) or rhinitis_7bis=0 then rhinitis_7=0;
 else rhinitis_7=.;
 drop rhinitis_7bis;",Updated with data from 12-year-old follow-up
+PELAGIE,pepsy,"WISCMC,WISCSLC",,,LifeCycle_CDM,outcome,wm_raw_5,partial,final,Only 2 tasks : Digit Span and Letter Number Sequencing to assess Working Memory,"array WM{2} WISCMC WISCSLC; WMi=N(of WM{*}); WMp=WMi/2; 
+if WMp>=0.75 then do;
+WM12_raw=sum(of WM{*});
+WM12_mean=WM12_raw/WMi;
+WM12_pro=round(WM12_mean*2,1);
+end;",Only 2 tasks : Digit Span and Letter Number Sequencing to assess Working Memory
 PELAGIE,pelagie_q12,"SRA_Q8_1,SRA_Q9_1,SRA_Q10_1,SRA_Q8_4_2_A,SRA_Q9_2_A,SRA_Q10_1_A",,,ATHLETE_CDM,outcome_ath,rhinitis_8,partial,final,,"if rhinitis_temp_ever=1 and (SRA_Q8_4_2_A>=8 and SRA_Q8_4_2_A<9) or (SRA_Q9_2_A>=8 and SRA_Q9_2_A<9) or 
  (SRA_Q10_1_A>=8 and SRA_Q10_1_A<9) then rhinitis_8=1;
 else if rhinitis_temp_ever=0 and age_q12>=8 then rhinitis_8=0;
@@ -19274,6 +19241,7 @@ PELAGIE,pelagie_q12,"SRA_Q8_1,SRA_Q9_1,SRA_Q10_1,SRA_Q8_2,SRA_Q8_4_2_A,SRA_Q9_2_
  or (SRA_Q10_1_A>=11 and SRA_Q10_1_A<12)) or (SRA_Q8_2=1 and age_q12>=11 and age_q12<12) then rhinitis_11=1;
 else if (rhinitis_temp_ever=0 and age_q12>=11) or (SRA_Q8_2=0 and age_q12>=11 and age_q12<12) then rhinitis_11=0;
 else rhinitis_11=.;",
+PELAGIE,harmonized,LAN_EVAL_5,,,LifeCycle_CDM,outcome,lan_eval_5,complete,final,,lan_eval_5=3;,
 PELAGIE,pelagie_q12,"SRA_Q8_1,SRA_Q9_1,SRA_Q10_1,SRA_Q8_2,SRA_Q8_4_2_A,SRA_Q9_2_A,SRA_Q10_1_A,AGE_Q12",,,ATHLETE_CDM,outcome_ath,rhinitis_12,complete,final,,"if (rhinitis_temp_ever=1 and (SRA_Q8_4_2_A>=12 and SRA_Q8_4_2_A<13) or (SRA_Q9_2_A>=12 and SRA_Q9_2_A<13) 
  or (SRA_Q10_1_A>=12 and SRA_Q10_1_A<13)) or (SRA_Q8_2=1 and age_q12>=12 and age_q12<13) then rhinitis_12=1;
 else if (rhinitis_temp_ever=0 and age_q12>=12) or (SRA_Q8_2=0 and age_q12>=12 and age_q12<13) then rhinitis_12=0;
@@ -19291,6 +19259,12 @@ PELAGIE,harmonized,LAN_INSTR_5,,,LifeCycle_CDM,outcome,lan_instr_5,partial,final
 PELAGIE,BDD_phtalates_phenols,"PRPA,SGURINEF",,,ATHLETE_CDM,chemicals_ath,m_prpa_raw_t2,complete,final,,BDD_phtalates_phenols$m_prpa_raw_t2[BDD_phtalates_phenols$SGurineF>10]<-BDD_phtalates_phenols$PRPA,
 PELAGIE,harmonized,INT_PRO_13,,,LifeCycle_CDM,outcome,int_pc_13,complete,final,Percentile variables were generated only for years where information on prorated score was available for more than 10 children,"SDQ12$int_pc_13<-xtile(SDQ12$int_pro_13, n=100)",Percentile variables were generated only for years where information on prorated score was available for more than 10 children
 PELAGIE,pelagie_q2,B3,maj_ddn_2021,DDN_2021,LifeCycle_CDM,outcome,int_age_1,complete,final,,int_age_1=(b3-ddn_2021)/365.2422;,
+PELAGIE,pepsy,"WISCMC,WISCSLC",,,LifeCycle_CDM,outcome,wm_raw_6,partial,final,Only 2 tasks : Digit Span and Letter Number Sequencing to assess Working Memory,"array WM{2} WISCMC WISCSLC; WMi=N(of WM{*}); WMp=WMi/2; 
+if WMp>=0.75 then do;
+WM12_raw=sum(of WM{*});
+WM12_mean=WM12_raw/WMi;
+WM12_pro=round(WM12_mean*2,1);
+end;",Only 2 tasks : Digit Span and Letter Number Sequencing to assess Working Memory
 PELAGIE,pelagie_q2,"B307,B313,B315",,,LifeCycle_CDM,outcome,int_raw_1,partial,final,Partial CBCL scale: (1) how often would you say your child has seemed unhappy or sad? (2) how often would you say that your child has been overly fearful or anxious? (3)  how often would you say your child has been worried?,"array INT{3} b307 b313 b315;
 INTi=N(of INT{*}); INTp=INTi/3;
 if INTp>=0.75 then do;
@@ -19962,7 +19936,6 @@ Partial CBCL scale: (1) how often would you say your child has seemed unhappy or
 PELAGIE,harmonized,INT_PRO_5,,,LifeCycle_CDM,outcome,int_pc_5,complete,final,Percentile variables were generated only for years where information on prorated score was available for more than 10 children,"SDQ6$int_pc_5<-xtile(SDQ6$int_pro_5, n=100)",Percentile variables were generated only for years where information on prorated score was available for more than 10 children
 PELAGIE,harmonized,INT_PRO_6,,,LifeCycle_CDM,outcome,int_pc_6,complete,final,Percentile variables were generated only for years where information on prorated score was available for more than 10 children,"SDQ6$int_pc_6<-xtile(SDQ6$int_pro_6, n=100)",Percentile variables were generated only for years where information on prorated score was available for more than 10 children
 PELAGIE,BDD_pop,PCB138,,,ATHLETE_CDM,chemicals_ath,c_pcb138_raw_birth,partial,final,from cord blood,BDD_pop$c_pcb138_raw_birth<-BDD_pop$PCB138*943.4,from cord blood
-PELAGIE,pelagie_q12,DATE,maj_ddn_2021,DDN_2021,LifeCycle_CDM,outcome,int_age_14,complete,final,,int_age_14=(DATE-ddn_2021)/365.2422;,
 PELAGIE,harmonized,INT_INSTR_1,,,LifeCycle_CDM,outcome,int_instr_1,partial,final,Partial CBCL scale: (1) how often would you say your child has seemed unhappy or sad? (2) how often would you say that your child has been overly fearful or anxious? (3)  how often would you say your child has been worried?,instr=13;,Partial CBCL scale: (1) how often would you say your child has seemed unhappy or sad? (2) how often would you say that your child has been overly fearful or anxious? (3)  how often would you say your child has been worried?
 PELAGIE,harmonized,INT_INSTR_2,,,LifeCycle_CDM,outcome,int_instr_2,partial,final,Partial CBCL scale: (1) how often would you say your child has seemed unhappy or sad? (2) how often would you say that your child has been overly fearful or anxious? (3)  how often would you say your child has been worried?,instr=13;,Partial CBCL scale: (1) how often would you say your child has seemed unhappy or sad? (2) how often would you say that your child has been overly fearful or anxious? (3)  how often would you say your child has been worried?
 PELAGIE,pelagie_q12,SCD_Q1,,,LifeCycle_CDM,core,weight_162,complete,final,,/* too long to be provided and many case by case situations */,
@@ -19974,6 +19947,7 @@ PELAGIE,harmonized,INT_INSTR_6,,,LifeCycle_CDM,outcome,int_instr_6,complete,fina
 PELAGIE,harmonized,INT_INSTR_7,,,LifeCycle_CDM,outcome,int_instr_7,complete,final,,instr=47;,
 PELAGIE,harmonized,INT_EVAL_8,,,LifeCycle_CDM,outcome,int_eval_8,complete,final,,eval=2;,
 PELAGIE,harmonized,INT_EVAL_11,,,LifeCycle_CDM,outcome,int_eval_11,complete,final,,eval=2;,
+PELAGIE,pepsy,DATE_RDV,maj_ddn_2021,DDN_2021,LifeCycle_CDM,outcome,wm_age_6,complete,final,,wm_age_6=(date_RDV-ddn_2021)/365.2422;,
 PELAGIE,pelagie_q2,"B304,B309,B311,B312,B316,B320,B319,B308,B317,B306,B310,B314",,,LifeCycle_CDM,outcome,ext_raw_1,partial,final,"Partial CBCL scale: (1) how often would you say that your child has been unable to stay put, or has been restless or hyperactive?
 (2) how often would you say that your child has been rebellious or refused to obey?
 (3) how often would you say your child has been in a fight?
@@ -20104,6 +20078,7 @@ end;","Partial CBCL scale: (1) how often would you say that your child has been 
 (11)  how often would you say that your child has hit, bitten or kicked other children?
 (12)  how often would you say your child has been inattentive/distracted?"
 PELAGIE,pelagie_q12,DATE,maj_ddn_2021,DDN_2021,LifeCycle_CDM,outcome,ext_age_14,complete,final,,ext_age_14=(DATE-ddn_2021)/365.2422;,
+PELAGIE,harmonized,HIPCIRCMES_0,,,LifeCycle_CDM,outcome,hipcircmes_156,complete,final,,hipcircmes_156=0;,
 PELAGIE,pelagie_q6,"QE6_B15_2,QE6_B15_10,QE6_B15_15,QE6_B15_21,QE6_B15_25,QE6_B15_5,QE6_B15_7,QE6_B15_12,QE6_B15_18,QE6_B15_22",,,LifeCycle_CDM,outcome,ext_raw_5,complete,final,data collected at the 6-year-old follow-up and concerns food allergy since birth,"array EXT{10} QE6_B15_2 QE6_B15_10 QE6_B15_15 QE6_B15_21 QE6_B15_25 QE6_B15_5 QE6_B15_7 QE6_B15_12 QE6_B15_18 QE6_B15_22;
 EXTi=N(of EXT{*}); EXTp=EXTi/10;
 if EXTp>=0.75 then do;
@@ -22585,19 +22560,6 @@ end;",Only 1 task : Cubes to assess Perceptive Reasoning
 ARS_ANAG_MED_RES_storico,ARS_ANAG_MED_RES_storico,,,,OOM_CDM,PERSONS,race,complete,,Leave_empty,,
 PELAGIE,harmonized,NVI_PRO_6,,,LifeCycle_CDM,outcome,nvi_std_6,partial,final,Standardized variables were generated only for years where information on prorated score was available for more than 10 children,nvi_std_6=((nvi_pro_6-11.2342007)/2.6047068)*15 + 100;,Standardized variables were generated only for years where information on prorated score was available for more than 10 children
 PELAGIE,pepsy,DATE_RDV,maj_ddn_2021,DDN_2021,LifeCycle_CDM,outcome,nvi_age_5,complete,final,,nvi_age_5=(date_RDV-ddn_2021)/365.2422;,
-PELAGIE,pepsy,"WISCMC,WISCSLC",,,LifeCycle_CDM,outcome,wm_raw_5,partial,final,Only 2 tasks : Digit Span and Letter Number Sequencing to assess Working Memory,"array WM{2} WISCMC WISCSLC; WMi=N(of WM{*}); WMp=WMi/2; 
-if WMp>=0.75 then do;
-WM12_raw=sum(of WM{*});
-WM12_mean=WM12_raw/WMi;
-WM12_pro=round(WM12_mean*2,1);
-end;",Only 2 tasks : Digit Span and Letter Number Sequencing to assess Working Memory
-PELAGIE,harmonized,LAN_EVAL_5,,,LifeCycle_CDM,outcome,lan_eval_5,complete,final,,lan_eval_5=3;,
-PELAGIE,pepsy,"WISCMC,WISCSLC",,,LifeCycle_CDM,outcome,wm_raw_6,partial,final,Only 2 tasks : Digit Span and Letter Number Sequencing to assess Working Memory,"array WM{2} WISCMC WISCSLC; WMi=N(of WM{*}); WMp=WMi/2; 
-if WMp>=0.75 then do;
-WM12_raw=sum(of WM{*});
-WM12_mean=WM12_raw/WMi;
-WM12_pro=round(WM12_mean*2,1);
-end;",Only 2 tasks : Digit Span and Letter Number Sequencing to assess Working Memory
 PELAGIE,pepsy,"WISCMC,WISCSLC",,,LifeCycle_CDM,outcome,wm_pro_5,partial,final,Only 2 tasks : Digit Span and Letter Number Sequencing to assess Working Memory,"array WM{2} WISCMC WISCSLC; WMi=N(of WM{*}); WMp=WMi/2; 
 if WMp>=0.75 then do;
 WM12_raw=sum(of WM{*});
@@ -22628,7 +22590,6 @@ PELAGIE,harmonized,LAN_INSTR_6,,,LifeCycle_CDM,outcome,lan_instr_6,partial,final
 RMR,RMR,,,,OOM_CDM,SURVEY_OBSERVATIONS,so_source_value,complete,,As specified above,,
 PELAGIE,harmonized,WM_PRO_6,,,LifeCycle_CDM,outcome,wm_std_6,partial,final,Standardized variables were generated only for years where information on prorated score was available for more than 10 children,wm_std_6=((wm_pro_6-22.6848249)/4.5780859)*15 + 100;,Standardized variables were generated only for years where information on prorated score was available for more than 10 children
 PELAGIE,pepsy,DATE_RDV,maj_ddn_2021,DDN_2021,LifeCycle_CDM,outcome,wm_age_5,complete,final,,wm_age_5=(date_RDV-ddn_2021)/365.2422;,
-PELAGIE,pepsy,DATE_RDV,maj_ddn_2021,DDN_2021,LifeCycle_CDM,outcome,wm_age_6,complete,final,,wm_age_6=(date_RDV-ddn_2021)/365.2422;,
 PELAGIE,harmonized,WM_INSTR_5,,,LifeCycle_CDM,outcome,wm_instr_5,partial,final,Only 2 tasks : Digit Span and Letter Number Sequencing to assess Working Memory,wm_instr_5=59;,Only 2 tasks : Digit Span and Letter Number Sequencing to assess Working Memory
 PELAGIE,harmonized,COMMISSION,,,ATHLETE_CDM,outcome_ath,att_com_std_6,partial,final,,commission_std=commission/20;,Test=R-CPT90. 20 non-target items
 SPF,SPF,,,,OOM_CDM,MEDICINES,prescriber_speciality,complete,,,,
@@ -22664,6 +22625,7 @@ L12_mean=L12_raw/Li;
 L12_pro=round(L12_mean*3,1);
 end;","Only 3 tasks : Similarities, Vocabulary, and Comprehension to the assess Verbal Comprehension Index"
 PELAGIE,harmonized,HIPCIRCMES_0,,,LifeCycle_CDM,outcome,hipcircmes_155,complete,final,,hipcircmes_155=0;,
+PELAGIE,BDD_phtalates_phenols,SGURINEF,,,ATHLETE_CDM,chemicals_ath,m_cxminp_lod_t1,complete,final,,BDD_phtalates_phenols$m_cxminp_lod_t1[BDD_phtalates_phenols$SGurineF<=10]<-0.70,
 PELAGIE,pepsy,"WISCS,WISCV,WISCCO",,,LifeCycle_CDM,outcome,lan_avg_6,partial,final,"Only 3 tasks : Similarities, Vocabulary, and Comprehension to the assess Verbal Comprehension Index","array L{3} WISCS WISCV WISCco; Li=N(of L{*}); Lp=Li/3;
  if Lp>=0.75 then do;
 L12_raw=sum(of L{*});
@@ -22695,6 +22657,7 @@ create table ATTENTION as select unique id,  sum(target) as nbtarget,  sum(non_t
 from pep.CPT2018COMPIL
 group by id;
 run; quit;",Test=R-CPT90. 20 non-target items
+PELAGIE,BDD_phtalates_phenols,"MIBP,SGURINEF",,,ATHLETE_CDM,chemicals_ath,m_mibp_raw_t1,complete,final,,BDD_phtalates_phenols$m_mibp_raw_t1[BDD_phtalates_phenols$SGurineF<=10]<-BDD_phtalates_phenols$MiBP,
 PELAGIE,pepsy,OMISSION_NON_TARGET,,,ATHLETE_CDM,outcome_ath,att_com_raw_6,partial,final,,"proc sql;
 create table ATTENTION as select unique id,  sum(target) as nbtarget,  sum(non_target) as nbntarget,
  sum(correct) as correct,  sum(target_ok) as target,  sum(non_target_ok) as ntarget,
@@ -22715,8 +22678,6 @@ BDD_phtalates_phenols$m_mep_lod_t1[BDD_phtalates_phenols$SGurineF<=10 & BDD_phta
 PELAGIE,BDD_phtalates_phenols,SGURINEF,,,ATHLETE_CDM,chemicals_ath,m_mep_lod_t2,complete,final,,"BDD_phtalates_phenols$m_mep_lod_t2[BDD_phtalates_phenols$SGurineF>10 & (BDD_phtalates_phenols$dosages_phtalates_phenols==2 | BDD_phtalates_phenols$dosages_phtalates_phenols==3)]<-0.20
 
 BDD_phtalates_phenols$m_mep_lod_t2[BDD_phtalates_phenols$SGurineF>10 & (BDD_phtalates_phenols$dosages_phtalates_phenols==2 | BDD_phtalates_phenols$dosages_phtalates_phenols==3)]<-0.20",
-PELAGIE,BDD_phtalates_phenols,"MIBP,SGURINEF",,,ATHLETE_CDM,chemicals_ath,m_mibp_raw_t1,complete,final,,BDD_phtalates_phenols$m_mibp_raw_t1[BDD_phtalates_phenols$SGurineF<=10]<-BDD_phtalates_phenols$MiBP,
-PELAGIE,BDD_phtalates_phenols,"MIBP,SGURINEF",,,ATHLETE_CDM,chemicals_ath,m_mibp_raw_t2,complete,final,,BDD_phtalates_phenols$m_mibp_raw_t2[BDD_phtalates_phenols$SGurineF>10]<-BDD_phtalates_phenols$MiBP,
 PELAGIE,BDD_phtalates_phenols,SGURINEF,,,ATHLETE_CDM,chemicals_ath,m_mibp_lod_t1,complete,final,,"BDD_phtalates_phenols$m_mibp_lod_t1[BDD_phtalates_phenols$SGurineF<=10  & (BDD_phtalates_phenols$dosages_phtalates_phenols==2 | BDD_phtalates_phenols$dosages_phtalates_phenols==3)]<-0.20
 
 BDD_phtalates_phenols$m_mibp_lod_t1[BDD_phtalates_phenols$SGurineF<=10  & BDD_phtalates_phenols$dosages_phtalates_phenols==1]<-0.30",
@@ -22735,7 +22696,6 @@ BDD_phtalates_phenols$m_mnbp_lod_t2[BDD_phtalates_phenols$SGurineF>10 & BDD_phta
 PELAGIE,BDD_phtalates_phenols,"MBZP,SGURINEF",,,ATHLETE_CDM,chemicals_ath,m_mbzp_raw_t1,complete,final,,BDD_phtalates_phenols$m_mbzp_raw_t1[BDD_phtalates_phenols$SGurineF<=10]<-BDD_phtalates_phenols$MBzP,
 PELAGIE,harmonized,BIOMES_0,,,LifeCycle_CDM,outcome,biomes_152,complete,final,,biomes_152=0;,
 PELAGIE,BDD_phtalates_phenols,"MBZP,SGURINEF",,,ATHLETE_CDM,chemicals_ath,m_mbzp_raw_t2,complete,final,,BDD_phtalates_phenols$m_mbzp_raw_t2[BDD_phtalates_phenols$SGurineF>10]<-BDD_phtalates_phenols$MBzP,
-PELAGIE,BDD_phtalates_phenols,SGURINEF,,,ATHLETE_CDM,chemicals_ath,m_cxminp_lod_t1,complete,final,,BDD_phtalates_phenols$m_cxminp_lod_t1[BDD_phtalates_phenols$SGurineF<=10]<-0.70,
 PELAGIE,BDD_phtalates_phenols,"CXMINP,SGURINEF",,,ATHLETE_CDM,chemicals_ath,m_cxminp_raw_t1,complete,final,,BDD_phtalates_phenols$m_cxminp_raw_t1[BDD_phtalates_phenols$SGurineF<=10]<-BDD_phtalates_phenols$cxMiNP,
 PELAGIE,BDD_phtalates_phenols,SGURINEF,,,ATHLETE_CDM,chemicals_ath,m_mbzp_lod_t1,complete,final,,"BDD_phtalates_phenols$m_mbzp_lod_t1[BDD_phtalates_phenols$SGurineF<=10 & (BDD_phtalates_phenols$dosages_phtalates_phenols==2 | BDD_phtalates_phenols$dosages_phtalates_phenols==3)]<-0.20
 
@@ -22754,7 +22714,6 @@ PELAGIE,BDD_phtalates_phenols,SGURINEF,,,ATHLETE_CDM,chemicals_ath,m_mehp_lod_t2
 BDD_phtalates_phenols$m_mehp_lod_t2[BDD_phtalates_phenols$SGurineF>10 & BDD_phtalates_phenols$dosages_phtalates_phenols==1]<-1.20",
 PELAGIE,BDD_phtalates_phenols,"MEHHP,SGURINEF",,,ATHLETE_CDM,chemicals_ath,m_mehhp_raw_t1,complete,final,,BDD_phtalates_phenols$m_mehhp_raw_t1[BDD_phtalates_phenols$SGurineF<=10]<-BDD_phtalates_phenols$MEHHP,
 PELAGIE,BDD_phtalates_phenols,"MEHHP,SGURINEF",,,ATHLETE_CDM,chemicals_ath,m_mehhp_raw_t2,complete,final,,BDD_phtalates_phenols$m_mehhp_raw_t2[BDD_phtalates_phenols$SGurineF>10]<-BDD_phtalates_phenols$MEHHP,
-PELAGIE,pelagie_q12,SCD_Q1,,,LifeCycle_CDM,core,weight_159,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,BDD_phtalates_phenols,"CXMINP,SGURINEF",,,ATHLETE_CDM,chemicals_ath,m_cxminp_raw_t2,complete,final,,BDD_phtalates_phenols$m_cxminp_raw_t2[BDD_phtalates_phenols$SGurineF>10]<-BDD_phtalates_phenols$cxMiNP,
 PELAGIE,BDD_phtalates_phenols,"OHMPHP,SGURINEF",,,ATHLETE_CDM,chemicals_ath,m_ohmphp_raw_t1,complete,final,,BDD_phtalates_phenols$m_ohmphp_raw_t1[BDD_phtalates_phenols$SGurineF<=10]<-BDD_phtalates_phenols$ohMPHP,
 PELAGIE,BDD_phtalates_phenols,SGURINEF,,,ATHLETE_CDM,chemicals_ath,m_mehhp_lod_t1,complete,final,,"BDD_phtalates_phenols$m_mehhp_lod_t1[BDD_phtalates_phenols$SGurineF<=10 & (BDD_phtalates_phenols$dosages_phtalates_phenols==2 | BDD_phtalates_phenols$dosages_phtalates_phenols==3)]<-0.20
@@ -22876,7 +22835,6 @@ PELAGIE,harmonized,C_HCB_RAW_BIRTH,,,ATHLETE_CDM,chemicals_ath,c_hcb_lod_birth,p
 PELAGIE,pelagie_exam12,AGE_EXAM,harmonized,C_PCB118_RAW_12Y,ATHLETE_CDM,chemicals_ath,c_pcb118_lod_12,complete,final,,"BDD_pop$c_pcb118_lod_12<-ifelse(BDD_pop$age_exam<13 & !is.na(BDD_pop$c_pcb118_raw_12y),0.01*943.4,NA)",
 PELAGIE,BDD_pop,Q12_BPC118,pelagie_exam12,AGE_EXAM,ATHLETE_CDM,chemicals_ath,c_pcb118_raw_13,complete,final,,"BDD_pop$c_pcb118_raw_13y<ifelse(BDD_pop$age_exam>=13,BDD_pop$Q12_BPC118*943.4,NA)",
 PELAGIE,pelagie_exam12,AGE_EXAM,harmonized,C_PCB118_RAW_13Y,ATHLETE_CDM,chemicals_ath,c_pcb118_lod_13,complete,final,,"BDD_pop$c_pcb118_lod_13<-ifelse(BDD_pop$age_exam>=13 & !is.na(BDD_pop$c_pcb118_raw_13y),0.01*943.4,NA)",
-PELAGIE,harmonized,HIPCIRCMES_0,,,LifeCycle_CDM,outcome,hipcircmes_156,complete,final,,hipcircmes_156=0;,
 PELAGIE,harmonized,C_PCB138_RAW_BIRTH,,,ATHLETE_CDM,chemicals_ath,c_pcb138_lod_birth,partial,final,from cord blood,"BDD_pop$c_pcb138_lod_birth<-ifelse(!is.na(BDD_pop$c_pcb138_raw_birth),0.01*943.4,NA)",from cord blood
 PELAGIE,pelagie_exam12,AGE_EXAM,harmonized,C_PCB138_RAW_12Y,ATHLETE_CDM,chemicals_ath,c_pcb138_lod_12,complete,final,,"BDD_pop$c_pcb138_lod_12<-ifelse(BDD_pop$age_exam<13 & !is.na(BDD_pop$c_pcb138_raw_12y),0.01*943.4,NA)",
 PELAGIE,BDD_pop,Q12_BPC138,pelagie_exam12,AGE_EXAM,ATHLETE_CDM,chemicals_ath,c_pcb138_raw_13,complete,final,,"BDD_pop$c_pcb138_raw_13<-ifelse(BDD_pop$age_exam>=13,BDD_pop$Q12_BPC138*943.4,NA)",
@@ -22902,6 +22860,7 @@ PELAGIE,BDD_pop,Q12_BPC180,pelagie_exam12,AGE_EXAM,ATHLETE_CDM,chemicals_ath,c_p
 PELAGIE,pelagie_exam12,AGE_EXAM,harmonized,C_PCB180_RAW_12Y,ATHLETE_CDM,chemicals_ath,c_pcb180_lod_12,complete,final,,"BDD_pop$c_pcb180_lod_12<-ifelse(BDD_pop$age_exam<13  & !is.na(BDD_pop$c_pcb180_raw_12y),0.01*943.4,NA)",
 PELAGIE,pelagie_exam12,AGE_EXAM,harmonized,C_PCB180_RAW_13Y,ATHLETE_CDM,chemicals_ath,c_pcb180_lod_13,complete,final,,"BDD_pop$c_pcb180_lod_13<-ifelse(BDD_pop$age_exam>=13  & !is.na(BDD_pop$c_pcb180_raw_13y),0.01*943.4,NA)",
 PELAGIE,BDD_pop,PPDDT,,,ATHLETE_CDM,chemicals_ath,c_ddt_raw_birth,partial,final,from cord blood,BDD_pop$c_ddt_raw_birth<-BDD_pop$ppDDT*943.4,from cord blood
+PELAGIE,BDD_pop,PBDE153,,,ATHLETE_CDM,chemicals_ath,c_pbde153_raw_birth,partial,final,from cord blood,BDD_pop$c_pbde153_raw_birth<-BDD_pop$PBDE153*943.4,from cord blood
 PELAGIE,BDD_pop,DOSAGE_POP_MERE,harmonized,C_DDT_RAW_BIRTH,ATHLETE_CDM,chemicals_ath,c_ddt_lod_birth,partial,final,from cord blood,"BDD_pop$c_ddt_lod_birth<-ifelse(!is.na(BDD_pop$c_ddt_raw_birth),0.02*943.4,NA)
 BDD_pop$c_ddt_lod_birth<-ifelse(!is.na(BDD_pop$c_ddt_raw_birth) & BDD_pop$dosage_pop_mere==2,0.05*943.4,BDD_pop$c_ddt_lod_birth)",from cord blood
 PELAGIE,harmonized,C_DDE_RAW_BIRTH,,,ATHLETE_CDM,chemicals_ath,c_dde_lod_birth,partial,final,from cord blood,"BDD_pop$c_dde_lod_birth<-ifelse(!is.na(BDD_pop$c_dde_raw_birth),0.02*943.4,NA)",from cord blood
@@ -22916,7 +22875,6 @@ PELAGIE,BDD_pop,Q12_HEXACHLOROBENZENE,pelagie_exam12,AGE_EXAM,ATHLETE_CDM,chemic
 PELAGIE,pelagie_exam12,AGE_EXAM,harmonized,C_HCB_RAW_13Y,ATHLETE_CDM,chemicals_ath,c_hcb_lod_13,complete,final,,"BDD_pop$c_hcb_lod_13<-ifelse(BDD_pop$age_exam>=13  & !is.na(BDD_pop$c_hcb_raw_13y),0.02*943.4,NA)",
 PELAGIE,BDD_pop,PBDE47,,,ATHLETE_CDM,chemicals_ath,c_pbde47_raw_birth,partial,final,from cord blood,BDD_pop$c_pbde47_raw_birth<-BDD_pop$PBDE47*943.4,from cord blood
 PELAGIE,harmonized,C_PBDE47_RAW_BIRTH,,,ATHLETE_CDM,chemicals_ath,c_pbde47_lod_birth,partial,final,from cord blood,"BDD_pop$c_pbde47_lod_birth<-ifelse(!is.na(BDD_pop$c_pbde47_raw_birth),0.01*943.4,NA)",from cord blood
-PELAGIE,BDD_pop,PBDE153,,,ATHLETE_CDM,chemicals_ath,c_pbde153_raw_birth,partial,final,from cord blood,BDD_pop$c_pbde153_raw_birth<-BDD_pop$PBDE153*943.4,from cord blood
 PELAGIE,harmonized,C_PBDE153_RAW_BIRTH,,,ATHLETE_CDM,chemicals_ath,c_pbde153_lod_birth,partial,final,from cord blood,"BDD_pop$c_pbde153_lod_birth<-ifelse(!is.na(BDD_pop$c_pbde153_raw_birth),0.01*943.4,NA)",from cord blood
 PELAGIE,harmonized,C_HCH_RAW_BIRTH,,,ATHLETE_CDM,chemicals_ath,c_hch_lod_birth,partial,final,from cord blood,"BDD_pop$c_hch_lod_birth<-ifelse(!is.na(BDD_pop$c_hch_raw_birth),0.01*943.4,NA)",from cord blood
 PELAGIE,BDD_pop,Q12_BETAHCH,pelagie_exam12,AGE_EXAM,ATHLETE_CDM,chemicals_ath,c_hch_raw_12,complete,final,,"BDD_pop$c_hch_raw_12<-ifelse(BDD_pop$age_exam<13,BDD_pop$Q12_betaHCH*943.4,NA)",
@@ -23011,6 +22969,7 @@ PELAGIE,BDD_OP,CHILDCHLORPYRIFOS,,,ATHLETE_CDM,chemicals_ath,c_chlorphyrifos_raw
 PELAGIE,harmonized,C_CHLORPHYRIFOS_RAW_6,,,ATHLETE_CDM,chemicals_ath,c_chlorphyrifos_lod_6,complete,final,,"BDD_OP$c_chlorphyrifos_lod_6<-ifelse(!is.na(BDD_OP$c_chlorphyrifos_raw_6y),0.005,NA)",
 PELAGIE,BDD_creatinine,"CREATININE_TOT,SGURINEF",,,ATHLETE_CDM,chemicals_ath,m_creatinine_raw_t1,complete,final,,"BDD_creatinine$m_creatinine_raw_t1<-ifelse(!is.na(BDD_creatinine$creatinine_tot) & BDD_creatinine$SGurineF<=10,BDD_creatinine$creatinine_tot,NA)",
 PELAGIE,BDD_creatinine,"CREATININE_TOT,SGURINEF",,,ATHLETE_CDM,chemicals_ath,m_creatinine_raw_t2,complete,final,,"BDD_creatinine$m_creatinine_raw_t2<-ifelse(!is.na(BDD_creatinine$creatinine_tot) & BDD_creatinine$SGurineF>10,BDD_creatinine$creatinine_tot,NA)",
+PELAGIE,maj_ddn_2021,DDN_2021,pelagie_q12,DATE,LifeCycle_CDM,core,height_age152,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,pelagie_q2,"B23,B27,B31,B35,B39,B43,B47,B51,B55,B59,B63,B67,B71,B75,B79,B83,B87,B91,B95","pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","QS6_B1_TAILLE_4_MOIS,QS6_B1_TAILLE_9_MOIS,QS6_B1_TAILLE_24_MOIS,QS6_B1_TAILLE_3_ANS,QS6_B1_TAILLE_4_ANS,QS6_B1_TAILLE_5_ANS,QS6_B1_TAILLE_6_ANS",LifeCycle_CDM,core,height_0,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,pelagie_q12,SCD_Q1,,,LifeCycle_CDM,core,weight_166,complete,final,,/* too long to be provided and many case by case situations */,
 SALM,SALM,data,,,OOM_CDM,EVENTS,start_date_record,complete,,,,
@@ -23020,6 +22979,12 @@ PELAGIE,pelagie_q12,SCD_Q2,,,LifeCycle_CDM,core,height_147,complete,final,,/* to
 PELAGIE,pelagie_q12,SCD_Q2,,,LifeCycle_CDM,core,height_148,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,pelagie_q2,"B23,B27,B31,B35,B39,B43,B47,B51,B55,B59,B63,B67,B71,B75,B79,B83,B87,B91,B95","pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","QS6_B1_TAILLE_4_MOIS,QS6_B1_TAILLE_9_MOIS,QS6_B1_TAILLE_24_MOIS,QS6_B1_TAILLE_3_ANS,QS6_B1_TAILLE_4_ANS,QS6_B1_TAILLE_5_ANS,QS6_B1_TAILLE_6_ANS",LifeCycle_CDM,core,height_3,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,maj_ddn_2021,DDN_2021,pelagie_exam12,DATE,LifeCycle_CDM,outcome,headcircage_152,complete,final,,/* too long to be provided and many case by case situations */,
+PELAGIE,pelagie_q12,SCD_Q1,,,LifeCycle_CDM,core,weight_150,complete,final,,/* too long to be provided and many case by case situations */,
+PELAGIE,pelagie_exam12,"EX32,PB_TANITA",,,LifeCycle_CDM,outcome,bio_151,complete,final,,"do i = 146 to 158 ; 
+  if age_exam_mois eq i then do; 
+if pb_tanita eq 0 then do;bio_[i]=ex32;bioage_[i]=age_exam_jour;biomes_[i]=0;end;
+  end;
+end;",
 PELAGIE,pelagie_q2,"B23,B27,B31,B35,B39,B43,B47,B51,B55,B59,B63,B67,B71,B75,B79,B83,B87,B91,B95","pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","QS6_B1_TAILLE_4_MOIS,QS6_B1_TAILLE_9_MOIS,QS6_B1_TAILLE_24_MOIS,QS6_B1_TAILLE_3_ANS,QS6_B1_TAILLE_4_ANS,QS6_B1_TAILLE_5_ANS,QS6_B1_TAILLE_6_ANS",LifeCycle_CDM,core,height_4,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,maj_ddn_2021,DDN_2021,pelagie_q12,DATE,LifeCycle_CDM,core,height_age146,complete,final,,/* too long to be provided and many case by case situations */,
 SALM,SALM,,,,OOM_CDM,EVENTS,end_date_record,complete,,,,
@@ -23110,6 +23075,8 @@ PELAGIE,harmonized,TRIGLYCERIDESMES_146,,,LifeCycle_CDM,outcome,triglyceridesmes
 PELAGIE,pelagie_q2,"B23,B27,B31,B35,B39,B43,B47,B51,B55,B59,B63,B67,B71,B75,B79,B83,B87,B91,B95","pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","QS6_B1_TAILLE_4_MOIS,QS6_B1_TAILLE_9_MOIS,QS6_B1_TAILLE_24_MOIS,QS6_B1_TAILLE_3_ANS,QS6_B1_TAILLE_4_ANS,QS6_B1_TAILLE_5_ANS,QS6_B1_TAILLE_6_ANS",LifeCycle_CDM,core,height_64,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,pelagie_exam12,"EX47,EX56,EX65",,,LifeCycle_CDM,outcome,headcirc_148,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,pelagie_q2,"B23,B27,B31,B35,B39,B43,B47,B51,B55,B59,B63,B67,B71,B75,B79,B83,B87,B91,B95","pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","QS6_B1_TAILLE_4_MOIS,QS6_B1_TAILLE_9_MOIS,QS6_B1_TAILLE_24_MOIS,QS6_B1_TAILLE_3_ANS,QS6_B1_TAILLE_4_ANS,QS6_B1_TAILLE_5_ANS,QS6_B1_TAILLE_6_ANS",LifeCycle_CDM,core,height_65,complete,final,,/* too long to be provided and many case by case situations */,
+PELAGIE,pelagie_q12,SCD_Q1,,,LifeCycle_CDM,core,weight_133,complete,final,,/* too long to be provided and many case by case situations */,
+PELAGIE,pelagie_q12,SCD_Q1,,,LifeCycle_CDM,core,weight_144,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,pelagie_q2,"B23,B27,B31,B35,B39,B43,B47,B51,B55,B59,B63,B67,B71,B75,B79,B83,B87,B91,B95","pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","QS6_B1_TAILLE_4_MOIS,QS6_B1_TAILLE_9_MOIS,QS6_B1_TAILLE_24_MOIS,QS6_B1_TAILLE_3_ANS,QS6_B1_TAILLE_4_ANS,QS6_B1_TAILLE_5_ANS,QS6_B1_TAILLE_6_ANS",LifeCycle_CDM,core,height_66,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,pelagie_q2,"B23,B27,B31,B35,B39,B43,B47,B51,B55,B59,B63,B67,B71,B75,B79,B83,B87,B91,B95","pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","QS6_B1_TAILLE_4_MOIS,QS6_B1_TAILLE_9_MOIS,QS6_B1_TAILLE_24_MOIS,QS6_B1_TAILLE_3_ANS,QS6_B1_TAILLE_4_ANS,QS6_B1_TAILLE_5_ANS,QS6_B1_TAILLE_6_ANS",LifeCycle_CDM,core,height_67,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,maj_ddn_2021,DDN_2021,pelagie_q12,DATE,LifeCycle_CDM,core,height_age150,complete,final,,/* too long to be provided and many case by case situations */,
@@ -23132,6 +23099,7 @@ end;",
 PELAGIE,pelagie_q2,"B23,B27,B31,B35,B39,B43,B47,B51,B55,B59,B63,B67,B71,B75,B79,B83,B87,B91,B95","pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","QS6_B1_TAILLE_4_MOIS,QS6_B1_TAILLE_9_MOIS,QS6_B1_TAILLE_24_MOIS,QS6_B1_TAILLE_3_ANS,QS6_B1_TAILLE_4_ANS,QS6_B1_TAILLE_5_ANS,QS6_B1_TAILLE_6_ANS",LifeCycle_CDM,core,height_73,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,pelagie_q2,"B23,B27,B31,B35,B39,B43,B47,B51,B55,B59,B63,B67,B71,B75,B79,B83,B87,B91,B95","pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","QS6_B1_TAILLE_4_MOIS,QS6_B1_TAILLE_9_MOIS,QS6_B1_TAILLE_24_MOIS,QS6_B1_TAILLE_3_ANS,QS6_B1_TAILLE_4_ANS,QS6_B1_TAILLE_5_ANS,QS6_B1_TAILLE_6_ANS",LifeCycle_CDM,core,height_74,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,pelagie_q2,"B23,B27,B31,B35,B39,B43,B47,B51,B55,B59,B63,B67,B71,B75,B79,B83,B87,B91,B95","pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","QS6_B1_TAILLE_4_MOIS,QS6_B1_TAILLE_9_MOIS,QS6_B1_TAILLE_24_MOIS,QS6_B1_TAILLE_3_ANS,QS6_B1_TAILLE_4_ANS,QS6_B1_TAILLE_5_ANS,QS6_B1_TAILLE_6_ANS",LifeCycle_CDM,core,height_75,complete,final,,/* too long to be provided and many case by case situations */,
+PELAGIE,pelagie_q12,SCD_Q1,,,LifeCycle_CDM,core,weight_145,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,pelagie_q2,"B23,B27,B31,B35,B39,B43,B47,B51,B55,B59,B63,B67,B71,B75,B79,B83,B87,B91,B95","pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","QS6_B1_TAILLE_4_MOIS,QS6_B1_TAILLE_9_MOIS,QS6_B1_TAILLE_24_MOIS,QS6_B1_TAILLE_3_ANS,QS6_B1_TAILLE_4_ANS,QS6_B1_TAILLE_5_ANS,QS6_B1_TAILLE_6_ANS",LifeCycle_CDM,core,height_76,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,pelagie_exam12,"EX47,EX56,EX65",,,LifeCycle_CDM,outcome,headcirc_153,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,pelagie_q2,"B23,B27,B31,B35,B39,B43,B47,B51,B55,B59,B63,B67,B71,B75,B79,B83,B87,B91,B95","pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","QS6_B1_TAILLE_4_MOIS,QS6_B1_TAILLE_9_MOIS,QS6_B1_TAILLE_24_MOIS,QS6_B1_TAILLE_3_ANS,QS6_B1_TAILLE_4_ANS,QS6_B1_TAILLE_5_ANS,QS6_B1_TAILLE_6_ANS",LifeCycle_CDM,core,height_77,complete,final,,/* too long to be provided and many case by case situations */,
@@ -23174,6 +23142,8 @@ AP,AP,,,,OOM_CDM,MEDICAL_OBSERVATIONS,mo_meaning,complete,,‘pathology_report�
 ARS_PS,PS,,,,OOM_CDM,EVENTS,present_on_admission,complete,,"‘yes’ if event_free_text is compiled, empty otherwise",,
 PELAGIE,pelagie_q2,"B22,B26,B30,B34,B38,B42,B46,B50,B54,B58,B62,B66,B70,B74,B78,B82,B86,B90,B94","pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","QS6_B1_POIDS_4_MOIS,QS6_B1_POIDS_9_MOIS,QS6_B1_POIDS_24_MOIS,QS6_B1_POIDS_3_ANS,QS6_B1_POIDS_4_ANS,QS6_B1_POIDS_5_ANS,QS6_B1_POIDS_6_ANS",LifeCycle_CDM,core,weight_0,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,maj_ddn_2021,DDN_2021,"pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","B21,B25,B29,B33,B37,B41,B45,B49,B53,B57,B61,B65,B69,B73,B77,B81,B85,B89,B93,QS6_B1_DATE_4_MOIS,QS6_B1_DATE_9_MOIS,QS6_B1_DATE_24_MOIS,QS6_B1_DATE_3_ANS,QS6_B1_DATE_4_ANS,QS6_B1_DATE_5_ANS,QS6_B1_DATE_6_ANS",LifeCycle_CDM,core,height_age2,complete,final,,/* too long to be provided and many case by case situations */,
+PELAGIE,pelagie_q12,SCD_Q1,,,LifeCycle_CDM,core,weight_146,complete,final,,/* too long to be provided and many case by case situations */,
+PELAGIE,pelagie_q12,SCD_Q1,,,LifeCycle_CDM,core,weight_147,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,pelagie_q2,"B22,B26,B30,B34,B38,B42,B46,B50,B54,B58,B62,B66,B70,B74,B78,B82,B86,B90,B94","pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","QS6_B1_POIDS_4_MOIS,QS6_B1_POIDS_9_MOIS,QS6_B1_POIDS_24_MOIS,QS6_B1_POIDS_3_ANS,QS6_B1_POIDS_4_ANS,QS6_B1_POIDS_5_ANS,QS6_B1_POIDS_6_ANS",LifeCycle_CDM,core,weight_2,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,maj_ddn_2021,DDN_2021,"pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","B21,B25,B29,B33,B37,B41,B45,B49,B53,B57,B61,B65,B69,B73,B77,B81,B85,B89,B93,QS6_B1_DATE_4_MOIS,QS6_B1_DATE_9_MOIS,QS6_B1_DATE_24_MOIS,QS6_B1_DATE_3_ANS,QS6_B1_DATE_4_ANS,QS6_B1_DATE_5_ANS,QS6_B1_DATE_6_ANS",LifeCycle_CDM,core,height_age3,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,maj_ddn_2021,DDN_2021,pelagie_q12,DATE,LifeCycle_CDM,core,height_age147,complete,final,,/* too long to be provided and many case by case situations */,
@@ -23182,7 +23152,6 @@ PELAGIE,pelagie_exam12,AGE_EXAM_JOUR,,,LifeCycle_CDM,outcome,triglyceridesage_15
 AP,AP,,,,OOM_CDM,MEDICAL_OBSERVATIONS,mo_origin,complete,,‘AP’,,
 ARS_PS,PS,,,,OOM_CDM,EVENTS,meaning_of_event,complete,,"‘emergency_room_diagnosis’ if event_code is compiled, ‘emergency_room_presentation’ otherwise",,
 PELAGIE,maj_ddn_2021,DDN_2021,"pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","B21,B25,B29,B33,B37,B41,B45,B49,B53,B57,B61,B65,B69,B73,B77,B81,B85,B89,B93,QS6_B1_DATE_4_MOIS,QS6_B1_DATE_9_MOIS,QS6_B1_DATE_24_MOIS,QS6_B1_DATE_3_ANS,QS6_B1_DATE_4_ANS,QS6_B1_DATE_5_ANS,QS6_B1_DATE_6_ANS",LifeCycle_CDM,core,height_age5,complete,final,,/* too long to be provided and many case by case situations */,
-PELAGIE,maj_ddn_2021,DDN_2021,pelagie_q12,DATE,LifeCycle_CDM,core,height_age152,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,pelagie_q2,"B22,B26,B30,B34,B38,B42,B46,B50,B54,B58,B62,B66,B70,B74,B78,B82,B86,B90,B94","pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","QS6_B1_POIDS_4_MOIS,QS6_B1_POIDS_9_MOIS,QS6_B1_POIDS_24_MOIS,QS6_B1_POIDS_3_ANS,QS6_B1_POIDS_4_ANS,QS6_B1_POIDS_5_ANS,QS6_B1_POIDS_6_ANS",LifeCycle_CDM,core,weight_3,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,maj_ddn_2021,DDN_2021,"pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","B21,B25,B29,B33,B37,B41,B45,B49,B53,B57,B61,B65,B69,B73,B77,B81,B85,B89,B93,QS6_B1_DATE_4_MOIS,QS6_B1_DATE_9_MOIS,QS6_B1_DATE_24_MOIS,QS6_B1_DATE_3_ANS,QS6_B1_DATE_4_ANS,QS6_B1_DATE_5_ANS,QS6_B1_DATE_6_ANS",LifeCycle_CDM,core,height_age6,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,maj_ddn_2021,DDN_2021,"pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","B21,B25,B29,B33,B37,B41,B45,B49,B53,B57,B61,B65,B69,B73,B77,B81,B85,B89,B93,QS6_B1_DATE_4_MOIS,QS6_B1_DATE_9_MOIS,QS6_B1_DATE_24_MOIS,QS6_B1_DATE_3_ANS,QS6_B1_DATE_4_ANS,QS6_B1_DATE_5_ANS,QS6_B1_DATE_6_ANS",LifeCycle_CDM,core,height_age7,complete,final,,/* too long to be provided and many case by case situations */,
@@ -23191,6 +23160,7 @@ SPA,SPA,,,,OOM_CDM,PROCEDURES,visit_occurrence_id,complete,,Leave empty,,
 ARS_PS,PS,,,,OOM_CDM,EVENTS,origin_of_event,complete,,‘PS’,,
 ARS_PS,PS,,,,OOM_CDM,EVENTS,visit_occurrence_id,complete,,Leave empty,,
 PELAGIE,maj_ddn_2021,DDN_2021,"pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","B21,B25,B29,B33,B37,B41,B45,B49,B53,B57,B61,B65,B69,B73,B77,B81,B85,B89,B93,QS6_B1_DATE_4_MOIS,QS6_B1_DATE_9_MOIS,QS6_B1_DATE_24_MOIS,QS6_B1_DATE_3_ANS,QS6_B1_DATE_4_ANS,QS6_B1_DATE_5_ANS,QS6_B1_DATE_6_ANS",LifeCycle_CDM,core,height_age8,complete,final,,/* too long to be provided and many case by case situations */,
+PELAGIE,pelagie_q12,SCD_Q1,,,LifeCycle_CDM,core,weight_148,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,maj_ddn_2021,DDN_2021,"pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","B21,B25,B29,B33,B37,B41,B45,B49,B53,B57,B61,B65,B69,B73,B77,B81,B85,B89,B93,QS6_B1_DATE_4_MOIS,QS6_B1_DATE_9_MOIS,QS6_B1_DATE_24_MOIS,QS6_B1_DATE_3_ANS,QS6_B1_DATE_4_ANS,QS6_B1_DATE_5_ANS,QS6_B1_DATE_6_ANS",LifeCycle_CDM,core,height_age9,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,maj_ddn_2021,DDN_2021,pelagie_q12,DATE,LifeCycle_CDM,core,height_age153,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,maj_ddn_2021,DDN_2021,"pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","B21,B25,B29,B33,B37,B41,B45,B49,B53,B57,B61,B65,B69,B73,B77,B81,B85,B89,B93,QS6_B1_DATE_4_MOIS,QS6_B1_DATE_9_MOIS,QS6_B1_DATE_24_MOIS,QS6_B1_DATE_3_ANS,QS6_B1_DATE_4_ANS,QS6_B1_DATE_5_ANS,QS6_B1_DATE_6_ANS",LifeCycle_CDM,core,height_age10,complete,final,,/* too long to be provided and many case by case situations */,
@@ -23345,6 +23315,7 @@ SPA,SPA,,,,OOM_CDM,PROCEDURES,origin_of_procedure,complete,,‘SPA’,,
 VCN,VCN,dose_somministrata,,,OOM_CDM,VACCINES,vx_dose,complete,,,,
 VCN,VCN,titolare_aic,,,OOM_CDM,VACCINES,vx_manufacturer,complete,,,,
 PELAGIE,pelagie_q2,"B22,B26,B30,B34,B38,B42,B46,B50,B54,B58,B62,B66,B70,B74,B78,B82,B86,B90,B94","pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","QS6_B1_POIDS_4_MOIS,QS6_B1_POIDS_9_MOIS,QS6_B1_POIDS_24_MOIS,QS6_B1_POIDS_3_ANS,QS6_B1_POIDS_4_ANS,QS6_B1_POIDS_5_ANS,QS6_B1_POIDS_6_ANS",LifeCycle_CDM,core,weight_1,complete,final,,/* too long to be provided and many case by case situations */,
+PELAGIE,pelagie_q12,SCD_Q1,,,LifeCycle_CDM,core,weight_149,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,pelagie_q2,"B22,B26,B30,B34,B38,B42,B46,B50,B54,B58,B62,B66,B70,B74,B78,B82,B86,B90,B94","pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","QS6_B1_POIDS_4_MOIS,QS6_B1_POIDS_9_MOIS,QS6_B1_POIDS_24_MOIS,QS6_B1_POIDS_3_ANS,QS6_B1_POIDS_4_ANS,QS6_B1_POIDS_5_ANS,QS6_B1_POIDS_6_ANS",LifeCycle_CDM,core,weight_4,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,pelagie_q2,"B22,B26,B30,B34,B38,B42,B46,B50,B54,B58,B62,B66,B70,B74,B78,B82,B86,B90,B94","pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","QS6_B1_POIDS_4_MOIS,QS6_B1_POIDS_9_MOIS,QS6_B1_POIDS_24_MOIS,QS6_B1_POIDS_3_ANS,QS6_B1_POIDS_4_ANS,QS6_B1_POIDS_5_ANS,QS6_B1_POIDS_6_ANS",LifeCycle_CDM,core,weight_5,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,pelagie_q2,"B22,B26,B30,B34,B38,B42,B46,B50,B54,B58,B62,B66,B70,B74,B78,B82,B86,B90,B94","pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","QS6_B1_POIDS_4_MOIS,QS6_B1_POIDS_9_MOIS,QS6_B1_POIDS_24_MOIS,QS6_B1_POIDS_3_ANS,QS6_B1_POIDS_4_ANS,QS6_B1_POIDS_5_ANS,QS6_B1_POIDS_6_ANS",LifeCycle_CDM,core,weight_6,complete,final,,/* too long to be provided and many case by case situations */,
@@ -23354,7 +23325,6 @@ VCN,VCN,num_lotto,,,OOM_CDM,VACCINES,vx_lot_num,complete,,,,
 VCN,VCN,,,,OOM_CDM,VACCINES,visit_occurrence_id,complete,,Leave empty,,
 PELAGIE,pelagie_q2,"B22,B26,B30,B34,B38,B42,B46,B50,B54,B58,B62,B66,B70,B74,B78,B82,B86,B90,B94","pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","QS6_B1_POIDS_4_MOIS,QS6_B1_POIDS_9_MOIS,QS6_B1_POIDS_24_MOIS,QS6_B1_POIDS_3_ANS,QS6_B1_POIDS_4_ANS,QS6_B1_POIDS_5_ANS,QS6_B1_POIDS_6_ANS",LifeCycle_CDM,core,weight_8,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,pelagie_q2,"B22,B26,B30,B34,B38,B42,B46,B50,B54,B58,B62,B66,B70,B74,B78,B82,B86,B90,B94","pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","QS6_B1_POIDS_4_MOIS,QS6_B1_POIDS_9_MOIS,QS6_B1_POIDS_24_MOIS,QS6_B1_POIDS_3_ANS,QS6_B1_POIDS_4_ANS,QS6_B1_POIDS_5_ANS,QS6_B1_POIDS_6_ANS",LifeCycle_CDM,core,weight_9,complete,final,,/* too long to be provided and many case by case situations */,
-PELAGIE,pelagie_q12,SCD_Q1,,,LifeCycle_CDM,core,weight_150,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,pelagie_q2,"B22,B26,B30,B34,B38,B42,B46,B50,B54,B58,B62,B66,B70,B74,B78,B82,B86,B90,B94","pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","QS6_B1_POIDS_4_MOIS,QS6_B1_POIDS_9_MOIS,QS6_B1_POIDS_24_MOIS,QS6_B1_POIDS_3_ANS,QS6_B1_POIDS_4_ANS,QS6_B1_POIDS_5_ANS,QS6_B1_POIDS_6_ANS",LifeCycle_CDM,core,weight_10,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,maj_ddn_2021,DDN_2021,pelagie_q12,DATE,LifeCycle_CDM,core,weight_age146,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,pelagie_q2,"B22,B26,B30,B34,B38,B42,B46,B50,B54,B58,B62,B66,B70,B74,B78,B82,B86,B90,B94","pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","QS6_B1_POIDS_4_MOIS,QS6_B1_POIDS_9_MOIS,QS6_B1_POIDS_24_MOIS,QS6_B1_POIDS_3_ANS,QS6_B1_POIDS_4_ANS,QS6_B1_POIDS_5_ANS,QS6_B1_POIDS_6_ANS",LifeCycle_CDM,core,weight_11,complete,final,,/* too long to be provided and many case by case situations */,
@@ -23367,6 +23337,7 @@ if P_brachial ne . then do;armcirc_[i]=P_brachial;armcircage_[i]=age_exam_jour;a
 end;",
 PELAGIE,pelagie_q2,"B22,B26,B30,B34,B38,B42,B46,B50,B54,B58,B62,B66,B70,B74,B78,B82,B86,B90,B94","pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","QS6_B1_POIDS_4_MOIS,QS6_B1_POIDS_9_MOIS,QS6_B1_POIDS_24_MOIS,QS6_B1_POIDS_3_ANS,QS6_B1_POIDS_4_ANS,QS6_B1_POIDS_5_ANS,QS6_B1_POIDS_6_ANS",LifeCycle_CDM,core,weight_13,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,pelagie_q2,"B22,B26,B30,B34,B38,B42,B46,B50,B54,B58,B62,B66,B70,B74,B78,B82,B86,B90,B94","pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","QS6_B1_POIDS_4_MOIS,QS6_B1_POIDS_9_MOIS,QS6_B1_POIDS_24_MOIS,QS6_B1_POIDS_3_ANS,QS6_B1_POIDS_4_ANS,QS6_B1_POIDS_5_ANS,QS6_B1_POIDS_6_ANS",LifeCycle_CDM,core,weight_14,complete,final,,/* too long to be provided and many case by case situations */,
+PELAGIE,pelagie_q12,SCD_Q1,,,LifeCycle_CDM,core,weight_151,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,pelagie_q2,"B22,B26,B30,B34,B38,B42,B46,B50,B54,B58,B62,B66,B70,B74,B78,B82,B86,B90,B94","pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","QS6_B1_POIDS_4_MOIS,QS6_B1_POIDS_9_MOIS,QS6_B1_POIDS_24_MOIS,QS6_B1_POIDS_3_ANS,QS6_B1_POIDS_4_ANS,QS6_B1_POIDS_5_ANS,QS6_B1_POIDS_6_ANS",LifeCycle_CDM,core,weight_15,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,pelagie_q2,"B22,B26,B30,B34,B38,B42,B46,B50,B54,B58,B62,B66,B70,B74,B78,B82,B86,B90,B94","pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","QS6_B1_POIDS_4_MOIS,QS6_B1_POIDS_9_MOIS,QS6_B1_POIDS_24_MOIS,QS6_B1_POIDS_3_ANS,QS6_B1_POIDS_4_ANS,QS6_B1_POIDS_5_ANS,QS6_B1_POIDS_6_ANS",LifeCycle_CDM,core,weight_16,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,pelagie_exam12,"EX47,EX56,EX65",,,LifeCycle_CDM,outcome,headcirc_156,complete,final,,/* too long to be provided and many case by case situations */,
@@ -23432,6 +23403,7 @@ PELAGIE,pelagie_q2,"B22,B26,B30,B34,B38,B42,B46,B50,B54,B58,B62,B66,B70,B74,B78,
 ARS_ANAG_MED_RES_storico,ARS_ANAG_MED_RES_storico,,,,OOM_CDM,PERSONS,month_of_death,complete,,month(DATA_MORTE_MARSI),,
 PELAGIE,pelagie_q2,"B22,B26,B30,B34,B38,B42,B46,B50,B54,B58,B62,B66,B70,B74,B78,B82,B86,B90,B94","pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","QS6_B1_POIDS_4_MOIS,QS6_B1_POIDS_9_MOIS,QS6_B1_POIDS_24_MOIS,QS6_B1_POIDS_3_ANS,QS6_B1_POIDS_4_ANS,QS6_B1_POIDS_5_ANS,QS6_B1_POIDS_6_ANS",LifeCycle_CDM,core,weight_53,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,pelagie_q2,"B22,B26,B30,B34,B38,B42,B46,B50,B54,B58,B62,B66,B70,B74,B78,B82,B86,B90,B94","pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","QS6_B1_POIDS_4_MOIS,QS6_B1_POIDS_9_MOIS,QS6_B1_POIDS_24_MOIS,QS6_B1_POIDS_3_ANS,QS6_B1_POIDS_4_ANS,QS6_B1_POIDS_5_ANS,QS6_B1_POIDS_6_ANS",LifeCycle_CDM,core,weight_54,complete,final,,/* too long to be provided and many case by case situations */,
+PELAGIE,pelagie_q12,SCD_Q1,,,LifeCycle_CDM,core,weight_152,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,pelagie_q2,"B22,B26,B30,B34,B38,B42,B46,B50,B54,B58,B62,B66,B70,B74,B78,B82,B86,B90,B94","pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","QS6_B1_POIDS_4_MOIS,QS6_B1_POIDS_9_MOIS,QS6_B1_POIDS_24_MOIS,QS6_B1_POIDS_3_ANS,QS6_B1_POIDS_4_ANS,QS6_B1_POIDS_5_ANS,QS6_B1_POIDS_6_ANS",LifeCycle_CDM,core,weight_55,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,pelagie_q2,"B22,B26,B30,B34,B38,B42,B46,B50,B54,B58,B62,B66,B70,B74,B78,B82,B86,B90,B94","pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","QS6_B1_POIDS_4_MOIS,QS6_B1_POIDS_9_MOIS,QS6_B1_POIDS_24_MOIS,QS6_B1_POIDS_3_ANS,QS6_B1_POIDS_4_ANS,QS6_B1_POIDS_5_ANS,QS6_B1_POIDS_6_ANS",LifeCycle_CDM,core,weight_56,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,pelagie_q2,"B22,B26,B30,B34,B38,B42,B46,B50,B54,B58,B62,B66,B70,B74,B78,B82,B86,B90,B94","pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","QS6_B1_POIDS_4_MOIS,QS6_B1_POIDS_9_MOIS,QS6_B1_POIDS_24_MOIS,QS6_B1_POIDS_3_ANS,QS6_B1_POIDS_4_ANS,QS6_B1_POIDS_5_ANS,QS6_B1_POIDS_6_ANS",LifeCycle_CDM,core,weight_57,complete,final,,/* too long to be provided and many case by case situations */,
@@ -23439,6 +23411,7 @@ PELAGIE,pelagie_q2,"B22,B26,B30,B34,B38,B42,B46,B50,B54,B58,B62,B66,B70,B74,B78,
 ARS_ANAG_MED_RES_storico,ARS_ANAG_MED_RES_storico,,,,OOM_CDM,PERSONS,year_of_death,complete,,year (DATA_MORTE_MARSI),,
 PELAGIE,pelagie_q2,"B22,B26,B30,B34,B38,B42,B46,B50,B54,B58,B62,B66,B70,B74,B78,B82,B86,B90,B94","pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","QS6_B1_POIDS_4_MOIS,QS6_B1_POIDS_9_MOIS,QS6_B1_POIDS_24_MOIS,QS6_B1_POIDS_3_ANS,QS6_B1_POIDS_4_ANS,QS6_B1_POIDS_5_ANS,QS6_B1_POIDS_6_ANS",LifeCycle_CDM,core,weight_59,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,pelagie_q2,"B22,B26,B30,B34,B38,B42,B46,B50,B54,B58,B62,B66,B70,B74,B78,B82,B86,B90,B94","pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","QS6_B1_POIDS_4_MOIS,QS6_B1_POIDS_9_MOIS,QS6_B1_POIDS_24_MOIS,QS6_B1_POIDS_3_ANS,QS6_B1_POIDS_4_ANS,QS6_B1_POIDS_5_ANS,QS6_B1_POIDS_6_ANS",LifeCycle_CDM,core,weight_60,complete,final,,/* too long to be provided and many case by case situations */,
+PELAGIE,pelagie_q12,SCD_Q1,,,LifeCycle_CDM,core,weight_153,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,pelagie_q2,"B22,B26,B30,B34,B38,B42,B46,B50,B54,B58,B62,B66,B70,B74,B78,B82,B86,B90,B94","pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","QS6_B1_POIDS_4_MOIS,QS6_B1_POIDS_9_MOIS,QS6_B1_POIDS_24_MOIS,QS6_B1_POIDS_3_ANS,QS6_B1_POIDS_4_ANS,QS6_B1_POIDS_5_ANS,QS6_B1_POIDS_6_ANS",LifeCycle_CDM,core,weight_61,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,pelagie_q2,"B22,B26,B30,B34,B38,B42,B46,B50,B54,B58,B62,B66,B70,B74,B78,B82,B86,B90,B94","pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","QS6_B1_POIDS_4_MOIS,QS6_B1_POIDS_9_MOIS,QS6_B1_POIDS_24_MOIS,QS6_B1_POIDS_3_ANS,QS6_B1_POIDS_4_ANS,QS6_B1_POIDS_5_ANS,QS6_B1_POIDS_6_ANS",LifeCycle_CDM,core,weight_62,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,pelagie_q2,"B22,B26,B30,B34,B38,B42,B46,B50,B54,B58,B62,B66,B70,B74,B78,B82,B86,B90,B94","pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","QS6_B1_POIDS_4_MOIS,QS6_B1_POIDS_9_MOIS,QS6_B1_POIDS_24_MOIS,QS6_B1_POIDS_3_ANS,QS6_B1_POIDS_4_ANS,QS6_B1_POIDS_5_ANS,QS6_B1_POIDS_6_ANS",LifeCycle_CDM,core,weight_63,complete,final,,/* too long to be provided and many case by case situations */,
@@ -23446,6 +23419,7 @@ PELAGIE,pelagie_q2,"B22,B26,B30,B34,B38,B42,B46,B50,B54,B58,B62,B66,B70,B74,B78,
 ARS_ANAG_MED_RES_storico,ARS_ANAG_MED_RES_storico,ID_UNIVERSALE,,,OOM_CDM,OBSERVATION_PERIODS,person_id,complete,,,,Changed name
 PELAGIE,pelagie_q2,"B22,B26,B30,B34,B38,B42,B46,B50,B54,B58,B62,B66,B70,B74,B78,B82,B86,B90,B94","pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","QS6_B1_POIDS_4_MOIS,QS6_B1_POIDS_9_MOIS,QS6_B1_POIDS_24_MOIS,QS6_B1_POIDS_3_ANS,QS6_B1_POIDS_4_ANS,QS6_B1_POIDS_5_ANS,QS6_B1_POIDS_6_ANS",LifeCycle_CDM,core,weight_65,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,pelagie_q2,"B22,B26,B30,B34,B38,B42,B46,B50,B54,B58,B62,B66,B70,B74,B78,B82,B86,B90,B94","pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","QS6_B1_POIDS_4_MOIS,QS6_B1_POIDS_9_MOIS,QS6_B1_POIDS_24_MOIS,QS6_B1_POIDS_3_ANS,QS6_B1_POIDS_4_ANS,QS6_B1_POIDS_5_ANS,QS6_B1_POIDS_6_ANS",LifeCycle_CDM,core,weight_66,complete,final,,/* too long to be provided and many case by case situations */,
+COD_FARMACI_SPF,COD_FARMACI_SPF,,,,OOM_CDM,PRODUCTS,administration_dose_form,complete,,,,
 PELAGIE,pelagie_q2,"B22,B26,B30,B34,B38,B42,B46,B50,B54,B58,B62,B66,B70,B74,B78,B82,B86,B90,B94","pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","QS6_B1_POIDS_4_MOIS,QS6_B1_POIDS_9_MOIS,QS6_B1_POIDS_24_MOIS,QS6_B1_POIDS_3_ANS,QS6_B1_POIDS_4_ANS,QS6_B1_POIDS_5_ANS,QS6_B1_POIDS_6_ANS",LifeCycle_CDM,core,weight_67,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,pelagie_q2,"B22,B26,B30,B34,B38,B42,B46,B50,B54,B58,B62,B66,B70,B74,B78,B82,B86,B90,B94","pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","QS6_B1_POIDS_4_MOIS,QS6_B1_POIDS_9_MOIS,QS6_B1_POIDS_24_MOIS,QS6_B1_POIDS_3_ANS,QS6_B1_POIDS_4_ANS,QS6_B1_POIDS_5_ANS,QS6_B1_POIDS_6_ANS",LifeCycle_CDM,core,weight_68,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,pelagie_q2,"B22,B26,B30,B34,B38,B42,B46,B50,B54,B58,B62,B66,B70,B74,B78,B82,B86,B90,B94","pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","QS6_B1_POIDS_4_MOIS,QS6_B1_POIDS_9_MOIS,QS6_B1_POIDS_24_MOIS,QS6_B1_POIDS_3_ANS,QS6_B1_POIDS_4_ANS,QS6_B1_POIDS_5_ANS,QS6_B1_POIDS_6_ANS",LifeCycle_CDM,core,weight_69,complete,final,,/* too long to be provided and many case by case situations */,
@@ -23478,17 +23452,6 @@ COD_FARMACI_SPF,COD_FARMACI_SPF,,,,OOM_CDM,PRODUCTS,unit_of_presentation_num,com
 PELAGIE,pelagie_q2,"B22,B26,B30,B34,B38,B42,B46,B50,B54,B58,B62,B66,B70,B74,B78,B82,B86,B90,B94","pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","QS6_B1_POIDS_4_MOIS,QS6_B1_POIDS_9_MOIS,QS6_B1_POIDS_24_MOIS,QS6_B1_POIDS_3_ANS,QS6_B1_POIDS_4_ANS,QS6_B1_POIDS_5_ANS,QS6_B1_POIDS_6_ANS",LifeCycle_CDM,core,weight_89,complete,final,,/* too long to be provided and many case by case situations */,
 SPA,SPA,dataini,,,OOM_CDM,VISIT_OCCURRENCE,visit_start_date,complete,,,,
 PELAGIE,pelagie_q2,"B22,B26,B30,B34,B38,B42,B46,B50,B54,B58,B62,B66,B70,B74,B78,B82,B86,B90,B94","pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","QS6_B1_POIDS_4_MOIS,QS6_B1_POIDS_9_MOIS,QS6_B1_POIDS_24_MOIS,QS6_B1_POIDS_3_ANS,QS6_B1_POIDS_4_ANS,QS6_B1_POIDS_5_ANS,QS6_B1_POIDS_6_ANS",LifeCycle_CDM,core,weight_90,complete,final,,/* too long to be provided and many case by case situations */,
-PELAGIE,pelagie_q12,SCD_Q1,,,LifeCycle_CDM,core,weight_133,complete,final,,/* too long to be provided and many case by case situations */,
-PELAGIE,pelagie_q12,SCD_Q1,,,LifeCycle_CDM,core,weight_144,complete,final,,/* too long to be provided and many case by case situations */,
-PELAGIE,pelagie_q12,SCD_Q1,,,LifeCycle_CDM,core,weight_145,complete,final,,/* too long to be provided and many case by case situations */,
-PELAGIE,pelagie_q12,SCD_Q1,,,LifeCycle_CDM,core,weight_146,complete,final,,/* too long to be provided and many case by case situations */,
-PELAGIE,pelagie_q12,SCD_Q1,,,LifeCycle_CDM,core,weight_147,complete,final,,/* too long to be provided and many case by case situations */,
-PELAGIE,pelagie_q12,SCD_Q1,,,LifeCycle_CDM,core,weight_148,complete,final,,/* too long to be provided and many case by case situations */,
-PELAGIE,pelagie_q12,SCD_Q1,,,LifeCycle_CDM,core,weight_149,complete,final,,/* too long to be provided and many case by case situations */,
-PELAGIE,pelagie_q12,SCD_Q1,,,LifeCycle_CDM,core,weight_151,complete,final,,/* too long to be provided and many case by case situations */,
-PELAGIE,pelagie_q12,SCD_Q1,,,LifeCycle_CDM,core,weight_152,complete,final,,/* too long to be provided and many case by case situations */,
-PELAGIE,pelagie_q12,SCD_Q1,,,LifeCycle_CDM,core,weight_153,complete,final,,/* too long to be provided and many case by case situations */,
-COD_FARMACI_SPF,COD_FARMACI_SPF,,,,OOM_CDM,PRODUCTS,administration_dose_form,complete,,,,
 PELAGIE,pelagie_exam12,"AGE_EXAM_MOIS,AGE_EXAM_JOUR",,,LifeCycle_CDM,outcome,hipcircage_150,complete,final,,"do i = 146 to 158 ; 
   if age_exam_mois eq i then do; 
    if T_hanche ne . then do;hipcirc_[i]=T_hanche;hipcircage_[i]=age_exam_jour;hipcircmes_[i]=0;end;
@@ -23506,12 +23469,15 @@ PELAGIE,maj_ddn_2021,DDN_2021,"pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelag
 PELAGIE,maj_ddn_2021,DDN_2021,pelagie_q12,DATE,LifeCycle_CDM,core,weight_age147,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,maj_ddn_2021,DDN_2021,"pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","B21,B25,B29,B33,B37,B41,B45,B49,B53,B57,B61,B65,B69,B73,B77,B81,B85,B89,B93,QS6_B1_DATE_4_MOIS,QS6_B1_DATE_9_MOIS,QS6_B1_DATE_24_MOIS,QS6_B1_DATE_3_ANS,QS6_B1_DATE_4_ANS,QS6_B1_DATE_5_ANS,QS6_B1_DATE_6_ANS",LifeCycle_CDM,core,weight_age4,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,maj_ddn_2021,DDN_2021,pelagie_q12,DATE,LifeCycle_CDM,core,weight_age149,complete,final,,/* too long to be provided and many case by case situations */,
+PELAGIE,maj_ddn_2021,DDN_2021,pelagie_q12,DATE,LifeCycle_CDM,core,weight_age148,complete,final,,/* too long to be provided and many case by case situations */,
+PELAGIE,pelagie_q2,"B24,B28,B32,B36,B40,B44,B48,B52,B56,B60,B64,B68,B72,B76,B80,B84,B88,B92,B96","pelagie_q6,pelagie_q6,pelagie_q6","QS6_B1_PERIMETRE_4_MOIS,QS6_B1_PERIMETRE_9_MOIS,QS6_B1_PERIMETRE_24_MOIS",LifeCycle_CDM,outcome,headcirc_0,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,maj_ddn_2021,DDN_2021,"pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","B21,B25,B29,B33,B37,B41,B45,B49,B53,B57,B61,B65,B69,B73,B77,B81,B85,B89,B93,QS6_B1_DATE_4_MOIS,QS6_B1_DATE_9_MOIS,QS6_B1_DATE_24_MOIS,QS6_B1_DATE_3_ANS,QS6_B1_DATE_4_ANS,QS6_B1_DATE_5_ANS,QS6_B1_DATE_6_ANS",LifeCycle_CDM,core,weight_age5,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,pelagie_q2,"B24,B28,B32,B36,B40,B44,B48,B52,B56,B60,B64,B68,B72,B76,B80,B84,B88,B92,B96","pelagie_q6,pelagie_q6,pelagie_q6","QS6_B1_PERIMETRE_4_MOIS,QS6_B1_PERIMETRE_9_MOIS,QS6_B1_PERIMETRE_24_MOIS",LifeCycle_CDM,outcome,headcirc_4,complete,final,,/* too long to be provided and many case by case situations */,
 COD_FARMACI_SPF,COD_FARMACI_SPF,,,,OOM_CDM,PRODUCTS,administration_route,complete,,,,
 NFBC1966,core,,,,LifeCycle_CDM,core,breastfed_any,partial,final,"Brestfeed duration with categories: 1) Never, 2) 1 months, 3) months, 4) 6 months",RECODE y1_7 (4=0) (3=1) (2=3) (1=6) INTO breastfed_any.EXECUTE.,
 PELAGIE,maj_ddn_2021,DDN_2021,"pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","B21,B25,B29,B33,B37,B41,B45,B49,B53,B57,B61,B65,B69,B73,B77,B81,B85,B89,B93,QS6_B1_DATE_4_MOIS,QS6_B1_DATE_9_MOIS,QS6_B1_DATE_24_MOIS,QS6_B1_DATE_3_ANS,QS6_B1_DATE_4_ANS,QS6_B1_DATE_5_ANS,QS6_B1_DATE_6_ANS",LifeCycle_CDM,core,weight_age6,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,maj_ddn_2021,DDN_2021,"pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","B21,B25,B29,B33,B37,B41,B45,B49,B53,B57,B61,B65,B69,B73,B77,B81,B85,B89,B93,QS6_B1_DATE_4_MOIS,QS6_B1_DATE_9_MOIS,QS6_B1_DATE_24_MOIS,QS6_B1_DATE_3_ANS,QS6_B1_DATE_4_ANS,QS6_B1_DATE_5_ANS,QS6_B1_DATE_6_ANS",LifeCycle_CDM,core,weight_age7,complete,final,,/* too long to be provided and many case by case situations */,
+PELAGIE,pelagie_q2,"B24,B28,B32,B36,B40,B44,B48,B52,B56,B60,B64,B68,B72,B76,B80,B84,B88,B92,B96","pelagie_q6,pelagie_q6,pelagie_q6","QS6_B1_PERIMETRE_4_MOIS,QS6_B1_PERIMETRE_9_MOIS,QS6_B1_PERIMETRE_24_MOIS",LifeCycle_CDM,outcome,headcirc_1,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,maj_ddn_2021,DDN_2021,"pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","B21,B25,B29,B33,B37,B41,B45,B49,B53,B57,B61,B65,B69,B73,B77,B81,B85,B89,B93,QS6_B1_DATE_4_MOIS,QS6_B1_DATE_9_MOIS,QS6_B1_DATE_24_MOIS,QS6_B1_DATE_3_ANS,QS6_B1_DATE_4_ANS,QS6_B1_DATE_5_ANS,QS6_B1_DATE_6_ANS",LifeCycle_CDM,core,weight_age8,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,maj_ddn_2021,DDN_2021,pelagie_q12,DATE,LifeCycle_CDM,core,weight_age150,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,maj_ddn_2021,DDN_2021,"pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","B21,B25,B29,B33,B37,B41,B45,B49,B53,B57,B61,B65,B69,B73,B77,B81,B85,B89,B93,QS6_B1_DATE_4_MOIS,QS6_B1_DATE_9_MOIS,QS6_B1_DATE_24_MOIS,QS6_B1_DATE_3_ANS,QS6_B1_DATE_4_ANS,QS6_B1_DATE_5_ANS,QS6_B1_DATE_6_ANS",LifeCycle_CDM,core,weight_age9,complete,final,,/* too long to be provided and many case by case situations */,
@@ -23540,31 +23506,37 @@ PELAGIE,maj_ddn_2021,DDN_2021,"pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelag
 AP,AP,iduni,,,OOM_CDM,VISIT_OCCURRENCE,person_id,complete,,,,
 PELAGIE,maj_ddn_2021,DDN_2021,"pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","B21,B25,B29,B33,B37,B41,B45,B49,B53,B57,B61,B65,B69,B73,B77,B81,B85,B89,B93,QS6_B1_DATE_4_MOIS,QS6_B1_DATE_9_MOIS,QS6_B1_DATE_24_MOIS,QS6_B1_DATE_3_ANS,QS6_B1_DATE_4_ANS,QS6_B1_DATE_5_ANS,QS6_B1_DATE_6_ANS",LifeCycle_CDM,core,weight_age22,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,maj_ddn_2021,DDN_2021,"pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","B21,B25,B29,B33,B37,B41,B45,B49,B53,B57,B61,B65,B69,B73,B77,B81,B85,B89,B93,QS6_B1_DATE_4_MOIS,QS6_B1_DATE_9_MOIS,QS6_B1_DATE_24_MOIS,QS6_B1_DATE_3_ANS,QS6_B1_DATE_4_ANS,QS6_B1_DATE_5_ANS,QS6_B1_DATE_6_ANS",LifeCycle_CDM,core,weight_age23,complete,final,,/* too long to be provided and many case by case situations */,
+PELAGIE,harmonized,LDLCMES_146,,,LifeCycle_CDM,outcome,ldlcmes_156,complete,final,,ldlcmes_156=0;,
 PELAGIE,maj_ddn_2021,DDN_2021,"pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","B21,B25,B29,B33,B37,B41,B45,B49,B53,B57,B61,B65,B69,B73,B77,B81,B85,B89,B93,QS6_B1_DATE_4_MOIS,QS6_B1_DATE_9_MOIS,QS6_B1_DATE_24_MOIS,QS6_B1_DATE_3_ANS,QS6_B1_DATE_4_ANS,QS6_B1_DATE_5_ANS,QS6_B1_DATE_6_ANS",LifeCycle_CDM,core,weight_age24,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,maj_ddn_2021,DDN_2021,pelagie_q12,DATE,LifeCycle_CDM,core,weight_age154,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,maj_ddn_2021,DDN_2021,"pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","B21,B25,B29,B33,B37,B41,B45,B49,B53,B57,B61,B65,B69,B73,B77,B81,B85,B89,B93,QS6_B1_DATE_4_MOIS,QS6_B1_DATE_9_MOIS,QS6_B1_DATE_24_MOIS,QS6_B1_DATE_3_ANS,QS6_B1_DATE_4_ANS,QS6_B1_DATE_5_ANS,QS6_B1_DATE_6_ANS",LifeCycle_CDM,core,weight_age25,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,maj_ddn_2021,DDN_2021,"pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","B21,B25,B29,B33,B37,B41,B45,B49,B53,B57,B61,B65,B69,B73,B77,B81,B85,B89,B93,QS6_B1_DATE_4_MOIS,QS6_B1_DATE_9_MOIS,QS6_B1_DATE_24_MOIS,QS6_B1_DATE_3_ANS,QS6_B1_DATE_4_ANS,QS6_B1_DATE_5_ANS,QS6_B1_DATE_6_ANS",LifeCycle_CDM,core,weight_age26,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,maj_ddn_2021,DDN_2021,"pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","B21,B25,B29,B33,B37,B41,B45,B49,B53,B57,B61,B65,B69,B73,B77,B81,B85,B89,B93,QS6_B1_DATE_4_MOIS,QS6_B1_DATE_9_MOIS,QS6_B1_DATE_24_MOIS,QS6_B1_DATE_3_ANS,QS6_B1_DATE_4_ANS,QS6_B1_DATE_5_ANS,QS6_B1_DATE_6_ANS",LifeCycle_CDM,core,weight_age27,complete,final,,/* too long to be provided and many case by case situations */,
+NFBC1966,core,,,,LifeCycle_CDM,core,outcome,partial,final,"Child live/dead born1) 1 alive 2) 1 stillbirth 3) 2 alive 4) 2 stillbirths 5) 1 alive, 1 stillbirth",Original codings were used,
 PELAGIE,maj_ddn_2021,DDN_2021,"pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","B21,B25,B29,B33,B37,B41,B45,B49,B53,B57,B61,B65,B69,B73,B77,B81,B85,B89,B93,QS6_B1_DATE_4_MOIS,QS6_B1_DATE_9_MOIS,QS6_B1_DATE_24_MOIS,QS6_B1_DATE_3_ANS,QS6_B1_DATE_4_ANS,QS6_B1_DATE_5_ANS,QS6_B1_DATE_6_ANS",LifeCycle_CDM,core,weight_age28,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,maj_ddn_2021,DDN_2021,pelagie_q12,DATE,LifeCycle_CDM,core,weight_age155,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,maj_ddn_2021,DDN_2021,"pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","B21,B25,B29,B33,B37,B41,B45,B49,B53,B57,B61,B65,B69,B73,B77,B81,B85,B89,B93,QS6_B1_DATE_4_MOIS,QS6_B1_DATE_9_MOIS,QS6_B1_DATE_24_MOIS,QS6_B1_DATE_3_ANS,QS6_B1_DATE_4_ANS,QS6_B1_DATE_5_ANS,QS6_B1_DATE_6_ANS",LifeCycle_CDM,core,weight_age29,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,maj_ddn_2021,DDN_2021,"pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","B21,B25,B29,B33,B37,B41,B45,B49,B53,B57,B61,B65,B69,B73,B77,B81,B85,B89,B93,QS6_B1_DATE_4_MOIS,QS6_B1_DATE_9_MOIS,QS6_B1_DATE_24_MOIS,QS6_B1_DATE_3_ANS,QS6_B1_DATE_4_ANS,QS6_B1_DATE_5_ANS,QS6_B1_DATE_6_ANS",LifeCycle_CDM,core,weight_age30,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,maj_ddn_2021,DDN_2021,"pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","B21,B25,B29,B33,B37,B41,B45,B49,B53,B57,B61,B65,B69,B73,B77,B81,B85,B89,B93,QS6_B1_DATE_4_MOIS,QS6_B1_DATE_9_MOIS,QS6_B1_DATE_24_MOIS,QS6_B1_DATE_3_ANS,QS6_B1_DATE_4_ANS,QS6_B1_DATE_5_ANS,QS6_B1_DATE_6_ANS",LifeCycle_CDM,core,weight_age31,complete,final,,/* too long to be provided and many case by case situations */,
+PELAGIE,pelagie_exam12,AGE_EXAM_JOUR,,,LifeCycle_CDM,outcome,ldlcage_157,complete,final,,ldlcage_157=age_exam_jour;,
 PELAGIE,maj_ddn_2021,DDN_2021,"pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","B21,B25,B29,B33,B37,B41,B45,B49,B53,B57,B61,B65,B69,B73,B77,B81,B85,B89,B93,QS6_B1_DATE_4_MOIS,QS6_B1_DATE_9_MOIS,QS6_B1_DATE_24_MOIS,QS6_B1_DATE_3_ANS,QS6_B1_DATE_4_ANS,QS6_B1_DATE_5_ANS,QS6_B1_DATE_6_ANS",LifeCycle_CDM,core,weight_age32,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,maj_ddn_2021,DDN_2021,pelagie_q12,DATE,LifeCycle_CDM,core,weight_age156,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,maj_ddn_2021,DDN_2021,"pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","B21,B25,B29,B33,B37,B41,B45,B49,B53,B57,B61,B65,B69,B73,B77,B81,B85,B89,B93,QS6_B1_DATE_4_MOIS,QS6_B1_DATE_9_MOIS,QS6_B1_DATE_24_MOIS,QS6_B1_DATE_3_ANS,QS6_B1_DATE_4_ANS,QS6_B1_DATE_5_ANS,QS6_B1_DATE_6_ANS",LifeCycle_CDM,core,weight_age33,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,maj_ddn_2021,DDN_2021,"pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","B21,B25,B29,B33,B37,B41,B45,B49,B53,B57,B61,B65,B69,B73,B77,B81,B85,B89,B93,QS6_B1_DATE_4_MOIS,QS6_B1_DATE_9_MOIS,QS6_B1_DATE_24_MOIS,QS6_B1_DATE_3_ANS,QS6_B1_DATE_4_ANS,QS6_B1_DATE_5_ANS,QS6_B1_DATE_6_ANS",LifeCycle_CDM,core,weight_age34,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,maj_ddn_2021,DDN_2021,"pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","B21,B25,B29,B33,B37,B41,B45,B49,B53,B57,B61,B65,B69,B73,B77,B81,B85,B89,B93,QS6_B1_DATE_4_MOIS,QS6_B1_DATE_9_MOIS,QS6_B1_DATE_24_MOIS,QS6_B1_DATE_3_ANS,QS6_B1_DATE_4_ANS,QS6_B1_DATE_5_ANS,QS6_B1_DATE_6_ANS",LifeCycle_CDM,core,weight_age35,complete,final,,/* too long to be provided and many case by case situations */,
+PELAGIE,pelagie_exam12,AGE_EXAM_JOUR,,,LifeCycle_CDM,outcome,ldlcage_158,complete,final,,ldlcage_158=age_exam_jour;,
 PELAGIE,maj_ddn_2021,DDN_2021,"pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","B21,B25,B29,B33,B37,B41,B45,B49,B53,B57,B61,B65,B69,B73,B77,B81,B85,B89,B93,QS6_B1_DATE_4_MOIS,QS6_B1_DATE_9_MOIS,QS6_B1_DATE_24_MOIS,QS6_B1_DATE_3_ANS,QS6_B1_DATE_4_ANS,QS6_B1_DATE_5_ANS,QS6_B1_DATE_6_ANS",LifeCycle_CDM,core,weight_age36,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,maj_ddn_2021,DDN_2021,pelagie_q12,DATE,LifeCycle_CDM,core,weight_age157,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,maj_ddn_2021,DDN_2021,"pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","B21,B25,B29,B33,B37,B41,B45,B49,B53,B57,B61,B65,B69,B73,B77,B81,B85,B89,B93,QS6_B1_DATE_4_MOIS,QS6_B1_DATE_9_MOIS,QS6_B1_DATE_24_MOIS,QS6_B1_DATE_3_ANS,QS6_B1_DATE_4_ANS,QS6_B1_DATE_5_ANS,QS6_B1_DATE_6_ANS",LifeCycle_CDM,core,weight_age37,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,maj_ddn_2021,DDN_2021,"pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","B21,B25,B29,B33,B37,B41,B45,B49,B53,B57,B61,B65,B69,B73,B77,B81,B85,B89,B93,QS6_B1_DATE_4_MOIS,QS6_B1_DATE_9_MOIS,QS6_B1_DATE_24_MOIS,QS6_B1_DATE_3_ANS,QS6_B1_DATE_4_ANS,QS6_B1_DATE_5_ANS,QS6_B1_DATE_6_ANS",LifeCycle_CDM,core,weight_age38,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,maj_ddn_2021,DDN_2021,"pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","B21,B25,B29,B33,B37,B41,B45,B49,B53,B57,B61,B65,B69,B73,B77,B81,B85,B89,B93,QS6_B1_DATE_4_MOIS,QS6_B1_DATE_9_MOIS,QS6_B1_DATE_24_MOIS,QS6_B1_DATE_3_ANS,QS6_B1_DATE_4_ANS,QS6_B1_DATE_5_ANS,QS6_B1_DATE_6_ANS",LifeCycle_CDM,core,weight_age39,complete,final,,/* too long to be provided and many case by case situations */,
+NFBC1966,core,,,,LifeCycle_CDM,core,mental_exp0,complete,final,Register based diagnosed and child age when diagnos was received,Syntax was extremely long (available when asked),
 PELAGIE,maj_ddn_2021,DDN_2021,"pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","B21,B25,B29,B33,B37,B41,B45,B49,B53,B57,B61,B65,B69,B73,B77,B81,B85,B89,B93,QS6_B1_DATE_4_MOIS,QS6_B1_DATE_9_MOIS,QS6_B1_DATE_24_MOIS,QS6_B1_DATE_3_ANS,QS6_B1_DATE_4_ANS,QS6_B1_DATE_5_ANS,QS6_B1_DATE_6_ANS",LifeCycle_CDM,core,weight_age40,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,maj_ddn_2021,DDN_2021,pelagie_q12,DATE,LifeCycle_CDM,core,weight_age158,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,maj_ddn_2021,DDN_2021,"pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","B21,B25,B29,B33,B37,B41,B45,B49,B53,B57,B61,B65,B69,B73,B77,B81,B85,B89,B93,QS6_B1_DATE_4_MOIS,QS6_B1_DATE_9_MOIS,QS6_B1_DATE_24_MOIS,QS6_B1_DATE_3_ANS,QS6_B1_DATE_4_ANS,QS6_B1_DATE_5_ANS,QS6_B1_DATE_6_ANS",LifeCycle_CDM,core,weight_age41,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,maj_ddn_2021,DDN_2021,"pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","B21,B25,B29,B33,B37,B41,B45,B49,B53,B57,B61,B65,B69,B73,B77,B81,B85,B89,B93,QS6_B1_DATE_4_MOIS,QS6_B1_DATE_9_MOIS,QS6_B1_DATE_24_MOIS,QS6_B1_DATE_3_ANS,QS6_B1_DATE_4_ANS,QS6_B1_DATE_5_ANS,QS6_B1_DATE_6_ANS",LifeCycle_CDM,core,weight_age42,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,maj_ddn_2021,DDN_2021,"pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","B21,B25,B29,B33,B37,B41,B45,B49,B53,B57,B61,B65,B69,B73,B77,B81,B85,B89,B93,QS6_B1_DATE_4_MOIS,QS6_B1_DATE_9_MOIS,QS6_B1_DATE_24_MOIS,QS6_B1_DATE_3_ANS,QS6_B1_DATE_4_ANS,QS6_B1_DATE_5_ANS,QS6_B1_DATE_6_ANS",LifeCycle_CDM,core,weight_age43,complete,final,,/* too long to be provided and many case by case situations */,
+NFBC1966,core,,,,LifeCycle_CDM,core,mental_exp1,complete,final,Register based diagnosed and child age when diagnos was received,Syntax was extremely long (available when asked),
 PELAGIE,maj_ddn_2021,DDN_2021,"pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","B21,B25,B29,B33,B37,B41,B45,B49,B53,B57,B61,B65,B69,B73,B77,B81,B85,B89,B93,QS6_B1_DATE_4_MOIS,QS6_B1_DATE_9_MOIS,QS6_B1_DATE_24_MOIS,QS6_B1_DATE_3_ANS,QS6_B1_DATE_4_ANS,QS6_B1_DATE_5_ANS,QS6_B1_DATE_6_ANS",LifeCycle_CDM,core,weight_age44,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,maj_ddn_2021,DDN_2021,pelagie_q12,DATE,LifeCycle_CDM,core,weight_age159,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,maj_ddn_2021,DDN_2021,"pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","B21,B25,B29,B33,B37,B41,B45,B49,B53,B57,B61,B65,B69,B73,B77,B81,B85,B89,B93,QS6_B1_DATE_4_MOIS,QS6_B1_DATE_9_MOIS,QS6_B1_DATE_24_MOIS,QS6_B1_DATE_3_ANS,QS6_B1_DATE_4_ANS,QS6_B1_DATE_5_ANS,QS6_B1_DATE_6_ANS",LifeCycle_CDM,core,weight_age45,complete,final,,/* too long to be provided and many case by case situations */,
@@ -23628,9 +23600,6 @@ PELAGIE,maj_ddn_2021,DDN_2021,"pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelag
 PELAGIE,maj_ddn_2021,DDN_2021,pelagie_q12,DATE,LifeCycle_CDM,core,weight_age133,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,maj_ddn_2021,DDN_2021,pelagie_q12,DATE,LifeCycle_CDM,core,weight_age144,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,maj_ddn_2021,DDN_2021,pelagie_q12,DATE,LifeCycle_CDM,core,weight_age145,complete,final,,/* too long to be provided and many case by case situations */,
-PELAGIE,maj_ddn_2021,DDN_2021,pelagie_q12,DATE,LifeCycle_CDM,core,weight_age148,complete,final,,/* too long to be provided and many case by case situations */,
-PELAGIE,pelagie_q2,"B24,B28,B32,B36,B40,B44,B48,B52,B56,B60,B64,B68,B72,B76,B80,B84,B88,B92,B96","pelagie_q6,pelagie_q6,pelagie_q6","QS6_B1_PERIMETRE_4_MOIS,QS6_B1_PERIMETRE_9_MOIS,QS6_B1_PERIMETRE_24_MOIS",LifeCycle_CDM,outcome,headcirc_0,complete,final,,/* too long to be provided and many case by case situations */,
-PELAGIE,pelagie_q2,"B24,B28,B32,B36,B40,B44,B48,B52,B56,B60,B64,B68,B72,B76,B80,B84,B88,B92,B96","pelagie_q6,pelagie_q6,pelagie_q6","QS6_B1_PERIMETRE_4_MOIS,QS6_B1_PERIMETRE_9_MOIS,QS6_B1_PERIMETRE_24_MOIS",LifeCycle_CDM,outcome,headcirc_1,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,pelagie_q2,"B24,B28,B32,B36,B40,B44,B48,B52,B56,B60,B64,B68,B72,B76,B80,B84,B88,B92,B96","pelagie_q6,pelagie_q6,pelagie_q6","QS6_B1_PERIMETRE_4_MOIS,QS6_B1_PERIMETRE_9_MOIS,QS6_B1_PERIMETRE_24_MOIS",LifeCycle_CDM,outcome,headcirc_2,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,maj_ddn_2021,DDN_2021,pelagie_exam12,DATE,LifeCycle_CDM,outcome,headcircage_157,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,pelagie_exam12,"AGE_EXAM_MOIS,AGE_EXAM_JOUR",,,LifeCycle_CDM,outcome,hipcircage_148,complete,final,,"do i = 146 to 158 ; 
@@ -23645,6 +23614,11 @@ PELAGIE,maj_ddn_2021,DDN_2021,pelagie_exam12,DATE,LifeCycle_CDM,outcome,headcirc
 PELAGIE,harmonized,TRIGLYCERIDESMES_146,,,LifeCycle_CDM,outcome,triglyceridesmes_157,complete,final,,triglyceridesmes_157=0;,
 COD_FARMACI_SPF,COD_FARMACI_SPF,,,,OOM_CDM,PRODUCTS,subst1_amount_per_form,complete,,,,
 PELAGIE,pelagie_q2,"B24,B28,B32,B36,B40,B44,B48,B52,B56,B60,B64,B68,B72,B76,B80,B84,B88,B92,B96","pelagie_q6,pelagie_q6,pelagie_q6","QS6_B1_PERIMETRE_4_MOIS,QS6_B1_PERIMETRE_9_MOIS,QS6_B1_PERIMETRE_24_MOIS",LifeCycle_CDM,outcome,headcirc_12,complete,final,,/* too long to be provided and many case by case situations */,
+PELAGIE,pelagie_exam12,"AGE_EXAM_MOIS,AGE_EXAM_JOUR",,,LifeCycle_CDM,outcome,armcircage_148,complete,final,,"do i = 146 to 158 ; 
+  if age_exam_mois eq i then do; 
+if P_brachial ne . then do;armcirc_[i]=P_brachial;armcircage_[i]=age_exam_jour;armcircmes_[i]=0;end;
+  end;
+end;",
 PELAGIE,pelagie_q2,"B24,B28,B32,B36,B40,B44,B48,B52,B56,B60,B64,B68,B72,B76,B80,B84,B88,B92,B96","pelagie_q6,pelagie_q6,pelagie_q6","QS6_B1_PERIMETRE_4_MOIS,QS6_B1_PERIMETRE_9_MOIS,QS6_B1_PERIMETRE_24_MOIS",LifeCycle_CDM,outcome,headcirc_13,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,pelagie_exam12,"EX47,EX56,EX65",,,LifeCycle_CDM,outcome,headcirc_149,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,harmonized,TRIGLYCERIDESMES_146,,,LifeCycle_CDM,outcome,triglyceridesmes_152,complete,final,,triglyceridesmes_152=0;,
@@ -23670,6 +23644,7 @@ PELAGIE,pelagie_q2,"B24,B28,B32,B36,B40,B44,B48,B52,B56,B60,B64,B68,B72,B76,B80,
 PELAGIE,maj_ddn_2021,DDN_2021,pelagie_exam12,DATE,LifeCycle_CDM,outcome,headcircage_150,complete,final,,/* too long to be provided and many case by case situations */,
 SPA,SPA,iduni,,,OOM_CDM,VISIT_OCCURRENCE,person_id,complete,,,,
 PELAGIE,pelagie_q2,"B24,B28,B32,B36,B40,B44,B48,B52,B56,B60,B64,B68,B72,B76,B80,B84,B88,B92,B96","pelagie_q6,pelagie_q6,pelagie_q6","QS6_B1_PERIMETRE_4_MOIS,QS6_B1_PERIMETRE_9_MOIS,QS6_B1_PERIMETRE_24_MOIS",LifeCycle_CDM,outcome,headcirc_24,complete,final,,/* too long to be provided and many case by case situations */,
+PELAGIE,harmonized,TRICEPSFMES_0,,,LifeCycle_CDM,outcome,tricepsfmes_151,complete,final,,tricepsfmes_151=0;,
 PELAGIE,pelagie_q2,"B24,B28,B32,B36,B40,B44,B48,B52,B56,B60,B64,B68,B72,B76,B80,B84,B88,B92,B96","pelagie_q6,pelagie_q6,pelagie_q6","QS6_B1_PERIMETRE_4_MOIS,QS6_B1_PERIMETRE_9_MOIS,QS6_B1_PERIMETRE_24_MOIS",LifeCycle_CDM,outcome,headcirc_25,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,pelagie_q2,"B24,B28,B32,B36,B40,B44,B48,B52,B56,B60,B64,B68,B72,B76,B80,B84,B88,B92,B96","pelagie_q6,pelagie_q6,pelagie_q6","QS6_B1_PERIMETRE_4_MOIS,QS6_B1_PERIMETRE_9_MOIS,QS6_B1_PERIMETRE_24_MOIS",LifeCycle_CDM,outcome,headcirc_26,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,pelagie_q2,"B24,B28,B32,B36,B40,B44,B48,B52,B56,B60,B64,B68,B72,B76,B80,B84,B88,B92,B96","pelagie_q6,pelagie_q6,pelagie_q6","QS6_B1_PERIMETRE_4_MOIS,QS6_B1_PERIMETRE_9_MOIS,QS6_B1_PERIMETRE_24_MOIS",LifeCycle_CDM,outcome,headcirc_27,complete,final,,/* too long to be provided and many case by case situations */,
@@ -23709,6 +23684,15 @@ end;",
 PELAGIE,maj_ddn_2021,DDN_2021,"pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","B21,B25,B29,B33,B37,B41,B45,B49,B53,B57,B61,B65,B69,B73,B77,B81,B85,B89,B93,QS6_B1_DATE_4_MOIS,QS6_B1_DATE_9_MOIS,QS6_B1_DATE_24_MOIS,QS6_B1_DATE_3_ANS,QS6_B1_DATE_4_ANS,QS6_B1_DATE_5_ANS,QS6_B1_DATE_6_ANS",LifeCycle_CDM,outcome,headcircage_3,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,maj_ddn_2021,DDN_2021,pelagie_exam12,DATE,LifeCycle_CDM,outcome,headcircage_149,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,harmonized,WAISTCIRCMES_0,,,LifeCycle_CDM,outcome,waistcircmes_153,complete,final,,waistcircmes_153=0;,
+PELAGIE,harmonized,HEADCIRCMES_0,,,LifeCycle_CDM,outcome,headcircmes_2,complete,final,"Self-reported by the parents but from medical record in the 'health carnet' from age 0 to 7 years old.
+Measure by health profesional around 12-13 years old","do i=1 to 215;
+headcirc_(i)=hc_(i);
+headcircage_(i)=hc_age(i);
+if hc_(i) ne . and 0<i<146 then headcircmes_(i)=1;
+else if hc_(i) ne . and 147<i<158 then headcircmes_(i)=0;
+else headcircmes_(i)=.;
+end;","Self-reported by the parents but from medical record in the 'health carnet' from age 0 to 7 years old.
+Measure by health profesional around 12-13 years old"
 PELAGIE,maj_ddn_2021,DDN_2021,"pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","B21,B25,B29,B33,B37,B41,B45,B49,B53,B57,B61,B65,B69,B73,B77,B81,B85,B89,B93,QS6_B1_DATE_4_MOIS,QS6_B1_DATE_9_MOIS,QS6_B1_DATE_24_MOIS,QS6_B1_DATE_3_ANS,QS6_B1_DATE_4_ANS,QS6_B1_DATE_5_ANS,QS6_B1_DATE_6_ANS",LifeCycle_CDM,outcome,headcircage_4,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,maj_ddn_2021,DDN_2021,"pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","B21,B25,B29,B33,B37,B41,B45,B49,B53,B57,B61,B65,B69,B73,B77,B81,B85,B89,B93,QS6_B1_DATE_4_MOIS,QS6_B1_DATE_9_MOIS,QS6_B1_DATE_24_MOIS,QS6_B1_DATE_3_ANS,QS6_B1_DATE_4_ANS,QS6_B1_DATE_5_ANS,QS6_B1_DATE_6_ANS",LifeCycle_CDM,outcome,headcircage_5,complete,final,,/* too long to be provided and many case by case situations */,
 PELAGIE,maj_ddn_2021,DDN_2021,"pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q2,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6,pelagie_q6","B21,B25,B29,B33,B37,B41,B45,B49,B53,B57,B61,B65,B69,B73,B77,B81,B85,B89,B93,QS6_B1_DATE_4_MOIS,QS6_B1_DATE_9_MOIS,QS6_B1_DATE_24_MOIS,QS6_B1_DATE_3_ANS,QS6_B1_DATE_4_ANS,QS6_B1_DATE_5_ANS,QS6_B1_DATE_6_ANS",LifeCycle_CDM,outcome,headcircage_6,complete,final,,/* too long to be provided and many case by case situations */,
@@ -23768,15 +23752,6 @@ else if hc_(i) ne . and 147<i<158 then headcircmes_(i)=0;
 else headcircmes_(i)=.;
 end;","Self-reported by the parents but from medical record in the 'health carnet' from age 0 to 7 years old.
 Measure by health profesional around 12-13 years old"
-PELAGIE,harmonized,HEADCIRCMES_0,,,LifeCycle_CDM,outcome,headcircmes_2,complete,final,"Self-reported by the parents but from medical record in the 'health carnet' from age 0 to 7 years old.
-Measure by health profesional around 12-13 years old","do i=1 to 215;
-headcirc_(i)=hc_(i);
-headcircage_(i)=hc_age(i);
-if hc_(i) ne . and 0<i<146 then headcircmes_(i)=1;
-else if hc_(i) ne . and 147<i<158 then headcircmes_(i)=0;
-else headcircmes_(i)=.;
-end;","Self-reported by the parents but from medical record in the 'health carnet' from age 0 to 7 years old.
-Measure by health profesional around 12-13 years old"
 PELAGIE,pelagie_exam12,"AGE_EXAM_MOIS,AGE_EXAM_JOUR",,,LifeCycle_CDM,outcome,waistcircage_153,complete,final,,"do i = 146 to 158 ; 
   if age_exam_mois eq i then do; 
      if P_ombili ne . then do;waistcirc_[i]=P_ombili;waistcircage_[i]=age_exam_jour;waistcircmes_[i]=0;end;
@@ -23828,6 +23803,11 @@ else if hc_(i) ne . and 147<i<158 then headcircmes_(i)=0;
 else headcircmes_(i)=.;
 end;","Self-reported by the parents but from medical record in the 'health carnet' from age 0 to 7 years old.
 Measure by health profesional around 12-13 years old"
+PELAGIE,pelagie_exam12,"AGE_EXAM_MOIS,AGE_EXAM_JOUR",,,LifeCycle_CDM,outcome,hipcircage_156,complete,final,,"do i = 146 to 158 ; 
+  if age_exam_mois eq i then do; 
+   if T_hanche ne . then do;hipcirc_[i]=T_hanche;hipcircage_[i]=age_exam_jour;hipcircmes_[i]=0;end;
+  end;
+end;",
 PELAGIE,harmonized,HEADCIRCMES_0,,,LifeCycle_CDM,outcome,headcircmes_7,complete,final,"Self-reported by the parents but from medical record in the 'health carnet' from age 0 to 7 years old.
 Measure by health profesional around 12-13 years old","do i=1 to 215;
 headcirc_(i)=hc_(i);
@@ -24066,6 +24046,7 @@ else if hc_(i) ne . and 147<i<158 then headcircmes_(i)=0;
 else headcircmes_(i)=.;
 end;","Self-reported by the parents but from medical record in the 'health carnet' from age 0 to 7 years old.
 Measure by health profesional around 12-13 years old"
+testCohort1,test dataset for testCohort1,var1,,,testNetwork1_CDM,cdm_1,testVarLang1,complete,,test descrip,test syntax,
 PELAGIE,harmonized,HEADCIRCMES_0,,,LifeCycle_CDM,outcome,headcircmes_32,complete,final,"Self-reported by the parents but from medical record in the 'health carnet' from age 0 to 7 years old.
 Measure by health profesional around 12-13 years old","do i=1 to 215;
 headcirc_(i)=hc_(i);
@@ -24113,6 +24094,7 @@ else if hc_(i) ne . and 147<i<158 then headcircmes_(i)=0;
 else headcircmes_(i)=.;
 end;","Self-reported by the parents but from medical record in the 'health carnet' from age 0 to 7 years old.
 Measure by health profesional around 12-13 years old"
+testCohort3,test dataset for testCohort3,var1,,,testNetwork1_CDM,cdm_1,testVarLang3Vir1,partial,,test descrip,test syntax,
 PELAGIE,harmonized,HEADCIRCMES_0,,,LifeCycle_CDM,outcome,headcircmes_148,complete,final,"Self-reported by the parents but from medical record in the 'health carnet' from age 0 to 7 years old.
 Measure by health profesional around 12-13 years old","do i=1 to 215;
 headcirc_(i)=hc_(i);
@@ -24160,6 +24142,7 @@ else if hc_(i) ne . and 147<i<158 then headcircmes_(i)=0;
 else headcircmes_(i)=.;
 end;","Self-reported by the parents but from medical record in the 'health carnet' from age 0 to 7 years old.
 Measure by health profesional around 12-13 years old"
+testCohort3,test dataset for testCohort3,var2,,,testNetwork1_CDM,cdm_1,testVarVir2,complete,,test descrip,test syntax,
 PELAGIE,harmonized,HEADCIRCMES_0,,,LifeCycle_CDM,outcome,headcircmes_153,complete,final,"Self-reported by the parents but from medical record in the 'health carnet' from age 0 to 7 years old.
 Measure by health profesional around 12-13 years old","do i=1 to 215;
 headcirc_(i)=hc_(i);
@@ -24207,6 +24190,7 @@ else if hc_(i) ne . and 147<i<158 then headcircmes_(i)=0;
 else headcircmes_(i)=.;
 end;","Self-reported by the parents but from medical record in the 'health carnet' from age 0 to 7 years old.
 Measure by health profesional around 12-13 years old"
+testCohort4,test dataset for testCohort4,var1,,,testNetwork1_CDM,cdm_1,testVarLang1,partial,,test descrip,test syntax,
 PELAGIE,harmonized,HEADCIRCMES_0,,,LifeCycle_CDM,outcome,headcircmes_158,complete,final,"Self-reported by the parents but from medical record in the 'health carnet' from age 0 to 7 years old.
 Measure by health profesional around 12-13 years old","do i=1 to 215;
 headcirc_(i)=hc_(i);
@@ -24336,6 +24320,11 @@ else &mesure_moy= (&m1+&m2)/2;
 do i = 146 to 158 ; 
   if age_exam_mois eq i then do; 
      if P_ombili ne . then do;waistcirc_[i]=P_ombili;waistcircage_[i]=age_exam_jour;waistcircmes_[i]=0;end;
+  end;
+end;",
+PELAGIE,pelagie_exam12,"AGE_EXAM_MOIS,AGE_EXAM_JOUR",,,LifeCycle_CDM,outcome,armcircage_146,complete,final,,"do i = 146 to 158 ; 
+  if age_exam_mois eq i then do; 
+if P_brachial ne . then do;armcirc_[i]=P_brachial;armcircage_[i]=age_exam_jour;armcircmes_[i]=0;end;
   end;
 end;",
 PELAGIE,pelagie_exam12,"EX50,EX59,EX68",,,LifeCycle_CDM,outcome,waistcirc_151,complete,final,,"%macro mesure(m1,m2,m3,dif,dif1,dif2,mesure_moy,mindif);
@@ -24493,6 +24482,7 @@ do i = 146 to 158 ;
      if P_ombili ne . then do;waistcirc_[i]=P_ombili;waistcircage_[i]=age_exam_jour;waistcircmes_[i]=0;end;
   end;
 end;",
+testCohort4,test dataset for testCohort4,var2,,,testNetwork1_CDM,cdm_1,testVarLang3Vir1,complete,,test descrip,test syntax,
 PELAGIE,pelagie_exam12,"EX50,EX59,EX68",,,LifeCycle_CDM,outcome,waistcirc_158,complete,final,,"%macro mesure(m1,m2,m3,dif,dif1,dif2,mesure_moy,mindif);
 if &m1 ne . and &m2 ne . then &dif=&m1-&m2;
 if &m3 ne . then do;
@@ -24558,11 +24548,6 @@ do i = 146 to 158 ;
   if age_exam_mois eq i then do;     
      if T_hanche ne . then do;hipcirc_[i]=T_hanche;hipcircage_[i]=age_exam_jour;hipcircmes_[i]=0;ed;
     end;
-end;",
-PELAGIE,pelagie_exam12,"AGE_EXAM_MOIS,AGE_EXAM_JOUR",,,LifeCycle_CDM,outcome,hipcircage_156,complete,final,,"do i = 146 to 158 ; 
-  if age_exam_mois eq i then do; 
-   if T_hanche ne . then do;hipcirc_[i]=T_hanche;hipcircage_[i]=age_exam_jour;hipcircmes_[i]=0;end;
-  end;
 end;",
 PELAGIE,pelagie_exam12,"EX51,EX60,EX69",,,LifeCycle_CDM,outcome,hipcirc_150,complete,final,,"%macro mesure(m1,m2,m3,dif,dif1,dif2,mesure_moy,mindif);
 if &m1 ne . and &m2 ne . then &dif=&m1-&m2;
@@ -24633,6 +24618,11 @@ do i = 146 to 158 ;
   if age_exam_mois eq i then do;     
      if T_hanche ne . then do;hipcirc_[i]=T_hanche;hipcircage_[i]=age_exam_jour;hipcircmes_[i]=0;ed;
     end;
+end;",
+PELAGIE,pelagie_exam12,"AGE_EXAM_MOIS,AGE_EXAM_JOUR",,,LifeCycle_CDM,outcome,armcircage_147,complete,final,,"do i = 146 to 158 ; 
+  if age_exam_mois eq i then do; 
+if P_brachial ne . then do;armcirc_[i]=P_brachial;armcircage_[i]=age_exam_jour;armcircmes_[i]=0;end;
+  end;
 end;",
 PELAGIE,pelagie_exam12,"EX51,EX60,EX69",,,LifeCycle_CDM,outcome,hipcirc_153,complete,final,,"%macro mesure(m1,m2,m3,dif,dif1,dif2,mesure_moy,mindif);
 if &m1 ne . and &m2 ne . then &dif=&m1-&m2;
@@ -24714,6 +24704,7 @@ do i = 146 to 158 ;
      if T_hanche ne . then do;hipcirc_[i]=T_hanche;hipcircage_[i]=age_exam_jour;hipcircmes_[i]=0;ed;
     end;
 end;",
+testCohort4,test dataset for testCohort4,var3,,,testNetwork1_CDM,cdm_1,testVarVir2,partial,,test descrip,test syntax,
 PELAGIE,pelagie_exam12,"EX51,EX60,EX69",,,LifeCycle_CDM,outcome,hipcirc_157,complete,final,,"%macro mesure(m1,m2,m3,dif,dif1,dif2,mesure_moy,mindif);
 if &m1 ne . and &m2 ne . then &dif=&m1-&m2;
 if &m3 ne . then do;
@@ -24785,6 +24776,7 @@ do i = 146 to 158 ;
 if P_brachial ne . then do;armcirc_[i]=P_brachial;armcircage_[i]=age_exam_jour;armcircmes_[i]=0;end;
     end;
 end;",
+testCohort1,test dataset for testCohort1,var1,,,testNetwork1_CDM,cdm_1,testVarRepeats_1,complete,,some description,some syntax,
 PELAGIE,pelagie_exam12,"EX48,EX57,EX66",,,LifeCycle_CDM,outcome,armcirc_147,complete,final,,"%macro mesure(m1,m2,m3,dif,dif1,dif2,mesure_moy,mindif);
 if &m1 ne . and &m2 ne . then &dif=&m1-&m2;
 if &m3 ne . then do;
@@ -24946,6 +24938,7 @@ do i = 146 to 158 ;
 if P_brachial ne . then do;armcirc_[i]=P_brachial;armcircage_[i]=age_exam_jour;armcircmes_[i]=0;end;
     end;
 end;",
+testCohort1,test dataset for testCohort1,var2,,,testNetwork1_CDM,cdm_1,testVarRepeats_2,complete,,some description,some syntax,
 PELAGIE,pelagie_exam12,"EX48,EX57,EX66",,,LifeCycle_CDM,outcome,armcirc_155,complete,final,,"%macro mesure(m1,m2,m3,dif,dif1,dif2,mesure_moy,mindif);
 if &m1 ne . and &m2 ne . then &dif=&m1-&m2;
 if &m3 ne . then do;
@@ -25026,21 +25019,7 @@ do i = 146 to 158 ;
 if P_brachial ne . then do;armcirc_[i]=P_brachial;armcircage_[i]=age_exam_jour;armcircmes_[i]=0;end;
     end;
 end;",
-PELAGIE,pelagie_exam12,"AGE_EXAM_MOIS,AGE_EXAM_JOUR",,,LifeCycle_CDM,outcome,armcircage_146,complete,final,,"do i = 146 to 158 ; 
-  if age_exam_mois eq i then do; 
-if P_brachial ne . then do;armcirc_[i]=P_brachial;armcircage_[i]=age_exam_jour;armcircmes_[i]=0;end;
-  end;
-end;",
-PELAGIE,pelagie_exam12,"AGE_EXAM_MOIS,AGE_EXAM_JOUR",,,LifeCycle_CDM,outcome,armcircage_147,complete,final,,"do i = 146 to 158 ; 
-  if age_exam_mois eq i then do; 
-if P_brachial ne . then do;armcirc_[i]=P_brachial;armcircage_[i]=age_exam_jour;armcircmes_[i]=0;end;
-  end;
-end;",
-PELAGIE,pelagie_exam12,"AGE_EXAM_MOIS,AGE_EXAM_JOUR",,,LifeCycle_CDM,outcome,armcircage_148,complete,final,,"do i = 146 to 158 ; 
-  if age_exam_mois eq i then do; 
-if P_brachial ne . then do;armcirc_[i]=P_brachial;armcircage_[i]=age_exam_jour;armcircmes_[i]=0;end;
-  end;
-end;",
+testCohort1,test dataset for testCohort1,var3,,,testNetwork1_CDM,cdm_1,testVarRepeats_3,complete,,some description,some syntax,
 PELAGIE,pelagie_exam12,"AGE_EXAM_MOIS,AGE_EXAM_JOUR",,,LifeCycle_CDM,outcome,armcircage_149,complete,final,,"do i = 146 to 158 ; 
   if age_exam_mois eq i then do; 
 if P_brachial ne . then do;armcirc_[i]=P_brachial;armcircage_[i]=age_exam_jour;armcircmes_[i]=0;end;
@@ -25085,6 +25064,12 @@ PELAGIE,pelagie_exam12,"EX32,PB_TANITA",,,LifeCycle_CDM,outcome,bio_147,complete
 if pb_tanita eq 0 then do;bio_[i]=ex32;bioage_[i]=age_exam_jour;biomes_[i]=0;end;
   end;
 end;",
+PELAGIE,pelagie_exam12,"AGE_EXAM_MOIS,AGE_EXAM_JOUR",,,LifeCycle_CDM,outcome,subscapsfage_149,complete,final,,"do i = 146 to 158 ; 
+  if age_exam_mois eq i then do; 
+if Pli_scapulaire ne . then do;subscapsfc_[i]=Pli_scapulaire;subscapsfcage_[i]=age_exam_jour;subscapsfcmes_[i]=0;end;
+  end;
+end;",
+SPF,SPF,,,,OOM_CDM,MEDICINES,indication_code_vocabulary,complete,,,,
 PELAGIE,pelagie_exam12,"EX54,EX63,EX71",,,LifeCycle_CDM,outcome,subscapsf_146,complete,final,,"%macro mesure(m1,m2,m3,dif,dif1,dif2,mesure_moy,mindif);
 if &m1 ne . and &m2 ne . then &dif=&m1-&m2;
 if &m3 ne . then do;
@@ -25151,6 +25136,11 @@ if Pli_scapulaire ne . then do;subscapsfc_[i]=Pli_scapulaire;subscapsfcage_[i]=a
     end;
 end;",
 NFBC1966,core,,,,LifeCycle_CDM,core,preg_gain,partial,final,"C6600_F8V063 mother's weight (kg), when she  came to hospital and modified version prepreg_weight from the variable C6600Q_F12v058",COMPUTE preg_gain=C6600_F8V063 - prepreg_weight.EXECUTE,
+PELAGIE,pelagie_exam12,"AGE_EXAM_MOIS,AGE_EXAM_JOUR",,,LifeCycle_CDM,outcome,subscapsfage_150,complete,final,,"do i = 146 to 158 ; 
+  if age_exam_mois eq i then do; 
+if Pli_scapulaire ne . then do;subscapsfc_[i]=Pli_scapulaire;subscapsfcage_[i]=age_exam_jour;subscapsfcmes_[i]=0;end;
+  end;
+end;",
 PELAGIE,pelagie_exam12,"EX54,EX63,EX71",,,LifeCycle_CDM,outcome,subscapsf_149,complete,final,,"%macro mesure(m1,m2,m3,dif,dif1,dif2,mesure_moy,mindif);
 if &m1 ne . and &m2 ne . then &dif=&m1-&m2;
 if &m3 ne . then do;
@@ -25220,6 +25210,11 @@ do i = 146 to 158 ;
   if age_exam_mois eq i then do;     
 if Pli_scapulaire ne . then do;subscapsfc_[i]=Pli_scapulaire;subscapsfcage_[i]=age_exam_jour;subscapsfcmes_[i]=0;end;
     end;
+end;",
+PELAGIE,pelagie_exam12,"AGE_EXAM_MOIS,AGE_EXAM_JOUR",,,LifeCycle_CDM,outcome,subscapsfage_151,complete,final,,"do i = 146 to 158 ; 
+  if age_exam_mois eq i then do; 
+if Pli_scapulaire ne . then do;subscapsfc_[i]=Pli_scapulaire;subscapsfcage_[i]=age_exam_jour;subscapsfcmes_[i]=0;end;
+  end;
 end;",
 PELAGIE,pelagie_exam12,"EX54,EX63,EX71",,,LifeCycle_CDM,outcome,subscapsf_152,complete,final,,"%macro mesure(m1,m2,m3,dif,dif1,dif2,mesure_moy,mindif);
 if &m1 ne . and &m2 ne . then &dif=&m1-&m2;
@@ -25301,6 +25296,7 @@ do i = 146 to 158 ;
 if Pli_scapulaire ne . then do;subscapsfc_[i]=Pli_scapulaire;subscapsfcage_[i]=age_exam_jour;subscapsfcmes_[i]=0;end;
     end;
 end;",
+PELAGIE,harmonized,SUBSCAPSFMES_0,,,LifeCycle_CDM,outcome,subscapsfmes_150,complete,final,,subscapsfmes_150=0;,
 PELAGIE,pelagie_exam12,"EX54,EX63,EX71",,,LifeCycle_CDM,outcome,subscapsf_156,complete,final,,"%macro mesure(m1,m2,m3,dif,dif1,dif2,mesure_moy,mindif);
 if &m1 ne . and &m2 ne . then &dif=&m1-&m2;
 if &m3 ne . then do;
@@ -25376,24 +25372,6 @@ PELAGIE,pelagie_exam12,"AGE_EXAM_MOIS,AGE_EXAM_JOUR",,,LifeCycle_CDM,outcome,sub
 if Pli_scapulaire ne . then do;subscapsfc_[i]=Pli_scapulaire;subscapsfcage_[i]=age_exam_jour;subscapsfcmes_[i]=0;end;
   end;
 end;",
-PELAGIE,harmonized,TRICEPSFMES_0,,,LifeCycle_CDM,outcome,tricepsfmes_151,complete,final,,tricepsfmes_151=0;,
-PELAGIE,pelagie_exam12,"AGE_EXAM_MOIS,AGE_EXAM_JOUR",,,LifeCycle_CDM,outcome,subscapsfage_149,complete,final,,"do i = 146 to 158 ; 
-  if age_exam_mois eq i then do; 
-if Pli_scapulaire ne . then do;subscapsfc_[i]=Pli_scapulaire;subscapsfcage_[i]=age_exam_jour;subscapsfcmes_[i]=0;end;
-  end;
-end;",
-SPF,SPF,,,,OOM_CDM,MEDICINES,indication_code_vocabulary,complete,,,,
-PELAGIE,pelagie_exam12,"AGE_EXAM_MOIS,AGE_EXAM_JOUR",,,LifeCycle_CDM,outcome,subscapsfage_150,complete,final,,"do i = 146 to 158 ; 
-  if age_exam_mois eq i then do; 
-if Pli_scapulaire ne . then do;subscapsfc_[i]=Pli_scapulaire;subscapsfcage_[i]=age_exam_jour;subscapsfcmes_[i]=0;end;
-  end;
-end;",
-PELAGIE,pelagie_exam12,"AGE_EXAM_MOIS,AGE_EXAM_JOUR",,,LifeCycle_CDM,outcome,subscapsfage_151,complete,final,,"do i = 146 to 158 ; 
-  if age_exam_mois eq i then do; 
-if Pli_scapulaire ne . then do;subscapsfc_[i]=Pli_scapulaire;subscapsfcage_[i]=age_exam_jour;subscapsfcmes_[i]=0;end;
-  end;
-end;",
-PELAGIE,harmonized,SUBSCAPSFMES_0,,,LifeCycle_CDM,outcome,subscapsfmes_150,complete,final,,subscapsfmes_150=0;,
 PELAGIE,pelagie_exam12,"AGE_EXAM_MOIS,AGE_EXAM_JOUR",,,LifeCycle_CDM,outcome,subscapsfage_155,complete,final,,"do i = 146 to 158 ; 
   if age_exam_mois eq i then do; 
 if Pli_scapulaire ne . then do;subscapsfc_[i]=Pli_scapulaire;subscapsfcage_[i]=age_exam_jour;subscapsfcmes_[i]=0;end;
@@ -25459,6 +25437,7 @@ PELAGIE,pelagie_exam12,"AGE_EXAM_MOIS,AGE_EXAM_JOUR",,,LifeCycle_CDM,outcome,tri
 if Pli_tricipital ne . then do;tricepsf_[i]=Pli_tricipital;tricepsfage_[i]=age_exam_jour;tricepsfmes_[i]=0;end;
   end;
 end;",
+testCohort1,test dataset for testCohort1,var4,,,testNetwork1_CDM,cdm_1,testVarRepeats_4,complete,,some description,some syntax,
 PELAGIE,pelagie_exam12,"EX52,EX61,EX70",,,LifeCycle_CDM,outcome,tricepsf_150,complete,final,,"%macro mesure(m1,m2,m3,dif,dif1,dif2,mesure_moy,mindif);
 if &m1 ne . and &m2 ne . then &dif=&m1-&m2;
 if &m3 ne . then do;
@@ -25524,6 +25503,13 @@ do i = 146 to 158 ;
 if Pli_tricipital ne . then do;tricepsf_[i]=Pli_tricipital;tricepsfage_[i]=age_exam_jour;tricepsfmes_[i]=0;end;
     end;
 end;",
+PELAGIE,pelagie_exam12,"AGE_EXAM_MOIS,AGE_EXAM_JOUR",,,LifeCycle_CDM,outcome,tricepsfage_151,complete,final,,"do i = 146 to 158 ; 
+  if age_exam_mois eq i then do; 
+if Pli_tricipital ne . then do;tricepsf_[i]=Pli_tricipital;tricepsfage_[i]=age_exam_jour;tricepsfmes_[i]=0;end;
+  end;
+end;",
+PELAGIE,harmonized,TRICEPSFMES_0,,,LifeCycle_CDM,outcome,tricepsfmes_153,complete,final,,tricepsfmes_153=0;,
+testCohort1,test dataset for testCohort1,var5,,,testNetwork1_CDM,cdm_1,testVarRepeats_5,complete,,some description,some syntax,
 PELAGIE,pelagie_exam12,"EX52,EX61,EX70",,,LifeCycle_CDM,outcome,tricepsf_153,complete,final,,"%macro mesure(m1,m2,m3,dif,dif1,dif2,mesure_moy,mindif);
 if &m1 ne . and &m2 ne . then &dif=&m1-&m2;
 if &m3 ne . then do;
@@ -25667,12 +25653,7 @@ PELAGIE,pelagie_exam12,"AGE_EXAM_MOIS,AGE_EXAM_JOUR",,,LifeCycle_CDM,outcome,tri
 if Pli_tricipital ne . then do;tricepsf_[i]=Pli_tricipital;tricepsfage_[i]=age_exam_jour;tricepsfmes_[i]=0;end;
   end;
 end;",
-PELAGIE,pelagie_exam12,"AGE_EXAM_MOIS,AGE_EXAM_JOUR",,,LifeCycle_CDM,outcome,tricepsfage_151,complete,final,,"do i = 146 to 158 ; 
-  if age_exam_mois eq i then do; 
-if Pli_tricipital ne . then do;tricepsf_[i]=Pli_tricipital;tricepsfage_[i]=age_exam_jour;tricepsfmes_[i]=0;end;
-  end;
-end;",
-PELAGIE,harmonized,TRICEPSFMES_0,,,LifeCycle_CDM,outcome,tricepsfmes_153,complete,final,,tricepsfmes_153=0;,
+PELAGIE,harmonized,SITTINGHTMES_0,,,LifeCycle_CDM,outcome,sittinghtmes_155,complete,final,,sittinghtmes_155=0;,
 PELAGIE,pelagie_exam12,"AGE_EXAM_MOIS,AGE_EXAM_JOUR",,,LifeCycle_CDM,outcome,tricepsfage_152,complete,final,,"do i = 146 to 158 ; 
   if age_exam_mois eq i then do; 
 if Pli_tricipital ne . then do;tricepsf_[i]=Pli_tricipital;tricepsfage_[i]=age_exam_jour;tricepsfmes_[i]=0;end;
@@ -25784,8 +25765,6 @@ do i = 146 to 158 ;
 if taille_assise ne . then do;sittinght_[i]=taille_assise;sittinghtage_[i]=age_exam_jour;sittinghtmes_[i]=0;end;
     end;
 end;",
-PELAGIE,harmonized,SITTINGHTMES_0,,,LifeCycle_CDM,outcome,sittinghtmes_155,complete,final,,sittinghtmes_155=0;,
-RMR,RMR,,,,OOM_CDM,SURVEY_OBSERVATIONS,so_unit,complete,,,,
 PELAGIE,pelagie_exam12,"EX24,EX26,EX28",,,LifeCycle_CDM,outcome,sittinght_149,complete,final,,"%macro mesure(m1,m2,m3,dif,dif1,dif2,mesure_moy,mindif);
 if &m1 ne . and &m2 ne . then &dif=&m1-&m2;
 if &m3 ne . then do;
@@ -25920,6 +25899,16 @@ do i = 146 to 158 ;
 if taille_assise ne . then do;sittinght_[i]=taille_assise;sittinghtage_[i]=age_exam_jour;sittinghtmes_[i]=0;end;
     end;
 end;",
+PELAGIE,pelagie_exam12,"AGE_EXAM_MOIS,AGE_EXAM_JOUR",,,LifeCycle_CDM,outcome,sittinghtage_146,complete,final,,"do i = 146 to 158 ; 
+  if age_exam_mois eq i then do; 
+if taille_assise ne . then do;sittinght_[i]=taille_assise;sittinghtage_[i]=age_exam_jour;sittinghtmes_[i]=0;end;
+  end;
+end;",
+PELAGIE,pelagie_exam12,"AGE_EXAM_MOIS,AGE_EXAM_JOUR",,,LifeCycle_CDM,outcome,sittinghtage_147,complete,final,,"do i = 146 to 158 ; 
+  if age_exam_mois eq i then do; 
+if taille_assise ne . then do;sittinght_[i]=taille_assise;sittinghtage_[i]=age_exam_jour;sittinghtmes_[i]=0;end;
+  end;
+end;",
 PELAGIE,pelagie_exam12,"EX24,EX26,EX28",,,LifeCycle_CDM,outcome,sittinght_155,complete,final,,"%macro mesure(m1,m2,m3,dif,dif1,dif2,mesure_moy,mindif);
 if &m1 ne . and &m2 ne . then &dif=&m1-&m2;
 if &m3 ne . then do;
@@ -26001,16 +25990,6 @@ do i = 146 to 158 ;
 if taille_assise ne . then do;sittinght_[i]=taille_assise;sittinghtage_[i]=age_exam_jour;sittinghtmes_[i]=0;end;
     end;
 end;",
-PELAGIE,pelagie_exam12,"AGE_EXAM_MOIS,AGE_EXAM_JOUR",,,LifeCycle_CDM,outcome,sittinghtage_146,complete,final,,"do i = 146 to 158 ; 
-  if age_exam_mois eq i then do; 
-if taille_assise ne . then do;sittinght_[i]=taille_assise;sittinghtage_[i]=age_exam_jour;sittinghtmes_[i]=0;end;
-  end;
-end;",
-PELAGIE,pelagie_exam12,"AGE_EXAM_MOIS,AGE_EXAM_JOUR",,,LifeCycle_CDM,outcome,sittinghtage_147,complete,final,,"do i = 146 to 158 ; 
-  if age_exam_mois eq i then do; 
-if taille_assise ne . then do;sittinght_[i]=taille_assise;sittinghtage_[i]=age_exam_jour;sittinghtmes_[i]=0;end;
-  end;
-end;",
 PELAGIE,pelagie_exam12,"AGE_EXAM_MOIS,AGE_EXAM_JOUR",,,LifeCycle_CDM,outcome,sittinghtage_148,complete,final,,"do i = 146 to 158 ; 
   if age_exam_mois eq i then do; 
 if taille_assise ne . then do;sittinght_[i]=taille_assise;sittinghtage_[i]=age_exam_jour;sittinghtmes_[i]=0;end;
@@ -26053,12 +26032,6 @@ PELAGIE,harmonized,SITTINGHTMES_0,,,LifeCycle_CDM,outcome,sittinghtmes_148,compl
 PELAGIE,harmonized,SITTINGHTMES_0,,,LifeCycle_CDM,outcome,sittinghtmes_149,complete,final,,sittinghtmes_149=0;,
 PELAGIE,harmonized,SITTINGHTMES_0,,,LifeCycle_CDM,outcome,sittinghtmes_150,complete,final,,sittinghtmes_150=0;,
 PELAGIE,harmonized,SITTINGHTMES_0,,,LifeCycle_CDM,outcome,sittinghtmes_151,complete,final,,sittinghtmes_151=0;,
-RMR,RMR,iduni,,,OOM_CDM,SURVEY_ID,person_id,complete,,,,
-PELAGIE,pelagie_exam12,"EX32,PB_TANITA",,,LifeCycle_CDM,outcome,bio_151,complete,final,,"do i = 146 to 158 ; 
-  if age_exam_mois eq i then do; 
-if pb_tanita eq 0 then do;bio_[i]=ex32;bioage_[i]=age_exam_jour;biomes_[i]=0;end;
-  end;
-end;",
 PELAGIE,pelagie_exam12,"EX32,PB_TANITA",,,LifeCycle_CDM,outcome,bio_155,complete,final,,"do i = 146 to 158 ; 
   if age_exam_mois eq i then do; 
 if pb_tanita eq 0 then do;bio_[i]=ex32;bioage_[i]=age_exam_jour;biomes_[i]=0;end;
@@ -26114,6 +26087,7 @@ PELAGIE,pelagie_exam12,"AGE_EXAM_MOIS,AGE_EXAM_JOUR",,,LifeCycle_CDM,outcome,bio
 if pb_tanita eq 0 then do;bio_[i]=ex32;bioage_[i]=age_exam_jour;biomes_[i]=0;end;
   end;
 end;",
+testCohort1,test dataset for testCohort1,var6,,,testNetwork1_CDM,cdm_1,testVarRepeats_6,complete,,some description,some syntax,
 PELAGIE,pelagie_exam12,"AGE_EXAM_MOIS,AGE_EXAM_JOUR",,,LifeCycle_CDM,outcome,bioage_153,complete,final,,"do i = 146 to 158 ; 
   if age_exam_mois eq i then do; 
 if pb_tanita eq 0 then do;bio_[i]=ex32;bioage_[i]=age_exam_jour;biomes_[i]=0;end;
@@ -26170,7 +26144,6 @@ PELAGIE,pelagie_exam12,EX39,,,LifeCycle_CDM,outcome,sbp_149,complete,final,,"do 
       sbp_[i]=sbp;dbp_[i]=dbp ;sbpav_[i]=avsbp;dbpav_[i]=avdbp ; bpage_[i]=age_exam_jour;end;
   end;
 end;",
-PELAGIE,harmonized,LDLCMES_146,,,LifeCycle_CDM,outcome,ldlcmes_156,complete,final,,ldlcmes_156=0;,
 PELAGIE,pelagie_exam12,EX39,,,LifeCycle_CDM,outcome,sbp_150,complete,final,,"do i = 146 to 158 ; 
   if age_exam_mois eq i then do; 
     if bpage ne . then do;
@@ -26293,6 +26266,7 @@ PELAGIE,pelagie_exam12,EX40,,,LifeCycle_CDM,outcome,dbp_156,complete,final,,"do 
       sbp_[i]=sbp;dbp_[i]=dbp ;sbpav_[i]=avsbp;dbpav_[i]=avdbp ; bpage_[i]=age_exam_jour;end;
   end;
 end;",
+testCohort1,test dataset for testCohort1,var7,,,testNetwork1_CDM,cdm_1,testVarRepeats_7,complete,,some description,some syntax,
 PELAGIE,pelagie_exam12,EX40,,,LifeCycle_CDM,outcome,dbp_157,complete,final,,"do i = 146 to 158 ; 
   if age_exam_mois eq i then do; 
     if bpage ne . then do;
@@ -26438,6 +26412,7 @@ do i = 146 to 158 ;
       sbp_[i]=sbp;dbp_[i]=dbp ;sbpav_[i]=avsbp;dbpav_[i]=avdbp ; bpage_[i]=age_exam_jour;end;
   end;
 end;",
+testCohort1,test dataset for testCohort1,var8,,,testNetwork1_CDM,cdm_1,testVarRepeats_8,complete,,some description,some syntax,
 PELAGIE,pelagie_exam12,"EX40,EX96",,,LifeCycle_CDM,outcome,dbpav_147,complete,final,,"avdbp=(ex40+ex96)/2;
 
 do i = 146 to 158 ; 
@@ -26759,7 +26734,6 @@ do i = 146 to 158 ;
 if pulse ne . then do;pulse_[i]=pulse;pulseage_[i]=age_exam_jour;pulsemessit_[i]=1;end;
 	end;
 end;",
-NFBC1966,core,,,,LifeCycle_CDM,core,outcome,partial,final,"Child live/dead born1) 1 alive 2) 1 stillbirth 3) 2 alive 4) 2 stillbirths 5) 1 alive, 1 stillbirth",Original codings were used,
 PELAGIE,pelagie_exam12,AGE_EXAM_JOUR,,,LifeCycle_CDM,outcome,pulseage_150,complete,final,,"pulseage=age_exam_jour;
 
 do i = 146 to 158 ; 
@@ -26940,8 +26914,6 @@ PELAGIE,pelagie_exam12,AGE_EXAM_JOUR,,,LifeCycle_CDM,outcome,ldlcage_148,complet
 PELAGIE,pelagie_exam12,AGE_EXAM_JOUR,,,LifeCycle_CDM,outcome,ldlcage_154,complete,final,,ldlcage_154=age_exam_jour;,
 PELAGIE,pelagie_exam12,AGE_EXAM_JOUR,,,LifeCycle_CDM,outcome,ldlcage_155,complete,final,,ldlcage_155=age_exam_jour;,
 PELAGIE,pelagie_exam12,AGE_EXAM_JOUR,,,LifeCycle_CDM,outcome,ldlcage_156,complete,final,,ldlcage_156=age_exam_jour;,
-PELAGIE,pelagie_exam12,AGE_EXAM_JOUR,,,LifeCycle_CDM,outcome,ldlcage_157,complete,final,,ldlcage_157=age_exam_jour;,
-PELAGIE,pelagie_exam12,AGE_EXAM_JOUR,,,LifeCycle_CDM,outcome,ldlcage_158,complete,final,,ldlcage_158=age_exam_jour;,
 PELAGIE,pelagie_dosage12,Q12_HDL,"pelagie_exam12,pelagie_exam12","AGE_EXAM_MOIS,AGE_EXAM_JOUR",LifeCycle_CDM,outcome,hdlc_146,complete,final,,"pelagie_dosage12$hdlc_146<-ifelse(pelagie_dosage12$age_exam_mois<147,pelagie_dosage12$Q12_HDL,NA)",
 PELAGIE,pelagie_dosage12,Q12_HDL,"pelagie_exam12,pelagie_exam12","AGE_EXAM_MOIS,AGE_EXAM_JOUR",LifeCycle_CDM,outcome,hdlc_147,complete,final,,"pelagie_dosage12$hdlc_147<-ifelse(pelagie_dosage12$age_exam_mois >=147 & pelagie_dosage12$age_exam_mois<148,pelagie_dosage12$Q12_HDL,NA)",
 NFBC1966,core,,,,LifeCycle_CDM,core,latepreg_weight_ga,complete,final,,see late latepreg_weight syntax,
@@ -27147,6 +27119,7 @@ sour$smk_ever46[(sour$C6646Q1_41 > 12 & sour$C6646Q1_41 < 46) & sour$C6646Q1_40 
 
 add <- add_new(sour, ""smk_ever46"", ""smk_ever"", ""age46"", NA)
 harm <- rbind(harm, add)",
+testCohort1,test dataset for testCohort1,var9,,,testNetwork1_CDM,cdm_1,testVarRepeats_9,complete,,some description,some syntax,
 NFBC1966,wave_01,"ZP0402,C6646Q1_2,C6646Q1_2_2,C6646Q1_2_3,C6646Q1_2_2_1,C6646Q1_2_3_1",,,LongITools_CDM,wave_01,famsize_child_own,complete,final,,"# number of children in the household at 31yr
 
 sour[""famsize_child_own31""] <- sour$ZP0402
@@ -27277,8 +27250,7 @@ NFBC1966,core,,,,LifeCycle_CDM,core,weight_0,complete,final,,IF  ( C66_age_years
 NFBC1966,core,,,,LifeCycle_CDM,core,fam_splitup14,partial,final,,if (cohab_0=1 and  cohab_14=1) fam_splitup14=0.if (cohab_0=2 and  cohab_14=2) fam_splitup14=0.if (cohab_0=1 and  cohab_14=2) fam_splitup14=1.if (cohab_0=2 and  cohab_14=1) fam_splitup14=0.EXECUTE.,
 NFBC1966,core,,,,LifeCycle_CDM,core,pets_0,partial,final,"How many cows, pigs, sheeps, hens and minks and like are in the household? 0= none and 9) not known. Categorizations concerning the numbers concerning the animals differed .  All the variables were firstly coded as 1)  yes and 0) no. Not know were coded as missing.","COMPUTE pets_0 =SUM(C6600Q_F12v035, C6600Q_F12v036, C6600Q_F12v037, C6600Q_F12v038. C6600Q_F12v039).
 EXECUTE.  RECODE pets_0 (0=0) (1 thru 100=1) INTO pets_0. EXECUTE.",
-NFBC1966,core,,,,LifeCycle_CDM,core,mental_exp0,complete,final,Register based diagnosed and child age when diagnos was received,Syntax was extremely long (available when asked),
-NFBC1966,core,,,,LifeCycle_CDM,core,mental_exp1,complete,final,Register based diagnosed and child age when diagnos was received,Syntax was extremely long (available when asked),
+testCohort1,test dataset for testCohort1,var10,,,testNetwork1_CDM,cdm_1,testVarRepeats_10,complete,,some description,some syntax,
 NFBC1966,core,,,,LifeCycle_CDM,core,con_anomalies,complete,final,"Did child has something clear congenital malformation?  1) no 2) clubfoot 3) hipluxation 4) other limb anomaly 5) teratoma 6) hydrocephalus 7) mouth or harelip 8) congenital heart failure, 9) other anomaly 0) multianomalia",RECODE C6600_F8V048 (0=1) (1=0) (2 thru 9=1) INTO con_anomalies. EXECUTE.,
 ARS_ANAG_MED_RES_storico,ARS_ANAG_MED_RES_storico,,,,OOM_CDM,PERSONS,quality,complete,,‘reliable’,,
 NFBC1966,core,,,,LifeCycle_CDM,core,preg_ht,partial,final,"New classification of hypertension during pregnancy: 1) gestational hypertension  (BP 145/95 mmHg or more after 20th gestational week. Normal BP in the early pregnancy i.e. (<20th gestational week). No proteinuria.  2)  pre-eclampsia ( BP 145/95 mmHg or more after 20th gestational week. Normal BP in the early pregnancy i.e. (<20th gestational week). Proteinuria at least in one sample during pregnancy). 3) Chronic hypertension a. BP elevated already in early pregnancy ((<20th gestational week), 145/95 mmHg or more, and BP elevated also during whole pregnancy or after pregnancy (6weeks after pregnancy)) b. Chronic hypertension (hypertension essentialis) diagnose registered in questionnaire) 4.) Superimposed pre-eclampsia (chronic hypertension+protenuria, 5) Could not be determinated (all BP values not available 6) not known, 7) Systolic BP elevated Systolic BP >145 and diastolic BP < 95. Includes also women with proteinuria. 8.) Normotensive- BP under 145/95 and is not included in any of the above mentioned groups.9.) DiastolicBP elevated (Diastolic BP >95 and systolic BP < 145, Includes also women with proteinuria).   In the 1960's , BP was recorded by rounding up or down to the nearest 5mmHg, thus values >=145/95 represent hypertension.",RECODE C6600_UURRHYLK (1=1) (8=0) INTO preg_ht.EXECUTE.,
@@ -27391,6 +27363,8 @@ harm <- rbind(harm, add16, add17, add18, add19, add20,
               add33, add34, add35, add36, add37, add38, 
               add39, add40, add41, add42, add43, add44, 
               add45, add46)",
+testCohort1,test dataset for testCohort1,var11,,,testNetwork1_CDM,cdm_1,testVarNoRepeats,complete,,some description,some syntax,
+testCohort2,test dataset for testCohort2,var1,,,testNetwork1_CDM,cdm_1,testVarRepeats_1,na,,some description,,
 NFBC1966,wave_01,"ZP0401,C6646Q1_2,C6646Q1_2_4,C6646Q1_2_5,C6646Q1_2_4_1,C6646Q1_2_5_1",,,LongITools_CDM,wave_01,famsize_adult_own,complete,final,,"# number of adults in the household at 31yr
 
 sour[""famsize_adult_own31""] <- sour$ZP0401
@@ -27432,3 +27406,35 @@ harm <- rbind(harm, add)",
 NFBC1966,core,,,,LifeCycle_CDM,core,mode_delivery,partial,final,"1) In the delivery no operations, 2) caesarian, 3) forecaps, vacuum, 4) helping in breech birth",RECODE C6600_F8V043 (1=1) (3=2) (2=3) (4=4) INTO mode_delivery. EXECUTE.,
 ARS_ANAG_MED_RES_storico,ARS_ANAG_MED_RES_storico,,,,OOM_CDM,OBSERVATION_PERIODS,op_start_date,complete,,"If INI_RECORD> DATA_NASCITA+60, INI_RECORD;
 otherwise, DATA_NASCITA",,Children are normally registered during first pediatric visit
+testCohort2,test dataset for testCohort2,var2,,,testNetwork1_CDM,cdm_1,testVarRepeats_2,na,,some description,,
+testCohort2,test dataset for testCohort2,var3,,,testNetwork1_CDM,cdm_1,testVarRepeats_3,na,,some description,,
+testCohort2,test dataset for testCohort2,var4,,,testNetwork1_CDM,cdm_1,testVarRepeats_4,na,,some description,,
+testCohort2,test dataset for testCohort2,var5,,,testNetwork1_CDM,cdm_1,testVarRepeats_5,na,,some description,,
+testCohort2,test dataset for testCohort2,var6,,,testNetwork1_CDM,cdm_1,testVarRepeats_6,na,,some description,,
+testCohort2,test dataset for testCohort2,var7,,,testNetwork1_CDM,cdm_1,testVarRepeats_7,na,,some description,,
+testCohort2,test dataset for testCohort2,var8,,,testNetwork1_CDM,cdm_1,testVarRepeats_8,na,,some description,,
+testCohort2,test dataset for testCohort2,var9,,,testNetwork1_CDM,cdm_1,testVarRepeats_9,na,,some description,,
+testCohort2,test dataset for testCohort2,var10,,,testNetwork1_CDM,cdm_1,testVarRepeats_10,na,,some description,,
+testCohort2,test dataset for testCohort2,var11,,,testNetwork1_CDM,cdm_1,testVarNoRepeats,na,,some description,,
+testCohort3,test dataset for testCohort3,var1,,,testNetwork1_CDM,cdm_1,testVarRepeats_1,complete,,some description,some syntax,
+testCohort3,test dataset for testCohort3,var2,,,testNetwork1_CDM,cdm_1,testVarRepeats_2,complete,,some description,some syntax,
+testCohort3,test dataset for testCohort3,var3,,,testNetwork1_CDM,cdm_1,testVarRepeats_3,na,,some description,,
+testCohort3,test dataset for testCohort3,var4,,,testNetwork1_CDM,cdm_1,testVarRepeats_4,partial,,some description,some syntax,
+testCohort3,test dataset for testCohort3,var5,,,testNetwork1_CDM,cdm_1,testVarRepeats_5,complete,,some description,some syntax,
+testCohort3,test dataset for testCohort3,var6,,,testNetwork1_CDM,cdm_1,testVarRepeats_6,complete,,some description,some syntax,
+testCohort3,test dataset for testCohort3,var7,,,testNetwork1_CDM,cdm_1,testVarRepeats_7,complete,,some description,some syntax,
+testCohort3,test dataset for testCohort3,var8,,,testNetwork1_CDM,cdm_1,testVarRepeats_8,partial,,some description,some syntax,
+testCohort3,test dataset for testCohort3,var9,,,testNetwork1_CDM,cdm_1,testVarRepeats_9,partial,,some description,some syntax,
+testCohort3,test dataset for testCohort3,var10,,,testNetwork1_CDM,cdm_1,testVarRepeats_10,na,,some description,,
+testCohort3,test dataset for testCohort3,var11,,,testNetwork1_CDM,cdm_1,testVarNoRepeats,partial,,some description,some syntax,
+testCohort4,test dataset for testCohort4,var1,,,testNetwork1_CDM,cdm_1,testVarRepeats_1,complete,,some description,some syntax,
+testCohort4,test dataset for testCohort4,var2,,,testNetwork1_CDM,cdm_1,testVarRepeats_2,partial,,some description,some syntax,
+testCohort4,test dataset for testCohort4,var3,,,testNetwork1_CDM,cdm_1,testVarRepeats_3,partial,,some description,some syntax,
+testCohort4,test dataset for testCohort4,var4,,,testNetwork1_CDM,cdm_1,testVarRepeats_4,partial,,some description,some syntax,
+testCohort4,test dataset for testCohort4,var5,,,testNetwork1_CDM,cdm_1,testVarRepeats_5,partial,,some description,some syntax,
+testCohort4,test dataset for testCohort4,var6,,,testNetwork1_CDM,cdm_1,testVarRepeats_6,complete,,some description,some syntax,
+testCohort4,test dataset for testCohort4,var7,,,testNetwork1_CDM,cdm_1,testVarRepeats_7,partial,,some description,some syntax,
+testCohort4,test dataset for testCohort4,var8,,,testNetwork1_CDM,cdm_1,testVarRepeats_8,complete,,some description,some syntax,
+testCohort4,test dataset for testCohort4,var9,,,testNetwork1_CDM,cdm_1,testVarRepeats_9,partial,,some description,some syntax,
+testCohort4,test dataset for testCohort4,var10,,,testNetwork1_CDM,cdm_1,testVarRepeats_10,na,,some description,,
+testCohort4,test dataset for testCohort4,var11,,,testNetwork1_CDM,cdm_1,testVarNoRepeats,partial,,some description,some syntax,

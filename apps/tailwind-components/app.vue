@@ -34,6 +34,9 @@ useHead({
                   <NuxtLink class="hover:underline" to="/">Home</NuxtLink>
                 </li>
                 <li class="py-2">
+                  <NuxtLink class="hover:underline" to="/Banner.story">Banner</NuxtLink>
+                </li>
+                <li class="py-2">
                   <NuxtLink class="hover:underline" to="/Comp1.story">Comp 1</NuxtLink>
                 </li>
                 <li class="py-2">

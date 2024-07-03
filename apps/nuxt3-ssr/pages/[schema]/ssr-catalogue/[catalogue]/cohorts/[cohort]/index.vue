@@ -2,6 +2,7 @@
 import { gql } from "graphql-request";
 import subcohortsQuery from "~~/gql/subcohorts";
 import collectionEventsQuery from "~~/gql/collectionEvents";
+import publicationsQuery from "~~/gql/publications";
 import datasetQuery from "~~/gql/datasets";
 import ontologyFragment from "~~/gql/fragments/ontology";
 import fileFragment from "~~/gql/fragments/file";
@@ -11,6 +12,7 @@ import type {
   IMgError,
   IOntologyItem,
   IOrganisation,
+  IPublication,
   linkTarget,
 } from "~/interfaces/types";
 import dateUtils from "~/utils/dateUtils";
@@ -119,6 +121,11 @@ const query = gql`
         website
         logo ${moduleToString(fileFragment)}
       }
+      publications(orderby: {title:ASC}) {
+        doi
+        title
+        year
+      }
       collectionEvents {
         name
         description
@@ -186,6 +193,9 @@ const query = gql`
     Subcohorts_agg(filter: { resource: { id: { equals: [$id] } } }) {
       count
     }
+    Publications_agg(filter: { resources: { id: { equals: [$id] } } }) {
+      count
+    }
   }
 `;
 const variables = { id: route.params.cohort };
@@ -194,6 +204,7 @@ interface IResponse {
     Cohorts: ICohort[];
     Subcohorts: any[];
     CollectionEvents_agg: { count: number };
+    Publications_agg: { count: number };
     Subcohorts_agg: { count: number };
   };
 }
@@ -235,6 +246,10 @@ const collectionEventCount = computed(
 );
 const subcohortCount = computed(() => data.value?.data?.Subcohorts_agg?.count);
 
+const publicationsCount = computed(
+  () => data.value?.data?.Publications_agg?.count
+);
+
 function collectionEventMapper(item: any) {
   return {
     id: item.name,
@@ -272,6 +287,16 @@ function subcohortMapper(subcohort: any) {
     numberOfParticipants: subcohort.numberOfParticipants,
     _renderComponent: "SubCohortDisplay",
     _path: `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/cohorts/${route.params.cohort}/subcohorts/${subcohort.name}`,
+  };
+}
+
+function publicationMapper(publication: IPublication) {
+  return {
+    id: publication.doi,
+    doi: publication.doi,
+    title: publication.title,
+    year: publication.year,
+    _renderComponent: "PublicationDisplay",
   };
 }
 
@@ -318,6 +343,10 @@ let tocItems = computed(() => {
 
   if (cohort.value.networks) {
     tableOffContents.push({ label: "Networks", id: "Networks" });
+  }
+
+  if (cohort.value.publications) {
+    tableOffContents.push({ label: "Publications", id: "publications" });
   }
 
   if (
@@ -764,9 +793,17 @@ const activeOrganization = computed(() => {
           v-if="cohort?.networks"
           id="Networks"
           title="Networks"
-          description="List of networks which this cohort is involved in"
+          description="List of networks in which this cohort is involved"
           :networks="cohort?.networks"
         />
+
+        <ContentBlockPublications
+          v-if="cohort?.publications"
+          id="publications"
+          title="Publications"
+          :publications="cohort.publications"
+        >
+        </ContentBlockPublications>
 
         <ContentBlock
           id="access-conditions"
