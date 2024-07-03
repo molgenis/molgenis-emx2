@@ -123,16 +123,25 @@ const { data, error } = await useAsyncData<any, IMgError>(
 
     const variablesFilter = scoped
       ? {
-          resource: {
-            mg_tableclass: { like: ["Models"] },
-            id: {
-              equals: models.data.Networks[0].models
-                ? models.data.Networks[0].models.map(
-                    (m: { id: string }) => m.id
-                  )
-                : "no models match so no results expected",
+          _or: [
+            {
+              resource: {
+                mg_tableclass: { like: ["Models"] },
+                id: {
+                  equals: models.data.Networks[0].models
+                    ? models.data.Networks[0].models.map(
+                        (m: { id: string }) => m.id
+                      )
+                    : "no models match so no results expected",
+                },
+              },
             },
-          },
+            {
+              networkVariables: {
+                network: { id: { equals: catalogueRouteParam } },
+              },
+            },
+          ],
         }
       : {
           resource: {
