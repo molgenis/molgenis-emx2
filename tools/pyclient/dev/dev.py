@@ -37,10 +37,14 @@ async def main():
     token = os.environ.get('MG_TOKEN')
 
     async with Client('https://emx2.dev.molgenis.org/', schema='catalogue') as client:
-        data = client.get(table='Variable values',
+        var_values = client.get(table='Variable values',
                           query_filter='`is missing` == False and resource == ATHLETE_CDM', as_df=True)
 
-        print(data.head())
+        print(var_values.head().to_string())
+
+        big_data = client.get(table='Subcohorts',
+                              query_filter='`number of participants` > 10000', as_df=True)
+        print(big_data.head().to_string())
 
     # Connect to the server and sign in
     async with Client('https://emx2.dev.molgenis.org/', token=token) as client:
