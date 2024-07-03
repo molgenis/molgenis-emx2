@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "floating-vue": "5.2.2",
-    "vue": "3.4.26",
+    "vue": "3.4.31",
     "vue-router": "4.2.5"
   },
   "devDependencies": {
@@ -27,7 +27,6 @@
     "cross-env": "7.0.3",
     "happy-dom": "13.8.6",
     "if-env": "1.0.4",
-    "nuxt": "3.11.2",
     "playwright-core": "1.45.0",
     "prettier": "2.8.8",
     "svgo": "2.8.0",
