@@ -628,6 +628,8 @@ class Client:
         match col.get('columnType'):
             case 'INT':
                 val = int(_val)
+            case 'DECIMAL':
+                val = float(_val)
             case _:
                 raise NotImplementedError(f"Cannot perform filter '>' on column with type {col.get('columnType')}.")
 
@@ -647,6 +649,8 @@ class Client:
         match col.get('columnType'):
             case 'INT':
                 val = int(_val)
+            case 'DECIMAL':
+                val = float(_val)
             case _:
                 raise NotImplementedError(f"Cannot perform filter '>' on column with type {col.get('columnType')}.")
 

@@ -43,7 +43,8 @@ async def main():
         print(var_values.head().to_string())
 
         big_data = client.get(table='Subcohorts',
-                              query_filter='`number of participants` > 10000', as_df=True)
+                              query_filter='`number of participants` > 10000 '
+                                           'and `number of participants` < 20000', as_df=True)
         print(big_data.head().to_string())
 
     # Connect to the server and sign in
@@ -89,7 +90,7 @@ async def main():
 
         # Retrieving filtered data from table Order as pandas DataFrame
         # Filter on 'complete == true' only
-        data = client.get(table='Order', query_filter="complete == true", as_df=True)
+        data = client.get(table='Order', query_filter="price > 9", as_df=True)
         print(data)
 
         # Filter on 'complete == true' and 'status == delivered'
