@@ -6,6 +6,7 @@ import com.schibsted.spt.data.jslt.Expression;
 import com.schibsted.spt.data.jslt.Parser;
 import graphql.ExecutionResult;
 import graphql.GraphQL;
+import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.beaconv2.QueryBuilder;
@@ -29,7 +30,9 @@ public class Info {
   }
 
   private JsonNode getEndpointInfo(Schema schema) {
-    if (schema == null) return null; // todo: get global info or schema only?
+    if (schema == null) {
+      throw new MolgenisException("Informational endpoint is only available on schema level");
+    }
     if (schema.getTable(ENDPOINT_TABLE) == null) return null;
 
     Table table = schema.getTable(ENDPOINT_TABLE);
