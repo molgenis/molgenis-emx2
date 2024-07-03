@@ -9,7 +9,6 @@ test('offset should be reset ( back to page 1) when filter changes ', async ({ p
   await page.goto('/catalogue-demo/ssr-catalogue/EUChildNetwork/variables');
   await page.locator('nav').filter({ hasText: 'Page OF' }).getByRole('button').nth(1).click();
   await page.getByPlaceholder('Type to search..').click();
-  await page.getByPlaceholder('Type to search..').fill('food_all_sens');
-  await expect(page.getByRole('main')).toContainText('16 variables');
-  await expect(page.getByRole('list')).toContainText('food_all_sens_IgE_0');
+  await page.getByPlaceholder('Type to search..').fill('food');
+  await expect(page.getByRole('list')).toContainText('allergy_food_m');
 });

@@ -21,7 +21,7 @@ orbs:
 definitions:
   build_config: &build_config
     docker:
-    - image: molgenis/ci-build:1.2.3
+    - image: molgenis/ci-build:1.2.4
     working_directory: ~/repo
     resource_class: large
     environment:
@@ -30,7 +30,7 @@ definitions:
       TERM: dumb
   test_config: &test_config
     docker:
-    - image: molgenis/ci-build:1.2.3
+    - image: molgenis/ci-build:1.2.4
     - image: postgres:15-alpine
       environment:
         POSTGRES_USER: postgres
@@ -44,7 +44,7 @@ definitions:
       TERM: dumb
   release_config: &release_config
     docker:
-      - image: molgenis/ci-build:1.2.3
+      - image: molgenis/ci-build:1.2.4
       - image: postgres:15-alpine
         environment:
           POSTGRES_USER: postgres
@@ -246,7 +246,7 @@ jobs:
     - post_steps
   e2e-test:
     docker:
-      - image: mcr.microsoft.com/playwright:v1.44.0-jammy
+      - image: mcr.microsoft.com/playwright:v1.45.1-jammy
     steps:
       - checkout
       - run: npm i -D @playwright/test

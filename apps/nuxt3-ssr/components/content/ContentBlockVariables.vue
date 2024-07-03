@@ -13,7 +13,7 @@ defineProps({
   <ContentBlock :title="title" :description="description">
     <ButtonGroup>
       <Button label="All 299 variables" type="tertiary" size="medium" />
-      <Button label="Harmonized variables" type="outline" size="medium" />
+      <Button label="Harmonised variables" type="outline" size="medium" />
     </ButtonGroup>
 
     <DisplayList
