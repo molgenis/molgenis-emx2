@@ -587,8 +587,10 @@ class Client:
         for stmt in statements:
             if '==' in stmt:
                 _filter.update(**self.__prepare_equals_filter(stmt, _table, _schema))
-            if '>' in stmt:
+            elif '>' in stmt:
                 _filter.update(**self.__prepare_greater_filter(stmt, _table, _schema))
+            elif '<' in stmt:
+                _filter.update(**self.__prepare_smaller_filter(stmt, _table, _schema))
         return "?filter=" + json.dumps(_filter)
 
     def __prepare_equals_filter(self, stmt: str, _table: str, _schema: str) -> dict:
@@ -614,6 +616,7 @@ class Client:
 
     def __prepare_greater_filter(self, stmt: str, _table: str, _schema: str) -> dict:
         """Prepares the filter part if the statement filters on greater than."""
+        stmt.replace('=', '')
         _col = stmt.split('>')[0].strip()
         _val = stmt.split('>')[1].strip()
 
@@ -629,6 +632,25 @@ class Client:
                 raise NotImplementedError(f"Cannot perform filter '>' on column with type {col.get('columnType')}.")
 
         return {col.id: {"between": [val, None]}}
+
+    def __prepare_smaller_filter(self, stmt: str, _table: str, _schema: str) -> dict:
+        """Prepares the filter part if the statement filters on greater than."""
+        stmt.replace('=', '')
+        _col = stmt.split('<')[0].strip()
+        _val = stmt.split('<')[1].strip()
+
+        col_name = ''.join(_col.split('`'))
+
+        schema = self.get_schema_metadata(_schema)
+        col = schema.get_table(by='name', value=_table).get_column(by='name', value=col_name)
+
+        match col.get('columnType'):
+            case 'INT':
+                val = int(_val)
+            case _:
+                raise NotImplementedError(f"Cannot perform filter '>' on column with type {col.get('columnType')}.")
+
+        return {col.id: {"between": [None, val]}}
 
 
     @staticmethod
