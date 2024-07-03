@@ -106,6 +106,21 @@ public class TestFullTextSearch {
     // would exclude approved order
     assertTrue(!json.contains("approved"));
 
+    // test term1 AND term2
+    json = schema.query("Pet").where(f(Operator.TEXT_SEARCH, "red", "green")).retrieveJSON();
+    // would be spike and fire ant
+    assertTrue(json.contains("spike"));
+    assertTrue(json.contains("fire ant"));
+    assertTrue(!json.contains("tweety"));
+
+    json =
+        schema
+            .query("Order")
+            .where(f("pet", f(Operator.TEXT_SEARCH, "red", "green")))
+            .retrieveJSON();
+    // would be only spike
+    assertTrue(json.contains("spike"));
+
     // nesting example 2
     json =
         schema

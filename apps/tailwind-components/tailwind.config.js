@@ -227,6 +227,9 @@ module.exports = {
       opacity: {
         "background-gradient": "var(--opacity-background-gradient)",
       },
+      outlineColor: {
+        "select": "var(--outline-color-select)",
+      }
     },
   },
   plugins: ["@tailwindcss/typography", "@tailwindcss/forms"],
