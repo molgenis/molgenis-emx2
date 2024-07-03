@@ -266,7 +266,7 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
         title="Variables"
         :description="
           getSettingValue('CATALOGUE_LANDING_VARIABLES_TEXT', settings) ||
-          'Harmonized variables'
+          'Harmonised variables'
         "
         :count="data.data.Variables_agg.count"
         :callToAction="
