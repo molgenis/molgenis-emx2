@@ -33,7 +33,7 @@ export default {
       }
     },
     emitIfValid(strValue: string) {
-      const periodValue = strValue.replace(",", ".");
+      const periodValue = strValue.replace(",", "");
       const value = parseFloat(periodValue);
       if (!isNaN(value)) {
         this.$emit("update:modelValue", value);
