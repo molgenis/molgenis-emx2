@@ -272,8 +272,20 @@ const fetchData = async () => {
   const variables = scoped
     ? {
         variablesFilter: {
-          ...filter.value,
-          ...(await buildScopedModelFilter()),
+          _or: [
+            {
+              ...filter.value,
+              ...(await buildScopedModelFilter()),
+            },
+            {
+              ...filter.value,
+              ...{
+                networkVariables: {
+                  network: { id: { equals: catalogueRouteParam } },
+                },
+              },
+            },
+          ],
         },
         cohortsFilter,
       }

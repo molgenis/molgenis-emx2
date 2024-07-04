@@ -1,31 +1,47 @@
 package org.molgenis.emx2.beaconv2.endpoints;
 
-import static org.molgenis.emx2.rdf.RDFUtils.extractHost;
-
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.schibsted.spt.data.jslt.Expression;
 import com.schibsted.spt.data.jslt.Parser;
-import org.molgenis.emx2.beaconv2.BeaconSpec;
-import spark.Request;
-import spark.Response;
+import graphql.ExecutionResult;
+import graphql.GraphQL;
+import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.Table;
+import org.molgenis.emx2.beaconv2.QueryBuilder;
+import org.molgenis.emx2.graphql.GraphqlApiFactory;
 
-@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class Info {
 
-  private String host;
-  private BeaconSpec spec;
+  public static final String ENDPOINT_TABLE = "Endpoint";
+  public static final String JSLT_PATH = "informational/info.jslt";
 
-  public Info() {}
+  private final Schema schema;
 
-  @JsonIgnore
-  public JsonNode getResponse(Request request, Response response) {
-    this.host = extractHost(request.url());
-    this.spec = BeaconSpec.findByPath(request.attribute("specification"));
-    String jsltPath = "informational/info.jslt";
-    Expression jslt = Parser.compileResource(jsltPath);
-    return jslt.apply(new ObjectMapper().valueToTree(this));
+  public Info(Schema schema) {
+    this.schema = schema;
+  }
+
+  public JsonNode getResponse() {
+    JsonNode info = getEndpointInfo(schema);
+    Expression jslt = Parser.compileResource(JSLT_PATH);
+    return jslt.apply(info);
+  }
+
+  private JsonNode getEndpointInfo(Schema schema) {
+    if (schema == null) {
+      throw new MolgenisException("Informational endpoint is only available on schema level");
+    }
+    if (schema.getTable(ENDPOINT_TABLE) == null) return null;
+
+    Table table = schema.getTable(ENDPOINT_TABLE);
+
+    QueryBuilder queryBuilder = new QueryBuilder(table).addAllColumns(2);
+    GraphQL graphQL = new GraphqlApiFactory().createGraphqlForSchema(schema);
+    ExecutionResult result = graphQL.execute(queryBuilder.getQuery());
+
+    ObjectMapper mapper = new ObjectMapper();
+    return mapper.valueToTree(result.getData()).get(ENDPOINT_TABLE).get(0);
   }
 }
