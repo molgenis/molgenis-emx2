@@ -33,8 +33,8 @@ export default {
       }
     },
     emitIfValid(strValue: string) {
-      const periodValue = strValue.replace(",", "");
-      const value = parseFloat(periodValue);
+      const noCommaValue = strValue.replace(",", "");
+      const value = parseFloat(noCommaValue);
       if (!isNaN(value)) {
         this.$emit("update:modelValue", value);
       } else {
