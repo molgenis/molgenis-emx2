@@ -76,10 +76,7 @@ if (!cohortOnly.value) {
       <div class="items-center justify-between hidden xl:flex h-25">
         <Logo
           :link="`/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}`"
-          :image="
-            catalogue?.logo?.url ||
-            '/_nuxt-styles/img/molgenis-logo-blue-small.svg'
-          "
+          :image="catalogueRouteParam === 'all' ? null : catalogue?.logo?.url"
         />
         <MainNavigation :navigation="menu" :invert="true" />
         <!--  <div class="w-[450px]">
@@ -96,7 +93,9 @@ if (!cohortOnly.value) {
           <div class="absolute -translate-x-1/2 left-1/2">
             <LogoMobile
               :link="`/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}`"
-              :image="catalogue?.logo?.url"
+              :image="
+                catalogueRouteParam === 'all' ? null : catalogue?.logo?.url
+              "
             />
           </div>
 
