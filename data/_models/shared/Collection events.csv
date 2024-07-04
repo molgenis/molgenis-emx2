@@ -1,5 +1,5 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,visible
-Collection events,,,,,,,,,,,dct:PeriodOfTime,Definition of a data collection event for a resource,DataCatalogueFlat,
+Collection events,,,,,,,,,,,dct:Dataset,Definition of a data collection event for a resource,DataCatalogueFlat,
 Collection events,,collection,ref,1,true,,Collections,,,,"dct:isPartOf,dct:inSeries",Resource this collection event is part of,DataCatalogueFlat,
 Collection events,,name,,1,true,,,,,,"dct:title,dct:identifier",Name of the collection event,DataCatalogueFlat,
 Collection events,,description,text,,,,,,,,dct:description,Description of the collection event,DataCatalogueFlat,
