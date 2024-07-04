@@ -1,0 +1,14 @@
+[
+  {
+    "id": "bbmri-eric:akiID:BE_invalid_node_code",
+    "name_system": "eucan-connect",
+    "pid": "A-eucan-connect",
+    "url": "https:/eucan-connect.eu/A"
+  },
+  {
+    "id": "bbmri-eric:akiID:NL_001",
+    "name_system": "eucan-connect",
+    "pid": "001-eucan-connect",
+    "url": "https:/eucan-connect.eu/001"
+  }
+]
