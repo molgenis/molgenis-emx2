@@ -8,7 +8,7 @@ defineProps({
 </script>
 
 <template>
-  <SideModal :slideInRight="false" :fullScreen="true">
+  <SideModal :slideInRight="false" :fullScreen="true" type="light">
     <nav class="flex flex-col gap-4 px-6 pb-24 pt-19">
       <a
         v-for="menuItem in navigation"
@@ -48,8 +48,8 @@ defineProps({
     </template>
 
     <template #footer>
-      <HeaderButtonMobile label="Favorites" icon="star" />
-      <HeaderButtonMobile label="Account" icon="user" />
+      <!-- <HeaderButtonMobile label="Favorites" icon="star" />
+      <HeaderButtonMobile label="Account" icon="user" /> -->
     </template>
   </SideModal>
 </template>
