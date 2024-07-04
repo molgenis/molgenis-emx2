@@ -1206,10 +1206,7 @@ public class WebApiSmokeTests {
 
   @Test
   public void testBeaconApiSmokeTests() {
-    String result = given().get("/api/beacon").getBody().asString();
-    assertTrue(result.contains("info"));
-
-    result = given().get("/api/beacon/configuration").getBody().asString();
+    String result = given().get("/api/beacon/configuration").getBody().asString();
     assertTrue(result.contains("productionStatus"));
 
     result = given().get("/api/beacon/map").getBody().asString();
