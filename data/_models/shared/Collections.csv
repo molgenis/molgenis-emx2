@@ -140,7 +140,7 @@ Collections,,quality validation methods,text,,,,,,,,,What methods or processes a
 Collections,,correction methods,text,,,,,,,,,What methods or processes are applied to correct illogical values in the data bank?,DataCatalogueFlat,"['Databank', 'Data source'].includes(collectionType?.name)"
 Collections,,quality validation results,,,,,,,,,,"If available, provide a link to a publication of the data quality check and validation results",DataCatalogueFlat,"['Databank', 'Data source'].includes(collectionType?.name)"
 Collections,,standards,heading,,,,,,,,,Use of standard data models and ontologies,DataCatalogueFlat,"['Databank', 'Data source'].includes(collectionType?.name)"
-Collections,,cdms,refback,,,,Mappings,,source,,,Common data models used or ETL-ed to by this resource,"DataCatalogueFlat,EMA","['Databank', 'Data source', 'Study].includes(collectionType?.name)"
+Collections,,cdms,refback,,,,Mappings,,source,,,Common data models used or ETL-ed to by this resource,"DataCatalogueFlat,EMA","['Databank', 'Data source', 'Study'].includes(collectionType?.name)"
 Collections,,cdms other,text,,,,,,,,,"If not in list above, give the name of cdm(s) used by this data source","DataCatalogueFlat,EMA","['Databank', 'Data source'].includes(collectionType?.name)"
 Collections,,ETL standard vocabularies,ontology_array,,,CatalogueOntologies,Vocabularies,,,,,"Are data mapped to standardised vocabularies during ETL to the CDM? If yes, what vocabularies are used for events, such as diagnoses?",DataCatalogueFlat,['Databank'].includes(collectionType?.name)
 Collections,,ETL standard vocabularies other,text,,,,,,,,,"If other, what other vocabularies are used?",DataCatalogueFlat,['Databank'].includes(collectionType?.name)
