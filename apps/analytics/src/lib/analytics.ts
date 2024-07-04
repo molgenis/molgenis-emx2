@@ -1,4 +1,5 @@
 import { provider, Trigger } from "../types/Trigger";
+import { handleEvent as siteImprove } from "./providers/siteImprove";
 
 function setupAnalytics(schemaName: string, providers: provider[]) {
   fetch(`/${schemaName}/api/trigger`)
@@ -28,7 +29,13 @@ function handleEvent(
   element: Element,
   provider: provider
 ) {
-  console.log("Event triggered", event, trigger, element.tagName, provider);
+  switch (provider) {
+    case "site-improve":
+      siteImprove(event, trigger, element);
+      break;
+    default:
+      console.error(`Provider ${provider} not supported`);
+  }
 }
 
 export { setupAnalytics };
