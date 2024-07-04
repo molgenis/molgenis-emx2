@@ -1,8 +1,13 @@
 <script setup lang="ts">
-defineProps<{
-  title: string;
-  subtitle?: string;
-}>();
+withDefaults(
+  defineProps<{
+    title: string;
+    subtitle?: string;
+    maxWidth?: string;
+    minHeight?: string;
+  }>(),
+  { minHeight: "min-h-full", maxWidth: "max-w-xl" }
+);
 
 const visible = ref(false);
 
@@ -36,7 +41,10 @@ defineExpose({
       tabindex="-1"
     />
 
-    <div class="bg-white w-3/4 relative m-auto h-3/4 rounded-50px max-w-xl">
+    <div
+      class="bg-white w-3/4 relative m-auto rounded-50px"
+      :class="`${maxWidth} ${minHeight}`"
+    >
       <header class="pt-[36px] px-[50px] overflow-y-auto">
         <div class="text-gray-900" v-if="subtitle">{{ subtitle }}</div>
         <h2 v-if="title" class="mb-5 uppercase text-heading-4xl font-display">

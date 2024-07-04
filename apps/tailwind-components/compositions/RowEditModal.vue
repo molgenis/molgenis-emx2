@@ -24,7 +24,13 @@ defineExpose({
 </script>
 
 <template>
-  <Modal ref="modal" :title="`${operation} into ${table}`" subtitle="Subtitle">
+  <Modal
+    ref="modal"
+    :title="`${operation} into ${table}`"
+    subtitle="Subtitle"
+    maxWidth="max-w-7xl"
+    minHeight="min-h-full"
+  >
     <div class="flex">
       <div>
         <p class="pb-2">Forminput here</p>
@@ -33,6 +39,7 @@ defineExpose({
         <p>Side bar</p>
       </div>
     </div>
+
     <div class="flex flex-wrap gap-5">
       <button
         @click="close"
