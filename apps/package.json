@@ -29,5 +29,8 @@
     "aggregation-dashboard",
     "imdhub-public",
     "analytics"
-  ]
+  ],
+  "devDependencies": {
+    "nuxt": "3.12.2"
+  }
 }
