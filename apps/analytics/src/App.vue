@@ -3,7 +3,7 @@ import { Ref, ref } from "vue";
 import { setupAnalytics } from "./lib/analytics";
 import { Trigger } from "./types/Trigger";
 
-setupAnalytics("catalogue");
+setupAnalytics("catalogue", ["site-improve"]);
 
 const schemaName = ref("catalogue");
 

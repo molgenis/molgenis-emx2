@@ -4,3 +4,5 @@ export interface Trigger {
   schemaName: string;
   appName?: string;
 }
+
+export type provider = "site-improve";
