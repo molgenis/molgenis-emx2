@@ -13,6 +13,8 @@ Currently we have as standard roles:
 * **range** - context: schema: Has permission to count table rows, with a step-size of 10 (e.g. 10,20..120,130 etc.), and to view ontology data
 * **exists** - context: schema: Has permission to see if data exists given certain filters, and to view ontology data
 
+N.B. roles 'count', 'range' and 'exists' currently only have effect on graphql and beacon APIs. User interface for table viewing should use manager, editor, viewer, or aggregator.
+
 ## Users can get roles in a schema
 
 Access to databases is controlled by providing roles to users. A user with a role we call a 'member' of a
