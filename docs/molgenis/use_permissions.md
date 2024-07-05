@@ -8,12 +8,14 @@ Currently we have as standard roles:
   columns (i.e. change the schema)
 * **editor** - context: schema. Has permission to insert, update, delete rows in tables. Can NOT change schema.
 * **viewer** - context: schema. Has permission to view data.
-* **count** - context: schema. Has permission to count table rows, and to view ontology data
 * **aggregator** - context: schema. Has permission to count table rows (unless <10), and to view ontology data
+
+In addition we have special roles to allow for specific permissions around aggregation which currently only have effect on graphql and beacon APIs"
+
+* **count** - context: schema. Has permission to count table rows, and to view ontology data
 * **range** - context: schema: Has permission to count table rows, with a step-size of 10 (e.g. 10,20..120,130 etc.), and to view ontology data
 * **exists** - context: schema: Has permission to see if data exists given certain filters, and to view ontology data
 
-N.B. roles 'count', 'range' and 'exists' currently only have effect on graphql and beacon APIs. User interface for table viewing should use manager, editor, viewer, or aggregator.
 
 ## Users can get roles in a schema
 
