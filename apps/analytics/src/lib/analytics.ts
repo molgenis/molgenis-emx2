@@ -1,14 +1,32 @@
-import { provider, Trigger } from "../types/Trigger";
-import { handleEvent as siteImprove } from "./providers/siteImprove";
+import { Provider, siteImproveOptions } from "../types/Provider";
+import { Trigger } from "../types/Trigger";
+import {
+  handleEvent as siteImprove,
+  initialize as siteImproveInit,
+} from "./providers/siteImprove";
 
-function setupAnalytics(schemaName: string, providers: provider[]) {
+function setupAnalytics(schemaName: string, providers: Provider[]) {
+  for (let provider of providers) {
+    switch (
+      provider.id // todo explore fancy dynamic import instaed of switch
+    ) {
+      case "site-improve":
+        siteImproveInit(provider.options as siteImproveOptions);
+        break;
+      default:
+        console.error(`Provider ${provider} not supported`);
+    }
+  }
+
   fetch(`/${schemaName}/api/trigger`)
     .then((response) => {
       response.json().then((data) => {
         data.forEach((trigger: Trigger) => {
           const elements = document.querySelectorAll(trigger.cssSelector);
           elements.forEach((element) => {
-            console.log(`Setting up trigger for ${trigger.name}`);
+            console.log(
+              `add trigger for ${trigger.name} to ${element.nodeName}`
+            );
             element.addEventListener("click", (e) => {
               for (let provider of providers) {
                 handleEvent(e, trigger, element, provider);
@@ -27,14 +45,14 @@ function handleEvent(
   event: Event,
   trigger: Trigger,
   element: Element,
-  provider: provider
+  provider: Provider
 ) {
-  switch (provider) {
+  switch (provider.id) {
     case "site-improve":
       siteImprove(event, trigger, element);
       break;
     default:
-      console.error(`Provider ${provider} not supported`);
+      console.error(`Provider ${provider.id} not supported`);
   }
 }
 

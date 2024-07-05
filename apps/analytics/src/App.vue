@@ -3,7 +3,9 @@ import { Ref, ref } from "vue";
 import { setupAnalytics } from "./lib/analytics";
 import { Trigger } from "./types/Trigger";
 
-setupAnalytics("catalogue", ["site-improve"]);
+const analyticsKey = ref("1234");
+
+// setupAnalytics("catalogue", [{ id: "site-improve", options: { analyticsKey: analyticsKey.value } }]);
 
 const schemaName = ref("catalogue");
 
@@ -49,7 +51,14 @@ function addTrigger() {
 }
 
 function testBtnClicked() {
-  alert("Test button clicked");
+  console.log("Test button clicked");
+}
+
+function reRunSetup() {
+  console.log("reRunSetup");
+  setupAnalytics("catalogue", [
+    { id: "site-improve", options: { analyticsKey: analyticsKey.value } },
+  ]);
 }
 </script>
 
@@ -57,7 +66,15 @@ function testBtnClicked() {
   <h1>Analytics</h1>
 
   <div id="page">
-    <div id="add-container">
+    <div class="container">
+      <h2>Config</h2>
+      <label for="id">Analytics key</label>
+      <input id="id" v-model="analyticsKey" placeholder="event identifier" />
+
+      <button @click="reRunSetup">(re) run setup</button>
+      {{ analyticsKey }}
+    </div>
+    <div class="container">
       <h2>Add Trigger</h2>
       <label for="id">Event id</label>
       <input id="id" v-model="triggerName" placeholder="event identifier" />
@@ -72,7 +89,7 @@ function testBtnClicked() {
       {{ addTriggerError }}
     </div>
 
-    <div id="list-container">
+    <div class="container">
       <h2>Triggers for {{ schemaName }}</h2>
       <ul>
         <li v-if="!triggers.length">No trigger setup</li>
@@ -130,7 +147,7 @@ input {
     padding-left: 0;
   }
 
-  #add-container {
+  .container {
     display: flex;
     flex-direction: column;
     border: 1px solid black;
