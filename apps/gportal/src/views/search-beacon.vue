@@ -29,7 +29,7 @@
               <InputRefList
                 id="GenderAtBirth"
                 tableId="GenderAtBirth"
-                v-model="genderFilters" 
+                v-model="genderFilters"
                 refLabel="${name}"
                 @optionsLoaded="genderData = $event"
               />
@@ -145,7 +145,7 @@ async function queryBeacon() {
       beaconResult.value = transformBeaconResultSets(resultSets);
     })
     .catch((err) => {
-      error.value = `${err.message} (${err.code})` 
+      error.value = `${err.message} (${err.code})`;
     })
     .finally(() => (loading.value = false));
 }
