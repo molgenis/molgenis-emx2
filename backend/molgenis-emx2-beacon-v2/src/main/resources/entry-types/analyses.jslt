@@ -1,6 +1,7 @@
 import "meta.jslt" as meta
 import "response_summary.jslt" as responseSummary
 import "ontology.jslt" as ontology
+import "range.jslt" as range
 {
     "meta": meta(.),
     "responseSummary": responseSummary(.),
@@ -13,6 +14,7 @@ import "ontology.jslt" as ontology
                 "setType": "analyses",
                 "exists": true,
                 "resultsCount": .count,
+                "info": range(.),
                 "results":
                 [for (.results) {
                     "id": .id,

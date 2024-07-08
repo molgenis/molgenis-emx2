@@ -1,44 +1,34 @@
 package org.molgenis.emx2.beaconv2.filter;
 
-import java.util.List;
+import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.beaconv2.requests.BeaconQuery;
 
-public class RegularFilterParser implements FilterParser {
+public class RegularFilterParser extends FilterParserVP {
 
-  public RegularFilterParser(List<Filter> filters) {
-    this.filters = filters;
+  public RegularFilterParser(BeaconQuery beaconQuery) {
+    super(beaconQuery);
   }
-
-  private final List<Filter> filters;
 
   @Override
   public FilterParser parse() {
-    for (Filter filter : filters) {}
+    for (Filter filter : beaconQuery.getFilters()) {
+      if (!super.isValidFormat(filter)) {
+        throw new MolgenisException("Invalid filter in query: " + filter);
+      }
 
+      filter.setFilterType(FilterType.UNDEFINED);
+      if (isIdSearch(filter)) {
+        super.createOntologyFiltersFromIds(filter);
+      } else {
+        String id = filter.getIds()[0];
+        if (FilterConceptVP.hasId(id)) {
+          FilterConceptVP searchConcept = FilterConceptVP.findById(id);
+          super.processConcept(filter, searchConcept);
+        } else {
+          graphQlFilters.add(filter);
+        }
+      }
+    }
     return this;
-  }
-
-  @Override
-  public List<Filter> getUnsupportedFilters() {
-    return null;
-  }
-
-  @Override
-  public List<String> getWarnings() {
-    return null;
-  }
-
-  @Override
-  public boolean hasWarnings() {
-    return false;
-  }
-
-  @Override
-  public List<Filter> getPostFetchFilters() {
-    return List.of();
-  }
-
-  @Override
-  public List<String> getGraphQlFilters() {
-    return List.of();
   }
 }

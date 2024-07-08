@@ -5773,7 +5773,7 @@ export const catalogueMetadata: ISchemaMetaData = {
             "${source.id}.${sourceDataset.name}.${target.id}.${targetDataset.name}",
           refBackId: "targetDataset",
           description:
-            "source datasets that have been mapped to this harmonized dataset",
+            "source datasets that have been mapped to this harmonised dataset",
           position: 318,
         },
         {
@@ -8286,7 +8286,7 @@ export const catalogueMetadata: ISchemaMetaData = {
           refSchemaId: "CatalogueOntologies",
           refLabelDefault: "${name}",
           description:
-            "Mapping from collected datasets to standard/harmonized datasets, optionally including ETL syntaxes",
+            "Mapping from collected datasets to standard/harmonised datasets, optionally including ETL syntaxes",
           position: 355,
         },
         {

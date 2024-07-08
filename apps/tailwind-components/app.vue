@@ -34,28 +34,40 @@ useHead({
                   <NuxtLink class="hover:underline" to="/">Home</NuxtLink>
                 </li>
                 <li class="py-2">
-                  <NuxtLink class="hover:underline" to="Comp1.story">Comp 1</NuxtLink>
+                  <NuxtLink class="hover:underline" to="/Banner.story">Banner</NuxtLink>
                 </li>
                 <li class="py-2">
-                  <NuxtLink class="hover:underline" to="CustomTooltip.story">Custom tooltip</NuxtLink>
+                  <NuxtLink class="hover:underline" to="/Comp1.story">Comp 1</NuxtLink>
                 </li>
                 <li class="py-2">
-                  <NuxtLink class="hover:underline" to="DisplayList.story">Display list</NuxtLink>
+                  <NuxtLink class="hover:underline" to="/CustomTooltip.story">Custom tooltip</NuxtLink>
                 </li>
                 <li class="py-2">
-                  <NuxtLink class="hover:underline" to="InputTree.story">Input tree</NuxtLink>
+                  <NuxtLink class="hover:underline" to="/DisplayList.story">Display list</NuxtLink>
                 </li>
                 <li class="py-2">
-                  <NuxtLink class="hover:underline" to="InputList.story">Input list</NuxtLink>
+                  <NuxtLink class="hover:underline" to="/input/List.story">Input list</NuxtLink>
                 </li>
                 <li class="py-2">
-                  <NuxtLink class="hover:underline" to="Modal.story">Modal</NuxtLink>
+                  <NuxtLink class="hover:underline" to="/input/Select.story">Input select</NuxtLink>
                 </li>
                 <li class="py-2">
-                  <NuxtLink class="hover:underline" to="FilterSearch.story">Filer search</NuxtLink>
+                  <NuxtLink class="hover:underline" to="/input/String.story">Input string</NuxtLink>
                 </li>
                 <li class="py-2">
-                  <NuxtLink class="hover:underline" to="Icons.story">Icons</NuxtLink>
+                  <NuxtLink class="hover:underline" to="/input/TextArea.story">Input text area</NuxtLink>
+                </li>
+                <li class="py-2">
+                  <NuxtLink class="hover:underline" to="/input/Tree.story">Input tree</NuxtLink>
+                </li>
+                <li class="py-2">
+                  <NuxtLink class="hover:underline" to="/Modal.story">Modal</NuxtLink>
+                </li>
+                <li class="py-2">
+                  <NuxtLink class="hover:underline" to="/FilterSearch.story">Filer search</NuxtLink>
+                </li>
+                <li class="py-2">
+                  <NuxtLink class="hover:underline" to="/Icons.story">Icons</NuxtLink>
                 </li>
               </ul>
 
