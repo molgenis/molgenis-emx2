@@ -30,7 +30,7 @@ export function filterData(
             return row[attrib];
           }
         })
-        .join(":");
+        .join("_");
     });
 }
 
