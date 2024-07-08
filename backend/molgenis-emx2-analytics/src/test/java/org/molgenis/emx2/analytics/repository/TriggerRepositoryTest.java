@@ -3,7 +3,7 @@ package org.molgenis.emx2.analytics.repository;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Collections;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
@@ -15,12 +15,15 @@ import org.molgenis.emx2.sql.TestDatabaseFactory;
 @Tag("slow")
 class TriggerRepositoryTest {
 
-  Database database;
-  Schema testTriggerRepo;
-  TriggerRepository triggerRepository;
+  static Database database;
+  static Schema testTriggerRepo;
+  static TriggerRepository triggerRepository;
 
-  @BeforeEach
-  void setUp() {
+  @BeforeAll
+  static void setUp() {
+    database = new SqlDatabase(true);
+    database.setActiveUser(database.getAdminUserName());
+
     database = TestDatabaseFactory.getTestDatabase();
     testTriggerRepo =
         database.hasSchema("testTriggerRepo")
