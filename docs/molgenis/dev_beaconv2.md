@@ -9,11 +9,11 @@ The easiest way to enable Beacon v2 in MOLGENIS EMX2 is by choosing 'FAIR_DATA_H
 This will add a number of tables that define the content of your Beacon v2, for example [Analyses](https://github.com/molgenis/molgenis-emx2/blob/master/data/fairdatahub/beaconv2/demodata/Analyses.csv) and [Biosamples](https://github.com/molgenis/molgenis-emx2/blob/master/data/fairdatahub/beaconv2/demodata/Biosamples.csv).
 Using the 'FAIR_DATA_HUB' template including the example data will result in an instantly working Beacon v2 API.
 The example data can be used as a reference on how to enter data into the system, but can be safely removed or replaced.
-After setup, the API is available at `<server>/api/beacon`.
-For instance, if your MOLGENIS runs at `https://emx2.test.molgenis.org`, the Beacon v2 API is located at `https://emx2.test.molgenis.org/api/beacon`.
+After setup, the API is available at `<server>/<database>/api/beacon`.
+For instance, if your MOLGENIS runs at `https://emx2.test.molgenis.org` and your database name is `fdp` the Beacon v2 API is located at `https://emx2.test.molgenis.org/fdp/api/beacon`.
 
 ### Endpoints
-Starting from the root of the API, `<server>/api/beacon`, a number of endpoints are available.
+Starting from the root of the API, `<server>/<database>/api/beacon`, a number of endpoints are available.
 Essentially, there are two types of endpoints:
 - Endpoints part of the Beacon v2 [framework](https://docs.genomebeacons.org/framework/), such as `<server>/api/beacon/map`, and
 - Endpoints part of the Beacon v2 [models](https://docs.genomebeacons.org/models/), such as `<server>/api/beacon/individuals`.
@@ -24,7 +24,7 @@ Framework endpoints for which GET requests are implemented are:
 - `/map` returns a map (like a web sitemap) of the different endpoints implemented in this Beacon instance.
 - `/entry_types` returns the section of the configuration that describes the entry types in this Beacon.
 
-Model endpoints for which record-level GET requests are implemented are:
+Model endpoints for which record-level GET and POST requests are implemented are:
 - `/analyses` for entry type [Analyses](https://docs.genomebeacons.org/schemas-md/analyses_defaultSchema/). Data is retrieved from the _Analyses_ table.
 - `/biosamples` for entry type [Biosamples](https://docs.genomebeacons.org/schemas-md/biosamples_defaultSchema/). Data is retrieved from the _Biosamples_ table.
 - `/cohorts` for entry type [Cohorts](https://docs.genomebeacons.org/schemas-md/cohorts_defaultSchema/). Data is retrieved from the _Cohorts_ table.
@@ -32,8 +32,6 @@ Model endpoints for which record-level GET requests are implemented are:
 - `/g_variants` for entry type [Genomic Variations](https://docs.genomebeacons.org/schemas-md/genomicVariations_defaultSchema/). Data is retrieved from the _GenomicVariations_ table.
 - `/runs` for entry type [Runs](https://docs.genomebeacons.org/schemas-md/runs_defaultSchema/). Data is retrieved from the _Runs_ table.
 - `/individuals` for entry type [Individuals](https://docs.genomebeacons.org/schemas-md/individuals_defaultSchema/). Data is retrieved from the _Individuals_ table.
-
-Endpoints that are not yet implemented:
 - `/filtering_terms` returns a list of the filtering terms accepted by that Beacon instance.
 
 ### Queries
@@ -43,11 +41,11 @@ The following ones are currently implemented.
 #### ID queries
 Simple identifier-based queries are accepted via GET on the endpoints for Analyses, Biosamples, Cohorts, Individuals and Runs.
 For instance:
-- `<server>/api/beacon/analyses?id=A01`
-- `<server>/api/beacon/biosamples?id=Sample0001`
-- `<server>/api/beacon/cohorts?id=Cohort0001`
-- `<server>/api/beacon/individuals?id=Ind001`
-- `<server>/api/beacon/runs?id=SRR10903401`
+- `<server>/<database>/api/beacon/analyses?id=A01`
+- `<server>/<database>/api/beacon/biosamples?id=Sample0001`
+- `<server>/<database>/api/beacon/cohorts?id=Cohort0001`
+- `<server>/<database>/api/beacon/individuals?id=Ind001`
+- `<server>/<database>/api/beacon/runs?id=SRR10903401`
 
 #### Count queries
 Count queries are accepted as POST requests on the `/individuals` endpoint.
