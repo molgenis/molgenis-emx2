@@ -34,23 +34,43 @@ Model endpoints for which record-level GET and POST requests are implemented are
 - `/individuals` for entry type [Individuals](https://docs.genomebeacons.org/schemas-md/individuals_defaultSchema/). Data is retrieved from the _Individuals_ table.
 - `/filtering_terms` returns a list of the filtering terms accepted by that Beacon instance.
 
+GET request are record requests by default and therefor viewer permission on the data is needed to perform the queries. For post requests a
+
 ### Queries
 The Beacon v2 framework allows for a range of potential queries and filters.
 The following ones are currently implemented.
 
 #### ID queries
 Simple identifier-based queries are accepted via GET on the endpoints for Analyses, Biosamples, Cohorts, Individuals and Runs.
+The identifier can be supplied in the URL path as follows:
+`<server>/<database>/api/beacon/analyses/<id>`
 For instance:
-- `<server>/<database>/api/beacon/analyses?id=A01`
-- `<server>/<database>/api/beacon/biosamples?id=Sample0001`
-- `<server>/<database>/api/beacon/cohorts?id=Cohort0001`
-- `<server>/<database>/api/beacon/individuals?id=Ind001`
-- `<server>/<database>/api/beacon/runs?id=SRR10903401`
+- `<server>/<database>/api/beacon/analyses/A01`
+- `<server>/<database>/api/beacon/biosamples/Sample0001`
+- `<server>/<database>/api/beacon/cohorts/Cohort0001`
+- `<server>/<database>/api/beacon/individuals/Ind001`
+- `<server>/<database>/api/beacon/runs/SRR10903401`
 
-#### Count queries
-Count queries are accepted as POST requests on the `/individuals` endpoint.
-These requests should conform to specifications available [here](https://github.com/ejp-rd-vp/vp-api-specs).
-The response contains the number of individuals that match the supplied filters.
+
+It is also possible to search a model endpoint using an identifier of another entity type.
+For example, to obtain all the runs for individual 'Ind001':
+`<server>/<database>/api/beacon/individuals/Ind001/runs`
+
+List of available links:
+- `/analyses/<analysis-id>`
+- `/analyses/<analysis-id>/g_variants`
+- `/biosamples/<sample-id>`
+- `/biosamples/<sample-id>/analyses`
+- `/biosamples/<sample-id>/g_variants`
+- `/biosamples/<sample-id>/runs`
+- `/individuals/<individual-id>`
+- `/individuals/<individual-id>/analyses`
+- `/individuals/<individual-id>/biosamples`
+- `/individuals/<individual-id>/g_variants`
+- `/individuals/<individual-id>/runs`
+- `/runs/<run-id>`
+- `/runs/<run-id>/analyses`
+- `/runs/<run-id>/g_variants`
 
 #### Genomic queries
 On genomic variation, a number of different genomic queries are accepted via GET on the `/g_variants` endpoint.
@@ -58,6 +78,16 @@ On genomic variation, a number of different genomic queries are accepted via GET
 - Bracket query, [example](https://vkgl-emx2.molgeniscloud.org/api/beacon/g_variants?start=2347952&end=2547955&referenceName=20)
 - Range query, [example](https://vkgl-emx2.molgeniscloud.org/api/beacon/g_variants?start=32953990,32953999&end=32954003,32954015&referenceName=13)
 - Gene query, [example](https://vkgl-emx2.molgeniscloud.org/api/beacon/g_variants?geneId=TERC)
+
+### Aggregate responses
+Beacon offers 3 different response types
+- Record (complete response with the complete beacon model)
+- Count (count the numbers occurrences for a particular model endpoint)
+- Boolean (true/false, does the data exist in a given endpoint)
+
+
+
+
 
 ### Semantics
 All tables and columns of the Beacon v2 [EMX2 model](https://github.com/molgenis/molgenis-emx2/blob/master/data/fairdatahub/beaconv2/molgenis.csv) are coded with ontologies.
@@ -73,17 +103,10 @@ As per Beacon design philosophy, the variables and filter options of this implem
 The API has also been tested with the latest beacon-verifier release, version 0.3.3.
 This version requires sub-levels for the base entry types to be implemented.
 The following sub-levels are currently missing but are planned to be implemented:
-`/analyses/<analysis-id>`
-`/analyses/<analysis-id>/g_variants`
-`/biosamples/<sample-id>`
-`/biosamples/<sample-id>/analyses`
-`/biosamples/<sample-id>/g_variants`
-`/biosamples/<sample-id>/runs`
-`/individuals/<individual-id>`
-`/individuals/<individual-id>/analyses`
-`/individuals/<individual-id>/biosamples`
-`/individuals/<individual-id>/g_variants`
-`/individuals/<individual-id>/runs`
-`/runs/<run-id>`
-`/runs/<run-id>/analyses`
-`/runs/<run-id>/g_variants`
+
+# Beacon VP
+#### Count queries
+Count queries are accepted as POST requests on the `/individuals` endpoint.
+These requests should conform to specifications available [here](https://github.com/ejp-rd-vp/vp-api-specs).
+The response contains the number of individuals that match the supplied filters.
+
