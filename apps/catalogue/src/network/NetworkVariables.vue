@@ -6,11 +6,11 @@
         :to="{ name: 'NetworkCohorts', params: { network: network } }"
         >View {{ network }} cohorts
       </RouterLink>
-      <h1>{{ network }} harmonized variables</h1>
+      <h1>{{ network }} harmonised variables</h1>
       <p>
-        This page lists all variables harmonized in the {{ network }} network.
+        This page lists all variables harmonised in the {{ network }} network.
         You can search and filter variables, and drill down to see their
-        harmonization details.
+        harmonisation details.
       </p>
     </div>
     <div class="bg-white pt-4">
