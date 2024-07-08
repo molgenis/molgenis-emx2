@@ -29,9 +29,8 @@
               <InputRefList
                 id="GenderAtBirth"
                 tableId="GenderAtBirth"
-                v-model="genderFilters"
+                v-model="genderFilters" 
                 refLabel="${name}"
-                :multi-select="true"
                 @optionsLoaded="genderData = $event"
               />
             </Accordion>
@@ -42,7 +41,6 @@
                 tableId="Genes"
                 v-model="geneFilters"
                 refLabel="${name}"
-                :multi-select="true"
                 @optionsLoaded="geneData = $event"
               />
             </Accordion>
@@ -54,7 +52,7 @@
           <MessageBox v-if="error" type="error">
             <p>{{ error }}</p>
           </MessageBox>
-          <div v-if="beaconOutput">
+          <div v-if="!loading && beaconOutput">
             <DataTable
               tableId="beacon-response"
               :data="beaconResult"
@@ -96,18 +94,19 @@ import type { BeaconQueryIF } from "../interfaces";
 import axios from "axios";
 
 const loading = ref<boolean>(false);
+const error = ref<boolean>(false);
 const geneFilters = ref([]);
 const geneData = ref([]); // FIX: will only hold the initial  10 results show on screen
 const genderFilters = ref([]);
 const genderData = ref([]);
 const beaconOutput = ref(null);
 const beaconResult = ref([]);
-const error = false;
 
 const jsQuery = ref<BeaconQueryIF>({ query: { filters: [] } });
 
 function prepareJsQuery() {
-  if (genderFilters.value.length > 0) {
+  jsQuery.value.query.filters = [];
+  if (geneFilters.value.length > 0) {
     const geneCodeFilters = filterData(geneData.value, geneFilters.value, [
       "name",
     ]);
@@ -120,7 +119,7 @@ function prepareJsQuery() {
     }
   }
 
-  if (geneFilters.value.length > 0) {
+  if (genderFilters.value.length > 0) {
     const genderCodeFilters = filterData(
       genderData.value,
       genderFilters.value,
@@ -145,13 +144,15 @@ async function queryBeacon() {
       const resultSets = data.response.resultSets;
       beaconResult.value = transformBeaconResultSets(resultSets);
     })
-    .catch((err) => (error.value = err))
+    .catch((err) => {
+      error.value = `${err.message} (${err.code})` 
+    })
     .finally(() => (loading.value = false));
 }
 
 watch([geneFilters, genderFilters], async () => {
   loading.value = true;
-  await prepareJsQuery();
+  prepareJsQuery();
   await queryBeacon();
 });
 </script>
