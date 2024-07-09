@@ -27438,3 +27438,4 @@ testCohort4,test dataset for testCohort4,var8,,,testNetwork1_CDM,cdm_1,testVarRe
 testCohort4,test dataset for testCohort4,var9,,,testNetwork1_CDM,cdm_1,testVarRepeats_9,partial,,some description,some syntax,
 testCohort4,test dataset for testCohort4,var10,,,testNetwork1_CDM,cdm_1,testVarRepeats_10,na,,some description,,
 testCohort4,test dataset for testCohort4,var11,,,testNetwork1_CDM,cdm_1,testVarNoRepeats,partial,,some description,some syntax,
+testCohort2,test dataset for testCohort2,var2,,,LifeCycle_CDM,core,ga_lmp,complete,final,In original variable was reported in weeks and was recalculated for days,COMPUTE ga_lmp= C6600Q_F12v095 * 7 + 3.5.,
