@@ -13,6 +13,7 @@
       :horizontalPadding="2"
       aria-labelledby="datasets-title"
     >
+      {{ jsQuery.query.filters }}
       <div class="sidebar-layout">
         <aside class="sidebar-menu">
           <h3>Build a query</h3>
@@ -42,6 +43,7 @@
                 v-model="geneFilters"
                 refLabel="${name}"
                 @optionsLoaded="geneData = $event"
+                @update:modelValue="genderFilters = $event"
               />
             </Accordion>
           </form>
@@ -105,21 +107,23 @@ const beaconResult = ref([]);
 const jsQuery = ref<BeaconQueryIF>({ query: { filters: [] } });
 
 function prepareJsQuery() {
-  jsQuery.value.query.filters = [];
   if (geneFilters.value.length > 0) {
-    const geneCodeFilters = filterData(geneData.value, geneFilters.value, [
+    console.log(genderFilters.value);
+    const lastSelectedGene = geneFilters.value[geneFilters.value.length - 1];
+    const geneCodeFilters = filterData(geneData.value, lastSelectedGene, [
       "name",
     ]);
     if (geneCodeFilters.length > 0) {
       jsQuery.value.query.filters.push({
         operator: "=",
-        id: "NCIT:C16612",
-        value: geneCodeFilters,
+        id: "edam:data_2295",
+        value: geneCodeFilters[geneCodeFilters.length - 1],
       });
     }
   }
 
   if (genderFilters.value.length > 0) {
+    const lastSelectedGender = genderFilters.value[genderFilters.length - 1];
     const genderCodeFilters = filterData(
       genderData.value,
       genderFilters.value,
@@ -129,7 +133,7 @@ function prepareJsQuery() {
       jsQuery.value.query.filters.push({
         operator: "=",
         id: "NCIT:C28421",
-        value: genderCodeFilters,
+        value: genderCodeFilters[genderCodeFilters.length - 1],
       });
     }
   }
@@ -151,8 +155,9 @@ async function queryBeacon() {
 }
 
 watch([geneFilters, genderFilters], async () => {
-  loading.value = true;
+  error.value = false;
+  // loading.value = true;
   prepareJsQuery();
-  await queryBeacon();
+  // await queryBeacon();
 });
 </script>

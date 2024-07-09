@@ -16,13 +16,11 @@ const data = filterData(data=myData, filters=myFilters, attribs=['col1','col2'])
 
 export function filterData(
   data: filterDataIF[],
-  filters: string[],
+  filters: object,
   attributes: string[]
 ) {
   return data
-    .filter((row) => {
-      return filters.map((filterItem) => filterItem.name).includes(row.name);
-    })
+    .filter((row) => row.name === filters.name)
     .map((row) => {
       return attributes
         .map((attrib) => {
