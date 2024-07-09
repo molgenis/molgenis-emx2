@@ -13,7 +13,8 @@
       :horizontalPadding="2"
       aria-labelledby="datasets-title"
     >
-      {{ jsQuery.query.filters }}
+      {{ genderFilters }}
+      {{ geneFilters }}
       <div class="sidebar-layout">
         <aside class="sidebar-menu">
           <h3>Build a query</h3>
@@ -43,7 +44,7 @@
                 v-model="geneFilters"
                 refLabel="${name}"
                 @optionsLoaded="geneData = $event"
-                @update:modelValue="genderFilters = $event"
+                @update:modelValue="geneFilters = $event"
               />
             </Accordion>
           </form>
@@ -107,8 +108,9 @@ const beaconResult = ref([]);
 const jsQuery = ref<BeaconQueryIF>({ query: { filters: [] } });
 
 function prepareJsQuery() {
+
   if (geneFilters.value.length > 0) {
-    console.log(genderFilters.value);
+    console.log(geneFilters.value);
     const lastSelectedGene = geneFilters.value[geneFilters.value.length - 1];
     const geneCodeFilters = filterData(geneData.value, lastSelectedGene, [
       "name",
@@ -117,7 +119,7 @@ function prepareJsQuery() {
       jsQuery.value.query.filters.push({
         operator: "=",
         id: "edam:data_2295",
-        value: geneCodeFilters[geneCodeFilters.length - 1],
+        value: geneCodeFilters,
       });
     }
   }
@@ -126,14 +128,14 @@ function prepareJsQuery() {
     const lastSelectedGender = genderFilters.value[genderFilters.length - 1];
     const genderCodeFilters = filterData(
       genderData.value,
-      genderFilters.value,
+      lastSelectedGender,
       ["codesystem", "code"]
     );
     if (genderCodeFilters.length > 0) {
       jsQuery.value.query.filters.push({
         operator: "=",
         id: "NCIT:C28421",
-        value: genderCodeFilters[genderCodeFilters.length - 1],
+        value: genderCodeFilters,
       });
     }
   }
@@ -156,8 +158,9 @@ async function queryBeacon() {
 
 watch([geneFilters, genderFilters], async () => {
   error.value = false;
-  // loading.value = true;
+  loading.value = true;
+  // jsQuery.value.query.filters = []
   prepareJsQuery();
-  // await queryBeacon();
+  await queryBeacon();
 });
 </script>
