@@ -1,195 +1,195 @@
-tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
-Collections,,,,,,,,,,,"dcat:DatasetSeries,dcat:Dataset","Collection of data and/or samples. Use 'collection type' to specify","DataCatalogueFlat,EMA"
-Collections,,overview,heading,,,,,,,,,General information,DataCatalogueFlat
-Collections,,id,,1,true,,,,,,dct:identifier,Internal identifier,"DataCatalogueFlat,EMA"
-Collections,,name,text,3,true,,,,,,dct:title,Name used in European projects,"DataCatalogueFlat,EMA"
-Collections,,type,ontology_array,,,CatalogueOntologies,Collection types FLAT,,,,,,DataCatalogueFlat
-Collections,,type other,,,,,,,,,,"If other, describe the type of collection","DataCatalogueFlat,EMA"
-Collections,,description,text,,,,,,,,dct:description,Short description,"DataCatalogueFlat,EMA"
-Collections,,pid,,2,,,,,,,dct:identifier,Persistent identifier,"DataCatalogueFlat,EMA"
-Collections,,external identifiers,refback,,,,Collection external identifiers,,collection,,,"External identifier(s) for this resource (e.g. EUPASS number, UMCG register number)","DataCatalogueFlat,EMA"
-Collections,,acronym,,,,,,,,,dct:alternative,Acronym if applicable,"DataCatalogueFlat,EMA"
-Collections,,local name,,,,,,,,,rdfs:label,"If different from above, name in the national language",DataCatalogueFlat
-Collections,,date established,date,,,,,,,,,"Date when the data source was first established. If the exact day of the month is not known, please enter 15. If the exact month is not known then please enter 15/06","DataCatalogueFlat,EMA"
-Collections,,start data collection,date,,,,,,,,dcat:startDate,"The date when data started to be collected or extracted. If the exact day of the month is not known, please enter 15. If the exact month is not known then please enter 15/06","DataCatalogueFlat,EMA"
-Collections,,end data collection,date,,,,,,,,dcat:endDate,"If data collection in the data source has ceased, on what date did new records last enter the data source?. If the exact day of the month is not known, please enter 15. If the exact month is not known then please enter 15/06","DataCatalogueFlat,EMA"
-Collections,,keywords,text,,,,,,,,dcat:keyword,Keywords to increase findability of this resource. Try to use words that are not used in the description,DataCatalogueFlat
-Collections,,website,hyperlink,,,,,,,,dcat:landingPage,Link to the website or homepage,"DataCatalogueFlat,EMA"
-Collections,,contact email,,,,,,,,,dcat:contactPoint,Contact e-mail address ,DataCatalogueFlat
-Collections,,logo,file,,,,,,,,,"Logo of the resource, for use on homepages etc.",DataCatalogueFlat
-Collections,,status,ontology,,,CatalogueOntologies,Study status,,,,,Status of the study,"DataCatalogueFlat,EMA"
-Collections,,license,hyperlink,,,,,,,,dct:license,A legal document under which this catalogue record is made available,DataCatalogueFlat
-Collections,,design and structure,heading,,,,,,,,,Structure of the collection,DataCatalogueFlat
-Collections,,design type,ontology,,,CatalogueOntologies,Cohort designs,,,,,"The study design of this cohort, i.e. cross-sectional or longitudinal",DataCatalogueFlat
-Collections,,data collection description,text,,,,,,,,,Describe the process of collection and recording of data.,"DataCatalogueFlat,EMA"
-Collections,,reason sustained,text,,,,,,,,,"Description of the reason why the data bank is sustained by the organisation (e.g., for surveillance, clinical purposes, financial or administrative purposes, research purposes)",DataCatalogueFlat
-Collections,,design schematic,file,,,,,,,,,A schematic depiction of the study design of this cohort,DataCatalogueFlat
-Collections,,unit of observation,text,,,,,,,,,"Based on the prompt, what is the unit(s) of observation of a record (e.g., person, prescription)?",DataCatalogueFlat
-Collections,,record trigger,text,,,,,,,,,"What triggers the creation of a record in the data bank? e.g., planned collection events, hospital discharge, specialist encounter, dispensation of a medicinal product, recording of a congenital anomaly","DataCatalogueFlat,EMA"
-Collections,,subcohorts,refback,,,,Collection subcohorts,,collection,,,List of subcohorts or subpopulations defined in this resource if applicable,"DataCatalogueFlat,"
-Collections,,collection events,refback,,,,Collection events,,collection,,dcterms:hasPart,List of data/sample collection events defined for this resource if applicable,"DataCatalogueFlat"
-Collections,,datasets,refback,,,,Collection datasets,,collection,,,List of datasets contained in this collection if applicable,"DataCatalogueFlat"
-Collections,,samplesets,refback,,,,Collection samplesets,,collection,,,List of samples sets contained in this collection if applicable,"DataCatalogueFlat"
-Collections,,collections,refback,,,,Collections,,networks involved,,dct:dataset,List of other collections included in this collection,"DataCatalogueFlat,EMA"
-Collections,,population,heading,,,,,,,,,Description of the population that is sampled in this collection,DataCatalogueFlat
-Collections,,number of participants,int,,,,,,,,,Total number of individuals for which data is collected,"DataCatalogueFlat,EMA"
-Collections,,number of participants with samples,int,,,,,,,,,Number of individuals for which samples are collected,DataCatalogueFlat
-Collections,,underlying population,text,,,,,,,,,Provide a summary description of the underlying population from which participants are sampled (maximum 100 words) or URL to a description,DataCatalogueFlat
-Collections,,countries,ontology_array,,,CatalogueOntologies,Countries,,,,dct:spatial,Countries where data from this resource largely originate from,"DataCatalogueFlat,EMA"
-Collections,,regions,ontology_array,,,CatalogueOntologies,Regions,,,,dct:spatial,Geographical regions where data from this resource largely originate from,"DataCatalogueFlat,EMA"
-Collections,,population age groups,ontology_array,,,CatalogueOntologies,Age groups,,,,,Which population age groups are captured in this resource? Select all that are relevant.,"DataCatalogueFlat,EMA"
-Collections,,inclusion criteria,ontology_array,,,CatalogueOntologies,Inclusion criteria,,,,,Inclusion criteria applied to the participants of this resource,DataCatalogueFlat
-Collections,,other inclusion criteria,text,,,,,,,,,Other inclusion criteria applied to the participants of this resource,DataCatalogueFlat
-Collections,,population entry,ontology_array,,,CatalogueOntologies,Population entry,,,,,Select the possible causes / events that trigger the registration of a person in the data source,"DataCatalogueFlat,EMA"
-Collections,,population entry other,text,,,,,,,,,"If other, specify the causes of entry to the underlying population","DataCatalogueFlat,EMA"
-Collections,,population exit,ontology_array,,,CatalogueOntologies,Population exit,,,,,Select the possible causes / events that trigger the de-registration of a person in the data source,"DataCatalogueFlat,EMA"
-Collections,,population exit other,text,,,,,,,,,"If other, specify the causes of exit from the underlying population","DataCatalogueFlat,EMA"
-Collections,,population disease,ontology_array,,,CatalogueOntologies,Diseases,,,,,"Does the resource collect information on a specific disease subpopulation (e.g., as in a disease-specific registry)?",DataCatalogueFlat
-Collections,,population oncology topology,ontology_array,,,CatalogueOntologies,ICDO topologies,,,,,"Does the resource collect information on specific cancer subtype(s)? If yes, select topology specifications.",DataCatalogueFlat
-Collections,,population oncology morphology,ontology_array,,,CatalogueOntologies,ICDO morphologies,,,,,"Does the resource collect information on specific cancer subtype(s)? If yes, select morphology specifications.",DataCatalogueFlat
-Collections,,population coverage,text,,,,,,,,,Estimated percentage of the population covered by the data source in the catchment area. Please describe the denominator.,"DataCatalogueFlat,EMA"
-Collections,,population not covered,text,,,,,,,,,"Description of the population covered by the data source in the catchment area whose data are not collected, where applicable (e.g.: people who are registered only for private care) ","DataCatalogueFlat,EMA"
-Collections,,aggregates,refback,,,,Aggregates,,collection,,,Counts of e.g. samples defined for this resource,"DataCatalogueFlat"
-Collections,,counts,refback,,,,Collection counts,,collection,,,Counts of e.g. samples defined for this resource,"DataCatalogueFlat"
-Collections,,contributors,heading,,,,,,,,,List of relevant collaborations,DataCatalogueFlat
-Collections,,people involved,refback,,,,Collection contacts,,collection,,dcat:contactPoint,Persons involved and their role(s),"DataCatalogueFlat,EMA"
-Collections,,organisations involved,refback,,,,Collection organisations,,collection,,,organisations involved and their role(s),"DataCatalogueFlat,EMA"
-Collections,,networks involved,ref_array,,,,Collections,,,,,The consortia or networks that this collection is part of,"DataCatalogueFlat,EMA"
-Collections,,networks other,text,,,,,,,,,List the names of any other networks that are not listed and this collection is involved in,DataCatalogueFlat
-Collections,,available data and samples,heading,,,,,,,,,Data model and contents,DataCatalogueFlat
-Collections,,areas of information,ontology_array,,,CatalogueOntologies,Areas of information ds,,,,,Areas of information that were collected,"DataCatalogueFlat,EMA"
-Collections,,quality of life other,text,,,,,,,,,"If other, specify additional quality of life measures","DataCatalogueFlat,EMA"
-Collections,,cause of death code other,text,,,,,,,,,"If 'other,' what cause of death vocabulary is used?","DataCatalogueFlat,EMA"
-Collections,,indication vocabulary other,text,,,,,,,,,"If 'other,' what indication for use vocabulary is used?","DataCatalogueFlat,EMA"
-Collections,,genetic data vocabulary other,text,,,,,,,,,"If 'other,' what genetic data vocabulary is used?","DataCatalogueFlat,EMA"
-Collections,,care setting other,text,,,,,,,,,"If 'other,' description of the setting of care","DataCatalogueFlat,EMA"
-Collections,,medicinal product vocabulary other,text,,,,,,,,,"If 'other,' description of the medicinal product vocabulary","DataCatalogueFlat,EMA"
-Collections,,prescriptions vocabulary other,text,,,,,,,,,"If 'other,' what vocabulary is used?","DataCatalogueFlat,EMA"
-Collections,,dispensings vocabulary other,text,,,,,,,,,"If 'other,' what vocabulary is used?","DataCatalogueFlat,EMA"
-Collections,,procedures vocabulary other,text,,,,,,,,,"If 'other,' what vocabulary is used?","DataCatalogueFlat,EMA"
-Collections,,biomarker data vocabulary other,text,,,,,,,,,"If 'other,' what vocabulary is used?","DataCatalogueFlat,EMA"
-Collections,,diagnosis medical event vocabulary other,text,,,,,,,,,"If 'other,' what vocabulary is used?","DataCatalogueFlat,EMA"
-Collections,,data dictionary available,bool,,,,,,,,,Are a data dictionary and a data model available?,DataCatalogueFlat
-Collections,,disease details,ontology_array,,,CatalogueOntologies,MedDRA,,,,,"If data on a specific disease is collected, which diseases does the data source collect information on","DataCatalogueFlat,EMA"
-Collections,,disease details other,text,,,,,,,,,Specify disease details if not present in MedDRA,"DataCatalogueFlat,EMA"
-Collections,,biospecimen collected,ontology_array,,,CatalogueOntologies,Biospecimens,,,,,"If the data bank contains biospecimens, what types of specimen",DataCatalogueFlat
-Collections,,languages,ontology_array,,,CatalogueOntologies,Languages,,,,,"Languages in which that the records are recorded (in ISO 639, https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes)","DataCatalogueFlat,EMA"
-Collections,,multiple entries,bool,,,,,,,,,"Can there be multiple entries for a single person in the data bank? For example, may a person contribute multiple records to the data bank?",DataCatalogueFlat
-Collections,,linkage,heading,,,,,,,,,Data linkage,DataCatalogueFlat
-Collections,,has identifier,bool,,,,,,,,,Is there a unique identifier for a person in the data bank?,DataCatalogueFlat
-Collections,,identifier description,text,,,,,,,,,"Describe the variable that is used as a unique identifier for a person in the data bank? If the unique identifier is not at level of a person (for example hospital encounter), describe how this translated to an individual level",DataCatalogueFlat
-Collections,,prelinked,bool,,,,,,,,,Is the data from this data source linked to other data sources?,"DataCatalogueFlat,EMA"
-Collections,,linkage description,text,,,,,,,,,Provide a high-level description of the linkages that are currently available between data sources in the data source (when pre-linked = yes),"DataCatalogueFlat,EMA"
-Collections,,linkage possibility,bool,,,,,,,,,Can this data source be linked to other data sources?,"DataCatalogueFlat,EMA"
-Collections,,linkage possibility description,text,,,,,,,,,Can the data from this data source be linked to other data sources?,"DataCatalogueFlat,EMA"
-Collections,,linked collections,refback,,,,Collection linkages,,collection,,,List of resources that are or can be linked to this main resource,"DataCatalogueFlat,EMA"
-Collections,,release type,ontology,,,CatalogueOntologies,Release types,,,,,Select whether this resource is a closed dataset or whether new data is released continuously or at a termly basis,DataCatalogueFlat
-Collections,,release description,text,,,,,,,,,Description of the release cycle of this resource,DataCatalogueFlat
-Collections,,linkage options,text,,,,,,,,,Linkage options with additional data sources that are available for this resource,DataCatalogueFlat
-Collections,,access conditions,heading,,,,,,,,,Access and validation information,DataCatalogueFlat
-Collections,,informed consent type,ontology,,,CatalogueOntologies,Informed consent types,,,,,What type of informed consent was given for data collection?,DataCatalogueFlat
-Collections,,informed consent required,ontology,,,CatalogueOntologies,Informed consents,,,,,Is informed consent required for use of the data for research purposes?,"DataCatalogueFlat,EMA"
-Collections,,informed consent other,text,,,,,,,,,"If other, describe the conditions when informed consent is required","DataCatalogueFlat,EMA"
-Collections,,data access conditions,ontology_array,,,CatalogueOntologies,Data access conditions,,,,,Codes defining data access terms and conditions,DataCatalogueFlat
-Collections,,data use conditions,ontology_array,,,CatalogueOntologies,Data use conditions,,,,,Codes defining data use terms and conditions,DataCatalogueFlat
-Collections,,data access conditions description,text,,,,,,,,,Description of data access terms and use conditions,DataCatalogueFlat
-Collections,,data access fee,bool,,,,,,,,,Does a fee apply to gain access to data of this cohort?,DataCatalogueFlat
-Collections,,access identifiable data,text,,,,,,,,,Can identifiable data be accessed in the data bank (including patient/practitioner name/practice name)?,DataCatalogueFlat
-Collections,,access identifiable data route,text,,,,,,,,,"If yes above, what is the route to access or process this information? What permission is required?",DataCatalogueFlat
-Collections,,access subject details,bool,,,,,,,,,Can individual patients/practitioners/practices be contacted in the data bank?,"DataCatalogueFlat,EMA"
-Collections,,access subject details route,text,,,,,,,,,"If yes above, what is the route to access or process this information? What permission is required?",DataCatalogueFlat
-Collections,,access third party,bool,,,,,,,,,Can (an extract of) the data bank be accessed with permission by a third party?,DataCatalogueFlat
-Collections,,access third party conditions,text,,,,,,,,,"If above is 'yes', describe the conditions under which third-party access may be granted",DataCatalogueFlat
-Collections,,access non EU,bool,,,,,,,,,Can (an extract of) the data bank be accessed with permission by a non-EU/EEA institution?,DataCatalogueFlat
-Collections,,access non EU conditions,text,,,,,,,,,"If yes above, describe the conditions under which non-EU/EEA access may be granted",DataCatalogueFlat
-Collections,,biospecimen access,bool,,,,,,,,,"If the data bank contains biospecimens (e.g., tissue samples), can these be retrieved?","DataCatalogueFlat,EMA"
-Collections,,biospecimen access conditions,text,,,,,,,,,"If yes above, describe the conditions under which permission to retrieve biospecimens may be granted","DataCatalogueFlat,EMA"
-Collections,,governance details,text,,,,,,,,,"If available, provide a link to documents or webpages that describe the overall governance of the data source bank (governing data access or utilisation for research purposes by existing DAPs)",DataCatalogueFlat
-Collections,,approval for publication,bool,,,,,,,,,Is an approval needed to publish the results of a study using the data,"DataCatalogueFlat,EMA"
-Collections,,DAPs,refback,,,,Collection DAPs,,collection,,,List of DAPs that are listed in the catalogue as having (conditional) permission to access (an extract of) the data resource,DataCatalogueFlat
-Collections,,updates,heading,,,,,,,,,Information on the regularity of updates and time lags,DataCatalogueFlat
-Collections,,number of records,int,,,,,,,,,Total number of unique records captured in the data bank (most recent count),DataCatalogueFlat
-Collections,,release frequency,int,,,,,,,,,Refreshing rate (in months),"DataCatalogueFlat,EMA"
-Collections,,refresh time,int,,,,,,,,,Average number of days between refresh of data bank with new records,DataCatalogueFlat
-Collections,,lag time,int,,,,,,,,,"How many days is the lag time after refresh before a record can be extracted? (e.g., a lag time may occur if the originator conducts quality checks)",DataCatalogueFlat
-Collections,,refresh period,ontology_array,,,CatalogueOntologies,Refresh periods,,,,,"If data are refreshed on fixed dates (e.g., every June and December), when are the refreshes scheduled? Select all that apply from the following:","DataCatalogueFlat,EMA"
-Collections,,preservation,bool,,,,,,,,,Are records preserved in the data bank indefinitely?,"DataCatalogueFlat,EMA"
-Collections,,preservation duration,int,,,,,,,,,"If no to the above, for how long (in years) are records preserved in the data bank?","DataCatalogueFlat,EMA"
-Collections,,quality,heading,,,,,,,,,List of relevant studies conducted using the data bank,DataCatalogueFlat
-Collections,,standard operating procedures,bool,,,,,,,,,Is there a standard operating procedure document that defines the processes and procedures for data capture and management?,DataCatalogueFlat
-Collections,,qualification,bool,,,,,,,,,"Has the data source successfully undergone a formal qualification process (e.g., from the EMA, or ISO or other certifications)?","DataCatalogueFlat,EMA"
-Collections,,qualifications description,text,,,,,,,,,"Has the resource successfully undergone a qualification process (e.g., from the EMA)? If yes, describe the qualification(s) granted","DataCatalogueFlat,EMA"
-Collections,,audit possible,bool,,,,,,,,,"Are external parties allowed to audit the data? For example, is it possible for an external party to audit the quality or validity of the data source?",DataCatalogueFlat
-Collections,,completeness,text,,,,,,,,,"Describe the completeness of the data bank (e.g., variables with more or fewer missing values)",DataCatalogueFlat
-Collections,,completeness over time,text,,,,,,,,,"Describe any changes in completeness of the data bank (e.g., variables with more or fewer missing values) that have occurred  over time",DataCatalogueFlat
-Collections,,completeness results,text,,,,,,,,,What methods or processes are applied to check completeness of the data bank?,DataCatalogueFlat
-Collections,,quality description,text,,,,,,,,,"Describe the quality of the data bank (e.g., variables with more or fewer missing values)",DataCatalogueFlat
-Collections,,quality over time,text,,,,,,,,,Describe any changes in quality of the data bank that have occurred  over time,DataCatalogueFlat
-Collections,,access for validation,bool,,,,,,,,,"Can validity of the data in the data bank be verified, e.g., by review of origin medical charts?","DataCatalogueFlat,EMA"
-Collections,,quality validation frequency,text,,,,,,,,,How often are data quality checks and validation steps conducted on the data bank?,DataCatalogueFlat
-Collections,,quality validation methods,text,,,,,,,,,What methods or processes are applied for data quality checks and validation steps conducted on the data bank?,DataCatalogueFlat
-Collections,,correction methods,text,,,,,,,,,What methods or processes are applied to correct illogical values in the data bank?,DataCatalogueFlat
-Collections,,quality validation results,,,,,,,,,,"If available, provide a link to a publication of the data quality check and validation results",DataCatalogueFlat
-Collections,,standards,heading,,,,,,,,,Use of standard data models and ontologies,DataCatalogueFlat
-Collections,,mappings to common data models,refback,,,,Mapped datasets,,source,,,overview of dataset mappings available,DataCatalogueFlat
-Collections,,common data models other,text,,,,,,,,,"If not in list above, give the name of cdm(s) used by this data source","DataCatalogueFlat,EMA"
-Collections,,ETL standard vocabularies,ontology_array,,,CatalogueOntologies,Vocabularies,,,,,"Are data mapped to standardised vocabularies during ETL to the CDM? If yes, what vocabularies are used for events, such as diagnoses?",DataCatalogueFlat
-Collections,,ETL standard vocabularies other,text,,,,,,,,,"If other, what other vocabularies are used?",DataCatalogueFlat
-Collections,,information,heading,,,,,,,,,Other information,DataCatalogueFlat
-Collections,,publications,refback,,,,Collection publications,,collection,,,Other publication(s) about this resource,"DataCatalogueFlat,EMA"
-Collections,,funding sources,ontology_array,,,CatalogueOntologies,Funding types,,,,,Specify the main financial support sources for the data source in the last 3 years. Select all that apply,"DataCatalogueFlat,EMA"
-Collections,,funding scheme,ontology_array,,,CatalogueOntologies,Study funding,,,,,The source of funding for the study. Select all that apply,"DataCatalogueFlat,EMA"
-Collections,,funding statement,text,,,,,,,,,Statement listing funding that was obtained for this resource,"DataCatalogueFlat,EMA"
-Collections,,acknowledgements,text,,,,,,,,,Acknowledgement statement and citation regulation for this resource,DataCatalogueFlat
-Collections,,documentation,refback,,,,Collection documentation,,collection,,,"Descriptive document(s) available for this resource, e.g. informed consent","DataCatalogueFlat,EMA"
-Collections,,supplementary information,text,,,,,,,,,Any other information that needs to be disclosed for this resource,DataCatalogueFlat
-Collections,,study details,heading,,,,,,,,,List of relevant collaborations,DataCatalogueFlat
-Collections,,study requirements,ontology_array,,,CatalogueOntologies,Study requirements,,,,,Study requirements,"DataCatalogueFlat,EMA"
-Collections,,regulatory procedure number,string,,,,,,,,,"Regulatory procedure number, for RMP Category 1 and 2 studies only","DataCatalogueFlat,EMA"
-Collections,,date of signing funding contract planned,date,,,,,,,,,"Date when funding contract was signed, planned","DataCatalogueFlat,EMA"
-Collections,,date of signing funding contract actual,date,,,,,,,,,"Date when funding contract was signed, actual","DataCatalogueFlat,EMA"
-Collections,,collection start planned,date,,,,,,,,,When was the data collection planned to start?,"DataCatalogueFlat,EMA"
-Collections,,collection start actual,date,,,,,,,,,When was the data collection actually start?,"DataCatalogueFlat,EMA"
-Collections,,analysis start planned,date,,,,,,,,,When was the data analysis planned to start?,"DataCatalogueFlat,EMA"
-Collections,,analysis start actual,date,,,,,,,,,When did the data analysis actually start?,"DataCatalogueFlat,EMA"
-Collections,,interim report planned,date,,,,,,,,,"Planned date of interim report, if expected","DataCatalogueFlat,EMA"
-Collections,,interim report actual,date,,,,,,,,,"Actual date of interim report, if expected","DataCatalogueFlat,EMA"
-Collections,,final report planned,date,,,,,,,,,"Date of final study report, planned","DataCatalogueFlat,EMA"
-Collections,,final report actual,date,,,,,,,,,"Date of final study report, actual","DataCatalogueFlat,EMA"
-Collections,,data sources,heading,,,,,,,,,Data management,DataCatalogueFlat
-Collections,,data sources,ref_array,,,,Collections,,,,,Data sources that provided data into this study,"DataCatalogueFlat,EMA"
-Collections,,data sources other,text,,,,,,,,,Other not listed data sources that provided data into this study,"DataCatalogueFlat,EMA"
-Collections,,study features,ontology_array,,,CatalogueOntologies,Study features,,,,,Data features,"DataCatalogueFlat,EMA"
-Collections,,data characterisation details,text,,,,,,,,,Provide a summary description of the data characterisation or quality check process,"DataCatalogueFlat,EMA"
-Collections,,data source types,ontology_array,,,CatalogueOntologies,Study datasource types,,,,,Types of data sources used,"DataCatalogueFlat,EMA"
-Collections,,data source types other,text,,,,,,,,,"Sources of data, if other","DataCatalogueFlat,EMA"
-Collections,,quality marks,ontology_array,,,CatalogueOntologies,Study quality marks,,,,,"Quality marks, such as ENCePP seal","DataCatalogueFlat,EMA"
-Collections,,number of data sources,,,,,,,,,,Total number of data sources included in the study,"DataCatalogueFlat,EMA"
-Collections,,medicines studied INN codes,ontology_array,,,CatalogueOntologies,INN,,,,,INN codes of medicines studied,"DataCatalogueFlat,EMA"
-Collections,,medicines studied ATC codes,ontology_array,,,CatalogueOntologies,ATC,,,,,ATC codes of medicines studied,"DataCatalogueFlat,EMA"
-Collections,,medicines studies brands,ontology_array,,,CatalogueOntologies,Medicine brand names,,,,,Brand names of the medicines studied,"DataCatalogueFlat,EMA"
-Collections,,medicines studied other,text,,,,,,,,,If the medicinal product information (e.g. brand name or active substance or ATC code) does not appear in the available look-ups please enter it here,"DataCatalogueFlat,EMA"
-Collections,,medical conditions studied,ontology_array,,,CatalogueOntologies,MedDRA,,,,,Codes of the medical conditions studied,"DataCatalogueFlat,EMA"
-Collections,,medical conditions studied other,text,,,,,,,,,Codes of the medical conditions studied,"DataCatalogueFlat,EMA"
-Collections,,data extraction date,date,,,,,,,,,Date on which the study data was extracted,DataCatalogueFlat
-Collections,,study methods,heading,,,,,,,,,Methodological aspects,DataCatalogueFlat
-Collections,,study setting,text,,,,,,,,,A short description of the study setting,DataCatalogueFlat
-Collections,,analysis plan,text,,,,,,,,,"A brief summary of the analysis method (e.g. risk estimation, measures of risk, internal/external validity)",DataCatalogueFlat
-Collections,,population description,text,,,,,,,,,A short description of the study population,"DataCatalogueFlat,EMA"
-Collections,,number of subjects,int,,,,,,,,,Estimated number of subjects,"DataCatalogueFlat,EMA"
-Collections,,age groups,ontology_array,,,CatalogueOntologies,Age groups,,,,,Which population age groups are studied,"DataCatalogueFlat,EMA"
-Collections,,objectives,text,,,,,,,,,A short description of the study objective,"DataCatalogueFlat,EMA"
-Collections,,interventions,text,,,,,,,,,A short description of the study interventions,"DataCatalogueFlat,EMA"
-Collections,,comparators,text,,,,,,,,,A short description of the study comparators,"DataCatalogueFlat,EMA"
-Collections,,outcomes,text,,,,,,,,,A short description of the study outcomes,"DataCatalogueFlat,EMA"
-Collections,,study design,text,,,,,,,,,A brief summary of the study design,"DataCatalogueFlat,EMA"
-Collections,,results,text,,,,,,,,,A brief summary of the results of the study on study completion (from abstract),"DataCatalogueFlat,EMA"
-Collections,,topic,ontology_array,,,CatalogueOntologies,Study topics,,,,,An initial classification of the study purpose,"DataCatalogueFlat,EMA"
-Collections,,topic other,text,,,,,,,,,"If the study is not concerning any of the proposed categories, please specify the details","DataCatalogueFlat,EMA"
-Collections,,trial regulatory scope,ontology_array,,,CatalogueOntologies,Study trial regulatory scopes,,,,,Classification of the clinical trial in relation to the medicines authorisation,"DataCatalogueFlat,EMA"
-Collections,,study design classification,ontology_array,,,CatalogueOntologies,Study design classification,,,,,Study design classifications,"DataCatalogueFlat,EMA"
-Collections,,study design classification other,text,,,,,,,,,Further details on design,"DataCatalogueFlat,EMA"
-Collections,,study scope,ontology_array,,,CatalogueOntologies,Study scopes,,,,,Scope of the study,"DataCatalogueFlat,EMA"
-Collections,,study scope other,text,,,,,,,,,If scope 'other',"DataCatalogueFlat,EMA"
-Collections,,population of interest,ontology_array,,,CatalogueOntologies,Population of interest,,,,,"If population of interest is 'Other', please specify which other population has been studied","DataCatalogueFlat,EMA"
-Collections,,population of interest other,text,,,,,,,,,"If population of interest is 'Other', please specify which other population has been studied","DataCatalogueFlat,EMA"
+,tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
+0,Collections,,,,,,,,,,,"dcat:DatasetSeries,dcat:Dataset",Collection of data and/or samples. Use 'collection type' to specify,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging"
+1,Collections,,overview,heading,,,,,,,,,General information,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging"
+2,Collections,,id,,1,True,,,,,,dct:identifier,Internal identifier,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging"
+3,Collections,,name,text,3,True,,,,,,dct:title,Name used in European projects,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging"
+4,Collections,,type,ontology_array,,,CatalogueOntologies,Collection types FLAT,,,,,,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging"
+5,Collections,,type other,,,,,,,,,,"If other, describe the type of collection","DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging"
+6,Collections,,description,text,,,,,,,,dct:description,Short description,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging"
+7,Collections,,pid,,2,,,,,,,dct:identifier,Persistent identifier,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging"
+8,Collections,,external identifiers,refback,,,,Collection external identifiers,,collection,,,"External identifier(s) for this resource (e.g. EUPASS number, UMCG register number)","DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging"
+9,Collections,,acronym,,,,,,,,,dct:alternative,Acronym if applicable,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging"
+10,Collections,,local name,,,,,,,,,rdfs:label,"If different from above, name in the national language","DataCatalogueFlat,CohortsStaging,RWEStaging"
+11,Collections,,date established,date,,,,,,,,,"Date when the data source was first established. If the exact day of the month is not known, please enter 15. If the exact month is not known then please enter 15/06","DataCatalogueFlat,EMA,RWEStaging"
+12,Collections,,start data collection,date,,,,,,,,dcat:startDate,"The date when data started to be collected or extracted. If the exact day of the month is not known, please enter 15. If the exact month is not known then please enter 15/06","DataCatalogueFlat,EMA,RWEStaging"
+13,Collections,,end data collection,date,,,,,,,,dcat:endDate,"If data collection in the data source has ceased, on what date did new records last enter the data source?. If the exact day of the month is not known, please enter 15. If the exact month is not known then please enter 15/06","DataCatalogueFlat,EMA,RWEStaging"
+14,Collections,,keywords,text,,,,,,,,dcat:keyword,Keywords to increase findability of this resource. Try to use words that are not used in the description,"DataCatalogueFlat,CohortsStaging,NetworksStaging"
+15,Collections,,website,hyperlink,,,,,,,,dcat:landingPage,Link to the website or homepage,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging"
+16,Collections,,contact email,,,,,,,,,dcat:contactPoint,Contact e-mail address ,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging"
+17,Collections,,logo,file,,,,,,,,,"Logo of the resource, for use on homepages etc.","DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging"
+18,Collections,,status,ontology,,,CatalogueOntologies,Study status,,,,,Status of the study,"DataCatalogueFlat,EMA,StudiesStaging"
+19,Collections,,license,hyperlink,,,,,,,,dct:license,A legal document under which this catalogue record is made available,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging"
+20,Collections,,design and structure,heading,,,,,,,,,Structure of the collection,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging"
+21,Collections,,design type,ontology,,,CatalogueOntologies,Cohort designs,,,,,"The study design of this cohort, i.e. cross-sectional or longitudinal","DataCatalogueFlat,CohortsStaging"
+22,Collections,,data collection description,text,,,,,,,,,Describe the process of collection and recording of data.,"DataCatalogueFlat,EMA,RWEStaging"
+23,Collections,,reason sustained,text,,,,,,,,,"Description of the reason why the data bank is sustained by the organisation (e.g., for surveillance, clinical purposes, financial or administrative purposes, research purposes)","DataCatalogueFlat,RWEStaging"
+24,Collections,,design schematic,file,,,,,,,,,A schematic depiction of the study design of this cohort,"DataCatalogueFlat,CohortsStaging"
+25,Collections,,unit of observation,text,,,,,,,,,"Based on the prompt, what is the unit(s) of observation of a record (e.g., person, prescription)?","DataCatalogueFlat,RWEStaging"
+26,Collections,,record trigger,text,,,,,,,,,"What triggers the creation of a record in the data bank? e.g., planned collection events, hospital discharge, specialist encounter, dispensation of a medicinal product, recording of a congenital anomaly","DataCatalogueFlat,EMA,RWEStaging"
+27,Collections,,subcohorts,refback,,,,Collection subcohorts,,collection,,,List of subcohorts or subpopulations defined in this resource if applicable,"DataCatalogueFlat,,CohortsStaging"
+28,Collections,,collection events,refback,,,,Collection events,,collection,,dcterms:hasPart,List of data/sample collection events defined for this resource if applicable,"DataCatalogueFlat,CohortsStaging"
+29,Collections,,datasets,refback,,,,Collection datasets,,collection,,,List of datasets contained in this collection if applicable,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging"
+30,Collections,,samplesets,refback,,,,Collection samplesets,,collection,,,List of samples sets contained in this collection if applicable,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging"
+31,Collections,,collections,refback,,,,Collections,,networks involved,,dct:dataset,List of other collections included in this collection,"DataCatalogueFlat,EMA,NetworksStaging"
+32,Collections,,population,heading,,,,,,,,,Description of the population that is sampled in this collection,"DataCatalogueFlat,CohortsStaging,RWEStaging"
+33,Collections,,number of participants,int,,,,,,,,,Total number of individuals for which data is collected,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging"
+34,Collections,,number of participants with samples,int,,,,,,,,,Number of individuals for which samples are collected,"DataCatalogueFlat,CohortsStaging,RWEStaging"
+35,Collections,,underlying population,text,,,,,,,,,Provide a summary description of the underlying population from which participants are sampled (maximum 100 words) or URL to a description,"DataCatalogueFlat,RWEStaging"
+36,Collections,,countries,ontology_array,,,CatalogueOntologies,Countries,,,,dct:spatial,Countries where data from this resource largely originate from,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging"
+37,Collections,,regions,ontology_array,,,CatalogueOntologies,Regions,,,,dct:spatial,Geographical regions where data from this resource largely originate from,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging"
+38,Collections,,population age groups,ontology_array,,,CatalogueOntologies,Age groups,,,,,Which population age groups are captured in this resource? Select all that are relevant.,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging"
+39,Collections,,inclusion criteria,ontology_array,,,CatalogueOntologies,Inclusion criteria,,,,,Inclusion criteria applied to the participants of this resource,"DataCatalogueFlat,CohortsStaging"
+40,Collections,,other inclusion criteria,text,,,,,,,,,Other inclusion criteria applied to the participants of this resource,"DataCatalogueFlat,CohortsStaging"
+41,Collections,,population entry,ontology_array,,,CatalogueOntologies,Population entry,,,,,Select the possible causes / events that trigger the registration of a person in the data source,"DataCatalogueFlat,EMA,RWEStaging"
+42,Collections,,population entry other,text,,,,,,,,,"If other, specify the causes of entry to the underlying population","DataCatalogueFlat,EMA,RWEStaging"
+43,Collections,,population exit,ontology_array,,,CatalogueOntologies,Population exit,,,,,Select the possible causes / events that trigger the de-registration of a person in the data source,"DataCatalogueFlat,EMA,RWEStaging"
+44,Collections,,population exit other,text,,,,,,,,,"If other, specify the causes of exit from the underlying population","DataCatalogueFlat,EMA,RWEStaging"
+45,Collections,,population disease,ontology_array,,,CatalogueOntologies,Diseases,,,,,"Does the resource collect information on a specific disease subpopulation (e.g., as in a disease-specific registry)?","DataCatalogueFlat,CohortsStaging,RWEStaging"
+46,Collections,,population oncology topology,ontology_array,,,CatalogueOntologies,ICDO topologies,,,,,"Does the resource collect information on specific cancer subtype(s)? If yes, select topology specifications.","DataCatalogueFlat,CohortsStaging,RWEStaging"
+47,Collections,,population oncology morphology,ontology_array,,,CatalogueOntologies,ICDO morphologies,,,,,"Does the resource collect information on specific cancer subtype(s)? If yes, select morphology specifications.","DataCatalogueFlat,CohortsStaging,RWEStaging"
+48,Collections,,population coverage,text,,,,,,,,,Estimated percentage of the population covered by the data source in the catchment area. Please describe the denominator.,"DataCatalogueFlat,EMA,RWEStaging"
+49,Collections,,population not covered,text,,,,,,,,,"Description of the population covered by the data source in the catchment area whose data are not collected, where applicable (e.g.: people who are registered only for private care) ","DataCatalogueFlat,EMA,RWEStaging"
+50,Collections,,aggregates,refback,,,,Aggregates,,collection,,,Counts of e.g. samples defined for this resource,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging"
+51,Collections,,counts,refback,,,,Collection counts,,collection,,,Counts of e.g. samples defined for this resource,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging"
+52,Collections,,contributors,heading,,,,,,,,,List of relevant collaborations,"DataCatalogueFlat,CohortsStaging,RWEStaging"
+53,Collections,,people involved,refback,,,,Collection contacts,,collection,,dcat:contactPoint,Persons involved and their role(s),"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging"
+54,Collections,,organisations involved,refback,,,,Collection organisations,,collection,,,organisations involved and their role(s),"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging"
+55,Collections,,networks involved,ref_array,,,,Collections,,,,,The consortia or networks that this collection is part of,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging"
+56,Collections,,networks other,text,,,,,,,,,List the names of any other networks that are not listed and this collection is involved in,"DataCatalogueFlat,CohortsStaging,RWEStaging"
+57,Collections,,available data and samples,heading,,,,,,,,,Data model and contents,"DataCatalogueFlat,RWEStaging"
+58,Collections,,areas of information,ontology_array,,,CatalogueOntologies,Areas of information ds,,,,,Areas of information that were collected,"DataCatalogueFlat,EMA,RWEStaging"
+59,Collections,,quality of life other,text,,,,,,,,,"If other, specify additional quality of life measures","DataCatalogueFlat,EMA,RWEStaging"
+60,Collections,,cause of death code other,text,,,,,,,,,"If 'other,' what cause of death vocabulary is used?","DataCatalogueFlat,EMA,RWEStaging"
+61,Collections,,indication vocabulary other,text,,,,,,,,,"If 'other,' what indication for use vocabulary is used?","DataCatalogueFlat,EMA,RWEStaging"
+62,Collections,,genetic data vocabulary other,text,,,,,,,,,"If 'other,' what genetic data vocabulary is used?","DataCatalogueFlat,EMA,RWEStaging"
+63,Collections,,care setting other,text,,,,,,,,,"If 'other,' description of the setting of care","DataCatalogueFlat,EMA,RWEStaging"
+64,Collections,,medicinal product vocabulary other,text,,,,,,,,,"If 'other,' description of the medicinal product vocabulary","DataCatalogueFlat,EMA,RWEStaging"
+65,Collections,,prescriptions vocabulary other,text,,,,,,,,,"If 'other,' what vocabulary is used?","DataCatalogueFlat,EMA,RWEStaging"
+66,Collections,,dispensings vocabulary other,text,,,,,,,,,"If 'other,' what vocabulary is used?","DataCatalogueFlat,EMA,RWEStaging"
+67,Collections,,procedures vocabulary other,text,,,,,,,,,"If 'other,' what vocabulary is used?","DataCatalogueFlat,EMA,RWEStaging"
+68,Collections,,biomarker data vocabulary other,text,,,,,,,,,"If 'other,' what vocabulary is used?","DataCatalogueFlat,EMA,RWEStaging"
+69,Collections,,diagnosis medical event vocabulary other,text,,,,,,,,,"If 'other,' what vocabulary is used?","DataCatalogueFlat,EMA,RWEStaging"
+70,Collections,,data dictionary available,bool,,,,,,,,,Are a data dictionary and a data model available?,"DataCatalogueFlat,RWEStaging"
+71,Collections,,disease details,ontology_array,,,CatalogueOntologies,MedDRA,,,,,"If data on a specific disease is collected, which diseases does the data source collect information on","DataCatalogueFlat,EMA,RWEStaging"
+72,Collections,,disease details other,text,,,,,,,,,Specify disease details if not present in MedDRA,"DataCatalogueFlat,EMA,RWEStaging"
+73,Collections,,biospecimen collected,ontology_array,,,CatalogueOntologies,Biospecimens,,,,,"If the data bank contains biospecimens, what types of specimen","DataCatalogueFlat,RWEStaging"
+74,Collections,,languages,ontology_array,,,CatalogueOntologies,Languages,,,,,"Languages in which that the records are recorded (in ISO 639, https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes)","DataCatalogueFlat,EMA,RWEStaging"
+75,Collections,,multiple entries,bool,,,,,,,,,"Can there be multiple entries for a single person in the data bank? For example, may a person contribute multiple records to the data bank?","DataCatalogueFlat,RWEStaging"
+76,Collections,,linkage,heading,,,,,,,,,Data linkage,"DataCatalogueFlat,CohortsStaging,RWEStaging"
+77,Collections,,has identifier,bool,,,,,,,,,Is there a unique identifier for a person in the data bank?,"DataCatalogueFlat,RWEStaging"
+78,Collections,,identifier description,text,,,,,,,,,"Describe the variable that is used as a unique identifier for a person in the data bank? If the unique identifier is not at level of a person (for example hospital encounter), describe how this translated to an individual level","DataCatalogueFlat,RWEStaging"
+79,Collections,,prelinked,bool,,,,,,,,,Is the data from this data source linked to other data sources?,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging"
+80,Collections,,linkage description,text,,,,,,,,,Provide a high-level description of the linkages that are currently available between data sources in the data source (when pre-linked = yes),"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging"
+81,Collections,,linkage possibility,bool,,,,,,,,,Can this data source be linked to other data sources?,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging"
+82,Collections,,linkage possibility description,text,,,,,,,,,Can the data from this data source be linked to other data sources?,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging"
+83,Collections,,linked collections,refback,,,,Collection linkages,,collection,,,List of resources that are or can be linked to this main resource,"DataCatalogueFlat,EMA,RWEStaging"
+84,Collections,,release type,ontology,,,CatalogueOntologies,Release types,,,,,Select whether this resource is a closed dataset or whether new data is released continuously or at a termly basis,"DataCatalogueFlat,CohortsStaging"
+85,Collections,,release description,text,,,,,,,,,Description of the release cycle of this resource,"DataCatalogueFlat,CohortsStaging"
+86,Collections,,linkage options,text,,,,,,,,,Linkage options with additional data sources that are available for this resource,"DataCatalogueFlat,CohortsStaging"
+87,Collections,,access conditions,heading,,,,,,,,,Access and validation information,"DataCatalogueFlat,CohortsStaging,RWEStaging"
+88,Collections,,informed consent type,ontology,,,CatalogueOntologies,Informed consent types,,,,,What type of informed consent was given for data collection?,"DataCatalogueFlat,RWEStaging"
+89,Collections,,informed consent required,ontology,,,CatalogueOntologies,Informed consents,,,,,Is informed consent required for use of the data for research purposes?,"DataCatalogueFlat,EMA,RWEStaging"
+90,Collections,,informed consent other,text,,,,,,,,,"If other, describe the conditions when informed consent is required","DataCatalogueFlat,EMA,RWEStaging"
+91,Collections,,data access conditions,ontology_array,,,CatalogueOntologies,Data access conditions,,,,,Codes defining data access terms and conditions,"DataCatalogueFlat,CohortsStaging"
+92,Collections,,data use conditions,ontology_array,,,CatalogueOntologies,Data use conditions,,,,,Codes defining data use terms and conditions,"DataCatalogueFlat,CohortsStaging"
+93,Collections,,data access conditions description,text,,,,,,,,,Description of data access terms and use conditions,"DataCatalogueFlat,CohortsStaging"
+94,Collections,,data access fee,bool,,,,,,,,,Does a fee apply to gain access to data of this cohort?,"DataCatalogueFlat,CohortsStaging"
+95,Collections,,access identifiable data,text,,,,,,,,,Can identifiable data be accessed in the data bank (including patient/practitioner name/practice name)?,"DataCatalogueFlat,RWEStaging"
+96,Collections,,access identifiable data route,text,,,,,,,,,"If yes above, what is the route to access or process this information? What permission is required?","DataCatalogueFlat,RWEStaging"
+97,Collections,,access subject details,bool,,,,,,,,,Can individual patients/practitioners/practices be contacted in the data bank?,"DataCatalogueFlat,EMA,RWEStaging"
+98,Collections,,access subject details route,text,,,,,,,,,"If yes above, what is the route to access or process this information? What permission is required?","DataCatalogueFlat,RWEStaging"
+99,Collections,,access third party,bool,,,,,,,,,Can (an extract of) the data bank be accessed with permission by a third party?,"DataCatalogueFlat,RWEStaging"
+100,Collections,,access third party conditions,text,,,,,,,,,"If above is 'yes', describe the conditions under which third-party access may be granted","DataCatalogueFlat,RWEStaging"
+101,Collections,,access non EU,bool,,,,,,,,,Can (an extract of) the data bank be accessed with permission by a non-EU/EEA institution?,"DataCatalogueFlat,RWEStaging"
+102,Collections,,access non EU conditions,text,,,,,,,,,"If yes above, describe the conditions under which non-EU/EEA access may be granted","DataCatalogueFlat,RWEStaging"
+103,Collections,,biospecimen access,bool,,,,,,,,,"If the data bank contains biospecimens (e.g., tissue samples), can these be retrieved?","DataCatalogueFlat,EMA,RWEStaging"
+104,Collections,,biospecimen access conditions,text,,,,,,,,,"If yes above, describe the conditions under which permission to retrieve biospecimens may be granted","DataCatalogueFlat,EMA,RWEStaging"
+105,Collections,,governance details,text,,,,,,,,,"If available, provide a link to documents or webpages that describe the overall governance of the data source bank (governing data access or utilisation for research purposes by existing DAPs)","DataCatalogueFlat,RWEStaging"
+106,Collections,,approval for publication,bool,,,,,,,,,Is an approval needed to publish the results of a study using the data,"DataCatalogueFlat,EMA,RWEStaging"
+107,Collections,,DAPs,refback,,,,Collection DAPs,,collection,,,List of DAPs that are listed in the catalogue as having (conditional) permission to access (an extract of) the data resource,"DataCatalogueFlat,RWEStaging"
+108,Collections,,updates,heading,,,,,,,,,Information on the regularity of updates and time lags,"DataCatalogueFlat,RWEStaging"
+109,Collections,,number of records,int,,,,,,,,,Total number of unique records captured in the data bank (most recent count),"DataCatalogueFlat,RWEStaging"
+110,Collections,,release frequency,int,,,,,,,,,Refreshing rate (in months),"DataCatalogueFlat,EMA,RWEStaging"
+111,Collections,,refresh time,int,,,,,,,,,Average number of days between refresh of data bank with new records,"DataCatalogueFlat,RWEStaging"
+112,Collections,,lag time,int,,,,,,,,,"How many days is the lag time after refresh before a record can be extracted? (e.g., a lag time may occur if the originator conducts quality checks)","DataCatalogueFlat,RWEStaging"
+113,Collections,,refresh period,ontology_array,,,CatalogueOntologies,Refresh periods,,,,,"If data are refreshed on fixed dates (e.g., every June and December), when are the refreshes scheduled? Select all that apply from the following:","DataCatalogueFlat,EMA,RWEStaging"
+114,Collections,,preservation,bool,,,,,,,,,Are records preserved in the data bank indefinitely?,"DataCatalogueFlat,EMA,RWEStaging"
+115,Collections,,preservation duration,int,,,,,,,,,"If no to the above, for how long (in years) are records preserved in the data bank?","DataCatalogueFlat,EMA,RWEStaging"
+116,Collections,,quality,heading,,,,,,,,,List of relevant studies conducted using the data bank,"DataCatalogueFlat,RWEStaging"
+117,Collections,,standard operating procedures,bool,,,,,,,,,Is there a standard operating procedure document that defines the processes and procedures for data capture and management?,"DataCatalogueFlat,RWEStaging"
+118,Collections,,qualification,bool,,,,,,,,,"Has the data source successfully undergone a formal qualification process (e.g., from the EMA, or ISO or other certifications)?","DataCatalogueFlat,EMA,RWEStaging"
+119,Collections,,qualifications description,text,,,,,,,,,"Has the resource successfully undergone a qualification process (e.g., from the EMA)? If yes, describe the qualification(s) granted","DataCatalogueFlat,EMA,RWEStaging"
+120,Collections,,audit possible,bool,,,,,,,,,"Are external parties allowed to audit the data? For example, is it possible for an external party to audit the quality or validity of the data source?","DataCatalogueFlat,RWEStaging"
+121,Collections,,completeness,text,,,,,,,,,"Describe the completeness of the data bank (e.g., variables with more or fewer missing values)","DataCatalogueFlat,RWEStaging"
+122,Collections,,completeness over time,text,,,,,,,,,"Describe any changes in completeness of the data bank (e.g., variables with more or fewer missing values) that have occurred  over time","DataCatalogueFlat,RWEStaging"
+123,Collections,,completeness results,text,,,,,,,,,What methods or processes are applied to check completeness of the data bank?,"DataCatalogueFlat,RWEStaging"
+124,Collections,,quality description,text,,,,,,,,,"Describe the quality of the data bank (e.g., variables with more or fewer missing values)","DataCatalogueFlat,RWEStaging"
+125,Collections,,quality over time,text,,,,,,,,,Describe any changes in quality of the data bank that have occurred  over time,"DataCatalogueFlat,RWEStaging"
+126,Collections,,access for validation,bool,,,,,,,,,"Can validity of the data in the data bank be verified, e.g., by review of origin medical charts?","DataCatalogueFlat,EMA,RWEStaging"
+127,Collections,,quality validation frequency,text,,,,,,,,,How often are data quality checks and validation steps conducted on the data bank?,"DataCatalogueFlat,RWEStaging"
+128,Collections,,quality validation methods,text,,,,,,,,,What methods or processes are applied for data quality checks and validation steps conducted on the data bank?,"DataCatalogueFlat,RWEStaging"
+129,Collections,,correction methods,text,,,,,,,,,What methods or processes are applied to correct illogical values in the data bank?,"DataCatalogueFlat,RWEStaging"
+130,Collections,,quality validation results,,,,,,,,,,"If available, provide a link to a publication of the data quality check and validation results","DataCatalogueFlat,RWEStaging"
+131,Collections,,standards,heading,,,,,,,,,Use of standard data models and ontologies,"DataCatalogueFlat,RWEStaging"
+132,Collections,,mappings to common data models,refback,,,,Mapped datasets,,source,,,overview of dataset mappings available,"DataCatalogueFlat,RWEStaging"
+133,Collections,,common data models other,text,,,,,,,,,"If not in list above, give the name of cdm(s) used by this data source","DataCatalogueFlat,EMA,RWEStaging"
+134,Collections,,ETL standard vocabularies,ontology_array,,,CatalogueOntologies,Vocabularies,,,,,"Are data mapped to standardised vocabularies during ETL to the CDM? If yes, what vocabularies are used for events, such as diagnoses?","DataCatalogueFlat,RWEStaging"
+135,Collections,,ETL standard vocabularies other,text,,,,,,,,,"If other, what other vocabularies are used?","DataCatalogueFlat,RWEStaging"
+136,Collections,,information,heading,,,,,,,,,Other information,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging"
+137,Collections,,publications,refback,,,,Collection publications,,collection,,,Other publication(s) about this resource,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging"
+138,Collections,,funding sources,ontology_array,,,CatalogueOntologies,Funding types,,,,,Specify the main financial support sources for the data source in the last 3 years. Select all that apply,"DataCatalogueFlat,EMA,RWEStaging"
+139,Collections,,funding scheme,ontology_array,,,CatalogueOntologies,Study funding,,,,,The source of funding for the study. Select all that apply,"DataCatalogueFlat,EMA,StudiesStaging"
+140,Collections,,funding statement,text,,,,,,,,,Statement listing funding that was obtained for this resource,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging"
+141,Collections,,acknowledgements,text,,,,,,,,,Acknowledgement statement and citation regulation for this resource,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging"
+142,Collections,,documentation,refback,,,,Collection documentation,,collection,,,"Descriptive document(s) available for this resource, e.g. informed consent","DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging"
+143,Collections,,supplementary information,text,,,,,,,,,Any other information that needs to be disclosed for this resource,"DataCatalogueFlat,CohortsStaging,RWEStaging"
+144,Collections,,study details,heading,,,,,,,,,List of relevant collaborations,"DataCatalogueFlat,StudiesStaging"
+145,Collections,,study requirements,ontology_array,,,CatalogueOntologies,Study requirements,,,,,Study requirements,"DataCatalogueFlat,EMA,StudiesStaging"
+146,Collections,,regulatory procedure number,string,,,,,,,,,"Regulatory procedure number, for RMP Category 1 and 2 studies only","DataCatalogueFlat,EMA,StudiesStaging"
+147,Collections,,date of signing funding contract planned,date,,,,,,,,,"Date when funding contract was signed, planned","DataCatalogueFlat,EMA,StudiesStaging"
+148,Collections,,date of signing funding contract actual,date,,,,,,,,,"Date when funding contract was signed, actual","DataCatalogueFlat,EMA,StudiesStaging"
+149,Collections,,collection start planned,date,,,,,,,,,When was the data collection planned to start?,"DataCatalogueFlat,EMA,StudiesStaging"
+150,Collections,,collection start actual,date,,,,,,,,,When was the data collection actually start?,"DataCatalogueFlat,EMA,StudiesStaging"
+151,Collections,,analysis start planned,date,,,,,,,,,When was the data analysis planned to start?,"DataCatalogueFlat,EMA,StudiesStaging"
+152,Collections,,analysis start actual,date,,,,,,,,,When did the data analysis actually start?,"DataCatalogueFlat,EMA,StudiesStaging"
+153,Collections,,interim report planned,date,,,,,,,,,"Planned date of interim report, if expected","DataCatalogueFlat,EMA,StudiesStaging"
+154,Collections,,interim report actual,date,,,,,,,,,"Actual date of interim report, if expected","DataCatalogueFlat,EMA,StudiesStaging"
+155,Collections,,final report planned,date,,,,,,,,,"Date of final study report, planned","DataCatalogueFlat,EMA,StudiesStaging"
+156,Collections,,final report actual,date,,,,,,,,,"Date of final study report, actual","DataCatalogueFlat,EMA,StudiesStaging"
+157,Collections,,data sources,heading,,,,,,,,,Data management,"DataCatalogueFlat,StudiesStaging"
+158,Collections,,data sources,ref_array,,,,Collections,,,,,Data sources that provided data into this study,"DataCatalogueFlat,EMA,StudiesStaging"
+159,Collections,,data sources other,text,,,,,,,,,Other not listed data sources that provided data into this study,"DataCatalogueFlat,EMA,StudiesStaging"
+160,Collections,,study features,ontology_array,,,CatalogueOntologies,Study features,,,,,Data features,"DataCatalogueFlat,EMA,StudiesStaging"
+161,Collections,,data characterisation details,text,,,,,,,,,Provide a summary description of the data characterisation or quality check process,"DataCatalogueFlat,EMA,StudiesStaging"
+162,Collections,,data source types,ontology_array,,,CatalogueOntologies,Study datasource types,,,,,Types of data sources used,"DataCatalogueFlat,EMA,StudiesStaging"
+163,Collections,,data source types other,text,,,,,,,,,"Sources of data, if other","DataCatalogueFlat,EMA,StudiesStaging"
+164,Collections,,quality marks,ontology_array,,,CatalogueOntologies,Study quality marks,,,,,"Quality marks, such as ENCePP seal","DataCatalogueFlat,EMA,StudiesStaging"
+165,Collections,,number of data sources,,,,,,,,,,Total number of data sources included in the study,"DataCatalogueFlat,EMA,StudiesStaging"
+166,Collections,,medicines studied INN codes,ontology_array,,,CatalogueOntologies,INN,,,,,INN codes of medicines studied,"DataCatalogueFlat,EMA,StudiesStaging"
+167,Collections,,medicines studied ATC codes,ontology_array,,,CatalogueOntologies,ATC,,,,,ATC codes of medicines studied,"DataCatalogueFlat,EMA,StudiesStaging"
+168,Collections,,medicines studies brands,ontology_array,,,CatalogueOntologies,Medicine brand names,,,,,Brand names of the medicines studied,"DataCatalogueFlat,EMA,StudiesStaging"
+169,Collections,,medicines studied other,text,,,,,,,,,If the medicinal product information (e.g. brand name or active substance or ATC code) does not appear in the available look-ups please enter it here,"DataCatalogueFlat,EMA,StudiesStaging"
+170,Collections,,medical conditions studied,ontology_array,,,CatalogueOntologies,MedDRA,,,,,Codes of the medical conditions studied,"DataCatalogueFlat,EMA,StudiesStaging"
+171,Collections,,medical conditions studied other,text,,,,,,,,,Codes of the medical conditions studied,"DataCatalogueFlat,EMA,StudiesStaging"
+172,Collections,,data extraction date,date,,,,,,,,,Date on which the study data was extracted,"DataCatalogueFlat,StudiesStaging"
+173,Collections,,study methods,heading,,,,,,,,,Methodological aspects,"DataCatalogueFlat,StudiesStaging"
+174,Collections,,study setting,text,,,,,,,,,A short description of the study setting,"DataCatalogueFlat,StudiesStaging"
+175,Collections,,analysis plan,text,,,,,,,,,"A brief summary of the analysis method (e.g. risk estimation, measures of risk, internal/external validity)","DataCatalogueFlat,StudiesStaging"
+176,Collections,,population description,text,,,,,,,,,A short description of the study population,"DataCatalogueFlat,EMA,StudiesStaging"
+177,Collections,,number of subjects,int,,,,,,,,,Estimated number of subjects,"DataCatalogueFlat,EMA,StudiesStaging"
+178,Collections,,age groups,ontology_array,,,CatalogueOntologies,Age groups,,,,,Which population age groups are studied,"DataCatalogueFlat,EMA,StudiesStaging"
+179,Collections,,objectives,text,,,,,,,,,A short description of the study objective,"DataCatalogueFlat,EMA,StudiesStaging"
+180,Collections,,interventions,text,,,,,,,,,A short description of the study interventions,"DataCatalogueFlat,EMA,StudiesStaging"
+181,Collections,,comparators,text,,,,,,,,,A short description of the study comparators,"DataCatalogueFlat,EMA,StudiesStaging"
+182,Collections,,outcomes,text,,,,,,,,,A short description of the study outcomes,"DataCatalogueFlat,EMA,StudiesStaging"
+183,Collections,,study design,text,,,,,,,,,A brief summary of the study design,"DataCatalogueFlat,EMA,StudiesStaging"
+184,Collections,,results,text,,,,,,,,,A brief summary of the results of the study on study completion (from abstract),"DataCatalogueFlat,EMA,StudiesStaging"
+185,Collections,,topic,ontology_array,,,CatalogueOntologies,Study topics,,,,,An initial classification of the study purpose,"DataCatalogueFlat,EMA,StudiesStaging"
+186,Collections,,topic other,text,,,,,,,,,"If the study is not concerning any of the proposed categories, please specify the details","DataCatalogueFlat,EMA,StudiesStaging"
+187,Collections,,trial regulatory scope,ontology_array,,,CatalogueOntologies,Study trial regulatory scopes,,,,,Classification of the clinical trial in relation to the medicines authorisation,"DataCatalogueFlat,EMA,StudiesStaging"
+188,Collections,,study design classification,ontology_array,,,CatalogueOntologies,Study design classification,,,,,Study design classifications,"DataCatalogueFlat,EMA,StudiesStaging"
+189,Collections,,study design classification other,text,,,,,,,,,Further details on design,"DataCatalogueFlat,EMA,StudiesStaging"
+190,Collections,,study scope,ontology_array,,,CatalogueOntologies,Study scopes,,,,,Scope of the study,"DataCatalogueFlat,EMA,StudiesStaging"
+191,Collections,,study scope other,text,,,,,,,,,If scope 'other',"DataCatalogueFlat,EMA,StudiesStaging"
+192,Collections,,population of interest,ontology_array,,,CatalogueOntologies,Population of interest,,,,,"If population of interest is 'Other', please specify which other population has been studied","DataCatalogueFlat,EMA,StudiesStaging"
+193,Collections,,population of interest other,text,,,,,,,,,"If population of interest is 'Other', please specify which other population has been studied","DataCatalogueFlat,EMA,StudiesStaging"
