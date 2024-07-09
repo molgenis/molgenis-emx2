@@ -68,8 +68,9 @@ export function createFilters(filters) {
       matchTypeForFilter:
         "any" /** if it has been selected from bookmark, it will be applied here. */,
       showMatchTypeSelector:
-        facet.showMatchTypeSelector ||
-        true /** if you want to make match all / match any available */,
+        facet.showMatchTypeSelector === undefined
+          ? true
+          : facet.showMatchTypeSelector /** if you want to make match all / match any available */,
       negotiatorRequestString:
         facet.negotiatorRequestString /** the part that will be send to the negotiator as to indicate what it is */,
       builtIn:
