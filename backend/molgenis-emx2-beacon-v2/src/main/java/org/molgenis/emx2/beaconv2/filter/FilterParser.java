@@ -15,8 +15,6 @@ public interface FilterParser {
 
   boolean hasWarnings();
 
-  List<Filter> getPostFetchFilters();
-
   List<String> getGraphQlFilters();
 
   default String getUrlPathFilter(BeaconQuery beaconQuery) {
