@@ -114,17 +114,15 @@ function prepareJsQuery() {
   jsQuery.value.query.filters = [];
 
   if (geneFilters.value.length > 0) {
-    const geneCodeFilters = filterData(
-      geneData.value,
-      geneFilters.value,
-      ["name"],
-    );
-    
+    const geneCodeFilters = filterData(geneData.value, geneFilters.value, [
+      "name",
+    ]);
+
     if (geneCodeFilters.length > 0) {
       jsQuery.value.query.filters.push({
         operator: "=",
         id: "edam:data_2295",
-        value: geneCodeFilters
+        value: geneCodeFilters,
       });
     }
   }
@@ -140,7 +138,7 @@ function prepareJsQuery() {
       jsQuery.value.query.filters.push({
         operator: "=",
         id: "NCIT:C28421",
-        value: genderCodeFilters
+        value: genderCodeFilters,
       });
     }
   }
