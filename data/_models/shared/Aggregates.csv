@@ -9,4 +9,3 @@ FORCE_NEN patients,,sex,ontology,1,TRUE,CatalogueOntologies,Sex,,,,,,Aggregates,
 FORCE_NEN patients,,n,int,,TRUE,,,,,,,count,Aggregates,
 Collections,,,,,,,,,,,,"Collections of data, such as cohort studies, biobanks and registries",Aggregates,
 Collections,,id,string,1,TRUE,,,,,,,"IDs taken from the catalogue table 'Collections'",Aggregates,
-
