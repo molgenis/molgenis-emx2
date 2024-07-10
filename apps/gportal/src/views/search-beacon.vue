@@ -13,8 +13,6 @@
       :horizontalPadding="2"
       aria-labelledby="datasets-title"
     >
-      {{ genderFilters }}
-      {{ geneFilters }}
       <div class="sidebar-layout">
         <aside class="sidebar-menu">
           <h3>Build a query</h3>
@@ -62,7 +60,12 @@
               :columnOrder="['schema', 'table', 'status', 'count']"
               :renderHtml="true"
             />
-            <Accordion id="beacon-query" title="View Beacon response">
+            <Accordion id="beacon-query" title="View Beacon information">
+              <h4>Query</h4>
+              <code>
+                <pre>{{ jsQuery }}</pre>
+              </code>
+              <h4>Response</h4>
               <code>
                 <pre>{{ beaconOutput }}</pre>
               </code>
@@ -108,34 +111,36 @@ const beaconResult = ref([]);
 const jsQuery = ref<BeaconQueryIF>({ query: { filters: [] } });
 
 function prepareJsQuery() {
+  jsQuery.value.query.filters = [];
 
   if (geneFilters.value.length > 0) {
-    console.log(geneFilters.value);
-    const lastSelectedGene = geneFilters.value[geneFilters.value.length - 1];
-    const geneCodeFilters = filterData(geneData.value, lastSelectedGene, [
-      "name",
-    ]);
+    const geneCodeFilters = filterData(
+      geneData.value,
+      geneFilters.value,
+      ["name"],
+    );
+    
     if (geneCodeFilters.length > 0) {
       jsQuery.value.query.filters.push({
         operator: "=",
         id: "edam:data_2295",
-        value: geneCodeFilters,
+        value: geneCodeFilters
       });
     }
   }
 
   if (genderFilters.value.length > 0) {
-    const lastSelectedGender = genderFilters.value[genderFilters.length - 1];
     const genderCodeFilters = filterData(
       genderData.value,
-      lastSelectedGender,
+      genderFilters.value,
       ["codesystem", "code"]
     );
+
     if (genderCodeFilters.length > 0) {
       jsQuery.value.query.filters.push({
         operator: "=",
         id: "NCIT:C28421",
-        value: genderCodeFilters,
+        value: genderCodeFilters
       });
     }
   }
@@ -159,7 +164,6 @@ async function queryBeacon() {
 watch([geneFilters, genderFilters], async () => {
   error.value = false;
   loading.value = true;
-  // jsQuery.value.query.filters = []
   prepareJsQuery();
   await queryBeacon();
 });

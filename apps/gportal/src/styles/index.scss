@@ -200,11 +200,15 @@ li {
   }
 
   .accordion-content {
-    background-color: $gray-800;
     padding: 1em;
+    h4 {
+      text-align: left;
+    }
     code {
       pre {
-        color: $gray-050;
+        background: $gray-050;
+        box-sizing: content-box;
+        padding: 0.5em;
       }
     }
   }
