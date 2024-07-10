@@ -57,33 +57,34 @@
 import InputStateIcon from "../icons/InputStateIcon.vue";
 import { MagnifyingGlassIcon } from "@heroicons/vue/24/solid";
 
-interface Props {
-  id: string;
-  type?:
-    | "date"
-    | "datetime-local"
-    | "email"
-    | "number"
-    | "password"
-    | "search"
-    | "tel"
-    | "text"
-    | "time"
-    | "url";
-  label: string;
-  value?: string;
-  placeholder?: string;
-  disabled?: boolean;
-  required?: boolean;
-  valid?: boolean;
-  error?: string;
-  title_is_heading?: boolean;
-}
-
-withDefaults(defineProps<Props>(), {
-  type: "text",
-  disabled: false,
-  required: false,
-  valid: false,
-});
+withDefaults(
+  defineProps<{
+    id: string;
+    type?:
+      | "date"
+      | "datetime-local"
+      | "email"
+      | "number"
+      | "password"
+      | "search"
+      | "tel"
+      | "text"
+      | "time"
+      | "url";
+    label: string;
+    value?: string;
+    placeholder?: string;
+    disabled?: boolean;
+    required?: boolean;
+    valid?: boolean;
+    error?: string;
+    title_is_heading?: boolean;
+  }>(),
+  {
+    type: "text",
+    disabled: false,
+    required: false,
+    valid: false,
+  }
+);
 </script>

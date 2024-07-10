@@ -11,11 +11,9 @@ import {
   NoSymbolIcon,
 } from "@heroicons/vue/24/solid";
 
-interface Props {
+defineProps<{
   error?: boolean;
   disabled?: boolean;
   valid?: boolean;
-}
-
-defineProps<Props>();
+}>();
 </script>
