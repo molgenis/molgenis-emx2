@@ -54,6 +54,11 @@
             <p>{{ error }}</p>
           </MessageBox>
           <div v-if="!loading && beaconOutput">
+            <p>
+              {{ beaconResultHits }} result{{
+                beaconResultHits > 1 || beaconResultHits === 0 ? "s" : null
+              }}
+            </p>
             <DataTable
               tableId="beacon-response"
               :data="beaconResult"
@@ -107,6 +112,7 @@ const genderFilters = ref([]);
 const genderData = ref([]);
 const beaconOutput = ref(null);
 const beaconResult = ref([]);
+const beaconResultHits = ref<number>(0);
 
 const jsQuery = ref<BeaconQueryIF>({ query: { filters: [] } });
 
@@ -152,6 +158,8 @@ async function queryBeacon() {
       const data = response.data;
       const resultSets = data.response.resultSets;
       beaconResult.value = transformBeaconResultSets(resultSets);
+      beaconResultHits.value =
+        beaconOutput.value.responseSummary?.numTotalResults;
     })
     .catch((err) => {
       error.value = `${err.message} (${err.code})`;
