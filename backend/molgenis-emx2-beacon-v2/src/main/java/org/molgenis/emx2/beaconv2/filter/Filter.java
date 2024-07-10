@@ -162,12 +162,12 @@ public class Filter {
     String graphQlQuery = concept.getGraphQlQuery();
     int argumentCount = (int) graphQlQuery.chars().filter(ch -> ch == '%').count();
 
-    if (argumentCount == values.length) {
-      return graphQlQuery.formatted((Object[]) values);
-    } else if (values.length % argumentCount == 0) {
+    if (argumentCount == getValues().length) {
+      return graphQlQuery.formatted((Object[]) getValues());
+    } else if (getValues().length % argumentCount == 0) {
       List<String> result = new ArrayList<>();
-      for (int i = 0; i < values.length; i += argumentCount) {
-        Object[] arguments = Arrays.copyOfRange(values, i, i + argumentCount);
+      for (int i = 0; i < getValues().length; i += argumentCount) {
+        Object[] arguments = Arrays.copyOfRange(getValues(), i, i + argumentCount);
         result.add(concept.getGraphQlQuery().formatted(arguments));
       }
       return createOrFilter(result);
