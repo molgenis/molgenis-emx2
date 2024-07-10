@@ -1304,23 +1304,58 @@ public class WebApiSmokeTests {
     db.getSchema(SYSTEM_SCHEMA).getTable("AnalyticsTrigger").truncate();
     String adminToken = getToken("admin", "admin");
 
-    Map<String, String> request = new HashMap<>();
-    request.put("name", "my-trigger");
-    request.put("cssSelector", "#my-favorite-button");
+    // add a trigger
+    Map<String, String> addRequest = new HashMap<>();
+    addRequest.put("name", "my-trigger");
+    addRequest.put("cssSelector", "#my-favorite-button");
 
     String resp =
         given()
             .header(X_MOLGENIS_TOKEN, adminToken)
             .when()
-            .body(request)
+            .body(addRequest)
             .post("/pet store/api/trigger")
             .getBody()
             .asString();
     assertEquals("\"{\\\"status\\\": \\\"success\\\"}\"", resp);
+
+    // fetch a triggers
     String triggers = given().get("/pet store/api/trigger").getBody().asString();
     assertEquals(
         "[{\"name\":\"my-trigger\",\"cssSelector\":\"#my-favorite-button\",\"schemaName\":\"pet store\",\"appName\":null}]",
         triggers);
+
+    // update a trigger
+    Map<String, String> updateRequest = new HashMap<>();
+    updateRequest.put("cssSelector", "#my-update-button");
+
+    String updateResp =
+        given()
+            .header(X_MOLGENIS_TOKEN, adminToken)
+            .when()
+            .body(updateRequest)
+            .put("/pet store/api/trigger/my-trigger")
+            .getBody()
+            .asString();
+    assertEquals("\"{\\\"status\\\": \\\"success\\\"}\"", updateResp);
+
+    // re-fetch a triggers to check update
+    String updated = given().get("/pet store/api/trigger").getBody().asString();
+    assertEquals(
+        "[{\"name\":\"my-trigger\",\"cssSelector\":\"#my-update-button\",\"schemaName\":\"pet store\",\"appName\":null}]",
+        updated);
+
+    // delete a trigger
+    given()
+        .header(X_MOLGENIS_TOKEN, adminToken)
+        .delete("/pet store/api/trigger/my-trigger")
+        .getBody()
+        .asString();
+    assertEquals("\"{\\\"status\\\": \\\"success\\\"}\"", resp);
+
+    // refetch triggers
+    String triggersAfterDelete = given().get("/pet store/api/trigger").getBody().asString();
+    assertEquals("[]", triggersAfterDelete);
   }
 
   @Test

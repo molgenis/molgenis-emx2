@@ -129,5 +129,64 @@ public class TriggerRepositoryImpl implements TriggerRepository {
         });
     return triggers;
   }
+
+  @Override
+  public boolean deleteTrigger(String triggerName) {
+    AtomicInteger deleted = new AtomicInteger();
+
+    this.database.tx(
+        db -> {
+          Schema sysSchema = db.getSchema(SYSTEM_SCHEMA);
+          if (sysSchema == null) {
+            throw new MolgenisException("failed to delete analytics Trigger");
+          }
+
+          Table triggerTable = sysSchema.getTable(TRIGGER_TABLE_NAME);
+          List<Row> rowList =
+              triggerTable.query().where(f(NAME, EQUALS, triggerName)).retrieveRows();
+          if (1 != rowList.size()) {
+            throw new MolgenisException("failed to delete trigger");
+          }
+
+          deleted.set(triggerTable.delete(rowList));
+        });
+
+    if (deleted.get() == 1) {
+      return true;
+    } else {
+      throw new MolgenisException("failed to delete trigger");
+    }
+  }
   ;
+
+  @Override
+  public boolean updateTrigger(Trigger trigger) {
+    AtomicInteger updated = new AtomicInteger();
+
+    this.database.tx(
+        db -> {
+          Schema sysSchema = db.getSchema(SYSTEM_SCHEMA);
+          if (sysSchema == null) {
+            throw new MolgenisException("failed to update analytics Trigger");
+          }
+
+          Table triggerTable = sysSchema.getTable(TRIGGER_TABLE_NAME);
+          List<Row> rowList =
+              triggerTable.query().where(f(NAME, EQUALS, trigger.name())).retrieveRows();
+          if (1 != rowList.size()) {
+            throw new MolgenisException("failed to update trigger");
+          }
+
+          Row toUpdate = rowList.get(0);
+          toUpdate.setString(CSS_SELECTOR, trigger.cssSelector());
+
+          updated.set(triggerTable.update(rowList));
+        });
+
+    if (updated.get() == 1) {
+      return true;
+    } else {
+      throw new MolgenisException("failed to update trigger");
+    }
+  }
 }

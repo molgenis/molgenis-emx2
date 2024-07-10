@@ -8,4 +8,8 @@ public interface TriggerRepository {
   Trigger addTrigger(Trigger trigger);
 
   List<Trigger> getTriggersForSchema(Schema schema);
+
+  boolean deleteTrigger(String triggerName);
+
+  boolean updateTrigger(Trigger trigger);
 }
