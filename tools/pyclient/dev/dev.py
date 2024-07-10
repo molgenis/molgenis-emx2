@@ -38,7 +38,7 @@ async def main():
 
     async with Client('https://emx2.dev.molgenis.org/', schema='catalogue') as client:
         var_values = client.get(table='Variable values',
-                          query_filter='`is missing` == False and resource == ATHLETE_CDM', as_df=True)
+                                query_filter='label != No and value != 1', as_df=True)
 
         print(var_values.head().to_string())
 

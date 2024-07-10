@@ -591,6 +591,11 @@ class Client:
                 _filter.update(**self.__prepare_greater_filter(stmt, _table, _schema))
             elif '<' in stmt:
                 _filter.update(**self.__prepare_smaller_filter(stmt, _table, _schema))
+            elif '!=' in stmt:
+                _filter.update(**self.__prepare_unequal_filter(stmt, _table, _schema))
+            else:
+                raise ValueError(f"Cannot process statement {stmt!r}, "
+                                 f"ensure specifying one of the operators '==', '>', '<', '!=' in your statement.")
         return "?filter=" + json.dumps(_filter)
 
     def __prepare_equals_filter(self, stmt: str, _table: str, _schema: str) -> dict:
@@ -610,7 +615,7 @@ class Client:
             case 'REF':
                 val = {'id': _val}
             case _:
-                val = _val
+                val = ''.join(_val.split('`'))
 
         return {col.id: {'equals': [val]}}
 
@@ -652,9 +657,27 @@ class Client:
             case 'DECIMAL':
                 val = float(_val)
             case _:
-                raise NotImplementedError(f"Cannot perform filter '>' on column with type {col.get('columnType')}.")
+                raise NotImplementedError(f"Cannot perform filter '<' on column with type {col.get('columnType')}.")
 
         return {col.id: {"between": [None, val]}}
+
+    def __prepare_unequal_filter(self, stmt: str, _table: str, _schema: str) -> dict:
+        """Prepares the filter part if the statement filters on greater than."""
+        stmt.replace('=', '')
+        _col = stmt.split('!=')[0].strip()
+        _val = stmt.split('!=')[1].strip()
+
+        col_name = ''.join(_col.split('`'))
+
+        schema = self.get_schema_metadata(_schema)
+        col = schema.get_table(by='name', value=_table).get_column(by='name', value=col_name)
+
+        match col.get('columnType'):
+            case _:
+                val = ''.join(_val.split('`'))
+
+        return {col.id: {"not_equals": val}}
+
 
 
     @staticmethod
