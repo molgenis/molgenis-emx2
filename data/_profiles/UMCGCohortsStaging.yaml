@@ -1,7 +1,7 @@
 ---
-name: Staging area for filling out cohort metadata
+name: Staging area for filling out UMCG cohort metadata
 
-profileTags: CohortsStaging
+profileTags: UMCGCohortsStaging
 
 # demoData: _demodata/applications/datacatalogue
 
