@@ -141,6 +141,10 @@ export default {
         "SHARED_STAGING",
         "PROJECTMANAGER",
         "GDI",
+        "FLAT_COHORTS_STAGING",
+        "FLAT_STUDIES_STAGING",
+        "FLAT_NETWORKS_STAGING",
+        "FLAT_RWE_STAGING"
       ],
       includeDemoData: false,
     };
