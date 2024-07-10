@@ -1,5 +1,6 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,visible
 FORCE_NEN patients,,,,,,,,,,,,"Resource counts for e.g. samples, clinical data",Aggregates,
+FORCE_NEN patients,,collection,ref,1,TRUE,,Collections,,,,,,Aggregates,
 FORCE_NEN patients,,research center,ref,1,TRUE,,Collections,,,,,,Aggregates,
 FORCE_NEN patients,,primary tumor site,ontology,1,TRUE,CatalogueOntologies,ICDO topologies,,,,,,Aggregates,
 FORCE_NEN patients,,metastasis,ontology,1,TRUE,CatalogueOntologies,NoYesUnknown,,,,,Distant metastasis at diagnosis,Aggregates,
