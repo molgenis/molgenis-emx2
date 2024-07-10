@@ -16,7 +16,7 @@ const titlePrefix =
   route.params.catalogue === "all" ? "" : route.params.catalogue + " ";
 useHead({ title: titlePrefix + "Variables" });
 
-type view = "list" | "harmonization";
+type view = "list" | "harmonisation";
 
 const scoped = route.params.catalogue !== "all";
 const catalogueRouteParam = route.params.catalogue as string;
@@ -45,7 +45,7 @@ const pageIcon = computed(() => {
   switch (activeName.value) {
     case "list":
       return "image-diagram-2";
-    case "harmonization":
+    case "harmonisation":
       return "image-table";
   }
 });
@@ -258,7 +258,7 @@ const fetchData = async () => {
     cohortsFilter.networks = { equals: [{ id: catalogueRouteParam }] };
   }
 
-  // add 'special' filter for harmonization x-axis if 'cohorts' filter is set
+  // add 'special' filter for harmonisation x-axis if 'cohorts' filter is set
   const cohortConditions = (
     pageFilterTemplate.find((f) => f.id === "cohorts") as IRefArrayFilter
   )?.conditions;
@@ -272,8 +272,20 @@ const fetchData = async () => {
   const variables = scoped
     ? {
         variablesFilter: {
-          ...filter.value,
-          ...(await buildScopedModelFilter()),
+          _or: [
+            {
+              ...filter.value,
+              ...(await buildScopedModelFilter()),
+            },
+            {
+              ...filter.value,
+              ...{
+                networkVariables: {
+                  network: { id: { equals: catalogueRouteParam } },
+                },
+              },
+            },
+          ],
         },
         cohortsFilter,
       }
@@ -345,14 +357,20 @@ crumbs[
                 buttonLeftLabel="List of variables"
                 buttonLeftName="list"
                 buttonLeftIcon="view-compact"
-                buttonRightLabel="Harmonizations"
-                buttonRightName="harmonization"
+                buttonRightLabel="Harmonisations"
+                buttonRightName="harmonisation"
                 buttonRightIcon="view-table"
                 :activeName="activeName"
                 @update:activeName="onViewChange"
               />
               <SearchResultsViewTabsMobile
                 class="flex xl:hidden"
+                button-top-label="Harmonisation"
+                button-top-name="list"
+                button-top-icon="view-table"
+                button-bottom-label="Variables"
+                button-bottom-name="harmonisation"
+                button-bottom-icon="view-compact"
                 :activeName="activeName"
                 @update:activeName="onViewChange"
               >
@@ -408,12 +426,12 @@ crumbs[
                 />
               </CardListItem>
             </CardList>
-            <HarmonizationTable
+            <HarmonisationTable
               v-else
               :variables="data?.data?.Variables"
               :cohorts="data?.data?.Cohorts"
             >
-            </HarmonizationTable>
+            </HarmonisationTable>
           </SearchResultsList>
         </template>
 
