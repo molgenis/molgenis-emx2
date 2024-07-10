@@ -8,14 +8,14 @@
 import {
   CheckCircleIcon,
   ExclamationTriangleIcon,
-  NoSymbolIcon
+  NoSymbolIcon,
 } from "@heroicons/vue/24/solid";
 
 interface Props {
-  error?: boolean,
-  disabled?: boolean,
-  valid?: boolean,
+  error?: boolean;
+  disabled?: boolean;
+  valid?: boolean;
 }
 
-defineProps<Props>()
+defineProps<Props>();
 </script>

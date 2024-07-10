@@ -1,16 +1,13 @@
 <template>
   <h2>Input Text component</h2>
-  <p>The input text enables you to create an input element that takes user input via the keyboard or other device. The available input types are not only text, but date, email, number, password, search, etc. However, checkbox and radio types are in a separate component.</p>
-  <div class="
-    grid
-    grid-cols-2
-    gap-6
-    my-5
-    [&>div>div]:bg-white
-    [&>div>div]:p-4
-    [&_h3]:font-semibold
-    [&_h3]:my-2
-    "
+  <p>
+    The input text enables you to create an input element that takes user input
+    via the keyboard or other device. The available input types are not only
+    text, but date, email, number, password, search, etc. However, checkbox and
+    radio types are in a separate component.
+  </p>
+  <div
+    class="grid grid-cols-2 gap-6 my-5 [&>div>div]:bg-white [&>div>div]:p-4 [&_h3]:font-semibold [&_h3]:my-2"
   >
     <div>
       <h3>Input text: default use</h3>
@@ -38,7 +35,9 @@
         :required="true"
       >
         <template v-slot:description>
-          <span class="text-gray-600/80">Search for patient identifier, affiliation, etc.</span>
+          <span class="text-gray-600/80"
+            >Search for patient identifier, affiliation, etc.</span
+          >
         </template>
       </InputText>
     </div>
@@ -62,19 +61,11 @@
     </div>
     <div>
       <h3>Input text: as a search input</h3>
-      <InputText
-        id="type-search"
-        label="Search"
-        type="search"
-      />
+      <InputText id="type-search" label="Search" type="search" />
     </div>
     <div>
       <h3>Input text: as an email input</h3>
-      <InputText
-        id="type-email"
-        label="Enter your email"
-        type="email"
-      />
+      <InputText id="type-email" label="Enter your email" type="email" />
     </div>
     <div>
       <h3>Input text: as a password input</h3>
@@ -86,35 +77,19 @@
     </div>
     <div>
       <h3>Input text: as a telephone input</h3>
-      <InputText
-        id="type-tel"
-        label="Enter your telephone number"
-        type="tel"
-      />
+      <InputText id="type-tel" label="Enter your telephone number" type="tel" />
     </div>
     <div>
       <h3>Input text: as a url input</h3>
-      <InputText
-        id="type-url"
-        label="Enter a URL"
-        type="url"
-      />
+      <InputText id="type-url" label="Enter a URL" type="url" />
     </div>
     <div>
       <h3>Input text: as a numeric input</h3>
-      <InputText
-        id="type-number"
-        label="Enter a number"
-        type="number"
-      />
+      <InputText id="type-number" label="Enter a number" type="number" />
     </div>
     <div>
       <h3>Input text: as a date input</h3>
-      <InputText
-        id="type-date"
-        label="Enter a date"
-        type="date"
-      />
+      <InputText id="type-date" label="Enter a date" type="date" />
     </div>
     <div>
       <h3>Input text: as a datetime local input</h3>
@@ -126,11 +101,7 @@
     </div>
     <div>
       <h3>Input text: as a time input</h3>
-      <InputText
-        id="type-time"
-        label="Enter a time"
-        type="time"
-      />
+      <InputText id="type-time" label="Enter a time" type="time" />
     </div>
   </div>
 </template>
