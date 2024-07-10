@@ -81,9 +81,15 @@ public class BeaconQuery {
     }
     if (request.queryMap() != null) {
       for (var queryParam : request.queryMap().toMap().entrySet()) {
-        requestParameters.put(
-            queryParam.getKey(),
-            new BeaconRequestParameters(queryParam.getKey(), queryParam.getValue()[0]));
+        if (queryParam.getKey().equals("limit")) {
+          pagination.setLimit(Integer.parseInt(queryParam.getValue()[0]));
+        } else if (queryParam.getKey().equals("skip")) {
+          pagination.setSkip(Integer.parseInt(queryParam.getValue()[0]));
+        } else {
+          requestParameters.put(
+              queryParam.getKey(),
+              new BeaconRequestParameters(queryParam.getKey(), queryParam.getValue()[0]));
+        }
       }
     }
     return this.entryType;
