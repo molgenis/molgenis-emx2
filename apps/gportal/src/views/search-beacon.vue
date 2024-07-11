@@ -13,7 +13,7 @@
       :horizontalPadding="2"
       aria-labelledby="datasets-title"
     >
-    {{ geneFilters }}
+      {{ geneFilters }}
       <div class="sidebar-layout">
         <aside class="sidebar-menu">
           <h3>Build a query</h3>

@@ -28,7 +28,9 @@
           :name="`${tableId}-checkbox-group`"
           v-model="selections"
         />
-        <label :for="`${id}-${row[idColumn]}`">{{ row[labelColumn] || row[valueColumn] }}</label>
+        <label :for="`${id}-${row[idColumn]}`">{{
+          row[labelColumn] || row[valueColumn]
+        }}</label>
       </div>
       <button
         :id="`${id}-checkbox-options-show-more`"
@@ -49,43 +51,42 @@ import { request } from "graphql-request";
 
 interface CheckBoxGroupSearchIF {
   id: string;
-  label: string; 
+  label: string;
   searchInputLabel?: string;
   tableId: string;
   idColumn: string;
-  valueColumn: string,
+  valueColumn: string;
   labelColumn: string;
   columns: string[];
   limit?: number;
 }
 
-const props = withDefaults(
-  defineProps<CheckBoxGroupSearchIF>(),
-  {
-    searchInputLabel: 'Search for options',
-    limit: 5,
-  }
-);
+const props = withDefaults(defineProps<CheckBoxGroupSearchIF>(), {
+  searchInputLabel: "Search for options",
+  limit: 5,
+});
 
 const loading = ref<boolean>(false);
 const error = ref<Error | boolean>(false);
-const searchTerm = ref<string>('');
+const searchTerm = ref<string>("");
 const referenceData = ref<object[]>([]);
 const selections = ref<string[]>([]);
 const showLimit = ref<number>(props.limit);
 
 function removeFilter(value) {
-  selections.value = selections.value.filter((selection) => selection !== value);
+  selections.value = selections.value.filter(
+    (selection) => selection !== value
+  );
 }
 
 async function fetchData() {
-  const cols = props.columns.join(' ')
+  const cols = props.columns.join(" ");
   const query = `query {
     ${props.tableId}(search:"${searchTerm.value}", limit: ${showLimit.value}) {
       ${cols}
       }
     }`;
-  const response = await request('../api/graphql', query)
+  const response = await request("../api/graphql", query);
   referenceData.value = response[props.tableId];
 }
 
@@ -94,13 +95,12 @@ async function getCheckBoxOptions() {
   await fetchData()
     .catch((err) => (error.value = err))
     .finally(() => (loading.value = false));
-  showLimit.value = showLimit.value * 2
+  showLimit.value = showLimit.value * 2;
 }
 
 onMounted(async () => getCheckBoxOptions());
 
 watch([searchTerm], async () => getCheckBoxOptions());
-
 </script>
 
 <style lang="scss">
@@ -114,7 +114,7 @@ watch([searchTerm], async () => getCheckBoxOptions());
       padding: 0.4em;
     }
   }
-  
+
   legend {
     font-size: 1.25rem;
   }
@@ -125,7 +125,7 @@ watch([searchTerm], async () => getCheckBoxOptions());
     border: 1px solid $gray-200;
     border-radius: 4px;
     box-shadow: $box-shadow-inset;
-    
+
     label {
       margin-left: 0.5em;
     }
