@@ -8,7 +8,8 @@
           class="btn btn-outline-primary"
           @click="removeFilter(selection)"
         >
-          {{ selection }}
+          <span>{{ selection }}</span>
+          <XMarkIcon width="16" height="16" />
         </button>
       </template>
     </div>
@@ -19,26 +20,29 @@
         @search="searchTerm = $event"
       />
     </div>
-    <div v-if="referenceData.length" class="checkbox-options">
-      <div v-for="row in referenceData">
-        <input
-          type="checkbox"
-          :id="`${id}-${row[idColumn]}`"
-          :value="row[labelColumn] || row[valueColumn]"
-          :name="`${tableId}-checkbox-group`"
-          v-model="selections"
-        />
-        <label :for="`${id}-${row[idColumn]}`">{{
-          row[labelColumn] || row[valueColumn]
-        }}</label>
-      </div>
-      <button
-        :id="`${id}-checkbox-options-show-more`"
-        @click="getCheckBoxOptions()"
-        class="btn btn-primary"
-      >
-        <span>Show more</span>
-      </button>
+    <div class="checkbox-options">
+      <template v-if="referenceData !== undefined">
+        <div v-for="row in referenceData" class="checkbox-option">
+          <input
+            type="checkbox"
+            :id="`${id}-${row[idColumn]}`"
+            :value="row[labelColumn] || row[valueColumn]"
+            :name="`${tableId}-checkbox-group`"
+            v-model="selections"
+          />
+          <label :for="`${id}-${row[idColumn]}`">{{
+            row[labelColumn] || row[valueColumn]
+          }}</label>
+        </div>
+        <button
+          :id="`${id}-checkbox-options-show-more`"
+          @click="getCheckBoxOptions()"
+          class="btn btn-primary"
+        >
+          <span>Show more</span>
+        </button>
+      </template>
+      <span v-else>No results found</span>
     </div>
   </fieldset>
 </template>
@@ -48,6 +52,7 @@ import { ref, onMounted, watch } from "vue";
 import { InputSearch, LoadingScreen } from "molgenis-viz";
 import gql from "graphql-tag";
 import { request } from "graphql-request";
+import { XMarkIcon } from "@heroicons/vue/24/outline";
 
 interface CheckBoxGroupSearchIF {
   id: string;
@@ -63,13 +68,13 @@ interface CheckBoxGroupSearchIF {
 
 const props = withDefaults(defineProps<CheckBoxGroupSearchIF>(), {
   searchInputLabel: "Search for options",
-  limit: 5,
+  limit: 8,
 });
 
 const loading = ref<boolean>(false);
 const error = ref<Error | boolean>(false);
 const searchTerm = ref<string>("");
-const referenceData = ref<object[]>([]);
+const referenceData = ref([]);
 const selections = ref<string[]>([]);
 const showLimit = ref<number>(props.limit);
 
@@ -87,7 +92,8 @@ async function fetchData() {
       }
     }`;
   const response = await request("../api/graphql", query);
-  referenceData.value = response[props.tableId];
+  const data = response[props.tableId];
+  referenceData.value = data;
 }
 
 async function getCheckBoxOptions() {
@@ -112,6 +118,13 @@ watch([searchTerm], async () => getCheckBoxOptions());
     .btn.btn-outline-primary {
       font-size: 0.9rem;
       padding: 0.4em;
+
+      svg {
+        $iconSize: 18px;
+        width: $iconSize;
+        height: $iconSize;
+        margin-left: 0.25em;
+      }
     }
   }
 
