@@ -20,6 +20,7 @@
     "prettier": "2.8.8",
     "typescript": "^5.2.2",
     "vite": "^5.3.1",
+    "vite-plugin-dts": "^3.9.1",
     "vue-tsc": "^2.0.21"
   },
   "publishConfig": {
@@ -29,5 +30,19 @@
     "dist",
     "src",
     "package.json",
-    "README.md"]
+    "README.md"
+  ],
+  "main": "./dist/analytics.umd.js",
+  "module": "./dist/analytics.es.js",
+  "typings": "./dist/lib/**/*.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/analytics.es.js",
+      "require": "./dist/analytics.umd.js"
+    },
+    "./dist/style.css": {
+      "import": "./dist/style.css",
+      "require": "./dist/style.css"
+    }
+  }
 }
