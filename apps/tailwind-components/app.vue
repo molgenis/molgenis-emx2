@@ -1,6 +1,7 @@
 <script setup lang="ts">
-
-const theme = ref('');
+const theme = useCookie("theme", {
+  default: () => "",
+});
 useHead({
   title: "Tailwind components",
   meta: [
