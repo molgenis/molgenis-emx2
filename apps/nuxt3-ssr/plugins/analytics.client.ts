@@ -9,9 +9,7 @@ export default defineNuxtPlugin((nuxtApp) => {
     }
     {
       console.log("setupAnalytics for : " + schema);
-      const providers = [
-        { id: "site-improve", options: { analyticsKey } },
-      ]: Provider[];
+      const providers = [{ id: "site-improve", options: { analyticsKey } }];
       setupAnalytics(schema, providers);
     }
   });
