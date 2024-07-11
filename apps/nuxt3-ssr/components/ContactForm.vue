@@ -14,7 +14,11 @@ defineEmits(["submitForm"]);
     @submit.prevent="$emit('submitForm')"
   >
     <div v-for="field in fields" :key="field.name">
-      <label class="pl-3 text-body-base" :for="field.name" v-if="field.inputType !== 'string'">
+      <label
+        class="pl-3 text-body-base"
+        :for="field.name"
+        v-if="field.inputType !== 'string'"
+      >
         {{ field.label }}
       </label>
 

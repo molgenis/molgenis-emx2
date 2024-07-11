@@ -6,10 +6,10 @@ const placeholder = "'A-001' or 'A-001,A-002'";
 <template>
   <h2>String component</h2>
   <p>
-    The <code>String Component</code> enables you to create an input element that takes user input
-    via the keyboard or other device. The available input types are not only
-    text, but date, email, number, password, search, etc. However, checkbox and
-    radio types are in a separate component.
+    The <code>String Component</code> enables you to create an input element
+    that takes user input via the keyboard or other device. The available input
+    types are not only text, but date, email, number, password, search, etc.
+    However, checkbox and radio types are in a separate component.
   </p>
   <div
     class="grid grid-cols-2 gap-6 my-5 [&>div>div]:bg-white [&>div>div]:p-4 [&_h3]:font-semibold [&_h3]:my-2"
