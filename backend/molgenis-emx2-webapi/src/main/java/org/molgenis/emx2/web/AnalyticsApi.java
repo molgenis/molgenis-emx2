@@ -25,6 +25,10 @@ public class AnalyticsApi {
   public static final String STATUS_FAILED = "{\"status\": \"failed\"}";
   private static final String TRIGGER_PARAM = ":trigger";
 
+  private AnalyticsApi() {
+    // hide constructor
+  }
+
   public static void create() {
 
     new TriggerRepositoryImpl(new SqlDatabase(false));

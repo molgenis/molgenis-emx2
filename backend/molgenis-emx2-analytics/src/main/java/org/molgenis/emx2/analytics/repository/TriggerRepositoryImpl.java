@@ -41,9 +41,9 @@ public class TriggerRepositoryImpl implements TriggerRepository {
                   table(
                       TRIGGER_TABLE_NAME,
                       column(NAME).setPkey(),
-                      column("cssSelector").setRequired(true),
-                      column("appName").setRequired(false),
-                      column("schemaName").setRequired(false)));
+                      column(CSS_SELECTOR).setRequired(true),
+                      column(APP_NAME).setRequired(false),
+                      column(SCHEMA_NAME).setRequired(false)));
             }
           } finally {
             db.setActiveUser(currentUser);
