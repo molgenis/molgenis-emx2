@@ -3,9 +3,9 @@
     <h1>European Networks Health Data and Cohort Catalogue.</h1>
     <p>
       This catalogue contains metadata on cohorts/data sources, the variables
-      they collect, and/or harmonization efforts to enable integrated reuse of
+      they collect, and/or harmonisation efforts to enable integrated reuse of
       their rich valuable data. The contents is grouped by 'networks', such as
-      harmonization projects, EU projects or by navigating all cohorts directly
+      harmonisation projects, EU projects or by navigating all cohorts directly
       below.
     </p>
     <InputSearch

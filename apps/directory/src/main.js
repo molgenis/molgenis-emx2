@@ -20,6 +20,9 @@ if (import.meta.env.DEV) {
 import "@fortawesome/fontawesome-free/css/all.css";
 import "@fortawesome/fontawesome-free/js/all.js";
 
+/** Add bootstrap icons */
+import "bootstrap-icons/font/bootstrap-icons.css";
+
 export const app = createApp(App);
 
 app.use(createPinia());

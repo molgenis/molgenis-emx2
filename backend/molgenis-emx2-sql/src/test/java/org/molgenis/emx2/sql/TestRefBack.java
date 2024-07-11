@@ -5,6 +5,7 @@ import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
+import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.TableMetadata.table;
 
@@ -262,5 +263,32 @@ public class TestRefBack {
             .get(0)
             .getStringArray("posts")
             .length);
+  }
+
+  @Test
+  public void testRefBackUsingSubclasses() {
+    schema.create(
+        table("subject", column("id").setPkey()),
+        table(
+            "treatments",
+            column("id").setPkey(),
+            column("partOfSubject").setType(REF).setRefTable("subject")));
+    // inherit
+    schema.create(table("treatmentxyz", column("xyz")).setInheritName("treatments"));
+    // add the refback
+    schema
+        .getTable("subject")
+        .getMetadata()
+        .add(
+            column("treatxyz")
+                .setType(REFBACK)
+                .setRefTable("treatmentxyz")
+                .setRefBack("partOfSubject"));
+    schema.getTable("subject").insert(row("id", "s1"));
+    schema.getTable("treatmentxyz").insert(row("id", "t1"));
+    schema.getTable("subject").update(row("id", "s1", "treatxyz", "t1"));
+    // verify the reference has indeed been updated.
+    assertEquals(
+        "s1", schema.getTable("treatmentxyz").retrieveRows().get(0).getString("partOfSubject"));
   }
 }

@@ -123,12 +123,12 @@ export default {
       schemaDescription: null,
       template: null,
       templates: [
-        null,
         "PET_STORE",
         "FAIR_DATA_HUB",
         "DATA_CATALOGUE",
         "DATA_CATALOGUE_COHORT_STAGING",
         "DATA_CATALOGUE_NETWORK_STAGING",
+        "DATA_CATALOGUE_FLAT",
         "RD3",
         "JRC_COMMON_DATA_ELEMENTS",
         "FAIR_GENOMES",
@@ -139,6 +139,7 @@ export default {
         "BIOBANK_DIRECTORY_STAGING",
         "SHARED_STAGING",
         "PROJECTMANAGER",
+        "GDI",
       ],
       includeDemoData: false,
     };

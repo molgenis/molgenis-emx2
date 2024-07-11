@@ -119,7 +119,7 @@
               <span class="badge badge-light float-right">{{ models }}</span>
             </h3>
             <p class="text-left">
-              Standard/harmonized data dictionaries for integrated analysis
+              Standard/harmonised data dictionaries for integrated analysis
             </p>
           </RouterLink>
         </div>

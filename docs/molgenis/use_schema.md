@@ -45,6 +45,7 @@ Basic type:
 - decimal
 - date
 - datetime
+- period : string as a ISO 8601 duration containing Years, Months and/or Days. (P2Y4M30D)
 - uuid
 - jsonb : validates json format
 - file
@@ -74,6 +75,7 @@ Arrays (i.e. list of values)
 - decimal_array
 - date_array
 - datetime_array
+- period_array
 - jsonb_array
 - uuid_array
 - text_array

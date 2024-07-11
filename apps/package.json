@@ -25,6 +25,11 @@
     "reports",
     "tasks",
     "gportal",
-    "projectmanager"
-  ]
+    "projectmanager",
+    "aggregation-dashboard",
+    "imdhub-public"
+  ],
+  "devDependencies": {
+    "nuxt": "3.12.2"
+  }
 }

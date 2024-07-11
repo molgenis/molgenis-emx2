@@ -10,7 +10,7 @@ The folder `e2e/catalogue` contains the manual test used by cohort data managers
 2. Researcher.
 3. Data manager of a cohort.
 4. Data manager of a data source.
-5. Data manager of harmonized variables
+5. Data manager of harmonised variables
 6. Data manager of a network.
 
 ## Catalogue manual test template

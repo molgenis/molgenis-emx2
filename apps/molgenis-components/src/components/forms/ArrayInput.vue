@@ -42,6 +42,8 @@ import InputBoolean from "./InputBoolean.vue";
 import InputDate from "./InputDate.vue";
 import InputDateTime from "./InputDateTime.vue";
 import InputDecimal from "./InputDecimal.vue";
+import InputEmail from "./InputEmail.vue";
+import InputHyperlink from "./InputHyperlink.vue";
 import InputInt from "./InputInt.vue";
 import InputLong from "./InputLong.vue";
 import InputString from "./InputString.vue";
@@ -68,8 +70,9 @@ export default {
         DATE_ARRAY: InputDate,
         DATETIME_ARRAY: InputDateTime,
         DECIMAL_ARRAY: InputDecimal,
-        EMAIL_ARRAY: InputString,
-        HYPERLINK_ARRAY: InputString,
+        PERIOD_ARRAY: InputString,
+        EMAIL_ARRAY: InputEmail,
+        HYPERLINK_ARRAY: InputHyperlink,
         INT_ARRAY: InputInt,
         LONG_ARRAY: InputLong,
         STRING_ARRAY: InputString,

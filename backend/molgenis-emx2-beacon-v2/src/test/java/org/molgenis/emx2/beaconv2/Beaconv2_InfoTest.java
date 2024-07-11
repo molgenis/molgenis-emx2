@@ -1,29 +1,20 @@
 package org.molgenis.emx2.beaconv2;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.beaconv2.endpoints.Info;
-import org.molgenis.emx2.json.JsonUtil;
+import org.molgenis.emx2.beaconv2.entrytypes.BeaconModelEndPointTest;
 
-public class Beaconv2_InfoTest {
+public class Beaconv2_InfoTest extends BeaconModelEndPointTest {
 
   @Test
-  public void testInfoRootEndpoint() throws Exception {
-    Info i = new Info();
-    String json = JsonUtil.getWriter().writeValueAsString(i);
+  public void testInfoRootEndpoint() {
+    Info info = new Info(beaconSchema);
+    JsonNode response = info.getResponse();
 
-    // first line - note: no longer needed?
-    // assertTrue(json.contains("\"$schema\" : \"../beaconInfoResponse.json\","));
-
-    // last line (except for closing braces)
-    assertTrue(json.contains("\"updateDateTime\" :"));
-
-    // org info
-    assertTrue(json.contains("organization"));
-    assertTrue(json.contains("Genomics Coordination Center"));
-
-    // beacon info
-    assertTrue(json.contains("MOLGENIS EMX2 Beacon v2"));
+    assertEquals("UMCG", response.get("response").get("organization").get("name").asText());
+    assertEquals("MOLGENIS EMX2 Beacon v2", response.get("response").get("name").asText());
   }
 }
