@@ -152,15 +152,16 @@ class StagingMigrator(Client):
             data_response = response.json().get('data')
             if len(data_response) > 0:
                 for record in data_response.values():
-                    for column in list(record[0].values()):
-                        if len(column) == 0:
-                            continue
-                        if isinstance(column, list):
-                            for entry in column:
-                                organisations.add(list(entry.values())[0])
-                        elif isinstance(column, dict):
-                            for entry in column.values():
-                                organisations.add(entry)
+                    for rec in record:
+                        for column in list(rec.values()):
+                            if len(column) == 0:
+                                continue
+                            if isinstance(column, list):
+                                for entry in column:
+                                    organisations.add(list(entry.values())[0])
+                            elif isinstance(column, dict):
+                                for entry in column.values():
+                                    organisations.add(entry)
 
         organisations = list(organisations)
         if len(organisations) < 1:
