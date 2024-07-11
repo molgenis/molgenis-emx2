@@ -13,6 +13,7 @@
       :horizontalPadding="2"
       aria-labelledby="datasets-title"
     >
+    {{ geneFilters }}
       <div class="sidebar-layout">
         <aside class="sidebar-menu">
           <h3>Build a query</h3>
@@ -24,17 +25,18 @@
             <Accordion
               id="sex-at-birth-filter"
               title="Filter by gender at birth"
+              :isOpenByDefault="true"
             >
-              <label>Gender at birth</label>
-              <InputRefList
+              <!-- <label>Gender at birth</label> -->
+              <!-- <InputRefList
                 id="GenderAtBirth"
                 tableId="GenderAtBirth"
                 v-model="genderFilters"
                 refLabel="${name}"
                 @optionsLoaded="genderData = $event"
-              />
+              /> -->
             </Accordion>
-            <Accordion id="gene-filter" title="Filter by gene">
+            <!-- <Accordion id="gene-filter" title="Filter by gene">
               <label>Choose Gene</label>
               <InputRefList
                 id="Genes"
@@ -44,12 +46,21 @@
                 @optionsLoaded="geneData = $event"
                 @update:modelValue="geneFilters = $event"
               />
-            </Accordion>
+            </Accordion> -->
           </form>
         </aside>
         <div class="sidebar-main main-beacon-output">
           <h3>Results</h3>
-          <LoadingScreen v-if="loading" class="beacon-search-loading" />
+          <CheckBoxSearch
+            id="gender-at-birth-input"
+            label="Search for gender at birth"
+            tableId="GenderAtBirth"
+            :columns="['name', 'codesystem', 'code']"
+            id-column="code"
+            value-column="name"
+            label-column="name"
+          />
+          <!-- <LoadingScreen v-if="loading" class="beacon-search-loading" />
           <MessageBox v-if="error" type="error">
             <p>{{ error }}</p>
           </MessageBox>
@@ -81,7 +92,7 @@
               To get started, apply one or more filters. Results will appear in
               this space when a selection is made or filters change.
             </p>
-          </div>
+          </div> -->
         </div>
       </div>
     </PageSection>
@@ -99,6 +110,9 @@ import {
   LoadingScreen,
   MessageBox,
 } from "molgenis-viz";
+
+import CheckBoxSearch from "../components/CheckBoxSearch.vue";
+
 import { InputRefList } from "molgenis-components";
 import { filterData, transformBeaconResultSets } from "../utils/index";
 import type { BeaconQueryIF } from "../interfaces";

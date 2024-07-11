@@ -1,9 +1,11 @@
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 
-export default defineConfig(() => {
-  require("dotenv").config({ path: `./.env` });
+const host="https://emx2.dev.molgenis.org";
+const schema="fdh";
+const opts = { changeOrigin: true, secure: false, logLevel: "debug" };
 
+export default defineConfig(() => {
   return {
     plugins: [vue()],
     css: {
@@ -21,7 +23,32 @@ export default defineConfig(() => {
     },
     base: "",
     server: {
-      proxy: require("../dev-proxy.config"),
+      proxy: {
+        "/api/graphql": {
+          target: `${host}/${schema}`,
+          ...opts,
+        },
+        "^/[a-zA-Z0-9_.%-]+/api/graphql": {
+          target: host,
+          ...opts,
+        },
+        "/api": {
+          target: `${host}/api`,
+          ...opts,
+        },
+        "/graphql": {
+          target: `${host}/api/graphql`,
+          ...opts,
+        },
+        "/apps": {
+          target: host,
+          ...opts,
+        },
+        "/theme.css": {
+          target: `${host}/apps/central`,
+          ...opts,
+        },
+      },
     },
-  };
+  }
 });
