@@ -410,6 +410,7 @@ public class RDFService {
           REFBACK -> CoreDatatype.XSD.ANYURI;
       case INT, INT_ARRAY -> CoreDatatype.XSD.INT;
       case LONG, LONG_ARRAY -> CoreDatatype.XSD.LONG;
+      case PERIOD, PERIOD_ARRAY -> CoreDatatype.XSD.DURATION;
       default -> throw new MolgenisException("ColumnType not mapped: " + columnType);
     };
   }
@@ -657,6 +658,9 @@ public class RDFService {
           .map(value -> (Value) literal(value))
           .toList();
       case LONG -> Arrays.stream(row.getLongArray(column.getName()))
+          .map(value -> (Value) literal(value))
+          .toList();
+      case DURATION -> Arrays.stream(row.getPeriodArray(column.getName()))
           .map(value -> (Value) literal(value))
           .toList();
       default -> throw new MolgenisException("XSD type formatting not supported for: " + xsdType);

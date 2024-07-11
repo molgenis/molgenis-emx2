@@ -15,7 +15,7 @@
       :modelValue="modelValue"
       :readonly="readonly"
       class="form-control"
-      @change="$emit('update:modelValue', $event.target.value)"
+      @change="updateModelValue($event.target.value)"
     >
       <option
         v-if="!required"
@@ -57,6 +57,11 @@ export default {
   props: {
     options: { type: Array, required: true },
   },
+  methods: {
+    updateModelValue: function (value) {
+      this.$emit("update:modelValue", value == "" ? null : value);
+    },
+  },
 };
 </script>
 
@@ -75,6 +80,16 @@ export default {
     </DemoItem>
     <DemoItem>
       <InputSelect
+          description="With default value 'ape'"
+          id="input-select-default"
+          label="Default value set"
+          v-model="defaultValue"
+          :options="['lion', 'ape', 'monkey']"
+      />
+      Selected: {{ defaultValue }}
+    </DemoItem>
+    <DemoItem>
+      <InputSelect
         id="input-select-required"
         description="Required select input"
         label="Required Animals"
@@ -83,6 +98,7 @@ export default {
         :options="['lion', 'ape', 'monkey']"
       />
       Selected: {{ requiredCheck }}
+      <br />IMPORTANT: When using "required", always use a default value. Do not use "null"/"undefined"!
     </DemoItem>
     <DemoItem>
       <InputSelect
@@ -91,15 +107,6 @@ export default {
         label="No animals"
         v-model="check"
         :options="[]"
-      />
-    </DemoItem>
-    <DemoItem>
-      <InputSelect
-          description="With default value 'ape'"
-          id="input-select-default"
-          label="Default value set"
-          v-model="defaultValue"
-          :options="['lion', 'ape', 'monkey']"
       />
     </DemoItem>
     <DemoItem>
@@ -119,9 +126,9 @@ export default {
   data: function () {
     return {
       check: null,
-      requiredCheck: null,
-      empty: null,
       defaultValue: 'ape',
+      requiredCheck: 'lion',
+      empty: null,
       readonlyModel: 'lion'
     };
   },
