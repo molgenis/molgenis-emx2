@@ -180,7 +180,7 @@ def process_statement(table: bytes, consent_val: int) -> bytes:
         df = df.loc[df['statement of consent personal data']]
     # Replace email values for rows without email consent
     if consent_val > 1:
-        df.loc[~df['statement of consent email'], 'email'] = ''
+        df.loc[~df['statement of consent email'], 'email'] = None
 
     _table = df.to_csv(index=False).encode()
 
