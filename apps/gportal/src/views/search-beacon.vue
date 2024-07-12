@@ -24,53 +24,62 @@
             <Accordion
               id="sex-at-birth-filter"
               title="Filter by gender at birth"
-              :isOpenByDefault="true"
             >
               <label>Gender at birth</label>
               <InputRefList
                 id="GenderAtBirth"
-                tableName="GenderAtBirth"
-                v-model="genderAtBirth"
+                tableId="GenderAtBirth"
+                v-model="genderFilters"
                 refLabel="${name}"
-                :multi-select="true"
-                @optionsLoaded="genderAtBirthData = $event"
+                @optionsLoaded="genderData = $event"
               />
             </Accordion>
-            <Accordion
-              id="gene-filter"
-              title="Filter by gene"
-              :isOpenByDefault="true"
-            >
+            <Accordion id="gene-filter" title="Filter by gene">
               <label>Choose Gene</label>
               <InputRefList
                 id="Genes"
-                tableName="Genes"
-                v-model="genes"
+                tableId="Genes"
+                v-model="geneFilters"
                 refLabel="${name}"
-                :multi-select="true"
                 @optionsLoaded="geneData = $event"
+                @update:modelValue="geneFilters = $event"
               />
             </Accordion>
           </form>
         </aside>
         <div class="sidebar-main main-beacon-output">
           <h3>Results</h3>
-          <div v-if="beaconOutput">
+          <LoadingScreen v-if="loading" class="beacon-search-loading" />
+          <MessageBox v-if="error" type="error">
+            <p>{{ error }}</p>
+          </MessageBox>
+          <div v-if="!loading && beaconOutput">
+            <p>
+              {{ beaconResultHits }} result{{
+                beaconResultHits > 1 || beaconResultHits === 0 ? "s" : null
+              }}
+            </p>
             <DataTable
               tableId="beacon-response"
               :data="beaconResult"
-              :columnOrder="['tables', 'status', 'count']"
+              :columnOrder="['schema', 'table', 'status', 'count']"
+              :renderHtml="true"
             />
-            <Accordion id="beacon-query" title="View Beacon response">
+            <Accordion id="beacon-query" title="View Beacon information">
+              <h4>Query</h4>
+              <code>
+                <pre>{{ jsQuery }}</pre>
+              </code>
+              <h4>Response</h4>
               <code>
                 <pre>{{ beaconOutput }}</pre>
               </code>
             </Accordion>
           </div>
-          <div v-else>
+          <div v-if="!loading && !beaconOutput">
             <p>
-              A Beacon query has not been created. Build a new query to view the
-              results.
+              To get started, apply one or more filters. Results will appear in
+              this space when a selection is made or filters change.
             </p>
           </div>
         </div>
@@ -79,7 +88,7 @@
   </Page>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, watch } from "vue";
 import {
   Page,
@@ -87,97 +96,81 @@ import {
   PageSection,
   Accordion,
   DataTable,
+  LoadingScreen,
+  MessageBox,
 } from "molgenis-viz";
 import { InputRefList } from "molgenis-components";
+import { filterData, transformBeaconResultSets } from "../utils/index";
+import type { BeaconQueryIF } from "../interfaces";
 import axios from "axios";
 
-let genes = ref([]);
-let geneData = ref([]); // FIX: will only hold the initial  10 results show on screen
-let genderAtBirth = ref([]);
-let genderAtBirthData = ref([]);
-let beaconOutput = ref(null);
-let beaconResult = ref([]);
-let error = false;
+const loading = ref<boolean>(false);
+const error = ref<boolean>(false);
+const geneFilters = ref([]);
+const geneData = ref([]); // FIX: will only hold the initial  10 results show on screen
+const genderFilters = ref([]);
+const genderData = ref([]);
+const beaconOutput = ref(null);
+const beaconResult = ref([]);
+const beaconResultHits = ref<number>(0);
 
-watch([genes, genderAtBirth], queryBeacon);
+const jsQuery = ref<BeaconQueryIF>({ query: { filters: [] } });
+
+function prepareJsQuery() {
+  jsQuery.value.query.filters = [];
+
+  if (geneFilters.value.length > 0) {
+    const geneCodeFilters = filterData(geneData.value, geneFilters.value, [
+      "name",
+    ]);
+
+    if (geneCodeFilters.length > 0) {
+      jsQuery.value.query.filters.push({
+        operator: "=",
+        id: "edam:data_2295",
+        value: geneCodeFilters,
+      });
+    }
+  }
+
+  if (genderFilters.value.length > 0) {
+    const genderCodeFilters = filterData(
+      genderData.value,
+      genderFilters.value,
+      ["codesystem", "code"]
+    );
+
+    if (genderCodeFilters.length > 0) {
+      jsQuery.value.query.filters.push({
+        operator: "=",
+        id: "NCIT:C28421",
+        value: genderCodeFilters,
+      });
+    }
+  }
+}
 
 async function queryBeacon() {
-  const jsQuery = {
-    query: {
-      filters: [],
-    },
-  };
-
-  const filterGeneDataValue = filterData(geneData.value, genes.value, ["name"]);
-  if (filterGeneDataValue.length > 0) {
-    jsQuery.query.filters.push({
-      operator: "=",
-      id: "NCIT_C16612",
-      value: filterGeneDataValue,
-    });
-  }
-
-  const filterGenderAtBirthDataValue = filterData(
-    genderAtBirthData.value,
-    genderAtBirth.value,
-    ["codesystem", "code"]
-  );
-  if (filterGenderAtBirthDataValue.length > 0) {
-    jsQuery.query.filters.push({
-      operator: "=",
-      id: "NCIT_C28421",
-      value: filterGenderAtBirthDataValue,
-    });
-  }
-
   axios
-    .post("/api/beacon/individuals", JSON.stringify(jsQuery, null, 2))
+    .post("/api/beacon/individuals", JSON.stringify(jsQuery.value, null, 2))
     .then((response) => {
-      const result = response.data;
-      beaconOutput.value = result;
-      beaconResult.value = [
-        {
-          tables: result.meta.returnedSchemas
-            .map((schema) => schema.entityType)
-            .join(", "),
-          count: result.responseSummary.numTotalResults
-            ? result.responseSummary.numTotalResults
-            : "-",
-          status:
-            result.responseSummary.exists === "true"
-              ? "Available"
-              : "Unavailable",
-        },
-      ];
+      beaconOutput.value = response.data;
+      const data = response.data;
+      const resultSets = data.response.resultSets;
+      beaconResult.value = transformBeaconResultSets(resultSets);
+      beaconResultHits.value =
+        beaconOutput.value.responseSummary?.numTotalResults;
     })
-    .catch((err) => (error.value = err));
+    .catch((err) => {
+      error.value = `${err.message} (${err.code})`;
+    })
+    .finally(() => (loading.value = false));
 }
 
-// filterData
-// Filter an array of objects based on inputRefList selection, and then return an array
-// of strings based on user-specified property names for use in the Beacon API.
-//
-// @param data dataset containing one or more rows (array of objects)
-// @param filters user selected filters (i.e., from InputRefList)
-// @param attribs an array containing one or more column names in order of preference
-//
-// @examples
-// const data = filterData(data=myData, filters=myFilters, attribs=['col1','col2'])
-//
-// @return array of strings
-function filterData(data, filters, attributes) {
-  return data
-    .filter((row) => {
-      return filters.map((filterItem) => filterItem.name).includes(row.name);
-    })
-    .map((row) => {
-      return attributes
-        .map((attrib) => {
-          if (row.hasOwnProperty(attrib)) {
-            return row[attrib];
-          }
-        })
-        .join("_");
-    });
-}
+watch([geneFilters, genderFilters], async () => {
+  error.value = false;
+  loading.value = true;
+  prepareJsQuery();
+  await queryBeacon();
+});
 </script>

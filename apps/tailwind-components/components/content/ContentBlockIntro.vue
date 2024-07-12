@@ -55,7 +55,7 @@ const fields = reactive({
   },
   organization: {
     name: "organization",
-    label: "Organization",
+    label: "Organisation",
     fieldValue: "",
     inputType: "string",
   },
