@@ -22,7 +22,7 @@ defineEmits(["submitForm"]);
 
       <InputString
         v-if="field.inputType === 'string'"
-        :id="field.name" 
+        :id="field.name"
         v-model="field.fieldValue"
         :has-error="field.hasError"
       />
