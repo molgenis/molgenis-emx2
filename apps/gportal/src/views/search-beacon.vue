@@ -27,6 +27,15 @@
               title="Filter by gender at birth"
               :isOpenByDefault="true"
             >
+              <CheckBoxSearch
+                id="gender-at-birth-input"
+                label="Search for gender at birth"
+                tableId="GenderAtBirth"
+                :columns="['name', 'codesystem', 'code']"
+                id-column="code"
+                value-column="name"
+                label-column="name"
+              />
               <!-- <label>Gender at birth</label> -->
               <!-- <InputRefList
                 id="GenderAtBirth"
@@ -36,8 +45,17 @@
                 @optionsLoaded="genderData = $event"
               /> -->
             </Accordion>
-            <!-- <Accordion id="gene-filter" title="Filter by gene">
-              <label>Choose Gene</label>
+            <Accordion id="gene-filter" title="Filter by gene">
+              <CheckBoxSearch
+                id="genes-list"
+                label="Search for a gene"
+                tableId="Genes"
+                :columns="['name']"
+                id-column="name"
+                value-column="name"
+                label-column="name"
+              />
+              <!-- <label>Choose Gene</label>
               <InputRefList
                 id="Genes"
                 tableId="Genes"
@@ -45,21 +63,12 @@
                 refLabel="${name}"
                 @optionsLoaded="geneData = $event"
                 @update:modelValue="geneFilters = $event"
-              />
-            </Accordion> -->
+              /> -->
+            </Accordion>
           </form>
         </aside>
         <div class="sidebar-main main-beacon-output">
           <h3>Results</h3>
-          <CheckBoxSearch
-            id="gender-at-birth-input"
-            label="Search for gender at birth"
-            tableId="GenderAtBirth"
-            :columns="['name', 'codesystem', 'code']"
-            id-column="code"
-            value-column="name"
-            label-column="name"
-          />
           <!-- <LoadingScreen v-if="loading" class="beacon-search-loading" />
           <MessageBox v-if="error" type="error">
             <p>{{ error }}</p>

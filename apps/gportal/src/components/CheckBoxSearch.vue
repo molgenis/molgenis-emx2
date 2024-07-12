@@ -1,5 +1,5 @@
 <template>
-  <fieldset :id="id" class="checkbox-group-search">
+  <fieldset :id="id" class="checkbox-group-search" @submit="prevent.default">
     <legend>{{ label }}</legend>
     <div class="btn-filter-well" v-if="selections.length">
       <template v-for="selection in selections">
@@ -38,6 +38,7 @@
           :id="`${id}-checkbox-options-show-more`"
           @click="getCheckBoxOptions()"
           class="btn btn-primary"
+          @click.prevent
         >
           <span>Show more</span>
         </button>
@@ -118,6 +119,7 @@ watch([searchTerm], async () => getCheckBoxOptions());
     .btn.btn-outline-primary {
       font-size: 0.9rem;
       padding: 0.4em;
+      margin: 0;
 
       svg {
         $iconSize: 18px;
@@ -139,8 +141,16 @@ watch([searchTerm], async () => getCheckBoxOptions());
     border-radius: 4px;
     box-shadow: $box-shadow-inset;
 
-    label {
-      margin-left: 0.5em;
+    .checkbox-option {
+      display: flex;
+      justify-content: flex-start;
+      align-items: flex-start;
+      gap: 0.5em;
+
+      label {
+        word-wrap: break-word;
+        line-height: 1;
+      }
     }
   }
 }

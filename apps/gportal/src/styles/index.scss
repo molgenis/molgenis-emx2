@@ -92,6 +92,7 @@
     .accordion {
       margin: 0;
       margin-bottom: 1em;
+      padding-bottom: 1em;
       border-color: $gdi-brand-purple-light;
 
       .accordion-heading {
@@ -112,7 +113,7 @@
 
   @media screen and (min-width: 724px) {
     grid-template-areas: "sidebar main";
-    grid-template-columns: 300px 1fr;
+    grid-template-columns: 350px 1fr;
 
     .sidebar-menu {
       position: -webkit-sticky;
