@@ -1,6 +1,6 @@
 <template>
-  <fieldset :id="id" class="checkbox-group-search" @submit="prevent.default">
-    <legend>{{ label }}</legend>
+  <fieldset :id="id" class="checkbox-group-search" @submit.prevent>
+    <legend class="visually-hidden">{{ label }}</legend>
     <div class="btn-filter-well" v-if="selections.length">
       <template v-for="selection in selections">
         <button
@@ -29,16 +29,17 @@
             :value="row[labelColumn] || row[valueColumn]"
             :name="`${tableId}-checkbox-group`"
             v-model="selections"
+            @change="onChange"
           />
-          <label :for="`${id}-${row[idColumn]}`">{{
-            row[labelColumn] || row[valueColumn]
-          }}</label>
+          <label :for="`${id}-${row[idColumn]}`">
+            {{ row[labelColumn] || row[valueColumn] }}
+          </label>
         </div>
         <button
           :id="`${id}-checkbox-options-show-more`"
           @click="getCheckBoxOptions()"
           class="btn btn-primary"
-          @click.prevent
+          @submit.prevent
         >
           <span>Show more</span>
         </button>
@@ -68,21 +69,35 @@ interface CheckBoxGroupSearchIF {
 }
 
 const props = withDefaults(defineProps<CheckBoxGroupSearchIF>(), {
-  searchInputLabel: "Search for options",
+  searchInputLabel: "Search for terms",
   limit: 8,
 });
 
+const emit = defineEmits<{
+  (e: "refDataLoaded", value: object[]): void;
+  (e: "change", value: string[]): void;
+}>();
+
+function onReferenceDataUpdate() {
+  emit("refDataLoaded", referenceData.value);
+}
+
+function onChange() {
+  emit("change", selections.value);
+}
+
+const selections = ref<string[]>([]);
 const loading = ref<boolean>(false);
 const error = ref<Error | boolean>(false);
 const searchTerm = ref<string>("");
 const referenceData = ref([]);
-const selections = ref<string[]>([]);
 const showLimit = ref<number>(props.limit);
 
 function removeFilter(value) {
   selections.value = selections.value.filter(
     (selection) => selection !== value
   );
+  onChange();
 }
 
 async function fetchData() {
@@ -95,6 +110,7 @@ async function fetchData() {
   const response = await request("../api/graphql", query);
   const data = response[props.tableId];
   referenceData.value = data;
+  onReferenceDataUpdate();
 }
 
 async function getCheckBoxOptions() {

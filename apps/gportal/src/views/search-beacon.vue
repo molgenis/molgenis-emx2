@@ -10,10 +10,9 @@
     <PageSection
       width="large"
       class="bg-gray-050"
-      :horizontalPadding="2"
+      :horizontalPadding="1"
       aria-labelledby="datasets-title"
     >
-      {{ geneFilters }}
       <div class="sidebar-layout">
         <aside class="sidebar-menu">
           <h3>Build a query</h3>
@@ -21,7 +20,7 @@
             Create a new beacon query by applying one or more of the following
             filters.
           </p>
-          <form>
+          <form @submit.prevent>
             <Accordion
               id="sex-at-birth-filter"
               title="Filter by gender at birth"
@@ -35,15 +34,9 @@
                 id-column="code"
                 value-column="name"
                 label-column="name"
+                @ref-data-loaded="genderData = $event"
+                @change="genderFilters = $event"
               />
-              <!-- <label>Gender at birth</label> -->
-              <!-- <InputRefList
-                id="GenderAtBirth"
-                tableId="GenderAtBirth"
-                v-model="genderFilters"
-                refLabel="${name}"
-                @optionsLoaded="genderData = $event"
-              /> -->
             </Accordion>
             <Accordion id="gene-filter" title="Filter by gene">
               <CheckBoxSearch
@@ -54,22 +47,15 @@
                 id-column="name"
                 value-column="name"
                 label-column="name"
+                @ref-data-loaded="geneData = $event"
+                @change="geneFilters = $event"
               />
-              <!-- <label>Choose Gene</label>
-              <InputRefList
-                id="Genes"
-                tableId="Genes"
-                v-model="geneFilters"
-                refLabel="${name}"
-                @optionsLoaded="geneData = $event"
-                @update:modelValue="geneFilters = $event"
-              /> -->
             </Accordion>
           </form>
         </aside>
         <div class="sidebar-main main-beacon-output">
           <h3>Results</h3>
-          <!-- <LoadingScreen v-if="loading" class="beacon-search-loading" />
+          <LoadingScreen v-if="loading" class="beacon-search-loading" />
           <MessageBox v-if="error" type="error">
             <p>{{ error }}</p>
           </MessageBox>
@@ -101,7 +87,7 @@
               To get started, apply one or more filters. Results will appear in
               this space when a selection is made or filters change.
             </p>
-          </div> -->
+          </div>
         </div>
       </div>
     </PageSection>
@@ -139,35 +125,35 @@ const beaconResultHits = ref<number>(0);
 
 const jsQuery = ref<BeaconQueryIF>({ query: { filters: [] } });
 
-function prepareJsQuery() {
+function prepareBeaconQuery() {
   jsQuery.value.query.filters = [];
 
-  if (geneFilters.value.length > 0) {
-    const geneCodeFilters = filterData(geneData.value, geneFilters.value, [
-      "name",
-    ]);
-
-    if (geneCodeFilters.length > 0) {
-      jsQuery.value.query.filters.push({
-        operator: "=",
-        id: "edam:data_2295",
-        value: geneCodeFilters,
-      });
-    }
-  }
-
   if (genderFilters.value.length > 0) {
-    const genderCodeFilters = filterData(
+    const genderTermsFiltered = filterData(
       genderData.value,
       genderFilters.value,
       ["codesystem", "code"]
     );
 
-    if (genderCodeFilters.length > 0) {
+    if (genderTermsFiltered.length > 0) {
       jsQuery.value.query.filters.push({
         operator: "=",
         id: "NCIT:C28421",
-        value: genderCodeFilters,
+        value: genderTermsFiltered,
+      });
+    }
+  }
+
+  if (geneFilters.value.length > 0) {
+    const geneTermsFiltered = filterData(geneData.value, geneFilters.value, [
+      "name",
+    ]);
+
+    if (geneTermsFiltered.length > 0) {
+      jsQuery.value.query.filters.push({
+        operator: "=",
+        id: "edam:data_2295",
+        value: geneTermsFiltered,
       });
     }
   }
@@ -193,7 +179,7 @@ async function queryBeacon() {
 watch([geneFilters, genderFilters], async () => {
   error.value = false;
   loading.value = true;
-  prepareJsQuery();
+  prepareBeaconQuery();
   await queryBeacon();
 });
 </script>

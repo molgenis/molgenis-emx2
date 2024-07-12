@@ -20,9 +20,7 @@ export function filterData(
   attributes: string[]
 ) {
   return data
-    .filter((row) => {
-      return filters.map((filterItem) => filterItem.name).includes(row.name);
-    })
+    .filter((row) => filters.includes(row.name))
     .map((row) => {
       return attributes
         .map((attrib) => {
