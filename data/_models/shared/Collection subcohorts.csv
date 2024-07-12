@@ -13,4 +13,3 @@ Collection subcohorts,,comorbidity,ontology_array,,,CatalogueOntologies,Diseases
 Collection subcohorts,,countries,ontology_array,,,CatalogueOntologies,Countries,,,,dcterms:coverage,Countries where data from this subcohort largely originate from,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging",
 Collection subcohorts,,regions,ontology_array,,,CatalogueOntologies,Regions,,,,dcterms:coverage,Geographical regions where data from this subcohort largely originate from,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging",
 Collection subcohorts,,inclusion criteria,text,,,,,,,,,Inclusion criteria applied to this subcohort,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging",
-Collection subcohorts,,supplementary information,text,,,,,,,,,Any other information that needs to be disclosed for this subcohort,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging",
