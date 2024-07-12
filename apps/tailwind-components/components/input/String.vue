@@ -9,10 +9,8 @@ withDefaults(
     required?: boolean;
     valid?: boolean;
     hasError?: boolean;
-    showLabel?: boolean;
   }>(),
   {
-    type: "text",
     disabled: false,
     required: false,
     hasError: false,
@@ -25,12 +23,6 @@ const modelValue = ref<string>("");
 </script>
 
 <template>
-  <label
-    :for="id"
-    class="pl-3 text-body-base"
-    :class="{ 'sr-only': !showLabel }"
-    >{{ label }}</label
-  >
   <input
     :id="id"
     :required="required"
