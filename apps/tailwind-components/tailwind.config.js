@@ -150,6 +150,7 @@ module.exports = {
         "tab": "var(--backgroud-color-tab)",
         "tab-hover": "var(--backgroud-color-tab-hover)",
         "tab-active": "var(--backgroud-color-tab-active)",
+        "disabled": "var(--background-color-disabled)",
       }),
       textColor: ({ theme }) => ({
         "button-primary": "var(--text-color-button-primary)",
@@ -196,6 +197,9 @@ module.exports = {
         "pagination-label-white": "var(--text-color-pagination-label-white)",
         "pagination-label-gray": "var(--text-color-pagination-label-gray)",
         "footer-link": "var(--text-color-footer-link)",
+        "invalid": "var(--text-color-invalid)",
+        "valid": "var(--text-color-valid)",
+        "disabled": "var(--text-color-disabled)",
       }),
       borderColor: ({ theme }) => ({
         "button-primary": "var(--border-color-button-primary)",
@@ -214,6 +218,9 @@ module.exports = {
         "search-input-mobile": "var(--border-color-search-input-mobile)",
         "pagination": "var(--border-color-pagination)",
         "checkbox": "var(--border-color-checkbox)",
+        "invalid": "var(--border-color-invalid)",
+        "valid": "var(--border-color-valid)",
+        "disabled": "var(--border-color-disabled)",
       }),
       borderRadius: {
         "3px": "var(--border-radius-3px)",
