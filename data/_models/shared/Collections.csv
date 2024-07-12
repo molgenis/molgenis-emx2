@@ -133,6 +133,7 @@ Collections,,quality validation frequency,text,,,,,,,,,How often are data qualit
 Collections,,quality validation methods,text,,,,,,,,,What methods or processes are applied for data quality checks and validation steps conducted on the data bank?,"DataCatalogueFlat,RWEStaging"
 Collections,,correction methods,text,,,,,,,,,What methods or processes are applied to correct illogical values in the data bank?,"DataCatalogueFlat,RWEStaging"
 Collections,,quality validation results,,,,,,,,,,"If available, provide a link to a publication of the data quality check and validation results","DataCatalogueFlat,RWEStaging"
+Collections,,quality marks,ontology_array,,,CatalogueOntologies,Study quality marks,,,,,"Quality marks, such as ENCePP seal",EMA
 Collections,,standards,heading,,,,,,,,,Use of standard data models and ontologies,"DataCatalogueFlat,RWEStaging"
 Collections,,mappings to common data models,refback,,,,Mapped datasets,,source,,,overview of dataset mappings available,"DataCatalogueFlat,RWEStaging"
 Collections,,common data models other,text,,,,,,,,,"If not in list above, give the name of cdm(s) used by this data source","DataCatalogueFlat,EMA,RWEStaging"
@@ -148,7 +149,7 @@ Collections,,acknowledgements,text,,,,,,,,,Acknowledgement statement and citatio
 Collections,,documentation,refback,,,,Collection documentation,,collection,,,"Descriptive document(s) available for this resource, e.g. informed consent","DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging"
 Collections,,supplementary information,text,,,,,,,,,Any other information that needs to be disclosed for this resource,"DataCatalogueFlat,CohortsStaging,RWEStaging"
 Collections,,study details,heading,,,,,,,,,List of relevant collaborations,"DataCatalogueFlat,StudiesStaging"
-Collections,,study requirements,ontology_array,,,CatalogueOntologies,Study requirements,,,,,Study requirements,"DataCatalogueFlat,EMA,StudiesStaging"
+Collections,,study requirements,ontology_array,,,CatalogueOntologies,Study requirements,,,,,Study requirements,EMA
 Collections,,regulatory procedure number,string,,,,,,,,,"Regulatory procedure number, for RMP Category 1 and 2 studies only",EMA
 Collections,,date of signing funding contract planned,date,,,,,,,,,"Date when funding contract was signed, planned",EMA
 Collections,,date of signing funding contract actual,date,,,,,,,,,"Date when funding contract was signed, actual",EMA
@@ -160,26 +161,22 @@ Collections,,interim report planned,date,,,,,,,,,"Planned date of interim report
 Collections,,interim report actual,date,,,,,,,,,"Actual date of interim report, if expected",EMA
 Collections,,final report planned,date,,,,,,,,,"Date of final study report, planned",EMA
 Collections,,final report actual,date,,,,,,,,,"Date of final study report, actual",EMA
-Collections,,data sources,heading,,,,,,,,,Data management,"DataCatalogueFlat,StudiesStaging"
 Collections,,data sources,ref_array,,,,Collections,,,,,Data sources that provided data into this study,"DataCatalogueFlat,EMA,StudiesStaging"
-Collections,,data sources other,text,,,,,,,,,Other not listed data sources that provided data into this study,"DataCatalogueFlat,EMA,StudiesStaging"
-Collections,,study features,ontology_array,,,CatalogueOntologies,Study features,,,,,Data features,"DataCatalogueFlat,EMA,StudiesStaging"
-Collections,,data characterisation details,text,,,,,,,,,Provide a summary description of the data characterisation or quality check process,"DataCatalogueFlat,EMA,StudiesStaging"
-Collections,,data source types,ontology_array,,,CatalogueOntologies,Study datasource types,,,,,Types of data sources used,"DataCatalogueFlat,EMA,StudiesStaging"
-Collections,,data source types other,text,,,,,,,,,"Sources of data, if other","DataCatalogueFlat,EMA,StudiesStaging"
-Collections,,quality marks,ontology_array,,,CatalogueOntologies,Study quality marks,,,,,"Quality marks, such as ENCePP seal","DataCatalogueFlat,EMA,StudiesStaging"
+Collections,,data sources other,text,,,,,,,,,Other not listed data sources that provided data into this study,EMA
+Collections,,study features,ontology_array,,,CatalogueOntologies,Study features,,,,,Data features,EMA
+Collections,,data characterisation details,text,,,,,,,,,Provide a summary description of the data characterisation or quality check process,EMA
+Collections,,data source types,ontology_array,,,CatalogueOntologies,Study datasource types,,,,,Types of data sources used,EMA
+Collections,,data source types other,text,,,,,,,,,"Sources of data, if other",EMA
 Collections,,number of data sources,int,,,,,,,,,Total number of data sources included in the study,EMA
 Collections,,medicines studied INN codes,ontology_array,,,CatalogueOntologies,INN,,,,,INN codes of medicines studied,EMA
 Collections,,medicines studied ATC codes,ontology_array,,,CatalogueOntologies,ATC,,,,,ATC codes of medicines studied,EMA
 Collections,,medicines studies brands,ontology_array,,,CatalogueOntologies,Medicine brand names,,,,,Brand names of the medicines studied,EMA
 Collections,,medicines studied other,text,,,,,,,,,If the medicinal product information (e.g. brand name or active substance or ATC code) does not appear in the available look-ups please enter it here,EMA
 Collections,,medical conditions studied,ontology_array,,,CatalogueOntologies,MedDRA,,,,,Codes of the medical conditions studied,"DataCatalogueFlat,EMA,StudiesStaging"
-Collections,,medical conditions studied other,text,,,,,,,,,Codes of the medical conditions studied,"DataCatalogueFlat,EMA,StudiesStaging"
+Collections,,medical conditions studied other,text,,,,,,,,,Codes of the medical conditions studied,EMA
 Collections,,data extraction date,date,,,,,,,,,Date on which the study data was extracted,"DataCatalogueFlat,StudiesStaging"
 Collections,,study methods,heading,,,,,,,,,Methodological aspects,"DataCatalogueFlat,StudiesStaging"
-Collections,,study setting,text,,,,,,,,,A short description of the study setting,"DataCatalogueFlat,StudiesStaging"
 Collections,,analysis plan,text,,,,,,,,,"A brief summary of the analysis method (e.g. risk estimation, measures of risk, internal/external validity)","DataCatalogueFlat,StudiesStaging"
-Collections,,number of subjects,int,,,,,,,,,Estimated number of subjects,"DataCatalogueFlat,EMA,StudiesStaging"
 Collections,,objectives,text,,,,,,,,,A short description of the study objective,"DataCatalogueFlat,EMA,StudiesStaging"
 Collections,,interventions,text,,,,,,,,,A short description of the study interventions,EMA
 Collections,,comparators,text,,,,,,,,,A short description of the study comparators,EMA
