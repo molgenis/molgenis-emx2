@@ -10,7 +10,7 @@ const stories = Object.entries(modules).map(([key, value]) => {
 });
 </script>
 
-<template>
+<template> 
   <div v-for="story in stories" class="mt-6 pb-12 border-b border-y-gray-300">
     <h3 class="text-heading-3xl my-3">{{ story.title }}</h3>
 
