@@ -15,7 +15,6 @@ withDefaults(
     required: false,
     hasError: false,
     valid: false,
-    showLabel: true,
   }
 );
 
