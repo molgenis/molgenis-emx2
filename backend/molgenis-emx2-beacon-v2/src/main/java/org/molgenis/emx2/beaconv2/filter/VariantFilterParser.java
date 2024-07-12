@@ -68,11 +68,6 @@ public class VariantFilterParser implements FilterParser {
   }
 
   @Override
-  public List<Filter> getPostFetchFilters() {
-    return List.of();
-  }
-
-  @Override
   public List<String> getGraphQlFilters() {
     List<String> filters = new ArrayList<>(graphQlFilters);
     String urlPathFilter = getUrlPathFilter(beaconQuery);
