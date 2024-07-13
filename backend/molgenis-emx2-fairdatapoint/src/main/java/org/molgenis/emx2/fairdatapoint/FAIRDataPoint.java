@@ -9,7 +9,6 @@ import java.io.StringWriter;
 import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import org.apache.commons.io.IOUtils;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.ValueFactory;
@@ -201,11 +200,9 @@ public class FAIRDataPoint {
 
     // Write model
     Model model = builder.build();
-    model.addAll(
-        Rio.parse(
-            IOUtils.toInputStream(getFDPRootMetadata(apiFdpEnc.toString())), RDFFormat.TURTLE));
     StringWriter stringWriter = new StringWriter();
     Rio.write(model, stringWriter, applicationOntologyFormat, config);
+    stringWriter.append(getFDPRootMetadata(apiFdpEnc.toString()));
     return stringWriter.toString();
   }
 

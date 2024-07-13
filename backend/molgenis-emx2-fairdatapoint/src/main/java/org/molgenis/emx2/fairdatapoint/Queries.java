@@ -1,14 +1,18 @@
 package org.molgenis.emx2.fairdatapoint;
 
+import static org.molgenis.emx2.FilterBean.f;
+import static org.molgenis.emx2.Operator.EQUALS;
+import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.beaconv2.QueryHelper.finalizeFilter;
 
 import graphql.ExecutionResult;
 import graphql.GraphQL;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.awt.*;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
+import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.Table;
 import org.molgenis.emx2.graphql.GraphqlApiFactory;
 
 public class Queries {
@@ -52,12 +56,37 @@ public class Queries {
                 + "mg_updatedOn"
                 + "}}");
     Map<String, Object> result = executionResult.toSpecification();
-    if (result.get("data") == null
-        || ((HashMap<String, Object>) result.get("data")).get("Dataset") == null) {
-      return new ArrayList<>();
+    if (result.get("data") != null) {
+      return (List<Map<String, Object>>)
+          ((HashMap<String, Object>) result.get("data")).get("Dataset");
+    } else {
+      Table cohortsTable = schema.getTable("Cohorts");
+      if (cohortsTable != null) {
+        List<Row> cohorts =
+            cohortsTable
+                .select(s("id"), s("name"), s("description"), s("mg_insertedOn"), s("mg_updatedOn"))
+                .where(f("id", EQUALS, id))
+                .retrieveRows();
+        for (Row cohort : cohorts) {
+          Map<String, Object> dataset = new LinkedHashMap<>();
+          dataset.put("identifier", cohort.getString("id"));
+          dataset.put("title", cohort.getString("name"));
+          dataset.put("description", cohort.getString("description"));
+          dataset.put("distribution", List.of()); // empty for now
+          // creator
+          // contact point
+          // publisher
+          // theme
+          // type
+          // license
+          dataset.put("mg_insertedOn", cohort.getDateTime("mg_insertedOn"));
+          dataset.put("mg_updatedOn", cohort.getDateTime("mg_updatedOn"));
+          return List.of(dataset);
+        }
+      }
     }
-    return (List<Map<String, Object>>)
-        ((HashMap<String, Object>) result.get("data")).get("Dataset");
+    // else
+    return null;
   }
 
   public static List<Map<String, Object>> queryDistribution(
