@@ -1,6 +1,7 @@
 <script setup lang="ts">
 const config = useRuntimeConfig();
 const route = useRoute();
+const session = useSession();
 
 const faviconHref = config.public.emx2Theme
   ? `/_nuxt-styles/img/${config.public.emx2Theme}.ico`
@@ -24,6 +25,37 @@ useHead({
     }
   },
 });
+
+$fetch("/api/graphql", {
+  method: "POST",
+  body: JSON.stringify({
+    query: `{_session { email, roles, token }}`,
+  }),
+})
+  .then((resp) => {
+    console.log(resp);
+    session.value = resp.data._session;
+  })
+  .catch((error) => {
+    console.error(error);
+  });
+
+const isSignedIn = computed(
+  () => !!session.value?.email && session.value?.email !== "anonymous"
+);
+const isAdmin = computed(() => session.value?.email === "admin");
+
+const navigation = computed(() => {
+  const items = [
+    { label: "Home", link: "#" },
+    { label: "About", link: "#" },
+    { label: "Contact", link: "#" },
+  ];
+  if (isAdmin.value) {
+    items.push({ label: "Analytics", link: "/analytics" });
+  }
+  return items;
+});
 </script>
 
 <template>
@@ -41,25 +73,20 @@ useHead({
           <Logo link="/" />
         </template>
         <template #nav>
-          <Navigation
-            :navigation="[
-              { label: 'Home', link: '#' },
-              { label: 'About', link: '#' },
-              { label: 'Contact', link: '#' },
-            ]"
+          <Navigation :navigation="navigation" />
+        </template>
+        <template #account>
+          <HeaderButton
+            :label="isSignedIn ? 'Account' : 'Signin'"
+            icon="user"
+            @click="navigateTo({ path: '/login' })"
           />
         </template>
         <template #logo-mobile>
           <LogoMobile link="/" />
         </template>
         <template #nav-mobile>
-          <Navigation
-            :navigation="[
-              { label: 'Home', link: '#' },
-              { label: 'About', link: '#' },
-              { label: 'Contact', link: '#' },
-            ]"
-          />
+          <Navigation :navigation="navigation" />
         </template>
       </Header>
 

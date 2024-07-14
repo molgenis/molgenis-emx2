@@ -1,0 +1,1 @@
+export const useSession = () => useState("session", () => ({ email: "", token: "" }));

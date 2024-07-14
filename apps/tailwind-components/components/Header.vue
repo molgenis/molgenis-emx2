@@ -5,12 +5,14 @@
         <slot name="logo"></slot>
         <slot name="nav"></slot>
 
-        <!--  <div class="w-[450px]">
-             <SearchBar />
-          </div>-->
+        <div class="w-[450px]">
+          <!-- <SearchBar /> -->
+        </div>
 
-        <!-- <HeaderButton label="Favorites" icon="star" />
-          <HeaderButton label="Account" icon="user" /> -->
+        <slot name="account">
+          <!-- <HeaderButton label="Favorites" icon="star" /> -->
+          <HeaderButton label="Account" icon="user" />
+        </slot>
       </div>
 
       <div class="pt-5 xl:hidden">
@@ -22,8 +24,8 @@
           </div>
 
           <div class="flex gap-3">
-            <!-- <HeaderButton label="Favorites" icon="star" />
-              <HeaderButton label="Account" icon="user" /> -->
+            <!-- <HeaderButton label="Favorites" icon="star" /> -->
+            <HeaderButton label="Account" icon="user" />
           </div>
         </div>
 

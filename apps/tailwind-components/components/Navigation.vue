@@ -16,8 +16,12 @@ const props: PropType = withDefaults(defineProps<PropType>(), {
   invert: false,
 });
 
-const mainButtons = props.navigation.slice(0, props.maximumButtonShown);
-const subButtons = props.navigation.slice(props.maximumButtonShown);
+const mainButtons = computed(() =>
+  props.navigation.slice(0, props.maximumButtonShown)
+);
+const subButtons = computed(() =>
+  props.navigation.slice(props.maximumButtonShown)
+);
 const active = "underline";
 </script>
 
