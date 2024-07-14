@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { INotificationType } from "~/interfaces/types";
+import type { INotificationType } from "~/types/types";
 const ariaId = useId();
 const props = withDefaults(
   defineProps<{
@@ -52,9 +52,9 @@ watch(
 const roundedClass = props.slideInRight
   ? "rounded-l-50px right-0"
   : "rounded-r-50px";
-const fullScreenClass = props.fullScreen
-  ? "w-[95vw]"
-  : "lg:w-[33vw] md:w-[50vw] w-[95vw]";
+const fullScreenClass = computed(() =>
+  props.fullScreen ? "w-[95vw]" : "lg:w-[33vw] md:w-[50vw] w-[95vw]"
+);
 const buttonAlignmentSet = {
   left: "justify-left",
   center: "justify-around",

@@ -85,6 +85,8 @@ useHead({
                   <NuxtLink class="hover:underline" to="/Modal.story">
                     Modal
                   </NuxtLink>
+                </li>
+                <li class="py-2">
                   <NuxtLink class="hover:underline" to="/FooterComponent.story">Footer Component</NuxtLink>
                 </li>
                 <li class="py-2">
@@ -100,19 +102,20 @@ useHead({
                   <NuxtLink class="hover:underline" to="/Modal.story">Modal</NuxtLink>
                 </li>
                 <li class="py-2">
+                  <NuxtLink class="hover:underline" to="/SideModal.story">Side Modal</NuxtLink>
+                </li>
+                <li class="py-2">
                   <NuxtLink class="hover:underline" to="/FilterSearch.story">
                     Filer search
                   </NuxtLink>
-                  <NuxtLink class="hover:underline" to="/Navigation.story">Navigation</NuxtLink>
                 </li>
                 <li class="py-2">
-                  <NuxtLink class="hover:underline" to="/FilterSearch.story">Filer search</NuxtLink>
+                  <NuxtLink class="hover:underline" to="/Navigation.story">Navigation</NuxtLink>
                 </li>
                 <li class="py-2">
                   <NuxtLink class="hover:underline" to="/Icons.story">
                     Icons
                   </NuxtLink>
-                  <NuxtLink class="hover:underline" to="/Icons.story">Icons</NuxtLink>
                 </li>
                 <li class="py-2">
                   <NuxtLink class="hover:underline" to="/table/EMX2.story">Table EMX2</NuxtLink>

@@ -3,7 +3,7 @@ import type {
   ButtonIconPosition,
   ButtonSize,
   ButtonType,
-} from "~/interfaces/types";
+} from "../types/types.ts";
 
 const props = withDefaults(
   defineProps<{
