@@ -23,6 +23,13 @@ const props = defineProps({
 });
 const emit = defineEmits(["update"]);
 
+onMounted(() => {
+  window.addEventListener("popstate", () => {
+    // react to external navigation ( e.g. back button in browser)
+    window.location.reload();
+  });
+});
+
 const TEXT_STYLE_MAPPING = {
   gray: "text-pagination-label-gray",
   white: "text-pagination-label-white",
@@ -75,9 +82,8 @@ function changeCurrentPage(event) {
     class="pt-12.5 flex items-center justify-center font-display text-heading-xl -mx-2.5"
   >
     <a
-      :href="currentPage > 1 ? '#' : undefined"
       role="button"
-      @click="onPrevClick"
+      @click.prevent="onPrevClick"
       class="flex justify-center transition-colors border border-pagination rounded-pagination bg-pagination text-pagination h-15 w-15"
       :class="{
         'hover:bg-pagination-hover hover:text-pagination-hover':
@@ -100,9 +106,8 @@ function changeCurrentPage(event) {
       OF {{ totalPages }}
     </div>
     <a
-      :href="currentPage < totalPages ? '#' : undefined"
       role="button"
-      @click="onNextClick"
+      @click.prevent="onNextClick"
       class="flex justify-center transition-colors border border-pagination rounded-pagination bg-pagination text-pagination h-15 w-15"
       :class="{
         'hover:bg-pagination-hover hover:text-pagination-hover':

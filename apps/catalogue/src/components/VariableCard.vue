@@ -5,7 +5,7 @@
       <div class="card-text">
         <Property label="label">{{ variable.label }}</Property>
         <Property
-          v-if="!tableName"
+          v-if="!datasetName"
           :label="
             variable.release.resource.mg_tableclass.includes('Project')
               ? 'Project'
@@ -23,13 +23,13 @@
             {{ variable.release.resource.id }}
           </RouterLink>
         </Property>
-        <Property v-if="!tableName" label="table">
+        <Property v-if="!datasetName" label="table">
           <RouterLink
             :to="{
               name: 'table',
               params: {
                 resourceId: variable.resource.id,
-                tableName: variable.dataset.name,
+                datasetName: variable.dataset.name,
               },
             }"
           >
@@ -88,7 +88,7 @@ import Property from "./Property.vue";
 export default {
   props: {
     variable: Object,
-    tableName: String,
+    datasetName: String,
   },
   components: { HarmonisationDetails, Property },
 };

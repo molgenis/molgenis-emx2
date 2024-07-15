@@ -21,7 +21,7 @@ public class SqlSchema implements Schema {
   @Override
   public SqlTable getTable(String name) {
     SqlTableMetadata tableMetadata = getMetadata().getTableMetadata(name);
-    if (tableMetadata == null) return null;
+    if (tableMetadata == null) return getTableById(name);
     if (tableMetadata.exists()) {
       return new SqlTable(db, tableMetadata, db.getTableListener(getName(), name));
     } else return null;
@@ -107,6 +107,11 @@ public class SqlSchema implements Schema {
   @Override
   public List<String> getInheritedRolesForActiveUser() {
     return getMetadata().getInheritedRolesForActiveUser();
+  }
+
+  @Override
+  public boolean hasActiveUserRole(Privileges privileges) {
+    return getInheritedRolesForActiveUser().contains(privileges.toString());
   }
 
   @Override
@@ -295,12 +300,12 @@ public class SqlSchema implements Schema {
         TableMetadata oldTable = targetSchema.getTable(mergeTable.getTableName()).getMetadata();
 
         // set inheritance
-        if (mergeTable.getInherit() != null) {
+        if (mergeTable.getInheritName() != null) {
           if (mergeTable.getImportSchema() != null) {
             oldTable.setImportSchema(mergeTable.getImportSchema());
           }
-          oldTable.setInherit(mergeTable.getInherit());
-        } else if (oldTable.getInherit() != null) {
+          oldTable.setInheritName(mergeTable.getInheritName());
+        } else if (oldTable.getInheritName() != null) {
           oldTable.removeInherit();
         }
 
@@ -415,6 +420,14 @@ public class SqlSchema implements Schema {
 
   public boolean hasSetting(String key) {
     return metadata.getSetting(key) != null;
+  }
+
+  @Override
+  public SqlTable getTableById(String id) {
+    Optional<Table> table =
+        getTablesSorted().stream().filter(t -> t.getIdentifier().equals(id)).findFirst();
+    if (table.isPresent()) return (SqlTable) table.get();
+    else return null;
   }
 
   public DSLContext getJooq() {

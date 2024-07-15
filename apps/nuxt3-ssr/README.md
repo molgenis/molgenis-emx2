@@ -21,11 +21,17 @@ pnpm install --shamefully-hoist
 
 Start the development server on http://localhost:3000
 
+set non default (api)proxy target with 
+```NUXT_PUBLIC_API_BASE```
+
 ```bash
 npm run dev
 ```
 
 ## Production
+
+set api-proxy target with 
+```NUXT_PUBLIC_API_BASE```
 
 Build the application for production:
 
@@ -57,17 +63,19 @@ For example during development
 EMX2_THEME=umcg yarn dev
 ```
 
-##### icons
-
-All icons are rendered via the BaseIcon component. 
-Additional SVG's can be downloaded from https://fonts.google.com/icons or https://www.flaticon.com/authors/special/lineal ( more illustrative set)
-Downloaded svg's should be added to the assets/icons folder.
-Icons are transformed using the ```yarn parse-icons``` command ( during development)
-The parse-icons command uses the sgvo module to clean the icons and the runs a custom node script to transform the icons to vue components
-Icon components are the stored in the /global/icons folder.
-
 ##### feature flags
 
 The following feature flag(s) are used to toggle certain app features via the runtime config
 
 - ```cohortOnly```  boolean when set to true the networks part is hidden ( see docker file for passing flag via container)
+
+
+### debug/test options 
+
+Runtime config options can be set via query param to test/debug options:
+
+- theme: ```theme=[theme-name]```
+- logo: ```logo=[logo-file-name-without-extension]```
+- feature flag cohorts only: ```cohort-only=true``` // defaults to false
+
+for example ```.../catalogue-demo/ssr-catalogue?cohort-only=true&theme=umcg&logo=UMCGkort.woordbeeld```

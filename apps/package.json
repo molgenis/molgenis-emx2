@@ -1,6 +1,7 @@
 {
   "private": true,
   "workspaces": [
+    "meta-data-utils",
     "catalogue",
     "directory",
     "settings",
@@ -10,14 +11,25 @@
     "updownload",
     "pages",
     "graphql-playground",
+    "tailwind-components",
     "nuxt3-ssr",
     "molgenis-components",
     "molgenis-viz",
+    "cranio-public",
+    "cranio-provider",
+    "ern-genturis",
+    "ern-ithaca",
     "ern-reconnet",
+    "ern-skin",
     "helloworld",
     "reports",
     "tasks",
-    "gportal"
-  ]
+    "gportal",
+    "projectmanager",
+    "aggregation-dashboard",
+    "imdhub-public"
+  ],
+  "devDependencies": {
+    "nuxt": "3.12.2"
+  }
 }
-

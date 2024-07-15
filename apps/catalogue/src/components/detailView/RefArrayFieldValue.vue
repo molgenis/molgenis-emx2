@@ -1,7 +1,7 @@
 <template>
   <div>
     <span v-for="(ref, idx) in data" :key="idx">
-      <RefFieldValue :data="ref" :metaData="metaData" />
+      <RefFieldValue :data="ref" :metaData="metaData" />&nbsp;
     </span>
   </div>
 </template>

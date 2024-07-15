@@ -22,7 +22,7 @@ public class CrossSchemaReferenceExample {
                 column("name").setPkey(),
                 column("parent")
                     .setType(REF)
-                    .setRefSchema(schema1.getName())
+                    .setRefSchemaName(schema1.getName())
                     .setRefTable("Parent")));
     child.insert(row("name", "child1", "parent", "parent1"));
 
@@ -37,11 +37,12 @@ public class CrossSchemaReferenceExample {
                 column("name").setPkey(),
                 column("pets")
                     .setType(REF_ARRAY)
-                    .setRefSchema(schema1.getName())
+                    .setRefSchemaName(schema1.getName())
                     .setRefTable("Pet")));
     petLover.insert(row("name", "x", "pets", new String[] {"pooky", "spike"}));
 
-    Table cat = schema2.create(table("Mouse").setImportSchema(schema1.getName()).setInherit("Pet"));
+    Table cat =
+        schema2.create(table("Mouse").setImportSchema(schema1.getName()).setInheritName("Pet"));
     cat.insert(row("name", "mickey", "species", "mouse"));
   }
 }

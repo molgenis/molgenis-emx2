@@ -1,22 +1,24 @@
 <template>
   <Molgenis v-model="session">
     <RouterView @click="closeAllDropdownButtons" />
+    <template #footer>
+      <Footer />
+    </template>
   </Molgenis>
 </template>
 
 <script setup>
 import { Molgenis } from "molgenis-components";
 import { computed, onMounted, watch } from "vue";
-import { applyBookmark } from "./functions/bookmarkMapper";
+import { applyBookmark, createBookmark } from "./functions/bookmarkMapper";
 import { useRoute } from "vue-router";
 import { useFiltersStore } from "./stores/filtersStore";
 import { useCheckoutStore } from "./stores/checkoutStore";
 import { useSettingsStore } from "./stores/settingsStore";
+import Footer from "./components/Footer.vue";
 
 const route = useRoute();
-
 const query = computed(() => route.query);
-
 const filtersStore = useFiltersStore();
 const checkoutStore = useCheckoutStore();
 
@@ -37,7 +39,7 @@ watch(
       newQuery &&
       Object.keys(newQuery).length === 0
     ) {
-      filtersStore.clearAllFilters();
+      createBookmark(filtersStore.filters, checkoutStore.selectedCollections);
       applyBookmark(newQuery);
     }
 
@@ -83,14 +85,3 @@ export default {
   },
 };
 </script>
-
-<style>
-/* removing the built-in nav because it conflicts */
-nav[aria-label="breadcrumb"]:not(.directory-nav) {
-  display: none;
-}
-ol.breadcrumb {
-  margin-top: 0.25rem !important;
-  margin-bottom: 0.25rem !important;
-}
-</style>

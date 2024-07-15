@@ -48,7 +48,7 @@ public class TestGraphQLCompositeKeys {
             + "        columns: [\n"
             + "          { name: \"id1\", columnType: \"INT\", key: 1 }\n"
             + "          { name: \"id2\", key: 1}\n"
-            + "          { name: \"ref\", columnType: \"REF_ARRAY\", refTable: \"TargetTable\" }\n"
+            + "          { name: \"ref\", columnType: \"REF_ARRAY\", refTableName: \"TargetTable\" }\n"
             + "        ]\n"
             + "      }\n"
             + "    ]\n"
@@ -60,7 +60,7 @@ public class TestGraphQLCompositeKeys {
     // add refBack (TODO unfortunately cannot yet do that in one call)
     execute(
         "mutation {change(columns: [{table: \"TargetTable\" name: \"refBacks\" columnType:"
-            + " \"REFBACK\" refTable: \"RefTable\" refBack: \"ref\"}]) {message}}");
+            + " \"REFBACK\" refTableName: \"RefTable\" refBackName: \"ref\"}]) {message}}");
 
     // have to reload graphql
     grapql =

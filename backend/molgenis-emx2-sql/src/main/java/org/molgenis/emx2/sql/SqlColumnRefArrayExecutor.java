@@ -30,10 +30,9 @@ class SqlColumnRefArrayExecutor {
   static void removeRefArrayConstraints(DSLContext jooq, Column ref) {
     jooq.execute(
         "DROP TRIGGER {0} ON {1}", name(getReferenceExistsCheckName(ref)), ref.getJooqTable());
+    jooq.execute("DROP FUNCTION {0} ", name(ref.getSchemaName(), getReferenceExistsCheckName(ref)));
     jooq.execute(
-        "DROP FUNCTION  {0} ", name(ref.getSchemaName(), getReferenceExistsCheckName(ref)));
-    jooq.execute(
-        "DROP TRIGGER  {0} ON {1}",
+        "DROP TRIGGER {0} ON {1}",
         name(getReferedCheckName(ref)), ref.getRefTable().getJooqTable());
     jooq.execute("DROP FUNCTION {0}", name(ref.getSchemaName(), getReferedCheckName(ref)));
   }
@@ -199,7 +198,7 @@ class SqlColumnRefArrayExecutor {
   private static void createReferenceExistsCheck(DSLContext jooq, Column column) {
     String schemaName = column.getSchema().getName();
     Name thisTable = name(schemaName, column.getTable().getTableName());
-    Name toTable = name(column.getRefSchema(), column.getRefTableName());
+    Name toTable = name(column.getRefSchemaName(), column.getRefTableName());
     String functionName = getReferenceExistsCheckName(column);
     List<Reference> references = column.getReferences();
 

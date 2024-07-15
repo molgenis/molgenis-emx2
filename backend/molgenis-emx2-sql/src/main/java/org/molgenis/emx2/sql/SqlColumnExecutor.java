@@ -4,19 +4,22 @@ import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.ColumnType.REFBACK;
-import static org.molgenis.emx2.sql.MetadataUtils.saveColumnMetadata;
+import static org.molgenis.emx2.Constants.MG_TABLECLASS;
+import static org.molgenis.emx2.sql.MetadataUtils.*;
 import static org.molgenis.emx2.sql.SqlColumnRefArrayExecutor.createRefArrayConstraints;
 import static org.molgenis.emx2.sql.SqlColumnRefArrayExecutor.removeRefArrayConstraints;
 import static org.molgenis.emx2.sql.SqlColumnRefBackExecutor.createRefBackColumnConstraints;
 import static org.molgenis.emx2.sql.SqlColumnRefBackExecutor.removeRefBackConstraints;
 import static org.molgenis.emx2.sql.SqlColumnRefExecutor.createRefConstraints;
 import static org.molgenis.emx2.sql.SqlTypeUtils.getPsqlType;
+import static org.molgenis.emx2.sql.SqlTypeUtils.getTypedValue;
+import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascript;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
-import org.jooq.DSLContext;
-import org.jooq.DataType;
-import org.jooq.Field;
+import org.jooq.*;
+import org.jooq.Record;
 import org.jooq.Table;
 import org.molgenis.emx2.*;
 
@@ -74,7 +77,8 @@ public class SqlColumnExecutor {
     // asumes validated before
     if (!oldColumn.getName().equals(newColumn.getName())) {
       if (newColumn.isFile()) {
-        for (String suffix : new String[] {"", "_extension", "_size", "_contents", "_mimetype"}) {
+        for (String suffix :
+            new String[] {"", "_filename", "_extension", "_size", "_contents", "_mimetype"}) {
           jooq.execute(
               "ALTER TABLE {0} RENAME COLUMN {1} TO {2}",
               newColumn.getJooqTable(),
@@ -87,6 +91,42 @@ public class SqlColumnExecutor {
             newColumn.getJooqTable(),
             field(name(oldColumn.getName())),
             field(name(newColumn.getName())));
+      }
+
+      // also apply to subclasses if pkey (using sql otherwise too expensive)
+      if (newColumn.isPrimaryKey() && newColumn.getTable().getColumn(MG_TABLECLASS) != null) {
+        TableMetadata rootTable = newColumn.getTable();
+        // retrieve using recursive common table expression (CTE):
+        // https://www.postgresql.org/docs/current/queries-with.html#QUERIES-WITH-RECURSIVE
+        List<Record> tableList =
+            jooq
+                .fetch(
+                    """
+                      WITH RECURSIVE RecursiveCTE AS (
+                          SELECT table_schema,table_name,table_inherits
+                          FROM "MOLGENIS"."table_metadata"
+                          WHERE table_schema={0} AND table_name={1}
+                          UNION ALL
+                          SELECT t.table_schema,t.table_name,t.table_inherits
+                          FROM "MOLGENIS"."table_metadata" t
+                                   JOIN RecursiveCTE r ON r.table_schema = COALESCE(t.import_schema,t.table_schema) AND t.table_inherits = r.table_name
+                      )
+                      SELECT *
+                      FROM RecursiveCTE WHERE table_inherits IS NOT NULL;
+                    """,
+                    rootTable.getSchemaName(), rootTable.getTableName())
+                .stream()
+                .toList();
+        for (Record subclassRecord : tableList) {
+          jooq.execute(
+              "ALTER TABLE {0} RENAME COLUMN {1} TO {2}",
+              table(
+                  name(
+                      subclassRecord.get(TABLE_SCHEMA, String.class),
+                      subclassRecord.get(TABLE_NAME, String.class))),
+              field(name(oldColumn.getName())),
+              field(name(newColumn.getName())));
+        }
       }
     }
   }
@@ -112,6 +152,7 @@ public class SqlColumnExecutor {
       jooq.execute(
           "DROP INDEX {0}",
           name(oldColumn.getSchemaName(), table.getName() + "/" + oldColumn.getName()));
+      // and drop trigger
     }
 
     // change the type
@@ -167,7 +208,7 @@ public class SqlColumnExecutor {
   static void reapplyRefbackContraints(Column oldColumn, Column newColumn) {
     if ((oldColumn.isRef() || oldColumn.isRefArray())
         && (newColumn.isRef() || newColumn.isRefArray())) {
-      for (Column check : oldColumn.getRefTable().getNonInheritedColumns()) {
+      for (Column check : newColumn.getRefTable().getNonInheritedColumns()) {
         if (check.isRefback() && oldColumn.getName().equals(check.getRefBack())) {
           check.getTable().dropColumn(check.getName());
           check.getTable().add(check);
@@ -262,12 +303,12 @@ public class SqlColumnExecutor {
     }
     // check table doesn't exist
     SchemaMetadata refSchema = schema;
-    if (column.getRefSchema() != null) {
-      if (schema.getDatabase().getSchema(column.getRefSchema()) == null) {
+    if (column.getRefSchemaName() != null) {
+      if (schema.getDatabase().getSchema(column.getRefSchemaName()) == null) {
         throw new MolgenisException(
-            "refSchema '" + column.getRefSchema() + "' does not exist or permission denied");
+            "refSchema '" + column.getRefSchemaName() + "' does not exist or permission denied");
       }
-      refSchema = schema.getDatabase().getSchema(column.getRefSchema()).getMetadata();
+      refSchema = schema.getDatabase().getSchema(column.getRefSchemaName()).getMetadata();
     }
     if (refSchema.getTableMetadata(column.getRefTableName()) == null) {
       TableMetadata tm =
@@ -349,7 +390,7 @@ public class SqlColumnExecutor {
       throw new MolgenisException(
           String.format(
               "Add column '%s.%s' failed: 'refTable' required for columns of type REF, REF_ARRAY, REFBACK (tried to find: %s:%s)",
-              c.getTableName(), c.getName(), c.getRefSchema(), c.getRefTableName()));
+              c.getTableName(), c.getName(), c.getRefSchemaName(), c.getRefTableName()));
     }
     if (c.getRefLink() != null) {
       if (c.getTable().getColumn(c.getRefLink()) == null) {
@@ -443,10 +484,20 @@ public class SqlColumnExecutor {
   }
 
   public static void executeSetDefaultValue(DSLContext jooq, Column newColumn) {
-    if (newColumn.getDefaultValue() != null) {
+    if (newColumn.getDefaultValue() != null && newColumn.isReference()) {
+      // we can't do this for references yet
+      Object defaultValue = newColumn.getDefaultValue();
+      if (newColumn.getDefaultValue().startsWith("=")) {
+        defaultValue = executeJavascript(newColumn.getDefaultValue().substring(1));
+      }
+      defaultValue = getTypedValue(defaultValue, newColumn.getPrimitiveColumnType());
       jooq.alterTable(newColumn.getJooqTable())
           .alterColumn(newColumn.getJooqField())
-          .defaultValue(newColumn.getDefaultValue())
+          .defaultValue(defaultValue)
+          .execute();
+      jooq.update(newColumn.getJooqTable())
+          .set(newColumn.getJooqField(), defaultValue)
+          .where(newColumn.getJooqField().isNull())
           .execute();
     } else {
       // remove default

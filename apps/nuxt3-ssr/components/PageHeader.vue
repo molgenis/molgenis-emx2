@@ -12,6 +12,10 @@ defineProps({
   icon: {
     type: String,
   },
+  truncate: {
+    type: Boolean,
+    default: true,
+  },
 });
 </script>
 
@@ -26,7 +30,6 @@ defineProps({
       </span>
       <div class="relative">
         <h1 class="font-display text-heading-6xl">{{ title }}</h1>
-
         <div
           class="absolute hidden pl-1 -translate-y-1/2 text-favorite hover:text-favorite-hover left-full top-1/2 whitespace-nowrap xl:block"
           :v-if="slots['title-suffix']"
@@ -34,8 +37,15 @@ defineProps({
           <slot name="title-suffix"></slot>
         </div>
       </div>
+      <p
+        v-if="slots['description']"
+        class="mt-1 mb-0 text-center lg:mb-5 text-body-lg"
+      >
+        <slot name="description"></slot>
+      </p>
       <p v-if="description" class="mt-1 mb-0 text-center lg:mb-5 text-body-lg">
-        {{ description }}
+        <ContentReadMore v-if="truncate" :text="description" />
+        <span v-else>{{ description }}</span>
       </p>
     </div>
     <slot name="suffix"></slot>

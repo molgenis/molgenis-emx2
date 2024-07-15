@@ -1,12 +1,14 @@
 <template>
-  <h3 :class="setTitleClassNames">{{ title }}</h3>
-  <ul class="data-highlights">
-    <li class="data-highlight" v-for="key in Object.keys(data)" key="key">
-      <data :value="data[key]" class="data-value">
-        <span class="data-label">{{ key }}</span>
-      </data>
-    </li>
-  </ul>
+  <div class="data-highlights-container">
+    <h3 :class="setTitleClassNames">{{ title }}</h3>
+    <ul class="data-highlights">
+      <li class="data-highlight" v-for="key in Object.keys(data)" key="key">
+        <data :value="data[key]" class="data-value">
+          <span class="data-label">{{ key }}</span>
+        </data>
+      </li>
+    </ul>
+  </div>
 </template>
 
 <script>

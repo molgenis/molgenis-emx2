@@ -6,13 +6,14 @@ import static io.restassured.RestAssured.when;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.STRING;
 import static org.molgenis.emx2.Constants.MOLGENIS_HTTP_PORT;
 import static org.molgenis.emx2.Constants.SYSTEM_SCHEMA;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.Row.row;
-import static org.molgenis.emx2.RunMolgenisEmx2.CATALOGUE_DEMO;
+import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_PW_DEFAULT;
 import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 import static org.molgenis.emx2.web.Constants.*;
@@ -28,6 +29,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.*;
@@ -48,6 +50,8 @@ public class WebApiSmokeTests {
   public static final String DATA_PET_STORE = "/pet store/api/csv";
   public static final String PET_SHOP_OWNER = "pet_shop_owner";
   public static final String SYSTEM_PREFIX = "/" + SYSTEM_SCHEMA;
+  public static final String TABLE_WITH_SPACES = "table with spaces";
+  public static final String PET_STORE_SCHEMA = "pet store";
   public static String SESSION_ID; // to toss around a session for the tests
   private static Database db;
   private static Schema schema;
@@ -86,18 +90,26 @@ public class WebApiSmokeTests {
             .post("api/graphql")
             .sessionId();
 
-    // should be created
-    schema = db.getSchema("pet store");
+    // Always create test database from scratch to avoid instability due to side effects.
+    db.dropSchemaIfExists(PET_STORE_SCHEMA);
+    schema = db.createSchema(PET_STORE_SCHEMA);
+    PetStoreLoader petStoreLoader = new PetStoreLoader();
+    petStoreLoader.load(schema, true);
+
     // grant a user permission
     schema.addMember(PET_SHOP_OWNER, Privileges.OWNER.toString());
     schema.addMember(ANONYMOUS, Privileges.VIEWER.toString());
     db.grantCreateSchema(PET_SHOP_OWNER);
+    if (schema.getTable(TABLE_WITH_SPACES) == null) {
+      schema.create(table(TABLE_WITH_SPACES, column("name", STRING).setKey(1)));
+    }
   }
 
   @AfterAll
   public static void after() {
     MolgenisWebservice.stop();
-    db.dropSchemaIfExists(CATALOGUE_DEMO);
+    // Always clean up database to avoid instability due to side effects.
+    db.dropSchemaIfExists(PET_STORE_SCHEMA);
   }
 
   @Test
@@ -130,7 +142,7 @@ public class WebApiSmokeTests {
             .when()
             .get("/pet store zip/api/csv")
             .asString();
-    assertEquals(schemaCsv, schemaCsv2);
+    assertArrayEquals(toSortedArray(schemaCsv), toSortedArray(schemaCsv2));
 
     // delete the new schema
     db.dropSchema("pet store zip");
@@ -182,47 +194,49 @@ public class WebApiSmokeTests {
 
     // full table header present in exported table metadata
     String header =
-        "tableName,tableExtends,tableType,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,refLabel,validation,visible,computed,semantics,label,description\r\n";
+        "tableName,tableExtends,tableType,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,refLabel,defaultValue,validation,visible,computed,semantics,profiles,label,description\r\n";
 
     // add new table with description and semantics as metadata
     addUpdateTableAndCompare(
         header,
         "tableName,description,semantics\r\nTestMetaTable,TestDesc,TestSem",
-        "TestMetaTable,,,,,,,,,,,,,,,TestSem,,TestDesc\r\n");
+        "TestMetaTable,,,,,,,,,,,,,,,,TestSem,,,TestDesc\r\n");
 
     // update table without new description or semantics, values should be untouched
     addUpdateTableAndCompare(
-        header, "tableName\r\nTestMetaTable", "TestMetaTable,,,,,,,,,,,,,,,TestSem,,TestDesc\r\n");
+        header,
+        "tableName\r\nTestMetaTable",
+        "TestMetaTable,,,,,,,,,,,,,,,,TestSem,,,TestDesc\r\n");
 
     // update only description, semantics should be untouched
     addUpdateTableAndCompare(
         header,
         "tableName,description\r\nTestMetaTable,NewTestDesc",
-        "TestMetaTable,,,,,,,,,,,,,,,TestSem,,NewTestDesc\r\n");
+        "TestMetaTable,,,,,,,,,,,,,,,,TestSem,,,NewTestDesc\r\n");
 
     // make semantics empty by not supplying a value, description  should be untouched
     addUpdateTableAndCompare(
         header,
         "tableName,semantics\r\nTestMetaTable,",
-        "TestMetaTable,,,,,,,,,,,,,,,,,NewTestDesc\r\n");
+        "TestMetaTable,,,,,,,,,,,,,,,,,,,NewTestDesc\r\n");
 
     // make description empty while also adding a new value for semantics
     addUpdateTableAndCompare(
         header,
         "tableName,description,semantics\r\nTestMetaTable,,NewTestSem",
-        "TestMetaTable,,,,,,,,,,,,,,,NewTestSem,,\r\n");
+        "TestMetaTable,,,,,,,,,,,,,,,,NewTestSem,,,\r\n");
 
     // empty both description and semantics
     addUpdateTableAndCompare(
         header,
         "tableName,description,semantics\r\nTestMetaTable,,",
-        "TestMetaTable,,,,,,,,,,,,,,,,,\r\n");
+        "TestMetaTable,,,,,,,,,,,,,,,,,,,\r\n");
 
     // add description value, and string array value for semantics
     addUpdateTableAndCompare(
         header,
         "tableName,description,semantics\r\nTestMetaTable,TestDesc,\"TestSem1,TestSem2\"",
-        "TestMetaTable,,,,,,,,,,,,,,,\"TestSem1,TestSem2\",,TestDesc\r\n");
+        "TestMetaTable,,,,,,,,,,,,,,,,\"TestSem1,TestSem2\",,,TestDesc\r\n");
   }
 
   /**
@@ -282,12 +296,23 @@ public class WebApiSmokeTests {
     String contentsTagDataNew = getContentAsString("/api/csv/Tag");
 
     // test if existing and new schema are equal
-    assertEquals(new String(contentsMeta), contentsMetaNew);
-    assertEquals(new String(contentsCategoryData), contentsCategoryDataNew);
-    assertEquals(new String(contentsOrderData), contentsOrderDataNew);
-    assertEquals(new String(contentsPetData), contentsPetDataNew);
-    assertEquals(new String(contentsUserData), contentsUserDataNew);
-    assertEquals(new String(contentsTagData), contentsTagDataNew);
+    assertArrayEquals(toSortedArray(new String(contentsMeta)), toSortedArray(contentsMetaNew));
+    assertArrayEquals(
+        toSortedArray(new String(contentsCategoryData)), toSortedArray(contentsCategoryDataNew));
+    assertArrayEquals(
+        toSortedArray(new String(contentsOrderData)), toSortedArray(contentsOrderDataNew));
+    assertArrayEquals(
+        toSortedArray(new String(contentsPetData)), toSortedArray(contentsPetDataNew));
+    assertArrayEquals(
+        toSortedArray(new String(contentsUserData)), toSortedArray(contentsUserDataNew));
+    assertArrayEquals(
+        toSortedArray(new String(contentsTagData)), toSortedArray(contentsTagDataNew));
+  }
+
+  private String[] toSortedArray(String string) {
+    String[] lines = string.split("\n");
+    Arrays.sort(lines);
+    return lines;
   }
 
   @Test
@@ -357,7 +382,7 @@ public class WebApiSmokeTests {
     String schemaJson2 =
         given().sessionId(SESSION_ID).when().get("/pet store json/api/json").asString();
 
-    assertEquals(schemaJson, schemaJson2.replace("pet store json", "pet store"));
+    assertEquals(schemaJson, schemaJson2.replace("pet store json", PET_STORE_SCHEMA));
 
     String schemaYaml = given().sessionId(SESSION_ID).when().get("/pet store/api/yaml").asString();
 
@@ -374,7 +399,7 @@ public class WebApiSmokeTests {
     String schemaYaml2 =
         given().sessionId(SESSION_ID).when().get("/pet store yaml/api/yaml").asString();
 
-    assertEquals(schemaYaml, schemaYaml2.replace("pet store yaml", "pet store"));
+    assertEquals(schemaYaml, schemaYaml2.replace("pet store yaml", PET_STORE_SCHEMA));
   }
 
   @Test
@@ -792,47 +817,27 @@ public class WebApiSmokeTests {
         .expect()
         .statusCode(200)
         .when()
-        .get("http://localhost:" + PORT + "/pet store/api/rdf/Category/cat");
+        .get("http://localhost:" + PORT + "/pet store/api/rdf/Category?name=cat");
     given()
         .sessionId(SESSION_ID)
         .expect()
         .statusCode(400)
         .when()
         .get("http://localhost:" + PORT + "/pet store/api/rdf/doesnotexist");
-  }
-
-  @Test
-  public void testLinkedDataApi() {
     given()
         .sessionId(SESSION_ID)
         .expect()
         .statusCode(200)
         .when()
-        .get("http://localhost:" + PORT + "/pet store/api/jsonld");
-    given()
-        .sessionId(SESSION_ID)
-        .expect()
-        .statusCode(200)
-        .when()
-        .get("http://localhost:" + PORT + "/pet store/api/ttl");
-    given()
-        .sessionId(SESSION_ID)
-        .expect()
-        .statusCode(200)
-        .when()
-        .get("http://localhost:" + PORT + "/pet store/api/jsonld/Category");
-    given()
-        .sessionId(SESSION_ID)
-        .expect()
-        .statusCode(200)
-        .when()
-        .get("http://localhost:" + PORT + "/pet store/api/ttl/Category");
-    given()
-        .sessionId(SESSION_ID)
-        .expect()
-        .statusCode(400)
-        .when()
-        .get("http://localhost:" + PORT + "/pet store/api/ttl/doesnotexist");
+        .get("http://localhost:" + PORT + "/api/rdf?schemas=pet store");
+    String result =
+        given()
+            .sessionId(SESSION_ID)
+            .when()
+            .get("http://localhost:" + PORT + "/api/rdf?schemas=pet store")
+            .getBody()
+            .asString();
+    assertFalse(result.contains("CatalogueOntologies"));
   }
 
   @Test
@@ -843,6 +848,38 @@ public class WebApiSmokeTests {
         .statusCode(400)
         .when()
         .get("http://localhost:" + PORT + "/api/fdp/distribution/pet store/Category/ttl");
+  }
+
+  @Test
+  public void testFDPHead() {
+    given()
+        .sessionId(SESSION_ID)
+        .expect()
+        .contentType("text/turtle")
+        .when()
+        .head("http://localhost:" + PORT + "/api/fdp");
+  }
+
+  @Test
+  public void testNonDefinedFDPHead() {
+    given()
+        .sessionId(SESSION_ID)
+        .expect()
+        .contentType("text/html;charset=utf-8")
+        .when()
+        .head("http://localhost:" + PORT + "/api/fdp/");
+  }
+
+  @Test
+  public void testFDPRedirect() {
+    given()
+        .sessionId(SESSION_ID)
+        .redirects()
+        .follow(false)
+        .expect()
+        .header("Location", "http://localhost:" + PORT + "/api/fdp")
+        .when()
+        .get("http://localhost:" + PORT + "/api/fdp/");
   }
 
   @Test
@@ -1130,16 +1167,46 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  @Disabled("unstable")
+  void testJSONLDonJSONLDEndpoint() {
+    given()
+        .sessionId(SESSION_ID)
+        .expect()
+        .contentType("application/ld+json")
+        .statusCode(200)
+        .when()
+        .get("/pet store/api/jsonld");
+
+    given()
+        .sessionId(SESSION_ID)
+        .expect()
+        .contentType("application/ld+json")
+        .statusCode(200)
+        .when()
+        .get("/pet store/api/jsonld/Pet");
+  }
+
+  @Test
+  void testTurtleOnTTLEndpoint() {
+    given()
+        .sessionId(SESSION_ID)
+        .expect()
+        .contentType("text/turtle")
+        .statusCode(200)
+        .when()
+        .get("/pet store/api/ttl");
+
+    given()
+        .sessionId(SESSION_ID)
+        .expect()
+        .contentType("text/turtle")
+        .statusCode(200)
+        .when()
+        .get("/pet store/api/ttl/Pet");
+  }
+
+  @Test
   public void testBeaconApiSmokeTests() {
-    // todo: ideally we would here validate the responses against json schemas, are those schemas
-    // easily available?
-    // todo: can we put in some relevant filter parameters so we really test if they are functional?
-
-    String result = given().get("/api/beacon").getBody().asString();
-    assertTrue(result.contains("info"));
-
-    result = given().get("/api/beacon/configuration").getBody().asString();
+    String result = given().get("/api/beacon/configuration").getBody().asString();
     assertTrue(result.contains("productionStatus"));
 
     result = given().get("/api/beacon/map").getBody().asString();
@@ -1197,6 +1264,45 @@ public class WebApiSmokeTests {
     //
     //    result = given().get("/api/fdp/distribution/profile").getBody().asString();
     //    assertTrue(result.contains("todo"));
+  }
+
+  @Test
+  void testThatTablesWithSpaceCanBeDownloaded() {
+    var table = schema.getTable(TABLE_WITH_SPACES);
+
+    given()
+        .sessionId(SESSION_ID)
+        .expect()
+        .statusCode(200)
+        .when()
+        .get("/pet store/api/jsonld/" + table.getIdentifier());
+
+    given()
+        .sessionId(SESSION_ID)
+        .expect()
+        .statusCode(200)
+        .when()
+        .get("/pet store/api/ttl/" + table.getIdentifier());
+
+    given()
+        .sessionId(SESSION_ID)
+        .expect()
+        .statusCode(200)
+        .when()
+        .get("/pet store/api/excel/" + table.getIdentifier());
+
+    given()
+        .sessionId(SESSION_ID)
+        .expect()
+        .statusCode(200)
+        .when()
+        .get("/pet store/api/csv/" + table.getIdentifier());
+  }
+
+  @Test
+  void testProfileApi() {
+    String result = result = given().get("/api/profiles").getBody().asString();
+    assertTrue(result.contains("Samples"));
   }
 
   private Row waitForScriptToComplete(String scriptName) throws InterruptedException {

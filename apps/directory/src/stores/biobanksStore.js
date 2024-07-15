@@ -1,11 +1,11 @@
+import { QueryEMX2 } from "molgenis-components";
 import { defineStore } from "pinia";
 import { computed, ref } from "vue";
-import { QueryEMX2 } from "molgenis-components";
-import { useSettingsStore } from "./settingsStore";
+import { extractValue } from "../functions/extractValue";
+import { getPropertyByPath } from "../functions/getPropertyByPath";
 import { useCollectionStore } from "./collectionStore";
 import { useFiltersStore } from "./filtersStore";
-import { getPropertyByPath } from "../functions/getPropertyByPath";
-import { extractValue } from "../functions/extractValue";
+import { useSettingsStore } from "./settingsStore";
 
 export const useBiobanksStore = defineStore("biobanksStore", () => {
   const settingsStore = useSettingsStore();
@@ -20,6 +20,56 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
   );
 
   let facetBiobankColumnDetails = ref([]);
+  let biobankCards = ref([]);
+  let waitingForResponse = ref(true);
+
+  let lastRequestTime = 0;
+
+  const collectionColumns = collectionStore.getCollectionColumns();
+  const biobankProperties = biobankColumns
+    .flatMap((biobankColumn) => biobankColumn.column)
+    .concat({ collections: collectionColumns });
+
+  const baseQuery = new QueryEMX2(graphqlEndpoint)
+    .table("Biobanks")
+    .select([...biobankCardGraphql, ...getFacetColumnDetails()])
+    .orderBy("Biobanks", "name", "asc")
+    .orderBy("collections", "id", "asc");
+
+  const biobankCardsHaveResults = computed(
+    () => !waitingForResponse.value && biobankCards.value?.length
+  );
+
+  const biobankCardsBiobankCount = computed(() => {
+    return (
+      biobankCards.value?.filter((biobankCard) => !biobankCard.withdrawn)
+        .length || 0
+    );
+  });
+
+  const biobankCardsSubcollectionCount = computed(() => {
+    if (!biobankCards.value.length) {
+      return 0;
+    } else {
+      return biobankCards.value
+        .filter((bc) => bc.collections)
+        .flatMap((biobank) =>
+          biobank.collections.filter(
+            (collection) =>
+              !collection.withdrawn && collection.parent_collection
+          )
+        ).length;
+    }
+  });
+
+  const biobankCardsCollectionCount = computed(() => {
+    const totalCount = biobankCards.value
+      .filter((bc) => bc.collections)
+      .flatMap((biobank) =>
+        biobank.collections.filter((collection) => !collection.withdrawn)
+      ).length;
+    return totalCount - biobankCardsSubcollectionCount.value;
+  });
 
   function getFacetColumnDetails() {
     if (!facetBiobankColumnDetails.value.length) {
@@ -56,30 +106,32 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
     return facetBiobankColumnDetails;
   }
 
-  const collectionColumns = collectionStore.getCollectionColumns();
-
-  const biobankProperties = biobankColumns
-    .flatMap((biobankColumn) => biobankColumn.column)
-    .concat({ collections: collectionColumns });
-
-  let biobankCards = ref([]);
-  let waitingForResponse = ref(false);
-
-  const baseQuery = new QueryEMX2(graphqlEndpoint)
-    .table("Biobanks")
-    .select([...biobankCardGraphql, ...getFacetColumnDetails()])
-    .orderBy("Biobanks", "name", "asc")
-    .orderBy("collections", "id", "asc");
-
-  /** GraphQL query to get all the data necessary for the home screen 'aka biobank card view */
+  /** This method is called upon page load and when a filter is applied. */
+  /** Therefore it can be executed multiple times in parallel. */
   async function getBiobankCards() {
     if (!filtersStore.bookmarkWaitingForApplication) {
       waitingForResponse.value = true;
-      if (biobankCards.value.length === 0) {
-        const biobankResult = await baseQuery.execute();
-        biobankCards.value = biobankResult.Biobanks;
+
+      const requestTime = Date.now();
+      lastRequestTime = requestTime;
+
+      const biobankResult = await baseQuery.execute();
+
+      /* Update biobankCards only if the result is the most recent one*/
+      if (requestTime === lastRequestTime) {
+        let foundBiobanks = biobankResult.Biobanks;
+        if (
+          filtersStore.hasActiveFilters &&
+          !filtersStore.hasActiveBiobankOnlyFilters
+        ) {
+          foundBiobanks = foundBiobanks?.filter(
+            (biobank) => biobank.collections
+          );
+        }
+        biobankCards.value = filterWithdrawn(foundBiobanks);
+        waitingForResponse.value = false;
+        filtersStore.bookmarkWaitingForApplication = false;
       }
-      waitingForResponse.value = false;
     }
   }
 
@@ -95,29 +147,16 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
     return await biobankReportQuery.execute();
   }
 
-  async function updateBiobankCards() {
-    if (!waitingForResponse.value) {
-      waitingForResponse.value = true;
-      biobankCards.value = [];
-      const biobankResult = await baseQuery.execute();
-
-      /** only show biobanks that have collections */
-      const foundBiobanks = biobankResult.Biobanks
-        ? biobankResult.Biobanks.filter((biobank) => biobank.collections)
-        : [];
-      biobankCards.value = foundBiobanks;
-      waitingForResponse.value = false;
-
-      filtersStore.bookmarkWaitingForApplication = false;
-    }
-  }
-
   function getPresentFilterOptions(facetIdentifier) {
-    const { applyToColumn, adaptive } = filtersStore.facetDetails[
-      facetIdentifier
-    ];
-
-    if (!biobankCards.value.length || !adaptive) return [];
+    const { applyToColumn, adaptive } =
+      filtersStore.facetDetails[facetIdentifier];
+    if (
+      biobankCards.value === undefined ||
+      !biobankCards.value.length ||
+      !adaptive
+    ) {
+      return [];
+    }
 
     let columnPath = applyToColumn;
     if (!Array.isArray(applyToColumn)) {
@@ -170,37 +209,7 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
     return [...new Set(valuesKnown)];
   }
 
-  const biobankCardsHaveResults = computed(() => {
-    return (
-      !waitingForResponse.value &&
-      biobankCards.value &&
-      biobankCards.value.length > 0
-    );
-  });
-
-  const biobankCardsBiobankCount = computed(() => {
-    return biobankCards.value.length;
-  });
-
-  const biobankCardsCollectionCount = computed(() => {
-    return biobankCards.value
-      .filter((bc) => bc.collections)
-      .flatMap((biobank) => biobank.collections).length;
-  });
-
-  const biobankCardsSubcollectionCount = computed(() => {
-    if (!biobankCards.value.length) return 0;
-    const collections = biobankCards.value
-      .filter((bc) => bc.collections)
-      .flatMap((biobank) => biobank.collections);
-    if (!collections.length) return 0;
-    return collections
-      .filter((c) => c.sub_collections)
-      .flatMap((collection) => collection.sub_collections).length;
-  });
-
   return {
-    updateBiobankCards,
     getBiobankCards,
     getBiobank,
     getPresentFilterOptions,
@@ -213,3 +222,13 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
     baseQuery,
   };
 });
+
+function filterWithdrawn(biobanks) {
+  let filteredBanks = biobanks?.filter((biobank) => !biobank.withdrawn) || [];
+  filteredBanks.forEach((biobank) => {
+    biobank.collections = biobank.collections?.filter(
+      (collection) => !collection.withdrawn
+    );
+  });
+  return filteredBanks;
+}

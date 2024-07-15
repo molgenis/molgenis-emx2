@@ -13,9 +13,7 @@
       <button class="btn btn-primary mr-3 save-button" @click="save">
         Save changes
       </button>
-      <button class="btn btn-dark mr-3" @click="cancel">
-        Cancel
-      </button>
+      <button class="btn btn-dark mr-3" @click="cancel">Cancel</button>
     </div>
   </div>
 </template>

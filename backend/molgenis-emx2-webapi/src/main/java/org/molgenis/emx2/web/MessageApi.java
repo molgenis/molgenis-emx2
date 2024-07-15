@@ -13,10 +13,12 @@ import graphql.parser.Parser;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.email.EmailMessage;
 import org.molgenis.emx2.email.EmailService;
 import org.molgenis.emx2.email.EmailSettings;
 import org.molgenis.emx2.email.EmailValidator;
@@ -117,8 +119,14 @@ public class MessageApi {
     EmailSettings settings = loadEmailSettings(schema);
     EmailService emailService = new EmailService(settings);
 
-    final boolean sendResult =
-        emailService.send(recipients, sendMessageAction.subject(), sendMessageAction.body());
+    Optional<String> bccRecipient =
+        schema.hasSetting(Constants.CONTACT_BCC_ADDRESS)
+            ? Optional.ofNullable(schema.getSettingValue(Constants.CONTACT_BCC_ADDRESS))
+            : Optional.empty();
+    EmailMessage message =
+        new EmailMessage(
+            recipients, sendMessageAction.subject(), sendMessageAction.body(), bccRecipient);
+    final boolean sendResult = emailService.send(message);
     if (!sendResult) {
       response.status(500);
       logger.error(

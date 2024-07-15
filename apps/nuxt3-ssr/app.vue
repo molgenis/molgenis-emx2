@@ -1,6 +1,60 @@
+<script setup lang="ts">
+const config = useRuntimeConfig();
+const route = useRoute();
+
+const isAnalyticsAllowedCookie = useCookie("mg_allow_analytics", {
+  maxAge: 34560000,
+});
+
+const showCookieWall = ref(
+  !!(config.public.analyticsKey && isAnalyticsAllowedCookie.value === undefined)
+);
+
+function setAnalyticsCookie(value: boolean) {
+  isAnalyticsAllowedCookie.value = value.toString();
+  showCookieWall.value = false;
+  if (value === true) {
+    window.location.reload();
+  }
+}
+
+const faviconHref = config.public.emx2Theme
+  ? `/_nuxt-styles/img/${config.public.emx2Theme}.ico`
+  : "/_nuxt-styles/img/molgenis.ico";
+useHead({
+  htmlAttrs: {
+    'data-theme': route.query.theme as string || config.public.emx2Theme || "",
+  },
+  link: [
+    { rel: "icon", href: faviconHref },
+  ],
+  titleTemplate: (titleChunk) => {
+    if (titleChunk && config.public.siteTitle) {
+      return `${titleChunk} | ${config.public.siteTitle}`;
+    } else if (titleChunk) {
+      return titleChunk;
+    } else if (config.public.siteTitle) {
+      return config.public.siteTitle;
+    } else {
+      return "Catalogue";
+    }
+  },
+  script:
+    config.public.analyticsKey && isAnalyticsAllowedCookie.value
+      ? [
+          {
+            src: `https://siteimproveanalytics.com/js/siteanalyze_${config.public.analyticsKey}.js`,
+            async: true,
+            tagPosition: "bodyClose",
+          },
+        ]
+      : [],
+});
+</script>
+
 <template>
   <div
-    class="overflow-x-clip min-h-screen bg-base-gradient relative after:bg-app-wrapper after:w-full after:h-[166px] after:top-0 after:absolute after:opacity-20 after:z-20 xl:after:hidden"
+    class="overflow-x-clip min-h-screen bg-base-gradient relative"
   >
     <div
       class="absolute top-0 left-0 z-10 w-screen h-screen overflow-hidden opacity-background-gradient"
@@ -8,9 +62,7 @@
       <BackgroundGradient class="z-10" />
     </div>
     <div class="z-30 relative min-h-screen flex flex-col">
-      <slot name="header">
-        <AppHeader />
-      </slot>
+
       <main class="mb-auto">
         <BottomModal
           :show="showCookieWall"
@@ -44,106 +96,11 @@
             </div>
           </section>
         </BottomModal>
-
-        <slot>
+        <slot>      
           <NuxtPage />
         </slot>
       </main>
-      <slot name="footer">
-        <div class="bg-footer p-6">
-          <div class="mt-5 mb-0 text-center text-title text-body-lg">
-            This database was created using the
-            <a
-              class="text-body-base text-footer-link hover:underline"
-              href="http://molgenis.org"
-              >MOLGENIS</a
-            >&nbsp;
-            <a
-              class="text-body-base text-footer-link hover:underline"
-              href="http://github.com/molgenis/molgenis-emx2"
-            >
-              molgenis-emx2
-            </a>
-            open source software (license:
-            <a
-              class="text-body-base text-footer-link hover:underline"
-              href="https://github.com/molgenis/molgenis-emx2/blob/master/LICENSE"
-              >LGPLv3</a
-            >).
-          </div>
-          <div class="mb-0 text-center lg:pb-5 text-title text-body-lg">
-            Please cite
-            <a
-              class="text-body-base text-footer-link hover:underline"
-              href="https://www.ncbi.nlm.nih.gov/pubmed/30165396"
-            >
-              Van der Velde et al (2018)</a
-            >
-            or
-            <a href="https://www.ncbi.nlm.nih.gov/pubmed/21210979">
-              Swertz et al (2010)</a
-            >
-            on use.
-          </div>
-        </div>
-      </slot>
+
     </div>
   </div>
 </template>
-
-<script setup lang="ts">
-import BackgroundGradient from "./components/BackgroundGradient.vue";
-import { hash } from ".fingerprint.js";
-
-const config = useRuntimeConfig();
-
-const isAnalyticsAllowedCookie = useCookie("mg_allow_analytics");
-console.log("isAnalyticsAllowedCookie: ", isAnalyticsAllowedCookie.value);
-
-const showCookieWall = ref(
-  !!(config.public.analyticsKey && isAnalyticsAllowedCookie.value === undefined)
-);
-console.log("showCookieWall: ", showCookieWall.value);
-
-function setAnalyticsCookie(value: boolean) {
-  isAnalyticsAllowedCookie.value = value.toString();
-  showCookieWall.value = false;
-  if (value === true) {
-    window.location.reload();
-  }
-}
-
-let themeFilename = "styles";
-if (config.public.emx2Theme) {
-  themeFilename += `.${config.public.emx2Theme}`;
-}
-if (hash) {
-  themeFilename += `.${hash}`;
-}
-
-const styleHref = `/_nuxt-styles/css/${themeFilename}.css`;
-const faviconHref = config.public.emx2Theme
-  ? `/_nuxt-styles/img/${config.public.emx2Theme}.ico`
-  : "/_nuxt-styles/img/molgenis.ico";
-useHead({
-  link: [
-    { rel: "icon", href: faviconHref },
-    { rel: "stylesheet", type: "text/css", href: styleHref },
-  ],
-  titleTemplate: (titleChunk) => {
-    return titleChunk
-      ? `${titleChunk} | ${config.public.siteTitle}`
-      : `${config.public.siteTitle}`;
-  },
-  script:
-    config.public.analyticsKey && isAnalyticsAllowedCookie.value
-      ? [
-          {
-            src: `https://siteimproveanalytics.com/js/siteanalyze_${config.public.analyticsKey}.js`,
-            async: true,
-            tagPosition: "bodyClose",
-          },
-        ]
-      : [],
-});
-</script>

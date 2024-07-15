@@ -7,7 +7,7 @@
     :errorMessage="errorMessage"
   >
     <InputGroup>
-      <BaseIntInput
+      <BaseInputInt
         :id="id"
         :modelValue="modelValue"
         :placeholder="placeholder"
@@ -27,7 +27,7 @@
 
 <script>
 import BaseInput from "./baseInputs/BaseInput.vue";
-import BaseIntInput from "./baseInputs/BaseInputInt.vue";
+import BaseInputInt from "./baseInputs/BaseInputInt.vue";
 import FormGroup from "./FormGroup.vue";
 import InputGroup from "./InputGroup.vue";
 
@@ -35,7 +35,7 @@ export default {
   extends: BaseInput,
   components: {
     FormGroup,
-    BaseIntInput,
+    BaseInputInt,
     InputGroup,
   },
 };

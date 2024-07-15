@@ -46,7 +46,7 @@
           v-if="
             session &&
             session.roles &&
-            ['Manager', 'Editor', 'Viewer', 'Owner'].some((r) =>
+            ['Manager', 'Editor', 'Viewer', 'Aggregator', 'Owner'].some((r) =>
               session.roles.includes(r)
             )
           "
@@ -72,13 +72,13 @@
               <a :href="'../api/ttl'">ttl</a> /
               <a :href="'../api/jsonld'">jsonld</a>
             </p>
-            <div v-if="tables" :key="tablesHash">
+            <div v-if="visibleTables?.length" :key="tablesHash">
               Export specific tables:
               <ul>
-                <li v-for="table in tables" :key="table.name">
-                  {{ table.name }}:
-                  <a :href="'../api/csv/' + table.name">csv</a> /
-                  <a :href="'../api/excel/' + table.name">excel</a>
+                <li v-for="table in visibleTables" :key="table.id">
+                  {{ table.label }}:
+                  <a :href="'../api/csv/' + table.id">csv</a> /
+                  <a :href="'../api/excel/' + table.id">excel</a>
                 </li>
               </ul>
             </div>
@@ -130,9 +130,16 @@ export default {
     };
   },
   computed: {
+    visibleTables() {
+      if (this.session?.roles.includes("Viewer")) {
+        return this.tables;
+      } else {
+        return this.tables.filter((t) => t.tableType === "ONTOLOGIES");
+      }
+    },
     tablesHash() {
       if (this.tables) {
-        return this.tables.map((table) => table.name).join("-");
+        return this.tables.map((table) => table.id).join("-");
       } else {
         return null;
       }
@@ -141,9 +148,9 @@ export default {
   methods: {
     loadSchema() {
       this.loading = true;
-      request("graphql", "{_schema{name,tables{name}}}")
+      request("graphql", "{_schema{id,label,tables{id,label,tableType}}}")
         .then((data) => {
-          this.schema = data._schema.name;
+          this.schema = data._schema.id;
           this.tables = data._schema.tables;
         })
         .catch((error) => {

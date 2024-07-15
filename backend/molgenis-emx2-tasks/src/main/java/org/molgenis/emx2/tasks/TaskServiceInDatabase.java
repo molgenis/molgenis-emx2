@@ -1,5 +1,6 @@
 package org.molgenis.emx2.tasks;
 
+import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.FilterBean.or;
@@ -13,18 +14,26 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.jooq.Result;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.sql.JWTgenerator;
 import org.molgenis.emx2.sql.SqlDatabase;
 
 public class TaskServiceInDatabase extends TaskServiceInMemory {
-  private Database database;
+  private SqlDatabase database;
   private String systemSchemaName;
 
   public TaskServiceInDatabase(String systemSchemaName) {
     this.database = new SqlDatabase(false);
     this.systemSchemaName = systemSchemaName;
     this.init();
+  }
+
+  @Override
+  public List<ScriptTask> getScripts() {
+    Result<org.jooq.Record> result =
+        this.database.getJooq().fetch("select * from {0}", name(systemSchemaName, "Scripts"));
+    return result.stream().map(record -> new ScriptTask(new Row(record.intoMap()))).toList();
   }
 
   @Override
@@ -87,38 +96,35 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
         db -> {
           db.becomeAdmin();
           Schema systemSchema = db.getSchema(this.systemSchemaName);
-          // retrieve the script from database
-          List<Row> rows =
-              systemSchema.getTable("Scripts").where(f("name", EQUALS, scriptName)).retrieveRows();
-          if (rows.size() != 1) {
-            throw new MolgenisException("Script " + scriptName + " not found");
-          }
-          Row scriptMetadata = rows.get(0);
-          String user = scriptMetadata.getString("cronUser");
-          if (user == null) {
-            user = defaultUser;
-          }
+
+          ScriptTask scriptTask = retrieveTaskFromDatabase(systemSchema, scriptName);
+          String user =
+              scriptTask.getCronUserName() == null ? defaultUser : scriptTask.getCronUserName();
+
           db.setActiveUser(user);
-          if (scriptMetadata != null) {
-            if (scriptMetadata.getBoolean("disable") != null
-                && scriptMetadata.getBoolean("disable")) {
-              throw new MolgenisException("Script " + scriptName + " is disabled");
-            }
-            // submit the script
-            result.append(
-                this.submit(
-                    new ScriptTask(scriptMetadata)
-                        .parameters(parameters)
-                        .token(
-                            JWTgenerator.createTemporaryToken(
-                                systemSchema.getDatabase(),
-                                systemSchema.getDatabase().getActiveUser()))
-                        .submitUser(user)));
-          } else {
-            throw new MolgenisException("Script execution failed: " + scriptName + " not found");
-          }
+          // submit the script
+          result.append(
+              this.submit(
+                  scriptTask
+                      .parameters(parameters)
+                      .token(
+                          JWTgenerator.createTemporaryToken(
+                              systemSchema.getDatabase(),
+                              systemSchema.getDatabase().getActiveUser()))
+                      .submitUser(user)));
         });
     return result.toString();
+  }
+
+  private ScriptTask retrieveTaskFromDatabase(Schema systemSchema, String scriptName) {
+    List<Row> rows =
+        systemSchema.getTable("Scripts").where(f("name", EQUALS, scriptName)).retrieveRows();
+    if (rows.size() != 1) {
+      throw new MolgenisException("Script " + scriptName + " not found");
+    }
+
+    Row scriptMetadata = rows.get(0);
+    return new ScriptTask(scriptMetadata);
   }
 
   private void save(Task task) {
@@ -310,8 +316,6 @@ f.close()
                   """
 [{"label":"Tasks","href":"tasks","key":"t1yefr","submenu":[],"role":"Manager"},{"label":"Up/Download","href":"updownload","role":"Editor","key":"eq0fcp","submenu":[]},{"label":"Graphql","href":"graphql-playground","role":"Viewer","key":"bifta5","submenu":[]},{"label":"Settings","href":"settings","role":"Manager","key":"7rh3b8","submenu":[]},{"label":"Help","href":"docs","role":"Viewer","key":"gq6ixb","submenu":[]}]
 """);
-
-          // todo reload the scheduled jobs to be managed
         });
   }
 

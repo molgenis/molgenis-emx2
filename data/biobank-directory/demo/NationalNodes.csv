@@ -1,0 +1,4 @@
+id,description,dns,contact_persons,data_refresh,date_start,date_end
+DE,Germany,,,manual,,
+EU,European Union,,,manual,,
+NL,Netherlands,https://external_server.nl,,external_server,,

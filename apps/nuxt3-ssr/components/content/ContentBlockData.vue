@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { ICollectionEvent } from "~/interfaces/types";
+
 const { collectionEvents } = defineProps<{
   title: string;
   description?: string;
@@ -33,18 +35,14 @@ const areasOfInformation = collectionEvents
         title="Data categories"
         :collapse-all="false"
       >
-        <ContentOntology
-          :tree="buildOntologyTree(dataCategories)"
-        ></ContentOntology>
+        <ContentOntology :tree="buildTree(dataCategories)"></ContentOntology>
       </ListCollapsible>
       <ListCollapsible
         v-if="sampleCategories?.length"
         title="Sample categories"
         :collapse-all="false"
       >
-        <ContentOntology
-          :tree="buildOntologyTree(sampleCategories)"
-        ></ContentOntology>
+        <ContentOntology :tree="buildTree(sampleCategories)"></ContentOntology>
       </ListCollapsible>
       <ListCollapsible
         v-if="areasOfInformation?.length"
@@ -52,7 +50,7 @@ const areasOfInformation = collectionEvents
         :collapse-all="false"
       >
         <ContentOntology
-          :tree="buildOntologyTree(areasOfInformation)"
+          :tree="buildTree(areasOfInformation)"
         ></ContentOntology>
       </ListCollapsible>
     </div>

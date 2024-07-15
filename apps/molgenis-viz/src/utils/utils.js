@@ -1,21 +1,3 @@
-// fetchData
-// retrive data from a given endpoint using graphql
-//
-// @param query string containing a graphql query
-//
-// @return json
-export async function fetchData(query) {
-  const response = await fetch("graphql", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-    },
-    body: JSON.stringify({ query: query }),
-  });
-  return response.json();
-}
-
 // asDataObject
 // Transform a dataset (i.e., array of objects) to an key-value object
 // This is useful for preparing data for d3 visualisations such as pie charts

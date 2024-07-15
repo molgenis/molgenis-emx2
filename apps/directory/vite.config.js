@@ -4,11 +4,9 @@ import vue from "@vitejs/plugin-vue";
 import { createHtmlPlugin } from "vite-plugin-html";
 import monacoEditorPlugin from "vite-plugin-monaco-editor";
 
-// eslint-disable-next-line no-undef
 const HOST =
   process.env.MOLGENIS_APPS_HOST || "https://bbmri-emx2-test.molgeniscloud.org";
-// eslint-disable-next-line no-undef
-const SCHEMA = process.env.MOLGENIS_APPS_SCHEMA || "BBMRI-ERIC%20Directory";
+const SCHEMA = process.env.MOLGENIS_APPS_SCHEMA || "ERIC";
 
 const opts = { changeOrigin: true, secure: false, logLevel: "debug" };
 
@@ -45,11 +43,15 @@ export default defineConfig(({ command }) => ({
       "/api": { target: `${HOST}`, ...opts },
       "/apps": { target: `${HOST}`, ...opts },
       "/theme.css": { target: `${HOST}/${SCHEMA}`, ...opts },
-      '/public_html/apps/directory/img/': {
+      "/public_html/apps/directory/img/": {
         secure: false,
-        rewrite: (path) => path.replace(/^\/public_html\/apps\/directory/, ''), /** removes the part of the url, so this will go straight to /img in public folder */
-        target: 'http://localhost:5173'
-      }
+        rewrite: (path) =>
+          path.replace(
+            /^\/public_html\/apps\/directory/,
+            ""
+          ) /** removes the part of the url, so this will go straight to /img in public folder */,
+        target: "http://localhost:5173",
+      },
     },
   },
 }));

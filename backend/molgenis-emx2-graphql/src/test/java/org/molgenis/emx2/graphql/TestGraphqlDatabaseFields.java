@@ -53,7 +53,7 @@ public class TestGraphqlDatabaseFields {
     result = execute("{_schemas{name}}").at("/data/_schemas").toString();
     assertTrue(result.contains(schemaName + "B"));
 
-    execute("mutation{deleteSchema(name:\"" + schemaName + "B\"){message}}");
+    execute("mutation{deleteSchema(id:\"" + schemaName + "B\"){message}}");
     assertNull(database.getSchema(schemaName + "B"));
   }
 

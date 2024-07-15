@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import type { IOntologyItem } from "meta-data-utils";
+
 const { tree } = withDefaults(
   defineProps<{
-    tree: IOntologyNode[];
+    tree: IOntologyItem[];
     collapseAll?: boolean;
   }>(),
   {

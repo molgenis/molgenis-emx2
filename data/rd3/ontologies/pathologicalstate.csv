@@ -1,6 +1,0 @@
-name,label,definition,code,codesystem,ontologyTermURI
-Affected,Affected,Skin region is determined to be affected by a skin disease.,,,
-Normal,Normal,The area within a sample that is represented by non-tumor tissue.,C166238,NCIT,http://purl.obolibrary.org/obo/NCIT_C166238
-Organoid,Organoid,A three dimensional mass comprised of a cultured cell or tissue sample that resembles an in vivo tissue or organ. Organoids are grown in vitro from a combination of cells or tissue fragments cultured in medium containing a variety of biochemical factors.,C172259,NCIT,http://purl.obolibrary.org/obo/NCIT_C172259
-Tumor,Tumor,"A tumor sample, or entire tumor that is removed for microscopic examination.",C18009,NCIT,http://purl.obolibrary.org/obo/NCIT_C18009
-Tumoroid,Tumoroid,A three dimensional mass comprised of a cultured tumor cell or tumor sample that resembles an in vivo tumor. Tumoroid are grown in vitro from a combination of cells or tissue fragments cultured in medium containing a variety of biochemical factors.,0000124,FG,https://w3id.org/fair-genomes/resource/FG_0000124

@@ -84,8 +84,8 @@ export default {
     };
   },
   methods: {
-    routename(tableName) {
-      return tableName.split(".")[1].toLowerCase().slice(0, -1);
+    routename(tableId) {
+      return tableId.split(".")[1].toLowerCase().slice(0, -1);
     },
     reload() {
       request(

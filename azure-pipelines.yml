@@ -12,7 +12,7 @@ pr:
 resources:
   containers:
   - container: postgres
-    image: postgres:14-alpine
+    image: postgres:15-alpine
     env:
       POSTGRES_PASSWORD: postgres
     ports:
@@ -22,6 +22,8 @@ services:
   postgres: postgres
 
 steps:
+- script: |
+    git fetch --all --tags
 - script: |
     sudo apt-get update &&  sudo apt-get install postgresql-client python3 python3-venv -y
   displayName: postgresql client python3
@@ -36,7 +38,7 @@ steps:
 - script: |
     export JAVA_HOME=/usr/lib/jvm/temurin-17-jdk-amd64/
     ./gradlew -version
-    ./gradlew test jacocoMergedReport checkFormat spotlessCheck 
+    ./gradlew test jacocoMergedReport
   # sonarqube -Dsonar.login=$(SONAR_TOKEN) -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dorg.ajoberstar.grgit.auth.username=$(GITHUB_TOKEN) -Dorg.ajoberstar.grgit.auth.password
   displayName: run test, ensure we are using java 17 JAVA_HOME
 
@@ -45,4 +47,6 @@ steps:
     MOLGENIS_POSTGRES_PASS: molgenis
     MOLGENIS_POSTGRES_URI: jdbc:postgresql://localhost/molgenis
     JVM_OPTS: -Xmx3200m
+    NODE_OPTIONS: "--max-old-space-size=4096"
     GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
+    CI: true

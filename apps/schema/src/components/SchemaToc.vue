@@ -36,9 +36,7 @@
             <a
               :href="'#'"
               v-scroll-to="{
-                el:
-                  '#' +
-                  (subtable.name ? subtable.name.replaceAll(' ', '_') : ''),
+                el: '#' + (table.name ? table.name.replaceAll(' ', '_') : ''),
                 offset: -50,
               }"
               >{{ subtable.name }}</a
@@ -116,6 +114,9 @@ export default {
       this.$scrollTo("#molgenis_bottom_tables_anchor");
       if (!Array.isArray(this.schema.tables)) {
         this.schema.tables = [];
+      }
+      if (!Array.isArray(table.columns)) {
+        table.columns = [];
       }
       this.schema.tables.push(table);
       this.$emit("update:modelValue", this.schema);

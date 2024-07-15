@@ -1,0 +1,1 @@
+UPDATE "MOLGENIS"."column_metadata" SET "defaultValue"=NULL WHERE "column_name"='mg_tableclass'

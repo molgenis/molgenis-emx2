@@ -379,11 +379,15 @@ export default {
        * order matters!
        */
       const baseFacts = this.hardcopy(this.factsData());
+
       const groupedFacts = [];
 
       const criteriaMet = [];
 
       for (const baseFact of baseFacts) {
+        if (Object.values(baseFact).includes("*")) {
+          continue;
+        }
         const criteria = {};
 
         let newCriteria = "";
@@ -410,12 +414,15 @@ export default {
           groupedFacts.push(critGroup);
         }
       }
+
       const collapsedFacts = [];
 
       for (const factGroup of groupedFacts) {
         let collapsedFact = {};
-
         for (const fact of factGroup) {
+          if (Object.values(fact).includes("*")) {
+            continue;
+          }
           if (!Object.keys(collapsedFact).length) {
             collapsedFact = fact;
             continue;
@@ -438,20 +445,26 @@ export default {
                 }
               } else {
                 if (collapsedFact[column] !== fact[column]) {
-                  if (isNaN(collapsedFact[column]) && isNaN(fact[column])) {
+                  if (
+                    isFinite(collapsedFact[column]) &&
+                    isFinite(fact[column])
+                  ) {
+                    collapsedFact[column] =
+                      collapsedFact[column] + fact[column];
+                  } else if (fact[column] !== "Unknown") {
                     collapsedFact[column] = [
                       collapsedFact[column],
                       fact[column],
                     ];
-                  } else {
-                    collapsedFact[column] =
-                      collapsedFact[column] + fact[column];
                   }
+                } else if (column === "number_of_samples") {
+                  collapsedFact[column] = 2 * collapsedFact[column];
                 }
               }
             }
           }
         }
+
         collapsedFact.number_of_donors = "Available";
         collapsedFacts.push(collapsedFact);
       }

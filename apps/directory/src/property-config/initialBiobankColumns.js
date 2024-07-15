@@ -1,3 +1,6 @@
+import { ContactInfoColumns } from "./contactInfoColumns";
+import { HeadInfoColumns } from "./headInfoColumns";
+
 export const initialBiobankColumns = [
   { label: "Id:", column: "id", type: "string", showCopyIcon: true },
   {
@@ -11,12 +14,7 @@ export const initialBiobankColumns = [
   {
     label: "Quality labels:",
     column: {
-      quality: [
-        "label",
-        "certification_report",
-        "certification_image_link",
-        "certification_number",
-      ],
+      quality: [{ quality_standard: ["name"] }],
     },
     type: "quality",
     showOnBiobankCard: true,
@@ -43,15 +41,16 @@ export const initialBiobankColumns = [
   {
     column: [
       "name",
-      "head.first_name",
-      "head.last_name",
-      "head.role",
       "country.label",
       "network.name",
       "network.id",
       "url",
       "withdrawn",
       "collections.materials.name",
+      "also_known.url",
+      "also_known.name_system",
+      ...ContactInfoColumns,
+      ...HeadInfoColumns,
     ],
   },
 ];

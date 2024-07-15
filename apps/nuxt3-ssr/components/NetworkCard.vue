@@ -1,8 +1,7 @@
 <script setup lang="ts">
+const route = useRoute();
+import type { INetwork } from "~/interfaces/types";
 import { computed } from "vue";
-
-const mobileShowMoreText = ref(false);
-const mobileShowMoreTextLength = 250;
 
 const props = withDefaults(
   defineProps<{
@@ -14,6 +13,8 @@ const props = withDefaults(
     compact: false,
   }
 );
+
+const catalogue = route.params.catalogue || "all";
 
 const articleClasses = computed(() => {
   return props.compact ? "py-5 lg:px-12.5 p-5" : "lg:px-12.5 py-12.5 px-5";
@@ -35,42 +36,53 @@ const iconStarClasses = computed(() => {
   return props.compact ? "" : "items-baseline xl:items-center mt-0.5 xl:mt-0";
 });
 
-const isShowingMobileMoreText = computed(() => {
-  return (
-    mobileShowMoreText.value ||
-    (props.network?.description &&
-      props.network?.description?.length < mobileShowMoreTextLength)
-  );
-});
+//TODO: morris believes we don't need this anymore with the catalogues.
+//instead we would like to link to their catalogues, if applicable?
+const links = [];
+//   {
+//     title: "Network",
+//     url: `/${props.schema}/ssr-catalogue/${catalogue}/networks/${props.network.id}`,
+//   },
+//   {
+//     title: "Cohorts",
+//     url: `/${props.schema}/ssr-catalogue/${catalogue}/networks/${props.network.id}#cohorts`,
+//   },
+//   {
+//     title: "Variables",
+//     url: `/${props.schema}/ssr-catalogue/${catalogue}/networks/${props.network.id}#variables`,
+//   },
+// ];
 </script>
 
 <template>
   <article :class="articleClasses">
     <div class="grid grid-cols-12 gap-6">
-      <div class="col-span-3">
-        <div class="items-center flex h-full w-full justify-center">
-          <NuxtLink :to="`/${schema}/ssr-catalogue/networks/${network.id}`">
+      <div :class="[compact ? 'col-span-1' : 'col-span-3']">
+        <div
+          class="items-center flex justify-center"
+          :class="[compact ? 'w-50px h-50px' : 'h-full w-full']"
+        >
+          <NuxtLink
+            :to="`/${schema}/ssr-catalogue/${catalogue}/networks/${network.id}`"
+          >
             <img :src="network?.logo?.url" />
           </NuxtLink>
         </div>
       </div>
-      <div class="col-span-9">
-        <header :class="headerClasses" class="flex">
-          <div :class="titleContainerClasses" class="grow">
+      <div :class="[compact ? 'col-span-11 flex ' : 'col-span-9']">
+        <header :class="headerClasses" class="flex grow">
+          <div :class="titleContainerClasses" class="">
             <h2 class="min-w-[160px] mr-4 md:inline-block block">
               <NuxtLink
-                :to="`/${schema}/ssr-catalogue/networks/${network.id}`"
+                :to="`/${schema}/ssr-catalogue/${catalogue}/networks/${network.id}`"
                 class="text-body-base font-extrabold text-blue-500 hover:underline hover:bg-blue-50"
               >
                 {{ network?.acronym || network?.name }}
               </NuxtLink>
             </h2>
-
-            <span :class="subtitleClasses" class="mr-4 text-body-base">
-              {{ network?.acronym ? network?.name : "" }}
-            </span>
           </div>
-          <div class="flex">
+          <div class="flex justify-end items-center grow">
+            {{ network.name }}
             <!--
         <IconButton
           icon="star"
@@ -78,39 +90,45 @@ const isShowingMobileMoreText = computed(() => {
           class="text-blue-500 xl:justify-end"
         />
         -->
-            <NuxtLink :to="`/${schema}/ssr-catalogue/networks/${network.id}`">
+            <NuxtLink
+              v-if="!compact"
+              :to="`/${schema}/ssr-catalogue/${catalogue}/networks/${network.id}`"
+            >
               <IconButton
                 icon="arrow-right"
                 class="text-blue-500 hidden xl:flex xl:justify-end"
               />
             </NuxtLink>
+
+            <a
+              v-else
+              v-for="(link, index) in links"
+              v-bind:key="index"
+              :href="link.url"
+              class="text-blue-500 hover:underline hover:bg-blue-50 mr-7.5 hidden sm:inline-block"
+            >
+              <BaseIcon name="caret-right" class="inline w-5 h-5 -ml-1.5" />{{
+                link.title
+              }}
+            </a>
           </div>
         </header>
 
         <div v-if="!compact">
-          <p class="text-body-base my-5 xl:block hidden">
-            {{ network?.description }}
-          </p>
-
-          <p class="text-body-base mt-5 block xl:hidden">
-            {{
-              isShowingMobileMoreText
-                ? network?.description
-                : `${network?.description?.substring(
-                    0,
-                    mobileShowMoreTextLength
-                  )}...`
-            }}
-          </p>
-
-          <button
-            v-if="!isShowingMobileMoreText"
-            class="text-blue-500 hover:underline hover:bg-blue-50 mt-5 xl:hidden"
-            @click="mobileShowMoreText = true"
-          >
-            Read more
-          </button>
+          <ContentReadMore :text="network.description"></ContentReadMore>
         </div>
+
+        <a
+          v-if="!compact"
+          v-for="(link, index) in links"
+          v-bind:key="index"
+          :href="link.url"
+          class="text-blue-500 hover:underline hover:bg-blue-50 mr-7.5 hidden sm:inline-block"
+        >
+          <BaseIcon name="caret-right" class="inline w-5 h-5 -ml-1.5" />{{
+            link.title
+          }}
+        </a>
       </div>
     </div>
   </article>

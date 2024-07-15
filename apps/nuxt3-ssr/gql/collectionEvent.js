@@ -1,4 +1,6 @@
 import gql from "graphql-tag";
+import ontologyFragment from "~~/gql/fragments/ontology";
+
 export default gql`
   query CollectionEvent($id: String, $name: String) {
     CollectionEvents(
@@ -22,67 +24,12 @@ export default gql`
         name
       }
       numberOfParticipants
-      ageGroups {
-        name
-        order
-        code
-        parent {
-          code
-        }
-      }
-      dataCategories {
-        name
-        code
-        order
-        definition
-        ontologyTermURI
-        parent {
-          name
-        }
-        children {
-          name
-        }
-      }
-      sampleCategories {
-        name
-        code
-        order
-        definition
-        ontologyTermURI
-        parent {
-          name
-        }
-        children {
-          name
-        }
-      }
-      standardizedTools {
-        name
-        code
-        order
-        definition
-        ontologyTermURI
-        parent {
-          name
-        }
-        children {
-          name
-        }
-      }
+      ageGroups ${moduleToString(ontologyFragment)}
+      dataCategories ${moduleToString(ontologyFragment)}
+      sampleCategories ${moduleToString(ontologyFragment)}
+      standardizedTools ${moduleToString(ontologyFragment)}
       standardizedToolsOther
-      areasOfInformation {
-        name
-        code
-        order
-        definition
-        ontologyTermURI
-        parent {
-          name
-        }
-        children {
-          name
-        }
-      }
+      areasOfInformation ${moduleToString(ontologyFragment)}
       subcohorts {
         name
       }

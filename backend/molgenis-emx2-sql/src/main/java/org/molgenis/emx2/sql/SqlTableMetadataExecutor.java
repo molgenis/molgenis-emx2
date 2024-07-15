@@ -32,7 +32,20 @@ class SqlTableMetadataExecutor {
     jooq.execute("CREATE TABLE {0}()", jooqTable);
     MetadataUtils.saveTableMetadata(jooq, table);
 
-    // grant rights to schema manager, editor and viewer rol
+    // grant rights to schema manager, editor and viewer role
+    jooq.execute(
+        "GRANT SELECT ON {0} TO {1}",
+        jooqTable, name(getRolePrefix(table) + Privileges.EXISTS.toString()));
+    // todo: Do we need to add RANGE, AGGREGATOR and VIEWER here also?
+    jooq.execute(
+        "GRANT SELECT ON {0} TO {1}",
+        jooqTable, name(getRolePrefix(table) + Privileges.RANGE.toString()));
+    jooq.execute(
+        "GRANT SELECT ON {0} TO {1}",
+        jooqTable, name(getRolePrefix(table) + Privileges.AGGREGATOR.toString()));
+    jooq.execute(
+        "GRANT SELECT ON {0} TO {1}",
+        jooqTable, name(getRolePrefix(table) + Privileges.COUNT.toString()));
     jooq.execute(
         "GRANT SELECT ON {0} TO {1}",
         jooqTable, name(getRolePrefix(table) + Privileges.VIEWER.toString()));
@@ -44,10 +57,14 @@ class SqlTableMetadataExecutor {
         jooqTable, name(getRolePrefix(table) + Privileges.MANAGER.toString()));
 
     // create columns from primary key of superclass
-    if (table.getInherit() != null) {
+    if (table.getInheritName() != null) {
       if (table.getInheritedTable() == null) {
         throw new MolgenisException(
-            "Cannot inherit " + table.getImportSchema() + "." + table.getInherit() + ": not found");
+            "Cannot inherit "
+                + table.getImportSchema()
+                + "."
+                + table.getInheritName()
+                + ": not found");
       }
       executeSetInherit(jooq, table, table.getInheritedTable());
     }
@@ -56,7 +73,7 @@ class SqlTableMetadataExecutor {
     for (Column column : table.getNonInheritedColumns()) {
       if (!column.isHeading()) {
         validateColumn(column);
-        if (table.getInherit() == null
+        if (table.getInheritName() == null
             || table.getInheritedTable().getColumn(column.getName()) == null) {
           executeCreateColumn(jooq, column);
         }
@@ -70,7 +87,7 @@ class SqlTableMetadataExecutor {
 
     // then create (composite) foreign keys
     for (Column column : table.getStoredColumns()) {
-      if ((table.getInherit() == null
+      if ((table.getInheritName() == null
               || table.getInheritedTable().getColumn(column.getName()) == null)
           && column.isReference()) {
         SqlColumnExecutor.executeCreateRefConstraints(jooq, column);
@@ -81,7 +98,7 @@ class SqlTableMetadataExecutor {
     executeEnableSearch(jooq, table);
 
     // add meta columns (only superclass table)
-    if (table.getInherit() == null) {
+    if (table.getInheritName() == null) {
       executeAddMetaColumns(table);
     }
 
@@ -127,7 +144,7 @@ class SqlTableMetadataExecutor {
           "Extend failed: Cannot make table '"
               + table.getTableName()
               + "' extend table '"
-              + table.getInherit()
+              + table.getInheritName()
               + "' because table primary key is null");
     }
 
@@ -135,21 +152,24 @@ class SqlTableMetadataExecutor {
     executeRemoveMetaColumns(jooq, table);
 
     TableMetadata copyTm = new TableMetadata(table.getSchema(), table);
-    copyTm.setInherit(other.getTableName());
-    for (Column pkey : other.getPrimaryKeyColumns()) {
-      // same as parent table, except table name
-      Column copy = new Column(copyTm, pkey);
-      executeCreateColumn(jooq, copy);
-      executeSetRequired(jooq, copy);
-      copyTm.add(copy);
+    copyTm.setInheritName(other.getTableName());
+    // create primary key fields based on parent
+    for (Field pkey : other.getPrimaryKeyFields()) {
+      jooq.alterTable(table.getJooqTable()).addColumn(pkey).execute();
     }
+    createOrReplaceKey(jooq, copyTm, 1, other.getPrimaryKeyFields());
+    // create foreign key to parent
+    jooq.alterTable(table.getJooqTable())
+        .add(
+            constraint("fkey_" + table.getTableName() + "_extends_" + other.getTableName())
+                .foreignKey(other.getPrimaryKeyFields())
+                .references(other.getJooqTable(), other.getPrimaryKeyFields())
+                .onUpdateCascade()
+                .onDeleteCascade())
+        .execute();
     // add column to superclass table
     if (other.getLocalColumn(MG_TABLECLASS) == null) {
-      other.add(
-          column(MG_TABLECLASS)
-              .setReadonly(true)
-              .setPosition(10005)
-              .setDefaultValue(other.getSchemaName() + "." + other.getTableName()));
+      other.add(column(MG_TABLECLASS).setReadonly(true).setPosition(10005));
 
       // should not be user editable, we add trigger
       createMgTableClassCannotUpdateCheck((SqlTableMetadata) other, jooq);
@@ -242,10 +262,17 @@ class SqlTableMetadataExecutor {
     //                  .map(field -> name(field.getName()).toString())
     //                  .collect(Collectors.joining(","))));
     //    } else {
-    jooq.alterTable(getJooqTable(table))
-        .add(constraint(name(uniqueName)).unique(keyFields.toArray(new Field[keyFields.size()])))
-        .execute();
-    //    }
+    if (index == 1) {
+      jooq.alterTable(getJooqTable(table))
+          .add(
+              constraint(name(uniqueName))
+                  .primaryKey(keyFields.toArray(new Field[keyFields.size()])))
+          .execute();
+    } else {
+      jooq.alterTable(getJooqTable(table))
+          .add(constraint(name(uniqueName)).unique(keyFields.toArray(new Field[keyFields.size()])))
+          .execute();
+    }
   }
 
   static void executeDropTable(DSLContext jooq, TableMetadata table) {
@@ -302,7 +329,7 @@ class SqlTableMetadataExecutor {
 
     StringBuilder mgSearchVector = new StringBuilder("' '");
     for (Column c : table.getStoredColumns()) {
-      if (!c.getName().startsWith("MG_")) {
+      if (!c.isSystemColumn()) {
         if (c.isFile()) {
           // do nothing for now
         } else if (c.isReference()) {

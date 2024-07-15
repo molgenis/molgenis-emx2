@@ -5,7 +5,6 @@ import static org.molgenis.emx2.Constants.OIDC_LOGIN_PATH;
 import static org.molgenis.emx2.utils.TypeUtils.convertToPascalCase;
 
 import java.util.*;
-import org.molgenis.emx2.utils.TableSort;
 
 public class SchemaMetadata extends HasSettings<SchemaMetadata> {
 
@@ -115,7 +114,6 @@ public class SchemaMetadata extends HasSettings<SchemaMetadata> {
     for (String tableName : getTableNames()) {
       result.add(getTableMetadata(tableName));
     }
-    TableSort.sortTableByDependency(result);
     return result;
   }
 
@@ -143,7 +141,7 @@ public class SchemaMetadata extends HasSettings<SchemaMetadata> {
   private void addExternalTablesRecursive(
       Map<String, TableMetadata> tables, TableMetadata current) {
     if (current.getInheritedTable() != null) {
-      String scopeTableName = current.getInherit();
+      String scopeTableName = current.getInheritName();
       if (!current.getInheritedTable().getSchemaName().equals(getName())) {
         scopeTableName = current.getInheritedTable().getSchemaName() + "_" + scopeTableName;
       }
@@ -155,8 +153,8 @@ public class SchemaMetadata extends HasSettings<SchemaMetadata> {
     for (Column c : current.getColumns()) {
       if (c.isReference()) {
         String scopeTableName = c.getRefTableName();
-        if (!getName().equals(c.getRefSchema())) {
-          scopeTableName = c.getRefSchema() + "_" + scopeTableName;
+        if (!getName().equals(c.getRefSchemaName())) {
+          scopeTableName = c.getRefSchemaName() + "_" + scopeTableName;
         }
         if (!tables.containsKey(scopeTableName)) {
           tables.put(scopeTableName, c.getRefTable());

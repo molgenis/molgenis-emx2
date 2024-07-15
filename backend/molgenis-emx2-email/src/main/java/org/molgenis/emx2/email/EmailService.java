@@ -1,6 +1,7 @@
 package org.molgenis.emx2.email;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 import javax.mail.Authenticator;
 import javax.mail.Message;
@@ -38,9 +39,9 @@ public class EmailService {
     this.senderPassword = settings.getSmtpAuthenticatorSenderPassword();
   }
 
-  public Boolean send(List<String> recipients, String subject, String messageText) {
+  public Boolean send(EmailMessage emailMessage) {
     final List<InternetAddress> addressList =
-        recipients.stream()
+        emailMessage.recipients().stream()
             .filter(EmailValidator::isValidEmail)
             .map(EmailValidator::toInternetAddress)
             .toList();
@@ -53,8 +54,21 @@ public class EmailService {
       Message message = new MimeMessage(session);
       message.setFrom(new InternetAddress(senderEmail));
       message.setRecipients(Message.RecipientType.TO, addressList.toArray(new InternetAddress[0]));
-      message.setSubject(subject);
-      message.setText(messageText);
+      message.setSubject(emailMessage.subject());
+      message.setText(emailMessage.messageText());
+
+      Optional<String> bccRecipient = emailMessage.bccRecipient();
+      if (bccRecipient.isPresent()) {
+        String bccEmail = bccRecipient.get();
+        if (EmailValidator.isValidEmail(bccEmail)) {
+          InternetAddress[] bccAddresses = {EmailValidator.toInternetAddress(bccEmail)};
+          message.setRecipients(Message.RecipientType.BCC, bccAddresses);
+
+        } else {
+          String msg = String.format("Invalid bcc email address: %s", emailMessage.bccRecipient());
+          logger.error(msg);
+        }
+      }
 
       Transport.send(message);
       logger.info("Email send successfully.");

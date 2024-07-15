@@ -1,7 +1,7 @@
 <template>
   <RefbackTable
-    :table="metaData.refTable"
-    :refBack="metaData.refBack"
+    :tableId="metaData.refTableId"
+    :refBackId="metaData.refBackId"
     :pkey="metaData.primaryTableKey"
     :refLabel="metaData.refLabel"
   />

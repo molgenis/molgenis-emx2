@@ -1,11 +1,15 @@
 <template>
-  <details class="dropdown-button p-0" :class="buttonstateClass">
+  <details
+    class="dropdown-button p-0"
+    :class="buttonstateClass"
+    ref="HtmlDropdownMain"
+  >
     <summary>
       {{ buttonText }}
       <slot name="counter"></slot>
       <span class="fa-solid fa-caret-down"></span>
     </summary>
-    <div>
+    <div v-click-outside="closeSelf">
       <div class="dropdown bg-white" :class="containerstateClass" @click.stop>
         <slot />
       </div>
@@ -15,7 +19,12 @@
 </template>
 
 <script>
+import vClickOutside from "click-outside-vue3";
+
 export default {
+  directives: {
+    clickOutside: vClickOutside.directive,
+  },
   props: {
     buttonText: {
       type: String,
@@ -29,7 +38,7 @@ export default {
   },
   methods: {
     closeSelf(event) {
-      event.target.parentElement.parentElement.removeAttribute("open");
+      this.$refs.HtmlDropdownMain.removeAttribute("open");
     },
   },
   computed: {

@@ -52,7 +52,7 @@ const router = createRouter({
     {
       name: "Cohorts",
       path: "/cohorts",
-      props: (route) => ({ searchTerm: route.query.q, tableName: "Cohorts" }),
+      props: (route) => ({ searchTerm: route.query.q, tableId: "Cohorts" }),
       component: ResourceListView,
     },
     {
@@ -60,7 +60,7 @@ const router = createRouter({
       path: "/organisations",
       props: (route) => ({
         searchTerm: route.query.q,
-        tableName: "Organisations",
+        tableId: "Organisations",
       }),
       component: ResourceListView,
     },
@@ -69,7 +69,7 @@ const router = createRouter({
       path: "/datasources",
       props: (route) => ({
         searchTerm: route.query.q,
-        tableName: "Data sources",
+        tableId: "DataSources",
       }),
       component: ResourceListView,
     },
@@ -78,7 +78,7 @@ const router = createRouter({
       path: "/databanks",
       props: (route) => ({
         searchTerm: route.query.q,
-        tableName: "Databanks",
+        tableId: "Databanks",
       }),
       component: ResourceListView,
     },
@@ -87,7 +87,7 @@ const router = createRouter({
       path: "/networks",
       props: (route) => ({
         searchTerm: route.query.q,
-        tableName: "Networks",
+        tableId: "Networks",
       }),
       component: ResourceListView,
     },
@@ -96,7 +96,7 @@ const router = createRouter({
       path: "/models",
       props: (route) => ({
         searchTerm: route.query.q,
-        tableName: "Models",
+        tableId: "Models",
       }),
       component: ResourceListView,
     },
@@ -105,7 +105,7 @@ const router = createRouter({
       path: "/studies",
       props: (route) => ({
         searchTerm: route.query.q,
-        tableName: "Studies",
+        tableId: "Studies",
       }),
       component: ResourceListView,
     },
@@ -114,7 +114,7 @@ const router = createRouter({
       path: "/variables",
       props: (route) => ({
         searchTerm: route.query.q,
-        tableName: "Variables",
+        tableId: "Variables",
       }),
       component: ResourceListView,
     },
@@ -123,7 +123,7 @@ const router = createRouter({
       path: "/datasets",
       props: (route) => ({
         searchTerm: route.query.q,
-        tableName: "Datasets",
+        tableId: "Datasets",
       }),
       component: ResourceListView,
     },
@@ -132,7 +132,7 @@ const router = createRouter({
       path: "/dataset-mappings",
       props: (route) => ({
         searchTerm: route.query.q,
-        tableName: "DatasetMappings",
+        tableId: "DatasetMappings",
       }),
       component: ResourceListView,
     },
@@ -141,7 +141,7 @@ const router = createRouter({
       path: "/variable-mappings",
       props: (route) => ({
         searchTerm: route.query.q,
-        tableName: "VariableMappings",
+        tableId: "VariableMappings",
       }),
       component: ResourceListView,
     },
@@ -150,7 +150,7 @@ const router = createRouter({
       path: "/publications",
       props: (route) => ({
         searchTerm: route.query.q,
-        tableName: "Publications",
+        tableId: "Publications",
       }),
       component: ResourceListView,
     },
@@ -171,7 +171,7 @@ const router = createRouter({
       path: "/organisations/:id",
       component: ResourceDetailsView,
       props: (route) => ({
-        table: "Organisations",
+        tableId: "Organisations",
         color: "dark",
         filter: { id: { equals: route.params.id } },
       }),
@@ -181,7 +181,7 @@ const router = createRouter({
       path: "/networks/:id",
       component: ResourceDetailsView,
       props: (route) => ({
-        table: "Networks",
+        tableId: "Networks",
         color: "danger",
         filter: { id: { equals: route.params.id } },
       }),
@@ -197,7 +197,7 @@ const router = createRouter({
       path: "/datasources/:id",
       component: ResourceDetailsView,
       props: (route) => ({
-        table: "Data sources",
+        tableId: "DataSources",
         color: "secondary",
         filter: { id: { equals: route.params.id } },
       }),
@@ -207,7 +207,7 @@ const router = createRouter({
       path: "/databanks/:id",
       component: ResourceDetailsView,
       props: (route) => ({
-        table: "Databanks",
+        tableId: "Databanks",
         color: "info",
         filter: { id: { equals: route.params.id } },
       }),
@@ -217,7 +217,7 @@ const router = createRouter({
       path: "/publications/:doi",
       component: ResourceDetailsView,
       props: (route) => ({
-        table: "Publications",
+        tableId: "Publications",
         color: "secondary",
         filter: { doi: { equals: route.params.doi } },
       }),
@@ -227,7 +227,7 @@ const router = createRouter({
       path: "/models/:id",
       component: ResourceDetailsView,
       props: (route) => ({
-        table: "Models",
+        tableId: "Models",
         color: "warning",
         filter: { id: { equals: route.params.id } },
       }),
@@ -237,7 +237,7 @@ const router = createRouter({
       path: "/networks/:id",
       component: ResourceDetailsView,
       props: (route) => ({
-        table: "Networks",
+        tableId: "Networks",
         color: "danger",
         filter: { id: { equals: route.params.id } },
       }),
@@ -247,7 +247,7 @@ const router = createRouter({
       path: "/studies/:id",
       component: ResourceDetailsView,
       props: (route) => ({
-        table: "Studies",
+        tableId: "Studies",
         color: "success",
         filter: { id: { equals: route.params.id } },
       }),
@@ -257,7 +257,7 @@ const router = createRouter({
       path: "/contacts/:resource/:firstName/:lastName",
       component: ResourceDetailsView,
       props: (route) => ({
-        table: "Contacts",
+        tableId: "Contacts",
         color: "success",
         filter: {
           firstName: { equals: route.params.firstName },
@@ -272,7 +272,7 @@ const router = createRouter({
       path: "/variables/:resource/:dataset/:name",
       props: (route) => ({
         ...route.params,
-        tableName: "Variables",
+        tableId: "Variables",
       }),
       component: VariableView,
     },
@@ -282,7 +282,7 @@ const router = createRouter({
       component: DatasetView,
       props: (route) => ({
         ...route.params,
-        tableName: "Datasets",
+        tableId: "Datasets",
       }),
     },
     //breadcrumb redirect

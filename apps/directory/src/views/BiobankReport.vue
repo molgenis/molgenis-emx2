@@ -19,9 +19,10 @@
           <Breadcrumb
             class="directory-nav"
             :crumbs="{
-              [uiText['home']]: '/',
+              [uiText['home']]: '../#/',
               [biobank.name]: '/',
             }"
+            useRouterLink
           />
           <check-out
             class="ml-auto"
@@ -40,7 +41,11 @@
 
                 <!-- Collection Part -->
                 <h3 class="mt-4">Collections</h3>
+                <div v-if="!collectionsData.length">
+                  This biobank does not contain any collections.
+                </div>
                 <div
+                  v-else
                   v-for="(collection, index) in collectionsData"
                   :key="collection.id"
                 >
@@ -71,27 +76,30 @@
                   <div class="card-body">
                     <div class="card-text">
                       <h5>Contact Information</h5>
-                      <report-details-list
-                        :reportDetails="contact"
-                      ></report-details-list>
-                      <h5 v-if="networks && networks.length > 0">Networks</h5>
-                      <report-details-list
-                        :reportDetails="network"
-                        v-for="network in networks"
-                        :key="network.id"
-                      ></report-details-list>
-                      <h5
-                        v-if="
-                          quality &&
-                          quality.Certification &&
-                          quality.Certification.value.length > 0
-                        "
-                      >
-                        Quality
-                      </h5>
-                      <report-details-list
-                        :reportDetails="quality"
-                      ></report-details-list>
+                      <ul class="right-content-list">
+                        <li v-if="head">
+                          <div class="font-weight-bold mr-1">Head/PI:</div>
+                          <div>{{ head }}</div>
+                        </li>
+                        <li>
+                          <ContactInformation
+                            :contactInformation="contact"
+                            :website="biobank.url"
+                          />
+                        </li>
+                        <li v-if="networks?.length">
+                          <h5>Networks</h5>
+                          <ReportDetailsList
+                            :reportDetails="network"
+                            v-for="network in networks"
+                            :key="network.id"
+                          />
+                        </li>
+                        <li v-if="alsoKnownIn?.length">
+                          <h5>Also Known In</h5>
+                          <ReportDetailsList :reportDetails="alsoKnownIn" />
+                        </li>
+                      </ul>
                     </div>
                   </div>
                 </div>
@@ -104,25 +112,27 @@
   </div>
 </template>
 
-<!-- eslint-disable no-useless-escape -->
-<script>
+<script lang="ts">
 import { ref } from "vue";
 import { useRoute } from "vue-router";
+//@ts-ignore
 import { Breadcrumb, Spinner } from "../../../molgenis-components";
 import CheckOut from "../components/checkout-components/CheckOut.vue";
 import CollectionSelector from "../components/checkout-components/CollectionSelector.vue";
 import ViewGenerator from "../components/generators/ViewGenerator.vue";
 import CollapseComponent from "../components/report-components/CollapseComponent.vue";
 import CollectionTitle from "../components/report-components/CollectionTitle.vue";
+import ContactInformation from "../components/report-components/ContactInformation.vue";
 import ReportDetailsList from "../components/report-components/ReportDetailsList.vue";
 import ReportTitle from "../components/report-components/ReportTitle.vue";
 import { mapBiobankToBioschemas } from "../functions/bioschemasMapper";
 import {
   getBiobankDetails,
   getCollectionDetails,
-  mapContactInfo,
+  getName,
+  mapAlsoKnownIn,
   mapNetworkInfo,
-  mapObjArray,
+  mapQualityStandards,
 } from "../functions/viewmodelMapper";
 import { useBiobanksStore } from "../stores/biobanksStore";
 import { useQualitiesStore } from "../stores/qualitiesStore";
@@ -131,38 +141,63 @@ import { useSettingsStore } from "../stores/settingsStore";
 export default {
   name: "biobank-report-card",
   components: {
-    Spinner,
-    ReportTitle,
-    CollectionTitle,
-    ViewGenerator,
-    ReportDetailsList,
-    CollapseComponent,
-    CheckOut,
-    CollectionSelector,
     Breadcrumb,
+    CheckOut,
+    CollapseComponent,
+    CollectionTitle,
+    CollectionSelector,
+    ContactInformation,
+    ReportDetailsList,
+    ReportTitle,
+    Spinner,
+    ViewGenerator,
   },
   setup() {
     const settingsStore = useSettingsStore();
     const biobanksStore = useBiobanksStore();
     const qualitiesStore = useQualitiesStore();
 
-    const biobank = ref({});
+    const biobank: Record<string, any> = ref({});
     const route = useRoute();
 
-    biobanksStore.getBiobank(route.params.id).then((result) => {
-      biobank.value = result.Biobanks.length
-        ? getBiobankDetails(result.Biobanks[0])
-        : {};
-    });
+    biobanksStore
+      .getBiobank(route.params.id)
+      .then((result: Record<string, any>) => {
+        biobank.value = result.Biobanks.length
+          ? getBiobankDetails(result.Biobanks[0])
+          : {};
+      });
 
     return { settingsStore, biobanksStore, qualitiesStore, biobank };
   },
   methods: {
-    wrapBioschema(schemaData) {
+    wrapBioschema(schemaData: Record<string, any>) {
       /** ignore because it is not useless ;) */
       return `<script type="application/ld+json">${JSON.stringify(
         schemaData
       )}<\/script>`;
+    },
+    filterAndSortCollectionsData(collections: Record<string, any>[]) {
+      return collections
+        .filter(
+          (collection: Record<string, any>) => !collection.parent_collection
+        )
+        .filter(
+          (collection: Record<string, any>): Boolean =>
+            this.biobank.withdrawn || !collection.withdrawn
+        )
+        .map((collection: Record<string, any>) =>
+          getCollectionDetails(collection, this.biobank.withdrawn)
+        )
+        .sort(
+          (
+            collection1: Record<string, any>,
+            collection2: Record<string, any>
+          ) =>
+            collection1.name.localeCompare(collection2.name, "en", {
+              sensitivity: "base",
+            })
+        );
     },
   },
   computed: {
@@ -173,28 +208,31 @@ export default {
       return Object.keys(this.biobank).length;
     },
     collectionsData() {
-      return this.biobankDataAvailable &&
-        this.biobank.collections &&
-        this.biobank.collections.length
-        ? this.biobank.collections
-            .filter((it) => !it.parent_collection)
-            .map((col) => getCollectionDetails(col))
+      return this.biobankDataAvailable && this.biobank.collections?.length
+        ? this.filterAndSortCollectionsData(this.biobank.collections)
         : [];
     },
+
     networks() {
       return this.biobankDataAvailable && this.biobank.network
         ? mapNetworkInfo(this.biobank)
         : [];
     },
+    head() {
+      return this.biobank?.head ? getName(this.biobank.head) : null;
+    },
     contact() {
-      return this.biobankDataAvailable && this.biobank.contact
-        ? mapContactInfo(this.biobank)
-        : {};
+      return this.biobank?.contact || {};
+    },
+    alsoKnownIn() {
+      return this.biobankDataAvailable && this.biobank.also_known
+        ? mapAlsoKnownIn(this.biobank)
+        : [];
     },
     quality() {
       return {
         Certification: {
-          value: mapObjArray(this.biobank.quality),
+          value: mapQualityStandards(this.biobank.quality),
           type: "list",
         },
       };
@@ -206,7 +244,6 @@ export default {
     },
   },
   async mounted() {
-    this.showCollections = this.settingsStore.config.biobankCardShowCollections;
     await this.qualitiesStore.getQualityStandardInformation();
   },
 };

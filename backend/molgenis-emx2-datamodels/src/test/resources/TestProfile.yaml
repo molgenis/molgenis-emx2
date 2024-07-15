@@ -1,0 +1,22 @@
+---
+name: TestProfile
+description: "Test profile with all options but small model"
+
+profileTags: JRC-CDE
+
+demoData: _demodata/shared-examples
+
+settings: _settings/datacatalogue
+
+# special options
+setViewPermission: anonymous
+setEditPermission: user
+
+ontologiesToFixedSchema: TestProfileOntologies
+setFixedSchemaViewPermission: anonymous
+setFixedSchemaEditPermission: user
+
+firstCreateSchemasIfMissing:
+  - name: testIncludeSchema
+    profile: TestIncludeProfile.yaml
+    importDemoData: false

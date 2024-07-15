@@ -9,15 +9,15 @@ const state = {
   keywords: [],
   filters: [
     {
-      name: "keywords",
+      id: "keywords",
       conditions: [],
     },
     {
-      name: "networks",
+      id: "networks",
       conditions: [],
     },
     {
-      name: "cohorts",
+      id: "cohorts",
       conditions: [],
     },
   ],

@@ -1,8 +1,8 @@
 <template>
   <div>View jobs</div>
   <RoutedTableExplorer
-    tableName="Jobs"
-    schemaName="_SYSTEM_"
+    tableId="Jobs"
+    schemaId="_SYSTEM_"
     :canEdit="true"
     :canManage="true"
   >

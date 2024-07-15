@@ -52,7 +52,7 @@
           <RowButtonEdit
             v-if="datasetmappings"
             id="row-button-edit-dataset"
-            tableName="DatasetMappings"
+            tableId="DatasetMappings"
             :pkey="pkeyDataset(datasetmappings)"
             :visibleColumns="['description']"
             @close="handleModalClose"
@@ -76,7 +76,7 @@
           <div class="d-flex flex-row">
             <RowButtonEdit
               id="'row-button-edit' + index"
-              tableName="VariableMappings"
+              tableId="VariableMappings"
               :pkey="pkey(m)"
               :visibleColumns="[
                 'description',

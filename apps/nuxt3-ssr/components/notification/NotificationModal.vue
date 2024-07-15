@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { INotificationType } from "~/interfaces/types";
+import type { INotificationType } from "~/interfaces/types";
 const { type, subTitle, title, timeoutInMills } = withDefaults(
   defineProps<{
     type: INotificationType;
@@ -38,7 +38,7 @@ onUnmounted(() => clearInterval(timeOutId));
     :type="type"
   >
     <ContentBlockModal :title="title" :subTitle="subTitle" :type="type">
-      <slot>{{ message }}</slot>
+      <slot></slot>
     </ContentBlockModal>
   </SideModal>
 </template>

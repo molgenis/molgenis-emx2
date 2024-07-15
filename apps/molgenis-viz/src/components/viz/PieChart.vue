@@ -60,6 +60,18 @@ export default {
       },
     },
 
+    // If true (default), values will be rendered with the labels
+    valuesAreShown: {
+      type: Boolean,
+      default: true,
+    },
+
+    // If true, labels will be generated with a percent sign.
+    valuesArePercents: {
+      type: Boolean,
+      default: true,
+    },
+
     // set the height of the chart. Width is determined by the
     // dimensions of the parent container so that the chart is
     // responsive. If you would like to specify the width of the
@@ -99,6 +111,13 @@ export default {
       default: "#3f454b",
     },
 
+    // If `true`, the pie chart will be rendered as a donut chart
+    // (i.e., with the center cut out).
+    asDonutChart: {
+      type: Boolean,
+      default: false,
+    },
+
     // If true, the chart will be aligned to the center of the parent
     // component. Otherwise, the chart will be left aligned.
     centerAlignChart: {
@@ -106,7 +125,17 @@ export default {
       default: false,
     },
 
-    // If `true`, click events will be enabled for all bars. When a bar is
+    // If `true`, hover events will be enabled for all slices. A hover event
+    // will highlight the hovered slice by increasing the font size of the
+    // labels and increasing the size of the slice. The slice will return
+    // the default state when it is no longer hovered.
+    enableHoverEvents: {
+      type: Boolean,
+      // `true`
+      default: true,
+    },
+
+    // If `true`, click events will be enabled for all slices. When a slice is
     // clicked, the row-level data for that bar will be emitted.
     // To access the data, use the event `@slice-clicked=...`
     enableClicks: {
@@ -135,6 +164,10 @@ export default {
         css.push("chart-center-aligned");
       }
 
+      if (this.enableHoverEvents) {
+        css.push("slice-hover-enabled");
+      }
+
       if (this.enableClicks) {
         css.push("slice-clicks-enabled");
       }
@@ -152,25 +185,31 @@ export default {
       );
     },
     pie() {
-      return d3
+      const pie = d3
         .pie()
         .sort(null)
         .value((value) => value[1]);
+      return this.asDonutChart ? pie.padAngle(1 / this.radius) : pie;
     },
     pieChartData() {
       return this.pie(Object.entries(this.chartData));
     },
     arcGenerator() {
-      return d3
-        .arc()
-        .innerRadius(0)
-        .outerRadius(this.radius * 0.7);
+      const arc = d3.arc().outerRadius(this.radius * 0.7);
+      return this.asDonutChart
+        ? arc.innerRadius(this.radius * 0.4)
+        : arc.innerRadius(0);
     },
     labelArcGenerator() {
-      return d3
-        .arc()
-        .innerRadius(this.radius * 0.8)
-        .outerRadius(this.radius * 0.8);
+      return this.asDonutChart
+        ? d3
+            .arc()
+            .innerRadius(this.radius - 1)
+            .outerRadius(this.radius - 1)
+        : d3
+            .arc()
+            .innerRadius(this.radius * 0.8)
+            .outerRadius(this.radius * 0.8);
     },
     colors() {
       if (!this.chartColors) {
@@ -202,14 +241,7 @@ export default {
     },
     setOffsetX(value) {
       const angle = value.startAngle + (value.endAngle - value.startAngle) / 2;
-      return angle < Math.PI ? "-1em" : "1em";
-    },
-    setPieChartData() {
-      const pie = d3
-        .pie()
-        .sort(null)
-        .value((value) => value[1]);
-      this.pieChartData = pie(Object.entries(this.chartData));
+      return angle < Math.PI ? "-1.1em" : "1.1em";
     },
     onMouseOver(value) {
       const selector = value.data[0];
@@ -249,7 +281,7 @@ export default {
         .attr("data-group", (value) => value.data[0])
         .attr("fill", (value) => this.colors[value.data[0]]);
 
-      if (this.enableClicks) {
+      if (this.enableHoverEvents) {
         slices.on("mouseover", (event, value) => this.onMouseOver(value));
         slices.on("mouseout", (event, value) => this.onMouseOut(value));
       }
@@ -288,20 +320,31 @@ export default {
         .style("text-anchor", this.setTextAnchor)
         .style("font-size", "11pt");
 
-      labels
+      const labelCategories = labels
         .append("tspan")
         .attr("class", "data-label")
         .attr("x", (value) => this.setLabelPosition(value)[0])
         .attr("data-group", (value) => value.data[0])
-        .text((value) => value.data[0]);
+        .text((value) => value.data[0])
+        .attr("dy", "0.25em");
 
-      labels
-        .append("tspan")
-        .attr("class", "data-value")
-        .attr("x", (value) => this.setLabelPosition(value)[0])
-        .attr("dy", "1.1em")
-        .attr("data-group", (value) => value.data[0])
-        .text((value) => `${value.data[1]}%`);
+      if (this.valuesAreShown) {
+        labelCategories.attr("dy", "0");
+
+        labels
+          .append("tspan")
+          .attr("class", "data-value")
+          .attr("x", (value) => this.setLabelPosition(value)[0])
+          .attr("dy", "1.1em")
+          .attr("data-group", (value) => value.data[0])
+          .text((value) => {
+            const text = value.data[1];
+            if (this.valuesArePercents) {
+              return `${text}%`;
+            }
+            return text;
+          });
+      }
     },
     renderChart() {
       this.setChartDimensions();
@@ -342,10 +385,10 @@ export default {
       .slice {
         stroke-width: 1px;
         opacity: 0.7;
-        cursor: pointer;
+        cursor: default;
+        transition: all 250ms ease-in-out;
 
         &.slice-focused {
-          transition: 250ms;
           transform: scale(1.2);
         }
       }
@@ -377,7 +420,8 @@ export default {
       }
     }
 
-    &.slice-clicks-enabled {
+    &.slice-clicks-enabled,
+    .slice-hover-enabled {
       .slice {
         cursor: pointer;
       }

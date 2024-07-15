@@ -11,10 +11,10 @@ export default {
       state.graphqlURL,
       `{
           _session { email,roles } _schema {
-            name, tables {
-              name, tableType, id, descriptions{locale,value}, externalSchema, semantics, columns {
-                name, id, columnType, key, refTable, refLink, refLabel, refBack, required, 
-                semantics, descriptions{locale,value}, position, validation, visible
+            id, label, tables {
+              id, label, tableType, description, schemaId, semantics, columns {
+                id, label, columnType, key, refTableId, refLinkId, refLabel, refBackId, required, 
+                semantics, description, position, validation, visible
               } settings { key, value }
             }
           }
@@ -38,8 +38,8 @@ export default {
       console.error(e);
       state.isLoading = false;
     });
-    commit("setSchema", resp._schema.name);
-    return resp._schema.name;
+    commit("setSchema", resp._schema.id);
+    return resp._schema.id;
   },
   fetchVariables: async ({ state, commit, getters, dispatch }, offset = 0) => {
     state.isLoading = true;
@@ -68,6 +68,35 @@ export default {
                   label
                   repeats {
                     name
+                    mappings {
+                      source {
+                        id
+                      }
+                      targetVariable {
+                        name
+                      }
+                      targetDataset {
+                        resource {
+                          id
+                        }
+                      }
+                      sourceDataset {
+                        resource {
+                          id
+                        }
+                      }
+                      match {
+                        name
+                      }
+                      syntax
+                      description
+                      sourceVariablesOtherDatasets {
+                        dataset {
+                          name
+                        }
+                        name
+                      }
+                    }
                   }
                   mappings {
                     source {

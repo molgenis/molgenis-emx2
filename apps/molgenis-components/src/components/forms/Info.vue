@@ -1,10 +1,8 @@
 <template>
   <div>
-    <i
-      class="fa fa-question-circle text-primary"
-      @mouseenter="show = true"
-      @mouseleave="show = false"
-    ></i>
+    <span @mouseenter="show = true" @mouseleave="show = false">
+      <i class="fa fa-question-circle text-primary" />
+    </span>
     <div class="tooltip bs-tooltip-top" :class="{ show: show }">
       <span class="tooltip-inner">
         <span> <slot /></span>
@@ -17,6 +15,8 @@
 <style>
 .tooltip {
   margin-top: -50px;
+  pointer-events: none;
+  white-space: nowrap;
 }
 </style>
 

@@ -4,10 +4,10 @@
     <EditModal
       v-if="isModalShown"
       :id="id + 'edit-modal'"
-      :tableName="tableName"
+      :tableId="tableId"
       :pkey="pkey"
       :isModalShown="isModalShown"
-      :schemaName="schemaName"
+      :schemaId="schemaId"
       :visibleColumns="visibleColumns"
       @close="handleClose"
     />
@@ -16,19 +16,24 @@
 
 <script>
 import RowButton from "./RowButton.vue";
+import { defineAsyncComponent } from "vue";
+
 export default {
   name: "RowButtonEdit",
-  components: { RowButton },
+  components: {
+    RowButton,
+    EditModal: defineAsyncComponent(() => import("../forms/EditModal.vue")),
+  },
   props: {
     id: {
       type: String,
       required: true,
     },
-    tableName: {
+    tableId: {
       type: String,
       required: true,
     },
-    schemaName: {
+    schemaId: {
       type: String,
       required: false,
     },
@@ -62,9 +67,9 @@ export default {
     <div>
       <RowButtonEdit
           id="row-edit-btn-sample"
-          tableName="Pet"
+          tableId="Pet"
           :pkey="{name: 'pooky'}"
-          schemaName="pet store"
+          schemaId="pet store"
       />
     </div>
   </div>
@@ -74,9 +79,9 @@ export default {
     <div>
       <RowButtonEdit
           id="row-edit-btn-sample"
-          tableName="Pet"
+          tableId="Pet"
           :pkey="{name: 'pooky'}"
-          schemaName="pet store"
+          schemaId="pet store"
           :visibleColumns="['name']"
       />
     </div>

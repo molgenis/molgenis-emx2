@@ -1,6 +1,7 @@
 <script setup lang="ts">
 interface PropType {
   maximumButtonShown?: number;
+  invert?: boolean;
   navigation: {
     label: string;
     link: string;
@@ -12,6 +13,7 @@ interface PropType {
 const props: PropType = withDefaults(defineProps<PropType>(), {
   maximumButtonShown: 4,
   showMoreButton: true,
+  invert: false,
 });
 
 const mainButtons = props.navigation.slice(0, props.maximumButtonShown);
@@ -24,7 +26,8 @@ const active = "underline";
     <a
       v-for="button in mainButtons"
       :href="button.link"
-      class="flex items-center gap-1 tracking-widest text-menu transition-colors border border-b-0 border-transparent font-display text-heading-xl hover:underline"
+      class="flex items-center gap-1 tracking-widest transition-colors border border-b-0 border-transparent font-display text-heading-xl hover:underline"
+      :class="invert ? 'text-sub-menu' : 'text-menu'"
     >
       {{ button.label }}
     </a>
@@ -35,7 +38,8 @@ const active = "underline";
       v-if="subButtons.length > 0 && showMoreButton"
     >
       <button
-        class="flex items-center gap-1 pt-3 pb-2 pl-4 pr-2 -mt-3 -ml-4 tracking-widest transition-colors duration-300 translate-y-1 border border-b-0 border-transparent text-menu rounded-t-3px font-display text-heading-xl hover:border-white"
+        class="flex items-center gap-1 pt-3 pb-2 pl-4 pr-2 -mt-3 -ml-4 tracking-widest transition-colors duration-300 translate-y-1 border border-b-0 border-transparent rounded-t-3px font-display text-heading-xl hover:border-white"
+        :class="invert ? 'text-sub-menu' : 'text-menu'"
       >
         More
         <BaseIcon name="caret-down" />

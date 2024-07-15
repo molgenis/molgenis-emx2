@@ -1,33 +1,26 @@
 <script setup lang="ts">
-import query from "~~/gql/cohort";
+import type { IDefinitionListItem } from "~/interfaces/types";
+import cohortGql from "~~/gql/cohort";
 
 const props = defineProps<{
   id: string;
 }>();
 
-const config = useRuntimeConfig();
 const route = useRoute();
 
-if (query.loc?.source.body === undefined) {
-  throw "unable to load query: " + query.toString();
-}
-const queryValue = query.loc?.source.body;
+const query = moduleToString(cohortGql);
 
 let cohort: ICohort = ref();
 
-const { data: cohortData } = await useFetch(
-  `/${route.params.schema}/catalogue/graphql`,
-  {
-    baseURL: config.public.apiBase,
-    method: "POST",
-    body: {
-      query: queryValue,
-      variables: {
-        id: props.id,
-      },
+const { data: cohortData } = await useFetch(`/${route.params.schema}/graphql`, {
+  method: "POST",
+  body: {
+    query,
+    variables: {
+      id: props.id,
     },
-  }
-).catch((e) => console.log(e));
+  },
+}).catch((e) => console.log(e));
 
 watch(
   cohortData,
@@ -40,12 +33,13 @@ watch(
   }
 );
 
-const items = [];
+const items: IDefinitionListItem[] = [];
 
 if (cohort?.website) {
   items.push({
     label: "Website",
-    content: cohort.website,
+    type: "LINK",
+    content: { label: cohort.website, url: cohort.website },
   });
 }
 
@@ -70,6 +64,6 @@ if (cohort?.numberOfParticipantsWithSamples) {
     :description="cohort?.description"
     v-if="cohort"
   >
-    <DefinitionList :items="items" :small="true" />
+    <CatalogueItemList :items="items" :small="true" />
   </ContentBlockModal>
 </template>

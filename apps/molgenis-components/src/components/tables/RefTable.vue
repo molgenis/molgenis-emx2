@@ -65,13 +65,12 @@
 
 <script lang="ts" setup>
 import { computed, defineEmits, ref, toRefs } from "vue";
-import { IColumn } from "../../Interfaces/IColumn";
 import { IRow } from "../../Interfaces/IRow";
-import { ITableMetaData } from "../../Interfaces/ITableMetaData";
 import { isRefType } from "../utils";
 import DataDisplayCell from "./DataDisplayCell.vue";
 import ObjectDisplay from "./cellTypes/ObjectDisplay.vue";
 import Client from "../../client/client";
+import type { IColumn, ITableMetaData } from "meta-data-utils";
 
 const props = defineProps<{
   reference: IRow;
@@ -130,7 +129,7 @@ function metadataOfCell(key: string | number): IColumn {
 function isMetadata(
   metadata: ITableMetaData | string
 ): metadata is ITableMetaData {
-  return (<ITableMetaData>metadata).name !== undefined;
+  return (<ITableMetaData>metadata).id !== undefined;
 }
 
 function onCellClick(cellName: string): void {

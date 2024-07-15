@@ -1,0 +1,3 @@
+subcohort.resource,subcohort.name,age group,N total,N female,N male
+testCohort,newborns,Child (2-12 years),250,199,51
+testCohort,newborns,Prenatal,250,199,51

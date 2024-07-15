@@ -1,17 +1,17 @@
 <template>
   <Page>
     <PageHeader
-      title="RD-Components"
+      title="molgenis-viz"
       subtitle="Data Highlights Example"
-      :imageSrc="headerImage"
+      imageSrc="highlights-header.jpg"
       height="large"
     />
     <PageSection :verticalPadding="0">
       <Breadcrumbs>
         <li>
-          <router-link :to="{ name: 'data-highlights' }"
-            >Data Highlights</router-link
-          >
+          <router-link :to="{ name: 'data-highlights' }">
+            Data Highlights
+          </router-link>
         </li>
       </Breadcrumbs>
     </PageSection>
@@ -31,10 +31,10 @@
       </p>
     </PageSection>
     <PageSection class="bkg-light" :verticalPadding="2">
-      <MessageBox v-if="loading & !hasError">
+      <MessageBox v-if="loading && !error">
         <p>Fetching data</p>
       </MessageBox>
-      <MessageBox v-else-if="hasError" type="error">
+      <MessageBox v-else-if="!loading && error" type="error">
         <p>{{ error }}</p>
       </MessageBox>
       <DataHighlights :data="summarised" v-else />
@@ -44,7 +44,12 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-import { fetchData, asDataObject } from "../utils/utils.js";
+import { request } from "graphql-request";
+import gql from "graphql-tag";
+import { rollups } from "d3";
+const d3 = { rollups };
+
+import { asDataObject } from "../utils/utils.js";
 
 import Page from "../components/layouts/Page.vue";
 import PageHeader from "../components/layouts/PageHeader.vue";
@@ -52,28 +57,36 @@ import PageSection from "../components/layouts/PageSection.vue";
 import MessageBox from "../components/display/MessageBox.vue";
 import DataHighlights from "../components/viz/DataHighlights.vue";
 import Breadcrumbs from "../app-components/breadcrumbs.vue";
-import headerImage from "../assets/ray-shrewsberry-unsplash.jpg";
 
 let loading = ref(false);
-let hasError = ref(false);
 let error = ref(null);
 let summarised = ref({});
 
-const query = `{
-  Statistics(filter: {component: {name: {equals: "organisations.by.type"}}}) {
-    label
-    value
-    component {
-      name
+async function getOrganisations() {
+  const query = gql`
+    {
+      Organisations {
+        name
+        organisationType
+      }
     }
-  }
-}`;
+  `;
+  const response = await request("../api/graphql", query);
+  const data = d3
+    .rollups(
+      response.Organisations,
+      (row) => row.length,
+      (row) => row.organisationType
+    )
+    .map((group) => new Object({ type: group[0], count: group[1] }))
+    .sort((a, b) => (a.type < b.type ? -1 : 1));
+  summarised.value = asDataObject(data, "type", "count");
+}
 
 onMounted(() => {
-  Promise.resolve(fetchData(query)).then((response) => {
-    const data = asDataObject(response.data.Statistics, "label", "value");
-    summarised.value = data;
-  });
+  getOrganisations()
+    .catch((err) => (error.value = err))
+    .finally(() => (loading.value = false));
 });
 </script>
 

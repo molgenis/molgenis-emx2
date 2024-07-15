@@ -4,13 +4,12 @@ import static org.molgenis.emx2.Operator.*;
 
 public class Constants {
 
+  public static final String SYS_COLUMN_NAME_PREFIX = "mg_";
   public static final String MG_EDIT_ROLE = "MG_EDIT_ROLE_";
   public static final String MG_ROLE_PREFIX = "MG_ROLE_";
   public static final String MG_USER_PREFIX = "MG_USER_";
 
   public static final String COMPOSITE_REF_SEPARATOR = ".";
-  public static final String REF_SCHEMA_NAME = "refSchema";
-  public static final String REF_TABLE_NAME = "refTable";
   public static final String REF_LINK = "refLink";
   public static final String REF_LABEL = "refLabel";
   public static final String REF_LABEL_DEFAULT = "refLabelDefault";
@@ -57,7 +56,10 @@ public class Constants {
   public static final String MOLGENIS_OIDC_CLIENT_NAME = "MOLGENIS_OIDC_CLIENT_NAME";
   public static final String MOLGENIS_OIDC_DISCOVERY_URI = "MOLGENIS_OIDC_DISCOVERY_URI";
   public static final String MOLGENIS_OIDC_CALLBACK_URL = "MOLGENIS_OIDC_CALLBACK_URL";
+  public static final String MOLGENIS_OIDC_UNSIGNED_TOKEN = "MOLGENIS_OIDC_UNSIGNED_TOKEN";
   public static final String MOLGENIS_INCLUDE_CATALOGUE_DEMO = "MOLGENIS_INCLUDE_CATALOGUE_DEMO";
+  public static final String MOLGENIS_INCLUDE_DIRECTORY_DEMO = "MOLGENIS_INCLUDE_DIRECTORY_DEMO";
+  public static final String MOLGENIS_EXCLUDE_PETSTORE_DEMO = "MOLGENIS_EXCLUDE_PETSTORE_DEMO";
 
   public static final String MOLGENIS_JWT_SHARED_SECRET = "MOLGENIS_JWT_SHARED_SECRET";
 
@@ -101,6 +103,7 @@ public class Constants {
   public static final String SYSTEM_SCHEMA = "_SYSTEM_";
 
   public static final String CONTACT_RECIPIENTS_QUERY_SETTING_KEY = "contactRecipientsQuery";
+  public static final String CONTACT_BCC_ADDRESS = "contactBccAddress";
 
   private Constants() {
     // hide constructor

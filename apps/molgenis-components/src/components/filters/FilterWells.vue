@@ -8,7 +8,7 @@
         </button>
         ) :
       </div>
-      <span v-for="(facet, facetIndex) in filters" :key="facet.name">
+      <span v-for="(facet, facetIndex) in filters" :key="facet.id">
         <span
           v-for="(condition, conditionIndex) in facet.conditions"
           :key="conditionIndex"
@@ -18,25 +18,25 @@
               v-if="condition[0] !== null && condition[1] !== null"
               @click="remove(facetIndex, conditionIndex)"
               :label="
-                condition[0] + ' &lt; ' + facet.name + ' &lt; ' + condition[1]
+                condition[0] + ' &lt; ' + facet.label + ' &lt; ' + condition[1]
               "
             />
             <FilterWell
               v-else-if="condition[0] !== null"
               @click="remove(facetIndex, conditionIndex)"
-              :label="condition[0] + ' &lt; ' + facet.name"
+              :label="condition[0] + ' &lt; ' + facet.id"
             />
 
             <FilterWell
               v-else-if="condition[1] !== null"
               @click="remove(facetIndex, conditionIndex)"
-              :label="facet.name + ' &lt; ' + condition[1]"
+              :label="facet.label + ' &lt; ' + condition[1]"
             />
           </span>
           <span v-else>
             <FilterWell
               @click="remove(facetIndex, conditionIndex)"
-              :label="facet.name + ' = ' + renderValue(condition)"
+              :label="facet.label + ' = ' + renderValue(condition)"
             />
           </span>
         </span>

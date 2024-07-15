@@ -20,7 +20,8 @@ public class DataCatalogueCohortStagingLoader extends AbstractDataLoader {
     // create DataCatalogue and CatalogueOntologies
     Schema dataCatalogueSchema = db.getSchema(DATA_CATALOGUE);
     if (dataCatalogueSchema == null) {
-      new DataCatalogueLoader().loadInternalImplementation(db.createSchema(DATA_CATALOGUE), false);
+      new ProfileLoader("_profiles/DataCatalogue.yaml")
+          .loadInternalImplementation(db.createSchema(DATA_CATALOGUE), false);
     }
 
     Schema sharedSchema = db.getSchema(SHARED_STAGING);

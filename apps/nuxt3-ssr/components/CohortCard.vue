@@ -1,21 +1,21 @@
 <script setup lang="ts">
-import { computed } from "vue";
-
-const mobileShowMoreText = ref(false);
-const mobileShowMoreTextLength = 250;
+import type { ICohort } from "~/interfaces/types";
+import dateUtils from "~/utils/dateUtils";
+const cutoff = 250;
 
 const props = withDefaults(
   defineProps<{
     cohort: ICohort;
     schema: string;
     compact?: boolean;
+    catalogue?: string;
   }>(),
   {
     compact: false,
   }
 );
 
-const startEndYear = filters.startEndYear;
+const startEndYear = dateUtils.startEndYear;
 
 const articleClasses = computed(() => {
   return props.compact ? "py-5 lg:px-12.5 p-5" : "lg:px-12.5 py-12.5 px-5";
@@ -36,14 +36,6 @@ const headerClasses = computed(() => {
 const iconStarClasses = computed(() => {
   return props.compact ? "" : "items-baseline xl:items-center mt-0.5 xl:mt-0";
 });
-
-const isShowingMobileMoreText = computed(() => {
-  return (
-    mobileShowMoreText.value ||
-    (props.cohort?.description &&
-      props.cohort?.description?.length < mobileShowMoreTextLength)
-  );
-});
 </script>
 
 <template>
@@ -52,7 +44,7 @@ const isShowingMobileMoreText = computed(() => {
       <div :class="titleContainerClasses" class="grow">
         <h2 class="min-w-[160px] mr-4 md:inline-block block">
           <NuxtLink
-            :to="`/${schema}/ssr-catalogue/cohorts/${cohort.id}`"
+            :to="`/${schema}/ssr-catalogue/${catalogue}/cohorts/${cohort.id}`"
             class="text-body-base font-extrabold text-blue-500 hover:underline hover:bg-blue-50"
           >
             {{ cohort?.acronym || cohort?.name }}
@@ -71,7 +63,9 @@ const isShowingMobileMoreText = computed(() => {
           class="text-blue-500 xl:justify-end"
         />
         -->
-        <NuxtLink :to="`/${schema}/ssr-catalogue/cohorts/${cohort.id}`">
+        <NuxtLink
+          :to="`/${schema}/ssr-catalogue/${catalogue}/cohorts/${cohort.id}`"
+        >
           <IconButton
             icon="arrow-right"
             class="text-blue-500 hidden xl:flex xl:justify-end"
@@ -81,28 +75,7 @@ const isShowingMobileMoreText = computed(() => {
     </header>
 
     <div v-if="!compact">
-      <p class="text-body-base my-5 xl:block hidden">
-        {{ cohort?.description }}
-      </p>
-
-      <p class="text-body-base mt-5 block xl:hidden">
-        {{
-          isShowingMobileMoreText
-            ? cohort?.description
-            : `${cohort?.description?.substring(
-                0,
-                mobileShowMoreTextLength
-              )}...`
-        }}
-      </p>
-
-      <button
-        v-if="!isShowingMobileMoreText"
-        class="text-blue-500 hover:underline hover:bg-blue-50 mt-5 xl:hidden"
-        @click="mobileShowMoreText = true"
-      >
-        Read more
-      </button>
+      <ContentReadMore :text="cohort.description" :cutoff="cutoff" />
 
       <dl class="hidden xl:flex gap-5 xl:gap-14 text-body-base">
         <div>

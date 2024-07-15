@@ -4,11 +4,11 @@
     <EditModal
       v-if="isModalShown"
       :id="id + 'edit-modal'"
-      :tableName="tableName"
+      :tableId="tableId"
       :pkey="pkey"
       :clone="true"
       :isModalShown="isModalShown"
-      :schemaName="schemaName"
+      :schemaId="schemaId"
       @close="handleClose"
     />
   </div>
@@ -26,7 +26,7 @@ export default {
       type: String,
       required: true,
     },
-    tableName: {
+    tableId: {
       type: String,
       required: true,
     },
@@ -34,7 +34,7 @@ export default {
       type: Object,
       required: true,
     },
-    schemaName: {
+    schemaId: {
       type: String,
       required: false,
     },
@@ -60,9 +60,9 @@ export default {
     <div>
       <RowButtonClone
           id="row-clone-btn-sample"
-          tableName="Pet"
+          tableId="Pet"
           :pkey="{name: 'pooky'}"
-          schemaName="pet store"
+          schemaId="pet store"
       />
     </div>
   </div>

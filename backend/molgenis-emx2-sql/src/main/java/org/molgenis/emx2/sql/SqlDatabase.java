@@ -28,6 +28,8 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   public static final String USER = "user";
   public static final String WITH = "with {} = {} ";
   public static final int TEN_SECONDS = 10;
+  private static final Settings DEFAULT_JOOQ_SETTINGS =
+      new Settings().withQueryTimeout(TEN_SECONDS);
 
   // shared between all instances
   private static DataSource source;
@@ -91,8 +93,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   public SqlDatabase(boolean init) {
     initDataSource();
     this.connectionProvider = new SqlUserAwareConnectionProvider(source);
-    final Settings settings = new Settings().withQueryTimeout(TEN_SECONDS);
-    this.jooq = DSL.using(connectionProvider, SQLDialect.POSTGRES, settings);
+    this.jooq = DSL.using(connectionProvider, SQLDialect.POSTGRES, DEFAULT_JOOQ_SETTINGS);
     if (init) {
       try {
         // elevate privileges for init (prevent reload)
@@ -233,6 +234,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     this.tx(
         db -> {
           SqlSchemaMetadata metadata = new SqlSchemaMetadata(db, name, description);
+          validateSchemaIdentifierIsUnique(metadata, db);
           executeCreateSchema((SqlDatabase) db, metadata);
           // copy
           SqlSchema schema = (SqlSchema) db.getSchema(metadata.getName());
@@ -246,6 +248,18 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     getListener().schemaChanged(name);
     this.log(start, "created schema " + name);
     return getSchema(name);
+  }
+
+  private static void validateSchemaIdentifierIsUnique(SchemaMetadata metadata, Database db) {
+    for (String name : db.getSchemaNames()) {
+      if (!metadata.getName().equals(name)
+          && metadata.getIdentifier().equals(new SchemaMetadata(name).getIdentifier())) {
+        throw new MolgenisException(
+            String.format(
+                "Cannot create/alter schema because name resolves to same identifier: '%s' has same identifier as '%s' (both resolve to identifier '%s')",
+                metadata.getName(), name, metadata.getIdentifier()));
+      }
+    }
   }
 
   @Override
@@ -266,6 +280,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
 
   @Override
   public SqlSchema getSchema(String name) {
+    if (name == null) throw new MolgenisException("Schema name was null or empty");
     if (schemaCache.containsKey(name)) {
       return new SqlSchema(this, schemaCache.get(name));
     } else {
@@ -277,6 +292,19 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       }
     }
     return null;
+  }
+
+  @Override
+  public List<Table> getTablesFromAllSchemas(String tableId) {
+    List<Table> tables = new ArrayList<>();
+    for (String sn : this.getSchemaNames()) {
+      Schema schema = this.getSchema(sn);
+      Table t = schema.getTable(tableId);
+      if (t != null) {
+        tables.add(t);
+      }
+    }
+    return tables;
   }
 
   @Override
@@ -600,6 +628,31 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
 
   public DSLContext getJooq() {
     return jooq;
+  }
+
+  void getJooqAsAdmin(JooqTransaction transaction) {
+    if (ADMIN_USER.equals(getActiveUser())) {
+      transaction.run(getJooq());
+    } else if (inTx()) {
+      // need to do this because updates before this call in current tx
+      // might affect result
+      // e.g. TestSettings will fail if we don't do this
+      // because it does permission changes in same tx before calling the method
+      // that uses getJooqAsAdmin.
+      String user = connectionProvider.getActiveUser();
+      try {
+        connectionProvider.setActiveUser(ADMIN_USER);
+        transaction.run(getJooq());
+      } finally {
+        connectionProvider.setActiveUser(user);
+      }
+    } else {
+      final Settings settings = new Settings().withQueryTimeout(TEN_SECONDS);
+      SqlUserAwareConnectionProvider adminProvider = new SqlUserAwareConnectionProvider(source);
+      adminProvider.setActiveUser(ADMIN_USER);
+      DSLContext adminJooq = DSL.using(adminProvider, SQLDialect.POSTGRES, settings);
+      transaction.run(adminJooq);
+    }
   }
 
   @Override

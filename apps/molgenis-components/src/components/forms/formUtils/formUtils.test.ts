@@ -1,35 +1,35 @@
 import { describe, expect, test } from "vitest";
-import { ITableMetaData } from "../../../Interfaces/ITableMetaData";
 import constants from "../../constants.js";
 import {
   filterVisibleColumns,
   getChapterStyle,
-  getPageHeadings,
   getRowErrors,
   getSaveDisabledMessage,
   removeKeyColumns,
-  splitColumnNamesByHeadings,
+  splitColumnIdsByHeadings,
+  isMissingValue,
+  isRequired,
 } from "./formUtils";
-import { IColumn } from "../../../Interfaces/IColumn";
+import type { ITableMetaData, IColumn } from "meta-data-utils";
 const { AUTO_ID, HEADING } = constants;
 
 describe("getRowErrors", () => {
-  test("it should return undefined for an autoId field", () => {
+  test("it should return no errors for an autoId field", () => {
     const rowData = { autoId: "1337" };
     const metaData = {
       columns: [{ id: "autoId", columnType: AUTO_ID }],
     } as ITableMetaData;
     const result = getRowErrors(metaData, rowData);
-    expect(result).to.deep.equal({ autoId: undefined });
+    expect(result).to.deep.equal({});
   });
 
-  test("it should return undefined for a heading field", () => {
+  test("it should return no errors for a heading field", () => {
     const rowData = { heading: "1337" };
     const metaData = {
       columns: [{ id: "heading", columnType: HEADING }],
     } as ITableMetaData;
     const result = getRowErrors(metaData, rowData);
-    expect(result).to.deep.equal({ heading: undefined });
+    expect(result).to.deep.equal({});
   });
 
   test("it should an error if a required field misses a value", () => {
@@ -38,9 +38,9 @@ describe("getRowErrors", () => {
       columns: [
         {
           id: "required",
-          name: "required",
+          label: "required",
           columnType: "STRING",
-          required: true,
+          required: "true",
         },
       ],
     } as ITableMetaData;
@@ -54,9 +54,9 @@ describe("getRowErrors", () => {
       columns: [
         {
           id: "required",
-          name: "required",
+          label: "required",
           columnType: "DECIMAL",
-          required: true,
+          required: "true",
         },
       ],
     } as ITableMetaData;
@@ -64,22 +64,74 @@ describe("getRowErrors", () => {
     expect(result).to.deep.equal({ required: "required is required" });
   });
 
-  test("it should return undefined it has no value and isn't required", () => {
+  test("it should give an error if a field is conditionally required on another field", () => {
+    const rowData = {
+      status: null,
+      quantity: 6,
+    };
+    const metaData = {
+      columns: [
+        {
+          id: "status",
+          label: "status",
+          columnType: "STRING",
+          required: "if(quantity>5) 'if quantity > 5 required'",
+        },
+        {
+          id: "quantity",
+          label: "quantity",
+          columnType: "DECIMAL",
+          required: "true",
+        },
+      ],
+    } as ITableMetaData;
+    const result = getRowErrors(metaData, rowData);
+    expect(result).to.deep.equal({
+      status: "if quantity > 5 required",
+    });
+  });
+
+  test("it should return no error if a field is conditionally required on another field and provided", () => {
+    const rowData = {
+      status: "RECEIVED",
+      quantity: 6,
+    };
+    const metaData = {
+      columns: [
+        {
+          id: "status",
+          label: "status",
+          columnType: "STRING",
+          required: "if(quantity>5) 'if quantity > 5 required'",
+        },
+        {
+          id: "quantity",
+          label: "quantity",
+          columnType: "DECIMAL",
+          required: "true",
+        },
+      ],
+    } as ITableMetaData;
+    const result = getRowErrors(metaData, rowData);
+    expect(result).to.deep.equal({});
+  });
+
+  test("it should return no error it has no value and isn't required", () => {
     const rowData = { empty: null };
     const metaData = {
       columns: [{ id: "empty", columnType: "STRING" }],
     } as ITableMetaData;
     const result = getRowErrors(metaData, rowData);
-    expect(result).to.deep.equal({ empty: undefined });
+    expect(result).to.deep.equal({});
   });
 
-  test("it should return undefined for a valid email address", () => {
+  test("it should return no error for a valid email address", () => {
     const rowData = { email: "blaat@blabla.bla" };
     const metaData = {
       columns: [{ id: "email", columnType: "EMAIL" }],
     } as ITableMetaData;
     const result = getRowErrors(metaData, rowData);
-    expect(result).to.deep.equal({ email: undefined });
+    expect(result).to.deep.equal({});
   });
 
   test("it should return an error for an invalid email address", () => {
@@ -91,13 +143,13 @@ describe("getRowErrors", () => {
     expect(result).to.deep.equal({ email: "Invalid email address" });
   });
 
-  test("it should return undefined for a valid hyperlink", () => {
+  test("it should return no error for a valid hyperlink", () => {
     const rowData = { hyperlink: "https://google.com" };
     const metaData = {
       columns: [{ id: "hyperlink", columnType: "HYPERLiNK" }],
     } as ITableMetaData;
     const result = getRowErrors(metaData, rowData);
-    expect(result).to.deep.equal({ hyperlink: undefined });
+    expect(result).to.deep.equal({});
   });
 
   //FIXME: Hyperlink checking seems to accept anything
@@ -110,13 +162,13 @@ describe("getRowErrors", () => {
   //   expect(result).to.deep.equal({ hyperlink: "Invalid hyperlink" });
   // });
 
-  test("it should return undefined for a valid email address array array", () => {
+  test("it should return no error for a valid email address array array", () => {
     const rowData = { email: ["blaat@blabla.bla", "bla2@blabla.bla"] };
     const metaData = {
       columns: [{ id: "email", columnType: "EMAIL_ARRAY" }],
     } as ITableMetaData;
     const result = getRowErrors(metaData, rowData);
-    expect(result).to.deep.equal({ email: undefined });
+    expect(result).to.deep.equal({});
   });
 
   test("it should return an error for an invalid email address array", () => {
@@ -128,7 +180,7 @@ describe("getRowErrors", () => {
     expect(result).to.deep.equal({ email: "Invalid email address" });
   });
 
-  test("it should return undefined for a valid hyperlink array", () => {
+  test("it should return no error for a valid hyperlink array", () => {
     const rowData = {
       hyperlink: ["https://google.com", "https://molgenis.org"],
     };
@@ -136,7 +188,7 @@ describe("getRowErrors", () => {
       columns: [{ id: "hyperlink", columnType: "HYPERLiNK_ARRAY" }],
     } as ITableMetaData;
     const result = getRowErrors(metaData, rowData);
-    expect(result).to.deep.equal({ hyperlink: undefined });
+    expect(result).to.deep.equal({});
   });
 
   //FIXME: Hyperlink checking seems to accept anything
@@ -149,7 +201,7 @@ describe("getRowErrors", () => {
   //   expect(result).to.deep.equal({ hyperlink: "Invalid hyperlink" });
   // });
 
-  test("it should return undefined for a successful validation", () => {
+  test("it should return no error for a successful validation", () => {
     const rowData = { validation: 2 };
     const metaData = {
       columns: [
@@ -161,9 +213,7 @@ describe("getRowErrors", () => {
       ],
     } as ITableMetaData;
     const result = getRowErrors(metaData, rowData);
-    expect(result).to.deep.equal({
-      validation: undefined,
-    });
+    expect(result).to.deep.equal({});
   });
 
   test("it should return an error for an invalid validation", () => {
@@ -183,21 +233,20 @@ describe("getRowErrors", () => {
     });
   });
 
-  test("it should return undefined if there is a reflink with overlap", () => {
+  test("it should return no error if there is a reflink with overlap", () => {
     const rowData = { overlap: "refValue", refLinkId: "refValue" };
     const metaData = {
       columns: [
         {
           id: "overlap",
+          label: "overlap",
           columnType: "REF",
-          refLink: "refLinkId",
+          refLinkId: "refLinkId",
         },
       ],
     } as ITableMetaData;
     const result = getRowErrors(metaData, rowData);
-    expect(result).to.deep.equal({
-      overlap: undefined,
-    });
+    expect(result).to.deep.equal({});
   });
 
   test("it should return an error if there is a reflink without overlap", () => {
@@ -206,8 +255,9 @@ describe("getRowErrors", () => {
       columns: [
         {
           id: "overlap",
+          label: "overlap",
           columnType: "REF",
-          refLink: "refLinkId",
+          refLinkId: "refLinkId",
         },
       ],
     } as ITableMetaData;
@@ -223,8 +273,9 @@ describe("getRowErrors", () => {
       columns: [
         {
           id: "overlap",
+          label: "overlap",
           columnType: "REF",
-          refLink: "refLinkId",
+          refLinkId: "refLinkId",
         },
       ],
     } as ITableMetaData;
@@ -234,67 +285,40 @@ describe("getRowErrors", () => {
     });
   });
 
-  test("it should return undefined if there is a reflink array with overlap", () => {
+  test("it should return no error if there is a reflink array with overlap", () => {
     const rowData = { overlap: ["refValue"], refLinkId: ["refValue"] };
     const metaData = {
       columns: [
         {
           id: "overlap",
+          label: "overlap",
           columnType: "REF",
-          refLink: "refLinkId",
+          refLinkId: "refLinkId",
         },
       ],
     } as ITableMetaData;
     const result = getRowErrors(metaData, rowData);
-    expect(result).to.deep.equal({
-      overlap: undefined,
-    });
+    expect(result).to.deep.equal({});
   });
 
-  test("it should return undefined for a valid input", () => {
+  test("it should return no error for a valid input", () => {
     const rowData = { valid: "input " };
     const metaData = {
       columns: [{ id: "valid", columnType: "STRING" }],
     } as ITableMetaData;
     const result = getRowErrors(metaData, rowData);
-    expect(result).to.deep.equal({
-      valid: undefined,
-    });
+    expect(result).to.deep.equal({});
   });
 });
 
 describe("removeKeyColumns", () => {
   test("it should return the data without the data of the key columns", () => {
     const metaData = {
-      columns: [{ name: "key", key: 1 }, { name: "some" }],
+      columns: [{ id: "key", key: 1 }, { id: "some" }],
     } as ITableMetaData;
     const rowData = { some: "Data", key: "primaryKey" };
     const result = removeKeyColumns(metaData, rowData);
     expect(result).toEqual({ some: "Data" });
-  });
-});
-
-describe("getPageHeadings", () => {
-  test("it should return the pageheadings if the first column is a heading", () => {
-    const metaData = {
-      columns: [
-        { name: "first heading", columnType: HEADING },
-        { name: "second heading", columnType: HEADING },
-      ],
-    } as ITableMetaData;
-    const result = getPageHeadings(metaData);
-    expect(result).to.deep.equal(["first heading", "second heading"]);
-  });
-
-  test("it should return the pageheadings with first header added if the first column isn't a heading", () => {
-    const metaData = {
-      columns: [
-        { name: "some input", columnType: "STRING" },
-        { name: "second heading", columnType: HEADING },
-      ],
-    } as ITableMetaData;
-    const result = getPageHeadings(metaData);
-    expect(result).to.deep.equal(["First chapter", "second heading"]);
   });
 });
 
@@ -314,7 +338,7 @@ describe("filterVisibleColumns", () => {
   });
 });
 
-describe("splitColumnNamesByHeadings", () => {
+describe("splitColumnIdsByHeadings", () => {
   test("it should split all columns by the headings", () => {
     const columns = [
       { id: "heading1", columnType: HEADING },
@@ -323,7 +347,7 @@ describe("splitColumnNamesByHeadings", () => {
       { id: "string2", columnType: "STRING" },
       { id: "string3", columnType: "STRING" },
     ] as IColumn[];
-    const result = splitColumnNamesByHeadings(columns);
+    const result = splitColumnIdsByHeadings(columns);
     const expectedResult = [
       ["heading1", "string1"],
       ["heading2", "string2", "string3"],
@@ -359,5 +383,47 @@ describe("getSaveDisabledMessage", () => {
     const rowErrors = { id1: "some error", id2: "another error" };
     const result = getSaveDisabledMessage(rowErrors);
     expect(result).to.equal("There are 2 error(s) preventing saving");
+  });
+});
+
+describe("isMissingValue", () => {
+  test("should return true if variable is considered to be missing", () => {
+    expect(isMissingValue(undefined)).toBe(true);
+    expect(isMissingValue(null)).toBe(true);
+    expect(isMissingValue("")).toBe(true);
+  });
+
+  test("should return false if variable is considered not to be missing", () => {
+    expect(isMissingValue(0)).toBe(false);
+    expect(isMissingValue(false)).toBe(false);
+    expect(isMissingValue("field1")).toBe(false);
+  });
+
+  test("should handle (nested) arrays correctly", () => {
+    expect(isMissingValue([0])).toBe(false);
+    expect(isMissingValue([1, 2, 3])).toBe(false);
+    expect(isMissingValue([null, "field1", ""])).toBe(true);
+    expect(isMissingValue([["field1", "field2"], "field3"])).toBe(false);
+    expect(isMissingValue([[undefined, "field1"], "field2"])).toBe(true);
+  });
+});
+
+describe("isRequired", () => {
+  test("should return true for boolean type true and true strings", () => {
+    expect(isRequired(true)).toBe(true);
+    expect(isRequired("true")).toBe(true);
+    expect(isRequired("True")).toBe(true);
+    expect(isRequired("TRUE")).toBe(true);
+  });
+
+  test("should return false for boolean type false and true strings", () => {
+    expect(isRequired(false)).toBe(false);
+    expect(isRequired("false")).toBe(false);
+    expect(isRequired("False")).toBe(false);
+    expect(isRequired("FALSE")).toBe(false);
+  });
+
+  test("should return false for strings with an expression", () => {
+    expect(isRequired("someValue > 0")).toEqual(false);
   });
 });

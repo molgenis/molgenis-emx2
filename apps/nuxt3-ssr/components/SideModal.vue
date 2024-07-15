@@ -1,20 +1,22 @@
 <script setup lang="ts">
-import { INotificationType } from "~/interfaces/types";
+import type { INotificationType } from "~/interfaces/types";
+const ariaId = useId();
 const props = withDefaults(
   defineProps<{
     slideInRight?: boolean;
     fullScreen?: boolean;
-    show: boolean;
+    show?: boolean;
     buttonAlignment?: "left" | "center" | "right";
     includeFooter?: boolean;
     type?: INotificationType;
   }>(),
   {
+    show: false,
     slideInRight: false,
     fullScreen: true,
     buttonAlignment: "center",
     includeFooter: true,
-    type: INotificationType.info,
+    type: "info",
   }
 );
 
@@ -62,17 +64,17 @@ const buttonAlignmentClass = buttonAlignmentSet[props.buttonAlignment];
 
 const bgClass = computed(() => {
   switch (props.type) {
-    case INotificationType.light:
+    case "light":
       return "bg-white";
-    case INotificationType.dark:
+    case "dark":
       return "bg-black";
-    case INotificationType.success:
+    case "success":
       return "bg-green-500";
-    case INotificationType.error:
+    case "error":
       return "bg-red-500";
-    case INotificationType.warning:
+    case "warning":
       return "bg-yellow-500";
-    case INotificationType.info:
+    case "info":
       return "bg-blue-500";
   }
 });
@@ -80,6 +82,7 @@ const bgClass = computed(() => {
 
 <template>
   <VDropdown
+    :aria-id="ariaId"
     :shown="show"
     :positioning-disabled="true"
     @show="preAnimation()"
@@ -97,7 +100,7 @@ const bgClass = computed(() => {
               <BaseIcon name="cross" />
             </button>
 
-            <div class="overflow-auto calc-remaining-max-height">
+            <div class="overflow-auto calc-remaining-max-height pb-6">
               <slot></slot>
             </div>
           </div>
@@ -106,7 +109,7 @@ const bgClass = computed(() => {
             <div
               :class="`flex items-center ${buttonAlignmentClass} px-6 bg-modal-footer h-19`"
             >
-              <slot name="footer"></slot>
+              <slot name="footer" :hide="hide"></slot>
             </div>
           </div>
         </div>

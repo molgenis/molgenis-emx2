@@ -18,15 +18,14 @@ export default {
     state.searchInput = searchInput;
   },
   setSelectedNetworks(state, selectedNetworks) {
-    state.filters.find((f) => f.name === "networks").conditions =
+    state.filters.find((f) => f.id === "networks").conditions =
       selectedNetworks;
   },
   setSelectedCohorts(state, selectedCohorts) {
-    state.filters.find((f) => f.name === "cohorts").conditions =
-      selectedCohorts;
+    state.filters.find((f) => f.id === "cohorts").conditions = selectedCohorts;
   },
   setSelectedKeywords(state, selectedKeywords) {
-    state.filters.find((f) => f.name === "keywords").conditions =
+    state.filters.find((f) => f.id === "keywords").conditions =
       selectedKeywords;
   },
   setKeywords(state, keywords) {

@@ -1,11 +1,11 @@
 <template>
   <div>
     <Spinner v-if="loading" class="m-3" />
-    <div v-else-if="!refColumns.length" class="alert alert-warning">
-      Not enough input to create an aggregate table
+    <div v-else-if="refColumns.length === 0" class="alert alert-warning">
+      Not enough input to create an aggregate table. Need at least 1 column with
+      permission that can be used as group by.
     </div>
-
-    <div class="border d-inline-block p-2 bg-white">
+    <div v-else class="border d-inline-block p-2 bg-white">
       <div class="aggregate-options">
         <table>
           <tr>
@@ -45,6 +45,44 @@
                 @update:modelValue="fetchData"
                 :options="refColumns"
                 required
+              />
+            </td>
+          </tr>
+          <tr v-if="aggFieldOptions.length">
+            <td class="align-top">
+              <label
+                class="mx-2 col-form-label form-group mb-0 mr-3 pt-0"
+                for="aggregate-column-select"
+              >
+                Aggregate function:
+              </label>
+            </td>
+            <td>
+              <InputRadio
+                id="input-radio-2"
+                v-model="aggFunction"
+                :options="['count', 'sum']"
+                :isClearable="false"
+                @update:modelValue="fetchData"
+              />
+            </td>
+          </tr>
+          <tr v-if="aggFunction === 'sum'">
+            <td class="align-top">
+              <label
+                class="mx-2 col-form-label form-group mb-0 mr-3 pt-0"
+                for="aggregate-column-select"
+              >
+                Summation field:
+              </label>
+            </td>
+            <td>
+              <InputSelect
+                class="mb-2"
+                id="aggregate-row-select"
+                v-model="aggField"
+                @update:modelValue="fetchData"
+                :options="aggFieldOptions"
               />
             </td>
           </tr>
@@ -93,14 +131,21 @@ import TableStickyHeaders from "./TableStickyHeaders.vue";
 import IAggregateData from "./IAggregateData";
 import Client from "../../client/client";
 import InputSelect from "../forms/InputSelect.vue";
-import { IColumn } from "../../Interfaces/IColumn";
-import { convertToCamelCase } from "../utils";
+import { INewClient, aggFunction } from "../../client/IClient";
+import type { IColumn } from "meta-data-utils";
+import InputRadio from "../forms/InputRadio.vue";
+
+const AGG_FIELD_TYPES = ["INT", "LONG", "DECIMAL"];
 
 export default defineComponent({
   name: "AggregateTable",
-  components: { TableStickyHeaders, InputSelect },
+  components: { TableStickyHeaders, InputSelect, InputRadio },
   props: {
-    schemaName: {
+    canView: {
+      type: Boolean,
+      required: true,
+    },
+    schemaId: {
       type: String,
       required: true,
     },
@@ -108,7 +153,7 @@ export default defineComponent({
       type: Array,
       required: true,
     },
-    tableName: {
+    tableId: {
       type: String,
       required: true,
     },
@@ -126,13 +171,25 @@ export default defineComponent({
       selectedColumn: "",
       selectedRow: "",
       refColumns: [] as string[],
-      loading: true,
+      loading: false,
+      aggFunction: "count",
+      aggField: "",
       rows: [] as string[],
       columns: [] as string[],
       aggregateData: {} as IAggregateData,
       noResults: false,
       errorMessage: undefined,
+      client: {} as INewClient,
     };
+  },
+  computed: {
+    aggFieldOptions() {
+      return (this.allColumns as IColumn[])
+        .filter((column: IColumn) => {
+          return AGG_FIELD_TYPES.includes(column.columnType);
+        })
+        .map((column: IColumn) => column.id);
+    },
   },
   methods: {
     async fetchData() {
@@ -141,25 +198,30 @@ export default defineComponent({
       this.rows = [];
       this.columns = [];
       this.aggregateData = {};
-      const client = Client.newClient(this.schemaName);
-      const responseData = await client
+      if (this.aggFunction === "sum" && !this.aggField) {
+        this.loading = false;
+        return;
+      }
+      const responseData = await this.client
         .fetchAggregateData(
-          this.tableName,
+          this.tableId,
           {
-            name: convertToCamelCase(this.selectedColumn),
+            id: this.selectedColumn,
             column: "name",
           },
           {
-            name: convertToCamelCase(this.selectedRow),
+            id: this.selectedRow,
             column: "name",
           },
-          this.graphqlFilter
+          this.graphqlFilter,
+          this.aggFunction === "count" ? "count" : "_sum",
+          this.aggField
         )
         .catch((error) => {
           this.errorMessage = error;
         });
-      if (responseData && responseData[this.tableName + "_groupBy"]) {
-        responseData[this.tableName + "_groupBy"].forEach((item: any) =>
+      if (responseData && responseData[this.tableId + "_groupBy"]) {
+        responseData[this.tableId + "_groupBy"].forEach((item: any) =>
           this.addItem(item)
         );
         this.noResults = !this.columns.length;
@@ -169,15 +231,19 @@ export default defineComponent({
       this.loading = false;
     },
     addItem(item: any) {
-      const column: string =
-        item[convertToCamelCase(this.selectedColumn)].name || "not specified";
-      const row: string =
-        item[convertToCamelCase(this.selectedRow)].name || "not specified";
+      const column: string = item[this.selectedColumn]?.name || "not specified";
+      const row: string = item[this.selectedRow]?.name || "not specified";
+
+      const aggRespField = this.aggFunction === "count" ? "count" : "_sum";
+      const aggColValue =
+        this.aggFunction === "count"
+          ? item[aggRespField]
+          : item[aggRespField][this.aggField];
 
       if (!this.aggregateData[row]) {
-        this.aggregateData[row] = { [column]: item.count };
+        this.aggregateData[row] = { [column]: aggColValue };
       } else {
-        this.aggregateData[row][column] = item.count;
+        this.aggregateData[row][column] = aggColValue;
       }
 
       if (!this.columns.includes(column)) {
@@ -187,50 +253,79 @@ export default defineComponent({
         this.rows.push(row);
       }
     },
-  },
-  created() {
-    if (this.allColumns.length > 0) {
-      this.refColumns = getRefTypeColumns(this.allColumns as IColumn[]);
+    initialize() {
+      if (this.allColumns.length > 0) {
+        this.refColumns = getRefTypeColumns(
+          this.allColumns as IColumn[],
+          this.canView
+        );
+      }
       if (this.refColumns?.length > 0) {
         this.selectedColumn = this.refColumns[0];
         this.selectedRow = this.refColumns[1] || this.refColumns[0];
+        this.fetchData();
       }
-    }
-    this.fetchData();
+    },
+  },
+  watch: {
+    allColumns() {
+      this.initialize();
+    },
+  },
+  mounted() {
+    this.client = Client.newClient(this.schemaId);
+    this.initialize();
   },
 });
 
-function getRefTypeColumns(columns: IColumn[]): string[] {
+function getRefTypeColumns(columns: IColumn[], canView: boolean): string[] {
   return columns
-    .filter((column: IColumn) => isRefType(column))
-    .map((column: IColumn) => column.name);
-}
-
-function isRefType(column: IColumn): boolean {
-  return (
-    column.columnType.startsWith("REF") ||
-    column.columnType.startsWith("ONTOLOGY")
-  );
+    .filter((column: IColumn) => {
+      return (
+        (column.columnType.startsWith("REF") && canView) ||
+        column.columnType.startsWith("ONTOLOGY")
+      );
+    })
+    .map((column: IColumn) => column.id);
 }
 </script>
 
 <docs>
 <template>
   <demo-item>
-    <label>AggregateTable</label>
+    <label class="mt-5">AggregateTable with canview=false</label>
     <AggregateTable
-      tableName="Pet"
-      schemaName="pet store"
+      tableId="Pet"
+      schemaId="pet store"
       :allColumns="allColumns"
       :minimumValue="1"
+      :canView="false"
     />
-    <label>AggregateTable with filters set</label>
+    <label class="mt-5">AggregateTable with canview=true</label>
     <AggregateTable
-      tableName="Pet"
-      schemaName="pet store"
+      tableId="Pet"
+      schemaId="pet store"
+      :allColumns="allColumns"
+      :minimumValue="1"
+      :canView="true"
+    />
+    <label class="mt-5">AggregateTable with filters set</label>
+    <AggregateTable
+      tableId="Pet"
+      schemaId="pet store"
       :allColumns="allColumns"
       :minimumValue="1"
       :graphqlFilter="graphqlFilter"
+      :canView="true"
+    />
+
+    <label class="mt-5">AggregateTable with filters function select</label>
+    <AggregateTable
+      tableId="Samples"
+      schemaId="FORCE_aggregates"
+      :allColumns="sumExampleCols"
+      :minimumValue="1"
+      :canView="false"
     />
   </demo-item>
 </template>
@@ -241,23 +336,48 @@ export default {
     return {
       allColumns: [
         {
-          name: "name",
+          id: "name",
           columnType: "STRING",
         },
         {
-          name: "category bla",
+          id: "category",
           columnType: "REF",
         },
         {
-          name: "tags",
+          id: "tags",
           columnType: "ONTOLOGY_ARRAY",
         },
         {
-          name: "orders",
+          id: "orders",
           columnType: "REFBACK",
         },
       ],
       graphqlFilter: { name: { like: ["pooky"] } },
+      sumExampleCols: [
+        {
+          id: "researchCenter",
+          columnType: "ONTOLOGY",
+        },
+        {
+          id: "primaryTumor",
+          columnType: "ONTOLOGY",
+        },
+        {
+          id: "sampleType",
+          columnType: "ONTOLOGY",
+        },
+        {
+          id: "samplingPeriod",
+          columnType: "ONTOLOGY",
+        },
+        {
+          id: "sex",
+          columnType: "ONTOLOGY",
+        },
+        {
+          id: "n",
+          columnType: "INT",
+        }]
     };
   },
 };

@@ -35,16 +35,15 @@ export default {
       ? null
       : state.searchInput.trim(),
   selectedKeywords: (state) => {
-    return state.filters.find((filters) => filters.name === "keywords")
+    return state.filters.find((filters) => filters.id === "keywords")
       .conditions;
   },
   selectedNetworks: (state) => {
-    return state.filters.find((filters) => filters.name === "networks")
+    return state.filters.find((filters) => filters.id === "networks")
       .conditions;
   },
   selectedCohorts: (state) => {
-    return state.filters.find((filters) => filters.name === "cohorts")
-      .conditions;
+    return state.filters.find((filters) => filters.id === "cohorts").conditions;
   },
   resources: (state) => state.resources,
   cohorts: (state) => state.cohorts,

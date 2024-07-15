@@ -1,0 +1,11 @@
+---
+name: FAIR Genomes metadata schema
+description: The FAIR Genomes semantic metadata schema to power reuse of NGS data in research and healthcare.
+
+profileTags:  FAIR Genomes,
+              FAIR Genomes metabolomics add-on
+
+demoData: _demodata/shared-examples
+
+# special options
+setViewPermission: anonymous

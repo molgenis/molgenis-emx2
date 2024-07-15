@@ -1,23 +1,17 @@
-<script setup>
-const props = defineProps({
-  title: {
-    type: String,
-  },
-  conditions: {
-    type: Array,
-  },
-  search: {
-    type: String,
-  },
-  initialCollapsed: {
-    type: Boolean,
-    default: true,
-  },
-  mobileDisplay: {
-    type: Boolean,
-    default: false,
-  },
-});
+<script setup lang="ts">
+const props = withDefaults(
+  defineProps<{
+    title: string;
+    conditions: any[];
+    search: string;
+    initialCollapsed?: boolean;
+    mobileDisplay?: boolean;
+  }>(),
+  {
+    initialCollapsed: true,
+    mobileDisplay: false,
+  }
+);
 
 let isCollapsed = ref(props.initialCollapsed);
 let selected = ref([]);
@@ -36,8 +30,7 @@ function toggleCollapseTitle() {
 }
 
 function clearSelection() {
-  selected.value.splice(0);
-  emit("update:conditions", selected);
+  emit("update:conditions", []);
 }
 
 function clearSearch() {

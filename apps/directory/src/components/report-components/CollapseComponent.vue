@@ -1,6 +1,8 @@
 <template>
   <details>
-    <summary @click="open = !open">{{ openText }}</summary>
+    <summary @click="open = !open">
+      <span>{{ openText }}</span>
+    </summary>
     <slot />
   </details>
 </template>

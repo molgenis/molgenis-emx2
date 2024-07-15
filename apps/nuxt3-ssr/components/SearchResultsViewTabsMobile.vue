@@ -1,8 +1,23 @@
-<script setup>
-import { computed } from "vue";
-import BaseIcon from "./BaseIcon.vue";
-
-const { activeName } = defineProps({
+<script setup lang="ts">
+const props = defineProps({
+  buttonTopLabel: {
+    type: String,
+  },
+  buttonTopName: {
+    type: String,
+  },
+  buttonTopIcon: {
+    type: String,
+  },
+  buttonBottomLabel: {
+    type: String,
+  },
+  buttonBottomName: {
+    type: String,
+  },
+  buttonBottomIcon: {
+    type: String,
+  },
   activeName: {
     type: String,
   },
@@ -10,19 +25,30 @@ const { activeName } = defineProps({
 
 const emit = defineEmits(["update:activeName"]);
 
-function toggleMode(detailed) {
-  if (detailed) {
-    emit("update:activeName", "compact");
-  } else {
-    emit("update:activeName", "detailed");
-  }
+const label = computed(() => {
+  return props.activeName === props.buttonTopName
+    ? props.buttonTopLabel
+    : props.buttonBottomLabel;
+});
+
+const icon = computed(() => {
+  return props.activeName === props.buttonTopName
+    ? props.buttonTopIcon
+    : props.buttonBottomIcon;
+});
+
+function handleClick() {
+  emit(
+    "update:activeName",
+    props.activeName === props.buttonTopName
+      ? props.buttonBottomName
+      : props.buttonTopName
+  );
 }
 </script>
 <template>
-  <div class="flex justify-between mt-5">
+  <div class="flex justify-between">
     <SideModal :fullScreen="false">
-      <slot></slot>
-
       <template #button>
         <Button
           type="primary"
@@ -32,25 +58,28 @@ function toggleMode(detailed) {
           iconPosition="left"
         ></Button>
       </template>
+
+      <ContentBlockModal title="Filters">
+        <slot></slot>
+      </ContentBlockModal>
+
+      <template #footer="{ hide }">
+        <Button
+          type="secondary"
+          size="small"
+          label="View results"
+          iconPosition="left"
+          @click="hide()"
+        ></Button>
+      </template>
     </SideModal>
 
     <Button
-      v-if="activeName === 'detailed'"
       type="secondary"
       size="small"
-      label="view"
-      icon="view-normal"
-      iconPosition="left"
-      @click="toggleMode(true)"
-    ></Button>
-    <Button
-      v-else
-      type="secondary"
-      size="small"
-      label="view"
-      icon="view-compact"
-      iconPosition="left"
-      @click="toggleMode(false)"
-    ></Button>
+      :label="label"
+      :icon="icon"
+      @click="handleClick"
+    />
   </div>
 </template>

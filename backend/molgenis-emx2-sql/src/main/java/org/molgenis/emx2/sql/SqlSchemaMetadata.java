@@ -5,8 +5,7 @@ import static org.molgenis.emx2.Privileges.MANAGER;
 import static org.molgenis.emx2.sql.ChangeLogExecutor.executeGetChanges;
 import static org.molgenis.emx2.sql.ChangeLogExecutor.executeGetChangesCount;
 import static org.molgenis.emx2.sql.SqlColumnExecutor.getOntologyTableDefinition;
-import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
-import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
+import static org.molgenis.emx2.sql.SqlDatabase.*;
 import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeGetMembers;
 import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeGetRoles;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.executeCreateTable;
@@ -28,6 +27,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   // copy constructor
   protected SqlSchemaMetadata(Database db, SqlSchemaMetadata copy) {
     this.name = copy.getName();
+    this.description = copy.getDescription();
     this.database = db;
     this.sync(copy);
   }
@@ -119,6 +119,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
               tableList.addAll(List.of(tables));
               if (tableList.size() > 1) sortTableByDependency(tableList);
               for (TableMetadata table : tableList) {
+                validateTableIdentifierIsUnique(sm, table);
                 SqlTableMetadata result = null;
                 if (TableType.ONTOLOGIES.equals(table.getTableType())) {
                   result =
@@ -136,6 +137,18 @@ public class SqlSchemaMetadata extends SchemaMetadata {
             });
     getDatabase().getListener().schemaChanged(getName());
     return this;
+  }
+
+  private static void validateTableIdentifierIsUnique(SqlSchemaMetadata sm, TableMetadata table) {
+    for (TableMetadata existingTable : sm.getTables()) {
+      if (!existingTable.getTableName().equals(table.getTableName())
+          && existingTable.getIdentifier().equals(table.getIdentifier())) {
+        throw new MolgenisException(
+            String.format(
+                "Cannot create/alter because name resolves to same identifier: '%s' has same identifier as '%s' (both resolve to identifier '%s')",
+                table.getTableName(), existingTable.getTableName(), table.getIdentifier()));
+      }
+    }
   }
 
   @Override
@@ -239,6 +252,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   private static SqlSchemaMetadata renameTableTransaction(
       Database db, String schemaName, String tableName, String newName) {
     SqlSchemaMetadata sm = (SqlSchemaMetadata) db.getSchema(schemaName).getMetadata();
+    validateTableIdentifierIsUnique(sm, new TableMetadata(newName));
     SqlTableMetadata tm = sm.getTableMetadata(tableName);
     tm.alterName(newName);
     sm.tables.remove(tableName);
@@ -255,20 +269,12 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     final String username = user.trim();
     List<String> result = new ArrayList<>();
     // need elevated privileges, so clear user and run as root
-    // this is not thread safe therefore must be in a transaction
     getDatabase()
-        .tx(
-            tdb -> {
-              String current = tdb.getActiveUser();
-              try {
-                tdb.becomeAdmin(); // elevate privileges
+        .getJooqAsAdmin(
+            adminJooq ->
                 result.addAll(
                     SqlSchemaMetadataExecutor.getInheritedRoleForUser(
-                        ((SqlDatabase) tdb).getJooq(), getName(), username));
-              } finally {
-                tdb.setActiveUser(current); // reset privileges
-              }
-            });
+                        adminJooq, getName(), username)));
     return result;
   }
 

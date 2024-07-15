@@ -36,7 +36,7 @@ public class TableSort {
         boolean depends = false;
 
         for (int j = 0; j < todo.size(); j++) {
-          if (current.getInherit() != null
+          if (current.getInheritName() != null
               && current.getImportSchema() == null
               && todo.get(j).equals(current.getInheritedTable())) {
             depends = true;

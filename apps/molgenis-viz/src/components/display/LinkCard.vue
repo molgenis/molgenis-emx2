@@ -19,15 +19,24 @@ export default {
     imageSrc: {
       type: String,
     },
-    // Specify the vertical height of the box
-    height: {
-      // `'xsmall' / 'small' / 'medium' / 'large'`
-      type: String,
-      // `medium`
-      default: "medium",
+    // specify the left and right padding of the default slot
+    horizontalPadding: {
+      // `0:5`
+      type: Number,
+      // `3`
+      default: 3,
       validator: (value) => {
-        const options = ["xsmall", "small", "medium", "large"];
-        return options.includes(value);
+        return value >= 0 && value <= 5;
+      },
+    },
+    // specify the top and bottom padding of the default slote
+    verticalPadding: {
+      // `0:5`
+      type: Number,
+      // `3`
+      default: 3,
+      validator: (value) => {
+        return value >= 0 && value <= 5;
       },
     },
   },
@@ -35,8 +44,9 @@ export default {
     classNames() {
       const base = "link-card";
       const image = this.imageSrc ? "card-image-background" : "";
-      const height = `height-${this.height}`;
-      return [base, image, height].join(" ");
+      const hPadding = `padding-h-${this.horizontalPadding}`;
+      const vPadding = `padding-v-${this.verticalPadding}`;
+      return [base, image, hPadding, vPadding].join(" ");
     },
     setStyle() {
       return this.imageSrc ? `background-image: url(${this.imageSrc})` : "";
@@ -52,20 +62,16 @@ export default {
   align-items: center;
   position: relative;
   background-color: $gray-900;
-  padding: 1.5em;
-
-  $card-sizing: 12em;
-  width: $card-sizing;
-  height: $card-sizing;
+  $border-radius: 8pt;
+  border-radius: $border-radius;
 
   .card-content {
     z-index: 1;
+
     a {
+      @include textTransform(bold);
       color: $gray-050;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      font-weight: bold;
-      font-size: 14pt;
+      font-size: 1.1rem;
     }
   }
 
@@ -80,6 +86,7 @@ export default {
       width: 100%;
       height: 100%;
       background-color: $gray-transparent-500;
+      border-radius: $border-radius;
     }
   }
 }

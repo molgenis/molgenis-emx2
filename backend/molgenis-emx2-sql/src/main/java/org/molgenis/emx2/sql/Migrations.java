@@ -4,6 +4,7 @@ import static org.jooq.impl.DSL.*;
 import static org.jooq.impl.SQLDataType.VARCHAR;
 import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 import static org.molgenis.emx2.sql.MetadataUtils.*;
+import static org.molgenis.emx2.sql.SqlDatabase.TEN_SECONDS;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.MG_TABLECLASS_UPDATE;
 
 import java.io.IOException;
@@ -20,7 +21,8 @@ import org.slf4j.LoggerFactory;
 
 public class Migrations {
   // version the current software needs to work
-  private static final int SOFTWARE_DATABASE_VERSION = 8;
+  private static final int SOFTWARE_DATABASE_VERSION = 21;
+  public static final int THREE_MINUTES = 180;
   private static Logger logger = LoggerFactory.getLogger(Migrations.class);
 
   public static synchronized void initOrMigrate(SqlDatabase db) {
@@ -75,6 +77,55 @@ public class Migrations {
                 "refactor settings, rename molgenis_version table to database_metadata");
 
           if (version < 8) executeMigrationFile(tdb, "migration8.sql", "add labels column");
+
+          if (version < 9)
+            executeMigrationFile(
+                tdb, "migration9.sql", "update row level policy for schema metadata");
+
+          if (version < 10)
+            executeMigrationFile(tdb, "migration10.sql", "add Aggregate role for each schema");
+
+          if (version < 11) executeMigrationFile(tdb, "migration11.sql", "add profile metadata");
+
+          if (version < 12)
+            executeMigrationFile(tdb, "migration12.sql", "add defaultValue in metadata schema");
+
+          if (version < 13)
+            executeMigrationFile(
+                tdb, "migration13.sql", "remove default value for mg_tableclass columns");
+
+          if (version < 14) {
+            executeMigrationFile(tdb, "migration14.sql", "cleanup column_metadata ref column");
+          }
+
+          if (version < 15) {
+            executeMigrationFile(tdb, "migration15.sql", "changed required field to varchar");
+          }
+
+          if (version < 16) {
+            executeMigrationFile(tdb, "migration16.sql", "make required nullable");
+          }
+
+          if (version < 17) {
+            executeMigrationFile(tdb, "migration17.sql", "add fkey to inherit table");
+          }
+
+          if (version < 18) {
+            executeMigrationFile(
+                tdb, "migration18.sql", "add filename to tables contain FILE datatype");
+          }
+
+          if (version < 19) {
+            executeMigrationFile(tdb, "migration19.sql", "add numeric collation");
+          }
+
+          if (version < 20) {
+            executeMigrationFile(tdb, "migration20.sql", "function to convert interval to period");
+          }
+
+          if (version < 21)
+            executeMigrationFile(
+                tdb, "migration21.sql", "add exist and range role to schemas and metadata");
 
           // if success, update version to SOFTWARE_DATABASE_VERSION
           updateDatabaseVersion((SqlDatabase) tdb, SOFTWARE_DATABASE_VERSION);
@@ -139,12 +190,16 @@ public class Migrations {
   }
 
   static void executeMigrationFile(Database db, String sqlFile, String message) {
+    DSLContext jooq = ((SqlDatabase) db).getJooq();
     try {
+      jooq.settings().setQueryTimeout(THREE_MINUTES);
       String sql = new String(Migrations.class.getResourceAsStream(sqlFile).readAllBytes());
-      ((SqlDatabase) db).getJooq().execute(sql);
+      jooq.execute(sql);
       logger.debug(message + "(file = " + sqlFile);
     } catch (IOException e) {
       throw new MolgenisException("Execute migration failed", e);
+    } finally {
+      jooq.settings().setQueryTimeout(TEN_SECONDS);
     }
   }
 

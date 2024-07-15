@@ -1,0 +1,4 @@
+---
+name: TestIncludeProfile
+description: "Profile to test inclusion into other profile"
+profileTags: DCAT, DCAT files add-on

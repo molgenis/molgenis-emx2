@@ -2,36 +2,33 @@ import { useSettingsStore } from "../stores/settingsStore";
 import { sortCollectionsByName } from "./sorting";
 
 export const getName = (contact) => {
-  const {
-    title_before_name,
-    first_name,
-    last_name,
-    title_after_name,
-  } = contact;
+  const { title_before_name, first_name, last_name, title_after_name, role } =
+    contact;
 
   let name = "";
 
-  if (title_before_name) name += `${title_before_name} `;
-  if (first_name) name += `${first_name} `;
-  if (last_name) name += `${last_name} `;
+  if (title_before_name) name += `${title_before_name}`;
+  if (first_name) name += ` ${first_name}`;
+  if (last_name) name += ` ${last_name}`;
   if (title_after_name) name += ` ${title_after_name}`;
+  if (role) name += `\n${role}`;
 
   return name !== "" ? name.trim() : undefined;
 };
 
-export const mapToString = (object, property, prefix, suffix) => {
+export const propertyToString = (object, property, prefix, suffix) => {
   if (!object) return "";
-
   if (typeof object === "string") return object;
+  if (!object[property]) return "";
 
-  prefix = prefix ? `${prefix} ` : "";
-  suffix = suffix ? ` ${suffix}` : "";
-  return object[property] ? `${prefix}${object[property]}${suffix}` : "";
+  const spacedPrefix = prefix ? `${prefix} ` : "";
+  const spacedSuffix = suffix ? ` ${suffix}` : "";
+  return `${spacedPrefix}${object[property]}${spacedSuffix}`;
 };
 
 function getUriIfAvailable(item) {
   if (item.uri) return "uri";
-  if (item.url) return "uri";
+  if (item.url) return "url";
   if (item.ontologyTermURI) return "ontologyTermURI";
 
   return "";
@@ -48,50 +45,32 @@ export function mapObjArray(objects) {
     }));
 }
 
-export function mapUrl(url) {
-  return url ? (url.startsWith("http") ? url : "http://" + url) : url;
+export function urlToString(url) {
+  if (url) {
+    return url.startsWith("http") ? url : "https://" + url;
+  } else {
+    return url;
+  }
 }
 
-export function mapRange(min, max, unit) {
-  let range = "";
+export function rangeToString(min, max, unit) {
+  const range = getRange(min, max);
+  if (range.length > 0 && unit?.label) {
+    return range + unit.label;
+  } else {
+    return "";
+  }
+}
+
+function getRange(min, max) {
   if ((min || min === 0) && max) {
-    range = `${min}-${max} `;
+    return `${min}-${max} `;
   } else if (min || min === 0) {
-    range = `> ${min} `;
+    return `> ${min} `;
   } else if (max) {
-    range = `< ${max} `;
-  }
-  if (range.length > 0 && unit && unit.length) {
-    range += unit.map((unit) => unit.label).join();
+    return `< ${max} `;
   } else {
-    range = undefined;
-  }
-  return range;
-}
-
-function getObjectForValueExtraction(object, propertyKey) {
-  /** this column is a nested propery */
-  if (typeof propertyKey === "object") {
-    const nextKey = Object.keys(propertyKey)[0];
-
-    return getObjectForValueExtraction(object, nextKey);
-  } else if (typeof object[propertyKey] === "object") {
-    const keys = Object.keys(object[propertyKey]);
-    let nextKey = "";
-
-    /** find the next non-digit key in the array. */
-    for (const key of keys) {
-      if (isNaN(key)) {
-        nextKey = key;
-        break;
-      }
-    }
-    /** found a pure array, return that */
-    if (!nextKey) return object[propertyKey];
-
-    return getObjectForValueExtraction(object[propertyKey], nextKey);
-  } else {
-    return object[propertyKey];
+    return "";
   }
 }
 
@@ -114,11 +93,11 @@ export function getViewmodel(object, columns) {
     switch (columnInfo.type) {
       case "range": {
         const { min, max, unit } = columnInfo;
-        attributeValue = mapRange(object[min], object[max], object[unit]) || "";
+        attributeValue = rangeToString(object[min], object[max], object[unit]);
         break;
       }
       case "object": {
-        attributeValue = mapToString(
+        attributeValue = propertyToString(
           objectToExtractValueFrom,
           columnInfo.property,
           columnInfo.prefix,
@@ -143,7 +122,7 @@ export function getViewmodel(object, columns) {
         break;
       }
       default: {
-        attributeValue = mapToString(
+        attributeValue = propertyToString(
           object,
           columnInfo.column,
           columnInfo.prefix,
@@ -168,6 +147,32 @@ export function getViewmodel(object, columns) {
   }
 
   return { attributes };
+}
+
+function getObjectForValueExtraction(object, propertyKey) {
+  /** this column is a nested property */
+  if (typeof propertyKey === "object") {
+    const nextKey = Object.keys(propertyKey)[0];
+
+    return getObjectForValueExtraction(object, nextKey);
+  } else if (typeof object[propertyKey] === "object") {
+    const keys = Object.keys(object[propertyKey]);
+    let nextKey = "";
+
+    /** find the next non-digit key in the array. */
+    for (const key of keys) {
+      if (isNaN(key)) {
+        nextKey = key;
+        break;
+      }
+    }
+    /** found a pure array, return that */
+    if (!nextKey) return object[propertyKey];
+
+    return getObjectForValueExtraction(object[propertyKey], nextKey);
+  } else {
+    return object[propertyKey];
+  }
 }
 
 /**
@@ -238,18 +243,20 @@ function mapSubcollections(collections, level) {
   return sub_collections;
 }
 
-export function getCollectionDetails(collection) {
+export function getCollectionDetails(collection, isBiobankWithdrawn) {
   const settingsStore = useSettingsStore();
   const viewmodel = getViewmodel(
     collection,
     settingsStore.config.collectionColumns
   );
 
-  if (collection.sub_collections && collection.sub_collections.length) {
-    viewmodel.sub_collections = mapSubcollections(
-      collection.sub_collections,
-      1
-    );
+  if (collection.sub_collections?.length) {
+    const filteredSubCollections = isBiobankWithdrawn
+      ? collection.sub_collections
+      : collection.sub_collections.filter(
+          (subcollection) => !subcollection.withdrawn
+        );
+    viewmodel.sub_collections = mapSubcollections(filteredSubCollections, 1);
   }
 
   return {
@@ -261,16 +268,14 @@ export function getCollectionDetails(collection) {
 export const getBiobankDetails = (biobank) => {
   const settingsStore = useSettingsStore();
 
-  if (biobank.collections && biobank.collections.length) {
+  if (biobank.collections?.length) {
     biobank.collections.type = [];
     biobank.collections.type = Object.keys(
       extractCollectionTypes(biobank.collections)
     );
     biobank.collectionDetails = [];
 
-    const parentCollections = biobank.collections.filter(
-      (collection) => !collection.parent_collection
-    );
+    const parentCollections = biobank.collections;
 
     const sortedParentCollections = sortCollectionsByName(parentCollections);
 
@@ -286,16 +291,24 @@ export const getBiobankDetails = (biobank) => {
 };
 
 export const collectionReportInformation = (collection) => {
-  const collectionReport = {};
+  let collectionReport = {};
 
-  collectionReport.head = getNameOfHead(collection.head) || undefined;
+  if (collection.head) {
+    collectionReport.head = getName(collection.head);
+  }
 
   if (collection.contact) {
     collectionReport.contact = {
       name: getName(collection.contact),
-      email: collection.contact.email ? collection.contact.email : undefined,
-      phone: collection.contact.phone ? collection.contact.phone : undefined,
+      email: collection.contact.email,
+      phone: collection.contact.phone,
     };
+  }
+
+  if (collection.also_known) {
+    collectionReport.also_known = collection.also_known
+      ? mapAlsoKnownIn(collection)
+      : undefined;
   }
 
   if (collection.biobank) {
@@ -303,12 +316,10 @@ export const collectionReportInformation = (collection) => {
       id: collection.biobank.id,
       name: collection.biobank.name,
       juridical_person: collection.biobank.juridical_person,
-      country: collection.country.label || collection.country.name,
+      country: collection.country?.label,
       report: `/biobank/${collection.biobank.id}`,
-      website: mapUrl(collection.biobank.url),
-      email: collection.biobank.contact
-        ? collection.biobank.contact.email
-        : undefined,
+      website: collection.biobank.url,
+      email: collection.biobank.contact?.email,
     };
   }
 
@@ -321,13 +332,16 @@ export const collectionReportInformation = (collection) => {
     });
   }
 
-  collectionReport.certifications = mapObjArray(collection.quality);
+  if (collection.quality) {
+    collectionReport.certifications = mapQualityStandards(collection.quality);
+  }
 
   collectionReport.collaboration = [];
 
   if (collection.collaboration_commercial) {
     collectionReport.collaboration.push({ name: "Commercial", value: "yes" });
   }
+
   if (collection.collaboration_non_for_profit) {
     collectionReport.collaboration.push({
       name: "Not for profit",
@@ -352,41 +366,14 @@ export const mapNetworkInfo = (data) => {
   });
 };
 
-export const getNameOfHead = (head) => {
-  if (!head) return "";
-
-  const { first_name, last_name, role } = head;
-
-  let name = "";
-
-  if (first_name) name += `${first_name} `;
-  if (last_name) name += `${last_name} `;
-  if (role) name += `(${role})`;
-
-  return name !== "" ? name.trim() : undefined;
+export const mapAlsoKnownIn = (instance) => {
+  return (
+    instance.also_known?.map((item) => {
+      return { value: item.url, type: "url", label: item.name_system };
+    }) || []
+  );
 };
 
-export const mapContactInfo = (instance) => {
-  if (instance.contact) {
-    return {
-      name: {
-        value: getNameOfHead(instance.contact),
-        type: "string",
-      },
-      website: { value: mapUrl(instance.contact.url), type: "url" },
-      email: {
-        value: instance.contact.email,
-        type: "email",
-      },
-      juridical_person: { value: instance.juridical_person, type: "string" },
-      country: {
-        value: instance.contact.country
-          ? instance.contact.country.label || instance.contact.country.name
-          : undefined,
-        type: "string",
-      },
-    };
-  } else {
-    return {};
-  }
+export const mapQualityStandards = (instance) => {
+  return instance.map((quality) => quality.quality_standard.name);
 };

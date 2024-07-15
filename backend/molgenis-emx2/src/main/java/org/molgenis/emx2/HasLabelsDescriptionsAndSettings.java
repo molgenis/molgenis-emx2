@@ -29,6 +29,9 @@ public class HasLabelsDescriptionsAndSettings<T> extends HasSettings<T> {
 
   public T setLabel(String label, String locale) {
     Objects.requireNonNull(locale);
+    if (label == null || label.trim().equals("")) {
+      this.labels.remove(locale);
+    }
     this.labels.put(locale, label);
     return (T) this;
   }

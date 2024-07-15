@@ -1,9 +1,11 @@
 package org.molgenis.emx2.sql;
 
 import static org.molgenis.emx2.ColumnType.AUTO_ID;
+import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascript;
 import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascriptOnMap;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.TypeUtils;
 import org.molgenis.emx2.utils.generator.IdGenerator;
@@ -32,10 +34,36 @@ public class SqlTypeUtils extends TypeUtils {
             c.getName(), Constants.MG_USER_PREFIX + row.getString(Constants.MG_EDIT_ROLE));
       } else if (AUTO_ID.equals(c.getColumnType())) {
         applyAutoid(c, row);
+      } else if (c.getDefaultValue() != null && !row.notNull(c.getName())) {
+        if (c.getDefaultValue().startsWith("=")) {
+          try {
+            if (c.isRefArray()) {
+              convertRefArrayToRow(
+                  (List)
+                      executeJavascriptOnMap(c.getDefaultValue().substring(1), graph, List.class),
+                  row,
+                  c);
+            } else if (c.isRef()) {
+              convertRefToRow(
+                  (Map)
+                      executeJavascriptOnMap(
+                          "(" + c.getDefaultValue().substring(1) + ")", graph, Map.class),
+                  row,
+                  c);
+            } else {
+              row.set(c.getName(), executeJavascript(c.getDefaultValue().substring(1)));
+            }
+          } catch (Exception e) {
+            throw new MolgenisException(
+                "Error in defaultValue of column " + c.getName() + ": " + e.getMessage());
+          }
+        } else {
+          row.set(c.getName(), c.getDefaultValue());
+        }
       } else if (c.getComputed() != null) {
         row.set(c.getName(), executeJavascriptOnMap(c.getComputed(), graph));
       } else if (columnIsVisible(c, graph)) {
-        checkRequired(c, row);
+        checkRequired(c, row, graph);
         checkValidation(c, graph);
       } else {
         if (c.isReference()) {
@@ -62,30 +90,67 @@ public class SqlTypeUtils extends TypeUtils {
     }
   }
 
-  private static void checkRequired(Column c, Row row) {
-    if (!row.isDraft()
-        && c.getComputed() == null
-        && !AUTO_ID.equals(c.getColumnType())
-        && c.isRequired()) {
-
-      if (c.isReference()) {
-        for (Reference r : c.getReferences()) {
-          if (row.isNull(r.getName(), r.getPrimitiveType())) {
-            throw new MolgenisException("column '" + c.getName() + "' is required in " + row);
+  private static void checkRequired(Column c, Row row, Map<String, Object> values) {
+    if (!row.isDraft() && c.getComputed() == null && !AUTO_ID.equals(c.getColumnType())) {
+      if (c.isRequired() && hasEmptyFields(c, row)) {
+        throw new MolgenisException("column '" + c.getName() + "' is required in " + row);
+      } else if (c.isConditionallyRequired()) {
+        String error = checkRequiredExpression(c.getRequired(), values);
+        if (error != null && hasEmptyFields(c, row)) {
+          throw new MolgenisException(
+              "column '" + c.getName() + "' is required: " + error + " in " + row);
+        }
+      }
+    }
+    if (c.isReference()) {
+      List<Reference> refs = c.getReferences();
+      // PostgreSQL considers the foreign key constraint not applicable if any part of the composite
+      // key is NULL.therefore we must make sure it is complete
+      // exclude overlapping
+      int countNotNullNotOverlapping = 0;
+      int countNotNull = 0;
+      for (Reference ref : refs) {
+        if (!row.isNull(ref.getName(), ref.getPrimitiveType())) {
+          if (!ref.isOverlapping()) {
+            countNotNullNotOverlapping++;
           }
+          countNotNull++;
         }
-      } else {
-        if (row.isNull(c.getName(), c.getColumnType())) {
-          throw new MolgenisException("column '" + c.getName() + "' is required in " + row);
-        }
+      }
+      if (countNotNullNotOverlapping > 0 && countNotNull != refs.size()) {
+        throw new MolgenisException(
+            String.format(
+                "Key (%s)=(%s) not present in table \"%s\"",
+                refs.stream().map(ref -> ref.getName()).collect(Collectors.joining(",")),
+                refs.stream()
+                    .map(
+                        ref ->
+                            row.isNull(ref.getName(), ref.getPrimitiveType())
+                                ? "NULL"
+                                : row.getValueMap().get(ref.getName()).toString())
+                    .collect(Collectors.joining(",")),
+                c.getRefTableName()));
       }
     }
   }
 
+  private static boolean hasEmptyFields(Column c, Row row) {
+    if (c.isReference()) {
+      for (Reference r : c.getReferences()) {
+        if (row.isNull(r.getName(), r.getPrimitiveType())) {
+          return true;
+        }
+      }
+    } else {
+      return row.isNull(c.getName(), c.getColumnType());
+    }
+    return false;
+  }
+
   private static boolean columnIsVisible(Column column, Map values) {
     if (column.getVisible() != null) {
-      String visibleResult = executeJavascriptOnMap(column.getVisible(), values);
-      if (visibleResult.equals("false") || visibleResult.equals("null")) {
+      Object visibleResult = executeJavascriptOnMap(column.getVisible(), values);
+      if (visibleResult == null || Boolean.FALSE.equals(visibleResult)) {
         return false;
       }
     }
@@ -114,6 +179,8 @@ public class SqlTypeUtils extends TypeUtils {
       case DATE_ARRAY -> row.getDateArray(name);
       case DATETIME -> row.getDateTime(name);
       case DATETIME_ARRAY -> row.getDateTimeArray(name);
+      case PERIOD -> row.getPeriod(name);
+      case PERIOD_ARRAY -> row.getPeriodArray(name);
       case JSONB -> row.getJsonb(name);
       case JSONB_ARRAY -> row.getJsonbArray(name);
       default -> throw new UnsupportedOperationException(
@@ -164,23 +231,41 @@ public class SqlTypeUtils extends TypeUtils {
 
   public static String checkValidation(String validationScript, Map<String, Object> values) {
     try {
-      String error = executeJavascriptOnMap(validationScript, values);
+      Object error = executeJavascriptOnMap(validationScript, values);
       if (error != null) {
-        if (error.trim().equals("false")) {
+        if (error instanceof Boolean && (Boolean) error == false) {
           // you can have a validation rule that simply returns true or false;
           // false means not valid.
           return validationScript;
-        } else
-        // you can have a validation script returning true which means valid, and undefined also
-        if (!error.trim().equals("true") && !error.trim().equals("undefined")) {
-          return error;
+        } else if (error instanceof Boolean && (Boolean) error == true) {
+          return null;
         }
+        // you can have a validation script returning true which means valid, and undefined also
+        else {
+          return error.toString();
+        }
+      } else {
+        return null;
       }
-      return null;
     } catch (MolgenisException me) {
       // seperate syntax errors
       throw me;
     }
+  }
+
+  public static String checkRequiredExpression(
+      String validationScript, Map<String, Object> values) {
+    try {
+      Object error = executeJavascriptOnMap(validationScript, values);
+      if (error instanceof Boolean) {
+        if ((Boolean) error) return validationScript;
+        return null;
+      }
+      if (error != null) return error.toString();
+    } catch (MolgenisException me) {
+      throw me;
+    }
+    return null;
   }
 
   static Map<String, Object> convertRowToMap(List<Column> columns, Row row) {

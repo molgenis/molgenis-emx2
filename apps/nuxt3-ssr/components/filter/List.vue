@@ -1,130 +1,67 @@
 <script setup lang="ts">
+import type { INode } from "../../../tailwind-components/types/types";
+import type { IFilterCondition, optionsFetchFn } from "~/interfaces/types";
+
 const props = withDefaults(
   defineProps<{
-    tableName: string;
+    tableId: string;
+    modelValue: IFilterCondition[];
     nameField?: string;
-    keyField?: string;
     descriptionField?: string;
-    isMultiSelect?: boolean;
-    modelValue: [];
+    mobileDisplay?: boolean;
+    options?: INode[] | optionsFetchFn;
   }>(),
   {
-    isMultiSelect: true,
     nameField: "name",
-    keyField: "id",
     descriptionField: undefined,
+    mobileDisplay: false,
   }
 );
 
-interface IOption {
-  id: string;
-  name: string;
-  description?: string;
-  selected: boolean;
-}
+const emit = defineEmits(["update:modelValue"]);
 
-const query = `
-    query 
-    ${props.tableName}( $filter:${props.tableName}Filter )
+const query = ` query 
+    ${props.tableId}( $filter:${props.tableId}Filter )
     {   
-        ${props.tableName}( filter:$filter, limit:100000,  offset:0, orderby:{${props.nameField}: ASC} )  
+        ${props.tableId}( filter:$filter, limit:100000,  offset:0, orderby:{${props.nameField}: ASC} )
         {          
-            ${props.keyField} ${props.nameField} ${props.descriptionField}
+             ${props.nameField} ${props.descriptionField}
         }       
-        ${props.tableName}_agg( filter:$filter ) { count }
+        ${props.tableId}_agg( filter:$filter ) { count }
         }
     `;
 
-const options: IOption[] = (
-  await fetchGql(query).catch((e) => {
-    console.error(e);
-  })
-)?.data[props.tableName]?.map((respItem) => {
-  const selectedKeyValues = props.modelValue.map(
-    (selectedItem) => selectedItem[props.keyField]
-  );
+const nodes = props.options
+  ? typeof props.options === "function"
+    ? await props.options()
+    : props.options
+  : (await fetchGql<INode>(query)).data[props.tableId].map(dataToNode);
+
+function dataToNode(respObject: any): INode {
   return {
-    id: respItem[props.keyField],
-    name: respItem[props.nameField],
+    name: respObject[props.nameField],
     description: props.descriptionField
-      ? respItem[props.descriptionField]
+      ? respObject[props.descriptionField]
       : undefined,
-    selected: selectedKeyValues.includes(respItem[props.keyField]),
   };
+}
+
+const selectedNodesNames = computed({
+  get() {
+    return props.modelValue ? props.modelValue.map((n) => n.name) : [];
+  },
+  set(newValue) {
+    // transform the names back to the original data structure for use in gql query
+    const newConditions = newValue.map((name) => ({ name: name }));
+    emit("update:modelValue", newConditions);
+  },
 });
-
-const emit = defineEmits(["update:modelValue"]);
-watch(() => props.modelValue, updateSelection, { deep: true });
-
-function updateSelection() {
-  options.forEach((option) => {
-    const selectedKeyValues = props.modelValue.map(
-      (selectedItem) => selectedItem[props.keyField]
-    );
-    option.selected = selectedKeyValues.includes(option.id);
-  });
-}
-
-function toggleSelect(option: IOption) {
-  if (option.selected) {
-    // remove from selection
-    emit(
-      "update:modelValue",
-      props.modelValue.filter((item) => item[props.keyField] !== option.id)
-    );
-  } else {
-    // add to selection
-    emit("update:modelValue", [
-      ...props.modelValue,
-      { [props.keyField]: option.id },
-    ]);
-  }
-}
 </script>
 <template>
-  <ul>
-    <li v-for="option in options" :key="option.name" class="mb-2.5">
-      <div class="flex items-start">
-        <span
-          class="flex items-center justify-center w-6 h-6 rounded-full text-search-filter-group-toggle hover:bg-search-filter-group-toggle hover:cursor-pointer"
-        >
-        </span>
-        <div class="flex items-center">
-          <input
-            type="checkbox"
-            :id="option.name"
-            :name="option.name"
-            :checked="option.selected"
-            @click.stop="toggleSelect(option)"
-            :class="{ 'text-search-filter-group-checkbox': option.selected }"
-            class="w-5 h-5 rounded-3px ml-[6px] mr-2.5 mt-0.5 border border-checkbox"
-          />
-        </div>
-        <label
-          :for="option.name"
-          class="hover:cursor-pointer text-body-sm group"
-        >
-          <span class="group-hover:underline">{{ option.name }}</span>
-          <div class="inline-flex items-center whitespace-nowrap">
-            <!--
-            <span
-              v-if="option?.result?.count"
-              class="inline-block mr-2 text-blue-200 group-hover:underline decoration-blue-200 fill-black"
-              hoverColor="white"
-              >&nbsp;- {{ option.result.count }}
-            </span>
-            -->
-            <div class="inline-block">
-              <CustomTooltip
-                v-if="option.description"
-                label="Read more"
-                hoverColor="white"
-                :content="option.description"
-              />
-            </div>
-          </div>
-        </label>
-      </div>
-    </li>
-  </ul>
+  <InputList
+    :nodes="nodes"
+    v-model="selectedNodesNames"
+    :inverted="mobileDisplay"
+  >
+  </InputList>
 </template>

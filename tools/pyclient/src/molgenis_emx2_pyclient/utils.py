@@ -4,7 +4,8 @@ Utility functions for the Molgenis EMX2 Pyclient package
 
 
 def parse_url(url: str) -> str:
-    """Standardises the host by removing trailing slash and ensuring url starts with 'https://'.
+    """Standardises the host by removing trailing slash
+    and ensuring url starts with 'https://'.
     
     :param url: string containing a URL
     :type url: str

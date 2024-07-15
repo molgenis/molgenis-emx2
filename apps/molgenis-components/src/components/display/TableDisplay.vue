@@ -65,7 +65,7 @@ export default {
       Takes a list of columns and rows
 
       - Each column object has a label and name
-      - Each row is a key-value-object, where the keys refers to the column.name property
+      - Each row is a key-value-object, where the keys refers to the column.id property
     </p>
     <table-display :columns="[
   {name: 'firstName', label: 'First name'},

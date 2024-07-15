@@ -5,42 +5,54 @@
     ghost-class="border-primary"
     :group="{ name: 'g1' }"
     :move="$emit('change')"
-    item-key="idx"
+    item-key="key"
     class="flex-nowrap"
   >
     <template #item="{ element }">
       <div>
         <form class="form-inline flex-nowrap">
           <div class="text-nowrap">
-            <label v-if="idx == 0">&nbsp;</label>
-            <IconAction class="menu-drag-icon" icon="ellipsis-v" />
+            <label :for="'menu-drag-' + element.key" class="sr-only">
+              drag item
+            </label>
+            <IconAction
+              :id="'menu-drag-' + element.key"
+              class="menu-drag-icon"
+              icon="ellipsis-v"
+            />
           </div>
           <div>
-            <label v-if="idx == 0">label</label>
+            <label :for="'menu-label-' + element.key" class="sr-only">
+              label
+            </label>
             <InputString
-              :id="'menu-label' + idx"
+              :id="'menu-label-' + element.key"
               v-model="element.label"
               :defaultValue="element.label"
             />
           </div>
           <div>
-            <label v-if="idx == 0">href</label>
+            <label :for="'menu-href-' + element.key" class="sr-only">
+              href
+            </label>
             <InputString
-              :id="'menu-href' + idx"
+              :id="'menu-href-' + element.key"
               v-model="element.href"
               :defaultValue="element.href"
             />
           </div>
           <div>
-            <label v-if="idx == 0">role</label>
+            <label :for="'menu-role-' + element.key" class="sr-only">
+              role
+            </label>
             <InputSelect
-              :id="'menu-role' + idx"
+              :id="'menu-role-' + element.key"
               v-model="element.role"
               :defaultValue="element.role"
               :options="['Viewer', 'Editor', 'Manager']"
             />
           </div>
-          <IconDanger icon="trash" @click="items.splice(idx, 1)" />
+          <IconDanger icon="trash" @click="$emit('delete', element.key)" />
         </form>
         <MenuManager
           v-if="element.submenu"
@@ -73,6 +85,6 @@ export default {
     items: Array,
   },
   name: "MenuManager",
-  emits: ["change"],
+  emits: ["change", "delete"],
 };
 </script>

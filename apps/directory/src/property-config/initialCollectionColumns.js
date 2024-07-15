@@ -1,15 +1,13 @@
+import { ContactInfoColumns } from "./contactInfoColumns";
+import { HeadInfoColumns } from "./headInfoColumns";
+
 const initialCollectionColumns = [
   { label: "Id:", column: "id", type: "string", showCopyIcon: true },
   { label: "Website:", column: "url", type: "hyperlink" },
   {
     label: "Quality labels:",
     column: {
-      quality: [
-        "label",
-        "certification_report",
-        "certification_image_link",
-        "certification_number",
-      ],
+      quality: [{ quality_standard: ["name"] }],
     },
     type: "quality",
     showOnBiobankCard: true,
@@ -90,18 +88,7 @@ const initialCollectionColumns = [
       "biobank.withdrawn",
       "biobank.url",
       "biobank.juridical_person",
-      "biobank.contact.first_name",
-      "biobank.contact.last_name",
       "biobank.contact.email",
-      "biobank.contact.role",
-      "contact.first_name",
-      "contact.last_name",
-      "contact.email",
-      "contact.role",
-      "contact.country.label",
-      "head.first_name",
-      "head.last_name",
-      "head.role",
       "country.label",
       "network.name",
       "network.id",
@@ -109,6 +96,19 @@ const initialCollectionColumns = [
       "withdrawn",
       "parent_collection.id",
       "parent_collection.name",
+      "also_known.url",
+      "also_known.name_system",
+      "sub_collections.name",
+      "sub_collections.id",
+      "sub_collections.order_of_magnitude.label",
+      "sub_collections.materials.label",
+      "sub_collections.data_categories.label",
+      "sub_collections.data_categories.ontologyTermURI",
+      "sub_collections.withdrawn",
+      "collaboration_commercial",
+      "collaboration_non_for_profit",
+      ...ContactInfoColumns,
+      ...HeadInfoColumns,
     ],
   },
 ];
