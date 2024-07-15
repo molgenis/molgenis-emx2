@@ -28,7 +28,8 @@
     "projectmanager",
     "aggregation-dashboard",
     "imdhub-public",
-    "emx2-analytics"
+    "emx2-analytics",
+    "ui"
   ],
   "devDependencies": {
     "nuxt": "3.12.2"

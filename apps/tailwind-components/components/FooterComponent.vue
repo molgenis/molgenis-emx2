@@ -37,8 +37,6 @@
       </a>
       on use.
     </div>
-    <ClientOnly>
-      <FooterVersion />
-    </ClientOnly>
+    <slot></slot>
   </div>
 </template>
