@@ -39,7 +39,7 @@ import org.molgenis.emx2.utils.TypeUtils;
  *   <li>OWL, RDF, RDFS
  * </ul>
  */
-public class RDFService {
+public class RDFTableService {
   private static final DateTimeFormatter dateTimeFormatter =
       DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
   public static final IRI LDP_CONTAINS = Values.iri("http://www.w3.org/ns/ldp#contains");
@@ -101,7 +101,7 @@ public class RDFService {
    * @param rdfAPIPath the path fragment for the RDF service within a Schema
    * @param format the requested RDF document type
    */
-  public RDFService(final String baseURL, final String rdfAPIPath, final RDFFormat format) {
+  public RDFTableService(final String baseURL, final String rdfAPIPath, final RDFFormat format) {
     // Ensure that the base URL has a trailing "/" so we can use it easily to
     // construct URL paths.
     if (baseURL.trim().endsWith("/")) {

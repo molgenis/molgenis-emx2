@@ -34,7 +34,7 @@ public class OntologyTableSemantics {
   @Test
   void OntologyTableSemanticsTest() {
     OutputStream outputStream = new ByteArrayOutputStream();
-    RDFService rdf = new RDFService("http://localhost:8080/", RDF_API_LOCATION, null);
+    RDFTableService rdf = new RDFTableService("http://localhost:8080/", RDF_API_LOCATION, null);
     rdf.describeAsRDF(outputStream, null, null, null, petStoreSchema);
     String result = outputStream.toString();
 

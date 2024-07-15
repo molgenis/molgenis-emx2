@@ -13,7 +13,7 @@ import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
-import org.molgenis.emx2.rdf.RDFService;
+import org.molgenis.emx2.rdf.RDFTableService;
 import spark.Request;
 import spark.Response;
 import spark.utils.StringUtils;
@@ -80,7 +80,7 @@ public class RDFApi {
 
     final String baseURL = extractBaseURL(request);
 
-    final RDFService rdf = new RDFService(request.url().split("/api/")[0], baseURL, format);
+    final RDFTableService rdf = new RDFTableService(request.url().split("/api/")[0], baseURL, format);
     response.type(rdf.getMimeType());
     OutputStream outputStream = response.raw().getOutputStream();
     db.tx(
@@ -117,7 +117,7 @@ public class RDFApi {
     }
     final String baseURL = extractBaseURL(request);
 
-    RDFService rdf = new RDFService(baseURL, RDF_API_LOCATION, format);
+    RDFTableService rdf = new RDFTableService(baseURL, RDF_API_LOCATION, format);
     response.type(rdf.getMimeType());
 
     OutputStream outputStream = response.raw().getOutputStream();
@@ -149,7 +149,7 @@ public class RDFApi {
     }
     final String baseURL = extractBaseURL(request);
 
-    RDFService rdf = new RDFService(baseURL, RDF_API_LOCATION, format);
+    RDFTableService rdf = new RDFTableService(baseURL, RDF_API_LOCATION, format);
     response.type(rdf.getMimeType());
 
     OutputStream outputStream = response.raw().getOutputStream();
@@ -165,7 +165,7 @@ public class RDFApi {
 
     final String baseURL = extractBaseURL(request);
     final RDFFormat format = selectFormat(request);
-    RDFService rdf = new RDFService(baseURL, RDF_API_LOCATION, format);
+    RDFTableService rdf = new RDFTableService(baseURL, RDF_API_LOCATION, format);
     response.type(rdf.getMimeType());
 
     OutputStream outputStream = response.raw().getOutputStream();
@@ -182,7 +182,7 @@ public class RDFApi {
     final String baseURL = extractBaseURL(request);
     final RDFFormat format = selectFormat(request);
 
-    RDFService rdf = new RDFService(baseURL, RDF_API_LOCATION, format);
+    RDFTableService rdf = new RDFTableService(baseURL, RDF_API_LOCATION, format);
     response.type(rdf.getMimeType());
 
     OutputStream outputStream = response.raw().getOutputStream();

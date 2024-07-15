@@ -175,7 +175,7 @@ public class RDFTest {
 
     for (var resource : handler.resources.entrySet()) {
       var subClasses = resource.getValue().get(RDFS.SUBCLASSOF);
-      if (subClasses != null && subClasses.contains(RDFService.IRI_DATABASE_TABLE)) {
+      if (subClasses != null && subClasses.contains(RDFTableService.IRI_DATABASE_TABLE)) {
         var types = resource.getValue().getOrDefault(RDF.TYPE, Set.of());
         var subject = resource.getKey().stringValue();
         assertFalse(types.isEmpty(), subject + " should have a rdf:Type.");
@@ -240,7 +240,7 @@ public class RDFTest {
             OWL.DATATYPEPROPERTY,
             OWL.OBJECTPROPERTY,
             RDFS.CONTAINER,
-            RDFService.IRI_DATABASE);
+            RDFTableService.IRI_DATABASE);
 
     for (var resource : handler.resources.entrySet()) {
       var subject = resource.getKey().stringValue();
@@ -299,10 +299,10 @@ public class RDFTest {
 
         var pooky = handler.resources.get(iri);
         assertTrue(
-            pooky.containsKey(RDFService.IRI_DATASET_PREDICATE),
+            pooky.containsKey(RDFTableService.IRI_DATASET_PREDICATE),
             "An instance of a Pet should refer back to the Collection using qb:dataSet");
         assertFalse(
-            pooky.containsKey(RDFService.IRI_DATASET_CLASS), "qb:DataSet is not a predicate");
+            pooky.containsKey(RDFTableService.IRI_DATASET_CLASS), "qb:DataSet is not a predicate");
       }
     }
   }
@@ -580,7 +580,7 @@ public class RDFTest {
    */
   private void getAndParseRDF(Selection selection, RDFHandler handler) throws IOException {
     OutputStream outputStream = new ByteArrayOutputStream();
-    var rdf = new RDFService("http://localhost:8080", RDF_API_LOCATION, null);
+    var rdf = new RDFTableService("http://localhost:8080", RDF_API_LOCATION, null);
     rdf.describeAsRDF(
         outputStream, selection.table, selection.rowId, selection.columnName, selection.schemas);
     String result = outputStream.toString();

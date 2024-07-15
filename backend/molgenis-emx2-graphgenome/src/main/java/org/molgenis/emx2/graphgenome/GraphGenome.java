@@ -13,9 +13,9 @@ import org.eclipse.rdf4j.rio.Rio;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.beaconv2.endpoints.genomicvariants.*;
-import org.molgenis.emx2.rdf.RDFService;
+import org.molgenis.emx2.rdf.RDFTableService;
 
-public class GraphGenome extends RDFService {
+public class GraphGenome extends RDFTableService {
 
   public GraphGenome(String baseURL, String rdfAPIpath, RDFFormat format) {
     super(baseURL, rdfAPIpath, format);
