@@ -419,13 +419,15 @@ public class SqlQuery extends QueryBean {
     DSLContext jooq = table.getJooq();
     if (filters != null) {
       for (Filter f : filters.getSubfilters()) {
-        if (OR.equals(f.getOperator())) {
+        if (f == null) {
+          // continue
+        } else if (OR.equals(f.getOperator())) {
           conditions.add(
               or(jsonFilterQueryConditions(table, column, tableAlias, subAlias, f, searchTerms)));
         } else if (Operator.AND.equals(f.getOperator())) {
           conditions.add(
               and(jsonFilterQueryConditions(table, column, tableAlias, subAlias, f, searchTerms)));
-        } else if (TRIGRAM_SEARCH.equals(f.getOperator())) {
+        } else if (TRIGRAM_SEARCH.equals(f.getOperator()) || TEXT_SEARCH.equals(f.getOperator())) {
           conditions.add(
               jsonSearchConditions(table, subAlias, TypeUtils.toStringArray(f.getValues())));
         } else {
@@ -520,8 +522,9 @@ public class SqlQuery extends QueryBean {
   private Condition jsonSearchConditions(
       SqlTableMetadata table, String subAlias, String[] searchTerms) {
     // create search
-    List<Condition> search = new ArrayList<>();
+    List<Condition> searchCondition = new ArrayList<>();
     for (String term : searchTerms) {
+      List<Condition> search = new ArrayList<>();
       search.add(
           field(name(alias(subAlias), searchColumnName(table.getTableName())))
               .likeIgnoreCase("%" + term + "%"));
@@ -571,8 +574,9 @@ public class SqlQuery extends QueryBean {
                 .likeIgnoreCase("%" + term + "%"));
         parent = parent.getInheritedTable();
       }
+      searchCondition.add(or(search));
     }
-    return or(search);
+    return and(searchCondition);
   }
 
   private Collection<Field<?>> jsonSubselectFields(
@@ -1394,7 +1398,7 @@ public class SqlQuery extends QueryBean {
         searchConditions.add(and(subConditions));
       }
     }
-    return searchConditions.isEmpty() ? null : or(searchConditions);
+    return searchConditions.isEmpty() ? null : and(searchConditions);
   }
 
   private static SelectJoinStep<org.jooq.Record> limitOffsetOrderBy(

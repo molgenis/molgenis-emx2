@@ -123,16 +123,25 @@ const { data, error } = await useAsyncData<any, IMgError>(
 
     const variablesFilter = scoped
       ? {
-          resource: {
-            mg_tableclass: { like: ["Models"] },
-            id: {
-              equals: models.data.Networks[0].models
-                ? models.data.Networks[0].models.map(
-                    (m: { id: string }) => m.id
-                  )
-                : "no models match so no results expected",
+          _or: [
+            {
+              resource: {
+                mg_tableclass: { like: ["Models"] },
+                id: {
+                  equals: models.data.Networks[0].models
+                    ? models.data.Networks[0].models.map(
+                        (m: { id: string }) => m.id
+                      )
+                    : "no models match so no results expected",
+                },
+              },
             },
-          },
+            {
+              networkVariables: {
+                network: { id: { equals: catalogueRouteParam } },
+              },
+            },
+          ],
         }
       : {
           resource: {
@@ -266,7 +275,7 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
         title="Variables"
         :description="
           getSettingValue('CATALOGUE_LANDING_VARIABLES_TEXT', settings) ||
-          'Harmonized variables'
+          'Harmonised variables'
         "
         :count="data.data.Variables_agg.count"
         :callToAction="
