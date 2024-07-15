@@ -46,6 +46,19 @@ public class RDFService {
   private static final DateTimeFormatter dateTimeFormatter =
       DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
   public static final IRI LDP_CONTAINS = Values.iri("http://www.w3.org/ns/ldp#contains");
+  public static final String NAMESPACE_RDF = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
+  public static final String NAMESPACE_RDFS = "http://www.w3.org/2000/01/rdf-schema#";
+  public static final String NAMESPACE_XSD = "http://www.w3.org/2001/XMLSchema#";
+  public static final String NAMESPACE_OWL = "http://www.w3.org/2002/07/owl#";
+  public static final String NAMESPACE_SIO = "http://semanticscience.org/resource/";
+  public static final String NAMESPACE_QB = "http://purl.org/linked-data/cube#";
+  public static final String NAMESPACE_SKOS = "http://www.w3.org/2004/02/skos/core#";
+  public static final String NAMESPACE_DCTERMS = "http://purl.org/dc/terms/";
+  public static final String NAMESPACE_DCAT = "http://www.w3.org/ns/dcat#";
+  public static final String NAMESPACE_FOAF = "http://xmlns.com/foaf/0.1/";
+  public static final String NAMESPACE_VCARD = "http://www.w3.org/2006/vcard/ns#";
+  public static final String NAMESPACE_ORG = "http://www.w3.org/ns/org#";
+  public static final String NAMESPACE_FDP = "https://w3id.org/fdp/fdp-o#";
   public static final IRI IRI_DATABASE_TABLE =
       Values.iri("http://semanticscience.org/resource/SIO_000754");
   public static final IRI IRI_DATASET_CLASS =
@@ -54,7 +67,7 @@ public class RDFService {
       Values.iri("http://purl.org/linked-data/cube#dataSet");
   public static final IRI IRI_CONTROLLED_VOCABULARY =
       Values.iri("http://purl.obolibrary.org/obo/NCIT_C48697");
-  
+
   private static final String SETTING_CUSTOM_RDF = "custom_rdf";
   /**
    * SIO:001055 = observing (definition: observing is a process of passive interaction in which one
@@ -141,6 +154,8 @@ public class RDFService {
     try {
       final ModelBuilder builder = new ModelBuilder();
 
+      // Defines if all used schemas have a custom_rdf setting.
+      boolean allIncludeCustomRdf = true;
       // Define the schemas at the start of the document.
       for (final Schema schema : schemas) {
         final Namespace ns = getSchemaNamespace(schema);
@@ -153,7 +168,14 @@ public class RDFService {
                   IOUtils.toInputStream(
                       schema.getSettingValue(SETTING_CUSTOM_RDF), StandardCharsets.UTF_8),
                   RDFFormat.TURTLE));
+        } else {
+          allIncludeCustomRdf = false;
         }
+      }
+
+      // If any of the used schemas do not have custom_rdf set, adds the default ones.
+      if (!allIncludeCustomRdf) {
+        addDefaultPrefixes(builder);
       }
 
       if (table == null) {
@@ -186,6 +208,22 @@ public class RDFService {
   private void addModelToBuilder(ModelBuilder builder, Model model) {
     model.getNamespaces().forEach(builder::setNamespace);
     model.forEach(e -> builder.add(e.getSubject(), e.getPredicate(), e.getObject()));
+  }
+
+  private void addDefaultPrefixes(ModelBuilder builder) {
+    builder.setNamespace("rdf", NAMESPACE_RDF);
+    builder.setNamespace("rdfs", NAMESPACE_RDFS);
+    builder.setNamespace("xsd", NAMESPACE_XSD);
+    builder.setNamespace("owl", NAMESPACE_OWL);
+    builder.setNamespace("sio", NAMESPACE_SIO);
+    builder.setNamespace("qb", NAMESPACE_QB);
+    builder.setNamespace("skos", NAMESPACE_SKOS);
+    builder.setNamespace("dcterms", NAMESPACE_DCTERMS);
+    builder.setNamespace("dcat", NAMESPACE_DCAT);
+    builder.setNamespace("foaf", NAMESPACE_FOAF);
+    builder.setNamespace("vcard", NAMESPACE_VCARD);
+    builder.setNamespace("org", NAMESPACE_ORG);
+    builder.setNamespace("fdp-o", NAMESPACE_ORG);
   }
 
   public WriterConfig getConfig() {
