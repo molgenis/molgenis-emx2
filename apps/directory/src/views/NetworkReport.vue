@@ -47,6 +47,7 @@
                 </div>
                 <Tabs>
                   <Tab :title="`Collections (${collections.length})`">
+                    <div>Subcollection(s): {{ subcollectionCount }}</div>
                     <div
                       v-if="
                         !collections ||
@@ -159,12 +160,18 @@ const biobanks = computed(() => networkReport.value.biobanks);
 const biobanksAvailable = computed(() => biobanks.value?.length);
 const network = computed(() => networkReport.value.network);
 const alsoKnownIn = computed(() => mapAlsoKnownIn(network.value));
+const subcollectionCount = computed<number>(
+  () =>
+    networkReport.value.collections?.filter(
+      (collection: Record<string, any>) => collection.parent_collection
+    ).length || 0
+);
 
 function filterCollections() {
   return (
     networkReport.value.collections
       ?.filter((collection: Record<string, any>) => {
-        return !collection.parentCollection;
+        return !collection.parent_collection;
       })
       .map((collection: Record<string, any>) =>
         getCollectionDetails(collection)
