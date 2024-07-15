@@ -13,6 +13,8 @@ import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
+import org.molgenis.emx2.rdf.RDFService;
+import org.molgenis.emx2.rdf.RDFServiceFactory;
 import org.molgenis.emx2.rdf.RDFTableService;
 import spark.Request;
 import spark.Response;
@@ -149,7 +151,9 @@ public class RDFApi {
     }
     final String baseURL = extractBaseURL(request);
 
-    RDFTableService rdf = new RDFTableService(baseURL, RDF_API_LOCATION, format);
+    RDFService rdf =
+        RDFServiceFactory.defineService(table.getSchema())
+            .getNewInstance(request.url().split("/api/")[0], baseURL, format);
     response.type(rdf.getMimeType());
 
     OutputStream outputStream = response.raw().getOutputStream();

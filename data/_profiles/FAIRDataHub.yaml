@@ -11,7 +11,7 @@ profileTags:  DCAT,
               Beacon v2 Vivify add-on
 
 demoData: _demodata/shared-examples
-settings: _settings/rdf_api
+settings: _settings/rdf_api,_settings/fdp_api
 
 # special options
 setViewPermission: anonymous
