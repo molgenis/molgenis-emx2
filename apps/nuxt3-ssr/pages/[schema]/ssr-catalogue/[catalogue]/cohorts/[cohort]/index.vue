@@ -629,7 +629,7 @@ const activeOrganization = computed(() => {
           <template
             #before
             v-if="
-              cohort.leadOrganisation && cohort.leadOrganisation?.length > 1
+              cohort.leadOrganisation && cohort.leadOrganisation?.length > 0
             "
           >
             <DisplayList

@@ -93,6 +93,7 @@
     --backgroud-color-tab: var(--color-blue-50);
     --backgroud-color-tab-hover: var(--color-blue-500);
     --backgroud-color-tab-active: var(--color-blue-500);
+    --background-color-disabled: var(--color-gray-200);
 
     --text-color-button-primary: var(--color-gray-900);
     --text-color-button-primary-hover: var(--color-gray-900);
@@ -140,6 +141,10 @@
     --text-color-pagination-label-white: var(--color-white);
     --text-color-pagination-label-gray: var(--color-gray-400);
     --text-color-footer-link: var(--color-yellow-500);
+    
+    --text-color-invalid: var(--color-red-500);
+    --text-color-valid: var(--color-green-800);
+    --text-color-disabled: var(--color-gray-400);
 
     --border-color-button-primary: var(--color-yellow-500);
     --border-color-button-primary-hover: var(--color-yellow-200);
@@ -164,6 +169,10 @@
     --border-radius-search-button: 9999px;
     --border-radius-pagination: 9999px;
     --border-radius-landing: 50px;
+    
+    --border-color-invalid: var(--color-red-500);
+    --border-color-valid: var(--color-green-800);
+    --border-color-disabled: var(--color-gray-400);
 
     --outline-color-select: var(--color-gray-200);
 
