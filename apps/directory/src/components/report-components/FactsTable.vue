@@ -451,8 +451,7 @@ export default {
                     ];
                   }
                 } else if (column === "number_of_samples") {
-                    collapsedFact[column] = 2 * collapsedFact[column];
-                  }
+                  collapsedFact[column] = 2 * collapsedFact[column];
                 }
               }
             }
