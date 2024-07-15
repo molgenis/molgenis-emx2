@@ -44,8 +44,12 @@
                 <div v-if="!collectionsData.length">
                   This biobank does not contain any collections.
                 </div>
+                <div v-else>
+                  Collection(s): {{ collectionsData.length }} /
+                  Subcollection(s):
+                  {{ subcollectionCount }}
+                </div>
                 <div
-                  v-else
                   v-for="(collection, index) in collectionsData"
                   :key="collection.id"
                 >
@@ -137,6 +141,7 @@ import {
 import { useBiobanksStore } from "../stores/biobanksStore";
 import { useQualitiesStore } from "../stores/qualitiesStore";
 import { useSettingsStore } from "../stores/settingsStore";
+import _ from "lodash";
 
 export default {
   name: "biobank-report-card",
@@ -212,7 +217,11 @@ export default {
         ? this.filterAndSortCollectionsData(this.biobank.collections)
         : [];
     },
-
+    subcollectionCount() {
+      return this.biobank?.collections?.filter(
+        (biobank: Record<string, any>) => biobank.parent_collection
+      ).length;
+    },
     networks() {
       return this.biobankDataAvailable && this.biobank.network
         ? mapNetworkInfo(this.biobank)
