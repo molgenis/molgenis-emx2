@@ -47,7 +47,6 @@ async function signin() {
     <PageHeader title="Login" />
 
     <ContentBlock class="w-6/12" title="">
-      {{ prev }}
       <form class="flex flex-col gap-4" v-on:submit.prevent="signin">
         <InputString
           id="username"

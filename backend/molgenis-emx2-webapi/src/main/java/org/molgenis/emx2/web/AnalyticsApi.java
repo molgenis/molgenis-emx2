@@ -13,6 +13,8 @@ import org.molgenis.emx2.analytics.model.actions.UpdateTriggerAction;
 import org.molgenis.emx2.analytics.repository.TriggerRepositoryImpl;
 import org.molgenis.emx2.analytics.service.AnalyticsServiceImpl;
 import org.molgenis.emx2.sql.SqlDatabase;
+import org.molgenis.emx2.web.response.ResponseStatus;
+import org.molgenis.emx2.web.response.Status;
 import org.molgenis.emx2.web.transformers.ActionTransformer;
 import org.molgenis.emx2.web.transformers.JsonTransformer;
 import spark.Request;
@@ -21,8 +23,8 @@ import spark.Response;
 public class AnalyticsApi {
 
   private static final ActionTransformer actionTransformer = new ActionTransformer();
-  public static final String STATUS_SUCCESS = "{\"status\": \"success\"}";
-  public static final String STATUS_FAILED = "{\"status\": \"failed\"}";
+  public static final ResponseStatus STATUS_SUCCESS = new ResponseStatus(Status.SUCCESS);
+  public static final ResponseStatus STATUS_FAILED = new ResponseStatus(Status.FAILED);
   private static final String TRIGGER_PARAM = ":trigger";
 
   private AnalyticsApi() {
@@ -41,7 +43,8 @@ public class AnalyticsApi {
     put("/:schema/api/trigger/" + TRIGGER_PARAM, AnalyticsApi::updateTrigger, jsonTransformer);
   }
 
-  private static String deleteTrigger(Request request, Response response) {
+  private static ResponseStatus deleteTrigger(Request request, Response response) {
+    response.type("application/json");
     var action = new DeleteTriggerAction(sanitize(request.params(TRIGGER_PARAM)));
     MolgenisSession session = sessionManager.getSession(request);
     String schemaName = sanitize(request.params(SCHEMA));
@@ -55,6 +58,7 @@ public class AnalyticsApi {
   }
 
   private static List<Trigger> listSchemaTriggers(Request request, Response response) {
+    response.type("application/json");
     MolgenisSession session = sessionManager.getSession(request);
     String schemaName = sanitize(request.params(SCHEMA));
     Database database = session.getDatabase();
@@ -65,7 +69,8 @@ public class AnalyticsApi {
     return triggerRepository.getTriggersForSchema(schema);
   }
 
-  private static String addTrigger(Request request, Response response) {
+  private static ResponseStatus addTrigger(Request request, Response response) {
+    response.type("application/json");
     var createTriggerAction =
         actionTransformer.transform(request.body(), CreateTriggerAction.class);
     MolgenisSession session = sessionManager.getSession(request);
@@ -80,7 +85,8 @@ public class AnalyticsApi {
     return STATUS_SUCCESS;
   }
 
-  private static String updateTrigger(Request request, Response response) {
+  private static ResponseStatus updateTrigger(Request request, Response response) {
+    response.type("application/json");
     var action = actionTransformer.transform(request.body(), UpdateTriggerAction.class);
     MolgenisSession session = sessionManager.getSession(request);
     String schemaName = sanitize(request.params(SCHEMA));

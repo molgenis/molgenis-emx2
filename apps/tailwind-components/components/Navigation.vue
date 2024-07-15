@@ -27,14 +27,14 @@ const active = "underline";
 
 <template>
   <nav class="flex items-center justify-between gap-6 xl:justify-center">
-    <a
+    <NuxtLink
       v-for="button in mainButtons"
-      :href="button.link"
+      :to="button.link"
       class="flex items-center gap-1 tracking-widest transition-colors border border-b-0 border-transparent font-display text-heading-xl hover:underline"
       :class="invert ? 'text-sub-menu' : 'text-menu'"
     >
       {{ button.label }}
-    </a>
+    </NuxtLink>
 
     <VMenu
       placement="bottom-end"
@@ -54,12 +54,12 @@ const active = "underline";
           class="flex flex-col gap-1.5 bg-white text-body-base rounded-3px rounded-tr-none shadow-xl p-6"
         >
           <li v-for="button in subButtons">
-            <a
-              :href="button.link"
+            <NuxtLink
+              :to="button.link"
               class="font-bold transition-colors text-sub-menu hover:text-sub-menu-hover hover:underline"
             >
               {{ button.label }}
-            </a>
+            </NuxtLink>
           </li>
         </ol>
       </template>

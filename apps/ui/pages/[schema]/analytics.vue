@@ -1,9 +1,12 @@
 <script setup lang="ts">
+definePageMeta({
+  middleware: "admin-only",
+});
+const route = useRoute();
+const schema = route.params.schema as string;
 interface Trigger {
   name: string;
   cssSelector: string;
-  schema: string;
-  app?: string;
 }
 
 interface Resp<T> {
@@ -12,15 +15,14 @@ interface Resp<T> {
   status: number;
 }
 
-const devSchema = "pet store";
-
 const { data, error, status } = await useFetch<Resp<Trigger>>(
-  `/${devSchema}/api/trigger`
+  `/${schema}/api/trigger`
 );
 
 const showSidePanel = ref(false);
 
 function addTrigger() {
+  clearForm();
   showSidePanel.value = true;
 }
 
@@ -29,29 +31,36 @@ async function saveTrigger() {
     name: formTrigger.value.name,
     cssSelector: formTrigger.value.cssSelector,
   };
-  const resp = await $fetch(`/${devSchema}/api/trigger`, {
+  const resp = await $fetch(`/${schema}/api/trigger`, {
     method: "POST",
     body: JSON.stringify(createAction),
+  }).catch((error) => {
+    console.error(error);
+    formError.value = `Failed to add trigger (${error})`;
   });
-  if (resp.status === 200) {
+  console.log(resp);
+  if (resp.status === "SUCCESS") {
     clearForm();
     showSidePanel.value = false;
+  } else {
+    console.error(resp.error);
+    formError.value = `Failed to add trigger`;
   }
 }
 
 function clearForm() {
   formTrigger.value.name = "";
   formTrigger.value.cssSelector = "";
-  formTrigger.value.schema = "";
-  formTrigger.value.app = "";
+
+  formError.value = null;
 }
 
 const formTrigger = ref<Trigger>({
   name: "",
   cssSelector: "",
-  schema: "",
-  app: "",
 });
+
+const formError = ref<string | null>(null);
 </script>
 
 <template>
@@ -68,8 +77,6 @@ const formTrigger = ref<Trigger>({
           <TableHeadRow>
             <TableHead>name</TableHead>
             <TableHead>css locator</TableHead>
-            <TableHead>schema</TableHead>
-            <TableHead>app</TableHead>
           </TableHeadRow>
         </template>
 
@@ -77,8 +84,6 @@ const formTrigger = ref<Trigger>({
           <TableRow v-for="trigger in data">
             <TableCell>{{ trigger.name }}</TableCell>
             <TableCell>{{ trigger.cssSelector }}</TableCell>
-            <TableCell>{{ trigger.schema }}</TableCell>
-            <TableCell>{{ trigger.app }}</TableCell>
           </TableRow>
         </template>
       </Table>
@@ -102,18 +107,11 @@ const formTrigger = ref<Trigger>({
           placeholder="Css Selector"
           v-model="formTrigger.cssSelector"
         />
-        <InputLabel for="schema" label="Schema" />
-        <InputString
-          id="schema"
-          placeholder="Schema"
-          v-model="formTrigger.schema"
-        />
-        <InputLabel for="app" label="App" />
-        <InputString id="app" placeholder="App" v-model="formTrigger.app" />
       </form>
     </ContentBlockModal>
     <template #footer>
       <Button type="primary" size="medium" @click="saveTrigger">Save</Button>
+      <div v-if="formError" class="text-menu p-4">{{ formError }}</div>
     </template>
   </SideModal>
 </template>

@@ -45,14 +45,16 @@ const isSignedIn = computed(
 );
 const isAdmin = computed(() => session.value?.email === "admin");
 
+const schema = computed(() => route.params.schema as string);
+
 const navigation = computed(() => {
   const items = [
     { label: "Home", link: "#" },
     { label: "About", link: "#" },
     { label: "Contact", link: "#" },
   ];
-  if (isAdmin.value) {
-    items.push({ label: "Analytics", link: "/analytics" });
+  if (schema.value && isAdmin.value) {
+    items.push({ label: "Analytics", link: `/${schema.value}/analytics` });
   }
   return items;
 });

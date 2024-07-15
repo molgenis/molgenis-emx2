@@ -1317,7 +1317,7 @@ public class WebApiSmokeTests {
             .post("/pet store/api/trigger")
             .getBody()
             .asString();
-    assertEquals("\"{\\\"status\\\": \\\"success\\\"}\"", resp);
+    assertEquals("{\"status\":\"SUCCESS\"}", resp);
 
     // fetch a triggers
     String triggers = given().get("/pet store/api/trigger").getBody().asString();
@@ -1337,7 +1337,7 @@ public class WebApiSmokeTests {
             .put("/pet store/api/trigger/my-trigger")
             .getBody()
             .asString();
-    assertEquals("\"{\\\"status\\\": \\\"success\\\"}\"", updateResp);
+    assertEquals("{\"status\":\"SUCCESS\"}", updateResp);
 
     // re-fetch a triggers to check update
     String updated = given().get("/pet store/api/trigger").getBody().asString();
@@ -1351,7 +1351,7 @@ public class WebApiSmokeTests {
         .delete("/pet store/api/trigger/my-trigger")
         .getBody()
         .asString();
-    assertEquals("\"{\\\"status\\\": \\\"success\\\"}\"", resp);
+    assertEquals("{\"status\":\"SUCCESS\"}", resp);
 
     // refetch triggers
     String triggersAfterDelete = given().get("/pet store/api/trigger").getBody().asString();
