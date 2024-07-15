@@ -128,14 +128,14 @@ const jsQuery = ref<BeaconQueryIF>({ query: { filters: [] } });
 function prepareBeaconQuery() {
   jsQuery.value.query.filters = [];
 
-  if (genderFilters.value.length > 0) {
+  if (genderFilters.value.length) {
     const genderTermsFiltered = filterData(
       genderData.value,
       genderFilters.value,
       ["codesystem", "code"]
     );
 
-    if (genderTermsFiltered.length > 0) {
+    if (genderTermsFiltered.length) {
       jsQuery.value.query.filters.push({
         operator: "=",
         id: "NCIT:C28421",
@@ -144,12 +144,12 @@ function prepareBeaconQuery() {
     }
   }
 
-  if (geneFilters.value.length > 0) {
+  if (geneFilters.value.length) {
     const geneTermsFiltered = filterData(geneData.value, geneFilters.value, [
       "name",
     ]);
 
-    if (geneTermsFiltered.length > 0) {
+    if (geneTermsFiltered.length) {
       jsQuery.value.query.filters.push({
         operator: "=",
         id: "edam:data_2295",

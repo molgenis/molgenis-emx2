@@ -51,7 +51,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, watch } from "vue";
-import { InputSearch, LoadingScreen } from "molgenis-viz";
+import { InputSearch } from "molgenis-viz";
 import gql from "graphql-tag";
 import { request } from "graphql-request";
 import { XMarkIcon } from "@heroicons/vue/24/outline";
@@ -93,7 +93,7 @@ const searchTerm = ref<string>("");
 const referenceData = ref([]);
 const showLimit = ref<number>(props.limit);
 
-function removeFilter(value) {
+function removeFilter(value: string) {
   selections.value = selections.value.filter(
     (selection) => selection !== value
   );
@@ -102,7 +102,7 @@ function removeFilter(value) {
 
 async function fetchData() {
   const cols = props.columns.join(" ");
-  const query = `query {
+  const query = gql`query {
     ${props.tableId}(search:"${searchTerm.value}", limit: ${showLimit.value}) {
       ${cols}
       }
@@ -166,6 +166,7 @@ watch([searchTerm], async () => getCheckBoxOptions());
       label {
         word-wrap: break-word;
         line-height: 1;
+        font-size: 1rem;
       }
     }
   }
