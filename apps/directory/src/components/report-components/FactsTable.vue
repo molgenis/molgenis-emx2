@@ -379,11 +379,15 @@ export default {
        * order matters!
        */
       const baseFacts = this.hardcopy(this.factsData());
+
       const groupedFacts = [];
 
       const criteriaMet = [];
 
       for (const baseFact of baseFacts) {
+        if (Object.values(baseFact).includes("*")) {
+          continue;
+        }
         const criteria = {};
 
         let newCriteria = "";
@@ -410,12 +414,15 @@ export default {
           groupedFacts.push(critGroup);
         }
       }
+
       const collapsedFacts = [];
 
       for (const factGroup of groupedFacts) {
         let collapsedFact = {};
-
         for (const fact of factGroup) {
+          if (Object.values(fact).includes("*")) {
+            continue;
+          }
           if (!Object.keys(collapsedFact).length) {
             collapsedFact = fact;
             continue;
