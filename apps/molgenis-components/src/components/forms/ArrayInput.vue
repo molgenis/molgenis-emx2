@@ -3,7 +3,7 @@
     :id="id + '-0'"
     :label="label"
     :required="required"
-    description="description"
+    :description="description"
     :errorMessage="errorMessage"
   >
     <div v-for="(value, index) in values" :key="index">
@@ -42,6 +42,8 @@ import InputBoolean from "./InputBoolean.vue";
 import InputDate from "./InputDate.vue";
 import InputDateTime from "./InputDateTime.vue";
 import InputDecimal from "./InputDecimal.vue";
+import InputEmail from "./InputEmail.vue";
+import InputHyperlink from "./InputHyperlink.vue";
 import InputInt from "./InputInt.vue";
 import InputLong from "./InputLong.vue";
 import InputString from "./InputString.vue";
@@ -53,7 +55,7 @@ export default {
   extends: BaseInput,
   components: { FormGroup },
   data() {
-    return { values: this.modelValue || [null] };
+    return { values: this.modelValue?.length ? this.modelValue : [null] };
   },
   props: {
     columnType: {
@@ -68,8 +70,9 @@ export default {
         DATE_ARRAY: InputDate,
         DATETIME_ARRAY: InputDateTime,
         DECIMAL_ARRAY: InputDecimal,
-        EMAIL_ARRAY: InputString,
-        HYPERLINK_ARRAY: InputString,
+        PERIOD_ARRAY: InputString,
+        EMAIL_ARRAY: InputEmail,
+        HYPERLINK_ARRAY: InputHyperlink,
         INT_ARRAY: InputInt,
         LONG_ARRAY: InputLong,
         STRING_ARRAY: InputString,
@@ -108,10 +111,24 @@ export default {
           id="array-string"
           columnType="STRING_ARRAY"
           v-model="stringValue"
+          description="this is the description"
         />
       </div>
       <div>
         {{ stringValue }}
+      </div> 
+    </DemoItem>   
+    <DemoItem>
+      <div>
+        <h3><label>Empty String array</label></h3>
+        <ArrayInput
+          id="array-empty-string"
+          columnType="STRING_ARRAY"
+          v-model="emptyStringValue"
+        />
+      </div>
+      <div>
+        {{ emptyStringValue }}
       </div> 
     </DemoItem>
     <DemoItem>
@@ -249,6 +266,7 @@ export default {
   data() {
     return {
       stringValue: ["String array value"],
+      emptyStringValue: [],
       intValue: [1, 3, 3, 7],
       decimalValue: [3.7, 4.2],
       longValue: ["1234567890123456789"],

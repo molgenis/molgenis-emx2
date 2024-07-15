@@ -1,288 +1,213 @@
-<script setup>
-const props = defineProps({
-  tableId: {
-    type: String,
-  },
-  isMultiSelect: {
-    type: Boolean,
-    default: true,
-  },
-  modelValue: {
-    type: Array,
-    default: [],
-  },
-  options: {
-    type: Array,
-  },
-  mobileDisplay: {
-    type: Boolean,
-    default: false,
-  },
-});
+<script setup lang="ts">
+import type { Modal } from "#build/components";
+import type { ITreeNode } from "../../../tailwind-components/types/types";
+import type { IFilterCondition, IOntologyRespItem } from "~/interfaces/types";
+
+const props = withDefaults(
+  defineProps<{
+    tableId: string;
+    modelValue: IFilterCondition[];
+    options?: IOntologyRespItem[];
+    isMultiSelect?: boolean;
+    mobileDisplay: boolean;
+    filterLabel: string;
+  }>(),
+  {
+    isMultiSelect: true,
+    descriptionField: undefined,
+  }
+);
 
 const emit = defineEmits(["update:modelValue"]);
 
-let data = [];
-if (!props.options) {
-  const query = `
-    query
-    ${props.tableId}( $filter:${props.tableId}Filter, $orderby:${props.tableId}orderby )
-    {
-      ${props.tableId}( filter:$filter, limit:100000,  offset:0, orderby:$orderby )
-        {
-          order
-          name
-          code
-          parent{ name }
-          ontologyTermURI
-          definition
-          children{ name }
-        }
-      ${props.tableId}_agg( filter:$filter ) { count }
-      }
-  `;
-  let resp = await fetchOntology(query);
+const data = !props.options
+  ? (await fetchOntology(props.tableId)).data[props.tableId]
+  : props.options;
 
-  data = resp?.data[props.tableId];
-  let count = resp?.data[props.tableId + "_agg"].count;
-} else {
-  data = props.options;
-}
+const showSearch = computed(() => data?.length > 10);
 
-// convert to tree of terms
-//list all terms, incl subtrees
-let terms = reactive({});
-data.forEach((e) => {
-  // did we see it maybe as parent before?
-  if (terms[e.name]) {
-    //then copy properties, currently only definition
-    terms[e.name].definition = e.definition;
-  } else {
-    //else simply add the record
-    terms[e.name] = {
-      name: e.name,
-      order: e.order,
-      visible: true,
-      selected: false,
-      definition: e.definition,
+function listToTree(list: IOntologyRespItem[]): ITreeNode[] {
+  const allNodes = list.map((repsElement: IOntologyRespItem) => {
+    return {
+      name: repsElement.name,
+      description: repsElement.definition,
+      parent: repsElement.parent?.name,
+      children: [] as ITreeNode[],
     };
-  }
-  if (e.parent) {
-    terms[e.name].parent = e.parent;
-    //did we see this parent before?
-    if (!terms[e.parent.name]) {
-      //otherwise add it
-      terms[e.parent.name] = {
-        name: e.parent.name,
-        visible: true,
-        selected: false,
-      };
+  });
+
+  for (let i = 0; i < allNodes.length; i++) {
+    const node = allNodes[i];
+    if (node.parent) {
+      const parent = allNodes.find((n) => n.name === node.parent);
+      if (parent) {
+        parent.children.push(node);
+      }
     }
-    // if first child then add children array
-    if (!terms[e.parent.name].children) {
-      terms[e.parent.name].children = [];
-    }
-    // add the child
-    terms[e.parent.name].children.push(terms[e.name]);
   }
+
+  return allNodes.filter((n) => !n.parent);
+}
+
+const rootNodes = computed(() => listToTree(data));
+
+const selectedNodesNames = computed({
+  get() {
+    return props.modelValue ? props.modelValue.map((n) => n.name) : [];
+  },
+  set(newValue) {
+    // transform the names back to the original data structure for use in gql query
+    const newConditions = newValue.map((name) => ({ name: name }));
+    emit("update:modelValue", newConditions);
+  },
 });
 
-let rootTerms = computed(() => {
-  if (terms) {
-    const result = Object.values(terms).filter((t) => !t.parent && t.visible);
-    return result;
-  } else {
-    return [];
-  }
-});
+const optionsFilter = ref("");
 
-function toggleExpand(term) {
-  terms[term.name].expanded = !terms[term.name].expanded;
-}
-
-function select(item) {
-  if (!props.isMultiSelect) {
-    //deselect other items
-    Object.keys(terms).forEach((key) => (terms[key].selected = false));
-  }
-  let term = terms[item];
-  term.selected = "complete";
-  if (props.isMultiSelect) {
-    //if list also select also its children
-    getAllChildren(term).forEach(
-      (childTerm) => (childTerm.selected = "complete")
-    );
-    //select parent(s) if all siblings are selected
-    getParents(term).forEach((parent) => {
-      if (parent.children.every((childTerm) => childTerm.selected)) {
-        parent.selected = "complete";
-      } else {
-        parent.selected = "partial";
+const filteredNodes = computed(() => {
+  function addParents(
+    node: IOntologyRespItem,
+    parents: Set<IOntologyRespItem>
+  ) {
+    if (node.parent) {
+      const parentName = node.parent.name;
+      const parent = data.find((n) => n.name === parentName);
+      if (parent) {
+        parents.add(parent);
+        addParents(parent, parents);
       }
-    });
+    }
   }
-  emitValue();
-}
 
-function deselect(item) {
-  if (props.isMultiSelect) {
-    let term = terms[item];
-    term.selected = false;
-    //also deselect all its children
-    getAllChildren(terms[item]).forEach(
-      (childTerm) => (childTerm.selected = false)
-    );
-    //also its deselect its parents, might be partial
-    getParents(term).forEach((parent) => {
-      if (parent.children.some((child) => child.selected)) {
-        parent.selected = "partial";
-      } else {
-        parent.selected = false;
-      }
-    });
-  } else {
-    //non-list, deselect all
-    Object.keys(terms).forEach((name) => (terms[name].selected = false));
-  }
-  emitValue();
-  // $refs.search.focus();
-}
+  const parents: Set<IOntologyRespItem> = new Set();
 
-function getParents(term) {
-  let result = [];
-  let parent = term.parent;
-  while (parent) {
-    result.push(terms[parent.name]);
+  const filteredNodes = data.filter((node) => {
+    const searchValue = optionsFilter.value.toLowerCase();
+
     if (
-      terms[parent.name].parent &&
-      //check for parent that are indirect parent of themselves
-      !result.includes(terms[parent.name].parent.name)
+      node.name.toLowerCase().includes(searchValue) ||
+      node.definition?.toLowerCase().includes(searchValue)
     ) {
-      parent = terms[parent.name].parent;
-    } else {
-      parent = null;
+      addParents(node, parents);
+      return true;
     }
-  }
-  return result;
+  });
+
+  return Array.from(new Set([...parents, ...filteredNodes]));
+});
+
+const filteredTree = computed(() => listToTree(filteredNodes.value));
+
+const modal = ref<InstanceType<typeof Modal>>();
+
+function showModal() {
+  modal.value?.show();
 }
 
-function getAllChildren(term) {
-  let result = [];
-  if (term.children) {
-    result = term.children;
-    term.children.forEach(
-      (childTerm) => (result = result.concat(getAllChildren(childTerm)))
-    );
-  }
-  return result;
+function closeModal() {
+  optionsFilter.value = "";
+  modal.value?.close();
 }
 
-function emitValue() {
-  let selectedTerms = Object.values(terms)
-    .filter((term) => term.selected === "complete" && !term.children)
-    .map((term) => {
-      return { name: term.name };
-    });
-  if (props.isMultiSelect) {
-    emit("update:modelValue", selectedTerms);
-  } else {
-    emit("update:modelValue", selectedTerms[0]);
-  }
+function removeSelectedNode(node: string) {
+  selectedNodesNames.value = selectedNodesNames.value.filter((n) => n !== node);
 }
 
-function toggleSelect(term) {
-  //if selecting then also expand
-  //if deselection we keep it open
-  if (term.selected == "complete") {
-    deselect(term.name);
-  } else {
-    select(term.name);
-  }
-}
-
-watch(() => props.modelValue, updateSelection, { deep: true });
-
-function updateSelection(newConditions) {
-  if (!newConditions.length) {
-    Object.values(terms).forEach((term) => (term.selected = false));
-  }
+function clearAll() {
+  selectedNodesNames.value = [];
 }
 </script>
 
 <template>
-  <ul>
-    <li v-for="item in rootTerms" :key="item.name" class="mb-2.5">
-      <div class="flex items-start">
-        <span
-          v-if="item.children"
-          @click="toggleExpand(item)"
-          class="flex items-center justify-center w-6 h-6 rounded-full hover:bg-search-filter-group-toggle hover:cursor-pointer"
-          :class="{
-            'rotate-180': !terms[item.name].expanded,
-            'text-search-filter-group-toggle-mobile': mobileDisplay,
-            'text-search-filter-group-toggle': !mobileDisplay,
-          }"
-        >
-          <BaseIcon name="caret-up" :width="20" />
-        </span>
-        <span
-          v-else
-          class="flex items-center justify-center w-6 h-6 rounded-full hover:bg-search-filter-group-toggle hover:cursor-pointer"
-          :class="`text-search-filter-group-toggle${
-            mobileDisplay ? '-mobile' : ''
-          }`"
-        >
-        </span>
-        <div class="flex items-center">
-          <input
-            type="checkbox"
-            :id="item.name"
-            :name="item.name"
-            :checked="
-              item.selected === 'complete' || item.selected === 'partial'
-            "
-            @click.stop="toggleSelect(item)"
-            :class="{
-              'text-yellow-500': item.selected === 'complete',
-              'text-search-filter-group-checkbox': item.selected !== 'complete',
-            }"
-            class="w-5 h-5 rounded-3px ml-[6px] mr-2.5 mt-0.5 border border-checkbox"
-          />
-        </div>
-        <label :for="item.name" class="hover:cursor-pointer text-body-sm group">
-          <span class="group-hover:underline">{{ item.name }}</span>
-          <div class="inline-flex items-center whitespace-nowrap">
-            <!--
+  <div v-if="showSearch" class="flex items-center py-1 -ml-2">
+    <button class="flex items-center ml-8" @click="showModal">
+      <BaseIcon
+        name="search"
+        :class="`text-search-filter-expand${mobileDisplay ? '-mobile' : ''}`"
+        :width="18"
+      />
+      <span
+        class="ml-2 text-body-sm hover:underline"
+        :class="`text-search-filter-expand${mobileDisplay ? '-mobile' : ''}`"
+      >
+        Search for options
+      </span>
+    </button>
+
+    <Modal ref="modal" title="Search" :subtitle="filterLabel">
+      <template #header>
+        <FilterSearch v-model="optionsFilter" :inverted="true"></FilterSearch>
+
+        <div v-if="selectedNodesNames.length" class="py-2 text-gray-900">
+          <div class="flex flex-wrap gap-3 content-around p-3">
             <span
-              v-if="item?.children?.length"
-              class="inline-block mr-2 text-blue-200 group-hover:underline decoration-blue-200 fill-black"
-              hoverColor="white"
-              >&nbsp;- {{ item.children.length }}
-            </span>
-            -->
-            <div class="inline-block">
-              <CustomTooltip
-                v-if="item.description"
-                label="Read more"
-                hoverColor="white"
-                :content="item.description"
-              />
-            </div>
+              class="text-heading-sm text-gray-600 h-8 flex-row-reverse flex items-center"
+              >Active filters:</span
+            >
+            <template v-if="selectedNodesNames.length > 5">
+              <Button
+                @click="clearAll"
+                icon="trash"
+                icon-position="right"
+                size="tiny"
+                type="filterWell"
+              >
+                {{ selectedNodesNames.length }} items selected
+              </Button>
+            </template>
+            <template v-else>
+              <template v-for="selectedNodeName in selectedNodesNames">
+                <Button
+                  @click="removeSelectedNode(selectedNodeName)"
+                  icon="trash"
+                  icon-position="right"
+                  size="tiny"
+                  type="filterWell"
+                >
+                  {{ selectedNodeName }}
+                </Button>
+              </template>
+            </template>
+            <Button
+              icon="trash"
+              icon-position="right"
+              size="tiny"
+              type="filterWell"
+              @click="clearAll"
+              >Remove all
+            </Button>
           </div>
-        </label>
+        </div>
+      </template>
+
+      <div class="pl-1 pb-3">
+        <InputTree
+          v-if="filteredTree.length"
+          :nodes="filteredTree"
+          v-model="selectedNodesNames"
+          :isMultiSelect="true"
+          :inverted="true"
+          :expandSelected="true"
+        />
+        <div v-else class="text-gray-900 text-body-sm">No results found</div>
       </div>
 
-      <ul
-        class="ml-10 mr-4"
-        :class="{ hidden: !terms[item.name].expanded }"
-        v-if="item.children"
-      >
-        <FilterOntologyChild
-          :items="item.children"
-          @select="select"
-          @deselect="deselect"
-        />
-      </ul>
-    </li>
-  </ul>
+      <template #footer>
+        <button
+          @click="closeModal"
+          class="flex items-center border rounded-full h-10.5 px-5 text-heading-lg gap-3 tracking-widest uppercase font-display bg-button-primary text-button-primary border-button-primary hover:bg-button-primary-hover hover:text-button-primary-hover hover:border-button-primary-hover"
+        >
+          Show results
+        </button>
+      </template>
+    </Modal>
+  </div>
+  <InputTree
+    :nodes="rootNodes"
+    v-model="selectedNodesNames"
+    :isMultiSelect="true"
+    :inverted="mobileDisplay"
+    :expandSelected="true"
+  >
+  </InputTree>
 </template>

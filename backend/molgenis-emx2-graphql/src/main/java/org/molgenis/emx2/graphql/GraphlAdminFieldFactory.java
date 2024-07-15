@@ -1,5 +1,6 @@
 package org.molgenis.emx2.graphql;
 
+import static org.molgenis.emx2.Constants.MOLGENIS_JWT_SHARED_SECRET;
 import static org.molgenis.emx2.Constants.SETTINGS;
 import static org.molgenis.emx2.graphql.GraphqlConstants.*;
 import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.outputSettingsType;
@@ -97,6 +98,7 @@ public class GraphlAdminFieldFactory {
 
   public static Object mapSettingsToGraphql(Map<String, String> settings) {
     return settings.entrySet().stream()
+        .filter(entry -> !MOLGENIS_JWT_SHARED_SECRET.equals(entry.getKey()))
         .map(entry -> Map.of(KEY, entry.getKey(), VALUE, entry.getValue()))
         .toList();
   }

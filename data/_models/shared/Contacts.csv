@@ -1,0 +1,17 @@
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,visible,computed
+Contacts,,,,,,,,,,,vcard:Kind,Listing of contact persons per resource,"DataCatalogueFlat,EMA",
+Contacts,,collection,ref,1,true,,Collections,,,,,Resource the contact is affiliated with,"DataCatalogueFlat,EMA",
+Contacts,,role,ontology_array,,,CatalogueOntologies,Contribution types,,,,vcard:hasRole,Type(s) of contribution or role in the resource,"DataCatalogueFlat,EMA",
+Contacts,,role description,text,,,,,,,,,Description of the role,DataCatalogueFlat,
+Contacts,,display name,,1,true,,,,,,"foaf:name,vcard:hasName",First name of the contact person,"DataCatalogueFlat,EMA",false,${firstName} ${lastName}
+Contacts,,first name,,1,true,,,,,,foaf:firstName,First name of the contact person,"DataCatalogueFlat,EMA",
+Contacts,,last name,,1,true,,,,,,foaf:familyName,Last name of the contact person,"DataCatalogueFlat,EMA",
+Contacts,,prefix,,,,,,,,,,"Surname prefix, if applicable",DataCatalogueFlat,
+Contacts,,initials,,,,,,,,,,Initials of the contact person,DataCatalogueFlat,
+Contacts,,title,ontology,,,CatalogueOntologies,Titles,,,,foaf:title,Title of the contact person,"DataCatalogueFlat,EMA",
+Contacts,,organisation,ref,,,,Organisations,,,,foaf:Organization,Affiliated organisation of the contact person,"DataCatalogueFlat,EMA",
+Contacts,,email,,,,,,,,,"vcard:hasEmail,foaf:mbox",Contact's email address,DataCatalogueFlat,
+Contacts,,orcid,,,,,,,,,,Orcid of the contact person,DataCatalogueFlat,
+Contacts,,homepage,,,,,,,,,foaf:workplaceHomepage,Link to contact's homepage,DataCatalogueFlat,
+Contacts,,photo,file,,,,,,,,foaf:img,Contact's photograph,DataCatalogueFlat,
+Contacts,,expertise,,,,,,,,,,Description of contact's expertise,DataCatalogueFlat,

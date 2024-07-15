@@ -7,7 +7,7 @@ The releases of the package are hosted at [PyPI](https://pypi.org/project/molgen
 The recommended way to install the latest
 
 ```commandline
-pip install molgenis_emx2_pyclient
+pip install molgenis-emx2-pyclient
 ```
 
 ## Setting up the client
@@ -85,12 +85,12 @@ This method accepts no arguments.
 ```python
 client.set_schema('My Schema')
 ```
-Sets the default schema for the server. 
+Sets the default schema for the server in the property `default_schema`. 
 Throws the `NoSuchSchemaException` if the user does not have at least _viewer_ permissions or if the schema does not exist.
 
-| argument | type | description          | required | default |
-|----------|------|----------------------|----------|---------|
-| name     | str  | the name of a schema | True     |         |
+| parameter | type | description          | required | default |
+|-----------|------|----------------------|----------|---------|
+| name      | str  | the name of a schema | True     |         |
 
 ### set_token
 ```python
@@ -99,9 +99,9 @@ client.set_token(token='***************')
 Sets the client's token in case no token was supplied in the initialization.
 Raises the `TokenSigninException` when the client is already signed in with a username/password combination.
 
-| argument | type | description | required | default |
-|----------|------|-------------|----------|---------|
-| token    | str  | the token   | True     |         |
+| parameter | type | description | required | default |
+|-----------|------|-------------|----------|---------|
+| token     | str  | the token   | True     |         |
 
 
 ### get
@@ -111,11 +111,25 @@ client.get(table='Data Table', schema='My Schema', as_df=True)
 Retrieves data from a table on a schema and returns the result either as a list of dictionaries or as a pandas DataFrame (as pandas is used to parse the response).
 Throws the `NoSuchSchemaException` if the user does not have at least _viewer_ permissions or if the schema does not exist.
 
-| argument | type | description                                                                    | required | default |
-|----------|------|--------------------------------------------------------------------------------|----------|---------|
-| table    | str  | the name of a table                                                            | True     | None    |
-| schema   | str  | the name of a schema                                                           | False    | None    |
-| as_df    | bool | if true: returns data as pandas DataFrame <br/> else as a list of dictionaries | False    | False   |
+| parameter | type | description                                                                    | required | default               |
+|-----------|------|--------------------------------------------------------------------------------|----------|-----------------------|
+| table     | str  | the name of a table                                                            | True     | None                  |
+| schema    | str  | the name of a schema                                                           | False    | client.default_schema |
+| as_df     | bool | if true: returns data as pandas DataFrame <br/> else as a list of dictionaries | False    | False                 |
+
+
+### get_schema_metadata
+```python
+client.get_schema_metadata(name='My Schema')
+```
+Retrieves the metadata of a schema and returns it in the _metadata.Schema_ format.
+See the description of the [Schema](use_usingpyclient.md#schema) metadata object below.
+
+
+| parameter | type | description            | required | default |
+|-----------|------|------------------------|----------|---------|
+| name      | str  | the name of the schema | True     | None    |
+
 
 ### export
 ```python
@@ -126,11 +140,11 @@ If the table is specified, only data from that table is exported, otherwise the 
 If all tables from a schema are exported with given format `csv`, the data is exported as a zip file containing a csv file of each table.
 Throws the `NoSuchSchemaException` if the user does not have at least _viewer_ permissions or if the schema does not exist.
 
-| argument | type | description                               | required | default |
-|----------|------|-------------------------------------------|----------|---------|
-| table    | str  | the name of a table                       | False    | None    |
-| schema   | str  | the name of a schema                      | False    | None    |
-| fmt      | str  | the output format, either `csv` or `xlsx` | False    | `csv`   |
+| parameter | type | description                               | required | default               |
+|-----------|------|-------------------------------------------|----------|-----------------------|
+| table     | str  | the name of a table                       | False    | None                  |
+| schema    | str  | the name of a schema                      | False    | client.default_schema |
+| fmt       | str  | the output format, either `csv` or `xlsx` | False    | `csv`                 |
 
 
 ### save_schema
@@ -144,17 +158,33 @@ Either `file` or `data` must be supplied. The data must be compatible with the s
 Throws the `PermissionDeniedException` if the user does not have at least _editor_ permissions for this schema.
 Throws the `NoSuchSchemaException` if the schema is not found on the server.
 
-| argument | type | description                            | required | default |
-|----------|------|----------------------------------------|----------|---------|
-| table    | str  | the name of a table                    | True     |         |
-| schema   | str  | the name of a schema                   | False    | None    |
-| file     | str  | the location of a `csv` file with data | False    | None    |
-| data     | list | data as a list of dictionaries         | False    | None    |
+| parameter | type | description                                        | required | default               |
+|-----------|------|----------------------------------------------------|----------|-----------------------|
+| table     | str  | the name of a table                                | True     |                       |
+| schema    | str  | the name of a schema                               | False    | client.default_schema |
+| file      | str  | the location of a `csv` file with data             | False    | None                  |
+| data      | list | data as a list of dictionaries or pandas DataFrame | False    | None                  |
+
+
+### upload_file
+```python
+client.upload_file(file_path='location/of/data/file.zip', schema='My Schema')
+```
+Imports table data and/or metadata to a schema from a file on the disk.
+This method supports `zip`, `xlsx`, and `csv` files.
+When uploading multiple `csv` files it is recommended to archive them into a `zip` file first and upload that file using this method.
+Throws the `PermissionDeniedException` if the user does not have at least _editor_ permissions for this schema.
+Throws the `NoSuchSchemaException` if the schema is not found on the server.
+
+| parameter | type | description          | required | default               |
+|-----------|------|----------------------|----------|-----------------------|
+| file_path | str  | the name of a table  | True     |                       |
+| schema    | str  | the name of a schema | False    | client.default_schema |
 
 
 ### delete_records
 ```python
-client.delete_records(table='Data Table', name='My Schema',  
+client.delete_records(table='Data Table', schema='My Schema',  
                       file='location/of/data/file.csv', data=[{'col1': value1, ...}, {'col2': value2, ...}, ...])
 ```
 Deletes data records from a table.
@@ -164,12 +194,12 @@ Throws the `NoSuchSchemaException` if the schema is not found on the server.
 
 [//]: # (&#40;In order to delete records from a table the data must specify the row values with principal keys)
 
-| argument | type | description                            | required | default |
-|----------|------|----------------------------------------|----------|---------|
-| table    | str  | the name of a table                    | True     |         |
-| schema   | str  | the name of a schema                   | False    | None    |
-| file     | str  | the location of a `csv` file with data | False    | None    |
-| data     | list | data as a list of dictionaries         | False    | None    |
+| parameter | type | description                                        | required | default               |
+|-----------|------|----------------------------------------------------|----------|-----------------------|
+| table     | str  | the name of a table                                | True     |                       |
+| schema    | str  | the name of a schema                               | False    | client.default_schema |
+| file      | str  | the location of a `csv` file with data             | False    | None                  |
+| data      | list | data as a list of dictionaries or pandas DataFrame | False    | None                  |
 
 
 ### create_schema
@@ -268,3 +298,146 @@ Throws the `NoSuchSchemaException` if the schema is not found on the server.
 | description       | str  | new description of the schema | False    | None    |
 | template          | str  | the template for this schema  | False    | None    |
 | include_demo_data | bool | whether to include demo data  | False    | False   |
+
+
+## Additional classes
+In addition to the Client class, the package contains classes to access metadata on the column, table, and schema level.
+These classes can be imported from `metadata.py` as follows
+
+```python
+from molgenis_emx2_pyclient.metadata import Column, Table, Schema
+```
+### Column
+This class contains information about a column of a table in a Molgenis EMX2 schema.
+An object of this class can be constructed by supplying its attributes as keyword arguments
+```python
+column = Column(name='First column', columnType='string', key=1)
+```
+or by supplying a dictionary of attributes
+```python
+column_data = {'name': 'First column', 'columnType': 'STRING', 'key': 1}
+column = Column(**column_data)
+```
+In both cases, the keyword `name` must be supplied. 
+#### get
+```python
+column.get('columnType')
+```
+Its attributes can be retrieved by accessing them directly, e.g. `column.name` or by the `get` method.
+#### to_dict
+```python
+column.to_dict()
+```
+A _Column_ object can be parsed to a dictionary object by calling the `to_dict` method.
+
+### Table
+A _Table_ object represents a table in an EMX2 schema. 
+It can be constructed in a similar way as a Column object
+```python
+table = Table(name='My table', description='My table contains some data.', 
+              columns=[Column(name='First column', columnType='STRING', key=1),
+                       Column(name='organisations', columnType='REF_ARRAY', refTableName='Organisations')])
+```
+```python
+table_data = {'name': 'My table', 'description': 'My table contains some data.',
+              columns: [{'name': 'First column', 'columnType': 'STRING', 'key': 1},
+                        {'name': 'organisations', 'columnType': 'REF_ARRAY', 'refTableName': 'Organisations'}]}
+```
+In both cases, the keyword `name` must be supplied. 
+The `columns` attribute can be supplied either as list of _Column_ objects or as a list of dictionaries from which _Column_ objects can be constructed.
+
+#### get
+```python
+table.get('description')
+```
+A _Table_'s attributes can be retrieved by accessing them directly, e.g. `table.name` or by the `get` method.
+
+#### to_dict
+```python
+table.to_dict()
+```
+Analogous to _Column_, a _Table_ object can be parsed to a dictionary object by calling the `to_dict` method.
+The columns in its `columns` attribute are also parsed to dictionaries.
+
+#### get_column
+```python
+table.get_column(by='name', value='First column')
+```
+Gets a unique _Column_ object in its `columns` attribute by either its `name` or `id` attribute.
+Raises a NoSuchColumnException if the column could not be found.
+
+#### get_columns
+```python
+table.get_columns(by='refTableName', value='Organisations')
+table.get_columns(by=['columnType', 'refTableName'], value=['REF_ARRAY', 'Organisations'])
+```
+Gets the columns of which an attribute matches a particular value.
+It is possible to filter the columns by multiple conditions, the attributes and values are then supplied as lists. 
+The length of the `by` argument must then match the length of the `value` argument.
+Returns an empty list if no matching column can be found.
+
+
+### Schema
+A _Schema_ object represents the metadata of an EMX2 schema.
+It can be constructed similarly to the _Table_ and _Column_ classes.
+
+```python
+schema = Schema(name='My schema', description='This is my schema!',
+                tables=[
+                    Table(name='My table', description='My table contains some data.', 
+                          columns=[Column(name='First column', columnType='STRING', key=1),
+                                   Column(name='organisations', columnType='REF_ARRAY', refTableName='Organisations')]),
+                    Table(name='Organisations', description='A table containing data about organisations.',
+                          columns=[Column(name='name', columnType='STRING', key=1, required=True),
+                                   Column(name='acronym', columnType='STRING', description='The acronym for this organisation.')])
+                ])
+```
+
+```python
+schema_data = {'name': 'My schema', description: 'This is my schema!',
+               'tables': [
+                   {'name': 'My table', 'description': 'My table contains some data.',
+                    'columns': [
+                        {'name': 'First column', 'columnType': 'string', 'key': 1},
+                        {'name': 'organisations', 'columnType': 'REF_ARRAY', 'refTableName': 'Organisations'}
+                    ]},
+                   {'name': 'Organisations', 'description': 'A table containing data about organisations.',
+                    'columns': [
+                        {'name': 'name', 'columnType': 'STRING', 'key': 1, 'required': True},
+                        {'name': 'acronym', 'columnType': 'STRING', 'description': 'The acronym for this organisation.'}
+                    ]}
+               ]}
+schema = Schema(**schema_data)
+```
+In both cases, the keyword `name` must be supplied. 
+The `tables` attribute can be supplied either as list of _Table_ objects or as a list of dictionaries from which _Table_ objects can be constructed.
+
+
+#### get
+```python
+schema.get('description')
+```
+A _Schema_'s attributes can be retrieved by accessing them directly, e.g. `schema.name` or by the `get` method.
+
+#### to_dict
+```python
+schema.to_dict()
+```
+Analogous to _Table_ and _Column_, a _Schema_ object can be parsed to a dictionary object by calling the `to_dict` method.
+The _Table_ objects in its `tables` attribute are also parsed to dictionaries.
+
+#### get_table
+```python
+schema.get_table(by='name', value='My table')
+```
+Gets a unique _Table_ object in its `table` attribute by either its `name` or `id` attribute.
+Raises a NoSuchTableException if the table could not be found.
+
+#### get_tables
+```python
+table.get_tables(by='inheritName', value='Resources')
+```
+Gets the table of which an attribute matches a particular value.
+It is possible to filter the tables by multiple conditions, the attributes and values are then supplied as lists. 
+The length of the `by` argument must then match the length of the `value` argument.
+Returns an empty list if no matching column can be found.

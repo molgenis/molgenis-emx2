@@ -77,7 +77,8 @@ public class SqlColumnExecutor {
     // asumes validated before
     if (!oldColumn.getName().equals(newColumn.getName())) {
       if (newColumn.isFile()) {
-        for (String suffix : new String[] {"", "_extension", "_size", "_contents", "_mimetype"}) {
+        for (String suffix :
+            new String[] {"", "_filename", "_extension", "_size", "_contents", "_mimetype"}) {
           jooq.execute(
               "ALTER TABLE {0} RENAME COLUMN {1} TO {2}",
               newColumn.getJooqTable(),
@@ -91,40 +92,41 @@ public class SqlColumnExecutor {
             field(name(oldColumn.getName())),
             field(name(newColumn.getName())));
       }
-    }
-    // also apply to subclasses if pkey (using sql otherwise too expensive)
-    if (newColumn.isPrimaryKey() && newColumn.getTable().getColumn(MG_TABLECLASS) != null) {
-      TableMetadata rootTable = newColumn.getTable();
-      // retrieve using recursive common table expression (CTE):
-      // https://www.postgresql.org/docs/current/queries-with.html#QUERIES-WITH-RECURSIVE
-      List<Record> tableList =
-          jooq
-              .fetch(
-                  """
-                    WITH RECURSIVE RecursiveCTE AS (
-                        SELECT table_schema,table_name,table_inherits
-                        FROM "MOLGENIS"."table_metadata"
-                        WHERE table_schema={0} AND table_name={1}
-                        UNION ALL
-                        SELECT t.table_schema,t.table_name,t.table_inherits
-                        FROM "MOLGENIS"."table_metadata" t
-                                 JOIN RecursiveCTE r ON r.table_schema = COALESCE(t.import_schema,t.table_schema) AND t.table_inherits = r.table_name
-                    )
-                    SELECT *
-                    FROM RecursiveCTE WHERE table_inherits IS NOT NULL;
+
+      // also apply to subclasses if pkey (using sql otherwise too expensive)
+      if (newColumn.isPrimaryKey() && newColumn.getTable().getColumn(MG_TABLECLASS) != null) {
+        TableMetadata rootTable = newColumn.getTable();
+        // retrieve using recursive common table expression (CTE):
+        // https://www.postgresql.org/docs/current/queries-with.html#QUERIES-WITH-RECURSIVE
+        List<Record> tableList =
+            jooq
+                .fetch(
+                    """
+                      WITH RECURSIVE RecursiveCTE AS (
+                          SELECT table_schema,table_name,table_inherits
+                          FROM "MOLGENIS"."table_metadata"
+                          WHERE table_schema={0} AND table_name={1}
+                          UNION ALL
+                          SELECT t.table_schema,t.table_name,t.table_inherits
+                          FROM "MOLGENIS"."table_metadata" t
+                                   JOIN RecursiveCTE r ON r.table_schema = COALESCE(t.import_schema,t.table_schema) AND t.table_inherits = r.table_name
+                      )
+                      SELECT *
+                      FROM RecursiveCTE WHERE table_inherits IS NOT NULL;
                     """,
-                  rootTable.getSchemaName(), rootTable.getTableName())
-              .stream()
-              .toList();
-      for (Record subclassRecord : tableList) {
-        jooq.execute(
-            "ALTER TABLE {0} RENAME COLUMN {1} TO {2}",
-            table(
-                name(
-                    subclassRecord.get(TABLE_SCHEMA, String.class),
-                    subclassRecord.get(TABLE_NAME, String.class))),
-            field(name(oldColumn.getName())),
-            field(name(newColumn.getName())));
+                    rootTable.getSchemaName(), rootTable.getTableName())
+                .stream()
+                .toList();
+        for (Record subclassRecord : tableList) {
+          jooq.execute(
+              "ALTER TABLE {0} RENAME COLUMN {1} TO {2}",
+              table(
+                  name(
+                      subclassRecord.get(TABLE_SCHEMA, String.class),
+                      subclassRecord.get(TABLE_NAME, String.class))),
+              field(name(oldColumn.getName())),
+              field(name(newColumn.getName())));
+        }
       }
     }
   }

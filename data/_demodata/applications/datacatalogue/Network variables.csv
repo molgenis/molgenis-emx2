@@ -1,4 +1,5 @@
 network,variable.resource,variable.dataset,variable.name
+LifeCycle,LifeCycle_CDM,core,na_pgn
 LifeCycle,LifeCycle_CDM,outcome,adhdR_0
 LifeCycle,LifeCycle_CDM,outcome,adhdR_eval_0
 LifeCycle,LifeCycle_CDM,outcome,adipo_cord
@@ -204,7 +205,6 @@ LifeCycle,LifeCycle_CDM,core,food_all_sens_IgE_0
 LifeCycle,LifeCycle_CDM,outcome,food_all_sens_SPT_0
 LifeCycle,LifeCycle_CDM,outcome,food_all_sens_SPT_COWMILK_0
 LifeCycle,LifeCycle_CDM,outcome,food_all_sens_SPT_EGG_0
-LifeCycle,LifeCycle_CDM,core,na_pgn
 LifeCycle,LifeCycle_CDM,outcome,food_all_sens_SPT_FISH_cod_0
 LifeCycle,LifeCycle_CDM,outcome,food_all_sens_SPT_FISH_mix_0
 LifeCycle,LifeCycle_CDM,outcome,food_all_sens_SPT_FRUIT_kiw_0
@@ -1007,3 +1007,4 @@ LifeCycle,LifeCycle_CDM,core,SCL_anx_score_t1
 LifeCycle,LifeCycle_CDM,outcome,adhd_instr_0
 LifeCycle,LifeCycle_CDM,outcome,adhd_pc_0
 LifeCycle,LifeCycle_CDM,outcome,adhd_pro_0
+testNetwork1,LifeCycle_CDM,core,ga_lmp

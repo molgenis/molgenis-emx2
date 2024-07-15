@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import type { IFilter } from "~/interfaces/types";
+const route = useRoute();
+useHead({ title: "Health Data and Samples Catalogue" });
 
 //add redirect middleware for cohortOnly to skip this page
 definePageMeta({
@@ -15,25 +16,6 @@ definePageMeta({
       }
     },
   ],
-});
-
-useHead({ title: "Health Data and Samples Catalogue" });
-
-const route = useRoute();
-const config = useRuntimeConfig();
-
-let filters: IFilter[] = reactive([
-  {
-    title: "Search in catalogues",
-    columnType: "_SEARCH",
-    search: "",
-    initialCollapsed: false,
-  },
-]);
-
-let search = computed(() => {
-  // @ts-ignore
-  return filters.find((f) => f.columnType === "_SEARCH").search;
 });
 
 const query = computed(() => {
@@ -61,16 +43,11 @@ const query = computed(() => {
   `;
 });
 
-const filter = computed(() => buildQueryFilter(filters, search.value));
-
 let graphqlURL = computed(() => `/${route.params.schema}/graphql`);
 const { data, pending, error, refresh } = await useFetch(graphqlURL.value, {
   key: "catalogues",
   method: "POST",
-  body: {
-    query,
-    variables: { filter },
-  },
+  body: { query },
 });
 let activeName = ref("compact");
 
@@ -126,7 +103,7 @@ const projectCatalogues = computed(() => {
     <ContentBlockCatalogues
       v-if="projectCatalogues.length > 0"
       title="Project catalogues"
-      description="Catalogues maintained by individual research projects or consortia, such as EC RIA."
+      description="Catalogues maintained by individual research projects or consortia:"
       :catalogues="projectCatalogues"
     />
   </LayoutsLandingPage>

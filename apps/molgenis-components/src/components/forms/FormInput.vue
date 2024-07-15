@@ -32,13 +32,15 @@ import InputRefSelect from "../forms/InputRefSelect.vue";
 import InputString from "../forms/InputString.vue";
 import InputText from "../forms/InputText.vue";
 import BaseInput from "../forms/baseInputs/BaseInput.vue";
+import InputEmail from "./InputEmail.vue";
+import InputHyperlink from "./InputHyperlink.vue";
 import InputRefList from "./InputRefList.vue";
 
 const typeToInputMap = {
   AUTO_ID: InputString,
   HEADING: InputHeading,
-  EMAIL: InputString,
-  HYPERLINK: InputString,
+  EMAIL: InputEmail,
+  HYPERLINK: InputHyperlink,
   STRING: InputString,
   TEXT: InputText,
   INT: InputInt,
@@ -50,11 +52,13 @@ const typeToInputMap = {
   REFBACK: InputRefBack,
   FILE: InputFile,
   DATETIME: InputDateTime,
+  PERIOD: InputString,
   ONTOLOGY: InputOntology,
   EMAIL_ARRAY: ArrayInput,
   BOOL_ARRAY: ArrayInput,
   DATE_ARRAY: ArrayInput,
   DATETIME_ARRAY: ArrayInput,
+  PERIOD_ARRAY: ArrayInput,
   DECIMAL_ARRAY: ArrayInput,
   HYPERLINK_ARRAY: ArrayInput,
   INT_ARRAY: ArrayInput,

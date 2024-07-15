@@ -53,7 +53,7 @@ public class TestGraphqlSchemaFields {
       grapql =
           new GraphqlApiFactory()
               .createGraphqlForSchema(database.getSchema(schemaName), taskService);
-      assertEquals(2, execute("{_session{email,roles}}").at("/_session/roles").size());
+      assertEquals(5, execute("{_session{email,roles}}").at("/_session/roles").size());
       execute("mutation { signin(email: \"shopmanager\",password:\"shopmanager\") {message}}");
       grapql =
           new GraphqlApiFactory()
@@ -779,7 +779,10 @@ public class TestGraphqlSchemaFields {
               .variables(Map.of("value", data))
               .build());
       assertEquals(
-          0, execute("{TestFile{image{size,extension,url}}}").at("/TestFile/0/image/size").asInt());
+          0,
+          execute("{TestFile{image{size,filename,extension,url}}}")
+              .at("/TestFile/0/image/size")
+              .asInt());
 
       // reset
     } finally {

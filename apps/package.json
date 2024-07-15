@@ -11,6 +11,7 @@
     "updownload",
     "pages",
     "graphql-playground",
+    "tailwind-components",
     "nuxt3-ssr",
     "molgenis-components",
     "molgenis-viz",
@@ -24,6 +25,11 @@
     "reports",
     "tasks",
     "gportal",
-    "projectmanager"
-  ]
+    "projectmanager",
+    "aggregation-dashboard",
+    "imdhub-public"
+  ],
+  "devDependencies": {
+    "nuxt": "3.12.2"
+  }
 }

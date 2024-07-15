@@ -1,13 +1,12 @@
 <script setup lang="ts">
 import type { ISchemaMetaData, ITableMetaData } from "meta-data-utils";
-import type { IFilter, IMgError } from "~~/interfaces/types";
+import type { IFilter, IMgError, activeTabType } from "~~/interfaces/types";
 import {
   buildRecordListQueryFields,
   extractExternalSchemas,
   extractKeyFromRecord,
 } from "meta-data-utils";
 
-const config = useRuntimeConfig();
 const route = useRoute();
 const router = useRouter();
 
@@ -42,22 +41,38 @@ const schemas = externalSchemas.reduce(
 
 const description = tableMetaData.value?.description;
 
-let activeName = ref("detailed");
-let filters: IFilter[] = reactive([
+const pageFilterTemplate: IFilter[] = [
   {
-    title: `Search in ${tableMetaData.value.name}`,
-    columnType: "_SEARCH",
+    id: "search",
+    config: {
+      label: `Search in ${tableMetaData.value.name}`,
+      type: "SEARCH",
+      searchTables: [],
+      initialCollapsed: false,
+    },
     search: "",
-    searchTables: [],
-    initialCollapsed: false,
   },
-]);
+];
+
+const filters = computed(() => {
+  // if there are not query conditions just use the page defaults
+  if (!route.query?.conditions) {
+    return [...pageFilterTemplate];
+  }
+
+  // get conditions from query
+  const conditions = conditionsFromPathQuery(route.query.conditions as string);
+  // merge with page defaults
+  const filters = mergeWithPageDefaults(pageFilterTemplate, conditions);
+
+  return filters;
+});
 
 const currentPage = ref(1);
 
-function setCurrentPage(pageNumber: number) {
-  router.push({ path: route.path, query: { page: pageNumber } });
-  currentPage.value = pageNumber;
+async function setCurrentPage(pageNumber: number) {
+  await navigateTo({ query: { page: pageNumber } });
+  window.scrollTo({ top: 0 });
 }
 
 if (route.query?.page) {
@@ -66,10 +81,6 @@ if (route.query?.page) {
     typeof queryPageNumber === "number" ? Math.round(queryPageNumber) : 1;
 }
 let offset = computed(() => (currentPage.value - 1) * pageSize);
-
-watch(filters, () => {
-  setCurrentPage(1);
-});
 
 // build resource query for cards
 
@@ -92,20 +103,56 @@ const query = computed(() => {
   `;
 });
 const orderby = {};
-let search = computed(() => {
-  // @ts-ignore
-  return filters.find((f) => f.columnType === "_SEARCH").search;
+
+const gqlFilter = computed(() => {
+  let result: any = {};
+
+  result = buildQueryFilter(filters.value);
+
+  // add hard coded page sepsific filters
+  if ("all" !== route.params.catalogue) {
+    result["networks"] = { id: { equals: route.params.catalogue } };
+  }
+  return result;
 });
-const filter = computed(() => buildQueryFilter(filters, search.value));
 
 console.log("query: ", query.value);
 
-const { data, error } = await useGqlFetch<any, IMgError>(query, {
-  variables: { filter, orderby },
-});
+const { data } = await useFetch<any, IMgError>(
+  `/${useRoute().params.schema}/graphql`,
+  {
+    method: "POST",
+    body: {
+      query: query,
+      variables: { filter: gqlFilter, orderby },
+    },
+    onResponseError(_ctx) {
+      logError({
+        message: "onResponseError fetching data from GraphQL endpoint",
+        statusCode: _ctx.response.status,
+        data: _ctx.response._data,
+      });
+    },
+  }
+);
 
-if (error.value) {
-  throw new Error("Error on cohorts-page data fetch");
+function onFilterChange(filters: IFilter[]) {
+  const conditions = toPathQueryConditions(filters) || undefined; // undefined is used to remove the query param from the URL;
+
+  router.push({
+    path: route.path,
+    query: { ...route.query, page: 1, conditions: conditions },
+  });
+}
+
+const activeTabName = ref((route.query.view as string) || "detailed");
+
+function onActiveTabChange(tabName: activeTabType) {
+  activeTabName.value = tabName;
+  router.push({
+    path: route.path,
+    query: { ...route.query, view: tabName },
+  });
 }
 
 function buildRecordId(record: any) {
@@ -131,7 +178,11 @@ if (route.params.catalogue) {
 <template>
   <LayoutsSearchPage>
     <template #side>
-      <FilterSidebar title="Filters" :filters="filters" />
+      <FilterSidebar
+        title="Filters"
+        :filters="filters"
+        @update:filters="onFilterChange"
+      />
     </template>
     <template #main>
       <SearchResults>
@@ -150,12 +201,14 @@ if (route.params.catalogue) {
                 buttonRightLabel="Compact"
                 buttonRightName="compact"
                 buttonRightIcon="view-compact"
-                v-model:activeName="activeName"
+                :activeName="activeTabName"
+                @update:activeName="onActiveTabChange"
               />
               <SearchResultsViewTabsMobile class="flex xl:hidden">
                 <FilterSidebar
                   title="Filters"
                   :filters="filters"
+                  @update:filters="onFilterChange"
                   :mobileDisplay="true"
                 />
               </SearchResultsViewTabsMobile>
@@ -164,7 +217,10 @@ if (route.params.catalogue) {
         </template>
 
         <template #search-results>
-          <FilterWell :filters="filters"></FilterWell>
+          <FilterWell
+            :filters="filters"
+            @update:filters="onFilterChange"
+          ></FilterWell>
           <SearchResultsList>
             <CardList v-if="data?.data?.[resourceType]?.length > 0">
               <CardListItem
@@ -175,7 +231,7 @@ if (route.params.catalogue) {
                   :resource="resource"
                   :schema="schemaId"
                   :table-id="tableMetaData.id"
-                  :compact="activeName !== 'detailed'"
+                  :compact="activeTabName !== 'detailed'"
                   :resourceId="buildRecordId(resource)"
                 />
               </CardListItem>
@@ -195,7 +251,6 @@ if (route.params.catalogue) {
             @update="setCurrentPage($event)"
           />
         </template>
-        {{ error }}
       </SearchResults>
     </template>
   </LayoutsSearchPage>
