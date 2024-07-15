@@ -450,8 +450,7 @@ export default {
                       fact[column],
                     ];
                   }
-                } else {
-                  if (column == "number_of_samples") {
+                } else if (column === "number_of_samples") {
                     collapsedFact[column] = 2 * collapsedFact[column];
                   }
                 }
