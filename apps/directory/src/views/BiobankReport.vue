@@ -42,13 +42,16 @@
                 <!-- Collection Part -->
                 <h3 class="mt-4">
                   Collections ({{ collectionsData.length }} /
-                  {{ subcollectionCount }})<InfoPopover
-                    faIcon="fa fa-solid fa-question"
-                    popover-placement="top"
-                  >
-                    <div>Collections: {{ collectionsData.length }}</div>
-                    <div>Subcollections: {{ subcollectionCount }}</div>
-                  </InfoPopover>
+                  {{ subcollectionCount }})<sup>
+                    <InfoPopover
+                      faIcon="fa-solid fa-question"
+                      textColor="black"
+                      popover-placement="top"
+                    >
+                      <div>Collections: {{ collectionsData.length }}</div>
+                      <div>Subcollections: {{ subcollectionCount }}</div>
+                    </InfoPopover>
+                  </sup>
                 </h3>
                 <div v-if="!collectionsData.length">
                   This biobank does not contain any collections.
@@ -236,5 +239,9 @@ function filterAndSortCollectionsData(collections: Record<string, any>[]) {
 <style scoped>
 .spinner-container {
   height: 70vh;
+}
+sup {
+  vertical-align: super;
+  font-size: small;
 }
 </style>
