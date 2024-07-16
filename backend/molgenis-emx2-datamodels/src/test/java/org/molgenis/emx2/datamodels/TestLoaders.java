@@ -26,6 +26,7 @@ public class TestLoaders {
   public static final String DCAT_BASIC = "DCATBasicTest";
   public static final String PROJECT_MANAGER = "ProjectManager";
   public static final String CATALOGUE_ONTOLOGIES = "CatalogueOntologies";
+  public static final String DIRECTORY_ONTOLOGIES = "DirectoryOntologies";
   public static final String FLAT_COHORTS_STAGING = "CohortsStagingFlat";
   public static final String FLAT_UMCG_COHORTS_STAGING = "UMCGStagingFlat";
   public static final String FLAT_STUDIES_STAGING = "StudiesStagingFlat";
