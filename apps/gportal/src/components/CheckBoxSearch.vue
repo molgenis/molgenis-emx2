@@ -75,7 +75,7 @@ const props = withDefaults(defineProps<CheckBoxGroupSearchIF>(), {
 });
 
 const emit = defineEmits<{
-  (e: "refDataLoaded", value: object[]): void;
+  (e: "refDataLoaded", value: Record<string, any>[]): void;
   (e: "change", value: string[]): void;
 }>();
 
@@ -108,7 +108,7 @@ async function fetchData() {
       ${cols}
       }
     }`;
-  const response = await request("../api/graphql", query);
+  const response: Record<string, any> = await request("../api/graphql", query);
   const data = response[props.tableId];
   referenceData.value = data;
   onReferenceDataUpdate();
