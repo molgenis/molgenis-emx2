@@ -7,6 +7,5 @@
     // "allowJs": true,
     "types": ["vite/client"],
     "lib": ["es2022", "dom"],
-    "noImplicitAny": false
   }
 }

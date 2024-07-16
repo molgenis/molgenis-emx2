@@ -25,14 +25,17 @@
         <div v-for="row in referenceData" class="checkbox-option">
           <input
             type="checkbox"
-            :id="`${id}-${row[idColumn]}`"
-            :value="row[labelColumn] || row[valueColumn]"
+            :id="`${id}-${row[idColumn as keyof OntologyDataIF]}`"
+            :value="row[labelColumn as keyof OntologyDataIF] || row[valueColumn as keyof OntologyDataIF]"
             :name="`${tableId}-checkbox-group`"
             v-model="selections"
             @change="onChange"
           />
-          <label :for="`${id}-${row[idColumn]}`">
-            {{ row[labelColumn] || row[valueColumn] }}
+          <label :for="`${id}-${row[idColumn as keyof OntologyDataIF]}`">
+            {{
+              row[labelColumn as keyof OntologyDataIF] ||
+              row[valueColumn as keyof OntologyDataIF]
+            }}
           </label>
         </div>
         <button
@@ -51,6 +54,8 @@
 
 <script setup lang="ts">
 import { ref, onMounted, watch } from "vue";
+
+// @ts-ignore
 import { InputSearch } from "molgenis-viz";
 import gql from "graphql-tag";
 import { request } from "graphql-request";
@@ -75,7 +80,7 @@ const props = withDefaults(defineProps<CheckBoxGroupSearchIF>(), {
 });
 
 const emit = defineEmits<{
-  (e: "refDataLoaded", value: Record<string, any>[]): void;
+  (e: "refDataLoaded", value: OntologyDataIF[]): void;
   (e: "change", value: string[]): void;
 }>();
 

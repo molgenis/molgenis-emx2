@@ -96,15 +96,10 @@
 
 <script setup lang="ts">
 import { ref, watch } from "vue";
-import {
-  Page,
-  PageHeader,
-  PageSection,
-  Accordion,
-  DataTable,
-  LoadingScreen,
-  MessageBox,
-} from "molgenis-viz";
+
+// @ts-ignore
+// prettier-ignore
+import { Page, PageHeader, PageSection, Accordion, DataTable, LoadingScreen, MessageBox, } from "molgenis-viz";
 
 import CheckBoxSearch from "../components/CheckBoxSearch.vue";
 
