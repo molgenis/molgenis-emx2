@@ -676,6 +676,16 @@ class Client:
 
         col_name = ''.join(_col.split('`'))
 
+        if '.' in col_name:
+            _filter = {}
+            current = _filter
+            for (i, segment) in enumerate(col_name.split('.')[:-1]):
+                current[segment] = {}
+                current = current[segment]
+            last_segment = col_name.split('.')[-1]
+            current[last_segment] = {"not_equals": _val}
+            return _filter
+
         schema = self.get_schema_metadata(_schema)
         col = schema.get_table(by='name', value=_table).get_column(by='name', value=col_name)
 
@@ -751,6 +761,9 @@ class Client:
                 raise InvalidTokenException("Invalid token or token expired.")
             if 'permission denied' in response.text:
                 raise PermissionDeniedException(f"Transaction failed: permission denied.")
+            if 'Graphql API error' in response.text:
+                msg = response.json().get("errors", [])[0].get('message')
+                raise GraphQLException(msg)
             raise PyclientException("An unknown error occurred when trying to reach this server.")
 
         if response.request.method == 'GET':

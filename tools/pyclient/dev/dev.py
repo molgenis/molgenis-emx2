@@ -2,7 +2,7 @@
 # FILE: dev.py
 # AUTHOR: David Ruvolo, Ype Zijlstra
 # CREATED: 2023-05-22
-# MODIFIED: 2024-03-12
+# MODIFIED: 2024-07-16
 # PURPOSE: development script for initial testing of the py-client
 # STATUS: ongoing
 # PACKAGES: pandas, python-dotenv
@@ -37,8 +37,10 @@ async def main():
     token = os.environ.get('MG_TOKEN')
 
     async with Client('https://emx2.dev.molgenis.org/', schema='catalogue') as client:
+        countries = ["Denmark", "France"]
         cohorts = client.get(table='Cohorts',
-                             query_filter='subcohorts.countries.name == ["Denmark", "France"]')
+                             query_filter=f'subcohorts.countries.name != {countries}',
+                             as_df=True)
         print(cohorts.to_string())
 
         var_values = client.get(table='Variable values',
