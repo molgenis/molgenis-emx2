@@ -1,25 +1,42 @@
 We have e2e tests using playwright
 
-To install:
-```yarn install```
+#### To install
+```bash
+yarn install
+```
 
-To test against a localhost:8080 run:
+#### To test against a localhost:8080 run
+```bash
+npx playwright test
+```
 
-```npx playwright test```
+#### You can also make the test start/stop emx2
+```bash
+set CI=true && npx playwright test
+```
 
-You can also make the test start/stop emx2:
+#### You can also run from the molgenis-emx2 project root as follows
+```bash
+npx playwright test --config e2e --project=chromium
+```
 
-```set CI=true && npx playwright test```
-
-You can also run from the molgenis-emx2 project root as follows
-
-```npx playwright test --config e2e --project=chromium```
-
-The test is part of .circleci/config.yml running that same command
+The test is part of .circleci/config.yml running that same command.  
+When running this on a local emx2 server, run the following first (or add it to `.bash_profile`):
+```bash
+export E2E_BASE_URL=http://localhost:8080/
+```
 
 ## playwright vscode plugin
 
 [Playwright: Getting started - VS Code](https://playwright.dev/docs/getting-started-vscode)
+
+To make the plugin use a local running version of EMX2, add the following to your `settings.json`:
+
+```json
+"playwright.env": {
+        "E2E_BASE_URL":"http://localhost:8080/"
+    }, 
+```
 
 ## Adding tests
 
