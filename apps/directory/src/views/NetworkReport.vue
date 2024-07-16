@@ -46,8 +46,9 @@
                   </ul>
                 </div>
                 <Tabs>
-                  <Tab :title="`Collections (${collections.length})`">
-                    <div>Subcollection(s): {{ subcollectionCount }}</div>
+                  <Tab
+                    :title="`Collections (${collections.length} / ${subcollectionCount})`"
+                  >
                     <div
                       v-if="
                         !collections ||
