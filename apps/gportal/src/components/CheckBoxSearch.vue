@@ -55,6 +55,7 @@ import { InputSearch } from "molgenis-viz";
 import gql from "graphql-tag";
 import { request } from "graphql-request";
 import { XMarkIcon } from "@heroicons/vue/24/outline";
+import type { OntologyDataIF } from "../interfaces";
 
 interface CheckBoxGroupSearchIF {
   id: string;
@@ -90,7 +91,7 @@ const selections = ref<string[]>([]);
 const loading = ref<boolean>(false);
 const error = ref<Error | boolean>(false);
 const searchTerm = ref<string>("");
-const referenceData = ref([]);
+const referenceData = ref<OntologyDataIF[]>([]);
 const showLimit = ref<number>(props.limit);
 
 function removeFilter(value: string) {

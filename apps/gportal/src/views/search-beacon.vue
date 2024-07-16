@@ -108,22 +108,31 @@ import {
 
 import CheckBoxSearch from "../components/CheckBoxSearch.vue";
 
-import { InputRefList } from "molgenis-components";
 import { filterData, transformBeaconResultSets } from "../utils/index";
-import type { BeaconQueryIF } from "../interfaces";
+import type {
+  BeaconQueryIF,
+  ApiResponseIF,
+  OntologyDataIF,
+  BeaconOutputIF,
+  BeaconResultsIF,
+} from "../interfaces";
 import axios from "axios";
 
 const loading = ref<boolean>(false);
-const error = ref<boolean>(false);
-const geneFilters = ref([]);
-const geneData = ref([]); // FIX: will only hold the initial  10 results show on screen
-const genderFilters = ref([]);
-const genderData = ref([]);
-const beaconOutput = ref(null);
-const beaconResult = ref([]);
-const beaconResultHits = ref<number>(0);
+const error = ref<string | boolean>(false);
 
-const jsQuery = ref<BeaconQueryIF>({ query: { filters: [] } });
+const geneData = ref<OntologyDataIF[]>([]);
+const genderData = ref<OntologyDataIF[]>([]);
+
+const geneFilters = ref<string[]>([]);
+const genderFilters = ref<string[]>([]);
+
+const beaconOutput = ref<BeaconOutputIF>();
+const beaconResultHits = ref<number>(0);
+const beaconResult = ref<BeaconResultsIF[]>([]);
+const jsQuery = ref<BeaconQueryIF>({
+  query: { filters: [] },
+});
 
 function prepareBeaconQuery() {
   jsQuery.value.query.filters = [];
@@ -162,13 +171,13 @@ function prepareBeaconQuery() {
 async function queryBeacon() {
   axios
     .post("/api/beacon/individuals", JSON.stringify(jsQuery.value, null, 2))
-    .then((response) => {
+    .then((response: ApiResponseIF) => {
       beaconOutput.value = response.data;
       const data = response.data;
       const resultSets = data.response.resultSets;
       beaconResult.value = transformBeaconResultSets(resultSets);
       beaconResultHits.value =
-        beaconOutput.value.responseSummary?.numTotalResults;
+        beaconOutput.value.responseSummary.numTotalResults;
     })
     .catch((err) => {
       error.value = `${err.message} (${err.code})`;

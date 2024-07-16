@@ -1,4 +1,8 @@
-import { filterDataIF, ResultSetIF } from "../interfaces";
+import type {
+  ResultSetIF,
+  OntologyDataIF,
+  BeaconResultsIF,
+} from "../interfaces";
 
 /**
 filterData
@@ -15,17 +19,17 @@ const data = filterData(data=myData, filters=myFilters, attribs=['col1','col2'])
 */
 
 export function filterData(
-  data: filterDataIF[],
+  data: OntologyDataIF[],
   filters: string[],
   attributes: string[]
 ) {
   return data
-    .filter((row) => filters.includes(row.name))
-    .map((row) => {
+    .filter((row: OntologyDataIF) => filters.includes(row.name))
+    .map((row: OntologyDataIF) => {
       return attributes
-        .map((attrib) => {
+        .map((attrib: string) => {
           if (row.hasOwnProperty(attrib)) {
-            return row[attrib];
+            return row[attrib as keyof OntologyDataIF];
           }
         })
         .join("_");
@@ -40,8 +44,10 @@ export function filterData(
  *    found in `response.data.resultsets`
  */
 
-export function transformBeaconResultSets(data: ResultSetIF[]) {
-  return data.map((row: object) => {
+export function transformBeaconResultSets(
+  data: ResultSetIF[]
+): BeaconResultsIF[] {
+  return data.map((row: ResultSetIF) => {
     return {
       schema: row.id,
       table: row.setType,
