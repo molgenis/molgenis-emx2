@@ -37,6 +37,10 @@ async def main():
     token = os.environ.get('MG_TOKEN')
 
     async with Client('https://emx2.dev.molgenis.org/', schema='catalogue') as client:
+        cohorts = client.get(table='Cohorts',
+                             query_filter='subcohorts.countries.name == ["Denmark", "France"]')
+        print(cohorts.to_string())
+
         var_values = client.get(table='Variable values',
                                 query_filter='label != No and value != 1', as_df=True)
 

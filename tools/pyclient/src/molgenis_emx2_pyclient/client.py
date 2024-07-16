@@ -582,7 +582,7 @@ class Client:
         """Prepares a GraphQL filter based on the expression passed into `get`."""
         if expr in [None, ""]:
             return ""
-        statements = expr.split('and')
+        statements = expr.split(' and ')
         _filter = dict()
         for stmt in statements:
             if '==' in stmt:
@@ -605,6 +605,16 @@ class Client:
 
         col_name = ''.join(_col.split('`'))
 
+        if '.' in col_name:
+            _filter = {}
+            current = _filter
+            for (i, segment) in enumerate(col_name.split('.')[:-1]):
+                current[segment] = {}
+                current = current[segment]
+            last_segment = col_name.split('.')[-1]
+            current[last_segment] = {"equals": _val}
+            return _filter
+
         schema = self.get_schema_metadata(_schema)
         col = schema.get_table(by='name', value=_table).get_column(by='name', value=col_name)
         match col.get('columnType'):
@@ -612,11 +622,8 @@ class Client:
                 val = False
                 if str(_val).lower() == 'true':
                     val = True
-            case 'REF':
-                val = {'id': _val}
             case _:
                 val = ''.join(_val.split('`'))
-
         return {col.id: {'equals': [val]}}
 
     def __prepare_greater_filter(self, stmt: str, _table: str, _schema: str) -> dict:
@@ -677,8 +684,6 @@ class Client:
                 val = ''.join(_val.split('`'))
 
         return {col.id: {"not_equals": val}}
-
-
 
     @staticmethod
     def _prep_data_or_file(file_path: str = None, data: list | pd.DataFrame = None) -> str | None:
