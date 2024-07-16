@@ -12,6 +12,10 @@ module.exports = {
         target: HOST,
         ...opts,
     },
+    "^/[a-zA-Z0-9_.%-]+/graphql": {
+        target: HOST,
+        ...opts,
+    },
     "^/[a-zA-Z0-9_.%-]+/api/file": {
         target: HOST,
         ...opts,
@@ -21,7 +25,7 @@ module.exports = {
         ...opts,
     },
     "/graphql": {
-        target: `${HOST}/api/graphql`,
+        target: `${HOST}/${SCHEMA}/graphql`,
         ...opts,
     },
     "/apps": {
@@ -29,7 +33,6 @@ module.exports = {
         ...opts,
     },
     "/theme.css": {
-        target: `${HOST}/apps/central`,
-        ...opts,
-    }
+        target: `${HOST}/${SCHEMA}/theme.css`, ...opts
+    },
 };

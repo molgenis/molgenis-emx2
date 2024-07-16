@@ -22,32 +22,7 @@ export default defineConfig(() => {
     plugins: [vue()],
     base: "",
     server: {
-      proxy: {
-        "/api/graphql": {
-          target: `${host}/${schema}`,
-          ...opts,
-        },
-        "^/[a-zA-Z0-9_.%-]+/api/graphql": {
-          target: host,
-          ...opts,
-        },
-        "/api": {
-          target: `${host}/api`,
-          ...opts,
-        },
-        "/graphql": {
-          target: `${host}/api/graphql`,
-          ...opts,
-        },
-        "/apps": {
-          target: host,
-          ...opts,
-        },
-        "/theme.css": {
-          target: `${host}/apps/central`,
-          ...opts,
-        },
-      },
+      proxy: require("../dev-proxy.config"),
     },
   };
 });

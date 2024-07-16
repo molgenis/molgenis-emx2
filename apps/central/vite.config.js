@@ -7,7 +7,8 @@ export default defineConfig({
   plugins: [vue()],
   base: "",
   server: {
-    proxy: {
+    proxy:
+        {
       "/graphql": { target: "http://localhost:8080/api", ...opts },
       "/api": { target: "http://localhost:8080/", ...opts },
       "/theme.css": { target: "http://localhost:8080/apps/central", ...opts },
