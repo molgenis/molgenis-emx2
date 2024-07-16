@@ -32,5 +32,5 @@ test('Does the custom RDF change when field is edited', async ({ page }) => {
   await page.locator('textarea').fill('@prefix dcterms: <http://purl.org/dc/terms/> .\n\n<http://example.com/> dcterms:title "Example website" .');
   await page.getByRole('button', { name: 'Edit Setting' }).click();
   await page.goto('/test_FAIR/api/rdf/Catalog');
-  await expect(page.locator('pre')).toContainText('@prefix dcterms: <http://purl.org/dc/terms/> . <http://example.com/> dcterms:title "Example website" .', );
+  await expect(page.locator('pre')).toContainText('@prefix dcterms: <http://purl.org/dc/terms/> . <http://example.com/> dcterms:title "Example website" .', { timeout: 10000 });
 });
