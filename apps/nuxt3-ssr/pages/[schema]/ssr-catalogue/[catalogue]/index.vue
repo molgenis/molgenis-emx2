@@ -142,7 +142,6 @@ const { data, error } = await useAsyncData<any, IMgError>(
               resource: {
                 mg_tableclass: { like: ["Models"] },
                 id: {
-                  //todo: need also variables from nested networks?
                   equals: models.data.Networks.map((n) =>
                     n.models.map((m: { id: string }) => m.id)
                   ).flat(),
