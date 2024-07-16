@@ -37,6 +37,12 @@ async def main():
     token = os.environ.get('MG_TOKEN')
 
     async with Client('https://emx2.dev.molgenis.org/', schema='catalogue') as client:
+
+        participant_range = [10_000, 20_000.5]
+        big_data = client.get(table='Subcohorts',
+                              query_filter=f'`number of participants` between {participant_range}', as_df=True)
+        print(big_data.head().to_string())
+
         countries = ["Denmark", "France"]
         cohorts = client.get(table='Cohorts',
                              query_filter=f'subcohorts.countries.name != {countries}',
@@ -47,11 +53,6 @@ async def main():
                                 query_filter='label != No and value != 1', as_df=True)
 
         print(var_values.head().to_string())
-
-        big_data = client.get(table='Subcohorts',
-                              query_filter='`number of participants` > 10000 '
-                                           'and `number of participants` < 20000', as_df=True)
-        print(big_data.head().to_string())
 
     # Connect to the server and sign in
     async with Client('https://emx2.dev.molgenis.org/', token=token) as client:

@@ -593,6 +593,8 @@ class Client:
                 _filter.update(**self.__prepare_smaller_filter(stmt, _table, _schema))
             elif '!=' in stmt:
                 _filter.update(**self.__prepare_unequal_filter(stmt, _table, _schema))
+            elif 'between' in stmt:
+                _filter.update(**self.__prepare_between_filter(stmt, _table, _schema))
             else:
                 raise ValueError(f"Cannot process statement {stmt!r}, "
                                  f"ensure specifying one of the operators '==', '>', '<', '!=' in your statement.")
@@ -694,6 +696,28 @@ class Client:
                 val = ''.join(_val.split('`'))
 
         return {col.id: {"not_equals": val}}
+
+    def __prepare_between_filter(self, stmt: str, _table: str, _schema: str) -> dict:
+        """Prepares the filter part if values between a certain range are requested."""
+        stmt.replace('=', '')
+        _col = stmt.split('between')[0].strip()
+        _val = stmt.split('between')[1].strip()
+
+        try:
+            val = json.loads(_val)
+        except json.decoder.JSONDecodeError:
+            msg = "To filter on values between a and b, supply this as a list, [a, b]"
+            raise ValueError(msg)
+        col_name = ''.join(_col.split('`'))
+
+        schema = self.get_schema_metadata(_schema)
+        col = schema.get_table(by='name', value=_table).get_column(by='name', value=col_name)
+        if (col_type := col.get('columnType')) not in ['INT', 'DECIMAL']:
+            raise NotImplementedError(f"The filter 'between' is not implemented for columns of type {col_type!r}.")
+
+        return {col.id: {'between': val}}
+
+
 
     @staticmethod
     def _prep_data_or_file(file_path: str = None, data: list | pd.DataFrame = None) -> str | None:
