@@ -44,8 +44,7 @@
                   Collections ({{ collectionsData.length }} /
                   {{ subcollectionCount }})<sup>
                     <InfoPopover
-                      faIcon="fa-solid fa-question"
-                      textColor="black"
+                      faIcon="fa-regular fa-circle-question"
                       popover-placement="top"
                     >
                       <div>Collections: {{ collectionsData.length }}</div>
@@ -127,7 +126,7 @@
 import { computed, ref } from "vue";
 import { useRoute } from "vue-router";
 //@ts-ignore
-import { Breadcrumb, InfoPopover, Spinner } from "molgenis-components";
+import { Breadcrumb, InfoPopover, Tooltip, Spinner } from "molgenis-components";
 import CheckOut from "../components/checkout-components/CheckOut.vue";
 import CollectionSelector from "../components/checkout-components/CollectionSelector.vue";
 import ViewGenerator from "../components/generators/ViewGenerator.vue";
