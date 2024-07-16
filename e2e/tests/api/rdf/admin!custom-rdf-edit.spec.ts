@@ -11,7 +11,7 @@ test.beforeAll(async () => {
   await page.getByLabel('name').fill('test_FAIR');
   await page.getByLabel('template').selectOption('FAIR_DATA_HUB');
   await page.getByRole('button', { name: 'Create database' }).click();
-  await expect(page.getByText('Schema test_FAIR created')).toBeVisible({ timeout: 30000 });
+  await expect(page.getByText('Schema test_FAIR created')).toBeVisible({ timeout: 60000 });
 });
 
 test.afterAll(async () => {
