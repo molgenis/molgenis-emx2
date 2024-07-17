@@ -2,10 +2,6 @@ import { defineConfig } from "vite";
 import path from "path";
 import vue from "@vitejs/plugin-vue";
 
-const host = "https://emx2.dev.molgenis.org";
-const schema = "DASHBOARD_TEST";
-const opts = { changeOrigin: true, secure: false, logLevel: "debug" };
-
 // basic build conf fo both library
 let conf = {
   plugins: [vue()],
@@ -33,6 +29,7 @@ let conf = {
 };
 
 export default defineConfig(({ command, mode }) => { 
+  require("dotenv").config({ path: `./.env` });
   
   if (command === 'serve') {
     return {
