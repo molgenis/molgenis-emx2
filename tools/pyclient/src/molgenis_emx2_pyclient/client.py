@@ -716,7 +716,8 @@ class Client:
                 _filter.update(**self.__prepare_between_filter(stmt, _table, _schema))
             else:
                 raise ValueError(f"Cannot process statement {stmt!r}, "
-                                 f"ensure specifying one of the operators '==', '>', '<', '!=' in your statement.")
+                                 f"ensure specifying one of the operators '==', '>', '<', '!=', 'between' "
+                                 f"in your statement.")
         return "?filter=" + json.dumps(_filter)
 
     def __prepare_equals_filter(self, stmt: str, _table: str, _schema: str) -> dict:
@@ -724,20 +725,20 @@ class Client:
         _col = stmt.split('==')[0].strip()
         _val = stmt.split('==')[1].strip()
 
-        col_name = ''.join(_col.split('`'))
+        col_id = ''.join(_col.split('`'))
 
-        if '.' in col_name:
+        if '.' in col_id:
             _filter = {}
             current = _filter
-            for (i, segment) in enumerate(col_name.split('.')[:-1]):
+            for (i, segment) in enumerate(col_id.split('.')[:-1]):
                 current[segment] = {}
                 current = current[segment]
-            last_segment = col_name.split('.')[-1]
+            last_segment = col_id.split('.')[-1]
             current[last_segment] = {"equals": _val}
             return _filter
 
         schema = self.get_schema_metadata(_schema)
-        col = schema.get_table(by='name', value=_table).get_column(by='name', value=col_name)
+        col = schema.get_table(by='name', value=_table).get_column(by='id', value=col_id)
         match col.get('columnType'):
             case 'BOOL':
                 val = False
@@ -753,10 +754,10 @@ class Client:
         _col = stmt.split('>')[0].strip()
         _val = stmt.split('>')[1].strip()
 
-        col_name = ''.join(_col.split('`'))
+        col_id = ''.join(_col.split('`'))
 
         schema = self.get_schema_metadata(_schema)
-        col = schema.get_table(by='name', value=_table).get_column(by='name', value=col_name)
+        col = schema.get_table(by='name', value=_table).get_column(by='id', value=col_id)
 
         match col.get('columnType'):
             case 'INT':
@@ -774,10 +775,10 @@ class Client:
         _col = stmt.split('<')[0].strip()
         _val = stmt.split('<')[1].strip()
 
-        col_name = ''.join(_col.split('`'))
+        col_id = ''.join(_col.split('`'))
 
         schema = self.get_schema_metadata(_schema)
-        col = schema.get_table(by='name', value=_table).get_column(by='name', value=col_name)
+        col = schema.get_table(by='name', value=_table).get_column(by='id', value=col_id)
 
         match col.get('columnType'):
             case 'INT':
@@ -795,20 +796,20 @@ class Client:
         _col = stmt.split('!=')[0].strip()
         _val = stmt.split('!=')[1].strip()
 
-        col_name = ''.join(_col.split('`'))
+        col_id = ''.join(_col.split('`'))
 
-        if '.' in col_name:
+        if '.' in col_id:
             _filter = {}
             current = _filter
-            for (i, segment) in enumerate(col_name.split('.')[:-1]):
+            for (i, segment) in enumerate(col_id.split('.')[:-1]):
                 current[segment] = {}
                 current = current[segment]
-            last_segment = col_name.split('.')[-1]
+            last_segment = col_id.split('.')[-1]
             current[last_segment] = {"not_equals": _val}
             return _filter
 
         schema = self.get_schema_metadata(_schema)
-        col = schema.get_table(by='name', value=_table).get_column(by='name', value=col_name)
+        col = schema.get_table(by='name', value=_table).get_column(by='id', value=col_id)
 
         match col.get('columnType'):
             case _:
@@ -824,19 +825,18 @@ class Client:
 
         try:
             val = json.loads(_val)
-        except json.decoder.JSONDecodeError:
-            msg = "To filter on values between a and b, supply this as a list, [a, b]"
+        except json.decoder.JSONDecodeError as e:
+            msg = ("To filter on values between a and b, supply them as a list, [a, b]. "
+                   "Ensure the values for a and b are numeric.")
             raise ValueError(msg)
-        col_name = ''.join(_col.split('`'))
+        col_id = ''.join(_col.split('`'))
 
         schema = self.get_schema_metadata(_schema)
-        col = schema.get_table(by='name', value=_table).get_column(by='name', value=col_name)
+        col = schema.get_table(by='name', value=_table).get_column(by='id', value=col_id)
         if (col_type := col.get('columnType')) not in ['INT', 'DECIMAL']:
             raise NotImplementedError(f"The filter 'between' is not implemented for columns of type {col_type!r}.")
 
         return {col.id: {'between': val}}
-
-
 
     @staticmethod
     def _prep_data_or_file(file_path: str = None, data: list | pd.DataFrame = None) -> str | None:
