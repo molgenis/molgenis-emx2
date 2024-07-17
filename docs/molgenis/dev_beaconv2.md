@@ -85,6 +85,25 @@ Model endpoints for which record-level GET and POST requests are implemented are
 GET request are record requests by default and therefor viewer permission on the data is needed to perform the queries.
 For post requests a
 
+### Permissions
+
+By default, a new database will have VIEWER permission for all users including anonymous requests. How to set up
+permissions for a database is found [here](use_permissions.md).
+
+Beacon offers 3 different response types
+
+- Record (complete response with the complete beacon model)
+- Count (count the numbers occurrences for a particular model endpoint)
+- Boolean (true/false, does the data exist in a given endpoint, given certain filters)
+
+|            | Record | Count | Boolean |
+|------------|-----|-------|---------|
+| Viewer     | ✅   | ✅     | ✅       |
+| Aggregator | ❌   | ✅       | ✅       |
+| Count      | ❌   | ✅       | ✅       |
+| Range      | ❌   | ✅       | ✅       |
+| Exists     | ❌   | ❌      | ✅         |
+
 ### Queries
 
 The Beacon v2 framework allows for a range of potential queries and filters.
@@ -136,14 +155,6 @@ On genomic variation, a number of different genomic queries are accepted via GET
 - Range
   query, [example](https://vkgl-emx2.molgeniscloud.org/api/beacon/g_variants?start=32953990,32953999&end=32954003,32954015&referenceName=13)
 - Gene query, [example](https://vkgl-emx2.molgeniscloud.org/api/beacon/g_variants?geneId=TERC)
-
-### Aggregate responses
-
-Beacon offers 3 different response types
-
-- Record (complete response with the complete beacon model)
-- Count (count the numbers occurrences for a particular model endpoint)
-- Boolean (true/false, does the data exist in a given endpoint)
 
 ### Semantics
 
