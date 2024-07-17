@@ -143,7 +143,7 @@ const { data, error } = await useAsyncData<any, IMgError>(
                 mg_tableclass: { like: ["Models"] },
                 id: {
                   equals: models.data.Networks.map((n) =>
-                    n.models.map((m: { id: string }) => m.id)
+                    n.models?.map((m: { id: string }) => m.id)
                   ).flat(),
                 },
               },

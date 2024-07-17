@@ -243,10 +243,12 @@ async function buildScopedModelFilter() {
     return { error };
   }
 
-  console.log(JSON.stringify(data.Networks));
+  console.log("found: " + JSON.stringify(data));
   const modelIds = data.Networks.map((n) =>
-    n.models.map((m: { id: string }) => m.id)
+    n.models?.map((m: { id: string }) => m.id)
   ).flat();
+
+  console.log("found: " + JSON.stringify(modelIds));
 
   const scopedResourceFilter = {
     resource: {
