@@ -2,25 +2,37 @@
 withDefaults(
   defineProps<{
     id: string;
+    label?: string;
+    value?: string;
+    placeholder?: string;
+    disabled?: boolean;
     required?: boolean;
+    valid?: boolean;
     hasError?: boolean;
   }>(),
   {
+    disabled: false,
     required: false,
     hasError: false,
+    valid: false,
   }
 );
 
-const modelValue = ref("");
+const modelValue = ref<string>("");
 </script>
 
 <template>
   <input
-    v-model="modelValue"
-    type="text"
     :id="id"
     :required="required"
-    class="w-full pr-16 font-sans text-black text-gray-300 bg-white outline-none rounded-search-input h-10 ring-red-500 pl-3 shadow-search-input focus:shadow-search-input hover:shadow-search-input search-input-mobile border"
-    :class="{ 'border-red-500 text-red-500': hasError }"
+    :placeholder="placeholder"
+    class="w-full pr-4 font-sans text-black text-gray-300 outline-none rounded-search-input h-10 ring-red-500 pl-3 shadow-search-input focus:shadow-search-input hover:shadow-search-input search-input-mobile border"
+    :class="{
+      'border-invalid text-invalid': hasError,
+      'border-valid text-valid': valid,
+      'border-disabled text-disabled bg-disabled': disabled,
+      'bg-white': !disabled,
+    }"
+    v-model="modelValue"
   />
 </template>
