@@ -22,11 +22,6 @@ const { data, error, status, refresh } = await useFetch<Resp<Trigger>>(
 const showSidePanel = ref(false);
 const showDeleteConfirm = ref(false);
 
-function addTrigger() {
-  clearForm();
-  showSidePanel.value = true;
-}
-
 async function saveTrigger() {
   const createAction = {
     name: formTrigger.value.name,
@@ -45,6 +40,22 @@ async function saveTrigger() {
   refresh();
 }
 
+async function executeDelete() {
+  console.log("executeDelete", formTrigger.value);
+  const resp = await $fetch(
+    `/${schema}/api/trigger/${formTrigger.value.name}`,
+    {
+      method: "DELETE",
+    }
+  ).catch((error) => {
+    console.error(error);
+    formError.value = `Failed to delete trigger (${error})`;
+  });
+  console.log("delete resp", resp);
+  refresh();
+  showDeleteConfirm.value = false;
+}
+
 function clearForm() {
   formTrigger.value.name = "";
   formTrigger.value.cssSelector = "";
@@ -57,6 +68,11 @@ const formTrigger = ref<Trigger>({
   cssSelector: "",
 });
 
+function addTrigger() {
+  clearForm();
+  showSidePanel.value = true;
+}
+
 function editTrigger(trigger: Trigger) {
   clearForm();
   formTrigger.value = { ...trigger };
@@ -64,9 +80,10 @@ function editTrigger(trigger: Trigger) {
 }
 
 function deleteTrigger(trigger: Trigger) {
+  console.log("delete", trigger);
   clearForm();
   formTrigger.value = { ...trigger };
-  showSidePanel.value = true;
+  showDeleteConfirm.value = true;
 }
 
 const formError = ref<string | null>(null);
@@ -80,6 +97,7 @@ const formError = ref<string | null>(null);
       title="Triggers"
       description="Trigger that fire analytics events"
     >
+      <Button type="outline" size="small" @click="addTrigger">Add</Button>
       <CardList>
         <CardListItem v-for="trigger in data">
           <article class="py-5 lg:px-12.5 p-5">
@@ -92,7 +110,13 @@ const formError = ref<string | null>(null);
               <Button type="outline" size="small" @click="editTrigger(trigger)"
                 >edit</Button
               >
-              <Button type="outline" size="small" icon="trash">remove</Button>
+              <Button
+                type="outline"
+                size="small"
+                icon="trash"
+                @click="deleteTrigger(trigger)"
+                >remove</Button
+              >
             </header>
             <div class="md:flex md:basis-3/5">
               <p class="text-body-base">
@@ -141,7 +165,7 @@ const formError = ref<string | null>(null);
       <p>Are you sure you want to delete this trigger?</p>
     </ContentBlockModal>
     <template #footer>
-      <Button type="primary" size="medium" @click="deleteTrigger(formTrigger)"
+      <Button type="primary" size="medium" @click="executeDelete"
         >Delete</Button
       >
       <div v-if="formError" class="text-menu p-4">{{ formError }}</div>
