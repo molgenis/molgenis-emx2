@@ -2,7 +2,7 @@
 name: Networks data model
 description: "This catalogue contains metadata on networks of data collections."
 
-profileTags: NetworksStaging
+profileTags: NetworksStaging,CohortsStaging
 
 # demoData: _demodata/applications/datacatalogue
 
