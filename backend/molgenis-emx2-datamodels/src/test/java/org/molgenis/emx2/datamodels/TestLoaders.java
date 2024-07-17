@@ -81,7 +81,7 @@ public class TestLoaders {
   public void test7DataCatalogueCohortStagingLoader() {
     Schema cohortStaging = database.createSchema(COHORT_STAGING);
     AvailableDataModels.DATA_CATALOGUE_COHORT_STAGING.install(cohortStaging, true);
-    assertEquals(20, cohortStaging.getTableNames().size());
+    assertEquals(19, cohortStaging.getTableNames().size());
   }
 
   @Test
@@ -151,6 +151,6 @@ public class TestLoaders {
   void test17DataCatalogueFlatLoader() {
     Schema datacatalogueflat = database.createSchema(DATA_CATALOGUE_FLAT);
     AvailableDataModels.DATA_CATALOGUE_FLAT.install(datacatalogueflat, false);
-    assertEquals(24, datacatalogueflat.getTableNames().size());
+    assertEquals(23, datacatalogueflat.getTableNames().size());
   }
 }
