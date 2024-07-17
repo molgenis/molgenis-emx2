@@ -16,6 +16,7 @@ public class TestLoaders {
   public static final String COHORT_STAGING = "CohortStaging";
   public static final String NETWORK_STAGING = "NetworkStaging";
   public static final String DATA_CATALOGUE_FLAT = "CatalogueFlat";
+  public static final String DATA_CATALOGUE_AGGREGATES = "AggregatesTest";
   public static final String FAIR_DATA_HUB_TEST = "FAIRDataHubTest";
   public static final String DIRECTORY_TEST = "DirectoryTest";
   public static final String DIRECTORY_STAGING = "DirectoryStaging";
@@ -38,6 +39,7 @@ public class TestLoaders {
     database.dropSchemaIfExists(NETWORK_STAGING);
     database.dropSchemaIfExists(DATA_CATALOGUE);
     database.dropSchemaIfExists(DATA_CATALOGUE_FLAT);
+    database.dropSchemaIfExists(DATA_CATALOGUE_AGGREGATES);
     database.dropSchemaIfExists(FAIR_DATA_HUB_TEST);
     database.dropSchemaIfExists(SHARED_STAGING);
     database.dropSchemaIfExists(CATALOGUE_ONTOLOGIES);
@@ -65,7 +67,7 @@ public class TestLoaders {
   public void test2DataCatalogueLoader() {
     Schema dataCatalogue = database.createSchema(DATA_CATALOGUE);
     AvailableDataModels.DATA_CATALOGUE.install(dataCatalogue, true);
-    assertEquals(34, dataCatalogue.getTableNames().size());
+    assertEquals(33, dataCatalogue.getTableNames().size());
 
     // test composite pkey having refs that are linked via refLink
     dataCatalogue
