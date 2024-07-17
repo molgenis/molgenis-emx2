@@ -113,7 +113,6 @@ RWE resources,,languages,ontology_array,,,CatalogueOntologies,Languages,,,,,"Lan
 RWE resources,,record trigger,text,,,,,,,,,"What triggers the creation of a record in the data bank? e.g., hospital discharge, specialist encounter, dispensation of a medicinal product, recording of a congenital anomaly","DataCatalogue,EMA"
 Cohorts,,collection events,refback,,,,Collection events,,resource,,dcterms:hasPart,List of collection events defined for this resource,"DataCatalogue,CohortStaging"
 Databanks,,unit of observation,text,,,,,,,,,"Based on the prompt, what is the unit of observation of a record (e.g., person, prescription)?",DataCatalogue
-Extended resources,,aggregates,refback,,,,Aggregates,,resource,,,Counts of e.g. samples defined for this resource,"DataCatalogue,CohortStaging"
 Databanks,,multiple entries,bool,,,,,,,,,"Can there be multiple entries for a single person in the data bank? For example, may a person contribute multiple records to the data bank?",DataCatalogue
 RWE resources,,linkage,heading,,,,,,,,,Data linkage,DataCatalogue
 Databanks,,has identifier,bool,,,,,,,,,Is there a unique identifier for a person in the data bank?,DataCatalogue
