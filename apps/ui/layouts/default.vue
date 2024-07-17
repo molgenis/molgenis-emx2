@@ -1,7 +1,8 @@
 <script setup lang="ts">
 const config = useRuntimeConfig();
 const route = useRoute();
-const session = useSession();
+const { data: session } = await useSession();
+console.log("session form defaiult layout: ", session.value);
 
 const faviconHref = config.public.emx2Theme
   ? `/_nuxt-styles/img/${config.public.emx2Theme}.ico`
@@ -25,20 +26,6 @@ useHead({
     }
   },
 });
-
-$fetch("/api/graphql", {
-  method: "POST",
-  body: JSON.stringify({
-    query: `{_session { email, roles, token }}`,
-  }),
-})
-  .then((resp) => {
-    console.log(resp);
-    session.value = resp.data._session;
-  })
-  .catch((error) => {
-    console.error(error);
-  });
 
 const isSignedIn = computed(
   () => !!session.value?.email && session.value?.email !== "anonymous"
@@ -81,7 +68,7 @@ const navigation = computed(() => {
           <HeaderButton
             :label="isSignedIn ? 'Account' : 'Signin'"
             icon="user"
-            @click="navigateTo({ path: '/login' })"
+            @click="navigateTo({ path: isSignedIn ? '/account' : '/login' })"
           />
         </template>
         <template #logo-mobile>

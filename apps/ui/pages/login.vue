@@ -2,8 +2,6 @@
 const route = useRoute();
 const router = useRouter();
 
-const prev = route.redirectedFrom?.fullPath;
-
 const username = ref("");
 const password = ref("");
 
@@ -11,8 +9,6 @@ const error = ref("");
 const loading = ref(false);
 
 async function signin() {
-  console.log(username, password);
-
   if (!username.value || !password.value) {
     error.value = "Email and password should be filled in";
   } else {
@@ -34,10 +30,13 @@ async function signin() {
     loading.value = false;
 
     if (signinResp.data.signin.status === "SUCCESS") {
-      console.log(signinResp.data.signin.message);
+      console.log(signinResp.data.signin);
+      const { data: session } = await useSession();
+      session.value.email = username.value;
       route.redirectedFrom ? router.go(-1) : navigateTo({ path: "/" });
     } else {
       console.log(signinResp.data.signin.message);
+      error.value = signinResp.data.signin.message;
     }
   }
 }
@@ -61,7 +60,9 @@ async function signin() {
           v-model="password"
         />
         <Button type="primary" size="medium">Sign in</Button>
-        {{ error }}
+        <div class="text-red-500">
+          {{ error }}
+        </div>
       </form>
     </ContentBlock>
   </Container>
