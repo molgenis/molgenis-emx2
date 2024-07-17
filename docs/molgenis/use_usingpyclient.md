@@ -85,12 +85,12 @@ This method accepts no arguments.
 ```python
 client.set_schema('My Schema')
 ```
-Sets the default schema for the server. 
+Sets the default schema for the server in the property `default_schema`. 
 Throws the `NoSuchSchemaException` if the user does not have at least _viewer_ permissions or if the schema does not exist.
 
-| argument | type | description          | required | default |
-|----------|------|----------------------|----------|---------|
-| name     | str  | the name of a schema | True     |         |
+| parameter | type | description          | required | default |
+|-----------|------|----------------------|----------|---------|
+| name      | str  | the name of a schema | True     |         |
 
 ### set_token
 ```python
@@ -99,9 +99,9 @@ client.set_token(token='***************')
 Sets the client's token in case no token was supplied in the initialization.
 Raises the `TokenSigninException` when the client is already signed in with a username/password combination.
 
-| argument | type | description | required | default |
-|----------|------|-------------|----------|---------|
-| token    | str  | the token   | True     |         |
+| parameter | type | description | required | default |
+|-----------|------|-------------|----------|---------|
+| token     | str  | the token   | True     |         |
 
 
 ### get
@@ -126,7 +126,7 @@ Throws the `NoSuchSchemaException` if the user does not have at least _viewer_ p
 Throws the `NoSuchColumnException` if the query filter contains a column id that is not present in the table.
 
 
-| argument     | type  | description                                                                    | required | default |
+| parameter    | type  | description                                                                    | required | default |
 |--------------|-------|--------------------------------------------------------------------------------|----------|---------|
 | table        | str   | the name of a table                                                            | True     | None    |
 | schema       | str   | the name of a schema                                                           | False    | None    |
@@ -142,9 +142,9 @@ Retrieves the metadata of a schema and returns it in the _metadata.Schema_ forma
 See the description of the [Schema](use_usingpyclient.md#schema) metadata object below.
 
 
-| argument | type | description          | required | default |
-|----------|------|----------------------|----------|---------|
-| name     | str  | the name of the schema | True     | None    |
+| parameter | type | description            | required | default |
+|-----------|------|------------------------|----------|---------|
+| name      | str  | the name of the schema | True     | None    |
 
 
 ### export
@@ -156,11 +156,11 @@ If the table is specified, only data from that table is exported, otherwise the 
 If all tables from a schema are exported with given format `csv`, the data is exported as a zip file containing a csv file of each table.
 Throws the `NoSuchSchemaException` if the user does not have at least _viewer_ permissions or if the schema does not exist.
 
-| argument | type | description                               | required | default |
-|----------|------|-------------------------------------------|----------|---------|
-| table    | str  | the name of a table                       | False    | None    |
-| schema   | str  | the name of a schema                      | False    | None    |
-| fmt      | str  | the output format, either `csv` or `xlsx` | False    | `csv`   |
+| parameter | type | description                               | required | default               |
+|-----------|------|-------------------------------------------|----------|-----------------------|
+| table     | str  | the name of a table                       | False    | None                  |
+| schema    | str  | the name of a schema                      | False    | client.default_schema |
+| fmt       | str  | the output format, either `csv` or `xlsx` | False    | `csv`                 |
 
 
 ### save_schema
@@ -174,12 +174,28 @@ Either `file` or `data` must be supplied. The data must be compatible with the s
 Throws the `PermissionDeniedException` if the user does not have at least _editor_ permissions for this schema.
 Throws the `NoSuchSchemaException` if the schema is not found on the server.
 
-| argument | type | description                                        | required | default |
-|----------|------|----------------------------------------------------|----------|---------|
-| table    | str  | the name of a table                                | True     |         |
-| schema   | str  | the name of a schema                               | False    | None    |
-| file     | str  | the location of a `csv` file with data             | False    | None    |
-| data     | list | data as a list of dictionaries or pandas DataFrame | False    | None    |
+| parameter | type | description                                        | required | default               |
+|-----------|------|----------------------------------------------------|----------|-----------------------|
+| table     | str  | the name of a table                                | True     |                       |
+| schema    | str  | the name of a schema                               | False    | client.default_schema |
+| file      | str  | the location of a `csv` file with data             | False    | None                  |
+| data      | list | data as a list of dictionaries or pandas DataFrame | False    | None                  |
+
+
+### upload_file
+```python
+client.upload_file(file_path='location/of/data/file.zip', schema='My Schema')
+```
+Imports table data and/or metadata to a schema from a file on the disk.
+This method supports `zip`, `xlsx`, and `csv` files.
+When uploading multiple `csv` files it is recommended to archive them into a `zip` file first and upload that file using this method.
+Throws the `PermissionDeniedException` if the user does not have at least _editor_ permissions for this schema.
+Throws the `NoSuchSchemaException` if the schema is not found on the server.
+
+| parameter | type | description          | required | default               |
+|-----------|------|----------------------|----------|-----------------------|
+| file_path | str  | the name of a table  | True     |                       |
+| schema    | str  | the name of a schema | False    | client.default_schema |
 
 
 ### delete_records
@@ -194,12 +210,12 @@ Throws the `NoSuchSchemaException` if the schema is not found on the server.
 
 [//]: # (&#40;In order to delete records from a table the data must specify the row values with principal keys)
 
-| argument | type | description                                        | required | default |
-|----------|------|----------------------------------------------------|----------|---------|
-| table    | str  | the name of a table                                | True     |         |
-| schema   | str  | the name of a schema                               | False    | None    |
-| file     | str  | the location of a `csv` file with data             | False    | None    |
-| data     | list | data as a list of dictionaries or pandas DataFrame | False    | None    |
+| parameter | type | description                                        | required | default               |
+|-----------|------|----------------------------------------------------|----------|-----------------------|
+| table     | str  | the name of a table                                | True     |                       |
+| schema    | str  | the name of a schema                               | False    | client.default_schema |
+| file      | str  | the location of a `csv` file with data             | False    | None                  |
+| data      | list | data as a list of dictionaries or pandas DataFrame | False    | None                  |
 
 
 ### create_schema

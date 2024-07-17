@@ -15,6 +15,10 @@ const menu = [
         label: "All variables",
         link: `/${schema}/ssr-catalogue/all/variables`,
       },
+  {
+    label: "Upload data",
+    link: "/apps/central/#/",
+  },
 
   // { label: "Statistical Methods", link: "#" },
   // { label: "Tables", link: "#" },
@@ -41,7 +45,7 @@ const menu = [
 
       <div class="pt-5 xl:hidden">
         <div class="relative flex items-center h-12.5 justify-between mb-4">
-          <!-- <HamburgerMenu :navigation="menu" /> -->
+          <HamburgerMenu :navigation="menu" />
 
           <div class="absolute -translate-x-1/2 left-1/2">
             <LogoMobile :link="`/${schema}/ssr-catalogue`" />
