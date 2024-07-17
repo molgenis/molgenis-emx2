@@ -140,6 +140,7 @@ export default {
         "SHARED_STAGING",
         "PROJECTMANAGER",
         "GDI",
+        "DATA_CATALOGUE_AGGREGATES"
       ],
       includeDemoData: false,
     };
