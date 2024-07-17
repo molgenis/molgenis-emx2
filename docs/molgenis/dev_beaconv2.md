@@ -8,23 +8,43 @@ Beacon project home page can be found [here](https://beacon-project.io/) and the
 code [here](https://github.com/ga4gh-beacon/beacon-v2/).
 Beacon v2 is available as an API in MOLGENIS EMX2.
 
+Loading a database with a beacon profile will make the Beacon API available, coming in two flavours:
+
+- [Beacon V2 specification](https://github.com/ga4gh-beacon/beacon-v2/) served at `<server>/<database>/api/beacon`
+- [Beacon VP (EJPRD) specification](https://github.com/ejp-rd-vp/vp-api-specs/tree/v4.0_spec) served
+  at `<server>/<database>/api/beacon_vp`
+
 ### Setup
 
-The easiest way to enable Beacon v2 in MOLGENIS EMX2 is by choosing 'FAIR_DATA_HUB' as a template for your database.
+#### Create a database
+
+The easiest way to enable Beacon v2 in MOLGENIS EMX2 is by choosing a Beacon data template for your database. More
+information about how to create a database is found [here](use_database.md)
 This will add a number of tables that define the content of your Beacon v2, for
 example [Analyses](https://github.com/molgenis/molgenis-emx2/blob/master/data/fairdatahub/beaconv2/demodata/Analyses.csv)
 and [Biosamples](https://github.com/molgenis/molgenis-emx2/blob/master/data/fairdatahub/beaconv2/demodata/Biosamples.csv).
 Using the 'FAIR_DATA_HUB' template including the example data will result in an instantly working Beacon v2 API.
 The example data can be used as a reference on how to enter data into the system, but can be safely removed or replaced.
+
+The following data templates include a Beacon profile:
+
+- BeaconV2
+- FAIRDataHub <More info about these profiles?>
+- GDI
+
 After setup, the API is available at `<server>/<database>/api/beacon`.
 For instance, if your MOLGENIS runs at `https://emx2.test.molgenis.org` and your database name is `fdp` the Beacon v2
 API is located at `https://emx2.test.molgenis.org/fdp/api/beacon`.
 
-#### Organizational Data
+#### Endpoint metadata
 
 All beacon-compliant templates include an *Endpoint table*. This table contains the organizational data for the
-endpoints displayed in your beacon's information endpoints. You can edit this data using
+endpoints displayed in your beacon's informational endpoints. You can edit this data using
 the [Table Explorer](use_quickstart.md#7-view-tables-data).
+
+#### Load data
+
+Lorem ipsum
 
 ### Endpoints
 
