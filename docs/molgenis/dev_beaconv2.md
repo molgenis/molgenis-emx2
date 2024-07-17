@@ -19,7 +19,7 @@ Loading a database with a beacon profile will make the Beacon API available, com
 #### Create a database
 
 The easiest way to enable Beacon v2 in MOLGENIS EMX2 is by choosing a Beacon data template for your database. More
-information about how to create a database is found [here](use_database.md)
+information about how to create a database is found [here](use_database.md).
 This will add a number of tables that define the content of your Beacon v2, for
 example [Analyses](https://github.com/molgenis/molgenis-emx2/blob/master/data/fairdatahub/beaconv2/demodata/Analyses.csv)
 and [Biosamples](https://github.com/molgenis/molgenis-emx2/blob/master/data/fairdatahub/beaconv2/demodata/Biosamples.csv).
@@ -92,17 +92,44 @@ permissions for a database is found [here](use_permissions.md).
 
 Beacon offers 3 different response types
 
-- Record (complete response with the complete beacon model)
-- Count (count the numbers occurrences for a particular model endpoint)
-- Boolean (true/false, does the data exist in a given endpoint, given certain filters)
+- **Record** (complete response with the complete beacon model)
+- **Count** (count the numbers occurrences for a particular model endpoint)
+- **Boolean** (true/false, does the data exist in a given endpoint, given certain filters)
 
-|            | Record | Count | Boolean |
-|------------|-----|-------|---------|
-| Viewer     | ✅   | ✅     | ✅       |
-| Aggregator | ❌   | ✅       | ✅       |
-| Count      | ❌   | ✅       | ✅       |
-| Range      | ❌   | ✅       | ✅       |
-| Exists     | ❌   | ❌      | ✅         |
+The following table shows how the MOLGENIS permissions relate to the Beacon response types:
+
+|                | Record | Count                 | Boolean |
+|----------------|--------|-----------------------|---------|
+| **Viewer**     | ✅      | ✅                     | ✅       |
+| **Count**      | ❌      | ✅ (exact counts)      | ✅       |
+| **Aggregator** | ❌      | ✅ (exact counts > 10) | ✅       |
+| **Range**      | ❌      | ✅ (step-size 10)      | ✅       |
+| **Exists**     | ❌      | ❌                     | ✅       |
+
+We have added the **Range** permission to handle inexact counts with a step size of 10 (e.g., 10, 20, 30, ..., 120, 130,
+etc.).
+
+For example, if the exact count for a given request is **74**, a user with **Range** permission will see a count of
+**80**, along with an additional description explaining within what range the exact count falls.
+
+```"response": {
+  "response": {
+     "resultSets": [
+      {
+         "id": ...,
+         "type": "dataset", 
+         "exists": true,
+         "resultCount": 80,
+         "info": {
+            "resultCountDescription": {
+               "minRange": 71,
+               "maxRange": 80
+            }
+         }      
+      }
+    ]
+  }
+```
 
 ### Queries
 
