@@ -33,6 +33,7 @@ public class BeaconApi {
         basePath,
         () -> {
           before("/*", BeaconApi::processRequest);
+          get("", BeaconApi::getInfo);
           get("/", BeaconApi::getInfo);
           get("/info", BeaconApi::getInfo);
           get("/service-info", BeaconApi::getInfo);
