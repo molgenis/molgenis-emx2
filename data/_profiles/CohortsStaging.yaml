@@ -8,6 +8,6 @@ profileTags: CohortsStaging
 #settings: _settings/datacatalogue
 
 # special options
-# setViewPermission: anonymous
+setViewPermission: anonymous
 ontologiesToFixedSchema: CatalogueOntologies
 setFixedSchemaViewPermission: anonymous
