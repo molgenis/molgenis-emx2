@@ -166,7 +166,7 @@ public class TestLoaders {
   void test18CohortsStagingFlatLoader() {
     Schema cohortsstagingflat = database.createSchema(FLAT_COHORTS_STAGING);
     AvailableDataModels.FLAT_COHORTS_STAGING.install(cohortsstagingflat, false);
-    assertEquals(18, cohortsstagingflat.getTableNames().size());
+    assertEquals(17, cohortsstagingflat.getTableNames().size());
   }
 
   @Test
@@ -180,7 +180,7 @@ public class TestLoaders {
   void test20StudiesFlatLoader() {
     Schema studiesstagingflat = database.createSchema(FLAT_STUDIES_STAGING);
     AvailableDataModels.FLAT_STUDIES_STAGING.install(studiesstagingflat, false);
-    assertEquals(14, studiesstagingflat.getTableNames().size());
+    assertEquals(15, studiesstagingflat.getTableNames().size());
   }
 
   @Test
