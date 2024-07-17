@@ -15,11 +15,14 @@ interface Resp<T> {
   status: number;
 }
 
-const { data, error, status, refresh } = await useFetch<Resp<Trigger>>(
+const { data, error, status, refresh } = await useFetch<Trigger[]>(
   `/${schema}/api/trigger`
 );
 
-const showSidePanel = ref(false);
+const triggers = computed(() => data?.value?.toReversed());
+
+const showAddModal = ref(false);
+const showEditModal = ref(false);
 const showDeleteConfirm = ref(false);
 
 async function saveTrigger() {
@@ -27,7 +30,7 @@ async function saveTrigger() {
     name: formTrigger.value.name,
     cssSelector: formTrigger.value.cssSelector,
   };
-  await $fetch(`/${schema}/api/trigger`, {
+  const resp = await $fetch(`/${schema}/api/trigger`, {
     method: "POST",
     body: JSON.stringify(createAction),
   }).catch((error) => {
@@ -35,9 +38,33 @@ async function saveTrigger() {
     formError.value = `Failed to add trigger (${error})`;
   });
 
-  clearForm();
-  showSidePanel.value = false;
-  refresh();
+  if (resp.status === "SUCCESS") {
+    clearForm();
+    showAddModal.value = false;
+    refresh();
+  }
+}
+
+async function updateTrigger() {
+  const updateAction = {
+    cssSelector: formTrigger.value.cssSelector,
+  };
+  const resp = await $fetch(
+    `/${schema}/api/trigger/${formTrigger.value.name}`,
+    {
+      method: "PUT",
+      body: JSON.stringify(updateAction),
+    }
+  ).catch((error) => {
+    console.error(error);
+    formError.value = `Failed to update trigger (${error})`;
+  });
+
+  if (resp.status === "SUCCESS") {
+    clearForm();
+    showEditModal.value = false;
+    refresh();
+  }
 }
 
 async function executeDelete() {
@@ -51,9 +78,12 @@ async function executeDelete() {
     console.error(error);
     formError.value = `Failed to delete trigger (${error})`;
   });
-  console.log("delete resp", resp);
-  refresh();
-  showDeleteConfirm.value = false;
+
+  if (resp.status === "SUCCESS") {
+    clearForm();
+    showDeleteConfirm.value = false;
+    refresh();
+  }
 }
 
 function clearForm() {
@@ -70,17 +100,16 @@ const formTrigger = ref<Trigger>({
 
 function addTrigger() {
   clearForm();
-  showSidePanel.value = true;
+  showAddModal.value = true;
 }
 
 function editTrigger(trigger: Trigger) {
   clearForm();
-  formTrigger.value = { ...trigger };
-  showSidePanel.value = true;
+  formTrigger.value = { ...toRaw(trigger) };
+  showEditModal.value = true;
 }
 
 function deleteTrigger(trigger: Trigger) {
-  console.log("delete", trigger);
   clearForm();
   formTrigger.value = { ...trigger };
   showDeleteConfirm.value = true;
@@ -99,7 +128,7 @@ const formError = ref<string | null>(null);
     >
       <Button type="outline" size="small" @click="addTrigger">Add</Button>
       <CardList>
-        <CardListItem v-for="trigger in data">
+        <CardListItem v-for="trigger in triggers">
           <article class="py-5 lg:px-12.5 p-5">
             <header class="flex md:flex-row gap-3 items-start md:items-center">
               <div class="md:basis-2/5 py-2">
@@ -130,11 +159,11 @@ const formError = ref<string | null>(null);
   </Container>
 
   <SideModal
-    :show="showSidePanel"
+    :show="showAddModal"
     :fullScreen="true"
     :slideInRight="true"
     buttonAlignment="left"
-    @close="showSidePanel = false"
+    @close="showAddModal = false"
   >
     <ContentBlockModal title="Trigger">
       <form @submit.prevent.default="">
@@ -150,6 +179,31 @@ const formError = ref<string | null>(null);
     </ContentBlockModal>
     <template #footer>
       <Button type="primary" size="medium" @click="saveTrigger">Save</Button>
+      <div v-if="formError" class="text-menu p-4">{{ formError }}</div>
+    </template>
+  </SideModal>
+
+  <SideModal
+    :show="showEditModal"
+    :fullScreen="true"
+    :slideInRight="true"
+    buttonAlignment="left"
+    @close="showEditModal = false"
+  >
+    <ContentBlockModal :title="`Update Trigger: ${formTrigger.name}`">
+      <form @submit.prevent.default="">
+        <InputLabel for="cssSelector" label="Css Selector" />
+        <InputString
+          id="cssSelector"
+          placeholder="Css Selector"
+          v-model="formTrigger.cssSelector"
+        />
+      </form>
+    </ContentBlockModal>
+    <template #footer>
+      <Button type="primary" size="medium" @click="updateTrigger"
+        >Update</Button
+      >
       <div v-if="formError" class="text-menu p-4">{{ formError }}</div>
     </template>
   </SideModal>
