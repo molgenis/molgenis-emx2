@@ -159,7 +159,7 @@ public class TestLoaders {
   void test17DataCatalogueFlatLoader() {
     Schema datacatalogueflat = database.createSchema(DATA_CATALOGUE_FLAT);
     AvailableDataModels.DATA_CATALOGUE_FLAT.install(datacatalogueflat, false);
-    assertEquals(23, datacatalogueflat.getTableNames().size());
+    assertEquals(22, datacatalogueflat.getTableNames().size());
   }
 
   @Test
