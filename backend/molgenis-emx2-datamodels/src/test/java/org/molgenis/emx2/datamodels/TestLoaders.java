@@ -187,7 +187,7 @@ public class TestLoaders {
   void test21NetworksFlatLoader() {
     Schema networksstagingflat = database.createSchema(FLAT_NETWORKS_STAGING);
     AvailableDataModels.FLAT_NETWORKS_STAGING.install(networksstagingflat, false);
-    assertEquals(12, networksstagingflat.getTableNames().size());
+    assertEquals(17, networksstagingflat.getTableNames().size());
   }
 
   @Test
