@@ -79,7 +79,7 @@ public class CsvTableReader {
               boolean isEmpty = next.values().stream().allMatch(Objects::isNull);
 
               if (isEmpty) {
-                // skip empty lines
+                // skip empty line
                 return new Row(it.next());
               } else {
                 return new Row(next);
