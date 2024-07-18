@@ -44,7 +44,9 @@ print('Complete')
 
     System.out.println("\nsecond");
     ScriptTask r2 =
-        new ScriptTask("error").script("""
+        new ScriptTask("error")
+            .script(
+                """
 import sys
 print('Error message', file=sys.stderr)
 """);
