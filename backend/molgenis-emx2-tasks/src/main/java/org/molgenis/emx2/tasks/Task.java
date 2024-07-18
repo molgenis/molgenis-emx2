@@ -52,6 +52,7 @@ public class Task<T extends Task> implements Runnable, Iterable<Task> {
   // this handler is used to notify that relevant things happened
   @JsonIgnore private TaskChangedHandler changedHandler;
   private String cronExpression;
+  private String cronUserName;
   private boolean disabled = false;
 
   public Task() {}
@@ -283,6 +284,15 @@ public class Task<T extends Task> implements Runnable, Iterable<Task> {
 
   public String getCronExpression() {
     return this.cronExpression;
+  }
+
+  public T cronUserName(String cronUserName) {
+    this.cronUserName = cronUserName;
+    return (T) this;
+  }
+
+  public String getCronUserName() {
+    return this.cronUserName;
   }
 
   public T disabled(boolean disabled) {

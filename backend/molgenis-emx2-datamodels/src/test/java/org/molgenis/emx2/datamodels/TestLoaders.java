@@ -15,14 +15,18 @@ import org.molgenis.emx2.sql.TestDatabaseFactory;
 public class TestLoaders {
   public static final String COHORT_STAGING = "CohortStaging";
   public static final String NETWORK_STAGING = "NetworkStaging";
+  public static final String DATA_CATALOGUE_FLAT = "CatalogueFlat";
   public static final String FAIR_DATA_HUB_TEST = "FAIRDataHubTest";
   public static final String DIRECTORY_TEST = "DirectoryTest";
+  public static final String DIRECTORY_STAGING = "DirectoryStaging";
   public static final String RD3_TEST = "RD3Test";
   public static final String JRC_CDE_TEST = "JRCCDETest";
   public static final String FAIR_GENOMES = "FAIRGenomesTest";
   public static final String DCAT = "DCATTest";
+  public static final String DCAT_BASIC = "DCATBasicTest";
   public static final String PROJECT_MANAGER = "ProjectManager";
   public static final String CATALOGUE_ONTOLOGIES = "CatalogueOntologies";
+  public static final String DIRECTORY_ONTOLOGIES = "DirectoryOntologies";
 
   static Database database;
 
@@ -33,10 +37,13 @@ public class TestLoaders {
     database.dropSchemaIfExists(COHORT_STAGING);
     database.dropSchemaIfExists(NETWORK_STAGING);
     database.dropSchemaIfExists(DATA_CATALOGUE);
+    database.dropSchemaIfExists(DATA_CATALOGUE_FLAT);
     database.dropSchemaIfExists(FAIR_DATA_HUB_TEST);
     database.dropSchemaIfExists(SHARED_STAGING);
     database.dropSchemaIfExists(CATALOGUE_ONTOLOGIES);
     database.dropSchemaIfExists(DIRECTORY_TEST);
+    database.dropSchemaIfExists(DIRECTORY_STAGING);
+    database.dropSchemaIfExists(DIRECTORY_ONTOLOGIES);
     database.dropSchemaIfExists(RD3_TEST);
     database.dropSchemaIfExists(JRC_CDE_TEST);
     database.dropSchemaIfExists(FAIR_GENOMES);
@@ -48,7 +55,7 @@ public class TestLoaders {
   public void test1FAIRDataHubLoader() {
     Schema fairDataHubSchema = database.createSchema(FAIR_DATA_HUB_TEST);
     AvailableDataModels.FAIR_DATA_HUB.install(fairDataHubSchema, true);
-    assertEquals(68, fairDataHubSchema.getTableNames().size());
+    assertEquals(69, fairDataHubSchema.getTableNames().size());
     String[] semantics = fairDataHubSchema.getTable("BiospecimenType").getMetadata().getSemantics();
     assertEquals("http://purl.obolibrary.org/obo/NCIT_C70699", semantics[0]);
     assertEquals("http://purl.obolibrary.org/obo/NCIT_C70713", semantics[1]);
@@ -84,9 +91,9 @@ public class TestLoaders {
 
   @Test
   public void test9DirectoryLoader() {
-    Schema networkStaging = database.createSchema(DIRECTORY_TEST);
-    AvailableDataModels.BIOBANK_DIRECTORY.install(networkStaging, true);
-    assertEquals(32, networkStaging.getTableNames().size());
+    Schema directory = database.createSchema(DIRECTORY_TEST);
+    AvailableDataModels.BIOBANK_DIRECTORY.install(directory, true);
+    assertEquals(10, directory.getTableNames().size());
   }
 
   @Test
@@ -121,6 +128,27 @@ public class TestLoaders {
   void test14DCATLoader() {
     Schema DCATSchema = database.createSchema(DCAT);
     AvailableDataModels.DCAT.install(DCATSchema, true);
-    assertEquals(10, DCATSchema.getTableNames().size());
+    assertEquals(21, DCATSchema.getTableNames().size());
+  }
+
+  @Test
+  void test15DirectoryStagingLoader() {
+    Schema directoryStaging = database.createSchema(DIRECTORY_STAGING);
+    AvailableDataModels.BIOBANK_DIRECTORY_STAGING.install(directoryStaging, false);
+    assertEquals(6, directoryStaging.getTableNames().size());
+  }
+
+  @Test
+  void test16DCATBasic() {
+    Schema DCATSchema = database.createSchema(DCAT_BASIC);
+    new ProfileLoader("_profiles/test-only/DCAT-basic.yaml").load(DCATSchema, true);
+    assertEquals(7, DCATSchema.getTableNames().size());
+  }
+  
+  @Test
+  void test17DataCatalogueFlatLoader() {
+    Schema datacatalogueflat = database.createSchema(DATA_CATALOGUE_FLAT);
+    AvailableDataModels.DATA_CATALOGUE_FLAT.install(datacatalogueflat, false);
+    assertEquals(24, datacatalogueflat.getTableNames().size());
   }
 }

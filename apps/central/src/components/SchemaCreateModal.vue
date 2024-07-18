@@ -123,12 +123,12 @@ export default {
       schemaDescription: null,
       template: null,
       templates: [
-        null,
         "PET_STORE",
         "FAIR_DATA_HUB",
         "DATA_CATALOGUE",
         "DATA_CATALOGUE_COHORT_STAGING",
         "DATA_CATALOGUE_NETWORK_STAGING",
+        "DATA_CATALOGUE_FLAT",
         "RD3",
         "JRC_COMMON_DATA_ELEMENTS",
         "FAIR_GENOMES",
@@ -136,8 +136,10 @@ export default {
         "BEACON_V2",
         "ERN_DASHBOARD",
         "BIOBANK_DIRECTORY",
+        "BIOBANK_DIRECTORY_STAGING",
         "SHARED_STAGING",
         "PROJECTMANAGER",
+        "GDI",
       ],
       includeDemoData: false,
     };
@@ -152,7 +154,7 @@ export default {
   },
   methods: {
     validate(name) {
-      const simpleName = /^[a-zA-Z][a-zA-Z0-9_ ]*$/;
+      const simpleName = /^[a-zA-Z][-a-zA-Z0-9_ ]*$/;
       if (name === null) {
         return undefined;
       }

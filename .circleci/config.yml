@@ -16,11 +16,12 @@ parameters:
 
 orbs:
   slack: circleci/slack@4.4.4
+  queue: eddiewebb/queue@3.1.4
 
 definitions:
   build_config: &build_config
     docker:
-    - image: molgenis/ci-build:1.2.3
+    - image: molgenis/ci-build:1.2.4
     working_directory: ~/repo
     resource_class: large
     environment:
@@ -29,7 +30,7 @@ definitions:
       TERM: dumb
   test_config: &test_config
     docker:
-    - image: molgenis/ci-build:1.2.3
+    - image: molgenis/ci-build:1.2.4
     - image: postgres:15-alpine
       environment:
         POSTGRES_USER: postgres
@@ -40,6 +41,20 @@ definitions:
     environment:
       JVM_OPTS: -Xmx3200m
       GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
+      TERM: dumb
+  release_config: &release_config
+    docker:
+      - image: molgenis/ci-build:1.2.4
+      - image: postgres:15-alpine
+        environment:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+    working_directory: ~/repo
+    resource_class: large
+    environment:
+      JVM_OPTS: -Xmx3200m
+      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2 -Dorg.gradle.caching=false"
       TERM: dumb
 
 
@@ -127,6 +142,23 @@ jobs:
           bash ci/create_or_update_k8s-azure.sh "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" ${TAG_NAME} DELETE
 
     - run:
+        name: Wait for preview to be up, poll every 10 seconds
+        command: |
+          GETURL="https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/catalogue-demo/ssr-catalogue/testNetwork1"
+          while true; 
+              do 
+                  STATUS=$(curl --silent --head $GETURL | awk '/^HTTP/{print $2}')
+                  echo ${STATUS}
+                  if [[ "$STATUS" == "200" ]]; then 
+                      echo "preview is up";
+                      break; 
+                  else 
+                      echo "preview is not ready yet, waiting 10 seconds...";
+                  fi; 
+                  sleep 10; 
+              done
+
+    - run:
         name: message slack about preview
         command: |
           export $( cat build/ci.properties | xargs )
@@ -159,9 +191,14 @@ jobs:
     - post_steps
 
   release:
-    <<: *test_config
+    <<: *release_config
 
     steps:
+    - queue/until_front_of_line:
+        limit-branch-name: main
+        max-wait-time: '25'
+        my-pipeline: <<pipeline.number>>
+        
     - pre_steps
     
     - run:
@@ -207,26 +244,26 @@ jobs:
           -X POST https://slack.com/api/chat.postMessage  
 
     - post_steps
-  e2e-preview:
+  e2e-test:
     docker:
-      - image: mcr.microsoft.com/playwright:v1.42.1-jammy
+      - image: mcr.microsoft.com/playwright:v1.45.1-jammy
     steps:
       - checkout
       - run: npm i -D @playwright/test
       - run: npx playwright install chrome
       - run:
-          name: Wait for preview to be up, poll every 10 seconds
+          name: Wait for e2e test data to be loaded, poll every 10 seconds
           command: |
-            GETURL="https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/"
+            GETURL="https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/catalogue-demo/ssr-catalogue/testNetwork1"           
             while true; 
                 do 
                     STATUS=$(curl --silent --head $GETURL | awk '/^HTTP/{print $2}')
-                    echo ${STATUS}
+                    echo ${STATUS} ${GETURL}
                     if [[ "$STATUS" == "200" ]]; then 
-                        echo "preview is up";
+                        echo "test data is loaded";
                         break; 
                     else 
-                        echo "preview is not ready yet, waiting 10 seconds...";
+                        echo "test data is not ready yet, waiting 10 seconds...";
                     fi; 
                     sleep 10; 
                 done
@@ -306,7 +343,7 @@ workflows:
         filters:
           branches:
             ignore: master
-    - e2e-preview:
+    - e2e-test:
         requires:
           - preview
         filters:

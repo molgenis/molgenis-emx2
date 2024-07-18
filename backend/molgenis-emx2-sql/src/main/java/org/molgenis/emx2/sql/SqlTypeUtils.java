@@ -5,6 +5,7 @@ import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascript;
 import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascriptOnMap;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.TypeUtils;
 import org.molgenis.emx2.utils.generator.IdGenerator;
@@ -101,6 +102,36 @@ public class SqlTypeUtils extends TypeUtils {
         }
       }
     }
+    if (c.isReference()) {
+      List<Reference> refs = c.getReferences();
+      // PostgreSQL considers the foreign key constraint not applicable if any part of the composite
+      // key is NULL.therefore we must make sure it is complete
+      // exclude overlapping
+      int countNotNullNotOverlapping = 0;
+      int countNotNull = 0;
+      for (Reference ref : refs) {
+        if (!row.isNull(ref.getName(), ref.getPrimitiveType())) {
+          if (!ref.isOverlapping()) {
+            countNotNullNotOverlapping++;
+          }
+          countNotNull++;
+        }
+      }
+      if (countNotNullNotOverlapping > 0 && countNotNull != refs.size()) {
+        throw new MolgenisException(
+            String.format(
+                "Key (%s)=(%s) not present in table \"%s\"",
+                refs.stream().map(ref -> ref.getName()).collect(Collectors.joining(",")),
+                refs.stream()
+                    .map(
+                        ref ->
+                            row.isNull(ref.getName(), ref.getPrimitiveType())
+                                ? "NULL"
+                                : row.getValueMap().get(ref.getName()).toString())
+                    .collect(Collectors.joining(",")),
+                c.getRefTableName()));
+      }
+    }
   }
 
   private static boolean hasEmptyFields(Column c, Row row) {
@@ -148,6 +179,8 @@ public class SqlTypeUtils extends TypeUtils {
       case DATE_ARRAY -> row.getDateArray(name);
       case DATETIME -> row.getDateTime(name);
       case DATETIME_ARRAY -> row.getDateTimeArray(name);
+      case PERIOD -> row.getPeriod(name);
+      case PERIOD_ARRAY -> row.getPeriodArray(name);
       case JSONB -> row.getJsonb(name);
       case JSONB_ARRAY -> row.getJsonbArray(name);
       default ->

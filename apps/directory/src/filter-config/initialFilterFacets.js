@@ -1,7 +1,10 @@
+const ontologySchema = "DirectoryOntologies/graphql";
+
 export const initialFilterFacets = [
   {
     facetTitle: "Diagnosis available",
     component: "OntologyFilter",
+    sourceSchema: ontologySchema,
     sourceTable: "DiseaseTypes",
     applyToColumn: "collections.diagnosis_available.code",
     filterValueAttribute: "name",
@@ -12,12 +15,14 @@ export const initialFilterFacets = [
     sortDirection: "asc",
     negotiatorRequestString: "Disease type(s):",
     showFacet: true,
+    showMatchTypeSelector: true,
   },
   {
     facetTitle: "Countries",
     component: "CheckboxFilter",
+    sourceSchema: ontologySchema,
     sourceTable: "Countries",
-    applyToColumn: ["country.name", "collections.country.name"],
+    applyToColumn: "country.name",
     filterValueAttribute: "name",
     filterLabelAttribute: "label",
     removeOptions: [],
@@ -31,12 +36,13 @@ export const initialFilterFacets = [
   {
     facetTitle: "Collection type",
     component: "CheckboxFilter",
+    sourceSchema: ontologySchema,
     sourceTable: "CollectionTypes",
     applyToColumn: "collections.type.name",
     filterValueAttribute: "name",
     filterLabelAttribute: "label",
     removeOptions: ["other"],
-    showMatchTypeSelector: false,
+    showMatchTypeSelector: true,
     negotiatorRequestString: "Collection type(s):",
     adaptive: false,
     sortColumn: "label",
@@ -46,12 +52,13 @@ export const initialFilterFacets = [
   {
     facetTitle: "Categories",
     component: "CheckboxFilter",
+    sourceSchema: ontologySchema,
     sourceTable: "Categories",
     applyToColumn: "collections.categories.name",
     filterValueAttribute: "name",
     filterLabelAttribute: "label",
     removeOptions: ["other"],
-    showMatchTypeSelector: false,
+    showMatchTypeSelector: true,
     negotiatorRequestString: "Categories:",
     adaptive: false,
     sortColumn: "label",
@@ -61,12 +68,13 @@ export const initialFilterFacets = [
   {
     facetTitle: "Material type",
     component: "CheckboxFilter",
+    sourceSchema: ontologySchema,
     sourceTable: "MaterialTypes",
     applyToColumn: "collections.materials.name",
     filterValueAttribute: "name",
     filterLabelAttribute: "label",
     removeOptions: ["other"],
-    showMatchTypeSelector: false,
+    showMatchTypeSelector: true,
     negotiatorRequestString: "Material type(s):",
     adaptive: false,
     sortColumn: "label",
@@ -88,6 +96,7 @@ export const initialFilterFacets = [
   {
     facetTitle: "Biobank services",
     component: "CheckboxFilter",
+    sourceSchema: ontologySchema,
     sourceTable: "Capabilities",
     applyToColumn: "capabilities.name",
     filterValueAttribute: "name",
@@ -100,6 +109,7 @@ export const initialFilterFacets = [
   {
     facetTitle: "Quality labels",
     component: "CheckboxFilter",
+    sourceSchema: ontologySchema,
     sourceTable: "AssessmentLevels",
     applyToColumn: "collections.combined_quality.name",
     filterValueAttribute: "name",
@@ -124,6 +134,7 @@ export const initialFilterFacets = [
   {
     facetTitle: "Data category",
     component: "CheckboxFilter",
+    sourceSchema: ontologySchema,
     sourceTable: "DataCategories",
     applyToColumn: "collections.data_categories.name",
     filterValueAttribute: "name",

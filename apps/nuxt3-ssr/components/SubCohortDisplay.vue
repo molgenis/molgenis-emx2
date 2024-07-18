@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import subcohortGql from "~~/gql/subcohort";
 import ContentBlockModal from "./content/ContentBlockModal.vue";
+import dateUtils from "~/utils/dateUtils";
 const route = useRoute();
 
 const { id } = defineProps<{
@@ -64,7 +65,7 @@ if (subcohort?.numberOfParticipants) {
 if (subcohort?.inclusionStart || subcohort?.inclusionEnd) {
   items.push({
     label: "Start/end year",
-    content: filters.startEndYear(
+    content: dateUtils.startEndYear(
       subcohort.inclusionStart,
       subcohort.inclusionEnd
     ),

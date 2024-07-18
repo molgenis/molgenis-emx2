@@ -10,13 +10,12 @@
       <div
         class="d-flex justify-content-center flex-wrap biobank-cards-container"
       >
-        <biobank-card
+        <BiobankCard
           :style="`width:${cardWidth}px;`"
           v-for="biobank in biobanksShown"
           :key="biobank.id"
           :biobank="biobank"
-        >
-        </biobank-card>
+        />
       </div>
       <pagination-bar class="mt-4" />
     </div>

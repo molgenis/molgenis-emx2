@@ -1,18 +1,26 @@
 <script setup lang="ts">
-import Container from "./../Container.vue";
 const route = useRoute();
 const headerData = await useHeaderData();
 const catalogue = headerData.catalogue;
 const variableCount = headerData.variableCount;
+
+const bannerData = await useBannerData();
+const bannerHtml = computed(() => {
+  return bannerData.data;
+});
 </script>
 
 <template>
+  <Banner v-if="bannerHtml.value" v-html="bannerHtml.value"> </Banner>
+
   <HeaderCatalogue
     v-if="route.params.catalogue"
     :catalogue="catalogue"
     :variableCount="variableCount"
   />
+
   <HeaderGlobal v-else />
+
   <Container>
     <slot name="header"></slot>
     <div class="xl:flex xl:items-start">

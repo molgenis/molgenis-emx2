@@ -2,7 +2,7 @@
 
 plugins {
     id "java"
-    id "com.github.node-gradle.node" version "7.0.1"
+    id "com.github.node-gradle.node" version "7.0.2"
 }
 
 java {
@@ -101,11 +101,11 @@ subprojects { subproject ->
             args = ['run', 'build-showcase']
             doLast {
                 copy {
-                    from "showCase"
+                    from packageJson.contains("\"name\": \"tailwind-components\"") ? ".output/public" : "showCase"
                     into "${parent.buildDir}/generated/main/resources/public_html/apps/" + project.name
                 }
             }
-            outputs.dir "showCase"
+            outputs.dir packageJson.contains("\"name\": \"tailwind-components\"") ? ".output/public" : "showCase"
             //for caching
             inputs.files fileTree(projectDir).matching {
                 with excludeDef

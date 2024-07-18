@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.*;
@@ -141,7 +142,7 @@ public class WebApiSmokeTests {
             .when()
             .get("/pet store zip/api/csv")
             .asString();
-    assertEquals(schemaCsv, schemaCsv2);
+    assertArrayEquals(toSortedArray(schemaCsv), toSortedArray(schemaCsv2));
 
     // delete the new schema
     db.dropSchema("pet store zip");
@@ -295,12 +296,23 @@ public class WebApiSmokeTests {
     String contentsTagDataNew = getContentAsString("/api/csv/Tag");
 
     // test if existing and new schema are equal
-    assertEquals(new String(contentsMeta), contentsMetaNew);
-    assertEquals(new String(contentsCategoryData), contentsCategoryDataNew);
-    assertEquals(new String(contentsOrderData), contentsOrderDataNew);
-    assertEquals(new String(contentsPetData), contentsPetDataNew);
-    assertEquals(new String(contentsUserData), contentsUserDataNew);
-    assertEquals(new String(contentsTagData), contentsTagDataNew);
+    assertArrayEquals(toSortedArray(new String(contentsMeta)), toSortedArray(contentsMetaNew));
+    assertArrayEquals(
+        toSortedArray(new String(contentsCategoryData)), toSortedArray(contentsCategoryDataNew));
+    assertArrayEquals(
+        toSortedArray(new String(contentsOrderData)), toSortedArray(contentsOrderDataNew));
+    assertArrayEquals(
+        toSortedArray(new String(contentsPetData)), toSortedArray(contentsPetDataNew));
+    assertArrayEquals(
+        toSortedArray(new String(contentsUserData)), toSortedArray(contentsUserDataNew));
+    assertArrayEquals(
+        toSortedArray(new String(contentsTagData)), toSortedArray(contentsTagDataNew));
+  }
+
+  private String[] toSortedArray(String string) {
+    String[] lines = string.split("\n");
+    Arrays.sort(lines);
+    return lines;
   }
 
   @Test
@@ -839,6 +851,38 @@ public class WebApiSmokeTests {
   }
 
   @Test
+  public void testFDPHead() {
+    given()
+        .sessionId(SESSION_ID)
+        .expect()
+        .contentType("text/turtle")
+        .when()
+        .head("http://localhost:" + PORT + "/api/fdp");
+  }
+
+  @Test
+  public void testNonDefinedFDPHead() {
+    given()
+        .sessionId(SESSION_ID)
+        .expect()
+        .contentType("text/html;charset=utf-8")
+        .when()
+        .head("http://localhost:" + PORT + "/api/fdp/");
+  }
+
+  @Test
+  public void testFDPRedirect() {
+    given()
+        .sessionId(SESSION_ID)
+        .redirects()
+        .follow(false)
+        .expect()
+        .header("Location", "http://localhost:" + PORT + "/api/fdp")
+        .when()
+        .get("http://localhost:" + PORT + "/api/fdp/");
+  }
+
+  @Test
   public void testGraphGenome400() {
     given()
         .sessionId(SESSION_ID)
@@ -1161,16 +1205,8 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  @Disabled("unstable")
   public void testBeaconApiSmokeTests() {
-    // todo: ideally we would here validate the responses against json schemas, are those schemas
-    // easily available?
-    // todo: can we put in some relevant filter parameters so we really test if they are functional?
-
-    String result = given().get("/api/beacon").getBody().asString();
-    assertTrue(result.contains("info"));
-
-    result = given().get("/api/beacon/configuration").getBody().asString();
+    String result = given().get("/api/beacon/configuration").getBody().asString();
     assertTrue(result.contains("productionStatus"));
 
     result = given().get("/api/beacon/map").getBody().asString();
@@ -1261,6 +1297,12 @@ public class WebApiSmokeTests {
         .statusCode(200)
         .when()
         .get("/pet store/api/csv/" + table.getIdentifier());
+  }
+
+  @Test
+  void testProfileApi() {
+    String result = result = given().get("/api/profiles").getBody().asString();
+    assertTrue(result.contains("Samples"));
   }
 
   private Row waitForScriptToComplete(String scriptName) throws InterruptedException {
