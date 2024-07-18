@@ -39,15 +39,6 @@ export default defineConfig({
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
-      testIgnore: '*/admin!*.spec.ts'
-    },
-    {
-      name: 'chromium',
-      use: {
-        ...devices['Desktop Chrome'],
-        storageState: 'e2e/.auth/user.json'
-       },
-      testMatch: '*/admin!*.spec.ts'
     },
 
     // {
