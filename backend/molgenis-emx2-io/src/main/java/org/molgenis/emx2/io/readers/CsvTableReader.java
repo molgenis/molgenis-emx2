@@ -18,7 +18,7 @@ public class CsvTableReader {
     return read(new InputStreamReader(new BOMInputStream(new FileInputStream(f))));
   }
 
-  public static Row nextNonEmptyRow(Iterator<Map> it) throws IOException {
+  private static Row nextNonEmptyRow(Iterator<Map> it) throws IOException {
 
     HashMap<String, String> next = (HashMap<String, String>) it.next();
     boolean isEmpty = next.values().stream().allMatch(Objects::isNull);
@@ -90,7 +90,15 @@ public class CsvTableReader {
               try {
                 return nextNonEmptyRow(it);
               } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new MolgenisException(
+                    "Import failed: "
+                        + e.getClass().getName()
+                        + ": "
+                        + e.getMessage()
+                        + ". Error at line "
+                        + line.get()
+                        + ".",
+                    e);
               }
             }
 
