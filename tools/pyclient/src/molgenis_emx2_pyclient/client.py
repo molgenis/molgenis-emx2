@@ -743,7 +743,9 @@ class Client:
 
     def __prepare_greater_filter(self, stmt: str, _table: str, _schema: str) -> dict:
         """Prepares the filter part if the statement filters on greater than."""
+        exclusive = '=' not in stmt
         stmt.replace('=', '')
+
         _col = stmt.split('>')[0].strip()
         _val = stmt.split('>')[1].strip()
 
@@ -754,9 +756,9 @@ class Client:
 
         match col.get('columnType'):
             case 'INT':
-                val = int(_val)
+                val = int(_val) + 1 * exclusive
             case 'DECIMAL':
-                val = float(_val)
+                val = float(_val) + 0.0000001 * exclusive
             case _:
                 raise NotImplementedError(f"Cannot perform filter '>' on column with type {col.get('columnType')}.")
 
@@ -764,7 +766,9 @@ class Client:
 
     def __prepare_smaller_filter(self, stmt: str, _table: str, _schema: str) -> dict:
         """Prepares the filter part if the statement filters on greater than."""
+        exclusive = '=' not in stmt
         stmt.replace('=', '')
+
         _col = stmt.split('<')[0].strip()
         _val = stmt.split('<')[1].strip()
 
@@ -775,9 +779,9 @@ class Client:
 
         match col.get('columnType'):
             case 'INT':
-                val = int(_val)
+                val = int(_val) - 1 * exclusive
             case 'DECIMAL':
-                val = float(_val)
+                val = float(_val) - 0.0000001 * exclusive
             case _:
                 raise NotImplementedError(f"Cannot perform filter '<' on column with type {col.get('columnType')}.")
 
