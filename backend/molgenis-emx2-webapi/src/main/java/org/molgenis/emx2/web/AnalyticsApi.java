@@ -41,6 +41,17 @@ public class AnalyticsApi {
     get("/:schema/api/trigger", AnalyticsApi::listSchemaTriggers, jsonTransformer);
     delete("/:schema/api/trigger/" + TRIGGER_PARAM, AnalyticsApi::deleteTrigger, jsonTransformer);
     put("/:schema/api/trigger/" + TRIGGER_PARAM, AnalyticsApi::updateTrigger, jsonTransformer);
+
+    post("apps/:app/:schema/api/trigger", AnalyticsApi::addTrigger, jsonTransformer);
+    get("apps/:app/:schema/api/trigger", AnalyticsApi::listSchemaTriggers, jsonTransformer);
+    delete(
+        "apps/:app/:schema/api/trigger/" + TRIGGER_PARAM,
+        AnalyticsApi::deleteTrigger,
+        jsonTransformer);
+    put(
+        "apps/:app/:schema/api/trigger/" + TRIGGER_PARAM,
+        AnalyticsApi::updateTrigger,
+        jsonTransformer);
   }
 
   private static ResponseStatus deleteTrigger(Request request, Response response) {
