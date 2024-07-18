@@ -1,26 +1,7 @@
 <template>
   <Page>
-    <PageHeader
-      title="Aggregation Dashboard"
-      subtitle="Explore collections in the catalogue"
-      height="medium"
-      imageSrc="aggregation-header.jpg"
-    />
     <form class="page-section filters-form">
       <fieldset class="page-section-content width-full filters-container">
-        <div class="filter-item selected-resources">
-          <label>Choose a resource</label>
-          <select
-            id="resource-selection"
-            @change="(event) => onChartClick(event.target.value, 'resource')"
-            ref="resourcesInput"
-          >
-            <option value="" disabled selected>Resources</option>
-            <option v-for="resource in resources" :value="resource.resource">
-              {{ resource.resource }}
-            </option>
-          </select>
-        </div>
         <div class="filter-item selected-filters">
           <div class="filter-context">
             <legend>Selected Filters</legend>
@@ -30,7 +11,10 @@
               v-for="key in Object.keys(selectedFilters)"
               v-if="Object.keys(queryFilters.filter).length"
             >
-              <div class="filter-button" v-for="value in selectedFilters[key]">
+              <div
+                class="filter-button"
+                v-for="value in selectedFilters[key as keyof selectedFiltersIF]"
+              >
                 <p>{{ value }}</p>
                 <button
                   :id="`filter-${key}-${value}`"
@@ -110,7 +94,7 @@
             :enableClicks="true"
             :enableAnimation="true"
             @bar-clicked="
-              (data) => onChartClick(JSON.parse(data), 'researchCenter')
+              (data: string) => onChartClick(JSON.parse(data), 'researchCenter')
             "
           />
         </DashboardChart>
@@ -123,7 +107,7 @@
             :data="primaryTumorSite"
             :columnOrder="['primary tumor site', 'sum']"
             :enableRowClicks="true"
-            @row-clicked="(data) => onChartClick(data, 'primaryTumorSite')"
+            @row-clicked="(data: object) => onChartClick(data, 'primaryTumorSite')"
           />
         </DashboardChart>
         <DashboardChart>
@@ -145,7 +129,7 @@
             :chartMargins="25"
             :valuesArePercents="false"
             :enableClicks="true"
-            @slice-clicked="(data: Object) => onChartClick(data, 'metastasis', true)"
+            @slice-clicked="(data: object) => onChartClick(data, 'metastasis', true)"
           />
         </DashboardChart>
       </DashboardRow>
@@ -173,7 +157,7 @@
             :enableClicks="true"
             :enableAnimation="true"
             @column-clicked="
-              (data) => onChartClick(JSON.parse(data), 'yearOfDiagnosis')
+              (data: string) => onChartClick(JSON.parse(data), 'yearOfDiagnosis')
             "
           />
         </DashboardChart>
@@ -196,7 +180,7 @@
             legendPosition="top"
             :valuesArePercents="false"
             :enableClicks="true"
-            @slice-clicked="(data) => onChartClick(data, 'sex', true)"
+            @slice-clicked="(data: object) => onChartClick(data, 'sex', true)"
           />
         </DashboardChart>
       </DashboardRow>
@@ -206,20 +190,11 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed, watch } from "vue";
-import {
-  Page,
-  PageHeader,
-  Accordion,
-  MessageBox,
-  Dashboard,
-  DashboardChart,
-  DashboardRow,
-  DataTable,
-  BarChart,
-  PieChart2,
-  ColumnChart,
-  LoadingScreen,
-} from "molgenis-viz";
+
+// @ts-ignore
+// prettier-ignore
+import { Page, PageSection, Accordion, MessageBox, Dashboard, DashboardChart, DashboardRow, DataTable, BarChart, PieChart2, ColumnChart, LoadingScreen } from "molgenis-viz";
+
 import {
   MinusCircleIcon,
   ChevronRightIcon,
@@ -229,7 +204,6 @@ import { schemeGnBu as scheme } from "d3-scale-chromatic";
 import {
   getChartData,
   renameKey,
-  createPalette,
   seqAlongBy,
   calculateIncrement,
 } from "../utils/index";
@@ -242,26 +216,24 @@ import type {
   yearOfDiagnosisIF,
   sexCasesIF,
   chartAxisSettingsIF,
+  selectedFiltersQueryIF,
+  vizChartFilters,
 } from "../interfaces/types";
 
 const palette = ref(scheme[6]);
 const loading = ref(true);
 const error = ref(false);
 
-const resources = ref([]);
 const researchCenters = ref<researchCentersIF[]>([]);
 const primaryTumorSite = ref<primaryTumorSiteIF[]>([]);
 const metastasis = ref<metastasisIF[]>([]);
 const yearOfDiagnosis = ref<yearOfDiagnosisIF[]>([]);
-const sexCases = ref<sexCasesIF>({});
+const sexCases = ref<sexCasesIF>();
 const researchCenterAxis = ref<chartAxisSettingsIF>({ ticks: [], ymax: null });
 const yearOfDiagnosisAxis = ref<chartAxisSettingsIF>({ ticks: [], ymax: null });
 
-const resourcesInput = ref();
-
 const queryFilters = ref({ filter: {} });
 const selectedFilters = ref<selectedFiltersIF>({
-  resource: [],
   researchCenter: [],
   primaryTumorSite: [],
   metastasis: [],
@@ -270,7 +242,10 @@ const selectedFilters = ref<selectedFiltersIF>({
 });
 
 const totalNumberOfCases = computed(() => {
-  return researchCenters.value.reduce((sum, row) => row._sum + sum, 0);
+  return researchCenters.value.reduce(
+    (sum: number, row: Record<string, any>) => row._sum + sum,
+    0
+  );
 });
 
 function onClickPrevent(event: Event) {
@@ -278,36 +253,40 @@ function onClickPrevent(event: Event) {
 }
 
 function removeFilter(key: string, value: String) {
-  selectedFilters.value[key] = selectedFilters.value[key].filter(
-    (q: String) => q !== value
-  );
+  selectedFilters.value[key as keyof selectedFiltersIF] = selectedFilters.value[
+    key as keyof selectedFiltersIF
+  ].filter((q: String) => q !== value);
   updateQueryFilters();
   renderCharts();
 }
 
 function updateQueryFilters() {
-  const query = {};
+  const query: vizChartFilters = {};
   const filterKeys = Object.keys(selectedFilters.value);
   const filterLength = filterKeys.length;
 
   for (let i = 0; i < filterLength; i++) {
     const key = filterKeys[i];
-    const subfilters = selectedFilters.value[key];
+    const subfilters = selectedFilters.value[key as keyof selectedFiltersIF];
 
     if (typeof subfilters[0] !== "undefined") {
       if (subfilters.length === 1) {
-        query[key] = { name: { equals: subfilters[0] } };
+        query[key as keyof selectedFiltersQueryIF] = {
+          name: { equals: subfilters[0] },
+        };
       }
 
       if (subfilters.length > 1) {
         if (Object.keys(query).indexOf("_or")) {
-          query["_or"] = [];
+          query._or = [];
         }
 
-        subfilters.forEach((value: String) => {
-          const newSubFilter = {};
-          newSubFilter[key] = { name: { equals: value } };
-          query["_or"].push(newSubFilter);
+        subfilters.forEach((value: string) => {
+          const newSubFilter: selectedFiltersQueryIF = {};
+          newSubFilter[key as keyof selectedFiltersQueryIF] = {
+            name: { equals: value },
+          };
+          query._or?.push(newSubFilter);
         });
       }
     }
@@ -317,22 +296,27 @@ function updateQueryFilters() {
 }
 
 async function getAllData() {
-  resources.value = await getChartData({
-    labels: "resource",
-    value: "_sum",
-  });
-
   researchCenters.value = await getChartData({
+    table: "FORCE_NENPatients",
     labels: "researchCenter",
     values: "_sum",
     filters: queryFilters.value.filter,
+    nestedLabelKey: "id",
   });
 
   researchCenters.value = researchCenters.value
+    .map((row: Record<string, any>) => {
+      const name: string = row.researchCenter;
+      const nameSplit = name.split(" ");
+      row.researchCenter = nameSplit[nameSplit.length - 1];
+      return row;
+    })
     .sort((curr, next) => curr._sum - next._sum)
     .reverse();
 
   primaryTumorSite.value = await getChartData({
+    table: "FORCE_NENPatients",
+    sub_attribute: "name",
     labels: "primaryTumorSite",
     values: "_sum",
     filters: queryFilters.value.filter,
@@ -344,6 +328,8 @@ async function getAllData() {
   renameKey(primaryTumorSite.value, "_sum", "sum");
 
   metastasis.value = await getChartData({
+    table: "FORCE_NENPatients",
+    sub_attribute: "name",
     labels: "metastasis",
     values: "_sum",
     filters: queryFilters.value.filter,
@@ -351,6 +337,8 @@ async function getAllData() {
   });
 
   yearOfDiagnosis.value = await getChartData({
+    table: "FORCE_NENPatients",
+    sub_attribute: "name",
     labels: "yearOfDiagnosis",
     values: "_sum",
     filters: queryFilters.value.filter,
@@ -366,14 +354,18 @@ async function getAllData() {
     "2021-2025",
   ];
 
-  yearOfDiagnosis.value = yearOfDiagnosis.value.sort((current, next) => {
-    return (
-      ordering.indexOf(current.yearOfDiagnosis) -
-      ordering.indexOf(next.yearOfDiagnosis)
-    );
-  });
+  yearOfDiagnosis.value = yearOfDiagnosis.value.sort(
+    (current: Record<string, any>, next: Record<string, any>) => {
+      return (
+        ordering.indexOf(current.yearOfDiagnosis) -
+        ordering.indexOf(next.yearOfDiagnosis)
+      );
+    }
+  );
 
   sexCases.value = await getChartData({
+    table: "FORCE_NENPatients",
+    sub_attribute: "name",
     labels: "sex",
     values: "_sum",
     asPieChartData: true,
@@ -394,7 +386,10 @@ watch([researchCenters], () => {
 });
 
 watch([yearOfDiagnosis], () => {
-  const maxValue = Math.max(...yearOfDiagnosis.value.map((d) => d._sum));
+  const allMaxValues: number[] = yearOfDiagnosis.value.map(
+    (row: Record<string, any>) => row._sum
+  );
+  const maxValue = Math.max(...allMaxValues);
   const step = calculateIncrement(maxValue);
   const max = Math.ceil(maxValue / step) * step;
   yearOfDiagnosisAxis.value.ymax = max;
@@ -403,30 +398,32 @@ watch([yearOfDiagnosis], () => {
 
 function resetFilters() {
   selectedFilters.value = {
-    resource: [],
     researchCenter: [],
     primaryTumorSite: [],
     metastasis: [],
     yearOfDiagnosis: [],
     sex: [],
   };
-  resourcesInput.value = "";
   updateQueryFilters();
   renderCharts();
 }
 
 function onChartClick(
-  data: Object | String,
+  data: Record<string, any>,
   attribute: string,
-  isPieChart: Boolean = false
+  isPieChart: boolean = false
 ) {
   const value = isPieChart
     ? Object.keys(data)[0]
     : Object.hasOwn(data, attribute)
     ? data[attribute]
     : data;
-  if (selectedFilters.value[attribute].indexOf(value) === -1) {
-    selectedFilters.value[attribute].push(value);
+  if (
+    selectedFilters.value[attribute as keyof selectedFiltersIF].indexOf(
+      value
+    ) === -1
+  ) {
+    selectedFilters.value[attribute as keyof selectedFiltersIF].push(value);
     updateQueryFilters();
   }
 }

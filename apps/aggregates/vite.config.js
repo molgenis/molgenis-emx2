@@ -2,8 +2,8 @@ import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 
 
-const host = "https://data-catalogue.molgeniscloud.org";
-const schema = "catalogue";
+const host = "https://data-catalogue-acc.molgeniscloud.org";
+const schema = "Aggregates";
 const opts = { changeOrigin: true, secure: false, logLevel: "debug" };
 
 export default defineConfig(() => {

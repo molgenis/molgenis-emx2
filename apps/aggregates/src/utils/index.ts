@@ -1,4 +1,5 @@
 import { gql, request } from "graphql-request";
+import type { getChartDataParams } from "../interfaces/types";
 
 /**
  * Map color values to one or more groups
@@ -9,7 +10,7 @@ import { gql, request } from "graphql-request";
  * @returns Returns an object where the labels are mapped to colors
  */
 
-export function createPalette(labels: Array, palette: Array): Object {
+export function createPalette(labels: string[], palette: string[]): Object {
   const colors = labels.map((label, index) => [label, palette[index]]);
   return Object.fromEntries(colors);
 }
@@ -22,11 +23,15 @@ export function createPalette(labels: Array, palette: Array): Object {
  * @params descending - If True, the dataset will be sorted in reverse order
  */
 export function sortData(
-  data: Array,
-  by: String,
-  descending: Boolean = false
-): Array {
-  const dataType = [...new Set(data.map((row) => typeof row[by]))];
+  data: Record<string, any>,
+  by: string,
+  descending: boolean = false
+) {
+  const dataType = [
+    ...Array.from(
+      new Set(data.map((row: Record<string, any>) => typeof row[by]))
+    ),
+  ];
   if (dataType.length > 1) {
     throw new Error(
       `Cannot determine sorting type with multiple data types in '${by}'`
@@ -35,18 +40,28 @@ export function sortData(
 
   if (dataType[0] === "number") {
     if (descending) {
-      return data.toSorted((current, next) => current[by] + next[by]);
+      return data.toSorted(
+        (current: Record<string, any>, next: Record<string, any>) =>
+          current[by] + next[by]
+      );
     }
-    return data.toSorted((current, next) => current[by] - next[by]);
+    return data.toSorted(
+      (current: Record<string, any>, next: Record<string, any>) =>
+        current[by] - next[by]
+    );
   }
 
   if (dataType[0] === "string") {
     if (descending) {
-      return data.toSorted((current, next) =>
-        current[by] < next[by] ? -1 : 1
+      return data.toSorted(
+        (current: Record<string, any>, next: Record<string, any>) =>
+          current[by] < next[by] ? -1 : 1
       );
     }
-    return data.toSorted((current, next) => (current[by] < next[by] ? 1 : -1));
+    return data.toSorted(
+      (current: Record<string, any>, next: Record<string, any>) =>
+        current[by] < next[by] ? 1 : -1
+    );
   }
 }
 
@@ -59,8 +74,12 @@ export function sortData(
  *
  * @param an array of objects
  */
-export function renameKey(data: Array, oldKey: String, newKey: String) {
-  return data.map((row) => {
+export function renameKey(
+  data: Record<string, any>,
+  oldKey: string,
+  newKey: string
+) {
+  return data.map((row: Record<string, any>) => {
     if (Object.hasOwn(row, oldKey)) {
       row[newKey] = row[oldKey];
       delete row[oldKey];
@@ -77,24 +96,37 @@ export function renameKey(data: Array, oldKey: String, newKey: String) {
  * @returns nested value string, number, etc.
  */
 function _extractNestedData(
-  row: Object,
-  key: String,
-  nestedKey: String
-): String {
+  row: Record<string, any>,
+  key: string,
+  nestedKey: string
+): string {
   return typeof row[key] === "object" ? row[key][nestedKey] : row[key];
 }
 
 /**
+ * getGroupByData
  *
  * @param attribute name of the column to query
  * @param filters A GraphQL filters object
  * @returns dataset; array of objects
  */
-export async function getData(attribute: String, filters: Object) {
-  const query = gql`query ($filters: AggregatesFilter ) {
-    Aggregates_groupBy (filter: $filters) {
+export async function getGroupByData({
+  table,
+  attribute,
+  filters,
+  sub_attribute = "id",
+}: {
+  table: string;
+  attribute: string;
+  filters: object;
+  sub_attribute: string;
+}) {
+  const tableId: string = `${table}_groupBy`;
+  const tableFilter: string = `${table}Filter`;
+  const query = gql`query ($filters: ${tableFilter} ) {
+    ${tableId} (filter: $filters) {
       ${attribute} {
-        name
+        ${sub_attribute}
       }
       _sum {
         n
@@ -102,8 +134,12 @@ export async function getData(attribute: String, filters: Object) {
     }
   }`;
   const variables = { filters: filters };
-  const response = await request("../api/graphql", query, variables);
-  return response.Aggregates_groupBy;
+  const response: Record<string, any> = await request(
+    "../api/graphql",
+    query,
+    variables
+  );
+  return response[tableId as keyof Response];
 }
 
 /**
@@ -123,54 +159,65 @@ export async function getData(attribute: String, filters: Object) {
  * @returns dataset for use in a d3 chart; array of objects or a single object
  */
 
-interface ChartData {
-  labels: String;
-  values: String;
-  groups?: String;
-  filters: Object;
-  nestedLabelKey: String;
-  nestedValueKey: String;
-  nestedGroupKey: String;
-  asPieChartData: Boolean;
+interface PreppedDataRowIF {
+  percent: string;
 }
 
 export async function getChartData({
+  table,
+  sub_attribute = "id",
   labels,
   values,
-  groups = null,
+  groups,
   filters = {},
   nestedLabelKey = "name",
   nestedValueKey = "n",
   nestedGroupKey = "name",
   asPieChartData = false,
-}): ChartData {
-  const data = await getData(labels, filters);
+}: getChartDataParams) {
+  const data = await getGroupByData({
+    table: table,
+    attribute: labels,
+    filters: filters,
+    sub_attribute: sub_attribute,
+  });
 
-  const preppedData = data.map((row) => {
-    const newRow = {};
+  const preppedData = data.map((row: object) => {
+    const newRow: Record<string, any> = {};
     newRow[labels] = _extractNestedData(row, labels, nestedLabelKey);
     newRow[values] = _extractNestedData(row, values, nestedValueKey);
 
-    if (groups && (nestedGroupKey !== null) | (nestedGroupKey !== "")) {
-      newRow[groups] = _extractNestedData(row, groups, nestedGroupKey);
+    if ((groups && nestedGroupKey !== null) || nestedGroupKey !== "") {
+      newRow[groups as string] = _extractNestedData(
+        row,
+        groups!,
+        nestedGroupKey
+      );
     }
     return newRow;
   });
 
   if (asPieChartData) {
-    const total = preppedData.reduce((sum, row) => {
-      const value = _extractNestedData(row, values, nestedValueKey);
+    const total = preppedData.reduce((sum: number, row: object) => {
+      const value: number = Number(
+        _extractNestedData(row, values, nestedValueKey)
+      );
       return sum + value;
     }, 0);
 
     return preppedData
-      .map((row) => {
+      .map((row: PreppedDataRowIF) => {
         const value = _extractNestedData(row, values, nestedValueKey);
-        row["percent"] = ((value / total) * 100).toFixed(2);
+        const val: number = Number(value);
+        const percent = ((val / total) * 100).toFixed(2);
+        row.percent = percent;
         return row;
       })
-      .sort((current, next) => current[values] + next[values])
-      .reduce((pieData, row) => {
+      .sort(
+        (current: Record<string, any>, next: Record<string, any>) =>
+          current[values] + next[values]
+      )
+      .reduce((pieData: Record<string, any>, row: Record<string, any>) => {
         pieData[row[labels]] = row[values];
         return pieData;
       }, {});
@@ -184,7 +231,7 @@ export async function getChartData({
  * @param number a number to evaluate
  * @returns number
  */
-export function calculateIncrement(number: Number) {
+export function calculateIncrement(number: number) {
   if (number > 2500) {
     return 1000;
   }
@@ -218,7 +265,7 @@ export function calculateIncrement(number: Number) {
  * @param by the increment between each item in the sequence
  * @returns an array of numbers
  */
-export function seqAlongBy(start: Number, stop: Number, by: Number): Array {
+export function seqAlongBy(start: number, stop: number, by: number): number[] {
   return Array.from(
     { length: (stop - start) / by + 1 },
     (_, i) => start + i * by
