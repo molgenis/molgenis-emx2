@@ -38,13 +38,15 @@ API is located at `https://emx2.test.molgenis.org/fdp/api/beacon`.
 
 #### Endpoint metadata
 
-All beacon-compliant templates include an *Endpoint table*. This table contains the organizational data for the
+All beacon-compliant templates include an **Endpoint table**. This table contains the organizational data for the
 endpoints displayed in your beacon's informational endpoints. You can edit this data using
 the [Table Explorer](use_quickstart.md#7-view-tables-data).
 
 #### Load data
 
-Lorem ipsum
+There are several ways to [load data](use_quickstart?id=_8-enter-data) in MOLGENIS EMX2. You can download the database
+model in csv files (inside a zip container), or xls format. Edit these files and upload them again as
+explained [here](http://localhost:8080/apps/docs/#/molgenis/use_quickstart?id=_8-enter-data)
 
 ### Endpoints
 
