@@ -36,19 +36,6 @@ export interface chartAxisSettingsIF {
   ymax: number | null;
 }
 
-export interface getChartDataParams {
-  table: string;
-  sub_attribute: string;
-  labels: string;
-  values: string;
-  groups?: string;
-  filters: object;
-  nestedLabelKey: string;
-  nestedValueKey: string;
-  nestedGroupKey: string;
-  asPieChartData: boolean;
-}
-
 export interface nestedSelectedFiltersQueryIF {
   name: {
     equals: string;

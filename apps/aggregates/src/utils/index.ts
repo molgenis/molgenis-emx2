@@ -1,5 +1,4 @@
 import { gql, request } from "graphql-request";
-import type { getChartDataParams } from "../interfaces/types";
 
 /**
  * Map color values to one or more groups
@@ -99,7 +98,7 @@ function _extractNestedData(
   row: Record<string, any>,
   key: string,
   nestedKey: string
-): string {
+): string | number {
   return typeof row[key] === "object" ? row[key][nestedKey] : row[key];
 }
 
@@ -114,7 +113,7 @@ export async function getGroupByData({
   table,
   attribute,
   filters,
-  sub_attribute = "id",
+  sub_attribute,
 }: {
   table: string;
   attribute: string;
@@ -165,7 +164,7 @@ interface PreppedDataRowIF {
 
 export async function getChartData({
   table,
-  sub_attribute = "id",
+  sub_attribute = "name",
   labels,
   values,
   groups,
@@ -174,7 +173,18 @@ export async function getChartData({
   nestedValueKey = "n",
   nestedGroupKey = "name",
   asPieChartData = false,
-}: getChartDataParams) {
+}: {
+  table: string;
+  sub_attribute?: string;
+  labels: string;
+  values: string;
+  groups?: string;
+  filters: object;
+  nestedLabelKey?: string;
+  nestedValueKey?: string;
+  nestedGroupKey?: string;
+  asPieChartData?: boolean;
+}) {
   const data = await getGroupByData({
     table: table,
     attribute: labels,
@@ -187,7 +197,7 @@ export async function getChartData({
     newRow[labels] = _extractNestedData(row, labels, nestedLabelKey);
     newRow[values] = _extractNestedData(row, values, nestedValueKey);
 
-    if ((groups && nestedGroupKey !== null) || nestedGroupKey !== "") {
+    if (groups && nestedGroupKey !== null && nestedGroupKey !== "") {
       newRow[groups as string] = _extractNestedData(
         row,
         groups!,

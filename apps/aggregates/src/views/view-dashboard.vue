@@ -295,17 +295,18 @@ function updateQueryFilters() {
   queryFilters.value.filter = query;
 }
 
-async function getAllData() {
+async function getResearchCentersData() {
   researchCenters.value = await getChartData({
     table: "FORCE_NENPatients",
+    sub_attribute: "id",
     labels: "researchCenter",
+    nestedLabelKey: "id",
     values: "_sum",
     filters: queryFilters.value.filter,
-    nestedLabelKey: "id",
   });
 
   researchCenters.value = researchCenters.value
-    .map((row: Record<string, any>) => {
+    .map((row) => {
       const name: string = row.researchCenter;
       const nameSplit = name.split(" ");
       row.researchCenter = nameSplit[nameSplit.length - 1];
@@ -313,7 +314,9 @@ async function getAllData() {
     })
     .sort((curr, next) => curr._sum - next._sum)
     .reverse();
+}
 
+async function getPrimaryTumorSiteData() {
   primaryTumorSite.value = await getChartData({
     table: "FORCE_NENPatients",
     sub_attribute: "name",
@@ -326,7 +329,9 @@ async function getAllData() {
     return { ...row, "primary tumor site": row.primaryTumorSite };
   });
   renameKey(primaryTumorSite.value, "_sum", "sum");
+}
 
+async function getMetastasisData() {
   metastasis.value = await getChartData({
     table: "FORCE_NENPatients",
     sub_attribute: "name",
@@ -335,7 +340,9 @@ async function getAllData() {
     filters: queryFilters.value.filter,
     asPieChartData: true,
   });
+}
 
+async function getYearofDiagnosisData() {
   yearOfDiagnosis.value = await getChartData({
     table: "FORCE_NENPatients",
     sub_attribute: "name",
@@ -362,7 +369,9 @@ async function getAllData() {
       );
     }
   );
+}
 
+async function getSexData() {
   sexCases.value = await getChartData({
     table: "FORCE_NENPatients",
     sub_attribute: "name",
@@ -430,7 +439,13 @@ function onChartClick(
 
 function renderCharts() {
   loading.value = true;
-  getAllData()
+  Promise.all([
+    getResearchCentersData(),
+    getPrimaryTumorSiteData(),
+    getMetastasisData(),
+    getYearofDiagnosisData(),
+    getSexData(),
+  ])
     .catch((err) => (error.value = err))
     .finally(() => (loading.value = false));
 }
