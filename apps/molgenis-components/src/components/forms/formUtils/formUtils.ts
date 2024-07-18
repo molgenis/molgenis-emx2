@@ -164,10 +164,6 @@ export function executeExpression(
   values: Record<string, any>,
   tableMetaData: ITableMetaData
 ) {
-  if (!values.mg_tableclass) {
-    values.mg_tableclass = `${tableMetaData.schemaId}.${tableMetaData.label}`;
-  }
-
   //make sure all columns have keys to prevent reference errors
   const copy: Record<string, any> = deepClone(values);
   tableMetaData.columns.forEach((column: IColumn) => {
@@ -175,6 +171,9 @@ export function executeExpression(
       copy[column.id] = null;
     }
   });
+  if (!copy.mg_tableclass) {
+    copy.mg_tableclass = `${tableMetaData.schemaId}.${tableMetaData.label}`;
+  }
 
   // A simple client for scripts to use to request data.
   // Note: don't overuse this, the API call is blocking.
