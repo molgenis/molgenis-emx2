@@ -25,6 +25,7 @@ When running this on a local emx2 server, run the following first (or add it to 
 ```bash
 export E2E_BASE_URL=http://localhost:8080/
 ```
+IMPORTANT: Do note that some tests will fail unless the local server is set up correctly!
 
 ## playwright vscode plugin
 
