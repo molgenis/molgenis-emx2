@@ -10,34 +10,80 @@
 </head>
 <body>
 <div id="app"></div>
-<script src="https://cdn.jsdelivr.net/npm/docsify-edit-on-github"></script>
 
 <style>
     .content {
         padding: 0px;
     }
 
+    .markdown-section > h4 + p {
+        margin-top: 0;
+    }
+
+    input:focus {
+        outline: none;
+        border-radius: 10px;
+    }
+
+    .sidebar-nav > h4 {
+        margin-top: 0;
+    }
+
+    .sidebar-nav > h4 > a:is(:link, :active, :hover, :focus, :visited) {
+        font-weight: 700;
+        color: #ffffff;
+    }
+
+    .app-nav > ul > li {
+        background: var(--color-yellow-500);
+        padding: 15px 40px;
+        border-radius: 9999px;
+        font-weight: 700;
+    }
+
+    .folder {
+        cursor: pointer;
+    }
+
     :root {
-        --theme-color: #017FFD;
+        --color-blue-500: #0071e6;
+        --color-blue-700: #1d4ed8;
+        --color-yellow-500: #fff500;
+        --theme-color: var(--color-blue-500);
+
+        --sidebar-background: var(--color-blue-500);
+        --sidebar-name-color: white;
+
+        --sidebar-nav-margin: 0;
+        --sidebar-nav-strong-color: white;
+        --sidebar-nav-link-color: white;
+        --sidebar-nav-link-color--active: var(--color-yellow-500);
+        --sidebar-nav-link-border-color--active: var(--color-yellow-500);
+
+        --search-input-border-radius: 10px;
+        --search-margin: 0.5rem 1rem 0;
+
         --heading-color: var(--theme-color);
         --link-color: var(--theme-color);
-        --sidebar-nav-link-color--active: var(--theme-color);
-        --sidebar-nav-color: var(--theme-color);
         --sidebar-name-font-weight: bold;
+        --code-font-size: calc(var(--font-size-m) * 0.80);
+        --heading-h3-color: black ;
+        --heading-h4-color: black ;
+        --heading-h4-margin: 0 0 0 0;
+        --markdown-section-p-margin: 0 0 0 0;
+
     }
 
 </style>
 <script>
     window.$docsify = {
+        name: '<img src="./img/molgenis_logo_white.png" height="50" style="margin-left: -15px;"/>',
         repo: 'http://github.com/molgenis/molgenis-emx2',
         loadNavbar: true,
         loadSidebar: true,
         relativePath: true,
         themeColor: "#005EC4",
         loadFooter: true,
-        plugins: [
-            EditOnGithubPlugin.create('https://github.com/molgenis/molgenis-emx2/blob/master/docs/')
-        ],
         auto2top: true,
         maxLevel: 3,
         homepage: "intro.md",
