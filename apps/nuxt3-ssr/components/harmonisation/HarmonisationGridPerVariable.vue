@@ -19,7 +19,7 @@ defineProps<{
   <div class="relative">
     <HarmonisationLegendDetailed size="small" />
     <div class="overflow-x-auto xl:max-w-table border-t">
-      <StickyTable
+      <TableSticky
         :columns="cohortsWithMapping"
         :rows="[variable, ...variable.repeats]"
         class="h-screen overflow-auto"
@@ -51,7 +51,7 @@ defineProps<{
             :status="(cohortsWithMapping[cell.value.columnIndex].status[cell.value.rowIndex] as HarmonisationStatus)"
           />
         </template>
-      </StickyTable>
+      </TableSticky>
     </div>
   </div>
 </template>

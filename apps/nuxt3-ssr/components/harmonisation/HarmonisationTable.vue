@@ -33,7 +33,7 @@ let activeVariablePath = computed(() =>
   <div class="mb-7 relative">
     <HarmonisationLegendMatrix size="small" />
     <div class="overflow-x-auto xl:max-w-table border-t">
-      <StickyTable
+      <TableSticky
         :columns="cohorts"
         :rows="variables"
         class="h-screen overflow-auto"
@@ -75,7 +75,7 @@ let activeVariablePath = computed(() =>
             @click="activeRowIndex = cell.value.rowIndex"
           ></HarmonisationTableCellAvailableIcon>
         </template>
-      </StickyTable>
+      </TableSticky>
     </div>
 
     <SideModal
