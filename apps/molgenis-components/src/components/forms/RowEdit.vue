@@ -187,8 +187,6 @@ export default {
                       this.internalValues[column.refLinkId],
                       column3.refTableId,
                       column3.refSchemaId
-                        ? column3.refSchemaId
-                        : this.schemaMetaData.id
                     ).then((value) => {
                       filter[column3.id] = {
                         //@ts-ignore
