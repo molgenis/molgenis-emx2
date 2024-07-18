@@ -22,17 +22,22 @@ function setupAnalytics(schemaName: string, providers: Provider[]) {
     .then((response) => {
       response.json().then((data) => {
         data.forEach((trigger: Trigger) => {
-          const elements = document.querySelectorAll(trigger.cssSelector);
-          elements.forEach((element) => {
-            console.log(
-              `add trigger for ${trigger.name} to ${element.nodeName}`
-            );
-            element.addEventListener("click", (e) => {
-              for (let provider of providers) {
-                handleEvent(e, trigger, element, provider);
-              }
+          try {
+            const elements = document.querySelectorAll(trigger.cssSelector);
+            elements.forEach((element) => {
+              console.log(
+                `add trigger for ${trigger.name} to ${element.nodeName}`
+              );
+              element.addEventListener("click", (e) => {
+                for (let provider of providers) {
+                  handleEvent(e, trigger, element, provider);
+                }
+              });
             });
-          });
+          } catch (e) {
+            console.error("Failed to select elements for trigger", trigger);
+            console.error(`Error: ${e} for ${trigger.name}`);
+          }
         });
       });
     })

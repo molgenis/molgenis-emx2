@@ -6,7 +6,7 @@ export default defineNuxtPlugin((nuxtApp) => {
     const schema = nuxtApp._route.params["schema"] as string;
     const analyticsKey = nuxtApp.$config.public.analyticsKey;
     if (schema && analyticsKey) {
-      console.log("setupAnalytics for : " + schema);
+      console.log("Setup Analytics for: " + schema);
       const providers = [{ id: "site-improve", options: { analyticsKey } }];
       setupAnalytics(schema, providers);
     }
