@@ -38,7 +38,7 @@ To make the plugin use a local running version of EMX2, add the following to you
     }, 
 ```
 
-When running tests in files named `admin!`, be sure to run `auth.setup.spec.ts` first to ensure login session is defined. See also: https://playwright.dev/docs/auth#authenticating-in-ui-mode
+When running tests in files which name start with `admin!`, be sure to run `auth.setup.spec.ts` first to ensure login session is defined. See also: https://playwright.dev/docs/auth#authenticating-in-ui-mode
 
 ## Adding tests
 
