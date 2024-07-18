@@ -37,7 +37,10 @@ export interface chartAxisSettingsIF {
 }
 
 export interface nestedSelectedFiltersQueryIF {
-  name: {
+  name?: {
+    equals: string;
+  };
+  id?: {
     equals: string;
   };
 }

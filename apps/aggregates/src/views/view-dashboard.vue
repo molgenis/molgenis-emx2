@@ -81,7 +81,7 @@
             yvar="researchCenter"
             :xMax="researchCenterAxis.ymax"
             :xTickValues="researchCenterAxis.ticks"
-            yAxisLineBreaker=" "
+            yAxisLineBreaker="FORCE-NEN collections"
             :chartHeight="400"
             :barFill="palette[3]"
             :barHoverFill="palette[5]"
@@ -206,6 +206,7 @@ import {
   renameKey,
   seqAlongBy,
   calculateIncrement,
+  gqlPrepareSubSelectionFilter,
 } from "../utils/index";
 
 import type {
@@ -267,13 +268,14 @@ function updateQueryFilters() {
 
   for (let i = 0; i < filterLength; i++) {
     const key = filterKeys[i];
+    const gqlKey = key === "researchCenter" ? "id" : "name";
+    const gqlAction = key === "researchCenter" ? "equals" : "equals";
     const subfilters = selectedFilters.value[key as keyof selectedFiltersIF];
 
     if (typeof subfilters[0] !== "undefined") {
       if (subfilters.length === 1) {
-        query[key as keyof selectedFiltersQueryIF] = {
-          name: { equals: subfilters[0] },
-        };
+        query[key as keyof selectedFiltersQueryIF] =
+          gqlPrepareSubSelectionFilter(gqlKey, subfilters[0], gqlAction);
       }
 
       if (subfilters.length > 1) {
@@ -283,9 +285,8 @@ function updateQueryFilters() {
 
         subfilters.forEach((value: string) => {
           const newSubFilter: selectedFiltersQueryIF = {};
-          newSubFilter[key as keyof selectedFiltersQueryIF] = {
-            name: { equals: value },
-          };
+          newSubFilter[key as keyof selectedFiltersQueryIF] =
+            gqlPrepareSubSelectionFilter(gqlKey, value, gqlAction);
           query._or?.push(newSubFilter);
         });
       }
@@ -306,12 +307,6 @@ async function getResearchCentersData() {
   });
 
   researchCenters.value = researchCenters.value
-    .map((row) => {
-      const name: string = row.researchCenter;
-      const nameSplit = name.split(" ");
-      row.researchCenter = nameSplit[nameSplit.length - 1];
-      return row;
-    })
     .sort((curr, next) => curr._sum - next._sum)
     .reverse();
 }

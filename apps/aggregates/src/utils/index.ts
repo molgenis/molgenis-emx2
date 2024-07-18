@@ -290,3 +290,19 @@ export function seqAlongBy(start: number, stop: number, by: number): number[] {
 export function validateNumRange(value: number) {
   return value >= 0 && value <= 1;
 }
+
+/**
+ * prepare subselection structure based on attribute name
+ * @param key graphql selection
+ * @param filter the value to search for
+ * @param action search type to perform equals, etc.
+ * @returns object
+ */
+export function gqlPrepareSubSelectionFilter(
+  key: string,
+  filter: string,
+  action: string = "equals"
+): object {
+  const query = `{"${key}":{"${action}":"${filter}"}}`;
+  return JSON.parse(query);
+}
