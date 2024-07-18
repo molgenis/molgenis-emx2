@@ -738,8 +738,12 @@ class Client:
                 if str(_val).lower() == 'true':
                     val = True
             case _:
-                val = ''.join(_val.split('`'))
-        return {col.id: {'equals': [val]}}
+                try:
+                    val = json.loads(''.join(_val.split('`')).replace("'", '"'))
+                except json.decoder.JSONDecodeError:
+                    val = ''.join(_val.split('`'))
+
+        return {col.id: {'equals': val}}
 
     def __prepare_greater_filter(self, stmt: str, _table: str, _schema: str) -> dict:
         """Prepares the filter part if the statement filters on greater than."""
@@ -802,7 +806,10 @@ class Client:
 
         match col.get('columnType'):
             case _:
-                val = ''.join(_val.split('`'))
+                try:
+                    val = json.loads(''.join(_val.split('`')).replace("'", '"'))
+                except json.decoder.JSONDecodeError:
+                    val = ''.join(_val.split('`'))
 
         return {col.id: {"not_equals": val}}
 
