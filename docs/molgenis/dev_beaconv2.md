@@ -109,7 +109,8 @@ The following table shows how the MOLGENIS permissions relate to the Beacon resp
 | **Exists**     | ❌      | ❌                     | ✅       |
 
 We have added the **Range** permission to handle inexact counts with a step size of 10 (e.g., 10, 20, 30, ..., 120, 130,
-etc.).
+etc.). The **Aggregator** permission wil hide counts lower than 10, while the **Count** permission will always return
+the exact count of records of a given request.
 
 For example, if the exact count for a given request is **74**, a user with **Range** permission will see a count of
 **80**, along with an additional description explaining within what range the exact count falls.
@@ -135,8 +136,10 @@ For example, if the exact count for a given request is **74**, a user with **Ran
 
 ### Queries
 
-The Beacon v2 framework allows for a range of potential queries and filters.
-The following ones are currently implemented.
+The Beacon v2 framework allows for a range of potential queries and filters. the `/filtering_terms` endpoint will
+return a list of filtering terms accepted by your Beacon instance with the scope for which entry type the filtering term
+is applicable. How these filter can be used is
+explained [here](https://docs.genomebeacons.org/filters/#using-filters-in-queries)
 
 #### ID queries
 
@@ -175,7 +178,8 @@ List of available links:
 
 #### Genomic queries
 
-On genomic variation, a number of different genomic queries are accepted via GET on the `/g_variants` endpoint.
+On genomic variation, a number of different genomic queries are accepted via GET and POST requests on the `/g_variants`
+endpoint.
 
 - Sequence
   query, [example](https://vkgl-emx2.molgeniscloud.org/api/beacon/g_variants?start=32936732&referenceName=13&referenceBases=G&alternateBases=C)
@@ -200,20 +204,14 @@ RDF API.
 ### Compliance
 
 The MOLGENIS EMX2 Beacon v2 API was developed to be fully compliance
-with [beacon-verifier](https://crates.io/crates/beacon-verifier) version 0.3.2.
+with [beacon-verifier](https://github.com/EGA-archive/beacon-verifier-v2) version v2. After setting up your beacon
+api, this verifier can be used to check the validation of your beacon endpoint.
+
 Note that not all variables from the Beacon v2 models have been implemented.
 As per Beacon design philosophy, the variables and filter options of this implementation will grow and adapt to
 community specific needs.
 
-The API has also been tested with the latest beacon-verifier release, version 0.3.3.
-This version requires sub-levels for the base entry types to be implemented.
-The following sub-levels are currently missing but are planned to be implemented:
-
 # Beacon VP
 
-#### Count queries
-
-Count queries are accepted as POST requests on the `/individuals` endpoint.
-These requests should conform to specifications available [here](https://github.com/ejp-rd-vp/vp-api-specs).
-The response contains the number of individuals that match the supplied filters.
-
+The Beacon VP spec is exactly modeled after the specification Virtual Platform EJP-RD specification v4
+found [here](https://github.com/ejp-rd-vp/vp-api-specs/tree/v4.0_spec)
