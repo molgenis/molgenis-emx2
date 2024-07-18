@@ -1149,8 +1149,8 @@ public class SqlQuery extends QueryBean {
       case DATE -> whereConditionOrdinal(name, operator, toDateArray(values));
       case DATETIME -> whereConditionOrdinal(name, operator, toDateTimeArray(values));
       case PERIOD -> whereConditionOrdinal(name, operator, toYearToSecondArray(values));
-      case STRING_ARRAY, TEXT_ARRAY -> whereConditionTextArray(
-          name, operator, toStringArray(values));
+      case STRING_ARRAY, TEXT_ARRAY ->
+          whereConditionTextArray(name, operator, toStringArray(values));
       case BOOL_ARRAY -> whereConditionArrayEquals(name, operator, toBoolArray(values));
       case UUID_ARRAY -> whereConditionArrayEquals(name, operator, toUuidArray(values));
       case INT_ARRAY -> whereConditionArrayEquals(name, operator, toIntArray(values));
@@ -1161,14 +1161,15 @@ public class SqlQuery extends QueryBean {
       case PERIOD_ARRAY -> whereConditionArrayEquals(name, operator, toYearToSecondArray(values));
       case JSONB_ARRAY -> whereConditionArrayEquals(name, operator, toJsonbArray(values));
       case REF -> whereConditionRefEquals(name, operator, values);
-      default -> throw new SqlQueryException(
-          SqlQuery.QUERY_FAILED
-              + "Filter of '"
-              + name
-              + " failed: operator "
-              + operator
-              + " not supported for type "
-              + type);
+      default ->
+          throw new SqlQueryException(
+              SqlQuery.QUERY_FAILED
+                  + "Filter of '"
+                  + name
+                  + " failed: operator "
+                  + operator
+                  + " not supported for type "
+                  + type);
     };
   }
 

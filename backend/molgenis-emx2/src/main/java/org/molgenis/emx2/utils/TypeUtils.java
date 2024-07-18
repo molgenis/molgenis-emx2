@@ -319,8 +319,9 @@ public class TypeUtils {
       case DATETIME -> ColumnType.DATETIME_ARRAY;
       case PERIOD -> ColumnType.PERIOD_ARRAY;
       case JSONB -> ColumnType.JSONB_ARRAY;
-      default -> throw new UnsupportedOperationException(
-          "Unsupported array columnType found:" + columnType);
+      default ->
+          throw new UnsupportedOperationException(
+              "Unsupported array columnType found:" + columnType);
     };
   }
 
@@ -386,9 +387,8 @@ public class TypeUtils {
       case DATETIME -> SQLDataType.TIMESTAMP;
       case DATETIME_ARRAY -> SQLDataType.TIMESTAMP.getArrayDataType();
       case PERIOD -> SQLDataType.INTERVAL.asConvertedDataType(new PeriodConverter());
-      case PERIOD_ARRAY -> SQLDataType.INTERVAL
-          .asConvertedDataType(new PeriodConverter())
-          .getArrayDataType();
+      case PERIOD_ARRAY ->
+          SQLDataType.INTERVAL.asConvertedDataType(new PeriodConverter()).getArrayDataType();
       case JSONB -> SQLDataType.JSONB;
       case JSONB_ARRAY -> SQLDataType.JSONB.getArrayDataType();
       default ->
@@ -421,8 +421,9 @@ public class TypeUtils {
       case PERIOD_ARRAY -> TypeUtils.toPeriodArray(v);
       case JSONB -> TypeUtils.toJsonb(v);
       case JSONB_ARRAY -> TypeUtils.toJsonbArray(v);
-      default -> throw new UnsupportedOperationException(
-          "Unsupported columnType columnType found:" + columnType);
+      default ->
+          throw new UnsupportedOperationException(
+              "Unsupported columnType columnType found:" + columnType);
     };
   }
 

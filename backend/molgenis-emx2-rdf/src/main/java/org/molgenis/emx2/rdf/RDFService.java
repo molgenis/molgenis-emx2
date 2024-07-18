@@ -635,33 +635,42 @@ public class RDFService {
       return List.of();
     }
     return switch (xsdType) {
-      case BOOLEAN -> Arrays.stream(row.getBooleanArray(column.getName()))
-          .map(value -> (Value) literal(value))
-          .toList();
-      case DATE -> Arrays.stream(row.getDateArray(column.getName()))
-          .map(value -> (Value) literal(value.toString(), xsdType))
-          .toList();
-      case DATETIME -> Arrays.stream(row.getDateTimeArray(column.getName()))
-          .map(value -> (Value) literal(dateTimeFormatter.format(value), xsdType))
-          .toList();
-      case DECIMAL -> Arrays.stream(row.getDecimalArray(column.getName()))
-          .map(value -> (Value) literal(value))
-          .toList();
-      case STRING -> Arrays.stream(row.getStringArray(column.getName()))
-          .map(value -> (Value) literal(value))
-          .toList();
-      case ANYURI -> Arrays.stream(row.getStringArray(column.getName()))
-          .map(value -> (Value) encodedIRI(value))
-          .toList();
-      case INT -> Arrays.stream(row.getIntegerArray(column.getName()))
-          .map(value -> (Value) literal(value))
-          .toList();
-      case LONG -> Arrays.stream(row.getLongArray(column.getName()))
-          .map(value -> (Value) literal(value))
-          .toList();
-      case DURATION -> Arrays.stream(row.getPeriodArray(column.getName()))
-          .map(value -> (Value) literal(value))
-          .toList();
+      case BOOLEAN ->
+          Arrays.stream(row.getBooleanArray(column.getName()))
+              .map(value -> (Value) literal(value))
+              .toList();
+      case DATE ->
+          Arrays.stream(row.getDateArray(column.getName()))
+              .map(value -> (Value) literal(value.toString(), xsdType))
+              .toList();
+      case DATETIME ->
+          Arrays.stream(row.getDateTimeArray(column.getName()))
+              .map(value -> (Value) literal(dateTimeFormatter.format(value), xsdType))
+              .toList();
+      case DECIMAL ->
+          Arrays.stream(row.getDecimalArray(column.getName()))
+              .map(value -> (Value) literal(value))
+              .toList();
+      case STRING ->
+          Arrays.stream(row.getStringArray(column.getName()))
+              .map(value -> (Value) literal(value))
+              .toList();
+      case ANYURI ->
+          Arrays.stream(row.getStringArray(column.getName()))
+              .map(value -> (Value) encodedIRI(value))
+              .toList();
+      case INT ->
+          Arrays.stream(row.getIntegerArray(column.getName()))
+              .map(value -> (Value) literal(value))
+              .toList();
+      case LONG ->
+          Arrays.stream(row.getLongArray(column.getName()))
+              .map(value -> (Value) literal(value))
+              .toList();
+      case DURATION ->
+          Arrays.stream(row.getPeriodArray(column.getName()))
+              .map(value -> (Value) literal(value))
+              .toList();
       default -> throw new MolgenisException("XSD type formatting not supported for: " + xsdType);
     };
   }
