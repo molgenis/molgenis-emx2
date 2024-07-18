@@ -223,7 +223,7 @@ public class RDFService {
     builder.setNamespace("foaf", NAMESPACE_FOAF);
     builder.setNamespace("vcard", NAMESPACE_VCARD);
     builder.setNamespace("org", NAMESPACE_ORG);
-    builder.setNamespace("fdp-o", NAMESPACE_ORG);
+    builder.setNamespace("fdp-o", NAMESPACE_FDP);
   }
 
   public WriterConfig getConfig() {
