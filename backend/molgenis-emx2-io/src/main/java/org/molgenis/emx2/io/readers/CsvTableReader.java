@@ -18,6 +18,18 @@ public class CsvTableReader {
     return read(new InputStreamReader(new BOMInputStream(new FileInputStream(f))));
   }
 
+  public static Row nextNonEmptyRow(Iterator<Map> it) throws IOException {
+
+    HashMap<String, String> next = (HashMap<String, String>) it.next();
+    boolean isEmpty = next.values().stream().allMatch(Objects::isNull);
+
+    if (isEmpty && it.hasNext()) {
+      return nextNonEmptyRow(it);
+    } else {
+      return new Row(next);
+    }
+  }
+
   public static Iterable<Row> read(Reader in) {
     try {
       BufferedReader bufferedReader = new BufferedReader(in);
@@ -75,14 +87,10 @@ public class CsvTableReader {
             }
 
             public Row next() {
-              HashMap<String, String> next = (HashMap<String, String>) it.next();
-              boolean isEmpty = next.values().stream().allMatch(Objects::isNull);
-
-              if (isEmpty) {
-                // skip empty lines
-                return new Row(it.next());
-              } else {
-                return new Row(next);
+              try {
+                return nextNonEmptyRow(it);
+              } catch (IOException e) {
+                throw new RuntimeException(e);
               }
             }
 

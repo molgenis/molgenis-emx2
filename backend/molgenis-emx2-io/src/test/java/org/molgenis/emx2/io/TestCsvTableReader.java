@@ -43,9 +43,7 @@ public class TestCsvTableReader {
     ClassLoader classLoader = getClass().getClassLoader();
     File file =
         new File(
-            Objects.requireNonNull(
-                    classLoader.getResource("two-non-empty-lines-one-empty-line.csv"))
-                .getFile());
+            Objects.requireNonNull(classLoader.getResource("csv-with-empty-lines.csv")).getFile());
 
     try {
       InputStreamReader inputStreamReader = new InputStreamReader(new FileInputStream(file));
@@ -62,9 +60,7 @@ public class TestCsvTableReader {
     ClassLoader classLoader = getClass().getClassLoader();
     File file =
         new File(
-            Objects.requireNonNull(
-                    classLoader.getResource("two-non-empty-lines-one-empty-line.csv"))
-                .getFile());
+            Objects.requireNonNull(classLoader.getResource("csv-with-empty-lines.csv")).getFile());
 
     try {
       Iterable<Row> rows = CsvTableReader.read(file);
