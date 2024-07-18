@@ -40,7 +40,7 @@ async def main():
 
         participant_range = [10_000, 20_000.5]
         big_data = client.get(table='Subcohorts',
-                              query_filter=f'`number of participants` between {participant_range}', as_df=True)
+                              query_filter=f'`numberOfParticipants` between {participant_range}', as_df=True)
         print(big_data.head().to_string())
 
         countries = ["Denmark", "France"]

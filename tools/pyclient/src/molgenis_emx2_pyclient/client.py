@@ -728,14 +728,7 @@ class Client:
         col_id = ''.join(_col.split('`'))
 
         if '.' in col_id:
-            _filter = {}
-            current = _filter
-            for (i, segment) in enumerate(col_id.split('.')[:-1]):
-                current[segment] = {}
-                current = current[segment]
-            last_segment = col_id.split('.')[-1]
-            current[last_segment] = {"equals": _val}
-            return _filter
+            return self.__prepare_nested_filter(col_id, _val, "equals")
 
         schema = self.get_schema_metadata(_schema)
         col = schema.get_table(by='name', value=_table).get_column(by='id', value=col_id)
@@ -792,21 +785,13 @@ class Client:
 
     def __prepare_unequal_filter(self, stmt: str, _table: str, _schema: str) -> dict:
         """Prepares the filter part if the statement filters on greater than."""
-        stmt.replace('=', '')
         _col = stmt.split('!=')[0].strip()
         _val = stmt.split('!=')[1].strip()
 
         col_id = ''.join(_col.split('`'))
 
         if '.' in col_id:
-            _filter = {}
-            current = _filter
-            for (i, segment) in enumerate(col_id.split('.')[:-1]):
-                current[segment] = {}
-                current = current[segment]
-            last_segment = col_id.split('.')[-1]
-            current[last_segment] = {"not_equals": _val}
-            return _filter
+            return self.__prepare_nested_filter(col_id, _val, "not_equals")
 
         schema = self.get_schema_metadata(_schema)
         col = schema.get_table(by='name', value=_table).get_column(by='id', value=col_id)
@@ -837,6 +822,17 @@ class Client:
             raise NotImplementedError(f"The filter 'between' is not implemented for columns of type {col_type!r}.")
 
         return {col.id: {'between': val}}
+
+    @staticmethod
+    def __prepare_nested_filter(columns: str, value: str | int | float | list, comparison: str):
+        _filter = {}
+        current = _filter
+        for (i, segment) in enumerate(columns.split('.')[:-1]):
+            current[segment] = {}
+            current = current[segment]
+        last_segment = columns.split('.')[-1]
+        current[last_segment] = {comparison: value}
+        return _filter
 
     @staticmethod
     def _prep_data_or_file(file_path: str = None, data: list | pd.DataFrame = None) -> str | None:
