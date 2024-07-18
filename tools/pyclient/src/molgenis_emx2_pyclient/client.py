@@ -748,7 +748,7 @@ class Client:
     def __prepare_greater_filter(self, stmt: str, _table: str, _schema: str) -> dict:
         """Prepares the filter part if the statement filters on greater than."""
         exclusive = '=' not in stmt
-        stmt.replace('=', '')
+        stmt = stmt.replace('=', '')
 
         _col = stmt.split('>')[0].strip()
         _val = stmt.split('>')[1].strip()
@@ -771,7 +771,7 @@ class Client:
     def __prepare_smaller_filter(self, stmt: str, _table: str, _schema: str) -> dict:
         """Prepares the filter part if the statement filters on greater than."""
         exclusive = '=' not in stmt
-        stmt.replace('=', '')
+        stmt = stmt.replace('=', '')
 
         _col = stmt.split('<')[0].strip()
         _val = stmt.split('<')[1].strip()
