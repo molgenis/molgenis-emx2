@@ -54,6 +54,25 @@ public class RDFTest {
   static Schema compositeKeyTest;
   static Schema ontologyTest;
 
+  final Set<Namespace> DEFAULT_NAMESPACES =
+      new HashSet<>() {
+        {
+          add(new SimpleNamespace("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#"));
+          add(new SimpleNamespace("rdfs", "http://www.w3.org/2000/01/rdf-schema#"));
+          add(new SimpleNamespace("xsd", "http://www.w3.org/2001/XMLSchema#"));
+          add(new SimpleNamespace("owl", "http://www.w3.org/2002/07/owl#"));
+          add(new SimpleNamespace("sio", "http://semanticscience.org/resource/"));
+          add(new SimpleNamespace("qb", "http://purl.org/linked-data/cube#"));
+          add(new SimpleNamespace("skos", "http://www.w3.org/2004/02/skos/core#"));
+          add(new SimpleNamespace("dcterms", "http://purl.org/dc/terms/"));
+          add(new SimpleNamespace("dcat", "http://www.w3.org/ns/dcat#"));
+          add(new SimpleNamespace("foaf", "http://xmlns.com/foaf/0.1/"));
+          add(new SimpleNamespace("vcard", "http://www.w3.org/2006/vcard/ns#"));
+          add(new SimpleNamespace("org", "http://www.w3.org/ns/org#"));
+          add(new SimpleNamespace("fdp-o", "https://w3id.org/fdp/fdp-o#"));
+        }
+      };
+
   @BeforeAll
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
@@ -586,18 +605,7 @@ public class RDFTest {
             add(
                 new SimpleNamespace(
                     "CustomRdfEdit", "http://localhost:8080/CustomRdfEdit/api/rdf/"));
-            add(new SimpleNamespace("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#"));
-            add(new SimpleNamespace("rdfs", "http://www.w3.org/2000/01/rdf-schema#"));
-            add(new SimpleNamespace("xsd", "http://www.w3.org/2001/XMLSchema#"));
-            add(new SimpleNamespace("owl", "http://www.w3.org/2002/07/owl#"));
-            add(new SimpleNamespace("sio", "http://semanticscience.org/resource/"));
-            add(new SimpleNamespace("qb", "http://purl.org/linked-data/cube#"));
-            add(new SimpleNamespace("skos", "http://www.w3.org/2004/02/skos/core#"));
-            add(new SimpleNamespace("dcterms", "http://purl.org/dc/terms/"));
-            add(new SimpleNamespace("dcat", "http://www.w3.org/ns/dcat#"));
-            add(new SimpleNamespace("foaf", "http://xmlns.com/foaf/0.1/"));
-            add(new SimpleNamespace("vcard", "http://www.w3.org/2006/vcard/ns#"));
-            add(new SimpleNamespace("org", "http://www.w3.org/ns/org#"));
+            addAll(DEFAULT_NAMESPACES);
           }
         };
 
@@ -777,6 +785,57 @@ public class RDFTest {
             .contains(Values.literal("Molgenis")));
   }
 
+  @Test
+  void testPartlyCustomRdf() throws IOException {
+    final Set<Namespace> expectedNamespaces =
+        new HashSet<>() {
+          {
+            add(
+                new SimpleNamespace(
+                    "RdfPartlyCustom1", "http://localhost:8080/RdfPartlyCustom1/api/rdf/"));
+            add(
+                new SimpleNamespace(
+                    "RdfPartlyCustom2", "http://localhost:8080/RdfPartlyCustom2/api/rdf/"));
+            add(new SimpleNamespace("ncit", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#"));
+            addAll(DEFAULT_NAMESPACES);
+          }
+        };
+
+    final String customRdf1 =
+        """
+    @prefix ncit: <http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#> .
+    """;
+
+    var handler = new InMemoryRDFHandler() {};
+    validateNamespaces(handler, "RdfPartlyCustom", expectedNamespaces, customRdf1, null);
+  }
+
+  @Test
+  void testCustomOrEmptyRdf() throws IOException {
+    final Set<Namespace> expectedNamespaces =
+        new HashSet<>() {
+          {
+            add(
+                new SimpleNamespace(
+                    "RdfcustomOrEmpty1", "http://localhost:8080/RdfcustomOrEmpty1/api/rdf/"));
+            add(
+                new SimpleNamespace(
+                    "RdfcustomOrEmpty2", "http://localhost:8080/RdfcustomOrEmpty2/api/rdf/"));
+            add(new SimpleNamespace("ncit", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#"));
+          }
+        };
+
+    final String customRdf1 =
+        """
+    @prefix ncit: <http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#> .
+    """;
+
+    final String customRdf2 = "";
+
+    var handler = new InMemoryRDFHandler() {};
+    validateNamespaces(handler, "RdfcustomOrEmpty", expectedNamespaces, customRdf1, customRdf2);
+  }
+
   /**
    * Helper test method to compare namespaces of 2 schemas.
    *
@@ -785,7 +844,7 @@ public class RDFTest {
    *     different schemes)
    * @param expectedNamespaces set containing the expected combined namespaces
    * @param customRdf1 custom_rdf setting field for first schema
-   * @param customRdf2 custom_rdf setting field for first schema
+   * @param customRdf2 custom_rdf setting field for first schema (or null if it should not be set)
    * @throws IOException
    */
   private void validateNamespaces(
@@ -798,7 +857,9 @@ public class RDFTest {
     var schema1 = database.dropCreateSchema(schemaTestprefix + "1");
     var schema2 = database.dropCreateSchema(schemaTestprefix + "2");
     schema1.getMetadata().setSetting(SETTING_CUSTOM_RDF, customRdf1);
-    schema2.getMetadata().setSetting(SETTING_CUSTOM_RDF, customRdf2);
+    if (customRdf2 != null) {
+      schema2.getMetadata().setSetting(SETTING_CUSTOM_RDF, customRdf2);
+    }
     getAndParseRDF(Selection.of(schema1, schema2), handler);
     assertEquals(expectedNamespaces, handler.namespaces);
   }
