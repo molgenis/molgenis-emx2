@@ -39,7 +39,9 @@ public class Mapper {
   }
 
   public static <E> E map(Class<E> klazz, Row row)
-      throws NoSuchMethodException, InvocationTargetException, IllegalAccessException,
+      throws NoSuchMethodException,
+          InvocationTargetException,
+          IllegalAccessException,
           InstantiationException {
     E e = klazz.getConstructor().newInstance();
     Map<String, Object> values = row.getValueMap();

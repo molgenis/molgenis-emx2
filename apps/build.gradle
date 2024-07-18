@@ -2,7 +2,12 @@
 
 plugins {
     id "java"
-    id "com.github.node-gradle.node" version "7.0.1"
+    id "com.github.node-gradle.node" version "7.0.2"
+}
+
+java {
+    targetCompatibility = rootProject.ext.javaVersion
+    sourceCompatibility = rootProject.ext.javaVersion
 }
 
 def isCI = System.getenv('CI') ? true : false
