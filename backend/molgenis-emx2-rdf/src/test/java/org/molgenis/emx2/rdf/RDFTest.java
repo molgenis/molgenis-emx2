@@ -9,11 +9,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.StringReader;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.model.Namespace;
 import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.impl.SimpleNamespace;
 import org.eclipse.rdf4j.model.util.Values;
 import org.eclipse.rdf4j.model.vocabulary.OWL;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
@@ -37,6 +40,11 @@ public class RDFTest {
    * column / value pairs by a semicolon. Colums are sorted alphabetically for a stable order.
    */
   public static final String POOKY_ROWID = "name=pooky";
+
+  /**
+   * Advanced setting field for adding custom RDF to the API.
+   */
+  private static final String SETTING_CUSTOM_RDF = "custom_rdf";
 
   static Database database;
   static List<Schema> petStoreSchemas;
@@ -568,6 +576,231 @@ public class RDFTest {
     assertTrue(
         subclasses.contains(cubeDataSetIRI),
         "Subclasses are expected to be a subclass of cube@DataSet");
+  }
+
+  @Test
+  void testCustomRdfSetting() throws IOException {
+    final Set<Namespace> defaultNamespaces =
+        new HashSet<>() {
+          {
+            add(
+                new SimpleNamespace(
+                    "CustomRdfEdit", "http://localhost:8080/CustomRdfEdit/api/rdf/"));
+            add(new SimpleNamespace("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#"));
+            add(new SimpleNamespace("rdfs", "http://www.w3.org/2000/01/rdf-schema#"));
+            add(new SimpleNamespace("xsd", "http://www.w3.org/2001/XMLSchema#"));
+            add(new SimpleNamespace("owl", "http://www.w3.org/2002/07/owl#"));
+            add(new SimpleNamespace("sio", "http://semanticscience.org/resource/"));
+            add(new SimpleNamespace("qb", "http://purl.org/linked-data/cube#"));
+            add(new SimpleNamespace("skos", "http://www.w3.org/2004/02/skos/core#"));
+            add(new SimpleNamespace("dcterms", "http://purl.org/dc/terms/"));
+            add(new SimpleNamespace("dcat", "http://www.w3.org/ns/dcat#"));
+            add(new SimpleNamespace("foaf", "http://xmlns.com/foaf/0.1/"));
+            add(new SimpleNamespace("vcard", "http://www.w3.org/2006/vcard/ns#"));
+            add(new SimpleNamespace("org", "http://www.w3.org/ns/org#"));
+          }
+        };
+
+    final Set<Namespace> customNamespaces =
+        new HashSet<>() {
+          {
+            add(
+                new SimpleNamespace(
+                    "CustomRdfEdit", "http://localhost:8080/CustomRdfEdit/api/rdf/"));
+            add(new SimpleNamespace("dcterms", "http://purl.org/dc/terms/"));
+          }
+        };
+
+    final String customRdf =
+        """
+@prefix dcterms: <http://purl.org/dc/terms/> .
+<https://molgenis.org/> dcterms:title "Molgenis" .
+""";
+
+    var customRdfEdit = database.dropCreateSchema("CustomRdfEdit");
+    // Test default behaviour.
+    assertFalse(customRdfEdit.hasSetting(SETTING_CUSTOM_RDF));
+    var handlerBefore = new InMemoryRDFHandler() {};
+    getAndParseRDF(Selection.of(customRdfEdit), handlerBefore);
+    assertEquals(defaultNamespaces, handlerBefore.namespaces);
+    assertFalse(handlerBefore.resources.containsKey(Values.iri("https://molgenis.org/")));
+
+    // Change setting
+    customRdfEdit.getMetadata().setSetting(SETTING_CUSTOM_RDF, customRdf);
+
+    // Test behaviour after changing setting.
+    var handlerAfter = new InMemoryRDFHandler() {};
+    getAndParseRDF(Selection.of(customRdfEdit), handlerAfter);
+    assertEquals(customNamespaces, handlerAfter.namespaces);
+    assertTrue(
+        handlerAfter
+            .resources
+            .get(Values.iri("https://molgenis.org/"))
+            .get(Values.iri("http://purl.org/dc/terms/title"))
+            .contains(Values.literal("Molgenis")));
+  }
+
+  /**
+   * While setting the custom_RDF does not validate, trying to use the RDF API will result in an
+   * error if invalid RDF is given. In this case a dot is missing to indicate the end of the triple.
+   *
+   * @throws IOException
+   */
+  @Test
+  void testInvalidCustomRdfSetting() throws IOException {
+    final String customRdf =
+        """
+<https://molgenis.org/> <http://purl.org/dc/terms/title> "Molgenis"
+""";
+
+    var customRdfEdit = database.dropCreateSchema("CustomInvalidRdf");
+    customRdfEdit.getMetadata().setSetting(SETTING_CUSTOM_RDF, customRdf);
+    var handler = new InMemoryRDFHandler() {};
+    assertThrows(
+        MolgenisException.class, () -> getAndParseRDF(Selection.of(customRdfEdit), handler));
+  }
+
+  @Test
+  void testDuplicateNamespaces() throws IOException {
+    final Set<Namespace> expectedNamespace =
+        new HashSet<>() {
+          {
+            add(new SimpleNamespace("RdfEqual1", "http://localhost:8080/RdfEqual1/api/rdf/"));
+            add(new SimpleNamespace("RdfEqual2", "http://localhost:8080/RdfEqual2/api/rdf/"));
+            add(new SimpleNamespace("dcterms", "http://purl.org/dc/terms/"));
+          }
+        };
+
+    final String customRdf1 = """
+@prefix dcterms: <http://purl.org/dc/terms/> .
+""";
+
+    final String customRdf2 = """
+@prefix dcterms: <http://purl.org/dc/terms/> .
+""";
+
+    var handler = new InMemoryRDFHandler() {};
+    validateNamespaces(handler, "RdfEqual", expectedNamespace, customRdf1, customRdf2);
+  }
+
+  /**
+   * If 2 namespaces share the same IRI, the first one is kept and used for everything.
+   *
+   * @throws IOException
+   */
+  @Test
+  void testNamespaceDifferentPrefixSameUrl() throws IOException {
+    final Set<Namespace> expectedNamespace =
+        new HashSet<>() {
+          {
+            add(new SimpleNamespace("RdfPrefix1", "http://localhost:8080/RdfPrefix1/api/rdf/"));
+            add(new SimpleNamespace("RdfPrefix2", "http://localhost:8080/RdfPrefix2/api/rdf/"));
+            add(new SimpleNamespace("dcterms1", "http://purl.org/dc/terms/"));
+          }
+        };
+
+    final String customRdf1 =
+        """
+@prefix dcterms1: <http://purl.org/dc/terms/> .
+<https://molgenis.org/> dcterms:title "Molgenis" .
+""";
+
+    final String customRdf2 =
+        """
+@prefix dcterms2: <http://purl.org/dc/terms/> .
+<https://github.com/molgenis/> dcterms2:title "Molgenis GitHub" .
+""";
+
+    var handler = new InMemoryRDFHandler() {};
+    validateNamespaces(handler, "RdfPrefix", expectedNamespace, customRdf1, customRdf2);
+    assertTrue(
+        handler
+            .resources
+            .get(Values.iri("https://molgenis.org/"))
+            .get(Values.iri("http://purl.org/dc/terms/title"))
+            .contains(Values.literal("Molgenis")));
+    assertTrue(
+        handler
+            .resources
+            .get(Values.iri("https://github.com/molgenis/"))
+            .get(Values.iri("http://purl.org/dc/terms/title"))
+            .contains(Values.literal("Molgenis GitHub")));
+  }
+
+  /**
+   * If multiple namespace share the same prefix but refer to a different IRI, they get overwritten
+   * by the last to be added. However, the other IRIs are not broken but simply not shortened.
+   *
+   * @throws IOException
+   */
+  @Test
+  void testNamespaceDifferentUrlSamePrefix() throws IOException {
+    final Set<Namespace> expectedNamespace =
+        new HashSet<>() {
+          {
+            add(
+                new SimpleNamespace(
+                    "RdfPrefixUrl1", "http://localhost:8080/RdfPrefixUrl1/api/rdf/"));
+            add(
+                new SimpleNamespace(
+                    "RdfPrefixUrl2", "http://localhost:8080/RdfPrefixUrl2/api/rdf/"));
+            add(new SimpleNamespace("name", "http://www.w3.org/2000/01/rdf-schema#"));
+          }
+        };
+
+    final String customRdf1 =
+        """
+    @prefix name: <http://purl.org/dc/terms/> .
+    <https://molgenis.org/> name:title "Molgenis" .
+    """;
+
+    final String customRdf2 =
+        """
+    @prefix name: <http://www.w3.org/2000/01/rdf-schema#> .
+    <https://molgenis.org/> name:label "Molgenis" .
+    """;
+
+    var handler = new InMemoryRDFHandler() {};
+    validateNamespaces(handler, "RdfPrefixUrl", expectedNamespace, customRdf1, customRdf2);
+
+    assertTrue(
+        handler
+            .resources
+            .get(Values.iri("https://molgenis.org/"))
+            .get(Values.iri("http://purl.org/dc/terms/title"))
+            .contains(Values.literal("Molgenis")));
+    assertTrue(
+        handler
+            .resources
+            .get(Values.iri("https://molgenis.org/"))
+            .get(Values.iri("http://www.w3.org/2000/01/rdf-schema#label"))
+            .contains(Values.literal("Molgenis")));
+  }
+
+  /**
+   * Helper test method to compare namespaces of 2 schemas.
+   *
+   * @param handler handler to be used
+   * @param schemaTestprefix prefix for created schemas ("1" & "2" is added to this for the 2
+   *     different schemes)
+   * @param expectedNamespaces set containing the expected combined namespaces
+   * @param customRdf1 custom_rdf setting field for first schema
+   * @param customRdf2 custom_rdf setting field for first schema
+   * @throws IOException
+   */
+  private void validateNamespaces(
+      InMemoryRDFHandler handler,
+      String schemaTestprefix,
+      Set<Namespace> expectedNamespaces,
+      String customRdf1,
+      String customRdf2)
+      throws IOException {
+    var schema1 = database.dropCreateSchema(schemaTestprefix + "1");
+    var schema2 = database.dropCreateSchema(schemaTestprefix + "2");
+    schema1.getMetadata().setSetting(SETTING_CUSTOM_RDF, customRdf1);
+    schema2.getMetadata().setSetting(SETTING_CUSTOM_RDF, customRdf2);
+    getAndParseRDF(Selection.of(schema1, schema2), handler);
+    assertEquals(expectedNamespaces, handler.namespaces);
   }
 
   /**
