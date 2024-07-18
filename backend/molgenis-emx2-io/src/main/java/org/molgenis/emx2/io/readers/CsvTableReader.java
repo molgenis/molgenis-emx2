@@ -18,18 +18,6 @@ public class CsvTableReader {
     return read(new InputStreamReader(new BOMInputStream(new FileInputStream(f))));
   }
 
-  private static Row nextNonEmptyRow(Iterator<Map> it) throws IOException {
-
-    HashMap<String, String> next = (HashMap<String, String>) it.next();
-    boolean isEmpty = next.values().stream().allMatch(Objects::isNull);
-
-    if (isEmpty && it.hasNext()) {
-      return nextNonEmptyRow(it);
-    } else {
-      return new Row(next);
-    }
-  }
-
   public static Iterable<Row> read(Reader in) {
     try {
       BufferedReader bufferedReader = new BufferedReader(in);
@@ -87,19 +75,13 @@ public class CsvTableReader {
             }
 
             public Row next() {
-              try {
-                return nextNonEmptyRow(it);
-              } catch (IOException e) {
-                throw new MolgenisException(
-                    "Import failed: "
-                        + e.getClass().getName()
-                        + ": "
-                        + e.getMessage()
-                        + ". Error at line "
-                        + line.get()
-                        + ".",
-                    e);
+              HashMap<String, String> next = (HashMap<String, String>) it.next();
+              boolean isEmpty = next.values().stream().allMatch(Objects::isNull);
+              while (isEmpty && it.hasNext()) {
+                next = (HashMap<String, String>) it.next();
+                isEmpty = next.values().stream().allMatch(Objects::isNull);
               }
+              return new Row(next);
             }
 
             @Override
