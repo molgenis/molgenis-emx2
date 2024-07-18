@@ -88,7 +88,7 @@ function getColumnError(
   if (column.validation) {
     return getColumnValidationError(column.validation, rowData, tableMetaData);
   }
-  if (await isRefLinkWithoutOverlap(column, rowData)) {
+  if (isRefLinkWithoutOverlap(column, rowData)) {
     return `value should match your selection in column '${column.refLinkId}'`;
   }
 
@@ -204,10 +204,7 @@ export function executeExpression(
   return func(simplePostClient, ...Object.values(copy));
 }
 
-async function isRefLinkWithoutOverlap(
-  column: IColumn,
-  values: Record<string, any>
-) {
+function isRefLinkWithoutOverlap(column: IColumn, values: Record<string, any>) {
   if (!column.refLinkId) {
     return false;
   }
