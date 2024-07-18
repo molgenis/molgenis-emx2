@@ -33,24 +33,18 @@
       </div>
       <div class="row" v-if="biobankDataAvailable">
         <div class="col p-0">
-          <ReportTitle type="Biobank" :name="biobank.name"></ReportTitle>
+          <ReportTitle type="Biobank" :name="biobank.name" />
           <div class="container pl-0">
             <div class="row">
               <div class="col-md-8" v-if="biobankDataAvailable">
-                <view-generator :viewmodel="biobank.viewmodel" />
+                <ViewGenerator :viewmodel="biobank.viewmodel" />
 
                 <!-- Collection Part -->
                 <h3 class="mt-4">
-                  Collections ({{ collectionsData.length }} /
-                  {{ subcollectionCount }})<sup>
-                    <InfoPopover
-                      faIcon="fa-regular fa-circle-question"
-                      popover-placement="top"
-                    >
-                      <div>Collections: {{ collectionsData.length }}</div>
-                      <div>Subcollections: {{ subcollectionCount }}</div>
-                    </InfoPopover>
-                  </sup>
+                  <CollectionsHeader
+                    :collectionCount="collectionsData.length"
+                    :subcollectionCount="subcollectionCount"
+                  />
                 </h3>
                 <div v-if="!collectionsData.length">
                   This biobank does not contain any collections.
@@ -126,15 +120,16 @@
 import { computed, ref } from "vue";
 import { useRoute } from "vue-router";
 //@ts-ignore
-import { Breadcrumb, InfoPopover, Tooltip, Spinner } from "molgenis-components";
+import { Breadcrumb, Spinner } from "molgenis-components";
 import CheckOut from "../components/checkout-components/CheckOut.vue";
+import CollectionsHeader from "../components/report-components/CollectionsHeader.vue";
 import CollectionSelector from "../components/checkout-components/CollectionSelector.vue";
-import ViewGenerator from "../components/generators/ViewGenerator.vue";
 import CollapseComponent from "../components/report-components/CollapseComponent.vue";
 import CollectionTitle from "../components/report-components/CollectionTitle.vue";
 import ContactInformation from "../components/report-components/ContactInformation.vue";
 import ReportDetailsList from "../components/report-components/ReportDetailsList.vue";
 import ReportTitle from "../components/report-components/ReportTitle.vue";
+import ViewGenerator from "../components/generators/ViewGenerator.vue";
 import { mapBiobankToBioschemas } from "../functions/bioschemasMapper";
 import {
   getBiobankDetails,
@@ -177,10 +172,12 @@ const collectionsData = computed(() => {
     ? filterAndSortCollectionsData(biobank.value.collections)
     : [];
 });
-const subcollectionCount = computed(() => {
-  return biobank.value?.collections?.filter(
-    (biobank: Record<string, any>) => biobank.parent_collection
-  ).length;
+const subcollectionCount = computed<number>(() => {
+  return (
+    biobank.value?.collections?.filter(
+      (biobank: Record<string, any>) => biobank.parent_collection
+    ).length || 0
+  );
 });
 
 const networks = computed(() => {

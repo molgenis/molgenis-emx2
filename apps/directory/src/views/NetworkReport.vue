@@ -45,10 +45,14 @@
                     </li>
                   </ul>
                 </div>
-                <Tabs>
-                  <Tab
-                    :title="`Collections (${collections.length} / ${subcollectionCount})`"
-                  >
+                <Tabs :tabIds="['collections', 'biobanks']">
+                  <template #collections-header>
+                    <CollectionsHeader
+                      :collectionCount="collections.length"
+                      :subcollectionCount="subcollectionCount"
+                    />
+                  </template>
+                  <template #collections-body>
                     <div
                       v-if="
                         !collections ||
@@ -71,8 +75,12 @@
                         </div>
                       </div>
                     </div>
-                  </Tab>
-                  <Tab :title="`Biobanks (${biobanks.length})`">
+                  </template>
+
+                  <template #biobanks-header>
+                    Biobanks ({{ biobanks.length }})
+                  </template>
+                  <template #biobanks-body>
                     <div class="pt-3">
                       <div
                         v-for="(biobank, index) in biobanks"
@@ -90,7 +98,7 @@
                         />
                       </div>
                     </div>
-                  </Tab>
+                  </template>
                 </Tabs>
               </div>
               <!-- Right side card -->
@@ -120,12 +128,13 @@
 
 <script setup lang="ts">
 //@ts-ignore
-import { Breadcrumb, Spinner, Tab, Tabs } from "molgenis-components";
+import { Breadcrumb, Spinner, Tabs } from "molgenis-components";
 import { computed, ref } from "vue";
 import { useRoute } from "vue-router";
 import ViewGenerator from "../components/generators/ViewGenerator.vue";
 import CollectionTitle from "../components/report-components/CollectionTitle.vue";
 import ContactInformation from "../components/report-components/ContactInformation.vue";
+import CollectionsHeader from "../components/report-components/CollectionsHeader.vue";
 import ReportDescription from "../components/report-components/ReportDescription.vue";
 import ReportDetailsList from "../components/report-components/ReportDetailsList.vue";
 import ReportTitle from "../components/report-components/ReportTitle.vue";
