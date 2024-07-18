@@ -12,14 +12,18 @@ const demoValue = ref("");
     types are not only text, but date, email, number, password, search, etc.
     However, checkbox and radio types are in a separate component.
   </p>
-  
+
   <div
     class="grid grid-cols-2 gap-6 my-5 [&>div]:bg-white [&>div]:p-4 [&_h3]:font-semibold [&_h3]:my-2"
   >
     <div>
       <h3>Input String: default use (model value: {{ demoValue }})</h3>
       <InputLabel for="input-string-default" :label="label" />
-      <InputString id="input-string-default" :placeholder="placeholder" v-model="demoValue" />
+      <InputString
+        id="input-string-default"
+        :placeholder="placeholder"
+        v-model="demoValue"
+      />
     </div>
     <div>
       <h3>Input String: disabled (model value: {{ demoValue }})</h3>
@@ -42,23 +46,41 @@ const demoValue = ref("");
       />
     </div>
     <div>
-      <h3>Input String: positive validation result (model value: {{ demoValue }})</h3>
+      <h3>
+        Input String: positive validation result (model value: {{ demoValue }})
+      </h3>
       <InputLabel for="input-string-valid" :label="label" :valid="true" />
-      <InputString id="input-string-valid" :placeholder="placeholder" v-model="demoValue" />
+      <InputString
+        id="input-string-valid"
+        :placeholder="placeholder"
+        v-model="demoValue"
+      />
     </div>
     <div>
-      <h3>Input String: negative validation result (model value: {{ demoValue }})</h3>
+      <h3>
+        Input String: negative validation result (model value: {{ demoValue }})
+      </h3>
       <InputLabel for="input-string-error" :label="label" :has-error="true" />
-      <InputString id="input-string-error" :placeholder="placeholder" v-model="demoValue" />
+      <InputString
+        id="input-string-error"
+        :placeholder="placeholder"
+        v-model="demoValue"
+      />
     </div>
     <div>
-      <h3>Input String: visually hidden label (model value: {{ demoValue  }})</h3>
+      <h3>
+        Input String: visually hidden label (model value: {{ demoValue }})
+      </h3>
       <InputLabel
         for="input-string-hidden-label"
         :label="label"
         :hide-label="true"
       />
-      <InputString id="input-string-hidden-label" :placeholder="placeholder" v-model="demoValue" />
+      <InputString
+        id="input-string-hidden-label"
+        :placeholder="placeholder"
+        v-model="demoValue"
+      />
     </div>
   </div>
 </template>

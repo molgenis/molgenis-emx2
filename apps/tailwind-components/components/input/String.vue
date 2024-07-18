@@ -18,7 +18,7 @@ withDefaults(
   }
 );
 
-const modelValue = defineModel()
+const modelValue = defineModel();
 </script>
 
 <template>
