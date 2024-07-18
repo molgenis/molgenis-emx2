@@ -33,6 +33,7 @@ import constants from "../constants.js";
 import { deepClone } from "../utils";
 import FormInput from "./FormInput.vue";
 import { executeExpression, isColumnVisible } from "./formUtils/formUtils";
+import { convertRowToPrimaryKey } from "../../client/client";
 
 const { AUTO_ID } = constants;
 
@@ -182,10 +183,18 @@ export default {
                     column3.key === 1 &&
                     column3.refTableId === column2.refTableId
                   ) {
-                    filter[column3.id] = {
-                      //@ts-ignore
-                      equals: this.internalValues[column.refLinkId],
-                    };
+                    convertRowToPrimaryKey(
+                      this.internalValues[column.refLinkId],
+                      column3.refTableId,
+                      column3.refSchemaId
+                        ? column3.refSchemaId
+                        : this.schemaMetaData.id
+                    ).then((value) => {
+                      filter[column3.id] = {
+                        //@ts-ignore
+                        equals: value,
+                      };
+                    });
                   }
                 });
               }

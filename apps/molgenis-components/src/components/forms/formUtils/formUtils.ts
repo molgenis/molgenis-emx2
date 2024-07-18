@@ -216,16 +216,22 @@ function isRefLinkWithoutOverlap(column: IColumn, values: Record<string, any>) {
   if (typeof value === "string" && typeof refValue === "string") {
     return value && refValue && value !== refValue;
   } else {
-    //FIXME: empty ref_array => should give 'required' error instead if applicable
-    if (Array.isArray(value) && value.length === 0) {
-      return false;
-    }
-    return (
-      value &&
-      refValue &&
-      !JSON.stringify(value).includes(JSON.stringify(refValue))
-    );
+    return isSubset(refValue, value);
   }
+}
+
+function isSubset(subset: any, superset: any): boolean {
+  for (const key in subset) {
+    if (subset.hasOwnProperty(key)) {
+      if (
+        !superset.hasOwnProperty(key) ||
+        !isSubset(subset[key], superset[key])
+      ) {
+        return false;
+      }
+    }
+  }
+  return true;
 }
 
 function isValidHyperlink(value: any) {

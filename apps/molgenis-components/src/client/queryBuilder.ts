@@ -21,8 +21,8 @@ export const getColumnIds = async (
   const metaData = await fetchSchemaMetaData(schemaId);
   let result = "";
   for (const col of getTable(schemaId, tableId, metaData.tables)?.columns) {
-    //we always expand the subfields of key==1, but other 'ref' fields only if they do not break server
-    if (expandLevel > 0 || col.key == 1) {
+    //we always expand the subfields of key, but other 'ref' fields only if they do not break server
+    if (expandLevel > 0 || col.key) {
       if (
         !rootLevel &&
         ["REF_ARRAY", "REFBACK", "ONTOLOGY_ARRAY"].includes(col.columnType)
