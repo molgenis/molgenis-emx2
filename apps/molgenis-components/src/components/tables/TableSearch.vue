@@ -174,6 +174,7 @@ export default {
         offset: this.limit * (this.page - 1),
         searchTerms: this.searchTerms,
         filter: this.filter,
+        expandLevel: 0,
       };
 
       const client = Client.newClient(this.schemaId);
