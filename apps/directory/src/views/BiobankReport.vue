@@ -172,6 +172,7 @@ const collectionsData = computed(() => {
     ? filterAndSortCollectionsData(biobank.value.collections)
     : [];
 });
+
 const subcollectionCount = computed<number>(() => {
   return (
     biobank.value?.collections?.filter(

@@ -48,37 +48,28 @@
                 <Tabs :tabIds="['collections', 'biobanks']">
                   <template #collections-header>
                     <CollectionsHeader
-                      :collectionCount="collections.length"
+                      :collectionCount="collections?.length"
                       :subcollectionCount="subcollectionCount"
                     />
                   </template>
                   <template #collections-body>
-                    <div
-                      v-if="
-                        !collections ||
-                        !biobanks ||
-                        collectionsAvailable ||
-                        biobanksAvailable
-                      "
-                    >
-                      <div class="pt-3">
-                        <div
-                          v-for="(collection, index) in collections"
-                          :key="collection.id"
-                        >
-                          <hr v-if="index" />
-                          <CollectionTitle
-                            :title="collection.name"
-                            :id="collection.id"
-                          />
-                          <ViewGenerator :viewmodel="collection.viewmodel" />
-                        </div>
+                    <div class="pt-3">
+                      <div
+                        v-for="(collection, index) in collections"
+                        :key="collection.id"
+                      >
+                        <hr v-if="index" />
+                        <CollectionTitle
+                          :title="collection.name"
+                          :id="collection.id"
+                        />
+                        <ViewGenerator :viewmodel="collection.viewmodel" />
                       </div>
                     </div>
                   </template>
 
                   <template #biobanks-header>
-                    Biobanks ({{ biobanks.length }})
+                    Biobanks ({{ biobanks?.length || 0 }})
                   </template>
                   <template #biobanks-body>
                     <div class="pt-3">
@@ -164,10 +155,10 @@ Promise.all([qualitiesPromise, networkPromise]).then(
 
 const uiText = computed(() => settingsStore.uiText);
 const networkReport = computed(() => networkStore.networkReport);
-const collections = computed(filterCollections);
-const collectionsAvailable = computed(() => collections.value?.length);
+const collections = computed(() =>
+  filterCollections(networkReport.value.collections)
+);
 const biobanks = computed(() => networkReport.value.biobanks);
-const biobanksAvailable = computed(() => biobanks.value?.length);
 const network = computed(() => networkReport.value.network);
 const alsoKnownIn = computed(() => mapAlsoKnownIn(network.value));
 const subcollectionCount = computed<number>(
@@ -177,9 +168,9 @@ const subcollectionCount = computed<number>(
     ).length || 0
 );
 
-function filterCollections() {
+function filterCollections(collections: Record<string, any>[]) {
   return (
-    networkReport.value.collections
+    collections
       ?.filter((collection: Record<string, any>) => {
         return !collection.parent_collection;
       })
