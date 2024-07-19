@@ -170,7 +170,7 @@ const formError = ref<string | null>(null);
         <InputLabel for="name" label="Name" />
         <InputString id="name" placeholder="Name" v-model="formTrigger.name" />
         <InputLabel for="cssSelector" label="Css Selector" />
-        <InputString
+        <InputTextArea
           id="cssSelector"
           placeholder="Css Selector"
           v-model="formTrigger.cssSelector"
@@ -193,7 +193,7 @@ const formError = ref<string | null>(null);
     <ContentBlockModal :title="`Update Trigger: ${formTrigger.name}`">
       <form @submit.prevent.default="">
         <InputLabel for="cssSelector" label="Css Selector" />
-        <InputString
+        <InputTextArea
           id="cssSelector"
           placeholder="Css Selector"
           v-model="formTrigger.cssSelector"

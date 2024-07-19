@@ -41,7 +41,7 @@ public class TriggerRepositoryImpl implements TriggerRepository {
                   table(
                       TRIGGER_TABLE_NAME,
                       column(NAME).setPkey(),
-                      column(CSS_SELECTOR).setRequired(true),
+                      column(CSS_SELECTOR).setType(ColumnType.TEXT).setRequired(true),
                       column(APP_NAME).setRequired(false),
                       column(SCHEMA_NAME).setRequired(false)));
             }
@@ -117,7 +117,7 @@ public class TriggerRepositoryImpl implements TriggerRepository {
                         r ->
                             new Trigger(
                                 r.getString(NAME),
-                                r.getString(CSS_SELECTOR),
+                                r.getText(CSS_SELECTOR),
                                 r.getString(SCHEMA_NAME),
                                 r.getString(APP_NAME)))
                     .toList();
@@ -178,7 +178,7 @@ public class TriggerRepositoryImpl implements TriggerRepository {
           }
 
           Row toUpdate = rowList.get(0);
-          toUpdate.setString(CSS_SELECTOR, trigger.cssSelector());
+          toUpdate.setText(CSS_SELECTOR, trigger.cssSelector());
 
           updated.set(triggerTable.update(rowList));
         });
