@@ -87,7 +87,14 @@ const query = `query CataloguePage($networksFilter:NetworksFilter,$variablesFilt
         }
       }`;
 
-const modelFilter = scoped ? { id: { equals: catalogueRouteParam } } : {};
+const modelFilter = scoped
+  ? {
+      _or: [
+        { id: { equals: catalogueRouteParam } },
+        { partOfNetworks: { id: { equals: catalogueRouteParam } } },
+      ],
+    }
+  : {};
 const networksFilter = scoped
   ? { id: { equals: catalogueRouteParam } }
   : undefined;
