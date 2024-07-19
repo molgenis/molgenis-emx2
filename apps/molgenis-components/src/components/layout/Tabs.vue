@@ -19,13 +19,11 @@
 </template>
 
 <script setup lang="ts">
-import { provide, ref } from "vue";
+import { ref } from "vue";
 
 const { tabIds } = defineProps<{ tabIds: string[] }>();
 
 const selectedTab = ref(tabIds[0]);
-
-provide("selectedTab", selectedTab);
 
 function setTab(newId: string) {
   selectedTab.value = newId;
