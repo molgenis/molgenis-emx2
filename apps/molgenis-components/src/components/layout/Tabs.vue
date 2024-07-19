@@ -12,8 +12,12 @@
       </li>
       <li class="filler-line col"></li>
     </ul>
-    <div v-for="tabId in tabIds" v-show="tabId === selectedTab">
-      <slot :name="`${tabId}-body`" class="tab-content" />
+    <div
+      v-for="tabId in tabIds"
+      v-show="tabId === selectedTab"
+      class="tabs-content"
+    >
+      <slot :name="`${tabId}-body`" />
     </div>
   </div>
 </template>
