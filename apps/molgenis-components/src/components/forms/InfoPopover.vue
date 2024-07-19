@@ -131,8 +131,8 @@ export default {
           }px`;
           break;
         default:
-          placementStyle.bottom = `${
-            window.innerHeight - triggerRect.top + window.scrollY + offset
+          placementStyle.top = `${
+            triggerRect.top - contentRect.height - offset + window.scrollY
           }px`;
           placementStyle.left = `${
             triggerRect.left +
