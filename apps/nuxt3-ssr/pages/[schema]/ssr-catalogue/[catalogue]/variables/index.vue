@@ -227,7 +227,14 @@ async function buildScopedModelFilter() {
                  }
               }
             }`,
-      variables: { filter: { id: { equals: catalogueRouteParam } } },
+      variables: {
+        filter: {
+          _or: [
+            { id: { equals: catalogueRouteParam } },
+            { partOfNetworks: { id: { equals: catalogueRouteParam } } },
+          ],
+        },
+      },
     },
   });
 
@@ -236,7 +243,12 @@ async function buildScopedModelFilter() {
     return { error };
   }
 
-  const modelIds = data.Networks[0].models.map((m: { id: string }) => m.id);
+  console.log("found: " + JSON.stringify(data));
+  const modelIds = data.Networks.map((n) =>
+    n.models?.map((m: { id: string }) => m.id)
+  ).flat();
+
+  console.log("found: " + JSON.stringify(modelIds));
 
   const scopedResourceFilter = {
     resource: {
@@ -281,7 +293,14 @@ const fetchData = async () => {
               ...filter.value,
               ...{
                 networkVariables: {
-                  network: { id: { equals: catalogueRouteParam } },
+                  _or: [
+                    { network: { id: { equals: catalogueRouteParam } } },
+                    {
+                      network: {
+                        partOfNetworks: { id: { equals: catalogueRouteParam } },
+                      },
+                    },
+                  ],
                 },
               },
             },

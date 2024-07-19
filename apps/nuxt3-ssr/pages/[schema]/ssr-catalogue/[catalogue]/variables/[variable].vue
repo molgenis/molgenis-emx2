@@ -11,7 +11,14 @@ const catalogueRouteParam = route.params.catalogue as string;
 const { key } = useQueryParams();
 const variableFilter = buildFilterFromKeysObject(key);
 const cohortsFilter = scoped
-  ? { networks: { equals: [{ id: catalogueRouteParam }] } }
+  ? {
+      _or: [
+        { networks: { equals: [{ id: catalogueRouteParam }] } },
+        {
+          networks: { partOfNetworks: { id: { equals: catalogueRouteParam } } },
+        },
+      ],
+    }
   : {};
 
 type VariableDetailsWithMapping = IVariable &
