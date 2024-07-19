@@ -8,7 +8,7 @@ withDefaults(
     hideLabel?: boolean;
   }>(),
   {
-    disabled: false, 
+    disabled: false,
     hasError: false,
     valid: false,
     hideLabel: false,

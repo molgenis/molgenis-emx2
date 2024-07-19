@@ -6,7 +6,9 @@ const requiredSelection = ref<string>("No");
 
 <template>
   <h2>Checkbox component</h2>
-  <div class="grid grid-cols-2 gap-6 my-5 [&>div]:p-1 [&_h3]:font-semibold [&_h3]:my-2">
+  <div
+    class="grid grid-cols-2 gap-6 my-5 [&>div]:p-1 [&_h3]:font-semibold [&_h3]:my-2"
+  >
     <div>
       <h3>Default checkbox</h3>
       <InputCheckbox

@@ -45,7 +45,7 @@ const placeholder = "'A-001' or 'A-001,A-002'";
     </div>
     <div>
       <h3>Input String: positive validation result</h3>
-      <InputLabel for="input-string-valid" :valid="true" >
+      <InputLabel for="input-string-valid" :valid="true">
         {{ label }}
       </InputLabel>
       <InputString id="input-string-valid" :placeholder="placeholder" />
@@ -59,7 +59,7 @@ const placeholder = "'A-001' or 'A-001,A-002'";
     </div>
     <div>
       <h3>Input String: visually hidden label</h3>
-      <InputLabel for="input-string-hidden-label" :hide-label="true" >
+      <InputLabel for="input-string-hidden-label" :hide-label="true">
         {{ label }}
       </InputLabel>
       <InputString id="input-string-hidden-label" :placeholder="placeholder" />
