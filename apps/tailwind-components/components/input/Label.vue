@@ -4,6 +4,7 @@ withDefaults(
     disabled?: boolean;
     valid?: boolean;
     hasError?: boolean;
+    required?: boolean;
     hideLabel?: boolean;
   }>(),
   {
@@ -22,7 +23,8 @@ withDefaults(
       'sr-only': hideLabel,
       'text-disabled': disabled,
       'text-invalid': hasError,
-      'text-valid': valid
+      'text-valid': valid,
+      'after:content-required after:text-required': required,
     }"
   >
     <slot></slot>

@@ -237,7 +237,10 @@ module.exports = {
       },
       outlineColor: {
         "select": "var(--outline-color-select)",
-      }
+      },
+      content: ({ theme }) => ({
+        "required": "var(--text-content-required)",
+      })
     },
   },
   plugins: ["@tailwindcss/typography", "@tailwindcss/forms"],
