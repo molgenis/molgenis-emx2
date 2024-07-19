@@ -171,6 +171,9 @@ export function executeExpression(
       copy[column.id] = null;
     }
   });
+  if (!copy.mg_tableclass) {
+    copy.mg_tableclass = `${tableMetaData.schemaId}.${tableMetaData.label}`;
+  }
 
   // A simple client for scripts to use to request data.
   // Note: don't overuse this, the API call is blocking.
