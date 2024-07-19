@@ -16,9 +16,9 @@ defineEmits(["submitForm"]);
     <div v-for="field in fields" :key="field.name">
       <InputLabel
         class="pl-3 text-body-base"
-        :for="field.name"
-        :label="field.label"
-      />
+        :for="field.name">
+        {{ field.label }}
+      </InputLabel>
 
       <InputString
         v-if="field.inputType === 'string'"
@@ -38,7 +38,7 @@ defineEmits(["submitForm"]);
         :placeholder="field.placeholder"
         :options="(field as ISelectFormField).options"
       />
-      <div class="pl-3" :class="{ 'text-red-500': field.hasError }">
+      <div class="pl-3" :class="{ 'text-invalid': field.hasError }">
         {{ field.message }}
       </div>
     </div>
