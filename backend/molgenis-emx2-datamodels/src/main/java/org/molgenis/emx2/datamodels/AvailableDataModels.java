@@ -6,7 +6,6 @@ public enum AvailableDataModels {
   DIRECTORY(new DirectoryLoader()),
   DATA_CATALOGUE_COHORT_STAGING(new ProfileLoader("_profiles/CohortStaging.yaml")),
   DATA_CATALOGUE_NETWORK_STAGING(new DataCatalogueNetworkStagingLoader()),
-  DATA_CATALOGUE_AGGREGATES(new ProfileLoader("_profiles/DataCatalogueAggregates.yaml")),
   DATA_CATALOGUE(new ProfileLoader("_profiles/DataCatalogue.yaml")),
   DATA_CATALOGUE_FLAT(new ProfileLoader("_profiles/DataCatalogueFlat.yaml")),
   PET_STORE(new PetStoreLoader()),
