@@ -23,8 +23,6 @@ import { provide, ref } from "vue";
 
 const { tabIds } = defineProps<{ tabIds: string[] }>();
 
-// const slots = useSlots();
-// const tabs = ref<Record<string, any>[]>(slots.default ? slots.default() : []);
 const selectedTab = ref(tabIds[0]);
 
 provide("selectedTab", selectedTab);
