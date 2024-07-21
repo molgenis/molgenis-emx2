@@ -2,7 +2,6 @@ import type { IColumn, ITableMetaData } from "meta-data-utils";
 import { IRow } from "../../../Interfaces/IRow";
 import constants from "../../constants.js";
 import { deepClone, filterObject } from "../../utils";
-import { convertRowToPrimaryKey } from "../../../client/client";
 
 const { EMAIL_REGEX, HYPERLINK_REGEX, PERIOD_REGEX, AUTO_ID, HEADING } =
   constants;
@@ -87,9 +86,6 @@ function getColumnError(
   }
   if (column.validation) {
     return getColumnValidationError(column.validation, rowData, tableMetaData);
-  }
-  if (isRefLinkWithoutOverlap(column, rowData)) {
-    return `value should match your selection in column '${column.refLinkId}'`;
   }
 
   return undefined;
@@ -202,46 +198,6 @@ export function executeExpression(
     "return eval(`" + expression.replaceAll("`", "\\`") + "`)"
   );
   return func(simplePostClient, ...Object.values(copy));
-}
-
-function isRefLinkWithoutOverlap(column: IColumn, values: Record<string, any>) {
-  if (!column.refLinkId) {
-    return false;
-  }
-  const columnRefLink = column.refLinkId;
-  const refLinkId = columnRefLink;
-
-  var value: Record<string, any>;
-  convertRowToPrimaryKey(
-    values[column.id],
-    column.refTableId,
-    column.refSchemaId
-  ).then((key) => (value = key));
-  const refValue = values[refLinkId];
-
-  if (typeof value === "string" && typeof refValue === "string") {
-    return value && refValue && value !== refValue;
-  } else {
-    console.log(JSON.stringify(refValue) + " vs " + JSON.stringify(value));
-    return !isSubset(refValue, value);
-  }
-}
-
-function isSubset(subset: any, superset: any): boolean {
-  for (const key in subset) {
-    if (typeof subset !== "object" || typeof superset !== "object") {
-      return subset === superset;
-    }
-    if (subset.hasOwnProperty(key)) {
-      if (
-        !superset.hasOwnProperty(key) ||
-        !isSubset(subset[key], superset[key])
-      ) {
-        return false;
-      }
-    }
-  }
-  return true;
 }
 
 function isValidHyperlink(value: any) {
