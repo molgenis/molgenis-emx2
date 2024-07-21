@@ -21,8 +21,8 @@
       :required="column.required"
       :tableId="column.refTableId"
       :canEdit="canEdit"
-      :filter="refLinkFilter(column)"
-      @update:modelValue="handleModelValueUpdate($event, column.id)"
+      :filter="refFilter[column.id]"
+      @update:modelValue="handleModelValueUpdate($event, column)"
     />
   </div>
 </template>
@@ -44,6 +44,7 @@ export default {
       internalValues: deepClone(
         this.defaultValue ? this.defaultValue : this.modelValue
       ),
+      refFilter: {},
     };
   },
   props: {
@@ -164,46 +165,49 @@ export default {
         }
       });
     },
-    //create a filter in case inputs are linked by overlapping refs
-    refLinkFilter(column: IColumn) {
-      //need to figure out what refs overlap
-      if (
-        column.refLinkId &&
-        this.showColumn(column) &&
-        this.internalValues[column.refLinkId]
-      ) {
-        let filter: Record<string, any> = {};
-        this.tableMetaData.columns.forEach((column2: IColumn) => {
-          if (column2.id === column.refLinkId) {
-            this.schemaMetaData.tables.forEach((table: ITableMetaData) => {
-              //check how the refTableId overlaps with columns in our column
-              if (table.id === column.refTableId) {
-                table.columns.forEach((column3) => {
-                  if (
-                    column3.key === 1 &&
-                    column3.refTableId === column2.refTableId
-                  ) {
-                    convertRowToPrimaryKey(
-                      this.internalValues[column.refLinkId],
-                      column3.refTableId,
-                      column3.refSchemaId
-                    ).then((value) => {
-                      filter[column3.id] = {
-                        //@ts-ignore
-                        equals: value,
-                      };
-                    });
-                  }
-                });
+    //update reflink filters and reset values if reflink changes
+    async updateRefLinks(changedColumn: IColumn) {
+      //need to figure out what refs overlap with the changed column
+      for (const column1 of this.tableMetaData.columns) {
+        if (
+          this.internalValues[changedColumn.id] &&
+          column1.refLinkId == changedColumn.id &&
+          this.showColumn(column1)
+        ) {
+          console.log("check");
+          //check how the refTableId overlaps with columns in our column
+          for (const table of this.schemaMetaData.tables) {
+            if (table.id === column1.refTableId) {
+              console.log("check2");
+              for (const column2 of table.columns) {
+                if (
+                  column2.key === 1 &&
+                  column2.refTableId === changedColumn.refTableId
+                ) {
+                  //reset the value and the filter
+                  this.internalValues[column1.id] = null;
+                  //and then define new filter setting
+                  this.refFilter[column1.id] = {};
+                  this.refFilter[column1.id] = {
+                    [column2.id]: {
+                      //@ts-ignore
+                      equals: await convertRowToPrimaryKey(
+                        this.internalValues[changedColumn.id],
+                        column2.refTableId,
+                        column2.refSchemaId
+                      ),
+                    },
+                  };
+                }
               }
-            });
+            }
           }
-        });
-        return filter;
+        }
       }
     },
-    handleModelValueUpdate(newValue: any, columnId: string) {
-      this.internalValues[columnId] = newValue;
+    handleModelValueUpdate(newValue: any, column: IColumn) {
+      this.internalValues[column.id] = newValue;
+      this.updateRefLinks(column);
       this.onValuesUpdate();
     },
     onValuesUpdate() {
