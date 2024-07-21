@@ -5,6 +5,12 @@
 		},
 		{
 			"path": "tailwind-components"
+		},
+		{
+			"path": "ui"
+		},
+		{
+			"path": "meta-data-utils"
 		}
 	],
 	"settings": {}

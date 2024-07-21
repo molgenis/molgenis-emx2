@@ -27,7 +27,9 @@
     "gportal",
     "projectmanager",
     "aggregation-dashboard",
-    "imdhub-public"
+    "imdhub-public",
+    "emx2-analytics",
+    "ui"
   ],
   "devDependencies": {
     "nuxt": "3.12.2"

@@ -14,7 +14,7 @@ export default defineNuxtConfig({
       emx2Theme: "",
       emx2Logo: "",
       siteTitle: "MOLGENIS",
-      analyticsKey: "",
+      analyticsKey: "1466456",
       cohortOnly: false,
       apiBase: process.env.NUXT_PUBLIC_API_BASE || "https://data-catalogue-acc.molgeniscloud.org/",
     },
