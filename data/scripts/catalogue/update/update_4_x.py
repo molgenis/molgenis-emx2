@@ -196,7 +196,7 @@ class Transform:
         df_var_values.rename(columns={'resource': 'collection'}, inplace=True)
         df_var_values.loc[:, 'collection'] = df_var_values['collection'].apply(strip_resource)
 
-        df_var_values_cdm = df_var_values[df_var_values['resource'].isin(['LifeCycle', 'ATHLETE'])]
+        df_var_values_cdm = df_var_values[df_var_values['collection'].isin(['LifeCycle', 'ATHLETE'])]
         df_var_values_cdm.loc[:, 'variable.name'] = df_var_values_cdm['variable.name'].apply(remove_number)
 
         df_all_var_values = pd.concat([df_var_values, df_var_values_cdm])
