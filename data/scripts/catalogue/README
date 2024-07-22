@@ -15,17 +15,18 @@ Use virtual env to get a consistent python environment.
 
     'git clone git@github.com:molgenis/molgenis-emx2'
 
-2. Create a virtual python environment at the location of the script
+2. Create a virtual python environment at the location of the scripts
 
-    'cd data\scripts\molgenis-model-update'
+    'cd data\scripts\catalogue'
 
     `python -m venv venv`
 
 3. Activate the virtual python environment
 
     `source venv/bin/activate`
+    for windows: 'venv\Scripts\activate.bat'
 
-4. Install the script dependencies from requirements.txt file
+4. Install the catalogue migration script dependencies from requirements.txt file
 
     `pip install -r requirements.txt`
 
