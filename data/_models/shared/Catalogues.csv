@@ -4,4 +4,4 @@ Catalogues,,name,,1,true,,,,,,dct:title,The name given to the Catalogue,DataCata
 Catalogues,,network,ref,1,true,,Collections,,,,,Network or consortium that publishes this,DataCatalogueFlat,
 Catalogues,,type,ontology,,true,CatalogueOntologies,CatalogueTypes,,,,dcat:theme,Type of catalogue,DataCatalogueFlat,
 Catalogues,,description,text,,true,,,,,,dct:description,Description of this catalogue,DataCatalogueFlat,
-Catalogues,,publisher,ref,,,,Organisations,,,,dct:publisher,The organisation responsible for making the catalogue available,DataCatalogueFlat,
+Catalogues,,publisher,,,,,,,,,dct:publisher,The organisation responsible for making the catalogue available,DataCatalogueFlat,
