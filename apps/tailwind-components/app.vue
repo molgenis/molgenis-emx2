@@ -25,9 +25,11 @@ const modules = import.meta.glob("./**/*.story.vue", {
 const stories = Object.keys(modules).map((module) => {
   const name: string = module.split('/').reverse()[0];
   const path: string = module.replace('./pages/', '/');
+  const dir = path.split('/').filter((path: string) => path !== "" && path !== name)[0];
+  const nameCleaned = name.replace('.story.vue','');
   return {
-    name: name.replace('.story.vue',''),
-    dir: path.split('/').filter((path: string) => path !== "" && path !== name)[0],
+    name: dir ? `${dir.charAt(0).toUpperCase()}${dir.slice(1)} ${nameCleaned.toLowerCase()}` : nameCleaned,
+    dir: dir,
     path: path.replace('.vue',''),
   }
 });
