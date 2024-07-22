@@ -72,7 +72,7 @@
         />
       </div>
       <div class="col-6" v-if="filterEditMode">
-        <h3>{{ getFacetTitle(this.filterIndex) }} filter configuration</h3>
+        <h3>{{ getFacetTitle(filterIndex) }} filter configuration</h3>
         <div class="editor-alignment">
           <small v-if="filterIndex !== -1"
             >To format your file press ctrl + f</small
@@ -82,8 +82,8 @@
           :key="filterIndex"
           class="filter-editor"
           :config="currentConfig"
-          :filterIndex="this.filterIndex"
-          :title="getFacetTitle(this.filterIndex)"
+          :filterIndex="filterIndex"
+          :title="getFacetTitle(filterIndex)"
           @filterUpdate="applyChanges"
           @delete="deleteFilter"
         />
@@ -178,15 +178,15 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import { toRaw } from "vue";
 import DiffEditor from "../components/configuration/DiffEditor.vue";
-import FilterEditor from "../components/configuration/FilterEditor.vue";
 import FilterConfigUI from "../components/configuration/FilterConfigUI.vue";
+import FilterEditor from "../components/configuration/FilterEditor.vue";
 import JsonEditor from "../components/configuration/JsonEditor.vue";
 import LandingpageEditor from "../components/configuration/LandingpageEditor.vue";
 import { filterTemplate } from "../filter-config/facetConfigurator";
 import { useSettingsStore } from "../stores/settingsStore";
-import { toRaw } from "vue";
 
 export default {
   setup() {
@@ -215,18 +215,18 @@ export default {
     };
   },
   methods: {
-    getFacetTitle(index) {
+    getFacetTitle(index: number) {
       return JSON.parse(this.currentConfig).filterFacets[index].facetTitle;
     },
-    switchView(view) {
+    switchView(view: string) {
       this.editorType = view;
     },
-    showDiffEditor(diff) {
+    showDiffEditor(diff: Record<string, any>) {
       this.diffAppConfig = diff.currentAppConfig;
       this.uploadedAppConfig = diff.uploadedAppConfig;
       this.switchView("diff");
     },
-    applyChanges(changesToSave) {
+    applyChanges(changesToSave: string) {
       this.newAppConfig = changesToSave;
       this.saveToDatabase(changesToSave);
       this.filterIndex = -1;
@@ -235,11 +235,11 @@ export default {
       this.statusClosed = false;
       this.saveToDatabase(this.newAppConfig);
     },
-    updateFilters(newConfig) {
+    updateFilters(newConfig: string) {
       this.dirty = true;
       this.newAppConfig = newConfig;
     },
-    saveFromEditor(changesToSave, editor) {
+    saveFromEditor(changesToSave: string, editor: string) {
       this.dirty = true;
 
       this.newAppConfig = changesToSave;
@@ -249,20 +249,20 @@ export default {
         this.switchView("editor");
       }
     },
-    saveLandingpage(changesToSave) {
+    saveLandingpage(changesToSave: string) {
       this.newAppConfig = changesToSave;
       this.saveToDatabase(changesToSave);
     },
-    checkJSONStructure(jsonString) {
+    checkJSONStructure(jsonString: string) {
       if (typeof jsonString === "object") return;
       try {
         JSON.parse(jsonString);
         this.jsonError = "";
-      } catch (e) {
+      } catch (e: any) {
         this.jsonError = e;
       }
     },
-    saveToDatabase(newConfiguration) {
+    saveToDatabase(newConfiguration: string) {
       this.checkJSONStructure(toRaw(newConfiguration));
       if (!this.jsonError) {
         this.settingsStore.SaveApplicationConfiguration(newConfiguration);
@@ -274,7 +274,7 @@ export default {
       this.newAppConfig = "";
       this.filterIndex = -1;
     },
-    setFilterEditIndex(newIndex) {
+    setFilterEditIndex(newIndex: number) {
       this.filterIndex = newIndex;
     },
     addFilter() {
