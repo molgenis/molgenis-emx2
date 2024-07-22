@@ -24,7 +24,7 @@ def get_data_model(profile_path, path_to_write, profile):
     for file_name in os.listdir(profile_path):
         if '.csv' in file_name:
             file_path = Path.joinpath(profile_path, file_name)
-            df = pd.read_csv(file_path)
+            df = pd.read_csv(file_path, keep_default_na=False)
             df = df.loc[df['profiles'].str.contains(profile)]
             data_model = pd.concat([data_model, df])
 
@@ -82,9 +82,11 @@ class Transform:
         """
         # transformations per table
         self.collections()
+        self.organisations()
         self.variables()
         self.network_variables()
         self.variable_mappings()
+        self.catalogues()
 
         # TODO: add dataset type for LongITools, LifeCycle etc
         # TODO: collection counts alter data model & migrate
@@ -94,6 +96,36 @@ class Transform:
                            'DAPs', 'Documentation', 'Contacts', 'Aggregates']:
             self.transform_tables(table_name)
             self.rename_tables(table_name)
+
+    def catalogues(self):
+        """Transform columns in Catalogues
+        """
+        # Cohorts to Collections
+        df_catalogues = pd.read_csv(self.path + 'Catalogues.csv')
+        df_catalogues['name'] = df_catalogues['network']
+
+        df_catalogues = float_to_int(df_catalogues)  # convert float back to integer
+        df_catalogues.to_csv(self.path + 'Catalogues.csv', index=False)
+
+    def organisations(self):
+        """ Transform columns in Organisations and alter structure
+        """
+        df_collection_organisations = pd.DataFrame()
+        df_organisations = pd.read_csv(self.path + 'Organisations.csv')
+
+        for table in ['Studies', 'Cohorts', 'Data sources', 'Databanks']:
+            df_resource = pd.read_csv(self.path + table + '.csv')
+
+            df_resource = df_resource[['id', 'lead organisation']]
+            df_resource.rename(columns={'id': 'collection',
+                                        'lead organisation': 'id'}, inplace=True)
+            df_resource = df_resource.dropna(axis=0)
+            df_resource = df_resource.reset_index()
+            df_merged = get_collection_organisations(df_organisations, df_resource)
+            df_collection_organisations = pd.concat([df_collection_organisations, df_merged])
+
+        df_collection_organisations = float_to_int(df_collection_organisations)  # convert float back to integer
+        df_collection_organisations.to_csv(self.path + 'Collection organisations.csv', index=False)
 
     def collections(self):
         """Transform columns in Cohorts, Networks, Studies, Data sources, Databanks
@@ -217,7 +249,6 @@ class Transform:
             df.loc[:, 'subcohorts'] = df['subcohorts'].apply(strip_resource)
 
         df.rename(columns={'resource': 'collection',
-                           'subcohorts': 'collection subcohorts',
                            'main resource': 'main collection',
                            'linked resource': 'linked collection',
                            'other linked resource': 'other linked collection'}, inplace=True)
@@ -238,6 +269,8 @@ class Transform:
             os.rename(self.path + 'Dataset mappings.csv', self.path + 'Mapped datasets.csv')
         elif table_name == 'DAPs':
             os.rename(self.path + 'DAPs.csv', self.path + 'Collection DAPs.csv')
+        elif table_name == 'Quantitative information':
+            os.rename(self.path + 'Quantitative information.csv', self.path + 'Collection counts.csv')
 
 
 def strip_resource(resource_name):
@@ -343,6 +376,27 @@ def get_repeated_mappings_per_source(df_per_source, df_no_duplicates_per_source)
         df_no_duplicates_per_source.loc[i, 'repeats'] = repeats
 
     return df_no_duplicates_per_source
+
+
+def get_collection_organisations(df_organisations, df_resource):
+    """Merge data resource and organisation to Collection organisations"""
+    # get all leading organisations with collection reference in one row
+    i = -1
+    for row in df_resource['id']:
+        i += 1
+        if ',' in row:
+            org_list = row.split(',')
+            for org in org_list:
+                new_row = {'collection': df_resource['collection'][i], 'id': org}
+                df_resource.loc[len(df_resource)] = new_row
+            df_resource = df_resource.drop(index=i)
+
+    # df_resource = df_resource[df_resource['id'].str.contains(",") == False]  # drop rows with multiple organisations
+
+    # merge with df_organisations
+    df_merged = pd.merge(df_organisations, df_resource, on='id')
+
+    return df_merged
 
 
 def minus_one(x):
