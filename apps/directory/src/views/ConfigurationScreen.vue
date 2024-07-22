@@ -3,25 +3,25 @@
     <nav class="navbar bg-dark justify-content-start mb-4">
       <button
         type="button"
-        @click="switchView('ui')"
+        @click="switchView(views.ui)"
         class="btn btn-link text-white"
-        :class="{ 'editor-active': editorType === 'ui' }"
+        :class="{ 'editor-active': editorType === views.ui }"
       >
         Filters
       </button>
       <button
         type="button"
-        @click="switchView('editor')"
+        @click="switchView(views.editor)"
         class="btn btn-link text-white"
-        :class="{ 'editor-active': editorType === 'editor' }"
+        :class="{ 'editor-active': editorType === views.editor }"
       >
         JSON
       </button>
       <button
         type="button"
-        @click="switchView('landingpage')"
+        @click="switchView(views.landingpage)"
         class="btn btn-link text-white"
-        :class="{ 'editor-active': editorType === 'landingpage' }"
+        :class="{ 'editor-active': editorType === views.landingpage }"
       >
         Landingpage
       </button>
@@ -61,7 +61,11 @@
 
     <a href="" ref="download" class="hidden"></a>
 
-    <div v-if="editorType === 'ui'" class="row px-5 pb-3" :key="filterIndex">
+    <div
+      v-if="editorType === views.ui"
+      class="row px-5 pb-3"
+      :key="filterIndex"
+    >
       <div class="col-6">
         <FilterConfigUI
           :config="currentConfig"
@@ -74,9 +78,9 @@
       <div class="col-6" v-if="filterEditMode">
         <h3>{{ getFacetTitle(filterIndex) }} filter configuration</h3>
         <div class="editor-alignment">
-          <small v-if="filterIndex !== -1"
-            >To format your file press ctrl + f</small
-          >
+          <small v-if="filterIndex !== -1">
+            To format your file press ctrl + f
+          </small>
         </div>
         <FilterEditor
           :key="filterIndex"
@@ -113,7 +117,7 @@
     </div>
 
     <JsonEditor
-      v-if="editorType === 'editor'"
+      v-if="editorType === views.editor"
       :config="currentConfig"
       @dirty="(d) => (dirty = d)"
       @save="saveFromEditor"
@@ -122,14 +126,14 @@
     />
 
     <DiffEditor
-      v-if="editorType === 'diff'"
+      v-if="editorType === views.diff"
       :currentConfig="diffAppConfig"
       :newConfig="uploadedAppConfig"
-      @save="(changesToSave) => saveFromEditor(changesToSave, 'diff')"
-      @cancel="switchView('editor')"
+      @save="(changesToSave) => saveFromEditor(changesToSave, views.diff)"
+      @cancel="switchView(views.editor)"
     />
 
-    <div v-if="editorType === 'landingpage'" class="row px-5 pb-5">
+    <div v-if="editorType === views.landingpage" class="row px-5 pb-5">
       <LandingpageEditor
         :currentConfig="currentConfig"
         @save="saveLandingpage"
@@ -138,7 +142,7 @@
     </div>
 
     <!-- standard button bar -->
-    <div v-if="editorType === 'ui'" class="row mt-3 px-5 pb-5">
+    <div v-if="editorType === views.ui" class="row mt-3 px-5 pb-5">
       <div class="col">
         <button class="btn btn-primary mr-3 save-button" @click="save">
           Save configuration
@@ -188,6 +192,13 @@ import LandingpageEditor from "../components/configuration/LandingpageEditor.vue
 import { filterTemplate } from "../filter-config/facetConfigurator";
 import { useSettingsStore } from "../stores/settingsStore";
 
+enum views {
+  ui,
+  editor,
+  diff,
+  landingpage,
+}
+
 export default {
   setup() {
     const settingsStore = useSettingsStore();
@@ -206,25 +217,26 @@ export default {
       statusClosed: true,
       dirty: false,
       undoFilterSort: 0,
-      editorType: "ui", // ui / editor / diff
+      editorType: views.ui,
       newAppConfig: "",
       jsonError: "",
       filterIndex: -1,
       uploadedAppConfig: "",
       diffAppConfig: "",
+      views: views,
     };
   },
   methods: {
     getFacetTitle(index: number) {
       return JSON.parse(this.currentConfig).filterFacets[index].facetTitle;
     },
-    switchView(view: string) {
+    switchView(view: views) {
       this.editorType = view;
     },
     showDiffEditor(diff: Record<string, any>) {
       this.diffAppConfig = diff.currentAppConfig;
       this.uploadedAppConfig = diff.uploadedAppConfig;
-      this.switchView("diff");
+      this.switchView(views.diff);
     },
     applyChanges(changesToSave: string) {
       this.newAppConfig = changesToSave;
@@ -239,14 +251,14 @@ export default {
       this.dirty = true;
       this.newAppConfig = newConfig;
     },
-    saveFromEditor(changesToSave: string, editor: string) {
+    saveFromEditor(changesToSave: string, editor: views) {
       this.dirty = true;
 
       this.newAppConfig = changesToSave;
       this.saveToDatabase(changesToSave);
 
-      if (editor && editor === "diff") {
-        this.switchView("editor");
+      if (editor && editor === views.diff) {
+        this.switchView(views.editor);
       }
     },
     saveLandingpage(changesToSave: string) {
@@ -258,8 +270,8 @@ export default {
       try {
         JSON.parse(jsonString);
         this.jsonError = "";
-      } catch (e: any) {
-        this.jsonError = e;
+      } catch (error: any) {
+        this.jsonError = error;
       }
     },
     saveToDatabase(newConfiguration: string) {
