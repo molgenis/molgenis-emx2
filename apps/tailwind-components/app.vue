@@ -15,26 +15,6 @@ useHead({
     "data-theme": theme,
   },
 });
-
-const modules = import.meta.glob("./**/*.story.vue", {
-  import: "default",
-  eager: true,
-});
-
-
-const stories = Object.keys(modules).map((module) => {
-  const name: string = module.split('/').reverse()[0];
-  const path: string = module.replace('./pages/', '/');
-  const dir = path.split('/').filter((path: string) => path !== "" && path !== name)[0];
-  const nameCleaned = name.replace('.story.vue','');
-  return {
-    name: dir ? `${dir.charAt(0).toUpperCase()}${dir.slice(1)} ${nameCleaned.toLowerCase()}` : nameCleaned,
-    dir: dir,
-    path: path.replace('.vue',''),
-  }
-});
-
-
 </script>
 <template>
   <div
@@ -56,9 +36,69 @@ const stories = Object.keys(modules).map((module) => {
                 <li class="py-2">
                   <NuxtLink class="hover:underline" to="/">Home</NuxtLink>
                 </li>
-                <li v-for="story in stories" class="py-2">
-                  <NuxtLink class="hover:underline" :to="story.path">
-                    {{ story.name }}
+                <li class="py-2">
+                  <NuxtLink class="hover:underline" to="/Banner.story">
+                    Banner
+                  </NuxtLink>
+                </li>
+                <li class="py-2">
+                  <NuxtLink class="hover:underline" to="/Comp1.story">
+                    Comp 1
+                  </NuxtLink>
+                </li>
+                <li class="py-2">
+                  <NuxtLink class="hover:underline" to="/CustomTooltip.story">
+                    Custom tooltip
+                  </NuxtLink>
+                </li>
+                <li class="py-2">
+                  <NuxtLink class="hover:underline" to="/DisplayList.story">
+                    Display list
+                  </NuxtLink>
+                </li>
+                <li class="py-2">
+                  <NuxtLink class="hover:underline" to="/input/Checkbox.story">
+                    Input checkbox
+                  </NuxtLink>
+                </li>
+                <li class="py-2">
+                  <NuxtLink class="hover:underline" to="/input/List.story">
+                    Input list
+                  </NuxtLink>
+                </li>
+                <li class="py-2">
+                  <NuxtLink class="hover:underline" to="/input/Select.story">
+                    Input select
+                  </NuxtLink>
+                </li>
+                <li class="py-2">
+                  <NuxtLink class="hover:underline" to="/input/String.story">
+                    Input string
+                  </NuxtLink>
+                </li>
+                <li class="py-2">
+                  <NuxtLink class="hover:underline" to="/input/TextArea.story">
+                    Input text area
+                  </NuxtLink>
+                </li>
+                <li class="py-2">
+                  <NuxtLink class="hover:underline" to="/input/Tree.story">
+                    Input tree
+                  </NuxtLink>
+                </li>
+                <li class="py-2">
+                  <NuxtLink class="hover:underline" to="/Modal.story">
+                    Modal
+                  </NuxtLink>
+                </li>
+                <li class="py-2">
+                  <NuxtLink class="hover:underline" to="/FilterSearch.story">
+                    Filer search
+                  </NuxtLink>
+                </li>
+                <li class="py-2">
+                  <NuxtLink class="hover:underline" to="/Icons.story">
+                    Icons
                   </NuxtLink>
                 </li>
               </ul>
