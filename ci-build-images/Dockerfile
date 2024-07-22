@@ -47,8 +47,11 @@ RUN curl -sLS https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor 
 RUN chmod go+r /etc/apt/keyrings/microsoft.gpg
 RUN  AZ_DIST=$(lsb_release -cs) && echo "deb [arch=`dpkg --print-architecture` signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/repos/azure-cli/ $AZ_DIST main" | tee /etc/apt/sources.list.d/azure-cli.list
 RUN apt-get update
-RUN apt-get install azure-cli
+RUN apt-get install azure-cli -y
 
 # postgresl client
-RUN apt-get update
 RUN apt-get install postgresql-client -y
+
+# GemTools & FPM For debian and redhat packages
+RUN apt-get install ruby-dev -y 
+RUN gem install fpm

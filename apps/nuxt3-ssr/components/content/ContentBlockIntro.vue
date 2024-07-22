@@ -55,7 +55,7 @@ const fields = reactive({
   },
   organization: {
     name: "organization",
-    label: "Organization",
+    label: "Organisation",
     fieldValue: "",
     inputType: "string",
   },
@@ -115,8 +115,8 @@ const submitForm = async () => {
       body: `
         Name: ${fields.senderName.fieldValue}
       \nEmail: ${fields.senderEmail.fieldValue}
-      \nMessage: ${fields.organization.fieldValue}
-      \nMessage: ${fields.topic.fieldValue}
+      \nOrganization: ${fields.organization.fieldValue}
+      \nTopic: ${fields.topic.fieldValue}
       \nMessage: ${fields.senderMessage.fieldValue}
     `,
     });

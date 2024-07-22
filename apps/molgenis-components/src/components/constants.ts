@@ -1,10 +1,8 @@
 export default {
   CODE_0: 48,
   CODE_9: 57,
-  CODE_BACKSPACE: 8,
-  CODE_DELETE: 46,
+  CODE_PERIOD: 46,
   CODE_MINUS: 45,
-  CODE_COMMA: 44,
   EMAIL_REGEX:
     /^(([^<>()\\[\]\\.,;:\s@"]+(\.[^<>()\\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$|^$/,
   HYPERLINK_REGEX:

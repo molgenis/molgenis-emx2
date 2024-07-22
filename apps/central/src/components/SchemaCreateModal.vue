@@ -123,7 +123,6 @@ export default {
       schemaDescription: null,
       template: null,
       templates: [
-        null,
         "PET_STORE",
         "FAIR_DATA_HUB",
         "DATA_CATALOGUE",
@@ -146,6 +145,7 @@ export default {
         "FLAT_STUDIES_STAGING",
         "FLAT_NETWORKS_STAGING",
         "FLAT_RWE_STAGING",
+        "DATA_CATALOGUE_AGGREGATES",
       ],
       includeDemoData: false,
     };

@@ -419,7 +419,9 @@ public class SqlQuery extends QueryBean {
     DSLContext jooq = table.getJooq();
     if (filters != null) {
       for (Filter f : filters.getSubfilters()) {
-        if (OR.equals(f.getOperator())) {
+        if (f == null) {
+          // continue
+        } else if (OR.equals(f.getOperator())) {
           conditions.add(
               or(jsonFilterQueryConditions(table, column, tableAlias, subAlias, f, searchTerms)));
         } else if (Operator.AND.equals(f.getOperator())) {
@@ -702,18 +704,23 @@ public class SqlQuery extends QueryBean {
         for (SelectColumn sub : field.getSubselect()) {
           Column c = getColumnByName(table, sub.getColumn());
           switch (field.getColumn()) {
-            case MAX_FIELD -> result.add(
-                key(c.getIdentifier()).value(max(field(name(alias(subAlias), c.getName())))));
-            case MIN_FIELD -> result.add(
-                key(c.getIdentifier()).value(min(field(name(alias(subAlias), c.getName())))));
-            case AVG_FIELD -> result.add(
-                key(c.getIdentifier())
-                    .value(avg(field(name(alias(subAlias), c.getName()), c.getJooqType()))));
-            case SUM_FIELD -> result.add(
-                key(c.getIdentifier())
-                    .value(sum(field(name(alias(subAlias), c.getName()), c.getJooqType()))));
-            default -> throw new MolgenisException(
-                "Unknown aggregate type provided: " + field.getColumn());
+            case MAX_FIELD ->
+                result.add(
+                    key(c.getIdentifier()).value(max(field(name(alias(subAlias), c.getName())))));
+            case MIN_FIELD ->
+                result.add(
+                    key(c.getIdentifier()).value(min(field(name(alias(subAlias), c.getName())))));
+            case AVG_FIELD ->
+                result.add(
+                    key(c.getIdentifier())
+                        .value(avg(field(name(alias(subAlias), c.getName()), c.getJooqType()))));
+            case SUM_FIELD ->
+                result.add(
+                    key(c.getIdentifier())
+                        .value(sum(field(name(alias(subAlias), c.getName()), c.getJooqType()))));
+            default ->
+                throw new MolgenisException(
+                    "Unknown aggregate type provided: " + field.getColumn());
           }
         }
         fields.add(jsonObject(result.toArray(new JSONEntry[result.size()])).as(field.getColumn()));
@@ -1142,8 +1149,8 @@ public class SqlQuery extends QueryBean {
       case DATE -> whereConditionOrdinal(name, operator, toDateArray(values));
       case DATETIME -> whereConditionOrdinal(name, operator, toDateTimeArray(values));
       case PERIOD -> whereConditionOrdinal(name, operator, toYearToSecondArray(values));
-      case STRING_ARRAY, TEXT_ARRAY -> whereConditionTextArray(
-          name, operator, toStringArray(values));
+      case STRING_ARRAY, TEXT_ARRAY ->
+          whereConditionTextArray(name, operator, toStringArray(values));
       case BOOL_ARRAY -> whereConditionArrayEquals(name, operator, toBoolArray(values));
       case UUID_ARRAY -> whereConditionArrayEquals(name, operator, toUuidArray(values));
       case INT_ARRAY -> whereConditionArrayEquals(name, operator, toIntArray(values));
@@ -1154,14 +1161,15 @@ public class SqlQuery extends QueryBean {
       case PERIOD_ARRAY -> whereConditionArrayEquals(name, operator, toYearToSecondArray(values));
       case JSONB_ARRAY -> whereConditionArrayEquals(name, operator, toJsonbArray(values));
       case REF -> whereConditionRefEquals(name, operator, values);
-      default -> throw new SqlQueryException(
-          SqlQuery.QUERY_FAILED
-              + "Filter of '"
-              + name
-              + " failed: operator "
-              + operator
-              + " not supported for type "
-              + type);
+      default ->
+          throw new SqlQueryException(
+              SqlQuery.QUERY_FAILED
+                  + "Filter of '"
+                  + name
+                  + " failed: operator "
+                  + operator
+                  + " not supported for type "
+                  + type);
     };
   }
 
