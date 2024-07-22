@@ -41,9 +41,7 @@ public class RDFTest {
    */
   public static final String POOKY_ROWID = "name=pooky";
 
-  /**
-   * Advanced setting field for adding custom RDF to the API.
-   */
+  /** Advanced setting field for adding custom RDF to the API. */
   private static final String SETTING_CUSTOM_RDF = "custom_rdf";
 
   static Database database;
@@ -679,11 +677,13 @@ public class RDFTest {
           }
         };
 
-    final String customRdf1 = """
+    final String customRdf1 =
+        """
 @prefix dcterms: <http://purl.org/dc/terms/> .
 """;
 
-    final String customRdf2 = """
+    final String customRdf2 =
+        """
 @prefix dcterms: <http://purl.org/dc/terms/> .
 """;
 

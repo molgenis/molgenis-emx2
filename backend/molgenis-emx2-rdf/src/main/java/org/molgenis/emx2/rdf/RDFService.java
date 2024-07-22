@@ -69,6 +69,7 @@ public class RDFService {
       Values.iri("http://purl.obolibrary.org/obo/NCIT_C48697");
 
   private static final String SETTING_CUSTOM_RDF = "custom_rdf";
+
   /**
    * SIO:001055 = observing (definition: observing is a process of passive interaction in which one
    * entity makes note of attributes of one or more entities)
