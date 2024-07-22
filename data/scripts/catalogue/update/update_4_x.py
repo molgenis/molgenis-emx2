@@ -134,7 +134,7 @@ class Transform:
         df_cohorts = pd.read_csv(self.path + 'Cohorts.csv')
         df_cohorts.rename(columns={'type': 'cohort type',
                                    'type other': 'cohort type other',
-                                   'collection type': 'cohort collection type'}, inplace=True)
+                                   'collection type': 'data collection type'}, inplace=True)
         df_cohorts['collection type'] = 'Cohort'
 
         # Networks to Collections
@@ -146,14 +146,14 @@ class Transform:
 
         # Studies to Collections
         df_studies = pd.read_csv(self.path + 'Studies.csv')
-        df_studies.rename(columns={'type': 'study type',
+        df_studies.rename(columns={'type': 'clinical study type',
                                    'type other': 'study type other'}, inplace=True)
         df_studies['collection type'] = 'Study'
 
         # Data sources to Collections
         df_data_sources = pd.read_csv(self.path + 'Data sources.csv')
-        df_data_sources.rename(columns={'type': 'datasource type',
-                                        'type other': 'datasource type other'}, inplace=True)
+        df_data_sources.rename(columns={'type': 'RWD type',
+                                        'type other': 'RWD type other'}, inplace=True)
         df_data_sources['collection type'] = 'Data source'
 
         # Databanks to Collections
