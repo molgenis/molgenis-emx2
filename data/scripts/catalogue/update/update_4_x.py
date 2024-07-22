@@ -87,10 +87,11 @@ class Transform:
         self.network_variables()
         self.variable_mappings()
         self.catalogues()
+        self.variable_values()
 
         # TODO: add dataset type for LongITools, LifeCycle etc
         # TODO: collection counts alter data model & migrate
-        for table_name in ['Datasets', 'Dataset mappings', 'Variable values', 'Subcohorts',
+        for table_name in ['Datasets', 'Dataset mappings', 'Subcohorts',
                            'Collection events', 'External identifiers',
                            'Linked resources', 'Quantitative information', 'Subcohort counts',
                            'DAPs', 'Documentation', 'Contacts', 'Aggregates']:
@@ -189,6 +190,22 @@ class Transform:
         df = float_to_int(df)  # convert float back to integer
         df.to_csv(self.path + 'Collection variables.csv', index=False)
 
+    def variable_values(self):
+        # restructure variable values
+        df_var_values = pd.read_csv(self.path + 'Variable values.csv', keep_default_na=False)
+        df_var_values.rename(columns={'resource': 'collection'}, inplace=True)
+        df_var_values.loc[:, 'collection'] = df_var_values['collection'].apply(strip_resource)
+
+        df_var_values_cdm = df_var_values[df_var_values['resource'].isin(['LifeCycle', 'ATHLETE'])]
+        df_var_values_cdm.loc[:, 'variable.name'] = df_var_values_cdm['variable.name'].apply(remove_number)
+
+        df_all_var_values = pd.concat([df_var_values, df_var_values_cdm])
+        # TODO: check if this below is correct
+        df_all_var_values = df_all_var_values.drop_duplicates(subset=['collection', 'variable.dataset',
+                                                                      'variable.name', 'value'])
+        df_all_var_values = float_to_int(df_all_var_values)  # convert float back to integer
+        df_all_var_values.to_csv(self.path + 'Variable values.csv', index=False)
+
     def variables(self):
         # restructure Variables
         df_variables = pd.read_csv(self.path + 'Variables.csv', keep_default_na=False)
@@ -223,19 +240,22 @@ class Transform:
         df = pd.read_csv(self.path + 'Variable mappings.csv', keep_default_na=False)
         df.loc[:, 'target'] = df['target'].apply(strip_resource)
         df.loc[:, 'repeat_num'] = df['target variable'].apply(get_repeat_number)
-        df.loc[:, 'target variable'] = df['target variable'].apply(remove_number)
-        df = df.fillna('')
+
+        df_cdm = df[df['target'].isin(['LifeCycle', 'ATHLETE'])]
+        df_cdm.loc[:, 'target variable'] = df_cdm['target variable'].apply(remove_number)
+        #TODO: also get other mappings than those from LifeCycle and ATHLETE
+        df_cdm = df_cdm.fillna('')
 
         # drop duplicate mappings
-        df_no_duplicates = df.drop_duplicates(subset=['source', 'source dataset', 'source variables',
-                                                      'source variables other datasets.dataset',
-                                                      'source variables other datasets.name',
-                                                      'target', 'target dataset', 'target variable',
-                                                      'match', 'syntax', 'comments', 'description'])
+        df_no_duplicates = df_cdm.drop_duplicates(subset=['source', 'source dataset', 'source variables',
+                                                          'source variables other datasets.dataset',
+                                                          'source variables other datasets.name',
+                                                          'target', 'target dataset', 'target variable',
+                                                          'match', 'syntax', 'comments', 'description'])
         df_no_duplicates = df_no_duplicates.fillna('')
 
         # get repeated mappings in comma separated string
-        df_mappings = rewrite_mappings(df, df_no_duplicates)
+        df_mappings = rewrite_mappings(df_cdm, df_no_duplicates)
         df_mappings = float_to_int(df_mappings)  # convert float back to integer
         df_mappings.to_csv(self.path + 'Mapped variables.csv', index=False)
 
