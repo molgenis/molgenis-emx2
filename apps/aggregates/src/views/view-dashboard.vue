@@ -81,7 +81,7 @@
             yvar="researchCenter"
             :xMax="researchCenterAxis.ymax"
             :xTickValues="researchCenterAxis.ticks"
-            yAxisLineBreaker="FORCE-NEN collections"
+            yAxisLineBreaker=" "
             :chartHeight="400"
             :barFill="palette[3]"
             :barHoverFill="palette[5]"
@@ -89,7 +89,7 @@
               top: 10,
               right: 40,
               bottom: 30,
-              left: 125,
+              left: 100,
             }"
             :enableClicks="true"
             :enableAnimation="true"
@@ -268,7 +268,7 @@ function updateQueryFilters() {
 
   for (let i = 0; i < filterLength; i++) {
     const key = filterKeys[i];
-    const gqlKey = key === "researchCenter" ? "id" : "name";
+    const gqlKey = key === "researchCenter" ? "displayName" : "name";
     const gqlAction = key === "researchCenter" ? "equals" : "equals";
     const subfilters = selectedFilters.value[key as keyof selectedFiltersIF];
 
@@ -299,9 +299,9 @@ function updateQueryFilters() {
 async function getResearchCentersData() {
   researchCenters.value = await getChartData({
     table: "FORCE_NENPatients",
-    sub_attribute: "id",
+    sub_attribute: "displayName",
     labels: "researchCenter",
-    nestedLabelKey: "id",
+    nestedLabelKey: "displayName",
     values: "_sum",
     filters: queryFilters.value.filter,
   });
