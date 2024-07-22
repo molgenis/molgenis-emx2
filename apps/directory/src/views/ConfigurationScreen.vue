@@ -34,7 +34,7 @@
             role="alert"
             @click="statusClosed = true"
           >
-            <span>Configuration saved!</span>
+            Configuration saved!
           </div>
           <div
             v-else
@@ -42,10 +42,8 @@
             role="alert"
             @click="statusClosed = true"
           >
-            <span
-              >We could not save the configuration, make sure you are logged in
-              with sufficient rights.</span
-            >
+            We could not save the configuration, make sure you are logged in
+            with sufficient rights.
           </div>
         </div>
 
@@ -80,7 +78,7 @@
             >To format your file press ctrl + f</small
           >
         </div>
-        <filter-editor
+        <FilterEditor
           :key="filterIndex"
           class="filter-editor"
           :config="currentConfig"
@@ -114,18 +112,16 @@
       </div>
     </div>
 
-    <!-- Advanced Editor -->
-    <json-editor
+    <JsonEditor
+      v-if="editorType === 'editor'"
       :config="currentConfig"
       @dirty="(d) => (dirty = d)"
       @save="saveFromEditor"
       @cancel="cancel"
       @diff="showDiffEditor"
-      v-if="editorType === 'editor'"
     />
 
-    <!-- Diff editor -->
-    <diff-editor
+    <DiffEditor
       v-if="editorType === 'diff'"
       :currentConfig="diffAppConfig"
       :newConfig="uploadedAppConfig"
@@ -133,14 +129,14 @@
       @cancel="switchView('editor')"
     />
 
-    <!-- Landingpage editor -->
     <div v-if="editorType === 'landingpage'" class="row px-5 pb-5">
-      <landingpage-editor
+      <LandingpageEditor
         :currentConfig="currentConfig"
         @save="saveLandingpage"
         @cancel="cancel"
       />
     </div>
+
     <!-- standard button bar -->
     <div v-if="editorType === 'ui'" class="row mt-3 px-5 pb-5">
       <div class="col">
@@ -168,15 +164,13 @@
               role="alert"
               @click="statusClosed = true"
             >
-              <span
-                >We could not save the configuration, make sure you are logged
-                in with sufficient rights.</span
-              >
+              We could not save the configuration, make sure you are logged in
+              with sufficient rights.
             </div>
           </div>
 
           <div v-if="dirty" class="alert alert-warning m-0" role="alert">
-            <span>You have unsaved changes</span>
+            You have unsaved changes
           </div>
         </div>
       </div>
