@@ -1,5 +1,5 @@
 <template>
-  <div :class="{ 'font-weight-bold': boldText }">
+  <span :class="{ 'font-weight-bold': boldText }">
     <div
       class="w3tooltip"
       tabindex="0"
@@ -19,7 +19,7 @@
           textColor,
         ]"
         aria-hidden="true"
-      ></span>
+      />
       <span v-if="label && iconBeforeLabel">{{ label }}</span>
     </div>
     <teleport to="body">
@@ -31,7 +31,7 @@
         <slot />
       </span>
     </teleport>
-  </div>
+  </span>
 </template>
 
 <script>
@@ -131,8 +131,8 @@ export default {
           }px`;
           break;
         default:
-          placementStyle.bottom = `${
-            window.innerHeight - triggerRect.top + window.scrollY + offset
+          placementStyle.top = `${
+            triggerRect.top - contentRect.height - offset + window.scrollY
           }px`;
           placementStyle.left = `${
             triggerRect.left +
