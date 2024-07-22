@@ -87,12 +87,12 @@ class Transform:
         self.variable_mappings()
 
         # TODO: add dataset type for LongITools, LifeCycle etc
+        # TODO: collection counts alter data model & migrate
         for table_name in ['Datasets', 'Dataset mappings', 'Variable values', 'Subcohorts',
                            'Collection events', 'External identifiers',
                            'Linked resources', 'Quantitative information', 'Subcohort counts',
                            'DAPs', 'Documentation', 'Contacts', 'Aggregates']:
             self.transform_tables(table_name)
-        for table_name in ['Subcohorts', 'Subcohort counts']:
             self.rename_tables(table_name)
 
     def collections(self):
@@ -205,19 +205,19 @@ class Transform:
         # get repeated mappings in comma separated string
         df_mappings = rewrite_mappings(df, df_no_duplicates)
         df_mappings = float_to_int(df_mappings)  # convert float back to integer
-        df_mappings.to_csv(self.path + 'Variable mappings.csv', index=False)
+        df_mappings.to_csv(self.path + 'Mapped variables.csv', index=False)
 
     def transform_tables(self, table_name):
         df = pd.read_csv(self.path + table_name + '.csv', keep_default_na=False)
         if 'resource' in df.columns:
-            df.loc[:, 'resource'] = df['resource'].apply(strip_resource)
+            df.loc[:, 'resource'] = df['resource'].apply(strip_resource)  # removes _CDM from 'model' name
         if 'target' in df.columns:
             df.loc[:, 'target'] = df['target'].apply(strip_resource)
         if 'subcohorts' in df.columns:
             df.loc[:, 'subcohorts'] = df['subcohorts'].apply(strip_resource)
 
         df.rename(columns={'resource': 'collection',
-                           'subcohorts': 'populations',
+                           'subcohorts': 'collection subcohorts',
                            'main resource': 'main collection',
                            'linked resource': 'linked collection',
                            'other linked resource': 'other linked collection'}, inplace=True)
@@ -228,8 +228,16 @@ class Transform:
     def rename_tables(self, table_name):
         if table_name == 'Subcohorts':
             os.rename(self.path + 'Subcohorts.csv', self.path + 'Collection subcohorts.csv')
-        if table_name == 'Subcohort counts':
+        elif table_name == 'Subcohort counts':
             os.rename(self.path + 'Subcohort counts.csv', self.path + 'Collection subcohort counts.csv')
+        elif table_name == 'Datasets':
+            os.rename(self.path + 'Datasets.csv', self.path + 'Collection datasets.csv')
+        elif table_name == 'Variables':
+            os.rename(self.path + 'Variables.csv', self.path + 'Collection variables.csv')
+        elif table_name == 'Dataset mappings':
+            os.rename(self.path + 'Dataset mappings.csv', self.path + 'Mapped datasets.csv')
+        elif table_name == 'DAPs':
+            os.rename(self.path + 'DAPs.csv', self.path + 'Collection DAPs.csv')
 
 
 def strip_resource(resource_name):
