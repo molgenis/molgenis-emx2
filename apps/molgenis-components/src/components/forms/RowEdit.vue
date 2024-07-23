@@ -182,7 +182,6 @@ export default {
             col.key === 1 && col.refTableId === changedColumn.refTableId
         );
         for (const overlappingKey of overlappingRefColumns) {
-          console.log("check" + JSON.stringify(overlappingKey));
           //reset the value and the filter
           this.internalValues[refLinkColumn.id] = null;
           //and then define new filter setting
