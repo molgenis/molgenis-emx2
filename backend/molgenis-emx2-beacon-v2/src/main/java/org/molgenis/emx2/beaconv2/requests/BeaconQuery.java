@@ -81,10 +81,12 @@ public class BeaconQuery {
     }
     if (request.queryMap() != null) {
       for (var queryParam : request.queryMap().toMap().entrySet()) {
-        if (queryParam.getKey().equals("limit")) {
+        if (queryParam.getKey().equalsIgnoreCase("limit")) {
           pagination.setLimit(Integer.parseInt(queryParam.getValue()[0]));
-        } else if (queryParam.getKey().equals("skip")) {
+        } else if (queryParam.getKey().equalsIgnoreCase("skip")) {
           pagination.setSkip(Integer.parseInt(queryParam.getValue()[0]));
+        } else if (queryParam.getKey().equalsIgnoreCase("requestedGranularity")) {
+          requestedGranularity = Granularity.fromString(queryParam.getValue()[0]);
         } else {
           requestParameters.put(
               queryParam.getKey(),
