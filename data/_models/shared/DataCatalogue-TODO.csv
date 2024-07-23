@@ -288,6 +288,7 @@ Networks,,cohorts,ref_array,,,,Cohorts,,,,dcterms:dataset,,DataCatalogue
 Networks,,models,ref_array,,,,Models,,,,dcterms:dataset,The common data model(s) used by this network,DataCatalogue
 Networks,,studies,refback,,,,Studies,,networks,,dcterms:dataset,,"DataCatalogue,EMA"
 Networks,,networks,ref_array,,,,Networks,,,,dcterms:hasPart,The consortia or networks that are involved in this network,DataCatalogue
+Networks,,partOfNetworks,refback,,,,Networks,,networks,,dcterms:hasPart,The networks this network is a part of,DataCatalogue
 Studies,,study requirements,ontology_array,,,CatalogueOntologies,Study requirements,,,,,Study requirements,"DataCatalogue,EMA"
 Studies,,regulatory procedure number,string,,,,,,,,,"Regulatory procedure number, for RMP Category 1 and 2 studies only","DataCatalogue,EMA"
 Studies,,date of signing funding contract planned,date,,,,,,,,,"Date when funding contract was signed, planned","DataCatalogue,EMA"
