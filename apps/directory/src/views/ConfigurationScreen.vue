@@ -183,7 +183,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, toRaw, watch } from "vue";
+import { computed, onMounted, ref, toRaw, watch } from "vue";
 import DiffEditor from "../components/configuration/DiffEditor.vue";
 import FilterConfigUI from "../components/configuration/FilterConfigUI.vue";
 import FilterEditor from "../components/configuration/FilterEditor.vue";
@@ -201,10 +201,8 @@ enum views {
 
 const settingsStore = useSettingsStore();
 
-const editor = ref<object>({});
 const statusClosed = ref(true);
 const dirty = ref(false);
-const undoFilterSort = ref(0);
 const editorType = ref(views.ui);
 const newAppConfig = ref("");
 const jsonError = ref("");
@@ -222,10 +220,6 @@ const showNotification = computed(() => {
 
 const currentConfig = computed(() => {
   return newAppConfig.value || appConfig.value;
-});
-
-const newConfig = computed(() => {
-  return uploadedAppConfig.value;
 });
 
 const appConfig = computed(() => {
