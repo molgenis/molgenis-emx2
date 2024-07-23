@@ -28,7 +28,7 @@
     "jsdom": "22.1.0",
     "meta-data-utils": "*",
     "postcss": "8.4.39",
-    "postcss-custom-properties": "13.3.11",
+    "postcss-custom-properties": "13.3.12",
     "prettier": "2.8.8",
     "shelljs": "^0.8.5",
     "tailwindcss": "3.4.4",
