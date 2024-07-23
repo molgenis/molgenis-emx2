@@ -2,6 +2,7 @@
 const theme = useCookie("theme", {
   default: () => "",
 });
+
 useHead({
   title: "Tailwind components",
   meta: [
@@ -31,7 +32,6 @@ useHead({
           <div class="xl:flex">
             <aside class="xl:min-w-95 xl:w-95 hidden xl:block">
               <h2 class="text-2xl font-bold my-5">Components</h2>
-
               <ul class="list-none">
                 <li class="py-2">
                   <NuxtLink class="hover:underline" to="/">Home</NuxtLink>
@@ -54,6 +54,11 @@ useHead({
                 <li class="py-2">
                   <NuxtLink class="hover:underline" to="/DisplayList.story">
                     Display list
+                  </NuxtLink>
+                </li>
+                <li class="py-2">
+                  <NuxtLink class="hover:underline" to="/input/Checkbox.story">
+                    Input checkbox
                   </NuxtLink>
                 </li>
                 <li class="py-2">
@@ -97,7 +102,6 @@ useHead({
                   </NuxtLink>
                 </li>
               </ul>
-
               <div class="pr-6 mt-6">
                 <hr />
               </div>

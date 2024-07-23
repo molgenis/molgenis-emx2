@@ -1,4 +1,4 @@
-[MOLGENIS platform guide](use.md)
+#### [Platform guide](use.md)
 
 - **User guide**
     - [Introduction](use.md)

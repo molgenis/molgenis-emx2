@@ -111,7 +111,21 @@ const gqlFilter = computed(() => {
 
   // add hard coded page sepsific filters
   if ("all" !== route.params.catalogue) {
-    result["networks"] = { id: { equals: route.params.catalogue } };
+    result = {
+      _and: [
+        result,
+        {
+          _or: [
+            { networks: { id: { equals: route.params.catalogue } } },
+            {
+              networks: {
+                partOfNetworks: { id: { equals: route.params.catalogue } },
+              },
+            },
+          ],
+        },
+      ],
+    };
   }
   return result;
 });

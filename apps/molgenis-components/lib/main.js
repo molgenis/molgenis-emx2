@@ -100,7 +100,6 @@ import ReadMore from "../src/components/layout/ReadMore.vue";
 import ShowMore from "../src/components/layout/ShowMore.vue";
 import SimpleModal from "../src/components/layout/SimpleModal.vue";
 import Spinner from "../src/components/layout/Spinner.vue";
-import Tab from "../src/components/layout/Tab.vue";
 import Tabs from "../src/components/layout/Tabs.vue";
 import VueTemplate from "../src/components/layout/VueTemplate.vue";
 
@@ -251,7 +250,6 @@ export {
   Spinner,
   StringDisplay,
   SubTask,
-  Tab,
   TableDisplay,
   TableExplorer,
   TableMolgenis,

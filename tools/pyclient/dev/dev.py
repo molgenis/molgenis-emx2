@@ -2,7 +2,7 @@
 # FILE: dev.py
 # AUTHOR: David Ruvolo, Ype Zijlstra
 # CREATED: 2023-05-22
-# MODIFIED: 2024-03-12
+# MODIFIED: 2024-07-16
 # PURPOSE: development script for initial testing of the py-client
 # STATUS: ongoing
 # PACKAGES: pandas, python-dotenv
@@ -35,6 +35,25 @@ async def main():
     # Load the login details into the environment
     load_dotenv()
     token = os.environ.get('MG_TOKEN')
+
+    async with Client('https://emx2.dev.molgenis.org/', schema='catalogue') as client:
+
+        participant_range = [10_000, 20_000.5]
+        big_data = client.get(table='Subcohorts',
+                              query_filter=f'`numberOfParticipants` between {participant_range}', as_df=True)
+        print(big_data.head().to_string())
+
+        countries = ["Denmark", "France"]
+        cohorts = client.get(table='Cohorts',
+                             query_filter=f'subcohorts.countries.name != {countries}',
+                             as_df=True)
+        print(cohorts.to_string())
+
+        var_values = client.get(table='Variable values',
+                                query_filter='label != No and value != 1', as_df=True)
+
+        print(var_values.head().to_string())
+
     # Connect to the server and sign in
     async with Client('https://emx2.dev.molgenis.org/', token=token) as client:
         # Check sign in status
@@ -74,6 +93,15 @@ async def main():
 
         # Retrieving data from table Pet as a pandas DataFrame
         data = client.get(table='Pet', as_df=True)  # get Pets
+        print(data)
+
+        # Retrieving filtered data from table Order as pandas DataFrame
+        # Filter on 'complete == true' only
+        data = client.get(table='Order', query_filter="price > 9", as_df=True)
+        print(data)
+
+        # Filter on 'complete == true' and 'status == delivered'
+        data = client.get(table='Order', query_filter="complete == true and status == delivered", as_df=True)
         print(data)
 
         # ///////////////////////////////////////////////////////////////////////////////

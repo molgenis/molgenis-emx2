@@ -13,6 +13,7 @@ public class NCITToGSSOSexMapping {
           "ncit:C124294", "GSSO_009509",
           "//purl.obolibrary.org/obo/NCIT_C17998", "GSSO_009515",
           "ncit:C17998", "GSSO_009515");
+
   // todo also map Undetermined/Unknown to "assigned no gender at birth" ?
 
   public static String[] toGSSO(String[] NCITT) {

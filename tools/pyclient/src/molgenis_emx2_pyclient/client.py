@@ -1,5 +1,6 @@
 import csv
 import io
+import json
 import logging
 import pathlib
 import time
@@ -408,12 +409,14 @@ class Client:
             errors = '\n'.join([err['message'] for err in response.json().get('errors')])
             log.error("Failed to delete data from %s::%s\n%s.", current_schema, table, errors)
 
-    def get(self, table: str, schema: str = None, as_df: bool = False) -> list | pd.DataFrame:
+    def get(self, table: str, query_filter: str = None, schema: str = None, as_df: bool = False) -> list | pd.DataFrame:
         """Retrieves data from a schema and returns as a list of dictionaries or as
         a pandas DataFrame (as pandas is used to parse the response).
 
         :param schema: name of a schema
         :type schema: str
+        :param query_filter: the query to filter the output
+        :type query_filter: str
         :param table: the name of the table
         :type table: str
         :param as_df: if True, the response will be returned as a
@@ -436,7 +439,9 @@ class Client:
         schema_metadata: Schema = self.get_schema_metadata(current_schema)
         table_id = schema_metadata.get_table(by='name', value=table).id
 
-        response = self.session.get(url=f"{self.url}/{current_schema}/api/csv/{table_id}",
+        filter_part = self._prepare_filter(query_filter, table, schema)
+        query_url = f"{self.url}/{current_schema}/api/csv/{table_id}{filter_part}"
+        response = self.session.get(url=query_url,
                                     headers={'x-molgenis-token': self.token})
 
         self._validate_graphql_response(response=response,
@@ -692,11 +697,160 @@ class Client:
         metadata = Schema(**response_json.get('data').get('_schema'))
         return metadata
 
+    def _prepare_filter(self, expr: str, _table: str, _schema: str) -> str:
+        """Prepares a GraphQL filter based on the expression passed into `get`."""
+        if expr in [None, ""]:
+            return ""
+        statements = expr.split(' and ')
+        _filter = dict()
+        for stmt in statements:
+            if '==' in stmt:
+                _filter.update(**self.__prepare_equals_filter(stmt, _table, _schema))
+            elif '>' in stmt:
+                _filter.update(**self.__prepare_greater_filter(stmt, _table, _schema))
+            elif '<' in stmt:
+                _filter.update(**self.__prepare_smaller_filter(stmt, _table, _schema))
+            elif '!=' in stmt:
+                _filter.update(**self.__prepare_unequal_filter(stmt, _table, _schema))
+            elif 'between' in stmt:
+                _filter.update(**self.__prepare_between_filter(stmt, _table, _schema))
+            else:
+                raise ValueError(f"Cannot process statement {stmt!r}, "
+                                 f"ensure specifying one of the operators '==', '>', '<', '!=', 'between' "
+                                 f"in your statement.")
+        return "?filter=" + json.dumps(_filter)
+
+    def __prepare_equals_filter(self, stmt: str, _table: str, _schema: str) -> dict:
+        """Prepares the filter part if the statement filters on equality."""
+        _col = stmt.split('==')[0].strip()
+        _val = stmt.split('==')[1].strip()
+
+        col_id = ''.join(_col.split('`'))
+
+        if '.' in col_id:
+            return self.__prepare_nested_filter(col_id, _val, "equals")
+
+        schema = self.get_schema_metadata(_schema)
+        col = schema.get_table(by='name', value=_table).get_column(by='id', value=col_id)
+        match col.get('columnType'):
+            case 'BOOL':
+                val = False
+                if str(_val).lower() == 'true':
+                    val = True
+            case _:
+                try:
+                    val = json.loads(''.join(_val.split('`')).replace("'", '"'))
+                except json.decoder.JSONDecodeError:
+                    val = ''.join(_val.split('`'))
+
+        return {col.id: {'equals': val}}
+
+    def __prepare_greater_filter(self, stmt: str, _table: str, _schema: str) -> dict:
+        """Prepares the filter part if the statement filters on greater than."""
+        exclusive = '=' not in stmt
+        stmt = stmt.replace('=', '')
+
+        _col = stmt.split('>')[0].strip()
+        _val = stmt.split('>')[1].strip()
+
+        col_id = ''.join(_col.split('`'))
+
+        schema = self.get_schema_metadata(_schema)
+        col = schema.get_table(by='name', value=_table).get_column(by='id', value=col_id)
+
+        match col.get('columnType'):
+            case 'INT':
+                val = int(_val) + 1 * exclusive
+            case 'DECIMAL':
+                val = float(_val) + 0.0000001 * exclusive
+            case _:
+                raise NotImplementedError(f"Cannot perform filter '>' on column with type {col.get('columnType')}.")
+
+        return {col.id: {"between": [val, None]}}
+
+    def __prepare_smaller_filter(self, stmt: str, _table: str, _schema: str) -> dict:
+        """Prepares the filter part if the statement filters on greater than."""
+        exclusive = '=' not in stmt
+        stmt = stmt.replace('=', '')
+
+        _col = stmt.split('<')[0].strip()
+        _val = stmt.split('<')[1].strip()
+
+        col_id = ''.join(_col.split('`'))
+
+        schema = self.get_schema_metadata(_schema)
+        col = schema.get_table(by='name', value=_table).get_column(by='id', value=col_id)
+
+        match col.get('columnType'):
+            case 'INT':
+                val = int(_val) - 1 * exclusive
+            case 'DECIMAL':
+                val = float(_val) - 0.0000001 * exclusive
+            case _:
+                raise NotImplementedError(f"Cannot perform filter '<' on column with type {col.get('columnType')}.")
+
+        return {col.id: {"between": [None, val]}}
+
+    def __prepare_unequal_filter(self, stmt: str, _table: str, _schema: str) -> dict:
+        """Prepares the filter part if the statement filters on greater than."""
+        _col = stmt.split('!=')[0].strip()
+        _val = stmt.split('!=')[1].strip()
+
+        col_id = ''.join(_col.split('`'))
+
+        if '.' in col_id:
+            return self.__prepare_nested_filter(col_id, _val, "not_equals")
+
+        schema = self.get_schema_metadata(_schema)
+        col = schema.get_table(by='name', value=_table).get_column(by='id', value=col_id)
+
+        match col.get('columnType'):
+            case _:
+                try:
+                    val = json.loads(''.join(_val.split('`')).replace("'", '"'))
+                except json.decoder.JSONDecodeError:
+                    val = ''.join(_val.split('`'))
+
+        return {col.id: {"not_equals": val}}
+
+    def __prepare_between_filter(self, stmt: str, _table: str, _schema: str) -> dict:
+        """Prepares the filter part if values between a certain range are requested."""
+        stmt.replace('=', '')
+        _col = stmt.split('between')[0].strip()
+        _val = stmt.split('between')[1].strip()
+
+        try:
+            val = json.loads(_val)
+        except json.decoder.JSONDecodeError as e:
+            msg = ("To filter on values between a and b, supply them as a list, [a, b]. "
+                   "Ensure the values for a and b are numeric.")
+            raise ValueError(msg)
+        col_id = ''.join(_col.split('`'))
+
+        schema = self.get_schema_metadata(_schema)
+        col = schema.get_table(by='name', value=_table).get_column(by='id', value=col_id)
+        if (col_type := col.get('columnType')) not in ['INT', 'DECIMAL']:
+            raise NotImplementedError(f"The filter 'between' is not implemented for columns of type {col_type!r}.")
+
+        return {col.id: {'between': val}}
+
+    @staticmethod
+    def __prepare_nested_filter(columns: str, value: str | int | float | list, comparison: str):
+        _filter = {}
+        current = _filter
+        for (i, segment) in enumerate(columns.split('.')[:-1]):
+            current[segment] = {}
+            current = current[segment]
+        last_segment = columns.split('.')[-1]
+        current[last_segment] = {comparison: value}
+        return _filter
+
     @staticmethod
     def _prep_data_or_file(file_path: str = None, data: list | pd.DataFrame = None) -> str | None:
         """Prepares the data from memory or loaded from disk for addition or deletion action.
 
         :param file_path: path to the file to be prepared
+        :type file_path: str
         :type file_path: str
         :param data: data to be prepared
         :type data: list
@@ -757,6 +911,9 @@ class Client:
                 raise InvalidTokenException("Invalid token or token expired.")
             if 'permission denied' in response.text:
                 raise PermissionDeniedException(f"Transaction failed: permission denied.")
+            if 'Graphql API error' in response.text:
+                msg = response.json().get("errors", [])[0].get('message')
+                raise GraphQLException(msg)
             raise PyclientException("An unknown error occurred when trying to reach this server.")
 
         if response.request.method == 'GET':

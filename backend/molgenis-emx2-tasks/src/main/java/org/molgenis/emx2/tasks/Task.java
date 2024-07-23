@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 public class Task<T extends Task> implements Runnable, Iterable<Task> {
   // some unique id
   private final String id = UUID.randomUUID().toString();
+
   // for the toString method
   @JsonIgnore
   private static final ObjectMapper mapper =

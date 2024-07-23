@@ -28,7 +28,7 @@
 <script lang="ts" setup>
 import { AxiosError } from "axios";
 import { Ref, ref, toRefs, watch } from "vue";
-import Client from "../../client/client";
+import Client, { convertRowToPrimaryKey } from "../../client/client";
 import { IRow } from "../../Interfaces/IRow";
 import ButtonAction from "../forms/ButtonAction.vue";
 import MessageError from "../forms/MessageError.vue";
@@ -86,8 +86,9 @@ async function getRowData(
   for (const row of rowKeys) {
     const externalSchemaClient = Client.newClient(metadata.schemaId);
     const expandLevel = 2;
+    const rowKey = await convertRowToPrimaryKey(row, tableId, activeSchema);
     let queryResult = await externalSchemaClient
-      .fetchRowData(tableId, row, expandLevel)
+      .fetchRowData(tableId, rowKey, expandLevel)
       .catch(errorHandler);
     queryResult.metadata = metadata;
     newQueryResults.push(queryResult);

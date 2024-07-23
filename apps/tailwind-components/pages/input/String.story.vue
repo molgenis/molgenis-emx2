@@ -16,12 +16,16 @@ const placeholder = "'A-001' or 'A-001,A-002'";
   >
     <div>
       <h3>Input String: default use</h3>
-      <InputLabel for="input-string-default" :label="label" />
+      <InputLabel for="input-string-default">
+        {{ label }}
+      </InputLabel>
       <InputString id="input-string-default" :placeholder="placeholder" />
     </div>
     <div>
       <h3>Input String: disabled</h3>
-      <InputLabel for="input-string-disabled" :label="label" />
+      <InputLabel for="input-string-disabled">
+        {{ label }}
+      </InputLabel>
       <InputString
         id="input-string-disabled"
         :placeholder="placeholder"
@@ -30,7 +34,9 @@ const placeholder = "'A-001' or 'A-001,A-002'";
     </div>
     <div>
       <h3>Input Text: as a required field</h3>
-      <InputLabel for="input-string-required" :label="label" />
+      <InputLabel for="input-string-required" :required="true">
+        {{ label }}
+      </InputLabel>
       <InputString
         id="input-string-required"
         :label="label"
@@ -39,21 +45,23 @@ const placeholder = "'A-001' or 'A-001,A-002'";
     </div>
     <div>
       <h3>Input String: positive validation result</h3>
-      <InputLabel for="input-string-valid" :label="label" :valid="true" />
+      <InputLabel for="input-string-valid" :valid="true">
+        {{ label }}
+      </InputLabel>
       <InputString id="input-string-valid" :placeholder="placeholder" />
     </div>
     <div>
       <h3>Input String: negative validation result</h3>
-      <InputLabel for="input-string-error" :label="label" :has-error="true" />
+      <InputLabel for="input-string-error" :has-error="true">
+        {{ label }}
+      </InputLabel>
       <InputString id="input-string-error" :placeholder="placeholder" />
     </div>
     <div>
       <h3>Input String: visually hidden label</h3>
-      <InputLabel
-        for="input-string-hidden-label"
-        :label="label"
-        :hide-label="true"
-      />
+      <InputLabel for="input-string-hidden-label" :hide-label="true">
+        {{ label }}
+      </InputLabel>
       <InputString id="input-string-hidden-label" :placeholder="placeholder" />
     </div>
   </div>

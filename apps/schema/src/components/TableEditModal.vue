@@ -134,6 +134,7 @@ export default {
               .filter((name) => name !== this.table.name)
           );
         }
+        this.table.inheritName = result[0];
         return result;
       }
       return undefined;

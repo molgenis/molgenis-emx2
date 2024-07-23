@@ -82,7 +82,6 @@ Collections,,languages,ontology_array,,,CatalogueOntologies,Languages,,,,,"Langu
 Collections,,record trigger,text,,,,,,,,,"What triggers the creation of a record in the data bank? e.g., hospital discharge, specialist encounter, dispensation of a medicinal product, recording of a congenital anomaly","DataCatalogueFlat,EMA","['Databank', 'Data source'].includes(collectionType?.name)"
 Collections,,collection events,refback,,,,Collection events,,collection,,dcterms:hasPart,List of collection events defined for this resource,"DataCatalogueFlat",['Cohort'].includes(collectionType?.name)
 Collections,,unit of observation,text,,,,,,,,,"Based on the prompt, what is the unit of observation of a record (e.g., person, prescription)?",DataCatalogueFlat,['Databank'].includes(collectionType?.name)
-Collections,,aggregates,refback,,,,Aggregates,,collection,,,Counts of e.g. samples defined for this resource,"DataCatalogueFlat","['Cohort', 'Databank', 'Data source', 'Model', 'Study'].includes(collectionType?.name)"
 Collections,,multiple entries,bool,,,,,,,,,"Can there be multiple entries for a single person in the data bank? For example, may a person contribute multiple records to the data bank?",DataCatalogueFlat,['Databank'].includes(collectionType?.name)
 Collections,,linkage,heading,,,,,,,,,Data linkage,DataCatalogueFlat,"['Databank', 'Data source'].includes(collectionType?.name)"
 Collections,,has identifier,bool,,,,,,,,,Is there a unique identifier for a person in the data bank?,DataCatalogueFlat,['Databank'].includes(collectionType?.name)

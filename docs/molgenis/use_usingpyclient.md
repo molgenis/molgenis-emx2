@@ -106,16 +106,32 @@ Raises the `TokenSigninException` when the client is already signed in with a us
 
 ### get
 ```python
-client.get(table='Data Table', schema='My Schema', as_df=True)
+names = ['Alice', 'Benjamin']
+countries = ['Spain', 'Sweden']
+age_interval = [18, 75]
+client.get(table='Data Table', schema='My Schema', query_filter=f"name != {names}"
+                                                                f" and country.name == {countries}"
+                                                                f" and age between {age_interval}", as_df=True)
 ```
-Retrieves data from a table on a schema and returns the result either as a list of dictionaries or as a pandas DataFrame (as pandas is used to parse the response).
-Throws the `NoSuchSchemaException` if the user does not have at least _viewer_ permissions or if the schema does not exist.
+Retrieves data from a table on a schema and returns the result either as a list of dictionaries or as a pandas DataFrame.
+Use the `query_filter` parameter to filter the results based on filters applied to the columns.
+This query requires a special syntax. 
+Columns can be filtered on equality `==`, inequality `!=`, greater `>` and smaller `<` than.
+Values within an interval can also be filtered by using the operand `between`, followed by list of the upper bound and lower bound.
+The values of reference and ontology columns can also be filtered by joining the column id of the table with the column id of the reference/ontology table by a dot, as in the example `countries.name`, where `countries` is a column in the table `My table` and `name` is the column id of the referenced table specifying the names of countries. 
+It is possible to add filters on multiple columns by separating the filter statements with _' and '_.
+It is recommended to supply the filters that are compared as variables passed in an f-string.
 
-| parameter | type | description                                                                    | required | default               |
-|-----------|------|--------------------------------------------------------------------------------|----------|-----------------------|
-| table     | str  | the name of a table                                                            | True     | None                  |
-| schema    | str  | the name of a schema                                                           | False    | client.default_schema |
-| as_df     | bool | if true: returns data as pandas DataFrame <br/> else as a list of dictionaries | False    | False                 |
+Throws the `NoSuchSchemaException` if the user does not have at least _viewer_ permissions or if the schema does not exist.
+Throws the `NoSuchColumnException` if the query filter contains a column id that is not present in the table.
+
+
+| parameter    | type  | description                                                                    | required | default |
+|--------------|-------|--------------------------------------------------------------------------------|----------|---------|
+| table        | str   | the name of a table                                                            | True     | None    |
+| schema       | str   | the name of a schema                                                           | False    | None    |
+| query_filter | str   | a string to filter the results on                                              | False    | None    |
+| as_df        | bool  | if true: returns data as pandas DataFrame <br/> else as a list of dictionaries | False    | False   |
 
 
 ### get_schema_metadata

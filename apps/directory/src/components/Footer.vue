@@ -83,7 +83,7 @@
             <div v-if="isFooterFollowUsVisible" class="ms-md-2 mt-2">
               <a
                 class="link-dark text-primary-text me-5"
-                href="https://www.bbmri-eric.eu/wp-content/uploads/AoM_10_8_Access-Policy_FINAL_EU.pdf"
+                href="https://www.bbmri-eric.eu/privacy-notice/"
               >
                 Privacy Policy
               </a>

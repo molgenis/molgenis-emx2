@@ -1,2 +1,2 @@
 id,name,organisation,description,contact,url,alternativeUrl
-org.molgeniscloud.beaconv2,MOLGENIS EMX2 Beacon v2,UMCG,This MOLGENIS EMX2 Beacon v2 is based on the GA4GH Beacon v2.0 specification,contact@mail.org,https://molgenis.org/,https://umcgresearch.org/w/gcc
+org.molgeniscloud.beaconv2,MOLGENIS EMX2 Beacon v2,UMCG,This MOLGENIS EMX2 Beacon v2 is based on the GA4GH Beacon v2.0 specification,molgenis-support@umcg.nl,https://molgenis.org/,https://umcgresearch.org/w/gcc
