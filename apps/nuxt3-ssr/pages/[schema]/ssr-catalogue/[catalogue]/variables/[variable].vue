@@ -48,6 +48,7 @@ crumbs[
 ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/variables`;
 
 const cohortsWithMapping = computed(() => {
+  if (!cohorts.value) return [];
   return cohorts.value
     .map((cohort) => {
       const status = calcIndividualVariableHarmonisationStatus(variable.value, [
