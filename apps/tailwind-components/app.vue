@@ -121,7 +121,7 @@ const stories = Object.keys(modules)
       .filter((path: string) => path !== "" && path !== name)[0];
     const nameCleaned: string = name.replace(".story.vue", "");
     return {
-      name: dir ? `${dir}${nameCleaned}` : nameCleaned,
+      name: dir ? `${dir.charAt(0).toUpperCase() + dir.slice(1)}${nameCleaned}` : nameCleaned,
       dir: dir,
       path: path.replace(".vue", ""),
     };
