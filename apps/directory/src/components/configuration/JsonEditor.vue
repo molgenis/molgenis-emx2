@@ -1,7 +1,7 @@
 <template>
   <div @keyup.ctrl.f="format">
     <div>
-      <div ref="editor" class="editor" @keyup="dirty = true"></div>
+      <div ref="editor" class="editor" @keyup="setDirty()"></div>
     </div>
 
     <input
@@ -30,7 +30,7 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import * as monaco from "monaco-editor";
 import { toRaw } from "vue";
 
@@ -43,16 +43,16 @@ export default {
   },
   data() {
     return {
-      editor: {},
+      editor: {} as any,
       dirty: false,
+      uploadedAppConfig: "",
     };
   },
-  watch: {
-    dirty(newValue) {
-      this.$emit("dirty", newValue);
-    },
-  },
   methods: {
+    setDirty() {
+      this.dirty = true;
+      this.$emit("dirty", true);
+    },
     format() {
       this.editor.getAction("editor.action.formatDocument").run();
     },
@@ -81,12 +81,12 @@ export default {
     },
     upload() {
       const fileInput = document.getElementById("file-selector");
-      fileInput.click();
+      fileInput?.click();
     },
-    async processUpload(event) {
+    async processUpload(event: Record<string, any>) {
       const reader = new FileReader();
-      reader.addEventListener("load", (event) => {
-        this.uploadedAppConfig = atob(event.target.result.split(",")[1]);
+      reader.addEventListener("load", (event: ProgressEvent<FileReader>) => {
+        this.uploadedAppConfig = atob(event.target?.result?.split(",")[1]);
 
         this.$emit("diff", {
           currentAppConfig: toRaw(this.editor).getValue(),
@@ -97,7 +97,7 @@ export default {
     },
   },
   mounted() {
-    this.editor = monaco.editor.create(this.$refs.editor, {
+    this.editor = monaco.editor.create(this.$refs.editor as HTMLElement, {
       automaticLayout: true,
       value: this.config,
       language: "json",

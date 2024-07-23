@@ -119,7 +119,7 @@
     <JsonEditor
       v-if="editorType === views.editor"
       :config="currentConfig"
-      @dirty="(d) => (dirty = d)"
+      @dirty="(isDirty) => (dirty = isDirty)"
       @save="saveFromEditor"
       @cancel="cancel"
       @diff="showDiffEditor"
@@ -203,7 +203,7 @@ const settingsStore = useSettingsStore();
 
 const statusClosed = ref(true);
 const dirty = ref(false);
-const editorType = ref(views.ui);
+const editorType = ref<views>();
 const newAppConfig = ref("");
 const jsonError = ref("");
 const filterIndex = ref(-1);
@@ -242,6 +242,7 @@ watch(configUpdateStatus, (newStatus) => {
 });
 
 onMounted(async () => {
+  editorType.value = views.ui;
   await settingsStore.GetApplicationConfiguration();
 });
 
@@ -250,7 +251,6 @@ function getFacetTitle(index: number) {
 }
 
 function switchView(view: views) {
-  console.log("switched to: " + view);
   editorType.value = view;
 }
 
@@ -359,6 +359,7 @@ function deleteFilter() {
 .code-help {
   margin-top: 4rem;
 }
+
 .editor-active {
   text-decoration: underline;
 }
