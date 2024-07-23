@@ -1,6 +1,5 @@
 <template>
   <div>
-    {{ refFilter }}
     <FormInput
       v-for="column in shownColumnsWithoutMeta"
       :key="JSON.stringify(column)"
@@ -45,7 +44,7 @@ export default {
       internalValues: deepClone(
         this.defaultValue ? this.defaultValue : this.modelValue
       ),
-      refFilter: {},
+      refFilter: {} as Record<string, any>,
     };
   },
   props: {
@@ -159,7 +158,7 @@ export default {
               this.tableMetaData as ITableMetaData
             );
           } catch (error) {
-            console.log("Computed expression failed:", error);
+            console.log("Computed expression failed: ", error);
             this.errorPerColumn[column.id] =
               "Computed expression failed: " + error;
           }
@@ -187,7 +186,6 @@ export default {
           //and then define new filter setting
           this.refFilter[refLinkColumn.id] = {
             [overlappingKey.id]: {
-              //@ts-ignore
               equals: await convertRowToPrimaryKey(
                 this.internalValues[changedColumn.id],
                 overlappingKey.refTableId,
