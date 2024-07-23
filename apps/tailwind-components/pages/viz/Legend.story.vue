@@ -1,5 +1,6 @@
 <script setup lang="ts">
-const selections = ref<string[]>();
+const legendItemHovered = ref<string>();
+const legendItemClicked = ref<string[]>();
 
 const legendData = {
   "Group A": "#f6eff7",
@@ -58,11 +59,46 @@ const legendData = {
       :data="legendData"
       :stack-legend="true"
     />
+    <h4 class="text-heading-2xl mt-2">Legend Interactivity</h4>
     <p>
       Interactive features are also available on the legend component. These
       features can be used to control a chart by extracting the value of a
       legend item (i.e., the label). You can enable/disable hovering and clicks
       in a legend.
     </p>
+    <p>In the legend below, hover over the labels. Hovering emits the label or value of the item. This is useful if you would like to emphasize content in a chart (change the color, increase the size, etc.) or if you would like to perform some other action using the data. Capturing the emitted data is possible by using the following events: <code>@legend-item-mouseover</code> or <code>@legend-item-mouseout</code></p>
+    <div class="flex flex-wrap [&_div]:grow">
+      <div>
+        <vizLegend 
+          legend-id="interactive-legend-hovering"
+          :data="legendData"
+          :stack-legend="true"
+          :enable-hovering="true"
+          @legend-item-mouseover="legendItemHovered = $event"
+        />
+      </div>
+      <div class="bg-gray-200">
+        <pre class="block bg-gray-200 p-1 mb-3 whitespace-normal">
+          You hovered over: {{ legendItemHovered }}
+        </pre>
+      </div>
+    </div>
+    <p>In addition to hovering, you can also enable clicks.</p>
+    <div class="flex flex-wrap [&_div]:grow">
+      <div>
+        <VizLegend
+          legend-id="interactive-legend-clicks"
+          :data="legendData"
+          :stack-legend="true"
+          :enable-clicks="true"
+          @legend-item-clicked="legendItemClicked = $event"
+        />
+      </div>
+      <div class="bg-gray-200">
+        <pre class="block bg-gray-200 p-1 mb-3 whitespace-normal">
+          You clicked: {{ legendItemClicked }}
+        </pre>
+      </div>
+    </div>
   </div>
 </template>

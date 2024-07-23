@@ -2,7 +2,7 @@
 withDefaults(
   defineProps<{
     legendId: string;
-    data: object;
+    data: Record<string, any>;
     stackLegend?: boolean;
     enableClicks?: boolean;
     enableHovering?: boolean;
@@ -19,12 +19,12 @@ withDefaults(
 );
 
 const emit = defineEmits<{
-  (e: "legend-item-clicked", value: string): void;
+  (e: "legend-item-clicked", value: string[]): void;
   (e: "legend-item-mouseover", value: string): void;
   (e: "legend-item-mouseout", value: string): void;
 }>();
 
-const legendSelections = defineModel<string[] | number[]>();
+const legendSelections = ref<string[] | number[] | boolean[]>([]);
 </script>
 
 <template>
@@ -51,7 +51,7 @@ const legendSelections = defineModel<string[] | number[]>();
         v-if="enableClicks"
         class="flex flex-row gap-3 justify-start items-center"
       >
-        <label :for="`legend-input-${legendId}-${key}`">
+        <label :for="`legend-input-${legendId}-${key}`" class="flex flex-row gap-3 justify-start items-center hover:underline hover:cursor-pointer">
           <vizLegendMarker :markerType="markerType" :fill="data[key]" />
           <span class="text-body-base text-current">{{ key }}</span>
         </label>
@@ -59,10 +59,10 @@ const legendSelections = defineModel<string[] | number[]>();
           :id="`legend-input-${legendId}-${key}`"
           class="sr-only"
           type="checkbox"
-          :data-group="key"
+          :name="`legend-name-${legendId}`"
           :value="key"
           v-model="legendSelections"
-          @change="$emit('legend-item-clicked', key)"
+          @change="$emit('legend-item-clicked', legendSelections)"
         />
       </div>
       <div

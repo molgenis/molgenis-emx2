@@ -96,6 +96,11 @@ useHead({
                     Icons
                   </NuxtLink>
                 </li>
+                <li class="py-2">
+                  <NuxtLink class="hover:underline" to="">
+                    Viz chart legend
+                  </NuxtLink>
+                </li>
               </ul>
 
               <div class="pr-6 mt-6">
