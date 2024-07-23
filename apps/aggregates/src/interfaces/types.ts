@@ -1,5 +1,4 @@
 export interface selectedFiltersIF {
-  resource: string[];
   researchCenter: string[];
   primaryTumorSite: string[];
   metastasis: string[];
@@ -8,8 +7,8 @@ export interface selectedFiltersIF {
 }
 
 export interface researchCentersIF {
-  researchCenter: { name: string };
-  _sum: { n: number };
+  researchCenter: string;
+  _sum: number;
 }
 
 export interface primaryTumorSiteIF {
@@ -33,6 +32,27 @@ export interface sexCasesIF {
 }
 
 export interface chartAxisSettingsIF {
-  ticks: string[];
+  ticks: string[] | number[];
   ymax: number | null;
+}
+
+export interface nestedSelectedFiltersQueryIF {
+  name?: {
+    equals: string;
+  };
+  id?: {
+    equals: string;
+  };
+}
+
+export interface selectedFiltersQueryIF {
+  researchCenter?: nestedSelectedFiltersQueryIF;
+  primaryTumorSite?: nestedSelectedFiltersQueryIF;
+  metastatis?: nestedSelectedFiltersQueryIF;
+  yearOfDiagnosis?: nestedSelectedFiltersQueryIF;
+  sex?: nestedSelectedFiltersQueryIF;
+}
+
+export interface vizChartFilters extends selectedFiltersQueryIF {
+  _or?: selectedFiltersQueryIF[];
 }

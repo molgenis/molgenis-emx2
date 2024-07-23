@@ -6,6 +6,7 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
+// @ts-ignore
 import { Molgenis } from "molgenis-components";
 
 const session = ref(null);
