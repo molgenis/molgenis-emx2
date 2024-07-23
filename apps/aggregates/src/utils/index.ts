@@ -15,6 +15,22 @@ export function createPalette(labels: string[], palette: string[]): Object {
 }
 
 /**
+ * getUniqueDataTypes
+ *
+ * Retrieve an array of data types from a dataset
+ *
+ * @param data a dataset to check (array of objects)
+ * @param key name of the key to check
+ * @returns string[]
+ */
+function getUniqueDataTypes(data: Record<string, any>, key: string) {
+  const dataTypes: string[] = data.map(
+    (row: Record<string, any>) => typeof row[key]
+  );
+  return [...Array.from(new Set(dataTypes))];
+}
+
+/**
  * Sort a dataset by a named property
  *
  * @params data - a dataset to sort; an array of one or more objects
@@ -22,15 +38,12 @@ export function createPalette(labels: string[], palette: string[]): Object {
  * @params descending - If True, the dataset will be sorted in reverse order
  */
 export function sortData(
-  data: Record<string, any>,
+  data: object[],
   by: string,
   descending: boolean = false
 ) {
-  const dataType = [
-    ...Array.from(
-      new Set(data.map((row: Record<string, any>) => typeof row[by]))
-    ),
-  ];
+  const dataType = getUniqueDataTypes(data, by);
+
   if (dataType.length > 1) {
     throw new Error(
       `Cannot determine sorting type with multiple data types in '${by}'`
@@ -39,12 +52,12 @@ export function sortData(
 
   if (dataType[0] === "number") {
     if (descending) {
-      return data.toSorted(
+      return data.sort(
         (current: Record<string, any>, next: Record<string, any>) =>
           current[by] + next[by]
       );
     }
-    return data.toSorted(
+    return data.sort(
       (current: Record<string, any>, next: Record<string, any>) =>
         current[by] - next[by]
     );
@@ -52,12 +65,12 @@ export function sortData(
 
   if (dataType[0] === "string") {
     if (descending) {
-      return data.toSorted(
+      return data.sort(
         (current: Record<string, any>, next: Record<string, any>) =>
           current[by] < next[by] ? -1 : 1
       );
     }
-    return data.toSorted(
+    return data.sort(
       (current: Record<string, any>, next: Record<string, any>) =>
         current[by] < next[by] ? 1 : -1
     );
@@ -73,11 +86,7 @@ export function sortData(
  *
  * @param an array of objects
  */
-export function renameKey(
-  data: Record<string, any>,
-  oldKey: string,
-  newKey: string
-) {
+export function renameKey(data: object[], oldKey: string, newKey: string) {
   return data.map((row: Record<string, any>) => {
     if (Object.hasOwn(row, oldKey)) {
       row[newKey] = row[oldKey];
