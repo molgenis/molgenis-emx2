@@ -4,7 +4,7 @@
       <NuxtLink class="hover:underline" to="/">
         <img
           format="svg"
-          src="/_nuxt/assets/img/molgenis-logo-blue-small.svg"
+          src="~/assets/img/molgenis-logo-blue-small.svg"
           alt="molgenis, open source software"
         />
         <span class="sr-only">Home</span>
