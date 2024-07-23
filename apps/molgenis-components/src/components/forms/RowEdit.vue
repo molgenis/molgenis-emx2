@@ -1,5 +1,6 @@
 <template>
   <div>
+    {{ refFilter }}
     <FormInput
       v-for="column in shownColumnsWithoutMeta"
       :key="JSON.stringify(column)"
@@ -167,41 +168,34 @@ export default {
     },
     //update reflink filters and reset values if reflink changes
     async updateRefLinks(changedColumn: IColumn) {
-      //need to figure out what refs overlap with the changed column
-      for (const column1 of this.tableMetaData.columns) {
-        if (
+      const refLinkColumns = this.tableMetaData.columns.filter(
+        (col: IColumn) =>
           this.internalValues[changedColumn.id] &&
-          column1.refLinkId == changedColumn.id &&
-          this.showColumn(column1)
-        ) {
-          console.log("check");
-          //check how the refTableId overlaps with columns in our column
-          for (const table of this.schemaMetaData.tables) {
-            if (table.id === column1.refTableId) {
-              console.log("check2");
-              for (const column2 of table.columns) {
-                if (
-                  column2.key === 1 &&
-                  column2.refTableId === changedColumn.refTableId
-                ) {
-                  //reset the value and the filter
-                  this.internalValues[column1.id] = null;
-                  //and then define new filter setting
-                  this.refFilter[column1.id] = {};
-                  this.refFilter[column1.id] = {
-                    [column2.id]: {
-                      //@ts-ignore
-                      equals: await convertRowToPrimaryKey(
-                        this.internalValues[changedColumn.id],
-                        column2.refTableId,
-                        column2.refSchemaId
-                      ),
-                    },
-                  };
-                }
-              }
-            }
-          }
+          col.refLinkId === changedColumn.id
+      );
+      for (const refLinkColumn of refLinkColumns) {
+        const refTable = this.schemaMetaData.tables.find(
+          (table: ITableMetaData) => table.id === refLinkColumn.refTableId
+        );
+        const overlappingRefColumns = refTable.columns.filter(
+          (col: IColumn) =>
+            col.key === 1 && col.refTableId === changedColumn.refTableId
+        );
+        for (const overlappingKey of overlappingRefColumns) {
+          console.log("check" + JSON.stringify(overlappingKey));
+          //reset the value and the filter
+          this.internalValues[refLinkColumn.id] = null;
+          //and then define new filter setting
+          this.refFilter[refLinkColumn.id] = {
+            [overlappingKey.id]: {
+              //@ts-ignore
+              equals: await convertRowToPrimaryKey(
+                this.internalValues[changedColumn.id],
+                overlappingKey.refTableId,
+                overlappingKey.refSchemaId
+              ),
+            },
+          };
         }
       }
     },
