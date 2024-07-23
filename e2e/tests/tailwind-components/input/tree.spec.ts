@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import playwrightConfig from '../../../playwright.config';
 
-const route = playwrightConfig?.use?.baseURL?.startsWith('http://localhost:') ? '' : 'apps/tailwind-components/';
+const route = playwrightConfig?.use?.baseURL?.startsWith('http://localhost:') ? '' : '/apps/tailwind-components/';
 
 test('should render the collapsed tree', async ({ page }, testInfo) => {
   await page.goto(route);
@@ -42,6 +42,10 @@ test('should expand the the de-selection down if expand selection is set to true
   await page.getByRole('link', { name: 'InputTree' }).click();
   await expect(page.getByLabel('expand selected')).toBeChecked();
 
+  await page.goto('http://localhost:3000/input/Tree.story#/');
+  await page.goto('http://localhost:3000/');
+  await page.goto('http://localhost:3000/#/');
+  await page.getByRole('link', { name: 'InputTree' }).click();
   // select
   await page.getByLabel('Node 0', { exact: true }).check();
   await expect(page.locator('section')).toContainText('Number off selected nodes: 15');
