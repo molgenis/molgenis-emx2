@@ -1,7 +1,7 @@
 <template>
   <div @keyup.ctrl.f="format">
     <div>
-      <div ref="editor" class="editor" @keyup="setDirty()"></div>
+      <div ref="editorDiv" class="editor" @keyup="setDirty()"></div>
     </div>
 
     <input
@@ -30,88 +30,88 @@
   </div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import * as monaco from "monaco-editor";
-import { toRaw } from "vue";
+import { onMounted, onUnmounted, ref, toRaw } from "vue";
 
-export default {
-  props: {
-    config: {
-      type: String,
-      required: true,
-    },
-  },
-  data() {
-    return {
-      editor: {} as any,
-      dirty: false,
-      uploadedAppConfig: "",
-    };
-  },
-  methods: {
-    setDirty() {
-      this.dirty = true;
-      this.$emit("dirty", true);
-    },
-    format() {
-      this.editor.getAction("editor.action.formatDocument").run();
-    },
-    save() {
-      /** doesnt work with proxy, so that is where toRaw comes in */
-      const changesToSave = toRaw(this.editor).getValue();
-      this.$emit("save", changesToSave);
-    },
-    cancel() {
-      this.$emit("cancel");
-    },
-    download() {
-      const file = new Blob([toRaw(this.editor).getValue()], {
-        type: "json",
-      });
-      const a = document.createElement("a");
-      const url = URL.createObjectURL(file);
-      a.href = url;
-      a.download = `${window.location.host}-config.json`;
-      document.body.appendChild(a);
-      a.click();
-      setTimeout(function () {
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
-      }, 0);
-    },
-    upload() {
-      const fileInput = document.getElementById("file-selector");
-      fileInput?.click();
-    },
-    async processUpload(event: Record<string, any>) {
-      const reader = new FileReader();
-      reader.addEventListener("load", (event: ProgressEvent<FileReader>) => {
-        this.uploadedAppConfig = atob(event.target?.result?.split(",")[1]);
+const { config } = defineProps<{ config: string }>();
 
-        this.$emit("diff", {
-          currentAppConfig: toRaw(this.editor).getValue(),
-          uploadedAppConfig: this.uploadedAppConfig,
-        });
-      });
-      reader.readAsDataURL(event.target.files[0]);
-    },
-  },
-  mounted() {
-    this.editor = monaco.editor.create(this.$refs.editor as HTMLElement, {
-      automaticLayout: true,
-      value: this.config,
-      language: "json",
+const editor = ref<any>({});
+const editorDiv = ref<HTMLElement>();
+const dirty = ref(false);
+const uploadedAppConfig = ref("");
+
+const emit = defineEmits(["dirty", "save", "cancel", "diff"]);
+
+onMounted(() => {
+  editor.value = monaco.editor.create(editorDiv.value as HTMLElement, {
+    automaticLayout: true,
+    value: config,
+    language: "json",
+  });
+
+  const formatTimer = setTimeout(() => {
+    format();
+    clearTimeout(formatTimer);
+  }, 500);
+});
+
+onUnmounted(() => {
+  editor.value.dispose();
+});
+
+function setDirty() {
+  dirty.value = true;
+  emit("dirty");
+}
+
+function format() {
+  editor.value.getAction("editor.action.formatDocument").run();
+}
+
+function save() {
+  /** doesn't work with proxy, so that is where toRaw comes in */
+  const changesToSave = toRaw(editor.value).getValue();
+  emit("save", changesToSave);
+}
+
+function cancel() {
+  emit("cancel");
+}
+
+function download() {
+  const file = new Blob([toRaw(editor.value).getValue()], {
+    type: "json",
+  });
+  const aElement = document.createElement("a");
+  const url = URL.createObjectURL(file);
+  aElement.href = url;
+  aElement.download = `${window.location.host}-config.json`;
+  document.body.appendChild(aElement);
+  aElement.click();
+  setTimeout(() => {
+    document.body.removeChild(aElement);
+    window.URL.revokeObjectURL(url);
+  }, 0);
+}
+
+function upload() {
+  const fileInput = document.getElementById("file-selector");
+  fileInput?.click();
+}
+
+async function processUpload(event: Record<string, any>) {
+  const reader = new FileReader();
+  reader.addEventListener("load", (event: ProgressEvent<FileReader>) => {
+    uploadedAppConfig.value = atob(event.target?.result?.split(",")[1]);
+
+    emit("diff", {
+      currentAppConfig: toRaw(editor.value).getValue(),
+      uploadedAppConfig: uploadedAppConfig.value,
     });
-
-    const formatTimer = setTimeout(() => {
-      this.format();
-      clearTimeout(formatTimer);
-    }, 500);
-  },
-  destroyed() {
-    this.editor.dispose();
-  },
-};
+  });
+  reader.readAsDataURL(event.target.files[0]);
+}
 </script>
 
 <style scoped>
