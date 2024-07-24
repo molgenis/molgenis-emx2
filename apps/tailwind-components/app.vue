@@ -1,12 +1,14 @@
 <template>
-  <nav class="bg-white z-50 p-2 flex flex-row justify-start items-center gap-2">
+  <nav
+    class="fixed top-0 w-[100%] bg-white z-50 p-2 flex flex-row justify-start items-center gap-2 shadow-sm"
+  >
     <div class="grow">
       <NuxtLink class="hover:underline" to="/">
         <img
           format="svg"
           src="~/assets/img/molgenis-logo-blue-small.svg"
           alt="molgenis, open source software"
-          class="w-30"
+          class="w-28"
         />
         <span class="sr-only">Home</span>
       </NuxtLink>
@@ -22,7 +24,7 @@
         <IconsCaretDown class="w-5 inline-block" />
       </button>
       <div
-        class="absolute mt-4 z-50 bg-white py-2 px-4 rounded"
+        class="absolute mt-2 z-50 bg-white py-2 px-4 rounded shadow-sm border"
         v-show="isExpanded"
       >
         <fieldset class="mb-2">
@@ -79,7 +81,7 @@
     </div>
   </nav>
   <div
-    class="overflow-x-clip min-h-screen bg-base-gradient relative after:bg-app-wrapper after:w-full after:h-[166px] after:top-0 after:absolute after:opacity-20 after:z-20 xl:after:hidden"
+    class="overflow-x-clip min-h-screen bg-base-gradient relative after:bg-app-wrapper after:w-full after:h-[166px] after:top-0 after:absolute after:opacity-20 after:z-20 xl:after:hidden pt-15"
   >
     <div
       class="absolute top-0 left-0 z-10 w-screen h-screen overflow-hidden opacity-background-gradient"
