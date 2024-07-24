@@ -36,14 +36,16 @@ public class VariantFilterParser implements FilterParser {
     GenomicQueryType queryType = getGenomicQueryType();
     String graphQlFilter =
         switch (queryType) {
-          case SEQUENCE -> queryType
-              .getGraphQlQuery()
-              .formatted(qStart[0], qReferenceName, qReferenceBases, qAlternateBases);
+          case SEQUENCE ->
+              queryType
+                  .getGraphQlQuery()
+                  .formatted(qStart[0], qReferenceName, qReferenceBases, qAlternateBases);
           case RANGE -> queryType.getGraphQlQuery().formatted(qReferenceName, qStart[0], qEnd[0]);
           case GENE_ID -> queryType.getGraphQlQuery().formatted(qGeneId);
-          case BRACKET -> queryType
-              .getGraphQlQuery()
-              .formatted(qReferenceName, qStart[0], qStart[1], qEnd[0], qEnd[1]);
+          case BRACKET ->
+              queryType
+                  .getGraphQlQuery()
+                  .formatted(qReferenceName, qStart[0], qStart[1], qEnd[0], qEnd[1]);
           case NO_PARAMS -> null;
         };
     if (graphQlFilter != null) {
