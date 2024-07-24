@@ -1,0 +1,13 @@
+---
+name: Staging area for filling out cohort metadata
+
+profileTags: CohortsStaging
+
+# demoData: _demodata/applications/datacatalogue
+
+#settings: _settings/datacatalogue
+
+# special options
+setViewPermission: anonymous
+ontologiesToFixedSchema: CatalogueOntologies
+setFixedSchemaViewPermission: anonymous
