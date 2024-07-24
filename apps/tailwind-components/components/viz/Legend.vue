@@ -65,7 +65,7 @@
 </template>
 
 <script setup lang="ts">
-interface LegendPropsIF {
+interface ILegendProps {
   legendId: string;
   data: Record<string, any>;
   stackLegend?: boolean;
@@ -75,7 +75,7 @@ interface LegendPropsIF {
   markerType?: "circle" | "square";
 }
 
-withDefaults(defineProps<LegendPropsIF>(), {
+withDefaults(defineProps<ILegendProps>(), {
   stackLegend: false,
   enableClicks: false,
   enableHovering: false,
