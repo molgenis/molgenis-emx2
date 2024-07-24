@@ -87,7 +87,7 @@ Model endpoints for which record-level GET and POST requests are implemented are
 
 ### Permissions
 
-By default, a new database will have **VIEWER** permission for all users including anonymous requests. How to set up
+By default, a new database with a Beacon profile will have **VIEWER** permission for all users including anonymous requests. How to set up
 permissions for a database is found [here](use_permissions.md).
 
 Request are **Record** requests by default and therefor **VIEWER** permission on the data is needed to perform the queries.
