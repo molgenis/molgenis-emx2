@@ -15,7 +15,7 @@ import { getColumnIds } from "./queryBuilder";
 // application wide cache for schema meta data
 const schemaCache = new Map<string, ISchemaMetaData>();
 
-export { request, fetchSchemaMetaData };
+export { request, fetchSchemaMetaData, convertRowToPrimaryKey };
 const client: IClient = {
   newClient: (schemaId?: string): INewClient => {
     return {
