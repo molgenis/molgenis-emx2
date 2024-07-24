@@ -29,7 +29,7 @@
           <vizLegendMarker :markerType="markerType" :fill="data[key]" />
           <input
             :id="`legend-input-${legendId}-${key}`"
-            class="sr-only"
+            class="sr-only [&:focus~span]:underline"
             :class="{
               '[&:checked~span]:line-through': enableMultiSelect,
               '[&~span]:hover:underline': !enableMultiSelect,
