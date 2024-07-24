@@ -8,7 +8,6 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.beaconv2.QueryEntryType;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
-import spark.Request;
 
 public class BeaconGranularityTests extends BeaconModelEndPointTest {
 
@@ -48,8 +47,8 @@ public class BeaconGranularityTests extends BeaconModelEndPointTest {
   @Test
   public void testRequestedGranularity_getRequestCount() {
     Map<String, String[]> params = Map.of("requestedGranularity", new String[] {"count"});
-    Request request = mockEntryTypeRequestRegular("Individuals", params);
-    BeaconRequestBody requestBody = new BeaconRequestBody(request);
+    BeaconRequestBody requestBody =
+        new BeaconRequestBody(mockEntryTypeRequestRegular("Individuals", params));
 
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
     JsonNode json = queryEntryType.query(beaconSchema);
