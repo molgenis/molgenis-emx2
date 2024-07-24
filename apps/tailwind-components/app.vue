@@ -101,9 +101,14 @@
                     story.name
                   }}</NuxtLink>
                 </li>
+                <li class="py-2">
+                  <NuxtLink class="hover:underline" to="/viz/Legend.story">
+                    Viz chart legend
+                  </NuxtLink>
+                </li>
               </ul>
             </aside>
-            <div class="xl:pl-7.5 xl:max-w-[54rem] 2xl:grow 2xl:max-w-none">
+            <div class="xl:pl-7.5 xl:max-w-[54rem] 2xl:grow 2xl:max-w-none py-4">
               <slot name="main">
                 <NuxtPage :theme="theme" :invertTheme="invert" />
               </slot>
