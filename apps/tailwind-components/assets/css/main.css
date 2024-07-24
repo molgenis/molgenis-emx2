@@ -145,6 +145,9 @@
     --text-color-invalid: var(--color-red-500);
     --text-color-valid: var(--color-green-800);
     --text-color-disabled: var(--color-gray-400);
+    --text-color-required: var(--color-red-500);
+    
+    --text-content-required: "*";
 
     --border-color-button-primary: var(--color-yellow-500);
     --border-color-button-primary-hover: var(--color-yellow-200);

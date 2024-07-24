@@ -64,6 +64,7 @@ public class RDFService {
       Values.iri("http://purl.org/linked-data/cube#dataSet");
   public static final IRI IRI_CONTROLLED_VOCABULARY =
       Values.iri("http://purl.obolibrary.org/obo/NCIT_C48697");
+
   /**
    * SIO:001055 = observing (definition: observing is a process of passive interaction in which one
    * entity makes note of attributes of one or more entities)
@@ -75,9 +76,11 @@ public class RDFService {
       "http://semanticscience.org/resource/SIO_000115";
   public static final IRI IRI_OBSERVATION =
       Values.iri("http://purl.org/linked-data/cube#Observation");
+
   /** NCIT:C95637 = Coded Value Data Type */
   public static final IRI IRI_CODED_VALUE_DATATYPE =
       Values.iri("http://purl.obolibrary.org/obo/NCIT_C95637");
+
   /** SIO:000750 = database */
   public static final IRI IRI_DATABASE =
       Values.iri("http://semanticscience.org/resource/SIO_000750");
@@ -87,6 +90,7 @@ public class RDFService {
 
   private final WriterConfig config;
   private final RDFFormat rdfFormat;
+
   /**
    * The baseURL is the URL at which MOLGENIS is deployed, include protocol and port (if deviating
    * from the protocol default port). This is used because we need to be able to refer to different
@@ -389,25 +393,20 @@ public class RDFService {
       case DATETIME, DATETIME_ARRAY -> CoreDatatype.XSD.DATETIME;
       case DECIMAL, DECIMAL_ARRAY -> CoreDatatype.XSD.DECIMAL;
       case EMAIL,
-          EMAIL_ARRAY,
-          HEADING,
-          JSONB,
-          JSONB_ARRAY,
-          STRING,
-          STRING_ARRAY,
-          TEXT,
-          TEXT_ARRAY,
-          UUID,
-          UUID_ARRAY,
-          AUTO_ID -> CoreDatatype.XSD.STRING;
-      case FILE,
-          HYPERLINK,
-          HYPERLINK_ARRAY,
-          ONTOLOGY,
-          ONTOLOGY_ARRAY,
-          REF,
-          REF_ARRAY,
-          REFBACK -> CoreDatatype.XSD.ANYURI;
+              EMAIL_ARRAY,
+              HEADING,
+              JSONB,
+              JSONB_ARRAY,
+              STRING,
+              STRING_ARRAY,
+              TEXT,
+              TEXT_ARRAY,
+              UUID,
+              UUID_ARRAY,
+              AUTO_ID ->
+          CoreDatatype.XSD.STRING;
+      case FILE, HYPERLINK, HYPERLINK_ARRAY, ONTOLOGY, ONTOLOGY_ARRAY, REF, REF_ARRAY, REFBACK ->
+          CoreDatatype.XSD.ANYURI;
       case INT, INT_ARRAY -> CoreDatatype.XSD.INT;
       case LONG, LONG_ARRAY -> CoreDatatype.XSD.LONG;
       case PERIOD, PERIOD_ARRAY -> CoreDatatype.XSD.DURATION;
@@ -636,33 +635,42 @@ public class RDFService {
       return List.of();
     }
     return switch (xsdType) {
-      case BOOLEAN -> Arrays.stream(row.getBooleanArray(column.getName()))
-          .map(value -> (Value) literal(value))
-          .toList();
-      case DATE -> Arrays.stream(row.getDateArray(column.getName()))
-          .map(value -> (Value) literal(value.toString(), xsdType))
-          .toList();
-      case DATETIME -> Arrays.stream(row.getDateTimeArray(column.getName()))
-          .map(value -> (Value) literal(dateTimeFormatter.format(value), xsdType))
-          .toList();
-      case DECIMAL -> Arrays.stream(row.getDecimalArray(column.getName()))
-          .map(value -> (Value) literal(value))
-          .toList();
-      case STRING -> Arrays.stream(row.getStringArray(column.getName()))
-          .map(value -> (Value) literal(value))
-          .toList();
-      case ANYURI -> Arrays.stream(row.getStringArray(column.getName()))
-          .map(value -> (Value) encodedIRI(value))
-          .toList();
-      case INT -> Arrays.stream(row.getIntegerArray(column.getName()))
-          .map(value -> (Value) literal(value))
-          .toList();
-      case LONG -> Arrays.stream(row.getLongArray(column.getName()))
-          .map(value -> (Value) literal(value))
-          .toList();
-      case DURATION -> Arrays.stream(row.getPeriodArray(column.getName()))
-          .map(value -> (Value) literal(value))
-          .toList();
+      case BOOLEAN ->
+          Arrays.stream(row.getBooleanArray(column.getName()))
+              .map(value -> (Value) literal(value))
+              .toList();
+      case DATE ->
+          Arrays.stream(row.getDateArray(column.getName()))
+              .map(value -> (Value) literal(value.toString(), xsdType))
+              .toList();
+      case DATETIME ->
+          Arrays.stream(row.getDateTimeArray(column.getName()))
+              .map(value -> (Value) literal(dateTimeFormatter.format(value), xsdType))
+              .toList();
+      case DECIMAL ->
+          Arrays.stream(row.getDecimalArray(column.getName()))
+              .map(value -> (Value) literal(value))
+              .toList();
+      case STRING ->
+          Arrays.stream(row.getStringArray(column.getName()))
+              .map(value -> (Value) literal(value))
+              .toList();
+      case ANYURI ->
+          Arrays.stream(row.getStringArray(column.getName()))
+              .map(value -> (Value) encodedIRI(value))
+              .toList();
+      case INT ->
+          Arrays.stream(row.getIntegerArray(column.getName()))
+              .map(value -> (Value) literal(value))
+              .toList();
+      case LONG ->
+          Arrays.stream(row.getLongArray(column.getName()))
+              .map(value -> (Value) literal(value))
+              .toList();
+      case DURATION ->
+          Arrays.stream(row.getPeriodArray(column.getName()))
+              .map(value -> (Value) literal(value))
+              .toList();
       default -> throw new MolgenisException("XSD type formatting not supported for: " + xsdType);
     };
   }
