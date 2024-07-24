@@ -153,7 +153,7 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
       filtersStore.filters
     )) {
       if (!filterValue) continue;
-      if (! Array.isArray(filterValue)) continue;
+      if (!Array.isArray(filterValue)) continue;
       humanReadableString += humanReadableStart[filterName];
 
       if (filterName === "search") {
