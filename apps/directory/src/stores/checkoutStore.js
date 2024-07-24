@@ -159,7 +159,6 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
       if (filterName === "search") {
         humanReadableString += ` ${filterValue}`;
       } else {
-        console.log(filterValue);
         humanReadableString += ` ${filterValue
           .map((fv) => fv.text)
           .join(", ")}`;
