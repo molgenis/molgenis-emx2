@@ -6,6 +6,7 @@
           format="svg"
           src="~/assets/img/molgenis-logo-blue-small.svg"
           alt="molgenis, open source software"
+          class="w-30"
         />
         <span class="sr-only">Home</span>
       </NuxtLink>
@@ -20,34 +21,61 @@
         <span>Theme</span>
         <IconsCaretDown class="w-5 inline-block" />
       </button>
-      <fieldset
+      <div
         class="absolute mt-4 z-50 bg-white py-2 px-4 rounded"
         v-show="isExpanded"
       >
-        <legend class="sr-only">select a theme</legend>
-        <div class="px-1">
-          <input
-            class="hover:cursor-pointer mr-2"
-            id="default-theme"
-            type="radio"
-            v-model="theme"
-            value=""
-          />
-          <label class="hover:cursor-pointer" for="default-theme">
-            Default
-          </label>
-        </div>
-        <div class="px-1">
-          <input
-            class="hover:cursor-pointer mr-2"
-            id="umcg-theme"
-            type="radio"
-            v-model="theme"
-            value="umcg"
-          />
-          <label class="hover:cursor-pointer" for="umcg-theme"> Umcg </label>
-        </div>
-      </fieldset>
+        <fieldset class="mb-2">
+          <legend class="text-current text-body-sm">Select a theme</legend>
+          <div class="px-1">
+            <input
+              class="hover:cursor-pointer mr-2"
+              id="default-theme"
+              type="radio"
+              v-model="theme"
+              value=""
+            />
+            <label class="hover:cursor-pointer" for="default-theme">
+              Default
+            </label>
+          </div>
+          <div class="px-1">
+            <input
+              class="hover:cursor-pointer mr-2"
+              id="umcg-theme"
+              type="radio"
+              v-model="theme"
+              value="umcg"
+            />
+            <label class="hover:cursor-pointer" for="umcg-theme"> Umcg </label>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend class="text-current text-body-sm">Set inversion</legend>
+          <div class="px-1">
+            <input
+              id="invert-off"
+              class="hover:cursor-pointer mr-2"
+              type="radio"
+              :value="false"
+              name="invert"
+              v-model="invert"
+            />
+            <label class="hover:cursor-pointer" for="invert-off">Off</label>
+          </div>
+          <div class="px-1">
+            <input
+              id="invert-on"
+              class="hover:cursor-pointer mr-2"
+              type="radio"
+              :value="true"
+              name="invert"
+              v-model="invert"
+            />
+            <label class="hover:cursor-pointer" for="invert-on">On</label>
+          </div>
+        </fieldset>
+      </div>
     </div>
   </nav>
   <div
@@ -75,7 +103,7 @@
             </aside>
             <div class="xl:pl-7.5 xl:max-w-[54rem] 2xl:grow 2xl:max-w-none">
               <slot name="main">
-                <NuxtPage />
+                <NuxtPage :theme="theme" :invertTheme="invert" />
               </slot>
             </div>
           </div>
@@ -90,6 +118,10 @@ import { ref } from "vue";
 
 const theme = useCookie("theme", {
   default: () => "",
+});
+
+const invert = useCookie("invert", {
+  default: () => false,
 });
 
 useHead({
@@ -121,7 +153,9 @@ const stories = Object.keys(modules)
       .filter((path: string) => path !== "" && path !== name)[0];
     const nameCleaned: string = name.replace(".story.vue", "");
     return {
-      name: dir ? `${dir.charAt(0).toUpperCase() + dir.slice(1)}${nameCleaned}` : nameCleaned,
+      name: dir
+        ? `${dir.charAt(0).toUpperCase() + dir.slice(1)}${nameCleaned}`
+        : nameCleaned,
       dir: dir,
       path: path.replace(".vue", ""),
     };
