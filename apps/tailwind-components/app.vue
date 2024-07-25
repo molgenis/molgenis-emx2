@@ -1,21 +1,3 @@
-<script setup lang="ts">
-const theme = useCookie("theme", {
-  default: () => "",
-});
-
-useHead({
-  title: "Tailwind components",
-  meta: [
-    {
-      name: "Tailwind components",
-      content: "Components",
-    },
-  ],
-  htmlAttrs: {
-    "data-theme": theme,
-  },
-});
-</script>
 <template>
   <div
     class="overflow-x-clip min-h-screen bg-base-gradient relative after:bg-app-wrapper after:w-full after:h-[166px] after:top-0 after:absolute after:opacity-20 after:z-20 xl:after:hidden"
@@ -102,7 +84,7 @@ useHead({
                   </NuxtLink>
                 </li>
                 <li class="py-2">
-                  <NuxtLink class="hover:underline" to="/viz/Legend.story">
+                  <NuxtLink class="hover:underline" to="/viz/ChartLegend.story">
                     Viz chart legend
                   </NuxtLink>
                 </li>
@@ -149,3 +131,22 @@ useHead({
     </div>
   </div>
 </template>
+
+<script setup lang="ts">
+const theme = useCookie("theme", {
+  default: () => "",
+});
+
+useHead({
+  title: "Tailwind components",
+  meta: [
+    {
+      name: "Tailwind components",
+      content: "Components",
+    },
+  ],
+  htmlAttrs: {
+    "data-theme": theme,
+  },
+});
+</script>

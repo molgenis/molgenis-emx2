@@ -16,7 +16,7 @@ const legendData = {
     <h4 class="text-heading-2xl">Legend Item Marker Component</h4>
     <p>
       The legend component has one child component:
-      <code>vizLegendMarker</code>. This component allows you to change the
+      <code>ChartLegendMarker</code>. This component allows you to change the
       symbol for each legend item. You can either render the markers as a square
       or cirle. This is useful for visually linking chart types with the
       legends. For example, if you are creating a scatter plot, it is better to
@@ -25,26 +25,26 @@ const legendData = {
       can be set by using the <code>fill</code> parameter.
     </p>
     <pre class="block bg-gray-200 p-1 mb-3 whitespace-pre-line">
-      {{  `<vizLegendMarker marker-type="circle" fill="orange"/>` }}
-      {{  `<vizLegendMarker marker-type="square" fill="orange"/>` }}
+      {{  `<ChartLegendMarker marker-type="circle" fill="orange"/>` }}
+      {{  `<ChartLegendMarker marker-type="square" fill="orange"/>` }}
     </pre>
     <div class="flex flex-row gap-1 p-1 my-4">
-      <vizLegendMarker marker-type="circle" fill="orange" />
-      <vizLegendMarker marker-type="square" fill="orange" />
+      <ChartLegendMarker marker-type="circle" fill="orange" />
+      <ChartLegendMarker marker-type="square" fill="orange" />
     </div>
     <h4 class="text-heading-2xl">The Legend Component</h4>
     <p>
-      The purpose of the <code>vizLegend</code> component is to provide context
-      for charts that display grouped data. The color palette in the chart and
-      the legend should be the same. The input data is an object containing one
-      or more key-value pairs. The key must by the group name and the value is
-      the color. For example:
+      The purpose of the <code>ChartLegend</code> component is to provide
+      context for charts that display grouped data. The color palette in the
+      chart and the legend should be the same. The input data is an object
+      containing one or more key-value pairs. The key must by the group name and
+      the value is the color. For example:
     </p>
     <pre class="block bg-gray-200 p-1 mb-3 whitespace-normal">
       {{ legendData }}
     </pre>
     <p>This produces the following legend.</p>
-    <vizLegend
+    <ChartLegend
       legend-id="default-legend"
       :data="legendData"
       :stack-legend="false"
@@ -53,9 +53,9 @@ const legendData = {
       The legend can also be stacked using <code>:stack-legend="true"</code>
     </p>
     <pre class="block bg-gray-200 p-1 mb-3 whitespace-normal">
-      {{ `<vizLegend legend-id="default-legend" :data="legendData" :stack-legend="true"/>` }}
+      {{ `<ChartLegend legend-id="default-legend" :data="legendData" :stack-legend="true"/>` }}
     </pre>
-    <vizLegend
+    <ChartLegend
       legend-id="default-legend"
       :data="legendData"
       :stack-legend="true"
@@ -77,7 +77,7 @@ const legendData = {
     </p>
     <div class="grid grid-cols-2">
       <div>
-        <vizLegend
+        <ChartLegend
           legend-id="interactive-legend-hovering"
           :data="legendData"
           :stack-legend="true"
@@ -97,7 +97,7 @@ const legendData = {
     </p>
     <div class="grid grid-cols-2">
       <div class>
-        <VizLegend
+        <ChartLegend
           legend-id="interactive-legend-clicks"
           :data="legendData"
           :stack-legend="true"
@@ -120,7 +120,7 @@ const legendData = {
     </p>
     <div class="grid grid-cols-2">
       <div class>
-        <VizLegend
+        <ChartLegend
           legend-id="interactive-legend-clicks-single"
           :data="legendData"
           :stack-legend="true"
