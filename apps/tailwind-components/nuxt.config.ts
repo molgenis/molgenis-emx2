@@ -7,6 +7,11 @@ export default defineNuxtConfig({
     configPath: '~/tailwind.config.js'
   },
   ssr: process.env.NUXT_PUBLIC_IS_SSR === 'false' ? false : true,
+  router: {
+    options: process.env.NUXT_PUBLIC_IS_SSR === 'false' ?{
+      hashMode: true
+    }  : {}
+  },
   nitro: {
     prerender: {
       ignore: ['/_tailwind/']
