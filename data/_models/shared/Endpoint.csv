@@ -4,7 +4,7 @@ Endpoint,,id,string,1,TRUE,,,,,,"http://purl.obolibrary.org/obo/NCIT_C164337,htt
 Endpoint,,type,hyperlink_array,,,,,,,,http://www.w3.org/1999/02/22-rdf-syntax-ns#type,This row is an instance of one or more of these class(es) other than the Endpoint table.,FAIRDataPoint
 Endpoint,,name,string_array,,,,,,,,http://purl.org/dc/terms/title,A name given to the resource.,"Beacon v2,FAIRDataPoint"
 Endpoint,,description,text_array,,,,,,,,http://purl.org/dc/terms/description,An account of the resource.,"Beacon v2,FAIRDataPoint"
-Endpoint,,publisher,string,,,,,,,,http://purl.org/dc/terms/publisher,An entity responsible for making the resource available.,"Beacon v2,FAIRDataPoint"
+Endpoint,,publisher,ref_array,,,,Agent,,,,http://purl.org/dc/terms/publisher,An entity responsible for making the resource available.,"Beacon v2,FAIRDataPoint"
 Endpoint,,language,hyperlink_array,,,,,,,,http://purl.org/dc/terms/language,A language of the resource.,FAIRDataPoint
 Endpoint,,license,hyperlink,,,,,,,,http://purl.org/dc/terms/license,A legal document giving official permission to do something with the resource.,FAIRDataPoint
 Endpoint,,conformsTo,hyperlink,,,,,,,,http://purl.org/dc/terms/conformsTo,An established standard to which the described resource conforms.,FAIRDataPoint
@@ -19,3 +19,6 @@ Endpoint,,metadataIdentifier,hyperlink,,,,,,,,https://w3id.org/fdp/fdp-o#metadat
 Endpoint,,metadataCatalog,ref_array,,,,Catalog,,,,https://w3id.org/fdp/fdp-o#metadataCatalog,"With the definition of the FDP as a type of metadata service that serves metadata catalogs, the relation between the Metadata Service and dcat:Catalog is represented by this predicate.",FAIRDataPoint
 Endpoint,,organisation,ontology,,,,Organisations,,,,http://purl.obolibrary.org/obo/NCIT_C25412,Name of the organisation. E.g. University Medical Center Groningen,Beacon v2
 Endpoint,,alternativeUrl,,,,,,,,,"http://purl.org/dc/terms/alternative, http://schema.org/url",Alternative endpoint URL.,Beacon v2
+Agent,,,,,,,,,,,"http://xmlns.com/foaf/0.1/Agent","An agent (eg. person, group, software or physical artifact).",FAIRDataPoint
+Agent,,name,string,1,TRUE,,,,,,"http://xmlns.com/foaf/0.1/name",A name for some thing.,FAIRDataPoint
+Agent,,logo,hyperlink,,,,,,,,"http://xmlns.com/foaf/0.1/logo",A logo representing some thing.,FAIRDataPoint
