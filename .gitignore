@@ -61,3 +61,6 @@ apps/nuxt3-ssr/utils/fingerprint.js
 playwright-report
 CHANGELOG.md
 e2e/.auth/
+
+#docker compose
+.env

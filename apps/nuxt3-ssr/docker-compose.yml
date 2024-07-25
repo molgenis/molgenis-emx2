@@ -1,0 +1,48 @@
+services:
+  nginx:
+    image: nginx:1.26.0-alpine
+    container_name: reverse-proxy
+    env_file: .env
+    volumes:
+      - ./default.conf.template:/etc/nginx/templates/default.conf.template
+    ports:
+    - ${NGINX_PORT}:${NGINX_PORT}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: on-failure
+  postgres:
+    image: postgres:15-alpine
+    container_name: database
+    env_file: .env
+    ports:
+    - ${POSTGRES_PORT}:${POSTGRES_PORT}
+    volumes:
+    - ./psql_data:/var/lib/postgresql/data
+    - ../../.docker/initdb.sql:/docker-entrypoint-initdb.d/initdb.sql
+    command: -c 'shared_buffers=256MB' -c 'max_locks_per_transaction=1024'
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER"]
+      interval: 5s
+      timeout: 60s
+      retries: 5
+  molgenis-emx2:
+    image: molgenis/molgenis-emx2
+    container_name: molgenis-emx2
+    env_file: .env
+    ports:
+    - ${MOLGENIS_PORT}:${MOLGENIS_PORT}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: on-failure
+  molgenis-ssr-catalogue:
+    image: molgenis/ssr-catalogue
+    container_name: molgenis-ssr-catalogue
+    env_file: .env
+    ports:
+    - ${NUXT_PORT}:${NUXT_PORT}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: on-failure
