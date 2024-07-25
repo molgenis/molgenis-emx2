@@ -200,7 +200,6 @@ module.exports = {
         "invalid": "var(--text-color-invalid)",
         "valid": "var(--text-color-valid)",
         "disabled": "var(--text-color-disabled)",
-        "required": "var(--text-color-required)",
       }),
       borderColor: ({ theme }) => ({
         "button-primary": "var(--border-color-button-primary)",
@@ -237,10 +236,7 @@ module.exports = {
       },
       outlineColor: {
         "select": "var(--outline-color-select)",
-      },
-      content: ({ theme }) => ({
-        "required": "var(--text-content-required)",
-      })
+      }
     },
   },
   plugins: ["@tailwindcss/typography", "@tailwindcss/forms"],
