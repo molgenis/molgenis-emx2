@@ -4,6 +4,7 @@ import static org.molgenis.emx2.Constants.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Period;
 import java.util.Objects;
 
 public enum ColumnType {
@@ -31,6 +32,8 @@ public enum ColumnType {
   DATE_ARRAY(LocalDate[].class, ORDINAL_OPERATORS),
   DATETIME(LocalDateTime.class, ORDINAL_OPERATORS),
   DATETIME_ARRAY(LocalDateTime[].class, ORDINAL_OPERATORS),
+  PERIOD(Period.class, ORDINAL_OPERATORS),
+  PERIOD_ARRAY(Period[].class, ORDINAL_OPERATORS),
 
   // COMPOSITE
   JSONB(org.jooq.JSONB.class),
@@ -154,5 +157,12 @@ public enum ColumnType {
 
   public boolean isAtomicType() {
     return !isFile() && !isReference() && !isHeading();
+  }
+
+  public boolean isStringyType() {
+    return STRING.equals(getBaseType())
+        || STRING_ARRAY.equals(getBaseType())
+        || TEXT.equals(getBaseType())
+        || TEXT_ARRAY.equals(getBaseType());
   }
 }

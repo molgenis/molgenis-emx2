@@ -11,7 +11,14 @@ const catalogueRouteParam = route.params.catalogue as string;
 const { key } = useQueryParams();
 const variableFilter = buildFilterFromKeysObject(key);
 const cohortsFilter = scoped
-  ? { networks: { equals: [{ id: catalogueRouteParam }] } }
+  ? {
+      _or: [
+        { networks: { equals: [{ id: catalogueRouteParam }] } },
+        {
+          networks: { partOfNetworks: { id: { equals: catalogueRouteParam } } },
+        },
+      ],
+    }
   : {};
 
 type VariableDetailsWithMapping = IVariable &
@@ -41,9 +48,10 @@ crumbs[
 ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/variables`;
 
 const cohortsWithMapping = computed(() => {
+  if (!cohorts.value) return [];
   return cohorts.value
     .map((cohort) => {
-      const status = calcIndividualVariableHarmonizationStatus(variable.value, [
+      const status = calcIndividualVariableHarmonisationStatus(variable.value, [
         cohort,
       ])[0];
       return {
@@ -62,17 +70,17 @@ let tocItems = reactive([{ label: "Description", id: "description" }]);
 
 if (cohortsWithMapping.value.length > 0) {
   tocItems.push({
-    label: "Harmonization status per Cohort",
-    id: "harmonization-per-cohort",
+    label: "Harmonisation status per Cohort",
+    id: "harmonisation-per-cohort",
   });
   tocItems.push({
-    label: "Harmonization details per Cohort",
-    id: "harmonization-details-per-cohort",
+    label: "Harmonisation details per Cohort",
+    id: "harmonisation-details-per-cohort",
   });
 } else {
   tocItems.push({
-    label: "Harmonization",
-    id: "harmonization-details-no-mapping",
+    label: "Harmonisation",
+    id: "harmonisation-details-no-mapping",
   });
 }
 
@@ -124,16 +132,16 @@ useHead({ title: titlePrefix + variable.value.name });
 
         <ContentBlock
           v-if="cohortsWithMapping.length > 0"
-          id="harmonization-per-cohort"
-          title="Harmonization status per Cohort"
-          description="Overview of the harmonization status per Cohort"
+          id="harmonisation-per-cohort"
+          title="Harmonisation status per Cohort"
+          description="Overview of the harmonisation status per Cohort"
         >
-          <HarmonizationGridPerVariable
+          <HarmonisationGridPerVariable
             v-if="isRepeating"
             :cohorts-with-mapping="cohortsWithMapping"
             :variable="variable"
           />
-          <HarmonizationListPerVariable
+          <HarmonisationListPerVariable
             v-else
             :cohortsWithMapping="cohortsWithMapping"
           />
@@ -141,11 +149,11 @@ useHead({ title: titlePrefix + variable.value.name });
 
         <ContentBlock
           v-if="cohortsWithMapping.length > 0"
-          id="harmonization-details-per-cohort"
-          title="Harmonization details per Cohort"
-          description="Select a Cohort to see the details of the harmonization"
+          id="harmonisation-details-per-cohort"
+          title="Harmonisation details per Cohort"
+          description="Select a Cohort to see the details of the harmonisation"
         >
-          <HarmonizationVariableDetails
+          <HarmonisationVariableDetails
             :variable="variable"
             :cohortsWithMapping="cohortsWithMapping"
           />
@@ -153,8 +161,8 @@ useHead({ title: titlePrefix + variable.value.name });
 
         <ContentBlock
           v-if="cohortsWithMapping.length === 0"
-          id="harmonization-details-no-mapping"
-          title="Harmonization"
+          id="harmonisation-details-no-mapping"
+          title="Harmonisation"
           description="No mapping found for this variable"
         >
         </ContentBlock>

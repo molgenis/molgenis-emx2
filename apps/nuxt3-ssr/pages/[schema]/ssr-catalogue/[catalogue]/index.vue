@@ -87,13 +87,27 @@ const query = `query CataloguePage($networksFilter:NetworksFilter,$variablesFilt
         }
       }`;
 
-const modelFilter = scoped ? { id: { equals: catalogueRouteParam } } : {};
+const modelFilter = scoped
+  ? {
+      _or: [
+        { id: { equals: catalogueRouteParam } },
+        { partOfNetworks: { id: { equals: catalogueRouteParam } } },
+      ],
+    }
+  : {};
 const networksFilter = scoped
   ? { id: { equals: catalogueRouteParam } }
   : undefined;
 
 const cohortsFilter = scoped
-  ? { networks: { id: { equals: catalogueRouteParam } } }
+  ? {
+      _or: [
+        { networks: { id: { equals: catalogueRouteParam } } },
+        {
+          networks: { partOfNetworks: { id: { equals: catalogueRouteParam } } },
+        },
+      ],
+    }
   : undefined;
 const subcohortsFilter = scoped
   ? {
@@ -104,7 +118,14 @@ const subcohortsFilter = scoped
   : undefined;
 
 const dataSourcesFilter = scoped
-  ? { networks: { id: { equals: catalogueRouteParam } } }
+  ? {
+      _or: [
+        { networks: { id: { equals: catalogueRouteParam } } },
+        {
+          networks: { partOfNetworks: { id: { equals: catalogueRouteParam } } },
+        },
+      ],
+    }
   : undefined;
 
 const { data, error } = await useAsyncData<any, IMgError>(
@@ -123,16 +144,30 @@ const { data, error } = await useAsyncData<any, IMgError>(
 
     const variablesFilter = scoped
       ? {
-          resource: {
-            mg_tableclass: { like: ["Models"] },
-            id: {
-              equals: models.data.Networks[0].models
-                ? models.data.Networks[0].models.map(
-                    (m: { id: string }) => m.id
-                  )
-                : "no models match so no results expected",
+          _or: [
+            {
+              resource: {
+                mg_tableclass: { like: ["Models"] },
+                id: {
+                  equals: models.data.Networks.map((n) =>
+                    n.models?.map((m: { id: string }) => m.id)
+                  ).flat(),
+                },
+              },
             },
-          },
+            {
+              networkVariables: {
+                network: { id: { equals: catalogueRouteParam } },
+              },
+            },
+            {
+              networkVariables: {
+                network: {
+                  partOfNetworks: { id: { equals: catalogueRouteParam } },
+                },
+              },
+            },
+          ],
         }
       : {
           resource: {
@@ -266,7 +301,7 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
         title="Variables"
         :description="
           getSettingValue('CATALOGUE_LANDING_VARIABLES_TEXT', settings) ||
-          'Harmonized variables'
+          'Harmonised variables'
         "
         :count="data.data.Variables_agg.count"
         :callToAction="

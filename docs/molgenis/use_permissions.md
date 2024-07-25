@@ -4,11 +4,18 @@
 
 Currently we have as standard roles:
 
-* manager - context: schema. Has permissions to assign roles to users in its schema. Can create/change/remove tables and
+* **manager** - context: schema. Has permissions to assign roles to users in its schema. Can create/change/remove tables and
   columns (i.e. change the schema)
-* editor - context: schema. Has permission to insert, update, delete rows in tables. Can NOT change schema.
-* viewer - context: schema. Has permission to view data.
-* aggregator - context: schema. Has permission to count table rows (unless <10), and to view ontology data
+* **editor** - context: schema. Has permission to insert, update, delete rows in tables. Can NOT change schema.
+* **viewer** - context: schema. Has permission to view data.
+* **aggregator** - context: schema. Has permission to count table rows (unless <10), and to view ontology data
+
+In addition we have special roles to allow for specific permissions around aggregation which currently only have effect on graphql and beacon APIs"
+
+* **count** - context: schema. Has permission to count table rows, and to view ontology data
+* **range** - context: schema: Has permission to count table rows, with a step-size of 10 (e.g. 10,20..120,130 etc.), and to view ontology data
+* **exists** - context: schema: Has permission to see if data exists given certain filters, and to view ontology data
+
 
 ## Users can get roles in a schema
 
@@ -37,6 +44,7 @@ When OIDC is enabled, the admin user can bypass the oidc login by using the admi
 route (```[service-location]/apps/central/#/admin```)
 
 ## Enabling OIDC
+MOLGENIS uses pac4j, see https://www.pac4j.org/docs/clients/openid-connect.html explaining some of the settings we expose.
 
 ### To enable OIDC the following environment variables need to be set:
 
@@ -46,6 +54,12 @@ MOLGENIS_OIDC_CLIENT_SECRET // the client secret as set in the authentication pr
 MOLGENIS_OIDC_CLIENT_NAME // the client name as set in the  authentication provider, defaults to MolgenisAuth
 MOLGENIS_OIDC_DISCOVERY_URI // location of authentication provider (with path to relevant service)
 MOLGENIS_OIDC_CALLBACK_URL // public available endpoint for molgenis service to handle the login action ( https://[public server location]/_callback, note the '_callback' is added by the molgenis server )
+```
+
+Optionally:
+```
+MOLGENIS_OIDC_UNSIGNED_TOKEN // boolean indicating if unsigned tokens can be used, i.e. the 'none' algorithm
+
 ```
 
 #### note: if oidc was previously disabled 

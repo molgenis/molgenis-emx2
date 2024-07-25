@@ -1,21 +1,21 @@
 import axios, { AxiosError, AxiosResponse } from "axios";
-import { IRow } from "../Interfaces/IRow";
-import {
+import type {
   IColumn,
-  ITableMetaData,
   ISchemaMetaData,
   ISetting,
+  ITableMetaData,
 } from "meta-data-utils";
+import { IRow } from "../Interfaces/IRow";
 import { deepClone } from "../components/utils";
+import type { aggFunction } from "./IClient";
 import { IClient, INewClient } from "./IClient";
 import { IQueryMetaData } from "./IQueryMetaData";
 import { getColumnIds } from "./queryBuilder";
-import type { aggFunction } from "./IClient";
 
 // application wide cache for schema meta data
 const schemaCache = new Map<string, ISchemaMetaData>();
 
-export { request };
+export { request, fetchSchemaMetaData, convertRowToPrimaryKey };
 const client: IClient = {
   newClient: (schemaId?: string): INewClient => {
     return {
@@ -58,7 +58,7 @@ const client: IClient = {
       fetchRowData: async (
         tableId: string,
         rowId: IRow,
-        expandLevel: number = 1
+        expandLevel: number = 2
       ) => {
         const schemaMetaData = await fetchSchemaMetaData(schemaId);
         const tableMetaData = schemaMetaData.tables.find(
@@ -267,13 +267,13 @@ const fetchTableData = async (
   const expandLevel =
     properties.expandLevel || properties.expandLevel == 0
       ? properties.expandLevel
-      : 1;
+      : 2;
   const search = properties.searchTerms
     ? ',search:"' + properties.searchTerms.trim() + '"'
     : "";
 
   const schemaId = metaData.id;
-  const columnIds = getColumnIds(schemaId, tableId, metaData, expandLevel);
+  const columnIds = await getColumnIds(schemaId, tableId, expandLevel);
   const tableDataQuery = `query ${tableId}( $filter:${tableId}Filter, $orderby:${tableId}orderby ) {
         ${tableId}(
           filter:$filter,

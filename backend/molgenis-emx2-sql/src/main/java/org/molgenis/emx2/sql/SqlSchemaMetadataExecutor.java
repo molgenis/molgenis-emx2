@@ -25,21 +25,32 @@ class SqlSchemaMetadataExecutor {
     step.execute();
 
     String schemaName = schema.getName();
+    String exists = getRolePrefix(schemaName) + EXISTS;
+    String range = getRolePrefix(schemaName) + RANGE;
     String aggregator = getRolePrefix(schemaName) + AGGREGATOR;
+    String count = getRolePrefix(schemaName) + COUNT;
     String viewer = getRolePrefix(schemaName) + VIEWER;
     String editor = getRolePrefix(schemaName) + EDITOR;
     String manager = getRolePrefix(schemaName) + MANAGER;
-    String owner = getRolePrefix(schemaName) + Privileges.OWNER;
+    String owner = getRolePrefix(schemaName) + OWNER;
 
+    db.addRole(exists);
+    db.addRole(range);
     db.addRole(aggregator);
+    db.addRole(count);
     db.addRole(viewer);
     db.addRole(editor);
     db.addRole(manager);
     db.addRole(owner);
 
-    // make viewer also aggregator
-    db.getJooq().execute("GRANT {0} TO {1}", name(aggregator), name(viewer));
-
+    // grant range role also exists role
+    db.getJooq().execute("GRANT {0} TO {1}", name(exists), name(range));
+    // grant aggregator role also exists role
+    db.getJooq().execute("GRANT {0} TO {1}", name(range), name(aggregator));
+    // make counter also aggregator
+    db.getJooq().execute("GRANT {0} TO {1}", name(aggregator), name(count));
+    // make viewer also counter
+    db.getJooq().execute("GRANT {0} TO {1}", name(count), name(viewer));
     // make editor also viewer
     db.getJooq().execute("GRANT {0} TO {1}", name(viewer), name(editor));
 
@@ -67,8 +78,8 @@ class SqlSchemaMetadataExecutor {
     db.getJooq().execute("GRANT {0} TO {1}", name(manager), name(sessionUser));
 
     // grant the permissions
-    db.getJooq()
-        .execute("GRANT USAGE ON SCHEMA {0} TO {1}", name(schema.getName()), name(aggregator));
+    db.getJooq().execute("GRANT USAGE ON SCHEMA {0} TO {1}", name(schema.getName()), name(exists));
+    // grant the permissions
     db.getJooq().execute("GRANT ALL ON SCHEMA {0} TO {1}", name(schema.getName()), name(manager));
 
     MetadataUtils.saveSchemaMetadata(db.getJooq(), schema);

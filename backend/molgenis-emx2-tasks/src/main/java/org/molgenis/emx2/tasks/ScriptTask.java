@@ -10,6 +10,7 @@ import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.slf4j.Logger;
@@ -36,7 +37,11 @@ public class ScriptTask extends Task<ScriptTask> {
     this.script(scriptMetadata.getString("script"))
         .outputFileExtension(scriptMetadata.getString("outputFileExtension"))
         .dependencies(scriptMetadata.getString("dependencies"))
-        .cronExpression(scriptMetadata.getString("cron"));
+        .cronExpression(scriptMetadata.getString("cron"))
+        .cronUserName(scriptMetadata.getString("cronUser"))
+        .disabled(
+            !scriptMetadata.isNull("disabled", ColumnType.BOOL)
+                && scriptMetadata.getBoolean("disabled"));
   }
 
   @Override

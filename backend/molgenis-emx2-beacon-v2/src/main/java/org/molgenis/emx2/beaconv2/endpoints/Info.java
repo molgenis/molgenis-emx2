@@ -1,45 +1,39 @@
 package org.molgenis.emx2.beaconv2.endpoints;
 
-import static org.molgenis.emx2.rdf.RDFUtils.extractHost;
-import static org.molgenis.emx2.rdf.RDFUtils.getURI;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.schibsted.spt.data.jslt.Expression;
+import com.schibsted.spt.data.jslt.Parser;
+import java.util.List;
+import org.molgenis.emx2.*;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import java.net.URI;
-import java.net.URISyntaxException;
-import org.molgenis.emx2.beaconv2.common.Meta;
-import org.molgenis.emx2.beaconv2.endpoints.info.InfoResponse;
-import spark.Request;
-
-@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class Info {
 
-  private String $schema;
-  private Meta meta;
-  private InfoResponse response;
+  public static final String ENDPOINT_TABLE = "Endpoint";
+  public static final String JSLT_PATH = "informational/info.jslt";
 
-  public Info() {
-    this.$schema = "../beaconInfoResponse.json";
-    this.meta = new Meta("../beaconInfoResponse.json", "info");
-    this.response = new InfoResponse("unknown host");
+  private final Database database;
+
+  public Info(Database database) {
+    this.database = database;
   }
 
-  public Info(Request request) throws URISyntaxException {
-    this.$schema = "../beaconInfoResponse.json";
-    this.meta = new Meta("../beaconInfoResponse.json", "info");
-    URI requestURI = getURI(request.url());
-    String host = extractHost(requestURI);
-    this.response = new InfoResponse(host);
+  public JsonNode getResponse(Schema schema) {
+    JsonNode info = getEndpointInfo(schema);
+    Expression jslt = Parser.compileResource(JSLT_PATH);
+    return jslt.apply(info);
   }
 
-  public String get$schema() {
-    return $schema;
-  }
+  private JsonNode getEndpointInfo(Schema schema) {
+    if (schema == null) {
+      throw new MolgenisException("Informational endpoint is only available on schema level");
+    }
+    if (schema.getTable(ENDPOINT_TABLE) == null) return null;
 
-  public Meta getMeta() {
-    return meta;
-  }
+    String query = "SELECT * FROM \"" + schema.getName() + "\".\"" + ENDPOINT_TABLE + "\"";
+    List<Row> rows = database.getSchema(schema.getName()).retrieveSql(query);
 
-  public InfoResponse getResponse() {
-    return response;
+    ObjectMapper mapper = new ObjectMapper();
+    return mapper.valueToTree(rows.get(0).getValueMap());
   }
 }

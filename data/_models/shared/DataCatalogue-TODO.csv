@@ -1,5 +1,5 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
-Version,,,,,,,,,,,,3.13,"DataCatalogue,EMA,SharedStaging,CohortStaging"
+Version,,,,,,,,,,,,3.15,"DataCatalogue,EMA,SharedStaging,CohortStaging"
 Catalogues,,,,,,,,,,,dcat:Catalog,A collection of resources within a network or consortium or about a common topic,DataCatalogue
 Catalogues,,network,ref,1,TRUE,,Networks,,,,,Network or consortium that leads this catalogue,DataCatalogue
 Catalogues,,type,ontology,,TRUE,CatalogueOntologies,CatalogueTypes,,,,dcat:theme,Type of catalogue,DataCatalogue
@@ -113,7 +113,6 @@ RWE resources,,languages,ontology_array,,,CatalogueOntologies,Languages,,,,,"Lan
 RWE resources,,record trigger,text,,,,,,,,,"What triggers the creation of a record in the data bank? e.g., hospital discharge, specialist encounter, dispensation of a medicinal product, recording of a congenital anomaly","DataCatalogue,EMA"
 Cohorts,,collection events,refback,,,,Collection events,,resource,,dcterms:hasPart,List of collection events defined for this resource,"DataCatalogue,CohortStaging"
 Databanks,,unit of observation,text,,,,,,,,,"Based on the prompt, what is the unit of observation of a record (e.g., person, prescription)?",DataCatalogue
-Extended resources,,aggregates,refback,,,,Aggregates,,resource,,,Counts of e.g. samples defined for this resource,"DataCatalogue,CohortStaging"
 Databanks,,multiple entries,bool,,,,,,,,,"Can there be multiple entries for a single person in the data bank? For example, may a person contribute multiple records to the data bank?",DataCatalogue
 RWE resources,,linkage,heading,,,,,,,,,Data linkage,DataCatalogue
 Databanks,,has identifier,bool,,,,,,,,,Is there a unique identifier for a person in the data bank?,DataCatalogue
@@ -289,6 +288,7 @@ Networks,,cohorts,ref_array,,,,Cohorts,,,,dcterms:dataset,,DataCatalogue
 Networks,,models,ref_array,,,,Models,,,,dcterms:dataset,The common data model(s) used by this network,DataCatalogue
 Networks,,studies,refback,,,,Studies,,networks,,dcterms:dataset,,"DataCatalogue,EMA"
 Networks,,networks,ref_array,,,,Networks,,,,dcterms:hasPart,The consortia or networks that are involved in this network,DataCatalogue
+Networks,,partOfNetworks,refback,,,,Networks,,networks,,dcterms:hasPart,The networks this network is a part of,DataCatalogue
 Studies,,study requirements,ontology_array,,,CatalogueOntologies,Study requirements,,,,,Study requirements,"DataCatalogue,EMA"
 Studies,,regulatory procedure number,string,,,,,,,,,"Regulatory procedure number, for RMP Category 1 and 2 studies only","DataCatalogue,EMA"
 Studies,,date of signing funding contract planned,date,,,,,,,,,"Date when funding contract was signed, planned","DataCatalogue,EMA"
@@ -362,6 +362,7 @@ All variables,,label,,,,,,,,,,"Human friendly longer name, if applicable","DataC
 All variables,,collection event,ref,,,,Collection events,,,,,in case of protocolised data collection this defines the moment(s) in time this variable is collected on,"DataCatalogue,CohortStaging"
 All variables,,since version,,,,,,,,,,When this variable was introduced,"DataCatalogue,CohortStaging"
 All variables,,until version,,,,,,,,,,When this variable was removed if applicable,"DataCatalogue,CohortStaging"
+All variables,,network variables,refback,,,,Network variables,,variable,,,,DataCatalogue
 Variables,All variables,,,,,,,,,,,"Definition of a non-repeated variable, or of the first variable from a repeated range","DataCatalogue,CohortStaging"
 Variables,,format,ontology,,,CatalogueOntologies,Formats,,,,,"Data type, e.g. string,int,decimal,date,datetime etc","DataCatalogue,CohortStaging"
 Variables,,unit,ontology,,,CatalogueOntologies,Units,,,,,,"DataCatalogue,CohortStaging"
@@ -457,11 +458,3 @@ DAPs,,is data access provider,ontology_array,,,CatalogueOntologies,DAP informati
 DAPs,,reason access other,text,,,,,,,,,"If reason access is 'other', reason for being able to access (an extract of) the data source",DataCatalogue
 DAPs,,population subset other,text,,,,,,,,,"If 'other' is selected above, describe the subset that can be accessed",DataCatalogue
 DAPs,,process time,int,,,,,,,,,"On average, how many DAYS does it take for approval/access to be obtained following an application for data access?",DataCatalogue
-Aggregates,,,,,,,,,,,,"Resource counts for e.g. samples, clinical data","DataCatalogue,CohortStaging"
-Aggregates,,resource,ref,1,TRUE,,Extended resources,,,,,Resource this sample or data count refers to,"DataCatalogue,CohortStaging"
-Aggregates,,research center,ref,1,TRUE,,Subcohorts,resource,,,,,"DataCatalogue,CohortStaging"
-Aggregates,,primary tumor site,ontology,1,TRUE,CatalogueOntologies,ICDO topologies,,,,,,"DataCatalogue,CohortStaging"
-Aggregates,,metastasis,ontology,1,TRUE,CatalogueOntologies,NoYesUnknown,,,,,Distant metastasis at diagnosis,"DataCatalogue,CohortStaging"
-Aggregates,,year of diagnosis,ontology,1,TRUE,CatalogueOntologies,Time periods,,,,,,"DataCatalogue,CohortStaging"
-Aggregates,,sex,ontology,1,TRUE,CatalogueOntologies,Sex,,,,,,"DataCatalogue,CohortStaging"
-Aggregates,,n,int,,TRUE,,,,,,,count,"DataCatalogue,CohortStaging"

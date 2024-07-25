@@ -21,7 +21,7 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
 
   let facetBiobankColumnDetails = ref([]);
   let biobankCards = ref([]);
-  let waitingForResponse = ref(false);
+  let waitingForResponse = ref(true);
 
   let lastRequestTime = 0;
 
@@ -41,8 +41,10 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
   );
 
   const biobankCardsBiobankCount = computed(() => {
-    return biobankCards.value.filter((biobankCard) => !biobankCard.withdrawn)
-      .length;
+    return (
+      biobankCards.value?.filter((biobankCard) => !biobankCard.withdrawn)
+        .length || 0
+    );
   });
 
   const biobankCardsSubcollectionCount = computed(() => {
@@ -117,7 +119,16 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
 
       /* Update biobankCards only if the result is the most recent one*/
       if (requestTime === lastRequestTime) {
-        biobankCards.value = filterWithdrawn(biobankResult.Biobanks || []);
+        let foundBiobanks = biobankResult.Biobanks;
+        if (
+          filtersStore.hasActiveFilters &&
+          !filtersStore.hasActiveBiobankOnlyFilters
+        ) {
+          foundBiobanks = foundBiobanks?.filter(
+            (biobank) => biobank.collections
+          );
+        }
+        biobankCards.value = filterWithdrawn(foundBiobanks);
         waitingForResponse.value = false;
         filtersStore.bookmarkWaitingForApplication = false;
       }
@@ -213,7 +224,7 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
 });
 
 function filterWithdrawn(biobanks) {
-  let filteredBanks = biobanks.filter((biobank) => !biobank.withdrawn);
+  let filteredBanks = biobanks?.filter((biobank) => !biobank.withdrawn) || [];
   filteredBanks.forEach((biobank) => {
     biobank.collections = biobank.collections?.filter(
       (collection) => !collection.withdrawn

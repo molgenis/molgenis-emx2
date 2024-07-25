@@ -8,9 +8,12 @@ import static org.molgenis.emx2.rdf.RDFUtils.*;
 
 import com.google.common.net.UrlEscapers;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import org.apache.commons.io.IOUtils;
 import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Namespace;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.base.CoreDatatype;
@@ -64,6 +67,9 @@ public class RDFService {
       Values.iri("http://purl.org/linked-data/cube#dataSet");
   public static final IRI IRI_CONTROLLED_VOCABULARY =
       Values.iri("http://purl.obolibrary.org/obo/NCIT_C48697");
+
+  private static final String SETTING_CUSTOM_RDF = "custom_rdf";
+
   /**
    * SIO:001055 = observing (definition: observing is a process of passive interaction in which one
    * entity makes note of attributes of one or more entities)
@@ -75,9 +81,11 @@ public class RDFService {
       "http://semanticscience.org/resource/SIO_000115";
   public static final IRI IRI_OBSERVATION =
       Values.iri("http://purl.org/linked-data/cube#Observation");
+
   /** NCIT:C95637 = Coded Value Data Type */
   public static final IRI IRI_CODED_VALUE_DATATYPE =
       Values.iri("http://purl.obolibrary.org/obo/NCIT_C95637");
+
   /** SIO:000750 = database */
   public static final IRI IRI_DATABASE =
       Values.iri("http://semanticscience.org/resource/SIO_000750");
@@ -87,6 +95,7 @@ public class RDFService {
 
   private final WriterConfig config;
   private final RDFFormat rdfFormat;
+
   /**
    * The baseURL is the URL at which MOLGENIS is deployed, include protocol and port (if deviating
    * from the protocol default port). This is used because we need to be able to refer to different
@@ -148,24 +157,29 @@ public class RDFService {
       final Schema... schemas) {
     try {
       final ModelBuilder builder = new ModelBuilder();
-      builder.setNamespace("rdf", NAMESPACE_RDF);
-      builder.setNamespace("rdfs", NAMESPACE_RDFS);
-      builder.setNamespace("xsd", NAMESPACE_XSD);
-      builder.setNamespace("owl", NAMESPACE_OWL);
-      builder.setNamespace("sio", NAMESPACE_SIO);
-      builder.setNamespace("qb", NAMESPACE_QB);
-      builder.setNamespace("skos", NAMESPACE_SKOS);
-      builder.setNamespace("dcterms", NAMESPACE_DCTERMS);
-      builder.setNamespace("dcat", NAMESPACE_DCAT);
-      builder.setNamespace("foaf", NAMESPACE_FOAF);
-      builder.setNamespace("vcard", NAMESPACE_VCARD);
-      builder.setNamespace("org", NAMESPACE_ORG);
-      builder.setNamespace("fdp-o", NAMESPACE_ORG);
 
+      // Defines if all used schemas have a custom_rdf setting.
+      boolean allIncludeCustomRdf = true;
       // Define the schemas at the start of the document.
       for (final Schema schema : schemas) {
         final Namespace ns = getSchemaNamespace(schema);
         builder.setNamespace(ns);
+        // Adds custom RDF to model.
+        if (schema.hasSetting(SETTING_CUSTOM_RDF)) {
+          addModelToBuilder(
+              builder,
+              Rio.parse(
+                  IOUtils.toInputStream(
+                      schema.getSettingValue(SETTING_CUSTOM_RDF), StandardCharsets.UTF_8),
+                  RDFFormat.TURTLE));
+        } else {
+          allIncludeCustomRdf = false;
+        }
+      }
+
+      // If any of the used schemas do not have custom_rdf set, adds the default ones.
+      if (!allIncludeCustomRdf) {
+        addDefaultPrefixes(builder);
       }
 
       if (table == null) {
@@ -193,6 +207,27 @@ public class RDFService {
     } catch (Exception e) {
       throw new MolgenisException("RDF export failed due to an exception", e);
     }
+  }
+
+  private void addModelToBuilder(ModelBuilder builder, Model model) {
+    model.getNamespaces().forEach(builder::setNamespace);
+    model.forEach(e -> builder.add(e.getSubject(), e.getPredicate(), e.getObject()));
+  }
+
+  private void addDefaultPrefixes(ModelBuilder builder) {
+    builder.setNamespace("rdf", NAMESPACE_RDF);
+    builder.setNamespace("rdfs", NAMESPACE_RDFS);
+    builder.setNamespace("xsd", NAMESPACE_XSD);
+    builder.setNamespace("owl", NAMESPACE_OWL);
+    builder.setNamespace("sio", NAMESPACE_SIO);
+    builder.setNamespace("qb", NAMESPACE_QB);
+    builder.setNamespace("skos", NAMESPACE_SKOS);
+    builder.setNamespace("dcterms", NAMESPACE_DCTERMS);
+    builder.setNamespace("dcat", NAMESPACE_DCAT);
+    builder.setNamespace("foaf", NAMESPACE_FOAF);
+    builder.setNamespace("vcard", NAMESPACE_VCARD);
+    builder.setNamespace("org", NAMESPACE_ORG);
+    builder.setNamespace("fdp-o", NAMESPACE_FDP);
   }
 
   public WriterConfig getConfig() {
@@ -389,27 +424,23 @@ public class RDFService {
       case DATETIME, DATETIME_ARRAY -> CoreDatatype.XSD.DATETIME;
       case DECIMAL, DECIMAL_ARRAY -> CoreDatatype.XSD.DECIMAL;
       case EMAIL,
-          EMAIL_ARRAY,
-          HEADING,
-          JSONB,
-          JSONB_ARRAY,
-          STRING,
-          STRING_ARRAY,
-          TEXT,
-          TEXT_ARRAY,
-          UUID,
-          UUID_ARRAY,
-          AUTO_ID -> CoreDatatype.XSD.STRING;
-      case FILE,
-          HYPERLINK,
-          HYPERLINK_ARRAY,
-          ONTOLOGY,
-          ONTOLOGY_ARRAY,
-          REF,
-          REF_ARRAY,
-          REFBACK -> CoreDatatype.XSD.ANYURI;
+              EMAIL_ARRAY,
+              HEADING,
+              JSONB,
+              JSONB_ARRAY,
+              STRING,
+              STRING_ARRAY,
+              TEXT,
+              TEXT_ARRAY,
+              UUID,
+              UUID_ARRAY,
+              AUTO_ID ->
+          CoreDatatype.XSD.STRING;
+      case FILE, HYPERLINK, HYPERLINK_ARRAY, ONTOLOGY, ONTOLOGY_ARRAY, REF, REF_ARRAY, REFBACK ->
+          CoreDatatype.XSD.ANYURI;
       case INT, INT_ARRAY -> CoreDatatype.XSD.INT;
       case LONG, LONG_ARRAY -> CoreDatatype.XSD.LONG;
+      case PERIOD, PERIOD_ARRAY -> CoreDatatype.XSD.DURATION;
       default -> throw new MolgenisException("ColumnType not mapped: " + columnType);
     };
   }
@@ -635,30 +666,42 @@ public class RDFService {
       return List.of();
     }
     return switch (xsdType) {
-      case BOOLEAN -> Arrays.stream(row.getBooleanArray(column.getName()))
-          .map(value -> (Value) literal(value))
-          .toList();
-      case DATE -> Arrays.stream(row.getDateArray(column.getName()))
-          .map(value -> (Value) literal(value.toString(), xsdType))
-          .toList();
-      case DATETIME -> Arrays.stream(row.getDateTimeArray(column.getName()))
-          .map(value -> (Value) literal(dateTimeFormatter.format(value), xsdType))
-          .toList();
-      case DECIMAL -> Arrays.stream(row.getDecimalArray(column.getName()))
-          .map(value -> (Value) literal(value))
-          .toList();
-      case STRING -> Arrays.stream(row.getStringArray(column.getName()))
-          .map(value -> (Value) literal(value))
-          .toList();
-      case ANYURI -> Arrays.stream(row.getStringArray(column.getName()))
-          .map(value -> (Value) encodedIRI(value))
-          .toList();
-      case INT -> Arrays.stream(row.getIntegerArray(column.getName()))
-          .map(value -> (Value) literal(value))
-          .toList();
-      case LONG -> Arrays.stream(row.getLongArray(column.getName()))
-          .map(value -> (Value) literal(value))
-          .toList();
+      case BOOLEAN ->
+          Arrays.stream(row.getBooleanArray(column.getName()))
+              .map(value -> (Value) literal(value))
+              .toList();
+      case DATE ->
+          Arrays.stream(row.getDateArray(column.getName()))
+              .map(value -> (Value) literal(value.toString(), xsdType))
+              .toList();
+      case DATETIME ->
+          Arrays.stream(row.getDateTimeArray(column.getName()))
+              .map(value -> (Value) literal(dateTimeFormatter.format(value), xsdType))
+              .toList();
+      case DECIMAL ->
+          Arrays.stream(row.getDecimalArray(column.getName()))
+              .map(value -> (Value) literal(value))
+              .toList();
+      case STRING ->
+          Arrays.stream(row.getStringArray(column.getName()))
+              .map(value -> (Value) literal(value))
+              .toList();
+      case ANYURI ->
+          Arrays.stream(row.getStringArray(column.getName()))
+              .map(value -> (Value) encodedIRI(value))
+              .toList();
+      case INT ->
+          Arrays.stream(row.getIntegerArray(column.getName()))
+              .map(value -> (Value) literal(value))
+              .toList();
+      case LONG ->
+          Arrays.stream(row.getLongArray(column.getName()))
+              .map(value -> (Value) literal(value))
+              .toList();
+      case DURATION ->
+          Arrays.stream(row.getPeriodArray(column.getName()))
+              .map(value -> (Value) literal(value))
+              .toList();
       default -> throw new MolgenisException("XSD type formatting not supported for: " + xsdType);
     };
   }

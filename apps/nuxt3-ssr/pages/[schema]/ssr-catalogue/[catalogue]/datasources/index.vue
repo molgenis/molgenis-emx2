@@ -9,12 +9,12 @@ const titlePrefix =
   route.params.catalogue === "all" ? "" : route.params.catalogue + " ";
 useHead({ title: titlePrefix + "Data sources" });
 
-const currentPage = ref(1);
-if (route.query?.page) {
+const currentPage = computed(() => {
   const queryPageNumber = Number(route.query?.page);
-  currentPage.value =
-    typeof queryPageNumber === "number" ? Math.round(queryPageNumber) : 1;
-}
+  return !isNaN(queryPageNumber) && typeof queryPageNumber === "number"
+    ? Math.round(queryPageNumber)
+    : 1;
+});
 let offset = computed(() => (currentPage.value - 1) * pageSize);
 
 const pageFilterTemplate: IFilter[] = [
@@ -111,7 +111,21 @@ const gqlFilter = computed(() => {
 
   // add hard coded page sepsific filters
   if ("all" !== route.params.catalogue) {
-    result["networks"] = { id: { equals: route.params.catalogue } };
+    result = {
+      _and: [
+        result,
+        {
+          _or: [
+            { networks: { id: { equals: route.params.catalogue } } },
+            {
+              networks: {
+                partOfNetworks: { id: { equals: route.params.catalogue } },
+              },
+            },
+          ],
+        },
+      ],
+    };
   }
   return result;
 });
@@ -139,12 +153,9 @@ const numberOfDataSources = computed(
   () => data?.value.data.DataSources_agg?.count || 0
 );
 
-function setCurrentPage(pageNumber: number) {
-  router.push({
-    path: route.path,
-    query: { ...route.query, page: pageNumber },
-  });
-  currentPage.value = pageNumber;
+async function setCurrentPage(pageNumber: number) {
+  await navigateTo({ query: { ...route.query, page: pageNumber } });
+  window.scrollTo({ top: 0 });
 }
 
 function onFilterChange(filters: IFilter[]) {
@@ -156,10 +167,12 @@ function onFilterChange(filters: IFilter[]) {
   });
 }
 
-const activeTabName = ref((route.query.view as string) || "detailed");
+type view = "detailed" | "compact";
+const activeTabName = computed(() => {
+  return (route.query.view as view | undefined) || "detailed";
+});
 
 function onActiveTabChange(tabName: activeTabType) {
-  activeTabName.value = tabName;
   router.push({
     path: route.path,
     query: { ...route.query, view: tabName },
@@ -205,7 +218,17 @@ crumbs[
                 :activeName="activeTabName"
                 @update:activeName="onActiveTabChange"
               />
-              <SearchResultsViewTabsMobile class="flex xl:hidden">
+              <SearchResultsViewTabsMobile
+                class="flex xl:hidden"
+                button-top-label="View"
+                button-top-name="detailed"
+                button-top-icon="view-normal"
+                button-bottom-label="View"
+                button-bottom-name="compact"
+                button-bottom-icon="view-compact"
+                :activeName="activeTabName"
+                @update:activeName="onActiveTabChange"
+              >
                 <FilterSidebar
                   title="Filters"
                   :filters="filters"

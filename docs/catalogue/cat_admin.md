@@ -56,4 +56,9 @@ procedure is to update.
 | 3.3 => 3.4  | to do ...| |
 | 3.4 => 3.5  | to do ...| |
 | 3.5 => 3.6  | RWE resources.population disease to Data resources.population disease. Add Data resources.population oncology topology, Data resources.population oncology morphology, Data resources.informed consent type. Change columnType Cohorts.inclusion criteria to ontology_array, add Cohorts.inclusion criteria other. To update, update molgenis.csv and move information under Cohorts.inclusion criteria to Cohorts.inclusion criteria other. | |
-| 3.6 => 3.7  | Delete Resource organisations table. Move DAPs.access level, DAPs.access completeness, DAPs.access permission, DAPs.reason access to one checklist under DAPs.is resource provider: DAP information. To update, update molgenis.csv and move information in Resource organisations to DAPs, and move information from separate removed columns to DAPs.is resource provider | |
+| 3.6 => 3.7  | Delete Resource organisations table. Move DAPs.access level, DAPs.access completeness, DAPs.access permission, DAPs.reason access to one checklist under DAPs.is resource provider: DAP information. To update, update molgenis.csv and move information in Resource organisations to DAPs, and move information from separate removed columns to DAPs.is resource provider. | |
+| 3.7 => 3.8  | Add Network.networks ref_array and Networks.is_catalogue bool | |
+| 3.8 => 3.9  | Delete Network.is_catalogue, add Catalogues table | |
+| 3.9 => 3.10  | to do | |
+| 3.10 => 3.11  | Publications.doi to hyperlink. To update, download data, edit Publications.doi data to hyperlink, reupload data with data model version 3.12.| |
+| 3.11 => 3.12  | Add Aggregates table. Upload new data model to update. | |

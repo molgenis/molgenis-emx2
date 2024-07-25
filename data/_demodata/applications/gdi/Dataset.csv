@@ -1,0 +1,6 @@
+id,title,description,belongsToCatalog
+B1MG-RD-files-fastq,B1MG RD FastQ files,Location and availability of FastQ files,GDI
+B1MG-RD-files-ped,B1MG RD PED files,Location and availability of PED files,GDI
+B1MG-RD-files-phenopacket,B1MG RD Phenopacket files,Location and availability of Phenopacket files,GDI
+B1MG-RD-files-vcf,B1MG RD VCF files,Location and availability of VCF files,GDI
+B1MG-RD-files-individuals,B1MG RD Individuals,Clinical characteristics of patients including diagnoses and phenotypic features,GDI

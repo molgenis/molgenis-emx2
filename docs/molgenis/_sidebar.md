@@ -1,4 +1,4 @@
-[MOLGENIS platform guide](use.md)
+#### [Platform guide](use.md)
 
 - **User guide**
     - [Introduction](use.md)
@@ -19,6 +19,7 @@
     - [Admin](use_global_settings.md)
     - [Analytics](use_analytics.md)
 - **Installation guide**
+    - [Run as systemd service](run_systemd.md)
     - [Run as java service](run_java.md)
     - [Run with docker compose](run_docker.md)
     - [Run in kubernetes cloud](run_helm.md)

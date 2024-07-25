@@ -30,10 +30,11 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onBeforeMount, watch } from "vue";
+import { ref, onBeforeMount, watch, computed } from "vue";
 import { gql } from "graphql-tag";
 import { request } from "graphql-request";
 
+import { setGraphQlEndpoint } from "../../utils";
 import {
   buildQuery,
   gqlExtractSelectionName,
@@ -57,6 +58,8 @@ const emit = defineEmits<{
   (e: "viz-data-clicked", row: object): void;
 }>();
 
+const graphqlEndpoint = ref<string | null>(null);
+
 const chartLoading = ref<boolean>(true);
 const chartSuccess = ref<boolean>(false);
 const chartError = ref<Error | null>(null);
@@ -69,6 +72,8 @@ const categoriesSubSelection = ref<string | null>(null);
 const valuesSubSelection = ref<string | null>(null);
 
 function setChartVariables() {
+  graphqlEndpoint.value = setGraphQlEndpoint(props.schema);
+
   categoriesVar.value = gqlExtractSelectionName(props.categories);
   valuesVar.value = gqlExtractSelectionName(props.values);
   categoriesSubSelection.value = gqlExtractSubSelectionNames(props.categories);
@@ -85,7 +90,7 @@ async function fetchChartData() {
   chartError.value = null;
 
   try {
-    const response = await request("../api/graphql", chartDataQuery.value);
+    const response = await request(graphqlEndpoint.value, chartDataQuery.value);
     const data = await response[props.table as string];
     const preppedData = await prepareChartData({
       data: data,
