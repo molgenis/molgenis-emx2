@@ -507,8 +507,8 @@ public class RDFService {
           table = getSubclassTableForRowBasedOnMgTableclass(table, row);
         }
         for (final Column column : table.getMetadata().getColumns()) {
-          // Exclude the system columns like mg_insertedBy
-          if (column.isSystemColumn()) {
+          // Exclude the system columns that refer to specific users
+          if (column.isSystemAddUpdateByUserColumn()) {
             continue;
           }
           IRI columnIRI = getColumnIRI(column);
