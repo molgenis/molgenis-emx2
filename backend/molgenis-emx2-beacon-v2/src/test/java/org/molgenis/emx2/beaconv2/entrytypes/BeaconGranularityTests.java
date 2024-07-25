@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.beaconv2.QueryEntryType;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
@@ -38,6 +39,18 @@ public class BeaconGranularityTests extends BeaconModelEndPointTest {
                             }
                           }""");
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
+    JsonNode json = queryEntryType.query(beaconSchema);
+    assertEquals(5, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
+    assertNull(json.get("response").get("resultSets").get(0).get("results"));
+  }
+
+  @Test
+  public void testRequestedGranularity_getRequestCount() {
+    Map<String, String[]> params = Map.of("requestedGranularity", new String[] {"count"});
+    BeaconRequestBody requestBody =
+        new BeaconRequestBody(mockEntryTypeRequestRegular("Individuals", params));
+
+    QueryEntryType queryEntryType = new QueryEntryType(requestBody);
     JsonNode json = queryEntryType.query(beaconSchema);
     assertEquals(5, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
     assertNull(json.get("response").get("resultSets").get(0).get("results"));
