@@ -2,7 +2,6 @@
 export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: ['@nuxtjs/tailwindcss', 'floating-vue/nuxt', '@nuxt/test-utils/module'],
-  // components: [{ path: "./components", prefix: "UI" }],
   tailwindcss: {
     cssPath: '~/assets/css/main.css',
     configPath: '~/tailwind.config.js'
@@ -25,4 +24,15 @@ export default defineNuxtConfig({
       }
     }
   },
+  components: [
+    {
+      path: "~/components/global/icons",
+      global: true,
+    },
+    {
+      path: "~/components/viz",
+      pathPrefix: false
+    },
+    "~/components",
+  ]
 })

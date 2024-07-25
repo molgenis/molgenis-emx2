@@ -26,7 +26,7 @@
           :for="`legend-input-${legendId}-${key}`"
           class="flex flex-row gap-3 justify-start items-center hover:underline hover:cursor-pointer"
         >
-          <vizLegendMarker :markerType="markerType" :fill="data[key]" />
+          <ChartLegendMarker :markerType="markerType" :fill="data[key]" />
           <input
             :id="`legend-input-${legendId}-${key}`"
             class="sr-only [&:focus~span]:underline"
@@ -57,7 +57,7 @@
         @mouseover="$emit('legend-item-mouseover', key)"
         @mouseout="$emit('legend-item-mouseout', key)"
       >
-        <vizLegendMarker :markerType="markerType" :fill="data[key]" />
+        <ChartLegendMarker :markerType="markerType" :fill="data[key]" />
         <span>{{ key }}</span>
       </div>
     </li>

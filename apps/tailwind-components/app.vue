@@ -21,7 +21,7 @@
         @click="isExpanded = !isExpanded"
       >
         <span>Theme</span>
-        <IconsCaretDown class="w-5 inline-block" />
+        <CaretDown class="w-5 inline-block" />
       </button>
       <div
         class="absolute mt-2 z-50 bg-white py-2 px-4 rounded shadow-sm border"
@@ -100,11 +100,6 @@
                   <NuxtLink class="hover:underline" :to="story.path">{{
                     story.name
                   }}</NuxtLink>
-                </li>
-                <li class="py-2">
-                  <NuxtLink class="hover:underline" to="/viz/Legend.story">
-                    Viz chart legend
-                  </NuxtLink>
                 </li>
               </ul>
             </aside>
