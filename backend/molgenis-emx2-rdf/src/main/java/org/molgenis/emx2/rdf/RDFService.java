@@ -495,7 +495,7 @@ public class RDFService {
         builder.add(subject, RDF.TYPE, IRI_OBSERVATION);
         if (table.getMetadata().getSemantics() != null) {
           for (String semantics : table.getMetadata().getSemantics()) {
-            builder.add(subject, RDF.TYPE, semantics);
+            builder.add(subject, RDF.TYPE, iri(semantics));
           }
         }
         builder.add(subject, IRI_DATASET_PREDICATE, tableIRI);
