@@ -8,9 +8,12 @@ import static org.molgenis.emx2.rdf.RDFUtils.*;
 
 import com.google.common.net.UrlEscapers;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import org.apache.commons.io.IOUtils;
 import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Namespace;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.base.CoreDatatype;
@@ -64,6 +67,8 @@ public class RDFService {
       Values.iri("http://purl.org/linked-data/cube#dataSet");
   public static final IRI IRI_CONTROLLED_VOCABULARY =
       Values.iri("http://purl.obolibrary.org/obo/NCIT_C48697");
+
+  private static final String SETTING_CUSTOM_RDF = "custom_rdf";
 
   /**
    * SIO:001055 = observing (definition: observing is a process of passive interaction in which one
@@ -152,24 +157,29 @@ public class RDFService {
       final Schema... schemas) {
     try {
       final ModelBuilder builder = new ModelBuilder();
-      builder.setNamespace("rdf", NAMESPACE_RDF);
-      builder.setNamespace("rdfs", NAMESPACE_RDFS);
-      builder.setNamespace("xsd", NAMESPACE_XSD);
-      builder.setNamespace("owl", NAMESPACE_OWL);
-      builder.setNamespace("sio", NAMESPACE_SIO);
-      builder.setNamespace("qb", NAMESPACE_QB);
-      builder.setNamespace("skos", NAMESPACE_SKOS);
-      builder.setNamespace("dcterms", NAMESPACE_DCTERMS);
-      builder.setNamespace("dcat", NAMESPACE_DCAT);
-      builder.setNamespace("foaf", NAMESPACE_FOAF);
-      builder.setNamespace("vcard", NAMESPACE_VCARD);
-      builder.setNamespace("org", NAMESPACE_ORG);
-      builder.setNamespace("fdp-o", NAMESPACE_ORG);
 
+      // Defines if all used schemas have a custom_rdf setting.
+      boolean allIncludeCustomRdf = true;
       // Define the schemas at the start of the document.
       for (final Schema schema : schemas) {
         final Namespace ns = getSchemaNamespace(schema);
         builder.setNamespace(ns);
+        // Adds custom RDF to model.
+        if (schema.hasSetting(SETTING_CUSTOM_RDF)) {
+          addModelToBuilder(
+              builder,
+              Rio.parse(
+                  IOUtils.toInputStream(
+                      schema.getSettingValue(SETTING_CUSTOM_RDF), StandardCharsets.UTF_8),
+                  RDFFormat.TURTLE));
+        } else {
+          allIncludeCustomRdf = false;
+        }
+      }
+
+      // If any of the used schemas do not have custom_rdf set, adds the default ones.
+      if (!allIncludeCustomRdf) {
+        addDefaultPrefixes(builder);
       }
 
       if (table == null) {
@@ -197,6 +207,27 @@ public class RDFService {
     } catch (Exception e) {
       throw new MolgenisException("RDF export failed due to an exception", e);
     }
+  }
+
+  private void addModelToBuilder(ModelBuilder builder, Model model) {
+    model.getNamespaces().forEach(builder::setNamespace);
+    model.forEach(e -> builder.add(e.getSubject(), e.getPredicate(), e.getObject()));
+  }
+
+  private void addDefaultPrefixes(ModelBuilder builder) {
+    builder.setNamespace("rdf", NAMESPACE_RDF);
+    builder.setNamespace("rdfs", NAMESPACE_RDFS);
+    builder.setNamespace("xsd", NAMESPACE_XSD);
+    builder.setNamespace("owl", NAMESPACE_OWL);
+    builder.setNamespace("sio", NAMESPACE_SIO);
+    builder.setNamespace("qb", NAMESPACE_QB);
+    builder.setNamespace("skos", NAMESPACE_SKOS);
+    builder.setNamespace("dcterms", NAMESPACE_DCTERMS);
+    builder.setNamespace("dcat", NAMESPACE_DCAT);
+    builder.setNamespace("foaf", NAMESPACE_FOAF);
+    builder.setNamespace("vcard", NAMESPACE_VCARD);
+    builder.setNamespace("org", NAMESPACE_ORG);
+    builder.setNamespace("fdp-o", NAMESPACE_FDP);
   }
 
   public WriterConfig getConfig() {
