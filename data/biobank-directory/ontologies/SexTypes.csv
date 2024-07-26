@@ -7,3 +7,4 @@ order,name,label,parent,codesystem,code,ontologyTermURI,definition
 ,MALE,Male,,Miabis,MALE,http://purl.obolibrary.org/obo/PATO_0000384,Male
 ,FEMALE,Female,,Miabis,FEMALE,http://purl.obolibrary.org/obo/PATO_0000383,Female
 ,NASK,Not asked,,,NASK,,
+,*,Any,,,*,,Any sex
