@@ -385,7 +385,7 @@ export default {
       const criteriaMet = [];
 
       for (const baseFact of baseFacts) {
-        if (Object.values(baseFact).includes("*")) {
+        if (Object.values(baseFact).includes("Any")) {
           continue;
         }
         const criteria = {};
@@ -420,7 +420,7 @@ export default {
       for (const factGroup of groupedFacts) {
         let collapsedFact = {};
         for (const fact of factGroup) {
-          if (Object.values(fact).includes("*")) {
+          if (Object.values(fact).includes("Any")) {
             continue;
           }
           if (!Object.keys(collapsedFact).length) {
