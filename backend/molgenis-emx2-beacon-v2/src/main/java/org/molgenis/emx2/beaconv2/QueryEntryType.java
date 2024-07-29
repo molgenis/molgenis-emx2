@@ -111,6 +111,7 @@ public class QueryEntryType {
         } else if (includeStrategy.equals(IncludedResultsetResponses.ALL)) {
           resultSets.add(resultSet);
         }
+        break;
       case BOOLEAN:
         boolean exists = doExistsQuery(table, filterParser.getGraphQlFilters());
         if (exists) {
@@ -119,6 +120,7 @@ public class QueryEntryType {
         } else if (includeStrategy.equals(IncludedResultsetResponses.ALL)) {
           resultSets.add(resultSet);
         }
+        break;
     }
 
     return numTotalResults;

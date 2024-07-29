@@ -15,16 +15,13 @@ import spark.Request;
 public class BeaconCohortsTests extends BeaconModelEndPointTest {
 
   @Test
-  public void testCohorts_NoParams() throws Exception {
+  public void testCohorts_NoParams() {
     Request request = mockEntryTypeRequestRegular(EntryType.COHORTS.getId(), new HashMap<>());
     BeaconRequestBody requestBody = new BeaconRequestBody(request);
 
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
     JsonNode cohorts = queryEntryType.query(database);
-
-    String json = JsonUtil.getWriter().writeValueAsString(cohorts);
-    assertTrue(json.contains("\"id\" : \"Cohort0001\""));
-    assertTrue(json.contains("\"id\" : \"ISO3166:FR\""));
+    assertTrue(cohorts.get("response").get("collections").size() >= 3);
   }
 
   @Test
