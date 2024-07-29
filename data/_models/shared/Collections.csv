@@ -27,7 +27,7 @@ Collections,,design and structure,heading,,,,,,,,,Structure of the collection,"D
 Collections,,design type,ontology,,,CatalogueOntologies,Cohort designs,,,,,"The study design of this cohort, i.e. cross-sectional or longitudinal","DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging"
 Collections,,design description,text,,,,,,,,,Short description of the study or data source design,"DataCatalogueFlat,EMA,RWEStaging,CohortsStaging,UMCGCohortsStaging"
 Collections,,design schematic,file,,,,,,,,,A schematic depiction of the study design of this cohort,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging"
-Collections,,data collection type,ontology,,,CatalogueOntologies,Cohort collection types,,,,,Retrospective or prospective data collection,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging"
+Collections,,data collection type,ontology_array,,,CatalogueOntologies,Cohort collection types,,,,,Retrospective or prospective data collection,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging"
 Collections,,data collection description,text,,,,,,,,,Describe the process of collection and recording of data,"DataCatalogueFlat,EMA,RWEStaging"
 Collections,,reason sustained,text,,,,,,,,,"Description of the reason why the data bank is sustained by the organisation (e.g. for surveillance, clinical purposes, financial or administrative purposes, research purposes)","DataCatalogueFlat,RWEStaging"
 Collections,,unit of observation,text,,,,,,,,,"Based on the prompt, what is the unit(s) of observation of a record (e.g. person, prescription)?","DataCatalogueFlat,RWEStaging"
