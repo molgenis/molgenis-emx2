@@ -17,7 +17,6 @@ import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.email.EmailMessage;
 import org.molgenis.emx2.email.EmailService;
-import org.molgenis.emx2.email.EmailSettings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,6 +43,7 @@ public class ScriptTask extends Task<ScriptTask> {
         .dependencies(scriptMetadata.getString("dependencies"))
         .cronExpression(scriptMetadata.getString("cron"))
         .cronUserName(scriptMetadata.getString("cronUser"))
+        .failureAddress(scriptMetadata.getString("failureAddress"))
         .disabled(
             !scriptMetadata.isNull("disabled", ColumnType.BOOL)
                 && scriptMetadata.getBoolean("disabled"));
@@ -158,12 +158,21 @@ public class ScriptTask extends Task<ScriptTask> {
       throw new MolgenisException("Script execution failed", e);
     } finally {
       if (getStatus() == TaskStatus.ERROR) {
-        EmailSettings emailSettings = new EmailSettings.EmailSettingsBuilder().build();
-        EmailService emailService = new EmailService(emailSettings);
-        EmailMessage emailMessage =
-            new EmailMessage(List.of("harmbrugge@gmail.com"), "test", "test", Optional.empty());
-        emailService.send(emailMessage);
+        this.sendFailureMail();
       }
+    }
+  }
+
+  private void sendFailureMail() {
+    if (this.getFailureAddress() != null && !this.getFailureAddress().isEmpty()) {
+      EmailService emailService = new EmailService();
+      String subject = "Molgenis script %s failed".formatted(this.getName());
+      String text =
+          "Molgenis script %s failed with error:\n%s"
+              .formatted(this.getName(), this.getDescription());
+      EmailMessage emailMessage =
+          new EmailMessage(List.of(this.getFailureAddress()), subject, text, Optional.empty());
+      emailService.send(emailMessage);
     }
   }
 
