@@ -132,8 +132,8 @@ async function getManifest() {
       }
     }
   `;
-  const response: IManifestResponse = (await request("/api/graphql", query));
-  manifest.value = response._manifest 
+  const response: IManifestResponse = await request("/api/graphql", query);
+  manifest.value = response._manifest;
 }
 
 onBeforeMount(() => getManifest());

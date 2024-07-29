@@ -46,7 +46,7 @@ withDefaults(
     .link-card {
       width: 100%;
       border-radius: 0;
-      
+
       .card-background-filter {
         border-radius: 0;
       }
