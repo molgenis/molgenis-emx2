@@ -196,10 +196,12 @@ class Transform:
         df_var_values.rename(columns={'resource': 'collection'}, inplace=True)
         df_var_values.loc[:, 'collection'] = df_var_values['collection'].apply(strip_resource)
 
-        df_var_values_cdm = df_var_values[df_var_values['collection'].isin(['LifeCycle', 'ATHLETE'])]
+        df_var_values_cdm = df_var_values[df_var_values['collection'].isin(['LifeCycle', 'ATHLETE', 'testNetwork1'])]
         df_var_values_cdm.loc[:, 'variable.name'] = df_var_values_cdm['variable.name'].apply(remove_number)
 
-        df_all_var_values = pd.concat([df_var_values, df_var_values_cdm])
+        df_var_values_no_cdm = df_var_values[~df_var_values['collection'].isin(['LifeCycle', 'ATHLETE', 'testNetwork1'])]
+
+        df_all_var_values = pd.concat([df_var_values_no_cdm, df_var_values_cdm])
         # TODO: check if this below is correct
         df_all_var_values = df_all_var_values.drop_duplicates(subset=['collection', 'variable.dataset',
                                                                       'variable.name', 'value'])
@@ -219,14 +221,14 @@ class Transform:
         df_variables.loc[:, 'is_repeated'] = df_variables['name'].apply(is_repeated, df_repeats=df_repeats)
 
         # select athlete and lifecycle variables and restructure
-        df_variables_cdm = df_variables[df_variables['resource'].isin(['LifeCycle', 'ATHLETE'])]
+        df_variables_cdm = df_variables[df_variables['resource'].isin(['LifeCycle', 'ATHLETE', 'testNetwork1'])]
         df_variables_cdm.loc[:, 'name'] = df_variables_cdm['name'].apply(remove_number)
         df_variables_cdm = restructure_repeats(df_variables_cdm, df_repeats)
 
-        # select variables that are not in LifeCycle or ATHLETE
-        df_variables_no_cdm = df_variables[~df_variables['resource'].isin(['LifeCycle', 'ATHLETE'])]
-        # select repeated variables that are not in lifecycle or ATHLETE
-        df_repeats_no_cdm = df_repeats[~df_repeats['resource'].isin(['LifeCycle', 'ATHLETE'])]
+        # select variables that are not in LifeCycle or ATHLETE or testNetwork1
+        df_variables_no_cdm = df_variables[~df_variables['resource'].isin(['LifeCycle', 'ATHLETE', 'testNetwork1'])]
+        # select repeated variables that are not in lifecycle or ATHLETE or testNetwork1
+        df_repeats_no_cdm = df_repeats[~df_repeats['resource'].isin(['LifeCycle', 'ATHLETE', 'testNetwork1'])]
 
         # concatenate all variables
         df_all_variables = pd.concat([df_variables_cdm, df_variables_no_cdm, df_repeats_no_cdm])
@@ -238,11 +240,12 @@ class Transform:
 
     def variable_mappings(self):
         df = pd.read_csv(self.path + 'Variable mappings.csv', keep_default_na=False)
-        df.loc[:, 'target'] = df['target'].apply(strip_resource)
-        df.loc[:, 'repeat_num'] = df['target variable'].apply(get_repeat_number)
+        df.loc[:, 'target'] = df['target'].apply(strip_resource)  # delete appendix '_CDM'
+        df.loc[:, 'repeat_num'] = df['target variable'].apply(get_repeat_number)  # get repeat of target variable
 
-        df_cdm = df[df['target'].isin(['LifeCycle', 'ATHLETE'])]
+        df_cdm = df[df['target'].isin(['LifeCycle', 'ATHLETE', 'testNetwork1'])]
         df_cdm.loc[:, 'target variable'] = df_cdm['target variable'].apply(remove_number)
+
         #TODO: also get other mappings than those from LifeCycle and ATHLETE
         df_cdm = df_cdm.fillna('')
 
