@@ -1,13 +1,32 @@
 <template>
-  <span>
-    <ButtonOutline v-if="label !== ''" @click="isModalShown = true">
-      {{ label }}
-    </ButtonOutline>
-    <RowButton v-else type="add" @add="isModalShown = true" />
+  <span v-if="subclasses">
+    <IconAction icon="plus" @click="isModalShown = true">add</IconAction>
+    <LayoutModal
+      v-if="isModalShown && !subclassSelected"
+      @close="isModalShown = false"
+    >
+      <template v-slot:body>
+        <h5>Select subtype</h5>
+        <p>
+          {{ subclasses[0].label }} has several variant subtypes that allow for
+          different properties. Please select below the subtype to create.
+        </p>
+        <table class="table-bordered">
+          <tr v-for="subclass in subclasses">
+            <td>
+              <a href="#" @click.prevent="subclassSelected = subclass">{{
+                subclass.label
+              }}</a>
+            </td>
+            <td>{{ subclass.description }}</td>
+          </tr>
+        </table>
+      </template>
+    </LayoutModal>
     <EditModal
-      v-if="isModalShown"
+      v-else-if="isModalShown"
       :id="id + 'add-modal'"
-      :tableId="tableId"
+      :tableId="subclassSelected.id"
       :isModalShown="isModalShown"
       :schemaId="schemaId"
       :defaultValue="defaultValue"
@@ -20,34 +39,53 @@
 </template>
 
 <script setup lang="ts">
-import RowButton from "./RowButton.vue";
-import ButtonOutline from "../forms/ButtonOutline.vue";
-import { defineAsyncComponent, ref } from "vue";
+import LayoutModal from "../layout/LayoutModal.vue";
+import IconAction from "../forms/IconAction.vue";
+import Client from "../../client/client";
+import {
+  ref,
+  defineAsyncComponent,
+  onMounted,
+  withDefaults,
+  defineProps,
+} from "vue";
+import { ITableMetaData } from "meta-data-utils";
+const EditModal = defineAsyncComponent(() => import("../forms/EditModal.vue"));
 
-const EditModal = defineAsyncComponent({
-  loader: () => import("../forms/EditModal.vue"),
-});
-
-withDefaults(
+const props = withDefaults(
   defineProps<{
     id: string;
     tableId: string;
-    schemaId: string;
+    schemaId?: string;
     label?: string;
     defaultValue?: Record<string, any>;
     visibleColumns?: string[];
   }>(),
-  { label: "" }
+  { label: "", visibleColumns: null, schemaId: null }
 );
 
 let isModalShown = ref(false);
+let subclassSelected: ITableMetaData = ref(null);
+let subclasses: ITableMetaData[] = ref([]);
 
 const emit = defineEmits(["close", "update:newRow"]);
-
 function handleClose() {
   isModalShown.value = false;
   emit("close");
 }
+
+onMounted(async () => {
+  console.log("created");
+  const client = Client.newClient(props.schemaId);
+  subclasses.value = [
+    await client.fetchTableMetaData(props.tableId),
+    ...(await client.fetchSubclassTables(props.tableId)),
+  ];
+  console.log(subclasses);
+  if (subclasses.value.length == 1) {
+    subclassSelected.value = subclasses.value[0];
+  }
+});
 </script>
 
 <docs>
@@ -59,8 +97,8 @@ function handleClose() {
     <div>
       <RowButtonAdd
         id="row-add-btn-sample"
-        tableId="Pet"
-        schemaId="pet store"
+        tableId="Resources"
+        schemaId="catalogue"
       />
       <br />
       <RowButtonAdd

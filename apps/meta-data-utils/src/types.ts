@@ -40,6 +40,7 @@ export interface ITableMetaData {
   tableType: string;
   columns: IColumn[];
   schemaId: string;
+  inheritId?: string;
   semantics?: string[];
   settings?: ISetting[];
 }
