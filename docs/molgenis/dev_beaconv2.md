@@ -84,13 +84,24 @@ Model endpoints for which record-level GET and POST requests are implemented are
   Data is retrieved from the _Individuals_ table.
 - `/filtering_terms` returns a list of the filtering terms accepted by that Beacon instance.
 
-GET request are record requests by default and therefor viewer permission on the data is needed to perform the queries.
-For post requests a
 
 ### Permissions
 
-By default, a new database will have VIEWER permission for all users including anonymous requests. How to set up
+By default, a new database with a Beacon profile will have **VIEWER** permission for all users including anonymous requests. How to set up
 permissions for a database is found [here](use_permissions.md).
+
+Request are **Record** requests by default and therefor **VIEWER** permission on the data is needed to perform the queries.
+For GET request this can be altered via de requestedGranularity parameter:
+
+`<server>/<database>/api/beacon/individuals/requestedsGranulariy=count`
+
+For post request via query.requestedGranularity:
+```{
+"query": {
+  "requestedGranularity": "count"
+}
+```
+
 
 Beacon offers 3 different response types
 
