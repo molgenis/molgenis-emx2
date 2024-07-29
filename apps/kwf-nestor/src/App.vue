@@ -32,11 +32,12 @@
       <template v-slot:column-logos>
         <li id="genturis-logo-link">
           <a href="/">
-            <img
+            <!-- <img
               src="..."
               class="project-logo logo-small"
               alt="KWF Nestor project"
-            />
+            /> -->
+            logo will go here
           </a>
         </li>
         <!-- <li id="project-funding-logo">
