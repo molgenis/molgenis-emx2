@@ -59,6 +59,11 @@ public class TestExcelStore {
     TableStoreForXlsxFile store = new TableStoreForXlsxFile(excelFile.toPath());
     for (Row r : store.readTable("Sheet1")) {
       assertEquals(10000070587L, r.getLong("TestLongNumeric"));
+      assertThrows(
+          MolgenisException.class,
+          () ->
+              r.getInteger(
+                  "TestLongNumeric")); // is this desired that we give an error? I suppose so?
     }
   }
 }

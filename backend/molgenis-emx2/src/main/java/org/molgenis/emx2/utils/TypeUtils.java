@@ -72,7 +72,9 @@ public class TypeUtils {
         return null;
       }
     }
-    if (v instanceof Long) {
+    if (v instanceof Long longValue) {
+      if (longValue > Integer.MAX_VALUE || longValue < Integer.MIN_VALUE)
+        throw new MolgenisException("Cannot cast '" + v + " to integer, it is too large");
       return ((Long) v).intValue();
     }
     if (v instanceof Double) return (int) Math.round((Double) v);
