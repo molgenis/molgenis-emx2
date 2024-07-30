@@ -25,18 +25,6 @@ export default defineNuxtConfig({
       exclude: [/\bmeta-data-utils\b/],
     },
   },
-  nitro: {
-    prerender: {
-      ignore: ['/_tailwind/']
-    }
-  },
-  app: {
-    head: {
-      htmlAttrs: {
-        'data-theme': ''
-      }
-    }
-  },
   components: [
     {
       path: "~/components"
