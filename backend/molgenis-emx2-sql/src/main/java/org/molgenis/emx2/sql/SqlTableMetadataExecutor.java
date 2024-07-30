@@ -395,7 +395,8 @@ class SqlTableMetadataExecutor {
         column(MG_INSERTEDON)
             .setType(DATETIME)
             .setPosition(-3)
-            .setSemantics("https://w3id.org/fdp/fdp-o#metadataIssued"));
+            .setSemantics(
+                "https://w3id.org/fdp/fdp-o#metadataIssued", "http://purl.org/dc/terms/issued"));
     table.add(column(MG_UPDATEDBY).setPosition(-2));
     table.add(
         column(MG_UPDATEDON)
