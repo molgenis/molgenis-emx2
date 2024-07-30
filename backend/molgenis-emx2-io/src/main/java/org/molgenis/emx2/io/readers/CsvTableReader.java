@@ -1,9 +1,7 @@
 package org.molgenis.emx2.io.readers;
 
 import java.io.*;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.io.input.BOMInputStream;
 import org.molgenis.emx2.MolgenisException;
@@ -77,7 +75,13 @@ public class CsvTableReader {
             }
 
             public Row next() {
-              return new Row(it.next());
+              HashMap<String, String> next = (HashMap<String, String>) it.next();
+              boolean isEmpty = next.values().stream().allMatch(Objects::isNull);
+              while (isEmpty && it.hasNext()) {
+                next = (HashMap<String, String>) it.next();
+                isEmpty = next.values().stream().allMatch(Objects::isNull);
+              }
+              return new Row(next);
             }
 
             @Override

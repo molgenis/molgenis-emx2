@@ -87,9 +87,6 @@ function getColumnError(
   if (column.validation) {
     return getColumnValidationError(column.validation, rowData, tableMetaData);
   }
-  if (isRefLinkWithoutOverlap(column, rowData)) {
-    return `value should match your selection in column '${column.refLinkId}'`;
-  }
 
   return undefined;
 }
@@ -171,6 +168,9 @@ export function executeExpression(
       copy[column.id] = null;
     }
   });
+  if (!copy.mg_tableclass) {
+    copy.mg_tableclass = `${tableMetaData.schemaId}.${tableMetaData.label}`;
+  }
 
   // A simple client for scripts to use to request data.
   // Note: don't overuse this, the API call is blocking.
@@ -201,31 +201,6 @@ export function executeExpression(
     "return eval(`" + expression.replaceAll("`", "\\`") + "`)"
   );
   return func(simplePostClient, ...Object.values(copy));
-}
-
-function isRefLinkWithoutOverlap(column: IColumn, values: Record<string, any>) {
-  if (!column.refLinkId) {
-    return false;
-  }
-  const columnRefLink = column.refLinkId;
-  const refLinkId = columnRefLink;
-
-  const value = values[column.id];
-  const refValue = values[refLinkId];
-
-  if (typeof value === "string" && typeof refValue === "string") {
-    return value && refValue && value !== refValue;
-  } else {
-    //FIXME: empty ref_array => should give 'required' error instead if applicable
-    if (Array.isArray(value) && value.length === 0) {
-      return false;
-    }
-    return (
-      value &&
-      refValue &&
-      !JSON.stringify(value).includes(JSON.stringify(refValue))
-    );
-  }
 }
 
 function isValidHyperlink(value: any) {
