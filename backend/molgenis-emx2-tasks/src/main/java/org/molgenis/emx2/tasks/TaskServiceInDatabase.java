@@ -192,8 +192,15 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
             schema = db.getSchema(this.systemSchemaName);
           }
 
-          if (!schema.getTableNames().contains("Scripts")) {
-
+          if (schema.getTableNames().contains("Scripts")) {
+            TableMetadata scriptsMetadata = schema.getTable("Scripts").getMetadata();
+            if (!scriptsMetadata.getColumnNames().contains("failureAddress")) {
+              scriptsMetadata.add(
+                  column("failureAddress")
+                      .setType(ColumnType.EMAIL)
+                      .setDescription("Email address to be notified when a job fails"));
+            }
+          } else {
             Table scripTypes =
                 schema.create(table("ScriptTypes").setTableType(TableType.ONTOLOGIES));
             Table jobStatus = schema.create(table("JobStatus").setTableType(TableType.ONTOLOGIES));
