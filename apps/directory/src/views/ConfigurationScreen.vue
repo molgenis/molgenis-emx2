@@ -117,7 +117,7 @@
     </div>
 
     <JsonEditor
-      v-if="editorType === views.editor"
+      v-show="editorType === views.editor"
       :config="currentConfig"
       @dirty="(isDirty) => (dirty = isDirty)"
       @save="saveFromEditor"
@@ -271,6 +271,7 @@ function applyChanges(changesToSave: string) {
 
 function save() {
   statusClosed.value = false;
+
   saveToDatabase(newAppConfig.value);
 }
 
@@ -310,7 +311,7 @@ function checkJSONStructure(jsonString: string | Record<string, any>) {
 
 function saveToDatabase(newConfiguration: string) {
   checkJSONStructure(toRaw(newConfiguration));
-  if (!jsonError) {
+  if (!jsonError.value) {
     settingsStore.SaveApplicationConfiguration(newConfiguration);
     dirty.value = false;
   }
