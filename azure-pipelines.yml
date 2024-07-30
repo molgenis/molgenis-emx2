@@ -3,6 +3,9 @@
 # Add steps that analyze code, save build artifacts, deploy, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/languages/java
 
+pool:
+  vmImage: 'ubuntu-22.04'
+
 #trigger only on master or PR to master
 trigger:
 - master
@@ -38,7 +41,7 @@ steps:
 - script: |
     export JAVA_HOME=/usr/lib/jvm/temurin-17-jdk-amd64/
     ./gradlew -version
-    ./gradlew testFast jacocoMergedReport
+    ./gradlew test jacocoMergedReport
   # sonarqube -Dsonar.login=$(SONAR_TOKEN) -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dorg.ajoberstar.grgit.auth.username=$(GITHUB_TOKEN) -Dorg.ajoberstar.grgit.auth.password
   displayName: run test, ensure we are using java 17 JAVA_HOME
 
