@@ -153,8 +153,8 @@ export default {
         await this.checkoutStore.sendToNegotiator();
         this.cartVisible = false;
       } catch (err) {
-        this.errorMessage =
-          err.message || "An error occurred. Please try again later.";
+        console.info("Negotiator is unavailable. Please try again later.");
+        this.errorMessage = "An error occurred. Please try again later.";
       }
     },
   },
