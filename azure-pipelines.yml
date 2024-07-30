@@ -49,7 +49,7 @@ steps:
     MOLGENIS_POSTGRES_USER: molgenis
     MOLGENIS_POSTGRES_PASS: molgenis
     MOLGENIS_POSTGRES_URI: jdbc:postgresql://localhost/molgenis
-    JVM_OPTS: -Xmx3200m
+    JVM_OPTS: -Xmx2400m
     NODE_OPTIONS: "--max-old-space-size=4096"
     GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
     CI: true
