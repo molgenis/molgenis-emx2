@@ -30,7 +30,6 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   public static final int TEN_SECONDS = 10;
   private static final Settings DEFAULT_JOOQ_SETTINGS =
       new Settings().withQueryTimeout(TEN_SECONDS);
-  private static final Integer SIXTY_SECONDS = 60;
 
   // shared between all instances
   private static DataSource source;
@@ -546,7 +545,6 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
         jooq.transaction(
             config -> {
               db.inTx = true;
-              config.settings().withQueryTimeout(SIXTY_SECONDS);
               DSLContext ctx = DSL.using(config);
               ctx.execute("SET CONSTRAINTS ALL DEFERRED");
               db.setJooq(ctx);
