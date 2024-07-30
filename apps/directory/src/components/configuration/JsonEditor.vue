@@ -31,12 +31,12 @@
 </template>
 
 <script setup lang="ts">
-import * as monaco from "monaco-editor";
-import { onMounted, onUnmounted, ref, toRaw } from "vue";
+import { editor } from "monaco-editor";
+import { onMounted, ref, toRaw } from "vue";
 
 const { config } = defineProps<{ config: string }>();
 
-const editor = ref<any>({});
+const localEditor = ref<any>({});
 const editorDiv = ref<HTMLElement>();
 const dirty = ref(false);
 const uploadedAppConfig = ref("");
@@ -44,7 +44,7 @@ const uploadedAppConfig = ref("");
 const emit = defineEmits(["dirty", "save", "cancel", "diff"]);
 
 onMounted(() => {
-  editor.value = monaco.editor.create(editorDiv.value as HTMLElement, {
+  localEditor.value = editor.create(editorDiv.value as HTMLElement, {
     automaticLayout: true,
     value: config,
     language: "json",
@@ -56,22 +56,18 @@ onMounted(() => {
   }, 500);
 });
 
-onUnmounted(() => {
-  editor.value.dispose();
-});
-
 function setDirty() {
   dirty.value = true;
   emit("dirty");
 }
 
 function format() {
-  editor.value.getAction("editor.action.formatDocument").run();
+  localEditor.value.getAction("editor.action.formatDocument").run();
 }
 
 function save() {
   /** doesn't work with proxy, so that is where toRaw comes in */
-  const changesToSave = toRaw(editor.value).getValue();
+  const changesToSave = toRaw(localEditor.value).getValue();
   emit("save", changesToSave);
 }
 
@@ -80,7 +76,7 @@ function cancel() {
 }
 
 function download() {
-  const file = new Blob([toRaw(editor.value).getValue()], {
+  const file = new Blob([toRaw(localEditor.value).getValue()], {
     type: "json",
   });
   const aElement = document.createElement("a");
@@ -103,10 +99,13 @@ function upload() {
 async function processUpload(event: Record<string, any>) {
   const reader = new FileReader();
   reader.addEventListener("load", (event: ProgressEvent<FileReader>) => {
-    uploadedAppConfig.value = atob(event.target?.result?.split(",")[1]);
-
+    if (typeof event.target?.result === "string") {
+      uploadedAppConfig.value = atob(event.target?.result?.split(",")[1]);
+    } else {
+      uploadedAppConfig.value = "";
+    }
     emit("diff", {
-      currentAppConfig: toRaw(editor.value).getValue(),
+      currentAppConfig: toRaw(localEditor.value).getValue(),
       uploadedAppConfig: uploadedAppConfig.value,
     });
   });
