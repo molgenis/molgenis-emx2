@@ -25,7 +25,7 @@ Dataset,,relation,string,,,,,,,,http://purl.org/dc/terms/relation,A resource wit
 Dataset,,rights,string,,,,,,,,http://purl.org/dc/terms/rights,"A statement that concerns all rights not addressed with dct:license or dct:accessRights, such as copyright statements.",DCAT
 Dataset,,qualifiedRelation,string,,,,,,,,http://purl.org/dc/terms/qualifiedRelation,Link to a description of a relationship with another resource.,DCAT
 Dataset,,publisher,ref,,,,Organisations,,,,http://purl.org/dc/terms/publisher,The entity responsible for making the item available.,DCAT
-Dataset,,theme,hyperlink_array,,,,,,,,http://purl.org/dc/terms/theme,A main category of the resource. A resource can have multiple themes.,DCAT
+Dataset,,theme,hyperlink_array,,,,,,,,http://www.w3.org/ns/dcat#theme,A main category of the resource. A resource can have multiple themes.,DCAT
 Dataset,,type,string,,,,,,,,http://purl.org/dc/terms/type,The nature or genre of the resource.,DCAT
 Dataset,,qualifiedAttribution,string,,,,,,,,http://www.w3.org/ns/prov#qualifiedAttribution,Link to an Agent having some form of responsibility for the resource,DCAT
 Dataset,,propertyValue,string_array,,,,,,,,https://schema.org/PropertyValue,"A property-value pair, e.g. representing a feature of a product or place.",DCAT
