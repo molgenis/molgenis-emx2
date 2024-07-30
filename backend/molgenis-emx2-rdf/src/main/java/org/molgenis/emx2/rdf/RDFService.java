@@ -192,6 +192,12 @@ public class RDFService {
         }
         final List<Table> tables = table != null ? Arrays.asList(table) : schema.getTablesSorted();
         for (final Table tableToDescribe : tables) {
+          // for full-schema retrieval, don't print the (huge and mostly unused) ontologies
+          // of course references to ontologies are still included and are fully retrievable
+          if (table == null
+              && tableToDescribe.getMetadata().getTableType().equals(TableType.ONTOLOGIES)) {
+            continue;
+          }
           if (rowId == null) {
             describeTable(builder, tableToDescribe);
             describeColumns(builder, tableToDescribe, columnName);
