@@ -485,7 +485,7 @@ public class RDFService {
               subject, IRI_CONTROLLED_VOCABULARY, Values.literal(row.getString("codesystem")));
         }
         if (row.getString("definition") != null) {
-          // builder.add(subject, SKOS.DEFINITION, Values.literal(row.getString("definition")));
+          builder.add(subject, SKOS.DEFINITION, Values.literal(row.getString("definition")));
         }
         if (row.getString(ONTOLOGY_TERM_URI) != null) {
           builder.add(subject, OWL.SAMEAS, Values.iri(row.getString(ONTOLOGY_TERM_URI)));
