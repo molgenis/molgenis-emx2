@@ -356,8 +356,8 @@ public class RDFService {
       final ModelBuilder builder, final Table table, final String columnName) {
     if (table.getMetadata().getTableType() == TableType.DATA) {
       for (final Column column : table.getMetadata().getNonInheritedColumns()) {
-        // Exclude the system columns like mg_insertedBy
-        if (column.isSystemColumn()) {
+        // Exclude the system columns that refer to specific users
+        if (column.isSystemAddUpdateByUserColumn()) {
           continue;
         }
         if (columnName == null || columnName.equals(column.getName())) {
