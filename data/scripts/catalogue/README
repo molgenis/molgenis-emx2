@@ -11,7 +11,6 @@ same name are made.
 3. The main catalogue schema is deleted and data model update and transformed data are uploaded
 4. Transformed data is uploaded to staging areas.
 
-
 ## system requirements
 
 - Python 3 (3.8.10)
