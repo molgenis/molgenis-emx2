@@ -22,7 +22,7 @@
     "graphql-request": "5.2.0",
     "lodash": "4.17.21",
     "molgenis-components": "*",
-    "monaco-editor": "0.44.0",
+    "monaco-editor": "0.50.0",
     "pinia": "2.1.7",
     "vue": "3.4.31",
     "vue-gtag": "2.0.1",
