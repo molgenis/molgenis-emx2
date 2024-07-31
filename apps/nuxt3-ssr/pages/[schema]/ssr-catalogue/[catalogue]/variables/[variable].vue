@@ -11,7 +11,14 @@ const catalogueRouteParam = route.params.catalogue as string;
 const { key } = useQueryParams();
 const variableFilter = buildFilterFromKeysObject(key);
 const cohortsFilter = scoped
-  ? { networks: { equals: [{ id: catalogueRouteParam }] } }
+  ? {
+      _or: [
+        { networks: { equals: [{ id: catalogueRouteParam }] } },
+        {
+          networks: { partOfNetworks: { id: { equals: catalogueRouteParam } } },
+        },
+      ],
+    }
   : {};
 
 type VariableDetailsWithMapping = IVariable &
@@ -41,6 +48,7 @@ crumbs[
 ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/variables`;
 
 const cohortsWithMapping = computed(() => {
+  if (!cohorts.value) return [];
   return cohorts.value
     .map((cohort) => {
       const status = calcIndividualVariableHarmonisationStatus(variable.value, [

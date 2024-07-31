@@ -16,7 +16,7 @@ import "meta.jslt" as meta
             "description": .organisation.definition,
             "address": .organisation.address,
             "welcomeUrl": .url,
-            "contactUrl": .mail,
+            "contactUrl": "mailto:" + .contact,
             "logoUrl": .logo
         },
         "welcomeUrl": .url,

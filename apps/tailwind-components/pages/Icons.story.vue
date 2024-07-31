@@ -1,37 +1,18 @@
-<script setup lang="ts">
-const modules = import.meta.glob("../components/global/icons/*.vue", {
-  import: "default",
-  eager: true,
-});
-
-const kebabize = (str: string) =>
-  str.replace(
-    /[A-Z]+(?![a-z])|[A-Z]/g,
-    ($, ofs) => (ofs ? "-" : "") + $.toLowerCase()
-  );
-
-const icons = Object.entries(modules).map(([key, value]) => {
-  const name = key
-    .replace("../components/global/icons/", "")
-    .replace(".vue", "");
-  return kebabize(name);
-});
-
-const selectedAnimationClass = ref<string | null>(null);
-</script>
 <template>
   <div class="flex mb-4">
     <div class="flex-1">
       <div class="grid grid-cols-4 gap-4">
-        <div v-for="icon in icons">
-          <label>{{ icon }}</label>
+        <div
+          v-for="icon in icons"
+          class="flex flex-col justify-center items-center"
+        >
+          <label class="">{{ icon }}</label>
           <div class="p-4">
             <BaseIcon :name="icon" :class="selectedAnimationClass" />
           </div>
         </div>
       </div>
     </div>
-
     <div class="h-12 ml-4 mt-2">
       <fieldset class="border border-gray-900 mb-2 p-1">
         <legend class="m-2 px-2">Added classes</legend>
@@ -56,3 +37,19 @@ const selectedAnimationClass = ref<string | null>(null);
     </div>
   </div>
 </template>
+
+<script setup lang="ts">
+const modules: Record<string, any> = import.meta.glob(
+  "../components/global/icons/*.vue",
+  {
+    import: "default",
+    eager: true,
+  }
+);
+
+const icons = Object.keys(modules).map((key: string) => {
+  return key.split("/").reverse()[0].replace(".vue", "");
+});
+
+const selectedAnimationClass = ref<string | null>(null);
+</script>

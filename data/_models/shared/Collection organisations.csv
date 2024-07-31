@@ -3,7 +3,7 @@ Collection organisations,,,,,,,,,,,"org:Organization,foaf:Agent",Research depart
 Collection organisations,,collection,ref,1,TRUE,,Collections,,,,dcterms:isPartOf,collection that these organisation are part of,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging",
 Collection organisations,,id,,1,true,,,,,,dcterms:identifier,Internal identifier,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging",
 Collection organisations,,pid,hyperlink,2,,,,,,,dcterms:identifier,Persistent identifier ideally from ROR,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging",
-Collection organisations,,name,text,3,true,,,,,,"dcterms:title,foaf:name",Name used in (inter)national projects,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging",
+Collection organisations,,name,text,,true,,,,,,"dcterms:title,foaf:name",Name used in (inter)national projects,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging",
 Collection organisations,,acronym,,,,,,,,,dcterms:identifier,Acronym if applicable,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging",
 Collection organisations,,logo,file,,,,,,,,,Logo of the organisation,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging",
 Collection organisations,,country,ontology_array,,,CatalogueOntologies,Countries,,,,vcard:country-name,Country in which the institution head office or coordinating centre is located,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging",
