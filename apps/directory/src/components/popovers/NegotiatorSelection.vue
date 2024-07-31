@@ -187,7 +187,7 @@ export default {
       return nonCommercialCollections.length;
     },
   },
-  async beforeMount() {
+  async onMount() {
     this.commercialAvailableCollections =
       await this.collectionStore.getCommercialAvailableCollections();
   },

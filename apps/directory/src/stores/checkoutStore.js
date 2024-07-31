@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { computed, ref, toRaw } from "vue";
+import { computed, ref, toRaw, watch } from "vue";
 import { createBookmark } from "../functions/bookmarkMapper";
 import { useFiltersStore } from "./filtersStore";
 import { useSettingsStore } from "./settingsStore";
@@ -15,7 +15,28 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
 
   const biobankIdDictionary = ref({});
 
-  let selectedCollections = ref({});
+  const selectedCollections = ref({});
+
+  const serializedSelectedCollections = localStorage.getItem(
+    "selectedCollections"
+  );
+  if (serializedSelectedCollections) {
+    const deserializedSelectedCollections = JSON.parse(
+      serializedSelectedCollections
+    );
+    selectedCollections.value = deserializedSelectedCollections;
+  }
+
+  watch(
+    selectedCollections,
+    (newSelectedCollections) => {
+      localStorage.setItem(
+        "selectedCollections",
+        JSON.stringify(toRaw(newSelectedCollections))
+      );
+    },
+    { deep: true }
+  );
 
   const collectionSelectionCount = computed(() => {
     const allBiobanks = Object.keys(selectedCollections.value);
@@ -209,6 +230,7 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
       payload.nToken = nToken.value;
     }
 
+    // todo: show a success or failure message and close modal if needed.
     fetch(negotiatorUrl, {
       method: "POST",
       headers: {
@@ -217,8 +239,9 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
       body: JSON.stringify(payload),
     })
       .then(async (response) => {
-        const body = await response.json();
-        window.location.href = body.redirect_uri;
+        if (response.ok) {
+          removeAllCollectionsFromSelection({});
+        }
       })
       .catch(function (err) {
         console.info(err + " url: " + negotiatorUrl);
