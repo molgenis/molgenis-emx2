@@ -26,6 +26,7 @@
     - [Updating your MOLGENIS](run_updates.md)
     - [OIDC integration](use_permissions.md)
 - **Developer guide**
+    - [Developer Guidelines](dev_guidelines.md)
     - [How to build](dev_quickstart.md)
     - [Architecture](dev_architecture.md)
     - [Basic concepts](dev_basics.md)
