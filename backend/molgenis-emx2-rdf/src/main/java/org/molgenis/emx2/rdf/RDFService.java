@@ -322,6 +322,7 @@ public class RDFService {
     } else {
       builder.add(subject, RDFS.SUBCLASSOF, getTableIRI(parent));
     }
+    // Any custom semantics are always added, regardless of table type (DATA/ONTOLOGIES)
     if (table.getMetadata().getSemantics() != null) {
       for (final String tableSemantics : table.getMetadata().getSemantics()) {
         try {
@@ -336,12 +337,15 @@ public class RDFService {
               e);
         }
       }
-    } else if (table.getMetadata().getTableType() == TableType.ONTOLOGIES) {
+    }
+    // Add 'observing' for any DATA
+    if (table.getMetadata().getTableType() == TableType.DATA) {
+      builder.add(subject, RDFS.ISDEFINEDBY, IRI_OBSERVING);
+    }
+    // Add 'controlled vocab' and 'concept scheme' for any ONTOLOGIES
+    if (table.getMetadata().getTableType() == TableType.ONTOLOGIES) {
       builder.add(subject, RDFS.ISDEFINEDBY, IRI_CONTROLLED_VOCABULARY);
       builder.add(subject, RDFS.SUBCLASSOF, SKOS.CONCEPT_SCHEME);
-
-    } else {
-      builder.add(subject, RDFS.ISDEFINEDBY, IRI_OBSERVING);
     }
     builder.add(subject, RDFS.LABEL, table.getName());
 
