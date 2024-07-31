@@ -88,6 +88,7 @@ class Transform:
         self.variable_mappings()
         self.catalogues()
         self.variable_values()
+        # TODO: self.publications()
 
         # TODO: add dataset type for LongITools, LifeCycle etc
         # TODO: collection counts alter data model & migrate
@@ -154,7 +155,8 @@ class Transform:
         # Data sources to Collections
         df_data_sources = pd.read_csv(self.path + 'Data sources.csv')
         df_data_sources.rename(columns={'type': 'RWD type',
-                                        'type other': 'RWD type other'}, inplace=True)
+                                        'type other': 'RWD type other',
+                                        'areas of information': 'areas of information rwd'}, inplace=True)
         df_data_sources['collection type'] = 'Data source'
 
         # Databanks to Collections
@@ -274,7 +276,9 @@ class Transform:
         df.rename(columns={'resource': 'collection',
                            'main resource': 'main collection',
                            'linked resource': 'linked collection',
-                           'other linked resource': 'other linked collection'}, inplace=True)
+                           'other linked resource': 'other linked collection',
+                           'subcohort.resource': 'population.collection',
+                           'subcohort.name': 'population.name'}, inplace=True)
 
         df = float_to_int(df)  # convert float back to integer
         df.to_csv(self.path + table_name + '.csv', index=False)
@@ -318,7 +322,7 @@ def restructure_repeats(df_variables, df_repeats):
     # TODO: EXPANSE_CDM repeats do not have a repeatUnit
     # restructuring of cdm repeats
     #TODO: rewrite drop duplicates to more stringent version
-    df_variables = df_variables.drop_duplicates(subset=['name'])   # keep unique entries, gets rid of LongITools 'root' variables
+    df_variables = df_variables.drop_duplicates(subset=['resource', 'dataset', 'name'])   # keep unique entries, gets rid of LongITools 'root' variables
     df_variables.loc[:, 'repeat unit'] = df_variables['name'].apply(get_repeat_unit, df=df_repeats)  # get repeat unit from
     df_variables.loc[:, 'repeat min'] = ''
     df_variables.loc[df_variables['is_repeated'] == True, 'repeat min'] = 0
