@@ -38,15 +38,26 @@ public class JavaScriptUtils {
     try {
       final Context context =
           Context.newBuilder("js")
-              .allowHostAccess(
-                  HostAccess.newBuilder()
-                      .allowArrayAccess(true)
-                      .allowListAccess(true)
-                      .allowMapAccess(true)
-                      .allowAllClassImplementations(true)
-                      .build())
+              .allowHostAccess(HostAccess.newBuilder(HostAccess.ALL).build())
               .engine(engine)
               .build();
+
+      context
+          .getBindings("js")
+          .putMember(
+              "simplePostClient",
+              (SimplePostClient)
+                  (query, variables, schemaId) -> {
+                    System.out.println(query);
+                    System.out.println(variables);
+                    System.out.println(schemaId);
+                    return null;
+                  });
+
+      //    String scriptje = "simplePostClient('query','variables', 'schema')";
+      //    Value result = context.eval("js", scriptje);
+      //    System.out.println(result.asString());
+
       Value bindings = context.getBindings("js");
       if (values != null) {
         for (Map.Entry<String, Object> entry : values.entrySet()) {
@@ -64,5 +75,10 @@ public class JavaScriptUtils {
     } catch (Exception e) {
       throw new MolgenisException("script failed: " + e.getMessage());
     }
+  }
+
+  @FunctionalInterface
+  public interface SimplePostClient {
+    Object execute(String query, Map<String, Object> variables, String schemaId);
   }
 }
