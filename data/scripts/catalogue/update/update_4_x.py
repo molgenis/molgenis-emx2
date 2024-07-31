@@ -318,7 +318,7 @@ def restructure_repeats(df_variables, df_repeats):
     # TODO: EXPANSE_CDM repeats do not have a repeatUnit
     # restructuring of cdm repeats
     #TODO: rewrite drop duplicates to more stringent version
-    df_variables = df_variables.drop_duplicates(subset=['collection', 'dataset', 'name'])   # keep unique entries, gets rid of LongITools 'root' variables
+    df_variables = df_variables.drop_duplicates(subset=['name'])   # keep unique entries, gets rid of LongITools 'root' variables
     df_variables.loc[:, 'repeat unit'] = df_variables['name'].apply(get_repeat_unit, df=df_repeats)  # get repeat unit from
     df_variables.loc[:, 'repeat min'] = ''
     df_variables.loc[df_variables['is_repeated'] == True, 'repeat min'] = 0
