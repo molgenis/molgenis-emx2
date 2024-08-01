@@ -35,7 +35,7 @@ import MessageError from "../forms/MessageError.vue";
 import Spinner from "../layout/Spinner.vue";
 import RefTable from "./RefTable.vue";
 import SideModal from "./SideModal.vue";
-import type { IColumn } from "meta-data-utils";
+import type { IColumn } from "metadata-utils";
 
 const props = withDefaults(
   defineProps<{

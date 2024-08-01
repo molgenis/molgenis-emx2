@@ -4,7 +4,7 @@ import type {
   ISchemaMetaData,
   ISetting,
   ITableMetaData,
-} from "meta-data-utils";
+} from "metadata-utils";
 import { IRow } from "../Interfaces/IRow";
 import { deepClone } from "../components/utils";
 import type { aggFunction } from "./IClient";
@@ -163,7 +163,7 @@ const client: IClient = {
 };
 export default client;
 
-const metaDataQuery = `{
+const metadataQuery = `{
   _schema {
     id,
     tables {
@@ -242,7 +242,7 @@ const fetchSchemaMetaData = async (
     return schemaCache.get(currentschemaId) as ISchemaMetaData;
   }
   return await axios
-    .post(graphqlURL(schemaId), { query: metaDataQuery })
+    .post(graphqlURL(schemaId), { query: metadataQuery })
     .then((result: AxiosResponse<{ data: { _schema: ISchemaMetaData } }>) => {
       const schema = result.data.data._schema;
       if (schemaId == null) {
@@ -260,7 +260,7 @@ const fetchSchemaMetaData = async (
 const fetchTableData = async (
   tableId: string,
   properties: IQueryMetaData,
-  metaData: ISchemaMetaData
+  metadata: ISchemaMetaData
 ) => {
   const limit = properties.limit ? properties.limit : 20;
   const offset = properties.offset ? properties.offset : 0;
@@ -269,7 +269,7 @@ const fetchTableData = async (
     ? ',search:"' + properties.searchTerms.trim() + '"'
     : "";
 
-  const schemaId = metaData.id;
+  const schemaId = metadata.id;
   const columnIds = await getColumnIds(schemaId, tableId, expandLevel);
   const tableDataQuery = `query ${tableId}( $filter:${tableId}Filter, $orderby:${tableId}orderby ) {
         ${tableId}(

@@ -1,7 +1,7 @@
 import type { IRow } from "../Interfaces/IRow";
 import constants from "./constants";
 import Client from "../client/client";
-import type { IColumn } from "meta-data-utils";
+import type { IColumn } from "metadata-utils";
 
 const { CODE_0, CODE_9, CODE_PERIOD, CODE_MINUS, MIN_LONG, MAX_LONG } =
   constants;

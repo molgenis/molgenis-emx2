@@ -10,7 +10,7 @@ import {
   isMissingValue,
   isRequired,
 } from "./formUtils";
-import type { ITableMetaData, IColumn } from "meta-data-utils";
+import type { ITableMetaData, IColumn } from "metadata-utils";
 const { AUTO_ID, HEADING } = constants;
 
 describe("getRowErrors", () => {

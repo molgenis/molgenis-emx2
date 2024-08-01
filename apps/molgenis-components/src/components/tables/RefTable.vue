@@ -70,7 +70,7 @@ import { isRefType } from "../utils";
 import DataDisplayCell from "./DataDisplayCell.vue";
 import ObjectDisplay from "./cellTypes/ObjectDisplay.vue";
 import Client from "../../client/client";
-import type { IColumn, ITableMetaData } from "meta-data-utils";
+import type { IColumn, ITableMetaData } from "metadata-utils";
 
 const props = defineProps<{
   reference: IRow;

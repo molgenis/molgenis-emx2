@@ -1,18 +1,18 @@
 {
-  "name": "meta-data-utils",
+  "name": "metadata-utils",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "files": [
     "dist"
   ],
-  "main": "dist/meta-data-utils.umd.cjs",
-  "module": "dist/meta-data-utils.js",
+  "main": "dist/metadata-utils.umd.cjs",
+  "module": "dist/metadata-utils.js",
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/meta-data-utils.js",
-      "require": "./dist/meta-data-utils.umd.cjs"
+      "import": "./dist/metadata-utils.js",
+      "require": "./dist/metadata-utils.umd.cjs"
     }
   },
   "scripts": {

@@ -28,7 +28,7 @@
 </template>
 
 <script lang="ts">
-import { IColumn, ITableMetaData } from "meta-data-utils";
+import { IColumn, ITableMetaData } from "metadata-utils";
 import constants from "../constants.js";
 import { deepClone } from "../utils";
 import FormInput from "./FormInput.vue";

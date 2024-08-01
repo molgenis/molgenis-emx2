@@ -26,7 +26,7 @@
     "graphql-tag": "2.12.6",
     "if-env": "^1.0.4",
     "jsdom": "22.1.0",
-    "meta-data-utils": "*",
+    "metadata-utils": "*",
     "postcss": "8.4.39",
     "postcss-custom-properties": "13.3.11",
     "prettier": "2.8.8",
@@ -37,7 +37,7 @@
   "dependencies": {
     "@vueuse/core": "10.7.0",
     "floating-vue": "5.2.2",
-    "meta-data-utils": "*",
+    "metadata-utils": "*",
     "vite": "4.5.3",
     "vue": "3.4.31"
   }

@@ -1,7 +1,7 @@
 <template>
   <RouterLink
     :to="{
-      name: metaData.refTableId + '-details',
+      name: metadata.refTableId + '-details',
       params: data,
     }"
     ><ObjectDisplay :data="data" :metadata="metadata" />

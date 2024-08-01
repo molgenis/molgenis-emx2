@@ -6,11 +6,20 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script>
 import RefFieldValue from "./RefFieldValue.vue";
-
-const { data } = defineProps<{
-  data: Record<string, any> | any[];
-  metadata: Record<string, any>;
-}>();
+export default {
+  name: "RefArrayFieldValue",
+  components: { RefFieldValue },
+  props: {
+    data: {
+      type: [Object, Array],
+      required: true,
+    },
+    metadata: {
+      type: Object,
+      required: true,
+    },
+  },
+};
 </script>
