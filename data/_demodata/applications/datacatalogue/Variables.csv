@@ -872,7 +872,6 @@ A child is classified as SGA if their birth weight is <= 5th percentile for thei
 A child is classified as LGA if their birth weight is >= 95th percentile for their gestational age (in completed weeks).
 For e.g., a female born at 32 weeks + 2 days weighing 1,530g will be classified as SGA. A male born at 37 weeks + 5 days weighing 3,598 will be classified as LGA.",,,Size for gestational age,,
 ATHLETE_CDM,outcome_ath,glucose_idefics_perc_0,Repeated glucose percentiles based on the IDEFICS study reference values,,,,,continuous,,,,,,,,,,
-LifeCycle_CDM,core,whe_ever 4,Wheezing between ages 2-4 years,,,1.0.0,,binary,,,,,"Where data are available, wheezing should be obtained by ISAAC questionnaires. If this is not the case, the variabele is partially harmonized",,,Wheezing,,
 LifeCycle_CDM,core,whe_ever4,Wheezing between ages 2-4 years,,,1.0.0,,binary,,,,,"Where data are available, wheezing should be obtained by ISAAC questionnaires. If this is not the case, the variabele is partially harmonized",,,Wheezing,,
 LifeCycle_CDM,core,whgrains_sch,Whole grain cereals inschool-age children,,,1.0.0,,continuous,servings_per_day,,,,,,,Food groups (School),,
 LifeCycle_CDM,outcome,Asthma_adult,Ever diagnosis of asthma in adulthood based on physician diagnosis,,,1.0.0,,binary,,,,,"Where data are available, asthma should be doctor diagnosed. If no information is available on doctor diagnosis, the variable is partially harmonised.",,,Respiratory (Adult health),,
@@ -3347,7 +3346,6 @@ ATHLETE_CDM,chemicals_ath,c_bpa_lod_birth,Limit of detection of newborn  BPA at 
 ATHLETE_CDM,chemicals_ath,c_bpa_raw_0,child urine BPA levels within # year of age (child was aged between # and <#+1 year),,,1.1.0,,decimal,µg/L,,,,,,,Phenols,,
 ATHLETE_CDM,chemicals_ath,c_bpf_lod_0,Limit of detection of child urine BPF at # years,,,1.1.0,,decimal,µg/L,,,,,,,Phenols,,
 ATHLETE_CDM,chemicals_ath,c_bpf_lod_birth,Limit of detection of newborn  BPF at birth,,,1.1.0,,decimal,µg/L,,,,,,,Phenols,,
-ATHLETE_CDM,chemicals_ath,c_bpf_raw_ 0,Child urine BPF levels at # years,,,1.1.0,,decimal,µg/L,,,,,,,Phenols,,
 ATHLETE_CDM,chemicals_ath,c_bpf_raw_0,Child urine BPF levels at # years,,,1.1.0,,decimal,µg/L,,,,,,,Phenols,,
 ATHLETE_CDM,chemicals_ath,c_bpf_raw_birth,Newborn BPF birth levels,,,1.1.0,,decimal,µg/L,,,,,,,Phenols,,
 ATHLETE_CDM,chemicals_ath,c_bps_lod_0,limit of detection of child urine BPS levels within # year of age (child was aged between # and < #+1 year),,,1.1.0,,decimal,µg/L,,,,,,,Phenols,,
