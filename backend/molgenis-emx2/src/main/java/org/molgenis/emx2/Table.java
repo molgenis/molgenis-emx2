@@ -14,6 +14,8 @@ public interface Table {
 
   int insert(Iterable<Row> rows);
 
+  int insert(Iterable<Row> rows, Object bindings);
+
   int update(Row... row);
 
   int update(Iterable<Row> rows); // wish list: update based on secondary key.

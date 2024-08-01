@@ -9,6 +9,7 @@ import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeCreateSchem
 import com.zaxxer.hikari.HikariDataSource;
 import java.util.*;
 import javax.sql.DataSource;
+import org.jooq.Configuration;
 import org.jooq.DSLContext;
 import org.jooq.SQLDialect;
 import org.jooq.conf.Settings;
@@ -540,10 +541,10 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     } else {
       // we create a new instance, isolated from 'this' until end of transaction
       SqlDatabase db = new SqlDatabase(jooq, this);
-      this.tableListeners.forEach(listener -> db.addTableListener(listener));
+      this.tableListeners.forEach(db::addTableListener);
       try {
         jooq.transaction(
-            config -> {
+            (Configuration config) -> {
               db.inTx = true;
               DSLContext ctx = DSL.using(config);
               ctx.execute("SET CONSTRAINTS ALL DEFERRED");

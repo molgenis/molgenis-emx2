@@ -42,43 +42,23 @@ public class JavaScriptUtils {
               .engine(engine)
               .build();
 
-      context
-          .getBindings("js")
-          .putMember(
-              "simplePostClient",
-              (SimplePostClient)
-                  (query, variables, schemaId) -> {
-                    System.out.println(query);
-                    System.out.println(variables);
-                    System.out.println(schemaId);
-                    return null;
-                  });
-
-      //    String scriptje = "simplePostClient('query','variables', 'schema')";
-      //    Value result = context.eval("js", scriptje);
-      //    System.out.println(result.asString());
-
-      Value bindings = context.getBindings("js");
+      Value jsBindings = context.getBindings("js");
       if (values != null) {
         for (Map.Entry<String, Object> entry : values.entrySet()) {
           Object value = entry.getValue();
           if (value != null
               && (value.getClass() == LocalDateTime.class || value.getClass() == LocalDate.class)) {
-            bindings.putMember(entry.getKey(), value.toString());
+            jsBindings.putMember(entry.getKey(), value.toString());
           } else {
-            bindings.putMember(entry.getKey(), value);
+            jsBindings.putMember(entry.getKey(), value);
           }
         }
       }
+
       String scriptWithFixedRegex = script.replace("\\\\", "\\");
       return context.eval("js", scriptWithFixedRegex).as(clazz);
     } catch (Exception e) {
       throw new MolgenisException("script failed: " + e.getMessage());
     }
-  }
-
-  @FunctionalInterface
-  public interface SimplePostClient {
-    Object execute(String query, Map<String, Object> variables, String schemaId);
   }
 }

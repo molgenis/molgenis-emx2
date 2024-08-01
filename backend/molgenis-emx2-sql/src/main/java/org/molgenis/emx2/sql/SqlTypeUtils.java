@@ -19,14 +19,15 @@ public class SqlTypeUtils extends TypeUtils {
     // to hide the public constructor
   }
 
-  public static List<Row> applyValidationAndComputed(List<Column> columns, List<Row> rows) {
+  public static List<Row> applyValidationAndComputed(
+      List<Column> columns, List<Row> rows, Object bindings) {
     for (Row row : rows) {
-      applyValidationAndComputed(columns, row);
+      applyValidationAndComputed(columns, row, bindings);
     }
     return rows;
   }
 
-  public static void applyValidationAndComputed(List<Column> columns, Row row) {
+  public static void applyValidationAndComputed(List<Column> columns, Row row, Object bindings) {
     Map<String, Object> graph = convertRowToMap(columns, row);
     for (Column c : columns.stream().filter(c -> !c.isHeading()).toList()) {
       if (Constants.MG_EDIT_ROLE.equals(c.getName())) {
@@ -64,7 +65,7 @@ public class SqlTypeUtils extends TypeUtils {
         row.set(c.getName(), executeJavascriptOnMap(c.getComputed(), graph));
       } else if (columnIsVisible(c, graph)) {
         checkRequired(c, row, graph);
-        checkValidation(c, graph);
+        checkValidation(c, graph, bindings);
       } else {
         if (c.isReference()) {
           for (Reference ref : c.getReferences()) {
@@ -218,12 +219,12 @@ public class SqlTypeUtils extends TypeUtils {
     };
   }
 
-  public static void checkValidation(Column column, Map<String, Object> values) {
+  public static void checkValidation(Column column, Map<String, Object> values, Object bindings) {
     if (values.get(column.getName()) != null) {
       column.getColumnType().validate(values.get(column.getName()));
       // validation
       if (column.getValidation() != null) {
-        String errorMessage = checkValidation(column.getValidation(), values);
+        String errorMessage = checkValidation(column.getValidation(), values, bindings);
         if (errorMessage != null)
           throw new MolgenisException(
               "Validation error on column '" + column.getName() + "': " + errorMessage + ".");
@@ -231,8 +232,11 @@ public class SqlTypeUtils extends TypeUtils {
     }
   }
 
-  public static String checkValidation(String validationScript, Map<String, Object> values) {
+  public static String checkValidation(
+      String validationScript, Map<String, Object> values, Object bindings) {
     try {
+      values.put("simplePostClient", bindings);
+
       Object error = executeJavascriptOnMap(validationScript, values);
       if (error != null) {
         if (error instanceof Boolean && (Boolean) error == false) {
