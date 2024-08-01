@@ -155,7 +155,7 @@ public class TestLoaders {
   void test16DCATBasic() {
     Schema DCATSchema = database.createSchema(DCAT_BASIC);
     new ProfileLoader("_profiles/test-only/DCAT-basic.yaml").load(DCATSchema, true);
-    assertEquals(7, DCATSchema.getTableNames().size());
+    assertEquals(9, DCATSchema.getTableNames().size());
   }
 
   @Test
