@@ -95,7 +95,7 @@ class Transform:
         for table_name in ['Datasets', 'Dataset mappings', 'Subcohorts',
                            'Collection events', 'External identifiers',
                            'Linked resources', 'Quantitative information', 'Subcohort counts',
-                           'DAPs', 'Documentation', 'Contacts', 'Aggregates']:
+                           'DAPs', 'Documentation', 'Contacts']:
             self.transform_tables(table_name)
             self.rename_tables(table_name)
 
@@ -105,6 +105,7 @@ class Transform:
         # Cohorts to Collections
         df_catalogues = pd.read_csv(self.path + 'Catalogues.csv')
         df_catalogues['name'] = df_catalogues['network']
+        df_catalogues['description'] = 'to be filled out'
 
         df_catalogues = float_to_int(df_catalogues)  # convert float back to integer
         df_catalogues.to_csv(self.path + 'Catalogues.csv', index=False)
