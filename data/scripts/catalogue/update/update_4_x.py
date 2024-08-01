@@ -92,10 +92,13 @@ class Transform:
 
         # TODO: add dataset type for LongITools, LifeCycle etc
         # TODO: collection counts alter data model & migrate
+        # TODO: merge Collection DAPs and Collection organisations
+        # TODO: for vac4eu BPE model is an exception, not part of a network, also other model
+        # TODO: collection events reformatting columns
         for table_name in ['Datasets', 'Dataset mappings', 'Subcohorts',
                            'Collection events', 'External identifiers',
                            'Linked resources', 'Quantitative information', 'Subcohort counts',
-                           'DAPs', 'Documentation', 'Contacts']:
+                           'Documentation', 'Contacts']:
             self.transform_tables(table_name)
             self.rename_tables(table_name)
 
@@ -320,8 +323,6 @@ class Transform:
             os.rename(self.path + 'Variables.csv', self.path + 'Collection variables.csv')
         elif table_name == 'Dataset mappings':
             os.rename(self.path + 'Dataset mappings.csv', self.path + 'Mapped datasets.csv')
-        elif table_name == 'DAPs':
-            os.rename(self.path + 'DAPs.csv', self.path + 'Collection DAPs.csv')
         elif table_name == 'Quantitative information':
             os.rename(self.path + 'Quantitative information.csv', self.path + 'Collection counts.csv')
 
