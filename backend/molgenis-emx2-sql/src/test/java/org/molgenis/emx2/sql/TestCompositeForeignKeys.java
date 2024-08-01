@@ -174,15 +174,14 @@ public class TestCompositeForeignKeys {
         .add(column("nephew").setType(REFBACK).setRefTable("Person").setRefBack("uncle"));
 
     // test order by for refback
-    // TODO
-    //    p.query()
-    //        .select(
-    //            s("firstName"),
-    //            s("lastName"),
-    //            s("nephew", s("firstName"), s("lastName")),
-    //            s("uncle", s("firstName"), s("lastName")))
-    //        .orderBy("nephew")
-    //        .retrieveJSON();
+    p.query()
+        .select(
+            s("firstName"),
+            s("lastName"),
+            s("nephew", s("firstName"), s("lastName")),
+            s("uncle", s("firstName"), s("lastName")))
+        .orderBy("nephew")
+        .retrieveJSON();
 
     // test group by ref
     // Kwik = Katrien
@@ -307,15 +306,14 @@ public class TestCompositeForeignKeys {
         .retrieveJSON();
 
     // check we can sort on refback to a ref_array
-    // TODO
-    //    p.query()
-    //        .select(
-    //            s("firstName"),
-    //            s("lastName"),
-    //            s("cousins", s("firstName"), s("lastName")),
-    //            s("uncles", s("firstName"), s("lastName")))
-    //        .orderBy("uncles")
-    //        .retrieveJSON();
+    p.query()
+        .select(
+            s("firstName"),
+            s("lastName"),
+            s("cousins", s("firstName"), s("lastName")),
+            s("uncles", s("firstName"), s("lastName")))
+        .orderBy("uncles")
+        .retrieveJSON();
 
     // test group by ref_array
     // kwik = Micky, Donald
