@@ -432,17 +432,19 @@ def get_repeated_mappings_per_source(df_per_source, df_no_duplicates_per_source)
 
 
 def get_collection_organisations(df_organisations, df_resource):
-    """Merge data resource and organisation to Collection organisations"""
+    """Merge data resource and organisation to Collection organisations, split out multiple
+    references from ref_array into separate rows
+    """
     # get all leading organisations with collection reference in one row
-    i = -1
-    for row in df_resource['id']:
-        i += 1
-        if ',' in row:
-            org_list = row.split(',')
+    df_new_rows = pd.DataFrame(columns=['collection', 'id'])
+    for i in range(len(df_resource)):
+        if ',' in df_resource['id'][i]:
+            org_list = df_resource['id'][i].split(',')
             for org in org_list:
                 new_row = {'collection': df_resource['collection'][i], 'id': org}
-                df_resource.loc[len(df_resource)] = new_row
+                df_new_rows.loc[len(df_new_rows)] = new_row
             df_resource = df_resource.drop(index=i)
+    df_resource = pd.concat([df_resource, df_new_rows])
 
     # merge with df_organisations
     df_merged = pd.merge(df_organisations, df_resource, on='id')
@@ -451,22 +453,26 @@ def get_collection_organisations(df_organisations, df_resource):
 
 
 def get_collection_pubs(df_merged_pubs, df_publications):
-    """Merge information from publications form Collections table and Publications table on doi"""
+    """Merge information from publications from Collections and Publications tables, split out
+    multiple references from ref_array into separate rows
+    """
     # get all doi's with collection reference in one row
-    i = -1
-    for row in df_merged_pubs['doi']:
-        i += 1
-        if ',' in row:
-            doi_list = row.split(',')
+    df_new_rows = pd.DataFrame(columns=['collection', 'doi', 'is design publication'])
+    for i in range(len(df_merged_pubs)):
+        if ',' in df_merged_pubs['doi'][i]:
+            doi_list = df_merged_pubs['doi'][i].split(',')
             for doi in doi_list:
-                new_row = {'collection': df_merged_pubs['collection'][i], 'id': doi,
+                new_row = {'collection': df_merged_pubs['collection'][i], 'doi': doi,
                            'is design publication': df_merged_pubs['is design publication'][i]}
-                df_merged_pubs.loc[len(df_merged_pubs)] = new_row
+                df_new_rows.loc[len(df_new_rows)] = new_row
             df_merged_pubs = df_merged_pubs.drop(index=i)
+    df_merged_pubs = pd.concat([df_merged_pubs, df_new_rows])
 
+    # merge information from Collections and Publications tables on doi
     df_collection_pubs = pd.merge(df_merged_pubs, df_publications, on='doi')
 
     return df_collection_pubs
+
 
 def minus_one(x):
     x = x - 1
