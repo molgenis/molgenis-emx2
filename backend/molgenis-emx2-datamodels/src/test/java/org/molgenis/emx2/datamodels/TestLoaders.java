@@ -43,11 +43,9 @@ public class TestLoaders {
     database.dropSchemaIfExists(COHORT_STAGING);
     database.dropSchemaIfExists(NETWORK_STAGING);
     database.dropSchemaIfExists(DATA_CATALOGUE);
-    database.dropSchemaIfExists(DATA_CATALOGUE_FLAT);
     database.dropSchemaIfExists(DATA_CATALOGUE_AGGREGATES);
     database.dropSchemaIfExists(FAIR_DATA_HUB_TEST);
     database.dropSchemaIfExists(SHARED_STAGING);
-    database.dropSchemaIfExists(CATALOGUE_ONTOLOGIES);
     database.dropSchemaIfExists(DIRECTORY_TEST);
     database.dropSchemaIfExists(DIRECTORY_STAGING);
     database.dropSchemaIfExists(DIRECTORY_ONTOLOGIES);
@@ -55,12 +53,15 @@ public class TestLoaders {
     database.dropSchemaIfExists(JRC_CDE_TEST);
     database.dropSchemaIfExists(FAIR_GENOMES);
     database.dropSchemaIfExists(DCAT);
+    database.dropSchemaIfExists(DCAT_BASIC);
     database.dropSchemaIfExists(PROJECT_MANAGER);
     database.dropSchemaIfExists(FLAT_COHORTS_STAGING);
     database.dropSchemaIfExists(FLAT_UMCG_COHORTS_STAGING);
     database.dropSchemaIfExists(FLAT_STUDIES_STAGING);
     database.dropSchemaIfExists(FLAT_NETWORKS_STAGING);
     database.dropSchemaIfExists(FLAT_RWE_STAGING);
+    database.dropSchemaIfExists(DATA_CATALOGUE_FLAT);
+    database.dropSchemaIfExists(CATALOGUE_ONTOLOGIES);
   }
 
   @Test
