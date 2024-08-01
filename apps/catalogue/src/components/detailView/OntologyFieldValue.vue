@@ -2,7 +2,7 @@
   <ObjectDisplay
     :class="'font-weight-bold mr-2 mb-2 badge bade-lg badge-' + color"
     :data="data"
-    :metaData="metaData"
+    :metadata="metaData"
   />
 </template>
 

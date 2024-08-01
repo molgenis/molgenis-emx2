@@ -1,25 +1,16 @@
 <template>
   <div>
     <span v-for="(ref, idx) in data" :key="idx">
-      <RefFieldValue :data="ref" :metaData="metaData" />&nbsp;
+      <RefFieldValue :data="ref" :metadata="metadata" />&nbsp;
     </span>
   </div>
 </template>
 
-<script>
+<script setup lang="ts">
 import RefFieldValue from "./RefFieldValue.vue";
-export default {
-  name: "RefArrayFieldValue",
-  components: { RefFieldValue },
-  props: {
-    data: {
-      type: [Object, Array],
-      required: true,
-    },
-    metaData: {
-      type: Object,
-      required: true,
-    },
-  },
-};
+
+const { data } = defineProps<{
+  data: Record<string, any> | any[];
+  metadata: Record<string, any>;
+}>();
 </script>

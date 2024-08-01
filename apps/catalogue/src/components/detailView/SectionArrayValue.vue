@@ -5,7 +5,7 @@
       :key="index"
       :is="fieldTypeComponentName"
       :data="value"
-      :metaData="metaData"
+      :metadata="metaData"
       :color="color"
     />
   </div>

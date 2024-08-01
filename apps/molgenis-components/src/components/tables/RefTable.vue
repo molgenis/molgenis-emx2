@@ -4,7 +4,7 @@
       <ObjectDisplay
         v-if="primaryKey"
         :data="primaryKey"
-        :meta-data="reference.metadata"
+        :metadata="reference.metadata"
         class="mr-1"
       />
       <button
@@ -28,7 +28,7 @@
             >
               <DataDisplayCell
                 :data="cellValue"
-                :meta-data="metadataOfCell(cellName)"
+                :metadata="metadataOfCell(cellName)"
               />
             </td>
           </tr>

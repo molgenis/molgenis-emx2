@@ -264,10 +264,7 @@ const fetchTableData = async (
 ) => {
   const limit = properties.limit ? properties.limit : 20;
   const offset = properties.offset ? properties.offset : 0;
-  const expandLevel =
-    properties.expandLevel || properties.expandLevel == 0
-      ? properties.expandLevel
-      : 2;
+  const expandLevel = properties.expandLevel ?? 2;
   const search = properties.searchTerms
     ? ',search:"' + properties.searchTerms.trim() + '"'
     : "";
