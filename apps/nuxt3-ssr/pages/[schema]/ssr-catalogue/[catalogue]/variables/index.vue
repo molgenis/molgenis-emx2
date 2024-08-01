@@ -131,7 +131,14 @@ async function fetchCohortOptions(): Promise<INode[]> {
       variables: scoped
         ? {
             cohortsFilter: {
-              networks: { equals: [{ id: catalogueRouteParam }] },
+              _or: [
+                { networks: { equals: [{ id: catalogueRouteParam }] } },
+                {
+                  networks: {
+                    partOfNetworks: { equals: [{ id: catalogueRouteParam }] },
+                  },
+                },
+              ],
             },
           }
         : undefined,
