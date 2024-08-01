@@ -290,5 +290,20 @@ public class TestRefBack {
     // verify the reference has indeed been updated.
     assertEquals(
         "s1", schema.getTable("treatmentxyz").retrieveRows().get(0).getString("partOfSubject"));
+
+    // test circular dependency don't fail on refback
+    schema
+        .getTable("treatments")
+        .getMetadata()
+        .add(column("treatmentxyz").setType(REF_ARRAY).setRefTable("treatmentxyz"));
+    SchemaMetadata migration = new SchemaMetadata();
+    migration.create(
+        table(
+            "treatmentsxyz",
+            column("treatments")
+                .setType(REFBACK)
+                .setRefTable("treatments")
+                .setRefBack("treatmentxyz")));
+    schema.migrate(migration);
   }
 }
