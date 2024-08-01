@@ -88,7 +88,7 @@ class Transform:
         self.variable_mappings()
         self.catalogues()
         self.variable_values()
-        # TODO: self.publications()
+        self.publications()
 
         # TODO: add dataset type for LongITools, LifeCycle etc
         # TODO: collection counts alter data model & migrate
@@ -162,7 +162,8 @@ class Transform:
         # Databanks to Collections
         df_databanks = pd.read_csv(self.path + 'Databanks.csv')
         df_databanks.rename(columns={'type': 'datasource type',
-                                     'type other': 'datasource type other'}, inplace=True)
+                                     'type other': 'datasource type other',
+                                     'areas of information': 'areas of information rwd'}, inplace=True)
         df_databanks['collection type'] = 'Databank'
 
         # TODO: think about keeping Models as collection type
@@ -178,6 +179,30 @@ class Transform:
 
         df_collections = float_to_int(df_collections)  # convert float back to integer
         df_collections.to_csv(self.path + 'Collections.csv', index=False)
+
+    def publications(self):
+        """Transform Publications table
+        """
+        df_collections = pd.read_csv(self.path + 'Collections.csv')
+        df_publications = pd.read_csv(self.path + 'Publications.csv')
+
+        df_design_paper = df_collections[['id', 'design paper']]
+        df_design_paper['is design publication'] = 'true'
+        df_design_paper = df_design_paper.rename(columns={'id': 'collection',
+                                                          'design paper': 'doi'})
+        df_design_paper = df_design_paper.dropna(axis=0)
+
+        df_other_pubs = df_collections[['id', 'publications']]
+        df_other_pubs['is design publication'] = 'false'
+        df_other_pubs = df_other_pubs.rename(columns={'id': 'collection',
+                                                      'publications': 'doi'})
+        df_other_pubs = df_other_pubs.dropna(axis=0)
+
+        df_merged_pubs = pd.concat([df_design_paper, df_other_pubs])
+        df_merged_pubs = df_merged_pubs.reset_index()
+
+        df_collection_pubs = get_collection_pubs(df_merged_pubs, df_publications)
+        df_collection_pubs.to_csv(self.path + 'Collection publications.csv', index=False)
 
     def network_variables(self):
         df = pd.read_csv(self.path + 'Network variables.csv', keep_default_na=False)
@@ -419,13 +444,29 @@ def get_collection_organisations(df_organisations, df_resource):
                 df_resource.loc[len(df_resource)] = new_row
             df_resource = df_resource.drop(index=i)
 
-    # df_resource = df_resource[df_resource['id'].str.contains(",") == False]  # drop rows with multiple organisations
-
     # merge with df_organisations
     df_merged = pd.merge(df_organisations, df_resource, on='id')
 
     return df_merged
 
+
+def get_collection_pubs(df_merged_pubs, df_publications):
+    """Merge information from publications form Collections table and Publications table on doi"""
+    # get all doi's with collection reference in one row
+    i = -1
+    for row in df_merged_pubs['doi']:
+        i += 1
+        if ',' in row:
+            doi_list = row.split(',')
+            for doi in doi_list:
+                new_row = {'collection': df_merged_pubs['collection'][i], 'id': doi,
+                           'is design publication': df_merged_pubs['is design publication'][i]}
+                df_merged_pubs.loc[len(df_merged_pubs)] = new_row
+            df_merged_pubs = df_merged_pubs.drop(index=i)
+
+    df_collection_pubs = pd.merge(df_merged_pubs, df_publications, on='doi')
+
+    return df_collection_pubs
 
 def minus_one(x):
     x = x - 1
