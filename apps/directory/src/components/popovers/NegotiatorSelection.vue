@@ -154,7 +154,8 @@ export default {
         this.cartVisible = false;
       } catch (err) {
         console.info("Negotiator is unavailable. Please try again later.");
-        this.errorMessage = "An error occurred. Please try again later.";
+        this.errorMessage =
+          "Negotiator is unavailable. Please try again later.";
       }
     },
   },
