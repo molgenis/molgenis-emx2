@@ -1,6 +1,10 @@
 <template>
   <div class="mg-biobank-card container pb-4">
-    <div v-if="biobank.withdrawn" class="alert alert-warning" role="alert">
+    <div
+      v-if="biobank.withdrawn"
+      class="alert alert-warning ml-n3"
+      role="alert"
+    >
       {{ uiText["biobank_withdrawn"] }}
     </div>
     <div
