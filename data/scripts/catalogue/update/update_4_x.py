@@ -293,7 +293,7 @@ class Transform:
     def collection_events(self):
         """ Transform Collection events table
         """
-        df = pd.read_csv(self.path + 'Collection events.csv', keep_default_na=False)
+        df = pd.read_csv(self.path + 'Collection events.csv')
         df.loc[:, 'start month'] = df['start month'].apply(month_to_num)
         df['start date'] = df['start year'].astype('Int64').astype('string') + '-' + df['start month'] + '-01'
         df.loc[:, 'end month'] = df['end month'].apply(month_to_num)
@@ -335,7 +335,7 @@ class Transform:
         elif table_name == 'Quantitative information':
             os.rename(self.path + 'Quantitative information.csv', self.path + 'Collection counts.csv')
         elif table_name == 'Contacts':
-            os.rename(self.path + 'Quantitative information.csv', self.path + 'Collection contacts.csv')
+            os.rename(self.path + 'Contacts.csv', self.path + 'Collection contacts.csv')
         elif table_name == 'Documentation':
             os.rename(self.path + 'Documentation.csv', self.path + 'Collection documentation.csv')
 
