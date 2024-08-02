@@ -1,8 +1,8 @@
 # Development Guidelines
 
-## For components
+## For component development
 
-To ensure consistency in the MOLGENIS interfaces, we would also like components to follow the same structure. Please follow these guidelines when developing components or creating new ones
+To ensure consistency in the MOLGENIS interfaces, we would also like components to follow the same structure. Please follow these guidelines when developing components or creating new ones.
 
 ### 1. Component files should start with the template
 
@@ -21,7 +21,7 @@ All component files should start with the template markup first and then the scr
 
 ### 2. All scripts should use composition API and have typescript enabled
 
-We prefer to use the [composition API](https://vuejs.org/api/composition-api-setup.html) in emx2 components. Typescript should also be enabled and implemented everywhere.
+We prefer to use the [composition API](https://vuejs.org/api/composition-api-setup.html) for all EMX2 components. Typescript should also be enabled.
 
 ```vue
 <script setup lang="ts">
@@ -31,15 +31,17 @@ const count = ref<number>(0);
 </script>
 ```
 
+Make sure the `tsconfig.json` file is available in your app and typescript is enabled in your IDE.
+
 ### 3. All typescript interfaces should be defined in the component file
 
-If your component uses a new interface, please define it in the component and prefix the interface with `I`.
+Component interfaces should have a clear and unique name. Interfaces should also be prefixed with `I`.
 
 ```vue
 <script setup lang="ts">
 
 interface IComponent {
-  count: number
+  count: number;
 }
 
 const props = withDefaults(
@@ -52,7 +54,7 @@ const props = withDefaults(
 </script>
 ```
 
-If your interface is used in more than one component, then add it to the `types` folder. Instead of storing all interfaces in one file, save them into themed type files. For example, if you have an interface that is used in more than visualization component, then store it in `types/viz.ts`.
+If your interface is used in more than one component, then add it to the `src/types` folder. Rather than storing all interfaces in one large file, save them into themed files. For example, if you have an interface that is used in more than visualization component, then store it in `types/viz.ts`.
 
 ### 4. Components should be styled using the configured tailwind classes
 
@@ -67,7 +69,7 @@ If a specific style is not available, define it in the `assets/css/main.css` and
 
 ### 5. All components must follow good semantic HTML practices and should be built with accessibility in mind
 
-Good semantic html practices covers a lot of areas. In principle, it is important to make sure the appropriate elements are used so that HTML elements properly render and are accesible. For example, it is fairly common to see buttons that redirect users to another page. In this instance, buttons should perform only an action and not act as link. Instead, use the anchor element and style it as a button.
+Good semantic html practices covers a lot of areas. In principle, it is important to make sure the appropriate elements are used so that HTML elements properly render and are accesible. For example, it is fairly common to see buttons that redirects users to another page. Buttons should only perform an action and not act as link. Instead, it would be better to use the anchor element and style it as a button.
 
 ```diff
 - <button @click="window.location.href='....'">Get started</button>

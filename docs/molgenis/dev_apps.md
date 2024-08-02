@@ -1,48 +1,42 @@
-# Building frontend 'apps'
+# Building frontend apps
 
-In MOLGENIS EMX2, it is possible to create custom frontend applications. This may be useful for creating custom landing pages, dashboards, or other interfaces. This guide will provide information on how to create a new app or contribute to an existing application, as well as detailing the tools that are used and the configurations that are required to build an app. In the last section, you will find a step-by-step guide (see appendices) on how to manually create an application.
+One of the features of MOLGENIS EMX2, is the ability to create your own frontend applications. This may be useful for creating custom landing pages and dashboards for project monitoring, as well as hosting database documentation within the database. Depending on what you would like to display, you can build it using commonly used frontend tooling and deploy it in MOLGENIS.
 
-If you notice any issue with this guide (e.g, broken example, outdated information, etc.), please open an issue on Github: [molgenis-emx2/issues](https://github.com/molgenis/molgenis-emx2/issues).
+This guide will provide information on how to create a new app or how to contribute to an existing application. You will also find information on the tools that are used in MOLGENIS EMX2 and how to configure your app to deploy it in EMX2. In the last section (the appendices), you will find a step-by-step guides for developing apps.
+
+Before you begin, we encourage developers to read our [Development Guidelines](./dev_guidelines) to ensure consistency of all interfaces. If you notice any issue with this guide (e.g, broken example, outdated information, etc.), please open an issue on at [molgenis-emx2/issues](https://github.com/molgenis/molgenis-emx2/issues).
 
 ## Frontend tools
 
-Frontend apps are developed using the following tools.
+All frontend apps in EMX2 are developed using the following tools.
 
-- [vuejs](https://vuejs.org/)
-- [Bootstrap 4.x](https://getbootstrap.com/)
-- [scss](https://sass-lang.com): available via vite and declared in the vue style tags
-- [vite](https://vitejs.dev)
-- [yarn workspaces](https://yarnpkg.com/features/workspaces) to autowire local dependencies.
+- [vuejs](https://vuejs.org/): javascript framework for building web apps
+- [Bootstrap 4.x](https://getbootstrap.com/)\*: frontend library for layout and styling (we use last release of v4).
+- [vite](https://vitejs.dev): for application bundling
+- [yarn workspaces](https://yarnpkg.com/features/workspaces): to autowire local dependencies.
+
+In addition, some of the projects use [Sass](https://sass-lang.com) to compile css. Sass and scss can be activated in the vue component files by adding the `lang="scss"` to `<style>` tag.
 
 We also use Gradle to build applications. By running the `build` script in the package.json file, Gradle will build the application and bundle it with the other java applications (during `gradle run`).
 
 ## The apps folder
 
-All frontend applications are located in the `apps` folder. In the apps folder, there are a number of vue applications that are used as the main molgenis frontend (e.g., schema, settings, tables, etc.) or as project specific applications (e.g., aggregates, gportal, etc.). We also have a demo application (`hello-world`) that can be used as a starting for new applications.
-
-All vue applications are built using components from one or both component libraries.
+All frontend applications are located in the `apps` folder. In this folder are the vue applications that are used to create the main molgenis interfaces (e.g., schema, settings, tables, etc.) and the applications that we built for specific projects (e.g., aggregates, gportal, etc.). All applications are built using components from one or both of the molgenis component libraries.
 
 - 'molgenis-components': general layout and styling
-- 'molgenis-viz': a number of D3 components built in vue for creating visualizations and dashboards.
+- 'molgenis-viz': a number of D3 components for creating visualizations and dashboards
 
-When built, a 'lib' is create for each component library that can be used in other applications. You may need to build the libraries the first time and rebuild them after an update.
+These libraries need to be built as it creates a library that can be used in other applications. From time to time, you may need to rebuild the libraries if a library is changed. To build the component libraries, run the following yarn workspace script.
 
 ```bash
-# navigate to the apps
+# if not already in apps/
 cd apps
 
-# build the main component libary
-cd molgenis-components
-yarn build
-
-
-# build the visualisation library (if using)
-cd ..
-cd molgenis-viz
-yarn build
+# build both component libraries
+yarn build:libs
 ```
 
-The component libraries are also apps and they create a 'showCase' that is served as the app code. Note it is also an 'app' so it can be shown inside MOLGENIS. To view this run:
+The component libraries are also apps. They create a 'showCase' app that is served as the app code. To view this run:
 
 ```bash
 cd apps
@@ -66,22 +60,22 @@ git clone https://github.com/molgenis/molgenis-emx2
 git switch -c feat/my-new-app
 ```
 
-**Note**: Regarding branch names, we typically use these patterns for naming branches: `feat/*` for a new feature or improvement, and `fix/` for bugs.
+Regarding branch names, we typically use these patterns for naming branches: `feat/*` for a new feature or improvement, and `fix/` for bugs.
 
 ### Creating a new app
 
 If you would like to create a new vue app. There are few ways to get started. You can either -
 
-1. Copy the `hello-world` demo
+1. Copy the `hello-world` demo: a demo application that can be used as a starting for new applications.
 2. Copy an existing app and delete any unecessary files
-3. Create a new vue app using `create @yarn---`
+3. Create a new vue app using `yarn create vue@latest`
 4. Manually create folder and required files. `mkdir my-app`
 
-The first three options can create apps fairly quickly, but it requires you to delete files and adjust the configurations. If you would like to create an app manually, follow the [manually creating a frontend application](#manually-creating-a-frontend-application) guide at the end of this page.
+The first three options allow you to create apps fairly quickly, but it also requires you to delete files and adjust the configurations. If you would like to create an app manually, follow the [manually creating a frontend application](#manually-creating-a-frontend-application) guide at the end of this page. Before you get started, have a look at the other applications to see how they are structured and configured.
 
 #### Register your application in the yarn workspace
 
-In the apps folder, you will find a `package.json` file where all workspaces are defined. Add your application to the list of workspaces so that you have access to all local dependencies.
+In the apps folder, you will find a `package.json` file. This is where the workspace configurations are defined and all the apps are added to the workspace. Add your application to the list of workspaces so that you have access to all local dependencies.
 
 ```json
 {
@@ -106,18 +100,109 @@ In the apps folder, there are several core frontend applications (e.g., settings
 docker-compose up
 ```
 
-The /api and /graphql path is then proxied (as defined in the dev-proxy.config.js). In order to preview individual apps using yarn serve. For example, to preview the app `apps/schema`, run the following command.
+The `/api` and `/graphql` paths are proxied as defined in the dev-proxy.config.js. In order to preview individual apps, use yarn serve. For example, to preview the app `apps/schema`, run the following command.
 
 ```bash
 cd apps/schema
 yarn serve
 ```
 
-In addition, you can run gradle. In the main folder, run the following command. You will also need to start postgres (see [Postgres]() for more information).
+## Deploying your application
+
+When you have finished building your app, commit your changes and open a new PR. See our contributing guidelines (TBD) for more information.
+
+## Troubleshooting
+
+### How do I view my app locally?
+
+First, start the development server.
+
+```bash
+# cd into your app
+cd apps/<your-app>
+
+# start the dev server
+yarn dev
+```
+
+Once started, the app is served at [http://localhost:5173](http://localhost:5173). If the server is running and the app cannot be found, check the `vite.config.js` file to see if the port has changed.
+
+### How do I view my app on the server?
+
+On the server, applications are available at `/apps/<app-name>/`. The path of the app will match the name of the folder in the `apps/` directory. If you app interacts with a schema, it will accessible at `/<schema-name>/<app-name>/`.
+
+If you continue to have issues, make sure your app has been merged with the main emx2 branch and the server is updated with the latest version of MOLGENIS EMX2.
+
+### I get an error that a component from one of molgenis component libraries is not found
+
+It is likely that the component libraries need to built or rebuilt. In the `apps/` folder, run the following command.
+
+```bash
+yarn build:libs
+```
+
+If that does not resolve the issue, consider deleting the `node_modules` folder, and then reinstalling dependencies and rebuilding the component libraries.
+
+```bash
+cd apps/
+
+# remove node_modules
+rm -rf node_modules
+
+# reinstall dependencies
+yarn
+
+# rebuild component libraries
+yarn build:libs
+```
+
+### I would like to use the molgenis-viz library, but the styles aren't loading
+
+To use the `molgenis-viz` library in your application, a few configurations are required.
+
+First, make sure the style sheets are defined in the `vite.config.js` file. See if the `css` property is defined and all files are imported. The configuration should like this-
+
+```text
+css: {
+  preprocessorOptions: {
+    scss: {
+      additionalData: `
+      @import "../molgenis-viz/src/styles/palettes.scss";
+      @import "../molgenis-viz/src/styles/variables.scss";
+      @import "../molgenis-viz/src/styles/mixins.scss";
+      @import "../molgenis-viz/src/styles/resets.scss";
+    `,
+    },
+  },
+},
+```
+
+If that doesn't work, you may need to rebuild the component libraries. See the troubleshooting issue [I get an error that a component from one of molgenis component libraries is not found](#i-get-an-error-that-a-component-from-one-of-molgenis-component-libraries-is-not-found) for more information.
+
+### I would like to test my app against a clean server
+
+It is possible to run your app against a clean server. We use [gradle](https://gradle.org) to build MOLGENIS locally. You will also need to install and start postgres (see [Postgres](https://www.postgresql.org) for more information).
 
 ```bash
 ./gradlew run
 ```
+
+Gradle may take some time to build. Once it's ready, the app will be visible on port `8080`
+
+### I want to display my app by default
+
+For projects, you may want to display your app by default so that when a user navigates to a database, your app is displayed by default. Follow these steps to configure this.
+
+1. Sign in to your database as admin
+2. On the default view (`/apps/central/`), click on the "Admin" link in the navigation bar.
+3. Click on the "Settings" tab
+4. Click on "+" to add a new setting.
+5. In the form, add the following information:
+    - Key: `LANDING_PAGE`
+    - Value: `/path/to/your/app`
+6. Click save and refresh the page. Click on the MOLGENIS logo to view the change.
+
+The path to your app may vary. If it is tied to schema, then make sure the path is `/<schema-name>/<app-name>/`. Otherwise, the app is available at `/apps/<app-name>/`.
 
 ## Appendices
 
@@ -318,10 +403,4 @@ cp ../aggregates/index.html .
 
 Open the index.html file, add update the message with the name of your app. In addition, make sure the script tag points to the `main.ts` file.
 
-Therefore to develop, first cd into to folder 'apps' and install all dependencies for all apps. This will activate yarn
-workspaces that also automatically links local dependencies using:
-
-```console
-cd apps
-yarn install
-```
+By this point, you should have enough to view your app. Run the `yarn dev` command to start the dev server. The app will be served at [http://localhost:5173](http://localhost:5173).
