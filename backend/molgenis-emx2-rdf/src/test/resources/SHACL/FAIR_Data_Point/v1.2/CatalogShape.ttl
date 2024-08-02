@@ -4,6 +4,7 @@
 @prefix foaf: <http://xmlns.com/foaf/0.1/> .
 @prefix   sh: <http://www.w3.org/ns/shacl#> .
 @prefix  xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix fdp-o: <https://w3id.org/fdp/fdp-o#> .
 
 :CatalogShape a sh:NodeShape ;
   sh:targetClass dcat:Catalog ;
@@ -14,7 +15,7 @@
   ], [
     sh:path dct:hasVersion ;
     sh:nodeKind sh:Literal ;
-    sh:maxCount ;
+    sh:maxCount 1;
   ], [
     sh:path dct:description ;
     sh:nodeKind sh:Literal ;

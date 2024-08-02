@@ -122,14 +122,16 @@
     sh:name "membership resource" ;
     sh:description "" ;
     sh:path ldp:membershipResource ;
-    sh:nodeKind fdp-o:FAIRDataPoint ;
+    sh:nodeKind sh:IRI ;
+    sh:class fdp-o:FAIRDataPoint ;
     sh:maxCount 1 ;
     sh:minCount 1 ;
   ], [
     sh:name "has member relation" ;
     sh:description "The predicate used in the metadata to relate the FAIR Data Point with its member catalogs." ;
     sh:path ldp:hasMemberRelation ;
-    sh:nodeKind fdp-o:metadataCatalog ;
+    sh:nodeKind sh:IRI ;
+    sh:class fdp-o:metadataCatalog ;
     sh:maxCount 1 ;
     sh:minCount 1 ;
   ], [
