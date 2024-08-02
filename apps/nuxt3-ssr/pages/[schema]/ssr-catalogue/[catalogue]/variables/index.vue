@@ -131,7 +131,16 @@ async function fetchCohortOptions(): Promise<INode[]> {
       variables: scoped
         ? {
             cohortsFilter: {
-              networks: { equals: [{ id: catalogueRouteParam }] },
+              _or: [
+                {
+                  networks: { equals: [{ id: catalogueRouteParam }] },
+                },
+                {
+                  networks: {
+                    partOfNetworks: { equals: [{ id: catalogueRouteParam }] },
+                  },
+                },
+              ],
             },
           }
         : undefined,
@@ -264,7 +273,12 @@ async function buildScopedModelFilter() {
 const fetchData = async () => {
   let cohortsFilter: any = {};
   if (scoped) {
-    cohortsFilter.networks = { equals: [{ id: catalogueRouteParam }] };
+    cohortsFilter.networks = {
+      _or: [
+        { equals: [{ id: catalogueRouteParam }] },
+        { partOfNetworks: { equals: [{ id: catalogueRouteParam }] } },
+      ],
+    };
   }
 
   // add 'special' filter for harmonisation x-axis if 'cohorts' filter is set
