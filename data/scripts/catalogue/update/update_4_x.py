@@ -8,7 +8,7 @@ import re
 
 def float_to_int(df):
     """
-    Cast float64 Series to Int64.
+    Cast float64 Series to Int64. Floats are not converted to integers by EMX2
     """
     for column in df.columns:
         if df[column].dtype == 'float64':
@@ -88,13 +88,10 @@ class Transform:
         self.variable_mappings()
         self.catalogues()
         self.variable_values()
+        self.collection_events()
         self.publications()
 
-        # TODO: add dataset type for LongITools, LifeCycle etc
-        # TODO: collection counts alter data model & migrate
-        # TODO: merge Collection DAPs and Collection organisations
         # TODO: for vac4eu BPE model is an exception, not part of a network, also other model
-        # TODO: collection events reformatting columns
         for table_name in ['Datasets', 'Dataset mappings', 'Subcohorts',
                            'Collection events', 'External identifiers',
                            'Linked resources', 'Quantitative information', 'Subcohort counts',
@@ -293,6 +290,18 @@ class Transform:
         df_mappings = float_to_int(df_mappings)  # convert float back to integer
         df_mappings.to_csv(self.path + 'Mapped variables.csv', index=False)
 
+    def collection_events(self):
+        """ Transform Collection events table
+        """
+        df = pd.read_csv(self.path + 'Collection events.csv', keep_default_na=False)
+        df.loc[:, 'start month'] = df['start month'].apply(month_to_num)
+        df['start date'] = df['start year'].astype('Int64').astype('string') + '-' + df['start month'] + '-01'
+        df.loc[:, 'end month'] = df['end month'].apply(month_to_num)
+        df['end date'] = df['end year'].astype('Int64').astype('string') + '-' + df['end month'] + '-01'
+
+        df = float_to_int(df)  # convert float back to integer
+        df.to_csv(self.path + 'Collection events.csv', index=False)
+
     def transform_tables(self, table_name):
         df = pd.read_csv(self.path + table_name + '.csv', keep_default_na=False)
         if 'resource' in df.columns:
@@ -478,6 +487,24 @@ def get_collection_pubs(df_merged_pubs, df_publications):
     df_collection_pubs = pd.merge(df_merged_pubs, df_publications, on='doi')
 
     return df_collection_pubs
+
+
+def month_to_num(month):
+    if not pd.isna(month):
+        return {
+                'January': '01',
+                'February': '02',
+                'March': '03',
+                'April': '04',
+                'May': '05',
+                'June': '06',
+                'July': '07',
+                'August': '08',
+                'September': '09',
+                'October': '10',
+                'November': '11',
+                'December': '12'
+        }[month]
 
 
 def minus_one(x):
