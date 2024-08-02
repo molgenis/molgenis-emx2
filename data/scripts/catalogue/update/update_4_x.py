@@ -325,6 +325,10 @@ class Transform:
             os.rename(self.path + 'Dataset mappings.csv', self.path + 'Mapped datasets.csv')
         elif table_name == 'Quantitative information':
             os.rename(self.path + 'Quantitative information.csv', self.path + 'Collection counts.csv')
+        elif table_name == 'Contacts':
+            os.rename(self.path + 'Quantitative information.csv', self.path + 'Collection contacts.csv')
+        elif table_name == 'Documentation':
+            os.rename(self.path + 'Documentation.csv', self.path + 'Collection documentation.csv')
 
 
 def strip_resource(resource_name):
