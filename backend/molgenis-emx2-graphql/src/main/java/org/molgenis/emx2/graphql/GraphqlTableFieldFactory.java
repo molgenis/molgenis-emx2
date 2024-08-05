@@ -811,6 +811,7 @@ public class GraphqlTableFieldFactory {
   }
 
   private DataFetcher fetcher(Schema schema, MutationType mutationType) {
+    JavaScriptBindings javaScriptBindings = new JavaScriptBindings(schema);
     return dataFetchingEnvironment -> {
       StringBuilder result = new StringBuilder();
       boolean any = false;
@@ -830,7 +831,7 @@ public class GraphqlTableFieldFactory {
               count =
                   table.insert(
                       TypeUtils.convertToRows(table.getMetadata(), rowsAslistOfMaps),
-                      JavaScriptBindings.simplePostClient);
+                      javaScriptBindings.simplePostClient);
               result.append("inserted " + count + " records to " + tableName + "\n");
               break;
             case SAVE:
