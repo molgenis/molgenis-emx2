@@ -234,37 +234,27 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
       payload.nToken = nToken.value;
     }
 
-<<<<<<< HEAD
     // todo: show a success or failure message and close modal if needed.
     fetch(negotiatorUrl, {
-=======
-    const response = await fetch(negotiatorUrl, {
->>>>>>> master
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(payload),
-<<<<<<< HEAD
     })
       .then((response) => {
         if (response.ok) {
           removeAllCollectionsFromSelection({});
+        } else {
+          throw new Error(
+            "Negotiator is not available. Please try again later."
+          );
         }
       })
       .catch(function (err) {
         console.info(err + " url: " + negotiatorUrl);
+        throw new Error("Negotiator is not available. Please try again later.");
       });
-=======
-    });
-
-    if (!response.ok) {
-      throw new Error("Negotiator is not available. Please try again later.");
-    }
-
-    const body = await response.json();
-    window.location.href = body.redirect_uri;
->>>>>>> master
   }
 
   return {
