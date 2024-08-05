@@ -40,15 +40,15 @@
             <div>
               <div>
                 <span class="fixed-width">zip</span>
-                <ButtonAlt :href="'/' + schemaId + '/api/zip/' + tableId"
-                  >all rows</ButtonAlt
-                >
+                <ButtonAlt :href="'/' + schemaId + '/api/zip/' + tableId">
+                  all rows
+                </ButtonAlt>
               </div>
               <div>
                 <span class="fixed-width">csv</span>
-                <ButtonAlt :href="'/' + schemaId + '/api/csv/' + tableId"
-                  >all rows</ButtonAlt
-                >
+                <ButtonAlt :href="'/' + schemaId + '/api/csv/' + tableId">
+                  all rows
+                </ButtonAlt>
                 <span v-if="Object.keys(graphqlFilter).length > 0">
                   |
                   <ButtonAlt
@@ -181,7 +181,7 @@
       </div>
       <div
         class="flex-grow-1 pr-0 pl-0"
-        :class="countFilters > 0 ? 'col-9' : 'col-12'"
+        :class="countFilters ? 'col-9' : 'col-12'"
       >
         <FilterWells
           :filters="columns"
@@ -390,7 +390,7 @@
       v-if="refSideModalProps"
       :column="refSideModalProps.column"
       :rows="refSideModalProps.rows"
-      :schema="this.schemaId"
+      :schema="schemaId"
       @onClose="refSideModalProps = undefined"
       :showDataOwner="canManage"
     />
@@ -405,6 +405,7 @@
 </style>
 
 <script lang="ts">
+//@ts-ignore
 import { IColumn, ISetting, ITableMetaData } from "meta-data-utils";
 import Client from "../../client/client";
 import { IRow } from "../../Interfaces/IRow";
@@ -435,14 +436,14 @@ import TableSettings from "./TableSettings.vue";
 
 const { AUTO_ID } = constants;
 
-const View = {
+const View: Record<string, string> = {
   TABLE: "table",
   CARDS: "cards",
   RECORD: "record",
   AGGREGATE: "aggregate",
 };
 
-const ViewButtons = {
+const ViewButtons: Record<string, any> = {
   table: { id: View.TABLE, label: "Table", icon: "th" },
   cards: { id: View.CARDS, label: "Card", icon: "list-alt" },
   record: {
@@ -491,7 +492,7 @@ export default {
       count: 0,
       dataRows: [],
       editMode: "add", // add, edit, clone
-      editRowPrimaryKey: null,
+      editRowPrimaryKey: undefined,
       graphqlError: "",
       isDeleteAllModalShown: false,
       isDeleteModalShown: false,
@@ -516,7 +517,7 @@ export default {
     },
     schemaId: {
       type: String,
-      required: false,
+      default: () => "",
     },
     showSelect: {
       type: Boolean,
@@ -583,11 +584,10 @@ export default {
       return ViewButtons;
     },
     countFilters() {
-      return this.columns
-        ? this.columns.filter(
-            (filter: Record<string, any>) => filter.showFilter
-          ).length
-        : null;
+      return (
+        this.columns?.filter((filter: Record<string, any>) => filter.showFilter)
+          .length || 0
+      );
     },
     graphqlFilter() {
       let filter = this.filter;
@@ -608,7 +608,7 @@ export default {
       this.$emit("searchTerms", newSearchValue);
       this.reload();
     },
-    async handleRowAction(type: any, key: Promise<any>) {
+    async handleRowAction(type: any, key?: Promise<any>) {
       this.editMode = type;
       this.editRowPrimaryKey = await key;
       this.isEditModalShown = true;
