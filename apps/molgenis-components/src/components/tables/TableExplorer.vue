@@ -205,7 +205,7 @@
             v-if="view === View.CARDS"
             class="card-columns"
             id="cards"
-            :data="dataRows"
+            :data="rowsWithComputed"
             :columns="columns"
             :tableId="tableId"
             :canEdit="canEdit"
@@ -227,7 +227,7 @@
           <RecordCards
             v-if="view === View.RECORD"
             id="records"
-            :data="dataRows"
+            :data="rowsWithComputed"
             :columns="columns"
             :tableId="tableId"
             :canEdit="canEdit"
@@ -254,7 +254,7 @@
             :columns="columns"
             @update:columns="columns = $event"
             :table-metadata="tableMetadata"
-            :data="dataRows"
+            :data="rowsWithComputed"
             :showSelect="showSelect"
             @column-click="onColumnClick"
             @rowClick="$emit('rowClick', $event)"
@@ -404,14 +404,18 @@
 }
 </style>
 
-<script>
-import Client from "../../client/client.ts";
+<script lang="ts">
+import { IColumn, ISetting, ITableMetaData } from "meta-data-utils";
+import Client from "../../client/client";
+import { IRow } from "../../Interfaces/IRow";
+import constants from "../constants";
 import FilterSidebar from "../filters/FilterSidebar.vue";
 import FilterWells from "../filters/FilterWells.vue";
 import ButtonAlt from "../forms/ButtonAlt.vue";
 import ButtonDropdown from "../forms/ButtonDropdown.vue";
 import ConfirmModal from "../forms/ConfirmModal.vue";
 import EditModal from "../forms/EditModal.vue";
+import { executeExpression } from "../forms/formUtils/formUtils";
 import IconAction from "../forms/IconAction.vue";
 import IconDanger from "../forms/IconDanger.vue";
 import InputSearch from "../forms/InputSearch.vue";
@@ -428,6 +432,8 @@ import SelectionBox from "./SelectionBox.vue";
 import ShowHide from "./ShowHide.vue";
 import TableMolgenis from "./TableMolgenis.vue";
 import TableSettings from "./TableSettings.vue";
+
+const { AUTO_ID } = constants;
 
 const View = {
   TABLE: "table",
@@ -480,13 +486,13 @@ export default {
   data() {
     return {
       cardTemplate: null,
-      client: null,
+      client: null as any,
       columns: [],
       count: 0,
       dataRows: [],
       editMode: "add", // add, edit, clone
       editRowPrimaryKey: null,
-      graphqlError: null,
+      graphqlError: "",
       isDeleteAllModalShown: false,
       isDeleteModalShown: false,
       isEditModalShown: false,
@@ -498,9 +504,9 @@ export default {
       recordTemplate: null,
       searchTerms: "",
       selectedItems: [],
-      tableMetadata: null,
+      tableMetadata: null as ITableMetaData,
       view: this.canView ? this.showView : View.AGGREGATE,
-      refSideModalProps: undefined,
+      refSideModalProps: undefined as Record<string, any> | undefined,
     };
   },
   props: {
@@ -578,25 +584,31 @@ export default {
     },
     countFilters() {
       return this.columns
-        ? this.columns.filter((filter) => filter.showFilter).length
+        ? this.columns.filter(
+            (filter: Record<string, any>) => filter.showFilter
+          ).length
         : null;
     },
     graphqlFilter() {
       let filter = this.filter;
-      const errorCallback = (msg) => {
+      const errorCallback = (msg: string) => {
         this.graphqlError = msg;
       };
       return graphqlFilter(filter, this.columns, errorCallback);
     },
+    rowsWithComputed() {
+      console.log(`halllo`, this.dataRows, this.tableMetadata);
+      return applyComputed(this.dataRows, this.tableMetadata);
+    },
   },
   methods: {
     convertRowToPrimaryKey,
-    setSearchTerms(newSearchValue) {
+    setSearchTerms(newSearchValue: string) {
       this.searchTerms = newSearchValue;
       this.$emit("searchTerms", newSearchValue);
       this.reload();
     },
-    async handleRowAction(type, key) {
+    async handleRowAction(type: any, key: Promise<any>) {
       this.editMode = type;
       this.editRowPrimaryKey = await key;
       this.isEditModalShown = true;
@@ -605,14 +617,14 @@ export default {
       this.isEditModalShown = false;
       this.reload();
     },
-    async handleDeleteRowRequest(key) {
+    async handleDeleteRowRequest(key: Promise<any>) {
       this.editRowPrimaryKey = await key;
       this.isDeleteModalShown = true;
     },
     async handleExecuteDelete() {
       this.isDeleteModalShown = false;
       const resp = await this.client
-        .deleteRow(this.editRowPrimaryKey, this.tableId)
+        ?.deleteRow(this.editRowPrimaryKey, this.tableId)
         .catch(this.handleError);
       if (resp) {
         this.reload();
@@ -621,13 +633,13 @@ export default {
     async handelExecuteDeleteAll() {
       this.isDeleteAllModalShown = false;
       const resp = await this.client
-        .deleteAllTableData(this.tableMetadata.id)
+        .deleteAllTableData(this.tableMetadata?.id)
         .catch(this.handleError);
       if (resp) {
         this.reload();
       }
     },
-    handleCellClick(event) {
+    handleCellClick(event: any) {
       const { column, cellValue } = event;
       const rowsInRefTable = [cellValue].flat();
       if (isRefType(column?.columnType)) {
@@ -637,7 +649,7 @@ export default {
         };
       }
     },
-    setView(button) {
+    setView(button: Record<string, any>) {
       this.view = button.id;
       if (button.limitOverride) {
         this.limit = button.limitOverride;
@@ -648,7 +660,7 @@ export default {
       this.$emit("updateShowView", button.id, this.limit);
       this.reload();
     },
-    onColumnClick(column) {
+    onColumnClick(column: IColumn) {
       const oldOrderByColumn = this.orderByColumn;
       let order = this.order;
       if (oldOrderByColumn !== column.id) {
@@ -666,11 +678,11 @@ export default {
       });
       this.reload();
     },
-    emitColumns(event) {
+    emitColumns(event: any) {
       this.columns = event;
       this.$emit("updateShowColumns", getColumnIds(this.columns, "showColumn"));
     },
-    emitFilters(event) {
+    emitFilters(event: any) {
       this.columns = event;
       this.$emit("updateShowFilters", getColumnIds(event, "showFilter"));
     },
@@ -679,12 +691,12 @@ export default {
       this.$emit("updateConditions", this.columns);
       this.reload();
     },
-    setPage(page) {
+    setPage(page: any) {
       this.page = page;
       this.$emit("updateShowPage", page);
       this.reload();
     },
-    setLimit(limit) {
+    setLimit(limit: any) {
       this.limit = parseInt(limit);
       if (!Number.isInteger(this.limit) || this.limit < 1) {
         this.limit = 20;
@@ -693,7 +705,7 @@ export default {
       this.$emit("updateShowLimit", limit);
       this.reload();
     },
-    handleError(error) {
+    handleError(error: any) {
       if (Array.isArray(error?.response?.data?.errors)) {
         this.graphqlError = error.response.data.errors[0].message;
       } else {
@@ -701,8 +713,8 @@ export default {
       }
       this.loading = false;
     },
-    setTableMetadata(newTableMetadata) {
-      this.columns = newTableMetadata.columns.map((column) => {
+    setTableMetadata(newTableMetadata: ITableMetaData) {
+      this.columns = newTableMetadata.columns.map((column: IColumn) => {
         const showColumn = this.showColumns.length
           ? this.showColumns.includes(column.id)
           : !column.id.startsWith("mg_");
@@ -718,7 +730,7 @@ export default {
         };
       });
       //table settings
-      newTableMetadata.settings?.forEach((setting) => {
+      newTableMetadata.settings?.forEach((setting: ISetting) => {
         if (setting.key === "cardTemplate") {
           this.cardTemplate = setting.value;
         } else if (setting.key === "recordTemplate") {
@@ -739,7 +751,7 @@ export default {
     },
     async reload() {
       this.loading = true;
-      this.graphqlError = null;
+      this.graphqlError = "";
       const offset = this.limit * (this.page - 1);
       const orderBy = this.orderByColumn
         ? { [this.orderByColumn]: this.order }
@@ -774,13 +786,30 @@ export default {
   ],
 };
 
-function getColumnIds(columns, property) {
+function applyComputed(rows: IRow[], tableMetadata: ITableMetaData) {
+  return rows.map((row) => {
+    let bla: Record<string, any> = {};
+    Object.keys(row).forEach((key) => {
+      const col = tableMetadata.columns.find((column: IColumn) => {
+        return (
+          column.computed && column.columnType !== AUTO_ID && column.id === key
+        );
+      });
+      bla[key] = col
+        ? executeExpression(col.computed, row, tableMetadata)
+        : row[key];
+    });
+    return bla;
+  });
+}
+
+function getColumnIds(columns: IColumn[], property: string) {
   return columns
     .filter((column) => column[property] && column.columnType !== "HEADING")
     .map((column) => column.id);
 }
 
-function getCondition(columnType, condition) {
+function getCondition(columnType: string, condition: string) {
   if (condition) {
     switch (columnType) {
       case "REF":
@@ -794,7 +823,7 @@ function getCondition(columnType, condition) {
       case "INT":
       case "LONG":
       case "DECIMAL":
-        return condition.split(",").map((v) => v.split(".."));
+        return condition.split(",").map((v: string) => v.split(".."));
       default:
         return condition.split(",");
     }
@@ -803,13 +832,17 @@ function getCondition(columnType, condition) {
   }
 }
 
-function graphqlFilter(defaultFilter, columns, errorCallback) {
+function graphqlFilter(
+  defaultFilter: any,
+  columns: IColumn[],
+  errorCallback: any
+) {
   let filter = deepClone(defaultFilter);
   if (columns) {
     columns.forEach((col) => {
       const conditions = col.conditions
         ? col.conditions.filter(
-            (condition) => condition !== "" && condition !== undefined
+            (condition: string) => condition !== "" && condition !== undefined
           )
         : [];
       if (conditions.length) {
