@@ -6,15 +6,15 @@ The `tailwind-components` library is a reimplementation of the existing emx2 com
 
 All components are stored in the `components` folder and stories are located in `pages`. To view the components, take a look at the [components showcase](https://emx2.dev.molgenis.org/apps/tailwind-components) or run the `yarn dev` command.
 
-In the component folder, we've arranged the components into categories. To use the components, you will need to prefix the component name using the name of the subfolder. For example, if you wanted to use the checkbox component (`components/input/Checkbox.vue`), you would write the component as `<InputCheckbox>`. There are some folders that do not to be prefixed with the subfolder. This is described in the table below.
+In the component folder, we've arranged the components into categories. To use the components, you will need to prefix the component name using the name of the subfolder. For example, if you wanted to use the checkbox component (`components/input/Checkbox.vue`), you would write the component as `<InputCheckbox>`. There are some folders that do not require the path prefix. This is summarised in the following table.
 
-| Folder | Prefix | Description |
-|:-------|:------|:------------|
-| display | `<Display*>` | these components can be used to specify the presentation of content |
-| filter | `<Filter*>` | these components are used to reduce content by user specified criteria |
-| global | --- | these components are globally available (path prefix is not needed) |
-| input | `<Input*>` | these components are primarily used in forms |
-| viz | --- | a suite of visualization components built using D3 (path prefix is not needed) |
+| Folder  | Prefix       | Description                                                                    | Example                |
+|:--------|:-------------|:-------------------------------------------------------------------------------|------------------------|
+| display | `<Display*>` | these components can be used to specify the presentation of content            | `<DisplayList>`        |
+| filter  | `<Filter*>`  | these components are used to reduce content by user specified criteria         | `<FilterSearch>`       |
+| global  | ---          | these components are globally available (path prefix is not needed)            | `<ArrowLeft>`          |
+| input   | `<Input*>`   | these components are primarily used in forms                                   | `<InputCheckbox>`      |
+| viz     | ---          | a suite of visualization components built using D3 (path prefix is not needed) | `<GroupedColumnChart>` |
 
 ### Icons
 
@@ -60,7 +60,7 @@ git switch -c <my-branch>
 We use [yarn workspaces](https://yarnpkg.com/features/workspaces) to manage dependencies across all applications. On the first time, install the dependencies.
 
 ```bash
-yarn install
+yarn
 ```
 
 If you would like to add one or more libraries, install them using the `yarn add` method.
