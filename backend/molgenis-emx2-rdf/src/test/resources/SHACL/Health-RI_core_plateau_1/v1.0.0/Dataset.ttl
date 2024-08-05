@@ -1,0 +1,179 @@
+@prefix :         <http://fairdatapoint.org/> .
+@prefix dash:     <http://datashapes.org/dash#> .
+@prefix dcat:     <http://www.w3.org/ns/dcat#> .
+@prefix dct:      <http://purl.org/dc/terms/> .
+@prefix sh:       <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix vcard: <http://www.w3.org/2006/vcard/ns#> .
+@prefix : <http://coreRule-healthri.nl#> .
+
+:DatasetShape a sh:NodeShape ;
+  sh:targetClass dcat:Dataset ;
+  sh:property [
+    sh:path dcat:contactPoint ;
+    #sh:class vcard:Kind ;
+    sh:node :KindShape ;
+    sh:maxCount 1 ;
+    sh:name "Contact point" ;
+    dash:editor dash:URIEditor ;
+    dash:viewer dash:LabelViewer ;
+  ],
+  [
+    sh:path dct:creator ;
+    sh:node :AgentShape ;
+    sh:minCount 1 ;
+    dash:editor dash:BlankNodeEditor ;
+    dash:viewer dash:DetailsViewer ;
+  ],
+  [
+    sh:path dct:title ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:uniqueLang true ;
+    dash:viewer dash:LiteralViewer ;
+    dash:editor dash:TextFieldEditor ;
+  ],
+  [
+    sh:path dct:description ;
+    sh:datatype xsd:string ;
+    sh:nodeKind  sh:Literal;
+    dash:editor dash:TextFieldEditor ;
+    dash:viewer dash:LiteralViewer ;
+    sh:maxCount 1 ;
+    sh:uniqueLang true ;
+  ],
+  [
+    sh:path dct:identifier ;
+    sh:nodeKind sh:Literal ;
+    dash:editor dash:TextFieldEditor ;
+    dash:viewer dash:LiteralViewer ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ],
+  [
+    sh:path dct:issued ;
+    sh:datatype xsd:dateTime ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    dash:editor dash:DateTimePickerEditor ;
+    dash:viewer dash:LiteralViewer ;
+  ],
+  [
+    sh:path dct:license ;
+    sh:nodeKind sh:IRI ;
+    sh:maxCount 1 ;
+    dash:viewer dash:LabelViewer ;
+    dash:editor dash:URIEditor ;
+  ],
+  [
+    sh:path dct:modified ;
+    sh:datatype xsd:dateTime ;
+    sh:maxCount 1 ;
+    dash:editor dash:DateTimePickerEditor ;
+    dash:viewer dash:LiteralViewer ;
+  ],
+  [
+    sh:path dct:publisher ;
+    sh:node :AgentShape ;
+    dash:editor dash:BlankNodeEditor ;
+    dash:viewer dash:DetailsViewer ;
+  ],
+  [
+    sh:path dcat:theme ;
+    sh:nodeKind sh:IRI ;
+    sh:minCount 1 ;
+    dash:editor dash:URIEditor ;
+    dash:viewer dash:LabelViewer ;
+  ],
+  [
+    sh:path dct:type ;
+    sh:nodeKind sh:IRI ;
+    dash:viewer dash:LabelViewer ;
+    dash:editor dash:URIEditor ;
+  ],
+  [
+    sh:path dcat:distribution ;
+    sh:class dcat:Distribution ;
+  ],
+  [
+    sh:path dct:relation ;
+    sh:nodeKind sh:IRI ;
+    sh:class foaf:Project ;
+    dash:editor dash:URIEditor ;
+    dash:viewer dash:LabelViewer ;
+  ],
+  [
+    sh:path dcat:version ;
+    sh:nodeKind sh:Literal ;
+    #sh:minCount 0 ; #TBD
+    sh:name "Has Version" ;
+    dash:editor dash:TextFieldEditor ;
+    dash:viewer dash:LabelViewer ;
+  ] ,
+  [
+    sh:path dcat:inSeries ;
+    sh:nodeKind sh:IRI ;
+    sh:class dcat:DatasetSeries ;
+    dash:editor dash:URIEditor ;
+    dash:viewer dash:LabelViewer ;
+  ],
+  [
+    sh:path dcat:keyword ;
+    sh:nodeKind sh:Literal ;
+    dash:editor dash:TextFieldEditor ;
+    dash:viewer dash:LiteralViewer ;
+  ]  .
+
+
+:AgentShape a sh:NodeShape;
+  sh:property     
+  [ 
+    sh:path foaf:name ;
+    sh:nodeKind sh:Literal ;
+    dash:editor dash:TextFieldEditor ;
+    dash:viewer dash:LiteralViewer ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] ,
+  [
+    sh:path dct:identifier ;
+    sh:nodeKind sh:Literal ;
+    dash:editor dash:TextFieldEditor ;
+    dash:viewer dash:LiteralViewer ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ];
+
+sh:targetClass foaf:Agent .
+
+
+:KindShape a sh:NodeShape;
+  sh:property     
+  [ 
+    sh:path vcard:hasEmail ;
+    sh:nodeKind sh:IRI ;
+    sh:pattern "^mailto:.+@.+\\..+$" ;
+    dash:viewer dash:URIViewer ;
+    dash:editor dash:URIEditor ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] ,
+  [
+    sh:path vcard:fn ;
+    sh:nodeKind sh:Literal ;
+    sh:datatype xsd:string ;
+    dash:editor dash:TextFieldEditor ;
+    dash:viewer dash:LiteralViewer ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] ,
+  [ 
+    sh:path vcard:hasURL ;
+    sh:nodeKind sh:IRI ;
+    dash:viewer dash:URIViewer ;
+    dash:editor dash:URIEditor ;
+  ] ;
+
+sh:targetClass vcard:Kind .
+

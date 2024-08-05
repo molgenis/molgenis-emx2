@@ -39,7 +39,7 @@ public class Queries {
                 + "landingPage,"
                 + "license,"
                 + "language{ontologyTermURI},"
-                + "relation,"
+                + "relation{name},"
                 + "rights,"
                 + "qualifiedRelation,"
                 + "publisher{name},"
