@@ -40,13 +40,9 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
 
   const collectionSelectionCount = computed(() => {
     const allBiobanks = Object.keys(selectedCollections.value);
-    let collectionCount = 0;
-
-    for (const biobank of allBiobanks) {
-      collectionCount += selectedCollections.value[biobank].length;
-    }
-
-    return collectionCount;
+    return allBiobanks.reduce((accum, biobank) => {
+      return accum + selectedCollections.value[biobank].length;
+    }, 0);
   });
 
   function setSearchHistory(history) {
@@ -238,7 +234,7 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
       },
       body: JSON.stringify(payload),
     })
-      .then(async (response) => {
+      .then((response) => {
         if (response.ok) {
           removeAllCollectionsFromSelection({});
         }
