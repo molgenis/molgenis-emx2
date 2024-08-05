@@ -33,7 +33,7 @@ Individuals,,Disease,ontology_array,,,,Diseases,,,,http://purl.obolibrary.org/ob
 Individuals,,Phenotype,ontology_array,,,,Phenotypes,,,,http://purl.obolibrary.org/obo/NCIT_C16977,"Phenotype based on Human Phenotype Ontology (HPO). In JRC-CDE: Undiagnosed case","RD3, JRC-CDE"
 Individuals,,HasNotPhenotype,ontology_array,,,,Phenotypes,,,,http://purl.bioontology.org/ontology/HL7/C0442737,Relevant Phenotype NOT present in subject,RD3
 Individuals,,MostRecentPhenopacketFile,string,,,,,,,,,name of the most recent phenopackets file (formated as <subjectID>.<date>.json),RD3
-Individuals,,IncludedInStudies,ref_array,,,,studies,,,,http://purl.obolibrary.org/obo/RO_0000056,Reference to the study or studies in which this person participates.,RD3
+Individuals,,IncludedInStudies,ref_array,,,,Studies,,,,http://purl.obolibrary.org/obo/RO_0000056,Reference to the study or studies in which this person participates.,RD3
 Individuals,,IncludedInCohorts,ref_array,,,,Cohorts,,,,http://purl.obolibrary.org/obo/NCIT_C61512,"A group of individuals, identified by a common characteristic.",RD3
 Individuals,,IncludedInDatasets,ref_array,,,,datasets,,,,http://purl.obolibrary.org/obo/RO_0000056,Reference to the dataset or datasets in which this person was assigned to.,RD3
 Individuals,,Organisation,ontology_array,,,,Organisations,,,,http://purl.obolibrary.org/obo/NCIT_C25412,Name of the organisation that submitted Subject,RD3

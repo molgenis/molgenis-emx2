@@ -67,7 +67,7 @@ public class FAIRDataPointCatalog {
                 + "title,"
                 + "hasVersion,"
                 + "description,"
-                + "publisher,"
+                + "publisher{name},"
                 + "language{ontologyTermURI},"
                 + "license,"
                 + "themeTaxonomy,"

@@ -1,9 +1,9 @@
-network,type
-LifeCycle,project
-ATHLETE,project
-IPEC,theme
-EUChildNetwork,project
-OOM,project
-LongITools,project
-testNetwork1,theme
-testNetworkofNetworks,project
+network,type,description
+LifeCycle,project,a description about the project
+ATHLETE,project,a description about the project
+IPEC,theme,a description about the project
+EUChildNetwork,project,a description about the project
+OOM,project,a description about the project
+LongITools,project,a description about the project
+testNetwork1,theme,a description about the project
+testNetworkofNetworks,project,a description about the project

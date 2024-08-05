@@ -202,37 +202,50 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
     ); /** remove the last \r\n */
   }
 
-  function sendToNegotiator() {
-    const collections = [];
+  async function sendToNegotiator() {
+    const resources = [];
 
     for (const biobank in selectedCollections.value) {
       const collectionSelection = selectedCollections.value[biobank];
+      const biobankId = biobankIdDictionary.value[biobank];
+
       for (const collection of collectionSelection) {
-        collections.push(
+        resources.push(
           toRaw({
-            collectionId: collection.value,
-            biobankId: biobankIdDictionary.value[biobank],
+            id: collection.value,
+            name: collection.label,
+            organization: {
+              id: biobank.id,
+              externalId: biobank.id,
+              name: biobank.label,
+            },
           })
         );
       }
     }
-    const URL = window.location.href.replace(/&nToken=\w{32}/, "");
+
+    const url = window.location.origin;
     const humanReadable = getHumanReadableString() + createHistoryJournal();
     const negotiatorUrl = settingsStore.config.negotiatorUrl;
 
-    const payload = { URL, humanReadable, collections };
+    const payload = { url, humanReadable, resources };
 
     if (nToken.value) {
       payload.nToken = nToken.value;
     }
 
+<<<<<<< HEAD
     // todo: show a success or failure message and close modal if needed.
     fetch(negotiatorUrl, {
+=======
+    const response = await fetch(negotiatorUrl, {
+>>>>>>> master
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(payload),
+<<<<<<< HEAD
     })
       .then((response) => {
         if (response.ok) {
@@ -242,6 +255,16 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
       .catch(function (err) {
         console.info(err + " url: " + negotiatorUrl);
       });
+=======
+    });
+
+    if (!response.ok) {
+      throw new Error("Negotiator is not available. Please try again later.");
+    }
+
+    const body = await response.json();
+    window.location.href = body.redirect_uri;
+>>>>>>> master
   }
 
   return {

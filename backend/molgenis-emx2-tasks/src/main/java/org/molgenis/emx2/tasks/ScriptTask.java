@@ -8,11 +8,15 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
+import org.molgenis.emx2.email.EmailMessage;
+import org.molgenis.emx2.email.EmailService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,6 +43,7 @@ public class ScriptTask extends Task<ScriptTask> {
         .dependencies(scriptMetadata.getString("dependencies"))
         .cronExpression(scriptMetadata.getString("cron"))
         .cronUserName(scriptMetadata.getString("cronUser"))
+        .failureAddress(scriptMetadata.getString("failureAddress"))
         .disabled(
             !scriptMetadata.isNull("disabled", ColumnType.BOOL)
                 && scriptMetadata.getBoolean("disabled"));
@@ -124,7 +129,7 @@ public class ScriptTask extends Task<ScriptTask> {
                 new InputStreamReader(process.getErrorStream(), StandardCharsets.UTF_8))) {
           error = bufferedReader.lines().collect(Collectors.joining(System.lineSeparator()));
         }
-        if (error != null && error.trim().length() > 0) {
+        if (!error.trim().isEmpty()) {
           this.addSubTask("Script complete with error").setError(error);
         }
         process.waitFor();
@@ -151,6 +156,23 @@ public class ScriptTask extends Task<ScriptTask> {
     } catch (Exception e) {
       this.setError("Script failed: " + e.getMessage());
       throw new MolgenisException("Script execution failed", e);
+    } finally {
+      if (getStatus() == TaskStatus.ERROR) {
+        this.sendFailureMail();
+      }
+    }
+  }
+
+  private void sendFailureMail() {
+    if (this.getFailureAddress() != null && !this.getFailureAddress().isEmpty()) {
+      EmailService emailService = new EmailService();
+      String subject = "Molgenis script %s failed".formatted(this.getName());
+      String text =
+          "Molgenis script %s failed with error:\n%s"
+              .formatted(this.getName(), this.getDescription());
+      EmailMessage emailMessage =
+          new EmailMessage(List.of(this.getFailureAddress()), subject, text, Optional.empty());
+      emailService.send(emailMessage);
     }
   }
 

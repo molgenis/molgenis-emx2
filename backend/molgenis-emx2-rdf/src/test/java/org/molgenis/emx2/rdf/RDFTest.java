@@ -421,7 +421,7 @@ public class RDFTest {
   @Test
   void testThatURLsAreNotSplitForOntologyParentItem() throws IOException {
     var handler = new InMemoryRDFHandler() {};
-    getAndParseRDF(Selection.of(ontologyTest), handler);
+    getAndParseRDF(Selection.of(ontologyTest, "Diseases"), handler);
     var subject =
         Values.iri(
             "http://localhost:8080/OntologyTest/api/rdf/Diseases?name=C00-C14+Malignant+neoplasms+of+lip%2C+oral+cavity+and+pharynx");
