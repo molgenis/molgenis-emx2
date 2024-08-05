@@ -95,7 +95,7 @@ class Transform:
         for table_name in ['Datasets', 'Dataset mappings', 'Subcohorts',
                            'Collection events', 'External identifiers',
                            'Linked resources', 'Quantitative information', 'Subcohort counts',
-                           'Documentation', 'Contacts']:
+                           'Documentation', 'Contacts', 'Variables', 'Network variables']:
             self.transform_tables(table_name)
             self.rename_tables(table_name)
 
@@ -116,11 +116,15 @@ class Transform:
         df_collection_organisations = pd.DataFrame()
         df_organisations = pd.read_csv(self.path + 'Organisations.csv')
 
-        for table in ['Studies', 'Cohorts', 'Data sources', 'Databanks']:
+        for table in ['Studies', 'Cohorts', 'Data sources', 'Databanks', 'Contacts']:
             df_resource = pd.read_csv(self.path + table + '.csv')
-
-            df_resource = df_resource[['id', 'lead organisation']]
-            df_resource.rename(columns={'id': 'collection',
+            if table == 'Contacts':
+                df_resource = df_resource[['resource', 'organisation']]
+            else:
+                df_resource = df_resource[['id', 'lead organisation']]
+            df_resource.rename(columns={'resource': 'collection',
+                                        'organisation': 'id',
+                                        'id': 'collection',
                                         'lead organisation': 'id'}, inplace=True)
             df_resource = df_resource.dropna(axis=0)
             df_resource = df_resource.reset_index()
@@ -128,6 +132,7 @@ class Transform:
             df_collection_organisations = pd.concat([df_collection_organisations, df_merged])
 
         df_collection_organisations = float_to_int(df_collection_organisations)  # convert float back to integer
+        df_collection_organisations = df_collection_organisations.drop_duplicates(subset=['collection', 'id'])
         df_collection_organisations.to_csv(self.path + 'Collection organisations.csv', index=False)
 
     def collections(self):
@@ -207,16 +212,13 @@ class Transform:
 
     def network_variables(self):
         df = pd.read_csv(self.path + 'Network variables.csv', keep_default_na=False)
-        df.rename(columns={'network': 'collection',
-                           'variable.resource': 'variable.collection'}, inplace=True)
-        df.loc[:, 'collection'] = df['collection'].apply(strip_resource)
-        df.loc[:, 'variable.collection'] = df['variable.collection'].apply(strip_resource)
+        df.loc[:, 'network'] = df['network'].apply(strip_resource)
+        df.loc[:, 'variable.resource'] = df['variable.resource'].apply(strip_resource)
         df.loc[:, 'variable.name'] = df['variable.name'].apply(remove_number)
-        df = df.drop_duplicates(subset='variable.name')
-        df.rename(columns={'resource': 'collection'}, inplace=True)
+        df = df.drop_duplicates(subset=['network', 'variable.resource', 'variable.name'])
 
         df = float_to_int(df)  # convert float back to integer
-        df.to_csv(self.path + 'Collection variables.csv', index=False)
+        df.to_csv(self.path + 'Network variables.csv', index=False)
 
     def variable_values(self):
         # restructure variable values
@@ -260,8 +262,6 @@ class Transform:
 
         # concatenate all variables
         df_all_variables = pd.concat([df_variables_cdm, df_variables_no_cdm, df_repeats_no_cdm])
-        df_all_variables.rename(columns={'resource': 'collection',
-                                         'collection event.resource': 'collection event.collection'}, inplace=True)
 
         df_all_variables = float_to_int(df_all_variables)  # convert float back to integer
         df_all_variables.to_csv(self.path + 'Variables.csv', index=False)
@@ -312,11 +312,14 @@ class Transform:
             df.loc[:, 'subcohorts'] = df['subcohorts'].apply(strip_resource)
 
         df.rename(columns={'resource': 'collection',
-                           'main resource': 'main collection',
+                           'main resource': 'collection',
                            'linked resource': 'linked collection',
                            'other linked resource': 'other linked collection',
                            'subcohort.resource': 'population.collection',
-                           'subcohort.name': 'population.name'}, inplace=True)
+                           'subcohort.name': 'population.name',
+                           'collection event.resource': 'collection event.collection',
+                           'network': 'collection',
+                           'variable.resource': 'variable.collection'}, inplace=True)
 
         df = float_to_int(df)  # convert float back to integer
         df.to_csv(self.path + table_name + '.csv', index=False)
@@ -328,8 +331,6 @@ class Transform:
             os.rename(self.path + 'Subcohort counts.csv', self.path + 'Collection subcohort counts.csv')
         elif table_name == 'Datasets':
             os.rename(self.path + 'Datasets.csv', self.path + 'Collection datasets.csv')
-        elif table_name == 'Variables':
-            os.rename(self.path + 'Variables.csv', self.path + 'Collection variables.csv')
         elif table_name == 'Dataset mappings':
             os.rename(self.path + 'Dataset mappings.csv', self.path + 'Mapped datasets.csv')
         elif table_name == 'Quantitative information':
@@ -338,6 +339,12 @@ class Transform:
             os.rename(self.path + 'Contacts.csv', self.path + 'Collection contacts.csv')
         elif table_name == 'Documentation':
             os.rename(self.path + 'Documentation.csv', self.path + 'Collection documentation.csv')
+        elif table_name == 'External identifiers':
+            os.rename(self.path + 'External identifiers.csv', self.path + 'Collection external identifiers.csv')
+        elif table_name == 'Linked resources':
+            os.rename(self.path + 'Linked resources.csv', self.path + 'Collection linkages.csv')
+        elif table_name == 'Network variables':
+            os.rename(self.path + 'Network variables.csv', self.path + 'Collection variables.csv')
 
 
 def strip_resource(resource_name):
@@ -399,23 +406,17 @@ def get_repeat_number(s):
 
 
 def rewrite_mappings(df, df_no_duplicates):
-    df_no_duplicates.loc[:, 'number'] = 0  # TODO: lose numbering
-    df_no_duplicates.loc[:, 'repeats'] = ''  # TODO: make repeats part of key
+    df_no_duplicates.loc[:, 'repeats'] = ''
     df_mappings = pd.DataFrame()
     # divide df_no_duplicates per source
     list_source = df['source'].drop_duplicates().tolist()
     for source in list_source:
         # select unique mappings per source
         df_no_duplicates_per_source = df_no_duplicates[df_no_duplicates['source'] == source]
-        # get mapping numbers
-        df_no_duplicates_per_source.loc[:, 'number'] = df_no_duplicates_per_source.reset_index().index
         # select original mappings per source
         df_per_source = df[df['source'] == source]
         df_no_duplicates_per_source = get_repeated_mappings_per_source(df_per_source, df_no_duplicates_per_source)
         df_mappings = pd.concat([df_mappings, df_no_duplicates_per_source])
-
-    # mapping number minus one
-    df_mappings.loc[:, 'number'] = df_mappings['number'].apply(minus_one)
 
     return df_mappings
 
@@ -490,7 +491,9 @@ def get_collection_pubs(df_merged_pubs, df_publications):
 
 
 def month_to_num(month):
-    if not pd.isna(month):
+    if pd.isna(month):
+        return '01'
+    else:
         return {
                 'January': '01',
                 'February': '02',
@@ -505,9 +508,3 @@ def month_to_num(month):
                 'November': '11',
                 'December': '12'
         }[month]
-
-
-def minus_one(x):
-    x = x - 1
-
-    return x
