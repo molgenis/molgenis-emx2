@@ -23,14 +23,14 @@ import spark.Request;
 public class FAIRDataPointDistributionNotInDatasetTest {
 
   static Database database;
-  static Schema fairDataHub_distribnotindataset;
+  static Schema dcat_distribnotindataset;
 
   @BeforeAll
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
-    fairDataHub_distribnotindataset = database.dropCreateSchema("fairDataHub_distribnotindataset");
-    ProfileLoader fairDataHubLoader = new ProfileLoader("_profiles/FAIRDataHub.yaml");
-    fairDataHubLoader.load(fairDataHub_distribnotindataset, true);
+    dcat_distribnotindataset = database.dropCreateSchema("dcat_distribnotindataset");
+    ProfileLoader dcatLoader = new ProfileLoader("_profiles/DCAT.yaml");
+    dcatLoader.load(dcat_distribnotindataset, true);
   }
 
   @Test
