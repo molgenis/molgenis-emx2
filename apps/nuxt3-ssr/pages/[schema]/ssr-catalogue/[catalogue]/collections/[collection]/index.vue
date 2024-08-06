@@ -7,7 +7,7 @@ import datasetQuery from "~~/gql/datasets";
 import ontologyFragment from "~~/gql/fragments/ontology";
 import fileFragment from "~~/gql/fragments/file";
 import type {
-  ICohort,
+  ICollection,
   IDefinitionListItem,
   IMgError,
   IOntologyItem,
@@ -20,8 +20,8 @@ const config = useRuntimeConfig();
 const route = useRoute();
 
 const query = gql`
-  query Cohorts($id: String) {
-    Cohorts(filter: { id: { equals: [$id] } }) {
+  query Collections($id: String) {
+    Collections(filter: { id: { equals: [$id] } }) {
       id
       pid
       acronym
@@ -32,57 +32,17 @@ const query = gql`
         url
       }
       contactEmail
-      leadOrganisation {
-        id
-        name
-        email
-        description
-        website
-        acronym
-        type {
-          name
-        }
-        institution
-        institutionAcronym
-        typeOther
-        address
-        expertise
-        country {
-          name
-        }
-        logo ${moduleToString(fileFragment)}
-      }
-      additionalOrganisations  {
-         id
-        name
-        email
-        description
-        website
-        acronym
-        type {
-          name
-        }
-        institution
-        institutionAcronym
-        typeOther
-        address
-        expertise
-        country {
-          name
-        }
-        logo ${moduleToString(fileFragment)}
-      }
       type {
         name
       }
-      collectionType {
+      cohortType {
         name
       }
       populationAgeGroups {
         name order code parent { code }
       }
-      startYear
-      endYear
+      startDataCollection
+      endDataCollection
       countries {
         name order
       }
@@ -94,47 +54,23 @@ const query = gql`
       numberOfParticipantsWithSamples
       designDescription
       designSchematic ${moduleToString(fileFragment)}
-      design {
+      designType {
         definition
         name
-      }
-      designPaper {
-        title
-        doi
       }
       populationOncologyTopology ${moduleToString(ontologyFragment)}
       populationOncologyMorphology ${moduleToString(ontologyFragment)}
       inclusionCriteria ${moduleToString(ontologyFragment)}
       otherInclusionCriteria
-      additionalOrganisations {
-        id
-        acronym
-        name
-        website
-        description
-        logo ${moduleToString(fileFragment)}
-      }
-      networks {
-        id
-        name
-        description
-        website
-        logo ${moduleToString(fileFragment)}
-      }
       publications(orderby: {title:ASC}) {
         doi
         title
-        year
       }
       collectionEvents {
         name
         description
-        startYear {
-          name
-        }
-        endYear {
-          name
-        }
+        startDate
+        endDate
         numberOfParticipants
         ageGroups ${moduleToString(ontologyFragment)}
         dataCategories ${moduleToString(ontologyFragment)}
@@ -145,7 +81,7 @@ const query = gql`
         }
         coreVariables
       }
-      contacts {
+      peopleInvolved {
         roleDescription
         firstName
         lastName
@@ -159,7 +95,10 @@ const query = gql`
           name
         }
         role ${moduleToString(ontologyFragment)}
-        
+      }
+      subcohorts {
+          name
+          mainMedicalCondition ${moduleToString(ontologyFragment)}
       }
       dataAccessConditions ${moduleToString(ontologyFragment)}
       dataAccessConditionsDescription
@@ -167,7 +106,6 @@ const query = gql`
       dataAccessFee
       releaseType ${moduleToString(ontologyFragment)}
       releaseDescription
-      linkageOptions
       fundingStatement
       acknowledgements
       prelinked
@@ -180,28 +118,22 @@ const query = gql`
       datasets {
         name
       }
-    }
-     Subcohorts(
-      filter: { resource: { id: { equals: [$id] } },  }
-    ) {
-      name
-      mainMedicalCondition ${moduleToString(ontologyFragment)}
-    }
-    CollectionEvents_agg(filter: { resource: { id: { equals: [$id] } } }) {
-      count
-    }
-    Subcohorts_agg(filter: { resource: { id: { equals: [$id] } } }) {
-      count
-    }
-    Publications_agg(filter: { resources: { id: { equals: [$id] } } }) {
-      count
+      collectionEvents_agg{
+        count
+      }
+      subcohorts_agg {
+        count
+      }
+      publications_agg {
+        count
+        }
     }
   }
 `;
-const variables = { id: route.params.cohort };
+const variables = { id: route.params.collection };
 interface IResponse {
   data: {
-    Cohorts: ICohort[];
+    Collections: ICollection[];
     Subcohorts: any[];
     CollectionEvents_agg: { count: number };
     Publications_agg: { count: number };
@@ -220,7 +152,7 @@ if (error.value) {
   logError(error.value, "Error fetching cohort data");
 }
 
-const cohort = computed(() => data.value?.data?.Cohorts[0] as ICohort);
+const cohort = computed(() => data.value?.data?.Collections[0] as ICollection);
 const subcohorts = computed(() => data.value?.data?.Subcohorts as any[]);
 const mainMedicalConditions = computed(() => {
   if (!subcohorts.value || !subcohorts.value.length) {
@@ -520,12 +452,14 @@ if (route.params.catalogue) {
     cohortOnly.value ? "home" : (route.params.catalogue as string)
   ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}`;
   crumbs[
-    "Cohorts"
-  ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/cohorts`;
+    "Collections"
+  ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/collections`;
 } else {
   crumbs["Home"] = `/${route.params.schema}/ssr-catalogue/`;
   crumbs["Browse"] = `/${route.params.schema}/ssr-catalogue/all`;
-  crumbs["Cohorts"] = `/${route.params.schema}/ssr-catalogue/all/cohorts`;
+  crumbs[
+    "Collections"
+  ] = `/${route.params.schema}/ssr-catalogue/all/collections`;
 }
 
 const activeLeadOrganisationSideModalIndex = ref(-1);

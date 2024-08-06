@@ -15,6 +15,12 @@ const props = defineProps<{
 
 const generalDesign: IDefinitionListItem[] = [
   {
+    label: "Type",
+    content: props.cohort.type
+      ? props.cohort.type.map((type: INameObject) => type?.name).join(", ")
+      : undefined,
+  },
+  {
     label: "Cohort type",
     content: props.cohort.type
       ? props.cohort.type.map((type: INameObject) => type?.name).join(", ")

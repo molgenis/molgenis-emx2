@@ -1,6 +1,6 @@
 {
     "schema": [
-        "https://emx2.dev.molgenis.org/CatalogueOntologies/catalogue/graphql",
-        "https://emx2.dev.molgenis.org/catalogue/catalogue/graphql"
+        "https://brenda3.molgeniscloud.org/CatalogueOntologies",
+        "https://brenda3.molgeniscloud.org/catalogue-demoFLAT"
     ]
 }

@@ -3,11 +3,12 @@ import type { IFilter, IMgError, activeTabType } from "~/interfaces/types";
 
 const route = useRoute();
 const router = useRouter();
+const config = useRuntimeConfig();
 const pageSize = 10;
 
 const titlePrefix =
   route.params.catalogue === "all" ? "" : route.params.catalogue + " ";
-useHead({ title: titlePrefix + "Data sources" });
+useHead({ title: titlePrefix + "Collections" });
 
 const currentPage = computed(() => {
   const queryPageNumber = Number(route.query?.page);
@@ -15,80 +16,101 @@ const currentPage = computed(() => {
     ? Math.round(queryPageNumber)
     : 1;
 });
-let offset = computed(() => (currentPage.value - 1) * pageSize);
+const offset = computed(() => (currentPage.value - 1) * pageSize);
 
 const pageFilterTemplate: IFilter[] = [
   {
     id: "search",
     config: {
-      label: "Search in datasources",
+      label: "Search in collections",
       type: "SEARCH",
+      searchTables: ["collectionEvents", "subcohorts"],
       initialCollapsed: false,
     },
     search: "",
   },
   {
-    id: "areasOfInformation",
+    id: "type",
     config: {
-      label: "Areas of information",
+      label: "Type",
       type: "ONTOLOGY",
-      ontologyTableId: "AreasOfInformationDs",
-      ontologySchema: "CatalogueOntologies",
-      columnId: "areasOfInformation",
-    },
-    conditions: [],
-  },
-  {
-    id: "dataCategories",
-    config: {
-      label: "Data categories",
-      type: "ONTOLOGY",
-      ontologyTableId: "DatasourceTypes",
+      ontologyTableId: "CollectionTypesFLAT",
       ontologySchema: "CatalogueOntologies",
       columnId: "type",
     },
     conditions: [],
   },
+  // {
+  //   id: "areasOfInformation",
+  //   config: {
+  //     label: "Areas of information",
+  //     type: "ONTOLOGY",
+  //     ontologyTableId: "AreasOfInformationCohorts",
+  //     ontologySchema: "CatalogueOntologies",
+  //     columnId: "areasOfInformation",
+  //     filterTable: "collectionEvents",
+  //   },
+  //   conditions: [],
+  // },
+  // {
+  //   id: "dataCategories",
+  //   config: {
+  //     label: "Data categories",
+  //     type: "ONTOLOGY",
+  //     ontologyTableId: "DataCategories",
+  //     ontologySchema: "CatalogueOntologies",
+  //     columnId: "dataCategories",
+  //     filterTable: "collectionEvents",
+  //   },
+  //   conditions: [],
+  // },
+  // {
+  //   id: "populationAgeGroups",
+  //   config: {
+  //     label: "Population age groups",
+  //     type: "ONTOLOGY",
+  //     ontologyTableId: "AgeGroups",
+  //     ontologySchema: "CatalogueOntologies",
+  //     columnId: "ageGroups",
+  //     filterTable: "collectionEvents",
+  //   },
+  //   conditions: [],
+  // },
+  // {
+  //   id: "sampleCategories",
+  //   config: {
+  //     label: "Sample categories",
+  //     type: "ONTOLOGY",
+  //     ontologyTableId: "SampleCategories",
+  //     ontologySchema: "CatalogueOntologies",
+  //     columnId: "sampleCategories",
+  //     filterTable: "collectionEvents",
+  //   },
+  //   conditions: [],
+  // },
+  // {
+  //   id: "cohortTypes",
+  //   config: {
+  //     label: "Cohort types",
+  //     type: "ONTOLOGY",
+  //     ontologyTableId: "ResourceTypes",
+  //     ontologySchema: "CatalogueOntologies",
+  //     columnId: "type",
+  //   },
+  //   conditions: [],
+  // },
+  // {
+  //   id: "cohortDesigns",
+  //   config: {
+  //     label: "Design",
+  //     type: "ONTOLOGY",
+  //     ontologyTableId: "CohortDesigns",
+  //     ontologySchema: "CatalogueOntologies",
+  //     columnId: "design",
+  //   },
+  //   conditions: [],
+  // },
 ];
-
-if ("all" === route.params.catalogue) {
-  pageFilterTemplate.push({
-    id: "networks",
-    config: {
-      label: "Networks",
-      type: "REF_ARRAY",
-      columnId: "networks",
-      refTableId: "Networks",
-      refFields: {
-        key: "id",
-        name: "id",
-        description: "name",
-      },
-    },
-    conditions: [],
-  });
-}
-
-const query = computed(() => {
-  return `
-  query DataSources($filter:DataSourcesFilter, $orderby:DataSourcesorderby){
-    DataSources(limit: ${pageSize} offset: ${offset.value} filter:$filter  orderby:$orderby) {
-      id
-      name
-      acronym
-      description
-      keywords
-      numberOfParticipants
-      type{name}
-    }
-    DataSources_agg (filter:$filter){
-        count
-    }
-  }
-  `;
-});
-
-const orderby = { acronym: "ASC" };
 
 const filters = computed(() => {
   // if there are not query conditions just use the page defaults
@@ -104,6 +126,34 @@ const filters = computed(() => {
   return filters;
 });
 
+const query = computed(() => {
+  return `
+  query Collections($filter:CollectionsFilter, $orderby:Collectionsorderby){
+    Collections(limit: ${pageSize} offset: ${offset.value} filter:$filter  orderby:$orderby) {
+      id
+      name
+      acronym
+      description
+      keywords
+      numberOfParticipants
+      startDataCollection
+      endDataCollection
+      type {
+          name
+      }
+      designType {
+          name
+      }
+    }
+    Collections_agg (filter:$filter){
+        count
+    }
+  }
+  `;
+});
+
+const orderby = { acronym: "ASC" };
+
 const gqlFilter = computed(() => {
   let result: any = {};
 
@@ -116,10 +166,10 @@ const gqlFilter = computed(() => {
         result,
         {
           _or: [
-            { networks: { id: { equals: route.params.catalogue } } },
+            { partOfCollections: { id: { equals: route.params.catalogue } } },
             {
-              networks: {
-                partOfNetworks: { id: { equals: route.params.catalogue } },
+              partOfCollections: {
+                partOfCollections: { id: { equals: route.params.catalogue } },
               },
             },
           ],
@@ -148,13 +198,15 @@ const { data } = await useFetch<any, IMgError>(
   }
 );
 
-const dataSources = computed(() => data?.value.data.DataSources || []);
-const numberOfDataSources = computed(
-  () => data?.value.data.DataSources_agg?.count || 0
+const collections = computed(() => data.value.data.Collections || []);
+const numberOfCollections = computed(
+  () => data.value.data.Collections_agg.count || 0
 );
 
 async function setCurrentPage(pageNumber: number) {
-  await navigateTo({ query: { ...route.query, page: pageNumber } });
+  await navigateTo({
+    query: { ...route.query, page: pageNumber },
+  });
   window.scrollTo({ top: 0 });
 }
 
@@ -167,21 +219,24 @@ function onFilterChange(filters: IFilter[]) {
   });
 }
 
-type view = "detailed" | "compact";
-const activeTabName = computed(() => {
-  return (route.query.view as view | undefined) || "detailed";
-});
+const activeTabName = ref((route.query.view as string) || "detailed");
 
 function onActiveTabChange(tabName: activeTabType) {
+  activeTabName.value = tabName;
   router.push({
     path: route.path,
     query: { ...route.query, view: tabName },
   });
 }
 
+const cohortOnly = computed(() => {
+  const routeSetting = route.query["cohort-only"] as string;
+  return routeSetting === "true" || config.public.cohortOnly;
+});
+
 const crumbs: any = {};
 crumbs[
-  route.params.catalogue as string
+  cohortOnly.value ? "home" : (route.params.catalogue as string)
 ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}`;
 </script>
 
@@ -199,12 +254,12 @@ crumbs[
         <template #header>
           <!-- <NavigationIconsMobile :link="" /> -->
           <PageHeader
-            title="Data sources"
+            title="Collections"
             description="Group of individuals sharing a defining demographic characteristic."
-            icon="image-data-warehouse"
+            icon="image-link"
           >
             <template #prefix>
-              <BreadCrumbs :crumbs="crumbs" current="data sources" />
+              <BreadCrumbs :crumbs="crumbs" current="collections" />
             </template>
             <template #suffix>
               <SearchResultsViewTabs
@@ -227,7 +282,7 @@ crumbs[
                 button-bottom-name="compact"
                 button-bottom-icon="view-compact"
                 :activeName="activeTabName"
-                @update:activeName="onActiveTabChange"
+                @update:active-name="onActiveTabChange"
               >
                 <FilterSidebar
                   title="Filters"
@@ -241,40 +296,37 @@ crumbs[
         </template>
 
         <template #search-results>
-          <SearchResultsCount
-            :value="numberOfDataSources"
-            label="data source"
-          />
+          <SearchResultsCount label="collection" :value="numberOfCollections" />
           <FilterWell
             :filters="filters"
             @update:filters="onFilterChange"
           ></FilterWell>
           <SearchResultsList>
-            <CardList v-if="dataSources.length > 0">
+            <CardList v-if="collections.length > 0">
               <CardListItem
-                v-for="datasource in dataSources"
-                :key="datasource.name"
+                v-for="collection in collections"
+                :key="collection.name"
               >
-                <DataSourceCard
-                  :datasource="datasource"
+                <CohortCard
+                  :cohort="collection"
                   :schema="route.params.schema as string"
-                  :compact="activeTabName !== 'detailed'"
                   :catalogue="route.params.catalogue as string"
+                  :compact="activeTabName !== 'detailed'"
                 />
               </CardListItem>
             </CardList>
             <div v-else class="flex justify-center pt-3">
               <span class="py-15 text-blue-500">
-                No Datasources found with current filters
+                No Cohorts found with current filters
               </span>
             </div>
           </SearchResultsList>
         </template>
 
-        <template v-if="dataSources.length > 0" #pagination>
+        <template v-if="collections.length > 0" #pagination>
           <Pagination
             :current-page="currentPage"
-            :totalPages="Math.ceil(numberOfDataSources / pageSize)"
+            :totalPages="Math.ceil(numberOfCollections / pageSize)"
             @update="setCurrentPage($event)"
           />
         </template>

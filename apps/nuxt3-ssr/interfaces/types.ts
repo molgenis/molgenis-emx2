@@ -10,7 +10,7 @@ export interface IResource {
   contacts: IContributor[];
   logo?: IUrlObject;
 }
-export interface ICohort {
+export interface ICollection {
   id: string;
   pid: string;
   name: string;
@@ -85,12 +85,12 @@ export interface IPublication {
 
 export interface IVariableBase {
   name: string;
-  resource: {
+  collection: {
     id: string;
   };
   dataset: {
     name: string;
-    resource: {
+    collection: {
       id: string;
     };
   };
@@ -277,7 +277,7 @@ export interface IMapping {
     mg_tableclass: string;
   };
   sourceDataset: {
-    resource: {
+    collection: {
       id: string;
     };
     name: string;

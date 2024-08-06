@@ -8,17 +8,17 @@ type IRepeatingVariableWithMapping = IVariableWithMappings;
 type INonRepeatingVariableWithMapping = IVariableBase & IVariableWithMappings;
 
 /**
- * Returns a matrix of harmonisation status for each variable and cohort
+ * Returns a matrix of harmonisation status for each variable and collection
  * In case of a repeated variable, the status for toplevel variable is based on the combined status of all its repeats
  * @param variables
- * @param cohorts
+ * @param collections
  */
 export const calcAggregatedHarmonisationStatus = (
   variables: IVariableWithMappings[],
-  cohorts: { id: string }[]
+  collections: { id: string }[]
 ) => {
   return variables.map((v) => {
-    return cohorts.map((c) => {
+    return collections.map((c) => {
       if (!hasAnyMapping(v)) {
         // no mapping
         return "unmapped";
@@ -35,9 +35,9 @@ export const calcAggregatedHarmonisationStatus = (
 
 export const calcIndividualVariableHarmonisationStatus = (
   variable: IVariableWithMappings,
-  cohorts: { id: string }[]
+  collections: { id: string }[]
 ) => {
-  return cohorts.map((c) => {
+  return collections.map((c) => {
     if (!hasAnyMapping(variable)) {
       // no mapping
       return "unmapped";
@@ -63,13 +63,13 @@ const hasAnyMapping = (variable: IVariableWithMappings) => {
 
 const calcStatusForSingleVariable = (
   variable: INonRepeatingVariableWithMapping,
-  cohort: { id: string }
+  collection: { id: string }
 ): HarmonisationStatus => {
-  const resourceMapping = variable.mappings?.find((mapping) => {
-    return mapping.sourceDataset.resource.id === cohort.id;
+  const collectionMapping = variable.mappings?.find((mapping) => {
+    return mapping.sourceDataset.collection.id === collection.id;
   });
 
-  switch (resourceMapping?.match.name) {
+  switch (collectionMapping?.match.name) {
     case undefined:
       return "unmapped";
     case "na":
@@ -85,7 +85,7 @@ const calcStatusForSingleVariable = (
 
 const calcStatusForAggregatedRepeatingVariable = (
   variable: IRepeatingVariableWithMapping,
-  cohort: { id: string }
+  collection: { id: string }
 ): HarmonisationStatus => {
   const statusList = !variable.repeats
     ? []
@@ -94,7 +94,7 @@ const calcStatusForAggregatedRepeatingVariable = (
           return (
             mapping.targetVariable &&
             mapping.targetVariable.name === repeatedVariable.name &&
-            mapping.sourceDataset.resource.id === cohort.id
+            mapping.sourceDataset.resource.id === collection.id
           );
         });
 
@@ -105,7 +105,7 @@ const calcStatusForAggregatedRepeatingVariable = (
     return (
       mapping.targetVariable &&
       mapping.targetVariable.name === variable.name &&
-      mapping.sourceDataset.resource.id === cohort.id
+      mapping.sourceDataset.resource.id === collection.id
     );
   });
 

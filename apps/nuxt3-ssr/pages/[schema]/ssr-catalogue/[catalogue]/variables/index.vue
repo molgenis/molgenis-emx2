@@ -62,24 +62,25 @@ const pageFilterTemplate: IFilter[] = [
     },
     search: "",
   },
+  // {
+  //   id: "topics",
+  //   config: {
+  //     label: "Topics",
+  //     type: "ONTOLOGY",
+  //     ontologyTableId: "Keywords",
+  //     ontologySchema: "CatalogueOntologies",
+  //     columnId: "keywords",
+  //     initialCollapsed: true,
+  //   },
+  //   conditions: [],
+  // },
   {
-    id: "topics",
+    id: "collections",
     config: {
-      label: "Topics",
-      type: "ONTOLOGY",
-      ontologyTableId: "Keywords",
-      ontologySchema: "CatalogueOntologies",
-      columnId: "keywords",
-      initialCollapsed: true,
-    },
-    conditions: [],
-  },
-  {
-    id: "cohorts",
-    config: {
-      label: "Cohorts",
+      label: "Collections",
       type: "REF_ARRAY",
-      refTableId: "Cohorts",
+      refTableId: "Collections",
+      initialCollapsed: false,
       buildFilterFunction: (
         filterBuilder: Record<string, Record<string, any>>,
         conditions: IFilterCondition[]
@@ -94,14 +95,6 @@ const pageFilterTemplate: IFilter[] = [
                   match: { name: { equals: ["complete", "partial"] } },
                 },
               },
-              {
-                repeats: {
-                  mappings: {
-                    source: { equals: conditions.map((c) => ({ id: c.name })) },
-                    match: { name: { equals: ["complete", "partial"] } },
-                  },
-                },
-              },
             ],
           },
         };
@@ -111,18 +104,19 @@ const pageFilterTemplate: IFilter[] = [
         description: "name",
       },
     },
-    options: fetchCohortOptions,
+    options: fetchCollectionOptions,
     conditions: [],
   },
 ];
 
-async function fetchCohortOptions(): Promise<INode[]> {
+async function fetchCollectionOptions(): Promise<INode[]> {
+  console.log("???");
   const { data, error } = await $fetch(`/${route.params.schema}/graphql`, {
     method: "POST",
     body: {
       query: `
-            query CohortsOptions($cohortsFilter: CohortsFilter) {
-              Cohorts(filter: $cohortsFilter, orderby: { id: ASC }) {
+            query Collections($collectionsFilter: CollectionsFilter) {
+              Collections(filter: $collectionsFilter, orderby: { id: ASC }) {
                 id
                 name
               }
@@ -130,14 +124,16 @@ async function fetchCohortOptions(): Promise<INode[]> {
           `,
       variables: scoped
         ? {
-            cohortsFilter: {
+            collectionsFilter: {
               _or: [
                 {
-                  networks: { equals: [{ id: catalogueRouteParam }] },
+                  partOfCollections: { equals: [{ id: catalogueRouteParam }] },
                 },
                 {
-                  networks: {
-                    partOfNetworks: { equals: [{ id: catalogueRouteParam }] },
+                  partOfCollections: {
+                    partOfCollections: {
+                      equals: [{ id: catalogueRouteParam }],
+                    },
                   },
                 },
               ],
@@ -147,7 +143,9 @@ async function fetchCohortOptions(): Promise<INode[]> {
     },
   });
 
-  return data.Cohorts.map((option: { id: string; name?: string }) => {
+  console.log("found " + JSON.stringify(data));
+
+  return data.Collections.map((option: { id: string; name?: string }) => {
     return {
       name: option.id,
       description: option.name,
@@ -173,34 +171,27 @@ const query = computed(() => {
   return `
   query VariablesPage(
     $variablesFilter:VariablesFilter,
-    $cohortsFilter:CohortsFilter,
+    $collectionsFilter:CollectionsFilter,
   ){
     Variables(limit: ${pageSize} offset: ${
     offset.value
   } filter:$variablesFilter  orderby: { name: ASC }) {
       name
-      resource {
+      collection {
         id
       }
       dataset {
         name
-        resource {
+        collection {
           id
         }
       }
       label
       description
       mappings ${moduleToString(mappingsFragment)}
-      repeats(orderby: {name: ASC}) {
-        name
-        mappings ${moduleToString(mappingsFragment)}
-      }
     }
-    Cohorts(filter: $cohortsFilter, orderby: { id: ASC }) {
+    Collections(filter: $collectionsFilter, orderby: { id: ASC }) {
       id
-      networks {
-        id
-      }
     }
     Variables_agg (filter:$variablesFilter){
       count
@@ -229,19 +220,23 @@ async function buildScopedModelFilter() {
     method: "POST",
     body: {
       query: `
-            query Networks($filter:NetworksFilter) {
-              Networks(filter:$filter){
-                 models {
-                  id
+            query Collections($filter:CollectionsFilter) {
+              Collections(filter:$filter){
+                 id
+                 datasets {collection{id}
+                  name
+                 }
+                 collections(filter:{type:{name:{equals:"Network"}}}) {
+                    id
+                    datasets {collection{id}
+                    name
+                    }
                  }
               }
             }`,
       variables: {
         filter: {
-          _or: [
-            { id: { equals: catalogueRouteParam } },
-            { partOfNetworks: { id: { equals: catalogueRouteParam } } },
-          ],
+          _or: [{ id: { equals: catalogueRouteParam } }],
         },
       },
     },
@@ -252,16 +247,9 @@ async function buildScopedModelFilter() {
     return { error };
   }
 
-  const modelIds = data.Networks.map((n) =>
-    n.models?.map((m: { id: string }) => m.id)
-  ).flat();
-
   const scopedResourceFilter = {
-    resource: {
-      mg_tableclass: { like: ["Models"] },
-      id: {
-        equals: modelIds,
-      },
+    dataset: {
+      equals: data.Collections[0].datasets?.map((n: any) => n).flat(),
     },
   };
 
@@ -271,24 +259,24 @@ async function buildScopedModelFilter() {
 }
 
 const fetchData = async () => {
-  let cohortsFilter: any = {};
+  let collectionsFilter: any = {};
   if (scoped) {
-    cohortsFilter.networks = {
+    collectionsFilter.partOfCollections = {
       _or: [
         { equals: [{ id: catalogueRouteParam }] },
-        { partOfNetworks: { equals: [{ id: catalogueRouteParam }] } },
+        { partOfCollections: { equals: [{ id: catalogueRouteParam }] } },
       ],
     };
   }
 
-  // add 'special' filter for harmonisation x-axis if 'cohorts' filter is set
-  const cohortConditions = (
-    pageFilterTemplate.find((f) => f.id === "cohorts") as IRefArrayFilter
+  // add 'special' filter for harmonisation x-axis if 'collections' filter is set
+  const collectionConditions = (
+    pageFilterTemplate.find((f) => f.id === "collections") as IRefArrayFilter
   )?.conditions;
-  if (cohortConditions.length) {
-    cohortsFilter = {
-      ...cohortsFilter,
-      equals: cohortConditions.map((c) => ({ id: c.name })),
+  if (collectionConditions.length) {
+    collectionsFilter = {
+      ...collectionsFilter,
+      equals: collectionConditions.map((c) => ({ id: c.id })),
     };
   }
 
@@ -300,31 +288,15 @@ const fetchData = async () => {
               ...filter.value,
               ...(await buildScopedModelFilter()),
             },
-            {
-              ...filter.value,
-              ...{
-                networkVariables: {
-                  _or: [
-                    { network: { id: { equals: catalogueRouteParam } } },
-                    {
-                      network: {
-                        partOfNetworks: { id: { equals: catalogueRouteParam } },
-                      },
-                    },
-                  ],
-                },
-              },
-            },
           ],
         },
-        cohortsFilter,
+        collectionsFilter,
       }
     : {
         variablesFilter: {
           ...filter.value,
-          resource: { mg_tableclass: { like: ["Models"] } },
         },
-        cohortsFilter,
+        collectionsFilter,
       };
 
   return $fetch(graphqlURL.value, {
@@ -358,6 +330,8 @@ let crumbs: any = {};
 crumbs[
   `${route.params.catalogue}`
 ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}`;
+
+console.log("collections " + JSON.stringify(data.value.data.Collections));
 </script>
 
 <template>
@@ -459,7 +433,7 @@ crumbs[
             <HarmonisationTable
               v-else
               :variables="data?.data?.Variables"
-              :cohorts="data?.data?.Cohorts"
+              :collections="data?.data?.Collections"
             >
             </HarmonisationTable>
           </SearchResultsList>
