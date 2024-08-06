@@ -38,27 +38,23 @@ public class JavaScriptUtils {
     try {
       final Context context =
           Context.newBuilder("js")
-              .allowHostAccess(
-                  HostAccess.newBuilder()
-                      .allowArrayAccess(true)
-                      .allowListAccess(true)
-                      .allowMapAccess(true)
-                      .allowAllClassImplementations(true)
-                      .build())
+              .allowHostAccess(HostAccess.newBuilder(HostAccess.ALL).build())
               .engine(engine)
               .build();
-      Value bindings = context.getBindings("js");
+
+      Value jsBindings = context.getBindings("js");
       if (values != null) {
         for (Map.Entry<String, Object> entry : values.entrySet()) {
           Object value = entry.getValue();
           if (value != null
               && (value.getClass() == LocalDateTime.class || value.getClass() == LocalDate.class)) {
-            bindings.putMember(entry.getKey(), value.toString());
+            jsBindings.putMember(entry.getKey(), value.toString());
           } else {
-            bindings.putMember(entry.getKey(), value);
+            jsBindings.putMember(entry.getKey(), value);
           }
         }
       }
+
       String scriptWithFixedRegex = script.replace("\\\\", "\\");
       return context.eval("js", scriptWithFixedRegex).as(clazz);
     } catch (Exception e) {

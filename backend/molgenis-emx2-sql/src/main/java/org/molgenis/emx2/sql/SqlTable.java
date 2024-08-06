@@ -122,7 +122,16 @@ class SqlTable implements Table {
   @Override
   public int insert(Iterable<Row> rows) {
     try {
-      return executeTransaction(db, getSchema().getName(), getName(), rows, INSERT);
+      return executeTransaction(db, getSchema().getName(), getName(), rows, INSERT, null);
+    } catch (Exception e) {
+      throw new SqlMolgenisException("Update into table '" + getName() + "' failed.", e);
+    }
+  }
+
+  @Override
+  public int insert(Iterable<Row> rows, Object bindings) {
+    try {
+      return executeTransaction(db, getSchema().getName(), getName(), rows, INSERT, bindings);
     } catch (Exception e) {
       throw new SqlMolgenisException("Update into table '" + getName() + "' failed.", e);
     }
@@ -136,7 +145,7 @@ class SqlTable implements Table {
   @Override
   public int update(Iterable<Row> rows) {
     try {
-      return this.executeTransaction(db, getSchema().getName(), getName(), rows, UPDATE);
+      return this.executeTransaction(db, getSchema().getName(), getName(), rows, UPDATE, null);
     } catch (Exception e) {
       throw new SqlMolgenisException("Update into table '" + getName() + "' failed.", e);
     }
@@ -150,7 +159,7 @@ class SqlTable implements Table {
   @Override
   public int save(Iterable<Row> rows) {
     try {
-      return this.executeTransaction(db, getSchema().getName(), getName(), rows, SAVE);
+      return this.executeTransaction(db, getSchema().getName(), getName(), rows, SAVE, null);
     } catch (Exception e) {
       throw new SqlMolgenisException("Upsert into table '" + getName() + "' failed", e);
     }
@@ -195,7 +204,8 @@ class SqlTable implements Table {
       String schemaName,
       String tableName,
       Iterable<Row> rows,
-      MutationType transactionType) {
+      MutationType transactionType,
+      Object bindings) {
     long start = System.currentTimeMillis();
     final AtomicInteger count = new AtomicInteger(0);
     final Map<String, List<Row>> subclassRows = new LinkedHashMap<>();
@@ -273,7 +283,8 @@ class SqlTable implements Table {
                   count,
                   subclassRows,
                   subclassName,
-                  columnsProvided.get(subclassName));
+                  columnsProvided.get(subclassName),
+                  bindings);
               // reset columns provided
               columnsProvided.get(subclassName).clear();
               columnsProvided.get(subclassName).addAll(row.getColumnNames());
@@ -292,7 +303,8 @@ class SqlTable implements Table {
                   count,
                   subclassRows,
                   batch.getKey(),
-                  columnsProvided.get(batch.getKey()));
+                  columnsProvided.get(batch.getKey()),
+                  bindings);
             }
           }
           // listeners
@@ -320,7 +332,8 @@ class SqlTable implements Table {
       AtomicInteger count,
       Map<String, List<Row>> subclassRows,
       String subclassName,
-      Set<String> columnsProvided) {
+      Set<String> columnsProvided,
+      Object bindings) {
 
     // execute
     SqlTable table = schema.getTable(subclassName.split("\\.")[1]);
@@ -328,11 +341,12 @@ class SqlTable implements Table {
       List<Column> updateColumns = getUpdateColumns(table, columnsProvided);
       List<Row> rows =
           applyValidationAndComputed(
-              table.getMetadata().getColumns(), subclassRows.get(subclassName));
+              table.getMetadata().getColumns(), subclassRows.get(subclassName), bindings);
       count.set(count.get() + table.updateBatch(table, rows, updateColumns));
     } else if (SAVE.equals(transactionType) || INSERT.equals(transactionType)) {
       List<Column> insertColumns = getInsertColumns(table, columnsProvided);
-      List<Row> rows = applyValidationAndComputed(insertColumns, subclassRows.get(subclassName));
+      List<Row> rows =
+          applyValidationAndComputed(insertColumns, subclassRows.get(subclassName), bindings);
       count.set(
           count.get()
               + table.insertBatch(table, rows, SAVE.equals(transactionType), insertColumns));
