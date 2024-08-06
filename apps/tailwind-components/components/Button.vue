@@ -1,3 +1,15 @@
+<template>
+  <button
+    :class="`${colorClasses} ${sizeClasses} ${iconPositionClass} transition-colors`"
+    class="flex items-center border rounded-full"
+  >
+    <span v-if="icon">
+      <BaseIcon :name="icon" />
+    </span>
+    <span>{{ label }}<slot /></span>
+  </button>
+</template>
+
 <script setup lang="ts">
 import type {
   ButtonIconPosition,
@@ -62,15 +74,3 @@ const iconPositionClass = computed(() => {
   return ICON_POSITION_MAPPING[props.iconPosition];
 });
 </script>
-
-<template>
-  <button
-    :class="`${colorClasses} ${sizeClasses} ${iconPositionClass} transition-colors`"
-    class="flex items-center border rounded-full"
-  >
-    <span v-if="icon">
-      <BaseIcon :name="icon" />
-    </span>
-    <span>{{ label }}<slot /></span>
-  </button>
-</template>

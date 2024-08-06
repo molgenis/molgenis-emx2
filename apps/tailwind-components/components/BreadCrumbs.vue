@@ -1,27 +1,9 @@
-<script setup>
-defineProps({
-  crumbs: {
-    type: Object,
-    default: [],
-    required: false,
-  },
-  current: {
-    type: String,
-    required: false,
-  },
-});
-</script>
-
 <template>
   <div class="flex justify-between xl:hidden text-menu">
     <NuxtLink :to="Object.values(crumbs).slice(-1)[0]">
       <span class="sr-only">Go up one level</span>
       <BaseIcon name="arrow-left" />
     </NuxtLink>
-    <!-- <a href="#">
-      <span class="sr-only">Favorite</span>
-      <BaseIcon name="star" />
-    </a> -->
   </div>
   <nav
     class="items-center justify-center hidden gap-3 tracking-widest xl:flex font-display text-heading-lg"
@@ -47,3 +29,17 @@ defineProps({
     </template>
   </nav>
 </template>
+
+<script setup>
+defineProps({
+  crumbs: {
+    type: Object,
+    default: [],
+    required: false,
+  },
+  current: {
+    type: String,
+    required: false,
+  },
+});
+</script>
