@@ -172,7 +172,7 @@
     </div>
 
     <div class="d-flex">
-      <div v-if="countFilters" class="col-3 pl-0">
+      <div v-if="filterCount" class="col-3 pl-0">
         <FilterSidebar
           :filters="columns"
           @updateFilters="emitConditions"
@@ -181,7 +181,7 @@
       </div>
       <div
         class="flex-grow-1 pr-0 pl-0"
-        :class="countFilters ? 'col-9' : 'col-12'"
+        :class="filterCount ? 'col-9' : 'col-12'"
       >
         <FilterWells
           :filters="columns"
@@ -583,7 +583,7 @@ export default {
     ViewButtons() {
       return ViewButtons;
     },
-    countFilters() {
+    filterCount() {
       return (
         this.columns?.filter((filter: Record<string, any>) => filter.showFilter)
           .length || 0
@@ -598,7 +598,9 @@ export default {
     },
     rowsWithComputed() {
       console.log(`halllo`, this.dataRows, this.tableMetadata);
-      return applyComputed(this.dataRows, this.tableMetadata);
+      const bla = applyComputed(this.dataRows, this.tableMetadata);
+      console.log("with comp: ", bla);
+      return bla;
     },
   },
   methods: {
@@ -795,6 +797,7 @@ function applyComputed(rows: IRow[], tableMetadata: ITableMetaData) {
           column.computed && column.columnType !== AUTO_ID && column.id === key
         );
       });
+      console.log(col);
       bla[key] = col
         ? executeExpression(col.computed, row, tableMetadata)
         : row[key];
