@@ -67,7 +67,7 @@ public class CsvApi {
       SchemaMetadata schema = Emx2.fromRowList(getRowList(request));
       getSchema(request).migrate(schema);
       response.status(200);
-      return "{ message: { \"add/update metadata success\" } }";
+      return "{ \"message\": \"add/update metadata success\" }";
     }
   }
 
