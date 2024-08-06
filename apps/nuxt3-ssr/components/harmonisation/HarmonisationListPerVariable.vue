@@ -2,36 +2,45 @@
 import type { HarmonisationStatus } from "~/interfaces/types";
 
 const props = defineProps<{
-  cohortsWithMapping: {
-    cohort: { id: string };
+  collectionsWithMapping: {
+    collection: { id: string };
     status: HarmonisationStatus | HarmonisationStatus[];
   }[];
 }>();
 
 const aggregatedHarmonisationStatus = computed(() => {
-  return props.cohortsWithMapping
+  return props.collectionsWithMapping
     .map((cwm) => {
       const status = Array.isArray(cwm.status) ? cwm.status : [cwm.status];
-      return { cohort: cwm.cohort, status };
+      return { collection: cwm.collection, status };
     })
-    .map((statusPerCohort) => {
+    .map((statusPerCollection) => {
       if (
-        statusPerCohort.status.includes("partial") ||
-        statusPerCohort.status.includes("complete")
+        statusPerCollection.status.includes("partial") ||
+        statusPerCollection.status.includes("complete")
       ) {
         if (
-          statusPerCohort.status.includes("partial") ||
-          statusPerCohort.status.includes("unmapped")
+          statusPerCollection.status.includes("partial") ||
+          statusPerCollection.status.includes("unmapped")
         ) {
           // at least one partial or complete
-          return { cohort: statusPerCohort.cohort, status: "partial" };
+          return {
+            collection: statusPerCollection.collection,
+            status: "partial",
+          };
         } else {
           // all complete
-          return { cohort: statusPerCohort.cohort, status: "complete" };
+          return {
+            collection: statusPerCollection.collection,
+            status: "complete",
+          };
         }
       } else {
         // no mappings
-        return { cohort: statusPerCohort.cohort, status: "unmapped" };
+        return {
+          collection: statusPerCollection.collection,
+          status: "unmapped",
+        };
       }
     });
 });
@@ -41,7 +50,7 @@ const aggregatedHarmonisationStatus = computed(() => {
     <div>
       <ul>
         <li
-          v-for="{ cohort, status } in aggregatedHarmonisationStatus.slice(
+          v-for="{ collection, status } in aggregatedHarmonisationStatus.slice(
             0,
             10
           )"
@@ -49,7 +58,7 @@ const aggregatedHarmonisationStatus = computed(() => {
         >
           <div class="flex items-center gap-2">
             <HarmonisationStatusIcon :status="status" size="large" />
-            <span>{{ cohort.id }}</span>
+            <span>{{ collection.id }}</span>
           </div>
         </li>
       </ul>
@@ -57,7 +66,7 @@ const aggregatedHarmonisationStatus = computed(() => {
     <div>
       <ul>
         <li
-          v-for="{ cohort, status } in aggregatedHarmonisationStatus.slice(
+          v-for="{ collection, status } in aggregatedHarmonisationStatus.slice(
             10,
             20
           )"
@@ -65,7 +74,7 @@ const aggregatedHarmonisationStatus = computed(() => {
         >
           <div class="flex items-center gap-2">
             <HarmonisationStatusIcon :status="status" size="large" />
-            <span>{{ cohort.id }}</span>
+            <span>{{ collection.id }}</span>
           </div>
         </li>
       </ul>
@@ -73,7 +82,7 @@ const aggregatedHarmonisationStatus = computed(() => {
     <div>
       <ul>
         <li
-          v-for="{ cohort, status } in aggregatedHarmonisationStatus.slice(
+          v-for="{ collection, status } in aggregatedHarmonisationStatus.slice(
             20,
             30
           )"
@@ -81,7 +90,7 @@ const aggregatedHarmonisationStatus = computed(() => {
         >
           <div class="flex items-center gap-2">
             <HarmonisationStatusIcon :status="status" size="large" />
-            <span>{{ cohort.id }}</span>
+            <span>{{ collection.id }}</span>
           </div>
         </li>
       </ul>

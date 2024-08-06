@@ -10,40 +10,43 @@ import type {
 type VariableDetailsWithMapping = IVariable & IVariableMappings;
 const props = defineProps<{
   variable: VariableDetailsWithMapping;
-  cohortsWithMapping: {
-    cohort: { id: string };
+  collectionsWithMapping: {
+    collection: { id: string };
     status: HarmonisationStatus | HarmonisationStatus[];
   }[];
 }>();
 
 const activeTabIndex = ref(0);
 
-const statusPerCohort = computed(() =>
+const statusPerCollection = computed(() =>
   calcIndividualVariableHarmonisationStatus(
     props.variable,
-    props.cohortsWithMapping.map((cwm) => cwm.cohort)
+    props.collectionsWithMapping.map((cwm) => cwm.collection)
   )
 );
 
-const activeCohortId = computed(
-  () => props.cohortsWithMapping[activeTabIndex.value].cohort.id
+const activeCollectionId = computed(
+  () => props.collectionsWithMapping[activeTabIndex.value].collection.id
 );
 
 const activeMappingDescriptions = computed(() => {
   if (props.variable.repeats) {
     const baseMapping = props.variable.mappings?.find(
-      (mapping) => mapping.sourceDataset.resource.id === activeCohortId.value
+      (mapping) =>
+        mapping.sourceDataset.collection.id === activeCollectionId.value
     )?.description;
     const repeatMappings = props.variable.repeats.map((repeat) => {
       return repeat.mappings?.find(
-        (mapping) => mapping.sourceDataset.resource.id === activeCohortId.value
+        (mapping) =>
+          mapping.sourceDataset.collection.id === activeCollectionId.value
       )?.description;
     });
     return [baseMapping, ...repeatMappings];
   } else {
     return [
       props.variable.mappings?.find(
-        (mapping) => mapping.sourceDataset.resource.id === activeCohortId.value
+        (mapping) =>
+          mapping.sourceDataset.collection.id === activeCollectionId.value
       )?.description,
     ];
   }
@@ -54,18 +57,18 @@ const variablesUsed = computed(() => {
     if (!mappings) return [];
     return mappings
       ?.filter(
-        (mapping) => mapping.sourceDataset.resource.id === activeCohortId.value
+        (mapping) =>
+          mapping.sourceDataset.collection.id === activeCollectionId.value
       )
       .map((mapping) => {
         const sourceVariables = mapping.sourceVariables
           ? mapping.sourceVariables.map((sourceVariable: IVariableBase) => {
               return {
                 name: sourceVariable.name,
-                resource: {
+                collection: {
                   id: mapping.source.id,
                 },
                 dataset: mapping.sourceDataset,
-                mg_tableclass: sourceVariable.mg_tableclass,
               };
             })
           : [];
@@ -91,13 +94,15 @@ const variablesUsed = computed(() => {
 
 const syntaxList = computed(() => {
   const baseSyntax = props.variable.mappings?.find(
-    (mapping) => mapping.sourceDataset.resource.id === activeCohortId.value
+    (mapping) =>
+      mapping.sourceDataset.collection.id === activeCollectionId.value
   )?.syntax;
 
   if (props.variable.repeats) {
     const repeatsSyntax = props.variable.repeats.map((repeat) => {
       return repeat.mappings?.find(
-        (mapping) => mapping.sourceDataset.resource.id === activeCohortId.value
+        (mapping) =>
+          mapping.sourceDataset.collection.id === activeCollectionId.value
       )?.syntax;
     });
 
@@ -127,11 +132,11 @@ const variableList = props.variable.repeats
     <HorizontalScrollHelper add-fade add-scroll-button>
       <div class="flex flex-nowrap">
         <Tab
-          v-for="(cohortWithMapping, index) in cohortsWithMapping"
+          v-for="(collectionWithMapping, index) in collectionsWithMapping"
           :active="index === activeTabIndex"
           @click="activeTabIndex = index"
         >
-          {{ cohortWithMapping.cohort.id }}
+          {{ collectionWithMapping.collection.id }}
         </Tab>
       </div>
     </HorizontalScrollHelper>
@@ -146,7 +151,7 @@ const variableList = props.variable.repeats
       <DefinitionListTerm>Harmonisation status</DefinitionListTerm>
       <DefinitionListDefinition>
         <HarmonisationStatus
-          :status="statusPerCohort[activeTabIndex][repeatIndex] as HarmonisationStatus"
+          :status="statusPerCollection[activeTabIndex][repeatIndex] as HarmonisationStatus"
         />
       </DefinitionListDefinition>
 

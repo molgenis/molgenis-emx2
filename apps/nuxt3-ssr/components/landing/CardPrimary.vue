@@ -5,7 +5,7 @@ interface Props {
   callToAction?: string;
   count: number;
   link: string;
-  linkQuery: any;
+  linkQuery?: any;
   image: string;
 }
 

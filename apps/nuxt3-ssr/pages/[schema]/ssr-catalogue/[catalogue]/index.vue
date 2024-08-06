@@ -92,24 +92,30 @@ const { data, error } = await useAsyncData<any, IMgError>(
       method: "POST",
       body: {
         query: `
-            query Collections($filter:CollectionsFilter) {
-              Collections(filter:$filter){datasets{collection{id}name}}
+            query CollectionDatasets($filter:CollectionDatasetsFilter) {
+              CollectionDatasets(filter:$filter){name}
             }`,
-        variables: { filter: networksFilter },
+        variables: {
+          filter: {
+            _or: [
+              { collection: networksFilter },
+              { collection: { partOfCollections: networksFilter } },
+            ],
+          },
+        },
       },
     });
 
     const variablesFilter = scoped
       ? {
-          _or: [
-            {
-              dataset: {
-                equals: datasets.data.Collections.map((n) =>
-                  n.datasets?.map((m: any) => m)
-                ).flat(),
-              },
+          collection: { id: { equals: catalogueRouteParam } },
+          dataset: {
+            name: {
+              equals: datasets.data.CollectionDatasets?.map(
+                (d: { name: string }) => d.name
+              ).flat(),
             },
-          ],
+          },
         }
       : {
           collection: {

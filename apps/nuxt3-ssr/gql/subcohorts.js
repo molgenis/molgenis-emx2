@@ -9,17 +9,17 @@ export default gql`
     Subcohorts(
       limit: $limit
       offset: $offset
-      filter: { resource: { id: { equals: [$id] } } }
+      filter: { collection: { id: { equals: [$id] } } }
       orderby: $orderby
     ) {
-      resource {
+      collection {
         id
       }
       name
       description
       numberOfParticipants
     }
-    Subcohorts_agg(filter: { resource: { id: { equals: [$id] } } }) {
+    Subcohorts_agg(filter: { collection: { id: { equals: [$id] } } }) {
       count
     }
   }

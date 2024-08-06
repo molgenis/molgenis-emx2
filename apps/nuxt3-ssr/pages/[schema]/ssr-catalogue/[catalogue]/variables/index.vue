@@ -110,7 +110,6 @@ const pageFilterTemplate: IFilter[] = [
 ];
 
 async function fetchCollectionOptions(): Promise<INode[]> {
-  console.log("???");
   const { data, error } = await $fetch(`/${route.params.schema}/graphql`, {
     method: "POST",
     body: {
@@ -142,8 +141,6 @@ async function fetchCollectionOptions(): Promise<INode[]> {
         : undefined,
     },
   });
-
-  console.log("found " + JSON.stringify(data));
 
   return data.Collections.map((option: { id: string; name?: string }) => {
     return {
@@ -330,8 +327,6 @@ let crumbs: any = {};
 crumbs[
   `${route.params.catalogue}`
 ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}`;
-
-console.log("collections " + JSON.stringify(data.value.data.Collections));
 </script>
 
 <template>

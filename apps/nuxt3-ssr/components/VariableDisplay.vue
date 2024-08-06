@@ -33,10 +33,6 @@ const items = computed(() => [
     label: "Formats",
     content: data.value.data?.Variables[0]?.format?.name || "-",
   },
-  {
-    label: "n repeats",
-    content: data.value.data?.RepeatedVariables_agg.count || "None",
-  },
 ]);
 </script>
 

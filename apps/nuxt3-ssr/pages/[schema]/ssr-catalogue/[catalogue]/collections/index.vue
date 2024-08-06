@@ -37,6 +37,7 @@ const pageFilterTemplate: IFilter[] = [
       ontologyTableId: "CollectionTypesFLAT",
       ontologySchema: "CatalogueOntologies",
       columnId: "type",
+      initialCollapsed: false,
     },
     conditions: [],
   },

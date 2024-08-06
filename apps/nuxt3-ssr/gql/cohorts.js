@@ -1,15 +1,15 @@
 import gql from "graphql-tag";
 export default gql`
-  query Cohorts(
+  query Collections(
     $id: String
     $limit: Int
     $offset: Int
-    $orderby: Cohortsorderby
+    $orderby: Collectionsorderby
   ) {
-    Cohorts(
+    Collections(
       limit: $limit
       offset: $offset
-      filter: { networks: { id: { equals: [$id] } } }
+      filter: { partOfCollections: { id: { equals: [$id] } } }
       orderby: $orderby
     ) {
       id
@@ -20,7 +20,7 @@ export default gql`
       }
       numberOfParticipants
     }
-    Cohorts_agg(filter: { networks: { id: { equals: [$id] } } }) {
+    Collections_agg(filter: { partOfCollections: { id: { equals: [$id] } } }) {
       count
     }
   }

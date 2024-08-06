@@ -54,11 +54,7 @@ export const calcIndividualVariableHarmonisationStatus = (
 };
 
 const hasAnyMapping = (variable: IVariableWithMappings) => {
-  return (
-    Array.isArray(variable.mappings) ||
-    (variable.repeats &&
-      variable.repeats.filter((r) => Array.isArray(r.mappings)).length)
-  );
+  return Array.isArray(variable.mappings);
 };
 
 const calcStatusForSingleVariable = (
@@ -94,7 +90,7 @@ const calcStatusForAggregatedRepeatingVariable = (
           return (
             mapping.targetVariable &&
             mapping.targetVariable.name === repeatedVariable.name &&
-            mapping.sourceDataset.resource.id === collection.id
+            mapping.sourceDataset.collection.id === collection.id
           );
         });
 
@@ -105,7 +101,7 @@ const calcStatusForAggregatedRepeatingVariable = (
     return (
       mapping.targetVariable &&
       mapping.targetVariable.name === variable.name &&
-      mapping.sourceDataset.resource.id === collection.id
+      mapping.sourceDataset.collection.id === collection.id
     );
   });
 

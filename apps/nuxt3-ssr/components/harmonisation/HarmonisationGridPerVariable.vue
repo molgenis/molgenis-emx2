@@ -10,8 +10,8 @@ type VariableDetailsWithMapping = IVariable & IVariableMappings;
 
 defineProps<{
   variable: VariableDetailsWithMapping;
-  cohortsWithMapping: {
-    cohort: { id: string };
+  collectionsWithMapping: {
+    collection: { id: string };
     status: HarmonisationStatus | HarmonisationStatus[];
   }[];
 }>();
@@ -21,7 +21,7 @@ defineProps<{
     <HarmonisationLegendDetailed size="small" />
     <div class="overflow-x-auto xl:max-w-table border-t">
       <StickyTable
-        :columns="cohortsWithMapping"
+        :columns="collectionsWithMapping"
         :rows="[variable, ...variable.repeats]"
         class="h-screen overflow-auto"
       >
@@ -32,7 +32,7 @@ defineProps<{
             <span
               class="hover:flex items-center justify-items-end align-middle min-w-[2rem] hover:z-50 py-2"
             >
-              {{ columnProps.value.cohort.id }}
+              {{ columnProps.value.collection.id }}
             </span>
           </div>
         </template>
@@ -49,7 +49,7 @@ defineProps<{
 
         <template #cell="cell">
           <HarmonisationTableCellStatusIcon
-            :status="(cohortsWithMapping[cell.value.columnIndex].status[cell.value.rowIndex] as HarmonisationStatus)"
+            :status="(collectionsWithMapping[cell.value.columnIndex].status[cell.value.rowIndex] as HarmonisationStatus)"
           />
         </template>
       </StickyTable>
