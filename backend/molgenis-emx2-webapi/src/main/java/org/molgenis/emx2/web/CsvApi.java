@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.graphql.GraphqlConstants;
+import org.molgenis.emx2.io.ImportTableTask;
 import org.molgenis.emx2.io.emx2.Emx2;
 import org.molgenis.emx2.io.readers.CsvTableReader;
 import org.molgenis.emx2.io.readers.CsvTableWriter;
@@ -56,17 +57,17 @@ public class CsvApi {
     String fileName = request.headers("fileName");
     boolean fileNameMatchesTable = getSchema(request).getTableNames().contains(fileName);
 
-    if (fileNameMatchesTable) {
-      // so we assume it isn't meta data
-      int count = MolgenisWebservice.getTableById(request, fileName).save(getRowList(request));
-      response.status(200);
-      response.type(ACCEPT_CSV);
-      return "imported number of rows: " + count;
+    if (fileNameMatchesTable) { // so we assume it isn't meta data
+      Table table = MolgenisWebservice.getTableById(request, fileName);
+      TableStoreForCsvInMemory tableStore = new TableStoreForCsvInMemory();
+      tableStore.setCsvString(fileName, request.body());
+      String id = TaskApi.submit(new ImportTableTask(tableStore, table, false));
+      return new TaskReference(id, table.getSchema()).toString();
     } else {
       SchemaMetadata schema = Emx2.fromRowList(getRowList(request));
       getSchema(request).migrate(schema);
       response.status(200);
-      return "add/update metadata success";
+      return "{ message: { \"add/update metadata success\" } }";
     }
   }
 
