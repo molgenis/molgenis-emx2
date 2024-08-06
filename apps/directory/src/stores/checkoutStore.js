@@ -207,7 +207,6 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
 
     for (const biobank in selectedCollections.value) {
       const collectionSelection = selectedCollections.value[biobank];
-      const biobankId = biobankIdDictionary.value[biobank];
 
       for (const collection of collectionSelection) {
         resources.push(
@@ -243,12 +242,10 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
       body: JSON.stringify(payload),
     });
 
-    if (!response.ok) {
-      throw new Error("Negotiator is not available. Please try again later.");
-    }
-
     if (response.ok) {
       removeAllCollectionsFromSelection({});
+    } else {
+      throw new Error("Negotiator is not available. Please try again later.");
     }
   }
 
