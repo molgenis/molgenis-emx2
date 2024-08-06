@@ -59,10 +59,17 @@ public class CsvApi {
 
     if (fileNameMatchesTable) { // so we assume it isn't meta data
       Table table = MolgenisWebservice.getTableById(request, fileName);
-      TableStoreForCsvInMemory tableStore = new TableStoreForCsvInMemory();
-      tableStore.setCsvString(fileName, request.body());
-      String id = TaskApi.submit(new ImportTableTask(tableStore, table, false));
-      return new TaskReference(id, table.getSchema()).toString();
+      if (request.queryParams("async") != null) {
+        TableStoreForCsvInMemory tableStore = new TableStoreForCsvInMemory();
+        tableStore.setCsvString(fileName, request.body());
+        String id = TaskApi.submit(new ImportTableTask(tableStore, table, false));
+        return new TaskReference(id, table.getSchema()).toString();
+      } else {
+        int count = table.save(getRowList(request));
+        response.status(200);
+        response.type(ACCEPT_CSV);
+        return "{ \"message\": \"imported number of rows: \" + " + count + " }";
+      }
     } else {
       SchemaMetadata schema = Emx2.fromRowList(getRowList(request));
       getSchema(request).migrate(schema);

@@ -174,7 +174,7 @@ export default {
         const reader = new FileReader();
         reader.readAsText(this.file);
         reader.onload = () => {
-          const url = `/${this.schema}/api/${type}`;
+          const url = `/${this.schema}/api/${type}?async=true`;
           const options = {
             method: "POST",
             body: reader.result,
