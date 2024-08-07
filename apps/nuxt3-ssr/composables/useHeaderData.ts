@@ -56,7 +56,7 @@ export async function useHeaderData() {
           throw new Error(contextMsg);
         }
 
-        const models = modelsResp.data?.Collections[0].datasets;
+        const models = modelsResp.data?.Collections[0]?.datasets;
         const modelIds = models ? models.map((m) => m.id) : [];
         variables = {
           networksFilter: { id: { equals: route.params.catalogue } },
@@ -85,8 +85,10 @@ export async function useHeaderData() {
     throw new Error(contextMsg);
   }
 
-  const catalogue = data.value.data.Collections[0];
-  const variableCount = data.value.data.Variables_agg.count || 0;
+  const catalogue = data.value.data?.Collections
+    ? data.value.data?.Collections[0]
+    : null;
+  const variableCount = data.value.data?.Variables_agg.count || 0;
 
   return { catalogue, variableCount };
 }

@@ -108,7 +108,6 @@ useHead({ title: titlePrefix + variable.value.name });
       <SideNavigation :title="variable?.name" :items="tocItems" />
     </template>
     <template #main>
-      <pre>{{ variable }}</pre>
       <ContentBlocks v-if="variable">
         <ContentBlock
           id="description"
