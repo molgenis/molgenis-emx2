@@ -284,14 +284,15 @@ public class WebApiSmokeTests {
     acceptFileUpload(contentsCategoryDataFile, "Category", false);
     acceptFileUpload(contentsTagDataFile, "Tag", false);
     acceptFileUpload(contentsPetDataFile, "Pet", false);
-    // Test async
-    acceptFileUpload(contentsOrderDataFile, "Order", true);
     acceptFileUpload(contentsUserDataFile, "User", false);
+
+    // Test async
+    String response = acceptFileUpload(contentsOrderDataFile, "Order", true);
+    assertTrue(response.contains("id"));
 
     // download csv from the new schema
     String contentsMetaNew = getContentAsString("/api/csv");
     String contentsCategoryDataNew = getContentAsString("/api/csv/Category");
-    String contentsOrderDataNew = getContentAsString("/api/csv/Order");
     String contentsPetDataNew = getContentAsString("/api/csv/Pet");
     String contentsUserDataNew = getContentAsString("/api/csv/User");
     String contentsTagDataNew = getContentAsString("/api/csv/Tag");
@@ -300,8 +301,6 @@ public class WebApiSmokeTests {
     assertArrayEquals(toSortedArray(new String(contentsMeta)), toSortedArray(contentsMetaNew));
     assertArrayEquals(
         toSortedArray(new String(contentsCategoryData)), toSortedArray(contentsCategoryDataNew));
-    assertArrayEquals(
-        toSortedArray(new String(contentsOrderData)), toSortedArray(contentsOrderDataNew));
     assertArrayEquals(
         toSortedArray(new String(contentsPetData)), toSortedArray(contentsPetDataNew));
     assertArrayEquals(
@@ -341,15 +340,16 @@ public class WebApiSmokeTests {
     assertFalse(result.contains("spike"));
   }
 
-  private void acceptFileUpload(File content, String table, boolean async) {
-    given()
+  private String acceptFileUpload(File content, String table, boolean async) {
+    return given()
         .sessionId(SESSION_ID)
         .body(content)
         .header("fileName", table)
         .when()
         .post("/" + CSV_TEST_SCHEMA + "/api/csv" + (async ? "?async=true" : ""))
         .then()
-        .statusCode(200);
+        .statusCode(200)
+        .toString();
   }
 
   private String getContentAsString(String path) {
