@@ -1,5 +1,6 @@
 export default [
   "AUTO_ID",
+  "BARCODE",
   "BOOL",
   "BOOL_ARRAY",
   "DATE",
