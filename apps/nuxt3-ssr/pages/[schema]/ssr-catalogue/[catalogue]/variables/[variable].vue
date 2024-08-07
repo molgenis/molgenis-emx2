@@ -40,7 +40,7 @@ const variable = computed(
 const collections = computed(
   () => data.value.data.Collections as { id: string }[]
 );
-const isRepeating = computed(() => variable.value.repeats);
+const isRepeating = computed(() => variable.value.repeatUnit);
 
 let crumbs: any = {};
 crumbs[
@@ -109,11 +109,7 @@ useHead({ title: titlePrefix + variable.value.name });
     </template>
     <template #main>
       <ContentBlocks v-if="variable">
-        <ContentBlock
-          id="description"
-          title="Description"
-          :description="variable?.description"
-        >
+        <ContentBlock id="definition" title="Definition">
           <CatalogueItemList
             :items="[
               {
@@ -123,6 +119,15 @@ useHead({ title: titlePrefix + variable.value.name });
               {
                 label: 'Format',
                 content: variable?.format?.name,
+              },
+              {
+                label: 'Repeated for',
+                content:
+                  variable?.repeatUnit?.name +
+                  ' ' +
+                  variable?.repeatMin +
+                  '-' +
+                  variable?.repeatMax,
               },
               {
                 label: 'Description',
@@ -136,18 +141,13 @@ useHead({ title: titlePrefix + variable.value.name });
         <ContentBlock
           v-if="collectionsWithMapping.length > 0"
           id="harmonisation-per-collection"
-          title="Harmonisation status per Collection"
-          description="Overview of the harmonisation status per Collection"
+          title="Harmonisation status per Data source"
         >
           <HarmonisationGridPerVariable
             v-if="isRepeating"
-            :collections-with-mapping="collectionsWithMapping"
             :variable="variable"
           />
-          <HarmonisationListPerVariable
-            v-else
-            :collections-with-mapping="collectionsWithMapping"
-          />
+          <HarmonisationListPerVariable v-else :mappings="variable.mappings" />
         </ContentBlock>
 
         <ContentBlock
@@ -156,14 +156,11 @@ useHead({ title: titlePrefix + variable.value.name });
           title="Harmonisation details per Collection"
           description="Select a Cohort to see the details of the harmonisation"
         >
-          <HarmonisationVariableDetails
-            :variable="variable"
-            :collections-with-mapping="collectionsWithMapping"
-          />
+          <HarmonisationVariableDetails :variable="variable" />
         </ContentBlock>
 
         <ContentBlock
-          v-if="collectionsWithMapping.length === 0"
+          v-if="variable.mappings?.length === 0"
           id="harmonisation-details-no-mapping"
           title="Harmonisation"
           description="No mapping found for this variable"

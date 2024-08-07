@@ -15,12 +15,12 @@ const query = moduleToString(collectionEventGql);
 const { data, error } = await useFetch<any, IMgError>(
   `/${route.params.schema}/graphql`,
   {
-    key: `collection-event-${route.params.cohort}-${collectionEventName}`,
+    key: `collection-event-${route.params.collection}-${collectionEventName}`,
     method: "POST",
     body: {
       query,
       variables: {
-        id: route.params.cohort,
+        id: route.params.collection,
         name: collectionEventName,
       },
     },
@@ -38,12 +38,12 @@ const collectionEvent: any = computed(
 );
 
 const pageCrumbs: any = {
-  Cohorts: `/${route.params.schema}/ssr-catalogue`,
+  Collection: `/${route.params.schema}/ssr-catalogue`,
 };
 
 pageCrumbs[
-  route.params.cohort as string
-] = `/${route.params.schema}/ssr-catalogue/cohorts/${route.params.cohort}`;
+  route.params.collection as string
+] = `/${route.params.schema}/ssr-catalogue/collections/${route.params.cohort}`;
 
 function renderList(list: any[], itemMapper: (a: any) => string) {
   return list?.length === 1 ? itemMapper(list[0]) : list.map(itemMapper);

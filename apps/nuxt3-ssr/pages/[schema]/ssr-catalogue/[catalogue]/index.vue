@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { ISetting } from "meta-data-utils";
 import type { IMgError } from "~~/interfaces/types";
 
 const route = useRoute();
@@ -123,8 +122,6 @@ const { data, error } = await useAsyncData<any, IMgError>(
           },
         };
 
-    console.log(JSON.stringify(variablesFilter));
-
     return $fetch(`/${route.params.schema}/graphql`, {
       method: "POST",
       body: {
@@ -169,7 +166,6 @@ const settings = computed(() => {
 });
 
 const network = computed(() => {
-  console.log(JSON.stringify(data.value.data));
   return data.value.data?.Collections[0];
 });
 

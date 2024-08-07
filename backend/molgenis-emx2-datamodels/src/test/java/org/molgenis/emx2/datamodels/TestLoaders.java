@@ -44,7 +44,6 @@ public class TestLoaders {
     database.dropSchemaIfExists(COHORT_STAGING);
     database.dropSchemaIfExists(NETWORK_STAGING);
     database.dropSchemaIfExists(DATA_CATALOGUE);
-    database.dropSchemaIfExists(DATA_CATALOGUE_FLAT);
     database.dropSchemaIfExists(DATA_CATALOGUE_AGGREGATES);
     database.dropSchemaIfExists(FAIR_DATA_HUB_TEST);
     database.dropSchemaIfExists(SHARED_STAGING);
@@ -62,6 +61,7 @@ public class TestLoaders {
     database.dropSchemaIfExists(FLAT_STUDIES_STAGING);
     database.dropSchemaIfExists(FLAT_NETWORKS_STAGING);
     database.dropSchemaIfExists(FLAT_RWE_STAGING);
+    database.dropSchemaIfExists(DATA_CATALOGUE_FLAT);
   }
 
   @Test

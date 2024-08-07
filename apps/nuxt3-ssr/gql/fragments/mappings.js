@@ -36,5 +36,6 @@ export default gql`
       }
       name
     }
+    repeats
   }
 `;

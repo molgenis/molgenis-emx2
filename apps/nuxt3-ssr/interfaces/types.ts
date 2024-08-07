@@ -67,6 +67,8 @@ export interface ICollection {
   datasets: { name: string }[];
   populationOncologyTopology?: IOntologyNode[];
   populationOncologyMorphology?: IOntologyNode[];
+  startDataCollection: string;
+  endDataCollection: string;
 }
 
 export interface IPublication {
@@ -102,18 +104,13 @@ export interface IVariableBase {
 export interface IVariableDetails {
   unit?: IOntologyNode;
   format?: IOntologyNode;
-  repeats?: {
-    name: string;
-    mappings: IMapping[];
-  }[];
+  repeatUnit: IOntologyItem;
+  repeatMin: number;
+  repeatMax: number;
 }
 
 export interface IVariableMappings {
   mappings?: IMapping[];
-  repeats?: {
-    name: string;
-    mappings: IMapping[];
-  }[];
 }
 
 export type IVariable = IVariableBase & IVariableDetails;
@@ -269,13 +266,14 @@ export interface IMapping {
   syntax: string;
   description: string;
   match: {
-    name: string;
+    name: HarmonisationStatus;
   };
   source: {
     id: string;
     name: string;
     mg_tableclass: string;
   };
+  repeats: string;
   sourceDataset: {
     collection: {
       id: string;
@@ -291,7 +289,8 @@ export type HarmonisationStatus =
   | "unmapped"
   | "partial"
   | "complete"
-  | "available";
+  | "available"
+  | "na";
 
 export type HarmonisationIconSize = "small" | "large";
 export interface IMgError {

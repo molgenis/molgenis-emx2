@@ -541,7 +541,7 @@ const activeOrganization = computed(() => {
         <ContentCohortGeneralDesign
           id="GeneralDesign"
           title="General Design"
-          :cohort="collection"
+          :collection="collection"
         />
 
         <ContentBlock id="population" title="Population">

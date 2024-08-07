@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type {
-  ICohort,
+  ICollection,
   INameObject,
   IDefinitionListItem,
 } from "~/interfaces/types";
@@ -10,68 +10,68 @@ import dateUtils from "~/utils/dateUtils";
 const props = defineProps<{
   title: string;
   description?: string;
-  cohort: ICohort;
+  collection: ICollection;
 }>();
 
 const generalDesign: IDefinitionListItem[] = [
   {
     label: "Type",
-    content: props.cohort.type
-      ? props.cohort.type.map((type: INameObject) => type?.name).join(", ")
+    content: props.collection.type
+      ? props.collection.type.map((type: INameObject) => type?.name).join(", ")
       : undefined,
   },
   {
-    label: "Cohort type",
-    content: props.cohort.type
-      ? props.cohort.type.map((type: INameObject) => type?.name).join(", ")
+    label: "collection type",
+    content: props.collection.type
+      ? props.collection.type.map((type: INameObject) => type?.name).join(", ")
       : undefined,
   },
   {
     label: "Design",
     content:
-      props.cohort.design?.definition && props.cohort.design?.name
+      props.collection.design?.definition && props.collection.design?.name
         ? {
-            value: props.cohort.design?.name,
-            tooltip: props.cohort.design?.definition,
+            value: props.collection.design?.name,
+            tooltip: props.collection.design?.definition,
           }
-        : props.cohort.design?.name,
+        : props.collection.design?.name,
   },
   {
     label: "Design description",
-    content: props.cohort.designDescription,
+    content: props.collection.designDescription,
   },
   {
     label: "Design schematic",
-    content: props.cohort.designSchematic,
+    content: props.collection.designSchematic,
   },
   {
     label: "Collection type",
-    content: props.cohort.collectionType
-      ? props.cohort.collectionType
+    content: props.collection.collectionType
+      ? props.collection.collectionType
           .map((collectionType) => collectionType.name)
           .join(", ")
       : undefined,
   },
   {
-    label: "Start/End year",
+    label: "Start/End collection",
     content: dateUtils.startEndYear(
-      props.cohort.startYear,
-      props.cohort.endYear
+      props.collection.startDate,
+      props.collection.endDate
     ),
   },
   {
     label:
-      props.cohort.designPaper && props.cohort.designPaper?.length > 1
+      props.collection.designPaper && props.collection.designPaper?.length > 1
         ? "Design papers"
         : "Design paper",
     type: "LINK",
-    content: props.cohort.designPaper
-      ? designPaperToItem(props.cohort.designPaper)
+    content: props.collection.designPaper
+      ? designPaperToItem(props.collection.designPaper)
       : undefined,
   },
   {
     label: "PID",
-    content: props.cohort.pid,
+    content: props.collection.pid,
   },
 ];
 

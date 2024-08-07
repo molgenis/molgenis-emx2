@@ -308,8 +308,8 @@ crumbs[
                 v-for="collection in collections"
                 :key="collection.name"
               >
-                <CohortCard
-                  :cohort="collection"
+                <CollectionCard
+                  :collection="collection"
                   :schema="route.params.schema as string"
                   :catalogue="route.params.catalogue as string"
                   :compact="activeTabName !== 'detailed'"
@@ -318,7 +318,7 @@ crumbs[
             </CardList>
             <div v-else class="flex justify-center pt-3">
               <span class="py-15 text-blue-500">
-                No Cohorts found with current filters
+                No Collections found with current filters
               </span>
             </div>
           </SearchResultsList>

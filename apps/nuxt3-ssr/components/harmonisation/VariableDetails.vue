@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type {
-  HarmonisationStatus,
-  IMapping,
+  ICollection,
   IVariable,
   IVariableBase,
   IVariableMappings,
@@ -10,121 +9,29 @@ import type {
 type VariableDetailsWithMapping = IVariable & IVariableMappings;
 const props = defineProps<{
   variable: VariableDetailsWithMapping;
-  collectionsWithMapping: {
-    collection: { id: string };
-    status: HarmonisationStatus | HarmonisationStatus[];
-  }[];
 }>();
 
 const activeTabIndex = ref(0);
-
-const statusPerCollection = computed(() =>
-  calcIndividualVariableHarmonisationStatus(
-    props.variable,
-    props.collectionsWithMapping.map((cwm) => cwm.collection)
+const relevantMappings = computed(() =>
+  props.variable.mappings?.filter(
+    (m) => m.match?.name && ["partial", "complete"].includes(m.match.name)
   )
 );
-
-const activeCollectionId = computed(
-  () => props.collectionsWithMapping[activeTabIndex.value].collection.id
+const sourceIds = computed(() => [
+  ...new Set(relevantMappings.value?.map((m) => m.source.id)),
+]);
+const activeSource = computed(() => sourceIds.value[activeTabIndex.value]);
+const activeMappings = computed(() =>
+  relevantMappings.value
+    ?.filter((m) => m.source.id === activeSource.value)
+    .sort((a, b) => a.repeats - b.repeats)
 );
-
-const activeMappingDescriptions = computed(() => {
-  if (props.variable.repeats) {
-    const baseMapping = props.variable.mappings?.find(
-      (mapping) =>
-        mapping.sourceDataset.collection.id === activeCollectionId.value
-    )?.description;
-    const repeatMappings = props.variable.repeats.map((repeat) => {
-      return repeat.mappings?.find(
-        (mapping) =>
-          mapping.sourceDataset.collection.id === activeCollectionId.value
-      )?.description;
-    });
-    return [baseMapping, ...repeatMappings];
-  } else {
-    return [
-      props.variable.mappings?.find(
-        (mapping) =>
-          mapping.sourceDataset.collection.id === activeCollectionId.value
-      )?.description,
-    ];
-  }
-});
-
-const variablesUsed = computed(() => {
-  function toVariablesUsed(mappings: IMapping[] | undefined) {
-    if (!mappings) return [];
-    return mappings
-      ?.filter(
-        (mapping) =>
-          mapping.sourceDataset.collection.id === activeCollectionId.value
-      )
-      .map((mapping) => {
-        const sourceVariables = mapping.sourceVariables
-          ? mapping.sourceVariables.map((sourceVariable: IVariableBase) => {
-              return {
-                name: sourceVariable.name,
-                collection: {
-                  id: mapping.source.id,
-                },
-                dataset: mapping.sourceDataset,
-              };
-            })
-          : [];
-        const sourceVariablesOtherDatasets =
-          mapping.sourceVariablesOtherDatasets
-            ? mapping.sourceVariablesOtherDatasets
-            : [];
-        return [...sourceVariables, ...sourceVariablesOtherDatasets];
-      })
-      .flatMap((x) => x);
-  }
-  const baseVariableVariablesUsed = toVariablesUsed(props.variable.mappings);
-
-  return props.variable.repeats
-    ? [
-        baseVariableVariablesUsed,
-        ...props.variable.repeats.map((repeat) =>
-          toVariablesUsed(repeat.mappings)
-        ),
-      ]
-    : [baseVariableVariablesUsed];
-});
-
-const syntaxList = computed(() => {
-  const baseSyntax = props.variable.mappings?.find(
-    (mapping) =>
-      mapping.sourceDataset.collection.id === activeCollectionId.value
-  )?.syntax;
-
-  if (props.variable.repeats) {
-    const repeatsSyntax = props.variable.repeats.map((repeat) => {
-      return repeat.mappings?.find(
-        (mapping) =>
-          mapping.sourceDataset.collection.id === activeCollectionId.value
-      )?.syntax;
-    });
-
-    return [baseSyntax, ...repeatsSyntax];
-  } else {
-    return [baseSyntax];
-  }
-});
-
 let activeVariableUsedKey = ref();
-let activeVariableIsRepeated = ref();
 let showSidePanel = computed(() => activeVariableUsedKey.value?.name);
 
 function handleVariableUsedClick(variableUsed: IVariableBase) {
   activeVariableUsedKey.value = getKey(variableUsed);
-  activeVariableIsRepeated.value =
-    variableUsed.mg_tableclass?.includes("Repeated");
 }
-
-const variableList = props.variable.repeats
-  ? [props.variable, ...props.variable.repeats]
-  : [props.variable];
 </script>
 
 <template>
@@ -132,40 +39,40 @@ const variableList = props.variable.repeats
     <HorizontalScrollHelper add-fade add-scroll-button>
       <div class="flex flex-nowrap">
         <Tab
-          v-for="(collectionWithMapping, index) in collectionsWithMapping"
+          v-for="(sourceId, index) in sourceIds"
           :active="index === activeTabIndex"
           @click="activeTabIndex = index"
         >
-          {{ collectionWithMapping.collection.id }}
+          {{ sourceId }}
         </Tab>
       </div>
     </HorizontalScrollHelper>
   </div>
-
-  <template v-for="(variable, repeatIndex) in variableList">
+  <template v-for="mapping in activeMappings">
     <DefinitionList>
-      <DefinitionListTerm>Name</DefinitionListTerm>
-      <DefinitionListDefinition>
-        {{ variable.name }}
-      </DefinitionListDefinition>
       <DefinitionListTerm>Harmonisation status</DefinitionListTerm>
       <DefinitionListDefinition>
-        <HarmonisationStatus
-          :status="statusPerCollection[activeTabIndex][repeatIndex] as HarmonisationStatus"
-        />
+        <HarmonisationStatus :status="mapping.match?.name" />
       </DefinitionListDefinition>
 
-      <DefinitionListTerm>Description</DefinitionListTerm>
-      <DefinitionListDefinition>{{
-        activeMappingDescriptions[repeatIndex] || "None"
-      }}</DefinitionListDefinition>
-      <DefinitionListTerm>Variables used</DefinitionListTerm>
+      <DefinitionListTerm v-if="variable.repeatUnit"
+        >Applies to</DefinitionListTerm
+      >
+      <DefinitionListDefinition v-if="variable.repeatUnit">
+        {{ variable.repeatUnit?.name }} {{ mapping.repeats }}
+      </DefinitionListDefinition>
 
-      <DefinitionListDefinition v-if="variable.mappings">
+      <DefinitionListTerm>Harmonisation description</DefinitionListTerm>
+      <DefinitionListDefinition>{{
+        mapping.description || "None"
+      }}</DefinitionListDefinition>
+      <DefinitionListTerm>Source variables</DefinitionListTerm>
+
+      <DefinitionListDefinition v-if="relevantMappings">
         <ul>
-          <li v-if="!variablesUsed[repeatIndex]?.length">None</li>
+          <li v-if="!mapping.sourceVariables?.length">None</li>
           <template v-else>
-            <li v-for="variableUsed in variablesUsed[repeatIndex]">
+            <li v-for="variableUsed in mapping.sourceVariables">
               <a
                 class="text-body-base text-blue-500 hover:underline hover:bg-blue-50 cursor-pointer"
                 @click="handleVariableUsedClick(variableUsed)"
@@ -183,16 +90,18 @@ const variableList = props.variable.repeats
       </DefinitionListDefinition>
       <DefinitionListDefinition v-else>None</DefinitionListDefinition>
 
-      <DefinitionListTerm>Syntax</DefinitionListTerm>
-      <DefinitionListDefinition v-if="!syntaxList[repeatIndex]"
+      <DefinitionListTerm>Harmonisation syntax</DefinitionListTerm>
+      <DefinitionListDefinition v-if="!mapping.syntax"
         >None</DefinitionListDefinition
       >
+      <DefinitionListDefinition>
+        <CodeBlock v-if="mapping.syntax" class="mt-2">{{
+          mapping.syntax
+        }}</CodeBlock>
+      </DefinitionListDefinition>
     </DefinitionList>
-    <CodeBlock v-if="syntaxList[repeatIndex]" class="mt-2">{{
-      syntaxList[repeatIndex]
-    }}</CodeBlock>
 
-    <hr v-if="variableList.length > 1" class="my-5" />
+    <hr class="my-5" />
   </template>
   <SideModal
     :key="JSON.stringify(activeVariableUsedKey)"
@@ -203,11 +112,7 @@ const variableList = props.variable.repeats
     buttonAlignment="right"
   >
     <template v-if="activeVariableUsedKey">
-      <RepeatedVariableDisplay
-        v-if="activeVariableIsRepeated"
-        :variableKey="activeVariableUsedKey"
-      />
-      <VariableDisplay v-else :variableKey="activeVariableUsedKey" />
+      <VariableDisplay :variableKey="activeVariableUsedKey" />
     </template>
   </SideModal>
 </template>

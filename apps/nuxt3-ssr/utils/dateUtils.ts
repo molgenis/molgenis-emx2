@@ -1,5 +1,5 @@
 export default {
-  startEndYear: function (startYear?: number, endYear?: number) {
+  startEndYear: function (startYear?: string, endYear?: string) {
     if (startYear && endYear) {
       return startYear + " - " + endYear;
     } else if (startYear) {

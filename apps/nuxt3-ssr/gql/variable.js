@@ -21,6 +21,11 @@ export default gql`
       unit {
         name
       }
+      repeatUnit {
+        name
+      }
+      repeatMin
+      repeatMax
       format {
         name
       }

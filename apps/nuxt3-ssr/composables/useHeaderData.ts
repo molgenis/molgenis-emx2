@@ -34,46 +34,55 @@ export async function useHeaderData() {
               collection: { id: { equals: string | string[] } };
             };
           }
-        | undefined = undefined;
-      if (route.params.catalogue && route.params.catalogue !== "all") {
-        const modelsResp = await $fetch<{
-          data: { Collections: { datasets: { id: string }[] }[] };
-        }>(apiPath, {
-          method,
-          body: {
-            query: modelQuery,
-            variables: {
-              networksFilter: { id: { equals: route.params.catalogue } },
+        | undefined;
+      const scoped = route.params.catalogue !== "all";
+      const catalogueRouteParam = route.params.catalogue;
+      const networksFilter = scoped
+        ? { id: { equals: catalogueRouteParam } }
+        : undefined;
+      const datasets = await $fetch(`/${route.params.schema}/graphql`, {
+        method: "POST",
+        body: {
+          query: `
+            query CollectionDatasets($filter:CollectionDatasetsFilter) {
+              CollectionDatasets(filter:$filter){name}
+            }`,
+          variables: {
+            filter: {
+              _or: [
+                { collection: networksFilter },
+                { collection: { partOfCollections: networksFilter } },
+              ],
             },
           },
-        }).catch((e) => {
-          console.log("models error: ", e);
-          return { e };
-        });
-
-        if ("e" in modelsResp) {
-          const contextMsg = "Error on fetching page header data";
-          throw new Error(contextMsg);
-        }
-
-        const models = modelsResp.data?.Collections[0]?.datasets;
-        const modelIds = models ? models.map((m) => m.id) : [];
-        variables = {
-          networksFilter: { id: { equals: route.params.catalogue } },
-        };
-        if (modelIds) {
-          variables.variablesFilter = {
-            collection: { id: { equals: modelIds } },
+        },
+      });
+      const variablesFilter = scoped
+        ? {
+            collection: { id: { equals: catalogueRouteParam } },
+            dataset: {
+              name: {
+                equals: datasets.data.CollectionDatasets?.map(
+                  (d: { name: string }) => d.name
+                ).flat(),
+              },
+            },
+          }
+        : {
+            collection: {
+              type: { name: { like: ["Models"] } },
+            },
           };
-        }
-      }
 
       return $fetch(apiPath, {
         key: `header-${route.params.catalogue}`,
         method,
         body: {
           query: headerQuery,
-          variables,
+          variables: {
+            networksFilter,
+            variablesFilter,
+          },
         },
       });
     }
