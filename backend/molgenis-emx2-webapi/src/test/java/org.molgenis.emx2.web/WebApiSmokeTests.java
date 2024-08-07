@@ -251,7 +251,7 @@ public class WebApiSmokeTests {
       throws IOException {
     byte[] addUpdateTable = tableMeta.getBytes(StandardCharsets.UTF_8);
     File addUpdateTableFile = createTempFile(addUpdateTable, ".csv");
-    acceptFileUpload(addUpdateTableFile, "molgenis");
+    acceptFileUpload(addUpdateTableFile, "molgenis", false);
     String actual = getContentAsString("/api/csv");
     assertEquals(header + expected, actual);
   }
@@ -280,12 +280,13 @@ public class WebApiSmokeTests {
     // upload csv metadata and data into the new schema
     // here we use 'body' (instead of 'multiPart' in e.g. testCsvApi_zipUploadDownload) because csv,
     // json and yaml import is submitted in the request body
-    acceptFileUpload(contentsMetaFile, "molgenis");
-    acceptFileUpload(contentsCategoryDataFile, "Category");
-    acceptFileUpload(contentsTagDataFile, "Tag");
-    acceptFileUpload(contentsPetDataFile, "Pet");
-    acceptFileUpload(contentsOrderDataFile, "Order");
-    acceptFileUpload(contentsUserDataFile, "User");
+    acceptFileUpload(contentsMetaFile, "molgenis", false);
+    acceptFileUpload(contentsCategoryDataFile, "Category", false);
+    acceptFileUpload(contentsTagDataFile, "Tag", false);
+    acceptFileUpload(contentsPetDataFile, "Pet", false);
+    // Test async
+    acceptFileUpload(contentsOrderDataFile, "Order", true);
+    acceptFileUpload(contentsUserDataFile, "User", false);
 
     // download csv from the new schema
     String contentsMetaNew = getContentAsString("/api/csv");
@@ -340,13 +341,13 @@ public class WebApiSmokeTests {
     assertFalse(result.contains("spike"));
   }
 
-  private void acceptFileUpload(File content, String table) {
+  private void acceptFileUpload(File content, String table, boolean async) {
     given()
         .sessionId(SESSION_ID)
         .body(content)
         .header("fileName", table)
         .when()
-        .post("/" + CSV_TEST_SCHEMA + "/api/csv")
+        .post("/" + CSV_TEST_SCHEMA + "/api/csv" + (async ? "?async=true" : ""))
         .then()
         .statusCode(200);
   }
