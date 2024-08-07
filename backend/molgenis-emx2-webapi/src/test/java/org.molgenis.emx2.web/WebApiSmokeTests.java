@@ -286,10 +286,6 @@ public class WebApiSmokeTests {
     acceptFileUpload(contentsPetDataFile, "Pet", false);
     acceptFileUpload(contentsUserDataFile, "User", false);
 
-    // Test async
-    String response = acceptFileUpload(contentsOrderDataFile, "Order", true);
-    assertTrue(response.contains("id"));
-
     // download csv from the new schema
     String contentsMetaNew = getContentAsString("/api/csv");
     String contentsCategoryDataNew = getContentAsString("/api/csv/Category");
@@ -307,6 +303,10 @@ public class WebApiSmokeTests {
         toSortedArray(new String(contentsUserData)), toSortedArray(contentsUserDataNew));
     assertArrayEquals(
         toSortedArray(new String(contentsTagData)), toSortedArray(contentsTagDataNew));
+
+    // Test async
+    String response = acceptFileUpload(contentsOrderDataFile, "Order", true);
+    assertTrue(response.contains("id"));
   }
 
   private String[] toSortedArray(String string) {
@@ -341,15 +341,17 @@ public class WebApiSmokeTests {
   }
 
   private String acceptFileUpload(File content, String table, boolean async) {
-    return given()
-        .sessionId(SESSION_ID)
-        .body(content)
-        .header("fileName", table)
-        .when()
-        .post("/" + CSV_TEST_SCHEMA + "/api/csv" + (async ? "?async=true" : ""))
-        .then()
-        .statusCode(200)
-        .toString();
+    Response response =
+        given()
+            .sessionId(SESSION_ID)
+            .body(content)
+            .header("fileName", table)
+            .when()
+            .post("/" + CSV_TEST_SCHEMA + "/api/csv" + (async ? "?async=true" : ""));
+
+    response.then().statusCode(200);
+
+    return response.asString();
   }
 
   private String getContentAsString(String path) {
