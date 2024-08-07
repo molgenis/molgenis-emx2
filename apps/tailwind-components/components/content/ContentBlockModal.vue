@@ -1,3 +1,16 @@
+<template>
+  <section class="pb-18 pt-7 pr-16 pl-7 text-gray-900" :class="bgClass">
+    <div v-if="subTitle">{{ subTitle }}</div>
+    <h2 class="mb-5 uppercase text-heading-4xl font-display" v-if="title">
+      {{ title }}
+    </h2>
+    <div class="mb-5 prose max-w-none" v-if="description">
+      <div v-html="description"></div>
+    </div>
+    <slot></slot>
+  </section>
+</template>
+
 <script setup lang="ts">
 import type { INotificationType } from "~/interfaces/types";
 
@@ -30,16 +43,3 @@ const bgClass = computed(() => {
   }
 });
 </script>
-
-<template>
-  <section class="pb-18 pt-7 pr-16 pl-7 text-gray-900" :class="bgClass">
-    <div v-if="subTitle">{{ subTitle }}</div>
-    <h2 class="mb-5 uppercase text-heading-4xl font-display" v-if="title">
-      {{ title }}
-    </h2>
-    <div class="mb-5 prose max-w-none" v-if="description">
-      <div v-html="description"></div>
-    </div>
-    <slot></slot>
-  </section>
-</template>

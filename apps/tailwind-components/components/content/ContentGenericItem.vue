@@ -1,3 +1,18 @@
+<template>
+  <div class="grid md:grid-cols-3 md:gap-2.5">
+    <dt class="flex items-start font-bold text-body-base">
+      <div class="flex items-center gap-1 capitalize">
+        {{ field.meta?.label }}
+        {{ field.meta?.columnType }}
+      </div>
+    </dt>
+
+    <dd class="col-span-2">
+      <component :is="component" :field="field" />
+    </dd>
+  </div>
+</template>
+
 <script setup lang="ts">
 import type { ISectionField } from "~/interfaces/types";
 const String = resolveComponent("ContentTypeString");
@@ -27,18 +42,3 @@ const component = computed(() => {
   }
 });
 </script>
-
-<template>
-  <div class="grid md:grid-cols-3 md:gap-2.5">
-    <dt class="flex items-start font-bold text-body-base">
-      <div class="flex items-center gap-1 capitalize">
-        {{ field.meta?.label }}
-        {{ field.meta?.columnType }}
-      </div>
-    </dt>
-
-    <dd class="col-span-2">
-      <component :is="component" :field="field" />
-    </dd>
-  </div>
-</template>

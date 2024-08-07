@@ -1,23 +1,3 @@
-<script setup lang="ts">
-import type { ICollectionEvent } from "~/interfaces/types";
-
-const { collectionEvents } = defineProps<{
-  title: string;
-  description?: string;
-  collectionEvents?: ICollectionEvent[];
-}>();
-
-const dataCategories = collectionEvents
-  ?.flatMap((c) => c.dataCategories)
-  .filter((e) => e !== undefined);
-const sampleCategories = collectionEvents
-  ?.flatMap((c) => c.sampleCategories)
-  .filter((e) => e !== undefined);
-const areasOfInformation = collectionEvents
-  ?.flatMap((c) => c.areasOfInformation)
-  .filter((e) => e !== undefined);
-</script>
-
 <template>
   <ContentBlock
     :title="title"
@@ -56,3 +36,23 @@ const areasOfInformation = collectionEvents
     </div>
   </ContentBlock>
 </template>
+
+<script setup lang="ts">
+import type { ICollectionEvent } from "~/interfaces/types";
+
+const { collectionEvents } = defineProps<{
+  title: string;
+  description?: string;
+  collectionEvents?: ICollectionEvent[];
+}>();
+
+const dataCategories = collectionEvents
+  ?.flatMap((c) => c.dataCategories)
+  .filter((e) => e !== undefined);
+const sampleCategories = collectionEvents
+  ?.flatMap((c) => c.sampleCategories)
+  .filter((e) => e !== undefined);
+const areasOfInformation = collectionEvents
+  ?.flatMap((c) => c.areasOfInformation)
+  .filter((e) => e !== undefined);
+</script>
