@@ -3,6 +3,7 @@ package org.molgenis.emx2.io;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -49,5 +50,20 @@ public class TestExcelStore {
     final TableStoreForXlsxFile errorStore = new TableStoreForXlsxFile(excelFile);
     assertThrows(MolgenisException.class, () -> errorStore.getTableNames());
     assertThrows(MolgenisException.class, () -> errorStore.readTable("test"));
+  }
+
+  @Test
+  void testLargeNumeric() {
+    ClassLoader classLoader = getClass().getClassLoader();
+    File excelFile = new File(classLoader.getResource("TestLargeNumeric.xlsx").getFile());
+    TableStoreForXlsxFile store = new TableStoreForXlsxFile(excelFile.toPath());
+    for (Row r : store.readTable("Sheet1")) {
+      assertEquals(10000070587L, r.getLong("TestLongNumeric"));
+      assertThrows(
+          MolgenisException.class,
+          () ->
+              r.getInteger(
+                  "TestLongNumeric")); // is this desired that we give an error? I suppose so?
+    }
   }
 }
