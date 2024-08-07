@@ -8,7 +8,7 @@
       <slot name="body"></slot>
     </tbody>
     <tfoot>
-      <slot name="foot"></slot>
+      <slot name="footer"></slot>
     </tfoot>
   </table>
 </template>
