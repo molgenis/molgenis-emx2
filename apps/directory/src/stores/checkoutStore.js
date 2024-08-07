@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { computed, ref, toRaw } from "vue";
+import { computed, ref, toRaw, watch } from "vue";
 import { createBookmark } from "../functions/bookmarkMapper";
 import { useFiltersStore } from "./filtersStore";
 import { useSettingsStore } from "./settingsStore";
@@ -15,17 +15,34 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
 
   const biobankIdDictionary = ref({});
 
-  let selectedCollections = ref({});
+  const selectedCollections = ref({});
+
+  const serializedSelectedCollections = localStorage.getItem(
+    "selectedCollections"
+  );
+  if (serializedSelectedCollections) {
+    const deserializedSelectedCollections = JSON.parse(
+      serializedSelectedCollections
+    );
+    selectedCollections.value = deserializedSelectedCollections;
+  }
+
+  watch(
+    selectedCollections,
+    (newSelectedCollections) => {
+      localStorage.setItem(
+        "selectedCollections",
+        JSON.stringify(toRaw(newSelectedCollections))
+      );
+    },
+    { deep: true }
+  );
 
   const collectionSelectionCount = computed(() => {
     const allBiobanks = Object.keys(selectedCollections.value);
-    let collectionCount = 0;
-
-    for (const biobank of allBiobanks) {
-      collectionCount += selectedCollections.value[biobank].length;
-    }
-
-    return collectionCount;
+    return allBiobanks.reduce((accum, biobank) => {
+      return accum + selectedCollections.value[biobank].length;
+    }, 0);
   });
 
   function setSearchHistory(history) {
@@ -185,44 +202,51 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
     ); /** remove the last \r\n */
   }
 
-  function sendToNegotiator() {
-    const collections = [];
+  async function sendToNegotiator() {
+    const resources = [];
 
     for (const biobank in selectedCollections.value) {
       const collectionSelection = selectedCollections.value[biobank];
+
       for (const collection of collectionSelection) {
-        collections.push(
+        resources.push(
           toRaw({
-            collectionId: collection.value,
-            biobankId: biobankIdDictionary.value[biobank],
+            id: collection.value,
+            name: collection.label,
+            organization: {
+              id: biobank.id,
+              externalId: biobank.id,
+              name: biobank.label,
+            },
           })
         );
       }
     }
-    const URL = window.location.href.replace(/&nToken=\w{32}/, "");
+
+    const url = window.location.origin;
     const humanReadable = getHumanReadableString() + createHistoryJournal();
     const negotiatorUrl = settingsStore.config.negotiatorUrl;
 
-    const payload = { URL, humanReadable, collections };
+    const payload = { url, humanReadable, resources };
 
     if (nToken.value) {
       payload.nToken = nToken.value;
     }
 
-    fetch(negotiatorUrl, {
+    // todo: show a success or failure message and close modal if needed.
+    const response = await fetch(negotiatorUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(payload),
-    })
-      .then(async (response) => {
-        const body = await response.json();
-        window.location.href = body.redirect_uri;
-      })
-      .catch(function (err) {
-        console.info(err + " url: " + negotiatorUrl);
-      });
+    });
+
+    if (response.ok) {
+      removeAllCollectionsFromSelection({});
+    } else {
+      throw new Error("Negotiator is not available. Please try again later.");
+    }
   }
 
   return {
