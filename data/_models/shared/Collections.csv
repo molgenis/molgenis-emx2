@@ -6,7 +6,7 @@ Collections,,pid,,2,,,,,,,dct:identifier,Persistent identifier,"DataCatalogueFla
 Collections,,name,text,3,TRUE,,,,,,dct:title,Name used in international projects,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging"
 Collections,,local name,,,,,,,,,rdfs:label,"If different from above, name in the national language","DataCatalogueFlat,CohortsStaging,RWEStaging"
 Collections,,acronym,,,,,,,,,dct:alternative,"Acronym, if applicable","DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging"
-Collections,,type,ontology_array,,,CatalogueOntologies,Collection types FLAT,,,,,"Type of collection, e.g. registry, cohort, biobank","DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging"
+Collections,,type,ontology_array,,TRUE,CatalogueOntologies,Collection types FLAT,,,,,"Type of collection, e.g. registry, cohort, biobank","DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging"
 Collections,,type other,,,,,,,,,,"If other, describe the type of collection","DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,StudiesStaging"
 Collections,,cohort type,ontology_array,,,CatalogueOntologies,Cohort study types,,,,,Type of cohort,"DataCatalogueFlat,CohortsStaging"
 Collections,,clinical study type,ontology_array,,,CatalogueOntologies,Clinical study types,,,,,Type of clinical study,"DataCatalogueFlat,EMA"
