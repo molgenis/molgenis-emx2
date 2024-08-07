@@ -1,3 +1,51 @@
+<template>
+  <h1>Data and Meta data</h1>
+  <div class="h-12 mt-4 mb-16">
+    <h3 class="text-heading-lg">Params</h3>
+    <div class="m-2">
+      <label for="schema-id-input">schema id: </label>
+      <select id="table-id-select" v-model="schemaId">
+        <option v-for="option in schemaOptions" :value="option">
+          {{ option }}
+        </option>
+      </select>
+    </div>
+    <div class="m-2">
+      <label for="table-id-select">table id: </label>
+      <select id="table-id-select" v-model="tableId">
+        <option v-for="option in tableOptions" :value="option">
+          {{ option }}
+        </option>
+      </select>
+    </div>
+  </div>
+
+  <div v-if="pending">Loading...</div>
+  <div v-if="error">Error: {{ error }}</div>
+  <div v-if="metadataError">Meta data Error: {{ metadataError }}</div>
+
+  <div v-if="metadata">
+    <h2>Data for {{ tableId }}:</h2>
+    {{ error }}
+    <pre v-if="tableData">{{ tableData }}</pre>
+
+    <h2>Schema: {{ metadata.label }}</h2>
+    <h2>Tables:</h2>
+
+    <ul class="pl-6 list-disc">
+      <li v-for="table in metadata.tables">
+        {{ table.id }} (type: {{ table.tableType }})
+        <h3>Columns:</h3>
+        <ul class="pl-6 pb-3 list-disc">
+          <li v-for="column in table.columns">
+            {{ column.id }} (type: {{ column.columnType }})
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+</template>
+
 <script setup lang="ts">
 type Resp<T> = {
   data: Record<string, T[]>;
@@ -73,51 +121,3 @@ watch(tableId, async () => {
   refetchTableData();
 });
 </script>
-
-<template>
-  <h1>Data and Meta data</h1>
-  <div class="h-12 mt-4 mb-16">
-    <h3 class="text-heading-lg">Params</h3>
-    <div class="m-2">
-      <label for="schema-id-input">schema id: </label>
-      <select id="table-id-select" v-model="schemaId">
-        <option v-for="option in schemaOptions" :value="option">
-          {{ option }}
-        </option>
-      </select>
-    </div>
-    <div class="m-2">
-      <label for="table-id-select">table id: </label>
-      <select id="table-id-select" v-model="tableId">
-        <option v-for="option in tableOptions" :value="option">
-          {{ option }}
-        </option>
-      </select>
-    </div>
-  </div>
-
-  <div v-if="pending">Loading...</div>
-  <div v-if="error">Error: {{ error }}</div>
-  <div v-if="metadataError">Meta data Error: {{ metadataError }}</div>
-
-  <div v-if="metadata">
-    <h2>Data for {{ tableId }}:</h2>
-    {{ error }}
-    <pre v-if="tableData">{{ tableData }}</pre>
-
-    <h2>Schema: {{ metadata.label }}</h2>
-    <h2>Tables:</h2>
-
-    <ul class="pl-6 list-disc">
-      <li v-for="table in metadata.tables">
-        {{ table.id }} (type: {{ table.tableType }})
-        <h3>Columns:</h3>
-        <ul class="pl-6 pb-3 list-disc">
-          <li v-for="column in table.columns">
-            {{ column.id }} (type: {{ column.columnType }})
-          </li>
-        </ul>
-      </li>
-    </ul>
-  </div>
-</template>

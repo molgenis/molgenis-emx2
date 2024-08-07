@@ -1,16 +1,3 @@
-<script setup lang="ts">
-const { text, cutoff } = withDefaults(
-  defineProps<{
-    text?: string;
-    cutoff?: number;
-  }>(),
-  {
-    cutoff: 250,
-  }
-);
-
-let truncate = ref(true);
-</script>
 <template>
   <p v-if="text" class="mb-5 xl:block hidden">
     {{ truncate ? `${text?.substring(0, cutoff)}` : text }}
@@ -48,3 +35,16 @@ let truncate = ref(true);
     </button>
   </p>
 </template>
+
+<script setup lang="ts">
+const { text, cutoff } = withDefaults(
+  defineProps<{
+    text?: string;
+    cutoff?: number;
+  }>(),
+  {
+    cutoff: 250,
+  }
+);
+let truncate = ref(true);
+</script>

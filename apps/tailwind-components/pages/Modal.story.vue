@@ -1,13 +1,3 @@
-<script setup lang="ts">
-import Modal from "@/components/Modal.vue";
-const modal = ref<InstanceType<typeof Modal>>();
-
-function showModal() {
-  modal.value?.show();
-}
-
-let sectionCount = ref(0);
-</script>
 <template>
   <button
     @click="showModal"
@@ -46,3 +36,14 @@ let sectionCount = ref(0);
     </p>
   </Modal>
 </template>
+
+<script setup lang="ts">
+import Modal from "@/components/Modal.vue";
+const modal = ref<InstanceType<typeof Modal>>();
+
+function showModal() {
+  modal.value?.show();
+}
+
+let sectionCount = ref(0);
+</script>

@@ -1,30 +1,3 @@
-<script setup lang="ts">
-interface PropType {
-  maximumButtonShown?: number;
-  invert?: boolean;
-  navigation: {
-    label: string;
-    link: string;
-    highlight?: boolean;
-  }[];
-  showMoreButton?: boolean;
-}
-
-const props: PropType = withDefaults(defineProps<PropType>(), {
-  maximumButtonShown: 4,
-  showMoreButton: true,
-  invert: false,
-});
-
-const mainButtons = computed(() =>
-  props.navigation.slice(0, props.maximumButtonShown)
-);
-const subButtons = computed(() =>
-  props.navigation.slice(props.maximumButtonShown)
-);
-const active = "underline";
-</script>
-
 <template>
   <nav class="flex items-center justify-between gap-6 xl:justify-center">
     <NuxtLink
@@ -81,3 +54,30 @@ const active = "underline";
   overflow: unset;
 }
 </style>
+
+<script setup lang="ts">
+interface PropType {
+  maximumButtonShown?: number;
+  invert?: boolean;
+  navigation: {
+    label: string;
+    link: string;
+    highlight?: boolean;
+  }[];
+  showMoreButton?: boolean;
+}
+
+const props: PropType = withDefaults(defineProps<PropType>(), {
+  maximumButtonShown: 4,
+  showMoreButton: true,
+  invert: false,
+});
+
+const mainButtons = computed(() =>
+  props.navigation.slice(0, props.maximumButtonShown)
+);
+const subButtons = computed(() =>
+  props.navigation.slice(props.maximumButtonShown)
+);
+const active = "underline";
+</script>

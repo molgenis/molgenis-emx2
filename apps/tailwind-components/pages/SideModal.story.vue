@@ -1,15 +1,3 @@
-<script setup lang="ts">
-const showSidePanel = ref(false);
-const fullScreen = ref(false);
-const slideInRight = ref(true);
-const buttonAlignment = ref<"left" | "center" | "right">("right");
-
-function toggle() {
-  showSidePanel.value = !showSidePanel.value;
-}
-
-let sectionCount = ref(0);
-</script>
 <template>
   <div class="p-12">
     <button
@@ -65,7 +53,6 @@ let sectionCount = ref(0);
       </div>
     </fieldset>
   </div>
-  {{ fullScreen }}
   <SideModal
     :show="showSidePanel"
     :fullScreen="fullScreen"
@@ -84,3 +71,16 @@ let sectionCount = ref(0);
     </ContentBlockModal>
   </SideModal>
 </template>
+
+<script setup lang="ts">
+const showSidePanel = ref(false);
+const fullScreen = ref(false);
+const slideInRight = ref(true);
+const buttonAlignment = ref<"left" | "center" | "right">("right");
+
+function toggle() {
+  showSidePanel.value = !showSidePanel.value;
+}
+
+let sectionCount = ref(0);
+</script>

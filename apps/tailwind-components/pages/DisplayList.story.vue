@@ -1,11 +1,3 @@
-<script setup lang="ts">
-const title = ref("My list");
-const columnCount = ref(1);
-const type: Ref<"standard" | "link"> = ref("standard");
-
-const numberOfDemoItems = ref(3);
-</script>
-
 <template>
   <div class="flex">
     <div class="flex-1">
@@ -74,3 +66,10 @@ const numberOfDemoItems = ref(3);
     </div>
   </div>
 </template>
+
+<script setup lang="ts">
+const title = ref("My list");
+const columnCount = ref(1);
+const type: Ref<"standard" | "link"> = ref("standard");
+const numberOfDemoItems = ref(3);
+</script>
