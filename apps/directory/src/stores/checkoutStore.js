@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { computed, ref, toRaw } from "vue";
+import { computed, ref, toRaw, watch } from "vue";
 import { createBookmark } from "../functions/bookmarkMapper";
 import { useFiltersStore } from "./filtersStore";
 import { useSettingsStore } from "./settingsStore";
@@ -15,17 +15,34 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
 
   const biobankIdDictionary = ref({});
 
-  let selectedCollections = ref({});
+  const selectedCollections = ref({});
+
+  const serializedSelectedCollections = localStorage.getItem(
+    "selectedCollections"
+  );
+  if (serializedSelectedCollections) {
+    const deserializedSelectedCollections = JSON.parse(
+      serializedSelectedCollections
+    );
+    selectedCollections.value = deserializedSelectedCollections;
+  }
+
+  watch(
+    selectedCollections,
+    (newSelectedCollections) => {
+      localStorage.setItem(
+        "selectedCollections",
+        JSON.stringify(toRaw(newSelectedCollections))
+      );
+    },
+    { deep: true }
+  );
 
   const collectionSelectionCount = computed(() => {
     const allBiobanks = Object.keys(selectedCollections.value);
-    let collectionCount = 0;
-
-    for (const biobank of allBiobanks) {
-      collectionCount += selectedCollections.value[biobank].length;
-    }
-
-    return collectionCount;
+    return allBiobanks.reduce((accum, biobank) => {
+      return accum + selectedCollections.value[biobank].length;
+    }, 0);
   });
 
   function setSearchHistory(history) {
@@ -190,7 +207,6 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
 
     for (const biobank in selectedCollections.value) {
       const collectionSelection = selectedCollections.value[biobank];
-      const biobankId = biobankIdDictionary.value[biobank];
 
       for (const collection of collectionSelection) {
         resources.push(
@@ -217,6 +233,7 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
       payload.nToken = nToken.value;
     }
 
+    // todo: show a success or failure message and close modal if needed.
     const response = await fetch(negotiatorUrl, {
       method: "POST",
       headers: {
@@ -225,12 +242,11 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
       body: JSON.stringify(payload),
     });
 
-    if (!response.ok) {
+    if (response.ok) {
+      removeAllCollectionsFromSelection({});
+    } else {
       throw new Error("Negotiator is not available. Please try again later.");
     }
-
-    const body = await response.json();
-    window.location.href = body.redirect_uri;
   }
 
   return {
