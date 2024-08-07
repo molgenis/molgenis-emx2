@@ -29,7 +29,7 @@ def get_data_model(profile_path, path_to_write, profile):
             data_model = pd.concat([data_model, df])
 
     data_model = float_to_int(data_model)
-    data_model.to_csv(path_to_write, index=None)
+    data_model.to_csv(path_to_write + '/molgenis.csv', index=None)
 
 
 class Transform:
@@ -47,35 +47,28 @@ class Transform:
         os.remove(self.path + 'molgenis.csv')
 
     def update_data_model_file(self):
-        """Get path to data model file and copy molgenis.csv to appropriate folder if it does not exist
+        """Get data model from profile and copy molgenis.csv to appropriate folder
         """
-        # get molgenis.csv location
+        profile_path = Path().cwd().joinpath('..', '..', '..', '_models', 'shared')
+        path_to_write = self.path
         if self.database_type == 'catalogue':
-            data_model = os.path.abspath('../../../datacatalogue/molgenis.csv')
-            profile_path = Path().cwd().joinpath('..', '..', '..', '_models', 'shared')
             profile = 'DataCatalogueFlat'
-            get_data_model(profile_path, data_model, profile)
-        # TODO: rewrite to get schema from profile for staging areas
-        elif self.database_type == 'network':
-            data_model = os.path.abspath('../../../datacatalogue/stagingNetworks/molgenis.csv')
-        elif self.database_type == 'cohort':
-            data_model = os.path.abspath('../../../datacatalogue/stagingCohorts/molgenis.csv')
-        elif self.database_type == 'data_source':
-            data_model = os.path.abspath('../../../datacatalogue/stagingRWE/molgenis.csv')
-        elif self.database_type == 'cohort_UMCG':
-            data_model = os.path.abspath('../../../datacatalogue/stagingCohortsUMCG/molgenis.csv')
-        elif self.database_type == 'shared':
-            data_model = os.path.abspath('../../../datacatalogue/stagingShared/molgenis.csv')
-
-        # copy molgenis.csv to appropriate folder
-        if self.database_type == 'catalogue':
-            path = './catalogue_data_model'
-            if not os.path.isdir(path):
-                os.mkdir(path)
-            shutil.copyfile(data_model, os.path.abspath(os.path.join(path, 'molgenis.csv')))
-            shutil.make_archive('./catalogue_data_model_upload', 'zip', path)
+            path_to_write = './catalogue_data_model'
+            if not os.path.isdir(path_to_write):
+                os.mkdir(path_to_write)
+            get_data_model(profile_path, path_to_write, profile)
+            shutil.make_archive('./catalogue_data_model_upload', 'zip', path_to_write)
         else:
-            shutil.copyfile(data_model, os.path.abspath(os.path.join(self.path, 'molgenis.csv')))
+            if self.database_type == 'network':
+                profile = 'NetworksStaging'
+            elif self.database_type == 'cohort':
+                profile = 'CohortsStaging'
+            elif self.database_type == 'data_source':
+                profile = 'RWEStaging'
+            elif self.database_type == 'cohort_UMCG':
+                profile = 'UMCGCohortsStaging'
+
+            get_data_model(profile_path, path_to_write, profile)
 
     def transform_data(self):
         """Make changes per table
@@ -92,6 +85,7 @@ class Transform:
         self.publications()
 
         # TODO: for vac4eu BPE model is an exception, not part of a network, also other model
+        # TODO: compress repeats for EXPANSE_CDM
         for table_name in ['Datasets', 'Dataset mappings', 'Subcohorts',
                            'Collection events', 'External identifiers',
                            'Linked resources', 'Quantitative information', 'Subcohort counts',
@@ -115,6 +109,7 @@ class Transform:
         """
         df_collection_organisations = pd.DataFrame()
         df_organisations = pd.read_csv(self.path + 'Organisations.csv')
+        # TODO: get organisations from 'additional organisations', add 'is lead organisation' boolean
 
         for table in ['Studies', 'Cohorts', 'Data sources', 'Databanks', 'Contacts']:
             df_resource = pd.read_csv(self.path + table + '.csv')
@@ -142,40 +137,49 @@ class Transform:
         df_cohorts = pd.read_csv(self.path + 'Cohorts.csv')
         df_cohorts.rename(columns={'type': 'cohort type',
                                    'type other': 'cohort type other',
-                                   'collection type': 'data collection type'}, inplace=True)
-        df_cohorts['collection type'] = 'Cohort'
+                                   'collection type': 'data collection type',
+                                   'linkage options': 'linkage possibility description'}, inplace=True)
+        df_cohorts['type'] = 'Cohort study'
 
         # Networks to Collections
-        # TODO: Get Networks table out of Collections
+        # TODO: Get Networks table out of Collections?
         df_networks = pd.read_csv(self.path + 'Networks.csv')
         df_networks.rename(columns={'type': 'network type'}, inplace=True)
-        df_networks['collection type'] = 'Network'
+        df_networks['type'] = 'Network'
         df_networks['models'] = ''
+
+        # get collections that are part of network
+        cols_to_find = ['networks', 'cohorts', 'data sources', 'databanks']
+        i_cols = [df_networks.columns.get_loc(col) for col in cols_to_find]
+        df_networks['collections'] = df_networks[df_networks.columns[i_cols]]\
+            .apply(lambda x: ','.join(x.dropna().astype(str)), axis=1)
 
         # Studies to Collections
         df_studies = pd.read_csv(self.path + 'Studies.csv')
-        df_studies.rename(columns={'type': 'clinical study type',
-                                   'type other': 'study type other'}, inplace=True)
-        df_studies['collection type'] = 'Study'
+        df_studies.rename(columns={'study design classification': 'clinical study type',
+                                   'type other': 'study type other',
+                                   'number of subjects': 'number of participants',
+                                   'age groups': 'population age groups'}, inplace=True)
+        df_studies['type'] = 'Study'
 
         # Data sources to Collections
         df_data_sources = pd.read_csv(self.path + 'Data sources.csv')
         df_data_sources.rename(columns={'type': 'RWD type',
                                         'type other': 'RWD type other',
                                         'areas of information': 'areas of information rwd'}, inplace=True)
-        df_data_sources['collection type'] = 'Data source'
+        df_data_sources['type'] = 'Data source'
 
         # Databanks to Collections
         df_databanks = pd.read_csv(self.path + 'Databanks.csv')
         df_databanks.rename(columns={'type': 'datasource type',
                                      'type other': 'datasource type other',
                                      'areas of information': 'areas of information rwd'}, inplace=True)
-        df_databanks['collection type'] = 'Databank'
+        df_databanks['type'] = 'Databank'
 
         # TODO: think about keeping Models as collection type
         df_models = pd.read_csv(self.path + 'Models.csv', keep_default_na=False)
         df_models = df_models[df_models['id'] == 'CRC Screening CDM']  # handles exception CRC Screening CDM
-        df_models['collection type'] = ''  # TODO: add term here
+        df_models['type'] = ''  # TODO: add term here
 
         df_models = float_to_int(df_models)  # convert float back to integer
 
@@ -271,10 +275,11 @@ class Transform:
         df.loc[:, 'target'] = df['target'].apply(strip_resource)  # delete appendix '_CDM'
         df.loc[:, 'repeat_num'] = df['target variable'].apply(get_repeat_number)  # get repeat of target variable
 
+        df_no_cdm = df[~df['target'].isin(['LifeCycle', 'ATHLETE', 'testNetwork1'])]
         df_cdm = df[df['target'].isin(['LifeCycle', 'ATHLETE', 'testNetwork1'])]
         df_cdm.loc[:, 'target variable'] = df_cdm['target variable'].apply(remove_number)
 
-        #TODO: also get other mappings than those from LifeCycle and ATHLETE
+        #TODO: reformat mappings from EXPANSE_CDM?
         df_cdm = df_cdm.fillna('')
 
         # drop duplicate mappings
@@ -287,6 +292,7 @@ class Transform:
 
         # get repeated mappings in comma separated string
         df_mappings = rewrite_mappings(df_cdm, df_no_duplicates)
+        df_mappings = pd.concat([df_mappings, df_no_cdm])
         df_mappings = float_to_int(df_mappings)  # convert float back to integer
         df_mappings.to_csv(self.path + 'Mapped variables.csv', index=False)
 
@@ -368,7 +374,6 @@ def is_repeated(var_name, df_repeats):
 def restructure_repeats(df_variables, df_repeats):
     # TODO: EXPANSE_CDM repeats do not have a repeatUnit
     # restructuring of cdm repeats
-    #TODO: rewrite drop duplicates to more stringent version
     df_variables = df_variables.drop_duplicates(subset=['resource', 'dataset', 'name'])   # keep unique entries, gets rid of LongITools 'root' variables
     df_variables.loc[:, 'repeat unit'] = df_variables['name'].apply(get_repeat_unit, df=df_repeats)  # get repeat unit from
     df_variables.loc[:, 'repeat min'] = ''

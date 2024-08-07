@@ -64,7 +64,7 @@ session.download_zip(database_name=CATALOGUE_SCHEMA_NAME)
 print('Transform data from ' + CATALOGUE_SCHEMA_NAME)
 # get instances of classes
 zip_handling = Zip(CATALOGUE_SCHEMA_NAME)
-update = Transform(CATALOGUE_SCHEMA_NAME, 'catalogue')
+update = Transform(database_name=CATALOGUE_SCHEMA_NAME, database_type='catalogue')
 
 # run zip and transform functions
 zip_handling.unzip_data()
