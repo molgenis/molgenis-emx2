@@ -40,7 +40,7 @@ const variable = computed(
 const collections = computed(
   () => data.value.data.Collections as { id: string }[]
 );
-const isRepeating = computed(() => variable.value.repeatUnit);
+const isRepeating = computed(() => variable.value.repeatUnit?.name);
 
 let crumbs: any = {};
 crumbs[
@@ -122,12 +122,13 @@ useHead({ title: titlePrefix + variable.value.name });
               },
               {
                 label: 'Repeated for',
-                content:
-                  variable?.repeatUnit?.name +
-                  ' ' +
-                  variable?.repeatMin +
-                  '-' +
-                  variable?.repeatMax,
+                content: variable?.repeatUnit?.name
+                  ? variable?.repeatUnit?.name +
+                    ' ' +
+                    variable?.repeatMin +
+                    '-' +
+                    variable?.repeatMax
+                  : undefined,
               },
               {
                 label: 'Description',

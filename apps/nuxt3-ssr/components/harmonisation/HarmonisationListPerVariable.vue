@@ -20,7 +20,7 @@ const props = defineProps<{
               :status="mapping.match.name"
               size="large"
             />
-            <span>{{ mapping.source.id }} ({{ mapping.repeats }})</span>
+            <span>{{ mapping.source.id }}</span>
           </div>
         </li>
       </ul>
