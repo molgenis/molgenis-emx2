@@ -4,7 +4,9 @@ One of the features of MOLGENIS EMX2, is the ability to create your own frontend
 
 This guide will provide information on how to create a new app or how to contribute to an existing application. You will also find information on the tools that are used in MOLGENIS EMX2 and how to configure your app to deploy it in EMX2. In the last section (the appendices), you will find a step-by-step guides for developing apps.
 
-Before you begin, we encourage developers to read our [Development Guidelines](./dev_guidelines) to ensure consistency of all interfaces. If you notice any issue with this guide (e.g, broken example, outdated information, etc.), please open an issue on at [molgenis-emx2/issues](https://github.com/molgenis/molgenis-emx2/issues).
+Before you begin, we encourage developers to read our [Development Guidelines](./dev_guidelines) to ensure consistency of all interfaces.
+
+If you get stuck, have a look at the [Troubleshooting guide](./dev_troubleshooting). If you notice any issue with this guide (e.g, broken example, outdated information, etc.), please open an issue on at [molgenis-emx2/issues](https://github.com/molgenis/molgenis-emx2/issues).
 
 ## Frontend tools
 
@@ -15,7 +17,7 @@ All frontend apps in EMX2 are developed using the following tools.
 - [vite](https://vitejs.dev): for application bundling
 - [yarn workspaces](https://yarnpkg.com/features/workspaces): to autowire local dependencies.
 
-In addition, some of the projects use [Sass](https://sass-lang.com) to compile css. Sass and scss can be activated in the vue component files by adding the `lang="scss"` to `<style>` tag.
+In addition, some of the projects use [Sass](https://sass-lang.com) to compile css. SASS and SCSS can be activated in the vue component files by adding the `lang="scss"` to `<style>` tag.
 
 We also use Gradle to build applications. By running the `build` script in the package.json file, Gradle will build the application and bundle it with the other java applications (during `gradle run`).
 
@@ -60,7 +62,7 @@ git clone https://github.com/molgenis/molgenis-emx2
 git switch -c feat/my-new-app
 ```
 
-Regarding branch names, we typically use these patterns for naming branches: `feat/*` for a new feature or improvement, and `fix/` for bugs.
+Regarding branch names, we typically use these patterns for naming branches: `feat/*` for a new feature or improvement, and `fix/` for bugs. For further information, please see the [Basic concepts](./dev_basics) guide.
 
 ### Creating a new app
 

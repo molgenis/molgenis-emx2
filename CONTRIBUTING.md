@@ -26,12 +26,7 @@ Anyone is welcome to contribute to the EMX2 code base. We've outlined this proce
 
 #### Pre-development
 
-We have a few guides that provide information on how EMX2 is structured, the coding guidelines, and other practical information. These will help you get started with writing code and to ensure it is consistent with the rest of the code base.
-
-- [Development guidelines](https://molgenis.github.io/molgenis-emx2/#/molgenis/dev_guidelines)
-- [Guiding principles and features](https://molgenis.github.io/molgenis-emx2/#/molgenis/dev_principles)
-- [MOLGENIS quickstart](https://molgenis.github.io/molgenis-emx2/#/molgenis/dev_quickstart)
-- [Technologies we use](https://molgenis.github.io/molgenis-emx2/#/molgenis/dev_technologies)
+We have created several [developer guides](https://molgenis.github.io/molgenis-emx2/#/dev) that provide information on how EMX2 is structured, the coding guidelines, and other practical information. These will help you get started with writing code and to ensure it is consistent with the rest of the code base.
 
 The easiest way to get started is to start with the latest version of EMX2. Clone the main repository and create a new branch.
 
