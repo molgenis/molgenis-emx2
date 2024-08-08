@@ -6,11 +6,11 @@ For developers, you can use PostgreSQL, GraphQL api, batch web services or linke
 
 To get started with MOLGENIS, we have created several guides.
 
-| Guide | Description |
-|:------|:-------------|
-| [User guide](./use) | reference for how to create and interact with MOLGENIS databases |
-| [Installation Guide](./run) | step-by-step guide for installing and configuring the MOLGENIS software |
-| [Developers Guide](./dev) | learn about the architecture of MOLGENIS, how to contribute to the code base, how to build custom vue applications, and more |
+| Guide                       | Description                                                                                                                  |
+|:----------------------------|:-----------------------------------------------------------------------------------------------------------------------------|
+| [User guide](./use)         | reference for how to create and interact with MOLGENIS databases                                                             |
+| [Installation Guide](./run) | step-by-step guide for installing and configuring the MOLGENIS software                                                      |
+| [Developers Guide](./dev)   | learn about the architecture of MOLGENIS, how to contribute to the code base, how to build custom vue applications, and more |
 
 ## Differences with previous version of MOLGENIS
 
@@ -20,4 +20,4 @@ To get started with MOLGENIS, we have created several guides.
 - **Enhanced data modelling features**: we enabled the option for multiple data schemas, schema templates, and FAIR data improvements (e.g., the `ONTOLOGY` data type). For developers, the data API specification is now auto-generated. Any changes to the schema will be automatically documented in the GraphQL API
 - **Improved data APIs**: In EMX2, we've incorporated [GraphQL](https://graphql.org). This allows users to write more advanced queries
 
-We are still in the process of adding EMX1 features into EMX2. For now, EMX1 will be maintained but not actively developed.
+We are still in the process of adding EMX1 features into EMX2. For now, EMX1 will be maintained but not actively developed. It will eventually be deprecated. Please check the [molgenis/molgenis](https://github.com/molgenis/molgenis) for any updates.

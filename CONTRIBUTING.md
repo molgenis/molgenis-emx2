@@ -37,7 +37,7 @@ git clone https://github.com/molgenis/molgenis-emx2
 git switch -c feat/<name-of-feature>
 ```
 
-Regarding branch names, we typically use these patterns for naming branches: `feat/*` for a new feature or improvement, and `fix/` for bugs. Keep the branch names short and concise.
+Regarding branch names, please see the "Creating a branch" section in [Basic concepts](https://molgenis.github.io/molgenis-emx2/#/molgenis/dev_basics) guide.
 
 If applicable, open an issue or submit a feature request so that we can link a ticket with a pull request. Please see the previous sections ([Reporting issues](#reporting-issues) and [Feature requests](#feature-requests)) for more information.
 
@@ -56,7 +56,7 @@ When you have finished fixing a bug or developing a new feature, make sure -
 
 All contributions (bug report, feature request, pull request) will be reviewed by a member of the MOLGENIS-EMX2 team. Then, the following steps will take place.
 
-1. **Triage of the contribution**: We will first triage the request/bug report/PR. It will be reviewed to make sure it is clear. W may request additional information.
+1. **Triage of the contribution**: We will first triage the request/bug report/PR. It will be reviewed to make sure it is clear. We may request additional information.
 2. **Assignment and scheduling**: Depending on the urgency and priority of the issue/feature/etc, we will schedule items accordingly. We schedule tickets into 3-week sprints. Please keep in mind that it may take a little while until the request is processed. If you have submitted a new issue or feature request, we will link all code commits to it.
 3. **Review of the contribution**: For code contributions, we will review the code and perform a function review. We may request additional changes.
 
