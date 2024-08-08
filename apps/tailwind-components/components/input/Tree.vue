@@ -1,86 +1,3 @@
-<script setup lang="ts">
-import type { ITreeNode } from "../../types/types";
-import BaseIcon from "../BaseIcon.vue";
-import CustomTooltip from "../CustomTooltip.vue";
-
-const props = withDefaults(
-  defineProps<{
-    nodes: ITreeNode[];
-    modelValue: string[];
-    isMultiSelect?: boolean;
-    expandSelected?: boolean;
-    isRoot?: boolean;
-    inverted?: boolean;
-  }>(),
-  {
-    isMultiSelect: true,
-    expandSelected: false,
-    isRoot: true,
-    inverted: false,
-  }
-);
-
-// expand status is internally controlled by the component
-// whereas the selected status is controlled by the parent
-const expandedNodes = ref<string[]>([]);
-
-const emit = defineEmits(["update:modelValue"]);
-
-function toggleExpand(nameName: string) {
-  const index = expandedNodes.value.indexOf(nameName);
-  if (index > -1) {
-    expandedNodes.value.splice(index, 1);
-  } else {
-    expandedNodes.value.push(nameName);
-  }
-}
-
-function expandSelection(node: ITreeNode) {
-  let selection: string[] = [];
-  node.children.forEach((child) => {
-    selection.push(child.name);
-    if (child.children) {
-      selection = [...selection, ...expandSelection(child)];
-    }
-  });
-
-  return selection;
-}
-
-function toggleSelect(node: ITreeNode) {
-  if (props.modelValue.includes(node.name)) {
-    // remove node(s) from selected nodes and emit new model
-    let deSelectionList = [node.name];
-    if (props.expandSelected) {
-      deSelectionList = deSelectionList.concat(expandSelection(node));
-    }
-    const newSelection = props.modelValue.filter(
-      (n) => !deSelectionList.includes(n)
-    );
-    emit("update:modelValue", newSelection);
-  } else {
-    let currnetSelection = [...props.modelValue, node.name];
-    if (props.expandSelected) {
-      currnetSelection = [...currnetSelection, ...expandSelection(node)];
-    }
-    const deduplicated = [...new Set(currnetSelection)];
-    // clone model and add new before emitting
-    emit("update:modelValue", deduplicated);
-  }
-}
-
-function handleChildSelect(selected: string[], parent: ITreeNode) {
-  const siblingNames = parent.children.map((n) => n.name);
-  const selectParent =
-    siblingNames.some((siblingName) => selected.includes(siblingName)) &&
-    siblingNames.every((siblingName) => selected.includes(siblingName));
-  const updatedSelection = selectParent ? [...selected, parent.name] : selected;
-
-  const deduplicated = [...new Set(updatedSelection)];
-  emit("update:modelValue", deduplicated);
-}
-</script>
-
 <template>
   <ul
     :class="[
@@ -169,3 +86,86 @@ function handleChildSelect(selected: string[], parent: ITreeNode) {
     </li>
   </ul>
 </template>
+
+<script setup lang="ts">
+import type { ITreeNode } from "../../types/types";
+import BaseIcon from "../BaseIcon.vue";
+import CustomTooltip from "../CustomTooltip.vue";
+
+const props = withDefaults(
+  defineProps<{
+    nodes: ITreeNode[];
+    modelValue: string[];
+    isMultiSelect?: boolean;
+    expandSelected?: boolean;
+    isRoot?: boolean;
+    inverted?: boolean;
+  }>(),
+  {
+    isMultiSelect: true,
+    expandSelected: false,
+    isRoot: true,
+    inverted: false,
+  }
+);
+
+// expand status is internally controlled by the component
+// whereas the selected status is controlled by the parent
+const expandedNodes = ref<string[]>([]);
+
+const emit = defineEmits(["update:modelValue"]);
+
+function toggleExpand(nameName: string) {
+  const index = expandedNodes.value.indexOf(nameName);
+  if (index > -1) {
+    expandedNodes.value.splice(index, 1);
+  } else {
+    expandedNodes.value.push(nameName);
+  }
+}
+
+function expandSelection(node: ITreeNode) {
+  let selection: string[] = [];
+  node.children.forEach((child) => {
+    selection.push(child.name);
+    if (child.children) {
+      selection = [...selection, ...expandSelection(child)];
+    }
+  });
+
+  return selection;
+}
+
+function toggleSelect(node: ITreeNode) {
+  if (props.modelValue.includes(node.name)) {
+    // remove node(s) from selected nodes and emit new model
+    let deSelectionList = [node.name];
+    if (props.expandSelected) {
+      deSelectionList = deSelectionList.concat(expandSelection(node));
+    }
+    const newSelection = props.modelValue.filter(
+      (n) => !deSelectionList.includes(n)
+    );
+    emit("update:modelValue", newSelection);
+  } else {
+    let currnetSelection = [...props.modelValue, node.name];
+    if (props.expandSelected) {
+      currnetSelection = [...currnetSelection, ...expandSelection(node)];
+    }
+    const deduplicated = [...new Set(currnetSelection)];
+    // clone model and add new before emitting
+    emit("update:modelValue", deduplicated);
+  }
+}
+
+function handleChildSelect(selected: string[], parent: ITreeNode) {
+  const siblingNames = parent.children.map((n) => n.name);
+  const selectParent =
+    siblingNames.some((siblingName) => selected.includes(siblingName)) &&
+    siblingNames.every((siblingName) => selected.includes(siblingName));
+  const updatedSelection = selectParent ? [...selected, parent.name] : selected;
+
+  const deduplicated = [...new Set(updatedSelection)];
+  emit("update:modelValue", deduplicated);
+}
+</script>

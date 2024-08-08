@@ -1,3 +1,15 @@
+<template>
+  <section>
+    <h3 v-if="title" class="mb-2.5 font-bold text-body-base">{{ title }}</h3>
+    <ul
+      class="columns-1 text-body-base"
+      :class="`${columnCountClass} ${listClasses} `"
+    >
+      <slot></slot>
+    </ul>
+  </section>
+</template>
+
 <script setup lang="ts">
 const props = withDefaults(
   defineProps<{
@@ -31,15 +43,3 @@ const columnCountClass = computed(() => {
   return COLUMNCOUNT[props.columnCount];
 });
 </script>
-
-<template>
-  <section>
-    <h3 v-if="title" class="mb-2.5 font-bold text-body-base">{{ title }}</h3>
-    <ul
-      class="columns-1 text-body-base"
-      :class="`${columnCountClass} ${listClasses} `"
-    >
-      <slot></slot>
-    </ul>
-  </section>
-</template>

@@ -1,20 +1,4 @@
 <!-- eslint-disable vue/multi-word-component-names -->
-<script setup lang="ts">
-defineProps<{
-  link?: string;
-  image?: string;
-}>();
-
-const config = useRuntimeConfig();
-const route = useRoute();
-const logoFileName = (route.query.logo as string) || config.public.emx2Logo;
-
-// load the svg data from the assets folder
-let svg = shallowRef();
-if (logoFileName) {
-  svg.value = await assetLoader.load(logoFileName);
-}
-</script>
 <template>
   <NuxtLink :to="link" class="block">
     <span class="sr-only">Go to home</span>
@@ -33,3 +17,20 @@ if (logoFileName) {
     />
   </NuxtLink>
 </template>
+
+<script setup lang="ts">
+defineProps<{
+  link?: string;
+  image?: string;
+}>();
+
+const config = useRuntimeConfig();
+const route = useRoute();
+const logoFileName = (route.query.logo as string) || config.public.emx2Logo;
+
+// load the svg data from the assets folder
+let svg = shallowRef();
+if (logoFileName) {
+  svg.value = await assetLoader.load(logoFileName);
+}
+</script>

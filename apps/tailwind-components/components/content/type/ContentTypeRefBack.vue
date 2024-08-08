@@ -1,3 +1,22 @@
+<template>
+  <Table>
+    <template #head>
+      <TableHeadRow>
+        <TableHead v-for="longestRowColumns in rows[longestRowIndex]">{{
+          longestRowColumns.key
+        }}</TableHead>
+      </TableHeadRow>
+    </template>
+    <template #body>
+      <TableRow v-for="row in rows">
+        <TableCell v-for="longestRowColumns in rows[longestRowIndex]">{{
+          row.find((col: any) => col.key === longestRowColumns.key)?.value
+        }}</TableCell>
+      </TableRow>
+    </template>
+  </Table>
+</template>
+
 <script setup lang="ts">
 import type { ISectionField } from "~/interfaces/types";
 const props = defineProps<{
@@ -38,22 +57,3 @@ const rows = computed(() => {
   });
 });
 </script>
-
-<template>
-  <Table>
-    <template #head>
-      <TableHeadRow>
-        <TableHead v-for="longestRowColumns in rows[longestRowIndex]">{{
-          longestRowColumns.key
-        }}</TableHead>
-      </TableHeadRow>
-    </template>
-    <template #body>
-      <TableRow v-for="row in rows">
-        <TableCell v-for="longestRowColumns in rows[longestRowIndex]">{{
-          row.find((col: any) => col.key === longestRowColumns.key)?.value
-        }}</TableCell>
-      </TableRow>
-    </template>
-  </Table>
-</template>

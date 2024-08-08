@@ -1,85 +1,3 @@
-<script setup lang="ts">
-import type { INotificationType } from "~/types/types";
-const ariaId = useId();
-const props = withDefaults(
-  defineProps<{
-    slideInRight?: boolean;
-    fullScreen?: boolean;
-    show?: boolean;
-    buttonAlignment?: "left" | "center" | "right";
-    includeFooter?: boolean;
-    type?: INotificationType;
-  }>(),
-  {
-    show: false,
-    slideInRight: false,
-    fullScreen: true,
-    buttonAlignment: "center",
-    includeFooter: true,
-    type: "info",
-  }
-);
-
-const emit = defineEmits(["close"]);
-
-const preAnimation = () => {
-  if (props.slideInRight) {
-    document.body.classList.add("v-popper_right");
-  }
-};
-
-const onShow = () => {
-  document.body.classList.add("no-scroll");
-};
-
-const onHide = () => {
-  document.body.classList.remove("no-scroll");
-  setTimeout(() => {
-    document.body.classList.remove("v-popper_right");
-    emit("close");
-  }, 150);
-};
-
-watch(
-  () => toRefs(props),
-  (newValue, oldValue) => {
-    if (oldValue != newValue && !newValue.show.value) {
-      onHide();
-    }
-  }
-);
-
-const roundedClass = props.slideInRight
-  ? "rounded-l-50px right-0"
-  : "rounded-r-50px";
-const fullScreenClass = computed(() =>
-  props.fullScreen ? "w-[95vw]" : "lg:w-[33vw] md:w-[50vw] w-[95vw]"
-);
-const buttonAlignmentSet = {
-  left: "justify-left",
-  center: "justify-around",
-  right: "justify-left",
-};
-const buttonAlignmentClass = buttonAlignmentSet[props.buttonAlignment];
-
-const bgClass = computed(() => {
-  switch (props.type) {
-    case "light":
-      return "bg-white";
-    case "dark":
-      return "bg-black";
-    case "success":
-      return "bg-green-500";
-    case "error":
-      return "bg-red-500";
-    case "warning":
-      return "bg-yellow-500";
-    case "info":
-      return "bg-blue-500";
-  }
-});
-</script>
-
 <template>
   <VDropdown
     :aria-id="ariaId"
@@ -174,3 +92,85 @@ body.no-scroll {
   overflow: hidden;
 }
 </style>
+
+<script setup lang="ts">
+import type { INotificationType } from "~/types/types";
+const ariaId = useId();
+const props = withDefaults(
+  defineProps<{
+    slideInRight?: boolean;
+    fullScreen?: boolean;
+    show?: boolean;
+    buttonAlignment?: "left" | "center" | "right";
+    includeFooter?: boolean;
+    type?: INotificationType;
+  }>(),
+  {
+    show: false,
+    slideInRight: false,
+    fullScreen: true,
+    buttonAlignment: "center",
+    includeFooter: true,
+    type: "info",
+  }
+);
+
+const emit = defineEmits(["close"]);
+
+const preAnimation = () => {
+  if (props.slideInRight) {
+    document.body.classList.add("v-popper_right");
+  }
+};
+
+const onShow = () => {
+  document.body.classList.add("no-scroll");
+};
+
+const onHide = () => {
+  document.body.classList.remove("no-scroll");
+  setTimeout(() => {
+    document.body.classList.remove("v-popper_right");
+    emit("close");
+  }, 150);
+};
+
+watch(
+  () => toRefs(props),
+  (newValue, oldValue) => {
+    if (oldValue != newValue && !newValue.show.value) {
+      onHide();
+    }
+  }
+);
+
+const roundedClass = props.slideInRight
+  ? "rounded-l-50px right-0"
+  : "rounded-r-50px";
+const fullScreenClass = computed(() =>
+  props.fullScreen ? "w-[95vw]" : "lg:w-[33vw] md:w-[50vw] w-[95vw]"
+);
+const buttonAlignmentSet = {
+  left: "justify-left",
+  center: "justify-around",
+  right: "justify-left",
+};
+const buttonAlignmentClass = buttonAlignmentSet[props.buttonAlignment];
+
+const bgClass = computed(() => {
+  switch (props.type) {
+    case "light":
+      return "bg-white";
+    case "dark":
+      return "bg-black";
+    case "success":
+      return "bg-green-500";
+    case "error":
+      return "bg-red-500";
+    case "warning":
+      return "bg-yellow-500";
+    case "info":
+      return "bg-blue-500";
+  }
+});
+</script>

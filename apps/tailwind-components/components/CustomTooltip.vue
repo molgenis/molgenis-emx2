@@ -1,3 +1,25 @@
+<template>
+  <div class="flex justify-center w-6 h-6">
+    <VTooltip
+      :aria-id="ariaId"
+      :showTriggers="['hover', 'touch']"
+      :distance="12"
+    >
+      <button
+        class="w-6 h-6 text-blue-200 cursor-default select-none"
+        :class="hoverColorClass"
+      >
+        <BaseIcon name="info" />
+        <span class="sr-only" v-if="label">{{ label }}</span>
+      </button>
+
+      <template #popper>
+        {{ content }}
+      </template>
+    </VTooltip>
+  </div>
+</template>
+
 <script setup lang="ts">
 import BaseIcon from "./BaseIcon.vue";
 import "floating-vue/dist/style.css";
@@ -24,25 +46,3 @@ const hoverColorClass = computed(() => {
   return HOVER_COLOR_MAPPING[props.hoverColor];
 });
 </script>
-
-<template>
-  <div class="flex justify-center w-6 h-6">
-    <VTooltip
-      :aria-id="ariaId"
-      :showTriggers="['hover', 'touch']"
-      :distance="12"
-    >
-      <button
-        class="w-6 h-6 text-blue-200 cursor-default select-none"
-        :class="hoverColorClass"
-      >
-        <BaseIcon name="info" />
-        <span class="sr-only" v-if="label">{{ label }}</span>
-      </button>
-
-      <template #popper>
-        {{ content }}
-      </template>
-    </VTooltip>
-  </div>
-</template>
