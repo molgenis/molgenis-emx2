@@ -67,16 +67,12 @@ if (collectionEvent.value?.numberOfParticipants) {
   });
 }
 
-if (collectionEvent.value?.startYear || collectionEvent.value?.endYear) {
+if (collectionEvent.value?.startDate || collectionEvent.value?.endDate) {
   items.push({
-    label: "Start/end year",
+    label: "Start/end date",
     content: dateUtils.startEndYear(
-      collectionEvent.value.startYear && collectionEvent.value.startYear.name
-        ? collectionEvent.value.startYear.name
-        : null,
-      collectionEvent.value.endYear && collectionEvent.value.endYear.name
-        ? collectionEvent.value.endYear.name
-        : null
+      collectionEvent.value.startDate,
+      collectionEvent.value.endDate
     ),
   });
 }

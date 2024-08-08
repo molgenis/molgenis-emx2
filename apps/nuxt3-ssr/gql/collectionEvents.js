@@ -17,12 +17,8 @@ export default gql`
       }
       name
       description
-      startYear {
-        name
-      }
-      endYear {
-        name
-      }
+      startDate
+      endDate
       standardizedTools {
         name
         code

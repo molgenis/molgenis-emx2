@@ -11,16 +11,10 @@ export default gql`
       }
       name
       description
-      startYear {
+      startDate {
         name
       }
-      startMonth {
-        name
-      }
-      endYear {
-        name
-      }
-      endMonth {
+      endDate {
         name
       }
       numberOfParticipants

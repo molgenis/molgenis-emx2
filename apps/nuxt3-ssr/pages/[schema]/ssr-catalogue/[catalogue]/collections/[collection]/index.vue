@@ -106,6 +106,9 @@ const query = gql`
         }
         coreVariables
       }
+      collectionEvents_agg {
+         count
+      }
       peopleInvolved {
         roleDescription
         firstName
@@ -159,7 +162,6 @@ const variables = { id: route.params.collection };
 interface IResponse {
   data: {
     Collections: ICollection[];
-    CollectionEvents_agg: { count: number };
     Publications_agg: { count: number };
   };
 }
@@ -199,7 +201,7 @@ const mainMedicalConditions = computed(() => {
 });
 
 const collectionEventCount = computed(
-  () => data.value?.data?.CollectionEvents_agg?.count
+  () => collection.value.collectionEvents_agg?.count
 );
 const subcohortCount = computed(() => collection.value.subcohorts_agg?.count);
 
@@ -213,11 +215,7 @@ function collectionEventMapper(item: any) {
     name: item.name,
     description: item.description,
     startAndEndYear: (() => {
-      const startYear =
-        item.startYear && item.startYear.name ? item.startYear.name : null;
-      const endYear =
-        item.endYear && item.endYear.name ? item.endYear.name : null;
-      return dateUtils.startEndYear(startYear, endYear);
+      return dateUtils.startEndYear(item.startDate, item.endDate);
     })(),
     numberOfParticipants: item.numberOfParticipants,
     _renderComponent: "CollectionEventDisplay",
@@ -237,6 +235,7 @@ function datasetMapper(item: { name: string; description?: string }) {
 }
 
 function subcohortMapper(subcohort: any) {
+  console.log(subcohort);
   return {
     id: subcohort.name,
     name: subcohort.name,
@@ -555,7 +554,6 @@ const activeOrganization = computed(() => {
           :contact-message-filter="messageFilter"
           :subject-template="collection.acronym"
         />
-        {{ collection.subcohorts }}
         <ContentBlockDescription
           id="Description"
           title="Description"
@@ -689,7 +687,7 @@ const activeOrganization = computed(() => {
             { id: 'description', label: 'Description', singleLine: true },
             { id: 'numberOfParticipants', label: 'Number of participants' },
           ]"
-          type="Subcohorts"
+          type="CollectionSubcohorts"
           :query="subcohortsQuery"
           :filter="{ id: route.params.collection }"
           :rowMapper="subcohortMapper"
@@ -731,7 +729,7 @@ const activeOrganization = computed(() => {
             { id: 'name', label: 'Name' },
             { id: 'description', label: 'Description', singleLine: true },
           ]"
-          type="Datasets"
+          type="CollectionDatasets"
           :query="datasetQuery"
           :filter="{ id: route.params.collection }"
           :rowMapper="datasetMapper"
