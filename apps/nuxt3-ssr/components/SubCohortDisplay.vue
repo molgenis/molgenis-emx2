@@ -25,7 +25,7 @@ const { data: subcohortData } = await useFetch(
 watch(
   subcohortData,
   function setData(data: any) {
-    subcohort = data?.data?.Subcohorts[0];
+    subcohort = data?.data?.CollectionSubcohorts[0];
   },
   {
     deep: true,
@@ -122,6 +122,7 @@ if (subcohort?.inclusionCriteria) {
     :title="subcohort?.name"
     :description="subcohort?.description"
   >
+    bla: {{ subcohort }}
     <CatalogueItemList :items="items" :small="true" />
   </ContentBlockModal>
 </template>

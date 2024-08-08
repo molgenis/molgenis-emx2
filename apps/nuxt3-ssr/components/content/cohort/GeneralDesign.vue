@@ -21,20 +21,65 @@ const generalDesign: IDefinitionListItem[] = [
       : undefined,
   },
   {
-    label: "collection type",
-    content: props.collection.type
-      ? props.collection.type.map((type: INameObject) => type?.name).join(", ")
+    label: "Type other",
+    content: props.collection.typeOther
+      ? props.collection.typeOther
       : undefined,
+  },
+  {
+    label: "Cohort type",
+    content: props.collection.cohortType
+      ? props.collection.cohortType
+          .map((type: INameObject) => type?.name)
+          .join(", ")
+      : undefined,
+  },
+  {
+    label: "RWD type",
+    content: props.collection.rWDType
+      ? props.collection.rWDType
+          .map((type: INameObject) => type?.name)
+          .join(", ")
+      : undefined,
+  },
+  {
+    label: "Network type",
+    content: props.collection.networkType
+      ? props.collection.networkType
+          .map((type: INameObject) => type?.name)
+          .join(", ")
+      : undefined,
+  },
+  {
+    label: "Clinical study type",
+    content: props.collection.clinicalStudyType
+      ? props.collection.clinicalStudyType
+          .map((type: INameObject) => type?.name)
+          .join(", ")
+      : undefined,
+  },
+  {
+    label: "Data collection type",
+    content: props.collection.dataCollectionType
+      ? props.collection.dataCollectionType
+          .map((type: INameObject) => type?.name)
+          .join(", ")
+      : undefined,
+  },
+  {
+    label: "Data collection description",
+    content: props.collection.dataCollectionDescription,
   },
   {
     label: "Design",
     content:
-      props.collection.design?.definition && props.collection.design?.name
+      props.collection.designType?.definition &&
+      props.collection.designType?.name
         ? {
-            value: props.collection.design?.name,
-            tooltip: props.collection.design?.definition,
+            value: props.collection.designType?.name,
+            tooltip: props.collection.designType?.definition,
           }
-        : props.collection.design?.name,
+        : props.collection.designType?.name,
   },
   {
     label: "Design description",
@@ -45,18 +90,30 @@ const generalDesign: IDefinitionListItem[] = [
     content: props.collection.designSchematic,
   },
   {
-    label: "Collection type",
-    content: props.collection.collectionType
-      ? props.collection.collectionType
-          .map((collectionType) => collectionType.name)
-          .join(", ")
-      : undefined,
+    label: "Reason sustained",
+    content: props.collection.reasonSustained,
   },
   {
-    label: "Start/End collection",
+    label: "Record trigger",
+    content: props.collection.recordTrigger,
+  },
+  {
+    label: "Unit of observation",
+    content: props.collection.unitOfObservation,
+  },
+  {
+    label: "Keywords",
+    content: props.collection.keywords,
+  },
+  {
+    label: "Date established",
+    content: props.collection.dateEstablished,
+  },
+  {
+    label: "Start/End data collection",
     content: dateUtils.startEndYear(
-      props.collection.startDate,
-      props.collection.endDate
+      props.collection.startDataCollection,
+      props.collection.endDataCollection
     ),
   },
   {
@@ -72,6 +129,19 @@ const generalDesign: IDefinitionListItem[] = [
   {
     label: "PID",
     content: props.collection.pid,
+  },
+  {
+    label: "External identifiers",
+    content: props.collection.externalIdentifiers
+      ? props.collection.externalIdentifiers
+          .map((id) => id.externalIdentifierType.name + ": " + id.identifier)
+          .join(", ")
+      : undefined,
+  },
+  {
+    label: "License",
+    content: { url: props.collection.license, label: props.collection.license },
+    type: "LINK",
   },
 ];
 

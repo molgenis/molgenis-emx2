@@ -24,10 +24,23 @@ export interface ICollection {
     acronym: string;
   };
   type: INameObject[];
-  collectionType: INameObject[];
+  typeOther?: string;
+  cohortType: INameObject[];
+  networkType: INameObject[];
+  clinicalStudyType: INameObject[];
+  rWDType: INameObject[];
+  keywords?: string;
+  externalIdentifiers?: [
+    {
+      identifier: string;
+      externalIdentifierType: INameObject;
+    }
+  ];
+  dateEstablished?: string;
+  startDataCollection?: string;
+  endDataCollection?: string;
+  license?: string;
   populationAgeGroups?: IOntologyNode[];
-  startYear: number;
-  endYear: number;
   countries: {
     name: string;
     order: number;
@@ -40,10 +53,18 @@ export interface ICollection {
   numberOfParticipantsWithSamples?: number;
   designDescription: string;
   designSchematic: IFile;
-  design: {
+  designType: {
     definition: string;
     name: string;
   };
+  dataCollectionType?: {
+    definition: string;
+    name: string;
+  }[];
+  dataCollectionDescription?: string;
+  reasonSustained?: string;
+  unitOfObservation?: string;
+  recordTrigger?: string;
   designPaper?: {
     title: string;
     doi: string;
@@ -67,8 +88,7 @@ export interface ICollection {
   datasets: { name: string }[];
   populationOncologyTopology?: IOntologyNode[];
   populationOncologyMorphology?: IOntologyNode[];
-  startDataCollection: string;
-  endDataCollection: string;
+  subcohorts: any[];
 }
 
 export interface IPublication {

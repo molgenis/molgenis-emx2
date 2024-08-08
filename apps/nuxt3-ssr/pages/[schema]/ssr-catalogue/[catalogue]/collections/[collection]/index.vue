@@ -35,14 +35,31 @@ const query = gql`
       type {
         name
       }
+      typeOther
       cohortType {
         name
+      }
+      rWDType {
+        name
+      }
+      networkType {
+        name
+      }
+      clinicalStudyType {
+        name
+      }
+      keywords
+      externalIdentifiers {
+        identifier
+        externalIdentifierType{name}
       }
       populationAgeGroups {
         name order code parent { code }
       }
+      dateEstablished
       startDataCollection
       endDataCollection
+      license
       countries {
         name order
       }
@@ -58,6 +75,14 @@ const query = gql`
         definition
         name
       }
+      dataCollectionType {
+        definition
+        name
+      }
+      dataCollectionDescription
+      reasonSustained
+      unitOfObservation
+      recordTrigger
       populationOncologyTopology ${moduleToString(ontologyFragment)}
       populationOncologyMorphology ${moduleToString(ontologyFragment)}
       inclusionCriteria ${moduleToString(ontologyFragment)}
@@ -100,6 +125,9 @@ const query = gql`
           name
           mainMedicalCondition ${moduleToString(ontologyFragment)}
       }
+      subcohorts_agg {
+            count
+      }
       dataAccessConditions ${moduleToString(ontologyFragment)}
       dataAccessConditionsDescription
       dataUseConditions ${moduleToString(ontologyFragment)}
@@ -121,9 +149,6 @@ const query = gql`
       collectionEvents_agg{
         count
       }
-      subcohorts_agg {
-        count
-      }
       publications_agg {
         count
         }
@@ -134,10 +159,8 @@ const variables = { id: route.params.collection };
 interface IResponse {
   data: {
     Collections: ICollection[];
-    Subcohorts: any[];
     CollectionEvents_agg: { count: number };
     Publications_agg: { count: number };
-    Subcohorts_agg: { count: number };
   };
 }
 const { data, error } = await useFetch<IResponse, IMgError>(
@@ -155,7 +178,7 @@ if (error.value) {
 const collection = computed(
   () => data.value?.data?.Collections[0] as ICollection
 );
-const subcohorts = computed(() => data.value?.data?.Subcohorts as any[]);
+const subcohorts = computed(() => collection.value.subcohorts as any[]);
 const mainMedicalConditions = computed(() => {
   if (!subcohorts.value || !subcohorts.value.length) {
     return [];
@@ -178,7 +201,7 @@ const mainMedicalConditions = computed(() => {
 const collectionEventCount = computed(
   () => data.value?.data?.CollectionEvents_agg?.count
 );
-const subcohortCount = computed(() => data.value?.data?.Subcohorts_agg?.count);
+const subcohortCount = computed(() => collection.value.subcohorts_agg?.count);
 
 const publicationsCount = computed(
   () => data.value?.data?.Publications_agg?.count
@@ -532,6 +555,7 @@ const activeOrganization = computed(() => {
           :contact-message-filter="messageFilter"
           :subject-template="collection.acronym"
         />
+        {{ collection.subcohorts }}
         <ContentBlockDescription
           id="Description"
           title="Description"
@@ -549,8 +573,6 @@ const activeOrganization = computed(() => {
             :items="population.filter((item) => item.content !== undefined)"
           />
         </ContentBlock>
-
-        {{ activeOrganization }}
 
         <ContentBlockContact
           v-if="
