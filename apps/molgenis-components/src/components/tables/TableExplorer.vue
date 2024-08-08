@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="tableMetadata">
     <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
     <h1 v-if="showHeader && tableMetadata">{{ tableMetadata.label }}</h1>
     <p v-if="showHeader && tableMetadata">
@@ -486,9 +486,9 @@ export default {
   },
   data() {
     return {
-      cardTemplate: null,
+      cardTemplate: "",
       client: null as any,
-      columns: [],
+      columns: [] as IColumn[],
       count: 0,
       dataRows: [],
       editMode: "add", // add, edit, clone
@@ -502,10 +502,10 @@ export default {
       order: this.showOrder,
       orderByColumn: this.showOrderBy,
       page: this.showPage,
-      recordTemplate: null,
+      recordTemplate: "",
       searchTerms: "",
       selectedItems: [],
-      tableMetadata: null as ITableMetaData,
+      tableMetadata: null as ITableMetaData | null,
       view: this.canView ? this.showView : View.AGGREGATE,
       refSideModalProps: undefined as Record<string, any> | undefined,
     };
@@ -597,10 +597,8 @@ export default {
       return graphqlFilter(filter, this.columns, errorCallback);
     },
     rowsWithComputed() {
-      console.log(`halllo`, this.dataRows, this.tableMetadata);
-      const bla = applyComputed(this.dataRows, this.tableMetadata);
-      console.log("with comp: ", bla);
-      return bla;
+      //@ts-ignore we know the metadata is loaded on mount
+      return applyComputed(this.dataRows, this.tableMetadata);
     },
   },
   methods: {
@@ -790,26 +788,32 @@ export default {
 
 function applyComputed(rows: IRow[], tableMetadata: ITableMetaData) {
   return rows.map((row) => {
-    let bla: Record<string, any> = {};
-    Object.keys(row).forEach((key) => {
-      const col = tableMetadata.columns.find((column: IColumn) => {
-        return (
-          column.computed && column.columnType !== AUTO_ID && column.id === key
+    let withComputed: Record<string, any> = {};
+    return tableMetadata.columns.reduce((accum: IRow, column: IColumn) => {
+      if (column.computed && column.columnType !== AUTO_ID) {
+        accum[column.id] = executeExpression(
+          column.computed,
+          row,
+          tableMetadata
         );
-      });
-      console.log(col);
-      bla[key] = col
-        ? executeExpression(col.computed, row, tableMetadata)
-        : row[key];
-    });
-    return bla;
+      } else if (row.hasOwnProperty(column.id)) {
+        accum[column.id] = row[column.id];
+      }
+      return accum;
+    }, {});
   });
 }
 
-function getColumnIds(columns: IColumn[], property: string) {
-  return columns
-    .filter((column) => column[property] && column.columnType !== "HEADING")
-    .map((column) => column.id);
+function getColumnIds(
+  columns: IColumn[],
+  property: "showColumn" | "showFilter"
+) {
+  return (
+    columns
+      //@ts-ignore TODO: remove column input modification in TableMolgenis
+      .filter((column) => column[property] && column.columnType !== "HEADING")
+      .map((column) => column.id)
+  );
 }
 
 function getCondition(columnType: string, condition: string) {
