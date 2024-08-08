@@ -93,19 +93,15 @@
 
 <script>
 import Client from "../../client/client.ts";
-import constants from "../constants";
-import { executeExpression } from "../forms/formUtils/formUtils";
 import Spinner from "../layout/Spinner.vue";
 import RowButton from "../tables/RowButton.vue";
 import TableMolgenis from "../tables/TableMolgenis.vue";
-import { deepEqual } from "../utils";
+import { deepEqual, applyComputed } from "../utils";
 import ConfirmModal from "./ConfirmModal.vue";
 import FormGroup from "./FormGroup.vue";
 import MessageError from "./MessageError.vue";
 import MessageWarning from "./MessageWarning.vue";
 import BaseInput from "./baseInputs/BaseInput.vue";
-
-const { AUTO_ID } = constants;
 
 export default {
   name: "InputRefBack",
@@ -242,25 +238,6 @@ export default {
     await this.reload();
   },
 };
-
-function applyComputed(rows, tableMetadata) {
-  return rows.map((row) => {
-    return tableMetadata.columns.reduce((accum, column) => {
-      if (column.computed && column.columnType !== AUTO_ID) {
-        accum[column.id] = executeExpression(
-          column.computed,
-          row,
-          tableMetadata
-        );
-      } else if (row.hasOwnProperty(column.id)) {
-        accum[column.id] = row[column.id];
-      } else {
-        // don't add empty property that didn't exist before
-      }
-      return accum;
-    }, {});
-  });
-}
 </script>
 
 <docs>

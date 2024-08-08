@@ -415,7 +415,6 @@ import ButtonAlt from "../forms/ButtonAlt.vue";
 import ButtonDropdown from "../forms/ButtonDropdown.vue";
 import ConfirmModal from "../forms/ConfirmModal.vue";
 import EditModal from "../forms/EditModal.vue";
-import { executeExpression } from "../forms/formUtils/formUtils";
 import IconAction from "../forms/IconAction.vue";
 import IconDanger from "../forms/IconDanger.vue";
 import InputSearch from "../forms/InputSearch.vue";
@@ -423,7 +422,12 @@ import InputSelect from "../forms/InputSelect.vue";
 import MessageError from "../forms/MessageError.vue";
 import Spinner from "../layout/Spinner.vue";
 import RowButton from "../tables/RowButton.vue";
-import { convertRowToPrimaryKey, deepClone, isRefType } from "../utils";
+import {
+  applyComputed,
+  convertRowToPrimaryKey,
+  deepClone,
+  isRefType,
+} from "../utils";
 import AggregateTable from "./AggregateTable.vue";
 import Pagination from "./Pagination.vue";
 import RecordCards from "./RecordCards.vue";
@@ -432,8 +436,6 @@ import SelectionBox from "./SelectionBox.vue";
 import ShowHide from "./ShowHide.vue";
 import TableMolgenis from "./TableMolgenis.vue";
 import TableSettings from "./TableSettings.vue";
-
-const { AUTO_ID } = constants;
 
 const View: Record<string, string> = {
   TABLE: "table",
@@ -596,7 +598,6 @@ export default {
       return graphqlFilter(filter, this.columns, errorCallback);
     },
     rowsWithComputed() {
-      //@ts-ignore we know the metadata is loaded on mount
       return applyComputed(this.dataRows, this.tableMetadata);
     },
   },
@@ -784,25 +785,6 @@ export default {
     "searchTerms",
   ],
 };
-
-function applyComputed(rows: IRow[], tableMetadata: ITableMetaData) {
-  return rows.map((row) => {
-    return tableMetadata.columns.reduce((accum: IRow, column: IColumn) => {
-      if (column.computed && column.columnType !== AUTO_ID) {
-        accum[column.id] = executeExpression(
-          column.computed,
-          row,
-          tableMetadata
-        );
-      } else if (row.hasOwnProperty(column.id)) {
-        accum[column.id] = row[column.id];
-      } else {
-        // don't add empty property that didn't exist before
-      }
-      return accum;
-    }, {});
-  });
-}
 
 function getColumnIds(
   columns: IColumn[],
