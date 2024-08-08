@@ -405,7 +405,6 @@
 </style>
 
 <script lang="ts">
-//@ts-ignore
 import { IColumn, ISetting, ITableMetaData } from "meta-data-utils";
 import Client from "../../client/client";
 import { IRow } from "../../Interfaces/IRow";
@@ -788,7 +787,6 @@ export default {
 
 function applyComputed(rows: IRow[], tableMetadata: ITableMetaData) {
   return rows.map((row) => {
-    let withComputed: Record<string, any> = {};
     return tableMetadata.columns.reduce((accum: IRow, column: IColumn) => {
       if (column.computed && column.columnType !== AUTO_ID) {
         accum[column.id] = executeExpression(
@@ -798,6 +796,8 @@ function applyComputed(rows: IRow[], tableMetadata: ITableMetaData) {
         );
       } else if (row.hasOwnProperty(column.id)) {
         accum[column.id] = row[column.id];
+      } else {
+        // don't add empty property that didn't exist before
       }
       return accum;
     }, {});
