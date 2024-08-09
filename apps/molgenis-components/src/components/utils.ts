@@ -213,7 +213,7 @@ export function applyComputed(rows: IRow[], tableMetadata: ITableMetaData) {
           );
         } catch (error) {
           console.log("Computed expression failed: ", error);
-          accum[column.id] = "error: could not compute value: "+ error;
+          accum[column.id] = "error: could not compute value: " + error;
         }
       } else if (row.hasOwnProperty(column.id)) {
         accum[column.id] = row[column.id];
