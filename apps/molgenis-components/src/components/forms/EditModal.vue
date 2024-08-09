@@ -100,7 +100,7 @@ import type {
   ISchemaMetaData,
   ISetting,
   ITableMetaData,
-} from "meta-data-utils";
+} from "metadata-utils";
 import { computed, onMounted, ref, toRefs } from "vue";
 import type { IRow } from "../../Interfaces/IRow";
 import { INewClient } from "../../client/IClient";

@@ -48,7 +48,7 @@ export default {
   },
   props: {
     /** metadata of the current column that refback should point to */
-    metaData: {
+    metadata: {
       type: Object,
       required: true,
     },
@@ -56,7 +56,7 @@ export default {
   computed: {
     filter() {
       return {
-        mainResource: { equals: this.metaData.primaryTableKey },
+        mainResource: { equals: this.metadata.primaryTableKey },
       };
     },
     downloadMappingsZipUrl() {

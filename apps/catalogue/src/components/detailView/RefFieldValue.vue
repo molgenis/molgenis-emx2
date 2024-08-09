@@ -1,10 +1,10 @@
 <template>
   <RouterLink
     :to="{
-      name: metaData.refTableId + '-details',
+      name: metadata.refTableId + '-details',
       params: data,
     }"
-    ><ObjectDisplay :data="data" :metaData="metaData" />
+    ><ObjectDisplay :data="data" :metadata="metadata" />
   </RouterLink>
 </template>
 
@@ -19,7 +19,7 @@ export default {
       type: [Object, Array],
       required: true,
     },
-    metaData: {
+    metadata: {
       type: Object,
       required: true,
     },

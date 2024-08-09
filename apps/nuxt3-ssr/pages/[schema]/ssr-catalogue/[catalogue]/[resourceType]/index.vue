@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import type { ISchemaMetaData, ITableMetaData } from "meta-data-utils";
+import type { ISchemaMetaData, ITableMetaData } from "metadata-utils";
 import type { IFilter, IMgError, activeTabType } from "~~/interfaces/types";
 import {
   buildRecordListQueryFields,
   extractExternalSchemas,
   extractKeyFromRecord,
-} from "meta-data-utils";
+} from "metadata-utils";
 
 const route = useRoute();
 const router = useRouter();

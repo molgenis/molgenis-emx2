@@ -8,8 +8,8 @@
 
 <script setup lang="ts">
 import { Molgenis } from "molgenis-components";
-import { sayHello, isEmpty } from "meta-data-utils";
-import type { ISetting } from "meta-data-utils";
+import { sayHello, isEmpty } from "metadata-utils";
+import type { ISetting } from "metadata-utils";
 import { ref } from "vue";
 
 const msg = sayHello("World");

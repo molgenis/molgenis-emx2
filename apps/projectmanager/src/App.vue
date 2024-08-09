@@ -7,8 +7,8 @@
 <script setup lang="ts">
 import { Molgenis } from "molgenis-components";
 import { request } from "graphql-request";
-import { isEmpty } from "meta-data-utils";
-import type { ISetting } from "meta-data-utils";
+import { isEmpty } from "metadata-utils";
+import type { ISetting } from "metadata-utils";
 import { ref, onBeforeMount } from "vue";
 
 import schemaNameQuery from "./gql/schemaName";

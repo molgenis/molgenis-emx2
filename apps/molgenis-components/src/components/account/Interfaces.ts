@@ -1,4 +1,4 @@
-import { ISetting } from "meta-data-utils";
+import { ISetting } from "metadata-utils";
 
 export interface ISession {
   email?: string;

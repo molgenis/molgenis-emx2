@@ -195,7 +195,7 @@ export default {
   data() {
     return {
       cohort: null,
-      metaData: null,
+      metadata: null,
     };
   },
   computed: {
@@ -390,7 +390,7 @@ export default {
       });
     },
     cohortMetaData() {
-      return this.metaData._schema.tables.find(
+      return this.metadata._schema.tables.find(
         (table) => table.name == "Cohorts"
       );
     },

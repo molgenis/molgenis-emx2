@@ -1,4 +1,4 @@
-import type { IColumn } from "meta-data-utils";
+import type { IColumn } from "metadata-utils";
 import type { INode } from "../../tailwind-components/types/types";
 export interface IResource {
   id: string;

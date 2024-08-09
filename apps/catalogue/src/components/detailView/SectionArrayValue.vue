@@ -5,7 +5,7 @@
       :key="index"
       :is="fieldTypeComponentName"
       :data="value"
-      :metaData="metaData"
+      :metadata="metadata"
       :color="color"
     />
   </div>
@@ -27,7 +27,7 @@ export default {
       type: [Array],
       required: true,
     },
-    metaData: {
+    metadata: {
       type: Object,
       required: true,
     },
@@ -50,7 +50,7 @@ export default {
         DATETIME_ARRAY: "StringDisplay",
         JSONB_ARRAY: "ObjectDisplay",
         ONTOLOGY_ARRAY: "OntologyFieldValue",
-      }[this.metaData.columnType];
+      }[this.metadata.columnType];
     },
   },
 };

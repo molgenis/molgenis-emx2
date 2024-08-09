@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { IOntologyItem } from "meta-data-utils";
+import type { IOntologyItem } from "metadata-utils";
 
 const { tree } = withDefaults(
   defineProps<{
