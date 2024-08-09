@@ -76,7 +76,7 @@
 const showSidePanel = ref(false);
 const fullScreen = ref(false);
 const slideInRight = ref(true);
-const buttonAlignment = ref<"left" | "center" | "right">("right");
+const buttonAlignment = ref<ButtonPosition>("right");
 
 function toggle() {
   showSidePanel.value = !showSidePanel.value;

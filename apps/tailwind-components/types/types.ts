@@ -18,6 +18,8 @@ export type ButtonType =
 
 export type ButtonSize = "tiny" | "small" | "medium" | "large";
 
+export type ButtonPosition = "left" | "center" | "right";
+
 export type ButtonIconPosition = "left" | "right";
 
 export type INotificationType =
