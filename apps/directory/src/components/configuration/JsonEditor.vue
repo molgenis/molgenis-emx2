@@ -25,7 +25,10 @@
           Upload config
         </button>
       </div>
-      <small class="ml-auto">To format your file press ctrl + alt + f</small>
+      <small class="ml-auto">
+        To format your file press <kbd>ctrl</kbd> + <kbd>alt</kbd> +
+        <kbd>f</kbd>
+      </small>
     </div>
   </div>
 </template>
