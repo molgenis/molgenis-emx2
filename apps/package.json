@@ -27,7 +27,8 @@
     "gportal",
     "projectmanager",
     "aggregates",
-    "imdhub-public"
+    "imdhub-public",
+    "kwf-nestor"
   ],
   "devDependencies": {
     "nuxt": "3.12.2"
