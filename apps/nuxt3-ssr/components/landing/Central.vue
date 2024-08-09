@@ -12,37 +12,16 @@ const { data, pending, error, refresh } = await useFetch(
         Variables_agg {
           count
         }
-        Cohorts_agg { 
+        Collections_agg {
           count
           _sum {
             numberOfParticipants
             numberOfParticipantsWithSamples 
           }
         }
-        Organisations_agg {
-          count
-        }
-        DataResources_agg {
-          count
-        }
-        DataSources_agg {
-          count
-        }
-        Datasets_agg {
-          count
-        }
-        Subcohorts_agg {
-          count
-        }
-        Networks_agg { 
-          count
-        }
-        Models_agg {
-          count
-        }
-        Cohorts_groupBy {
+        Collections_groupBy {
           count 
-          design {
+          type {
             name
           }
         }
@@ -52,10 +31,10 @@ const { data, pending, error, refresh } = await useFetch(
 );
 
 function percentageLongitudinal(
-  cohortsGroupBy: { count: number; design: { name: string } }[],
+  collectionsGroupBy: { count: number; design: { name: string } }[],
   total: number
 ) {
-  const nLongitudinal = cohortsGroupBy.reduce(
+  const nLongitudinal = collectionsGroupBy.reduce(
     (accum, group) =>
       group?.design?.name === "Longitudinal" ? accum + group.count : accum,
     0
@@ -101,7 +80,7 @@ function percentageLongitudinal(
         icon="demography"
         title="Cohort studies"
         :count="data.data.Cohorts_agg.count"
-        :link="`/${route.params.schema}/ssr-catalogue/all/cohorts`"
+        :link="`/${route.params.schema}/ssr-catalogue/all/collections`"
       />
       <LandingCardSecondary
         icon="database"

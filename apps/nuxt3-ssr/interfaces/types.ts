@@ -10,7 +10,7 @@ export interface IResource {
   contacts: IContributor[];
   logo?: IUrlObject;
 }
-export interface ICohort {
+export interface ICollection {
   id: string;
   pid: string;
   name: string;
@@ -24,10 +24,23 @@ export interface ICohort {
     acronym: string;
   };
   type: INameObject[];
-  collectionType: INameObject[];
+  typeOther?: string;
+  cohortType: INameObject[];
+  networkType: INameObject[];
+  clinicalStudyType: INameObject[];
+  rWDType: INameObject[];
+  keywords?: string;
+  externalIdentifiers?: [
+    {
+      identifier: string;
+      externalIdentifierType: INameObject;
+    }
+  ];
+  dateEstablished?: string;
+  startDataCollection?: string;
+  endDataCollection?: string;
+  license?: string;
   populationAgeGroups?: IOntologyNode[];
-  startYear: number;
-  endYear: number;
   countries: {
     name: string;
     order: number;
@@ -40,10 +53,18 @@ export interface ICohort {
   numberOfParticipantsWithSamples?: number;
   designDescription: string;
   designSchematic: IFile;
-  design: {
+  designType: {
     definition: string;
     name: string;
   };
+  dataCollectionType?: {
+    definition: string;
+    name: string;
+  }[];
+  dataCollectionDescription?: string;
+  reasonSustained?: string;
+  unitOfObservation?: string;
+  recordTrigger?: string;
   designPaper?: {
     title: string;
     doi: string;
@@ -67,6 +88,7 @@ export interface ICohort {
   datasets: { name: string }[];
   populationOncologyTopology?: IOntologyNode[];
   populationOncologyMorphology?: IOntologyNode[];
+  subcohorts: any[];
 }
 
 export interface IPublication {
@@ -85,12 +107,12 @@ export interface IPublication {
 
 export interface IVariableBase {
   name: string;
-  resource: {
+  collection: {
     id: string;
   };
   dataset: {
     name: string;
-    resource: {
+    collection: {
       id: string;
     };
   };
@@ -102,18 +124,13 @@ export interface IVariableBase {
 export interface IVariableDetails {
   unit?: IOntologyNode;
   format?: IOntologyNode;
-  repeats?: {
-    name: string;
-    mappings: IMapping[];
-  }[];
+  repeatUnit: IOntologyItem;
+  repeatMin: number;
+  repeatMax: number;
 }
 
 export interface IVariableMappings {
   mappings?: IMapping[];
-  repeats?: {
-    name: string;
-    mappings: IMapping[];
-  }[];
 }
 
 export type IVariable = IVariableBase & IVariableDetails;
@@ -269,15 +286,16 @@ export interface IMapping {
   syntax: string;
   description: string;
   match: {
-    name: string;
+    name: HarmonisationStatus;
   };
   source: {
     id: string;
     name: string;
     mg_tableclass: string;
   };
+  repeats: string;
   sourceDataset: {
-    resource: {
+    collection: {
       id: string;
     };
     name: string;
@@ -291,7 +309,8 @@ export type HarmonisationStatus =
   | "unmapped"
   | "partial"
   | "complete"
-  | "available";
+  | "available"
+  | "na";
 
 export type HarmonisationIconSize = "small" | "large";
 export interface IMgError {

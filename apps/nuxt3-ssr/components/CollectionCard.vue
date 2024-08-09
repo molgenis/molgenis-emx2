@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import type { ICohort } from "~/interfaces/types";
 import dateUtils from "~/utils/dateUtils";
+import type { ICollection } from "~/interfaces/types";
 const cutoff = 250;
 
 const props = withDefaults(
   defineProps<{
-    cohort: ICohort;
+    collection: ICollection;
     schema: string;
     compact?: boolean;
     catalogue?: string;
@@ -44,15 +44,15 @@ const iconStarClasses = computed(() => {
       <div :class="titleContainerClasses" class="grow">
         <h2 class="min-w-[160px] mr-4 md:inline-block block">
           <NuxtLink
-            :to="`/${schema}/ssr-catalogue/${catalogue}/cohorts/${cohort.id}`"
+            :to="`/${schema}/ssr-catalogue/${catalogue}/collections/${collection.id}`"
             class="text-body-base font-extrabold text-blue-500 hover:underline hover:bg-blue-50"
           >
-            {{ cohort?.acronym || cohort?.name }}
+            {{ collection?.acronym || collection?.name }}
           </NuxtLink>
         </h2>
 
         <span :class="subtitleClasses" class="mr-4 text-body-base">
-          {{ cohort?.acronym ? cohort?.name : "" }}
+          {{ collection?.acronym ? collection?.name : "" }}
         </span>
       </div>
       <div class="flex">
@@ -64,7 +64,7 @@ const iconStarClasses = computed(() => {
         />
         -->
         <NuxtLink
-          :to="`/${schema}/ssr-catalogue/${catalogue}/cohorts/${cohort.id}`"
+          :to="`/${schema}/ssr-catalogue/${catalogue}/collections/${collection.id}`"
         >
           <IconButton
             icon="arrow-right"
@@ -75,25 +75,25 @@ const iconStarClasses = computed(() => {
     </header>
 
     <div v-if="!compact">
-      <ContentReadMore :text="cohort.description" :cutoff="cutoff" />
+      <ContentReadMore :text="collection.description" :cutoff="cutoff" />
 
       <dl class="hidden xl:flex gap-5 xl:gap-14 text-body-base">
         <div>
           <dt class="flex-auto block text-gray-600">Type</dt>
-          <dd>{{ cohort?.type?.map((type) => type.name).join(",") }}</dd>
+          <dd>{{ collection?.type?.map((type) => type.name).join(",") }}</dd>
         </div>
         <div>
           <dt class="flex-auto block text-gray-600">Design</dt>
-          <dd>{{ cohort?.design?.name }}</dd>
+          <dd>{{ collection?.design?.name }}</dd>
         </div>
         <div>
           <dt class="flex-auto block text-gray-600">Participants</dt>
-          <dd>{{ cohort?.numberOfParticipants }}</dd>
+          <dd>{{ collection?.numberOfParticipants }}</dd>
         </div>
         <div>
           <dt class="flex-auto block text-gray-600">Duration</dt>
           <dd>
-            {{ startEndYear(cohort?.startYear, cohort?.endYear) }}
+            {{ startEndYear(collection?.startYear, collection?.endYear) }}
           </dd>
         </div>
       </dl>

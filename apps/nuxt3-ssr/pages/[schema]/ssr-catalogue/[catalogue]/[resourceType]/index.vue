@@ -116,8 +116,6 @@ const gqlFilter = computed(() => {
   return result;
 });
 
-console.log("query: ", query.value);
-
 const { data } = await useFetch<any, IMgError>(
   `/${useRoute().params.schema}/graphql`,
   {

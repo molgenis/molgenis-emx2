@@ -20,30 +20,15 @@ const menu = [
     link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}`,
   },
 ];
-if (catalogueRouteParam === "all" || props.catalogue.cohorts_agg?.count > 0)
+if (catalogueRouteParam === "all" || props.catalogue.collections_agg?.count > 0)
   menu.push({
-    label: "Cohorts",
-    link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/cohorts`,
+    label: "Collections",
+    link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/collections`,
   });
-if (
-  (!cohortOnly.value && catalogueRouteParam === "all") ||
-  (!cohortOnly.value && props.catalogue.dataSources_agg?.count > 0)
-)
-  menu.push({
-    label: "Data sources",
-    link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/datasources`,
-  });
-
 if (!cohortOnly.value && props.variableCount > 0)
   menu.push({
     label: "Variables",
     link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/variables`,
-  });
-
-if (!cohortOnly.value && props.catalogue?.networks_agg?.count > 0)
-  menu.push({
-    label: "Networks",
-    link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/networks`,
   });
 
 if (cohortOnly.value) {

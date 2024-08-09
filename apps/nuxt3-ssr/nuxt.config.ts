@@ -8,6 +8,10 @@ export default defineNuxtConfig({
     cssPath: '../tailwind-components/assets/css/main.css',
     configPath: '../tailwind-components/tailwind.config.js'
   },
+  sourcemap: {
+    server: true,
+    client: true
+  },
   runtimeConfig: {
     public: {
       emx2Theme: "",
@@ -15,7 +19,7 @@ export default defineNuxtConfig({
       siteTitle: "MOLGENIS",
       analyticsKey: "",
       cohortOnly: false,
-      apiBase: process.env.NUXT_PUBLIC_API_BASE || "https://preview-emx2-pr-4090.dev.molgenis.org/",
+      apiBase: process.env.NUXT_PUBLIC_API_BASE || "http://localhost:8080",
     },
   },
   imports: {

@@ -4,23 +4,17 @@ import ontologyFragment from "~~/gql/fragments/ontology";
 export default gql`
   query CollectionEvent($id: String, $name: String) {
     CollectionEvents(
-      filter: { resource: { id: { equals: [$id] } }, name: { equals: [$name] } }
+      filter: { collection: { id: { equals: [$id] } }, name: { equals: [$name] } }
     ) {
-      resource {
+      collection {
         name
       }
       name
       description
-      startYear {
+      startDate {
         name
       }
-      startMonth {
-        name
-      }
-      endYear {
-        name
-      }
-      endMonth {
+      endDate {
         name
       }
       numberOfParticipants

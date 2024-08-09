@@ -11,32 +11,31 @@ export default gql`
       name
     }
     sourceDataset {
-      resource {
+      collection {
         id
       }
     }
     sourceVariables {
       name
-      mg_tableclass
     }
     sourceVariablesOtherDatasets {
       name
       dataset {
         name
-        resource {
+        collection {
           id
         }
       }
-      mg_tableclass
     }
     targetVariable {
       dataset {
-        resource {
+        collection {
           id
         }
         name
       }
       name
     }
+    repeats
   }
 `;

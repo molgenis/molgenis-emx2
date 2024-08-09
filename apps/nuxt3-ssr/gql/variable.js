@@ -3,16 +3,16 @@ import mappingsFragment from "~~/gql/fragments/mappings";
 export default gql`
   query Variables(
     $variableFilter:VariablesFilter,
-    $cohortsFilter:CohortsFilter,
+    $collectionsFilter:CollectionsFilter,
     ) {
     Variables(filter: $variableFilter) {
       name
-      resource {
+      collection {
         name
       }
       dataset {
         name
-        resource {
+        collection {
           id
         }
       }
@@ -21,21 +21,19 @@ export default gql`
       unit {
         name
       }
+      repeatUnit {
+        name
+      }
+      repeatMin
+      repeatMax
       format {
         name
       }
       mappings ${moduleToString(mappingsFragment)}
-      repeats(orderby: {name: ASC}) {
-        name
-        mappings ${moduleToString(mappingsFragment)}
-      }
     }
-    Cohorts(orderby: { id: ASC }, filter: $cohortsFilter) {
+    Collections(orderby: { id: ASC }, filter: $collectionsFilter) {
       id
       name
-    }
-    RepeatedVariables_agg(filter: { isRepeatOf: $variableFilter }) {
-      count
     }
   }
 `;
