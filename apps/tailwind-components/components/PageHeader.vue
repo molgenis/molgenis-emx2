@@ -31,22 +31,16 @@
   </header>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { useSlots } from "vue";
 const slots = useSlots();
-
-defineProps({
-  title: {
-    type: String,
-    required: true,
-  },
-  description: { type: String },
-  icon: {
-    type: String,
-  },
-  truncate: {
-    type: Boolean,
-    default: true,
-  },
-});
+withDefaults(
+  defineProps<{
+    title: string;
+    description?: string;
+    icon?: string;
+    truncate?: boolean;
+  }>(),
+  { truncate: true }
+);
 </script>

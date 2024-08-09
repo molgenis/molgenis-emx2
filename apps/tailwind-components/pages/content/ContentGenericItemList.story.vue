@@ -3,7 +3,7 @@
     <div class="flex-1">
       <div>
         <ContentGenericItemList>
-          <ContentGenericItemList
+          <ContentGenericItem
             :field="{
               value: 'String value',
               meta: { columnType: 'STRING', label: 'String' },

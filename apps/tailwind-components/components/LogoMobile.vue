@@ -9,7 +9,7 @@
       height="50"
       style="background-color: white"
     />
-    <i v-else-if="svg" v-html="svg.default"></i>
+    <span v-else-if="svg" v-html="svg.default"></span>
     <img
       v-else
       class="w-50px h-auto"

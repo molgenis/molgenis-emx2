@@ -7,14 +7,9 @@
   </button>
 </template>
 
-<script setup>
-defineProps({
-  label: {
-    type: String,
-    required: true,
-  },
-  icon: {
-    type: String,
-  },
-});
+<script setup type="ts">
+defineProps<{
+  label: string;
+  icon?: string;
+}>();
 </script>
