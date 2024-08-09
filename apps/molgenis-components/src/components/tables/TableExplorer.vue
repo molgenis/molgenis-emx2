@@ -407,8 +407,6 @@
 <script lang="ts">
 import { IColumn, ISetting, ITableMetaData } from "meta-data-utils";
 import Client from "../../client/client";
-import { IRow } from "../../Interfaces/IRow";
-import constants from "../constants";
 import FilterSidebar from "../filters/FilterSidebar.vue";
 import FilterWells from "../filters/FilterWells.vue";
 import ButtonAlt from "../forms/ButtonAlt.vue";

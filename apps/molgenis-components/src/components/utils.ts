@@ -205,11 +205,16 @@ export function applyComputed(rows: IRow[], tableMetadata: ITableMetaData) {
   return rows.map((row) => {
     return tableMetadata.columns.reduce((accum: IRow, column: IColumn) => {
       if (column.computed && column.columnType !== AUTO_ID) {
-        accum[column.id] = executeExpression(
-          column.computed,
-          row,
-          tableMetadata
-        );
+        try {
+          accum[column.id] = executeExpression(
+            column.computed,
+            row,
+            tableMetadata
+          );
+        } catch (error) {
+          console.log("Computed expression failed: " + error);
+          accum[column.id] = "error: could not compute value";
+        }
       } else if (row.hasOwnProperty(column.id)) {
         accum[column.id] = row[column.id];
       } else {
