@@ -30,16 +30,14 @@
   </nav>
 </template>
 
-<script setup>
-defineProps({
-  crumbs: {
-    type: Object,
-    default: [],
-    required: false,
-  },
-  current: {
-    type: String,
-    required: false,
-  },
-});
+<script setup lang="ts">
+const props = withDefaults(
+  defineProps<{
+    crumbs?: { [string]: string };
+    current?: string;
+  }>(),
+  {
+    crumbs: [],
+  }
+);
 </script>

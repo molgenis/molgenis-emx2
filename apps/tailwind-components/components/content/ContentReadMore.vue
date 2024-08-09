@@ -5,12 +5,16 @@
       v-if="truncate && text && text.length > cutoff"
       class="underline italic"
       @click="truncate = false"
-    > ... </button>
+    >
+      ...
+    </button>
     <button
       v-else-if="!truncate && text && text.length > cutoff"
       class="underline italic"
       @click="truncate = true"
-    > read less </button>
+    >
+      read less
+    </button>
   </p>
 
   <p v-if="text" class="mt-5 block xl:hidden">
@@ -19,12 +23,16 @@
       v-if="truncate && text && text.length > cutoff"
       class="underline italic"
       @click="truncate = false"
-    > ... </button>
+    >
+      ...
+    </button>
     <button
       v-else-if="!truncate && text && text.length > cutoff"
       class="underline italic"
       @click="truncate = true"
-    > read less </button>
+    >
+      read less
+    </button>
   </p>
 </template>
 

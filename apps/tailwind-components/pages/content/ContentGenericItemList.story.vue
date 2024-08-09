@@ -5,9 +5,9 @@
         <ContentGenericItemList>
           <ContentGenericItemList
             :field="{
-                value: 'String value',
-                meta: { columnType: 'STRING', label: 'String' },
-              }"
+              value: 'String value',
+              meta: { columnType: 'STRING', label: 'String' },
+            }"
           />
         </ContentGenericItemList>
       </div>

@@ -141,10 +141,13 @@
     --text-color-pagination-label-white: var(--color-white);
     --text-color-pagination-label-gray: var(--color-gray-400);
     --text-color-footer-link: var(--color-yellow-500);
-    
+
     --text-color-invalid: var(--color-red-500);
     --text-color-valid: var(--color-green-800);
     --text-color-disabled: var(--color-gray-400);
+    --text-color-required: var(--color-red-500);
+
+    --text-content-required: "*";
 
     --border-color-button-primary: var(--color-yellow-500);
     --border-color-button-primary-hover: var(--color-yellow-200);
@@ -169,7 +172,7 @@
     --border-radius-search-button: 9999px;
     --border-radius-pagination: 9999px;
     --border-radius-landing: 50px;
-    
+
     --border-color-invalid: var(--color-red-500);
     --border-color-valid: var(--color-green-800);
     --border-color-disabled: var(--color-gray-400);
@@ -177,6 +180,7 @@
     --outline-color-select: var(--color-gray-200);
 
   }
+
   :root[data-theme="umcg"] {
     --color-white: #fff;
     --color-orange-200: #ff6a00;
@@ -239,7 +243,7 @@
     --text-color-search-results-view-tabs: var(--color-umcg-dark-blue);
     --text-color-search-results-view-tabs-hover: var(--color-umcg-dark-blue);
     --text-color-search-filter-title: var(--color-umcg-dark-blue);
-    --text-color-search-filter-expand:  #0075FF;
+    --text-color-search-filter-expand: #0075FF;
     --text-color-search-filter-expand-mobile: var(--color-blue-800);
     --text-color-search-filter-group-title: var(--color-umcg-dark-blue);
     --text-color-search-filter-group-title-mobile: var(--color-black);
@@ -297,7 +301,7 @@
     --color-blue-700: #337588;
     --color-blue-800: #21515f;
     --color-blue-900: #21515f;
-    --color-orange-200: rgb(245,151,148);
+    --color-orange-200: rgb(245, 151, 148);
     --color-orange-500: #d14200;
     --color-orange-800: #d14200;
 
@@ -305,7 +309,7 @@
     --background-image-base-gradient: linear-gradient(180deg, #337588 0%, #337588 133.81%);
     --color-gradient1: #21515f;
     --color-gradient2: #337588;
-    --text-color-search-results-view-tabs:  var(--color-blue-300);
+    --text-color-search-results-view-tabs: var(--color-blue-300);
     --text-color-search-results-view-tabs-hover: var(--color-blue-800);
     --backgroud-color-search-results-view-tabs: var(--color-blue-300);
     --text-color-button-primary: var(--color-white);
@@ -342,16 +346,16 @@
   .v-popper--theme-tooltip {
     @apply text-body-sm font-sans flex items-center justify-center;
   }
-  
+
   .v-popper--theme-tooltip .v-popper__inner {
     @apply p-3 bg-black;
   }
-  
+
   .v-popper__popper .v-popper__arrow-inner,
   .v-popper__popper .v-popper__arrow-outer {
     @apply border-black;
   }
-  
+
   .v-popper--theme-tooltip {
     @apply max-w-tooltip;
   }
