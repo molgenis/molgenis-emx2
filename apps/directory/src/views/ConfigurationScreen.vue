@@ -79,7 +79,7 @@
         <h3>{{ getFacetTitle(filterIndex) }} filter configuration</h3>
         <div class="editor-alignment">
           <small v-if="filterIndex !== -1">
-            To format your file press ctrl + f
+            To format your file press ctrl + alt + f
           </small>
         </div>
         <FilterEditor
