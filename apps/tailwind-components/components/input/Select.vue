@@ -1,25 +1,3 @@
-<script setup lang="ts">
-import type { N } from "vitest/dist/reporters-MmQN-57K.js";
-
-withDefaults(
-  defineProps<{
-    id: string;
-    modelValue: string | number;
-    options: string[] | number[];
-    required?: boolean;
-    hasError?: boolean;
-    placeholder?: string;
-  }>(),
-  {
-    required: false,
-    hasError: false,
-    placeholder: "Select an option",
-  }
-);
-
-const emit = defineEmits(["update:modelValue"]);
-</script>
-
 <template>
   <select
     :modelValue="modelValue"
@@ -44,3 +22,25 @@ const emit = defineEmits(["update:modelValue"]);
     </option>
   </select>
 </template>
+
+<script setup lang="ts">
+import type { N } from "vitest/dist/reporters-MmQN-57K.js";
+
+withDefaults(
+  defineProps<{
+    id: string;
+    modelValue: string | number;
+    options: string[] | number[];
+    required?: boolean;
+    hasError?: boolean;
+    placeholder?: string;
+  }>(),
+  {
+    required: false,
+    hasError: false,
+    placeholder: "Select an option",
+  }
+);
+
+const emit = defineEmits(["update:modelValue"]);
+</script>

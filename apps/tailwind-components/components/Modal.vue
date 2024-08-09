@@ -1,25 +1,3 @@
-<script setup lang="ts">
-defineProps<{
-  title: string;
-  subtitle?: string;
-}>();
-
-const visible = ref(false);
-
-function showModal() {
-  visible.value = true;
-}
-
-const closeModal = (returnVal?: string) => {
-  visible.value = false;
-};
-
-defineExpose({
-  show: showModal,
-  close: closeModal,
-  visible,
-});
-</script>
 <template>
   <section
     v-show="visible"
@@ -80,3 +58,26 @@ defineExpose({
     </div>
   </section>
 </template>
+
+<script setup lang="ts">
+defineProps<{
+  title: string;
+  subtitle?: string;
+}>();
+
+const visible = ref(false);
+
+function showModal() {
+  visible.value = true;
+}
+
+const closeModal = (returnVal?: string) => {
+  visible.value = false;
+};
+
+defineExpose({
+  show: showModal,
+  close: closeModal,
+  visible,
+});
+</script>

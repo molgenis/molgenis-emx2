@@ -1,7 +1,3 @@
-<script setup lang="ts">
-const searchValue = ref("");
-const inverted = ref(false);
-</script>
 <template>
   <div class="p-5">
     <FilterSearch v-model="searchValue" :inverted="inverted" />
@@ -25,3 +21,8 @@ const inverted = ref(false);
     </div>
   </div>
 </template>
+
+<script setup lang="ts">
+const searchValue = ref("");
+const inverted = ref(false);
+</script>

@@ -1,3 +1,7 @@
+<template>
+  <li :class="listItemClasses"><slot></slot></li>
+</template>
+
 <script setup lang="ts">
 const props = withDefaults(
   defineProps<{
@@ -17,7 +21,3 @@ const listItemClasses = computed(() => {
   return LIST_ITEM_TYPE_MAPPING[props.type];
 });
 </script>
-
-<template>
-  <li :class="listItemClasses"><slot></slot></li>
-</template>

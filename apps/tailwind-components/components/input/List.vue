@@ -1,34 +1,3 @@
-<script setup lang="ts">
-import type { INode } from "~/types/types";
-import CustomTooltip from "../CustomTooltip.vue";
-
-const props = withDefaults(
-  defineProps<{
-    nodes: INode[];
-    modelValue: string[];
-    inverted?: boolean;
-  }>(),
-  {
-    isMultiSelect: true,
-    inverted: false,
-  }
-);
-
-const emit = defineEmits(["update:modelValue"]);
-
-function toggleSelect(node: INode) {
-  if (props.modelValue.includes(node.name)) {
-    // remove node(s) from selected nodes and emit new model
-    const newSelection = props.modelValue.filter((n) => n !== node.name);
-    emit("update:modelValue", newSelection);
-  } else {
-    let newSelection = [...props.modelValue, node.name];
-    // clone model and add new before emitting
-    emit("update:modelValue", newSelection);
-  }
-}
-</script>
-
 <template>
   <ul
     :class="[
@@ -74,3 +43,34 @@ function toggleSelect(node: INode) {
     </li>
   </ul>
 </template>
+
+<script setup lang="ts">
+import type { INode } from "~/types/types";
+import CustomTooltip from "../CustomTooltip.vue";
+
+const props = withDefaults(
+  defineProps<{
+    nodes: INode[];
+    modelValue: string[];
+    inverted?: boolean;
+  }>(),
+  {
+    isMultiSelect: true,
+    inverted: false,
+  }
+);
+
+const emit = defineEmits(["update:modelValue"]);
+
+function toggleSelect(node: INode) {
+  if (props.modelValue.includes(node.name)) {
+    // remove node(s) from selected nodes and emit new model
+    const newSelection = props.modelValue.filter((n) => n !== node.name);
+    emit("update:modelValue", newSelection);
+  } else {
+    let newSelection = [...props.modelValue, node.name];
+    // clone model and add new before emitting
+    emit("update:modelValue", newSelection);
+  }
+}
+</script>
