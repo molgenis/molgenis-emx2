@@ -39,7 +39,7 @@ if (cohortOnly.value) {
 } else if (catalogueRouteParam && catalogueRouteParam !== "all") {
   menu.push({
     label: "About",
-    link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/networks/${catalogueRouteParam}`,
+    link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/about-catalogue`,
   });
 }
 

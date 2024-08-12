@@ -258,11 +258,12 @@ const fetchData = async () => {
     : {
         variablesFilter: {
           ...filter.value,
+          ...variableCollectionFilter,
           ...{ collection: { type: { name: { equals: "Network" } } } },
         },
         collectionsFilter,
       };
-  console.log(JSON.stringify(variables, null, 2));
+
   return $fetch(graphqlURL.value, {
     key: `variables-${offset.value}`,
     method: "POST",

@@ -75,17 +75,18 @@ const networksFilter = scoped
 
 const cohortsFilter = scoped
   ? {
-      partOfCollections: {
-        _or: [
-          { id: { equals: catalogueRouteParam } },
-          {
-            type: { name: { equals: "Network" } },
+      _or: [
+        { partOfCollections: { id: { equals: catalogueRouteParam } } },
+        {
+          partOfCollections: {
             partOfCollections: { id: { equals: catalogueRouteParam } },
           },
-        ],
-      },
+        },
+      ],
     }
   : undefined;
+
+console.log(cohortsFilter);
 
 const { data, error } = await useAsyncData<any, IMgError>(
   `lading-page-${catalogueRouteParam}`,
