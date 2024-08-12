@@ -1,4 +1,4 @@
-import type { IColumn, ITableMetaData } from "meta-data-utils";
+import type { IColumn, ITableMetaData } from "metadata-utils";
 import { IRow } from "../../../Interfaces/IRow";
 import constants from "../../constants.js";
 import { deepClone, filterObject } from "../../utils";

@@ -13,10 +13,6 @@ export default {
       type: [String, Object],
       required: true,
     },
-    metaData: {
-      type: Object,
-      required: true,
-    },
   },
 };
 </script>

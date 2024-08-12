@@ -3,10 +3,15 @@ import { defineNuxtConfig } from "nuxt/config";
 
 export default defineNuxtConfig({
   devtools: { enabled: true },
-  modules: ["@nuxt/image",'@nuxtjs/tailwindcss', 'floating-vue/nuxt', '@nuxt/test-utils/module'],
+  modules: [
+    "@nuxt/image",
+    "@nuxtjs/tailwindcss",
+    "floating-vue/nuxt",
+    "@nuxt/test-utils/module",
+  ],
   tailwindcss: {
-    cssPath: '../tailwind-components/assets/css/main.css',
-    configPath: '../tailwind-components/tailwind.config.js'
+    cssPath: "../tailwind-components/assets/css/main.css",
+    configPath: "../tailwind-components/tailwind.config.js",
   },
   runtimeConfig: {
     public: {
@@ -15,37 +20,39 @@ export default defineNuxtConfig({
       siteTitle: "MOLGENIS",
       analyticsKey: "",
       cohortOnly: false,
-      apiBase: process.env.NUXT_PUBLIC_API_BASE || "https://emx2.dev.molgenis.org/",
+      apiBase:
+        process.env.NUXT_PUBLIC_API_BASE ||
+        "https://emx2.dev.molgenis.org/",
     },
   },
   imports: {
     transform: {
       // exclude
-      exclude: [/\bmeta-data-utils\b/],
+      exclude: [/\bmetadata-utils\b/],
     },
   },
   nitro: {
     prerender: {
-      ignore: ['/_tailwind/']
-    }
+      ignore: ["/_tailwind/"],
+    },
   },
   app: {
     head: {
       htmlAttrs: {
-        'data-theme': ''
-      }
-    }
+        "data-theme": "",
+      },
+    },
   },
   components: [
     {
-      path: "~/components"
+      path: "~/components",
     },
     {
-      path: "../tailwind-components/components"
+      path: "../tailwind-components/components",
     },
     {
       path: "../tailwind-components/components/global/icons",
       global: true,
-    }
+    },
   ],
 });
