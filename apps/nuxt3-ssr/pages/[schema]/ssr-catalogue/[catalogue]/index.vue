@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ISetting } from "meta-data-utils";
+import type { ISetting } from "metadata-utils";
 import type { IMgError } from "~~/interfaces/types";
 
 const route = useRoute();
@@ -87,13 +87,27 @@ const query = `query CataloguePage($networksFilter:NetworksFilter,$variablesFilt
         }
       }`;
 
-const modelFilter = scoped ? { id: { equals: catalogueRouteParam } } : {};
+const modelFilter = scoped
+  ? {
+      _or: [
+        { id: { equals: catalogueRouteParam } },
+        { partOfNetworks: { id: { equals: catalogueRouteParam } } },
+      ],
+    }
+  : {};
 const networksFilter = scoped
   ? { id: { equals: catalogueRouteParam } }
   : undefined;
 
 const cohortsFilter = scoped
-  ? { networks: { id: { equals: catalogueRouteParam } } }
+  ? {
+      _or: [
+        { networks: { id: { equals: catalogueRouteParam } } },
+        {
+          networks: { partOfNetworks: { id: { equals: catalogueRouteParam } } },
+        },
+      ],
+    }
   : undefined;
 const subcohortsFilter = scoped
   ? {
@@ -104,7 +118,14 @@ const subcohortsFilter = scoped
   : undefined;
 
 const dataSourcesFilter = scoped
-  ? { networks: { id: { equals: catalogueRouteParam } } }
+  ? {
+      _or: [
+        { networks: { id: { equals: catalogueRouteParam } } },
+        {
+          networks: { partOfNetworks: { id: { equals: catalogueRouteParam } } },
+        },
+      ],
+    }
   : undefined;
 
 const { data, error } = await useAsyncData<any, IMgError>(
@@ -128,17 +149,22 @@ const { data, error } = await useAsyncData<any, IMgError>(
               resource: {
                 mg_tableclass: { like: ["Models"] },
                 id: {
-                  equals: models.data.Networks[0].models
-                    ? models.data.Networks[0].models.map(
-                        (m: { id: string }) => m.id
-                      )
-                    : "no models match so no results expected",
+                  equals: models.data.Networks.map((n) =>
+                    n.models?.map((m: { id: string }) => m.id)
+                  ).flat(),
                 },
               },
             },
             {
               networkVariables: {
                 network: { id: { equals: catalogueRouteParam } },
+              },
+            },
+            {
+              networkVariables: {
+                network: {
+                  partOfNetworks: { id: { equals: catalogueRouteParam } },
+                },
               },
             },
           ],

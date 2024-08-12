@@ -72,7 +72,9 @@ public class TypeUtils {
         return null;
       }
     }
-    if (v instanceof Long) {
+    if (v instanceof Long longValue) {
+      if (longValue > Integer.MAX_VALUE || longValue < Integer.MIN_VALUE)
+        throw new MolgenisException("Cannot cast '" + v + " to integer, it is too large");
       return ((Long) v).intValue();
     }
     if (v instanceof Double) return (int) Math.round((Double) v);
@@ -319,8 +321,9 @@ public class TypeUtils {
       case DATETIME -> ColumnType.DATETIME_ARRAY;
       case PERIOD -> ColumnType.PERIOD_ARRAY;
       case JSONB -> ColumnType.JSONB_ARRAY;
-      default -> throw new UnsupportedOperationException(
-          "Unsupported array columnType found:" + columnType);
+      default ->
+          throw new UnsupportedOperationException(
+              "Unsupported array columnType found:" + columnType);
     };
   }
 
@@ -369,8 +372,8 @@ public class TypeUtils {
       case UUID -> SQLDataType.UUID;
       case UUID_ARRAY -> SQLDataType.UUID.getArrayDataType();
       case STRING, EMAIL, HYPERLINK -> SQLDataType.VARCHAR(255);
-      case STRING_ARRAY, EMAIL_ARRAY, HYPERLINK_ARRAY -> SQLDataType.VARCHAR(255)
-          .getArrayDataType();
+      case STRING_ARRAY, EMAIL_ARRAY, HYPERLINK_ARRAY ->
+          SQLDataType.VARCHAR(255).getArrayDataType();
       case INT -> SQLDataType.INTEGER;
       case INT_ARRAY -> SQLDataType.INTEGER.getArrayDataType();
       case LONG -> SQLDataType.BIGINT;
@@ -386,14 +389,13 @@ public class TypeUtils {
       case DATETIME -> SQLDataType.TIMESTAMP;
       case DATETIME_ARRAY -> SQLDataType.TIMESTAMP.getArrayDataType();
       case PERIOD -> SQLDataType.INTERVAL.asConvertedDataType(new PeriodConverter());
-      case PERIOD_ARRAY -> SQLDataType.INTERVAL
-          .asConvertedDataType(new PeriodConverter())
-          .getArrayDataType();
+      case PERIOD_ARRAY ->
+          SQLDataType.INTERVAL.asConvertedDataType(new PeriodConverter()).getArrayDataType();
       case JSONB -> SQLDataType.JSONB;
       case JSONB_ARRAY -> SQLDataType.JSONB.getArrayDataType();
       default ->
-      // should never happen
-      throw new IllegalArgumentException("jooqTypeOf(type) : unsupported type '" + type + "'");
+          // should never happen
+          throw new IllegalArgumentException("jooqTypeOf(type) : unsupported type '" + type + "'");
     };
   }
 
@@ -421,8 +423,9 @@ public class TypeUtils {
       case PERIOD_ARRAY -> TypeUtils.toPeriodArray(v);
       case JSONB -> TypeUtils.toJsonb(v);
       case JSONB_ARRAY -> TypeUtils.toJsonbArray(v);
-      default -> throw new UnsupportedOperationException(
-          "Unsupported columnType columnType found:" + columnType);
+      default ->
+          throw new UnsupportedOperationException(
+              "Unsupported columnType columnType found:" + columnType);
     };
   }
 

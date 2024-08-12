@@ -251,7 +251,7 @@ public class WebApiSmokeTests {
       throws IOException {
     byte[] addUpdateTable = tableMeta.getBytes(StandardCharsets.UTF_8);
     File addUpdateTableFile = createTempFile(addUpdateTable, ".csv");
-    acceptFileUpload(addUpdateTableFile, "molgenis");
+    acceptFileUpload(addUpdateTableFile, "molgenis", false);
     String actual = getContentAsString("/api/csv");
     assertEquals(header + expected, actual);
   }
@@ -280,17 +280,15 @@ public class WebApiSmokeTests {
     // upload csv metadata and data into the new schema
     // here we use 'body' (instead of 'multiPart' in e.g. testCsvApi_zipUploadDownload) because csv,
     // json and yaml import is submitted in the request body
-    acceptFileUpload(contentsMetaFile, "molgenis");
-    acceptFileUpload(contentsCategoryDataFile, "Category");
-    acceptFileUpload(contentsTagDataFile, "Tag");
-    acceptFileUpload(contentsPetDataFile, "Pet");
-    acceptFileUpload(contentsOrderDataFile, "Order");
-    acceptFileUpload(contentsUserDataFile, "User");
+    acceptFileUpload(contentsMetaFile, "molgenis", false);
+    acceptFileUpload(contentsCategoryDataFile, "Category", false);
+    acceptFileUpload(contentsTagDataFile, "Tag", false);
+    acceptFileUpload(contentsPetDataFile, "Pet", false);
+    acceptFileUpload(contentsUserDataFile, "User", false);
 
     // download csv from the new schema
     String contentsMetaNew = getContentAsString("/api/csv");
     String contentsCategoryDataNew = getContentAsString("/api/csv/Category");
-    String contentsOrderDataNew = getContentAsString("/api/csv/Order");
     String contentsPetDataNew = getContentAsString("/api/csv/Pet");
     String contentsUserDataNew = getContentAsString("/api/csv/User");
     String contentsTagDataNew = getContentAsString("/api/csv/Tag");
@@ -300,13 +298,15 @@ public class WebApiSmokeTests {
     assertArrayEquals(
         toSortedArray(new String(contentsCategoryData)), toSortedArray(contentsCategoryDataNew));
     assertArrayEquals(
-        toSortedArray(new String(contentsOrderData)), toSortedArray(contentsOrderDataNew));
-    assertArrayEquals(
         toSortedArray(new String(contentsPetData)), toSortedArray(contentsPetDataNew));
     assertArrayEquals(
         toSortedArray(new String(contentsUserData)), toSortedArray(contentsUserDataNew));
     assertArrayEquals(
         toSortedArray(new String(contentsTagData)), toSortedArray(contentsTagDataNew));
+
+    // Test async
+    String response = acceptFileUpload(contentsOrderDataFile, "Order", true);
+    assertTrue(response.contains("id"));
   }
 
   private String[] toSortedArray(String string) {
@@ -340,15 +340,18 @@ public class WebApiSmokeTests {
     assertFalse(result.contains("spike"));
   }
 
-  private void acceptFileUpload(File content, String table) {
-    given()
-        .sessionId(SESSION_ID)
-        .body(content)
-        .header("fileName", table)
-        .when()
-        .post("/" + CSV_TEST_SCHEMA + "/api/csv")
-        .then()
-        .statusCode(200);
+  private String acceptFileUpload(File content, String table, boolean async) {
+    Response response =
+        given()
+            .sessionId(SESSION_ID)
+            .body(content)
+            .header("fileName", table)
+            .when()
+            .post("/" + CSV_TEST_SCHEMA + "/api/csv" + (async ? "?async=true" : ""));
+
+    response.then().statusCode(200);
+
+    return response.asString();
   }
 
   private String getContentAsString(String path) {

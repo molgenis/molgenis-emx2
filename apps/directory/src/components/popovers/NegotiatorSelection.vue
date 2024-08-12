@@ -47,6 +47,13 @@
     <template v-else>
       <p class="py-3 pl-1">You haven't selected any collections yet.</p>
     </template>
+
+    <template v-if="errorMessage">
+      <div class="alert alert-danger" role="alert">
+        {{ errorMessage }}
+      </div>
+    </template>
+
     <template v-slot:modal-footer>
       <div class="bg-primary d-flex align-items-center p-2">
         <button class="btn btn-dark mr-auto" @click="removeAllCollections">
@@ -117,6 +124,7 @@ export default {
     return {
       cartVisible: false,
       commercialAvailableCollections: [],
+      errorMessage: "", // New reactive error state
     };
   },
   methods: {
@@ -139,9 +147,16 @@ export default {
     sortedAlphabetically(collectionArray) {
       return sortCollectionsByLabel(collectionArray);
     },
-    sendRequest() {
-      this.cartVisible = false;
-      this.checkoutStore.sendToNegotiator();
+    async sendRequest() {
+      this.errorMessage = ""; // Reset error message before request
+      try {
+        await this.checkoutStore.sendToNegotiator();
+        this.cartVisible = false;
+      } catch (err) {
+        console.info("Negotiator is unavailable. Please try again later.");
+        this.errorMessage =
+          "Negotiator is unavailable. Please try again later.";
+      }
     },
   },
   watch: {
@@ -187,7 +202,7 @@ export default {
       return nonCommercialCollections.length;
     },
   },
-  async beforeMount() {
+  async onMount() {
     this.commercialAvailableCollections =
       await this.collectionStore.getCommercialAvailableCollections();
   },

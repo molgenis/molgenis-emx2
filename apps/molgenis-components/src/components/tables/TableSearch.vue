@@ -87,7 +87,7 @@ import Client from "../../client/client";
 import RowButtonAdd from "./RowButtonAdd.vue";
 import RowButtonEdit from "./RowButtonEdit.vue";
 import RowButtonDelete from "./RowButtonDelete.vue";
-import { IColumn, ITableMetaData } from "meta-data-utils";
+import { IColumn, ITableMetaData } from "metadata-utils";
 import { IRow } from "../../Interfaces/IRow";
 
 export default {

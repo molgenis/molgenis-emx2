@@ -16,14 +16,14 @@ import spark.Request;
 public class FAIRDataPointNoCatalogsTest {
 
   static Database database;
-  static Schema fairDataHub_nocatalogs;
+  static Schema nocatalogs;
 
   @BeforeAll
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
-    fairDataHub_nocatalogs = database.dropCreateSchema("fairDataHub_nocatalogs");
+    nocatalogs = database.dropCreateSchema("nocatalogs");
     PetStoreLoader petStoreLoader = new PetStoreLoader();
-    petStoreLoader.load(fairDataHub_nocatalogs, true);
+    petStoreLoader.load(nocatalogs, true);
   }
 
   @Test
@@ -31,7 +31,7 @@ public class FAIRDataPointNoCatalogsTest {
   public void FDPNoCatalogs() throws Exception {
     Request request = mock(Request.class);
     when(request.url()).thenReturn("http://localhost:8080/api/fdp");
-    FAIRDataPoint fairDataPoint = new FAIRDataPoint(request, fairDataHub_nocatalogs);
+    FAIRDataPoint fairDataPoint = new FAIRDataPoint(request, nocatalogs);
     fairDataPoint.setVersion("setversionforjtest");
     String result = fairDataPoint.getResult();
     assertFalse(result.contains("fdp-o:metadataCatalog"));

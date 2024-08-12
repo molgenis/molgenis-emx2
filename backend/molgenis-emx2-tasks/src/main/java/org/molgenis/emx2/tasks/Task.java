@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 public class Task<T extends Task> implements Runnable, Iterable<Task> {
   // some unique id
   private final String id = UUID.randomUUID().toString();
+
   // for the toString method
   @JsonIgnore
   private static final ObjectMapper mapper =
@@ -53,6 +54,7 @@ public class Task<T extends Task> implements Runnable, Iterable<Task> {
   private String cronExpression;
   private String cronUserName;
   private boolean disabled = false;
+  private String failureAddress;
 
   public Task() {}
 
@@ -290,6 +292,11 @@ public class Task<T extends Task> implements Runnable, Iterable<Task> {
     return (T) this;
   }
 
+  public T failureAddress(String failureAddress) {
+    this.failureAddress = failureAddress;
+    return (T) this;
+  }
+
   public String getCronUserName() {
     return this.cronUserName;
   }
@@ -301,6 +308,14 @@ public class Task<T extends Task> implements Runnable, Iterable<Task> {
 
   public boolean isDisabled() {
     return this.disabled;
+  }
+
+  public String getFailureAddress() {
+    return failureAddress;
+  }
+
+  public void setFailureAddress(String failureAddress) {
+    this.failureAddress = failureAddress;
   }
 
   @Override
