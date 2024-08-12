@@ -1,5 +1,5 @@
 <template>
-  <div class="w-[800px]">
+  <div>
     <Header>
       <template #logo>
         <Logo />

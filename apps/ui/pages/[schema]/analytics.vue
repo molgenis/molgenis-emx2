@@ -166,15 +166,23 @@ const formError = ref<string | null>(null);
     @close="showAddModal = false"
   >
     <ContentBlockModal title="Trigger">
-      <form @submit.prevent.default="">
-        <InputLabel for="name" label="Name" />
-        <InputString id="name" placeholder="Name" v-model="formTrigger.name" />
-        <InputLabel for="cssSelector" label="Css Selector" />
-        <InputTextArea
-          id="cssSelector"
-          placeholder="Css Selector"
-          v-model="formTrigger.cssSelector"
-        />
+      <form @submit.prevent.default="" class="flex flex-col gap-3">
+        <div>
+          <InputLabel for="name" class="">Name</InputLabel>
+          <InputString
+            id="name"
+            placeholder="Name"
+            v-model="formTrigger.name"
+          />
+        </div>
+        <div>
+          <InputLabel for="cssSelector">Css Selector</InputLabel>
+          <InputTextArea
+            id="cssSelector"
+            placeholder="Css Selector"
+            v-model="formTrigger.cssSelector"
+          />
+        </div>
       </form>
     </ContentBlockModal>
     <template #footer>
@@ -192,7 +200,7 @@ const formError = ref<string | null>(null);
   >
     <ContentBlockModal :title="`Update Trigger: ${formTrigger.name}`">
       <form @submit.prevent.default="">
-        <InputLabel for="cssSelector" label="Css Selector" />
+        <InputLabel for="cssSelector">Css Selector</InputLabel>
         <InputTextArea
           id="cssSelector"
           placeholder="Css Selector"

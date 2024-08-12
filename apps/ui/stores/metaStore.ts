@@ -1,5 +1,5 @@
 import metadataGql from "../../nuxt3-ssr/gql/metadata";
-import { type ISchemaMetaData, type ITableMetaData } from "../../meta-data-utils/src/types";
+import { type ISchemaMetaData, type ITableMetaData } from "../../metadata-utils/src/types";
 
 const query = moduleToString(metadataGql);
 

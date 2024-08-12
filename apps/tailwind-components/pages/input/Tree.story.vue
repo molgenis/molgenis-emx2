@@ -49,7 +49,7 @@ const expandSelected = ref(true);
       />
     </div>
 
-    <div class="h-12 ml-4 mt-2">
+    <div class="ml-4 mt-2">
       <fieldset class="border border-gray-900 mb-2">
         <legend class="m-2 px-2">Props</legend>
         <div class="mb-2">

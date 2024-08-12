@@ -2,12 +2,16 @@
 import { defineNuxtConfig } from "nuxt/config";
 
 export default defineNuxtConfig({
-  modules: ["@nuxt/image"],
   devtools: { enabled: true },
-  extends: ["../tailwind-components"],
+  modules: [
+    "@nuxt/image",
+    "@nuxtjs/tailwindcss",
+    "floating-vue/nuxt",
+    "@nuxt/test-utils/module",
+  ],
   tailwindcss: {
-    cssPath: '../tailwind-components/assets/css/main.css',
-    configPath: '../tailwind-components/tailwind.config.js'
+    cssPath: "../tailwind-components/assets/css/main.css",
+    configPath: "../tailwind-components/tailwind.config.js",
   },
   runtimeConfig: {
     public: {
@@ -22,7 +26,31 @@ export default defineNuxtConfig({
   imports: {
     transform: {
       // exclude
-      exclude: [/\bmeta-data-utils\b/],
+      exclude: [/\bmetadata-utils\b/],
     },
   },
+  nitro: {
+    prerender: {
+      ignore: ["/_tailwind/"],
+    },
+  },
+  app: {
+    head: {
+      htmlAttrs: {
+        "data-theme": "",
+      },
+    },
+  },
+  components: [
+    {
+      path: "~/components",
+    },
+    {
+      path: "../tailwind-components/components",
+    },
+    {
+      path: "../tailwind-components/components/global/icons",
+      global: true,
+    },
+  ],
 });

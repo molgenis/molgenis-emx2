@@ -18,7 +18,9 @@ const demoValue = ref("");
   >
     <div>
       <h3>Input String: default use (model value: {{ demoValue }})</h3>
-      <InputLabel for="input-string-default" :label="label" />
+      <InputLabel for="input-string-default">
+        {{ label }}
+      </InputLabel>
       <InputString
         id="input-string-default"
         :placeholder="placeholder"
@@ -27,7 +29,9 @@ const demoValue = ref("");
     </div>
     <div>
       <h3>Input String: disabled (model value: {{ demoValue }})</h3>
-      <InputLabel for="input-string-disabled" :label="label" />
+      <InputLabel for="input-string-disabled">
+        {{ label }}
+      </InputLabel>
       <InputString
         id="input-string-disabled"
         :placeholder="placeholder"
@@ -37,7 +41,9 @@ const demoValue = ref("");
     </div>
     <div>
       <h3>Input Text: as a required field (model value: {{ demoValue }})</h3>
-      <InputLabel for="input-string-required" :label="label" />
+      <InputLabel for="input-string-required" :required="true">
+        {{ label }}
+      </InputLabel>
       <InputString
         id="input-string-required"
         :label="label"
@@ -49,7 +55,9 @@ const demoValue = ref("");
       <h3>
         Input String: positive validation result (model value: {{ demoValue }})
       </h3>
-      <InputLabel for="input-string-valid" :label="label" :valid="true" />
+      <InputLabel for="input-string-valid" :valid="true">
+        {{ label }}
+      </InputLabel>
       <InputString
         id="input-string-valid"
         :placeholder="placeholder"
@@ -60,7 +68,9 @@ const demoValue = ref("");
       <h3>
         Input String: negative validation result (model value: {{ demoValue }})
       </h3>
-      <InputLabel for="input-string-error" :label="label" :has-error="true" />
+      <InputLabel for="input-string-error" :has-error="true">
+        {{ label }}
+      </InputLabel>
       <InputString
         id="input-string-error"
         :placeholder="placeholder"
@@ -71,11 +81,9 @@ const demoValue = ref("");
       <h3>
         Input String: visually hidden label (model value: {{ demoValue }})
       </h3>
-      <InputLabel
-        for="input-string-hidden-label"
-        :label="label"
-        :hide-label="true"
-      />
+      <InputLabel for="input-string-hidden-label" :hide-label="true">
+        {{ label }}
+      </InputLabel>
       <InputString
         id="input-string-hidden-label"
         :placeholder="placeholder"

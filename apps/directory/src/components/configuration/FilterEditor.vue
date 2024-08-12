@@ -1,5 +1,5 @@
 <template>
-  <div @keyup.ctrl.f="format">
+  <div @keyup.ctrl.alt.f="format">
     <div ref="filter-editor" class="filter-editor" @keyup="dirty = true"></div>
 
     <button class="btn btn-info mt-3" :disabled="!dirty" @click="apply">

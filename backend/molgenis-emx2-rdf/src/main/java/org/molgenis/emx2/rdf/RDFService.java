@@ -8,9 +8,12 @@ import static org.molgenis.emx2.rdf.RDFUtils.*;
 
 import com.google.common.net.UrlEscapers;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import org.apache.commons.io.IOUtils;
 import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Namespace;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.base.CoreDatatype;
@@ -64,6 +67,8 @@ public class RDFService {
       Values.iri("http://purl.org/linked-data/cube#dataSet");
   public static final IRI IRI_CONTROLLED_VOCABULARY =
       Values.iri("http://purl.obolibrary.org/obo/NCIT_C48697");
+
+  private static final String SETTING_CUSTOM_RDF = "custom_rdf";
 
   /**
    * SIO:001055 = observing (definition: observing is a process of passive interaction in which one
@@ -152,24 +157,29 @@ public class RDFService {
       final Schema... schemas) {
     try {
       final ModelBuilder builder = new ModelBuilder();
-      builder.setNamespace("rdf", NAMESPACE_RDF);
-      builder.setNamespace("rdfs", NAMESPACE_RDFS);
-      builder.setNamespace("xsd", NAMESPACE_XSD);
-      builder.setNamespace("owl", NAMESPACE_OWL);
-      builder.setNamespace("sio", NAMESPACE_SIO);
-      builder.setNamespace("qb", NAMESPACE_QB);
-      builder.setNamespace("skos", NAMESPACE_SKOS);
-      builder.setNamespace("dcterms", NAMESPACE_DCTERMS);
-      builder.setNamespace("dcat", NAMESPACE_DCAT);
-      builder.setNamespace("foaf", NAMESPACE_FOAF);
-      builder.setNamespace("vcard", NAMESPACE_VCARD);
-      builder.setNamespace("org", NAMESPACE_ORG);
-      builder.setNamespace("fdp-o", NAMESPACE_ORG);
 
+      // Defines if all used schemas have a custom_rdf setting.
+      boolean allIncludeCustomRdf = true;
       // Define the schemas at the start of the document.
       for (final Schema schema : schemas) {
         final Namespace ns = getSchemaNamespace(schema);
         builder.setNamespace(ns);
+        // Adds custom RDF to model.
+        if (schema.hasSetting(SETTING_CUSTOM_RDF)) {
+          addModelToBuilder(
+              builder,
+              Rio.parse(
+                  IOUtils.toInputStream(
+                      schema.getSettingValue(SETTING_CUSTOM_RDF), StandardCharsets.UTF_8),
+                  RDFFormat.TURTLE));
+        } else {
+          allIncludeCustomRdf = false;
+        }
+      }
+
+      // If any of the used schemas do not have custom_rdf set, adds the default ones.
+      if (!allIncludeCustomRdf) {
+        addDefaultPrefixes(builder);
       }
 
       if (table == null) {
@@ -182,6 +192,12 @@ public class RDFService {
         }
         final List<Table> tables = table != null ? Arrays.asList(table) : schema.getTablesSorted();
         for (final Table tableToDescribe : tables) {
+          // for full-schema retrieval, don't print the (huge and mostly unused) ontologies
+          // of course references to ontologies are still included and are fully retrievable
+          if (table == null
+              && tableToDescribe.getMetadata().getTableType().equals(TableType.ONTOLOGIES)) {
+            continue;
+          }
           if (rowId == null) {
             describeTable(builder, tableToDescribe);
             describeColumns(builder, tableToDescribe, columnName);
@@ -197,6 +213,27 @@ public class RDFService {
     } catch (Exception e) {
       throw new MolgenisException("RDF export failed due to an exception", e);
     }
+  }
+
+  private void addModelToBuilder(ModelBuilder builder, Model model) {
+    model.getNamespaces().forEach(builder::setNamespace);
+    model.forEach(e -> builder.add(e.getSubject(), e.getPredicate(), e.getObject()));
+  }
+
+  private void addDefaultPrefixes(ModelBuilder builder) {
+    builder.setNamespace("rdf", NAMESPACE_RDF);
+    builder.setNamespace("rdfs", NAMESPACE_RDFS);
+    builder.setNamespace("xsd", NAMESPACE_XSD);
+    builder.setNamespace("owl", NAMESPACE_OWL);
+    builder.setNamespace("sio", NAMESPACE_SIO);
+    builder.setNamespace("qb", NAMESPACE_QB);
+    builder.setNamespace("skos", NAMESPACE_SKOS);
+    builder.setNamespace("dcterms", NAMESPACE_DCTERMS);
+    builder.setNamespace("dcat", NAMESPACE_DCAT);
+    builder.setNamespace("foaf", NAMESPACE_FOAF);
+    builder.setNamespace("vcard", NAMESPACE_VCARD);
+    builder.setNamespace("org", NAMESPACE_ORG);
+    builder.setNamespace("fdp-o", NAMESPACE_FDP);
   }
 
   public WriterConfig getConfig() {
@@ -285,6 +322,7 @@ public class RDFService {
     } else {
       builder.add(subject, RDFS.SUBCLASSOF, getTableIRI(parent));
     }
+    // Any custom semantics are always added, regardless of table type (DATA/ONTOLOGIES)
     if (table.getMetadata().getSemantics() != null) {
       for (final String tableSemantics : table.getMetadata().getSemantics()) {
         try {
@@ -299,12 +337,15 @@ public class RDFService {
               e);
         }
       }
-    } else if (table.getMetadata().getTableType() == TableType.ONTOLOGIES) {
+    }
+    // Add 'observing' for any DATA
+    if (table.getMetadata().getTableType() == TableType.DATA) {
+      builder.add(subject, RDFS.ISDEFINEDBY, IRI_OBSERVING);
+    }
+    // Add 'controlled vocab' and 'concept scheme' for any ONTOLOGIES
+    if (table.getMetadata().getTableType() == TableType.ONTOLOGIES) {
       builder.add(subject, RDFS.ISDEFINEDBY, IRI_CONTROLLED_VOCABULARY);
       builder.add(subject, RDFS.SUBCLASSOF, SKOS.CONCEPT_SCHEME);
-
-    } else {
-      builder.add(subject, RDFS.ISDEFINEDBY, IRI_OBSERVING);
     }
     builder.add(subject, RDFS.LABEL, table.getName());
 
@@ -319,8 +360,8 @@ public class RDFService {
       final ModelBuilder builder, final Table table, final String columnName) {
     if (table.getMetadata().getTableType() == TableType.DATA) {
       for (final Column column : table.getMetadata().getNonInheritedColumns()) {
-        // Exclude the system columns like mg_insertedBy
-        if (column.isSystemColumn()) {
+        // Exclude the system columns that refer to specific users
+        if (column.isSystemAddUpdateByUserColumn()) {
           continue;
         }
         if (columnName == null || columnName.equals(column.getName())) {
@@ -448,7 +489,7 @@ public class RDFService {
               subject, IRI_CONTROLLED_VOCABULARY, Values.literal(row.getString("codesystem")));
         }
         if (row.getString("definition") != null) {
-          // builder.add(subject, SKOS.DEFINITION, Values.literal(row.getString("definition")));
+          builder.add(subject, SKOS.DEFINITION, Values.literal(row.getString("definition")));
         }
         if (row.getString(ONTOLOGY_TERM_URI) != null) {
           builder.add(subject, OWL.SAMEAS, Values.iri(row.getString(ONTOLOGY_TERM_URI)));
@@ -464,7 +505,7 @@ public class RDFService {
         builder.add(subject, RDF.TYPE, IRI_OBSERVATION);
         if (table.getMetadata().getSemantics() != null) {
           for (String semantics : table.getMetadata().getSemantics()) {
-            builder.add(subject, RDF.TYPE, semantics);
+            builder.add(subject, RDF.TYPE, iri(semantics));
           }
         }
         builder.add(subject, IRI_DATASET_PREDICATE, tableIRI);
@@ -476,8 +517,8 @@ public class RDFService {
           table = getSubclassTableForRowBasedOnMgTableclass(table, row);
         }
         for (final Column column : table.getMetadata().getColumns()) {
-          // Exclude the system columns like mg_insertedBy
-          if (column.isSystemColumn()) {
+          // Exclude the system columns that refer to specific users
+          if (column.isSystemAddUpdateByUserColumn()) {
             continue;
           }
           IRI columnIRI = getColumnIRI(column);

@@ -17,4 +17,16 @@ export default defineNuxtConfig({
     base: "."
   },
   modules: [ '@pinia/nuxt' ],
+  components: [
+    {
+      path: "~/components",
+    },
+    {
+      path: "../tailwind-components/components",
+    },
+    {
+      path: "../tailwind-components/components/global/icons",
+      global: true,
+    },
+  ],
 })

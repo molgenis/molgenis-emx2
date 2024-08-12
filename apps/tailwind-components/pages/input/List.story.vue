@@ -39,7 +39,7 @@ const inverted = ref(false);
       <InputList
         :nodes="nodes"
         v-model="selectedNodesNames"
-        class="p-4"
+        class="p-4 text-current"
         :class="inverted ? 'bg-white' : 'bg-sidebar-gradient'"
         :inverted="inverted"
       />

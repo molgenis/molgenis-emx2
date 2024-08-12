@@ -131,7 +131,16 @@ async function fetchCohortOptions(): Promise<INode[]> {
       variables: scoped
         ? {
             cohortsFilter: {
-              networks: { equals: [{ id: catalogueRouteParam }] },
+              _or: [
+                {
+                  networks: { equals: [{ id: catalogueRouteParam }] },
+                },
+                {
+                  networks: {
+                    partOfNetworks: { equals: [{ id: catalogueRouteParam }] },
+                  },
+                },
+              ],
             },
           }
         : undefined,
@@ -227,7 +236,14 @@ async function buildScopedModelFilter() {
                  }
               }
             }`,
-      variables: { filter: { id: { equals: catalogueRouteParam } } },
+      variables: {
+        filter: {
+          _or: [
+            { id: { equals: catalogueRouteParam } },
+            { partOfNetworks: { id: { equals: catalogueRouteParam } } },
+          ],
+        },
+      },
     },
   });
 
@@ -236,7 +252,9 @@ async function buildScopedModelFilter() {
     return { error };
   }
 
-  const modelIds = data.Networks[0].models.map((m: { id: string }) => m.id);
+  const modelIds = data.Networks.map((n) =>
+    n.models?.map((m: { id: string }) => m.id)
+  ).flat();
 
   const scopedResourceFilter = {
     resource: {
@@ -255,7 +273,12 @@ async function buildScopedModelFilter() {
 const fetchData = async () => {
   let cohortsFilter: any = {};
   if (scoped) {
-    cohortsFilter.networks = { equals: [{ id: catalogueRouteParam }] };
+    cohortsFilter.networks = {
+      _or: [
+        { equals: [{ id: catalogueRouteParam }] },
+        { partOfNetworks: { equals: [{ id: catalogueRouteParam }] } },
+      ],
+    };
   }
 
   // add 'special' filter for harmonisation x-axis if 'cohorts' filter is set
@@ -281,7 +304,14 @@ const fetchData = async () => {
               ...filter.value,
               ...{
                 networkVariables: {
-                  network: { id: { equals: catalogueRouteParam } },
+                  _or: [
+                    { network: { id: { equals: catalogueRouteParam } } },
+                    {
+                      network: {
+                        partOfNetworks: { id: { equals: catalogueRouteParam } },
+                      },
+                    },
+                  ],
                 },
               },
             },

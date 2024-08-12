@@ -10,7 +10,7 @@
 			"path": "ui"
 		},
 		{
-			"path": "meta-data-utils"
+			"path": "metadata-utils"
 		}
 	],
 	"settings": {}

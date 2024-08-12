@@ -85,8 +85,10 @@ public class BeaconApi {
   }
 
   private static Object getInfo(Request request, Response response) {
+    response.type(Constants.ACCEPT_JSON);
     Schema schema = getSchema(request);
 
-    return new Info(schema).getResponse();
+    Database database = sessionManager.getSession(request).getDatabase();
+    return new Info(database).getResponse(schema);
   }
 }
