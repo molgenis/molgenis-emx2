@@ -68,11 +68,7 @@ export async function useHeaderData() {
               },
             },
           }
-        : {
-            collection: {
-              type: { name: { like: ["Models"] } },
-            },
-          };
+        : { collection: { type: { name: { equals: "Network" } } } };
 
       return $fetch(apiPath, {
         key: `header-${route.params.catalogue}`,

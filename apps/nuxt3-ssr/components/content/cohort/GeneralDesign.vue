@@ -14,7 +14,7 @@ const props = defineProps<{
 }>();
 
 const designPublications = computed(() =>
-  props.collection.publications.filter((p) => p.isDesignPublication)
+  props.collection.publications?.filter((p) => p.isDesignPublication)
 );
 
 const generalDesign: IDefinitionListItem[] = [

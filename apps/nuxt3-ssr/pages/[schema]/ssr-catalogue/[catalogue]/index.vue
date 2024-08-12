@@ -43,7 +43,7 @@ const query = `query CataloguePage($networksFilter:CollectionsFilter,$variablesF
         }
         Collections_groupBy(filter:$cohortsFilter) {
           count
-          designType {
+          type {
             name
           }
         }
@@ -190,11 +190,6 @@ const description = computed(() => {
   }
 });
 
-const numberOfNetworks = computed(() => {
-  return scoped
-    ? data.value.data.Collections[0]?.collections_agg?.count
-    : data.value.data.Collections_agg?.count;
-});
 const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/networks/${catalogueRouteParam}`;
 
 //future: move to a setting? or metadata?

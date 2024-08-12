@@ -138,7 +138,7 @@ async function fetchCollectionOptions(): Promise<INode[]> {
               ],
             },
           }
-        : undefined,
+        : { collection: { type: { name: { equals: "Network" } } } },
     },
   });
 
@@ -292,6 +292,7 @@ const fetchData = async () => {
     : {
         variablesFilter: {
           ...filter.value,
+          ...{ collection: { type: { name: { equals: "Network" } } } },
         },
         collectionsFilter,
       };

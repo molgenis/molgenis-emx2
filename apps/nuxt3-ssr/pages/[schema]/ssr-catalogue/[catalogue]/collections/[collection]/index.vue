@@ -482,14 +482,15 @@ function closeOrganisationSideModal() {
   activeOrganisationSideModalIndex.value = -1;
 }
 
+const organisations = computed(() =>
+  collection.value.organisationsInvolved?.sort((a, b) =>
+    a.role && a.role?.find((r) => r.name === "Lead") ? -1 : 1
+  )
+);
+
 const activeOrganization = computed(() => {
-  if (
-    activeOrganisationSideModalIndex.value > -1 &&
-    collection.value.organisationsInvolved
-  ) {
-    return collection.value.organisationsInvolved[
-      activeOrganisationSideModalIndex.value
-    ];
+  if (activeOrganisationSideModalIndex.value > -1 && organisations.value) {
+    return organisations.value[activeOrganisationSideModalIndex.value];
   } else {
     return null;
   }
@@ -546,33 +547,22 @@ const activeOrganization = computed(() => {
         </ContentBlock>
 
         <ContentBlockContact
-          v-if="collection?.peopleInvolved || collection.organisationsInvolved"
+          v-if="collection?.peopleInvolved || organisations"
           id="Contributors"
           title="Contributors"
           :contributors="collection?.peopleInvolved"
         >
-          <template
-            #before
-            v-if="
-              collection.organisationsInvolved &&
-              collection.organisationsInvolved?.length > 0
-            "
-          >
+          <template #before v-if="organisations && organisations?.length > 0">
             <DisplayList
               class="mb-5"
-              v-if="collection.organisationsInvolved"
+              v-if="organisations"
               title="Organisations involved"
               :type="
-                collection.organisationsInvolved &&
-                collection.organisationsInvolved?.length > 1
-                  ? 'standard'
-                  : 'link'
+                organisations && organisations.length > 1 ? 'standard' : 'link'
               "
             >
               <DisplayListItem
-                v-for="(
-                  organisation, index
-                ) in collection.organisationsInvolved"
+                v-for="(organisation, index) in organisations"
                 @click="showOrganisationSideModal(index)"
               >
                 <span class="text-blue-500 hover:underline hover:cursor-pointer"
