@@ -17,8 +17,8 @@
   },
   "dependencies": {
     "floating-vue": "5.2.2",
-    "vue": "3.4.31",
-    "vue-router": "4.2.5"
+    "vue": "3.4.37",
+    "vue-router": "4.4.3"
   },
   "devDependencies": {
     "@nuxt/test-utils": "3.12.1",
