@@ -90,7 +90,9 @@ const query = gql`
       publications(orderby: {title:ASC}) {
         doi
         title
+        isDesignPublication
       }
+      publications_agg{count}
       collectionEvents {
         name
         description
@@ -170,7 +172,6 @@ const variables = { id: route.params.collection };
 interface IResponse {
   data: {
     Collections: ICollection[];
-    Publications_agg: { count: number };
   };
 }
 const { data, error } = await useFetch<IResponse, IMgError>(
@@ -212,10 +213,6 @@ const collectionEventCount = computed(
   () => collection.value.collectionEvents_agg?.count
 );
 const subcohortCount = computed(() => collection.value.subcohorts_agg?.count);
-
-const publicationsCount = computed(
-  () => data.value?.data?.Publications_agg?.count
-);
 
 function collectionEventMapper(item: any) {
   return {

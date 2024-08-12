@@ -13,6 +13,10 @@ const props = defineProps<{
   collection: ICollection;
 }>();
 
+const designPublications = computed(() =>
+  props.collection.publications.filter((p) => p.isDesignPublication)
+);
+
 const generalDesign: IDefinitionListItem[] = [
   {
     label: "Type",
@@ -118,12 +122,10 @@ const generalDesign: IDefinitionListItem[] = [
   },
   {
     label:
-      props.collection.designPaper && props.collection.designPaper?.length > 1
-        ? "Design papers"
-        : "Design paper",
+      designPublications.value?.length > 1 ? "Design papers" : "Design paper",
     type: "LINK",
-    content: props.collection.designPaper
-      ? designPaperToItem(props.collection.designPaper)
+    content: designPublications.value
+      ? designPaperToItem(designPublications.value)
       : undefined,
   },
   {
@@ -167,6 +169,7 @@ function designPaperToItem(designPaper: any[]) {
 
 <template>
   <ContentBlock :title="title" :description="description">
+    {{ collection.publications }}
     <CatalogueItemList
       :items="generalDesign.filter((item) => item.content !== undefined)"
     />
