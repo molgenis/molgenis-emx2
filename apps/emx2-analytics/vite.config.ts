@@ -7,9 +7,7 @@ import dts from 'vite-plugin-dts'
 export default defineConfig({
   plugins: [vue(), dts()],
   server: {
-    proxy: {
-      "^/[a-zA-Z0-9_.%-]+/api/trigger": "http://localhost:8080/",
-    }
+    proxy: require("../dev-proxy.config"),
   },
   build: {
     lib: {
