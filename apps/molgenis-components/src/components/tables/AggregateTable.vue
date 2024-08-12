@@ -132,7 +132,7 @@ import IAggregateData from "./IAggregateData";
 import Client from "../../client/client";
 import InputSelect from "../forms/InputSelect.vue";
 import { INewClient, aggFunction } from "../../client/IClient";
-import type { IColumn } from "meta-data-utils";
+import type { IColumn } from "metadata-utils";
 import InputRadio from "../forms/InputRadio.vue";
 
 const AGG_FIELD_TYPES = ["INT", "LONG", "DECIMAL"];

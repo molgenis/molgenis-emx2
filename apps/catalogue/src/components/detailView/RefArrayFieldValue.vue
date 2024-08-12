@@ -1,7 +1,7 @@
 <template>
   <div>
     <span v-for="(ref, idx) in data" :key="idx">
-      <RefFieldValue :data="ref" :metaData="metaData" />&nbsp;
+      <RefFieldValue :data="ref" :metadata="metadata" />&nbsp;
     </span>
   </div>
 </template>
@@ -16,7 +16,7 @@ export default {
       type: [Object, Array],
       required: true,
     },
-    metaData: {
+    metadata: {
       type: Object,
       required: true,
     },
