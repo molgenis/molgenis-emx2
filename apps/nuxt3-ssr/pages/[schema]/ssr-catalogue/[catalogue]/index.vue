@@ -16,6 +16,8 @@ const cohortOnly = computed(() => {
   return routeSetting == "true" || config.public.cohortOnly;
 });
 
+//networksfilter retrieves the catalogues
+//collections are within the current catalogue
 const query = `query CataloguePage($networksFilter:CollectionsFilter,$variablesFilter:VariablesFilter,$cohortsFilter:CollectionsFilter){
         Collections(filter:$networksFilter) {
               id,
@@ -40,12 +42,6 @@ const query = `query CataloguePage($networksFilter:CollectionsFilter,$variablesF
         }
         CollectionSubcohorts_agg(filter:{collection: $cohortsFilter}) {
           count
-        }
-        Collections_groupBy(filter:$cohortsFilter) {
-          count
-          type {
-            name
-          }
         }
         _settings (keys: [
           "NOTICE_SETTING_KEY"
@@ -79,48 +75,33 @@ const networksFilter = scoped
 
 const cohortsFilter = scoped
   ? {
-      _or: [
-        { partOfCollections: { id: { equals: catalogueRouteParam } } },
-        {
-          partOfCollections: {
+      partOfCollections: {
+        _or: [
+          { id: { equals: catalogueRouteParam } },
+          {
+            type: { name: { equals: "Network" } },
             partOfCollections: { id: { equals: catalogueRouteParam } },
           },
-        },
-      ],
+        ],
+      },
     }
   : undefined;
 
 const { data, error } = await useAsyncData<any, IMgError>(
   `lading-page-${catalogueRouteParam}`,
   async () => {
-    const datasets = await $fetch(`/${route.params.schema}/graphql`, {
-      method: "POST",
-      body: {
-        query: `
-            query CollectionDatasets($filter:CollectionDatasetsFilter) {
-              CollectionDatasets(filter:$filter){name}
-            }`,
-        variables: {
-          filter: {
-            _or: [
-              { collection: networksFilter },
-              { collection: { partOfCollections: networksFilter } },
-            ],
-          },
-        },
-      },
-    });
-
     const variablesFilter = scoped
       ? {
-          collection: { id: { equals: catalogueRouteParam } },
-          dataset: {
-            name: {
-              equals: datasets.data.CollectionDatasets?.map(
-                (d: { name: string }) => d.name
-              ).flat(),
+          _or: [
+            { collection: { id: { equals: catalogueRouteParam } } },
+            //also include network of networks
+            {
+              collection: {
+                type: { name: { equals: "Network" } },
+                partOfCollections: { id: { equals: catalogueRouteParam } },
+              },
             },
-          },
+          ],
         }
       : //should only include harmonised variables
         { collection: { type: { name: { equals: "Network" } } } };
@@ -146,12 +127,12 @@ if (error.value) {
 }
 
 function percentageLongitudinal(
-  cohortsGroupBy: { count: number; design: { name: string } }[],
+  cohortsGroupBy: { count: number; designType: { name: string } }[],
   total: number
 ) {
   const nLongitudinal = cohortsGroupBy.reduce(
     (accum, group) =>
-      group?.design?.name === "Longitudinal" ? accum + group.count : accum,
+      group?.designType?.name === "Longitudinal" ? accum + group.count : accum,
     0
   );
 

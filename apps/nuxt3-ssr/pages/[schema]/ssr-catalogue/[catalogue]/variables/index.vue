@@ -130,6 +130,7 @@ async function fetchCollectionOptions(): Promise<INode[]> {
                 },
                 {
                   partOfCollections: {
+                    type: { name: { equals: "Network" } },
                     partOfCollections: {
                       equals: [{ id: catalogueRouteParam }],
                     },
@@ -207,54 +208,6 @@ const filter = computed(() => {
   return buildQueryFilter(filters.value);
 });
 
-const cachedScopedResouceFilter = ref();
-
-async function buildScopedModelFilter() {
-  if (cachedScopedResouceFilter.value) {
-    return cachedScopedResouceFilter.value;
-  }
-  const { data, error } = await $fetch(`/${route.params.schema}/graphql`, {
-    method: "POST",
-    body: {
-      query: `
-            query Collections($filter:CollectionsFilter) {
-              Collections(filter:$filter){
-                 id
-                 datasets {collection{id}
-                  name
-                 }
-                 collections(filter:{type:{name:{equals:"Network"}}}) {
-                    id
-                    datasets {collection{id}
-                    name
-                    }
-                 }
-              }
-            }`,
-      variables: {
-        filter: {
-          _or: [{ id: { equals: catalogueRouteParam } }],
-        },
-      },
-    },
-  });
-
-  if (error) {
-    console.log("models error: ", error);
-    return { error };
-  }
-
-  const scopedResourceFilter = {
-    dataset: {
-      equals: data.Collections[0].datasets?.map((n: any) => n).flat(),
-    },
-  };
-
-  cachedScopedResouceFilter.value = scopedResourceFilter;
-
-  return scopedResourceFilter;
-}
-
 const fetchData = async () => {
   let collectionsFilter: any = {};
   if (scoped) {
@@ -268,24 +221,37 @@ const fetchData = async () => {
 
   // add 'special' filter for harmonisation x-axis if 'collections' filter is set
   const collectionConditions = (
-    pageFilterTemplate.find((f) => f.id === "collections") as IRefArrayFilter
+    filters.value.find((f) => f.id === "collections") as IRefArrayFilter
   )?.conditions;
   if (collectionConditions.length) {
     collectionsFilter = {
       ...collectionsFilter,
-      equals: collectionConditions.map((c) => ({ id: c.id })),
+      equals: collectionConditions.map((c) => ({ id: c.name })),
     };
   }
-
+  const variableCollectionFilter = collectionConditions.length
+    ? {
+        mappings: {
+          source: { id: { equals: collectionConditions.map((c) => c.name) } },
+        },
+      }
+    : undefined;
   const variables = scoped
     ? {
         variablesFilter: {
-          _or: [
-            {
-              ...filter.value,
-              ...(await buildScopedModelFilter()),
-            },
-          ],
+          ...filter.value,
+          ...variableCollectionFilter,
+          ...{
+            _or: [
+              { collection: { id: { equals: catalogueRouteParam } } },
+              {
+                collection: {
+                  type: { name: { equals: "Network" } },
+                  partOfCollections: { name: { equals: catalogueRouteParam } },
+                },
+              },
+            ],
+          },
         },
         collectionsFilter,
       }
@@ -296,7 +262,7 @@ const fetchData = async () => {
         },
         collectionsFilter,
       };
-
+  console.log(JSON.stringify(variables, null, 2));
   return $fetch(graphqlURL.value, {
     key: `variables-${offset.value}`,
     method: "POST",
