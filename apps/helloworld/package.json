@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "graphql-request": "5.2.0",
-    "meta-data-utils": "*",
+    "metadata-utils": "*",
     "molgenis-components": "*",
     "vue": "3.4.31",
     "vue-router": "4.2.5"

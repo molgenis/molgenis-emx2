@@ -35,12 +35,12 @@ import MessageError from "../forms/MessageError.vue";
 import Spinner from "../layout/Spinner.vue";
 import RefTable from "./RefTable.vue";
 import SideModal from "./SideModal.vue";
-import type { IColumn } from "meta-data-utils";
+import type { IColumn } from "metadata-utils";
 
 const props = withDefaults(
   defineProps<{
     column: IColumn;
-    rows: IRow[];
+    rows?: IRow[];
     schema?: string;
     showDataOwner?: boolean;
   }>(),
@@ -56,23 +56,25 @@ let loading = ref(true);
 let queryResults: Ref<IRow[]> = ref([]);
 let errorMessage = ref("");
 
-const activeSchema = column.value.refSchemaId || props.schema;
-if (activeSchema && column.value.refTableId) {
-  updateData(activeSchema, rows.value, column.value.refTableId);
-}
+updateData(rows.value, column.value.refTableId);
 
 watch([column, rows], () => {
-  const activeSchema = column.value.refSchemaId || props.schema;
-  if (activeSchema && column.value.refTableId) {
-    updateData(activeSchema, rows.value, column.value.refTableId);
-  }
+  updateData(rows.value, column.value.refTableId);
 });
 
-async function updateData(activeSchema: string, rows: IRow[], tableId: string) {
-  errorMessage.value = "";
-  loading.value = true;
-  queryResults.value = await getRowData(activeSchema, rows, tableId);
-  loading.value = false;
+async function updateData(
+  rows: IRow[],
+  refTableId?: string,
+  activeSchemaId?: string
+) {
+  const activeSchema =
+    activeSchemaId || column.value.refSchemaId || props.schema;
+  if (activeSchema && refTableId) {
+    errorMessage.value = "";
+    loading.value = true;
+    queryResults.value = await getRowData(activeSchema, rows, refTableId);
+    loading.value = false;
+  }
 }
 
 async function getRowData(
@@ -108,7 +110,7 @@ async function handleRefCellClicked({
     refColumn.refSchemaId || column.value.refSchemaId || props.schema;
   if (refTableId && activeSchema) {
     const clickedCellPrimaryKeys = [refTableRow[refColumn.id]].flat();
-    updateData(activeSchema, clickedCellPrimaryKeys, refTableId);
+    updateData(clickedCellPrimaryKeys, refTableId, activeSchema);
   } else {
     errorMessage.value = "Failed to load reference data";
   }
@@ -123,7 +125,6 @@ function errorHandler(error: AxiosError) {
 <template>
   <RefSideModal
     :column="column"
-    :rows="[]"
     :isVisible="showModal"
     @onClose="showModal = false"
   />
@@ -133,6 +134,11 @@ function errorHandler(error: AxiosError) {
 <script setup lang="ts">
 import { ref } from "vue";
 let showModal = ref(false);
-const column = { refTable: "Pet", name: "orders", refSchema: "pet store" , "label":"Orders"};
+const column = {
+  refTableId: "Pet",
+  name: "orders",
+  refSchemaId: "pet store",
+  label: "Orders",
+};
 </script>
 </docs>

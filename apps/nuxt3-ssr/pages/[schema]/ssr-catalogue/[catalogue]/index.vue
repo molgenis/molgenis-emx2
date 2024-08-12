@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ISetting } from "meta-data-utils";
+import type { ISetting } from "metadata-utils";
 import type { IMgError } from "~~/interfaces/types";
 
 const route = useRoute();
