@@ -11,12 +11,8 @@ export default gql`
       }
       name
       description
-      startDate {
-        name
-      }
-      endDate {
-        name
-      }
+      startDate
+      endDate
       numberOfParticipants
       ageGroups ${moduleToString(ontologyFragment)}
       dataCategories ${moduleToString(ontologyFragment)}

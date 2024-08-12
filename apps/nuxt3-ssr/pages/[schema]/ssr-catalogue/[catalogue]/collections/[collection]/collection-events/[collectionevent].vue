@@ -19,7 +19,7 @@ const { data, error } = await useFetch<any, IMgError>(
     body: {
       query,
       variables: {
-        id: route.params.cohort,
+        id: route.params.collection,
         name: route.params.collectionevent,
       },
     },
@@ -47,12 +47,12 @@ pageCrumbs[
   cohortOnly.value ? "home" : (route.params.catalogue as string)
 ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}`;
 pageCrumbs[
-  "Cohorts"
-] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/cohorts`;
+  "Collections"
+] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/collections`;
 // @ts-ignore
 pageCrumbs[
-  route.params.cohort as string
-] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/cohorts/${route.params.cohort}`;
+  route.params.collection as string
+] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/collections/${route.params.collection}`;
 
 function renderList(list: any[], itemMapper: (a: any) => string) {
   return list?.length === 1 ? itemMapper(list[0]) : list.map(itemMapper);

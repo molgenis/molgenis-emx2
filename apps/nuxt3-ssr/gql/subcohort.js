@@ -1,7 +1,7 @@
 import gql from "graphql-tag";
 export default gql`
-  query Subcohort($id: String, $name: String) {
-    Subcohorts(
+  query CollectionSubcohort($id: String, $name: String) {
+    CollectionSubcohorts(
       filter: {
         collection: { id: { equals: [$id] } }
         name: { equals: [$name] }
@@ -45,7 +45,6 @@ export default gql`
         order
       }
       inclusionCriteria
-      supplementaryInformation
       comorbidity {
         name
         code

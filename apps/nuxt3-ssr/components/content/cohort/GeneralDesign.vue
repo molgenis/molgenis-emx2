@@ -169,7 +169,6 @@ function designPaperToItem(designPaper: any[]) {
 
 <template>
   <ContentBlock :title="title" :description="description">
-    {{ collection.publications }}
     <CatalogueItemList
       :items="generalDesign.filter((item) => item.content !== undefined)"
     />

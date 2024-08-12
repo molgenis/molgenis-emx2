@@ -2,7 +2,6 @@
 import { gql } from "graphql-request";
 import subcohortsQuery from "~~/gql/subcohorts";
 import collectionEventsQuery from "~~/gql/collectionEvents";
-import publicationsQuery from "~~/gql/publications";
 import datasetQuery from "~~/gql/datasets";
 import ontologyFragment from "~~/gql/fragments/ontology";
 import fileFragment from "~~/gql/fragments/file";
@@ -11,8 +10,6 @@ import type {
   IDefinitionListItem,
   IMgError,
   IOntologyItem,
-  IOrganisation,
-  IPublication,
   linkTarget,
 } from "~/interfaces/types";
 import dateUtils from "~/utils/dateUtils";
@@ -232,7 +229,7 @@ function datasetMapper(item: { name: string; description?: string }) {
   return {
     id: {
       name: item.name,
-      resourceId: route.params.collection,
+      collection: route.params.collection,
     },
     name: item.name,
     description: item.description,
@@ -240,7 +237,6 @@ function datasetMapper(item: { name: string; description?: string }) {
 }
 
 function subcohortMapper(subcohort: any) {
-  console.log(subcohort);
   return {
     id: subcohort.name,
     name: subcohort.name,
@@ -248,16 +244,6 @@ function subcohortMapper(subcohort: any) {
     numberOfParticipants: subcohort.numberOfParticipants,
     _renderComponent: "SubCohortDisplay",
     _path: `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/collections/${route.params.collection}/subcohorts/${subcohort.name}`,
-  };
-}
-
-function publicationMapper(publication: IPublication) {
-  return {
-    id: publication.doi,
-    doi: publication.doi,
-    title: publication.title,
-    year: publication.year,
-    _renderComponent: "PublicationDisplay",
   };
 }
 
@@ -278,7 +264,7 @@ let tocItems = computed(() => {
       id: "Contributors",
     });
   }
-  if (collection.value.collectionEvents) {
+  if (collection.value.collection?.collectionEvents) {
     tableOffContents.push({
       label: "Available data & samples",
       id: "AvailableData",
@@ -487,29 +473,22 @@ if (route.params.catalogue) {
   ] = `/${route.params.schema}/ssr-catalogue/all/collections`;
 }
 
-const activeLeadOrganisationSideModalIndex = ref(-1);
-
-function showLeadOrganisationSideModal(index: number) {
-  activeLeadOrganisationSideModalIndex.value = index;
-}
-const activeAdditionalOrganisationSideModalIndex = ref(-1);
-
-function showAdditionaOrganisationSideModal(index: number) {
-  activeAdditionalOrganisationSideModalIndex.value = index;
+const activeOrganisationSideModalIndex = ref(-1);
+function showOrganisationSideModal(index: number) {
+  activeOrganisationSideModalIndex.value = index;
 }
 
 function closeOrganisationSideModal() {
-  activeLeadOrganisationSideModalIndex.value = -1;
-  activeAdditionalOrganisationSideModalIndex.value = -1;
+  activeOrganisationSideModalIndex.value = -1;
 }
 
 const activeOrganization = computed(() => {
   if (
-    activeAdditionalOrganisationSideModalIndex.value > -1 &&
+    activeOrganisationSideModalIndex.value > -1 &&
     collection.value.organisationsInvolved
   ) {
     return collection.value.organisationsInvolved[
-      activeAdditionalOrganisationSideModalIndex.value
+      activeOrganisationSideModalIndex.value
     ];
   } else {
     return null;
@@ -594,7 +573,7 @@ const activeOrganization = computed(() => {
                 v-for="(
                   organisation, index
                 ) in collection.organisationsInvolved"
-                @click="showLeadOrganisationSideModal(index)"
+                @click="showOrganisationSideModal(index)"
               >
                 <span class="text-blue-500 hover:underline hover:cursor-pointer"
                   >{{ organisation.name }}
@@ -702,17 +681,9 @@ const activeOrganization = computed(() => {
         >
           <DatasetDisplay
             :name="slotProps.id.name"
-            :resourceId="slotProps.id.resourceId"
+            :collection="slotProps.id.collection"
           />
         </TableContent>
-
-        <ContentBlockPartners
-          v-if="collection?.additionalOrganisations"
-          id="Partners"
-          title="Partners"
-          description=""
-          :partners="collection?.additionalOrganisations"
-        />
 
         <ContentBlockNetwork
           v-if="collection?.networks"

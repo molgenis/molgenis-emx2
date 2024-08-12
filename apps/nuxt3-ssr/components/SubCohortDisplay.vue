@@ -122,7 +122,6 @@ if (subcohort?.inclusionCriteria) {
     :title="subcohort?.name"
     :description="subcohort?.description"
   >
-    bla: {{ subcohort }}
     <CatalogueItemList :items="items" :small="true" />
   </ContentBlockModal>
 </template>

@@ -13,7 +13,7 @@ const { data: subcohortData } = await useFetch(
     method: "POST",
     body: {
       query,
-      variables: { id: route.params.cohort, name: route.params.subcohort },
+      variables: { id: route.params.collection, name: route.params.subcohort },
     },
   }
 ).catch((e) => console.log(e));
@@ -21,7 +21,7 @@ const { data: subcohortData } = await useFetch(
 watch(
   subcohortData,
   function setData(data: any) {
-    subcohort = data?.data?.Subcohorts[0];
+    subcohort = data?.data?.CollectionSubcohorts[0];
   },
   {
     deep: true,
@@ -38,13 +38,13 @@ pageCrumbs[
   cohortOnly.value ? "home" : (route.params.catalogue as string)
 ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}`;
 pageCrumbs[
-  "Cohorts"
-] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/cohorts`;
+  "Collections"
+] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/collections`;
 
 // @ts-ignore
 pageCrumbs[
-  route.params.cohort as string
-] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/cohorts/${route.params.cohort}`;
+  route.params.collection as string
+] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/cohorts/${route.params.collection}`;
 
 function renderList(
   list: any[],
