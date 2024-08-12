@@ -124,6 +124,14 @@ const query = gql`
         }
         role ${moduleToString(ontologyFragment)}
       }
+      organisationsInvolved  {
+        id
+        name
+        website
+        acronym
+        role ${moduleToString(ontologyFragment)}
+        country ${moduleToString(ontologyFragment)}
+      }
       subcohorts {
           name
           mainMedicalCondition ${moduleToString(ontologyFragment)}
@@ -267,7 +275,7 @@ let tocItems = computed(() => {
       id: "population",
     });
   }
-  if (collection.value.contacts) {
+  if (collection.value.peopleInvolved) {
     tableOffContents.push({
       label: "Contributors",
       id: "Contributors",
@@ -291,10 +299,6 @@ let tocItems = computed(() => {
   }
   if (collection.value.datasets) {
     tableOffContents.push({ label: "Datasets", id: "Datasets" });
-  }
-
-  if (collection.value.additionalOrganisations) {
-    tableOffContents.push({ label: "Partners", id: "Partners" });
   }
 
   if (collection.value.networks) {
@@ -504,17 +508,10 @@ function closeOrganisationSideModal() {
 
 const activeOrganization = computed(() => {
   if (
-    activeLeadOrganisationSideModalIndex.value > -1 &&
-    collection.value.leadOrganisation
-  ) {
-    return collection.value.leadOrganisation[
-      activeLeadOrganisationSideModalIndex.value
-    ];
-  } else if (
     activeAdditionalOrganisationSideModalIndex.value > -1 &&
-    collection.value.additionalOrganisations
+    collection.value.organisationsInvolved
   ) {
-    return collection.value.additionalOrganisations[
+    return collection.value.organisationsInvolved[
       activeAdditionalOrganisationSideModalIndex.value
     ];
   } else {
@@ -573,40 +570,42 @@ const activeOrganization = computed(() => {
         </ContentBlock>
 
         <ContentBlockContact
-          v-if="
-            collection?.contacts ||
-            collection.leadOrganisation ||
-            collection.additionalOrganisations
-          "
+          v-if="collection?.peopleInvolved || collection.organisationsInvolved"
           id="Contributors"
           title="Contributors"
-          :contributors="collection?.contacts"
+          :contributors="collection?.peopleInvolved"
         >
           <template
             #before
             v-if="
-              collection.leadOrganisation &&
-              collection.leadOrganisation?.length > 0
+              collection.organisationsInvolved &&
+              collection.organisationsInvolved?.length > 0
             "
           >
             <DisplayList
               class="mb-5"
-              v-if="collection.leadOrganisation"
-              title="Lead organisation"
+              v-if="collection.organisationsInvolved"
+              title="Organisations involved"
               :type="
-                collection.leadOrganisation &&
-                collection.leadOrganisation?.length > 1
+                collection.organisationsInvolved &&
+                collection.organisationsInvolved?.length > 1
                   ? 'standard'
                   : 'link'
               "
             >
               <DisplayListItem
-                v-for="(organisation, index) in collection.leadOrganisation"
+                v-for="(
+                  organisation, index
+                ) in collection.organisationsInvolved"
                 @click="showLeadOrganisationSideModal(index)"
               >
-                <span
-                  class="text-blue-500 hover:underline hover:cursor-pointer"
-                  >{{ organisation.name }}</span
+                <span class="text-blue-500 hover:underline hover:cursor-pointer"
+                  >{{ organisation.name }}
+                  <template v-if="organisation.role"
+                    >({{
+                      organisation.role.map((r) => r.name).join(", ")
+                    }})</template
+                  ></span
                 >
                 <img
                   v-if="organisation.logo"
@@ -616,37 +615,6 @@ const activeOrganization = computed(() => {
               </DisplayListItem>
             </DisplayList>
             <h3 class="mb-2.5 font-bold text-body-base">Contributors</h3>
-          </template>
-
-          <template #after>
-            <DisplayList
-              class="mt-5"
-              title="Additional organisations"
-              v-if="collection.additionalOrganisations"
-              :type="
-                collection.additionalOrganisations &&
-                collection.additionalOrganisations?.length > 1
-                  ? 'standard'
-                  : 'link'
-              "
-            >
-              <DisplayListItem
-                v-for="(
-                  organisation, index
-                ) in collection.additionalOrganisations"
-                @click="showAdditionaOrganisationSideModal(index)"
-              >
-                <span
-                  class="text-blue-500 hover:underline hover:cursor-pointer"
-                  >{{ organisation.name }}</span
-                >
-                <img
-                  v-if="organisation.logo"
-                  class="max-h-11"
-                  :src="organisation.logo.url"
-                />
-              </DisplayListItem>
-            </DisplayList>
           </template>
         </ContentBlockContact>
 

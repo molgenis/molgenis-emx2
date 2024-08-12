@@ -38,8 +38,14 @@ const query = `query CataloguePage($networksFilter:CollectionsFilter,$variablesF
           type{name,definition}
           count
         }
-        CollectionSubcohorts_agg {
+        CollectionSubcohorts_agg(filter:{collection: $cohortsFilter}) {
           count
+        }
+        Collections_groupBy(filter:$cohortsFilter) {
+          count
+          designType {
+            name
+          }
         }
         _settings (keys: [
           "NOTICE_SETTING_KEY"
@@ -116,11 +122,8 @@ const { data, error } = await useAsyncData<any, IMgError>(
             },
           },
         }
-      : {
-          collection: {
-            type: { name: { like: ["Models"] } },
-          },
-        };
+      : //should only include harmonised variables
+        { collection: { type: { name: { equals: "Network" } } } };
 
     return $fetch(`/${route.params.schema}/graphql`, {
       method: "POST",
@@ -194,12 +197,14 @@ const numberOfNetworks = computed(() => {
 });
 const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/networks/${catalogueRouteParam}`;
 
-const plural = {
-  "Cohort study": "Cohort studies",
-  "Data source": "Data sources",
-  Databank: "Databanks",
-  Biobank: "Biobanks",
-  Network: "Networks",
+//future: move to a setting? or metadata?
+const typeSettings = {
+  "Cohort study": { plural: "Cohort studies", image: "image-link" },
+  "Data source": { plural: "Data sources", image: "image-data-warehouse" },
+  Databank: { plural: "Databanks" },
+  Biobank: { plural: "Biobanks" },
+  Network: { plural: "Networks", image: "image-diagram" },
+  Study: { plural: "Studies" },
 };
 </script>
 
@@ -221,8 +226,10 @@ const plural = {
     <LandingPrimary>
       <LandingCardPrimary
         v-for="collection in data.data.Collections_groupBy"
-        image="image-link"
-        :title="plural[collection.type.name]"
+        :image="typeSettings[collection.type.name]?.image || 'image-link'"
+        :title="
+          typeSettings[collection.type.name]?.plural || collection.type.name
+        "
         :description="
           getSettingValue('CATALOGUE_LANDING_COHORTS_TEXT', settings) ||
           collection.type.definition ||
@@ -253,32 +260,17 @@ const plural = {
         "
         :link="`/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/variables`"
       />
-
-      <LandingCardPrimary
-        v-if="numberOfNetworks > 0 && !cohortOnly"
-        image="image-diagram"
-        title="Networks"
-        :description="
-          getSettingValue('CATALOGUE_LANDING_NETWORKS_TEXT', settings) ||
-          'Networks &amp; Consortia'
-        "
-        :count="numberOfNetworks"
-        :callToAction="
-          getSettingValue('CATALOGUE_LANDING_NETWORKS_CTA', settings)
-        "
-        :link="`/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/networks`"
-      />
     </LandingPrimary>
 
     <LandingSecondary>
       <LandingCardSecondary
         icon="people"
-        v-if="data.data.Cohorts_agg?._sum?.numberOfParticipants"
+        v-if="data.data.Collections_agg?._sum?.numberOfParticipants"
       >
         <b>
           {{
             new Intl.NumberFormat("nl-NL").format(
-              data.data.Cohorts_agg?._sum?.numberOfParticipants
+              data.data.Collections_agg?._sum?.numberOfParticipants
             )
           }}
           {{
@@ -294,7 +286,7 @@ const plural = {
 
       <LandingCardSecondary
         icon="colorize"
-        v-if="data.data.Cohorts_agg?._sum?.numberOfParticipantsWithSamples"
+        v-if="data.data.Collections_agg?._sum?.numberOfParticipantsWithSamples"
       >
         <b
           >{{

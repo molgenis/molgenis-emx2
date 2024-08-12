@@ -140,7 +140,9 @@ const generalDesign: IDefinitionListItem[] = [
   },
   {
     label: "License",
-    content: { url: props.collection.license, label: props.collection.license },
+    content: props.collection.license
+      ? { url: props.collection.license, label: props.collection.license }
+      : undefined,
     type: "LINK",
   },
 ];

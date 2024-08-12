@@ -19,7 +19,7 @@ export interface ICollection {
   website?: string;
   logo?: IUrlObject;
   contactEmail?: string;
-  leadOrganisation?: IOrganisation[];
+  organisationsInvolved?: IOrganisation[];
   institution?: {
     acronym: string;
   };
@@ -72,8 +72,7 @@ export interface ICollection {
   inclusionCriteria?: IOntologyNode[];
   otherInclusionCriteria?: string;
   collectionEvents: ICollectionEvent[];
-  additionalOrganisations: IOrganisation[];
-  contacts: IContributor[];
+  peopleInvolved: IContributor[];
   networks: INetwork[];
   publications: IPublication[];
   releaseDescription?: string;
