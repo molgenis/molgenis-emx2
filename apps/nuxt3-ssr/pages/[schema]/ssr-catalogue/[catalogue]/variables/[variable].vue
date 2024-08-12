@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import variableQuery from "~~/gql/variable";
 import type { IVariable, IVariableMappings } from "~/interfaces/types";
-import { buildFilterFromKeysObject } from "meta-data-utils";
+import { buildFilterFromKeysObject } from "metadata-utils";
 const config = useRuntimeConfig();
 const route = useRoute();
 
