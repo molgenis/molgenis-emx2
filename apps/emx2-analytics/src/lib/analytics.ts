@@ -8,7 +8,7 @@ import {
 function setupAnalytics(schemaName: string, providers: Provider[]) {
   for (let provider of providers) {
     switch (
-      provider.id // todo explore fancy dynamic import instaed of switch
+      provider.id // todo explore fancy dynamic import instead of switch
     ) {
       case "site-improve":
         siteImproveInit(provider.options as siteImproveOptions);
