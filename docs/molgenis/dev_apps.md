@@ -4,7 +4,7 @@ One of the features of MOLGENIS EMX2, is the ability to create your own frontend
 
 This guide will provide information on how to create a new app or how to contribute to an existing application. You will also find information on the tools that are used in MOLGENIS EMX2 and how to configure your app to deploy it in EMX2. In the last section (the appendices), you will find a step-by-step guides for developing apps.
 
-Before you begin, we encourage developers to read our [Development Guidelines](./dev_guidelines) to ensure consistency of all interfaces. If you notice any issue with this guide (e.g, broken example, outdated information, etc.), please open an issue on at [molgenis-emx2/issues](https://github.com/molgenis/molgenis-emx2/issues).
+Before you begin, we encourage developers to read our [Contributing Guidelines](https://github.com/molgenis/molgenis-emx2/blog/master/CONTRIBUTING.md) and [Development Guidelines](./dev_guidelines) to ensure consistency of all interfaces. If you get stuck, have a look at the [Troubleshooting guide](./dev_troubleshooting). If you notice any issue with this guide (e.g, broken example, outdated information, etc.), please open an issue on at [molgenis-emx2/issues](https://github.com/molgenis/molgenis-emx2/issues).
 
 ## Frontend tools
 
@@ -15,7 +15,7 @@ All frontend apps in EMX2 are developed using the following tools.
 - [vite](https://vitejs.dev): for application bundling
 - [yarn workspaces](https://yarnpkg.com/features/workspaces): to autowire local dependencies.
 
-In addition, some of the projects use [Sass](https://sass-lang.com) to compile css. Sass and scss can be activated in the vue component files by adding the `lang="scss"` to `<style>` tag.
+In addition, some of the projects use [Sass](https://sass-lang.com) to compile css. SASS and SCSS can be activated in the vue component files by adding the `lang="scss"` to `<style>` tag.
 
 We also use Gradle to build applications. By running the `build` script in the package.json file, Gradle will build the application and bundle it with the other java applications (during `gradle run`).
 
@@ -60,7 +60,7 @@ git clone https://github.com/molgenis/molgenis-emx2
 git switch -c feat/my-new-app
 ```
 
-Regarding branch names, we typically use these patterns for naming branches: `feat/*` for a new feature or improvement, and `fix/` for bugs.
+Regarding branch names, please see the "Creating a branch" section in [Basic concepts](./dev_basics) guide.
 
 ### Creating a new app
 
@@ -109,7 +109,9 @@ yarn serve
 
 ## Deploying your application
 
-When you have finished building your app, commit your changes and open a new PR. See our contributing guidelines (TBD) for more information.
+When you have finished building your app, commit your changes and open a new PR. See our [contributing guidelines](https://github.com/molgenis/molgenis-emx2/blog/master/CONTRIBUTING.md) for more information on contributing to the EMX2 code base. When your PR is accepted and merged with the main EMX2 branch, a [new release](https://github.com/molgenis/molgenis-emx2/releases) will be created. Then, update your server with the latest version of EMX2.
+
+On your server, all vue apps are served at `/apps/<app-name>`. This mirrors EMX2 folder structure so the URL will match the name of the folder (e.g., `/apps/molgenis-viz`). If your app is designed to work with a schema, it will be accessible at `/<schema>/<app-name>/`.
 
 ## Troubleshooting
 
