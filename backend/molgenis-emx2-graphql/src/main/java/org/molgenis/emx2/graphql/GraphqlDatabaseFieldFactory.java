@@ -13,7 +13,8 @@ import graphql.Scalars;
 import graphql.schema.*;
 import java.util.*;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.datamodels.AvailableDataModels;
+import org.molgenis.emx2.io.ImportProfileTask;
+import org.molgenis.emx2.tasks.Task;
 import org.molgenis.emx2.tasks.TaskService;
 
 public class GraphqlDatabaseFieldFactory {
@@ -48,7 +49,7 @@ public class GraphqlDatabaseFieldFactory {
             });
   }
 
-  public GraphQLFieldDefinition.Builder createMutation(Database database) {
+  public GraphQLFieldDefinition.Builder createMutation(Database database, TaskService taskService) {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("createSchema")
         .type(typeForMutationResult)
@@ -69,15 +70,17 @@ public class GraphqlDatabaseFieldFactory {
               Boolean includeDemoData =
                   dataFetchingEnvironment.getArgument(Constants.INCLUDE_DEMO_DATA);
 
-              database.tx(
-                  db -> {
-                    Schema schema = db.createSchema(name, description);
-                    if (template != null) {
-                      AvailableDataModels.valueOf(template)
-                          .install(schema, Boolean.TRUE.equals(includeDemoData));
-                    }
-                  });
-              return new GraphqlApiMutationResult(SUCCESS, "Schema %s created", name);
+              Schema schema = database.createSchema(name, description);
+
+              GraphqlApiMutationResult result =
+                  new GraphqlApiMutationResult(SUCCESS, "Schema %s created", name);
+
+              if (template != null) {
+                Task task = new ImportProfileTask(schema, template, includeDemoData);
+                String id = taskService.submit(task);
+                return result.setTaskId(id);
+              }
+              return result;
             });
   }
 
