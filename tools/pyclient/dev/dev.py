@@ -55,7 +55,7 @@ async def main():
         print(var_values.head().to_string())
 
     # Connect to the server and sign in
-    async with Client('http://emx2.dev.molgenis.org/', token=token) as client:
+    async with Client('https://emx2.dev.molgenis.org/', token=token) as client:
         # Check sign in status
         print(client.__repr__())
         print(client.status)

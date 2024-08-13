@@ -979,6 +979,6 @@ class Client:
                                           f"Perhaps you meant 'https://{self.url}'?")
             raise ServerNotFoundError(f"No connection adapters were found for {self.url!r}.")
         except requests.exceptions.MissingSchema:
-            raise ServerNotFoundError(f"Invalid URL 'emx2.dev.molgenis.org/'. "
+            raise ServerNotFoundError(f"Invalid URL {self.url!r}. "
                                       f"Perhaps you meant 'https://{self.url}'?")
 
