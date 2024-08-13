@@ -37,13 +37,14 @@ class Client:
         self._as_context_manager = False
         self._token = token
 
-        self.url: str = utils.parse_url(url)
+        self.url: str = url
         self.api_graphql = self.url + "/api/graphql"
 
         self.signin_status: str = 'unknown'
         self.username: str | None = None
 
         self.session: requests.Session = requests.Session()
+        self._validate_url()
 
         self.schemas: list = self.get_schemas()
         self.default_schema: str = self.set_schema(schema)
@@ -974,3 +975,22 @@ class Client:
         if table_name in map(str, schema_data.tables):
             return True
         return False
+
+    def _validate_url(self):
+        """
+        Checks whether the URL provided is correct and refers to an EMX2 server.
+        Raises ServerNotFoundError if not, depending on the error.
+        """
+        try:
+            self.session.head(self.url)
+        except requests.exceptions.SSLError:
+            raise ServerNotFoundError(f"URL {self.url!r} cannot be found. Ensure the spelling is correct.")
+        except requests.exceptions.InvalidSchema:
+            if not self.url.startswith('https://'):
+                raise ServerNotFoundError(f"No connection adapters were found for {self.url!r}. "
+                                          f"Perhaps you meant 'https://{self.url}'?")
+            raise ServerNotFoundError(f"No connection adapters were found for {self.url!r}.")
+        except requests.exceptions.MissingSchema:
+            raise ServerNotFoundError(f"Invalid URL 'emx2.dev.molgenis.org/'. "
+                                      f"Perhaps you meant 'https://{self.url}'?")
+
