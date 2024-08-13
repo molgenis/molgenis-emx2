@@ -13,7 +13,7 @@ import graphql.Scalars;
 import graphql.schema.*;
 import java.util.*;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.io.ImportProfileTask;
+import org.molgenis.emx2.io.ImportDataModelTask;
 import org.molgenis.emx2.tasks.Task;
 import org.molgenis.emx2.tasks.TaskService;
 
@@ -76,7 +76,7 @@ public class GraphqlDatabaseFieldFactory {
                   new GraphqlApiMutationResult(SUCCESS, "Schema %s created", name);
 
               if (template != null) {
-                Task task = new ImportProfileTask(schema, template, includeDemoData);
+                Task task = new ImportDataModelTask(schema, template, includeDemoData);
                 String id = taskService.submit(task);
                 return result.setTaskId(id);
               }
