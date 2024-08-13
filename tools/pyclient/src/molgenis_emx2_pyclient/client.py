@@ -44,6 +44,7 @@ class Client:
         self.username: str | None = None
 
         self.session: requests.Session = requests.Session()
+        self.session.headers = {'x-molgenis-token': self.token}
         self._validate_url()
 
         self.schemas: list = self.get_schemas()
@@ -167,8 +168,7 @@ class Client:
 
         response = self.session.post(
             url=self.api_graphql,
-            json={'query': query},
-            headers={'x-molgenis-token': self.token}
+            json={'query': query}
         )
         self._validate_graphql_response(response)
 
@@ -235,8 +235,7 @@ class Client:
 
         response = self.session.post(
             url=f"{self.url}/{current_schema}/api/csv/{table_id}",
-            headers={'x-molgenis-token': self.token,
-                     'Content-Type': 'text/csv'},
+            headers={'Content-Type': 'text/csv'},
             data=import_data
         )
 
@@ -281,8 +280,7 @@ class Client:
         with open(file_path, 'rb') as file:
             response = self.session.post(
                 url=api_url,
-                files={'file': file},
-                headers={'x-molgenis-token': self.token}
+                files={'file': file}
             )
 
         # Check if status is OK
@@ -352,8 +350,7 @@ class Client:
         response = self.session.post(
             url=api_url,
             data=data,
-            headers={'x-molgenis-token': self.token,
-                     'Content-Type': 'text/csv'}
+            headers={'Content-Type': 'text/csv'}
         )
         if response.status_code == 200:
             msg = response.text
@@ -396,8 +393,7 @@ class Client:
 
         response = self.session.delete(
             url=f"{self.url}/{current_schema}/api/csv/{table_id}",
-            headers={'x-molgenis-token': self.token,
-                     'Content-Type': 'text/csv'},
+            headers={'Content-Type': 'text/csv'},
             data=import_data
         )
 
@@ -442,8 +438,7 @@ class Client:
 
         filter_part = self._prepare_filter(query_filter, table, schema)
         query_url = f"{self.url}/{current_schema}/api/csv/{table_id}{filter_part}"
-        response = self.session.get(url=query_url,
-                                    headers={'x-molgenis-token': self.token})
+        response = self.session.get(url=query_url)
 
         self._validate_graphql_response(response=response,
                                         fallback_error_message=f"Failed to retrieve data from {current_schema}::"
@@ -479,8 +474,7 @@ class Client:
             if table is None:
                 # Export the whole schema
                 url = f"{self.url}/{current_schema}/api/excel"
-                response = self.session.get(url=url,
-                                            headers={'x-molgenis-token': self.token})
+                response = self.session.get(url=url)
                 self._validate_graphql_response(response)
 
                 filename = f"{current_schema}.xlsx"
@@ -491,8 +485,7 @@ class Client:
                 # Export the single table
                 table_id = schema_metadata.get_table(by='name', value=table).id
                 url = f"{self.url}/{current_schema}/api/excel/{table_id}"
-                response = self.session.get(url=url,
-                                            headers={'x-molgenis-token': self.token})
+                response = self.session.get(url=url)
                 self._validate_graphql_response(response)
 
                 filename = f"{table}.xlsx"
@@ -503,8 +496,7 @@ class Client:
         if fmt == 'csv':
             if table is None:
                 url = f"{self.url}/{current_schema}/api/zip"
-                response = self.session.get(url=url,
-                                            headers={'x-molgenis-token': self.token})
+                response = self.session.get(url=url)
                 self._validate_graphql_response(response)
 
                 filename = f"{current_schema}.zip"
@@ -515,8 +507,7 @@ class Client:
                 # Export the single table
                 table_id = schema_metadata.get_table(by='name', value=table).id
                 url = f"{self.url}/{current_schema}/api/csv/{table_id}"
-                response = self.session.get(url=url,
-                                            headers={'x-molgenis-token': self.token})
+                response = self.session.get(url=url)
                 self._validate_graphql_response(response)
 
                 filename = f"{table}.csv"
@@ -551,8 +542,7 @@ class Client:
 
         response = self.session.post(
             url=self.api_graphql,
-            json={'query': query, 'variables': variables},
-            headers={'x-molgenis-token': self.token}
+            json={'query': query, 'variables': variables}
         )
 
         self._validate_graphql_response(
@@ -581,8 +571,7 @@ class Client:
 
         response = self.session.post(
             url=self.api_graphql,
-            json={'query': query, 'variables': variables},
-            headers={'x-molgenis-token': self.token}
+            json={'query': query, 'variables': variables}
         )
 
         self._validate_graphql_response(
@@ -613,8 +602,7 @@ class Client:
 
         response = self.session.post(
             url=self.api_graphql,
-            json={'query': query, 'variables': variables},
-            headers={'x-molgenis-token': self.token}
+            json={'query': query, 'variables': variables}
         )
 
         self._validate_graphql_response(
