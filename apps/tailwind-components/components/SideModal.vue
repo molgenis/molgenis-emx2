@@ -94,14 +94,14 @@ body.no-scroll {
 </style>
 
 <script setup lang="ts">
-import type { INotificationType } from "~/types/types";
+import type { ButtonPosition, INotificationType } from "~/types/types";
 const ariaId = useId();
 const props = withDefaults(
   defineProps<{
     slideInRight?: boolean;
     fullScreen?: boolean;
     show?: boolean;
-    buttonAlignment?: "left" | "center" | "right";
+    buttonAlignment?: ButtonPosition;
     includeFooter?: boolean;
     type?: INotificationType;
   }>(),

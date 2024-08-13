@@ -1,6 +1,7 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <template>
   <table class="w-full table-auto">
+    <caption>{{ caption }}</caption>
     <thead>
       <slot name="head"></slot>
     </thead>
@@ -12,3 +13,9 @@
     </tfoot>
   </table>
 </template>
+
+<script setup lang="ts">
+defineProps<{
+  caption?: string
+}>();
+</script>

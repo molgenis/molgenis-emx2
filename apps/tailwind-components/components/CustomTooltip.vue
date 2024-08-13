@@ -7,7 +7,10 @@
     >
       <button
         class="w-6 h-6 text-blue-200 cursor-default select-none"
-        :class="hoverColorClass"
+        :class="{
+          'hover:text-tooltip-hover-light': hoverColor === 'white',
+          'hover:text-tooltip-hover-dark': hoverColor === 'blue'
+        }"
       >
         <BaseIcon name="info" />
         <span class="sr-only" v-if="label">{{ label }}</span>

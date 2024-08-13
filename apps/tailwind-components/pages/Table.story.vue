@@ -1,7 +1,7 @@
 <template>
   <div class="flex">
     <div class="flex-1">
-      <Table>
+      <Table caption="Caption">
         <template v-slot:head> Head </template>
         <template v-slot:body>
           <TableHeadRow>

@@ -18,7 +18,7 @@
 </template>
 
 <script setup lang="ts">
-import type { ISectionField } from "~/interfaces/types";
+import type { ISectionField } from '~/types/types';
 const props = defineProps<{
   field: ISectionField;
 }>();

@@ -8,13 +8,9 @@
   </th>
 </template>
 
-<script setup>
-defineProps({
-  fullWidth: {
-    type: Boolean,
-  },
-  noWrap: {
-    type: Boolean,
-  },
-});
+<script setup lang="ts">
+ defineProps<{
+    fullWidth?: boolean;
+    noWrap?: boolean;
+  }>()
 </script>

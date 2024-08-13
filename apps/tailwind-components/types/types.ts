@@ -1,3 +1,10 @@
+import type { IColumn } from "meta-data-utils";
+
+export interface ISectionField {
+  meta: IColumn;
+  value: any;
+}
+
 export interface INode {
   name: string;
   description?: string;

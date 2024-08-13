@@ -7,10 +7,8 @@
   </td>
 </template>
 
-<script setup>
-defineProps({
-  allowLineBreak: {
-    type: Boolean,
-  },
-});
+<script setup lang="ts">
+defineProps<{
+  allowLineBreak?: boolean
+}>();
 </script>
