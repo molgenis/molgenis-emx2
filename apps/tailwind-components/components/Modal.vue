@@ -1,5 +1,6 @@
 <template>
-  <section
+  <div
+    aria-modal="true"
     v-show="visible"
     role="dialog"
     :aria-labelledby="title"
@@ -56,7 +57,7 @@
         </menu>
       </footer>
     </div>
-  </section>
+  </div>
 </template>
 
 <script setup lang="ts">

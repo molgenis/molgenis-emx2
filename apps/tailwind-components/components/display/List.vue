@@ -3,7 +3,13 @@
     <h3 v-if="title" class="mb-2.5 font-bold text-body-base">{{ title }}</h3>
     <ul
       class="columns-1 text-body-base"
-      :class="`${columnCountClass} ${listClasses} `"
+      :class="{
+        'list-outside list-disc ml-4': props.type === 'standard',
+        'md:columns-1': props.columnCount === 1,
+        'md:columns-2': props.columnCount === 2,
+        'md:columns-3': props.columnCount === 3,
+        'md:columns-4': props.columnCount === 4,
+      }"
     >
       <slot></slot>
     </ul>
@@ -22,24 +28,4 @@ const props = withDefaults(
     type: "standard",
   }
 );
-
-const LIST_TYPE_MAPPING = {
-  standard: "list-outside list-disc ml-4",
-  link: "",
-};
-
-const COLUMNCOUNT: Record<number, string> = {
-  1: "md:columns-1",
-  2: "md:columns-2",
-  3: "md:columns-3",
-  4: "md:columns-4",
-};
-
-const listClasses = computed(() => {
-  return LIST_TYPE_MAPPING[props.type];
-});
-
-const columnCountClass = computed(() => {
-  return COLUMNCOUNT[props.columnCount];
-});
 </script>
