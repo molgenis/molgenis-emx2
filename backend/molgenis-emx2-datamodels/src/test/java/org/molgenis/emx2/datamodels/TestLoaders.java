@@ -24,6 +24,7 @@ public class TestLoaders {
   public static final String JRC_CDE_TEST = "JRCCDETest";
   public static final String FAIR_GENOMES = "FAIRGenomesTest";
   public static final String DCAT = "DCATTest";
+  public static final String FAIR_DATA_POINT = "FAIRDataPointTest";
   public static final String DCAT_BASIC = "DCATBasicTest";
   public static final String PROJECT_MANAGER = "ProjectManager";
   public static final String CATALOGUE_ONTOLOGIES = "CatalogueOntologies";
@@ -68,7 +69,7 @@ public class TestLoaders {
   public void test1FAIRDataHubLoader() {
     Schema fairDataHubSchema = database.createSchema(FAIR_DATA_HUB_TEST);
     AvailableDataModels.FAIR_DATA_HUB.install(fairDataHubSchema, true);
-    assertEquals(69, fairDataHubSchema.getTableNames().size());
+    assertEquals(71, fairDataHubSchema.getTableNames().size());
     String[] semantics = fairDataHubSchema.getTable("BiospecimenType").getMetadata().getSemantics();
     assertEquals("http://purl.obolibrary.org/obo/NCIT_C70699", semantics[0]);
     assertEquals("http://purl.obolibrary.org/obo/NCIT_C70713", semantics[1]);
@@ -141,7 +142,7 @@ public class TestLoaders {
   void test14DCATLoader() {
     Schema DCATSchema = database.createSchema(DCAT);
     AvailableDataModels.DCAT.install(DCATSchema, true);
-    assertEquals(21, DCATSchema.getTableNames().size());
+    assertEquals(23, DCATSchema.getTableNames().size());
   }
 
   @Test
@@ -155,7 +156,14 @@ public class TestLoaders {
   void test16DCATBasic() {
     Schema DCATSchema = database.createSchema(DCAT_BASIC);
     new ProfileLoader("_profiles/test-only/DCAT-basic.yaml").load(DCATSchema, true);
-    assertEquals(7, DCATSchema.getTableNames().size());
+    assertEquals(9, DCATSchema.getTableNames().size());
+  }
+
+  @Test
+  void test17FAIRDataPointLoader() {
+    Schema FDPSchema = database.createSchema(FAIR_DATA_POINT);
+    AvailableDataModels.FAIR_DATA_POINT.install(FDPSchema, true);
+    assertEquals(25, FDPSchema.getTableNames().size());
   }
 
   @Test

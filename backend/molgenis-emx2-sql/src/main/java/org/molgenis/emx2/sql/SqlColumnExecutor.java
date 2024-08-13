@@ -241,7 +241,7 @@ public class SqlColumnExecutor {
 
       saveColumnMetadata(jooq, column);
 
-      // update the metaData with added column and put back schema info
+      // update the metadata with added column and put back schema info
       var tableMetadata =
           MetadataUtils.loadTable(jooq, column.getSchemaName(), column.getTableName());
       tableMetadata.setSchema(column.getSchema());
