@@ -161,7 +161,14 @@ const query = gql`
       }
       publications_agg {
         count
+      }
+      partOfCollections {
+        name
+        type {
+            name
         }
+        website
+      }
     }
   }
 `;
@@ -247,6 +254,12 @@ function subcohortMapper(subcohort: any) {
   };
 }
 
+const networks = computed(() =>
+  collection.value.partOfCollections?.filter((c) =>
+    c.type?.find((t) => t.name == "Network")
+  )
+);
+
 let tocItems = computed(() => {
   let tableOffContents = [
     { label: "Description", id: "Description" },
@@ -284,7 +297,7 @@ let tocItems = computed(() => {
     tableOffContents.push({ label: "Datasets", id: "Datasets" });
   }
 
-  if (collection.value.networks) {
+  if (networks.value.length > 0) {
     tableOffContents.push({ label: "Networks", id: "Networks" });
   }
 
@@ -675,13 +688,26 @@ const activeOrganization = computed(() => {
           />
         </TableContent>
 
-        <ContentBlockNetwork
-          v-if="collection?.networks"
-          id="Networks"
-          title="Networks"
-          description="List of networks in which this collection is involved"
-          :networks="collection?.networks"
-        />
+        <ContentBlock title="Part of networks" id="Networks">
+          <ReferenceCardList>
+            <ReferenceCard
+              v-for="network in networks"
+              :title="network.name"
+              :description="network?.description"
+              :links="
+                network.website
+                  ? [
+                      {
+                        title: 'Website',
+                        url: network.website,
+                        target: '_blank',
+                      },
+                    ]
+                  : undefined
+              "
+            />
+          </ReferenceCardList>
+        </ContentBlock>
 
         <ContentBlockPublications
           v-if="collection?.publications"

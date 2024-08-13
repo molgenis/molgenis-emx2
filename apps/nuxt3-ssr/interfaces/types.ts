@@ -88,6 +88,7 @@ export interface ICollection {
   populationOncologyTopology?: IOntologyNode[];
   populationOncologyMorphology?: IOntologyNode[];
   subcohorts: any[];
+  partOfCollections: ICollection[];
 }
 
 export interface IPublication {
