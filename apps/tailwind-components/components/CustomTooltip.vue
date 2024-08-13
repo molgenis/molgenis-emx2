@@ -9,7 +9,7 @@
         class="w-6 h-6 text-blue-200 cursor-default select-none"
         :class="{
           'hover:text-tooltip-hover-light': hoverColor === 'white',
-          'hover:text-tooltip-hover-dark': hoverColor === 'blue'
+          'hover:text-tooltip-hover-dark': hoverColor === 'blue',
         }"
       >
         <BaseIcon name="info" />

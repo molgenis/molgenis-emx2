@@ -45,5 +45,5 @@ function showModal() {
   modal.value?.show();
 }
 
-let sectionCount = ref(0);
+let sectionCount = ref<number>(0);
 </script>

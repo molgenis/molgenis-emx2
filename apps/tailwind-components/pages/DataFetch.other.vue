@@ -1,7 +1,7 @@
 <template>
   <h1>Data and Meta data</h1>
   <div class="h-12 mt-4 mb-16">
-    <h3 class="text-heading-lg">Params</h3>
+    <h2 class="text-heading-lg">Params</h2>
     <div class="m-2">
       <label for="schema-id-input">schema id: </label>
       <select id="table-id-select" v-model="schemaId">

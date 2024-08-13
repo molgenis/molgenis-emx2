@@ -69,7 +69,7 @@
 
 <script setup lang="ts">
 const title = ref("My list");
-const columnCount = ref(1);
+const columnCount = ref<number>(1);
 const type: Ref<"standard" | "link"> = ref("standard");
-const numberOfDemoItems = ref(3);
+const numberOfDemoItems = ref<number>(3);
 </script>

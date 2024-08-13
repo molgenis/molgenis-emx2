@@ -9,6 +9,6 @@
 
 <script setup lang="ts">
 defineProps<{
-  allowLineBreak?: boolean
+  allowLineBreak?: boolean;
 }>();
 </script>

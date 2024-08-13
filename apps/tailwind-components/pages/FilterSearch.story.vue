@@ -23,6 +23,6 @@
 </template>
 
 <script setup lang="ts">
-const searchValue = ref("");
-const inverted = ref(false);
+const searchValue = ref<string>("");
+const inverted = ref<boolean>(false);
 </script>
