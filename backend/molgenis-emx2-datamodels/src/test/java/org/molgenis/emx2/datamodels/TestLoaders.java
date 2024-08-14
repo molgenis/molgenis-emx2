@@ -65,7 +65,7 @@ public class TestLoaders {
   }
 
   @Test
-  public void test1FAIRDataHubLoader() {
+  public void test01FAIRDataHubLoader() {
     Schema fairDataHubSchema = database.createSchema(FAIR_DATA_HUB_TEST);
     AvailableDataModels.FAIR_DATA_HUB.install(fairDataHubSchema, true);
     assertEquals(71, fairDataHubSchema.getTableNames().size());
@@ -75,7 +75,7 @@ public class TestLoaders {
   }
 
   @Test
-  public void test2DataCatalogueLoader() {
+  public void test02DataCatalogueLoader() {
     Schema dataCatalogue = database.createSchema(DATA_CATALOGUE);
     AvailableDataModels.DATA_CATALOGUE.install(dataCatalogue, true);
     assertEquals(33, dataCatalogue.getTableNames().size());
@@ -89,21 +89,21 @@ public class TestLoaders {
   }
 
   @Test
-  public void test7DataCatalogueCohortStagingLoader() {
+  public void test07DataCatalogueCohortStagingLoader() {
     Schema cohortStaging = database.createSchema(COHORT_STAGING);
     AvailableDataModels.DATA_CATALOGUE_COHORT_STAGING.install(cohortStaging, true);
     assertEquals(19, cohortStaging.getTableNames().size());
   }
 
   @Test
-  public void test8DataCatalogueNetworkStagingLoader() {
+  public void test08DataCatalogueNetworkStagingLoader() {
     Schema networkStaging = database.createSchema(NETWORK_STAGING);
     AvailableDataModels.DATA_CATALOGUE_NETWORK_STAGING.install(networkStaging, true);
     assertEquals(16, networkStaging.getTableNames().size());
   }
 
   @Test
-  public void test9DirectoryLoader() {
+  public void test09DirectoryLoader() {
     Schema directory = database.createSchema(DIRECTORY_TEST);
     AvailableDataModels.BIOBANK_DIRECTORY.install(directory, true);
     assertEquals(10, directory.getTableNames().size());
