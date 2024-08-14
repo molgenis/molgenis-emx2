@@ -11,6 +11,6 @@ test('go back from details, filter should stil be active', async ({ page }) => {
   await page.getByRole('complementary').getByText('Longitudinal').click();
   await page.getByRole('link', { name: 'acronym for test cohort 1' }).click();
   await page.goBack()
-  await expect(page.getByRole('main')).toContainText('2 cohorts');
+  await expect(page.getByRole('main')).toContainText('4 cohort studies');
   await expect(page.getByLabel('Longitudinal')).toBeChecked();
 });

@@ -266,7 +266,7 @@ public class SqlQuery extends QueryBean {
               + " unknown for JSON queries in schema "
               + schema.getName());
     }
-    String tableAlias = "gql__" + table.getTableName();
+    String tableAlias = "gql_" + table.getTableName();
     if (select.getColumn().endsWith("_agg")) {
       fields.add(
           jsonAggregateSelect(table, null, tableAlias, select, getFilter(), getSearchTerms())

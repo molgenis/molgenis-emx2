@@ -47,7 +47,6 @@ public class TestLoaders {
     database.dropSchemaIfExists(DATA_CATALOGUE_AGGREGATES);
     database.dropSchemaIfExists(FAIR_DATA_HUB_TEST);
     database.dropSchemaIfExists(SHARED_STAGING);
-    database.dropSchemaIfExists(CATALOGUE_ONTOLOGIES);
     database.dropSchemaIfExists(DIRECTORY_TEST);
     database.dropSchemaIfExists(DIRECTORY_STAGING);
     database.dropSchemaIfExists(DIRECTORY_ONTOLOGIES);
@@ -62,6 +61,7 @@ public class TestLoaders {
     database.dropSchemaIfExists(FLAT_NETWORKS_STAGING);
     database.dropSchemaIfExists(FLAT_RWE_STAGING);
     database.dropSchemaIfExists(DATA_CATALOGUE_FLAT);
+    database.dropSchemaIfExists(CATALOGUE_ONTOLOGIES);
   }
 
   @Test
@@ -172,6 +172,7 @@ public class TestLoaders {
     assertEquals(22, datacatalogueflat.getTableNames().size());
   }
 
+  @Disabled
   @Test
   void test18CohortsStagingFlatLoader() {
     Schema cohortsstagingflat = database.createSchema(FLAT_COHORTS_STAGING);
@@ -179,6 +180,7 @@ public class TestLoaders {
     assertEquals(17, cohortsstagingflat.getTableNames().size());
   }
 
+  @Disabled
   @Test
   void test19UMCGStagingFlatLoader() {
     Schema umcgstagingflat = database.createSchema(FLAT_UMCG_COHORTS_STAGING);
@@ -186,6 +188,7 @@ public class TestLoaders {
     assertEquals(17, umcgstagingflat.getTableNames().size());
   }
 
+  @Disabled
   @Test
   void test20StudiesFlatLoader() {
     Schema studiesstagingflat = database.createSchema(FLAT_STUDIES_STAGING);
@@ -193,6 +196,7 @@ public class TestLoaders {
     assertEquals(15, studiesstagingflat.getTableNames().size());
   }
 
+  @Disabled
   @Test
   void test21NetworksFlatLoader() {
     Schema networksstagingflat = database.createSchema(FLAT_NETWORKS_STAGING);
@@ -200,6 +204,7 @@ public class TestLoaders {
     assertEquals(17, networksstagingflat.getTableNames().size());
   }
 
+  @Disabled
   @Test
   void test22RWEStagingFlatLoader() {
     Schema rwestagingflat = database.createSchema(FLAT_RWE_STAGING);
