@@ -2,22 +2,27 @@ package org.molgenis.emx2.datamodels;
 
 import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.io.ImportDataModelTask;
 import org.molgenis.emx2.io.MolgenisIO;
 import org.molgenis.emx2.sql.SqlDatabase;
 
-public class DashboardLoader extends AbstractDataLoader {
+public class DashboardLoader extends ImportDataModelTask {
+
+  public DashboardLoader(Schema schema, Boolean includeDemoData) {
+    super(schema, includeDemoData);
+  }
 
   @Override
-  void loadInternalImplementation(Schema schema, boolean includeDemoData) {
-    createSchema(schema, "dashboard/molgenis.csv");
-    schema.addMember(SqlDatabase.ANONYMOUS, Privileges.VIEWER.toString());
+  public void run() {
+    createSchema(getSchema(), "dashboard/molgenis.csv");
+    getSchema().addMember(SqlDatabase.ANONYMOUS, Privileges.VIEWER.toString());
 
-    if (includeDemoData) {
-      MolgenisIO.fromClasspathDirectory("dashboard/demodata/ontologies", schema, false);
-      MolgenisIO.fromClasspathDirectory("dashboard/demodata/datasets", schema, false);
+    if (isIncludeDemoData()) {
+      MolgenisIO.fromClasspathDirectory("dashboard/demodata/ontologies", getSchema(), false);
+      MolgenisIO.fromClasspathDirectory("dashboard/demodata/datasets", getSchema(), false);
     }
 
-    schema
+    getSchema()
         .getMetadata()
         .setSetting(
             "menu",

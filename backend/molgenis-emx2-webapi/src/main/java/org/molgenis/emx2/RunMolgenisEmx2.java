@@ -50,7 +50,7 @@ public class RunMolgenisEmx2 {
 
           if (!EXCLUDE_PETSTORE_DEMO && db.getSchema("pet store") == null) {
             Schema schema = db.createSchema("pet store");
-            new PetStoreLoader().load(schema, true);
+            new PetStoreLoader(schema, true).run();
           }
 
           if (INCLUDE_CATALOGUE_DEMO && db.getSchema(CATALOGUE_DEMO) == null) {
@@ -59,7 +59,7 @@ public class RunMolgenisEmx2 {
           }
           if (INCLUDE_DIRECTORY_DEMO && db.getSchema(DIRECTORY_DEMO) == null) {
             Schema schema = db.createSchema(DIRECTORY_DEMO, "BBMRI-ERIC Directory Demo");
-            new BiobankDirectoryLoader(false).load(schema, true);
+            new BiobankDirectoryLoader(schema, true).setStaging(false).run();
           }
         });
 

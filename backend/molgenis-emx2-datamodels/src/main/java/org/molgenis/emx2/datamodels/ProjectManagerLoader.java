@@ -2,24 +2,29 @@ package org.molgenis.emx2.datamodels;
 
 import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.io.ImportDataModelTask;
 import org.molgenis.emx2.io.MolgenisIO;
 import org.molgenis.emx2.sql.SqlDatabase;
 
-public class ProjectManagerLoader extends AbstractDataLoader {
+public class ProjectManagerLoader extends ImportDataModelTask {
+
+  public ProjectManagerLoader(Schema schema, Boolean includeDemoData) {
+    super(schema, includeDemoData);
+  }
 
   @Override
-  void loadInternalImplementation(Schema schema, boolean includeDemoData) {
+  public void run() {
 
-    createSchema(schema, "projectmanager/molgenis.csv");
-    schema.addMember(SqlDatabase.ANONYMOUS, Privileges.VIEWER.toString());
+    createSchema(getSchema(), "projectmanager/molgenis.csv");
+    getSchema().addMember(SqlDatabase.ANONYMOUS, Privileges.VIEWER.toString());
 
     // optionally, load demo data
-    if (includeDemoData) {
-      MolgenisIO.fromClasspathDirectory("projectmanager/data", schema, false);
+    if (isIncludeDemoData()) {
+      MolgenisIO.fromClasspathDirectory("projectmanager/data", getSchema(), false);
     }
 
     // get the menu
-    schema
+    getSchema()
         .getMetadata()
         .setSetting(
             "menu",

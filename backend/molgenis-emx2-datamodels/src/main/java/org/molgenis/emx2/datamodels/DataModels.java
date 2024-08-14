@@ -1,21 +1,14 @@
 package org.molgenis.emx2.datamodels;
 
+import java.util.Arrays;
 import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.io.ImportDataModelTask;
 import org.molgenis.emx2.io.ImportProfileTask;
 import org.molgenis.emx2.tasks.Task;
 
 public class DataModels {
 
-  public static Task getImportTask(Schema schema, String template, boolean includeDemoData) {
-    Profile profile = Profile.valueOf(template);
-    return profile.getImportTask(schema, includeDemoData);
-  }
-
-  public interface DataModelTask {
-    Task getImportTask(Schema schema, boolean includeDemoData);
-  }
-
-  public enum Profile implements DataModelTask {
+  public enum Profile {
     DATA_CATALOGUE_COHORT_STAGING("_profiles/CohortStaging.yaml"),
     DATA_CATALOGUE_AGGREGATES("_profiles/DataCatalogueAggregates.yaml"),
     DATA_CATALOGUE("_profiles/DataCatalogue.yaml"),
@@ -35,6 +28,10 @@ public class DataModels {
     FLAT_NETWORKS_STAGING("_profiles/NetworksStaging.yaml"),
     FLAT_RWE_STAGING("_profiles/RWEStaging.yaml");
 
+    public static boolean hasProfile(String nameOther) {
+      return Arrays.stream(values()).anyMatch(profile -> profile.name().equals(nameOther));
+    }
+
     Profile(String template) {
       this.template = template;
     }
@@ -50,23 +47,39 @@ public class DataModels {
     }
   }
 
-  public enum Regular implements DataModelTask {
-    DIRECTORY(null),
-    DATA_CATALOGUE_NETWORK_STAGING(null),
-    PET_STORE(null),
-    ERN_DASHBOARD(null),
-    BIOBANK_DIRECTORY(null),
-    BIOBANK_DIRECTORY_STAGING(null),
-    PROJECTMANAGER(null);
+  public enum Regular {
+    DIRECTORY(DirectoryLoader::new),
+    DATA_CATALOGUE_NETWORK_STAGING(DataCatalogueNetworkStagingLoader::new),
+    PET_STORE(PetStoreLoader::new),
+    ERN_DASHBOARD(DashboardLoader::new),
+    PROJECTMANAGER(ProjectManagerLoader::new),
+    BIOBANK_DIRECTORY(BiobankDirectoryLoader::new),
+    BIOBANK_DIRECTORY_STAGING(
+        ((schema, includeDemoData) ->
+            new BiobankDirectoryLoader(schema, includeDemoData).setStaging(true)));
 
-    Regular(Task task) {
-      this.task = task;
+    @FunctionalInterface
+    private interface TaskFactory {
+      ImportDataModelTask createTask(Schema schema, boolean includeDemoData);
     }
 
-    private final Task task;
+    private final TaskFactory taskFactory;
+
+    Regular(TaskFactory taskFactory) {
+      this.taskFactory = taskFactory;
+    }
 
     public Task getImportTask(Schema schema, boolean includeDemoData) {
-      return task;
+      return taskFactory.createTask(schema, includeDemoData);
+    }
+  }
+
+  public static Task getImportTask(Schema schema, String template, boolean includeDemoData) {
+    if (Profile.hasProfile(template)) {
+      Profile profile = Profile.valueOf(template);
+      return profile.getImportTask(schema, includeDemoData);
+    } else {
+      return Regular.valueOf(template).getImportTask(schema, includeDemoData);
     }
   }
 }

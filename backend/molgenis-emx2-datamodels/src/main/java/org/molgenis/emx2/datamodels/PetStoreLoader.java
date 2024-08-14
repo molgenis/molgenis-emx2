@@ -5,9 +5,10 @@ import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.io.ImportDataModelTask;
 import org.molgenis.emx2.sql.SqlDatabase;
 
-public class PetStoreLoader extends AbstractDataLoader {
+public class PetStoreLoader extends ImportDataModelTask {
 
   public static final String CATEGORY = "Category";
   public static final String TAG = "Tag";
@@ -27,6 +28,20 @@ public class PetStoreLoader extends AbstractDataLoader {
   public static final String COLORS = "colors";
   public static final String SPECIES = "species";
   public static final String MAMMALS = "mammals";
+
+  public PetStoreLoader(Schema schema, Boolean includeDemoData) {
+    super(schema, includeDemoData);
+  }
+
+  @Override
+  public void run() {
+    this.start();
+    getSchema().migrate(getSchemaMetadata());
+    if (isIncludeDemoData()) {
+      loadExampleData(getSchema());
+    }
+    this.complete();
+  }
 
   public SchemaMetadata getSchemaMetadata() {
     SchemaMetadata schema = new SchemaMetadata();
@@ -77,14 +92,6 @@ public class PetStoreLoader extends AbstractDataLoader {
             .add(column("pets").setType(REF_ARRAY).setRefTable(PET)));
 
     return schema;
-  }
-
-  @Override
-  void loadInternalImplementation(Schema schema, boolean includeDemoData) {
-    schema.migrate(getSchemaMetadata());
-    if (includeDemoData) {
-      loadExampleData(schema);
-    }
   }
 
   private void loadExampleData(Schema schema) {

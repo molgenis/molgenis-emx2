@@ -3,28 +3,28 @@ package org.molgenis.emx2.datamodels;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.io.ImportDataModelTask;
 import org.molgenis.emx2.io.MolgenisIO;
 import org.molgenis.emx2.sql.SqlDatabase;
 
-public class BiobankDirectoryLoader extends AbstractDataLoader {
+public class BiobankDirectoryLoader extends ImportDataModelTask {
 
   public static final String ONTOLOGIES = "DirectoryOntologies";
 
-  private final boolean staging;
+  private boolean staging = false;
 
-  public BiobankDirectoryLoader(boolean staging) {
-    this.staging = staging;
+  public BiobankDirectoryLoader(Schema schema, Boolean includeDemoData) {
+    super(schema, includeDemoData);
   }
 
-  @Override
-  void loadInternalImplementation(Schema schema, boolean includeDemoData) {
+  public void run() {
     String location = "biobank-directory/";
     if (this.staging) {
       location = "biobank-directory/stagingArea/";
     }
 
     // create ontology schema
-    Database db = schema.getDatabase();
+    Database db = getSchema().getDatabase();
     Schema ontologySchema = db.getSchema(ONTOLOGIES);
     if (ontologySchema == null) {
       createSchema(db.createSchema(ONTOLOGIES), "biobank-directory/ontologies/molgenis.csv");
@@ -33,10 +33,10 @@ public class BiobankDirectoryLoader extends AbstractDataLoader {
     }
 
     // create biobank-directory or staging schema (which will create tables in ontology schema)
-    createSchema(schema, location + "molgenis.csv");
+    createSchema(getSchema(), location + "molgenis.csv");
 
     if (!this.staging) {
-      schema.addMember(SqlDatabase.ANONYMOUS, Privileges.VIEWER.toString());
+      getSchema().addMember(SqlDatabase.ANONYMOUS, Privileges.VIEWER.toString());
     }
 
     if (ontologySchema == null || !this.staging) {
@@ -46,8 +46,13 @@ public class BiobankDirectoryLoader extends AbstractDataLoader {
     }
 
     // optionally, load demo data
-    if (includeDemoData) {
-      MolgenisIO.fromClasspathDirectory(location + "demo", schema, false);
+    if (isIncludeDemoData()) {
+      MolgenisIO.fromClasspathDirectory(location + "demo", getSchema(), false);
     }
+  }
+
+  public ImportDataModelTask setStaging(boolean staging) {
+    this.staging = staging;
+    return this;
   }
 }
