@@ -1,4 +1,9 @@
 <script setup lang="ts">
+import {
+  getCollectionMetadataForPath,
+  getCollectionMetadataForType,
+} from "~/constants";
+
 const route = useRoute();
 const config = useRuntimeConfig();
 
@@ -22,14 +27,24 @@ const menu = [
 ];
 if (catalogueRouteParam === "all" || props.catalogue.collections_agg?.count > 0)
   menu.push({
-    label: "Collections",
+    label: "collections(" + props.catalogue.collections_agg?.count + ")",
     link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/collections`,
   });
 if (!cohortOnly.value && props.variableCount > 0)
   menu.push({
-    label: "Variables",
+    label: "Variables(" + props.variableCount + ")",
     link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/variables`,
   });
+
+props.catalogue.collections_groupBy.forEach((sub) => {
+  const collectionTypeMetadata = getCollectionMetadataForType(sub.type.name);
+  menu.push({
+    label: collectionTypeMetadata.plural + "(" + sub.count + ")",
+    link:
+      `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/` +
+      collectionTypeMetadata.path,
+  });
+});
 
 if (cohortOnly.value) {
   menu.push({
@@ -57,7 +72,6 @@ if (!cohortOnly.value) {
 
 <template>
   <header class="antialiased px-5 lg:px-0 xl:bg-white">
-    {{ catalogue }}
     <Container>
       <div class="items-center justify-between hidden xl:flex h-25">
         <Logo

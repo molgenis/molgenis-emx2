@@ -12,6 +12,7 @@ const headerQuery = `
         Collections(filter:$networksFilter) {
           id,
           collections_agg { count }
+          collections_groupBy { count , type {name}}
           logo { url }
        }
        Variables_agg(filter:$variablesFilter) {
