@@ -52,7 +52,7 @@
               class="fa"
               :class="sortAsc ? 'fa-sort-asc' : 'fa-sort-desc'"
               aria-hidden="true"
-            ></span>
+            />
           </th>
           <th @click="sort('sex')">
             Sex
@@ -61,7 +61,7 @@
               class="fa"
               :class="sortAsc ? 'fa-sort-asc' : 'fa-sort-desc'"
               aria-hidden="true"
-            ></span>
+            />
           </th>
           <th @click="sort('age_range')">
             Age range
@@ -70,7 +70,7 @@
               class="fa"
               :class="sortAsc ? 'fa-sort-asc' : 'fa-sort-desc'"
               aria-hidden="true"
-            ></span>
+            />
           </th>
           <th @click="sort('disease')">
             Disease codes
@@ -79,7 +79,7 @@
               class="fa"
               :class="sortAsc ? 'fa-sort-asc' : 'fa-sort-desc'"
               aria-hidden="true"
-            ></span>
+            />
           </th>
           <th @click="sort('number_of_donors')">
             #Donors
@@ -88,7 +88,7 @@
               class="fa"
               :class="sortAsc ? 'fa-sort-asc' : 'fa-sort-desc'"
               aria-hidden="true"
-            ></span>
+            />
           </th>
           <th @click="sort('number_of_samples')">
             #Samples
@@ -97,7 +97,7 @@
               class="fa"
               :class="sortAsc ? 'fa-sort-asc' : 'fa-sort-desc'"
               aria-hidden="true"
-            ></span>
+            />
           </th>
         </tr>
         <tr class="filter-bar">
@@ -150,8 +150,8 @@
               </option>
             </select>
           </th>
-          <th></th>
-          <th></th>
+          <th />
+          <th />
         </tr>
       </thead>
       <tbody>
@@ -263,7 +263,6 @@ onMounted(() => {
       (a: string, b: string) => a.localeCompare(b)
     ),
   };
-  console.log("done");
 });
 
 const materialtypeOptions = computed(() => {
@@ -287,9 +286,9 @@ const columnChecked = computed(() => {
 });
 
 const factsTable = computed(() => {
-  if (filters.value.length === 0) {
-    return facts.value;
-  }
+  // if (filters.value.length === 0) {
+  return facts.value;
+  // }
   const filteredFacts: Record<string, any>[] = [];
 
   const lastFilterIndex = filters.value.length - 1;
@@ -310,6 +309,7 @@ const factsTable = computed(() => {
     });
   }
 
+  console.log("factstable done");
   return filteredFacts;
 });
 
@@ -362,7 +362,7 @@ function sort(column: string) {
     sortAsc.value = true;
   }
 
-  let newFacts = hardcopy(facts);
+  let newFacts = hardcopy(facts.value);
 
   newFacts.sort((factA: Record<string, any>, factB: Record<string, any>) => {
     const factAProperty = getValue(factA, column);
