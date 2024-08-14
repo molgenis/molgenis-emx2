@@ -354,7 +354,7 @@ crumbs[
 
         <template #search-results>
           <div class="flex align-start gap-1">
-            <SearchResultsCount :value="numberOfVariables" label="variable" />
+            <SearchResultsCount :value="numberOfVariables" label="variables" />
             <div
               v-if="pending"
               class="mt-2 mb-0 lg:mb-3 text-body-lg flex flex-col text-title"

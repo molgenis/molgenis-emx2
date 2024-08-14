@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { ISetting } from "metadata-utils";
 import type { IMgError } from "~~/interfaces/types";
+import { getCollectionMetadataForType, typeMetadata } from "~/constants";
 
 const route = useRoute();
 const config = useRuntimeConfig();
@@ -174,16 +174,6 @@ const description = computed(() => {
 });
 
 const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/networks/${catalogueRouteParam}`;
-
-//future: move to a setting? or metadata?
-const typeSettings = {
-  "Cohort study": { plural: "Cohort studies", image: "image-link" },
-  "Data source": { plural: "Data sources", image: "image-data-warehouse" },
-  Databank: { plural: "Databanks" },
-  Biobank: { plural: "Biobanks" },
-  Network: { plural: "Networks", image: "image-diagram" },
-  Study: { plural: "Studies" },
-};
 </script>
 
 <template>
@@ -204,25 +194,28 @@ const typeSettings = {
     <LandingPrimary>
       <LandingCardPrimary
         v-for="collection in data.data.Collections_groupBy"
-        :image="typeSettings[collection.type.name]?.image || 'image-link'"
+        :image="
+          getCollectionMetadataForType(collection.type.name).image ||
+          'image-link'
+        "
         :title="
-          typeSettings[collection.type.name]?.plural || collection.type.name
+          getCollectionMetadataForType(collection.type.name)?.plural ||
+          collection.type.name
         "
         :description="
           getSettingValue('CATALOGUE_LANDING_COHORTS_TEXT', settings) ||
-          collection.type.definition ||
+          getCollectionMetadataForType(collection.type.name).description ||
           'Cohorts &amp; Biobanks'
         "
         :callToAction="
           getSettingValue('CATALOGUE_LANDING_COHORTS_CTA', settings)
         "
         :count="collection.count"
-        :link="`/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/collections`"
-        :linkQuery="{
-          conditions: JSON.stringify([
-            { id: 'type', conditions: [{ name: collection.type.name }] },
-          ]),
-        }"
+        :link="
+          `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/` +
+          (getCollectionMetadataForType(collection.type.name).path ||
+            'collections')
+        "
       />
       <LandingCardPrimary
         v-if="data.data.Variables_agg.count > 0 && !cohortOnly"

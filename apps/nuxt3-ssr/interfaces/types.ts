@@ -1,15 +1,4 @@
-import type { IColumn } from "metadata-utils";
 import type { INode } from "../../tailwind-components/types/types";
-export interface IResource {
-  id: string;
-  pid: string;
-  acronym: string;
-  name: string;
-  website: string;
-  description: string;
-  contacts: IContributor[];
-  logo?: IUrlObject;
-}
 export interface ICollection {
   id: string;
   pid: string;

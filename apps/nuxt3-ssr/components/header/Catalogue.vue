@@ -20,7 +20,15 @@ const menu = [
     link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}`,
   },
 ];
-if (catalogueRouteParam === "all" || props.catalogue.collections_agg?.count > 0)
+if (catalogueRouteParam === "all" || props.catalogue.cohorts_agg?.count > 0)
+  menu.push({
+    label: "Cohorts",
+    link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/cohorts`,
+  });
+if (
+  (!cohortOnly.value && catalogueRouteParam === "all") ||
+  (!cohortOnly.value && props.catalogue.dataSources_agg?.count > 0)
+)
   menu.push({
     label: "Collections",
     link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/collections`,
@@ -57,6 +65,7 @@ if (!cohortOnly.value) {
 
 <template>
   <header class="antialiased px-5 lg:px-0 xl:bg-white">
+    {{ catalogue }}
     <Container>
       <div class="items-center justify-between hidden xl:flex h-25">
         <Logo

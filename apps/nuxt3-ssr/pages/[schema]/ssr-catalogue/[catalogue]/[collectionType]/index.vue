@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { IFilter, IMgError, activeTabType } from "~/interfaces/types";
+import { getCollectionMetadataForPath } from "~/constants";
 
 const route = useRoute();
 const router = useRouter();
@@ -8,7 +9,11 @@ const pageSize = 10;
 
 const titlePrefix =
   route.params.catalogue === "all" ? "" : route.params.catalogue + " ";
-useHead({ title: titlePrefix + "Collections" });
+const collectionType = computed(() =>
+  getCollectionMetadataForPath(route.params.collectionType)
+);
+
+useHead({ title: titlePrefix + collectionType.value.plural });
 
 const currentPage = computed(() => {
   const queryPageNumber = Number(route.query?.page);
@@ -18,7 +23,7 @@ const currentPage = computed(() => {
 });
 const offset = computed(() => (currentPage.value - 1) * pageSize);
 
-const pageFilterTemplate: IFilter[] = [
+let pageFilterTemplate: IFilter[] = [
   {
     id: "search",
     config: {
@@ -29,7 +34,10 @@ const pageFilterTemplate: IFilter[] = [
     },
     search: "",
   },
-  {
+];
+
+if (collectionType.path === "collections") {
+  pageFilterTemplate.push({
     id: "type",
     config: {
       label: "Type",
@@ -40,7 +48,10 @@ const pageFilterTemplate: IFilter[] = [
       initialCollapsed: false,
     },
     conditions: [],
-  },
+  });
+}
+
+pageFilterTemplate = pageFilterTemplate.concat([
   {
     id: "areasOfInformation",
     config: {
@@ -111,7 +122,7 @@ const pageFilterTemplate: IFilter[] = [
     },
     conditions: [],
   },
-];
+]);
 
 const filters = computed(() => {
   // if there are not query conditions just use the page defaults
@@ -160,7 +171,11 @@ const gqlFilter = computed(() => {
 
   result = buildQueryFilter(filters.value);
 
-  // add hard coded page sepsific filters
+  if (collectionType.value.path != "collections") {
+    result.type = { name: { equals: collectionType.value.type } };
+  }
+
+  // add hard coded page specific filters
   if ("all" !== route.params.catalogue) {
     result = {
       _and: [
@@ -255,12 +270,12 @@ crumbs[
         <template #header>
           <!-- <NavigationIconsMobile :link="" /> -->
           <PageHeader
-            title="Collections"
-            description="Group of individuals sharing a defining demographic characteristic."
-            icon="image-link"
+            :title="collectionType.plural"
+            :description="collectionType.description"
+            :icon="collectionType.image"
           >
             <template #prefix>
-              <BreadCrumbs :crumbs="crumbs" current="collections" />
+              <BreadCrumbs :crumbs="crumbs" :current="collectionType.plural" />
             </template>
             <template #suffix>
               <SearchResultsViewTabs
@@ -297,7 +312,10 @@ crumbs[
         </template>
 
         <template #search-results>
-          <SearchResultsCount label="collection" :value="numberOfCollections" />
+          <SearchResultsCount
+            :label="collectionType.plural?.toLocaleLowerCase()"
+            :value="numberOfCollections"
+          />
           <FilterWell
             :filters="filters"
             @update:filters="onFilterChange"
