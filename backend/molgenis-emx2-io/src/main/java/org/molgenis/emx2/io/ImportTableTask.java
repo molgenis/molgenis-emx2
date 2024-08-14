@@ -34,7 +34,13 @@ public class ImportTableTask extends Task {
     // execute the actual loading, we can use index to find the size
     this.setTotal(this.getProgress());
     this.setDescription("Importing rows into " + table.getName());
-    source.processTable(table.getName(), new ImportRowProcesssor(table, this));
+
+    try {
+      source.processTable(table.getName(), new ImportRowProcesssor(table, this));
+    } catch (Exception e) {
+      this.setError("Import failed: " + e.getMessage());
+      throw e;
+    }
 
     // done
     if (getProgress() > 0) {

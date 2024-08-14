@@ -1,5 +1,5 @@
 <template>
-  <div @keyup.ctrl.f="format">
+  <div @keyup.ctrl.alt.f="format">
     <div>
       <div ref="editorDiv" class="editor" @keyup="setDirty()"></div>
     </div>
@@ -25,7 +25,10 @@
           Upload config
         </button>
       </div>
-      <small class="ml-auto">To format your file press ctrl + f</small>
+      <small class="ml-auto">
+        To format your file press <kbd>ctrl</kbd> + <kbd>alt</kbd> +
+        <kbd>f</kbd>
+      </small>
     </div>
   </div>
 </template>

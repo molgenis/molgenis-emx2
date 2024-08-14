@@ -12,7 +12,7 @@ export default defineConfig({
     lib: {
       entry: resolve(__dirname, "src/index.ts"),
       name: "MetaDataUtils",
-      fileName: "meta-data-utils",
+      fileName: "metadata-utils",
       formats: ["es", "umd", "iife", "cjs"],
     },
   },
