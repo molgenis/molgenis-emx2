@@ -21,7 +21,7 @@ public class ImportDataModelTask extends Task {
   public void run() {
     this.start();
     try {
-      Task task = DataModels.getTask(schema, template, includeDemoData);
+      Task task = DataModels.getImportTask(schema, template, includeDemoData);
       task.setDescription("Loading data model: " + template);
       this.addSubTask(task);
       task.run();

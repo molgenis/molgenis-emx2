@@ -31,12 +31,11 @@ public class ImportProfileTask extends Task {
   @Override
   public void run() {
     this.start();
-    load(schema, includeDemoData);
+    load();
     this.complete();
   }
 
-  void load(Schema schema, boolean includeDemoData) {
-
+  void load() {
     // load config (a.k.a. 'profile') YAML file
     SchemaFromProfile schemaFromProfile = new SchemaFromProfile(this.configLocation);
     Profiles profiles = getProfiles(schema, schemaFromProfile);
@@ -45,29 +44,31 @@ public class ImportProfileTask extends Task {
     SchemaMetadata schemaMetadata = schemaFromProfile.create();
 
     // special option: fixed schema import location for ontologies (not schema or data)
-    Schema ontoSchema;
+    Schema ontologySchema;
     if (profiles.getOntologiesToFixedSchema() != null) {
-      ontoSchema = createSchema(profiles.getOntologiesToFixedSchema(), schema.getDatabase());
+      ontologySchema = createSchema(profiles.getOntologiesToFixedSchema(), schema.getDatabase());
       if (profiles.getSetFixedSchemaViewPermission() != null) {
-        ontoSchema.addMember(
+        ontologySchema.addMember(
             profiles.getSetFixedSchemaViewPermission(), Privileges.VIEWER.toString());
       }
       if (profiles.getSetFixedSchemaEditPermission() != null) {
-        ontoSchema.addMember(
+        ontologySchema.addMember(
             profiles.getSetFixedSchemaEditPermission(), Privileges.EDITOR.toString());
       }
     } else {
-      ontoSchema = schema;
+      ontologySchema = schema;
     }
 
     // import the schema
     schema.migrate(schemaMetadata);
-    this.addSubTask("Loaded tables and columns from profiles").complete();
+    this.addSubTask("Loaded tables and columns from profile(s)").complete();
 
     // import ontologies (not schema or data)
     TableStore store = new TableStoreForCsvFilesClasspath(ONTOLOGY_LOCATION);
     Task ontologyTask =
-        new ImportSchemaTask(store, ontoSchema, false).setFilter(ImportSchemaTask.Filter.DATA_ONLY);
+        new ImportSchemaTask(store, ontologySchema, false)
+            .setFilter(ImportSchemaTask.Filter.DATA_ONLY)
+            .setDescription("Import ontology from profile(s)");
     this.addSubTask(ontologyTask);
     ontologyTask.run();
 
@@ -87,7 +88,10 @@ public class ImportProfileTask extends Task {
 
       for (String example : profiles.getDemoDataList()) {
         TableStore demoDataStore = new TableStoreForCsvFilesClasspath(example);
-        Task demoDataTask = new ImportSchemaTask(demoDataStore, schema, false, includeTableNames);
+        Task demoDataTask =
+            new ImportSchemaTask(demoDataStore, schema, false, includeTableNames)
+                .setFilter(ImportSchemaTask.Filter.DATA_ONLY)
+                .setDescription("Import demo data from profile(s)");
         this.addSubTask(demoDataTask);
         demoDataTask.run();
       }
@@ -101,8 +105,8 @@ public class ImportProfileTask extends Task {
     // lastly, apply any ontology table semantics from a predefined location
     // this requires special parsing, because we must only update ontology tables used in the schema
     // to prevent adding additional unused tables
-    SchemaMetadata ontologySemantics = getOntologySemantics(ontoSchema);
-    ontoSchema.migrate(ontologySemantics);
+    SchemaMetadata ontologySemantics = getOntologySemantics(ontologySchema);
+    ontologySchema.migrate(ontologySemantics);
   }
 
   private Profiles getProfiles(Schema schema, SchemaFromProfile schemaFromProfile) {

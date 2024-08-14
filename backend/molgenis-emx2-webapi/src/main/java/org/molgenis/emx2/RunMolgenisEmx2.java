@@ -55,7 +55,7 @@ public class RunMolgenisEmx2 {
 
           if (INCLUDE_CATALOGUE_DEMO && db.getSchema(CATALOGUE_DEMO) == null) {
             Schema schema = db.createSchema(CATALOGUE_DEMO, "from DataCatalogue demo data loader");
-            DataModels.Profile.DATA_CATALOGUE.getTask(schema, true).run();
+            DataModels.Profile.DATA_CATALOGUE.getImportTask(schema, true).run();
           }
           if (INCLUDE_DIRECTORY_DEMO && db.getSchema(DIRECTORY_DEMO) == null) {
             Schema schema = db.createSchema(DIRECTORY_DEMO, "BBMRI-ERIC Directory Demo");

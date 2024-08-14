@@ -6,13 +6,13 @@ import org.molgenis.emx2.tasks.Task;
 
 public class DataModels {
 
-  public static Task getTask(Schema schema, String template, boolean includeDemoData) {
+  public static Task getImportTask(Schema schema, String template, boolean includeDemoData) {
     Profile profile = Profile.valueOf(template);
-    return profile.getTask(schema, includeDemoData);
+    return profile.getImportTask(schema, includeDemoData);
   }
 
   public interface DataModelTask {
-    Task getTask(Schema schema, boolean includeDemoData);
+    Task getImportTask(Schema schema, boolean includeDemoData);
   }
 
   public enum Profile implements DataModelTask {
@@ -45,7 +45,7 @@ public class DataModels {
       return template;
     }
 
-    public Task getTask(Schema schema, boolean includeDemoData) {
+    public Task getImportTask(Schema schema, boolean includeDemoData) {
       return new ImportProfileTask(schema, this.getTemplate(), includeDemoData);
     }
   }
@@ -65,7 +65,7 @@ public class DataModels {
 
     private final Task task;
 
-    public Task getTask(Schema schema, boolean includeDemoData) {
+    public Task getImportTask(Schema schema, boolean includeDemoData) {
       return task;
     }
   }
