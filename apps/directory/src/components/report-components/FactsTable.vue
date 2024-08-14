@@ -1,5 +1,5 @@
 <template>
-  <div class="mt-4" v-if="attribute && attribute.length">
+  <div class="mt-4" v-if="attribute.length">
     <div>
       <label class="font-weight-bold mr-3">Split by:</label>
       <div class="d-inline-flex justify-content-around w-50">
@@ -174,337 +174,371 @@
   </div>
 </template>
 
-<script>
-export default {
-  props: {
-    attribute: {
-      type: Array,
-    },
-  },
-  data() {
-    return {
-      facts: [],
-      sortColumn: "",
-      sortAsc: false,
-      tableVersion: 0,
-      filters: [],
-      sampleFilter: "all",
-      sexFilter: "all",
-      ageFilter: "all",
-      diseaseFilter: "all",
-      /** these columns are all the critearia that the rows should be split on. */
-      splitByColumn: ["sample_type", "sex", "age_range", "disease"],
-      splittableColumns: [
-        "sample_type",
-        "sex",
-        "age_range",
-        "disease",
-        "number_of_samples",
-      ],
-      factsProperties: [
-        "sample_type.label",
-        "sex.label",
-        "age_range.label",
-        "disease.label",
-        "disease.name",
-        "number_of_samples",
-        "number_of_donors",
-      ],
-    };
-  },
-  computed: {
-    materialtypeOptions() {
-      return [
-        ...new Set(
-          this.facts
-            .map((fact) => fact.sample_type)
-            .sort((a, b) => a.localeCompare(b))
-        ),
-      ];
-    },
-    sexOptions() {
-      return [
-        ...new Set(
-          this.facts.map((fact) => fact.sex).sort((a, b) => a.localeCompare(b))
-        ),
-      ];
-    },
-    ageRangeOptions() {
-      return [
-        ...new Set(
-          this.facts
-            .map((fact) => fact.age_range)
-            .sort((a, b) => a.localeCompare(b))
-        ),
-      ];
-    },
-    diseaseOptions() {
-      return [
-        ...new Set(
-          this.facts
-            .map((fact) => fact.disease)
-            .sort((a, b) => a.localeCompare(b))
-        ),
-      ];
-    },
-    columnChecked() {
-      return (column) => this.splitByColumn.includes(column);
-    },
-    factsTable() {
-      if (this.filters.length === 0) return this.facts;
-      const filteredFacts = [];
+<script setup lang="ts">
+import * as _ from "lodash";
+import { computed, onMounted, ref } from "vue";
 
-      const lastFilterIndex = this.filters.length - 1;
+const { attribute } = defineProps<{ attribute: any[] }>();
 
-      for (const fact of this.facts) {
-        for (const [index, filter] of this.filters.entries()) {
-          const propertyValue = this.getValue(fact, filter.column);
-          /** it did not match all filters, so goodbye. */
-          if (!propertyValue && filter.value !== "Unknown") {
-            break;
-          } else if (!propertyValue && filter.value === "Unknown") {
-            filteredFacts.push(fact);
-          } else if (propertyValue !== filter.value) {
-            break;
-          } else if (index === lastFilterIndex) {
-            filteredFacts.push(fact);
+const facts = ref<Record<string, any>[]>([]);
+const sortColumn = ref("");
+const sortAsc = ref(false);
+const tableVersion = ref(0);
+const filters = ref<Record<string, any>[]>([]);
+const sampleFilter = ref("all");
+const sexFilter = ref("all");
+const ageFilter = ref("all");
+const diseaseFilter = ref("all");
+const splitByColumn = ref<string[]>([
+  "sample_type",
+  "sex",
+  "age_range",
+  "disease",
+]);
+const splittableColumns = ref<string[]>([
+  "sample_type",
+  "sex",
+  "age_range",
+  "disease",
+  "number_of_samples",
+]);
+const factsProperties = ref<string[]>([
+  "sample_type.label",
+  "sex.label",
+  "age_range.label",
+  "disease.label",
+  "disease.name",
+  "number_of_samples",
+  "number_of_donors",
+]);
+const factProperties = ref<Record<string, any>>();
+
+onMounted(() => {
+  copyFactsToComponentState();
+  const splitFacts: Record<string, string[]> = facts.value
+    // .filter((fact) => fact)
+    .reduce(
+      (accum, fact) => {
+        if (fact.sample_type) accum.materialtypeOptions.push(fact.sample_type);
+        if (fact.sex) accum.sexOptions.push(fact.sex);
+        if (fact.age_range) accum.ageRangeOptions.push(fact.age_range);
+        if (fact.disease) {
+          if (fact.disease.name) {
+            accum.diseaseOptions.push(fact.disease.name);
+          } else {
+            accum.diseaseOptions.push(fact.disease);
           }
         }
+        return accum;
+      },
+      {
+        materialtypeOptions: [] as string[],
+        sexOptions: [] as string[],
+        ageRangeOptions: [] as string[],
+        diseaseOptions: [] as string[],
       }
+    );
 
-      return filteredFacts;
-    },
-  },
-  methods: {
-    toggleColumn(e, columnName) {
-      if (e.target.checked) {
-        this.splitByColumn.push(columnName);
-      } else {
-        const newArray = this.splitByColumn.filter((sbc) => sbc !== columnName);
-        this.splitByColumn = newArray;
+  const uniqSplitFacts = {
+    materialtypeOptions: _.uniq(splitFacts.materialtypeOptions),
+    sexOptions: _.uniq(splitFacts.sexOptions),
+    ageRangeOptions: _.uniq(splitFacts.ageRangeOptions),
+    diseaseOptions: _.uniq(splitFacts.diseaseOptions),
+  };
+
+  factProperties.value = {
+    materialtypeOptions: _.sortBy(
+      uniqSplitFacts.materialtypeOptions,
+      (a: string, b: string) => a.localeCompare(b)
+    ),
+    sexOptions: _.sortBy(uniqSplitFacts.sexOptions, (a: string, b: string) =>
+      a.localeCompare(b)
+    ),
+    ageRangeOptions: _.sortBy(
+      uniqSplitFacts.ageRangeOptions,
+      (a: string, b: string) => a.localeCompare(b)
+    ),
+    diseaseOptions: _.sortBy(
+      uniqSplitFacts.diseaseOptions,
+      (a: string, b: string) => a.localeCompare(b)
+    ),
+  };
+  console.log("done");
+});
+
+const materialtypeOptions = computed(() => {
+  return factProperties.value?.materialtypeOptions || [];
+});
+
+const sexOptions = computed(() => {
+  return factProperties.value?.sexOptions || [];
+});
+
+const ageRangeOptions = computed(() => {
+  return factProperties.value?.ageRangeOptions || [];
+});
+
+const diseaseOptions = computed(() => {
+  return factProperties.value?.diseaseOptions || [];
+});
+
+const columnChecked = computed(() => {
+  return (column: string) => splitByColumn.value.includes(column);
+});
+
+const factsTable = computed(() => {
+  if (filters.value.length === 0) {
+    return facts.value;
+  }
+  const filteredFacts: Record<string, any>[] = [];
+
+  const lastFilterIndex = filters.value.length - 1;
+
+  for (const fact of facts.value) {
+    filters.value.forEach((filter, index) => {
+      const propertyValue = getValue(fact, filter.column);
+      const matchesAllFilters =
+        (!propertyValue && filter.value !== "Unknown") ||
+        propertyValue !== filter.value;
+      if (!matchesAllFilters) {
+        // break;
+      } else if (!propertyValue && filter.value === "Unknown") {
+        filteredFacts.push(fact);
+      } else if (index === lastFilterIndex) {
+        filteredFacts.push(fact);
       }
-      this.sampleFilter = "all";
-      this.sexFilter = "all";
-      this.ageFilter = "all";
-      this.diseaseFilter = "all";
-      this.filters = [];
-      this.collapseRows();
-    },
-    hasAFactToShow(fact) {
-      const hasSamples =
-        fact.number_of_samples && parseInt(fact.number_of_samples) !== 0;
-      const hasDonors =
-        fact.number_of_donors && parseInt(fact.number_of_samples) !== 0;
-      const facts = [hasSamples, hasDonors, fact.sex];
+    });
+  }
 
-      /** return true, if any of the facts is filled it. */
-      return facts.some((fact) => fact);
-    },
-    filter(column, event) {
-      const indexToRemove = this.filters.findIndex(
-        (fa) => fa.column === column
-      );
+  return filteredFacts;
+});
 
-      if (indexToRemove > -1) {
-        this.filters.splice(indexToRemove, 1);
-      }
+function toggleColumn(e: any, columnName: string) {
+  if (e.target.checked) {
+    splitByColumn.value.push(columnName);
+  } else {
+    const newArray = splitByColumn.value.filter((sbc) => sbc !== columnName);
+    splitByColumn.value = newArray;
+  }
+  sampleFilter.value = "all";
+  sexFilter.value = "all";
+  ageFilter.value = "all";
+  diseaseFilter.value = "all";
+  filters.value = [];
+  collapseRows();
+}
 
-      if (event.target.value !== "all") {
-        this.filters.push({ column, value: event.target.value });
-      }
-    },
-    sort(column) {
-      /** user clicked again */
-      if (this.sortColumn === column) {
-        this.sortAsc = !this.sortAsc;
-      } else {
-        this.sortColumn = column;
-        this.sortAsc = true;
-      }
+function hasAFactToShow(fact: Record<string, any>) {
+  const hasSamples =
+    fact.number_of_samples && parseInt(fact.number_of_samples) !== 0;
+  const hasDonors =
+    fact.number_of_donors && parseInt(fact.number_of_samples) !== 0;
+  const facts = [hasSamples, hasDonors, fact.sex];
 
-      let newFacts = this.hardcopy(this.facts);
+  /** return true, if any of the facts is filled it. */
+  return facts.some((fact) => fact);
+}
 
-      newFacts.sort((factA, factB) => {
-        const factAProperty = this.getValue(factA, column);
-        const factBProperty = this.getValue(factB, column);
+function filter(column: string, event: Record<string, any>) {
+  const indexToRemove = filters.value.findIndex(
+    (fa: Record<string, any>) => fa.column === column
+  );
 
-        const factValueA = isNaN(factAProperty)
-          ? factAProperty
-          : parseInt(factAProperty);
+  if (indexToRemove > -1) {
+    filters.value.splice(indexToRemove, 1);
+  }
 
-        const factValueB = isNaN(factBProperty)
-          ? factBProperty
-          : parseInt(factBProperty);
+  if (event.target.value !== "all") {
+    filters.value.push({ column, value: event.target.value });
+  }
+}
 
-        if (factValueA > factValueB) {
-          return this.sortAsc ? 1 : -1;
-        } else if (factValueA < factValueB) {
-          return this.sortAsc ? -1 : 1;
-        }
+function sort(column: string) {
+  /** user clicked again */
+  if (sortColumn.value === column) {
+    sortAsc.value = !sortAsc;
+  } else {
+    sortColumn.value = column;
+    sortAsc.value = true;
+  }
 
-        return 0;
-      });
-      this.facts = newFacts;
-      /** if we do not key this, then it will break */
-      this.tableVersion = this.tableVersion + 1;
-    },
-    getValue(object, propertyString) {
-      const trail = propertyString.split(".");
-      const trailLength = trail.length;
+  let newFacts = hardcopy(facts);
 
-      let value;
-      let next = object;
-      for (let trailIndex = 0; trailIndex < trailLength; trailIndex++) {
-        const trailPart = trail[trailIndex];
+  newFacts.sort((factA: Record<string, any>, factB: Record<string, any>) => {
+    const factAProperty = getValue(factA, column);
+    const factBProperty = getValue(factB, column);
 
-        if (!next[trailPart]) return value ?? "Unknown";
-        else {
-          value = next[trailPart];
-          next = next[trailPart];
-        }
-      }
+    const factValueA = isNaN(factAProperty)
+      ? factAProperty
+      : parseInt(factAProperty);
+
+    const factValueB = isNaN(factBProperty)
+      ? factBProperty
+      : parseInt(factBProperty);
+
+    if (factValueA > factValueB) {
+      return sortAsc ? 1 : -1;
+    } else if (factValueA < factValueB) {
+      return sortAsc ? -1 : 1;
+    }
+
+    return 0;
+  });
+  facts.value = newFacts;
+  /** if we do not key this, then it will break */
+  tableVersion.value = tableVersion.value + 1;
+}
+
+function getValue(object: Record<string, any>, propertyString: string) {
+  const trail = propertyString.split(".");
+  const trailLength = trail.length;
+
+  let value;
+  let next = object;
+  for (let trailIndex = 0; trailIndex < trailLength; trailIndex++) {
+    const trailPart = trail[trailIndex];
+
+    if (!next[trailPart]) {
       return value ?? "Unknown";
-    },
-    hardcopy(value) {
-      return JSON.parse(JSON.stringify(value));
-    },
-    collapseRows() {
-      if (this.splitByColumn.length === 4) {
-        /** no group together selected, so reset the state */
-        this.copyFactsToComponentState();
-        return;
+    } else {
+      value = next[trailPart];
+      next = next[trailPart];
+    }
+  }
+  return value ?? "Unknown";
+}
+
+function hardcopy(value: any) {
+  return JSON.parse(JSON.stringify(value));
+}
+
+function collapseRows() {
+  if (splitByColumn.value.length === 4) {
+    /** no group together selected, so reset the state */
+    copyFactsToComponentState();
+    return;
+  }
+
+  /** make a copy that we can keep mutating utill we have dealt with all the collapses.
+   * order matters!
+   */
+  const baseFacts = hardcopy(factsData());
+
+  const groupedFacts = [];
+
+  const criteriaMet: string[] = [];
+
+  for (const baseFact of baseFacts) {
+    if (Object.values(baseFact).includes("Any")) {
+      continue;
+    }
+    const criteria: Record<string, any> = {};
+
+    let newCriteria = "";
+
+    for (const criteriaColumn of splittableColumns.value) {
+      if (splitByColumn.value.includes(criteriaColumn)) {
+        const critValue = getValue(baseFact, criteriaColumn);
+        /** for use to group */
+        criteria[criteriaColumn] = critValue;
+        /** track which combination of values has been grouped already  */
+        newCriteria += critValue;
+      }
+    }
+
+    if (!criteriaMet.includes(newCriteria)) {
+      let critGroup = baseFacts;
+      const criteriaKeys = Object.keys(criteria);
+      for (const critKey of criteriaKeys) {
+        critGroup = critGroup.filter(
+          (obj: Record<string, any>) => obj[critKey] === criteria[critKey]
+        );
+      }
+      criteriaMet.push(newCriteria);
+      groupedFacts.push(critGroup);
+    }
+  }
+
+  const collapsedFacts = [];
+
+  for (const factGroup of groupedFacts) {
+    let collapsedFact: Record<string, any> = {};
+    for (const fact of factGroup) {
+      if (Object.values(fact).includes("Any")) {
+        continue;
+      }
+      if (!Object.keys(collapsedFact).length) {
+        collapsedFact = fact;
+        continue;
       }
 
-      /** make a copy that we can keep mutating utill we have dealt with all the collapses.
-       * order matters!
-       */
-      const baseFacts = this.hardcopy(this.factsData());
+      for (const column of splittableColumns.value) {
+        if (!splitByColumn.value.includes(column)) {
+          const mergedValue = collapsedFact[column];
 
-      const groupedFacts = [];
-
-      const criteriaMet = [];
-
-      for (const baseFact of baseFacts) {
-        if (Object.values(baseFact).includes("Any")) {
-          continue;
-        }
-        const criteria = {};
-
-        let newCriteria = "";
-
-        for (const criteriaColumn of this.splittableColumns) {
-          if (this.splitByColumn.includes(criteriaColumn)) {
-            const critValue = this.getValue(baseFact, criteriaColumn);
-            /** for use to group */
-            criteria[criteriaColumn] = critValue;
-            /** track which combination of values has been grouped already  */
-            newCriteria += critValue;
-          }
-        }
-
-        if (!criteriaMet.includes(newCriteria)) {
-          let critGroup = baseFacts;
-          const criteriaKeys = Object.keys(criteria);
-          for (const critKey of criteriaKeys) {
-            critGroup = critGroup.filter(
-              (obj) => obj[critKey] === criteria[critKey]
-            );
-          }
-          criteriaMet.push(newCriteria);
-          groupedFacts.push(critGroup);
-        }
-      }
-
-      const collapsedFacts = [];
-
-      for (const factGroup of groupedFacts) {
-        let collapsedFact = {};
-        for (const fact of factGroup) {
-          if (Object.values(fact).includes("Any")) {
-            continue;
-          }
-          if (!Object.keys(collapsedFact).length) {
-            collapsedFact = fact;
-            continue;
-          }
-
-          for (const column of this.splittableColumns) {
-            if (!this.splitByColumn.includes(column)) {
-              const mergedValue = collapsedFact[column];
-
-              if (Array.isArray(mergedValue)) {
-                const valueToMerge = fact[column];
-                if (Array.isArray(valueToMerge)) {
-                  collapsedFact[column] = [
-                    ...new Set(...collapsedFact[column].concat(fact[column])),
-                  ];
-                } else {
-                  if (!collapsedFact[column].includes(fact[column])) {
-                    collapsedFact[column].push(fact[column]);
-                  }
-                }
-              } else {
-                if (collapsedFact[column] !== fact[column]) {
-                  if (
-                    isFinite(collapsedFact[column]) &&
-                    isFinite(fact[column])
-                  ) {
-                    collapsedFact[column] =
-                      collapsedFact[column] + fact[column];
-                  } else if (fact[column] !== "Unknown") {
-                    collapsedFact[column] = [
-                      collapsedFact[column],
-                      fact[column],
-                    ];
-                  }
-                } else if (column === "number_of_samples") {
-                  collapsedFact[column] = 2 * collapsedFact[column];
-                }
+          if (Array.isArray(mergedValue)) {
+            const valueToMerge = fact[column];
+            if (Array.isArray(valueToMerge)) {
+              collapsedFact[column] = _.uniq(
+                collapsedFact[column].concat(fact[column])
+              );
+            } else {
+              if (!collapsedFact[column].includes(fact[column])) {
+                collapsedFact[column].push(fact[column]);
               }
+            }
+          } else {
+            if (collapsedFact[column] !== fact[column]) {
+              if (isFinite(collapsedFact[column]) && isFinite(fact[column])) {
+                collapsedFact[column] = collapsedFact[column] + fact[column];
+              } else if (fact[column] !== "Unknown") {
+                collapsedFact[column] = [collapsedFact[column], fact[column]];
+              }
+            } else if (column === "number_of_samples") {
+              collapsedFact[column] = 2 * collapsedFact[column];
             }
           }
         }
-
-        collapsedFact.number_of_donors = "Available";
-        collapsedFacts.push(collapsedFact);
       }
+    }
 
-      collapsedFacts.forEach((fact) => {
-        for (const prop in fact) {
-          if (Array.isArray(fact[prop])) {
-            fact[prop] = fact[prop].join(", ");
-          }
-        }
-      });
+    collapsedFact.number_of_donors = "Available";
+    collapsedFacts.push(collapsedFact);
+  }
 
-      this.facts = collapsedFacts;
-    },
-    factsData() {
-      const rawFacts = this.hardcopy(this.attribute);
-
-      const facts = [];
-
-      for (const rawFact of rawFacts) {
-        const fact = {};
-        for (const property of this.factsProperties) {
-          const key = property.split(".")[0];
-
-          if (!fact[key]) {
-            fact[key] = this.getValue(rawFact, property);
-          }
-        }
-        facts.push(fact);
+  collapsedFacts.forEach((fact) => {
+    for (const prop in fact) {
+      if (Array.isArray(fact[prop])) {
+        fact[prop] = fact[prop].join(", ");
       }
-      return facts;
-    },
-    copyFactsToComponentState() {
-      this.facts = this.factsData();
-    },
-  },
-  mounted() {
-    this.copyFactsToComponentState();
-  },
-};
+    }
+  });
+
+  facts.value = collapsedFacts;
+}
+
+function factsData() {
+  const rawFacts = hardcopy(attribute);
+
+  const facts = [];
+
+  for (const rawFact of rawFacts) {
+    const fact: Record<string, any> = {};
+    for (const property of factsProperties.value) {
+      const key = property.split(".")[0];
+
+      if (!fact[key]) {
+        fact[key] = getValue(rawFact, property);
+      }
+    }
+    facts.push(fact);
+  }
+  return facts;
+}
+
+function copyFactsToComponentState() {
+  facts.value = factsData();
+}
 </script>
 
 <style scoped>
