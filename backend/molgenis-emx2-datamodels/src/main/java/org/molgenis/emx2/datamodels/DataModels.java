@@ -5,7 +5,7 @@ import org.molgenis.emx2.tasks.Task;
 
 public class DataModels {
 
-  public Task getTask(Schema schema, String template, boolean includeDemoData) {
+  public static Task getTask(Schema schema, String template, boolean includeDemoData) {
     Profile profile = Profile.valueOf(template);
     return profile.getTask(schema, includeDemoData);
   }

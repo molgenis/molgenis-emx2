@@ -21,15 +21,10 @@ public class ImportDataModelTask extends Task {
   public void run() {
     this.start();
     try {
-      schema
-          .getDatabase()
-          .tx(
-              db -> {
-                Task task = new DataModels().getTask(schema, template, includeDemoData);
-                task.setDescription("Loading data model: " + template);
-                this.addSubTask(task);
-                task.run();
-              });
+      Task task = DataModels.getTask(schema, template, includeDemoData);
+      task.setDescription("Loading data model: " + template);
+      this.addSubTask(task);
+      task.run();
 
     } catch (Exception e) {
       this.setError("Error importing data model: " + e.getMessage());
