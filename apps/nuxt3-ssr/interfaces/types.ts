@@ -298,8 +298,7 @@ export type HarmonisationStatus =
   | "unmapped"
   | "partial"
   | "complete"
-  | "available"
-  | "na";
+  | "available";
 
 export type HarmonisationIconSize = "small" | "large";
 export interface IMgError {

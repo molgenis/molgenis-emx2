@@ -62,18 +62,18 @@ const pageFilterTemplate: IFilter[] = [
     },
     search: "",
   },
-  // {
-  //   id: "topics",
-  //   config: {
-  //     label: "Topics",
-  //     type: "ONTOLOGY",
-  //     ontologyTableId: "Keywords",
-  //     ontologySchema: "CatalogueOntologies",
-  //     columnId: "keywords",
-  //     initialCollapsed: true,
-  //   },
-  //   conditions: [],
-  // },
+  {
+    id: "topics",
+    config: {
+      label: "Topics",
+      type: "ONTOLOGY",
+      ontologyTableId: "Keywords",
+      ontologySchema: "CatalogueOntologies",
+      columnId: "keywords",
+      initialCollapsed: true,
+    },
+    conditions: [],
+  },
   {
     id: "collections",
     config: {

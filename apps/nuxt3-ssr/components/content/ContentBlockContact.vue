@@ -8,7 +8,7 @@ const props = defineProps<{
 }>();
 
 const orderedRoles = computed(() => {
-  return props.contributors?.sort((a, b) => {
+  return props.contributors.sort((a, b) => {
     const primaryRoleA = a?.role?.length ? a.role[0].order ?? -1 : -1;
     const primaryRoleB = b?.role?.length ? b.role[0].order ?? -1 : -1;
     return primaryRoleA - primaryRoleB;
@@ -20,7 +20,7 @@ const orderedRoles = computed(() => {
   <ContentBlock :title="title">
     <slot name="before"></slot>
 
-    <template v-if="orderedRoles?.length">
+    <template v-if="orderedRoles.length">
       <ContactCardList>
         <ContactCard
           v-for="contributor in orderedRoles"

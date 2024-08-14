@@ -1,7 +1,7 @@
 <script setup lang="ts">
 defineProps<{
-  columns: any[] | [];
-  rows: any[] | [];
+  columns: any[];
+  rows: any[];
 }>();
 
 let scrollXAtEnd = ref(false);

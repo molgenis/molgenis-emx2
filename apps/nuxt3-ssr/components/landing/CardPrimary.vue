@@ -5,7 +5,6 @@ interface Props {
   callToAction?: string;
   count: number;
   link: string;
-  linkQuery?: any;
   image: string;
 }
 
@@ -22,7 +21,7 @@ withDefaults(defineProps<Props>(), {
         <BaseIcon :name="image" :width="55" />
       </span>
       <div class="relative">
-        <NuxtLink :to="{ path: link, query: linkQuery }">
+        <NuxtLink :to="link">
           <h1
             class="font-display md:text-heading-5xl text-heading-5xl text-title-contrast px-3"
           >
@@ -40,7 +39,7 @@ withDefaults(defineProps<Props>(), {
       <span
         class="md:hidden absolute right-0 mr-3 hover:text-blue-800 text-blue-500"
       >
-        <NuxtLink :to="{ path: link, query: linkQuery }">
+        <NuxtLink :to="link">
           <IconButton icon="arrow-right" />
         </NuxtLink>
       </span>
@@ -52,7 +51,7 @@ withDefaults(defineProps<Props>(), {
       {{ description }}
     </p>
 
-    <NuxtLink class="md:block hidden" :to="{ path: link, query: linkQuery }">
+    <NuxtLink class="md:block hidden" :to="link">
       <Button :label="callToAction || title" type="primary" size="medium" />
     </NuxtLink>
   </div>

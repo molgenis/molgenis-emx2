@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { IMgError } from "~~/interfaces/types";
-import { getCollectionMetadataForType, typeMetadata } from "~/constants";
+import { getCollectionMetadataForType } from "~/constants";
 
 const route = useRoute();
 const config = useRuntimeConfig();
@@ -86,8 +86,6 @@ const cohortsFilter = scoped
       ],
     }
   : undefined;
-
-console.log(cohortsFilter);
 
 const { data, error } = await useAsyncData<any, IMgError>(
   `lading-page-${catalogueRouteParam}`,

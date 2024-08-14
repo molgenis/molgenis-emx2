@@ -3,6 +3,8 @@ import dateUtils from "~/utils/dateUtils";
 import type { ICollection } from "~/interfaces/types";
 const cutoff = 250;
 
+const route = useRoute();
+
 const props = withDefaults(
   defineProps<{
     collection: ICollection;
@@ -44,7 +46,7 @@ const iconStarClasses = computed(() => {
       <div :class="titleContainerClasses" class="grow">
         <h2 class="min-w-[160px] mr-4 md:inline-block block">
           <NuxtLink
-            :to="`/${schema}/ssr-catalogue/${catalogue}/collections/${collection.id}`"
+            :to="`/${schema}/ssr-catalogue/${catalogue}/${route.params.collectionType}/${collection.id}`"
             class="text-body-base font-extrabold text-blue-500 hover:underline hover:bg-blue-50"
           >
             {{ collection?.acronym || collection?.name }}
@@ -93,7 +95,12 @@ const iconStarClasses = computed(() => {
         <div>
           <dt class="flex-auto block text-gray-600">Duration</dt>
           <dd>
-            {{ startEndYear(collection?.startYear, collection?.endYear) }}
+            {{
+              startEndYear(
+                collection?.startDataCollection,
+                collection?.endDataCollection
+              )
+            }}
           </dd>
         </div>
       </dl>

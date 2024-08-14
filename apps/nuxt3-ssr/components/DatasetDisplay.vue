@@ -3,9 +3,9 @@ import type { IDefinitionListItem } from "~/interfaces/types";
 import datasetGql from "~~/gql/datasetDetails";
 const route = useRoute();
 
-const { name, collection } = defineProps<{
+const { name, collectionId } = defineProps<{
   name: string;
-  collection: string;
+  collectionId: string;
 }>();
 
 const query = moduleToString(datasetGql);
@@ -14,12 +14,11 @@ const { data } = await useFetch(`/${route.params.schema}/graphql`, {
   method: "POST",
   body: {
     query: query,
-    variables: { collection: collection, name },
+    variables: { collection: collectionId, name },
   },
 });
 
 const dataset = computed(() => {
-  console.log(data.value.data.CollectionDatasets[0]);
   return data.value.data.CollectionDatasets[0];
 });
 
