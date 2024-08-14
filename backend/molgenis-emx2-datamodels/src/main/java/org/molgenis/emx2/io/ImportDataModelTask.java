@@ -27,7 +27,8 @@ public class ImportDataModelTask extends Task {
       task.run();
 
     } catch (Exception e) {
-      this.setError("Error importing data model: " + e.getMessage());
+      this.completeWithError("Error importing data model: " + e.getMessage());
+      throw (e);
     }
     this.complete();
   }

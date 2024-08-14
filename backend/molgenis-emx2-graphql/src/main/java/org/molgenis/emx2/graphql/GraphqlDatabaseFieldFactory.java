@@ -70,16 +70,19 @@ public class GraphqlDatabaseFieldFactory {
               Boolean includeDemoData =
                   dataFetchingEnvironment.getArgument(Constants.INCLUDE_DEMO_DATA);
 
-              Schema schema = database.createSchema(name, description);
-
               GraphqlApiMutationResult result =
                   new GraphqlApiMutationResult(SUCCESS, "Schema %s created", name);
 
-              if (template != null) {
-                Task task = new ImportDataModelTask(schema, template, includeDemoData);
-                String id = taskService.submit(task);
-                return result.setTaskId(id);
-              }
+              database.tx(
+                  db -> {
+                    Schema schema = database.createSchema(name, description);
+                    if (template != null) {
+                      Task task = new ImportDataModelTask(schema, template, includeDemoData);
+                      String id = taskService.submit(task);
+                      result.setTaskId(id);
+                    }
+                  });
+
               return result;
             });
   }

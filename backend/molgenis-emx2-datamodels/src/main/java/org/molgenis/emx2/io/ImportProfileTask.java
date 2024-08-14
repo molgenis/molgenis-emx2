@@ -1,4 +1,4 @@
-package org.molgenis.emx2.datamodels;
+package org.molgenis.emx2.io;
 
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -7,15 +7,13 @@ import org.molgenis.emx2.*;
 import org.molgenis.emx2.datamodels.profiles.CreateSchemas;
 import org.molgenis.emx2.datamodels.profiles.Profiles;
 import org.molgenis.emx2.datamodels.profiles.SchemaFromProfile;
-import org.molgenis.emx2.io.ImportSchemaTask;
-import org.molgenis.emx2.io.MolgenisIO;
 import org.molgenis.emx2.io.emx2.Emx2;
 import org.molgenis.emx2.io.readers.CsvTableReader;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvFilesClasspath;
 import org.molgenis.emx2.tasks.Task;
 
-public class ProfileLoaderTask extends Task {
+public class ImportProfileTask extends Task {
 
   private static final String ONTOLOGY_LOCATION = "/_ontologies";
   private static final String ONTOLOGY_SEMANTICS_LOCATION = ONTOLOGY_LOCATION + "/_semantics.csv";
@@ -24,7 +22,7 @@ public class ProfileLoaderTask extends Task {
   private final String configLocation;
   private final boolean includeDemoData;
 
-  public ProfileLoaderTask(Schema schema, String configLocation, boolean includeDemoData) {
+  public ImportProfileTask(Schema schema, String configLocation, boolean includeDemoData) {
     this.schema = schema;
     this.configLocation = configLocation;
     this.includeDemoData = includeDemoData;
@@ -64,10 +62,12 @@ public class ProfileLoaderTask extends Task {
 
     // import the schema
     schema.migrate(schemaMetadata);
+    this.addSubTask("Loaded tables and columns from profiles").complete();
 
     // import ontologies (not schema or data)
     TableStore store = new TableStoreForCsvFilesClasspath(ONTOLOGY_LOCATION);
-    Task ontologyTask = new ImportSchemaTask(store, ontoSchema, false);
+    Task ontologyTask =
+        new ImportSchemaTask(store, ontoSchema, false).setFilter(ImportSchemaTask.Filter.DATA_ONLY);
     this.addSubTask(ontologyTask);
     ontologyTask.run();
 
@@ -83,9 +83,11 @@ public class ProfileLoaderTask extends Task {
     if (includeDemoData) {
       // prevent data tables with ontology table names to be imported into ontologies by accident
       String[] includeTableNames = getTypeOfTablesToInclude(schema);
+      // prevent data tables with ontology table names to be imported into ontologies by accident
+
       for (String example : profiles.getDemoDataList()) {
         TableStore demoDataStore = new TableStoreForCsvFilesClasspath(example);
-        Task demoDataTask = new ImportSchemaTask(demoDataStore, schema, true, includeTableNames);
+        Task demoDataTask = new ImportSchemaTask(demoDataStore, schema, false, includeTableNames);
         this.addSubTask(demoDataTask);
         demoDataTask.run();
       }
@@ -118,8 +120,8 @@ public class ProfileLoaderTask extends Task {
         }
         createNewSchema = db.createSchema(schemaName);
         String profileLocation = createSchemasIfMissing.getProfile();
-        ProfileLoaderTask profileLoader =
-            new ProfileLoaderTask(
+        ImportProfileTask profileLoader =
+            new ImportProfileTask(
                 createNewSchema, profileLocation, createSchemasIfMissing.isImportDemoData());
         profileLoader.setDescription("Loading profile: " + profileLocation);
         this.addSubTask(profileLoader);

@@ -1,6 +1,7 @@
 package org.molgenis.emx2.datamodels;
 
 import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.io.ImportProfileTask;
 import org.molgenis.emx2.tasks.Task;
 
 public class DataModels {
@@ -45,7 +46,7 @@ public class DataModels {
     }
 
     public Task getTask(Schema schema, boolean includeDemoData) {
-      return new ProfileLoaderTask(schema, this.getTemplate(), includeDemoData);
+      return new ImportProfileTask(schema, this.getTemplate(), includeDemoData);
     }
   }
 
