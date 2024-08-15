@@ -684,7 +684,7 @@ const activeOrganization = computed(() => {
         >
           <DatasetDisplay
             :name="slotProps.id.name"
-            :collection="slotProps.id.collection"
+            :collectionId="slotProps.id.collection"
           />
         </TableContent>
 

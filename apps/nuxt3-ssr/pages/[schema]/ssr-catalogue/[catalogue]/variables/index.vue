@@ -88,14 +88,10 @@ const pageFilterTemplate: IFilter[] = [
         return {
           ...filterBuilder,
           ...{
-            _or: [
-              {
-                mappings: {
-                  source: { equals: conditions.map((c) => ({ id: c.name })) },
-                  match: { name: { equals: ["complete", "partial"] } },
-                },
-              },
-            ],
+            mappings: {
+              source: { equals: conditions.map((c) => ({ id: c.name })) },
+              match: { name: { equals: ["complete", "partial"] } },
+            },
           },
         };
       },
@@ -161,7 +157,6 @@ const filters = computed(() => {
   const conditions = conditionsFromPathQuery(route.query.conditions as string);
   // merge with page defaults
   const filters = mergeWithPageDefaults(pageFilterTemplate, conditions);
-
   return filters;
 });
 
@@ -263,6 +258,9 @@ const fetchData = async () => {
         },
         collectionsFilter,
       };
+
+  console.log(filter.value);
+  console.log(JSON.stringify(variables));
 
   return $fetch(graphqlURL.value, {
     key: `variables-${offset.value}`,
