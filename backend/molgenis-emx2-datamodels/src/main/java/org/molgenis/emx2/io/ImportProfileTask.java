@@ -31,11 +31,16 @@ public class ImportProfileTask extends Task {
   @Override
   public void run() {
     this.start();
-    schema.tx(
-        db -> {
-          Schema s = db.getSchema(schema.getName());
-          load(s);
-        });
+    try {
+      schema.tx(
+          db -> {
+            Schema s = db.getSchema(schema.getName());
+            load(s);
+          });
+    } catch (Exception e) {
+      this.setError();
+      throw (e);
+    }
     this.complete();
   }
 
@@ -70,8 +75,7 @@ public class ImportProfileTask extends Task {
     // import ontologies (not schema or data)
     TableStore store = new TableStoreForCsvFilesClasspath(ONTOLOGY_LOCATION);
     Task ontologyTask =
-        new ImportSchemaTask(store, ontologySchema, false)
-            .setFilter(ImportSchemaTask.Filter.DATA_ONLY)
+        new ImportDataTask(ontologySchema, store, false)
             .setDescription("Import ontology from profile(s)");
     this.addSubTask(ontologyTask);
     ontologyTask.run();
@@ -93,8 +97,7 @@ public class ImportProfileTask extends Task {
       for (String example : profiles.getDemoDataList()) {
         TableStore demoDataStore = new TableStoreForCsvFilesClasspath(example);
         Task demoDataTask =
-            new ImportSchemaTask(demoDataStore, schema, false, includeTableNames)
-                .setFilter(ImportSchemaTask.Filter.DATA_ONLY)
+            new ImportDataTask(schema, demoDataStore, false, includeTableNames)
                 .setDescription("Import demo data from profile(s)");
         this.addSubTask(demoDataTask);
         demoDataTask.run();
@@ -133,6 +136,7 @@ public class ImportProfileTask extends Task {
                 createNewSchema, profileLocation, createSchemasIfMissing.isImportDemoData());
         profileLoader.setDescription("Loading profile: " + profileLocation);
         this.addSubTask(profileLoader);
+        profileLoader.run();
         // profileLoader.load(createNewSchema, createSchemasIfMissing.isImportDemoData());
       }
     }

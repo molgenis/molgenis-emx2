@@ -73,15 +73,12 @@ public class GraphqlDatabaseFieldFactory {
               GraphqlApiMutationResult result =
                   new GraphqlApiMutationResult(SUCCESS, "Schema %s created", name);
 
-              database.tx(
-                  db -> {
-                    Schema schema = db.createSchema(name, description);
-                    if (template != null) {
-                      Task task = new ImportDataModelTask(schema, template, includeDemoData);
-                      String id = taskService.submit(task);
-                      result.setTaskId(id);
-                    }
-                  });
+              Schema schema = database.createSchema(name, description);
+              if (template != null) {
+                Task task = new ImportDataModelTask(schema, template, includeDemoData);
+                String id = taskService.submit(task);
+                result.setTaskId(id);
+              }
 
               return result;
             });
