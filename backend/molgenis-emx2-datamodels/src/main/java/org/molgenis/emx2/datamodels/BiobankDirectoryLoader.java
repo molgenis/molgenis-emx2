@@ -4,6 +4,10 @@ import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.io.ImportDataModelTask;
+import org.molgenis.emx2.io.ImportDataTask;
+import org.molgenis.emx2.io.ImportSchemaTask;
+import org.molgenis.emx2.io.tablestore.TableStore;
+import org.molgenis.emx2.io.tablestore.TableStoreForCsvFilesClasspath;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.tasks.Task;
 
@@ -43,13 +47,22 @@ public class BiobankDirectoryLoader extends ImportDataModelTask {
     }
 
     if (ontologySchema == null || !this.staging) {
-      String path = "biobank-directory/ontologies";
-      addDirDataTask(path, ontologySchema).setDescription("Loading ontologies");
+      TableStore store = new TableStoreForCsvFilesClasspath("biobank-directory/ontologies");
+      Task ontologyDataTask =
+          new ImportSchemaTask(store, db.getSchema(ONTOLOGIES), false)
+              .setDescription("Import ontologies from profile");
+      this.addSubTask(ontologyDataTask);
+      ontologyDataTask.run();
     }
 
+    // optionally, load demo data
     if (isIncludeDemoData()) {
-      addDirDataTask(location + "demo", getSchema())
-          .setDescription("Import demo data from profile");
+      TableStore demoDataStore = new TableStoreForCsvFilesClasspath(location + "demo");
+      Task demoDataTask =
+          new ImportDataTask(getSchema(), demoDataStore, false)
+              .setDescription("Import demo data from profile");
+      this.addSubTask(demoDataTask);
+      demoDataTask.run();
     }
     this.complete();
   }

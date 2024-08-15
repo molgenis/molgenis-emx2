@@ -6,8 +6,6 @@ import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.datamodels.DataModels;
 import org.molgenis.emx2.io.emx2.Emx2;
 import org.molgenis.emx2.io.readers.CsvTableReader;
-import org.molgenis.emx2.io.tablestore.TableStore;
-import org.molgenis.emx2.io.tablestore.TableStoreForCsvFilesClasspath;
 import org.molgenis.emx2.tasks.Task;
 
 public class ImportDataModelTask extends Task {
@@ -62,13 +60,5 @@ public class ImportDataModelTask extends Task {
                 new InputStreamReader(
                     ImportDataModelTask.class.getClassLoader().getResourceAsStream(path))));
     schema.migrate(metadata);
-  }
-
-  public Task addDirDataTask(String path, Schema schema) {
-    TableStore store = new TableStoreForCsvFilesClasspath(path);
-    Task dirTask = new ImportDataTask(schema, store, false);
-    this.addSubTask(dirTask);
-    dirTask.run();
-    return dirTask;
   }
 }
