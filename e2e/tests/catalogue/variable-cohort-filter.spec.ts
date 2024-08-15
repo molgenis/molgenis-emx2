@@ -19,7 +19,6 @@ test("filter variables by cohort", async ({ page }) => {
   await expect(page.locator('div').filter({ hasText: /^testVarVir$/ })).toBeVisible();
   await page.getByLabel('testCohort1').check();
   await expect(page.locator('div').filter({ hasText: /^testVarNoRepeats$/ })).toBeVisible();
-  await page.goto('https://preview-emx2-pr-4114.dev.molgenis.org/catalogue-demo/ssr-catalogue/testNetwork1/variables?page=1&view=harmonisation');
   await page.getByRole('button', { name: 'Harmonisations' }).click();
   await expect(page.getByText('Available', { exact: true })).toBeVisible();
   await expect(page.locator('div').filter({ hasText: /^testVarNoRepeats$/ })).toBeVisible();
