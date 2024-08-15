@@ -75,7 +75,7 @@ public class GraphqlDatabaseFieldFactory {
 
               database.tx(
                   db -> {
-                    Schema schema = database.createSchema(name, description);
+                    Schema schema = db.createSchema(name, description);
                     if (template != null) {
                       Task task = new ImportDataModelTask(schema, template, includeDemoData);
                       String id = taskService.submit(task);
