@@ -4,18 +4,36 @@ import static org.molgenis.emx2.utils.TypeUtils.convertToPascalCase;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.time.LocalDateTime;
 import org.molgenis.emx2.*;
 
 public class Generator {
 
-  private final static String FILE_FIELD_VALUE = """
-  export interface IFile {
-    id?: string;
-    size?: number;
-    extension?: string;
-    url?: string;
-  }
+  private static final String FILE_TS_INTERFACE =
+      """
+export interface IFile {
+  id?: string;
+  size?: number;
+  extension?: string;
+  url?: string;
+}
 """;
+
+  private static final String ONTOLOGY_TS_INTERFACE =
+      """
+  export interface ITreeNode {
+    name: string;
+    children?: ITreeNode[];
+    parent?: string;
+  }
+
+  export interface IOntologyNode extends ITreeNode {
+    code?: string;
+    definition?: string;
+    ontologyTermURI?: string;
+    order?: number;
+  }
+   """;
 
   public Generator() {}
 
@@ -24,11 +42,22 @@ public class Generator {
     PrintWriter writer = null;
     try {
       writer = new PrintWriter("gtypes.ts", "UTF-8");
-    } catch (FileNotFoundException e) {
-      throw new RuntimeException(e);
-    } catch (UnsupportedEncodingException e) {
+    } catch (FileNotFoundException | UnsupportedEncodingException e) {
       throw new RuntimeException(e);
     }
+
+    writer.println(
+        String.format(
+            "// Generated (on: %s) from Generator.java for schema: %s",
+            LocalDateTime.now(), schema.getName()));
+    writer.println("");
+
+    writer.write(FILE_TS_INTERFACE);
+    writer.println("");
+
+    writer.write(ONTOLOGY_TS_INTERFACE);
+    writer.println("");
+
     SchemaMetadata metadata = schema.getMetadata();
     for (TableMetadata table : metadata.getTables()) {
 
@@ -44,7 +73,6 @@ public class Generator {
         }
 
         String columnName = convertToCamelCase(column.getName());
-        // String columnType = column.getColumnType().toString();
         String fieldValue = toTypeScriptInterfaceFieldValue(column);
         writer.println(String.format("  %s :%s;", columnName, fieldValue));
       }
@@ -62,16 +90,24 @@ public class Generator {
     return switch (columnType) {
       case BOOL -> "boolean";
       case BOOL_ARRAY -> "boolean[]";
-      case EMAIL, STRING, TEXT, DATE, DATETIME, UUID, AUTO_ID -> "string";
-      case EMAIL_ARRAY, STRING_ARRAY, TEXT_ARRAY, DATE_ARRAY, DATETIME_ARRAY, UUID_ARRAY ->
+      case EMAIL, STRING, TEXT, DATE, DATETIME, UUID, AUTO_ID, HYPERLINK -> "string";
+      case EMAIL_ARRAY,
+              STRING_ARRAY,
+              TEXT_ARRAY,
+              DATE_ARRAY,
+              DATETIME_ARRAY,
+              UUID_ARRAY,
+              HYPERLINK_ARRAY ->
           "string[]";
       case INT, LONG, DECIMAL -> "number";
       case INT_ARRAY, LONG_ARRAY, DECIMAL_ARRAY -> "number[]";
       case REF -> "I" + convertToPascalCase(column.getRefTable().getTableName());
       case REF_ARRAY -> "I" + convertToPascalCase(column.getRefTable().getTableName()) + "[]";
       case FILE -> "IFile";
-      case ONTOLOGY ->
-      default -> "any";
+      case ONTOLOGY -> "IOntologyNode";
+      case ONTOLOGY_ARRAY -> "IOntologyNode[]";
+      case REFBACK -> "I" + convertToPascalCase(column.getRefTable().getTableName()) + "[]";
+      default -> columnType.toString();
     };
   }
 }
