@@ -14,26 +14,26 @@ public class FDPComplianceTest {
   @BeforeAll
   public static void setup() {
     fdpSchemaRDF =
-        CreateSchemaExportRDF("fairdatapoint_shacl_validation", "_profiles/FAIRDataPoint.yaml");
+        createSchemaExportRDF("fairdatapoint_shacl_validation", "_profiles/FAIRDataPoint.yaml");
   }
 
   @Test
   public void FAIRDataPoint_Compliance() throws Exception {
-    TestCompliance(FAIR_DATA_POINT_SHACL_FILES, fdpSchemaRDF);
+    testCompliance(FAIR_DATA_POINT_SHACL_FILES, fdpSchemaRDF);
   }
 
   @Test
   public void DCAT_AP_Compliance() throws Exception {
-    TestCompliance(DCAT_AP_SHACL_FILES, fdpSchemaRDF);
+    testCompliance(DCAT_AP_SHACL_FILES, fdpSchemaRDF);
   }
 
   @Test
   public void Health_RI_core_plateau_1_Compliance() throws Exception {
-    TestCompliance(HEALTH_RI_SHACL_FILES, fdpSchemaRDF);
+    testCompliance(HEALTH_RI_SHACL_FILES, fdpSchemaRDF);
   }
 
   @Test
   public void EJP_RD_VP_Lvl1_Compliance() throws Exception {
-    TestCompliance(EJP_RD_VP_SHACL_FILES, fdpSchemaRDF);
+    testCompliance(EJP_RD_VP_SHACL_FILES, fdpSchemaRDF);
   }
 }
