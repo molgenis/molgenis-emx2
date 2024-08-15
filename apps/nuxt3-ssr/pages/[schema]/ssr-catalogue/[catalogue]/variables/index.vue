@@ -241,8 +241,7 @@ const fetchData = async () => {
               { collection: { id: { equals: catalogueRouteParam } } },
               {
                 collection: {
-                  type: { name: { equals: "Network" } },
-                  partOfCollections: { name: { equals: catalogueRouteParam } },
+                  partOfCollections: { id: { equals: catalogueRouteParam } },
                 },
               },
             ],
@@ -259,8 +258,8 @@ const fetchData = async () => {
         collectionsFilter,
       };
 
-  console.log(filter.value);
-  console.log(JSON.stringify(variables));
+  console.log("filter" + JSON.stringify(filter.value));
+  console.log("variablesFilter: " + JSON.stringify(variables.variablesFilter));
 
   return $fetch(graphqlURL.value, {
     key: `variables-${offset.value}`,
