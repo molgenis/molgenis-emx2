@@ -118,7 +118,7 @@ pageFilterTemplate = pageFilterTemplate.concat([
       type: "ONTOLOGY",
       ontologyTableId: "CohortDesigns",
       ontologySchema: "CatalogueOntologies",
-      columnId: "design",
+      columnId: "designType",
     },
     conditions: [],
   },
