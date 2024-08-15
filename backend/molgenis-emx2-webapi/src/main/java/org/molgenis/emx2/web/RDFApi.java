@@ -126,7 +126,6 @@ public class RDFApi {
 
   private static int rdfForDatabase(Request request, Response response) throws IOException {
     final RDFFormat format = selectFormat(request);
-    response.type(format.getDefaultMIMEType());
     return rdfForDatabase(request, response, format);
   }
 
@@ -179,7 +178,6 @@ public class RDFApi {
 
   private static int rdfForSchema(Request request, Response response) throws IOException {
     final RDFFormat format = selectFormat(request);
-    response.type(format.getDefaultMIMEType());
     return rdfForSchema(request, response, format);
   }
 
@@ -211,7 +209,6 @@ public class RDFApi {
 
   private static int rdfForTable(Request request, Response response) throws IOException {
     final RDFFormat format = selectFormat(request);
-    response.type(format.getDefaultMIMEType());
     return rdfForTable(request, response, format);
   }
 
@@ -244,7 +241,6 @@ public class RDFApi {
 
   private static int rdfForRow(Request request, Response response) throws IOException {
     final RDFFormat format = selectFormat(request);
-    response.type(format.getDefaultMIMEType());
     return rdfForRow(request, response, format);
   }
 
@@ -274,7 +270,6 @@ public class RDFApi {
 
   private static int rdfForColumn(Request request, Response response) throws IOException {
     final RDFFormat format = selectFormat(request);
-    response.type(format.getDefaultMIMEType());
     return rdfForColumn(request, response, format);
   }
 
