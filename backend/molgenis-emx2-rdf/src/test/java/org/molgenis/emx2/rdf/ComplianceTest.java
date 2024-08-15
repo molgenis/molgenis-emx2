@@ -13,7 +13,7 @@ import org.molgenis.emx2.sql.TestDatabaseFactory;
  * Not a test itself, but offers to component to quickly build specific tests such as
  * CatalogueComplianceTest and FDPComplianceTest
  */
-public class ComplianceTest {
+public abstract class ComplianceTest {
 
   /**
    * Create a schema according to a profile and return its exported RDF

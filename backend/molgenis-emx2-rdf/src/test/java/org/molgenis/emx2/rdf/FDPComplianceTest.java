@@ -1,13 +1,11 @@
 package org.molgenis.emx2.rdf;
 
-import static org.molgenis.emx2.rdf.ComplianceTest.*;
-
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 @Disabled
-public class FDPComplianceTest {
+public class FDPComplianceTest extends ComplianceTest {
 
   private static String fdpSchemaRDF;
 
