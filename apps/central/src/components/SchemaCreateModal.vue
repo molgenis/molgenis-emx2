@@ -1,7 +1,12 @@
 <template>
   <div>
     <!-- whilst loading -->
-    <LayoutModal v-if="loading" :title="title" :show="true">
+    <LayoutModal
+      v-if="loading"
+      :title="title"
+      :show="true"
+      @close="$emit('close')"
+    >
       <template v-slot:body>
         <Task v-if="taskId" :taskId="taskId" @taskUpdated="taskUpdated" />
       </template>
