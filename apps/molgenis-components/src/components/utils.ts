@@ -202,7 +202,7 @@ function isObject(object: Record<string, any> | null): object is Object {
 }
 
 export function applyComputed(rows: IRow[], tableMetadata: ITableMetaData) {
-  return rows.map((row) => {
+  return rows?.map((row) => {
     return tableMetadata.columns.reduce((accum: IRow, column: IColumn) => {
       if (column.computed && column.columnType !== AUTO_ID) {
         try {
