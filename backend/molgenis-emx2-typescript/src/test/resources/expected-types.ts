@@ -1,4 +1,4 @@
-// Generated (on: 2024-08-15T12:53:10.068086) from Generator.java for schema: GeneratorTest
+// Generated (on: 2024-08-15T16:39:47.962256) from Generator.java for schema: pet store
 
 export interface IFile {
   id?: string;

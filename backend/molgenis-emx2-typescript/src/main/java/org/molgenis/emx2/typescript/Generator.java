@@ -39,11 +39,10 @@ export interface IFile {
 
   public Generator() {}
 
-  // "apps/nuxt3-ssr/interfaces/gtypes.ts"
   public void generate(Schema schema, String fileLocation) {
     PrintWriter writer = null;
     try {
-      writer = new PrintWriter("types.ts", "UTF-8");
+      writer = new PrintWriter(fileLocation, "UTF-8");
     } catch (FileNotFoundException | UnsupportedEncodingException e) {
       throw new RuntimeException(e);
     }
@@ -84,6 +83,7 @@ export interface IFile {
     }
 
     writer.println("");
+    writer.flush();
     writer.close();
   }
 

@@ -406,3 +406,11 @@ cp ../aggregates/index.html .
 Open the index.html file, add update the message with the name of your app. In addition, make sure the script tag points to the `main.ts` file.
 
 By this point, you should have enough to view your app. Run the `yarn dev` command to start the dev server. The app will be served at [http://localhost:5173](http://localhost:5173).
+
+### Generate typescript types for a app 
+
+If you want to delete all the MOLGENIS generated schemas, roles and users in the postgresql and return to clean state, run
+```./gradlew generateTypes --args=[schemaName] [full-path+file-name]```
+
+for example ``` ./gradlew generateTypes --args='catalogue /Users/john/Code/emx2/molgenis-emx2/apps/nuxt3-ssr/interfaces/generated/types.ts' ```
+"
