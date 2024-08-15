@@ -803,16 +803,19 @@ public class WebApiSmokeTests {
 
     // Test individual API points
     rdfApiRequest(200).get("http://localhost:" + PORT + "/pet store/api/rdf");
-    //    rdfApiRequest(200).head("http://localhost:" + PORT + "/pet store/api/rdf");
+    rdfApiRequest(200).head("http://localhost:" + PORT + "/pet store/api/rdf");
     rdfApiRequest(200).get("http://localhost:" + PORT + "/pet store/api/rdf/Category");
     rdfApiRequest(200).get("http://localhost:" + PORT + "/pet store/api/rdf/Category/column/name");
     rdfApiRequest(200).get("http://localhost:" + PORT + "/pet store/api/rdf/Category?name=cat");
-    rdfApiRequest(400).get("http://localhost:" + PORT + "/pet store/api/rdf/doesnotexist");
+    rdfApiRequestCheckStatusCodeOnly(400)
+        .get("http://localhost:" + PORT + "/pet store/api/rdf/doesnotexist");
     rdfApiRequest(200).get("http://localhost:" + PORT + "/api/rdf?schemas=pet store");
 
-    // Validate different content-type.
+    // Validate non-default content-type
     rdfApiRequest(200, "application/ld+json")
         .get("http://localhost:" + PORT + "/pet store/api/rdf");
+    rdfApiRequestCheckStatusCodeOnly(400)
+        .get("http://localhost:" + PORT + "/pet store/api/rdf/doesnotexist");
 
     // Validate actual output.
     String result =
@@ -830,18 +833,22 @@ public class WebApiSmokeTests {
         .sessionId(SESSION_ID)
         .expect()
         .statusCode(expectStatusCode)
-        //        .header("Content-Type", RDF_API_DEFAULT_CONTENT_TYPE)
+        .header("Content-Type", RDF_API_DEFAULT_CONTENT_TYPE)
         .when();
   }
 
   private RequestSender rdfApiRequest(int expectStatusCode, String contentType) {
     return given()
         .sessionId(SESSION_ID)
-        .header("Content-Type", contentType)
+        .header("Accept", contentType)
         .expect()
         .statusCode(expectStatusCode)
-        //        .header("Content-Type", contentType)
+        .header("Content-Type", contentType)
         .when();
+  }
+
+  private RequestSender rdfApiRequestCheckStatusCodeOnly(int expectStatusCode) {
+    return given().sessionId(SESSION_ID).expect().statusCode(expectStatusCode).when();
   }
 
   @Test

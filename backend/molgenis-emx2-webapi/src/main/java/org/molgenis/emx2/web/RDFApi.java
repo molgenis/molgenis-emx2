@@ -1,7 +1,7 @@
 package org.molgenis.emx2.web;
 
 import static org.molgenis.emx2.web.MolgenisWebservice.*;
-import static spark.Spark.get;
+import static spark.Spark.*;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -29,19 +29,43 @@ public class RDFApi {
     // created on-the-fly, there is no way of knowing (or is there?)
     sessionManager = sm;
     get(RDF_API_LOCATION, RDFApi::rdfForDatabase);
-    get("/api/jsonld", RDFApi::jslonldForDatabase);
-    get("/api/ttl", RDFApi::ttlForDatabase);
-    final String schemaPath = "/:schema" + RDF_API_LOCATION;
-    get(schemaPath, RDFApi::rdfForSchema);
-    // FIXME: rdfForTable also handles requests for a specific row if there is a composite key
-    // TODO: probably best to merge these two methods and always use query string to encode the row
-    get(schemaPath + "/:table", RDFApi::rdfForTable);
-    get(schemaPath + "/:table/:row", RDFApi::rdfForRow);
-    get(schemaPath + "/:table/column/:column", RDFApi::rdfForColumn);
-    get("/:schema/api/jsonld", RDFApi::jsonldForSchema);
-    get("/:schema/api/ttl", RDFApi::ttlForSchema);
-    get("/:schema/api/jsonld/:table", RDFApi::jsonldForTable);
-    get("/:schema/api/ttl/:table", RDFApi::ttlForTable);
+    head(RDF_API_LOCATION, RDFApi::rdfHead);
+    path(
+        "/:schema" + RDF_API_LOCATION,
+        () -> {
+          get("", RDFApi::rdfForSchema);
+          head("", RDFApi::rdfHead);
+          path(
+              "/:table",
+              () -> {
+                // FIXME: rdfForTable also handles requests for a specific row if there is a
+                // composite key
+                // TODO: probably best to merge these two methods and always use query string to
+                // encode the row
+                get("", RDFApi::rdfForTable);
+                head("", RDFApi::rdfHead);
+                get("/:row", RDFApi::rdfForRow);
+                head("/:row", RDFApi::rdfHead);
+                get("/column/:column", RDFApi::rdfForColumn);
+                head("column/:column/", RDFApi::rdfHead);
+              });
+        });
+  }
+
+  private static String jsonldHead(Request request, Response response) {
+    response.type(RDFFormat.JSONLD.getDefaultMIMEType());
+    return "";
+  }
+
+  private static String ttlHead(Request request, Response response) {
+    response.type(RDFFormat.TURTLE.getDefaultMIMEType());
+    return "";
+  }
+
+  private static String rdfHead(Request request, Response response) {
+    final RDFFormat format = selectFormat(request);
+    response.type(format.getDefaultMIMEType());
+    return "";
   }
 
   private static int jslonldForDatabase(Request request, Response response) throws IOException {
@@ -54,6 +78,7 @@ public class RDFApi {
 
   private static int rdfForDatabase(Request request, Response response) throws IOException {
     final RDFFormat format = selectFormat(request);
+    response.type(format.getDefaultMIMEType());
     return rdfForDatabase(request, response, format);
   }
 
@@ -106,6 +131,7 @@ public class RDFApi {
 
   private static int rdfForSchema(Request request, Response response) throws IOException {
     final RDFFormat format = selectFormat(request);
+    response.type(format.getDefaultMIMEType());
     return rdfForSchema(request, response, format);
   }
 
@@ -137,6 +163,7 @@ public class RDFApi {
 
   private static int rdfForTable(Request request, Response response) throws IOException {
     final RDFFormat format = selectFormat(request);
+    response.type(format.getDefaultMIMEType());
     return rdfForTable(request, response, format);
   }
 
