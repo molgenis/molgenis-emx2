@@ -23,6 +23,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.Assert;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
+import io.restassured.specification.RequestSender;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -57,6 +58,8 @@ public class WebApiSmokeTests {
   private static Schema schema;
   final String CSV_TEST_SCHEMA = "pet store csv";
   static final int PORT = 8081; // other then default so we can see effect
+
+  private static final String RDF_API_DEFAULT_CONTENT_TYPE = "text/turtle";
 
   @BeforeAll
   public static void before() throws Exception {
@@ -797,42 +800,21 @@ public class WebApiSmokeTests {
   public void testRdfApi() {
     // skip 'all schemas' test because data is way to big (i.e.
     // get("http://localhost:PORT/api/rdf");)
-    given()
-        .sessionId(SESSION_ID)
-        .expect()
-        .statusCode(200)
-        .when()
+
+    // Test individual API points
+    rdfApiRequest(200).get("http://localhost:" + PORT + "/pet store/api/rdf");
+    //    rdfApiRequest(200).head("http://localhost:" + PORT + "/pet store/api/rdf");
+    rdfApiRequest(200).get("http://localhost:" + PORT + "/pet store/api/rdf/Category");
+    rdfApiRequest(200).get("http://localhost:" + PORT + "/pet store/api/rdf/Category/column/name");
+    rdfApiRequest(200).get("http://localhost:" + PORT + "/pet store/api/rdf/Category?name=cat");
+    rdfApiRequest(400).get("http://localhost:" + PORT + "/pet store/api/rdf/doesnotexist");
+    rdfApiRequest(200).get("http://localhost:" + PORT + "/api/rdf?schemas=pet store");
+
+    // Validate different content-type.
+    rdfApiRequest(200, "application/ld+json")
         .get("http://localhost:" + PORT + "/pet store/api/rdf");
-    given()
-        .sessionId(SESSION_ID)
-        .expect()
-        .statusCode(200)
-        .when()
-        .get("http://localhost:" + PORT + "/pet store/api/rdf/Category");
-    given()
-        .sessionId(SESSION_ID)
-        .expect()
-        .statusCode(200)
-        .when()
-        .get("http://localhost:" + PORT + "/pet store/api/rdf/Category/column/name");
-    given()
-        .sessionId(SESSION_ID)
-        .expect()
-        .statusCode(200)
-        .when()
-        .get("http://localhost:" + PORT + "/pet store/api/rdf/Category?name=cat");
-    given()
-        .sessionId(SESSION_ID)
-        .expect()
-        .statusCode(400)
-        .when()
-        .get("http://localhost:" + PORT + "/pet store/api/rdf/doesnotexist");
-    given()
-        .sessionId(SESSION_ID)
-        .expect()
-        .statusCode(200)
-        .when()
-        .get("http://localhost:" + PORT + "/api/rdf?schemas=pet store");
+
+    // Validate actual output.
     String result =
         given()
             .sessionId(SESSION_ID)
@@ -841,6 +823,25 @@ public class WebApiSmokeTests {
             .getBody()
             .asString();
     assertFalse(result.contains("CatalogueOntologies"));
+  }
+
+  private RequestSender rdfApiRequest(int expectStatusCode) {
+    return given()
+        .sessionId(SESSION_ID)
+        .expect()
+        .statusCode(expectStatusCode)
+        //        .header("Content-Type", RDF_API_DEFAULT_CONTENT_TYPE)
+        .when();
+  }
+
+  private RequestSender rdfApiRequest(int expectStatusCode, String contentType) {
+    return given()
+        .sessionId(SESSION_ID)
+        .header("Content-Type", contentType)
+        .expect()
+        .statusCode(expectStatusCode)
+        //        .header("Content-Type", contentType)
+        .when();
   }
 
   @Test
