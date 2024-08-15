@@ -1,3 +1,5 @@
+package org.molgenis.emx2.typescript;
+
 import static org.molgenis.emx2.utils.TypeUtils.convertToCamelCase;
 import static org.molgenis.emx2.utils.TypeUtils.convertToPascalCase;
 
@@ -41,7 +43,7 @@ export interface IFile {
   public void generate(Schema schema, String fileLocation) {
     PrintWriter writer = null;
     try {
-      writer = new PrintWriter("gtypes.ts", "UTF-8");
+      writer = new PrintWriter("types.ts", "UTF-8");
     } catch (FileNotFoundException | UnsupportedEncodingException e) {
       throw new RuntimeException(e);
     }
@@ -59,7 +61,8 @@ export interface IFile {
     writer.println("");
 
     SchemaMetadata metadata = schema.getMetadata();
-    for (TableMetadata table : metadata.getTables()) {
+
+    for (TableMetadata table : metadata.getTablesIncludingExternal()) {
 
       String tableName = convertToPascalCase(table.getTableName());
       writer.println(String.format("export interface I%s {", tableName));
@@ -102,11 +105,11 @@ export interface IFile {
       case INT, LONG, DECIMAL -> "number";
       case INT_ARRAY, LONG_ARRAY, DECIMAL_ARRAY -> "number[]";
       case REF -> "I" + convertToPascalCase(column.getRefTable().getTableName());
-      case REF_ARRAY -> "I" + convertToPascalCase(column.getRefTable().getTableName()) + "[]";
+      case REF_ARRAY, REFBACK ->
+          "I" + convertToPascalCase(column.getRefTable().getTableName()) + "[]";
       case FILE -> "IFile";
       case ONTOLOGY -> "IOntologyNode";
       case ONTOLOGY_ARRAY -> "IOntologyNode[]";
-      case REFBACK -> "I" + convertToPascalCase(column.getRefTable().getTableName()) + "[]";
       default -> columnType.toString();
     };
   }
