@@ -43,7 +43,7 @@ public class PetStoreLoader extends ImportDataModelTask {
     this.complete();
   }
 
-  public SchemaMetadata getSchemaMetadata() {
+  public static SchemaMetadata getSchemaMetadata() {
     SchemaMetadata schema = new SchemaMetadata();
     schema.create(table(CATEGORY).add(column(NAME).setPkey()));
 

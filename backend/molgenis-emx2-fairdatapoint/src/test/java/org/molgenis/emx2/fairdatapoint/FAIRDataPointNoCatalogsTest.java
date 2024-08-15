@@ -3,13 +3,13 @@ package org.molgenis.emx2.fairdatapoint;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.molgenis.emx2.datamodels.DataModels.Regular.PET_STORE;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.datamodels.PetStoreLoader;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import spark.Request;
 
@@ -22,8 +22,7 @@ public class FAIRDataPointNoCatalogsTest {
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
     nocatalogs = database.dropCreateSchema("nocatalogs");
-    PetStoreLoader petStoreLoader = new PetStoreLoader();
-    petStoreLoader.load(nocatalogs, true);
+    PET_STORE.getImportTask(nocatalogs, true).run();
   }
 
   @Test
