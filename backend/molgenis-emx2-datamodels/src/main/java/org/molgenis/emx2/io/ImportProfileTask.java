@@ -76,7 +76,7 @@ public class ImportProfileTask extends Task {
     TableStore store = new TableStoreForCsvFilesClasspath(ONTOLOGY_LOCATION);
     Task ontologyTask =
         new ImportDataTask(ontologySchema, store, false)
-            .setDescription("Import ontology from profile(s)");
+            .setDescription("Import ontologies from profile");
     this.addSubTask(ontologyTask);
     ontologyTask.run();
 
@@ -98,7 +98,7 @@ public class ImportProfileTask extends Task {
         TableStore demoDataStore = new TableStoreForCsvFilesClasspath(example);
         Task demoDataTask =
             new ImportDataTask(schema, demoDataStore, false, includeTableNames)
-                .setDescription("Import demo data from profile(s)");
+                .setDescription("Import demo data from profile");
         this.addSubTask(demoDataTask);
         demoDataTask.run();
       }
