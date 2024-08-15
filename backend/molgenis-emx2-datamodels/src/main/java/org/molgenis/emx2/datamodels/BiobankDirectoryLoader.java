@@ -4,8 +4,8 @@ import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.io.ImportDataModelTask;
-import org.molgenis.emx2.io.MolgenisIO;
 import org.molgenis.emx2.sql.SqlDatabase;
+import org.molgenis.emx2.tasks.Task;
 
 public class BiobankDirectoryLoader extends ImportDataModelTask {
 
@@ -17,13 +17,15 @@ public class BiobankDirectoryLoader extends ImportDataModelTask {
     super(schema, includeDemoData);
   }
 
+  @Override
   public void run() {
+    this.start();
     String location = "biobank-directory/";
     if (this.staging) {
       location = "biobank-directory/stagingArea/";
     }
 
-    // create ontology schema
+    Task ontologyTask = addSubTask("Loading tables for ontologies").start();
     Database db = getSchema().getDatabase();
     Schema ontologySchema = db.getSchema(ONTOLOGIES);
     if (ontologySchema == null) {
@@ -34,21 +36,22 @@ public class BiobankDirectoryLoader extends ImportDataModelTask {
 
     // create biobank-directory or staging schema (which will create tables in ontology schema)
     createSchema(getSchema(), location + "molgenis.csv");
+    ontologyTask.complete();
 
     if (!this.staging) {
       getSchema().addMember(SqlDatabase.ANONYMOUS, Privileges.VIEWER.toString());
     }
 
     if (ontologySchema == null || !this.staging) {
-      // load data into ontology schema
-      MolgenisIO.fromClasspathDirectory(
-          "biobank-directory/ontologies", db.getSchema(ONTOLOGIES), false);
+      String path = "biobank-directory/ontologies";
+      addDirDataTask(path, ontologySchema).setDescription("Loading ontologies");
     }
 
-    // optionally, load demo data
     if (isIncludeDemoData()) {
-      MolgenisIO.fromClasspathDirectory(location + "demo", getSchema(), false);
+      addDirDataTask(location + "demo", getSchema())
+          .setDescription("Import demo data from profile");
     }
+    this.complete();
   }
 
   public ImportDataModelTask setStaging(boolean staging) {

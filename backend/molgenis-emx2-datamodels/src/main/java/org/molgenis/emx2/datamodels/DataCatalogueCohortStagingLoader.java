@@ -15,10 +15,12 @@ public class DataCatalogueCohortStagingLoader extends ImportDataModelTask {
 
   @Override
   public void run() {
+    this.start();
     // create shared schemas
     createSharedStaging(getSchema());
     // create the schema
     createSchema("datacatalogue/stagingCohorts/molgenis.csv");
+    this.complete();
   }
 
   static void createSharedStaging(Schema schema) {

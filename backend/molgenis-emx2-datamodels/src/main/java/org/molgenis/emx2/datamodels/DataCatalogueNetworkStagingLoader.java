@@ -13,10 +13,12 @@ public class DataCatalogueNetworkStagingLoader extends ImportDataModelTask {
 
   @Override
   public void run() {
+    this.start();
     // create shared schemas
     createSharedStaging(getSchema());
 
     // create the schema
     createSchema(getSchema(), "datacatalogue/stagingNetworks/molgenis.csv");
+    this.complete();
   }
 }

@@ -14,6 +14,7 @@ public class DirectoryLoader extends ImportDataModelTask {
 
   @Override
   public void run() {
+    this.start();
     // create catalogue schema (which will create tables in ontology schema)
     createSchema("directory/molgenis.csv");
     getSchema().addMember(SqlDatabase.ANONYMOUS, Privileges.VIEWER.toString());
@@ -22,5 +23,6 @@ public class DirectoryLoader extends ImportDataModelTask {
     if (isIncludeDemoData()) {
       MolgenisIO.fromClasspathDirectory("directory/data", getSchema(), false);
     }
+    this.complete();
   }
 }
