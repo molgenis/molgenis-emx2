@@ -110,7 +110,7 @@ export interface IFile {
       case FILE -> "IFile";
       case ONTOLOGY -> "IOntologyNode";
       case ONTOLOGY_ARRAY -> "IOntologyNode[]";
-      default -> columnType.toString();
+      default -> "any";
     };
   }
 }
