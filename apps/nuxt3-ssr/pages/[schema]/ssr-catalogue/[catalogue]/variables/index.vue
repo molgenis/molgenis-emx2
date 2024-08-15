@@ -241,6 +241,7 @@ const fetchData = async () => {
               { collection: { id: { equals: catalogueRouteParam } } },
               {
                 collection: {
+                  type: { name: { equals: "Network" } },
                   partOfCollections: { id: { equals: catalogueRouteParam } },
                 },
               },
