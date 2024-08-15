@@ -31,11 +31,15 @@ public class ImportProfileTask extends Task {
   @Override
   public void run() {
     this.start();
-    load();
+    schema.tx(
+        db -> {
+          Schema s = db.getSchema(schema.getName());
+          load(s);
+        });
     this.complete();
   }
 
-  void load() {
+  void load(Schema schema) {
     // load config (a.k.a. 'profile') YAML file
     SchemaFromProfile schemaFromProfile = new SchemaFromProfile(this.configLocation);
     Profiles profiles = getProfiles(schema, schemaFromProfile);
