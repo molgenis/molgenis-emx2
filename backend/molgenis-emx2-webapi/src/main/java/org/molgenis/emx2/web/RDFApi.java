@@ -16,25 +16,73 @@ import org.molgenis.emx2.Table;
 import org.molgenis.emx2.rdf.RDFService;
 import spark.Request;
 import spark.Response;
+import spark.Route;
 import spark.utils.StringUtils;
 
 public class RDFApi {
   public static final String FORMAT = "format";
   private static MolgenisSessionManager sessionManager;
   public static final String RDF_API_LOCATION = "/api/rdf";
+  public static final String TTL_API_LOCATION = "/api/ttl";
+  public static final String JSONLD_API_LOCATION = "/api/jsonld";
+
+  private static final List<RDFFormat> acceptedRdfFormats =
+      List.of(
+          RDFFormat.TURTLE,
+          RDFFormat.N3,
+          RDFFormat.NTRIPLES,
+          RDFFormat.NQUADS,
+          RDFFormat.RDFXML,
+          RDFFormat.TRIG,
+          RDFFormat.JSONLD);
 
   public static void create(MolgenisSessionManager sm) {
     // ideally, we estimate/calculate the content length and inform the client using
     // response.raw().setContentLengthLong(x) but since the output is streaming and the triples
     // created on-the-fly, there is no way of knowing (or is there?)
     sessionManager = sm;
-    get(RDF_API_LOCATION, RDFApi::rdfForDatabase);
-    head(RDF_API_LOCATION, RDFApi::rdfHead);
+
+    defineApiRoutes(
+        RDF_API_LOCATION,
+        RDFApi::rdfHead,
+        RDFApi::rdfForDatabase,
+        RDFApi::rdfForSchema,
+        RDFApi::rdfForTable,
+        RDFApi::rdfForRow,
+        RDFApi::rdfForColumn);
+    defineApiRoutes(
+        TTL_API_LOCATION,
+        RDFApi::ttlHead,
+        RDFApi::ttlForDatabase,
+        RDFApi::ttlForSchema,
+        RDFApi::ttlForTable,
+        RDFApi::ttlForRow,
+        RDFApi::ttlForColumn);
+    defineApiRoutes(
+        JSONLD_API_LOCATION,
+        RDFApi::jsonldHead,
+        RDFApi::jsonldForDatabase,
+        RDFApi::jsonldForSchema,
+        RDFApi::jsonldForTable,
+        RDFApi::jsonldForRow,
+        RDFApi::jsonldForColumn);
+  }
+
+  private static void defineApiRoutes(
+      String apiLocation,
+      Route headerRoute,
+      Route databaseRoute,
+      Route schemaRoute,
+      Route tableRoute,
+      Route rowRoute,
+      Route columnRoute) {
+    get(apiLocation, databaseRoute);
+    head(apiLocation, headerRoute);
     path(
-        "/:schema" + RDF_API_LOCATION,
+        "/:schema" + apiLocation,
         () -> {
-          get("", RDFApi::rdfForSchema);
-          head("", RDFApi::rdfHead);
+          get("", schemaRoute);
+          head("", headerRoute);
           path(
               "/:table",
               () -> {
@@ -42,12 +90,12 @@ public class RDFApi {
                 // composite key
                 // TODO: probably best to merge these two methods and always use query string to
                 // encode the row
-                get("", RDFApi::rdfForTable);
-                head("", RDFApi::rdfHead);
-                get("/:row", RDFApi::rdfForRow);
-                head("/:row", RDFApi::rdfHead);
-                get("/column/:column", RDFApi::rdfForColumn);
-                head("column/:column/", RDFApi::rdfHead);
+                get("", tableRoute);
+                head("", headerRoute);
+                get("/:row", rowRoute);
+                head("/:row", headerRoute);
+                get("/column/:column", columnRoute);
+                head("column/:column/", headerRoute);
               });
         });
   }
@@ -68,7 +116,7 @@ public class RDFApi {
     return "";
   }
 
-  private static int jslonldForDatabase(Request request, Response response) throws IOException {
+  private static int jsonldForDatabase(Request request, Response response) throws IOException {
     return rdfForDatabase(request, response, RDFFormat.JSONLD);
   }
 
@@ -186,12 +234,26 @@ public class RDFApi {
     return 200;
   }
 
+  private static int jsonldForRow(Request request, Response response) throws IOException {
+    return rdfForRow(request, response, RDFFormat.JSONLD);
+  }
+
+  private static int ttlForRow(Request request, Response response) throws IOException {
+    return rdfForRow(request, response, RDFFormat.TURTLE);
+  }
+
   private static int rdfForRow(Request request, Response response) throws IOException {
+    final RDFFormat format = selectFormat(request);
+    response.type(format.getDefaultMIMEType());
+    return rdfForRow(request, response, format);
+  }
+
+  private static int rdfForRow(Request request, Response response, RDFFormat format)
+      throws IOException {
     Table table = getTableById(request);
     String rowId = sanitize(request.params("row"));
 
     final String baseURL = extractBaseURL(request);
-    final RDFFormat format = selectFormat(request);
     RDFService rdf = new RDFService(baseURL, RDF_API_LOCATION, format);
     response.type(rdf.getMimeType());
 
@@ -202,12 +264,26 @@ public class RDFApi {
     return 200;
   }
 
+  private static int jsonldForColumn(Request request, Response response) throws IOException {
+    return rdfForColumn(request, response, RDFFormat.JSONLD);
+  }
+
+  private static int ttlForColumn(Request request, Response response) throws IOException {
+    return rdfForColumn(request, response, RDFFormat.TURTLE);
+  }
+
   private static int rdfForColumn(Request request, Response response) throws IOException {
+    final RDFFormat format = selectFormat(request);
+    response.type(format.getDefaultMIMEType());
+    return rdfForColumn(request, response, format);
+  }
+
+  private static int rdfForColumn(Request request, Response response, RDFFormat format)
+      throws IOException {
     Table table = getTableById(request);
     String columnName = sanitize(request.params("column"));
 
     final String baseURL = extractBaseURL(request);
-    final RDFFormat format = selectFormat(request);
 
     RDFService rdf = new RDFService(baseURL, RDF_API_LOCATION, format);
     response.type(rdf.getMimeType());
@@ -252,16 +328,7 @@ public class RDFApi {
         // Strip everything after a semicolon
         type = type.split(";")[0];
       }
-      var formats =
-          List.of(
-              RDFFormat.TURTLE,
-              RDFFormat.N3,
-              RDFFormat.NTRIPLES,
-              RDFFormat.NQUADS,
-              RDFFormat.RDFXML,
-              RDFFormat.TRIG,
-              RDFFormat.JSONLD);
-      for (var format : formats) {
+      for (var format : acceptedRdfFormats) {
         if (format.hasDefaultMIMEType(type)) {
           return format;
         }

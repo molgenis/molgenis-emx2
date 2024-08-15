@@ -59,8 +59,6 @@ public class WebApiSmokeTests {
   final String CSV_TEST_SCHEMA = "pet store csv";
   static final int PORT = 8081; // other then default so we can see effect
 
-  private static final String RDF_API_DEFAULT_CONTENT_TYPE = "text/turtle";
-
   @BeforeAll
   public static void before() throws Exception {
     // FIXME: beforeAll fails under windows
@@ -798,24 +796,36 @@ public class WebApiSmokeTests {
 
   @Test
   public void testRdfApi() {
+    final String urlPrefix = "http://localhost:" + PORT;
+
+    final String defaultContentType = "text/turtle";
+    final String jsonldContentType = "application/ld+json";
+    final String ttlContentType = "text/turtle";
+
     // skip 'all schemas' test because data is way to big (i.e.
     // get("http://localhost:PORT/api/rdf");)
 
-    // Test individual API points
-    rdfApiRequest(200).get("http://localhost:" + PORT + "/pet store/api/rdf");
-    rdfApiRequest(200).head("http://localhost:" + PORT + "/pet store/api/rdf");
-    rdfApiRequest(200).get("http://localhost:" + PORT + "/pet store/api/rdf/Category");
-    rdfApiRequest(200).get("http://localhost:" + PORT + "/pet store/api/rdf/Category/column/name");
-    rdfApiRequest(200).get("http://localhost:" + PORT + "/pet store/api/rdf/Category?name=cat");
-    rdfApiRequestCheckStatusCodeOnly(400)
-        .get("http://localhost:" + PORT + "/pet store/api/rdf/doesnotexist");
-    rdfApiRequest(200).get("http://localhost:" + PORT + "/api/rdf?schemas=pet store");
+    // Validate individual API points for /api/rdf
+    rdfApiRequest(200, defaultContentType).get(urlPrefix + "/pet store/api/rdf");
+    rdfApiRequest(200, defaultContentType).get(urlPrefix + "/pet store/api/rdf/Category");
+    rdfApiRequest(200, defaultContentType)
+        .get(urlPrefix + "/pet store/api/rdf/Category/column/name");
+    rdfApiRequest(200, defaultContentType).get(urlPrefix + "/pet store/api/rdf/Category?name=cat");
+    rdfApiRequestMinimalExpect(400).get(urlPrefix + "/pet store/api/rdf/doesnotexist");
+    rdfApiRequest(200, defaultContentType).get(urlPrefix + "/api/rdf?schemas=pet store");
 
-    // Validate non-default content-type
-    rdfApiRequest(200, "application/ld+json")
-        .get("http://localhost:" + PORT + "/pet store/api/rdf");
-    rdfApiRequestCheckStatusCodeOnly(400)
-        .get("http://localhost:" + PORT + "/pet store/api/rdf/doesnotexist");
+    // Validate convenience API points
+    rdfApiRequest(200, jsonldContentType).get(urlPrefix + "/pet store/api/jsonld");
+    rdfApiRequest(200, ttlContentType).get(urlPrefix + "/pet store/api/ttl");
+
+    // Validate non-default content-type for /api/rdf
+    rdfApiContentTypeRequest(200, jsonldContentType).get(urlPrefix + "/pet store/api/rdf");
+
+    // Validate head for API points
+    rdfApiRequest(200, defaultContentType).head(urlPrefix + "/pet store/api/rdf");
+    rdfApiContentTypeRequest(200, jsonldContentType).head(urlPrefix + "/pet store/api/rdf");
+    rdfApiRequest(200, jsonldContentType).head(urlPrefix + "/pet store/api/jsonld");
+    rdfApiRequest(200, ttlContentType).head(urlPrefix + "/pet store/api/ttl");
 
     // Validate actual output.
     String result =
@@ -828,16 +838,30 @@ public class WebApiSmokeTests {
     assertFalse(result.contains("CatalogueOntologies"));
   }
 
-  private RequestSender rdfApiRequest(int expectStatusCode) {
+  /**
+   * Request that does not define a content type but does validate on this.
+   *
+   * @param expectStatusCode
+   * @param contentType
+   * @return
+   */
+  private RequestSender rdfApiRequest(int expectStatusCode, String expectContentType) {
     return given()
         .sessionId(SESSION_ID)
         .expect()
         .statusCode(expectStatusCode)
-        .header("Content-Type", RDF_API_DEFAULT_CONTENT_TYPE)
+        .header("Content-Type", expectContentType)
         .when();
   }
 
-  private RequestSender rdfApiRequest(int expectStatusCode, String contentType) {
+  /**
+   * Request that does define a content type and validate on this.
+   *
+   * @param expectStatusCode
+   * @param contentType
+   * @return
+   */
+  private RequestSender rdfApiContentTypeRequest(int expectStatusCode, String contentType) {
     return given()
         .sessionId(SESSION_ID)
         .header("Accept", contentType)
@@ -847,7 +871,13 @@ public class WebApiSmokeTests {
         .when();
   }
 
-  private RequestSender rdfApiRequestCheckStatusCodeOnly(int expectStatusCode) {
+  /**
+   * Request that only validates on status code.
+   *
+   * @param expectStatusCode
+   * @return
+   */
+  private RequestSender rdfApiRequestMinimalExpect(int expectStatusCode) {
     return given().sessionId(SESSION_ID).expect().statusCode(expectStatusCode).when();
   }
 
