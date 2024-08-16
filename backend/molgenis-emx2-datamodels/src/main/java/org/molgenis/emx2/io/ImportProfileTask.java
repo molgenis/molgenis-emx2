@@ -1,5 +1,6 @@
 package org.molgenis.emx2.io;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.*;
@@ -18,7 +19,7 @@ public class ImportProfileTask extends Task {
   private static final String ONTOLOGY_LOCATION = "/_ontologies";
   private static final String ONTOLOGY_SEMANTICS_LOCATION = ONTOLOGY_LOCATION + "/_semantics.csv";
 
-  private final Schema schema;
+  @JsonIgnore private final Schema schema;
   private final String configLocation;
   private final boolean includeDemoData;
 
