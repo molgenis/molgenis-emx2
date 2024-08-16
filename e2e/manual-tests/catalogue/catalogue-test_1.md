@@ -18,7 +18,7 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | 2 | In section 'Project catalogues' hover over the testNetworkofNetworks row | Row should be highlighted | | true |
 | 3 | Click on the testNetworkofNetworks row | Should be directed to the testNetworkofNetworks with 'Welcome to the catalogue of testNetworkofNetworks: name for test network of networks [etc]', and Cohorts (3), Variables (8) and Networks (2) buttons | | true |
 | 3a | | There should be 700 participants, 250 samples and 67% Longitudinal given.| | true |
-| 3b | | In the ribbon at the top of the page there should be: Left: MOLGENIS logo (test logo to be implemented in test data), Right: (L-R) Overview, Cohorts, Variables, Networks, More  | | true |
+| 3b | | In the ribbon at the top of the page there should be: Left: MOLGENIS logo (test logo to be implemented in test data), Right: (L-R) Overview, Cohorts, Variables, Networks, More  | [#3512](https://github.com/molgenis/molgenis-emx2/issues/3512) | true |
 | 4 | Click on the MOLGENIS logo | The page doesn't change | | true |
 | 5| Click on the 'Overview' button| The page doesn't change | | true |
 | 6| Click on the 'Cohorts' button at the top | Should be directed to the list of cohorts for the testNetworkofNetworks | | true |
