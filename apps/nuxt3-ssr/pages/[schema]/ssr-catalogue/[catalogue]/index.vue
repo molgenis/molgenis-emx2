@@ -324,6 +324,13 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
         "
         :link="`/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/networks`"
       />
+      <LandingCardPrimary
+        v-if="network.id === 'FORCE-NEN collections'"
+        image="image-data-warehouse"
+        title="Aggregates"
+        callToAction="Aggregates"
+        :link="`/Aggregates/aggregates/`"
+      />
     </LandingPrimary>
 
     <LandingSecondary>
