@@ -70,10 +70,11 @@ subprojects { subproject ->
             dependsOn ":apps:${match[1]}:buildJavascript";
         }
         //run the build
-        args = ['run', 'build']
+        def command =   packageJson.contains("\"name\": \"ui\"") ? "generate" : "build"
+        args = ['run', command]
         doLast {
             copy {
-                from "dist"
+                from packageJson.contains("\"name\": \"ui\"") ? ".output/public" : "dist"
                 into "${parent.buildDir}/generated/main/resources/public_html/apps/" + project.name
             }
         }
