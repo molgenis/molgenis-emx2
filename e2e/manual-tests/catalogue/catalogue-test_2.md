@@ -16,7 +16,7 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | ---- | ------ | --------------- | ----------------- | -----------------|
 | 1 | Navigate to [https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/) | Landing page: European health research data and sample catalogue| | | |
 | 2 | In section 'Thematic catalogues' hover over the testNetwork1 row | Row should be highlighted | | | |
-| 3 | Click on the testNetwork1 logo (to be implemented, click on 'testNetwork1') | Should be directed to the testNetwork1 home page with 'Welcome to the catalogue of testNetwork1: [etc]', and Cohorts (4), Data sources (1), Variables (8) buttons | | | |
+| 3 | Click on the testNetwork1 logo (to be implemented, click on 'testNetwork1') | Should be directed to the testNetwork1 home page with 'Welcome to the catalogue of testNetwork1: [etc]', and Cohorts (4), Data sources (1), Variables (8) buttons | [#3512](https://github.com/molgenis/molgenis-emx2/issues/3512) | | |
 | 3a | | There should be 700 participants, 250 samples and 50% Longitudinal given. | | | |
 | 3b | | In the ribbon at the top of the page there should be: Left: testnetwerk1 logo, Right: (L-R) Overview, Cohorts, Data sources, Variables, More | | | |
 | 4 | Click on the testNetwork1 logo (to be implemented, now MOLGENIS logo) | The page doesn't change | | | |
@@ -48,7 +48,7 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | 23 | Click on Name for test cohort 1 | A side pop-up is shown with the following information: NAME FOR TEST COHORT 1, This is the Test cohort 1. It has multiple entries ... see which is displayed.  Website https://www.molgenis.org, Number of participants 600, Number of participants with samples 200 | | | |
 | 24 | Click on detail page | Go to the cohort overview page for ACRONYM FOR TEST COHORT 1 | | | |
 | 25 | Go back | Back to network overview page | | | |
-| 26 | DATA SOURCES | Data sources connected in this network| | | |
+| 26 | DATA SOURCES | Data sources connected in this network| [#3744](https://github.com/molgenis/molgenis-emx2/issues/3744) | |
 | | | Name   Type    Number of participants | | | |
 | | | TESTDATASOURCE Participants  3000| | | |
 | 27 | Click on TESTDATASOURCE | Get taken to the overview page for the data source TESTDATASOURCE | | | |
