@@ -183,7 +183,7 @@ public class TestLoaders {
   void test19UMCGStagingFlatLoader() {
     Schema umcgstagingflat = database.createSchema(FLAT_UMCG_COHORTS_STAGING);
     AvailableDataModels.FLAT_UMCG_COHORTS_STAGING.install(umcgstagingflat, false);
-    assertEquals(17, umcgstagingflat.getTableNames().size());
+    assertEquals(10, umcgstagingflat.getTableNames().size());
   }
 
   @Test
