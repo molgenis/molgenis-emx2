@@ -7,10 +7,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.datamodels.PetStoreLoader;
+import org.molgenis.emx2.datamodels.ProfileLoader;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 class GeneratorTest {
@@ -29,7 +31,7 @@ class GeneratorTest {
     Schema schema = db.dropCreateSchema(GeneratorTest.class.getSimpleName() + "-PetStore");
 
     PetStoreLoader petStoreLoader = new PetStoreLoader();
-    petStoreLoader.load(schema, true);
+    petStoreLoader.load(schema, false);
     new Generator().generate(schema, f.getPath());
 
     // now compare generated with expected
@@ -39,6 +41,39 @@ class GeneratorTest {
 
     File generated =
         new File(this.getClass().getClassLoader().getResource("generateTypes.ts").getFile());
+
+    List<String> generatedLines = fileToLines(generated);
+
+    assertEquals(lines, generatedLines);
+  }
+
+  @Test
+  @Tag("slow")
+  void generateCatalogueTypes() throws IOException {
+    File f =
+        new File(
+            this.getClass().getClassLoader().getResource("generated-catalogue-types.ts").getFile());
+    String schemaName = GeneratorTest.class.getSimpleName() + "Catalogue";
+    Schema schema = db.getSchema(schemaName);
+    if (schema == null) {
+      schema = db.createSchema(schemaName);
+    } else {
+      schema = db.dropCreateSchema(schema.getName());
+    }
+
+    ProfileLoader dataCatalogueLoader = new ProfileLoader("_profiles/DataCatalogue.yaml");
+    dataCatalogueLoader.load(schema, false);
+    new Generator().generate(schema, f.getPath());
+
+    // now compare generated with expected
+    File expected =
+        new File(
+            this.getClass().getClassLoader().getResource("expected-catalogue-types.ts").getFile());
+    List<String> lines = fileToLines(expected);
+
+    File generated =
+        new File(
+            this.getClass().getClassLoader().getResource("generated-catalogue-types.ts").getFile());
 
     List<String> generatedLines = fileToLines(generated);
 
