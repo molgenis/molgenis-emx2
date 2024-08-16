@@ -409,8 +409,10 @@ By this point, you should have enough to view your app. Run the `yarn dev` comma
 
 ### Generate typescript types for a app 
 
-If you want to delete all the MOLGENIS generated schemas, roles and users in the postgresql and return to clean state, run
+To generate the typescript interfaces for a given schema , run
 ```./gradlew generateTypes --args=[schemaName] [full-path+file-name]```
 
 for example ``` ./gradlew generateTypes --args='catalogue /Users/john/Code/emx2/molgenis-emx2/apps/nuxt3-ssr/interfaces/generated/types.ts' ```
 "
+
+first param is the schema name, second param is the fullpath to the file the interfaces get generated in to ( note: file is created or overridden)
