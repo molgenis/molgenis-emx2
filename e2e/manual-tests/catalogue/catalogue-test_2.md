@@ -14,6 +14,7 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 
 | Step | Action | Expected result | Github bug/issue | Playwright test |
 | ---- | ------ | --------------- | ----------------- | -----------------|
+| 0 | NB: Assumptions | This test plan assumes a 'clean' set of test data, otherwise counts for variables etc. might be off. | | |
 | 1 | Navigate to [https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/) | Landing page: European health research data and sample catalogue| | | |
 | 2 | In section 'Thematic catalogues' hover over the testNetwork1 row | Row should be highlighted | | | |
 | 3 | Click on the testNetwork1 logo (to be implemented, click on 'testNetwork1') | Should be directed to the testNetwork1 home page with 'Welcome to the catalogue of testNetwork1: [etc]', and Cohorts (4), Data sources (1), Variables (8) buttons | [#3512](https://github.com/molgenis/molgenis-emx2/issues/3512) | | |
