@@ -24,13 +24,13 @@
         v-if="showChangeColumnButton && !showChangeColumn"
         @click="showChangeColumn = true"
         class="float-right"
-        >Show Changelog</ButtonOutline
+        >Show changelog</ButtonOutline
       >
       <ButtonOutline
         v-if="showChangeColumnButton && showChangeColumn"
         @click="showChangeColumn = false"
         class="float-right"
-        >Hide Changelog</ButtonOutline
+        >Hide changelog</ButtonOutline
       >
 
       <table class="table table-hover table-bordered bg-white">
