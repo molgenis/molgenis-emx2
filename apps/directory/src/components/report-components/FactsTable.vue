@@ -6,7 +6,7 @@
         <label>
           <input
             type="checkbox"
-            @change="(e) => toggleColumn(e, 'sample_type')"
+            @change="(event) => toggleColumn(event, 'sample_type')"
             :checked="columnChecked('sample_type')"
           />
           Material type
@@ -14,7 +14,7 @@
         <label>
           <input
             type="checkbox"
-            @change="(e) => toggleColumn(e, 'sex')"
+            @change="(event) => toggleColumn(event, 'sex')"
             :checked="columnChecked('sex')"
           />
           Sex
@@ -22,7 +22,7 @@
         <label>
           <input
             type="checkbox"
-            @change="(e) => toggleColumn(e, 'age_range')"
+            @change="(event) => toggleColumn(event, 'age_range')"
             :checked="columnChecked('age_range')"
           />
           Age range
@@ -30,7 +30,7 @@
         <label>
           <input
             type="checkbox"
-            @change="(e) => toggleColumn(e, 'disease')"
+            @change="(event) => toggleColumn(event, 'disease')"
             :checked="columnChecked('disease')"
           />
           Disease codes
@@ -217,8 +217,11 @@ const factsProperties = ref<string[]>([
 ]);
 const factProperties = ref<Record<string, any>>({});
 
+let baseFacts: Record<string, any>[] = [];
+
 onMounted(() => {
-  facts.value = getFactsData();
+  baseFacts = getBaseFacts(attribute);
+  facts.value = baseFacts;
   factProperties.value = getFactProperties();
 });
 
@@ -418,20 +421,20 @@ function getValue(object: Record<string, any>, propertyString: string) {
 function collapseRows() {
   if (splitByColumn.value.length === 4) {
     /** no group together selected, so reset the state */
-    // copyFactsToComponentState();
+    facts.value = baseFacts;
     return;
   }
 
   /** make a copy that we can keep mutating utill we have dealt with all the collapses.
    * order matters!
    */
-  const baseFacts = hardcopy(getFactsData());
+  const baseFactsCopy = hardcopy(baseFacts);
 
   const groupedFacts = [];
 
   const criteriaMet: string[] = [];
 
-  for (const baseFact of baseFacts) {
+  for (const baseFact of baseFactsCopy) {
     if (Object.values(baseFact).includes("Any")) {
       continue;
     }
@@ -450,7 +453,7 @@ function collapseRows() {
     }
 
     if (!criteriaMet.includes(newCriteria)) {
-      let critGroup = baseFacts;
+      let critGroup = baseFactsCopy;
       const criteriaKeys = Object.keys(criteria);
       for (const critKey of criteriaKeys) {
         critGroup = critGroup.filter(
@@ -520,7 +523,7 @@ function collapseRows() {
   facts.value = collapsedFacts;
 }
 
-function getFactsData() {
+function getBaseFacts(attributeattribute: Record<string, any>) {
   const rawFacts = hardcopy(attribute);
   const facts = rawFacts.map((rawFact: Record<string, any>) => {
     const fact: Record<string, any> = {};
