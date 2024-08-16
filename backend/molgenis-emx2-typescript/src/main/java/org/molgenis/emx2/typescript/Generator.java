@@ -7,6 +7,8 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
+import java.util.Comparator;
+import java.util.List;
 import org.molgenis.emx2.*;
 
 public class Generator {
@@ -61,7 +63,10 @@ export interface IFile {
 
     SchemaMetadata metadata = schema.getMetadata();
 
-    for (TableMetadata table : metadata.getTablesIncludingExternal()) {
+    List<TableMetadata> tables = metadata.getTablesIncludingExternal();
+    tables.sort(Comparator.comparing(TableMetadata::getTableName));
+
+    for (TableMetadata table : tables) {
 
       String tableName = convertToPascalCase(table.getTableName());
       writer.println(String.format("export interface I%s {", tableName));

@@ -1,4 +1,4 @@
-// Generated (on: 2024-08-15T16:39:47.962256) from Generator.java for schema: pet store
+// Generated (on: 2024-08-16T13:11:49.997489) from Generator.java for schema: pet store
 
 export interface IFile {
   id?: string;
@@ -24,6 +24,15 @@ export interface ICategory {
   name :string;
 }
 
+export interface IOrder {
+  orderId :string;
+  pet :IPet;
+  quantity :number;
+  price :number;
+  complete :boolean;
+  status :string;
+}
+
 export interface IPet {
   name :string;
   category :ICategory;
@@ -44,15 +53,6 @@ export interface ITag {
   ontologyTermURI :string;
   definition :string;
   children :ITag[];
-}
-
-export interface IOrder {
-  orderId :string;
-  pet :IPet;
-  quantity :number;
-  price :number;
-  complete :boolean;
-  status :string;
 }
 
 export interface IUser {
