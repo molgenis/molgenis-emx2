@@ -259,9 +259,6 @@ const fetchData = async () => {
         collectionsFilter,
       };
 
-  console.log("filter" + JSON.stringify(filter.value));
-  console.log("variablesFilter: " + JSON.stringify(variables.variablesFilter));
-
   return $fetch(graphqlURL.value, {
     key: `variables-${offset.value}`,
     method: "POST",
