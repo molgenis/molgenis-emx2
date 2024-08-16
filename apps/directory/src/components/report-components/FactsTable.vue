@@ -42,6 +42,7 @@
       of donors presented in the table below should not be added as it may give
       the wrong sums.
     </div>
+    <Pagination v-model="currentPage" :count="facts.length" :limit="100" />
     <table class="table border w-100" :key="tableVersion">
       <thead>
         <tr class="facts-header bg-secondary text-white">
@@ -155,8 +156,8 @@
         </tr>
       </thead>
       <tbody>
-        <template v-for="fact of factsTable">
-          <tr :key="fact.id" v-if="hasAFactToShow(fact)">
+        <template v-for="fact of factsTable" :key="fact.id">
+          <tr>
             <th scope="row" class="pr-1 align-top">
               {{ fact.sample_type }}
             </th>
@@ -176,10 +177,13 @@
 
 <script setup lang="ts">
 import * as _ from "lodash";
+//@ts-ignore
+import { Pagination } from "molgenis-components";
 import { computed, onMounted, ref } from "vue";
 
 const { attribute } = defineProps<{ attribute: any[] }>();
 
+const currentPage = ref(1);
 const facts = ref<Record<string, any>[]>([]);
 const sortColumn = ref("");
 const sortAsc = ref(false);
@@ -211,58 +215,11 @@ const factsProperties = ref<string[]>([
   "number_of_samples",
   "number_of_donors",
 ]);
-const factProperties = ref<Record<string, any>>();
+const factProperties = ref<Record<string, any>>({});
 
 onMounted(() => {
-  copyFactsToComponentState();
-  const splitFacts: Record<string, string[]> = facts.value
-    // .filter((fact) => fact)
-    .reduce(
-      (accum, fact) => {
-        if (fact.sample_type) accum.materialtypeOptions.push(fact.sample_type);
-        if (fact.sex) accum.sexOptions.push(fact.sex);
-        if (fact.age_range) accum.ageRangeOptions.push(fact.age_range);
-        if (fact.disease) {
-          if (fact.disease.name) {
-            accum.diseaseOptions.push(fact.disease.name);
-          } else {
-            accum.diseaseOptions.push(fact.disease);
-          }
-        }
-        return accum;
-      },
-      {
-        materialtypeOptions: [] as string[],
-        sexOptions: [] as string[],
-        ageRangeOptions: [] as string[],
-        diseaseOptions: [] as string[],
-      }
-    );
-
-  const uniqSplitFacts = {
-    materialtypeOptions: _.uniq(splitFacts.materialtypeOptions),
-    sexOptions: _.uniq(splitFacts.sexOptions),
-    ageRangeOptions: _.uniq(splitFacts.ageRangeOptions),
-    diseaseOptions: _.uniq(splitFacts.diseaseOptions),
-  };
-
-  factProperties.value = {
-    materialtypeOptions: _.sortBy(
-      uniqSplitFacts.materialtypeOptions,
-      (a: string, b: string) => a.localeCompare(b)
-    ),
-    sexOptions: _.sortBy(uniqSplitFacts.sexOptions, (a: string, b: string) =>
-      a.localeCompare(b)
-    ),
-    ageRangeOptions: _.sortBy(
-      uniqSplitFacts.ageRangeOptions,
-      (a: string, b: string) => a.localeCompare(b)
-    ),
-    diseaseOptions: _.sortBy(
-      uniqSplitFacts.diseaseOptions,
-      (a: string, b: string) => a.localeCompare(b)
-    ),
-  };
+  facts.value = getFactsData();
+  factProperties.value = getFactProperties();
 });
 
 const materialtypeOptions = computed(() => {
@@ -286,19 +243,33 @@ const columnChecked = computed(() => {
 });
 
 const factsTable = computed(() => {
-  // if (filters.value.length === 0) {
-  return facts.value;
-  // }
+  const filteredFacts = getFilteredFacts(facts.value);
+
+  const firstIndex = 0 + (currentPage.value - 1) * 100;
+  const potentialLastIndex = 99 + (currentPage.value - 1) * 100;
+  const lastIndex =
+    potentialLastIndex > facts.value.length
+      ? facts.value.length
+      : potentialLastIndex;
+
+  return filteredFacts.slice(firstIndex, lastIndex);
+});
+
+function getFilteredFacts(facts: Record<string, any>[]) {
+  if (filters.value.length === 0) {
+    return facts;
+  }
   const filteredFacts: Record<string, any>[] = [];
 
   const lastFilterIndex = filters.value.length - 1;
 
-  for (const fact of facts.value) {
+  for (const fact of facts) {
     filters.value.forEach((filter, index) => {
       const propertyValue = getValue(fact, filter.column);
       const matchesAllFilters =
         (!propertyValue && filter.value !== "Unknown") ||
         propertyValue !== filter.value;
+
       if (!matchesAllFilters) {
         // break;
       } else if (!propertyValue && filter.value === "Unknown") {
@@ -308,10 +279,57 @@ const factsTable = computed(() => {
       }
     });
   }
-
-  console.log("factstable done");
   return filteredFacts;
-});
+}
+
+function getFactProperties() {
+  const splitFacts: Record<string, string[]> = facts.value.reduce(
+    (accum, fact) => {
+      if (fact.sample_type) accum.materialtypeOptions.push(fact.sample_type);
+      if (fact.sex) accum.sexOptions.push(fact.sex);
+      if (fact.age_range) accum.ageRangeOptions.push(fact.age_range);
+      if (fact.disease) {
+        if (fact.disease.name) {
+          accum.diseaseOptions.push(fact.disease.name);
+        } else {
+          accum.diseaseOptions.push(fact.disease);
+        }
+      }
+      return accum;
+    },
+    {
+      materialtypeOptions: [] as string[],
+      sexOptions: [] as string[],
+      ageRangeOptions: [] as string[],
+      diseaseOptions: [] as string[],
+    }
+  );
+
+  const uniqSplitFacts = {
+    materialtypeOptions: _.uniq(splitFacts.materialtypeOptions),
+    sexOptions: _.uniq(splitFacts.sexOptions),
+    ageRangeOptions: _.uniq(splitFacts.ageRangeOptions),
+    diseaseOptions: _.uniq(splitFacts.diseaseOptions),
+  };
+
+  return {
+    materialtypeOptions: _.sortBy(
+      uniqSplitFacts.materialtypeOptions,
+      (a: string, b: string) => a.localeCompare(b)
+    ),
+    sexOptions: _.sortBy(uniqSplitFacts.sexOptions, (a: string, b: string) =>
+      a.localeCompare(b)
+    ),
+    ageRangeOptions: _.sortBy(
+      uniqSplitFacts.ageRangeOptions,
+      (a: string, b: string) => a.localeCompare(b)
+    ),
+    diseaseOptions: _.sortBy(
+      uniqSplitFacts.diseaseOptions,
+      (a: string, b: string) => a.localeCompare(b)
+    ),
+  };
+}
 
 function toggleColumn(e: any, columnName: string) {
   if (e.target.checked) {
@@ -326,17 +344,6 @@ function toggleColumn(e: any, columnName: string) {
   diseaseFilter.value = "all";
   filters.value = [];
   collapseRows();
-}
-
-function hasAFactToShow(fact: Record<string, any>) {
-  const hasSamples =
-    fact.number_of_samples && parseInt(fact.number_of_samples) !== 0;
-  const hasDonors =
-    fact.number_of_donors && parseInt(fact.number_of_samples) !== 0;
-  const facts = [hasSamples, hasDonors, fact.sex];
-
-  /** return true, if any of the facts is filled it. */
-  return facts.some((fact) => fact);
 }
 
 function filter(column: string, event: Record<string, any>) {
@@ -408,21 +415,17 @@ function getValue(object: Record<string, any>, propertyString: string) {
   return value ?? "Unknown";
 }
 
-function hardcopy(value: any) {
-  return JSON.parse(JSON.stringify(value));
-}
-
 function collapseRows() {
   if (splitByColumn.value.length === 4) {
     /** no group together selected, so reset the state */
-    copyFactsToComponentState();
+    // copyFactsToComponentState();
     return;
   }
 
   /** make a copy that we can keep mutating utill we have dealt with all the collapses.
    * order matters!
    */
-  const baseFacts = hardcopy(factsData());
+  const baseFacts = hardcopy(getFactsData());
 
   const groupedFacts = [];
 
@@ -517,12 +520,9 @@ function collapseRows() {
   facts.value = collapsedFacts;
 }
 
-function factsData() {
+function getFactsData() {
   const rawFacts = hardcopy(attribute);
-
-  const facts = [];
-
-  for (const rawFact of rawFacts) {
+  const facts = rawFacts.map((rawFact: Record<string, any>) => {
     const fact: Record<string, any> = {};
     for (const property of factsProperties.value) {
       const key = property.split(".")[0];
@@ -531,13 +531,23 @@ function factsData() {
         fact[key] = getValue(rawFact, property);
       }
     }
-    facts.push(fact);
-  }
-  return facts;
+    return fact;
+  });
+
+  return facts.filter(hasAFactToShow);
 }
 
-function copyFactsToComponentState() {
-  facts.value = factsData();
+function hardcopy(value: any) {
+  return JSON.parse(JSON.stringify(value));
+}
+
+function hasAFactToShow(fact: Record<string, any>) {
+  const hasSamples =
+    fact.number_of_samples && parseInt(fact.number_of_samples) !== 0;
+  const hasDonors =
+    fact.number_of_donors && parseInt(fact.number_of_samples) !== 0;
+
+  return hasSamples || hasDonors || !!fact.sex;
 }
 </script>
 
