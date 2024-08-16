@@ -33,5 +33,9 @@ const bannerHtml = computed(() => {
       </div>
     </div>
   </Container>
-  <FooterComponent />
+  <FooterComponent>
+    <ClientOnly>
+      <FooterVersion />
+    </ClientOnly>
+  </FooterComponent>
 </template>
