@@ -1,6 +1,8 @@
 package org.molgenis.emx2;
 
 import java.util.List;
+import java.util.Map;
+import java.util.function.Supplier;
 
 public interface Table {
 
@@ -14,7 +16,7 @@ public interface Table {
 
   int insert(Iterable<Row> rows);
 
-  int insert(Iterable<Row> rows, Object bindings);
+  int insert(Iterable<Row> rows, Map<String, Supplier<Object>> bindings);
 
   int update(Row... row);
 
@@ -23,6 +25,8 @@ public interface Table {
   int save(Row... row);
 
   int save(Iterable<Row> rows);
+
+  int save(Iterable<Row> rows, Map<String, Supplier<Object>> bindings);
 
   int delete(Row... row);
 

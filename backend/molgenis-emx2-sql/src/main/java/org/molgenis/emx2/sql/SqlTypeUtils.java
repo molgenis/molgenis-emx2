@@ -5,6 +5,7 @@ import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascript;
 import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascriptOnMap;
 
 import java.util.*;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.TypeUtils;
@@ -20,14 +21,15 @@ public class SqlTypeUtils extends TypeUtils {
   }
 
   public static List<Row> applyValidationAndComputed(
-      List<Column> columns, List<Row> rows, Object bindings) {
+      List<Column> columns, List<Row> rows, Map<String, Supplier<Object>> bindings) {
     for (Row row : rows) {
       applyValidationAndComputed(columns, row, bindings);
     }
     return rows;
   }
 
-  public static void applyValidationAndComputed(List<Column> columns, Row row, Object bindings) {
+  public static void applyValidationAndComputed(
+      List<Column> columns, Row row, Map<String, Supplier<Object>> bindings) {
     Map<String, Object> graph = convertRowToMap(columns, row);
     for (Column c : columns.stream().filter(c -> !c.isHeading()).toList()) {
       if (Constants.MG_EDIT_ROLE.equals(c.getName())) {
@@ -219,7 +221,8 @@ public class SqlTypeUtils extends TypeUtils {
     };
   }
 
-  public static void checkValidation(Column column, Map<String, Object> values, Object bindings) {
+  public static void checkValidation(
+      Column column, Map<String, Object> values, Map<String, Supplier<Object>> bindings) {
     if (values.get(column.getName()) != null) {
       column.getColumnType().validate(values.get(column.getName()));
       // validation
@@ -233,11 +236,11 @@ public class SqlTypeUtils extends TypeUtils {
   }
 
   public static String checkValidation(
-      String validationScript, Map<String, Object> values, Object bindings) {
+      String validationScript, Map<String, Object> values, Map<String, Supplier<Object>> bindings) {
     try {
-      values.put("simplePostClient", bindings);
+      // values.put("simplePostClient", bindings);
 
-      Object error = executeJavascriptOnMap(validationScript, values);
+      Object error = executeJavascriptOnMap(validationScript, values, bindings);
       if (error != null) {
         if (error instanceof Boolean && (Boolean) error == false) {
           // you can have a validation rule that simply returns true or false;

@@ -13,6 +13,7 @@ import java.io.Writer;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import org.jooq.*;
 import org.molgenis.emx2.*;
@@ -121,15 +122,11 @@ class SqlTable implements Table {
 
   @Override
   public int insert(Iterable<Row> rows) {
-    try {
-      return executeTransaction(db, getSchema().getName(), getName(), rows, INSERT, null);
-    } catch (Exception e) {
-      throw new SqlMolgenisException("Update into table '" + getName() + "' failed.", e);
-    }
+    return insert(rows, null);
   }
 
   @Override
-  public int insert(Iterable<Row> rows, Object bindings) {
+  public int insert(Iterable<Row> rows, Map<String, Supplier<Object>> bindings) {
     try {
       return executeTransaction(db, getSchema().getName(), getName(), rows, INSERT, bindings);
     } catch (Exception e) {
@@ -145,7 +142,7 @@ class SqlTable implements Table {
   @Override
   public int update(Iterable<Row> rows) {
     try {
-      return this.executeTransaction(db, getSchema().getName(), getName(), rows, UPDATE, null);
+      return executeTransaction(db, getSchema().getName(), getName(), rows, UPDATE, null);
     } catch (Exception e) {
       throw new SqlMolgenisException("Update into table '" + getName() + "' failed.", e);
     }
@@ -158,8 +155,13 @@ class SqlTable implements Table {
 
   @Override
   public int save(Iterable<Row> rows) {
+    return save(rows, null);
+  }
+
+  @Override
+  public int save(Iterable<Row> rows, Map<String, Supplier<Object>> bindings) {
     try {
-      return this.executeTransaction(db, getSchema().getName(), getName(), rows, SAVE, null);
+      return executeTransaction(db, getSchema().getName(), getName(), rows, SAVE, bindings);
     } catch (Exception e) {
       throw new SqlMolgenisException("Upsert into table '" + getName() + "' failed", e);
     }
@@ -205,7 +207,7 @@ class SqlTable implements Table {
       String tableName,
       Iterable<Row> rows,
       MutationType transactionType,
-      Object bindings) {
+      Map<String, Supplier<Object>> bindings) {
     long start = System.currentTimeMillis();
     final AtomicInteger count = new AtomicInteger(0);
     final Map<String, List<Row>> subclassRows = new LinkedHashMap<>();
@@ -333,7 +335,7 @@ class SqlTable implements Table {
       Map<String, List<Row>> subclassRows,
       String subclassName,
       Set<String> columnsProvided,
-      Object bindings) {
+      Map<String, Supplier<Object>> bindings) {
 
     // execute
     SqlTable table = schema.getTable(subclassName.split("\\.")[1]);

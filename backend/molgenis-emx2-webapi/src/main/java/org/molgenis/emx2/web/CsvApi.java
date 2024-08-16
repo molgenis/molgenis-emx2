@@ -16,12 +16,14 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.graphql.GraphqlConstants;
 import org.molgenis.emx2.io.emx2.Emx2;
 import org.molgenis.emx2.io.readers.CsvTableReader;
 import org.molgenis.emx2.io.readers.CsvTableWriter;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvInMemory;
+import org.molgenis.emx2.utils.JavaScriptBindings;
 import spark.Request;
 import spark.Response;
 
@@ -58,7 +60,10 @@ public class CsvApi {
 
     if (fileNameMatchesTable) {
       // so we assume it isn't meta data
-      int count = MolgenisWebservice.getTableById(request, fileName).save(getRowList(request));
+      Table table = MolgenisWebservice.getTableById(request, fileName);
+      Map<String, Supplier<Object>> bindings =
+          JavaScriptBindings.getBindingsForSchema(table.getSchema());
+      int count = table.save(getRowList(request), bindings);
       response.status(200);
       response.type(ACCEPT_CSV);
       return "imported number of rows: " + count;

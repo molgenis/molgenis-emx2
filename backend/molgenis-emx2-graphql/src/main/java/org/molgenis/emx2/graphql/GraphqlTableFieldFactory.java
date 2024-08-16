@@ -13,6 +13,7 @@ import static org.molgenis.emx2.sql.SqlQuery.*;
 import graphql.Scalars;
 import graphql.schema.*;
 import java.util.*;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.JavaScriptBindings;
@@ -811,7 +812,8 @@ public class GraphqlTableFieldFactory {
   }
 
   private DataFetcher fetcher(Schema schema, MutationType mutationType) {
-    JavaScriptBindings javaScriptBindings = new JavaScriptBindings(schema);
+    Map<String, Supplier<Object>> javaScriptBindings =
+        JavaScriptBindings.getBindingsForSchema(schema);
     return dataFetchingEnvironment -> {
       StringBuilder result = new StringBuilder();
       boolean any = false;
@@ -831,7 +833,7 @@ public class GraphqlTableFieldFactory {
               count =
                   table.insert(
                       TypeUtils.convertToRows(table.getMetadata(), rowsAslistOfMaps),
-                      javaScriptBindings.simplePostClient);
+                      javaScriptBindings);
               result.append("inserted " + count + " records to " + tableName + "\n");
               break;
             case SAVE:
