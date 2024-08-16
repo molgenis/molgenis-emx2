@@ -42,6 +42,13 @@ class GeneratorTest {
 
     List<String> generatedLines = fileToLines(generated);
 
+    for (int i = 0; i < lines.size(); i++) {
+      System.out.println("compare line " + i);
+      System.out.println(lines.get(i));
+      System.out.println(generatedLines.get(i));
+      assertEquals(lines.get(i), generatedLines.get(i));
+    }
+
     assertEquals(lines, generatedLines);
   }
 
