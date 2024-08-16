@@ -15,13 +15,18 @@ public class DirectoryLoader extends ImportDataModelTask {
   @Override
   public void run() {
     this.start();
-    // create catalogue schema (which will create tables in ontology schema)
-    createSchema("directory/molgenis.csv");
-    getSchema().addMember(SqlDatabase.ANONYMOUS, Privileges.VIEWER.toString());
+    try {
+      // create catalogue schema (which will create tables in ontology schema)
+      createSchema("directory/molgenis.csv");
+      getSchema().addMember(SqlDatabase.ANONYMOUS, Privileges.VIEWER.toString());
 
-    // optionally, load demo data
-    if (isIncludeDemoData()) {
-      MolgenisIO.fromClasspathDirectory("directory/data", getSchema(), false);
+      // optionally, load demo data
+      if (isIncludeDemoData()) {
+        MolgenisIO.fromClasspathDirectory("directory/data", getSchema(), false);
+      }
+    } catch (Exception e) {
+      this.completeWithError(e.getMessage());
+      throw (e);
     }
     this.complete();
   }

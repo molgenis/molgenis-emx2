@@ -75,11 +75,13 @@ public class DataModels {
   }
 
   public static Task getImportTask(Schema schema, String template, boolean includeDemoData) {
+    Task task;
     if (Profile.hasProfile(template)) {
       Profile profile = Profile.valueOf(template);
-      return profile.getImportTask(schema, includeDemoData);
+      task = profile.getImportTask(schema, includeDemoData);
     } else {
-      return Regular.valueOf(template).getImportTask(schema, includeDemoData);
+      task = Regular.valueOf(template).getImportTask(schema, includeDemoData);
     }
+    return task.setDescription("Loading data model: " + template + " onto " + schema.getName());
   }
 }
