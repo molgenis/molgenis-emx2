@@ -118,7 +118,7 @@ See https://linked2ev.github.io/devsub/2019/09/30/Intellij-junit4-gradle-issue/
 To skip slow tests that are marked in junit @Tag('slow') switch from 'All in package' to 'tags' and set to '!slow' via the 'edit configuration' of your test runner in 'build configuration'
 
 When you get error "java.lang.reflect.InaccessibleObjectException: Unable to make field private final java.util.Map java.util.Collections$UnmodifiableMap.m accessible: module java.base does not "opens java.util" to unnamed module @5cee5251"
-that is because you need JVM parameter '--add-opens=java.base/java.util=ALL-UNNAMED'
+that is because you need JVM parameter `--add-opens=java.base/java.util=ALL-UNNAMED`
 
 ### Reset gradle cache/deamon
 
