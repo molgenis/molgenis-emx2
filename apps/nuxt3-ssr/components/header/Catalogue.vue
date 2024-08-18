@@ -1,8 +1,5 @@
 <script setup lang="ts">
-import {
-  getCollectionMetadataForPath,
-  getCollectionMetadataForType,
-} from "~/constants";
+import { getCollectionMetadataForType } from "~/constants";
 
 const route = useRoute();
 const config = useRuntimeConfig();
