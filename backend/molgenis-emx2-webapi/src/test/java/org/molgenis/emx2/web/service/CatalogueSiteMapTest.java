@@ -20,7 +20,7 @@ public class CatalogueSiteMapTest {
     Schema schema = mock(Schema.class);
     Table table = mock(Table.class);
     Query query = mock(Query.class);
-    List<Row> row = Collections.singletonList(new Row("id", "my-id", "type", "Data sources"));
+    List<Row> row = Collections.singletonList(new Row("id", "my-id", "type", "Data source"));
     when(schema.getTable("Collections")).thenReturn(table);
     when(table.select(any(), any())).thenReturn(query);
     when(query.retrieveRows()).thenReturn(row);
