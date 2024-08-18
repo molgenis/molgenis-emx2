@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import subcohortGql from "~~/gql/subcohort";
-import ContentBlockModal from "./content/ContentBlockModal.vue";
 import dateUtils from "~/utils/dateUtils";
 const route = useRoute();
 

@@ -6,7 +6,6 @@ import type {
   IVariableDetails,
   IVariableMappings,
 } from "~/interfaces/types";
-import StickyTable from "../table/StickyTable.vue";
 
 const props = defineProps<{
   variable: IVariableDetails & IVariableMappings;
@@ -30,7 +29,7 @@ const repeats = computed(() => {
   <div class="relative">
     <HarmonisationLegendDetailed size="small" />
     <div class="overflow-x-auto xl:max-w-table border-t">
-      <StickyTable
+      <TableSticky
         :columns="sourceIds"
         :rows="repeats"
         class="h-screen overflow-auto"
@@ -68,7 +67,7 @@ const repeats = computed(() => {
             "
           />
         </template>
-      </StickyTable>
+      </TableSticky>
     </div>
   </div>
 </template>
