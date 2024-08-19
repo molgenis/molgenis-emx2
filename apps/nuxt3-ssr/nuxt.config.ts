@@ -18,7 +18,7 @@ export default defineNuxtConfig({
       cohortOnly: false,
       apiBase:
         process.env.NUXT_PUBLIC_API_BASE ||
-        "http://localhost:8080",
+        "https://emx2.dev.molgenis.org/",
     },
   },
   imports: {
