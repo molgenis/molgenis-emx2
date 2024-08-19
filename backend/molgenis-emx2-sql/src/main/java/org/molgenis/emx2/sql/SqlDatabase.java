@@ -3,6 +3,7 @@ package org.molgenis.emx2.sql;
 import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.ColumnType.STRING;
 import static org.molgenis.emx2.Constants.MG_USER_PREFIX;
+import static org.molgenis.emx2.Constants.SYSTEM_SCHEMA;
 import static org.molgenis.emx2.sql.SqlDatabaseExecutor.*;
 import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeCreateSchema;
 
@@ -159,6 +160,13 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
         addUser(ADMIN_USER);
         setUserPassword(ADMIN_USER, initialAdminPassword);
       }
+
+      this.tx(
+          tdb -> {
+            if (!this.hasSchema(SYSTEM_SCHEMA)) {
+              this.createSchema(SYSTEM_SCHEMA);
+            }
+          });
 
       // get the settings
       clearCache();

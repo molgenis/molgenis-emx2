@@ -12,6 +12,8 @@ pip install molgenis-emx2-pyclient
 
 ## Setting up the client
 The Python client can be integrated in scripts authorized by either a username/password combination or a temporary token.
+URLs of EMX2 servers on remote servers are required to start with `https://`.
+It is possible to use the Pyclient on a server running on a local machine. The URL should then be passed as `http://localhost:PORT`.
 
 Signing in with a username/password combination requires using the client as context manager:
 ```python
@@ -21,7 +23,7 @@ username = 'username'
 password = '********'
 
 # Initialize the client as a context manager
-with Client('https://example.molgeniscloud.org') as client:
+with Client(url='https://example.molgeniscloud.org') as client:
     # Apply the 'signin' method with the username and password
     client.signin(username, password)
     

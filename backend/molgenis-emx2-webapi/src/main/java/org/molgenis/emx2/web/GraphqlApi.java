@@ -44,6 +44,11 @@ public class GraphqlApi {
   public static void createGraphQLservice(MolgenisSessionManager sm) {
     sessionManager = sm;
 
+    // per schema graphql calls from app
+    final String appGqlPath = "apps/:app/:schema/graphql"; // NOSONAR
+    get(appGqlPath, GraphqlApi::handleSchemaRequests);
+    post(appGqlPath, GraphqlApi::handleSchemaRequests);
+
     // per database graphql
     final String databasePath = "/api/graphql";
     get(databasePath, GraphqlApi::handleDatabaseRequests);

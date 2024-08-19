@@ -77,3 +77,10 @@ Good semantic html practices covers a lot of areas. In principle, it is importan
 ```
 
 For additional information and examples, please consult the [ARIA Patterns guide](https://www.w3.org/WAI/ARIA/apg/patterns/) and the [a11y project](https://www.a11yproject.com).
+
+### 6. Other guidelines
+
+Types of refs:
+```const myprop = ref<"option1" | "option2">("option2")```
+
+

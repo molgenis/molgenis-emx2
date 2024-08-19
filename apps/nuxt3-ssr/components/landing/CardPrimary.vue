@@ -1,9 +1,9 @@
 <script setup lang="ts">
 interface Props {
   title: string;
-  description: string;
+  description?: string;
   callToAction?: string;
-  count: number;
+  count?: number;
   link: string;
   image: string;
 }
@@ -32,6 +32,7 @@ withDefaults(defineProps<Props>(), {
       <slot name="title-suffix">
         <span
           class="bg-blue-50 text-title-contrast flex justify-center rounded-full px-3 py-1 font-bold text-heading-sm"
+          v-if="typeof count != 'undefined'"
         >
           {{ count }}
         </span>
@@ -47,11 +48,12 @@ withDefaults(defineProps<Props>(), {
 
     <p
       class="mt-1 mb-4 md:mb-0 text-left md:text-center lg:mb-5 text-body-lg text-sub-title-contrast h-full md:h-24"
+      v-if="description"
     >
       {{ description }}
     </p>
 
-    <NuxtLink class="md:block hidden" :to="link">
+    <NuxtLink class="md:block hidden mt-auto" :to="link">
       <Button :label="callToAction || title" type="primary" size="medium" />
     </NuxtLink>
   </div>

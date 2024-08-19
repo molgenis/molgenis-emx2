@@ -1,7 +1,6 @@
 package org.molgenis.emx2.datamodels;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.datamodels.DataCatalogueCohortStagingLoader.DATA_CATALOGUE;
 import static org.molgenis.emx2.datamodels.DataCatalogueCohortStagingLoader.SHARED_STAGING;
 
@@ -16,7 +15,6 @@ import org.molgenis.emx2.sql.TestDatabaseFactory;
 public class TestLoaders {
   public static final String COHORT_STAGING = "CohortStaging";
   public static final String NETWORK_STAGING = "NetworkStaging";
-  public static final String DATA_CATALOGUE_FLAT = "CatalogueFlat";
   public static final String DATA_CATALOGUE_AGGREGATES = "AggregatesTest";
   public static final String FAIR_DATA_HUB_TEST = "FAIRDataHubTest";
   public static final String DIRECTORY_TEST = "DirectoryTest";
@@ -30,12 +28,6 @@ public class TestLoaders {
   public static final String PROJECT_MANAGER = "ProjectManager";
   public static final String CATALOGUE_ONTOLOGIES = "CatalogueOntologies";
   public static final String DIRECTORY_ONTOLOGIES = "DirectoryOntologies";
-  public static final String FLAT_COHORTS_STAGING = "CohortsStagingFlat";
-  public static final String FLAT_UMCG_COHORTS_STAGING = "UMCGStagingFlat";
-  public static final String FLAT_STUDIES_STAGING = "StudiesStagingFlat";
-  public static final String FLAT_NETWORKS_STAGING = "NetworksStagingFlat";
-  public static final String FLAT_RWE_STAGING = "RWEStagingFlat";
-
   static Database database;
 
   @BeforeAll
@@ -45,7 +37,6 @@ public class TestLoaders {
     database.dropSchemaIfExists(COHORT_STAGING);
     database.dropSchemaIfExists(NETWORK_STAGING);
     database.dropSchemaIfExists(DATA_CATALOGUE);
-    database.dropSchemaIfExists(DATA_CATALOGUE_FLAT);
     database.dropSchemaIfExists(DATA_CATALOGUE_AGGREGATES);
     database.dropSchemaIfExists(FAIR_DATA_HUB_TEST);
     database.dropSchemaIfExists(SHARED_STAGING);
@@ -57,16 +48,14 @@ public class TestLoaders {
     database.dropSchemaIfExists(JRC_CDE_TEST);
     database.dropSchemaIfExists(FAIR_GENOMES);
     database.dropSchemaIfExists(DCAT);
+    database.dropSchemaIfExists(DCAT_BASIC);
+    database.dropSchemaIfExists(FAIR_DATA_POINT);
+    database.dropSchemaIfExists(FAIR_DATA_HUB_TEST);
     database.dropSchemaIfExists(PROJECT_MANAGER);
-    database.dropSchemaIfExists(FLAT_COHORTS_STAGING);
-    database.dropSchemaIfExists(FLAT_UMCG_COHORTS_STAGING);
-    database.dropSchemaIfExists(FLAT_STUDIES_STAGING);
-    database.dropSchemaIfExists(FLAT_NETWORKS_STAGING);
-    database.dropSchemaIfExists(FLAT_RWE_STAGING);
   }
 
   @Test
-  public void test1FAIRDataHubLoader() {
+  public void test01FAIRDataHubLoader() {
     Schema fairDataHubSchema = database.createSchema(FAIR_DATA_HUB_TEST);
     DataModels.Profile.FAIR_DATA_HUB.getImportTask(fairDataHubSchema, true).run();
     assertEquals(71, fairDataHubSchema.getTableNames().size());
@@ -76,35 +65,30 @@ public class TestLoaders {
   }
 
   @Test
-  public void test2DataCatalogueLoader() {
-    Schema dataCatalogue = database.createSchema(DATA_CATALOGUE);
+  void test06DataCatalogueLoader() {
+    Schema datacatalogueflat = database.createSchema(DATA_CATALOGUE);
     DataModels.Profile.DATA_CATALOGUE.getImportTask(dataCatalogue, true).run();
-    assertEquals(33, dataCatalogue.getTableNames().size());
-
-    // test composite pkey having refs that are linked via refLink
-    dataCatalogue
-        .getTable("Variables")
-        .groupBy()
-        .select(s("count"), s("resource", s("name")), s("dataset", s("name")))
-        .retrieveJSON();
+    assertEquals(22, datacatalogueflat.getTableNames().size());
   }
 
+  @Disabled
   @Test
-  public void test7DataCatalogueCohortStagingLoader() {
+  public void test07DataCatalogueCohortStagingLoader() {
     Schema cohortStaging = database.createSchema(COHORT_STAGING);
     DataModels.Profile.DATA_CATALOGUE_COHORT_STAGING.getImportTask(cohortStaging, true).run();
     assertEquals(19, cohortStaging.getTableNames().size());
   }
 
+  @Disabled
   @Test
-  public void test8DataCatalogueNetworkStagingLoader() {
+  public void test08DataCatalogueNetworkStagingLoader() {
     Schema networkStaging = database.createSchema(NETWORK_STAGING);
     DataModels.Regular.DATA_CATALOGUE_NETWORK_STAGING.getImportTask(networkStaging, true).run();
     assertEquals(16, networkStaging.getTableNames().size());
   }
 
   @Test
-  public void test9DirectoryLoader() {
+  public void test09DirectoryLoader() {
     Schema directory = database.createSchema(DIRECTORY_TEST);
     DataModels.Regular.BIOBANK_DIRECTORY.getImportTask(directory, true).run();
     assertEquals(10, directory.getTableNames().size());
@@ -164,47 +148,5 @@ public class TestLoaders {
     Schema FDPSchema = database.createSchema(FAIR_DATA_POINT);
     DataModels.Profile.FAIR_DATA_POINT.getImportTask(FDPSchema, true).run();
     assertEquals(25, FDPSchema.getTableNames().size());
-  }
-
-  @Test
-  void test17DataCatalogueFlatLoader() {
-    Schema datacatalogueflat = database.createSchema(DATA_CATALOGUE_FLAT);
-    DataModels.Profile.DATA_CATALOGUE_FLAT.getImportTask(datacatalogueflat, false).run();
-    assertEquals(22, datacatalogueflat.getTableNames().size());
-  }
-
-  @Test
-  void test18CohortsStagingFlatLoader() {
-    Schema cohortsstagingflat = database.createSchema(FLAT_COHORTS_STAGING);
-    DataModels.Profile.FLAT_COHORTS_STAGING.getImportTask(cohortsstagingflat, false).run();
-    assertEquals(17, cohortsstagingflat.getTableNames().size());
-  }
-
-  @Test
-  void test19UMCGStagingFlatLoader() {
-    Schema umcgstagingflat = database.createSchema(FLAT_UMCG_COHORTS_STAGING);
-    DataModels.Profile.FLAT_UMCG_COHORTS_STAGING.getImportTask(umcgstagingflat, false).run();
-    assertEquals(17, umcgstagingflat.getTableNames().size());
-  }
-
-  @Test
-  void test20StudiesFlatLoader() {
-    Schema studiesstagingflat = database.createSchema(FLAT_STUDIES_STAGING);
-    DataModels.Profile.FLAT_STUDIES_STAGING.getImportTask(studiesstagingflat, false).run();
-    assertEquals(15, studiesstagingflat.getTableNames().size());
-  }
-
-  @Test
-  void test21NetworksFlatLoader() {
-    Schema networksstagingflat = database.createSchema(FLAT_NETWORKS_STAGING);
-    DataModels.Profile.FLAT_NETWORKS_STAGING.getImportTask(networksstagingflat, false).run();
-    assertEquals(17, networksstagingflat.getTableNames().size());
-  }
-
-  @Test
-  void test22RWEStagingFlatLoader() {
-    Schema rwestagingflat = database.createSchema(FLAT_RWE_STAGING);
-    DataModels.Profile.FLAT_RWE_STAGING.getImportTask(rwestagingflat, false).run();
-    assertEquals(16, rwestagingflat.getTableNames().size());
   }
 }

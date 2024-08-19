@@ -31,6 +31,7 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.*;
@@ -700,15 +701,8 @@ public class WebApiSmokeTests {
   public void testTokenBasedAuth() throws JsonProcessingException {
 
     // check if we can use temporary token
-    String result =
-        given()
-            .body(
-                "{\"query\":\"mutation{signin(email:\\\"shopmanager\\\",password:\\\"shopmanager\\\"){message,token}}\"}")
-            .when()
-            .post("/api/graphql")
-            .getBody()
-            .asString();
-    String token = new ObjectMapper().readTree(result).at("/data/signin/token").textValue();
+    String token = getToken("shopmanager", "shopmanager");
+    String result;
 
     // without token we are anonymous
     assertTrue(
@@ -957,15 +951,8 @@ public class WebApiSmokeTests {
   @Disabled("unstable")
   public void testScriptExecution() throws JsonProcessingException, InterruptedException {
     // get token for admin
-    String result =
-        given()
-            .body(
-                "{\"query\":\"mutation{signin(email:\\\"admin\\\",password:\\\"admin\\\"){message,token}}\"}")
-            .when()
-            .post("/api/graphql")
-            .getBody()
-            .asString();
-    String token = new ObjectMapper().readTree(result).at("/data/signin/token").textValue();
+    String token = getToken("admin", "admin");
+    String result;
 
     // submit simple
     result =
@@ -1045,16 +1032,8 @@ public class WebApiSmokeTests {
     db.getSchema(SYSTEM_SCHEMA).getTable("Jobs").truncate();
     db.getSchema(SYSTEM_SCHEMA).getTable("Scripts").delete(row("name", "test"));
 
-    // get token for admin
-    String result =
-        given()
-            .body(
-                "{\"query\":\"mutation{signin(email:\\\"admin\\\",password:\\\"admin\\\"){message,token}}\"}")
-            .when()
-            .post("/api/graphql")
-            .getBody()
-            .asString();
-    String token = new ObjectMapper().readTree(result).at("/data/signin/token").textValue();
+    String token = getToken("admin", "admin");
+    String result;
 
     // simply retrieve the results using get
     // todo: also allow anonymous
@@ -1166,6 +1145,20 @@ public class WebApiSmokeTests {
             .getBody()
             .asString();
     assertTrue(result.contains("[]"), "script should be unscheduled");
+  }
+
+  private static String getToken(String email, String password) throws JsonProcessingException {
+    String mutation =
+        """
+        mutation { signin(email: "%s" ,password: "%s" ) { message, token } }
+        """
+            .formatted(email, password);
+
+    Map<String, String> request = new HashMap<>();
+    request.put("query", mutation);
+
+    String result = given().body(request).when().post("/api/graphql").getBody().asString();
+    return new ObjectMapper().readTree(result).at("/data/signin/token").textValue();
   }
 
   @Test
@@ -1305,6 +1298,72 @@ public class WebApiSmokeTests {
   void testProfileApi() {
     String result = result = given().get("/api/profiles").getBody().asString();
     assertTrue(result.contains("Samples"));
+  }
+
+  @Test
+  void testAnalyticsApi() throws JsonProcessingException {
+
+    db.getSchema(SYSTEM_SCHEMA).getTable("AnalyticsTrigger").truncate();
+    String adminToken = getToken("admin", "admin");
+
+    // add a trigger
+    Map<String, String> addRequest = new HashMap<>();
+    addRequest.put("name", "my-trigger");
+    addRequest.put("cssSelector", "#my-favorite-button");
+
+    String resp =
+        given()
+            .header(X_MOLGENIS_TOKEN, adminToken)
+            .when()
+            .body(addRequest)
+            .post("/pet store/api/trigger")
+            .getBody()
+            .asString();
+    assertEquals("{\"status\":\"SUCCESS\"}", resp);
+
+    // fetch a triggers
+    String triggers = given().get("/pet store/api/trigger").getBody().asString();
+    assertEquals(
+        "[{\"name\":\"my-trigger\",\"cssSelector\":\"#my-favorite-button\",\"schemaName\":\"pet store\",\"appName\":null}]",
+        triggers);
+
+    // update a trigger
+    Map<String, String> updateRequest = new HashMap<>();
+    updateRequest.put("cssSelector", "#my-update-button");
+
+    String updateResp =
+        given()
+            .header(X_MOLGENIS_TOKEN, adminToken)
+            .when()
+            .body(updateRequest)
+            .put("/pet store/api/trigger/my-trigger")
+            .getBody()
+            .asString();
+    assertEquals("{\"status\":\"SUCCESS\"}", updateResp);
+
+    // re-fetch a triggers to check update
+    String updated = given().get("/pet store/api/trigger").getBody().asString();
+    assertEquals(
+        "[{\"name\":\"my-trigger\",\"cssSelector\":\"#my-update-button\",\"schemaName\":\"pet store\",\"appName\":null}]",
+        updated);
+
+    // delete a trigger
+    given()
+        .header(X_MOLGENIS_TOKEN, adminToken)
+        .delete("/pet store/api/trigger/my-trigger")
+        .getBody()
+        .asString();
+    assertEquals("{\"status\":\"SUCCESS\"}", resp);
+
+    // refetch triggers
+    String triggersAfterDelete = given().get("/pet store/api/trigger").getBody().asString();
+    assertEquals("[]", triggersAfterDelete);
+  }
+
+  @Test
+  void signIn() throws JsonProcessingException {
+    String token = getToken("admin", "admin");
+    assertTrue(token.length() > 10);
   }
 
   private Row waitForScriptToComplete(String scriptName) throws InterruptedException {

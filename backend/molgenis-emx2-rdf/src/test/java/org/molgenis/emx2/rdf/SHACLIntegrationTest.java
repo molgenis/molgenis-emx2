@@ -1,13 +1,11 @@
 package org.molgenis.emx2.rdf;
 
-import static org.molgenis.emx2.rdf.ComplianceTest.*;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
-public class SHACLIntegrationTest {
+public class SHACLIntegrationTest extends ComplianceTest {
 
   /**
    * Combine all SHACL shapes into one to find out if the superset is also a valid shape. If this is
