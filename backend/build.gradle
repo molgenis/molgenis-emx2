@@ -89,6 +89,7 @@ subprojects {
 
     jar {
         reproducibleFileOrder = true
+        zip64 = true
         manifest {
             attributes(
                     'Specification-Version': project.version.toString(),
