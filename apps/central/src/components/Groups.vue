@@ -24,14 +24,16 @@
         v-if="showChangeColumnButton && !showChangeColumn"
         @click="showChangeColumn = true"
         class="float-right"
-        >Show changelog</ButtonOutline
       >
+        Show changelog
+      </ButtonOutline>
       <ButtonOutline
         v-if="showChangeColumnButton && showChangeColumn"
         @click="showChangeColumn = false"
         class="float-right"
-        >Hide changelog</ButtonOutline
       >
+        Hide changelog
+      </ButtonOutline>
 
       <table class="table table-hover table-bordered bg-white">
         <thead>
@@ -300,7 +302,7 @@ export default {
     },
   },
   watch: {
-    showChangeColumn: function (val) {
+    showChangeColumn: (val) => {
       if (val) {
         this.getSchemaList();
       }
