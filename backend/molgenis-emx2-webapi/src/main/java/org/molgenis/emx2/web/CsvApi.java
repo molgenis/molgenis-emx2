@@ -58,8 +58,7 @@ public class CsvApi {
 
     if (fileNameMatchesTable) {
       // so we assume it isn't meta data
-      Table table = MolgenisWebservice.getTableById(request, fileName);
-      int count = table.save(getRowList(request));
+      int count = MolgenisWebservice.getTableById(request, fileName).save(getRowList(request));
       response.status(200);
       response.type(ACCEPT_CSV);
       return "imported number of rows: " + count;
