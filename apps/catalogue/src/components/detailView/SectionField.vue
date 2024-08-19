@@ -11,7 +11,7 @@
         v-if="!isEmptyValue"
         :is="fieldTypeComponentName"
         :data="field.value"
-        :metaData="field.meta"
+        :metadata="field.meta"
         :color="color"
       />
       <div v-else>N/A</div>
