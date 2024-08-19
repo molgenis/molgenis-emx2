@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { IFilter, IMgError, activeTabType } from "~/interfaces/types";
-import { getCollectionMetadataForPath } from "~/constants";
 
 const route = useRoute();
 const router = useRouter();

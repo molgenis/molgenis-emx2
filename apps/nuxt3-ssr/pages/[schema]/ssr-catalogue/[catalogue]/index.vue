@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { IMgError } from "~~/interfaces/types";
-import { getCollectionMetadataForType } from "~/constants";
 
 const route = useRoute();
 const config = useRuntimeConfig();
