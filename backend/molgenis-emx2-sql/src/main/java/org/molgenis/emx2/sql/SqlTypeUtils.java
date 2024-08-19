@@ -225,10 +225,12 @@ public class SqlTypeUtils extends TypeUtils {
       // validation
       if (column.getValidation() != null) {
         // check if validation script contains js functions that are bound to java functions
-        Map<String, Supplier<Object>> bindings = column.getSchema().getDatabase().getBindings();
-        for (String key : bindings.keySet()) {
-          if (column.getValidation().contains(key)) {
-            values.put(key, bindings.get(key).get());
+        if (column.getSchema() != null && column.getSchema().getDatabase() != null) {
+          Map<String, Supplier<Object>> bindings = column.getSchema().getDatabase().getBindings();
+          for (String key : bindings.keySet()) {
+            if (column.getValidation().contains(key)) {
+              values.put(key, bindings.get(key).get());
+            }
           }
         }
         String errorMessage = checkValidation(column.getValidation(), values);
