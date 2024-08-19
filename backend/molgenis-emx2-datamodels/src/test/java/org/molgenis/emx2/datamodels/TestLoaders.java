@@ -66,9 +66,9 @@ public class TestLoaders {
 
   @Test
   void test06DataCatalogueLoader() {
-    Schema datacatalogueflat = database.createSchema(DATA_CATALOGUE);
+    Schema dataCatalogue = database.createSchema(DATA_CATALOGUE);
     DataModels.Profile.DATA_CATALOGUE.getImportTask(dataCatalogue, true).run();
-    assertEquals(22, datacatalogueflat.getTableNames().size());
+    assertEquals(22, dataCatalogue.getTableNames().size());
   }
 
   @Disabled
