@@ -6,7 +6,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.datamodels.ProfileLoader;
+import org.molgenis.emx2.io.ImportProfileTask;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 /**
@@ -25,8 +25,7 @@ public abstract class ComplianceTest {
   public static String createSchemaExportRDF(String schemaName, String profile) {
     Database database = TestDatabaseFactory.getTestDatabase();
     Schema schema = database.dropCreateSchema(schemaName);
-    ProfileLoader profileLoader = new ProfileLoader(profile);
-    profileLoader.load(schema, true);
+    new ImportProfileTask(schema, profile, true).run();
     OutputStream outputStream = new ByteArrayOutputStream();
     var rdf = new RDFService("http://localhost:8080", RDF_API_LOCATION, null);
     rdf.describeAsRDF(outputStream, null, null, null, schema);
