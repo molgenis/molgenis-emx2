@@ -40,7 +40,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   private DSLContext jooq;
   private final SqlUserAwareConnectionProvider connectionProvider;
   private final Map<String, SqlSchemaMetadata> schemaCache = new LinkedHashMap<>();
-  private Map<String, Supplier<Object>> bindings = new HashMap<>(); // cache
+  private Map<String, Supplier<Object>> bindings = new HashMap<>();
   private Collection<String> schemaNames = new ArrayList<>();
   private Collection<SchemaInfo> schemaInfos = new ArrayList<>();
   private boolean inTx;
