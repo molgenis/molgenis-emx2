@@ -1,12 +1,14 @@
 <script setup lang="ts">
-import type {IColumn} from '../../../../metadata-utils/src/types';
+import type { IColumn } from "../../../../metadata-utils/src/types";
 
 const props = defineProps<{
   metaData: IColumn;
   data: Record<string, any>;
 }>();
 
-const hasTemplate = computed(() => !!props.metaData.refLabel || !!props.metaData.refLabelDefault);
+const hasTemplate = computed(
+  () => !!props.metaData.refLabel || !!props.metaData.refLabelDefault
+);
 
 const asTemplate = computed(() => {
   const ids = Object.keys(props.data);
@@ -36,8 +38,6 @@ const asDotSeparatedString = computed(() => {
   });
   return result.replace(/^\./, "");
 });
-    
-
 </script>
 
 <template>

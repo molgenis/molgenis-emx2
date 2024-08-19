@@ -6,7 +6,10 @@ const { data, status, error, refresh } = await useLazyAsyncData(
   "table meta data",
   async () => {
     const metaData = fetchTableMetadata(schemaId, tableId);
-    const tableData = fetchTableData(schemaId, tableId);
+    const tableData = fetchTableData(schemaId, tableId, {
+      limit: 10,
+      offset: 0,
+    });
 
     return await Promise.all([metaData, tableData]);
   }
