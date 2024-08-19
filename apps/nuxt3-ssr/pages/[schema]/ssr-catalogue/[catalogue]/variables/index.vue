@@ -75,11 +75,12 @@ const pageFilterTemplate: IFilter[] = [
     conditions: [],
   },
   {
-    id: "cohorts",
+    id: "collections",
     config: {
-      label: "Cohorts",
+      label: "Collections",
       type: "REF_ARRAY",
-      refTableId: "Cohorts",
+      refTableId: "Collections",
+      initialCollapsed: false,
       buildFilterFunction: (
         filterBuilder: Record<string, Record<string, any>>,
         conditions: IFilterCondition[]
@@ -87,22 +88,10 @@ const pageFilterTemplate: IFilter[] = [
         return {
           ...filterBuilder,
           ...{
-            _or: [
-              {
-                mappings: {
-                  source: { equals: conditions.map((c) => ({ id: c.name })) },
-                  match: { name: { equals: ["complete", "partial"] } },
-                },
-              },
-              {
-                repeats: {
-                  mappings: {
-                    source: { equals: conditions.map((c) => ({ id: c.name })) },
-                    match: { name: { equals: ["complete", "partial"] } },
-                  },
-                },
-              },
-            ],
+            mappings: {
+              source: { equals: conditions.map((c) => ({ id: c.name })) },
+              match: { name: { equals: ["complete", "partial"] } },
+            },
           },
         };
       },
@@ -111,18 +100,18 @@ const pageFilterTemplate: IFilter[] = [
         description: "name",
       },
     },
-    options: fetchCohortOptions,
+    options: fetchCollectionOptions,
     conditions: [],
   },
 ];
 
-async function fetchCohortOptions(): Promise<INode[]> {
+async function fetchCollectionOptions(): Promise<INode[]> {
   const { data, error } = await $fetch(`/${route.params.schema}/graphql`, {
     method: "POST",
     body: {
       query: `
-            query CohortsOptions($cohortsFilter: CohortsFilter) {
-              Cohorts(filter: $cohortsFilter, orderby: { id: ASC }) {
+            query Collections($collectionsFilter: CollectionsFilter) {
+              Collections(filter: $collectionsFilter, orderby: { id: ASC }) {
                 id
                 name
               }
@@ -130,24 +119,27 @@ async function fetchCohortOptions(): Promise<INode[]> {
           `,
       variables: scoped
         ? {
-            cohortsFilter: {
+            collectionsFilter: {
               _or: [
                 {
-                  networks: { equals: [{ id: catalogueRouteParam }] },
+                  partOfCollections: { equals: [{ id: catalogueRouteParam }] },
                 },
                 {
-                  networks: {
-                    partOfNetworks: { equals: [{ id: catalogueRouteParam }] },
+                  partOfCollections: {
+                    type: { name: { equals: "Network" } },
+                    partOfCollections: {
+                      equals: [{ id: catalogueRouteParam }],
+                    },
                   },
                 },
               ],
             },
           }
-        : undefined,
+        : { collection: { type: { name: { equals: "Network" } } } },
     },
   });
 
-  return data.Cohorts.map((option: { id: string; name?: string }) => {
+  return data.Collections.map((option: { id: string; name?: string }) => {
     return {
       name: option.id,
       description: option.name,
@@ -165,7 +157,6 @@ const filters = computed(() => {
   const conditions = conditionsFromPathQuery(route.query.conditions as string);
   // merge with page defaults
   const filters = mergeWithPageDefaults(pageFilterTemplate, conditions);
-
   return filters;
 });
 
@@ -173,34 +164,27 @@ const query = computed(() => {
   return `
   query VariablesPage(
     $variablesFilter:VariablesFilter,
-    $cohortsFilter:CohortsFilter,
+    $collectionsFilter:CollectionsFilter,
   ){
     Variables(limit: ${pageSize} offset: ${
     offset.value
   } filter:$variablesFilter  orderby: { name: ASC }) {
       name
-      resource {
+      collection {
         id
       }
       dataset {
         name
-        resource {
+        collection {
           id
         }
       }
       label
       description
       mappings ${moduleToString(mappingsFragment)}
-      repeats(orderby: {name: ASC}) {
-        name
-        mappings ${moduleToString(mappingsFragment)}
-      }
     }
-    Cohorts(filter: $cohortsFilter, orderby: { id: ASC }) {
+    Collections(filter: $collectionsFilter, orderby: { id: ASC }) {
       id
-      networks {
-        id
-      }
     }
     Variables_agg (filter:$variablesFilter){
       count
@@ -219,112 +203,60 @@ const filter = computed(() => {
   return buildQueryFilter(filters.value);
 });
 
-const cachedScopedResouceFilter = ref();
-
-async function buildScopedModelFilter() {
-  if (cachedScopedResouceFilter.value) {
-    return cachedScopedResouceFilter.value;
-  }
-  const { data, error } = await $fetch(`/${route.params.schema}/graphql`, {
-    method: "POST",
-    body: {
-      query: `
-            query Networks($filter:NetworksFilter) {
-              Networks(filter:$filter){
-                 models {
-                  id
-                 }
-              }
-            }`,
-      variables: {
-        filter: {
-          _or: [
-            { id: { equals: catalogueRouteParam } },
-            { partOfNetworks: { id: { equals: catalogueRouteParam } } },
-          ],
-        },
-      },
-    },
-  });
-
-  if (error) {
-    console.log("models error: ", error);
-    return { error };
-  }
-
-  const modelIds = data.Networks.map((n) =>
-    n.models?.map((m: { id: string }) => m.id)
-  ).flat();
-
-  const scopedResourceFilter = {
-    resource: {
-      mg_tableclass: { like: ["Models"] },
-      id: {
-        equals: modelIds,
-      },
-    },
-  };
-
-  cachedScopedResouceFilter.value = scopedResourceFilter;
-
-  return scopedResourceFilter;
-}
-
 const fetchData = async () => {
-  let cohortsFilter: any = {};
+  let collectionsFilter: any = {};
   if (scoped) {
-    cohortsFilter.networks = {
+    collectionsFilter.partOfCollections = {
       _or: [
         { equals: [{ id: catalogueRouteParam }] },
-        { partOfNetworks: { equals: [{ id: catalogueRouteParam }] } },
+        { partOfCollections: { equals: [{ id: catalogueRouteParam }] } },
       ],
     };
   }
 
-  // add 'special' filter for harmonisation x-axis if 'cohorts' filter is set
-  const cohortConditions = (
-    pageFilterTemplate.find((f) => f.id === "cohorts") as IRefArrayFilter
+  // add 'special' filter for harmonisation x-axis if 'collections' filter is set
+  const collectionConditions = (
+    filters.value.find((f) => f.id === "collections") as IRefArrayFilter
   )?.conditions;
-  if (cohortConditions.length) {
-    cohortsFilter = {
-      ...cohortsFilter,
-      equals: cohortConditions.map((c) => ({ id: c.name })),
+  if (collectionConditions.length) {
+    collectionsFilter = {
+      ...collectionsFilter,
+      equals: collectionConditions.map((c) => ({ id: c.name })),
     };
   }
-
+  const variableCollectionFilter = collectionConditions.length
+    ? {
+        mappings: {
+          source: { id: { equals: collectionConditions.map((c) => c.name) } },
+        },
+      }
+    : undefined;
   const variables = scoped
     ? {
         variablesFilter: {
-          _or: [
-            {
-              ...filter.value,
-              ...(await buildScopedModelFilter()),
-            },
-            {
-              ...filter.value,
-              ...{
-                networkVariables: {
-                  _or: [
-                    { network: { id: { equals: catalogueRouteParam } } },
-                    {
-                      network: {
-                        partOfNetworks: { id: { equals: catalogueRouteParam } },
-                      },
-                    },
-                  ],
+          ...filter.value,
+          ...variableCollectionFilter,
+          ...{
+            _or: [
+              { collection: { id: { equals: catalogueRouteParam } } },
+              {
+                collection: {
+                  type: { name: { equals: "Network" } },
+                  partOfCollections: { id: { equals: catalogueRouteParam } },
                 },
               },
-            },
-          ],
+            ],
+          },
         },
-        cohortsFilter,
+        collectionsFilter,
       }
     : {
         variablesFilter: {
           ...filter.value,
-          resource: { mg_tableclass: { like: ["Models"] } },
+          ...variableCollectionFilter,
+          ...{ collection: { type: { name: { equals: "Network" } } } },
         },
-        cohortsFilter,
+        collectionsFilter,
       };
 
   return $fetch(graphqlURL.value, {
@@ -417,7 +349,7 @@ crumbs[
 
         <template #search-results>
           <div class="flex align-start gap-1">
-            <SearchResultsCount :value="numberOfVariables" label="variable" />
+            <SearchResultsCount :value="numberOfVariables" label="variables" />
             <div
               v-if="pending"
               class="mt-2 mb-0 lg:mb-3 text-body-lg flex flex-col text-title"
@@ -459,7 +391,7 @@ crumbs[
             <HarmonisationTable
               v-else
               :variables="data?.data?.Variables"
-              :cohorts="data?.data?.Cohorts"
+              :collections="data?.data?.Collections"
             >
             </HarmonisationTable>
           </SearchResultsList>

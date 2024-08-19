@@ -16,7 +16,7 @@ const { data: subcohortData } = await useFetch(
     method: "POST",
     body: {
       query: query,
-      variables: { id: route.params.cohort, name: id },
+      variables: { id: route.params.collection, name: id },
     },
   }
 ).catch((e) => console.log(e));
@@ -24,7 +24,7 @@ const { data: subcohortData } = await useFetch(
 watch(
   subcohortData,
   function setData(data: any) {
-    subcohort = data?.data?.Subcohorts[0];
+    subcohort = data?.data?.CollectionSubcohorts[0];
   },
   {
     deep: true,

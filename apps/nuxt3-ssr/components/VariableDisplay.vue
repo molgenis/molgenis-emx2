@@ -24,18 +24,26 @@ const { data, pending, error } = await useFetch(
   }
 ).catch((e) => console.log(e));
 
+const variable = computed(() => data.value.data?.Variables[0]);
+
 const items = computed(() => [
   {
     label: "Unit",
-    content: data.value.data?.Variables[0]?.unit?.name || "-",
+    content: variable.value?.unit?.name || "-",
   },
   {
     label: "Formats",
-    content: data.value.data?.Variables[0]?.format?.name || "-",
+    content: variable.value?.format?.name || "-",
   },
   {
-    label: "n repeats",
-    content: data.value.data?.RepeatedVariables_agg.count || "None",
+    label: "Repeated for",
+    content: variable.value?.repeatUnit?.name
+      ? variable.value?.repeatUnit?.name +
+        " " +
+        variable.value?.repeatMin +
+        "-" +
+        variable.value?.repeatMax
+      : undefined,
   },
 ]);
 </script>

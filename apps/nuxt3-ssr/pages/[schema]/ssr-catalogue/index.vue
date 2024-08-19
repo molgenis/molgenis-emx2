@@ -95,16 +95,21 @@ const projectCatalogues = computed(() => {
       </template>
     </PageHeader>
     <ContentBlockCatalogues
-      v-if="thematicCatalogues.length > 0"
+      v-if="thematicCatalogues?.length > 0"
       title="Thematic catalogues"
       description="Catalogues focused on a particular theme, developed by a collaboration of projects, networks and/or organisations:"
       :catalogues="thematicCatalogues"
     />
     <ContentBlockCatalogues
-      v-if="projectCatalogues.length > 0"
+      v-if="projectCatalogues?.length > 0"
       title="Project catalogues"
       description="Catalogues maintained by individual research projects or consortia:"
       :catalogues="projectCatalogues"
+    />
+    <ContentBlock
+      v-if="projectCatalogues.length === 0 && thematicCatalogues.length === 0"
+      title="No Catalogues found"
+      description="Please add catalogues via admin user interface"
     />
   </LayoutsLandingPage>
 </template>
