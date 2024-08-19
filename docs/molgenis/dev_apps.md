@@ -404,7 +404,7 @@ Open the index.html file, add update the message with the name of your app. In a
 
 By this point, you should have enough to view your app. Run the `yarn dev` command to start the dev server. The app will be served at [http://localhost:5173](http://localhost:5173).
 
-### Generate typescript types for a app
+### Generate typescript types for an app
 
 To generate the typescript interfaces for a given schema, run:
 `./gradlew generateTypes --args=[schemaName] [full-path+file-name]`
