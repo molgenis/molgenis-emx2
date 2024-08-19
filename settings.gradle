@@ -39,7 +39,6 @@ nyx {
             path = "build/libs/molgenis-emx2-{{#replace from=\"v\"}}{{version}}{{/replace}}-all.jar"
             fileName = "molgenis-emx2-{{#replace from=\"v\"}}{{version}}{{/replace}}-all.jar"
             type = "application/java-archive"
-            zip64 = true
         }
     }
     changelog {
