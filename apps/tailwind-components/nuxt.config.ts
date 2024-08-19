@@ -8,9 +8,9 @@ export default defineNuxtConfig({
   },
   ssr: process.env.NUXT_PUBLIC_IS_SSR === 'false' ? false : true,
   router: {
-    options: process.env.NUXT_PUBLIC_IS_SSR === 'false' ?{
+    options: process.env.NUXT_PUBLIC_IS_SSR === 'false' ? {
       hashMode: true
-    }  : {}
+    } : {}
   },
   nitro: {
     prerender: {
@@ -34,5 +34,10 @@ export default defineNuxtConfig({
       pathPrefix: false
     },
     "~/components",
-  ]
+  ],
+  runtimeConfig: {
+    public: {
+      apiBase: "https://emx2.dev.molgenis.org/", // "http://localhost:8080/",
+    },
+  },
 })

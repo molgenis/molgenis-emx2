@@ -20,6 +20,10 @@ module.exports = {
         target: HOST,
         ...opts,
     },
+    "^/[a-zA-Z0-9_.%-]+/api/trigger": {
+        target: HOST,
+        ...opts,
+    },
     "/api": {
         target: `${HOST}/api`,
         ...opts,
