@@ -14,10 +14,6 @@ plugins {
 ext {
     javaMainClass = "org.molgenis.emx2.RunMolgenisEmx2"
     javaVersion = JavaVersion.VERSION_17
-
-    depVersion = [
-            'rdf4j' : '5.0.1'
-    ]
 }
 
 allprojects {
