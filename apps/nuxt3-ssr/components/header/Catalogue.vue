@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { getCollectionMetadataForType } from "~/constants";
+
 const route = useRoute();
 const config = useRuntimeConfig();
 
@@ -20,31 +22,28 @@ const menu = [
     link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}`,
   },
 ];
-if (catalogueRouteParam === "all" || props.catalogue.cohorts_agg?.count > 0)
+if (catalogueRouteParam === "all" || props.catalogue.collections_agg?.count > 0)
   menu.push({
-    label: "Cohorts",
-    link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/cohorts`,
+    label: "collections(" + props.catalogue.collections_agg?.count + ")",
+    link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/collections`,
   });
-if (
-  (!cohortOnly.value && catalogueRouteParam === "all") ||
-  (!cohortOnly.value && props.catalogue.dataSources_agg?.count > 0)
-)
-  menu.push({
-    label: "Data sources",
-    link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/datasources`,
-  });
-
 if (!cohortOnly.value && props.variableCount > 0)
   menu.push({
-    label: "Variables",
+    label: "Variables(" + props.variableCount + ")",
     link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/variables`,
   });
 
-if (!cohortOnly.value && props.catalogue?.networks_agg?.count > 0)
-  menu.push({
-    label: "Networks",
-    link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/networks`,
+if (props.catalogue.collections_groupBy?.length) {
+  props.catalogue.collections_groupBy.forEach((sub) => {
+    const collectionTypeMetadata = getCollectionMetadataForType(sub.type.name);
+    menu.push({
+      label: collectionTypeMetadata.plural + "(" + sub.count + ")",
+      link:
+        `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/` +
+        collectionTypeMetadata.path,
+    });
   });
+}
 
 if (cohortOnly.value) {
   menu.push({
@@ -54,7 +53,7 @@ if (cohortOnly.value) {
 } else if (catalogueRouteParam && catalogueRouteParam !== "all") {
   menu.push({
     label: "About",
-    link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/networks/${catalogueRouteParam}`,
+    link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/about-catalogue`,
   });
 }
 
