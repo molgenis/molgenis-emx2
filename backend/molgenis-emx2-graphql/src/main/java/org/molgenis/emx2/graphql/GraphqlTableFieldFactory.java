@@ -13,10 +13,8 @@ import static org.molgenis.emx2.sql.SqlQuery.*;
 import graphql.Scalars;
 import graphql.schema.*;
 import java.util.*;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.utils.JavaScriptBindings;
 import org.molgenis.emx2.utils.TypeUtils;
 
 public class GraphqlTableFieldFactory {
@@ -812,8 +810,6 @@ public class GraphqlTableFieldFactory {
   }
 
   private DataFetcher fetcher(Schema schema, MutationType mutationType) {
-    Map<String, Supplier<Object>> javaScriptBindings =
-        JavaScriptBindings.getBindingsForSchema(schema);
     return dataFetchingEnvironment -> {
       StringBuilder result = new StringBuilder();
       boolean any = false;
@@ -830,10 +826,7 @@ public class GraphqlTableFieldFactory {
               result.append("updated " + count + " records to " + tableName + "\n");
               break;
             case INSERT:
-              count =
-                  table.insert(
-                      TypeUtils.convertToRows(table.getMetadata(), rowsAslistOfMaps),
-                      javaScriptBindings);
+              count = table.insert(TypeUtils.convertToRows(table.getMetadata(), rowsAslistOfMaps));
               result.append("inserted " + count + " records to " + tableName + "\n");
               break;
             case SAVE:

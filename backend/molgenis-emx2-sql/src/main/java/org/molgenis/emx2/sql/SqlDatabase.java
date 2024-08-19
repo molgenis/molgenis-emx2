@@ -8,8 +8,8 @@ import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeCreateSchem
 
 import com.zaxxer.hikari.HikariDataSource;
 import java.util.*;
+import java.util.function.Supplier;
 import javax.sql.DataSource;
-import org.jooq.Configuration;
 import org.jooq.DSLContext;
 import org.jooq.SQLDialect;
 import org.jooq.conf.Settings;
@@ -38,7 +38,8 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   private Integer databaseVersion;
   private DSLContext jooq;
   private final SqlUserAwareConnectionProvider connectionProvider;
-  private final Map<String, SqlSchemaMetadata> schemaCache = new LinkedHashMap<>(); // cache
+  private final Map<String, SqlSchemaMetadata> schemaCache = new LinkedHashMap<>();
+  private Map<String, Supplier<Object>> bindings = new HashMap<>(); // cache
   private Collection<String> schemaNames = new ArrayList<>();
   private Collection<SchemaInfo> schemaInfos = new ArrayList<>();
   private boolean inTx;
@@ -85,6 +86,8 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     for (Map.Entry<String, SqlSchemaMetadata> schema : copy.schemaCache.entrySet()) {
       this.schemaCache.put(schema.getKey(), new SqlSchemaMetadata(this, schema.getValue()));
     }
+
+    this.bindings.putAll(copy.bindings);
   }
 
   private void setJooq(DSLContext ctx) {
@@ -541,10 +544,10 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     } else {
       // we create a new instance, isolated from 'this' until end of transaction
       SqlDatabase db = new SqlDatabase(jooq, this);
-      this.tableListeners.forEach(db::addTableListener);
+      this.tableListeners.forEach(listener -> db.addTableListener(listener));
       try {
         jooq.transaction(
-            (Configuration config) -> {
+            config -> {
               db.inTx = true;
               DSLContext ctx = DSL.using(config);
               ctx.execute("SET CONSTRAINTS ALL DEFERRED");
@@ -561,7 +564,8 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
           this.getListener().afterCommit();
         }
       } catch (Exception e) {
-        throw new SqlMolgenisException("Transaction failed", e);
+        throw (e);
+        // throw new SqlMolgenisException("Transaction failed", e);
       }
     }
   }
@@ -715,6 +719,16 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       return user != null ? user : new User(this, userName);
     }
     return null;
+  }
+
+  public Database setBindings(Map<String, Supplier<Object>> bindings) {
+    this.bindings = bindings;
+    return this;
+  }
+
+  @Override
+  public Map<String, Supplier<Object>> getBindings() {
+    return bindings;
   }
 
   public void addTableListener(TableListener tableListener) {

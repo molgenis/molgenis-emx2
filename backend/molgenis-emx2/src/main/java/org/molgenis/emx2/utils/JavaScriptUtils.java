@@ -3,7 +3,6 @@ package org.molgenis.emx2.utils;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Map;
-import java.util.function.Supplier;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Engine;
 import org.graalvm.polyglot.HostAccess;
@@ -27,51 +26,33 @@ public class JavaScriptUtils {
   }
 
   public static Object executeJavascript(String script, Class clazz) {
-    return executeJavascriptOnMap(script, null, null, clazz);
+    return executeJavascriptOnMap(script, null, clazz);
+  }
+
+  public static Object executeJavascriptOnMap(String script, Map<String, Object> values) {
+    return executeJavascriptOnMap(script, values, Object.class);
   }
 
   public static Object executeJavascriptOnMap(
       String script, Map<String, Object> values, Class clazz) {
-    return executeJavascriptOnMap(script, values, null, clazz);
-  }
-
-  public static Object executeJavascriptOnMap(String script, Map<String, Object> values) {
-    return executeJavascriptOnMap(script, values, null, Object.class);
-  }
-
-  public static Object executeJavascriptOnMap(
-      String script, Map<String, Object> values, Map<String, Supplier<Object>> bindings) {
-    return executeJavascriptOnMap(script, values, bindings, Object.class);
-  }
-
-  public static Object executeJavascriptOnMap(
-      String script,
-      Map<String, Object> values,
-      Map<String, Supplier<Object>> bindings,
-      Class clazz) {
     try {
       final Context context =
           Context.newBuilder("js")
               .allowHostAccess(HostAccess.newBuilder(HostAccess.ALL).build())
               .engine(engine)
               .build();
-
-      // todo: do this dynamically, only when simple simplePostClient is in script
-      values.put("simplePostClient", bindings.get("simplePostClient").get());
-
-      Value jsBindings = context.getBindings("js");
+      Value bindings = context.getBindings("js");
       if (values != null) {
         for (Map.Entry<String, Object> entry : values.entrySet()) {
           Object value = entry.getValue();
           if (value != null
               && (value.getClass() == LocalDateTime.class || value.getClass() == LocalDate.class)) {
-            jsBindings.putMember(entry.getKey(), value.toString());
+            bindings.putMember(entry.getKey(), value.toString());
           } else {
-            jsBindings.putMember(entry.getKey(), value);
+            bindings.putMember(entry.getKey(), value);
           }
         }
       }
-
       String scriptWithFixedRegex = script.replace("\\\\", "\\");
       return context.eval("js", scriptWithFixedRegex).as(clazz);
     } catch (Exception e) {

@@ -13,7 +13,6 @@ import java.io.Writer;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import org.jooq.*;
 import org.molgenis.emx2.*;
@@ -122,13 +121,8 @@ class SqlTable implements Table {
 
   @Override
   public int insert(Iterable<Row> rows) {
-    return insert(rows, null);
-  }
-
-  @Override
-  public int insert(Iterable<Row> rows, Map<String, Supplier<Object>> bindings) {
     try {
-      return executeTransaction(db, getSchema().getName(), getName(), rows, INSERT, bindings);
+      return executeTransaction(db, getSchema().getName(), getName(), rows, INSERT);
     } catch (Exception e) {
       throw new SqlMolgenisException("Update into table '" + getName() + "' failed.", e);
     }
@@ -142,7 +136,7 @@ class SqlTable implements Table {
   @Override
   public int update(Iterable<Row> rows) {
     try {
-      return executeTransaction(db, getSchema().getName(), getName(), rows, UPDATE, null);
+      return this.executeTransaction(db, getSchema().getName(), getName(), rows, UPDATE);
     } catch (Exception e) {
       throw new SqlMolgenisException("Update into table '" + getName() + "' failed.", e);
     }
@@ -155,13 +149,8 @@ class SqlTable implements Table {
 
   @Override
   public int save(Iterable<Row> rows) {
-    return save(rows, null);
-  }
-
-  @Override
-  public int save(Iterable<Row> rows, Map<String, Supplier<Object>> bindings) {
     try {
-      return executeTransaction(db, getSchema().getName(), getName(), rows, SAVE, bindings);
+      return this.executeTransaction(db, getSchema().getName(), getName(), rows, SAVE);
     } catch (Exception e) {
       throw new SqlMolgenisException("Upsert into table '" + getName() + "' failed", e);
     }
@@ -206,8 +195,7 @@ class SqlTable implements Table {
       String schemaName,
       String tableName,
       Iterable<Row> rows,
-      MutationType transactionType,
-      Map<String, Supplier<Object>> bindings) {
+      MutationType transactionType) {
     long start = System.currentTimeMillis();
     final AtomicInteger count = new AtomicInteger(0);
     final Map<String, List<Row>> subclassRows = new LinkedHashMap<>();
@@ -285,8 +273,7 @@ class SqlTable implements Table {
                   count,
                   subclassRows,
                   subclassName,
-                  columnsProvided.get(subclassName),
-                  bindings);
+                  columnsProvided.get(subclassName));
               // reset columns provided
               columnsProvided.get(subclassName).clear();
               columnsProvided.get(subclassName).addAll(row.getColumnNames());
@@ -305,8 +292,7 @@ class SqlTable implements Table {
                   count,
                   subclassRows,
                   batch.getKey(),
-                  columnsProvided.get(batch.getKey()),
-                  bindings);
+                  columnsProvided.get(batch.getKey()));
             }
           }
           // listeners
@@ -334,8 +320,7 @@ class SqlTable implements Table {
       AtomicInteger count,
       Map<String, List<Row>> subclassRows,
       String subclassName,
-      Set<String> columnsProvided,
-      Map<String, Supplier<Object>> bindings) {
+      Set<String> columnsProvided) {
 
     // execute
     SqlTable table = schema.getTable(subclassName.split("\\.")[1]);
@@ -343,12 +328,11 @@ class SqlTable implements Table {
       List<Column> updateColumns = getUpdateColumns(table, columnsProvided);
       List<Row> rows =
           applyValidationAndComputed(
-              table.getMetadata().getColumns(), subclassRows.get(subclassName), bindings);
+              table.getMetadata().getColumns(), subclassRows.get(subclassName));
       count.set(count.get() + table.updateBatch(table, rows, updateColumns));
     } else if (SAVE.equals(transactionType) || INSERT.equals(transactionType)) {
       List<Column> insertColumns = getInsertColumns(table, columnsProvided);
-      List<Row> rows =
-          applyValidationAndComputed(insertColumns, subclassRows.get(subclassName), bindings);
+      List<Row> rows = applyValidationAndComputed(insertColumns, subclassRows.get(subclassName));
       count.set(
           count.get()
               + table.insertBatch(table, rows, SAVE.equals(transactionType), insertColumns));

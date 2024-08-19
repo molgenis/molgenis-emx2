@@ -54,8 +54,10 @@ public class MolgenisWebservice {
 
     MessageApi.create();
 
-    get("/" + OIDC_CALLBACK_PATH, oidcController::handleLoginCallback);
-    get("/" + OIDC_LOGIN_PATH, oidcController::handleLoginRequest);
+    get(
+        ("/" + OIDC_CALLBACK_PATH),
+        (request, response) -> oidcController.handleLoginCallback(request, response));
+    get(("/" + OIDC_LOGIN_PATH), oidcController::handleLoginRequest);
     get("/" + ROBOTS_TXT, MolgenisWebservice::robotsDotTxt);
 
     // get setting for home

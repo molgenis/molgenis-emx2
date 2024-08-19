@@ -20,16 +20,14 @@ public class SqlTypeUtils extends TypeUtils {
     // to hide the public constructor
   }
 
-  public static List<Row> applyValidationAndComputed(
-      List<Column> columns, List<Row> rows, Map<String, Supplier<Object>> bindings) {
+  public static List<Row> applyValidationAndComputed(List<Column> columns, List<Row> rows) {
     for (Row row : rows) {
-      applyValidationAndComputed(columns, row, bindings);
+      applyValidationAndComputed(columns, row);
     }
     return rows;
   }
 
-  public static void applyValidationAndComputed(
-      List<Column> columns, Row row, Map<String, Supplier<Object>> bindings) {
+  public static void applyValidationAndComputed(List<Column> columns, Row row) {
     Map<String, Object> graph = convertRowToMap(columns, row);
     for (Column c : columns.stream().filter(c -> !c.isHeading()).toList()) {
       if (Constants.MG_EDIT_ROLE.equals(c.getName())) {
@@ -67,7 +65,7 @@ public class SqlTypeUtils extends TypeUtils {
         row.set(c.getName(), executeJavascriptOnMap(c.getComputed(), graph));
       } else if (columnIsVisible(c, graph)) {
         checkRequired(c, row, graph);
-        checkValidation(c, graph, bindings);
+        checkValidation(c, graph);
       } else {
         if (c.isReference()) {
           for (Reference ref : c.getReferences()) {
@@ -221,13 +219,19 @@ public class SqlTypeUtils extends TypeUtils {
     };
   }
 
-  public static void checkValidation(
-      Column column, Map<String, Object> values, Map<String, Supplier<Object>> bindings) {
+  public static void checkValidation(Column column, Map<String, Object> values) {
     if (values.get(column.getName()) != null) {
       column.getColumnType().validate(values.get(column.getName()));
       // validation
       if (column.getValidation() != null) {
-        String errorMessage = checkValidation(column.getValidation(), values, bindings);
+        // check if validation script contains js functions that are bound to java functions
+        Map<String, Supplier<Object>> bindings = column.getSchema().getDatabase().getBindings();
+        for (String key : bindings.keySet()) {
+          if (column.getValidation().contains(key)) {
+            values.put(key, bindings.get(key).get());
+          }
+        }
+        String errorMessage = checkValidation(column.getValidation(), values);
         if (errorMessage != null)
           throw new MolgenisException(
               "Validation error on column '" + column.getName() + "': " + errorMessage + ".");
@@ -235,12 +239,9 @@ public class SqlTypeUtils extends TypeUtils {
     }
   }
 
-  public static String checkValidation(
-      String validationScript, Map<String, Object> values, Map<String, Supplier<Object>> bindings) {
+  public static String checkValidation(String validationScript, Map<String, Object> values) {
     try {
-      // values.put("simplePostClient", bindings);
-
-      Object error = executeJavascriptOnMap(validationScript, values, bindings);
+      Object error = executeJavascriptOnMap(validationScript, values);
       if (error != null) {
         if (error instanceof Boolean && (Boolean) error == false) {
           // you can have a validation rule that simply returns true or false;

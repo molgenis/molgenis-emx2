@@ -1,8 +1,6 @@
 package org.molgenis.emx2;
 
 import java.util.List;
-import java.util.Map;
-import java.util.function.Supplier;
 
 public interface Table {
 
@@ -16,8 +14,6 @@ public interface Table {
 
   int insert(Iterable<Row> rows);
 
-  int insert(Iterable<Row> rows, Map<String, Supplier<Object>> bindings);
-
   int update(Row... row);
 
   int update(Iterable<Row> rows); // wish list: update based on secondary key.
@@ -25,8 +21,6 @@ public interface Table {
   int save(Row... row);
 
   int save(Iterable<Row> rows);
-
-  int save(Iterable<Row> rows, Map<String, Supplier<Object>> bindings);
 
   int delete(Row... row);
 
