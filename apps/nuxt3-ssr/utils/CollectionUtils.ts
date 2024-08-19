@@ -1,6 +1,6 @@
 type ICollectionTypeMetadata = {
   type: string;
-  plural?: string;
+  plural: string;
   image?: string;
   path: string;
   description?: string;

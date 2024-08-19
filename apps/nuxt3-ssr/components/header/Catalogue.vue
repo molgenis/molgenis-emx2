@@ -22,25 +22,29 @@ const menu = [
 ];
 if (catalogueRouteParam === "all" || props.catalogue.collections_agg?.count > 0)
   menu.push({
-    label: "collections(" + props.catalogue.collections_agg?.count + ")",
+    label: "collections",
     link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/collections`,
   });
 if (!cohortOnly.value && props.variableCount > 0)
   menu.push({
-    label: "Variables(" + props.variableCount + ")",
+    label: "Variables",
     link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/variables`,
   });
 
 if (props.catalogue.collections_groupBy?.length) {
-  props.catalogue.collections_groupBy.forEach((sub) => {
-    const collectionTypeMetadata = getCollectionMetadataForType(sub.type.name);
-    menu.push({
-      label: collectionTypeMetadata.plural + "(" + sub.count + ")",
-      link:
-        `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/` +
-        collectionTypeMetadata.path,
-    });
-  });
+  props.catalogue.collections_groupBy.forEach(
+    (sub: { type: { name: string }; count: string }) => {
+      const collectionTypeMetadata = getCollectionMetadataForType(
+        sub.type.name
+      );
+      menu.push({
+        label: collectionTypeMetadata.plural,
+        link:
+          `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/` +
+          collectionTypeMetadata.path,
+      });
+    }
+  );
 }
 
 if (cohortOnly.value) {

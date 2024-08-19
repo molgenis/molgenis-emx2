@@ -9,7 +9,7 @@ const pageSize = 10;
 const titlePrefix =
   route.params.catalogue === "all" ? "" : route.params.catalogue + " ";
 const collectionType = computed(() =>
-  getCollectionMetadataForPath(route.params.collectionType)
+  getCollectionMetadataForPath(route.params.collectionType as string)
 );
 
 useHead({ title: titlePrefix + collectionType.value.plural });
