@@ -1,6 +1,7 @@
 dependencies {
     implementation project(':backend:molgenis-emx2')
     implementation project(':backend:molgenis-emx2-io')
+    implementation project(':backend:molgenis-emx2-tasks')
     implementation project(':backend:molgenis-emx2-sql')
 }
 
