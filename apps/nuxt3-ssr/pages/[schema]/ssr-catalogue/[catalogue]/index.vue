@@ -329,7 +329,7 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
         image="image-data-warehouse"
         title="Aggregates"
         callToAction="Aggregates"
-        :link="`/Aggregates/aggregates/`"
+        :link="`/Aggregates/aggregates/#/`"
       />
     </LandingPrimary>
 
