@@ -7,7 +7,7 @@ defineProps<{
 }>();
 </script>
 <template>
-  <div class="overflow-x-auto overscroll-contain">
+  <div class="overflow-x-auto overscroll-x-contain">
     <table class="text-left bg-white table-fixed w-full">
       <thead>
         <tr class="">

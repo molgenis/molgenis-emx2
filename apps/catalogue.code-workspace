@@ -11,6 +11,9 @@
 		},
 		{
 			"path": "metadata-utils"
+		},
+		{
+			"path": "molgenis-components"
 		}
 	],
 	"settings": {}

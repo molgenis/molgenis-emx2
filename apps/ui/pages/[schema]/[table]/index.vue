@@ -2,7 +2,7 @@
 const schemaId = useRoute().params.schema as string;
 const tableId = useRoute().params.table as string;
 
-const { data, pending, error, refresh } = await useLazyAsyncData(
+const { data, status, error, refresh } = await useLazyAsyncData(
   "table meta data",
   async () => {
     const metaData = fetchTableMetadata(schemaId, tableId);
@@ -46,27 +46,12 @@ const dataColumns = computed(() => {
       :title="tableMetaData?.label || tableMetaData?.id || ''"
       :description="tableMetaData?.description"
     >
-      <div v-if="pending">Loading...</div>
+      <div v-if="status === 'pending'">Loading...</div>
       <div v-if="error">Error: {{ error }}</div>
       <!-- <div>{{ dataColumns }}</div> -->
       <!-- <pre v-if="data">{{ tableMetaData }}</pre> -->
       <!-- <pre>{{ tableData}}</pre> -->
-      <Table>
-        <template #head>
-          <TableHeadRow>
-            <TableHead v-for="colMeta in dataColumns">{{
-              colMeta.label
-            }}</TableHead>
-          </TableHeadRow>
-        </template>
-        <template #body>
-          <TableRow v-for="row in rows">
-            <TableCell v-for="colMeta in dataColumns">{{
-              row[colMeta.id]
-            }}</TableCell>
-          </TableRow>
-        </template>
-      </Table>
+      <TableEMX2 :columns="dataColumns" :rows="rows" />
     </ContentBlock>
   </Container>
 </template>
