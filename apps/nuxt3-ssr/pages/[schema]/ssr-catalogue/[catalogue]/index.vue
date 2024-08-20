@@ -228,16 +228,16 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
         "
         :link="`/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/variables`"
       />
-    </LandingPrimary>
 
-    <LandingCardPrimary
-      v-if="network.id === 'FORCE-NEN collections'"
-      image="image-data-warehouse"
-      title="Aggregates"
-      callToAction="Aggregates"
-      :link="`/Aggregates/aggregates/#/`"
-      :openLinkInNewTab="true"
-    />
+      <LandingCardPrimary
+        v-if="network.id === 'ATHLETE'"
+        image="image-data-warehouse"
+        title="Aggregates"
+        callToAction="Aggregates"
+        :link="`/Aggregates/aggregates/#/`"
+        :openLinkInNewTab="true"
+      />
+    </LandingPrimary>
 
     <LandingSecondary>
       <LandingCardSecondary
