@@ -103,12 +103,8 @@
         </tr>
         <tr class="filter-bar">
           <th>
-            <select
-              @change="filter('sample_type', $event)"
-              v-model="sampleFilter"
-              class="w-100"
-            >
-              <option value="all">All</option>
+            <select v-model="filters['sample_type']" class="w-100">
+              <option :value="ALL">All</option>
               <option
                 v-for="material of materialtypeOptions"
                 :key="material"
@@ -119,8 +115,8 @@
             </select>
           </th>
           <th>
-            <select @change="filter('sex', $event)" v-model="sexFilter">
-              <option value="all">All</option>
+            <select v-model="filters['sex']">
+              <option :value="ALL">All</option>
               <option v-for="sex of sexOptions" :key="sex" :value="sex">
                 {{ sex }}
               </option>
@@ -128,8 +124,8 @@
           </th>
 
           <th>
-            <select @change="filter('age_range', $event)" v-model="ageFilter">
-              <option value="all">All</option>
+            <select v-model="filters['age_range']">
+              <option :value="ALL">All</option>
               <option
                 v-for="ageRange of ageRangeOptions"
                 :key="ageRange"
@@ -140,8 +136,8 @@
             </select>
           </th>
           <th>
-            <select @change="filter('disease', $event)" v-model="diseaseFilter">
-              <option value="all">All</option>
+            <select v-model="filters['disease']">
+              <option :value="ALL">All</option>
               <option
                 v-for="disease of diseaseOptions"
                 :key="disease"
@@ -183,16 +179,20 @@ import { computed, onMounted, ref } from "vue";
 
 const { attribute } = defineProps<{ attribute: any[] }>();
 
+const ALL = "all";
+const UNKNOWN = "Unknown";
+const noFilters = { sample_type: ALL, sex: ALL, age_range: ALL, disease: ALL };
+
 const currentPage = ref(1);
 const facts = ref<Record<string, any>[]>([]);
 const sortColumn = ref("");
 const sortAsc = ref(false);
 const tableVersion = ref(0);
-const filters = ref<Record<string, any>[]>([]);
-const sampleFilter = ref("all");
-const sexFilter = ref("all");
-const ageFilter = ref("all");
-const diseaseFilter = ref("all");
+const filters = ref<Record<string, any>>(noFilters);
+const sampleFilter = ref(ALL);
+const sexFilter = ref(ALL);
+const ageFilter = ref(ALL);
+const diseaseFilter = ref(ALL);
 const splitByColumn = ref<string[]>([
   "sample_type",
   "sex",
@@ -259,30 +259,56 @@ const factsTable = computed(() => {
 });
 
 function getFilteredFacts(facts: Record<string, any>[]) {
-  if (filters.value.length === 0) {
-    return facts;
-  }
-  const filteredFacts: Record<string, any>[] = [];
-
-  const lastFilterIndex = filters.value.length - 1;
-
-  for (const fact of facts) {
-    filters.value.forEach((filter, index) => {
-      const propertyValue = getValue(fact, filter.column);
-      const matchesAllFilters =
-        (!propertyValue && filter.value !== "Unknown") ||
-        propertyValue !== filter.value;
-
-      if (!matchesAllFilters) {
-        // break;
-      } else if (!propertyValue && filter.value === "Unknown") {
-        filteredFacts.push(fact);
-      } else if (index === lastFilterIndex) {
-        filteredFacts.push(fact);
+  return _.reduce(
+    filters.value,
+    (accum, filterValue, filterKey) => {
+      if (filterValue === ALL) {
+        return accum;
+      } else {
+        return accum.filter((fact: Record<string, any>) => {
+          return fact[filterKey] === filterValue;
+        });
       }
-    });
+    },
+    hardcopy(facts)
+  );
+
+  // for (const fact of facts) {
+  //   filters.value.forEach((filter, index) => {
+  //     const propertyValue = getValue(fact, filter.column);
+  //     const matchesAllFilters =
+  //       (!propertyValue && filter.value !== UNKNOWN) ||
+  //       propertyValue !== filter.value;
+
+  //     if (!matchesAllFilters) {
+  //       // break;
+  //     } else if (!propertyValue && filter.value === UNKNOWN) {
+  //       filteredFacts.push(fact);
+  //     } else if (index === lastFilterIndex) {
+  //       filteredFacts.push(fact);
+  //     }
+  //   });
+  // }
+  return factsCopy;
+}
+
+function getValue(object: Record<string, any>, propertyString: string) {
+  const trail = propertyString.split(".");
+  const trailLength = trail.length;
+
+  let value;
+  let next = object;
+  for (let trailIndex = 0; trailIndex < trailLength; trailIndex++) {
+    const trailPart = trail[trailIndex];
+
+    if (!next[trailPart]) {
+      return value ?? UNKNOWN;
+    } else {
+      value = next[trailPart];
+      next = next[trailPart];
+    }
   }
-  return filteredFacts;
+  return value ?? UNKNOWN;
 }
 
 function getFactProperties() {
@@ -341,26 +367,12 @@ function toggleColumn(e: any, columnName: string) {
     const newArray = splitByColumn.value.filter((sbc) => sbc !== columnName);
     splitByColumn.value = newArray;
   }
-  sampleFilter.value = "all";
-  sexFilter.value = "all";
-  ageFilter.value = "all";
-  diseaseFilter.value = "all";
-  filters.value = [];
+  sampleFilter.value = ALL;
+  sexFilter.value = ALL;
+  ageFilter.value = ALL;
+  diseaseFilter.value = ALL;
+  filters.value = noFilters;
   collapseRows();
-}
-
-function filter(column: string, event: Record<string, any>) {
-  const indexToRemove = filters.value.findIndex(
-    (fa: Record<string, any>) => fa.column === column
-  );
-
-  if (indexToRemove > -1) {
-    filters.value.splice(indexToRemove, 1);
-  }
-
-  if (event.target.value !== "all") {
-    filters.value.push({ column, value: event.target.value });
-  }
 }
 
 function sort(column: string) {
@@ -397,25 +409,6 @@ function sort(column: string) {
   facts.value = newFacts;
   /** if we do not key this, then it will break */
   tableVersion.value = tableVersion.value + 1;
-}
-
-function getValue(object: Record<string, any>, propertyString: string) {
-  const trail = propertyString.split(".");
-  const trailLength = trail.length;
-
-  let value;
-  let next = object;
-  for (let trailIndex = 0; trailIndex < trailLength; trailIndex++) {
-    const trailPart = trail[trailIndex];
-
-    if (!next[trailPart]) {
-      return value ?? "Unknown";
-    } else {
-      value = next[trailPart];
-      next = next[trailPart];
-    }
-  }
-  return value ?? "Unknown";
 }
 
 function collapseRows() {
@@ -497,7 +490,7 @@ function collapseRows() {
             if (collapsedFact[column] !== fact[column]) {
               if (isFinite(collapsedFact[column]) && isFinite(fact[column])) {
                 collapsedFact[column] = collapsedFact[column] + fact[column];
-              } else if (fact[column] !== "Unknown") {
+              } else if (fact[column] !== UNKNOWN) {
                 collapsedFact[column] = [collapsedFact[column], fact[column]];
               }
             } else if (column === "number_of_samples") {
@@ -523,7 +516,7 @@ function collapseRows() {
   facts.value = collapsedFacts;
 }
 
-function getBaseFacts(attributeattribute: Record<string, any>) {
+function getBaseFacts(attribute: Record<string, any>) {
   const rawFacts = hardcopy(attribute);
   const facts = rawFacts.map((rawFact: Record<string, any>) => {
     const fact: Record<string, any> = {};
