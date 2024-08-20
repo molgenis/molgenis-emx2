@@ -39,7 +39,7 @@ public class ImportProfileTask extends Task {
             load(s);
           });
     } catch (Exception e) {
-      this.setError();
+      this.completeWithError(e.getMessage());
       throw (e);
     }
     this.complete();
