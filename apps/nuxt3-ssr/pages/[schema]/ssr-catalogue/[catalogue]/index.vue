@@ -228,6 +228,32 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
         "
         :link="`/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/variables`"
       />
+<<<<<<< Updated upstream
+=======
+
+      <LandingCardPrimary
+        v-if="numberOfNetworks > 0 && !cohortOnly"
+        image="image-diagram"
+        title="Networks"
+        :description="
+          getSettingValue('CATALOGUE_LANDING_NETWORKS_TEXT', settings) ||
+          'Networks &amp; Consortia'
+        "
+        :count="numberOfNetworks"
+        :callToAction="
+          getSettingValue('CATALOGUE_LANDING_NETWORKS_CTA', settings)
+        "
+        :link="`/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/networks`"
+      />
+      <LandingCardPrimary
+        v-if="network.id === 'FORCE-NEN collections'"
+        image="image-data-warehouse"
+        title="Aggregates"
+        callToAction="Aggregates"
+        :link="`/Aggregates/aggregates/#/`"
+        :openLinkInTab="true"
+      />
+>>>>>>> Stashed changes
     </LandingPrimary>
 
     <LandingCardPrimary
