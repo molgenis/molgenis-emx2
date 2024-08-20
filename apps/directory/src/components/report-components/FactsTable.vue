@@ -42,7 +42,13 @@
       of donors presented in the table below should not be added as it may give
       the wrong sums.
     </div>
-    <Pagination v-model="currentPage" :count="facts.length" :limit="100" />
+
+    <Pagination
+      v-model="currentPage"
+      :count="filteredFacts.length"
+      :limit="100"
+    />
+
     <table class="table border w-100" :key="tableVersion">
       <thead>
         <tr class="facts-header bg-secondary text-white">
@@ -175,7 +181,7 @@
 import * as _ from "lodash";
 //@ts-ignore
 import { Pagination } from "molgenis-components";
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 
 const { attribute } = defineProps<{ attribute: any[] }>();
 
@@ -245,22 +251,35 @@ const columnChecked = computed(() => {
   return (column: string) => splitByColumn.value.includes(column);
 });
 
-const factsTable = computed(() => {
-  const filteredFacts = getFilteredFacts(facts.value);
+const filteredFacts = computed(() => {
+  return getFilteredFacts(facts.value, filters.value);
+});
 
+const factsTable = computed(() => {
   const firstIndex = 0 + (currentPage.value - 1) * 100;
   const potentialLastIndex = 99 + (currentPage.value - 1) * 100;
   const lastIndex =
-    potentialLastIndex > facts.value.length
-      ? facts.value.length
+    potentialLastIndex > filteredFacts.value.length
+      ? filteredFacts.value.length
       : potentialLastIndex;
 
-  return filteredFacts.slice(firstIndex, lastIndex);
+  return filteredFacts.value.slice(firstIndex, lastIndex);
 });
 
-function getFilteredFacts(facts: Record<string, any>[]) {
+watch(
+  filters.value,
+  () => {
+    currentPage.value = 1;
+  },
+  { deep: true }
+);
+
+function getFilteredFacts(
+  facts: Record<string, any>[],
+  filters: Record<string, string>
+) {
   return _.reduce(
-    filters.value,
+    filters,
     (accum, filterValue, filterKey) => {
       if (filterValue === ALL) {
         return accum;
@@ -272,24 +291,6 @@ function getFilteredFacts(facts: Record<string, any>[]) {
     },
     hardcopy(facts)
   );
-
-  // for (const fact of facts) {
-  //   filters.value.forEach((filter, index) => {
-  //     const propertyValue = getValue(fact, filter.column);
-  //     const matchesAllFilters =
-  //       (!propertyValue && filter.value !== UNKNOWN) ||
-  //       propertyValue !== filter.value;
-
-  //     if (!matchesAllFilters) {
-  //       // break;
-  //     } else if (!propertyValue && filter.value === UNKNOWN) {
-  //       filteredFacts.push(fact);
-  //     } else if (index === lastFilterIndex) {
-  //       filteredFacts.push(fact);
-  //     }
-  //   });
-  // }
-  return factsCopy;
 }
 
 function getValue(object: Record<string, any>, propertyString: string) {
