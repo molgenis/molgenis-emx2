@@ -550,6 +550,53 @@ class Client:
             mutation='createSchema',
             fallback_error_message=f"Failed to create schema {name!r}"
         )
+
+        # Catch process URL
+        process_id = response.json().get('data').get('createSchema').get('taskId')
+
+        # Report subtask progress
+        p_response = self.session.post(
+            url=self.api_graphql,
+            json={'query': queries.task_status(process_id)}
+        )
+
+        reported_tasks = []
+        task = p_response.json().get('data').get('_tasks')[0]
+        while (status := task.get('status')) != 'COMPLETED':
+            if status == 'ERROR':
+                # TODO improve error handling
+                raise PyclientException(f"Error uploading file: {task.get('description')}")
+            subtasks = task.get('subTasks', [])
+            for st in subtasks:
+                if st['id'] not in reported_tasks and st['status'] == 'RUNNING':
+                    log.info(f"Subtask: {st['description']}")
+                    reported_tasks.append(st['id'])
+                if st['id'] not in reported_tasks and st['status'] == 'SKIPPED':
+                    log.warning(f"    Subtask: {st['description']}")
+                    reported_tasks.append(st['id'])
+                for sst in st.get('subTasks', []):
+                    if sst['id'] not in reported_tasks and sst['status'] == 'COMPLETED':
+                        log.info(f"    Subsubtask: {sst['description']}")
+                        reported_tasks.append(sst['id'])
+                    if sst['id'] not in reported_tasks and sst['status'] == 'SKIPPED':
+                        log.warning(f"    Subsubtask: {sst['description']}")
+                        reported_tasks.append(sst['id'])
+            try:
+                p_response = self.session.post(
+                    url=self.api_graphql,
+                    json={'query': queries.task_status(process_id)}
+                )
+                task = p_response.json().get('data').get('_tasks')[0]
+            except AttributeError:
+                time.sleep(1)
+                p_response = self.session.post(
+                    url=self.api_graphql,
+                    json={'query': queries.task_status(process_id)}
+                )
+                task = p_response.json().get('data').get('_tasks')[0]
+        log.info(f"Completed task: {task.get('description')}")
+
+
         self.schemas = self.get_schemas()
         log.info(f"Created schema {name!r}")
 
