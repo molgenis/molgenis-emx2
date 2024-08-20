@@ -450,7 +450,7 @@ class Client:
             return response_data.to_dict('records')
         return response_data
 
-    def export(self, schema: str = None, table: str = None, fmt: OutputFormat = 'csv'):
+    async def export(self, schema: str = None, table: str = None, fmt: OutputFormat = 'csv'):
         """Exports data from a schema to a file in the desired format.
 
         :param schema: the name of the schema
@@ -515,10 +515,10 @@ class Client:
                     file.write(response.content)
                 log.info("Exported data from table %s in schema %s to '%s'.", table, current_schema, filename)
 
-    def create_schema(self, name: str = None,
+    async def create_schema(self, name: str = None,
                       description: str = None,
                       template: str = None,
-                      include_demo_data: bool = None):
+                      include_demo_data: bool = False):
         """Creates a new schema on the EMX2 server.
 
         :param name: the name of the new schema
@@ -553,7 +553,7 @@ class Client:
         self.schemas = self.get_schemas()
         log.info(f"Created schema {name!r}")
 
-    def delete_schema(self, name: str = None):
+    async def delete_schema(self, name: str = None):
         """Deletes a schema from the EMX2 server.
 
         :param name: the name of the new schema
@@ -612,7 +612,7 @@ class Client:
         )
         self.schemas = self.get_schemas()
 
-    def recreate_schema(self, name: str = None,
+    async def recreate_schema(self, name: str = None,
                         description: str = None,
                         template: str = None,
                         include_demo_data: bool = None):
@@ -640,8 +640,8 @@ class Client:
         schema_description = description if description else schema_meta.get('description', None)
 
         try:
-            self.delete_schema(name=current_schema)
-            self.create_schema(
+            await self.delete_schema(name=current_schema)
+            await self.create_schema(
                 name=current_schema,
                 description=schema_description,
                 template=template,
