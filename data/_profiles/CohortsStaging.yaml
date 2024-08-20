@@ -15,6 +15,3 @@ firstCreateSchemasIfMissing:
   - name: catalogue
     profile: _profiles/DataCatalogue.yaml
     importDemoData: true
-  - name: SharedStaging
-    profile: _profiles/SharedStaging.yaml
-    importDemoData: true
