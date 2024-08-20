@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import collectionEventGql from "~~/gql/collectionEvent";
-import ContentBlockModal from "./content/ContentBlockModal.vue";
 import type { IDefinitionListItem, IMgError } from "~~/interfaces/types";
 import dateUtils from "~/utils/dateUtils";
 
@@ -15,12 +14,12 @@ const query = moduleToString(collectionEventGql);
 const { data, error } = await useFetch<any, IMgError>(
   `/${route.params.schema}/graphql`,
   {
-    key: `collection-event-${route.params.cohort}-${collectionEventName}`,
+    key: `collection-event-${route.params.collection}-${collectionEventName}`,
     method: "POST",
     body: {
       query,
       variables: {
-        id: route.params.cohort,
+        id: route.params.collection,
         name: collectionEventName,
       },
     },
@@ -38,12 +37,12 @@ const collectionEvent: any = computed(
 );
 
 const pageCrumbs: any = {
-  Cohorts: `/${route.params.schema}/ssr-catalogue`,
+  Collection: `/${route.params.schema}/ssr-catalogue`,
 };
 
 pageCrumbs[
-  route.params.cohort as string
-] = `/${route.params.schema}/ssr-catalogue/cohorts/${route.params.cohort}`;
+  route.params.collection as string
+] = `/${route.params.schema}/ssr-catalogue/collections/${route.params.cohort}`;
 
 function renderList(list: any[], itemMapper: (a: any) => string) {
   return list?.length === 1 ? itemMapper(list[0]) : list.map(itemMapper);
@@ -67,16 +66,12 @@ if (collectionEvent.value?.numberOfParticipants) {
   });
 }
 
-if (collectionEvent.value?.startYear || collectionEvent.value?.endYear) {
+if (collectionEvent.value?.startDate || collectionEvent.value?.endDate) {
   items.push({
-    label: "Start/end year",
+    label: "Start/end date",
     content: dateUtils.startEndYear(
-      collectionEvent.value.startYear && collectionEvent.value.startYear.name
-        ? collectionEvent.value.startYear.name
-        : null,
-      collectionEvent.value.endYear && collectionEvent.value.endYear.name
-        ? collectionEvent.value.endYear.name
-        : null
+      collectionEvent.value.startDate,
+      collectionEvent.value.endDate
     ),
   });
 }

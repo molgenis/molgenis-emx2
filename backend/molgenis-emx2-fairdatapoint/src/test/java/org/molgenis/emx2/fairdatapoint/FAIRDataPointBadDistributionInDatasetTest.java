@@ -3,6 +3,7 @@ package org.molgenis.emx2.fairdatapoint;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.molgenis.emx2.datamodels.DataModels.Profile.DCAT;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,7 +12,6 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.datamodels.ProfileLoader;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import spark.Request;
 
@@ -33,8 +33,7 @@ public class FAIRDataPointBadDistributionInDatasetTest {
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
     dcat_baddistribution = database.dropCreateSchema("dcat_baddistribution");
-    ProfileLoader dcatLoader = new ProfileLoader("_profiles/DCAT.yaml");
-    dcatLoader.load(dcat_baddistribution, true);
+    DCAT.getImportTask(dcat_baddistribution, true).run();
   }
 
   @Test
