@@ -230,7 +230,7 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
       />
 
       <LandingCardPrimary
-        v-if="network.id === 'ATHLETE'"
+        v-if="network.id === 'FORCE-NEN collections'"
         image="image-data-warehouse"
         title="Aggregates"
         callToAction="Aggregates"
