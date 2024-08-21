@@ -247,7 +247,7 @@ class Client:
             log.error("Failed to import data into %s::%s\n%s", current_schema, table, errors)
             raise PyclientException(errors)
 
-    def upload_file(self, file_path: str | pathlib.Path, schema: str = None):
+    async def upload_file(self, file_path: str | pathlib.Path, schema: str = None):
         """Uploads a file to a database on the EMX2 server.
 
         :param file_path: the path where the file is located.
@@ -295,7 +295,7 @@ class Client:
         process_id = response.json().get('id')
 
         # Report on task progress
-        self._report_task_status(process_id)
+        await self._report_task_progress(process_id)
 
 
     def _upload_csv(self, file_path: pathlib.Path, schema: str) -> str:
@@ -516,7 +516,7 @@ class Client:
 
         if process_id:
             # Report on task progress
-            self._report_task_status(process_id)
+            await self._report_task_progress(process_id)
 
         self.schemas = self.get_schemas()
         log.info(f"Created schema {name!r}")
@@ -845,7 +845,7 @@ class Client:
 
         return name
 
-    def _report_task_status(self, process_id: int | str):
+    async def _report_task_progress(self, process_id: int | str):
         """Reports on the progress of a task and its subtasks."""
 
         # Report subtask progress
