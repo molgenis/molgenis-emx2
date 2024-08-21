@@ -10,10 +10,11 @@ import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
-public class TestValidationWithBindings {
+public class TestValidationWithJavaScriptBindings {
 
   private static Database database;
-  private static final String schemaName = TestValidationWithBindings.class.getSimpleName();
+  private static final String schemaName =
+      TestValidationWithJavaScriptBindings.class.getSimpleName();
   private static Schema schema;
 
   @BeforeAll
@@ -24,7 +25,8 @@ public class TestValidationWithBindings {
   }
 
   @Test
-  public void testValidationWithSimplePostClient() {
+  public void testValidationWithSimplePostClient_shouldThrowWhenValidationFails() {
+    // validation script that checks if the age inserted in the Test2 table is present in the Test1
     String validationScript =
         """
         (function () {
@@ -43,7 +45,6 @@ public class TestValidationWithBindings {
               orderby: {}
             }, "TestValidationWithBindings"
           );
-          console.log(result);
           return result.Test1 == null;
         })()
         """;
@@ -68,6 +69,7 @@ public class TestValidationWithBindings {
                     .setVisible("name")
                     .setType(ColumnType.INT)));
 
+    // Age 10 is not present in test1
     test2.insert(row("id", 1, "name", "jan", "age", 10));
     // Should throw exception as age 11 is present in Test1 table:
     assertThrows(
