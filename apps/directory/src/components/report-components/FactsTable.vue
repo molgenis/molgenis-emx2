@@ -330,8 +330,8 @@ function getFactProperties() {
   };
 }
 
-function toggleColumn(e: any, columnName: string) {
-  if (e.target.checked) {
+function toggleColumn(event: Record<string, any>, columnName: string) {
+  if (event.target.checked) {
     splitByColumn.value.push(columnName);
   } else {
     const newArray = splitByColumn.value.filter((sbc) => sbc !== columnName);
