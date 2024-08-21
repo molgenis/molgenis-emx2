@@ -154,6 +154,9 @@ export default {
         if (this.session.email === "admin") {
           return true;
         }
+        if (item.role === "!anonymous" && this.session.email === "anonymous") {
+          return false;
+        }
         if (item.role === "Viewer") {
           return this.session.roles.some((r) =>
             ["Viewer", "Editor", "Manager", "Owner"].includes(r)
