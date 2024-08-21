@@ -35,5 +35,6 @@ export interface ITableSettings {
     column: string;
     direction: sortDirection
   };
+  search: string;
 }
   

@@ -19,6 +19,8 @@ const orderby = computed(() => {
     : {};
 });
 
+const search = computed(() => route.query.search as string);
+
 const tableSettings = computed(() => {
   return {
     page: 1,
@@ -26,6 +28,7 @@ const tableSettings = computed(() => {
       column: orderbyColumn.value,
       direction: orderbyDirection.value,
     },
+    search: search.value,
   };
 });
 
@@ -37,9 +40,13 @@ const { data, status, error, refresh } = await useLazyAsyncData(
       limit: 10,
       offset: 0,
       orderby: orderby.value,
+      searchTerms: search.value,
     });
 
     return await Promise.all([metaData, tableData]);
+  },
+  {
+    watch: [tableSettings],
   }
 );
 
@@ -60,11 +67,11 @@ function handleSettingsUpdate(settings: ITableSettings) {
   const query = {
     ...route.query,
     orderby: settings.orderby.column,
-    order: settings.orderby.direction,
+    order: !settings.orderby.column ? undefined : settings.orderby.direction,
+    search: settings.search === "" ? undefined : settings.search,
   };
 
   router.push({ query });
-  refresh();
 }
 </script>
 <template>
@@ -84,7 +91,6 @@ function handleSettingsUpdate(settings: ITableSettings) {
     </PageHeader>
 
     <ContentBlock
-      class="mt-1"
       :title="tableMetaData?.label || tableMetaData?.id || ''"
       :description="tableMetaData?.description"
     >

@@ -2,11 +2,20 @@
 import type { ITableSettings } from "~/types/types";
 import type { IColumn } from "../../../metadata-utils/src/types";
 
-const props = defineProps<{
-  columns: IColumn[];
-  rows: Record<string, any>[];
-  settings?: ITableSettings;
-}>();
+const props = withDefaults(
+  defineProps<{
+    columns: IColumn[];
+    rows: Record<string, any>[];
+    settings?: ITableSettings;
+  }>(),
+  {
+    settings: {
+      page: 1,
+      orderby: { column: "", direction: "ASC" },
+      search: "",
+    },
+  }
+);
 
 const emit = defineEmits(["update:settings"]);
 
@@ -20,10 +29,22 @@ function handleSortRequest(columnId: string) {
     orderby: { column: columnId, direction },
   });
 }
+
+function handleSearchRequest(search: string) {
+  emit("update:settings", {
+    ...props.settings,
+    search,
+  });
+}
 </script>
 <template>
   <div class="overflow-x-auto overscroll-x-contain">
-    <table class="text-left bg-white table-fixed w-full">
+    <FilterSearch
+      :modelValue="settings.search"
+      @update:modelValue="handleSearchRequest"
+      :inverted="true"
+    ></FilterSearch>
+    <table class="text-left table-fixed w-full">
       <thead>
         <tr class="">
           <th
