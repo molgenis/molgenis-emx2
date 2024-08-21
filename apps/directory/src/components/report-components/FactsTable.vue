@@ -112,7 +112,7 @@
             <select v-model="filters['sample_type']" class="w-100">
               <option :value="ALL">All</option>
               <option
-                v-for="material of materialtypeOptions"
+                v-for="material of factProperties.materialtypeOptions"
                 :key="material"
                 :value="material"
               >
@@ -123,7 +123,11 @@
           <th>
             <select v-model="filters['sex']">
               <option :value="ALL">All</option>
-              <option v-for="sex of sexOptions" :key="sex" :value="sex">
+              <option
+                v-for="sex of factProperties.sexOptions"
+                :key="sex"
+                :value="sex"
+              >
                 {{ sex }}
               </option>
             </select>
@@ -133,7 +137,7 @@
             <select v-model="filters['age_range']">
               <option :value="ALL">All</option>
               <option
-                v-for="ageRange of ageRangeOptions"
+                v-for="ageRange of factProperties.ageRangeOptions"
                 :key="ageRange"
                 :value="ageRange"
               >
@@ -145,7 +149,7 @@
             <select v-model="filters['disease']">
               <option :value="ALL">All</option>
               <option
-                v-for="disease of diseaseOptions"
+                v-for="disease of factProperties.diseaseOptions"
                 :key="disease"
                 :value="disease"
               >
@@ -165,9 +169,7 @@
             </th>
             <td>{{ fact.sex }}</td>
             <td>{{ fact.age_range }}</td>
-            <td :title="fact.disease_name">
-              {{ fact.disease }}
-            </td>
+            <td>{{ fact.disease }}</td>
             <td>{{ fact.number_of_donors }}</td>
             <td>{{ fact.number_of_samples }}</td>
           </tr>
@@ -187,18 +189,23 @@ const { attribute } = defineProps<{ attribute: any[] }>();
 
 const ALL = "all";
 const UNKNOWN = "Unknown";
-const noFilters = { sample_type: ALL, sex: ALL, age_range: ALL, disease: ALL };
+const NOFILTERS = { sample_type: ALL, sex: ALL, age_range: ALL, disease: ALL };
+const FACTSPROPERTIES = [
+  "sample_type.label",
+  "sex.label",
+  "age_range.label",
+  "disease.label",
+  "disease.name",
+  "number_of_samples",
+  "number_of_donors",
+];
 
 const currentPage = ref(1);
 const facts = ref<Record<string, any>[]>([]);
 const sortColumn = ref("");
 const sortAsc = ref(false);
 const tableVersion = ref(0);
-const filters = ref<Record<string, any>>(noFilters);
-const sampleFilter = ref(ALL);
-const sexFilter = ref(ALL);
-const ageFilter = ref(ALL);
-const diseaseFilter = ref(ALL);
+const filters = ref<Record<string, any>>(NOFILTERS);
 const splitByColumn = ref<string[]>([
   "sample_type",
   "sex",
@@ -212,15 +219,7 @@ const splittableColumns = ref<string[]>([
   "disease",
   "number_of_samples",
 ]);
-const factsProperties = ref<string[]>([
-  "sample_type.label",
-  "sex.label",
-  "age_range.label",
-  "disease.label",
-  "disease.name",
-  "number_of_samples",
-  "number_of_donors",
-]);
+
 const factProperties = ref<Record<string, any>>({});
 
 let baseFacts: Record<string, any>[] = [];
@@ -229,22 +228,6 @@ onMounted(() => {
   baseFacts = getBaseFacts(attribute);
   facts.value = baseFacts;
   factProperties.value = getFactProperties();
-});
-
-const materialtypeOptions = computed(() => {
-  return factProperties.value?.materialtypeOptions || [];
-});
-
-const sexOptions = computed(() => {
-  return factProperties.value?.sexOptions || [];
-});
-
-const ageRangeOptions = computed(() => {
-  return factProperties.value?.ageRangeOptions || [];
-});
-
-const diseaseOptions = computed(() => {
-  return factProperties.value?.diseaseOptions || [];
 });
 
 const columnChecked = computed(() => {
@@ -294,18 +277,17 @@ function getFilteredFacts(
 }
 
 function getValue(object: Record<string, any>, propertyString: string) {
-  const trail = propertyString.split(".");
+  const trail: string[] = propertyString.split(".");
   const trailLength = trail.length;
 
-  let value;
-  let next = object;
+  let value: any;
+  let next: Record<string, any> = object;
   for (let trailIndex = 0; trailIndex < trailLength; trailIndex++) {
     const trailPart = trail[trailIndex];
 
-    if (!next[trailPart]) {
-      return value ?? UNKNOWN;
-    } else {
+    if (typeof next[trailPart] === "string") {
       value = next[trailPart];
+    } else {
       next = next[trailPart];
     }
   }
@@ -368,11 +350,7 @@ function toggleColumn(e: any, columnName: string) {
     const newArray = splitByColumn.value.filter((sbc) => sbc !== columnName);
     splitByColumn.value = newArray;
   }
-  sampleFilter.value = ALL;
-  sexFilter.value = ALL;
-  ageFilter.value = ALL;
-  diseaseFilter.value = ALL;
-  filters.value = noFilters;
+  filters.value = NOFILTERS;
   collapseRows();
 }
 
@@ -387,29 +365,49 @@ function sort(column: string) {
 
   let newFacts = hardcopy(facts.value);
 
-  newFacts.sort((factA: Record<string, any>, factB: Record<string, any>) => {
-    const factAProperty = getValue(factA, column);
-    const factBProperty = getValue(factB, column);
+  newFacts.sort(
+    (factA: Record<string, string>, factB: Record<string, string>) => {
+      if (typeof factA[column] !== "string") {
+        console.log(factA[column]);
+      }
+      const comp = factA[column].localeCompare(factB[column]);
 
-    const factValueA = isNaN(factAProperty)
-      ? factAProperty
-      : parseInt(factAProperty);
-
-    const factValueB = isNaN(factBProperty)
-      ? factBProperty
-      : parseInt(factBProperty);
-
-    if (factValueA > factValueB) {
-      return sortAsc ? 1 : -1;
-    } else if (factValueA < factValueB) {
-      return sortAsc ? -1 : 1;
+      return sortAsc.value ? comp : -1 * comp;
     }
-
-    return 0;
-  });
+  );
   facts.value = newFacts;
   /** if we do not key this, then it will break */
   tableVersion.value = tableVersion.value + 1;
+}
+
+function getBaseFacts(attribute: Record<string, any>) {
+  const rawFacts = hardcopy(attribute);
+  const facts = rawFacts.map((rawFact: Record<string, any>) => {
+    const fact: Record<string, any> = {};
+    for (const property of FACTSPROPERTIES) {
+      const key = property.split(".")[0];
+
+      if (!fact[key]) {
+        fact[key] = getValue(rawFact, property);
+      }
+    }
+    return fact;
+  });
+
+  return facts.filter(hasAFactToShow);
+}
+
+function hardcopy(value: any) {
+  return JSON.parse(JSON.stringify(value));
+}
+
+function hasAFactToShow(fact: Record<string, any>) {
+  const hasSamples =
+    fact.number_of_samples && parseInt(fact.number_of_samples) !== 0;
+  const hasDonors =
+    fact.number_of_donors && parseInt(fact.number_of_samples) !== 0;
+
+  return hasSamples || hasDonors || !!fact.sex;
 }
 
 function collapseRows() {
@@ -515,36 +513,6 @@ function collapseRows() {
   });
 
   facts.value = collapsedFacts;
-}
-
-function getBaseFacts(attribute: Record<string, any>) {
-  const rawFacts = hardcopy(attribute);
-  const facts = rawFacts.map((rawFact: Record<string, any>) => {
-    const fact: Record<string, any> = {};
-    for (const property of factsProperties.value) {
-      const key = property.split(".")[0];
-
-      if (!fact[key]) {
-        fact[key] = getValue(rawFact, property);
-      }
-    }
-    return fact;
-  });
-
-  return facts.filter(hasAFactToShow);
-}
-
-function hardcopy(value: any) {
-  return JSON.parse(JSON.stringify(value));
-}
-
-function hasAFactToShow(fact: Record<string, any>) {
-  const hasSamples =
-    fact.number_of_samples && parseInt(fact.number_of_samples) !== 0;
-  const hasDonors =
-    fact.number_of_donors && parseInt(fact.number_of_samples) !== 0;
-
-  return hasSamples || hasDonors || !!fact.sex;
 }
 </script>
 
