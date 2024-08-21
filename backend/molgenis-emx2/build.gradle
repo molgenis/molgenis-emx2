@@ -1,5 +1,4 @@
 dependencies {
-    implementation 'org.graalvm.sdk:graal-sdk:23.0.0'
     implementation 'org.graalvm.js:js:23.0.0'
     implementation 'org.graalvm.js:js-scriptengine:23.0.0'
 }
