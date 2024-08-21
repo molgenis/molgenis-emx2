@@ -1,5 +1,10 @@
 <template>
   <div class="mt-4" v-if="attribute.length">
+    <Pagination
+      v-model="currentPage"
+      :count="filteredFacts.length"
+      :limit="100"
+    />
     <div>
       <label class="font-weight-bold mr-3">Split by:</label>
       <div class="d-inline-flex justify-content-around w-50">
@@ -42,13 +47,6 @@
       of donors presented in the table below should not be added as it may give
       the wrong sums.
     </div>
-
-    <Pagination
-      v-model="currentPage"
-      :count="filteredFacts.length"
-      :limit="100"
-    />
-
     <table class="table border w-100" :key="tableVersion">
       <thead>
         <tr class="facts-header bg-secondary text-white">
@@ -285,10 +283,10 @@ function getValue(object: Record<string, any>, propertyString: string) {
   for (let trailIndex = 0; trailIndex < trailLength; trailIndex++) {
     const trailPart = trail[trailIndex];
 
-    if (typeof next[trailPart] === "string") {
-      value = next[trailPart];
-    } else {
+    if (typeof next[trailPart] === "object") {
       next = next[trailPart];
+    } else {
+      value = next[trailPart];
     }
   }
   return value ?? UNKNOWN;
