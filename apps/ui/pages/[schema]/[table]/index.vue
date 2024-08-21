@@ -1,6 +1,33 @@
 <script setup lang="ts">
-const schemaId = useRoute().params.schema as string;
-const tableId = useRoute().params.table as string;
+import type { ITableSettings } from "../../../../tailwind-components/types/types";
+
+const route = useRoute();
+const router = useRouter();
+const schemaId = route.params.schema as string;
+const tableId = route.params.table as string;
+
+type orderDirection = "ASC" | "DESC";
+
+const orderbyColumn = computed(() => route.query.orderby as string);
+const orderbyDirection = computed(() =>
+  route.query.order ? (route.query.order as orderDirection) : "ASC"
+);
+
+const orderby = computed(() => {
+  return orderbyColumn.value
+    ? { [orderbyColumn.value]: orderbyDirection.value }
+    : {};
+});
+
+const tableSettings = computed(() => {
+  return {
+    page: 1,
+    orderby: {
+      column: orderbyColumn.value,
+      direction: orderbyDirection.value,
+    },
+  };
+});
 
 const { data, status, error, refresh } = await useLazyAsyncData(
   "table meta data",
@@ -9,6 +36,7 @@ const { data, status, error, refresh } = await useLazyAsyncData(
     const tableData = fetchTableData(schemaId, tableId, {
       limit: 10,
       offset: 0,
+      orderby: orderby.value,
     });
 
     return await Promise.all([metaData, tableData]);
@@ -27,6 +55,17 @@ const dataColumns = computed(() => {
 
   return tableMetaData.value.columns.filter((c) => !c.id.startsWith("mg"));
 });
+
+function handleSettingsUpdate(settings: ITableSettings) {
+  const query = {
+    ...route.query,
+    orderby: settings.orderby.column,
+    order: settings.orderby.direction,
+  };
+
+  router.push({ query });
+  refresh();
+}
 </script>
 <template>
   <Container>
@@ -54,7 +93,12 @@ const dataColumns = computed(() => {
       <!-- <div>{{ dataColumns }}</div> -->
       <!-- <pre v-if="data">{{ tableMetaData }}</pre> -->
       <!-- <pre>{{ tableData}}</pre> -->
-      <TableEMX2 :columns="dataColumns" :rows="rows" />
+      <TableEMX2
+        :columns="dataColumns"
+        :rows="rows"
+        :settings="tableSettings"
+        @update:settings="handleSettingsUpdate"
+      />
     </ContentBlock>
   </Container>
 </template>
