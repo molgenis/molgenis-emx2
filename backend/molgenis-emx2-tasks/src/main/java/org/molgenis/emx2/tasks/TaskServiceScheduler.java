@@ -149,7 +149,7 @@ public class TaskServiceScheduler {
     public void stop() {
       status = TaskStatus.ERROR;
       if (molgenisTaskId != null) {
-        Task<?> task = taskService.getTask(molgenisTaskId);
+        Task task = taskService.getTask(molgenisTaskId);
         task.stop();
         task.setError("Job interupted, probably being unscheduled");
       }
