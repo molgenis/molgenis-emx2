@@ -569,18 +569,25 @@ class Client:
             subtasks = task.get('subTasks', [])
             for st in subtasks:
                 if st['id'] not in reported_tasks and st['status'] == 'RUNNING':
-                    log.info(f"Subtask: {st['description']}")
+                    log.info(f"{st['description']}")
                     reported_tasks.append(st['id'])
                 if st['id'] not in reported_tasks and st['status'] == 'SKIPPED':
-                    log.warning(f"    Subtask: {st['description']}")
+                    log.warning(f"    {st['description']}")
                     reported_tasks.append(st['id'])
                 for sst in st.get('subTasks', []):
                     if sst['id'] not in reported_tasks and sst['status'] == 'COMPLETED':
-                        log.info(f"    Subsubtask: {sst['description']}")
+                        log.info(f"    {sst['description']}")
                         reported_tasks.append(sst['id'])
                     if sst['id'] not in reported_tasks and sst['status'] == 'SKIPPED':
-                        log.warning(f"    Subsubtask: {sst['description']}")
+                        log.warning(f"    {sst['description']}")
                         reported_tasks.append(sst['id'])
+                    for ssst in sst.get('subTasks', []):
+                        if ssst['id'] not in reported_tasks and ssst['status'] == 'COMPLETED':
+                            log.info(f"        {ssst['description']}")
+                            reported_tasks.append(ssst['id'])
+                        if ssst['id'] not in reported_tasks and ssst['status'] == 'SKIPPED':
+                            log.warning(f"        {ssst['description']}")
+                            reported_tasks.append(ssst['id'])
             try:
                 p_response = self.session.post(
                     url=self.api_graphql,
@@ -949,7 +956,10 @@ class Client:
                 raise PermissionDeniedException(f"Transaction failed: permission denied.")
             if 'Graphql API error' in response.text:
                 msg = response.json().get("errors", [])[0].get('message')
+                log.error(msg)
                 raise GraphQLException(msg)
+            msg = response.json().get("errors", [])[0].get('message', '')
+            log.error(msg)
             raise PyclientException("An unknown error occurred when trying to reach this server.")
 
         if response.request.method == 'GET':
@@ -1028,4 +1038,3 @@ class Client:
         except requests.exceptions.MissingSchema:
             raise ServerNotFoundError(f"Invalid URL {self.url!r}. "
                                       f"Perhaps you meant 'https://{self.url}'?")
-
