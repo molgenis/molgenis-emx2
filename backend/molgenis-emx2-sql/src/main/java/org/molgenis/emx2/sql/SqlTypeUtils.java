@@ -226,7 +226,8 @@ public class SqlTypeUtils extends TypeUtils {
       if (column.getValidation() != null) {
         // check if validation script contains js functions that are bound to java functions
         if (column.getSchema() != null && column.getSchema().getDatabase() != null) {
-          Map<String, Supplier<Object>> bindings = column.getSchema().getDatabase().getBindings();
+          Map<String, Supplier<Object>> bindings =
+              column.getSchema().getDatabase().getJavaScriptBindings();
           for (String key : bindings.keySet()) {
             if (column.getValidation().contains(key)) {
               values.put(key, bindings.get(key).get());

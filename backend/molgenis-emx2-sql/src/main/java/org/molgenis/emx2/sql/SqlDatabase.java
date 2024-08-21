@@ -40,7 +40,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   private DSLContext jooq;
   private final SqlUserAwareConnectionProvider connectionProvider;
   private final Map<String, SqlSchemaMetadata> schemaCache = new LinkedHashMap<>();
-  private Map<String, Supplier<Object>> bindings = new HashMap<>();
+  private Map<String, Supplier<Object>> javaScriptBindings = new HashMap<>();
   private Collection<String> schemaNames = new ArrayList<>();
   private Collection<SchemaInfo> schemaInfos = new ArrayList<>();
   private boolean inTx;
@@ -88,7 +88,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       this.schemaCache.put(schema.getKey(), new SqlSchemaMetadata(this, schema.getValue()));
     }
 
-    this.bindings.putAll(copy.bindings);
+    this.javaScriptBindings.putAll(copy.javaScriptBindings);
   }
 
   private void setJooq(DSLContext ctx) {
@@ -729,13 +729,13 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   }
 
   public Database setBindings(Map<String, Supplier<Object>> bindings) {
-    this.bindings = bindings;
+    this.javaScriptBindings = bindings;
     return this;
   }
 
   @Override
-  public Map<String, Supplier<Object>> getBindings() {
-    return bindings;
+  public Map<String, Supplier<Object>> getJavaScriptBindings() {
+    return javaScriptBindings;
   }
 
   public void addTableListener(TableListener tableListener) {
