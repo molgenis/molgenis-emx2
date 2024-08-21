@@ -154,7 +154,7 @@ export default {
         if (this.session.email === "admin") {
           return true;
         }
-        if (item.role === "!anonymous" && this.session.email === "anonymous") {
+        if (item.role === "Signed in" && this.session.email === "anonymous") {
           return false;
         }
         if (item.role === "Viewer") {
