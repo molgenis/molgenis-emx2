@@ -43,11 +43,12 @@ public class TestValidationWithJavaScriptBindings {
                 }
               },
               orderby: {}
-            }, "TestValidationWithBindings"
+            }, "%s"
           );
           return result.Test1 == null;
         })()
-        """;
+        """
+            .formatted(schemaName);
 
     Table test1 =
         schema.create(
