@@ -323,21 +323,10 @@ function getFactProperties() {
   };
 
   return {
-    materialtypeOptions: _.sortBy(
-      uniqSplitFacts.materialtypeOptions,
-      (a: string, b: string) => a.localeCompare(b)
-    ),
-    sexOptions: _.sortBy(uniqSplitFacts.sexOptions, (a: string, b: string) =>
-      a.localeCompare(b)
-    ),
-    ageRangeOptions: _.sortBy(
-      uniqSplitFacts.ageRangeOptions,
-      (a: string, b: string) => a.localeCompare(b)
-    ),
-    diseaseOptions: _.sortBy(
-      uniqSplitFacts.diseaseOptions,
-      (a: string, b: string) => a.localeCompare(b)
-    ),
+    materialtypeOptions: _.sortBy(uniqSplitFacts.materialtypeOptions),
+    sexOptions: _.sortBy(uniqSplitFacts.sexOptions),
+    ageRangeOptions: _.sortBy(uniqSplitFacts.ageRangeOptions),
+    diseaseOptions: _.sortBy(uniqSplitFacts.diseaseOptions),
   };
 }
 
