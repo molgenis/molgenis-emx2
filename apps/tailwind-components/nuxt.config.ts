@@ -40,5 +40,4 @@ export default defineNuxtConfig({
       apiBase: "https://emx2.dev.molgenis.org/", // "http://localhost:8080/",
     },
   },
-  logLevel: 'info',
 })
