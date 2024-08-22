@@ -10,5 +10,5 @@ dependencies {
     implementation group: 'org.jooq', name:'jooq', version:jooqVersion
     implementation group: 'org.apache.logging.log4j', name:'log4j-core', version:log4jVersion
     implementation group: 'org.apache.logging.log4j', name:'log4j-slf4j2-impl', version:log4jVersion
-
+    testImplementation group: 'com.sparkjava', name:'spark-core', version:sparkJavaVersion
 }

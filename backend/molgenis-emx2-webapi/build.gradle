@@ -20,6 +20,7 @@ dependencies {
     testImplementation group: 'org.apache.poi', name:'poi', version:poiVersion
     testImplementation group: 'org.apache.poi', name:'poi-ooxml', version:poiVersion
     testImplementation group: 'net.lingala.zip4j', name:'zip4j', version:zip4jVersion
+    testImplementation group: 'com.zaxxer', name:'HikariCP', version:hikariCPVersion
     implementation group: 'com.github.dfabulich', name:'sitemapgen4j', version:sitemapgen4jVersion
     implementation group: 'de.larsgrefer.sass', name:'sass-embedded-host', version:sassEmbeddedHostVersion
     implementation group: 'org.jooq', name:'jooq', version:jooqVersion
