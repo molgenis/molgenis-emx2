@@ -1,33 +1,25 @@
-<!-- eslint-disable vue/multi-word-component-names -->
-<script setup>
-import { computed } from "vue";
-
-const props = defineProps({
-  currentPage: {
-    type: Number,
-    required: true,
-  },
-  totalPages: {
-    type: Number,
-    required: true,
-  },
-  type: {
-    type: String,
-    default: "gray",
-    enum: ["gray", "white"],
-  },
-  preventDefault: {
-    type: Boolean,
-    default: false,
-  },
-});
+<script setup lang="ts">
+const props = withDefaults(
+  defineProps<{
+    currentPage: number;
+    totalPages: number;
+    type?: "gray" | "white";
+    preventDefault?: boolean;
+  }>(),
+  {
+    type: "gray",
+    preventDefault: false,
+  }
+);
 const emit = defineEmits(["update"]);
 
 onMounted(() => {
-  window.addEventListener("popstate", () => {
-    // react to external navigation ( e.g. back button in browser)
-    window.location.reload();
-  });
+  if (window) {
+    window.addEventListener("popstate", () => {
+      // react to external navigation ( e.g. back button in browser)
+      window.location.reload();
+    });
+  }
 });
 
 const TEXT_STYLE_MAPPING = {
@@ -48,7 +40,7 @@ const borderClasses = computed(() => {
   return BORDER_STYLE_MAPPING[props.type];
 });
 
-function onPrevClick($event) {
+function onPrevClick($event: Event) {
   if (props.preventDefault) {
     $event.preventDefault();
   }
@@ -57,7 +49,7 @@ function onPrevClick($event) {
   }
 }
 
-function onNextClick($event) {
+function onNextClick($event: Event) {
   if (props.preventDefault) {
     $event.preventDefault();
   }
@@ -66,8 +58,8 @@ function onNextClick($event) {
   }
 }
 
-function changeCurrentPage(event) {
-  const newPage = parseInt(event.target.value);
+function changeCurrentPage(event: Event) {
+  const newPage = parseInt((event.target as HTMLInputElement)?.value);
   const clampedPage = Math.min(Math.max(newPage, 1), props.totalPages);
   if (isNaN(clampedPage)) {
     emit("update", 1);
