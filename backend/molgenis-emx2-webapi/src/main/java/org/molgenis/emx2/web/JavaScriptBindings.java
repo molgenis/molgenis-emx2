@@ -10,6 +10,8 @@ public class JavaScriptBindings {
 
   private JavaScriptBindings() {}
 
+  private static final String SIMPLE_POST_CLIENT = "simplePostClient";
+
   @FunctionalInterface
   public interface SimplePostClient {
     Object execute(String query, Map<String, Object> variables, String schemaId);
@@ -26,7 +28,7 @@ public class JavaScriptBindings {
 
   public static Map<String, Supplier<Object>> getBindingsForSession(MolgenisSession session) {
     Map<String, Supplier<Object>> bindings = new HashMap<>();
-    bindings.put("simplePostClient", () -> createSimplePostClient(session));
+    bindings.put(SIMPLE_POST_CLIENT, () -> createSimplePostClient(session));
     // Add more bindings here in a similar way if needed
 
     return bindings;
