@@ -1,4 +1,4 @@
-// Generated (on: 2024-08-16T14:43:24.827769) from Generator.java for schema: GeneratorTestCatalogue
+// Generated (on: 2024-08-22T10:17:09.452897) from Generator.java for schema: catalogue
 
 export interface IFile {
     id?: string;
@@ -20,18 +20,6 @@ export interface IOntologyNode extends ITreeNode {
     order?: number;
 }
 
-export interface IATC {
-    order :number;
-    name :string;
-    label :string;
-    parent :IATC;
-    codesystem :string;
-    code :string;
-    ontologyTermURI :string;
-    definition :string;
-    children :IATC[];
-}
-
 export interface IAgeGroups {
     order :number;
     name :string;
@@ -42,18 +30,6 @@ export interface IAgeGroups {
     ontologyTermURI :string;
     definition :string;
     children :IAgeGroups[];
-}
-
-export interface IAllVariables {
-    resource :IExtendedResources;
-    dataset :IDatasets;
-    name :string;
-    label :string;
-    collectionEvent :ICollectionEvents;
-    sinceVersion :string;
-    untilVersion :string;
-    networkVariables :INetworkVariables[];
-    mappings :IVariableMappings[];
 }
 
 export interface IAreasOfInformationCohorts {
@@ -105,9 +81,35 @@ export interface ICatalogueTypes {
 }
 
 export interface ICatalogues {
-    network :INetworks;
+    name :string;
+    network :ICollections;
     type :IOntologyNode;
-    publisher :IOntologyNode;
+    description :string;
+    publisher :string;
+}
+
+export interface IClinicalStudyTypes {
+    order :number;
+    name :string;
+    label :string;
+    parent :IClinicalStudyTypes;
+    codesystem :string;
+    code :string;
+    ontologyTermURI :string;
+    definition :string;
+    children :IClinicalStudyTypes[];
+}
+
+export interface ICohortCollectionTypes {
+    order :number;
+    name :string;
+    label :string;
+    parent :ICohortCollectionTypes;
+    codesystem :string;
+    code :string;
+    ontologyTermURI :string;
+    definition :string;
+    children :ICohortCollectionTypes[];
 }
 
 export interface ICohortDesigns {
@@ -122,73 +124,88 @@ export interface ICohortDesigns {
     children :ICohortDesigns[];
 }
 
-export interface ICohorts {
-    id :string;
-    pid :string;
-    acronym :string;
+export interface ICohortStudyTypes {
+    order :number;
     name :string;
-    localName :string;
-    keywords :string;
-    website :string;
-    leadOrganisation :IOrganisations[];
-    additionalOrganisations :IOrganisations[];
+    label :string;
+    parent :ICohortStudyTypes;
+    codesystem :string;
+    code :string;
+    ontologyTermURI :string;
+    definition :string;
+    children :ICohortStudyTypes[];
+}
+
+export interface ICollectionDAPs {
+    collection :ICollections;
+    organisation :IOntologyNode;
+    isDataAccessProvider :IOntologyNode[];
+    reasonAccessOther :string;
+    populationSubsetOther :string;
+    processTime :number;
+}
+
+export interface ICollectionContacts {
+    collection :ICollections;
+    role :IOntologyNode[];
+    roleDescription :string;
+    firstName :string;
+    lastName :string;
+    displayName :string;
+    prefix :string;
+    initials :string;
+    title :IOntologyNode;
+    organisation :ICollectionOrganisations;
+    email :string;
+    orcid :string;
+    homepage :string;
+    photo :IFile;
+    expertise :string;
+}
+
+export interface ICollectionCounts {
+    collection :ICollections;
+    ageGroup :IOntologyNode;
+    populationSize :number;
+    activeSize :number;
+    noIndividualsWithSamples :number;
+    meanObservationYears :number;
+    meanYearsActive :number;
+    medianAge :number;
+    proportionFemale :number;
+}
+
+export interface ICollectionDatasets {
+    collection :ICollections;
+    name :string;
+    label :string;
+    datasetType :IOntologyNode[];
+    unitOfObservation :IOntologyNode;
+    keywords :IOntologyNode[];
     description :string;
-    externalIdentifiers :IExternalIdentifiers[];
-    contactEmail :string;
-    contacts :IContacts[];
-    type :IOntologyNode[];
-    typeOther :string;
-    design :IOntologyNode;
-    designDescription :string;
-    designSchematic :IFile;
-    collectionType :IOntologyNode[];
-    logo :IFile;
-    numberOfParticipants :number;
-    numberOfParticipantsWithSamples :number;
-    countries :IOntologyNode[];
-    regions :IOntologyNode[];
-    populationAgeGroups :IOntologyNode[];
-    inclusionCriteria :IOntologyNode[];
-    otherInclusionCriteria :string;
-    startYear :number;
-    endYear :number;
-    populationDisease :IOntologyNode[];
-    populationOncologyTopology :IOntologyNode[];
-    populationOncologyMorphology :IOntologyNode[];
-    subcohorts :ISubcohorts[];
-    datasets :IDatasets[];
-    collectionEvents :ICollectionEvents[];
-    prelinked :boolean;
-    linkagePossibilityDescription :string;
-    releaseType :IOntologyNode;
-    releaseDescription :string;
-    linkageOptions :string;
-    dataHolder :IOrganisations;
-    dAPs :IDAPs[];
-    dataAccessConditions :IOntologyNode[];
-    dataUseConditions :IOntologyNode[];
-    dataAccessConditionsDescription :string;
-    dataAccessFee :boolean;
-    designPaper :IPublications[];
-    publications :IPublications[];
-    informedConsentType :IOntologyNode;
-    fundingStatement :string;
-    acknowledgements :string;
-    documentation :IDocumentation[];
-    supplementaryInformation :string;
-    studies :IStudies[];
-    networks :INetworks[];
+    numberOfRows :number;
+    mappedTo :IMappedDatasets[];
+    mappedFrom :IMappedDatasets[];
+    sinceVersion :string;
+    untilVersion :string;
+}
+
+export interface ICollectionDocumentation {
+    collection :ICollections;
+    name :string;
+    type :IOntologyNode;
+    description :string;
+    url :string;
+    file :IFile;
 }
 
 export interface ICollectionEvents {
-    resource :IExtendedResources;
+    collection :ICollections;
     name :string;
     description :string;
-    subcohorts :ISubcohorts[];
-    startYear :IOntologyNode;
-    startMonth :IOntologyNode;
-    endYear :IOntologyNode;
-    endMonth :IOntologyNode;
+    subcohorts :ICollectionSubcohorts[];
+    startDate :string;
+    endDate :string;
     ageGroups :IOntologyNode[];
     numberOfParticipants :number;
     areasOfInformation :IOntologyNode[];
@@ -197,36 +214,238 @@ export interface ICollectionEvents {
     standardizedTools :IOntologyNode[];
     standardizedToolsOther :string;
     coreVariables :string[];
-    supplementaryInformation :string;
 }
 
-export interface ICollectionTypes {
+export interface ICollectionExternalIdentifiers {
+    collection :ICollections;
+    identifier :string;
+    externalIdentifierType :IOntologyNode;
+    externalIdentifierTypeOther :string;
+}
+
+export interface ICollectionLinkages {
+    collection :ICollections;
+    linkedCollection :ICollections;
+    otherLinkedCollection :string;
+    linkageStrategy :IOntologyNode;
+    linkageVariable :string;
+    linkageVariableUnique :boolean;
+    linkageCompleteness :string;
+    preLinked :boolean;
+}
+
+export interface ICollectionOrganisations {
+    collection :ICollections;
+    id :string;
+    pid :string;
+    name :string;
+    acronym :string;
+    logo :IFile;
+    country :IOntologyNode[];
+    website :string;
+    role :IOntologyNode[];
+}
+
+export interface ICollectionPublications {
+    collection :ICollections;
+    doi :string;
+    title :string;
+    isDesignPublication :boolean;
+    reference :string;
+}
+
+export interface ICollectionSamplesets {
+    collection :ICollections;
+    name :string;
+    sampleTypes :IOntologyNode[];
+}
+
+export interface ICollectionSubcohortCounts {
+    population :ICollectionSubcohorts;
+    ageGroup :IOntologyNode;
+    nTotal :number;
+    nFemale :number;
+    nMale :number;
+}
+
+export interface ICollectionSubcohorts {
+    collection :ICollections;
+    name :string;
+    description :string;
+    numberOfParticipants :number;
+    counts :ICollectionSubcohortCounts[];
+    inclusionStart :number;
+    inclusionEnd :number;
+    ageGroups :IOntologyNode[];
+    mainMedicalCondition :IOntologyNode[];
+    comorbidity :IOntologyNode[];
+    countries :IOntologyNode[];
+    regions :IOntologyNode[];
+    inclusionCriteria :string;
+}
+
+export interface ICollectionTypesFLAT {
     order :number;
     name :string;
     label :string;
-    parent :ICollectionTypes;
+    parent :ICollectionTypesFLAT;
     codesystem :string;
     code :string;
     ontologyTermURI :string;
     definition :string;
-    children :ICollectionTypes[];
+    children :ICollectionTypesFLAT[];
 }
 
-export interface IContacts {
-    resource :IResources;
-    role :IOntologyNode[];
-    roleDescription :string;
-    firstName :string;
-    lastName :string;
-    prefix :string;
-    initials :string;
-    title :IOntologyNode;
-    organisation :IOrganisations;
-    email :string;
-    orcid :string;
-    homepage :string;
-    photo :IFile;
-    expertise :string;
+export interface ICollections {
+    id :string;
+    pid :string;
+    name :string;
+    localName :string;
+    acronym :string;
+    type :IOntologyNode[];
+    typeOther :string;
+    cohortType :IOntologyNode[];
+    clinicalStudyType :IOntologyNode[];
+    rWDType :IOntologyNode[];
+    networkType :IOntologyNode[];
+    website :string;
+    description :string;
+    keywords :string;
+    externalIdentifiers :ICollectionExternalIdentifiers[];
+    dateEstablished :string;
+    startDataCollection :string;
+    endDataCollection :string;
+    contactEmail :string;
+    logo :IFile;
+    status :IOntologyNode;
+    license :string;
+    designType :IOntologyNode;
+    designDescription :string;
+    designSchematic :IFile;
+    dataCollectionType :IOntologyNode[];
+    dataCollectionDescription :string;
+    reasonSustained :string;
+    unitOfObservation :string;
+    recordTrigger :string;
+    subcohorts :ICollectionSubcohorts[];
+    collectionEvents :ICollectionEvents[];
+    datasets :ICollectionDatasets[];
+    samplesets :ICollectionSamplesets[];
+    collections :ICollections[];
+    partOfCollections :ICollections[];
+    numberOfParticipants :number;
+    numberOfParticipantsWithSamples :number;
+    underlyingPopulation :string;
+    populationOfInterest :IOntologyNode[];
+    populationOfInterestOther :string;
+    countries :IOntologyNode[];
+    regions :IOntologyNode[];
+    populationAgeGroups :IOntologyNode[];
+    inclusionCriteria :IOntologyNode[];
+    otherInclusionCriteria :string;
+    populationEntry :IOntologyNode[];
+    populationEntryOther :string;
+    populationExit :IOntologyNode[];
+    populationExitOther :string;
+    populationDisease :IOntologyNode[];
+    populationOncologyTopology :IOntologyNode[];
+    populationOncologyMorphology :IOntologyNode[];
+    populationCoverage :string;
+    populationNotCovered :string;
+    counts :ICollectionCounts[];
+    peopleInvolved :ICollectionContacts[];
+    organisationsInvolved :ICollectionOrganisations[];
+    networksInvolved :ICollections[];
+    areasOfInformation :IOntologyNode[];
+    areasOfInformationRwd :IOntologyNode[];
+    qualityOfLifeOther :string;
+    causeOfDeathCodeOther :string;
+    indicationVocabularyOther :string;
+    geneticDataVocabularyOther :string;
+    careSettingOther :string;
+    medicinalProductVocabularyOther :string;
+    prescriptionsVocabularyOther :string;
+    dispensingsVocabularyOther :string;
+    proceduresVocabularyOther :string;
+    biomarkerDataVocabularyOther :string;
+    diagnosisMedicalEventVocabularyOther :string;
+    dataDictionaryAvailable :boolean;
+    diseaseDetails :IOntologyNode[];
+    biospecimenCollected :IOntologyNode[];
+    languages :IOntologyNode[];
+    multipleEntries :boolean;
+    hasIdentifier :boolean;
+    identifierDescription :string;
+    prelinked :boolean;
+    linkageDescription :string;
+    linkagePossibility :boolean;
+    linkagePossibilityDescription :string;
+    linkedCollections :ICollectionLinkages[];
+    informedConsentType :IOntologyNode;
+    informedConsentRequired :IOntologyNode;
+    informedConsentOther :string;
+    dataAccessConditions :IOntologyNode[];
+    dataUseConditions :IOntologyNode[];
+    dataAccessConditionsDescription :string;
+    dataAccessFee :boolean;
+    accessIdentifiableData :string;
+    accessIdentifiableDataRoute :string;
+    accessSubjectDetails :boolean;
+    accessSubjectDetailsRoute :string;
+    accessThirdParty :boolean;
+    accessThirdPartyConditions :string;
+    accessNonEU :boolean;
+    accessNonEUConditions :string;
+    biospecimenAccess :boolean;
+    biospecimenAccessConditions :string;
+    governanceDetails :string;
+    approvalForPublication :boolean;
+    dAPs :ICollectionDAPs[];
+    releaseType :IOntologyNode;
+    releaseDescription :string;
+    numberOfRecords :number;
+    releaseFrequency :number;
+    refreshTime :number;
+    lagTime :number;
+    refreshPeriod :IOntologyNode[];
+    preservation :boolean;
+    preservationDuration :number;
+    standardOperatingProcedures :boolean;
+    qualification :boolean;
+    qualificationsDescription :string;
+    auditPossible :boolean;
+    completeness :string;
+    completenessOverTime :string;
+    completenessResults :string;
+    qualityDescription :string;
+    qualityOverTime :string;
+    accessForValidation :boolean;
+    qualityValidationFrequency :string;
+    qualityValidationMethods :string;
+    correctionMethods :string;
+    qualityValidationResults :string;
+    mappingsToCommonDataModels :IMappedDatasets[];
+    commonDataModelsOther :string;
+    eTLStandardVocabularies :IOntologyNode[];
+    eTLStandardVocabulariesOther :string;
+    publications :ICollectionPublications[];
+    fundingSources :IOntologyNode[];
+    fundingScheme :IOntologyNode[];
+    fundingStatement :string;
+    citationRequirements :string;
+    acknowledgements :string;
+    documentation :ICollectionDocumentation[];
+    supplementaryInformation :string;
+    collectionStartPlanned :string;
+    collectionStartActual :string;
+    analysisStartPlanned :string;
+    analysisStartActual :string;
+    dataSources :ICollections[];
+    medicalConditionsStudied :IOntologyNode[];
+    dataExtractionDate :string;
+    analysisPlan :string;
+    objectives :string;
+    results :string;
 }
 
 export interface IContributionTypes {
@@ -265,15 +484,6 @@ export interface IDAPInformation {
     children :IDAPInformation[];
 }
 
-export interface IDAPs {
-    organisation :IOrganisations;
-    resource :IResources;
-    isDataAccessProvider :IOntologyNode[];
-    reasonAccessOther :string;
-    populationSubsetOther :string;
-    processTime :number;
-}
-
 export interface IDataAccessConditions {
     order :number;
     name :string;
@@ -298,141 +508,6 @@ export interface IDataCategories {
     children :IDataCategories[];
 }
 
-export interface IDataResources {
-    id :string;
-    pid :string;
-    acronym :string;
-    name :string;
-    localName :string;
-    keywords :string;
-    website :string;
-    leadOrganisation :IOrganisations[];
-    additionalOrganisations :IOrganisations[];
-    description :string;
-    externalIdentifiers :IExternalIdentifiers[];
-    contacts :IContacts[];
-    logo :IFile;
-    numberOfParticipants :number;
-    numberOfParticipantsWithSamples :number;
-    countries :IOntologyNode[];
-    regions :IOntologyNode[];
-    populationAgeGroups :IOntologyNode[];
-    populationDisease :IOntologyNode[];
-    populationOncologyTopology :IOntologyNode[];
-    populationOncologyMorphology :IOntologyNode[];
-    datasets :IDatasets[];
-    prelinked :boolean;
-    linkagePossibilityDescription :string;
-    dataHolder :IOrganisations;
-    dAPs :IDAPs[];
-    designPaper :IPublications[];
-    publications :IPublications[];
-    informedConsentType :IOntologyNode;
-    fundingStatement :string;
-    acknowledgements :string;
-    documentation :IDocumentation[];
-    supplementaryInformation :string;
-}
-
-export interface IDataSources {
-    id :string;
-    pid :string;
-    acronym :string;
-    name :string;
-    localName :string;
-    type :IOntologyNode[];
-    typeOther :string;
-    keywords :string;
-    website :string;
-    leadOrganisation :IOrganisations[];
-    additionalOrganisations :IOrganisations[];
-    description :string;
-    dataCollectionDescription :string;
-    dateEstablished :string;
-    startDataCollection :string;
-    endDataCollection :string;
-    timeSpanDescription :string;
-    externalIdentifiers :IExternalIdentifiers[];
-    contacts :IContacts[];
-    logo :IFile;
-    numberOfParticipants :number;
-    numberOfParticipantsWithSamples :number;
-    countries :IOntologyNode[];
-    regions :IOntologyNode[];
-    populationAgeGroups :IOntologyNode[];
-    populationEntry :IOntologyNode[];
-    populationEntryOther :string;
-    populationExit :IOntologyNode[];
-    populationExitOther :string;
-    populationDisease :IOntologyNode[];
-    populationOncologyTopology :IOntologyNode[];
-    populationOncologyMorphology :IOntologyNode[];
-    populationCoverage :string;
-    populationNotCovered :string;
-    quantantitativeInformation :IQuantitativeInformation[];
-    datasets :IDatasets[];
-    mappingsToDataModels :IDatasetMappings[];
-    areasOfInformation :IOntologyNode[];
-    qualityOfLifeOther :string;
-    causeOfDeathCodeOther :string;
-    indicationVocabularyOther :string;
-    geneticDataVocabularyOther :string;
-    careSettingOther :string;
-    medicinalProductVocabularyOther :string;
-    prescriptionsVocabularyOther :string;
-    dispensingsVocabularyOther :string;
-    proceduresVocabularyOther :string;
-    biomarkerDataVocabularyOther :string;
-    diagnosisMedicalEventVocabularyOther :string;
-    diseaseDetails :IOntologyNode[];
-    diseaseDetailsOther :string;
-    biospecimenCollected :IOntologyNode[];
-    languages :IOntologyNode[];
-    recordTrigger :string;
-    prelinked :boolean;
-    linkageDescription :string;
-    linkagePossibility :boolean;
-    linkagePossibilityDescription :string;
-    linkedResources :ILinkedResources[];
-    dataHolder :IOrganisations;
-    dAPs :IDAPs[];
-    informedConsent :IOntologyNode;
-    informedConsentOther :string;
-    accessIdentifiableData :string;
-    accessIdentifiableDataRoute :string;
-    accessSubjectDetails :boolean;
-    accessSubjectDetailsRoute :string;
-    auditPossible :boolean;
-    standardOperatingProcedures :boolean;
-    biospecimenAccess :boolean;
-    biospecimenAccessConditions :string;
-    governanceDetails :string;
-    approvalForPublication :boolean;
-    preservation :boolean;
-    preservationDuration :number;
-    refreshPeriod :IOntologyNode[];
-    dateLastRefresh :string;
-    qualification :boolean;
-    qualificationsDescription :string;
-    accessForValidation :boolean;
-    qualityValidationFrequency :string;
-    qualityValidationMethods :string;
-    correctionMethods :string;
-    qualityValidationResults :string;
-    cdms :IMappings[];
-    cdmsOther :string;
-    designPaper :IPublications[];
-    publications :IPublications[];
-    informedConsentType :IOntologyNode;
-    fundingSources :IOntologyNode[];
-    fundingStatement :string;
-    acknowledgements :string;
-    documentation :IDocumentation[];
-    supplementaryInformation :string;
-    networks :INetworks[];
-    studies :IStudies[];
-}
-
 export interface IDataUseConditions {
     order :number;
     name :string;
@@ -445,148 +520,16 @@ export interface IDataUseConditions {
     children :IDataUseConditions[];
 }
 
-export interface IDatabanks {
-    id :string;
-    pid :string;
-    acronym :string;
-    name :string;
-    localName :string;
-    type :IOntologyNode[];
-    typeOther :string;
-    keywords :string;
-    website :string;
-    leadOrganisation :IOrganisations[];
-    additionalOrganisations :IOrganisations[];
-    description :string;
-    dataCollectionDescription :string;
-    dateEstablished :string;
-    startDataCollection :string;
-    endDataCollection :string;
-    timeSpanDescription :string;
-    externalIdentifiers :IExternalIdentifiers[];
-    contacts :IContacts[];
-    logo :IFile;
-    numberOfParticipants :number;
-    numberOfParticipantsWithSamples :number;
-    underlyingPopulation :string;
-    countries :IOntologyNode[];
-    regions :IOntologyNode[];
-    populationAgeGroups :IOntologyNode[];
-    populationEntry :IOntologyNode[];
-    populationEntryOther :string;
-    populationExit :IOntologyNode[];
-    populationExitOther :string;
-    populationDisease :IOntologyNode[];
-    populationOncologyTopology :IOntologyNode[];
-    populationOncologyMorphology :IOntologyNode[];
-    populationCoverage :string;
-    populationNotCovered :string;
-    quantantitativeInformation :IQuantitativeInformation[];
-    datasets :IDatasets[];
-    mappingsToDataModels :IDatasetMappings[];
-    areasOfInformation :IOntologyNode[];
-    qualityOfLifeOther :string;
-    causeOfDeathCodeOther :string;
-    indicationVocabularyOther :string;
-    geneticDataVocabularyOther :string;
-    careSettingOther :string;
-    medicinalProductVocabularyOther :string;
-    prescriptionsVocabularyOther :string;
-    dispensingsVocabularyOther :string;
-    proceduresVocabularyOther :string;
-    biomarkerDataVocabularyOther :string;
-    diagnosisMedicalEventVocabularyOther :string;
-    dataDictionaryAvailable :boolean;
-    diseaseDetails :IOntologyNode[];
-    diseaseDetailsOther :string;
-    biospecimenCollected :IOntologyNode[];
-    languages :IOntologyNode[];
-    recordTrigger :string;
-    unitOfObservation :string;
-    multipleEntries :boolean;
-    hasIdentifier :boolean;
-    identifierDescription :string;
-    prelinked :boolean;
-    linkageDescription :string;
-    linkagePossibility :boolean;
-    linkagePossibilityDescription :string;
-    linkedResources :ILinkedResources[];
-    dataHolder :IOrganisations;
-    dAPs :IDAPs[];
-    reasonSustained :string;
-    informedConsent :IOntologyNode;
-    informedConsentOther :string;
-    accessIdentifiableData :string;
-    accessIdentifiableDataRoute :string;
-    accessSubjectDetails :boolean;
-    accessSubjectDetailsRoute :string;
-    auditPossible :boolean;
-    accessThirdParty :boolean;
-    accessThirdPartyConditions :string;
-    accessNonEU :boolean;
-    accessNonEUConditions :string;
-    standardOperatingProcedures :boolean;
-    biospecimenAccess :boolean;
-    biospecimenAccessConditions :string;
-    governanceDetails :string;
-    approvalForPublication :boolean;
-    refresh :number;
-    lagTime :number;
-    preservation :boolean;
-    preservationDuration :number;
-    refreshPeriod :IOntologyNode[];
-    dateLastRefresh :string;
-    qualification :boolean;
-    qualificationsDescription :string;
-    numberOfRecords :number;
-    completeness :string;
-    completenessOverTime :string;
-    completenessResults :string;
-    qualityDescription :string;
-    qualityOverTime :string;
-    accessForValidation :boolean;
-    qualityValidationFrequency :string;
-    qualityValidationMethods :string;
-    correctionMethods :string;
-    qualityValidationResults :string;
-    cdms :IMappings[];
-    cdmsOther :string;
-    eTLStandardVocabularies :IOntologyNode[];
-    eTLStandardVocabulariesOther :string;
-    designPaper :IPublications[];
-    publications :IPublications[];
-    informedConsentType :IOntologyNode;
-    fundingSources :IOntologyNode[];
-    fundingStatement :string;
-    acknowledgements :string;
-    documentation :IDocumentation[];
-    supplementaryInformation :string;
-    networks :INetworks[];
-    studies :IStudies[];
-}
-
-export interface IDatasetMappings {
-    source :IExtendedResources;
-    sourceDataset :IDatasets;
-    target :IExtendedResources;
-    targetDataset :IDatasets;
+export interface IDatasetTypes {
     order :number;
-    description :string;
-    syntax :string;
-}
-
-export interface IDatasets {
-    resource :IExtendedResources;
     name :string;
     label :string;
-    unitOfObservation :IOntologyNode;
-    keywords :IOntologyNode[];
-    description :string;
-    numberOfRows :number;
-    mappedTo :IDatasetMappings[];
-    mappedFrom :IDatasetMappings[];
-    sinceVersion :string;
-    untilVersion :string;
+    parent :IDatasetTypes;
+    codesystem :string;
+    code :string;
+    ontologyTermURI :string;
+    definition :string;
+    children :IDatasetTypes[];
 }
 
 export interface IDatasourceTypes {
@@ -625,35 +568,6 @@ export interface IDocumentTypes {
     children :IDocumentTypes[];
 }
 
-export interface IDocumentation {
-    resource :IExtendedResources;
-    name :string;
-    type :IOntologyNode;
-    description :string;
-    url :string;
-    file :IFile;
-}
-
-export interface IExtendedResources {
-    id :string;
-    pid :string;
-    acronym :string;
-    name :string;
-    website :string;
-    leadOrganisation :IOrganisations[];
-    additionalOrganisations :IOrganisations[];
-    description :string;
-    externalIdentifiers :IExternalIdentifiers[];
-    contacts :IContacts[];
-    logo :IFile;
-    countries :IOntologyNode[];
-    datasets :IDatasets[];
-    publications :IPublications[];
-    fundingStatement :string;
-    acknowledgements :string;
-    documentation :IDocumentation[];
-}
-
 export interface IExternalIdentifierTypes {
     order :number;
     name :string;
@@ -664,13 +578,6 @@ export interface IExternalIdentifierTypes {
     ontologyTermURI :string;
     definition :string;
     children :IExternalIdentifierTypes[];
-}
-
-export interface IExternalIdentifiers {
-    resource :IExtendedResources;
-    identifier :string;
-    externalIdentifierType :IOntologyNode;
-    externalIdentifierTypeOther :string;
 }
 
 export interface IFormats {
@@ -721,18 +628,6 @@ export interface IICDOTopologies {
     children :IICDOTopologies[];
 }
 
-export interface IINN {
-    order :number;
-    name :string;
-    label :string;
-    parent :IINN;
-    codesystem :string;
-    code :string;
-    ontologyTermURI :string;
-    definition :string;
-    children :IINN[];
-}
-
 export interface IInclusionCriteria {
     order :number;
     name :string;
@@ -745,6 +640,18 @@ export interface IInclusionCriteria {
     children :IInclusionCriteria[];
 }
 
+export interface IInformedConsentRequired {
+    order :number;
+    name :string;
+    label :string;
+    parent :IInformedConsentRequired;
+    codesystem :string;
+    code :string;
+    ontologyTermURI :string;
+    definition :string;
+    children :IInformedConsentRequired[];
+}
+
 export interface IInformedConsentTypes {
     order :number;
     name :string;
@@ -755,18 +662,6 @@ export interface IInformedConsentTypes {
     ontologyTermURI :string;
     definition :string;
     children :IInformedConsentTypes[];
-}
-
-export interface IInformedConsents {
-    order :number;
-    name :string;
-    label :string;
-    parent :IInformedConsents;
-    codesystem :string;
-    code :string;
-    ontologyTermURI :string;
-    definition :string;
-    children :IInformedConsents[];
 }
 
 export interface IKeywords {
@@ -805,15 +700,41 @@ export interface ILinkageStrategies {
     children :ILinkageStrategies[];
 }
 
-export interface ILinkedResources {
-    mainResource :IRWEResources;
-    linkedResource :IRWEResources;
-    otherLinkedResource :string;
-    linkageStrategy :IOntologyNode;
-    linkageVariable :string;
-    linkageVariableUnique :boolean;
-    linkageCompleteness :string;
-    preLinked :boolean;
+export interface IMappedCollections {
+    source :ICollections;
+    sourceVersion :string;
+    target :ICollections;
+    targetVersion :string;
+    cdmsOther :string;
+    mappingStatus :IOntologyNode;
+    eTLFrequency :number;
+    eTLSpecificationUrl :string;
+    eTLSpecificationDocument :IFile;
+}
+
+export interface IMappedDatasets {
+    source :ICollections;
+    sourceDataset :ICollectionDatasets;
+    target :ICollections;
+    targetDataset :ICollectionDatasets;
+    order :number;
+    description :string;
+    syntax :string;
+}
+
+export interface IMappedVariables {
+    source :ICollections;
+    sourceDataset :ICollectionDatasets;
+    sourceVariables :IVariables[];
+    sourceVariablesOtherDatasets :IVariables[];
+    target :ICollections;
+    targetDataset :ICollectionDatasets;
+    targetVariable :IVariables;
+    repeats :string;
+    match :IOntologyNode;
+    description :string;
+    syntax :string;
+    comments :string;
 }
 
 export interface IMappingStatus {
@@ -828,18 +749,6 @@ export interface IMappingStatus {
     children :IMappingStatus[];
 }
 
-export interface IMappings {
-    source :IExtendedResources;
-    sourceVersion :string;
-    target :IModels;
-    targetVersion :string;
-    cdmsOther :string;
-    mappingStatus :IOntologyNode;
-    eTLFrequency :number;
-    eTLSpecificationUrl :string;
-    eTLSpecificationDocument :IFile;
-}
-
 export interface IMedDRA {
     order :number;
     name :string;
@@ -850,63 +759,6 @@ export interface IMedDRA {
     ontologyTermURI :string;
     definition :string;
     children :IMedDRA[];
-}
-
-export interface IMedicineBrandNames {
-    order :number;
-    name :string;
-    label :string;
-    parent :IMedicineBrandNames;
-    codesystem :string;
-    code :string;
-    ontologyTermURI :string;
-    definition :string;
-    children :IMedicineBrandNames[];
-}
-
-export interface IModels {
-    id :string;
-    pid :string;
-    acronym :string;
-    name :string;
-    website :string;
-    leadOrganisation :IOrganisations[];
-    additionalOrganisations :IOrganisations[];
-    description :string;
-    externalIdentifiers :IExternalIdentifiers[];
-    releaseFrequency :number;
-    contacts :IContacts[];
-    logo :IFile;
-    countries :IOntologyNode[];
-    datasets :IDatasets[];
-    publications :IPublications[];
-    fundingStatement :string;
-    acknowledgements :string;
-    documentation :IDocumentation[];
-}
-
-export interface IMonths {
-    order :number;
-    name :string;
-    label :string;
-    parent :IMonths;
-    codesystem :string;
-    code :string;
-    ontologyTermURI :string;
-    definition :string;
-    children :IMonths[];
-}
-
-export interface INetworkFeatures {
-    order :number;
-    name :string;
-    label :string;
-    parent :INetworkFeatures;
-    codesystem :string;
-    code :string;
-    ontologyTermURI :string;
-    definition :string;
-    children :INetworkFeatures[];
 }
 
 export interface INetworkTypes {
@@ -921,42 +773,6 @@ export interface INetworkTypes {
     children :INetworkTypes[];
 }
 
-export interface INetworkVariables {
-    network :INetworks;
-    variable :IAllVariables;
-}
-
-export interface INetworks {
-    id :string;
-    pid :string;
-    acronym :string;
-    name :string;
-    type :IOntologyNode[];
-    features :IOntologyNode[];
-    website :string;
-    leadOrganisation :IOrganisations[];
-    additionalOrganisations :IOrganisations[];
-    description :string;
-    externalIdentifiers :IExternalIdentifiers[];
-    contacts :IContacts[];
-    logo :IFile;
-    countries :IOntologyNode[];
-    startYear :number;
-    endYear :number;
-    datasets :IDatasets[];
-    publications :IPublications[];
-    fundingStatement :string;
-    acknowledgements :string;
-    documentation :IDocumentation[];
-    dataSources :IDataSources[];
-    databanks :IDatabanks[];
-    cohorts :ICohorts[];
-    models :IModels[];
-    studies :IStudies[];
-    networks :INetworks[];
-    partOfNetworks :INetworks[];
-}
-
 export interface IObservationTargets {
     order :number;
     name :string;
@@ -967,18 +783,6 @@ export interface IObservationTargets {
     ontologyTermURI :string;
     definition :string;
     children :IObservationTargets[];
-}
-
-export interface IOrganisationFeatures {
-    order :number;
-    name :string;
-    label :string;
-    parent :IOrganisationFeatures;
-    codesystem :string;
-    code :string;
-    ontologyTermURI :string;
-    definition :string;
-    children :IOrganisationFeatures[];
 }
 
 export interface IOrganisationRoles {
@@ -993,39 +797,16 @@ export interface IOrganisationRoles {
     children :IOrganisationRoles[];
 }
 
-export interface IOrganisationTypes {
+export interface IOrganisations {
     order :number;
     name :string;
     label :string;
-    parent :IOrganisationTypes;
+    parent :IOrganisations;
     codesystem :string;
     code :string;
     ontologyTermURI :string;
     definition :string;
-    children :IOrganisationTypes[];
-}
-
-export interface IOrganisations {
-    id :string;
-    pid :string;
-    acronym :string;
-    name :string;
-    type :IOntologyNode[];
-    typeOther :string;
-    institution :string;
-    institutionAcronym :string;
-    email :string;
-    logo :IFile;
-    address :string;
-    expertise :string;
-    country :IOntologyNode[];
-    features :IOntologyNode[];
-    role :IOntologyNode[];
-    leadingResources :IExtendedResources[];
-    additionalResources :IExtendedResources[];
-    website :string;
-    description :string;
-    contacts :IContacts[];
+    children :IOrganisations[];
 }
 
 export interface IPopulationEntry {
@@ -1064,132 +845,6 @@ export interface IPopulationOfInterest {
     children :IPopulationOfInterest[];
 }
 
-export interface IPublications {
-    doi :string;
-    title :string;
-    authors :string[];
-    year :number;
-    journal :string;
-    volume :number;
-    number :number;
-    pagination :string;
-    publisher :string;
-    school :string;
-    abstract :string;
-    resources :IExtendedResources[];
-}
-
-export interface IQuantitativeInformation {
-    resource :IExtendedResources;
-    ageGroup :IOntologyNode;
-    populationSize :number;
-    activeSize :number;
-    noIndividualsWithSamples :number;
-    meanObservationYears :number;
-    meanYearsActive :number;
-    medianAge :number;
-    proportionFemale :number;
-}
-
-export interface IRWEResources {
-    id :string;
-    pid :string;
-    acronym :string;
-    name :string;
-    localName :string;
-    type :IOntologyNode[];
-    typeOther :string;
-    keywords :string;
-    website :string;
-    leadOrganisation :IOrganisations[];
-    additionalOrganisations :IOrganisations[];
-    description :string;
-    dataCollectionDescription :string;
-    dateEstablished :string;
-    startDataCollection :string;
-    endDataCollection :string;
-    timeSpanDescription :string;
-    externalIdentifiers :IExternalIdentifiers[];
-    contacts :IContacts[];
-    logo :IFile;
-    numberOfParticipants :number;
-    numberOfParticipantsWithSamples :number;
-    countries :IOntologyNode[];
-    regions :IOntologyNode[];
-    populationAgeGroups :IOntologyNode[];
-    populationEntry :IOntologyNode[];
-    populationEntryOther :string;
-    populationExit :IOntologyNode[];
-    populationExitOther :string;
-    populationDisease :IOntologyNode[];
-    populationOncologyTopology :IOntologyNode[];
-    populationOncologyMorphology :IOntologyNode[];
-    populationCoverage :string;
-    populationNotCovered :string;
-    quantantitativeInformation :IQuantitativeInformation[];
-    datasets :IDatasets[];
-    mappingsToDataModels :IDatasetMappings[];
-    areasOfInformation :IOntologyNode[];
-    qualityOfLifeOther :string;
-    causeOfDeathCodeOther :string;
-    indicationVocabularyOther :string;
-    geneticDataVocabularyOther :string;
-    careSettingOther :string;
-    medicinalProductVocabularyOther :string;
-    prescriptionsVocabularyOther :string;
-    dispensingsVocabularyOther :string;
-    proceduresVocabularyOther :string;
-    biomarkerDataVocabularyOther :string;
-    diagnosisMedicalEventVocabularyOther :string;
-    diseaseDetails :IOntologyNode[];
-    diseaseDetailsOther :string;
-    biospecimenCollected :IOntologyNode[];
-    languages :IOntologyNode[];
-    recordTrigger :string;
-    prelinked :boolean;
-    linkageDescription :string;
-    linkagePossibility :boolean;
-    linkagePossibilityDescription :string;
-    linkedResources :ILinkedResources[];
-    dataHolder :IOrganisations;
-    dAPs :IDAPs[];
-    informedConsent :IOntologyNode;
-    informedConsentOther :string;
-    accessIdentifiableData :string;
-    accessIdentifiableDataRoute :string;
-    accessSubjectDetails :boolean;
-    accessSubjectDetailsRoute :string;
-    auditPossible :boolean;
-    standardOperatingProcedures :boolean;
-    biospecimenAccess :boolean;
-    biospecimenAccessConditions :string;
-    governanceDetails :string;
-    approvalForPublication :boolean;
-    preservation :boolean;
-    preservationDuration :number;
-    refreshPeriod :IOntologyNode[];
-    dateLastRefresh :string;
-    qualification :boolean;
-    qualificationsDescription :string;
-    accessForValidation :boolean;
-    qualityValidationFrequency :string;
-    qualityValidationMethods :string;
-    correctionMethods :string;
-    qualityValidationResults :string;
-    cdms :IMappings[];
-    cdmsOther :string;
-    designPaper :IPublications[];
-    publications :IPublications[];
-    informedConsentType :IOntologyNode;
-    fundingSources :IOntologyNode[];
-    fundingStatement :string;
-    acknowledgements :string;
-    documentation :IDocumentation[];
-    supplementaryInformation :string;
-    networks :INetworks[];
-    studies :IStudies[];
-}
-
 export interface IRefreshPeriods {
     order :number;
     name :string;
@@ -1226,41 +881,6 @@ export interface IReleaseTypes {
     children :IReleaseTypes[];
 }
 
-export interface IRepeatedVariables {
-    resource :IExtendedResources;
-    dataset :IDatasets;
-    name :string;
-    label :string;
-    collectionEvent :ICollectionEvents;
-    sinceVersion :string;
-    untilVersion :string;
-    networkVariables :INetworkVariables[];
-    mappings :IVariableMappings[];
-    isRepeatOf :IVariables;
-}
-
-export interface IResourceTypes {
-    order :number;
-    name :string;
-    label :string;
-    parent :IResourceTypes;
-    codesystem :string;
-    code :string;
-    ontologyTermURI :string;
-    definition :string;
-    children :IResourceTypes[];
-}
-
-export interface IResources {
-    id :string;
-    pid :string;
-    acronym :string;
-    name :string;
-    website :string;
-    description :string;
-    contacts :IContacts[];
-}
-
 export interface ISampleCategories {
     order :number;
     name :string;
@@ -1271,6 +891,18 @@ export interface ISampleCategories {
     ontologyTermURI :string;
     definition :string;
     children :ISampleCategories[];
+}
+
+export interface ISampleTypes {
+    order :number;
+    name :string;
+    label :string;
+    parent :ISampleTypes;
+    codesystem :string;
+    code :string;
+    ontologyTermURI :string;
+    definition :string;
+    children :ISampleTypes[];
 }
 
 export interface IStandardizedTools {
@@ -1285,18 +917,6 @@ export interface IStandardizedTools {
     children :IStandardizedTools[];
 }
 
-export interface IStatus {
-    order :number;
-    name :string;
-    label :string;
-    parent :IStatus;
-    codesystem :string;
-    code :string;
-    ontologyTermURI :string;
-    definition :string;
-    children :IStatus[];
-}
-
 export interface IStatusDetails {
     order :number;
     name :string;
@@ -1307,119 +927,6 @@ export interface IStatusDetails {
     ontologyTermURI :string;
     definition :string;
     children :IStatusDetails[];
-}
-
-export interface IStudies {
-    id :string;
-    pid :string;
-    acronym :string;
-    name :string;
-    type :IOntologyNode;
-    typeOther :string;
-    website :string;
-    leadOrganisation :IOrganisations[];
-    additionalOrganisations :IOrganisations[];
-    description :string;
-    externalIdentifiers :IExternalIdentifiers[];
-    status :IOntologyNode;
-    contacts :IContacts[];
-    logo :IFile;
-    countries :IOntologyNode[];
-    datasets :IDatasets[];
-    publications :IPublications[];
-    fundingScheme :IOntologyNode[];
-    fundingStatement :string;
-    acknowledgements :string;
-    documentation :IDocumentation[];
-    networks :INetworks[];
-    networksOther :string;
-    studyRequirements :IOntologyNode[];
-    regulatoryProcedureNumber :string;
-    dateOfSigningFundingContractPlanned :string;
-    dateOfSigningFundingContractActual :string;
-    collectionStartPlanned :string;
-    collectionStartActual :string;
-    analysisStartPlanned :string;
-    analysisStartActual :string;
-    interimReportPlanned :string;
-    interimReportActual :string;
-    finalReportPlanned :string;
-    finalReportActual :string;
-    dataSources :IDataSources[];
-    dataSourcesOther :string;
-    databanks :IDatabanks[];
-    databanksOther :string;
-    cohorts :ICohorts[];
-    cdms :IMappings[];
-    studyFeatures :IOntologyNode[];
-    dataCharacterisationDetails :string;
-    dataSourceTypes :IOntologyNode[];
-    dataSourceTypesOther :string;
-    qualityMarks :IOntologyNode[];
-    numberOfDataSources :string;
-    medicinesStudiedINNCodes :IOntologyNode[];
-    medicinesStudiedATCCodes :IOntologyNode[];
-    medicinesStudiesBrands :IOntologyNode[];
-    medicinesStudiedOther :string;
-    medicalConditionsStudied :IOntologyNode[];
-    medicalConditionsStudiedOther :string;
-    dataExtractionDate :string;
-    studySetting :string;
-    analysisPlan :string;
-    populationDescription :string;
-    numberOfSubjects :number;
-    ageGroups :IOntologyNode[];
-    objectives :string;
-    interventions :string;
-    comparators :string;
-    outcomes :string;
-    studyDesign :string;
-    results :string;
-    topic :IOntologyNode[];
-    topicOther :string;
-    trialRegulatoryScope :IOntologyNode[];
-    studyDesignClassification :IOntologyNode[];
-    studyDesignClassificationOther :string;
-    studyScope :IOntologyNode[];
-    studyScopeOther :string;
-    populationOfInterest :IOntologyNode[];
-    populationOfInterestOther :string;
-}
-
-export interface IStudyDatasourceTypes {
-    order :number;
-    name :string;
-    label :string;
-    parent :IStudyDatasourceTypes;
-    codesystem :string;
-    code :string;
-    ontologyTermURI :string;
-    definition :string;
-    children :IStudyDatasourceTypes[];
-}
-
-export interface IStudyDesignClassification {
-    order :number;
-    name :string;
-    label :string;
-    parent :IStudyDesignClassification;
-    codesystem :string;
-    code :string;
-    ontologyTermURI :string;
-    definition :string;
-    children :IStudyDesignClassification[];
-}
-
-export interface IStudyFeatures {
-    order :number;
-    name :string;
-    label :string;
-    parent :IStudyFeatures;
-    codesystem :string;
-    code :string;
-    ontologyTermURI :string;
-    definition :string;
-    children :IStudyFeatures[];
 }
 
 export interface IStudyFunding {
@@ -1434,42 +941,6 @@ export interface IStudyFunding {
     children :IStudyFunding[];
 }
 
-export interface IStudyQualityMarks {
-    order :number;
-    name :string;
-    label :string;
-    parent :IStudyQualityMarks;
-    codesystem :string;
-    code :string;
-    ontologyTermURI :string;
-    definition :string;
-    children :IStudyQualityMarks[];
-}
-
-export interface IStudyRequirements {
-    order :number;
-    name :string;
-    label :string;
-    parent :IStudyRequirements;
-    codesystem :string;
-    code :string;
-    ontologyTermURI :string;
-    definition :string;
-    children :IStudyRequirements[];
-}
-
-export interface IStudyScopes {
-    order :number;
-    name :string;
-    label :string;
-    parent :IStudyScopes;
-    codesystem :string;
-    code :string;
-    ontologyTermURI :string;
-    definition :string;
-    children :IStudyScopes[];
-}
-
 export interface IStudyStatus {
     order :number;
     name :string;
@@ -1480,67 +951,6 @@ export interface IStudyStatus {
     ontologyTermURI :string;
     definition :string;
     children :IStudyStatus[];
-}
-
-export interface IStudyTopics {
-    order :number;
-    name :string;
-    label :string;
-    parent :IStudyTopics;
-    codesystem :string;
-    code :string;
-    ontologyTermURI :string;
-    definition :string;
-    children :IStudyTopics[];
-}
-
-export interface IStudyTrialRegulatoryScopes {
-    order :number;
-    name :string;
-    label :string;
-    parent :IStudyTrialRegulatoryScopes;
-    codesystem :string;
-    code :string;
-    ontologyTermURI :string;
-    definition :string;
-    children :IStudyTrialRegulatoryScopes[];
-}
-
-export interface IStudyTypes {
-    order :number;
-    name :string;
-    label :string;
-    parent :IStudyTypes;
-    codesystem :string;
-    code :string;
-    ontologyTermURI :string;
-    definition :string;
-    children :IStudyTypes[];
-}
-
-export interface ISubcohortCounts {
-    subcohort :ISubcohorts;
-    ageGroup :IOntologyNode;
-    nTotal :number;
-    nFemale :number;
-    nMale :number;
-}
-
-export interface ISubcohorts {
-    resource :IExtendedResources;
-    name :string;
-    description :string;
-    numberOfParticipants :number;
-    counts :ISubcohortCounts[];
-    inclusionStart :number;
-    inclusionEnd :number;
-    ageGroups :IOntologyNode[];
-    mainMedicalCondition :IOntologyNode[];
-    comorbidity :IOntologyNode[];
-    countries :IOntologyNode[];
-    regions :IOntologyNode[];
-    inclusionCriteria :string;
-    supplementaryInformation :string;
 }
 
 export interface ISubmissionTypes {
@@ -1558,9 +968,9 @@ export interface ISubmissionTypes {
 export interface ISubmissions {
     submissionDate :string;
     submitterName :string;
-    resources :IExtendedResources[];
+    collections :ICollections[];
     submitterEmail :string;
-    submitterOrganisation :IOrganisations;
+    submitterOrganisation :string;
     submitterRole :IOntologyNode;
     submitterRoleOther :string;
     submissionType :IOntologyNode;
@@ -1605,23 +1015,20 @@ export interface IUnits {
     children :IUnits[];
 }
 
-export interface IVariableMappings {
-    source :IExtendedResources;
-    sourceDataset :IDatasets;
-    sourceVariables :IAllVariables[];
-    sourceVariablesOtherDatasets :IAllVariables[];
-    target :IExtendedResources;
-    targetDataset :IDatasets;
-    targetVariable :IAllVariables;
-    match :IOntologyNode;
-    status :IOntologyNode;
-    description :string;
-    syntax :string;
-    comments :string;
+export interface IVariableRepeatUnits {
+    order :number;
+    name :string;
+    label :string;
+    parent :IVariableRepeatUnits;
+    codesystem :string;
+    code :string;
+    ontologyTermURI :string;
+    definition :string;
+    children :IVariableRepeatUnits[];
 }
 
 export interface IVariableValues {
-    resource :IExtendedResources;
+    collection :ICollections;
     variable :IVariables;
     value :string;
     label :string;
@@ -1633,27 +1040,26 @@ export interface IVariableValues {
 }
 
 export interface IVariables {
-    resource :IExtendedResources;
-    dataset :IDatasets;
+    collection :ICollections;
+    dataset :ICollectionDatasets;
     name :string;
+    useExternalDefinition :IVariables;
     label :string;
-    collectionEvent :ICollectionEvents;
-    sinceVersion :string;
-    untilVersion :string;
-    networkVariables :INetworkVariables[];
+    description :string;
+    collectionEvent :ICollectionEvents[];
     format :IOntologyNode;
     unit :IOntologyNode;
-    references :IAllVariables;
-    mandatory :boolean;
-    description :string;
-    order :number;
+    sinceVersion :string;
+    untilVersion :string;
+    repeatUnit :IOntologyNode;
+    repeatMin :number;
+    repeatMax :number;
     exampleValues :string[];
     permittedValues :IVariableValues[];
     keywords :IOntologyNode[];
-    repeats :IRepeatedVariables[];
     vocabularies :IOntologyNode[];
     notes :string;
-    mappings :IVariableMappings[];
+    mappings :IMappedVariables[];
 }
 
 export interface IVersion {
@@ -1669,18 +1075,6 @@ export interface IVocabularies {
     ontologyTermURI :string;
     definition :string;
     children :IVocabularies[];
-}
-
-export interface IYears {
-    order :number;
-    name :string;
-    label :string;
-    parent :IYears;
-    codesystem :string;
-    code :string;
-    ontologyTermURI :string;
-    definition :string;
-    children :IYears[];
 }
 
 
