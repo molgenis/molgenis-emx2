@@ -2,13 +2,13 @@ dependencies {
     implementation project(':backend:molgenis-emx2')
     implementation project(':backend:molgenis-emx2-io')
     implementation project(':backend:molgenis-emx2-sql')
-    implementation 'org.jooq:jooq:3.18.7'
-    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.16.1'
-//    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.16.1'
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.16.1'
-    implementation 'com.fasterxml.jackson.core:jackson-core:2.16.1'
-//    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.16.1'
-    implementation 'org.javers:javers-core:6.14.0'
+    implementation group: 'org.jooq', name:'jooq', version:'3.18.7'
+    implementation group: 'com.fasterxml.jackson.dataformat', name:'jackson-dataformat-yaml', version:'2.16.1'
+//    implementation group: 'com.fasterxml.jackson.dataformat', name:'jackson-dataformat-csv', version:'2.16.1'
+    implementation group: 'com.fasterxml.jackson.core', name:'jackson-databind', version:'2.16.1'
+    implementation group: 'com.fasterxml.jackson.core', name:'jackson-core', version:'2.16.1'
+//    implementation group: 'com.fasterxml.jackson.core', name:'jackson-annotations', version:'2.16.1'
+    implementation group: 'org.javers', name:'javers-core', version:'6.14.0'
 }
 
 //we use data models from data folder

@@ -1,8 +1,8 @@
 dependencies {
     implementation project(':backend:molgenis-emx2')
-    implementation 'javax.mail:mail:1.4.7'
-    implementation 'org.apache.logging.log4j:log4j-core:2.20.0'
-    implementation 'org.apache.logging.log4j:log4j-slf4j2-impl:2.20.0'
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.3'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.10.3'
+    implementation group: 'javax.mail', name:'mail', version:'1.4.7'
+    implementation group: 'org.apache.logging.log4j', name:'log4j-core', version:'2.20.0'
+    implementation group: 'org.apache.logging.log4j', name:'log4j-slf4j2-impl', version:'2.20.0'
+    testImplementation group: 'org.junit.jupiter', name:'junit-jupiter-api', version:'5.10.3'
+    testRuntimeOnly group: 'org.junit.jupiter', name:'junit-jupiter-engine', version:'5.10.3'
 }

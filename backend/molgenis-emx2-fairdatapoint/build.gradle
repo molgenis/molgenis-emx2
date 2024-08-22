@@ -14,8 +14,8 @@ dependencies {
     testImplementation project(':backend:molgenis-emx2-sql')
     testImplementation project(':backend:molgenis-emx2-datamodels')
     testImplementation project(':backend:molgenis-emx2-io')
-    implementation 'com.graphql-java:graphql-java:21.1'
-//    implementation 'com.graphql-java:graphql-java-extended-scalars:20.2'
-    implementation 'com.sparkjava:spark-core:2.9.4'
-    implementation 'commons-io:commons-io:2.15.1'
+    implementation group: 'com.graphql-java', name:'graphql-java', version:'21.1'
+//    implementation group: 'com.graphql-java', name:'graphql-java-extended-scalars', version:'20.2'
+    implementation group: 'com.sparkjava', name:'spark-core', version:'2.9.4'
+    implementation group: 'commons-io', name:'commons-io', version:'2.15.1'
 }

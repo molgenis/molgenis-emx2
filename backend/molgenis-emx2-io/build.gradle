@@ -1,11 +1,11 @@
 dependencies {
-    implementation 'org.simpleflatmapper:sfm-csv:8.2.3'
-    implementation 'com.github.pjfanning:excel-streaming-reader:4.2.1'
-    implementation 'org.apache.commons:commons-lang3:3.13.0'
-    implementation 'commons-io:commons-io:2.15.1'
-    implementation 'org.jooq:jooq:3.18.7'
-    implementation 'org.apache.logging.log4j:log4j-core:2.20.0'
-    implementation 'org.apache.logging.log4j:log4j-slf4j2-impl:2.20.0'
+    implementation group: 'org.simpleflatmapper', name:'sfm-csv', version:'8.2.3'
+    implementation group: 'com.github.pjfanning', name:'excel-streaming-reader', version:'4.2.1'
+    implementation group: 'org.apache.commons', name:'commons-lang3', version:'3.13.0'
+    implementation group: 'commons-io', name:'commons-io', version:'2.15.1'
+    implementation group: 'org.jooq', name:'jooq', version:'3.18.7'
+    implementation group: 'org.apache.logging.log4j', name:'log4j-core', version:'2.20.0'
+    implementation group: 'org.apache.logging.log4j', name:'log4j-slf4j2-impl', version:'2.20.0'
     implementation project(':backend:molgenis-emx2')
     implementation project(':backend:molgenis-emx2-tasks')
     testImplementation project(':backend:molgenis-emx2-sql')
