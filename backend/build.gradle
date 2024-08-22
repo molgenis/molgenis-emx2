@@ -36,7 +36,7 @@ subprojects {
 
     /* default dependencies for all projects*/
     dependencies {
-        testImplementation group: 'org.junit.jupiter', name:'junit-jupiter', version:junitVersion
+        testImplementation group: 'org.junit.jupiter', name:'junit-jupiter-api', version:junitVersion
         testRuntimeOnly group: 'org.junit.jupiter', name:'junit-jupiter-engine', version:junitVersion
         testImplementation group: 'org.mockito', name:'mockito-core', version:mockitoVersion
         //allows to set environment variables in test
