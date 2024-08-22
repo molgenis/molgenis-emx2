@@ -282,7 +282,7 @@ public class SqlTypeUtils extends TypeUtils {
   }
 
   static Map<String, Object> convertRowToMap(List<Column> columns, Row row) {
-    Map<String, Object> map = new LinkedHashMap<>();
+    Map<String, Object> map = new LinkedHashMap<>(row.getValueMap());
     for (Column c : columns) {
       if (c.isReference()) {
         map.put(c.getIdentifier(), getRefFromRow(row, c));
