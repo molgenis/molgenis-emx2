@@ -98,17 +98,18 @@ export interface IFile {
     return switch (columnType) {
       case BOOL -> "boolean";
       case BOOL_ARRAY -> "boolean[]";
-      case EMAIL, STRING, TEXT, DATE, DATETIME, UUID, AUTO_ID, HYPERLINK -> "string";
+      case EMAIL, STRING, TEXT, DATE, DATETIME, UUID, AUTO_ID, HYPERLINK, LONG -> "string";
       case EMAIL_ARRAY,
               STRING_ARRAY,
               TEXT_ARRAY,
               DATE_ARRAY,
               DATETIME_ARRAY,
               UUID_ARRAY,
-              HYPERLINK_ARRAY ->
+              HYPERLINK_ARRAY,
+              LONG_ARRAY ->
           "string[]";
-      case INT, LONG, DECIMAL -> "number";
-      case INT_ARRAY, LONG_ARRAY, DECIMAL_ARRAY -> "number[]";
+      case INT, DECIMAL -> "number";
+      case INT_ARRAY, DECIMAL_ARRAY -> "number[]";
       case REF -> "I" + convertToPascalCase(column.getRefTable().getTableName());
       case REF_ARRAY, REFBACK ->
           "I" + convertToPascalCase(column.getRefTable().getTableName()) + "[]";

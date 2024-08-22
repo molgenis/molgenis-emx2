@@ -1,4 +1,4 @@
-// Generated (on: 2024-08-22T10:17:09.452897) from Generator.java for schema: catalogue
+// Generated (on: 2024-08-22T10:27:42.859826) from Generator.java for schema: catalogue
 
 export interface IFile {
     id?: string;

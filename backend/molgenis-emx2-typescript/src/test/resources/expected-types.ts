@@ -1,4 +1,4 @@
-// Generated (on: 2024-08-16T13:11:49.997489) from Generator.java for schema: pet store
+// Generated (on: 2024-08-22T10:25:33.327344) from Generator.java for schema: pet store
 
 export interface IFile {
   id?: string;
@@ -27,7 +27,7 @@ export interface ICategory {
 export interface IOrder {
   orderId :string;
   pet :IPet;
-  quantity :number;
+  quantity :string;
   price :number;
   complete :boolean;
   status :string;
