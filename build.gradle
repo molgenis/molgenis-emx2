@@ -52,6 +52,7 @@ dependencies {
 
 mainClassName = 'org.molgenis.emx2.RunMolgenisEmx2'
 shadowJar {
+    zip64 = true
     archiveBaseName = 'molgenis-emx2'
     mergeServiceFiles()
     archiveVersion = project.version.replace("v","")
@@ -125,6 +126,13 @@ task cleandb(type: JavaExec) {
     description = "Clean database. Carefull, will delete all MOLGENIS stuff"
     classpath = sourceSets.main.runtimeClasspath
     main = "org.molgenis.emx2.AToolToCleanDatabase"
+}
+
+task generateTypes(type: JavaExec) {
+    group = "Execution"
+    description = "Generated type-script interfaces from schema metadata"
+    classpath = sourceSets.main.runtimeClasspath
+    main = "org.molgenis.emx2.AToolToGenerateTypeScriptTypes"
 }
 
 //task to install pre-commit hook that applies formatting

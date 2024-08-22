@@ -5,6 +5,7 @@ dependencies {
     testImplementation project(':backend:molgenis-emx2-sql')
     testImplementation project(':backend:molgenis-emx2-datamodels')
     testImplementation project(':backend:molgenis-emx2-io')
+    testImplementation project(':backend:molgenis-emx2-tasks')
     implementation group: 'org.jooq', name:'jooq', version:jooqVersion
 //    implementation group: 'com.fasterxml.jackson.dataformat', name:'jackson-dataformat-yaml', version:jacksonVersion
 //    implementation group: 'com.fasterxml.jackson.dataformat', name:'jackson-dataformat-csv', version:jacksonVersion

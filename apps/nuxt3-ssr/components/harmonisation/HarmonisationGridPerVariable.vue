@@ -1,27 +1,37 @@
 <script setup lang="ts">
 import type {
   HarmonisationStatus,
+  IMapping,
   IVariable,
+  IVariableDetails,
   IVariableMappings,
 } from "~/interfaces/types";
 
-type VariableDetailsWithMapping = IVariable & IVariableMappings;
-
-defineProps<{
-  variable: VariableDetailsWithMapping;
-  cohortsWithMapping: {
-    cohort: { id: string };
-    status: HarmonisationStatus | HarmonisationStatus[];
-  }[];
+const props = defineProps<{
+  variable: IVariableDetails & IVariableMappings;
 }>();
+
+const relevantMappings = computed(() =>
+  props.variable.mappings?.filter((m) =>
+    ["partial", "complete"].includes(m.match.name)
+  )
+);
+const sourceIds = computed(() => [
+  ...new Set(relevantMappings.value?.map((mapping) => mapping.source.id)),
+]);
+const repeats = computed(() => {
+  const min = props.variable.repeatMin | 0;
+  const max = props.variable.repeatMax | 0;
+  return Array.from({ length: max - min + 1 }, (_, i) => min + i);
+});
 </script>
 <template>
   <div class="relative">
     <HarmonisationLegendDetailed size="small" />
     <div class="overflow-x-auto xl:max-w-table border-t">
       <TableSticky
-        :columns="cohortsWithMapping"
-        :rows="[variable, ...variable.repeats]"
+        :columns="sourceIds"
+        :rows="repeats"
         class="h-screen overflow-auto"
       >
         <template #column="columnProps">
@@ -31,7 +41,7 @@ defineProps<{
             <span
               class="hover:flex items-center justify-items-end align-middle min-w-[2rem] hover:z-50 py-2"
             >
-              {{ columnProps.value.cohort.id }}
+              {{ columnProps.value }}
             </span>
           </div>
         </template>
@@ -41,14 +51,20 @@ defineProps<{
             class="text-body-base font-normal px-2 truncate hover:text-clip hover:overflow-visible"
           >
             <span class="hover:inline-block z-50">
-              {{ rowProps.value.row.name }}
+              {{ variable.repeatUnit.name }} {{ rowProps.value.row }}
             </span>
           </div>
         </template>
 
         <template #cell="cell">
           <HarmonisationTableCellStatusIcon
-            :status="(cohortsWithMapping[cell.value.columnIndex].status[cell.value.rowIndex] as HarmonisationStatus)"
+            :status="
+              variable.mappings?.find(
+                (m) =>
+                  m.source.id === cell.value.column &&
+                  m.repeats.includes('' + cell.value.row)
+              )?.match.name || 'unmapped'
+            "
           />
         </template>
       </TableSticky>

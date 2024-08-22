@@ -5,5 +5,7 @@ dependencies {
     implementation project(':backend:molgenis-emx2-webapi') //all apis
     implementation project(':backend:molgenis-emx2-sql')
     implementation project(':backend:molgenis-emx2')
+    implementation project(':backend:molgenis-emx2-typescript')
+    implementation project(':backend:molgenis-emx2-datamodels')
     implementation group: 'org.jooq', name:'jooq', version:'3.18.7'
 }

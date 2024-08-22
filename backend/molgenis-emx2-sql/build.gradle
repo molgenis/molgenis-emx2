@@ -3,6 +3,7 @@ dependencies {
     testImplementation project(':backend:molgenis-emx2-sql')
     testImplementation project(':backend:molgenis-emx2')
     testImplementation project(':backend:molgenis-emx2-datamodels')
+    testImplementation project(':backend:molgenis-emx2-tasks')
     implementation group: 'org.postgresql', name:'postgresql', version:postgresqlVersion
     implementation group: 'org.jooq', name:'jooq', version:jooqVersion
     implementation group: 'com.zaxxer', name:'HikariCP', version:hikariCPVersion

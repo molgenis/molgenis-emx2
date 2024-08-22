@@ -10,7 +10,7 @@ import java.util.*;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.SchemaMetadata;
-import org.molgenis.emx2.datamodels.AbstractDataLoader;
+import org.molgenis.emx2.io.ImportDataModelTask;
 import org.molgenis.emx2.io.emx2.Emx2;
 import org.molgenis.emx2.io.readers.CsvTableReader;
 
@@ -34,7 +34,7 @@ public class SchemaFromProfile {
     InputStreamReader yaml =
         new InputStreamReader(
             Objects.requireNonNull(
-                AbstractDataLoader.class.getClassLoader().getResourceAsStream(yamlFileLocation)));
+                ImportDataModelTask.class.getClassLoader().getResourceAsStream(yamlFileLocation)));
     try {
       this.profiles = new ObjectMapper(new YAMLFactory()).readValue(yaml, Profiles.class);
     } catch (Exception e) {

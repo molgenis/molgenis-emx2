@@ -9,6 +9,7 @@ import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeCreateSchem
 
 import com.zaxxer.hikari.HikariDataSource;
 import java.util.*;
+import java.util.function.Supplier;
 import javax.sql.DataSource;
 import org.jooq.DSLContext;
 import org.jooq.SQLDialect;
@@ -38,7 +39,8 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   private Integer databaseVersion;
   private DSLContext jooq;
   private final SqlUserAwareConnectionProvider connectionProvider;
-  private final Map<String, SqlSchemaMetadata> schemaCache = new LinkedHashMap<>(); // cache
+  private final Map<String, SqlSchemaMetadata> schemaCache = new LinkedHashMap<>();
+  private Map<String, Supplier<Object>> javaScriptBindings = new HashMap<>();
   private Collection<String> schemaNames = new ArrayList<>();
   private Collection<SchemaInfo> schemaInfos = new ArrayList<>();
   private boolean inTx;
@@ -85,6 +87,8 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     for (Map.Entry<String, SqlSchemaMetadata> schema : copy.schemaCache.entrySet()) {
       this.schemaCache.put(schema.getKey(), new SqlSchemaMetadata(this, schema.getValue()));
     }
+
+    this.javaScriptBindings.putAll(copy.javaScriptBindings);
   }
 
   private void setJooq(DSLContext ctx) {
@@ -722,6 +726,16 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       return user != null ? user : new User(this, userName);
     }
     return null;
+  }
+
+  public Database setBindings(Map<String, Supplier<Object>> bindings) {
+    this.javaScriptBindings = bindings;
+    return this;
+  }
+
+  @Override
+  public Map<String, Supplier<Object>> getJavaScriptBindings() {
+    return javaScriptBindings;
   }
 
   public void addTableListener(TableListener tableListener) {
