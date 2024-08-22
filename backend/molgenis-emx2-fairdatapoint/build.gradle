@@ -8,15 +8,15 @@ dependencies {
     testImplementation project(':backend:molgenis-emx2-io')
     testImplementation project(':backend:molgenis-emx2-tasks')
     implementation group: 'org.eclipse.rdf4j', name:'rdf4j-rio-api', version:rdf4jVersion
-//    implementation group: 'org.eclipse.rdf4j', name:'rdf4j-rio-jsonld', version:rdf4jVersion
-//    implementation group: 'org.eclipse.rdf4j', name:'rdf4j-rio-turtle', version:rdf4jVersion
-//    implementation group: 'org.eclipse.rdf4j', name:'rdf4j-rio-n3', version:rdf4jVersion
-//    implementation group: 'org.eclipse.rdf4j', name:'rdf4j-rio-trig', version:rdf4jVersion
-//    implementation group: 'org.eclipse.rdf4j', name:'rdf4j-rio-rdfxml', version:rdf4jVersion
-//    implementation group: 'org.eclipse.rdf4j', name:'rdf4j-rio-ntriples', version:rdf4jVersion
-//    implementation group: 'org.eclipse.rdf4j', name:'rdf4j-rio-nquads', version:rdf4jVersion
+    implementation group: 'org.eclipse.rdf4j', name:'rdf4j-rio-jsonld', version:rdf4jVersion
+    implementation group: 'org.eclipse.rdf4j', name:'rdf4j-rio-turtle', version:rdf4jVersion
+    implementation group: 'org.eclipse.rdf4j', name:'rdf4j-rio-n3', version:rdf4jVersion
+    implementation group: 'org.eclipse.rdf4j', name:'rdf4j-rio-trig', version:rdf4jVersion
+    implementation group: 'org.eclipse.rdf4j', name:'rdf4j-rio-rdfxml', version:rdf4jVersion
+    implementation group: 'org.eclipse.rdf4j', name:'rdf4j-rio-ntriples', version:rdf4jVersion
+    implementation group: 'org.eclipse.rdf4j', name:'rdf4j-rio-nquads', version:rdf4jVersion
     implementation group: 'com.graphql-java', name:'graphql-java', version:graphqlVersion
-//    implementation group: 'com.graphql-java', name:'graphql-java-extended-scalars', version:graphqlScalarsVersion
+    implementation group: 'com.graphql-java', name:'graphql-java-extended-scalars', version:graphqlScalarsVersion
     implementation group: 'com.sparkjava', name:'spark-core', version:sparkJavaVersion
     implementation group: 'commons-io', name:'commons-io', version:commonsIoVersion
 }

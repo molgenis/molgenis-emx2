@@ -1,6 +1,6 @@
 dependencies {
     implementation group: 'org.graalvm.js', name:'js', version:graalvmVersion
-//    implementation group: 'org.graalvm.js', name:'js-scriptengine', version:graalvmVersion
+    implementation group: 'org.graalvm.js', name:'js-scriptengine', version:graalvmVersion
     implementation group: 'org.jooq', name:'jooq', version:jooqVersion
     implementation group: 'org.javers', name:'javers-core', version:javersVersion
 }
