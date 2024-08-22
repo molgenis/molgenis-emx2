@@ -6,6 +6,7 @@ import static org.molgenis.emx2.ColumnType.REF;
 import static org.molgenis.emx2.ColumnType.REF_ARRAY;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
+import static org.molgenis.emx2.datamodels.DataModels.Regular.PET_STORE;
 import static org.molgenis.emx2.graphql.GraphqlApiFactory.convertExecutionResultToJson;
 import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 import static org.molgenis.emx2.utils.TypeUtils.convertToCamelCase;
@@ -23,7 +24,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.datamodels.PetStoreLoader;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import org.molgenis.emx2.tasks.Task;
 import org.molgenis.emx2.tasks.TaskService;
@@ -41,7 +41,7 @@ public class TestGraphqlSchemaFields {
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
     schema = database.dropCreateSchema(schemaName);
-    new PetStoreLoader().load(schema, true);
+    PET_STORE.getImportTask(schema, true).run();
     taskService = new TaskServiceInMemory();
     grapql = new GraphqlApiFactory().createGraphqlForSchema(schema, taskService);
   }
@@ -825,13 +825,13 @@ public class TestGraphqlSchemaFields {
 
     // restore
     schema = database.dropCreateSchema(schemaName);
-    new PetStoreLoader().load(schema, true);
+    PET_STORE.getImportTask(schema, true).run();
   }
 
   @Test
   public void testReport() throws IOException {
     schema = database.dropCreateSchema(schemaName);
-    new PetStoreLoader().load(schema, true);
+    PET_STORE.getImportTask(schema, true).run();
     grapql = new GraphqlApiFactory().createGraphqlForSchema(schema, taskService);
     JsonNode result = execute("{_reports(id:0){data,count}}");
     assertTrue(result.at("/_reports/data").textValue().contains("pooky"));

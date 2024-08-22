@@ -1,6 +1,7 @@
 package org.molgenis.emx2.rdf;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.molgenis.emx2.datamodels.DataModels.Regular.PET_STORE;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStreamReader;
@@ -10,8 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.SchemaMetadata;
-import org.molgenis.emx2.datamodels.PetStoreLoader;
-import org.molgenis.emx2.datamodels.ProfileLoader;
+import org.molgenis.emx2.io.ImportProfileTask;
 import org.molgenis.emx2.io.emx2.Emx2;
 import org.molgenis.emx2.io.readers.CsvTableReader;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
@@ -26,8 +26,7 @@ public class OntologyTableSemantics {
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
     Schema petStore = database.dropCreateSchema("semanticPetStore");
-    PetStoreLoader petStoreLoader = new PetStoreLoader();
-    petStoreLoader.load(petStore, true);
+    PET_STORE.getImportTask(petStore, true).run();
     petStoreSchema = petStore;
   }
 
@@ -59,7 +58,7 @@ public class OntologyTableSemantics {
         Emx2.fromRowList(
             CsvTableReader.read(
                 new InputStreamReader(
-                    ProfileLoader.class
+                    ImportProfileTask.class
                         .getClassLoader()
                         .getResourceAsStream("OntologyTableSemanticsTestFile.csv"))));
     petStoreSchema.migrate(metadata);

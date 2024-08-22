@@ -14,6 +14,7 @@ import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
+import static org.molgenis.emx2.datamodels.DataModels.Regular.PET_STORE;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_PW_DEFAULT;
 import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 import static org.molgenis.emx2.web.Constants.*;
@@ -36,7 +37,6 @@ import java.util.Map;
 import org.junit.jupiter.api.*;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.Order;
-import org.molgenis.emx2.datamodels.PetStoreLoader;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvInZipFile;
 import org.molgenis.emx2.io.tablestore.TableStoreForXlsxFile;
@@ -94,8 +94,7 @@ public class WebApiSmokeTests {
     // Always create test database from scratch to avoid instability due to side effects.
     db.dropSchemaIfExists(PET_STORE_SCHEMA);
     schema = db.createSchema(PET_STORE_SCHEMA);
-    PetStoreLoader petStoreLoader = new PetStoreLoader();
-    petStoreLoader.load(schema, true);
+    PET_STORE.getImportTask(schema, true).run();
 
     // grant a user permission
     schema.addMember(PET_SHOP_OWNER, Privileges.OWNER.toString());
@@ -153,7 +152,7 @@ public class WebApiSmokeTests {
   public void testReports() throws IOException {
     // create a new schema for report
     Schema schema = db.dropCreateSchema("pet store reports");
-    new PetStoreLoader().load(schema, true);
+    PET_STORE.getImportTask(schema, true).run();
 
     // check if reports work
     byte[] zipContents =
