@@ -51,6 +51,7 @@ dependencies {
 
 mainClassName = 'org.molgenis.emx2.RunMolgenisEmx2'
 shadowJar {
+    zip64 = true
     archiveBaseName = 'molgenis-emx2'
     mergeServiceFiles()
     archiveVersion = project.version.replace("v","")
