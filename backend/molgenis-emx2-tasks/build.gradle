@@ -2,12 +2,12 @@ dependencies {
     implementation project(':backend:molgenis-emx2')
     implementation project(':backend:molgenis-emx2-sql')
     implementation project(':backend:molgenis-emx2-email')
-    implementation group: 'org.apache.commons', name:'commons-text', version:'1.10.0'
-    implementation group: 'org.quartz-scheduler', name:'quartz', version:'2.3.2'
-    implementation group: 'org.jooq', name:'jooq', version:'3.18.7'
-//    implementation group: 'com.fasterxml.jackson.dataformat', name:'jackson-dataformat-yaml', version:'2.16.1'
-//    implementation group: 'com.fasterxml.jackson.dataformat', name:'jackson-dataformat-csv', version:'2.16.1'
-    implementation group: 'com.fasterxml.jackson.core', name:'jackson-databind', version:'2.16.1'
-//    implementation group: 'com.fasterxml.jackson.core', name:'jackson-core', version:'2.16.1'
-    implementation group: 'com.fasterxml.jackson.core', name:'jackson-annotations', version:'2.16.1'
+    implementation group: 'org.apache.commons', name:'commons-text', version:apacheCommonsTextVersion
+    implementation group: 'org.quartz-scheduler', name:'quartz', version:quartzVersion
+    implementation group: 'org.jooq', name:'jooq', version:jooqVersion
+//    implementation group: 'com.fasterxml.jackson.dataformat', name:'jackson-dataformat-yaml', version:jacksonVersion
+//    implementation group: 'com.fasterxml.jackson.dataformat', name:'jackson-dataformat-csv', version:jacksonVersion
+    implementation group: 'com.fasterxml.jackson.core', name:'jackson-databind', version:jacksonVersion
+//    implementation group: 'com.fasterxml.jackson.core', name:'jackson-core', version:jacksonVersion
+    implementation group: 'com.fasterxml.jackson.core', name:'jackson-annotations', version:jacksonVersion
 }

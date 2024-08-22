@@ -1,13 +1,14 @@
 dependencies {
-    implementation group: 'org.simpleflatmapper', name:'sfm-csv', version:'8.2.3'
-    implementation group: 'com.github.pjfanning', name:'excel-streaming-reader', version:'4.2.1'
-    implementation group: 'org.apache.commons', name:'commons-lang3', version:'3.13.0'
-    implementation group: 'commons-io', name:'commons-io', version:'2.15.1'
-    implementation group: 'org.jooq', name:'jooq', version:'3.18.7'
-    implementation group: 'org.apache.logging.log4j', name:'log4j-core', version:'2.20.0'
-    implementation group: 'org.apache.logging.log4j', name:'log4j-slf4j2-impl', version:'2.20.0'
     implementation project(':backend:molgenis-emx2')
     implementation project(':backend:molgenis-emx2-tasks')
     testImplementation project(':backend:molgenis-emx2-sql')
     testImplementation project(':backend:molgenis-emx2-datamodels')
+    implementation group: 'org.simpleflatmapper', name:'sfm-csv', version:simpleflatmapperVersion
+    implementation group: 'com.github.pjfanning', name:'excel-streaming-reader', version:excelStreamingReaderVersion
+    implementation group: 'org.apache.commons', name:'commons-lang3', version:apacheCommonsLang3Version
+    implementation group: 'commons-io', name:'commons-io', version:commonsIoVersion
+    implementation group: 'org.jooq', name:'jooq', version:jooqVersion
+    implementation group: 'org.apache.logging.log4j', name:'log4j-core', version:apacheLog4jVersion
+    implementation group: 'org.apache.logging.log4j', name:'log4j-slf4j2-impl', version:apacheLog4jVersion
+
 }

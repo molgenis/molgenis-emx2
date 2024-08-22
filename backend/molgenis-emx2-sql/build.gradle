@@ -1,10 +1,10 @@
 dependencies {
-    implementation group: 'org.postgresql', name:'postgresql', version:'42.6.0'
     implementation project(':backend:molgenis-emx2')
     testImplementation project(':backend:molgenis-emx2-sql')
     testImplementation project(':backend:molgenis-emx2')
     testImplementation project(':backend:molgenis-emx2-datamodels')
-    implementation group: 'org.jooq', name:'jooq', version:'3.18.7'
-    implementation group: 'com.zaxxer', name:'HikariCP', version:'5.0.1'
-    implementation group: 'com.nimbusds', name:'nimbus-jose-jwt', version:'9.40'
+    implementation group: 'org.postgresql', name:'postgresql', version:postgresqlVersion
+    implementation group: 'org.jooq', name:'jooq', version:jooqVersion
+    implementation group: 'com.zaxxer', name:'HikariCP', version:hikariCPVersion
+    implementation group: 'com.nimbusds', name:'nimbus-jose-jwt', version:nimbusdsVersion
 }
