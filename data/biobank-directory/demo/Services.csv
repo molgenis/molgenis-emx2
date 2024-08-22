@@ -1,0 +1,2 @@
+id,name,acronym,description,device,deviceSystem,tRL,accessDescription,unitOfAccess,unitCost,accreditation
+bbmri-eric:serviceID:DE_1234,Biobank Service,,Service provided by this biobank,,,2,https://myservice-access.de,,,
