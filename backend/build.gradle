@@ -15,12 +15,6 @@ subprojects {
     apply plugin: 'java'
     apply plugin: 'jacoco'
     apply plugin: "com.diffplug.spotless"
-    apply plugin: 'nebula.lint'
-
-    gradleLint {
-        alwaysRun = false
-        rules = ['all-dependency']
-    }
 
     repositories {
         mavenLocal()
