@@ -3,6 +3,7 @@ dependencies {
     implementation group: 'javax.mail', name:'mail', version:javaxVersion
     implementation group: 'org.apache.logging.log4j', name:'log4j-core', version:log4jVersion
     implementation group: 'org.apache.logging.log4j', name:'log4j-slf4j2-impl', version:log4jVersion
+
     testImplementation group: 'org.junit.jupiter', name:'junit-jupiter-api', version:junitVersion
     testRuntimeOnly group: 'org.junit.jupiter', name:'junit-jupiter-engine', version:junitVersion
 }

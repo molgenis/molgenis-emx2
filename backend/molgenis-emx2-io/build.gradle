@@ -1,8 +1,6 @@
 dependencies {
     implementation project(':backend:molgenis-emx2')
     implementation project(':backend:molgenis-emx2-tasks')
-    testImplementation project(':backend:molgenis-emx2-sql')
-    testImplementation project(':backend:molgenis-emx2-datamodels')
     implementation group: 'org.simpleflatmapper', name:'sfm-csv', version:simpleflatmapperVersion
     implementation group: 'com.github.pjfanning', name:'excel-streaming-reader', version:excelStreamingReaderVersion
     implementation group: 'org.apache.commons', name:'commons-lang3', version:commonsLang3Version
@@ -12,5 +10,8 @@ dependencies {
     implementation group: 'org.apache.logging.log4j', name:'log4j-slf4j2-impl', version:log4jVersion
     implementation group: 'org.apache.poi', name:'poi', version:poiVersion
     implementation group: 'org.apache.poi', name:'poi-ooxml', version:poiVersion
+
+    testImplementation project(':backend:molgenis-emx2-sql')
+    testImplementation project(':backend:molgenis-emx2-datamodels')
     testImplementation group: 'com.sparkjava', name:'spark-core', version:sparkJavaVersion
 }
