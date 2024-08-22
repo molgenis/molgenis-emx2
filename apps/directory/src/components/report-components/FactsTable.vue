@@ -197,6 +197,13 @@ const FACTSPROPERTIES = [
   "number_of_samples",
   "number_of_donors",
 ];
+const SPLITTABLE_COLUMNS = [
+  "sample_type",
+  "sex",
+  "age_range",
+  "disease",
+  "number_of_samples",
+];
 
 const currentPage = ref(1);
 const facts = ref<Record<string, any>[]>([]);
@@ -209,13 +216,6 @@ const splitByColumn = ref<string[]>([
   "sex",
   "age_range",
   "disease",
-]);
-const splittableColumns = ref<string[]>([
-  "sample_type",
-  "sex",
-  "age_range",
-  "disease",
-  "number_of_samples",
 ]);
 
 const factProperties = ref<Record<string, any>>({});
@@ -342,7 +342,6 @@ function toggleColumn(event: Record<string, any>, columnName: string) {
 }
 
 function sort(column: string) {
-  /** user clicked again */
   if (sortColumn.value === column) {
     sortAsc.value = !sortAsc;
   } else {
@@ -382,7 +381,7 @@ function hasAFactToShow(fact: Record<string, any>) {
   const hasSamples =
     fact.number_of_samples && parseInt(fact.number_of_samples) !== 0;
   const hasDonors =
-    fact.number_of_donors && parseInt(fact.number_of_samples) !== 0;
+    fact.number_of_donors && parseInt(fact.number_of_donors) !== 0;
 
   return hasSamples || hasDonors || !!fact.sex;
 }
@@ -411,7 +410,7 @@ function collapseRows() {
 
     let newCriteria = "";
 
-    for (const criteriaColumn of splittableColumns.value) {
+    for (const criteriaColumn of SPLITTABLE_COLUMNS) {
       if (splitByColumn.value.includes(criteriaColumn)) {
         const critValue = getValue(baseFact, criteriaColumn);
         /** for use to group */
@@ -447,7 +446,7 @@ function collapseRows() {
         continue;
       }
 
-      for (const column of splittableColumns.value) {
+      for (const column of SPLITTABLE_COLUMNS) {
         if (!splitByColumn.value.includes(column)) {
           const mergedValue = collapsedFact[column];
 
