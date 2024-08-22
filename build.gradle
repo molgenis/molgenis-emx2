@@ -9,6 +9,7 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '8.1.1'
     id 'application'
     id 'com.palantir.docker' version '0.35.0'
+    id "nebula.lint" version "19.0.3"
 }
 
 ext {
