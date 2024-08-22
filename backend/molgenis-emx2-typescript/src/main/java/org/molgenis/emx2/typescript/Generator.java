@@ -81,7 +81,8 @@ export interface IFile {
 
         String columnName = convertToCamelCase(column.getName());
         String fieldValue = toTypeScriptInterfaceFieldValue(column);
-        writer.println(String.format("  %s :%s;", columnName, fieldValue));
+        String optional = column.isRequired() ? "" : "?";
+        writer.println(String.format("  %s%s: %s;", columnName, optional, fieldValue));
       }
       writer.println("}");
       writer.println("");
