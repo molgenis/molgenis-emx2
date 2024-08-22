@@ -350,19 +350,9 @@ function sort(column: string) {
     sortAsc.value = true;
   }
 
-  let newFacts = hardcopy(facts.value);
+  const sortedFacts = _.sortBy(facts.value, column);
+  facts.value = sortAsc.value ? sortedFacts : _.reverse(sortedFacts);
 
-  newFacts.sort(
-    (factA: Record<string, string>, factB: Record<string, string>) => {
-      if (typeof factA[column] !== "string") {
-        console.log(factA[column]);
-      }
-      const comp = factA[column].localeCompare(factB[column]);
-
-      return sortAsc.value ? comp : -1 * comp;
-    }
-  );
-  facts.value = newFacts;
   /** if we do not key this, then it will break */
   tableVersion.value = tableVersion.value + 1;
 }
