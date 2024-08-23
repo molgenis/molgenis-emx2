@@ -104,49 +104,20 @@ class Transform:
         df_catalogues = float_to_int(df_catalogues)  # convert float back to integer
         df_catalogues.to_csv(self.path + 'Catalogues.csv', index=False)
 
-    def organisations(self):
-        """ Transform columns in Organisations and alter structure
-        """
-        df_collection_organisations = pd.DataFrame()
-        df_organisations = pd.read_csv(self.path + 'Organisations.csv')
-        # TODO: get organisations from 'additional organisations', add 'is lead organisation' boolean
-
-        for table in ['Studies', 'Cohorts', 'Data sources', 'Databanks', 'Contacts']:
-            df_resource = pd.read_csv(self.path + table + '.csv')
-            if table == 'Contacts':
-                df_resource = df_resource[['resource', 'organisation']]
-            else:
-                df_resource = df_resource[['id', 'lead organisation']]
-            df_resource.rename(columns={'resource': 'collection',
-                                        'organisation': 'id',
-                                        'id': 'collection',
-                                        'lead organisation': 'id'}, inplace=True)
-            df_resource = df_resource.dropna(axis=0)
-            df_resource = df_resource.reset_index()
-            df_merged = get_collection_organisations(df_organisations, df_resource)
-            df_collection_organisations = pd.concat([df_collection_organisations, df_merged])
-
-        df_collection_organisations = float_to_int(df_collection_organisations)  # convert float back to integer
-        df_collection_organisations = df_collection_organisations.drop_duplicates(subset=['collection', 'id'])
-        df_collection_organisations.to_csv(self.path + 'Collection organisations.csv', index=False)
-
     def collections(self):
         """Transform columns in Cohorts, Networks, Studies, Data sources, Databanks
         """
         # Cohorts to Collections
         df_cohorts = pd.read_csv(self.path + 'Cohorts.csv')
-        df_cohorts.rename(columns={'type': 'cohort type',
-                                   'type other': 'cohort type other',
-                                   'collection type': 'data collection type',
-                                   'linkage options': 'linkage possibility description'}, inplace=True)
-        df_cohorts['type'] = 'Cohort study'
+        df_cohorts = df_cohorts.rename(columns={'type': 'cohort type',
+                                                'type other': 'cohort type other',
+                                                'collection type': 'data collection type'})
+        df_cohorts['type'] = 'Cohort'
 
         # Networks to Collections
-        # TODO: Get Networks table out of Collections?
         df_networks = pd.read_csv(self.path + 'Networks.csv')
-        df_networks.rename(columns={'type': 'network type'}, inplace=True)
+        df_networks = df_networks.rename(columns={'type': 'network type'})
         df_networks['type'] = 'Network'
-        df_networks['models'] = ''
 
         # get collections that are part of network
         cols_to_find = ['networks', 'cohorts', 'data sources', 'databanks']
@@ -176,19 +147,57 @@ class Transform:
                                      'areas of information': 'areas of information rwd'}, inplace=True)
         df_databanks['type'] = 'Databank'
 
-        # TODO: think about keeping Models as collection type
-        df_models = pd.read_csv(self.path + 'Models.csv', keep_default_na=False)
+        df_models = pd.read_csv(self.path + 'Models.csv')
         df_models = df_models[df_models['id'] == 'CRC Screening CDM']  # handles exception CRC Screening CDM
         df_models['type'] = ''  # TODO: add term here
 
-        df_models = float_to_int(df_models)  # convert float back to integer
-
-        # concatenate all to Collections
-        df_collections = pd.concat([df_cohorts, df_networks, df_studies, df_databanks,
-                                    df_data_sources, df_models])
-
+        # merge all to Collections
+        df_collections = pd.concat([df_cohorts, df_networks, df_studies, df_databanks, df_data_sources,
+                                    df_models])
+        # df_collections = pd.DataFrame(columns=df_cohorts.columns.to_list())
+        # for df in [df_cohorts, df_networks, df_studies, df_databanks, df_data_sources, df_models]:
+        #     df_collections = df_collections.merge(df, how='outer')
         df_collections = float_to_int(df_collections)  # convert float back to integer
         df_collections.to_csv(self.path + 'Collections.csv', index=False)
+
+    def organisations(self):
+        """ Transform columns in Organisations and alter structure
+        """
+        df_collection_organisations = pd.DataFrame()
+        df_organisations = pd.read_csv(self.path + 'Organisations.csv')
+        # TODO: get organisations from 'additional organisations'
+
+        # get lead organisations
+        df_collections = pd.read_csv(self.path + 'Collections.csv')
+        df_collections = df_collections[['id', 'lead organisation']]
+        df_collections['is lead organisation'] = 'true'
+        df_collections.rename(columns={'id': 'collection',
+                                       'lead organisation': 'id'}, inplace=True)
+        df_collections = df_collections.dropna(axis=0)
+        df_collections = df_collections.reset_index()
+        df_merged = get_collection_organisations(df_organisations, df_collections)
+        df_collection_organisations = pd.concat([df_collection_organisations, df_merged])
+
+        # get additional organisations and Contacts.organisation
+        for table in ['Collections', 'Contacts']:
+            df_resource = pd.read_csv(self.path + table + '.csv')
+            if not table == 'Contacts':
+                df_resource = df_resource[['id', 'additional organisations']]
+                df_resource['is lead organisation'] = 'false'
+            else:
+                df_resource = df_resource[['resource', 'organisation']]
+            df_resource.rename(columns={'resource': 'collection',
+                                        'organisation': 'id',
+                                        'id': 'collection',
+                                        'additional organisations': 'id'}, inplace=True)
+            df_resource = df_resource.dropna(axis=0)
+            df_resource = df_resource.reset_index()
+            df_merged = get_collection_organisations(df_organisations, df_resource)
+            df_collection_organisations = pd.concat([df_collection_organisations, df_merged])
+
+        df_collection_organisations = float_to_int(df_collection_organisations)  # convert float back to integer
+        df_collection_organisations = df_collection_organisations.drop_duplicates(subset=['collection', 'id'], keep='first')  # keep first to get lead organisations
+        df_collection_organisations.to_csv(self.path + 'Collection organisations.csv', index=False)
 
     def publications(self):
         """Transform Publications table
@@ -212,6 +221,7 @@ class Transform:
         df_merged_pubs = df_merged_pubs.reset_index()
 
         df_collection_pubs = get_collection_pubs(df_merged_pubs, df_publications)
+        df_collection_pubs = df_collection_pubs.drop_duplicates(subset=['collection', 'doi'], keep='first')
         df_collection_pubs.to_csv(self.path + 'Collection publications.csv', index=False)
 
     def network_variables(self):
@@ -254,15 +264,15 @@ class Transform:
         df_repeats.loc[:, 'resource'] = df_repeats['resource'].apply(strip_resource)
         df_variables.loc[:, 'is_repeated'] = df_variables['name'].apply(is_repeated, df_repeats=df_repeats)
 
-        # select athlete and lifecycle variables and restructure
-        df_variables_cdm = df_variables[df_variables['resource'].isin(['LifeCycle', 'ATHLETE', 'testNetwork1'])]
+        # select athlete, lifecycle, expanse and testNetwork1 variables and restructure
+        df_variables_cdm = df_variables[df_variables['resource'].isin(['LifeCycle', 'ATHLETE', 'testNetwork1', 'EXPANSE'])]
         df_variables_cdm.loc[:, 'name'] = df_variables_cdm['name'].apply(remove_number)
         df_variables_cdm = restructure_repeats(df_variables_cdm, df_repeats)
 
         # select variables that are not in LifeCycle or ATHLETE or testNetwork1
-        df_variables_no_cdm = df_variables[~df_variables['resource'].isin(['LifeCycle', 'ATHLETE', 'testNetwork1'])]
+        df_variables_no_cdm = df_variables[~df_variables['resource'].isin(['LifeCycle', 'ATHLETE', 'testNetwork1', 'EXPANSE'])]
         # select repeated variables that are not in lifecycle or ATHLETE or testNetwork1
-        df_repeats_no_cdm = df_repeats[~df_repeats['resource'].isin(['LifeCycle', 'ATHLETE', 'testNetwork1'])]
+        df_repeats_no_cdm = df_repeats[~df_repeats['resource'].isin(['LifeCycle', 'ATHLETE', 'testNetwork1', 'EXPANSE'])]
 
         # concatenate all variables
         df_all_variables = pd.concat([df_variables_cdm, df_variables_no_cdm, df_repeats_no_cdm])
@@ -372,7 +382,7 @@ def is_repeated(var_name, df_repeats):
 
 
 def restructure_repeats(df_variables, df_repeats):
-    # TODO: EXPANSE_CDM repeats do not have a repeatUnit
+    # TODO: EXPANSE_CDM repeats take year repeat unit, 25 repeats
     # restructuring of cdm repeats
     df_variables = df_variables.drop_duplicates(subset=['resource', 'dataset', 'name'])   # keep unique entries, gets rid of LongITools 'root' variables
     df_variables.loc[:, 'repeat unit'] = df_variables['name'].apply(get_repeat_unit, df=df_repeats)  # get repeat unit from
@@ -457,12 +467,13 @@ def get_collection_organisations(df_organisations, df_resource):
     references from ref_array into separate rows
     """
     # get all leading organisations with collection reference in one row
-    df_new_rows = pd.DataFrame(columns=['collection', 'id'])
+    df_new_rows = pd.DataFrame(columns=['collection', 'id', 'is lead organisation'])
     for i in range(len(df_resource)):
         if ',' in df_resource['id'][i]:
             org_list = df_resource['id'][i].split(',')
             for org in org_list:
-                new_row = {'collection': df_resource['collection'][i], 'id': org}
+                new_row = {'collection': df_resource['collection'][i], 'id': org,
+                           'is lead organisation': df_resource['is lead organisation'][i]}
                 df_new_rows.loc[len(df_new_rows)] = new_row
             df_resource = df_resource.drop(index=i)
     df_resource = pd.concat([df_resource, df_new_rows])
