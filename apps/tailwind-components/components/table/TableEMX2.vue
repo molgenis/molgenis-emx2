@@ -49,12 +49,12 @@ function handlePagingRequest(page: number) {
 <template>
   <div class="flex">
     <FilterSearch
+      class="w-2/5"
       :modelValue="settings.search"
       @update:modelValue="handleSearchRequest"
       :inverted="true"
     >
     </FilterSearch>
-    <Button type="outline" size="small" icon="caret-down">Columns</Button>
   </div>
 
   <div class="overflow-x-auto overscroll-x-contain">
