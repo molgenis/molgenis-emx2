@@ -6,11 +6,13 @@ const props = withDefaults(
   defineProps<{
     columns: IColumn[];
     rows: Record<string, any>[];
+    count: number;
     settings?: ITableSettings;
   }>(),
   {
     settings: {
       page: 1,
+      pageSize: 10,
       orderby: { column: "", direction: "ASC" },
       search: "",
     },
@@ -36,14 +38,26 @@ function handleSearchRequest(search: string) {
     search,
   });
 }
+
+function handlePagingRequest(page: number) {
+  emit("update:settings", {
+    ...props.settings,
+    page,
+  });
+}
 </script>
 <template>
-  <div class="overflow-x-auto overscroll-x-contain">
+  <div class="flex">
     <FilterSearch
       :modelValue="settings.search"
       @update:modelValue="handleSearchRequest"
       :inverted="true"
-    ></FilterSearch>
+    >
+    </FilterSearch>
+    <Button type="outline" size="small" icon="caret-down">Columns</Button>
+  </div>
+
+  <div class="overflow-x-auto overscroll-x-contain">
     <table class="text-left table-fixed w-full">
       <thead>
         <tr class="">
@@ -86,4 +100,12 @@ function handleSearchRequest(search: string) {
       </tbody>
     </table>
   </div>
+  <div class="pt-8">
+    Showing <span>{{ rows.length }}</span> of <span>{{ count }}</span>
+  </div>
+  <Pagination
+    :current-page="settings.page"
+    :totalPages="Math.ceil(count / settings.pageSize)"
+    @update="handlePagingRequest($event)"
+  />
 </template>

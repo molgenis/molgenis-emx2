@@ -31,6 +31,7 @@ export type INotificationType =
 export type sortDirection = "ASC" | "DESC";
 export interface ITableSettings {
   page: number;
+  pageSize: number;
   orderby: {
     column: string;
     direction: sortDirection

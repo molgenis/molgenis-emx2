@@ -6,6 +6,13 @@ const router = useRouter();
 const schemaId = route.params.schema as string;
 const tableId = route.params.table as string;
 
+const currentPage = computed(() => {
+  const queryPageNumber = Number(route.query?.page);
+  return !isNaN(queryPageNumber) && typeof queryPageNumber === "number"
+    ? Math.round(queryPageNumber)
+    : 1;
+});
+
 type orderDirection = "ASC" | "DESC";
 
 const orderbyColumn = computed(() => route.query.orderby as string);
@@ -23,7 +30,8 @@ const search = computed(() => route.query.search as string);
 
 const tableSettings = computed(() => {
   return {
-    page: 1,
+    page: currentPage.value,
+    pageSize: 10,
     orderby: {
       column: orderbyColumn.value,
       direction: orderbyDirection.value,
@@ -32,13 +40,17 @@ const tableSettings = computed(() => {
   };
 });
 
-const { data, status, error, refresh } = await useLazyAsyncData(
-  "table meta data",
+const offset = computed(
+  () => (currentPage.value - 1) * tableSettings.value.pageSize
+);
+
+const { data, status, error } = await useLazyAsyncData(
+  "table explorer data",
   async () => {
     const metaData = fetchTableMetadata(schemaId, tableId);
     const tableData = fetchTableData(schemaId, tableId, {
-      limit: 10,
-      offset: 0,
+      limit: tableSettings.value.pageSize,
+      offset: offset.value,
       orderby: orderby.value,
       searchTerms: search.value,
     });
@@ -69,6 +81,7 @@ function handleSettingsUpdate(settings: ITableSettings) {
     orderby: settings.orderby.column,
     order: !settings.orderby.column ? undefined : settings.orderby.direction,
     search: settings.search === "" ? undefined : settings.search,
+    page: settings.page < 2 ? undefined : settings.page,
   };
 
   router.push({ query });
@@ -96,12 +109,12 @@ function handleSettingsUpdate(settings: ITableSettings) {
     >
       <div v-if="status === 'pending'">Loading...</div>
       <div v-if="error">Error: {{ error }}</div>
-      <!-- <div>{{ dataColumns }}</div> -->
       <!-- <pre v-if="data">{{ tableMetaData }}</pre> -->
       <!-- <pre>{{ tableData}}</pre> -->
       <TableEMX2
         :columns="dataColumns"
         :rows="rows"
+        :count="numberOfRows"
         :settings="tableSettings"
         @update:settings="handleSettingsUpdate"
       />

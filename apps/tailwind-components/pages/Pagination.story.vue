@@ -11,7 +11,7 @@
 </template>
 
 <script setup lang="ts">
-function updatePage(page) {
+function updatePage(page: number) {
   alert(`Navigating to page ${page}`);
 }
 </script>
