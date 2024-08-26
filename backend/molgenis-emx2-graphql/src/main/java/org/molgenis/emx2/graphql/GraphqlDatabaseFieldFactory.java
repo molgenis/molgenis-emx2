@@ -78,6 +78,8 @@ public class GraphqlDatabaseFieldFactory {
                 Task task = DataModels.getImportTask(schema, template, includeDemoData);
                 String id = taskService.submit(task);
                 result.setTaskId(id);
+              } else {
+                database.getListener().afterCommit();
               }
 
               return result;
