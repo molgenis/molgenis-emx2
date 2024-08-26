@@ -3,8 +3,6 @@ package org.molgenis.emx2.web;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 
 import io.javalin.http.Context;
-import spark.Request;
-import spark.Response;
 
 public class OpenApiUiFactory {
 

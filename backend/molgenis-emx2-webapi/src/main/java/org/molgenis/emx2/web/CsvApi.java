@@ -5,10 +5,11 @@ import static org.molgenis.emx2.io.emx2.Emx2.getHeaders;
 import static org.molgenis.emx2.web.Constants.ACCEPT_CSV;
 import static org.molgenis.emx2.web.DownloadApiUtils.includeSystemColumns;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
-import static spark.Spark.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.javalin.Javalin;
+import io.javalin.http.Context;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -23,135 +24,131 @@ import org.molgenis.emx2.io.emx2.Emx2;
 import org.molgenis.emx2.io.readers.CsvTableReader;
 import org.molgenis.emx2.io.readers.CsvTableWriter;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvInMemory;
-import spark.Request;
-import spark.Response;
 
 public class CsvApi {
   private CsvApi() {
     // hide constructor
   }
 
-  public static void create() {
+  public static void create(Javalin app) {
 
     // schema level operations
     final String schemaPath = "/:schema/api/csv";
-    get(schemaPath, CsvApi::getMetadata);
-    post(schemaPath, CsvApi::mergeMetadata);
-    delete(schemaPath, CsvApi::discardMetadata);
+    app.get(schemaPath, CsvApi::getMetadata);
+    app.post(schemaPath, CsvApi::mergeMetadata);
+    app.delete(schemaPath, CsvApi::discardMetadata);
 
     // table level operations
     final String tablePath = "/:schema/api/csv/:table";
-    get(tablePath, CsvApi::tableRetrieve);
-    post(tablePath, CsvApi::tableUpdate);
-    delete(tablePath, CsvApi::tableDelete);
+    app.get(tablePath, CsvApi::tableRetrieve);
+    app.post(tablePath, CsvApi::tableUpdate);
+    app.delete(tablePath, CsvApi::tableDelete);
   }
 
-  private static String discardMetadata(Request request, Response response) {
-    SchemaMetadata schema = Emx2.fromRowList(getRowList(request));
-    getSchema(request).discard(schema);
-    response.status(200);
+  private static String discardMetadata(Context ctx) {
+    SchemaMetadata schema = Emx2.fromRowList(getRowList(ctx));
+    getSchema(ctx).discard(schema);
+    ctx.res().setStatus(200);
     return "remove metadata items success";
   }
 
-  static String mergeMetadata(Request request, Response response) {
-    String fileName = request.headers("fileName");
-    boolean fileNameMatchesTable = getSchema(request).getTableNames().contains(fileName);
+  static String mergeMetadata(Context ctx) {
+    String fileName = ctx.req().getHeader("fileName");
+    boolean fileNameMatchesTable = getSchema(ctx).getTableNames().contains(fileName);
 
     if (fileNameMatchesTable) { // so we assume it isn't meta data
-      Table table = MolgenisWebservice.getTableById(request, fileName);
-      if (request.queryParams("async") != null) {
+      Table table = MolgenisWebservice.getTableById(ctx, fileName);
+      if (ctx.queryParams("async").isEmpty()) {
         TableStoreForCsvInMemory tableStore = new TableStoreForCsvInMemory();
-        tableStore.setCsvString(fileName, request.body());
+        tableStore.setCsvString(fileName, ctx.body());
         String id = TaskApi.submit(new ImportTableTask(tableStore, table, false));
         return new TaskReference(id, table.getSchema()).toString();
       } else {
-        int count = table.save(getRowList(request));
-        response.status(200);
-        response.type(ACCEPT_CSV);
+        int count = table.save(getRowList(ctx));
+        ctx.res().setStatus(200);
+        ctx.res().setContentType(ACCEPT_CSV);
         return "{ \"message\": \"imported number of rows: \" + " + count + " }";
       }
     } else {
-      SchemaMetadata schema = Emx2.fromRowList(getRowList(request));
-      getSchema(request).migrate(schema);
-      response.status(200);
+      SchemaMetadata schema = Emx2.fromRowList(getRowList(ctx));
+      getSchema(ctx).migrate(schema);
+      ctx.res().setStatus(200);
       return "{ \"message\": \"add/update metadata success\" }";
     }
   }
 
-  static String getMetadata(Request request, Response response) throws IOException {
-    Schema schema = getSchema(request);
+  static String getMetadata(Context ctx) throws IOException {
+    Schema schema = getSchema(ctx);
     StringWriter writer = new StringWriter();
     CsvTableWriter.write(
         Emx2.toRowList(schema.getMetadata()),
         getHeaders(schema.getMetadata()),
         writer,
-        getSeperator(request));
-    response.type(ACCEPT_CSV);
+        getSeperator(ctx));
+    ctx.res().setContentType(ACCEPT_CSV);
     String date = new SimpleDateFormat("yyyyMMddHHmm").format(new Date());
-    response.header(
-        "Content-Disposition",
-        "attachment; filename=\"" + schema.getName() + "_ " + date + ".csv\"");
-    response.status(200);
+    ctx.res()
+        .setHeader(
+            "Content-Disposition",
+            "attachment; filename=\"" + schema.getName() + "_ " + date + ".csv\"");
+    ctx.res().setStatus(200);
     return writer.toString();
   }
 
-  private static String tableRetrieve(Request request, Response response) throws IOException {
-    Table table = MolgenisWebservice.getTableById(request);
-    TableStoreForCsvInMemory store = new TableStoreForCsvInMemory(getSeperator(request));
-    store.writeTable(
-        table.getName(), getDownloadColumns(request, table), getDownloadRows(request, table));
-    response.type(ACCEPT_CSV);
-    response.header("Content-Disposition", "attachment; filename=\"" + table.getName() + ".csv\"");
-    response.status(200);
+  private static String tableRetrieve(Context ctx) throws IOException {
+    Table table = MolgenisWebservice.getTableById(ctx);
+    TableStoreForCsvInMemory store = new TableStoreForCsvInMemory(getSeperator(ctx));
+    store.writeTable(table.getName(), getDownloadColumns(ctx, table), getDownloadRows(ctx, table));
+    ctx.contentType(ACCEPT_CSV);
+    ctx.header("Content-Disposition", "attachment; filename=\"" + table.getName() + ".csv\"");
+    ctx.status(200);
     return store.getCsvString(table.getName());
   }
 
-  public static List<String> getDownloadColumns(Request request, Table table) {
-    boolean includeSystem = includeSystemColumns(request);
+  public static List<String> getDownloadColumns(Context ctx, Table table) {
+    boolean includeSystem = includeSystemColumns(ctx);
     return table.getMetadata().getDownloadColumnNames().stream()
         .map(column -> column.getName())
         .filter(name -> !name.startsWith("mg_") || includeSystem)
         .toList();
   }
 
-  public static List<Row> getDownloadRows(Request request, Table table)
-      throws JsonProcessingException {
+  public static List<Row> getDownloadRows(Context ctx, Table table) throws JsonProcessingException {
     Query q = table.query();
     // extract filter argument if exists
-    if (request.queryParams(GraphqlConstants.FILTER_ARGUMENT) != null) {
+    if (ctx.queryParam(GraphqlConstants.FILTER_ARGUMENT) != null) {
       // gonna use the graphql filter parser so we can easily reuse graphql table level filter
       // expressions
       q.where(
           convertMapToFilterArray(
               table.getMetadata(),
               new ObjectMapper()
-                  .readValue(request.queryParams(GraphqlConstants.FILTER_ARGUMENT), Map.class)));
+                  .readValue(ctx.queryParam(GraphqlConstants.FILTER_ARGUMENT), Map.class)));
     }
-    List<Row> rows = q.retrieveRows();
-    return rows;
+    return q.retrieveRows();
   }
 
-  private static String tableUpdate(Request request, Response response) {
-    int count = MolgenisWebservice.getTableById(request).save(getRowList(request));
-    response.status(200);
-    response.type(ACCEPT_CSV);
+  private static String tableUpdate(Context ctx) {
+    int count = MolgenisWebservice.getTableById(ctx).save(getRowList(ctx));
+    ctx.status(200);
+    ctx.contentType(ACCEPT_CSV);
     return "" + count;
   }
 
-  private static Iterable<Row> getRowList(Request request) {
-    return CsvTableReader.read(new StringReader(request.body()));
+  private static Iterable<Row> getRowList(Context ctx) {
+    return CsvTableReader.read(new StringReader(ctx.body()));
   }
 
-  private static String tableDelete(Request request, Response response) {
-    int count = MolgenisWebservice.getTableById(request).delete(getRowList(request));
-    response.type(ACCEPT_CSV);
-    response.status(200);
+  private static String tableDelete(Context ctx) {
+    int count = MolgenisWebservice.getTableById(ctx).delete(getRowList(ctx));
+    ctx.contentType(ACCEPT_CSV);
+    ctx.status(200);
     return "" + count;
   }
 
-  private static Character getSeperator(Request request) {
+  private static Character getSeperator(Context ctx) {
     Character separator = ',';
-    if ("TAB".equals(request.queryParams("separator"))) {
+    if ("TAB".equals(ctx.queryParam("separator"))) {
       separator = '\t';
     }
     return separator;

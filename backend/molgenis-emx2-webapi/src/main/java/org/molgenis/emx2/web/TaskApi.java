@@ -6,18 +6,17 @@ import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.web.FileApi.addFileColumnToResponse;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 import static org.molgenis.emx2.web.MolgenisWebservice.sessionManager;
-import static spark.Spark.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.javalin.Javalin;
+import io.javalin.http.Context;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.tasks.*;
-import spark.Request;
-import spark.Response;
 
 // TODO make the tasks private to schema; then you need schema edit or manager to view them
 // TODO move into graphql api, so it is documentation and less silly
@@ -29,82 +28,80 @@ public class TaskApi {
   // TableListener
   public static TaskServiceScheduler taskSchedulerService = new TaskServiceScheduler(taskService);
 
-  public static void create() {
-    get("/api/tasks", TaskApi::listTasks);
-    get("/api/tasks/clear", TaskApi::clearTasks);
-    get("/api/tasks/scheduled", TaskApi::viewScheduledTasks);
-    get("/api/scripts/:name", TaskApi::getScript); // run synchronously, with parameters on url
-    post(
+  public static void create(Javalin app) {
+    app.get("/api/tasks", TaskApi::listTasks);
+    app.get("/api/tasks/clear", TaskApi::clearTasks);
+    app.get("/api/tasks/scheduled", TaskApi::viewScheduledTasks);
+    app.get("/api/scripts/:name", TaskApi::getScript); // run synchronously, with parameters on url
+    app.post(
         "/api/scripts/:name",
         TaskApi::postScript); // run async, using parameters as body and returning task status
-    get("/api/tasks/:id", TaskApi::getTask);
-    get("/api/tasks/:id/output", TaskApi::getTaskOutput);
+    app.get("/api/tasks/:id", TaskApi::getTask);
+    app.get("/api/tasks/:id/output", TaskApi::getTaskOutput);
 
     // convenient delete
-    delete("/api/tasks/:id", TaskApi::deleteTask);
-    get("/api/tasks/:id/delete", TaskApi::deleteTask);
+    app.delete("/api/tasks/:id", TaskApi::deleteTask);
+    app.get("/api/tasks/:id/delete", TaskApi::deleteTask);
 
     // also works in context schema
     // todo: make tasks scoped?
-    get("/:schema/api/tasks", TaskApi::listTasks);
-    get("/:schema/api/tasks/clear", TaskApi::clearTasks);
-    get("/:schema/api/tasks/:id", TaskApi::getTask);
-    get(
+    app.get("/:schema/api/tasks", TaskApi::listTasks);
+    app.get("/:schema/api/tasks/clear", TaskApi::clearTasks);
+    app.get("/:schema/api/tasks/:id", TaskApi::getTask);
+    app.get(
         "/:schema/api/scripts/:name",
         TaskApi::getScript); // run synchronously, with parameters on url
-    post(
+    app.post(
         "/:schema/api/scripts/:name",
         TaskApi::postScript); // run async, using parameters as body and returning task status
-    get("/:schema/api/tasks/:id/output", TaskApi::getTaskOutput);
+    app.get("/:schema/api/tasks/:id/output", TaskApi::getTaskOutput);
 
     // convenient delete
-    delete("/:schema/:app/api/tasks/:id", TaskApi::deleteTask);
-    get("/:schema/:app/api/tasks/:id/delete", TaskApi::deleteTask);
+    app.delete("/:schema/:app/api/tasks/:id", TaskApi::deleteTask);
+    app.get("/:schema/:app/api/tasks/:id/delete", TaskApi::deleteTask);
 
     // also in app
-    get("/:schema/:app/api/tasks", TaskApi::listTasks);
-    get("/:schema/:app/api/tasks/clear", TaskApi::clearTasks);
-    get("/:schema/:app/api/tasks/:id", TaskApi::getTask);
+    app.get("/:schema/:app/api/tasks", TaskApi::listTasks);
+    app.get("/:schema/:app/api/tasks/clear", TaskApi::clearTasks);
+    app.get("/:schema/:app/api/tasks/:id", TaskApi::getTask);
 
     // convenient delete
-    delete("/:schema/:app/api/tasks/:id", TaskApi::deleteTask);
-    get("/:schema/:app/api/tasks/:id/delete", TaskApi::deleteTask);
+    app.delete("/:schema/:app/api/tasks/:id", TaskApi::deleteTask);
+    app.get("/:schema/:app/api/tasks/:id/delete", TaskApi::deleteTask);
   }
 
-  private static String viewScheduledTasks(Request request, Response response)
-      throws JsonProcessingException {
+  private static String viewScheduledTasks(Context ctx) throws JsonProcessingException {
     // mainly for testing/verification purposes
     return new ObjectMapper().writeValueAsString(taskSchedulerService.scheduledTaskNames());
   }
 
-  private static String postScript(Request request, Response response) {
-    if (request.params("schema") == null || getSchema(request) != null) {
-      MolgenisSession session = sessionManager.getSession(request);
+  private static String postScript(Context ctx) {
+    if (ctx.pathParam("schema").isEmpty() || getSchema(ctx) != null) {
+      MolgenisSession session = sessionManager.getSession(ctx.req());
       String user = session.getSessionUser();
       if (!"admin".equals(user)) {
         throw new MolgenisException("Submit task failed: for now can only be done by 'admin");
       }
-      String name = URLDecoder.decode(request.params("name"), StandardCharsets.UTF_8);
-      String parameters = request.body();
+      String name = URLDecoder.decode(ctx.pathParam("name"), StandardCharsets.UTF_8);
+      String parameters = ctx.body();
       String id = taskService.submitTaskFromName(name, parameters);
       return new TaskReference(id).toString();
     }
     throw new MolgenisException("Schema doesn't exist or permission denied");
   }
 
-  private static byte[] getScript(Request request, Response response)
+  private static byte[] getScript(Context ctx)
       throws InterruptedException, UnsupportedEncodingException {
-    if (request.params("schema") == null || getSchema(request) != null) {
-      MolgenisSession session = sessionManager.getSession(request);
+    if (ctx.pathParam("schema").isEmpty() || getSchema(ctx) != null) {
+      MolgenisSession session = sessionManager.getSession(ctx.req());
       String user = session.getSessionUser();
       if (!"admin".equals(user)) {
         throw new MolgenisException("Submit task failed: for now can only be done by 'admin");
       }
-      String name = URLDecoder.decode(request.params("name"), StandardCharsets.UTF_8.toString());
+      String name = URLDecoder.decode(ctx.pathParam("name"), StandardCharsets.UTF_8);
       String parameters =
-          request.queryParams("parameters") != null
-              ? URLDecoder.decode(
-                  request.queryParams("parameters"), StandardCharsets.UTF_8.toString())
+          ctx.queryParam("parameters") != null
+              ? URLDecoder.decode(ctx.queryParam("parameters"), StandardCharsets.UTF_8)
               : null;
       String id = taskService.submitTaskFromName(name, parameters);
       // wait until done or timeout
@@ -122,12 +119,12 @@ public class TaskApi {
     throw new MolgenisException("Schema doesn't exist or permission denied");
   }
 
-  private static String getTaskOutput(Request request, Response response) throws IOException {
-    if (request.params("schema") == null || getSchema(request) != null) {
+  private static String getTaskOutput(Context ctx) throws IOException {
+    if (ctx.pathParam("schema").isEmpty() || getSchema(ctx) != null) {
 
-      MolgenisSession session = sessionManager.getSession(request);
+      MolgenisSession session = sessionManager.getSession(ctx.req());
       Schema adminSchema = session.getDatabase().getSchema(SYSTEM_SCHEMA);
-      String jobId = request.params("id");
+      String jobId = ctx.pathParam("id");
       Row jobMetadata =
           adminSchema
               .getTable("Jobs")
@@ -143,37 +140,37 @@ public class TaskApi {
             "Get output for task failed: couldn't find task with id " + jobId);
       }
       // reuse implementation from FileApi
-      addFileColumnToResponse(response, "output", jobMetadata);
+      addFileColumnToResponse(ctx, "output", jobMetadata);
       return "";
     }
     throw new MolgenisException("Schema doesn't exist or permission denied");
   }
 
-  private static String clearTasks(Request request, Response response) {
-    if (request.params("schema") == null || getSchema(request) != null) {
+  private static String clearTasks(Context ctx) {
+    if (ctx.pathParam("schema").isEmpty() || getSchema(ctx) != null) {
       taskService.clear();
       return "{status: 'SUCCESS'}";
     }
     throw new MolgenisException("Schema doesn't exist or permission denied");
   }
 
-  private static String deleteTask(Request request, Response response) {
-    if (request.params("schema") == null || getSchema(request) != null) {
-      taskService.removeTask(request.params("id"));
+  private static String deleteTask(Context ctx) {
+    if (ctx.pathParam("schema").isEmpty() || getSchema(ctx) != null) {
+      taskService.removeTask(ctx.pathParam("id"));
       return "{status: 'SUCCESS'}";
     }
     throw new MolgenisException("Schema doesn't exist or permission denied");
   }
 
-  private static String listTasks(Request request, Response response) {
-    if (request.params("schema") == null || getSchema(request) != null) {
+  private static String listTasks(Context ctx) {
+    if (ctx.pathParam("schema").isEmpty() || getSchema(ctx) != null) {
 
-      String clearUrl = "/" + request.params("schema") + "/api/tasks/clear";
+      String clearUrl = "/" + ctx.pathParam("schema") + "/api/tasks/clear";
       String result = String.format("{\"clearUrl\":\"%s\", \"tasks\":[", clearUrl);
 
       for (String id : taskService.getJobIds()) {
         Task task = taskService.getTask(id);
-        String getUrl = "/" + request.params("schema") + "/api/tasks/" + id;
+        String getUrl = "/" + ctx.pathParam("schema") + "/api/tasks/" + id;
         String deleteUrl = getUrl + "/delete";
         result +=
             String.format(
@@ -186,9 +183,9 @@ public class TaskApi {
     throw new MolgenisException("Schema doesn't exist or permission denied");
   }
 
-  private static String getTask(Request request, Response response) {
-    if (request.params("schema") == null || getSchema(request) != null) {
-      Task step = taskService.getTask(request.params("id"));
+  private static String getTask(Context ctx) {
+    if (ctx.pathParam("schema").isEmpty() || getSchema(ctx) != null) {
+      Task step = taskService.getTask(ctx.pathParam("id"));
       if (step == null) {
         step = new Task("Task unknown").setStatus(TaskStatus.UNKNOWN);
       }

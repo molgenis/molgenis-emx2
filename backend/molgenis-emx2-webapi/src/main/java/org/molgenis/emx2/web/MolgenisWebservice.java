@@ -42,13 +42,12 @@ public class MolgenisWebservice {
 
     sessionManager = new MolgenisSessionManager();
     oidcController = new OIDCController(sessionManager, new SecurityConfigFactory().build());
-    Javalin app = Javalin.create(config -> {
-      config.staticFiles.add("/public_html");
-    }).start(port);
-
-    /*
-     * WARNING !! Javalin USES DESIGN WHERE THE ORDER OF REQUEST DEFINITION DETERMINES THE HANDLER
-     */
+    Javalin app =
+        Javalin.create(
+                config -> {
+                  config.staticFiles.add("/public_html");
+                })
+            .start(port);
 
     MessageApi.create(app);
 
@@ -56,38 +55,48 @@ public class MolgenisWebservice {
     app.get("/" + OIDC_LOGIN_PATH, oidcController::handleLoginRequest);
     app.get("/" + ROBOTS_TXT, MolgenisWebservice::robotsDotTxt);
 
-    app.get("/", ctx -> {
-      // check for setting
-      String landingPagePath =
-          sessionManager.getSession(ctx.req()).getDatabase().getSetting(LANDING_PAGE);
-      if (landingPagePath != null) {
-        ctx.redirect(landingPagePath);
-      } else {
-        ctx.redirect("/apps/central/");
-      }
-    });
+    app.get(
+        "/",
+        ctx -> {
+          // check for setting
+          String landingPagePath =
+              sessionManager.getSession(ctx.req()).getDatabase().getSetting(LANDING_PAGE);
+          if (landingPagePath != null) {
+            ctx.redirect(landingPagePath);
+          } else {
+            ctx.redirect("/apps/central/");
+          }
+        });
 
-    app.get("/api", ctx -> { ctx.redirect("/api/"); });
+    app.get(
+        "/api",
+        ctx -> {
+          ctx.redirect("/api/");
+        });
 
-    app.get("/api/", ctx -> {
-      ctx.contentType("text/html");
-      ctx.result("Welcome to MOLGENIS EMX2 POC <br/>" + listSchemas(ctx));
-    });
+    app.get(
+        "/api/",
+        ctx -> {
+          ctx.contentType("text/html");
+          ctx.result("Welcome to MOLGENIS EMX2 POC <br/>" + listSchemas(ctx));
+        });
 
     // documentation operations
     app.get("/api/openapi", MolgenisWebservice::listSchemas);
     // docs per schema
     app.get("/:schema/api/openapi", OpenApiUiFactory::getOpenApiUserInterface);
     app.get("/:schema/api/openapi.yaml", MolgenisWebservice::openApiYaml);
-    app.get("/:schema/api", ctx -> ctx.result("Welcome to schema api. Check <a href=\"api/openapi\">openapi</a>"));
+    app.get(
+        "/:schema/api",
+        ctx -> ctx.result("Welcome to schema api. Check <a href=\"api/openapi\">openapi</a>"));
 
     SiteMapService.create(app);
-    CsvApi.create();
-    ZipApi.create();
-    ExcelApi.create();
-    FileApi.create();
-    JsonYamlApi.create();
-    TaskApi.create();
+    CsvApi.create(app);
+    ZipApi.create(app);
+    ExcelApi.create(app);
+    FileApi.create(app);
+    JsonYamlApi.create(app);
+    TaskApi.create(app);
     GraphqlApi.createGraphQLservice(sessionManager);
     RDFApi.create(sessionManager);
     GraphGenomeApi.create(sessionManager);
@@ -103,11 +112,13 @@ public class MolgenisWebservice {
     // schema members operations
 
     // handling of exceptions
-    app.exception(Exception.class, (e, ctx) -> {
-      logger.error(e.getMessage(), e);
-      ctx.status(400);
-      ctx.json(molgenisExceptionToJson(e));
-    });
+    app.exception(
+        Exception.class,
+        (e, ctx) -> {
+          logger.error(e.getMessage(), e);
+          ctx.status(400);
+          ctx.json(molgenisExceptionToJson(e));
+        });
   }
 
   private static void handleLoginCallback(Context ctx) {
@@ -138,9 +149,9 @@ public class MolgenisWebservice {
                             || role.equals(schema.getDatabase().getAdminUserName())
                             || el.get(ROLE) == null
                             || el.get(ROLE).equals(VIEWER)
-                            && List.of(VIEWER, EDITOR, MANAGER).contains(role)
+                                && List.of(VIEWER, EDITOR, MANAGER).contains(role)
                             || el.get(ROLE).equals(EDITOR)
-                            && List.of(EDITOR, MANAGER).contains(role)
+                                && List.of(EDITOR, MANAGER).contains(role)
                             || el.get(ROLE).equals(MANAGER) && role.equals(MANAGER))
                 .toList();
         if (!menu.isEmpty()) {
@@ -226,10 +237,7 @@ public class MolgenisWebservice {
     if (schemaName == null) {
       return null;
     }
-    return sessionManager
-        .getSession(ctx.req())
-        .getDatabase()
-        .getSchema(sanitize(schemaName));
+    return sessionManager.getSession(ctx.req()).getDatabase().getSchema(sanitize(schemaName));
   }
 
   public static Collection<String> getSchemaNames(Context ctx) {

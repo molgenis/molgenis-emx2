@@ -1,8 +1,6 @@
 package org.molgenis.emx2.web;
 
-import static org.molgenis.emx2.web.Constants.ACCEPT_JSON;
 import static org.molgenis.emx2.web.MolgenisWebservice.sessionManager;
-import static spark.Spark.post;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -10,14 +8,13 @@ import graphql.ExecutionInput;
 import graphql.ExecutionResult;
 import graphql.GraphQL;
 import graphql.parser.Parser;
+import io.javalin.Javalin;
+import io.javalin.http.Context;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
-
-import io.javalin.Javalin;
-import io.javalin.http.Context;
 import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
@@ -28,8 +25,6 @@ import org.molgenis.emx2.email.EmailValidator;
 import org.molgenis.emx2.web.actions.SendMessageAction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import spark.Request;
-import spark.Response;
 
 public class MessageApi {
 
@@ -81,7 +76,7 @@ public class MessageApi {
       throw new MolgenisException(msg);
     }
 
-    MolgenisSession session = sessionManager.getSession(ctx);
+    MolgenisSession session = sessionManager.getSession(ctx.req());
     GraphQL gql = session.getGraphqlForSchema(schema.getName());
 
     final ExecutionResult executionResult =

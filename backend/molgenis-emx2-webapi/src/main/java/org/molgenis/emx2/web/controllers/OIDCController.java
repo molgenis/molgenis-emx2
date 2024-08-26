@@ -3,9 +3,8 @@ package org.molgenis.emx2.web.controllers;
 import static java.util.Objects.requireNonNull;
 import static org.molgenis.emx2.web.SecurityConfigFactory.OIDC_CLIENT_NAME;
 
-import java.util.Optional;
-
 import io.javalin.http.Context;
+import java.util.Optional;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.web.MolgenisSessionManager;
@@ -23,7 +22,6 @@ import org.pac4j.core.util.Pac4jConstants;
 import org.pac4j.javalin.JavalinHttpActionAdapter;
 import org.pac4j.javalin.JavalinWebContext;
 import org.pac4j.jee.context.session.JEESessionStore;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,7 +53,7 @@ public class OIDCController {
     HttpAction action;
     try {
       Optional<RedirectionAction> redirectionAction =
-          client.getRedirectionAction(ctx., JEESessionStore.INSTANCE);
+          client.getRedirectionAction(context, JEESessionStore.INSTANCE);
       if (redirectionAction.isEmpty()) {
         throw new MolgenisException("Expected OIDC redirection action not found");
       }
