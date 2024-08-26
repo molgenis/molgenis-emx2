@@ -1,5 +1,6 @@
 package org.molgenis.emx2.web;
 
+import static org.molgenis.emx2.web.MolgenisWebservice.sanitize;
 import static spark.Spark.*;
 
 import com.google.common.io.ByteStreams;
@@ -59,7 +60,7 @@ public class GroupPathMapper {
 
   private static Object returnUiAppIndex(Request request, Response response) {
     try {
-      logger.info("Returning ui app index for request {}", request.pathInfo());
+      logger.info("Returning ui app index for request {}", sanitize(request.pathInfo()));
       InputStream in = GroupPathMapper.class.getResourceAsStream("/public_html/apps/ui/index.html");
       return new String(ByteStreams.toByteArray(in));
     } catch (Exception e) {
@@ -70,7 +71,7 @@ public class GroupPathMapper {
 
   private static Object returnIndexFile(Request request, Response response) {
     try {
-      logger.info("Returning index file for request {}", request.pathInfo());
+      logger.info("Returning index file for request {}", sanitize(request.pathInfo()));
       InputStream in =
           GroupPathMapper.class.getResourceAsStream(
               "/public_html/apps/" + request.params("appname") + "/index.html");
