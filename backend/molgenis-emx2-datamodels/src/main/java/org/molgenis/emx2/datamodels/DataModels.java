@@ -16,7 +16,7 @@ public class DataModels {
     RD3("_profiles/RD3.yaml"),
     JRC_COMMON_DATA_ELEMENTS("_profiles/JRC-CDE.yaml"),
     FAIR_GENOMES("_profiles/FAIRGenomes.yaml"),
-    DCAT("_profiles/DCAT.yaml"),
+    DCAT("_profiles/DCAT-v2.yaml"),
     FAIR_DATA_POINT("_profiles/FAIRDataPoint.yaml"),
     BEACON_V2("_profiles/BeaconV2.yaml"),
     GDI("_profiles/GDI.yaml"),
