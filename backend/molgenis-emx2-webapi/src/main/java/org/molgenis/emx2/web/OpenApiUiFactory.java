@@ -2,6 +2,7 @@ package org.molgenis.emx2.web;
 
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 
+import io.javalin.http.Context;
 import spark.Request;
 import spark.Response;
 
@@ -48,8 +49,8 @@ public class OpenApiUiFactory {
         version, version, version, schemaName);
   }
 
-  static String getOpenApiUserInterface(Request request, Response response) {
-    response.status(200);
-    return createSwaggerUI(getSchema(request).getMetadata().getName());
+  static String getOpenApiUserInterface(Context context) {
+    context.status(200);
+    return createSwaggerUI(getSchema(context).getMetadata().getName());
   }
 }
