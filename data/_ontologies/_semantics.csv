@@ -43,3 +43,4 @@ GenderIdentity,ONTOLOGIES,http://purl.bioontology.org/ontology/MESH/D005783
 "MetabolomicAssayType","ONTOLOGIES","http://purl.obolibrary.org/obo/OBI_0000070"
 "MetabolomicProcessingType","ONTOLOGIES","http://purl.obolibrary.org/obo/OBI_0000094"
 AnatomicalLocation,ONTOLOGIES,http://purl.obolibrary.org/obo/NCIT_C103264
+PedigreeMemberRoles,ONTOLOGIES,http://purl.obolibrary.org/obo/NCIT_C198996

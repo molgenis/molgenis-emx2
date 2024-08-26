@@ -1,0 +1,4 @@
+order,name,code,parent,ontologyTermURI,definition
+,Proband,NCIT:C64435,,http://purl.obolibrary.org/obo/NCIT_C64435,"The affected family member who seeks medical attention for a genetic disorder thereby bringing the family under study."
+,Biological Mother,NCIT:C96580,,http://purl.obolibrary.org/obo/NCIT_C96580,"A female who contributes to the genetic makeup of her offspring from the fertilization of her ovum."
+,Biological Father,NCIT:C96572,,http://purl.obolibrary.org/obo/NCIT_C96572,"A male who contributes to the genetic makeup of his offspring through the fertilization of an ovum by his sperm."

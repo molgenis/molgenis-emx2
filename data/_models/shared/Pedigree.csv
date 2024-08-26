@@ -1,0 +1,6 @@
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
+Pedigree,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C27957,"Pedigree studies in which the individual is part of.",
+Pedigree,,identifier,string,1,,,,,,,,Pedigree identifier,
+Pedigree,,disease,ontology_array,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25209,,
+Pedigree,,numSubjects,int,,,,,,,,,Total number of subjects in pedigree,
+Pedigree,,members,ref_array,,,,PedigreeMembers,,,,,"List of members of the pedigree. If the current pedigree definition is attached to the proband, it contains the whole list of pedigree members, including the proband. If the definition is attached to an individual different than the proband, it only contains two entries: one that describes that member, e.g. the proband mother or father, and one that points to the proband.",

@@ -25,6 +25,7 @@ Individuals,,Consanguinity,bool,,,,,,,,"http://purl.obolibrary.org/obo/OMIT_0004
 Individuals,,PrimaryAffiliatedInstitute,ontology,,,,Organisations,,,,"http://purl.obolibrary.org/obo/NCIT_C25412","The most significant institute for medical consultation and/or study inclusion in context of the genetic disease of this person.",FAIR Genomes
 Individuals,,ResourcesInOtherInstitutes,ontology_array,,,,Organisations,,,,"http://purl.obolibrary.org/obo/NCIT_C19012","Material or data related to this person that is not captured by this system though known to be available in other institutes such as biobanks or hospitals. In JRC-CDE: Link to a biobank","FAIR Genomes, JRC-CDE"
 Individuals,,ParticipatesInStudy,ref_array,,,,Study,,,,"http://purl.obolibrary.org/obo/RO_0000056","Reference to the study or studies in which this person participates.",FAIR Genomes
+Individuals,,Pedigree,ref,,,,Pedigree,,,,http://purl.obolibrary.org/obo/NCIT_C27957,"Pedigree studies in which the individual is part of.",
 Individuals,,FamilyID,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25173,"A domestic group, or a number of domestic groups linked through descent (demonstrated or stipulated) from a common ancestor, marriage, or adoption.",RD3
 Individuals,,MaternalID,ref,,,,Individuals,,,,http://purl.obolibrary.org/obo/NCIT_C89336,Identifier indicating a reference to mother of the subject,RD3
 Individuals,,PaternalID,ref,,,,Individuals,,,,http://purl.obolibrary.org/obo/NCIT_C94324,Identifier indicating a reference to father of the subject,RD3
