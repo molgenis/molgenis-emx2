@@ -7,6 +7,7 @@ import static org.molgenis.emx2.datamodels.DataCatalogueCohortStagingLoader.SHAR
 import org.junit.jupiter.api.*;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.io.ImportProfileTask;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 @TestMethodOrder(MethodOrderer.MethodName.class)
@@ -32,7 +33,7 @@ public class TestLoaders {
   @BeforeAll
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
-    // prevend previous dangling test results
+    // prevent previous dangling test results
     database.dropSchemaIfExists(COHORT_STAGING);
     database.dropSchemaIfExists(NETWORK_STAGING);
     database.dropSchemaIfExists(DATA_CATALOGUE);
@@ -56,7 +57,7 @@ public class TestLoaders {
   @Test
   public void test01FAIRDataHubLoader() {
     Schema fairDataHubSchema = database.createSchema(FAIR_DATA_HUB_TEST);
-    AvailableDataModels.FAIR_DATA_HUB.install(fairDataHubSchema, true);
+    DataModels.Profile.FAIR_DATA_HUB.getImportTask(fairDataHubSchema, true).run();
     assertEquals(71, fairDataHubSchema.getTableNames().size());
     String[] semantics = fairDataHubSchema.getTable("BiospecimenType").getMetadata().getSemantics();
     assertEquals("http://purl.obolibrary.org/obo/NCIT_C70699", semantics[0]);
@@ -65,87 +66,86 @@ public class TestLoaders {
 
   @Test
   void test06DataCatalogueLoader() {
-    Schema datacatalogueflat = database.createSchema(DATA_CATALOGUE);
-    AvailableDataModels.DATA_CATALOGUE.install(datacatalogueflat, false);
-    assertEquals(22, datacatalogueflat.getTableNames().size());
+    Schema dataCatalogue = database.createSchema(DATA_CATALOGUE);
+    DataModels.Profile.DATA_CATALOGUE.getImportTask(dataCatalogue, true).run();
+    assertEquals(22, dataCatalogue.getTableNames().size());
   }
 
-  @Disabled
   @Test
   public void test07DataCatalogueCohortStagingLoader() {
     Schema cohortStaging = database.createSchema(COHORT_STAGING);
-    AvailableDataModels.DATA_CATALOGUE_COHORT_STAGING.install(cohortStaging, true);
-    assertEquals(19, cohortStaging.getTableNames().size());
+    DataModels.Profile.DATA_CATALOGUE_COHORT_STAGING.getImportTask(cohortStaging, true).run();
+    assertEquals(17, cohortStaging.getTableNames().size());
   }
 
   @Disabled
   @Test
   public void test08DataCatalogueNetworkStagingLoader() {
     Schema networkStaging = database.createSchema(NETWORK_STAGING);
-    AvailableDataModels.DATA_CATALOGUE_NETWORK_STAGING.install(networkStaging, true);
+    DataModels.Regular.DATA_CATALOGUE_NETWORK_STAGING.getImportTask(networkStaging, true).run();
     assertEquals(16, networkStaging.getTableNames().size());
   }
 
   @Test
   public void test09DirectoryLoader() {
     Schema directory = database.createSchema(DIRECTORY_TEST);
-    AvailableDataModels.BIOBANK_DIRECTORY.install(directory, true);
+    DataModels.Regular.BIOBANK_DIRECTORY.getImportTask(directory, true).run();
     assertEquals(10, directory.getTableNames().size());
   }
 
   @Test
   void test10RD3Loader() {
     Schema RD3Schema = database.createSchema(RD3_TEST);
-    AvailableDataModels.RD3.install(RD3Schema, true);
+    DataModels.Profile.RD3.getImportTask(RD3Schema, true).run();
     assertEquals(27, RD3Schema.getTableNames().size());
   }
 
   @Test
   void test11JRCCDELoader() {
     Schema JRCCDESchema = database.createSchema(JRC_CDE_TEST);
-    AvailableDataModels.JRC_COMMON_DATA_ELEMENTS.install(JRCCDESchema, true);
+    DataModels.Profile.JRC_COMMON_DATA_ELEMENTS.getImportTask(JRCCDESchema, true).run();
     assertEquals(12, JRCCDESchema.getTableNames().size());
   }
 
   @Test
   void test12FAIRGenomesLoader() {
     Schema FAIRGenomesSchema = database.createSchema(FAIR_GENOMES);
-    AvailableDataModels.FAIR_GENOMES.install(FAIRGenomesSchema, true);
+    DataModels.Profile.FAIR_GENOMES.getImportTask(FAIRGenomesSchema, true).run();
     assertEquals(46, FAIRGenomesSchema.getTableNames().size());
   }
 
   @Test
   void test13ProjectManagerLoader() {
     Schema ProjectManagerSchema = database.createSchema(PROJECT_MANAGER);
-    AvailableDataModels.PROJECTMANAGER.install(ProjectManagerSchema, true);
+    DataModels.Regular.PROJECTMANAGER.getImportTask(ProjectManagerSchema, true).run();
     assertEquals(5, ProjectManagerSchema.getTableNames().size());
   }
 
   @Test
   void test14DCATLoader() {
     Schema DCATSchema = database.createSchema(DCAT);
-    AvailableDataModels.DCAT.install(DCATSchema, true);
+    DataModels.Profile.DCAT.getImportTask(DCATSchema, true).run();
     assertEquals(23, DCATSchema.getTableNames().size());
   }
 
   @Test
   void test15DirectoryStagingLoader() {
     Schema directoryStaging = database.createSchema(DIRECTORY_STAGING);
-    AvailableDataModels.BIOBANK_DIRECTORY_STAGING.install(directoryStaging, false);
+    DataModels.Regular.BIOBANK_DIRECTORY_STAGING.getImportTask(directoryStaging, false).run();
     assertEquals(6, directoryStaging.getTableNames().size());
   }
 
   @Test
   void test16DCATBasic() {
     Schema DCATSchema = database.createSchema(DCAT_BASIC);
-    new ProfileLoader("_profiles/test-only/DCAT-basic.yaml").load(DCATSchema, true);
+    new ImportProfileTask(DCATSchema, "_profiles/test-only/DCAT-basic.yaml", true).run();
     assertEquals(9, DCATSchema.getTableNames().size());
   }
 
   @Test
   void test17FAIRDataPointLoader() {
     Schema FDPSchema = database.createSchema(FAIR_DATA_POINT);
-    AvailableDataModels.FAIR_DATA_POINT.install(FDPSchema, true);
+    DataModels.Profile.FAIR_DATA_POINT.getImportTask(FDPSchema, true).run();
     assertEquals(25, FDPSchema.getTableNames().size());
   }
 }

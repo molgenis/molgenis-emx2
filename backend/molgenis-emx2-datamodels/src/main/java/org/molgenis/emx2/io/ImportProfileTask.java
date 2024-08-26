@@ -1,5 +1,6 @@
-package org.molgenis.emx2.datamodels;
+package org.molgenis.emx2.io;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.*;
@@ -7,27 +8,116 @@ import org.molgenis.emx2.*;
 import org.molgenis.emx2.datamodels.profiles.CreateSchemas;
 import org.molgenis.emx2.datamodels.profiles.Profiles;
 import org.molgenis.emx2.datamodels.profiles.SchemaFromProfile;
-import org.molgenis.emx2.io.MolgenisIO;
 import org.molgenis.emx2.io.emx2.Emx2;
 import org.molgenis.emx2.io.readers.CsvTableReader;
+import org.molgenis.emx2.io.tablestore.TableStore;
+import org.molgenis.emx2.io.tablestore.TableStoreForCsvFilesClasspath;
+import org.molgenis.emx2.tasks.Task;
 
-public class ProfileLoader extends AbstractDataLoader {
+public class ImportProfileTask extends Task {
 
   private static final String ONTOLOGY_LOCATION = "/_ontologies";
   private static final String ONTOLOGY_SEMANTICS_LOCATION = ONTOLOGY_LOCATION + "/_semantics.csv";
 
-  // the classpath location of your config (a.k.a. 'profile') YAML file
+  @JsonIgnore private final Schema schema;
   private final String configLocation;
+  private final boolean includeDemoData;
 
-  public ProfileLoader(String configLocation) {
+  public ImportProfileTask(Schema schema, String configLocation, boolean includeDemoData) {
+    this.schema = schema;
     this.configLocation = configLocation;
+    this.includeDemoData = includeDemoData;
   }
 
   @Override
-  void loadInternalImplementation(Schema schema, boolean includeDemoData) {
+  public void run() {
+    this.start();
+    try {
+      schema.tx(
+          db -> {
+            Schema s = db.getSchema(schema.getName());
+            load(s);
+          });
+    } catch (Exception e) {
+      this.completeWithError(e.getMessage());
+      throw (e);
+    }
+    this.complete();
+  }
 
+  void load(Schema schema) {
     // load config (a.k.a. 'profile') YAML file
     SchemaFromProfile schemaFromProfile = new SchemaFromProfile(this.configLocation);
+    Profiles profiles = getProfiles(schema, schemaFromProfile);
+
+    // create the schema using the selected profile tags within the big model
+    SchemaMetadata schemaMetadata = schemaFromProfile.create();
+
+    // special option: fixed schema import location for ontologies (not schema or data)
+    Schema ontologySchema;
+    if (profiles.getOntologiesToFixedSchema() != null) {
+      ontologySchema = createSchema(profiles.getOntologiesToFixedSchema(), schema.getDatabase());
+      if (profiles.getSetFixedSchemaViewPermission() != null) {
+        ontologySchema.addMember(
+            profiles.getSetFixedSchemaViewPermission(), Privileges.VIEWER.toString());
+      }
+      if (profiles.getSetFixedSchemaEditPermission() != null) {
+        ontologySchema.addMember(
+            profiles.getSetFixedSchemaEditPermission(), Privileges.EDITOR.toString());
+      }
+    } else {
+      ontologySchema = schema;
+    }
+
+    // import the schema
+    schema.migrate(schemaMetadata);
+    this.addSubTask("Loaded tables and columns from profile(s)").complete();
+
+    // import ontologies (not schema or data)
+    TableStore store = new TableStoreForCsvFilesClasspath(ONTOLOGY_LOCATION);
+    Task ontologyTask =
+        new ImportDataTask(ontologySchema, store, false)
+            .setDescription("Import ontologies from profile");
+    this.addSubTask(ontologyTask);
+    ontologyTask.run();
+
+    // special options: provide specific user/role with View/Edit permissions on imported schema
+    if (profiles.getSetViewPermission() != null) {
+      schema.addMember(profiles.getSetViewPermission(), Privileges.VIEWER.toString());
+    }
+    if (profiles.getSetEditPermission() != null) {
+      schema.addMember(profiles.getSetEditPermission(), Privileges.EDITOR.toString());
+    }
+
+    // optionally, load demo data (i.e. some example records, or specific application data)
+    if (includeDemoData) {
+      // prevent data tables with ontology table names to be imported into ontologies by accident
+      String[] includeTableNames = getTypeOfTablesToInclude(schema);
+      // prevent data tables with ontology table names to be imported into ontologies by accident
+
+      for (String example : profiles.getDemoDataList()) {
+        TableStore demoDataStore = new TableStoreForCsvFilesClasspath(example);
+        Task demoDataTask =
+            new ImportDataTask(schema, demoDataStore, false, includeTableNames)
+                .setDescription("Import demo data from profile");
+        this.addSubTask(demoDataTask);
+        demoDataTask.run();
+      }
+    }
+
+    // load schema settings from dir containing e.g. molgenis_settings.csv or molgenis_members.csv
+    for (String setting : profiles.getSettingsList()) {
+      MolgenisIO.fromClasspathDirectory(setting, schema, false);
+    }
+
+    // lastly, apply any ontology table semantics from a predefined location
+    // this requires special parsing, because we must only update ontology tables used in the schema
+    // to prevent adding additional unused tables
+    SchemaMetadata ontologySemantics = getOntologySemantics(ontologySchema);
+    ontologySchema.migrate(ontologySemantics);
+  }
+
+  private Profiles getProfiles(Schema schema, SchemaFromProfile schemaFromProfile) {
     Profiles profiles = schemaFromProfile.getProfiles();
 
     // special option: if there are createSchemasIfMissing, import those first
@@ -42,63 +132,16 @@ public class ProfileLoader extends AbstractDataLoader {
         }
         createNewSchema = db.createSchema(schemaName);
         String profileLocation = createSchemasIfMissing.getProfile();
-        ProfileLoader profileLoader = new ProfileLoader(profileLocation);
-        profileLoader.load(createNewSchema, createSchemasIfMissing.isImportDemoData());
+        ImportProfileTask profileLoader =
+            new ImportProfileTask(
+                createNewSchema, profileLocation, createSchemasIfMissing.isImportDemoData());
+        profileLoader.setDescription("Loading profile: " + profileLocation);
+        this.addSubTask(profileLoader);
+        profileLoader.run();
+        // profileLoader.load(createNewSchema, createSchemasIfMissing.isImportDemoData());
       }
     }
-
-    // create the schema using the selected profile tags within the big model
-    SchemaMetadata schemaMetadata = schemaFromProfile.create();
-
-    // special option: fixed schema import location for ontologies (not schema or data)
-    Schema ontoSchema;
-    if (profiles.getOntologiesToFixedSchema() != null) {
-      ontoSchema = createSchema(profiles.getOntologiesToFixedSchema(), schema.getDatabase());
-      if (profiles.getSetFixedSchemaViewPermission() != null) {
-        ontoSchema.addMember(
-            profiles.getSetFixedSchemaViewPermission(), Privileges.VIEWER.toString());
-      }
-      if (profiles.getSetFixedSchemaEditPermission() != null) {
-        ontoSchema.addMember(
-            profiles.getSetFixedSchemaEditPermission(), Privileges.EDITOR.toString());
-      }
-    } else {
-      ontoSchema = schema;
-    }
-
-    // import the schema
-    schema.migrate(schemaMetadata);
-
-    // import ontologies (not schema or data)
-    MolgenisIO.fromClasspathDirectory(ONTOLOGY_LOCATION, ontoSchema, false);
-
-    // special options: provide specific user/role with View/Edit permissions on imported schema
-    if (profiles.getSetViewPermission() != null) {
-      schema.addMember(profiles.getSetViewPermission(), Privileges.VIEWER.toString());
-    }
-    if (profiles.getSetEditPermission() != null) {
-      schema.addMember(profiles.getSetEditPermission(), Privileges.EDITOR.toString());
-    }
-
-    // optionally, load demo data (i.e. some example records, or specific application data)
-    if (includeDemoData) {
-      // prevent data tables with ontology table names to be imported into ontologies by accident
-      String[] includeTableNames = getTypeOfTablesToInclude(schema);
-      for (String example : profiles.getDemoDataList()) {
-        MolgenisIO.fromClasspathDirectory(example, schema, false, includeTableNames);
-      }
-    }
-
-    // load schema settings from dir containing e.g. molgenis_settings.csv or molgenis_members.csv
-    for (String setting : profiles.getSettingsList()) {
-      MolgenisIO.fromClasspathDirectory(setting, schema, false);
-    }
-
-    // lastly, apply any ontology table semantics from a predefined location
-    // this requires special parsing, because we must only update ontology tables used in the schema
-    // to prevent adding additional unused tables
-    SchemaMetadata ontologySemantics = getOntologySemantics(ontoSchema);
-    ontoSchema.migrate(ontologySemantics);
+    return profiles;
   }
 
   /** Helper function to get a string array of data table names from a schema */

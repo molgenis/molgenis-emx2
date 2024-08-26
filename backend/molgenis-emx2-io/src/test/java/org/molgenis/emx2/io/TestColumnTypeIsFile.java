@@ -30,7 +30,7 @@ public class TestColumnTypeIsFile {
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
     schema = database.dropCreateSchema(SCHEMA_NAME);
-    new PetStoreLoader().load(schema, false);
+    new PetStoreLoader(schema, false).run();
 
     schema
         .getTable("User")

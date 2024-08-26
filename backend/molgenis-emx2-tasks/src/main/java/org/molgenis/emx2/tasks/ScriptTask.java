@@ -20,7 +20,7 @@ import org.molgenis.emx2.email.EmailService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ScriptTask extends Task<ScriptTask> {
+public class ScriptTask extends Task {
   private static Logger logger = LoggerFactory.getLogger(ScriptTask.class);
   private String name;
   private String script;
