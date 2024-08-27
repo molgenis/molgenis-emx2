@@ -1,0 +1,44 @@
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,comment
+DatasetSeries,,,,,,,,,,,http://www.w3.org/ns/dcat#Dataset,DCAT dataset entries.,DCAT,
+DatasetSeries,,id,string,1,TRUE,,,,,,http://purl.org/dc/terms/identifier,Local database identifier of the dataset.,DCAT-v3,DCAT Resource / DCAT-v3: DatasetSeries table new in v3
+DatasetSeries,,type,hyperlink,,,,,,,,http://purl.org/dc/terms/type,A type belonging to the record,DCAT-v3,DCAT Resource / DCAT-v3: DatasetSeries table new in v3
+DatasetSeries,,title,string,,TRUE,,,,,,http://purl.org/dc/terms/title,A name given to the record.,DCAT-v3,DCAT Resource / DCAT-v3: DatasetSeries table new in v3 / DCAT-AP-v3 Dataset: required
+DatasetSeries,,description,string,,TRUE,,,,,,http://purl.org/dc/terms/description,A free-text account of the item.,DCAT-v3,DCAT Resource / DCAT-v3: DatasetSeries table new in v3 / DCAT-AP-v3 Dataset: required
+DatasetSeries,,keyword,string_array,,,,,,,,http://www.w3.org/ns/dcat#keyword,A keyword or tag describing the resource.,DCAT-v3,DCAT Resource / DCAT-v3: DatasetSeries table new in v3
+DatasetSeries,,conforms to,hyperlink,,,,,,,,http://purl.org/dc/terms/conformsTo,,DCAT-v3,DCAT Resource / DCAT-v3: DatasetSeries table new in v3
+DatasetSeries,,language,ontology_array,,,,Languages,,,,http://purl.org/dc/terms/language,"A language of the item. This refers to the natural language used for textual metadata (i.e. titles, descriptions, etc) of a cataloged resource (i.e. dataset or service) or the textual values of a dataset distribution.",DCAT-v3,DCAT Resource / DCAT-v3: DatasetSeries table new in v3
+DatasetSeries,,landing page,hyperlink,,,,,,,,http://www.w3.org/ns/dcat#landingPage,A web page which can be navigated to using a web browser to access the records.,DCAT-v3,DCAT Resource / DCAT-v3: DatasetSeries table new in v3
+DatasetSeries,,is referenced by,hyperlink,,,,,,,,http://purl.org/dc/terms/isReferencedBy,A related object that references that points to this item.,DCAT-v3,DCAT Resource / DCAT-v3: DatasetSeries table new in v3
+DatasetSeries,,relation,hyperlink,,,,,,,,http://purl.org/dc/terms/relation,An object with an unspecified relation to this item.,DCAT-v3,DCAT Resource / DCAT-v3: DatasetSeries table new in v3
+DatasetSeries,,qualified relation,hyperlink,,,,,,,,http://www.w3.org/ns/dcat#qualifiedRelation,Links to a description of a relationship with another resource.,DCAT-v3,DCAT Resource / DCAT-v3: DatasetSeries table new in v3
+DatasetSeries,,qualified attribution,ref_array,,,,Agent,,,,prov:qualifiedAttribution,Describes an entity that is in some form responsible for the item but is neither a creator or publisher.,DCAT-v3,DCAT Resource / DCAT-v3: DatasetSeries table new in v3
+DatasetSeries,,theme,hyperlink_array,,,,,,,,http://www.w3.org/ns/dcat#theme,A main category of the resource. A resource can have multiple themes.,DCAT-v3,DCAT Resource / DCAT-v3: DatasetSeries table new in v3
+DatasetSeries,,contact point,ref,,,,ContactPersons,,,,http://www.w3.org/ns/dcat#contactPoint,Relevant contact information for the cataloged resource. Use of vCard is recommended [VCARD-RDF].,DCAT-v3,DCAT Resource / DCAT-v3: DatasetSeries table new in v3
+DatasetSeries,,creator,ref_array,,,,ContactPersons,,,,http://purl.org/dc/terms/creator,The entity responsible for producing the resource.,DCAT-v3,DCAT Resource / DCAT-v3: DatasetSeries table new in v3
+DatasetSeries,,publisher,ref_array,,,,ContactPersons,,,,http://purl.org/dc/terms/publisher,The entity responsible for publishing the resource.,DCAT-v3,DCAT Resource / DCAT-v3: DatasetSeries table new in v3
+DatasetSeries,,license,hyperlink,,,,,,,,http://purl.org/dc/terms/license,A legal document under which the resource is made available.,DCAT-v3,DCAT Resource / DCAT-v3: DatasetSeries table new in v3
+DatasetSeries,,rights,string,,,,,,,,http://purl.org/dc/terms/rights,"A statement that concerns all rights not addressed with dct:license or dct:accessRights, such as copyright statements.",DCAT-v3,DCAT Resource / DCAT-v3: DatasetSeries table new in v3
+DatasetSeries,,access rights,string,,,,,,,,http://purl.org/dc/terms/accessRights,"Information about who can access the resource or an indication of its security status (DCAT-AP: Whether item is publicly accessible, has access restrictions or is not public).",DCAT-v3,DCAT Resource / DCAT-v3: DatasetSeries table new in v3 / DCAT-AP-v3 Dataset: description changes
+DatasetSeries,,has policy,hyperlink,,,,,,,,http://www.w3.org/ns/odrl/2/hasPolicy,The rights described as an ODRL conformant policy.,DCAT-v3,DCAT Resource / DCAT-v3: DatasetSeries table new in v3
+DatasetSeries,,release date,datetime,,,,,,,,http://purl.org/dc/terms/issued,Formal date of publication.,DCAT-v3,DCAT Resource / DCAT-v3: DatasetSeries table new in v3
+DatasetSeries,,modification date,datetime,,,,,,,,http://purl.org/dc/terms/modified,Most recent date of modification.,DCAT-v3,DCAT Resource / DCAT-v3: DatasetSeries table new in v3
+DatasetSeries,,version,string,,,,,,,,http://www.w3.org/ns/dcat#version,The version of the item.,DCAT-v3,DCAT-v3 Resource
+DatasetSeries,,previous version,ref,,,,Dataset,,,,http://www.w3.org/ns/dcat#previousVersion,Refers to an item which is the previous version of this item.,DCAT-v3,DCAT-v3 Resource
+DatasetSeries,,has version,ref_array,,,,Dataset,,,,http://www.w3.org/ns/dcat#hasVersion,Used with an abstract item to refer to all items which represent different versions of this abstract item.,DCAT-v3,DCAT-v3 Resource
+DatasetSeries,,has current version,ref,,,,Dataset,,,,http://www.w3.org/ns/dcat#hasCurrentVersion,Used with an abstract item to refer to the item that represents the current version of this abstract item.,DCAT-v3,DCAT-v3 Resource
+DatasetSeries,,replaces,hyperlink,,,,,,,,http://purl.org/dc/terms/replaces,A related item that is superseded by this item.,DCAT-v3,DCAT-v3 Resource
+DatasetSeries,,version notes,string_array,,,,,,,,http://www.w3.org/ns/adms#versionNotes,A changelog regarding the differences between this version and the previous one.,DCAT-v3,DCAT-v3 Resource
+DatasetSeries,,status,string,,,,,,,,http://www.w3.org/ns/adms#status,"The status of this item. Does not enforce a specific standard, though using existing standards such as ""EU Vocabularies Distribution Status"" is adviced.",DCAT-v3,DCAT-v3 Resource
+DatasetSeries,,has part,hyperlink,,,,,,,,http://purl.org/dc/terms/hasPart,An object that is included in this item.,DCAT-v3,DCAT-v3 Resource
+DatasetSeries,,first,ref,,,,Dataset,,,,http://www.w3.org/ns/dcat#first,The first item in an ordered collection this item belongs to (when using dcat:DataSeries).,DCAT-v3,DCAT-v3 Resource
+DatasetSeries,,last,ref,,,,Dataset,,,,http://www.w3.org/ns/dcat#last,The last item in an ordered collection this item belongs to (when using dcat:DataSeries).,DCAT-v3,DCAT-v3 Resource
+DatasetSeries,,previous,ref,,,,Dataset,,,,http://www.w3.org/ns/dcat#prev,The previous item in an ordered collection this item belongs to (when using dcat:DataSeries).,DCAT-v3,DCAT-v3 Resource
+DatasetSeries,,distribution,refBack,,,,Distribution,,belongsToDataset,,http://purl.org/dc/terms/distribution,"A distribution belonging to this item.",DCAT,DCAT Dataset / DCAT-v3: DatasetSeries table new in v3
+DatasetSeries,,frequency,string,,,,__,,,,http://purl.org/dc/terms/accrualPeriodicity,The frequency at which dataset is published.,DCAT-v3,DCAT Dataset / DCAT-v3: DatasetSeries table new in v3
+DatasetSeries,,in series,ref,,,,DatasetSeries,,,,https://www.w3.org/ns/dcat#inSeries,A series this item belongs to.,DCAT-v3,DCAT-v3 Dataset
+DatasetSeries,,spatial coverage,ontology_array,,,,Countries,,,,http://purl.org/dc/terms/spatial,The geographical area covered by the dataset.,DCAT-v3,DCAT Dataset / DCAT-v3: DatasetSeries table new in v3
+DatasetSeries,,spatial resolution,decimal,,,,,,,,http://purl.org/dc/terms/spatialResolutionInMeters,"Minimum spatial separation resolvable in a dataset, measured in meters.",DCAT-v3,DCAT Dataset / DCAT-v3: DatasetSeries table new in v3
+DatasetSeries,,temporal coverage,string,,,,,,,,http://purl.org/dc/terms/temporal,The temporal period that the dataset covers.,DCAT-v3,DCAT Dataset / DCAT-v3: DatasetSeries table new in v3
+DatasetSeries,,temporal resolution,string,,,,,,,,http://purl.org/dc/terms/temporalResolution,Minimum time period resolvable in the dataset.,DCAT-v3,DCAT Dataset / DCAT-v3: DatasetSeries table new in v3
+DatasetSeries,,was generated by,string,,,,,,,,http://www.w3.org/ns/prov#wasGeneratedBy,"An activity that generated, or provides the business context for, the creation of the dataset.",DCAT-v3,DCAT Dataset / DCAT-v3: DatasetSeries table new in v3
+DatasetSeries,,applicable legislation,hyperlink,,,,,,,,http://data.europa.eu/r5r/applicableLegislation,Legislation that mandates creation or management of this item (must follow European Legislation Identifier (ELI) guidelines).,DCAT-AP-v3,DCAT-AP-v3 Dataset
