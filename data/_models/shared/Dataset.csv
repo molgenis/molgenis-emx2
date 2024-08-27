@@ -11,7 +11,7 @@ Dataset,,landing page,hyperlink,,,,,,,,http://www.w3.org/ns/dcat#landingPage,A w
 Dataset,,is referenced by,hyperlink,,,,,,,,http://purl.org/dc/terms/isReferencedBy,A related object that references that points to this item.,DCAT,DCAT Resource
 Dataset,,relation,hyperlink,,,,,,,,http://purl.org/dc/terms/relation,An object with an unspecified relation to this item.,DCAT,DCAT Resource
 Dataset,,qualified relation,hyperlink,,,,,,,,http://www.w3.org/ns/dcat#qualifiedRelation,Links to a description of a relationship with another resource.,DCAT,DCAT Resource
-Dataset,,qualified attribution,ref_array,,,,Agent,,,,prov:qualifiedAttribution,Describes an entity that is in some form responsible for the item but is neither a creator or publisher.,DCAT,DCAT Resource
+Dataset,,qualified attribution,ref_array,,,,Agent,,,,http://www.w3.org/ns/prov#qualifiedAttribution,Describes an entity that is in some form responsible for the item but is neither a creator or publisher.,DCAT,DCAT Resource
 Dataset,,theme,hyperlink_array,,,,,,,,http://www.w3.org/ns/dcat#theme,A main category of the resource. A resource can have multiple themes.,DCAT,DCAT Resource
 Dataset,,contact point,ref,,,,ContactPersons,,,,http://www.w3.org/ns/dcat#contactPoint,Relevant contact information for the cataloged resource. Use of vCard is recommended [VCARD-RDF].,DCAT,DCAT Resource
 Dataset,,creator,ref_array,,,,ContactPersons,,,,http://purl.org/dc/terms/creator,The entity responsible for producing the resource.,DCAT,DCAT Resource
