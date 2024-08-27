@@ -477,6 +477,17 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     log(start, "removed user " + user);
   }
 
+  @Override
+  public void deleteUser(String user) {
+    // todo add query
+    tx(db -> ((SqlDatabase) db).getJooq().execute("DROP QUERY {0}", name(MG_USER_PREFIX + user)));
+  }
+
+  @Override
+  public void updateUser(Map<String, String> user) {
+    // todo: implement sql query
+  }
+
   public void addRole(String role) {
     long start = System.currentTimeMillis();
     executeCreateRole(getJooq(), role);

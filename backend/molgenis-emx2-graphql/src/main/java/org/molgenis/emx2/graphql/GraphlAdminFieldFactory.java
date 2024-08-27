@@ -2,7 +2,10 @@ package org.molgenis.emx2.graphql;
 
 import static org.molgenis.emx2.Constants.MOLGENIS_JWT_SHARED_SECRET;
 import static org.molgenis.emx2.Constants.SETTINGS;
+import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
+import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
 import static org.molgenis.emx2.graphql.GraphqlConstants.*;
+import static org.molgenis.emx2.graphql.GraphqlDatabaseFieldFactory.inputUserType;
 import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.outputSettingsType;
 
 import graphql.Scalars;
@@ -101,5 +104,33 @@ public class GraphlAdminFieldFactory {
         .filter(entry -> !MOLGENIS_JWT_SHARED_SECRET.equals(entry.getKey()))
         .map(entry -> Map.of(KEY, entry.getKey(), VALUE, entry.getValue()))
         .toList();
+  }
+
+  public static GraphQLFieldDefinition deleteUser(Database database) {
+    return GraphQLFieldDefinition.newFieldDefinition()
+        .name("deleteUser")
+        .type(typeForMutationResult)
+        .argument(GraphQLArgument.newArgument().name(EMAIL).type(Scalars.GraphQLString))
+        .dataFetcher(
+            dataFetchingEnvironment -> {
+              String email = dataFetchingEnvironment.getArgument(EMAIL);
+              database.deleteUser(email);
+              return new GraphqlApiMutationResult(SUCCESS, "User %s dropped", email);
+            })
+        .build();
+  }
+
+  public static GraphQLFieldDefinition updateUser(Database database) {
+    return GraphQLFieldDefinition.newFieldDefinition()
+        .name("updatedUser")
+        .type(typeForMutationResult)
+        .argument(GraphQLArgument.newArgument().name(USER).type(inputUserType))
+        .dataFetcher(
+            dataFetchingEnvironment -> {
+              Map<String, String> user = dataFetchingEnvironment.getArgument(USER);
+              database.updateUser(user);
+              return new GraphqlApiMutationResult(SUCCESS, "User %s updated", user.get(EMAIL));
+            })
+        .build();
   }
 }

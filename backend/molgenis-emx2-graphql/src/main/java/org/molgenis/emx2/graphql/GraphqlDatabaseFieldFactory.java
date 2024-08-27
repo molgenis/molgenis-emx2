@@ -212,6 +212,14 @@ public class GraphqlDatabaseFieldFactory {
                   .name(SETTINGS)
                   .type(GraphQLList.list(inputSettingsMetadataType))
                   .build())
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(PASSWORD)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(ENABLED)
+                  .type(Scalars.GraphQLBoolean))
           .build();
 
   public GraphQLFieldDefinition changeMutation(Database database) {
