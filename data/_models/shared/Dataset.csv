@@ -2,21 +2,21 @@ tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,ref
 Dataset,,,,,,,,,,,http://www.w3.org/ns/dcat#Dataset,DCAT dataset entries.,DCAT
 Dataset,,id,string,1,TRUE,,,,,,"http://purl.org/dc/terms/identifier,http://purl.allotrope.org/ontologies/result#AFR_0000919",Local database identifier of the dataset.,DCAT,local id
 Dataset,,identifier,string_array,,,,,,,,http://purl.org/dc/terms/identifier,A unique identifier of the item.,DCAT,DCAT Resource
-Dataset,,type,hyperlink,,,,,,,,http://purl.org/dc/terms/type,A type belonging to the record,DCAT,DCAT Resource
-Dataset,,title,string,,TRUE,,,,,,http://purl.org/dc/terms/title,A name given to the record.,DCAT,DCAT Resource / DCAT-AP-v3 Dataset: required
-Dataset,,description,string,,TRUE,,,,,,http://purl.org/dc/terms/description,A free-text account of the item.,DCAT,DCAT Resource / DCAT-AP-v3 Dataset: required
+Dataset,,type,hyperlink_array,,,,,,,,http://purl.org/dc/terms/type,A type belonging to the record,DCAT,DCAT Resource
+Dataset,,title,string_array,,TRUE,,,,,,http://purl.org/dc/terms/title,A name given to the record.,DCAT,DCAT Resource / DCAT-AP-v3 Dataset: required
+Dataset,,description,string_array,,TRUE,,,,,,http://purl.org/dc/terms/description,A free-text account of the item.,DCAT,DCAT Resource / DCAT-AP-v3 Dataset: required
 Dataset,,keyword,string_array,,,,,,,,http://www.w3.org/ns/dcat#keyword,A keyword or tag describing the resource.,DCAT,DCAT Resource
-Dataset,,conforms to,hyperlink,,,,,,,,http://purl.org/dc/terms/conformsTo,An established standard to which the item conforms to.,DCAT,DCAT Resource
+Dataset,,conforms to,hyperlink_array,,,,,,,,http://purl.org/dc/terms/conformsTo,An established standard to which the item conforms to.,DCAT,DCAT Resource
 Dataset,,language,ontology_array,,,,Languages,,,,http://purl.org/dc/terms/language,"A language of the item. This refers to the natural language used for textual metadata (i.e. titles, descriptions, etc) of a cataloged resource (i.e. dataset or service) or the textual values of a dataset distribution.",DCAT,DCAT Resource
-Dataset,,landing page,hyperlink,,,,,,,,http://www.w3.org/ns/dcat#landingPage,A web page which can be navigated to using a web browser to access the records.,DCAT,DCAT Resource
-Dataset,,is referenced by,hyperlink,,,,,,,,http://purl.org/dc/terms/isReferencedBy,A related object that references that points to this item.,DCAT,DCAT Resource
-Dataset,,relation,hyperlink,,,,,,,,http://purl.org/dc/terms/relation,An object with an unspecified relation to this item.,DCAT,DCAT Resource
-Dataset,,qualified relation,hyperlink,,,,,,,,http://www.w3.org/ns/dcat#qualifiedRelation,Links to a description of a relationship with another resource.,DCAT,DCAT Resource
+Dataset,,landing page,hyperlink_array,,,,,,,,http://www.w3.org/ns/dcat#landingPage,A web page which can be navigated to using a web browser to access the records.,DCAT,DCAT Resource
+Dataset,,is referenced by,hyperlink_array,,,,,,,,http://purl.org/dc/terms/isReferencedBy,A related object that references that points to this item.,DCAT,DCAT Resource
+Dataset,,relation,hyperlink_array,,,,,,,,http://purl.org/dc/terms/relation,An object with an unspecified relation to this item.,DCAT,DCAT Resource
+Dataset,,qualified relation,hyperlink_array,,,,,,,,http://www.w3.org/ns/dcat#qualifiedRelation,Links to a description of a relationship with another resource.,DCAT,DCAT Resource
 Dataset,,qualified attribution,ref_array,,,,Agent,,,,http://www.w3.org/ns/prov#qualifiedAttribution,Describes an entity that is in some form responsible for the item but is neither a creator or publisher.,DCAT,DCAT Resource
 Dataset,,theme,hyperlink_array,,,,,,,,http://www.w3.org/ns/dcat#theme,A main category of the resource. A resource can have multiple themes.,DCAT,DCAT Resource
-Dataset,,contact point,ref,,,,ContactPersons,,,,http://www.w3.org/ns/dcat#contactPoint,Relevant contact information for the cataloged resource. Use of vCard is recommended [VCARD-RDF].,DCAT,DCAT Resource
+Dataset,,contact point,ref_array,,,,ContactPersons,,,,http://www.w3.org/ns/dcat#contactPoint,Relevant contact information for the cataloged resource. Use of vCard is recommended [VCARD-RDF].,DCAT,DCAT Resource
 Dataset,,creator,ref_array,,,,ContactPersons,,,,http://purl.org/dc/terms/creator,The entity responsible for producing the resource.,DCAT,DCAT Resource
-Dataset,,publisher,ref_array,,,,ContactPersons,,,,http://purl.org/dc/terms/publisher,The entity responsible for publishing the resource.,DCAT,DCAT Resource
+Dataset,,publisher,ref,,,,ContactPersons,,,,http://purl.org/dc/terms/publisher,The entity responsible for publishing the resource.,DCAT,DCAT Resource
 Dataset,,license,hyperlink,,,,,,,,http://purl.org/dc/terms/license,A legal document under which the resource is made available.,DCAT,DCAT Resource
 Dataset,,rights,string,,,,,,,,http://purl.org/dc/terms/rights,"A statement that concerns all rights not addressed with dct:license or dct:accessRights, such as copyright statements.",DCAT,DCAT Resource
 Dataset,,access rights,string,,,,,,,,http://purl.org/dc/terms/accessRights,"Information about who can access the resource or an indication of its security status (DCAT-AP: Whether item is publicly accessible, has access restrictions or is not public).",DCAT,DCAT Resource / DCAT-AP-v3 Dataset: description changes
@@ -36,18 +36,18 @@ Dataset,,last,ref,,,,Dataset,,,,http://www.w3.org/ns/dcat#last,The last item in 
 Dataset,,previous,ref,,,,Dataset,,,,http://www.w3.org/ns/dcat#prev,The previous item in an ordered collection this item belongs to (when using dcat:DataSeries).,DCAT-v3,DCAT-v3 Resource
 Dataset,,distribution,refBack,,,,Distribution,,belongsToDataset,,http://purl.org/dc/terms/distribution,"A distribution belonging to this item.",DCAT,DCAT Dataset
 Dataset,,frequency,string,,,,__,,,,http://purl.org/dc/terms/accrualPeriodicity,The frequency at which dataset is published.,DCAT,DCAT Dataset
-Dataset,,in series,ref,,,,DatasetSeries,,,,https://www.w3.org/ns/dcat#inSeries,A series this item belongs to.,DCAT-v3,DCAT-v3 Dataset
+Dataset,,in series,ref_array,,,,DatasetSeries,,,,https://www.w3.org/ns/dcat#inSeries,A series this item belongs to.,DCAT-v3,DCAT-v3 Dataset
 Dataset,,spatial coverage,ontology_array,,,,Countries,,,,http://purl.org/dc/terms/spatial,The geographical area covered by the dataset.,DCAT,DCAT Dataset
 Dataset,,spatial resolution,decimal,,,,,,,,http://purl.org/dc/terms/spatialResolutionInMeters,"Minimum spatial separation resolvable in a dataset, measured in meters.",DCAT,DCAT Dataset
 Dataset,,temporal coverage,string,,,,,,,,http://purl.org/dc/terms/temporal,The temporal period that the dataset covers.,DCAT,DCAT Dataset
 Dataset,,temporal resolution,string,,,,,,,,http://purl.org/dc/terms/temporalResolution,Minimum time period resolvable in the dataset.,DCAT,DCAT Dataset
-Dataset,,was generated by,string,,,,,,,,http://www.w3.org/ns/prov#wasGeneratedBy,"An activity that generated, or provides the business context for, the creation of the dataset.",DCAT,DCAT Dataset
-Dataset,,applicable legislation,hyperlink,,,,,,,,http://data.europa.eu/r5r/applicableLegislation,Legislation that mandates creation or management of this item (must follow European Legislation Identifier (ELI) guidelines).,DCAT-AP-v3,DCAT-AP-v3 Dataset
-Dataset,,documentation,hyperlink,,,,,,,,http://xmlns.com/foaf/0.1/page,A page or document about this item.,DCAT-AP-v3,DCAT-AP-v3 Dataset
+Dataset,,was generated by,string_array,,,,,,,,http://www.w3.org/ns/prov#wasGeneratedBy,"An activity that generated, or provides the business context for, the creation of the dataset.",DCAT,DCAT Dataset
+Dataset,,applicable legislation,hyperlink_array,,,,,,,,http://data.europa.eu/r5r/applicableLegislation,Legislation that mandates creation or management of this item (must follow European Legislation Identifier (ELI) guidelines).,DCAT-AP-v3,DCAT-AP-v3 Dataset
+Dataset,,documentation,hyperlink_array,,,,,,,,http://xmlns.com/foaf/0.1/page,A page or document about this item.,DCAT-AP-v3,DCAT-AP-v3 Dataset
 Dataset,,other identifier,hyperlink_array,,,,,,,,http://www.w3.org/ns/adms#identifier,"A secondary identifier of the item (f.e. DOI, W3ID, etc).",DCAT-AP-v3,DCAT-AP-v3 Dataset
-Dataset,,provenance,string,,,,,,,,http://purl.org/dc/terms/provenance,A statement about the lineage of the item.,DCAT-AP-v3,DCAT-AP-v3 Dataset
+Dataset,,provenance,string_array,,,,,,,,http://purl.org/dc/terms/provenance,A statement about the lineage of the item.,DCAT-AP-v3,DCAT-AP-v3 Dataset
 Dataset,,sample,refBack,,,,Distribution,,isSampleOfDataset,,http://www.w3.org/ns/adms#sample,A sample distribution of this item.,DCAT-AP-v3,DCAT-AP-v3 Dataset
-Dataset,,source,ref,,,,Dataset,,,,http://purl.org/dc/terms/source,A related item from which the this item is derived.,DCAT-AP-v3,DCAT-AP-v3 Dataset
+Dataset,,source,ref_array,,,,Dataset,,,,http://purl.org/dc/terms/source,A related item from which the this item is derived.,DCAT-AP-v3,DCAT-AP-v3 Dataset
 Dataset,,EJP-RD vpConnection,hyperlink,,,,,,,,https://w3id.org/ejp-rd/vocabulary#vpConnection,"This property must be attached to every entity that you wish the EJP-RD Virtual Platform to explore.",EJP-RD
 datareleases,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C172217,"The act of making data or other structured information accessible to the public or to the user group of a database.",RD3
 datareleases,,name,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C25364,"One or more characters used to identify, name, or characterize the nature, properties, or contents of a thing.",RD3

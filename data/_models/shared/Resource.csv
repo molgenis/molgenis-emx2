@@ -2,21 +2,21 @@ tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,ref
 Resource,,,,,,,,,,,,,,Currently only used as template elsewhere as tableExtends would merge all results in this table
 Resource,,id,string,1,,,,,,,"http://purl.org/dc/terms/identifier,http://purl.allotrope.org/ontologies/result#AFR_0000919",Local database identifier of the dataset.,DCAT,local id
 Resource,,identifier,string_array,,,,,,,,http://purl.org/dc/terms/identifier,A unique identifier of the item.,DCAT,DCAT Resource
-Resource,,type,hyperlink,,,,,,,,http://purl.org/dc/terms/type,A type belonging to the record,DCAT,DCAT Resource
-Resource,,title,string,,,,,,,,http://purl.org/dc/terms/title,A name given to the record.,DCAT,DCAT Resource
-Resource,,description,string,,,,,,,,http://purl.org/dc/terms/description,A free-text account of the item.,DCAT,DCAT Resource
+Resource,,type,hyperlink_array,,,,,,,,http://purl.org/dc/terms/type,A type belonging to the record,DCAT,DCAT Resource
+Resource,,title,string_array,,,,,,,,http://purl.org/dc/terms/title,A name given to the record.,DCAT,DCAT Resource
+Resource,,description,string_array,,,,,,,,http://purl.org/dc/terms/description,A free-text account of the item.,DCAT,DCAT Resource
 Resource,,keyword,string_array,,,,,,,,http://www.w3.org/ns/dcat#keyword,A keyword or tag describing the resource.,DCAT,DCAT Resource
-Resource,,conforms to,hyperlink,,,,,,,,http://purl.org/dc/terms/conformsTo,An established standard to which the item conforms to.,DCAT,DCAT Resource
+Resource,,conforms to,hyperlink_array,,,,,,,,http://purl.org/dc/terms/conformsTo,An established standard to which the item conforms to.,DCAT,DCAT Resource
 Resource,,language,ontology_array,,,,Languages,,,,http://purl.org/dc/terms/language,"A language of the item. This refers to the natural language used for textual metadata (i.e. titles, descriptions, etc) of a cataloged resource (i.e. dataset or service) or the textual values of a dataset distribution.",DCAT,DCAT Resource
-Resource,,landing page,hyperlink,,,,,,,,http://www.w3.org/ns/dcat#landingPage,A web page which can be navigated to using a web browser to access the records.,DCAT,DCAT Resource
-Resource,,is referenced by,hyperlink,,,,,,,,http://purl.org/dc/terms/isReferencedBy,A related object that references that points to this item.,DCAT,DCAT Resource
-Resource,,relation,hyperlink,,,,,,,,http://purl.org/dc/terms/relation,An object with an unspecified relation to this item.,DCAT,DCAT Resource
-Resource,,qualified relation,hyperlink,,,,,,,,http://www.w3.org/ns/dcat#qualifiedRelation,Links to a description of a relationship with another resource.,DCAT,DCAT Resource
+Resource,,landing page,hyperlink_array,,,,,,,,http://www.w3.org/ns/dcat#landingPage,A web page which can be navigated to using a web browser to access the records.,DCAT,DCAT Resource
+Resource,,is referenced by,hyperlink_array,,,,,,,,http://purl.org/dc/terms/isReferencedBy,A related object that references that points to this item.,DCAT,DCAT Resource
+Resource,,relation,hyperlink_array,,,,,,,,http://purl.org/dc/terms/relation,An object with an unspecified relation to this item.,DCAT,DCAT Resource
+Resource,,qualified relation,hyperlink_array,,,,,,,,http://www.w3.org/ns/dcat#qualifiedRelation,Links to a description of a relationship with another resource.,DCAT,DCAT Resource
 Resource,,qualified attribution,ref_array,,,,Agent,,,,http://www.w3.org/ns/prov#qualifiedAttribution,Describes an entity that is in some form responsible for the item but is neither a creator or publisher.,DCAT,DCAT Resource
 Resource,,theme,hyperlink_array,,,,,,,,http://www.w3.org/ns/dcat#theme,A main category of the resource. A resource can have multiple themes.,DCAT,DCAT Resource
-Resource,,contact point,ref,,,,ContactPersons,,,,http://www.w3.org/ns/dcat#contactPoint,Relevant contact information for the cataloged resource. Use of vCard is recommended [VCARD-RDF].,DCAT,DCAT Resource
+Resource,,contact point,ref_array,,,,ContactPersons,,,,http://www.w3.org/ns/dcat#contactPoint,Relevant contact information for the cataloged resource. Use of vCard is recommended [VCARD-RDF].,DCAT,DCAT Resource
 Resource,,creator,ref_array,,,,ContactPersons,,,,http://purl.org/dc/terms/creator,The entity responsible for producing the resource.,DCAT,DCAT Resource
-Resource,,publisher,ref_array,,,,ContactPersons,,,,http://purl.org/dc/terms/publisher,The entity responsible for publishing the resource.,DCAT,DCAT Resource
+Resource,,publisher,ref,,,,ContactPersons,,,,http://purl.org/dc/terms/publisher,The entity responsible for publishing the resource.,DCAT,DCAT Resource
 Resource,,license,hyperlink,,,,,,,,http://purl.org/dc/terms/license,A legal document under which the resource is made available.,DCAT,DCAT Resource
 Resource,,rights,string,,,,,,,,http://purl.org/dc/terms/rights,"A statement that concerns all rights not addressed with dct:license or dct:accessRights, such as copyright statements.",DCAT,DCAT Resource
 Resource,,access rights,string,,,,,,,,http://purl.org/dc/terms/accessRights,Information about who can access the resource or an indication of its security status.,DCAT,DCAT Resource
