@@ -2,7 +2,7 @@ import type {
   ResultSetIF,
   OntologyDataIF,
   BeaconResultsIF,
-} from "../interfaces";
+} from "../interfaces/beacon";
 
 /**
 filterData
