@@ -25,7 +25,7 @@ Dataset,,modification date,datetime,,,,,,,,http://purl.org/dc/terms/modified,Mos
 Dataset,,version,string,,,,,,,,http://www.w3.org/ns/dcat#version,The version of the item.,DCAT-v3,DCAT Resource
 Dataset,,previous version,ref,,,,Dataset,,,,http://www.w3.org/ns/dcat#previousVersion,Refers to an item which is the previous version of this item.,DCAT-v3,DCAT Resource
 Dataset,,has version,ref_array,,,,Dataset,,,,http://www.w3.org/ns/dcat#hasVersion,Used with an abstract item to refer to all items which represent different versions of this abstract item.,DCAT-v3,DCAT Resource
-Dataset,,current version,ref,,,,Dataset,,,,http://www.w3.org/ns/dcat#hasCurrentVersion,Used with an abstract item to refer to the item that represents the current version of this abstract item.,DCAT-v3,DCAT Resource
+Dataset,,has current version,ref,,,,Dataset,,,,http://www.w3.org/ns/dcat#hasCurrentVersion,Used with an abstract item to refer to the item that represents the current version of this abstract item.,DCAT-v3,DCAT Resource
 Dataset,,replaces,hyperlink,,,,,,,,http://purl.org/dc/terms/replaces,A related item that is superseded by this item.,DCAT-v3,DCAT Resource
 Dataset,,version notes,string_array,,,,,,,,http://www.w3.org/ns/adms#versionNotes,A changelog regarding the differences between this version and the previous one.,DCAT-v3,DCAT Resource
 Dataset,,status,string,,,,,,,,http://www.w3.org/ns/adms#status,"The status of this item. Does not enforce a specific standard, though using existing standards such as ""EU Vocabularies Distribution Status"" is adviced.",DCAT-v3,DCAT Resource
