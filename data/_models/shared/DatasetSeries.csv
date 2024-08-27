@@ -1,6 +1,7 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,comment
 DatasetSeries,,,,,,,,,,,http://www.w3.org/ns/dcat#Dataset,DCAT dataset entries.,DCAT,
-DatasetSeries,,id,string,1,TRUE,,,,,,http://purl.org/dc/terms/identifier,Local database identifier of the dataset.,DCAT-v3,DCAT Resource / DCAT-v3: DatasetSeries table new in v3
+DatasetSeries,,id,string,1,TRUE,,,,,,"http://purl.org/dc/terms/identifier,http://purl.allotrope.org/ontologies/result#AFR_0000919",Local database identifier of the dataset.,DCAT-v3,local id
+DatasetSeries,,identifier,string_array,,,,,,,,http://purl.org/dc/terms/identifier,A unique identifier of the item.,DCAT-v3,DCAT Resource / DCAT-v3: DatasetSeries table new in v3
 DatasetSeries,,type,hyperlink,,,,,,,,http://purl.org/dc/terms/type,A type belonging to the record,DCAT-v3,DCAT Resource / DCAT-v3: DatasetSeries table new in v3
 DatasetSeries,,title,string,,TRUE,,,,,,http://purl.org/dc/terms/title,A name given to the record.,DCAT-v3,DCAT Resource / DCAT-v3: DatasetSeries table new in v3 / DCAT-AP-v3 Dataset: required
 DatasetSeries,,description,string,,TRUE,,,,,,http://purl.org/dc/terms/description,A free-text account of the item.,DCAT-v3,DCAT Resource / DCAT-v3: DatasetSeries table new in v3 / DCAT-AP-v3 Dataset: required
