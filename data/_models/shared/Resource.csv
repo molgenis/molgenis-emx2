@@ -5,7 +5,7 @@ Resource,,type,hyperlink,,,,,,,,http://purl.org/dc/terms/type,A type belonging t
 Resource,,title,string,,,,,,,,http://purl.org/dc/terms/title,A name given to the record.,DCAT,DCAT Resource
 Resource,,description,string,,,,,,,,http://purl.org/dc/terms/description,A free-text account of the item.,DCAT,DCAT Resource
 Resource,,keyword,string_array,,,,,,,,http://www.w3.org/ns/dcat#keyword,A keyword or tag describing the resource.,DCAT,DCAT Resource
-Resource,,conforms to,hyperlink,,,,,,,,http://purl.org/dc/terms/conformsTo,,DCAT,DCAT Resource
+Resource,,conforms to,hyperlink,,,,,,,,http://purl.org/dc/terms/conformsTo,An established standard to which the item conforms to.,DCAT,DCAT Resource
 Resource,,language,ontology_array,,,,Languages,,,,http://purl.org/dc/terms/language,"A language of the item. This refers to the natural language used for textual metadata (i.e. titles, descriptions, etc) of a cataloged resource (i.e. dataset or service) or the textual values of a dataset distribution.",DCAT,DCAT Resource
 Resource,,landing page,hyperlink,,,,,,,,http://www.w3.org/ns/dcat#landingPage,A web page which can be navigated to using a web browser to access the records.,DCAT,DCAT Resource
 Resource,,is referenced by,hyperlink,,,,,,,,http://purl.org/dc/terms/isReferencedBy,A related object that references that points to this item.,DCAT,DCAT Resource
