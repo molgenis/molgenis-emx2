@@ -24,16 +24,16 @@ Catalog,,has policy,hyperlink,,,,,,,,http://www.w3.org/ns/odrl/2/hasPolicy,The r
 Catalog,,release date,datetime,,,,,,,,http://purl.org/dc/terms/issued,Formal date of publication.,DCAT,DCAT Resource
 Catalog,,modification date,datetime,,,,,,,,http://purl.org/dc/terms/modified,Most recent date of modification.,DCAT,DCAT Resource
 Catalog,,version,string,,,,,,,,http://www.w3.org/ns/dcat#version,The version of the item.,DCAT-v3,DCAT-v3 Resource
-Catalog,,previous version,ref,,,,Resource,,,,http://www.w3.org/ns/dcat#previousVersion,Refers to an item which is the previous version of this item.,DCAT-v3,DCAT-v3 Resource
-Catalog,,has version,ref_array,,,,Resource,,,,http://www.w3.org/ns/dcat#hasVersion,Used with an abstract item to refer to all items which represent different versions of this abstract item.,DCAT-v3,DCAT-v3 Resource
-Catalog,,has current version,ref,,,,Resource,,,,http://www.w3.org/ns/dcat#hasCurrentVersion,Used with an abstract item to refer to the item that represents the current version of this abstract item.,DCAT-v3,DCAT-v3 Resource
+Catalog,,previous version,ref,,,,Catalog,,,,http://www.w3.org/ns/dcat#previousVersion,Refers to an item which is the previous version of this item.,DCAT-v3,DCAT-v3 Resource
+Catalog,,has version,ref_array,,,,Catalog,,,,http://www.w3.org/ns/dcat#hasVersion,Used with an abstract item to refer to all items which represent different versions of this abstract item.,DCAT-v3,DCAT-v3 Resource
+Catalog,,has current version,ref,,,,Catalog,,,,http://www.w3.org/ns/dcat#hasCurrentVersion,Used with an abstract item to refer to the item that represents the current version of this abstract item.,DCAT-v3,DCAT-v3 Resource
 Catalog,,replaces,hyperlink,,,,,,,,http://purl.org/dc/terms/replaces,A related item that is superseded by this item.,DCAT-v3,DCAT-v3 Resource
 Catalog,,version notes,string_array,,,,,,,,http://www.w3.org/ns/adms#versionNotes,A changelog regarding the differences between this version and the previous one.,DCAT-v3,DCAT-v3 Resource
 Catalog,,status,string,,,,,,,,http://www.w3.org/ns/adms#status,"The status of this item. Does not enforce a specific standard, though using existing standards such as ""EU Vocabularies Distribution Status"" is adviced.",DCAT-v3,DCAT-v3 Resource
 Catalog,,has part,hyperlink,,,,,,,,http://purl.org/dc/terms/hasPart,An object that is included in this item.,DCAT-v3,DCAT-AP-v3 Catalog (weirdly not part of DCAT-v3 Resource)
-Catalog,,first,ref,,,,Resource,,,,http://www.w3.org/ns/dcat#first,The first item in an ordered collection this item belongs to (when using dcat:DataSeries).,DCAT-v3,DCAT-v3 Resource
-Catalog,,last,ref,,,,Resource,,,,http://www.w3.org/ns/dcat#last,The last item in an ordered collection this item belongs to (when using dcat:DataSeries).,DCAT-v3,DCAT-v3 Resource
-Catalog,,previous,ref,,,,Resource,,,,http://www.w3.org/ns/dcat#prev,The previous item in an ordered collection this item belongs to (when using dcat:DataSeries).,DCAT-v3,DCAT-v3 Resource
+Catalog,,first,ref,,,,Catalog,,,,http://www.w3.org/ns/dcat#first,The first item in an ordered collection this item belongs to (when using dcat:DataSeries).,DCAT-v3,DCAT-v3 Resource
+Catalog,,last,ref,,,,Catalog,,,,http://www.w3.org/ns/dcat#last,The last item in an ordered collection this item belongs to (when using dcat:DataSeries).,DCAT-v3,DCAT-v3 Resource
+Catalog,,previous,ref,,,,Catalog,,,,http://www.w3.org/ns/dcat#prev,The previous item in an ordered collection this item belongs to (when using dcat:DataSeries).,DCAT-v3,DCAT-v3 Resource
 Catalog,,distribution,refBack,,,,Distribution,,belongsToCatalog,,"https://www.w3.org/ns/dcat#resource,https://www.w3.org/ns/dcat#distribution","A distribution belonging to this item.",DCAT,DCAT Dataset / DCAT-v3 Catalog: Added resource semantics
 Catalog,,frequency,string,,,,__,,,,http://purl.org/dc/terms/accrualPeriodicity,The frequency at which dataset is published.,DCAT,DCAT Dataset
 Catalog,,spatial coverage,ontology_array,,,,Countries,,,,http://purl.org/dc/terms/spatial,The geographical area covered by the dataset.,DCAT,DCAT Dataset

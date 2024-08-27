@@ -24,15 +24,15 @@ DataService,,has policy,hyperlink,,,,,,,,http://www.w3.org/ns/odrl/2/hasPolicy,T
 DataService,,release date,datetime,,,,,,,,http://purl.org/dc/terms/issued,Formal date of publication.,DCAT,DCAT Resource
 DataService,,modification date,datetime,,,,,,,,http://purl.org/dc/terms/modified,Most recent date of modification.,DCAT,DCAT Resource
 DataService,,version,string,,,,,,,,http://www.w3.org/ns/dcat#version,The version of the item.,DCAT-v3,DCAT-v3 Resource
-DataService,,previous version,ref,,,,Resource,,,,http://www.w3.org/ns/dcat#previousVersion,Refers to an item which is the previous version of this item.,DCAT-v3,DCAT-v3 Resource
-DataService,,has version,ref_array,,,,Resource,,,,http://www.w3.org/ns/dcat#hasVersion,Used with an abstract item to refer to all items which represent different versions of this abstract item.,DCAT-v3,DCAT-v3 Resource
-DataService,,has current version,ref,,,,Resource,,,,http://www.w3.org/ns/dcat#hasCurrentVersion,Used with an abstract item to refer to the item that represents the current version of this abstract item.,DCAT-v3,DCAT-v3 Resource
+DataService,,previous version,ref,,,,DataService,,,,http://www.w3.org/ns/dcat#previousVersion,Refers to an item which is the previous version of this item.,DCAT-v3,DCAT-v3 Resource
+DataService,,has version,ref_array,,,,DataService,,,,http://www.w3.org/ns/dcat#hasVersion,Used with an abstract item to refer to all items which represent different versions of this abstract item.,DCAT-v3,DCAT-v3 Resource
+DataService,,has current version,ref,,,,DataService,,,,http://www.w3.org/ns/dcat#hasCurrentVersion,Used with an abstract item to refer to the item that represents the current version of this abstract item.,DCAT-v3,DCAT-v3 Resource
 DataService,,replaces,hyperlink,,,,,,,,http://purl.org/dc/terms/replaces,A related item that is superseded by this item.,DCAT-v3,DCAT-v3 Resource
 DataService,,version notes,string_array,,,,,,,,http://www.w3.org/ns/adms#versionNotes,A changelog regarding the differences between this version and the previous one.,DCAT-v3,DCAT-v3 Resource
 DataService,,status,string,,,,,,,,http://www.w3.org/ns/adms#status,"The status of this item. Does not enforce a specific standard, though using existing standards such as ""EU Vocabularies Distribution Status"" is adviced.",DCAT-v3,DCAT-v3 Resource
-DataService,,first,ref,,,,Resource,,,,http://www.w3.org/ns/dcat#first,The first item in an ordered collection this item belongs to (when using dcat:DataSeries).,DCAT-v3,DCAT-v3 Resource
-DataService,,last,ref,,,,Resource,,,,http://www.w3.org/ns/dcat#last,The last item in an ordered collection this item belongs to (when using dcat:DataSeries).,DCAT-v3,DCAT-v3 Resource
-DataService,,previous,ref,,,,Resource,,,,http://www.w3.org/ns/dcat#prev,The previous item in an ordered collection this item belongs to (when using dcat:DataSeries).,DCAT-v3,DCAT-v3 Resource
+DataService,,first,ref,,,,DataService,,,,http://www.w3.org/ns/dcat#first,The first item in an ordered collection this item belongs to (when using dcat:DataSeries).,DCAT-v3,DCAT-v3 Resource
+DataService,,last,ref,,,,DataService,,,,http://www.w3.org/ns/dcat#last,The last item in an ordered collection this item belongs to (when using dcat:DataSeries).,DCAT-v3,DCAT-v3 Resource
+DataService,,previous,ref,,,,DataService,,,,http://www.w3.org/ns/dcat#prev,The previous item in an ordered collection this item belongs to (when using dcat:DataSeries).,DCAT-v3,DCAT-v3 Resource
 DataService,,endpoint description,string_array,,,,,,,,http://www.w3.org/ns/dcat#endpointDescription,A description of the services available through this endpoint.,DCAT,DCAT DataService
 DataService,,endpoint URL,hyperlink_array,,TRUE,,,,,,http://www.w3.org/ns/dcat#endpointURL,The root location of the endpoint.,DCAT,DCAT DataService / DCAT-AP-v3: required
 DataService,,serves dataset,refBack,,,,Dataset,,,,http://www.w3.org/ns/dcat#servesDataset,A collection of data that this data service can distribute.,DCAT,DCAT DataService
