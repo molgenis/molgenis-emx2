@@ -31,16 +31,16 @@ public class ExcelApi {
 
   public static void create(Javalin app) {
     // schema level operations
-    final String schemaPath = "/:schema/api/excel"; // NOSONAR
+    final String schemaPath = "/{schema}/api/excel"; // NOSONAR
     app.get(schemaPath, ExcelApi::getExcel);
     app.post(schemaPath, ExcelApi::postExcel);
 
     // table level operations
-    final String tablePath = ":schema/api/excel/:table"; // NOSONAR
+    final String tablePath = "{schema}/api/excel/{table}"; // NOSONAR
     app.get(tablePath, ExcelApi::getExcelTable);
 
     // report operations
-    final String reportPath = "/:schema/api/reports/excel"; // NOSONAR
+    final String reportPath = "/{schema}/api/reports/excel"; // NOSONAR
     app.get(reportPath, ExcelApi::getExcelReport);
   }
 

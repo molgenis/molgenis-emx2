@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
+import io.javalin.http.staticfiles.Location;
 import io.swagger.util.Yaml;
 import io.swagger.v3.oas.models.OpenAPI;
 import java.io.IOException;
@@ -45,7 +46,9 @@ public class MolgenisWebservice {
     Javalin app =
         Javalin.create(
                 config -> {
-                  config.staticFiles.add("/public_html");
+                  config.staticFiles.add("public_html/", Location.CLASSPATH);
+                  config.jetty.modifyServletContextHandler(
+                      handler -> handler.setSessionHandler(sessionManager.getSessionHandler()));
                 })
             .start(port);
 
@@ -84,10 +87,10 @@ public class MolgenisWebservice {
     // documentation operations
     app.get("/api/openapi", MolgenisWebservice::listSchemas);
     // docs per schema
-    app.get("/:schema/api/openapi", OpenApiUiFactory::getOpenApiUserInterface);
-    app.get("/:schema/api/openapi.yaml", MolgenisWebservice::openApiYaml);
+    app.get("/{schema}/api/openapi", OpenApiUiFactory::getOpenApiUserInterface);
+    app.get("/{schema}/api/openapi.yaml", MolgenisWebservice::openApiYaml);
     app.get(
-        "/:schema/api",
+        "/{schema}/api",
         ctx -> ctx.result("Welcome to schema api. Check <a href=\"api/openapi\">openapi</a>"));
 
     SiteMapService.create(app);
@@ -97,17 +100,17 @@ public class MolgenisWebservice {
     FileApi.create(app);
     JsonYamlApi.create(app);
     TaskApi.create(app);
-    GraphqlApi.createGraphQLservice(sessionManager);
-    RDFApi.create(sessionManager);
-    GraphGenomeApi.create(sessionManager);
-    BeaconApi.create(sessionManager);
-    FAIRDataPointApi.create(sessionManager);
-    BootstrapThemeService.create();
-    ProfilesApi.create();
-    AnalyticsApi.create();
+    GraphqlApi.createGraphQLservice(app, sessionManager);
+    RDFApi.create(app, sessionManager);
+    GraphGenomeApi.create(app, sessionManager);
+    BeaconApi.create(app, sessionManager);
+    FAIRDataPointApi.create(app, sessionManager);
+    BootstrapThemeService.create(app);
+    ProfilesApi.create(app);
+    AnalyticsApi.create(app);
 
-    app.get("/:schema", MolgenisWebservice::redirectSchemaToFirstMenuItem);
-    app.get("/:schema/", MolgenisWebservice::redirectSchemaToFirstMenuItem);
+    app.get("/{schema}", MolgenisWebservice::redirectSchemaToFirstMenuItem);
+    app.get("/{schema}/", MolgenisWebservice::redirectSchemaToFirstMenuItem);
 
     // schema members operations
 
@@ -165,10 +168,6 @@ public class MolgenisWebservice {
       logger.debug(e.getMessage());
     }
     ctx.redirect("/" + ctx.pathParam(SCHEMA) + "/tables");
-  }
-
-  public static void stop() {
-    // Javalin will stop automatically when the process exits
   }
 
   private static String listSchemas(Context ctx) {

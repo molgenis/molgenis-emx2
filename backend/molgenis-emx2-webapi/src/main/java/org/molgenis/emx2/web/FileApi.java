@@ -14,7 +14,7 @@ import org.molgenis.emx2.*;
 
 public class FileApi {
   public static void create(Javalin app) {
-    app.get("/:schema/api/file/:table/:column/:id", FileApi::getFile);
+    app.get("/{schema}/api/file/{table}/{column}/{id}", FileApi::getFile);
   }
 
   public static String getFile(Context ctx) throws IOException {

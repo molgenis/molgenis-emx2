@@ -39,16 +39,16 @@ public class ZipApi {
 
   public static void create(Javalin app) {
     // schema level operations
-    final String schemaPath = "/:schema/api/zip"; // NOSONAR
+    final String schemaPath = "/{schema}/api/zip"; // NOSONAR
     app.get(schemaPath, ZipApi::getZip);
     app.post(schemaPath, ZipApi::postZip);
 
     // table level operations
-    final String tablePath = "/:schema/api/zip/:table"; // NOSONAR
+    final String tablePath = "/{schema}/api/zip/{table}"; // NOSONAR
     app.get(tablePath, ZipApi::getZipTable);
 
     // report operations
-    final String reportPath = "/:schema/api/reports/zip"; // NOSONAR
+    final String reportPath = "/{schema}/api/reports/zip"; // NOSONAR
     app.get(reportPath, ZipApi::getZippedReports);
   }
 

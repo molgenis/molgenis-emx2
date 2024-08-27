@@ -38,7 +38,7 @@ public class MessageApi {
   }
 
   public static void create(Javalin app) {
-    app.post("/:schema/api/message/*", MessageApi::send);
+    app.post("/{schema}/api/message/*", MessageApi::send);
   }
 
   public static String send(Context ctx) {

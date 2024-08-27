@@ -14,7 +14,7 @@ public class SiteMapService {
   }
 
   public static void create(Javalin app) {
-    app.get("/:schema/sitemap.xml", SiteMapService::getSiteMapForSchema);
+    app.get("/{schema}/sitemap.xml", SiteMapService::getSiteMapForSchema);
   }
 
   public static String getSiteMapForSchema(Context ctx) {

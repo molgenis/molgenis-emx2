@@ -1,13 +1,11 @@
 package org.molgenis.emx2.web;
 
-import java.util.EventListener;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSessionEvent;
 import jakarta.servlet.http.HttpSessionListener;
-import org.eclipse.jetty.server.Server;
+import java.util.EventListener;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import org.eclipse.jetty.server.session.SessionHandler;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.sql.JWTgenerator;
@@ -20,9 +18,7 @@ public class MolgenisSessionManager {
   private static final Logger logger = LoggerFactory.getLogger(MolgenisSessionManager.class);
   private Map<String, MolgenisSession> sessions = new ConcurrentHashMap<>();
 
-  public MolgenisSessionManager() {
-    createCustomJettyServerFactoryWithCustomSessionListener();
-  }
+  public MolgenisSessionManager() {}
 
   public MolgenisSession getSession(HttpServletRequest request) {
     String authTokenKey = findUsedAuthTokenKey(request);
@@ -90,17 +86,14 @@ public class MolgenisSessionManager {
    * Because we cannot access jetty outside spark, we override SparkJava EmbeddedServersFactory to
    * add custom session listener for session create/destroy logic
    */
-  private void createCustomJettyServerFactoryWithCustomSessionListener() {
+  public SessionHandler getSessionHandler() {
     SessionHandler sessionHandler = new SessionHandler();
     sessionHandler.setHttpOnly(true);
     sessionHandler.setMaxInactiveInterval(30 * 60); // Set session timeout to 30 minutes
 
     // Attach the session listener
     sessionHandler.addEventListener(createSessionListener());
-
-    // Configure Jetty server factory to use the session handler
-    Server server = new Server();
-    server.setHandler(sessionHandler);
+    return sessionHandler;
   }
 
   /**

@@ -27,12 +27,12 @@ public class JsonYamlApi {
   public static void create(Javalin app) {
 
     // schema level operations
-    final String jsonPath = "/:schema/api/json";
+    final String jsonPath = "/{schema}/api/json";
     app.get(jsonPath, JsonYamlApi::getSchemaJSON);
     app.post(jsonPath, JsonYamlApi::postSchemaJSON);
     app.delete(jsonPath, JsonYamlApi::deleteSchemaJSON);
 
-    final String yamlPath = "/:schema/api/yaml";
+    final String yamlPath = "/{schema}/api/yaml";
     app.get(yamlPath, JsonYamlApi::getSchemaYAML);
     app.post(yamlPath, JsonYamlApi::postSchemaYAML);
     app.delete(yamlPath, JsonYamlApi::deleteSchemaYAML);

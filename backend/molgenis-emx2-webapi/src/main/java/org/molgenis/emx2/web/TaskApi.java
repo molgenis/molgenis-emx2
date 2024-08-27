@@ -32,42 +32,38 @@ public class TaskApi {
     app.get("/api/tasks", TaskApi::listTasks);
     app.get("/api/tasks/clear", TaskApi::clearTasks);
     app.get("/api/tasks/scheduled", TaskApi::viewScheduledTasks);
-    app.get("/api/scripts/:name", TaskApi::getScript); // run synchronously, with parameters on url
+    app.get("/api/scripts/{name}", TaskApi::getScript); // run synchronously, with parameters on url
     app.post(
-        "/api/scripts/:name",
+        "/api/scripts/{name}",
         TaskApi::postScript); // run async, using parameters as body and returning task status
-    app.get("/api/tasks/:id", TaskApi::getTask);
-    app.get("/api/tasks/:id/output", TaskApi::getTaskOutput);
+    app.get("/api/tasks/{id}", TaskApi::getTask);
+    app.get("/api/tasks/{id}/output", TaskApi::getTaskOutput);
 
     // convenient delete
-    app.delete("/api/tasks/:id", TaskApi::deleteTask);
-    app.get("/api/tasks/:id/delete", TaskApi::deleteTask);
+    app.delete("/api/tasks/{id}", TaskApi::deleteTask);
+    app.get("/api/tasks/{id}/delete", TaskApi::deleteTask);
 
     // also works in context schema
     // todo: make tasks scoped?
-    app.get("/:schema/api/tasks", TaskApi::listTasks);
-    app.get("/:schema/api/tasks/clear", TaskApi::clearTasks);
-    app.get("/:schema/api/tasks/:id", TaskApi::getTask);
+    app.get("/{schema}/api/tasks", TaskApi::listTasks);
+    app.get("/{schema}/api/tasks/clear", TaskApi::clearTasks);
+    app.get("/{schema}/api/tasks/{id}", TaskApi::getTask);
     app.get(
-        "/:schema/api/scripts/:name",
+        "/{schema}/api/scripts/{name}",
         TaskApi::getScript); // run synchronously, with parameters on url
     app.post(
-        "/:schema/api/scripts/:name",
+        "/{schema}/api/scripts/{name}",
         TaskApi::postScript); // run async, using parameters as body and returning task status
-    app.get("/:schema/api/tasks/:id/output", TaskApi::getTaskOutput);
+    app.get("/{schema}/api/tasks/{id}/output", TaskApi::getTaskOutput);
 
     // convenient delete
-    app.delete("/:schema/:app/api/tasks/:id", TaskApi::deleteTask);
-    app.get("/:schema/:app/api/tasks/:id/delete", TaskApi::deleteTask);
+    app.delete("/{schema}/{app}/api/tasks/{id}", TaskApi::deleteTask);
+    app.get("/{schema}/{app}/api/tasks/{id}/delete", TaskApi::deleteTask);
 
     // also in app
-    app.get("/:schema/:app/api/tasks", TaskApi::listTasks);
-    app.get("/:schema/:app/api/tasks/clear", TaskApi::clearTasks);
-    app.get("/:schema/:app/api/tasks/:id", TaskApi::getTask);
-
-    // convenient delete
-    app.delete("/:schema/:app/api/tasks/:id", TaskApi::deleteTask);
-    app.get("/:schema/:app/api/tasks/:id/delete", TaskApi::deleteTask);
+    app.get("/{schema}/{app}/api/tasks", TaskApi::listTasks);
+    app.get("/{schema}/{app}/api/tasks/clear", TaskApi::clearTasks);
+    app.get("/{schema}/{app}/api/tasks/{id}", TaskApi::getTask);
   }
 
   private static String viewScheduledTasks(Context ctx) throws JsonProcessingException {

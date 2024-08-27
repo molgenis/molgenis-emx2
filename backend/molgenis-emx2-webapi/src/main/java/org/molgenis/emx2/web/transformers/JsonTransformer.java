@@ -1,13 +1,11 @@
 package org.molgenis.emx2.web.transformers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import spark.ResponseTransformer;
 
-public class JsonTransformer implements ResponseTransformer {
+public class JsonTransformer {
 
   private final ObjectMapper jacksonMapper = new ObjectMapper();
 
-  @Override
   public String render(Object model) throws Exception {
     return jacksonMapper.writeValueAsString(model);
   }
