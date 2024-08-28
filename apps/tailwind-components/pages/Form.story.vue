@@ -8,7 +8,7 @@ const sampleType = ref("complex");
 
 // just assuming that the table is there for the demo
 const schemaId = computed(() =>
-  sampleType.value === "simple" ? "pet store" : "catalogue"
+  sampleType.value === "simple" ? "pet store" : "catalogue-demo"
 );
 const tableId = computed(() =>
   sampleType.value === "simple" ? "Pet" : "Collections"
