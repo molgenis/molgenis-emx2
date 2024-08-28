@@ -9,7 +9,7 @@ Individuals,,dateOfBirth,int,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C83164,T
 Individuals,,diseaseCausalGenes,ontology_array,,,,Genes,,,,http://purl.obolibrary.org/obo/NCIT_C16612,Addition for EJP-RD Virtual Platform API. E.g. TTN. In JRC-CDE: Genetic diagnosis,"Beacon v2 Vivify add-on, JRC-CDE"
 Individuals,,ethnicity,ontology,,,,Ancestry,,,,http://purl.obolibrary.org/obo/NCIT_C176763,E.g. Luxembourgish,Beacon v2
 Individuals,,geographicOrigin,ontology,,,,Countries,,,,http://purl.obolibrary.org/obo/GENEPIO_0001094,E.g. Switzerland,Beacon v2
-Individuals,,Consent,refback,,,,Individual Consent,,PersonConsenting,,http://purl.obolibrary.org/obo/NCIT_C16735,"Consent given by a patient to a surgical or medical procedure or participation in a study, examination or analysis after achieving an understanding of the relevant medical facts and the risks involved.",RD3
+Individuals,,Consent,refback,,,,Individual consent,,PersonConsenting,,http://purl.obolibrary.org/obo/NCIT_C16735,"Consent given by a patient to a surgical or medical procedure or participation in a study, examination or analysis after achieving an understanding of the relevant medical facts and the risks involved.",RD3
 Individuals,,hasGenomicVariations,refback,,,,GenomicVariationsCaseLevel,,individualId,,http://purl.obolibrary.org/obo/GSSO_000660,NON-STANDARD FIELD. E.g. Var001_CLD01,Beacon v2
 Individuals,,diseases,ref_array,,,,IndividualsDiseases,,,,http://purl.obolibrary.org/obo/NCIT_C15607,E.g. Ind001_Dis001,Beacon v2
 Individuals,,measures,ref_array,,,,IndividualsMeasures,,,,http://purl.obolibrary.org/obo/NCIT_C25209,E.g. Ind001_Meas001,Beacon v2
@@ -32,7 +32,7 @@ Individuals,,Pedigree,ref,,,,Pedigree,,,,http://purl.obolibrary.org/obo/NCIT_C27
 Individuals,,Disease,ontology_array,,,,Diseases,,,,http://purl.obolibrary.org/obo/NCIT_C15607,"if affected, which MAIN disease code(s) apply to subject. In JRC-CDE: Diagnosis of the rare disease",JRC-CDE
 Individuals,,Phenotype,ontology_array,,,,Phenotypes,,,,http://purl.obolibrary.org/obo/NCIT_C16977,Phenotype based on Human Phenotype Ontology (HPO). In JRC-CDE: Undiagnosed case,JRC-CDE
 Individuals,,Is off study,bool,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C29851,No longer participating in a study; not being followed and will not be retreated.,RD3
-Individuals,,Off study reason,ontology,,,,Off study reason,,,,http://purl.obolibrary.org/obo/NCIT_C93611,A coded value specifying why the subject is removed from a study.A coded value specifying why the subject is removed from a study.,RD3
+Individuals,,Off study reason,ontology,,,,Off study reasons,,,,http://purl.obolibrary.org/obo/NCIT_C93611,A coded value specifying why the subject is removed from a study.A coded value specifying why the subject is removed from a study.,RD3
 Individuals,,ageOfOnset,int,,,,,,,,http://www.orpha.net/ORDO/Orphanet_C023,Age (in years) of onset of clinical manifestations related to the disease of the patient. In JRC-CDE: Age at onset,JRC-CDE
 Individuals,,ageAtDiagnosis,int,,,,,,,,http://purl.bioontology.org/ontology/SNOMEDCT/423493009,"The age (in years), measured from some defined time point (e.g. birth) at which a patient is diagnosed with a disease. In JRC-CDE: Age at diagnosis",JRC-CDE
 Individuals,,Included in datasets,ref_array,,,,datasets,,,,http://purl.obolibrary.org/obo/RO_0000056,Reference to the dataset or datasets in which this person was assigned to.,RD3
