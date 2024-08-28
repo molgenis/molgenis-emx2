@@ -62,7 +62,9 @@ public class MolgenisSessionManager {
     database.addTableListener(new ScriptTableListener(TaskApi.taskSchedulerService));
     String user = JWTgenerator.getUserFromToken(database, request.headers(authTokenKey));
     database.setActiveUser(user);
-    return new MolgenisSession(database);
+    MolgenisSession session = new MolgenisSession(database);
+    database.setListener(new MolgenisSessionManagerDatabaseListener(this, session));
+    return session;
   }
 
   /**
