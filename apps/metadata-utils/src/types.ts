@@ -7,7 +7,9 @@ export interface ISetting {
   value: string;
 }
 
-export type ColumnType =
+export type HeadingType = "HEADING";
+
+export type ValueType =
   | "BOOL"
   | "BOOL_ARRAY"
   | "UUID"
@@ -42,6 +44,7 @@ export type ColumnType =
   | "HYPERLINK"
   | "HYPERLINK_ARRAY";
 
+export type ColumnType = ValueType | HeadingType;
 export interface IColumn {
   columnType: ColumnType;
   id: string;
