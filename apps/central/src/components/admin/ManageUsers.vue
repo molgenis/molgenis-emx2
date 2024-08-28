@@ -18,7 +18,30 @@
       <ButtonAction @click="alterUser" class="mt-0">Update user</ButtonAction>
     </form>
     <h2>User list</h2>
-    <TableSimple class="bg-white" :rows="users" :columns="['email']" />
+    {{ users }}
+    <TableSimple class="bg-white" :rows="users" :columns="['email']">
+      <template v-slot:rowheader="row">
+        <template v-if="row.row.email !== 'admin'">
+          <IconDanger
+            icon="trash"
+            @click="removeUser(row.row.email)"
+            :tooltip="`delete ${row.row.email}`"
+          />
+          <IconAction
+            v-if="true /*add user enabled status here*/"
+            icon="user-slash"
+            @click="disableUser(row.row.email)"
+            :tooltip="`disable ${row.row.email}`"
+          />
+          <IconAction
+            v-else
+            icon="user-check"
+            @click="enableUser(row.row.email)"
+            :tooltip="`re-enable ${row.row.email}`"
+          />
+        </template>
+      </template>
+    </TableSimple>
     <Pagination
       v-model="page"
       :count="userCount"
@@ -39,6 +62,8 @@ import {
   InputString,
   InputPassword,
   ButtonAction,
+  IconDanger,
+  IconAction,
 } from "molgenis-components";
 
 export default {
@@ -51,6 +76,8 @@ export default {
     InputString,
     InputPassword,
     ButtonAction,
+    IconDanger,
+    IconAction,
   },
   props: {
     session: {
@@ -123,6 +150,37 @@ export default {
           this.error =
             "internal error or permission denied. Did you log in as admin?";
         });
+    },
+    removeUser(user) {
+      console.log("removeUser " + user);
+      {
+        this.alterError = null;
+        this.alterLoading = true;
+        request("graphql", `mutation{delete(email: "${user}"){status,message}}`)
+          .then((data) => {
+            console.log(data);
+            /*
+            if (data.changePassword.status === "SUCCESS") {
+              this.alterSuccess =
+                "Success. Created/altered user: " + this.email;
+              this.getUserList();
+            } else {
+              this.alterError =
+                "Create/alter user failed: " + data.changePassword.message;
+            }
+                */
+          })
+          .catch((error) => {
+            this.alterError = "Delete user failed: " + error.response.message;
+          });
+        this.alterLoading = false;
+      }
+    },
+    enableUser(user) {
+      console.log("enableUser " + user);
+    },
+    disableUser(user) {
+      console.log("disableUser " + user);
     },
   },
   watch: {
