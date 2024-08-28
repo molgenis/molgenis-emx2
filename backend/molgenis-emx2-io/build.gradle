@@ -8,5 +8,4 @@ dependencies {
 
     testImplementation project(':backend:molgenis-emx2-sql')
     testImplementation project(':backend:molgenis-emx2-datamodels')
-    testImplementation group: 'com.sparkjava', name:'spark-core', version:sparkJavaVersion
 }
