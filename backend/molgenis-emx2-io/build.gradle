@@ -5,11 +5,6 @@ dependencies {
     implementation group: 'com.github.pjfanning', name:'excel-streaming-reader', version:excelStreamingReaderVersion
     implementation group: 'org.apache.commons', name:'commons-lang3', version:commonsLang3Version
     implementation group: 'commons-io', name:'commons-io', version:commonsIoVersion
-    implementation group: 'org.jooq', name:'jooq', version:jooqVersion
-    implementation group: 'org.apache.logging.log4j', name:'log4j-core', version:log4jVersion
-    implementation group: 'org.apache.logging.log4j', name:'log4j-slf4j2-impl', version:log4jVersion
-    implementation group: 'org.apache.poi', name:'poi', version:poiVersion
-    implementation group: 'org.apache.poi', name:'poi-ooxml', version:poiVersion
 
     testImplementation project(':backend:molgenis-emx2-sql')
     testImplementation project(':backend:molgenis-emx2-datamodels')
