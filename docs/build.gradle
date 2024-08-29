@@ -5,8 +5,8 @@ plugins {
 task copyDistFiles(type: Copy) {
     from "."
     exclude 'build'
-    into "${project.buildDir}/resources/main/public_html/apps/${project.name}"
-    outputs.dir("${project.buildDir}/resources/main/public_html/apps/${project.name}")
+    into "${project.buildDir}/resources/main/public_html_docs/apps/${project.name}"
+    outputs.dir("${project.buildDir}/resources/main/public_html_docs/apps/${project.name}")
     outputs.cacheIf { true }
 }
 

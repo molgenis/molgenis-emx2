@@ -9,14 +9,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
-import io.javalin.http.staticfiles.Location;
 import io.swagger.util.Yaml;
 import io.swagger.v3.oas.models.OpenAPI;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.web.controllers.OIDCController;
 import org.slf4j.Logger;
@@ -46,7 +42,9 @@ public class MolgenisWebservice {
     Javalin app =
         Javalin.create(
                 config -> {
-                  config.staticFiles.add("public_html/", Location.CLASSPATH);
+                  config.staticFiles.add("public_html");
+                  config.staticFiles.add("public_html_apps");
+                  config.staticFiles.add("public_html_docs");
                   config.jetty.modifyServletContextHandler(
                       handler -> handler.setSessionHandler(sessionManager.getSessionHandler()));
                 })
