@@ -24,7 +24,7 @@ public class MetadataUtils {
   private static final org.jooq.Table SCHEMA_METADATA = table(name(MOLGENIS, "schema_metadata"));
   private static final org.jooq.Table TABLE_METADATA = table(name(MOLGENIS, "table_metadata"));
   private static final org.jooq.Table COLUMN_METADATA = table(name(MOLGENIS, "column_metadata"));
-  private static final org.jooq.Table USERS_METADATA = table(name(MOLGENIS, "users_metadata"));
+  public static final org.jooq.Table USERS_METADATA = table(name(MOLGENIS, "users_metadata"));
   private static final org.jooq.Table SETTINGS_METADATA =
       table(name(MOLGENIS, "settings_metadata"));
 
@@ -98,7 +98,7 @@ public class MetadataUtils {
       field(name("defaultValue"), VARCHAR.nullable(true));
 
   // users
-  private static final Field<String> USER_NAME = field(name("username"), VARCHAR);
+  public static final Field<String> USER_NAME = field(name("username"), VARCHAR);
   private static final Field<String> USER_PASS = field(name("password"), VARCHAR);
 
   // settings field, reused by all other metadata

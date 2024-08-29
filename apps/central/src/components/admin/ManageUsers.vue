@@ -156,7 +156,10 @@ export default {
       {
         this.alterError = null;
         this.alterLoading = true;
-        request("graphql", `mutation{delete(email: "${user}"){status,message}}`)
+        request(
+          "graphql",
+          `mutation{deleteUser(email: "${user}"){status,message}}`
+        )
           .then((data) => {
             console.log(data);
             /*

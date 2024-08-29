@@ -2,6 +2,8 @@ package org.molgenis.emx2.graphql;
 
 import static org.molgenis.emx2.Constants.MOLGENIS_JWT_SHARED_SECRET;
 import static org.molgenis.emx2.Constants.SETTINGS;
+import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
+import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
 import static org.molgenis.emx2.graphql.GraphqlConstants.*;
 import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.outputSettingsType;
 
@@ -87,6 +89,20 @@ public class GraphlAdminFieldFactory {
           .map(GraphlAdminFieldFactory::toGraphqlUser)
           .toList();
     }
+  }
+
+  public static GraphQLFieldDefinition deleteUser(Database database) {
+    return GraphQLFieldDefinition.newFieldDefinition()
+        .name("deleteUser")
+        .type(typeForMutationResult)
+        .argument(GraphQLArgument.newArgument().name(EMAIL).type(Scalars.GraphQLString))
+        .dataFetcher(
+            dataFetchingEnvironment -> {
+              String email = dataFetchingEnvironment.getArgument(EMAIL);
+              database.deleteUser(email);
+              return new GraphqlApiMutationResult(SUCCESS, "User %s removed", email);
+            })
+        .build();
   }
 
   private static Map<String, Object> toGraphqlUser(User user) {

@@ -4,6 +4,8 @@ import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.ColumnType.STRING;
 import static org.molgenis.emx2.Constants.MG_USER_PREFIX;
 import static org.molgenis.emx2.Constants.SYSTEM_SCHEMA;
+import static org.molgenis.emx2.sql.MetadataUtils.USERS_METADATA;
+import static org.molgenis.emx2.sql.MetadataUtils.USER_NAME;
 import static org.molgenis.emx2.sql.SqlDatabaseExecutor.*;
 import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeCreateSchema;
 
@@ -470,6 +472,22 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       throw new MolgenisException(
           "Remove user failed: User with name '" + user + "' doesn't exist");
     tx(db -> ((SqlDatabase) db).getJooq().execute("DROP ROLE {0}", name(MG_USER_PREFIX + user)));
+    log(start, "removed user " + user);
+  }
+
+  @Override
+  public void deleteUser(String user) {
+    long start = System.currentTimeMillis();
+    if (!hasUser(user))
+      throw new MolgenisException(
+          "Remove user failed: User with name '" + user + "' doesn't exist");
+    tx(
+        db ->
+            ((SqlDatabase) db)
+                .getJooq()
+                .deleteFrom(USERS_METADATA)
+                .where(USER_NAME.eq(user))
+                .execute());
     log(start, "removed user " + user);
   }
 
