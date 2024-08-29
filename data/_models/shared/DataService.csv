@@ -1,5 +1,5 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
-DataService,,,,,,,,,,,,,DCAT,dcterms:hasPart (from DCAT Resource) is not usable by DataService
+DataService,,,,,,,,,,,,,DCAT,
 DataService,,id,string,1,,,,,,,"http://purl.org/dc/terms/identifier,http://purl.allotrope.org/ontologies/result#AFR_0000919",Local database identifier of the dataset.,DCAT,local id
 DataService,,identifier,string_array,,,,,,,,http://purl.org/dc/terms/identifier,A unique identifier of the item.,DCAT,DCAT Resource
 DataService,,type,hyperlink_array,,,,,,,,http://purl.org/dc/terms/type,A type belonging to the record,DCAT,DCAT Resource
@@ -30,6 +30,7 @@ DataService,,has current version,ref,,,,DataService,,,,http://www.w3.org/ns/dcat
 DataService,,replaces,hyperlink,,,,,,,,http://purl.org/dc/terms/replaces,A related item that is superseded by this item.,DCAT-v3,DCAT-v3 Resource
 DataService,,version notes,string_array,,,,,,,,http://www.w3.org/ns/adms#versionNotes,A changelog regarding the differences between this version and the previous one.,DCAT-v3,DCAT-v3 Resource
 DataService,,status,string,,,,,,,,http://www.w3.org/ns/adms#status,"The status of this item. Does not enforce a specific standard, though using existing standards such as ""EU Vocabularies Distribution Status"" is adviced.",DCAT-v3,DCAT-v3 Resource
+DataService,,has part,hyperlink,,,,,,,,http://purl.org/dc/terms/hasPart,An object that is included in this item.,DCAT-v3,DCAT-v3 Resource
 DataService,,first,ref,,,,DataService,,,,http://www.w3.org/ns/dcat#first,The first item in an ordered collection this item belongs to (when using dcat:DataSeries).,DCAT-v3,DCAT-v3 Resource
 DataService,,last,ref,,,,DataService,,,,http://www.w3.org/ns/dcat#last,The last item in an ordered collection this item belongs to (when using dcat:DataSeries).,DCAT-v3,DCAT-v3 Resource
 DataService,,previous,ref,,,,DataService,,,,http://www.w3.org/ns/dcat#prev,The previous item in an ordered collection this item belongs to (when using dcat:DataSeries).,DCAT-v3,DCAT-v3 Resource
