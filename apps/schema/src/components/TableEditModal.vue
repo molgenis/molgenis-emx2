@@ -143,9 +143,9 @@ export default {
       if (
         this.table.name === undefined ||
         this.table.name.trim() === "" ||
-        this.table.name.search(/^[a-zA-Z0-9 _]*$/)
+        this.table.name.search(/^(?!.* _|.*_ )[a-zA-Z][a-zA-Z0-9 _]*$/)
       ) {
-        return "Name is required and can only contain 'azAZ_ '";
+        return "Name is required and must start with a letter, followed by letters/underscores/spaces/numbers (though no underscore preceded/followed by a space), i.e. ^(?!.* _|.*_ )[a-zA-Z][a-zA-Z0-9 _]*$";
       }
       if (
         this.modelValue?.name !== this.table.name &&

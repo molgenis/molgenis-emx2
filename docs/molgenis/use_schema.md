@@ -23,12 +23,16 @@ You can describe basic columns using:
 
 ### tableName
 
-Will be the name of the table. Must start with one of a-zAZ followed by zero or more of \_a-zAZ1-3. Maximum length 31 characters. If you leave columnName empty
+Regular expression requirement: `^(?!.* _|.*_ )[a-zA-Z][a-zA-Z0-9 _]*$`
+
+Will be the name of the table. Must start with one of `a-zA-Z` followed by zero or more of `a-zA-Z0-9 _`, though an underscore directly preceded/followed by a space is not allowed. Maximum length 31
 then all other settings will apply to the table instead of the column.
 
 ### columnName
 
-Will be the name of the column. Must be unique per tableName. Must start with one of a-zAZ followed by zero or more of \_ a-zAZ1-3. Maximum length 31
+Regular expression requirement: `^(?!.* _|.*_ )[a-zA-Z][a-zA-Z0-9 _]*$`
+
+Will be the name of the column. Must be unique per tableName. Must start with one of `a-zA-Z` followed by zero or more of `a-zA-Z0-9 _`, though an underscore directly preceded/followed by a space is not allowed. Maximum length 31
 characters. Default value: empty
 
 ### columnType

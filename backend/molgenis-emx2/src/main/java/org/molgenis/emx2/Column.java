@@ -17,7 +17,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
 
   // basics
   private TableMetadata table; // table this column is part of
-  private String columnName; // short name, first character A-Za-z followed by AZ-a-z_0-1
+  private String columnName; // short name, should adhere to: ^(?!.* _|.*_ )[a-zA-Z][a-zA-Z0-9 _]*$
   private ColumnType columnType = STRING; // type of the column
 
   // transient for enabling migrations
@@ -85,15 +85,11 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   }
 
   private String validateName(String columnName, boolean skipValidation) {
-    if (!skipValidation && !columnName.matches("[a-zA-Z][a-zA-Z0-9_ ]*")) {
+    if (!skipValidation && !columnName.matches("^(?!.* _|.*_ )[a-zA-Z][a-zA-Z0-9 _]*$")) {
       throw new MolgenisException(
           "Invalid column name '"
               + columnName
-              + "': Column must start with a letter, followed by letters, underscores, a space or numbers, i.e. [a-zA-Z][a-zA-Z0-9_]*");
-    }
-    if (!skipValidation && (columnName.contains("_ ") || columnName.contains(" _"))) {
-      throw new MolgenisException(
-          "Invalid column name '" + columnName + "': column names cannot contain '_ ' or '_ '");
+              + "': Column must start with a letter, followed by letters/underscores/spaces/numbers (though no underscore preceded/followed by a space), i.e. ^(?!.* _|.*_ )[a-zA-Z][a-zA-Z0-9 _]*$");
     }
     return columnName.trim();
   }
