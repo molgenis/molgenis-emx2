@@ -28,6 +28,9 @@ def main():
                          staging_area=STAGING_AREA, catalogue=CATALOGUE) as migrator:
         print(migrator.status)
 
+        # migrator.table = 'Publications'
+        # migrator.migrate()
+        migrator.table = 'Cohorts'
         migrator.migrate()
 
 

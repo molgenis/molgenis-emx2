@@ -349,7 +349,11 @@ class StagingMigrator(Client):
         table_id = staging_schema.get_table(by='name', value=self.table).id
 
         # Query server for resource id
-        query = """{{\n  {} {{\n    id\n    name\n  }}\n}}""".format(table_id)
+        pkeys = [prepare_pkey(schema=staging_schema, table_name=self.table, col_id=col)
+                 for col in prepare_pkey(schema=staging_schema, table_name=self.table)]
+        pkey_print = query_columns_string(pkeys, indent=2)
+        query = """{{\n  {} {{\n  {}\n  }}\n}}""".format(self.table, pkey_print)
+        # query = """{{\n  {} {{\n    id\n    name\n  }}\n}}""".format(table_id)
         staging_url = f"{self.url}/{self.staging_area}/graphql"
         response = self.session.post(url=staging_url,
                                      headers={'x-molgenis-token': self.token},
@@ -372,7 +376,7 @@ class StagingMigrator(Client):
                 f" but found none."
             )
 
-        return [cohort['id'] for cohort in response_data[table_id]]
+        return [resource[pkeys[0]] for resource in response_data[table_id]]
 
     @staticmethod
     def _cleanup():
