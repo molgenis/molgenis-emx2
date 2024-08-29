@@ -1,5 +1,5 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,comment
-CatalogRecord,,,,,,,,,,,,,,
+CatalogRecord,,,,,,,,,,,,,DCAT,
 Catalog,,id,string,1,,,,,,,"http://purl.org/dc/terms/identifier,http://purl.allotrope.org/ontologies/result#AFR_0000919",Local database identifier of the dataset.,DCAT,local id
 CatalogRecord,,title,string_array,,,,,,,,http://purl.org/dc/terms/title,A name given to the record.,DCAT,DCAT CatalogRecord
 CatalogRecord,,description,string_array,,,,,,,,http://purl.org/dc/terms/description,A free-text account of the item.,DCAT,DCAT CatalogRecord

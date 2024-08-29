@@ -1,5 +1,5 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,comment
-Dataset,,,,,,,,,,,http://www.w3.org/ns/dcat#Dataset,DCAT dataset entries.,DCAT
+Dataset,,,,,,,,,,,http://www.w3.org/ns/dcat#Dataset,DCAT dataset entries.,DCAT,
 Dataset,,id,string,1,TRUE,,,,,,"http://purl.org/dc/terms/identifier,http://purl.allotrope.org/ontologies/result#AFR_0000919",Local database identifier of the dataset.,DCAT,local id
 Dataset,,identifier,string_array,,,,,,,,http://purl.org/dc/terms/identifier,A unique identifier of the item.,DCAT,DCAT Resource
 Dataset,,type,hyperlink_array,,,,,,,,http://purl.org/dc/terms/type,A type belonging to the record,DCAT,DCAT Resource
