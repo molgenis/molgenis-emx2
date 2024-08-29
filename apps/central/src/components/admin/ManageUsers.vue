@@ -153,37 +153,72 @@ export default {
     },
     removeUser(user) {
       console.log("removeUser " + user);
-      {
-        this.alterError = null;
-        this.alterLoading = true;
-        request(
-          "graphql",
-          `mutation{deleteUser(email: "${user}"){status,message}}`
-        )
-          .then((data) => {
-            console.log(data);
-            /*
-            if (data.changePassword.status === "SUCCESS") {
-              this.alterSuccess =
-                "Success. Created/altered user: " + this.email;
-              this.getUserList();
-            } else {
-              this.alterError =
-                "Create/alter user failed: " + data.changePassword.message;
-            }
-                */
-          })
-          .catch((error) => {
-            this.alterError = "Delete user failed: " + error.response.message;
-          });
-        this.alterLoading = false;
-      }
+      this.alterError = null;
+      this.alterLoading = true;
+      request(
+        "graphql",
+        `mutation{deleteUser(email: "${user}"){status,message}}`
+      )
+        .then((data) => {
+          console.log(data);
+          if (data.deleteUser.status === "SUCCESS") {
+            this.alterSuccess = "Success. deleted user: " + user;
+            this.getUserList();
+          } else {
+            this.alterError =
+              "Delete user failed: " + data.changePassword.message;
+          }
+        })
+        .catch((error) => {
+          this.alterError = "Delete user failed: " + error.response.message;
+        });
+      this.alterLoading = false;
     },
     enableUser(user) {
       console.log("enableUser " + user);
+      this.alterError = null;
+      this.alterLoading = true;
+      request(
+        "graphql",
+        `mutation{enableUser(email: "${user}"){status,message}}`
+      )
+        .then((data) => {
+          console.log(data);
+          if (data.deleteUser.status === "SUCCESS") {
+            this.alterSuccess = "Success. enabled user: " + user;
+            this.getUserList();
+          } else {
+            this.alterError =
+              "Enable user failed: " + data.changePassword.message;
+          }
+        })
+        .catch((error) => {
+          this.alterError = "Enable user failed: " + error.response.message;
+        });
+      this.alterLoading = false;
     },
     disableUser(user) {
       console.log("disableUser " + user);
+      this.alterError = null;
+      this.alterLoading = true;
+      request(
+        "graphql",
+        `mutation{disableUser(email: "${user}"){status,message}}`
+      )
+        .then((data) => {
+          console.log(data);
+          if (data.deleteUser.status === "SUCCESS") {
+            this.alterSuccess = "Success. disabled user: " + user;
+            this.getUserList();
+          } else {
+            this.alterError =
+              "Disable user failed: " + data.changePassword.message;
+          }
+        })
+        .catch((error) => {
+          this.alterError = "Disable user failed: " + error.response.message;
+        });
+      this.alterLoading = false;
     },
   },
   watch: {
