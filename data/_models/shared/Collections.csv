@@ -89,9 +89,10 @@ Collections,,linkage,heading,,,,,,,,,Data linkage,"DataCatalogueFlat,EMA,Cohorts
 Collections,,has identifier,bool,,,,,,,,,Is there a unique identifier for a person in the data bank?,"DataCatalogueFlat,RWEStaging"
 Collections,,identifier description,text,,,,,,,,,"Describe the variable that is used as a unique identifier for a person in the data bank. If the unique identifier is not at level of a person (for example hospital encounter), describe how this translated to an individual level","DataCatalogueFlat,RWEStaging"
 Collections,,prelinked,bool,,,,,,,,,Is the data from this data source linked to other data sources?,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging"
-Collections,,linkage description,text,,,,,,,,,Provide a high-level description of the linkages that are currently available for this data collection,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging"
+Collections,,linkage options,text,,,,,,,,,Linkage options with additional data resources that are available for this collection,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,UMCGCohortsStaging"
+Collections,,linkage description,text,,,,,,,,,Provide a high-level description of the linkages that are currently available for this data collection,EMA
 Collections,,linkage possibility,bool,,,,,,,,,Can this data source be linked to other data sources?,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging"
-Collections,,linkage possibility description,text,,,,,,,,,Description of data sources that can be linked to this data source,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,UMCGCohortsStaging"
+Collections,,linkage possibility description,text,,,,,,,,,Description of data sources that can be linked to this data source,EMA
 Collections,,linked collections,refback,,,,Collection linkages,,collection,,,List of collections that are or can be linked to this main collection,"DataCatalogueFlat,EMA,RWEStaging"
 Collections,,access conditions,heading,,,,,,,,,Access and validation information,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,UMCGCohortsStaging"
 Collections,,informed consent type,ontology,,,CatalogueOntologies,Informed consent types,,,,,What type of informed consent was given for data collection?,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging"

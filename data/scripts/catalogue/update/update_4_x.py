@@ -84,8 +84,7 @@ class Transform:
         self.collection_events()
         self.publications()
 
-        # TODO: for vac4eu BPE model is an exception, not part of a network, also other model
-        # TODO: compress repeats for EXPANSE_CDM
+        # TODO: for vac4eu BPE model is an exception, not part of a network, also other model in VAC4EU
         for table_name in ['Datasets', 'Dataset mappings', 'Subcohorts',
                            'Collection events', 'External identifiers',
                            'Linked resources', 'Quantitative information', 'Subcohort counts',
@@ -142,8 +141,8 @@ class Transform:
 
         # Databanks to Collections
         df_databanks = pd.read_csv(self.path + 'Databanks.csv')
-        df_databanks.rename(columns={'type': 'datasource type',
-                                     'type other': 'datasource type other',
+        df_databanks.rename(columns={'type': 'RWD type',
+                                     'type other': 'RWD type other',
                                      'areas of information': 'areas of information rwd'}, inplace=True)
         df_databanks['type'] = 'Databank'
 
@@ -165,7 +164,6 @@ class Transform:
         """
         df_collection_organisations = pd.DataFrame()
         df_organisations = pd.read_csv(self.path + 'Organisations.csv')
-        # TODO: get organisations from 'additional organisations'
 
         # get lead organisations
         df_collections = pd.read_csv(self.path + 'Collections.csv')
@@ -240,13 +238,12 @@ class Transform:
         df_var_values.rename(columns={'resource': 'collection'}, inplace=True)
         df_var_values.loc[:, 'collection'] = df_var_values['collection'].apply(strip_resource)
 
-        df_var_values_cdm = df_var_values[df_var_values['collection'].isin(['LifeCycle', 'ATHLETE', 'testNetwork1'])]
+        df_var_values_cdm = df_var_values[df_var_values['collection'].isin(['LifeCycle', 'ATHLETE', 'testNetwork1', 'EXPANSE'])]
         df_var_values_cdm.loc[:, 'variable.name'] = df_var_values_cdm['variable.name'].apply(remove_number)
 
-        df_var_values_no_cdm = df_var_values[~df_var_values['collection'].isin(['LifeCycle', 'ATHLETE', 'testNetwork1'])]
+        df_var_values_no_cdm = df_var_values[~df_var_values['collection'].isin(['LifeCycle', 'ATHLETE', 'testNetwork1', 'EXPANSE'])]
 
         df_all_var_values = pd.concat([df_var_values_no_cdm, df_var_values_cdm])
-        # TODO: check if this below is correct
         df_all_var_values = df_all_var_values.drop_duplicates(subset=['collection', 'variable.dataset',
                                                                       'variable.name', 'value'])
         df_all_var_values = float_to_int(df_all_var_values)  # convert float back to integer
@@ -285,11 +282,10 @@ class Transform:
         df.loc[:, 'target'] = df['target'].apply(strip_resource)  # delete appendix '_CDM'
         df.loc[:, 'repeat_num'] = df['target variable'].apply(get_repeat_number)  # get repeat of target variable
 
-        df_no_cdm = df[~df['target'].isin(['LifeCycle', 'ATHLETE', 'testNetwork1'])]
-        df_cdm = df[df['target'].isin(['LifeCycle', 'ATHLETE', 'testNetwork1'])]
+        df_no_cdm = df[~df['target'].isin(['LifeCycle', 'ATHLETE', 'testNetwork1', 'EXPANSE'])]
+        df_cdm = df[df['target'].isin(['LifeCycle', 'ATHLETE', 'testNetwork1', 'EXPANSE'])]
         df_cdm.loc[:, 'target variable'] = df_cdm['target variable'].apply(remove_number)
 
-        #TODO: reformat mappings from EXPANSE_CDM?
         df_cdm = df_cdm.fillna('')
 
         # drop duplicate mappings
@@ -310,10 +306,11 @@ class Transform:
         """ Transform Collection events table
         """
         df = pd.read_csv(self.path + 'Collection events.csv')
-        df.loc[:, 'start month'] = df['start month'].apply(month_to_num)
+        df.loc[:, 'start month'] = df['start month'].apply(month_to_num, start_or_end='start')
         df['start date'] = df['start year'].astype('Int64').astype('string') + '-' + df['start month'] + '-01'
-        df.loc[:, 'end month'] = df['end month'].apply(month_to_num)
-        df['end date'] = df['end year'].astype('Int64').astype('string') + '-' + df['end month'] + '-01'
+        df.loc[:, 'end month'] = df['end month'].apply(month_to_num, start_or_end='end')
+        df['end day'] = df['end month'].apply(get_end_day)
+        df['end date'] = df['end year'].astype('Int64').astype('string') + '-' + df['end month'] + '-' + df['end day']
 
         df = float_to_int(df)  # convert float back to integer
         df.to_csv(self.path + 'Collection events.csv', index=False)
@@ -333,7 +330,7 @@ class Transform:
                            'other linked resource': 'other linked collection',
                            'subcohort.resource': 'population.collection',
                            'subcohort.name': 'population.name',
-                           'collection event.resource': 'collection event.collection',
+                           'collection event.name': 'collection event',
                            'network': 'collection',
                            'variable.resource': 'variable.collection'}, inplace=True)
 
@@ -506,9 +503,11 @@ def get_collection_pubs(df_merged_pubs, df_publications):
     return df_collection_pubs
 
 
-def month_to_num(month):
-    if pd.isna(month):
+def month_to_num(month, start_or_end):
+    if pd.isna(month) and start_or_end == 'start':
         return '01'
+    if pd.isna(month) and start_or_end == 'end':
+        return '12'
     else:
         return {
                 'January': '01',
@@ -524,3 +523,20 @@ def month_to_num(month):
                 'November': '11',
                 'December': '12'
         }[month]
+
+
+def get_end_day(end_month):
+    return {
+            '01': '31',
+            '02': '28',
+            '03': '31',
+            '04': '30',
+            '05': '31',
+            '06': '30',
+            '07': '31',
+            '08': '31',
+            '09': '30',
+            '10': '31',
+            '11': '30',
+            '12': '31'
+    }[end_month]
