@@ -250,6 +250,7 @@ class Transform:
         df_all_var_values.to_csv(self.path + 'Variable values.csv', index=False)
 
     def variables(self):
+        # TODO: get collection events from repeated variables
         # restructure Variables
         df_variables = pd.read_csv(self.path + 'Variables.csv', keep_default_na=False)
         df_variables.loc[:, 'resource'] = df_variables['resource'].apply(strip_resource)
