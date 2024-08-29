@@ -36,7 +36,7 @@ Individuals,,Off study reason,ontology,,,,Off study reasons,,,,http://purl.oboli
 Individuals,,ageOfOnset,int,,,,,,,,http://www.orpha.net/ORDO/Orphanet_C023,Age (in years) of onset of clinical manifestations related to the disease of the patient. In JRC-CDE: Age at onset,JRC-CDE
 Individuals,,ageAtDiagnosis,int,,,,,,,,http://purl.bioontology.org/ontology/SNOMEDCT/423493009,"The age (in years), measured from some defined time point (e.g. birth) at which a patient is diagnosed with a disease. In JRC-CDE: Age at diagnosis",JRC-CDE
 Individuals,,Included in datasets,ref_array,,,,datasets,,,,http://purl.obolibrary.org/obo/RO_0000056,Reference to the dataset or datasets in which this person was assigned to.,RD3
-Individuals,,Included in data release,ref_array,,,,Data releases,,,,http://purl.obolibrary.org/obo/NCIT_C172217,One or more links to a structured data releases to indicate when the record was first introduced or updated.,RD3
+Individuals,,Included in data releases,ref_array,,,,Data releases,,,,http://purl.obolibrary.org/obo/NCIT_C172217,One or more links to a structured data releases to indicate when the record was first introduced or updated.,RD3
 Individuals,,Comments,text,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25393,"A written explanation, observation or criticism added to textual material.",RD3
 IndividualsPhenotypicFeatures,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C116555,Beacon v2 Individuals PhenotypicFeatures,Beacon v2
 IndividualsPhenotypicFeatures,,id,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C87853,E.g. Ind001_Phen001,Beacon v2

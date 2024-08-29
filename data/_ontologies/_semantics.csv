@@ -28,7 +28,7 @@ MetabolomicAnalysisType,ONTOLOGIES,http://purl.obolibrary.org/obo/IAO_0000030
 MetabolomicAssayType,ONTOLOGIES,http://purl.obolibrary.org/obo/OBI_0000070
 MetabolomicProcessingType,ONTOLOGIES,http://purl.obolibrary.org/obo/OBI_0000094
 ObtentionProcedure,ONTOLOGIES,http://purl.obolibrary.org/obo/OBI_0000659
-Off study reason,ONTOLOGIES,http://purl.obolibrary.org/obo/NCIT_C93611
+Off study reasons,ONTOLOGIES,http://purl.obolibrary.org/obo/NCIT_C93611
 Organisations,ONTOLOGIES,"http://semanticscience.org/resource/SIO_000688,http://purl.obolibrary.org/obo/NCIT_C25412"
 PathologicalState,ONTOLOGIES,"http://purl.obolibrary.org/obo/NCIT_C164617,http://purl.obolibrary.org/obo/GO_0001894"
 Phenotypes,ONTOLOGIES,"https://www.wikidata.org/wiki/Property:P3841,http://purl.obolibrary.org/obo/NCIT_C16977"

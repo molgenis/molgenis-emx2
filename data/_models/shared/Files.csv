@@ -14,5 +14,5 @@ Files,,individuals,ref_array,,,,Individuals,,,,http://purl.obolibrary.org/obo/NC
 Files,,Pedigree,ref,,,,Pedigree,,,,http://purl.obolibrary.org/obo/NCIT_C27957,Pedigree studies in which the individual is part of.,RD3
 Files,,runs,ref_array,,,,Runs,,,,http://edamontology.org/topic_3168,Beacon v2 Runs,"Beacon v2 EMX2 add-on, RD3"
 Files,,Included in datasets,ref_array,,,,datasets,,,,http://purl.obolibrary.org/obo/RO_0000056,Reference to the dataset or datasets in which this person was assigned to.,RD3
-Files,,Included in data release,ref_array,,,,Data releases,,,,http://purl.obolibrary.org/obo/NCIT_C172217,One or more links to a structured data releases to indicate when the record was first introduced or updated.,RD3
+Files,,Included in data releases,ref_array,,,,Data releases,,,,http://purl.obolibrary.org/obo/NCIT_C172217,One or more links to a structured data releases to indicate when the record was first introduced or updated.,RD3
 Files,,Comments,text,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25393,"A written explanation, observation or criticism added to textual material.",RD3

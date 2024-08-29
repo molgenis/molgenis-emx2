@@ -25,7 +25,7 @@ Biosamples,,Failed quality control,bool,,,,,,,,http://purl.obolibrary.org/obo/GE
 Biosamples,,Is off study,bool,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C29851,No longer participating in a study; not being followed and will not be retreated.,RD3
 Biosamples,,Off study reason,ontology,,,,Off study reasons,,,,http://purl.obolibrary.org/obo/NCIT_C93611,A coded value specifying why the subject is removed from a study.A coded value specifying why the subject is removed from a study.,RD3
 Biosamples,,Included in datasets,ref_array,,,,datasets,,,,http://purl.obolibrary.org/obo/RO_0000056,Reference to the dataset or datasets in which this person was assigned to.,RD3
-Biosamples,,Included in data release,ref_array,,,,Data releases,,,,http://purl.obolibrary.org/obo/NCIT_C172217,One or more links to a structured data releases to indicate when the record was first introduced or updated.,RD3
+Biosamples,,Included in data releases,ref_array,,,,Data releases,,,,http://purl.obolibrary.org/obo/NCIT_C172217,One or more links to a structured data releases to indicate when the record was first introduced or updated.,RD3
 Biosamples,,Comments,text,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25393,"A written explanation, observation or criticism added to textual material.",RD3
 SamplePreparation,,,,,,,,,,,http://purl.obolibrary.org/obo/OBI_0001902,A sample preparation for a nucleic acids sequencing assay.,"FAIR Genomes, RD3"
 SamplePreparation,,SampleprepIdentifier,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C132299,A unique proper name or character sequence that identifies this particular sample preparation.,"FAIR Genomes, RD3"
