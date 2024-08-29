@@ -276,6 +276,8 @@ throws an exception, this is shown in user interface/error message. For example:
 | ----------------------------------------- | ---------------------------------------------------------------- |
 | `pets?.some(pet => pet.name === 'pooky')` | will only be shown when 'pooky' was selected in 'pets' ref_array |
 
+If a `columnName` contains spaces, one should refer to it as if it is written in camelCase within the validation field. So `first name` would be defined in the validation field as `firstName`.  
+
 ## Table inheritance
 
 You can reuse table definitions, and make more specialized tables using 'tableExtends'.
