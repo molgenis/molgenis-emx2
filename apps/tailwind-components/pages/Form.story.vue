@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import type {
+  columnValue,
   ISchemaMetaData,
   ITableMetaData,
 } from "../../metadata-utils/src/types";
 
-const sampleType = ref("complex");
+const sampleType = ref("simple");
 
 // just assuming that the table is there for the demo
 const schemaId = computed(() =>
@@ -14,30 +15,47 @@ const tableId = computed(() =>
   sampleType.value === "simple" ? "Pet" : "Collections"
 );
 
-const { data: schemaMeta, refresh: refetchMetadata } = await useAsyncData(
-  "form sample",
-  () => fetchMetadata(schemaId.value)
-);
+const {
+  data: schemaMeta,
+  refresh: refetchMetadata,
+  status,
+} = await useAsyncData("form sample", () => fetchMetadata(schemaId.value));
 
 const tableMeta = computed(
   () =>
-    (schemaMeta.value as ISchemaMetaData).tables.find(
+    (schemaMeta.value as ISchemaMetaData)?.tables.find(
       (table) => table.id === tableId.value
     ) as ITableMetaData
 );
 
-const updateSampleType = (event: Event) => {
-  sampleType.value = (event.target as HTMLSelectElement).value;
+function reFetch() {
   refetchMetadata();
-};
+}
+
+const data = ref([] as Record<string, columnValue>[]);
 </script>
 
 <template>
-  <div class="pb-10">
-    <select @change="updateSampleType">
-      <option value="complex">Complex form example</option>
+  <div>Demo controles:</div>
+
+  <div class="p-4 border-2 mb-2">
+    <select
+      @change="reFetch()"
+      v-model="sampleType"
+      class="border-1 border-black"
+    >
       <option value="simple">Simple form example</option>
+      <option value="complex">Complex form example</option>
     </select>
+
+    <div>schema id = {{ schemaId }}</div>
+    <div>table id = {{ tableId }}</div>
   </div>
-  <FormFields class="p-8" :meta-data="tableMeta"></FormFields>
+
+  <FormFields
+    v-if="tableMeta && status == 'success'"
+    class="p-8"
+    :meta-data="tableMeta"
+    :data="data"
+  ></FormFields>
 </template>

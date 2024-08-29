@@ -1,12 +1,20 @@
 <script setup lang="ts">
 import type {
+  columnId,
+  columnValue,
   IColumn,
   ITableMetaData,
 } from "../../../metadata-utils/src/types";
 
 const props = defineProps<{
   metaData: ITableMetaData;
+  data: Record<columnId, columnValue>[];
 }>();
+
+const status = reactive({
+  pristine: true,
+  touched: false,
+});
 
 interface IChapter {
   title: string | "_NO_CHAPTERS";
@@ -32,6 +40,31 @@ const chapters = computed(() => {
     return acc;
   }, [] as IChapter[]);
 });
+
+const dataMap = reactive(
+  Object.fromEntries(props.metaData.columns.map((column) => [column.id, ""]))
+);
+
+const errorMap = reactive(
+  Object.fromEntries(props.metaData.columns.map((column) => [column.id, []]))
+);
+
+const numberOffFieldsWithErrors = computed(() =>
+  Object.values(errorMap).reduce((acc, errors) => acc + errors.length, 0)
+);
+
+const numberOfRequiredFields = computed(
+  () => props.metaData.columns.filter((column) => column.required).length
+);
+
+const numberOfRequiredFieldsWithData = computed(
+  () =>
+    props.metaData.columns.filter(
+      (column) => column.required && dataMap[column.id]
+    ).length
+);
+
+const recordLabel = computed(() => props.metaData.label);
 </script>
 <template>
   <div>
@@ -43,8 +76,21 @@ const chapters = computed(() => {
         {{ chapter.title }}
       </h2>
       <div class="pb-8" v-for="column in chapter.columns">
-        <FormField :column="column"></FormField>
+        <FormField
+          :column="column"
+          :data="dataMap[column.id]"
+          :errors="errorMap[column.id]"
+        ></FormField>
       </div>
+    </div>
+    <div class="bg-red-500 p-3 font-bold">
+      {{ numberOffFieldsWithErrors }} fields require your attention before you
+      can save this {{ recordLabel }} ( temporary section for dev)
+    </div>
+    <div class="bg-gray-200 p-3">
+      {{ numberOfRequiredFieldsWithData }} /
+      {{ numberOfRequiredFields }} required fields left ( temporary section for
+      dev)
     </div>
   </div>
 </template>

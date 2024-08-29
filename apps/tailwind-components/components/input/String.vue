@@ -18,6 +18,8 @@ withDefaults(
   }
 );
 
+defineEmits(["focus", "input"]);
+
 const modelValue = defineModel();
 </script>
 
@@ -34,5 +36,7 @@ const modelValue = defineModel();
       'bg-white': !disabled,
     }"
     v-model="modelValue"
+    @focus="$emit('focus')"
+    @input="$emit('input')"
   />
 </template>

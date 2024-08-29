@@ -47,7 +47,7 @@ export type ValueType =
 export type ColumnType = ValueType | HeadingType;
 export interface IColumn {
   columnType: ColumnType;
-  id: string;
+  id: columnId;
   label: string;
   computed?: string;
   conditions?: string[];
@@ -88,3 +88,6 @@ export interface ISchemaMetaData {
   description?: string;
   tables: ITableMetaData[];
 }
+
+export type columnId = string;
+export type columnValue = string | number | boolean | Object;

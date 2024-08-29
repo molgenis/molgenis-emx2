@@ -1,13 +1,19 @@
 <script setup lang="ts">
-import type { IColumn } from "../../../metadata-utils/src/types";
+import type { columnValue, IColumn } from "../../../metadata-utils/src/types";
 
-defineProps<{
+const props = defineProps<{
   column: IColumn;
+  data: columnValue;
+  errors: string[];
 }>();
 
-const error = computed(() => {
-  return "";
-});
+const pristine = ref(true);
+const dirty = computed(() => !pristine.value);
+
+const touched = ref(false);
+const untouched = computed(() => !touched.value);
+
+const hasError = computed(() => props.errors.length > 0);
 </script>
 
 <template>
@@ -23,10 +29,13 @@ const error = computed(() => {
       <FormFieldInput
         :type="column.columnType"
         :id="column.id"
+        :data="data"
+        @focus="touched = true"
+        @input="pristine = false"
       ></FormFieldInput>
     </div>
-    <div v-if="error">
-      <p class="text-invalid">error</p>
+    <div v-if="hasError">
+      <p class="text-invalid">this field has an error</p>
     </div>
   </div>
 </template>
