@@ -35,7 +35,7 @@ Catalog,,first,ref,,,,Catalog,,,,http://www.w3.org/ns/dcat#first,The first item 
 Catalog,,last,ref,,,,Catalog,,,,http://www.w3.org/ns/dcat#last,The last item in an ordered collection this item belongs to (when using dcat:DataSeries).,DCAT-v3,DCAT-v3 Resource
 Catalog,,previous,ref,,,,Catalog,,,,http://www.w3.org/ns/dcat#prev,The previous item in an ordered collection this item belongs to (when using dcat:DataSeries).,DCAT-v3,DCAT-v3 Resource
 Catalog,,distribution,refBack,,,,Distribution,,belongsToCatalog,,"https://www.w3.org/ns/dcat#resource,https://www.w3.org/ns/dcat#distribution","A distribution belonging to this item.",DCAT,DCAT Dataset / DCAT-v3 Catalog: Added resource semantics
-Catalog,,frequency,string,,,,__,,,,http://purl.org/dc/terms/accrualPeriodicity,The frequency at which dataset is published.,DCAT,DCAT Dataset
+Catalog,,frequency,string,,,,,,,,http://purl.org/dc/terms/accrualPeriodicity,The frequency at which dataset is published.,DCAT,DCAT Dataset
 Catalog,,in series,ref_array,,,,DatasetSeries,,,,https://www.w3.org/ns/dcat#inSeries,A series this item belongs to.,DCAT-v3,DCAT-v3 Dataset
 Catalog,,spatial coverage,ontology_array,,,,Countries,,,,http://purl.org/dc/terms/spatial,The geographical area covered by the dataset.,DCAT,DCAT Dataset
 Catalog,,spatial resolution,decimal,,,,,,,,http://purl.org/dc/terms/spatialResolutionInMeters,"Minimum spatial separation resolvable in a dataset, measured in meters.",DCAT,DCAT Dataset

@@ -36,7 +36,7 @@ Dataset,,last,ref,,,,Dataset,,,,http://www.w3.org/ns/dcat#last,The last item in 
 Dataset,,previous,ref,,,,Dataset,,,,http://www.w3.org/ns/dcat#prev,The previous item in an ordered collection this item belongs to (when using dcat:DataSeries).,DCAT-v3,DCAT-v3 Resource
 Dataset,,catalog,ref_array,,,,Catalog,,,,http://www.w3.org/ns/dcat#Catalog,Reference back to any catalogs that contain this dataset.,DCAT,custom
 Dataset,,distribution,refBack,,,,Distribution,,belongsToDataset,,https://www.w3.org/ns/dcat#distribution,"A distribution belonging to this item.",DCAT,DCAT Dataset
-Dataset,,frequency,string,,,,__,,,,http://purl.org/dc/terms/accrualPeriodicity,The frequency at which dataset is published.,DCAT,DCAT Dataset
+Dataset,,frequency,string,,,,,,,,http://purl.org/dc/terms/accrualPeriodicity,The frequency at which dataset is published.,DCAT,DCAT Dataset
 Dataset,,in series,ref_array,,,,DatasetSeries,,,,https://www.w3.org/ns/dcat#inSeries,A series this item belongs to.,DCAT-v3,DCAT-v3 Dataset
 Dataset,,spatial coverage,ontology_array,,,,Countries,,,,http://purl.org/dc/terms/spatial,The geographical area covered by the dataset.,DCAT,DCAT Dataset
 Dataset,,spatial resolution,decimal,,,,,,,,http://purl.org/dc/terms/spatialResolutionInMeters,"Minimum spatial separation resolvable in a dataset, measured in meters.",DCAT,DCAT Dataset

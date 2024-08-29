@@ -35,7 +35,7 @@ DatasetSeries,,first,ref,,,,DatasetSeries,,,,http://www.w3.org/ns/dcat#first,The
 DatasetSeries,,last,ref,,,,DatasetSeries,,,,http://www.w3.org/ns/dcat#last,The last item in an ordered collection this item belongs to (when using dcat:DataSeries).,DCAT-v3,DCAT-v3 Resource
 DatasetSeries,,previous,ref,,,,DatasetSeries,,,,http://www.w3.org/ns/dcat#prev,The previous item in an ordered collection this item belongs to (when using dcat:DataSeries).,DCAT-v3,DCAT-v3 Resource
 DatasetSeries,,distribution,refBack,,,,Distribution,,belongsToDataset,,http://purl.org/dc/terms/distribution,"A distribution belonging to this item.",DCAT,DCAT Dataset / DCAT-v3: DatasetSeries table new in v3
-DatasetSeries,,frequency,string,,,,__,,,,http://purl.org/dc/terms/accrualPeriodicity,The frequency at which dataset is published.,DCAT-v3,DCAT Dataset / DCAT-v3: DatasetSeries table new in v3
+DatasetSeries,,frequency,string,,,,,,,,http://purl.org/dc/terms/accrualPeriodicity,The frequency at which dataset is published.,DCAT-v3,DCAT Dataset / DCAT-v3: DatasetSeries table new in v3
 DatasetSeries,,in series,ref,,,,DatasetSeries,,,,https://www.w3.org/ns/dcat#inSeries,A series this item belongs to.,DCAT-v3,DCAT-v3 Dataset
 DatasetSeries,,spatial coverage,ontology_array,,,,Countries,,,,http://purl.org/dc/terms/spatial,The geographical area covered by the dataset.,DCAT-v3,DCAT Dataset / DCAT-v3: DatasetSeries table new in v3
 DatasetSeries,,spatial resolution,decimal,,,,,,,,http://purl.org/dc/terms/spatialResolutionInMeters,"Minimum spatial separation resolvable in a dataset, measured in meters.",DCAT-v3,DCAT Dataset / DCAT-v3: DatasetSeries table new in v3
