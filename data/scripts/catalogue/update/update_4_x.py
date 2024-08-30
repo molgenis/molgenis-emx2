@@ -380,7 +380,12 @@ def restructure_repeats(df_variables, df_repeats):
     # TODO: EXPANSE_CDM repeats take year repeat unit, 25 repeats
     # restructuring of cdm repeats
     df_variables = df_variables.drop_duplicates(subset=['resource', 'dataset', 'name'])   # keep unique entries, gets rid of LongITools 'root' variables
-    df_variables.loc[:, 'repeat unit'] = df_variables['name'].apply(get_repeat_unit, df=df_repeats)  # get repeat unit from
+
+    # get collection events from repeats
+    df_variables = get_collection_events(df_variables, df_repeats)
+
+    # derive repeat unit and repeat min and max
+    df_variables.loc[:, 'repeat unit'] = df_variables['name'].apply(get_repeat_unit, df=df_repeats)  # get repeat unit from repeat_num
     df_variables.loc[:, 'repeat min'] = ''
     df_variables.loc[df_variables['is_repeated'] == True, 'repeat min'] = 0
     df_variables.loc[df_variables['repeat unit'] == 'Month', 'repeat max'] = 270
@@ -462,7 +467,7 @@ def get_collection_organisations(df_organisations, df_resource):
     references from ref_array into separate rows
     """
     # get all leading organisations with collection reference in one row
-    df_new_rows = pd.DataFrame(columns=['collection', 'id', 'is lead organisation'])
+    df_new_rows = pd.DataFrame(columns=['collection', 'id', 'is lead organisation']) # TODO: lead org naar role
     for i in range(len(df_resource)):
         if ',' in df_resource['id'][i]:
             org_list = df_resource['id'][i].split(',')
@@ -538,3 +543,9 @@ def get_end_day(end_month):
             '11': '30',
             '12': '31'
     }[end_month]
+
+
+def get_collection_events(df_variables, df_repeats):
+    df_variables =
+
+    return df_variables
