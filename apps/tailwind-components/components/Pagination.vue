@@ -71,10 +71,13 @@ function changeCurrentPage(event: Event) {
 
 <template>
   <nav
+    role="navigation"
+    aria-label="Pagination navigation"
     class="pt-12.5 flex items-center justify-center font-display text-heading-xl -mx-2.5"
   >
     <a
       role="button"
+      :aria-label="'Goto page ' + (currentPage - 1)"
       @click.prevent="onPrevClick"
       class="flex justify-center transition-colors border border-pagination rounded-pagination bg-pagination text-pagination h-15 w-15"
       :class="{
@@ -99,6 +102,7 @@ function changeCurrentPage(event: Event) {
     </div>
     <a
       role="button"
+      :aria-label="'Goto page ' + (currentPage + 1)"
       @click.prevent="onNextClick"
       class="flex justify-center transition-colors border border-pagination rounded-pagination bg-pagination text-pagination h-15 w-15"
       :class="{
