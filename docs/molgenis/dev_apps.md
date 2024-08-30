@@ -82,8 +82,8 @@ In the apps folder, you will find a `package.json` file. This is where the works
   "private": true,
   "workspaces": [
     // ...
-    "my-app",
-  ],
+    "my-app"
+  ]
   // ...
 }
 ```
@@ -200,8 +200,8 @@ For projects, you may want to display your app by default so that when a user na
 3. Click on the "Settings" tab
 4. Click on "+" to add a new setting.
 5. In the form, add the following information:
-    - Key: `LANDING_PAGE`
-    - Value: `/path/to/your/app`
+   - Key: `LANDING_PAGE`
+   - Value: `/path/to/your/app`
 6. Click save and refresh the page. Click on the MOLGENIS logo to view the change.
 
 The path to your app may vary. If it is tied to schema, then make sure the path is `/<schema-name>/<app-name>/`. Otherwise, the app is available at `/apps/<app-name>/`.
@@ -244,10 +244,7 @@ Once the file is created, add the yarn scripts, browserlists, and minimum depend
     "format": "prettier src  --write --config ../.prettierrc.js",
     "checkFormat": "prettier src  --check --config ../.prettierrc.js"
   },
-  "browserslist": [
-    "> 1%",
-    "last 2 versions"
-  ]
+  "browserslist": ["> 1%", "last 2 versions"]
 }
 ```
 
@@ -286,8 +283,8 @@ export default defineConfig({
   plugins: [vue()],
   base: "",
   server: {
-    proxy: require("../dev-proxy.config"),
-  },
+    proxy: require("../dev-proxy.config")
+  }
 });
 ```
 
@@ -313,8 +310,8 @@ export default defineConfig(() => {
     plugins: [vue()],
     base: "",
     server: {
-      proxy: require("../dev-proxy.config"),
-    },
+      proxy: require("../dev-proxy.config")
+    }
   };
 });
 ```
@@ -406,3 +403,15 @@ cp ../aggregates/index.html .
 Open the index.html file, add update the message with the name of your app. In addition, make sure the script tag points to the `main.ts` file.
 
 By this point, you should have enough to view your app. Run the `yarn dev` command to start the dev server. The app will be served at [http://localhost:5173](http://localhost:5173).
+
+### Generate typescript types for an app
+
+To generate the typescript interfaces for a given schema, run:
+`./gradlew generateTypes --args=[schemaName] [full-path+file-name]`
+
+for example on unix: `./gradlew generateTypes --args='catalogue /Users/john/Code/emx2/molgenis-emx2/apps/nuxt3-ssr/interfaces/generated/types.ts'`
+"
+or on windows: `.\gradlew generateTypes --args='"catalogue" "C:\Users\john\Code\emx2\molgenis-emx2\apps\nuxt3-ssr\interfaces\generated\types.ts"' `
+
+The first param is the schema name, second param is the full path to the file the interfaces get generated into.
+Note that the file is either created or overridden, and that the folder must already exist.

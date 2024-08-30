@@ -71,12 +71,11 @@ public class TestLoaders {
     assertEquals(22, dataCatalogue.getTableNames().size());
   }
 
-  @Disabled
   @Test
   public void test07DataCatalogueCohortStagingLoader() {
     Schema cohortStaging = database.createSchema(COHORT_STAGING);
     DataModels.Profile.DATA_CATALOGUE_COHORT_STAGING.getImportTask(cohortStaging, true).run();
-    assertEquals(19, cohortStaging.getTableNames().size());
+    assertEquals(17, cohortStaging.getTableNames().size());
   }
 
   @Disabled
