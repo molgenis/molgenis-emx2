@@ -1,0 +1,7 @@
+order,name,label,parent,codesystem,code,ontologyTermURI,definition
+1,dataSampleProcessing,Data and Sample processing,,,,,Data and Sample processing
+2,researchDomains,Research domains,,,,,Research domains
+3,technologiesBioanalytics,"Technologies, Bioanalytics",,,,,"Technologies, Bioanalytics"
+4,expertiseOrganisation,"Expertise,
+Organisation",,,,,"Expertise,
+Organisation"
