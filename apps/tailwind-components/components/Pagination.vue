@@ -3,11 +3,9 @@ const props = withDefaults(
   defineProps<{
     currentPage: number;
     totalPages: number;
-    type?: "gray" | "white";
     preventDefault?: boolean;
   }>(),
   {
-    type: "gray",
     preventDefault: false,
   }
 );
@@ -20,24 +18,6 @@ onMounted(() => {
       window.location.reload();
     });
   }
-});
-
-const TEXT_STYLE_MAPPING = {
-  gray: "text-pagination-label-gray",
-  white: "text-pagination-label-white",
-};
-
-const BORDER_STYLE_MAPPING = {
-  gray: "shadow-pagination-gray",
-  white: "",
-};
-
-const textClasses = computed(() => {
-  return TEXT_STYLE_MAPPING[props.type];
-});
-
-const borderClasses = computed(() => {
-  return BORDER_STYLE_MAPPING[props.type];
 });
 
 function onPrevClick($event: Event) {
@@ -87,17 +67,13 @@ function changeCurrentPage(event: Event) {
     >
       <BaseIcon name="caret-left" :width="24" />
     </a>
-    <div class="px-4 tracking-widest sm:px-5" :class="textClasses">Page</div>
+    <div class="px-4 tracking-widest sm:px-5 text-pagination">Page</div>
     <input
       class="sm:px-12 px-7.5 w-32 text-center border rounded-pagination text-pagination-input h-15 flex items-center tracking-widest bg-white"
       :value="currentPage"
       @change="changeCurrentPage"
-      :class="borderClasses"
     />
-    <div
-      class="px-4 tracking-widest sm:px-5 whitespace-nowrap"
-      :class="textClasses"
-    >
+    <div class="px-4 tracking-widest sm:px-5 whitespace-nowrap text-pagination">
       OF {{ totalPages }}
     </div>
     <a
