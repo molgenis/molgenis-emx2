@@ -1,7 +1,10 @@
 order,name,label,parent,codesystem,code,ontologyTermURI,definition
 1,dataSampleProcessing,Data and Sample processing,,,,,Data and Sample processing
 2,researchDomains,Research domains,,,,,Research domains
-3,technologiesBioanalytics,"Technologies, Bioanalytics",,,,,"Technologies, Bioanalytics"
-4,expertiseOrganisation,"Expertise,
-Organisation",,,,,"Expertise,
-Organisation"
+3,technologiesAndBioanalytics,"Technologies, Bioanalytics",,,,,"Technologies, Bioanalytics"
+4,expertiseAndOrganisation,"Expertise,Organisation",,,,,"Expertise,Organisation"
+5,DNAsequencing,DNA Sequencing,"dataSampleProcessing, technologiesAndBioanalytics",,,,DNA Sequencing
+6,vsf,Virus Sequencing Facility,technologiesAndBioanalytics,,,,Virus Sequencing Facility
+7,prospectiveCollections,Ability to set up prospective collections,researchDomains,,,,Ability to set up prospective collections
+8,biomaterialStorage,Biological material storage,dataSampleProcessing
+9,BSL2,BSL-2 laboratories available,"expertiseAndOrganisation, dataSampleProcessing",,,,BSL-2 laboratories available

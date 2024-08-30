@@ -167,7 +167,7 @@ Services,,id,ID,string,1,true,,"Unique ID of the service, prefixed with bbmri-er
 Services,,name,Service Name,string,2,true,,Name given to the service locally by the biobank staff.,,,,,,,,,
 Services,,acronym,Acronym,string,,false,,Short symbol simplifying communication.,,,,,,,,,
 Services,,description,Description,string,,false,,Full description of the service. If the description of this particular service exists on the internet - the URL to the relevant page is welcome.,,,,,,,,,
-Services,,serviceTypes,Service Types,ontology_array,,false,,Service Types,DirectoryOntologies,ServiceTypes,
+Services,,serviceTypes,Service Types,ref_array,,false,,Service Types,DirectoryOntologies,ServiceTypes,
 Services,,device,Device,string,,false,,"If the service is provided with the use of a certain device or instrument - especially when it is novel, rare or sophisticated.",,,,,,,,,
 Services,,deviceSystem,Device System,string,,false,,The system or platform describing the functioning of the used device - if needed.,,,,,,,,,
 Services,,tRL,Technology Readiness Level ,ontology,,false,,"Technology Readiness Level - concept for self-assessment of the service, used in some European projects (https://en.wikipedia.org/wiki/Technology_readiness_level). Can take values from 1 to 9.",DirectoryOntologies,TRLs,,,,,,,
