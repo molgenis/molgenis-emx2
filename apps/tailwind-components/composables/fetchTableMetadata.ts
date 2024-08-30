@@ -1,4 +1,4 @@
-import type { ITableMetaData } from "../../meta-data-utils/src/types";
+import type { ITableMetaData } from "../../metadata-utils/src/types";
 
 export default async (schemaId: string, tableId: string): Promise<ITableMetaData> => {
     const schemaMetadata = await fetchMetadata(schemaId);
