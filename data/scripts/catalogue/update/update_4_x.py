@@ -111,7 +111,7 @@ class Transform:
         df_cohorts = df_cohorts.rename(columns={'type': 'cohort type',
                                                 'type other': 'cohort type other',
                                                 'collection type': 'data collection type'})
-        df_cohorts['type'] = 'Cohort'
+        df_cohorts['type'] = 'Cohort study'
 
         # Networks to Collections
         df_networks = pd.read_csv(self.path + 'Networks.csv')
