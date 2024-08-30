@@ -1,5 +1,5 @@
 <script setup lang="ts">
-withDefaults(
+const props = withDefaults(
   defineProps<{
     id: string;
     label?: string;
@@ -18,9 +18,23 @@ withDefaults(
   }
 );
 
-defineEmits(["focus", "input"]);
+const emit = defineEmits(["focus", "error", "update:modelValue"]);
 
-const modelValue = defineModel();
+function validate(value: string) {
+  if (props.required && value === "") {
+    emit("error", [
+      { message: `${props.label || props.id} required to complete the form` },
+    ]);
+  } else {
+    emit("error", []);
+  }
+}
+
+function onInput(event: Event) {
+  const inputElement = event.target as HTMLInputElement;
+  emit("update:modelValue", inputElement.value);
+  validate(inputElement.value);
+}
 </script>
 
 <template>
@@ -35,8 +49,9 @@ const modelValue = defineModel();
       'border-disabled text-disabled bg-disabled': disabled,
       'bg-white': !disabled,
     }"
-    v-model="modelValue"
+    :value="value"
+    @input="onInput"
     @focus="$emit('focus')"
-    @input="$emit('input')"
+    @blur="validate(value || '')"
   />
 </template>

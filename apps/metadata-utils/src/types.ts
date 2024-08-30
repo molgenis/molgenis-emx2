@@ -89,5 +89,9 @@ export interface ISchemaMetaData {
   tables: ITableMetaData[];
 }
 
+export interface IFieldError {
+  message: string;
+}
+
 export type columnId = string;
 export type columnValue = string | number | boolean | Object;

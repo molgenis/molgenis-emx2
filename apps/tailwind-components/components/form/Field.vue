@@ -1,11 +1,17 @@
 <script setup lang="ts">
-import type { columnValue, IColumn } from "../../../metadata-utils/src/types";
+import type {
+  columnValue,
+  IColumn,
+  IFieldError,
+} from "../../../metadata-utils/src/types";
 
 const props = defineProps<{
   column: IColumn;
   data: columnValue;
-  errors: string[];
+  errors: IFieldError[];
 }>();
+
+defineEmits(["error", "update:modelValue"]);
 
 const pristine = ref(true);
 const dirty = computed(() => !pristine.value);
@@ -29,13 +35,20 @@ const hasError = computed(() => props.errors.length > 0);
       <FormFieldInput
         :type="column.columnType"
         :id="column.id"
+        :label="column.label"
         :data="data"
+        :required="!!column.required"
         @focus="touched = true"
         @input="pristine = false"
+        @update:modelValue="$emit('update:modelValue', $event)"
+        @error="$emit('error', $event)"
       ></FormFieldInput>
-    </div>
-    <div v-if="hasError">
-      <p class="text-invalid">this field has an error</p>
+      <div
+        v-if="hasError"
+        class="bg-yellow-200 text-required p-3 font-bold flex items-center gap-1"
+      >
+        <BaseIcon name="info"></BaseIcon>{{ errors[0].message }}
+      </div>
     </div>
   </div>
 </template>

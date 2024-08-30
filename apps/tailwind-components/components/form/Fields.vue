@@ -68,6 +68,11 @@ const recordLabel = computed(() => props.metaData.label);
 </script>
 <template>
   <div>
+    <div>
+      dataMap: {{ dataMap }}
+      <hr class="my-2" />
+      errorMap: {{ errorMap }}
+    </div>
     <div class="first:pt-0 pt-10" v-for="chapter in chapters">
       <h2
         class="font-display md:text-heading-5xl text-heading-5xl text-title-contrast pb-8"
@@ -80,6 +85,8 @@ const recordLabel = computed(() => props.metaData.label);
           :column="column"
           :data="dataMap[column.id]"
           :errors="errorMap[column.id]"
+          @update:modelValue="dataMap[column.id] = $event"
+          @error="errorMap[column.id] = $event"
         ></FormField>
       </div>
     </div>

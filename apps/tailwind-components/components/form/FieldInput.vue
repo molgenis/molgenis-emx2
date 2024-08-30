@@ -8,18 +8,23 @@ import type {
 defineProps<{
   type: ValueType;
   id: columnId;
+  label: string;
   data: columnValue;
 }>();
 
-defineEmits(["focus", "input"]);
+defineEmits(["focus", "input", "error", "update:modelValue"]);
 </script>
 
 <template>
   <LazyInputString
     v-if="type === 'STRING'"
     :id="id"
+    :label="label"
+    :value="data as string"
     @focus="$emit('focus')"
     @input="$emit('input')"
+    @update:modelValue="$emit('update:modelValue', $event)"
+    @error="$emit('error', $event)"
   ></LazyInputString>
   <LazyInputTextArea
     v-else-if="type === 'TEXT'"
