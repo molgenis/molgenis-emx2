@@ -98,7 +98,7 @@ class Transform:
         # Cohorts to Collections
         df_catalogues = pd.read_csv(self.path + 'Catalogues.csv')
         df_catalogues['name'] = df_catalogues['network']
-        df_catalogues['description'] = 'to be filled out'
+        df_catalogues['description'] = 'to be filled out'  # TODO: data model get Collections.description
 
         df_catalogues = float_to_int(df_catalogues)  # convert float back to integer
         df_catalogues.to_csv(self.path + 'Catalogues.csv', index=False)
@@ -153,9 +153,6 @@ class Transform:
         # merge all to Collections
         df_collections = pd.concat([df_cohorts, df_networks, df_studies, df_databanks, df_data_sources,
                                     df_models])
-        # df_collections = pd.DataFrame(columns=df_cohorts.columns.to_list())
-        # for df in [df_cohorts, df_networks, df_studies, df_databanks, df_data_sources, df_models]:
-        #     df_collections = df_collections.merge(df, how='outer')
         df_collections = float_to_int(df_collections)  # convert float back to integer
         df_collections.to_csv(self.path + 'Collections.csv', index=False)
 
