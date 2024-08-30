@@ -1,7 +1,5 @@
 package org.molgenis.emx2;
 
-import static java.lang.System.exit;
-
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.typescript.Generator;
 
@@ -22,7 +20,6 @@ public class AToolToGenerateTypeScriptTypes {
     } else {
       System.out.println(
           "Missing required arguments ( SchemaName ( example: 'Pet Store'), full-file-path (example: '/home/bob/app/types.ts')");
-      exit(1);
     }
   }
 
@@ -33,7 +30,6 @@ public class AToolToGenerateTypeScriptTypes {
     Schema schema = db.getSchema(schemaName);
     if (schema == null) {
       System.out.println("Schema " + schemaName + " not found");
-      exit(1);
     }
 
     Generator generator = new Generator();
