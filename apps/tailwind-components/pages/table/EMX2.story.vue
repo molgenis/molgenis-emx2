@@ -90,6 +90,8 @@ const dataRows = computed(() => {
     );
   });
 });
+
+const numberOfRows = computed(() => tableData?.value?.count ?? 0);
 </script>
 
 <template>
@@ -114,7 +116,11 @@ const dataRows = computed(() => {
   </div>
 
   <div class=" ">
-    <TableEMX2 :columns="tableColumns" :rows="dataRows"></TableEMX2>
+    <TableEMX2
+      :columns="tableColumns"
+      :rows="dataRows"
+      :count="numberOfRows"
+    ></TableEMX2>
   </div>
 </template>
 d
