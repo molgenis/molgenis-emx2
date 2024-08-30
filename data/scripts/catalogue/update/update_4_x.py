@@ -165,20 +165,19 @@ class Transform:
         # get lead organisations
         df_collections = pd.read_csv(self.path + 'Collections.csv')
         df_collections = df_collections[['id', 'lead organisation']]
-        df_collections['is lead organisation'] = 'true'
         df_collections.rename(columns={'id': 'collection',
                                        'lead organisation': 'id'}, inplace=True)
         df_collections = df_collections.dropna(axis=0)
         df_collections = df_collections.reset_index()
         df_merged = get_collection_organisations(df_organisations, df_collections)
         df_collection_organisations = pd.concat([df_collection_organisations, df_merged])
+        df_collection_organisations.loc[:, 'role'] = df_collection_organisations['role'].apply(get_organisation_role)
 
         # get additional organisations and Contacts.organisation
         for table in ['Collections', 'Contacts']:
             df_resource = pd.read_csv(self.path + table + '.csv')
             if not table == 'Contacts':
                 df_resource = df_resource[['id', 'additional organisations']]
-                df_resource['is lead organisation'] = 'false'
             else:
                 df_resource = df_resource[['resource', 'organisation']]
             df_resource.rename(columns={'resource': 'collection',
@@ -201,13 +200,13 @@ class Transform:
         df_publications = pd.read_csv(self.path + 'Publications.csv')
 
         df_design_paper = df_collections[['id', 'design paper']]
-        df_design_paper['is design publication'] = 'true'
+        df_design_paper.loc[:, 'is design publication'] = 'true'
         df_design_paper = df_design_paper.rename(columns={'id': 'collection',
                                                           'design paper': 'doi'})
         df_design_paper = df_design_paper.dropna(axis=0)
 
         df_other_pubs = df_collections[['id', 'publications']]
-        df_other_pubs['is design publication'] = 'false'
+        df_other_pubs.loc[:, 'is design publication'] = 'false'
         df_other_pubs = df_other_pubs.rename(columns={'id': 'collection',
                                                       'publications': 'doi'})
         df_other_pubs = df_other_pubs.dropna(axis=0)
@@ -251,8 +250,6 @@ class Transform:
         # restructure Variables
         df_variables = pd.read_csv(self.path + 'Variables.csv', keep_default_na=False)
         df_variables.loc[:, 'resource'] = df_variables['resource'].apply(strip_resource)
-        df_variables.loc[:, 'collection event.resource'] = \
-            df_variables['collection event.resource'].apply(strip_resource)
 
         # restructure repeated variables inside variables dataframe
         df_repeats = pd.read_csv(self.path + 'Repeated variables.csv')
@@ -377,7 +374,6 @@ def is_repeated(var_name, df_repeats):
 
 
 def restructure_repeats(df_variables, df_repeats):
-    # TODO: EXPANSE_CDM repeats take year repeat unit, 25 repeats
     # restructuring of cdm repeats
     df_variables = df_variables.drop_duplicates(subset=['resource', 'dataset', 'name'])   # keep unique entries, gets rid of LongITools 'root' variables
 
@@ -387,11 +383,16 @@ def restructure_repeats(df_variables, df_repeats):
     # derive repeat unit and repeat min and max
     df_variables.loc[:, 'repeat unit'] = df_variables['name'].apply(get_repeat_unit, df=df_repeats)  # get repeat unit from repeat_num
     df_variables.loc[:, 'repeat min'] = ''
-    df_variables.loc[df_variables['is_repeated'] == True, 'repeat min'] = 0
+    df_variables.loc[df_variables['is_repeated'], 'repeat min'] = 0
     df_variables.loc[df_variables['repeat unit'] == 'Month', 'repeat max'] = 270
     df_variables.loc[df_variables['repeat unit'] == 'Week', 'repeat max'] = 42
     df_variables.loc[df_variables['repeat unit'] == 'Year', 'repeat max'] = 21
     df_variables.loc[df_variables['repeat unit'] == 'Trimester', 'repeat max'] = 3
+
+    return df_variables
+
+
+def get_collection_events(df_variables, df_repeats):
 
     return df_variables
 
@@ -424,7 +425,7 @@ def rewrite_mappings(df, df_no_duplicates):
     df_no_duplicates.loc[:, 'repeats'] = ''
     df_mappings = pd.DataFrame()
     # divide df_no_duplicates per source
-    list_source = df['source'].drop_duplicates().tolist()
+    list_source = df['source'].drop_duplicates().tolist()  # list all sources (e.g. cohorts)
     for source in list_source:
         # select unique mappings per source
         df_no_duplicates_per_source = df_no_duplicates[df_no_duplicates['source'] == source]
@@ -466,14 +467,13 @@ def get_collection_organisations(df_organisations, df_resource):
     """Merge data resource and organisation to Collection organisations, split out multiple
     references from ref_array into separate rows
     """
-    # get all leading organisations with collection reference in one row
-    df_new_rows = pd.DataFrame(columns=['collection', 'id', 'is lead organisation']) # TODO: lead org naar role
+    # get all organisations with collection reference in one row
+    df_new_rows = pd.DataFrame(columns=['collection', 'id'])
     for i in range(len(df_resource)):
         if ',' in df_resource['id'][i]:
             org_list = df_resource['id'][i].split(',')
             for org in org_list:
-                new_row = {'collection': df_resource['collection'][i], 'id': org,
-                           'is lead organisation': df_resource['is lead organisation'][i]}
+                new_row = {'collection': df_resource['collection'][i], 'id': org}
                 df_new_rows.loc[len(df_new_rows)] = new_row
             df_resource = df_resource.drop(index=i)
     df_resource = pd.concat([df_resource, df_new_rows])
@@ -482,6 +482,13 @@ def get_collection_organisations(df_organisations, df_resource):
     df_merged = pd.merge(df_organisations, df_resource, on='id')
 
     return df_merged
+
+
+def get_organisation_role(role):
+    if pd.isna(role):
+        return 'Lead'
+    else:
+        return role + ', Lead'
 
 
 def get_collection_pubs(df_merged_pubs, df_publications):
@@ -544,8 +551,3 @@ def get_end_day(end_month):
             '12': '31'
     }[end_month]
 
-
-def get_collection_events(df_variables, df_repeats):
-    df_variables =
-
-    return df_variables
