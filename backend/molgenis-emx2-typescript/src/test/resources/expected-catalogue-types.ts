@@ -377,9 +377,8 @@ export interface ICollections {
     hasIdentifier?: boolean;
     identifierDescription?: string;
     prelinked?: boolean;
-    linkageDescription?: string;
+    linkageOptions?: string;
     linkagePossibility?: boolean;
-    linkagePossibilityDescription?: string;
     linkedCollections?: ICollectionLinkages[];
     informedConsentType?: IOntologyNode;
     informedConsentRequired?: IOntologyNode;
