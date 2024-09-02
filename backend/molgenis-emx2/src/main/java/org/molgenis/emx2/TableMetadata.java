@@ -62,12 +62,8 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   private String validateName(String tableName) {
     // max length 31 because of Excel
     // we allow only graphql compatible names PLUS spaces
-    if (!tableName.matches(Constants.TABLE_AND_COLUMN_NAME_REGEX)) {
+    if (!tableName.matches(Constants.TABLE_NAME_REGEX)) {
       throw new MolgenisException("Invalid table name '" + tableName + TABLE_NAME_MESSAGE);
-    }
-    if (tableName.length() > 31) {
-      throw new MolgenisException(
-          "Table name '" + tableName + "' is too long" + TABLE_NAME_MESSAGE);
     }
     return tableName.trim();
   }

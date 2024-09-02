@@ -446,7 +446,7 @@ export default {
       if (this.column.name === undefined || this.column.name === "") {
         return "Name is required";
       }
-      if (!this.column.name.match(constants.TABLE_AND_COLUMN_NAME_REGEX)) {
+      if (!this.column.name.match(constants.COLUMN_NAME_REGEX)) {
         return "Name should start with a letter, followed by letters/underscores/spaces/numbers (though no underscore preceded/followed by a space), i.e. ^(?!.* _|.*_ )[a-zA-Z][a-zA-Z0-9 _]*$";
       }
       if (

@@ -168,7 +168,7 @@ export default {
   },
   methods: {
     validate(name) {
-      const simpleName = constants.TABLE_AND_COLUMN_NAME_REGEX;
+      const simpleName = constants.TABLE_NAME_REGEX;
       if (name === null) {
         return undefined;
       }
