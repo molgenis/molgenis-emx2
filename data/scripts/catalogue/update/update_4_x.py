@@ -4,6 +4,7 @@ from pathlib import Path
 import pandas as pd
 from string import digits
 import re
+import numpy as np
 
 
 def float_to_int(df):
@@ -246,7 +247,6 @@ class Transform:
         df_all_var_values.to_csv(self.path + 'Variable values.csv', index=False)
 
     def variables(self):
-        # TODO: get collection events from repeated variables
         # restructure Variables
         df_variables = pd.read_csv(self.path + 'Variables.csv', keep_default_na=False)
         df_variables.loc[:, 'resource'] = df_variables['resource'].apply(strip_resource)
@@ -377,8 +377,15 @@ def restructure_repeats(df_variables, df_repeats):
     # restructuring of cdm repeats
     df_variables = df_variables.drop_duplicates(subset=['resource', 'dataset', 'name'])   # keep unique entries, gets rid of LongITools 'root' variables
 
-    # get collection events from repeats
-    df_variables = get_collection_events(df_variables, df_repeats)
+    # get collection events from repeats for EXPANSE_CDM
+    collection_events = 'Baseline,'
+    for i in range(1, 25):
+        collection_events += 'FollowUp' + str(i) + ','
+    collection_events += 'FollowUp25'
+
+    df_variables['collection event.name'] = np.where((df_variables['resource'] == 'EXPANSE') &
+                                                     (df_variables['is_repeated']), collection_events,
+                                                     df_variables['collection event.name'])
 
     # derive repeat unit and repeat min and max
     df_variables.loc[:, 'repeat unit'] = df_variables['name'].apply(get_repeat_unit, df=df_repeats)  # get repeat unit from repeat_num
@@ -388,11 +395,6 @@ def restructure_repeats(df_variables, df_repeats):
     df_variables.loc[df_variables['repeat unit'] == 'Week', 'repeat max'] = 42
     df_variables.loc[df_variables['repeat unit'] == 'Year', 'repeat max'] = 21
     df_variables.loc[df_variables['repeat unit'] == 'Trimester', 'repeat max'] = 3
-
-    return df_variables
-
-
-def get_collection_events(df_variables, df_repeats):
 
     return df_variables
 
