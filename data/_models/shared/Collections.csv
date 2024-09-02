@@ -34,8 +34,6 @@ Collections,,unit of observation,text,,,,,,,,,"Based on the prompt, what is the 
 Collections,,record trigger,text,,,,,,,,,"What triggers the creation of a record in the data bank? e.g. planned collection events, hospital discharge, specialist encounter, dispensation of a medicinal product, recording of a congenital anomaly","DataCatalogueFlat,EMA,RWEStaging"
 Collections,,subcohorts,refback,,,,Collection subcohorts,,collection,,,List of subcohorts or subpopulations defined in this collection if applicable,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging"
 Collections,,collection events,refback,,,,Collection events,,collection,,dcterms:hasPart,List of data/sample collection events defined for this collection if applicable,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging"
-Collections,,datasets,refback,,,,Collection datasets,,collection,,,List of datasets contained in this collection if applicable,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging"
-Collections,,samplesets,refback,,,,Collection samplesets,,collection,,,List of samples sets contained in this collection if applicable,"DataCatalogueFlat,CohortsStaging,RWEStaging,StudiesStaging"
 Collections,,collections,ref_array,,,,Collections,,,,dct:dataset,List of other collections included in this collection,"DataCatalogueFlat,EMA"
 Collections,,partOfCollections,refback,,,,Collections,,collections,,dct:dataset,List of other collections included in this collection,"DataCatalogueFlat,EMA"
 Collections,,collections,ref_array,,,catalogue,Collections,,,,,"List of other collections included in this network, e.g. cohorts, biobanks or other networks",NetworksStaging
@@ -67,6 +65,8 @@ Collections,,organisations involved,refback,,,,Collection organisations,,collect
 Collections,,networks involved,refback,,,,Collections,,collections,,,The consortia or networks that this collection is part of,"DataCatalogueFlat,EMA"
 Collections,,networks other,text,,,,,,,,,List the names of any other networks that are not listed and this collection is involved in,EMA
 Collections,,available data and samples,heading,,,,,,,,,Data model and contents,"DataCatalogueFlat,EMA,RWEStaging,CohortsStaging,UMCGCohortsStaging"
+Collections,,datasets,refback,,,,Collection datasets,,collection,,,List of datasets contained in this collection if applicable,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging"
+Collections,,samplesets,refback,,,,Collection samplesets,,collection,,,List of samples sets contained in this collection if applicable,"DataCatalogueFlat,CohortsStaging,RWEStaging,StudiesStaging"
 Collections,,areas of information,ontology_array,,,CatalogueOntologies,Areas of information cohorts,,,,,Areas of information that were collected,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging"
 Collections,,areas of information rwd,ontology_array,,,CatalogueOntologies,Areas of information ds,,,,,Areas of information that were collected,"DataCatalogueFlat,EMA,RWEStaging"
 Collections,,quality of life other,text,,,,,,,,,"If other, specify additional quality of life measures","DataCatalogueFlat,EMA,RWEStaging"
