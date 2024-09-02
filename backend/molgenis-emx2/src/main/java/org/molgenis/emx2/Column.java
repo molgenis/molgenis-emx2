@@ -85,7 +85,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   }
 
   private String validateName(String columnName, boolean skipValidation) {
-    if (!skipValidation && !columnName.matches("^(?!.* _|.*_ )[a-zA-Z][a-zA-Z0-9 _]*$")) {
+    if (!skipValidation && !columnName.matches(Constants.TABLE_AND_COLUMN_NAME_REGEX)) {
       throw new MolgenisException(
           "Invalid column name '"
               + columnName

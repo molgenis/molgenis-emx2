@@ -92,6 +92,7 @@
 import { request } from "graphql-request";
 
 import {
+  constants,
   ButtonAction,
   ButtonDanger,
   ButtonAlt,
@@ -167,7 +168,7 @@ export default {
   },
   methods: {
     validate(name) {
-      const simpleName = /^(?!.* _|.*_ )[a-zA-Z][a-zA-Z0-9 _]*$/;
+      const simpleName = constants.TABLE_AND_COLUMN_NAME_REGEX;
       if (name === null) {
         return undefined;
       }
