@@ -85,14 +85,13 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   }
 
   private String validateName(String columnName, boolean skipValidation) {
-    String trimmedName = columnName.trim();
-    if (!skipValidation && !trimmedName.matches(COLUMN_NAME_REGEX)) {
+    if (!skipValidation && !columnName.matches(COLUMN_NAME_REGEX)) {
       throw new MolgenisException(
           "Invalid column name '"
               + columnName
               + "': Column must start with a letter, followed by letters/underscores/spaces/numbers (though no underscore preceded/followed by a space), i.e. ^(?!.* _|.*_ )[a-zA-Z][a-zA-Z0-9 _]*$");
     }
-    return trimmedName;
+    return columnName.trim();
   }
 
   public String[] getSemantics() {
