@@ -380,8 +380,8 @@ def restructure_repeats(df_variables, df_repeats):
     # get collection events from repeats for EXPANSE_CDM
     collection_events = 'Baseline,'
     for i in range(1, 25):
-        collection_events += 'FollowUp' + str(i) + ','
-    collection_events += 'FollowUp25'
+        collection_events += 'Followup' + str(i) + ','
+    collection_events += 'Followup25'
 
     df_variables['collection event.name'] = np.where((df_variables['resource'] == 'EXPANSE') &
                                                      (df_variables['is_repeated']), collection_events,
