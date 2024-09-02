@@ -15,4 +15,6 @@ test('database name regex validation', async ({ page }) => {
   await expect(page.locator('form')).toContainText(regexErrorMessage);
   await page.getByLabel('name').fill('a_a');
   await expect(page.locator('form')).not.toContainText(regexErrorMessage);
+  await page.getByLabel('name').fill('a a');
+  await expect(page.locator('form')).not.toContainText(regexErrorMessage);
 });
