@@ -23,7 +23,7 @@ You can describe basic columns using:
 
 ### tableName
 
-Regular expression requirement: `^(?!.* _|.*_ )[a-zA-Z][a-zA-Z0-9 _]*$`
+Regular expression requirement: `^(?!.* _|.*_ )[a-zA-Z][a-zA-Z0-9 _]{0,30}$`
 
 Will be the name of the table. Must start with one of `a-zA-Z` followed by zero or more of `a-zA-Z0-9 _`, though an underscore directly preceded/followed by a space is not allowed. Maximum length 31
 then all other settings will apply to the table instead of the column.

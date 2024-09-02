@@ -27,6 +27,8 @@ public class TestTableMetadata {
         () -> assertThrows(MolgenisException.class, () -> new TableMetadata("first  __   name")),
         // invalid: ' _' & '_ ' should fail
         () -> assertThrows(MolgenisException.class, () -> new TableMetadata("aa    ____      ")),
+        // valid: max length (= 31 characters)
+        () -> assertDoesNotThrow(() -> new TableMetadata("abcdefghijklmnopqrstuvwzyx78901")),
         // invalid: too long (> 31 characters)
         () ->
             assertThrows(
