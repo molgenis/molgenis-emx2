@@ -27,3 +27,15 @@ export type INotificationType =
   | "error"
   | "warning"
   | "info";
+
+export type sortDirection = "ASC" | "DESC";
+export interface ITableSettings {
+  page: number;
+  pageSize: number;
+  orderby: {
+    column: string;
+    direction: sortDirection
+  };
+  search: string;
+}
+  
