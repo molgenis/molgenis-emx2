@@ -179,7 +179,7 @@ export default {
       ) {
         return undefined;
       } else {
-        return "Table name must start with a letter, followed by letters/underscores/spaces/numbers (though no underscore preceded/followed by a space), i.e. ^(?!.* _|.*_ )[a-zA-Z][a-zA-Z0-9 _]*$. Maximum length: 31 characters";
+        return "Table name must start with a letter, followed by letters/underscores/spaces/numbers (though no underscore preceded/followed by a space) and with a maximum of 31 characters, i.e. ^(?!.* _|.*_ )[a-zA-Z][a-zA-Z0-9 _]{0,30}$";
       }
     },
     executeCreateSchema() {
