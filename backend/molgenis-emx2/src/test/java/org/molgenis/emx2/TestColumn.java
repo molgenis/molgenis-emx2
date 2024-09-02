@@ -16,10 +16,23 @@ public class TestColumn {
   @Test
   public void validColumnName() {
     assertAll(
-        () -> assertThrows(MolgenisException.class, () -> new Column("%")), // invalid character
-        () -> assertDoesNotThrow(() -> new Column("a")), // 1 or more legal characters
-        () -> assertThrows(MolgenisException.class, () -> new Column("a_ b")), // underscore + space
-        () -> assertThrows(MolgenisException.class, () -> new Column("a _b")), // space + underscore
-        () -> assertDoesNotThrow(() -> new Column("a_b c"))); // valid underscore & space
+        // valid: 1 or more legal characters
+        () -> assertDoesNotThrow(() -> new Column("a")),
+        // valid: a space
+        () -> assertDoesNotThrow(() -> new Column("first name")),
+        // valid: space & underscore but not next to each other
+        () -> assertDoesNotThrow(() -> new Column("yet_another name")),
+        // invalid: # should fail
+        () -> assertThrows(MolgenisException.class, () -> new Column("#first name")),
+        // invalid: '_ ' should fail
+        () -> assertThrows(MolgenisException.class, () -> new Column("first_  name")),
+        // invalid: ' _' not allowed
+        () -> assertThrows(MolgenisException.class, () -> new Column("first   _name")),
+        // invalid: ' _' & '_ ' should fail
+        () -> assertThrows(MolgenisException.class, () -> new Column("first  _  name")),
+        // invalid: ' _' & '_ ' should fail
+        () -> assertThrows(MolgenisException.class, () -> new Column("first  __   name")),
+        // invalid: ' _' & '_ ' should fail
+        () -> assertThrows(MolgenisException.class, () -> new Column("aa    ____      ")));
   }
 }
