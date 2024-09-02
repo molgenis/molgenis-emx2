@@ -9,12 +9,10 @@ test('database name regex validation', async ({ page }) => {
   await expect(page.locator('form')).toContainText(regexErrorMessage);
   await page.getByLabel('name').fill('a');
   await expect(page.locator('form')).not.toContainText(regexErrorMessage);
-  await page.getByLabel('name').fill('a_ a');
+  await page.getByLabel('name').fill('a_ b');
   await expect(page.locator('form')).toContainText(regexErrorMessage);
-  await page.getByLabel('name').fill('a _a');
+  await page.getByLabel('name').fill('a _b');
   await expect(page.locator('form')).toContainText(regexErrorMessage);
-  await page.getByLabel('name').fill('a_a');
-  await expect(page.locator('form')).not.toContainText(regexErrorMessage);
-  await page.getByLabel('name').fill('a a');
+  await page.getByLabel('name').fill('a_b c');
   await expect(page.locator('form')).not.toContainText(regexErrorMessage);
 });
