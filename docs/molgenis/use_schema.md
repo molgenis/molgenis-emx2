@@ -35,6 +35,9 @@ Regular expression requirement: `^(?!.* _|.*_ )[a-zA-Z][a-zA-Z0-9 _]*$`
 Will be the name of the column. Must be unique per tableName. Must start with one of `a-zA-Z` followed by zero or more of `a-zA-Z0-9 _`, though an underscore directly preceded/followed by a space is not allowed. Maximum length 31
 characters. Default value: empty
 
+If a `columnName` contains spaces, it is escaped to camelCase for usage as variable.
+For example, `first name` would be defined as `firstName` when creating a validation expression.
+
 ### columnType
 
 Will be the type of column. Ignored if columnName is empty. See section on columnTypes below. Default value: string. MOLGENIS supports the following types (type
