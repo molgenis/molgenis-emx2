@@ -1,4 +1,4 @@
-collection,variable.dataset,variable.name,value,label,order,is missing,ontology term URI,since version,until version
+resource,dataset,variable,value,label,order,is missing,ontology term URI,since version,until version
 ATHLETE,outcome_ath,rmcmes_,1,Manual,1,False,,1.0.1,
 ATHLETE,outcome_ath,rhinitis_sx_ever_,0,No,2,False,,1.0.1,
 ATHLETE,outcome_ath,rhinitis_sx_ever_,1,Yes,,False,,1.0.1,

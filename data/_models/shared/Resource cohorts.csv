@@ -4,7 +4,7 @@ Resource cohorts,,resource,ref,1,true,,Resources,,,,dcterms:isPartOf,Resource th
 Resource cohorts,,name,,1,true,,,,,,dcterms:title,"Subcohort name, e.g. 'mothers in first trimester','newborns'","DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging",
 Resource cohorts,,description,text,,,,,,,,dcterms:description,Subcohort description,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging",
 Resource cohorts,,number of participants,int,,,,,,,,,Number of participants in this subcohort,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging",
-Resource cohorts,,counts,refback,,,,Resource cohort counts,,population,,,"Total number of unique individuals per age(group), gender and year","DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging",
+Resource cohorts,,counts,refback,,,,Resource cohort counts,,cohort,,,"Total number of unique individuals per age(group), gender and year","DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging",
 Resource cohorts,,inclusion start,int,,,,,,,,dcat:startDate,Year of first included participant,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging",
 Resource cohorts,,inclusion end,int,,,,,,,,dcat:endDate,Year of last included participant. Leave empty if data collection is ongoing,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging",
 Resource cohorts,,age groups,ontology_array,,,CatalogueOntologies,Age groups,,,,,Age groups within this subcohort,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging",

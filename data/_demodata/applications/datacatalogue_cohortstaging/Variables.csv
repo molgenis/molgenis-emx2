@@ -1,4 +1,4 @@
-collection,dataset,name,useExternalDefinition.collection,useExternalDefinition.dataset,useExternalDefinition.name,label,description,collection event,format,unit,since version,until version,repeat unit,repeat min,repeat max,example values,keywords,vocabularies,notes
+resource,dataset,name,useExternalDefinition.collection,useExternalDefinition.dataset,useExternalDefinition.name,label,description,collection event,format,unit,since version,until version,repeat unit,repeat min,repeat max,example values,keywords,vocabularies,notes
 LifeCycle,core,blue_dist_,,,,,,,,,1.0.0,,,,,,,,
 LifeCycle,core,blue_dist_preg,,,,,,,,,1.0.0,,,,,,,,
 LifeCycle,core,plac_weight,,,,,,,,,1.0.0,,,,,,,,

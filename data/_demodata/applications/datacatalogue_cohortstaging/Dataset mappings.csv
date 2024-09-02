@@ -1,3 +1,0 @@
-source,source dataset,target,target dataset,order,description,syntax
-testCohort,metadata,LifeCycle_CDM,core,,,
-testCohort,household,LifeCycle_CDM,core,,,
