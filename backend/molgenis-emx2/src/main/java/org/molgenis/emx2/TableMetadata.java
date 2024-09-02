@@ -69,10 +69,6 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
       throw new MolgenisException(
           "Table name '" + tableName + "' is too long" + TABLE_NAME_MESSAGE);
     }
-    if (tableName.contains("_ ") || tableName.contains(" _")) {
-      throw new MolgenisException(
-          "Invalid table name '" + tableName + "': table names cannot contain '_ ' or '_ '");
-    }
     return tableName.trim();
   }
 
