@@ -1,18 +1,18 @@
 import gql from "graphql-tag";
 export default gql`
-  query CollectionEvents(
+  query ResourceCollectionEvents(
     $id: String
     $limit: Int
     $offset: Int
-    $orderby: CollectionEventsorderby
+    $orderby: ResourceCollectionEventsorderby
   ) {
-    CollectionEvents(
+    ResourceCollectionEvents(
       limit: $limit
       offset: $offset
-      filter: { collection: { id: { equals: [$id] } } }
+      filter: { resource: { id: { equals: [$id] } } }
       orderby: $orderby
     ) {
-      collection {
+      resource {
         id
       }
       name
@@ -34,7 +34,9 @@ export default gql`
       }
       numberOfParticipants
     }
-    CollectionEvents_agg(filter: { collection: { id: { equals: [$id] } } }) {
+    ResourceCollectionEvents_agg(
+      filter: { resource: { id: { equals: [$id] } } }
+    ) {
       count
     }
   }

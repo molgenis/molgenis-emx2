@@ -3,7 +3,7 @@ const { title, collectionEvents, columnCount, category } = withDefaults(
   defineProps<{
     title: string;
     category: string;
-    collectionEvents: ICollectionEvent[];
+    collectionEvents: IResourceCollectionEvent[];
     columnCount?: number;
   }>(),
   {
@@ -11,11 +11,14 @@ const { title, collectionEvents, columnCount, category } = withDefaults(
   }
 );
 
-function collectCategories(type: string, collectionEvents: ICollectionEvent[]) {
+function collectCategories(
+  type: string,
+  collectionEvents: IResourceCollectionEvent[]
+) {
   const items = collectionEvents.reduce(
     (
       accumulator: ICollectionEventCategory[],
-      currentValue: ICollectionEvent
+      currentValue: IResourceCollectionEvent
     ) => {
       // @ts-ignore
       if (Array.isArray(currentValue[type])) {
@@ -73,7 +76,7 @@ function combineParentChildCategories(
 
 function getCategoriesOf(
   type: string,
-  collectionEvents: ICollectionEvent[]
+  collectionEvents: IResourceCollectionEvent[]
 ): ICollectionEventCategorySet[] {
   const categories: ICollectionEventCategory[] = collectCategories(
     type,

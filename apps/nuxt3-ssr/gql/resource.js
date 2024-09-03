@@ -1,7 +1,7 @@
 import gql from "graphql-tag";
 export default gql`
-  query Collections($id: String) {
-    Collections(filter: { id: { equals: [$id] } }) {
+  query Resources($id: String) {
+    Resources(filter: { id: { equals: [$id] } }) {
       acronym
       name
       description
@@ -72,10 +72,12 @@ export default gql`
       fundingStatement
       acknowledgements
     }
-    CollectionEvents_agg(filter: { collection: { id: { equals: [$id] } } }) {
+    ResourceCollectionEvents_agg(
+      filter: { resource: { id: { equals: [$id] } } }
+    ) {
       count
     }
-    Subcohorts_agg(filter: { collection: { id: { equals: [$id] } } }) {
+    CollectionCohorts_agg(filter: { resource: { id: { equals: [$id] } } }) {
       count
     }
   }

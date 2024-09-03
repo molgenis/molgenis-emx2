@@ -1,13 +1,10 @@
 import gql from "graphql-tag";
 export default gql`
-  query CollectionSubcohort($id: String, $name: String) {
-    CollectionSubcohorts(
-      filter: {
-        collection: { id: { equals: [$id] } }
-        name: { equals: [$name] }
-      }
+  query ResourceCohort($id: String, $name: String) {
+    ResourceCohorts(
+      filter: { resource: { id: { equals: [$id] } }, name: { equals: [$name] } }
     ) {
-      collection {
+      resource {
         name
       }
       name

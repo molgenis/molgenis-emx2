@@ -1,13 +1,13 @@
 import gql from "graphql-tag";
 export default gql`
-  query CollectionDatasets($collection: String, $name: String) {
-    CollectionDatasets(
+  query ResourceDatasets($resource: String, $name: String) {
+    ResourceDatasets(
       filter: {
-        collection: { id: { equals: [$collection] } }
+        resource: { id: { equals: [$resource] } }
         name: { equals: [$name] }
       }
     ) {
-      collection {
+      resource {
         id
       }
       name

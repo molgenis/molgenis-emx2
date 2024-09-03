@@ -8,11 +8,11 @@ const pageSize = 10;
 
 const titlePrefix =
   route.params.catalogue === "all" ? "" : route.params.catalogue + " ";
-const collectionType = computed(() =>
-  getCollectionMetadataForPath(route.params.collectionType as string)
+const resourceType = computed(() =>
+  getResourceMetadataForPath(route.params.resourceType as string)
 );
 
-useHead({ title: titlePrefix + collectionType.value.plural });
+useHead({ title: titlePrefix + resourceType.value.plural });
 
 const currentPage = computed(() => {
   const queryPageNumber = Number(route.query?.page);
@@ -26,16 +26,16 @@ let pageFilterTemplate: IFilter[] = [
   {
     id: "search",
     config: {
-      label: "Search in collections",
+      label: "Search in resources",
       type: "SEARCH",
-      searchTables: ["collectionEvents", "subcohorts"],
+      searchTables: ["collectionEvents", "cohorts"],
       initialCollapsed: false,
     },
     search: "",
   },
 ];
 
-if (collectionType.path === "collections") {
+if (resourceType.value.path === "resources") {
   pageFilterTemplate.push({
     id: "type",
     config: {
@@ -139,8 +139,8 @@ const filters = computed(() => {
 
 const query = computed(() => {
   return `
-  query Collections($filter:CollectionsFilter, $orderby:Collectionsorderby){
-    Collections(limit: ${pageSize} offset: ${offset.value} filter:$filter  orderby:$orderby) {
+  query Resources($filter:ResourcesFilter, $orderby:Resourcesorderby){
+    Resources(limit: ${pageSize} offset: ${offset.value} filter:$filter  orderby:$orderby) {
       id
       name
       acronym
@@ -170,8 +170,8 @@ const gqlFilter = computed(() => {
 
   result = buildQueryFilter(filters.value);
 
-  if (collectionType.value.path != "collections") {
-    result.type = { name: { equals: collectionType.value.type } };
+  if (resourceType.value.path != "collections") {
+    result.type = { name: { equals: resourceType.value.type } };
   }
 
   // add hard coded page specific filters
@@ -181,10 +181,10 @@ const gqlFilter = computed(() => {
         result,
         {
           _or: [
-            { partOfCollections: { id: { equals: route.params.catalogue } } },
+            { partOfResources: { id: { equals: route.params.catalogue } } },
             {
-              partOfCollections: {
-                partOfCollections: { id: { equals: route.params.catalogue } },
+              partOfResources: {
+                partOfResources: { id: { equals: route.params.catalogue } },
               },
             },
           ],
@@ -213,9 +213,9 @@ const { data } = await useFetch<any, IMgError>(
   }
 );
 
-const collections = computed(() => data.value.data.Collections || []);
-const numberOfCollections = computed(
-  () => data.value.data.Collections_agg.count || 0
+const resources = computed(() => data.value.data.Resources || []);
+const numberOfResources = computed(
+  () => data.value.data.Resources_agg.count || 0
 );
 
 async function setCurrentPage(pageNumber: number) {
@@ -269,12 +269,12 @@ crumbs[
         <template #header>
           <!-- <NavigationIconsMobile :link="" /> -->
           <PageHeader
-            :title="collectionType.plural"
-            :description="collectionType.description"
-            :icon="collectionType.image"
+            :title="resourceType.plural"
+            :description="resourceType.description"
+            :icon="resourceType.image"
           >
             <template #prefix>
-              <BreadCrumbs :crumbs="crumbs" :current="collectionType.plural" />
+              <BreadCrumbs :crumbs="crumbs" :current="resourceType.plural" />
             </template>
             <template #suffix>
               <SearchResultsViewTabs
@@ -312,17 +312,17 @@ crumbs[
 
         <template #search-results>
           <SearchResultsCount
-            :label="collectionType.plural?.toLocaleLowerCase()"
-            :value="numberOfCollections"
+            :label="resourceType.plural?.toLocaleLowerCase()"
+            :value="numberOfResources"
           />
           <FilterWell
             :filters="filters"
             @update:filters="onFilterChange"
           ></FilterWell>
           <SearchResultsList>
-            <CardList v-if="collections.length > 0">
+            <CardList v-if="resources.length > 0">
               <CardListItem
-                v-for="collection in collections"
+                v-for="collection in resources"
                 :key="collection.name"
               >
                 <CollectionCard
@@ -341,10 +341,10 @@ crumbs[
           </SearchResultsList>
         </template>
 
-        <template v-if="collections.length > 0" #pagination>
+        <template v-if="resources.length > 0" #pagination>
           <Pagination
             :current-page="currentPage"
-            :totalPages="Math.ceil(numberOfCollections / pageSize)"
+            :totalPages="Math.ceil(numberOfResources / pageSize)"
             @update="setCurrentPage($event)"
           />
         </template>

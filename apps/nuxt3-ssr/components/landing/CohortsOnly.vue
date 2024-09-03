@@ -220,12 +220,12 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
 
       <LandingCardSecondary icon="viewTable">
         <b>
-          {{ data.data.Subcohorts_agg.count }}
+          {{ data.data.CollectionCohorts_agg.count }}
           {{
             getSettingValue(
               "CATALOGUE_LANDING_SUBCOHORTS_LABEL",
               data.data._settings
-            ) || "Subcohorts"
+            ) || "Cohorts"
           }}
         </b>
         <br />
@@ -233,7 +233,7 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
           getSettingValue(
             "CATALOGUE_LANDING_SUBCOHORTS_TEXT",
             data.data._settings
-          ) || "The total number of subcohorts included"
+          ) || "The total number of cohorts included"
         }}
       </LandingCardSecondary>
     </div>

@@ -19,7 +19,7 @@ const { data, error } = await useFetch<any, IMgError>(
     body: {
       query,
       variables: {
-        id: route.params.collection,
+        id: route.params.resource,
         name: route.params.collectionevent,
       },
     },
@@ -47,12 +47,12 @@ pageCrumbs[
   cohortOnly.value ? "home" : (route.params.catalogue as string)
 ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}`;
 pageCrumbs[
-  "Collections"
-] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/collections`;
+  "Resources"
+] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/resources`;
 // @ts-ignore
 pageCrumbs[
-  route.params.collection as string
-] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/collections/${route.params.collection}`;
+  route.params.resource as string
+] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/resources/${route.params.resource}`;
 
 function renderList(list: any[], itemMapper: (a: any) => string) {
   return list?.length === 1 ? itemMapper(list[0]) : list.map(itemMapper);
@@ -61,10 +61,10 @@ function renderList(list: any[], itemMapper: (a: any) => string) {
 const toName = (item: any) => item.name;
 
 const items: IDefinitionListItem[] = [];
-if (collectionEvent.value?.subcohorts?.length) {
+if (collectionEvent.value?.cohorts?.length) {
   items.push({
-    label: "Subcohorts",
-    content: renderList(collectionEvent.value?.subcohorts, toName),
+    label: "Cohorts",
+    content: renderList(collectionEvent.value?.cohorts, toName),
   });
 }
 

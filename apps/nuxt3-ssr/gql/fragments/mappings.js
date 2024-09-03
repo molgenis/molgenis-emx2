@@ -11,7 +11,7 @@ export default gql`
       name
     }
     sourceDataset {
-      collection {
+      resource {
         id
       }
     }
@@ -22,14 +22,14 @@ export default gql`
       name
       dataset {
         name
-        collection {
+        resource {
           id
         }
       }
     }
     targetVariable {
       dataset {
-        collection {
+        resource {
           id
         }
         name

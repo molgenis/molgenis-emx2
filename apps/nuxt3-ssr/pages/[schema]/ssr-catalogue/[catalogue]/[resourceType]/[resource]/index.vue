@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { gql } from "graphql-request";
-import subcohortsQuery from "~~/gql/subcohorts";
+import cohortsQuery from "~~/gql/cohorts";
 import collectionEventsQuery from "~~/gql/collectionEvents";
 import datasetQuery from "~~/gql/datasets";
 import ontologyFragment from "~~/gql/fragments/ontology";
 import fileFragment from "~~/gql/fragments/file";
 import type {
-  ICollection,
+  IResource,
   IDefinitionListItem,
   IMgError,
   IOntologyItem,
@@ -17,8 +17,8 @@ const config = useRuntimeConfig();
 const route = useRoute();
 
 const query = gql`
-  query Collections($id: String) {
-    Collections(filter: { id: { equals: [$id] } }) {
+  query Resources($id: String) {
+    Resources(filter: { id: { equals: [$id] } }) {
       id
       pid
       acronym
@@ -100,7 +100,7 @@ const query = gql`
         dataCategories ${moduleToString(ontologyFragment)}
         sampleCategories ${moduleToString(ontologyFragment)}
         areasOfInformation ${moduleToString(ontologyFragment)}
-        subcohorts {
+        cohorts {
           name
         }
         coreVariables
@@ -131,11 +131,11 @@ const query = gql`
         role ${moduleToString(ontologyFragment)}
         country ${moduleToString(ontologyFragment)}
       }
-      subcohorts {
+      cohorts {
           name
           mainMedicalCondition ${moduleToString(ontologyFragment)}
       }
-      subcohorts_agg {
+      cohorts_agg {
             count
       }
       dataAccessConditions ${moduleToString(ontologyFragment)}
@@ -175,7 +175,7 @@ const query = gql`
 const variables = { id: route.params.collection };
 interface IResponse {
   data: {
-    Collections: ICollection[];
+    Resources: IResource[];
   };
 }
 const { data, error } = await useFetch<IResponse, IMgError>(
@@ -190,15 +190,13 @@ if (error.value) {
   logError(error.value, "Error fetching collection metadata");
 }
 
-const collection = computed(
-  () => data.value?.data?.Collections[0] as ICollection
-);
-const subcohorts = computed(() => collection.value.subcohorts as any[]);
+const resource = computed(() => data.value?.data?.Resources[0] as IResource);
+const cohorts = computed(() => resource.value.cohorts as any[]);
 const mainMedicalConditions = computed(() => {
-  if (!subcohorts.value || !subcohorts.value.length) {
+  if (!cohorts.value || !cohorts.value.length) {
     return [];
   } else {
-    const allItems = subcohorts.value
+    const allItems = cohorts.value
       .map((s: { mainMedicalCondition?: IOntologyItem[] }) => {
         const combinedItems = s.mainMedicalCondition
           ? s.mainMedicalCondition
@@ -214,9 +212,9 @@ const mainMedicalConditions = computed(() => {
 });
 
 const collectionEventCount = computed(
-  () => collection.value.collectionEvents_agg?.count
+  () => resource.value.collectionEvents_agg?.count
 );
-const subcohortCount = computed(() => collection.value.subcohorts_agg?.count);
+const cohortCount = computed(() => resource.value.cohorts_agg?.count);
 
 function collectionEventMapper(item: any) {
   return {
@@ -228,7 +226,7 @@ function collectionEventMapper(item: any) {
     })(),
     numberOfParticipants: item.numberOfParticipants,
     _renderComponent: "CollectionEventDisplay",
-    _path: `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/collections/${route.params.collection}/collection-events/${item.name}`,
+    _path: `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/resources/${route.params.collection}/collection-events/${item.name}`,
   };
 }
 
@@ -236,26 +234,26 @@ function datasetMapper(item: { name: string; description?: string }) {
   return {
     id: {
       name: item.name,
-      collection: route.params.collection,
+      resource: route.params.resource,
     },
     name: item.name,
     description: item.description,
   };
 }
 
-function subcohortMapper(subcohort: any) {
+function cohortMapper(cohort: any) {
   return {
-    id: subcohort.name,
-    name: subcohort.name,
-    description: subcohort.description,
-    numberOfParticipants: subcohort.numberOfParticipants,
-    _renderComponent: "SubCohortDisplay",
-    _path: `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/collections/${route.params.collection}/subcohorts/${subcohort.name}`,
+    id: cohort.name,
+    name: cohort.name,
+    description: cohort.description,
+    numberOfParticipants: cohort.numberOfParticipants,
+    _renderComponent: "CohortDisplay",
+    _path: `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/resources/${route.params.resource}/cohorts/${cohort.name}`,
   };
 }
 
 const networks = computed(() =>
-  collection.value.partOfCollections?.filter((c) =>
+  resource.value.partOfResources?.filter((c) =>
     c.type?.find((t) => t.name == "Network")
   )
 );
@@ -271,20 +269,20 @@ let tocItems = computed(() => {
       id: "population",
     });
   }
-  if (collection.value.peopleInvolved) {
+  if (resource.value.peopleInvolved) {
     tableOffContents.push({
       label: "Contributors",
       id: "Contributors",
     });
   }
-  if (collection.value.collection?.collectionEvents) {
+  if (resource.value.resource?.collectionEvents) {
     tableOffContents.push({
       label: "Available data & samples",
       id: "AvailableData",
     });
   }
   // { label: 'Variables & topics', id: 'Variables' },
-  if (subcohortCount.value ?? 0 > 0) {
+  if (cohortCount.value ?? 0 > 0) {
     tableOffContents.push({ label: "Subpopulations", id: "Subpopulations" });
   }
   if (collectionEventCount.value ?? 0 > 0) {
@@ -293,7 +291,7 @@ let tocItems = computed(() => {
       id: "CollectionEvents",
     });
   }
-  if (collection.value.datasets) {
+  if (resource.value.datasets) {
     tableOffContents.push({ label: "Datasets", id: "Datasets" });
   }
 
@@ -301,15 +299,15 @@ let tocItems = computed(() => {
     tableOffContents.push({ label: "Networks", id: "Networks" });
   }
 
-  if (collection.value.publications) {
+  if (resource.value.publications) {
     tableOffContents.push({ label: "Publications", id: "publications" });
   }
 
   if (
-    collection.value.dataAccessConditions?.length ||
-    collection.value.dataAccessConditionsDescription ||
-    collection.value.releaseDescription ||
-    collection.value.linkageOptions
+    resource.value.dataAccessConditions?.length ||
+    resource.value.dataAccessConditionsDescription ||
+    resource.value.releaseDescription ||
+    resource.value.linkageOptions
   ) {
     tableOffContents.push({
       label: "Access Conditions",
@@ -317,14 +315,14 @@ let tocItems = computed(() => {
     });
   }
 
-  if (collection.value.fundingStatement || collection.value.acknowledgements) {
+  if (resource.value.fundingStatement || resource.value.acknowledgements) {
     tableOffContents.push({
       label: "Funding & Acknowledgements ",
       id: "funding-and-acknowledgement",
     });
   }
 
-  if (collection.value.documentation) {
+  if (resource.value.documentation) {
     tableOffContents.push({ label: "Documentation", id: "Files" });
   }
 
@@ -334,8 +332,8 @@ let tocItems = computed(() => {
 const population: IDefinitionListItem[] = [
   {
     label: "Countries",
-    content: collection.value?.countries
-      ? [...collection.value?.countries]
+    content: resource.value?.countries
+      ? [...resource.value?.countries]
           .sort((a, b) => b.order - a.order)
           .map((country) => country.name)
           .join(", ")
@@ -343,23 +341,23 @@ const population: IDefinitionListItem[] = [
   },
   {
     label: "Regions",
-    content: collection.value?.regions
+    content: resource.value?.regions
       ?.sort((a, b) => b.order - a.order)
       .map((r) => r.name)
       .join(", "),
   },
   {
     label: "Number of participants",
-    content: collection.value?.numberOfParticipants,
+    content: resource.value?.numberOfParticipants,
   },
   {
     label: "Number of participants with samples",
-    content: collection.value?.numberOfParticipantsWithSamples,
+    content: resource.value?.numberOfParticipantsWithSamples,
   },
   {
     label: "Population age groups",
     content: removeChildIfParentSelected(
-      collection.value?.populationAgeGroups || []
+      resource.value?.populationAgeGroups || []
     )
       .sort((a, b) => a.order - b.order)
       .map((ageGroup) => ageGroup.name)
@@ -368,21 +366,21 @@ const population: IDefinitionListItem[] = [
   {
     label: "Population oncology topology",
     type: "ONTOLOGY",
-    content: collection.value.populationOncologyTopology,
+    content: resource.value.populationOncologyTopology,
   },
   {
     label: "Population oncology morphology",
     type: "ONTOLOGY",
-    content: collection.value.populationOncologyMorphology,
+    content: resource.value.populationOncologyMorphology,
   },
   {
     label: "Inclusion criteria",
     type: "ONTOLOGY",
-    content: collection.value.inclusionCriteria,
+    content: resource.value.inclusionCriteria,
   },
   {
     label: "Other inclusion criteria",
-    content: collection.value.otherInclusionCriteria,
+    content: resource.value.otherInclusionCriteria,
   },
 ];
 
@@ -396,48 +394,48 @@ if (mainMedicalConditions.value && mainMedicalConditions.value.length > 0) {
 
 let accessConditionsItems = computed(() => {
   let items = [];
-  if (collection.value.dataAccessConditions?.length) {
+  if (resource.value.dataAccessConditions?.length) {
     items.push({
       label: "Data access conditions",
-      content: collection.value.dataAccessConditions.map((c) => c.name),
+      content: resource.value.dataAccessConditions.map((c) => c.name),
     });
   }
-  if (collection.value.dataUseConditions) {
+  if (resource.value.dataUseConditions) {
     items.push({
       label: "Data use conditions",
       type: "ONTOLOGY",
-      content: collection.value.dataUseConditions,
+      content: resource.value.dataUseConditions,
     });
   }
-  if (collection.value.dataAccessFee) {
+  if (resource.value.dataAccessFee) {
     items.push({
       label: "Data access fee",
-      content: collection.value.dataAccessFee,
+      content: resource.value.dataAccessFee,
     });
   }
-  if (collection.value.releaseType) {
+  if (resource.value.releaseType) {
     items.push({
       label: "Release type",
       type: "ONTOLOGY",
-      content: collection.value.releaseType,
+      content: resource.value.releaseType,
     });
   }
-  if (collection.value.releaseDescription) {
+  if (resource.value.releaseDescription) {
     items.push({
       label: "Release description",
-      content: collection.value.releaseDescription,
+      content: resource.value.releaseDescription,
     });
   }
-  if (collection.value.prelinked) {
+  if (resource.value.prelinked) {
     items.push({
       label: "Prelinked",
-      content: collection.value.prelinked,
+      content: resource.value.prelinked,
     });
   }
-  if (collection.value.linkageOptions) {
+  if (resource.value.linkageOptions) {
     items.push({
       label: "Linkage options",
-      content: collection.value.linkageOptions,
+      content: resource.value.linkageOptions,
     });
   }
 
@@ -446,23 +444,23 @@ let accessConditionsItems = computed(() => {
 
 let fundingAndAcknowledgementItems = computed(() => {
   let items = [];
-  if (collection.value.fundingStatement) {
+  if (resource.value.fundingStatement) {
     items.push({
       label: "Funding",
-      content: collection.value.fundingStatement,
+      content: resource.value.fundingStatement,
     });
   }
-  if (collection.value.acknowledgements) {
+  if (resource.value.acknowledgements) {
     items.push({
       label: "Acknowledgements",
-      content: collection.value.acknowledgements,
+      content: resource.value.acknowledgements,
     });
   }
 
   return items;
 });
 
-useHead({ title: collection.value.acronym || collection.value.name });
+useHead({ title: resource.value.acronym || resource.value.name });
 
 const messageFilter = `{"filter": {"id":{"equals":"${route.params.collection}"}}}`;
 
@@ -476,14 +474,12 @@ if (route.params.catalogue) {
     cohortOnly.value ? "home" : (route.params.catalogue as string)
   ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}`;
   crumbs[
-    "Collections"
-  ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/collections`;
+    "Resources"
+  ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/resource`;
 } else {
   crumbs["Home"] = `/${route.params.schema}/ssr-catalogue/`;
   crumbs["Browse"] = `/${route.params.schema}/ssr-catalogue/all`;
-  crumbs[
-    "Collections"
-  ] = `/${route.params.schema}/ssr-catalogue/all/collections`;
+  crumbs["Resources"] = `/${route.params.schema}/ssr-catalogue/all/resource`;
 }
 
 const activeOrganisationSideModalIndex = ref(-1);
@@ -496,7 +492,7 @@ function closeOrganisationSideModal() {
 }
 
 const organisations = computed(() =>
-  collection.value.organisationsInvolved?.sort((a, b) =>
+  resource.value.organisationsInvolved?.sort((a, b) =>
     a.role && a.role?.find((r) => r.name === "Lead") ? -1 : 1
   )
 );
@@ -513,8 +509,8 @@ const activeOrganization = computed(() => {
   <LayoutsDetailPage>
     <template #header>
       <PageHeader
-        :title="collection?.acronym || collection.name"
-        :description="collection?.acronym ? collection.name : ''"
+        :title="resource?.acronym || resource.name"
+        :description="resource?.acronym ? resource.name : ''"
       >
         <template #prefix>
           <BreadCrumbs :crumbs="crumbs" />
@@ -526,31 +522,31 @@ const activeOrganization = computed(() => {
     </template>
     <template #side>
       <SideNavigation
-        :title="collection?.acronym || collection?.name"
-        :image="collection?.logo?.url"
+        :title="resource?.acronym || resource?.name"
+        :image="resource?.logo?.url"
         :items="tocItems"
       />
     </template>
     <template #main>
-      <ContentBlocks v-if="collection">
+      <ContentBlocks v-if="resource">
         <ContentBlockIntro
-          :image="collection?.logo?.url"
-          :link="collection?.website as linkTarget"
-          :contact="collection?.contactEmail"
-          :contact-name="collection.name"
+          :image="resource?.logo?.url"
+          :link="resource?.website as linkTarget"
+          :contact="resource?.contactEmail"
+          :contact-name="resource.name"
           :contact-message-filter="messageFilter"
-          :subject-template="collection.acronym"
+          :subject-template="resource.acronym"
         />
         <ContentBlockDescription
           id="Description"
           title="Description"
-          :description="collection?.description"
+          :description="resource?.description"
         />
 
         <ContentCohortGeneralDesign
           id="GeneralDesign"
           title="General Design"
-          :collection="collection"
+          :resource="resource"
         />
 
         <ContentBlock id="population" title="Population">
@@ -560,10 +556,10 @@ const activeOrganization = computed(() => {
         </ContentBlock>
 
         <ContentBlockContact
-          v-if="collection?.peopleInvolved || organisations"
+          v-if="resource?.peopleInvolved || organisations"
           id="Contributors"
           title="Contributors"
-          :contributors="collection?.peopleInvolved"
+          :contributors="resource?.peopleInvolved"
         >
           <template #before v-if="organisations && organisations?.length > 0">
             <DisplayList
@@ -621,11 +617,11 @@ const activeOrganization = computed(() => {
         <ContentBlockData
           id="AvailableData"
           title="Available Data &amp; Samples"
-          :collectionEvents="collection?.collectionEvents"
+          :collectionEvents="resource?.collectionEvents"
         />
 
         <TableContent
-          v-if="subcohortCount ?? 0 > 0"
+          v-if="cohortCount ?? 0 > 0"
           id="Subpopulations"
           title="Subpopulations"
           description="List of subcohorts or subpopulations for this resource"
@@ -635,12 +631,12 @@ const activeOrganization = computed(() => {
             { id: 'numberOfParticipants', label: 'Number of participants' },
           ]"
           type="CollectionSubcohorts"
-          :query="subcohortsQuery"
+          :query="cohortsQuery"
           :filter="{ id: route.params.collection }"
-          :rowMapper="subcohortMapper"
+          :rowMapper="cohortMapper"
           v-slot="slotProps"
         >
-          <SubCohortDisplay :id="slotProps.id" />
+          <CohortDisplay :id="slotProps.id" />
         </TableContent>
 
         <TableContent
@@ -668,7 +664,7 @@ const activeOrganization = computed(() => {
         </TableContent>
 
         <TableContent
-          v-if="collection.datasets"
+          v-if="resource.datasets"
           id="Datasets"
           title="Datasets"
           description="List of datasets for this resource"
@@ -710,21 +706,21 @@ const activeOrganization = computed(() => {
         </ContentBlock>
 
         <ContentBlockPublications
-          v-if="collection?.publications"
+          v-if="resource?.publications"
           id="publications"
           title="Publications"
-          :publications="collection.publications"
+          :publications="resource.publications"
         >
         </ContentBlockPublications>
 
         <ContentBlock
           id="access-conditions"
           title="Access conditions"
-          :description="collection?.dataAccessConditionsDescription"
+          :description="resource?.dataAccessConditionsDescription"
           v-if="
-            collection?.dataAccessConditions?.length ||
-            collection?.dataAccessConditionsDescription ||
-            collection?.releaseDescription
+            resource?.dataAccessConditions?.length ||
+            resource?.dataAccessConditionsDescription ||
+            resource?.releaseDescription
           "
         >
           <CatalogueItemList :items="accessConditionsItems" />
@@ -733,16 +729,16 @@ const activeOrganization = computed(() => {
         <ContentBlock
           id="funding-and-acknowledgement"
           title="Funding &amp; Acknowledgements "
-          v-if="collection?.fundingStatement || collection?.acknowledgements"
+          v-if="resource?.fundingStatement || resource?.acknowledgements"
         >
           <CatalogueItemList :items="fundingAndAcknowledgementItems" />
         </ContentBlock>
 
         <ContentBlockAttachedFiles
-          v-if="collection?.documentation?.length"
+          v-if="resource?.documentation?.length"
           id="Files"
           title="Documentation"
-          :documents="collection.documentation"
+          :documents="resource.documentation"
         />
       </ContentBlocks>
     </template>

@@ -1,5 +1,5 @@
 import type { INode } from "../../tailwind-components/types/types";
-export interface ICollection {
+export interface IResource {
   id: string;
   pid: string;
   name: string;
@@ -60,7 +60,7 @@ export interface ICollection {
   }[];
   inclusionCriteria?: IOntologyNode[];
   otherInclusionCriteria?: string;
-  collectionEvents: ICollectionEvent[];
+  collectionEvents: IResourceCollectionEvent[];
   peopleInvolved: IContributor[];
   networks: INetwork[];
   publications: IPublication[];
@@ -76,8 +76,9 @@ export interface ICollection {
   datasets: { name: string }[];
   populationOncologyTopology?: IOntologyNode[];
   populationOncologyMorphology?: IOntologyNode[];
-  subcohorts: any[];
-  partOfCollections: ICollection[];
+  cohorts: any[];
+  cohorts_agg: { count: number };
+  partOfResources: IResource[];
 }
 
 export interface IPublication {
@@ -96,12 +97,12 @@ export interface IPublication {
 
 export interface IVariableBase {
   name: string;
-  collection: {
+  resource: {
     id: string;
   };
   dataset: {
     name: string;
-    collection: {
+    resource: {
       id: string;
     };
   };
@@ -183,7 +184,7 @@ export interface IUrlObject {
   url: string;
 }
 
-export interface ICollectionEvent {
+export interface IResourceCollectionEvent {
   name: string;
   description: string;
   startYear: INameObject;
@@ -196,7 +197,7 @@ export interface ICollectionEvent {
   areasOfInformation: ICollectionEventCategory[];
   standardizedTools: ICollectionEventCategory[];
   standardizedToolsOther: string;
-  subcohorts: INameObject[];
+  cohorts: INameObject[];
   coreVariables: string[];
 }
 
@@ -284,7 +285,7 @@ export interface IMapping {
   };
   repeats: string;
   sourceDataset: {
-    collection: {
+    resource: {
       id: string;
     };
     name: string;

@@ -20,10 +20,10 @@ const menu = [
     link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}`,
   },
 ];
-if (catalogueRouteParam === "all" || props.catalogue.collections_agg?.count > 0)
+if (catalogueRouteParam === "all" || props.catalogue.resources_agg?.count > 0)
   menu.push({
-    label: "collections",
-    link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/collections`,
+    label: "resources",
+    link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/resources`,
   });
 if (!cohortOnly.value && props.variableCount > 0)
   menu.push({
@@ -31,17 +31,15 @@ if (!cohortOnly.value && props.variableCount > 0)
     link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/variables`,
   });
 
-if (props.catalogue.collections_groupBy?.length) {
-  props.catalogue.collections_groupBy.forEach(
+if (props.catalogue.resources_groupBy?.length) {
+  props.catalogue.resources_groupBy.forEach(
     (sub: { type: { name: string }; count: string }) => {
-      const collectionTypeMetadata = getCollectionMetadataForType(
-        sub.type.name
-      );
+      const resourceTypeMetadata = getResourceMetadataForType(sub.type.name);
       menu.push({
-        label: collectionTypeMetadata.plural,
+        label: resourceTypeMetadata.plural,
         link:
           `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/` +
-          collectionTypeMetadata.path,
+          resourceTypeMetadata.path,
       });
     }
   );
