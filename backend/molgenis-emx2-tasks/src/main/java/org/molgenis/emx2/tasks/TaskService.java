@@ -11,6 +11,8 @@ public interface TaskService {
 
   String submitTaskFromName(String name, String parameters);
 
+  String submitTaskFromName(String name, String parameters, String url);
+
   Set<String> getJobIds();
 
   Task getTask(String id);

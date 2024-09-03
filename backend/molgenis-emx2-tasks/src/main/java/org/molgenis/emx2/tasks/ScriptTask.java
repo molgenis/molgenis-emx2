@@ -13,6 +13,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.molgenis.emx2.ColumnType;
+import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.email.EmailMessage;
@@ -30,6 +31,7 @@ public class ScriptTask extends Task {
   private String dependencies;
   private Process process;
   private byte[] output;
+  private String serverUrl;
 
   public ScriptTask(String name) {
     super("Executing script '" + name + "'");
@@ -166,10 +168,15 @@ public class ScriptTask extends Task {
   private void sendFailureMail() {
     if (this.getFailureAddress() != null && !this.getFailureAddress().isEmpty()) {
       EmailService emailService = new EmailService();
-      String subject = "Molgenis script %s failed".formatted(this.getName());
+      String subject =
+          "Molgenis script %s failed on %s".formatted(this.getName(), this.getServerUrl());
       String text =
-          "Molgenis script %s failed with error:\n%s"
-              .formatted(this.getName(), this.getDescription());
+          """
+            Molgenis script %s failed with error:
+            %s
+
+            %s"""
+              .formatted(this.getName(), this.getDescription(), this.getJobUrl());
       EmailMessage emailMessage =
           new EmailMessage(List.of(this.getFailureAddress()), subject, text, Optional.empty());
       emailService.send(emailMessage);
@@ -230,5 +237,17 @@ public class ScriptTask extends Task {
   @JsonIgnore
   public byte[] getOutput() {
     return this.output;
+  }
+
+  private String getJobUrl() {
+    return this.serverUrl + "/" + Constants.SYSTEM_SCHEMA + "/tasks/#/jobs?id=" + this.getId();
+  }
+
+  public void setServerUrl(String url) {
+    this.serverUrl = url;
+  }
+
+  public String getServerUrl() {
+    return serverUrl;
   }
 }

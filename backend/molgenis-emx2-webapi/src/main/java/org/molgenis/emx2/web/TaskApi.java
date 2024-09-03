@@ -3,6 +3,7 @@ package org.molgenis.emx2.web;
 import static org.molgenis.emx2.Constants.SYSTEM_SCHEMA;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.SelectColumn.s;
+import static org.molgenis.emx2.rdf.RDFUtils.extractHost;
 import static org.molgenis.emx2.web.FileApi.addFileColumnToResponse;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 import static org.molgenis.emx2.web.MolgenisWebservice.sessionManager;
@@ -86,7 +87,9 @@ public class TaskApi {
       }
       String name = URLDecoder.decode(request.params("name"), StandardCharsets.UTF_8);
       String parameters = request.body();
-      String id = taskService.submitTaskFromName(name, parameters);
+
+      String url = extractHost(request.url());
+      String id = taskService.submitTaskFromName(name, parameters, url);
       return new TaskReference(id).toString();
     }
     throw new MolgenisException("Schema doesn't exist or permission denied");

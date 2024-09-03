@@ -89,7 +89,7 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
   }
 
   @Override
-  public String submitTaskFromName(final String scriptName, final String parameters) {
+  public String submitTaskFromName(String scriptName, String parameters, String url) {
     StringBuilder result = new StringBuilder();
     String defaultUser = database.getActiveUser();
     database.tx(
@@ -98,6 +98,7 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
           Schema systemSchema = db.getSchema(this.systemSchemaName);
 
           ScriptTask scriptTask = retrieveTaskFromDatabase(systemSchema, scriptName);
+          scriptTask.setServerUrl(url);
           String user =
               scriptTask.getCronUserName() == null ? defaultUser : scriptTask.getCronUserName();
 
@@ -114,6 +115,11 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
                       .submitUser(user)));
         });
     return result.toString();
+  }
+
+  @Override
+  public String submitTaskFromName(final String scriptName, final String parameters) {
+    return submitTaskFromName(scriptName, parameters, null);
   }
 
   private ScriptTask retrieveTaskFromDatabase(Schema systemSchema, String scriptName) {

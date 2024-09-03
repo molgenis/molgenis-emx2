@@ -39,6 +39,11 @@ public class TaskServiceInMemory implements TaskService {
   }
 
   @Override
+  public String submitTaskFromName(String name, String parameters, String url) {
+    throw new UnsupportedOperationException("Not supported when using in memory task service");
+  }
+
+  @Override
   public Set<String> getJobIds() {
     return tasks.keySet();
   }
