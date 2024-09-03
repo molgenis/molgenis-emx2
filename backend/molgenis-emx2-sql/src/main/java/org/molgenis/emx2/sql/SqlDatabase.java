@@ -4,8 +4,7 @@ import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.ColumnType.STRING;
 import static org.molgenis.emx2.Constants.MG_USER_PREFIX;
 import static org.molgenis.emx2.Constants.SYSTEM_SCHEMA;
-import static org.molgenis.emx2.sql.MetadataUtils.USERS_METADATA;
-import static org.molgenis.emx2.sql.MetadataUtils.USER_NAME;
+import static org.molgenis.emx2.sql.MetadataUtils.*;
 import static org.molgenis.emx2.sql.SqlDatabaseExecutor.*;
 import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeCreateSchema;
 
@@ -489,6 +488,25 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
                 .where(USER_NAME.eq(user))
                 .execute());
     log(start, "removed user " + user);
+  }
+
+  public void setEnabledUser(String user, Boolean enabled) {
+    long start = System.currentTimeMillis();
+    if (!hasUser(user))
+      throw new MolgenisException(
+          (enabled ? "Enabling" : "Disabling")
+              + " user failed: User with name '"
+              + user
+              + "' doesn't exist");
+    tx(
+        db ->
+            ((SqlDatabase) db)
+                .getJooq()
+                .update(USERS_METADATA)
+                .set(USER_ENABLED, enabled)
+                .where(USER_NAME.eq(user))
+                .execute());
+    log(start, (enabled ? "Enabling" : "Disabling") + " user " + user);
   }
 
   public void addRole(String role) {

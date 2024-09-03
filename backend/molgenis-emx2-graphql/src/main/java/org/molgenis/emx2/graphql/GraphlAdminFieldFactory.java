@@ -31,6 +31,11 @@ public class GraphlAdminFieldFactory {
                   .build())
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
+                  .name(ENABLED)
+                  .type(Scalars.GraphQLBoolean)
+                  .build())
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
                   .name(SETTINGS)
                   .type(GraphQLList.list(outputSettingsType))
                   .build())
@@ -105,9 +110,27 @@ public class GraphlAdminFieldFactory {
         .build();
   }
 
+  public static GraphQLFieldDefinition setEnabledUser(Database database) {
+    return GraphQLFieldDefinition.newFieldDefinition()
+        .name("setEnabledUser")
+        .type(typeForMutationResult)
+        .argument(GraphQLArgument.newArgument().name(EMAIL).type(Scalars.GraphQLString))
+        .argument(GraphQLArgument.newArgument().name(ENABLED).type(Scalars.GraphQLBoolean))
+        .dataFetcher(
+            dataFetchingEnvironment -> {
+              String email = dataFetchingEnvironment.getArgument(EMAIL);
+              Boolean enabled = dataFetchingEnvironment.getArgument(ENABLED);
+              database.setEnabledUser(email, enabled);
+              return new GraphqlApiMutationResult(
+                  SUCCESS, "User %s %s ", email, enabled ? "Enabled" : "Disabled");
+            })
+        .build();
+  }
+
   private static Map<String, Object> toGraphqlUser(User user) {
     Map<String, Object> result = new LinkedHashMap<>();
     result.put(EMAIL, user.getUsername());
+    result.put(ENABLED, user.getEnabled());
     result.put(SETTINGS, mapSettingsToGraphql(user.getSettings()));
     return result;
   }

@@ -138,7 +138,7 @@ export default {
       this.loading = true;
       request(
         "graphql",
-        `{_admin{users(limit:${this.limit},offset:${this.offset}){email},userCount}}`
+        `{_admin{users(limit:${this.limit},offset:${this.offset}){email, enabled},userCount}}`
       )
         .then((data) => {
           this.users = data._admin.users;
@@ -175,12 +175,12 @@ export default {
       this.alterLoading = false;
     },
     enableUser(user) {
-      console.log("enableUser " + user);
+      console.log("setEnabledUser " + user);
       this.alterError = null;
       this.alterLoading = true;
       request(
         "graphql",
-        `mutation{enableUser(email: "${user}"){status,message}}`
+        `mutation{setEnabledUser(email: "${user}", enabled:true){status,message}}`
       )
         .then((data) => {
           console.log(data);
@@ -198,12 +198,12 @@ export default {
       this.alterLoading = false;
     },
     disableUser(user) {
-      console.log("disableUser " + user);
+      console.log("setEnabledUser " + user);
       this.alterError = null;
       this.alterLoading = true;
       request(
         "graphql",
-        `mutation{disableUser(email: "${user}"){status,message}}`
+        `mutation{setEnabledUser(email: "${user}", enabled:false){status,message}}`
       )
         .then((data) => {
           console.log(data);

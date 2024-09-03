@@ -47,6 +47,8 @@ public interface Database extends HasSettingsInterface<Database> {
 
   void deleteUser(String name);
 
+  void setEnabledUser(String name, Boolean enabled);
+
   void setActiveUser(String username);
 
   String getActiveUser();

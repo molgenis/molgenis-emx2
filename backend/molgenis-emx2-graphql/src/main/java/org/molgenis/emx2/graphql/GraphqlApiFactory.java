@@ -62,6 +62,7 @@ public class GraphqlApiFactory {
     if (database.isAdmin()) {
       queryBuilder.field(GraphlAdminFieldFactory.queryAdminField(database));
       mutationBuilder.field(GraphlAdminFieldFactory.deleteUser(database));
+      mutationBuilder.field(GraphlAdminFieldFactory.setEnabledUser(database));
     }
 
     // database operations
