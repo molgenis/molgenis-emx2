@@ -1,3 +1,6 @@
-order,name,code,parent,ontologyTermURI,definition
-,draft,,,,
-,final,,,,
+name,definition,codesystem,code,ontologyTermURI
+op_datpro,provisional data,EU Vocabularies - Distribution Status,,http://publications.europa.eu/resource/authority/distribution-status/OP_DATPRO
+withdrawn,withdrawn,EU Vocabularies - Distribution Status,,http://publications.europa.eu/resource/authority/distribution-status/WITHDRAWN
+completed,completed,EU Vocabularies - Distribution Status,,http://publications.europa.eu/resource/authority/distribution-status/COMPLETED
+deprecated,deprecated,EU Vocabularies - Distribution Status,,http://publications.europa.eu/resource/authority/distribution-status/DEPRECATED
+develop,under development,EU Vocabularies - Distribution Status,,http://publications.europa.eu/resource/authority/distribution-status/DEVELOP
