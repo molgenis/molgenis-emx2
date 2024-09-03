@@ -44,9 +44,14 @@ public class GraphqlApi {
     sessionManager = sm;
 
     // per schema graphql calls from app
-    final String appGqlPath = "apps/{app}/{schema}/graphql"; // NOSONAR
-    app.get(appGqlPath, GraphqlApi::handleSchemaRequests);
-    app.post(appGqlPath, GraphqlApi::handleSchemaRequests);
+    final String appSchemaGqlPath = "apps/{app}/{schema}/graphql"; // NOSONAR
+    app.get(appSchemaGqlPath, GraphqlApi::handleSchemaRequests);
+    app.post(appSchemaGqlPath, GraphqlApi::handleSchemaRequests);
+
+    // per schema graphql calls from app
+    final String appGqlPath = "apps/{app}/graphql"; // NOSONAR
+    app.get(appGqlPath, GraphqlApi::handleDatabaseRequests);
+    app.post(appGqlPath, GraphqlApi::handleDatabaseRequests);
 
     // per database graphql
     final String databasePath = "/api/graphql";
@@ -59,10 +64,11 @@ public class GraphqlApi {
     app.post(schemaPath, GraphqlApi::handleSchemaRequests);
   }
 
-  private static String handleDatabaseRequests(Context ctx) throws IOException {
+  private static void handleDatabaseRequests(Context ctx) throws IOException {
     MolgenisSession session = sessionManager.getSession(ctx.req());
     ctx.header(CONTENT_TYPE, ACCEPT_JSON);
-    return executeQuery(session.getGraphqlForDatabase(), ctx);
+    String result = executeQuery(session.getGraphqlForDatabase(), ctx);
+    ctx.json(result);
   }
 
   public static String handleSchemaRequests(Context ctx) throws IOException {
@@ -71,7 +77,7 @@ public class GraphqlApi {
 
     // apps and api is not a schema but a resource
     if ("apps".equals(schemaName) || "api".equals(schemaName)) {
-      return handleDatabaseRequests(ctx);
+      handleDatabaseRequests(ctx);
     }
 
     // todo, really check permissions
