@@ -1,0 +1,5 @@
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,comment
+Checksum,,,,,,,,,,,,,,
+Checksum,,id,auto_id,1,TRUE,,,,,,,Auto-generated ID,DCAT-AP-v3,local id
+Checksum,,algorithm,ref,,TRUE,,ChecksumAlgorithm,,,,http://spdx.org/rdf/terms#algorithm,The algorithm used for the value.,DCAT-AP-v3,DCAT-AP-v3 Checksum
+Checksum,,value,string,,TRUE,,,,,,http://spdx.org/rdf/terms#checksumValue,The checksum value.,DCAT-AP-v3,DCAT-AP-v3 Checksum
