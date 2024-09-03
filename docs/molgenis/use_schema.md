@@ -23,17 +23,23 @@ You can describe basic columns using:
 
 ### tableName
 
-Regular expression requirement: `^(?!.* _|.*_ )[a-zA-Z][a-zA-Z0-9 _]{0,30}$`
+Will be the name of the table. Must be unique per database (including present ontologies).
 
-Will be the name of the table. Must start with one of `a-zA-Z` followed by zero or more of `a-zA-Z0-9 _`, though an underscore directly preceded/followed by a space is not allowed. Maximum length 31
-then all other settings will apply to the table instead of the column.
+It must start with a letter, followed by zero or more letters, numbers, spaces or underscores. A space immediately before or after an underscore is not allowed. The character limit is 31 (so it fits in Excel sheet names).
+
+Regular expression requirement: `^(?!.* _|.*_ )[a-zA-Z][a-zA-Z0-9 _]{0,30}$`  
+See the [database naming requirements](./use_database.md#naming-requirements) for some examples.
+
+Settings defined on a line with the `tableName` without a `columnname` will apply to the table instead of a column.
 
 ### columnName
 
-Regular expression requirement: `^(?!.* _|.*_ )[a-zA-Z][a-zA-Z0-9 _]*$`
+Will be the name of the column. Must be unique per tableName. Default value: empty
 
-Will be the name of the column. Must be unique per tableName. Must start with one of `a-zA-Z` followed by zero or more of `a-zA-Z0-9 _`, though an underscore directly preceded/followed by a space is not allowed. Maximum length 31
-characters. Default value: empty
+It must start with a letter, followed by zero or more letters, numbers, spaces or underscores. A space immediately before or after an underscore is not allowed. The character limit is 63 (PostgreSQL limit for identifiers before they get truncated).
+
+Regular expression requirement: `^(?!.* _|.*_ )[a-zA-Z][a-zA-Z0-9 _]{0,62}$`  
+See the [database naming requirements](./use_database.md#naming-requirements) for some examples (where `columnName` has a higher character limit).
 
 If a `columnName` contains spaces, it is escaped to camelCase for usage as variable.
 For example, `first name` would be defined as `firstName` when creating a validation expression.

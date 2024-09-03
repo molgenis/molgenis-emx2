@@ -447,7 +447,7 @@ export default {
         return "Name is required";
       }
       if (!this.column.name.match(constants.COLUMN_NAME_REGEX)) {
-        return "Name should start with a letter, followed by letters/underscores/spaces/numbers (though no underscore preceded/followed by a space), i.e. ^(?!.* _|.*_ )[a-zA-Z][a-zA-Z0-9 _]*$";
+        return "Name must start with a letter, followed by zero or more letters, numbers, spaces or underscores. A space immediately before or after an underscore is not allowed. The character limit is 63.";
       }
       if (
         (this.modelValue === undefined ||

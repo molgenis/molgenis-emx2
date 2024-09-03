@@ -27,12 +27,12 @@ public class TestTableMetadata {
         () -> assertThrows(MolgenisException.class, () -> new TableMetadata("first  __   name")),
         // invalid: ' _' & '_ ' should fail
         () -> assertThrows(MolgenisException.class, () -> new TableMetadata("aa    ____      ")),
-        // valid: max length (= 31 characters)
-        () -> assertDoesNotThrow(() -> new TableMetadata("abcdefghijklmnopqrstuvwzyx78901")),
+        // valid: max length (= 31 characters) -> so it fits in Excel sheet names
+        () -> assertDoesNotThrow(() -> new TableMetadata("a234567890123456789012345678901")),
         // invalid: too long (> 31 characters)
         () ->
             assertThrows(
                 MolgenisException.class,
-                () -> new TableMetadata("abcdefghijklmnopqrstuvwzyx789012")));
+                () -> new TableMetadata("a2345678901234567890123456789012")));
   }
 }

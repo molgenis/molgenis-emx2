@@ -15,7 +15,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
     implements Comparable {
 
   public static final String TABLE_NAME_MESSAGE =
-      ": Table name must start with a letter, followed by letters/underscores/spaces/numbers (though no underscore preceded/followed by a space) and with a maximum of 31 characters (so it fits in Excel sheet names), i.e. ^(?!.* _|.*_ )[a-zA-Z][a-zA-Z0-9 _]{0,30}$";
+      ": Table name must start with a letter, followed by zero or more letters, numbers, spaces or underscores. A space immediately before or after an underscore is not allowed. The character limit is 31.";
   // if a table extends another table (optional)
   public String inheritName = null;
   // to allow indicate that a table should be dropped

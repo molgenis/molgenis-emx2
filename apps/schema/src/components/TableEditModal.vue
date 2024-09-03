@@ -146,7 +146,7 @@ export default {
         this.table.name.trim() === "" ||
         this.table.name.search(constants.TABLE_NAME_REGEX)
       ) {
-        return "Name is required and must start with a letter, followed by letters/underscores/spaces/numbers (though no underscore preceded/followed by a space) and with a maximum of 31 characters, i.e. ^(?!.* _|.*_ )[a-zA-Z][a-zA-Z0-9 _]{0,30}$";
+        return "Name is required and must start with a letter, followed by zero or more letters, numbers, spaces or underscores. A space immediately before or after an underscore is not allowed. The character limit is 31.";
       }
       if (
         this.modelValue?.name !== this.table.name &&

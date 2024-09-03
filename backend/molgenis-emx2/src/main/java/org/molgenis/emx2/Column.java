@@ -17,7 +17,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
 
   // basics
   private TableMetadata table; // table this column is part of
-  private String columnName; // short name, should adhere to: ^(?!.* _|.*_ )[a-zA-Z][a-zA-Z0-9 _]*$
+  private String columnName; // short name, should adhere to: Constants.COLUMN_NAME_REGEX
   private ColumnType columnType = STRING; // type of the column
 
   // transient for enabling migrations
@@ -89,7 +89,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
       throw new MolgenisException(
           "Invalid column name '"
               + columnName
-              + "': Column must start with a letter, followed by letters/underscores/spaces/numbers (though no underscore preceded/followed by a space), i.e. ^(?!.* _|.*_ )[a-zA-Z][a-zA-Z0-9 _]*$");
+              + "': Column name must start with a letter, followed by zero or more letters, numbers, spaces or underscores. A space immediately before or after an underscore is not allowed. The character limit is 63.");
     }
     return columnName.trim();
   }

@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-let regexErrorMessage='Table name must start with a letter, followed by letters/underscores/spaces/numbers (though no underscore preceded/followed by a space) and with a maximum of 31 characters, i.e. ^(?!.* _|.*_ )[a-zA-Z][a-zA-Z0-9 _]{0,30}$'
+const regexErrorMessage='Table name must start with a letter, followed by zero or more letters, numbers, spaces or underscores. A space immediately before or after an underscore is not allowed. The character limit is 31.'
 
 test('database name regex validation', async ({ page }) => {
   await page.goto('/apps/central/');
@@ -23,8 +23,8 @@ test('database name regex validation', async ({ page }) => {
   await expect(page.locator('form')).toContainText(regexErrorMessage);
   await page.getByLabel('name').fill('aa    ____      ');
   await expect(page.locator('form')).toContainText(regexErrorMessage);
-  await page.getByLabel('name').fill('abcdefghijklmnopqrstuvwzyx78901');
+  await page.getByLabel('name').fill('a234567890123456789012345678901');
   await expect(page.locator('form')).not.toContainText(regexErrorMessage);
-  await page.getByLabel('name').fill('abcdefghijklmnopqrstuvwzyx789012');
+  await page.getByLabel('name').fill('a2345678901234567890123456789012');
   await expect(page.locator('form')).toContainText(regexErrorMessage);
 });
