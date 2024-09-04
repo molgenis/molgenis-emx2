@@ -1,0 +1,7 @@
+resource,name,label,since version,until version,unit of observation,keywords,description,number of rows
+testCohort,metadata,metadata,1.0,,person,,metadata for testCohort,100
+testCohort,birth,birth data,1.1,,person,,data collected at birth,23
+testCohort,growth,growth data,1.0,,person,,data collected on child's growth,200
+testCohort,psychological,psychological measurements,1.0,,person,,child's psychological outcomes,203
+testCohort,household,household characteristics,1.0,,person,,child's household characteristics,42
+testCohort,mother,data from mother,1.0,,person,,data collected from mother,42

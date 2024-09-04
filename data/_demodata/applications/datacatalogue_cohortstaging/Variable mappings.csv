@@ -1,0 +1,24 @@
+source,source dataset,source variables,source variables other datasets.dataset,source variables other datasets.name,target,target dataset,target variable,match,status,description,syntax,comments
+testCohort,metadata,c_id,,,LifeCycle_CDM,core,child_id,complete,,,child_id = c_id,
+testCohort,metadata,m_id,,,LifeCycle_CDM,core,mother_id,complete,,,mother_id = m_id,
+testCohort,household,partner_in_household,,,LifeCycle_CDM,core,fam_splitup0,partial,,,"if partner_in_household == 1:
+    fam_splitup0 = 1
+elif partner_in_household == 2:
+    fam_splitup0 = 0",
+testCohort,birth,birth_weight,,,LifeCycle_CDM,core,birth_weight,complete,,,birth_weight = birth_weight,
+testCohort,birth,birth_length,,,LifeCycle_CDM,core,birth_length,complete,,,birth_length = birth_length,
+testCohort,birth,apgar_score,,,LifeCycle_CDM,core,apgar,partial,,"partial harmonisation, since apgar score was taken at 5 min not at 10 min",apgar = apgar_score,
+testCohort,growth,bm_0,,,LifeCycle_CDM,core,weight_0,complete,,,weight_0 = we_0,
+testCohort,growth,bm_1,,,LifeCycle_CDM,core,weight_1,complete,,,weight_1 = we_1,
+testCohort,growth,bm_2,,,LifeCycle_CDM,core,weight_2,complete,,,weight_2 = we_2,
+testCohort,growth,bm_3,,,LifeCycle_CDM,core,weight_3,complete,,,weight_3 = we_3,
+testCohort,growth,bm_4,,,LifeCycle_CDM,core,weight_4,complete,,,weight_4 = we_4,
+testCohort,growth,bm_5,,,LifeCycle_CDM,core,weight_5,complete,,,weight_5 = we_5,
+testCohort,growth,length_0,,,LifeCycle_CDM,core,height_0,complete,,,height_0 = length_0,
+testCohort,growth,length_1,,,LifeCycle_CDM,core,height_1,complete,,,height_1 = length_1,
+testCohort,growth,length_2,,,LifeCycle_CDM,core,height_2,complete,,,height_2 = length_2,
+testCohort,growth,length_3,,,LifeCycle_CDM,core,height_3,complete,,,height_3 = length_3,
+testCohort,growth,length_4,,,LifeCycle_CDM,core,height_4,complete,,,height_4 = length_4,
+testCohort,growth,length_5,,,LifeCycle_CDM,core,height_5,complete,,,height_5 = length_5,
+testCohort,psychological,,,,LifeCycle_CDM,outcome,adhd_raw_0,na,,,,
+testCohort,birth,"birth_weight,birth_length","mother,mother,household","gest_diabetes,blood_glucose,partner_in_household",LifeCycle_CDM,core,weight_who_ga,partial,,,,

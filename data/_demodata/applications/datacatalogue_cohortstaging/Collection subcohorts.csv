@@ -1,4 +1,4 @@
-resource,name,description,number of participants,inclusion start,inclusion end,age groups,main medical condition,comorbidity,countries,regions,inclusion criteria
+collection,name,description,number of participants,inclusion start,inclusion end,age groups,main medical condition,comorbidity,countries,regions,inclusion criteria
 FORCE-NEN collections,AvL,,,,,,,,,,
 FORCE-NEN collections,EMC,,,,,,,,,,
 FORCE-NEN collections,Amsterdam UMC,,,,,,,,,,

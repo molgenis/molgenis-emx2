@@ -1,4 +1,4 @@
-resource,id,pid,name,acronym,logo,logo_filename,country,website
+collection,id,pid,name,acronym,logo,logo_filename,country,website
 SWS,Soton,,University of Southampton,Soton,,,United Kingdom of Great Britain and Northern Ireland (the),https://www.southampton.ac.uk/
 LSC,UIBK,,Universität Innsbruck,UIBK,,,Austria,https://www.uibk.ac.at/
 PSYCONN,GGZ Friesland,,GGZ Friesland,,,,,

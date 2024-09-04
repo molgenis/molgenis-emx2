@@ -1,4 +1,4 @@
-resource,name,description,subcohorts,start date,end date,age groups,number of participants,areas of information,data categories,sample categories,standardized tools,standardized tools other,core variables
+collection,name,description,subcohorts,start date,end date,age groups,number of participants,areas of information,data categories,sample categories,standardized tools,standardized tools other,core variables
 ENVIRONAGE,birth,,,,,,,,,,,,
 DNBC,18 years old (ongoing),,children,,,,,,,,,,
 EDEN,5y,Around 5 years of age,,,,,,,,,,,

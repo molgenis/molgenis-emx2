@@ -247,6 +247,9 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
     } else {
       throw new Error("Negotiator is not available. Please try again later.");
     }
+
+    const body = await response.json();
+    window.location.href = body.redirect_uri;
   }
 
   return {
