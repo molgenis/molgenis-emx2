@@ -53,4 +53,18 @@ print('Error message', file=sys.stderr)
     // System.out.println(r2);
     r2.run();
   }
+
+  @Test
+  public void testPythonScript_shouldFail() {
+    ScriptTask task =
+        new ScriptTask("error")
+            .script(
+                """
+import sys
+failureVariable = fail
+print('unreachable')
+""");
+    task.run();
+    assertEquals(task.getStatus(), ERROR);
+  }
 }
