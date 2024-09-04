@@ -89,7 +89,7 @@ class Transform:
         for table_name in ['Datasets', 'Dataset mappings', 'Subcohorts',
                            'Collection events', 'External identifiers',
                            'Linked resources', 'Quantitative information', 'Subcohort counts',
-                           'Documentation', 'Contacts', 'Variables', 'Network variables']:
+                           'Documentation', 'Contacts', 'Variables', 'Network variables', 'Variable values']:
             self.transform_tables(table_name)
             self.rename_tables(table_name)
 
@@ -214,7 +214,7 @@ class Transform:
         df_merged_pubs = pd.concat([df_design_paper, df_other_pubs])
         df_merged_pubs = df_merged_pubs.reset_index()
 
-        df_resource_pubs = get_resource_organisations(df_merged_pubs, df_publications)
+        df_resource_pubs = get_resource_pubs(df_merged_pubs, df_publications)
         df_resource_pubs = df_resource_pubs.drop_duplicates(subset=['resource', 'doi'], keep='first')
         df_resource_pubs.to_csv(self.path + 'Resource publications.csv', index=False)
 
@@ -317,11 +317,13 @@ class Transform:
         if 'subcohorts' in df.columns:
             df.loc[:, 'subcohorts'] = df['subcohorts'].apply(strip_resource)
 
-        df.rename(columns={'subcohorts': 'cohorts',
-                           'subcohorts.resource': 'cohorts.resource',
-                           'subcohort.name': 'cohorts.name',
+        df.rename(columns={'subcohort.resource': 'resource',
+                           'subcohort.name': 'cohort',
                            'collection event.name': 'collection event',
-                           'network': 'resource'}, inplace=True)
+                           'network': 'resource',
+                           'main resource': 'resource',
+                           'variable.dataset': 'dataset',
+                           'variable.name': 'variable'}, inplace=True)
 
         df = float_to_int(df)  # convert float back to integer
         df.to_csv(self.path + table_name + '.csv', index=False)
