@@ -1,4 +1,4 @@
-resource,pid,acronym,name,type,type other,institution,institution acronym,email,logo,logo_filename,address,expertise,country,features,role,website,description,index,collection
+id,pid,acronym,name,type,type other,institution,institution acronym,email,logo,logo_filename,address,expertise,country,features,role,website,description,index,resource
 AMC,,AMC,Amsterdam Medical Center ,University,,,,,,,,,Netherlands (the),,Lead,,,39,ABCD
 AMC,,AMC,Amsterdam Medical Center ,University,,,,,,,,,Netherlands (the),,Lead,,,104,TestDataSourceID
 TUNI,,,Tampere University,University,,,,,,,,,Finland,,Lead,https://www.tuni.fi/en,,7,HPV

@@ -156,7 +156,7 @@ const query = computed(() => {
           name
       }
     }
-    Collections_agg (filter:$filter){
+    Resources_agg (filter:$filter){
         count
     }
   }
@@ -170,7 +170,7 @@ const gqlFilter = computed(() => {
 
   result = buildQueryFilter(filters.value);
 
-  if (resourceType.value.path != "collections") {
+  if (resourceType.value.path != "resources") {
     result.type = { name: { equals: resourceType.value.type } };
   }
 
@@ -321,12 +321,9 @@ crumbs[
           ></FilterWell>
           <SearchResultsList>
             <CardList v-if="resources.length > 0">
-              <CardListItem
-                v-for="collection in resources"
-                :key="collection.name"
-              >
-                <CollectionCard
-                  :collection="collection"
+              <CardListItem v-for="resource in resources" :key="resource.name">
+                <ResourceCard
+                  :resource="resource"
                   :schema="route.params.schema as string"
                   :catalogue="route.params.catalogue as string"
                   :compact="activeTabName !== 'detailed'"
@@ -335,7 +332,7 @@ crumbs[
             </CardList>
             <div v-else class="flex justify-center pt-3">
               <span class="py-15 text-blue-500">
-                No Collections found with current filters
+                No resources found with current filters
               </span>
             </div>
           </SearchResultsList>
