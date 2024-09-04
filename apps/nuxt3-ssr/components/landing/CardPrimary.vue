@@ -23,7 +23,11 @@ withDefaults(defineProps<Props>(), {
       </span>
       <div class="relative">
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
         <NuxtLink :to="link" :target="openLinkInNewTab ? '_blank' : undefined">
+=======
+        <NuxtLink :to="link" :target="openLinkInNewTab?'_blank':undefined">
+>>>>>>> Stashed changes
 =======
         <NuxtLink :to="link" :target="openLinkInNewTab?'_blank':undefined">
 >>>>>>> Stashed changes
@@ -46,7 +50,11 @@ withDefaults(defineProps<Props>(), {
         class="md:hidden absolute right-0 mr-3 hover:text-blue-800 text-blue-500"
       >
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
         <NuxtLink :to="link" :target="openLinkInNewTab ? '_blank' : undefined">
+=======
+        <NuxtLink :to="link" :target="openLinkInNewTab?'_blank':undefined">
+>>>>>>> Stashed changes
 =======
         <NuxtLink :to="link" :target="openLinkInNewTab?'_blank':undefined">
 >>>>>>> Stashed changes
@@ -63,11 +71,15 @@ withDefaults(defineProps<Props>(), {
     </p>
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     <NuxtLink
       class="md:block hidden mt-auto"
       :to="link"
       :target="openLinkInNewTab ? '_blank' : undefined"
     >
+=======
+    <NuxtLink class="md:block hidden mt-auto" :to="link" :target="openLinkInNewTab?'_blank':undefined">
+>>>>>>> Stashed changes
 =======
     <NuxtLink class="md:block hidden mt-auto" :to="link" :target="openLinkInNewTab?'_blank':undefined">
 >>>>>>> Stashed changes

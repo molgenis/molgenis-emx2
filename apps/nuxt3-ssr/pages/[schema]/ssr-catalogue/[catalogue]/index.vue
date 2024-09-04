@@ -235,7 +235,11 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
         title="Aggregates"
         callToAction="Aggregates"
         :link="`/Aggregates/aggregates/#/`"
+<<<<<<< Updated upstream
         :openLinkInNewTab="true"
+=======
+        :openLinkInTab="true"
+>>>>>>> Stashed changes
       />
     </LandingPrimary>
 
