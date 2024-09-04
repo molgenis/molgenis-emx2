@@ -1,7 +1,7 @@
 from decouple import config
-from data.scripts.util.client import Session
-from data.scripts.catalogue.update.update_4_x import Transform
-from data.scripts.util.zip_handling import Zip
+from catalogue_util.client import Session
+from update.update_4_x import Transform
+from catalogue_util.zip_handling import Zip
 import os
 
 if not os.path.isdir('./files'):
@@ -22,7 +22,7 @@ CATALOGUE_SCHEMA_NAME = config('MG_CATALOGUE_SCHEMA_NAME')
 ONTOLOGIES_SCHEMA_NAME = config('MG_ONTOLOGIES_SCHEMA_NAME')
 SHARED_STAGING_NAME = config('MG_SHARED_STAGING_NAME')
 
-if SERVER_TYPE == 'data_catalogue' or 'UMCG_catalogue':
+if SERVER_TYPE == 'data_catalogue' or 'cohort_catalogue':
     COHORTS = config('MG_COHORTS', cast=lambda v: [s.strip() for s in v.split(',')])
 
 if SERVER_TYPE == 'data_catalogue':
@@ -64,7 +64,7 @@ session.download_zip(database_name=CATALOGUE_SCHEMA_NAME)
 print('Transform data from ' + CATALOGUE_SCHEMA_NAME)
 # get instances of classes
 zip_handling = Zip(CATALOGUE_SCHEMA_NAME)
-update = Transform(CATALOGUE_SCHEMA_NAME, 'catalogue')
+update = Transform(database_name=CATALOGUE_SCHEMA_NAME, database_type='catalogue')
 
 # run zip and transform functions
 zip_handling.unzip_data()
@@ -96,7 +96,7 @@ if SERVER_TYPE in ['data_catalogue', 'cohort_catalogue']:
         zip_handling = Zip(cohort)
         if SERVER_TYPE == 'data_catalogue':
             update = Transform(cohort, 'cohort')
-        elif SERVER_TYPE == 'UMCG_catalogue':
+        elif SERVER_TYPE == 'cohort_catalogue':
             update = Transform(cohort, 'cohort_UMCG')
 
         zip_handling.remove_unzipped_data()
@@ -184,23 +184,23 @@ if SERVER_TYPE == 'data_catalogue':
 
 # ---------------------------------------------------------------
 
-# delete and create schemas
-print('------------------------')
-print('Updating catalogue schema')
-# delete and create new catalogue schema
-schema_description = session.get_database_description(database_name=CATALOGUE_SCHEMA_NAME)
-session.drop_database(database_name=CATALOGUE_SCHEMA_NAME)
-session.create_database(database_name=CATALOGUE_SCHEMA_NAME, database_description=schema_description)
-
-# upload molgenis.csv to catalogue schema
-update_general = Transform(CATALOGUE_SCHEMA_NAME, 'catalogue')
-data_model_file = update_general.update_data_model_file()
-session.upload_zip(database_name=CATALOGUE_SCHEMA_NAME, data_to_upload='catalogue_data_model')
-
-# upload transformed catalogue data to catalogue schema
-session.upload_zip(database_name=CATALOGUE_SCHEMA_NAME, data_to_upload=CATALOGUE_SCHEMA_NAME)
-
-# ----------------------------------------------------------------------
+# # delete and create schemas
+# print('------------------------')
+# print('Updating catalogue schema')
+# # delete and create new catalogue schema
+# schema_description = session.get_database_description(database_name=CATALOGUE_SCHEMA_NAME)
+# session.drop_database(database_name=CATALOGUE_SCHEMA_NAME)
+# session.create_database(database_name=CATALOGUE_SCHEMA_NAME, database_description=schema_description)
+#
+# # upload molgenis.csv to catalogue schema
+# update_general = Transform(CATALOGUE_SCHEMA_NAME, 'catalogue')
+# data_model_file = update_general.update_data_model_file()
+# session.upload_zip(database_name=CATALOGUE_SCHEMA_NAME, data_to_upload='catalogue_data_model')
+#
+# # upload transformed catalogue data to catalogue schema
+# session.upload_zip(database_name=CATALOGUE_SCHEMA_NAME, data_to_upload=CATALOGUE_SCHEMA_NAME)
+#
+# # ----------------------------------------------------------------------
 
 # Cohorts upload data
 print('-----------------------')
