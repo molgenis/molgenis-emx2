@@ -56,14 +56,15 @@ print('Error message', file=sys.stderr)
 
   @Test
   public void testPythonScript_shouldFail() {
-    ScriptTask task =
+    Task task =
         new ScriptTask("error")
             .script(
                 """
 import sys
 failureVariable = fail
 print('unreachable')
-""");
+""")
+            .failureAddress("test@test.com");
     task.run();
     assertEquals(task.getStatus(), ERROR);
   }
