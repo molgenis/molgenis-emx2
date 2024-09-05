@@ -302,7 +302,7 @@ export default {
     },
   },
   watch: {
-    showChangeColumn: (val) => {
+    showChangeColumn(val) {
       if (val) {
         this.getSchemaList();
       }
