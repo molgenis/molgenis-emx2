@@ -1,4 +1,4 @@
-tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,comment
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
 Collections,,,,,,,,,,,"dcat:DatasetSeries,dcat:Dataset",Collection of data and/or samples. Use 'collection type' to specify,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging"
 Collections,,overview,heading,,,,,,,,,General information,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging"
 Collections,,id,,1,TRUE,,,,,,dct:identifier,Internal identifier,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging"
@@ -7,7 +7,7 @@ Collections,,name,text,3,TRUE,,,,,,dct:title,Name used in international projects
 Collections,,local name,,,,,,,,,rdfs:label,"If different from above, name in the national language","DataCatalogueFlat,CohortsStaging,RWEStaging"
 Collections,,acronym,,,,,,,,,dct:alternative,"Acronym, if applicable","DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging"
 Collections,,type,ontology_array,,,CatalogueOntologies,Collection types FLAT,,,,,"Type of collection, e.g. registry, cohort, biobank","DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging"
-Collections,,type other,,,,,,,,,,"If other, describe the type of collection","DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,StudiesStaging,UMCGCohortsStaging"
+Collections,,type other,,,,,,,,,,"If other, describe the type of collection","DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,StudiesStaging"
 Collections,,cohort type,ontology_array,,,CatalogueOntologies,Cohort study types,,,,,Type of cohort,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging"
 Collections,,clinical study type,ontology_array,,,CatalogueOntologies,Clinical study types,,,,,Type of clinical study,"DataCatalogueFlat,EMA"
 Collections,,RWD type,ontology_array,,,CatalogueOntologies,Datasource types,,,,,Type of registry or health record,"DataCatalogueFlat,EMA,RWEStaging"
@@ -34,8 +34,6 @@ Collections,,unit of observation,text,,,,,,,,,"Based on the prompt, what is the 
 Collections,,record trigger,text,,,,,,,,,"What triggers the creation of a record in the data bank? e.g. planned collection events, hospital discharge, specialist encounter, dispensation of a medicinal product, recording of a congenital anomaly","DataCatalogueFlat,EMA,RWEStaging"
 Collections,,subcohorts,refback,,,,Collection subcohorts,,collection,,,List of subcohorts or subpopulations defined in this collection if applicable,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging"
 Collections,,collection events,refback,,,,Collection events,,collection,,dcterms:hasPart,List of data/sample collection events defined for this collection if applicable,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging"
-Collections,,datasets,refback,,,,Collection datasets,,collection,,,List of datasets contained in this collection if applicable,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging"
-Collections,,samplesets,refback,,,,Collection samplesets,,collection,,,List of samples sets contained in this collection if applicable,"DataCatalogueFlat,CohortsStaging,RWEStaging,StudiesStaging"
 Collections,,collections,ref_array,,,,Collections,,,,dct:dataset,List of other collections included in this collection,"DataCatalogueFlat,EMA"
 Collections,,partOfCollections,refback,,,,Collections,,collections,,dct:dataset,List of other collections included in this collection,"DataCatalogueFlat,EMA"
 Collections,,collections,ref_array,,,catalogue,Collections,,,,,"List of other collections included in this network, e.g. cohorts, biobanks or other networks",NetworksStaging
@@ -67,6 +65,8 @@ Collections,,organisations involved,refback,,,,Collection organisations,,collect
 Collections,,networks involved,refback,,,,Collections,,collections,,,The consortia or networks that this collection is part of,"DataCatalogueFlat,EMA"
 Collections,,networks other,text,,,,,,,,,List the names of any other networks that are not listed and this collection is involved in,EMA
 Collections,,available data and samples,heading,,,,,,,,,Data model and contents,"DataCatalogueFlat,EMA,RWEStaging,CohortsStaging,UMCGCohortsStaging"
+Collections,,datasets,refback,,,,Collection datasets,,collection,,,List of datasets contained in this collection if applicable,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging"
+Collections,,samplesets,refback,,,,Collection samplesets,,collection,,,List of samples sets contained in this collection if applicable,"DataCatalogueFlat,CohortsStaging,RWEStaging,StudiesStaging"
 Collections,,areas of information,ontology_array,,,CatalogueOntologies,Areas of information cohorts,,,,,Areas of information that were collected,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging"
 Collections,,areas of information rwd,ontology_array,,,CatalogueOntologies,Areas of information ds,,,,,Areas of information that were collected,"DataCatalogueFlat,EMA,RWEStaging"
 Collections,,quality of life other,text,,,,,,,,,"If other, specify additional quality of life measures","DataCatalogueFlat,EMA,RWEStaging"
@@ -90,9 +90,10 @@ Collections,,linkage,heading,,,,,,,,,Data linkage,"DataCatalogueFlat,EMA,Cohorts
 Collections,,has identifier,bool,,,,,,,,,Is there a unique identifier for a person in the data bank?,"DataCatalogueFlat,RWEStaging"
 Collections,,identifier description,text,,,,,,,,,"Describe the variable that is used as a unique identifier for a person in the data bank. If the unique identifier is not at level of a person (for example hospital encounter), describe how this translated to an individual level","DataCatalogueFlat,RWEStaging"
 Collections,,prelinked,bool,,,,,,,,,Is the data from this data source linked to other data sources?,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging"
-Collections,,linkage description,text,,,,,,,,,Provide a high-level description of the linkages that are currently available for this data collection,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging"
+Collections,,linkage options,text,,,,,,,,,Linkage options with additional data resources that are available for this collection,"DataCatalogueFlat,CohortsStaging,RWEStaging,UMCGCohortsStaging"
+Collections,,linkage description,text,,,,,,,,,Provide a high-level description of the linkages that are currently available for this data collection,EMA
 Collections,,linkage possibility,bool,,,,,,,,,Can this data source be linked to other data sources?,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging"
-Collections,,linkage possibility description,text,,,,,,,,,Description of data sources that can be linked to this data source,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging"
+Collections,,linkage possibility description,text,,,,,,,,,Description of data sources that can be linked to this data source,EMA
 Collections,,linked collections,refback,,,,Collection linkages,,collection,,,List of collections that are or can be linked to this main collection,"DataCatalogueFlat,EMA,RWEStaging"
 Collections,,access conditions,heading,,,,,,,,,Access and validation information,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,UMCGCohortsStaging"
 Collections,,informed consent type,ontology,,,CatalogueOntologies,Informed consent types,,,,,What type of informed consent was given for data collection?,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging"

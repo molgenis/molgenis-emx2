@@ -4,7 +4,6 @@
   <Pagination
     :currentPage="24"
     :totalPages="999"
-    type="white"
     :preventDefault="true"
     @update="updatePage"
   />
