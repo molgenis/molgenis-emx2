@@ -248,8 +248,9 @@ public class ScriptTask extends Task {
         + this.getId();
   }
 
-  public void setServerUrl(URL url) {
+  public ScriptTask setServerUrl(URL url) {
     this.serverUrl = url;
+    return this;
   }
 
   public URL getServerUrl() {
