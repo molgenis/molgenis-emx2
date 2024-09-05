@@ -16,7 +16,7 @@ Distribution,,download URL,hyperlink_array,,,,,,,,https://www.w3.org/ns/dcat#dow
 Distribution,,byte size,int,,,,,,,byteSize >= 0,https://www.w3.org/ns/dcat#byteSize,The size of a distribution in bytes.,DCAT,DCAT Distribution
 Distribution,,format,ref,,,,FileFormats,,,,http://purl.org/dc/terms/format,"The file format of the distribution. If using IANA type, use dcat:mediaType instead.",DCAT,DCAT Distribution
 Distribution,,compression format,ref,,,,MediaType,,,,https://www.w3.org/ns/dcat#compressFormat,The compression format of the distribution in which the data is contained in a compressed form.,DCAT,DCAT Distribution / DCAT-AP-v3 Distribution: emphasizes IANA
-Distribution,,packaging format,__,,,,MediaType,,,,https://www.w3.org/ns/dcat#packageFormat,The package format of the distribution in which one or more data files are grouped together.,DCAT,DCAT Distribution / DCAT-AP-v3 Distribution: emphasizes IANA
+Distribution,,packaging format,ref,,,,MediaType,,,,https://www.w3.org/ns/dcat#packageFormat,The package format of the distribution in which one or more data files are grouped together.,DCAT,DCAT Distribution / DCAT-AP-v3 Distribution: emphasizes IANA
 Distribution,,media type,ref,,,,MediaType,,,,https://www.w3.org/ns/dcat#mediaType,The media type of the distribution as defined by IANA.,DCAT,DCAT Distribution
 Distribution,,spatial resolution,decimal,,,,,,,,http://purl.org/dc/terms/spatialResolutionInMeters,"Minimum spatial separation resolvable in a dataset, measured in meters.",DCAT,DCAT Distribution
 Distribution,,temporal resolution,string,,,,,,,,http://purl.org/dc/terms/temporalResolution,Minimum time period resolvable in the dataset.,DCAT,DCAT Distribution
