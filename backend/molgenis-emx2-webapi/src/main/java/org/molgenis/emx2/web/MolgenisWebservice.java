@@ -110,6 +110,9 @@ public class MolgenisWebservice {
     app.get("/{schema}", MolgenisWebservice::redirectSchemaToFirstMenuItem);
     app.get("/{schema}/", MolgenisWebservice::redirectSchemaToFirstMenuItem);
 
+    // greedy proxy stuff, always put last!
+    GroupPathMapper.create(app);
+
     // schema members operations
 
     // handling of exceptions
@@ -230,7 +233,7 @@ public class MolgenisWebservice {
   }
 
   public static Schema getSchema(Context ctx) {
-    String schemaName = ctx.pathParam(SCHEMA);
+    String schemaName = ctx.pathParamMap().get(SCHEMA);
     if (schemaName == null) {
       return null;
     }

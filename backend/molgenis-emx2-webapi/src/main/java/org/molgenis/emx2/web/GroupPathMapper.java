@@ -1,6 +1,11 @@
 package org.molgenis.emx2.web;
 
-import static io.javalin.apibuilder.ApiBuilder.*;
+import com.google.common.io.ByteStreams;
+import io.javalin.Javalin;
+import io.javalin.http.Context;
+import java.io.InputStream;
+import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
 
 /**
  * to allow for nice urls, and make it easier for 'schema' app developers we include the schema in
@@ -15,65 +20,54 @@ public class GroupPathMapper {
     // hide constructor
   }
 
-  //  public static void create() {
-  //    /*
-  //     * WARNING !! SPARK JAVA USES DESIGN WHERE THE ORDER OF REQUEST DEFINITION DETERMINES THE
-  // HANDLER
-  //     */
-  //    // redirect graphql api in convenient ways
-  //    get("/:schema/graphql", GraphqlApi::handleSchemaRequests);
-  //    post("/:schema/graphql", GraphqlApi::handleSchemaRequests);
-  //
-  //    get("/:schema/:appname/graphql", GraphqlApi::handleSchemaRequests);
-  //    post("/:schema/:appname/graphql", GraphqlApi::handleSchemaRequests);
-  //
-  //    get("/:schema/:appname/theme.css", BootstrapThemeService::getCss);
-  //
-  //    get(
-  //        "/:schema/:app",
-  //        (ctx) -> {
-  //          ctx.redirect("/" + req.params(MolgenisWebservice.SCHEMA) + "/" + req.params("app") +
-  // "/");
-  //          return "";
-  //        });
-  //
-  //    // return index.html file when in root
-  //    get("/*/:appname/", GroupPathMapper::returnIndexFile);
-  //
-  //    // redirect  js/css assets so they get cached between schemas (VERY GREEDY, SHOULD BE LAST
-  // CALL)
-  //    get("/:schema/:appname/*", GroupPathMapper::redirectAssets);
-  //  }
-  //
-  //  private static Object returnIndexFile(Request request, Response response) {
-  //    try {
-  //      InputStream in =
-  //          GroupPathMapper.class.getResourceAsStream(
-  //              "/public_html/apps/" + request.params("appname") + "/index.html");
-  //      return new String(ByteStreams.toByteArray(in));
-  //    } catch (Exception e) {
-  //      response.status(404);
-  //      return e.getMessage();
-  //    }
-  //  }
-  //
-  //  private static String redirectAssets(Request request, Response response) {
-  //    if (!request.pathInfo().startsWith("/public_html")) {
-  //      response.redirect(
-  //          "/public_html/apps"
-  //              + request.pathInfo().substring(request.params("schema").length() + 1));
-  //      return "";
-  //    } else {
-  //      try {
-  //        InputStream in = GroupPathMapper.class.getResourceAsStream(request.pathInfo());
-  //        response.header(
-  //            "Content-Type", MimeType.fromResource(new ClassPathResource(request.pathInfo())));
-  //        response.raw().getOutputStream().write(ByteStreams.toByteArray(in));
-  //        return "";
-  //      } catch (Exception e) {
-  //        response.status(404);
-  //        return "File not found: " + request.pathInfo();
-  //      }
-  //    }
-  //  }
+  public static void create(Javalin app) {
+
+    app.get("/{schema}/{appname}/theme.css", BootstrapThemeService::getCss);
+    // return index.html file when in root
+    // app.get("/*/{appname}", GroupPathMapper::returnIndexFile);
+
+    //    // redirect  js/css assets so they get cached between schemas (VERY GREEDY, SHOULD BE LAST
+    // CALL)
+    //    app.get("/{schema}/{appname}/*", GroupPathMapper::redirectAssets);
+  }
+
+  private static void returnIndexFile(Context ctx) {
+    try {
+      InputStream in =
+          GroupPathMapper.class.getResourceAsStream(
+              "/public_html/apps/" + ctx.pathParam("appname") + "/index.html");
+
+      if (in == null) {
+        ctx.status(404).result("File not found");
+      } else {
+        String fileContent = new String(ByteStreams.toByteArray(in), StandardCharsets.UTF_8);
+        ctx.contentType("text/html").result(fileContent);
+      }
+    } catch (Exception e) {
+      ctx.status(404).result("Error: " + e.getMessage());
+    }
+  }
+
+  private static void redirectAssets(Context ctx) {
+    if (!ctx.path().startsWith("/public_html")) {
+      ctx.redirect(
+          "/public_html/apps" + ctx.path().substring(ctx.pathParam("schema").length() + 1));
+    } else {
+
+      try (InputStream in = GroupPathMapper.class.getResourceAsStream(ctx.path())) {
+        if (in == null) {
+          ctx.status(404).result("File not found: " + ctx.path());
+          return;
+        }
+        String mimeType = URLConnection.guessContentTypeFromName(ctx.path());
+        if (mimeType == null) {
+          mimeType = "application/octet-stream";
+        }
+        ctx.contentType(mimeType);
+        ctx.result(ByteStreams.toByteArray(in));
+      } catch (Exception e) {
+        ctx.status(404).result("File not found: " + ctx.path());
+      }
+    }
+  }
 }

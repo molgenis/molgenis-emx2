@@ -13,12 +13,12 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
@@ -39,22 +39,23 @@ public class BootstrapThemeService {
     app.get(schemaPath, BootstrapThemeService::getCss);
   }
 
-  public static String getCss(Context ctx) {
+  public static void getCss(Context ctx) {
     ctx.contentType("text/css");
-    Map<String, String> params = getParams(ctx);
-
-    // then override with url query, if any
-    params.putAll(splitQuery(ctx.queryString()));
-
-    // see if we have it cached, otherwise generate the css
-    String key =
-        params.entrySet().stream()
-            .map(entry -> entry.getKey() + "=" + entry.getValue())
-            .collect(Collectors.joining("&"));
+    //    Map<String, String> params = getParams(ctx);
+    //
+    //    // then override with url query, if any
+    //    params.putAll(splitQuery(ctx.queryString()));
+    //
+    //    // see if we have it cached, otherwise generate the css
+    //    String key =
+    //        params.entrySet().stream()
+    //            .map(entry -> entry.getKey() + "=" + entry.getValue())
+    //            .collect(Collectors.joining("&"));
+    String key = "none";
     if (cache.containsKey(key)) {
-      return cache.get(key);
+      ctx.result(cache.get(key));
     } else {
-      return generateCss(params);
+      ctx.result(generateCss(new HashMap<>()));
     }
   }
 
