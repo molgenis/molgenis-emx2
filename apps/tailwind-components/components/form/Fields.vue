@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { FormField } from "#build/components";
 import type {
   columnId,
   columnValue,
@@ -65,6 +66,19 @@ const numberOfRequiredFieldsWithData = computed(
 );
 
 const recordLabel = computed(() => props.metaData.label);
+
+const formFields = ref<InstanceType<typeof FormField>[]>([]);
+
+function validate() {
+  Object.entries(dataMap).forEach(([columnId, value]) => {
+    const column = props.metaData.columns.find((column) => column.id === columnId);
+    if (column) {
+      formFields.value.find((field) => field.column.id === column.id)?.validate(value);
+    }
+  });
+}
+
+defineExpose({ validate });
 </script>
 <template>
   <div>
@@ -87,6 +101,7 @@ const recordLabel = computed(() => props.metaData.label);
           :errors="errorMap[column.id]"
           @update:modelValue="dataMap[column.id] = $event"
           @error="errorMap[column.id] = $event"
+          ref="formFields"
         ></FormField>
       </div>
     </div>

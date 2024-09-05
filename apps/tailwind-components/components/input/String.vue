@@ -19,6 +19,7 @@ const props = withDefaults(
 );
 
 const emit = defineEmits(["focus", "error", "update:modelValue"]);
+defineExpose({ validate });
 
 function validate(value: string) {
   if (props.required && value === "") {

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { FormFieldInput } from "#build/components";
 import type {
   columnValue,
   IColumn,
@@ -12,6 +13,7 @@ const props = defineProps<{
 }>();
 
 defineEmits(["error", "update:modelValue"]);
+defineExpose({ validate });
 
 const pristine = ref(true);
 const dirty = computed(() => !pristine.value);
@@ -20,6 +22,14 @@ const touched = ref(false);
 const untouched = computed(() => !touched.value);
 
 const hasError = computed(() => props.errors.length > 0);
+
+const formFieldInput = ref<InstanceType<typeof FormFieldInput>>();
+
+function validate(value: columnValue) {
+  if (formFieldInput.value && formFieldInput.value.validate) {
+    formFieldInput.value.validate(value);
+  }
+}
 </script>
 
 <template>
