@@ -14,7 +14,7 @@
         :value="modelValue"
         @input="
           //@ts-ignore
-          emit('update:modelValue', $event.target?.value)
+          updateModelValue($event.target?.value)
         "
         type="text"
         class="form-control"
@@ -43,6 +43,10 @@ let props = defineProps({
 });
 
 const emit = defineEmits(["update:modelValue"]);
+
+function updateModelValue(value) {
+  emit("update:modelValue", value == "" ? null : value);
+}
 
 const stringError = computed(() => {
   if (typeof props.modelValue === "string") {

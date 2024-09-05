@@ -9,7 +9,7 @@
       :id="id"
       :name="name"
       :value="modelValue"
-      @input="$emit('update:modelValue', $event.target.value)"
+      @input="updateModelValue($event.target.value)"
       type="password"
       class="form-control"
       :aria-describedby="id"
@@ -27,6 +27,11 @@ export default {
   name: "InputPassword",
   components: { FormGroup },
   extends: BaseInput,
+  methods: {
+    updateModelValue: function (value) {
+      this.$emit("update:modelValue", value == "" ? null : value);
+    },
+  },
 };
 </script>
 

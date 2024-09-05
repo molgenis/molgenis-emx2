@@ -15,7 +15,7 @@
         :aria-describedby="id + 'Help'"
         :placeholder="placeholder"
         :readonly="readonly"
-        @input="$emit('update:modelValue', $event.target.value)"
+        @input="updateModelValue($event.target.value)"
       />
       <template v-slot:append>
         <slot name="append"></slot>
@@ -40,6 +40,9 @@ export default {
     resizeTextarea(event) {
       event.target.style.height = "auto";
       event.target.style.height = event.target.scrollHeight + "px";
+    },
+    updateModelValue: function (value) {
+      this.$emit("update:modelValue", value == "" ? null : value);
     },
   },
   mounted() {
