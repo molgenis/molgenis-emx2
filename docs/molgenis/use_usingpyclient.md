@@ -64,28 +64,30 @@ The user roles on MOLGENIS EMX2 and their respective permissions are described i
 
 ### schema_names
 ```python
-client.schema_names
+Client().schema_names
 ```
 
 A property that returns a list of the names of the schemas for which the user has at least _viewer_ permissions.
 
 ### status
 ```python
-client.status
+Client().status
 ```
 A property that returns a string with information, including the server URL, the user (if applicable), the sign-in status, the version of MOLGENIS EMX2 running on the server, and the result of `schema_names`.
 
 
 ### get_schemas
 ```python
-client.get_schemas()
+def get_schemas(self) -> list[Schema]:
+    ...
 ```
 Retrieves the schemas for which the user has at least _viewer_ permissions as a list of dictionaries containing for each schema the id, name, label and description.
 This method accepts no arguments.
 
 ### set_schema
 ```python
-client.set_schema('My Schema')
+def set_schema(self, name: str) -> str:
+    ...
 ```
 Sets the default schema for the server in the property `default_schema`. 
 Throws the `NoSuchSchemaException` if the user does not have at least _viewer_ permissions or if the schema does not exist.
@@ -96,7 +98,8 @@ Throws the `NoSuchSchemaException` if the user does not have at least _viewer_ p
 
 ### set_token
 ```python
-client.set_token(token='***************')
+def set_token(self, token: str):
+    ...
 ```
 Sets the client's token in case no token was supplied in the initialization.
 Raises the `TokenSigninException` when the client is already signed in with a username/password combination.
@@ -108,12 +111,12 @@ Raises the `TokenSigninException` when the client is already signed in with a us
 
 ### get
 ```python
-names = ['Alice', 'Benjamin']
-countries = ['Spain', 'Sweden']
-age_interval = [18, 75]
-client.get(table='Data Table', schema='My Schema', query_filter=f"name != {names}"
-                                                                f" and country.name == {countries}"
-                                                                f" and age between {age_interval}", as_df=True)
+def get(self, 
+        table: str, 
+        query_filter: str = None, 
+        schema: str = None, 
+        as_df: bool = False) -> list | pandas.DataFrame:
+    ...
 ```
 Retrieves data from a table on a schema and returns the result either as a list of dictionaries or as a pandas DataFrame.
 Use the `query_filter` parameter to filter the results based on filters applied to the columns.
@@ -138,7 +141,8 @@ Throws the `NoSuchColumnException` if the query filter contains a column id that
 
 ### get_schema_metadata
 ```python
-client.get_schema_metadata(name='My Schema')
+def get_schema_metadata(self, name: str = None) -> Schema:
+    ...
 ```
 Retrieves the metadata of a schema and returns it in the _metadata.Schema_ format.
 See the description of the [Schema](use_usingpyclient.md#schema) metadata object below.
@@ -151,9 +155,13 @@ See the description of the [Schema](use_usingpyclient.md#schema) metadata object
 
 ### export
 ```python
-client.export(schema='My Schema', table='Data Table', fmt='csv')
+async def export(self, 
+                 schema: str = None, 
+                 table: str = None, 
+                 fmt: OutputFormat = 'csv'):
+    ...
 ```
-Exports data from a schema to a file in the desired format.
+Asynchronously exports data from a schema to a file in the desired format.
 If the table is specified, only data from that table is exported, otherwise the export contains all tables on the schema.
 If all tables from a schema are exported with given format `csv`, the data is exported as a zip file containing a csv file of each table.
 Throws the `NoSuchSchemaException` if the user does not have at least _viewer_ permissions or if the schema does not exist.
@@ -167,8 +175,12 @@ Throws the `NoSuchSchemaException` if the user does not have at least _viewer_ p
 
 ### save_schema
 ```python
-client.save_schema(table='Data Table', name='My Schema',  
-                   file='location/of/data/file.csv', data=[{'col1': value1, ...}, {'col2': value2, ...}, ...])
+def save_schema(self, 
+                table: str, 
+                name: str = None, 
+                file: str = None, 
+                data: list | pandas.DataFrame = None):
+    
 ```
 Imports or updates records in a table of a named schema.
 The data either originates from a file on the disk, or is supplied by the user after, for example, preprocessing.
@@ -186,7 +198,8 @@ Throws the `NoSuchSchemaException` if the schema is not found on the server.
 
 ### upload_file
 ```python
-client.upload_file(file_path='location/of/data/file.zip', schema='My Schema')
+async def upload_file(self, file_path: str | pathlib.Path, schema: str = None):
+    ...
 ```
 Imports table data and/or metadata to a schema from a file on the disk.
 This method supports `zip`, `xlsx`, and `csv` files.
@@ -202,8 +215,12 @@ Throws the `NoSuchSchemaException` if the schema is not found on the server.
 
 ### delete_records
 ```python
-client.delete_records(table='Data Table', schema='My Schema',  
-                      file='location/of/data/file.csv', data=[{'col1': value1, ...}, {'col2': value2, ...}, ...])
+def delete_records(self, 
+                   table: str, 
+                   schema: str = None, 
+                   file: str = None, 
+                   data: list | pandas.DataFrame = None):
+    ...
 ```
 Deletes data records from a table.
 As in the `save_schema` method, the data either originates from disk or the program.
@@ -222,7 +239,12 @@ Throws the `NoSuchSchemaException` if the schema is not found on the server.
 
 ### create_schema
 ```python
-client.create_schema(name='New Schema', description='My new schema!', template='DATA_CATALOGUE', include_demo_data=True)
+async def create_schema(self, 
+                        name: str = None,
+                        description: str = None,
+                        template: str = None,
+                        include_demo_data: bool = False):
+    ...
 ```
 Creates a new schema on the server.
 If no template is selected, an empty schema is created.
@@ -270,7 +292,8 @@ Only users with _admin_ privileges are able to perform this action.
 
 ### delete_schema
 ```python
-client.delete_schema(name='Old Schema')
+async def delete_schema(self, name: str = None):
+    ...
 ```
 
 Deletes a schema from the server. 
@@ -286,7 +309,8 @@ Throws the `NoSuchSchemaException` if the schema is not found on the server.
 
 ### update_schema
 ```python
-client.update_schema(name='My Schema', description='The new description of this schema.')
+def update_schema(self, name: str = None, description: str = None):
+    ...
 ```
 Updates a schema's description.
 Only users with _admin_ privileges are able to perform this action.
@@ -300,8 +324,12 @@ Throws the `NoSuchSchemaException` if the schema is not found on the server.
 
 ### recreate_schema
 ```python
-client.recreate_schema(name='My Schema', description='Updated description', 
-                       template='DATA_CATALOGUE', include_demo_data=False)
+async def recreate_schema(self, 
+                          name: str = None,
+                          description: str = None,
+                          template: str = None,
+                          include_demo_data: bool = None):
+    ...
 ```
 Recreates a schema on the EMX2 server by deleting and subsequently creating it without data on the EMX2 server.
 
