@@ -4,8 +4,8 @@ import static org.molgenis.emx2.ColumnType.BOOL;
 import static org.molgenis.emx2.ColumnType.INT;
 
 import org.molgenis.emx2.datamodels.BiobankDirectoryLoader;
+import org.molgenis.emx2.datamodels.DataModels;
 import org.molgenis.emx2.datamodels.PetStoreLoader;
-import org.molgenis.emx2.datamodels.ProfileLoader;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 import org.molgenis.emx2.web.MolgenisWebservice;
@@ -50,16 +50,16 @@ public class RunMolgenisEmx2 {
 
           if (!EXCLUDE_PETSTORE_DEMO && db.getSchema("pet store") == null) {
             Schema schema = db.createSchema("pet store");
-            new PetStoreLoader().load(schema, true);
+            new PetStoreLoader(schema, true).run();
           }
 
           if (INCLUDE_CATALOGUE_DEMO && db.getSchema(CATALOGUE_DEMO) == null) {
             Schema schema = db.createSchema(CATALOGUE_DEMO, "from DataCatalogue demo data loader");
-            new ProfileLoader("_profiles/DataCatalogue.yaml").load(schema, true);
+            DataModels.Profile.DATA_CATALOGUE.getImportTask(schema, true).run();
           }
           if (INCLUDE_DIRECTORY_DEMO && db.getSchema(DIRECTORY_DEMO) == null) {
             Schema schema = db.createSchema(DIRECTORY_DEMO, "BBMRI-ERIC Directory Demo");
-            new BiobankDirectoryLoader(false).load(schema, true);
+            new BiobankDirectoryLoader(schema, true).setStaging(false).run();
           }
         });
 

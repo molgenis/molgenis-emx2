@@ -18,7 +18,7 @@ withDefaults(
   }
 );
 
-const modelValue = ref<string>("");
+const modelValue = defineModel();
 </script>
 
 <template>
