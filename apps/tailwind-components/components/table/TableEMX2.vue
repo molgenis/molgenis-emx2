@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ITableSettings } from "~/types/types";
+import type { ITableSettings, sortDirection } from "~/types/types";
 import type { IColumn } from "../../../metadata-utils/src/types";
 
 const props = withDefaults(
@@ -11,6 +11,7 @@ const props = withDefaults(
   }>(),
   {
     settings: {
+      //@ts-ignore
       page: 1,
       pageSize: 10,
       orderby: { column: "", direction: "ASC" },
@@ -19,17 +20,26 @@ const props = withDefaults(
   }
 );
 
-const emit = defineEmits(["update:settings"]);
+const emit = defineEmits(["update:settings"]); 
+const currentSortedColumn = ref<string>('');
+const mgAriaSortOptions: Record<string,any> = {
+  'ASC': 'ascending',
+  'DESC': 'descending'
+}
 
 function handleSortRequest(columnId: string) {
+  currentSortedColumn.value = columnId;
   let direction = "ASC";
   if (props.settings?.orderby?.column === columnId) {
     direction = props.settings.orderby.direction === "ASC" ? "DESC" : "ASC";
   }
-  emit("update:settings", {
-    ...props.settings,
-    orderby: { column: columnId, direction },
-  });
+
+  props.settings.orderby = {
+    column: currentSortedColumn.value,
+    direction: direction as sortDirection
+  }
+  
+  emit("update:settings", { ...props.settings });
 }
 
 function handleSearchRequest(search: string) {
@@ -58,6 +68,7 @@ function handlePagingRequest(page: number) {
   </div>
 
   <div class="overflow-x-auto overscroll-x-contain">
+    {{ settings.orderby }}
     <table class="text-left table-fixed w-full">
       <thead>
         <tr class="">
@@ -71,16 +82,30 @@ function handlePagingRequest(page: number) {
               @click="handleSortRequest(column.id)"
             >
               {{ column.label }}
+              <!-- <ArrowUp
+                v-if="
+                  column.id === props.settings?.orderby?.column &&
+                  props.settings?.orderby?.direction === 'ASC'
+                "
+                class="w-4 h-4 inline-block"
+              /> -->
+              <!-- <ArrowDown
+                v-if="
+                  column.id === props.settings?.orderby?.column &&
+                  props.settings?.orderby?.direction === 'DESC'
+                "
+                class="w-4 h-4 inline-block"
+              /> -->
               <ArrowUp
                 v-if="
-                  column.id === settings?.orderby?.column &&
+                  column.id === currentSortedColumn &&
                   settings?.orderby?.direction === 'ASC'
                 "
                 class="w-4 h-4 inline-block"
               />
               <ArrowDown
                 v-if="
-                  column.id === settings?.orderby?.column &&
+                  column.id === currentSortedColumn &&
                   settings?.orderby?.direction === 'DESC'
                 "
                 class="w-4 h-4 inline-block"
