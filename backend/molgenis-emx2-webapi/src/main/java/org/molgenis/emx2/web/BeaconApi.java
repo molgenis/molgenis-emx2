@@ -2,7 +2,6 @@ package org.molgenis.emx2.web;
 
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
@@ -51,37 +50,39 @@ public class BeaconApi {
     ctx.attribute("specification", specification);
   }
 
-  private static JsonNode getEntryType(Context ctx) {
-    return entryTypeRequest(ctx, new BeaconRequestBody(ctx));
+  private static void getEntryType(Context ctx) {
+    entryTypeRequest(ctx, new BeaconRequestBody(ctx));
   }
 
-  private static JsonNode postEntryType(Context ctx) throws Exception {
+  private static void postEntryType(Context ctx) throws Exception {
     ObjectMapper mapper = new ObjectMapper();
     BeaconRequestBody beaconRequest = mapper.readValue(ctx.body(), BeaconRequestBody.class);
     beaconRequest.addRequestParameters(ctx);
-    return entryTypeRequest(ctx, beaconRequest);
+    entryTypeRequest(ctx, beaconRequest);
   }
 
-  private static JsonNode entryTypeRequest(Context ctx, BeaconRequestBody requestBody) {
+  private static void entryTypeRequest(Context ctx, BeaconRequestBody requestBody) {
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
 
     Schema schema = getSchema(ctx);
-    if (schema != null) return queryEntryType.query(schema);
-
-    Database database = sessionManager.getSession(ctx.req()).getDatabase();
-    return queryEntryType.query(database);
+    if (schema != null) {
+      ctx.json(queryEntryType.query(schema));
+    } else {
+      Database database = sessionManager.getSession(ctx.req()).getDatabase();
+      ctx.json(queryEntryType.query(database));
+    }
   }
 
-  private static Object getFilteringTerms(Context ctx) {
+  private static void getFilteringTerms(Context ctx) {
     Database database = sessionManager.getSession(ctx.req()).getDatabase();
-    return new FilteringTerms(database);
+    ctx.json(new FilteringTerms(database));
   }
 
-  private static Object getInfo(Context ctx) {
+  private static void getInfo(Context ctx) {
     ctx.contentType(Constants.ACCEPT_JSON);
     Schema schema = getSchema(ctx);
 
     Database database = sessionManager.getSession(ctx.req()).getDatabase();
-    return new Info(database).getResponse(schema);
+    ctx.json(new Info(database).getResponse(schema));
   }
 }

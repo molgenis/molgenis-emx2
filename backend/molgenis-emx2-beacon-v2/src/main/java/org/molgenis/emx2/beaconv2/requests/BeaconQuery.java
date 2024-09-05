@@ -72,8 +72,8 @@ public class BeaconQuery {
 
   public EntryType addUrlParameters(Context ctx) {
     Map<String, String> params = ctx.pathParamMap();
-    if (params.containsKey(":entry_type")) {
-      entryType = EntryType.findByName(params.get(":entry_type"));
+    if (params.containsKey("entry_type")) {
+      entryType = EntryType.findByName(params.get("entry_type"));
     }
     for (var urlParam : params.entrySet()) {
       String ref = urlParam.getKey().replaceAll(":", "");
