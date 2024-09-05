@@ -49,4 +49,4 @@ Catalog,,catalog,ref_array,,,,Catalog,,,,"https://www.w3.org/ns/dcat#resource,ht
 Catalog,,homepage,hyperlink,,,,,,,,http://xmlns.com/foaf/0.1/homepage,Homepage of the item (usually an HTML web document).,DCAT,DCAT Catalog
 Catalog,,themes,hyperlink,,,,,,,,https://www.w3.org/ns/dcat#themeTaxonomy,"A knowledge organization system (KOS) used to classify the resources documented in this item (e.g., datasets and services).",DCAT,DCAT Catalog
 Catalog,,applicable legislation,hyperlink_array,,,,,,,,http://data.europa.eu/r5r/applicableLegislation,Legislation that mandates creation or management of this item (must follow European Legislation Identifier (ELI) guidelines).,DCAT-AP-v3,DCAT-AP-v3 Catalog
-Catalog,,EJP-RD vpConnection,hyperlink,,,,,,,,https://w3id.org/ejp-rd/vocabulary#vpConnection,"This property must be attached to every entity that you wish the EJP-RD Virtual Platform to explore.",EJP-RD
+Catalog,,EJP_RD vpConnection,hyperlink,,,,,,,,https://w3id.org/ejp-rd/vocabulary#vpConnection,"This property must be attached to every entity that you wish the EJP-RD Virtual Platform to explore.",EJP-RD
