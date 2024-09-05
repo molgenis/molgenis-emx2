@@ -15,7 +15,7 @@
         :ref="id"
         :name="name"
         :value="modelValue"
-        @input="$emit('update:modelValue', $event.target.value)"
+        @input="updateModelValue($event.target.value)"
         type="text"
         class="form-control"
         :class="{ 'is-invalid': stringError }"
@@ -43,6 +43,11 @@ export default {
     stringLength: {
       type: Number,
       default: 255,
+    },
+  },
+  methods: {
+    updateModelValue: function (value) {
+      this.$emit("update:modelValue", value == "" ? null : value);
     },
   },
   computed: {
