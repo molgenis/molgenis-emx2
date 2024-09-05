@@ -392,13 +392,15 @@ public class MetadataUtils {
       List<User> users = new ArrayList<>();
       for (org.jooq.Record user :
           db.getJooq()
-              .select(USER_NAME, SETTINGS)
+              .select(USER_NAME, USER_ENABLED, SETTINGS)
               .from(USERS_METADATA)
               .orderBy(USER_NAME)
               .limit(limit)
               .offset(offset)
               .fetchArray()) {
-        users.add(new User(db, user.get(USER_NAME), user.get(SETTINGS, Map.class)));
+        User newUser = new User(db, user.get(USER_NAME), user.get(SETTINGS, Map.class));
+        newUser.setEnabled(user.get(USER_ENABLED));
+        users.add(newUser);
       }
       return users;
     } catch (Exception e) {

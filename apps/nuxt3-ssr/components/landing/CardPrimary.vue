@@ -22,15 +22,7 @@ withDefaults(defineProps<Props>(), {
         <BaseIcon :name="image" :width="55" />
       </span>
       <div class="relative">
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
         <NuxtLink :to="link" :target="openLinkInNewTab ? '_blank' : undefined">
-=======
-        <NuxtLink :to="link" :target="openLinkInNewTab?'_blank':undefined">
->>>>>>> Stashed changes
-=======
-        <NuxtLink :to="link" :target="openLinkInNewTab?'_blank':undefined">
->>>>>>> Stashed changes
           <h1
             class="font-display md:text-heading-5xl text-heading-5xl text-title-contrast px-3"
           >
@@ -49,15 +41,7 @@ withDefaults(defineProps<Props>(), {
       <span
         class="md:hidden absolute right-0 mr-3 hover:text-blue-800 text-blue-500"
       >
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
         <NuxtLink :to="link" :target="openLinkInNewTab ? '_blank' : undefined">
-=======
-        <NuxtLink :to="link" :target="openLinkInNewTab?'_blank':undefined">
->>>>>>> Stashed changes
-=======
-        <NuxtLink :to="link" :target="openLinkInNewTab?'_blank':undefined">
->>>>>>> Stashed changes
           <IconButton icon="arrow-right" />
         </NuxtLink>
       </span>
@@ -70,19 +54,11 @@ withDefaults(defineProps<Props>(), {
       {{ description }}
     </p>
 
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
     <NuxtLink
       class="md:block hidden mt-auto"
       :to="link"
       :target="openLinkInNewTab ? '_blank' : undefined"
     >
-=======
-    <NuxtLink class="md:block hidden mt-auto" :to="link" :target="openLinkInNewTab?'_blank':undefined">
->>>>>>> Stashed changes
-=======
-    <NuxtLink class="md:block hidden mt-auto" :to="link" :target="openLinkInNewTab?'_blank':undefined">
->>>>>>> Stashed changes
       <Button :label="callToAction || title" type="primary" size="medium" />
     </NuxtLink>
   </div>
