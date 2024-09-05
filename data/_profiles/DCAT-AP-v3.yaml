@@ -4,8 +4,8 @@ description: "DCAT is an RDF vocabulary designed to facilitate interoperability 
 
 profileTags:  DCAT,
               DCAT-v3,
-              DCAT files add-on,
-              DCAT examples
+              DCAT-AP-v3,
+              EJP-RD
 
 demoData: _demodata/shared-examples
 
