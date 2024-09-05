@@ -128,7 +128,7 @@ Sometimes it helps to stop the gradle daemon and reset the gradle cache.
 ./gradlew --stop && rm -rf $HOME/.gradle/
 ```
 
-When making changes to `molgenis-components` or similar that other apps depend on without changing those apps themselves,
+When making changes to `apps/molgenis-components` or similar that other apps depend on without changing those apps themselves,
 clearing the cache of all the apps will force gradle to rebuild these again (as these are not stored in the general gradle cache!).
 
 ```bash
