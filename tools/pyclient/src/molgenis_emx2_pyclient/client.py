@@ -410,7 +410,8 @@ class Client:
             return response_data.to_dict('records')
         return response_data
 
-    async def export(self, schema: str = None, table: str = None, fmt: OutputFormat = 'csv'):
+    async def export(self, schema: str = None, table: str = None, fmt: OutputFormat = 'csv',
+                     filename: str = None, to_file: bool = True):
         """Exports data from a schema to a file in the desired format.
 
         :param schema: the name of the schema
@@ -419,7 +420,10 @@ class Client:
         :type table: str
         :param fmt: the export format of the schema and or table (csv or xlsx)
         :type fmt: str
-
+        :param filename: the name of the file to which the data is to be exported, default None
+        :type filename: str
+        :param to_file: whether to save the export the data to a file, default True
+        :type to_file: bool
         """
         current_schema = schema if schema is not None else self.default_schema
         if current_schema not in self.schema_names:
@@ -437,10 +441,14 @@ class Client:
                 response = self.session.get(url=url)
                 self._validate_graphql_response(response)
 
-                filename = f"{current_schema}.xlsx"
-                with open(filename, "wb") as file:
-                    file.write(response.content)
-                log.info("Exported data from schema %s to '%s'.", current_schema, filename)
+                if not filename:
+                    filename = f"{current_schema}.xlsx"
+                if to_file:
+                    with open(filename, "wb") as file:
+                        file.write(response.content)
+                    log.info("Exported data from schema %s to '%s'.", current_schema, filename)
+                else:
+                    log.info("Exported data from schema %s.", current_schema)
             else:
                 # Export the single table
                 table_id = schema_metadata.get_table(by='name', value=table).id
@@ -448,10 +456,14 @@ class Client:
                 response = self.session.get(url=url)
                 self._validate_graphql_response(response)
 
-                filename = f"{table}.xlsx"
-                with open(filename, "wb") as file:
-                    file.write(response.content)
-                log.info("Exported data from table %s in schema %s to '%s'.", table, current_schema, filename)
+                if not filename:
+                    filename = f"{table}.xlsx"
+                if to_file:
+                    with open(filename, "wb") as file:
+                        file.write(response.content)
+                    log.info("Exported data from table %s in schema %s to '%s'.", table, current_schema, filename)
+                else:
+                    log.info("Exported data from table %s in schema %s.", table, current_schema)
 
         if fmt == 'csv':
             if table is None:
@@ -459,10 +471,15 @@ class Client:
                 response = self.session.get(url=url)
                 self._validate_graphql_response(response)
 
-                filename = f"{current_schema}.zip"
-                with open(filename, "wb") as file:
-                    file.write(response.content)
-                log.info("Exported data from schema %s to '%s'.", current_schema, filename)
+                if not filename:
+                    filename = f"{current_schema}.zip"
+                if to_file:
+                    with open(filename, "wb") as file:
+                        file.write(response.content)
+                    log.info("Exported data from schema %s to '%s'.", current_schema, filename)
+                else:
+                    log.info("Exported data from schema %s.", current_schema)
+
             else:
                 # Export the single table
                 table_id = schema_metadata.get_table(by='name', value=table).id
@@ -470,10 +487,15 @@ class Client:
                 response = self.session.get(url=url)
                 self._validate_graphql_response(response)
 
-                filename = f"{table}.csv"
-                with open(filename, "wb") as file:
-                    file.write(response.content)
-                log.info("Exported data from table %s in schema %s to '%s'.", table, current_schema, filename)
+                if not filename:
+                    filename = f"{table}.csv"
+                if to_file:
+                    with open(filename, "wb") as file:
+                        file.write(response.content)
+                    log.info("Exported data from table %s in schema %s to '%s'.", table, current_schema, filename)
+                else:
+                    log.info("Exported data from table %s in schema %s.", table, current_schema)
+
 
     async def create_schema(self, name: str = None,
                       description: str = None,
