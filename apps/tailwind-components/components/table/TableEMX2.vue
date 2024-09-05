@@ -70,7 +70,7 @@ function handlePagingRequest(page: number) {
             v-for="column in columns"
             class="py-2.5 px-2.5 border-b border-gray-200 first:pl-0 last:pr-0 sm:first:pl-2.5 sm:last:pr-2.5 text-left w-64"
             :ariaSort="
-              settings.orderby.column === column.id
+              settings?.orderby?.column === column.id
                 ? mgAriaSortMappings[settings.orderby.direction]
                 : 'none'
             "
@@ -83,15 +83,15 @@ function handlePagingRequest(page: number) {
               {{ column.label }}
               <ArrowUp
                 v-if="
-                  column.id === settings.orderby.column &&
-                  settings.orderby.direction === 'ASC'
+                  column.id === settings?.orderby?.column &&
+                  settings?.orderby?.direction === 'ASC'
                 "
                 class="w-4 h-4 inline-block"
               />
               <ArrowDown
                 v-if="
-                  column.id === settings.orderby.column &&
-                  settings.orderby.direction === 'DESC'
+                  column.id === settings?.orderby?.column &&
+                  settings?.orderby?.direction === 'DESC'
                 "
                 class="w-4 h-4 inline-block"
               />
