@@ -2,6 +2,7 @@ package org.molgenis.emx2.tasks;
 
 import static org.molgenis.emx2.tasks.TaskStatus.RUNNING;
 
+import java.net.URL;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -39,7 +40,7 @@ public class TaskServiceInMemory implements TaskService {
   }
 
   @Override
-  public String submitTaskFromName(String name, String parameters, String url) {
+  public String submitTaskFromName(String name, String parameters, URL url) {
     throw new UnsupportedOperationException("Not supported when using in memory task service");
   }
 

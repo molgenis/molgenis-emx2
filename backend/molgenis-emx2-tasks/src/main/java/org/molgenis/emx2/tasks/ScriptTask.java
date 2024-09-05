@@ -4,6 +4,7 @@ import static org.apache.commons.text.StringEscapeUtils.escapeXSI;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.*;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -31,7 +32,7 @@ public class ScriptTask extends Task {
   private String dependencies;
   private Process process;
   private byte[] output;
-  private String serverUrl;
+  private URL serverUrl;
 
   public ScriptTask(String name) {
     super("Executing script '" + name + "'");
@@ -240,14 +241,18 @@ public class ScriptTask extends Task {
   }
 
   private String getJobUrl() {
-    return this.serverUrl + "/" + Constants.SYSTEM_SCHEMA + "/tasks/#/jobs?id=" + this.getId();
+    return this.serverUrl.toExternalForm()
+        + "/"
+        + Constants.SYSTEM_SCHEMA
+        + "/tasks/#/jobs?id="
+        + this.getId();
   }
 
-  public void setServerUrl(String url) {
+  public void setServerUrl(URL url) {
     this.serverUrl = url;
   }
 
-  public String getServerUrl() {
+  public URL getServerUrl() {
     return serverUrl;
   }
 }

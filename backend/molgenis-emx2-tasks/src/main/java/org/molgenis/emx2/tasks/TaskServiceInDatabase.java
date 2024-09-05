@@ -11,6 +11,7 @@ import static org.molgenis.emx2.utils.TypeUtils.millisecondsToLocalDateTime;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -89,7 +90,7 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
   }
 
   @Override
-  public String submitTaskFromName(String scriptName, String parameters, String url) {
+  public String submitTaskFromName(String scriptName, String parameters, URL url) {
     StringBuilder result = new StringBuilder();
     String defaultUser = database.getActiveUser();
     database.tx(
