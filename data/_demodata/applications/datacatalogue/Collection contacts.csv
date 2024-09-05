@@ -1,4 +1,4 @@
-resource,role,role description,first name,last name,prefix,initials,title,organisation,email,orcid,homepage,photo,photo_filename,expertise
+collection,role,role description,first name,last name,prefix,initials,title,organisation,email,orcid,homepage,photo,photo_filename,expertise
 ABCD,Primary contact,,Bob,Ross,,BR,dr.,,bob.ross@paintings.eu,0000-0033-1119-366,https://en.wikipedia.org/wiki/Bob_Ross,,,Painting
 ALSPAC,Principal Investigator,,Bob,Ross,,BR,dr.,,bob.ross@paintings.eu,0000-0033-1119-366,https://en.wikipedia.org/wiki/Bob_Ross,,,Painting
 ALSPAC,Primary contact,,Jack,Ross,,JR,prof.,,jack.ross@paintings.eu,0000-0033-1119-366,https://en.wikipedia.org/wiki/Bob_Ross,,,Carpenting

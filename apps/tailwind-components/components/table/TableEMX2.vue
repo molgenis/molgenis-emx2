@@ -64,8 +64,9 @@ function handlePagingRequest(page: number) {
           <th
             v-for="column in columns"
             class="py-2.5 px-2.5 border-b border-gray-200 first:pl-0 last:pr-0 sm:first:pl-2.5 sm:last:pr-2.5 text-left w-64"
+            scope="col"
           >
-            <div
+            <button
               class="overflow-ellipsis whitespace-nowrap overflow-hidden hover:cursor-pointer"
               @click="handleSortRequest(column.id)"
             >
@@ -84,8 +85,7 @@ function handlePagingRequest(page: number) {
                 "
                 class="w-4 h-4 inline-block"
               />
-            </div>
-            <!--  -->
+            </button>
           </th>
         </tr>
       </thead>
@@ -93,6 +93,7 @@ function handlePagingRequest(page: number) {
         <tr v-for="row in rows">
           <TableCellTypesEMX2
             v-for="column in columns"
+            :scope="column.key === 1 ? 'row' : null"
             :metaData="column"
             :data="row[column.id]"
           />
