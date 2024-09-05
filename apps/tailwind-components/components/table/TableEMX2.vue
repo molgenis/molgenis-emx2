@@ -20,26 +20,22 @@ const props = withDefaults(
   }
 );
 
-const emit = defineEmits(["update:settings"]); 
-const currentSortedColumn = ref<string>('');
-const mgAriaSortOptions: Record<string,any> = {
-  'ASC': 'ascending',
-  'DESC': 'descending'
-}
+const emit = defineEmits(["update:settings"]);
+const mgAriaSortMappings = {
+  ASC: "ascending",
+  DESC: "descending",
+};
 
 function handleSortRequest(columnId: string) {
-  currentSortedColumn.value = columnId;
-  let direction = "ASC";
+  let direction: sortDirection = "ASC";
   if (props.settings?.orderby?.column === columnId) {
     direction = props.settings.orderby.direction === "ASC" ? "DESC" : "ASC";
   }
 
-  props.settings.orderby = {
-    column: currentSortedColumn.value,
-    direction: direction as sortDirection
-  }
-  
-  emit("update:settings", { ...props.settings });
+  emit("update:settings", {
+    ...props.settings,
+    orderby: { column: columnId, direction },
+  });
 }
 
 function handleSearchRequest(search: string) {
@@ -66,15 +62,18 @@ function handlePagingRequest(page: number) {
     >
     </FilterSearch>
   </div>
-
   <div class="overflow-x-auto overscroll-x-contain">
-    {{ settings.orderby }}
     <table class="text-left table-fixed w-full">
       <thead>
         <tr class="">
           <th
             v-for="column in columns"
             class="py-2.5 px-2.5 border-b border-gray-200 first:pl-0 last:pr-0 sm:first:pl-2.5 sm:last:pr-2.5 text-left w-64"
+            :ariaSort="
+              settings.orderby.column === column.id
+                ? mgAriaSortMappings[settings.orderby.direction]
+                : 'none'
+            "
             scope="col"
           >
             <button
@@ -82,31 +81,17 @@ function handlePagingRequest(page: number) {
               @click="handleSortRequest(column.id)"
             >
               {{ column.label }}
-              <!-- <ArrowUp
-                v-if="
-                  column.id === props.settings?.orderby?.column &&
-                  props.settings?.orderby?.direction === 'ASC'
-                "
-                class="w-4 h-4 inline-block"
-              /> -->
-              <!-- <ArrowDown
-                v-if="
-                  column.id === props.settings?.orderby?.column &&
-                  props.settings?.orderby?.direction === 'DESC'
-                "
-                class="w-4 h-4 inline-block"
-              /> -->
               <ArrowUp
                 v-if="
-                  column.id === currentSortedColumn &&
-                  settings?.orderby?.direction === 'ASC'
+                  column.id === settings.orderby.column &&
+                  settings.orderby.direction === 'ASC'
                 "
                 class="w-4 h-4 inline-block"
               />
               <ArrowDown
                 v-if="
-                  column.id === currentSortedColumn &&
-                  settings?.orderby?.direction === 'DESC'
+                  column.id === settings.orderby.column &&
+                  settings.orderby.direction === 'DESC'
                 "
                 class="w-4 h-4 inline-block"
               />
