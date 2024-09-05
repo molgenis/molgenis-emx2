@@ -259,6 +259,8 @@ Auto id with pre and post fix `foo-${mg_autoid}-bar'` would result in something 
 
 Validation expressions and visible expressions are used to fine tune forms. Validation expressions must be valid javascript.
 
+When trying to create an expression that depends on if a field has a value, one can compare it to `null`, f.e. `name == null`.
+
 Validation expressions must return either null or true. Otherwise they will show an error message and prevent insert/update. In case of 'false' the visible
 expression itself is shown. Otherwise, the return value of the expression will be shown. For example:
 
