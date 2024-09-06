@@ -42,6 +42,7 @@ print('SHARED_STAGING_NAME: ' + SHARED_STAGING_NAME)
 print('-----   ----')
 
 print('Updating catalogue data model to version ' + DATA_MODEL_VERSION)
+# TODO: rewrite to use py client
 
 # sign in to server
 print('Sign in to server: ' + SERVER_URL)

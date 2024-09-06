@@ -548,4 +548,3 @@ def get_end_day(end_month):
             '11': '30',
             '12': '31'
     }[end_month]
-
