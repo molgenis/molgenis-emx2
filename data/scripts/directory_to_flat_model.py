@@ -35,19 +35,21 @@ def main():
     """Main function doing the conversion"""
     # Read password from command line
     parser = argparse.ArgumentParser(description="Command line arguments")
-    parser.add_argument("-url", type=str, required=True,
-                        dest="server", help="URL of server to access")
+    parser.add_argument("-source-url", type=str, required=True,
+                        dest="source_server", help="URL of server to get source data from")
     parser.add_argument("-pw", type=str, dest="password",
                         required=False, help="Password for server access")
+    parser.add_argument("-target-url", type=str, required=True,
+                        dest="target_server", help="URL of server to upload transformed data to")
     args = parser.parse_args()
     # Connect to server
-    with molgenis_emx2_pyclient.Client(args.server) as client:
+    with molgenis_emx2_pyclient.Client(args.source_server) as client:
         if args.password:
             client.signin('admin', args.password)
         # Get and transform Persons table first
         client.set_schema('ERIC')
         persons = client.get('Persons', as_df=True)
-        with molgenis_emx2_pyclient.Client("https://hessel1.molgenis.net") as cat_client:
+        with molgenis_emx2_pyclient.Client(args.target_server) as cat_client:
             cat_client.set_schema('catalogue-demo')
             contacts = cat_client.get('Collection contacts', as_df=True)
             mapped_contacts = map_persons_to_contacts(
