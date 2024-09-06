@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { FormFields } from "#build/components";
 import type {
   columnValue,
   ISchemaMetaData,
@@ -33,6 +34,8 @@ function reFetch() {
 }
 
 const data = ref([] as Record<string, columnValue>[]);
+
+const formFields = ref<InstanceType<typeof FormFields>>();
 </script>
 
 <template>
@@ -50,6 +53,13 @@ const data = ref([] as Record<string, columnValue>[]);
 
     <div>schema id = {{ schemaId }}</div>
     <div>table id = {{ tableId }}</div>
+
+    <button
+      class="border-gray-900 border-[1px] p-2 bg-gray-200"
+      @click="formFields?.validate"
+    >
+      External Validate
+    </button>
   </div>
 
   <FormFields
@@ -57,5 +67,6 @@ const data = ref([] as Record<string, columnValue>[]);
     class="p-8"
     :meta-data="tableMeta"
     :data="data"
+    ref="formFields"
   ></FormFields>
 </template>

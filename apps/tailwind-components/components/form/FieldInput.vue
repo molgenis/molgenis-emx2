@@ -16,13 +16,12 @@ defineProps<{
 defineEmits(["focus", "input", "error", "update:modelValue"]);
 defineExpose({ validate });
 
-const input = ref<InstanceType<typeof InputString>>()
+const input = ref<InstanceType<typeof InputString>>();
 
 function validate(value: columnValue) {
-  if(input && input.value && input.value.validate) {
-    input.value.validate( value as string);
+  if (input && input.value && input.value.validate) {
+    input.value.validate(value as string);
   }
-  
 }
 </script>
 
@@ -37,7 +36,6 @@ function validate(value: columnValue) {
     @input="$emit('input')"
     @update:modelValue="$emit('update:modelValue', $event)"
     @error="$emit('error', $event)"
-    
   ></LazyInputString>
   <LazyInputTextArea
     v-else-if="type === 'TEXT'"

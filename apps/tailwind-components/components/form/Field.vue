@@ -13,7 +13,7 @@ const props = defineProps<{
 }>();
 
 defineEmits(["error", "update:modelValue"]);
-defineExpose({ validate });
+defineExpose({ validate, id: props.column.id });
 
 const pristine = ref(true);
 const dirty = computed(() => !pristine.value);
@@ -52,6 +52,7 @@ function validate(value: columnValue) {
         @input="pristine = false"
         @update:modelValue="$emit('update:modelValue', $event)"
         @error="$emit('error', $event)"
+        ref="formFieldInput"
       ></FormFieldInput>
       <div
         v-if="hasError"

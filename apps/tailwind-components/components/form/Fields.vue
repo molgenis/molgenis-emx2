@@ -70,11 +70,8 @@ const recordLabel = computed(() => props.metaData.label);
 const formFields = ref<InstanceType<typeof FormField>[]>([]);
 
 function validate() {
-  Object.entries(dataMap).forEach(([columnId, value]) => {
-    const column = props.metaData.columns.find((column) => column.id === columnId);
-    if (column) {
-      formFields.value.find((field) => field.column.id === column.id)?.validate(value);
-    }
+  formFields.value.forEach((formField) => {
+    formField.validate(dataMap[formField.id]);
   });
 }
 
