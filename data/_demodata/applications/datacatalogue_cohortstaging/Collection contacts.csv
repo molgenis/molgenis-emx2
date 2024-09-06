@@ -1,4 +1,4 @@
-resource,role,role description,display name,first name,last name,prefix,initials,title,organisation,email,orcid,homepage,photo,photo_filename,expertise
+collection,role,role description,display name,first name,last name,prefix,initials,title,organisation,email,orcid,homepage,photo,photo_filename,expertise
 FORCE-NEN,Principal Investigator,,Jack Ross,Jack,Ross,,JR,prof.,UMCG,jack.ross@paintings.eu,0000-0033-1119-366,https://en.wikipedia.org/wiki/Bob_Ross,,,Carpenting
 FORCE-NEN,"Primary contact,Project manager",,Ollie Ross,Ollie,Ross,,OR,ir.,UMCU,ollie.ross@paintings.eu,0000-0033-1119-366,https://en.wikipedia.org/wiki/Bob_Ross,,,Waiting
 INMA,,,Bob Ross,Bob,Ross,,BR,dr.,,bob.ross@paintings.eu,0000-0033-1119-366,https://en.wikipedia.org/wiki/Bob_Ross,,,Painting

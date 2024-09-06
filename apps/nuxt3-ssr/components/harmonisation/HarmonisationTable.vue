@@ -9,7 +9,7 @@ const props = defineProps<{
 }>();
 
 const statusMap = computed(() =>
-  calcAggregatedHarmonisationStatus(props.variables, props.collections)
+  calcAggregatedHarmonisationStatus(props.variables, props.resources)
 );
 
 let activeRowIndex = ref(-1);
@@ -34,7 +34,7 @@ let activeVariablePath = computed(() =>
     <HarmonisationLegendMatrix size="small" />
     <div class="overflow-x-auto xl:max-w-table border-t">
       <TableSticky
-        :columns="collections"
+        :columns="resources"
         :rows="variables"
         class="h-screen overflow-auto"
       >

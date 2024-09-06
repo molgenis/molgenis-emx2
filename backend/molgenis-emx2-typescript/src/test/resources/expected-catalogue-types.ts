@@ -82,7 +82,7 @@ export interface ICatalogueTypes {
 
 export interface ICatalogues {
     name: string;
-    network: ICollections;
+    network: IResources;
     type: IOntologyNode;
     description: string;
     publisher?: string;
@@ -134,317 +134,6 @@ export interface ICohortStudyTypes {
     ontologyTermURI?: string;
     definition?: string;
     children?: ICohortStudyTypes[];
-}
-
-export interface ICollectionDAPs {
-    collection: ICollections;
-    organisation: IOntologyNode;
-    isDataAccessProvider?: IOntologyNode[];
-    reasonAccessOther?: string;
-    populationSubsetOther?: string;
-    processTime?: number;
-}
-
-export interface ICollectionContacts {
-    collection: ICollections;
-    role?: IOntologyNode[];
-    roleDescription?: string;
-    firstName: string;
-    lastName: string;
-    displayName: string;
-    prefix?: string;
-    initials?: string;
-    title?: IOntologyNode;
-    organisation?: ICollectionOrganisations;
-    email?: string;
-    orcid?: string;
-    homepage?: string;
-    photo?: IFile;
-    expertise?: string;
-}
-
-export interface ICollectionCounts {
-    collection: ICollections;
-    ageGroup: IOntologyNode;
-    populationSize?: number;
-    activeSize?: number;
-    noIndividualsWithSamples?: number;
-    meanObservationYears?: number;
-    meanYearsActive?: number;
-    medianAge?: number;
-    proportionFemale?: number;
-}
-
-export interface ICollectionDatasets {
-    collection: ICollections;
-    name: string;
-    label?: string;
-    datasetType?: IOntologyNode[];
-    unitOfObservation?: IOntologyNode;
-    keywords?: IOntologyNode[];
-    description?: string;
-    numberOfRows?: number;
-    mappedTo?: IMappedDatasets[];
-    mappedFrom?: IMappedDatasets[];
-    sinceVersion?: string;
-    untilVersion?: string;
-}
-
-export interface ICollectionDocumentation {
-    collection: ICollections;
-    name: string;
-    type?: IOntologyNode;
-    description?: string;
-    url?: string;
-    file?: IFile;
-}
-
-export interface ICollectionEvents {
-    collection: ICollections;
-    name: string;
-    description?: string;
-    subcohorts?: ICollectionSubcohorts[];
-    startDate?: string;
-    endDate?: string;
-    ageGroups?: IOntologyNode[];
-    numberOfParticipants?: number;
-    areasOfInformation?: IOntologyNode[];
-    dataCategories?: IOntologyNode[];
-    sampleCategories?: IOntologyNode[];
-    standardizedTools?: IOntologyNode[];
-    standardizedToolsOther?: string;
-    coreVariables?: string[];
-}
-
-export interface ICollectionExternalIdentifiers {
-    collection: ICollections;
-    identifier: string;
-    externalIdentifierType?: IOntologyNode;
-    externalIdentifierTypeOther?: string;
-}
-
-export interface ICollectionLinkages {
-    collection: ICollections;
-    linkedCollection: ICollections;
-    otherLinkedCollection?: string;
-    linkageStrategy?: IOntologyNode;
-    linkageVariable?: string;
-    linkageVariableUnique?: boolean;
-    linkageCompleteness?: string;
-    preLinked?: boolean;
-}
-
-export interface ICollectionOrganisations {
-    collection: ICollections;
-    id: string;
-    pid?: string;
-    name: string;
-    acronym?: string;
-    logo?: IFile;
-    country?: IOntologyNode[];
-    website?: string;
-    role?: IOntologyNode[];
-}
-
-export interface ICollectionPublications {
-    collection: ICollections;
-    doi: string;
-    title: string;
-    isDesignPublication?: boolean;
-    reference?: string;
-}
-
-export interface ICollectionSamplesets {
-    collection: ICollections;
-    name: string;
-    sampleTypes?: IOntologyNode[];
-}
-
-export interface ICollectionSubcohortCounts {
-    population: ICollectionSubcohorts;
-    ageGroup: IOntologyNode;
-    nTotal?: number;
-    nFemale?: number;
-    nMale?: number;
-}
-
-export interface ICollectionSubcohorts {
-    collection: ICollections;
-    name: string;
-    description?: string;
-    numberOfParticipants?: number;
-    counts?: ICollectionSubcohortCounts[];
-    inclusionStart?: number;
-    inclusionEnd?: number;
-    ageGroups?: IOntologyNode[];
-    mainMedicalCondition?: IOntologyNode[];
-    comorbidity?: IOntologyNode[];
-    countries?: IOntologyNode[];
-    regions?: IOntologyNode[];
-    inclusionCriteria?: string;
-}
-
-export interface ICollectionTypesFLAT {
-    order?: number;
-    name: string;
-    label?: string;
-    parent?: ICollectionTypesFLAT;
-    codesystem?: string;
-    code?: string;
-    ontologyTermURI?: string;
-    definition?: string;
-    children?: ICollectionTypesFLAT[];
-}
-
-export interface ICollections {
-    id: string;
-    pid?: string;
-    name: string;
-    localName?: string;
-    acronym?: string;
-    type?: IOntologyNode[];
-    typeOther?: string;
-    cohortType?: IOntologyNode[];
-    clinicalStudyType?: IOntologyNode[];
-    rWDType?: IOntologyNode[];
-    networkType?: IOntologyNode[];
-    website?: string;
-    description?: string;
-    keywords?: string;
-    externalIdentifiers?: ICollectionExternalIdentifiers[];
-    dateEstablished?: string;
-    startDataCollection?: string;
-    endDataCollection?: string;
-    contactEmail?: string;
-    logo?: IFile;
-    status?: IOntologyNode;
-    license?: string;
-    designType?: IOntologyNode;
-    designDescription?: string;
-    designSchematic?: IFile;
-    dataCollectionType?: IOntologyNode[];
-    dataCollectionDescription?: string;
-    reasonSustained?: string;
-    unitOfObservation?: string;
-    recordTrigger?: string;
-    subcohorts?: ICollectionSubcohorts[];
-    collectionEvents?: ICollectionEvents[];
-    collections?: ICollections[];
-    partOfCollections?: ICollections[];
-    numberOfParticipants?: number;
-    numberOfParticipantsWithSamples?: number;
-    underlyingPopulation?: string;
-    populationOfInterest?: IOntologyNode[];
-    populationOfInterestOther?: string;
-    countries?: IOntologyNode[];
-    regions?: IOntologyNode[];
-    populationAgeGroups?: IOntologyNode[];
-    inclusionCriteria?: IOntologyNode[];
-    otherInclusionCriteria?: string;
-    populationEntry?: IOntologyNode[];
-    populationEntryOther?: string;
-    populationExit?: IOntologyNode[];
-    populationExitOther?: string;
-    populationDisease?: IOntologyNode[];
-    populationOncologyTopology?: IOntologyNode[];
-    populationOncologyMorphology?: IOntologyNode[];
-    populationCoverage?: string;
-    populationNotCovered?: string;
-    counts?: ICollectionCounts[];
-    peopleInvolved?: ICollectionContacts[];
-    organisationsInvolved?: ICollectionOrganisations[];
-    networksInvolved?: ICollections[];
-    datasets?: ICollectionDatasets[];
-    samplesets?: ICollectionSamplesets[];
-    areasOfInformation?: IOntologyNode[];
-    areasOfInformationRwd?: IOntologyNode[];
-    qualityOfLifeOther?: string;
-    causeOfDeathCodeOther?: string;
-    indicationVocabularyOther?: string;
-    geneticDataVocabularyOther?: string;
-    careSettingOther?: string;
-    medicinalProductVocabularyOther?: string;
-    prescriptionsVocabularyOther?: string;
-    dispensingsVocabularyOther?: string;
-    proceduresVocabularyOther?: string;
-    biomarkerDataVocabularyOther?: string;
-    diagnosisMedicalEventVocabularyOther?: string;
-    dataDictionaryAvailable?: boolean;
-    diseaseDetails?: IOntologyNode[];
-    biospecimenCollected?: IOntologyNode[];
-    languages?: IOntologyNode[];
-    multipleEntries?: boolean;
-    hasIdentifier?: boolean;
-    identifierDescription?: string;
-    prelinked?: boolean;
-    linkageOptions?: string;
-    linkagePossibility?: boolean;
-    linkedCollections?: ICollectionLinkages[];
-    informedConsentType?: IOntologyNode;
-    informedConsentRequired?: IOntologyNode;
-    informedConsentOther?: string;
-    dataAccessConditions?: IOntologyNode[];
-    dataUseConditions?: IOntologyNode[];
-    dataAccessConditionsDescription?: string;
-    dataAccessFee?: boolean;
-    accessIdentifiableData?: string;
-    accessIdentifiableDataRoute?: string;
-    accessSubjectDetails?: boolean;
-    accessSubjectDetailsRoute?: string;
-    accessThirdParty?: boolean;
-    accessThirdPartyConditions?: string;
-    accessNonEU?: boolean;
-    accessNonEUConditions?: string;
-    biospecimenAccess?: boolean;
-    biospecimenAccessConditions?: string;
-    governanceDetails?: string;
-    approvalForPublication?: boolean;
-    dAPs?: ICollectionDAPs[];
-    releaseType?: IOntologyNode;
-    releaseDescription?: string;
-    numberOfRecords?: number;
-    releaseFrequency?: number;
-    refreshTime?: number;
-    lagTime?: number;
-    refreshPeriod?: IOntologyNode[];
-    preservation?: boolean;
-    preservationDuration?: number;
-    standardOperatingProcedures?: boolean;
-    qualification?: boolean;
-    qualificationsDescription?: string;
-    auditPossible?: boolean;
-    completeness?: string;
-    completenessOverTime?: string;
-    completenessResults?: string;
-    qualityDescription?: string;
-    qualityOverTime?: string;
-    accessForValidation?: boolean;
-    qualityValidationFrequency?: string;
-    qualityValidationMethods?: string;
-    correctionMethods?: string;
-    qualityValidationResults?: string;
-    mappingsToCommonDataModels?: IMappedDatasets[];
-    commonDataModelsOther?: string;
-    eTLStandardVocabularies?: IOntologyNode[];
-    eTLStandardVocabulariesOther?: string;
-    publications?: ICollectionPublications[];
-    fundingSources?: IOntologyNode[];
-    fundingScheme?: IOntologyNode[];
-    fundingStatement?: string;
-    citationRequirements?: string;
-    acknowledgements?: string;
-    documentation?: ICollectionDocumentation[];
-    supplementaryInformation?: string;
-    collectionStartPlanned?: string;
-    collectionStartActual?: string;
-    analysisStartPlanned?: string;
-    analysisStartActual?: string;
-    dataSources?: ICollections[];
-    medicalConditionsStudied?: IOntologyNode[];
-    dataExtractionDate?: string;
-    analysisPlan?: string;
-    objectives?: string;
-    results?: string;
 }
 
 export interface IContributionTypes {
@@ -699,10 +388,20 @@ export interface ILinkageStrategies {
     children?: ILinkageStrategies[];
 }
 
-export interface IMappedCollections {
-    source: ICollections;
+export interface IMappedDatasets {
+    source: IResources;
+    sourceDataset: IResourceDatasets;
+    target: IResources;
+    targetDataset: IResourceDatasets;
+    order?: number;
+    description?: string;
+    syntax?: string;
+}
+
+export interface IMappedResources {
+    source: IResources;
     sourceVersion?: string;
-    target: ICollections;
+    target: IResources;
     targetVersion?: string;
     cdmsOther?: string;
     mappingStatus?: IOntologyNode;
@@ -711,23 +410,13 @@ export interface IMappedCollections {
     eTLSpecificationDocument?: IFile;
 }
 
-export interface IMappedDatasets {
-    source: ICollections;
-    sourceDataset: ICollectionDatasets;
-    target: ICollections;
-    targetDataset: ICollectionDatasets;
-    order?: number;
-    description?: string;
-    syntax?: string;
-}
-
 export interface IMappedVariables {
-    source: ICollections;
-    sourceDataset: ICollectionDatasets;
+    source: IResources;
+    sourceDataset: IResourceDatasets;
     sourceVariables?: IVariables[];
     sourceVariablesOtherDatasets?: IVariables[];
-    target: ICollections;
-    targetDataset: ICollectionDatasets;
+    target: IResources;
+    targetDataset: IResourceDatasets;
     targetVariable: IVariables;
     repeats: string;
     match: IOntologyNode;
@@ -880,6 +569,318 @@ export interface IReleaseTypes {
     children?: IReleaseTypes[];
 }
 
+export interface IResourceDAPs {
+    resource: IResources;
+    organisation: IOntologyNode;
+    isDataAccessProvider?: IOntologyNode[];
+    reasonAccessOther?: string;
+    populationSubsetOther?: string;
+    processTime?: number;
+}
+
+export interface IResourceCohortCounts {
+    resource: IResources;
+    cohort: IResourceCohorts;
+    ageGroup: IOntologyNode;
+    nTotal?: number;
+    nFemale?: number;
+    nMale?: number;
+}
+
+export interface IResourceCohorts {
+    resource: IResources;
+    name: string;
+    description?: string;
+    numberOfParticipants?: number;
+    counts?: IResourceCohortCounts[];
+    inclusionStart?: number;
+    inclusionEnd?: number;
+    ageGroups?: IOntologyNode[];
+    mainMedicalCondition?: IOntologyNode[];
+    comorbidity?: IOntologyNode[];
+    countries?: IOntologyNode[];
+    regions?: IOntologyNode[];
+    inclusionCriteria?: string;
+}
+
+export interface IResourceCollectionEvents {
+    resource: IResources;
+    name: string;
+    description?: string;
+    cohorts?: IResourceCohorts[];
+    startDate?: string;
+    endDate?: string;
+    ageGroups?: IOntologyNode[];
+    numberOfParticipants?: number;
+    areasOfInformation?: IOntologyNode[];
+    dataCategories?: IOntologyNode[];
+    sampleCategories?: IOntologyNode[];
+    standardizedTools?: IOntologyNode[];
+    standardizedToolsOther?: string;
+    coreVariables?: string[];
+}
+
+export interface IResourceContacts {
+    resource: IResources;
+    role?: IOntologyNode[];
+    roleDescription?: string;
+    firstName: string;
+    lastName: string;
+    displayName: string;
+    prefix?: string;
+    initials?: string;
+    title?: IOntologyNode;
+    organisation?: IResourceOrganisations;
+    email?: string;
+    orcid?: string;
+    homepage?: string;
+    photo?: IFile;
+    expertise?: string;
+}
+
+export interface IResourceCounts {
+    resource: IResources;
+    ageGroup: IOntologyNode;
+    populationSize?: number;
+    activeSize?: number;
+    noIndividualsWithSamples?: number;
+    meanObservationYears?: number;
+    meanYearsActive?: number;
+    medianAge?: number;
+    proportionFemale?: number;
+}
+
+export interface IResourceDatasets {
+    resource: IResources;
+    name: string;
+    label?: string;
+    datasetType?: IOntologyNode[];
+    unitOfObservation?: IOntologyNode;
+    keywords?: IOntologyNode[];
+    description?: string;
+    numberOfRows?: number;
+    mappedTo?: IMappedDatasets[];
+    mappedFrom?: IMappedDatasets[];
+    sinceVersion?: string;
+    untilVersion?: string;
+}
+
+export interface IResourceDocumentation {
+    resource: IResources;
+    name: string;
+    type?: IOntologyNode;
+    description?: string;
+    url?: string;
+    file?: IFile;
+}
+
+export interface IResourceExternalIdentifiers {
+    resource: IResources;
+    identifier: string;
+    externalIdentifierType?: IOntologyNode;
+    externalIdentifierTypeOther?: string;
+}
+
+export interface IResourceLinkages {
+    resource: IResources;
+    linkedResource: IResources;
+    otherLinkedResource?: string;
+    linkageStrategy?: IOntologyNode;
+    linkageVariable?: string;
+    linkageVariableUnique?: boolean;
+    linkageCompleteness?: string;
+    preLinked?: boolean;
+}
+
+export interface IResourceOrganisations {
+    resource: IResources;
+    id: string;
+    pid?: string;
+    name: string;
+    acronym?: string;
+    logo?: IFile;
+    country?: IOntologyNode[];
+    website?: string;
+    role?: IOntologyNode[];
+}
+
+export interface IResourcePublications {
+    resource: IResources;
+    doi: string;
+    title: string;
+    isDesignPublication?: boolean;
+    reference?: string;
+}
+
+export interface IResourceSamplesets {
+    resource: IResources;
+    name: string;
+    sampleTypes?: IOntologyNode[];
+}
+
+export interface IResourceTypesFLAT {
+    order?: number;
+    name: string;
+    label?: string;
+    parent?: IResourceTypesFLAT;
+    codesystem?: string;
+    code?: string;
+    ontologyTermURI?: string;
+    definition?: string;
+    children?: IResourceTypesFLAT[];
+}
+
+export interface IResources {
+    id: string;
+    pid?: string;
+    name: string;
+    localName?: string;
+    acronym?: string;
+    type?: IOntologyNode[];
+    typeOther?: string;
+    cohortType?: IOntologyNode[];
+    clinicalStudyType?: IOntologyNode[];
+    rWDType?: IOntologyNode[];
+    networkType?: IOntologyNode[];
+    website?: string;
+    description?: string;
+    keywords?: string;
+    externalIdentifiers?: IResourceExternalIdentifiers[];
+    dateEstablished?: string;
+    startDataCollection?: string;
+    endDataCollection?: string;
+    contactEmail?: string;
+    logo?: IFile;
+    status?: IOntologyNode;
+    license?: string;
+    designType?: IOntologyNode;
+    designDescription?: string;
+    designSchematic?: IFile;
+    dataCollectionType?: IOntologyNode[];
+    dataCollectionDescription?: string;
+    reasonSustained?: string;
+    unitOfObservation?: string;
+    recordTrigger?: string;
+    cohorts?: IResourceCohorts[];
+    collectionEvents?: IResourceCollectionEvents[];
+    resources?: IResources[];
+    partOfResources?: IResources[];
+    numberOfParticipants?: number;
+    numberOfParticipantsWithSamples?: number;
+    underlyingPopulation?: string;
+    populationOfInterest?: IOntologyNode[];
+    populationOfInterestOther?: string;
+    countries?: IOntologyNode[];
+    regions?: IOntologyNode[];
+    populationAgeGroups?: IOntologyNode[];
+    inclusionCriteria?: IOntologyNode[];
+    otherInclusionCriteria?: string;
+    populationEntry?: IOntologyNode[];
+    populationEntryOther?: string;
+    populationExit?: IOntologyNode[];
+    populationExitOther?: string;
+    populationDisease?: IOntologyNode[];
+    populationOncologyTopology?: IOntologyNode[];
+    populationOncologyMorphology?: IOntologyNode[];
+    populationCoverage?: string;
+    populationNotCovered?: string;
+    counts?: IResourceCounts[];
+    peopleInvolved?: IResourceContacts[];
+    organisationsInvolved?: IResourceOrganisations[];
+    networksInvolved?: IResources[];
+    datasets?: IResourceDatasets[];
+    samplesets?: IResourceSamplesets[];
+    areasOfInformation?: IOntologyNode[];
+    areasOfInformationRwd?: IOntologyNode[];
+    qualityOfLifeOther?: string;
+    causeOfDeathCodeOther?: string;
+    indicationVocabularyOther?: string;
+    geneticDataVocabularyOther?: string;
+    careSettingOther?: string;
+    medicinalProductVocabularyOther?: string;
+    prescriptionsVocabularyOther?: string;
+    dispensingsVocabularyOther?: string;
+    proceduresVocabularyOther?: string;
+    biomarkerDataVocabularyOther?: string;
+    diagnosisMedicalEventVocabularyOther?: string;
+    dataDictionaryAvailable?: boolean;
+    diseaseDetails?: IOntologyNode[];
+    biospecimenCollected?: IOntologyNode[];
+    languages?: IOntologyNode[];
+    multipleEntries?: boolean;
+    hasIdentifier?: boolean;
+    identifierDescription?: string;
+    prelinked?: boolean;
+    linkageOptions?: string;
+    linkagePossibility?: boolean;
+    linkedResources?: IResourceLinkages[];
+    informedConsentType?: IOntologyNode;
+    informedConsentRequired?: IOntologyNode;
+    informedConsentOther?: string;
+    dataAccessConditions?: IOntologyNode[];
+    dataUseConditions?: IOntologyNode[];
+    dataAccessConditionsDescription?: string;
+    dataAccessFee?: boolean;
+    accessIdentifiableData?: string;
+    accessIdentifiableDataRoute?: string;
+    accessSubjectDetails?: boolean;
+    accessSubjectDetailsRoute?: string;
+    accessThirdParty?: boolean;
+    accessThirdPartyConditions?: string;
+    accessNonEU?: boolean;
+    accessNonEUConditions?: string;
+    biospecimenAccess?: boolean;
+    biospecimenAccessConditions?: string;
+    governanceDetails?: string;
+    approvalForPublication?: boolean;
+    dAPs?: IResourceDAPs[];
+    releaseType?: IOntologyNode;
+    releaseDescription?: string;
+    numberOfRecords?: number;
+    releaseFrequency?: number;
+    refreshTime?: number;
+    lagTime?: number;
+    refreshPeriod?: IOntologyNode[];
+    preservation?: boolean;
+    preservationDuration?: number;
+    standardOperatingProcedures?: boolean;
+    qualification?: boolean;
+    qualificationsDescription?: string;
+    auditPossible?: boolean;
+    completeness?: string;
+    completenessOverTime?: string;
+    completenessResults?: string;
+    qualityDescription?: string;
+    qualityOverTime?: string;
+    accessForValidation?: boolean;
+    qualityValidationFrequency?: string;
+    qualityValidationMethods?: string;
+    correctionMethods?: string;
+    qualityValidationResults?: string;
+    mappingsToCommonDataModels?: IMappedDatasets[];
+    commonDataModelsOther?: string;
+    eTLStandardVocabularies?: IOntologyNode[];
+    eTLStandardVocabulariesOther?: string;
+    publications?: IResourcePublications[];
+    fundingSources?: IOntologyNode[];
+    fundingScheme?: IOntologyNode[];
+    fundingStatement?: string;
+    citationRequirements?: string;
+    acknowledgements?: string;
+    documentation?: IResourceDocumentation[];
+    supplementaryInformation?: string;
+    collectionStartPlanned?: string;
+    collectionStartActual?: string;
+    analysisStartPlanned?: string;
+    analysisStartActual?: string;
+    dataSources?: IResources[];
+    medicalConditionsStudied?: IOntologyNode[];
+    dataExtractionDate?: string;
+    analysisPlan?: string;
+    objectives?: string;
+    results?: string;
+}
+
 export interface ISampleCategories {
     order?: number;
     name: string;
@@ -967,7 +968,7 @@ export interface ISubmissionTypes {
 export interface ISubmissions {
     submissionDate: string;
     submitterName: string;
-    collections: ICollections[];
+    resources: IResources[];
     submitterEmail: string;
     submitterOrganisation?: string;
     submitterRole?: IOntologyNode;
@@ -1027,8 +1028,9 @@ export interface IVariableRepeatUnits {
 }
 
 export interface IVariableValues {
-    collection: ICollections;
-    variable: IVariables;
+    resource: IResources;
+    dataset: IResourceDatasets;
+    name: IVariables;
     value: string;
     label: string;
     order?: number;
@@ -1039,13 +1041,13 @@ export interface IVariableValues {
 }
 
 export interface IVariables {
-    collection: ICollections;
-    dataset: ICollectionDatasets;
+    resource: IResources;
+    dataset: IResourceDatasets;
     name: string;
     useExternalDefinition?: IVariables;
     label?: string;
     description?: string;
-    collectionEvent?: ICollectionEvents[];
+    collectionEvent?: IResourceCollectionEvents[];
     format?: IOntologyNode;
     unit?: IOntologyNode;
     sinceVersion?: string;

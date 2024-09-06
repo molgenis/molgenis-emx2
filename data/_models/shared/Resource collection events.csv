@@ -3,7 +3,7 @@ Resource collection events,,,,,,,,,,,dct:PeriodOfTime,Definition of a data colle
 Resource collection events,,resource,ref,1,true,,Resources,,,,"dct:isPartOf,dct:inSeries",Resource this collection event is part of,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,StudiesStaging",
 Resource collection events,,name,,1,true,,,,,,"dct:title,dct:identifier",Name of the collection event,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,StudiesStaging",
 Resource collection events,,description,text,,,,,,,,dct:description,Description of the collection event,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,StudiesStaging",
-Resource collection events,,subcohorts,ref_array,,,,Resource cohorts,resource,,,dct:references,Subcohorts that are targetted by this collection event,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging",
+Resource collection events,,cohorts,ref_array,,,,Resource cohorts,resource,,,dct:references,Cohorts that are targetted by this collection event,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging",
 Resource collection events,,start date,date,,,,,,,,dcat:startDate,Start data of data collection,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,StudiesStaging",
 Resource collection events,,end date,date,,,,,,,,dcat:endDate,End date of data collection. Leave empty if collection is ongoing,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,StudiesStaging",
 Resource collection events,,age groups,ontology_array,,,CatalogueOntologies,Age groups,,,,,Age groups included in this data collection event,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,StudiesStaging",
