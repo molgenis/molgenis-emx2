@@ -11,6 +11,7 @@ Variables,,format,ontology,,,CatalogueOntologies,Formats,,,,,"data type, e.g. st
 Variables,,unit,ontology,,,CatalogueOntologies,Units,,,,,"in case of a continuous variable, the unit that the variable values are expressed in","DataCatalogueFlat,RWEStaging,CohortsStaging,StudiesStaging,NetworksStaging",
 Variables,,since version,,,,,,,,,,when this variable was introduced,"DataCatalogueFlat,RWEStaging,CohortsStaging,StudiesStaging,NetworksStaging",
 Variables,,until version,,,,,,,,,,when this variable was removed if applicable,"DataCatalogueFlat,RWEStaging,CohortsStaging,StudiesStaging,NetworksStaging",
+Variables,,resource variables,refback,,,,Resource variables,,variable,,,,DataCatalogueFlat
 Variables,,repeat unit,ontology,,,CatalogueOntologies,Variable repeat units,,,,,"the repeat unit, in case the variable was repeatedly collected over time, e.g. month or week","DataCatalogueFlat,RWEStaging,CohortsStaging,StudiesStaging,NetworksStaging",
 Variables,,repeat min,int,,,,,,,,,the first repeat unit,"DataCatalogueFlat,RWEStaging,CohortsStaging,StudiesStaging,NetworksStaging",
 Variables,,repeat max,int,,,,,,,,,the last repeat unit,"DataCatalogueFlat,RWEStaging,CohortsStaging,StudiesStaging,NetworksStaging",

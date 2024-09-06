@@ -1,0 +1,5 @@
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
+Resource variables,,,,,,,,,,,,Listing of the variables from another resource that are re-used by a resource,DataCatalogue
+Resource variables,,resource,ref,1,TRUE,,Resources,,,,,,DataCatalogueFlat
+Resource variables,,dataset,ref,1,TRUE,,Datasets,resource,,,,,DataCatalogueFlat
+Resource variables,,variable,ref,1,TRUE,,Variables,dataset,,,,,DataCatalogueFlat
