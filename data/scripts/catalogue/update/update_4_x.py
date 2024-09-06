@@ -86,6 +86,7 @@ class Transform:
         self.publications()
 
         # TODO: for vac4eu BPE model is an exception, not part of a network, also other model in VAC4EU
+        # TODO: move DAPs to Organisations.role = data access provider (remove all other columns)
         for table_name in ['Datasets', 'Dataset mappings', 'Subcohorts',
                            'Collection events', 'External identifiers',
                            'Linked resources', 'Quantitative information', 'Subcohort counts',
@@ -170,7 +171,7 @@ class Transform:
                                      'lead organisation': 'id'}, inplace=True)
         df_resources = df_resources.dropna(axis=0)
         df_resources = df_resources.reset_index()
-        df_merged = get_resource_organisations(df_organisations, df_resources)
+        df_merged = get_organisations(df_organisations, df_resources)
         df_resource_organisations = pd.concat([df_resource_organisations, df_merged])
         df_resource_organisations.loc[:, 'role'] = df_resource_organisations['role'].apply(get_organisation_role)
 
@@ -186,12 +187,12 @@ class Transform:
                                         'additional organisations': 'id'}, inplace=True)
             df_resource = df_resource.dropna(axis=0)
             df_resource = df_resource.reset_index()
-            df_merged = get_resource_organisations(df_organisations, df_resource)
+            df_merged = get_organisations(df_organisations, df_resource)
             df_resource_organisations = pd.concat([df_resource_organisations, df_merged])
 
         df_resource_organisations = float_to_int(df_resource_organisations)  # convert float back to integer
         df_resource_organisations = df_resource_organisations.drop_duplicates(subset=['resource', 'id'], keep='first')  # keep first to get lead organisations
-        df_resource_organisations.to_csv(self.path + 'Resource organisations.csv', index=False)
+        df_resource_organisations.to_csv(self.path + 'Organisations.csv', index=False)
 
     def publications(self):
         """Transform Publications table
@@ -214,9 +215,9 @@ class Transform:
         df_merged_pubs = pd.concat([df_design_paper, df_other_pubs])
         df_merged_pubs = df_merged_pubs.reset_index()
 
-        df_resource_pubs = get_resource_pubs(df_merged_pubs, df_publications)
+        df_resource_pubs = get_publications(df_merged_pubs, df_publications)
         df_resource_pubs = df_resource_pubs.drop_duplicates(subset=['resource', 'doi'], keep='first')
-        df_resource_pubs.to_csv(self.path + 'Resource publications.csv', index=False)
+        df_resource_pubs.to_csv(self.path + 'Publications.csv', index=False)
 
     def network_variables(self):
         df = pd.read_csv(self.path + 'Network variables.csv', keep_default_na=False)
@@ -306,7 +307,7 @@ class Transform:
         df['end date'] = df['end year'].astype('Int64').astype('string') + '-' + df['end month'] + '-' + df['end day']
 
         df = float_to_int(df)  # convert float back to integer
-        df.to_csv(self.path + 'Resource collection events.csv', index=False)
+        df.to_csv(self.path + 'Collection events.csv', index=False)
 
     def transform_tables(self, table_name):
         df = pd.read_csv(self.path + table_name + '.csv', keep_default_na=False)
@@ -318,7 +319,7 @@ class Transform:
             df.loc[:, 'subcohorts'] = df['subcohorts'].apply(strip_resource)
 
         df.rename(columns={'subcohort.resource': 'resource',
-                           'subcohort.name': 'cohort',
+                           'subcohort.name': 'subpopulation',
                            'collection event.name': 'collection event',
                            'network': 'resource',
                            'main resource': 'resource',
@@ -330,23 +331,15 @@ class Transform:
 
     def rename_tables(self, table_name):
         if table_name == 'Subcohorts':
-            os.rename(self.path + 'Subcohorts.csv', self.path + 'Resource cohorts.csv')
+            os.rename(self.path + 'Subcohorts.csv', self.path + 'Subpopulations.csv')
         elif table_name == 'Subcohort counts':
-            os.rename(self.path + 'Subcohort counts.csv', self.path + 'Resource cohort counts.csv')
+            os.rename(self.path + 'Subcohort counts.csv', self.path + 'Subpopulation counts.csv')
         elif table_name == 'Datasets':
-            os.rename(self.path + 'Datasets.csv', self.path + 'Resource datasets.csv')
-        elif table_name == 'Dataset mappings':
-            os.rename(self.path + 'Dataset mappings.csv', self.path + 'Mapped datasets.csv')
+            os.rename(self.path + 'Datasets.csv', self.path + 'Datasets.csv')
         elif table_name == 'Quantitative information':
             os.rename(self.path + 'Quantitative information.csv', self.path + 'Resource counts.csv')
-        elif table_name == 'Contacts':
-            os.rename(self.path + 'Contacts.csv', self.path + 'Resource contacts.csv')
-        elif table_name == 'Documentation':
-            os.rename(self.path + 'Documentation.csv', self.path + 'Resource documentation.csv')
-        elif table_name == 'External identifiers':
-            os.rename(self.path + 'External identifiers.csv', self.path + 'Resource external identifiers.csv')
         elif table_name == 'Linked resources':
-            os.rename(self.path + 'Linked resources.csv', self.path + 'Resource linkages.csv')
+            os.rename(self.path + 'Linked resources.csv', self.path + 'Linkages.csv')
         elif table_name == 'Network variables':
             os.rename(self.path + 'Network variables.csv', self.path + 'Resource variables.csv')
 
@@ -461,8 +454,8 @@ def get_repeated_mappings_per_source(df_per_source, df_no_duplicates_per_source)
     return df_no_duplicates_per_source
 
 
-def get_resource_organisations(df_organisations, df_resource):
-    """Merge data resource and organisation to Resource organisations, split out multiple
+def get_organisations(df_organisations, df_resource):
+    """Merge data resource and organisation to Organisations, split out multiple
     references from ref_array into separate rows
     """
     # get all organisations with resource reference in one row
@@ -489,7 +482,7 @@ def get_organisation_role(role):
         return role + ', Lead'
 
 
-def get_resource_pubs(df_merged_pubs, df_publications):
+def get_publications(df_merged_pubs, df_publications):
     """Merge information from publications from Resources and Publications tables, split out
     multiple references from ref_array into separate rows
     """
