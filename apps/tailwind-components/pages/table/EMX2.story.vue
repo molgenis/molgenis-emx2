@@ -126,6 +126,7 @@ const numberOfRows = computed(() => tableData?.value?.count ?? 0);
 
   <div>
     <TableEMX2
+      :table-id="tableId"
       :columns="tableColumns"
       :rows="dataRows"
       :count="numberOfRows"
