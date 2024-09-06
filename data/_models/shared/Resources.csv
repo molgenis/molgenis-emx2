@@ -142,7 +142,7 @@ Resources,,correction methods,text,,,,,,,,,What methods or processes are applied
 Resources,,quality validation results,,,,,,,,,,"If available, provide a link to a publication of the data quality check and validation results","DataCatalogueFlat,RWEStaging"
 Resources,,quality marks,ontology_array,,,CatalogueOntologies,Study quality marks,,,,,"Quality marks, such as ENCePP seal",EMA
 Resources,,standards,heading,,,,,,,,,Use of standard data models and ontologies,"DataCatalogueFlat,EMA,RWEStaging"
-Resources,,mappings to common data models,refback,,,,Mapped datasets,,source,,,Overview of dataset mappings available,"DataCatalogueFlat,RWEStaging"
+Resources,,mappings to common data models,refback,,,,Dataset mappingss,,source,,,Overview of dataset mappings available,"DataCatalogueFlat,RWEStaging"
 Resources,,common data models other,text,,,,,,,,,"If not in list above, give the name of cdm(s) used by this data source","DataCatalogueFlat,EMA,RWEStaging"
 Resources,,ETL standard vocabularies,ontology_array,,,CatalogueOntologies,Vocabularies,,,,,"Are data mapped to standardised vocabularies during ETL to the CDM? If yes, what vocabularies are used for events, such as diagnoses?","DataCatalogueFlat,RWEStaging"
 Resources,,ETL standard vocabularies other,text,,,,,,,,,"If other, what other vocabularies are used?","DataCatalogueFlat,RWEStaging"
