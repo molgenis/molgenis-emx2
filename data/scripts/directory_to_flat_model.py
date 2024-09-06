@@ -61,7 +61,6 @@ def main():
             # cat_client.save_schema(table = 'Collection contacts', data = mapped_contacts)
             mapped_contacts.to_csv(
                 './Collection contacts.csv.zip', index=False)
-            # cat_client.upload_file('./Collection contacts.csv')
 
 if __name__ == "__main__":
     main()
