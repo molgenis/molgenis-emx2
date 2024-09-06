@@ -236,7 +236,7 @@ class Client:
         response = self.session.post(
             url=f"{self.url}/{current_schema}/api/csv/{table_id}",
             headers={'Content-Type': 'text/csv'},
-            data=import_data
+            data=import_data.encode('utf-8')
         )
 
         try:
