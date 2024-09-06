@@ -1,5 +1,6 @@
 package org.molgenis.emx2.tasks;
 
+import java.net.URL;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -10,6 +11,8 @@ public interface TaskService {
   String submit(Task task);
 
   String submitTaskFromName(String name, String parameters);
+
+  String submitTaskFromName(String name, String parameters, URL host);
 
   Set<String> getJobIds();
 
