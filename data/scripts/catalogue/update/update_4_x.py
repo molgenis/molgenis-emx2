@@ -334,8 +334,6 @@ class Transform:
             os.rename(self.path + 'Subcohorts.csv', self.path + 'Subpopulations.csv')
         elif table_name == 'Subcohort counts':
             os.rename(self.path + 'Subcohort counts.csv', self.path + 'Subpopulation counts.csv')
-        elif table_name == 'Datasets':
-            os.rename(self.path + 'Datasets.csv', self.path + 'Datasets.csv')
         elif table_name == 'Quantitative information':
             os.rename(self.path + 'Quantitative information.csv', self.path + 'Resource counts.csv')
         elif table_name == 'Linked resources':
