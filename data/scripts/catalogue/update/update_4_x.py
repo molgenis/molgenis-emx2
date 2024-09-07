@@ -90,7 +90,7 @@ class Transform:
         for table_name in ['Datasets', 'Dataset mappings', 'Subcohorts',
                            'Collection events', 'External identifiers',
                            'Linked resources', 'Quantitative information', 'Subcohort counts',
-                           'Documentation', 'Contacts', 'Variables', 'Network variables', 'Variable values']:
+                           'Documentation', 'Contacts', 'Variables', 'Variable values']:
             self.transform_tables(table_name)
             self.rename_tables(table_name)
 
@@ -221,13 +221,13 @@ class Transform:
 
     def network_variables(self):
         df = pd.read_csv(self.path + 'Network variables.csv', keep_default_na=False)
-        df.loc[:, 'network'] = df['network'].apply(strip_resource)
+        df.loc[:, 'resource'] = df['network'].apply(strip_resource)
         df.loc[:, 'variable.resource'] = df['variable.resource'].apply(strip_resource)
         df.loc[:, 'variable.name'] = df['variable.name'].apply(remove_number)
         df = df.drop_duplicates(subset=['network', 'variable.resource', 'variable.name'])
 
         df = float_to_int(df)  # convert float back to integer
-        df.to_csv(self.path + 'Network variables.csv', index=False)
+        df.to_csv(self.path + 'Resource variables.csv', index=False)
 
     def variable_values(self):
         # restructure variable values
