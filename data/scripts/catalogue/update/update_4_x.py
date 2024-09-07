@@ -294,7 +294,7 @@ class Transform:
         df_mappings = rewrite_mappings(df_cdm, df_no_duplicates)
         df_mappings = pd.concat([df_mappings, df_no_cdm])
         df_mappings = float_to_int(df_mappings)  # convert float back to integer
-        df_mappings.to_csv(self.path + 'Mapped variables.csv', index=False)
+        df_mappings.to_csv(self.path + 'Variable mappings.csv', index=False)
 
     def collection_events(self):
         """ Transform Collection events table
