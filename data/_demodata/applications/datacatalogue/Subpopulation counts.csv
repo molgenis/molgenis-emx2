@@ -1,4 +1,4 @@
-resource,cohort,age group,N total,N female,N male
+resource,subpopulation,age group,N total,N female,N male
 ALSPAC,Mothers,Adult (18+ years),20,8,12
 ALSPAC,Partners,Adult (18+ years),100,,
 ALSPAC,Children,Child (2-12 years),524,299,225
