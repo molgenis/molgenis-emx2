@@ -173,7 +173,7 @@ class Transform:
         df_resources = df_resources.reset_index()
         df_merged = get_organisations(df_organisations, df_resources)
         df_resource_organisations = pd.concat([df_resource_organisations, df_merged])
-        df_resource_organisations.loc[:, 'role'] = df_resource_organisations['role'].apply(get_organisation_role)
+        df_resource_organisations.loc[:, 'is lead organisation'] = 'True'
 
         # get additional organisations and Contacts.organisation
         for table in ['Resources', 'Contacts']:
@@ -189,7 +189,7 @@ class Transform:
             df_resource = df_resource.reset_index()
             df_merged = get_organisations(df_organisations, df_resource)
             df_resource_organisations = pd.concat([df_resource_organisations, df_merged])
-
+            df_resource_organisations['is lead organisation']
         df_resource_organisations = float_to_int(df_resource_organisations)  # convert float back to integer
         df_resource_organisations = df_resource_organisations.drop_duplicates(subset=['resource', 'id'], keep='first')  # keep first to get lead organisations
         df_resource_organisations.to_csv(self.path + 'Organisations.csv', index=False)
