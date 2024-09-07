@@ -162,7 +162,7 @@ const query = gql`
       publications_agg {
         count
       }
-      partOfCollections {
+      partOfResources {
         name
         type {
             name
@@ -172,7 +172,7 @@ const query = gql`
     }
   }
 `;
-const variables = { id: route.params.collection };
+const variables = { id: route.params.resource };
 interface IResponse {
   data: {
     Resources: IResource[];
@@ -187,7 +187,7 @@ const { data, error } = await useFetch<IResponse, IMgError>(
 );
 
 if (error.value) {
-  logError(error.value, "Error fetching collection metadata");
+  logError(error.value, "Error fetching resource metadata");
 }
 
 const resource = computed(() => data.value?.data?.Resources[0] as IResource);
@@ -226,7 +226,7 @@ function collectionEventMapper(item: any) {
     })(),
     numberOfParticipants: item.numberOfParticipants,
     _renderComponent: "CollectionEventDisplay",
-    _path: `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/resources/${route.params.collection}/collection-events/${item.name}`,
+    _path: `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/resources/${route.params.resource}/collection-events/${item.name}`,
   };
 }
 
@@ -275,7 +275,7 @@ let tocItems = computed(() => {
       id: "Contributors",
     });
   }
-  if (resource.value.resource?.collectionEvents) {
+  if (resource.value.collectionEvents) {
     tableOffContents.push({
       label: "Available data & samples",
       id: "AvailableData",
@@ -283,7 +283,7 @@ let tocItems = computed(() => {
   }
   // { label: 'Variables & topics', id: 'Variables' },
   if (cohortCount.value ?? 0 > 0) {
-    tableOffContents.push({ label: "Subpopulations", id: "Subpopulations" });
+    tableOffContents.push({ label: "Cohorts", id: "Cohorts" });
   }
   if (collectionEventCount.value ?? 0 > 0) {
     tableOffContents.push({
@@ -462,7 +462,7 @@ let fundingAndAcknowledgementItems = computed(() => {
 
 useHead({ title: resource.value.acronym || resource.value.name });
 
-const messageFilter = `{"filter": {"id":{"equals":"${route.params.collection}"}}}`;
+const messageFilter = `{"filter": {"id":{"equals":"${route.params.resource}"}}}`;
 
 const cohortOnly = computed(() => {
   const routeSetting = route.query["cohort-only"] as string;
@@ -613,7 +613,6 @@ const activeOrganization = computed(() => {
           title="Variables &amp; Topics"
           description="Explantation about variables and the functionality seen here."
         /> -->
-
         <ContentBlockData
           id="AvailableData"
           title="Available Data &amp; Samples"
@@ -623,16 +622,16 @@ const activeOrganization = computed(() => {
         <TableContent
           v-if="cohortCount ?? 0 > 0"
           id="Subpopulations"
-          title="Subpopulations"
-          description="List of subcohorts or subpopulations for this resource"
+          title="Cohorts"
+          description="List of cohorts or populations for this resource"
           :headers="[
             { id: 'name', label: 'Name' },
             { id: 'description', label: 'Description', singleLine: true },
             { id: 'numberOfParticipants', label: 'Number of participants' },
           ]"
-          type="CollectionSubcohorts"
+          type="ResourceCohorts"
           :query="cohortsQuery"
-          :filter="{ id: route.params.collection }"
+          :filter="{ id: route.params.resource }"
           :rowMapper="cohortMapper"
           v-slot="slotProps"
         >
@@ -654,9 +653,9 @@ const activeOrganization = computed(() => {
               orderByColumn: 'startYear',
             },
           ]"
-          type="CollectionEvents"
+          type="ResourceCollectionEvents"
           :query="collectionEventsQuery"
-          :filter="{ id: route.params.collection }"
+          :filter="{ id: route.params.resource }"
           :rowMapper="collectionEventMapper"
           v-slot="slotProps"
         >
@@ -672,15 +671,15 @@ const activeOrganization = computed(() => {
             { id: 'name', label: 'Name' },
             { id: 'description', label: 'Description', singleLine: true },
           ]"
-          type="CollectionDatasets"
+          type="ResourceDatasets"
           :query="datasetQuery"
-          :filter="{ id: route.params.collection }"
+          :filter="{ id: route.params.resource }"
           :rowMapper="datasetMapper"
           v-slot="slotProps"
         >
           <DatasetDisplay
             :name="slotProps.id.name"
-            :collectionId="slotProps.id.collection"
+            :resource-id="slotProps.id.resource"
           />
         </TableContent>
 

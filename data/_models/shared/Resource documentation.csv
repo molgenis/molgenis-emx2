@@ -1,8 +1,0 @@
-tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,visible
-Resource documentation,,,,,,,,,,,,Documentation attached to a resource,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging",
-Resource documentation,,resource,ref,1,true,,Resources,,,,,The resource this documentation is for,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging",
-Resource documentation,,name,,1,true,,,,,,,Document name,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging",
-Resource documentation,,type,ontology,,,CatalogueOntologies,Document types,,,,,Type of documentation,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging",
-Resource documentation,,description,text,,,,,,,,,Description of the document,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging",
-Resource documentation,,url,hyperlink,,,,,,,,,Hyperlink to the source of the documentation,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging",
-Resource documentation,,file,file,,,,,,,,,Optional file attachment containing the documentation,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging",
