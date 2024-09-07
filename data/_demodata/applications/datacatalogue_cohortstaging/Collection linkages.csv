@@ -1,4 +1,4 @@
-resource,linked resource,other linked collection,linkage strategy,linkage variable,linkage variable unique,linkage completeness,pre linked
+collection,linked collection,other linked collection,linkage strategy,linkage variable,linkage variable unique,linkage completeness,pre linked
 ABL,VCN,not applicable,,,,,
 ABL,SPF,not applicable,,,,,
 ABL,SPA,not applicable,,,,,

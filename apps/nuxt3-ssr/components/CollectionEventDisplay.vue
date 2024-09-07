@@ -33,7 +33,7 @@ if (error.value) {
 }
 
 const collectionEvent: any = computed(
-  () => data.value.data.CollectionEvents[0]
+  () => data.value.data.ResourceCollectionEvents[0]
 );
 
 const pageCrumbs: any = {
