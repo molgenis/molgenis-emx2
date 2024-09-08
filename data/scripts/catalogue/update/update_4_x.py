@@ -80,10 +80,12 @@ class Transform:
         self.variables()
         self.network_variables()
         self.variable_mappings()
-        self.catalogues()
         self.variable_values()
         self.collection_events()
         self.publications()
+
+        if self.database_type == 'catalogue':
+            self.catalogues()
 
         # TODO: for vac4eu BPE model is an exception, not part of a network, also other model in VAC4EU
         # TODO: move DAPs to Organisations.role = data access provider (remove all other columns)
@@ -109,52 +111,65 @@ class Transform:
         """Transform columns in Cohorts, Networks, Studies, Data sources, Databanks
         """
         # Cohorts to Resources
-        df_cohorts = pd.read_csv(self.path + 'Cohorts.csv')
-        df_cohorts = df_cohorts.rename(columns={'type': 'cohort type',
-                                                'type other': 'cohort type other',
-                                                'collection type': 'data collection type'})
-        df_cohorts['type'] = 'Cohort study'
+        if self.database_type in ['catalogue', 'cohort', 'cohort_UMCG']:
+
+            df_cohorts = pd.read_csv(self.path + 'Cohorts.csv')
+            df_cohorts = df_cohorts.rename(columns={'type': 'cohort type',
+                                                    'type other': 'cohort type other',
+                                                    'collection type': 'data collection type'})
+            df_cohorts['type'] = 'Cohort study'
 
         # Networks to Resources
-        df_networks = pd.read_csv(self.path + 'Networks.csv')
-        df_networks = df_networks.rename(columns={'type': 'network type'})
-        df_networks['type'] = 'Network'
+        if self.database_type in ['catalogue', 'network']:
+            df_networks = pd.read_csv(self.path + 'Networks.csv')
+            df_networks = df_networks.rename(columns={'type': 'network type'})
+            df_networks['type'] = 'Network'
 
-        # get resources that are part of network
-        cols_to_find = ['networks', 'cohorts', 'data sources', 'databanks']
-        i_cols = [df_networks.columns.get_loc(col) for col in cols_to_find]
-        df_networks['resources'] = df_networks[df_networks.columns[i_cols]]\
-            .apply(lambda x: ','.join(x.dropna().astype(str)), axis=1)
+            # get resources that are part of network
+            cols_to_find = ['networks', 'cohorts', 'data sources', 'databanks']
+            i_cols = [df_networks.columns.get_loc(col) for col in cols_to_find]
+            df_networks['resources'] = df_networks[df_networks.columns[i_cols]]\
+                .apply(lambda x: ','.join(x.dropna().astype(str)), axis=1)
 
         # Studies to Resources
-        df_studies = pd.read_csv(self.path + 'Studies.csv')
-        df_studies.rename(columns={'study design classification': 'clinical study type',
-                                   'type other': 'study type other',
-                                   'number of subjects': 'number of participants',
-                                   'age groups': 'population age groups'}, inplace=True)
-        df_studies['type'] = 'Study'
+        if self.database_type in ['catalogue']:
+            df_studies = pd.read_csv(self.path + 'Studies.csv')
+            df_studies.rename(columns={'study design classification': 'clinical study type',
+                                       'type other': 'study type other',
+                                       'number of subjects': 'number of participants',
+                                       'age groups': 'population age groups'}, inplace=True)
+            df_studies['type'] = 'Study'
 
         # Data sources to Resources
-        df_data_sources = pd.read_csv(self.path + 'Data sources.csv')
-        df_data_sources.rename(columns={'type': 'RWD type',
-                                        'type other': 'RWD type other',
-                                        'areas of information': 'areas of information rwd'}, inplace=True)
-        df_data_sources['type'] = 'Data source'
+        if self.database_type in ['catalogue', 'data_source']:
+            df_data_sources = pd.read_csv(self.path + 'Data sources.csv')
+            df_data_sources.rename(columns={'type': 'RWD type',
+                                            'type other': 'RWD type other',
+                                            'areas of information': 'areas of information rwd'}, inplace=True)
+            df_data_sources['type'] = 'Data source'
 
-        # Databanks to Resources
-        df_databanks = pd.read_csv(self.path + 'Databanks.csv')
-        df_databanks.rename(columns={'type': 'RWD type',
-                                     'type other': 'RWD type other',
-                                     'areas of information': 'areas of information rwd'}, inplace=True)
-        df_databanks['type'] = 'Databank'
+            # Databanks to Resources
+            df_databanks = pd.read_csv(self.path + 'Databanks.csv')
+            df_databanks.rename(columns={'type': 'RWD type',
+                                         'type other': 'RWD type other',
+                                         'areas of information': 'areas of information rwd'}, inplace=True)
+            df_databanks['type'] = 'Databank'
 
-        df_models = pd.read_csv(self.path + 'Models.csv')
-        df_models = df_models[df_models['id'] == 'CRC Screening CDM']  # handles exception CRC Screening CDM
-        df_models['type'] = ''  # TODO: add term here
+        # Models to Resources
+        if self.database_type in ['catalogue', 'network']:
+            df_models = pd.read_csv(self.path + 'Models.csv')
+            df_models = df_models[df_models['id'] == 'CRC Screening CDM']  # handles exception CRC Screening CDM
+            df_models['type'] = ''  # TODO: add term here
 
         # merge all to Resources
-        df_resources = pd.concat([df_cohorts, df_networks, df_studies, df_databanks, df_data_sources,
-                                  df_models])
+        if self.database_type == 'catalogue':
+            df_resources = pd.concat([df_cohorts, df_networks, df_studies, df_databanks, df_data_sources, df_models])
+        elif self.database_type in ['cohort', 'cohort_UMCG']:
+            df_resources = df_cohorts
+        elif self.database_type == 'data_source':
+            df_resources = df_data_sources
+        elif self.database_type == 'network':
+            df_resources = pd.concat([df_networks, df_models])
         df_resources = float_to_int(df_resources)  # convert float back to integer
         df_resources.to_csv(self.path + 'Resources.csv', index=False)
 
