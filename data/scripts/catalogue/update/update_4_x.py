@@ -293,7 +293,9 @@ class Transform:
         # select athlete, lifecycle, expanse and testNetwork1 variables and restructure
         df_variables_cdm = df_variables[df_variables['resource'].isin(['LifeCycle', 'ATHLETE', 'testNetwork1', 'EXPANSE'])]
         df_variables_cdm.loc[:, 'name'] = df_variables_cdm['name'].apply(remove_number)
-        df_variables_cdm = restructure_repeats(df_variables_cdm, df_repeats)
+
+        if self.database_type in ['catalogue', 'network']:
+            df_variables_cdm = restructure_repeats(df_variables_cdm, df_repeats)
 
         # select variables that are not in LifeCycle or ATHLETE or testNetwork1
         df_variables_no_cdm = df_variables[~df_variables['resource'].isin(['LifeCycle', 'ATHLETE', 'testNetwork1', 'EXPANSE'])]
