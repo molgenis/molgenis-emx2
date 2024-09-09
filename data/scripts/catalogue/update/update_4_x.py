@@ -133,11 +133,12 @@ class Transform:
             df_networks = df_networks.rename(columns={'type': 'network type'})
             df_networks['type'] = 'Network'
 
-            # get resources that are part of network
-            cols_to_find = ['networks', 'cohorts', 'data sources', 'databanks']
-            i_cols = [df_networks.columns.get_loc(col) for col in cols_to_find]
-            df_networks['resources'] = df_networks[df_networks.columns[i_cols]]\
-                .apply(lambda x: ','.join(x.dropna().astype(str)), axis=1)
+            if self.database_type == 'catalogue':
+                # get resources that are part of network
+                cols_to_find = ['networks', 'cohorts', 'data sources', 'databanks']
+                i_cols = [df_networks.columns.get_loc(col) for col in cols_to_find]
+                df_networks['resources'] = df_networks[df_networks.columns[i_cols]]\
+                    .apply(lambda x: ','.join(x.dropna().astype(str)), axis=1)
 
         # Studies to Resources
         if self.database_type in ['catalogue']:
@@ -229,6 +230,8 @@ class Transform:
             df_organisations = float_to_int(df_organisations)
             df_organisations.to_csv(self.path + 'Organisations.csv', index=False)
 
+    # TODO: fix publications for database_type = network (only 'publication' field)
+    #  and cohort_umcg (only 'design paper' field)
     def publications(self):
         """Transform Publications table
         """
