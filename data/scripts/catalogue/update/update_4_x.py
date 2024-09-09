@@ -291,16 +291,19 @@ class Transform:
         df_variables.loc[:, 'is_repeated'] = df_variables['name'].apply(is_repeated, df_repeats=df_repeats)
 
         # select athlete, lifecycle, expanse and testNetwork1 variables and restructure
-        df_variables_cdm = df_variables[df_variables['resource'].isin(['LifeCycle', 'ATHLETE', 'testNetwork1', 'EXPANSE'])]
-        df_variables_cdm.loc[:, 'name'] = df_variables_cdm['name'].apply(remove_number)
-
-        if self.database_type in ['catalogue', 'network']:
+        if self.database_type in ['catalogue', 'network'] and \
+                self.database_name in ['catalogue', 'LifeCycle', 'ATHLETE', 'EXPANSE']:
+            df_variables_cdm = df_variables[df_variables['resource'].isin(['LifeCycle', 'ATHLETE',
+                                                                           'testNetwork1', 'EXPANSE'])]
+            df_variables_cdm.loc[:, 'name'] = df_variables_cdm['name'].apply(remove_number)
             df_variables_cdm = restructure_repeats(df_variables_cdm, df_repeats)
-
+        # TODO: take care of this separation between network and cohorts
         # select variables that are not in LifeCycle or ATHLETE or testNetwork1
-        df_variables_no_cdm = df_variables[~df_variables['resource'].isin(['LifeCycle', 'ATHLETE', 'testNetwork1', 'EXPANSE'])]
+        df_variables_no_cdm = df_variables[~df_variables['resource'].isin(['LifeCycle', 'ATHLETE',
+                                                                           'testNetwork1', 'EXPANSE'])]
         # select repeated variables that are not in lifecycle or ATHLETE or testNetwork1
-        df_repeats_no_cdm = df_repeats[~df_repeats['resource'].isin(['LifeCycle', 'ATHLETE', 'testNetwork1', 'EXPANSE'])]
+        df_repeats_no_cdm = df_repeats[~df_repeats['resource'].isin(['LifeCycle', 'ATHLETE',
+                                                                     'testNetwork1', 'EXPANSE'])]
 
         # concatenate all variables
         df_all_variables = pd.concat([df_variables_cdm, df_variables_no_cdm, df_repeats_no_cdm])
