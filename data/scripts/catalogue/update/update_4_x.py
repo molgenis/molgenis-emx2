@@ -317,28 +317,29 @@ class Transform:
 
     def variable_mappings(self):
         df = pd.read_csv(self.path + 'Variable mappings.csv', keep_default_na=False)
-        df.loc[:, 'target'] = df['target'].apply(strip_resource)  # delete appendix '_CDM'
-        df.loc[:, 'repeat_num'] = df['target variable'].apply(get_repeat_number)  # get repeat of target variable
+        if len(df) != 0:
+            df.loc[:, 'target'] = df['target'].apply(strip_resource)  # delete appendix '_CDM'
+            df.loc[:, 'repeat_num'] = df['target variable'].apply(get_repeat_number)  # get repeat of target variable
 
-        df_no_cdm = df[~df['target'].isin(['LifeCycle', 'ATHLETE', 'testNetwork1', 'EXPANSE'])]
-        df_cdm = df[df['target'].isin(['LifeCycle', 'ATHLETE', 'testNetwork1', 'EXPANSE'])]
-        df_cdm.loc[:, 'target variable'] = df_cdm['target variable'].apply(remove_number)
+            df_cdm = df[df['target'].isin(['LifeCycle', 'ATHLETE', 'testNetwork1', 'EXPANSE'])]
+            if len(df_cdm) != 0:
+                df_no_cdm = df[~df['target'].isin(['LifeCycle', 'ATHLETE', 'testNetwork1', 'EXPANSE'])]
+                df_cdm.loc[:, 'target variable'] = df_cdm['target variable'].apply(remove_number)
+                df_cdm = df_cdm.fillna('')
 
-        df_cdm = df_cdm.fillna('')
+                # drop duplicate mappings
+                df_no_duplicates = df_cdm.drop_duplicates(subset=['source', 'source dataset', 'source variables',
+                                                                  'source variables other datasets.dataset',
+                                                                  'source variables other datasets.name',
+                                                                  'target', 'target dataset', 'target variable',
+                                                                  'match', 'syntax', 'comments', 'description'])
+                df_no_duplicates = df_no_duplicates.fillna('')
 
-        # drop duplicate mappings
-        df_no_duplicates = df_cdm.drop_duplicates(subset=['source', 'source dataset', 'source variables',
-                                                          'source variables other datasets.dataset',
-                                                          'source variables other datasets.name',
-                                                          'target', 'target dataset', 'target variable',
-                                                          'match', 'syntax', 'comments', 'description'])
-        df_no_duplicates = df_no_duplicates.fillna('')
-
-        # get repeated mappings in comma separated string
-        df_mappings = rewrite_mappings(df_cdm, df_no_duplicates)
-        df_mappings = pd.concat([df_mappings, df_no_cdm])
-        df_mappings = float_to_int(df_mappings)  # convert float back to integer
-        df_mappings.to_csv(self.path + 'Variable mappings.csv', index=False)
+                # get repeated mappings in comma separated string
+                df_mappings = rewrite_mappings(df_cdm, df_no_duplicates)
+                df_mappings = pd.concat([df_mappings, df_no_cdm])
+                df_mappings = float_to_int(df_mappings)  # convert float back to integer
+                df_mappings.to_csv(self.path + 'Variable mappings.csv', index=False)
 
     def collection_events(self):
         """ Transform Collection events table
