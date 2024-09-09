@@ -75,4 +75,6 @@ public interface Schema {
   Table getTableById(String id);
 
   Table getTableByNameOrIdCaseInsensitive(String name);
+
+  boolean hasTableWithNameOrIdCaseInsensitive(String fileName);
 }

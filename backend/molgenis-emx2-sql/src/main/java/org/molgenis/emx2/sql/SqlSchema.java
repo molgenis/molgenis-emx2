@@ -453,6 +453,17 @@ public class SqlSchema implements Schema {
     return table;
   }
 
+  @Override
+  public boolean hasTableWithNameOrIdCaseInsensitive(String tableName) {
+    return getTableNames().stream()
+        .anyMatch(
+            value ->
+                value
+                    .toLowerCase()
+                    .replace(" ", "")
+                    .equals(tableName.replace(" ", "").toLowerCase()));
+  }
+
   public DSLContext getJooq() {
     return ((SqlDatabase) getDatabase()).getJooq();
   }
