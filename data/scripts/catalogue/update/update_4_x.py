@@ -98,7 +98,7 @@ class Transform:
         # TODO: move DAPs to Organisations.role = data access provider (remove all other columns)
         for table_name in ['Datasets', 'Dataset mappings', 'External identifiers', 'Subcohorts', 'Subcohort counts'
                            'Collection events', 'Quantitative information', 'Documentation', 'Contacts',
-                           'Variables', 'Variable values']:
+                           'Variables', 'Variable values', 'Linked resources']:
             self.transform_tables(table_name)
 
         for table_name in ['Subcohorts', 'Quantitative information', 'Subcohort counts', 'Linked resources']:
