@@ -364,7 +364,7 @@ class Transform:
         df.to_csv(self.path + 'Collection events.csv', index=False)
 
     def transform_tables(self, table_name):
-        if table_name in os.listdir(self.path):
+        if table_name + '.csv' in os.listdir(self.path):
             df = pd.read_csv(self.path + table_name + '.csv', keep_default_na=False)
             if 'resource' in df.columns:
                 df.loc[:, 'resource'] = df['resource'].apply(strip_resource)  # removes _CDM from 'model' name
@@ -385,7 +385,7 @@ class Transform:
             df.to_csv(self.path + table_name + '.csv', index=False)
 
     def rename_tables(self, table_name):
-        if table_name in os.listdir(self.path):
+        if table_name + '.csv' in os.listdir(self.path):
             if table_name == 'Subcohorts':
                 os.rename(self.path + 'Subcohorts.csv', self.path + 'Subpopulations.csv')
             elif table_name == 'Subcohort counts':
