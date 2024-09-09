@@ -163,7 +163,7 @@ Persons,,biobanks,Biobanks,refback,,false,true,Biobanks the person is connected 
 Persons,,collections,Collections,refback,,false,true,Collections the person is connected to.,,Collections,contact,,,,,,
 Persons,,networks,Networks,refback,,false,true,Networks the person is connected to.,,Networks,contact,,,,,,
 Persons,,national_node,National Node,ref,,true,,The person originates from this national node.,,NationalNodes,,${description},,,,,
-Studies,,,,,,,,Table with information about studies imported from ECRIN MDR. A Study is intended as a clinical trial in which context the collection was generated,,,,,,,,,
+Studies,,,,,,,,Table with information about the studies in which context the collection was generated,,,,,,,,,
 Studies,,id,ID,string,1,true,,"Unique ID of the study, prefixed with bbmri-eric:ID:<ecrin_mdr_id>",,,,,,,,,
 Studies,,title,Title,text,,true,,The title of the study,,,,,,,,,
 Studies,,description,Description,text,,false,,A text describing the study,,,,,,,,,
