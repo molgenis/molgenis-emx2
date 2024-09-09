@@ -307,6 +307,7 @@ const fetchOntologyOptions = async (
   const tableDataQuery = `query ${tableId} {
         ${tableId}(
           limit:100000
+          orderby: { name: "ASC" }
           )
           {
           	order 
