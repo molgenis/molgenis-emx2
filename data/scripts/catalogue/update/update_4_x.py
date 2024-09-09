@@ -238,22 +238,29 @@ class Transform:
         df_resources = pd.read_csv(self.path + 'Resources.csv')
         df_publications = pd.read_csv(self.path + 'Publications.csv')
 
-        df_design_paper = df_resources[['id', 'design paper']]
-        df_design_paper.loc[:, 'is design publication'] = 'true'
-        df_design_paper = df_design_paper.rename(columns={'id': 'resource',
-                                                          'design paper': 'doi'})
-        df_design_paper = df_design_paper.dropna(axis=0)
+        if self.database_type != 'network':
+            df_design_paper = df_resources[['id', 'design paper']]
+            df_design_paper.loc[:, 'is design publication'] = 'true'
+            df_design_paper = df_design_paper.rename(columns={'id': 'resource',
+                                                              'design paper': 'doi'})
+            df_design_paper = df_design_paper.dropna(axis=0)
 
-        df_other_pubs = df_resources[['id', 'publications']]
-        df_other_pubs.loc[:, 'is design publication'] = 'false'
-        df_other_pubs = df_other_pubs.rename(columns={'id': 'resource',
-                                                      'publications': 'doi'})
-        df_other_pubs = df_other_pubs.dropna(axis=0)
+        if self.database_type != 'cohort_UMCG':
+            df_other_pubs = df_resources[['id', 'publications']]
+            df_other_pubs.loc[:, 'is design publication'] = 'false'
+            df_other_pubs = df_other_pubs.rename(columns={'id': 'resource',
+                                                          'publications': 'doi'})
+            df_other_pubs = df_other_pubs.dropna(axis=0)
 
         df_merged_pubs = pd.concat([df_design_paper, df_other_pubs])
         df_merged_pubs = df_merged_pubs.reset_index()
 
-        df_resource_pubs = get_publications(df_merged_pubs, df_publications)
+        if self.database_type == 'network':
+            df_resource_pubs = get_publications(df_other_pubs, df_merged_pubs)
+        elif self.database_type == 'cohort_UMCG':
+            df_resource_pubs = get_publications(df_design_paper, df_merged_pubs)
+        else:
+            df_resource_pubs = get_publications(df_merged_pubs, df_publications)
         df_resource_pubs = df_resource_pubs.drop_duplicates(subset=['resource', 'doi'], keep='first')
         df_resource_pubs.to_csv(self.path + 'Publications.csv', index=False)
 
