@@ -81,27 +81,27 @@ class Transform:
         if self.database_type == 'catalogue':
             self.catalogues()
             self.network_variables()
-
-            self.variable_values()
+        if self.database_type in ['catalogue', 'network']:
+            self.variable_values()  # only rewritten for catalogue and network
 
         self.resources()
         self.organisations()
         self.variables()
-
-        self.variable_mappings()
-
-        self.collection_events()
         self.publications()
 
-
+        if self.database_type != 'network':
+            self.variable_mappings()
+        if self.database_type != 'data_source':
+            self.collection_events()
 
         # TODO: for vac4eu BPE model is an exception, not part of a network, also other model in VAC4EU
         # TODO: move DAPs to Organisations.role = data access provider (remove all other columns)
-        for table_name in ['Datasets', 'Dataset mappings', 'Subcohorts',
-                           'Collection events', 'External identifiers',
-                           'Linked resources', 'Quantitative information', 'Subcohort counts',
-                           'Documentation', 'Contacts', 'Variables', 'Variable values']:
+        for table_name in ['Datasets', 'Dataset mappings', 'External identifiers', 'Subcohorts', 'Subcohort counts'
+                           'Collection events', 'Quantitative information', 'Documentation', 'Contacts',
+                           'Variables', 'Variable values', ]:
             self.transform_tables(table_name)
+
+        for table_name in ['Subcohorts', 'Quantitative information', 'Subcohort counts', 'Linked resources']:
             self.rename_tables(table_name)
 
     def catalogues(self):
@@ -259,7 +259,7 @@ class Transform:
         df.loc[:, 'resource'] = df['network'].apply(strip_resource)
         df.loc[:, 'variable.resource'] = df['variable.resource'].apply(strip_resource)
         df.loc[:, 'variable.name'] = df['variable.name'].apply(remove_number)
-        df = df.drop_duplicates(subset=['network', 'variable.resource', 'variable.name'])
+        df = df.drop_duplicates(subset=['resource', 'variable.resource', 'variable.name'])
 
         df = float_to_int(df)  # convert float back to integer
         df.to_csv(self.path + 'Resource variables.csv', index=False)
@@ -306,7 +306,11 @@ class Transform:
                                                                      'testNetwork1', 'EXPANSE'])]
 
         # concatenate all variables
-        df_all_variables = pd.concat([df_variables_cdm, df_variables_no_cdm, df_repeats_no_cdm])
+        if self.database_type in ['catalogue', 'network'] and \
+                self.database_name in ['catalogue', 'LifeCycle', 'ATHLETE', 'EXPANSE']:
+            df_all_variables = pd.concat([df_variables_cdm, df_variables_no_cdm, df_repeats_no_cdm])
+        else:
+            df_all_variables = pd.concat([df_variables_no_cdm, df_repeats_no_cdm])
 
         df_all_variables = float_to_int(df_all_variables)  # convert float back to integer
         df_all_variables.to_csv(self.path + 'Variables.csv', index=False)
@@ -350,36 +354,36 @@ class Transform:
         df.to_csv(self.path + 'Collection events.csv', index=False)
 
     def transform_tables(self, table_name):
-        df = pd.read_csv(self.path + table_name + '.csv', keep_default_na=False)
-        if 'resource' in df.columns:
-            df.loc[:, 'resource'] = df['resource'].apply(strip_resource)  # removes _CDM from 'model' name
-        if 'target' in df.columns:
-            df.loc[:, 'target'] = df['target'].apply(strip_resource)
-        if 'subcohorts' in df.columns:
-            df.loc[:, 'subcohorts'] = df['subcohorts'].apply(strip_resource)
+        if table_name in os.listdir(self.path):
+            df = pd.read_csv(self.path + table_name + '.csv', keep_default_na=False)
+            if 'resource' in df.columns:
+                df.loc[:, 'resource'] = df['resource'].apply(strip_resource)  # removes _CDM from 'model' name
+            if 'target' in df.columns:
+                df.loc[:, 'target'] = df['target'].apply(strip_resource)
+            if 'subcohorts' in df.columns:
+                df.loc[:, 'subcohorts'] = df['subcohorts'].apply(strip_resource)
 
-        df.rename(columns={'subcohort.resource': 'resource',
-                           'subcohort.name': 'subpopulation',
-                           'collection event.name': 'collection event',
-                           'network': 'resource',
-                           'main resource': 'resource',
-                           'variable.dataset': 'dataset',
-                           'variable.name': 'variable'}, inplace=True)
+            df.rename(columns={'subcohort.resource': 'resource',
+                               'subcohort.name': 'subpopulation',
+                               'collection event.name': 'collection event',
+                               'network': 'resource',
+                               'main resource': 'resource',
+                               'variable.dataset': 'dataset',
+                               'variable.name': 'variable'}, inplace=True)
 
-        df = float_to_int(df)  # convert float back to integer
-        df.to_csv(self.path + table_name + '.csv', index=False)
+            df = float_to_int(df)  # convert float back to integer
+            df.to_csv(self.path + table_name + '.csv', index=False)
 
     def rename_tables(self, table_name):
-        if table_name == 'Subcohorts':
-            os.rename(self.path + 'Subcohorts.csv', self.path + 'Subpopulations.csv')
-        elif table_name == 'Subcohort counts':
-            os.rename(self.path + 'Subcohort counts.csv', self.path + 'Subpopulation counts.csv')
-        elif table_name == 'Quantitative information':
-            os.rename(self.path + 'Quantitative information.csv', self.path + 'Resource counts.csv')
-        elif table_name == 'Linked resources':
-            os.rename(self.path + 'Linked resources.csv', self.path + 'Linkages.csv')
-        elif table_name == 'Network variables':
-            os.rename(self.path + 'Network variables.csv', self.path + 'Resource variables.csv')
+        if table_name in os.listdir(self.path):
+            if table_name == 'Subcohorts':
+                os.rename(self.path + 'Subcohorts.csv', self.path + 'Subpopulations.csv')
+            elif table_name == 'Subcohort counts':
+                os.rename(self.path + 'Subcohort counts.csv', self.path + 'Subpopulation counts.csv')
+            elif table_name == 'Quantitative information':
+                os.rename(self.path + 'Quantitative information.csv', self.path + 'Resource counts.csv')
+            elif table_name == 'Linked resources':
+                os.rename(self.path + 'Linked resources.csv', self.path + 'Linkages.csv')
 
 
 def strip_resource(resource_name):
