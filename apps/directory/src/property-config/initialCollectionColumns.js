@@ -81,7 +81,7 @@ const initialCollectionColumns = [
   {
     label: "Study:",
     column: { study: ["id", "title"] },
-    type: "xref",
+    type: "object",
   },
   {
     column: [

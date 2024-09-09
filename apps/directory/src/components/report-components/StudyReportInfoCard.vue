@@ -18,7 +18,7 @@ import { toRefs } from "vue";
 import ReportDetailsList from "../../components/report-components/ReportDetailsList.vue";
 
 const props = defineProps(["info"]);
-let { info } = toRefs(props);
+const { info } = toRefs(props);
 </script>
 
 <style scoped>
