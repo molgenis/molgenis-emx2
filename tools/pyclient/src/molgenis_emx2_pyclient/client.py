@@ -496,6 +496,8 @@ class Client:
                 else:
                     log.info("Exported data from table %s in schema %s.", table, current_schema)
 
+            return response.content
+
 
     async def create_schema(self, name: str = None,
                       description: str = None,

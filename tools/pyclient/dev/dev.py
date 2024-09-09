@@ -77,8 +77,8 @@ async def main():
 
         # Export the entire 'pet store' schema to a .xlsx file
         # and export the 'Collections' table from schema 'catalogue' to a .csv file
-        await client.export(schema='pet store', fmt='xlsx')
-        await client.export(schema='catalogue', table='Collections', fmt='csv')
+        pet_store_excel = await client.export(schema='pet store', fmt='xlsx')
+        raw_collections = await client.export(schema='catalogue', table='Collections', fmt='csv')
 
     # Connect to server with a default schema specified
     with Client('https://emx2.dev.molgenis.org/', schema='pet store', token=token) as client:
