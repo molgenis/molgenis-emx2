@@ -261,16 +261,10 @@ public class MolgenisWebservice {
     if (request.params(SCHEMA) == null) {
       return null;
     }
-    Schema schema =
-        sessionManager
-            .getSession(request)
-            .getDatabase()
-            .getSchema(sanitize(request.params(SCHEMA)));
-    if (schema == null) {
-      throw new MolgenisException(
-          "Schema '" + request.params(SCHEMA) + "' is unknown or permission denied");
-    }
-    return schema;
+    return sessionManager
+        .getSession(request)
+        .getDatabase()
+        .getSchema(sanitize(request.params(SCHEMA)));
   }
 
   public static Collection<String> getSchemaNames(Request request) {
