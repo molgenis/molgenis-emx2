@@ -2,8 +2,7 @@ package org.molgenis.emx2.fairdatapoint;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.eclipse.rdf4j.model.util.Values.literal;
-import static org.molgenis.emx2.rdf.RDFService.*;
-import static org.molgenis.emx2.rdf.RDFUtils.*;
+import static org.molgenis.emx2.utils.URIUtils.*;
 
 import graphql.ExecutionResult;
 import graphql.GraphQL;
@@ -67,7 +66,7 @@ public class FAIRDataPointCatalog {
                 + "title,"
                 + "hasVersion,"
                 + "description,"
-                + "publisher,"
+                + "publisher{name},"
                 + "language{ontologyTermURI},"
                 + "license,"
                 + "themeTaxonomy,"
@@ -141,14 +140,11 @@ public class FAIRDataPointCatalog {
     builder.add(reqUrl, DCTERMS.PUBLISHER, publisher);
     builder.add(publisher, RDF.TYPE, FOAF.AGENT);
     builder.add(publisher, FOAF.NAME, catalogFromJSON.get("publisher"));
-    builder.add(
-        apiFdpEnc, DCTERMS.LICENSE, iri(TypeUtils.toString(catalogFromJSON.get("license"))));
-    builder.add(apiFdpEnc, DCTERMS.CONFORMS_TO, apiFdpCatalogProfileEnc);
+    builder.add(reqUrl, DCTERMS.LICENSE, iri(TypeUtils.toString(catalogFromJSON.get("license"))));
+    builder.add(reqUrl, DCTERMS.CONFORMS_TO, apiFdpCatalogProfileEnc);
     builder.add(reqUrl, DCTERMS.IS_PART_OF, apiFdpEnc);
     builder.add(
-        apiFdpEnc,
-        DCAT.THEME_TAXONOMY,
-        iri(TypeUtils.toString(catalogFromJSON.get("themeTaxonomy"))));
+        reqUrl, DCAT.THEME_TAXONOMY, iri(TypeUtils.toString(catalogFromJSON.get("themeTaxonomy"))));
     builder.add(apiFdpEnc, iri("https://w3id.org/fdp/fdp-o#metadataIdentifier"), reqUrl);
 
     builder.add(
@@ -203,28 +199,28 @@ public class FAIRDataPointCatalog {
     }
 
     builder.add(
-        apiFdpEnc,
+        reqUrl,
         DCTERMS.ISSUED,
         literal(
             TypeUtils.toString(catalogFromJSON.get("mg_insertedOn")).substring(0, 19),
             XSD.DATETIME));
     builder.add(
-        apiFdpEnc,
+        reqUrl,
         DCTERMS.MODIFIED,
         literal(
             TypeUtils.toString(catalogFromJSON.get("mg_updatedOn")).substring(0, 19),
             XSD.DATETIME));
     BNode rights = vf.createBNode();
-    builder.add(apiFdpEnc, DCTERMS.RIGHTS, rights);
+    builder.add(reqUrl, DCTERMS.RIGHTS, rights);
     builder.add(rights, RDF.TYPE, DCTERMS.RIGHTS_STATEMENT);
     builder.add(rights, DCTERMS.DESCRIPTION, "Rights are provided on a per-dataset basis.");
     BNode accessRights = vf.createBNode();
-    builder.add(apiFdpEnc, DCTERMS.ACCESS_RIGHTS, accessRights);
+    builder.add(reqUrl, DCTERMS.ACCESS_RIGHTS, accessRights);
     builder.add(accessRights, RDF.TYPE, DCTERMS.RIGHTS_STATEMENT);
     builder.add(
         accessRights, DCTERMS.DESCRIPTION, "Access rights are provided on a per-dataset basis.");
     builder.add(
-        apiFdpEnc, FOAF.HOMEPAGE, encodedIRI(host + "/" + schema.getName() + "/tables/#/Catalog"));
+        reqUrl, FOAF.HOMEPAGE, encodedIRI(host + "/" + schema.getName() + "/tables/#/Catalog"));
 
     // Write model
     Model model = builder.build();

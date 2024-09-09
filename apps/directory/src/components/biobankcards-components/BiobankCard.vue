@@ -9,7 +9,7 @@
     ]"
   >
     <section class="d-flex flex-column align-items-center">
-      <div class="align-self-stretch">
+      <div class="d-flex flex-column h-100 align-self-stretch">
         <header class="border-0 biobank-card-header p-1">
           <h5 class="pt-1 pl-1 pr-1 mt-1">
             <router-link :to="'/biobank/' + biobank.id" class="text-dark">
@@ -52,7 +52,7 @@
           <MatchesOn :viewmodel="biobank" />
         </header>
 
-        <div v-if="!showCollections">
+        <template v-if="!showCollections">
           <div class="mb-1 shadow-sm" v-if="numberOfCollections">
             <button
               class="btn btn-link text-info pl-2"
@@ -61,7 +61,7 @@
               {{ uiText["card_collections_details"] }}
             </button>
           </div>
-          <div class="p-2 pt-1 biobank-section" :style="cardContainerHeight">
+          <div class="p-2 pt-1 biobank-section flex-grow-1">
             <small>
               <ViewGenerator :viewmodel="biobankcardViewmodel" />
               <MatchesOn :viewmodel="biobank" />
@@ -74,9 +74,9 @@
               </router-link>
             </small>
           </div>
-        </div>
+        </template>
 
-        <div v-else>
+        <template v-else>
           <div class="d-flex mb-1 shadow-sm">
             <button
               class="btn btn-link text-info pl-2"
@@ -85,7 +85,7 @@
               {{ uiText["card_biobank_details"] }}
             </button>
           </div>
-          <div class="collections-section" :style="cardContainerHeight">
+          <div class="collections-section flex-grow-1">
             <div class="pl-2 pt-2 d-flex" v-if="numberOfCollections">
               <h5>
                 {{
@@ -163,7 +163,7 @@
               </div>
             </div>
           </div>
-        </div>
+        </template>
       </div>
     </section>
   </article>
@@ -245,22 +245,6 @@ export default {
     },
     numberOfCollections() {
       return this.biobank.collections ? this.biobank.collections.length : 0;
-    },
-    cardContainerHeight() {
-      const charactersInName = this.biobank.name.length;
-
-      let height = 20.5; // default
-
-      if (charactersInName <= 30) {
-        height = 22.2;
-      }
-
-      /** When a biobank name is too long it will take three rows (most of the time), tipping point is 80 characters. */
-      if (charactersInName >= 80) {
-        height = 19;
-      }
-
-      return `height: ${height}rem;max-height: ${height}rem;`;
     },
     biobankcardViewmodel() {
       const { viewmodel } = getBiobankDetails(this.biobank);

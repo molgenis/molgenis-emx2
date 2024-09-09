@@ -33,13 +33,11 @@ export default {
     },
   },
   methods: {
-    // ...mapMutations(["SetNotification"]),
     displayName(item) {
       return item.label || item.name || item.id;
     },
     copyToClipboard(link) {
       navigator.clipboard.writeText(link);
-      this.SetNotification(`Copied ${link}`);
     },
   },
 };

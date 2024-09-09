@@ -16,9 +16,10 @@ import org.slf4j.LoggerFactory;
  * For documenting processes that consist of multiple steps and elements. For example. batch
  * insert/upload tasks.
  */
-public class Task<T extends Task> implements Runnable, Iterable<Task> {
+public class Task implements Runnable, Iterable<Task> {
   // some unique id
   private final String id = UUID.randomUUID().toString();
+
   // for the toString method
   @JsonIgnore
   private static final ObjectMapper mapper =
@@ -42,7 +43,7 @@ public class Task<T extends Task> implements Runnable, Iterable<Task> {
   // end time to calculate run time
   private long endTimeMilliseconds;
   // subtasks/steps in this task
-  private List<Task<?>> subTasks = new ArrayList<>();
+  private List<Task> subTasks = new ArrayList<>();
   // parent task
   @JsonIgnore private Task parentTask;
   // this parameter is used to indicate if steps should fail on unexpected state or should simply
@@ -51,7 +52,9 @@ public class Task<T extends Task> implements Runnable, Iterable<Task> {
   // this handler is used to notify that relevant things happened
   @JsonIgnore private TaskChangedHandler changedHandler;
   private String cronExpression;
+  private String cronUserName;
   private boolean disabled = false;
+  private String failureAddress;
 
   public Task() {}
 
@@ -88,7 +91,7 @@ public class Task<T extends Task> implements Runnable, Iterable<Task> {
     this.parentTask = parentTask;
   }
 
-  public List<Task<?>> getSubTasks() {
+  public List<Task> getSubTasks() {
     return Collections.unmodifiableList(subTasks);
   }
 
@@ -97,9 +100,9 @@ public class Task<T extends Task> implements Runnable, Iterable<Task> {
     return null;
   }
 
-  public T setProgress(int progress) {
+  public Task setProgress(int progress) {
     this.progress = progress;
-    return (T) this;
+    return this;
   }
 
   public String getDescription() {
@@ -129,10 +132,10 @@ public class Task<T extends Task> implements Runnable, Iterable<Task> {
     }
   }
 
-  public T setDescription(String description) {
+  public Task setDescription(String description) {
     Objects.requireNonNull(description, "description cannot be null");
     this.description = description;
-    return (T) this;
+    return this;
   }
 
   public TaskStatus getStatus() {
@@ -146,27 +149,27 @@ public class Task<T extends Task> implements Runnable, Iterable<Task> {
     return total;
   }
 
-  public T setTotal(int total) {
+  public Task setTotal(int total) {
     this.total = total;
-    return (T) this;
+    return this;
   }
 
-  public T start() {
+  public Task start() {
     this.setStatus(RUNNING);
     this.logger.info(getDescription() + ": started");
-    return (T) this;
+    return this;
   }
 
-  public T complete() {
+  public Task complete() {
     this.setStatus(COMPLETED);
     this.logger.info(getDescription());
-    return (T) this;
+    return this;
   }
 
-  public T complete(String description) {
+  public Task complete(String description) {
     this.description = description;
     setStatus(COMPLETED);
-    return (T) this;
+    return this;
   }
 
   public void completeWithError(String message) {
@@ -187,7 +190,7 @@ public class Task<T extends Task> implements Runnable, Iterable<Task> {
     }
   }
 
-  public T setStatus(TaskStatus status) {
+  public Task setStatus(TaskStatus status) {
     Objects.requireNonNull(status, "status can not be null");
     if (RUNNING.equals(status)) {
       this.startTimeMilliseconds = System.currentTimeMillis();
@@ -199,7 +202,7 @@ public class Task<T extends Task> implements Runnable, Iterable<Task> {
     }
     this.status = status;
     this.handleChange();
-    return (T) this;
+    return this;
   }
 
   public void setSkipped(String description) {
@@ -224,7 +227,7 @@ public class Task<T extends Task> implements Runnable, Iterable<Task> {
   public void run() {}
 
   @Override
-  public Iterator iterator() {
+  public Iterator<Task> iterator() {
     return this.subTasks.iterator();
   }
 
@@ -234,7 +237,7 @@ public class Task<T extends Task> implements Runnable, Iterable<Task> {
   }
 
   @Override
-  public Spliterator spliterator() {
+  public Spliterator<Task> spliterator() {
     return this.subTasks.spliterator();
   }
 
@@ -270,27 +273,45 @@ public class Task<T extends Task> implements Runnable, Iterable<Task> {
     return submitUser;
   }
 
-  public T submitUser(String submitUser) {
+  public Task submitUser(String submitUser) {
     this.submitUser = submitUser;
-    return (T) this;
+    return this;
   }
 
-  public T cronExpression(String cronExpression) {
+  public Task cronExpression(String cronExpression) {
     this.cronExpression = cronExpression;
-    return (T) this;
+    return this;
   }
 
   public String getCronExpression() {
     return this.cronExpression;
   }
 
-  public T disabled(boolean disabled) {
+  public Task cronUserName(String cronUserName) {
+    this.cronUserName = cronUserName;
+    return this;
+  }
+
+  public Task failureAddress(String failureAddress) {
+    this.failureAddress = failureAddress;
+    return this;
+  }
+
+  public String getCronUserName() {
+    return this.cronUserName;
+  }
+
+  public Task disabled(boolean disabled) {
     this.disabled = disabled;
-    return (T) this;
+    return this;
   }
 
   public boolean isDisabled() {
     return this.disabled;
+  }
+
+  public String getFailureAddress() {
+    return failureAddress;
   }
 
   @Override

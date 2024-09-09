@@ -56,6 +56,21 @@ public class TestCompositeForeignKeys {
       System.out.println("errored correctly: " + e);
     }
 
+    try {
+      p.insert(
+          new Row()
+              .setString("firstName", "Kwik")
+              .setString("lastName", "Duck")
+              .setString("uncle.firstName", "Donald"));
+      // missing completely.setString("uncle.lastName", "MISSING"));
+      fail("should have failed when part for composite foreign key is null, regression #3876");
+    } catch (Exception e) {
+      assertEquals(
+          "Update into table 'Person' failed.: Transaction failed: Key (uncle.firstName,uncle.lastName)=(Donald,NULL) not present in table \"Person\"",
+          e.getMessage());
+      System.out.println("errored correctly: " + e);
+    }
+
     p.insert(
         new Row()
             .setString("firstName", "Kwik")
@@ -258,6 +273,17 @@ public class TestCompositeForeignKeys {
             .setString("lastName", "Duck")
             .setString("cousins.firstName", "Kwik")
             .setString("cousins.lastName", "Duck"));
+
+    try {
+      p.insert(
+          new Row()
+              .setString("firstName", "Donald")
+              .setString("lastName", "Duck2")
+              .setString("cousins.firstName", "Kwik"));
+      fail("should fail when composite foreign key has a null value, regression #3876");
+    } catch (Exception e) {
+      System.out.println("errored correctly: " + e);
+    }
 
     try {
       p.delete(new Row().setString("firstName", "Kwik").setString("lastName", "Duck"));

@@ -1,6 +1,6 @@
 package org.molgenis.emx2.fairdatapoint;
 
-import static org.molgenis.emx2.beaconv2.endpoints.QueryHelper.finalizeFilter;
+import static org.molgenis.emx2.beaconv2.QueryHelper.finalizeFilter;
 
 import graphql.ExecutionResult;
 import graphql.GraphQL;
@@ -39,7 +39,7 @@ public class Queries {
                 + "landingPage,"
                 + "license,"
                 + "language{ontologyTermURI},"
-                + "relation,"
+                + "relation{name},"
                 + "rights,"
                 + "qualifiedRelation,"
                 + "publisher{name},"

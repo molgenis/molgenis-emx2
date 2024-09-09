@@ -3,19 +3,31 @@ const route = useRoute();
 const headerData = await useHeaderData();
 const catalogue = headerData.catalogue;
 const variableCount = headerData.variableCount;
+
+const bannerData = await useBannerData();
+const bannerHtml = computed(() => {
+  return bannerData.data;
+});
 </script>
 
 <template>
+  <Banner v-if="bannerHtml.value" v-html="bannerHtml.value"> </Banner>
+
   <HeaderCatalogue
     v-if="route.params.catalogue"
     :catalogue="catalogue"
     :variableCount="variableCount"
   />
+
   <HeaderGlobal v-else />
+
   <Container>
     <slot name="header"></slot>
     <div class="xl:flex xl:items-start">
-      <aside class="xl:w-82.5 sticky top-[30px] flex-shrink-0 hidden xl:block">
+      <aside
+        v-if="$slots.side"
+        class="xl:w-82.5 sticky top-[30px] flex-shrink-0 hidden xl:block"
+      >
         <slot name="side"></slot>
       </aside>
 
@@ -24,5 +36,9 @@ const variableCount = headerData.variableCount;
       </div>
     </div>
   </Container>
-  <FooterComponent />
+  <FooterComponent>
+    <ClientOnly>
+      <FooterVersion />
+    </ClientOnly>
+  </FooterComponent>
 </template>

@@ -1,12 +1,20 @@
 <template>
   <div>
     <!-- whilst loading -->
-    <LayoutModal v-if="loading" :title="title" :show="true">
+    <LayoutModal
+      v-if="loading"
+      :title="title"
+      :show="true"
+      @close="$emit('close')"
+    >
       <template v-slot:body>
-        <Spinner />
-        creating schema, may take a while ...
+        <Task v-if="taskId" :taskId="taskId" @taskUpdated="taskUpdated" />
+      </template>
+      <template v-if="taskDone" v-slot:footer>
+        <ButtonAction @click="$emit('close')">Close</ButtonAction>
       </template>
     </LayoutModal>
+
     <!-- when update succesfull show result before close -->
     <LayoutModal
       v-else-if="success"
@@ -96,6 +104,7 @@ import {
   MessageError,
   MessageSuccess,
   Spinner,
+  Task,
 } from "molgenis-components";
 
 export default {
@@ -112,18 +121,20 @@ export default {
     InputSelect,
     LayoutForm,
     Spinner,
+    Task,
   },
   data: function () {
     return {
       key: 0,
       loading: false,
       graphqlError: null,
+      taskId: null,
+      taskDone: null,
       success: null,
       schemaName: null,
       schemaDescription: null,
       template: null,
       templates: [
-        null,
         "PET_STORE",
         "FAIR_DATA_HUB",
         "DATA_CATALOGUE",
@@ -133,12 +144,15 @@ export default {
         "JRC_COMMON_DATA_ELEMENTS",
         "FAIR_GENOMES",
         "DCAT",
+        "FAIR_DATA_POINT",
         "BEACON_V2",
         "ERN_DASHBOARD",
         "BIOBANK_DIRECTORY",
         "BIOBANK_DIRECTORY_STAGING",
         "SHARED_STAGING",
         "PROJECTMANAGER",
+        "GDI",
+        "DATA_CATALOGUE_AGGREGATES",
       ],
       includeDemoData: false,
     };
@@ -171,9 +185,10 @@ export default {
       this.loading = true;
       this.graphqlError = null;
       this.success = null;
+      this.taskId = null;
       request(
         this.endpoint,
-        `mutation createSchema($name:String, $description:String, $template: String, $includeDemoData: Boolean){createSchema(name:$name, description:$description, template: $template, includeDemoData: $includeDemoData){message}}`,
+        `mutation createSchema($name:String, $description:String, $template: String, $includeDemoData: Boolean){createSchema(name:$name, description:$description, template: $template, includeDemoData: $includeDemoData){message, taskId}}`,
         {
           name: this.schemaName,
           description: this.schemaDescription,
@@ -182,8 +197,12 @@ export default {
         }
       )
         .then((data) => {
-          this.success = data.createSchema.message;
-          this.loading = false;
+          if (data.createSchema.taskId) {
+            this.taskId = data.createSchema.taskId;
+          } else {
+            this.success = data.createSchema.message;
+            this.loading = false;
+          }
         })
         .catch((error) => {
           if (error.response.status === 403) {
@@ -194,6 +213,12 @@ export default {
           }
           this.loading = false;
         });
+    },
+    taskUpdated(task) {
+      if (["COMPLETED", "ERROR"].includes(task.status)) {
+        this.success = true;
+        this.taskDone = true;
+      }
     },
   },
 };

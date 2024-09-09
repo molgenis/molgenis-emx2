@@ -14,6 +14,7 @@ import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
+import static org.molgenis.emx2.datamodels.DataModels.Regular.PET_STORE;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_PW_DEFAULT;
 import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 import static org.molgenis.emx2.web.Constants.*;
@@ -29,12 +30,13 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.*;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.Order;
-import org.molgenis.emx2.datamodels.PetStoreLoader;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvInZipFile;
 import org.molgenis.emx2.io.tablestore.TableStoreForXlsxFile;
@@ -92,8 +94,7 @@ public class WebApiSmokeTests {
     // Always create test database from scratch to avoid instability due to side effects.
     db.dropSchemaIfExists(PET_STORE_SCHEMA);
     schema = db.createSchema(PET_STORE_SCHEMA);
-    PetStoreLoader petStoreLoader = new PetStoreLoader();
-    petStoreLoader.load(schema, true);
+    PET_STORE.getImportTask(schema, true).run();
 
     // grant a user permission
     schema.addMember(PET_SHOP_OWNER, Privileges.OWNER.toString());
@@ -141,7 +142,7 @@ public class WebApiSmokeTests {
             .when()
             .get("/pet store zip/api/csv")
             .asString();
-    assertEquals(schemaCsv, schemaCsv2);
+    assertArrayEquals(toSortedArray(schemaCsv), toSortedArray(schemaCsv2));
 
     // delete the new schema
     db.dropSchema("pet store zip");
@@ -151,7 +152,7 @@ public class WebApiSmokeTests {
   public void testReports() throws IOException {
     // create a new schema for report
     Schema schema = db.dropCreateSchema("pet store reports");
-    new PetStoreLoader().load(schema, true);
+    PET_STORE.getImportTask(schema, true).run();
 
     // check if reports work
     byte[] zipContents =
@@ -250,7 +251,7 @@ public class WebApiSmokeTests {
       throws IOException {
     byte[] addUpdateTable = tableMeta.getBytes(StandardCharsets.UTF_8);
     File addUpdateTableFile = createTempFile(addUpdateTable, ".csv");
-    acceptFileUpload(addUpdateTableFile, "molgenis");
+    acceptFileUpload(addUpdateTableFile, "molgenis", false);
     String actual = getContentAsString("/api/csv");
     assertEquals(header + expected, actual);
   }
@@ -282,18 +283,16 @@ public class WebApiSmokeTests {
     // upload csv metadata and data into the new schema
     // here we use 'body' (instead of 'multiPart' in e.g. testCsvApi_zipUploadDownload) because csv,
     // json and yaml import is submitted in the request body
-    acceptFileUpload(contentsMetaFile, "molgenis");
-    acceptFileUpload(contentsCategoryDataFile, "Category");
-    acceptFileUpload(contentsTagDataFile, "Tag");
-    acceptFileUpload(contentsPetDataFile, "Pet");
-    acceptFileUpload(contentsOrderDataFile, "Order");
-    acceptFileUpload(contentsUserDataFile, "User");
-    acceptFileUpload(contentsTableWithSpacesDataFile, TABLE_WITH_SPACES);
+    acceptFileUpload(contentsMetaFile, "molgenis", false);
+    acceptFileUpload(contentsCategoryDataFile, "Category", false);
+    acceptFileUpload(contentsTagDataFile, "Tag", false);
+    acceptFileUpload(contentsPetDataFile, "Pet", false);
+    acceptFileUpload(contentsUserDataFile, "User", false);
+    acceptFileUpload(contentsTableWithSpacesDataFile, TABLE_WITH_SPACES, false);
 
     // download csv from the new schema
     String contentsMetaNew = getContentAsString("/api/csv");
     String contentsCategoryDataNew = getContentAsString("/api/csv/Category");
-    String contentsOrderDataNew = getContentAsString("/api/csv/Order");
     String contentsPetDataNew = getContentAsString("/api/csv/Pet");
     String contentsUserDataNew = getContentAsString("/api/csv/User");
     String contentsTagDataNew = getContentAsString("/api/csv/Tag");
@@ -302,13 +301,28 @@ public class WebApiSmokeTests {
             "/api/csv/" + TABLE_WITH_SPACES.toUpperCase()); // to test for case insensitive match
 
     // test if existing and new schema are equal
-    assertEquals(new String(contentsMeta), contentsMetaNew);
-    assertEquals(new String(contentsCategoryData), contentsCategoryDataNew);
-    assertEquals(new String(contentsOrderData), contentsOrderDataNew);
-    assertEquals(new String(contentsPetData), contentsPetDataNew);
-    assertEquals(new String(contentsUserData), contentsUserDataNew);
-    assertEquals(new String(contentsTagData), contentsTagDataNew);
-    assertEquals(new String(contentsTableWithSpacesData), contentsTableWithSpacesDataNew);
+    assertArrayEquals(toSortedArray(new String(contentsMeta)), toSortedArray(contentsMetaNew));
+    assertArrayEquals(
+        toSortedArray(new String(contentsCategoryData)), toSortedArray(contentsCategoryDataNew));
+    assertArrayEquals(
+        toSortedArray(new String(contentsPetData)), toSortedArray(contentsPetDataNew));
+    assertArrayEquals(
+        toSortedArray(new String(contentsUserData)), toSortedArray(contentsUserDataNew));
+    assertArrayEquals(
+        toSortedArray(new String(contentsTagData)), toSortedArray(contentsTagDataNew));
+    assertArrayEquals(
+        toSortedArray(new String(contentsTableWithSpacesData)),
+        toSortedArray(contentsTableWithSpacesDataNew));
+
+    // Test async
+    String response = acceptFileUpload(contentsOrderDataFile, "Order", true);
+    assertTrue(response.contains("id"));
+  }
+
+  private String[] toSortedArray(String string) {
+    String[] lines = string.split("\n");
+    Arrays.sort(lines);
+    return lines;
   }
 
   @Test
@@ -336,15 +350,18 @@ public class WebApiSmokeTests {
     assertFalse(result.contains("spike"));
   }
 
-  private void acceptFileUpload(File content, String table) {
-    given()
-        .sessionId(SESSION_ID)
-        .body(content)
-        .header("fileName", table)
-        .when()
-        .post("/" + CSV_TEST_SCHEMA + "/api/csv")
-        .then()
-        .statusCode(200);
+  private String acceptFileUpload(File content, String table, boolean async) {
+    Response response =
+        given()
+            .sessionId(SESSION_ID)
+            .body(content)
+            .header("fileName", table)
+            .when()
+            .post("/" + CSV_TEST_SCHEMA + "/api/csv" + (async ? "?async=true" : ""));
+
+    response.then().statusCode(200);
+
+    return response.asString();
   }
 
   private String getContentAsString(String path) {
@@ -694,15 +711,8 @@ public class WebApiSmokeTests {
   public void testTokenBasedAuth() throws JsonProcessingException {
 
     // check if we can use temporary token
-    String result =
-        given()
-            .body(
-                "{\"query\":\"mutation{signin(email:\\\"shopmanager\\\",password:\\\"shopmanager\\\"){message,token}}\"}")
-            .when()
-            .post("/api/graphql")
-            .getBody()
-            .asString();
-    String token = new ObjectMapper().readTree(result).at("/data/signin/token").textValue();
+    String token = getToken("shopmanager", "shopmanager");
+    String result;
 
     // without token we are anonymous
     assertTrue(
@@ -853,6 +863,16 @@ public class WebApiSmokeTests {
         .expect()
         .contentType("text/turtle")
         .when()
+        .head("http://localhost:" + PORT + "/api/fdp");
+  }
+
+  @Test
+  public void testNonDefinedFDPHead() {
+    given()
+        .sessionId(SESSION_ID)
+        .expect()
+        .contentType("text/html;charset=utf-8")
+        .when()
         .head("http://localhost:" + PORT + "/api/fdp/");
   }
 
@@ -863,9 +883,9 @@ public class WebApiSmokeTests {
         .redirects()
         .follow(false)
         .expect()
-        .header("Location", "http://localhost:" + PORT + "/api/fdp/")
+        .header("Location", "http://localhost:" + PORT + "/api/fdp")
         .when()
-        .get("http://localhost:" + PORT + "/api/fdp");
+        .get("http://localhost:" + PORT + "/api/fdp/");
   }
 
   @Test
@@ -941,15 +961,8 @@ public class WebApiSmokeTests {
   @Disabled("unstable")
   public void testScriptExecution() throws JsonProcessingException, InterruptedException {
     // get token for admin
-    String result =
-        given()
-            .body(
-                "{\"query\":\"mutation{signin(email:\\\"admin\\\",password:\\\"admin\\\"){message,token}}\"}")
-            .when()
-            .post("/api/graphql")
-            .getBody()
-            .asString();
-    String token = new ObjectMapper().readTree(result).at("/data/signin/token").textValue();
+    String token = getToken("admin", "admin");
+    String result;
 
     // submit simple
     result =
@@ -1029,16 +1042,8 @@ public class WebApiSmokeTests {
     db.getSchema(SYSTEM_SCHEMA).getTable("Jobs").truncate();
     db.getSchema(SYSTEM_SCHEMA).getTable("Scripts").delete(row("name", "test"));
 
-    // get token for admin
-    String result =
-        given()
-            .body(
-                "{\"query\":\"mutation{signin(email:\\\"admin\\\",password:\\\"admin\\\"){message,token}}\"}")
-            .when()
-            .post("/api/graphql")
-            .getBody()
-            .asString();
-    String token = new ObjectMapper().readTree(result).at("/data/signin/token").textValue();
+    String token = getToken("admin", "admin");
+    String result;
 
     // simply retrieve the results using get
     // todo: also allow anonymous
@@ -1152,6 +1157,20 @@ public class WebApiSmokeTests {
     assertTrue(result.contains("[]"), "script should be unscheduled");
   }
 
+  private static String getToken(String email, String password) throws JsonProcessingException {
+    String mutation =
+        """
+        mutation { signin(email: "%s" ,password: "%s" ) { message, token } }
+        """
+            .formatted(email, password);
+
+    Map<String, String> request = new HashMap<>();
+    request.put("query", mutation);
+
+    String result = given().body(request).when().post("/api/graphql").getBody().asString();
+    return new ObjectMapper().readTree(result).at("/data/signin/token").textValue();
+  }
+
   @Test
   void testJSONLDonJSONLDEndpoint() {
     given()
@@ -1191,16 +1210,8 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  @Disabled("unstable")
   public void testBeaconApiSmokeTests() {
-    // todo: ideally we would here validate the responses against json schemas, are those schemas
-    // easily available?
-    // todo: can we put in some relevant filter parameters so we really test if they are functional?
-
-    String result = given().get("/api/beacon").getBody().asString();
-    assertTrue(result.contains("info"));
-
-    result = given().get("/api/beacon/configuration").getBody().asString();
+    String result = given().get("/api/beacon/configuration").getBody().asString();
     assertTrue(result.contains("productionStatus"));
 
     result = given().get("/api/beacon/map").getBody().asString();
@@ -1291,6 +1302,78 @@ public class WebApiSmokeTests {
         .statusCode(200)
         .when()
         .get("/pet store/api/csv/" + table.getIdentifier());
+  }
+
+  @Test
+  void testProfileApi() {
+    String result = result = given().get("/api/profiles").getBody().asString();
+    assertTrue(result.contains("Samples"));
+  }
+
+  @Test
+  void testAnalyticsApi() throws JsonProcessingException {
+
+    db.getSchema(SYSTEM_SCHEMA).getTable("AnalyticsTrigger").truncate();
+    String adminToken = getToken("admin", "admin");
+
+    // add a trigger
+    Map<String, String> addRequest = new HashMap<>();
+    addRequest.put("name", "my-trigger");
+    addRequest.put("cssSelector", "#my-favorite-button");
+
+    String resp =
+        given()
+            .header(X_MOLGENIS_TOKEN, adminToken)
+            .when()
+            .body(addRequest)
+            .post("/pet store/api/trigger")
+            .getBody()
+            .asString();
+    assertEquals("{\"status\":\"SUCCESS\"}", resp);
+
+    // fetch a triggers
+    String triggers = given().get("/pet store/api/trigger").getBody().asString();
+    assertEquals(
+        "[{\"name\":\"my-trigger\",\"cssSelector\":\"#my-favorite-button\",\"schemaName\":\"pet store\",\"appName\":null}]",
+        triggers);
+
+    // update a trigger
+    Map<String, String> updateRequest = new HashMap<>();
+    updateRequest.put("cssSelector", "#my-update-button");
+
+    String updateResp =
+        given()
+            .header(X_MOLGENIS_TOKEN, adminToken)
+            .when()
+            .body(updateRequest)
+            .put("/pet store/api/trigger/my-trigger")
+            .getBody()
+            .asString();
+    assertEquals("{\"status\":\"SUCCESS\"}", updateResp);
+
+    // re-fetch a triggers to check update
+    String updated = given().get("/pet store/api/trigger").getBody().asString();
+    assertEquals(
+        "[{\"name\":\"my-trigger\",\"cssSelector\":\"#my-update-button\",\"schemaName\":\"pet store\",\"appName\":null}]",
+        updated);
+
+    // delete a trigger
+    given()
+        .header(X_MOLGENIS_TOKEN, adminToken)
+        .delete("/pet store/api/trigger/my-trigger")
+        .getBody()
+        .asString();
+    assertEquals("{\"status\":\"SUCCESS\"}", resp);
+
+    // refetch triggers
+    String triggersAfterDelete = given().get("/pet store/api/trigger").getBody().asString();
+    assertEquals("[]", triggersAfterDelete);
+  }
+
+  @Test
+  void signIn() throws JsonProcessingException {
+    String token = getToken("admin", "admin");
+    assertTrue(token.length() > 10);
   }
 
   private Row waitForScriptToComplete(String scriptName) throws InterruptedException {

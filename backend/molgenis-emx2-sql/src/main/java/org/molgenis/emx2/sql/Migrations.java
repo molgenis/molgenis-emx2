@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 
 public class Migrations {
   // version the current software needs to work
-  private static final int SOFTWARE_DATABASE_VERSION = 18;
+  private static final int SOFTWARE_DATABASE_VERSION = 21;
   public static final int THREE_MINUTES = 180;
   private static Logger logger = LoggerFactory.getLogger(Migrations.class);
 
@@ -114,6 +114,18 @@ public class Migrations {
             executeMigrationFile(
                 tdb, "migration18.sql", "add filename to tables contain FILE datatype");
           }
+
+          if (version < 19) {
+            executeMigrationFile(tdb, "migration19.sql", "add numeric collation");
+          }
+
+          if (version < 20) {
+            executeMigrationFile(tdb, "migration20.sql", "function to convert interval to period");
+          }
+
+          if (version < 21)
+            executeMigrationFile(
+                tdb, "migration21.sql", "add exist and range role to schemas and metadata");
 
           // if success, update version to SOFTWARE_DATABASE_VERSION
           updateDatabaseVersion((SqlDatabase) tdb, SOFTWARE_DATABASE_VERSION);

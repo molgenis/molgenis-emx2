@@ -6,15 +6,17 @@
 
     // reset padding & overwrite inline styles
     & > div {
-      div.container-fluid.p-3 {
+      main.container-fluid.p-3 {
         padding: 0 !important;
         padding-bottom: 0 !important;
       }
     }
 
     // hide footer/citation
-    & > div.text-center {
-      display: none;
+    & > footer {
+      & div.text-center {
+        display: none;
+      }
     }
   }
 }

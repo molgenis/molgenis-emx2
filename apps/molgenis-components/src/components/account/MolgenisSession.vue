@@ -63,12 +63,12 @@ import { useCookies } from "vue3-cookies";
 import { defineComponent } from "vue";
 import { request } from "../../client/client.js";
 import { IErrorMessage, IResponse, ISession } from "./Interfaces";
-import { ISetting } from "meta-data-utils";
+import { ISetting } from "metadata-utils";
 
 const { cookies } = useCookies();
 const query = `{
   _session { email, roles, schemas, token, settings{key,value} },
-  _settings (keys: ["menu", "page.", "cssURL", "logoURL", "isOidcEnabled","locales", "additionalCss"]){ key, value },
+  _settings (keys: ["menu", "page.", "cssURL", "logoURL", "isOidcEnabled","locales", "additionalCss", "additionalFooterHtml", "additionalJs"]){ key, value },
   _manifest { ImplementationVersion,SpecificationVersion,DatabaseVersion }
 }`;
 const defaultSession = { locale: "en", settings: {} };

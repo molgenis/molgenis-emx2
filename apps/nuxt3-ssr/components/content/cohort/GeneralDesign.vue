@@ -1,143 +1,169 @@
 <script setup lang="ts">
 import type {
-  DefinitionListItemType,
-  ICohort,
+  ICollection,
   INameObject,
+  IDefinitionListItem,
 } from "~/interfaces/types";
-import type { IOntologyItem } from "meta-data-utils";
+
 import dateUtils from "~/utils/dateUtils";
 
-const { cohort, mainMedicalCondition } = defineProps<{
+const props = defineProps<{
   title: string;
   description?: string;
-  cohort: ICohort;
-  mainMedicalCondition?: IOntologyItem[];
+  collection: ICollection;
 }>();
 
-let generalDesign: {
-  label: string;
-  content: any;
-  tooltip?: string;
-  type?: DefinitionListItemType;
-}[] = [];
-watch(cohort, setData, {
-  deep: true,
-  immediate: true,
-});
+const designPublications = computed(() =>
+  props.collection.publications?.filter((p) => p.isDesignPublication)
+);
 
-function setData() {
-  generalDesign = [
-    {
-      label: "Cohort type",
-      content: cohort?.type
-        ? cohort?.type.map((type: INameObject) => type?.name).join(", ")
-        : undefined,
-    },
-    {
-      label: "Design",
-      content:
-        cohort?.design?.definition && cohort?.design?.name
-          ? {
-              value: cohort?.design?.name,
-              tooltip: cohort?.design?.definition,
-            }
-          : cohort?.design?.name,
-    },
-    {
-      label: "Design description",
-      content: cohort?.designDescription,
-    },
-    {
-      label: "Design schematic",
-      content: cohort?.designSchematic,
-    },
-    {
-      label: "Collection type",
-      content: cohort?.collectionType
-        ? cohort?.collectionType
-            .map((collectionType) => collectionType.name)
-            .join(", ")
-        : undefined,
-    },
-    {
-      label: "Start/End year",
-      content: dateUtils.startEndYear(cohort?.startYear, cohort?.endYear),
-    },
-    {
-      label: "Countries",
-      content: cohort?.countries
-        ? [...cohort?.countries]
-            .sort((a, b) => b.order - a.order)
-            .map((country) => country.name)
-            .join(", ")
-        : undefined,
-    },
-    {
-      label: "Regions",
-      content: cohort?.regions
-        ?.sort((a, b) => b.order - a.order)
-        .map((r) => r.name)
-        .join(", "),
-    },
-    {
-      label: "Number of participants",
-      content: cohort?.numberOfParticipants,
-    },
-    {
-      label: "Number of participants with samples",
-      content: cohort?.numberOfParticipantsWithSamples,
-    },
-    {
-      label: "Population age groups",
-      content: removeChildIfParentSelected(cohort?.populationAgeGroups || [])
-        .sort((a, b) => a.order - b.order)
-        .map((ageGroup) => ageGroup.name)
-        .join(", "),
-    },
-    {
-      label: "Inclusion criteria",
-      content: cohort?.otherInclusionCriteria,
-    },
-    {
-      label:
-        cohort?.designPaper && cohort.designPaper?.length > 1
-          ? "Marker papers"
-          : "Marker paper",
+const generalDesign: IDefinitionListItem[] = [
+  {
+    label: "Type",
+    content: props.collection.type
+      ? props.collection.type.map((type: INameObject) => type?.name).join(", ")
+      : undefined,
+  },
+  {
+    label: "Type other",
+    content: props.collection.typeOther
+      ? props.collection.typeOther
+      : undefined,
+  },
+  {
+    label: "Cohort type",
+    content: props.collection.cohortType
+      ? props.collection.cohortType
+          .map((type: INameObject) => type?.name)
+          .join(", ")
+      : undefined,
+  },
+  {
+    label: "RWD type",
+    content: props.collection.rWDType
+      ? props.collection.rWDType
+          .map((type: INameObject) => type?.name)
+          .join(", ")
+      : undefined,
+  },
+  {
+    label: "Network type",
+    content: props.collection.networkType
+      ? props.collection.networkType
+          .map((type: INameObject) => type?.name)
+          .join(", ")
+      : undefined,
+  },
+  {
+    label: "Clinical study type",
+    content: props.collection.clinicalStudyType
+      ? props.collection.clinicalStudyType
+          .map((type: INameObject) => type?.name)
+          .join(", ")
+      : undefined,
+  },
+  {
+    label: "Data collection type",
+    content: props.collection.dataCollectionType
+      ? props.collection.dataCollectionType
+          .map((type: INameObject) => type?.name)
+          .join(", ")
+      : undefined,
+  },
+  {
+    label: "Data collection description",
+    content: props.collection.dataCollectionDescription,
+  },
+  {
+    label: "Design",
+    content:
+      props.collection.designType?.definition &&
+      props.collection.designType?.name
+        ? {
+            value: props.collection.designType?.name,
+            tooltip: props.collection.designType?.definition,
+          }
+        : props.collection.designType?.name,
+  },
+  {
+    label: "Design description",
+    content: props.collection.designDescription,
+  },
+  {
+    label: "Design schematic",
+    content: props.collection.designSchematic,
+  },
+  {
+    label: "Reason sustained",
+    content: props.collection.reasonSustained,
+  },
+  {
+    label: "Record trigger",
+    content: props.collection.recordTrigger,
+  },
+  {
+    label: "Unit of observation",
+    content: props.collection.unitOfObservation,
+  },
+  {
+    label: "Keywords",
+    content: props.collection.keywords,
+  },
+  {
+    label: "Date established",
+    content: props.collection.dateEstablished,
+  },
+  {
+    label: "Start/End data collection",
+    content: dateUtils.startEndYear(
+      props.collection.startDataCollection,
+      props.collection.endDataCollection
+    ),
+  },
+  {
+    label:
+      designPublications.value?.length > 1 ? "Design papers" : "Design paper",
+    type: "LINK",
+    content: designPublications.value
+      ? designPaperToItem(designPublications.value)
+      : undefined,
+  },
+  {
+    label: "PID",
+    content: props.collection.pid,
+  },
+  {
+    label: "External identifiers",
+    content: props.collection.externalIdentifiers
+      ? props.collection.externalIdentifiers
+          .map((id) => id.externalIdentifierType.name + ": " + id.identifier)
+          .join(", ")
+      : undefined,
+  },
+  {
+    label: "License",
+    content: props.collection.license
+      ? { url: props.collection.license, label: props.collection.license }
+      : undefined,
+    type: "LINK",
+  },
+];
+
+function designPaperToItem(designPaper: any[]) {
+  if (designPaper.length === 0) {
+    return undefined;
+  } else if (designPaper.length === 1) {
+    return {
       type: "LINK",
-      content: cohort?.designPaper
-        ? designPaperToItem(cohort?.designPaper)
-        : undefined,
-    },
-    {
-      label: "PID",
-      content: cohort?.pid,
-    },
-  ];
-
-  if (mainMedicalCondition && mainMedicalCondition.length > 0) {
-    generalDesign.splice(generalDesign.length - 2, 0, {
-      label: "Main medical condition",
-      content: mainMedicalCondition,
-      type: "ONTOLOGY",
-    });
-  }
-
-  function designPaperToItem(designPaper: any[]) {
-    if (designPaper.length === 0) {
-      return undefined;
-    } else if (designPaper.length === 1) {
-      return {
-        type: "LINK",
-        label: designPaper[0].title,
-        url: designPaper[0].doi,
-      };
-    } else if (designPaper.length > 1)
-      return designPaper.map((paper) => ({
-        type: "LINK",
-        label: paper.title,
-        url: paper.doi,
-      }));
-  }
+      label: designPaper[0].title,
+      url: designPaper[0].doi,
+    };
+  } else if (designPaper.length > 1)
+    return designPaper.map((paper) => ({
+      type: "LINK",
+      label: paper.title,
+      url: paper.doi,
+    }));
 }
 </script>
 

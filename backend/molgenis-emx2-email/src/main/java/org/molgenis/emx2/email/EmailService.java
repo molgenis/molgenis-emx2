@@ -22,8 +22,11 @@ public class EmailService {
 
   private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
 
-  public EmailService(EmailSettings settings) {
+  public EmailService() {
+    this(new EmailSettings.EmailSettingsBuilder().build());
+  }
 
+  public EmailService(EmailSettings settings) {
     this.props.put("mail.smtp.auth", settings.getAuth());
     this.props.put("mail.smtp.host", settings.getHost());
     this.props.put("mail.smtp.starttls.enable", settings.getStarttlsEnable());

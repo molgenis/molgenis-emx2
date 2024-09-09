@@ -10,6 +10,7 @@ import { applyBookmark, createBookmark } from "../functions/bookmarkMapper";
 import { QueryEMX2 } from "molgenis-components";
 import { convertArrayToChunks } from "../functions/arrayUtilities";
 import { IOntologyItem } from "../interfaces/interfaces";
+import * as _ from "lodash";
 
 export const useFiltersStore = defineStore("filtersStore", () => {
   const biobankStore = useBiobanksStore();
@@ -19,7 +20,6 @@ export const useFiltersStore = defineStore("filtersStore", () => {
 
   const settingsStore = useSettingsStore();
 
-  const graphqlEndpoint = settingsStore.config.graphqlEndpoint;
   const graphqlEndpointOntologyFilter = "/DirectoryOntologies/graphql";
 
   let bookmarkWaitingForApplication = ref(false);
@@ -75,70 +75,26 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     return Object.keys(filters.value).length > 0;
   });
 
-  let queryDelay: any;
-  watch(
-    filters,
-    (filters) => {
-      if (queryDelay) {
-        clearTimeout(queryDelay);
-      }
-      /** reset pagination */
+  const hasActiveBiobankOnlyFilters = computed(() => {
+    return !!getFilterValue("Biobankservices") || !!getFilterValue("Countries");
+  });
+
+  const debouncedFiltersWatch = _.debounce(
+    ([newFilters, newFilterType]: [
+      Record<string, any>,
+      Record<string, any>
+    ]) => {
       settingsStore.currentPage = 1;
-
-      /** when we reset the filters on bookmark update, we do not want to search, so hold your horses */
-
-      queryDelay = setTimeout(async () => {
-        applyFiltersToQuery(
-          baseQuery,
-          filters,
-          facetDetails.value,
-          filterType.value
-        );
-
-        if (!bookmarkTriggeredFilter.value) {
-          createBookmark(filters, checkoutStore.selectedCollections);
-        }
-        bookmarkTriggeredFilter.value = false;
-
-        await getBiobankCards();
-        clearTimeout(queryDelay);
-      }, 750);
+      updateQueryAndBookmark(newFilters, newFilterType);
+      getBiobankCards();
     },
-    { deep: true }
+    750
   );
 
-  watch(
-    filterType,
-    (filterType) => {
-      if (queryDelay) {
-        clearTimeout(queryDelay);
-      }
-      /** reset pagination */
-      settingsStore.currentPage = 1;
-
-      /** when we reset the filters on bookmark update, we do not want to search, so hold your horses */
-      queryDelay = setTimeout(async () => {
-        clearTimeout(queryDelay);
-        applyFiltersToQuery(
-          baseQuery,
-          filters.value,
-          facetDetails.value,
-          filterType
-        );
-
-        if (!bookmarkTriggeredFilter.value) {
-          createBookmark(filters.value, checkoutStore.selectedCollections);
-        }
-        bookmarkTriggeredFilter.value = false;
-
-        if (hasActiveFilters.value) {
-          await getBiobankCards();
-          clearTimeout(queryDelay);
-        }
-      }, 750);
-    },
-    { deep: true, immediate: true }
-  );
+  watch([filters, filterType], debouncedFiltersWatch, {
+    deep: true,
+    immediate: true,
+  });
 
   watch(filtersReady, (filtersReady) => {
     if (filtersReady) {
@@ -151,7 +107,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
 
   function checkOntologyDescendantsIfMatches(
     ontologyDescendants: IOntologyItem[],
-    ontologyQuery: any
+    ontologyQuery: string
   ): boolean {
     let finalVerdict = false;
 
@@ -173,7 +129,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
 
   function ontologyItemMatchesQuery(
     ontologyItem: IOntologyItem,
-    ontologyQuery: any
+    ontologyQuery: string
   ) {
     const findString = ontologyQuery.toLowerCase();
     const codeFound = ontologyItem.code.toLowerCase().includes(findString);
@@ -203,7 +159,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     filterName: string,
     value: any,
     add: boolean,
-    fromBookmark: any
+    fromBookmark: any = false
   ) {
     bookmarkTriggeredFilter.value = fromBookmark;
 
@@ -389,6 +345,23 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     return filterType.value[filterName] || "any";
   }
 
+  function updateQueryAndBookmark(
+    newFilters: Record<string, any>,
+    newFilterTypes: Record<string, any>
+  ) {
+    applyFiltersToQuery(
+      baseQuery,
+      newFilters,
+      facetDetails.value,
+      newFilterTypes
+    );
+
+    if (!bookmarkTriggeredFilter.value) {
+      createBookmark(newFilters, checkoutStore.selectedCollections);
+    }
+    bookmarkTriggeredFilter.value = false;
+  }
+
   return {
     facetDetails,
     updateFilter,
@@ -403,6 +376,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     getOntologyOptionsForCodes,
     filterOptionsCache,
     hasActiveFilters,
+    hasActiveBiobankOnlyFilters,
     filters,
     filterFacets,
     filtersReady,

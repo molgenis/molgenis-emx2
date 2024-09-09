@@ -66,10 +66,10 @@ public class MolgenisWebservice {
         ACCEPT_HTML,
         (request, response) -> {
           // check for setting
-          String ladingPagePath =
+          String landingPagePath =
               sessionManager.getSession(request).getDatabase().getSetting(LANDING_PAGE);
-          if (ladingPagePath != null) {
-            response.redirect(ladingPagePath);
+          if (landingPagePath != null) {
+            response.redirect(landingPagePath);
           } else {
             response.redirect("/apps/central/");
           }
@@ -105,6 +105,8 @@ public class MolgenisWebservice {
     BeaconApi.create(sessionManager);
     FAIRDataPointApi.create(sessionManager);
     BootstrapThemeService.create();
+    ProfilesApi.create();
+    AnalyticsApi.create();
 
     get(
         "/:schema",
