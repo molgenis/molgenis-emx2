@@ -11,15 +11,14 @@ dependencies {
     implementation project(':backend:molgenis-emx2-tasks')
     implementation project(':backend:molgenis-emx2-email')
     implementation project(':backend:molgenis-emx2-analytics')
-    implementation 'org.eclipse.rdf4j:rdf4j-rio-api:4.3.12'
-    implementation 'com.sparkjava:spark-core:2.9.4'
-    implementation 'io.swagger.parser.v3:swagger-parser:2.1.22'
-    implementation 'com.squareup.okhttp3:okhttp:4.11.0'
-    implementation 'com.squareup.okhttp3:okhttp-brotli:4.11.0'
-    testImplementation 'io.rest-assured:rest-assured:5.3.2'
-    testImplementation 'org.apache.poi:poi:4.1.2'
-    testImplementation 'org.apache.poi:poi-ooxml:4.1.2'
-    testImplementation 'net.lingala.zip4j:zip4j:2.11.5'
-    implementation 'com.github.dfabulich:sitemapgen4j:1.1.2'
-    implementation 'de.larsgrefer.sass:sass-embedded-host:1.15.4'
+    implementation group: 'io.swagger.parser.v3', name:'swagger-parser', version:swaggerParserVersion
+    implementation group: 'com.squareup.okhttp3', name:'okhttp', version:squareupVersion
+    implementation group: 'com.squareup.okhttp3', name:'okhttp-brotli', version:squareupVersion
+    implementation group: 'com.github.dfabulich', name:'sitemapgen4j', version:sitemapgen4jVersion
+    implementation group: 'de.larsgrefer.sass', name:'sass-embedded-host', version:sassEmbeddedHostVersion
+
+    testImplementation group: 'io.rest-assured', name:'rest-assured', version:restAssuredVersion
+    testImplementation group: 'org.apache.poi', name:'poi', version:poiVersion
+    testImplementation group: 'org.apache.poi', name:'poi-ooxml', version:poiVersion
+    testImplementation group: 'net.lingala.zip4j', name:'zip4j', version:zip4jVersion
 }
