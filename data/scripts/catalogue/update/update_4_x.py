@@ -252,14 +252,13 @@ class Transform:
                                                           'publications': 'doi'})
             df_other_pubs = df_other_pubs.dropna(axis=0)
 
-        df_merged_pubs = pd.concat([df_design_paper, df_other_pubs])
-        df_merged_pubs = df_merged_pubs.reset_index()
-
         if self.database_type == 'network':
-            df_resource_pubs = get_publications(df_other_pubs, df_merged_pubs)
+            df_resource_pubs = get_publications(df_other_pubs, df_publications)
         elif self.database_type == 'cohort_UMCG':
-            df_resource_pubs = get_publications(df_design_paper, df_merged_pubs)
+            df_resource_pubs = get_publications(df_design_paper, df_publications)
         else:
+            df_merged_pubs = pd.concat([df_design_paper, df_other_pubs])
+            df_merged_pubs = df_merged_pubs.reset_index()
             df_resource_pubs = get_publications(df_merged_pubs, df_publications)
         df_resource_pubs = df_resource_pubs.drop_duplicates(subset=['resource', 'doi'], keep='first')
         df_resource_pubs.to_csv(self.path + 'Publications.csv', index=False)
