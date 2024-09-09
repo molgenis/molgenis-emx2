@@ -47,7 +47,7 @@ import { useRoute } from "vue-router";
 import ReportStudyDetails from "../components/report-components/ReportStudyDetails.vue";
 import StudyReportInfoCard from "../components/report-components/StudyReportInfoCard.vue";
 import ReportTitle from "../components/report-components/ReportTitle.vue";
-import { studyReportInformation } from "../functions/viewmodelMapper";
+import { getStudyReportInformation } from "../functions/viewmodelMapper";
 import { useStudyStore } from "../stores/studyStore";
 import { useSettingsStore } from "../stores/settingsStore";
 
@@ -67,20 +67,14 @@ watch(route, async (route) => {
 
 const uiText = computed(() => settingsStore.uiText);
 
-const studyDataAvailable = computed(() => {
-  return Object.keys(study).length;
-});
-
 const info = computed(() => {
-  return studyDataAvailable.value ? studyReportInformation(study.value) : {};
+  return getStudyReportInformation(study.value);
 });
 
 function loadStudyReport(id) {
   loaded.value = false;
-  const studyPromise = studyStore.getStudyReport(id).then((result) => {
+  studyStore.getStudyReport(id).then((result) => {
     study.value = result.Studies.length ? result.Studies[0] : {};
-  });
-  Promise.all([studyPromise]).then(() => {
     loaded.value = true;
   });
 }

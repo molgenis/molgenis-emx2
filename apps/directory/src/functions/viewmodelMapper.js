@@ -375,7 +375,7 @@ export const collectionReportInformation = (collection) => {
   return collectionReport;
 };
 
-export const studyReportInformation = (study) => {
+export const getStudyReportInformation = (study) => {
   const studyReport = {};
 
   studyReport.also_known = study.also_known ? mapAlsoKnownIn(study) : undefined;
