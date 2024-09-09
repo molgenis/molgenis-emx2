@@ -22,8 +22,9 @@ CATALOGUE_SCHEMA_NAME = config('MG_CATALOGUE_SCHEMA_NAME')
 ONTOLOGIES_SCHEMA_NAME = config('MG_ONTOLOGIES_SCHEMA_NAME')
 SHARED_STAGING_NAME = config('MG_SHARED_STAGING_NAME')
 
-if SERVER_TYPE == 'data_catalogue' or 'cohort_catalogue':
+if SERVER_TYPE == 'data_catalogue' or SERVER_TYPE == 'cohort_catalogue':
     COHORTS = config('MG_COHORTS', cast=lambda v: [s.strip() for s in v.split(',')])
+    print(COHORTS)
 
 if SERVER_TYPE == 'data_catalogue':
     DATA_SOURCES = config('MG_DATA_SOURCES', cast=lambda v: [s.strip() for s in v.split(',')])
@@ -81,6 +82,7 @@ if SERVER_TYPE in ['data_catalogue', 'cohort_catalogue']:
     print('Cohort staging schema update to data model ' + DATA_MODEL_VERSION)
 
     for cohort in COHORTS:
+        print(cohort)
         # sign in to server
         print('Sign in to server: ' + SERVER_URL)
         session = Session(
@@ -108,10 +110,10 @@ if SERVER_TYPE in ['data_catalogue', 'cohort_catalogue']:
         zip_handling.zip_data()
         zip_handling.remove_unzipped_data()
 
-        # delete and create new cohort schema
-        schema_description = session.get_database_description(database_name=cohort)
-        session.drop_database(database_name=cohort)
-        session.create_database(database_name=cohort, database_description=schema_description)
+        # # delete and create new cohort schema
+        # schema_description = session.get_database_description(database_name=cohort)
+        # session.drop_database(database_name=cohort)
+        # session.create_database(database_name=cohort, database_description=schema_description)
 
 # --------------------------------------------------------------
 if SERVER_TYPE == 'data_catalogue':
@@ -144,10 +146,10 @@ if SERVER_TYPE == 'data_catalogue':
         zip_handling.zip_data()
         zip_handling.remove_unzipped_data()
 
-        # delete and create new data source schema
-        schema_description = session.get_database_description(database_name=data_source)
-        session.drop_database(database_name=data_source)
-        session.create_database(database_name=data_source, database_description=schema_description)
+        # # delete and create new data source schema
+        # schema_description = session.get_database_description(database_name=data_source)
+        # session.drop_database(database_name=data_source)
+        # session.create_database(database_name=data_source, database_description=schema_description)
 
     # Networks update
     print('-----------------------')
@@ -178,10 +180,10 @@ if SERVER_TYPE == 'data_catalogue':
         zip_handling.zip_data()
         zip_handling.remove_unzipped_data()
 
-        # delete and create new schema
-        schema_description = session.get_database_description(database_name=network)
-        session.drop_database(database_name=network)
-        session.create_database(database_name=network, database_description=schema_description)
+        # # delete and create new schema
+        # schema_description = session.get_database_description(database_name=network)
+        # session.drop_database(database_name=network)
+        # session.create_database(database_name=network, database_description=schema_description)
 
 # ---------------------------------------------------------------
 
@@ -203,51 +205,51 @@ if SERVER_TYPE == 'data_catalogue':
 #
 # # ----------------------------------------------------------------------
 
-# Cohorts upload data
-print('-----------------------')
-
-if SERVER_TYPE in ['data_catalogue', 'cohort_catalogue']:
-    print('Updating data for cohorts')
-    for cohort in COHORTS:
-        # sign in to server
-        print('Sign in to server: ' + SERVER_URL)
-        session = Session(
-            url=SERVER_URL,
-            email=SERVER_USERNAME,
-            password=SERVER_PASSWORD
-        )
-        print('Upload transformed data for: ' + cohort)
-        session.upload_zip(database_name=cohort, data_to_upload=cohort)
-
-if SERVER_TYPE == 'data_catalogue':
-    # Data sources upload data
-    print('-----------------------')
-
-    print('Updating data for data sources')
-
-    for data_source in DATA_SOURCES:
-        # sign in to server
-        print('Sign in to server: ' + SERVER_URL)
-        session = Session(
-            url=SERVER_URL,
-            email=SERVER_USERNAME,
-            password=SERVER_PASSWORD
-        )
-        print('Upload transformed data for: ' + data_source)
-        session.upload_zip(database_name=data_source, data_to_upload=data_source)
-
-    # Networks upload data
-    print('-----------------------')
-
-    print('Updating data for networks')
-
-    for network in NETWORKS:
-        # sign in to server
-        print('Sign in to server: ' + SERVER_URL)
-        session = Session(
-            url=SERVER_URL,
-            email=SERVER_USERNAME,
-            password=SERVER_PASSWORD
-        )
-        print('Upload transformed data for: ' + network)
-        session.upload_zip(database_name=network, data_to_upload=network)
+# # Cohorts upload data
+# print('-----------------------')
+#
+# if SERVER_TYPE in ['data_catalogue', 'cohort_catalogue']:
+#     print('Updating data for cohorts')
+#     for cohort in COHORTS:
+#         # sign in to server
+#         print('Sign in to server: ' + SERVER_URL)
+#         session = Session(
+#             url=SERVER_URL,
+#             email=SERVER_USERNAME,
+#             password=SERVER_PASSWORD
+#         )
+#         print('Upload transformed data for: ' + cohort)
+#         session.upload_zip(database_name=cohort, data_to_upload=cohort)
+#
+# if SERVER_TYPE == 'data_catalogue':
+#     # Data sources upload data
+#     print('-----------------------')
+#
+#     print('Updating data for data sources')
+#
+#     for data_source in DATA_SOURCES:
+#         # sign in to server
+#         print('Sign in to server: ' + SERVER_URL)
+#         session = Session(
+#             url=SERVER_URL,
+#             email=SERVER_USERNAME,
+#             password=SERVER_PASSWORD
+#         )
+#         print('Upload transformed data for: ' + data_source)
+#         session.upload_zip(database_name=data_source, data_to_upload=data_source)
+#
+#     # Networks upload data
+#     print('-----------------------')
+#
+#     print('Updating data for networks')
+#
+#     for network in NETWORKS:
+#         # sign in to server
+#         print('Sign in to server: ' + SERVER_URL)
+#         session = Session(
+#             url=SERVER_URL,
+#             email=SERVER_USERNAME,
+#             password=SERVER_PASSWORD
+#         )
+#         print('Upload transformed data for: ' + network)
+#         session.upload_zip(database_name=network, data_to_upload=network)

@@ -5,6 +5,9 @@ import pandas as pd
 from string import digits
 import re
 import numpy as np
+from decouple import config
+
+CATALOGUE_SCHEMA_NAME = config('MG_CATALOGUE_SCHEMA_NAME')
 
 
 def float_to_int(df):
@@ -75,17 +78,22 @@ class Transform:
         """Make changes per table
         """
         # transformations per table
+        if self.database_type == 'catalogue':
+            self.catalogues()
+            self.network_variables()
+
+            self.variable_values()
+
         self.resources()
         self.organisations()
         self.variables()
-        self.network_variables()
+
         self.variable_mappings()
-        self.variable_values()
+
         self.collection_events()
         self.publications()
 
-        if self.database_type == 'catalogue':
-            self.catalogues()
+
 
         # TODO: for vac4eu BPE model is an exception, not part of a network, also other model in VAC4EU
         # TODO: move DAPs to Organisations.role = data access provider (remove all other columns)
@@ -176,38 +184,50 @@ class Transform:
     def organisations(self):
         """ Transform columns in Organisations and alter structure
         """
-        df_resource_organisations = pd.DataFrame()
-        df_organisations = pd.read_csv(self.path + 'Organisations.csv')
+        df_all_organisations = pd.DataFrame()
+        if self.database_type == 'catalogue':
+            df_organisations = pd.read_csv(self.path + 'Organisations.csv')
 
-        # get lead organisations
-        df_resources = pd.read_csv(self.path + 'Resources.csv')
-        df_resources = df_resources[['id', 'lead organisation']]
-        df_resources.rename(columns={'id': 'resource',
-                                     'lead organisation': 'id'}, inplace=True)
-        df_resources = df_resources.dropna(axis=0)
-        df_resources = df_resources.reset_index()
-        df_merged = get_organisations(df_organisations, df_resources)
-        df_resource_organisations = pd.concat([df_resource_organisations, df_merged])
-        df_resource_organisations.loc[:, 'is lead organisation'] = 'True'
+            # get lead organisations
+            df_resources = pd.read_csv(self.path + 'Resources.csv')
+            df_resources = df_resources[['id', 'lead organisation']]
+            df_resources.rename(columns={'id': 'resource',
+                                         'lead organisation': 'id'}, inplace=True)
+            df_resources = df_resources.dropna(axis=0)
+            df_resources.loc[:, 'is lead organisation'] = 'True'
+            df_resources = df_resources.reset_index()
+            df_merged = get_organisations(df_organisations, df_resources)
+            df_all_organisations = pd.concat([df_all_organisations, df_merged])
 
-        # get additional organisations and Contacts.organisation
-        for table in ['Resources', 'Contacts']:
-            df_resource = pd.read_csv(self.path + table + '.csv')
-            if not table == 'Contacts':
-                df_resource = df_resource[['id', 'additional organisations']]
-            else:
-                df_resource = df_resource[['resource', 'organisation']]
-            df_resource.rename(columns={'organisation': 'id',
-                                        'id': 'resource',
-                                        'additional organisations': 'id'}, inplace=True)
-            df_resource = df_resource.dropna(axis=0)
-            df_resource = df_resource.reset_index()
-            df_merged = get_organisations(df_organisations, df_resource)
-            df_resource_organisations = pd.concat([df_resource_organisations, df_merged])
-            df_resource_organisations['is lead organisation']
-        df_resource_organisations = float_to_int(df_resource_organisations)  # convert float back to integer
-        df_resource_organisations = df_resource_organisations.drop_duplicates(subset=['resource', 'id'], keep='first')  # keep first to get lead organisations
-        df_resource_organisations.to_csv(self.path + 'Organisations.csv', index=False)
+            # get additional organisations and Contacts.organisation
+            for table in ['Resources', 'Contacts']:
+                df_resource = pd.read_csv(self.path + table + '.csv')
+                if not table == 'Contacts':
+                    df_resource = df_resource[['id', 'additional organisations']]
+                else:
+                    df_resource = df_resource[['resource', 'organisation']]
+                df_resource.rename(columns={'organisation': 'id',
+                                            'id': 'resource',
+                                            'additional organisations': 'id'}, inplace=True)
+                df_resource = df_resource.dropna(axis=0)
+                df_resource.loc[:, 'is lead organisation'] = 'False'
+                df_resource = df_resource.reset_index()
+                df_merged = get_organisations(df_organisations, df_resource)
+                df_all_organisations = pd.concat([df_all_organisations, df_merged])
+            df_all_organisations = float_to_int(df_all_organisations)  # convert float back to integer
+            df_all_organisations = df_all_organisations.drop_duplicates(subset=['resource', 'id'], keep='first')  # keep first to get lead organisations
+            df_all_organisations.to_csv(self.path + 'Organisations.csv', index=False)
+
+        # get organisations for staging areas by making subsets on 'resource'
+        else:
+            df_organisations = pd.read_csv(CATALOGUE_SCHEMA_NAME + '_data/' + 'Organisations.csv')
+            df_resource = pd.read_csv(self.path + 'Resources.csv')
+            resources_list = df_resource['id'].to_list()
+            df_organisations.loc[:, 'select_resource'] = \
+                df_organisations.apply(lambda o: 'True' if o['resource'] in resources_list else 'False', axis=1)
+
+            df_organisations = float_to_int(df_organisations)
+            df_organisations.to_csv(self.path + 'Organisations.csv', index=False)
 
     def publications(self):
         """Transform Publications table
@@ -472,12 +492,13 @@ def get_organisations(df_organisations, df_resource):
     references from ref_array into separate rows
     """
     # get all organisations with resource reference in one row
-    df_new_rows = pd.DataFrame(columns=['resource', 'id'])
+    df_new_rows = pd.DataFrame(columns=['resource', 'id', 'is lead organisation'])
     for i in range(len(df_resource)):
         if ',' in df_resource['id'][i]:
             org_list = df_resource['id'][i].split(',')
             for org in org_list:
-                new_row = {'resource': df_resource['resource'][i], 'id': org}
+                new_row = {'resource': df_resource['resource'][i], 'id': org,
+                           'is lead organisation': df_resource['is lead organisation'][i]}
                 df_new_rows.loc[len(df_new_rows)] = new_row
             df_resource = df_resource.drop(index=i)
     df_resource = pd.concat([df_resource, df_new_rows])
