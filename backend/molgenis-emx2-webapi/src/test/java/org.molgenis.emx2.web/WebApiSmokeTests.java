@@ -814,11 +814,23 @@ public class WebApiSmokeTests {
     // Validate non-default content-type for /api/rdf
     rdfApiContentTypeRequest(200, jsonldContentType).get(urlPrefix + "/pet store/api/rdf");
 
+    // Validate convenience API points with incorrect given content-type request
+    rdfApiContentTypeRequest(200, ttlContentType, jsonldContentType)
+        .get(urlPrefix + "/pet store/api/jsonld");
+    rdfApiContentTypeRequest(200, jsonldContentType, ttlContentType)
+        .get(urlPrefix + "/pet store/api/ttl");
+
     // Validate head for API points
     rdfApiRequest(200, defaultContentType).head(urlPrefix + "/pet store/api/rdf");
     rdfApiContentTypeRequest(200, jsonldContentType).head(urlPrefix + "/pet store/api/rdf");
     rdfApiRequest(200, jsonldContentType).head(urlPrefix + "/pet store/api/jsonld");
     rdfApiRequest(200, ttlContentType).head(urlPrefix + "/pet store/api/ttl");
+
+    // Validate head for API points with incorrect given content-type for convenience API points
+    rdfApiContentTypeRequest(200, ttlContentType, jsonldContentType)
+        .head(urlPrefix + "/pet store/api/jsonld");
+    rdfApiContentTypeRequest(200, jsonldContentType, ttlContentType)
+        .head(urlPrefix + "/pet store/api/ttl");
 
     // Validate actual output.
     String result =
@@ -848,19 +860,31 @@ public class WebApiSmokeTests {
   }
 
   /**
-   * Request that does define a content type and validate on this.
+   * Request that does define a content type and validates on this.
    *
    * @param expectStatusCode
    * @param contentType
    * @return
    */
   private RequestSender rdfApiContentTypeRequest(int expectStatusCode, String contentType) {
+    return rdfApiContentTypeRequest(expectStatusCode, contentType, contentType);
+  }
+
+  /**
+   * Request that defines given & expected content types individually and validates on this.
+   *
+   * @param expectStatusCode
+   * @param contentType
+   * @return
+   */
+  private RequestSender rdfApiContentTypeRequest(
+      int expectStatusCode, String givenContentType, String expectedContentType) {
     return given()
         .sessionId(SESSION_ID)
-        .header("Accept", contentType)
+        .header("Accept", givenContentType)
         .expect()
         .statusCode(expectStatusCode)
-        .header("Content-Type", contentType)
+        .header("Content-Type", expectedContentType)
         .when();
   }
 

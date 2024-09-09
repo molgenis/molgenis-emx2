@@ -16,7 +16,6 @@ import org.molgenis.emx2.Table;
 import org.molgenis.emx2.rdf.RDFService;
 import spark.Request;
 import spark.Response;
-import spark.Route;
 import spark.utils.StringUtils;
 
 public class RDFApi {
@@ -42,47 +41,19 @@ public class RDFApi {
     // created on-the-fly, there is no way of knowing (or is there?)
     sessionManager = sm;
 
-    defineApiRoutes(
-        RDF_API_LOCATION,
-        RDFApi::rdfHead,
-        RDFApi::rdfForDatabase,
-        RDFApi::rdfForSchema,
-        RDFApi::rdfForTable,
-        RDFApi::rdfForRow,
-        RDFApi::rdfForColumn);
-    defineApiRoutes(
-        TTL_API_LOCATION,
-        RDFApi::ttlHead,
-        RDFApi::ttlForDatabase,
-        RDFApi::ttlForSchema,
-        RDFApi::ttlForTable,
-        RDFApi::ttlForRow,
-        RDFApi::ttlForColumn);
-    defineApiRoutes(
-        JSONLD_API_LOCATION,
-        RDFApi::jsonldHead,
-        RDFApi::jsonldForDatabase,
-        RDFApi::jsonldForSchema,
-        RDFApi::jsonldForTable,
-        RDFApi::jsonldForRow,
-        RDFApi::jsonldForColumn);
+    defineApiRoutes(RDF_API_LOCATION, null);
+    defineApiRoutes(TTL_API_LOCATION, RDFFormat.TURTLE);
+    defineApiRoutes(JSONLD_API_LOCATION, RDFFormat.JSONLD);
   }
 
-  private static void defineApiRoutes(
-      String apiLocation,
-      Route headerRoute,
-      Route databaseRoute,
-      Route schemaRoute,
-      Route tableRoute,
-      Route rowRoute,
-      Route columnRoute) {
-    get(apiLocation, databaseRoute);
-    head(apiLocation, headerRoute);
+  private static void defineApiRoutes(String apiLocation, RDFFormat format) {
+    get(apiLocation, (req, res) -> rdfForDatabase(req, res, format));
+    head(apiLocation, (req, res) -> rdfHead(req, res, format));
     path(
         "/:schema" + apiLocation,
         () -> {
-          get("", schemaRoute);
-          head("", headerRoute);
+          get("", (req, res) -> rdfForSchema(req, res, format));
+          head("", (req, res) -> rdfHead(req, res, format));
           path(
               "/:table",
               () -> {
@@ -90,47 +61,25 @@ public class RDFApi {
                 // composite key
                 // TODO: probably best to merge these two methods and always use query string to
                 // encode the row
-                get("", tableRoute);
-                head("", headerRoute);
-                get("/:row", rowRoute);
-                head("/:row", headerRoute);
-                get("/column/:column", columnRoute);
-                head("column/:column/", headerRoute);
+                get("", (req, res) -> rdfForTable(req, res, format));
+                head("", (req, res) -> rdfHead(req, res, format));
+                get("/:row", (req, res) -> rdfForRow(req, res, format));
+                head("/:row", (req, res) -> rdfHead(req, res, format));
+                get("/column/:column", (req, res) -> rdfForColumn(req, res, format));
+                head("column/:column/", (req, res) -> rdfHead(req, res, format));
               });
         });
   }
 
-  private static String jsonldHead(Request request, Response response) {
-    response.type(RDFFormat.JSONLD.getDefaultMIMEType());
+  private static String rdfHead(Request request, Response response, RDFFormat format) {
+    response.type(selectFormat(request, format).getDefaultMIMEType());
     return "";
-  }
-
-  private static String ttlHead(Request request, Response response) {
-    response.type(RDFFormat.TURTLE.getDefaultMIMEType());
-    return "";
-  }
-
-  private static String rdfHead(Request request, Response response) {
-    final RDFFormat format = selectFormat(request);
-    response.type(format.getDefaultMIMEType());
-    return "";
-  }
-
-  private static int jsonldForDatabase(Request request, Response response) throws IOException {
-    return rdfForDatabase(request, response, RDFFormat.JSONLD);
-  }
-
-  private static int ttlForDatabase(Request request, Response response) throws IOException {
-    return rdfForDatabase(request, response, RDFFormat.TURTLE);
-  }
-
-  private static int rdfForDatabase(Request request, Response response) throws IOException {
-    final RDFFormat format = selectFormat(request);
-    return rdfForDatabase(request, response, format);
   }
 
   private static int rdfForDatabase(Request request, Response response, RDFFormat format)
       throws IOException {
+    format = selectFormat(request, format); // defines format if null
+
     Database db = sessionManager.getSession(request).getDatabase();
     Collection<String> schemaNames = new ArrayList<>();
     if (request.queryParams("schemas") != null) {
@@ -168,21 +117,10 @@ public class RDFApi {
     return 200;
   }
 
-  private static int ttlForSchema(Request request, Response response) throws IOException {
-    return rdfForSchema(request, response, RDFFormat.TURTLE);
-  }
-
-  private static int jsonldForSchema(Request request, Response response) throws IOException {
-    return rdfForSchema(request, response, RDFFormat.JSONLD);
-  }
-
-  private static int rdfForSchema(Request request, Response response) throws IOException {
-    final RDFFormat format = selectFormat(request);
-    return rdfForSchema(request, response, format);
-  }
-
   private static int rdfForSchema(Request request, Response response, RDFFormat format)
       throws IOException {
+    format = selectFormat(request, format); // defines format if null
+
     Schema schema = getSchema(request);
     if (schema == null) {
       throw new MolgenisException("Schema " + request.params("schema") + " was not found");
@@ -199,21 +137,10 @@ public class RDFApi {
     return 200;
   }
 
-  private static int jsonldForTable(Request request, Response response) throws IOException {
-    return rdfForTable(request, response, RDFFormat.JSONLD);
-  }
-
-  private static int ttlForTable(Request request, Response response) throws IOException {
-    return rdfForTable(request, response, RDFFormat.TURTLE);
-  }
-
-  private static int rdfForTable(Request request, Response response) throws IOException {
-    final RDFFormat format = selectFormat(request);
-    return rdfForTable(request, response, format);
-  }
-
   private static int rdfForTable(Request request, Response response, RDFFormat format)
       throws IOException {
+    format = selectFormat(request, format); // defines format if null
+
     Table table = getTableById(request);
     String rowId = null;
     if (request.queryString() != null && !request.queryString().isBlank()) {
@@ -231,21 +158,10 @@ public class RDFApi {
     return 200;
   }
 
-  private static int jsonldForRow(Request request, Response response) throws IOException {
-    return rdfForRow(request, response, RDFFormat.JSONLD);
-  }
-
-  private static int ttlForRow(Request request, Response response) throws IOException {
-    return rdfForRow(request, response, RDFFormat.TURTLE);
-  }
-
-  private static int rdfForRow(Request request, Response response) throws IOException {
-    final RDFFormat format = selectFormat(request);
-    return rdfForRow(request, response, format);
-  }
-
   private static int rdfForRow(Request request, Response response, RDFFormat format)
       throws IOException {
+    format = selectFormat(request, format); // defines format if null
+
     Table table = getTableById(request);
     String rowId = sanitize(request.params("row"));
 
@@ -260,21 +176,10 @@ public class RDFApi {
     return 200;
   }
 
-  private static int jsonldForColumn(Request request, Response response) throws IOException {
-    return rdfForColumn(request, response, RDFFormat.JSONLD);
-  }
-
-  private static int ttlForColumn(Request request, Response response) throws IOException {
-    return rdfForColumn(request, response, RDFFormat.TURTLE);
-  }
-
-  private static int rdfForColumn(Request request, Response response) throws IOException {
-    final RDFFormat format = selectFormat(request);
-    return rdfForColumn(request, response, format);
-  }
-
   private static int rdfForColumn(Request request, Response response, RDFFormat format)
       throws IOException {
+    format = selectFormat(request, format); // defines format if null
+
     Table table = getTableById(request);
     String columnName = sanitize(request.params("column"));
 
@@ -311,6 +216,10 @@ public class RDFApi {
   private static boolean isWellKnownPort(String scheme, String port) {
     return (scheme.equals("http") && port.equals("80"))
         || (scheme.equals("https") && port.equals("443"));
+  }
+
+  private static RDFFormat selectFormat(Request request, RDFFormat format) {
+    return format == null ? selectFormat(request) : format;
   }
 
   public static RDFFormat selectFormat(Request request) {
