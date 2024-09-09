@@ -138,8 +138,6 @@
     --text-color-pagination: var(--color-white);
     --text-color-pagination-input: var(--color-blue-800);
     --text-color-pagination-hover: var(--color-white);
-    --text-color-pagination-label-white: var(--color-white);
-    --text-color-pagination-label-gray: var(--color-gray-400);
     --text-color-footer-link: var(--color-yellow-500);
     
     --text-color-invalid: var(--color-red-500);
@@ -258,8 +256,6 @@
     --text-color-pagination: var(--color-umcg-dark-blue);
     --text-color-pagination-input: var(--color-umcg-dark-blue);
     --text-color-pagination-hover: var(--color-white);
-    --text-color-pagination-label-white: var(--color-umcg-dark-blue);
-    --text-color-pagination-label-gray: var(--color-umcg-dark-blue);
     --text-color-footer-link: var(--color-umcg-mid-blue);
 
     --border-color-button-primary: var(--color-orange-500);

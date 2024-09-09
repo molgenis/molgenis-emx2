@@ -93,9 +93,12 @@ import { PageFooter, UnorderedList } from "molgenis-viz";
 
     a {
       @include linkTextTransform;
-      text-decoration: none;
-      padding-bottom: 2px;
-      border-bottom: 2px solid transparent;
+
+      & {
+        text-decoration: none;
+        padding-bottom: 2px;
+        border-bottom: 2px solid transparent;
+      }
 
       &:hover,
       &:focus {

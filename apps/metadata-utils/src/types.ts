@@ -7,8 +7,43 @@ export interface ISetting {
   value: string;
 }
 
+export type ColumnType =
+  | "BOOL"
+  | "BOOL_ARRAY"
+  | "UUID"
+  | "UUID_ARRAY"
+  | "FILE"
+  | "STRING"
+  | "STRING_ARRAY"
+  | "TEXT"
+  | "TEXT_ARRAY"
+  | "INT"
+  | "INT_ARRAY"
+  | "LONG"
+  | "LONG_ARRAY"
+  | "DECIMAL"
+  | "DECIMAL_ARRAY"
+  | "DATE"
+  | "DATE_ARRAY"
+  | "DATETIME"
+  | "DATETIME_ARRAY"
+  | "PERIOD"
+  | "JSONB"
+  | "JSONB_ARRAY"
+  | "REF"
+  | "REF_ARRAY"
+  | "REFBACK"
+  | "HEADING"
+  | "AUTO_ID"
+  | "ONTOLOGY"
+  | "ONTOLOGY_ARRAY"
+  | "EMAIL"
+  | "EMAIL_ARRAY"
+  | "HYPERLINK"
+  | "HYPERLINK_ARRAY";
+
 export interface IColumn {
-  columnType: string;
+  columnType: ColumnType;
   id: string;
   label: string;
   computed?: string;

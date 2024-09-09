@@ -11,6 +11,7 @@ import static org.molgenis.emx2.utils.TypeUtils.millisecondsToLocalDateTime;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -89,7 +90,7 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
   }
 
   @Override
-  public String submitTaskFromName(final String scriptName, final String parameters) {
+  public String submitTaskFromName(String scriptName, String parameters, URL url) {
     StringBuilder result = new StringBuilder();
     String defaultUser = database.getActiveUser();
     database.tx(
@@ -98,6 +99,7 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
           Schema systemSchema = db.getSchema(this.systemSchemaName);
 
           ScriptTask scriptTask = retrieveTaskFromDatabase(systemSchema, scriptName);
+          scriptTask.setServerUrl(url);
           String user =
               scriptTask.getCronUserName() == null ? defaultUser : scriptTask.getCronUserName();
 
@@ -114,6 +116,11 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
                       .submitUser(user)));
         });
     return result.toString();
+  }
+
+  @Override
+  public String submitTaskFromName(final String scriptName, final String parameters) {
+    return submitTaskFromName(scriptName, parameters, null);
   }
 
   private ScriptTask retrieveTaskFromDatabase(Schema systemSchema, String scriptName) {

@@ -68,7 +68,7 @@ const navigation = computed(() => {
           <HeaderButton
             :label="isSignedIn ? 'Account' : 'Signin'"
             icon="user"
-            @click="navigateTo({ path: isSignedIn ? '/account' : '/login' })"
+            @click="navigateTo({ path: isSignedIn ? '/account/' : '/login/' })"
           />
         </template>
         <template #logo-mobile>
