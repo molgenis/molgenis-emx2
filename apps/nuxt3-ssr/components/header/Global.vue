@@ -22,7 +22,7 @@ const menu = [
   {
     label: "Manual",
     link: "/apps/docs/#/catalogue/",
-  }
+  },
 
   // { label: "Statistical Methods", link: "#" },
   // { label: "Tables", link: "#" },
