@@ -19,6 +19,10 @@ const menu = [
     label: "Upload data",
     link: "/apps/central/#/",
   },
+  {
+    label: "Manual",
+    link: "/apps/docs/#/catalogue/",
+  }
 
   // { label: "Statistical Methods", link: "#" },
   // { label: "Tables", link: "#" },

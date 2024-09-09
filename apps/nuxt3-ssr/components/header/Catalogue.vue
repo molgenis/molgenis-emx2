@@ -68,6 +68,10 @@ if (!cohortOnly.value) {
     label: "Upload data",
     link: "/apps/central/#/",
   });
+  menu.push({
+    label: "Manual",
+    link: "/apps/docs/#/catalogue/",
+  });
 }
 </script>
 
