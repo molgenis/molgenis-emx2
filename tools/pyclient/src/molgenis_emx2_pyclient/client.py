@@ -433,6 +433,14 @@ class Client:
 
         schema_metadata: Schema = self.get_schema_metadata(current_schema)
 
+        if filename:
+            if filename.endswith('xlsx'):
+                fmt = 'xlsx'
+            elif filename.endswith('csv'):
+                fmt = 'csv'
+            elif filename.endswith('zip'):
+                fmt = 'csv'
+
         if fmt not in ('csv', 'xlsx'):
             raise ValueError(f"Format {fmt!r} not supported. Choose from ('csv', 'xlsx')")
 
