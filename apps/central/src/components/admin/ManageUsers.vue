@@ -28,7 +28,7 @@
             :tooltip="`delete ${row.row.email}`"
           />
           <IconAction
-            v-if="true /*add user enabled status here*/"
+            v-if="row.row.enabled"
             icon="user-slash"
             @click="disableUser(row.row.email)"
             :tooltip="`disable ${row.row.email}`"
@@ -152,7 +152,6 @@ export default {
         });
     },
     removeUser(user) {
-      console.log("removeUser " + user);
       this.alterError = null;
       this.alterLoading = true;
       request(
@@ -160,7 +159,6 @@ export default {
         `mutation{deleteUser(email: "${user}"){status,message}}`
       )
         .then((data) => {
-          console.log(data);
           if (data.deleteUser.status === "SUCCESS") {
             this.alterSuccess = "Success. deleted user: " + user;
             this.getUserList();
@@ -175,7 +173,6 @@ export default {
       this.alterLoading = false;
     },
     enableUser(user) {
-      console.log("setEnabledUser " + user);
       this.alterError = null;
       this.alterLoading = true;
       request(
@@ -183,8 +180,7 @@ export default {
         `mutation{setEnabledUser(email: "${user}", enabled:true){status,message}}`
       )
         .then((data) => {
-          console.log(data);
-          if (data.deleteUser.status === "SUCCESS") {
+          if (data.setEnabledUser.status === "SUCCESS") {
             this.alterSuccess = "Success. enabled user: " + user;
             this.getUserList();
           } else {
@@ -198,7 +194,6 @@ export default {
       this.alterLoading = false;
     },
     disableUser(user) {
-      console.log("setEnabledUser " + user);
       this.alterError = null;
       this.alterLoading = true;
       request(
@@ -206,8 +201,7 @@ export default {
         `mutation{setEnabledUser(email: "${user}", enabled:false){status,message}}`
       )
         .then((data) => {
-          console.log(data);
-          if (data.deleteUser.status === "SUCCESS") {
+          if (data.setEnabledUser.status === "SUCCESS") {
             this.alterSuccess = "Success. disabled user: " + user;
             this.getUserList();
           } else {
