@@ -1,8 +1,7 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,comment
 DataService,,,,,,,,,,,http://www.w3.org/ns/dcat#DataService,,DCAT,
-DataService,,id,string,1,,,,,,,"http://purl.org/dc/terms/identifier,http://purl.allotrope.org/ontologies/result#AFR_0000919",Local database identifier of the dataset.,DCAT,custom
+DataService,,identifier,string,1,TRUE,,,,,,http://purl.org/dc/terms/identifier,A unique identifier of the item.,DCAT,DCAT Resource
 DataService,,catalog,ref_array,,,,Catalog,,,,http://www.w3.org/ns/dcat#Catalog,Reference back to any catalogs that contain this item.,DCAT,custom
-DataService,,identifier,string_array,,,,,,,,http://purl.org/dc/terms/identifier,A unique identifier of the item.,DCAT,DCAT Resource
 DataService,,type,hyperlink_array,,,,,,,,http://purl.org/dc/terms/type,A type belonging to the record,DCAT,DCAT Resource
 DataService,,title,string_array,,TRUE,,,,,,http://purl.org/dc/terms/title,A name given to the record.,DCAT,DCAT Resource / DCAT-AP-v3: required
 DataService,,description,string_array,,,,,,,,http://purl.org/dc/terms/description,A free-text account of the item.,DCAT,DCAT Resource

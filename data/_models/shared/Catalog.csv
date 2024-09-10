@@ -1,7 +1,6 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,comment
 Catalog,,,,,,,,,,,http://www.w3.org/ns/dcat#Catalog,DCAT catalog entries.,DCAT,
-Catalog,,id,string,1,,,,,,,"http://purl.org/dc/terms/identifier,http://purl.allotrope.org/ontologies/result#AFR_0000919",Local database identifier of the dataset.,DCAT,local id
-Catalog,,identifier,string_array,,,,,,,,http://purl.org/dc/terms/identifier,A unique identifier of the item.,DCAT,DCAT Resource
+Catalog,,identifier,string,1,TRUE,,,,,,http://purl.org/dc/terms/identifier,A unique identifier of the item.,DCAT,DCAT Resource
 Catalog,,type,hyperlink_array,,,,,,,,http://purl.org/dc/terms/type,A type belonging to the record,DCAT,DCAT Resource
 Catalog,,title,string_array,,TRUE,,,,,,http://purl.org/dc/terms/title,A name given to the record.,DCAT,DCAT Resource / DCAT-AP-v3 Dataset: required
 Catalog,,description,string_array,,TRUE,,,,,,http://purl.org/dc/terms/description,A free-text account of the item.,DCAT,DCAT Resource / DCAT-AP-v3 Dataset: required

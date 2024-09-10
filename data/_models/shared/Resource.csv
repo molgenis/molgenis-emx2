@@ -1,7 +1,6 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,comment
 Resource,,,,,,,,,,,,,DCAT,Currently only used as template elsewhere as tableExtends would merge all results in this table
-Resource,,id,string,1,,,,,,,"http://purl.org/dc/terms/identifier,http://purl.allotrope.org/ontologies/result#AFR_0000919",Local database identifier of the dataset.,DCAT,local id
-Resource,,identifier,string_array,,,,,,,,http://purl.org/dc/terms/identifier,A unique identifier of the item.,DCAT,DCAT Resource
+Resource,,identifier,string,1,TRUE,,,,,,http://purl.org/dc/terms/identifier,A unique identifier of the item.,DCAT,DCAT Resource
 Resource,,type,hyperlink_array,,,,,,,,http://purl.org/dc/terms/type,A type belonging to the record,DCAT,DCAT Resource
 Resource,,title,string_array,,,,,,,,http://purl.org/dc/terms/title,A name given to the record.,DCAT,DCAT Resource
 Resource,,description,string_array,,,,,,,,http://purl.org/dc/terms/description,A free-text account of the item.,DCAT,DCAT Resource

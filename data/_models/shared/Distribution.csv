@@ -1,6 +1,6 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,comment
 Distribution,,,,,,,,,,,http://www.w3.org/ns/dcat#Distribution,DCAT distribution entries.,DCAT
-Distribution,,id,string,1,,,,,,,"http://purl.org/dc/terms/identifier,http://purl.allotrope.org/ontologies/result#AFR_0000919",Local database identifier of the dataset.,DCAT,custom
+Distribution,,identifier,string,1,TRUE,,,,,,http://purl.org/dc/terms/identifier,A unique identifier of the item.,DCAT,custom
 Distribution,,catalog,ref_array,,,,Catalog,,,,http://www.w3.org/ns/dcat#Catalog,Reference back to any catalogs that contain this item.,DCAT,custom
 Distribution,,dataset,ref_array,,,,Dataset,,,,http://www.w3.org/ns/dcat#Dataset,Reference back to any datasets that contain this item.,DCAT,custom
 Distribution,,in series,ref_array,,,,DatasetSeries,,,,http://www.w3.org/ns/dcat#inSeries,Reference back to any dataset series that contain this item.,DCAT,custom (officially dcat:inSeries not used for Distribution)
