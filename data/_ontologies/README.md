@@ -7,5 +7,5 @@
 4. Run the following command: 
     ```bash
    echo "name,definition,codesystem,code,ontologyTermURI" > output/MediaType.csv && \
-   awk -F',' 'NR>1 {print $1","$1",IANA,,https://www.iana.org/assignments/media-types/"$2}' *.csv >> output/MediaType.csv
+   awk -F',' 'NR>1 {print $2","$2",IANA,,https://www.iana.org/assignments/media-types/"$2}' *.csv | sort | uniq >> output/MediaType.csv
    ```
