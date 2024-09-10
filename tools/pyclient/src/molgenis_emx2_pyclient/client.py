@@ -434,7 +434,7 @@ class Client:
 
         schema_metadata: Schema = self.get_schema_metadata(current_schema)
 
-        if fmt not in OutputFormat:
+        if fmt not in OutputFormat.__args__:
             raise ValueError(f"Format {fmt!r} not supported. Choose from {OutputFormat.__args__}")
 
         if fmt == 'xlsx':
