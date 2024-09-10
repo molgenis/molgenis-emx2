@@ -10,7 +10,5 @@ CatalogRecord,,primary topic Dataset,ref,,TRUE,,Dataset,,,,http://xmlns.com/foaf
 CatalogRecord,,primary topic Service,ref,,TRUE,,DataService,,,,http://xmlns.com/foaf/0.1/primaryTopic,The service described in this item.,DCAT,DCAT CatalogRecord / DCAT-AP-V3 CatalogRecord: required
 CatalogRecord,,release date,datetime,,,,,,,,http://purl.org/dc/terms/issued,Formal date of publication.,DCAT,DCAT CatalogRecord
 CatalogRecord,,modification date,datetime,,TRUE,,,,,,http://purl.org/dc/terms/modified,Most recent date of modification.,DCAT,DCAT CatalogRecord / DCAT-AP-V3 CatalogRecord: required
-CatalogRecord,,status Catalog,refBack,,,,Catalog,,status,,http://www.w3.org/ns/adms#status,"The status of this item (in context of the dataset it belongs to).",DCAT-AP-v3,DCAT-AP-v3 CatalogRecord
-CatalogRecord,,status Dataset,refBack,,,,Dataset,,status,,http://www.w3.org/ns/adms#status,"The status of this item (in context of the dataset it belongs to).",DCAT-AP-v3,DCAT-AP-v3 CatalogRecord
-CatalogRecord,,status DataService,refBack,,,,DataService,,status,,http://www.w3.org/ns/adms#status,"The status of this item (in context of the data service it belongs to).",DCAT-AP-v3,DCAT-AP-v3 CatalogRecord
+CatalogRecord,,status,ontology,,,,Status,,status,,http://www.w3.org/ns/adms#status,"The status of this item (in context of the Resource it belongs to).",DCAT-AP-v3,DCAT-AP-v3 CatalogRecord / TODO: use helper function to extract it from other table.
 CatalogRecord,,source,ref,,,,CatalogRecord,,,,http://purl.org/dc/terms/source,The original metadata used in creating metadata for the dataset / data service / dataset series this item belongs to.,DCAT-AP-v3,DCAT-AP-v3 CatalogRecord

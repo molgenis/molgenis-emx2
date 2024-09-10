@@ -48,7 +48,7 @@ Dataset,,applicable legislation,hyperlink_array,,,,,,,,http://data.europa.eu/r5r
 Dataset,,documentation,hyperlink_array,,,,,,,,http://xmlns.com/foaf/0.1/page,A page or document about this item.,DCAT-AP-v3,DCAT-AP-v3 Dataset
 Dataset,,other identifier,hyperlink_array,,,,,,,,http://www.w3.org/ns/adms#identifier,"A secondary identifier of the item (f.e. DOI, W3ID, etc).",DCAT-AP-v3,DCAT-AP-v3 Dataset
 Dataset,,provenance,string_array,,,,,,,,http://purl.org/dc/terms/provenance,A statement about the lineage of the item.,DCAT-AP-v3,DCAT-AP-v3 Dataset
-Dataset,,sample,refBack,,,,Distribution,,sampleForDataset,,http://www.w3.org/ns/adms#sample,A sample distribution of this item.,DCAT-AP-v3,DCAT-AP-v3 Dataset
+Dataset,,sample,refBack,,,,Distribution,,sample for dataset,,http://www.w3.org/ns/adms#sample,A sample distribution of this item.,DCAT-AP-v3,DCAT-AP-v3 Dataset
 Dataset,,source,ref_array,,,,Dataset,,,,http://purl.org/dc/terms/source,A related item from which the this item is derived.,DCAT-AP-v3,DCAT-AP-v3 Dataset
 Dataset,,EJP_RD vpConnection,hyperlink,,,,,,,,https://w3id.org/ejp-rd/vocabulary#vpConnection,"This property must be attached to every entity that you wish the EJP-RD Virtual Platform to explore.",EJP-RD
 datareleases,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C172217,"The act of making data or other structured information accessible to the public or to the user group of a database.",RD3
