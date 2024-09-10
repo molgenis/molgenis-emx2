@@ -18,8 +18,7 @@
       <ButtonAction @click="alterUser" class="mt-0">Update user</ButtonAction>
     </form>
     <h2>User list</h2>
-    {{ users }}
-    <TableSimple class="bg-white" :rows="users" :columns="['email']">
+    <TableSimple class="bg-white" :rows="users" :columns="['email', 'enabled']">
       <template v-slot:rowheader="row">
         <template v-if="row.row.email !== 'admin'">
           <IconDanger
@@ -105,6 +104,11 @@ export default {
     offset() {
       return (this.page - 1) * this.limit;
     },
+    getUsers(){
+      return this.users.map(user => {
+
+      })
+    }
   },
   methods: {
     alterUser() {
