@@ -62,12 +62,8 @@ public class SqlTypeUtils extends TypeUtils {
           row.set(c.getName(), c.getDefaultValue());
         }
       } else if (c.getComputed() != null) {
-        Object result = executeJavascriptOnMap(c.getComputed(), graph);
-        if (c.isReference() && c.isOntology()) {
-          Map<String, Object> resultMap = (Map<String, Object>) result;
-          result = resultMap.get("name");
-        }
-        row.set(c.getName(), result);
+        Object computedValue = executeJavascriptOnMap(c.getComputed(), graph);
+        TypeUtils.addFieldObjectToRow(c, computedValue, row);
       } else if (columnIsVisible(c, graph)) {
         checkRequired(c, row, graph);
         checkValidation(c, graph);
