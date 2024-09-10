@@ -4,8 +4,8 @@ import logging
 import pathlib
 import time
 from functools import cache
-from typing import TypeAlias, Literal
 from io import BytesIO
+from typing import Literal
 
 import pandas as pd
 import requests
@@ -21,7 +21,6 @@ from .metadata import Schema
 
 log = logging.getLogger("Molgenis EMX2 Pyclient")
 
-OutputFormat: TypeAlias = Literal['csv', 'xlsx']
 
 
 class Client:
@@ -410,7 +409,7 @@ class Client:
             return response_data.to_dict('records')
         return response_data
 
-    async def export(self, schema: str = None, table: str = None, fmt: OutputFormat = 'csv',
+    async def export(self, schema: str = None, table: str = None, fmt: Literal['csv', 'xlsx'] = 'csv',
                      filename: str = None, to_file: bool = True) -> BytesIO:
         """Exports data from a schema to a file in the desired format.
 
@@ -434,8 +433,8 @@ class Client:
 
         schema_metadata: Schema = self.get_schema_metadata(current_schema)
 
-        if fmt not in OutputFormat.__args__:
-            raise ValueError(f"Format {fmt!r} not supported. Choose from {OutputFormat.__args__}")
+        if fmt not in ('csv', 'xlsx'):
+            raise ValueError(f"Format {fmt!r} not supported. Choose from ('csv', 'xlsx')")
 
         if fmt == 'xlsx':
             if table is None:
@@ -805,7 +804,7 @@ class Client:
 
         try:
             val = json.loads(_val)
-        except json.decoder.JSONDecodeError as e:
+        except json.decoder.JSONDecodeError:
             msg = ("To filter on values between a and b, supply them as a list, [a, b]. "
                    "Ensure the values for a and b are numeric.")
             raise ValueError(msg)
@@ -834,7 +833,6 @@ class Client:
         """Prepares the data from memory or loaded from disk for addition or deletion action.
 
         :param file_path: path to the file to be prepared
-        :type file_path: str
         :type file_path: str
         :param data: data to be prepared
         :type data: list
