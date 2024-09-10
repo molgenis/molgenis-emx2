@@ -3,6 +3,10 @@
 ## Availability
 Manually extracted from the `planned-availability-skos.rdf` download found [here](https://op.europa.eu/en/web/eu-vocabularies/dataset/-/resource?uri=http://publications.europa.eu/resource/dataset/planned-availability).
 
+## Checksums
+Manually extracted from [here](https://spdx.org/rdf/spdx-terms-v2.3/) (seach for "checksum algorithm ").  
+Note that v2.3 is used even though DCAT-v3 refers to v2.2 as seen [here](https://www.w3.org/TR/vocab-dcat-3/#Property:distribution_checksum).
+
 ## Status
 Manually extracted from the `distribution-status-skos.rdf` download found [here](https://op.europa.eu/en/web/eu-vocabularies/dataset/-/resource?uri=http://publications.europa.eu/resource/dataset/distribution-status).
 

@@ -12,7 +12,7 @@ SHA-1,SHA-1,spdx,,http://spdx.org/rdf/terms#checksumAlgorithm_sha1
 SHA224,SHA224,spdx,,http://spdx.org/rdf/terms#checksumAlgorithm_sha224
 SHA256,SHA256,spdx,,http://spdx.org/rdf/terms#checksumAlgorithm_sha256
 SHA384,SHA384,spdx,,http://spdx.org/rdf/terms#checksumAlgorithm_sha384
+SHA512,SHA512,spdx,,http://spdx.org/rdf/terms#checksumAlgorithm_sha512
 SHA3-256,SHA3-256,spdx,,http://spdx.org/rdf/terms#checksumAlgorithm_sha3_256
 SHA3-384,SHA3-384,spdx,,http://spdx.org/rdf/terms#checksumAlgorithm_sha3_384
 SHA3-512,SHA3-512,spdx,,http://spdx.org/rdf/terms#checksumAlgorithm_sha3_512
-SHA512,SHA512,spdx,,http://spdx.org/rdf/terms#checksumAlgorithm_sha512
