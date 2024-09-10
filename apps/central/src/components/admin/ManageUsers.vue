@@ -104,11 +104,6 @@ export default {
     offset() {
       return (this.page - 1) * this.limit;
     },
-    getUsers(){
-      return this.users.map(user => {
-
-      })
-    }
   },
   methods: {
     alterUser() {
