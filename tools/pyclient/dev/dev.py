@@ -16,6 +16,7 @@
 import asyncio
 import logging
 import os
+from io import BytesIO
 
 import numpy
 import pandas as pd
@@ -77,8 +78,10 @@ async def main():
 
         # Export the entire 'pet store' schema to a .xlsx file
         # and export the 'Collections' table from schema 'catalogue' to a .csv file
-        pet_store_excel = await client.export(schema='pet store', fmt='xlsx')
-        raw_collections = await client.export(schema='catalogue', table='Collections', fmt='csv')
+        pet_store_excel = await client.export(schema='pet store', fmt='pdf', to_file=True)
+        pet_store = pd.read_excel(pet_store_excel)
+        raw_collections = await client.export(schema='catalogue', table='Collections', fmt='csv', to_file=False)
+        collections = pd.read_csv(raw_collections)
 
     # Connect to server with a default schema specified
     with Client('https://emx2.dev.molgenis.org/', schema='pet store', token=token) as client:

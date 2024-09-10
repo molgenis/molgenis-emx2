@@ -1,11 +1,11 @@
 import csv
-import io
 import json
 import logging
 import pathlib
 import time
 from functools import cache
 from typing import TypeAlias, Literal
+from io import BytesIO
 
 import pandas as pd
 import requests
@@ -404,14 +404,14 @@ class Client:
                                         fallback_error_message=f"Failed to retrieve data from {current_schema}::"
                                                                f"{table!r}.\nStatus code: {response.status_code}.")
 
-        response_data = pd.read_csv(io.BytesIO(response.content), keep_default_na=False)
+        response_data = pd.read_csv(BytesIO(response.content), keep_default_na=False)
 
         if not as_df:
             return response_data.to_dict('records')
         return response_data
 
     async def export(self, schema: str = None, table: str = None, fmt: OutputFormat = 'csv',
-                     filename: str = None, to_file: bool = True):
+                     filename: str = None, to_file: bool = True) -> BytesIO:
         """Exports data from a schema to a file in the desired format.
 
         :param schema: the name of the schema
@@ -433,6 +433,9 @@ class Client:
             raise NoSuchTableException(f"Table {table!r} not found in schema {current_schema!r}.")
 
         schema_metadata: Schema = self.get_schema_metadata(current_schema)
+
+        if fmt not in OutputFormat:
+            raise ValueError(f"Format {fmt!r} not supported. Choose from {OutputFormat.__args__}")
 
         if fmt == 'xlsx':
             if table is None:
@@ -465,7 +468,7 @@ class Client:
                 else:
                     log.info("Exported data from table %s in schema %s.", table, current_schema)
 
-        if fmt == 'csv':
+        else:
             if table is None:
                 url = f"{self.url}/{current_schema}/api/zip"
                 response = self.session.get(url=url)
@@ -496,7 +499,7 @@ class Client:
                 else:
                     log.info("Exported data from table %s in schema %s.", table, current_schema)
 
-            return response.content
+        return BytesIO(response.content)
 
 
     async def create_schema(self, name: str = None,
