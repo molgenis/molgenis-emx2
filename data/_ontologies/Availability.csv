@@ -1,6 +1,6 @@
 name,definition,codesystem,code,ontologyTermURI
-available,available,EU Vocabularies - Planned availability,,http://publications.europa.eu/resource/authority/planned-availability/AVAILABLE
-experimental,experimental,EU Vocabularies - Planned availability,,http://publications.europa.eu/resource/authority/planned-availability/EXPERIMENTAL
-op_datpro,provisional data,EU Vocabularies - Planned availability,,http://publications.europa.eu/resource/authority/planned-availability/OP_DATPRO
-stable,stable,EU Vocabularies - Planned availability,,http://publications.europa.eu/resource/authority/planned-availability/STABLE
-temporary,temporary,EU Vocabularies - Planned availability,,http://publications.europa.eu/resource/authority/planned-availability/TEMPORARY
+available,"Data is available for a few years, medium term planning.",EU Vocabularies - Planned availability,,http://publications.europa.eu/resource/authority/planned-availability/AVAILABLE
+experimental,"Data is available on a trial basis for a short period, short term planning.",EU Vocabularies - Planned availability,,http://publications.europa.eu/resource/authority/planned-availability/EXPERIMENTAL
+stable,"Data will remain available in the long term.",EU Vocabularies - Planned availability,,http://publications.europa.eu/resource/authority/planned-availability/STABLE
+temporary,"Data can disappear at any time, no planning.",EU Vocabularies - Planned availability,,http://publications.europa.eu/resource/authority/planned-availability/TEMPORARY
+provisional data,,EU Vocabularies - Planned availability,,http://publications.europa.eu/resource/authority/planned-availability/OP_DATPRO

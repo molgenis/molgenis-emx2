@@ -1,5 +1,11 @@
 # Ontology creation logbook
 
+## Availability
+Manually extracted from the `planned-availability-skos.rdf` download found [here](https://op.europa.eu/en/web/eu-vocabularies/dataset/-/resource?uri=http://publications.europa.eu/resource/dataset/planned-availability).
+
+## Status
+Manually extracted from the `distribution-status-skos.rdf` download found [here](https://op.europa.eu/en/web/eu-vocabularies/dataset/-/resource?uri=http://publications.europa.eu/resource/dataset/distribution-status).
+
 ## MediaType
 1. Download all `.csv` files from https://www.iana.org/assignments/media-types/media-types.xhtml & store in **single empty** folder.
 2. `cd` to folder with the `.csv` files.

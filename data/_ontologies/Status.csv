@@ -1,6 +1,6 @@
 name,definition,codesystem,code,ontologyTermURI
-op_datpro,provisional data,EU Vocabularies - Distribution Status,,http://publications.europa.eu/resource/authority/distribution-status/OP_DATPRO
-withdrawn,withdrawn,EU Vocabularies - Distribution Status,,http://publications.europa.eu/resource/authority/distribution-status/WITHDRAWN
-completed,completed,EU Vocabularies - Distribution Status,,http://publications.europa.eu/resource/authority/distribution-status/COMPLETED
-deprecated,deprecated,EU Vocabularies - Distribution Status,,http://publications.europa.eu/resource/authority/distribution-status/DEPRECATED
-develop,under development,EU Vocabularies - Distribution Status,,http://publications.europa.eu/resource/authority/distribution-status/DEVELOP
+completed,"This distribution is considered to be complete, it holds all information that is intended.",EU Vocabularies - Distribution Status,,http://publications.europa.eu/resource/authority/distribution-status/COMPLETED
+deprecated,"It is recommended that the contents of this distribution no longer be used.",EU Vocabularies - Distribution Status,,http://publications.europa.eu/resource/authority/distribution-status/DEPRECATED
+under development,"This distribution is currently being assembled. It may be in an incomplete or faulty state.",EU Vocabularies - Distribution Status,,http://publications.europa.eu/resource/authority/distribution-status/DEVELOP
+provisional data,,EU Vocabularies - Distribution Status,,http://publications.europa.eu/resource/authority/distribution-status/OP_DATPRO
+withdrawn,"This distribution is no longer meant to be published.",EU Vocabularies - Distribution Status,,http://publications.europa.eu/resource/authority/distribution-status/WITHDRAWN
