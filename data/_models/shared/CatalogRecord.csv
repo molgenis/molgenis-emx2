@@ -1,13 +1,16 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,comment
-CatalogRecord,,,,,,,,,,,,,DCAT,
-CatalogRecord,,id,string,1,,,,,,,"http://purl.org/dc/terms/identifier,http://purl.allotrope.org/ontologies/result#AFR_0000919",Local database identifier of the dataset.,DCAT,local id
+CatalogRecord,,,,,,,,,,,http://www.w3.org/ns/dcat#CatalogRecord,,DCAT,
+CatalogRecord,,id,string,1,,,,,,,"http://purl.org/dc/terms/identifier,http://purl.allotrope.org/ontologies/result#AFR_0000919",Local database identifier of the dataset.,DCAT,custom
+CatalogRecord,,catalog,ref_array,,,,Catalog,,,,http://www.w3.org/ns/dcat#Catalog,Reference to any catalogs that contains this item.,DCAT,custom
 CatalogRecord,,title,string_array,,,,,,,,http://purl.org/dc/terms/title,A name given to the record.,DCAT,DCAT CatalogRecord
 CatalogRecord,,description,string_array,,,,,,,,http://purl.org/dc/terms/description,A free-text account of the item.,DCAT,DCAT CatalogRecord
 CatalogRecord,,conforms to,hyperlink_array,,,,,,,,http://purl.org/dc/terms/conformsTo,An established standard to which the item conforms to.,DCAT,DCAT CatalogRecord
-CatalogRecord,,primary topic Dataset,refBack,,TRUE,,Dataset,,belongsToCatalogRecord,,http://xmlns.com/foaf/0.1/primaryTopic,The dataset described in this item.,DCAT,DCAT CatalogRecord / DCAT-AP-V3 CatalogRecord: required
-CatalogRecord,,primary topic Service,refBack,,TRUE,,DataService,,belongsToCatalogRecord,,http://xmlns.com/foaf/0.1/primaryTopic,The service described in this item.,DCAT,DCAT CatalogRecord / DCAT-AP-V3 CatalogRecord: required
+CatalogRecord,,primary topic Catalog,ref,,TRUE,,Catalog,,,,http://xmlns.com/foaf/0.1/primaryTopic,The catalog described in this item.,DCAT,DCAT CatalogRecord / DCAT-AP-V3 CatalogRecord: required
+CatalogRecord,,primary topic Dataset,ref,,TRUE,,Dataset,,,,http://xmlns.com/foaf/0.1/primaryTopic,The dataset described in this item.,DCAT,DCAT CatalogRecord / DCAT-AP-V3 CatalogRecord: required
+CatalogRecord,,primary topic Service,ref,,TRUE,,DataService,,,,http://xmlns.com/foaf/0.1/primaryTopic,The service described in this item.,DCAT,DCAT CatalogRecord / DCAT-AP-V3 CatalogRecord: required
 CatalogRecord,,release date,datetime,,,,,,,,http://purl.org/dc/terms/issued,Formal date of publication.,DCAT,DCAT CatalogRecord
 CatalogRecord,,modification date,datetime,,TRUE,,,,,,http://purl.org/dc/terms/modified,Most recent date of modification.,DCAT,DCAT CatalogRecord / DCAT-AP-V3 CatalogRecord: required
-CatalogRecord,,status Dataset,refBack,,,,Dataset,,status,,http://www.w3.org/ns/adms#status,"The status of this item (in context of the dataset/data service it belongs to).",DCAT-AP-v3,DCAT-AP-v3 CatalogRecord
-CatalogRecord,,status DataService,refBack,,,,DataService,,status,,http://www.w3.org/ns/adms#status,"The status of this item (in context of the dataset/data service it belongs to).",DCAT-AP-v3,DCAT-AP-v3 CatalogRecord
+CatalogRecord,,status Catalog,refBack,,,,Catalog,,status,,http://www.w3.org/ns/adms#status,"The status of this item (in context of the dataset it belongs to).",DCAT-AP-v3,DCAT-AP-v3 CatalogRecord
+CatalogRecord,,status Dataset,refBack,,,,Dataset,,status,,http://www.w3.org/ns/adms#status,"The status of this item (in context of the dataset it belongs to).",DCAT-AP-v3,DCAT-AP-v3 CatalogRecord
+CatalogRecord,,status DataService,refBack,,,,DataService,,status,,http://www.w3.org/ns/adms#status,"The status of this item (in context of the data service it belongs to).",DCAT-AP-v3,DCAT-AP-v3 CatalogRecord
 CatalogRecord,,source,ref,,,,CatalogRecord,,,,http://purl.org/dc/terms/source,The original metadata used in creating metadata for the dataset / data service / dataset series this item belongs to.,DCAT-AP-v3,DCAT-AP-v3 CatalogRecord

@@ -1,6 +1,10 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,comment
 Distribution,,,,,,,,,,,http://www.w3.org/ns/dcat#Distribution,DCAT distribution entries.,DCAT
-Distribution,,id,string,1,,,,,,,"http://purl.org/dc/terms/identifier,http://purl.allotrope.org/ontologies/result#AFR_0000919",Local database identifier of the dataset.,DCAT,local id
+Distribution,,id,string,1,,,,,,,"http://purl.org/dc/terms/identifier,http://purl.allotrope.org/ontologies/result#AFR_0000919",Local database identifier of the dataset.,DCAT,custom
+Distribution,,catalog,ref_array,,,,Catalog,,,,http://www.w3.org/ns/dcat#Catalog,Reference back to any catalogs that contain this item.,DCAT,custom
+Distribution,,dataset,ref_array,,,,Dataset,,,,http://www.w3.org/ns/dcat#Dataset,Reference back to any datasets that contain this item.,DCAT,custom
+Distribution,,dataset series,ref_array,,,,DatasetSeries,,,,http://www.w3.org/ns/dcat#DatasetSeries,Reference back to any dataset series that contain this item.,DCAT,custom
+Distribution,,sample for dataset,ref_array,,,,Dataset,,,,,Reference back to any datasets where this item functions as a sample.,DCAT,custom / currently no semantics (refBack has)!
 Distribution,,title,string_array,,,,,,,,http://purl.org/dc/terms/title,A name given to the record.,DCAT,DCAT Distribution
 Distribution,,description,string_array,,,,,,,,http://purl.org/dc/terms/description,A free-text account of the item.,DCAT,DCAT Distribution
 Distribution,,conforms to,hyperlink_array,,,,,,,,http://purl.org/dc/terms/conformsTo,An established standard to which the item conforms to.,DCAT,DCAT Distribution
@@ -14,15 +18,15 @@ Distribution,,access service,ref_array,,,,DataService,,,,https://www.w3.org/ns/d
 Distribution,,access URL,hyperlink_array,,TRUE,,,,,,https://www.w3.org/ns/dcat#accessURL,A URL of the resource that gives access to a distribution of the dataset.,DCAT,DCAT Distribution / DCAT-AP-v3 Dataset: required
 Distribution,,download URL,hyperlink_array,,,,,,,,https://www.w3.org/ns/dcat#downloadURL,The URL of the downloadable file in a given format. The format is indicated by the distribution's dcterms:format and/or dcat:mediaType.,DCAT,DCAT Distribution
 Distribution,,byte size,int,,,,,,,byteSize >= 0,https://www.w3.org/ns/dcat#byteSize,The size of a distribution in bytes.,DCAT,DCAT Distribution
-Distribution,,format,ref,,,,FileFormats,,,,http://purl.org/dc/terms/format,"The file format of the distribution. If using IANA type, use dcat:mediaType instead.",DCAT,DCAT Distribution
-Distribution,,compression format,ref,,,,MediaType,,,,https://www.w3.org/ns/dcat#compressFormat,The compression format of the distribution in which the data is contained in a compressed form.,DCAT,DCAT Distribution / DCAT-AP-v3 Distribution: emphasizes IANA
-Distribution,,packaging format,ref,,,,MediaType,,,,https://www.w3.org/ns/dcat#packageFormat,The package format of the distribution in which one or more data files are grouped together.,DCAT,DCAT Distribution / DCAT-AP-v3 Distribution: emphasizes IANA
-Distribution,,media type,ref,,,,MediaType,,,,https://www.w3.org/ns/dcat#mediaType,The media type of the distribution as defined by IANA.,DCAT,DCAT Distribution
+Distribution,,format,ontology,,,,FileFormats,,,,http://purl.org/dc/terms/format,"The file format of the distribution. If using IANA type, use dcat:mediaType instead.",DCAT,DCAT Distribution
+Distribution,,compression format,ontology,,,,MediaType,,,,https://www.w3.org/ns/dcat#compressFormat,The compression format of the distribution in which the data is contained in a compressed form.,DCAT,DCAT Distribution / DCAT-AP-v3 Distribution: emphasizes IANA
+Distribution,,packaging format,ontology,,,,MediaType,,,,https://www.w3.org/ns/dcat#packageFormat,The package format of the distribution in which one or more data files are grouped together.,DCAT,DCAT Distribution / DCAT-AP-v3 Distribution: emphasizes IANA
+Distribution,,media type,ontology,,,,MediaType,,,,https://www.w3.org/ns/dcat#mediaType,The media type of the distribution as defined by IANA.,DCAT,DCAT Distribution
 Distribution,,spatial resolution,decimal,,,,,,,,http://purl.org/dc/terms/spatialResolutionInMeters,"Minimum spatial separation resolvable in a dataset, measured in meters.",DCAT,DCAT Distribution
 Distribution,,temporal resolution,string,,,,,,,,http://purl.org/dc/terms/temporalResolution,Minimum time period resolvable in the dataset.,DCAT,DCAT Distribution
 Distribution,,applicable legislation,hyperlink_array,,,,,,,,http://data.europa.eu/r5r/applicableLegislation,The legislation that mandates the creation or management of the Distribution.,DCAT-AP-v3,DCAT-AP-v3 Distribution
 Distribution,,availability,ref,,,,PlannedAvailability,,,,http://data.europa.eu/r5r/availability,An indication how long it is planned to keep the Distribution of the Dataset available.,DCAT-AP-v3,DCAT-AP-v3 Distribution
-Distribution,,checksum,refBack,,,,Checksum,,,,http://spdx.org/rdf/terms#checksum,The checksum belonging to the download URL retrievable data.,DCAT-AP-v3,DCAT-AP-v3 Distribution
+Distribution,,checksum,ref,,,,Checksum,,,,http://spdx.org/rdf/terms#checksum,The checksum belonging to the download URL retrievable data.,DCAT-AP-v3,DCAT-AP-v3 Distribution
 Distribution,,documentation,hyperlink_array,,,,,,,,http://xmlns.com/foaf/0.1/page,A page or document about this item.,DCAT-AP-v3,DCAT-AP-v3 Distribution
 Distribution,,language,ontology_array,,,,Languages,,,,http://purl.org/dc/terms/language,"A language of the item. This refers to the natural language used for textual metadata (i.e. titles, descriptions, etc) of a cataloged resource (i.e. dataset or service) or the textual values of a dataset distribution.",DCAT-AP-v3,DCAT-AP-v3 Distribution
 Distribution,,status,string,,,,Status,,,,http://www.w3.org/ns/adms#status,The status of this item.,DCAT-v3,DCAT-AP-v3 Distribution

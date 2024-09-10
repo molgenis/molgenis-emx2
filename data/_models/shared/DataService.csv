@@ -1,6 +1,7 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,comment
-DataService,,,,,,,,,,,,,DCAT,
-DataService,,id,string,1,,,,,,,"http://purl.org/dc/terms/identifier,http://purl.allotrope.org/ontologies/result#AFR_0000919",Local database identifier of the dataset.,DCAT,local id
+DataService,,,,,,,,,,,http://www.w3.org/ns/dcat#DataService,,DCAT,
+DataService,,id,string,1,,,,,,,"http://purl.org/dc/terms/identifier,http://purl.allotrope.org/ontologies/result#AFR_0000919",Local database identifier of the dataset.,DCAT,custom
+DataService,,catalog,ref_array,,,,Catalog,,,,http://www.w3.org/ns/dcat#Catalog,Reference back to any catalogs that contain this item.,DCAT,custom
 DataService,,identifier,string_array,,,,,,,,http://purl.org/dc/terms/identifier,A unique identifier of the item.,DCAT,DCAT Resource
 DataService,,type,hyperlink_array,,,,,,,,http://purl.org/dc/terms/type,A type belonging to the record,DCAT,DCAT Resource
 DataService,,title,string_array,,TRUE,,,,,,http://purl.org/dc/terms/title,A name given to the record.,DCAT,DCAT Resource / DCAT-AP-v3: required
@@ -36,7 +37,7 @@ DataService,,last,ref,,,,DataService,,,,http://www.w3.org/ns/dcat#last,The last 
 DataService,,previous,ref,,,,DataService,,,,http://www.w3.org/ns/dcat#prev,The previous item in an ordered collection this item belongs to (when using dcat:DataSeries).,DCAT-v3,DCAT-v3 Resource
 DataService,,endpoint description,string_array,,,,,,,,http://www.w3.org/ns/dcat#endpointDescription,A description of the services available through this endpoint.,DCAT,DCAT DataService
 DataService,,endpoint URL,hyperlink_array,,TRUE,,,,,,http://www.w3.org/ns/dcat#endpointURL,The root location of the endpoint.,DCAT,DCAT DataService / DCAT-AP-v3: required
-DataService,,serves dataset,refBack,,,,Dataset,,,,http://www.w3.org/ns/dcat#servesDataset,A collection of data that this data service can distribute.,DCAT,DCAT DataService
+DataService,,serves dataset,refBack,,,,Dataset,,servedBy,,http://www.w3.org/ns/dcat#servesDataset,A collection of data that this data service can distribute.,DCAT,DCAT DataService
 DataService,,applicable legislation,hyperlink_array,,,,,,,,http://data.europa.eu/r5r/applicableLegislation,Legislation that mandates creation or management of this item (must follow European Legislation Identifier (ELI) guidelines).,DCAT-AP-v3,DCAT-AP-v3 DataService
 DataService,,documentation,hyperlink_array,,,,,,,,http://xmlns.com/foaf/0.1/page,A page or document about this item.,DCAT-AP-v3,DCAT-AP-v3 DataService
 DataService,,format,ontology_array,,,,FileFormats,,,,http://purl.org/dc/terms/format,The structure that can be returned by querying the endpointURL.,DCAT-AP-v3,DCAT-AP-v3 DataService

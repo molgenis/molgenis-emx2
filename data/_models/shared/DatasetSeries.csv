@@ -1,5 +1,5 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,comment
-DatasetSeries,,,,,,,,,,,http://www.w3.org/ns/dcat#Dataset,DCAT dataset entries.,DCAT,
+DatasetSeries,,,,,,,,,,,http://www.w3.org/ns/dcat#DatasetSeries,DCAT dataset entries.,DCAT,
 DatasetSeries,,id,string,1,TRUE,,,,,,"http://purl.org/dc/terms/identifier,http://purl.allotrope.org/ontologies/result#AFR_0000919",Local database identifier of the dataset.,DCAT-v3,local id
 DatasetSeries,,identifier,string_array,,,,,,,,http://purl.org/dc/terms/identifier,A unique identifier of the item.,DCAT-v3,DCAT Resource / DCAT-v3: DatasetSeries table new in v3
 DatasetSeries,,type,hyperlink_array,,,,,,,,http://purl.org/dc/terms/type,A type belonging to the record,DCAT-v3,DCAT Resource / DCAT-v3: DatasetSeries table new in v3
@@ -34,7 +34,7 @@ DatasetSeries,,has part,hyperlink,,,,,,,,http://purl.org/dc/terms/hasPart,An obj
 DatasetSeries,,first,ref,,,,DatasetSeries,,,,http://www.w3.org/ns/dcat#first,The first item in an ordered collection this item belongs to (when using dcat:DataSeries).,DCAT-v3,DCAT-v3 Resource
 DatasetSeries,,last,ref,,,,DatasetSeries,,,,http://www.w3.org/ns/dcat#last,The last item in an ordered collection this item belongs to (when using dcat:DataSeries).,DCAT-v3,DCAT-v3 Resource
 DatasetSeries,,previous,ref,,,,DatasetSeries,,,,http://www.w3.org/ns/dcat#prev,The previous item in an ordered collection this item belongs to (when using dcat:DataSeries).,DCAT-v3,DCAT-v3 Resource
-DatasetSeries,,distribution,refBack,,,,Distribution,,belongsToDataset,,http://purl.org/dc/terms/distribution,"A distribution belonging to this item.",DCAT,DCAT Dataset / DCAT-v3: DatasetSeries table new in v3
+DatasetSeries,,distribution,refBack,,,,Distribution,,datasetSeries,,http://purl.org/dc/terms/distribution,"A distribution belonging to this item.",DCAT,DCAT Dataset / DCAT-v3: DatasetSeries table new in v3
 DatasetSeries,,frequency,string,,,,,,,,http://purl.org/dc/terms/accrualPeriodicity,The frequency at which dataset is published.,DCAT-v3,DCAT Dataset / DCAT-v3: DatasetSeries table new in v3
 DatasetSeries,,in series,ref,,,,DatasetSeries,,,,https://www.w3.org/ns/dcat#inSeries,A series this item belongs to.,DCAT-v3,DCAT-v3 Dataset
 DatasetSeries,,spatial coverage,ontology_array,,,,Countries,,,,http://purl.org/dc/terms/spatial,The geographical area covered by the dataset.,DCAT-v3,DCAT Dataset / DCAT-v3: DatasetSeries table new in v3
