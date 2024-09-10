@@ -68,7 +68,7 @@ const query = gql`
       numberOfParticipantsWithSamples
       designDescription
       designSchematic ${moduleToString(fileFragment)}
-      designType {
+      design {
         definition
         name
       }

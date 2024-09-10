@@ -43,7 +43,7 @@ export interface IResource {
   numberOfParticipantsWithSamples?: number;
   designDescription: string;
   designSchematic: IFile;
-  designType: {
+  design: {
     definition: string;
     name: string;
   };

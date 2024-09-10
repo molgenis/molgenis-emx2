@@ -40,6 +40,10 @@ const query = `query CataloguePage($networksFilter:ResourcesFilter,$variablesFil
           type{name,definition}
           count
         }
+        Design_groupBy:Resources_groupBy(filter:$resourceFilter) {
+          design{name}
+          count
+        }
         Subpopulations_agg(filter:{resource: $resourceFilter}) {
           count
         }
@@ -126,12 +130,12 @@ if (error.value) {
 }
 
 function percentageLongitudinal(
-  subpopulationsGroupBy: { count: number; designType: { name: string } }[],
+  subpopulationsGroupBy: { count: number; design: { name: string } }[],
   total: number
 ) {
   const nLongitudinal = subpopulationsGroupBy.reduce(
     (accum, group) =>
-      group?.designType?.name === "Longitudinal" ? accum + group.count : accum,
+      group?.design?.name === "Longitudinal" ? accum + group.count : accum,
     0
   );
 
@@ -282,10 +286,7 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
 
       <LandingCardSecondary
         icon="schedule"
-        v-if="
-          data.data.Subpopulations_groupBy &&
-          data.data.Subpopulations_agg?.count
-        "
+        v-if="data.data.Design_groupBy && data.data.Resources_agg"
       >
         <b
           >{{
@@ -294,8 +295,8 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
           }}
           {{
             percentageLongitudinal(
-              data.data.Subpopulations_groupBy,
-              data.data.Subpopulations_agg.count
+              data.data.Design_groupBy,
+              data.data.Resources_agg.count
             )
           }}%</b
         ><br />{{

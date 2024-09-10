@@ -117,7 +117,7 @@ pageFilterTemplate = pageFilterTemplate.concat([
       type: "ONTOLOGY",
       ontologyTableId: "CohortDesigns",
       ontologySchema: "CatalogueOntologies",
-      columnId: "designType",
+      columnId: "design",
     },
     conditions: [],
   },
@@ -152,7 +152,7 @@ const query = computed(() => {
       type {
           name
       }
-      designType {
+      design {
           name
       }
     }
