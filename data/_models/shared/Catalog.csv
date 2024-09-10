@@ -29,7 +29,7 @@ Catalog,,has version,ref_array,,,,Catalog,,,,http://www.w3.org/ns/dcat#hasVersio
 Catalog,,has current version,ref,,,,Catalog,,,,http://www.w3.org/ns/dcat#hasCurrentVersion,Used with an abstract item to refer to the item that represents the current version of this abstract item.,DCAT-v3,DCAT-v3 Resource
 Catalog,,replaces,hyperlink,,,,,,,,http://purl.org/dc/terms/replaces,A related item that is superseded by this item.,DCAT-v3,DCAT-v3 Resource
 Catalog,,version notes,string_array,,,,,,,,http://www.w3.org/ns/adms#versionNotes,A changelog regarding the differences between this version and the previous one.,DCAT-v3,DCAT-v3 Resource
-Catalog,,status,string,,,,,,,,http://www.w3.org/ns/adms#status,"The status of this item. Does not enforce a specific standard, though using existing standards such as 'EU Vocabularies Distribution Status' is adviced.",DCAT-v3,DCAT-v3 Resource
+Catalog,,status,ontology,,,,Status,,,,http://www.w3.org/ns/adms#status,"The status of this item. Does not enforce a specific standard, though using existing standards such as 'EU Vocabularies Distribution Status' is adviced.",DCAT-v3,DCAT-v3 Resource / custom: enforced same ontology as 'DCAT-AP-v3 Distribution'
 Catalog,,has part,hyperlink,,,,,,,,http://purl.org/dc/terms/hasPart,An object that is included in this item.,DCAT-v3,DCAT-v3 Resource
 Catalog,,first,ref,,,,Catalog,,,,http://www.w3.org/ns/dcat#first,The first item in an ordered collection this item belongs to (when using dcat:DataSeries).,DCAT-v3,DCAT-v3 Resource
 Catalog,,last,ref,,,,Catalog,,,,http://www.w3.org/ns/dcat#last,The last item in an ordered collection this item belongs to (when using dcat:DataSeries).,DCAT-v3,DCAT-v3 Resource

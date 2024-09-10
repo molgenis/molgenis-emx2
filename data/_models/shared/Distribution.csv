@@ -29,5 +29,5 @@ Distribution,,availability,ref,,,,PlannedAvailability,,,,http://data.europa.eu/r
 Distribution,,checksum,ref,,,,Checksum,,,,http://spdx.org/rdf/terms#checksum,The checksum belonging to the download URL retrievable data.,DCAT-AP-v3,DCAT-AP-v3 Distribution
 Distribution,,documentation,hyperlink_array,,,,,,,,http://xmlns.com/foaf/0.1/page,A page or document about this item.,DCAT-AP-v3,DCAT-AP-v3 Distribution
 Distribution,,language,ontology_array,,,,Languages,,,,http://purl.org/dc/terms/language,"A language of the item. This refers to the natural language used for textual metadata (i.e. titles, descriptions, etc) of a cataloged resource (i.e. dataset or service) or the textual values of a dataset distribution.",DCAT-AP-v3,DCAT-AP-v3 Distribution
-Distribution,,status,string,,,,Status,,,,http://www.w3.org/ns/adms#status,The status of this item.,DCAT-v3,DCAT-AP-v3 Distribution
+Distribution,,status,ontology,,,,Status,,,,http://www.w3.org/ns/adms#status,The status of this item.,DCAT-v3,DCAT-AP-v3 Distribution
 Distribution,,EJP_RD vpConnection,hyperlink,,,,,,,,https://w3id.org/ejp-rd/vocabulary#vpConnection,"This property must be attached to every entity that you wish the EJP-RD Virtual Platform to explore.",EJP-RD
