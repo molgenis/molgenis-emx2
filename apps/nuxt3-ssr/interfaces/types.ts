@@ -61,7 +61,8 @@ export interface IResource {
   }[];
   inclusionCriteria?: IOntologyNode[];
   otherInclusionCriteria?: string;
-  collectionEvents: IResourceCollectionEvent[];
+  collectionEvents: ICollectionEvent[];
+  collectionEvents_agg: number;
   peopleInvolved: IContributor[];
   networks: INetwork[];
   publications: IPublication[];
@@ -77,8 +78,8 @@ export interface IResource {
   datasets: { name: string }[];
   populationOncologyTopology?: IOntologyNode[];
   populationOncologyMorphology?: IOntologyNode[];
-  cohorts: any[];
-  cohorts_agg: { count: number };
+  subpopulations: any[];
+  subpopulations_agg: { count: number };
   partOfResources: IResource[];
 }
 
@@ -185,7 +186,7 @@ export interface IUrlObject {
   url: string;
 }
 
-export interface IResourceCollectionEvent {
+export interface ICollectionEvent {
   name: string;
   description: string;
   startYear: INameObject;
@@ -198,7 +199,7 @@ export interface IResourceCollectionEvent {
   areasOfInformation: ICollectionEventCategory[];
   standardizedTools: ICollectionEventCategory[];
   standardizedToolsOther: string;
-  cohorts: INameObject[];
+  subpopulations: INameObject[];
   coreVariables: string[];
 }
 

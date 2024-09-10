@@ -45,8 +45,8 @@ export async function useHeaderData() {
         method: "POST",
         body: {
           query: `
-            query ResourceDatasets($filter:ResourceDatasetsFilter) {
-              ResourceDatasets(filter:$filter){name}
+            query Datasets($filter:DatasetsFilter) {
+              Datasets(filter:$filter){name}
             }`,
           variables: {
             filter: {
@@ -63,7 +63,7 @@ export async function useHeaderData() {
             resource: { id: { equals: catalogueRouteParam } },
             dataset: {
               name: {
-                equals: datasets.data.ResourceDatasets?.map(
+                equals: datasets.data.Datasets?.map(
                   (d: { name: string }) => d.name
                 ).flat(),
               },

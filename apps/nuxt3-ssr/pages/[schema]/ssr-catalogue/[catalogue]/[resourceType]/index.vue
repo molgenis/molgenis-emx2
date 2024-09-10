@@ -28,7 +28,7 @@ let pageFilterTemplate: IFilter[] = [
     config: {
       label: "Search in resources",
       type: "SEARCH",
-      searchTables: ["collectionEvents", "cohorts"],
+      searchTables: ["collectionEvents", "subpopulations"],
       initialCollapsed: false,
     },
     search: "",

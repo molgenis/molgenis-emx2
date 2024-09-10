@@ -40,7 +40,7 @@ const query = `query CataloguePage($networksFilter:ResourcesFilter,$variablesFil
           type{name,definition}
           count
         }
-        ResourceCohorts_agg(filter:{resource: $resourceFilter}) {
+        Subpopulations_agg(filter:{resource: $resourceFilter}) {
           count
         }
         _settings (keys: [
@@ -126,10 +126,10 @@ if (error.value) {
 }
 
 function percentageLongitudinal(
-  cohortsGroupBy: { count: number; designType: { name: string } }[],
+  subpopulationsGroupBy: { count: number; designType: { name: string } }[],
   total: number
 ) {
-  const nLongitudinal = cohortsGroupBy.reduce(
+  const nLongitudinal = subpopulationsGroupBy.reduce(
     (accum, group) =>
       group?.designType?.name === "Longitudinal" ? accum + group.count : accum,
     0
@@ -213,7 +213,7 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
         "
       />
       <LandingCardPrimary
-        v-if="data.data.Variables_agg.count > 0 && !cohortOnly"
+        v-if="data.data.Variables_agg?.count > 0 && !cohortOnly"
         image="image-diagram-2"
         title="Variables"
         :description="
@@ -282,7 +282,10 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
 
       <LandingCardSecondary
         icon="schedule"
-        v-if="data.data.Cohorts_groupBy && data.data.Cohorts_agg.count"
+        v-if="
+          data.data.Subpopulations_groupBy &&
+          data.data.Subpopulations_agg?.count
+        "
       >
         <b
           >{{
@@ -291,8 +294,8 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
           }}
           {{
             percentageLongitudinal(
-              data.data.Resources_groupBy,
-              data.data.Resources_agg.count
+              data.data.Subpopulations_groupBy,
+              data.data.Subpopulations_agg.count
             )
           }}%</b
         ><br />{{
@@ -304,10 +307,10 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
 
       <LandingCardSecondary
         icon="viewTable"
-        v-if="data.data.ResourceCohorts_agg.count"
+        v-if="data.data.Subpopulations?.count"
       >
         <b>
-          {{ data.data.ResourceCohorts_agg.count }}
+          {{ data.data.Subpopulations_agg.count }}
           {{
             getSettingValue("CATALOGUE_LANDING_COHORTS_LABEL", settings) ||
             "Cohorts"

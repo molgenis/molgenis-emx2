@@ -33,7 +33,7 @@ if (error.value) {
 }
 
 const collectionEvent: any = computed(
-  () => data.value.data.ResourceCollectionEvents[0]
+  () => data.value.data.CollectionEvents[0]
 );
 
 const pageCrumbs: any = {
@@ -52,10 +52,10 @@ const toName = (item: any) => item.name;
 
 const items: IDefinitionListItem[] = [];
 
-if (collectionEvent.value?.cohorts?.length) {
+if (collectionEvent.value?.subpopulations?.length) {
   items.push({
-    label: "Cohorts",
-    content: renderList(collectionEvent.value?.cohorts, toName),
+    label: "Subpopulations",
+    content: renderList(collectionEvent.value?.subpopulations, toName),
   });
 }
 

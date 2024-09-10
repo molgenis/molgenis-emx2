@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { gql } from "graphql-request";
-import cohortsQuery from "~~/gql/cohorts";
+import subpopulationsQuery from "~~/gql/subpopulations";
 import collectionEventsQuery from "~~/gql/collectionEvents";
 import datasetQuery from "~~/gql/datasets";
 import ontologyFragment from "~~/gql/fragments/ontology";
@@ -100,7 +100,7 @@ const query = gql`
         dataCategories ${moduleToString(ontologyFragment)}
         sampleCategories ${moduleToString(ontologyFragment)}
         areasOfInformation ${moduleToString(ontologyFragment)}
-        cohorts {
+        subpopulations {
           name
         }
         coreVariables
@@ -131,11 +131,11 @@ const query = gql`
         role ${moduleToString(ontologyFragment)}
         country ${moduleToString(ontologyFragment)}
       }
-      cohorts {
+      subpopulations {
           name
           mainMedicalCondition ${moduleToString(ontologyFragment)}
       }
-      cohorts_agg {
+      subpopulations_agg {
             count
       }
       dataAccessConditions ${moduleToString(ontologyFragment)}
@@ -191,12 +191,12 @@ if (error.value) {
 }
 
 const resource = computed(() => data.value?.data?.Resources[0] as IResource);
-const cohorts = computed(() => resource.value.cohorts as any[]);
+const subpopulations = computed(() => resource.value.subpopulations as any[]);
 const mainMedicalConditions = computed(() => {
-  if (!cohorts.value || !cohorts.value.length) {
+  if (!subpopulations.value || !subpopulations.value.length) {
     return [];
   } else {
-    const allItems = cohorts.value
+    const allItems = subpopulations.value
       .map((s: { mainMedicalCondition?: IOntologyItem[] }) => {
         const combinedItems = s.mainMedicalCondition
           ? s.mainMedicalCondition
@@ -214,7 +214,9 @@ const mainMedicalConditions = computed(() => {
 const collectionEventCount = computed(
   () => resource.value.collectionEvents_agg?.count
 );
-const cohortCount = computed(() => resource.value.cohorts_agg?.count);
+const subpopulationCount = computed(
+  () => resource.value.subpopulations_agg?.count
+);
 
 function collectionEventMapper(item: any) {
   return {
@@ -241,14 +243,14 @@ function datasetMapper(item: { name: string; description?: string }) {
   };
 }
 
-function cohortMapper(cohort: any) {
+function subpopulationMapper(subpopulation: any) {
   return {
-    id: cohort.name,
-    name: cohort.name,
-    description: cohort.description,
-    numberOfParticipants: cohort.numberOfParticipants,
-    _renderComponent: "CohortDisplay",
-    _path: `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/resources/${route.params.resource}/cohorts/${cohort.name}`,
+    id: subpopulation.name,
+    name: subpopulation.name,
+    description: subpopulation.description,
+    numberOfParticipants: subpopulation.numberOfParticipants,
+    _renderComponent: "SubpopulationDisplay",
+    _path: `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/resources/${route.params.resource}/subpopulations/${subpopulation.name}`,
   };
 }
 
@@ -282,8 +284,11 @@ let tocItems = computed(() => {
     });
   }
   // { label: 'Variables & topics', id: 'Variables' },
-  if (cohortCount.value ?? 0 > 0) {
-    tableOffContents.push({ label: "Cohorts", id: "Cohorts" });
+  if (subpopulationCount.value ?? 0 > 0) {
+    tableOffContents.push({
+      label: "Subpopulations",
+      id: "CohorSubpopulationsts",
+    });
   }
   if (collectionEventCount.value ?? 0 > 0) {
     tableOffContents.push({
@@ -613,6 +618,7 @@ const activeOrganization = computed(() => {
           title="Variables &amp; Topics"
           description="Explantation about variables and the functionality seen here."
         /> -->
+
         <ContentBlockData
           id="AvailableData"
           title="Available Data &amp; Samples"
@@ -620,22 +626,22 @@ const activeOrganization = computed(() => {
         />
 
         <TableContent
-          v-if="cohortCount ?? 0 > 0"
+          v-if="subpopulationCount ?? 0 > 0"
           id="Subpopulations"
-          title="Cohorts"
-          description="List of cohorts or populations for this resource"
+          title="Subpopulations"
+          description="List of subpopulations for this resource"
           :headers="[
             { id: 'name', label: 'Name' },
             { id: 'description', label: 'Description', singleLine: true },
             { id: 'numberOfParticipants', label: 'Number of participants' },
           ]"
-          type="ResourceCohorts"
-          :query="cohortsQuery"
+          type="Subpopulations"
+          :query="subpopulationsQuery"
           :filter="{ id: route.params.resource }"
-          :rowMapper="cohortMapper"
+          :rowMapper="subpopulationMapper"
           v-slot="slotProps"
         >
-          <CohortDisplay :id="slotProps.id" />
+          <SubpopulationDisplay :id="slotProps.id" />
         </TableContent>
 
         <TableContent
@@ -653,7 +659,7 @@ const activeOrganization = computed(() => {
               orderByColumn: 'startYear',
             },
           ]"
-          type="ResourceCollectionEvents"
+          type="CollectionEvents"
           :query="collectionEventsQuery"
           :filter="{ id: route.params.resource }"
           :rowMapper="collectionEventMapper"
@@ -671,7 +677,7 @@ const activeOrganization = computed(() => {
             { id: 'name', label: 'Name' },
             { id: 'description', label: 'Description', singleLine: true },
           ]"
-          type="ResourceDatasets"
+          type="Datasets"
           :query="datasetQuery"
           :filter="{ id: route.params.resource }"
           :rowMapper="datasetMapper"

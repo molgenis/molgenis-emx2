@@ -20,17 +20,6 @@ const menu = [
     link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}`,
   },
 ];
-if (catalogueRouteParam === "all" || props.catalogue.resources_agg?.count > 0)
-  menu.push({
-    label: "resources",
-    link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/resources`,
-  });
-if (!cohortOnly.value && props.variableCount > 0)
-  menu.push({
-    label: "Variables",
-    link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/variables`,
-  });
-
 if (props.catalogue.resources_groupBy?.length) {
   props.catalogue.resources_groupBy.forEach(
     (sub: { type: { name: string }; count: string }) => {
@@ -44,6 +33,11 @@ if (props.catalogue.resources_groupBy?.length) {
     }
   );
 }
+if (!cohortOnly.value && props.variableCount > 0)
+  menu.push({
+    label: "Variables",
+    link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/variables`,
+  });
 
 if (cohortOnly.value) {
   menu.push({

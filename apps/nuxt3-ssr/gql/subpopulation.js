@@ -1,7 +1,7 @@
 import gql from "graphql-tag";
 export default gql`
-  query ResourceCohort($id: String, $name: String) {
-    ResourceCohorts(
+  query Subpopulations($id: String, $name: String) {
+    Subpopulations(
       filter: { resource: { id: { equals: [$id] } }, name: { equals: [$name] } }
     ) {
       resource {

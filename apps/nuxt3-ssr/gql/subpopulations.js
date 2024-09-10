@@ -1,12 +1,12 @@
 import gql from "graphql-tag";
 export default gql`
-  query ResourceCohorts(
+  query Subpopulations(
     $id: String
     $limit: Int
     $offset: Int
-    $orderby: ResourceCohortsorderby
+    $orderby: Subpopulationsorderby
   ) {
-    ResourceCohorts(
+    Subpopulations(
       limit: $limit
       offset: $offset
       filter: { resource: { id: { equals: [$id] } } }
@@ -19,7 +19,7 @@ export default gql`
       description
       numberOfParticipants
     }
-    ResourceCohorts_agg(filter: { resource: { id: { equals: [$id] } } }) {
+    Subpopulations_agg(filter: { resource: { id: { equals: [$id] } } }) {
       count
     }
   }

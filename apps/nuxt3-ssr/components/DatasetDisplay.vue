@@ -19,7 +19,7 @@ const { data } = await useFetch(`/${route.params.schema}/graphql`, {
 });
 
 const dataset = computed(() => {
-  return data.value.data.ResourceDatasets[0];
+  return data.value.data.Datasets[0];
 });
 
 const items: IDefinitionListItem[] = [];

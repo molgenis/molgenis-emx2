@@ -158,7 +158,7 @@ function percentageLongitudinal(
       <LandingCardSecondary
         icon="people"
         title="Cohorts"
-        :count="data.data.CollectionCohorts_agg.count"
+        :count="data.data.Subpopopulations_agg.count"
       >
         {{ "Percentage of longitudinal datasets." }}
       </LandingCardSecondary>
