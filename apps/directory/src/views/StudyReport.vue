@@ -42,7 +42,7 @@
 
 <script setup>
 import { Breadcrumb, Spinner } from "molgenis-components";
-import { computed, ref, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import ReportStudyDetails from "../components/report-components/ReportStudyDetails.vue";
 import StudyReportInfoCard from "../components/report-components/StudyReportInfoCard.vue";
@@ -60,10 +60,6 @@ const study = ref({});
 let loaded = ref(false);
 
 loadStudyReport(route.params.id);
-
-watch(route, async (route) => {
-  loadStudyReport(route.params.id);
-});
 
 const uiText = computed(() => settingsStore.uiText);
 
