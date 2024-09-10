@@ -75,7 +75,7 @@ export default defineComponent({
     accessTokens(): string[] {
       const tokens: ISetting | undefined = this.session?.settings?.find(
         (setting: ISetting): boolean =>
-          setting.key === "access-tokes" && Boolean(setting.value)
+          setting.key === "access-tokens" && Boolean(setting.value)
       );
       return tokens
         ? tokens.value
