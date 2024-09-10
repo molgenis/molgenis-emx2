@@ -9,8 +9,8 @@
         </li>
       </ul>
     </div>
-    <MessageSuccess v-if="successMessage"
-      >{{ successMessage }}.
+    <MessageSuccess v-if="successMessage">
+      {{ successMessage }}.
       <div v-if="lastTokenValue">
         <label><b>New token. Please copy for use</b></label>
         <pre>{{ lastTokenValue }}</pre>
@@ -19,14 +19,20 @@
     <MessageError v-if="errorMessage">{{ errorMessage }}</MessageError>
     <label><b>Create a token</b></label>
     <form class="form-inline">
+      <ButtonAction
+        v-if="tokenName"
+        :key="tokenName"
+        :disabled="Boolean(duplicateNameMessage)"
+        @click="createToken"
+      >
+        Create token
+      </ButtonAction>
       <InputString
         id="token-name"
         placeholder="new token name"
         v-model="tokenName"
+        :errorMessage="duplicateNameMessage"
       />
-      <ButtonAction v-if="tokenName" :key="tokenName" @click="createToken"
-        >Create token
-      </ButtonAction>
     </form>
   </div>
 </template>
@@ -65,10 +71,11 @@ export default defineComponent({
   data() {
     return {
       session: null as null | ISession,
-      tokenName: null as null | string,
-      lastTokenValue: null as null | string,
-      errorMessage: null as null | string,
-      successMessage: null as null | string,
+      tokenName: "",
+      lastTokenValue: "",
+      errorMessage: "",
+      successMessage: "",
+      duplicateNameMessage: "",
     };
   },
   computed: {
@@ -84,15 +91,24 @@ export default defineComponent({
         : [];
     },
   },
+  watch: {
+    tokenName() {
+      if (this.accessTokens.includes(this.tokenName)) {
+        this.duplicateNameMessage = "Duplicate token name";
+      } else {
+        this.duplicateNameMessage = "";
+      }
+    },
+  },
   methods: {
     async fetchSession() {
       const resp: IResponse = await request("/api/graphql", query);
       this.session = resp._session;
     },
     clean() {
-      this.errorMessage = null;
-      this.successMessage = null;
-      this.lastTokenValue = null;
+      this.errorMessage = "";
+      this.successMessage = "";
+      this.lastTokenValue = "";
     },
     async deleteToken(idx: number) {
       this.clean();
@@ -113,7 +129,7 @@ export default defineComponent({
       request("/api/graphql", changeMutation, variables)
         .then(() => {
           this.successMessage = "Token removed";
-          this.lastTokenValue = null;
+          this.lastTokenValue = "";
           this.fetchSession();
         })
         .catch((error: IError) => {
@@ -130,7 +146,7 @@ export default defineComponent({
         .then((result: { createToken: { message: string; token: string } }) => {
           this.successMessage = result.createToken.message;
           this.lastTokenValue = result.createToken.token;
-          this.tokenName = null;
+          this.tokenName = "";
           this.fetchSession();
         })
         .catch((error: IError) => {
