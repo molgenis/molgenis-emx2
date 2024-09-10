@@ -16,7 +16,7 @@ const initialStudyColumns = [
   {
     label: "Also Known In:",
     column: { also_known: ["name_system", "url"] },
-    type: "xref",
+    type: "object",
   },
 ];
 

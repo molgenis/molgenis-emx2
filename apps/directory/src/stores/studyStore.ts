@@ -1,4 +1,5 @@
 import { defineStore } from "pinia";
+//@ts-ignore
 import { QueryEMX2 } from "molgenis-components";
 import { useSettingsStore } from "./settingsStore";
 
@@ -16,28 +17,27 @@ export const useStudyStore = defineStore("studyStore", () => {
     const rangeProperties = studyColumns.filter(
       (column) => column.type === "range"
     );
-
     for (const property of rangeProperties) {
       properties.push(property.min, property.max, property.unit_column);
     }
-
     return properties;
   }
 
-  async function getStudyReport(id) {
+  async function getStudyReport(id: string) {
+    console.log(getStudyColumns());
     const studyReportQuery = new QueryEMX2(graphqlEndpoint)
       .table("Studies")
       .select(getStudyColumns())
       .orderBy("Studies", "id", "asc")
       .where("id")
       .like(id);
+    console.log(studyReportQuery);
     const reportResults = await studyReportQuery.execute();
 
     return reportResults;
   }
 
   return {
-    getStudyColumns,
     getStudyReport,
   };
 });
