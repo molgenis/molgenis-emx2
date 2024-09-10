@@ -15,6 +15,7 @@ Scripts can have the following:
 * outputFileExtension, optional, for returning output files. E.g. 'txt'
 * disabled, when true scripts cannot be run
 * cron, will schedule the script to run at planned intervals
+* failureAddress, when set, will send a message to this email address, if a job fails
 
 Your script will receive as environment variables:
 

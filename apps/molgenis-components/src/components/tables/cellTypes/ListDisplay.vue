@@ -44,7 +44,7 @@
       <component
         :is="cellTypeComponentName"
         :data="listItem"
-        :metaData="metaData"
+        :metadata="metadata"
       ></component>
     </div>
   </div>
@@ -77,7 +77,7 @@ export default {
       type: [Array],
       required: true,
     },
-    metaData: {
+    metadata: {
       type: Object,
       required: true,
     },
@@ -89,7 +89,7 @@ export default {
   },
   computed: {
     cellTypeComponentName() {
-      return typeMap[this.metaData.columnType] || "StringDisplay";
+      return typeMap[this.metadata.columnType] || "StringDisplay";
     },
     visibleListItems() {
       return this.isFolded ? this.data.slice(0, this.foldCuttOff) : this.data;

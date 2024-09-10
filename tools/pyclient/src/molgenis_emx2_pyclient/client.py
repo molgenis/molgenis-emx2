@@ -1,5 +1,6 @@
 import csv
 import io
+import json
 import logging
 import pathlib
 import time
@@ -36,13 +37,15 @@ class Client:
         self._as_context_manager = False
         self._token = token
 
-        self.url: str = utils.parse_url(url)
+        self.url: str = url
         self.api_graphql = self.url + "/api/graphql"
 
         self.signin_status: str = 'unknown'
         self.username: str | None = None
 
         self.session: requests.Session = requests.Session()
+        self.session.headers = {'x-molgenis-token': self.token}
+        self._validate_url()
 
         self.schemas: list = self.get_schemas()
         self.default_schema: str = self.set_schema(schema)
@@ -165,8 +168,7 @@ class Client:
 
         response = self.session.post(
             url=self.api_graphql,
-            json={'query': query},
-            headers={'x-molgenis-token': self.token}
+            json={'query': query}
         )
         self._validate_graphql_response(response)
 
@@ -233,8 +235,7 @@ class Client:
 
         response = self.session.post(
             url=f"{self.url}/{current_schema}/api/csv/{table_id}",
-            headers={'x-molgenis-token': self.token,
-                     'Content-Type': 'text/csv'},
+            headers={'Content-Type': 'text/csv'},
             data=import_data
         )
 
@@ -246,7 +247,7 @@ class Client:
             log.error("Failed to import data into %s::%s\n%s", current_schema, table, errors)
             raise PyclientException(errors)
 
-    def upload_file(self, file_path: str | pathlib.Path, schema: str = None):
+    async def upload_file(self, file_path: str | pathlib.Path, schema: str = None):
         """Uploads a file to a database on the EMX2 server.
 
         :param file_path: the path where the file is located.
@@ -279,8 +280,7 @@ class Client:
         with open(file_path, 'rb') as file:
             response = self.session.post(
                 url=api_url,
-                files={'file': file},
-                headers={'x-molgenis-token': self.token}
+                files={'file': file}
             )
 
         # Check if status is OK
@@ -294,49 +294,9 @@ class Client:
         # Catch process URL
         process_id = response.json().get('id')
 
-        # Report subtask progress
-        p_response = self.session.post(
-            url=self.api_graphql,
-            json={'query': queries.task_status(process_id)}
-        )
-        if p_response.status_code != 200:
-            raise PyclientException("Error uploading file")
+        # Report on task progress
+        await self._report_task_progress(process_id)
 
-        reported_tasks = []
-        task = p_response.json().get('data').get('_tasks')[0]
-        while (status := task.get('status')) != 'COMPLETED':
-            if status == 'ERROR':
-                # TODO improve error handling
-                raise PyclientException(f"Error uploading file: {task.get('description')}")
-            subtasks = task.get('subTasks', [])
-            for st in subtasks:
-                if st['id'] not in reported_tasks and st['status'] == 'RUNNING':
-                    log.info(f"Subtask: {st['description']}")
-                    reported_tasks.append(st['id'])
-                if st['id'] not in reported_tasks and st['status'] == 'SKIPPED':
-                    log.warning(f"    Subtask: {st['description']}")
-                    reported_tasks.append(st['id'])
-                for sst in st.get('subTasks', []):
-                    if sst['id'] not in reported_tasks and sst['status'] == 'COMPLETED':
-                        log.info(f"    Subsubtask: {sst['description']}")
-                        reported_tasks.append(sst['id'])
-                    if sst['id'] not in reported_tasks and sst['status'] == 'SKIPPED':
-                        log.warning(f"    Subsubtask: {sst['description']}")
-                        reported_tasks.append(sst['id'])
-            try:
-                p_response = self.session.post(
-                    url=self.api_graphql,
-                    json={'query': queries.task_status(process_id)}
-                )
-                task = p_response.json().get('data').get('_tasks')[0]
-            except AttributeError:
-                time.sleep(1)
-                p_response = self.session.post(
-                    url=self.api_graphql,
-                    json={'query': queries.task_status(process_id)}
-                )
-                task = p_response.json().get('data').get('_tasks')[0]
-        log.info(f"Completed task: {task.get('description')}")
 
     def _upload_csv(self, file_path: pathlib.Path, schema: str) -> str:
         """Uploads the CSV file from the filename to the schema. Returns the success or error message."""
@@ -350,8 +310,7 @@ class Client:
         response = self.session.post(
             url=api_url,
             data=data,
-            headers={'x-molgenis-token': self.token,
-                     'Content-Type': 'text/csv'}
+            headers={'Content-Type': 'text/csv'}
         )
         if response.status_code == 200:
             msg = response.text
@@ -394,8 +353,7 @@ class Client:
 
         response = self.session.delete(
             url=f"{self.url}/{current_schema}/api/csv/{table_id}",
-            headers={'x-molgenis-token': self.token,
-                     'Content-Type': 'text/csv'},
+            headers={'Content-Type': 'text/csv'},
             data=import_data
         )
 
@@ -408,12 +366,14 @@ class Client:
             errors = '\n'.join([err['message'] for err in response.json().get('errors')])
             log.error("Failed to delete data from %s::%s\n%s.", current_schema, table, errors)
 
-    def get(self, table: str, schema: str = None, as_df: bool = False) -> list | pd.DataFrame:
+    def get(self, table: str, query_filter: str = None, schema: str = None, as_df: bool = False) -> list | pd.DataFrame:
         """Retrieves data from a schema and returns as a list of dictionaries or as
         a pandas DataFrame (as pandas is used to parse the response).
 
         :param schema: name of a schema
         :type schema: str
+        :param query_filter: the query to filter the output
+        :type query_filter: str
         :param table: the name of the table
         :type table: str
         :param as_df: if True, the response will be returned as a
@@ -436,8 +396,9 @@ class Client:
         schema_metadata: Schema = self.get_schema_metadata(current_schema)
         table_id = schema_metadata.get_table(by='name', value=table).id
 
-        response = self.session.get(url=f"{self.url}/{current_schema}/api/csv/{table_id}",
-                                    headers={'x-molgenis-token': self.token})
+        filter_part = self._prepare_filter(query_filter, table, schema)
+        query_url = f"{self.url}/{current_schema}/api/csv/{table_id}{filter_part}"
+        response = self.session.get(url=query_url)
 
         self._validate_graphql_response(response=response,
                                         fallback_error_message=f"Failed to retrieve data from {current_schema}::"
@@ -449,7 +410,7 @@ class Client:
             return response_data.to_dict('records')
         return response_data
 
-    def export(self, schema: str = None, table: str = None, fmt: OutputFormat = 'csv'):
+    async def export(self, schema: str = None, table: str = None, fmt: OutputFormat = 'csv'):
         """Exports data from a schema to a file in the desired format.
 
         :param schema: the name of the schema
@@ -473,8 +434,7 @@ class Client:
             if table is None:
                 # Export the whole schema
                 url = f"{self.url}/{current_schema}/api/excel"
-                response = self.session.get(url=url,
-                                            headers={'x-molgenis-token': self.token})
+                response = self.session.get(url=url)
                 self._validate_graphql_response(response)
 
                 filename = f"{current_schema}.xlsx"
@@ -485,8 +445,7 @@ class Client:
                 # Export the single table
                 table_id = schema_metadata.get_table(by='name', value=table).id
                 url = f"{self.url}/{current_schema}/api/excel/{table_id}"
-                response = self.session.get(url=url,
-                                            headers={'x-molgenis-token': self.token})
+                response = self.session.get(url=url)
                 self._validate_graphql_response(response)
 
                 filename = f"{table}.xlsx"
@@ -497,8 +456,7 @@ class Client:
         if fmt == 'csv':
             if table is None:
                 url = f"{self.url}/{current_schema}/api/zip"
-                response = self.session.get(url=url,
-                                            headers={'x-molgenis-token': self.token})
+                response = self.session.get(url=url)
                 self._validate_graphql_response(response)
 
                 filename = f"{current_schema}.zip"
@@ -509,8 +467,7 @@ class Client:
                 # Export the single table
                 table_id = schema_metadata.get_table(by='name', value=table).id
                 url = f"{self.url}/{current_schema}/api/csv/{table_id}"
-                response = self.session.get(url=url,
-                                            headers={'x-molgenis-token': self.token})
+                response = self.session.get(url=url)
                 self._validate_graphql_response(response)
 
                 filename = f"{table}.csv"
@@ -518,10 +475,10 @@ class Client:
                     file.write(response.content)
                 log.info("Exported data from table %s in schema %s to '%s'.", table, current_schema, filename)
 
-    def create_schema(self, name: str = None,
+    async def create_schema(self, name: str = None,
                       description: str = None,
                       template: str = None,
-                      include_demo_data: bool = None):
+                      include_demo_data: bool = False):
         """Creates a new schema on the EMX2 server.
 
         :param name: the name of the new schema
@@ -545,8 +502,7 @@ class Client:
 
         response = self.session.post(
             url=self.api_graphql,
-            json={'query': query, 'variables': variables},
-            headers={'x-molgenis-token': self.token}
+            json={'query': query, 'variables': variables}
         )
 
         self._validate_graphql_response(
@@ -554,10 +510,18 @@ class Client:
             mutation='createSchema',
             fallback_error_message=f"Failed to create schema {name!r}"
         )
+
+        # Catch process URL
+        process_id = response.json().get('data').get('createSchema').get('taskId')
+
+        if process_id:
+            # Report on task progress
+            await self._report_task_progress(process_id)
+
         self.schemas = self.get_schemas()
         log.info(f"Created schema {name!r}")
 
-    def delete_schema(self, name: str = None):
+    async def delete_schema(self, name: str = None):
         """Deletes a schema from the EMX2 server.
 
         :param name: the name of the new schema
@@ -575,8 +539,7 @@ class Client:
 
         response = self.session.post(
             url=self.api_graphql,
-            json={'query': query, 'variables': variables},
-            headers={'x-molgenis-token': self.token}
+            json={'query': query, 'variables': variables}
         )
 
         self._validate_graphql_response(
@@ -607,8 +570,7 @@ class Client:
 
         response = self.session.post(
             url=self.api_graphql,
-            json={'query': query, 'variables': variables},
-            headers={'x-molgenis-token': self.token}
+            json={'query': query, 'variables': variables}
         )
 
         self._validate_graphql_response(
@@ -618,7 +580,7 @@ class Client:
         )
         self.schemas = self.get_schemas()
 
-    def recreate_schema(self, name: str = None,
+    async def recreate_schema(self, name: str = None,
                         description: str = None,
                         template: str = None,
                         include_demo_data: bool = None):
@@ -646,8 +608,8 @@ class Client:
         schema_description = description if description else schema_meta.get('description', None)
 
         try:
-            self.delete_schema(name=current_schema)
-            self.create_schema(
+            await self.delete_schema(name=current_schema)
+            await self.create_schema(
                 name=current_schema,
                 description=schema_description,
                 template=template,
@@ -692,11 +654,160 @@ class Client:
         metadata = Schema(**response_json.get('data').get('_schema'))
         return metadata
 
+    def _prepare_filter(self, expr: str, _table: str, _schema: str) -> str:
+        """Prepares a GraphQL filter based on the expression passed into `get`."""
+        if expr in [None, ""]:
+            return ""
+        statements = expr.split(' and ')
+        _filter = dict()
+        for stmt in statements:
+            if '==' in stmt:
+                _filter.update(**self.__prepare_equals_filter(stmt, _table, _schema))
+            elif '>' in stmt:
+                _filter.update(**self.__prepare_greater_filter(stmt, _table, _schema))
+            elif '<' in stmt:
+                _filter.update(**self.__prepare_smaller_filter(stmt, _table, _schema))
+            elif '!=' in stmt:
+                _filter.update(**self.__prepare_unequal_filter(stmt, _table, _schema))
+            elif 'between' in stmt:
+                _filter.update(**self.__prepare_between_filter(stmt, _table, _schema))
+            else:
+                raise ValueError(f"Cannot process statement {stmt!r}, "
+                                 f"ensure specifying one of the operators '==', '>', '<', '!=', 'between' "
+                                 f"in your statement.")
+        return "?filter=" + json.dumps(_filter)
+
+    def __prepare_equals_filter(self, stmt: str, _table: str, _schema: str) -> dict:
+        """Prepares the filter part if the statement filters on equality."""
+        _col = stmt.split('==')[0].strip()
+        _val = stmt.split('==')[1].strip()
+
+        col_id = ''.join(_col.split('`'))
+
+        if '.' in col_id:
+            return self.__prepare_nested_filter(col_id, _val, "equals")
+
+        schema = self.get_schema_metadata(_schema)
+        col = schema.get_table(by='name', value=_table).get_column(by='id', value=col_id)
+        match col.get('columnType'):
+            case 'BOOL':
+                val = False
+                if str(_val).lower() == 'true':
+                    val = True
+            case _:
+                try:
+                    val = json.loads(''.join(_val.split('`')).replace("'", '"'))
+                except json.decoder.JSONDecodeError:
+                    val = ''.join(_val.split('`'))
+
+        return {col.id: {'equals': val}}
+
+    def __prepare_greater_filter(self, stmt: str, _table: str, _schema: str) -> dict:
+        """Prepares the filter part if the statement filters on greater than."""
+        exclusive = '=' not in stmt
+        stmt = stmt.replace('=', '')
+
+        _col = stmt.split('>')[0].strip()
+        _val = stmt.split('>')[1].strip()
+
+        col_id = ''.join(_col.split('`'))
+
+        schema = self.get_schema_metadata(_schema)
+        col = schema.get_table(by='name', value=_table).get_column(by='id', value=col_id)
+
+        match col.get('columnType'):
+            case 'INT':
+                val = int(_val) + 1 * exclusive
+            case 'DECIMAL':
+                val = float(_val) + 0.0000001 * exclusive
+            case _:
+                raise NotImplementedError(f"Cannot perform filter '>' on column with type {col.get('columnType')}.")
+
+        return {col.id: {"between": [val, None]}}
+
+    def __prepare_smaller_filter(self, stmt: str, _table: str, _schema: str) -> dict:
+        """Prepares the filter part if the statement filters on greater than."""
+        exclusive = '=' not in stmt
+        stmt = stmt.replace('=', '')
+
+        _col = stmt.split('<')[0].strip()
+        _val = stmt.split('<')[1].strip()
+
+        col_id = ''.join(_col.split('`'))
+
+        schema = self.get_schema_metadata(_schema)
+        col = schema.get_table(by='name', value=_table).get_column(by='id', value=col_id)
+
+        match col.get('columnType'):
+            case 'INT':
+                val = int(_val) - 1 * exclusive
+            case 'DECIMAL':
+                val = float(_val) - 0.0000001 * exclusive
+            case _:
+                raise NotImplementedError(f"Cannot perform filter '<' on column with type {col.get('columnType')}.")
+
+        return {col.id: {"between": [None, val]}}
+
+    def __prepare_unequal_filter(self, stmt: str, _table: str, _schema: str) -> dict:
+        """Prepares the filter part if the statement filters on greater than."""
+        _col = stmt.split('!=')[0].strip()
+        _val = stmt.split('!=')[1].strip()
+
+        col_id = ''.join(_col.split('`'))
+
+        if '.' in col_id:
+            return self.__prepare_nested_filter(col_id, _val, "not_equals")
+
+        schema = self.get_schema_metadata(_schema)
+        col = schema.get_table(by='name', value=_table).get_column(by='id', value=col_id)
+
+        match col.get('columnType'):
+            case _:
+                try:
+                    val = json.loads(''.join(_val.split('`')).replace("'", '"'))
+                except json.decoder.JSONDecodeError:
+                    val = ''.join(_val.split('`'))
+
+        return {col.id: {"not_equals": val}}
+
+    def __prepare_between_filter(self, stmt: str, _table: str, _schema: str) -> dict:
+        """Prepares the filter part if values between a certain range are requested."""
+        stmt.replace('=', '')
+        _col = stmt.split('between')[0].strip()
+        _val = stmt.split('between')[1].strip()
+
+        try:
+            val = json.loads(_val)
+        except json.decoder.JSONDecodeError as e:
+            msg = ("To filter on values between a and b, supply them as a list, [a, b]. "
+                   "Ensure the values for a and b are numeric.")
+            raise ValueError(msg)
+        col_id = ''.join(_col.split('`'))
+
+        schema = self.get_schema_metadata(_schema)
+        col = schema.get_table(by='name', value=_table).get_column(by='id', value=col_id)
+        if (col_type := col.get('columnType')) not in ['INT', 'DECIMAL']:
+            raise NotImplementedError(f"The filter 'between' is not implemented for columns of type {col_type!r}.")
+
+        return {col.id: {'between': val}}
+
+    @staticmethod
+    def __prepare_nested_filter(columns: str, value: str | int | float | list, comparison: str):
+        _filter = {}
+        current = _filter
+        for (i, segment) in enumerate(columns.split('.')[:-1]):
+            current[segment] = {}
+            current = current[segment]
+        last_segment = columns.split('.')[-1]
+        current[last_segment] = {comparison: value}
+        return _filter
+
     @staticmethod
     def _prep_data_or_file(file_path: str = None, data: list | pd.DataFrame = None) -> str | None:
         """Prepares the data from memory or loaded from disk for addition or deletion action.
 
         :param file_path: path to the file to be prepared
+        :type file_path: str
         :type file_path: str
         :param data: data to be prepared
         :type data: list
@@ -734,6 +845,59 @@ class Client:
 
         return name
 
+    async def _report_task_progress(self, process_id: int | str):
+        """Reports on the progress of a task and its subtasks."""
+
+        # Report subtask progress
+        p_response = self.session.post(
+            url=self.api_graphql,
+            json={'query': queries.task_status(process_id)}
+        )
+
+        reported_tasks = []
+        task = p_response.json().get('data').get('_tasks')[0]
+        while (status := task.get('status')) != 'COMPLETED':
+            if status == 'ERROR':
+                raise PyclientException(f"Error uploading file: {task.get('description')}")
+            subtasks = task.get('subTasks', [])
+            for st in subtasks:
+                if st['id'] not in reported_tasks and st['status'] == 'RUNNING':
+                    log.info(f"{st['description']}")
+                    reported_tasks.append(st['id'])
+                if st['id'] not in reported_tasks and st['status'] == 'SKIPPED':
+                    log.warning(f"    {st['description']}")
+                    reported_tasks.append(st['id'])
+                for sst in st.get('subTasks', []):
+                    if sst['id'] not in reported_tasks and sst['status'] == 'COMPLETED':
+                        log.info(f"    {sst['description']}")
+                        reported_tasks.append(sst['id'])
+                    if sst['id'] not in reported_tasks and sst['status'] == 'SKIPPED':
+                        log.warning(f"    {sst['description']}")
+                        reported_tasks.append(sst['id'])
+                    for ssst in sst.get('subTasks', []):
+                        if ssst['id'] not in reported_tasks and ssst['status'] == 'COMPLETED':
+                            log.info(f"        {ssst['description']}")
+                            reported_tasks.append(ssst['id'])
+                        if ssst['id'] not in reported_tasks and ssst['status'] == 'SKIPPED':
+                            log.warning(f"        {ssst['description']}")
+                            reported_tasks.append(ssst['id'])
+            try:
+                p_response = self.session.post(
+                    url=self.api_graphql,
+                    json={'query': queries.task_status(process_id)}
+                )
+                task = p_response.json().get('data').get('_tasks')[0]
+            except AttributeError as ae:
+                log.debug(ae)
+                time.sleep(1)
+                p_response = self.session.post(
+                    url=self.api_graphql,
+                    json={'query': queries.task_status(process_id)}
+                )
+                task = p_response.json().get('data').get('_tasks')[0]
+        log.info(f"Completed task: {task.get('description')}")
+
+
     def _validate_graphql_response(self, response: Response, mutation: str = None, fallback_error_message: str = None):
         """Validates a GraphQL response and prints the appropriate message.
 
@@ -757,6 +921,12 @@ class Client:
                 raise InvalidTokenException("Invalid token or token expired.")
             if 'permission denied' in response.text:
                 raise PermissionDeniedException(f"Transaction failed: permission denied.")
+            if 'Graphql API error' in response.text:
+                msg = response.json().get("errors", [])[0].get('message')
+                log.error(msg)
+                raise GraphQLException(msg)
+            msg = response.json().get("errors", [])[0].get('message', '')
+            log.error(msg)
             raise PyclientException("An unknown error occurred when trying to reach this server.")
 
         if response.request.method == 'GET':
@@ -817,3 +987,21 @@ class Client:
         if table_name in map(str, schema_data.tables):
             return True
         return False
+
+    def _validate_url(self):
+        """
+        Checks whether the URL provided is correct and refers to an EMX2 server.
+        Raises ServerNotFoundError if not, depending on the error.
+        """
+        try:
+            self.session.head(self.url)
+        except requests.exceptions.SSLError:
+            raise ServerNotFoundError(f"URL {self.url!r} cannot be found. Ensure the spelling is correct.")
+        except requests.exceptions.InvalidSchema:
+            if not self.url.startswith('https://'):
+                raise ServerNotFoundError(f"No connection adapters were found for {self.url!r}. "
+                                          f"Perhaps you meant 'https://{self.url}'?")
+            raise ServerNotFoundError(f"No connection adapters were found for {self.url!r}.")
+        except requests.exceptions.MissingSchema:
+            raise ServerNotFoundError(f"Invalid URL {self.url!r}. "
+                                      f"Perhaps you meant 'https://{self.url}'?")

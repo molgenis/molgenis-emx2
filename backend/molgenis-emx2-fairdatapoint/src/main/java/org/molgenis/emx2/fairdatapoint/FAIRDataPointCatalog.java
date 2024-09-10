@@ -2,8 +2,7 @@ package org.molgenis.emx2.fairdatapoint;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.eclipse.rdf4j.model.util.Values.literal;
-import static org.molgenis.emx2.rdf.RDFService.*;
-import static org.molgenis.emx2.rdf.RDFUtils.*;
+import static org.molgenis.emx2.utils.URIUtils.*;
 
 import graphql.ExecutionResult;
 import graphql.GraphQL;
@@ -67,7 +66,7 @@ public class FAIRDataPointCatalog {
                 + "title,"
                 + "hasVersion,"
                 + "description,"
-                + "publisher,"
+                + "publisher{name},"
                 + "language{ontologyTermURI},"
                 + "license,"
                 + "themeTaxonomy,"

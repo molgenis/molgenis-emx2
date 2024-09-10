@@ -194,12 +194,11 @@ module.exports = {
         "pagination": "var(--text-color-pagination)",
         "pagination-input": "var(--text-color-pagination-input)",
         "pagination-hover": "var(--text-color-pagination-hover)",
-        "pagination-label-white": "var(--text-color-pagination-label-white)",
-        "pagination-label-gray": "var(--text-color-pagination-label-gray)",
         "footer-link": "var(--text-color-footer-link)",
         "invalid": "var(--text-color-invalid)",
         "valid": "var(--text-color-valid)",
         "disabled": "var(--text-color-disabled)",
+        "required": "var(--text-color-required)",
       }),
       borderColor: ({ theme }) => ({
         "button-primary": "var(--border-color-button-primary)",
@@ -236,7 +235,10 @@ module.exports = {
       },
       outlineColor: {
         "select": "var(--outline-color-select)",
-      }
+      },
+      content: ({ theme }) => ({
+        "required": "var(--text-content-required)",
+      })
     },
   },
   plugins: ["@tailwindcss/typography", "@tailwindcss/forms"],

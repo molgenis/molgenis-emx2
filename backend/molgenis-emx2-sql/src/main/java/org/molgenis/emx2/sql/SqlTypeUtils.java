@@ -5,6 +5,7 @@ import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascript;
 import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascriptOnMap;
 
 import java.util.*;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.TypeUtils;
@@ -183,8 +184,9 @@ public class SqlTypeUtils extends TypeUtils {
       case PERIOD_ARRAY -> row.getPeriodArray(name);
       case JSONB -> row.getJsonb(name);
       case JSONB_ARRAY -> row.getJsonbArray(name);
-      default -> throw new UnsupportedOperationException(
-          "Unsupported columnType found:" + c.getColumnType());
+      default ->
+          throw new UnsupportedOperationException(
+              "Unsupported columnType found:" + c.getColumnType());
     };
   }
 
@@ -211,8 +213,9 @@ public class SqlTypeUtils extends TypeUtils {
       case DATETIME -> "timestamp without time zone";
       case DATETIME_ARRAY -> "timestamp without time zone[]";
       case JSONB -> "jsonb";
-      default -> throw new MolgenisException(
-          "Unknown type: Internal error: data cannot be mapped to psqlType " + type);
+      default ->
+          throw new MolgenisException(
+              "Unknown type: Internal error: data cannot be mapped to psqlType " + type);
     };
   }
 
@@ -221,6 +224,16 @@ public class SqlTypeUtils extends TypeUtils {
       column.getColumnType().validate(values.get(column.getName()));
       // validation
       if (column.getValidation() != null) {
+        // check if validation script contains js functions that are bound to java functions
+        if (column.getSchema() != null && column.getSchema().getDatabase() != null) {
+          Map<String, Supplier<Object>> bindings =
+              column.getSchema().getDatabase().getJavaScriptBindings();
+          for (String key : bindings.keySet()) {
+            if (column.getValidation().contains(key)) {
+              values.put(key, bindings.get(key).get());
+            }
+          }
+        }
         String errorMessage = checkValidation(column.getValidation(), values);
         if (errorMessage != null)
           throw new MolgenisException(
