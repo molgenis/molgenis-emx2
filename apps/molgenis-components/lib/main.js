@@ -48,6 +48,7 @@ import Info from "../src/components/forms/Info.vue";
 import InfoPopover from "../src/components/forms/InfoPopover.vue";
 import InlineInput from "../src/components/forms/InlineInput.vue";
 import InputBoolean from "../src/components/forms/InputBoolean.vue";
+import InputBarcode from "../src/components/forms/InputBarcode.vue";
 import InputCheckbox from "../src/components/forms/InputCheckbox.vue";
 import InputDate from "../src/components/forms/InputDate.vue";
 import InputDateTime from "../src/components/forms/InputDateTime.vue";
@@ -184,6 +185,7 @@ export {
   InfoPopover,
   InlineInput,
   InputBoolean,
+  InputBarcode,
   InputCheckbox,
   InputDate,
   InputDateTime,
