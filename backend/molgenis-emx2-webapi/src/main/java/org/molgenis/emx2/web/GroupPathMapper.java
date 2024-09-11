@@ -23,15 +23,32 @@ public class GroupPathMapper {
   public static void create(Javalin app) {
 
     app.get("/{schema}/{appname}/theme.css", BootstrapThemeService::getCss);
-    // return index.html file when in root
-    // app.get("/*/{appname}", GroupPathMapper::returnIndexFile);
 
-    //    // redirect  js/css assets so they get cached between schemas (VERY GREEDY, SHOULD BE LAST
-    // CALL)
-    //    app.get("/{schema}/{appname}/*", GroupPathMapper::redirectAssets);
+    app.get("*/docs/<asset>", GroupPathMapper::redirectDocs);
+
+    app.get("*/{app}/assets/<asset>", GroupPathMapper::redirectAssets);
+    app.get("/apps/resources/<asset>", GroupPathMapper::redirectResources);
+    app.get("/apps/{app}/<asset>", GroupPathMapper::redirectResources);
+
+    app.get("*/{appname}/index.html", GroupPathMapper::returnIndexFile);
+    app.get("*/{appname}", GroupPathMapper::returnIndexFile);
+  }
+
+  private static void redirectResources(Context ctx) {
+    getFileFromClasspath(ctx, "/public_html" + ctx.path());
+  }
+
+  private static void redirectDocs(Context ctx) {
+    getFileFromClasspath(ctx, "/public_html/apps/docs/" + ctx.pathParam("asset"));
+  }
+
+  private static void redirectAssets(Context ctx) {
+    String path = "/public_html/apps/" + ctx.pathParam("app") + "/assets/" + ctx.pathParam("asset");
+    getFileFromClasspath(ctx, path);
   }
 
   private static void returnIndexFile(Context ctx) {
+    if (!ctx.path().endsWith("/")) ctx.redirect(ctx.path() + "/");
     try {
       InputStream in =
           GroupPathMapper.class.getResourceAsStream(
@@ -48,26 +65,20 @@ public class GroupPathMapper {
     }
   }
 
-  private static void redirectAssets(Context ctx) {
-    if (!ctx.path().startsWith("/public_html")) {
-      ctx.redirect(
-          "/public_html/apps" + ctx.path().substring(ctx.pathParam("schema").length() + 1));
-    } else {
-
-      try (InputStream in = GroupPathMapper.class.getResourceAsStream(ctx.path())) {
-        if (in == null) {
-          ctx.status(404).result("File not found: " + ctx.path());
-          return;
-        }
-        String mimeType = URLConnection.guessContentTypeFromName(ctx.path());
-        if (mimeType == null) {
-          mimeType = "application/octet-stream";
-        }
-        ctx.contentType(mimeType);
-        ctx.result(ByteStreams.toByteArray(in));
-      } catch (Exception e) {
+  private static void getFileFromClasspath(Context ctx, String path) {
+    try (InputStream in = GroupPathMapper.class.getResourceAsStream(path)) {
+      if (in == null) {
         ctx.status(404).result("File not found: " + ctx.path());
+        return;
       }
+      String mimeType = URLConnection.guessContentTypeFromName(ctx.path());
+      if (mimeType == null) {
+        mimeType = "application/octet-stream";
+      }
+      ctx.contentType(mimeType);
+      ctx.result(ByteStreams.toByteArray(in));
+    } catch (Exception e) {
+      ctx.status(404).result("File not found: " + ctx.path());
     }
   }
 }

@@ -62,6 +62,11 @@ public class GraphqlApi {
     final String schemaPath = "/{schema}/graphql"; // NOSONAR
     app.get(schemaPath, GraphqlApi::handleSchemaRequests);
     app.post(schemaPath, GraphqlApi::handleSchemaRequests);
+
+    // per schema graphql
+    final String schemaAppPath = "/{schema}/{app}/graphql"; // NOSONAR
+    app.get(schemaAppPath, GraphqlApi::handleSchemaRequests);
+    app.post(schemaAppPath, GraphqlApi::handleSchemaRequests);
   }
 
   private static void handleDatabaseRequests(Context ctx) throws IOException {
@@ -71,7 +76,7 @@ public class GraphqlApi {
     ctx.json(result);
   }
 
-  public static String handleSchemaRequests(Context ctx) throws IOException {
+  public static void handleSchemaRequests(Context ctx) throws IOException {
     MolgenisSession session = sessionManager.getSession(ctx.req());
     String schemaName = sanitize(ctx.pathParam(SCHEMA));
 
@@ -87,7 +92,7 @@ public class GraphqlApi {
     }
     GraphQL graphqlForSchema = session.getGraphqlForSchema(schemaName);
     ctx.header(CONTENT_TYPE, ACCEPT_JSON);
-    return executeQuery(graphqlForSchema, ctx);
+    ctx.json(executeQuery(graphqlForSchema, ctx));
   }
 
   private static String executeQuery(GraphQL g, Context ctx) throws IOException {

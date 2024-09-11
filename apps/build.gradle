@@ -75,7 +75,7 @@ subprojects { subproject ->
         doLast {
             copy {
                 from packageJson.contains("\"name\": \"ui\"") ? ".output/public" : "dist"
-                into "${parent.buildDir}/generated/main/resources/public_html_apps/apps/" + project.name
+                into "${parent.buildDir}/generated/main/resources/public_html/apps/" + project.name
             }
         }
         outputs.dir "dist"
@@ -103,7 +103,7 @@ subprojects { subproject ->
             doLast {
                 copy {
                     from packageJson.contains("\"name\": \"tailwind-components\"") ? ".output/public" : "showCase"
-                    into "${parent.buildDir}/generated/main/resources/public_html_apps/apps/" + project.name
+                    into "${parent.buildDir}/generated/main/resources/public_html/apps/" + project.name
                 }
             }
             outputs.dir packageJson.contains("\"name\": \"tailwind-components\"") ? ".output/public" : "showCase"

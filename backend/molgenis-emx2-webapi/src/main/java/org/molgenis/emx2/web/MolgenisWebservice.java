@@ -42,9 +42,11 @@ public class MolgenisWebservice {
     Javalin app =
         Javalin.create(
                 config -> {
-                  config.staticFiles.add("public_html");
-                  config.staticFiles.add("public_html_apps");
-                  config.staticFiles.add("public_html_docs");
+                  config.router.ignoreTrailingSlashes = true;
+                  config.router.treatMultipleSlashesAsSingleSlash = true;
+                  //                  config.staticFiles.add("public_html");
+                  //                  config.staticFiles.add("public_html_apps");
+                  //                  config.staticFiles.add("public_html_docs");
                   config.jetty.modifyServletContextHandler(
                       handler -> handler.setSessionHandler(sessionManager.getSessionHandler()));
                 })
