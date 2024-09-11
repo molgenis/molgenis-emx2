@@ -72,12 +72,10 @@ export default gql`
       fundingStatement
       acknowledgements
     }
-    ResourceCollectionEvents_agg(
-      filter: { resource: { id: { equals: [$id] } } }
-    ) {
+    CollectionEvents_agg(filter: { resource: { id: { equals: [$id] } } }) {
       count
     }
-    CollectionCohorts_agg(filter: { resource: { id: { equals: [$id] } } }) {
+    Subpopulations_agg(filter: { resource: { id: { equals: [$id] } } }) {
       count
     }
   }

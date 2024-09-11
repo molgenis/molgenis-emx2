@@ -28,7 +28,7 @@ let pageFilterTemplate: IFilter[] = [
     config: {
       label: "Search in resources",
       type: "SEARCH",
-      searchTables: ["collectionEvents", "cohorts"],
+      searchTables: ["collectionEvents", "subpopulations"],
       initialCollapsed: false,
     },
     search: "",
@@ -117,7 +117,7 @@ pageFilterTemplate = pageFilterTemplate.concat([
       type: "ONTOLOGY",
       ontologyTableId: "CohortDesigns",
       ontologySchema: "CatalogueOntologies",
-      columnId: "designType",
+      columnId: "design",
     },
     conditions: [],
   },
@@ -152,7 +152,7 @@ const query = computed(() => {
       type {
           name
       }
-      designType {
+      design {
           name
       }
     }

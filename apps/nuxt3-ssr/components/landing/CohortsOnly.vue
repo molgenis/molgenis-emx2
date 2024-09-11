@@ -11,20 +11,20 @@ const { data, pending, error, refresh } = await useFetch(
         Variables_agg {
           count
         }
-        Cohorts_agg { 
+        Resources_agg {
           count
           _sum {
             numberOfParticipants
             numberOfParticipantsWithSamples 
           }
         }
-        Subcohorts_agg {
+        Subpopulations_agg {
           count
         }
         Networks_agg { 
           count
         }
-        Cohorts_groupBy {
+        Resources_groupBy {
           count 
           design {
             name
@@ -220,12 +220,12 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
 
       <LandingCardSecondary icon="viewTable">
         <b>
-          {{ data.data.CollectionCohorts_agg.count }}
+          {{ data.data.Subpopulations_agg.count }}
           {{
             getSettingValue(
               "CATALOGUE_LANDING_SUBCOHORTS_LABEL",
               data.data._settings
-            ) || "Cohorts"
+            ) || "Subpopulations"
           }}
         </b>
         <br />

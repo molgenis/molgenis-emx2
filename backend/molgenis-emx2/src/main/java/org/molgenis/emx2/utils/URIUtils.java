@@ -1,12 +1,12 @@
-package org.molgenis.emx2.rdf;
+package org.molgenis.emx2.utils;
 
 import java.net.URI;
 import org.eclipse.rdf4j.common.net.ParsedIRI;
 import org.eclipse.rdf4j.model.IRI;
 import org.molgenis.emx2.MolgenisException;
 
-public class RDFUtils {
-  private RDFUtils() {
+public class URIUtils {
+  private URIUtils() {
     // static only
   }
 

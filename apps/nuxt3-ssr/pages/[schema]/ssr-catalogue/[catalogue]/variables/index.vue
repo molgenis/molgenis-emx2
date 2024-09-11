@@ -245,6 +245,20 @@ const fetchData = async () => {
                   partOfResources: { id: { equals: catalogueRouteParam } },
                 },
               },
+              {
+                resourceVariables: {
+                  _or: [
+                    { resource: { id: { equals: catalogueRouteParam } } },
+                    {
+                      resource: {
+                        partOfResources: {
+                          id: { equals: catalogueRouteParam },
+                        },
+                      },
+                    },
+                  ],
+                },
+              },
             ],
           },
         },

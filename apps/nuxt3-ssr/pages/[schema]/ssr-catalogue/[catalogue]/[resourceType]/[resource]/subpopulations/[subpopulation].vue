@@ -1,24 +1,30 @@
 <script setup lang="ts">
 import dateUtils from "~/utils/dateUtils";
-import cohortGql from "~~/gql/cohort";
+import subpopulationGql from "~~/gql/subpopulations";
 const config = useRuntimeConfig();
 const route = useRoute();
 
-const query = moduleToString(cohortGql);
+const query = moduleToString(subpopulationGql);
 
-let cohort: Ref = ref();
-const { data: cohortData } = await useFetch(`/${route.params.schema}/graphql`, {
-  method: "POST",
-  body: {
-    query,
-    variables: { id: route.params.resource, name: route.params.cohor },
-  },
-}).catch((e) => console.log(e));
+let subpopulation: Ref = ref();
+const { data: subpopulationData } = await useFetch(
+  `/${route.params.schema}/graphql`,
+  {
+    method: "POST",
+    body: {
+      query,
+      variables: {
+        id: route.params.resource,
+        name: route.params.subpopulation,
+      },
+    },
+  }
+).catch((e) => console.log(e));
 
 watch(
-  cohortData,
+  subpopulationDataData,
   function setData(data: any) {
-    cohort = data?.data?.ResourceCohorts[0];
+    subpopulation = data?.data?.Subpopulations[0];
   },
   {
     deep: true,
@@ -41,7 +47,7 @@ pageCrumbs[
 // @ts-ignore
 pageCrumbs[
   route.params.collection as string
-] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/cohorts/${route.params.resources}`;
+] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/resources/${route.params.resources}`;
 
 function renderList(
   list: any[],
@@ -66,43 +72,46 @@ let tocItems = reactive([{ label: "Details", id: "details" }]);
 
 const items: any = [];
 
-if (cohort?.numberOfParticipants) {
+if (subpopulation?.numberOfParticipants) {
   items.push({
     label: "Number of participants",
-    content: cohort.numberOfParticipants,
+    content: subpopulation.numberOfParticipants,
   });
 }
-if (cohort?.inclusionStart || cohort?.inclusionEnd) {
+if (subpopulation?.inclusionStart || subpopulation?.inclusionEnd) {
   items.push({
     label: "Start/end year",
-    content: dateUtils.startEndYear(cohort.inclusionStart, cohort.inclusionEnd),
+    content: dateUtils.startEndYear(
+      subpopulation.inclusionStart,
+      subpopulation.inclusionEnd
+    ),
   });
 }
 
-if (cohort?.countries) {
+if (subpopulation?.countries) {
   items.push({
     label: "Countries",
     content: renderList(
-      cohort.countries.sort((a, b) => b.order - a.order),
+      subpopulation.countries.sort((a, b) => b.order - a.order),
       toName
     ),
   });
 }
 
-if (cohort?.inclusionCriteria) {
+if (subpopulation?.inclusionCriteria) {
   items.push({
     label: "Other inclusion criteria",
-    content: cohort.inclusionCriteria,
+    content: subpopulation.inclusionCriteria,
   });
 }
 
-if (cohort?.ageGroups?.length) {
+if (subpopulation?.ageGroups?.length) {
   tocItems.push({ label: "Age categories", id: "age_categories" });
 }
 
 let mainMedicalConditionTree = [];
-if (cohort?.mainMedicalCondition?.length) {
-  mainMedicalConditionTree = buildTree(cohort.mainMedicalCondition);
+if (subpopulation?.mainMedicalCondition?.length) {
+  mainMedicalConditionTree = buildTree(subpopulation.mainMedicalCondition);
   tocItems.push({
     label: "Main medical condition",
     id: "main_medical_condition",
@@ -110,42 +119,45 @@ if (cohort?.mainMedicalCondition?.length) {
 }
 
 let comorbidityTree = [];
-if (cohort?.comorbidity?.length) {
-  comorbidityTree = buildTree(cohort.comorbidity);
+if (subpopulation?.comorbidity?.length) {
+  comorbidityTree = buildTree(subpopulation.comorbidity);
   tocItems.push({ label: "Comorbidity", id: "comorbidity" });
 }
 
 // todo add count table ( empty in current test set)
 
-useHead({ title: cohort?.name });
+useHead({ title: subpopulation?.name });
 </script>
 
 <template>
   <LayoutsDetailPage>
     <template #header>
-      <PageHeader :title="cohort?.name" :description="cohort?.description">
+      <PageHeader
+        :title="subpopulation?.name"
+        :description="subpopulation?.description"
+      >
         <template #prefix>
           <BreadCrumbs :crumbs="pageCrumbs" />
         </template>
       </PageHeader>
     </template>
     <template #side>
-      <SideNavigation :title="cohort?.name" :items="tocItems" />
+      <SideNavigation :title="subpopulation?.name" :items="tocItems" />
     </template>
     <template #main>
-      <ContentBlocks v-if="cohort">
+      <ContentBlocks v-if="subpopulation">
         <ContentBlock id="details" title="Details">
           <CatalogueItemList :items="items" />
         </ContentBlock>
         <ContentBlock
-          v-if="cohort.ageGroups"
+          v-if="subpopulation.ageGroups"
           id="age_categories"
           title="Age categories"
         >
           <ul class="grid gap-1 pl-4 list-disc list-outside">
             <li
               v-for="ageGroup in removeChildIfParentSelected(
-                cohort.ageGroups || []
+                subpopulation.ageGroups || []
               ).sort((a, b) => a.order - b.order)"
               :key="ageGroup.name"
             >
@@ -154,7 +166,7 @@ useHead({ title: cohort?.name });
           </ul>
         </ContentBlock>
         <ContentBlock
-          v-if="cohort.mainMedicalCondition"
+          v-if="subpopulation.mainMedicalCondition"
           id="main_medical_condition"
           title="Main medical condition"
         >
@@ -164,7 +176,7 @@ useHead({ title: cohort?.name });
           />
         </ContentBlock>
         <ContentBlock
-          v-if="cohort.comorbidity"
+          v-if="subpopulation.comorbidity"
           id="comorbidity"
           title="Comorbidity"
         >

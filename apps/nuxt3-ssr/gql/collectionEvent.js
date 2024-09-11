@@ -2,8 +2,8 @@ import gql from "graphql-tag";
 import ontologyFragment from "~~/gql/fragments/ontology";
 
 export default gql`
-  query ResourceCollectionEvent($id: String, $name: String) {
-    ResourceCollectionEvents(
+  query CollectionEvent($id: String, $name: String) {
+    CollectionEvents(
       filter: { resource: { id: { equals: [$id] } }, name: { equals: [$name] } }
     ) {
       resource {
@@ -20,7 +20,7 @@ export default gql`
       standardizedTools ${moduleToString(ontologyFragment)}
       standardizedToolsOther
       areasOfInformation ${moduleToString(ontologyFragment)}
-      cohorts {
+      subpopulations {
         name
       }
       coreVariables

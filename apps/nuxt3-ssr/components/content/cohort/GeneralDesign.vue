@@ -73,12 +73,12 @@ const generalDesign: IDefinitionListItem[] = [
   {
     label: "Design",
     content:
-      props.resource.designType?.definition && props.resource.designType?.name
+      props.resource.design?.definition && props.resource.design?.name
         ? {
-            value: props.resource.designType?.name,
-            tooltip: props.resource.designType?.definition,
+            value: props.resource.design?.name,
+            tooltip: props.resource.design?.definition,
           }
-        : props.resource.designType?.name,
+        : props.resource.design?.name,
   },
   {
     label: "Design description",

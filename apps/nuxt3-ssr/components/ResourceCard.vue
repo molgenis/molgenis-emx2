@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import dateUtils from "~/utils/dateUtils";
-import type { ICollection } from "~/interfaces/types";
+import type { IResource } from "~/interfaces/types";
 const cutoff = 250;
 
 const route = useRoute();
