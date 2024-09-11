@@ -23,24 +23,40 @@
         <template v-if="row.row.email !== 'admin'">
           <IconDanger
             icon="trash"
-            @click="removeUser(row.row.email)"
-            :tooltip="`delete ${row.row.email}`"
+            @click="
+              userToDelete = row.row.email;
+              isModalShown = true;
+            "
+            :tooltip="`Delete ${row.row.email}`"
           />
           <IconAction
             v-if="row.row.enabled"
-            icon="user-slash"
+            icon="user-check"
             @click="disableUser(row.row.email)"
             :tooltip="`disable ${row.row.email}`"
           />
           <IconAction
             v-else
-            icon="user-check"
+            icon="user-slash"
             @click="enableUser(row.row.email)"
             :tooltip="`re-enable ${row.row.email}`"
           />
         </template>
       </template>
     </TableSimple>
+    <ConfirmModal
+      v-if="isModalShown"
+      title="Delete User"
+      :actionLabel="'Delete ' + userToDelete"
+      actionType="danger"
+      @close="isModalShown = false"
+      @confirmed="
+        removeUser(userToDelete);
+        userToDelete = '';
+        isModalShown = false;
+      "
+    />
+
     <Pagination
       v-model="page"
       :count="userCount"
@@ -63,6 +79,7 @@ import {
   ButtonAction,
   IconDanger,
   IconAction,
+  ConfirmModal,
 } from "molgenis-components";
 
 export default {
@@ -77,6 +94,7 @@ export default {
     ButtonAction,
     IconDanger,
     IconAction,
+    ConfirmModal,
   },
   props: {
     session: {
@@ -98,6 +116,8 @@ export default {
       alterSuccess: null,
       alterLoading: false,
       showSigninForm: true,
+      isModalShown: false,
+      userToDelete: "",
     };
   },
   computed: {
