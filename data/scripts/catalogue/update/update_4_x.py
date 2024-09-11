@@ -29,11 +29,20 @@ def get_data_model(profile_path, path_to_write, profile):
         if '.csv' in file_name:
             file_path = Path.joinpath(profile_path, file_name)
             df = pd.read_csv(file_path, keep_default_na=False, dtype='object')
-            df = df.loc[df['profiles'].str.contains(profile)]
+            df.loc[:, 'profile'] = df['profiles'].apply(profile_in_profile, profile=profile)
+            df = df.loc[df['profile']]
             data_model = pd.concat([data_model, df])
 
     # data_model = float_to_int(data_model)
     data_model.to_csv(path_to_write + '/molgenis.csv', index=None)
+
+
+def profile_in_profile(profiles, profile):
+    profiles_list = profiles.split(',')
+    if profile in profiles_list:
+        return True
+    else:
+        return False
 
 
 class Transform:
@@ -231,10 +240,13 @@ class Transform:
         else:
             df_organisations = pd.read_csv(CATALOGUE_SCHEMA_NAME + '_data/' + 'Organisations.csv', dtype='object')
             df_resource = pd.read_csv(self.path + 'Resources.csv')
-            resources_list = df_resource['id'].to_list()
+            df_resource = df_resource[['id']]
+            df_resource.rename(columns={'id': 'resource'}, inplace=True)
+            resources_list = df_resource['resource'].to_list()
             df_organisations.loc[:, 'select_resource'] = \
-                df_organisations.apply(lambda o: 'True' if o['resource'] in resources_list else 'False', axis=1)
+                df_organisations.apply(lambda o: True if o['resource'] in resources_list else False, axis=1)
 
+            df_organisations = df_organisations[df_organisations['select_resource']]
             # df_organisations = float_to_int(df_organisations)
             df_organisations.to_csv(self.path + 'Organisations.csv', index=False)
 
