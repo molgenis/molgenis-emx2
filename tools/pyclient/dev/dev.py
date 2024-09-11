@@ -2,7 +2,7 @@
 # FILE: dev.py
 # AUTHOR: David Ruvolo, Ype Zijlstra
 # CREATED: 2023-05-22
-# MODIFIED: 2024-09-10
+# MODIFIED: 2024-09-11
 # PURPOSE: development script for initial testing of the py-client
 # STATUS: ongoing
 # PACKAGES: pandas, python-dotenv
@@ -78,7 +78,7 @@ async def main():
         # Export the entire 'pet store' schema to memory in Excel format,
         # print its table names and the contents of the 'Pet' table.
         # Export the 'Collections' table from schema 'catalogue' to memory and print a sample of its contents
-        pet_store_excel = await client.export(schema='pet store', fmt='xlsx', to_file=False)
+        pet_store_excel = await client.export(schema='pet store', as_excel=True)
 
         pet_store = openpyxl.load_workbook(pet_store_excel, data_only=True)
         print(pet_store.sheetnames)
@@ -86,7 +86,7 @@ async def main():
         pet_sheet = pd.DataFrame((ps := pd.DataFrame(pet_store['Pet'].values)).values[1:], columns=ps.iloc[0])
         print(pet_sheet.to_string())
 
-        raw_collections = await client.export(schema='catalogue', table='Collections', fmt='csv', to_file=False)
+        raw_collections = await client.export(schema='catalogue', table='Collections')
         collections = pd.read_csv(raw_collections)
         print(collections.sample(5).to_string())
 
@@ -94,11 +94,11 @@ async def main():
     with Client('https://emx2.dev.molgenis.org/', schema='pet store', token=token) as client:
         print(client.__repr__())
         # Export all data from the 'pet store' schema to zipped CSVs
-        await client.export(fmt='csv', filename='pet store.zip')
+        await client.export(filename='pet store.zip')
         # Export the 'Pet' table from the 'pet store' schema to a CSV file
-        await client.export(table='Pet', fmt='csv')
+        await client.export(table='Pet', filename='Pet.csv')
         # Export the 'Pet' table from the 'pet store' schema to an Excel file
-        await client.export(table='Pet', fmt='xlsx')
+        await client.export(table='Pet', filename='Pet.xlsx')
 
         # Retrieving data from table Pet as a list
         data = client.get(table='Pet')  # get Pets

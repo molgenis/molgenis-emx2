@@ -409,20 +409,19 @@ class Client:
             return response_data.to_dict('records')
         return response_data
 
-    async def export(self, schema: str = None, table: str = None, fmt: Literal['csv', 'xlsx'] = 'csv',
-                     filename: str = None, to_file: bool = True) -> BytesIO:
+    async def export(self, schema: str = None, table: str = None,
+                     filename: str = None, as_excel: bool = False) -> BytesIO:
         """Exports data from a schema to a file in the desired format.
 
         :param schema: the name of the schema
         :type schema: str
         :param table: the name of the table
         :type table: str
-        :param fmt: the export format of the schema and or table (csv or xlsx)
-        :type fmt: str
         :param filename: the name of the file to which the data is to be exported, default None
         :type filename: str
-        :param to_file: whether to save the export the data to a file, default True
-        :type to_file: bool
+        :param as_excel: specifies whether the Excel API is called for the export.
+                         Ignored when parameter filename is specified, default False
+        :type as_excel: bool
         """
         current_schema = schema if schema is not None else self.default_schema
         if current_schema not in self.schema_names:
@@ -434,15 +433,19 @@ class Client:
         schema_metadata: Schema = self.get_schema_metadata(current_schema)
 
         if filename:
-            if filename.endswith('xlsx'):
+            if filename.endswith('.xlsx'):
                 fmt = 'xlsx'
-            elif filename.endswith('csv'):
+            elif filename.endswith('.csv'):
                 fmt = 'csv'
-            elif filename.endswith('zip'):
+            elif filename.endswith('.zip'):
                 fmt = 'csv'
-
-        if fmt not in ('csv', 'xlsx'):
-            raise ValueError(f"Format {fmt!r} not supported. Choose from ('csv', 'xlsx')")
+            else:
+                raise ValueError(f"File name must end with ('csv', 'xlsx', 'zip')")
+        else:
+            if as_excel:
+                fmt = 'xlsx'
+            else:
+                fmt = 'csv'
 
         if fmt == 'xlsx':
             if table is None:
@@ -451,9 +454,7 @@ class Client:
                 response = self.session.get(url=url)
                 self._validate_graphql_response(response)
 
-                if not filename:
-                    filename = f"{current_schema}.xlsx"
-                if to_file:
+                if filename:
                     with open(filename, "wb") as file:
                         file.write(response.content)
                     log.info("Exported data from schema %s to '%s'.", current_schema, filename)
@@ -466,24 +467,19 @@ class Client:
                 response = self.session.get(url=url)
                 self._validate_graphql_response(response)
 
-                if not filename:
-                    filename = f"{table}.xlsx"
-                if to_file:
+                if filename:
                     with open(filename, "wb") as file:
                         file.write(response.content)
                     log.info("Exported data from table %s in schema %s to '%s'.", table, current_schema, filename)
                 else:
                     log.info("Exported data from table %s in schema %s.", table, current_schema)
-
         else:
             if table is None:
                 url = f"{self.url}/{current_schema}/api/zip"
                 response = self.session.get(url=url)
                 self._validate_graphql_response(response)
 
-                if not filename:
-                    filename = f"{current_schema}.zip"
-                if to_file:
+                if filename:
                     with open(filename, "wb") as file:
                         file.write(response.content)
                     log.info("Exported data from schema %s to '%s'.", current_schema, filename)
@@ -497,9 +493,7 @@ class Client:
                 response = self.session.get(url=url)
                 self._validate_graphql_response(response)
 
-                if not filename:
-                    filename = f"{table}.csv"
-                if to_file:
+                if filename:
                     with open(filename, "wb") as file:
                         file.write(response.content)
                     log.info("Exported data from table %s in schema %s to '%s'.", table, current_schema, filename)
