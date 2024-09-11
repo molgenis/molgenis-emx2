@@ -35,14 +35,14 @@
           v-else-if="data.length"
           class="form-check custom-control custom-checkbox"
           :class="showMultipleColumns ? 'col-12 col-md-6 col-lg-4' : ''"
-          v-for="(row, index) in data"
+          v-for="(keyObject, index) in data"
           :key="index"
         >
           <input
-            :id="`${id}-${row.primaryKey}`"
+            :id="`${id}-${JSON.stringify(keyObject)}`"
             :name="id"
             type="checkbox"
-            :value="row.primaryKey"
+            :value="keyObject"
             v-model="selection"
             @change="emitSelection"
             class="form-check-input"
@@ -50,10 +50,10 @@
           />
           <label
             class="form-check-label"
-            :for="`${id}-${row.primaryKey}`"
-            @click.prevent="toggle(row.primaryKey)"
+            :for="`${id}-${keyObject}`"
+            @click.prevent="toggle(keyObject)"
           >
-            {{ applyJsTemplate(row, refLabel) }}
+            {{ applyJsTemplate(keyObject, refLabel) }}
           </label>
         </div>
         <div v-else>No entries found for {{ label }}</div>
@@ -104,6 +104,7 @@
 </template>
 
 <script lang="ts">
+import { KeyObject } from "metadata-utils";
 import { IRow } from "../../Interfaces/IRow";
 import { IQueryMetaData } from "../../client/IQueryMetaData";
 import Client from "../../client/client";
@@ -179,7 +180,7 @@ export default {
   },
   methods: {
     applyJsTemplate,
-    deselect(key: IRow) {
+    deselect(key: KeyObject) {
       this.selection = this.selection.filter(
         (row: IRow) => !deepEqual(row, key)
       );
@@ -189,15 +190,15 @@ export default {
       this.selection = [];
       this.emitSelection();
     },
-    handleUpdateSelection(newSelection: IRow[]) {
+    handleUpdateSelection(newSelection: KeyObject[]) {
       this.selection = [...newSelection];
       this.emitSelection();
     },
-    select(newRow: IRow) {
+    select(newRow: KeyObject) {
       this.selection = [...this.selection, newRow];
       this.emitSelection();
     },
-    async selectNew(newRow: IRow) {
+    async selectNew(newRow: KeyObject) {
       const rowKey = await convertRowToPrimaryKey(
         newRow,
         this.tableId,
@@ -213,10 +214,14 @@ export default {
     openSelect() {
       this.showSelect = true;
     },
-    toggle(value: IRow) {
-      if (this.selection?.some((selection) => deepEqual(selection, value))) {
+    toggle(value: KeyObject) {
+      if (
+        this.selection?.some((selection: KeyObject) =>
+          deepEqual(selection, value)
+        )
+      ) {
         this.selection = this.selection.filter(
-          (selectedValue: IRow) => !deepEqual(selectedValue, value)
+          (selectedValue: KeyObject) => !deepEqual(selectedValue, value)
         );
       } else {
         this.selection = [...this.selection, value];
@@ -235,22 +240,13 @@ export default {
         orderby: this.orderby,
       };
       const response = await this.client.fetchTableData(this.tableId, options);
-      this.data = response[this.tableId] || [];
+      const responseRows = response[this.tableId] || [];
+      const keyList = responseRows.map(async (row: IRow) =>
+        convertRowToPrimaryKey(row, this.tableId, this.schemaId)
+      );
       this.count = response[this.tableId + "_agg"].count;
-
-      await Promise.all(
-        this.data.map(async (row: IRow) => {
-          row.primaryKey = await convertRowToPrimaryKey(
-            row,
-            this.tableId,
-            this.schemaId
-          );
-        })
-      )
-        .catch((error) => {
-          console.log(error);
-        })
-        .finally(() => (this.loading = false));
+      this.data = await Promise.all(keyList);
+      this.loading = false;
       this.$emit("optionsLoaded", this.data);
     },
   },
