@@ -178,33 +178,34 @@ See the description of the [Schema](use_usingpyclient.md#schema) metadata object
 async def export(self, 
                  schema: str = None, 
                  table: str = None, 
-                 fmt: Literal['csv', 'xlsx'] = 'csv',
                  filename: str = None,
-                 to_file: bool = True) -> BytesIO:
+                 as_excel: bool = False) -> BytesIO:
     ...
 ```
 Asynchronously exports data from a schema to a file in the desired format and in a `BytesIO` object in memory.
 If the table is specified, only data from that table is exported, otherwise the export contains all tables on the schema.
-If all tables from a schema are exported with given format `csv`, the data is exported as a zip file containing a csv file of each table.
-The name of the file to which the data is exported can be specified in the `filename` parameter. If it is not specified, the exported file carries the name of the table or schema.
-The `to_file` parameter specifies whether to export the data to a file or only return it in memory.
+
+The name of the file to which the data is exported can be specified in the `filename` parameter.
+The `as_excel` parameter specifies whether to export the data in Excel format. This is ignored if a filename is given.
 Throws the `NoSuchSchemaException` if the user does not have at least _viewer_ permissions or if the schema does not exist.
 
-| parameter  | type | description                                | required | default                       |
-|------------|------|--------------------------------------------|----------|-------------------------------|
-| `table`    | str  | the name of a table                        | False    | None                          |
-| `schema`   | str  | the name of a schema                       | False    | client.default_schema         |
-| `fmt`      | str  | the output format, either `csv` or `xlsx`  | False    | `csv`, or taken from filename |
-| `filename` | str  | the name of the file to export the data to | False    | None                          |
-| `to_file`  | bool | whether to export the data to a file       | False    | True                          |
+| parameter  | type | description                                | required | default               |
+|------------|------|--------------------------------------------|----------|-----------------------|
+| `table`    | str  | the name of a table                        | False    | None                  |
+| `schema`   | str  | the name of a schema                       | False    | client.default_schema |
+| `filename` | str  | the name of the file to export the data to | False    | None                  |
+| `as_excel` | bool | whether to return the data in Excel format | False    | False                 |
 
 
 ##### examples
+```python
+
 # Save the table 'Collections' on the schema 'MySchema' to the file 'Collections.csv'
-client.export(schema='MySchema', table='Collections')  # Saves to CSV file by default with name of the table
+await client.export(schema='MySchema', table='Collections')  # Saves to CSV file by default with name of the table
 
 # Save 'Collections' to the file 'Collections-export.xlsx' in a different folder
-client.export(schema='MySchema', table='Collections', filename='Collections-export.xlsx', fmt='xlsx')
+await client.export(schema='MySchema', table='Collections', filename='Collections-export.xlsx')
+```
 
 
 ### save_schema
@@ -228,6 +229,15 @@ Throws the `NoSuchSchemaException` if the schema is not found on the server.
 | `file`    | str  | the location of a `csv` file with data             | False    | None                  |
 | `data`    | list | data as a list of dictionaries or pandas DataFrame | False    | None                  |
 
+##### examples
+```python
+# Save an edited table with Collections data from a CSV file to the Collections table
+client.save_schema(table='Collections', file='Collections-edited.csv')
+
+# Save an edited table with Collections data from memory to the Collections table
+collections: pandas.DataFrame = ...
+client.save_schema(table='Collections', data=collections)
+```
 
 ### upload_file
 ```python
@@ -245,6 +255,18 @@ Throws the `NoSuchSchemaException` if the schema is not found on the server.
 | `file_path` | str  | the name of a table  | True     |                       |
 | `schema`    | str  | the name of a schema | False    | client.default_schema |
 
+##### examples
+```python
+# Upload a file containing Collections data to a schema
+await client.upload_file(file_path='data/Collections.csv')
+
+# Upload a file containing members information to a schema
+await client.upload_file(file_path='molgenis_members.csv', schema='MySchema')
+
+# Upload a zipped file containing multiple tables to a schema
+await client.upload_file(file_path='schema data.zip', schema='MySchema')
+```
+
 
 ### delete_records
 ```python
@@ -256,7 +278,8 @@ def delete_records(self,
     ...
 ```
 Deletes data records from a table.
-As in the `save_schema` method, the data either originates from disk or the program.
+The records that are to be deleted are specified in either a CSV file, or in a list of primary key values, 
+or a pandas DataFrame representing the table on the schema.
 Throws the `PermissionDeniedException` if the user does not have at least _editor_ permissions.
 Throws the `NoSuchSchemaException` if the schema is not found on the server.
 
@@ -269,6 +292,19 @@ Throws the `NoSuchSchemaException` if the schema is not found on the server.
 | `file`    | str  | the location of a `csv` file with data             | False    | None                  |
 | `data`    | list | data as a list of dictionaries or pandas DataFrame | False    | None                  |
 
+##### examples
+```python
+# Delete cohorts from a list of ids
+cohorts = [{'name': 'Cohort 1', 'name': 'Cohort 2'}]
+client.delete_records(schema='MySchema', table='Cohorts', data=cohorts)
+
+# Delete cohorts from pandas DataFrame
+cohorts_df = pandas.DataFrame(data=cohorts)
+client.delete_records(schema='MySchema', table='Cohorts', data=cohorts_df)
+
+# Delete cohorts from entries in a CSV file
+client.delete_records(schema='MySchema', table='Cohorts', file='Cohorts-to-delete.csv')
+```
 
 ### create_schema
 ```python
@@ -290,38 +326,16 @@ Only users with _admin_ privileges are able to perform this action.
 | `template`          | str  | the template for this schema  | False    | None    |
 | `include_demo_data` | bool | whether to include demo data  | False    | False   |
 
-[//]: # (The available templates are)
+##### examples
+```python
+# Create a schema without specifying a template
+await client.create_schema(name='New schema', description='My new schema')
 
-[//]: # ()
-[//]: # (| template                       | description                                                   |)
+# Create a new catalogue schema with demo data
+await client.create_schema(name='New catalogue', description='My new catalogue',
+                           template='DATA_CATALOGUE', include_demo_data=True)
+```
 
-[//]: # (|--------------------------------|---------------------------------------------------------------|)
-
-[//]: # (| PET_STORE                      | example template                                              |)
-
-[//]: # (| FAIR_DATA_HUB                  | see [FAIR Data Point]&#40;dev_fairdatapoint.md&#41;                   |)
-
-[//]: # (| DATA_CATALOGUE                 | see [Data Catalogue]&#40;../catalogue/cat_cohort-data-manager.md&#41; |)
-
-[//]: # (| DATA_CATALOGUE_COHORT_STAGING  | see [Data Catalogue]&#40;../catalogue/cat_cohort-data-manager.md&#41; |)
-
-[//]: # (| DATA_CATALOGUE_NETWORK_STAGING | see [Data Catalogue]&#40;../catalogue/cat_cohort-data-manager.md&#41; |)
-
-[//]: # (| RD3                            |                                                               |)
-
-[//]: # (| JRC_COMMON_DATA_ELEMENTS       |                                                               | )
-
-[//]: # (| FAIR_GENOMES                   |                                                               |)
-
-[//]: # (| BEACON_V2                      | see [Beacon v2]&#40;dev_beaconv2.md&#41;                              |)
-
-[//]: # (| ERN_DASHBOARD                  |                                                               |)
-
-[//]: # (| ERN_CRANIO                     |                                                               |)
-
-[//]: # (| BIOBANK_DIRECTORY              |                                                               |)
-
-[//]: # (| SHARED_STAGING                 |                                                               |)
 
 ### delete_schema
 ```python
@@ -339,6 +353,11 @@ Throws the `NoSuchSchemaException` if the schema is not found on the server.
 |----------|------|----------------------------------|----------|---------|
 | `name`   | str  | the name of the schema to delete | True     |         | 
 
+##### examples
+```python
+# Delete a schema
+await client.delete_schema('MySchema')
+```
 
 ### update_schema
 ```python
@@ -354,6 +373,13 @@ Throws the `NoSuchSchemaException` if the schema is not found on the server.
 |---------------|------|-------------------------|----------|---------|
 | `name`        | str  | the name of the schema  | True     |         |
 | `description` | str  | the updated description | True     |         |
+
+##### examples
+```python
+# Update the description of a schema
+client.update_schema(name='MySchema', description='The new description')
+```
+
 
 ### recreate_schema
 ```python
@@ -378,6 +404,13 @@ Throws the `NoSuchSchemaException` if the schema is not found on the server.
 | `template`          | str  | the template for this schema  | False    | None    |
 | `include_demo_data` | bool | whether to include demo data  | False    | False   |
 
+##### examples
+```python
+# Recreate a schema, replacing its content with a template and demo data
+await client.recreate_schema(name='MySchema', description='An ',
+                             template='DATA_CATALOGUE', include_demo_data=True)
+
+```
 
 ## Additional classes
 In addition to the Client class, the package contains classes to access metadata on the column, table, and schema level.
