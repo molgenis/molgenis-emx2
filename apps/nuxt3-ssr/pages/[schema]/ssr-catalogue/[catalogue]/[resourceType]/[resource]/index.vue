@@ -128,6 +128,7 @@ const query = gql`
         name
         website
         acronym
+        isLeadOrganisation
         role ${moduleToString(ontologyFragment)}
         country ${moduleToString(ontologyFragment)}
       }
@@ -498,7 +499,7 @@ function closeOrganisationSideModal() {
 
 const organisations = computed(() =>
   resource.value.organisationsInvolved?.sort((a, b) =>
-    a.role && a.role?.find((r) => r.name === "Lead") ? -1 : 1
+    a.isLeadOrganisation ? -1 : 1
   )
 );
 
@@ -572,7 +573,7 @@ const activeOrganization = computed(() => {
               v-if="organisations"
               title="Organisations involved"
               :type="
-                organisations && organisations.length > 1 ? 'standard' : 'link'
+                organisations && organisations?.length > 1 ? 'standard' : 'link'
               "
             >
               <DisplayListItem
@@ -585,8 +586,8 @@ const activeOrganization = computed(() => {
                     >({{
                       organisation.role.map((r) => r.name).join(", ")
                     }})</template
-                  ></span
-                >
+                  >
+                </span>
                 <img
                   v-if="organisation.logo"
                   class="max-h-11"

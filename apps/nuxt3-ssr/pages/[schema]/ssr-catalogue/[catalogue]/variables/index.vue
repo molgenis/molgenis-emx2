@@ -246,7 +246,7 @@ const fetchData = async () => {
                 },
               },
               {
-                resourceVariables: {
+                reusedInResources: {
                   _or: [
                     { resource: { id: { equals: catalogueRouteParam } } },
                     {
