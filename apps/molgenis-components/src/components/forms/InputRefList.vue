@@ -50,7 +50,7 @@
           />
           <label
             class="form-check-label"
-            :for="`${id}-${keyObject}`"
+            :for="`${id}-${JSON.stringify(keyObject)}`"
             @click.prevent="toggle(keyObject)"
           >
             {{ applyJsTemplate(keyObject, refLabel) }}
