@@ -107,7 +107,7 @@ public class WebApiSmokeTests {
 
   @AfterAll
   public static void after() {
-    MolgenisWebservice.stop();
+    // MolgenisWebservice.stop();
     // Always clean up database to avoid instability due to side effects.
     db.dropSchemaIfExists(PET_STORE_SCHEMA);
   }

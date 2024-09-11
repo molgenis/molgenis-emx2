@@ -4,15 +4,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import io.javalin.http.Context;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.beaconv2.endpoints.Map;
-import spark.Request;
-import spark.Response;
 
 public class Beaconv2_MapTest {
 
-  private Request mockRequest() {
-    Request request = mock(Request.class);
+  private Context mockRequest() {
+    Context request = mock(Context.class);
     when(request.url()).thenReturn("http://localhost:8080/api/beacon");
     when(request.attribute("specification")).thenReturn("beacon");
 
@@ -22,7 +21,7 @@ public class Beaconv2_MapTest {
   @Test
   public void testMap() {
     Map map = new Map();
-    JsonNode result = map.getResponse(mockRequest(), mock(Response.class));
+    JsonNode result = map.getResponse(mockRequest());
 
     assertEquals("org.molgenis.beaconv2", result.get("meta").get("beaconId").textValue());
     assertEquals(

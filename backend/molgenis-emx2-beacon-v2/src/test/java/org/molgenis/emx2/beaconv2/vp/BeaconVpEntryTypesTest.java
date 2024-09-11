@@ -6,15 +6,14 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import io.javalin.http.Context;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.beaconv2.endpoints.EntryTypes;
-import spark.Request;
-import spark.Response;
 
 public class BeaconVpEntryTypesTest {
 
-  private Request mockRequest() {
-    Request request = mock(Request.class);
+  private Context mockRequest() {
+    Context request = mock(Context.class);
     when(request.url()).thenReturn("http://localhost:8080/api/beacon_vp");
     when(request.attribute("specification")).thenReturn("beacon_vp");
 
@@ -23,9 +22,9 @@ public class BeaconVpEntryTypesTest {
 
   @Test
   public void testEntryTypes() {
-    Request request = mockRequest();
+    Context request = mockRequest();
     EntryTypes entryTypes = new EntryTypes();
-    JsonNode result = entryTypes.getResponse(request, mock(Response.class));
+    JsonNode result = entryTypes.getResponse(request);
 
     assertEquals("org.molgenis.beaconv2", result.get("meta").get("beaconId").textValue());
     assertEquals(

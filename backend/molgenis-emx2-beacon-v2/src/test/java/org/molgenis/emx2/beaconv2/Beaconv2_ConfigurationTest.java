@@ -5,16 +5,15 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import io.javalin.http.Context;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.beaconv2.endpoints.Configuration;
 import org.molgenis.emx2.json.JsonUtil;
-import spark.Request;
-import spark.Response;
 
 public class Beaconv2_ConfigurationTest {
 
-  private Request mockRequest() {
-    Request request = mock(Request.class);
+  private Context mockRequest() {
+    Context request = mock(Context.class);
     when(request.url()).thenReturn("http://localhost:8080/api/beacon");
     when(request.attribute("specification")).thenReturn("beacon");
 
@@ -25,7 +24,7 @@ public class Beaconv2_ConfigurationTest {
   public void testConfiguration() throws Exception {
     Configuration configuration = new Configuration();
 
-    JsonNode result = configuration.getResponse(mockRequest(), mock(Response.class));
+    JsonNode result = configuration.getResponse(mockRequest());
     String json = JsonUtil.getWriter().writeValueAsString(result);
     assertTrue(json.contains("\"meta\" : {"));
 

@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.javalin.http.Context;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
@@ -11,13 +12,12 @@ import org.molgenis.emx2.beaconv2.EntryType;
 import org.molgenis.emx2.beaconv2.QueryEntryType;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
 import org.molgenis.emx2.json.JsonUtil;
-import spark.Request;
 
 public class BeaconGenomicVariantTest extends BeaconModelEndPointTest {
 
   @Test
   public void testGenomicVariants_SequenceQuery() throws Exception {
-    Request request =
+    Context request =
         mockEntryTypeRequestRegular(
             "g_variants",
             Map.of(
@@ -35,7 +35,7 @@ public class BeaconGenomicVariantTest extends BeaconModelEndPointTest {
 
   @Test
   public void testGenomicVariants_NoHits() throws Exception {
-    Request request =
+    Context request =
         mockEntryTypeRequestRegular(
             "g_variants",
             Map.of(
@@ -55,7 +55,7 @@ public class BeaconGenomicVariantTest extends BeaconModelEndPointTest {
 
   @Test
   public void testGenomicVariants_RangeQuery() throws Exception {
-    Request request =
+    Context request =
         mockEntryTypeRequestRegular(
             "g_variants",
             Map.of(
@@ -75,7 +75,7 @@ public class BeaconGenomicVariantTest extends BeaconModelEndPointTest {
 
   @Test
   public void testGenomicVariants_GeneIdQuery() throws Exception {
-    Request request =
+    Context request =
         mockEntryTypeRequestRegular("g_variants", Map.of("geneId", new String[] {"SNRPB"}));
     BeaconRequestBody requestBody = new BeaconRequestBody(request);
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
@@ -92,7 +92,7 @@ public class BeaconGenomicVariantTest extends BeaconModelEndPointTest {
 
   @Test
   public void testGenomicVariants_BracketQuery() throws Exception {
-    Request request =
+    Context request =
         mockEntryTypeRequestRegular(
             "g_variants",
             Map.of(
@@ -109,7 +109,7 @@ public class BeaconGenomicVariantTest extends BeaconModelEndPointTest {
 
   @Test
   public void testPostGenomicVariant() throws Exception {
-    Request request =
+    Context request =
         mockEntryTypeRequestRegular(EntryType.GENOMIC_VARIANT.getName(), new HashMap<>());
     ObjectMapper mapper = new ObjectMapper();
     String body =
