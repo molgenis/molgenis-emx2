@@ -176,9 +176,8 @@ public class TableStoreForCsvInZipFile implements TableAndFileStore {
     }
   }
 
-  // magic function to allow file in subfolder
   private ZipEntry getEntry(ZipFile zf, String name) {
-    String nameWithoutSpaces = name.replace(" ", "");
+    String nameWithoutSpaces = name.replace(" ", "").toLowerCase();
     List<? extends ZipEntry> result =
         // find all files that have name as prefix
         zf.stream()
