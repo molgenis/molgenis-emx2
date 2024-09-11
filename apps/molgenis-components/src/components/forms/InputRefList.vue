@@ -214,9 +214,9 @@ export default {
       this.showSelect = true;
     },
     toggle(value: IRow) {
-      if (this.selection?.includes(value)) {
+      if (this.selection?.some((selection) => deepEqual(selection, value))) {
         this.selection = this.selection.filter(
-          (selectedValue: IRow) => selectedValue !== value
+          (selectedValue: IRow) => !deepEqual(selectedValue, value)
         );
       } else {
         this.selection = [...this.selection, value];
