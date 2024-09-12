@@ -52,7 +52,7 @@ public class ZipApi {
     app.get(reportPath, ZipApi::getZippedReports);
   }
 
-  static String getZip(Context ctx) throws IOException {
+  static void getZip(Context ctx) throws IOException {
     boolean includeSystemColumns = includeSystemColumns(ctx);
     Path tempDir = Files.createTempDirectory(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT);
     tempDir.toFile().deleteOnExit();
@@ -67,7 +67,7 @@ public class ZipApi {
       MolgenisIO.toZipFile(zipFile, schema, includeSystemColumns);
       outputStream.write(Files.readAllBytes(zipFile));
 
-      return "Export success";
+      ctx.result("Export success");
     } finally {
       try (Stream<Path> files = Files.walk(tempDir)) {
         files.sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
@@ -75,7 +75,7 @@ public class ZipApi {
     }
   }
 
-  static String postZip(Context ctx) throws MolgenisException, IOException, ServletException {
+  static void postZip(Context ctx) throws MolgenisException, IOException, ServletException {
     Long start = System.currentTimeMillis();
     Schema schema = getSchema(ctx);
     // get uploaded file
@@ -94,7 +94,8 @@ public class ZipApi {
       if (fileName.endsWith(".zip")) {
         if (ctx.queryParam("async") != null) {
           String id = TaskApi.submit(new ImportCsvZipTask(tempFile.toPath(), schema, false));
-          return new TaskReference(id, schema).toString();
+          ctx.json(new TaskReference(id, schema));
+          return;
         } else {
           MolgenisIO.fromZipFile(tempFile.toPath(), schema, false);
         }
@@ -108,7 +109,7 @@ public class ZipApi {
       }
 
       ctx.status(200);
-      return "Import success in " + (System.currentTimeMillis() - start) + "ms";
+      ctx.result("Import success in " + (System.currentTimeMillis() - start) + "ms");
     } finally {
       if (ctx.queryParam("async") == null) {
         Files.delete(tempFile.toPath());
@@ -116,7 +117,7 @@ public class ZipApi {
     }
   }
 
-  static String getZipTable(Context ctx) throws IOException {
+  static void getZipTable(Context ctx) throws IOException {
     Table table = MolgenisWebservice.getTableById(ctx);
     boolean includeSystemColumns = includeSystemColumns(ctx);
     if (table == null) throw new MolgenisException("Table " + ctx.pathParam(TABLE) + " unknown");
@@ -136,7 +137,7 @@ public class ZipApi {
       MolgenisIO.toZipFile(zipFile, table, includeSystemColumns);
       outputStream.write(Files.readAllBytes(zipFile));
 
-      return "Export success";
+      ctx.result("Export success");
     } finally {
       try (Stream<Path> files = Files.walk(tempDir)) {
         files.sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
@@ -144,7 +145,7 @@ public class ZipApi {
     }
   }
 
-  static String getZippedReports(Context ctx) throws IOException {
+  static void getZippedReports(Context ctx) throws IOException {
     Path tempDir =
         Files.createTempDirectory(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT); // NOSONAR
     tempDir.toFile().deleteOnExit();
@@ -161,7 +162,7 @@ public class ZipApi {
 
       // copy the zip to output
       outputStream.write(Files.readAllBytes(zipFile));
-      return "Export success";
+      ctx.result("Export success");
     } finally {
       try (Stream<Path> files = Files.walk(tempDir)) {
         files.sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
