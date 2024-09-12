@@ -236,18 +236,25 @@ class Transform:
             df_all_organisations = df_all_organisations.drop_duplicates(subset=['resource', 'id'], keep='first')  # keep first to get lead organisations
             df_all_organisations.to_csv(self.path + 'Organisations.csv', index=False)
 
-        # get organisations for staging areas by making subsets on 'resource'
+        # get organisations for staging areas by making subsets on 'resource' for Organisations
         else:
-            df_organisations = pd.read_csv(CATALOGUE_SCHEMA_NAME + '_data/' + 'Organisations.csv', dtype='object')
-            df_resource = pd.read_csv(self.path + 'Resources.csv')
-            df_resource = df_resource[['id']]
-            df_resource.rename(columns={'id': 'resource'}, inplace=True)
-            resources_list = df_resource['resource'].to_list()
-            df_organisations.loc[:, 'select_resource'] = \
-                df_organisations.apply(lambda o: True if o['resource'] in resources_list else False, axis=1)
+            if self.database_name not in ['testCohort', 'testDatasource']:
+                df_organisations = pd.read_csv(CATALOGUE_SCHEMA_NAME + '_data/' + 'Organisations.csv', dtype='object')
+                df_resource = pd.read_csv(self.path + 'Resources.csv')
+                df_resource = df_resource[['id']]
+                df_resource.rename(columns={'id': 'resource'}, inplace=True)
+                resources_list = df_resource['resource'].to_list()
+                df_organisations.loc[:, 'select_resource'] = \
+                    df_organisations.apply(lambda o: True if o['resource'] in resources_list else False, axis=1)
+                df_organisations = df_organisations[df_organisations['select_resource']]
+            elif self.database_name == 'testCohort':
+                data = ['testCohort', 'UMCG', 'University Medical Center Groningen', 'Netherlands (the)',
+                        'https://www.umcg.nl/']
+                df_organisations = pd.DataFrame(data, columns=['resource', 'id', 'name', 'country', 'website'])
+            elif self.database_name == 'testDatasource':
+                data = ['testDatasource', 'AU', 'University of Aarhus', 'Denmark']
+                df_organisations = pd.DataFrame(data, columns=['resource', 'id', 'name', 'country'])
 
-            df_organisations = df_organisations[df_organisations['select_resource']]
-            # df_organisations = float_to_int(df_organisations)
             df_organisations.to_csv(self.path + 'Organisations.csv', index=False)
 
     def publications(self):
