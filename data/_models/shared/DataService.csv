@@ -3,7 +3,7 @@ DataService,,,,,,,,,,,http://www.w3.org/ns/dcat#DataService,,DCAT,
 DataService,,identifier,string,1,TRUE,,,,,,http://purl.org/dc/terms/identifier,A unique identifier of the item.,DCAT,DCAT Resource
 DataService,,catalog,ref_array,,,,Catalog,,,,http://www.w3.org/ns/dcat#Catalog,Reference back to any catalogs that contain this item.,DCAT,custom
 DataService,,type,hyperlink_array,,,,,,,,http://purl.org/dc/terms/type,A type belonging to the record,DCAT,DCAT Resource
-DataService,,title,string_array,,TRUE,,,,,,http://purl.org/dc/terms/title,A name given to the record.,DCAT,DCAT Resource / DCAT-AP-v3: required
+DataService,,title,string_array,,TRUE,,,,,,http://purl.org/dc/terms/title,A name given to the record.,DCAT,DCAT Resource / DCAT-AP-v3 DataService: required
 DataService,,description,string_array,,,,,,,,http://purl.org/dc/terms/description,A free-text account of the item.,DCAT,DCAT Resource
 DataService,,keyword,string_array,,,,,,,,http://www.w3.org/ns/dcat#keyword,A keyword or tag describing the resource.,DCAT,DCAT Resource
 DataService,,conforms to,hyperlink_array,,,,,,,,http://purl.org/dc/terms/conformsTo,An established standard to which the item conforms to.,DCAT,DCAT Resource
@@ -14,9 +14,9 @@ DataService,,relation,hyperlink_array,,,,,,,,http://purl.org/dc/terms/relation,A
 DataService,,qualified relation,hyperlink_array,,,,,,,,http://www.w3.org/ns/dcat#qualifiedRelation,Links to a description of a relationship with another resource.,DCAT,DCAT Resource
 DataService,,qualified attribution,ref_array,,,,Agent,,,,http://www.w3.org/ns/prov#qualifiedAttribution,Describes an entity that is in some form responsible for the item but is neither a creator or publisher.,DCAT,DCAT Resource
 DataService,,theme,hyperlink_array,,,,,,,,http://www.w3.org/ns/dcat#theme,A main category of the resource. A resource can have multiple themes.,DCAT,DCAT Resource
-DataService,,contact point,ref_array,,,,ContactPersons,,,,http://www.w3.org/ns/dcat#contactPoint,Relevant contact information for the cataloged resource. Use of vCard is recommended [VCARD-RDF].,DCAT,DCAT Resource
-DataService,,creator,ref_array,,,,ContactPersons,,,,http://purl.org/dc/terms/creator,The entity responsible for producing the resource.,DCAT,DCAT Resource
-DataService,,publisher,ref,,,,ContactPersons,,,,http://purl.org/dc/terms/publisher,The entity responsible for publishing the resource.,DCAT,DCAT Resource
+DataService,,contact point,ref_array,,,,ContactPoint,,,,http://www.w3.org/ns/dcat#contactPoint,Relevant contact information for the cataloged resource. Use of vCard is recommended [VCARD-RDF].,DCAT,DCAT Resource
+DataService,,creator,ref_array,,,,Agent,,,,http://purl.org/dc/terms/creator,The entity responsible for producing the resource.,DCAT,DCAT Resource
+DataService,,publisher,ref,,,,Agent,,,,http://purl.org/dc/terms/publisher,The entity responsible for publishing the resource.,DCAT,DCAT Resource
 DataService,,license,hyperlink,,,,,,,,http://purl.org/dc/terms/license,A legal document under which the resource is made available.,DCAT,DCAT Resource
 DataService,,rights,string,,,,,,,,http://purl.org/dc/terms/rights,"A statement that concerns all rights not addressed with dct:license or dct:accessRights, such as copyright statements.",DCAT,DCAT Resource
 DataService,,access rights,string,,,,,,,,http://purl.org/dc/terms/accessRights,Information about who can access the resource or an indication of its security status.,DCAT,DCAT Resource
@@ -30,7 +30,7 @@ DataService,,has current version,ref,,,,DataService,,,,http://www.w3.org/ns/dcat
 DataService,,replaces,hyperlink,,,,,,,,http://purl.org/dc/terms/replaces,A related item that is superseded by this item.,DCAT-v3,DCAT-v3 Resource
 DataService,,version notes,string_array,,,,,,,,http://www.w3.org/ns/adms#versionNotes,A changelog regarding the differences between this version and the previous one.,DCAT-v3,DCAT-v3 Resource
 DataService,,status,ontology,,,,Status,,,,http://www.w3.org/ns/adms#status,"The status of this item. Does not enforce a specific standard, though using existing standards such as ""EU Vocabularies Distribution Status"" is adviced.",DCAT-v3,DCAT-v3 Resource / custom: enforced same ontology as 'DCAT-AP-v3 Distribution'
-DataService,,has part,hyperlink,,,,,,,,http://purl.org/dc/terms/hasPart,An object that is included in this item.,DCAT-v3,DCAT-v3 Resource
+DataService,,has part,hyperlink,,,,,,,,http://purl.org/dc/terms/hasPart,A related resource that is included in this item.,DCAT-v3,DCAT-v3 Resource
 DataService,,first,ref,,,,DataService,,,,http://www.w3.org/ns/dcat#first,The first item in an ordered collection this item belongs to (when using dcat:DataSeries).,DCAT-v3,DCAT-v3 Resource
 DataService,,last,ref,,,,DataService,,,,http://www.w3.org/ns/dcat#last,The last item in an ordered collection this item belongs to (when using dcat:DataSeries).,DCAT-v3,DCAT-v3 Resource
 DataService,,previous,ref,,,,DataService,,,,http://www.w3.org/ns/dcat#prev,The previous item in an ordered collection this item belongs to (when using dcat:DataSeries).,DCAT-v3,DCAT-v3 Resource

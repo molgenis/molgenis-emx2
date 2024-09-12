@@ -15,7 +15,7 @@ Distribution,,has policy,hyperlink,,,,,,,,http://www.w3.org/ns/odrl/2/hasPolicy,
 Distribution,,release date,datetime,,,,,,,,http://purl.org/dc/terms/issued,Formal date of publication.,DCAT,DCAT Distribution
 Distribution,,modification date,datetime,,,,,,,,http://purl.org/dc/terms/modified,Most recent date of modification.,DCAT,DCAT Distribution
 Distribution,,access service,ref_array,,,,DataService,,,,https://www.w3.org/ns/dcat#accessService,A data service that gives access to the distribution of the dataset.,DCAT,DCAT Distribution
-Distribution,,access URL,hyperlink_array,,TRUE,,,,,,https://www.w3.org/ns/dcat#accessURL,A URL of the resource that gives access to a distribution of the dataset.,DCAT,DCAT Distribution / DCAT-AP-v3 Dataset: required
+Distribution,,access URL,hyperlink_array,,TRUE,,,,,,https://www.w3.org/ns/dcat#accessURL,A URL of the resource that gives access to a distribution of the dataset.,DCAT,DCAT Distribution / DCAT-AP-v3 Distribution: required
 Distribution,,download URL,hyperlink_array,,,,,,,,https://www.w3.org/ns/dcat#downloadURL,The URL of the downloadable file in a given format. The format is indicated by the distribution's dcterms:format and/or dcat:mediaType.,DCAT,DCAT Distribution
 Distribution,,byte size,int,,,,,,,byteSize >= 0,https://www.w3.org/ns/dcat#byteSize,The size of a distribution in bytes.,DCAT,DCAT Distribution
 Distribution,,format,ontology,,,,FileFormats,,,,http://purl.org/dc/terms/format,"The file format of the distribution. If using IANA type, use dcat:mediaType instead.",DCAT,DCAT Distribution

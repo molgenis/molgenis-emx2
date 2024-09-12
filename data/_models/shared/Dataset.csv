@@ -15,9 +15,9 @@ Dataset,,relation,hyperlink_array,,,,,,,,http://purl.org/dc/terms/relation,An ob
 Dataset,,qualified relation,hyperlink_array,,,,,,,,http://www.w3.org/ns/dcat#qualifiedRelation,Links to a description of a relationship with another resource.,DCAT,DCAT Resource
 Dataset,,qualified attribution,ref_array,,,,Agent,,,,http://www.w3.org/ns/prov#qualifiedAttribution,Describes an entity that is in some form responsible for the item but is neither a creator or publisher.,DCAT,DCAT Resource
 Dataset,,theme,hyperlink_array,,,,,,,,http://www.w3.org/ns/dcat#theme,A main category of the resource. A resource can have multiple themes.,DCAT,DCAT Resource
-Dataset,,contact point,ref_array,,,,ContactPersons,,,,http://www.w3.org/ns/dcat#contactPoint,Relevant contact information for the cataloged resource. Use of vCard is recommended [VCARD-RDF].,DCAT,DCAT Resource
-Dataset,,creator,ref_array,,,,ContactPersons,,,,http://purl.org/dc/terms/creator,The entity responsible for producing the resource.,DCAT,DCAT Resource
-Dataset,,publisher,ref,,,,ContactPersons,,,,http://purl.org/dc/terms/publisher,The entity responsible for publishing the resource.,DCAT,DCAT Resource
+Dataset,,contact point,ref_array,,,,ContactPoint,,,,http://www.w3.org/ns/dcat#contactPoint,Relevant contact information for the cataloged resource. Use of vCard is recommended [VCARD-RDF].,DCAT,DCAT Resource
+Dataset,,creator,ref_array,,,,Agent,,,,http://purl.org/dc/terms/creator,The entity responsible for producing the resource.,DCAT,DCAT Resource
+Dataset,,publisher,ref,,,,Agent,,,,http://purl.org/dc/terms/publisher,The entity responsible for publishing the resource.,DCAT,DCAT Resource
 Dataset,,license,hyperlink,,,,,,,,http://purl.org/dc/terms/license,A legal document under which the resource is made available.,DCAT,DCAT Resource
 Dataset,,rights,string,,,,,,,,http://purl.org/dc/terms/rights,"A statement that concerns all rights not addressed with dct:license or dct:accessRights, such as copyright statements.",DCAT,DCAT Resource
 Dataset,,access rights,string,,,,,,,,http://purl.org/dc/terms/accessRights,"Information about who can access the resource or an indication of its security status (DCAT-AP: Whether item is publicly accessible, has access restrictions or is not public).",DCAT,DCAT Resource / DCAT-AP-v3 Dataset: description changes
@@ -31,7 +31,7 @@ Dataset,,has current version,ref,,,,Dataset,,,,http://www.w3.org/ns/dcat#hasCurr
 Dataset,,replaces,hyperlink,,,,,,,,http://purl.org/dc/terms/replaces,A related item that is superseded by this item.,DCAT-v3,DCAT-v3 Resource
 Dataset,,version notes,string_array,,,,,,,,http://www.w3.org/ns/adms#versionNotes,A changelog regarding the differences between this version and the previous one.,DCAT-v3,DCAT-v3 Resource
 Dataset,,status,ontology,,,,Status,,,,http://www.w3.org/ns/adms#status,"The status of this item. Does not enforce a specific standard, though using existing standards such as ""EU Vocabularies Distribution Status"" is adviced.",DCAT-v3,DCAT-v3 Resource / custom: enforced same ontology as 'DCAT-AP-v3 Distribution'
-Dataset,,has part,hyperlink,,,,,,,,http://purl.org/dc/terms/hasPart,An object that is included in this item.,DCAT-v3,DCAT-v3 Resource
+Dataset,,has part,hyperlink,,,,,,,,http://purl.org/dc/terms/hasPart,A related resource that is included in this item.,DCAT-v3,DCAT-v3 Resource
 Dataset,,first,ref,,,,Dataset,,,,http://www.w3.org/ns/dcat#first,The first item in an ordered collection this item belongs to (when using dcat:DataSeries).,DCAT-v3,DCAT-v3 Resource
 Dataset,,last,ref,,,,Dataset,,,,http://www.w3.org/ns/dcat#last,The last item in an ordered collection this item belongs to (when using dcat:DataSeries).,DCAT-v3,DCAT-v3 Resource
 Dataset,,previous,ref,,,,Dataset,,,,http://www.w3.org/ns/dcat#prev,The previous item in an ordered collection this item belongs to (when using dcat:DataSeries).,DCAT-v3,DCAT-v3 Resource

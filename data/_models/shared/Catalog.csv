@@ -2,8 +2,8 @@ tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,ref
 Catalog,,,,,,,,,,,http://www.w3.org/ns/dcat#Catalog,DCAT catalog entries.,DCAT,
 Catalog,,identifier,string,1,TRUE,,,,,,http://purl.org/dc/terms/identifier,A unique identifier of the item.,DCAT,DCAT Resource
 Catalog,,type,hyperlink_array,,,,,,,,http://purl.org/dc/terms/type,A type belonging to the record,DCAT,DCAT Resource
-Catalog,,title,string_array,,TRUE,,,,,,http://purl.org/dc/terms/title,A name given to the record.,DCAT,DCAT Resource / DCAT-AP-v3 Dataset: required
-Catalog,,description,string_array,,TRUE,,,,,,http://purl.org/dc/terms/description,A free-text account of the item.,DCAT,DCAT Resource / DCAT-AP-v3 Dataset: required
+Catalog,,title,string_array,,TRUE,,,,,,http://purl.org/dc/terms/title,A name given to the record.,DCAT,DCAT Resource / DCAT-AP-v3 Catalog: required
+Catalog,,description,string_array,,TRUE,,,,,,http://purl.org/dc/terms/description,A free-text account of the item.,DCAT,DCAT Resource / DCAT-AP-v3 Catalog: required
 Catalog,,keyword,string_array,,,,,,,,http://www.w3.org/ns/dcat#keyword,A keyword or tag describing the resource.,DCAT,DCAT Resource
 Catalog,,conforms to,hyperlink_array,,,,,,,,http://purl.org/dc/terms/conformsTo,An established standard to which the item conforms to.,DCAT,DCAT Resource
 Catalog,,language,ontology_array,,,,Languages,,,,http://purl.org/dc/terms/language,"A language of the item. This refers to the natural language used for textual metadata (i.e. titles, descriptions, etc) of a cataloged resource (i.e. dataset or service) or the textual values of a dataset distribution.",DCAT,DCAT Resource
@@ -13,9 +13,9 @@ Catalog,,relation,hyperlink_array,,,,,,,,http://purl.org/dc/terms/relation,An ob
 Catalog,,qualified relation,hyperlink_array,,,,,,,,http://www.w3.org/ns/dcat#qualifiedRelation,Links to a description of a relationship with another resource.,DCAT,DCAT Resource
 Catalog,,qualified attribution,ref_array,,,,Agent,,,,http://www.w3.org/ns/prov#qualifiedAttribution,Describes an entity that is in some form responsible for the item but is neither a creator or publisher.,DCAT,DCAT Resource
 Catalog,,theme,hyperlink_array,,,,,,,,http://www.w3.org/ns/dcat#theme,A main category of the resource. A resource can have multiple themes.,DCAT,DCAT Resource
-Catalog,,contact point,ref_array,,,,ContactPersons,,,,http://www.w3.org/ns/dcat#contactPoint,Relevant contact information for the cataloged resource. Use of vCard is recommended [VCARD-RDF].,DCAT,DCAT Resource
-Catalog,,creator,ref_array,,,,ContactPersons,,,,http://purl.org/dc/terms/creator,The entity responsible for producing the resource.,DCAT,DCAT Resource
-Catalog,,publisher,ref,,,,ContactPersons,,,,http://purl.org/dc/terms/publisher,The entity responsible for publishing the resource.,DCAT,DCAT Resource
+Catalog,,contact point,ref_array,,,,ContactPoint,,,,http://www.w3.org/ns/dcat#contactPoint,Relevant contact information for the cataloged resource. Use of vCard is recommended [VCARD-RDF].,DCAT,DCAT Resource
+Catalog,,creator,ref,,,,Agent,,,,http://purl.org/dc/terms/creator,The entity responsible for producing the resource.,DCAT,DCAT Resource
+Catalog,,publisher,ref,,TRUE,,Agent,,,,http://purl.org/dc/terms/publisher,The entity responsible for publishing the resource.,DCAT,DCAT Resource / DCAT-AP-v3 Catalog: required
 Catalog,,license,hyperlink,,,,,,,,http://purl.org/dc/terms/license,A legal document under which the resource is made available.,DCAT,DCAT Resource
 Catalog,,rights,string,,,,,,,,http://purl.org/dc/terms/rights,"A statement that concerns all rights not addressed with dct:license or dct:accessRights, such as copyright statements.",DCAT,DCAT Resource
 Catalog,,access rights,string,,,,,,,,http://purl.org/dc/terms/accessRights,Information about who can access the resource or an indication of its security status.,DCAT,DCAT Resource
@@ -29,7 +29,7 @@ Catalog,,has current version,ref,,,,Catalog,,,,http://www.w3.org/ns/dcat#hasCurr
 Catalog,,replaces,hyperlink,,,,,,,,http://purl.org/dc/terms/replaces,A related item that is superseded by this item.,DCAT-v3,DCAT-v3 Resource
 Catalog,,version notes,string_array,,,,,,,,http://www.w3.org/ns/adms#versionNotes,A changelog regarding the differences between this version and the previous one.,DCAT-v3,DCAT-v3 Resource
 Catalog,,status,ontology,,,,Status,,,,http://www.w3.org/ns/adms#status,"The status of this item. Does not enforce a specific standard, though using existing standards such as 'EU Vocabularies Distribution Status' is adviced.",DCAT-v3,DCAT-v3 Resource / custom: enforced same ontology as 'DCAT-AP-v3 Distribution'
-Catalog,,has part,hyperlink,,,,,,,,http://purl.org/dc/terms/hasPart,An object that is included in this item.,DCAT-v3,DCAT-v3 Resource
+Catalog,,has part,ref_array,,,,Catalog,,,,http://purl.org/dc/terms/hasPart,A related resource that is included in this item.,DCAT-v3,DCAT-v3 Resource / DCAT-AP-V3: must be catalog
 Catalog,,first,ref,,,,Catalog,,,,http://www.w3.org/ns/dcat#first,The first item in an ordered collection this item belongs to (when using dcat:DataSeries).,DCAT-v3,DCAT-v3 Resource
 Catalog,,last,ref,,,,Catalog,,,,http://www.w3.org/ns/dcat#last,The last item in an ordered collection this item belongs to (when using dcat:DataSeries).,DCAT-v3,DCAT-v3 Resource
 Catalog,,previous,ref,,,,Catalog,,,,http://www.w3.org/ns/dcat#prev,The previous item in an ordered collection this item belongs to (when using dcat:DataSeries).,DCAT-v3,DCAT-v3 Resource
@@ -38,7 +38,7 @@ Catalog,,frequency,string,,,,,,,,http://purl.org/dc/terms/accrualPeriodicity,The
 Catalog,,in series,ref_array,,,,DatasetSeries,,,,https://www.w3.org/ns/dcat#inSeries,A series this item belongs to.,DCAT-v3,DCAT-v3 Dataset
 Catalog,,spatial coverage,ontology_array,,,,Countries,,,,http://purl.org/dc/terms/spatial,The geographical area covered by the dataset.,DCAT,DCAT Dataset
 Catalog,,spatial resolution,decimal,,,,,,,,http://purl.org/dc/terms/spatialResolutionInMeters,"Minimum spatial separation resolvable in a dataset, measured in meters.",DCAT,DCAT Dataset
-Catalog,,temporal coverage,string,,,,,,,,http://purl.org/dc/terms/temporal,The temporal period that the dataset covers.,DCAT,DCAT Dataset
+Catalog,,temporal coverage,string_array,,,,,,,,http://purl.org/dc/terms/temporal,The temporal period that the dataset covers.,DCAT,DCAT Dataset
 Catalog,,temporal resolution,string,,,,,,,,http://purl.org/dc/terms/temporalResolution,Minimum time period resolvable in the dataset.,DCAT,DCAT Dataset
 Catalog,,was generated by,string_array,,,,,,,,http://www.w3.org/ns/prov#wasGeneratedBy,"An activity that generated, or provides the business context for, the creation of the dataset.",DCAT,DCAT Dataset
 Catalog,,catalog record,refBack,,,,CatalogRecord,,catalog,,https://www.w3.org/ns/dcat#record,"A record describing the registration of a single resource (e.g., a dataset, a data service) that is part of this item.",DCAT,DCAT Catalog
@@ -46,6 +46,6 @@ Catalog,,dataset,refBack,,,,Dataset,,catalog,,"https://www.w3.org/ns/dcat#resour
 Catalog,,service,refBack,,,,DataService,,catalog,,"https://www.w3.org/ns/dcat#resource,https://www.w3.org/ns/dcat#service",A service that is listed in this item.,DCAT,DCAT Catalog / DCAT-v3 Catalog: Added resource semantics
 Catalog,,catalog,ref_array,,,,Catalog,,,,"https://www.w3.org/ns/dcat#resource,https://www.w3.org/ns/dcat#catalog",A catalog that is listed in this item.,DCAT,DCAT Catalog / DCAT-v3 Catalog: Added resource semantics
 Catalog,,homepage,hyperlink,,,,,,,,http://xmlns.com/foaf/0.1/homepage,Homepage of the item (usually an HTML web document).,DCAT,DCAT Catalog
-Catalog,,themes,hyperlink,,,,,,,,https://www.w3.org/ns/dcat#themeTaxonomy,"A knowledge organization system (KOS) used to classify the resources documented in this item (e.g., datasets and services).",DCAT,DCAT Catalog
+Catalog,,themes,hyperlink_array,,,,,,,,https://www.w3.org/ns/dcat#themeTaxonomy,"A knowledge organization system (KOS) used to classify the resources documented in this item (e.g., datasets and services).",DCAT,DCAT Catalog
 Catalog,,applicable legislation,hyperlink_array,,,,,,,,http://data.europa.eu/r5r/applicableLegislation,Legislation that mandates creation or management of this item (must follow European Legislation Identifier (ELI) guidelines).,DCAT-AP-v3,DCAT-AP-v3 Catalog
 Catalog,,EJP_RD vpConnection,hyperlink,,,,,,,,https://w3id.org/ejp-rd/vocabulary#vpConnection,"This property must be attached to every entity that you wish the EJP-RD Virtual Platform to explore.",EJP-RD
