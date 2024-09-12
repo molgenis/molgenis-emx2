@@ -284,9 +284,10 @@ class Transform:
 
     def network_variables(self):
         df = pd.read_csv(self.path + 'Network variables.csv', keep_default_na=False, dtype='object')
+        df_repeats = pd.read_csv(self.path + 'Repeated variables.csv', dtype='object')
         df.loc[:, 'resource'] = df['network'].apply(strip_resource)
         df.loc[:, 'variable.resource'] = df['variable.resource'].apply(strip_resource)
-        df.loc[:, 'variable.name'] = df['variable.name'].apply(remove_number)
+        df.loc[:, 'variable.name'] = df['variable.name'].apply(remove_number, df_repeats=df_repeats)
         df = df.drop_duplicates(subset=['resource', 'variable.resource', 'variable.name'])
 
         # df = float_to_int(df)  # convert float back to integer
@@ -296,10 +297,12 @@ class Transform:
         # restructure variable values
         df_var_values = pd.read_csv(self.path + 'Variable values.csv', keep_default_na=False, dtype='object')
         df_var_values.loc[:, 'variable.resource'] = df_var_values['resource'].apply(strip_resource)
+        df_repeats = pd.read_csv(self.path + 'Repeated variables.csv', dtype='object')
 
         df_var_values_cdm = df_var_values[df_var_values['variable.resource'].isin(['LifeCycle', 'ATHLETE',
                                                                                    'testNetwork1', 'EXPANSE'])]
-        df_var_values_cdm.loc[:, 'variable.name'] = df_var_values_cdm['variable.name'].apply(remove_number)
+        df_var_values_cdm.loc[:, 'variable.name'] = df_var_values_cdm['variable.name'].apply(remove_number,
+                                                                                             df_repeats=df_repeats)
 
         df_var_values_no_cdm = df_var_values[~df_var_values['variable.resource'].isin(['LifeCycle', 'ATHLETE',
                                                                                        'testNetwork1', 'EXPANSE'])]
@@ -353,8 +356,9 @@ class Transform:
 
             df_cdm = df[df['target'].isin(['LifeCycle', 'ATHLETE', 'testNetwork1', 'EXPANSE'])]
             if len(df_cdm) != 0:
+                df_repeats = pd.read_csv(self.path + 'Repeated variables.csv', keep_default_na=False, dtype='object')
                 df_no_cdm = df[~df['target'].isin(['LifeCycle', 'ATHLETE', 'testNetwork1', 'EXPANSE'])]
-                df_cdm.loc[:, 'target variable'] = df_cdm['target variable'].apply(remove_number)
+                df_cdm.loc[:, 'target variable'] = df_cdm['target variable'].apply(remove_number, df_repeats=df_repeats)
                 df_cdm = df_cdm.fillna('')
 
                 # drop duplicate mappings
@@ -460,10 +464,11 @@ def restructure_repeats(df_variables, df_repeats):
     return df_variables
 
 
-def remove_number(var_name):
-    new_var_name = var_name.strip(digits)
+def remove_number(var_name, df_repeats):
+    if var_name in df_repeats['is repeat of.name'].to_list():
+        var_name = var_name.strip(digits)
 
-    return new_var_name
+    return var_name
 
 
 def get_repeat_unit(var_name, df):
