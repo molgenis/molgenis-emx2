@@ -75,7 +75,6 @@ export default defineComponent({
       lastTokenValue: "",
       errorMessage: "",
       successMessage: "",
-      duplicateNameMessage: "",
     };
   },
   computed: {
@@ -90,13 +89,11 @@ export default defineComponent({
             .filter((value: string): boolean => value !== "")
         : [];
     },
-  },
-  watch: {
-    tokenName() {
+    duplicateNameMessage(): string {
       if (this.accessTokens.includes(this.tokenName)) {
-        this.duplicateNameMessage = "Duplicate token name";
+        return "Duplicate token name";
       } else {
-        this.duplicateNameMessage = "";
+        return "";
       }
     },
   },
