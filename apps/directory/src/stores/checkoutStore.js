@@ -249,7 +249,7 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
     }
 
     const body = await response.json();
-    window.location.href = body.redirect_uri;
+    window.location.href = body.redirectUrl;
   }
 
   return {

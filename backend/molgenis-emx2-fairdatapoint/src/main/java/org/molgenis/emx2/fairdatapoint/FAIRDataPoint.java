@@ -3,7 +3,7 @@ package org.molgenis.emx2.fairdatapoint;
 import static java.util.Map.entry;
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.eclipse.rdf4j.model.util.Values.literal;
-import static org.molgenis.emx2.rdf.RDFUtils.*;
+import static org.molgenis.emx2.utils.URIUtils.*;
 
 import java.io.StringWriter;
 import java.net.URI;
