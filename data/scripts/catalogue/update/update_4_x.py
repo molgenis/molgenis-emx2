@@ -84,9 +84,11 @@ class Transform:
 
         self.resources()
         self.organisations()
-        self.variables()
-        self.variable_values()
         self.publications()
+
+        if self.database_type != 'cohort_UMCG':
+            self.variables()
+            self.variable_values()
 
         if self.database_type != 'network':
             self.variable_mappings()
