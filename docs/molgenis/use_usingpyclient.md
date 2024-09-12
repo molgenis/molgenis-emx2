@@ -319,7 +319,7 @@ Creates a new schema on the server.
 If no template is selected, an empty schema is created.
 Only users with _admin_ privileges are able to perform this action.
 
-| argument            | type | description                   | required | default |
+| parameter           | type | description                   | required | default |
 |---------------------|------|-------------------------------|----------|---------|
 | `name`              | str  | the name of the new schema    | True     |         |
 | `description`       | str  | description of the new schema | False    | None    |
@@ -349,9 +349,9 @@ Throws the `PermissionDeniedException` if execution of the method is attempted w
 Throws the `NoSuchSchemaException` if the schema is not found on the server.
 
 
-| argument | type | description                      | required | default |
-|----------|------|----------------------------------|----------|---------|
-| `name`   | str  | the name of the schema to delete | True     |         | 
+| parameter | type | description                      | required | default |
+|-----------|------|----------------------------------|----------|---------|
+| `name`    | str  | the name of the schema to delete | True     |         | 
 
 ##### examples
 ```python
@@ -369,7 +369,7 @@ Only users with _admin_ privileges are able to perform this action.
 Throws the `PermissionDeniedException` if execution of the method is attempted without _admin_ privileges.
 Throws the `NoSuchSchemaException` if the schema is not found on the server.
 
-| argument      | type | description             | required | default |
+| parameter     | type | description             | required | default |
 |---------------|------|-------------------------|----------|---------|
 | `name`        | str  | the name of the schema  | True     |         |
 | `description` | str  | the updated description | True     |         |
@@ -397,7 +397,7 @@ Only users with _admin_ privileges are able to perform this action.
 Throws the `PermissionDeniedException` if execution of the method is attempted without _admin_ privileges.
 Throws the `NoSuchSchemaException` if the schema is not found on the server.
 
-| argument            | type | description                   | required | default |
+| parameter           | type | description                   | required | default |
 |---------------------|------|-------------------------------|----------|---------|
 | `name`              | str  | the name of the schema        | True     |         |
 | `description`       | str  | new description of the schema | False    | None    |
