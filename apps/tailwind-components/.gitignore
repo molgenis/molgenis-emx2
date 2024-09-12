@@ -28,3 +28,5 @@ showCase
 
 # testing
 .reports/
+#VsCode
+*.code-workspace
