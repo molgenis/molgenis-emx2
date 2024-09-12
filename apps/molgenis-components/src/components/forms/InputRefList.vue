@@ -251,8 +251,11 @@ export default {
     },
   },
   watch: {
-    modelValue() {
-      this.selection = deepClone(this.modelValue);
+    async modelValue() {
+      const keyList = deepClone(this.modelValue).map(async (row: IRow) =>
+        convertRowToPrimaryKey(row, this.tableId, this.schemaId)
+      );
+      this.selection = await Promise.all(keyList);
     },
     filter() {
       if (!this.loading) {
@@ -261,13 +264,21 @@ export default {
     },
   },
   async created() {
-    //should be created, not mounted, so we are before the watchers
+    this.loading = true;
     this.client = Client.newClient(this.schemaId);
     this.tableMetadata = await this.client.fetchTableMetaData(this.tableId);
     await this.loadOptions();
+    this.loading = true;
     if (!this.modelValue) {
       this.selection = [];
+    } else {
+      const keyList = deepClone(this.modelValue).map(async (row: IRow) =>
+        convertRowToPrimaryKey(row, this.tableId, this.schemaId)
+      );
+      this.selection = await Promise.all(keyList);
     }
+
+    this.loading = false;
   },
   emits: ["optionsLoaded", "update:modelValue"],
 };
@@ -306,7 +317,6 @@ export default {
         v-model="defaultValue"
         tableId="Pet"
         description="This is a default value"
-        :defaultValue="defaultValue"
         schemaId="pet store"
         :canEdit="canEdit"
         refLabel="${name}"
@@ -363,7 +373,7 @@ export default {
   data: function () {
     return {
       value: null,
-      defaultValue: [{ name: "pooky" }, { name: "spike" }],
+      defaultValue: [{ name: "pooky", someNoneKeyColumn: "foobar" }, { name: "spike" }],
       filterValue: [{ name: "spike" }],
       multiColumnValue: null,
       maxNumValue: null,
