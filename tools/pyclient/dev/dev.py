@@ -83,7 +83,7 @@ async def main():
         pet_store = openpyxl.load_workbook(pet_store_excel, data_only=True)
         print(pet_store.sheetnames)
 
-        pet_sheet = pd.DataFrame((ps := pd.DataFrame(pet_store['Pet'].values)).values[1:], columns=ps.iloc[0])
+        pet_sheet = pd.DataFrame((ps := pd.DataFrame(pet_store['Pet'].values)).values[1:], columns=ps.iloc[0].values)
         print(pet_sheet.to_string())
 
         raw_collections = await client.export(schema='catalogue', table='Collections')

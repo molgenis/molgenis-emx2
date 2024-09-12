@@ -186,6 +186,7 @@ Asynchronously exports data from a schema to a file in the desired format and in
 If the table is specified, only data from that table is exported, otherwise the export contains all tables on the schema.
 
 The name of the file to which the data is exported can be specified in the `filename` parameter.
+If no file name is given a single table is by default exported using the _csv API_ and the collection of tables on the schema using the _zip API_.
 The `as_excel` parameter specifies whether to export the data in Excel format. This is ignored if a filename is given.
 Throws the `NoSuchSchemaException` if the user does not have at least _viewer_ permissions or if the schema does not exist.
 
@@ -200,10 +201,10 @@ Throws the `NoSuchSchemaException` if the user does not have at least _viewer_ p
 ##### examples
 ```python
 
-# Save the table 'Collections' on the schema 'MySchema' to the file 'Collections.csv'
-await client.export(schema='MySchema', table='Collections')  # Saves to CSV file by default with name of the table
+# Export the table 'Collections' on the schema 'MySchema' from the CSV API to a BytesIO object 
+collections_raw: BytesIO = await client.export(schema='MySchema', table='Collections')  
 
-# Save 'Collections' to the file 'Collections-export.xlsx' in a different folder
+# Export 'Collections' from the Excel API to the file 'Collections-export.xlsx' 
 await client.export(schema='MySchema', table='Collections', filename='Collections-export.xlsx')
 ```
 
