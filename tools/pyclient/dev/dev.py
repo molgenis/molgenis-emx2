@@ -2,7 +2,7 @@
 # FILE: dev.py
 # AUTHOR: David Ruvolo, Ype Zijlstra
 # CREATED: 2023-05-22
-# MODIFIED: 2024-07-16
+# MODIFIED: 2024-08-22
 # PURPOSE: development script for initial testing of the py-client
 # STATUS: ongoing
 # PACKAGES: pandas, python-dotenv
@@ -39,15 +39,15 @@ async def main():
     async with Client('https://emx2.dev.molgenis.org/', schema='catalogue') as client:
 
         participant_range = [10_000, 20_000.5]
-        big_data = client.get(table='Subcohorts',
+        big_data = client.get(table='Collection subcohorts',
                               query_filter=f'`numberOfParticipants` between {participant_range}', as_df=True)
         print(big_data.head().to_string())
 
-        countries = ["Denmark", "France"]
-        cohorts = client.get(table='Cohorts',
-                             query_filter=f'subcohorts.countries.name != {countries}',
+        excluded_countries = ["Denmark", "France"]
+        collections = client.get(table='Collections',
+                             query_filter=f'subcohorts.countries.name != {excluded_countries}',
                              as_df=True)
-        print(cohorts.to_string())
+        print(collections.head().to_string())
 
         var_values = client.get(table='Variable values',
                                 query_filter='label != No and value != 1', as_df=True)
@@ -58,7 +58,7 @@ async def main():
     async with Client('https://emx2.dev.molgenis.org/', token=token) as client:
         # Check sign in status
         print(client.__repr__())
-        print(client.status)
+        # print(client.status)
 
         # Retrieve data from a table in a schema on the server using the 'get' method
         # Passing non-existing schema name yields a NoSuchSchemaException
@@ -76,16 +76,16 @@ async def main():
             print(e)
 
         # Export the entire 'pet store' schema to a .xlsx file
-        # and export the 'Cohorts' table from schema 'catalogue' to a .csv file
-        client.export(schema='pet store', fmt='xlsx')
-        client.export(schema='catalogue-demo', table='Cohorts', fmt='csv')
+        # and export the 'Collections' table from schema 'catalogue' to a .csv file
+        await client.export(schema='pet store', fmt='xlsx')
+        await client.export(schema='catalogue', table='Collections', fmt='csv')
 
     # Connect to server with a default schema specified
     with Client('https://emx2.dev.molgenis.org/', schema='pet store', token=token) as client:
         print(client.__repr__())
-        client.export(fmt='csv')
-        client.export(table='Pet', fmt='csv')
-        client.export(table='Pet', fmt='xlsx')
+        await client.export(fmt='csv')
+        await client.export(table='Pet', fmt='csv')
+        await client.export(table='Pet', fmt='xlsx')
 
         # Retrieving data from table Pet as a list
         data = client.get(table='Pet')  # get Pets
@@ -217,13 +217,14 @@ async def main():
     with Client('https://emx2.dev.molgenis.org/', token=token) as client:
         # Create a schema
         try:
-            client.create_schema(name='myNewSchema')
+            schema_create = asyncio.create_task(client.create_schema(name='myNewSchema'))
             print(client.schema_names)
         except (GraphQLException, PermissionDeniedException) as e:
             print(e)
 
         # Update the description
         try:
+            await schema_create
             client.update_schema(name='myNewSchema', description='I forgot the description')
             print(client.schema_names)
             print(client.schemas)
@@ -232,14 +233,15 @@ async def main():
 
         # Recreate the schema: delete and create
         try:
-            client.recreate_schema(name='myNewSchema')
+            schema_recreate = asyncio.create_task(client.recreate_schema(name='myNewSchema'))
             print(client.schema_names)
         except (GraphQLException, NoSuchSchemaException) as e:
             print(e)
 
         # Delete the schema
         try:
-            client.delete_schema(name='myNewSchema')
+            await schema_create
+            await asyncio.create_task(client.delete_schema(name='myNewSchema'))
             print(client.schema_names)
         except (GraphQLException, NoSuchSchemaException) as e:
             print(e)
@@ -250,24 +252,24 @@ async def main():
     catalogue_schema = Client('https://emx2.dev.molgenis.org/').get_schema_metadata('catalogue')
 
     # Find the tables inheriting from the 'Resources' table
-    resource_children = catalogue_schema.get_tables(by='inheritName', value='Resources')
+    resource_children = catalogue_schema.get_tables(by='inheritName', value='Collections')
 
-    print("Tables in the schema inheriting from the 'Resources' table.")
+    print("Tables in the schema inheriting from the 'Collections' table.")
     for res_chi in resource_children:
         print(f"{res_chi!s}\n{res_chi!r}")
     print("\n")
 
-    # Find the Cohorts table
-    cohorts = catalogue_schema.get_table(by='name', value='Cohorts')
+    # Find the  table
+    collections = catalogue_schema.get_table(by='name', value='Collections')
 
-    # Find the columns in the Cohorts table referencing the Organisations table
-    orgs_refs = cohorts.get_columns(by='refTableName', value='Organisations')
+    # Find the columns in the Collections table referencing the Organisations table
+    orgs_refs = collections.get_columns(by='refTableName', value='Organisations')
 
-    # Find the columns in the Cohorts table referencing the Organisations table in a reference array
-    orgs_array_refs = cohorts.get_columns(by=['columnType', 'refTableName'], value=['REF_ARRAY', 'Organisations'])
+    # Find the columns in the Collections table referencing the Organisations table in a reference array
+    orgs_array_refs = collections.get_columns(by=['columnType', 'refTableName'], value=['REF_ARRAY', 'Collection organisations'])
 
     # Print the __str__ and __repr__ representations of these columns
-    print("Columns in the Cohorts table referencing the Organisations table in an array.")
+    print("Columns in the Collections table referencing the Collection organisations table in an array.")
     for orgs_ref in orgs_array_refs:
         print(f"{orgs_ref!s}\n{orgs_ref!r}\n")
 

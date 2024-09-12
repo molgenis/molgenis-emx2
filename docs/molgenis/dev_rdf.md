@@ -49,5 +49,8 @@ The recognized mime types are:
 
 ### Convenience APIs
 As a convience there are APIs to always download in Turtle or JSON-LD:
-- /api/ttl Downloads always in Turtle
-- /api/jsonld Downloads always in JSON-LD
+- `/api/ttl` Downloads always in Turtle
+- `/api/jsonld` Downloads always in JSON-LD
+
+One can replace `/api/rdf/` with the above convenience APIs in any of the explained data retrieval API points as
+mentioned on this page (such as `<server>/pet%20store/api/jsonld/Pet?category=cat`).
