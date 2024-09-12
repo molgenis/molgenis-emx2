@@ -95,6 +95,7 @@ class Transform:
 
         # TODO: for vac4eu BPE model is an exception, not part of a network, also other model in VAC4EU
         # TODO: move DAPs to Organisations.role = data access provider (remove all other columns)
+        # TODO: move 'Data sources.data holder' to Organisations.role = 'data holder'
         for table_name in ['Datasets', 'Dataset mappings', 'External identifiers', 'Subcohorts', 'Subcohort counts',
                            'Collection events', 'Quantitative information', 'Documentation', 'Contacts',
                            'Variables', 'Variable values', 'Linked resources']:
@@ -393,6 +394,7 @@ class Transform:
 
             df.rename(columns={'subcohort.resource': 'resource',
                                'subcohort.name': 'subpopulation',
+                               'subcohorts': 'subpopulations',
                                'collection event.name': 'collection event',
                                'network': 'resource',
                                'main resource': 'resource'}, inplace=True)
