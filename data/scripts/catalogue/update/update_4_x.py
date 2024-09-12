@@ -29,7 +29,7 @@ def get_data_model(profile_path, path_to_write, profile):
         if '.csv' in file_name:
             file_path = Path.joinpath(profile_path, file_name)
             df = pd.read_csv(file_path, keep_default_na=False, dtype='object')
-            df = df.loc[df['profiles'].str.contains(profile)]
+            df = df.loc[df['profiles'].apply(lambda p: profile in p.split(','))]
             data_model = pd.concat([data_model, df])
 
     # data_model = float_to_int(data_model)
@@ -84,9 +84,11 @@ class Transform:
 
         self.resources()
         self.organisations()
-        self.variables()
-        self.variable_values()
         self.publications()
+
+        if self.database_type != 'cohort_UMCG':
+            self.variables()
+            self.variable_values()
 
         if self.database_type != 'network':
             self.variable_mappings()
@@ -95,6 +97,7 @@ class Transform:
 
         # TODO: for vac4eu BPE model is an exception, not part of a network, also other model in VAC4EU
         # TODO: move DAPs to Organisations.role = data access provider (remove all other columns)
+        # TODO: move 'Data sources.data holder' to Organisations.role = 'data holder'
         for table_name in ['Datasets', 'Dataset mappings', 'External identifiers', 'Subcohorts', 'Subcohort counts',
                            'Collection events', 'Quantitative information', 'Documentation', 'Contacts',
                            'Variables', 'Variable values', 'Linked resources']:
@@ -227,15 +230,25 @@ class Transform:
             df_all_organisations = df_all_organisations.drop_duplicates(subset=['resource', 'id'], keep='first')  # keep first to get lead organisations
             df_all_organisations.to_csv(self.path + 'Organisations.csv', index=False)
 
-        # get organisations for staging areas by making subsets on 'resource'
+        # get organisations for staging areas by making subsets on 'resource' for Organisations
         else:
-            df_organisations = pd.read_csv(CATALOGUE_SCHEMA_NAME + '_data/' + 'Organisations.csv', dtype='object')
-            df_resource = pd.read_csv(self.path + 'Resources.csv')
-            resources_list = df_resource['id'].to_list()
-            df_organisations.loc[:, 'select_resource'] = \
-                df_organisations.apply(lambda o: 'True' if o['resource'] in resources_list else 'False', axis=1)
+            if self.database_name not in ['testCohort', 'testDatasource']:
+                df_organisations = pd.read_csv(CATALOGUE_SCHEMA_NAME + '_data/' + 'Organisations.csv', dtype='object')
+                df_resource = pd.read_csv(self.path + 'Resources.csv')
+                df_resource = df_resource[['id']]
+                df_resource.rename(columns={'id': 'resource'}, inplace=True)
+                resources_list = df_resource['resource'].to_list()
+                df_organisations.loc[:, 'select_resource'] = \
+                    df_organisations.apply(lambda o: True if o['resource'] in resources_list else False, axis=1)
+                df_organisations = df_organisations[df_organisations['select_resource']]
+            elif self.database_name == 'testCohort':
+                data = [['testCohort', 'UMCG', 'University Medical Center Groningen', 'Netherlands (the)',
+                        'https://www.umcg.nl/']]
+                df_organisations = pd.DataFrame(data, columns=['resource', 'id', 'name', 'country', 'website'])
+            elif self.database_name == 'testDatasource':
+                data = ['testDatasource', 'AU', 'University of Aarhus', 'Denmark']
+                df_organisations = pd.DataFrame(data, columns=['resource', 'id', 'name', 'country'])
 
-            # df_organisations = float_to_int(df_organisations)
             df_organisations.to_csv(self.path + 'Organisations.csv', index=False)
 
     def publications(self):
@@ -271,9 +284,10 @@ class Transform:
 
     def network_variables(self):
         df = pd.read_csv(self.path + 'Network variables.csv', keep_default_na=False, dtype='object')
+        df_repeats = pd.read_csv(self.path + 'Repeated variables.csv', dtype='object')
         df.loc[:, 'resource'] = df['network'].apply(strip_resource)
         df.loc[:, 'variable.resource'] = df['variable.resource'].apply(strip_resource)
-        df.loc[:, 'variable.name'] = df['variable.name'].apply(remove_number)
+        df.loc[:, 'variable.name'] = df['variable.name'].apply(remove_number, df_repeats=df_repeats)
         df = df.drop_duplicates(subset=['resource', 'variable.resource', 'variable.name'])
 
         # df = float_to_int(df)  # convert float back to integer
@@ -283,10 +297,12 @@ class Transform:
         # restructure variable values
         df_var_values = pd.read_csv(self.path + 'Variable values.csv', keep_default_na=False, dtype='object')
         df_var_values.loc[:, 'variable.resource'] = df_var_values['resource'].apply(strip_resource)
+        df_repeats = pd.read_csv(self.path + 'Repeated variables.csv', dtype='object')
 
         df_var_values_cdm = df_var_values[df_var_values['variable.resource'].isin(['LifeCycle', 'ATHLETE',
                                                                                    'testNetwork1', 'EXPANSE'])]
-        df_var_values_cdm.loc[:, 'variable.name'] = df_var_values_cdm['variable.name'].apply(remove_number)
+        df_var_values_cdm.loc[:, 'variable.name'] = df_var_values_cdm['variable.name'].apply(remove_number,
+                                                                                             df_repeats=df_repeats)
 
         df_var_values_no_cdm = df_var_values[~df_var_values['variable.resource'].isin(['LifeCycle', 'ATHLETE',
                                                                                        'testNetwork1', 'EXPANSE'])]
@@ -312,7 +328,7 @@ class Transform:
                 self.database_name in ['catalogue', 'LifeCycle', 'ATHLETE', 'EXPANSE']:
             df_variables_cdm = df_variables[df_variables['resource'].isin(['LifeCycle', 'ATHLETE',
                                                                            'testNetwork1', 'EXPANSE'])]
-            df_variables_cdm.loc[:, 'name'] = df_variables_cdm['name'].apply(remove_number)
+            df_variables_cdm.loc[:, 'name'] = df_variables_cdm['name'].apply(remove_number, df_repeats=df_repeats)
             df_variables_cdm = restructure_repeats(df_variables_cdm, df_repeats)
 
         # select variables that are not in LifeCycle or ATHLETE or testNetwork1
@@ -340,8 +356,9 @@ class Transform:
 
             df_cdm = df[df['target'].isin(['LifeCycle', 'ATHLETE', 'testNetwork1', 'EXPANSE'])]
             if len(df_cdm) != 0:
+                df_repeats = pd.read_csv(self.path + 'Repeated variables.csv', keep_default_na=False, dtype='object')
                 df_no_cdm = df[~df['target'].isin(['LifeCycle', 'ATHLETE', 'testNetwork1', 'EXPANSE'])]
-                df_cdm.loc[:, 'target variable'] = df_cdm['target variable'].apply(remove_number)
+                df_cdm.loc[:, 'target variable'] = df_cdm['target variable'].apply(remove_number, df_repeats=df_repeats)
                 df_cdm = df_cdm.fillna('')
 
                 # drop duplicate mappings
@@ -383,6 +400,7 @@ class Transform:
 
             df.rename(columns={'subcohort.resource': 'resource',
                                'subcohort.name': 'subpopulation',
+                               'subcohorts': 'subpopulations',
                                'collection event.name': 'collection event',
                                'network': 'resource',
                                'main resource': 'resource'}, inplace=True)
@@ -446,10 +464,11 @@ def restructure_repeats(df_variables, df_repeats):
     return df_variables
 
 
-def remove_number(var_name):
-    new_var_name = var_name.strip(digits)
+def remove_number(var_name, df_repeats):
+    if var_name in df_repeats['is repeat of.name'].to_list():
+        var_name = var_name.strip(digits)
 
-    return new_var_name
+    return var_name
 
 
 def get_repeat_unit(var_name, df):
