@@ -345,17 +345,15 @@ class Runner(Client):
         # Archive the files
         with ZipFile(FILES_DIR.joinpath(f"{self.catalogue}_upload.zip"), 'w') as zf:
             for file_path in FILES_DIR.joinpath(f"{self.catalogue}_data").iterdir():
-                zf.write(file_path, arcname = file_path.name)
+                zf.write(file_path, arcname=file_path.name)
+            for file_path in FILES_DIR.joinpath(f"{self.catalogue}_data", '_files').iterdir():
+                zf.write(file_path, arcname=f"_files/{file_path.name}")
+            zf.write(FILES_DIR.joinpath(f"{self.catalogue}_data_model", 'molgenis.csv'), arcname='molgenis.csv')
 
         # Upload the updated data
         await create_schema
-        await self.upload_file(file_path=FILES_DIR.joinpath(f"{self.catalogue}{self.pattern}.zip"),
+        await self.upload_file(file_path=FILES_DIR.joinpath(f"{self.catalogue}_upload.zip"),
                                schema=f"{self.catalogue}{self.pattern}")
-
-        # Clean up
-        os.remove(f"files/{self.catalogue}_data.zip")
-        os.remove(f"files/{self.catalogue}{self.pattern}.zip")
-        os.rmdir(f"files/{self.catalogue}_data")
 
 
     async def update_cohorts(self):
@@ -389,7 +387,7 @@ class Runner(Client):
 
     async def run(self):
         """Executes the run of the update."""
-        logging.info(f"Doing stuff on server {self.url!r}")
+        logging.info(f"Updating schemas on {self.url!r}")
 
         # Update the catalogue
         await self.update_catalogue()
@@ -404,6 +402,10 @@ class Runner(Client):
 async def main():
     with Runner() as runner:
         await runner.run()
+
+    # Clean up
+    FILES_DIR.rmdir()
+
 
 if __name__ == '__main__':
     logging.basicConfig(level='DEBUG', format = '%(filename)s:%(lineno)s %(levelname)s:%(message)s')
