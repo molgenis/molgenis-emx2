@@ -1,5 +1,5 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,comment
 Checksum,,,,,,,,,,,http://spdx.org/rdf/terms#Checksum,,DCAT-v3,
-Checksum,,id,auto_id,1,TRUE,,,,,,,Auto-generated ID,DCAT-v3,local id
+Checksum,,id,auto_id,1,TRUE,,,,,,http://purl.allotrope.org/ontologies/result#AFR_0000919,Auto-generated local ID,DCAT-v3,local id
 Checksum,,algorithm,ontology,,TRUE,,ChecksumAlgorithm,,,,http://spdx.org/rdf/terms#algorithm,The algorithm used for the value.,DCAT-v3,DCAT-v3 Checksum / DCAT-AP-v3 Checksum: required
 Checksum,,value,string,,TRUE,,,,,,http://spdx.org/rdf/terms#checksumValue,The checksum value.,DCAT-v3,DCAT-v3 Checksum / DCAT-AP-v3 Checksum: required
