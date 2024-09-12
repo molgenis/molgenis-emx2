@@ -18,7 +18,7 @@
           placement="top"
           @click.prevent="copyToClipboard(lastTokenValue)"
         >
-          <pre style="overflow: break-word">{{ lastTokenValue }}</pre>
+          <pre>{{ lastTokenValue }}</pre>
         </Tooltip>
       </div>
     </MessageSuccess>
