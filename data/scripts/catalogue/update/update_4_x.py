@@ -29,20 +29,11 @@ def get_data_model(profile_path, path_to_write, profile):
         if '.csv' in file_name:
             file_path = Path.joinpath(profile_path, file_name)
             df = pd.read_csv(file_path, keep_default_na=False, dtype='object')
-            df.loc[:, 'profile'] = df['profiles'].apply(profile_in_profile, profile=profile)
-            df = df.loc[df['profile']]
+            df = df.loc[df['profiles'].apply(lambda p: profile in p.split(','))]
             data_model = pd.concat([data_model, df])
 
     # data_model = float_to_int(data_model)
     data_model.to_csv(path_to_write + '/molgenis.csv', index=None)
-
-
-def profile_in_profile(profiles, profile):
-    profiles_list = profiles.split(',')
-    if profile in profiles_list:
-        return True
-    else:
-        return False
 
 
 class Transform:
