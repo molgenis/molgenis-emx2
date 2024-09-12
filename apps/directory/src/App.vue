@@ -94,11 +94,3 @@ export default {
   },
 };
 </script>
-
-<style>
-.mg_banner {
-  background-color: #72f6b2;
-  padding: 10px;
-  text-align: center;
-}
-</style>
