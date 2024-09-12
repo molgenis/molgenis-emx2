@@ -35,9 +35,9 @@ Dataset,,has part,hyperlink,,,,,,,,http://purl.org/dc/terms/hasPart,A related re
 Dataset,,first,ref,,,,Dataset,,,,http://www.w3.org/ns/dcat#first,The first item in an ordered collection this item belongs to (when using dcat:DataSeries).,DCAT-v3,DCAT-v3 Resource
 Dataset,,last,ref,,,,Dataset,,,,http://www.w3.org/ns/dcat#last,The last item in an ordered collection this item belongs to (when using dcat:DataSeries).,DCAT-v3,DCAT-v3 Resource
 Dataset,,previous,ref,,,,Dataset,,,,http://www.w3.org/ns/dcat#prev,The previous item in an ordered collection this item belongs to (when using dcat:DataSeries).,DCAT-v3,DCAT-v3 Resource
-Dataset,,distribution,refBack,,,,Distribution,,dataset,,https://www.w3.org/ns/dcat#distribution,"A distribution belonging to this item.",DCAT,DCAT Dataset
+Dataset,,distribution,refBack,,,,Distribution,,dataset,,http://www.w3.org/ns/dcat#distribution,"A distribution belonging to this item.",DCAT,DCAT Dataset
 Dataset,,frequency,string,,,,,,,,http://purl.org/dc/terms/accrualPeriodicity,The frequency at which dataset is published.,DCAT,DCAT Dataset
-Dataset,,in series,ref_array,,,,DatasetSeries,,,,https://www.w3.org/ns/dcat#inSeries,A series this item belongs to.,DCAT-v3,DCAT-v3 Dataset
+Dataset,,in series,ref_array,,,,DatasetSeries,,,,http://www.w3.org/ns/dcat#inSeries,A series this item belongs to.,DCAT-v3,DCAT-v3 Dataset
 Dataset,,spatial coverage,ontology_array,,,,Countries,,,,http://purl.org/dc/terms/spatial,The geographical area covered by the dataset.,DCAT,DCAT Dataset
 Dataset,,spatial resolution,decimal,,,,,,,,http://purl.org/dc/terms/spatialResolutionInMeters,"Minimum spatial separation resolvable in a dataset, measured in meters.",DCAT,DCAT Dataset
 Dataset,,temporal coverage,string,,,,,,,,http://purl.org/dc/terms/temporal,The temporal period that the dataset covers.,DCAT,DCAT Dataset
@@ -49,7 +49,7 @@ Dataset,,other identifier,hyperlink_array,,,,,,,,http://www.w3.org/ns/adms#ident
 Dataset,,provenance,string_array,,,,,,,,http://purl.org/dc/terms/provenance,A statement about the lineage of the item.,DCAT-AP-v3,DCAT-AP-v3 Dataset
 Dataset,,sample,refBack,,,,Distribution,,sample for dataset,,http://www.w3.org/ns/adms#sample,A sample distribution of this item.,DCAT-AP-v3,DCAT-AP-v3 Dataset
 Dataset,,source,ref_array,,,,Dataset,,,,http://purl.org/dc/terms/source,A related item from which the this item is derived.,DCAT-AP-v3,DCAT-AP-v3 Dataset
-Dataset,,EJP_RD vpConnection,hyperlink,,,,,,,,https://w3id.org/ejp-rd/vocabulary#vpConnection,"This property must be attached to every entity that you wish the EJP-RD Virtual Platform to explore.",EJP-RD
+Dataset,,EJP_RD vpConnection,hyperlink,,,,,,,,http://w3id.org/ejp-rd/vocabulary#vpConnection,"This property must be attached to every entity that you wish the EJP-RD Virtual Platform to explore.",EJP-RD
 datareleases,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C172217,"The act of making data or other structured information accessible to the public or to the user group of a database.",RD3
 datareleases,,name,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C25364,"One or more characters used to identify, name, or characterize the nature, properties, or contents of a thing.",RD3
 datareleases,,label,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C42614,"The words or language units by which a thing is known.",RD3
