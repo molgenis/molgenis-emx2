@@ -1,0 +1,4 @@
+name,definition,codesystem,code,ontologyTermURI
+person,"A person.",,,http://xmlns.com/foaf/0.1/Person
+group,A collection of individual agents.,,,http://xmlns.com/foaf/0.1/Group
+organization,"A social instititution such as companies, societies etc.",,,http://xmlns.com/foaf/0.1/Organization

@@ -1,5 +1,9 @@
 # Ontology creation logbook
 
+## AgentType
+
+Manually defined subclasses based on [foaf:Agent](http://xmlns.com/foaf/spec/#term_Agent)'s subclasses.
+
 ## Availability
 Manually extracted from the `planned-availability-skos.rdf` download found [here](https://op.europa.eu/en/web/eu-vocabularies/dataset/-/resource?uri=http://publications.europa.eu/resource/dataset/planned-availability).
 
