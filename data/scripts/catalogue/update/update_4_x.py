@@ -239,8 +239,8 @@ class Transform:
                     df_organisations.apply(lambda o: True if o['resource'] in resources_list else False, axis=1)
                 df_organisations = df_organisations[df_organisations['select_resource']]
             elif self.database_name == 'testCohort':
-                data = ['testCohort', 'UMCG', 'University Medical Center Groningen', 'Netherlands (the)',
-                        'https://www.umcg.nl/']
+                data = [['testCohort', 'UMCG', 'University Medical Center Groningen', 'Netherlands (the)',
+                        'https://www.umcg.nl/']]
                 df_organisations = pd.DataFrame(data, columns=['resource', 'id', 'name', 'country', 'website'])
             elif self.database_name == 'testDatasource':
                 data = ['testDatasource', 'AU', 'University of Aarhus', 'Denmark']
