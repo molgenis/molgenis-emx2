@@ -25,3 +25,6 @@ logs
 
 storybook-static
 showCase
+
+# testing
+.reports/
