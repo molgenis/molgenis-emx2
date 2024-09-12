@@ -11,9 +11,15 @@
     </div>
     <MessageSuccess v-if="successMessage">
       {{ successMessage }}.
-      <div v-if="lastTokenValue">
-        <label><b>New token. Please copy for use</b></label>
-        <pre>{{ lastTokenValue }}</pre>
+      <div v-if="lastTokenValue" style="cursor: pointer">
+        <label><b>New token. Please copy for use.</b></label>
+        <Tooltip
+          value="Click to copy to clipboard"
+          placement="top"
+          @click.prevent="copyToClipboard(lastTokenValue)"
+        >
+          <pre style="overflow: break-word">{{ lastTokenValue }}</pre>
+        </Tooltip>
       </div>
     </MessageSuccess>
     <MessageError v-if="errorMessage">{{ errorMessage }}</MessageError>
@@ -38,16 +44,17 @@
 </template>
 
 <script lang="ts">
+import { ISetting } from "metadata-utils";
 import { defineComponent } from "vue";
 import { request } from "../../client/client.js";
 import { IError } from "../../Interfaces/IError";
-import { ISetting } from "metadata-utils";
 import ButtonAction from "../forms/ButtonAction.vue";
 import IconDanger from "../forms/IconDanger.vue";
 import InputString from "../forms/InputString.vue";
 import MessageError from "../forms/MessageError.vue";
 import MessageSuccess from "../forms/MessageSuccess.vue";
-import { ISession, IResponse } from "./Interfaces";
+import { IResponse, ISession } from "./Interfaces";
+import Tooltip from "../forms/Tooltip.vue";
 
 const query = `{_session { email, token, settings{key,value}}}`;
 const changeMutation = `mutation change($users:[UsersInput]){
@@ -67,6 +74,7 @@ export default defineComponent({
     IconDanger,
     MessageSuccess,
     MessageError,
+    Tooltip,
   },
   data() {
     return {
@@ -149,6 +157,9 @@ export default defineComponent({
         .catch((error: IError) => {
           this.errorMessage = error.message;
         });
+    },
+    copyToClipboard(token: string) {
+      navigator.clipboard.writeText(token);
     },
   },
   mounted() {
