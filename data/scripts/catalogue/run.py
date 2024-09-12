@@ -11,7 +11,7 @@ from catalogue_util.client import Session
 from catalogue_util.zip_handling import Zip
 from update.update_4_x import Transform
 
-FILES_DIR = Path(__file__).joinpath('files')
+FILES_DIR = Path(__file__).parent.joinpath('files').resolve()
 
 def old_run():
     if not os.path.isdir('./files'):
@@ -271,7 +271,7 @@ class Runner(Client):
     Inherits methods from the Pyclient class.
     """
 
-    def __init__(self):
+    def __init__(self, pattern = None):
         """Initializes the object by loading information from the .env file."""
 
         # Initialize the client with URL and token
@@ -285,6 +285,12 @@ class Runner(Client):
 
         # Set resource type names
         self.cohorts, self.data_sources, self.networks = self._prepare_resource_names(self.server_type)
+
+        # Set the pattern
+        if pattern:
+            self.pattern = pattern
+        else:
+            self.pattern = '_'
 
     @staticmethod
     def _prepare_resource_names(server_type):
@@ -309,15 +315,15 @@ class Runner(Client):
         """
         logging.info(f"Starting update on {self.catalogue!r}")
 
-        if f"{self.catalogue} update" in self.schema_names:
-            create_schema = asyncio.create_task(self.recreate_schema(name=f"{self.catalogue} update",
+        if f"{self.catalogue}{self.pattern}" in self.schema_names:
+            create_schema = asyncio.create_task(self.recreate_schema(name=f"{self.catalogue}{self.pattern}",
                                                                      description="Catalogue update"))
         else:
-            create_schema = asyncio.create_task(self.create_schema(name=f"{self.catalogue} update",
+            create_schema = asyncio.create_task(self.create_schema(name=f"{self.catalogue}{self.pattern}",
                                                                    description="Catalogue update"))
 
         # Export catalogue data to zip
-        self.export(schema=self.catalogue, fmt='csv')
+        await self.export(schema=self.catalogue, fmt='csv')
         if not FILES_DIR.exists():
             FILES_DIR.mkdir()
         os.rename(f"{self.catalogue}.zip", FILES_DIR.joinpath(f"{self.catalogue}_data.zip"))
@@ -343,32 +349,36 @@ class Runner(Client):
 
         # Upload the updated data
         await create_schema
-        self.upload_file(file_path=FILES_DIR.joinpath(f"{self.catalogue}_upload.zip"),
-                         schema=f"{self.catalogue} update")
+        await self.upload_file(file_path=FILES_DIR.joinpath(f"{self.catalogue}{self.pattern}.zip"),
+                               schema=f"{self.catalogue}{self.pattern}")
 
         # Clean up
         os.remove(f"files/{self.catalogue}_data.zip")
-        os.remove(f"files/{self.catalogue}_upload.zip")
+        os.remove(f"files/{self.catalogue}{self.pattern}.zip")
         os.rmdir(f"files/{self.catalogue}_data")
 
 
     async def update_cohorts(self):
         """Updates the cohort schemas on a server."""
         for cohort in self.cohorts:
+            logging.info(f"Updating cohort staging area {cohort!r}")
             await self._update_cohort(cohort)
 
     async def update_data_sources(self):
         """Updates the data sources on a schema."""
         for ds in self.data_sources:
+            logging.info(f"Updating data source staging area {ds!r}")
             await self._update_data_source(ds)
 
     async def update_networks(self):
         """Updates the networks on a schema."""
         for network in self.networks:
+            logging.info(f"Updating networks staging area {network!r}")
             await self._update_network(network)
 
     async def _update_cohort(self, name):
         """Updates a cohort."""
+
 
     async def _update_data_source(self, name):
         """Updates a data source."""
