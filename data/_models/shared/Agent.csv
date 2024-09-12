@@ -1,10 +1,10 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,visible,semantics,description,profiles,comment
 Agent,,,,,,,,,,,,"http://xmlns.com/foaf/0.1/Agent","An agent (eg. person, group, software or physical artifact).","DCAT,Beacon v2",
-Agent,,id,string,1,TRUE,,,,,,,"http://xmlns.com/foaf/0.1/name",Auto-generated unique ID for the item.,"DCAT,Beacon v2",
-Agent,,type,ontology,,TRUE,,AgentType,,,,,http://www.w3.org/1999/02/22-rdf-syntax-ns#type,The agent type.,"DCAT,Beacon v2",
+Agent,,id,string,1,TRUE,,,,,,,"http://purl.allotrope.org/ontologies/result#AFR_0000919",Auto-generated local ID for the item.,"DCAT,Beacon v2",
+Agent,,type,ontology,,TRUE,,AgentType,,,,,http://www.w3.org/1999/02/22-rdf-syntax-ns#type,The agent type.,"DCAT,Beacon v2",DCAT-AP-V3 / custom: made required (as specific FOAF fields depend on type)
+Agent,,name,string,,TRUE,,,,,,,"http://xmlns.com/foaf/0.1/name",A name for some thing.,"DCAT,Beacon v2",DCAT-AP-V3
 Agent,,has member,ref_array,,,,Agent,,,,type !== null && type.name === 'group',http://xmlns.com/foaf/0.1/member,Members of this group.,"DCAT,Beacon v2",
-Agent,,is member,refBack,,,,Agent,,has member,,type !== null && type.name === 'group',http://xmlns.com/foaf/0.1/member,Members of this group.,"DCAT,Beacon v2",
-Agent,,name,string,,,,,,,,,"http://xmlns.com/foaf/0.1/name",A name for some thing.,"DCAT,Beacon v2",
+Agent,,is member,refBack,,,,Agent,,has member,,type !== null && type.name === 'group',,Groups this member is part of.,"DCAT,Beacon v2",custom: refBack for easier table overview / no semantics!
 Agent,,given name,string,,,,,,,,type !== null && type.name === 'person',"http://xmlns.com/foaf/0.1/givenName",The given name of some person.,"DCAT,Beacon v2",
 Agent,,family name,string,,,,,,,,type !== null && type.name === 'person',"http://xmlns.com/foaf/0.1/familyName",The family name of some person.,"DCAT,Beacon v2",
 Agent,,openid,string,,,,,,,,,"http://xmlns.com/foaf/0.1/openid",An OpenID for an Agent.,"DCAT,Beacon v2",
