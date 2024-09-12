@@ -405,7 +405,7 @@
 </style>
 
 <script lang="ts">
-import { IColumn, ISetting, ITableMetaData } from "meta-data-utils";
+import { IColumn, ISetting, ITableMetaData } from "metadata-utils";
 import Client from "../../client/client";
 import FilterSidebar from "../filters/FilterSidebar.vue";
 import FilterWells from "../filters/FilterWells.vue";
