@@ -54,7 +54,7 @@ const fieldValue = ref<string>("");
         </div>
       </fieldset>
       <div class="mt-4">
-        <InputLabel for="text-area-placeholder"> Set placholder </InputLabel>
+        <InputLabel for="text-area-placeholder"> Set placeholder </InputLabel>
         <InputString id="text-area-placeholder" v-model="placeholder" />
       </div>
       <div class="mt-4">
