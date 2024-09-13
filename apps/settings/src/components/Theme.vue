@@ -100,8 +100,8 @@ export default {
       this.additionalCss = this.session?.settings?.additionalCss;
       this.additionalFooterHtml = this.session?.settings?.additionalFooterHtml;
       this.additionalJs = this.session?.settings?.additionalJs;
+      this.logoURL = this.session.settings.logoURL;
       if (this.session?.settings?.cssURL) {
-        this.logoURL = this.session.settings.logoURL;
         const urlParams = new URL(
           this.session.settings.cssURL,
           document.baseURI
@@ -188,7 +188,13 @@ export default {
           })
           .finally((this.loading = false));
       }
-      this.$router.go();
+      /*
+        The nice wat to reload is: 
+          this.$router.go();
+        Safari is not picking up the reload (browser bug) so using the fallback: 
+          window.location.reload();
+      */
+      window.location.reload();
     },
   },
 };

@@ -542,7 +542,14 @@ public class GraphqlTableFieldFactory {
           subFilters.add(and(nestedFilters.toArray(new Filter[nestedFilters.size()])));
         }
       } else if (entry.getKey().equals(FILTER_SEARCH)) {
-        subFilters.add(f(Operator.TRIGRAM_SEARCH, entry.getValue()));
+        if (entry.getValue() instanceof String && !entry.getValue().toString().trim().equals("")) {
+          subFilters.add(
+              f(
+                  Operator
+                      .TEXT_SEARCH, // might change to trigram search if we learn how to tune for
+                  // short terms
+                  Arrays.stream(entry.getValue().toString().split(" ")).toArray(String[]::new)));
+        }
       } else if (entry.getKey().equals(FILTER_EQUALS)) {
         //  complex filter, should be an list of maps per graphql contract
         if (entry.getValue() != null) {
@@ -902,15 +909,17 @@ public class GraphqlTableFieldFactory {
       case LONG_ARRAY -> GraphQLList.list(GraphQLLong);
       case DECIMAL_ARRAY -> GraphQLList.list(Scalars.GraphQLFloat);
       case STRING_ARRAY,
-          TEXT_ARRAY,
-          DATE_ARRAY,
-          DATETIME_ARRAY,
-          PERIOD_ARRAY,
-          UUID_ARRAY,
-          EMAIL_ARRAY,
-          HYPERLINK_ARRAY -> GraphQLList.list(Scalars.GraphQLString);
-      default -> throw new MolgenisException(
-          "Internal error: Type " + columnType + " not expected at this place");
+              TEXT_ARRAY,
+              DATE_ARRAY,
+              DATETIME_ARRAY,
+              PERIOD_ARRAY,
+              UUID_ARRAY,
+              EMAIL_ARRAY,
+              HYPERLINK_ARRAY ->
+          GraphQLList.list(Scalars.GraphQLString);
+      default ->
+          throw new MolgenisException(
+              "Internal error: Type " + columnType + " not expected at this place");
     };
   }
 }

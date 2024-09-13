@@ -266,15 +266,14 @@ public class SqlQuery extends QueryBean {
               + " unknown for JSON queries in schema "
               + schema.getName());
     }
+    String tableAlias = "gql_" + table.getTableName();
     if (select.getColumn().endsWith("_agg")) {
       fields.add(
-          jsonAggregateSelect(
-                  table, null, table.getTableName(), select, getFilter(), getSearchTerms())
+          jsonAggregateSelect(table, null, tableAlias, select, getFilter(), getSearchTerms())
               .as(convertToPascalCase(select.getColumn())));
     } else if (select.getColumn().endsWith("_groupBy")) {
       fields.add(
-          jsonGroupBySelect(
-                  table, null, table.getTableName(), select, getFilter(), getSearchTerms())
+          jsonGroupBySelect(table, null, tableAlias, select, getFilter(), getSearchTerms())
               .as(convertToPascalCase(select.getColumn())));
     } else {
       // select all on root level as default
@@ -286,7 +285,7 @@ public class SqlQuery extends QueryBean {
         }
       }
       fields.add(
-          jsonSubselect(table, null, table.getTableName(), select, getFilter(), getSearchTerms())
+          jsonSubselect(table, null, tableAlias, select, getFilter(), getSearchTerms())
               .as(name(convertToPascalCase(select.getColumn()))));
     }
 
@@ -419,13 +418,15 @@ public class SqlQuery extends QueryBean {
     DSLContext jooq = table.getJooq();
     if (filters != null) {
       for (Filter f : filters.getSubfilters()) {
-        if (OR.equals(f.getOperator())) {
+        if (f == null) {
+          // continue
+        } else if (OR.equals(f.getOperator())) {
           conditions.add(
               or(jsonFilterQueryConditions(table, column, tableAlias, subAlias, f, searchTerms)));
         } else if (Operator.AND.equals(f.getOperator())) {
           conditions.add(
               and(jsonFilterQueryConditions(table, column, tableAlias, subAlias, f, searchTerms)));
-        } else if (TRIGRAM_SEARCH.equals(f.getOperator())) {
+        } else if (TRIGRAM_SEARCH.equals(f.getOperator()) || TEXT_SEARCH.equals(f.getOperator())) {
           conditions.add(
               jsonSearchConditions(table, subAlias, TypeUtils.toStringArray(f.getValues())));
         } else {
@@ -520,8 +521,9 @@ public class SqlQuery extends QueryBean {
   private Condition jsonSearchConditions(
       SqlTableMetadata table, String subAlias, String[] searchTerms) {
     // create search
-    List<Condition> search = new ArrayList<>();
+    List<Condition> searchCondition = new ArrayList<>();
     for (String term : searchTerms) {
+      List<Condition> search = new ArrayList<>();
       search.add(
           field(name(alias(subAlias), searchColumnName(table.getTableName())))
               .likeIgnoreCase("%" + term + "%"));
@@ -571,8 +573,9 @@ public class SqlQuery extends QueryBean {
                 .likeIgnoreCase("%" + term + "%"));
         parent = parent.getInheritedTable();
       }
+      searchCondition.add(or(search));
     }
-    return or(search);
+    return and(searchCondition);
   }
 
   private Collection<Field<?>> jsonSubselectFields(
@@ -700,18 +703,23 @@ public class SqlQuery extends QueryBean {
         for (SelectColumn sub : field.getSubselect()) {
           Column c = getColumnByName(table, sub.getColumn());
           switch (field.getColumn()) {
-            case MAX_FIELD -> result.add(
-                key(c.getIdentifier()).value(max(field(name(alias(subAlias), c.getName())))));
-            case MIN_FIELD -> result.add(
-                key(c.getIdentifier()).value(min(field(name(alias(subAlias), c.getName())))));
-            case AVG_FIELD -> result.add(
-                key(c.getIdentifier())
-                    .value(avg(field(name(alias(subAlias), c.getName()), c.getJooqType()))));
-            case SUM_FIELD -> result.add(
-                key(c.getIdentifier())
-                    .value(sum(field(name(alias(subAlias), c.getName()), c.getJooqType()))));
-            default -> throw new MolgenisException(
-                "Unknown aggregate type provided: " + field.getColumn());
+            case MAX_FIELD ->
+                result.add(
+                    key(c.getIdentifier()).value(max(field(name(alias(subAlias), c.getName())))));
+            case MIN_FIELD ->
+                result.add(
+                    key(c.getIdentifier()).value(min(field(name(alias(subAlias), c.getName())))));
+            case AVG_FIELD ->
+                result.add(
+                    key(c.getIdentifier())
+                        .value(avg(field(name(alias(subAlias), c.getName()), c.getJooqType()))));
+            case SUM_FIELD ->
+                result.add(
+                    key(c.getIdentifier())
+                        .value(sum(field(name(alias(subAlias), c.getName()), c.getJooqType()))));
+            default ->
+                throw new MolgenisException(
+                    "Unknown aggregate type provided: " + field.getColumn());
           }
         }
         fields.add(jsonObject(result.toArray(new JSONEntry[result.size()])).as(field.getColumn()));
@@ -1140,8 +1148,8 @@ public class SqlQuery extends QueryBean {
       case DATE -> whereConditionOrdinal(name, operator, toDateArray(values));
       case DATETIME -> whereConditionOrdinal(name, operator, toDateTimeArray(values));
       case PERIOD -> whereConditionOrdinal(name, operator, toYearToSecondArray(values));
-      case STRING_ARRAY, TEXT_ARRAY -> whereConditionTextArray(
-          name, operator, toStringArray(values));
+      case STRING_ARRAY, TEXT_ARRAY ->
+          whereConditionTextArray(name, operator, toStringArray(values));
       case BOOL_ARRAY -> whereConditionArrayEquals(name, operator, toBoolArray(values));
       case UUID_ARRAY -> whereConditionArrayEquals(name, operator, toUuidArray(values));
       case INT_ARRAY -> whereConditionArrayEquals(name, operator, toIntArray(values));
@@ -1152,14 +1160,15 @@ public class SqlQuery extends QueryBean {
       case PERIOD_ARRAY -> whereConditionArrayEquals(name, operator, toYearToSecondArray(values));
       case JSONB_ARRAY -> whereConditionArrayEquals(name, operator, toJsonbArray(values));
       case REF -> whereConditionRefEquals(name, operator, values);
-      default -> throw new SqlQueryException(
-          SqlQuery.QUERY_FAILED
-              + "Filter of '"
-              + name
-              + " failed: operator "
-              + operator
-              + " not supported for type "
-              + type);
+      default ->
+          throw new SqlQueryException(
+              SqlQuery.QUERY_FAILED
+                  + "Filter of '"
+                  + name
+                  + " failed: operator "
+                  + operator
+                  + " not supported for type "
+                  + type);
     };
   }
 
@@ -1394,7 +1403,7 @@ public class SqlQuery extends QueryBean {
         searchConditions.add(and(subConditions));
       }
     }
-    return searchConditions.isEmpty() ? null : or(searchConditions);
+    return searchConditions.isEmpty() ? null : and(searchConditions);
   }
 
   private static SelectJoinStep<org.jooq.Record> limitOffsetOrderBy(

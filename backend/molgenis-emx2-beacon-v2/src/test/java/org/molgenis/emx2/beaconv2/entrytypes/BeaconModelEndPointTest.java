@@ -4,6 +4,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.molgenis.emx2.beaconv2.BeaconSpec.BEACON_V2;
 import static org.molgenis.emx2.beaconv2.BeaconSpec.BEACON_VP;
+import static org.molgenis.emx2.datamodels.DataModels.Profile.FAIR_DATA_HUB;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,7 +18,6 @@ import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.beaconv2.BeaconSpec;
 import org.molgenis.emx2.beaconv2.EntryType;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
-import org.molgenis.emx2.datamodels.ProfileLoader;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import spark.QueryParamsMap;
 import spark.Request;
@@ -25,19 +25,19 @@ import spark.Request;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class BeaconModelEndPointTest {
 
-  private static final String TEST_URL = "http://localhost:8080/api/";
+  public static final String TEST_URL = "http://localhost:8080/api/";
+  public static final String SCHEMA_NAME = "fairdatahub";
 
-  static Database database;
-  static Schema beaconSchema;
+  protected static Database database;
+  protected static Schema beaconSchema;
 
   @BeforeAll
   public void setup() {
     if (database == null) {
       database = TestDatabaseFactory.getTestDatabase();
-      // beaconSchema = database.getSchema("fairdatahub");
-      beaconSchema = database.dropCreateSchema("fairdatahub");
-      ProfileLoader b2l = new ProfileLoader("_profiles/FAIRDataHub.yaml");
-      b2l.load(beaconSchema, true);
+      // beaconSchema = database.getSchema(SCHEMA_NAME);
+      beaconSchema = database.dropCreateSchema(SCHEMA_NAME);
+      FAIR_DATA_HUB.getImportTask(beaconSchema, true).run();
     }
   }
 

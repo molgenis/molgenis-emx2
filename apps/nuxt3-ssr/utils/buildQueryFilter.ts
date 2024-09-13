@@ -9,7 +9,7 @@ import { isConditionFilter } from "./filterUtils";
 
 const buildFilterVariables = (filters: IConditionsFilter[]) => {
   const filtersVariables = filters.reduce<
-    Record<string, Record<string, any | string>>
+    Record<string, Record<string, any | string> | string>
   >((accum, filter) => {
     if (
       (filter.config.columnId ||
@@ -50,11 +50,19 @@ export const buildQueryFilter = (filters: IFilter[]) => {
   let filterBuilder = buildFilterVariables(conditionsFilters);
   const searchFilter = filters.find((f) => f.config.type === "SEARCH");
   if (searchFilter?.search) {
-    // add the search to the filters
-    filterBuilder = {
-      ...filterBuilder,
-      ...{ _or: [{ _search: searchFilter.search }] },
-    };
+    if ((searchFilter as ISearchFilter).config.searchTables) {
+      // add the search to the filters
+      filterBuilder = {
+        ...filterBuilder,
+        ...{ _or: [{ _search: searchFilter.search }] },
+      };
+    } else {
+      // add the search to the filters
+      filterBuilder = {
+        ...filterBuilder,
+        ...{ _search: searchFilter.search },
+      };
+    }
 
     // expand the search to the sub tables
     (searchFilter as ISearchFilter).config.searchTables?.forEach((sub) => {

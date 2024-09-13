@@ -1,4 +1,4 @@
-[MOLGENIS platform guide](use.md)
+#### [Platform guide](use.md)
 
 - **User guide**
     - [Introduction](use.md)
@@ -19,14 +19,18 @@
     - [Admin](use_global_settings.md)
     - [Analytics](use_analytics.md)
 - **Installation guide**
+    - [Run as systemd service](run_systemd.md)
     - [Run as java service](run_java.md)
     - [Run with docker compose](run_docker.md)
     - [Run in kubernetes cloud](run_helm.md)
     - [Updating your MOLGENIS](run_updates.md)
     - [OIDC integration](use_permissions.md)
 - **Developer guide**
-    - [How to build](dev_quickstart.md)
+    - [Introduction](dev.md)
+    - [Principles](dev_principles.md)
+    - [Developer Guidelines](dev_guidelines.md)
     - [Architecture](dev_architecture.md)
+    - [How to build](dev_quickstart.md)
     - [Basic concepts](dev_basics.md)
     - [GraphQL](dev_graphql.md)
     - [Batch API](dev_batchapi.md)
@@ -35,7 +39,6 @@
     - [Beacon v2](dev_beaconv2.md)
     - [RDF](dev_rdf.md)
     - [Graph genome](dev_graphgenome.md)
-    - [App development](dev_apps.md)
+    - [Building frontend apps](dev_apps.md)
     - [App profiles](dev_profiles.md)
     - [Migrations](dev_migrations.md)
-    - [Principles](dev_principles.md)

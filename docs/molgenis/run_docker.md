@@ -4,7 +4,7 @@ Steps:
 
 * Install [Docker compose](https://docs.docker.com/compose/install/).
 * Download
-  molgenis-emx2 <a href="https://raw.githubusercontent.com/mswertz/molgenis-emx2/master/docker-compose.yml" download>
+  molgenis-emx2 <a href="https://github.com/molgenis/molgenis-emx2/blob/master/docker-compose.yml" download>
   docker-compose.yml</a> file
 * In directory with docker-compose.yml run:
 
@@ -30,5 +30,5 @@ Notes:
   normal.
 * the data of postgresql will be stored in 'psql_data' folder. Remove this folder you want a clean start.
 * if you want
-  particular [molgenis-emx2 version](https://hub.docker.com/repository/registry-1.docker.io/mswertz/emx2/tags?page=1)
+  particular [molgenis-emx2 version](https://hub.docker.com/r/molgenis/molgenis-emx2/tags)
   then add version in docker-compose.yml file 'molgenis/molgenis-emx2:version'

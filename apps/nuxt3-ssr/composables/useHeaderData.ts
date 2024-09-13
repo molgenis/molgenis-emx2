@@ -3,17 +3,16 @@ import type { IMgError } from "../interfaces/types";
 const method = "POST";
 
 const modelQuery = `
-      query Networks($networksFilter:NetworksFilter) {
-        Networks(filter:$networksFilter){ models { id } }
+      query Collections($networksFilter:CollectionsFilter) {
+        Collections(filter:$networksFilter){ datasets { name } }
       }`;
 
 const headerQuery = `
-      query HeaderQuery($networksFilter:NetworksFilter, $variablesFilter:VariablesFilter) {
-        Networks(filter:$networksFilter) {
+      query HeaderQuery($networksFilter:CollectionsFilter, $variablesFilter:VariablesFilter) {
+        Collections(filter:$networksFilter) {
           id,
-          dataSources_agg { count }
-          cohorts_agg { count }
-          networks_agg { count }
+          collections_agg { count }
+          collections_groupBy { count , type {name}}
           logo { url }
        }
        Variables_agg(filter:$variablesFilter) {
@@ -33,49 +32,54 @@ export async function useHeaderData() {
         | {
             networksFilter: { id: { equals: string | string[] } };
             variablesFilter?: {
-              resource: { id: { equals: string | string[] } };
+              collection: { id: { equals: string | string[] } };
             };
           }
-        | undefined = undefined;
-      if (route.params.catalogue && route.params.catalogue !== "all") {
-        const modelsResp = await $fetch<{
-          data: { Networks: { models: { id: string }[] }[] };
-        }>(apiPath, {
-          method,
-          body: {
-            query: modelQuery,
-            variables: {
-              networksFilter: { id: { equals: route.params.catalogue } },
+        | undefined;
+      const scoped = route.params.catalogue !== "all";
+      const catalogueRouteParam = route.params.catalogue;
+      const networksFilter = scoped
+        ? { id: { equals: catalogueRouteParam } }
+        : undefined;
+      const datasets = await $fetch(`/${route.params.schema}/graphql`, {
+        method: "POST",
+        body: {
+          query: `
+            query CollectionDatasets($filter:CollectionDatasetsFilter) {
+              CollectionDatasets(filter:$filter){name}
+            }`,
+          variables: {
+            filter: {
+              _or: [
+                { collection: networksFilter },
+                { collection: { partOfCollections: networksFilter } },
+              ],
             },
           },
-        }).catch((e) => {
-          console.log("models error: ", e);
-          return { e };
-        });
-
-        if ("e" in modelsResp) {
-          const contextMsg = "Error on fetching page header data";
-          throw new Error(contextMsg);
-        }
-
-        const models = modelsResp.data.Networks[0].models;
-        const modelIds = models ? models.map((m) => m.id) : [];
-        variables = {
-          networksFilter: { id: { equals: route.params.catalogue } },
-        };
-        if (modelIds) {
-          variables.variablesFilter = {
-            resource: { id: { equals: modelIds } },
-          };
-        }
-      }
+        },
+      });
+      const variablesFilter = scoped
+        ? {
+            collection: { id: { equals: catalogueRouteParam } },
+            dataset: {
+              name: {
+                equals: datasets.data.CollectionDatasets?.map(
+                  (d: { name: string }) => d.name
+                ).flat(),
+              },
+            },
+          }
+        : { collection: { type: { name: { equals: "Network" } } } };
 
       return $fetch(apiPath, {
         key: `header-${route.params.catalogue}`,
         method,
         body: {
           query: headerQuery,
-          variables,
+          variables: {
+            networksFilter,
+            variablesFilter,
+          },
         },
       });
     }
@@ -87,8 +91,10 @@ export async function useHeaderData() {
     throw new Error(contextMsg);
   }
 
-  const catalogue = data.value.data.Networks[0];
-  const variableCount = data.value.data.Variables_agg.count || 0;
+  const catalogue = data.value.data?.Collections
+    ? data.value.data?.Collections[0]
+    : null;
+  const variableCount = data.value.data?.Variables_agg.count || 0;
 
   return { catalogue, variableCount };
 }

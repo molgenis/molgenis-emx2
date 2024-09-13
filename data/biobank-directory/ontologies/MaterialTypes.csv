@@ -20,3 +20,4 @@ order,name,label,parent,codesystem,code,ontologyTermURI,definition
 ,TISSUE_PARAFFIN_EMBEDDED,Tissue (paraffin preserved),,,TISSUE_PARAFFIN_EMBEDDED,,Tissue that is preserved and embedded in paraffin. (NCI)
 ,URINE,Urine,,,URINE,,The fluid that is excreted by the kidneys. It is stored in the bladder and discharged through the urethra. (NCI)
 ,WHOLE_BLOOD,Whole Blood,,,WHOLE_BLOOD,http://purl.obolibrary.org/obo/OBI_0000655,Blood that has not been separated into its various components; blood that has not been modified except for the addition of an anticoagulant (NCI)
+,*,Any,,,*,,Any material type

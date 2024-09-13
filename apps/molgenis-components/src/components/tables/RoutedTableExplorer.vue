@@ -73,6 +73,14 @@ export default {
       type: Boolean,
       default: () => false,
     },
+    showOrderBy: {
+      type: String,
+      default: "",
+    },
+    showOrder: {
+      type: String,
+      default: "ASC",
+    },
     showFilters: {
       type: Array,
       default: () => [],
@@ -87,14 +95,14 @@ export default {
       if (this.$route.query._orderBy) {
         return this.$route.query._orderBy;
       } else {
-        return "";
+        return this.showOrderBy;
       }
     },
     getOrder() {
       if (this.$route.query._order) {
         return this.$route.query._order;
       } else {
-        return "ASC";
+        return this.showOrder;
       }
     },
     getColumns() {

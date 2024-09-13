@@ -10,7 +10,7 @@
 import { test, expect } from '@playwright/test';
 
 const enableRejectCookiesClick = true;
-const numberOfResultsPattern = new RegExp(/^(([a-zA-Z]{1,})?(\s)?(([0-9]{1,})\s(cohort([s])?|variable([s])?|data\ssource([s])?|result([s])?|networks([s])?)))$/);
+const numberOfResultsPattern = new RegExp(/^(([a-zA-Z]{1,})?(\s)?(([0-9]{1,})\s(cohort studie([s])?|variable([s])?|data\ssource([s])?|result([s])?|networks([s])?)))$/);
 
 test('validate cohort search result counts @cohort-view @search-result-counts',
   async ({ page }) => {
@@ -59,7 +59,7 @@ test('validate variables in cohorts counts are shown',
       await page.getByRole('button', { name: 'Reject' }).click();
     }
 
-    await expect(page.getByRole('main')).toContainText('2248 variables');
+    await expect(page.getByRole('main')).toContainText('2249 variables');
   }
 );
 

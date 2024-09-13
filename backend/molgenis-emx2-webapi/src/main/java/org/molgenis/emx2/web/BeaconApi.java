@@ -33,9 +33,10 @@ public class BeaconApi {
         basePath,
         () -> {
           before("/*", BeaconApi::processRequest);
-          get("/", new Info()::getResponse);
-          get("/info", new Info()::getResponse);
-          get("/service-info", new Info()::getResponse);
+          get("", BeaconApi::getInfo);
+          get("/", BeaconApi::getInfo);
+          get("/info", BeaconApi::getInfo);
+          get("/service-info", BeaconApi::getInfo);
           get("/configuration", new Configuration()::getResponse);
           get("/map", new Map()::getResponse);
           get("/entry_types", new EntryTypes()::getResponse);
@@ -81,5 +82,13 @@ public class BeaconApi {
   private static Object getFilteringTerms(Request request, Response response) {
     Database database = sessionManager.getSession(request).getDatabase();
     return new FilteringTerms(database);
+  }
+
+  private static Object getInfo(Request request, Response response) {
+    response.type(Constants.ACCEPT_JSON);
+    Schema schema = getSchema(request);
+
+    Database database = sessionManager.getSession(request).getDatabase();
+    return new Info(database).getResponse(schema);
   }
 }

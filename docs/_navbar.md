@@ -1,4 +1,4 @@
-- Switch guide
+- SWITCH GUIDE
     - [Start](/)
     - [Platform guide](/molgenis/)
     - [Catalogue guide](/catalogue/)

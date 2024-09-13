@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.molgenis.emx2.datamodels.DataModels.Profile.DCAT;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
@@ -11,7 +12,6 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.datamodels.ProfileLoader;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import spark.Request;
 
@@ -23,14 +23,13 @@ import spark.Request;
 public class FAIRDataPointDistributionNotInDatasetTest {
 
   static Database database;
-  static Schema fairDataHub_distribnotindataset;
+  static Schema dcat_distribnotindataset;
 
   @BeforeAll
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
-    fairDataHub_distribnotindataset = database.dropCreateSchema("fairDataHub_distribnotindataset");
-    ProfileLoader fairDataHubLoader = new ProfileLoader("_profiles/FAIRDataHub.yaml");
-    fairDataHubLoader.load(fairDataHub_distribnotindataset, true);
+    dcat_distribnotindataset = database.dropCreateSchema("dcat_distribnotindataset");
+    DCAT.getImportTask(dcat_distribnotindataset, true).run();
   }
 
   @Test

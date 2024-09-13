@@ -35,18 +35,20 @@ const router = createRouter({
     {
       path: "/configuration",
       component: ConfigurationScreen,
-      beforeEnter: async (to, from, next) => {
+      beforeEnter: async (_to, _from, next) => {
         const settingsStore = useSettingsStore();
         await settingsStore.initializeConfig();
         if (settingsStore.showSettings) {
           next();
-        } else next("/");
+        } else {
+          next("/");
+        }
       },
     },
     {
       path: "/",
       component: Landingpage,
-      beforeEnter: async (to, from, next) => {
+      beforeEnter: async (to, _from, next) => {
         const settingsStore = useSettingsStore();
         await settingsStore.initializeConfig();
         if (
@@ -60,7 +62,7 @@ const router = createRouter({
       },
     },
   ],
-  scrollBehavior(to, from, savedPosition) {
+  scrollBehavior() {
     return { top: 0 };
   },
 });

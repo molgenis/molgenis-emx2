@@ -27,6 +27,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   // copy constructor
   protected SqlSchemaMetadata(Database db, SqlSchemaMetadata copy) {
     this.name = copy.getName();
+    this.description = copy.getDescription();
     this.database = db;
     this.sync(copy);
   }

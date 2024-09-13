@@ -4,7 +4,7 @@ Submissions,,submission date,datetime,1,true,,,,,,,Date of submission,"DataCatal
 Submissions,,submitter name,string,1,true,,,,,,,Name of person who submitted,DataCatalogueFlat,
 Submissions,,collections,ref_array,,true,,Collections,,,,,Resource(s) that this submission is related to,"DataCatalogueFlat,EMA",
 Submissions,,submitter email,string,,true,,,,,,,Email of person who submitted,DataCatalogueFlat,
-Submissions,,submitter organisation,ref,,,,Organisations,,,,,Organisation of submitter,DataCatalogueFlat,
+Submissions,,submitter organisation,string,,,,,,,,,Organisation of submitter,DataCatalogueFlat,
 Submissions,,submitter role,ontology,,,CatalogueOntologies,Submitter roles,,,,,Role of submitter in organisation,DataCatalogueFlat,
 Submissions,,submitter role other,text,,,,,,,,,"Role of submitter in organisation, if other than above",DataCatalogueFlat,
 Submissions,,submission type,ontology,,,CatalogueOntologies,Submission types,,,,,"Type of submission, e.g. 'new entry', 'correction'","DataCatalogueFlat,EMA",
