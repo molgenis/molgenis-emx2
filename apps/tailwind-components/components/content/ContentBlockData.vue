@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import type { IResourceCollectionEvent } from "~/interfaces/types";
-
 const { collectionEvents } = defineProps<{
   title: string;
   description?: string;

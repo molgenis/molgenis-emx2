@@ -11,6 +11,7 @@ import type {
   IMgError,
   IOntologyItem,
   linkTarget,
+  IOrganisation,
 } from "~/interfaces/types";
 import dateUtils from "~/utils/dateUtils";
 const config = useRuntimeConfig();
@@ -128,6 +129,7 @@ const query = gql`
         name
         website
         acronym
+        isLeadOrganisation
         role ${moduleToString(ontologyFragment)}
         country ${moduleToString(ontologyFragment)}
       }
@@ -496,9 +498,9 @@ function closeOrganisationSideModal() {
   activeOrganisationSideModalIndex.value = -1;
 }
 
-const organisations = computed(() =>
+const organisations: IOrganisation[] = computed(() =>
   resource.value.organisationsInvolved?.sort((a, b) =>
-    a.role && a.role?.find((r) => r.name === "Lead") ? -1 : 1
+    a.isLeadOrganisation ? -1 : 1
   )
 );
 
@@ -569,30 +571,67 @@ const activeOrganization = computed(() => {
           <template #before v-if="organisations && organisations?.length > 0">
             <DisplayList
               class="mb-5"
-              v-if="organisations"
-              title="Organisations involved"
+              v-if="organisations.filter((o) => o.isLeadOrganisation).length"
+              title="Lead organisations"
               :type="
-                organisations && organisations.length > 1 ? 'standard' : 'link'
+                organisations && organisations?.length > 1 ? 'standard' : 'link'
               "
             >
-              <DisplayListItem
-                v-for="(organisation, index) in organisations"
-                @click="showOrganisationSideModal(index)"
-              >
-                <span class="text-blue-500 hover:underline hover:cursor-pointer"
-                  >{{ organisation.name }}
-                  <template v-if="organisation.role"
-                    >({{
-                      organisation.role.map((r) => r.name).join(", ")
-                    }})</template
-                  ></span
+              <template v-for="(organisation, index) in organisations">
+                <DisplayListItem
+                  @click="showOrganisationSideModal(index)"
+                  v-if="organisation.isLeadOrganisation"
                 >
-                <img
-                  v-if="organisation.logo"
-                  class="max-h-11"
-                  :src="organisation.logo.url"
-                />
-              </DisplayListItem>
+                  <span
+                    class="text-blue-500 hover:underline hover:cursor-pointer"
+                    >{{ organisation.name }}
+                  </span>
+
+                  <template v-if="organisation.role"
+                    >&nbsp; -
+                    <i>
+                      {{ organisation.role.map((r) => r.name).join(", ") }}</i
+                    >
+                  </template>
+                  <img
+                    v-if="organisation.logo"
+                    class="max-h-11"
+                    :src="organisation.logo.url"
+                  />
+                </DisplayListItem>
+              </template>
+            </DisplayList>
+            <DisplayList
+              class="mb-5"
+              v-if="organisations?.filter((o) => !o.isLeadOrganisation).length"
+              title="Additional organisations"
+              :type="
+                organisations && organisations?.length > 1 ? 'standard' : 'link'
+              "
+            >
+              <template v-for="(organisation, index) in organisations">
+                <DisplayListItem
+                  @click="showOrganisationSideModal(index)"
+                  v-if="!organisation.isLeadOrganisation"
+                >
+                  <span
+                    class="text-blue-500 hover:underline hover:cursor-pointer"
+                    >{{ organisation.name }}
+                  </span>
+
+                  <template v-if="organisation.role"
+                    >&nbsp; -
+                    <i>
+                      {{ organisation.role.map((r) => r.name).join(", ") }}</i
+                    >
+                  </template>
+                  <img
+                    v-if="organisation.logo"
+                    class="max-h-11"
+                    :src="organisation.logo.url"
+                  />
+                </DisplayListItem>
+              </template>
             </DisplayList>
             <h3 class="mb-2.5 font-bold text-body-base">Contributors</h3>
           </template>
