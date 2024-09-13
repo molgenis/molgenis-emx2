@@ -25,3 +25,8 @@ logs
 
 storybook-static
 showCase
+
+# testing
+.reports/
+#VsCode
+*.code-workspace
