@@ -4,27 +4,34 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import java.util.List;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 
 public class TestUsersAndPermissions {
   static Database database;
+  private static final String TEST_ENABLE_USERS = "TestEnableUser";
 
   @BeforeAll
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
   }
 
+  @AfterAll
+  public static void removeUsers() {
+    if (database.hasUser(TEST_ENABLE_USERS)) {
+      database.removeUser(TEST_ENABLE_USERS);
+    }
+  }
+
   @Test
   public void getUsers() {
-
     List<User> users = database.getUsers(1000, 0);
     assertTrue(users.size() > 0);
 
     int count = database.countUsers();
     assertEquals(count, users.size());
-
     users = database.getUsers(1000, 2);
     assertEquals(count - 2, users.size());
   }
@@ -37,7 +44,9 @@ public class TestUsersAndPermissions {
 
       // add and set user
       String user1 = "Test Active User1";
-      if (database.hasUser(user1)) database.removeUser(user1);
+      if (database.hasUser(user1)) {
+        database.removeUser(user1);
+      }
       database.addUser(user1);
       database.setActiveUser(user1);
       assertEquals(user1, database.getActiveUser());
@@ -72,6 +81,13 @@ public class TestUsersAndPermissions {
     } finally {
       database.becomeAdmin();
     }
+  }
+
+  @Test
+  public void testDisableUser() {
+    database.addUser(TEST_ENABLE_USERS);
+    database.setEnabledUser(TEST_ENABLE_USERS, false);
+    assertFalse(database.getUser(TEST_ENABLE_USERS).getEnabled());
   }
 
   @Test
