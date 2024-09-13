@@ -20,7 +20,7 @@ const orderedRoles = computed(() => {
   <ContentBlock :title="title">
     <slot name="before"></slot>
 
-    <template v-if="orderedRoles.length">
+    <template v-if="orderedRoles?.length > 0">
       <ContactCardList>
         <ContactCard
           v-for="contributor in orderedRoles"
