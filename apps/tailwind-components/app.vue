@@ -68,6 +68,6 @@ watch(isFocusLayout, (value) => {
             
   <NuxtLayout @click="isExpanded = false">
     <NuxtPage  />
-  </NuxtLayout>
-         
+  </NuxtLayout>     
+
 </template>
