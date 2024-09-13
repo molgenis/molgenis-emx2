@@ -12,14 +12,21 @@
     <MessageSuccess v-if="successMessage">
       {{ successMessage }}.
       <div v-if="lastTokenValue" style="cursor: pointer">
-        <label><b>New token. Please copy for use.</b></label>
-        <Tooltip
-          value="Click to copy to clipboard"
-          placement="top"
-          @click.prevent="copyToClipboard(lastTokenValue)"
-        >
-          <pre>{{ lastTokenValue }}</pre>
-        </Tooltip>
+        <label>
+          <b>
+            New token. Please copy for use:
+            <Tooltip
+              value="Click to copy to clipboard"
+              placement="top"
+              @click.prevent="copyToClipboard(lastTokenValue)"
+            >
+              <i id="copy-icon" class="fa fa-clipboard" />
+            </Tooltip>
+          </b>
+        </label>
+        <pre @click.prevent="copyToClipboard(lastTokenValue)">
+          {{ lastTokenValue }}
+        </pre>
       </div>
     </MessageSuccess>
     <MessageError v-if="errorMessage">{{ errorMessage }}</MessageError>
