@@ -123,7 +123,7 @@ const stories = Object.keys(modules)
           </aside>
           <div class="xl:pl-7.5 grow p-6">
             <slot name="main">
-              <NuxtPage :theme="theme" :invertTheme="invert" />
+              <NuxtPage :invertTheme="invert" />
             </slot>
           </div>
         </div>
