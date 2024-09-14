@@ -117,7 +117,6 @@ class Transform:
         # Cohorts to Resources
         df_catalogues = pd.read_csv(self.path.joinpath('Catalogues.csv'), dtype='object')
         df_catalogues['name'] = df_catalogues['network']
-        df_catalogues['description'] = 'to be filled out'  # TODO: data model get Resources.description
 
         # df_catalogues = float_to_int(df_catalogues)  # convert float back to integer
         df_catalogues.to_csv(self.path.joinpath('Catalogues.csv'), index=False)
@@ -299,7 +298,7 @@ class Transform:
         df.loc[:, 'variable.name'] = df.apply(lambda x: x['stripped_var'] if x.repeated else x['variable.name'], axis=1)  # if repeated, keep stripped variable name
 
         df = df.drop_duplicates(subset=['resource', 'variable.resource', 'variable.name'])
-        df.to_csv(self.path.joinpath('Resource variables.csv'), index=False)
+        df.to_csv(self.path.joinpath('Reused variables.csv'), index=False)
 
     def variable_values(self):
         # restructure variable values

@@ -295,7 +295,7 @@ class Transform:
         df.loc[:, 'variable.name'] = df.apply(lambda x: x['stripped_var'] if x.repeated else x['variable.name'], axis=1)  # if repeated, keep stripped variable name
         df = df.drop_duplicates(subset=['resource', 'variable.resource', 'variable.name'])
 
-        df.to_csv(self.path + 'Resource variables.csv', index=False)
+        df.to_csv(self.path + 'Reused variables.csv', index=False)
 
     def variable_values(self):
         # restructure variable values
