@@ -5,7 +5,6 @@ Script to convert the BBMRI-ERIC directory data to the flat model
 import argparse
 import molgenis_emx2_pyclient
 
-
 def map_persons_to_contacts(persons):
     """Maps the BBRMI-ERIC Persons table to the flat data model's Collection Contacts"""
     persons.rename(columns={'first_name': 'first name',
@@ -44,23 +43,24 @@ def main():
     parser.add_argument("-target-pw", type=str, dest="target_password",
                         required=False, help="Password for target server access")
     args = parser.parse_args()
-    # Connect to server
+    # Connect to source server
     with molgenis_emx2_pyclient.Client(args.source_server) as client:
         if args.source_password:
             client.signin('admin', args.source_password)
-        # Get and transform Persons table first
         client.set_schema('ERIC')
+        # Get and transform Persons table
         persons = client.get('Persons', as_df=True)
+        # Connect to target server
         with molgenis_emx2_pyclient.Client(args.target_server) as cat_client:
             if args.target_password:
                 cat_client.signin('admin', args.target_password)
             cat_client.set_schema('catalogue-demo-hsl')
             mapped_contacts = map_persons_to_contacts(
                 persons.copy())  # Unnecessary copy?
-            # Output mapped contacts
             mapped_contacts = mapped_contacts.reindex(columns=['collection', 'role', 'role description', 'display name', 'first name',
                                                                'last name', 'prefix', 'initials', 'title', 'organisation', 'email',
                                                                'orcid', 'homepage', 'photo', 'photo_filename', 'expertise'])
+            # Upload mapped contacts
             cat_client.save_schema(table = 'Collection contacts', data = mapped_contacts)
 
 if __name__ == "__main__":
