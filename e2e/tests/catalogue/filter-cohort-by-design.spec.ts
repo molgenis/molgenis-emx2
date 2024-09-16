@@ -12,11 +12,9 @@ test.beforeEach(async ({ context, baseURL }) => {
 });
 
 test('filter cohorts list page by design', async ({ page }) => {
-  await page.goto('/catalogue-demo/ssr-catalogue/all/cohorts');
-  await page.getByRole('heading', { name: 'Design' }).click();
-  await page.getByText('Cross-sectional').click();
+  await page.goto('/catalogue-demo/ssr-catalogue/all/cohorts?page=1&conditions=[{%22id%22:%22cohortDesigns%22,%22conditions%22:[{%22name%22:%22Cross-sectional%22}]}]');
   await expect(page.getByRole('main')).toContainText('Cross-sectional');
-  await page.locator('#fiter-well-clear-all').click();
+  await page.getByRole('button', { name: 'Design -' }).click();
   await expect(page.getByRole('complementary')).toContainText('Longitudinal');
 });
 
