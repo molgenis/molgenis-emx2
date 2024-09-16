@@ -95,7 +95,7 @@ public class ExcelApi {
   }
 
   static String getExcelTable(Request request, Response response) throws IOException {
-    Table table = MolgenisWebservice.getTableById(request);
+    Table table = MolgenisWebservice.getTableByIdOrName(request);
     Path tempDir = Files.createTempDirectory(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT);
     tempDir.toFile().deleteOnExit();
     try (OutputStream outputStream = response.raw().getOutputStream()) {
