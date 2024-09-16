@@ -16,6 +16,8 @@ test('filter cohorts list page by design', async ({ page }) => {
   await page.getByRole('heading', { name: 'Design' }).click();
   await page.getByText('Cross-sectional').click();
   await expect(page.getByRole('main')).toContainText('Cross-sectional');
-  await page.getByRole('button', { name: 'Remove all' }).click();
+  await page.getByText('Remove 1 selected').click();
   await expect(page.getByRole('complementary')).toContainText('Longitudinal');
 });
+
+
