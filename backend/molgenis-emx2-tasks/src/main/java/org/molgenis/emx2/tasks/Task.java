@@ -314,10 +314,6 @@ public class Task implements Runnable, Iterable<Task> {
     return failureAddress;
   }
 
-  public void setFailureAddress(String failureAddress) {
-    this.failureAddress = failureAddress;
-  }
-
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;

@@ -20,42 +20,52 @@ public class RDFApi {
   public static final String FORMAT = "format";
   private static MolgenisSessionManager sessionManager;
   public static final String RDF_API_LOCATION = "/api/rdf";
+  public static final String TTL_API_LOCATION = "/api/ttl";
+  public static final String JSONLD_API_LOCATION = "/api/jsonld";
+
+  private static final List<RDFFormat> acceptedRdfFormats =
+      List.of(
+          RDFFormat.TURTLE,
+          RDFFormat.N3,
+          RDFFormat.NTRIPLES,
+          RDFFormat.NQUADS,
+          RDFFormat.RDFXML,
+          RDFFormat.TRIG,
+          RDFFormat.JSONLD);
 
   public static void create(Javalin app, MolgenisSessionManager sm) {
     // ideally, we estimate/calculate the content length and inform the client using
     // response.raw().setContentLengthLong(x) but since the output is streaming and the triples
     // created on-the-fly, there is no way of knowing (or is there?)
     sessionManager = sm;
-    app.get(RDF_API_LOCATION, RDFApi::rdfForDatabase);
-    app.get("/api/jsonld", RDFApi::jslonldForDatabase);
-    app.get("/api/ttl", RDFApi::ttlForDatabase);
-    final String schemaPath = "/{schema}" + RDF_API_LOCATION;
-    app.get(schemaPath, RDFApi::rdfForSchema);
-    // FIXME: rdfForTable also handles requests for a specific row if there is a composite key
-    // TODO: probably best to merge these two methods and always use query string to encode the row
-    app.get(schemaPath + "/{table}", RDFApi::rdfForTable);
-    app.get(schemaPath + "/{table}/{row}", RDFApi::rdfForRow);
-    app.get(schemaPath + "/{table}/column/{column}", RDFApi::rdfForColumn);
-    app.get("/{schema}/api/jsonld", RDFApi::jsonldForSchema);
-    app.get("/{schema}/api/ttl", RDFApi::ttlForSchema);
-    app.get("/{schema}/api/jsonld/{table}", RDFApi::jsonldForTable);
-    app.get("/{schema}/api/ttl/{table}", RDFApi::ttlForTable);
+
+    defineApiRoutes(app, RDF_API_LOCATION, null);
+    defineApiRoutes(app, TTL_API_LOCATION, RDFFormat.TURTLE);
+    defineApiRoutes(app, JSONLD_API_LOCATION, RDFFormat.JSONLD);
   }
 
-  private static int jslonldForDatabase(Context ctx) throws IOException {
-    return rdfForDatabase(ctx, RDFFormat.JSONLD);
+  private static void defineApiRoutes(Javalin app, String apiLocation, RDFFormat format) {
+    app.get(apiLocation, (ctx) -> rdfForDatabase(ctx, format));
+    app.head(apiLocation, (ctx) -> rdfHead(ctx, format));
+    app.get("{schema}" + apiLocation, (ctx) -> rdfForSchema(ctx, format));
+    app.head("{schema}" + apiLocation, (ctx) -> rdfHead(ctx, format));
+    app.get("{schema}" + apiLocation + "/{table}", (ctx) -> rdfForTable(ctx, format));
+    app.head("{schema}" + apiLocation + "/{table}", (ctx) -> rdfHead(ctx, format));
+    app.get("{schema}" + apiLocation + "/{table}/{row}", (ctx) -> rdfForRow(ctx, format));
+    app.head("{schema}" + apiLocation + "/{table}/{row}", (ctx) -> rdfHead(ctx, format));
+    app.get(
+        "{schema}" + apiLocation + "/{table}/column/{column}", (ctx) -> rdfForColumn(ctx, format));
+    app.head("{schema}" + apiLocation + "/{table}column/{column}/", (ctx) -> rdfHead(ctx, format));
   }
 
-  private static int ttlForDatabase(Context ctx) throws IOException {
-    return rdfForDatabase(ctx, RDFFormat.TURTLE);
-  }
-
-  private static int rdfForDatabase(Context ctx) throws IOException {
-    final RDFFormat format = selectFormat(ctx);
-    return rdfForDatabase(ctx, format);
+  private static String rdfHead(Context ctx, RDFFormat format) {
+    ctx.contentType(selectFormat(ctx, format).getDefaultMIMEType());
+    return "";
   }
 
   private static int rdfForDatabase(Context ctx, RDFFormat format) throws IOException {
+    format = selectFormat(ctx, format); // defines format if null
+
     Database db = sessionManager.getSession(ctx.req()).getDatabase();
     Collection<String> schemaNames = new ArrayList<>();
     if (ctx.queryParam("schemas") != null) {
@@ -92,20 +102,9 @@ public class RDFApi {
     return 200;
   }
 
-  private static int ttlForSchema(Context ctx) throws IOException {
-    return rdfForSchema(ctx, RDFFormat.TURTLE);
-  }
-
-  private static int jsonldForSchema(Context ctx) throws IOException {
-    return rdfForSchema(ctx, RDFFormat.JSONLD);
-  }
-
-  private static int rdfForSchema(Context ctx) throws IOException {
-    final RDFFormat format = selectFormat(ctx);
-    return rdfForSchema(ctx, format);
-  }
-
   private static int rdfForSchema(Context ctx, RDFFormat format) throws IOException {
+    format = selectFormat(ctx, format); // defines format if null
+
     Schema schema = getSchema(ctx);
     if (schema == null) {
       throw new MolgenisException("Schema " + ctx.pathParam("schema") + " was not found");
@@ -122,21 +121,10 @@ public class RDFApi {
     return 200;
   }
 
-  private static int jsonldForTable(Context ctx) throws IOException {
-    return rdfForTable(ctx, RDFFormat.JSONLD);
-  }
-
-  private static int ttlForTable(Context ctx) throws IOException {
-    return rdfForTable(ctx, RDFFormat.TURTLE);
-  }
-
-  private static int rdfForTable(Context ctx) throws IOException {
-    final RDFFormat format = selectFormat(ctx);
-    return rdfForTable(ctx, format);
-  }
-
   private static int rdfForTable(Context ctx, RDFFormat format) throws IOException {
-    Table table = getTableById(ctx);
+    format = selectFormat(ctx, format); // defines format if null
+
+    Table table = getTableByIdOrName(ctx);
     String rowId = null;
     if (ctx.queryString() != null && !ctx.queryString().isBlank()) {
       rowId = ctx.queryString();
@@ -153,12 +141,12 @@ public class RDFApi {
     return 200;
   }
 
-  private static int rdfForRow(Context ctx) throws IOException {
-    Table table = getTableById(ctx);
+  private static int rdfForRow(Context ctx, RDFFormat format) throws IOException {
+    format = selectFormat(ctx, format); // defines format if null
+    Table table = getTableByIdOrName(ctx);
     String rowId = sanitize(ctx.pathParam("row"));
 
     final String baseURL = extractBaseURL(ctx);
-    final RDFFormat format = selectFormat(ctx);
     RDFService rdf = new RDFService(baseURL, RDF_API_LOCATION, format);
     ctx.contentType(rdf.getMimeType());
 
@@ -169,12 +157,13 @@ public class RDFApi {
     return 200;
   }
 
-  private static int rdfForColumn(Context ctx) throws IOException {
-    Table table = getTableById(ctx);
+  private static int rdfForColumn(Context ctx, RDFFormat format) throws IOException {
+    format = selectFormat(ctx, format); // defines format if null
+
+    Table table = getTableByIdOrName(ctx);
     String columnName = sanitize(ctx.pathParam("column"));
 
     final String baseURL = extractBaseURL(ctx);
-    final RDFFormat format = selectFormat(ctx);
 
     RDFService rdf = new RDFService(baseURL, RDF_API_LOCATION, format);
     ctx.contentType(rdf.getMimeType());
@@ -209,6 +198,10 @@ public class RDFApi {
         || (scheme.equals("https") && port.equals("443"));
   }
 
+  private static RDFFormat selectFormat(Context ctx, RDFFormat format) {
+    return format == null ? selectFormat(ctx) : format;
+  }
+
   public static RDFFormat selectFormat(Context ctx) {
     var accept = ctx.header("Accept");
     // Accept header gives a list of comma separated mime types, optionally with a weight
@@ -219,16 +212,7 @@ public class RDFApi {
         // Strip everything after a semicolon
         type = type.split(";")[0];
       }
-      var formats =
-          List.of(
-              RDFFormat.TURTLE,
-              RDFFormat.N3,
-              RDFFormat.NTRIPLES,
-              RDFFormat.NQUADS,
-              RDFFormat.RDFXML,
-              RDFFormat.TRIG,
-              RDFFormat.JSONLD);
-      for (var format : formats) {
+      for (var format : acceptedRdfFormats) {
         if (format.hasDefaultMIMEType(type)) {
           return format;
         }

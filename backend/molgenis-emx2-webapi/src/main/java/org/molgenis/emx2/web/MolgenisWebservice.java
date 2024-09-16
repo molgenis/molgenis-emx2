@@ -208,18 +208,30 @@ public class MolgenisWebservice {
         .writeValueAsString(api);
   }
 
-  public static Table getTableById(Context ctx) {
-    return getTableById(ctx, ctx.pathParam(TABLE));
+  /**
+   * Get the table specified in the request parameter "table".
+   *
+   * @param ctx the request
+   * @return the table object corresponding to the table id. Never null.
+   * @throws MolgenisException if the table or the schema is not found or accessible.
+   */
+  public static Table getTableByIdOrName(Context ctx) {
+    return getTableByIdOrName(ctx, ctx.pathParam(TABLE));
   }
 
-  public static Table getTableById(Context ctx, String tableName) {
-    String schemaName = ctx.pathParam(SCHEMA);
-    Schema schema =
-        sessionManager.getSession(ctx.req()).getDatabase().getSchema(sanitize(schemaName));
+  /**
+   * Get the table by its id.
+   *
+   * @param ctx the request
+   * @return the table object corresponding to the table id or name. Never null.
+   * @throws MolgenisException if the schema is not found or accessible.
+   */
+  public static Table getTableByIdOrName(Context ctx, String tableName) {
+    Schema schema = getSchema(ctx);
     if (schema == null) {
-      throw new MolgenisException("Schema " + schemaName + " unknown or access denied");
+      throw new MolgenisException("Schema " + ctx.pathParam(SCHEMA) + " unknown");
     }
-    Table table = schema.getTableById(sanitize(tableName));
+    Table table = schema.getTableByNameOrIdCaseInsensitive(tableName);
     if (table == null) {
       throw new MolgenisException("Table " + tableName + " unknown");
     }

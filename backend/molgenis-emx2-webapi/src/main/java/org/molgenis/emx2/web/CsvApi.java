@@ -53,14 +53,14 @@ public class CsvApi {
   }
 
   static String mergeMetadata(Context ctx) {
-    String fileName = ctx.req().getHeader("fileName");
-    boolean fileNameMatchesTable = getSchema(ctx).getTableNames().contains(fileName);
+    String fileName = ctx.header("fileName");
+    boolean fileNameMatchesTable = getSchema(ctx).hasTableWithNameOrIdCaseInsensitive(fileName);
 
     if (fileNameMatchesTable) { // so we assume it isn't meta data
-      Table table = MolgenisWebservice.getTableById(ctx, fileName);
+      Table table = MolgenisWebservice.getTableByIdOrName(ctx, fileName);
       if (ctx.queryParams("async").isEmpty()) {
         TableStoreForCsvInMemory tableStore = new TableStoreForCsvInMemory();
-        tableStore.setCsvString(fileName, ctx.body());
+        tableStore.setCsvString(table.getName(), ctx.body());
         String id = TaskApi.submit(new ImportTableTask(tableStore, table, false));
         return new TaskReference(id, table.getSchema()).toString();
       } else {
@@ -96,7 +96,7 @@ public class CsvApi {
   }
 
   private static String tableRetrieve(Context ctx) throws IOException {
-    Table table = MolgenisWebservice.getTableById(ctx);
+    Table table = MolgenisWebservice.getTableByIdOrName(ctx);
     TableStoreForCsvInMemory store = new TableStoreForCsvInMemory(getSeperator(ctx));
     store.writeTable(table.getName(), getDownloadColumns(ctx, table), getDownloadRows(ctx, table));
     ctx.contentType(ACCEPT_CSV);
@@ -129,7 +129,7 @@ public class CsvApi {
   }
 
   private static String tableUpdate(Context ctx) {
-    int count = MolgenisWebservice.getTableById(ctx).save(getRowList(ctx));
+    int count = MolgenisWebservice.getTableByIdOrName(ctx).save(getRowList(ctx));
     ctx.status(200);
     ctx.contentType(ACCEPT_CSV);
     return "" + count;
@@ -140,7 +140,7 @@ public class CsvApi {
   }
 
   private static String tableDelete(Context ctx) {
-    int count = MolgenisWebservice.getTableById(ctx).delete(getRowList(ctx));
+    int count = MolgenisWebservice.getTableByIdOrName(ctx).delete(getRowList(ctx));
     ctx.contentType(ACCEPT_CSV);
     ctx.status(200);
     return "" + count;

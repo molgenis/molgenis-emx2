@@ -1,6 +1,6 @@
 package org.molgenis.emx2.beaconv2.requests;
 
-import static org.molgenis.emx2.rdf.RDFUtils.extractHost;
+import static org.molgenis.emx2.utils.URIUtils.extractHost;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import io.javalin.http.Context;

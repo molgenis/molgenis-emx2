@@ -3,6 +3,7 @@ package org.molgenis.emx2.web;
 import static org.molgenis.emx2.Constants.SYSTEM_SCHEMA;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.SelectColumn.s;
+import static org.molgenis.emx2.utils.URIUtils.extractHost;
 import static org.molgenis.emx2.web.FileApi.addFileColumnToResponse;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 import static org.molgenis.emx2.web.MolgenisWebservice.sessionManager;
@@ -13,6 +14,8 @@ import io.javalin.Javalin;
 import io.javalin.http.Context;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import org.molgenis.emx2.*;
@@ -71,7 +74,7 @@ public class TaskApi {
     return new ObjectMapper().writeValueAsString(taskSchedulerService.scheduledTaskNames());
   }
 
-  private static String postScript(Context ctx) {
+  private static String postScript(Context ctx) throws MalformedURLException {
     if (ctx.pathParam("schema").isEmpty() || getSchema(ctx) != null) {
       MolgenisSession session = sessionManager.getSession(ctx.req());
       String user = session.getSessionUser();
@@ -80,7 +83,9 @@ public class TaskApi {
       }
       String name = URLDecoder.decode(ctx.pathParam("name"), StandardCharsets.UTF_8);
       String parameters = ctx.body();
-      String id = taskService.submitTaskFromName(name, parameters);
+
+      URL host = new URL(extractHost(ctx.url()));
+      String id = taskService.submitTaskFromName(name, parameters, host);
       return new TaskReference(id).toString();
     }
     throw new MolgenisException("Schema doesn't exist or permission denied");

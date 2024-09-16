@@ -118,7 +118,7 @@ public class ZipApi {
   }
 
   static void getZipTable(Context ctx) throws IOException {
-    Table table = MolgenisWebservice.getTableById(ctx);
+    Table table = MolgenisWebservice.getTableByIdOrName(ctx);
     boolean includeSystemColumns = includeSystemColumns(ctx);
     if (table == null) throw new MolgenisException("Table " + ctx.pathParam(TABLE) + " unknown");
     Path tempDir = Files.createTempDirectory(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT);
@@ -189,21 +189,21 @@ public class ZipApi {
     }
   }
 
-  //  @NotNull
-  //  static Map<String, Object> getReportParameters(Context ) {
-  //    Map<String, Object> parameters = new LinkedHashMap<>();
-  //    request
-  //        .queryParams()
-  //        .forEach(
-  //            param -> {
-  //              if ("id".equals(param)) {
-  //                return;
-  //              } else if (request.queryParamsValues(param).length > 1) {
-  //                parameters.put(param, List.of(request.queryParamsValues(param)));
-  //              } else {
-  //                parameters.put(param, request.queryParams(param));
-  //              }
-  //            });
-  //    return parameters;
-  //  }
+  //    @NotNull
+  //    static Map<String, Object> getReportParameters(Context ) {
+  //      Map<String, Object> parameters = new LinkedHashMap<>();
+  //      request
+  //          .queryParams()
+  //          .forEach(
+  //              param -> {
+  //                if ("id".equals(param)) {
+  //                  return;
+  //                } else if (request.queryParamsValues(param).length > 1) {
+  //                  parameters.put(param, List.of(request.queryParamsValues(param)));
+  //                } else {
+  //                  parameters.put(param, request.queryParams(param));
+  //                }
+  //              });
+  //      return parameters;
+  //    }
 }

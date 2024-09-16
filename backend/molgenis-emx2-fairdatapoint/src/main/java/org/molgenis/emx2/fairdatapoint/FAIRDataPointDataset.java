@@ -5,8 +5,7 @@ import static org.eclipse.rdf4j.model.util.Values.literal;
 import static org.molgenis.emx2.fairdatapoint.FAIRDataPointCatalog.extractItemAsIRI;
 import static org.molgenis.emx2.fairdatapoint.FormatMimeTypes.FORMATS;
 import static org.molgenis.emx2.fairdatapoint.Queries.queryDataset;
-import static org.molgenis.emx2.rdf.RDFService.*;
-import static org.molgenis.emx2.rdf.RDFUtils.*;
+import static org.molgenis.emx2.utils.URIUtils.*;
 
 import io.javalin.http.Context;
 import java.io.StringWriter;
