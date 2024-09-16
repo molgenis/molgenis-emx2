@@ -1,5 +1,6 @@
 <template>
   <div style="background-color: #f4f4f4">
+    <slot v-if="$slots.banner" name="banner" />
     <CookieWall
       v-if="analyticsId"
       :analyticsId="analyticsId"
@@ -276,6 +277,26 @@ export default {
       <template #footer>A fully custom footer</template>
     </Molgenis>
   </DemoItem>
+
+  <DemoItem>
+    <Molgenis
+      :menuItems="[
+        { label: 'Home', href: '/' },
+        { label: 'My search', href: 'http://google.com' },
+        { label: 'My movies', href: 'http://youtube.com' },
+      ]"
+      title="With banner title"
+      v-model="molgenis"
+    >
+      <template #banner>
+        <div class="mg_banner"> 
+          This is text in a banner
+        </div>
+      </template>
+      <template #footer>footer</template>
+    </Molgenis>
+  </DemoItem>
+
 </template>
 <script>
 export default {
@@ -286,4 +307,12 @@ export default {
   },
 };
 </script>
+
+<style>
+.mg_banner {
+  background-color: #72f6b2;
+  padding: 10px;
+  text-align: center;
+}
+</style>
 </docs>
