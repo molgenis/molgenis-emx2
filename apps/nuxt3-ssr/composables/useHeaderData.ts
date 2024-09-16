@@ -3,16 +3,16 @@ import type { IMgError } from "../interfaces/types";
 const method = "POST";
 
 const modelQuery = `
-      query Collections($networksFilter:CollectionsFilter) {
-        Collections(filter:$networksFilter){ datasets { name } }
+      query Resources($networksFilter:ResourcesFilter) {
+        Resources(filter:$networksFilter){ datasets { name } }
       }`;
 
 const headerQuery = `
-      query HeaderQuery($networksFilter:CollectionsFilter, $variablesFilter:VariablesFilter) {
-        Collections(filter:$networksFilter) {
+      query HeaderQuery($networksFilter:ResourcesFilter, $variablesFilter:VariablesFilter) {
+        Resources(filter:$networksFilter) {
           id,
-          collections_agg { count }
-          collections_groupBy { count , type {name}}
+          resources_agg { count }
+          resources_groupBy { count , type {name}}
           logo { url }
        }
        Variables_agg(filter:$variablesFilter) {
@@ -32,7 +32,7 @@ export async function useHeaderData() {
         | {
             networksFilter: { id: { equals: string | string[] } };
             variablesFilter?: {
-              collection: { id: { equals: string | string[] } };
+              resource: { id: { equals: string | string[] } };
             };
           }
         | undefined;
@@ -45,14 +45,14 @@ export async function useHeaderData() {
         method: "POST",
         body: {
           query: `
-            query CollectionDatasets($filter:CollectionDatasetsFilter) {
-              CollectionDatasets(filter:$filter){name}
+            query Datasets($filter:DatasetsFilter) {
+              Datasets(filter:$filter){name}
             }`,
           variables: {
             filter: {
               _or: [
-                { collection: networksFilter },
-                { collection: { partOfCollections: networksFilter } },
+                { resource: networksFilter },
+                { resource: { partOfResources: networksFilter } },
               ],
             },
           },
@@ -60,16 +60,16 @@ export async function useHeaderData() {
       });
       const variablesFilter = scoped
         ? {
-            collection: { id: { equals: catalogueRouteParam } },
+            resource: { id: { equals: catalogueRouteParam } },
             dataset: {
               name: {
-                equals: datasets.data.CollectionDatasets?.map(
+                equals: datasets.data.Datasets?.map(
                   (d: { name: string }) => d.name
                 ).flat(),
               },
             },
           }
-        : { collection: { type: { name: { equals: "Network" } } } };
+        : { resource: { type: { name: { equals: "Network" } } } };
 
       return $fetch(apiPath, {
         key: `header-${route.params.catalogue}`,
@@ -91,8 +91,8 @@ export async function useHeaderData() {
     throw new Error(contextMsg);
   }
 
-  const catalogue = data.value.data?.Collections
-    ? data.value.data?.Collections[0]
+  const catalogue = data.value.data?.Resources
+    ? data.value.data?.Resources[0]
     : null;
   const variableCount = data.value.data?.Variables_agg.count || 0;
 

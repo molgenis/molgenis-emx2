@@ -7,12 +7,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.datamodels.DataModels;
 import org.molgenis.emx2.datamodels.PetStoreLoader;
+import org.molgenis.emx2.datamodels.test.ProductComponentPartsExample;
+import org.molgenis.emx2.datamodels.test.SimpleTypeTestExample;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 class GeneratorTest {
@@ -48,12 +48,11 @@ class GeneratorTest {
   }
 
   @Test
-  @Tag("slow")
-  void generateCatalogueTypes() throws IOException {
+  void generateTypeTest() throws IOException {
     File f =
         new File(
-            this.getClass().getClassLoader().getResource("generated-catalogue-types.ts").getFile());
-    String schemaName = GeneratorTest.class.getSimpleName() + "Catalogue";
+            this.getClass().getClassLoader().getResource("generated-typetest-types.ts").getFile());
+    String schemaName = GeneratorTest.class.getSimpleName() + "TypeTest";
     Schema schema = db.getSchema(schemaName);
     if (schema == null) {
       schema = db.createSchema(schemaName);
@@ -61,18 +60,19 @@ class GeneratorTest {
       schema = db.dropCreateSchema(schema.getName());
     }
 
-    DataModels.Profile.DATA_CATALOGUE.getImportTask(schema, false).run();
+    SimpleTypeTestExample.createSimpleTypeTest(schema.getMetadata());
+    ProductComponentPartsExample.create(schema.getMetadata());
     new Generator().generate(schema, f.getPath());
 
     // now compare generated with expected
     File expected =
         new File(
-            this.getClass().getClassLoader().getResource("expected-catalogue-types.ts").getFile());
+            this.getClass().getClassLoader().getResource("expected-typetest-types.ts").getFile());
     List<String> lines = fileToLines(expected);
 
     File generated =
         new File(
-            this.getClass().getClassLoader().getResource("generated-catalogue-types.ts").getFile());
+            this.getClass().getClassLoader().getResource("generated-typetest-types.ts").getFile());
 
     List<String> generatedLines = fileToLines(generated);
 
