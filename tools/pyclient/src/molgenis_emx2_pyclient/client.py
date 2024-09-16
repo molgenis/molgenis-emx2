@@ -1,11 +1,11 @@
 import csv
-import io
 import json
 import logging
 import pathlib
 import time
 from functools import cache
-from typing import TypeAlias, Literal
+from io import BytesIO
+from typing import Literal
 
 import pandas as pd
 import requests
@@ -21,7 +21,6 @@ from .metadata import Schema
 
 log = logging.getLogger("Molgenis EMX2 Pyclient")
 
-OutputFormat: TypeAlias = Literal['csv', 'xlsx']
 
 
 class Client:
@@ -236,7 +235,7 @@ class Client:
         response = self.session.post(
             url=f"{self.url}/{current_schema}/api/csv/{table_id}",
             headers={'Content-Type': 'text/csv'},
-            data=import_data
+            data=import_data.encode('utf-8')
         )
 
         try:
@@ -404,22 +403,25 @@ class Client:
                                         fallback_error_message=f"Failed to retrieve data from {current_schema}::"
                                                                f"{table!r}.\nStatus code: {response.status_code}.")
 
-        response_data = pd.read_csv(io.BytesIO(response.content), keep_default_na=False)
+        response_data = pd.read_csv(BytesIO(response.content), keep_default_na=False)
 
         if not as_df:
             return response_data.to_dict('records')
         return response_data
 
-    async def export(self, schema: str = None, table: str = None, fmt: OutputFormat = 'csv'):
+    async def export(self, schema: str = None, table: str = None,
+                     filename: str = None, as_excel: bool = False) -> BytesIO:
         """Exports data from a schema to a file in the desired format.
 
         :param schema: the name of the schema
         :type schema: str
         :param table: the name of the table
         :type table: str
-        :param fmt: the export format of the schema and or table (csv or xlsx)
-        :type fmt: str
-
+        :param filename: the name of the file to which the data is to be exported, default None
+        :type filename: str
+        :param as_excel: specifies whether the Excel API is called for the export.
+                         Ignored when parameter filename is specified, default False
+        :type as_excel: bool
         """
         current_schema = schema if schema is not None else self.default_schema
         if current_schema not in self.schema_names:
@@ -430,6 +432,21 @@ class Client:
 
         schema_metadata: Schema = self.get_schema_metadata(current_schema)
 
+        if filename:
+            if filename.endswith('.xlsx'):
+                fmt = 'xlsx'
+            elif filename.endswith('.csv'):
+                fmt = 'csv'
+            elif filename.endswith('.zip'):
+                fmt = 'csv'
+            else:
+                raise ValueError(f"File name must end with ('csv', 'xlsx', 'zip')")
+        else:
+            if as_excel:
+                fmt = 'xlsx'
+            else:
+                fmt = 'csv'
+
         if fmt == 'xlsx':
             if table is None:
                 # Export the whole schema
@@ -437,10 +454,12 @@ class Client:
                 response = self.session.get(url=url)
                 self._validate_graphql_response(response)
 
-                filename = f"{current_schema}.xlsx"
-                with open(filename, "wb") as file:
-                    file.write(response.content)
-                log.info("Exported data from schema %s to '%s'.", current_schema, filename)
+                if filename:
+                    with open(filename, "wb") as file:
+                        file.write(response.content)
+                    log.info("Exported data from schema %s to '%s'.", current_schema, filename)
+                else:
+                    log.info("Exported data from schema %s.", current_schema)
             else:
                 # Export the single table
                 table_id = schema_metadata.get_table(by='name', value=table).id
@@ -448,21 +467,25 @@ class Client:
                 response = self.session.get(url=url)
                 self._validate_graphql_response(response)
 
-                filename = f"{table}.xlsx"
-                with open(filename, "wb") as file:
-                    file.write(response.content)
-                log.info("Exported data from table %s in schema %s to '%s'.", table, current_schema, filename)
-
-        if fmt == 'csv':
+                if filename:
+                    with open(filename, "wb") as file:
+                        file.write(response.content)
+                    log.info("Exported data from table %s in schema %s to '%s'.", table, current_schema, filename)
+                else:
+                    log.info("Exported data from table %s in schema %s.", table, current_schema)
+        else:
             if table is None:
                 url = f"{self.url}/{current_schema}/api/zip"
                 response = self.session.get(url=url)
                 self._validate_graphql_response(response)
 
-                filename = f"{current_schema}.zip"
-                with open(filename, "wb") as file:
-                    file.write(response.content)
-                log.info("Exported data from schema %s to '%s'.", current_schema, filename)
+                if filename:
+                    with open(filename, "wb") as file:
+                        file.write(response.content)
+                    log.info("Exported data from schema %s to '%s'.", current_schema, filename)
+                else:
+                    log.info("Exported data from schema %s.", current_schema)
+
             else:
                 # Export the single table
                 table_id = schema_metadata.get_table(by='name', value=table).id
@@ -470,10 +493,15 @@ class Client:
                 response = self.session.get(url=url)
                 self._validate_graphql_response(response)
 
-                filename = f"{table}.csv"
-                with open(filename, "wb") as file:
-                    file.write(response.content)
-                log.info("Exported data from table %s in schema %s to '%s'.", table, current_schema, filename)
+                if filename:
+                    with open(filename, "wb") as file:
+                        file.write(response.content)
+                    log.info("Exported data from table %s in schema %s to '%s'.", table, current_schema, filename)
+                else:
+                    log.info("Exported data from table %s in schema %s.", table, current_schema)
+
+        return BytesIO(response.content)
+
 
     async def create_schema(self, name: str = None,
                       description: str = None,
@@ -778,7 +806,7 @@ class Client:
 
         try:
             val = json.loads(_val)
-        except json.decoder.JSONDecodeError as e:
+        except json.decoder.JSONDecodeError:
             msg = ("To filter on values between a and b, supply them as a list, [a, b]. "
                    "Ensure the values for a and b are numeric.")
             raise ValueError(msg)
@@ -807,7 +835,6 @@ class Client:
         """Prepares the data from memory or loaded from disk for addition or deletion action.
 
         :param file_path: path to the file to be prepared
-        :type file_path: str
         :type file_path: str
         :param data: data to be prepared
         :type data: list
