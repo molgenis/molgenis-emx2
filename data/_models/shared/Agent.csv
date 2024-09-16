@@ -7,6 +7,6 @@ Agent,,has member,ref_array,,,,Agent,,,,type !== null && type.name === 'group',h
 Agent,,is member,refBack,,,,Agent,,has member,,type !== null && type.name === 'group',,Groups this member is part of.,"DCAT,Beacon v2",custom: refBack for easier table overview / no semantics!
 Agent,,given name,string,,,,,,,,type !== null && type.name === 'person',"http://xmlns.com/foaf/0.1/givenName",The given name of some person.,"DCAT,Beacon v2",
 Agent,,family name,string,,,,,,,,type !== null && type.name === 'person',"http://xmlns.com/foaf/0.1/familyName",The family name of some person.,"DCAT,Beacon v2",
-Agent,,openid,string,,,,,,,,,"http://xmlns.com/foaf/0.1/openid",An OpenID for an Agent.,"DCAT,Beacon v2",
+Agent,,openid,hyperlink,,,,,,,,,"http://xmlns.com/foaf/0.1/openid",An OpenID for an Agent.,"DCAT,Beacon v2",
 Agent,,homepage,hyperlink,,,,,,,,,"http://xmlns.com/foaf/0.1/homepage",A homepage for some thing.,"DCAT,Beacon v2",
 Agent,,logo,hyperlink,,,,,,,,,http://xmlns.com/foaf/0.1/logo,A logo representing some thing.,"DCAT,Beacon v2",
