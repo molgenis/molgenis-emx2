@@ -15,12 +15,13 @@
     "test": "vitest",
     "a11y:test": "pa11y-ci",
     "a11y:serve": "http-server .reports/ -p 1234",
-    "parse-icons": "node ../node_modules/svgo/bin/svgo -f ./assets/icons -o ./assets/minified-icons --config ./svgo.config.js && node ./scripts/create_vue_components_from_icons.js"
+    "parse-icons": "node ../node_modules/svgo/bin/svgo -f ./assets/icons -o ./assets/minified-icons --config ./svgo.config.cjs && node ./scripts/create_vue_components_from_icons.js"
   },
   "dependencies": {
     "consola": "3.2.3",
     "floating-vue": "5.2.2",
     "vue": "3.4.37",
+    "vue-draggable-next": "^2.2.1",
     "vue-router": "4.4.3"
   },
   "devDependencies": {

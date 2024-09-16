@@ -4,7 +4,7 @@ import type { IColumn } from "../../../metadata-utils/src/types";
 
 const props = withDefaults(
   defineProps<{
-    tableId: string;
+    tableId?: string;
     columns: IColumn[];
     rows: Record<string, any>[];
     count: number;
@@ -55,7 +55,7 @@ function handlePagingRequest(page: number) {
 }
 </script>
 <template>
-  <div class="flex">
+  <div class="flex justify-between">
     <FilterSearch
       class="w-2/5"
       :modelValue="settings.search"
@@ -63,6 +63,7 @@ function handlePagingRequest(page: number) {
       :inverted="true"
     >
     </FilterSearch>
+    <TableControleColumns :columns="columns" />
   </div>
   <div class="overflow-x-auto overscroll-x-contain">
     <table class="text-left table-fixed w-full">
@@ -80,7 +81,9 @@ function handlePagingRequest(page: number) {
       <thead>
         <tr>
           <th
-            v-for="column in columns"
+            v-for="column in columns.sort(
+              (a, b) => (a.position ?? 0) - (b.position ?? 0)
+            )"
             class="py-2.5 px-2.5 border-b border-gray-200 first:pl-0 last:pr-0 sm:first:pl-2.5 sm:last:pr-2.5 text-left w-64"
             :ariaSort="
               settings.orderby.column === column.id

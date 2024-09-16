@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { INotificationType } from "~/interfaces/types";
+import type { INotificationType } from "~/types/types";
 
 const { title, subTitle, description, type } = withDefaults(
   defineProps<{
