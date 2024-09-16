@@ -342,7 +342,7 @@ class Runner(Client):
         # Transform the data
         catalogue_transform.transform_data()
 
-        # Archive the files
+        # Compress the files
         with ZipFile(FILES_DIR.joinpath(f"{self.catalogue}_upload.zip"), 'w') as zf:
             for file_path in FILES_DIR.joinpath(f"{self.catalogue}_data").iterdir():
                 zf.write(file_path, arcname=file_path.name)
@@ -377,6 +377,51 @@ class Runner(Client):
     async def _update_cohort(self, name):
         """Updates a cohort."""
 
+        # Get the description from the existing schema
+        description = {s.name: s for s in self.get_schemas()}.get(name).get('description')
+
+        # Create or re-create an empty schema with the name and description of the existing schema
+        if f"{self.catalogue}{self.pattern}" in self.schema_names:
+            create_schema = asyncio.create_task(self.recreate_schema(name=f"{name}{self.pattern}",
+                                                                     description=description))
+        else:
+            create_schema = asyncio.create_task(self.create_schema(name=f"{name}{self.pattern}",
+                                                                   description=description))
+
+        # Export the staging area data to zip
+        await self.export(schema=name, fmt='csv')
+        if not FILES_DIR.exists():
+            FILES_DIR.mkdir()
+        os.rename(f"{name}.zip", FILES_DIR.joinpath(f"{name}_data.zip"))
+
+        logging.info(f"Transforming data from schema {name}.")
+        schema_transform = Transform(database_name=name, database_type='cohort_UMCG')
+
+        # Extract the data
+        with ZipFile(FILES_DIR.joinpath(f"{name}_data.zip"), 'r') as zf:
+            zf.extractall(path=FILES_DIR.joinpath(f"{name}_data"))
+
+        # Replace the data model file
+        schema_transform.delete_data_model_file()
+        schema_transform.update_data_model_file()
+
+        # Apply the transformation of data tables
+        schema_transform.transform_data()
+
+        # Compress the data files
+        with ZipFile(FILES_DIR.joinpath(f"{name}_upload.zip"), 'w') as zf:
+            for file_path in FILES_DIR.joinpath(f"{name}_data").iterdir():
+                zf.write(file_path, arcname=file_path.name)
+            for file_path in FILES_DIR.joinpath(f"{name}_data", '_files').iterdir():
+                zf.write(file_path, arcname=f"_files/{file_path.name}")
+            zf.write(FILES_DIR.joinpath(f"{name}_data_model", 'molgenis.csv'), arcname='molgenis.csv')
+
+        # Import the data into the new schema
+        await create_schema
+        await self.upload_file(file_path=FILES_DIR.joinpath(f"{name}_upload.zip"),
+                               schema=f"{name}{self.pattern}")
+
+
 
     async def _update_data_source(self, name):
         """Updates a data source."""
@@ -389,14 +434,24 @@ class Runner(Client):
         """Executes the run of the update."""
         logging.info(f"Updating schemas on {self.url!r}")
 
+        # Creating a catalogue schema to ensure the ontologies are loaded
+        create_pseudo_catalogue = asyncio.create_task(self.create_schema(name='pseudo catalogue',
+                                                                         description='Catalogue created to ensure correct configuration of ontologies',
+                                                                         template='DATA_CATALOGUE'))
+
         # Update the catalogue
-        await self.update_catalogue()
+        # await self.update_catalogue()
 
         await self.update_cohorts()
 
         if self.server_type == 'data_catalogue':
             await self.update_data_sources()
             await self.update_networks()
+
+        # Wait for the pseudo catalogue to be created, then delete it
+        await create_pseudo_catalogue
+        await self.delete_schema('pseudo catalogue')
+
 
 
 async def main():
