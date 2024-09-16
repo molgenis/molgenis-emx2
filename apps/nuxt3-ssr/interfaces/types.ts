@@ -1,5 +1,5 @@
+import type { IColumn } from "../../metadata-utils/dist";
 import type { INode } from "../../tailwind-components/types/types";
-import type { IColumn } from "metadata-utils";
 export interface IResource {
   id: string;
   pid: string;
@@ -62,7 +62,7 @@ export interface IResource {
   inclusionCriteria?: IOntologyNode[];
   otherInclusionCriteria?: string;
   collectionEvents: ICollectionEvent[];
-  collectionEvents_agg: number;
+  collectionEvents_agg: { count: number };
   peopleInvolved: IContributor[];
   networks: INetwork[];
   publications: IPublication[];
@@ -70,6 +70,8 @@ export interface IResource {
   linkageOptions?: string;
   dataAccessConditionsDescription?: string;
   dataAccessConditions?: { name: string }[];
+  dataUseConditions?: IOntologyNode[];
+  dataAccessFee?: boolean;
   prelinked?: boolean;
   releaseType?: boolean;
   fundingStatement?: string;
@@ -154,7 +156,9 @@ export interface IOrganisation extends IPartner {
   expertise: string;
   country: {
     name: string;
-  };
+  }[];
+  isLeadOrganisation: boolean;
+  role: IOntologyNode[];
 }
 
 export interface IPartner {

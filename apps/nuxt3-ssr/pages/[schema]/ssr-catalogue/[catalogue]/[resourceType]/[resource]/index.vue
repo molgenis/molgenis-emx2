@@ -11,7 +11,7 @@ import type {
   IMgError,
   IOntologyItem,
   linkTarget,
-  IOrganisation,
+  DefinitionListItemType,
 } from "~/interfaces/types";
 import dateUtils from "~/utils/dateUtils";
 const config = useRuntimeConfig();
@@ -273,7 +273,13 @@ let tocItems = computed(() => {
       id: "population",
     });
   }
-  if (resource.value.peopleInvolved) {
+  if (organisations.value) {
+    tableOffContents.push({
+      label: "Organisations",
+      id: "Organisations",
+    });
+  }
+  if (contributors.value) {
     tableOffContents.push({
       label: "Contributors",
       id: "Contributors",
@@ -289,7 +295,7 @@ let tocItems = computed(() => {
   if (subpopulationCount.value ?? 0 > 0) {
     tableOffContents.push({
       label: "Subpopulations",
-      id: "CohorSubpopulationsts",
+      id: "Subpopulations",
     });
   }
   if (collectionEventCount.value ?? 0 > 0) {
@@ -410,7 +416,7 @@ let accessConditionsItems = computed(() => {
   if (resource.value.dataUseConditions) {
     items.push({
       label: "Data use conditions",
-      type: "ONTOLOGY",
+      type: "ONTOLOGY" as DefinitionListItemType,
       content: resource.value.dataUseConditions,
     });
   }
@@ -423,7 +429,7 @@ let accessConditionsItems = computed(() => {
   if (resource.value.releaseType) {
     items.push({
       label: "Release type",
-      type: "ONTOLOGY",
+      type: "ONTOLOGY" as DefinitionListItemType,
       content: resource.value.releaseType,
     });
   }
@@ -475,6 +481,7 @@ const cohortOnly = computed(() => {
   const routeSetting = route.query["cohort-only"] as string;
   return routeSetting === "true" || config.public.cohortOnly;
 });
+
 const crumbs: any = {};
 if (route.params.catalogue) {
   crumbs[
@@ -489,28 +496,8 @@ if (route.params.catalogue) {
   crumbs["Resources"] = `/${route.params.schema}/ssr-catalogue/all/resource`;
 }
 
-const activeOrganisationSideModalIndex = ref(-1);
-function showOrganisationSideModal(index: number) {
-  activeOrganisationSideModalIndex.value = index;
-}
-
-function closeOrganisationSideModal() {
-  activeOrganisationSideModalIndex.value = -1;
-}
-
-const organisations: IOrganisation[] = computed(() =>
-  resource.value.organisationsInvolved?.sort((a, b) =>
-    a.isLeadOrganisation ? -1 : 1
-  )
-);
-
-const activeOrganization = computed(() => {
-  if (activeOrganisationSideModalIndex.value > -1 && organisations.value) {
-    return organisations.value[activeOrganisationSideModalIndex.value];
-  } else {
-    return null;
-  }
-});
+const contributors = computed(() => resource.value.peopleInvolved);
+const organisations = computed(() => resource.value.organisationsInvolved);
 </script>
 <template>
   <LayoutsDetailPage>
@@ -544,6 +531,7 @@ const activeOrganization = computed(() => {
           :contact-message-filter="messageFilter"
           :subject-template="resource.acronym"
         />
+
         <ContentBlockDescription
           id="Description"
           title="Description"
@@ -562,101 +550,26 @@ const activeOrganization = computed(() => {
           />
         </ContentBlock>
 
+        <ContentBlockOrganisations
+          v-if="organisations"
+          id="Organisations"
+          title="Organisations"
+          :organisations="organisations"
+        ></ContentBlockOrganisations>
+
         <ContentBlockContact
-          v-if="resource?.peopleInvolved || organisations"
+          v-if="contributors"
           id="Contributors"
           title="Contributors"
-          :contributors="resource?.peopleInvolved"
+          :contributors="contributors"
         >
-          <template #before v-if="organisations && organisations?.length > 0">
-            <DisplayList
-              class="mb-5"
-              v-if="organisations.filter((o) => o.isLeadOrganisation).length"
-              title="Lead organisations"
-              :type="
-                organisations && organisations?.length > 1 ? 'standard' : 'link'
-              "
-            >
-              <template v-for="(organisation, index) in organisations">
-                <DisplayListItem
-                  @click="showOrganisationSideModal(index)"
-                  v-if="organisation.isLeadOrganisation"
-                >
-                  <span
-                    class="text-blue-500 hover:underline hover:cursor-pointer"
-                    >{{ organisation.name }}
-                  </span>
-
-                  <template v-if="organisation.role"
-                    >&nbsp; -
-                    <i>
-                      {{ organisation.role.map((r) => r.name).join(", ") }}</i
-                    >
-                  </template>
-                  <img
-                    v-if="organisation.logo"
-                    class="max-h-11"
-                    :src="organisation.logo.url"
-                  />
-                </DisplayListItem>
-              </template>
-            </DisplayList>
-            <DisplayList
-              class="mb-5"
-              v-if="organisations?.filter((o) => !o.isLeadOrganisation).length"
-              title="Additional organisations"
-              :type="
-                organisations && organisations?.length > 1 ? 'standard' : 'link'
-              "
-            >
-              <template v-for="(organisation, index) in organisations">
-                <DisplayListItem
-                  @click="showOrganisationSideModal(index)"
-                  v-if="!organisation.isLeadOrganisation"
-                >
-                  <span
-                    class="text-blue-500 hover:underline hover:cursor-pointer"
-                    >{{ organisation.name }}
-                  </span>
-
-                  <template v-if="organisation.role"
-                    >&nbsp; -
-                    <i>
-                      {{ organisation.role.map((r) => r.name).join(", ") }}</i
-                    >
-                  </template>
-                  <img
-                    v-if="organisation.logo"
-                    class="max-h-11"
-                    :src="organisation.logo.url"
-                  />
-                </DisplayListItem>
-              </template>
-            </DisplayList>
-            <h3 class="mb-2.5 font-bold text-body-base">Contributors</h3>
-          </template>
         </ContentBlockContact>
 
-        <SideModal
-          :show="activeOrganization !== null"
-          :fullScreen="false"
-          :slideInRight="true"
-          @close="closeOrganisationSideModal"
-          buttonAlignment="right"
-        >
-          <slot>
-            <OrganizationSideContent
-              v-if="activeOrganization"
-              :organisation="activeOrganization"
-            />
-          </slot>
-        </SideModal>
-
-        <!-- <ContentBlockVariables
+        <ContentBlockVariables
           id="Variables"
           title="Variables &amp; Topics"
           description="Explantation about variables and the functionality seen here."
-        /> -->
+        />
 
         <ContentBlockData
           id="AvailableData"
@@ -733,7 +646,9 @@ const activeOrganization = computed(() => {
             <ReferenceCard
               v-for="network in networks"
               :title="network.name"
-              :description="network?.description"
+              :description="network?.description || ''"
+              :imageUrl="network?.logo?.url || ''"
+              :url="network.website || ''"
               :links="
                 network.website
                   ? [
@@ -743,7 +658,7 @@ const activeOrganization = computed(() => {
                         target: '_blank',
                       },
                     ]
-                  : undefined
+                  : []
               "
             />
           </ReferenceCardList>
