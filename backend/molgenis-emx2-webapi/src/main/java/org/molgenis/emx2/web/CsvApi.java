@@ -52,7 +52,7 @@ public class CsvApi {
     return "remove metadata items success";
   }
 
-  static String mergeMetadata(Context ctx) {
+  static void mergeMetadata(Context ctx) {
     String fileName = ctx.header("fileName");
     boolean fileNameMatchesTable = getSchema(ctx).hasTableWithNameOrIdCaseInsensitive(fileName);
 
@@ -62,22 +62,22 @@ public class CsvApi {
         TableStoreForCsvInMemory tableStore = new TableStoreForCsvInMemory();
         tableStore.setCsvString(table.getName(), ctx.body());
         String id = TaskApi.submit(new ImportTableTask(tableStore, table, false));
-        return new TaskReference(id, table.getSchema()).toString();
+        ctx.result(new TaskReference(id, table.getSchema()).toString());
       } else {
         int count = table.save(getRowList(ctx));
-        ctx.res().setStatus(200);
-        ctx.res().setContentType(ACCEPT_CSV);
-        return "{ \"message\": \"imported number of rows: \" + " + count + " }";
+        ctx.status(200);
+        ctx.contentType(ACCEPT_CSV);
+        ctx.result("{ \"message\": \"imported number of rows: \" + " + count + " }");
       }
     } else {
       SchemaMetadata schema = Emx2.fromRowList(getRowList(ctx));
       getSchema(ctx).migrate(schema);
-      ctx.res().setStatus(200);
-      return "{ \"message\": \"add/update metadata success\" }";
+      ctx.status(200);
+      ctx.result("{ \"message\": \"add/update metadata success\" }");
     }
   }
 
-  static String getMetadata(Context ctx) throws IOException {
+  static void getMetadata(Context ctx) throws IOException {
     Schema schema = getSchema(ctx);
     StringWriter writer = new StringWriter();
     CsvTableWriter.write(
@@ -85,24 +85,23 @@ public class CsvApi {
         getHeaders(schema.getMetadata()),
         writer,
         getSeperator(ctx));
-    ctx.res().setContentType(ACCEPT_CSV);
+    ctx.contentType(ACCEPT_CSV);
     String date = new SimpleDateFormat("yyyyMMddHHmm").format(new Date());
-    ctx.res()
-        .setHeader(
-            "Content-Disposition",
-            "attachment; filename=\"" + schema.getName() + "_ " + date + ".csv\"");
-    ctx.res().setStatus(200);
-    return writer.toString();
+    ctx.header(
+        "Content-Disposition",
+        "attachment; filename=\"" + schema.getName() + "_ " + date + ".csv\"");
+    ctx.status(200);
+    ctx.result(writer.toString());
   }
 
-  private static String tableRetrieve(Context ctx) throws IOException {
+  private static void tableRetrieve(Context ctx) throws IOException {
     Table table = MolgenisWebservice.getTableByIdOrName(ctx);
     TableStoreForCsvInMemory store = new TableStoreForCsvInMemory(getSeperator(ctx));
     store.writeTable(table.getName(), getDownloadColumns(ctx, table), getDownloadRows(ctx, table));
     ctx.contentType(ACCEPT_CSV);
     ctx.header("Content-Disposition", "attachment; filename=\"" + table.getName() + ".csv\"");
     ctx.status(200);
-    return store.getCsvString(table.getName());
+    ctx.result(store.getCsvString(table.getName()));
   }
 
   public static List<String> getDownloadColumns(Context ctx, Table table) {
@@ -128,22 +127,22 @@ public class CsvApi {
     return q.retrieveRows();
   }
 
-  private static String tableUpdate(Context ctx) {
+  private static void tableUpdate(Context ctx) {
     int count = MolgenisWebservice.getTableByIdOrName(ctx).save(getRowList(ctx));
     ctx.status(200);
     ctx.contentType(ACCEPT_CSV);
-    return "" + count;
+    ctx.result(String.valueOf(count));
   }
 
   private static Iterable<Row> getRowList(Context ctx) {
     return CsvTableReader.read(new StringReader(ctx.body()));
   }
 
-  private static String tableDelete(Context ctx) {
+  private static void tableDelete(Context ctx) {
     int count = MolgenisWebservice.getTableByIdOrName(ctx).delete(getRowList(ctx));
     ctx.contentType(ACCEPT_CSV);
     ctx.status(200);
-    return "" + count;
+    ctx.result(String.valueOf(count));
   }
 
   private static Character getSeperator(Context ctx) {

@@ -48,7 +48,7 @@ public class AnalyticsApi {
     app.put("apps/{app}/{schema}/api/trigger/" + TRIGGER_PARAM, AnalyticsApi::updateTrigger);
   }
 
-  private static ResponseStatus deleteTrigger(Context ctx) {
+  private static void deleteTrigger(Context ctx) {
     ctx.contentType("application/json");
     var action = new DeleteTriggerAction(sanitize(ctx.pathParam(TRIGGER_PARAM)));
     MolgenisSession session = sessionManager.getSession(ctx.req());
@@ -59,7 +59,11 @@ public class AnalyticsApi {
     TriggerRepositoryImpl triggerRepository = new TriggerRepositoryImpl(database);
     AnalyticsServiceImpl analyticsService = new AnalyticsServiceImpl(triggerRepository);
 
-    return analyticsService.deleteTriggerForSchema(schema, action) ? STATUS_SUCCESS : STATUS_FAILED;
+    ctx.result(
+        String.valueOf(
+            analyticsService.deleteTriggerForSchema(schema, action)
+                ? STATUS_SUCCESS
+                : STATUS_FAILED));
   }
 
   private static List<Trigger> listSchemaTriggers(Context ctx) {
