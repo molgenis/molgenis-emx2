@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { INotificationType } from "~/interfaces/types";
 
-const { title, subTitle, description, type } = withDefaults(
+withDefaults(
   defineProps<{
     title: string;
     description?: string;
