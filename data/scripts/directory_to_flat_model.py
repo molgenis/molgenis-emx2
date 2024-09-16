@@ -37,30 +37,31 @@ def main():
     parser = argparse.ArgumentParser(description="Command line arguments")
     parser.add_argument("-source-url", type=str, required=True,
                         dest="source_server", help="URL of server to get source data from")
-    parser.add_argument("-pw", type=str, dest="password",
-                        required=False, help="Password for server access")
+    parser.add_argument("-source-pw", type=str, dest="source_password",
+                        required=False, help="Password for source server access")
     parser.add_argument("-target-url", type=str, required=True,
                         dest="target_server", help="URL of server to upload transformed data to")
+    parser.add_argument("-target-pw", type=str, dest="target_password",
+                        required=False, help="Password for target server access")
     args = parser.parse_args()
     # Connect to server
     with molgenis_emx2_pyclient.Client(args.source_server) as client:
-        if args.password:
-            client.signin('admin', args.password)
+        if args.source_password:
+            client.signin('admin', args.source_password)
         # Get and transform Persons table first
         client.set_schema('ERIC')
         persons = client.get('Persons', as_df=True)
         with molgenis_emx2_pyclient.Client(args.target_server) as cat_client:
-            cat_client.set_schema('catalogue-demo')
-            contacts = cat_client.get('Collection contacts', as_df=True)
+            if args.target_password:
+                cat_client.signin('admin', args.target_password)
+            cat_client.set_schema('catalogue-demo-hsl')
             mapped_contacts = map_persons_to_contacts(
                 persons.copy())  # Unnecessary copy?
             # Output mapped contacts
             mapped_contacts = mapped_contacts.reindex(columns=['collection', 'role', 'role description', 'display name', 'first name',
                                                                'last name', 'prefix', 'initials', 'title', 'organisation', 'email',
                                                                'orcid', 'homepage', 'photo', 'photo_filename', 'expertise'])
-            # cat_client.save_schema(table = 'Collection contacts', data = mapped_contacts)
-            mapped_contacts.to_csv(
-                './Collection contacts.csv.zip', index=False)
+            cat_client.save_schema(table = 'Collection contacts', data = mapped_contacts)
 
 if __name__ == "__main__":
     main()
