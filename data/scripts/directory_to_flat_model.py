@@ -5,13 +5,16 @@ Script to convert the BBMRI-ERIC directory data to the flat model
 import argparse
 import molgenis_emx2_pyclient
 
+
 def map_persons_to_contacts(persons):
-    """Maps the BBRMI-ERIC Persons table to the flat data model's Collection Contacts"""
+    """Maps the BBRMI-ERIC Persons table to the flat data model's Collection Contacts table"""
     persons.rename(columns={'first_name': 'first name',
                    'last_name': 'last name', 'role': 'role description'}, inplace=True)
     # Add dummy values for missing first and last names
-    persons['first name'] = persons['first name'].replace(r'^$', 'FirstName', regex=True)
-    persons['last name'] = persons['last name'].replace(r'^$', 'LastName', regex=True)
+    persons['first name'] = persons['first name'].replace(
+        r'^$', 'FirstName', regex=True)
+    persons['last name'] = persons['last name'].replace(
+        r'^$', 'LastName', regex=True)
     # Do partial mappings of title_before_name to pre-defined titles
     persons['title_before_name'] = persons['title_before_name'].str.lower(
     ).str.replace('[^a-z]', '', regex=True)
@@ -27,7 +30,18 @@ def map_persons_to_contacts(persons):
     persons['collection'] = 'INMA'
     # Ugly temporary fix to make duplicate keys unique by appending id after last name
     persons['last name'] = persons['last name'] + ' ' + persons['id']
+
     return persons
+
+
+def map_collections_to_collections(collections):
+    """Maps the BBMRI-ERIC Collections table to the flat data model's Collections table"""
+    collections.rename(columns={'url': 'website'}, inplace=True)
+    # Create a unique name
+    collections['name'] = collections['name'] + ' ' + collections['biobank'] + \
+        ' (' + collections['id'] + ')'
+
+    return collections
 
 
 def main():
@@ -48,20 +62,29 @@ def main():
         if args.source_password:
             client.signin('admin', args.source_password)
         client.set_schema('ERIC')
-        # Get and transform Persons table
-        persons = client.get('Persons', as_df=True)
         # Connect to target server
         with molgenis_emx2_pyclient.Client(args.target_server) as cat_client:
             if args.target_password:
                 cat_client.signin('admin', args.target_password)
             cat_client.set_schema('catalogue-demo-hsl')
+            # Map persons to contacts and upload
+            persons = client.get('Persons', as_df=True)
             mapped_contacts = map_persons_to_contacts(
                 persons.copy())  # Unnecessary copy?
             mapped_contacts = mapped_contacts.reindex(columns=['collection', 'role', 'role description', 'display name', 'first name',
                                                                'last name', 'prefix', 'initials', 'title', 'organisation', 'email',
                                                                'orcid', 'homepage', 'photo', 'photo_filename', 'expertise'])
-            # Upload mapped contacts
-            cat_client.save_schema(table = 'Collection contacts', data = mapped_contacts)
+            cat_client.save_schema(
+                table='Collection contacts', data=mapped_contacts)
+            # Map collections to collections and upload
+            collections = client.get('Collections', as_df=True)
+            mapped_collections = map_collections_to_collections(
+                collections.copy())  # Unnecessary copy?
+            mapped_collections = mapped_collections.reindex(
+                columns=['id', 'name', 'acronym', 'description', 'website'])
+            cat_client.save_schema(table='Collections',
+                                   data=mapped_collections)
+
 
 if __name__ == "__main__":
     main()
