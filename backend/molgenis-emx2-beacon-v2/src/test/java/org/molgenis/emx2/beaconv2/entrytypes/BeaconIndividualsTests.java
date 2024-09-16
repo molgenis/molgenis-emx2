@@ -33,11 +33,10 @@ public class BeaconIndividualsTests extends BeaconModelEndPointTest {
     Context request = mock(Context.class);
     when(request.url()).thenReturn("http://localhost:8080/api/beacon");
     Map<String, String> urlParams =
-        Map.of(":entry_type", EntryType.INDIVIDUALS.getId(), ":id", "Ind001");
+        Map.of("entry_type", EntryType.INDIVIDUALS.getId(), ":id", "Ind001");
 
     when(request.pathParamMap()).thenReturn(urlParams);
-    //    when(request.queryMap()).thenReturn(mock(QueryParamsMap.class));
-    //    when(request.queryMap().toMap()).thenReturn(new HashMap<>());
+    when(request.queryParamMap()).thenReturn(new HashMap<>());
     when(request.attribute("specification")).thenReturn("beacon");
 
     BeaconRequestBody requestBody = new BeaconRequestBody(request);

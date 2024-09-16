@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.javalin.http.Context;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.TestInstance;
@@ -40,23 +41,24 @@ public class BeaconModelEndPointTest {
   }
 
   static Context mockEntryTypeRequest(
-      String entryType, Map<String, String[]> queryParams, BeaconSpec spec) {
+      String entryType, Map<String, List<String>> queryParams, BeaconSpec spec) {
     Context request = mock(Context.class);
     String url = TEST_URL + spec.getPath();
     when(request.attribute("specification")).thenReturn(spec.getPath());
     when(request.url()).thenReturn(url);
-    Map<String, String> urlParams = Map.of(":entry_type", entryType);
+    Map<String, String> urlParams = Map.of("entry_type", entryType);
     when(request.pathParamMap()).thenReturn(urlParams);
-    //    when(request.queryParamMap()).thenReturn(queryParams);
+    when(request.queryParamMap()).thenReturn(queryParams);
 
     return request;
   }
 
-  static Context mockEntryTypeRequestRegular(String entryType, Map<String, String[]> queryParams) {
+  static Context mockEntryTypeRequestRegular(
+      String entryType, Map<String, List<String>> queryParams) {
     return mockEntryTypeRequest(entryType, queryParams, BEACON_V2);
   }
 
-  static Context mockEntryRequestVp(String entryType, Map<String, String[]> queryParams) {
+  static Context mockEntryRequestVp(String entryType, Map<String, List<String>> queryParams) {
     return mockEntryTypeRequest(entryType, queryParams, BEACON_VP);
   }
 

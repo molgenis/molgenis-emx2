@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.javalin.http.Context;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.beaconv2.EntryType;
@@ -21,10 +22,10 @@ public class BeaconGenomicVariantTest extends BeaconModelEndPointTest {
         mockEntryTypeRequestRegular(
             "g_variants",
             Map.of(
-                "referenceName", new String[] {"20"},
-                "start", new String[] {"2447955"},
-                "referenceBases", new String[] {"c"},
-                "alternateBases", new String[] {"g"}));
+                "referenceName", List.of("20"),
+                "start", List.of("2447955"),
+                "referenceBases", List.of("c"),
+                "alternateBases", List.of("g")));
     BeaconRequestBody requestBody = new BeaconRequestBody(request);
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
     JsonNode result = queryEntryType.query(database);
@@ -39,10 +40,10 @@ public class BeaconGenomicVariantTest extends BeaconModelEndPointTest {
         mockEntryTypeRequestRegular(
             "g_variants",
             Map.of(
-                "referenceName", new String[] {"20"},
-                "start", new String[] {"2447955"},
-                "referenceBases", new String[] {"c"},
-                "alternateBases", new String[] {"a"}));
+                "referenceName", List.of("20"),
+                "start", List.of("2447955"),
+                "referenceBases", List.of("c"),
+                "alternateBases", List.of("a")));
     BeaconRequestBody requestBody = new BeaconRequestBody(request);
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
     JsonNode result = queryEntryType.query(database);
@@ -59,9 +60,9 @@ public class BeaconGenomicVariantTest extends BeaconModelEndPointTest {
         mockEntryTypeRequestRegular(
             "g_variants",
             Map.of(
-                "start", new String[] {"2447952"},
-                "end", new String[] {"2447955"},
-                "referenceName", new String[] {"20"}));
+                "start", List.of("2447952"),
+                "end", List.of("2447955"),
+                "referenceName", List.of("20")));
 
     BeaconRequestBody requestBody = new BeaconRequestBody(request);
 
@@ -75,8 +76,7 @@ public class BeaconGenomicVariantTest extends BeaconModelEndPointTest {
 
   @Test
   public void testGenomicVariants_GeneIdQuery() throws Exception {
-    Context request =
-        mockEntryTypeRequestRegular("g_variants", Map.of("geneId", new String[] {"SNRPB"}));
+    Context request = mockEntryTypeRequestRegular("g_variants", Map.of("geneId", List.of("SNRPB")));
     BeaconRequestBody requestBody = new BeaconRequestBody(request);
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
     JsonNode result = queryEntryType.query(database);
@@ -96,9 +96,9 @@ public class BeaconGenomicVariantTest extends BeaconModelEndPointTest {
         mockEntryTypeRequestRegular(
             "g_variants",
             Map.of(
-                "start", new String[] {"2447945,2447951"},
-                "end", new String[] {"2447952,2447953"},
-                "referenceName", new String[] {"20"}));
+                "start", List.of("2447945,2447951"),
+                "end", List.of("2447952,2447953"),
+                "referenceName", List.of("20")));
     BeaconRequestBody requestBody = new BeaconRequestBody(request);
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
     JsonNode result = queryEntryType.query(database);

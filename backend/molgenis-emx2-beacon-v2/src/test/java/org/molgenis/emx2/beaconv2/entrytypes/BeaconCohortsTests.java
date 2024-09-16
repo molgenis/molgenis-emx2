@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.javalin.http.Context;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.beaconv2.EntryType;
@@ -28,7 +29,7 @@ public class BeaconCohortsTests extends BeaconModelEndPointTest {
   public void testCohorts_NoHits() throws Exception {
     Context request =
         mockEntryTypeRequestRegular(
-            EntryType.COHORTS.getId(), Map.of("id", new String[] {"Cohort0003"}));
+            EntryType.COHORTS.getId(), Map.of("id", List.of(new String[] {"Cohort0003"})));
     BeaconRequestBody requestBody = new BeaconRequestBody(request);
 
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);

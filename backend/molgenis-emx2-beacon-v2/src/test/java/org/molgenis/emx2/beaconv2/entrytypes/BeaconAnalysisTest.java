@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.javalin.http.Context;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.beaconv2.EntryType;
@@ -28,7 +29,7 @@ public class BeaconAnalysisTest extends BeaconModelEndPointTest {
   @Test
   public void testAnalyses_NoHits() throws Exception {
     Context request =
-        mockEntryTypeRequestRegular(EntryType.ANALYSES.getId(), Map.of("id", new String[] {"A05"}));
+        mockEntryTypeRequestRegular(EntryType.ANALYSES.getId(), Map.of("id", List.of("A05")));
     BeaconRequestBody requestBody = new BeaconRequestBody(request);
 
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
@@ -40,7 +41,7 @@ public class BeaconAnalysisTest extends BeaconModelEndPointTest {
   @Test
   public void testAnalyses_IdQuery() throws Exception {
     Context request =
-        mockEntryTypeRequestRegular(EntryType.ANALYSES.getId(), Map.of("id", new String[] {"A03"}));
+        mockEntryTypeRequestRegular(EntryType.ANALYSES.getId(), Map.of("id", List.of("A03")));
     BeaconRequestBody requestBody = new BeaconRequestBody(request);
 
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
