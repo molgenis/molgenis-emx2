@@ -13,7 +13,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
@@ -92,39 +91,33 @@ public class TaskApi {
     }
   }
 
-  private static void getScript(Context ctx)
-      throws InterruptedException, UnsupportedEncodingException {
-    if (ctx.pathParamMap().containsKey("schema") || getSchema(ctx) != null) {
-      MolgenisSession session = sessionManager.getSession(ctx.req());
-      String user = session.getSessionUser();
-      if (!"admin".equals(user)) {
-        throw new MolgenisException("Submit task failed: for now can only be done by 'admin");
-      }
-      String name = URLDecoder.decode(ctx.pathParam("name"), StandardCharsets.UTF_8);
-      String parameters =
-          ctx.queryParam("parameters") != null
-              ? URLDecoder.decode(ctx.queryParam("parameters"), StandardCharsets.UTF_8)
-              : null;
-      String id = taskService.submitTaskFromName(name, parameters);
-      // wait until done or timeout
-      int timeout = 0;
-      Task task = taskService.getTask(id);
-      // timeout a minute for these I would say?
-      while (task.isRunning() && timeout < 120) {
-        task = taskService.getTask(id);
-        timeout++;
-        Thread.sleep(500);
-      }
-      // get the output as bytes
-      ctx.result(((ScriptTask) task).getOutput());
-    } else {
-      throw new MolgenisException("Schema doesn't exist or permission denied");
+  private static void getScript(Context ctx) throws InterruptedException {
+    MolgenisSession session = sessionManager.getSession(ctx.req());
+    String user = session.getSessionUser();
+    if (!"admin".equals(user)) {
+      throw new MolgenisException("Submit task failed: for now can only be done by 'admin");
     }
+    String name = URLDecoder.decode(ctx.pathParam("name"), StandardCharsets.UTF_8);
+    String parameters =
+        ctx.queryParam("parameters") != null
+            ? URLDecoder.decode(ctx.queryParam("parameters"), StandardCharsets.UTF_8)
+            : null;
+    String id = taskService.submitTaskFromName(name, parameters);
+    // wait until done or timeout
+    int timeout = 0;
+    Task task = taskService.getTask(id);
+    // timeout a minute for these I would say?
+    while (task.isRunning() && timeout < 120) {
+      task = taskService.getTask(id);
+      timeout++;
+      Thread.sleep(500);
+    }
+    // get the output as bytes
+    ctx.result(((ScriptTask) task).getOutput());
   }
 
   private static void getTaskOutput(Context ctx) throws IOException {
     if (ctx.pathParam("schema").isEmpty() || getSchema(ctx) != null) {
-
       MolgenisSession session = sessionManager.getSession(ctx.req());
       Schema adminSchema = session.getDatabase().getSchema(SYSTEM_SCHEMA);
       String jobId = ctx.pathParam("id");
