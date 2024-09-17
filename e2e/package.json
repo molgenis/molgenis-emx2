@@ -8,6 +8,7 @@
     "@playwright/test": "1.45.0"
   },
   "scripts": {
-    "e2e": "playwright test"
+    "e2e": "playwright test",
+    "test:tw": "playwright test --grep '@tw-components' --reporter=line"
   }
 }

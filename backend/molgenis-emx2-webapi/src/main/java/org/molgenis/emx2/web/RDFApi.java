@@ -141,7 +141,7 @@ public class RDFApi {
       throws IOException {
     format = selectFormat(request, format); // defines format if null
 
-    Table table = getTableById(request);
+    Table table = getTableByIdOrName(request);
     String rowId = null;
     if (request.queryString() != null && !request.queryString().isBlank()) {
       rowId = request.queryString();
@@ -161,8 +161,7 @@ public class RDFApi {
   private static int rdfForRow(Request request, Response response, RDFFormat format)
       throws IOException {
     format = selectFormat(request, format); // defines format if null
-
-    Table table = getTableById(request);
+    Table table = getTableByIdOrName(request);
     String rowId = sanitize(request.params("row"));
 
     final String baseURL = extractBaseURL(request);
@@ -180,7 +179,7 @@ public class RDFApi {
       throws IOException {
     format = selectFormat(request, format); // defines format if null
 
-    Table table = getTableById(request);
+    Table table = getTableByIdOrName(request);
     String columnName = sanitize(request.params("column"));
 
     final String baseURL = extractBaseURL(request);
