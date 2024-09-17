@@ -4,10 +4,8 @@ import static org.molgenis.emx2.web.MolgenisWebservice.*;
 
 import io.javalin.Javalin;
 import io.javalin.http.Context;
-import java.util.List;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.analytics.model.Trigger;
 import org.molgenis.emx2.analytics.model.actions.CreateTriggerAction;
 import org.molgenis.emx2.analytics.model.actions.DeleteTriggerAction;
 import org.molgenis.emx2.analytics.model.actions.UpdateTriggerAction;
@@ -17,7 +15,6 @@ import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.web.response.ResponseStatus;
 import org.molgenis.emx2.web.response.Status;
 import org.molgenis.emx2.web.transformers.ActionTransformer;
-import org.molgenis.emx2.web.transformers.JsonTransformer;
 
 public class AnalyticsApi {
 
@@ -33,8 +30,6 @@ public class AnalyticsApi {
   public static void create(Javalin app) {
 
     new TriggerRepositoryImpl(new SqlDatabase(false));
-
-    JsonTransformer jsonTransformer = new JsonTransformer();
 
     // todo: Add the jsonTransformer
     app.post("/{schema}/api/trigger", AnalyticsApi::addTrigger);
@@ -59,14 +54,11 @@ public class AnalyticsApi {
     TriggerRepositoryImpl triggerRepository = new TriggerRepositoryImpl(database);
     AnalyticsServiceImpl analyticsService = new AnalyticsServiceImpl(triggerRepository);
 
-    ctx.result(
-        String.valueOf(
-            analyticsService.deleteTriggerForSchema(schema, action)
-                ? STATUS_SUCCESS
-                : STATUS_FAILED));
+    ctx.json(
+        analyticsService.deleteTriggerForSchema(schema, action) ? STATUS_SUCCESS : STATUS_FAILED);
   }
 
-  private static List<Trigger> listSchemaTriggers(Context ctx) {
+  private static void listSchemaTriggers(Context ctx) {
     ctx.contentType("application/json");
     MolgenisSession session = sessionManager.getSession(ctx.req());
     String schemaName = sanitize(ctx.pathParam(SCHEMA));
@@ -75,10 +67,10 @@ public class AnalyticsApi {
 
     TriggerRepositoryImpl triggerRepository = new TriggerRepositoryImpl(database);
 
-    return triggerRepository.getTriggersForSchema(schema);
+    ctx.json(triggerRepository.getTriggersForSchema(schema));
   }
 
-  private static ResponseStatus addTrigger(Context ctx) {
+  private static void addTrigger(Context ctx) {
     ctx.contentType("application/json");
     var createTriggerAction = actionTransformer.transform(ctx.body(), CreateTriggerAction.class);
     MolgenisSession session = sessionManager.getSession(ctx.req());
@@ -90,10 +82,10 @@ public class AnalyticsApi {
     AnalyticsServiceImpl analyticsService = new AnalyticsServiceImpl(triggerRepository);
     analyticsService.createTriggerForSchema(schema, createTriggerAction);
 
-    return STATUS_SUCCESS;
+    ctx.json(STATUS_SUCCESS);
   }
 
-  private static ResponseStatus updateTrigger(Context ctx) {
+  private static void updateTrigger(Context ctx) {
     ctx.contentType("application/json");
     var action = actionTransformer.transform(ctx.body(), UpdateTriggerAction.class);
     MolgenisSession session = sessionManager.getSession(ctx.req());
@@ -105,6 +97,6 @@ public class AnalyticsApi {
     AnalyticsServiceImpl analyticsService = new AnalyticsServiceImpl(triggerRepository);
     analyticsService.updateTriggerForSchema(schema, sanitize(ctx.pathParam(TRIGGER_PARAM)), action);
 
-    return STATUS_SUCCESS;
+    ctx.json(STATUS_SUCCESS);
   }
 }

@@ -42,7 +42,7 @@ public class MolgenisWebservice {
     Javalin app =
         Javalin.create(
                 config -> {
-                  config.router.ignoreTrailingSlashes = true;
+                  config.router.ignoreTrailingSlashes = false;
                   config.router.treatMultipleSlashesAsSingleSlash = true;
                   //                  config.staticFiles.add("public_html");
                   //                  config.staticFiles.add("public_html_apps");
@@ -161,16 +161,17 @@ public class MolgenisWebservice {
                             || el.get(ROLE).equals(MANAGER) && role.equals(MANAGER))
                 .toList();
         if (!menu.isEmpty()) {
-          ctx.redirect(
-              "/" + ctx.pathParam(SCHEMA) + "/" + menu.get(0).get("href").replace("../", ""));
+          String location =
+              "/" + ctx.pathParam(SCHEMA) + "/" + menu.get(0).get("href").replace("../", "");
+          ctx.redirect(location);
         }
+      } else {
+        ctx.redirect("/" + ctx.pathParam(SCHEMA) + "/tables");
       }
-
     } catch (Exception e) {
       // silly default
       logger.debug(e.getMessage());
     }
-    ctx.redirect("/" + ctx.pathParam(SCHEMA) + "/tables");
   }
 
   private static String listSchemas(Context ctx) {

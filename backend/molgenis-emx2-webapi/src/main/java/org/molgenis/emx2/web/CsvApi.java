@@ -58,7 +58,7 @@ public class CsvApi {
 
     if (fileNameMatchesTable) { // so we assume it isn't meta data
       Table table = MolgenisWebservice.getTableByIdOrName(ctx, fileName);
-      if (ctx.queryParams("async").isEmpty()) {
+      if (ctx.queryParam("async") != null) {
         TableStoreForCsvInMemory tableStore = new TableStoreForCsvInMemory();
         tableStore.setCsvString(table.getName(), ctx.body());
         String id = TaskApi.submit(new ImportTableTask(tableStore, table, false));

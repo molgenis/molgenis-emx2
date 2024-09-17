@@ -20,91 +20,84 @@ public class FAIRDataPointApi {
   public static void create(Javalin app, MolgenisSessionManager sm) {
     sessionManager = sm;
 
-    //    app.redirect.any("/api/fdp/", "/api/fdp");
-    //    path(
-    //        "/api/fdp",
-    //        () -> {
-    //          head("", FAIRDataPointApi::getHead);
-    //          get("", FAIRDataPointApi::getFDP);
-    //          head("/profile", FAIRDataPointApi::getHead);
-    //          get("/profile", FAIRDataPointApi::getFDPProfile);
-    //
-    //          path(
-    //              "/catalog/",
-    //              () -> {
-    //                head("{schema}/{id}", FAIRDataPointApi::getHead);
-    //                get("{schema}/{id}", FAIRDataPointApi::getCatalog);
-    //                head("profile", FAIRDataPointApi::getHead);
-    //                get("profile", FAIRDataPointApi::getCatalogProfile);
-    //              });
-    //          path(
-    //              "/dataset/",
-    //              () -> {
-    //                head("{schema}/{id}", FAIRDataPointApi::getHead);
-    //                get("{schema}/{id}", FAIRDataPointApi::getDataset);
-    //                head("profile", FAIRDataPointApi::getHead);
-    //                get("profile", FAIRDataPointApi::getDatasetProfile);
-    //              });
-    //          path(
-    //              "/distribution/",
-    //              () -> {
-    //                head("{schema}/{distribution}/{format}", FAIRDataPointApi::getHead);
-    //                get("{schema}/{distribution}/{format}", FAIRDataPointApi::getDistribution);
-    //                head("profile", FAIRDataPointApi::getHead);
-    //                get("profile", FAIRDataPointApi::getDistributionProfile);
-    //              });
-    //        });
+    app.before("/api/fdp/", ctx -> ctx.redirect("/api/fdp"));
+
+    // Base routes for /api/fdp
+    app.head("/api/fdp", FAIRDataPointApi::getHead);
+    app.get("/api/fdp", FAIRDataPointApi::getFDP);
+    app.head("/api/fdp/profile", FAIRDataPointApi::getHead);
+    app.get("/api/fdp/profile", FAIRDataPointApi::getFDPProfile);
+
+    // Routes for /api/fdp/catalog
+    app.head("/api/fdp/catalog/{schema}/{id}", FAIRDataPointApi::getHead);
+    app.get("/api/fdp/catalog/{schema}/{id}", FAIRDataPointApi::getCatalog);
+    app.head("/api/fdp/catalog/profile", FAIRDataPointApi::getHead);
+    app.get("/api/fdp/catalog/profile", FAIRDataPointApi::getCatalogProfile);
+
+    // Routes for /api/fdp/dataset
+    app.head("/api/fdp/dataset/{schema}/{id}", FAIRDataPointApi::getHead);
+    app.get("/api/fdp/dataset/{schema}/{id}", FAIRDataPointApi::getDataset);
+    app.head("/api/fdp/dataset/profile", FAIRDataPointApi::getHead);
+    app.get("/api/fdp/dataset/profile", FAIRDataPointApi::getDatasetProfile);
+
+    // Routes for /api/fdp/distribution
+    app.head("/api/fdp/distribution/{schema}/{distribution}/{format}", FAIRDataPointApi::getHead);
+    app.get(
+        "/api/fdp/distribution/{schema}/{distribution}/{format}",
+        FAIRDataPointApi::getDistribution);
+    app.head("/api/fdp/distribution/profile", FAIRDataPointApi::getHead);
+    app.get("/api/fdp/distribution/profile", FAIRDataPointApi::getDistributionProfile);
   }
 
-  private static String getHead(Context ctx) {
+  private static void getHead(Context ctx) {
     ctx.contentType(TEXT_TURTLE_MIME_TYPE);
-    return "";
   }
 
-  private static String getFDP(Context ctx) throws Exception {
+  private static void getFDP(Context ctx) throws Exception {
     ctx.contentType(TEXT_TURTLE_MIME_TYPE);
     Schema[] schemas = getSchemasHavingTable("Catalog", ctx);
-    return new FAIRDataPoint(ctx, schemas).getResult();
+    ctx.result(new FAIRDataPoint(ctx, schemas).getResult());
   }
 
-  private static String getCatalog(Context ctx) throws Exception {
+  private static void getCatalog(Context ctx) throws Exception {
     ctx.contentType(TEXT_TURTLE_MIME_TYPE);
     Schema schema = getSchema(ctx);
     Table table = schema.getTable("Catalog");
-    return new FAIRDataPointCatalog(ctx, table).getResult();
+    ctx.result(new FAIRDataPointCatalog(ctx, table).getResult());
   }
 
-  private static String getDataset(Context ctx) throws Exception {
+  private static void getDataset(Context ctx) throws Exception {
     ctx.contentType(TEXT_TURTLE_MIME_TYPE);
     Schema schema = getSchema(ctx);
     Table table = schema.getTable("Dataset");
-    return new FAIRDataPointDataset(ctx, table).getResult();
+    ctx.result(new FAIRDataPointDataset(ctx, table).getResult());
   }
 
-  private static String getDistribution(Context ctx) throws Exception {
+  private static void getDistribution(Context ctx) throws Exception {
     ctx.contentType(TEXT_TURTLE_MIME_TYPE);
-    return new FAIRDataPointDistribution(ctx, sessionManager.getSession(ctx.req()).getDatabase())
-        .getResult();
+    ctx.result(
+        new FAIRDataPointDistribution(ctx, sessionManager.getSession(ctx.req()).getDatabase())
+            .getResult());
   }
 
-  private static String getFDPProfile(Context ctx) {
+  private static void getFDPProfile(Context ctx) {
     ctx.contentType(TEXT_TURTLE_MIME_TYPE);
-    return FAIRDataPointProfile.FDP_SHACL;
+    ctx.result(FAIRDataPointProfile.FDP_SHACL);
   }
 
-  private static String getCatalogProfile(Context ctx) {
+  private static void getCatalogProfile(Context ctx) {
     ctx.contentType(TEXT_TURTLE_MIME_TYPE);
-    return FAIRDataPointProfile.CATALOG_SHACL;
+    ctx.result(FAIRDataPointProfile.CATALOG_SHACL);
   }
 
-  private static String getDatasetProfile(Context ctx) {
+  private static void getDatasetProfile(Context ctx) {
     ctx.contentType(TEXT_TURTLE_MIME_TYPE);
-    return FAIRDataPointProfile.DATASET_SHACL;
+    ctx.result(FAIRDataPointProfile.DATASET_SHACL);
   }
 
-  private static String getDistributionProfile(Context ctx) {
+  private static void getDistributionProfile(Context ctx) {
     ctx.contentType(TEXT_TURTLE_MIME_TYPE);
-    return FAIRDataPointProfile.DISTRIBUTION_SHACL;
+    ctx.result(FAIRDataPointProfile.DISTRIBUTION_SHACL);
   }
 
   static Schema[] getSchemasHavingTable(String tableName, Context ctx) {

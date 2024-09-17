@@ -44,7 +44,7 @@ public class ExcelApi {
     app.get(reportPath, ExcelApi::getExcelReport);
   }
 
-  static Object postExcel(Context ctx) throws IOException, ServletException {
+  static void postExcel(Context ctx) throws IOException, ServletException {
     Long start = System.currentTimeMillis();
     Schema schema = getSchema(ctx);
 
@@ -59,15 +59,15 @@ public class ExcelApi {
     }
     if (ctx.queryParam("async") != null) {
       String id = TaskApi.submit(new ImportExcelTask(tempFile.toPath(), schema, false));
-      return new TaskReference(id, schema).toString();
+      ctx.json(new TaskReference(id, schema));
     } else {
       MolgenisIO.importFromExcelFile(tempFile.toPath(), schema, false);
       ctx.status(200);
-      return "Import success in " + (System.currentTimeMillis() - start) + "ms";
+      ctx.result("Import success in " + (System.currentTimeMillis() - start) + "ms");
     }
   }
 
-  static String getExcel(Context ctx) throws IOException {
+  static void getExcel(Context ctx) throws IOException {
     Schema schema = getSchema(ctx);
     boolean includeSystemColumns = includeSystemColumns(ctx);
     Path tempDir = Files.createTempDirectory(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT);
@@ -88,11 +88,11 @@ public class ExcelApi {
               + System.currentTimeMillis()
               + ".xlsx");
       outputStream.write(Files.readAllBytes(excelFile));
-      return "Export success";
+      ctx.result("Export success");
     }
   }
 
-  static String getExcelTable(Context ctx) throws IOException {
+  static void getExcelTable(Context ctx) throws IOException {
     Table table = MolgenisWebservice.getTableByIdOrName(ctx);
     Path tempDir = Files.createTempDirectory(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT);
     tempDir.toFile().deleteOnExit();
@@ -111,11 +111,11 @@ public class ExcelApi {
               + System.currentTimeMillis()
               + ".xlsx");
       outputStream.write(Files.readAllBytes(excelFile));
-      return "Export success";
+      ctx.result("Export success");
     }
   }
 
-  static String getExcelReport(Context ctx) throws IOException {
+  static void getExcelReport(Context ctx) throws IOException {
     Path tempDir = Files.createTempDirectory(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT);
     tempDir.toFile().deleteOnExit();
     try (OutputStream outputStream = ctx.res().getOutputStream()) {
@@ -125,7 +125,7 @@ public class ExcelApi {
       ctx.contentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
       ctx.header("Content-Disposition", "attachment; filename=report.xlsx");
       outputStream.write(Files.readAllBytes(excelFile));
-      return "Export success";
+      ctx.result("Export success");
     }
   }
 }

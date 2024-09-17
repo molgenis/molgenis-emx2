@@ -22,7 +22,7 @@ public class ProfilesApi {
     app.get("/{schema}/api/profiles", ProfilesApi::getProfiles);
   }
 
-  private static String getProfiles(Context ctx) throws IOException, URISyntaxException {
+  private static void getProfiles(Context ctx) throws IOException, URISyntaxException {
     if (profilesJson == null) {
       List<Row> rows =
           new SchemaFromProfile()
@@ -31,6 +31,6 @@ public class ProfilesApi {
       profilesJson = JsonUtil.schemaToJson(schema);
     }
     ctx.header("Content-Disposition", "attachment; filename=profiles.json");
-    return profilesJson;
+    ctx.json(profilesJson);
   }
 }

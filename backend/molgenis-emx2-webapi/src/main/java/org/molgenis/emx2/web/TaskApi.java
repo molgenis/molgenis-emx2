@@ -74,7 +74,7 @@ public class TaskApi {
     return new ObjectMapper().writeValueAsString(taskSchedulerService.scheduledTaskNames());
   }
 
-  private static String postScript(Context ctx) throws MalformedURLException {
+  private static void postScript(Context ctx) throws MalformedURLException {
     if (ctx.pathParam("schema").isEmpty() || getSchema(ctx) != null) {
       MolgenisSession session = sessionManager.getSession(ctx.req());
       String user = session.getSessionUser();
@@ -86,12 +86,13 @@ public class TaskApi {
 
       URL host = new URL(extractHost(ctx.url()));
       String id = taskService.submitTaskFromName(name, parameters, host);
-      return new TaskReference(id).toString();
+      ctx.json(new TaskReference(id));
+    } else {
+      throw new MolgenisException("Schema doesn't exist or permission denied");
     }
-    throw new MolgenisException("Schema doesn't exist or permission denied");
   }
 
-  private static byte[] getScript(Context ctx)
+  private static void getScript(Context ctx)
       throws InterruptedException, UnsupportedEncodingException {
     if (ctx.pathParam("schema").isEmpty() || getSchema(ctx) != null) {
       MolgenisSession session = sessionManager.getSession(ctx.req());
@@ -115,12 +116,13 @@ public class TaskApi {
         Thread.sleep(500);
       }
       // get the output as bytes
-      return ((ScriptTask) task).getOutput();
+      ctx.result(((ScriptTask) task).getOutput());
+    } else {
+      throw new MolgenisException("Schema doesn't exist or permission denied");
     }
-    throw new MolgenisException("Schema doesn't exist or permission denied");
   }
 
-  private static String getTaskOutput(Context ctx) throws IOException {
+  private static void getTaskOutput(Context ctx) throws IOException {
     if (ctx.pathParam("schema").isEmpty() || getSchema(ctx) != null) {
 
       MolgenisSession session = sessionManager.getSession(ctx.req());
@@ -142,28 +144,30 @@ public class TaskApi {
       }
       // reuse implementation from FileApi
       addFileColumnToResponse(ctx, "output", jobMetadata);
-      return "";
+    } else {
+      throw new MolgenisException("Schema doesn't exist or permission denied");
     }
-    throw new MolgenisException("Schema doesn't exist or permission denied");
   }
 
-  private static String clearTasks(Context ctx) {
+  private static void clearTasks(Context ctx) {
     if (ctx.pathParam("schema").isEmpty() || getSchema(ctx) != null) {
       taskService.clear();
-      return "{status: 'SUCCESS'}";
+      ctx.result("{status: 'SUCCESS'}");
+    } else {
+      throw new MolgenisException("Schema doesn't exist or permission denied");
     }
-    throw new MolgenisException("Schema doesn't exist or permission denied");
   }
 
-  private static String deleteTask(Context ctx) {
+  private static void deleteTask(Context ctx) {
     if (ctx.pathParam("schema").isEmpty() || getSchema(ctx) != null) {
       taskService.removeTask(ctx.pathParam("id"));
-      return "{status: 'SUCCESS'}";
+      ctx.result("{status: 'SUCCESS'}");
+    } else {
+      throw new MolgenisException("Schema doesn't exist or permission denied");
     }
-    throw new MolgenisException("Schema doesn't exist or permission denied");
   }
 
-  private static String listTasks(Context ctx) {
+  private static void listTasks(Context ctx) {
     if (ctx.pathParam("schema").isEmpty() || getSchema(ctx) != null) {
 
       String clearUrl = "/" + ctx.pathParam("schema") + "/api/tasks/clear";
@@ -179,20 +183,22 @@ public class TaskApi {
                 id, task.getDescription(), task.getStatus(), getUrl, deleteUrl);
       }
       result += "]}";
-      return result;
+      ctx.result(result);
+    } else {
+      throw new MolgenisException("Schema doesn't exist or permission denied");
     }
-    throw new MolgenisException("Schema doesn't exist or permission denied");
   }
 
-  private static String getTask(Context ctx) {
+  private static void getTask(Context ctx) {
     if (ctx.pathParam("schema").isEmpty() || getSchema(ctx) != null) {
       Task step = taskService.getTask(ctx.pathParam("id"));
       if (step == null) {
         step = new Task("Task unknown").setStatus(TaskStatus.UNKNOWN);
       }
-      return step.toString();
+      ctx.result(step.toString());
+    } else {
+      throw new MolgenisException("Schema doesn't exist or permission denied");
     }
-    throw new MolgenisException("Schema doesn't exist or permission denied");
   }
 
   public static String submit(Task task) {
