@@ -237,7 +237,8 @@ class Transform:
         # get organisations for staging areas by making subsets on 'resource' for Organisations
         else:
             if self.database_name not in ['testCohort', 'testDatasource']:
-                df_organisations = pd.read_csv(CATALOGUE_SCHEMA_NAME + '_data/' + 'Organisations.csv', dtype='object')
+                df_organisations = pd.read_csv(FILES_DIR.joinpath(f'{CATALOGUE_SCHEMA_NAME}_data/',
+                                                                  'Organisations.csv'), dtype='object')
                 df_resource = pd.read_csv(self.path.joinpath('Resources.csv'))
                 df_resource = df_resource[['id']]
                 df_resource.rename(columns={'id': 'resource'}, inplace=True)

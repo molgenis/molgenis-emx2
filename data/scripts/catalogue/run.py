@@ -1,6 +1,7 @@
 import asyncio
 import logging
 import os
+import shutil
 from pathlib import Path
 from zipfile import ZipFile
 
@@ -123,6 +124,49 @@ class Runner(Client):
 
     async def _update_cohort(self, name):
         """Updates a cohort."""
+        logging.info(f"Starting update on {name!r}")
+        description = {s.id: s for s in self.get_schemas()}[name].get('description')
+
+        if f"{name}{self.pattern}" in self.schema_names:
+            create_schema = asyncio.create_task(self.recreate_schema(name=f"{name}{self.pattern}",
+                                                                     description=description))
+        else:
+            create_schema = asyncio.create_task(self.create_schema(name=f"{name}{self.pattern}",
+                                                                   description=description))
+
+        # Export catalogue data to zip
+        await self.export(schema=name, fmt='csv')
+        if not FILES_DIR.exists():
+            FILES_DIR.mkdir()
+        os.rename(f"{name}.zip", FILES_DIR.joinpath(f"{name}_data.zip"))
+
+        logging.info(f"Transforming data from schema {name}")
+        schema_transform = Transform(database_name=name, database_type='cohort_UMCG')
+
+        # Extract the zip file
+        with ZipFile(FILES_DIR.joinpath(f"{name}_data.zip"), 'r') as zf:
+            zf.extractall(path=FILES_DIR.joinpath(f"{name}_data"))
+
+        # Replace the data model file
+        schema_transform.delete_data_model_file()
+        schema_transform.update_data_model_file()
+
+        # Transform the data
+        schema_transform.transform_data()
+
+        # Archive the files
+        with ZipFile(FILES_DIR.joinpath(f"{name}_upload.zip"), 'w') as zf:
+            for file_path in FILES_DIR.joinpath(f"{name}_data").iterdir():
+                zf.write(file_path, arcname=file_path.name)
+            if FILES_DIR.joinpath(f"{name}_data", '_files').exists():
+                for file_path in FILES_DIR.joinpath(f"{name}_data", '_files').iterdir():
+                    zf.write(file_path, arcname=f"_files/{file_path.name}")
+            # zf.write(FILES_DIR.joinpath(f"{name}_data_model", 'molgenis.csv'), arcname='molgenis.csv')
+
+        # Upload the updated data
+        await create_schema
+        await self.upload_file(file_path=FILES_DIR.joinpath(f"{name}_upload.zip"),
+                               schema=f"{name}{self.pattern}")
 
 
     async def _update_data_source(self, name):
@@ -132,26 +176,21 @@ class Runner(Client):
         """Updates a network."""
 
 
-    async def run(self):
-        """Executes the run of the update."""
-        logging.info(f"Updating schemas on {self.url!r}")
-
-        # Update the catalogue
-        await self.update_catalogue()
-
-        await self.update_cohorts()
-
-        if self.server_type == 'data_catalogue':
-            await self.update_data_sources()
-            await self.update_networks()
-
-
 async def main():
     with Runner() as runner:
-        await runner.run()
+        logging.info(f"Updating schemas on {runner.url!r}")
+
+        # Update the catalogue
+        await runner.update_catalogue()
+
+        await runner.update_cohorts()
+
+        if runner.server_type == 'data_catalogue':
+            await runner.update_data_sources()
+            await runner.update_networks()
 
     # Clean up
-    FILES_DIR.rmdir()
+    shutil.rmtree(FILES_DIR)
 
 
 if __name__ == '__main__':
