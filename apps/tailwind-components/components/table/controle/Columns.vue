@@ -118,7 +118,7 @@ function columToColumnConfig(column: IColumn): IColumnConfig {
                 <label
                   class="hover:cursor-pointer text-body-sm group"
                   :for="element.id"
-                  >{{ element.label }} {{ element.visible }}</label
+                  >{{ element.label }}</label
                 >
               </div>
               <BaseIcon name="equal" class="hover:cursor-grab" />
