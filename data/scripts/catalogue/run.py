@@ -192,11 +192,12 @@ async def main():
         logging.info(f"Updating schemas on {runner.target.url!r}")
 
         # Trigger CatalogueOntologies update by creating a dummy catalogue
-        dummy_catalogue = asyncio.create_task(runner.target.create_schema(name='dummy',
+        create_dummy = asyncio.create_task(runner.target.create_schema(name='dummy',
                                                                           template='DATA_CATALOGUE',
                                                                           include_demo_data=False))
 
-        await dummy_catalogue
+        await create_dummy
+        delete_dummy = asyncio.create_task(runner.target.delete_schema('dummy'))
 
         # Update the catalogue
         await runner.update_catalogue()
@@ -206,6 +207,8 @@ async def main():
         if runner.server_type == 'data_catalogue':
             await runner.update_data_sources()
             await runner.update_networks()
+
+        await delete_dummy
 
     # Clean up
     shutil.rmtree(FILES_DIR)
