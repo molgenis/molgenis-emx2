@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { INotificationType } from "~/interfaces/types";
-const { type, subTitle, title, timeoutInMills } = withDefaults(
+const props = withDefaults(
   defineProps<{
     type: INotificationType;
     subTitle?: string;
@@ -21,7 +21,7 @@ function onTimeout() {
 }
 
 onMounted(() => {
-  timeOutId = setInterval(onTimeout, timeoutInMills);
+  timeOutId = setInterval(onTimeout, props.timeoutInMills);
   show.value = true;
 });
 
