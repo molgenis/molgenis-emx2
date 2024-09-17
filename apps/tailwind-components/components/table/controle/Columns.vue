@@ -22,7 +22,9 @@ const columnsInColumnsSelectModal = ref<IColumnConfig[]>([]);
 watch(
   () => props.columns,
   (value) => {
-    columnsInColumnsSelectModal.value = value.map(columToColumnConfig);
+    columnsInColumnsSelectModal.value = value
+      .map(columToColumnConfig)
+      .sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
   }
 );
 
@@ -33,6 +35,7 @@ function handleColumnDragEvent(event: {
     oldIndex: number;
   };
 }) {
+  console.log(event);
   columnsInColumnsSelectModal.value.forEach((column) => {
     if (column.id === event.moved.element.id) {
       column.position = event.moved.newIndex;
@@ -76,7 +79,7 @@ function columToColumnConfig(column: IColumn): IColumnConfig {
     id: column.id,
     label: column.label || column.id,
     position: column.position ?? 0,
-    visible: column.visible == "true" ? true : false,
+    visible: column.visible === "false" ? false : true,
   };
 }
 </script>
@@ -95,19 +98,32 @@ function columToColumnConfig(column: IColumn): IColumnConfig {
   >
     <ContentBlockModal title="Columns">
       <draggable
-        class=""
-        :list="
-          columnsInColumnsSelectModal.sort(
-            (a, b) => (a.position ?? 0) - (b.position ?? 0)
-          )
-        "
+        tag="ul"
+        :list="columnsInColumnsSelectModal"
         item-key="id"
         @change="handleColumnDragEvent"
       >
         <template #item="{ element }">
-          <div class="list-group-item" style="cursor: grab">
-            {{ element.label }}
-          </div>
+          <li class="mt-2.5 relative hover:bg-tab-hover hover:cursor-grab">
+            <div class="flex justify-between">
+              <div class="flex items-start">
+                <div class="flex items-center">
+                  <input
+                    class="w-5 h-5 rounded-3px ml-[6px] mr-2.5 mt-0.5 accent-yellow-500 border border-checkbox hover:cursor-pointer"
+                    type="checkbox"
+                    v-model="element.visible"
+                    :id="element.id"
+                  />
+                </div>
+                <label
+                  class="hover:cursor-pointer text-body-sm group"
+                  :for="element.id"
+                  >{{ element.label }} {{ element.visible }}</label
+                >
+              </div>
+              <BaseIcon name="equal" class="hover:cursor-grab" />
+            </div>
+          </li>
         </template>
       </draggable>
     </ContentBlockModal>
