@@ -94,7 +94,7 @@ public class TaskApi {
 
   private static void getScript(Context ctx)
       throws InterruptedException, UnsupportedEncodingException {
-    if (ctx.pathParam("schema").isEmpty() || getSchema(ctx) != null) {
+    if (ctx.pathParamMap().containsKey("schema") || getSchema(ctx) != null) {
       MolgenisSession session = sessionManager.getSession(ctx.req());
       String user = session.getSessionUser();
       if (!"admin".equals(user)) {
