@@ -2,12 +2,18 @@
 withDefaults(
   defineProps<{
     id: string;
+    value?: string;
+    placeholder?: string;
+    disabled?: boolean;
     required?: boolean;
+    valid?: boolean;
     hasError?: boolean;
   }>(),
   {
+    disabled: false,
     required: false,
     hasError: false,
+    valid: false,
   }
 );
 
@@ -18,12 +24,19 @@ const modelValue = ref("");
 
 <template>
   <textarea
-    v-model="modelValue"
     :id="id"
     :required="required"
-    class="w-full pr-16 font-sans text-black text-gray-300 bg-white outline-none rounded-textarea-input h-60 ring-red-500 pl-3 shadow-search-input focus:shadow-search-input hover:shadow-search-input search-input-mobile border py-2"
-    :class="{ 'border-red-500 text-red-500': hasError }"
     @focus="$emit('focus')"
     @input="$emit('input')"
+    :placeholder="placeholder"
+    :disabled="disabled"
+    class="w-full pr-16 font-sans text-black text-gray-300 outline-none rounded-textarea-input h-60 pl-3 shadow-search-input focus:shadow-search-input hover:shadow-search-input search-input-mobile border py-2"
+    :class="{
+      'border-invalid text-invalid': hasError,
+      'border-valid text-valid': valid,
+      'border-disabled text-disabled bg-disabled': disabled,
+      'bg-white': !disabled,
+    }"
+    v-model="modelValue"
   />
 </template>
