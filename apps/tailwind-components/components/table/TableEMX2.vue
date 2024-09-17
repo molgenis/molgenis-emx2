@@ -53,6 +53,12 @@ function handlePagingRequest(page: number) {
     page,
   });
 }
+
+const sortedVisibleColumns = computed(() =>
+  props.columns
+    .filter((column) => column.visible !== 'false')
+    .sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
+);
 </script>
 <template>
   <div class="flex justify-between">
@@ -81,9 +87,7 @@ function handlePagingRequest(page: number) {
       <thead>
         <tr>
           <th
-            v-for="column in columns.sort(
-              (a, b) => (a.position ?? 0) - (b.position ?? 0)
-            )"
+            v-for="column in sortedVisibleColumns"
             class="py-2.5 px-2.5 border-b border-gray-200 first:pl-0 last:pr-0 sm:first:pl-2.5 sm:last:pr-2.5 text-left w-64"
             :ariaSort="
               settings.orderby.column === column.id
@@ -118,7 +122,7 @@ function handlePagingRequest(page: number) {
       <tbody>
         <tr v-for="row in rows">
           <TableCellTypesEMX2
-            v-for="column in columns"
+            v-for="column in sortedVisibleColumns"
             :scope="column.key === 1 ? 'row' : null"
             :metaData="column"
             :data="row[column.id]"
