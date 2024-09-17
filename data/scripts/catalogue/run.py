@@ -13,19 +13,19 @@ from update.update_4_x import Transform
 FILES_DIR = Path(__file__).parent.joinpath('files').resolve()
 
 
-class Runner(Client):
+class Runner:
     """
     Class that handles the running of the update.
-    Inherits methods from the Pyclient class.
+    It uses a source and target Pyclient object for handling data
+    on the source and target servers.
     """
 
-    def __init__(self, pattern = None):
-        """Initializes the object by loading information from the .env file."""
+    def __init__(self, source: Client, target: Client, pattern = None):
+        """Initializes the object."""
 
-        # Initialize the client with URL and token
-        server = config('MG_SERVER_URL')
-        token = config('MG_SERVER_TOKEN')
-        super().__init__(url=server, token=token)
+        # Set the source and target Clients
+        self.source = source
+        self.target = target
 
         # Set additional attributes
         self.server_type = config('MG_SERVER_TYPE')
@@ -63,15 +63,17 @@ class Runner(Client):
         """
         logging.info(f"Starting update on {self.catalogue!r}")
 
-        if f"{self.catalogue}{self.pattern}" in self.schema_names:
-            create_schema = asyncio.create_task(self.recreate_schema(name=f"{self.catalogue}{self.pattern}",
-                                                                     description="Catalogue update"))
+        description = {s.id: s for s in self.source.get_schemas()}[self.catalogue].get('description')
+
+        if f"{self.catalogue}{self.pattern}" in self.target.schema_names:
+            create_schema = asyncio.create_task(self.target.recreate_schema(name=f"{self.catalogue}{self.pattern}",
+                                                                     description=description))
         else:
-            create_schema = asyncio.create_task(self.create_schema(name=f"{self.catalogue}{self.pattern}",
-                                                                   description="Catalogue update"))
+            create_schema = asyncio.create_task(self.target.create_schema(name=f"{self.catalogue}{self.pattern}",
+                                                                   description=description))
 
         # Export catalogue data to zip
-        await self.export(schema=self.catalogue, fmt='csv')
+        await self.source.export(schema=self.catalogue, fmt='csv')
         if not FILES_DIR.exists():
             FILES_DIR.mkdir()
         os.rename(f"{self.catalogue}.zip", FILES_DIR.joinpath(f"{self.catalogue}_data.zip"))
@@ -100,7 +102,7 @@ class Runner(Client):
 
         # Upload the updated data
         await create_schema
-        await self.upload_file(file_path=FILES_DIR.joinpath(f"{self.catalogue}_upload.zip"),
+        await self.target.upload_file(file_path=FILES_DIR.joinpath(f"{self.catalogue}_upload.zip"),
                                schema=f"{self.catalogue}{self.pattern}")
 
 
@@ -125,17 +127,17 @@ class Runner(Client):
     async def _update_cohort(self, name):
         """Updates a cohort."""
         logging.info(f"Starting update on {name!r}")
-        description = {s.id: s for s in self.get_schemas()}[name].get('description')
+        description = {s.id: s for s in self.source.get_schemas()}[name].get('description')
 
-        if f"{name}{self.pattern}" in self.schema_names:
-            create_schema = asyncio.create_task(self.recreate_schema(name=f"{name}{self.pattern}",
+        if f"{name}{self.pattern}" in self.target.schema_names:
+            create_schema = asyncio.create_task(self.target.recreate_schema(name=f"{name}{self.pattern}",
                                                                      description=description))
         else:
-            create_schema = asyncio.create_task(self.create_schema(name=f"{name}{self.pattern}",
+            create_schema = asyncio.create_task(self.target.create_schema(name=f"{name}{self.pattern}",
                                                                    description=description))
 
         # Export catalogue data to zip
-        await self.export(schema=name, fmt='csv')
+        await self.source.export(schema=name, fmt='csv')
         if not FILES_DIR.exists():
             FILES_DIR.mkdir()
         os.rename(f"{name}.zip", FILES_DIR.joinpath(f"{name}_data.zip"))
@@ -165,7 +167,7 @@ class Runner(Client):
 
         # Upload the updated data
         await create_schema
-        await self.upload_file(file_path=FILES_DIR.joinpath(f"{name}_upload.zip"),
+        await self.target.upload_file(file_path=FILES_DIR.joinpath(f"{name}_upload.zip"),
                                schema=f"{name}{self.pattern}")
 
 
@@ -177,8 +179,24 @@ class Runner(Client):
 
 
 async def main():
-    with Runner() as runner:
-        logging.info(f"Updating schemas on {runner.url!r}")
+    # Initialize the client with URL and token
+    source_server = config('MG_SOURCE_SERVER_URL')
+    source_token = config('MG_SOURCE_SERVER_TOKEN')
+
+    target_server = config('MG_TARGET_SERVER_URL')
+    target_token = config('MG_TARGET_SERVER_TOKEN')
+
+    with (Client(url=source_server, token=source_token) as source,
+          Client(url=target_server, token=target_token) as target):
+        runner = Runner(source, target)
+        logging.info(f"Updating schemas on {runner.target.url!r}")
+
+        # Trigger CatalogueOntologies update by creating a dummy catalogue
+        dummy_catalogue = asyncio.create_task(runner.target.create_schema(name='dummy',
+                                                                          template='DATA_CATALOGUE',
+                                                                          include_demo_data=False))
+
+        await dummy_catalogue
 
         # Update the catalogue
         await runner.update_catalogue()
