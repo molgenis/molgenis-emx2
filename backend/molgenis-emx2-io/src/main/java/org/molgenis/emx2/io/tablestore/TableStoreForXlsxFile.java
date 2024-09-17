@@ -40,7 +40,7 @@ public class TableStoreForXlsxFile implements TableStore {
         }
         return sheetNames;
       } catch (Throwable e) {
-        throw new MolgenisException("Error reading excel file", (Exception) e);
+        throw new MolgenisException("Error reading excel file", new Exception(e));
       }
     }
     return sheetNames;

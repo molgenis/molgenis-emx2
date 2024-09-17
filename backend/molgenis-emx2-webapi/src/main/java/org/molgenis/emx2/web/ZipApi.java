@@ -19,6 +19,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.stream.Stream;
+import javax.validation.constraints.NotNull;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
@@ -173,7 +174,7 @@ public class ZipApi {
   static void generateReportsToStore(Context ctx, TableStore store) throws JsonProcessingException {
     String reports = ctx.queryParam("id");
     Schema schema = getSchema(ctx);
-    Map<String, ?> parameters = ctx.queryParamMap();
+    Map<String, ?> parameters = getReportParameters(ctx);
     String reportsJson = schema.getMetadata().getSetting("reports");
     List<Map<String, String>> reportList = new ObjectMapper().readValue(reportsJson, List.class);
     for (String reportId : reports.split(",")) {
@@ -189,21 +190,21 @@ public class ZipApi {
     }
   }
 
-  //    @NotNull
-  //    static Map<String, Object> getReportParameters(Context ) {
-  //      Map<String, Object> parameters = new LinkedHashMap<>();
-  //      request
-  //          .queryParams()
-  //          .forEach(
-  //              param -> {
-  //                if ("id".equals(param)) {
-  //                  return;
-  //                } else if (request.queryParamsValues(param).length > 1) {
-  //                  parameters.put(param, List.of(request.queryParamsValues(param)));
-  //                } else {
-  //                  parameters.put(param, request.queryParams(param));
-  //                }
-  //              });
-  //      return parameters;
-  //    }
+  @NotNull
+  static Map<String, Object> getReportParameters(Context ctx) {
+    Map<String, Object> parameters = new LinkedHashMap<>();
+    ctx.queryParamMap()
+        .forEach(
+            (param, values) -> {
+              if (!"id".equals(param)) {
+                if (values.size() > 1) {
+                  parameters.put(param, values);
+                } else {
+                  parameters.put(param, values.get(0));
+                }
+              }
+            });
+
+    return parameters;
+  }
 }
