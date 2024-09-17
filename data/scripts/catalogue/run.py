@@ -73,10 +73,9 @@ class Runner:
                                                                    description=description))
 
         # Export catalogue data to zip
-        await self.source.export(schema=self.catalogue, fmt='csv')
         if not FILES_DIR.exists():
             FILES_DIR.mkdir()
-        os.rename(f"{self.catalogue}.zip", FILES_DIR.joinpath(f"{self.catalogue}_data.zip"))
+        await self.source.export(schema=self.catalogue, filename=str(FILES_DIR.joinpath(f"{self.catalogue}_data.zip")))
 
         logging.info(f"Transforming data from schema {self.catalogue}")
         catalogue_transform = Transform(database_name=self.catalogue, database_type='catalogue')
@@ -137,9 +136,9 @@ class Runner:
                                                                    description=description))
 
         # Export catalogue data to zip
-        await self.source.export(schema=name, fmt='csv')
         if not FILES_DIR.exists():
             FILES_DIR.mkdir()
+        await self.source.export(schema=name, filename=str(FILES_DIR.joinpath(f"{name}_data.zip")))
         os.rename(f"{name}.zip", FILES_DIR.joinpath(f"{name}_data.zip"))
 
         logging.info(f"Transforming data from schema {name}")
@@ -192,14 +191,16 @@ async def main():
         logging.info(f"Updating schemas on {runner.target.url!r}")
 
         # Trigger CatalogueOntologies update by creating a dummy catalogue
-        create_dummy = asyncio.create_task(runner.target.create_schema(name='dummy',
-                                                                          template='DATA_CATALOGUE',
-                                                                          include_demo_data=False))
+        if not 'dummy' in target.schema_names:
+            create_dummy = asyncio.create_task(runner.target.create_schema(name='dummy',
+                                                                              template='DATA_CATALOGUE',
+                                                                              include_demo_data=False))
 
-        await create_dummy
+            await create_dummy
         delete_dummy = asyncio.create_task(runner.target.delete_schema('dummy'))
 
         # Update the catalogue
+        await delete_dummy
         await runner.update_catalogue()
 
         await runner.update_cohorts()
@@ -207,8 +208,6 @@ async def main():
         if runner.server_type == 'data_catalogue':
             await runner.update_data_sources()
             await runner.update_networks()
-
-        await delete_dummy
 
     # Clean up
     shutil.rmtree(FILES_DIR)
