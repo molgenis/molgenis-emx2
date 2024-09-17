@@ -56,7 +56,7 @@ function handlePagingRequest(page: number) {
 
 const sortedVisibleColumns = computed(() =>
   props.columns
-    .filter((column) => column.visible !== 'false')
+    .filter((column) => column.visible !== "false")
     .sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
 );
 </script>

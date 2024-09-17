@@ -250,7 +250,11 @@ public class FAIRDataPoint {
     for (String propertyValue : (List<String>) map.get("propertyValue")) {
       String[] propertyValueSplit = propertyValue.split(" ", -1);
       checkPropValSplitLength(propertyValueSplit);
-      builder.add(catalogIriEnc, iri(propertyValueSplit[0]), iri(propertyValueSplit[1]));
+      if (propertyValueSplit[1].startsWith("http")) {
+        builder.add(catalogIriEnc, iri(propertyValueSplit[0]), iri(propertyValueSplit[1]));
+      } else {
+        builder.add(catalogIriEnc, iri(propertyValueSplit[0]), propertyValueSplit[1]);
+      }
     }
   }
 
