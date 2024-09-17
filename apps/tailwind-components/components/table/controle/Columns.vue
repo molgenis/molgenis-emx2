@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import draggable from "vuedraggable";
 import type { IColumn } from "../../../../metadata-utils/src/types";
-import type { SideModal } from "#build/components";
 
 const props = defineProps<{
   columns: IColumn[];
 }>();
+
+const emits = defineEmits(["update:columns"]);
 
 const showModal = ref(false);
 
@@ -50,7 +51,23 @@ function handleColumnDragEvent(event: {
 }
 
 function handleCancel() {
+  // reset to initial state
   columnsInColumnsSelectModal.value = props.columns.map(columToColumnConfig);
+  showModal.value = false;
+}
+
+function handleSave() {
+  const updated = props.columns.map((column) => {
+    const columnConfig = columnsInColumnsSelectModal.value.find(
+      (c) => c.id === column.id
+    );
+    if (columnConfig) {
+      column.position = columnConfig.position;
+      column.visible = columnConfig.visible ? "true" : "false";
+    }
+  });
+
+  emits("update:columns", updated);
   showModal.value = false;
 }
 
@@ -69,11 +86,12 @@ function columToColumnConfig(column: IColumn): IColumnConfig {
     >Columns</Button
   >
   <SideModal
-    ref="columnsSelectModal"
+    class="hidden"
     :slide-in-right="true"
     :fullScreen="false"
     button-alignment="left"
     :show="showModal"
+    @close="showModal = false"
   >
     <ContentBlockModal title="Columns">
       <draggable
@@ -94,12 +112,7 @@ function columToColumnConfig(column: IColumn): IColumnConfig {
       </draggable>
     </ContentBlockModal>
     <template #footer>
-      <Button
-        type="primary"
-        size="small"
-        label="Save"
-        @click="showModal = false"
-      />
+      <Button type="primary" size="small" label="Save" @click="handleSave" />
       <Button
         type="secondary"
         size="small"
