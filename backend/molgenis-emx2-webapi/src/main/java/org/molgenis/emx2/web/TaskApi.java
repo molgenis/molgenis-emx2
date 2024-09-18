@@ -68,9 +68,9 @@ public class TaskApi {
     app.get("/{schema}/{app}/api/tasks/{id}", TaskApi::getTask);
   }
 
-  private static String viewScheduledTasks(Context ctx) throws JsonProcessingException {
+  private static void viewScheduledTasks(Context ctx) throws JsonProcessingException {
     // mainly for testing/verification purposes
-    return new ObjectMapper().writeValueAsString(taskSchedulerService.scheduledTaskNames());
+    ctx.json(new ObjectMapper().writeValueAsString(taskSchedulerService.scheduledTaskNames()));
   }
 
   private static void postScript(Context ctx) throws MalformedURLException {
@@ -117,81 +117,60 @@ public class TaskApi {
   }
 
   private static void getTaskOutput(Context ctx) throws IOException {
-    if (ctx.pathParam("schema").isEmpty() || getSchema(ctx) != null) {
-      MolgenisSession session = sessionManager.getSession(ctx.req());
-      Schema adminSchema = session.getDatabase().getSchema(SYSTEM_SCHEMA);
-      String jobId = ctx.pathParam("id");
-      Row jobMetadata =
-          adminSchema
-              .getTable("Jobs")
-              .query()
-              // make sure we include all file metadata
-              .select(s("output", s("contents"), s("mimetype"), s("filename"), s("extension")))
-              .where(f("id", Operator.EQUALS, jobId))
-              .retrieveRows()
-              .get(0);
+    MolgenisSession session = sessionManager.getSession(ctx.req());
+    Schema adminSchema = session.getDatabase().getSchema(SYSTEM_SCHEMA);
+    String jobId = ctx.pathParam("id");
+    Row jobMetadata =
+        adminSchema
+            .getTable("Jobs")
+            .query()
+            // make sure we include all file metadata
+            .select(s("output", s("contents"), s("mimetype"), s("filename"), s("extension")))
+            .where(f("id", Operator.EQUALS, jobId))
+            .retrieveRows()
+            .get(0);
 
-      if (jobMetadata == null) {
-        throw new MolgenisException(
-            "Get output for task failed: couldn't find task with id " + jobId);
-      }
-      // reuse implementation from FileApi
-      addFileColumnToResponse(ctx, "output", jobMetadata);
-    } else {
-      throw new MolgenisException("Schema doesn't exist or permission denied");
+    if (jobMetadata == null) {
+      throw new MolgenisException(
+          "Get output for task failed: couldn't find task with id " + jobId);
     }
+    // reuse implementation from FileApi
+    addFileColumnToResponse(ctx, "output", jobMetadata);
   }
 
   private static void clearTasks(Context ctx) {
-    if (ctx.pathParam("schema").isEmpty() || getSchema(ctx) != null) {
-      taskService.clear();
-      ctx.result("{status: 'SUCCESS'}");
-    } else {
-      throw new MolgenisException("Schema doesn't exist or permission denied");
-    }
+    taskService.clear();
+    ctx.result("{status: 'SUCCESS'}");
   }
 
   private static void deleteTask(Context ctx) {
-    if (ctx.pathParam("schema").isEmpty() || getSchema(ctx) != null) {
-      taskService.removeTask(ctx.pathParam("id"));
-      ctx.result("{status: 'SUCCESS'}");
-    } else {
-      throw new MolgenisException("Schema doesn't exist or permission denied");
-    }
+    taskService.removeTask(ctx.pathParam("id"));
+    ctx.result("{status: 'SUCCESS'}");
   }
 
   private static void listTasks(Context ctx) {
-    if (ctx.pathParam("schema").isEmpty() || getSchema(ctx) != null) {
+    String clearUrl = "/" + ctx.pathParam("schema") + "/api/tasks/clear";
+    String result = String.format("{\"clearUrl\":\"%s\", \"tasks\":[", clearUrl);
 
-      String clearUrl = "/" + ctx.pathParam("schema") + "/api/tasks/clear";
-      String result = String.format("{\"clearUrl\":\"%s\", \"tasks\":[", clearUrl);
-
-      for (String id : taskService.getJobIds()) {
-        Task task = taskService.getTask(id);
-        String getUrl = "/" + ctx.pathParam("schema") + "/api/tasks/" + id;
-        String deleteUrl = getUrl + "/delete";
-        result +=
-            String.format(
-                "{\"id\":\"%s\", \"description\":\"%s\", \"status\":\"%s\", \"url\":\"%s\", \"deleteUrl\":\"%s\"}",
-                id, task.getDescription(), task.getStatus(), getUrl, deleteUrl);
-      }
-      result += "]}";
-      ctx.result(result);
-    } else {
-      throw new MolgenisException("Schema doesn't exist or permission denied");
+    for (String id : taskService.getJobIds()) {
+      Task task = taskService.getTask(id);
+      String getUrl = "/" + ctx.pathParam("schema") + "/api/tasks/" + id;
+      String deleteUrl = getUrl + "/delete";
+      result +=
+          String.format(
+              "{\"id\":\"%s\", \"description\":\"%s\", \"status\":\"%s\", \"url\":\"%s\", \"deleteUrl\":\"%s\"}",
+              id, task.getDescription(), task.getStatus(), getUrl, deleteUrl);
     }
+    result += "]}";
+    ctx.result(result);
   }
 
   private static void getTask(Context ctx) {
-    if (ctx.pathParam("schema").isEmpty() || getSchema(ctx) != null) {
-      Task step = taskService.getTask(ctx.pathParam("id"));
-      if (step == null) {
-        step = new Task("Task unknown").setStatus(TaskStatus.UNKNOWN);
-      }
-      ctx.result(step.toString());
-    } else {
-      throw new MolgenisException("Schema doesn't exist or permission denied");
+    Task step = taskService.getTask(ctx.pathParam("id"));
+    if (step == null) {
+      step = new Task("Task unknown").setStatus(TaskStatus.UNKNOWN);
     }
+    ctx.result(step.toString());
   }
 
   public static String submit(Task task) {
