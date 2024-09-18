@@ -930,18 +930,6 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  public void testFDPRedirect() {
-    given()
-        .sessionId(SESSION_ID)
-        .redirects()
-        .follow(false)
-        .expect()
-        .header("Location", "/api/fdp")
-        .when()
-        .get("http://localhost:" + PORT + "/api/fdp/");
-  }
-
-  @Test
   public void testGraphGenome400() {
     given()
         .sessionId(SESSION_ID)

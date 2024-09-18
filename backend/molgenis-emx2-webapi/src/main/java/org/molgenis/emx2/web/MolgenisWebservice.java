@@ -42,11 +42,8 @@ public class MolgenisWebservice {
     Javalin app =
         Javalin.create(
                 config -> {
-                  config.router.ignoreTrailingSlashes = false;
+                  config.router.ignoreTrailingSlashes = true;
                   config.router.treatMultipleSlashesAsSingleSlash = true;
-                  //                  config.staticFiles.add("public_html");
-                  //                  config.staticFiles.add("public_html_apps");
-                  //                  config.staticFiles.add("public_html_docs");
                   config.jetty.modifyServletContextHandler(
                       handler -> handler.setSessionHandler(sessionManager.getSessionHandler()));
                 })
@@ -113,7 +110,7 @@ public class MolgenisWebservice {
     app.get("/{schema}/", MolgenisWebservice::redirectSchemaToFirstMenuItem);
 
     // greedy proxy stuff, always put last!
-    GroupPathMapper.create(app);
+    StaticFileMapper.create(app);
 
     // schema members operations
 

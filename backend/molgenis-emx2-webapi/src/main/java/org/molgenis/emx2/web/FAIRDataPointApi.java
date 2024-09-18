@@ -20,8 +20,6 @@ public class FAIRDataPointApi {
   public static void create(Javalin app, MolgenisSessionManager sm) {
     sessionManager = sm;
 
-    app.before("/api/fdp/", ctx -> ctx.redirect("/api/fdp"));
-
     // Base routes for /api/fdp
     app.head("/api/fdp", FAIRDataPointApi::getHead);
     app.get("/api/fdp", FAIRDataPointApi::getFDP);

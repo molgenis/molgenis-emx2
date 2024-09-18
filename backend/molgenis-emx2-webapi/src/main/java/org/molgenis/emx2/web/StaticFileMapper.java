@@ -14,9 +14,9 @@ import java.nio.charset.StandardCharsets;
  *
  * <p>TODO add apps proxy service
  */
-public class GroupPathMapper {
+public class StaticFileMapper {
 
-  private GroupPathMapper() {
+  private StaticFileMapper() {
     // hide constructor
   }
 
@@ -24,14 +24,14 @@ public class GroupPathMapper {
 
     app.get("/{schema}/{appname}/theme.css", BootstrapThemeService::getCss);
 
-    app.get("*/docs/<asset>", GroupPathMapper::redirectDocs);
+    app.get("*/docs/<asset>", StaticFileMapper::redirectDocs);
 
-    app.get("*/{app}/assets/<asset>", GroupPathMapper::redirectAssets);
-    app.get("/apps/resources/<asset>", GroupPathMapper::redirectResources);
-    app.get("/apps/{app}/<asset>", GroupPathMapper::redirectResources);
+    app.get("*/{app}/assets/<asset>", StaticFileMapper::redirectAssets);
+    app.get("/apps/resources/<asset>", StaticFileMapper::redirectResources);
+    app.get("/apps/{app}/<asset>", StaticFileMapper::redirectResources);
 
-    app.get("*/{appname}/index.html", GroupPathMapper::returnIndexFile);
-    app.get("*/{appname}", GroupPathMapper::returnIndexFile);
+    app.get("*/{appname}/index.html", StaticFileMapper::returnIndexFile);
+    app.get("*/{appname}", StaticFileMapper::returnIndexFile);
   }
 
   private static void redirectResources(Context ctx) {
@@ -51,7 +51,7 @@ public class GroupPathMapper {
     if (!ctx.path().endsWith("/")) ctx.redirect(ctx.path() + "/");
     try {
       InputStream in =
-          GroupPathMapper.class.getResourceAsStream(
+          StaticFileMapper.class.getResourceAsStream(
               "/public_html/apps/" + ctx.pathParam("appname") + "/index.html");
 
       if (in == null) {
@@ -66,7 +66,7 @@ public class GroupPathMapper {
   }
 
   private static void getFileFromClasspath(Context ctx, String path) {
-    try (InputStream in = GroupPathMapper.class.getResourceAsStream(path)) {
+    try (InputStream in = StaticFileMapper.class.getResourceAsStream(path)) {
       if (in == null) {
         ctx.status(404).result("File not found: " + ctx.path());
         return;

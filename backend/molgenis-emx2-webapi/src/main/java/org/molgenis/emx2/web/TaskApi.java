@@ -5,7 +5,6 @@ import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.utils.URIUtils.extractHost;
 import static org.molgenis.emx2.web.FileApi.addFileColumnToResponse;
-import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 import static org.molgenis.emx2.web.MolgenisWebservice.sessionManager;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -74,21 +73,17 @@ public class TaskApi {
   }
 
   private static void postScript(Context ctx) throws MalformedURLException {
-    if (ctx.pathParam("schema").isEmpty() || getSchema(ctx) != null) {
-      MolgenisSession session = sessionManager.getSession(ctx.req());
-      String user = session.getSessionUser();
-      if (!"admin".equals(user)) {
-        throw new MolgenisException("Submit task failed: for now can only be done by 'admin");
-      }
-      String name = URLDecoder.decode(ctx.pathParam("name"), StandardCharsets.UTF_8);
-      String parameters = ctx.body();
-
-      URL host = new URL(extractHost(ctx.url()));
-      String id = taskService.submitTaskFromName(name, parameters, host);
-      ctx.json(new TaskReference(id));
-    } else {
-      throw new MolgenisException("Schema doesn't exist or permission denied");
+    MolgenisSession session = sessionManager.getSession(ctx.req());
+    String user = session.getSessionUser();
+    if (!"admin".equals(user)) {
+      throw new MolgenisException("Submit task failed: for now can only be done by 'admin");
     }
+    String name = URLDecoder.decode(ctx.pathParam("name"), StandardCharsets.UTF_8);
+    String parameters = ctx.body();
+
+    URL host = new URL(extractHost(ctx.url()));
+    String id = taskService.submitTaskFromName(name, parameters, host);
+    ctx.json(new TaskReference(id));
   }
 
   private static void getScript(Context ctx) throws InterruptedException {
