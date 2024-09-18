@@ -35,7 +35,7 @@ class Runner:
         self.cohorts, self.data_sources, self.networks = self._prepare_resource_names(self.server_type)
 
         # Set the pattern
-        if pattern:
+        if pattern is not None:
             self.pattern = pattern
         else:
             self.pattern = '_'
@@ -56,6 +56,13 @@ class Runner:
                 data_sources = None
                 networks = None
         return cohorts, data_sources, networks
+
+    def has_latest_ontologies(self) -> bool:
+        """Checks if the target server has the latest CatalogueOntologies."""
+        new_ontologies = ['Clinical study types', 'Cohort collection types']
+        server_ontologies = self.target.get_schema_metadata(name='CatalogueOntologies').tables
+
+        return all(new_ont in [table.name for table in server_ontologies] for new_ont in new_ontologies)
 
     async def update_catalogue(self):
         """
@@ -139,7 +146,6 @@ class Runner:
         if not FILES_DIR.exists():
             FILES_DIR.mkdir()
         await self.source.export(schema=name, filename=str(FILES_DIR.joinpath(f"{name}_data.zip")))
-        os.rename(f"{name}.zip", FILES_DIR.joinpath(f"{name}_data.zip"))
 
         logging.info(f"Transforming data from schema {name}")
         schema_transform = Transform(database_name=name, database_type='cohort_UMCG')
@@ -177,7 +183,7 @@ class Runner:
         """Updates a network."""
 
 
-async def main():
+async def main(pattern = None):
     # Initialize the client with URL and token
     source_server = config('MG_SOURCE_SERVER_URL')
     source_token = config('MG_SOURCE_SERVER_TOKEN')
@@ -187,20 +193,21 @@ async def main():
 
     with (Client(url=source_server, token=source_token) as source,
           Client(url=target_server, token=target_token) as target):
-        runner = Runner(source, target)
+        runner = Runner(source, target, pattern=pattern)
         logging.info(f"Updating schemas on {runner.target.url!r}")
 
-        # Trigger CatalogueOntologies update by creating a dummy catalogue
-        if not 'dummy' in target.schema_names:
-            create_dummy = asyncio.create_task(runner.target.create_schema(name='dummy',
-                                                                              template='DATA_CATALOGUE',
-                                                                              include_demo_data=False))
+        if not runner.has_latest_ontologies():
+            # Trigger CatalogueOntologies update by creating a dummy catalogue
+            if not 'dummy' in target.schema_names:
+                create_dummy = asyncio.create_task(runner.target.create_schema(name='_dummy',
+                                                                                  template='DATA_CATALOGUE',
+                                                                                  include_demo_data=False))
+                await create_dummy
+            delete_dummy = asyncio.create_task(runner.target.delete_schema('_dummy'))
 
-            await create_dummy
-        delete_dummy = asyncio.create_task(runner.target.delete_schema('dummy'))
+            await delete_dummy
 
         # Update the catalogue
-        await delete_dummy
         await runner.update_catalogue()
 
         await runner.update_cohorts()
@@ -218,4 +225,4 @@ if __name__ == '__main__':
     logging.getLogger("requests").setLevel(logging.WARNING)
     logging.getLogger("urllib3").setLevel(logging.WARNING)
 
-    asyncio.run(main())
+    asyncio.run(main(pattern=''))
