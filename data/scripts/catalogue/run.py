@@ -8,6 +8,8 @@ from zipfile import ZipFile
 from decouple import config
 
 from molgenis_emx2_pyclient import Client
+
+from molgenis_emx2_pyclient.metadata import Schema
 from update.update_4_x import Transform
 
 FILES_DIR = Path(__file__).parent.joinpath('files').resolve()
@@ -33,6 +35,7 @@ class Runner:
 
         # Set resource type names
         self.cohorts, self.data_sources, self.networks = self._prepare_resource_names(self.server_type)
+        self.cohorts = self.gather_cohorts_stagings()
 
         # Set the pattern
         if pattern is not None:
@@ -64,12 +67,27 @@ class Runner:
 
         return all(new_ont in [table.name for table in server_ontologies] for new_ont in new_ontologies)
 
-    async def update_catalogue(self):
+    def gather_cohorts_stagings(self) -> list[str]:
+        """Gather the names of staging areas with the 'CohortsStaging' data model."""
+        schemas = self.source.schema_names
+        cohort_stagings = []
+        for schema in schemas:
+            metadata: Schema = self.source.get_schema_metadata(schema)
+            try:
+                table_names = map(lambda t: t.name, metadata.tables)
+            except AttributeError:
+                continue
+            if 'Cohorts' in table_names and 'Networks' not in table_names:
+                cohort_stagings.append(schema)
+        return cohort_stagings
+
+
+    async def update_catalogue(self, transform_only: bool = False):
         """
         Updates the data model and data in the catalogue schema.
         """
         logging.info(f"Starting update on {self.catalogue!r}")
-        await self._update_schema(name=self.catalogue, database_type='catalogue')
+        await self._update_schema(name=self.catalogue, database_type='catalogue', transform_only=transform_only)
 
 
     async def update_cohorts(self):
@@ -91,17 +109,18 @@ class Runner:
             logging.info(f"Updating networks staging area {network!r}")
             await self._update_schema(name=network, database_type='network')
 
-    async def _update_schema(self, name: str, database_type: str):
+    async def _update_schema(self, name: str, database_type: str, transform_only: bool = False):
         """Updates a resource staging area. Specify the name and the type of the database."""
         logging.info(f"Starting update on {name!r}")
         description = {s.id: s for s in self.source.get_schemas()}[name].get('description')
 
-        if f"{name}{self.pattern}" in self.target.schema_names:
-            create_schema = asyncio.create_task(self.target.recreate_schema(name=f"{name}{self.pattern}",
-                                                                     description=description))
-        else:
-            create_schema = asyncio.create_task(self.target.create_schema(name=f"{name}{self.pattern}",
-                                                                   description=description))
+        if not transform_only:
+            if f"{name}{self.pattern}" in self.target.schema_names:
+                create_schema = asyncio.create_task(self.target.recreate_schema(name=f"{name}{self.pattern}",
+                                                                         description=description))
+            else:
+                create_schema = asyncio.create_task(self.target.create_schema(name=f"{name}{self.pattern}",
+                                                                       description=description))
 
         # Export catalogue data to zip
         if not FILES_DIR.exists():
@@ -132,10 +151,11 @@ class Runner:
             if database_type == 'catalogue':
                 zf.write(FILES_DIR.joinpath(f"{name}_data_model", 'molgenis.csv'), arcname='molgenis.csv')
 
-        # Upload the updated data
-        await create_schema
-        await self.target.upload_file(file_path=FILES_DIR.joinpath(f"{name}_upload.zip"),
-                               schema=f"{name}{self.pattern}")
+        if not transform_only:
+            # Upload the updated data
+            await create_schema
+            await self.target.upload_file(file_path=FILES_DIR.joinpath(f"{name}_upload.zip"),
+                                   schema=f"{name}{self.pattern}")
 
 
 async def main(pattern = None):
@@ -162,14 +182,18 @@ async def main(pattern = None):
 
             await delete_dummy
 
-        # Update the catalogue
-        await runner.update_catalogue()
+        # Unpack and transform the catalogue data without uploading
+        await runner.update_catalogue(transform_only=True)
 
+        # Update the cohorts
         await runner.update_cohorts()
 
         if runner.server_type == 'data_catalogue':
             await runner.update_data_sources()
             await runner.update_networks()
+
+        # Update the catalogue
+        await runner.update_catalogue(transform_only=False)
 
     # Clean up
     shutil.rmtree(FILES_DIR)
@@ -180,4 +204,4 @@ if __name__ == '__main__':
     logging.getLogger("requests").setLevel(logging.WARNING)
     logging.getLogger("urllib3").setLevel(logging.WARNING)
 
-    asyncio.run(main())
+    asyncio.run(main(pattern=''))
