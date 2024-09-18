@@ -213,26 +213,25 @@ class Transform:
 
             # get additional organisations and Contacts.organisation
             for table in ['Resources', 'Contacts']:
-                df_resource = pd.read_csv(self.path + table + '.csv', dtype='object')
-                if not table == 'Contacts':
-                    df_resource = df_resource[['id', 'additional organisations']]
-                else:
-                    df_resource = df_resource[['resource', 'organisation']]
-                df_resource.rename(columns={'organisation': 'id',
-                                            'id': 'resource',
-                                            'additional organisations': 'id'}, inplace=True)
-                df_resource = df_resource.dropna(axis=0)
-                df_resource.loc[:, 'is lead organisation'] = 'False'
-                df_resource = df_resource.reset_index()
-                df_merged = get_organisations(df_organisations, df_resource)
-                df_all_organisations = pd.concat([df_all_organisations, df_merged])
-            # df_all_organisations = float_to_int(df_all_organisations)  # convert float back to integer
+                    df_resource = pd.read_csv(self.path + table + '.csv', dtype='object')
+                    if table == 'Resources':
+                        df_resource = df_resource[['id', 'additional organisations']]
+                    elif table == 'Contacts':
+                        df_resource = df_resource[['resource', 'organisation']]
+                    df_resource.rename(columns={'organisation': 'id',
+                                                'id': 'resource',
+                                                'additional organisations': 'id'}, inplace=True)
+                    df_resource = df_resource.dropna(axis=0)
+                    df_resource.loc[:, 'is lead organisation'] = 'False'
+                    df_resource = df_resource.reset_index()
+                    df_merged = get_organisations(df_organisations, df_resource)
+                    df_all_organisations = pd.concat([df_all_organisations, df_merged])
             df_all_organisations = df_all_organisations.drop_duplicates(subset=['resource', 'id'], keep='first')  # keep first to get lead organisations
             df_all_organisations.to_csv(self.path + 'Organisations.csv', index=False)
 
         # get organisations for staging areas by making subsets on 'resource' for Organisations
         else:
-            if self.database_name not in ['testCohort', 'testDatasource']:
+            if self.database_name not in ['testCohort', 'testDatasource', 'testNetwork']:
                 df_organisations = pd.read_csv(CATALOGUE_SCHEMA_NAME + '_data/' + 'Organisations.csv', dtype='object')
                 df_resource = pd.read_csv(self.path + 'Resources.csv')
                 df_resource = df_resource[['id']]
