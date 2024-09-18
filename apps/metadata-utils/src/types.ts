@@ -9,7 +9,7 @@ export interface ISetting {
 
 export type HeadingType = "HEADING";
 
-export type ValueType =
+export type CellValueType =
   | "BOOL"
   | "BOOL_ARRAY"
   | "UUID"
@@ -44,7 +44,7 @@ export type ValueType =
   | "HYPERLINK"
   | "HYPERLINK_ARRAY";
 
-export type ColumnType = ValueType | HeadingType;
+export type ColumnType = CellValueType | HeadingType;
 export interface IColumn {
   columnType: ColumnType;
   id: columnId;

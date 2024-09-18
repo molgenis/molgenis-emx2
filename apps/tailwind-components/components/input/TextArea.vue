@@ -1,7 +1,10 @@
 <script setup lang="ts">
-withDefaults(
+import type { columnValue } from "../../../metadata-utils/src/types";
+
+const props = withDefaults(
   defineProps<{
     id: string;
+    label?: string;
     value?: string;
     placeholder?: string;
     disabled?: boolean;
@@ -17,9 +20,20 @@ withDefaults(
   }
 );
 
-defineEmits(["focus", "input"]);
+const emit = defineEmits(["focus", "input", "error", "update:modelValue"]);
+defineExpose({ validate });
 
 const modelValue = ref("");
+
+function validate(value: columnValue) {
+  if (props.required && value === "") {
+    emit("error", [
+      { message: `${props.label || props.id} required to complete the form` },
+    ]);
+  } else {
+    emit("error", []);
+  }
+}
 </script>
 
 <template>

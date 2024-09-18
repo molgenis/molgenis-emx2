@@ -1,13 +1,17 @@
 <script setup lang="ts">
-import type { InputString } from "#build/components";
+import type { InputString, InputTextArea } from "#build/components";
 import type {
   columnId,
   columnValue,
-  ValueType,
+  CellValueType,
 } from "../../../metadata-utils/src/types";
 
+type inputComponent =
+  | InstanceType<typeof InputString>
+  | InstanceType<typeof InputTextArea>;
+
 defineProps<{
-  type: ValueType;
+  type: CellValueType;
   id: columnId;
   label: string;
   data: columnValue;
@@ -16,12 +20,17 @@ defineProps<{
 defineEmits(["focus", "input", "error", "update:modelValue"]);
 defineExpose({ validate });
 
-const input = ref<InstanceType<typeof InputString>>();
+const input = ref<inputComponent>();
 
 function validate(value: columnValue) {
-  if (input && input.value && input.value.validate) {
-    input.value.validate(value as string);
+  if (!input.value) {
+    throw new Error("FormFieldInput is not found in dom");
   }
+  if (!input.value.validate) {
+    throw new Error("FormFieldInput Component is missing validate method");
+  }
+
+  input.value.validate(value);
 }
 </script>
 

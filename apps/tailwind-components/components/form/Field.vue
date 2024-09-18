@@ -26,9 +26,14 @@ const hasError = computed(() => props.errors.length > 0);
 const formFieldInput = ref<InstanceType<typeof FormFieldInput>>();
 
 function validate(value: columnValue) {
-  if (formFieldInput.value && formFieldInput.value.validate) {
-    formFieldInput.value.validate(value);
+  if (!formFieldInput.value) {
+    throw new Error("FormFieldInput is not found in dom");
   }
+  if (!formFieldInput.value.validate) {
+    throw new Error("FormFieldInput Component is missing validate method");
+  }
+
+  formFieldInput.value.validate(value);
 }
 </script>
 
