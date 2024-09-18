@@ -5,7 +5,6 @@ import io.javalin.Javalin;
 import io.javalin.http.Context;
 import java.io.InputStream;
 import java.net.URLConnection;
-import java.nio.charset.StandardCharsets;
 
 /**
  * to allow for nice urls, and make it easier for 'schema' app developers we include the schema in
@@ -27,53 +26,42 @@ public class StaticFileMapper {
     app.get("*/docs/<asset>", StaticFileMapper::redirectDocs);
 
     app.get("*/{app}/assets/<asset>", StaticFileMapper::redirectAssets);
-    app.get("/apps/resources/<asset>", StaticFileMapper::redirectResources);
     app.get("/apps/{app}/<asset>", StaticFileMapper::redirectResources);
 
-    app.get("*/{appname}/index.html", StaticFileMapper::returnIndexFile);
-    app.get("*/{appname}", StaticFileMapper::returnIndexFile);
+    app.get("*/{app}/index.html", StaticFileMapper::returnIndexFile);
+    app.get("*/{app}", StaticFileMapper::returnIndexFile);
   }
 
   private static void redirectResources(Context ctx) {
-    getFileFromClasspath(ctx, "/public_html" + ctx.path());
+    getFileFromClasspath(ctx, "/public_html" + ctx.path(), null);
   }
 
   private static void redirectDocs(Context ctx) {
-    getFileFromClasspath(ctx, "/public_html/apps/docs/" + ctx.pathParam("asset"));
+    getFileFromClasspath(ctx, "/public_html/apps/docs/" + ctx.pathParam("asset"), null);
   }
 
   private static void redirectAssets(Context ctx) {
     String path = "/public_html/apps/" + ctx.pathParam("app") + "/assets/" + ctx.pathParam("asset");
-    getFileFromClasspath(ctx, path);
+    getFileFromClasspath(ctx, path, null);
   }
 
   private static void returnIndexFile(Context ctx) {
     if (!ctx.path().endsWith("/")) ctx.redirect(ctx.path() + "/");
-    try {
-      InputStream in =
-          StaticFileMapper.class.getResourceAsStream(
-              "/public_html/apps/" + ctx.pathParam("appname") + "/index.html");
-
-      if (in == null) {
-        ctx.status(404).result("File not found");
-      } else {
-        String fileContent = new String(ByteStreams.toByteArray(in), StandardCharsets.UTF_8);
-        ctx.contentType("text/html").result(fileContent);
-      }
-    } catch (Exception e) {
-      ctx.status(404).result("Error: " + e.getMessage());
-    }
+    String path = "/public_html/apps/" + ctx.pathParam("app") + "/index.html";
+    getFileFromClasspath(ctx, path, "text/html");
   }
 
-  private static void getFileFromClasspath(Context ctx, String path) {
+  private static void getFileFromClasspath(Context ctx, String path, String mimeType) {
     try (InputStream in = StaticFileMapper.class.getResourceAsStream(path)) {
       if (in == null) {
         ctx.status(404).result("File not found: " + ctx.path());
         return;
       }
-      String mimeType = URLConnection.guessContentTypeFromName(ctx.path());
       if (mimeType == null) {
-        mimeType = "application/octet-stream";
+        mimeType = URLConnection.guessContentTypeFromName(ctx.path());
+        if (mimeType == null) {
+          mimeType = "application/octet-stream";
+        }
       }
       ctx.contentType(mimeType);
       ctx.result(ByteStreams.toByteArray(in));
