@@ -35,8 +35,10 @@ function validate(value: columnValue) {
 <template>
   <div class="flex flex-col gap-1">
     <div>
-      <span class="capitalize text-title font-bold">{{ column.label }}</span
-      ><span class="text-disabled ml-3" v-show="column.required">Required</span>
+      <label :for="column.id" class="capitalize text-title font-bold">{{
+        column.label
+      }}</label>
+      <span class="text-disabled ml-3" v-show="column.required">Required</span>
     </div>
     <div class="text-title" v-if="column.description">
       {{ column.description }}
@@ -48,6 +50,8 @@ function validate(value: columnValue) {
         :label="column.label"
         :data="data"
         :required="!!column.required"
+        :aria-invalid="hasError"
+        :aria-desribedBy="`${column.id}-input-error`"
         @focus="touched = true"
         @input="pristine = false"
         @update:modelValue="$emit('update:modelValue', $event)"
@@ -56,7 +60,8 @@ function validate(value: columnValue) {
       ></FormFieldInput>
       <div
         v-if="hasError"
-        class="bg-yellow-200 text-required p-3 font-bold flex items-center gap-1"
+        :id="`${column.id}-input-error`"
+        class="bg-invalid text-required p-3 font-bold flex items-center gap-1"
       >
         <BaseIcon name="info"></BaseIcon>{{ errors[0].message }}
       </div>
