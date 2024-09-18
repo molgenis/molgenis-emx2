@@ -14,7 +14,7 @@ export default gql`
     ) {
       name
       label
-      collection {
+      resource {
         id
       }
     }

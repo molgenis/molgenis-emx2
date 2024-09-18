@@ -3,16 +3,16 @@ import mappingsFragment from "~~/gql/fragments/mappings";
 export default gql`
   query Variables(
     $variableFilter:VariablesFilter,
-    $collectionsFilter:CollectionsFilter,
+    $resourcesFilter:ResourcesFilter,
     ) {
     Variables(filter: $variableFilter) {
       name
-      collection {
+      resource {
         name
       }
       dataset {
         name
-        collection {
+        resource {
           id
         }
       }
@@ -31,7 +31,7 @@ export default gql`
       }
       mappings ${moduleToString(mappingsFragment)}
     }
-    Collections(orderby: { id: ASC }, filter: $collectionsFilter) {
+    Resources(orderby: { id: ASC }, filter: $resourcesFilter) {
       id
       name
     }

@@ -9,10 +9,10 @@ export default gql`
     CollectionEvents(
       limit: $limit
       offset: $offset
-      filter: { collection: { id: { equals: [$id] } } }
+      filter: { resource: { id: { equals: [$id] } } }
       orderby: $orderby
     ) {
-      collection {
+      resource {
         id
       }
       name
@@ -34,7 +34,7 @@ export default gql`
       }
       numberOfParticipants
     }
-    CollectionEvents_agg(filter: { collection: { id: { equals: [$id] } } }) {
+    CollectionEvents_agg(filter: { resource: { id: { equals: [$id] } } }) {
       count
     }
   }

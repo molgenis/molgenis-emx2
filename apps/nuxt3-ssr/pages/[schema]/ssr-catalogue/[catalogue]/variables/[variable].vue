@@ -10,13 +10,13 @@ const scoped = route.params.catalogue !== "all";
 const catalogueRouteParam = route.params.catalogue as string;
 const { key } = useQueryParams();
 const variableFilter = buildFilterFromKeysObject(key);
-const collectionFilter = scoped
+const resourceFilter = scoped
   ? {
       _or: [
-        { collections: { equals: [{ id: catalogueRouteParam }] } },
+        { resources: { equals: [{ id: catalogueRouteParam }] } },
         {
-          collections: {
-            partOfCollections: { id: { equals: catalogueRouteParam } },
+          resources: {
+            partOfResources: { id: { equals: catalogueRouteParam } },
           },
         },
       ],
@@ -30,16 +30,14 @@ const { data, pending, error, refresh } = await useFetch(
   `/${route.params.schema}/graphql`,
   {
     method: "POST",
-    body: { query, variables: { variableFilter, collectionFilter } },
+    body: { query, variables: { variableFilter, resourceFilter } },
   }
 );
 
 const variable = computed(
   () => data.value.data.Variables[0] as VariableDetailsWithMapping
 );
-const collections = computed(
-  () => data.value.data.Collections as { id: string }[]
-);
+const resources = computed(() => data.value.data.Resources as { id: string }[]);
 const isRepeating = computed(() => variable.value.repeatUnit?.name);
 
 let crumbs: any = {};
@@ -50,15 +48,15 @@ crumbs[
   "variables"
 ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/variables`;
 
-const collectionsWithMapping = computed(() => {
-  if (!collections.value) return [];
-  return collections.value
-    .map((collection) => {
+const resourcesWithMapping = computed(() => {
+  if (!resources.value) return [];
+  return resources.value
+    .map((resource) => {
       const status = calcIndividualVariableHarmonisationStatus(variable.value, [
-        collection,
+        resource,
       ])[0];
       return {
-        collection,
+        resource,
         status,
       };
     })
@@ -71,14 +69,14 @@ const collectionsWithMapping = computed(() => {
 
 let tocItems = reactive([{ label: "Description", id: "description" }]);
 
-if (collectionsWithMapping.value.length > 0) {
+if (resourcesWithMapping.value.length > 0) {
   tocItems.push({
     label: "Harmonisation status per data source",
-    id: "harmonisation-per-collection",
+    id: "harmonisation-per-source",
   });
   tocItems.push({
     label: "Harmonisation details per data source",
-    id: "harmonisation-details-per-collection",
+    id: "harmonisation-details-per-source",
   });
 } else {
   tocItems.push({
@@ -140,9 +138,9 @@ useHead({ title: titlePrefix + variable.value.name });
         </ContentBlock>
 
         <ContentBlock
-          v-if="collectionsWithMapping.length > 0"
-          id="harmonisation-per-collection"
-          title="Harmonisation status per Data source"
+          v-if="resourcesWithMapping.length > 0"
+          id="harmonisation-per-source"
+          title="Harmonisation status per data source"
         >
           <HarmonisationGridPerVariable
             v-if="isRepeating"
@@ -152,10 +150,10 @@ useHead({ title: titlePrefix + variable.value.name });
         </ContentBlock>
 
         <ContentBlock
-          v-if="collectionsWithMapping.length > 0"
+          v-if="resourcesWithMapping.length > 0"
           id="harmonisation-details-per-cohort"
-          title="Harmonisation details per Collection"
-          description="Select a Cohort to see the details of the harmonisation"
+          title="Harmonisation details per data source"
+          description="Select a data source to see the details of the harmonisation"
         >
           <HarmonisationVariableDetails :variable="variable" />
         </ContentBlock>
