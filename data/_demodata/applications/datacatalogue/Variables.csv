@@ -2215,7 +2215,7 @@ ATHLETE,outcome_ath,z_weight_,Repeated measures of child's weight z-score calcul
 testNetwork1,cdm_1,testVarLang,test variable with keyword language,,,,,integer,,,,,,,,Language,,,False,,,,,
 testNetwork1,cdm_1,testVarLang3Vir,test variable with keywords Language and Virology,,,,,integer,,,,,,,,"Language,Virology",,,False,,,,,
 testNetwork1,cdm_1,testVarVir,test variable with keyword Virology,,,,,integer,,,,,,,,Virology,,,False,,,,,
-testNetwork1,cdm_1,testVarRepeats_,test variable with repeats,,,,,continuous,pmol/L,,,,,,,ADHD symptoms,,,True,Trimester,0,3,,
+testNetwork1,cdm_1,testVarRepeats_,test variable with repeats,,,,,continuous,pmol/L,,,,,,,ADHD symptoms,,,True,Year,0,10,,
 testNetwork1,cdm_1,testVarRep-with-looong-name_,"test variable with repeats, a long name to test bubble split over 2 lines, and no keywords or mappings",,,,,integer,,,,,,,,,,,True,Trimester,0,3,,
 testNetwork1,cdm_1,testVarCategorical_,categorical test variable,,,,,categorical,,,,,,,,Language,,,True,,0,,,
 testNetwork1,cdm_1,testVarNoRepeats,test variable without repeats,,,,,integer,,,,,,,,"ADHD symptoms,Language",,,False,,,,,
