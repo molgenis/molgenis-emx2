@@ -98,9 +98,9 @@ if SERVER_TYPE in ['data_catalogue', 'cohort_catalogue']:
         print('Transform data from ' + cohort)
         zip_handling = Zip(cohort)
         if SERVER_TYPE == 'data_catalogue':
-            update = Transform(cohort, 'cohort')
+            update = Transform(database_name=cohort, database_type='cohort')
         elif SERVER_TYPE == 'cohort_catalogue':
-            update = Transform(cohort, 'cohort_UMCG')
+            update = Transform(database_name=cohort, database_type='cohort_UMCG')
 
         zip_handling.remove_unzipped_data()
         zip_handling.unzip_data()
