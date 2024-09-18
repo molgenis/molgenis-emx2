@@ -1,8 +1,0 @@
-tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,visible
-Collection DAPs,,,,,,,,,,,,Data access provider relationship where an institution can provide access to (parts of) a resource,"DataCatalogueFlat,RWEStaging",
-Collection DAPs,,collection,ref,1,true,,Collections,,,,,Resource that is access or has experience with provided to,"DataCatalogueFlat,RWEStaging",
-Collection DAPs,,organisation,ontology,1,true,CatalogueOntologies,Organisations,,,,,Institution that provides access,"DataCatalogueFlat,RWEStaging",
-Collection DAPs,,is data access provider,ontology_array,,,CatalogueOntologies,DAP information,,,,,"Description of population subset, data access levels, completeness, reason for access","DataCatalogueFlat,RWEStaging",
-Collection DAPs,,reason access other,text,,,,,,,,,"If reason access is 'other', reason for being able to access (an extract of) the data source","DataCatalogueFlat,RWEStaging",
-Collection DAPs,,population subset other,text,,,,,,,,,"If 'other' is selected above, describe the subset that can be accessed","DataCatalogueFlat,RWEStaging",
-Collection DAPs,,process time,int,,,,,,,,,"On average, how many DAYS does it take for approval/access to be obtained following an application for data access?","DataCatalogueFlat,RWEStaging",

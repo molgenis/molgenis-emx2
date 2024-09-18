@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import type { ICollection, IMgError } from "~/interfaces/types";
+import type { IResource, IMgError } from "~/interfaces/types";
 const config = useRuntimeConfig();
 const route = useRoute();
 const query = `
-  query Collections($id: String) {
-    Collections(filter: { id: { equals: [$id] } }) {
+  query Resources($id: String) {
+    Resources(filter: { id: { equals: [$id] } }) {
       acronym
       name
       website
@@ -19,7 +19,7 @@ const query = `
 
 interface IResponse {
   data: {
-    Collections: ICollection[];
+    Resources: IResources[];
   };
 }
 
@@ -34,7 +34,7 @@ const { data, error } = await useFetch<IResponse, IMgError>(
 );
 
 const network = computed(() => {
-  return data.value?.data.Collections[0];
+  return data.value?.data.Resources[0];
 });
 
 let crumbs: Record<string, string> = {};

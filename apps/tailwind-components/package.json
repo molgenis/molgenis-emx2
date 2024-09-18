@@ -20,7 +20,7 @@
   "dependencies": {
     "consola": "3.2.3",
     "floating-vue": "5.2.2",
-    "vue": "3.4.37",
+    "vue": "3.5.6",
     "vue-router": "4.4.3"
   },
   "devDependencies": {
