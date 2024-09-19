@@ -45,11 +45,11 @@ public class CsvApi {
     app.delete(tablePath, CsvApi::tableDelete);
   }
 
-  private static String discardMetadata(Context ctx) {
+  private static void discardMetadata(Context ctx) {
     SchemaMetadata schema = Emx2.fromRowList(getRowList(ctx));
     getSchema(ctx).discard(schema);
-    ctx.res().setStatus(200);
-    return "remove metadata items success";
+    ctx.status(200);
+    ctx.result("remove metadata items success");
   }
 
   static void mergeMetadata(Context ctx) {
@@ -84,7 +84,7 @@ public class CsvApi {
         Emx2.toRowList(schema.getMetadata()),
         getHeaders(schema.getMetadata()),
         writer,
-        getSeperator(ctx));
+        getSeparator(ctx));
     ctx.contentType(ACCEPT_CSV);
     String date = new SimpleDateFormat("yyyyMMddHHmm").format(new Date());
     ctx.header(
@@ -96,18 +96,19 @@ public class CsvApi {
 
   private static void tableRetrieve(Context ctx) throws IOException {
     Table table = MolgenisWebservice.getTableByIdOrName(ctx);
-    TableStoreForCsvInMemory store = new TableStoreForCsvInMemory(getSeperator(ctx));
+    TableStoreForCsvInMemory store = new TableStoreForCsvInMemory(getSeparator(ctx));
     store.writeTable(table.getName(), getDownloadColumns(ctx, table), getDownloadRows(ctx, table));
     ctx.contentType(ACCEPT_CSV);
     ctx.header("Content-Disposition", "attachment; filename=\"" + table.getName() + ".csv\"");
     ctx.status(200);
+    ctx.res().setCharacterEncoding("UTF-8");
     ctx.result(store.getCsvString(table.getName()));
   }
 
   public static List<String> getDownloadColumns(Context ctx, Table table) {
     boolean includeSystem = includeSystemColumns(ctx);
     return table.getMetadata().getDownloadColumnNames().stream()
-        .map(column -> column.getName())
+        .map(Column::getName)
         .filter(name -> !name.startsWith("mg_") || includeSystem)
         .toList();
   }
@@ -145,8 +146,8 @@ public class CsvApi {
     ctx.result(String.valueOf(count));
   }
 
-  private static Character getSeperator(Context ctx) {
-    Character separator = ',';
+  private static Character getSeparator(Context ctx) {
+    char separator = ',';
     if ("TAB".equals(ctx.queryParam("separator"))) {
       separator = '\t';
     }

@@ -144,7 +144,7 @@ public class GraphqlApi {
         ctx.attribute(
             "org.eclipse.jetty.multipartConfig",
             new MultipartConfigElement(tempFile.getAbsolutePath()));
-        query = ctx.queryParam(QUERY);
+        query = ctx.formParam(QUERY);
       } else {
         ObjectNode node = new ObjectMapper().readValue(ctx.body(), ObjectNode.class);
         query = node.get(QUERY).asText();
@@ -164,8 +164,8 @@ public class GraphqlApi {
     if (HandlerType.POST.equals(ctx.method())) {
       try {
         if (ctx.header("Content-Type").startsWith("multipart/form-data")) {
-          Map<String, Object> variables =
-              new ObjectMapper().readValue(ctx.queryParam(VARIABLES), Map.class);
+          String variableString = ctx.formParam(VARIABLES);
+          Map<String, Object> variables = new ObjectMapper().readValue(variableString, Map.class);
           // now replace each part id with the part
           putPartsIntoMap(
               variables,

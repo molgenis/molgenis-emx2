@@ -26,32 +26,38 @@ public class StaticFileMapper {
     app.get("*/docs/<asset>", StaticFileMapper::redirectDocs);
 
     app.get("*/{app}/assets/<asset>", StaticFileMapper::redirectAssets);
+    app.get("*/{app}/img/<asset>", StaticFileMapper::redirectImg);
     app.get("/apps/{app}/<asset>", StaticFileMapper::redirectResources);
 
     app.get("*/{app}/index.html", StaticFileMapper::returnIndexFile);
     app.get("*/{app}", StaticFileMapper::returnIndexFile);
   }
 
+  private static void redirectImg(Context ctx) {
+    String path = "/public_html/apps/" + ctx.pathParam("app") + "/img/" + ctx.pathParam("asset");
+    addFileToContext(ctx, path, null);
+  }
+
   private static void redirectResources(Context ctx) {
-    getFileFromClasspath(ctx, "/public_html" + ctx.path(), null);
+    addFileToContext(ctx, "/public_html" + ctx.path(), null);
   }
 
   private static void redirectDocs(Context ctx) {
-    getFileFromClasspath(ctx, "/public_html/apps/docs/" + ctx.pathParam("asset"), null);
+    addFileToContext(ctx, "/public_html/apps/docs/" + ctx.pathParam("asset"), null);
   }
 
   private static void redirectAssets(Context ctx) {
     String path = "/public_html/apps/" + ctx.pathParam("app") + "/assets/" + ctx.pathParam("asset");
-    getFileFromClasspath(ctx, path, null);
+    addFileToContext(ctx, path, null);
   }
 
   private static void returnIndexFile(Context ctx) {
     if (!ctx.path().endsWith("/")) ctx.redirect(ctx.path() + "/");
     String path = "/public_html/apps/" + ctx.pathParam("app") + "/index.html";
-    getFileFromClasspath(ctx, path, "text/html");
+    addFileToContext(ctx, path, "text/html");
   }
 
-  private static void getFileFromClasspath(Context ctx, String path, String mimeType) {
+  private static void addFileToContext(Context ctx, String path, String mimeType) {
     try (InputStream in = StaticFileMapper.class.getResourceAsStream(path)) {
       if (in == null) {
         ctx.status(404).result("File not found: " + ctx.path());

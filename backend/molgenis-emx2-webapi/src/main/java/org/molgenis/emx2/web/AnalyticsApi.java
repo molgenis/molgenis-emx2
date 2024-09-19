@@ -31,7 +31,6 @@ public class AnalyticsApi {
 
     new TriggerRepositoryImpl(new SqlDatabase(false));
 
-    // todo: Add the jsonTransformer
     app.post("/{schema}/api/trigger", AnalyticsApi::addTrigger);
     app.get("/{schema}/api/trigger", AnalyticsApi::listSchemaTriggers);
     app.delete("/{schema}/api/trigger/" + TRIGGER_PARAM, AnalyticsApi::deleteTrigger);
