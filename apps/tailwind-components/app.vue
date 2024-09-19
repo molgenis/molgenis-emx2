@@ -18,15 +18,18 @@ useHead({
 });
 
 const isExpanded = ref<boolean>(false);
-const isFocusLayout = ref<boolean>(false)
+const isFocusLayout = ref<boolean>(false);
 
-watch(isFocusLayout, (value) => {
-  if (value) {
-    setPageLayout('focus')
+function toggleLayout () {
+  if(isFocusLayout.value) {
+    isFocusLayout.value = false;
+    setPageLayout('default');
+    
   } else {
-    setPageLayout('default')
+    isFocusLayout.value = true;
+    setPageLayout('focus');
   }
-})
+}
 
 </script>
 
@@ -39,7 +42,7 @@ watch(isFocusLayout, (value) => {
           class="w-28" />
         <span class="sr-only">Home</span>
       </NuxtLink>
-      <Button type="outline" size="small" @click="isFocusLayout = !isFocusLayout">{{ isFocusLayout ? "show side": "focus"}}</Button>
+      <Button type="outline" size="small" @click="toggleLayout">{{ isFocusLayout ? "show side": "focus"}}</Button>
     </div>
     
     <div class="w-[150px] relative">
