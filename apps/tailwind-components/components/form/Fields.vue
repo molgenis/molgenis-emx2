@@ -8,7 +8,7 @@ import type {
 } from "../../../metadata-utils/src/types";
 
 const props = defineProps<{
-  metaData: ITableMetaData;
+  metadata: ITableMetaData;
   data: Record<columnId, columnValue>[];
 }>();
 
@@ -23,7 +23,7 @@ interface IChapter {
 }
 
 const chapters = computed(() => {
-  return props.metaData.columns.reduce((acc, column) => {
+  return props.metadata.columns.reduce((acc, column) => {
     if (column.columnType === "HEADING") {
       acc.push({
         title: column.id,
@@ -43,11 +43,11 @@ const chapters = computed(() => {
 });
 
 const dataMap = reactive(
-  Object.fromEntries(props.metaData.columns.map((column) => [column.id, ""]))
+  Object.fromEntries(props.metadata.columns.map((column) => [column.id, ""]))
 );
 
 const errorMap = reactive(
-  Object.fromEntries(props.metaData.columns.map((column) => [column.id, []]))
+  Object.fromEntries(props.metadata.columns.map((column) => [column.id, []]))
 );
 
 const numberOffFieldsWithErrors = computed(() =>
@@ -55,17 +55,17 @@ const numberOffFieldsWithErrors = computed(() =>
 );
 
 const numberOfRequiredFields = computed(
-  () => props.metaData.columns.filter((column) => column.required).length
+  () => props.metadata.columns.filter((column) => column.required).length
 );
 
 const numberOfRequiredFieldsWithData = computed(
   () =>
-    props.metaData.columns.filter(
+    props.metadata.columns.filter(
       (column) => column.required && dataMap[column.id]
     ).length
 );
 
-const recordLabel = computed(() => props.metaData.label);
+const recordLabel = computed(() => props.metadata.label);
 
 const formFields = ref<InstanceType<typeof FormField>[]>([]);
 

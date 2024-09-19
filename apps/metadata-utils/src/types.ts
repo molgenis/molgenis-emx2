@@ -7,7 +7,7 @@ export interface ISetting {
   value: string;
 }
 
-export type HeadingType = "HEADING";
+type HeadingType = "HEADING";
 
 export type CellValueType =
   | "BOOL"
@@ -94,4 +94,8 @@ export interface IFieldError {
 }
 
 export type columnId = string;
-export type columnValue = string | number | boolean | Object;
+export type columnValue = string | number | boolean | columnValueObject;
+
+interface columnValueObject {
+    [x: string]: columnValue;
+}

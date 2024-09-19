@@ -5,7 +5,7 @@ const props = withDefaults(
   defineProps<{
     id: string;
     label?: string;
-    value?: string;
+    modelValue?: string;
     placeholder?: string;
     disabled?: boolean;
     required?: boolean;
@@ -45,6 +45,7 @@ function onInput(event: Event) {
     :id="id"
     :required="required"
     :placeholder="placeholder"
+    :disabled="disabled"
     class="w-full pr-4 font-sans text-black text-gray-300 outline-none rounded-search-input h-10 ring-red-500 pl-3 shadow-search-input focus:shadow-search-input hover:shadow-search-input search-input-mobile border"
     :class="{
       'border-invalid text-invalid': hasError,
@@ -52,9 +53,9 @@ function onInput(event: Event) {
       'border-disabled text-disabled bg-disabled': disabled,
       'bg-white': !disabled,
     }"
-    :value="value"
+    :value="modelValue"
     @input="onInput"
     @focus="$emit('focus')"
-    @blur="validate(value || '')"
+    @blur="validate(modelValue || '')"
   />
 </template>

@@ -29,7 +29,7 @@ const tableMeta = computed(
     ) as ITableMetaData
 );
 
-function reFetch() {
+function refetch() {
   refetchMetadata();
 }
 
@@ -43,7 +43,7 @@ const formFields = ref<InstanceType<typeof FormFields>>();
 
   <div class="p-4 border-2 mb-2">
     <select
-      @change="reFetch()"
+      @change="refetch()"
       v-model="sampleType"
       class="border-1 border-black"
     >
@@ -65,7 +65,7 @@ const formFields = ref<InstanceType<typeof FormFields>>();
   <FormFields
     v-if="tableMeta && status == 'success'"
     class="p-8"
-    :meta-data="tableMeta"
+    :metadata="tableMeta"
     :data="data"
     ref="formFields"
   ></FormFields>
