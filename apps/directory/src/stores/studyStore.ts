@@ -24,14 +24,12 @@ export const useStudyStore = defineStore("studyStore", () => {
   }
 
   async function getStudyReport(id: string) {
-    console.log(getStudyColumns());
     const studyReportQuery = new QueryEMX2(graphqlEndpoint)
       .table("Studies")
       .select(getStudyColumns())
       .orderBy("Studies", "id", "asc")
       .where("id")
       .like(id);
-    console.log(studyReportQuery);
     const reportResults = await studyReportQuery.execute();
 
     return reportResults;
