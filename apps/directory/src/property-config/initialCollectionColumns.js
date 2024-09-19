@@ -79,11 +79,6 @@ const initialCollectionColumns = [
     type: "array",
   },
   {
-    label: "Study:",
-    column: { study: ["id", "title"] },
-    type: "object",
-  },
-  {
     column: [
       "name",
       "size",
@@ -112,6 +107,8 @@ const initialCollectionColumns = [
       "sub_collections.withdrawn",
       "collaboration_commercial",
       "collaboration_non_for_profit",
+      "study.id",
+      "study.title",
       ...ContactInfoColumns,
       ...HeadInfoColumns,
     ],
