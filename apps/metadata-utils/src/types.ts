@@ -97,5 +97,5 @@ export type columnId = string;
 export type columnValue = string | number | boolean | columnValueObject;
 
 interface columnValueObject {
-    [x: string]: columnValue;
+  [x: string]: columnValue;
 }
