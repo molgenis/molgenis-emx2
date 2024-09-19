@@ -25,7 +25,7 @@ class Runner:
     on the source and target servers.
     """
 
-    def __init__(self, source: Client, target: Client, pattern = None):
+    def __init__(self, source: Client, target: Client, pattern = None, _debug: bool = False):
         """Initializes the object."""
 
         # Set the source and target Clients
@@ -36,13 +36,14 @@ class Runner:
         self.server_type = config('MG_SERVER_TYPE')
         self.catalogue = config('MG_CATALOGUE_SCHEMA_NAME')
 
-        # Set resource type names
-        stagings_by_type = self.gather_staging_types()
-        self.cohorts = stagings_by_type.get('cohorts')
-        self.data_sources = stagings_by_type.get('datasources')
-        self.networks = stagings_by_type.get('networks')
-        self.catalogues = stagings_by_type.get('catalogues')
-        self.shared_stagings = stagings_by_type.get('shared')
+        if not _debug:
+            # Set resource type names
+            stagings_by_type = self.gather_staging_types()
+            self.cohorts = stagings_by_type.get('cohorts')
+            self.data_sources = stagings_by_type.get('datasources')
+            self.networks = stagings_by_type.get('networks')
+            self.catalogues = stagings_by_type.get('catalogues')
+            self.shared_stagings = stagings_by_type.get('shared')
 
         # Set the pattern
         if pattern is not None:
@@ -102,12 +103,20 @@ class Runner:
                 'catalogues': catalogues, 'shared': shared_stagings}
 
 
-    async def update_catalogue(self, transform_only: bool = False):
+    async def update_catalogue(self):
         """
         Updates the data model and data in the catalogue schema.
         """
         logging.info(f"Starting update on {self.catalogue!r}")
-        await self._update_schema(name=self.catalogue, database_type='catalogue', transform_only=transform_only)
+        await self._update_schema(name=self.catalogue, database_type='catalogue')
+
+    async def unpack_catalogue(self):
+        """
+        Exports the catalogue zip and performs the updates without uploading the data.
+        """
+        logging.info(f"Unpacking {self.catalogue!r} data and performing data updates.")
+        await self._update_schema(name=self.catalogue, database_type='catalogue', transform_only=True)
+
 
 
     async def update_cohorts(self):
@@ -214,7 +223,7 @@ async def main(pattern = None):
           Client(url=target_server, token=target_token) as target):
 
         # Set up the Runner
-        runner = Runner(source, target, pattern=pattern)
+        runner = Runner(source, target, pattern=pattern, _debug=False)
         logging.info(f"Updating schemas on {runner.target.url!r}")
 
         if not runner.has_latest_ontologies():
@@ -232,7 +241,7 @@ async def main(pattern = None):
         await runner.update_catalogue_organisations()
 
         # Unpack and transform the catalogue data without uploading
-        await runner.update_catalogue(transform_only=True)
+        await runner.unpack_catalogue()
 
         # Update the cohorts
         await runner.update_cohorts()
@@ -242,7 +251,7 @@ async def main(pattern = None):
             await runner.update_networks()
 
         # Update the catalogue
-        await runner.update_catalogue(transform_only=False)
+        await runner.update_catalogue()
 
     # Clean up
     shutil.rmtree(FILES_DIR)
