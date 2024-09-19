@@ -12,7 +12,7 @@ const props = defineProps<{
   errors: IFieldError[];
 }>();
 
-defineEmits(["error", "update:modelValue"]);
+defineEmits(["error", "update:modelValue", "blur"]);
 defineExpose({ validate, id: props.column.id });
 
 const pristine = ref(true);
@@ -61,6 +61,7 @@ function validate(value: columnValue) {
         @input="pristine = false"
         @update:modelValue="$emit('update:modelValue', $event)"
         @error="$emit('error', $event)"
+        @blur="$emit('blur')"
         ref="formFieldInput"
       ></FormFieldInput>
       <div

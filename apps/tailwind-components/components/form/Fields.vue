@@ -98,6 +98,7 @@ defineExpose({ validate });
           :errors="errorMap[column.id]"
           @update:modelValue="dataMap[column.id] = $event"
           @error="errorMap[column.id] = $event"
+          @blur="validate"
           ref="formFields"
         ></FormField>
       </div>

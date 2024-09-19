@@ -20,7 +20,7 @@ const props = withDefaults(
   }
 );
 
-const emit = defineEmits(["focus", "error", "update:modelValue"]);
+const emit = defineEmits(["focus", "blur", "error", "update:modelValue"]);
 defineExpose({ validate });
 
 function validate(value: columnValue) {
@@ -56,6 +56,6 @@ function onInput(event: Event) {
     :value="modelValue"
     @input="onInput"
     @focus="$emit('focus')"
-    @blur="validate(modelValue || '')"
+    @blur="$emit('blur')"
   />
 </template>
