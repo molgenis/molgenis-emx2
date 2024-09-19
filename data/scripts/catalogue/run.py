@@ -1,18 +1,21 @@
 import asyncio
 import logging
-import os
 import shutil
 from pathlib import Path
 from zipfile import ZipFile
 
+import tqdm
 from decouple import config
-
 from molgenis_emx2_pyclient import Client
-
 from molgenis_emx2_pyclient.metadata import Schema
+from tqdm.contrib.logging import logging_redirect_tqdm
+
 from update.update_4_x import Transform
 
 FILES_DIR = Path(__file__).parent.joinpath('files').resolve()
+
+SHAREDSTAGING = 'SharedStaging'
+ORGANISATIONS = 'Organisations'
 
 
 class Runner:
@@ -47,6 +50,9 @@ class Runner:
         else:
             self.pattern = '_'
 
+    def __repr__(self):
+        return f"Runner(source={self.source!r}, target={self.target!r}, pattern={self.pattern!r})"
+
     def has_latest_ontologies(self) -> bool:
         """Checks if the target server has the latest CatalogueOntologies."""
         new_ontologies = ['Clinical study types', 'Cohort collection types']
@@ -63,32 +69,34 @@ class Runner:
         catalogues = []
         shared_stagings = []
 
-        for schema in schemas:
-            metadata: Schema = self.source.get_schema_metadata(schema)
-            try:
-                table_names = [t.name for t in metadata.tables]
-            except AttributeError:
-                logging.warning(f"Could not find tables in schema {schema!r}.")
-                continue
-            if 'Cohorts' in table_names and 'Networks' not in table_names:
-                cohort_stagings.append(schema)
-            elif ('Data sources' in table_names
-                    and 'Networks' not in table_names
-                    and 'Cohorts' not in table_names):
-                datasource_stagings.append(schema)
-            elif ('Networks' in table_names
-                    and 'Cohorts' not in table_names
-                    and 'Data sources' not in table_names):
-                networks_stagings.append(schema)
-            elif ('Networks' in table_names
-                    and 'Cohorts' in table_names
-                    and 'Data sources' in table_names):
-                catalogues.append(schema)
-            elif ('Organisations' in table_names
-                  and 'Cohorts' not in table_names):
-                shared_stagings.append(schema)
-            else:
-                logging.warning(f"Schema {schema!r} does not fit the models.")
+        with logging_redirect_tqdm():
+            logging.info("Checking schema data models.")
+            for schema in tqdm.tqdm(schemas):
+                metadata: Schema = self.source.get_schema_metadata(schema)
+                try:
+                    table_names = [t.name for t in metadata.tables]
+                except AttributeError:
+                    logging.warning(f"Could not find tables in schema {schema!r}.")
+                    continue
+                if 'Cohorts' in table_names and 'Networks' not in table_names:
+                    cohort_stagings.append(schema)
+                elif ('Data sources' in table_names
+                        and 'Networks' not in table_names
+                        and 'Cohorts' not in table_names):
+                    datasource_stagings.append(schema)
+                elif ('Networks' in table_names
+                        and 'Cohorts' not in table_names
+                        and 'Data sources' not in table_names):
+                    networks_stagings.append(schema)
+                elif ('Networks' in table_names
+                        and 'Cohorts' in table_names
+                        and 'Data sources' in table_names):
+                    catalogues.append(schema)
+                elif (ORGANISATIONS in table_names
+                      and 'Cohorts' not in table_names):
+                    shared_stagings.append(schema)
+                else:
+                    logging.warning(f"Schema {schema!r} does not fit the models.")
 
         return {'cohorts': cohort_stagings, 'datasources': datasource_stagings, 'networks': networks_stagings,
                 'catalogues': catalogues, 'shared': shared_stagings}
@@ -105,24 +113,45 @@ class Runner:
     async def update_cohorts(self):
         """Updates the cohort schemas on a server."""
         logging.info(f"Cohorts to update: {', '.join(self.cohorts)}")
-        for cohort in self.cohorts:
-            logging.info(f"Updating cohort staging area {cohort!r}")
-            database_type = 'cohort_UMCG' if self.server_type == 'cohort_catalogue' else 'cohort'
-            await self._update_schema(cohort, database_type=database_type)
+        with logging_redirect_tqdm():
+            for cohort in tqdm.tqdm(self.cohorts):
+                logging.info(f"Updating cohort staging area {cohort!r}")
+                database_type = 'cohort_UMCG' if self.server_type == 'cohort_catalogue' else 'cohort'
+                await self._update_schema(cohort, database_type=database_type)
 
     async def update_data_sources(self):
         """Updates the data sources on a schema."""
         logging.info(f"Data sources to update: {', '.join(self.data_sources)}")
-        for ds in self.data_sources:
-            logging.info(f"Updating data source staging area {ds!r}")
-            await self._update_schema(name=ds, database_type='data_source')
+        with logging_redirect_tqdm():
+            for ds in tqdm.tqdm(self.data_sources):
+                logging.info(f"Updating data source staging area {ds!r}")
+                await self._update_schema(name=ds, database_type='data_source')
 
     async def update_networks(self):
         """Updates the networks on a schema."""
         logging.info(f"Networks to update: {', '.join(self.networks)}")
-        for network in self.networks:
-            logging.info(f"Updating networks staging area {network!r}")
-            await self._update_schema(name=network, database_type='network')
+        with logging_redirect_tqdm():
+            for network in tqdm.tqdm(self.networks):
+                logging.info(f"Updating networks staging area {network!r}")
+                await self._update_schema(name=network, database_type='network')
+
+    async def update_catalogue_organisations(self):
+        """Adds missing Organisation records from SharedStaging to catalogue schema."""
+
+        # Skip if schema has no 'SharedStaging' schema
+        if SHAREDSTAGING not in self.source.schema_names:
+            return
+        catalogue_orgs = self.source.get(table=ORGANISATIONS, schema=self.catalogue, as_df=True)
+        shared_orgs = self.source.get(table=ORGANISATIONS, schema=SHAREDSTAGING, as_df=True)
+        # Identify the missing organisations
+        missing_orgs = shared_orgs.loc[~shared_orgs['name'].isin(catalogue_orgs['name'])]
+
+        if (len_orgs := len(missing_orgs.index)) == 0:
+            return
+        # Upload the missing organisations the catalogue's Organisations table
+        logging.info(f"Adding {len_orgs} missing organisations to {self.catalogue}::Organisations")
+        self.source.save_schema(name=self.catalogue, table=ORGANISATIONS, data=missing_orgs)
+
 
     async def _update_schema(self, name: str, database_type: str, transform_only: bool = False):
         """Updates a resource staging area. Specify the name and the type of the database."""
@@ -198,6 +227,9 @@ async def main(pattern = None):
             delete_dummy = asyncio.create_task(runner.target.delete_schema('_dummy'))
 
             await delete_dummy
+
+        # Add organisations missing in catalogue from SharedStaging
+        await runner.update_catalogue_organisations()
 
         # Unpack and transform the catalogue data without uploading
         await runner.update_catalogue(transform_only=True)
