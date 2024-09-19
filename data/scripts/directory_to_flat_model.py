@@ -4,6 +4,8 @@ Script to convert the BBMRI-ERIC directory data to the flat model
 
 import argparse
 import molgenis_emx2_pyclient
+import pandas as pd
+import numpy as np
 
 
 def map_persons_to_contacts(persons):
@@ -36,11 +38,20 @@ def map_persons_to_contacts(persons):
 
 def map_collections_to_collections(collections):
     """Maps the BBMRI-ERIC Collections table to the flat data model's Collections table"""
+    # Rename and create columns
     collections.rename(columns={'url': 'website'}, inplace=True)
+    collections['collections'] = ''
     # Create a unique name
     collections['name'] = collections['name'] + ' ' + collections['biobank'] + \
         ' (' + collections['id'] + ')'
-
+    # Add collection-to-subcollection links
+    collections.index = collections['id']
+    for idx, row in collections.iterrows():
+        p_c = row['parent_collection']
+        if p_c:
+            if collections.loc[p_c, 'collections'] != '':
+                collections.loc[p_c, 'collections'] += ','
+            collections.loc[p_c, 'collections'] += idx
     return collections
 
 
@@ -67,21 +78,25 @@ def main():
             if args.target_password:
                 cat_client.signin('admin', args.target_password)
             cat_client.set_schema('catalogue-demo-hsl')
-            # Map persons to contacts and upload
+            # Map persons to contacts
             persons = client.get('Persons', as_df=True)
             mapped_contacts = map_persons_to_contacts(
                 persons.copy())  # Unnecessary copy?
             mapped_contacts = mapped_contacts.reindex(columns=['collection', 'role', 'role description', 'display name', 'first name',
                                                                'last name', 'prefix', 'initials', 'title', 'organisation', 'email',
                                                                'orcid', 'homepage', 'photo', 'photo_filename', 'expertise'])
-            cat_client.save_schema(
-                table='Collection contacts', data=mapped_contacts)
-            # Map collections to collections and upload
+            # Map collections to collections
             collections = client.get('Collections', as_df=True)
             mapped_collections = map_collections_to_collections(
                 collections.copy())  # Unnecessary copy?
             mapped_collections = mapped_collections.reindex(
-                columns=['id', 'name', 'acronym', 'description', 'website'])
+                columns=['id', 'name', 'acronym', 'description', 'website', 'collections'])
+            # Mappings involving multiple tables
+            # TODO: add role for 'contact's in collections (also for 'head's?)
+            # TODO: Link contacts and collections
+            # Upload mapped tables
+            cat_client.save_schema(
+                table='Collection contacts', data=mapped_contacts)
             cat_client.save_schema(table='Collections',
                                    data=mapped_collections)
 
