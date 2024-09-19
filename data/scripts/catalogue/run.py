@@ -34,31 +34,18 @@ class Runner:
         self.catalogue = config('MG_CATALOGUE_SCHEMA_NAME')
 
         # Set resource type names
-        self.cohorts, self.data_sources, self.networks = self._prepare_resource_names(self.server_type)
-        self.cohorts = self.gather_cohorts_stagings()
+        stagings_by_type = self.gather_staging_types()
+        self.cohorts = stagings_by_type.get('cohorts')
+        self.data_sources = stagings_by_type.get('datasources')
+        self.networks = stagings_by_type.get('networks')
+        self.catalogues = stagings_by_type.get('catalogues')
+        self.shared_stagings = stagings_by_type.get('shared')
 
         # Set the pattern
         if pattern is not None:
             self.pattern = pattern
         else:
             self.pattern = '_'
-
-    @staticmethod
-    def _prepare_resource_names(server_type):
-        match server_type:
-            case 'data_catalogue':
-                cohorts = config('MG_COHORTS', cast=lambda v: [s.strip() for s in v.split(',')])
-                data_sources = config('MG_DATA_SOURCES', cast=lambda v: [s.strip() for s in v.split(',')])
-                networks = config('MG_NETWORKS', cast=lambda v: [s.strip() for s in v.split(',')])
-            case 'cohort_catalogue':
-                cohorts = config('MG_COHORTS', cast=lambda v: [s.strip() for s in v.split(',')])
-                data_sources = None
-                networks = None
-            case _:
-                cohorts = None
-                data_sources = None
-                networks = None
-        return cohorts, data_sources, networks
 
     def has_latest_ontologies(self) -> bool:
         """Checks if the target server has the latest CatalogueOntologies."""
@@ -67,19 +54,44 @@ class Runner:
 
         return all(new_ont in [table.name for table in server_ontologies] for new_ont in new_ontologies)
 
-    def gather_cohorts_stagings(self) -> list[str]:
-        """Gather the names of staging areas with the 'CohortsStaging' data model."""
+    def gather_staging_types(self) -> dict[str, list[str]]:
+        """Gathers the names of staging areas with the 'CohortsStaging' data model."""
         schemas = self.source.schema_names
         cohort_stagings = []
+        datasource_stagings = []
+        networks_stagings = []
+        catalogues = []
+        shared_stagings = []
+
         for schema in schemas:
             metadata: Schema = self.source.get_schema_metadata(schema)
             try:
-                table_names = map(lambda t: t.name, metadata.tables)
+                table_names = [t.name for t in metadata.tables]
             except AttributeError:
+                logging.warning(f"Could not find tables in schema {schema!r}.")
                 continue
             if 'Cohorts' in table_names and 'Networks' not in table_names:
                 cohort_stagings.append(schema)
-        return cohort_stagings
+            elif ('Data sources' in table_names
+                    and 'Networks' not in table_names
+                    and 'Cohorts' not in table_names):
+                datasource_stagings.append(schema)
+            elif ('Networks' in table_names
+                    and 'Cohorts' not in table_names
+                    and 'Data sources' not in table_names):
+                networks_stagings.append(schema)
+            elif ('Networks' in table_names
+                    and 'Cohorts' in table_names
+                    and 'Data sources' in table_names):
+                catalogues.append(schema)
+            elif ('Organisations' in table_names
+                  and 'Cohorts' not in table_names):
+                shared_stagings.append(schema)
+            else:
+                logging.warning(f"Schema {schema!r} does not fit the models.")
+
+        return {'cohorts': cohort_stagings, 'datasources': datasource_stagings, 'networks': networks_stagings,
+                'catalogues': catalogues, 'shared': shared_stagings}
 
 
     async def update_catalogue(self, transform_only: bool = False):
@@ -92,6 +104,7 @@ class Runner:
 
     async def update_cohorts(self):
         """Updates the cohort schemas on a server."""
+        logging.info(f"Cohorts to update: {', '.join(self.cohorts)}")
         for cohort in self.cohorts:
             logging.info(f"Updating cohort staging area {cohort!r}")
             database_type = 'cohort_UMCG' if self.server_type == 'cohort_catalogue' else 'cohort'
@@ -99,12 +112,14 @@ class Runner:
 
     async def update_data_sources(self):
         """Updates the data sources on a schema."""
+        logging.info(f"Data sources to update: {', '.join(self.data_sources)}")
         for ds in self.data_sources:
             logging.info(f"Updating data source staging area {ds!r}")
             await self._update_schema(name=ds, database_type='data_source')
 
     async def update_networks(self):
         """Updates the networks on a schema."""
+        logging.info(f"Networks to update: {', '.join(self.networks)}")
         for network in self.networks:
             logging.info(f"Updating networks staging area {network!r}")
             await self._update_schema(name=network, database_type='network')
@@ -114,6 +129,11 @@ class Runner:
         logging.info(f"Starting update on {name!r}")
         description = {s.id: s for s in self.source.get_schemas()}[name].get('description')
 
+        # Export catalogue data to zip
+        if not FILES_DIR.exists():
+            FILES_DIR.mkdir()
+        await self.source.export(schema=name, filename=str(FILES_DIR.joinpath(f"{name}_data.zip")))
+
         if not transform_only:
             if f"{name}{self.pattern}" in self.target.schema_names:
                 create_schema = asyncio.create_task(self.target.recreate_schema(name=f"{name}{self.pattern}",
@@ -121,11 +141,6 @@ class Runner:
             else:
                 create_schema = asyncio.create_task(self.target.create_schema(name=f"{name}{self.pattern}",
                                                                        description=description))
-
-        # Export catalogue data to zip
-        if not FILES_DIR.exists():
-            FILES_DIR.mkdir()
-        await self.source.export(schema=name, filename=str(FILES_DIR.joinpath(f"{name}_data.zip")))
 
         logging.info(f"Transforming data from schema {name}")
         schema_transform = Transform(database_name=name, database_type=database_type)
@@ -168,6 +183,8 @@ async def main(pattern = None):
 
     with (Client(url=source_server, token=source_token) as source,
           Client(url=target_server, token=target_token) as target):
+
+        # Set up the Runner
         runner = Runner(source, target, pattern=pattern)
         logging.info(f"Updating schemas on {runner.target.url!r}")
 
