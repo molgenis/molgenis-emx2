@@ -225,7 +225,7 @@ class Transform:
                 df_resource.rename(columns={'organisation': 'id',
                                             'id': 'resource',
                                             'additional organisations': 'id'}, inplace=True)
-                df_resource = df_resource.dropna(axis=0)
+                df_resource = df_resource.replace({np.nan: ''})
                 df_resource.loc[:, 'is lead organisation'] = 'False'
                 df_resource = df_resource.reset_index()
                 df_merged = get_organisations(df_organisations, df_resource)
@@ -240,12 +240,18 @@ class Transform:
                 df_organisations = pd.read_csv(FILES_DIR.joinpath(f'{CATALOGUE_SCHEMA_NAME}_data/',
                                                                   'Organisations.csv'), dtype='object')
                 df_resource = pd.read_csv(self.path.joinpath('Resources.csv'))
-                df_resource = df_resource[['id']]
-                df_resource.rename(columns={'id': 'resource'}, inplace=True)
-                resources_list = df_resource['resource'].to_list()
-                df_organisations.loc[:, 'select_resource'] = \
-                    df_organisations.apply(lambda o: True if o['resource'] in resources_list else False, axis=1)
+                # Identify resources missing from the Organisations table
+                missing_resources = df_resource.loc[~df_resource['id'].isin(df_organisations['resource'])]
+                # Add the missing resources
+                missing_leads = missing_resources.apply(lambda row: df_organisations.loc[df_organisations['id'] == row['lead organisation']].iloc[0], axis=1)
+                missing_leads['resource'] = missing_resources['id']
+                missing_leads['is lead organisation'], missing_leads['select_resource'] = True, True
+
+                # TODO do the same for additional organisations
+
+                df_organisations['select_resource'] = df_organisations['resource'].isin(df_resource['id'])
                 df_organisations = df_organisations[df_organisations['select_resource']]
+                df_organisations = pd.concat([df_organisations, missing_leads])
             elif self.database_name == 'testCohort':
                 data = [['testCohort', 'UMCG', 'University Medical Center Groningen', 'Netherlands (the)',
                         'https://www.umcg.nl/']]
