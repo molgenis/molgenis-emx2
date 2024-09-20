@@ -1,10 +1,8 @@
 <script setup lang="ts">
-import type { ICollectionEvent } from "~/interfaces/types";
-
 const { collectionEvents } = defineProps<{
   title: string;
   description?: string;
-  collectionEvents?: ICollectionEvent[];
+  collectionEvents?: IResourceCollectionEvent[];
 }>();
 
 const dataCategories = collectionEvents

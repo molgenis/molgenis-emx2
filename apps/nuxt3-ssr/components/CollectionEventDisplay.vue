@@ -14,12 +14,12 @@ const query = moduleToString(collectionEventGql);
 const { data, error } = await useFetch<any, IMgError>(
   `/${route.params.schema}/graphql`,
   {
-    key: `collection-event-${route.params.collection}-${collectionEventName}`,
+    key: `collection-event-${route.params.resource}-${collectionEventName}`,
     method: "POST",
     body: {
       query,
       variables: {
-        id: route.params.collection,
+        id: route.params.resource,
         name: collectionEventName,
       },
     },
@@ -37,12 +37,12 @@ const collectionEvent: any = computed(
 );
 
 const pageCrumbs: any = {
-  Collection: `/${route.params.schema}/ssr-catalogue`,
+  Resource: `/${route.params.schema}/ssr-catalogue`,
 };
 
 pageCrumbs[
-  route.params.collection as string
-] = `/${route.params.schema}/ssr-catalogue/collections/${route.params.cohort}`;
+  route.params.resource as string
+] = `/${route.params.schema}/ssr-catalogue/resources/${route.params.resource}`;
 
 function renderList(list: any[], itemMapper: (a: any) => string) {
   return list?.length === 1 ? itemMapper(list[0]) : list.map(itemMapper);
@@ -52,10 +52,10 @@ const toName = (item: any) => item.name;
 
 const items: IDefinitionListItem[] = [];
 
-if (collectionEvent.value?.subcohorts?.length) {
+if (collectionEvent.value?.subpopulations?.length) {
   items.push({
-    label: "Subcohorts",
-    content: renderList(collectionEvent.value?.subcohorts, toName),
+    label: "Subpopulations",
+    content: renderList(collectionEvent.value?.subpopulations, toName),
   });
 }
 
