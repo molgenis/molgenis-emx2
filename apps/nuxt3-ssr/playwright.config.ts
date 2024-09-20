@@ -1,47 +1,90 @@
-import { defineConfig, devices } from '@playwright/test'
-import type { ConfigOptions } from '@nuxt/test-utils/playwright'
-import { isCI, isWindows } from 'std-env'
+import { defineConfig, devices } from '@playwright/test';
 
-const devicesToTest = [
-  'Desktop Chrome',
-  // Test against other common browser engines.
-  // 'Desktop Firefox',
-  // 'Desktop Safari',
-  // Test against mobile viewports.
-  // 'Pixel 5',
-  // 'iPhone 12',
-  // Test against branded browsers.
-  // { ...devices['Desktop Edge'], channel: 'msedge' },
-  // { ...devices['Desktop Chrome'], channel: 'chrome' },
-] satisfies Array<string | typeof devices[string]>
+/**
+ * Read environment variables from file.
+ * https://github.com/motdotla/dotenv
+*/
+// require('dotenv').config();
 
-/* See https://playwright.dev/docs/test-configuration. */
-export default defineConfig<ConfigOptions>({
+/**
+ * See https://playwright.dev/docs/test-configuration.
+ */
+export default defineConfig({
   testDir: './tests',
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
-  forbidOnly: !!isCI,
+  forbidOnly: !!process.env.CI,
   /* Retry on CI only */
-  retries: isCI ? 2 : 0,
+  retries: process.env.CI ? 2 : 0,
   /* Opt out of parallel tests on CI. */
-  workers: isCI ? 1 : undefined,
-  timeout: isWindows ? 60000 : undefined,
+  workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: 'html',
+  reporter: process.env.CI ? [['list'],
+  ['junit', { outputFile: 'results.xml' }]
+  ] : 'html',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
-    /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: 'on-first-retry',
-    /* Nuxt configuration options */
-    nuxt: {
-      
-     
-      
-    },
     /* Base URL to use in actions like `await page.goto('/')`. */
     baseURL: process.env.E2E_BASE_URL || "https://emx2.dev.molgenis.org/", // change to specific http://localhost:*/, preview, etc.
+
+    /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
+    trace: 'on-first-retry',
   },
-  
-  projects: devicesToTest.map(p => typeof p === 'string' ? ({ name: p, use: devices[p] }) : p),
-})
+
+  snapshotPathTemplate: '__screenshots__/{testFilePath}/{arg}{ext}',
+
+  /* Configure projects for major browsers */
+  projects: [
+    {
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'] },
+      testIgnore: '*/admin!*.spec.ts'
+    },
+    {
+      name: 'chromium',
+      use: {
+        ...devices['Desktop Chrome'],
+        storageState: 'e2e/.auth/user.json'
+      },
+      testMatch: '*/admin!*.spec.ts'
+    },
+
+    // {
+    //   name: 'firefox',
+    //   use: { ...devices['Desktop Firefox'] },
+    // },
+
+    // {
+    //   name: 'webkit',
+    //   use: { ...devices['Desktop Safari'] },
+    // },
+
+    /* Test against mobile viewports. */
+    // {
+    //   name: 'Mobile Chrome',
+    //   use: { ...devices['Pixel 5'] },
+    // },
+    // {
+    //   name: 'Mobile Safari',
+    //   use: { ...devices['iPhone 12'] },
+    // },
+
+    /* Test against branded browsers. */
+    // {
+    //   name: 'Microsoft Edge',
+    //   use: { ...devices['Desktop Edge'], channel: 'msedge' },
+    // },
+    // {
+    //   name: 'Google Chrome',
+    //   use: { ..devices['Desktop Chrome'], channel: 'chrome' },
+    // },
+  ],
+
+  /* When CI, start our local dev server before starting the tests */
+  // webServer: {
+  //   command: '../gradlew run -p ../',
+  //   url: 'http://localhost:8080',
+  //   reuseExistingServer: !process.env.CI,
+  // },
+});
