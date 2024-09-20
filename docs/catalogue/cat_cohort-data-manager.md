@@ -87,22 +87,22 @@ via the templates, some are filled via an online form, see section
 
 #### *Datasets* sheet
 
-The datasets/tables in a cohort or in the data banks of a data source are defined in the *Datasets* sheet. Columns with an
-asterisk (\*) after their name are mandatory.
+The datasets/tables for a resource, such as a cohort or databank of a data source are defined in the *Datasets* sheet. Columns with an asterisk (\*) after their name are mandatory.
 
 | *Column name* | *Description* | *Remarks* |
 | --- | --- | --- |
 | resource \* | Cohort or data source that this table belongs to | |
 | name \* | Unique dataset or table name | |
 | label | Dataset label | |
+| dataset type | Type of dataset | Find list to choose from in CatalogueOntologies [Dataset types](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/DatasetTypes  |
 | description | Dataset description | |
-| unit of observation | Defines what each record in this dataset describes | |
+| unit of observation | Defines what each record in this dataset describes | Find list to choose from in CatalogueOntologies [Observation targets](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/ObservationTargets)|
 | number of rows | Count of the number of records in this dataset | |
 | keywords<sup>1</sup> | Enables grouping of datasets into topics and helps to display variables in a tree | Find list to choose from in CatalogueOntologies [Keywords](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/Keywords) |
 | since version | Version of the data model when this dataset was introduced | e.g. 1.0.0 or 2.1 |
 | until version | Version of the data model when this dataset was deleted | e.g. 2.0.0 or 2.1 |
 
-<sup>Table 1. Description of the columns that can be filled out for Datasets. * = mandatory; 1 = contact [*molgenis-support@umcg.nl*](mailto:molgenis-support@umcg.nl) to add Keywords</sup>
+<sup>Table 1. Description of the columns that can be filled out for Datasets. * = mandatory; 1 = contact [*molgenis-support@umcg.nl*](mailto:molgenis-support@umcg.nl) to add Keywords, Observation targets or Dataset types</sup>
 
 
 #### *Variables* sheet
