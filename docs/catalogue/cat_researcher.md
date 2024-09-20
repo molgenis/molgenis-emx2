@@ -3,7 +3,7 @@
 ## Catalogue
 
 When you have defined a research question it is time to find the relevant variables to answer it. You can use
-the [MOLGENIS Data Catalogue](https://data-catalogue.molgeniscloud.org/catalogue/catalogue/#/) to compose your dataset.
+the [MOLGENIS Data Catalogue](https://data-catalogue.molgeniscloud.org/catalogue/ssr-catalogue/all/variables) to compose your dataset.
 The Data Catalogue only describes the variables, it does **not** contain the actual data values.
 
 ### Find variables
