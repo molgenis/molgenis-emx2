@@ -91,7 +91,7 @@ The datasets/tables for a resource, such as a cohort or databank of a data sourc
 
 | *Column name* | *Description* | *Remarks* |
 | --- | --- | --- |
-| resource \* | Cohort or data source that this table belongs to | |
+| resource \* | Resource that this table belongs to. Fill out your resource id | |
 | name \* | Unique dataset or table name | |
 | label | Dataset label | |
 | dataset type | Type of dataset | Find list to choose from in CatalogueOntologies [Dataset types](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/DatasetTypes  |
@@ -111,7 +111,7 @@ The variables of the datasets specified in the *Datasets* sheet are defined in t
 
 | *Column name* | *Description* | *Remarks* |
 | --- | --- | --- |
-| resource \* | Cohort or databank that this variable belongs to | Fill out your cohort or databank id |
+| resource \* | Resource that this variable belongs to | Fill out your resource id |
 | dataset \* | Dataset that contains the variable. | Datasets must be predefined in the _Datasets_ sheet |
 | name \* | Variable name, unique within a dataset | |
 | label | Human readable variable label | |
