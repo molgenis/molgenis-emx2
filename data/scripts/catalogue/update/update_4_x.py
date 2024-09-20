@@ -162,7 +162,7 @@ class Transform:
                                        'type other': 'study type other',
                                        'number of subjects': 'number of participants',
                                        'age groups': 'population age groups'}, inplace=True)
-            df_studies['type'] = 'Study'
+            df_studies['type'] = 'Clinical trial'
 
         # Data sources to Resources
         if self.database_type in ['catalogue', 'data_source']:
@@ -170,14 +170,14 @@ class Transform:
             df_data_sources.rename(columns={'type': 'RWD type',
                                             'type other': 'RWD type other',
                                             'areas of information': 'areas of information rwd'}, inplace=True)
-            df_data_sources['type'] = 'Data source'
+            df_data_sources['type'] = 'Real world data'
 
             # Databanks to Resources
             df_databanks = pd.read_csv(self.path.joinpath('Databanks.csv'), dtype='object')
             df_databanks.rename(columns={'type': 'RWD type',
                                          'type other': 'RWD type other',
                                          'areas of information': 'areas of information rwd'}, inplace=True)
-            df_databanks['type'] = 'Databank'
+            df_databanks['type'] = 'Real world data'
 
         # Models to Resources
         if self.database_type in ['catalogue', 'network']:
