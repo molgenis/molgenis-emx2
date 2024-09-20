@@ -61,3 +61,4 @@ playwright-report
 CHANGELOG.md
 e2e/.auth
 e2e/e2e/.auth
+apps/nuxt3-ssr/test-results/.last-run.json
