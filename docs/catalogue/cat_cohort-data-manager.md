@@ -34,17 +34,16 @@ metadata are entered in the live catalogue.
 
 You will need credentials to log in and upload metadata. 
 
-Cohorts in projects such as ATHLETE, IPEC and LongITools use [*data-catalogue-staging*](https://data-catalogue.molgeniscloud.org/apps/central/#/).  
-ConcePTION uses [*conception-acc*](https://conception-acc.molgeniscloud.org).
+Cohorts in projects such as ATHLETE, IPEC and LongITools use [*MOLGENIS Data catalogue*](https://data-catalogue.molgeniscloud.org/apps/central/#/).  
+ConcePTION uses [*ConcePTION-acc*](https://conception-acc.molgeniscloud.org).
+VAC4EU uses [*VAC4EU*](https://vac4eu.molgeniscloud.org).
 
 When you log in, you will be able to see at least the following databases:
 
-- <b>DataCatalogue</b>: The catalogue data, in which you can search for target variables to map to.
+- <b>catalogue</b>: The catalogue data, in which metadata is visualized and you can search for target variables to map to.
 - <b>CatalogueOntologies</b>: This database contains the look-up list that you need for filling out some columns in the
   templates, e.g. format or unit. If you need to add anything to these look-up lists, contact us
   at [molgenis-support](mailto:molgenis-support@umcg.nl).
-- <b>SharedStaging</b>: A communal staging area in which Organisations are added and edited.
-- <b>Your own database</b>: use this to upload the templates once you have filled them out.
 - <b>Your own database </b>: (here: testCohort and testNetwork) Use this to fill out rich metadata and to upload the templates once you have filled them out.
 
 ![MOLGENIS databases](../img/cat_databases.png)
