@@ -1,12 +1,11 @@
 name,label,parent,codesystem,code,ontologyTermURI,definition
 Biobank,,,,,,
 Clinical trial,,,,,,
-Clinical study,,,,,,
 Cohort study,,,,,,
-Real world data,,,,,,
 Disease specific,,,,,,A study or biobank for which material and information is collected from subjects that have already developed a particular disease.
 Health records,,,,,,
 Network,,,,,,
 Rare disease,,,,,,A collection that is focusing on rare diseases
+Real world data,,,,,,
 Registry,,,,,,
 Other type,,,,,,
