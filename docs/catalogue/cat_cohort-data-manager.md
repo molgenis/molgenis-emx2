@@ -34,7 +34,7 @@ metadata are entered in the live catalogue.
 
 You will need credentials to log in and upload metadata. 
 
-Cohorts in projects such as ATHLETE, IPEC and LongITools use [*MOLGENIS Data catalogue*](https://data-catalogue.molgeniscloud.org/apps/central/#/).  
+Cohorts in projects such as ATHLETE, IPEC and LongITools use [*MOLGENIS Data Catalogue*](https://data-catalogue.molgeniscloud.org/apps/central/#/).  
 ConcePTION uses [*ConcePTION-acc*](https://conception-acc.molgeniscloud.org).
 VAC4EU uses [*VAC4EU*](https://vac4eu.molgeniscloud.org).
 
@@ -45,6 +45,7 @@ When you log in, you will be able to see at least the following databases:
   templates, e.g. format or unit. If you need to add anything to these look-up lists, contact us
   at [molgenis-support](mailto:molgenis-support@umcg.nl).
 - <b>Your own database </b>: (here: testCohort and testNetwork) Use this to fill out rich metadata and to upload the templates once you have filled them out.
+- <b>Aggregates</b>: a database where aggregate data are stored.
 
 ![MOLGENIS databases](../img/cat_databases.png)
 
@@ -52,17 +53,16 @@ When you log in, you will be able to see at least the following databases:
 
 ### Fill out cohort rich metadata
 
-Open your staging area, navigate to 'Tables' and open the table 'Cohorts'. Your cohort id and name are already 
-filled out. Click on the pencil sign next to this entry to start editing your cohort rich metadata by filling out 
-the form. 'Subcohorts' and 'Collection events' should also be filled out through this route. You can fill them out 
-in subsections inside the 'Cohorts' form.
+Open your staging area, navigate to 'Tables' and open the table 'Resources'. Your cohort/resource id and name are already 
+filled out. Click on the pencil sign next to this entry to start editing your rich metadata by filling out 
+the form. For cohort studies 'Subcohorts' and 'Collection events' should also be filled out through this route. You can refer to them from columns in the dictionary templates.
 
 ### Define metadata of cohorts or data sources
 
-This section explains how to submit the 'source variables' + 'mappings from source variables to target variables' into
+This section explains how to submit 'source variables' + 'mappings from source variables to target variables' into
 the Data Catalogue. Expected users of this 'how to' are data managers within the organisations with access to cohorts or
 data sources. This document assumes you have received login details for upload of your metadata. You can also watch
-this [*instruction video*](https://www.youtube.com/watch?v=b_Ef_Uiw1gE&amp;ab_channel=MOLGENIS). Note that this video used dictionary model version 2.x, which was updated to 3.x.
+this [*instruction video*](https://www.youtube.com/watch?v=b_Ef_Uiw1gE&amp;ab_channel=MOLGENIS). Note that this video used dictionary model version 2.x, which was updated to 4.x. The basic principles remain the same, but column names vary between these versions.
 
 #### Define source variable metadata / source data dictionary
 
@@ -74,8 +74,7 @@ columns in the table concerned. This document describes how to fill out each of 
 with an asterisk (\*) after its name is mandatory, i.e., it should contain values for the system to accept a data
 upload. You can download this 
 [*filled out example*](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/SourceDictionary_testCohort.xlsx) 
-as a reference for filling out the template. Note that there is no sheet for *AllVariables*. This table is a generic listing of all variables entered for
-the cohort; it shows *Variables* and *RepeatedVariables* in one table.
+as a reference for filling out the template.
 
 It is good practice to try adding a few variables to the template first and see whether your upload succeeds. To
 upload the metadata to the Data Catalogue see the section [Upload metadata](cat_cohort-data-manager.md#upload-metadata).
