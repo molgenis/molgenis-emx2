@@ -8,8 +8,11 @@ test.use({
   },
 });
 
-test("Catalogue test number 1: Athlete network manager", async ({ page }) => {
-  await page.goto("catalogue-demo/ssr-catalogue/");
+test("Catalogue test number 1: Athlete network manager", async ({
+  page,
+  goto,
+}) => {
+  await goto("catalogue-demo/ssr-catalogue/", { waitUntil: "hydration" });
   await page.getByRole("button", { name: "Accept" }).click();
   await expect(page.locator("h1")).toContainText(
     "European Health Research Data and Sample Catalogue"

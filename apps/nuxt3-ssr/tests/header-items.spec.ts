@@ -21,7 +21,8 @@ test.beforeEach(async ({ context, baseURL }) => {
 
 test("should show variables in menu if there are variables", async ({
   page,
+  goto,
 }) => {
-  await page.goto("/catalogue-demo/ssr-catalogue/all");
+  await goto("/catalogue-demo/ssr-catalogue/all", { waitUntil: "hydration" });
   await expect(page.getByRole("navigation")).toContainText("Variables");
 });

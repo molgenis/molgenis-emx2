@@ -10,8 +10,11 @@ test.use({
 
 test("filter should remain active after page (pagination) change ", async ({
   page,
+  goto,
 }) => {
-  await page.goto("/catalogue-demo/ssr-catalogue/all/cohorts");
+  await goto("/catalogue-demo/ssr-catalogue/all/cohorts", {
+    waitUntil: "hydration",
+  });
   await page.getByRole("button", { name: "Accept" }).click();
   await expect(page.getByRole("main")).toContainText("57 cohort studies");
   await page.getByPlaceholder("Type to search..").click();

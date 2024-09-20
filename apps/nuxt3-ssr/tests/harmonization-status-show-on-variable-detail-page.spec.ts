@@ -10,8 +10,9 @@ test.use({
 
 test("test hamonisation status is show in varaible on variable detail page", async ({
   page,
+  goto,
 }) => {
-  await page.goto("/catalogue-demo/ssr-catalogue/");
+  await goto("/catalogue-demo/ssr-catalogue/", { waitUntil: "hydration" });
   await page.getByRole("button", { name: "Accept" }).click();
   await page.getByText("ATHLETE").click();
   await page.getByRole("button", { name: "Variables" }).click();

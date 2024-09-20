@@ -21,8 +21,11 @@ test.beforeEach(async ({ context, baseURL }) => {
 
 test("offset should be reset ( back to page 1) when filter changes ", async ({
   page,
+  goto,
 }) => {
-  await page.goto("/catalogue-demo/ssr-catalogue/EUChildNetwork/variables");
+  await goto("/catalogue-demo/ssr-catalogue/EUChildNetwork/variables", {
+    waitUntil: "hydration",
+  });
   await expect(page.locator("text=abd_circum_sdsWHO_t").first()).toBeVisible();
   await page.locator("a").filter({ hasText: "Go to page 2" }).click();
   //todo, why doesn't this work? await expect(page.locator('text=aggr_pc_').first()).toBeVisible();

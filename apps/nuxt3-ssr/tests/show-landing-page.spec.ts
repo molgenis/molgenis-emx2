@@ -8,8 +8,8 @@ test.use({
   },
 });
 
-test("test", async ({ page }) => {
-  await page.goto("/catalogue-demo/ssr-catalogue/");
+test("test", async ({ page, goto }) => {
+  await goto("/catalogue-demo/ssr-catalogue/", { waitUntil: "hydration" });
   await expect(
     page.getByRole("heading", {
       name: "European Health Research Data and Sample Catalogue",

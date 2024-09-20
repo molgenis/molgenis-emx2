@@ -19,10 +19,13 @@ test.beforeEach(async ({ context, baseURL }) => {
   ]);
 });
 
-test("go back from details, filter should stil be active", async ({ page }) => {
-  await page.goto(
-    "/catalogue-demo/ssr-catalogue/testNetworkofNetworks/cohorts"
-  );
+test("go back from details, filter should stil be active", async ({
+  page,
+  goto,
+}) => {
+  await goto("/catalogue-demo/ssr-catalogue/testNetworkofNetworks/cohorts", {
+    waitUntil: "hydration",
+  });
   await page
     .locator("div:nth-child(16) > .inline-flex > .rotate-180 > svg")
     .click();

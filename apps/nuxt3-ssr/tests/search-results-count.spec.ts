@@ -24,8 +24,11 @@ const numberOfResultsPattern = new RegExp(
 
 test("validate cohort search result counts @cohort-view @search-result-counts", async ({
   page,
+  goto,
 }) => {
-  await page.goto("/catalogue-demo/ssr-catalogue/all/cohorts");
+  await goto("/catalogue-demo/ssr-catalogue/all/cohorts", {
+    waitUntil: "hydration",
+  });
 
   if (enableRejectCookiesClick) {
     await page.getByRole("button", { name: "Reject" }).click();
@@ -37,8 +40,11 @@ test("validate cohort search result counts @cohort-view @search-result-counts", 
 
 test("validate data sources search result counts @data-sources-view @search-result-counts", async ({
   page,
+  goto,
 }) => {
-  await page.goto("/catalogue-demo/ssr-catalogue/all/datasources");
+  await goto("/catalogue-demo/ssr-catalogue/all/datasources", {
+    waitUntil: "hydration",
+  });
 
   if (enableRejectCookiesClick) {
     await page.getByRole("button", { name: "Reject" }).click();
@@ -50,8 +56,11 @@ test("validate data sources search result counts @data-sources-view @search-resu
 
 test("validate networks sources search result counts @networks-view @search-result-counts", async ({
   page,
+  goto,
 }) => {
-  await page.goto("/catalogue-demo/ssr-catalogue/all/networks");
+  await goto("/catalogue-demo/ssr-catalogue/all/networks", {
+    waitUntil: "hydration",
+  });
 
   if (enableRejectCookiesClick) {
     await page.getByRole("button", { name: "Reject" }).click();
@@ -61,8 +70,13 @@ test("validate networks sources search result counts @networks-view @search-resu
   await expect(text).toMatch(numberOfResultsPattern);
 });
 
-test("validate variables in cohorts counts are shown", async ({ page }) => {
-  await page.goto("/catalogue-demo/ssr-catalogue/all/variables");
+test("validate variables in cohorts counts are shown", async ({
+  page,
+  goto,
+}) => {
+  await goto("/catalogue-demo/ssr-catalogue/all/variables", {
+    waitUntil: "hydration",
+  });
 
   if (enableRejectCookiesClick) {
     await page.getByRole("button", { name: "Reject" }).click();
