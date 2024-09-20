@@ -4,11 +4,11 @@
 
 When you have defined a research question it is time to find the relevant variables to answer it. You can use
 the [MOLGENIS Data Catalogue](https://data-catalogue.molgeniscloud.org/catalogue/ssr-catalogue/all/variables) to compose your dataset.
-The Data Catalogue only describes the variables, it does **not** contain the actual data values.
+The Data Catalogue only describes the harmonized variables, it does **not** contain the actual data values.
 
-### Find variables
+### Find harmonized variables
 
-You can use the filters and search bar to subset variables. In the example below, four filters are used, one network
+You can use the filters and search bar to subset the harmonized variables. In the example below, four filters are used, one network
 filter and three topic filters.
 
 ![Variable explorer filters](../img/cat_variable-explorer.png)
