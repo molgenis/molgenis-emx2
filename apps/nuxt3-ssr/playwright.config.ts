@@ -1,11 +1,6 @@
-import { fileURLToPath } from 'node:url'
 import { defineConfig, devices } from '@playwright/test'
 import type { ConfigOptions } from '@nuxt/test-utils/playwright'
 import { isCI, isWindows } from 'std-env'
-import { hostname } from 'node:os'
-import { b } from 'vitest/dist/chunks/suite.CcK46U-P.js'
-import { server } from 'node:process'
-import { url } from 'node:inspector'
 
 const devicesToTest = [
   'Desktop Chrome',
