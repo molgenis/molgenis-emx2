@@ -272,8 +272,7 @@ jobs:
             echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
             export E2E_BASE_URL=https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/
             echo $E2E_BASE_URL
-#            npx playwright test --config e2e e2e/tests
-            npx playwright test --config  apps/nuxt-ssr apps/nuxt-ssr/tests
+            npx playwright test --config apps/nuxt-ssr apps/nuxt-ssr/tests
       - store_test_results:
          path: /root/project/e2e
       - store_artifacts:
