@@ -8,6 +8,7 @@
     "build": "nuxt build",
     "test": "vitest",
     "test-ci": "vitest run",
+    "e2e": "playwright test",
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
