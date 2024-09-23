@@ -3,7 +3,9 @@ import { fileURLToPath } from "node:url";
 
 test.use({
   nuxt: {
-    rootDir: fileURLToPath(new URL("..", import.meta.url)),
+    rootDir: process.env.E2E_BASE_URL
+      ? undefined
+      : fileURLToPath(new URL("..", import.meta.url)),
     host: process.env.E2E_BASE_URL || "https://emx2.dev.molgenis.org/",
   },
 });
