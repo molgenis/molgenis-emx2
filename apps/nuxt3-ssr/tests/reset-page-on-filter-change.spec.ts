@@ -1,14 +1,4 @@
 import { expect, test } from "@nuxt/test-utils/playwright";
-import { fileURLToPath } from "node:url";
-
-test.use({
-  nuxt: {
-    rootDir: process.env.E2E_BASE_URL
-      ? undefined
-      : fileURLToPath(new URL("..", import.meta.url)),
-    host: process.env.E2E_BASE_URL || "https://emx2.dev.molgenis.org/",
-  },
-});
 
 test.beforeEach(async ({ context, baseURL }) => {
   await context.addCookies([

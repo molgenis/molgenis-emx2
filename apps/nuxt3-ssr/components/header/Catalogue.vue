@@ -14,12 +14,15 @@ const cohortOnly = computed(() => {
 
 const catalogueRouteParam = route.params.catalogue as string;
 
-const menu = [
-  {
+const menu: { label: string; link: string }[] = [];
+
+if (route.params.resourceType) {
+  menu.push({
     label: "overview",
     link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}`,
-  },
-];
+  });
+}
+
 if (props.catalogue.resources_groupBy?.length) {
   props.catalogue.resources_groupBy.forEach(
     (sub: { type: { name: string }; count: string }) => {
@@ -33,6 +36,7 @@ if (props.catalogue.resources_groupBy?.length) {
     }
   );
 }
+
 if (!cohortOnly.value && props.variableCount > 0)
   menu.push({
     label: "Variables",

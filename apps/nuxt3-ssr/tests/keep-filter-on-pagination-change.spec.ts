@@ -1,13 +1,14 @@
 import { expect, test } from "@nuxt/test-utils/playwright";
-import { fileURLToPath } from "node:url";
 
-test.use({
-  nuxt: {
-    rootDir: process.env.E2E_BASE_URL
-      ? undefined
-      : fileURLToPath(new URL("..", import.meta.url)),
-    host: process.env.E2E_BASE_URL || "https://emx2.dev.molgenis.org/",
-  },
+test.beforeEach(async ({ context, baseURL }) => {
+  await context.addCookies([
+    {
+      name: "mg_allow_analytics",
+      value: "false",
+      domain: new URL(baseURL as string).hostname,
+      path: "/",
+    },
+  ]);
 });
 
 test("filter should remain active after page (pagination) change ", async ({
@@ -17,7 +18,6 @@ test("filter should remain active after page (pagination) change ", async ({
   await goto("/catalogue-demo/ssr-catalogue/all/cohorts", {
     waitUntil: "hydration",
   });
-  await page.getByRole("button", { name: "Accept" }).click();
   await expect(page.getByRole("main")).toContainText("57 cohort studies");
   await page.getByPlaceholder("Type to search..").click();
   await page.getByPlaceholder("Type to search..").fill("life");
