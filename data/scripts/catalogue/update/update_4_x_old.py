@@ -8,6 +8,7 @@ import numpy as np
 from decouple import config
 
 CATALOGUE_SCHEMA_NAME = config('MG_CATALOGUE_SCHEMA_NAME')
+SHARED_STAGING_NAME = config('MG_SHARED_STAGING_NAME')
 
 
 def float_to_int(df):
@@ -196,9 +197,12 @@ class Transform:
     def organisations(self):
         """ Transform columns in Organisations and alter structure
         """
-        df_all_organisations = pd.DataFrame()
-        if self.database_type == 'catalogue':
-            df_organisations = pd.read_csv(self.path + 'Organisations.csv', dtype='object')
+        if self.database_name not in ['testCohort', 'testNetwork', 'testDatasource']:
+            df_all_organisations = pd.DataFrame()
+            if self.database_type == 'catalogue':
+                df_organisations = pd.read_csv(self.path + 'Organisations.csv', dtype='object')
+            else:  # for other database types (staging areas) get Organisations from shared staging
+                df_organisations = pd.read_csv(SHARED_STAGING_NAME + '_data/' + 'Organisations.csv', dtype='object')
 
             # get lead organisations
             df_resources = pd.read_csv(self.path + 'Resources.csv', dtype='object')
@@ -206,48 +210,41 @@ class Transform:
             df_resources.rename(columns={'id': 'resource',
                                          'lead organisation': 'id'}, inplace=True)
             df_resources = df_resources.dropna(axis=0)
-            df_resources.loc[:, 'is lead organisation'] = 'True'
             df_resources = df_resources.reset_index()
+            df_resources.loc[:, 'is lead organisation'] = 'True'
             df_merged = get_organisations(df_organisations, df_resources)
             df_all_organisations = pd.concat([df_all_organisations, df_merged])
 
             # get additional organisations and Contacts.organisation
             for table in ['Resources', 'Contacts']:
-                    df_resource = pd.read_csv(self.path + table + '.csv', dtype='object')
-                    if table == 'Resources':
-                        df_resource = df_resource[['id', 'additional organisations']]
-                    elif table == 'Contacts':
-                        df_resource = df_resource[['resource', 'organisation']]
-                    df_resource.rename(columns={'organisation': 'id',
-                                                'id': 'resource',
-                                                'additional organisations': 'id'}, inplace=True)
-                    df_resource = df_resource.dropna(axis=0)
-                    df_resource.loc[:, 'is lead organisation'] = 'False'
+                df_resource = pd.read_csv(self.path + table + '.csv', dtype='object')
+                if table == 'Resources':
+                    df_resource = df_resource[['id', 'additional organisations']]
+                elif table == 'Contacts':
+                    df_resource = df_resource[['resource', 'organisation']]
+
+                df_resource.rename(columns={'organisation': 'id',
+                                            'id': 'resource',
+                                            'additional organisations': 'id'}, inplace=True)
+                df_resource = df_resource.dropna(axis=0)
+                if len(df_resource) != 0:
                     df_resource = df_resource.reset_index()
+                    df_resource.loc[:, 'is lead organisation'] = 'False'
                     df_merged = get_organisations(df_organisations, df_resource)
                     df_all_organisations = pd.concat([df_all_organisations, df_merged])
             df_all_organisations = df_all_organisations.drop_duplicates(subset=['resource', 'id'], keep='first')  # keep first to get lead organisations
             df_all_organisations.to_csv(self.path + 'Organisations.csv', index=False)
 
-        # get organisations for staging areas by making subsets on 'resource' for Organisations
-        else:
-            if self.database_name not in ['testCohort', 'testDatasource', 'testNetwork']:
-                df_organisations = pd.read_csv(CATALOGUE_SCHEMA_NAME + '_data/' + 'Organisations.csv', dtype='object')
-                df_resource = pd.read_csv(self.path + 'Resources.csv')
-                df_resource = df_resource[['id']]
-                df_resource.rename(columns={'id': 'resource'}, inplace=True)
-                resources_list = df_resource['resource'].to_list()
-                df_organisations.loc[:, 'select_resource'] = \
-                    df_organisations.apply(lambda o: True if o['resource'] in resources_list else False, axis=1)
-                df_organisations = df_organisations[df_organisations['select_resource']]
-            elif self.database_name == 'testCohort':
-                data = [['testCohort', 'UMCG', 'University Medical Center Groningen', 'Netherlands (the)',
-                        'https://www.umcg.nl/']]
-                df_organisations = pd.DataFrame(data, columns=['resource', 'id', 'name', 'country', 'website'])
-            elif self.database_name == 'testDatasource':
-                data = [['testDatasource', 'AU', 'University of Aarhus', 'Denmark']]
-                df_organisations = pd.DataFrame(data, columns=['resource', 'id', 'name', 'country'])
+        # get information from test staging areas
+        elif self.database_name == 'testCohort':
+            data = [['testCohort', 'UMCG', 'University Medical Center Groningen', 'Netherlands (the)',
+                    'https://www.umcg.nl/']]
+            df_organisations = pd.DataFrame(data, columns=['resource', 'id', 'name', 'country', 'website'])
+            df_organisations.to_csv(self.path + 'Organisations.csv', index=False)
 
+        elif self.database_name == 'testDatasource':
+            data = [['testDatasource', 'AU', 'University of Aarhus', 'Denmark']]
+            df_organisations = pd.DataFrame(data, columns=['resource', 'id', 'name', 'country'])
             df_organisations.to_csv(self.path + 'Organisations.csv', index=False)
 
     def publications(self):

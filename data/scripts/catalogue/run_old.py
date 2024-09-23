@@ -75,6 +75,21 @@ update.update_data_model_file()
 update.transform_data()
 zip_handling.zip_data()
 
+# ---------------------------------------------------------------------------------------
+
+if SERVER_TYPE in ['data_catalogue', 'cohort_catalogue']:
+    # SharedStaging schema download
+    print('-----------------------')
+
+    # extract data from catalogue schema
+    print('Extract data from ' + SHARED_STAGING_NAME + ': ' + SHARED_STAGING_NAME + '_data.zip')
+    session.download_zip(database_name=SHARED_STAGING_NAME)
+
+    # unzip data from shared staging schema
+    print('Unzip data from ' + SHARED_STAGING_NAME)
+    zip_handling = Zip(SHARED_STAGING_NAME)
+    zip_handling.unzip_data()
+
 # --------------------------------------------------------------
 if SERVER_TYPE in ['data_catalogue', 'cohort_catalogue']:
     # Cohorts update
