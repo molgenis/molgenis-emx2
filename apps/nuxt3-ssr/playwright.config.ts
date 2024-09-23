@@ -1,15 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
+import type { ConfigOptions } from '@nuxt/test-utils/playwright'
 
-/**
- * Read environment variables from file.
- * https://github.com/motdotla/dotenv
-*/
-// require('dotenv').config();
-
-/**
- * See https://playwright.dev/docs/test-configuration.
- */
-export default defineConfig({
+export default defineConfig<ConfigOptions>({
   testDir: './tests',
   /* Run tests in files in parallel */
   fullyParallel: true,
@@ -26,10 +18,14 @@ export default defineConfig({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: process.env.E2E_BASE_URL || "https://emx2.dev.molgenis.org/", // change to specific http://localhost:*/, preview, etc.
+    baseURL: process.env.E2E_BASE_URL || "https://preview-emx2-pr-4236.dev.molgenis.org/", // change to specific http://localhost:*/, preview, etc.
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
+    nuxt: {
+      host: process.env.E2E_BASE_URL || "http://localhost:3000/",
+      build: false
+    }
   },
 
   snapshotPathTemplate: '__screenshots__/{testFilePath}/{arg}{ext}',
@@ -88,3 +84,7 @@ export default defineConfig({
   //   reuseExistingServer: !process.env.CI,
   // },
 });
+
+function fileURLToPath(arg0: URL): string | undefined {
+  throw new Error('Function not implemented.');
+}

@@ -8,18 +8,18 @@
  */
 
 import { expect, test } from "@nuxt/test-utils/playwright";
-import { fileURLToPath } from "node:url";
 
-test.use({
-  nuxt: {
-    rootDir: process.env.E2E_BASE_URL
-      ? undefined
-      : fileURLToPath(new URL("..", import.meta.url)),
-    host: process.env.E2E_BASE_URL || "https://emx2.dev.molgenis.org/",
-  },
+test.beforeEach(async ({ context, baseURL }) => {
+  await context.addCookies([
+    {
+      name: "mg_allow_analytics",
+      value: "false",
+      domain: new URL(baseURL as string).hostname,
+      path: "/",
+    },
+  ]);
 });
 
-const enableRejectCookiesClick = true;
 const numberOfResultsPattern = new RegExp(
   /^(([a-zA-Z]{1,})?(\s)?(([0-9]{1,})\s(cohort studie([s])?|variable([s])?|data\ssource([s])?|result([s])?|networks([s])?)))$/
 );
@@ -31,10 +31,6 @@ test("validate cohort search result counts @cohort-view @search-result-counts", 
   await goto("/catalogue-demo/ssr-catalogue/all/cohorts", {
     waitUntil: "hydration",
   });
-
-  if (enableRejectCookiesClick) {
-    await page.getByRole("button", { name: "Reject" }).click();
-  }
 
   const text = await page.locator(".search-results-count").textContent();
   await expect(text).toMatch(numberOfResultsPattern);
@@ -48,10 +44,6 @@ test("validate data sources search result counts @data-sources-view @search-resu
     waitUntil: "hydration",
   });
 
-  if (enableRejectCookiesClick) {
-    await page.getByRole("button", { name: "Reject" }).click();
-  }
-
   const text = await page.locator(".search-results-count").textContent();
   await expect(text).toMatch(numberOfResultsPattern);
 });
@@ -64,10 +56,6 @@ test("validate networks sources search result counts @networks-view @search-resu
     waitUntil: "hydration",
   });
 
-  if (enableRejectCookiesClick) {
-    await page.getByRole("button", { name: "Reject" }).click();
-  }
-
   const text = await page.locator(".search-results-count").textContent();
   await expect(text).toMatch(numberOfResultsPattern);
 });
@@ -79,10 +67,6 @@ test("validate variables in cohorts counts are shown", async ({
   await goto("/catalogue-demo/ssr-catalogue/all/variables", {
     waitUntil: "hydration",
   });
-
-  if (enableRejectCookiesClick) {
-    await page.getByRole("button", { name: "Reject" }).click();
-  }
 
   await expect(page.getByRole("main")).toContainText("2249 variables");
 });
