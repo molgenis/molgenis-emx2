@@ -36,7 +36,7 @@ def map_persons_to_contacts(persons):
     return persons
 
 
-def map_collections_to_collections(collections):
+def map_collections_to_resources(collections):
     """Maps the BBMRI-ERIC Collections table to the flat data model's Resources table"""
     # Rename and create columns
     collections.rename(columns={'url': 'website'}, inplace=True)
@@ -52,6 +52,14 @@ def map_collections_to_collections(collections):
             if collections.loc[p_c, 'resources'] != '':
                 collections.loc[p_c, 'resources'] += ','
             collections.loc[p_c, 'resources'] += idx
+    # Map types from different ontologies, map to 'Other' if no suitable candidate exists in the target ontology
+    # TODO: add type 'Biobank' for every collection?
+    # TODO: if there are still unmapped types ultimately, add the original type description in the type_other column
+    type_mapping = {'QUALITY_CONTROL': 'Other', 'BIRTH_COHORT': 'Cohort study', 'POPULATION_BASED': 'Cohort study',
+                    'DISEASE_SPECIFIC': 'Disease specific', 'NON_HUMAN': 'Other', 'CASE_CONTROL': 'Other', 'OTHER': 'Other',
+                    'SAMPLE': 'Other', 'RD': 'Rare disease', 'IMAGE': 'Other', 'PROSPECTIVE_COLLECTION': 'Study',
+                    'HOSPITAL': 'Registry', 'CROSS_SECTIONAL': 'Cohort study', 'COHORT': 'Cohort study', 'TWIN_STUDY': 'Other', 'LONGITUDINAL': 'Cohort study'}
+    collections['type'] = collections['type'].map(lambda l: ','.join(set([type_mapping[t] for t in l.split(',')])))
     return collections
 
 
@@ -87,10 +95,10 @@ def main():
                                                                'orcid', 'homepage', 'photo', 'photo_filename', 'expertise'])
             # Map collections to resources
             collections = client.get('Collections', as_df=True)
-            mapped_collections = map_collections_to_collections(
+            mapped_collections = map_collections_to_resources(
                 collections.copy())  # Unnecessary copy?
             mapped_collections = mapped_collections.reindex(
-                columns=['id', 'name', 'acronym', 'description', 'website', 'resources'])
+                columns=['id', 'name', 'acronym', 'description', 'website', 'resources', 'type'])
             # Mappings involving multiple tables
             # TODO: add role for 'contact's in resources (also for 'head's?)
             # TODO: Link contacts and resources
@@ -98,7 +106,7 @@ def main():
             catalogue_client.save_schema(
                 table='Contacts', data=mapped_contacts)
             catalogue_client.save_schema(table='Resources',
-                                   data=mapped_collections)
+                                         data=mapped_collections)
 
 
 if __name__ == "__main__":
