@@ -2,7 +2,6 @@
   <PageHeader title="Admin Tools" />
   <Container class="flex flex-col items-center">
     <ContentBlock class="w-full mt-3" title="User management">
-      {{ users }}
       <h2>User List</h2>
       <Table>
         <template #head>
@@ -13,13 +12,12 @@
           </TableHeadRow>
         </template>
         <template #body>
-          <TableRow>
-            <TableCell>admin</TableCell>
-            <TableCell>admin.username :)</TableCell>
-          </TableRow>
           <TableRow v-for="user in users">
             <TableCell>{{ user.email }}</TableCell>
             <TableCell>{{ user }}</TableCell>
+            <TableCell>
+              {{ user.settings.length ? user.settings[0].value : "No tokens" }}
+            </TableCell>
           </TableRow>
         </template>
       </Table>
@@ -44,14 +42,13 @@ async function getUsers() {
     return await $fetch("/api/graphql", {
       method: "POST",
       body: JSON.stringify({
-        query: `{ _admin { users(limit: 20, offset: 0) { email } userCount } }`,
+        query: `{ _admin { users { email, settings, {key, value} } userCount } }`,
       }),
     });
   });
   if (error.value) {
     console.error("Error fetching users", error.value);
   } else {
-    console.log(data.value.data);
     users.value = data.value.data._admin.users || [];
     userCount.value = data.value.data._admin.userCount ?? 0;
   }
