@@ -96,15 +96,15 @@ public class GraphlAdminFieldFactory {
     }
   }
 
-  public static GraphQLFieldDefinition deleteUser(Database database) {
+  public static GraphQLFieldDefinition removeUser(Database database) {
     return GraphQLFieldDefinition.newFieldDefinition()
-        .name("deleteUser")
+        .name("removeUser")
         .type(typeForMutationResult)
         .argument(GraphQLArgument.newArgument().name(EMAIL).type(Scalars.GraphQLString))
         .dataFetcher(
             dataFetchingEnvironment -> {
               String email = dataFetchingEnvironment.getArgument(EMAIL);
-              database.deleteUser(email);
+              database.removeUser(email);
               return new GraphqlApiMutationResult(SUCCESS, "User %s removed", email);
             })
         .build();

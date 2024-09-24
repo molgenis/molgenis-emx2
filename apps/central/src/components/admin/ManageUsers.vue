@@ -175,11 +175,11 @@ export default {
       this.alterLoading = true;
       request(
         "graphql",
-        `mutation{deleteUser(email: "${user}"){status,message}}`
+        `mutation{removeUser(email: "${user}"){status,message}}`
       )
         .then((data) => {
-          if (data.deleteUser.status === "SUCCESS") {
-            this.alterSuccess = "Success. deleted user: " + user;
+          if (data.removeUser.status === "SUCCESS") {
+            this.alterSuccess = "Success. removed user: " + user;
             this.getUserList();
           } else {
             this.alterError =
