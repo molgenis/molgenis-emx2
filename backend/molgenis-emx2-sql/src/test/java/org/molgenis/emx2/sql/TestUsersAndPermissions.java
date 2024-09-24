@@ -12,6 +12,7 @@ import org.molgenis.emx2.*;
 public class TestUsersAndPermissions {
   static Database database;
   private static final String TEST_ENABLE_USERS = "TestEnableUser";
+  private static final String TEST_INITIALLY_ENABLE_USERS = "TestInitiallyEnableUser";
 
   @BeforeAll
   public static void setup() {
@@ -88,6 +89,12 @@ public class TestUsersAndPermissions {
     database.addUser(TEST_ENABLE_USERS);
     database.setEnabledUser(TEST_ENABLE_USERS, false);
     assertFalse(database.getUser(TEST_ENABLE_USERS).getEnabled());
+  }
+
+  @Test
+  public void testInitiallyEnabledUser() {
+    database.addUser(TEST_INITIALLY_ENABLE_USERS);
+    assertTrue(database.getUser(TEST_INITIALLY_ENABLE_USERS).getEnabled());
   }
 
   @Test
