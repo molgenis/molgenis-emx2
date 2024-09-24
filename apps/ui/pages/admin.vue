@@ -6,13 +6,17 @@
       <Table>
         <template #head>
           <TableHeadRow>
+            <TableHead>Control</TableHead>
             <TableHead>Name / Email</TableHead>
             <TableHead>Roles</TableHead>
             <TableHead>Tokens</TableHead>
           </TableHeadRow>
         </template>
         <template #body>
+          <!-- Why is the first cell blue/link like? -->
           <TableRow v-for="user in users">
+            <TableCell>Edit/Delete buttons</TableCell>
+            <!-- clickable modal for role management? What to show here, count/summary/all? -->
             <TableCell>{{ user.email }}</TableCell>
             <TableCell>{{ user }}</TableCell>
             <TableCell>
@@ -37,8 +41,7 @@ getUsers();
 
 async function getUsers() {
   const { data, error } = await useAsyncData("admin", async () => {
-    console.log("init useSession");
-
+    // TODO: add pagination back in?
     return await $fetch("/api/graphql", {
       method: "POST",
       body: JSON.stringify({
