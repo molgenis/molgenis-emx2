@@ -170,14 +170,14 @@ class Transform:
             df_data_sources.rename(columns={'type': 'RWD type',
                                             'type other': 'RWD type other',
                                             'areas of information': 'areas of information rwd'}, inplace=True)
-            df_data_sources['type'] = 'Real world data'
+            df_data_sources['type'] = 'Real world data'  # TODO: check whether we want this
 
             # Databanks to Resources
             df_databanks = pd.read_csv(self.path.joinpath('Databanks.csv'), dtype='object')
             df_databanks.rename(columns={'type': 'RWD type',
                                          'type other': 'RWD type other',
                                          'areas of information': 'areas of information rwd'}, inplace=True)
-            df_databanks['type'] = 'Real world data'
+            df_databanks['type'] = 'Real world data'  # TODO: check whether we want this
 
         # Models to Resources
         if self.database_type in ['catalogue', 'network']:
