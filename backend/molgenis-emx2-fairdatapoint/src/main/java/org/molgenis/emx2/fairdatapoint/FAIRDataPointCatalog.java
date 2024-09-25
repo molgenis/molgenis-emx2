@@ -2,8 +2,7 @@ package org.molgenis.emx2.fairdatapoint;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.eclipse.rdf4j.model.util.Values.literal;
-import static org.molgenis.emx2.rdf.RDFService.*;
-import static org.molgenis.emx2.rdf.RDFUtils.*;
+import static org.molgenis.emx2.utils.URIUtils.*;
 
 import graphql.ExecutionResult;
 import graphql.GraphQL;
@@ -195,7 +194,11 @@ public class FAIRDataPointCatalog {
       for (String propertyValue : (List<String>) catalogFromJSON.get("propertyValue")) {
         String[] propertyValueSplit = propertyValue.split(" ", -1);
         nullCheckOnPropVal(propertyValueSplit);
-        builder.add(reqUrl, iri(propertyValueSplit[0]), iri(propertyValueSplit[1]));
+        if (propertyValueSplit[1].startsWith("http")) {
+          builder.add(reqUrl, iri(propertyValueSplit[0]), iri(propertyValueSplit[1]));
+        } else {
+          builder.add(reqUrl, iri(propertyValueSplit[0]), propertyValueSplit[1]);
+        }
       }
     }
 

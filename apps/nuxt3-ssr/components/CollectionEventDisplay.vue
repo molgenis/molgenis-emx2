@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import collectionEventGql from "~~/gql/collectionEvent";
-import ContentBlockModal from "./content/ContentBlockModal.vue";
 import type { IDefinitionListItem, IMgError } from "~~/interfaces/types";
 import dateUtils from "~/utils/dateUtils";
 
@@ -15,12 +14,12 @@ const query = moduleToString(collectionEventGql);
 const { data, error } = await useFetch<any, IMgError>(
   `/${route.params.schema}/graphql`,
   {
-    key: `collection-event-${route.params.cohort}-${collectionEventName}`,
+    key: `collection-event-${route.params.resource}-${collectionEventName}`,
     method: "POST",
     body: {
       query,
       variables: {
-        id: route.params.cohort,
+        id: route.params.resource,
         name: collectionEventName,
       },
     },
@@ -38,12 +37,12 @@ const collectionEvent: any = computed(
 );
 
 const pageCrumbs: any = {
-  Cohorts: `/${route.params.schema}/ssr-catalogue`,
+  Resource: `/${route.params.schema}/ssr-catalogue`,
 };
 
 pageCrumbs[
-  route.params.cohort as string
-] = `/${route.params.schema}/ssr-catalogue/cohorts/${route.params.cohort}`;
+  route.params.resource as string
+] = `/${route.params.schema}/ssr-catalogue/resources/${route.params.resource}`;
 
 function renderList(list: any[], itemMapper: (a: any) => string) {
   return list?.length === 1 ? itemMapper(list[0]) : list.map(itemMapper);
@@ -53,10 +52,10 @@ const toName = (item: any) => item.name;
 
 const items: IDefinitionListItem[] = [];
 
-if (collectionEvent.value?.subcohorts?.length) {
+if (collectionEvent.value?.subpopulations?.length) {
   items.push({
-    label: "Subcohorts",
-    content: renderList(collectionEvent.value?.subcohorts, toName),
+    label: "Subpopulations",
+    content: renderList(collectionEvent.value?.subpopulations, toName),
   });
 }
 
@@ -67,16 +66,12 @@ if (collectionEvent.value?.numberOfParticipants) {
   });
 }
 
-if (collectionEvent.value?.startYear || collectionEvent.value?.endYear) {
+if (collectionEvent.value?.startDate || collectionEvent.value?.endDate) {
   items.push({
-    label: "Start/end year",
+    label: "Start/end date",
     content: dateUtils.startEndYear(
-      collectionEvent.value.startYear && collectionEvent.value.startYear.name
-        ? collectionEvent.value.startYear.name
-        : null,
-      collectionEvent.value.endYear && collectionEvent.value.endYear.name
-        ? collectionEvent.value.endYear.name
-        : null
+      collectionEvent.value.startDate,
+      collectionEvent.value.endDate
     ),
   });
 }

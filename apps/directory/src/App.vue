@@ -1,5 +1,8 @@
 <template>
   <Molgenis v-model="session">
+    <template v-if="banner" #banner>
+      <div v-html="banner"></div>
+    </template>
     <RouterView @click="closeAllDropdownButtons" />
     <template #footer>
       <Footer />
@@ -9,7 +12,7 @@
 
 <script setup>
 import { Molgenis } from "molgenis-components";
-import { computed, onMounted, watch } from "vue";
+import { computed, onMounted, watch, ref } from "vue";
 import { applyBookmark, createBookmark } from "./functions/bookmarkMapper";
 import { useRoute } from "vue-router";
 import { useFiltersStore } from "./stores/filtersStore";
@@ -21,6 +24,8 @@ const route = useRoute();
 const query = computed(() => route.query);
 const filtersStore = useFiltersStore();
 const checkoutStore = useCheckoutStore();
+
+const banner = ref("");
 
 watch(
   query,
@@ -52,6 +57,10 @@ watch(
 onMounted(async () => {
   const settingsStore = useSettingsStore();
   await settingsStore.initializeConfig();
+
+  if (settingsStore.config.banner) {
+    banner.value = settingsStore.config.banner;
+  }
 });
 
 function closeAllDropdownButtons(event) {

@@ -33,9 +33,14 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | 14 |Countries|Armenia, Bermuda, Réunion | | |
 | 15 |Regions|Bradford, Lapland, Gipuzkoa | | |
 | 16 |Population age groups|Adult (18+ years) | | |
-| 17 |Main medical condition|many, many items listed for population disease | | |
-| 19 |Population oncology topology|BASE OF TONGUE, UTERUS, NOS | | |
-| 20 |Population oncology morphology|Carcinoma, metastatic, NOS Carcinomatosis | | |
+| 17 |Main medical condition| Displays two main items: VII Diseases of the eye and adnexa & VIII Diseases of the ear and mastoid process, with many subitems each | | |
+| 19 |Population oncology topology|BASE OF TONGUE. Consists of the following when expanded: | | |
+| | | Base of tongue, NOS | | |
+| | | UTERUS, NOS. Consists of the following when expanded: | | |
+| | | Uterus, NOS | | |
+| 20 |Population oncology morphology|Epithelial neoplasms, NOS. Consists of the following when expanded: | | |
+| | | Carcinoma, metastatic, NOS. | | | 
+| | | Carcinomatosis. | | |
 | 21 |Inclusion criteria|Clinically relevant exposure inclusion criterion | | |
 |||Clinically relevant lifestyle inclusion criterion | | |
 |||Country of residence inclusion criteria | | |
@@ -78,6 +83,5 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 ||Release description |Release description cohort 1 | | |
 ||Prelinked|true | | |
 ||Linkage options|Linkage options cohort 1 | | |
-| 29|DOCUMENTATION|Documents | | |
-|||Card per document, clickable so that you open the document - test doc2 for test cohort 1 and test documentation for cohort 1 | | |
+| 29|DOCUMENTATION| Card per document, clickable so that you open the document: test doc 2 for test cohort 1 & test documentation for cohort 1 | | |
 | 30|Click on test documentation for cohort 1|test documentation for cohort 1 is downloaded locally | | |
