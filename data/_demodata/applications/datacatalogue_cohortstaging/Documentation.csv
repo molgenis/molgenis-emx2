@@ -1,2 +1,2 @@
-resource,name,type,description,url,file
-testCohort,something,Harmonisation protocol,description,,
+resource,name,type,description,url,file,file_filename
+testCohort,something,Harmonisation protocol,description,,,

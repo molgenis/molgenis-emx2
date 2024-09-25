@@ -10,12 +10,14 @@ const scoped = route.params.catalogue !== "all";
 const catalogueRouteParam = route.params.catalogue as string;
 const { key } = useQueryParams();
 const variableFilter = buildFilterFromKeysObject(key);
-const cohortsFilter = scoped
+const resourceFilter = scoped
   ? {
       _or: [
-        { networks: { equals: [{ id: catalogueRouteParam }] } },
+        { resources: { equals: [{ id: catalogueRouteParam }] } },
         {
-          networks: { partOfNetworks: { id: { equals: catalogueRouteParam } } },
+          resources: {
+            partOfResources: { id: { equals: catalogueRouteParam } },
+          },
         },
       ],
     }
@@ -28,16 +30,15 @@ const { data, pending, error, refresh } = await useFetch(
   `/${route.params.schema}/graphql`,
   {
     method: "POST",
-    body: { query, variables: { variableFilter, cohortsFilter } },
+    body: { query, variables: { variableFilter, resourceFilter } },
   }
 );
 
 const variable = computed(
   () => data.value.data.Variables[0] as VariableDetailsWithMapping
 );
-const nRepeats = computed(() => data.value.data.RepeatedVariables_agg.count);
-const cohorts = computed(() => data.value.data.Cohorts as { id: string }[]);
-const isRepeating = computed(() => variable.value.repeats);
+const resources = computed(() => data.value.data.Resources as { id: string }[]);
+const isRepeating = computed(() => variable.value.repeatUnit?.name);
 
 let crumbs: any = {};
 crumbs[
@@ -47,15 +48,15 @@ crumbs[
   "variables"
 ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/variables`;
 
-const cohortsWithMapping = computed(() => {
-  if (!cohorts.value) return [];
-  return cohorts.value
-    .map((cohort) => {
+const resourcesWithMapping = computed(() => {
+  if (!resources.value) return [];
+  return resources.value
+    .map((resource) => {
       const status = calcIndividualVariableHarmonisationStatus(variable.value, [
-        cohort,
+        resource,
       ])[0];
       return {
-        cohort,
+        resource,
         status,
       };
     })
@@ -68,14 +69,14 @@ const cohortsWithMapping = computed(() => {
 
 let tocItems = reactive([{ label: "Description", id: "description" }]);
 
-if (cohortsWithMapping.value.length > 0) {
+if (resourcesWithMapping.value.length > 0) {
   tocItems.push({
-    label: "Harmonisation status per Cohort",
-    id: "harmonisation-per-cohort",
+    label: "Harmonisation status per data source",
+    id: "harmonisation-per-source",
   });
   tocItems.push({
-    label: "Harmonisation details per Cohort",
-    id: "harmonisation-details-per-cohort",
+    label: "Harmonisation details per data source",
+    id: "harmonisation-details-per-source",
   });
 } else {
   tocItems.push({
@@ -106,11 +107,7 @@ useHead({ title: titlePrefix + variable.value.name });
     </template>
     <template #main>
       <ContentBlocks v-if="variable">
-        <ContentBlock
-          id="description"
-          title="Description"
-          :description="variable?.description"
-        >
+        <ContentBlock id="definition" title="Definition">
           <CatalogueItemList
             :items="[
               {
@@ -122,8 +119,18 @@ useHead({ title: titlePrefix + variable.value.name });
                 content: variable?.format?.name,
               },
               {
-                label: 'N repeats',
-                content: nRepeats > 0 ? nRepeats : 'None',
+                label: 'Repeated for',
+                content: variable?.repeatUnit?.name
+                  ? variable?.repeatUnit?.name +
+                    ' ' +
+                    variable?.repeatMin +
+                    '-' +
+                    variable?.repeatMax
+                  : undefined,
+              },
+              {
+                label: 'Description',
+                content: variable?.description,
               },
             ]"
           >
@@ -131,36 +138,28 @@ useHead({ title: titlePrefix + variable.value.name });
         </ContentBlock>
 
         <ContentBlock
-          v-if="cohortsWithMapping.length > 0"
-          id="harmonisation-per-cohort"
-          title="Harmonisation status per Cohort"
-          description="Overview of the harmonisation status per Cohort"
+          v-if="resourcesWithMapping.length > 0"
+          id="harmonisation-per-source"
+          title="Harmonisation status per data source"
         >
           <HarmonisationGridPerVariable
             v-if="isRepeating"
-            :cohorts-with-mapping="cohortsWithMapping"
             :variable="variable"
           />
-          <HarmonisationListPerVariable
-            v-else
-            :cohortsWithMapping="cohortsWithMapping"
-          />
+          <HarmonisationListPerVariable v-else :mappings="variable.mappings" />
         </ContentBlock>
 
         <ContentBlock
-          v-if="cohortsWithMapping.length > 0"
+          v-if="resourcesWithMapping.length > 0"
           id="harmonisation-details-per-cohort"
-          title="Harmonisation details per Cohort"
-          description="Select a Cohort to see the details of the harmonisation"
+          title="Harmonisation details per data source"
+          description="Select a data source to see the details of the harmonisation"
         >
-          <HarmonisationVariableDetails
-            :variable="variable"
-            :cohortsWithMapping="cohortsWithMapping"
-          />
+          <HarmonisationVariableDetails :variable="variable" />
         </ContentBlock>
 
         <ContentBlock
-          v-if="cohortsWithMapping.length === 0"
+          v-if="variable.mappings?.length === 0"
           id="harmonisation-details-no-mapping"
           title="Harmonisation"
           description="No mapping found for this variable"

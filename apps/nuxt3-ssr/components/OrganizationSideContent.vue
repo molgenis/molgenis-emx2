@@ -12,8 +12,10 @@ const props = defineProps<{
     <CatalogueItemList
       :items="[
         {
-          label: 'email',
-          content: props.organisation?.email,
+          label: 'role',
+          content: props.organisation?.role
+            ? props.organisation?.role.map((c) => c.name).join(', ')
+            : undefined,
         },
         {
           label: 'description',
@@ -28,32 +30,14 @@ const props = defineProps<{
           content: props.organisation?.acronym,
         },
         {
-          label: 'type',
-          content: props.organisation?.type?.name,
-        },
-        {
-          label: 'institution',
-          content: props.organisation?.institution,
-        },
-        {
-          label: 'institutionAcronym',
-          content: props.organisation?.institutionAcronym,
-        },
-        {
-          label: 'typeOther',
-          content: props.organisation?.typeOther,
-        },
-        {
           label: 'address',
           content: props.organisation?.address,
         },
         {
-          label: 'expertise',
-          content: props.organisation?.expertise,
-        },
-        {
           label: 'country',
-          content: props.organisation?.country?.name,
+          content: props.organisation?.country
+            ? props.organisation?.country.map((c) => c.name).join(', ')
+            : undefined,
         },
         {
           label: 'logo',
