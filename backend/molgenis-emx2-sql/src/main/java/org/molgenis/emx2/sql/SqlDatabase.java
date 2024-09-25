@@ -474,12 +474,12 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     log(start, "removed user " + user);
 
     tx(
-            db ->
-                    ((SqlDatabase) db)
-                            .getJooq()
-                            .deleteFrom(USERS_METADATA)
-                            .where(USER_NAME.eq(user))
-                            .execute());
+        db ->
+            ((SqlDatabase) db)
+                .getJooq()
+                .deleteFrom(USERS_METADATA)
+                .where(USER_NAME.eq(user))
+                .execute());
     log(start, "removed metadata from user " + user);
   }
 

@@ -13,6 +13,7 @@ public class TestUsersAndPermissions {
   static Database database;
   private static final String TEST_ENABLE_USERS = "TestEnableUser";
   private static final String TEST_INITIALLY_ENABLE_USERS = "TestInitiallyEnableUser";
+  private static final String TEST_NONEXISTENT_USERS = "TestNonExistentUser";
 
   @BeforeAll
   public static void setup() {
@@ -89,6 +90,26 @@ public class TestUsersAndPermissions {
     database.addUser(TEST_ENABLE_USERS);
     database.setEnabledUser(TEST_ENABLE_USERS, false);
     assertFalse(database.getUser(TEST_ENABLE_USERS).getEnabled());
+  }
+
+  @Test
+  public void testNonExistentDisableUser() {
+    try {
+      database.setEnabledUser(TEST_NONEXISTENT_USERS, false);
+      fail("should have failed");
+    } catch (Exception e) {
+      // ok
+    }
+  }
+
+  @Test
+  public void testNonExistentRemoveUser() {
+    try {
+      database.removeUser(TEST_NONEXISTENT_USERS);
+      fail("should have failed");
+    } catch (Exception e) {
+      // ok
+    }
   }
 
   @Test
