@@ -2,7 +2,7 @@
   <PageHeader title="Admin Tools" />
   <Container class="flex flex-col items-center">
     <ContentBlock class="w-full mt-3" title="User management">
-      <h2>User List</h2>
+      <h2>User List ({{ userCount }})</h2>
       <Table>
         <template #head>
           <TableHeadRow>
@@ -15,7 +15,7 @@
         <template #body>
           <!-- Why is the first cell blue/link like? -->
           <TableRow v-for="user in users">
-            <TableCell>Edit/Delete buttons</TableCell>
+            <TableCell>Edit/Delete/Disable buttons</TableCell>
             <!-- clickable modal for role management? What to show here, count/summary/all? -->
             <TableCell>{{ user.email }}</TableCell>
             <TableCell>{{ user }}</TableCell>
@@ -30,43 +30,32 @@
 </template>
 
 <script setup lang="ts">
+import type { ISetting } from "../../metadata-utils/src/types";
+
 definePageMeta({
   middleware: "admin-only",
 });
 
-const users = ref<Record<string, any>[]>([]);
-const userCount = ref(0);
-
-getUsers();
-
-async function getUsers() {
-  const { data, error } = await useAsyncData("admin", async () => {
-    // TODO: add pagination back in?
-    return await $fetch("/api/graphql", {
-      method: "POST",
-      body: JSON.stringify({
-        query: `{ _admin { users { email, settings, {key, value} } userCount } }`,
-      }),
-    });
-  });
-  if (error.value) {
-    console.error("Error fetching users", error.value);
-  } else {
-    users.value = data.value.data._admin.users || [];
-    userCount.value = data.value.data._admin.userCount ?? 0;
-  }
+const { data, error } = await useFetch<IAdminResponse>("/api/graphql", {
+  method: "post",
+  body: {
+    query: `{ _admin { users { email, settings, {key, value} } userCount } }`,
+  },
+});
+if (error.value) {
+  console.log("Error loading users: ", error.value);
+  // todo handle error see catalogue error page
 }
-// const { data, error } = await useFetch("api/graphql", {
-//   method: "post",
-//   body: {
-//     query: `{ _admin { users(limit: 20, offset: 0) { email } userCount } }`,
-//   },
-// });
-// if (error) {
-//   console.log("Error loading users: ", error);
-// } else {
-//   console.log("data ", data.value);
-//   users.value = data.value?._admin?.users || [];
-//   userCount.value =  data.value?._admin?.userCount ?? 0;
-// }
+
+const users = computed(() => data.value?.data._admin.users || []);
+const userCount = computed(() => data.value?.data._admin.userCount ?? 0);
+
+interface IAdminResponse {
+  data: {
+    _admin: {
+      users: { email: string; settings: ISetting[] }[];
+      userCount: number;
+    };
+  };
+}
 </script>
