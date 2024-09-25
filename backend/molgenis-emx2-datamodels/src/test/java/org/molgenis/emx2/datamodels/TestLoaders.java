@@ -49,6 +49,8 @@ public class TestLoaders {
     database.dropSchemaIfExists(DCAT);
     database.dropSchemaIfExists(DCAT_BASIC);
     database.dropSchemaIfExists(DCAT_BASIC);
+    database.dropSchemaIfExists(PROJECT_MANAGER);
+    database.dropSchemaIfExists(CATALOGUE_ONTOLOGIES);
     database.dropSchemaIfExists(FAIR_DATA_POINT);
     database.dropSchemaIfExists(FAIR_DATA_HUB_TEST);
     database.dropSchemaIfExists(PROJECT_MANAGER);
