@@ -31,23 +31,40 @@ const props = defineProps<{
           "
         >
           <TableCell class="hidden sm:table-cell">
-            <div class="items-center flex justify-center w-32">
-              <img :src="catalogue.network?.logo?.url" />
-            </div>
+            <NuxtLink
+              :to="`/${route.params.schema}/ssr-catalogue/${catalogue.network.id}`"
+            >
+              <div class="items-center flex justify-center w-32">
+                <img :src="catalogue.network?.logo?.url" />
+              </div>
+            </NuxtLink>
           </TableCell>
           <TableCell>
-            <span
-              class="text-body-base font-extrabold text-blue-500 hover:underline hover:bg-blue-50"
-              >{{ catalogue.network.id }}</span
+            <NuxtLink
+              :to="`/${route.params.schema}/ssr-catalogue/${catalogue.network.id}`"
             >
+              <span
+                class="text-body-base font-extrabold text-blue-500 hover:underline hover:bg-blue-50"
+                >{{ catalogue.network.id }}</span
+              >
+            </NuxtLink>
           </TableCell>
           <TableCell class="hidden sm:table-cell">
-            {{ catalogue.network?.name }}
+            <NuxtLink
+              :to="`/${route.params.schema}/ssr-catalogue/${catalogue.network.id}`"
+            >
+              {{ catalogue.network?.name }}
+            </NuxtLink>
           </TableCell>
           <TableCell>
-            <IconButton icon="arrow-right" class="text-blue-500" />
+            <NuxtLink
+              :to="`/${route.params.schema}/ssr-catalogue/${catalogue.network.id}`"
+            >
+              <IconButton icon="arrow-right" class="text-blue-500" />
+            </NuxtLink>
           </TableCell>
         </TableRow>
+
         <div v-if="catalogues.length == 0" class="flex justify-center pt-3">
           <span class="py-15 text-blue-500">
             No catalogue found with current filters
