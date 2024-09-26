@@ -5,8 +5,7 @@ import static org.eclipse.rdf4j.model.util.Values.literal;
 import static org.molgenis.emx2.fairdatapoint.FAIRDataPointCatalog.extractItemAsIRI;
 import static org.molgenis.emx2.fairdatapoint.FormatMimeTypes.FORMATS;
 import static org.molgenis.emx2.fairdatapoint.Queries.queryDataset;
-import static org.molgenis.emx2.rdf.RDFService.*;
-import static org.molgenis.emx2.rdf.RDFUtils.*;
+import static org.molgenis.emx2.utils.URIUtils.*;
 
 import java.io.StringWriter;
 import java.net.URI;
@@ -187,7 +186,11 @@ public class FAIRDataPointDataset {
           throw new Exception(
               "propertyValue should contain strings that each consist of 2 elements separated by 1 whitespace");
         }
-        builder.add(reqUrl, iri(propertyValueSplit[0]), iri(propertyValueSplit[1]));
+        if (propertyValueSplit[1].startsWith("http")) {
+          builder.add(reqUrl, iri(propertyValueSplit[0]), iri(propertyValueSplit[1]));
+        } else {
+          builder.add(reqUrl, iri(propertyValueSplit[0]), propertyValueSplit[1]);
+        }
       }
     }
     if (datasetFromJSON.get("spatialResolutionInMeters") != null) {

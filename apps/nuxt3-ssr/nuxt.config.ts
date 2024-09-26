@@ -2,13 +2,9 @@
 import { defineNuxtConfig } from "nuxt/config";
 
 export default defineNuxtConfig({
+  extends: ["../tailwind-components"],
   devtools: { enabled: true },
-  modules: [
-    "@nuxt/image",
-    "@nuxtjs/tailwindcss",
-    "floating-vue/nuxt",
-    "@nuxt/test-utils/module",
-  ],
+  modules: ["@nuxt/image", "@nuxt/test-utils/module"],
   tailwindcss: {
     cssPath: "../tailwind-components/assets/css/main.css",
     configPath: "../tailwind-components/tailwind.config.js",
@@ -44,9 +40,7 @@ export default defineNuxtConfig({
     },
   },
   components: [
-    {
-      path: "~/components",
-    },
+
     {
       path: "../tailwind-components/components",
     },

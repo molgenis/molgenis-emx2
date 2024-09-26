@@ -4,7 +4,7 @@ import static org.eclipse.rdf4j.model.util.Values.*;
 import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
-import static org.molgenis.emx2.rdf.RDFUtils.*;
+import static org.molgenis.emx2.utils.URIUtils.*;
 
 import com.google.common.net.UrlEscapers;
 import java.io.OutputStream;

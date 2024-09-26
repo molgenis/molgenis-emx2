@@ -1,16 +1,6 @@
-import type { IColumn } from "metadata-utils";
+import type { IColumn } from "../../metadata-utils/dist";
 import type { INode } from "../../tailwind-components/types/types";
 export interface IResource {
-  id: string;
-  pid: string;
-  acronym: string;
-  name: string;
-  website: string;
-  description: string;
-  contacts: IContributor[];
-  logo?: IUrlObject;
-}
-export interface ICohort {
   id: string;
   pid: string;
   name: string;
@@ -19,15 +9,28 @@ export interface ICohort {
   website?: string;
   logo?: IUrlObject;
   contactEmail?: string;
-  leadOrganisation?: IOrganisation[];
+  organisationsInvolved?: IOrganisation[];
   institution?: {
     acronym: string;
   };
   type: INameObject[];
-  collectionType: INameObject[];
+  typeOther?: string;
+  cohortType: INameObject[];
+  networkType: INameObject[];
+  clinicalStudyType: INameObject[];
+  rWDType: INameObject[];
+  keywords?: string;
+  externalIdentifiers?: [
+    {
+      identifier: string;
+      externalIdentifierType: INameObject;
+    }
+  ];
+  dateEstablished?: string;
+  startDataCollection?: string;
+  endDataCollection?: string;
+  license?: string;
   populationAgeGroups?: IOntologyNode[];
-  startYear: number;
-  endYear: number;
   countries: {
     name: string;
     order: number;
@@ -44,6 +47,14 @@ export interface ICohort {
     definition: string;
     name: string;
   };
+  dataCollectionType?: {
+    definition: string;
+    name: string;
+  }[];
+  dataCollectionDescription?: string;
+  reasonSustained?: string;
+  unitOfObservation?: string;
+  recordTrigger?: string;
   designPaper?: {
     title: string;
     doi: string;
@@ -51,14 +62,16 @@ export interface ICohort {
   inclusionCriteria?: IOntologyNode[];
   otherInclusionCriteria?: string;
   collectionEvents: ICollectionEvent[];
-  additionalOrganisations: IOrganisation[];
-  contacts: IContributor[];
+  collectionEvents_agg: { count: number };
+  peopleInvolved: IContributor[];
   networks: INetwork[];
   publications: IPublication[];
   releaseDescription?: string;
   linkageOptions?: string;
   dataAccessConditionsDescription?: string;
   dataAccessConditions?: { name: string }[];
+  dataUseConditions?: IOntologyNode[];
+  dataAccessFee?: boolean;
   prelinked?: boolean;
   releaseType?: boolean;
   fundingStatement?: string;
@@ -67,6 +80,9 @@ export interface ICohort {
   datasets: { name: string }[];
   populationOncologyTopology?: IOntologyNode[];
   populationOncologyMorphology?: IOntologyNode[];
+  subpopulations: any[];
+  subpopulations_agg: { count: number };
+  partOfResources: IResource[];
 }
 
 export interface IPublication {
@@ -102,18 +118,13 @@ export interface IVariableBase {
 export interface IVariableDetails {
   unit?: IOntologyNode;
   format?: IOntologyNode;
-  repeats?: {
-    name: string;
-    mappings: IMapping[];
-  }[];
+  repeatUnit: IOntologyItem;
+  repeatMin: number;
+  repeatMax: number;
 }
 
 export interface IVariableMappings {
   mappings?: IMapping[];
-  repeats?: {
-    name: string;
-    mappings: IMapping[];
-  }[];
 }
 
 export type IVariable = IVariableBase & IVariableDetails;
@@ -145,7 +156,9 @@ export interface IOrganisation extends IPartner {
   expertise: string;
   country: {
     name: string;
-  };
+  }[];
+  isLeadOrganisation: boolean;
+  role: IOntologyNode[];
 }
 
 export interface IPartner {
@@ -190,7 +203,7 @@ export interface ICollectionEvent {
   areasOfInformation: ICollectionEventCategory[];
   standardizedTools: ICollectionEventCategory[];
   standardizedToolsOther: string;
-  subcohorts: INameObject[];
+  subpopulations: INameObject[];
   coreVariables: string[];
 }
 
@@ -269,13 +282,14 @@ export interface IMapping {
   syntax: string;
   description: string;
   match: {
-    name: string;
+    name: HarmonisationStatus;
   };
   source: {
     id: string;
     name: string;
     mg_tableclass: string;
   };
+  repeats: string;
   sourceDataset: {
     resource: {
       id: string;

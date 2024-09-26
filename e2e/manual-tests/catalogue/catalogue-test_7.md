@@ -14,7 +14,8 @@ A researcher can filter on variables using the search filter, topics and cohorts
 
 | Step | Action | Expected result | Github bug/issue | Playwright test |
 | -----| -------| ----------------| -----------------| ----------------|
-| 'ALL VARIABLES' VARIABLE EXPLORER
+| 'ALL VARIABLES' VARIABLE EXPLORER | | | | | 
+| 0 | NB: Assumptions | This test plan assumes a 'clean' set of test data, otherwise counts for variables etc. might be off. | | |
 1| Go to https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/all/variables | The user goes to overview of all harmonised variables across all networks:         2253 variables| | 
 2| Type ‘adhd’ in search bar| 14 variables are listed| | 
 3| Click on Harmonisations button| Harmonisation matrix is opened| | 

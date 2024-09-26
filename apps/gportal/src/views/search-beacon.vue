@@ -103,14 +103,14 @@ import { Page, PageHeader, PageSection, Accordion, DataTable, LoadingScreen, Mes
 
 import CheckBoxSearch from "../components/CheckBoxSearch.vue";
 
-import { filterData, transformBeaconResultSets } from "../utils/index";
+import { filterData, transformBeaconResultSets } from "../utils/beacon";
 import type {
   BeaconQueryIF,
   ApiResponseIF,
   OntologyDataIF,
   BeaconOutputIF,
   BeaconResultsIF,
-} from "../interfaces";
+} from "../interfaces/beacon";
 import axios from "axios";
 
 const loading = ref<boolean>(false);

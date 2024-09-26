@@ -3,6 +3,7 @@ package org.molgenis.emx2.fairdatapoint;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.molgenis.emx2.datamodels.DataModels.Profile.DCAT;
 import static org.molgenis.emx2.fairdatapoint.FormatMimeTypes.formatToMediaType;
 
 import org.junit.jupiter.api.BeforeAll;
@@ -11,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.SchemaMetadata;
-import org.molgenis.emx2.datamodels.ProfileLoader;
 import org.molgenis.emx2.io.tablestore.TableStoreForXlsxFile;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import org.molgenis.emx2.utils.StopWatch;
@@ -30,9 +30,8 @@ public class FAIRDataPointTest {
     fdpSchema = database.dropCreateSchema("fdpTest");
     Schema dcat_nr1 = database.dropCreateSchema("fairDataHub_nr1");
     Schema dcat_nr2 = database.dropCreateSchema("fairDataHub_nr2 with a whitespace");
-    ProfileLoader dcatLoader = new ProfileLoader("_profiles/DCAT.yaml");
-    dcatLoader.load(dcat_nr1, true);
-    dcatLoader.load(dcat_nr2, true);
+    DCAT.getImportTask(dcat_nr1, true).run();
+    DCAT.getImportTask(dcat_nr2, true).run();
     dcatSchemas = new Schema[2];
     dcatSchemas[0] = dcat_nr1;
     dcatSchemas[1] = dcat_nr2;

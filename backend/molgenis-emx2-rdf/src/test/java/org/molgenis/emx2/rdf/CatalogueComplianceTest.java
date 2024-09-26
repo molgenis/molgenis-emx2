@@ -14,26 +14,26 @@ public class CatalogueComplianceTest {
   @BeforeAll
   public static void setup() {
     catalogueSchemaRDF =
-        CreateSchemaExportRDF("catalogue_shacl_validation", "_profiles/DataCatalogueFlat.yaml");
+        createSchemaExportRDF("catalogue_shacl_validation", "_profiles/DataCatalogueFlat.yaml");
   }
 
   @Test
   public void FAIRDataPoint_Compliance() throws Exception {
-    TestCompliance(FAIR_DATA_POINT_SHACL_FILES, catalogueSchemaRDF);
+    testCompliance(FAIR_DATA_POINT_SHACL_FILES, catalogueSchemaRDF);
   }
 
   @Test
   public void DCAT_AP_Compliance() throws Exception {
-    TestCompliance(DCAT_AP_SHACL_FILES, catalogueSchemaRDF);
+    testCompliance(DCAT_AP_SHACL_FILES, catalogueSchemaRDF);
   }
 
   @Test
   public void Health_RI_core_plateau_1_Compliance() throws Exception {
-    TestCompliance(HEALTH_RI_SHACL_FILES, catalogueSchemaRDF);
+    testCompliance(HEALTH_RI_SHACL_FILES, catalogueSchemaRDF);
   }
 
   @Test
   public void EJP_RD_VP_Lvl1_Compliance() throws Exception {
-    TestCompliance(EJP_RD_VP_SHACL_FILES, catalogueSchemaRDF);
+    testCompliance(EJP_RD_VP_SHACL_FILES, catalogueSchemaRDF);
   }
 }

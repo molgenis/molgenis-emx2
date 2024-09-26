@@ -27,10 +27,14 @@
     "gportal",
     "projectmanager",
     "aggregates",
-    "imdhub-public"
+    "imdhub-public",
+    "aggregation-dashboard",
+    "imdhub-public",
+    "emx2-analytics",
+    "ui"
   ],
   "devDependencies": {
-    "nuxt": "3.12.4"
+    "nuxt": "3.13.2"
   },
   "scripts": {
     "build:libs": "yarn workspace molgenis-components run build && yarn workspace molgenis-viz run build"

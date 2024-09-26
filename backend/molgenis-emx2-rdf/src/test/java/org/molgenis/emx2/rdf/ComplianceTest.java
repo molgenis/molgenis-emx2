@@ -6,14 +6,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.datamodels.ProfileLoader;
+import org.molgenis.emx2.io.ImportProfileTask;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 /**
  * Not a test itself, but offers to component to quickly build specific tests such as
  * CatalogueComplianceTest and FDPComplianceTest
  */
-public class ComplianceTest {
+public abstract class ComplianceTest {
 
   /**
    * Create a schema according to a profile and return its exported RDF
@@ -22,11 +22,10 @@ public class ComplianceTest {
    * @param profile
    * @return
    */
-  public static String CreateSchemaExportRDF(String schemaName, String profile) {
+  public static String createSchemaExportRDF(String schemaName, String profile) {
     Database database = TestDatabaseFactory.getTestDatabase();
     Schema schema = database.dropCreateSchema(schemaName);
-    ProfileLoader profileLoader = new ProfileLoader(profile);
-    profileLoader.load(schema, true);
+    new ImportProfileTask(schema, profile, true).run();
     OutputStream outputStream = new ByteArrayOutputStream();
     var rdf = new RDFService("http://localhost:8080", RDF_API_LOCATION, null);
     rdf.describeAsRDF(outputStream, null, null, null, schema);
@@ -40,7 +39,7 @@ public class ComplianceTest {
    * @param rdf
    * @throws Exception
    */
-  public static void TestCompliance(String[] SHACLFiles, String rdf) throws Exception {
+  public static void testCompliance(String[] SHACLFiles, String rdf) throws Exception {
     SHACLValidator sv = new SHACLValidator();
     for (String SHACLFile : SHACLFiles) {
       sv.addValidateShapesFromFile(SHACLFile);

@@ -1,0 +1,5 @@
+dependencies {
+    implementation project(':backend:molgenis-emx2')
+    implementation project(':backend:molgenis-emx2-sql')
+    implementation 'org.apache.commons:commons-text:1.10.0'
+}

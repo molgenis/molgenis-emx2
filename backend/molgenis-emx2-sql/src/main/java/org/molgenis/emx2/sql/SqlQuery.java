@@ -267,15 +267,14 @@ public class SqlQuery extends QueryBean {
               + " unknown for JSON queries in schema "
               + schema.getName());
     }
+    String tableAlias = "gql_" + table.getTableName();
     if (select.getColumn().endsWith("_agg")) {
       fields.add(
-          jsonAggregateSelect(
-                  table, null, table.getTableName(), select, getFilter(), getSearchTerms())
+          jsonAggregateSelect(table, null, tableAlias, select, getFilter(), getSearchTerms())
               .as(convertToPascalCase(select.getColumn())));
     } else if (select.getColumn().endsWith("_groupBy")) {
       fields.add(
-          jsonGroupBySelect(
-                  table, null, table.getTableName(), select, getFilter(), getSearchTerms())
+          jsonGroupBySelect(table, null, tableAlias, select, getFilter(), getSearchTerms())
               .as(convertToPascalCase(select.getColumn())));
     } else {
       // select all on root level as default
@@ -287,7 +286,7 @@ public class SqlQuery extends QueryBean {
         }
       }
       fields.add(
-          jsonSubselect(table, null, table.getTableName(), select, getFilter(), getSearchTerms())
+          jsonSubselect(table, null, tableAlias, select, getFilter(), getSearchTerms())
               .as(name(convertToPascalCase(select.getColumn()))));
     }
 
