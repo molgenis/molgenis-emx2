@@ -1,4 +1,4 @@
-# Data manager of a cohort or data source
+# Data manager of a data resource
 
 ## Data Catalogue
 
@@ -8,8 +8,8 @@ cohorts and data sources; and mappings to common data models. Its purpose is to 
 [Fortier et al, 2017](https://pubmed.ncbi.nlm.nih.gov/27272186/) and multi-data
 source studies [Gini et al, 2020](https://pubmed.ncbi.nlm.nih.gov/32243569/).
 
-- The metadata of cohorts include descriptive information such as contact details, name of the cohort, and high-level
-  summary of contents and cohort design. The metadata of data sources, of the corresponding data banks and of the
+- The metadata of cohorts include descriptive information such as contact details, name of the resource, and a high-level
+  summary of contents and design. The metadata of data sources, of the corresponding data banks and of the
   organisations that provide access to them, include descriptive information such as contact details, reason for
   existence of the data banks, the prompt for the records in the data bank, and lag time for updating and accessing data.
 - The metadata of the source variables can be considered the codebook or data
@@ -35,8 +35,6 @@ metadata are entered in the live catalogue.
 You will need credentials to log in and upload metadata. 
 
 Cohorts in projects such as ATHLETE, IPEC and LongITools use [*MOLGENIS Data Catalogue*](https://data-catalogue.molgeniscloud.org/apps/central/#/).  
-ConcePTION uses [*ConcePTION-acc*](https://conception-acc.molgeniscloud.org).
-VAC4EU uses [*VAC4EU*](https://vac4eu.molgeniscloud.org).
 
 When you log in, you will be able to see at least the following databases:
 
@@ -44,25 +42,28 @@ When you log in, you will be able to see at least the following databases:
 - <b>CatalogueOntologies</b>: This database contains the look-up list that you need for filling out some columns in the
   templates, e.g. format or unit. If you need to add anything to these look-up lists, contact us
   at [molgenis-support](mailto:molgenis-support@umcg.nl).
-- <b>Your own database </b>: (here: testCohort and testNetwork) Use this to fill out rich metadata and to upload the templates once you have filled them out.
+- <b>Your own database </b>: Use this to fill out rich metadata and to upload the templates once you have filled them out.
+- <b>Test databases</b> (here: testCohort, testDatasource and testNetwork): You can see filled out example metadata in these databases.
 - <b>Aggregates</b>: a database where aggregate data are stored.
 
 ![MOLGENIS databases](../img/cat_databases.png)
 
 <sup>*Figure 1. Databases in the Data Catalogue staging area.*</sup>
 
-### Fill out cohort rich metadata
+### Fill out rich metadata
 
-Open your staging area, navigate to 'Tables' and open the table 'Resources'. Your cohort/resource id and name are already 
+Open your staging area, navigate to 'Tables' and open the table 'Resources'. Your resource id and name are already 
 filled out. Click on the pencil sign next to this entry to start editing your rich metadata by filling out 
-the form. For cohort studies 'Subcohorts' and 'Collection events' should also be filled out through this route. You can refer to them from columns in the dictionary templates.
+the form. For cohort studies 'Subcohorts' and 'Collection events' should also be filled out through this route. You can later refer to them from columns in the 
+dictionary templates to indicate whch variables were collected during whch collection event.
 
-### Define metadata of cohorts or data sources
+### Define codebooks or data dictionaries
 
 This section explains how to submit 'source variables' + 'mappings from source variables to target variables' into
 the Data Catalogue. Expected users of this 'how to' are data managers within the organisations with access to cohorts or
 data sources. This document assumes you have received login details for upload of your metadata. You can also watch
-this [*instruction video*](https://www.youtube.com/watch?v=b_Ef_Uiw1gE&amp;ab_channel=MOLGENIS). Note that this video used dictionary model version 2.x, which was updated to 4.x. The basic principles remain the same, but column names vary between these versions.
+this [*instruction video*](https://www.youtube.com/watch?v=b_Ef_Uiw1gE&amp;ab_channel=MOLGENIS). Note that this video used 
+dictionary model version 2.x, which was updated to 4.x. The basic principles remain the same, but column names vary between these versions.
 
 #### Define source variable metadata / source data dictionary
 
@@ -83,7 +84,7 @@ upload the metadata to the Data Catalogue see the section [Upload metadata](cat_
 
 <sup>*Figure 2. Tables in a cohort's database in the Data Catalogue. Note that not all tables are filled out 
 via the templates, some are filled via an online form, see section 
-[Fill out cohort rich metadata](cat_cohort-data-manager.md#fill-out-cohort-rich-metadata).*</sup>
+[Fill out rich metadata](cat_cohort-data-manager.md#fill-out-rich-metadata).*</sup>
 
 #### *Datasets* sheet
 
@@ -118,16 +119,21 @@ The variables of the datasets specified in the *Datasets* sheet are defined in t
 | format | The data type of the variable | Find list to choose from in CatalogueOntologies [Formats](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/Formats) |
 | unit<sup>1</sup> | Unit in case of a continuous or integer format | Find list to choose from in CatalogueOntologies [Units](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/Units) |
 | description | Description of the variable | |
-| exampleValues | Examples of values in a comma separated list | Makes your data more insightful. E.g. 1,2,3 or TRUE,FALSE or 1.23,4.56,3.14 |
+| exampleValues | Examples of values in a comma separated list | Makes your data structure more insightful. E.g. 1,2,3 or TRUE,FALSE or 1.23,4.56,3.14 |
+| repeat unit | In case of repeated variables, indicate the repeat period | Find list to choose from in CatalogueOntologies [Repeat units](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/RepeatUnits) |
+| repeat min | The minimum repeat unit | E.g. 0 or 10 |
+| repeat max | The maximum repeat unit | E.g. 10 or 60 |
+| collection events | Refer to the names of collection events in a comma separated list | The collection events need to be predefined in the Collection events table in the resource staging area; e.g. y1, y2 |
 | vocabularies<sup>1</sup> | Refer to ontologies being used | Find list to choose from in CatalogueOntologies [Vocabularies](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/Vocabularies) |
-| collection event.resource | Your cohort id | The collection event needs to be predefined via forms; e.g. y1 or y2 |
-| collection event.name | Refer to the name of a collection event | The collection event needs to be predefined in the Collection events table in the cohort or data source staging area; e.g. y1 or y2 |
 | keywords<sup>1</sup> | Enables grouping of variables into topics and helps to display variables in a tree | Find list to choose from in Catalogue [Keywords](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/Keywords)|
 | since version | Version of the data model when this variable was introduced | e.g. 1.0.0 or 2.1 |
 | until version | Version of the data model when this variable was deleted | e.g. 2.0.0 or 2.1 |
+| useExternaldefinition.resource | Refer to the associated resource id | When using the definitions of a harmonised variable from another CDM |
+| useExternaldefinition.dataset | Refer to the associated dataset name | When using the definitions of a harmonised variable from another CDM |
+| useExternaldefinition.name | Refer to the associated variable name | When using the definitions of a harmonised variable from another CDM |
 
 <sup>Table 2. Description of the columns that can be filled out for Variables. * = mandatory; 
-1 = contact [*molgenis-support@umcg.nl*](mailto:molgenis-support@umcg.nl) to add Vocabularies, Keywords or Units</sup>
+1 = contact [*molgenis-support@umcg.nl*](mailto:molgenis-support@umcg.nl) to add Vocabularies, Keywords, Repeat units, or Units</sup>
 
 #### *Variable values* sheet
 
@@ -137,7 +143,7 @@ insightful for those that are interested.
 
 | *Column name* | *Description* | *Remarks* |
 | --- | --- | --- |
-| resource \* | Cohort or databank that the variable belongs to | Fill out your cohort or databank id |
+| variable.resource \* | Resource that the variable belongs to | Fill out your resource id, e.g. cohort or databank id |
 | variable.dataset \* | Dataset that contains the variable | Datasets must be predefined in the _Datasets_ sheet |
 | variable.name \* | Variable name | Variables must be predefined in the _Variables_ sheet |
 | value \* | The code or value used | e.g. 1, 2 or -99 |
@@ -148,28 +154,6 @@ insightful for those that are interested.
 | until version | Version of the data model when this variable value was deleted | e.g. 2.0.0 or 2.1 |
 
 <sup>Table 3. Description of the columns that can be filled out for Variable values. * = mandatory</sup>
-
-#### *Repeated variables* sheet
-
-The *Repeated variables* sheet is optional, and is most often used by cohorts whose variables are observed
-repeatedly. Variables that are repeats of a variable defined in the sheet *Variables* are defined in the *Repeated variables* sheet. 
-Defining your repeated variables using this sheet will limit the amount of information
-that has to be repeated when filling out repeated variables. This sheet is optional.
-
-| *Column name* | *Description* | *Remarks* |
-| --- | --- | --- |
-| resource \* | Cohort or databank that this variable belongs to | Fill out your cohort or databank id |
-| dataset \* | Dataset name. | e.g. core |
-| name \* | Variable name. | e.g. height\_1 |
-| is repeat of.dataset \* | Dataset that contains the variable that is repeated | Tables must be predefined in the _Datasets_ sheet; e.g. core |
-| is repeat of.name \* | Name of the variable that is repeated | Variables must be predefined in the _Variables_ sheet; e.g. height\_0 |
-| collection event.resource | Your cohort id | The collection event needs to be predefined via forms; e.g. y1 or y2 |
-| collection event.name | Refer to the name of a collection event | The collection event needs to be predefined in the table Collection Events in the cohort or data source staging area; e.g. y1 or y2 |
-| since version | Version of the data model when this variable was introduced | e.g. 1.0.0 or 2.1 |
-| until version | Version of the data model when this variable was deleted | e.g. 2.0.0 or 2.1 |
-
-
-<sup>Table 4. Description of the columns that can be filled out for Repeated variables. * = mandatory</sup>
 
 #### Define harmonisations
 
