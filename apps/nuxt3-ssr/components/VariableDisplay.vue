@@ -37,13 +37,16 @@ const items = computed(() => [
   },
   {
     label: "Repeated for",
-    content: variable.value?.repeatUnit?.name
-      ? variable.value?.repeatUnit?.name +
-        " " +
-        variable.value?.repeatMin +
-        "-" +
-        variable.value?.repeatMax
-      : undefined,
+    content:
+      variable.value?.repeatUnit?.name ||
+      variable.value?.repeatMin ||
+      variable.value?.repeatMax
+        ? variable.value?.repeatUnit?.name +
+          " " +
+          variable.value?.repeatMin +
+          "-" +
+          variable.value?.repeatMax
+        : undefined,
   },
 ]);
 </script>
@@ -54,6 +57,7 @@ const items = computed(() => [
     :description="data.data?.Variables[0].description"
     sub-title="Variable"
   >
+    {{ data.data?.Variables }}
     <CatalogueItemList :items="items" :small="true" />
   </ContentBlockModal>
 </template>

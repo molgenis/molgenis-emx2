@@ -14,6 +14,10 @@ const props = withDefaults(
 const variableKey = computed(() => getKey(props.variable));
 
 const resourcePathId = resourceIdPath(variableKey.value);
+
+function repeats(variable: IVariable) {
+  return (variable.repeatMax || 0) - (variable.repeatMin || 0);
+}
 </script>
 
 <template>
@@ -28,16 +32,16 @@ const resourcePathId = resourceIdPath(variableKey.value);
             {{ variable?.name }}
           </NuxtLink>
           <span
-            v-if="variable.repeats?.length"
+            v-if="repeats(variable) > 0"
             v-tooltip="{
               content:
-                variable.repeats.length +
-                (variable.repeats.length === 1 ? ' repeat' : 'repeats'),
+                repeats(variable) +
+                (repeats(variable) === 1 ? ' repeat' : 'repeats'),
             }"
             class="ml-1 bg-blue-50 text-title-contrast justify-center rounded-full px-2 py-1 font-bold text-heading-sm hover:cursor-help"
             style="display: inline-flex; flex-wrap: wrap"
           >
-            + {{ variable.repeats?.length }}
+            + {{ repeats(variable) }}
           </span>
         </h2>
       </div>

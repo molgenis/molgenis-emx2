@@ -179,6 +179,9 @@ const query = computed(() => {
           id
         }
       }
+      repeatUnit {name}
+      repeatMin
+      repeatMax
       label
       description
       mappings ${moduleToString(mappingsFragment)}
