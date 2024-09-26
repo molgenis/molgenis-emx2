@@ -41,6 +41,6 @@ withDefaults(
   }
 );
 
-const inputId: string = useId();
+const inputId = useId();
 const modelValue = ref<string>("");
 </script>
