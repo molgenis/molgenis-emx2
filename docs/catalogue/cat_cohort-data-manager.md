@@ -175,12 +175,12 @@ is in a cohort or in a data bank.
 | --- | --- | --- |
 | source \* | Databank or cohort id |  |
 | source dataset \* | Source dataset name | Datasets must be predefined in the _Datasets_ sheet in the SourceDictionary template |
-| target \* | Name of the target common data model  | e.g. LifeCycle_CDM, LongITools_CDM, see [variable explorer](https://data-catalogue.molgeniscloud.org/catalogue/catalogue/#/variable-explorer) |
-| target dataset \* | Target dataset name | Map to a [dataset](https://data-catalogue.molgeniscloud.org/catalogue/tables/#/Datasets) that is defined in a common data model |
+| target \* | Name of the target CDM  | e.g. LifeCycle, LongITools, see [variable explorer](https://data-catalogue.molgeniscloud.org/catalogue/catalogue/#/variable-explorer) |
+| target dataset \* | Target dataset name | Map to a [dataset](https://data-catalogue.molgeniscloud.org/catalogue/tables/#/Datasets) that is defined in a CDM |
 | description | Description of the harmonisation | |
 | syntax | Syntax used for this harmonisation | |
 
-<sup>Table 5. Description of the columns that can be filled out for Variable mappings. * = mandatory</sup>
+<sup>Table 4. Description of the columns that can be filled out for Variable mappings. * = mandatory</sup>
 
 #### *Variable mappings* sheet
 
@@ -193,21 +193,22 @@ Harmonisation procedures at the variable level are defined in the *Variable mapp
 | source variables | Source variable name(s) | Variables must be predefined in the _Variables_ sheet in the SourceDictionary template; When multiple variables are mapped together use a comma-separated list, e.g. v1,v2,v3 |
 | source variables other datasets.dataset | Other source tables | When using variables from multiple other datasets, use a comma-separated list, e.g. dataset1,dataset2,dataset3<sup>1</sup> |
 | source variables other datasets.name | Source variable(s) from other datasets than filled out under source dataset | When using variables from multiple other datasets, use a comma-separated list, the order corresponding to the order of the datasets they are derived from specified under source variables from other datasets.dataset<sup>1</sup> |
-| target \* | Name of the target common data model  | e.g. LifeCycle_CDM, LongITools_CDM, see [variable explorer](https://data-ca`talogue.molgeniscloud.org/catalogue/catalogue/#/variable-explorer) |
-| target dataset \* | Target dataset name. | Map to a [dataset](https://data-catalogue.molgeniscloud.org/catalogue/tables/#/Datasets) that is defined in a common data model |
-| target variable \* | Target variable name | Map to a [variable](https://data-catalogue.molgeniscloud.org/catalogue/catalogue/#/variable-explorer) that is defined in a common data model |
+| target \* | Name of the target CDM  | e.g. LifeCycle, LongITools, see [variable explorer](https://data-ca`talogue.molgeniscloud.org/catalogue/catalogue/#/variable-explorer) |
+| target dataset \* | Target dataset name. | Map to a [dataset](https://data-catalogue.molgeniscloud.org/catalogue/tables/#/Datasets) that is defined in a CDM |
+| target variable \* | Target variable name | Map to a [variable](https://data-catalogue.molgeniscloud.org/catalogue/catalogue/#/variable-explorer) that is defined in a CDM |
 | match \* | Whether the harmonisation is partial, complete or NA (non-existent) | Find list to choose from in CatalogueOntologies [StatusDetails] |
 | description | Description of the harmonisation | |
 | syntax | Syntax used for this harmonisation | |
 
-<sup>*Table 6. Description of the columns that can be filled out for Variable mappings. * = mandatory; 1 = see sheet Variable mappings in the 
+<sup>*Table 5. Description of the columns that can be filled out for Variable mappings. * = mandatory; 1 = see sheet Variable mappings in the 
 [*example template*](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/Mappings_testCohort.xlsx)
 for an example on how to fill this out (last line) </sup> 
 
 ### Upload metadata
 
-When you have filled out the template(s) you can start uploading the metadata. When you log in to MOLGENIS Data 
-Catalogue you will see a listing of databases that are accessible to you. Click on your cohort's database to access it. 
+When you have filled out the template(s) you can start uploading the metadata. When you log in to 
+[*MOLGENIS Data Catalogue*](https://data-catalogue.molgeniscloud.org/apps/central/#/) 
+you will see a listing of databases that are accessible to you. Click on your cohort's database to access it. 
 Go to 'Up/Download' in the menu. Use 'browse' to select a template and 'upload' to start uploading your metadata. After 
 uploading, you can view your metadata under 'Tables'.
 
@@ -216,19 +217,8 @@ Please report any bugs or difficulties to [molgenis-support](mailto:molgenis-sup
 #### Find harmonisations
 
 When your data is uploaded to the Data Catalogue you can find your own harmonised variables in variable details in the 
-[Variable Explorer] (https://data-catalogue.molgeniscloud.org/catalogue/catalogue/#/variable-explorer/) 
+[Harmonised variable explorer](https://data-catalogue.molgeniscloud.org/apps/docs/#/catalogue/cat_researcher)
 once they have been transferred there. 
-Use the search bar to find your variable(s) of interest.
-
-![Variable search](../img/cat_variable-open.png)
-
-Click on "Details"
-
-![Variable detail](../img/cat_variable-detail.png)
-
-Click on "Harmonisation"
-
-![Variable mapping](../img/cat_variable-mapping.png)
 
 #### Request access (catalogue)
 
