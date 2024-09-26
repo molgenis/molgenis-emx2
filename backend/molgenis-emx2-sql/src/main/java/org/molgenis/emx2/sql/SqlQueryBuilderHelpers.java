@@ -41,7 +41,10 @@ class SqlQueryBuilderHelpers {
   private static SelectJoinStep<Record> setOderByForColumn(
       Column column, Order order, SelectConnectByStep<org.jooq.Record> query, String tableAlias) {
     if (column.isRefback()) {
+      // TODO, we now ignore sorting on refback, see issue
+      // https://github.com/molgenis/molgenis-emx2/issues/4260
       // need to order by join with the refback table
+      /*
       List<Condition> conditions =
           column.getRefBackColumn().getReferences().stream()
               .map(ref -> field(name(tableAlias, ref.getRefTo())).eq(field(ref.getName())))
@@ -61,7 +64,7 @@ class SqlQueryBuilderHelpers {
         final SortField<?> sortField =
             ASC.equals(order) ? collatedField.asc() : collatedField.desc();
         query = (SelectJoinStep<org.jooq.Record>) query.orderBy(sortField);
-      }
+      }*/
     } else if (column.isReference()) {
       for (Reference ref : column.getReferences()) {
         final Column refColumn = ref.toPrimitiveColumn();
