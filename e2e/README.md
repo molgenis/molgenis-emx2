@@ -60,12 +60,8 @@ If you are using vscode, we recommend installing the extension: [Playwright: Get
 Once installed, you can configure the plugin use a local running version of EMX2. In the `settings.json` file, add the following setting.
 
 ```json
-// settings.json
-{
-  "playwright.env": {
-    "E2E_BASE_URL":"http://localhost:8080/"
-  }
-  ...
+"playwright.env": {
+  "E2E_BASE_URL":"http://localhost:8080/"
 }
 ```
 
