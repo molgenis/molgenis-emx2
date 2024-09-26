@@ -159,7 +159,7 @@ class Transform:
                                        'type other': 'study type other',
                                        'number of subjects': 'number of participants',
                                        'age groups': 'population age groups'}, inplace=True)
-            df_studies['type'] = 'Study'
+            df_studies['type'] = 'Clinical trial'
 
         # Data sources to Resources
         if self.database_type in ['catalogue', 'data_source']:
@@ -179,7 +179,7 @@ class Transform:
         # Models to Resources
         if self.database_type in ['catalogue', 'network']:
             df_models = pd.read_csv(self.path + 'Models.csv', dtype='object')
-            df_models = df_models[df_models['id'] == 'CRC Screening CDM']  # handles exception CRC Screening CDM
+            df_models = df_models[df_models['id'].isin(['CRC Screening CDM', 'OMOP-CDM'])]  # handles exceptions
             df_models['type'] = ''  # TODO: add term here
 
         # merge all to Resources
@@ -211,9 +211,10 @@ class Transform:
                                          'lead organisation': 'id'}, inplace=True)
             df_resources = df_resources.dropna(axis=0)
             df_resources = df_resources.reset_index()
-            df_resources.loc[:, 'is lead organisation'] = 'True'
-            df_merged = get_organisations(df_organisations, df_resources)
-            df_all_organisations = pd.concat([df_all_organisations, df_merged])
+            if len(df_resources) != 0:
+                df_resources.loc[:, 'is lead organisation'] = 'True'
+                df_merged = get_organisations(df_organisations, df_resources)
+                df_all_organisations = pd.concat([df_all_organisations, df_merged])
 
             # get additional organisations and Contacts.organisation
             for table in ['Resources', 'Contacts']:
@@ -235,17 +236,19 @@ class Transform:
             df_all_organisations = df_all_organisations.drop_duplicates(subset=['resource', 'id'], keep='first')  # keep first to get lead organisations
             df_all_organisations.to_csv(self.path + 'Organisations.csv', index=False)
 
-        # get information from test staging areas
-        elif self.database_name == 'testCohort':
-            data = [['testCohort', 'UMCG', 'University Medical Center Groningen', 'Netherlands (the)',
-                    'https://www.umcg.nl/']]
-            df_organisations = pd.DataFrame(data, columns=['resource', 'id', 'name', 'country', 'website'])
-            df_organisations.to_csv(self.path + 'Organisations.csv', index=False)
+        else:
+            # get information from test staging areas
+            if self.database_name == 'testCohort':
+                data = [['testCohort', 'UMCG', 'University Medical Center Groningen', 'Netherlands (the)',
+                        'https://www.umcg.nl/']]
+                df_organisations = pd.DataFrame(data, columns=['resource', 'id', 'name', 'country', 'website'])
+                df_organisations.to_csv(self.path + 'Organisations.csv', index=False)
 
-        elif self.database_name == 'testDatasource':
-            data = [['testDatasource', 'AU', 'University of Aarhus', 'Denmark']]
-            df_organisations = pd.DataFrame(data, columns=['resource', 'id', 'name', 'country'])
-            df_organisations.to_csv(self.path + 'Organisations.csv', index=False)
+            elif self.database_name == 'testDatasource':
+                data = [['testDatasource', 'AU', 'University of Aarhus', 'Denmark']]
+                df_organisations = pd.DataFrame(data, columns=['resource', 'id', 'name', 'country'])
+                df_organisations.to_csv(self.path + 'Organisations.csv', index=False)
+
 
     def publications(self):
         """Transform Publications table
