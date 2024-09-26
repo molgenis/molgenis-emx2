@@ -46,7 +46,6 @@ public class User extends HasSettings<User> {
   }
 
   public void setEnabled(Boolean enabled) {
-    assert enabled != null;
     this.enabled = enabled;
   }
 
