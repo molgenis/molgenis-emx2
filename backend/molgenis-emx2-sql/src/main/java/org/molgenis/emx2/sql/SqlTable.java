@@ -266,7 +266,7 @@ class SqlTable implements Table {
 
             // execute batch; or columns provided changes
             if (columnsProvidedAreDifferent(columnsProvided.get(subclassName), row)
-                || subclassRows.get(subclassName).size() >= 1000) {
+                || subclassRows.get(subclassName).size() >= 100) {
               executeBatch(
                   (SqlSchema) db2.getSchema(subclassName.split("\\.")[0]),
                   transactionType,
