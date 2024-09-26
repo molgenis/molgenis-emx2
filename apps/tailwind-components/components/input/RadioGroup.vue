@@ -1,11 +1,11 @@
 <template>
-  {{ modelValue }}
-  <div v-for="(value, index) in values">
+  <div :id="`${inputId}-group`" v-for="(value, index) in values" :key="index">
     <InputRadio
       :id="`${inputId}-${value}`"
       :name="name"
       :value="value"
       v-model="modelValue"
+      :checked="modelValue === value"
     />
     <InputLabel :for="`${inputId}-${value}`" class="hover:cursor-pointer">
       <template v-if="labels">
@@ -17,7 +17,12 @@
     </InputLabel>
   </div>
   <div class="mt-2" v-if="showClearButton">
-    <button :id="`${inputId}-clear-btn`" @click.prevent="modelValue = ['']">
+    <button
+      type="reset"
+      :id="`${inputId}-clear-btn`"
+      :form="`${inputId}-group`"
+      @click.prevent="modelValue = ''"
+    >
       Clear
     </button>
   </div>
@@ -37,5 +42,5 @@ withDefaults(
 );
 
 const inputId: string = useId();
-const modelValue = ref<string[]>([""]);
+const modelValue = ref<string>("");
 </script>
