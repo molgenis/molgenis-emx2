@@ -44,7 +44,7 @@ function percentageLongitudinal(
 }
 </script>
 <template>
-  <LayoutsLandingPage class="w-10/12 pt-8">
+  <LayoutsLandingPage>
     <PageHeader
       class="mx-auto lg:w-7/12 text-center"
       title="European Health Data & Cohort Networks Catalogue"
