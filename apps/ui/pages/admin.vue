@@ -41,7 +41,7 @@ definePageMeta({
   middleware: "admin-only",
 });
 
-const LIMIT = 5;
+const LIMIT = 20;
 const currentPage = ref(1);
 const offset = computed(() => {
   return currentPage.value > 1 ? `, offset: ${currentPage.value * LIMIT}` : "";
