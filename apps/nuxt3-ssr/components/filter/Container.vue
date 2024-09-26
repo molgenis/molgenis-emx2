@@ -2,8 +2,8 @@
 const props = withDefaults(
   defineProps<{
     title: string;
-    conditions: any[];
-    search: string;
+    conditions?: any[];
+    search?: string;
     initialCollapsed?: boolean;
     mobileDisplay?: boolean;
   }>(),

@@ -41,7 +41,7 @@ function handleFilerUpdate(filter: IFilter) {
       <FilterContainer
         v-for="filter in filters"
         :title="filter.config.label"
-        :conditions="filter.conditions"
+        :conditions="(filter as IOntologyFilter | IRefArrayFilter).conditions"
         @update:conditions="(value) => {(filter as IOntologyFilter).conditions = value; handleFilerUpdate(filter)}"
         :search="filter.search"
         @update:search="
