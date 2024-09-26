@@ -7,8 +7,9 @@ test('Catalogue test number 1: Athlete network manager', async ({ page }) => {
   await expect(page.getByRole('main')).toContainText('Project catalogues');
   await expect(page.getByRole('main')).toContainText('ATHLETE');
   await expect(page.getByRole('main')).toContainText('Advancing Tools for Human Early Lifecourse Exposome Research and Translation');
-  await page.getByRole('row', { name: 'ATHLETE Advancing Tools for' }).getByRole('button').click();
-  await expect(page.getByRole('main')).toContainText('ATHLETE');
-  await expect(page.getByRole('main')).toContainText('Cohorts');
-  await expect(page.getByRole('main')).toContainText('Variables');
+  await page.getByText('ATHLETE').click();
+  await expect(page.getByRole('heading', { name: 'ATHLETE' })).toBeVisible();
+  await expect(page.getByRole('navigation').getByRole('link', { name: 'Cohort studies' })).toBeVisible();
+  await expect(page.getByRole('navigation').getByRole('link', { name: 'Variables' })).toBeVisible();
+
 });
