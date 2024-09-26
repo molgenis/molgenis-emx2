@@ -79,7 +79,7 @@ Collections,,biobank_label,Biobank Label,string,,true,,"Name of the biobank, to 
 Collections,,network,Network,ref_array,,false,,"Reference to a network ID, to which the collection belongs to.",,Networks,,${name},,,,,
 Collections,,combined_network,Combined Network,ref_array,,false,,"Reference to one or more network IDs, to which the collection belongs directly or indirectly (i.e., either the collection is explicitly marked as part of the network or its biobank is).",,Networks,,${name},,,,,
 Collections,,also_known,Also Known In,ref_array,,false,,The collection also exists in …,,AlsoKnownIn,,${name_system},,,,,
-Collections,,study,Study,ref,,false,,A link to a Study during which the collection was generated,,Studies,,${title},,,,,
+Collections,,study,Study,ref_array,,false,,A link to studies during which the collection was generated,,Studies,,${title},,,,,
 Collections,,characteristics,Characteristics,heading,,false,,Collection Characteristics,,,,,,,,,
 Collections,,type,Collection Types,ontology_array,,true,,Type(s) of the collection - MIABIS-2.0-19.,DirectoryOntologies,CollectionTypes,,${label},,,,,
 Collections,,data_categories,Data Categories,ontology_array,,true,,Denotes which types of data are available (MIABIS-2.0-13).,DirectoryOntologies,DataCategories,,${label},,,,,

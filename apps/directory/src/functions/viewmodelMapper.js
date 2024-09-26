@@ -347,11 +347,13 @@ export const collectionReportInformation = (collection) => {
   }
 
   if (collection.study) {
-    collectionReport.study = {
-      id: collection.study.id,
-      title: collection.study.title,
-      report: `/study/${collection.study.id}`,
-    };
+    collectionReport.studies = collection.study.map((study) => {
+      return {
+        id: study.id,
+        title: study.title,
+        report: `/study/${study.id}`,
+      };
+    });
   }
 
   collectionReport.collaboration = [];
