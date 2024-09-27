@@ -132,7 +132,14 @@ class Transform:
             df_cohorts = df_cohorts.rename(columns={'type': 'cohort type',
                                                     'type other': 'cohort type other',
                                                     'collection type': 'data collection type'})
-            df_cohorts['type'] = 'Cohort study'
+            # for UMCG data, if cohort type == 'Study', resource type = 'Clinical trial'
+            df_cohorts['type'] = df_cohorts.apply(lambda c: 'Clinical trial' if c['cohort type'] == 'Study' else 'Cohort study', axis=1)
+            # for UMCG data, delete cohort type == 'Study'
+            df_cohorts.loc[:, 'cohort type'] = df_cohorts.apply(lambda c: '' if c['type'] == 'Clinical trial' else c['cohort type'], axis=1)
+            # transform years to dates
+            df_cohorts.loc[:, 'start data collection'] = df_cohorts['start year'] + '-01-01'
+            df_cohorts.loc[:, 'date established'] = df_cohorts['start year']
+            df_cohorts.loc[:, 'end data collection'] = df_cohorts['end year'] + '-12-31'
 
             # get resources that are part of network
             if self.database_type in ['cohort']:
@@ -146,6 +153,10 @@ class Transform:
             df_networks = pd.read_csv(self.path.joinpath('Networks.csv'), dtype='object')
             df_networks = df_networks.rename(columns={'type': 'network type'})
             df_networks['type'] = 'Network'
+            # transform years to dates  # TODO: data collection dates do not fit for Networks
+            df_networks.loc[:, 'start data collection'] = df_networks['start year'] + '-01-01'
+            df_networks.loc[:, 'date established'] = df_networks['start year']
+            df_networks.loc[:, 'end data collection'] = df_networks['end year'] + '-12-31'
 
             # get resources that are part of network
             if self.database_type == 'catalogue':
@@ -170,15 +181,17 @@ class Transform:
             df_data_sources = pd.read_csv(self.path.joinpath('Data sources.csv'), dtype='object')
             df_data_sources.rename(columns={'type': 'RWD type',
                                             'type other': 'RWD type other',
-                                            'areas of information': 'areas of information rwd'}, inplace=True)
-            df_data_sources['type'] = 'Real world data'  # TODO: check whether we want this
+                                            'areas of information': 'areas of information rwd',
+                                            'informed consent': 'informed consent required'}, inplace=True)
+            df_data_sources['type'] = 'Data source'
 
             # Databanks to Resources
             df_databanks = pd.read_csv(self.path.joinpath('Databanks.csv'), dtype='object')
             df_databanks.rename(columns={'type': 'RWD type',
                                          'type other': 'RWD type other',
-                                         'areas of information': 'areas of information rwd'}, inplace=True)
-            df_databanks['type'] = 'Real world data'  # TODO: check whether we want this
+                                         'areas of information': 'areas of information rwd',
+                                         'informed consent': 'informed consent required'}, inplace=True)
+            df_databanks['type'] = 'Databank'
 
         # Models to Resources
         if self.database_type in ['catalogue', 'network']:

@@ -133,6 +133,10 @@ class Transform:
             df_cohorts['type'] = df_cohorts.apply(lambda c: 'Clinical trial' if c['cohort type'] == 'Study' else 'Cohort study', axis=1)
             # for UMCG data, delete cohort type == 'Study'
             df_cohorts.loc[:, 'cohort type'] = df_cohorts.apply(lambda c: '' if c['type'] == 'Clinical trial' else c['cohort type'], axis=1)
+            # transform years to dates
+            df_cohorts.loc[:, 'start data collection'] = df_cohorts['start year'] + '-01-01'
+            df_cohorts.loc[:, 'date established'] = df_cohorts['start year']
+            df_cohorts.loc[:, 'end data collection'] = df_cohorts['end year'] + '-12-31'
 
             # get resources that are part of network
             if self.database_type in ['cohort']:
@@ -146,6 +150,10 @@ class Transform:
             df_networks = pd.read_csv(self.path + 'Networks.csv', dtype='object')
             df_networks = df_networks.rename(columns={'type': 'network type'})
             df_networks['type'] = 'Network'
+            # transform years to dates  # TODO: data collection dates do not fit for Networks
+            df_networks.loc[:, 'start data collection'] = df_networks['start year'] + '-01-01'
+            df_networks.loc[:, 'date established'] = df_networks['start year']
+            df_networks.loc[:, 'end data collection'] = df_networks['end year'] + '-12-31'
 
             # get resources that are part of network
             if self.database_type == 'catalogue':
@@ -170,14 +178,16 @@ class Transform:
             df_data_sources = pd.read_csv(self.path + 'Data sources.csv', dtype='object')
             df_data_sources.rename(columns={'type': 'RWD type',
                                             'type other': 'RWD type other',
-                                            'areas of information': 'areas of information rwd'}, inplace=True)
+                                            'areas of information': 'areas of information rwd',
+                                            'informed consent': 'informed consent required'}, inplace=True)
             df_data_sources['type'] = 'Data source'
 
             # Databanks to Resources
             df_databanks = pd.read_csv(self.path + 'Databanks.csv', dtype='object')
             df_databanks.rename(columns={'type': 'RWD type',
                                          'type other': 'RWD type other',
-                                         'areas of information': 'areas of information rwd'}, inplace=True)
+                                         'areas of information': 'areas of information rwd',
+                                         'informed consent': 'informed consent required'}, inplace=True)
             df_databanks['type'] = 'Databank'
 
         # Models to Resources
@@ -195,7 +205,7 @@ class Transform:
             df_resources = df_data_sources
         elif self.database_type == 'network':
             df_resources = pd.concat([df_networks, df_models])
-        # df_resources = float_to_int(df_resources)  # convert float back to integer
+
         df_resources.to_csv(self.path + 'Resources.csv', index=False)
 
     def organisations(self):
