@@ -2,6 +2,7 @@ name,label,parent,codesystem,code,ontologyTermURI,definition
 Biobank,,,,,,
 Clinical trial,,,,,,
 Cohort study,,,,,,
+Common data model,,,,,,
 Disease specific,,,,,,A study or biobank for which material and information is collected from subjects that have already developed a particular disease.
 Health records,,,,,,
 Network,,,,,,
