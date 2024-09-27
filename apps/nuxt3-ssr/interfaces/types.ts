@@ -97,6 +97,7 @@ export interface IPublication {
   publisher?: string;
   school?: string;
   abstract?: string;
+  isDesignPublication: boolean;
 }
 
 export interface IVariableBase {
