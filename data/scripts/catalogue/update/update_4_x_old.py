@@ -121,6 +121,7 @@ class Transform:
     def resources(self):
         """Transform columns in Cohorts, Networks, Studies, Data sources, Databanks
         """
+        # TODO: get date established & start data collection from other items, Cohorts, Networks
         # Cohorts to Resources
         if self.database_type in ['catalogue', 'cohort', 'cohort_UMCG']:
 
@@ -128,7 +129,10 @@ class Transform:
             df_cohorts = df_cohorts.rename(columns={'type': 'cohort type',
                                                     'type other': 'cohort type other',
                                                     'collection type': 'data collection type'})
-            df_cohorts['type'] = 'Cohort study'
+            # for UMCG data, if cohort type == 'Study', resource type = 'Clinical trial'
+            df_cohorts['type'] = df_cohorts.apply(lambda c: 'Clinical trial' if c['cohort type'] == 'Study' else 'Cohort study', axis=1)
+            # for UMCG data, delete cohort type == 'Study'
+            df_cohorts.loc[:, 'cohort type'] = df_cohorts.apply(lambda c: '' if c['type'] == 'Clinical trial' else c['cohort type'], axis=1)
 
             # get resources that are part of network
             if self.database_type in ['cohort']:
@@ -180,7 +184,7 @@ class Transform:
         if self.database_type in ['catalogue', 'network']:
             df_models = pd.read_csv(self.path + 'Models.csv', dtype='object')
             df_models = df_models[df_models['id'].isin(['CRC Screening CDM', 'OMOP-CDM'])]  # handles exceptions
-            df_models['type'] = ''  # TODO: add term here
+            df_models['type'] = 'Common data model'
 
         # merge all to Resources
         if self.database_type == 'catalogue':

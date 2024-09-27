@@ -124,6 +124,7 @@ class Transform:
     def resources(self):
         """Transform columns in Cohorts, Networks, Studies, Data sources, Databanks
         """
+        # TODO: get date established & start data collection from other items
         # Cohorts to Resources
         if self.database_type in ['catalogue', 'cohort', 'cohort_UMCG']:
 
@@ -181,9 +182,9 @@ class Transform:
 
         # Models to Resources
         if self.database_type in ['catalogue', 'network']:
-            df_models = pd.read_csv(self.path.joinpath('Models.csv'), dtype='object')
-            df_models = df_models[df_models['id'] == 'CRC Screening CDM']  # handles exception CRC Screening CDM
-            df_models['type'] = ''  # TODO: add term here
+            df_models = pd.read_csv(self.path + 'Models.csv', dtype='object')
+            df_models = df_models[df_models['id'].isin(['CRC Screening CDM', 'OMOP-CDM'])]  # handles exceptions
+            df_models['type'] = 'Common data model'
 
         # merge all to Resources
         if self.database_type == 'catalogue':
