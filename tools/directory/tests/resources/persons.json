@@ -1,0 +1,14 @@
+[{
+  "id": "bbmri-eric:contactID:NL_valid-personID-1",
+  "title_before_name": "Dr",
+  "first_name": "Jan",
+  "last_name": "Janssen",
+  "title_after_name": "MSc",
+  "email": "jan.janssen@test.nl",
+  "country": "NL"
+},
+  {"id": "bbmri-eric:contactID:NL_valid:personID-2"},
+  {"id": "bbmri-eric:ID:NL_invalid_person_classifier"},
+  {"id": "bbmri-eric:contactID:EU_invalid_node_code"},
+  {"id": "bbmri-eric:contactID:NL_invalid_illegal_characters#$&"}
+]
