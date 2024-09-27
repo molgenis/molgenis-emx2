@@ -26,10 +26,7 @@
       </legend>
       <InputRadioGroup
         id="example-1"
-        :radioOptions="[
-          {value: 'No'},
-          {value: 'Yes'},
-        ]"
+        :radioOptions="[{ value: 'No' }, { value: 'Yes' }]"
         v-model="question1Response"
       />
       <output>
@@ -44,9 +41,9 @@
         id="example-2"
         v-model="question2Response"
         :radioOptions="[
-          {value: 'level-1', label: 'Level 1 (A)'},
-          {value: 'level-2', label: 'Level 2 (AA)'},
-          {value: 'level-3', label: 'Level 3 (AAA)'},
+          { value: 'level-1', label: 'Level 1 (A)' },
+          { value: 'level-2', label: 'Level 2 (AA)' },
+          { value: 'level-3', label: 'Level 3 (AAA)' },
         ]"
       />
       <output>
@@ -62,9 +59,9 @@
         id="example-3"
         v-model="question3Response"
         :radioOptions="[
-          {value: 'control', label: 'Healthy controls'},
-          {value: 'intervention', label: 'Experimental cohort'},
-          {value: 'placebo',  label: 'Placebo cohort'},
+          { value: 'control', label: 'Healthy controls' },
+          { value: 'intervention', label: 'Experimental cohort' },
+          { value: 'placebo', label: 'Placebo cohort' },
         ]"
         :show-clear-button="true"
       />

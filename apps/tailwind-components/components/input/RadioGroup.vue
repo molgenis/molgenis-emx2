@@ -38,7 +38,6 @@
 </template>
 
 <script lang="ts" setup>
-
 interface RadioOptionsDataIF {
   value: string;
   label?: string;
