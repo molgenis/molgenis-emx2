@@ -126,6 +126,7 @@ useHead({ title: collectionEvent.value?.name });
   <LayoutsDetailPage>
     <template #header>
       <PageHeader
+        id="page-header"
         :title="collectionEvent?.name"
         :description="collectionEvent?.description"
       >
@@ -135,7 +136,11 @@ useHead({ title: collectionEvent.value?.name });
       </PageHeader>
     </template>
     <template #side>
-      <SideNavigation :title="collectionEvent?.name" :items="tocItems" />
+      <SideNavigation
+        :title="collectionEvent?.name"
+        :items="tocItems"
+        header-target="#page-header"
+      />
     </template>
     <template #main>
       <ContentBlocks v-if="collectionEvent">

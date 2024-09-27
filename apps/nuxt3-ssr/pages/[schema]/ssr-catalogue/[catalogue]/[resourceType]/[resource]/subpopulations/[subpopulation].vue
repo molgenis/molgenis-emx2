@@ -133,6 +133,7 @@ useHead({ title: subpopulation?.name });
   <LayoutsDetailPage>
     <template #header>
       <PageHeader
+        id="page-header"
         :title="subpopulation?.name"
         :description="subpopulation?.description"
       >
@@ -142,7 +143,11 @@ useHead({ title: subpopulation?.name });
       </PageHeader>
     </template>
     <template #side>
-      <SideNavigation :title="subpopulation?.name" :items="tocItems" />
+      <SideNavigation
+        :title="subpopulation?.name"
+        :items="tocItems"
+        header-target="#page-header"
+      />
     </template>
     <template #main>
       <ContentBlocks v-if="subpopulation">
