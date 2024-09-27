@@ -24,7 +24,14 @@
       <legend class="text-title">
         Example 1: Do you agree to the terms and conditions?
       </legend>
-      <InputRadioGroup id="example-1" :values="['No', 'Yes']" />
+      <InputRadioGroup
+        id="example-1"
+        :values="['No', 'Yes']"
+        v-model="question1Response"
+      />
+      <output>
+        <span>Selection: {{ question1Response }}</span>
+      </output>
     </fieldset>
     <fieldset>
       <legend class="text-title">
@@ -32,9 +39,13 @@
       </legend>
       <InputRadioGroup
         id="example-2"
+        v-model="question2Response"
         :values="['level-1', 'level-2', 'level-3']"
         :labels="['Level 1 (A)', 'Level 2 (AA)', 'Level 3 (AAA)']"
       />
+      <output>
+        <span>Selection: {{ question2Response }}</span>
+      </output>
     </fieldset>
     <fieldset>
       <legend class="text-title">
@@ -43,10 +54,20 @@
       </legend>
       <InputRadioGroup
         id="example-3"
+        v-model="question3Response"
         :values="['control', 'intervention', 'placebo']"
         :labels="['Healthy controls', 'Experimental cohort', 'Placebo cohort']"
         :show-clear-button="true"
       />
+      <output>
+        <span>Selection: {{ question3Response }}</span>
+      </output>
     </fieldset>
   </form>
 </template>
+
+<script lang="ts" setup>
+const question1Response = ref<string>("");
+const question2Response = ref<string>("");
+const question3Response = ref<string>("");
+</script>

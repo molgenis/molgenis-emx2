@@ -11,6 +11,7 @@
       :value="value"
       v-model="modelValue"
       :checked="modelValue === value"
+      @change="$emit('update:modelValue', modelValue)"
     />
     <InputLabel
       :for="`${id}-radio-group-${value}`"
@@ -29,7 +30,7 @@
       type="reset"
       :id="`${id}-radio-group-clear`"
       :form="`${id}-radio-group`"
-      @click.prevent="modelValue = ''"
+      @click.prevent="onResetSelection"
     >
       Clear
     </button>
@@ -50,4 +51,10 @@ withDefaults(
 );
 
 const modelValue = ref<string>("");
+const emit = defineEmits(["update:modelValue"]);
+
+function onResetSelection() {
+  modelValue.value = "";
+  emit("update:modelValue", modelValue.value);
+}
 </script>
