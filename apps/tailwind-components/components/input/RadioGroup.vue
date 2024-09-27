@@ -1,7 +1,12 @@
 <template>
-  <div :id="`${id}-radio-group`" v-for="(value, index) in values" :key="index">
+  <div
+    :id="`${id}-radio-group`"
+    class="flex justify-start align-center"
+    v-for="(value, index) in values"
+  >
     <InputRadio
       :id="`${id}-radio-group-${value}`"
+      class="h-auto"
       :name="id"
       :value="value"
       v-model="modelValue"
