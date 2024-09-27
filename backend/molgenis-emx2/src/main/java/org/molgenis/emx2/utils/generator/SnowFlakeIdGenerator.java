@@ -55,10 +55,10 @@ public class SnowFlakeIdGenerator implements IdGenerator {
 
     BigInteger snowflakeId = timePart.or(tableIdPart).or(sequencePart);
 
-    return base62EncodeSnowflakeId(snowflakeId.longValue());
+    return base62Encode(snowflakeId.longValue());
   }
 
-  private String base62EncodeSnowflakeId(long snowflakeId) {
+  private String base62Encode(long snowflakeId) {
     StringBuilder encoded = new StringBuilder();
     while (snowflakeId > 0) {
       int remainder = (int) (snowflakeId % BASE62_CHARACTERS.length());
