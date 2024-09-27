@@ -2,26 +2,26 @@
   <div
     :id="`${id}-radio-group`"
     class="flex justify-start align-center"
-    v-for="(value, index) in values"
+    v-for="option in radioOptions"
   >
     <InputRadio
-      :id="`${id}-radio-group-${value}`"
+      :id="`${id}-radio-group-${option.value}`"
       class="h-auto"
       :name="id"
-      :value="value"
+      :value="option.value"
       v-model="modelValue"
-      :checked="modelValue === value"
+      :checked="modelValue === option.value"
       @change="$emit('update:modelValue', modelValue)"
     />
     <InputLabel
-      :for="`${id}-radio-group-${value}`"
+      :for="`${id}-radio-group-${option.value}`"
       class="hover:cursor-pointer"
     >
-      <template v-if="labels">
-        {{ labels[index] }}
+      <template v-if="Object.hasOwn(option, 'label')">
+        {{ option.label }}
       </template>
       <template v-else>
-        {{ value }}
+        {{ option.value }}
       </template>
     </InputLabel>
   </div>
@@ -38,11 +38,16 @@
 </template>
 
 <script lang="ts" setup>
+
+interface RadioOptionsDataIF {
+  value: string;
+  label?: string;
+}
+
 withDefaults(
   defineProps<{
     id: string;
-    values: string[];
-    labels?: string[];
+    radioOptions: RadioOptionsDataIF[];
     showClearButton?: boolean;
   }>(),
   {
