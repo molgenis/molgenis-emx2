@@ -2,25 +2,27 @@ package org.molgenis.emx2.utils.generator;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-import java.security.NoSuchAlgorithmException;
+import java.math.BigInteger;
 import java.time.Instant;
-import java.util.*;
+import org.molgenis.emx2.MolgenisException;
 
 public class SnowFlakeIdGenerator implements IdGenerator {
 
   private static final String BASE62_CHARACTERS =
       "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
-  private static final long EPOCH = 1706208000000L;
+  private static final long EPOCH = 1727446121186L;
 
-  private static final int TOTAL_BITS = 64; // With base62 id = 10 character long
+  // With base62 encoding 64 bits results in a ~10 character id
+  private static final int TOTAL_BITS = 64;
   private static final int TIMESTAMP_BITS = 41; // 69 years of ids
-  private static final int SEQUENCE_BITS = 8; // 2^8 ids per ms
+  private static final int SEQUENCE_BITS = 8; // 2^8 (256) ids per ms
   private static final int HASHED_STRING_BITS =
       TOTAL_BITS - TIMESTAMP_BITS - SEQUENCE_BITS; // 15 bits left for tableId ~= 32K unique hashes
 
-  private static final long MAX_HASHED_STRING_ID = (1L << HASHED_STRING_BITS) - 1;
+  private static final long MAX_TIMESTAMP = (1L << TIMESTAMP_BITS) - 1;
   private static final long MAX_SEQUENCE = (1L << SEQUENCE_BITS) - 1;
+  private static final long MAX_HASHED_STRING_ID = (1L << HASHED_STRING_BITS) - 1;
 
   // For the schemaId hashing
   private static final long FNV_OFFSET_BASIS = 0xcbf29ce484222325L;
@@ -45,29 +47,37 @@ public class SnowFlakeIdGenerator implements IdGenerator {
     } else {
       sequence = 0;
     }
-
     lastTimestamp = currentTimestamp;
 
-    long snowflakeId =
-        ((currentTimestamp & ((1L << TIMESTAMP_BITS) - 1)) << (HASHED_STRING_BITS + SEQUENCE_BITS))
-            | (tableBits << SEQUENCE_BITS)
-            | sequence;
+    // Use BigInteger to avoid overflow
+    BigInteger timestampPart =
+        BigInteger.valueOf(currentTimestamp).shiftLeft(HASHED_STRING_BITS + SEQUENCE_BITS);
+    BigInteger tablePart = BigInteger.valueOf(tableBits).shiftLeft(SEQUENCE_BITS);
+    BigInteger sequencePart = BigInteger.valueOf(sequence);
 
-    return base62EncodeSnowflakeId(snowflakeId);
+    BigInteger snowflakeId = timestampPart.or(tablePart).or(sequencePart);
+
+    return base62EncodeSnowflakeId(snowflakeId.longValue());
   }
 
   private String base62EncodeSnowflakeId(long snowflakeId) {
     StringBuilder encoded = new StringBuilder();
     while (snowflakeId > 0) {
-      int remainder = (int) (snowflakeId % 62);
-      encoded.append(BASE62_CHARACTERS.charAt(remainder));
-      snowflakeId /= 62;
+      int remainder = (int) (snowflakeId % BASE62_CHARACTERS.length());
+      encoded.insert(0, BASE62_CHARACTERS.charAt(remainder)); // Prepend character instead of append
+      snowflakeId /= BASE62_CHARACTERS.length();
     }
-    return encoded.reverse().toString();
+    return encoded.toString();
   }
 
   private long getCurrentTimestamp() {
-    return Instant.now().toEpochMilli() - EPOCH;
+    long now = Instant.now().toEpochMilli();
+    long currentTimestamp = now - EPOCH;
+
+    if (currentTimestamp > MAX_TIMESTAMP) {
+      throw new MolgenisException("Snowflake id too old");
+    }
+    return currentTimestamp;
   }
 
   private long waitForNextMillis(long currentTimestamp) {
@@ -89,38 +99,5 @@ public class SnowFlakeIdGenerator implements IdGenerator {
     }
 
     return hash & MAX_HASHED_STRING_ID;
-  }
-
-  public static void main(String[] args) throws NoSuchAlgorithmException {
-    SnowFlakeIdGenerator snowflake = new SnowFlakeIdGenerator("schemaId");
-
-    int totalIds = 10000;
-
-    List<String> ids = new ArrayList<>();
-
-    long startTime = System.currentTimeMillis();
-    for (int i = 0; i < totalIds; i++) {
-      String snowflakeId = snowflake.generateId();
-      ids.add(snowflakeId);
-    }
-    long endTime = System.currentTimeMillis();
-    long duration = endTime - startTime; // duration in milliseconds
-    System.out.println("Execution time: " + duration + " ms");
-
-    Set<String> uniqueIds = new HashSet<>(ids);
-    if (uniqueIds.size() == ids.size()) {
-      System.out.println("All IDs are unique");
-    } else {
-      System.out.println("Duplicate IDs found");
-    }
-
-    // Check if IDs are sorted
-    List<String> sortedIds = new ArrayList<>(ids);
-    Collections.sort(sortedIds);
-    if (ids.equals(sortedIds)) {
-      System.out.println("IDs are sorted");
-    } else {
-      System.out.println("IDs are not sorted");
-    }
   }
 }
