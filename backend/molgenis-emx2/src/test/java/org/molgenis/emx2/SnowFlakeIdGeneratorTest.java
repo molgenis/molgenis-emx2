@@ -4,6 +4,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.utils.generator.SnowFlakeIdGenerator;
 
@@ -14,7 +17,7 @@ public class SnowFlakeIdGeneratorTest {
     SnowFlakeIdGenerator generator = new SnowFlakeIdGenerator("testSchemaId");
     Set<String> generatedIds = new HashSet<>();
 
-    int totalIds = 10000;
+    int totalIds = 100000;
     for (int i = 0; i < totalIds; i++) {
       String id = generator.generateId();
       assertFalse(generatedIds.contains(id), "Duplicate ID found: " + id);
@@ -25,7 +28,7 @@ public class SnowFlakeIdGeneratorTest {
   @Test
   public void testIdGenerationIsSorted() {
     SnowFlakeIdGenerator generator = new SnowFlakeIdGenerator("testSchemaId");
-    String[] generatedIds = new String[10000];
+    String[] generatedIds = new String[100000];
 
     for (int i = 0; i < generatedIds.length; i++) {
       generatedIds[i] = generator.generateId();
@@ -37,5 +40,30 @@ public class SnowFlakeIdGeneratorTest {
           generatedIds[i - 1].compareTo(generatedIds[i]) <= 0,
           "IDs are not sorted at index " + (i - 1) + " and " + i);
     }
+  }
+
+  @Test
+  public void testUniqueIdsInMultithreadedEnvironment() throws InterruptedException {
+    SnowFlakeIdGenerator generator = new SnowFlakeIdGenerator("schemaId");
+    Set<String> uniqueIds = new HashSet<>();
+
+    ExecutorService executorService = Executors.newFixedThreadPool(4);
+
+    for (int i = 0; i < 100000; i++) {
+      executorService.submit(
+          () -> {
+            String id = generator.generateId();
+            synchronized (uniqueIds) {
+              uniqueIds.add(id);
+            }
+          });
+    }
+
+    // Shut down the executor and wait for tasks to finish
+    executorService.shutdown();
+    executorService.awaitTermination(1, TimeUnit.MINUTES);
+
+    // Verify that the number of unique IDs matches the total number of generated IDs
+    assertEquals(100000, uniqueIds.size(), "Not all generated IDs are unique.");
   }
 }
