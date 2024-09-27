@@ -44,7 +44,9 @@ definePageMeta({
 const LIMIT = 20;
 const currentPage = ref(1);
 const offset = computed(() => {
-  return currentPage.value > 1 ? `, offset: ${currentPage.value * LIMIT}` : "";
+  return currentPage.value > 1
+    ? `, offset: ${(currentPage.value - 1) * LIMIT}`
+    : "";
 });
 
 const users = ref<IUser[]>([]);
