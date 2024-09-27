@@ -1,13 +1,16 @@
 <template>
-  <div :id="`${inputId}-group`" v-for="(value, index) in values" :key="index">
+  <div :id="`${id}-radio-group`" v-for="(value, index) in values" :key="index">
     <InputRadio
-      :id="`${inputId}-${value}`"
-      :name="name"
+      :id="`${id}-radio-group-${value}`"
+      :name="id"
       :value="value"
       v-model="modelValue"
       :checked="modelValue === value"
     />
-    <InputLabel :for="`${inputId}-${value}`" class="hover:cursor-pointer">
+    <InputLabel
+      :for="`${id}-radio-group-${value}`"
+      class="hover:cursor-pointer"
+    >
       <template v-if="labels">
         {{ labels[index] }}
       </template>
@@ -19,8 +22,8 @@
   <div class="mt-2" v-if="showClearButton">
     <button
       type="reset"
-      :id="`${inputId}-clear-btn`"
-      :form="`${inputId}-group`"
+      :id="`${id}-radio-group-clear`"
+      :form="`${id}-radio-group`"
       @click.prevent="modelValue = ''"
     >
       Clear
@@ -31,7 +34,7 @@
 <script lang="ts" setup>
 withDefaults(
   defineProps<{
-    name: string;
+    id: string;
     values: string[];
     labels?: string[];
     showClearButton?: boolean;
@@ -41,6 +44,5 @@ withDefaults(
   }
 );
 
-const inputId = useId();
 const modelValue = ref<string>("");
 </script>

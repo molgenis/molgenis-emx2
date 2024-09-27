@@ -24,14 +24,14 @@
       <legend class="text-title">
         Example 1: Do you agree to the terms and conditions?
       </legend>
-      <InputRadioGroup name="radio-group-example-1" :values="['No', 'Yes']" />
+      <InputRadioGroup id="example-1" :values="['No', 'Yes']" />
     </fieldset>
     <fieldset>
       <legend class="text-title">
         Example 2: Specify the level of security needed.
       </legend>
       <InputRadioGroup
-        name="radio-group-example-2"
+        id="example-2"
         :values="['level-1', 'level-2', 'level-3']"
         :labels="['Level 1 (A)', 'Level 2 (AA)', 'Level 3 (AAA)']"
       />
@@ -42,7 +42,7 @@
         leave blank.
       </legend>
       <InputRadioGroup
-        name="radio-group-example-3"
+        id="example-3"
         :values="['control', 'intervention', 'placebo']"
         :labels="['Healthy controls', 'Experimental cohort', 'Placebo cohort']"
         :show-clear-button="true"
