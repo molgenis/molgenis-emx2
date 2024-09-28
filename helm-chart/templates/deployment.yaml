@@ -25,11 +25,11 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           resources:
             limits:
-              memory: "2G"
-              cpu: "2000m"
+              memory: "2Gi"
+              cpu: "2"
             requests:
-              memory: "1Gb"
-              cpu: "1000m"
+              memory: "1Gi"
+              cpu: "1"
           ports:
             - containerPort: 8080
           env:
@@ -76,8 +76,8 @@ spec:
             - max_locks_per_transaction=1024
           resources:
             limits:
-              memory: "1G"
-              cpu: "1000m"
+              memory: "1Gi"
+              cpu: "1"
             requests:
               memory: "512Mi"
               cpu: "500m"
@@ -106,8 +106,8 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           resources:
             limits:
-              memory: "1G"
-              cpu: "1000m"
+              memory: "1Gi"
+              cpu: "1"
             requests:
               memory: "512Mi"
               cpu: "500m"
