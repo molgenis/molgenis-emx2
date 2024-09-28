@@ -1,7 +1,7 @@
 <template>
   <LayoutsDetailPage>
     <template #header>
-      <PageHeader title="About">
+      <PageHeader id="page-header" title="About">
         <template #prefix>
           <BreadCrumbs :crumbs="[]" />
         </template>
@@ -20,6 +20,7 @@
 
           { id: 'version', label: 'Version' },
         ]"
+        header-target="#page-header"
       />
     </template>
     <template #main>
