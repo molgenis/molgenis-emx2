@@ -2,7 +2,6 @@
 import variableQuery from "~~/gql/variable";
 import type { IVariable, IVariableMappings } from "~/interfaces/types";
 import { buildFilterFromKeysObject } from "metadata-utils";
-const config = useRuntimeConfig();
 const route = useRoute();
 
 const query = moduleToString(variableQuery);
@@ -26,13 +25,10 @@ const resourceFilter = scoped
 type VariableDetailsWithMapping = IVariable &
   IVariableMappings & { nRepeats: number };
 
-const { data, pending, error, refresh } = await useFetch(
-  `/${route.params.schema}/graphql`,
-  {
-    method: "POST",
-    body: { query, variables: { variableFilter, resourceFilter } },
-  }
-);
+const { data } = await useFetch(`/${route.params.schema}/graphql`, {
+  method: "POST",
+  body: { query, variables: { variableFilter, resourceFilter } },
+});
 
 const variable = computed(
   () => data.value.data.Variables[0] as VariableDetailsWithMapping
@@ -67,7 +63,7 @@ const resourcesWithMapping = computed(() => {
     );
 });
 
-let tocItems = reactive([{ label: "Description", id: "description" }]);
+let tocItems = reactive([{ label: "Definition", id: "definition" }]);
 
 if (resourcesWithMapping.value.length > 0) {
   tocItems.push({
@@ -93,7 +89,11 @@ useHead({ title: titlePrefix + variable.value.name });
 <template>
   <LayoutsDetailPage>
     <template #header>
-      <PageHeader :title="variable?.name" :description="variable?.label">
+      <PageHeader
+        id="page-header"
+        :title="variable?.name"
+        :description="variable?.label"
+      >
         <template #prefix>
           <BreadCrumbs :crumbs="crumbs" />
         </template>
@@ -103,7 +103,11 @@ useHead({ title: titlePrefix + variable.value.name });
       </PageHeader>
     </template>
     <template #side>
-      <SideNavigation :title="variable?.name" :items="tocItems" />
+      <SideNavigation
+        :title="variable?.name"
+        :items="tocItems"
+        header-target="#page-header"
+      />
     </template>
     <template #main>
       <ContentBlocks v-if="variable">
@@ -159,7 +163,7 @@ useHead({ title: titlePrefix + variable.value.name });
         </ContentBlock>
 
         <ContentBlock
-          v-if="variable.mappings?.length === 0"
+          v-if="resourcesWithMapping.length === 0"
           id="harmonisation-details-no-mapping"
           title="Harmonisation"
           description="No mapping found for this variable"
