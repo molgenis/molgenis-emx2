@@ -1,9 +1,5 @@
 <script setup lang="ts">
-import type {
-  IFormField,
-  INotificationType,
-  linkTarget,
-} from "~/interfaces/types";
+import type { INotificationType } from "~/types/types";
 
 const props = withDefaults(
   defineProps<{
