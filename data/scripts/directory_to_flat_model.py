@@ -63,7 +63,7 @@ def map_collections_to_resources(collections):
     collections['type'] += ',Sample collection'
     return collections
 
-def map_biobanks_to_resources(biobanks):
+def map_biobanks_to_resources(biobanks, resources):
     """Maps the BBMRI-ERIC Biobanks table to the flat data model's Resources table"""
     # Rename and create columns
     biobanks = biobanks.rename(columns={'url': 'website'})
@@ -72,6 +72,7 @@ def map_biobanks_to_resources(biobanks):
     biobanks['name'] = biobanks['name'] + ' (id: ' + biobanks['id'] + ')'
     # Add default type 'Biobank
     biobanks['type'] = 'Biobank'
+    # TODO: link biobank to its component sample collections
     return biobanks
 
 
@@ -98,18 +99,18 @@ def main():
             if args.target_password:
                 catalogue_client.signin('admin', args.target_password)
             catalogue_client.set_schema('BBMRI-demo')
+            # Initialise resources table
+            mapped_columns = ['id', 'name', 'acronym', 'description', 'website', 'resources', 'type']
+            resources = pd.DataFrame(columns = mapped_columns)
             # Map collections to resources
             collections = client.get('Collections', as_df=True)
-            resources = map_collections_to_resources(
+            mapped_collections = map_collections_to_resources(
                 collections.copy())  # Unnecessary copy?
-            resources = resources.reindex(
-                columns=['id', 'name', 'acronym', 'description', 'website', 'resources', 'type'])
+            resources = pd.concat([resources, mapped_collections.reindex(columns = mapped_columns)])
             # Map biobanks to resources
             biobanks = client.get('Biobanks', as_df=True)
-            mapped_biobanks = map_biobanks_to_resources(biobanks.copy()) # Unnecessary copy?
-            mapped_biobanks = mapped_biobanks.reindex(
-                columns=['id', 'name', 'acronym', 'description', 'website', 'resources', 'type']) #TODO: set up the resources table in a nicer way
-            resources = pd.concat([resources, mapped_biobanks])
+            mapped_biobanks = map_biobanks_to_resources(biobanks.copy(), resources) # Unnecessary copy?
+            resources = pd.concat([resources, mapped_biobanks.reindex(columns = mapped_columns)])
             # Create BBMRI-ERIC network, add all resources # TODO: or add only the BBMRI networks to this network?
             BBMRI_network = [{'id': 'BBMRI-ERIC', 'name': 'BBMRI-ERIC', 'type': 'Network', 'description': 'BBMRI-ERIC directory mapped to flat model'}]
             BBMRI_network[0]['resources'] = ','.join(resources['id'])
