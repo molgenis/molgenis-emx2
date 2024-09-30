@@ -15,7 +15,7 @@
         :ref="id"
         :name="name"
         :value="modelValue"
-        @input="updateModelValue($event.target.value)"
+        @input="updateModelValue(this, $event.target.value)"
         type="text"
         class="form-control"
         :class="{ 'is-invalid': stringError }"
@@ -34,6 +34,7 @@
 import BaseInput from "./baseInputs/BaseInput.vue";
 import FormGroup from "./FormGroup.vue";
 import InputGroup from "./InputGroup.vue";
+import { updateModelValue } from "../utils";
 
 export default {
   name: "InputString",
@@ -45,11 +46,7 @@ export default {
       default: 255,
     },
   },
-  methods: {
-    updateModelValue: function (value) {
-      this.$emit("update:modelValue", value === "" ? null : value);
-    },
-  },
+  methods: { updateModelValue },
   computed: {
     stringError() {
       if (

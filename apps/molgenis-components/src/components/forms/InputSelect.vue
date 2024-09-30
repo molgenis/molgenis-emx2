@@ -15,7 +15,7 @@
       :modelValue="modelValue"
       :readonly="readonly"
       class="form-control"
-      @change="updateModelValue($event.target.value)"
+      @change="updateModelValue(this, $event.target.value)"
     >
       <option
         v-if="!required"
@@ -47,6 +47,7 @@
 import BaseInput from "./baseInputs/BaseInput.vue";
 import FormGroup from "./FormGroup.vue";
 import MessageError from "./MessageError.vue";
+import { updateModelValue } from "../utils";
 
 export default {
   extends: BaseInput,
@@ -57,11 +58,7 @@ export default {
   props: {
     options: { type: Array, required: true },
   },
-  methods: {
-    updateModelValue: function (value) {
-      this.$emit("update:modelValue", value === "" ? null : value);
-    },
-  },
+  methods: { updateModelValue },
 };
 </script>
 

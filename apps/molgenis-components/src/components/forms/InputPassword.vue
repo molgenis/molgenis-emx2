@@ -9,7 +9,7 @@
       :id="id"
       :name="name"
       :value="modelValue"
-      @input="updateModelValue($event.target.value)"
+      @input="updateModelValue(this, $event.target.value)"
       type="password"
       class="form-control"
       :aria-describedby="id"
@@ -22,16 +22,13 @@
 <script>
 import BaseInput from "./baseInputs/BaseInput.vue";
 import FormGroup from "./FormGroup.vue";
+import { updateModelValue } from "../utils";
 
 export default {
   name: "InputPassword",
   components: { FormGroup },
   extends: BaseInput,
-  methods: {
-    updateModelValue: function (value) {
-      this.$emit("update:modelValue", value === "" ? null : value);
-    },
-  },
+  methods: { updateModelValue },
 };
 </script>
 

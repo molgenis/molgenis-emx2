@@ -15,7 +15,7 @@
         :aria-describedby="id + 'Help'"
         :placeholder="placeholder"
         :readonly="readonly"
-        @input="updateModelValue($event.target.value)"
+        @input="updateModelValue(this, $event.target.value)"
       />
       <template v-slot:append>
         <slot name="append"></slot>
@@ -28,6 +28,7 @@
 import BaseInput from "./baseInputs/BaseInput.vue";
 import FormGroup from "./FormGroup.vue";
 import InputGroup from "./InputGroup.vue";
+import { updateModelValue } from "../utils";
 import { nextTick } from "vue";
 
 export default {
@@ -41,9 +42,7 @@ export default {
       event.target.style.height = "auto";
       event.target.style.height = event.target.scrollHeight + "px";
     },
-    updateModelValue: function (value) {
-      this.$emit("update:modelValue", value === "" ? null : value);
-    },
+    updateModelValue,
   },
   mounted() {
     const el = this.$refs.textarea;

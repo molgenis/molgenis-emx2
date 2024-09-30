@@ -14,7 +14,7 @@
         :value="modelValue"
         @input="
           //@ts-ignore
-          updateModelValue($event.target?.value)
+          updateModelValueEmit(emit, $event.target?.value)
         "
         type="text"
         class="form-control"
@@ -30,6 +30,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import constants from "../constants";
+import { updateModelValueEmit } from "../utils";
 import FormGroup from "./FormGroup.vue";
 import InputGroup from "./InputGroup.vue";
 import BaseInputProps from "./baseInputs/BaseInputProps";
@@ -51,10 +52,6 @@ let props = defineProps({
 });
 
 const emit = defineEmits(["update:modelValue"]);
-
-function updateModelValue(value) {
-  emit("update:modelValue", value === "" ? null : value);
-}
 
 function validateEmail(email: string) {
   return (
