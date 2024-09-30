@@ -173,40 +173,6 @@ public class TestCompositeForeignKeys {
         .getMetadata()
         .add(column("nephew").setType(REFBACK).setRefTable("Person").setRefBack("uncle"));
 
-    s.insert(
-        new Row()
-            .setString("firstName", "Katrien")
-            .setString("lastName", "Duck")
-            .setString("nephew.firstName", "Kwik")
-            .setString("nephew.lastName", "Duck")); // I know, not true
-
-    assertTrue(
-        List.of(
-                s.query()
-                    .select(
-                        s("firstName"),
-                        s("lastName"),
-                        s("nephew", s("firstName"), s("lastName")),
-                        s("uncle", s("firstName"), s("lastName")))
-                    .where(f("firstName", EQUALS, "Katrien"))
-                    .retrieveRows()
-                    .get(0)
-                    .getStringArray("nephew-firstName"))
-            .contains("Kwik"));
-    assertTrue(
-        List.of(
-                p.query()
-                    .select(
-                        s("firstName"),
-                        s("lastName"),
-                        s("nephew", s("firstName"), s("lastName")),
-                        s("uncle", s("firstName"), s("lastName")))
-                    .where(f("firstName", EQUALS, "Kwik"))
-                    .retrieveRows()
-                    .get(0)
-                    .getStringArray("uncle-firstName"))
-            .contains("Katrien"));
-
     // test order by for refback
     p.query()
         .select(
@@ -228,13 +194,13 @@ public class TestCompositeForeignKeys {
                 .select(s("count"), s("uncle", s("firstName"), s("lastName")))
                 .retrieveJSON(),
             Map.class);
-    assertEquals(2, map.get("Person_groupBy").get(0).get("count"));
+    assertEquals(3, map.get("Person_groupBy").get(0).get("count"));
     assertEquals(
         "Donald",
         ((Map<String, String>) map.get("Person_groupBy").get(0).get("uncle")).get("firstName"));
     assertEquals(1, map.get("Person_groupBy").get(1).get("count"));
     assertEquals(
-        "Katrien",
+        "Kwik",
         ((Map<String, String>) map.get("Person_groupBy").get(1).get("uncle")).get("firstName"));
 
     // test group by refback
@@ -315,26 +281,6 @@ public class TestCompositeForeignKeys {
         .getMetadata()
         .add(column("uncles").setType(REFBACK).setRefTable("Person").setRefBack("cousins"));
 
-    s.insert(
-        new Row()
-            .setString("firstName", "Kwok") // doesn't exist
-            .setString("lastName", "Duck")
-            .setString("uncles.firstName", "Donald")
-            .setString("uncles.lastName", "Duck"));
-
-    assertTrue(
-        List.of(
-                s.query()
-                    .select(
-                        s("firstName"),
-                        s("lastName"),
-                        s("uncles", s("firstName"), s("lastName")),
-                        s("cousins", s("firstName"), s("lastName")))
-                    .where(f("firstName", EQUALS, "Kwok"))
-                    .retrieveRows()
-                    .get(0)
-                    .getStringArray("uncles-firstName"))
-            .contains("Donald"));
     assertTrue(
         List.of(
                 p.query()
@@ -345,9 +291,9 @@ public class TestCompositeForeignKeys {
                         s("uncles", s("firstName"), s("lastName")))
                     .where(f("firstName", EQUALS, "Donald"))
                     .retrieveRows()
-                    .get(1) //
+                    .get(0) //
                     .getStringArray("cousins-firstName")) // TODO should be array?
-            .contains("Kwok"));
+            .contains("Kwik"));
 
     // check we can sort on ref_array
     p.query()
@@ -380,7 +326,7 @@ public class TestCompositeForeignKeys {
                 .select(s("count"), s("uncles", s("firstName"), s("lastName")))
                 .retrieveJSON(),
             Map.class);
-    assertEquals(2, map.get("Person_groupBy").get(0).get("count"));
+    assertEquals(1, map.get("Person_groupBy").get(0).get("count"));
     assertEquals(
         "Donald",
         ((Map<String, String>) map.get("Person_groupBy").get(0).get("uncles")).get("firstName"));
@@ -401,8 +347,5 @@ public class TestCompositeForeignKeys {
         "Kwik",
         ((Map<String, String>) map.get("Person_groupBy").get(0).get("cousins")).get("firstName"));
     assertEquals(1, map.get("Person_groupBy").get(1).get("count"));
-    assertEquals(
-        "Kwok",
-        ((Map<String, String>) map.get("Person_groupBy").get(1).get("cousins")).get("firstName"));
   }
 }

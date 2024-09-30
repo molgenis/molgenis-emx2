@@ -50,7 +50,7 @@ const resourcePathId = resourceIdPath(variableKey.value);
         <NuxtLink
           :to="`/${schema}/ssr-catalogue/${catalogue}/variables/${resourcePathId}`"
         >
-          <icons-arrow-right width="24" class="text-blue-500" />
+          <ArrowRight width="24" class="text-blue-500" />
           <span class="sr-only">go to page on {{ variable.name }}</span>
         </NuxtLink>
       </div>
