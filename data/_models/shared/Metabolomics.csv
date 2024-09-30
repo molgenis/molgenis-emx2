@@ -1,4 +1,4 @@
-tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,tags
 MetabolomicMaterialProcessing,,,,,,,,,,,http://purl.obolibrary.org/obo/OBI_0000073,"A metabolomics material processing is a protocol application including material enrollments and biomaterial transformations.",FAIR Genomes metabolomics add-on
 MetabolomicMaterialProcessing,,Identifier,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C132299,"A unique proper name or character sequence that identifies this particular metabolomics material processing.",FAIR Genomes metabolomics add-on
 MetabolomicMaterialProcessing,,BelongsToBiosamples,ref,,,,Biosamples,,,,http://purl.obolibrary.org/obo/NCIT_C93400,"Reference to the source material from which this sample was prepared.",FAIR Genomes metabolomics add-on

@@ -1,4 +1,4 @@
-tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,visible
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,tags,visible
 Variable values,,,,,,,,,,,,Listing of categorical value+label definition in case of a categorical variable,"DataCatalogueFlat,RWEStaging,CohortsStaging,StudiesStaging,NetworksStaging",
 Variable values,,variable,ref,1,true,,Variables,,,,,,"DataCatalogueFlat,RWEStaging,CohortsStaging,StudiesStaging,NetworksStaging",
 Variable values,,value,,1,true,,,,,,,e.g. '1',"DataCatalogueFlat,RWEStaging,CohortsStaging,StudiesStaging,NetworksStaging",

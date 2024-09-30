@@ -1,4 +1,4 @@
-tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,visible
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,tags,visible
 Aggregates,,,,,,,,,,,,"Resource counts for e.g. samples, clinical data",DataCatalogueFlat,
 Aggregates,,collection,ref,1,True,,Collections,,,,,Resource this sample or data count refers to,DataCatalogueFlat,
 Aggregates,,research center,ref,1,True,,Collection populations,collection,,,,,DataCatalogueFlat,

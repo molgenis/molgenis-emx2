@@ -1,4 +1,4 @@
-tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,visible
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,tags,visible
 Collection events,,,,,,,,,,,dct:PeriodOfTime,Definition of a data collection event for a resource,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,StudiesStaging",
 Collection events,,resource,ref,1,true,,Resources,,,,"dct:isPartOf,dct:inSeries",Resource this collection event is part of,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,StudiesStaging",
 Collection events,,name,,1,true,,,,,,"dct:title,dct:identifier",Name of the collection event,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,StudiesStaging",

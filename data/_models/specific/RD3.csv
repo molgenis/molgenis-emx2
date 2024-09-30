@@ -1,4 +1,4 @@
-tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,tags
 overview,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C80271,"Overview on RD3 Subjects, samples, and experiments",RD3
 overview,,subjectID,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C142495,"An individual who is the subject of personal data, persons to whom data refers, and from whom data are collected, processed, and stored.",RD3
 overview,,sex1,ontology,,,,GenderAtBirth,,,,,"Claimed Sex / Sex at birth (can be different from observed sex, see sample)",RD3

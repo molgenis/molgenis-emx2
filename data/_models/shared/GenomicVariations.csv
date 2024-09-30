@@ -1,4 +1,4 @@
-tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,tags
 GenomicVariations,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C17248,Beacon v2  GenomicVariation,Beacon v2
 GenomicVariations,,variantInternalId,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C164813,E.g. 20:2447955..2447958c>g,Beacon v2
 GenomicVariations,,variantType,string,,,,,,,,http://purl.obolibrary.org/obo/GENO_0000773,E.g. SNP,Beacon v2

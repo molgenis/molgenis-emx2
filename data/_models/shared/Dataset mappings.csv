@@ -1,4 +1,4 @@
-tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,visible
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,tags,visible
 Dataset mappings,,,,,,,,,,,,Mappings from collected or source datasets to harmonised or target datasets,"DataCatalogueFlat,CohortsStaging,RWEStaging,StudiesStaging",
 Dataset mappings,,source,ref,1,TRUE,,Resources,,,,,Id of the resource being mapped from being mapped from,"DataCatalogueFlat,CohortsStaging,RWEStaging,StudiesStaging",
 Dataset mappings,,source dataset,ref,1,TRUE,,Datasets,source,,,,Name of the dataset being mapped from,"DataCatalogueFlat,CohortsStaging,RWEStaging,StudiesStaging",

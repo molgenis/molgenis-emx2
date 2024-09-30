@@ -1,4 +1,4 @@
-tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,visible,computed
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,tags,visible,computed
 Contacts,,,,,,,,,,,vcard:Kind,Listing of contact persons per resource,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging",
 Contacts,,resource,ref,1,true,,Resources,,,,,Resource the contact is affiliated with,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging",
 Contacts,,role,ontology_array,,,CatalogueOntologies,Contribution types,,,,vcard:hasRole,Type(s) of contribution or role in the resource,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging",

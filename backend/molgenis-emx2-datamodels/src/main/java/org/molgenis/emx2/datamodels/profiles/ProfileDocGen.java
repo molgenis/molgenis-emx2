@@ -40,7 +40,7 @@ public record ProfileDocGen(String outputFile) {
                     .formatted(
                         profiles.getName(),
                         profiles.getDescription(),
-                        (String.join(", ", profiles.getProfileTagsList())))
+                        (String.join(", ", profiles.getTagsList())))
                 + LE);
       }
       bw.write(LE);
@@ -63,8 +63,8 @@ public record ProfileDocGen(String outputFile) {
                         table.getSemantics() != null
                             ? (String.join(", ", table.getSemantics()))
                             : "n/a",
-                        table.getProfiles() != null
-                            ? (String.join(", ", table.getProfiles()))
+                        table.getTags() != null
+                            ? (String.join(", ", table.getTags()))
                             : "NO PROFILES FOR TABLE",
                         table.getColumns().size())
                 + LE);
@@ -107,9 +107,9 @@ public record ProfileDocGen(String outputFile) {
   public int countAllTags(SchemaMetadata fullSchema) {
     int tags = 0;
     for (TableMetadata t : fullSchema.getTables()) {
-      tags += t.getProfiles().length;
+      tags += t.getTags().length;
       for (Column c : t.getColumns()) {
-        tags += c.getProfiles().length;
+        tags += c.getTags().length;
       }
     }
     return tags;
@@ -118,9 +118,9 @@ public record ProfileDocGen(String outputFile) {
   public Set<String> getAllTags(SchemaMetadata fullSchema) {
     Set<String> tags = new HashSet<>();
     for (TableMetadata t : fullSchema.getTables()) {
-      tags.addAll(Arrays.asList(t.getProfiles()));
+      tags.addAll(Arrays.asList(t.getTags()));
       for (Column c : t.getColumns()) {
-        tags.addAll(Arrays.asList(c.getProfiles()));
+        tags.addAll(Arrays.asList(c.getTags()));
       }
     }
     return tags;

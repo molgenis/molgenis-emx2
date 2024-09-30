@@ -65,7 +65,7 @@ public class Table {
       this.columns.add(new Column(column, tableMetadata, minimal));
     }
     this.tableType = tableMetadata.getTableType();
-    this.profiles = tableMetadata.getProfiles();
+    this.profiles = tableMetadata.getTags();
   }
 
   public String getName() {

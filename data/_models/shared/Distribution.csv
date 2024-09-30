@@ -1,4 +1,4 @@
-tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,tags
 Distribution,,,,,,,,,,,http://www.w3.org/ns/dcat#Distribution,DCAT v2 distribution entries.,DCAT
 Distribution,,name,string,1,TRUE,,,,,,"http://schema.org/name,http://purl.org/dc/terms/title","Unique name of a Table or (set of) File(s).",DCAT
 Distribution,,description,string,,,,,,,,http://purl.org/dc/terms/description,"Description of a Table or (set of) File(s).",DCAT

@@ -1,4 +1,4 @@
-tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,visible
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,tags,visible
 Submissions,,,,,,,,,,,,Documentation of data submissions related to a resource,"DataCatalogueFlat,EMA",
 Submissions,,submission date,datetime,1,true,,,,,,,Date of submission,"DataCatalogueFlat,EMA",
 Submissions,,submitter name,string,1,true,,,,,,,Name of person who submitted,DataCatalogueFlat,

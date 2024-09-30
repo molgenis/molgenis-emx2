@@ -1,4 +1,4 @@
-tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,tags
 "Clinical","","","","","","","","","","","http://purl.obolibrary.org/obo/NCIT_C25398","Findings and circumstances relating to the examination and treatment of a patient.","FAIR Genomes, JRC-CDE"
 "Clinical","","ClinicalIdentifier","string","1","TRUE","","","","","","http://purl.obolibrary.org/obo/NCIT_C87853","A unique proper name or character sequence that identifies this particular clinical examination.","FAIR Genomes, JRC-CDE"
 "Clinical","","BelongsToPerson","ref","","","","Individuals","","","","http://purl.obolibrary.org/obo/IAO_0000136","Reference to the person whom this clinical information is about.","FAIR Genomes, JRC-CDE"

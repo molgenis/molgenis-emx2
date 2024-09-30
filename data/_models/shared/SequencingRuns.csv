@@ -1,4 +1,4 @@
-tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,tags
 Runs,,,,,,,,,,,http://edamontology.org/topic_3168,"The determination of complete (typically nucleotide) sequences, including those of genomes (full genome sequencing, de novo sequencing and resequencing), amplicons and transcriptomes. In FAIR Genomes: Sequencing. Ideally: SequencingRuns.","Beacon v2, FAIR Genomes, DCAT examples"
 Runs,,id,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C171337,A unique proper name or character sequence that identifies this particular nucleic acid sequencing assay. In FAIR Genomes: SequencingIdentifier.,"Beacon v2, FAIR Genomes, DCAT examples"
 Runs,,biosampleId,ref,,TRUE,,Biosamples,,,,http://purl.obolibrary.org/obo/NCIT_C93400,E.g. sample-example-0001,"Beacon v2"

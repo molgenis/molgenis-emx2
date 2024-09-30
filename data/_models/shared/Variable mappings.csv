@@ -1,4 +1,4 @@
-tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,visible,defaultValue
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,tags,visible,defaultValue
 Variable mappings,,,,,,,,,,,,"Mappings from collected or source variables to target or harmonised variables, optionally including ETL syntax","DataCatalogueFlat,RWEStaging,CohortsStaging,StudiesStaging",,
 Variable mappings,,source,ref,1,TRUE,,Resources,,,,,Id of the resource that contains the source variable(s),"DataCatalogueFlat,RWEStaging,CohortsStaging,StudiesStaging",,
 Variable mappings,,source dataset,ref,1,TRUE,,Datasets,source,,,,Name of the dataset that contains the source variable(s),"DataCatalogueFlat,RWEStaging,CohortsStaging,StudiesStaging",,

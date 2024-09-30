@@ -41,7 +41,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   private String visible = null; // javascript expression to influence vibility
   private String computed = null; // javascript expression to compute a value, overrides updates
   private String[] semantics = null; // json ld expression
-  private String[] profiles = null; // comma-separated strings
+  private String[] tags = null; // comma-separated strings
 
   // todo implement below, or remove
   private Boolean readonly = false;
@@ -107,12 +107,12 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     return this;
   }
 
-  public String[] getProfiles() {
-    return profiles;
+  public String[] getTags() {
+    return tags;
   }
 
-  public Column setProfiles(String... profiles) {
-    this.profiles = profiles;
+  public Column setTags(String... tags) {
+    this.tags = tags;
     return this;
   }
 
@@ -139,7 +139,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     descriptions = column.descriptions;
     cascadeDelete = column.cascadeDelete;
     semantics = column.semantics;
-    profiles = column.profiles;
+    tags = column.tags;
     visible = column.visible;
   }
 

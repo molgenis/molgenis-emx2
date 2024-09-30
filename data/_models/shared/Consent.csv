@@ -1,4 +1,4 @@
-tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,tags
 "LeafletAndConsentForm","","","","","","","","","","","http://purl.obolibrary.org/obo/NCIT_C16468","A document explaining all the relevant information to assist an individual in understanding the expectations and risks in making a decision about a procedure. This document is presented to and signed by the individual or guardian.","FAIR Genomes"
 "LeafletAndConsentForm","","LeafletTitle","string","","","","","","","","http://purl.org/dc/terms/title","A title or name given to the leaflet that belongs to this consent form.","FAIR Genomes"
 "LeafletAndConsentForm","","LeafletDate","date","","","","","","","","http://purl.org/dc/terms/date","A point or period of time associated with the publication of this leaflet that belongs to this consent form.","FAIR Genomes"

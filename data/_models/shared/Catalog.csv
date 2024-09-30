@@ -1,4 +1,4 @@
-tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,tags
 Catalog,,,,,,,,,,,http://www.w3.org/ns/dcat#Catalog,DCAT v2 catalog entries.,DCAT
 Catalog,,id,string,1,TRUE,,,,,,http://purl.allotrope.org/ontologies/result#AFR_0000919,Local database identifier of the catalog.,DCAT
 Catalog,,title,string,,TRUE,,,,,,http://purl.org/dc/terms/title,Name of the catalog with the language tag.,DCAT
