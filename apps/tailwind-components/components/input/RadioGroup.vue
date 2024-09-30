@@ -12,7 +12,7 @@
         :value="option.value"
         v-model="modelValue"
         :checked="setDefaultValue(option.value, option.checked)"
-        @change="updateModelValue"
+        @change="emitModelValue"
       />
       <InputRadioIcon :checked="modelValue === option.value" />
       <InputLabel
@@ -64,19 +64,19 @@ const emit = defineEmits(["update:modelValue"]);
 function setDefaultValue(value: string, checked: boolean | undefined) {
   if (checked) {
     modelValue.value = value;
-    updateModelValue();
+    emitModelValue();
     return "checked";
   } else {
     return null;
   }
 }
 
-function updateModelValue() {
+function emitModelValue() {
   emit("update:modelValue", modelValue.value);
 }
 
 function resetModelValue() {
   modelValue.value = "";
-  updateModelValue();
+  emitModelValue();
 }
 </script>
