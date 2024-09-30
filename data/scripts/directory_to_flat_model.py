@@ -63,6 +63,17 @@ def map_collections_to_resources(collections):
     collections['type'] += ',Sample collection'
     return collections
 
+def map_biobanks_to_resources(biobanks):
+    """Maps the BBMRI-ERIC Biobanks table to the flat data model's Resources table"""
+    # Rename and create columns
+    biobanks = biobanks.rename(columns={'url': 'website'})
+    biobanks['resources'] = ''
+    # Create a unique name
+    biobanks['name'] = biobanks['name'] + ' (id: ' + biobanks['id'] + ')'
+    # Add default type 'Biobank
+    biobanks['type'] = 'Biobank'
+    return biobanks
+
 
 def main():
     """Main function doing the conversion"""
@@ -89,14 +100,20 @@ def main():
             catalogue_client.set_schema('BBMRI-demo')
             # Map collections to resources
             collections = client.get('Collections', as_df=True)
-            mapped_collections = map_collections_to_resources(
+            resources = map_collections_to_resources(
                 collections.copy())  # Unnecessary copy?
-            mapped_collections = mapped_collections.reindex(
+            resources = resources.reindex(
                 columns=['id', 'name', 'acronym', 'description', 'website', 'resources', 'type'])
-            # Create BBMRI-ERIC network, add all resources
+            # Map biobanks to resources
+            biobanks = client.get('Biobanks', as_df=True)
+            mapped_biobanks = map_biobanks_to_resources(biobanks.copy()) # Unnecessary copy?
+            mapped_biobanks = mapped_biobanks.reindex(
+                columns=['id', 'name', 'acronym', 'description', 'website', 'resources', 'type']) #TODO: set up the resources table in a nicer way
+            resources = pd.concat([resources, mapped_biobanks])
+            # Create BBMRI-ERIC network, add all resources # TODO: or add only the BBMRI networks to this network?
             BBMRI_network = [{'id': 'BBMRI-ERIC', 'name': 'BBMRI-ERIC', 'type': 'Network', 'description': 'BBMRI-ERIC directory mapped to flat model'}]
-            BBMRI_network[0]['resources'] = ','.join(mapped_collections['id'])
-            mapped_collections = pd.concat([mapped_collections, pd.DataFrame.from_records(BBMRI_network)])
+            BBMRI_network[0]['resources'] = ','.join(resources['id'])
+            resources = pd.concat([resources, pd.DataFrame.from_records(BBMRI_network)])
             # Map persons to contacts
             persons = client.get('Persons', as_df=True)
             mapped_contacts = map_persons_to_contacts(
@@ -108,7 +125,7 @@ def main():
             # catalogue_client.save_schema(
                 # table='Contacts', data=mapped_contacts)
             catalogue_client.save_schema(table='Resources',
-                                         data=mapped_collections)
+                                         data=resources)
 
 
 if __name__ == "__main__":
