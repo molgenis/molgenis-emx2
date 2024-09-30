@@ -143,8 +143,11 @@ public class FAIRDataPointCatalog {
     builder.add(reqUrl, DCTERMS.LICENSE, iri(TypeUtils.toString(catalogFromJSON.get("license"))));
     builder.add(reqUrl, DCTERMS.CONFORMS_TO, apiFdpCatalogProfileEnc);
     builder.add(reqUrl, DCTERMS.IS_PART_OF, apiFdpEnc);
-    builder.add(
-        reqUrl, DCAT.THEME_TAXONOMY, iri(TypeUtils.toString(catalogFromJSON.get("themeTaxonomy"))));
+    List<IRI> themeList =
+        convertHyperlinkListToIRIs((ArrayList<String>) catalogFromJSON.get("themeTaxonomy"));
+    for (IRI theme : themeList) {
+      builder.add(reqUrl, DCAT.THEME_TAXONOMY, theme);
+    }
     builder.add(apiFdpEnc, iri("https://w3id.org/fdp/fdp-o#metadataIdentifier"), reqUrl);
 
     builder.add(
