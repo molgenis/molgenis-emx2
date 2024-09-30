@@ -8,14 +8,14 @@
     the same group. The examples below demonstrate the three different ways to
     use the <code>InputRadioGroup</code> component.
   </p>
-  <ul class="list-disc ml-12 my-2">
+  <ul class="list-disc ml-14 my-2">
     <li>Default use: setting the name and values</li>
     <li>
       Custom labels: passing an array of labels to display instead of the values
     </li>
     <li>
       Showing a clear selection button: rendering the radio inputs with a clear
-      selection button
+      selection button and a default value
     </li>
   </ul>
   <h3>Input radio group examples</h3>
@@ -26,7 +26,7 @@
       </legend>
       <InputRadioGroup
         id="example-1"
-        :radioOptions="[{ value: 'No' }, { value: 'Yes' }]"
+        :radioOptions="[{ value: 'no' }, { value: 'yes' }]"
         v-model="question1Response"
       />
       <output>
@@ -60,7 +60,11 @@
         v-model="question3Response"
         :radioOptions="[
           { value: 'control', label: 'Healthy controls' },
-          { value: 'intervention', label: 'Experimental cohort' },
+          {
+            value: 'intervention',
+            label: 'Experimental cohort',
+            checked: true,
+          },
           { value: 'placebo', label: 'Placebo cohort' },
         ]"
         :show-clear-button="true"
