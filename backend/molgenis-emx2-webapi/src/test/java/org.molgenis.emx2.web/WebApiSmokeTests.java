@@ -24,6 +24,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.Assert;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
+import io.restassured.specification.RequestSender;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -268,6 +269,8 @@ public class WebApiSmokeTests {
     byte[] contentsPetData = getContentAsByteArray(ACCEPT_CSV, "/pet store/api/csv/Pet");
     byte[] contentsUserData = getContentAsByteArray(ACCEPT_CSV, "/pet store/api/csv/User");
     byte[] contentsTagData = getContentAsByteArray(ACCEPT_CSV, "/pet store/api/csv/Tag");
+    byte[] contentsTableWithSpacesData =
+        getContentAsByteArray(ACCEPT_CSV, "/pet store/api/csv/" + TABLE_WITH_SPACES);
 
     // create tmp files for csv metadata and data
     File contentsMetaFile = createTempFile(contentsMeta, ".csv");
@@ -276,6 +279,7 @@ public class WebApiSmokeTests {
     File contentsPetDataFile = createTempFile(contentsPetData, ".csv");
     File contentsUserDataFile = createTempFile(contentsUserData, ".csv");
     File contentsTagDataFile = createTempFile(contentsTagData, ".csv");
+    File contentsTableWithSpacesDataFile = createTempFile(contentsTableWithSpacesData, ".csv");
 
     // upload csv metadata and data into the new schema
     // here we use 'body' (instead of 'multiPart' in e.g. testCsvApi_zipUploadDownload) because csv,
@@ -285,6 +289,7 @@ public class WebApiSmokeTests {
     acceptFileUpload(contentsTagDataFile, "Tag", false);
     acceptFileUpload(contentsPetDataFile, "Pet", false);
     acceptFileUpload(contentsUserDataFile, "User", false);
+    acceptFileUpload(contentsTableWithSpacesDataFile, TABLE_WITH_SPACES, false);
 
     // download csv from the new schema
     String contentsMetaNew = getContentAsString("/api/csv");
@@ -292,6 +297,9 @@ public class WebApiSmokeTests {
     String contentsPetDataNew = getContentAsString("/api/csv/Pet");
     String contentsUserDataNew = getContentAsString("/api/csv/User");
     String contentsTagDataNew = getContentAsString("/api/csv/Tag");
+    String contentsTableWithSpacesDataNew =
+        getContentAsString(
+            "/api/csv/" + TABLE_WITH_SPACES.toUpperCase()); // to test for case insensitive match
 
     // test if existing and new schema are equal
     assertArrayEquals(toSortedArray(new String(contentsMeta)), toSortedArray(contentsMetaNew));
@@ -303,6 +311,9 @@ public class WebApiSmokeTests {
         toSortedArray(new String(contentsUserData)), toSortedArray(contentsUserDataNew));
     assertArrayEquals(
         toSortedArray(new String(contentsTagData)), toSortedArray(contentsTagDataNew));
+    assertArrayEquals(
+        toSortedArray(new String(contentsTableWithSpacesData)),
+        toSortedArray(contentsTableWithSpacesDataNew));
 
     // Test async
     String response = acceptFileUpload(contentsOrderDataFile, "Order", true);
@@ -788,44 +799,50 @@ public class WebApiSmokeTests {
 
   @Test
   public void testRdfApi() {
+    final String urlPrefix = "http://localhost:" + PORT;
+
+    final String defaultContentType = "text/turtle";
+    final String jsonldContentType = "application/ld+json";
+    final String ttlContentType = "text/turtle";
+
     // skip 'all schemas' test because data is way to big (i.e.
     // get("http://localhost:PORT/api/rdf");)
-    given()
-        .sessionId(SESSION_ID)
-        .expect()
-        .statusCode(200)
-        .when()
-        .get("http://localhost:" + PORT + "/pet store/api/rdf");
-    given()
-        .sessionId(SESSION_ID)
-        .expect()
-        .statusCode(200)
-        .when()
-        .get("http://localhost:" + PORT + "/pet store/api/rdf/Category");
-    given()
-        .sessionId(SESSION_ID)
-        .expect()
-        .statusCode(200)
-        .when()
-        .get("http://localhost:" + PORT + "/pet store/api/rdf/Category/column/name");
-    given()
-        .sessionId(SESSION_ID)
-        .expect()
-        .statusCode(200)
-        .when()
-        .get("http://localhost:" + PORT + "/pet store/api/rdf/Category?name=cat");
-    given()
-        .sessionId(SESSION_ID)
-        .expect()
-        .statusCode(400)
-        .when()
-        .get("http://localhost:" + PORT + "/pet store/api/rdf/doesnotexist");
-    given()
-        .sessionId(SESSION_ID)
-        .expect()
-        .statusCode(200)
-        .when()
-        .get("http://localhost:" + PORT + "/api/rdf?schemas=pet store");
+
+    // Validate individual API points for /api/rdf
+    rdfApiRequest(200, defaultContentType).get(urlPrefix + "/pet store/api/rdf");
+    rdfApiRequest(200, defaultContentType).get(urlPrefix + "/pet store/api/rdf/Category");
+    rdfApiRequest(200, defaultContentType)
+        .get(urlPrefix + "/pet store/api/rdf/Category/column/name");
+    rdfApiRequest(200, defaultContentType).get(urlPrefix + "/pet store/api/rdf/Category?name=cat");
+    rdfApiRequestMinimalExpect(400).get(urlPrefix + "/pet store/api/rdf/doesnotexist");
+    rdfApiRequest(200, defaultContentType).get(urlPrefix + "/api/rdf?schemas=pet store");
+
+    // Validate convenience API points
+    rdfApiRequest(200, jsonldContentType).get(urlPrefix + "/pet store/api/jsonld");
+    rdfApiRequest(200, ttlContentType).get(urlPrefix + "/pet store/api/ttl");
+
+    // Validate non-default content-type for /api/rdf
+    rdfApiContentTypeRequest(200, jsonldContentType).get(urlPrefix + "/pet store/api/rdf");
+
+    // Validate convenience API points with incorrect given content-type request
+    rdfApiContentTypeRequest(200, ttlContentType, jsonldContentType)
+        .get(urlPrefix + "/pet store/api/jsonld");
+    rdfApiContentTypeRequest(200, jsonldContentType, ttlContentType)
+        .get(urlPrefix + "/pet store/api/ttl");
+
+    // Validate head for API points
+    rdfApiRequest(200, defaultContentType).head(urlPrefix + "/pet store/api/rdf");
+    rdfApiContentTypeRequest(200, jsonldContentType).head(urlPrefix + "/pet store/api/rdf");
+    rdfApiRequest(200, jsonldContentType).head(urlPrefix + "/pet store/api/jsonld");
+    rdfApiRequest(200, ttlContentType).head(urlPrefix + "/pet store/api/ttl");
+
+    // Validate head for API points with incorrect given content-type for convenience API points
+    rdfApiContentTypeRequest(200, ttlContentType, jsonldContentType)
+        .head(urlPrefix + "/pet store/api/jsonld");
+    rdfApiContentTypeRequest(200, jsonldContentType, ttlContentType)
+        .head(urlPrefix + "/pet store/api/ttl");
+
+    // Validate actual output.
     String result =
         given()
             .sessionId(SESSION_ID)
@@ -834,6 +851,61 @@ public class WebApiSmokeTests {
             .getBody()
             .asString();
     assertFalse(result.contains("CatalogueOntologies"));
+  }
+
+  /**
+   * Request that does not define a content type but does validate on this.
+   *
+   * @param expectStatusCode
+   * @param contentType
+   * @return
+   */
+  private RequestSender rdfApiRequest(int expectStatusCode, String expectContentType) {
+    return given()
+        .sessionId(SESSION_ID)
+        .expect()
+        .statusCode(expectStatusCode)
+        .header("Content-Type", expectContentType)
+        .when();
+  }
+
+  /**
+   * Request that does define a content type and validates on this.
+   *
+   * @param expectStatusCode
+   * @param contentType
+   * @return
+   */
+  private RequestSender rdfApiContentTypeRequest(int expectStatusCode, String contentType) {
+    return rdfApiContentTypeRequest(expectStatusCode, contentType, contentType);
+  }
+
+  /**
+   * Request that defines given & expected content types individually and validates on this.
+   *
+   * @param expectStatusCode
+   * @param contentType
+   * @return
+   */
+  private RequestSender rdfApiContentTypeRequest(
+      int expectStatusCode, String givenContentType, String expectedContentType) {
+    return given()
+        .sessionId(SESSION_ID)
+        .header("Accept", givenContentType)
+        .expect()
+        .statusCode(expectStatusCode)
+        .header("Content-Type", expectedContentType)
+        .when();
+  }
+
+  /**
+   * Request that only validates on status code.
+   *
+   * @param expectStatusCode
+   * @return
+   */
+  private RequestSender rdfApiRequestMinimalExpect(int expectStatusCode) {
+    return given().sessionId(SESSION_ID).expect().statusCode(expectStatusCode).when();
   }
 
   @Test

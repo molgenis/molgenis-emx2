@@ -56,6 +56,7 @@
     --color-green-500: #72F6B2;
     --color-green-800: #349D63;
     --color-orange-500: #E1B53E;
+    --color-red-200: #FCECEF;
     --color-red-500: #E14F62;
     --color-gradient1: #0062C6;
     --color-gradient2: #0072E4;
@@ -94,6 +95,7 @@
     --backgroud-color-tab-hover: var(--color-blue-500);
     --backgroud-color-tab-active: var(--color-blue-500);
     --background-color-disabled: var(--color-gray-200);
+    --background-color-invalid: var(--color-red-200);
 
     --text-color-button-primary: var(--color-gray-900);
     --text-color-button-primary-hover: var(--color-gray-900);
@@ -138,8 +140,6 @@
     --text-color-pagination: var(--color-white);
     --text-color-pagination-input: var(--color-blue-800);
     --text-color-pagination-hover: var(--color-white);
-    --text-color-pagination-label-white: var(--color-white);
-    --text-color-pagination-label-gray: var(--color-gray-400);
     --text-color-footer-link: var(--color-yellow-500);
     
     --text-color-invalid: var(--color-red-500);
@@ -258,8 +258,6 @@
     --text-color-pagination: var(--color-umcg-dark-blue);
     --text-color-pagination-input: var(--color-umcg-dark-blue);
     --text-color-pagination-hover: var(--color-white);
-    --text-color-pagination-label-white: var(--color-umcg-dark-blue);
-    --text-color-pagination-label-gray: var(--color-umcg-dark-blue);
     --text-color-footer-link: var(--color-umcg-mid-blue);
 
     --border-color-button-primary: var(--color-orange-500);

@@ -64,3 +64,5 @@ e2e/.auth/
 # python
 venv
 requirements.txt
+e2e/.auth
+e2e/e2e/.auth

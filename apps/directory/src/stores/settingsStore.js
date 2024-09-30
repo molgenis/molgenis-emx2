@@ -33,16 +33,17 @@ export const useSettingsStore = defineStore("settingsStore", () => {
     landingpage: initialLandingpage,
     pageSize: 12,
     i18n,
+    banner: undefined, //"<div style='background-color: #72f6b2; padding: 10px; text-align: center;'>I am in a banner</div>"
   });
 
   async function initializeConfig() {
-    const settingsResult = await new QueryEMX2(config.value.graphqlEndpoint)
+    const response = await new QueryEMX2(config.value.graphqlEndpoint)
       .table("_settings")
       .select(["key", "value"])
       .execute();
 
-    const savedDirectoryConfig = settingsResult._settings.find(
-      (sr) => sr.key === "directory"
+    const savedDirectoryConfig = response._settings.find(
+      (setting) => setting.key === "directory"
     );
 
     if (savedDirectoryConfig && savedDirectoryConfig.value) {

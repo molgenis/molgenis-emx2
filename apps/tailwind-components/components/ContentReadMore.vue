@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { text, cutoff } = withDefaults(
+withDefaults(
   defineProps<{
     text?: string;
     cutoff?: number;
