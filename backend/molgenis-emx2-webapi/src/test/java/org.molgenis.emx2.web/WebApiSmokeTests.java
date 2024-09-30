@@ -999,6 +999,20 @@ public class WebApiSmokeTests {
   }
 
   @Test
+  void testRoot() {
+    given()
+        .sessionId(SESSION_ID)
+        .redirects()
+        .follow(false)
+        .expect()
+        .statusCode(302)
+        .header("Location", "/apps/central/")
+        .when()
+        .get("/")
+        .getHeader("Location");
+  }
+
+  @Test
   @Disabled("unstable")
   public void testScriptExecution() throws JsonProcessingException, InterruptedException {
     // get token for admin
