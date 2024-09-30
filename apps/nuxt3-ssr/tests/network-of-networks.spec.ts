@@ -25,8 +25,8 @@ test("show network of networks", async ({ page, goto }) => {
   await page.getByRole("button", { name: "Variables" }).click();
   await expect(page.getByText("7 variables")).toBeVisible();
   //todo check if not should be 9
-  await page.getByRole("heading", { name: "Resources" }).click();
-  await page.getByRole("heading", { name: "Resources" }).click();
+  await page.getByRole("heading", { name: "Sources" }).click();
+  await page.getByRole("heading", { name: "Sources" }).click();
   await expect(page.getByText("testCohort4")).toBeVisible();
   await page.getByRole("button", { name: "Harmonisations" }).click();
   await expect(
