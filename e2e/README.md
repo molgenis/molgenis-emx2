@@ -41,6 +41,8 @@ To make the plugin use a local running version of EMX2, add the following to you
 
 When running tests in files which name start with `admin!`, be sure to run `auth.setup.spec.ts` first to ensure login session is defined. See also: https://playwright.dev/docs/auth#authenticating-in-ui-mode
 
+As the monorepo contains multiple `playwright.config.ts` files, not all test files might appear in the test explorer by default. One can toggle the selected config files in the "Playwright" menu within the "Tesing" tab. Here, click the gear icon to the right of the current active playwright config path to select one or more config files. If selecting multiple config files, the combination of their tests will be shown, though keep in mind tests need their specific config file to be the active one because otherwise they might not function properly.
+
 ## Adding tests
 
 We suggest to use the vscode plugin for [creating/recording](https://playwright.dev/docs/codegen) new tests. The `playwright.config.ts` file contains the test configuration including the default server path. It is suggested to use relative server paths ( instead of `https://my-server.com/my-page` use `/my-page` ) to make it possible for test to run against different servers.
