@@ -75,6 +75,16 @@ def map_biobanks_to_resources(biobanks, resources):
     # TODO: link biobank to its component sample collections
     return biobanks
 
+def map_networks_to_resources(networks, resources):
+    """Maps the BBMRI-ERIC Networks table to the flat data model's Resources table"""
+    # Rename and create columns
+    networks = networks.rename(columns={'url': 'website'})
+    networks['resources'] = ''
+    # Add default type 'Network'
+    networks['type'] = 'Network'
+    # TODO: link network to its parent network
+    return networks
+
 
 def main():
     """Main function doing the conversion"""
@@ -111,6 +121,10 @@ def main():
             biobanks = client.get('Biobanks', as_df=True)
             mapped_biobanks = map_biobanks_to_resources(biobanks.copy(), resources) # Unnecessary copy?
             resources = pd.concat([resources, mapped_biobanks.reindex(columns = mapped_columns)])
+            # Map networks to resources
+            networks = client.get('Networks', as_df=True)
+            mapped_networks = map_networks_to_resources(networks.copy(), resources) # Unnecessary copy?
+            resources = pd.concat([resources, mapped_networks.reindex(columns = mapped_columns)])
             # Create BBMRI-ERIC network, add all resources # TODO: or add only the BBMRI networks to this network?
             BBMRI_network = [{'id': 'BBMRI-ERIC', 'name': 'BBMRI-ERIC', 'type': 'Network', 'description': 'BBMRI-ERIC directory mapped to flat model'}]
             BBMRI_network[0]['resources'] = ','.join(resources['id'])
