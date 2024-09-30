@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import type {
-  INotificationType,
-} from "~/types/types";
+import type { INotificationType } from "~/types/types";
 
 const props = withDefaults(
   defineProps<{

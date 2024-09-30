@@ -1,4 +1,8 @@
-import type { IDocumentation, IFile, INode } from "../../tailwind-components/types/types";
+import type {
+  IDocumentation,
+  IFile,
+  INode,
+} from "../../tailwind-components/types/types";
 export interface IResource {
   id: string;
   pid: string;
