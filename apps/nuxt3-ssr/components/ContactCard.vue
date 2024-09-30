@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { IContributor } from '~/interfaces/types';
+
 defineProps<{
   contact: IContributor;
 }>();

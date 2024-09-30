@@ -1,5 +1,4 @@
-import type { IColumn } from "../../metadata-utils/dist";
-import type { INode } from "../../tailwind-components/types/types";
+import type { IDocumentation, IFile, INode } from "../../tailwind-components/types/types";
 export interface IResource {
   id: string;
   pid: string;
@@ -130,20 +129,6 @@ export interface IVariableMappings {
 export type IVariable = IVariableBase & IVariableDetails;
 export type IVariableWithMappings = IVariable & IVariableMappings;
 
-export interface IFile {
-  id?: string;
-  size?: number;
-  extension?: string;
-  url?: string;
-}
-
-export interface IDocumentation {
-  name: string;
-  description: string;
-  url: string;
-  file: IFile;
-}
-
 export interface IOrganisation extends IPartner {
   email: string;
   type: {
@@ -269,15 +254,6 @@ export type INotificationType =
   | "warning"
   | "info";
 
-export interface ISectionField {
-  meta: IColumn;
-  value: any;
-}
-
-export interface ISection {
-  meta: IColumn;
-  fields: ISectionField[];
-}
 export interface IMapping {
   syntax: string;
   description: string;
