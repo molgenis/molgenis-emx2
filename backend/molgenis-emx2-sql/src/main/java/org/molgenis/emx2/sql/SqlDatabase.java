@@ -467,6 +467,9 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   @Override
   public void removeUser(String user) {
     long start = System.currentTimeMillis();
+    if (user == "admin") throw new MolgenisException("You cant remove admin");
+    if (user == "anonymous") throw new MolgenisException("You cant remove anonymous");
+
     if (!hasUser(user))
       throw new MolgenisException(
           "Remove user failed: User with name '" + user + "' doesn't exist");
@@ -485,6 +488,8 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
 
   public void setEnabledUser(String user, Boolean enabled) {
     long start = System.currentTimeMillis();
+    if (user == "admin") throw new MolgenisException("You cant enable or disable admin");
+    if (user == "anonymous") throw new MolgenisException("You cant enable or disable anonymous");
     if (!hasUser(user))
       throw new MolgenisException(
           (enabled ? "Enabling" : "Disabling")

@@ -20,7 +20,9 @@
     <h2>User list</h2>
     <TableSimple class="bg-white" :rows="users" :columns="['email', 'enabled']">
       <template v-slot:rowheader="row">
-        <template v-if="row.row.email !== 'admin'">
+        <template
+          v-if="row.row.email !== 'admin' && row.row.email !== 'anonymous'"
+        >
           <IconDanger
             icon="trash"
             @click="

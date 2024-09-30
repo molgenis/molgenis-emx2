@@ -103,6 +103,46 @@ public class TestUsersAndPermissions {
   }
 
   @Test
+  public void testDisableAdmin() {
+    try {
+      database.setEnabledUser("admin", false);
+      fail("should have failed");
+    } catch (Exception e) {
+      // ok
+    }
+  }
+
+  @Test
+  public void testDisableAnonymous() {
+    try {
+      database.setEnabledUser("anonymous", false);
+      fail("should have failed");
+    } catch (Exception e) {
+      // ok
+    }
+  }
+
+  @Test
+  public void testRemoveAdmin() {
+    try {
+      database.removeUser("admin");
+      fail("should have failed");
+    } catch (Exception e) {
+      // ok
+    }
+  }
+
+  @Test
+  public void testRemoveAnonymous() {
+    try {
+      database.removeUser("anonymous");
+      fail("should have failed");
+    } catch (Exception e) {
+      // ok
+    }
+  }
+
+  @Test
   public void testNonExistentRemoveUser() {
     try {
       database.removeUser(TEST_NONEXISTENT_USERS);
