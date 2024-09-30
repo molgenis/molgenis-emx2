@@ -1,31 +1,35 @@
-<!-- eslint-disable vue/multi-word-component-names -->
 <script setup lang="ts">
-defineProps<{
+const svgs = import.meta.glob("~/assets/img/*.svg", { eager: true });
+const props = defineProps<{
   link?: string;
   image?: string;
 }>();
 
-const config = useRuntimeConfig();
-const route = useRoute();
-const logoFileName = (route.query.logo as string) || config.public.emx2Logo;
-
-// load the svg data from the assets folder
-let svg = shallowRef();
-if (logoFileName) {
-  svg.value = await assetLoader.load(logoFileName);
-}
+const logoSrc = computed(() => {
+  if (props.image) {
+    return props.image;
+  } else if (useRuntimeConfig().public.emx2Logo) {
+    return (
+      svgs[`/assets/img/${useRuntimeConfig().public.emx2Logo}`] as {
+        default: string;
+      }
+    ).default;
+  } else {
+    // return a default image
+    return undefined;
+  }
+});
 </script>
 <template>
   <NuxtLink :to="link" class="block">
     <span class="sr-only">Go to home</span>
     <img
-      v-if="image"
-      :src="image"
+      v-if="logoSrc"
+      :src="logoSrc"
       width="200"
       height="50"
       style="background-color: white"
     />
-    <i v-else-if="svg" v-html="svg.default"></i>
     <img
       v-else
       class="w-50px h-auto"
