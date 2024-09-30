@@ -53,7 +53,7 @@ let props = defineProps({
 const emit = defineEmits(["update:modelValue"]);
 
 function updateModelValue(value) {
-  emit("update:modelValue", value == "" ? null : value);
+  emit("update:modelValue", value === "" ? null : value);
 }
 
 function validateEmail(email: string) {

@@ -42,7 +42,7 @@ export default {
       event.target.style.height = event.target.scrollHeight + "px";
     },
     updateModelValue: function (value) {
-      this.$emit("update:modelValue", value == "" ? null : value);
+      this.$emit("update:modelValue", value === "" ? null : value);
     },
   },
   mounted() {

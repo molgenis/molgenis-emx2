@@ -44,10 +44,6 @@ let props = defineProps({
 
 const emit = defineEmits(["update:modelValue"]);
 
-function updateModelValue(value) {
-  emit("update:modelValue", value == "" ? null : value);
-}
-
 const stringError = computed(() => {
   if (typeof props.modelValue === "string") {
     if (!validateHyperlink(props.modelValue)) {
@@ -60,6 +56,10 @@ const stringError = computed(() => {
 
 function validateHyperlink(hyperlink: string) {
   return hyperlink?.match(constants.HYPERLINK_REGEX);
+}
+
+function updateModelValue(value) {
+  emit("update:modelValue", value === "" ? null : value);
 }
 </script>
 

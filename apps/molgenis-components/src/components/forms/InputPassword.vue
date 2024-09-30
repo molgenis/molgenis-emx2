@@ -29,7 +29,7 @@ export default {
   extends: BaseInput,
   methods: {
     updateModelValue: function (value) {
-      this.$emit("update:modelValue", value == "" ? null : value);
+      this.$emit("update:modelValue", value === "" ? null : value);
     },
   },
 };
