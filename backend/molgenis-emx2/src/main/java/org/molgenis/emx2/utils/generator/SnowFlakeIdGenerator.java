@@ -6,7 +6,11 @@ import java.math.BigInteger;
 import java.time.Instant;
 import org.molgenis.emx2.MolgenisException;
 
-public class SnowFlakeIdGenerator implements IdGenerator {
+public class SnowFlakeIdGenerator {
+
+  // It can only have one instance because of colliding ids
+  // So singleton pattern or dependency injection
+  private static SnowFlakeIdGenerator instance;
 
   private static final String BASE62_CHARACTERS =
       "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -26,16 +30,20 @@ public class SnowFlakeIdGenerator implements IdGenerator {
   // For the schemaId hashing
   private static final long FNV_OFFSET_BASIS = 0xcbf29ce484222325L;
   private static final long FNV_PRIME = 0x100000001b3L;
-  private final long tableBits;
 
   private long lastTimestamp = -1L;
   private long sequence = 0L;
 
-  public SnowFlakeIdGenerator(String tableId) {
-    this.tableBits = hashStringToBits(tableId);
+  private SnowFlakeIdGenerator() {}
+
+  public static synchronized SnowFlakeIdGenerator getInstance() {
+    if (instance == null) {
+      instance = new SnowFlakeIdGenerator();
+    }
+    return instance;
   }
 
-  public synchronized String generateId() {
+  public synchronized String generateId(String tableId) {
     long currentTimestamp = getCurrentTimestamp();
 
     if (currentTimestamp == lastTimestamp) {
@@ -48,6 +56,8 @@ public class SnowFlakeIdGenerator implements IdGenerator {
     }
     lastTimestamp = currentTimestamp;
 
+    long tableBits = hashStringToBits(tableId);
+
     // Use BigInteger to avoid overflow
     BigInteger timePart = BigInteger.valueOf(currentTimestamp).shiftLeft(ID_BITS + SEQUENCE_BITS);
     BigInteger tableIdPart = BigInteger.valueOf(tableBits).shiftLeft(SEQUENCE_BITS);
@@ -55,16 +65,20 @@ public class SnowFlakeIdGenerator implements IdGenerator {
 
     BigInteger snowflakeId = timePart.or(tableIdPart).or(sequencePart);
 
-    return base62Encode(snowflakeId.longValue());
+    return base62Encode(snowflakeId);
   }
 
-  private String base62Encode(long snowflakeId) {
+  private String base62Encode(BigInteger snowflakeId) {
     StringBuilder encoded = new StringBuilder();
-    while (snowflakeId > 0) {
-      int remainder = (int) (snowflakeId % BASE62_CHARACTERS.length());
-      encoded.insert(0, BASE62_CHARACTERS.charAt(remainder)); // Prepend character instead of append
-      snowflakeId /= BASE62_CHARACTERS.length();
+    BigInteger base = BigInteger.valueOf(BASE62_CHARACTERS.length());
+
+    while (snowflakeId.compareTo(BigInteger.ZERO) > 0) {
+      int remainder = snowflakeId.mod(base).intValue();
+      encoded.insert(0, BASE62_CHARACTERS.charAt(remainder));
+
+      snowflakeId = snowflakeId.divide(base);
     }
+
     return encoded.toString();
   }
 

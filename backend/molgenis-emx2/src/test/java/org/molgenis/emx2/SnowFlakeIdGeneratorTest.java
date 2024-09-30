@@ -14,12 +14,12 @@ public class SnowFlakeIdGeneratorTest {
 
   @Test
   public void testIdGenerationIsUnique() {
-    SnowFlakeIdGenerator generator = new SnowFlakeIdGenerator("testSchemaId");
+    SnowFlakeIdGenerator generator = SnowFlakeIdGenerator.getInstance();
     Set<String> generatedIds = new HashSet<>();
 
     int totalIds = 100000;
     for (int i = 0; i < totalIds; i++) {
-      String id = generator.generateId();
+      String id = generator.generateId("tableId");
       assertFalse(generatedIds.contains(id), "Duplicate ID found: " + id);
       generatedIds.add(id);
     }
@@ -27,11 +27,11 @@ public class SnowFlakeIdGeneratorTest {
 
   @Test
   public void testIdGenerationIsSorted() {
-    SnowFlakeIdGenerator generator = new SnowFlakeIdGenerator("testSchemaId");
+    SnowFlakeIdGenerator generator = SnowFlakeIdGenerator.getInstance();
     String[] generatedIds = new String[100000];
 
     for (int i = 0; i < generatedIds.length; i++) {
-      generatedIds[i] = generator.generateId();
+      generatedIds[i] = generator.generateId("tableId");
     }
 
     // Check if IDs are sorted
@@ -43,8 +43,8 @@ public class SnowFlakeIdGeneratorTest {
   }
 
   @Test
-  public void testUniqueIdsInMultithreadedEnvironment() throws InterruptedException {
-    SnowFlakeIdGenerator generator = new SnowFlakeIdGenerator("schemaId");
+  public void testUniqueIdsOnFourThreads() throws InterruptedException {
+    SnowFlakeIdGenerator generator = SnowFlakeIdGenerator.getInstance();
     Set<String> uniqueIds = new HashSet<>();
 
     ExecutorService executorService = Executors.newFixedThreadPool(4);
@@ -52,7 +52,7 @@ public class SnowFlakeIdGeneratorTest {
     for (int i = 0; i < 100000; i++) {
       executorService.submit(
           () -> {
-            String id = generator.generateId();
+            String id = generator.generateId("tableId");
             synchronized (uniqueIds) {
               uniqueIds.add(id);
             }
