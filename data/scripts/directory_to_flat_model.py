@@ -132,9 +132,10 @@ def main():
             networks = client.get('Networks', as_df=True)
             mapped_networks = map_networks_to_resources(networks.copy(), resources) # Unnecessary copy?
             resources = pd.concat([resources, mapped_networks.reindex(columns = mapped_columns)])
-            # Create BBMRI-ERIC network, add all resources # TODO: or add only the BBMRI networks to this network?
+            # Create BBMRI-ERIC network, add all top-level networks as sub-networks
+            # TODO: check if this is desired, or whether everything should be associated to the top-level network as well as in testNetworkofNetworks
             BBMRI_network = [{'id': 'BBMRI-ERIC', 'name': 'BBMRI-ERIC', 'type': 'Network', 'description': 'BBMRI-ERIC directory mapped to flat model'}]
-            BBMRI_network[0]['resources'] = ','.join(resources['id'])
+            BBMRI_network[0]['resources'] = ','.join(mapped_networks.loc[mapped_networks['parent_network'] == '', 'id'])
             resources = pd.concat([resources, pd.DataFrame.from_records(BBMRI_network)])
             # Map persons to contacts
             persons = client.get('Persons', as_df=True)
