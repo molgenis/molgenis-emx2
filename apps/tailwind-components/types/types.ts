@@ -1,3 +1,4 @@
+import type { IColumn } from "../../metadata-utils/dist";
 export interface INode {
   name: string;
   description?: string;
@@ -38,4 +39,29 @@ export interface ITableSettings {
   };
   search: string;
 }
+
+export interface ISectionField {
+  meta: IColumn;
+  value: any;
+}
+
+export interface ISection {
+  meta: IColumn;
+  fields: ISectionField[];
+}
+
+export interface IFile {
+  id?: string;
+  size?: number;
+  extension?: string;
+  url?: string;
+}
+
+export interface IDocumentation {
+  name: string;
+  description: string;
+  url: string;
+  file: IFile;
+}
+
   

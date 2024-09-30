@@ -77,7 +77,7 @@ const pageFilterTemplate: IFilter[] = [
   {
     id: "resources",
     config: {
-      label: "Resources",
+      label: "Sources",
       type: "REF_ARRAY",
       refTableId: "Resources",
       initialCollapsed: false,

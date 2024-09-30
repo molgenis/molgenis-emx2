@@ -40,7 +40,6 @@ public class TestLoaders {
     database.dropSchemaIfExists(DATA_CATALOGUE_AGGREGATES);
     database.dropSchemaIfExists(FAIR_DATA_HUB_TEST);
     database.dropSchemaIfExists(SHARED_STAGING);
-    database.dropSchemaIfExists(CATALOGUE_ONTOLOGIES);
     database.dropSchemaIfExists(DIRECTORY_TEST);
     database.dropSchemaIfExists(DIRECTORY_STAGING);
     database.dropSchemaIfExists(DIRECTORY_ONTOLOGIES);
@@ -49,9 +48,13 @@ public class TestLoaders {
     database.dropSchemaIfExists(FAIR_GENOMES);
     database.dropSchemaIfExists(DCAT);
     database.dropSchemaIfExists(DCAT_BASIC);
+    database.dropSchemaIfExists(DCAT_BASIC);
+    database.dropSchemaIfExists(PROJECT_MANAGER);
     database.dropSchemaIfExists(FAIR_DATA_POINT);
     database.dropSchemaIfExists(FAIR_DATA_HUB_TEST);
     database.dropSchemaIfExists(PROJECT_MANAGER);
+    // delete ontologies last
+    database.dropSchemaIfExists(CATALOGUE_ONTOLOGIES);
   }
 
   @Test
