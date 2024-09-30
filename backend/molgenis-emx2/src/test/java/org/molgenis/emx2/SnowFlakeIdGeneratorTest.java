@@ -31,7 +31,7 @@ public class SnowFlakeIdGeneratorTest {
     String[] generatedIds = new String[100000];
 
     for (int i = 0; i < generatedIds.length; i++) {
-      generatedIds[i] = generator.generateId("tableId");
+      generatedIds[i] = generator.generateId("randomId");
     }
 
     // Check if IDs are sorted
@@ -52,7 +52,7 @@ public class SnowFlakeIdGeneratorTest {
     for (int i = 0; i < 100000; i++) {
       executorService.submit(
           () -> {
-            String id = generator.generateId("tableId");
+            String id = generator.generateId("randomId");
             synchronized (uniqueIds) {
               uniqueIds.add(id);
             }

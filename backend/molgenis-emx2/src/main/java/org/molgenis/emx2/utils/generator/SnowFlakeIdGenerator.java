@@ -21,11 +21,13 @@ public class SnowFlakeIdGenerator {
   private static final int TIMESTAMP_BITS = 41; // 69 years of ids
   private static final int SEQUENCE_BITS = 8; // 2^8 (256) ids per ms
   private static final int ID_BITS =
-      TOTAL_BITS - TIMESTAMP_BITS - SEQUENCE_BITS; // 15 bits left for tableId ~= 32K unique hashes
+      TOTAL_BITS
+          - TIMESTAMP_BITS
+          - SEQUENCE_BITS; // 15 bits left for the instanceId ~= 32K unique hashes
 
-  private static final long MAX_TIMESTAMP = (1L << TIMESTAMP_BITS) - 1;
-  private static final long MAX_SEQUENCE = (1L << SEQUENCE_BITS) - 1;
-  private static final long MAX_ID = (1L << ID_BITS) - 1;
+  private static final long MAX_TIMESTAMP = maxValueForBits(TIMESTAMP_BITS);
+  private static final long MAX_SEQUENCE = maxValueForBits(SEQUENCE_BITS);
+  private static final long MAX_ID = maxValueForBits(ID_BITS);
 
   // For the schemaId hashing
   private static final long FNV_OFFSET_BASIS = 0xcbf29ce484222325L;
@@ -43,7 +45,7 @@ public class SnowFlakeIdGenerator {
     return instance;
   }
 
-  public synchronized String generateId(String tableId) {
+  public synchronized String generateId(String instanceId) {
     long currentTimestamp = getCurrentTimestamp();
 
     if (currentTimestamp == lastTimestamp) {
@@ -56,16 +58,20 @@ public class SnowFlakeIdGenerator {
     }
     lastTimestamp = currentTimestamp;
 
-    long tableBits = hashStringToBits(tableId);
+    long instanceIdBits = hashStringToBits(instanceId);
 
     // Use BigInteger to avoid overflow
     BigInteger timePart = BigInteger.valueOf(currentTimestamp).shiftLeft(ID_BITS + SEQUENCE_BITS);
-    BigInteger tableIdPart = BigInteger.valueOf(tableBits).shiftLeft(SEQUENCE_BITS);
+    BigInteger instancePart = BigInteger.valueOf(instanceIdBits).shiftLeft(SEQUENCE_BITS);
     BigInteger sequencePart = BigInteger.valueOf(sequence);
 
-    BigInteger snowflakeId = timePart.or(tableIdPart).or(sequencePart);
+    BigInteger snowflakeId = timePart.or(instancePart).or(sequencePart);
 
     return base62Encode(snowflakeId);
+  }
+
+  private static long maxValueForBits(int bits) {
+    return (1L << bits) - 1;
   }
 
   private String base62Encode(BigInteger snowflakeId) {
