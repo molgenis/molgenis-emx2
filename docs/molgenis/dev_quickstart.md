@@ -120,12 +120,19 @@ To skip slow tests that are marked in junit @Tag('slow') switch from 'All in pac
 When you get error "java.lang.reflect.InaccessibleObjectException: Unable to make field private final java.util.Map java.util.Collections$UnmodifiableMap.m accessible: module java.base does not "opens java.util" to unnamed module @5cee5251"
 that is because you need JVM parameter `--add-opens=java.base/java.util=ALL-UNNAMED`
 
-### Reset gradle cache/deamon
+### Reset cache/deamon
 
-Sometimes it help to reset gradle cache and stop the gradle daemon
+Sometimes it helps to stop the gradle daemon and reset the gradle cache.
 
+```bash
+./gradlew --stop && rm -rf $HOME/.gradle/
 ```
-./gradlew --stop rm -rf $HOME/.gradle/
+
+When making changes to `apps/molgenis-components` or similar that other apps depend on without changing those apps themselves,
+clearing the cache of all the apps will force gradle to rebuild these again (as these are not stored in the general gradle cache!).
+
+```bash
+rm -rf ./apps/*/dist/
 ```
 
 ### Delete all schemas (destroys all your data!)

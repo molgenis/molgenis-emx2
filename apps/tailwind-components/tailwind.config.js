@@ -151,6 +151,7 @@ module.exports = {
         "tab-hover": "var(--backgroud-color-tab-hover)",
         "tab-active": "var(--backgroud-color-tab-active)",
         "disabled": "var(--background-color-disabled)",
+        "invalid": "var(--background-color-invalid)",
       }),
       textColor: ({ theme }) => ({
         "button-primary": "var(--text-color-button-primary)",
@@ -194,8 +195,6 @@ module.exports = {
         "pagination": "var(--text-color-pagination)",
         "pagination-input": "var(--text-color-pagination-input)",
         "pagination-hover": "var(--text-color-pagination-hover)",
-        "pagination-label-white": "var(--text-color-pagination-label-white)",
-        "pagination-label-gray": "var(--text-color-pagination-label-gray)",
         "footer-link": "var(--text-color-footer-link)",
         "invalid": "var(--text-color-invalid)",
         "valid": "var(--text-color-valid)",

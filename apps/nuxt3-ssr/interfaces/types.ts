@@ -1,5 +1,9 @@
-import type { INode } from "../../tailwind-components/types/types";
-export interface ICollection {
+import type {
+  IDocumentation,
+  IFile,
+  INode,
+} from "../../tailwind-components/types/types";
+export interface IResource {
   id: string;
   pid: string;
   name: string;
@@ -42,7 +46,7 @@ export interface ICollection {
   numberOfParticipantsWithSamples?: number;
   designDescription: string;
   designSchematic: IFile;
-  designType: {
+  design: {
     definition: string;
     name: string;
   };
@@ -61,6 +65,7 @@ export interface ICollection {
   inclusionCriteria?: IOntologyNode[];
   otherInclusionCriteria?: string;
   collectionEvents: ICollectionEvent[];
+  collectionEvents_agg: { count: number };
   peopleInvolved: IContributor[];
   networks: INetwork[];
   publications: IPublication[];
@@ -68,6 +73,8 @@ export interface ICollection {
   linkageOptions?: string;
   dataAccessConditionsDescription?: string;
   dataAccessConditions?: { name: string }[];
+  dataUseConditions?: IOntologyNode[];
+  dataAccessFee?: boolean;
   prelinked?: boolean;
   releaseType?: boolean;
   fundingStatement?: string;
@@ -76,8 +83,9 @@ export interface ICollection {
   datasets: { name: string }[];
   populationOncologyTopology?: IOntologyNode[];
   populationOncologyMorphology?: IOntologyNode[];
-  subcohorts: any[];
-  partOfCollections: ICollection[];
+  subpopulations: any[];
+  subpopulations_agg: { count: number };
+  partOfResources: IResource[];
 }
 
 export interface IPublication {
@@ -92,16 +100,17 @@ export interface IPublication {
   publisher?: string;
   school?: string;
   abstract?: string;
+  isDesignPublication: boolean;
 }
 
 export interface IVariableBase {
   name: string;
-  collection: {
+  resource: {
     id: string;
   };
   dataset: {
     name: string;
-    collection: {
+    resource: {
       id: string;
     };
   };
@@ -125,20 +134,6 @@ export interface IVariableMappings {
 export type IVariable = IVariableBase & IVariableDetails;
 export type IVariableWithMappings = IVariable & IVariableMappings;
 
-export interface IFile {
-  id?: string;
-  size?: number;
-  extension?: string;
-  url?: string;
-}
-
-export interface IDocumentation {
-  name: string;
-  description: string;
-  url: string;
-  file: IFile;
-}
-
 export interface IOrganisation extends IPartner {
   email: string;
   type: {
@@ -151,7 +146,9 @@ export interface IOrganisation extends IPartner {
   expertise: string;
   country: {
     name: string;
-  };
+  }[];
+  isLeadOrganisation: boolean;
+  role: IOntologyNode[];
 }
 
 export interface IPartner {
@@ -196,7 +193,7 @@ export interface ICollectionEvent {
   areasOfInformation: ICollectionEventCategory[];
   standardizedTools: ICollectionEventCategory[];
   standardizedToolsOther: string;
-  subcohorts: INameObject[];
+  subpopulations: INameObject[];
   coreVariables: string[];
 }
 
@@ -262,15 +259,6 @@ export type INotificationType =
   | "warning"
   | "info";
 
-export interface ISectionField {
-  meta: IColumn;
-  value: any;
-}
-
-export interface ISection {
-  meta: IColumn;
-  fields: ISectionField[];
-}
 export interface IMapping {
   syntax: string;
   description: string;
@@ -284,7 +272,7 @@ export interface IMapping {
   };
   repeats: string;
   sourceDataset: {
-    collection: {
+    resource: {
       id: string;
     };
     name: string;
