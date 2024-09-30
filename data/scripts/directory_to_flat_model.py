@@ -82,7 +82,14 @@ def map_networks_to_resources(networks, resources):
     networks['resources'] = ''
     # Add default type 'Network'
     networks['type'] = 'Network'
-    # TODO: link network to its parent network
+    # Link network to its parent network
+    networks.index = networks['id']
+    for idx, row in networks.iterrows():
+        p_n = row['parent_network']
+        if p_n:
+            if networks.loc[p_n, 'resources'] != '':
+                networks.loc[p_n, 'resources'] += ','
+            networks.loc[p_n, 'resources'] += idx
     return networks
 
 
