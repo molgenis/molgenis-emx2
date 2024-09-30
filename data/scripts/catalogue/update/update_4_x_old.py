@@ -135,7 +135,7 @@ class Transform:
             df_cohorts.loc[:, 'cohort type'] = df_cohorts.apply(lambda c: '' if c['type'] == 'Clinical trial' else c['cohort type'], axis=1)
             # transform years to dates
             df_cohorts.loc[:, 'start data collection'] = df_cohorts['start year'] + '-01-01'
-            df_cohorts.loc[:, 'date established'] = df_cohorts['start year']
+            df_cohorts.loc[:, 'date established'] = df_cohorts['start data collection']
             df_cohorts.loc[:, 'end data collection'] = df_cohorts['end year'] + '-12-31'
 
             # get resources that are part of network
@@ -262,7 +262,6 @@ class Transform:
                 data = [['testDatasource', 'AU', 'University of Aarhus', 'Denmark']]
                 df_organisations = pd.DataFrame(data, columns=['resource', 'id', 'name', 'country'])
                 df_organisations.to_csv(self.path + 'Organisations.csv', index=False)
-
 
     def publications(self):
         """Transform Publications table
@@ -493,6 +492,7 @@ def restructure_repeats(df_variables, df_repeats):
     df_variables.loc[df_variables['repeat unit'] == 'Month', 'repeat max'] = 270
     df_variables.loc[df_variables['repeat unit'] == 'Week', 'repeat max'] = 42
     df_variables.loc[df_variables['repeat unit'] == 'Year', 'repeat max'] = 21
+    df_variables.loc[df_variables['repeat unit'] == 'Trimester', 'repeat min'] = 1
     df_variables.loc[df_variables['repeat unit'] == 'Trimester', 'repeat max'] = 3
 
     return df_variables

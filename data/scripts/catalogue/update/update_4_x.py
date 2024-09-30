@@ -501,6 +501,7 @@ def restructure_repeats(df_variables, df_repeats):
     df_variables.loc[df_variables['repeat unit'] == 'Month', 'repeat max'] = 270
     df_variables.loc[df_variables['repeat unit'] == 'Week', 'repeat max'] = 42
     df_variables.loc[df_variables['repeat unit'] == 'Year', 'repeat max'] = 21
+    df_variables.loc[df_variables['repeat unit'] == 'Trimester', 'repeat min'] = 1
     df_variables.loc[df_variables['repeat unit'] == 'Trimester', 'repeat max'] = 3
 
     return df_variables
