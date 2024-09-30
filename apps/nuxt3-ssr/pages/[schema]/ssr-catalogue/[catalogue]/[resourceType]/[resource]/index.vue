@@ -257,9 +257,11 @@ function subpopulationMapper(subpopulation: any) {
 }
 
 const networks = computed(() =>
-  resource.value.partOfResources?.filter((c) =>
-    c.type?.find((t) => t.name == "Network")
-  )
+  !resource.value.partOfResources
+    ? []
+    : resource.value.partOfResources.filter((c) =>
+        c.type.find((t) => t.name == "Network")
+      )
 );
 
 let tocItems = computed(() => {
