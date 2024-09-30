@@ -42,8 +42,8 @@ def map_collections_to_resources(collections):
     collections.rename(columns={'url': 'website'}, inplace=True)
     collections['resources'] = ''
     # Create a unique name
-    collections['name'] = collections['name'] + ' ' + collections['biobank'] + \
-        ' (' + collections['id'] + ')'
+    collections['name'] = collections['name'] + ' from ' + collections['biobank_label'] + \
+        ' (id: ' + collections['id'] + ')'
     # Add collection-to-subcollection links
     collections.index = collections['id']
     for idx, row in collections.iterrows():
@@ -53,13 +53,14 @@ def map_collections_to_resources(collections):
                 collections.loc[p_c, 'resources'] += ','
             collections.loc[p_c, 'resources'] += idx
     # Map types from different ontologies, map to 'Other' if no suitable candidate exists in the target ontology
-    # TODO: add type 'Biobank' for every collection?
     # TODO: if there are still unmapped types ultimately, add the original type description in the type_other column
     type_mapping = {'QUALITY_CONTROL': 'Other', 'BIRTH_COHORT': 'Cohort study', 'POPULATION_BASED': 'Cohort study',
                     'DISEASE_SPECIFIC': 'Disease specific', 'NON_HUMAN': 'Other', 'CASE_CONTROL': 'Other', 'OTHER': 'Other',
                     'SAMPLE': 'Other', 'RD': 'Rare disease', 'IMAGE': 'Other', 'PROSPECTIVE_COLLECTION': 'Study',
                     'HOSPITAL': 'Registry', 'CROSS_SECTIONAL': 'Cohort study', 'COHORT': 'Cohort study', 'TWIN_STUDY': 'Other', 'LONGITUDINAL': 'Cohort study'}
     collections['type'] = collections['type'].map(lambda l: ','.join(set([type_mapping[t] for t in l.split(',')])))
+    # Add default type 'Sample collection'
+    collections['type'] += ',Sample collection'
     return collections
 
 
@@ -85,7 +86,17 @@ def main():
         with molgenis_emx2_pyclient.Client(args.target_server) as catalogue_client:
             if args.target_password:
                 catalogue_client.signin('admin', args.target_password)
-            catalogue_client.set_schema('catalogue-demo-hsl')
+            catalogue_client.set_schema('BBMRI-demo')
+            # Map collections to resources
+            collections = client.get('Collections', as_df=True)
+            mapped_collections = map_collections_to_resources(
+                collections.copy())  # Unnecessary copy?
+            mapped_collections = mapped_collections.reindex(
+                columns=['id', 'name', 'acronym', 'description', 'website', 'resources', 'type'])
+            # Create BBMRI-ERIC network, add all resources
+            BBMRI_network = [{'id': 'BBMRI-ERIC', 'name': 'BBMRI-ERIC', 'type': 'Network', 'description': 'BBMRI-ERIC directory mapped to flat model'}]
+            BBMRI_network[0]['resources'] = ','.join(mapped_collections['id'])
+            mapped_collections = pd.concat([mapped_collections, pd.DataFrame.from_records(BBMRI_network)])
             # Map persons to contacts
             persons = client.get('Persons', as_df=True)
             mapped_contacts = map_persons_to_contacts(
@@ -93,18 +104,9 @@ def main():
             mapped_contacts = mapped_contacts.reindex(columns=['resource', 'role', 'role description', 'display name', 'first name',
                                                                'last name', 'prefix', 'initials', 'title', 'organisation', 'email',
                                                                'orcid', 'homepage', 'photo', 'photo_filename', 'expertise'])
-            # Map collections to resources
-            collections = client.get('Collections', as_df=True)
-            mapped_collections = map_collections_to_resources(
-                collections.copy())  # Unnecessary copy?
-            mapped_collections = mapped_collections.reindex(
-                columns=['id', 'name', 'acronym', 'description', 'website', 'resources', 'type'])
-            # Mappings involving multiple tables
-            # TODO: add role for 'contact's in resources (also for 'head's?)
-            # TODO: Link contacts and resources
             # Upload mapped tables
-            catalogue_client.save_schema(
-                table='Contacts', data=mapped_contacts)
+            # catalogue_client.save_schema(
+                # table='Contacts', data=mapped_contacts)
             catalogue_client.save_schema(table='Resources',
                                          data=mapped_collections)
 
