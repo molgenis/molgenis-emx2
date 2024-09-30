@@ -2,7 +2,7 @@
 # FILE: dev.py
 # AUTHOR: David Ruvolo, Ype Zijlstra
 # CREATED: 2023-05-22
-# MODIFIED: 2024-08-22
+# MODIFIED: 2024-09-11
 # PURPOSE: development script for initial testing of the py-client
 # STATUS: ongoing
 # PACKAGES: pandas, python-dotenv
@@ -18,6 +18,7 @@ import logging
 import os
 
 import numpy
+import openpyxl
 import pandas as pd
 from dotenv import load_dotenv
 
@@ -58,7 +59,6 @@ async def main():
     async with Client('https://emx2.dev.molgenis.org/', token=token) as client:
         # Check sign in status
         print(client.__repr__())
-        # print(client.status)
 
         # Retrieve data from a table in a schema on the server using the 'get' method
         # Passing non-existing schema name yields a NoSuchSchemaException
@@ -75,17 +75,30 @@ async def main():
         except NoSuchTableException as e:
             print(e)
 
-        # Export the entire 'pet store' schema to a .xlsx file
-        # and export the 'Collections' table from schema 'catalogue' to a .csv file
-        await client.export(schema='pet store', fmt='xlsx')
-        await client.export(schema='catalogue', table='Collections', fmt='csv')
+        # Export the entire 'pet store' schema to memory in Excel format,
+        # print its table names and the contents of the 'Pet' table.
+        # Export the 'Collections' table from schema 'catalogue' to memory and print a sample of its contents
+        pet_store_excel = await client.export(schema='pet store', as_excel=True)
+
+        pet_store = openpyxl.load_workbook(pet_store_excel, data_only=True)
+        print(pet_store.sheetnames)
+
+        pet_sheet = pd.DataFrame((ps := pd.DataFrame(pet_store['Pet'].values)).values[1:], columns=ps.iloc[0].values)
+        print(pet_sheet.to_string())
+
+        raw_collections = await client.export(schema='catalogue', table='Collections')
+        collections = pd.read_csv(raw_collections)
+        print(collections.sample(5).to_string())
 
     # Connect to server with a default schema specified
     with Client('https://emx2.dev.molgenis.org/', schema='pet store', token=token) as client:
         print(client.__repr__())
-        await client.export(fmt='csv')
-        await client.export(table='Pet', fmt='csv')
-        await client.export(table='Pet', fmt='xlsx')
+        # Export all data from the 'pet store' schema to zipped CSVs
+        await client.export(filename='pet store.zip')
+        # Export the 'Pet' table from the 'pet store' schema to a CSV file
+        await client.export(table='Pet', filename='Pet.csv')
+        # Export the 'Pet' table from the 'pet store' schema to an Excel file
+        await client.export(table='Pet', filename='Pet.xlsx')
 
         # Retrieving data from table Pet as a list
         data = client.get(table='Pet')  # get Pets
@@ -233,7 +246,7 @@ async def main():
 
         # Recreate the schema: delete and create
         try:
-            schema_recreate = asyncio.create_task(client.recreate_schema(name='myNewSchema'))
+            await client.recreate_schema(name='myNewSchema')
             print(client.schema_names)
         except (GraphQLException, NoSuchSchemaException) as e:
             print(e)
@@ -251,7 +264,7 @@ async def main():
     # Use the Schema, Table, and Column classes
     catalogue_schema = Client('https://emx2.dev.molgenis.org/').get_schema_metadata('catalogue')
 
-    # Find the tables inheriting from the 'Resources' table
+    # Find the tables inheriting from the 'Collections' table
     resource_children = catalogue_schema.get_tables(by='inheritName', value='Collections')
 
     print("Tables in the schema inheriting from the 'Collections' table.")
@@ -260,13 +273,17 @@ async def main():
     print("\n")
 
     # Find the  table
-    collections = catalogue_schema.get_table(by='name', value='Collections')
+    collections_meta = catalogue_schema.get_table(by='name', value='Collections')
+    print(collections_meta)
 
     # Find the columns in the Collections table referencing the Organisations table
-    orgs_refs = collections.get_columns(by='refTableName', value='Organisations')
+    orgs_refs = collections_meta.get_columns(by='refTableName', value='Organisations')
+    print(orgs_refs)
 
     # Find the columns in the Collections table referencing the Organisations table in a reference array
-    orgs_array_refs = collections.get_columns(by=['columnType', 'refTableName'], value=['REF_ARRAY', 'Collection organisations'])
+    orgs_array_refs = collections_meta.get_columns(by=['columnType', 'refTableName'],
+                                                   value=['REF_ARRAY', 'Collection organisations'])
+    print(orgs_array_refs)
 
     # Print the __str__ and __repr__ representations of these columns
     print("Columns in the Collections table referencing the Collection organisations table in an array.")

@@ -1,4 +1,4 @@
-collection,name,description,subcohorts,start year,start month,end year,end month,age groups,number of participants,areas of information,data categories,sample categories,standardized tools,standardized tools other,core variables,supplementary information,start date,end day,end date
+resource,name,description,subpopulations,start year,start month,end year,end month,age groups,number of participants,areas of information,data categories,sample categories,standardized tools,standardized tools other,core variables,supplementary information,start date,end day,end date
 ENVIRONAGE,birth,,,,1,,12,,,,,,,,,,,31,
 ENVIRONAGE,4-years follow-up,,,,1,,12,,,,,,,,,,,31,
 EDEN,24m,Around 24 months of age,,,1,,12,,,,,,,,,,,31,

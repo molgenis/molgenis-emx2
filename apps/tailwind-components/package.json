@@ -10,7 +10,7 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "if-env CI=true && nuxt prepare || echo 'CI is not set'",
-    "format": "prettier components pages tests --write --config ../.prettierrc.js",
+    "format": "prettier components pages tests layouts --write --config ../.prettierrc.js",
     "checkFormat": "prettier components pages tests --check --config ../.prettierrc.js",
     "test": "vitest",
     "a11y:test": "pa11y-ci",
@@ -20,7 +20,7 @@
   "dependencies": {
     "consola": "3.2.3",
     "floating-vue": "5.2.2",
-    "vue": "3.4.37",
+    "vue": "3.5.6",
     "vue-router": "4.4.3"
   },
   "devDependencies": {

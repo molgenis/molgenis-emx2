@@ -127,6 +127,12 @@ public class Migrations {
             executeMigrationFile(
                 tdb, "migration21.sql", "add exist and range role to schemas and metadata");
 
+          if (version < 22)
+            executeMigrationFile(
+                tdb,
+                "migration22.sql",
+                "remove physical refback triggerfunctions (cascade to include triggers) and then the columns");
+
           // if success, update version to SOFTWARE_DATABASE_VERSION
           updateDatabaseVersion((SqlDatabase) tdb, SOFTWARE_DATABASE_VERSION);
         });
