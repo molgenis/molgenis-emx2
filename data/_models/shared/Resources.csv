@@ -123,6 +123,7 @@ Resources,,release frequency,int,,,,,,,,,Refreshing rate (in months),"DataCatalo
 Resources,,refresh time,int,,,,,,,,,Average number of days between refresh of data bank with new records,"DataCatalogueFlat,RWEStaging"
 Resources,,lag time,int,,,,,,,,,How many days is the lag time after refresh before a record can be extracted? (e.g. a lag time may occur if the originator conducts quality checks),"DataCatalogueFlat,RWEStaging"
 Resources,,refresh period,ontology_array,,,CatalogueOntologies,Refresh periods,,,,,"If data are refreshed on fixed dates (e.g. every June and December), when are the refreshes scheduled? Select all that apply from the following:","DataCatalogueFlat,EMA,RWEStaging"
+Resources,,date last refresh,date,,,,,,,,,Date of last update/refresh,"DataCatalogueFlat,EMA,RWEStaging"
 Resources,,preservation,bool,,,,,,,,,Are records preserved in the data bank indefinitely?,"DataCatalogueFlat,EMA,RWEStaging"
 Resources,,preservation duration,int,,,,,,,,,"If no to the above, for how long (in years) are records preserved in the data bank?","DataCatalogueFlat,EMA,RWEStaging"
 Resources,,quality,heading,,,,,,,,,List of relevant studies conducted using the data bank,"DataCatalogueFlat,EMA,RWEStaging"
