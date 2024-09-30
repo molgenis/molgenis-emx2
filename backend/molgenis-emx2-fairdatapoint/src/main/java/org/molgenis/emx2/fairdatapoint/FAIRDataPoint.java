@@ -3,7 +3,7 @@ package org.molgenis.emx2.fairdatapoint;
 import static java.util.Map.entry;
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.eclipse.rdf4j.model.util.Values.literal;
-import static org.molgenis.emx2.rdf.RDFUtils.*;
+import static org.molgenis.emx2.utils.URIUtils.*;
 
 import java.io.StringWriter;
 import java.net.URI;
@@ -250,7 +250,11 @@ public class FAIRDataPoint {
     for (String propertyValue : (List<String>) map.get("propertyValue")) {
       String[] propertyValueSplit = propertyValue.split(" ", -1);
       checkPropValSplitLength(propertyValueSplit);
-      builder.add(catalogIriEnc, iri(propertyValueSplit[0]), iri(propertyValueSplit[1]));
+      if (propertyValueSplit[1].startsWith("http")) {
+        builder.add(catalogIriEnc, iri(propertyValueSplit[0]), iri(propertyValueSplit[1]));
+      } else {
+        builder.add(catalogIriEnc, iri(propertyValueSplit[0]), propertyValueSplit[1]);
+      }
     }
   }
 

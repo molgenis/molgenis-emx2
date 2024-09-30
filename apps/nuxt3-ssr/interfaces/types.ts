@@ -1,5 +1,6 @@
+import type { IColumn } from "../../metadata-utils/dist";
 import type { INode } from "../../tailwind-components/types/types";
-export interface ICollection {
+export interface IResource {
   id: string;
   pid: string;
   name: string;
@@ -42,7 +43,7 @@ export interface ICollection {
   numberOfParticipantsWithSamples?: number;
   designDescription: string;
   designSchematic: IFile;
-  designType: {
+  design: {
     definition: string;
     name: string;
   };
@@ -61,6 +62,7 @@ export interface ICollection {
   inclusionCriteria?: IOntologyNode[];
   otherInclusionCriteria?: string;
   collectionEvents: ICollectionEvent[];
+  collectionEvents_agg: { count: number };
   peopleInvolved: IContributor[];
   networks: INetwork[];
   publications: IPublication[];
@@ -68,6 +70,8 @@ export interface ICollection {
   linkageOptions?: string;
   dataAccessConditionsDescription?: string;
   dataAccessConditions?: { name: string }[];
+  dataUseConditions?: IOntologyNode[];
+  dataAccessFee?: boolean;
   prelinked?: boolean;
   releaseType?: boolean;
   fundingStatement?: string;
@@ -76,8 +80,9 @@ export interface ICollection {
   datasets: { name: string }[];
   populationOncologyTopology?: IOntologyNode[];
   populationOncologyMorphology?: IOntologyNode[];
-  subcohorts: any[];
-  partOfCollections: ICollection[];
+  subpopulations: any[];
+  subpopulations_agg: { count: number };
+  partOfResources: IResource[];
 }
 
 export interface IPublication {
@@ -96,12 +101,12 @@ export interface IPublication {
 
 export interface IVariableBase {
   name: string;
-  collection: {
+  resource: {
     id: string;
   };
   dataset: {
     name: string;
-    collection: {
+    resource: {
       id: string;
     };
   };
@@ -151,7 +156,9 @@ export interface IOrganisation extends IPartner {
   expertise: string;
   country: {
     name: string;
-  };
+  }[];
+  isLeadOrganisation: boolean;
+  role: IOntologyNode[];
 }
 
 export interface IPartner {
@@ -196,7 +203,7 @@ export interface ICollectionEvent {
   areasOfInformation: ICollectionEventCategory[];
   standardizedTools: ICollectionEventCategory[];
   standardizedToolsOther: string;
-  subcohorts: INameObject[];
+  subpopulations: INameObject[];
   coreVariables: string[];
 }
 
@@ -284,7 +291,7 @@ export interface IMapping {
   };
   repeats: string;
   sourceDataset: {
-    collection: {
+    resource: {
       id: string;
     };
     name: string;

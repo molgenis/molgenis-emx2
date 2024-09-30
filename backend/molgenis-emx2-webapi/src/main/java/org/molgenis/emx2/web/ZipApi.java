@@ -121,7 +121,7 @@ public class ZipApi {
   }
 
   static String getZipTable(Request request, Response response) throws IOException {
-    Table table = MolgenisWebservice.getTableById(request);
+    Table table = MolgenisWebservice.getTableByIdOrName(request);
     boolean includeSystemColumns = includeSystemColumns(request);
     if (table == null) throw new MolgenisException("Table " + request.params(TABLE) + " unknown");
     Path tempDir = Files.createTempDirectory(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT);
