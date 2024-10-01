@@ -172,14 +172,6 @@ class Runner:
             FILES_DIR.mkdir()
         await self.source.export(schema=name, filename=str(FILES_DIR.joinpath(f"{name}_data.zip")))
 
-        if not transform_only:
-            if f"{name}{self.pattern}" in self.target.schema_names:
-                create_schema = asyncio.create_task(self.target.recreate_schema(name=f"{name}{self.pattern}",
-                                                                         description=description))
-            else:
-                create_schema = asyncio.create_task(self.target.create_schema(name=f"{name}{self.pattern}",
-                                                                       description=description))
-
         logging.info(f"Transforming data from schema {name}")
         schema_transform = Transform(database_name=name, database_type=database_type)
 
@@ -194,6 +186,17 @@ class Runner:
         # Transform the data
         schema_transform.transform_data()
 
+        # Return the function if only the transformation is requested
+        if transform_only:
+            return
+
+        if f"{name}{self.pattern}" in self.target.schema_names:
+            create_schema = asyncio.create_task(self.target.recreate_schema(name=f"{name}{self.pattern}",
+                                                                     description=description))
+        else:
+            create_schema = asyncio.create_task(self.target.create_schema(name=f"{name}{self.pattern}",
+                                                                   description=description))
+
         # Archive the files
         with ZipFile(FILES_DIR.joinpath(f"{name}_upload.zip"), 'w') as zf:
             for file_path in FILES_DIR.joinpath(f"{name}_data").iterdir():
@@ -204,11 +207,10 @@ class Runner:
             if database_type == 'catalogue':
                 zf.write(FILES_DIR.joinpath(f"{name}_data_model", 'molgenis.csv'), arcname='molgenis.csv')
 
-        if not transform_only:
-            # Upload the updated data
-            await create_schema
-            await self.target.upload_file(file_path=FILES_DIR.joinpath(f"{name}_upload.zip"),
-                                   schema=f"{name}{self.pattern}")
+        # Upload the updated data
+        await create_schema
+        await self.target.upload_file(file_path=FILES_DIR.joinpath(f"{name}_upload.zip"),
+                               schema=f"{name}{self.pattern}")
 
 
 async def main(pattern = None):
