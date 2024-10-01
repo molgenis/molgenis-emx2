@@ -12,5 +12,5 @@ defineProps<{
   value: string;
 }>();
 
-const modelValue = ref<string>("");
+const modelValue = defineModel<string>();
 </script>

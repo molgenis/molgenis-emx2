@@ -11,15 +11,14 @@
         :name="id"
         :value="option.value"
         v-model="modelValue"
-        :checked="setDefaultValue(option.value, option.checked)"
-        @change="emitModelValue"
+        :checked="option.value === modelValue"
       />
       <InputRadioIcon :checked="modelValue === option.value" />
       <InputLabel
         :for="`${id}-radio-group-${option.value}`"
         class="hover:cursor-pointer"
       >
-        <template v-if="Object.hasOwn(option, 'label')">
+        <template v-if="option.label">
           {{ option.label }}
         </template>
         <template v-else>
@@ -58,25 +57,9 @@ withDefaults(
   }
 );
 
-const modelValue = ref<string>("");
-const emit = defineEmits(["update:modelValue"]);
-
-function setDefaultValue(value: string, checked: boolean | undefined) {
-  if (checked) {
-    modelValue.value = value;
-    emitModelValue();
-    return "checked";
-  } else {
-    return null;
-  }
-}
-
-function emitModelValue() {
-  emit("update:modelValue", modelValue.value);
-}
+const modelValue = defineModel<string>();
 
 function resetModelValue() {
   modelValue.value = "";
-  emitModelValue();
 }
 </script>

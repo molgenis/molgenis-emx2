@@ -15,7 +15,7 @@
     </li>
     <li>
       Showing a clear selection button: rendering the radio inputs with a clear
-      selection button and a default value
+      selection button, labels and a default value
     </li>
   </ul>
   <h3>Input radio group examples</h3>
@@ -63,7 +63,6 @@
           {
             value: 'intervention',
             label: 'Experimental cohort',
-            checked: true,
           },
           { value: 'placebo', label: 'Placebo cohort' },
         ]"
@@ -79,5 +78,5 @@
 <script lang="ts" setup>
 const question1Response = ref<string>("");
 const question2Response = ref<string>("");
-const question3Response = ref<string>("");
+const question3Response = ref<string>("intervention");
 </script>
