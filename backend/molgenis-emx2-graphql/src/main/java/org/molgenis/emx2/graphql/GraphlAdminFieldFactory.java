@@ -7,6 +7,8 @@ import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.outputSettings
 
 import graphql.Scalars;
 import graphql.schema.*;
+
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -93,6 +95,7 @@ public class GraphlAdminFieldFactory {
     Map<String, Object> result = new LinkedHashMap<>();
     result.put(EMAIL, user.getUsername());
     result.put(SETTINGS, mapSettingsToGraphql(user.getSettings()));
+    result.put(ROLES, user.getRoles());
     return result;
   }
 

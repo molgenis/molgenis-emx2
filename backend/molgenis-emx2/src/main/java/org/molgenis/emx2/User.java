@@ -12,6 +12,8 @@ public class User extends HasSettings<User> {
   private String username;
   private Database database;
 
+  private String[] roles;
+
   User(String username) {
     // for testing protected
     requireNonNull(username);
@@ -73,5 +75,9 @@ public class User extends HasSettings<User> {
     }
     this.setSetting(TOKENS, tokensString);
     database.saveUser(this);
+  }
+
+  public String[] getRoles() {
+    return this.roles;
   }
 }
