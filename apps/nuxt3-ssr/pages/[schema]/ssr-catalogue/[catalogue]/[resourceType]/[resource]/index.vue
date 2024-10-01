@@ -257,9 +257,11 @@ function subpopulationMapper(subpopulation: any) {
 }
 
 const networks = computed(() =>
-  resource.value.partOfResources?.filter((c) =>
-    c.type?.find((t) => t.name == "Network")
-  )
+  !resource.value.partOfResources
+    ? []
+    : resource.value.partOfResources.filter((c) =>
+        c.type.find((t) => t.name == "Network")
+      )
 );
 
 let tocItems = computed(() => {
@@ -503,6 +505,7 @@ const organisations = computed(() => resource.value.organisationsInvolved);
   <LayoutsDetailPage>
     <template #header>
       <PageHeader
+        id="resource-page-header"
         :title="resource?.acronym || resource.name"
         :description="resource?.acronym ? resource.name : ''"
       >
@@ -519,6 +522,7 @@ const organisations = computed(() => resource.value.organisationsInvolved);
         :title="resource?.acronym || resource?.name"
         :image="resource?.logo?.url"
         :items="tocItems"
+        header-target="#resource-page-header"
       />
     </template>
     <template #main>
@@ -641,7 +645,11 @@ const organisations = computed(() => resource.value.organisationsInvolved);
           />
         </TableContent>
 
-        <ContentBlock title="Part of networks" id="Networks">
+        <ContentBlock
+          title="Networks"
+          id="Networks"
+          description="Part of networks"
+        >
           <ReferenceCardList>
             <ReferenceCard
               v-for="network in networks"

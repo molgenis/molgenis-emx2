@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { IDocumentation } from "~/interfaces/types";
+import type { IDocumentation } from "~/types/types";
 
 const { documents } = defineProps<{
   title: string;
@@ -16,9 +16,9 @@ function looksLikeImage(document: IDocumentation) {
   );
 }
 
-const isExternalDocument = computed((document: IDocumentation) => {
+function isExternalDocument(document: IDocumentation) {
   return document?.file.url ? false : true;
-});
+}
 
 const images = documents.filter(looksLikeImage);
 const otherDocuments = documents.filter((d) => !looksLikeImage(d));
