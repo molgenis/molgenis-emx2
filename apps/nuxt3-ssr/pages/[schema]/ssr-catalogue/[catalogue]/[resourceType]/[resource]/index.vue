@@ -17,6 +17,10 @@ import dateUtils from "~/utils/dateUtils";
 const config = useRuntimeConfig();
 const route = useRoute();
 
+const resourceType = computed(() =>
+  getResourceMetadataForPath(route.params.resourceType as string)
+);
+
 const query = gql`
   query Resources($id: String) {
     Resources(filter: { id: { equals: [$id] } }) {
@@ -489,13 +493,18 @@ if (route.params.catalogue) {
   crumbs[
     cohortOnly.value ? "home" : (route.params.catalogue as string)
   ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}`;
-  crumbs[
-    "Resources"
-  ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/resource`;
+  if (route.params.resourceType !== "about")
+    crumbs[
+      resourceType.value.plural
+    ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/${resourceType.value.path}`;
 } else {
   crumbs["Home"] = `/${route.params.schema}/ssr-catalogue/`;
   crumbs["Browse"] = `/${route.params.schema}/ssr-catalogue/all`;
-  crumbs["Resources"] = `/${route.params.schema}/ssr-catalogue/all/resource`;
+  if (route.params.resourceType !== "about")
+    if (route.params.resourceType !== "about")
+      crumbs[
+        resourceType.value.plural
+      ] = `/${route.params.schema}/ssr-catalogue/all/${resourceType.value.path}`;
 }
 
 const contributors = computed(() => resource.value.peopleInvolved);
@@ -506,8 +515,15 @@ const organisations = computed(() => resource.value.organisationsInvolved);
     <template #header>
       <PageHeader
         id="resource-page-header"
-        :title="resource?.acronym || resource.name"
-        :description="resource?.acronym ? resource.name : ''"
+        :title="
+          route.params.resourceType === 'about'
+            ? 'About '
+            : resource?.acronym || resource.name
+        "
+        :description="
+          (route.params.resourceType === 'about' ? 'About ' : '') +
+          (resource?.name ? resource.name : '')
+        "
       >
         <template #prefix>
           <BreadCrumbs :crumbs="crumbs" />
