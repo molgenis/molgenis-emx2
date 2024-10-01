@@ -177,6 +177,11 @@ class Transform:
                                             'type other': 'RWD type other',
                                             'areas of information': 'areas of information rwd',
                                             'informed consent': 'informed consent required'}, inplace=True)
+
+            # transform dates to years  # TODO: check date established == start data collection
+            df_data_sources.loc[:, 'start year'] = df_data_sources['date established'][0:4]
+            df_data_sources.loc[:, 'end year'] = df_data_sources['end data collection'][0:4]
+
             df_data_sources['type'] = 'Data source'
 
             # Databanks to Resources
@@ -185,6 +190,11 @@ class Transform:
                                          'type other': 'RWD type other',
                                          'areas of information': 'areas of information rwd',
                                          'informed consent': 'informed consent required'}, inplace=True)
+
+            # transform dates to years  # TODO: check date established == start data collection
+            df_databanks.loc[:, 'start year'] = df_databanks['date established'][0:4]
+            df_databanks.loc[:, 'end year'] = df_databanks['end data collection'][0:4]
+
             df_databanks['type'] = 'Databank'
 
         # Models to Resources
