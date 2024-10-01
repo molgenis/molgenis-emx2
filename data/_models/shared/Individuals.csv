@@ -3,6 +3,7 @@ Individuals,,,,,,,,,,,"http://purl.obolibrary.org/obo/NCIT_C90492,http://purl.ob
 Individuals,,id,string,1,TRUE,,,,,,"http://purl.obolibrary.org/obo/NCIT_C164337,http://purl.obolibrary.org/obo/NCIT_C142495","A unique proper name or character sequence that identifies this particular person. In Beacon v2: id, in FAIR Genomes: PersonalIdentifier. In RD3: subjectID. In JRC-CDE: Pseudonym","Beacon v2, FAIR Genomes, RD3, JRC-CDE, DCAT examples"
 Individuals,,sex,ontology,,TRUE,,GenderAtBirth,,,,"http://purl.obolibrary.org/obo/GSSO_009418,http://purl.obolibrary.org/obo/NCIT_C28421",E.g. assigned female at birth,"Beacon v2"
 Individuals,,age_ageGroup,ontology,,,,AgeGroups,,,,http://purl.obolibrary.org/obo/NCIT_C25150,"Addition for EJP-RD Virtual Platform API. E.g. Adult 18-65 Years Old","Beacon v2 Vivify add-on"
+Individuals,,Age,int,,,,,,,,"http://purl.obolibrary.org/obo/NCIT_C25150","How long something has existed; elapsed time since birth.",CafeVariome
 Individuals,,age_age_iso8601duration,period,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25150,"Addition for EJP-RD Virtual Platform API. E.g. P32Y6M1D","Beacon v2 Vivify add-on, GDI T8.2 union"
 Individuals,,YearOfBirth,int,,,,,,,,"http://purl.obolibrary.org/obo/NCIT_C83164","The year in which this person was born.","FAIR Genomes, GDI T8.2 union"
 Individuals,,dateOfBirth,int,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C83164,"The year in which a person was born. In JRC-CDE: Date of birth","RD3, JRC-CDE, GDI T8.2 union"
@@ -28,7 +29,7 @@ Individuals,,ParticipatesInStudy,ref_array,,,,Study,,,,"http://purl.obolibrary.o
 Individuals,,FamilyID,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25173,"A domestic group, or a number of domestic groups linked through descent (demonstrated or stipulated) from a common ancestor, marriage, or adoption.",RD3
 Individuals,,MaternalID,ref,,,,Individuals,,,,http://purl.obolibrary.org/obo/NCIT_C89336,Identifier indicating a reference to mother of the subject,RD3
 Individuals,,PaternalID,ref,,,,Individuals,,,,http://purl.obolibrary.org/obo/NCIT_C94324,Identifier indicating a reference to father of the subject,RD3
-Individuals,,ClinicalStatus,bool,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C64917,whether it is an affected individual (main disease) Yes/No,RD3
+Individuals,,ClinicalStatus,bool,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C64917,"Whether it is an affected individual (main disease) Yes/No. In CafeVariome: Affected","RD3,CafeVariome"
 Individuals,,Disease,ontology_array,,,,Diseases,,,,http://purl.obolibrary.org/obo/NCIT_C15607,"if affected, which MAIN disease code(s) apply to subject. In JRC-CDE: Diagnosis of the rare disease","RD3, JRC-CDE"
 Individuals,,Phenotype,ontology_array,,,,Phenotypes,,,,http://purl.obolibrary.org/obo/NCIT_C16977,"Phenotype based on Human Phenotype Ontology (HPO). In JRC-CDE: Undiagnosed case","RD3, JRC-CDE"
 Individuals,,HasNotPhenotype,ontology_array,,,,Phenotypes,,,,http://purl.bioontology.org/ontology/HL7/C0442737,Relevant Phenotype NOT present in subject,RD3

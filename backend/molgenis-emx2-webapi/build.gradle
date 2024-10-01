@@ -1,5 +1,6 @@
 dependencies {
     implementation project(':backend:molgenis-emx2-sql')
+    implementation project(':backend:molgenis-emx2-cafe-variome')
     implementation project(':backend:molgenis-emx2-io')
     implementation project(':backend:molgenis-emx2-graphql')
     implementation project(':backend:molgenis-emx2')

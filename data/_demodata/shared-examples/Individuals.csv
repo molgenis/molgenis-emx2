@@ -1,6 +1,6 @@
-id,sex,age_ageGroup,age_age_iso8601duration,diseaseCausalGenes,ethnicity,geographicOrigin,diseases,measures,phenotypicFeatures
-Ind001,assigned female at birth,Adult 18-65 Years Old,P32Y6M1D,"TTN,COL7A1",Luxembourgish,Switzerland,"Ind001_Dis001,Ind001_Dis002",Ind001_Meas001,Ind001_Phen001
-Ind002,assigned male at birth,Children 2-11 Years Old,P2Y8M,CHD7,Dutch,Slovenia,Ind002_Dis001,"Ind002_Meas001,Ind002_Meas002",
-MinIndNoRefs003,assigned indeterminate at birth,,,,,,,
-MinInd004,assigned unspecified at birth,,,,,,MinInd004_Dis001,MinInd004_Meas001,MinInd004_Phen001
-Ind005,assigned indeterminate at birth,,P34Y,COL7A1,,,,,
+id,sex,age_ageGroup,age_age_iso8601duration,diseaseCausalGenes,ethnicity,geographicOrigin,diseases,measures,phenotypicFeatures,Age,ClinicalStatus
+Ind001,assigned female at birth,Adult 18-65 Years Old,P32Y6M1D,"TTN,COL7A1",Luxembourgish,Switzerland,"Ind001_Dis001,Ind001_Dis002",Ind001_Meas001,Ind001_Phen001,20,TRUE
+Ind002,assigned male at birth,Children 2-11 Years Old,P2Y8M,CHD7,Dutch,Slovenia,Ind002_Dis001,"Ind002_Meas001,Ind002_Meas002",,5,TRUE
+MinIndNoRefs003,assigned indeterminate at birth,,,,,,,,,73,TRUE
+MinInd004,assigned unspecified at birth,,,,,,MinInd004_Dis001,MinInd004_Meas001,MinInd004_Phen001,52,TRUE
+Ind005,assigned indeterminate at birth,,P34Y,COL7A1,,,,,,34,FALSE

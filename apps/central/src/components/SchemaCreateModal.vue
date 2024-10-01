@@ -147,6 +147,7 @@ export default {
         "DCAT",
         "FAIR_DATA_POINT",
         "BEACON_V2",
+        "CAFE_VARIOME",
         "ERN_DASHBOARD",
         "BIOBANK_DIRECTORY",
         "BIOBANK_DIRECTORY_STAGING",
