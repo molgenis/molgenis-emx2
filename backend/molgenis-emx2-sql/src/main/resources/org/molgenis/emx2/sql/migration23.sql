@@ -1,2 +1,2 @@
-ALTER TABLE "MOLGENIS"."user_metadata"
-    ADD COLUMN roles type text[];
+ALTER TABLE "MOLGENIS"."users_metadata"
+    ADD COLUMN roles varchar[];

@@ -148,6 +148,9 @@ public class Migrations {
             }
           }
 
+          if (version < 23)
+            executeMigrationFile(tdb, "migration23.sql", "add roles to users metadata");
+
           // if success, update version to SOFTWARE_DATABASE_VERSION
           updateDatabaseVersion((SqlDatabase) tdb, SOFTWARE_DATABASE_VERSION);
         });
