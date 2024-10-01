@@ -115,13 +115,23 @@ public class GraphqlSchemaFieldFactory {
           .field(
               GraphQLInputObjectField.newInputObjectField().name(KEY).type(Scalars.GraphQLString))
           .build();
-  private static final GraphQLType outputRolesType =
+  public static final GraphQLType outputRolesType =
       new GraphQLObjectType.Builder()
           .name("MolgenisRolesType")
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(GraphqlConstants.NAME)
                   .type(Scalars.GraphQLString))
+          .build();
+  public static final GraphQLType outputUserRolesType =
+      new GraphQLObjectType.Builder()
+          .name("MolgenisRolesType")
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(SCHEMA_ID)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition().name(ROLES).type(Scalars.GraphQLString))
           .build();
   private static final GraphQLType outputMembersMetadataType =
       new GraphQLObjectType.Builder()

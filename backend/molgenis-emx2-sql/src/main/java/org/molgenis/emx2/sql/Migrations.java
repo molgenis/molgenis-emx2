@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 
 public class Migrations {
   // version the current software needs to work
-  private static final int SOFTWARE_DATABASE_VERSION = 22;
+  private static final int SOFTWARE_DATABASE_VERSION = 23;
   public static final int THREE_MINUTES = 180;
   private static Logger logger = LoggerFactory.getLogger(Migrations.class);
 

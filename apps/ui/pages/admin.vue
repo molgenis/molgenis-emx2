@@ -23,7 +23,7 @@
             <TableCell>Edit/Delete/Disable buttons</TableCell>
             <!-- clickable modal for role management? What to show here, count/summary/all? -->
             <TableCell>{{ user.email }}</TableCell>
-            <TableCell>{{ user }}</TableCell>
+            <TableCell>{{ user.roles }}</TableCell>
             <TableCell>
               {{ user.settings.length ? user.settings[0].value : "No tokens" }}
             </TableCell>
@@ -63,7 +63,7 @@ async function getUsers() {
   const { data, error } = await useFetch<IAdminResponse>("/api/graphql", {
     method: "post",
     body: {
-      query: `{ _admin { users(limit: ${LIMIT}${offset.value}) { email, settings, {key, value} } userCount } }`,
+      query: `{ _admin { users(limit: ${LIMIT}${offset.value}) { email, settings, {key, value}, roles, {schemaId, roles} } userCount } }`,
     },
   });
   if (error.value) {
@@ -88,5 +88,6 @@ interface IAdminResponse {
 interface IUser {
   email: string;
   settings: ISetting[];
+  roles: string[];
 }
 </script>

@@ -3,7 +3,7 @@ package org.molgenis.emx2.graphql;
 import static org.molgenis.emx2.Constants.MOLGENIS_JWT_SHARED_SECRET;
 import static org.molgenis.emx2.Constants.SETTINGS;
 import static org.molgenis.emx2.graphql.GraphqlConstants.*;
-import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.outputSettingsType;
+import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.*;
 
 import graphql.Scalars;
 import graphql.schema.*;
@@ -31,6 +31,11 @@ public class GraphlAdminFieldFactory {
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(SETTINGS)
                   .type(GraphQLList.list(outputSettingsType))
+                  .build())
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(ROLES)
+                  .type(GraphQLList.list(outputUserRolesType))
                   .build())
           .build();
 

@@ -1,2 +1,2 @@
 ALTER TABLE "MOLGENIS"."users_metadata"
-    ADD COLUMN roles varchar[];
+    ADD COLUMN roles JSON;
