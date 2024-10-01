@@ -34,7 +34,6 @@ def get_data_model(profile_path: Path, path_to_write: Path, profile: str):
             df = df.loc[df['profiles'].apply(lambda p: profile in p.split(','))]
             data_model = pd.concat([data_model, df])
 
-    # data_model = float_to_int(data_model)
     data_model.to_csv(path_to_write.joinpath('molgenis.csv'), index=False)
 
 
@@ -124,7 +123,6 @@ class Transform:
     def resources(self):
         """Transform columns in Cohorts, Networks, Studies, Data sources, Databanks
         """
-        # TODO: get date established & start data collection from other items
         # Cohorts to Resources
         if self.database_type in ['catalogue', 'cohort', 'cohort_UMCG']:
 
@@ -136,10 +134,6 @@ class Transform:
             df_cohorts['type'] = df_cohorts.apply(lambda c: 'Clinical trial' if c['cohort type'] == 'Study' else 'Cohort study', axis=1)
             # for UMCG data, delete cohort type == 'Study'
             df_cohorts.loc[:, 'cohort type'] = df_cohorts.apply(lambda c: '' if c['type'] == 'Clinical trial' else c['cohort type'], axis=1)
-            # transform years to dates
-            df_cohorts.loc[:, 'start data collection'] = df_cohorts['start year'] + '-01-01'
-            df_cohorts.loc[:, 'date established'] = df_cohorts['start year']
-            df_cohorts.loc[:, 'end data collection'] = df_cohorts['end year'] + '-12-31'
 
             # get resources that are part of network
             if self.database_type in ['cohort']:

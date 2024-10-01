@@ -133,10 +133,6 @@ class Transform:
             df_cohorts['type'] = df_cohorts.apply(lambda c: 'Clinical trial' if c['cohort type'] == 'Study' else 'Cohort study', axis=1)
             # for UMCG data, delete cohort type == 'Study'
             df_cohorts.loc[:, 'cohort type'] = df_cohorts.apply(lambda c: '' if c['type'] == 'Clinical trial' else c['cohort type'], axis=1)
-            # transform years to dates
-            df_cohorts.loc[:, 'start data collection'] = df_cohorts['start year'] + '-01-01'
-            df_cohorts.loc[:, 'date established'] = df_cohorts['start data collection']
-            df_cohorts.loc[:, 'end data collection'] = df_cohorts['end year'] + '-12-31'
 
             # get resources that are part of network
             if self.database_type in ['cohort']:
