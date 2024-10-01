@@ -442,7 +442,10 @@ class Transform:
                                'subcohorts': 'subpopulations',
                                'collection event.name': 'collection event',
                                'network': 'resource',
-                               'main resource': 'resource'}, inplace=True)
+                               'main resource': 'resource',
+                               'variable.resource': 'resource',
+                               'variable.dataset': 'dataset',
+                               'variable.name': 'variable'}, inplace=True)
 
             df.to_csv(self.path.joinpath(table_name + '.csv'), index=False)
 

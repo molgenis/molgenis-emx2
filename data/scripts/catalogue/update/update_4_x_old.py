@@ -182,13 +182,13 @@ class Transform:
 
             df_data_sources['type'] = 'Data source'
 
-
             # Databanks to Resources
             df_databanks = pd.read_csv(self.path + 'Databanks.csv', dtype='object')
             df_databanks.rename(columns={'type': 'RWD type',
                                          'type other': 'RWD type other',
                                          'areas of information': 'areas of information rwd',
                                          'informed consent': 'informed consent required'}, inplace=True)
+
             # transform dates to years  # TODO: check date established == start data collection
             df_databanks.loc[:, 'start year'] = df_databanks['date established'][0:4]
             df_databanks.loc[:, 'end year'] = df_databanks['end data collection'][0:4]
@@ -433,7 +433,10 @@ class Transform:
                                'subcohorts': 'subpopulations',
                                'collection event.name': 'collection event',
                                'network': 'resource',
-                               'main resource': 'resource'}, inplace=True)
+                               'main resource': 'resource',
+                               'variable.resource': 'resource',
+                               'variable.dataset': 'dataset',
+                               'variable.name': 'variable'}, inplace=True)
 
             # df = float_to_int(df)  # convert float back to integer
             df.to_csv(self.path + table_name + '.csv', index=False)
