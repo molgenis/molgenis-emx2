@@ -5,7 +5,6 @@ import type {
   linkTarget,
 } from "~/interfaces/types";
 
-
 const props = withDefaults(
   defineProps<{
     image?: string;
