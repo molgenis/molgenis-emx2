@@ -41,14 +41,11 @@ export const typeMetadata: IResourceTypeMetadata[] = [
     description: "Networks & Consortia",
   },
   { type: "Study", plural: "Studies", path: "studies" },
-  /* this is not really a type but can be used when 'about' is the path */
-  { type: "About", plural: "About", path: "about" },
 ];
 
 export function getResourceMetadataForType(
   type: string
 ): IResourceTypeMetadata {
-  console.log("type = " + type);
   return (
     Object.values(typeMetadata).filter(
       (value: IResourceTypeMetadata) => value.type === type
@@ -64,7 +61,6 @@ export function getResourceMetadataForType(
 export function getResourceMetadataForPath(
   path: string
 ): IResourceTypeMetadata {
-  console.log("path = " + path);
   return (
     Object.values(typeMetadata).filter(
       (value: IResourceTypeMetadata) => value.path === path
