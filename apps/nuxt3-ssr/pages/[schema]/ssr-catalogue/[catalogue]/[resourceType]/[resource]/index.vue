@@ -124,7 +124,7 @@ const query = gql`
         }
         role ${moduleToString(ontologyFragment)}
       }
-      organisationsInvolved  {
+      organisationsInvolved(orderby: {name: ASC})  {
         id
         name
         website
@@ -498,7 +498,23 @@ if (route.params.catalogue) {
   crumbs["Resources"] = `/${route.params.schema}/ssr-catalogue/all/resource`;
 }
 
-const contributors = computed(() => resource.value.peopleInvolved);
+const contributors = computed(() =>
+  resource.value.peopleInvolved.sort((a, b) => {
+    const mina = a.role?.length
+      ? Math.min(...a.role?.map((role) => role.order ?? Infinity))
+      : Infinity;
+    const minb = b.role?.length
+      ? Math.min(...b.role?.map((role) => role.order ?? Infinity))
+      : Infinity;
+    if (mina !== minb) {
+      return mina - minb;
+    } else if (a.lastName !== b.lastName) {
+      return a.lastName.localeCompare(b.lastName);
+    } else {
+      return a.firstName.localeCompare(b.firstName);
+    }
+  })
+);
 const organisations = computed(() => resource.value.organisationsInvolved);
 </script>
 <template>

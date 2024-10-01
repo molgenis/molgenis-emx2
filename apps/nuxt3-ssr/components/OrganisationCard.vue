@@ -11,20 +11,16 @@ defineProps<{
     class="border lg:even:border-l-0 p-11 relative -mb-[1px]"
     data-component-name="name"
   >
-    <div class="flex items-start justify-center flex-col h-full">
-      <div
-        v-if="organisation.isLeadOrganisation"
-        class="font-bold text-body-base uppercase py-3"
-      >
-        Lead organisation
-      </div>
-
-      <span class="font-bold block">
+    <div class="flex items-start flex-col h-full">
+      <span class="block">
         <span class="font-bold" v-if="organisation?.name">
           {{ organisation?.name }}&nbsp;<template v-if="organisation.acronym"
             >({{ organisation.acronym }})</template
-          >
-        </span>
+          > </span
+        ><br />
+        <span v-if="organisation.country" class="mt-3"
+          ><i>{{ organisation.country.map((r) => r.name).join(", ") }}</i></span
+        >
       </span>
       <a
         class="text-blue-500 block hover:underline"
@@ -34,23 +30,18 @@ defineProps<{
         {{ organisation.website }}
       </a>
 
+      <!-- todo can we align each card so that role is at same level? -->
       <div v-if="organisation.role" class="mt-3">
         <p>
           <i>{{ organisation.role.map((r) => r.name).join(", ") }}</i>
         </p>
       </div>
 
-      <div v-if="organisation.country" class="mt-3">
-        <p>
-          <i>{{ organisation.country.map((r) => r.name).join(", ") }}</i>
-        </p>
-      </div>
-
-      <img
+      <!-- decided we hide logo for now but will bring back later <img
         v-if="organisation.logo"
         class="max-h-11"
         :src="organisation.logo.url"
-      />
+      /-->
     </div>
   </li>
 </template>
