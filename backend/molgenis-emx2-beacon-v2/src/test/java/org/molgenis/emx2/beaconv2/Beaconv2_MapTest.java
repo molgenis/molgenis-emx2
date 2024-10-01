@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.beaconv2.endpoints.Map;
 import spark.Request;
+import spark.Response;
 
 public class Beaconv2_MapTest {
 
@@ -20,8 +21,8 @@ public class Beaconv2_MapTest {
 
   @Test
   public void testMap() {
-    Map map = new Map(mockRequest());
-    JsonNode result = map.getResponse();
+    Map map = new Map();
+    JsonNode result = map.getResponse(mockRequest(), mock(Response.class));
 
     assertEquals("org.molgenis.beaconv2", result.get("meta").get("beaconId").textValue());
     assertEquals(

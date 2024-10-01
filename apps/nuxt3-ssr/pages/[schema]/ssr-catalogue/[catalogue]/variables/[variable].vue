@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import variableQuery from "~~/gql/variable";
 import type { IVariable, IVariableMappings } from "~/interfaces/types";
-import { buildFilterFromKeysObject } from "meta-data-utils";
-const config = useRuntimeConfig();
+import { buildFilterFromKeysObject } from "metadata-utils";
 const route = useRoute();
 
 const query = moduleToString(variableQuery);
@@ -10,27 +9,32 @@ const scoped = route.params.catalogue !== "all";
 const catalogueRouteParam = route.params.catalogue as string;
 const { key } = useQueryParams();
 const variableFilter = buildFilterFromKeysObject(key);
-const cohortsFilter = scoped
-  ? { networks: { equals: [{ id: catalogueRouteParam }] } }
+const resourceFilter = scoped
+  ? {
+      _or: [
+        { resources: { equals: [{ id: catalogueRouteParam }] } },
+        {
+          resources: {
+            partOfResources: { id: { equals: catalogueRouteParam } },
+          },
+        },
+      ],
+    }
   : {};
 
 type VariableDetailsWithMapping = IVariable &
   IVariableMappings & { nRepeats: number };
 
-const { data, pending, error, refresh } = await useFetch(
-  `/${route.params.schema}/graphql`,
-  {
-    method: "POST",
-    body: { query, variables: { variableFilter, cohortsFilter } },
-  }
-);
+const { data } = await useFetch(`/${route.params.schema}/graphql`, {
+  method: "POST",
+  body: { query, variables: { variableFilter, resourceFilter } },
+});
 
 const variable = computed(
   () => data.value.data.Variables[0] as VariableDetailsWithMapping
 );
-const nRepeats = computed(() => data.value.data.RepeatedVariables_agg.count);
-const cohorts = computed(() => data.value.data.Cohorts as { id: string }[]);
-const isRepeating = computed(() => variable.value.repeats);
+const resources = computed(() => data.value.data.Resources as { id: string }[]);
+const isRepeating = computed(() => variable.value.repeatUnit?.name);
 
 let crumbs: any = {};
 crumbs[
@@ -40,14 +44,15 @@ crumbs[
   "variables"
 ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/variables`;
 
-const cohortsWithMapping = computed(() => {
-  return cohorts.value
-    .map((cohort) => {
-      const status = calcIndividualVariableHarmonizationStatus(variable.value, [
-        cohort,
+const resourcesWithMapping = computed(() => {
+  if (!resources.value) return [];
+  return resources.value
+    .map((resource) => {
+      const status = calcIndividualVariableHarmonisationStatus(variable.value, [
+        resource,
       ])[0];
       return {
-        cohort,
+        resource,
         status,
       };
     })
@@ -58,21 +63,21 @@ const cohortsWithMapping = computed(() => {
     );
 });
 
-let tocItems = reactive([{ label: "Description", id: "description" }]);
+let tocItems = reactive([{ label: "Definition", id: "definition" }]);
 
-if (cohortsWithMapping.value.length > 0) {
+if (resourcesWithMapping.value.length > 0) {
   tocItems.push({
-    label: "Harmonization status per Cohort",
-    id: "harmonization-per-cohort",
+    label: "Harmonisation status per data source",
+    id: "harmonisation-per-source",
   });
   tocItems.push({
-    label: "Harmonization details per Cohort",
-    id: "harmonization-details-per-cohort",
+    label: "Harmonisation details per data source",
+    id: "harmonisation-details-per-source",
   });
 } else {
   tocItems.push({
-    label: "Harmonization",
-    id: "harmonization-details-no-mapping",
+    label: "Harmonisation",
+    id: "harmonisation-details-no-mapping",
   });
 }
 
@@ -84,7 +89,11 @@ useHead({ title: titlePrefix + variable.value.name });
 <template>
   <LayoutsDetailPage>
     <template #header>
-      <PageHeader :title="variable?.name" :description="variable?.label">
+      <PageHeader
+        id="page-header"
+        :title="variable?.name"
+        :description="variable?.label"
+      >
         <template #prefix>
           <BreadCrumbs :crumbs="crumbs" />
         </template>
@@ -94,15 +103,15 @@ useHead({ title: titlePrefix + variable.value.name });
       </PageHeader>
     </template>
     <template #side>
-      <SideNavigation :title="variable?.name" :items="tocItems" />
+      <SideNavigation
+        :title="variable?.name"
+        :items="tocItems"
+        header-target="#page-header"
+      />
     </template>
     <template #main>
       <ContentBlocks v-if="variable">
-        <ContentBlock
-          id="description"
-          title="Description"
-          :description="variable?.description"
-        >
+        <ContentBlock id="definition" title="Definition">
           <CatalogueItemList
             :items="[
               {
@@ -114,8 +123,18 @@ useHead({ title: titlePrefix + variable.value.name });
                 content: variable?.format?.name,
               },
               {
-                label: 'N repeats',
-                content: nRepeats > 0 ? nRepeats : 'None',
+                label: 'Repeated for',
+                content: variable?.repeatUnit?.name
+                  ? variable?.repeatUnit?.name +
+                    ' ' +
+                    variable?.repeatMin +
+                    '-' +
+                    variable?.repeatMax
+                  : undefined,
+              },
+              {
+                label: 'Description',
+                content: variable?.description,
               },
             ]"
           >
@@ -123,38 +142,30 @@ useHead({ title: titlePrefix + variable.value.name });
         </ContentBlock>
 
         <ContentBlock
-          v-if="cohortsWithMapping.length > 0"
-          id="harmonization-per-cohort"
-          title="Harmonization status per Cohort"
-          description="Overview of the harmonization status per Cohort"
+          v-if="resourcesWithMapping.length > 0"
+          id="harmonisation-per-source"
+          title="Harmonisation status per data source"
         >
-          <HarmonizationGridPerVariable
+          <HarmonisationGridPerVariable
             v-if="isRepeating"
-            :cohorts-with-mapping="cohortsWithMapping"
             :variable="variable"
           />
-          <HarmonizationListPerVariable
-            v-else
-            :cohortsWithMapping="cohortsWithMapping"
-          />
+          <HarmonisationListPerVariable v-else :mappings="variable.mappings" />
         </ContentBlock>
 
         <ContentBlock
-          v-if="cohortsWithMapping.length > 0"
-          id="harmonization-details-per-cohort"
-          title="Harmonization details per Cohort"
-          description="Select a Cohort to see the details of the harmonization"
+          v-if="resourcesWithMapping.length > 0"
+          id="harmonisation-details-per-cohort"
+          title="Harmonisation details per data source"
+          description="Select a data source to see the details of the harmonisation"
         >
-          <HarmonizationVariableDetails
-            :variable="variable"
-            :cohortsWithMapping="cohortsWithMapping"
-          />
+          <HarmonisationVariableDetails :variable="variable" />
         </ContentBlock>
 
         <ContentBlock
-          v-if="cohortsWithMapping.length === 0"
-          id="harmonization-details-no-mapping"
-          title="Harmonization"
+          v-if="resourcesWithMapping.length === 0"
+          id="harmonisation-details-no-mapping"
+          title="Harmonisation"
           description="No mapping found for this variable"
         >
         </ContentBlock>

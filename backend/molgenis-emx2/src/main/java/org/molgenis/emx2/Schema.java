@@ -14,6 +14,8 @@ public interface Schema {
 
   List<String> getInheritedRolesForActiveUser();
 
+  boolean hasActiveUserRole(Privileges privileges);
+
   Table create(TableMetadata table);
 
   void create(TableMetadata... table);
@@ -71,4 +73,8 @@ public interface Schema {
   boolean hasSetting(String emailHost);
 
   Table getTableById(String id);
+
+  Table getTableByNameOrIdCaseInsensitive(String name);
+
+  boolean hasTableWithNameOrIdCaseInsensitive(String fileName);
 }

@@ -21,7 +21,7 @@ orbs:
 definitions:
   build_config: &build_config
     docker:
-    - image: molgenis/ci-build:1.2.3
+    - image: molgenis/ci-build:1.2.4
     working_directory: ~/repo
     resource_class: large
     environment:
@@ -30,7 +30,7 @@ definitions:
       TERM: dumb
   test_config: &test_config
     docker:
-    - image: molgenis/ci-build:1.2.3
+    - image: molgenis/ci-build:1.2.4
     - image: postgres:15-alpine
       environment:
         POSTGRES_USER: postgres
@@ -44,7 +44,7 @@ definitions:
       TERM: dumb
   release_config: &release_config
     docker:
-      - image: molgenis/ci-build:1.2.3
+      - image: molgenis/ci-build:1.2.4
       - image: postgres:15-alpine
         environment:
           POSTGRES_USER: postgres
@@ -246,11 +246,15 @@ jobs:
     - post_steps
   e2e-test:
     docker:
-      - image: mcr.microsoft.com/playwright:v1.44.0-jammy
+      - image: mcr.microsoft.com/playwright:v1.47.0-jammy
     steps:
       - checkout
       - run: npm i -D @playwright/test
       - run: npx playwright install chrome
+      - run:
+          name: Install dependencies
+          command: yarn install
+          working_directory: apps
       - run:
           name: Wait for e2e test data to be loaded, poll every 10 seconds
           command: |
@@ -268,6 +272,15 @@ jobs:
                     sleep 10; 
                 done
       - run:
+          name: Test nuxt ssr catalogue tests
+          command: |
+            echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
+            export E2E_BASE_URL=https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/
+            echo $E2E_BASE_URL
+            yarn e2e
+          working_directory: apps/nuxt3-ssr          
+      - run:
+          name: Run non ssr e2e tests
           command: | 
             echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
             export E2E_BASE_URL=https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/

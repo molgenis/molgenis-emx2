@@ -5,9 +5,14 @@
   "repository": "git@github.com:molgenis/molgenis-emx2.git",
   "license": "LGPLv3",
   "devDependencies": {
-    "@playwright/test": "1.43.0"
+    "@types/node": "22.5.5"
   },
   "scripts": {
-    "e2e": "playwright test"
+    "e2e": "playwright test",
+    "test:tw": "playwright test --grep '@tw-components' --reporter=line"
+  },
+  "dependencies": {
+    "@playwright/test": "1.47.1",
+    "install": "0.13.0"
   }
 }

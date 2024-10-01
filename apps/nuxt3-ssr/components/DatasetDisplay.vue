@@ -14,7 +14,7 @@ const { data } = await useFetch(`/${route.params.schema}/graphql`, {
   method: "POST",
   body: {
     query: query,
-    variables: { id: resourceId, name },
+    variables: { resource: resourceId, name },
   },
 });
 

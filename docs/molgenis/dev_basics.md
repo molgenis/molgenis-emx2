@@ -4,33 +4,56 @@
 
 We use:
 
-* [monorepo](https://en.wikipedia.org/wiki/Monorepo), i.e., all code is
-  in [this](http://github.com/molgenis/molgenis-emx2) repository (it is not a monolith).
+* [monorepo](https://en.wikipedia.org/wiki/Monorepo), i.e., all code is in [this](http://github.com/molgenis/molgenis-emx2) repository (it is not a monolith).
 * [gradle](https://gradle.org/) for build (with yarn 'workspaces' for web app)
-    * ```gradle build``` => builds all
-    * ```gradle clean``` => removes all build artifacts
-    * ```gradle run``` => launches the app
-    * ```gradle test``` => runs all tests.
-    * ```gradle testFast``` => runs tests excluding those marged using @Tag("slow").
+    * `gradle build` => builds all
+    * `gradle clean` => removes all build artifacts
+    * `gradle run` => launches the app
+    * `gradle test` => runs all tests.
+    * `gradle testFast` => runs tests excluding those marged using @Tag("slow").
 
-* [Semantic Release](https://github.com/semantic-release/semantic-release) where commit message determines
-  major.minor.patch release
-    * ```fix(component): message``` => results in patch+1 release
-    * ```feat(component): message``` => results in minor+1 release
-    * ```BREAKING CHANGE: message``` => results in major+1 release
-    * ```build(component): message``` => relates to build process, does not result in release.
-    * ```chore(component): message``` => relates to other boring stuff.
-    * Other non-release commands: perf, refactor, test, style, docs.
-* [github flow](https://guides.github.com/introduction/flow/) which means every pull/merge to master will result in
-  release if indicated in commit message
-* [Travis](https://travis-ci.org/molgenis/molgenis-emx2) and [CircleCI](https://travis-ci.org/molgenis/molgenis-emx2) to
-  execute build+test for each commit. See .travis.yml file. Actual release is done on UMCG private Jenkins in light of
-  secure deploy on test servers.
-* [Sonar](https://sonarcloud.io/dashboard?id=molgenis_molgenis-emx2) for static quality code checks Major thanks to all
-  these companies!
+* [github flow](https://guides.github.com/introduction/flow/) which means every pull/merge to master will result in release if indicated in commit message
+* [Travis](https://travis-ci.org/molgenis/molgenis-emx2) and [CircleCI](https://travis-ci.org/molgenis/molgenis-emx2) to execute build+test for each commit. See .travis.yml file. Actual release is done on UMCG private Jenkins in light of secure deploy on test servers.
+* [Sonar](https://sonarcloud.io/dashboard?id=molgenis_molgenis-emx2) for static quality code checks Major thanks to all these companies!
+  
+N.B. snapshot docker images can be found at [Docker hub](https://hub.docker.com/repository/docker/molgenis/emx2-snapshot)
 
-N.B. snapshot docker images can be found
-at [Docker hub](https://hub.docker.com/repository/docker/molgenis/emx2-snapshot)
+### Creating a branch
+
+To get started with EMX2, clone the repository and create a new branch.
+
+```bash
+git clone https://github.com/molgenis/molgenis-emx2
+
+git switch -c <type>/<my-branch-name>
+```
+
+Make sure the name of the branch is short and concise. Branches must start with one of the following prefixes.
+
+| Prefix   | Description                                                           |
+|:---------|:----------------------------------------------------------------------|
+| `feat/`  | New features                                                          |
+| `fix/`   | bug fixes or minor changes                                            |
+| `docs/`  | for anything related to documentation                                 |
+| `chore/` | non-production code changes (e.g., updating dependencies, jobs, etc.) |
+
+For example, if you are adding a new component to the library. Name the branch like so:
+
+```bash
+git switch -c feat/my-new-component
+```
+
+### Semantic Release
+
+We use [Semantic Release](https://github.com/semantic-release/semantic-release) in commit messages. This determines major.minor.patch release.
+
+* `fix(component): message` => results in patch+1 release
+* `feat(component): message` => results in minor+1 release
+* `BREAKING CHANGE: message` => results in major+1 release
+* `build(component): message` => relates to build process, does not result in release.
+* `chore(component): message` => relates to other boring stuff.
+* Other non-release commands: perf, refactor, test, style, docs.
+
 
 ## Software we use
 
@@ -44,7 +67,7 @@ at [Docker hub](https://hub.docker.com/repository/docker/molgenis/emx2-snapshot)
 
 ## Code organisation
 
-```
+```text
 [apps]          # contains javascript apps, one folder per app.
 [backend]       # contains java modules, one folder per module. 
 [data]          # contains data model modules, one folder per module

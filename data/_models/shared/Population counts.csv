@@ -1,7 +1,0 @@
-tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,visible
-Population counts,,,,,,,,,,,,"Number of participants per subcohort age group, optionally divided per sex",DataCatalogueFlat,
-Population counts,,subcohort,ref,1,true,,Collection populations,,,,,,DataCatalogueFlat,
-Population counts,,age group,ontology,1,true,CatalogueOntologies,Age groups,,,,,,DataCatalogueFlat,
-Population counts,,N total,int,,,,,,,,,,DataCatalogueFlat,
-Population counts,,N female,int,,,,,,,,,,DataCatalogueFlat,
-Population counts,,N male,int,,,,,,,,,,DataCatalogueFlat,

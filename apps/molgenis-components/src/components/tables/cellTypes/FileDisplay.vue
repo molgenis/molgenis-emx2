@@ -1,6 +1,6 @@
 <template>
   <a v-if="data.id" :href="data.url">
-    {{ data?.filename ? data.filename : metaData.name + "." + data.extension }}
+    {{ data?.filename ? data.filename : metadata.name + "." + data.extension }}
     ({{ fileSize }})
   </a>
 </template>
@@ -13,7 +13,7 @@ export default {
       type: [Object],
       required: true,
     },
-    metaData: {
+    metadata: {
       type: Object,
       required: true,
     },

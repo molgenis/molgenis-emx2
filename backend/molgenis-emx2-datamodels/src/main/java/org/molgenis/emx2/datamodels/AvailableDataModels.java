@@ -1,5 +1,3 @@
-package org.molgenis.emx2.datamodels;
-
 import org.molgenis.emx2.Schema;
 
 public enum AvailableDataModels {

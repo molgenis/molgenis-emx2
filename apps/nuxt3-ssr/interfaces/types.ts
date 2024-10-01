@@ -1,16 +1,9 @@
-import type { IColumn } from "meta-data-utils";
-import type { INode } from "../../tailwind-components/types/types";
+import type {
+  IDocumentation,
+  IFile,
+  INode,
+} from "../../tailwind-components/types/types";
 export interface IResource {
-  id: string;
-  pid: string;
-  acronym: string;
-  name: string;
-  website: string;
-  description: string;
-  contacts: IContributor[];
-  logo?: IUrlObject;
-}
-export interface ICohort {
   id: string;
   pid: string;
   name: string;
@@ -19,15 +12,28 @@ export interface ICohort {
   website?: string;
   logo?: IUrlObject;
   contactEmail?: string;
-  leadOrganisation?: IOrganisation[];
+  organisationsInvolved?: IOrganisation[];
   institution?: {
     acronym: string;
   };
   type: INameObject[];
-  collectionType: INameObject[];
+  typeOther?: string;
+  cohortType: INameObject[];
+  networkType: INameObject[];
+  clinicalStudyType: INameObject[];
+  rWDType: INameObject[];
+  keywords?: string;
+  externalIdentifiers?: [
+    {
+      identifier: string;
+      externalIdentifierType: INameObject;
+    }
+  ];
+  dateEstablished?: string;
+  startDataCollection?: string;
+  endDataCollection?: string;
+  license?: string;
   populationAgeGroups?: IOntologyNode[];
-  startYear: number;
-  endYear: number;
   countries: {
     name: string;
     order: number;
@@ -44,6 +50,14 @@ export interface ICohort {
     definition: string;
     name: string;
   };
+  dataCollectionType?: {
+    definition: string;
+    name: string;
+  }[];
+  dataCollectionDescription?: string;
+  reasonSustained?: string;
+  unitOfObservation?: string;
+  recordTrigger?: string;
   designPaper?: {
     title: string;
     doi: string;
@@ -51,13 +65,17 @@ export interface ICohort {
   inclusionCriteria?: IOntologyNode[];
   otherInclusionCriteria?: string;
   collectionEvents: ICollectionEvent[];
-  additionalOrganisations: IPartner[];
-  contacts: IContributor[];
+  collectionEvents_agg: { count: number };
+  peopleInvolved: IContributor[];
   networks: INetwork[];
+  publications: IPublication[];
   releaseDescription?: string;
   linkageOptions?: string;
   dataAccessConditionsDescription?: string;
   dataAccessConditions?: { name: string }[];
+  dataUseConditions?: IOntologyNode[];
+  dataAccessFee?: boolean;
+  prelinked?: boolean;
   releaseType?: boolean;
   fundingStatement?: string;
   acknowledgements?: string;
@@ -65,6 +83,24 @@ export interface ICohort {
   datasets: { name: string }[];
   populationOncologyTopology?: IOntologyNode[];
   populationOncologyMorphology?: IOntologyNode[];
+  subpopulations: any[];
+  subpopulations_agg: { count: number };
+  partOfResources: IResource[];
+}
+
+export interface IPublication {
+  doi: string;
+  title?: string;
+  authors?: string[];
+  year?: number;
+  journal?: string;
+  volume?: number;
+  number?: number;
+  pagination?: number;
+  publisher?: string;
+  school?: string;
+  abstract?: string;
+  isDesignPublication: boolean;
 }
 
 export interface IVariableBase {
@@ -86,36 +122,17 @@ export interface IVariableBase {
 export interface IVariableDetails {
   unit?: IOntologyNode;
   format?: IOntologyNode;
-  repeats?: {
-    name: string;
-    mappings: IMapping[];
-  }[];
+  repeatUnit: IOntologyItem;
+  repeatMin: number;
+  repeatMax: number;
 }
 
 export interface IVariableMappings {
   mappings?: IMapping[];
-  repeats?: {
-    name: string;
-    mappings: IMapping[];
-  }[];
 }
 
 export type IVariable = IVariableBase & IVariableDetails;
 export type IVariableWithMappings = IVariable & IVariableMappings;
-
-export interface IFile {
-  id?: string;
-  size?: number;
-  extension?: string;
-  url?: string;
-}
-
-export interface IDocumentation {
-  name: string;
-  description: string;
-  url: string;
-  file: IFile;
-}
 
 export interface IOrganisation extends IPartner {
   email: string;
@@ -129,7 +146,9 @@ export interface IOrganisation extends IPartner {
   expertise: string;
   country: {
     name: string;
-  };
+  }[];
+  isLeadOrganisation: boolean;
+  role: IOntologyNode[];
 }
 
 export interface IPartner {
@@ -150,6 +169,7 @@ export interface IContributor {
   email: string;
   title: INameObject;
   organisation: INameObject;
+  role?: IOntologyNode[];
 }
 
 export interface INameObject {
@@ -173,7 +193,7 @@ export interface ICollectionEvent {
   areasOfInformation: ICollectionEventCategory[];
   standardizedTools: ICollectionEventCategory[];
   standardizedToolsOther: string;
-  subcohorts: INameObject[];
+  subpopulations: INameObject[];
   coreVariables: string[];
 }
 
@@ -207,15 +227,22 @@ export interface IOntologyNode extends ITreeNode {
   code?: string;
   definition?: string;
   ontologyTermURI?: string;
+  order?: number;
 }
 
 export interface IFormField {
   name: string;
   label: string;
   fieldValue: string; // value is taken by vue reactivity
-  inputType: "string" | "textarea";
+  inputType: "string" | "textarea" | "select";
   hasError?: boolean;
   message?: string;
+  placeholder?: string;
+}
+
+export interface ISelectFormField extends IFormField {
+  inputType: "select";
+  options: string[] | number[];
 }
 
 export interface IContactFormData {
@@ -232,26 +259,18 @@ export type INotificationType =
   | "warning"
   | "info";
 
-export interface ISectionField {
-  meta: IColumn;
-  value: any;
-}
-
-export interface ISection {
-  meta: IColumn;
-  fields: ISectionField[];
-}
 export interface IMapping {
   syntax: string;
   description: string;
   match: {
-    name: string;
+    name: HarmonisationStatus;
   };
   source: {
     id: string;
     name: string;
     mg_tableclass: string;
   };
+  repeats: string;
   sourceDataset: {
     resource: {
       id: string;
@@ -263,13 +282,13 @@ export interface IMapping {
   targetVariable: IVariableBase | IVariable;
 }
 
-export type HarmonizationStatus =
+export type HarmonisationStatus =
   | "unmapped"
   | "partial"
   | "complete"
   | "available";
 
-export type HarmonizationIconSize = "small" | "large";
+export type HarmonisationIconSize = "small" | "large";
 export interface IMgError {
   message: string;
   statusCode: number;
@@ -434,3 +453,26 @@ export interface IPathConditionsCondition extends IPathCondition {
 }
 
 export type activeTabType = "detailed" | "compact";
+
+export interface IOrganization {
+  id: string;
+  name?: string;
+  email?: string;
+  description?: string;
+  website?: string;
+  acronym?: string;
+  type?: {
+    name: string;
+  };
+  institution?: any;
+  institutionAcronym?: string;
+  typeOther?: string;
+  address?: string;
+  expertise?: string;
+  country?: {
+    name: string;
+  };
+  logo?: IUrlObject;
+}
+
+export type linkTarget = "_self" | "_blank" | "_parent" | "_top";

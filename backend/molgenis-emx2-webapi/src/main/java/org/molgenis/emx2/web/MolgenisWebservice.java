@@ -66,10 +66,10 @@ public class MolgenisWebservice {
         ACCEPT_HTML,
         (request, response) -> {
           // check for setting
-          String ladingPagePath =
+          String landingPagePath =
               sessionManager.getSession(request).getDatabase().getSetting(LANDING_PAGE);
-          if (ladingPagePath != null) {
-            response.redirect(ladingPagePath);
+          if (landingPagePath != null) {
+            response.redirect(landingPagePath);
           } else {
             response.redirect("/apps/central/");
           }
@@ -107,6 +107,7 @@ public class MolgenisWebservice {
     CafeVariomeApi.create(sessionManager);
     BootstrapThemeService.create();
     ProfilesApi.create();
+    AnalyticsApi.create();
 
     get(
         "/:schema",
@@ -226,29 +227,27 @@ public class MolgenisWebservice {
    * @return the table object corresponding to the table id. Never null.
    * @throws MolgenisException if the table or the schema is not found or accessible.
    */
-  public static Table getTableById(Request request) {
-    Table table = getTableById(request, request.params(TABLE));
-    if (table == null) {
-      throw new MolgenisException("Table " + request.params(TABLE) + " unknown");
-    }
-    return table;
+  public static Table getTableByIdOrName(Request request) {
+    return getTableByIdOrName(request, request.params(TABLE));
   }
 
   /**
    * Get the table by its id.
    *
    * @param request the request
-   * @return the table object corresponding to the table id. Never null.
+   * @return the table object corresponding to the table id or name. Never null.
    * @throws MolgenisException if the schema is not found or accessible.
    */
-  public static Table getTableById(Request request, String tableName) {
-    String schemaName = request.params(SCHEMA);
-    Schema schema =
-        sessionManager.getSession(request).getDatabase().getSchema(sanitize(schemaName));
+  public static Table getTableByIdOrName(Request request, String tableName) {
+    Schema schema = getSchema(request);
     if (schema == null) {
-      throw new MolgenisException("Schema " + schemaName + " unknown or access denied");
+      throw new MolgenisException("Schema " + request.params(SCHEMA) + " unknown");
     }
-    return schema.getTableById(sanitize(tableName));
+    Table table = schema.getTableByNameOrIdCaseInsensitive(tableName);
+    if (table == null) {
+      throw new MolgenisException("Table " + tableName + " unknown");
+    }
+    return table;
   }
 
   public static String sanitize(String string) {

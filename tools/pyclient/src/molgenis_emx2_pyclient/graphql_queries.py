@@ -241,3 +241,26 @@ def version_number():
         }
         """
     )
+
+
+def task_status(task_id: str) -> str:
+    """GraphQL query to retrieve a task's status."""
+    return (
+        """
+        {
+          _tasks(id:"%s")
+          {
+            id, description, status, subTasks
+            {
+              id, description, status, subTasks
+              {
+                id, description, status, subTasks
+                {
+                  id, description, status
+                }
+              }
+            }
+          }
+        }
+        """ % task_id
+    )

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { IContributor } from "~/interfaces/types";
+
 defineProps<{
   contact: IContributor;
 }>();
@@ -38,8 +40,10 @@ defineProps<{
       >
         {{ contact?.email }}
       </a>
-      <div v-if="contact.roleDescription" class="mt-3">
-        <p>{{ contact.roleDescription }}</p>
+      <div v-if="contact.role" class="mt-3">
+        <p>
+          <i>{{ contact.role.map((r) => r.name).join(", ") }}</i>
+        </p>
       </div>
     </div>
   </li>

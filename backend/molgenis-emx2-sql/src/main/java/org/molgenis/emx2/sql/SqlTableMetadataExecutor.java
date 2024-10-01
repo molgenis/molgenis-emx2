@@ -35,7 +35,17 @@ class SqlTableMetadataExecutor {
     // grant rights to schema manager, editor and viewer role
     jooq.execute(
         "GRANT SELECT ON {0} TO {1}",
+        jooqTable, name(getRolePrefix(table) + Privileges.EXISTS.toString()));
+    // todo: Do we need to add RANGE, AGGREGATOR and VIEWER here also?
+    jooq.execute(
+        "GRANT SELECT ON {0} TO {1}",
+        jooqTable, name(getRolePrefix(table) + Privileges.RANGE.toString()));
+    jooq.execute(
+        "GRANT SELECT ON {0} TO {1}",
         jooqTable, name(getRolePrefix(table) + Privileges.AGGREGATOR.toString()));
+    jooq.execute(
+        "GRANT SELECT ON {0} TO {1}",
+        jooqTable, name(getRolePrefix(table) + Privileges.COUNT.toString()));
     jooq.execute(
         "GRANT SELECT ON {0} TO {1}",
         jooqTable, name(getRolePrefix(table) + Privileges.VIEWER.toString()));
@@ -381,9 +391,18 @@ class SqlTableMetadataExecutor {
     // negative positions so they don't interfere with the positions of user provided columns
     table.add(column(MG_DRAFT).setType(BOOL).setPosition(-5));
     table.add(column(MG_INSERTEDBY).setPosition(-4));
-    table.add(column(MG_INSERTEDON).setType(DATETIME).setPosition(-3));
+    table.add(
+        column(MG_INSERTEDON)
+            .setType(DATETIME)
+            .setPosition(-3)
+            .setSemantics(
+                "https://w3id.org/fdp/fdp-o#metadataIssued", "http://purl.org/dc/terms/issued"));
     table.add(column(MG_UPDATEDBY).setPosition(-2));
-    table.add(column(MG_UPDATEDON).setType(DATETIME).setPosition(-1));
+    table.add(
+        column(MG_UPDATEDON)
+            .setType(DATETIME)
+            .setPosition(-1)
+            .setSemantics("https://w3id.org/fdp/fdp-o#metadataModified"));
   }
 
   private static void executeRemoveMetaColumns(DSLContext jooq, TableMetadata table) {

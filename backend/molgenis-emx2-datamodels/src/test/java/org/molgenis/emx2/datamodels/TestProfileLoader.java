@@ -7,6 +7,7 @@ import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.datamodels.profiles.Profiles;
 import org.molgenis.emx2.datamodels.profiles.SchemaFromProfile;
+import org.molgenis.emx2.io.ImportProfileTask;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 @TestMethodOrder(MethodOrderer.MethodName.class)
@@ -45,8 +46,7 @@ public class TestProfileLoader {
   @Test
   void testProfileLoader() {
     Schema testProfileSchema = database.createSchema(TEST_PROFILE);
-    ProfileLoader profileLoader = new ProfileLoader("TestProfile.yaml");
-    profileLoader.load(testProfileSchema, false);
+    new ImportProfileTask(testProfileSchema, "TestProfile.yaml", false).run();
     assertEquals(12, testProfileSchema.getTableNames().size());
     assertTrue(testProfileSchema.getTableNames().contains("Individuals"));
     assertFalse(testProfileSchema.getTableNames().contains("Distributions"));

@@ -66,6 +66,14 @@ public class QueryBuilder {
   }
 
   public String getCountQuery() {
+    return getAggregateQuery("count");
+  }
+
+  public String getExistsQuery() {
+    return getAggregateQuery("exists");
+  }
+
+  private String getAggregateQuery(String variable) {
     query = new StringBuilder("{");
     query.append(table.getName()).append("_agg");
 
@@ -74,7 +82,7 @@ public class QueryBuilder {
       addFilters();
       query.append(")");
     }
-    query.append("{ count }}");
+    query.append("{ ").append(variable).append(" }}");
     return query.toString();
   }
 

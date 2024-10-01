@@ -4,10 +4,12 @@ const props = withDefaults(
     modelValue: string;
     placeholder?: string;
     inverted?: boolean;
+    label?: string;
   }>(),
   {
     placeholder: "Type to search..",
     inverted: false,
+    label: "Search",
   }
 );
 
@@ -24,10 +26,14 @@ function handleInput(input: string) {
     emit("update:modelValue", input);
   }, 500);
 }
+
+const inputId = useId();
 </script>
 <template>
   <form class="relative" @submit.prevent="submitSearch()">
+    <label :for="`search-input-${inputId}`" class="sr-only">{{ label }}</label>
     <input
+      :id="`search-input-${inputId}`"
       type="search"
       :value="modelValue"
       @input="(event) => handleInput((event.target as HTMLInputElement).value)"

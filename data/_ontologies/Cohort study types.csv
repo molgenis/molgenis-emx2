@@ -1,0 +1,10 @@
+name,code,order,definition,comments,parent,ontologyTermURI
+Clinical cohort,Clinical cohort,,,,,
+Population cohort,Population-based,,Study done at the population level or among the population groups,,,
+Case-control,Case-control,,A case-control study design compares two groups of subjects: those with the disease or condition under study (cases) and a very similar group of subjects who do not have the disease or condition (controls).,,,
+Case only,Case only,,A case-only cohort gathers data from subjects with a disease or condition.,,,
+Birth cohort,Birth cohort,,A cohort study for which the subjects are followed from the time of birth usually including information about gestation and follow up.,,,
+Clinical trial,,,,,,
+Registry,,,,,,
+Biobank,Biobank,,,,,
+Other type,,,,,,
