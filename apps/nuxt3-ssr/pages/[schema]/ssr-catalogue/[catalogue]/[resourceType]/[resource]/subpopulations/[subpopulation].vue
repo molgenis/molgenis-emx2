@@ -1,13 +1,20 @@
 <script setup lang="ts">
+import type { ISubpopulations } from "~/interfaces/catalogue";
+import type { IMgError } from "~/interfaces/types";
 import dateUtils from "~/utils/dateUtils";
-import subpopulationGql from "~~/gql/subpopulations";
+import subpopulationGql from "~~/gql/subpopulation";
 const config = useRuntimeConfig();
 const route = useRoute();
 
 const query = moduleToString(subpopulationGql);
 
-let subpopulation: Ref = ref();
-const { data: subpopulationData } = await useFetch(
+interface ISubpopulationQueryResponse {
+  data: {
+    Subpopulations: ISubpopulations[];
+  };
+}
+
+const { data } = await useFetch<ISubpopulationQueryResponse, IMgError>(
   `/${route.params.schema}/graphql`,
   {
     method: "POST",
@@ -19,24 +26,17 @@ const { data: subpopulationData } = await useFetch(
       },
     },
   }
-).catch((e) => console.log(e));
-
-watch(
-  subpopulationDataData,
-  function setData(data: any) {
-    subpopulation = data?.data?.Subpopulations[0];
-  },
-  {
-    deep: true,
-    immediate: true,
-  }
 );
+
+const subpopulation = data.value?.data?.Subpopulations?.[0] ?? null;
+useHead({ title: subpopulation?.name });
 
 const cohortOnly = computed(() => {
   const routeSetting = route.query["cohort-only"] as string;
   return routeSetting === "true" || config.public.cohortOnly;
 });
 const pageCrumbs: any = {};
+
 pageCrumbs[
   cohortOnly.value ? "home" : (route.params.catalogue as string)
 ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}`;
@@ -44,7 +44,6 @@ pageCrumbs[
   "Resources"
 ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/resources`;
 
-// @ts-ignore
 pageCrumbs[
   route.params.collection as string
 ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/resources/${route.params.resources}`;
@@ -82,8 +81,8 @@ if (subpopulation?.inclusionStart || subpopulation?.inclusionEnd) {
   items.push({
     label: "Start/end year",
     content: dateUtils.startEndYear(
-      subpopulation.inclusionStart,
-      subpopulation.inclusionEnd
+      subpopulation.inclusionStart?.toString(),
+      subpopulation.inclusionEnd?.toString()
     ),
   });
 }
@@ -92,7 +91,7 @@ if (subpopulation?.countries) {
   items.push({
     label: "Countries",
     content: renderList(
-      subpopulation.countries.sort((a, b) => b.order - a.order),
+      subpopulation.countries.sort((a, b) => (b.order ?? 0) - (a.order ?? 0)),
       toName
     ),
   });
@@ -109,24 +108,31 @@ if (subpopulation?.ageGroups?.length) {
   tocItems.push({ label: "Age categories", id: "age_categories" });
 }
 
-let mainMedicalConditionTree = [];
+const mainMedicalConditionTree = computed(() => {
+  if (subpopulation?.mainMedicalCondition?.length) {
+    return buildTree(subpopulation.mainMedicalCondition);
+  } else {
+    return [];
+  }
+});
+
+const comorbidityTree = computed(() => {
+  if (subpopulation?.comorbidity?.length) {
+    return buildTree(subpopulation.comorbidity);
+  } else {
+    return [];
+  }
+});
+
 if (subpopulation?.mainMedicalCondition?.length) {
-  mainMedicalConditionTree = buildTree(subpopulation.mainMedicalCondition);
   tocItems.push({
     label: "Main medical condition",
     id: "main_medical_condition",
   });
 }
-
-let comorbidityTree = [];
 if (subpopulation?.comorbidity?.length) {
-  comorbidityTree = buildTree(subpopulation.comorbidity);
   tocItems.push({ label: "Comorbidity", id: "comorbidity" });
 }
-
-// todo add count table ( empty in current test set)
-
-useHead({ title: subpopulation?.name });
 </script>
 
 <template>
@@ -188,7 +194,6 @@ useHead({ title: subpopulation?.name });
           <ContentOntology :tree="comorbidityTree" :collapse-all="false" />
         </ContentBlock>
       </ContentBlocks>
-      <!-- todo add count table ( empty in current test set) -->
     </template>
   </LayoutsDetailPage>
 </template>
