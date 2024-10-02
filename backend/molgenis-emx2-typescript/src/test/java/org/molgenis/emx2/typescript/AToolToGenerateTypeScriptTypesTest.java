@@ -1,4 +1,4 @@
-package org.molgenis.emx2;
+package org.molgenis.emx2.typescript;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -6,7 +6,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.nio.charset.Charset;
 import org.junit.jupiter.api.Test;
-import org.molgenis.emx2.typescript.AToolToGenerateTypeScriptTypes;
 
 class AToolToGenerateTypeScriptTypesTest {
 
