@@ -9,58 +9,58 @@ class ChangeLogUtilsTest {
   void testBuildProcessAuditFunction() {
     String expectedFunction =
         """
-                CREATE OR REPLACE FUNCTION "pet store"."process_Pet_audit"()
-                RETURNS TRIGGER AS $Pet_audit$
-                DECLARE
-                    old_row JSONB;
-                    new_row JSONB;
-                    col_name TEXT;
-                    old_value TEXT;
-                    new_value TEXT;
-                BEGIN
-                    -- Initialize empty JSONB objects
-                    old_row := '{}'::JSONB;
-                    new_row := '{}'::JSONB;
+CREATE OR REPLACE FUNCTION "pet store"."process_Pet_audit"()
+RETURNS TRIGGER AS $Pet_audit$
+DECLARE
+    old_row JSONB;
+    new_row JSONB;
+    col_name TEXT;
+    old_value TEXT;
+    new_value TEXT;
+BEGIN
+    -- Initialize empty JSONB objects
+    old_row := '{}'::JSONB;
+    new_row := '{}'::JSONB;
 
-                    -- Loop through each column in the OLD record
-                    FOR col_name IN SELECT column_name
-                                     FROM information_schema.columns
-                                     WHERE table_name = TG_TABLE_NAME
-                    LOOP
-                        -- Skip columns that end with '_contents' or '_TEXT_SEARCH_COLUMN'
-                        IF col_name LIKE '%_contents' OR col_name LIKE '%_TEXT_SEARCH_COLUMN' OR col_name = 'mg_updatedOn' THEN
-                            CONTINUE;
-                        END IF;
+    -- Loop through each column in the OLD record
+    FOR col_name IN SELECT column_name
+                     FROM information_schema.columns
+                     WHERE table_name = TG_TABLE_NAME
+    LOOP
+        -- Skip columns that end with '_contents' or '_TEXT_SEARCH_COLUMN'
+        IF col_name LIKE '%_contents' OR col_name LIKE '%_TEXT_SEARCH_COLUMN' OR col_name LIKE 'mg_%' THEN
+            CONTINUE;
+        END IF;
+        IF TG_OP != 'INSERT' THEN
+            EXECUTE 'SELECT ($1).' || quote_ident(col_name) INTO old_value USING OLD;
+            IF old_value IS NOT NULL THEN
+              old_row := jsonb_set(old_row, ARRAY[col_name], to_jsonb(old_value::TEXT)::JSONB);
+            END IF;
+        END IF;
+        IF TG_OP != 'DELETE' THEN
+            EXECUTE 'SELECT ($1).' || quote_ident(col_name) INTO new_value USING NEW;
+            IF new_value IS NOT NULL THEN
+              new_row := jsonb_set(new_row, ARRAY[col_name], to_jsonb(new_value::TEXT)::JSONB);
+            END IF;
+        END IF;
+    END LOOP;
 
-                        -- Dynamically fetch the values from OLD and NEW
-                        IF TG_OP != 'INSERT' THEN
-                            EXECUTE 'SELECT ($1).' || quote_ident(col_name) INTO old_value USING OLD;
-                            old_row := jsonb_set(old_row, ARRAY[col_name], to_jsonb(old_value::TEXT)::JSONB);
-                        END IF;
-                        -- Only fetch NEW if TG_OP is not DELETE
-                        IF TG_OP != 'DELETE' THEN
-                            EXECUTE 'SELECT ($1).' || quote_ident(col_name) INTO new_value USING NEW;
-                            new_row := jsonb_set(new_row, ARRAY[col_name], to_jsonb(new_value::TEXT)::JSONB);
-                        END IF;
-                    END LOOP;
+    -- Log the change based on the operation
+    IF TG_OP = 'DELETE' THEN
+        INSERT INTO "pet store".mg_changelog
+        SELECT 'D', now(), user, TG_TABLE_NAME, old_row, new_row;
+    ELSIF TG_OP = 'UPDATE' THEN
+        INSERT INTO "pet store".mg_changelog
+        SELECT 'U', now(), user, TG_TABLE_NAME, old_row, new_row;
+    ELSIF TG_OP = 'INSERT' THEN
+        INSERT INTO "pet store".mg_changelog
+        SELECT 'I', now(), user, TG_TABLE_NAME, old_row, new_row;
+    END IF;
 
-                    -- Log the change based on the operation
-                    IF TG_OP = 'DELETE' THEN
-                        INSERT INTO "pet store".mg_changelog
-                        SELECT D', now(), user, TG_TABLE_NAME, old_row, new_row;
-                    ELSIF TG_OP = 'UPDATE' THEN
-                        INSERT INTO "pet store".mg_changelog
-                        SELECT 'U', now(), user, TG_TABLE_NAME, old_row, new_row;
-                    ELSIF TG_OP = 'INSERT' THEN
-                        INSERT INTO "pet store".mg_changelog
-                        SELECT 'I', now(), user, TG_TABLE_NAME, old_row, new_row;
-                    END IF;
-
-                    RETURN NULL; -- result is ignored since this is an AFTER trigger
-                END;
-                $Pet_audit$ LANGUAGE plpgsql;
-
-                """;
+    RETURN NULL; -- result is ignored since this is an AFTER trigger
+END;
+$Pet_audit$ LANGUAGE plpgsql;
+""";
     assertEquals(
         expectedFunction.strip(),
         ChangeLogUtils.buildProcessAuditFunction("pet store", "Pet").strip());
