@@ -501,10 +501,9 @@ if (route.params.catalogue) {
   crumbs["Home"] = `/${route.params.schema}/ssr-catalogue/`;
   crumbs["Browse"] = `/${route.params.schema}/ssr-catalogue/all`;
   if (route.params.resourceType !== "about")
-    if (route.params.resourceType !== "about")
-      crumbs[
-        resourceType.value.plural
-      ] = `/${route.params.schema}/ssr-catalogue/all/${resourceType.value.path}`;
+    crumbs[
+      resourceType.value.plural
+    ] = `/${route.params.schema}/ssr-catalogue/all/${resourceType.value.path}`;
 }
 
 const contributors = computed(() => resource.value.peopleInvolved);
