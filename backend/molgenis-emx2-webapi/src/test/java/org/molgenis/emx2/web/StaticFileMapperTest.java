@@ -32,7 +32,7 @@ class StaticFileMapperTest {
   }
 
   @Test
-  public void testAddFileToContext_FileNotFound() throws Exception {
+  public void testAddFileToContext_FileNotFound() {
     Context ctx = mock(Context.class);
     String path = "/non-existent-file.css";
     when(ctx.status(404)).thenReturn(ctx);
