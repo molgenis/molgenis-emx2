@@ -23,3 +23,9 @@ dependencies {
     implementation 'com.github.dfabulich:sitemapgen4j:1.1.2'
     implementation 'de.larsgrefer.sass:sass-embedded-host:1.15.4'
 }
+
+task dev(type: JavaExec) {
+    group = 'application'
+    classpath = sourceSets.main.runtimeClasspath
+    main = 'org.molgenis.emx2.RunMolgenisEmx2'
+}
