@@ -500,14 +500,14 @@ if (route.params.catalogue) {
 
 const contributors = computed(() =>
   resource.value.peopleInvolved.sort((a, b) => {
-    const mina = a.role?.length
+    const minimumOrderOfRolesA = a.role?.length
       ? Math.min(...a.role?.map((role) => role.order ?? Infinity))
       : Infinity;
-    const minb = b.role?.length
+    const minimumOrderOfRolseB = b.role?.length
       ? Math.min(...b.role?.map((role) => role.order ?? Infinity))
       : Infinity;
-    if (mina !== minb) {
-      return mina - minb;
+    if (minimumOrderOfRolesA !== minimumOrderOfRolesB) {
+      return minimumOrderOfRolesA - minimumOrderOfRolesB;
     } else if (a.lastName !== b.lastName) {
       return a.lastName.localeCompare(b.lastName);
     } else {

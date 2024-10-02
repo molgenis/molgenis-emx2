@@ -30,14 +30,13 @@ defineProps<{
         {{ organisation.website }}
       </a>
 
-      <!-- todo can we align each card so that role is at same level? -->
       <div v-if="organisation.role" class="mt-3">
         <p>
           <i>{{ organisation.role.map((r) => r.name).join(", ") }}</i>
         </p>
       </div>
 
-      <!-- decided we hide logo for now but will bring back later <img
+      <!-- todo: decide how we will bring back logo <img
         v-if="organisation.logo"
         class="max-h-11"
         :src="organisation.logo.url"
