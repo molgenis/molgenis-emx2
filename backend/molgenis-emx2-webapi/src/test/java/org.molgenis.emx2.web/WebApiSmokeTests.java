@@ -598,6 +598,20 @@ public class WebApiSmokeTests {
     result =
         given()
             .sessionId(sessionId)
+            .contentType("multipart/form-data")
+            .multiPart(
+                "query", "mutation insert($value:[OrderInput]){insert(Order:$value){message}}")
+            .multiPart(
+                "variables",
+                "{\"value\":[{\"quantity\":\"5\",\"price\":22,\"pet\":{\"name\":\"pooky\"}}]}")
+            .when()
+            .post(schemaPath)
+            .asString();
+    assertTrue(result.contains("inserted 1 record"));
+
+    result =
+        given()
+            .sessionId(sessionId)
             .body("{\"query\":\"mutation{signout{message}}\"}")
             .when()
             .post(path)
