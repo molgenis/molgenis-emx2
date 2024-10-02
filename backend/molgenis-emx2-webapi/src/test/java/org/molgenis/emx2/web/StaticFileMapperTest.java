@@ -1,6 +1,5 @@
 package org.molgenis.emx2.web;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import io.javalin.http.Context;
@@ -18,6 +17,18 @@ class StaticFileMapperTest {
 
     verify(ctx).contentType(mimeType);
     verify(ctx).result("<html></html>".getBytes());
+  }
+
+  @Test
+  public void testAddFileToContext_FileExists_WithoutMimeType() {
+    Context ctx = mock(Context.class);
+    String path = "/test.txt";
+    String mimeType = "text/txt";
+
+    StaticFileMapper.addFileToContext(ctx, path, mimeType);
+
+    verify(ctx).contentType(mimeType);
+    verify(ctx).result("test".getBytes());
   }
 
   @Test
