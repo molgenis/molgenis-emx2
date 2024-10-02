@@ -23,11 +23,10 @@ class StaticFileMapperTest {
   public void testAddFileToContext_FileExists_WithoutMimeType() {
     Context ctx = mock(Context.class);
     String path = "/test.txt";
-    String mimeType = "text/txt";
 
-    StaticFileMapper.addFileToContext(ctx, path, mimeType);
+    StaticFileMapper.addFileToContext(ctx, path, null);
 
-    verify(ctx).contentType(mimeType);
+    verify(ctx).contentType("text/plain");
     verify(ctx).result("test".getBytes());
   }
 

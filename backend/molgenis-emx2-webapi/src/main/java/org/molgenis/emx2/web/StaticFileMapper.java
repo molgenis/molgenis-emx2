@@ -81,7 +81,7 @@ public class StaticFileMapper {
         return;
       }
       if (mimeType == null) {
-        mimeType = URLConnection.guessContentTypeFromName(ctx.path());
+        mimeType = URLConnection.guessContentTypeFromName(path);
         if (mimeType == null) {
           mimeType = "application/octet-stream";
         }
