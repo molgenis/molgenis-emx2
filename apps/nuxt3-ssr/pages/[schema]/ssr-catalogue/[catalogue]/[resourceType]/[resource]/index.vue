@@ -503,7 +503,7 @@ const contributors = computed(() =>
     const minimumOrderOfRolesA = a.role?.length
       ? Math.min(...a.role?.map((role) => role.order ?? Infinity))
       : Infinity;
-    const minimumOrderOfRolseB = b.role?.length
+    const minimumOrderOfRolesB = b.role?.length
       ? Math.min(...b.role?.map((role) => role.order ?? Infinity))
       : Infinity;
     if (minimumOrderOfRolesA !== minimumOrderOfRolesB) {

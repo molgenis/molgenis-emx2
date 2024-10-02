@@ -16,11 +16,11 @@ defineProps<{
         <span class="font-bold" v-if="organisation?.name">
           {{ organisation?.name }}&nbsp;<template v-if="organisation.acronym"
             >({{ organisation.acronym }})</template
-          > </span
-        ><br />
-        <span v-if="organisation.country" class="mt-3"
-          ><i>{{ organisation.country.map((r) => r.name).join(", ") }}</i></span
-        >
+          >
+        </span>
+        <div v-if="organisation.country">
+          {{ organisation.country.map((r) => r.name).join(", ") }}
+        </div>
       </span>
       <a
         class="text-blue-500 block hover:underline"
