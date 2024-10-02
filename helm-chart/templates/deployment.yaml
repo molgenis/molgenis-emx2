@@ -26,10 +26,8 @@ spec:
           resources:
             limits:
               memory: "2Gi"
-              cpu: "2"
             requests:
-              memory: "1Gi"
-              cpu: "1"
+              memory: "500Mi"
           ports:
             - containerPort: 8080
           env:
@@ -77,10 +75,8 @@ spec:
           resources:
             limits:
               memory: "1Gi"
-              cpu: "1"
             requests:
-              memory: "512Mi"
-              cpu: "500m"
+              memory: "256Mi"
           env:
             - name: POSTGRES_DB
               value: {{ .Values.postgres.name }}
@@ -107,10 +103,8 @@ spec:
           resources:
             limits:
               memory: "1Gi"
-              cpu: "1"
             requests:
-              memory: "512Mi"
-              cpu: "500m"
+              memory: "256Mi"
           ports:
             - containerPort: 3000
           env:
