@@ -74,7 +74,7 @@ public class StaticFileMapper {
     addFileToContext(ctx, "/public_html/apps/ui/index.html", "text/html");
   }
 
-  private static void addFileToContext(Context ctx, String path, String mimeType) {
+  public static void addFileToContext(Context ctx, String path, String mimeType) {
     try (InputStream in = StaticFileMapper.class.getResourceAsStream(path)) {
       if (in == null) {
         ctx.status(404).result("File not found: " + ctx.path());
