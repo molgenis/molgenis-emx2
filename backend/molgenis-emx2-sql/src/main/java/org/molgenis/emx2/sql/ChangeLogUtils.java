@@ -29,6 +29,56 @@ public class ChangeLogUtils {
                        RETURN NULL; -- result is ignored since this is an AFTER trigger
                    END;
                    $%3$s_audit$ LANGUAGE plpgsql;
+
+            CREATE OR REPLACE FUNCTION "%1$s"."process_%3$s_audit"() RETURNS TRIGGER AS $%3$s_audit$
+            DECLARE
+                old_row JSONB;
+                new_row JSONB;
+                column_name TEXT;
+            BEGIN
+                -- Initialize empty JSONB objects
+                old_row := '{}'::JSONB;
+                new_row := '{}'::JSONB;
+
+                -- Loop through each column in the OLD record
+                FOR column_name IN SELECT column_name
+                                   FROM information_schema.columns
+                                   WHERE table_name = TG_TABLE_NAME
+                LOOP
+                    -- Skip columns that end with '_content' or '_TEXT_SEARCH_COLUMN'
+                    IF column_name LIKE '%_content' OR column_name LIKE '%_TEXT_SEARCH_COLUMN' THEN
+                        CONTINUE;
+                    END IF;
+
+                    -- insert include all columns
+                    IF TG_OP == 'INSERT' THEN
+                        new_row := jsonb_set(new_row, ARRAY[column_name], to_jsonb(NEW.*)::JSONB -> column_name);
+                    -- update include only changed columns
+                    ELSIF TG_OP == 'UPDATE' AND (OLD.*)::JSONB -> column_name IS DISTINCT FROM (NEW.*)::JSONB -> column_name THEN
+                        new_row := jsonb_set(new_row, ARRAY[column_name], to_jsonb(NEW.*)::JSONB -> column_name);
+                        old_row := jsonb_set(old_row, ARRAY[column_name], to_jsonb(OLD.*)::JSONB -> column_name);
+                    -- delete include the current old record
+                    ELSIF TG_OP == 'DELETE' THEN
+                        old_row := jsonb_set(old_row, ARRAY[column_name], to_jsonb(OLD.*)::JSONB -> column_name);
+                    END IF;
+
+                END LOOP;
+
+                -- Log the change based on the operation
+                IF (TG_OP = 'DELETE') THEN
+                    INSERT INTO "%1$s".mg_changelog
+                    SELECT 'D', now(), user, TG_TABLE_NAME, row_to_json(old_row), NULL;
+                ELSIF (TG_OP = 'UPDATE') THEN
+                    INSERT INTO "%1$s".mg_changelog
+                    SELECT 'U', now(), user, TG_TABLE_NAME, old_row, new_row;
+                ELSIF (TG_OP = 'INSERT') THEN
+                    INSERT INTO "%1$s".mg_changelog
+                    SELECT 'I', now(), user, TG_TABLE_NAME, NULL, new_row;
+                END IF;
+
+                RETURN NULL; -- result is ignored since this is an AFTER trigger
+            END;
+            $%3$s_audit$ LANGUAGE plpgsql;
                 """
         .formatted(
             schemaName,
