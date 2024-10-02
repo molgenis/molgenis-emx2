@@ -83,6 +83,7 @@ public class GraphqlApi {
     // apps and api is not a schema but a resource
     if ("apps".equals(schemaName) || "api".equals(schemaName)) {
       handleDatabaseRequests(ctx);
+      return;
     }
 
     // todo, really check permissions

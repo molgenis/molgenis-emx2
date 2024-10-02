@@ -25,6 +25,16 @@ public class StaticFileMapper {
 
     app.get("*/docs/<asset>", StaticFileMapper::redirectDocs);
 
+    app.get("/apps/ui/{schema}/", StaticFileMapper::returnUiAppIndex);
+    app.get(
+        "/apps/ui/{schema}/{path}",
+        ctx -> {
+          if (ctx.pathParam("path").contains(".") || ctx.pathParam("path").contains("/")) {
+            redirectResources(ctx);
+          } else {
+            returnUiAppIndex(ctx);
+          }
+        });
     app.get("*/{app}/assets/<asset>", StaticFileMapper::redirectAssets);
     app.get("*/{app}/img/<asset>", StaticFileMapper::redirectImg);
     app.get("/apps/{app}/<asset>", StaticFileMapper::redirectResources);
@@ -58,6 +68,10 @@ public class StaticFileMapper {
     }
     String path = "/public_html/apps/" + ctx.pathParam("app") + "/index.html";
     addFileToContext(ctx, path, "text/html");
+  }
+
+  private static void returnUiAppIndex(Context ctx) {
+    addFileToContext(ctx, "/public_html/apps/ui/index.html", "text/html");
   }
 
   private static void addFileToContext(Context ctx, String path, String mimeType) {
