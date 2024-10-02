@@ -33,7 +33,7 @@ public class ChangeLogUtils {
                              WHERE table_name = TG_TABLE_NAME
             LOOP
                 -- Skip columns that end with '_contents' or '_TEXT_SEARCH_COLUMN'
-                IF col_name LIKE '%%_contents' OR col_name LIKE '%%_TEXT_SEARCH_COLUMN' OR col_name = 'mg_updatedBy' OR col_name = 'mg_insertedBy' OR col_name = 'mg_updatedOn' OR col_name = 'mg_insertedOn' THEN
+                IF col_name LIKE '%%_contents' OR col_name LIKE '%%_TEXT_SEARCH_COLUMN' OR col_name LIKE 'mg_%%' THEN
                     CONTINUE;
                 END IF;
                 IF TG_OP != 'INSERT' THEN
