@@ -199,7 +199,7 @@ class Transform:
 
         # Models to Resources
         if self.database_type in ['catalogue', 'network']:
-            df_models = pd.read_csv(self.path + 'Models.csv', dtype='object')
+            df_models = pd.read_csv(self.path.joinpath('Models.csv'), dtype='object')
             df_models = df_models[df_models['id'].isin(['CRC Screening CDM', 'OMOP-CDM'])]  # handles exceptions
             df_models['type'] = 'Common data model'
 
@@ -413,7 +413,7 @@ class Transform:
                 # get repeated mappings in comma separated string
                 df_mappings = rewrite_mappings(df_cdm_with_repeats, df_no_duplicates)
                 df_mappings = pd.concat([df_mappings, df_cdm_no_repeats])
-                df_mappings.to_csv(self.path + 'Variable mappings.csv', index=False)
+                df_mappings.to_csv(self.path.joinpath('Variable mappings.csv'), index=False)
 
     def collection_events(self):
         """ Transform Collection events table
