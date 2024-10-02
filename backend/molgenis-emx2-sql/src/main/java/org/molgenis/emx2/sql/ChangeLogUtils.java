@@ -30,8 +30,8 @@ public class ChangeLogUtils {
                              FROM information_schema.columns
                              WHERE table_name = TG_TABLE_NAME
             LOOP
-                -- Skip columns that end with '_content' or '_TEXT_SEARCH_COLUMN'
-                IF col_name LIKE '%%_content' OR col_name LIKE '%%_TEXT_SEARCH_COLUMN' THEN
+                -- Skip columns that end with '_contents' or '_TEXT_SEARCH_COLUMN'
+                IF col_name LIKE '%%_contents' OR col_name LIKE '%%_TEXT_SEARCH_COLUMN' THEN
                     CONTINUE;
                 END IF;
 
