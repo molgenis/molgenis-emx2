@@ -14,7 +14,9 @@ RETURNS TRIGGER AS $Pet_audit$
 DECLARE
     old_row JSONB;
     new_row JSONB;
-    col_name TEXT; -- Renamed to avoid ambiguity
+    col_name TEXT;
+    old_value TEXT;
+    new_value TEXT;
 BEGIN
     -- Initialize empty JSONB objects
     old_row := '{}'::JSONB;
@@ -25,26 +27,24 @@ BEGIN
                      FROM information_schema.columns
                      WHERE table_name = TG_TABLE_NAME
     LOOP
-        -- Skip columns that end with '_content' or '_TEXT_SEARCH_COLUMN'
-        IF col_name LIKE '%_content' OR col_name LIKE '%_TEXT_SEARCH_COLUMN' THEN
+        -- Skip columns that end with '_contents' or '_TEXT_SEARCH_COLUMN'
+        IF col_name LIKE '%_contents' OR col_name LIKE '%_TEXT_SEARCH_COLUMN' THEN
             CONTINUE;
         END IF;
 
+        -- Dynamically fetch the values from OLD and NEW
+        EXECUTE 'SELECT ($1).' || quote_ident(col_name) INTO old_value USING OLD;
+        EXECUTE 'SELECT ($1).' || quote_ident(col_name) INTO new_value USING NEW;
+
         -- Handle the different operation types
         IF TG_OP = 'INSERT' THEN
-            -- For INSERT, include all columns
-            new_row := jsonb_set(new_row, ARRAY[col_name], to_jsonb(NEW.*)::JSONB -> col_name);
-
-        ELSIF TG_OP = 'UPDATE' AND (OLD.*)::JSONB -> col_name IS DISTINCT FROM (NEW.*)::JSONB -> col_name THEN
-            -- For UPDATE, include only changed columns
-            new_row := jsonb_set(new_row, ARRAY[col_name], to_jsonb(NEW.*)::JSONB -> col_name);
-            old_row := jsonb_set(old_row, ARRAY[col_name], to_jsonb(OLD.*)::JSONB -> col_name);
-
+            new_row := jsonb_set(new_row, ARRAY[col_name], to_jsonb(new_value::TEXT)::JSONB);
+        ELSIF TG_OP = 'UPDATE' AND old_value IS DISTINCT FROM new_value THEN
+            new_row := jsonb_set(new_row, ARRAY[col_name], to_jsonb(new_value::TEXT)::JSONB);
+            old_row := jsonb_set(old_row, ARRAY[col_name], to_jsonb(old_value::TEXT)::JSONB);
         ELSIF TG_OP = 'DELETE' THEN
-            -- For DELETE, include the current old record
-            old_row := jsonb_set(old_row, ARRAY[col_name], to_jsonb(OLD.*)::JSONB -> col_name);
+            old_row := jsonb_set(old_row, ARRAY[col_name], to_jsonb(old_value::TEXT)::JSONB);
         END IF;
-
     END LOOP;
 
     -- Log the change based on the operation
