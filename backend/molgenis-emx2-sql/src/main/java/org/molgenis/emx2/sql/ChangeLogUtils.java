@@ -33,37 +33,33 @@ public class ChangeLogUtils {
                              WHERE table_name = TG_TABLE_NAME
             LOOP
                 -- Skip columns that end with '_contents' or '_TEXT_SEARCH_COLUMN'
-                IF col_name LIKE '%%_contents' OR col_name LIKE '%%_TEXT_SEARCH_COLUMN' THEN
+                IF col_name LIKE '%%_contents' OR col_name LIKE '%%_TEXT_SEARCH_COLUMN' OR col_name = 'mg_updatedBy' OR col_name = 'mg_insertedBy' OR col_name = 'mg_updatedOn' OR col_name = 'mg_insertedOn' THEN
                     CONTINUE;
                 END IF;
-
-                -- Dynamically fetch the values from OLD and NEW
-                EXECUTE 'SELECT ($1).' || quote_ident(col_name) INTO old_value USING OLD;
-                EXECUTE 'SELECT ($1).' || quote_ident(col_name) INTO new_value USING NEW;
-
-                -- Handle the different operation types
-                IF TG_OP = 'INSERT' THEN
-                    new_row := jsonb_set(new_row, ARRAY[col_name], to_jsonb(new_value::TEXT)::JSONB);
-                ELSIF TG_OP = 'UPDATE' AND old_value IS DISTINCT FROM new_value THEN
-                    new_row := jsonb_set(new_row, ARRAY[col_name], to_jsonb(new_value::TEXT)::JSONB);
-                    old_row := jsonb_set(old_row, ARRAY[col_name], to_jsonb(old_value::TEXT)::JSONB);
-                ELSIF TG_OP = 'DELETE' THEN
-                    old_row := jsonb_set(old_row, ARRAY[col_name], to_jsonb(old_value::TEXT)::JSONB);
+                IF TG_OP != 'INSERT' THEN
+                    EXECUTE 'SELECT ($1).' || quote_ident(col_name) INTO old_value USING OLD;
+                    IF old_value IS NOT NULL THEN
+                      old_row := jsonb_set(old_row, ARRAY[col_name], to_jsonb(old_value::TEXT)::JSONB);
+                    END IF;
+                END IF;
+                IF TG_OP != 'DELETE' THEN
+                    EXECUTE 'SELECT ($1).' || quote_ident(col_name) INTO new_value USING NEW;
+                    IF new_value IS NOT NULL THEN
+                      new_row := jsonb_set(new_row, ARRAY[col_name], to_jsonb(new_value::TEXT)::JSONB);
+                    END IF;
                 END IF;
             END LOOP;
 
             -- Log the change based on the operation
             IF TG_OP = 'DELETE' THEN
                 INSERT INTO "%1$s".mg_changelog
-                SELECT 'D', now(), user, TG_TABLE_NAME, row_to_json(old_row), NULL;
-
+                SELECT 'D', now(), user, TG_TABLE_NAME, old_row, new_row;
             ELSIF TG_OP = 'UPDATE' THEN
                 INSERT INTO "%1$s".mg_changelog
                 SELECT 'U', now(), user, TG_TABLE_NAME, old_row, new_row;
-
             ELSIF TG_OP = 'INSERT' THEN
                 INSERT INTO "%1$s".mg_changelog
-                SELECT 'I', now(), user, TG_TABLE_NAME, NULL, new_row;
+                SELECT 'I', now(), user, TG_TABLE_NAME, old_row, new_row;
             END IF;
 
             RETURN NULL; -- result is ignored since this is an AFTER trigger
