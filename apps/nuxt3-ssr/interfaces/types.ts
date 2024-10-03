@@ -477,3 +477,11 @@ export interface IOrganization {
 }
 
 export type linkTarget = "_self" | "_blank" | "_parent" | "_top";
+
+export type IResourceTypeMetadata = {
+  type: string;
+  plural: string;
+  image?: string;
+  path: string;
+  description?: string;
+};
