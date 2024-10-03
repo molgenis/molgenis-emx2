@@ -4,13 +4,13 @@ import java.math.BigInteger;
 import java.time.Instant;
 import org.molgenis.emx2.MolgenisException;
 
-public class SnowFlakeIdGenerator {
+public class SnowflakeIdGenerator {
 
-  private static SnowFlakeIdGenerator instance;
+  private static SnowflakeIdGenerator instance;
 
   private static final String BASE62_CHARACTERS =
       "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-  private static final long EPOCH = 1727446121186L;
+  private static final long EPOCH = 1727740800000L; // 1 October 2024 00:00:00
 
   public static final int TOTAL_BITS = 64;
   public static final int TIMESTAMP_BITS = 41; // 69 years of ids
@@ -27,11 +27,11 @@ public class SnowFlakeIdGenerator {
   private long lastTimestamp = -1L;
   private long sequence = 0L;
 
-  private SnowFlakeIdGenerator() {}
+  private SnowflakeIdGenerator() {}
 
-  public static synchronized SnowFlakeIdGenerator getInstance() {
+  public static synchronized SnowflakeIdGenerator getInstance() {
     if (instance == null) {
-      instance = new SnowFlakeIdGenerator();
+      instance = new SnowflakeIdGenerator();
     }
     return instance;
   }
@@ -60,6 +60,21 @@ public class SnowFlakeIdGenerator {
     return base62Encode(snowflakeId);
   }
 
+  public static String extractInstanceId(String snowflakeId) {
+    BigInteger decodedSnowflakeId = base62Decode(snowflakeId);
+    BigInteger instancePart = decodedSnowflakeId.shiftRight(SEQUENCE_BITS);
+    BigInteger instanceIdBits = instancePart.and(BigInteger.valueOf(MAX_ID));
+
+    return instanceIdBits.toString();
+  }
+
+  public static long extractTimestamp(String snowflakeId) {
+    BigInteger decodedSnowflakeId = base62Decode(snowflakeId);
+    BigInteger timestampPart = decodedSnowflakeId.shiftRight(ID_BITS + SEQUENCE_BITS);
+
+    return timestampPart.longValue() + EPOCH;
+  }
+
   private static long getInstanceIdBits(String instanceId) {
     long instanceIdBits = Long.parseLong(instanceId);
     if (instanceIdBits > MAX_ID) {
@@ -72,7 +87,7 @@ public class SnowFlakeIdGenerator {
     return (1L << bits) - 1;
   }
 
-  private String base62Encode(BigInteger snowflakeId) {
+  private static String base62Encode(BigInteger snowflakeId) {
     StringBuilder encoded = new StringBuilder();
     BigInteger base = BigInteger.valueOf(BASE62_CHARACTERS.length());
 
@@ -84,6 +99,21 @@ public class SnowFlakeIdGenerator {
     }
 
     return encoded.toString();
+  }
+
+  private static BigInteger base62Decode(String encoded) {
+    BigInteger result = BigInteger.ZERO;
+    BigInteger base = BigInteger.valueOf(BASE62_CHARACTERS.length());
+
+    for (int i = 0; i < encoded.length(); i++) {
+      int charIndex = BASE62_CHARACTERS.indexOf(encoded.charAt(i));
+      if (charIndex == -1) {
+        throw new IllegalArgumentException("Invalid character in Base62 encoded string");
+      }
+      result = result.multiply(base).add(BigInteger.valueOf(charIndex));
+    }
+
+    return result;
   }
 
   private long getCurrentTimestamp() {

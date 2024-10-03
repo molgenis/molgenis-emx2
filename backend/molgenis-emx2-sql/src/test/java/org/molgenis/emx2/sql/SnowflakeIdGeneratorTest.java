@@ -1,25 +1,28 @@
-package org.molgenis.emx2;
+package org.molgenis.emx2.sql;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;
-import org.molgenis.emx2.utils.generator.SnowFlakeIdGenerator;
+import org.molgenis.emx2.utils.generator.SnowflakeIdGenerator;
 
-public class SnowFlakeIdGeneratorTest {
+public class SnowflakeIdGeneratorTest {
+
+  private static final SnowflakeIdGenerator generator = SnowflakeIdGenerator.getInstance();
+  private static final String INSTANCE_ID = "3352"; // Random instance id for testing
 
   @Test
   public void testIdGenerationIsUnique() {
-    SnowFlakeIdGenerator generator = SnowFlakeIdGenerator.getInstance();
     Set<String> generatedIds = new HashSet<>();
 
     int totalIds = 100000;
     for (int i = 0; i < totalIds; i++) {
-      String id = generator.generateId("tableId");
+      String id = generator.generateId(INSTANCE_ID);
       assertFalse(generatedIds.contains(id), "Duplicate ID found: " + id);
       generatedIds.add(id);
     }
@@ -27,11 +30,11 @@ public class SnowFlakeIdGeneratorTest {
 
   @Test
   public void testIdGenerationIsSorted() {
-    SnowFlakeIdGenerator generator = SnowFlakeIdGenerator.getInstance();
+    SnowflakeIdGenerator generator = SnowflakeIdGenerator.getInstance();
     String[] generatedIds = new String[100000];
 
     for (int i = 0; i < generatedIds.length; i++) {
-      generatedIds[i] = generator.generateId("randomId");
+      generatedIds[i] = generator.generateId(INSTANCE_ID);
     }
 
     // Check if IDs are sorted
@@ -44,7 +47,6 @@ public class SnowFlakeIdGeneratorTest {
 
   @Test
   public void testUniqueIdsOnFourThreads() throws InterruptedException {
-    SnowFlakeIdGenerator generator = SnowFlakeIdGenerator.getInstance();
     Set<String> uniqueIds = new HashSet<>();
 
     ExecutorService executorService = Executors.newFixedThreadPool(4);
@@ -52,7 +54,7 @@ public class SnowFlakeIdGeneratorTest {
     for (int i = 0; i < 100000; i++) {
       executorService.submit(
           () -> {
-            String id = generator.generateId("randomId");
+            String id = generator.generateId(INSTANCE_ID);
             synchronized (uniqueIds) {
               uniqueIds.add(id);
             }
@@ -65,5 +67,23 @@ public class SnowFlakeIdGeneratorTest {
 
     // Verify that the number of unique IDs matches the total number of generated IDs
     assertEquals(100000, uniqueIds.size(), "Not all generated IDs are unique.");
+  }
+
+  @Test
+  public void testExtractionInstanceIdFromSnowflake() {
+    String snowflakeId = generator.generateId(INSTANCE_ID);
+
+    String instanceIdFromSnowflake = SnowflakeIdGenerator.extractInstanceId(snowflakeId);
+    assertEquals(INSTANCE_ID, instanceIdFromSnowflake);
+  }
+
+  @Test
+  public void testExtractTimestampFromSnowflake() {
+    long currentTime = Instant.now().toEpochMilli();
+    String snowflakeId = generator.generateId(INSTANCE_ID);
+
+    long snowflakeTimestamp = SnowflakeIdGenerator.extractTimestamp(snowflakeId);
+    // Allow a mismatch of 1ms
+    assertTrue(Math.abs(currentTime - snowflakeTimestamp) <= 1);
   }
 }

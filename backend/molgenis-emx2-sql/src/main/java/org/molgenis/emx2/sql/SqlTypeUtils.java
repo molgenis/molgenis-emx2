@@ -9,7 +9,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.TypeUtils;
-import org.molgenis.emx2.utils.generator.SnowFlakeIdGenerator;
+import org.molgenis.emx2.utils.generator.SnowflakeIdGenerator;
 
 public class SqlTypeUtils extends TypeUtils {
 
@@ -86,7 +86,7 @@ public class SqlTypeUtils extends TypeUtils {
               .getDatabase()
               .getSetting(Constants.MOLGENIS_INSTANCE_ID);
 
-      SnowFlakeIdGenerator idGenerator = SnowFlakeIdGenerator.getInstance();
+      SnowflakeIdGenerator idGenerator = SnowflakeIdGenerator.getInstance();
       // do we use a template containing ${mg_autoid} for pre/postfixing ?
       if (c.getComputed() != null) {
         row.set(
