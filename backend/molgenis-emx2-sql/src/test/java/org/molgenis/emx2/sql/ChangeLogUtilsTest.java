@@ -31,18 +31,13 @@ BEGIN
         IF col_name LIKE '%_contents' OR col_name LIKE '%_TEXT_SEARCH_COLUMN' OR col_name LIKE 'mg_%' THEN
             CONTINUE;
         END IF;
-        IF TG_OP != 'INSERT' THEN
-            EXECUTE 'SELECT ($1).' || quote_ident(col_name) INTO old_value USING OLD;
-            IF old_value IS NOT NULL THEN
-              old_row := jsonb_set(old_row, ARRAY[col_name], to_jsonb(old_value::TEXT)::JSONB);
-            END IF;
-        END IF;
-        IF TG_OP != 'DELETE' THEN
-            EXECUTE 'SELECT ($1).' || quote_ident(col_name) INTO new_value USING NEW;
-            IF new_value IS NOT NULL THEN
-              new_row := jsonb_set(new_row, ARRAY[col_name], to_jsonb(new_value::TEXT)::JSONB);
-            END IF;
-        END IF;
+          EXECUTE 'SELECT ($1).' || quote_ident(col_name) INTO new_value USING NEW;
+          new_row := jsonb_set(new_row, ARRAY[col_name], to_jsonb(new_value::TEXT)::JSONB);
+          EXECUTE 'SELECT ($1).' || quote_ident(col_name) INTO old_value USING OLD;
+          IF old_value IS DISTINCT FROM new_value NULL THEN
+            old_row := jsonb_set(old_row, ARRAY[col_name], to_jsonb(old_value::TEXT)::JSONB);
+          END IF;
+
     END LOOP;
 
     -- Log the change based on the operation
