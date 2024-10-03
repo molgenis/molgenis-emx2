@@ -1,5 +1,5 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,visible,semantics,description,profiles,comment
-Agent,,,,,,,,,,,,"http://xmlns.com/foaf/0.1/Agent","An agent (eg. person, group, software or physical artifact).","DCAT,Beacon v2",
+Agent,,,,,,,,,,,,"http://xmlns.com/foaf/0.1/Agent","Agent entries (such as a person, group, software or physical artifact).","DCAT,Beacon v2",
 Agent,,id,string,1,TRUE,,,,,,,"http://purl.allotrope.org/ontologies/result#AFR_0000919",Unique local ID for the item.,"DCAT,Beacon v2",
 Agent,,type,ontology,,TRUE,,AgentType,,,,,http://www.w3.org/1999/02/22-rdf-syntax-ns#type,The agent type.,"DCAT,Beacon v2",DCAT-AP-V3 / custom: made required (as specific FOAF fields depend on type)
 Agent,,name,string,,TRUE,,,,,,,"http://xmlns.com/foaf/0.1/name",A name for some thing.,"DCAT,Beacon v2",DCAT-AP-V3

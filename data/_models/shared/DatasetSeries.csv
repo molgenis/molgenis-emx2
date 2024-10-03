@@ -1,5 +1,5 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,comment
-DatasetSeries,,,,,,,,,,,http://www.w3.org/ns/dcat#DatasetSeries,DCAT dataset entries.,DCAT-v3,
+DatasetSeries,,,,,,,,,,,http://www.w3.org/ns/dcat#DatasetSeries,DCAT dataset series entries.,DCAT-v3,
 DatasetSeries,,identifier,string,1,TRUE,,,,,,http://purl.org/dc/terms/identifier,A unique identifier of the item.,DCAT-v3,DCAT Resource / DCAT-v3: DatasetSeries table new in v3
 DatasetSeries,,type,hyperlink_array,,,,,,,,http://purl.org/dc/terms/type,A type belonging to the record,DCAT-v3,DCAT Resource / DCAT-v3: DatasetSeries table new in v3
 DatasetSeries,,title,string_array,,TRUE,,,,,,http://purl.org/dc/terms/title,A name given to the record.,DCAT-v3,DCAT Resource / DCAT-v3: DatasetSeries table new in v3 / DCAT-AP-v3 DatasetSeries: required

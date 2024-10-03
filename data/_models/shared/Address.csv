@@ -1,4 +1,5 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,computed,validation,visible,semantics,description,profiles,comment
+Address,,,,,,,,,,,,,http://www.w3.org/2006/vcard/ns#adr,Address entries belonging to a contact point.,"DCAT,vCard",
 Address,,id,auto_id,1,TRUE,,,,,,,,"http://purl.allotrope.org/ontologies/result#AFR_0000919",Unique auto-generated local ID for the item.,"DCAT,vCard",
 Address,,type,ontology,,,,vCard type,,,,,,"http://www.w3.org/1999/02/22-rdf-syntax-ns#type",The type of address.,"DCAT,vCard",
 Address,,country,ontology,,,,Countries,,,,,,,The country associated with the address of the object.,"DCAT,vCard",

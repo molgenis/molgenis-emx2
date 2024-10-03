@@ -1,5 +1,5 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,comment
-CatalogRecord,,,,,,,,,,,http://www.w3.org/ns/dcat#CatalogRecord,,DCAT,
+CatalogRecord,,,,,,,,,,,http://www.w3.org/ns/dcat#CatalogRecord,DCAT catalog record entries.,DCAT,
 CatalogRecord,,identifier,string,1,TRUE,,,,,,http://purl.org/dc/terms/identifier,A unique identifier of the item.,DCAT,custom
 CatalogRecord,,catalog,ref_array,,,,Catalog,,,,http://www.w3.org/ns/dcat#Catalog,Reference to any catalogs that contains this item.,DCAT,custom
 CatalogRecord,,title,string_array,,,,,,,,http://purl.org/dc/terms/title,A name given to the record.,DCAT,DCAT CatalogRecord

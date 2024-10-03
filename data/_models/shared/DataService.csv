@@ -1,5 +1,5 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,comment
-DataService,,,,,,,,,,,http://www.w3.org/ns/dcat#DataService,,DCAT,
+DataService,,,,,,,,,,,http://www.w3.org/ns/dcat#DataService,DCAT data service entries.,DCAT,
 DataService,,identifier,string,1,TRUE,,,,,,http://purl.org/dc/terms/identifier,A unique identifier of the item.,DCAT,DCAT Resource
 DataService,,catalog,ref_array,,,,Catalog,,,,http://www.w3.org/ns/dcat#Catalog,Reference back to any catalogs that contain this item.,DCAT,custom
 DataService,,type,hyperlink_array,,,,,,,,http://purl.org/dc/terms/type,A type belonging to the record,DCAT,DCAT Resource

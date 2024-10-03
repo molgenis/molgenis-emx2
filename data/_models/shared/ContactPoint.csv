@@ -1,5 +1,5 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,visible,semantics,description,profiles,comment
-ContactPoint,,,,,,,,,,,,"http://www.w3.org/2006/vcard/ns#VCard","A contact point (vCard).","DCAT,vCard",
+ContactPoint,,,,,,,,,,,,"http://www.w3.org/2006/vcard/ns#VCard","Entries describing a point (person/group/organization/location) that can be contacted.","DCAT,vCard",
 ContactPoint,,id,string,1,TRUE,,,,,,,"http://purl.allotrope.org/ontologies/result#AFR_0000919",Unique local ID for the item.,"DCAT,vCard",
 ContactPoint,,kind,ontology,,TRUE,,vCard kind,,,,,"http://www.w3.org/1999/02/22-rdf-syntax-ns#type","What ""kind"" the vCard represents.","DCAT,vCard",custom: made required (as specific vCard fields depend on kind)
 ContactPoint,,full name,string,,TRUE,,,,,,,"http://www.w3.org/2006/vcard/ns#fn",The full name.,"DCAT,vCard",
