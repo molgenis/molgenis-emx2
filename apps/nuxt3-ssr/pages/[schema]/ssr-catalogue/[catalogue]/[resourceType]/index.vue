@@ -8,11 +8,9 @@ const pageSize = 10;
 
 const titlePrefix =
   route.params.catalogue === "all" ? "" : route.params.catalogue + " ";
-const resourceType = computed(() =>
-  getResourceMetadataForPath(route.params.resourceType as string)
-);
+const resourceType = usePathResourceType();
 
-useHead({ title: titlePrefix + resourceType.value.plural });
+useHead({ title: titlePrefix + resourceType.plural });
 
 const currentPage = computed(() => {
   const queryPageNumber = Number(route.query?.page);
@@ -35,7 +33,7 @@ let pageFilterTemplate: IFilter[] = [
   },
 ];
 
-if (resourceType.value.path === "resources") {
+if (resourceType.path === "resources") {
   pageFilterTemplate.push({
     id: "type",
     config: {
@@ -170,8 +168,8 @@ const gqlFilter = computed(() => {
 
   result = buildQueryFilter(filters.value);
 
-  if (resourceType.value.path != "resources") {
-    result.type = { name: { equals: resourceType.value.type } };
+  if (resourceType.path != "resources") {
+    result.type = { name: { equals: resourceType.type } };
   }
 
   // add hard coded page specific filters
