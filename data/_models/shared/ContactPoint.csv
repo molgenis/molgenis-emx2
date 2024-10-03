@@ -8,3 +8,4 @@ ContactPoint,,telephone,ref_array,,,,Telephone,,,,,"http://www.w3.org/2006/vcard
 ContactPoint,,email,email_array,,,,,,,,,"http://www.w3.org/2006/vcard/ns#hasEmail",The email address.,"DCAT,vCard",
 ContactPoint,,has member,ref_array,,,,ContactPoint,,,,kind !== null && kind.name === 'group',"http://www.w3.org/2006/vcard/ns#hasMember",Members of this group.,"DCAT,vCard",
 ContactPoint,,is member,refBack,,,,ContactPoint,,has member,,,,Groups this contact point is a member of.,"DCAT,vCard",custom: refBack for easier table overview / no semantics!
+ContactPoint,,see also,ontology,,,,Organisations,,,,kind !== null && kind.name === 'organization',"http://www.w3.org/2000/01/rdf-schema#seeAlso",Ontology item that defines this organization,"DCAT",custom: Allows usage of pre-existing Organisations ontology
