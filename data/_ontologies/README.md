@@ -23,3 +23,18 @@ Manually extracted from the `distribution-status-skos.rdf` download found [here]
    echo "name,definition,codesystem,code,ontologyTermURI" > output/MediaType.csv && \
    awk -F',' 'NR>1 {print $2","$2",IANA,,https://www.iana.org/assignments/media-types/"$2}' *.csv | sort | uniq >> output/MediaType.csv
    ```
+
+
+
+## vCard kind
+
+Available definitions retrieved from https://www.w3.org/TR/vcard-rdf/#General_Properties while rest of information was extraced from elsewhere in the document.
+
+## vCard telephone type
+
+The options/URIs were manually extracted from https://www.w3.org/TR/vcard-rdf/ (see for example [this](https://www.w3.org/TR/vcard-rdf/#Code_Sets)).
+After which https://www.rfc-editor.org/rfc/rfc6350.html#section-6.4.1 was used to add the definitions.
+
+## vCard type
+
+Available definitions retrieved from https://www.w3.org/TR/vcard-rdf/#Code_Sets while rest of information was extraced from elsewhere in the document.

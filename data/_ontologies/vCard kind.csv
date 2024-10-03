@@ -1,0 +1,5 @@
+name,definition,codesystem,code,ontologyTermURI
+individual,An object representing a single person or entity,,,http://www.w3.org/2006/vcard/ns#Individual
+group,Object representing a group of persons or entities. A group object will usually contain hasMember properties to specify the members of the group.,,,http://www.w3.org/2006/vcard/ns#Group
+organization,"An object representing an organization. An organization is a single entity, and might represent a business or government, a department or division within a business or government, a club, an association, or the like.",,,http://www.w3.org/2006/vcard/ns#Organization
+location,An object representing a named geographical place.,,,http://www.w3.org/2006/vcard/ns#Location

@@ -1,0 +1,8 @@
+name,definition,codesystem,code,ontologyTermURI
+cell,"Indicates a cellular or mobile telephone number.",,,http://www.w3.org/2006/vcard/ns#Cell
+fax,"Indicates a facsimile telephone number.",,,http://www.w3.org/2006/vcard/ns#Fax
+pager,"Indicates a paging device telephone number.",,,http://www.w3.org/2006/vcard/ns#Pager
+text,"Indicates that the telephone number supports text messages (SMS).",,,http://www.w3.org/2006/vcard/ns#Text
+text phone,"Indicates a telecommunication device for people with hearing or speech difficulties.",,,http://www.w3.org/2006/vcard/ns#TextPhone
+video,"Indicates a video conferencing telephone number.",,,http://www.w3.org/2006/vcard/ns#Video
+voice,"Indicates a voice telephone number.",,,http://www.w3.org/2006/vcard/ns#Voice

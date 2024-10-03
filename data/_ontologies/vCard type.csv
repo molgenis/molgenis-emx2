@@ -1,0 +1,3 @@
+name,definition,codesystem,code,ontologyTermURI
+home,This implies that the property is related to an individual's personal life.,,,http://www.w3.org/2006/vcard/ns#Home
+work,This implies that the property is related to an individual's work place.,,,http://www.w3.org/2006/vcard/ns#Work

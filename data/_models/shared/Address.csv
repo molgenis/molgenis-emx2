@@ -1,0 +1,9 @@
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,computed,validation,visible,semantics,description,profiles,comment
+Address,,id,auto_id,1,TRUE,,,,,,,,"http://purl.allotrope.org/ontologies/result#AFR_0000919",Unique auto-generated local ID for the item.,"DCAT,vCard",
+Address,,type,ontology,,,,vCard type,,,,,,"http://www.w3.org/1999/02/22-rdf-syntax-ns#type",The type of address.,"DCAT,vCard",
+Address,,country,ontology,,,,Countries,,,,,,,The country associated with the address of the object.,"DCAT,vCard",
+Address,,country name,string,,,,,,,country.name,,,http://www.w3.org/2006/vcard/ns#country-name,The country as string value.,"DCAT,vCard",
+Address,,region,string,,,,,,,,,,http://www.w3.org/2006/vcard/ns#region,The region (e.g. state or province) associated with the address of the object.,"DCAT,vCard",
+Address,,locality,string,,,,,,,,,,http://www.w3.org/2006/vcard/ns#locality,The locality (e.g. city or town) associated with the address of the object.,"DCAT,vCard",
+Address,,postal code,string,,,,,,,,,,http://www.w3.org/2006/vcard/ns#postal-code,The postal code associated with the address of the object.,"DCAT,vCard",
+Address,,street address,string,,,,,,,,,,http://www.w3.org/2006/vcard/ns#street-address,The street address associated with the address of the object.,"DCAT,vCard",

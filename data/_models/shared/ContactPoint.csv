@@ -1,0 +1,10 @@
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,visible,semantics,description,profiles,comment
+ContactPoint,,,,,,,,,,,,"http://www.w3.org/2006/vcard/ns#VCard","A contact point (vCard).","DCAT,vCard",
+ContactPoint,,id,string,1,TRUE,,,,,,,"http://purl.allotrope.org/ontologies/result#AFR_0000919",Unique local ID for the item.,"DCAT,vCard",
+ContactPoint,,kind,ontology,,TRUE,,vCard kind,,,,,"http://www.w3.org/1999/02/22-rdf-syntax-ns#type","What ""kind"" the vCard represents.","DCAT,vCard",custom: made required (as specific vCard fields depend on kind)
+ContactPoint,,full name,string,,TRUE,,,,,,,"http://www.w3.org/2006/vcard/ns#fn",The full name.,"DCAT,vCard",
+ContactPoint,,address,ref_array,,,,Address,,,,,"http://www.w3.org/2006/vcard/ns#hasAddress",The address.,"DCAT,vCard",
+ContactPoint,,telephone,ref_array,,,,Telephone,,,,,"http://www.w3.org/2006/vcard/ns#hasTelephone",The telephone number.,"DCAT,vCard",
+ContactPoint,,email,email_array,,,,,,,,,"http://www.w3.org/2006/vcard/ns#hasEmail",The email address.,"DCAT,vCard",
+ContactPoint,,has member,ref_array,,,,ContactPoint,,,,kind !== null && kind.name === 'group',"http://www.w3.org/2006/vcard/ns#hasMember",Members of this group.,"DCAT,vCard",
+ContactPoint,,is member,refBack,,,,ContactPoint,,has member,,,,Groups this contact point is a member of.,"DCAT,vCard",custom: refBack for easier table overview / no semantics!

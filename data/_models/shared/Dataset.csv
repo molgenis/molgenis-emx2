@@ -55,7 +55,7 @@ datareleases,,name,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C25364
 datareleases,,label,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C42614,"The words or language units by which a thing is known.",RD3
 datareleases,,description,text,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25365,"A written or verbal account, representation, statement, or explanation of something.",RD3
 datareleases,,date,date,,,,,,,,http://semanticscience.org/resource/SIO_001083,"A date of database submission refers to the moment in time in which some information was submitted/received to a database system.",RD3
-datareleases,,createdBy,ref,,,,ContactPersons,,,,http://purl.obolibrary.org/obo/NCIT_C42628,"Indicates the person or authoritative body who brought the item into existence.",RD3
+datareleases,,createdBy,ref,,,,ContactPoint,,,,http://purl.obolibrary.org/obo/NCIT_C42628,"Indicates the person or authoritative body who brought the item into existence.",RD3
 datareleases,,dataSource,ontology_array,,,,Organisations,,,,http://purl.obolibrary.org/obo/NCIT_C16493,"The person or authoritative body who provided the information.",RD3
 datareleases,,releaseNotes,text,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C115505,"A notation regarding the decisions, and/or clarification of any information pertaining to data management.",RD3
 datasets,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C47824,"container of files belonging together (different datasets can contain overlapping files, except for the intial datasets containing startfiles (before analysis, startfiles= BAM, gVCF files (one per chromosome) and phenopacket file))",RD3
