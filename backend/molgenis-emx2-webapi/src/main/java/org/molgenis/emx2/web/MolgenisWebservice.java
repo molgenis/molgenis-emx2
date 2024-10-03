@@ -71,18 +71,12 @@ public class MolgenisWebservice {
     app.get(
         "/api",
         ctx -> {
-          ctx.redirect("/api/");
-        });
-
-    app.get(
-        "/api/",
-        ctx -> {
           ctx.contentType("text/html");
           ctx.result("Welcome to MOLGENIS EMX2 POC <br/>" + listSchemas(ctx));
         });
 
     // documentation operations
-    app.get("/api/openapi", MolgenisWebservice::listSchemas);
+    app.get("/api/openapi", ctx -> ctx.result(MolgenisWebservice.listSchemas(ctx)));
     // docs per schema
     app.get("/{schema}/api/openapi", OpenApiUiFactory::getOpenApiUserInterface);
     app.get("/{schema}/api/openapi.yaml", MolgenisWebservice::openApiYaml);

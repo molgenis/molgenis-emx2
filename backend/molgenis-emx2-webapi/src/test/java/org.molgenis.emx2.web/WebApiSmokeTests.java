@@ -115,6 +115,20 @@ public class WebApiSmokeTests {
   }
 
   @Test
+  public void testApiRoot() {
+    String result =
+        given()
+            .sessionId(SESSION_ID)
+            .expect()
+            .statusCode(200)
+            .when()
+            .get("/api")
+            .getBody()
+            .asString();
+    assertTrue(result.contains("Welcome to MOLGENIS EMX2"));
+  }
+
+  @Test
   public void testCsvApi_zipUploadDownload() throws IOException {
     // get original schema
     String schemaCsv =
