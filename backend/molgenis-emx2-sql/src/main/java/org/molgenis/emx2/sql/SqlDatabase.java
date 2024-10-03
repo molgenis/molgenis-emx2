@@ -19,6 +19,7 @@ import org.jooq.impl.DSL;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 import org.molgenis.emx2.utils.RandomString;
+import org.molgenis.emx2.utils.generator.SnowFlakeIdGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -178,6 +179,11 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       if (getSetting(Constants.IS_OIDC_ENABLED) == null) {
         // use environment property unless overridden in settings
         this.setSetting(Constants.IS_OIDC_ENABLED, String.valueOf(isOidcEnabled));
+      }
+
+      if (getSetting(Constants.MOLGENIS_INSTANCE_ID) == null) {
+        long instanceId = new Random().nextLong(SnowFlakeIdGenerator.MAX_ID);
+        this.setSetting(Constants.MOLGENIS_INSTANCE_ID, String.valueOf(instanceId));
       }
 
       if (getSetting(Constants.IS_PRIVACY_POLICY_ENABLED) == null) {
