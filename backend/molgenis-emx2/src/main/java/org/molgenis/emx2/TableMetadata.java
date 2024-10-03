@@ -34,8 +34,8 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   private TableType tableType = TableType.DATA;
   // table semantics, typically an ontology URI
   private String[] semantics = null;
-  // profiles to which this table belongs
-  private String[] profiles;
+  // table tags (used in profiles to compose data models)
+  private String[] tags;
 
   public String[] getSemantics() {
     return semantics;
@@ -46,12 +46,12 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
     return this;
   }
 
-  public String[] getProfiles() {
-    return profiles;
+  public String[] getTags() {
+    return tags;
   }
 
-  public TableMetadata setProfiles(String... profiles) {
-    this.profiles = profiles;
+  public TableMetadata setTags(String... tags) {
+    this.tags = tags;
     return this;
   }
 
@@ -106,7 +106,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
       this.inheritName = metadata.getInheritName();
       this.importSchema = metadata.getImportSchema();
       this.semantics = metadata.getSemantics();
-      this.profiles = metadata.getProfiles();
+      this.tags = metadata.getTags();
       this.tableType = metadata.getTableType();
     }
   }

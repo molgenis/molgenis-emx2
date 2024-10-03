@@ -38,8 +38,7 @@ public class Column {
   private List<LanguageValue> descriptions = new ArrayList<>();
   private ColumnType columnType = ColumnType.STRING;
   private String[] semantics = null;
-  private String[] profiles = null;
-
+  private String[] tags = null;
   private boolean inherited = false;
 
   public Column() {}
@@ -101,7 +100,7 @@ public class Column {
     this.semantics = column.getSemantics();
     this.visible = column.getVisible();
     this.computed = column.getComputed();
-    this.profiles = column.getProfiles();
+    this.tags = column.getTags();
 
     // calculated field
     if (table.getInheritName() != null)
@@ -397,11 +396,11 @@ public class Column {
     this.description = description;
   }
 
-  public String[] getProfiles() {
-    return profiles;
+  public String[] getTags() {
+    return tags;
   }
 
-  public void setProfiles(String[] profiles) {
-    this.profiles = profiles;
+  public void setTags(String[] tags) {
+    this.tags = tags;
   }
 }

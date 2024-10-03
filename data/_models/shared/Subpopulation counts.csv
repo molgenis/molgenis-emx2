@@ -1,4 +1,4 @@
-tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,visible
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,tags,visible
 Subpopulation counts,,,,,,,,,,,,"Number of participants per cohort age group, optionally divided per sex","DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging",
 Subpopulation counts,,resource,ref,1,true,,Resources,,,,,,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging",
 Subpopulation counts,,subpopulation,ref,1,true,,Subpopulations,resource,,,,,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging",

@@ -1,4 +1,4 @@
-tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,visible
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,tags,visible
 FORCE_NEN patients,,,,,,,,,,,,"Resource counts for e.g. samples, clinical data",DataCatalogueAggregates,
 FORCE_NEN patients,,collection,ref,1,TRUE,,Collections,,,,,Network collection id taken from catalogue Collections table,DataCatalogueAggregates,
 FORCE_NEN patients,,research center,ref,1,TRUE,,Collections,,,,,Research center name to be displayed in aggregate dashboard,DataCatalogueAggregates,

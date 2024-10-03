@@ -32,7 +32,7 @@ public class TestProfileLoader {
     Profiles profiles = schemaFromProfile.getProfiles();
     assertEquals("TestProfile", profiles.getName());
     assertEquals("Test profile with all options but small model", profiles.getDescription());
-    assertEquals("JRC-CDE", profiles.getProfileTagsList().get(0));
+    assertEquals("JRC-CDE", profiles.getTagsList().get(0));
     assertEquals("_demodata/shared-examples", profiles.getDemoDataList().get(0));
     assertEquals("_settings/datacatalogue", profiles.getSettingsList().get(0));
     assertEquals("anonymous", profiles.getSetViewPermission());

@@ -12,10 +12,10 @@ public class Profiles {
    */
   private String name;
   private String description;
-  private String profileTags;
+  private String tags;
   private String demoData;
   private String settings;
-  private List<String> profileTagsList;
+  private List<String> tagsList;
   private List<String> demoDataList;
   private List<String> settingsList;
 
@@ -75,12 +75,12 @@ public class Profiles {
     this.description = description;
   }
 
-  protected String getProfileTags() {
-    return profileTags;
+  protected String getTags() {
+    return tags;
   }
 
-  protected void setProfileTags(String profileTags) {
-    this.profileTags = profileTags;
+  protected void setTags(String tags) {
+    this.tags = tags;
   }
 
   protected String getDemoData() {
@@ -99,12 +99,12 @@ public class Profiles {
     this.settings = settings;
   }
 
-  public List<String> getProfileTagsList() {
-    return profileTagsList;
+  public List<String> getTagsList() {
+    return tagsList;
   }
 
-  protected void setProfileTagsList(List<String> profileTagsList) {
-    this.profileTagsList = profileTagsList;
+  protected void setTagsList(List<String> tagsList) {
+    this.tagsList = tagsList;
   }
 
   public List<String> getDemoDataList() {

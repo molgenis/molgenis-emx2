@@ -1,4 +1,4 @@
-tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,tags
 Endpoint,,,,,,,,,,,http://schema.org/Service,General information describing an endpoint,"Beacon v2,FAIRDataPoint"
 Endpoint,,id,string,1,TRUE,,,,,,"http://schema.org/identifier","A unique proper name or character sequence that identifies this particular person. In Beacon v2: id, in FAIR Genomes: PersonalIdentifier. In RD3: subjectID. In JRC-CDE: Pseudonym","Beacon v2,FAIRDataPoint"
 Endpoint,,type,hyperlink_array,,,,,,,,http://www.w3.org/1999/02/22-rdf-syntax-ns#type,This row is an instance of one or more of these class(es) other than the Endpoint table.,FAIRDataPoint

@@ -1,4 +1,4 @@
-tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,visible
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,tags,visible
 Linkages,,,,,,,,,,,,Links between datasource and databank,"DataCatalogueFlat,EMA,RWEStaging",
 Linkages,,resource,ref,1,true,,Resources,,,,,,"DataCatalogueFlat,EMA,RWEStaging",
 Linkages,,linked resource,ref,1,true,,Resources,,,,,,"DataCatalogueFlat,EMA,RWEStaging",

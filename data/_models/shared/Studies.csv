@@ -1,4 +1,4 @@
-tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,tags
 "Study","","","","","","","","","","","http://purl.obolibrary.org/obo/NCIT_C63536","A detailed examination, analysis, or critical inspection of one or multiple subjects designed to discover facts.","FAIR Genomes"
 "Study","","Identifier","string","1","TRUE","","","","","","http://purl.obolibrary.org/obo/OMIABIS_0000006","A unique proper name or character sequence that identifies this particular study.","FAIR Genomes"
 "Study","","Name","string","","","","","","","","http://purl.obolibrary.org/obo/OMIABIS_0000037","A name that designates this study.","FAIR Genomes"

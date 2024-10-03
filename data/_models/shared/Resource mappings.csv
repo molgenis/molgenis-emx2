@@ -1,4 +1,4 @@
-tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,visible
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,tags,visible
 Resource mappings,,,,,,,,,,,,"Mapping from collected datasets to standard/harmonised datasets, optionally including ETL syntaxes","DataCatalogueFlat,EMA",
 Resource mappings,,source,ref,1,true,,Resources,,,,,Data source that is being mapped to a (common) data model,"DataCatalogueFlat,EMA",
 Resource mappings,,source version,string,,,,,,,,,version of the datasource that is being mapped,"DataCatalogueFlat,EMA",

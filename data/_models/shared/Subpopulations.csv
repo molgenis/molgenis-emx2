@@ -1,4 +1,4 @@
-tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,visible
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,tags,visible
 Subpopulations,,,,,,,,,,,dcat:Dataset,Subsubpopulations defined for this resource,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging",
 Subpopulations,,resource,ref,1,true,,Resources,,,,dcterms:isPartOf,Resource this subsubpopulation is part of,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging",
 Subpopulations,,name,,1,true,,,,,,dcterms:title,"Subpopulation name, e.g. 'mothers in first trimester','newborns'","DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging",

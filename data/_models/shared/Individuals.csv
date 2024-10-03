@@ -1,4 +1,4 @@
-tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,tags
 Individuals,,,,,,,,,,,"http://purl.obolibrary.org/obo/NCIT_C90492,http://purl.obolibrary.org/obo/ExO_0000127","Data, facts or figures about an individual; the set of relevant items would depend on the use case. In FAIR Genomes: Personal. In RD3: Subjects.","Beacon v2, FAIR Genomes, RD3, JRC-CDE, GDI T8.2 union, DCAT examples"
 Individuals,,id,string,1,TRUE,,,,,,"http://purl.obolibrary.org/obo/NCIT_C164337,http://purl.obolibrary.org/obo/NCIT_C142495","A unique proper name or character sequence that identifies this particular person. In Beacon v2: id, in FAIR Genomes: PersonalIdentifier. In RD3: subjectID. In JRC-CDE: Pseudonym","Beacon v2, FAIR Genomes, RD3, JRC-CDE, DCAT examples"
 Individuals,,sex,ontology,,TRUE,,GenderAtBirth,,,,"http://purl.obolibrary.org/obo/GSSO_009418,http://purl.obolibrary.org/obo/NCIT_C28421",E.g. assigned female at birth,"Beacon v2"

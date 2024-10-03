@@ -1,4 +1,4 @@
-tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,visible
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,tags,visible
 Variables,,,,,,,,,,,,Definition of a variable,"DataCatalogueFlat,RWEStaging,CohortsStaging,StudiesStaging,NetworksStaging",
 Variables,,resource,ref,1,TRUE,,Resources,,,,,resource that this variable is part of,"DataCatalogueFlat,RWEStaging,CohortsStaging,StudiesStaging,NetworksStaging",
 Variables,,dataset,ref,1,TRUE,,Datasets,resource,,,,dataset that this variable is part of,"DataCatalogueFlat,RWEStaging,CohortsStaging,StudiesStaging,NetworksStaging",
