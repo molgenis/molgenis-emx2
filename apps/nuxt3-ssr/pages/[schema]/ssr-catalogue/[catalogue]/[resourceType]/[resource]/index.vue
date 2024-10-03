@@ -668,6 +668,7 @@ const organisations = computed(() => resource.value.organisationsInvolved);
                     ]
                   : []
               "
+              target="_blank"
             />
           </ReferenceCardList>
         </ContentBlock>
