@@ -58,7 +58,7 @@ public class WebApiSmokeTests {
   private static Database db;
   private static Schema schema;
   final String CSV_TEST_SCHEMA = "pet store csv";
-  static final int PORT = 8081; // other then default so we can see effect
+  static final int PORT = 8081; // other than default so we can see effect
 
   @BeforeAll
   public static void before() throws Exception {
@@ -68,7 +68,7 @@ public class WebApiSmokeTests {
 
     // start web service for testing, including env variables
     withEnvironmentVariable(MOLGENIS_HTTP_PORT, "" + PORT)
-        // disable because of parallism issues .and(MOLGENIS_INCLUDE_CATALOGUE_DEMO, "true")
+        // disable because of parallelism issues .and(MOLGENIS_INCLUDE_CATALOGUE_DEMO, "true")
         .execute(() -> RunMolgenisEmx2.main(new String[] {}));
 
     // set default rest assured settings
@@ -108,9 +108,10 @@ public class WebApiSmokeTests {
 
   @AfterAll
   public static void after() {
-    // MolgenisWebservice.stop();
     // Always clean up database to avoid instability due to side effects.
     db.dropSchemaIfExists(PET_STORE_SCHEMA);
+    db.dropSchemaIfExists("pet store yaml");
+    db.dropSchemaIfExists("pet store json");
   }
 
   @Test
@@ -413,6 +414,22 @@ public class WebApiSmokeTests {
         given().sessionId(SESSION_ID).when().get("/pet store yaml/api/yaml").asString();
 
     assertEquals(schemaYaml, schemaYaml2.replace("pet store yaml", PET_STORE_SCHEMA));
+
+    given()
+        .sessionId(SESSION_ID)
+        .body(schemaYaml2)
+        .when()
+        .delete("/pet store yaml/api/yaml")
+        .then()
+        .statusCode(200);
+
+    given()
+        .sessionId(SESSION_ID)
+        .body(schemaJson2)
+        .when()
+        .delete("/pet store json/api/json")
+        .then()
+        .statusCode(200);
 
     db.dropSchemaIfExists("pet store yaml");
     db.dropSchemaIfExists("pet store json");
@@ -1287,6 +1304,12 @@ public class WebApiSmokeTests {
     result = given().get("/api/beacon/map").getBody().asString();
     assertTrue(result.contains("endpointSets"));
 
+    result = given().get("/pet store/api/beacon/info").getBody().asString();
+    assertTrue(result.contains("beaconInfoResponse"));
+
+    result = given().get("/api/beacon/filtering_terms").getBody().asString();
+    assertTrue(result.contains("filteringTerms"));
+
     result = given().get("/api/beacon/entry_types").getBody().asString();
     assertTrue(result.contains("entry"));
 
@@ -1306,6 +1329,25 @@ public class WebApiSmokeTests {
     assertTrue(result.contains("datasets"));
 
     result = given().get("/api/beacon/individuals").getBody().asString();
+    assertTrue(result.contains("datasets"));
+
+    result =
+        given()
+            .body(
+                """
+          {
+            "query": {
+            "filters": [
+              {
+              "id": "NCIT:C28421",
+              "value": "GSSO_000123",
+              "operator": "="
+              }
+            ]
+            }
+          }""")
+            .post("/api/beacon/individuals")
+            .asString();
     assertTrue(result.contains("datasets"));
 
     result = given().get("/api/beacon/runs").getBody().asString();
