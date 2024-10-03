@@ -227,7 +227,7 @@ export function applyComputed(rows: IRow[], tableMetadata: ITableMetaData) {
 
 // Functions for making sure empty field is null instead of empty for forms.
 export function updateModelValue(object, value) {
-  object.$emit("update:modelValue", value === "" ? null : value);
+  updateModelValueEmit(object.$emit, value);
 }
 
 export function updateModelValueEmit(emit, value) {
