@@ -24,7 +24,7 @@ let pageFilterTemplate: IFilter[] = [
   {
     id: "search",
     config: {
-      label: "Search in resources",
+      label: `Search in ${resourceType.value.plural.toLowerCase()}`,
       type: "SEARCH",
       searchTables: ["collectionEvents", "subpopulations"],
       initialCollapsed: false,
