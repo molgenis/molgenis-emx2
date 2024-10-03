@@ -379,7 +379,6 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  @Disabled("gives many false positive errors")
   public void testJsonYamlApi() {
     String schemaJson = given().sessionId(SESSION_ID).when().get("/pet store/api/json").asString();
 
