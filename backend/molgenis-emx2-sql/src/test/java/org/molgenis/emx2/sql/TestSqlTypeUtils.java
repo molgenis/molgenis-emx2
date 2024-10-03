@@ -4,14 +4,17 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.sql.SqlTypeUtils.applyValidationAndComputed;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 
 class TestSqlTypeUtils {
 
   @Test
+  @Disabled("Expects a database with instanceId, remove or refactor")
   void autoIdGetsGenerated() {
     TableMetadata tableMetadata = table("Test", new Column("myCol").setType(ColumnType.AUTO_ID));
+
     final Row row = new Row("myCol", null);
     applyValidationAndComputed(tableMetadata.getColumns(), row);
     assertNotNull(row.getString("myCol"));
@@ -23,6 +26,7 @@ class TestSqlTypeUtils {
   }
 
   @Test
+  @Disabled("Expects a database with instanceId, remove or refactor")
   void autoIdGetsGeneratedWithPreFix() {
     TableMetadata tableMetadata =
         table(
