@@ -12,7 +12,7 @@ public class Profiles {
    */
   private String name;
   private String description;
-  private String profileTags;
+  private String tags;
   private String demoData;
   private String settings;
   private List<String> tagsList;
@@ -75,12 +75,12 @@ public class Profiles {
     this.description = description;
   }
 
-  protected String getProfileTags() {
-    return profileTags;
+  protected String getTags() {
+    return tags;
   }
 
-  protected void setProfileTags(String profileTags) {
-    this.profileTags = profileTags;
+  protected void setTags(String tags) {
+    this.tags = tags;
   }
 
   protected String getDemoData() {
