@@ -413,6 +413,9 @@ public class WebApiSmokeTests {
         given().sessionId(SESSION_ID).when().get("/pet store yaml/api/yaml").asString();
 
     assertEquals(schemaYaml, schemaYaml2.replace("pet store yaml", PET_STORE_SCHEMA));
+
+    db.dropSchemaIfExists("pet store yaml");
+    db.dropSchemaIfExists("pet store json");
   }
 
   @Test
