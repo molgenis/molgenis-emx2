@@ -8,10 +8,10 @@ import type {
 const props = withDefaults(
   defineProps<{
     image?: string;
-    link: linkTarget;
-    linkTarget?: string;
+    link?: string;
+    linkTarget?: linkTarget;
     contact?: string;
-    contactName: string;
+    contactName?: string;
     contactTarget?: string;
     contactMessageFilter?: string;
     subjectTemplate?: string;

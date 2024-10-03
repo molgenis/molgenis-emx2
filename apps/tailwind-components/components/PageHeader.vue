@@ -37,16 +37,19 @@ defineProps({
           <slot name="title-suffix"></slot>
         </div>
       </div>
-      <p
+      <div
         v-if="slots['description']"
         class="mt-1 mb-0 text-center lg:mb-5 text-body-lg"
       >
         <slot name="description"></slot>
-      </p>
-      <p v-if="description" class="mt-1 mb-0 text-center lg:mb-5 text-body-lg">
+      </div>
+      <div
+        v-if="description"
+        class="mt-1 mb-0 text-center lg:mb-5 text-body-lg"
+      >
         <ContentReadMore v-if="truncate" :text="description" />
-        <span v-else>{{ description }}</span>
-      </p>
+        <p v-else>{{ description }}</p>
+      </div>
     </div>
     <slot name="suffix"></slot>
   </header>
