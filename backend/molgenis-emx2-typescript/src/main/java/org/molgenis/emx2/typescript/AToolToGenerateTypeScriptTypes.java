@@ -1,7 +1,7 @@
-package org.molgenis.emx2;
+package org.molgenis.emx2.typescript;
 
+import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.sql.SqlDatabase;
-import org.molgenis.emx2.typescript.Generator;
 
 public class AToolToGenerateTypeScriptTypes {
 
