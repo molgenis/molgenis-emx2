@@ -55,8 +55,8 @@ const query = gql`
         name order code parent { code }
       }
       dateEstablished
-      startDataCollection
-      endDataCollection
+      startYear
+      endYear
       license
       countries {
         name order

@@ -671,8 +671,8 @@ export interface IResources {
   keywords?: string;
   externalIdentifiers?: IExternalIdentifiers[];
   dateEstablished?: string;
-  startDataCollection?: string;
-  endDataCollection?: string;
+  startYear?: string;
+  endYear?: string;
   timeSpanDescription?: string;
   contactEmail?: string;
   logo?: IFile;

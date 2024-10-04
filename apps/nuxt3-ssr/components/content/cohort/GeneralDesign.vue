@@ -113,8 +113,8 @@ const generalDesign: IDefinitionListItem[] = [
   {
     label: "Start/End data collection",
     content: dateUtils.startEndYear(
-      props.resource.startDataCollection,
-      props.resource.endDataCollection
+      props.resource.startYear,
+      props.resource.endYear
     ),
   },
   {

@@ -31,8 +31,8 @@ export interface IResource {
     }
   ];
   dateEstablished?: string;
-  startDataCollection?: string;
-  endDataCollection?: string;
+  startYear?: string;
+  endYear?: string;
   license?: string;
   populationAgeGroups?: IOntologyNode[];
   countries: {
