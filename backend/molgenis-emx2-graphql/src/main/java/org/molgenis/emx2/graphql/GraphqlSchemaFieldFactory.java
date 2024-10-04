@@ -127,10 +127,6 @@ public class GraphqlSchemaFieldFactory {
       new GraphQLObjectType.Builder()
           .name("MolgenisRolesType")
           .field(
-              GraphQLFieldDefinition.newFieldDefinition()
-                  .name(SCHEMA_ID)
-                  .type(Scalars.GraphQLString))
-          .field(
               GraphQLFieldDefinition.newFieldDefinition().name(ROLES).type(Scalars.GraphQLString))
           .build();
   private static final GraphQLType outputMembersMetadataType =

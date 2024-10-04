@@ -36,7 +36,7 @@ public class GraphlAdminFieldFactory {
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(ROLES)
-                  .type(GraphQLList.list(outputUserRolesType))
+                  .type(GraphQLList.list(Scalars.GraphQLString))
                   .build())
           .build();
 
