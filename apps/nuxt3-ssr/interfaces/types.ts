@@ -3,6 +3,7 @@ import type {
   IFile,
   INode,
 } from "../../tailwind-components/types/types";
+import type { ISubpopulations } from "./catalogue";
 export interface IResource {
   id: string;
   pid: string;
@@ -83,7 +84,7 @@ export interface IResource {
   datasets: { name: string }[];
   populationOncologyTopology?: IOntologyNode[];
   populationOncologyMorphology?: IOntologyNode[];
-  subpopulations: any[];
+  subpopulations: ISubpopulations[];
   subpopulations_agg: { count: number };
   partOfResources: IResource[];
 }
@@ -476,3 +477,11 @@ export interface IOrganization {
 }
 
 export type linkTarget = "_self" | "_blank" | "_parent" | "_top";
+
+export type IResourceTypeMetadata = {
+  type: string;
+  plural: string;
+  image?: string;
+  path: string;
+  description?: string;
+};
