@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import type { IOntologyItem } from "metadata-utils";
+import type { IOntologyItem } from "~/interfaces/types";
 
-const { node, collapseAll } = withDefaults(
+const props = withDefaults(
   defineProps<{
     node: IOntologyItem;
     isRootNode?: boolean;
@@ -13,7 +13,7 @@ const { node, collapseAll } = withDefaults(
   }
 );
 
-let collapsed = ref(collapseAll);
+let collapsed = ref(props.collapseAll);
 const toggleCollapse = () => {
   collapsed.value = !collapsed.value;
 };

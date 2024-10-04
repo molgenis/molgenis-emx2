@@ -62,7 +62,8 @@ public class SqlTypeUtils extends TypeUtils {
           row.set(c.getName(), c.getDefaultValue());
         }
       } else if (c.getComputed() != null) {
-        row.set(c.getName(), executeJavascriptOnMap(c.getComputed(), graph));
+        Object computedValue = executeJavascriptOnMap(c.getComputed(), graph);
+        TypeUtils.addFieldObjectToRow(c, computedValue, row);
       } else if (columnIsVisible(c, graph)) {
         checkRequired(c, row, graph);
         checkValidation(c, graph);
@@ -282,7 +283,7 @@ public class SqlTypeUtils extends TypeUtils {
   }
 
   static Map<String, Object> convertRowToMap(List<Column> columns, Row row) {
-    Map<String, Object> map = new LinkedHashMap<>();
+    Map<String, Object> map = new LinkedHashMap<>(row.getValueMap());
     for (Column c : columns) {
       if (c.isReference()) {
         map.put(c.getIdentifier(), getRefFromRow(row, c));

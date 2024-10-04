@@ -77,6 +77,10 @@ public class Constants {
   };
   protected static final Operator[] EQUALITY_OPERATORS = {EQUALS, NOT_EQUALS};
 
+  protected static final String TABLE_NAME_REGEX = "^(?!.* _|.*_ )[a-zA-Z][a-zA-Z0-9 _]{0,30}$";
+
+  protected static final String COLUMN_NAME_REGEX = "^(?!.* _|.*_ )[a-zA-Z][a-zA-Z0-9 _]{0,62}$";
+
   // RFC 5322, see http://emailregex.com/
   protected static final String EMAIL_REGEX =
       "(?:[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]"

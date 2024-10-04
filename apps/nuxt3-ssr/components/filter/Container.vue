@@ -1,9 +1,11 @@
 <script setup lang="ts">
+import type { IFilterCondition } from "~/interfaces/types";
+
 const props = withDefaults(
   defineProps<{
     title: string;
-    conditions: any[];
-    search: string;
+    conditions: IFilterCondition[];
+    search?: string;
     initialCollapsed?: boolean;
     mobileDisplay?: boolean;
   }>(),
@@ -14,7 +16,7 @@ const props = withDefaults(
 );
 
 let isCollapsed = ref(props.initialCollapsed);
-let selected = ref([]);
+let selected = ref<IFilterCondition[]>([]);
 
 const emit = defineEmits(["update:conditions", "update:search"]);
 
