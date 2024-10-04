@@ -1,9 +1,9 @@
 <template>
   <div :id="`${id}-checkbox-group`">
+    {{ modelValue }}
     <div
       class="flex justify-start align-center"
       v-for="option in checkboxOptions"
-      :key="option.value"
     >
       <InputCheckbox
         :id="`${id}-checkbox-group-${option.value}`"
@@ -11,13 +11,15 @@
         :name="id"
         :value="option.value"
         v-model="modelValue"
-        :checked="option.value === modelValue"
       />
-      <InputCheckboxIcon :checked="option.value === modelValue" />
+      <!-- :checked="true" -->
+      <!-- :checked="modelValue ? modelValue.indexOf(option.value) > -1 : false" -->
       <InputLabel
         :for="`${id}-checkbox-group-${option.value}`"
-        class="hover:cursor-pointer"
+        class="hover:cursor-pointer flex flex-row gap-1"
       >
+        <!-- :checked="modelValue ? modelValue.indexOf(option.value) > -1 : false" -->
+        <InputCheckboxIcon class="mr-2.5" />
         <template v-if="option.label">
           {{ option.label }}
         </template>
@@ -52,13 +54,13 @@ withDefaults(
     showClearButton?: boolean;
   }>(),
   {
-    showClearButton: false,
+    showClearButton: true,
   }
 );
 
-const modelValue = defineModel<string>();
+const modelValue = defineModel<string[] | boolean[]>();
 
 function resetModelValue() {
-  modelValue.value = "";
+  modelValue.value = [];
 }
 </script>
