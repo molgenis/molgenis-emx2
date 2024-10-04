@@ -113,8 +113,8 @@ export default {
   computed: {
     canEdit() {
       return (
-        this.session != null &&
-        (this.session.email == "admin" ||
+        this.session !== null &&
+        (this.session.email === "admin" ||
           this.session.roles.includes("Manager"))
       );
     },

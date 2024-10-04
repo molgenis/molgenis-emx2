@@ -10,8 +10,9 @@ import graphql.schema.*;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import org.molgenis.emx2.Database;
-import org.molgenis.emx2.User;
+import org.molgenis.emx2.*;
+import org.molgenis.emx2.sql.MetadataUtils;
+import org.molgenis.emx2.sql.SqlDatabase;
 
 public class GraphlAdminFieldFactory {
   private GraphlAdminFieldFactory() {
@@ -85,20 +86,26 @@ public class GraphlAdminFieldFactory {
     int limit = args.containsKey(LIMIT) ? (int) args.get(LIMIT) : 100;
     int offset = args.containsKey(OFFSET) ? (int) args.get(OFFSET) : 0;
     String email = args.containsKey(EMAIL) ? (String) args.get(EMAIL) : null;
+    List<Member> members = MetadataUtils.loadUserRoles((SqlDatabase) db);
+
     if (email != null) {
-      return List.of(toGraphqlUser(db.getUser(email)));
+      return List.of(toGraphqlUser(db.getUser(email), members));
     } else {
-      return db.getUsers(limit, offset).stream()
-          .map(GraphlAdminFieldFactory::toGraphqlUser)
-          .toList();
+      return db.getUsers(limit, offset).stream().map(user -> toGraphqlUser(user, members)).toList();
     }
   }
 
-  private static Map<String, Object> toGraphqlUser(User user) {
+  private static Map<String, Object> toGraphqlUser(User user, List<Member> members) {
     Map<String, Object> result = new LinkedHashMap<>();
     result.put(EMAIL, user.getUsername());
     result.put(SETTINGS, mapSettingsToGraphql(user.getSettings()));
-    result.put(ROLES, user.getRoles());
+
+    List<String> roles =
+        members.stream()
+            .filter(member -> member.getUser().equals(user.getUsername()))
+            .map(Member::getRole)
+            .toList();
+    result.put(ROLES, roles);
     return result;
   }
 

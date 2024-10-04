@@ -2,17 +2,14 @@ package org.molgenis.emx2;
 
 import static java.util.Objects.requireNonNull;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 public class User extends HasSettings<User> {
   private static final String TOKENS = "access-tokens";
   private String username;
   private Database database;
 
-  private String[] roles;
+  private Map<String, String> roles = new HashMap<>();
 
   User(String username) {
     // for testing protected
@@ -77,7 +74,12 @@ public class User extends HasSettings<User> {
     database.saveUser(this);
   }
 
-  public String[] getRoles() {
+  public Map<String, String> getRoles() {
     return this.roles;
+  }
+
+  public void setRoles(Map<String, String> roles) {
+    this.roles.clear();
+    this.roles.putAll(roles);
   }
 }
