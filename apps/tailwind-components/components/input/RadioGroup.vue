@@ -14,13 +14,10 @@
         :checked="option.value === modelValue"
       />
       <InputLabel
-      :for="`${id}-radio-group-${option.value}`"
-      class="hover:cursor-pointer flex flex-row gap-1"
+        :for="`${id}-radio-group-${option.value}`"
+        class="hover:cursor-pointer flex flex-row gap-1"
       >
-        <InputRadioIcon 
-          :checked="modelValue === option.value"
-          class="mr-2.5"
-        />
+        <InputRadioIcon :checked="modelValue === option.value" class="mr-2.5" />
         <template v-if="option.label">
           {{ option.label }}
         </template>
