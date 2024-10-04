@@ -52,4 +52,19 @@ const requiredSelection = ref<string>("No");
       <p>Answer: {{ requiredSelection }}</p>
     </div>
   </div>
+  <form>
+    <legend class="text-title">
+      Which features would you like to make available for end users?
+    </legend>
+    <InputCheckboxGroup
+      id="example-4"
+      :checkbox-options="[
+        { value: 'database', label: 'Building databases from templates or importing your own' },
+        { value: 'scripts', label: 'Writing and executing scripts' },
+        { value: 'apps', label: 'Designing and developing custom interfaces' },
+        { value: 'users', label: 'Managing user accounts and access levels' },
+      ]"
+    />
+  </form>
+  
 </template>
