@@ -30,6 +30,7 @@ export interface IResource {
       externalIdentifierType: INameObject;
     }
   ];
+  dateLastRefresh?: string;
   startYear?: string;
   endYear?: string;
   license?: string;

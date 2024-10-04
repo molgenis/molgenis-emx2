@@ -54,6 +54,7 @@ const query = gql`
       populationAgeGroups {
         name order code parent { code }
       }
+      dateLastRefresh
       startYear
       endYear
       license

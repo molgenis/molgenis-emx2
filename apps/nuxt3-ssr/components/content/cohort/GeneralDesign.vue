@@ -107,6 +107,10 @@ const generalDesign: IDefinitionListItem[] = [
     content: props.resource.keywords,
   },
   {
+    label: "Date last refresh",
+    content: props.resource.dateLastRefresh,
+  },
+  {
     label: "Start/End data collection",
     content: dateUtils.startEndYear(
       props.resource.startYear,
