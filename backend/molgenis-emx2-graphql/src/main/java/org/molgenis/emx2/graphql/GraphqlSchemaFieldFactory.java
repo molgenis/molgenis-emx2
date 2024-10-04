@@ -12,12 +12,14 @@ import static org.molgenis.emx2.json.JsonUtil.jsonToSchema;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.Scalars;
 import graphql.schema.*;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
+
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.json.JsonUtil;
 import org.molgenis.emx2.sql.SqlDatabase;
@@ -115,7 +117,7 @@ public class GraphqlSchemaFieldFactory {
           .field(
               GraphQLInputObjectField.newInputObjectField().name(KEY).type(Scalars.GraphQLString))
           .build();
-  public static final GraphQLType outputRolesType =
+  private static final GraphQLType outputRolesType =
       new GraphQLObjectType.Builder()
           .name("MolgenisRolesType")
           .field(
@@ -123,12 +125,7 @@ public class GraphqlSchemaFieldFactory {
                   .name(GraphqlConstants.NAME)
                   .type(Scalars.GraphQLString))
           .build();
-  public static final GraphQLType outputUserRolesType =
-      new GraphQLObjectType.Builder()
-          .name("MolgenisRolesType")
-          .field(
-              GraphQLFieldDefinition.newFieldDefinition().name(ROLES).type(Scalars.GraphQLString))
-          .build();
+
   private static final GraphQLType outputMembersMetadataType =
       new GraphQLObjectType.Builder()
           .name("MolgenisMembersType")
