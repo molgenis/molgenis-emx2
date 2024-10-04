@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { IResource, IMgError } from "~/interfaces/types";
-const config = useRuntimeConfig();
 const route = useRoute();
 const query = `
   query Resources($id: String) {
@@ -19,7 +18,7 @@ const query = `
 
 interface IResponse {
   data: {
-    Resources: IResources[];
+    Resources: IResource[];
   };
 }
 
@@ -49,7 +48,7 @@ crumbs[
 <template>
   <LayoutsDetailPage>
     <template #header>
-      <PageHeader :title="network?.name" :description="network?.label">
+      <PageHeader :title="network?.name" :description="network?.description">
         <template #prefix>
           <BreadCrumbs :crumbs="crumbs" />
         </template>
