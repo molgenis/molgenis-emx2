@@ -728,12 +728,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     return null;
   }
 
-  @Override
-  public List<Member> getUserRoles() {
-    return MetadataUtils.loadUserRoles(this);
-  }
-
-  public Database setBindings(Map<String, Supplier<Object>> bindings) {
+   public Database setBindings(Map<String, Supplier<Object>> bindings) {
     this.javaScriptBindings = bindings;
     return this;
   }

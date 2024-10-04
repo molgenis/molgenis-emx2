@@ -90,8 +90,6 @@ public interface Database extends HasSettingsInterface<Database> {
 
   User getUser(String userName);
 
-  List<Member> getUserRoles();
-
   void saveUser(User user);
 
   boolean isAnonymous();
