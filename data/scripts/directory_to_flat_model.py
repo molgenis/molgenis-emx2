@@ -5,7 +5,6 @@ Script to convert the BBMRI-ERIC directory data to the flat model
 import argparse
 import molgenis_emx2_pyclient
 import pandas as pd
-import numpy as np
 
 
 def map_persons_to_contacts(persons):
@@ -38,6 +37,7 @@ def map_persons_to_contacts(persons):
 
 def map_collections_to_resources(collections):
     """Maps the BBMRI-ERIC Collections table to the flat data model's Resources table"""
+    # TODO: Collections will be mapped to Samplesets instead
     # Rename and create columns
     collections.rename(columns={'url': 'website'}, inplace=True)
     collections['resources'] = ''
@@ -72,10 +72,11 @@ def map_biobanks_to_resources(biobanks, resources):
     biobanks['name'] = biobanks['name'] + ' (id: ' + biobanks['id'] + ')'
     # Add default type 'Biobank
     biobanks['type'] = 'Biobank'
-    # TODO: link biobank to its component sample collections
+    # TODO: link biobank to all its component sample collections
+    # TODO: collections will be samplesets, so change to use samplesets column, which has reverse reference direction
     return biobanks
 
-def map_networks_to_resources(networks, resources):
+def map_networks_to_resources(networks, biobanks):
     """Maps the BBMRI-ERIC Networks table to the flat data model's Resources table"""
     # Rename and create columns
     networks = networks.rename(columns={'url': 'website'})
@@ -90,6 +91,8 @@ def map_networks_to_resources(networks, resources):
             if networks.loc[p_n, 'resources'] != '':
                 networks.loc[p_n, 'resources'] += ','
             networks.loc[p_n, 'resources'] += idx
+    # Link network to its component biobanks
+
     return networks
 
 
@@ -130,10 +133,9 @@ def main():
             resources = pd.concat([resources, mapped_biobanks.reindex(columns = mapped_columns)])
             # Map networks to resources
             networks = client.get('Networks', as_df=True)
-            mapped_networks = map_networks_to_resources(networks.copy(), resources) # Unnecessary copy?
+            mapped_networks = map_networks_to_resources(networks.copy(), biobanks) # Unnecessary copy?
             resources = pd.concat([resources, mapped_networks.reindex(columns = mapped_columns)])
             # Create BBMRI-ERIC network, add all top-level networks as sub-networks
-            # TODO: check if this is desired, or whether everything should be associated to the top-level network as well as in testNetworkofNetworks
             BBMRI_network = [{'id': 'BBMRI-ERIC', 'name': 'BBMRI-ERIC', 'type': 'Network', 'description': 'BBMRI-ERIC directory mapped to flat model'}]
             BBMRI_network[0]['resources'] = ','.join(mapped_networks.loc[mapped_networks['parent_network'] == '', 'id'])
             resources = pd.concat([resources, pd.DataFrame.from_records(BBMRI_network)])
