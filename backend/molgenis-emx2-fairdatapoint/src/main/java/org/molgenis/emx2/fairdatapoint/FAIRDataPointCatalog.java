@@ -2,8 +2,7 @@ package org.molgenis.emx2.fairdatapoint;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.eclipse.rdf4j.model.util.Values.literal;
-import static org.molgenis.emx2.rdf.RDFService.*;
-import static org.molgenis.emx2.rdf.RDFUtils.*;
+import static org.molgenis.emx2.utils.URIUtils.*;
 
 import graphql.ExecutionResult;
 import graphql.GraphQL;
@@ -67,7 +66,7 @@ public class FAIRDataPointCatalog {
                 + "title,"
                 + "hasVersion,"
                 + "description,"
-                + "publisher,"
+                + "publisher{name},"
                 + "language{ontologyTermURI},"
                 + "license,"
                 + "themeTaxonomy,"
@@ -144,8 +143,11 @@ public class FAIRDataPointCatalog {
     builder.add(reqUrl, DCTERMS.LICENSE, iri(TypeUtils.toString(catalogFromJSON.get("license"))));
     builder.add(reqUrl, DCTERMS.CONFORMS_TO, apiFdpCatalogProfileEnc);
     builder.add(reqUrl, DCTERMS.IS_PART_OF, apiFdpEnc);
-    builder.add(
-        reqUrl, DCAT.THEME_TAXONOMY, iri(TypeUtils.toString(catalogFromJSON.get("themeTaxonomy"))));
+    List<IRI> themeList =
+        convertHyperlinkListToIRIs((ArrayList<String>) catalogFromJSON.get("themeTaxonomy"));
+    for (IRI theme : themeList) {
+      builder.add(reqUrl, DCAT.THEME_TAXONOMY, theme);
+    }
     builder.add(apiFdpEnc, iri("https://w3id.org/fdp/fdp-o#metadataIdentifier"), reqUrl);
 
     builder.add(
@@ -195,7 +197,11 @@ public class FAIRDataPointCatalog {
       for (String propertyValue : (List<String>) catalogFromJSON.get("propertyValue")) {
         String[] propertyValueSplit = propertyValue.split(" ", -1);
         nullCheckOnPropVal(propertyValueSplit);
-        builder.add(reqUrl, iri(propertyValueSplit[0]), iri(propertyValueSplit[1]));
+        if (propertyValueSplit[1].startsWith("http")) {
+          builder.add(reqUrl, iri(propertyValueSplit[0]), iri(propertyValueSplit[1]));
+        } else {
+          builder.add(reqUrl, iri(propertyValueSplit[0]), propertyValueSplit[1]);
+        }
       }
     }
 

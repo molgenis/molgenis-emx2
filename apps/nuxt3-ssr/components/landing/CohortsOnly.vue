@@ -11,20 +11,20 @@ const { data, pending, error, refresh } = await useFetch(
         Variables_agg {
           count
         }
-        Cohorts_agg { 
+        Resources_agg {
           count
           _sum {
             numberOfParticipants
             numberOfParticipantsWithSamples 
           }
         }
-        Subcohorts_agg {
+        Subpopulations_agg {
           count
         }
         Networks_agg { 
           count
         }
-        Cohorts_groupBy {
+        Resources_groupBy {
           count 
           design {
             name
@@ -77,7 +77,7 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
 }
 </script>
 <template>
-  <LayoutsLandingPage class="w-10/12 pt-8">
+  <LayoutsLandingPage>
     <PageHeader
       class="mx-auto lg:w-7/12 text-center"
       :title="
@@ -220,12 +220,12 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
 
       <LandingCardSecondary icon="viewTable">
         <b>
-          {{ data.data.Subcohorts_agg.count }}
+          {{ data.data.Subpopulations_agg.count }}
           {{
             getSettingValue(
               "CATALOGUE_LANDING_SUBCOHORTS_LABEL",
               data.data._settings
-            ) || "Subcohorts"
+            ) || "Subpopulations"
           }}
         </b>
         <br />
@@ -233,7 +233,7 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
           getSettingValue(
             "CATALOGUE_LANDING_SUBCOHORTS_TEXT",
             data.data._settings
-          ) || "The total number of subcohorts included"
+          ) || "The total number of cohorts included"
         }}
       </LandingCardSecondary>
     </div>

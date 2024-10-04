@@ -60,8 +60,7 @@ public class TestImportExportAllExamples {
   @Test
   public void testPetStoreExample() throws IOException {
     SchemaMetadata schema1 = new SchemaMetadata("7");
-    schema1.create(
-        new PetStoreLoader().getSchemaMetadata().getTables().toArray(new TableMetadata[0]));
+    schema1.create(PetStoreLoader.getSchemaMetadata().getTables().toArray(new TableMetadata[0]));
     executeCompare(schema1);
   }
 

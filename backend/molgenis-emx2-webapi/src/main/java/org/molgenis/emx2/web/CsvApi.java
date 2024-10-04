@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.graphql.GraphqlConstants;
+import org.molgenis.emx2.io.ImportTableTask;
 import org.molgenis.emx2.io.emx2.Emx2;
 import org.molgenis.emx2.io.readers.CsvTableReader;
 import org.molgenis.emx2.io.readers.CsvTableWriter;
@@ -54,19 +55,26 @@ public class CsvApi {
 
   static String mergeMetadata(Request request, Response response) {
     String fileName = request.headers("fileName");
-    boolean fileNameMatchesTable = getSchema(request).getTableNames().contains(fileName);
+    boolean fileNameMatchesTable = getSchema(request).hasTableWithNameOrIdCaseInsensitive(fileName);
 
-    if (fileNameMatchesTable) {
-      // so we assume it isn't meta data
-      int count = MolgenisWebservice.getTableById(request, fileName).save(getRowList(request));
-      response.status(200);
-      response.type(ACCEPT_CSV);
-      return "imported number of rows: " + count;
+    if (fileNameMatchesTable) { // so we assume it isn't meta data
+      Table table = MolgenisWebservice.getTableByIdOrName(request, fileName);
+      if (request.queryParams("async") != null) {
+        TableStoreForCsvInMemory tableStore = new TableStoreForCsvInMemory();
+        tableStore.setCsvString(table.getName(), request.body());
+        String id = TaskApi.submit(new ImportTableTask(tableStore, table, false));
+        return new TaskReference(id, table.getSchema()).toString();
+      } else {
+        int count = table.save(getRowList(request));
+        response.status(200);
+        response.type(ACCEPT_CSV);
+        return "{ \"message\": \"imported number of rows: \" + " + count + " }";
+      }
     } else {
       SchemaMetadata schema = Emx2.fromRowList(getRowList(request));
       getSchema(request).migrate(schema);
       response.status(200);
-      return "add/update metadata success";
+      return "{ \"message\": \"add/update metadata success\" }";
     }
   }
 
@@ -88,7 +96,7 @@ public class CsvApi {
   }
 
   private static String tableRetrieve(Request request, Response response) throws IOException {
-    Table table = MolgenisWebservice.getTableById(request);
+    Table table = MolgenisWebservice.getTableByIdOrName(request);
     TableStoreForCsvInMemory store = new TableStoreForCsvInMemory(getSeperator(request));
     store.writeTable(
         table.getName(), getDownloadColumns(request, table), getDownloadRows(request, table));
@@ -124,7 +132,7 @@ public class CsvApi {
   }
 
   private static String tableUpdate(Request request, Response response) {
-    int count = MolgenisWebservice.getTableById(request).save(getRowList(request));
+    int count = MolgenisWebservice.getTableByIdOrName(request).save(getRowList(request));
     response.status(200);
     response.type(ACCEPT_CSV);
     return "" + count;
@@ -135,7 +143,7 @@ public class CsvApi {
   }
 
   private static String tableDelete(Request request, Response response) {
-    int count = MolgenisWebservice.getTableById(request).delete(getRowList(request));
+    int count = MolgenisWebservice.getTableByIdOrName(request).delete(getRowList(request));
     response.type(ACCEPT_CSV);
     response.status(200);
     return "" + count;

@@ -4,7 +4,7 @@ import static org.eclipse.rdf4j.model.util.Values.*;
 import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
-import static org.molgenis.emx2.rdf.RDFUtils.*;
+import static org.molgenis.emx2.utils.URIUtils.*;
 
 import com.google.common.net.UrlEscapers;
 import java.io.OutputStream;
@@ -192,6 +192,12 @@ public class RDFService {
         }
         final List<Table> tables = table != null ? Arrays.asList(table) : schema.getTablesSorted();
         for (final Table tableToDescribe : tables) {
+          // for full-schema retrieval, don't print the (huge and mostly unused) ontologies
+          // of course references to ontologies are still included and are fully retrievable
+          if (table == null
+              && tableToDescribe.getMetadata().getTableType().equals(TableType.ONTOLOGIES)) {
+            continue;
+          }
           if (rowId == null) {
             describeTable(builder, tableToDescribe);
             describeColumns(builder, tableToDescribe, columnName);
@@ -316,6 +322,7 @@ public class RDFService {
     } else {
       builder.add(subject, RDFS.SUBCLASSOF, getTableIRI(parent));
     }
+    // Any custom semantics are always added, regardless of table type (DATA/ONTOLOGIES)
     if (table.getMetadata().getSemantics() != null) {
       for (final String tableSemantics : table.getMetadata().getSemantics()) {
         try {
@@ -330,12 +337,15 @@ public class RDFService {
               e);
         }
       }
-    } else if (table.getMetadata().getTableType() == TableType.ONTOLOGIES) {
+    }
+    // Add 'observing' for any DATA
+    if (table.getMetadata().getTableType() == TableType.DATA) {
+      builder.add(subject, RDFS.ISDEFINEDBY, IRI_OBSERVING);
+    }
+    // Add 'controlled vocab' and 'concept scheme' for any ONTOLOGIES
+    if (table.getMetadata().getTableType() == TableType.ONTOLOGIES) {
       builder.add(subject, RDFS.ISDEFINEDBY, IRI_CONTROLLED_VOCABULARY);
       builder.add(subject, RDFS.SUBCLASSOF, SKOS.CONCEPT_SCHEME);
-
-    } else {
-      builder.add(subject, RDFS.ISDEFINEDBY, IRI_OBSERVING);
     }
     builder.add(subject, RDFS.LABEL, table.getName());
 
@@ -350,8 +360,8 @@ public class RDFService {
       final ModelBuilder builder, final Table table, final String columnName) {
     if (table.getMetadata().getTableType() == TableType.DATA) {
       for (final Column column : table.getMetadata().getNonInheritedColumns()) {
-        // Exclude the system columns like mg_insertedBy
-        if (column.isSystemColumn()) {
+        // Exclude the system columns that refer to specific users
+        if (column.isSystemAddUpdateByUserColumn()) {
           continue;
         }
         if (columnName == null || columnName.equals(column.getName())) {
@@ -479,7 +489,7 @@ public class RDFService {
               subject, IRI_CONTROLLED_VOCABULARY, Values.literal(row.getString("codesystem")));
         }
         if (row.getString("definition") != null) {
-          // builder.add(subject, SKOS.DEFINITION, Values.literal(row.getString("definition")));
+          builder.add(subject, SKOS.DEFINITION, Values.literal(row.getString("definition")));
         }
         if (row.getString(ONTOLOGY_TERM_URI) != null) {
           builder.add(subject, OWL.SAMEAS, Values.iri(row.getString(ONTOLOGY_TERM_URI)));
@@ -495,7 +505,7 @@ public class RDFService {
         builder.add(subject, RDF.TYPE, IRI_OBSERVATION);
         if (table.getMetadata().getSemantics() != null) {
           for (String semantics : table.getMetadata().getSemantics()) {
-            builder.add(subject, RDF.TYPE, semantics);
+            builder.add(subject, RDF.TYPE, iri(semantics));
           }
         }
         builder.add(subject, IRI_DATASET_PREDICATE, tableIRI);
@@ -507,8 +517,8 @@ public class RDFService {
           table = getSubclassTableForRowBasedOnMgTableclass(table, row);
         }
         for (final Column column : table.getMetadata().getColumns()) {
-          // Exclude the system columns like mg_insertedBy
-          if (column.isSystemColumn()) {
+          // Exclude the system columns that refer to specific users
+          if (column.isSystemAddUpdateByUserColumn()) {
             continue;
           }
           IRI columnIRI = getColumnIRI(column);

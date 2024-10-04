@@ -1,10 +1,10 @@
 import type { IRow } from "../Interfaces/IRow";
 import constants from "./constants";
 import Client from "../client/client";
-import type { IColumn } from "meta-data-utils";
+import type { IColumn, ITableMetaData } from "metadata-utils";
+import { executeExpression } from "./forms/formUtils/formUtils";
 
-const { CODE_0, CODE_9, CODE_PERIOD, CODE_MINUS, MIN_LONG, MAX_LONG } =
-  constants;
+const { CODE_0, CODE_9, CODE_PERIOD, MIN_LONG, MAX_LONG, AUTO_ID } = constants;
 
 export function isRefType(columnType: string): boolean {
   return ["REF", "REF_ARRAY", "REFBACK", "ONTOLOGY", "ONTOLOGY_ARRAY"].includes(
@@ -199,4 +199,28 @@ export function deepEqual(
 
 function isObject(object: Record<string, any> | null): object is Object {
   return object !== null && typeof object === "object";
+}
+
+export function applyComputed(rows: IRow[], tableMetadata: ITableMetaData) {
+  return rows?.map((row) => {
+    return tableMetadata.columns.reduce((accum: IRow, column: IColumn) => {
+      if (column.computed && column.columnType !== AUTO_ID) {
+        try {
+          accum[column.id] = executeExpression(
+            column.computed,
+            row,
+            tableMetadata
+          );
+        } catch (error) {
+          console.log("Computed expression failed: ", error);
+          accum[column.id] = "error: could not compute value: " + error;
+        }
+      } else if (row.hasOwnProperty(column.id)) {
+        accum[column.id] = row[column.id];
+      } else {
+        // don't add empty property that didn't exist before
+      }
+      return accum;
+    }, {});
+  });
 }

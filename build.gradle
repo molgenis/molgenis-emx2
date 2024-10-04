@@ -51,6 +51,7 @@ dependencies {
 
 mainClassName = 'org.molgenis.emx2.RunMolgenisEmx2'
 shadowJar {
+    zip64 = true
     archiveBaseName = 'molgenis-emx2'
     mergeServiceFiles()
     archiveVersion = project.version.replace("v","")
@@ -117,13 +118,6 @@ jar {
                 'Build-OS': "${System.properties['os.name']} ${System.properties['os.arch']} ${System.properties['os.version']}"
         )
     }
-}
-
-task cleandb(type: JavaExec) {
-    group = "Execution"
-    description = "Clean database. Carefull, will delete all MOLGENIS stuff"
-    classpath = sourceSets.main.runtimeClasspath
-    main = "org.molgenis.emx2.AToolToCleanDatabase"
 }
 
 //task to install pre-commit hook that applies formatting

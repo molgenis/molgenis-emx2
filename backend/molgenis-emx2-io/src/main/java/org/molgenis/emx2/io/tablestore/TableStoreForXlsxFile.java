@@ -259,9 +259,9 @@ public class TableStoreForXlsxFile implements TableStore {
             } else {
               // Check if the numeric value has a fractional part
               double numericValue = cell.getNumericCellValue();
-              if (numericValue == Math.floor(numericValue)) {
-                // It's an integer!
-                return (int) numericValue;
+              if (numericValue % 1 == 0) {
+                // It's a long!
+                return (long) numericValue;
               } else {
                 // Otherwise, treat it as decimal
                 return numericValue;

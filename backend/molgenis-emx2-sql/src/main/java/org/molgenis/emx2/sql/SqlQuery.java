@@ -121,7 +121,8 @@ public class SqlQuery extends QueryBean {
     // where
     Condition condition = whereConditions(table, tableAlias, filter, searchTerms);
     SelectConnectByStep<org.jooq.Record> where = condition != null ? from.where(condition) : from;
-    SelectConnectByStep<org.jooq.Record> query = limitOffsetOrderBy(table, select, where);
+    SelectConnectByStep<org.jooq.Record> query =
+        limitOffsetOrderBy(table, select, where, tableAlias);
 
     // execute
     try {
@@ -266,15 +267,14 @@ public class SqlQuery extends QueryBean {
               + " unknown for JSON queries in schema "
               + schema.getName());
     }
+    String tableAlias = "gql_" + table.getTableName();
     if (select.getColumn().endsWith("_agg")) {
       fields.add(
-          jsonAggregateSelect(
-                  table, null, table.getTableName(), select, getFilter(), getSearchTerms())
+          jsonAggregateSelect(table, null, tableAlias, select, getFilter(), getSearchTerms())
               .as(convertToPascalCase(select.getColumn())));
     } else if (select.getColumn().endsWith("_groupBy")) {
       fields.add(
-          jsonGroupBySelect(
-                  table, null, table.getTableName(), select, getFilter(), getSearchTerms())
+          jsonGroupBySelect(table, null, tableAlias, select, getFilter(), getSearchTerms())
               .as(convertToPascalCase(select.getColumn())));
     } else {
       // select all on root level as default
@@ -286,7 +286,7 @@ public class SqlQuery extends QueryBean {
         }
       }
       fields.add(
-          jsonSubselect(table, null, table.getTableName(), select, getFilter(), getSearchTerms())
+          jsonSubselect(table, null, tableAlias, select, getFilter(), getSearchTerms())
               .as(name(convertToPascalCase(select.getColumn()))));
     }
 
@@ -333,7 +333,7 @@ public class SqlQuery extends QueryBean {
     SelectConnectByStep<org.jooq.Record> filterQuery =
         jsonFilterQuery(
             table, List.of(asterisk()), column, tableAlias, subAlias, filters, searchTerms);
-    filterQuery = limitOffsetOrderBy(table, select, filterQuery);
+    filterQuery = limitOffsetOrderBy(table, select, filterQuery, subAlias);
 
     // use filtered/sorted/limited/offsetted to produce json including only the joins needed
     SelectConnectByStep<org.jooq.Record> from =
@@ -1408,8 +1408,11 @@ public class SqlQuery extends QueryBean {
   }
 
   private static SelectJoinStep<org.jooq.Record> limitOffsetOrderBy(
-      TableMetadata table, SelectColumn select, SelectConnectByStep<org.jooq.Record> query) {
-    query = SqlQueryBuilderHelpers.orderBy(table, select, query);
+      TableMetadata table,
+      SelectColumn select,
+      SelectConnectByStep<org.jooq.Record> query,
+      String tableAlias) {
+    query = SqlQueryBuilderHelpers.orderBy(table, select, query, tableAlias);
     if (select.getLimit() > 0) {
       query = (SelectConditionStep) query.limit(select.getLimit());
     }

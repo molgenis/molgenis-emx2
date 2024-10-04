@@ -14,36 +14,33 @@ const cohortOnly = computed(() => {
 
 const catalogueRouteParam = route.params.catalogue as string;
 
-const menu = [
-  {
+const menu: { label: string; link: string }[] = [];
+
+if (route.params.resourceType) {
+  menu.push({
     label: "overview",
     link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}`,
-  },
-];
-if (catalogueRouteParam === "all" || props.catalogue.cohorts_agg?.count > 0)
-  menu.push({
-    label: "Cohorts",
-    link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/cohorts`,
   });
-if (
-  (!cohortOnly.value && catalogueRouteParam === "all") ||
-  (!cohortOnly.value && props.catalogue.dataSources_agg?.count > 0)
-)
-  menu.push({
-    label: "Data sources",
-    link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/datasources`,
-  });
+}
+
+if (props.catalogue.resources_groupBy?.length) {
+  props.catalogue.resources_groupBy.forEach(
+    (sub: { type: { name: string }; count: string }) => {
+      const resourceTypeMetadata = getResourceMetadataForType(sub.type.name);
+      menu.push({
+        label: resourceTypeMetadata.plural,
+        link:
+          `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/` +
+          resourceTypeMetadata.path,
+      });
+    }
+  );
+}
 
 if (!cohortOnly.value && props.variableCount > 0)
   menu.push({
     label: "Variables",
     link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/variables`,
-  });
-
-if (!cohortOnly.value && props.catalogue?.networks_agg?.count > 0)
-  menu.push({
-    label: "Networks",
-    link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/networks`,
   });
 
 if (cohortOnly.value) {
@@ -54,7 +51,7 @@ if (cohortOnly.value) {
 } else if (catalogueRouteParam && catalogueRouteParam !== "all") {
   menu.push({
     label: "About",
-    link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/networks/${catalogueRouteParam}`,
+    link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/about-catalogue`,
   });
 }
 

@@ -24,7 +24,10 @@ const bannerHtml = computed(() => {
   <Container>
     <slot name="header"></slot>
     <div class="xl:flex xl:items-start">
-      <aside class="xl:w-82.5 sticky top-[30px] flex-shrink-0 hidden xl:block">
+      <aside
+        v-if="$slots.side"
+        class="xl:w-82.5 sticky top-[30px] flex-shrink-0 hidden xl:block"
+      >
         <slot name="side"></slot>
       </aside>
 
@@ -33,5 +36,9 @@ const bannerHtml = computed(() => {
       </div>
     </div>
   </Container>
-  <FooterComponent />
+  <FooterComponent>
+    <ClientOnly>
+      <FooterVersion />
+    </ClientOnly>
+  </FooterComponent>
 </template>
