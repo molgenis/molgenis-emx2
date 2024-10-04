@@ -728,7 +728,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     return null;
   }
 
-   public Database setBindings(Map<String, Supplier<Object>> bindings) {
+  public Database setBindings(Map<String, Supplier<Object>> bindings) {
     this.javaScriptBindings = bindings;
     return this;
   }
