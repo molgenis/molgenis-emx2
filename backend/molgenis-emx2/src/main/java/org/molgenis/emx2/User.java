@@ -9,8 +9,6 @@ public class User extends HasSettings<User> {
   private String username;
   private Database database;
 
-  private Map<String, String> roles = new HashMap<>();
-
   User(String username) {
     // for testing protected
     requireNonNull(username);
@@ -72,14 +70,5 @@ public class User extends HasSettings<User> {
     }
     this.setSetting(TOKENS, tokensString);
     database.saveUser(this);
-  }
-
-  public Map<String, String> getRoles() {
-    return this.roles;
-  }
-
-  public void setRoles(Map<String, String> roles) {
-    this.roles.clear();
-    this.roles.putAll(roles);
   }
 }
