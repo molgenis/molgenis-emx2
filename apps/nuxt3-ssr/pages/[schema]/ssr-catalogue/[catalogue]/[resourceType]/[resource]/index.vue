@@ -148,6 +148,7 @@ const query = gql`
       releaseDescription
       fundingStatement
       acknowledgements
+      linkageOptions
       prelinked
       documentation {
         name
