@@ -670,7 +670,6 @@ export interface IResources {
   description?: string;
   keywords?: string;
   externalIdentifiers?: IExternalIdentifiers[];
-  dateEstablished?: string;
   startYear?: string;
   endYear?: string;
   timeSpanDescription?: string;

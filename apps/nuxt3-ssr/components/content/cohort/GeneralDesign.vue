@@ -107,10 +107,6 @@ const generalDesign: IDefinitionListItem[] = [
     content: props.resource.keywords,
   },
   {
-    label: "Date established",
-    content: props.resource.dateEstablished,
-  },
-  {
     label: "Start/End data collection",
     content: dateUtils.startEndYear(
       props.resource.startYear,
