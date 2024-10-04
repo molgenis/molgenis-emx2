@@ -651,6 +651,7 @@ const showPopulation = computed(
         </TableContent>
 
         <ContentBlock
+          v-if="networks.length"
           title="Networks"
           id="Networks"
           description="Part of networks"
