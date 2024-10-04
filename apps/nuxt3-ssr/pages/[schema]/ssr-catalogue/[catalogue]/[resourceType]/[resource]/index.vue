@@ -672,6 +672,7 @@ const showPopulation = computed(
                     ]
                   : []
               "
+              target="_blank"
             />
           </ReferenceCardList>
         </ContentBlock>
