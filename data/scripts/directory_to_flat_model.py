@@ -17,19 +17,22 @@ def map_persons_to_contacts(persons):
     persons['last name'] = persons['last name'].replace(
         r'^$', 'LastName', regex=True)
     # Do partial mappings of title_before_name to pre-defined titles
+    # TODO: update when flat data model supports post-nominal titles
     persons['title_before_name'] = persons['title_before_name'].str.lower(
     ).str.replace('[^a-z]', '', regex=True)
     title_mapping = {'dr': 'dr.', 'profdr': 'prof. dr.', 'prof': 'prof.', 'mwdr': 'dr.',
                      'profdrmed': 'prof. dr.', 'pddr': 'dr.', 'drrernat': 'dr.', 'drmed': 'dr.'}
     persons['title'] = persons['title_before_name'].map(title_mapping)
-    # Partial mappings of hand-entered roles to pre-defined roles
+    # Partial mappings of manually entered roles to pre-defined roles
     role_mapping = {'PI': 'Principal Investigator', 'Principal Investigator': 'Principal Investigator',
                     'Principal Investigators': 'Principal Investigator', 'Principle Investigator': 'Principal Investigator',
-                    'Project coordinator': 'Project manager', 'Project Co-ordinator': 'Project manager'}
+                    'Project coordinator': 'Project manager', 'Project Co-ordinator': 'Project manager', 'Project Coordinator': 'Project manager'}
     persons['role'] = persons['role description'].map(role_mapping)
+    # Add role 'Other' for un-mapped roles
+    persons.loc[(persons['role description'] != '') & (persons['role'].isna()), 'role'] = 'Other'
     # Add everyone to dummy organisation for now
     persons['resource'] = 'INMA'
-    # Ugly temporary fix to make duplicate keys unique by appending id after last name
+    # FIXME: make duplicate keys unique by appending id after last name
     persons['last name'] = persons['last name'] + ' ' + persons['id']
 
     return persons
