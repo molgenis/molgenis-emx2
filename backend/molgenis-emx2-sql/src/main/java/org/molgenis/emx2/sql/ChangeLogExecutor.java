@@ -140,11 +140,12 @@ public class ChangeLogExecutor {
             .from(table(name(schemasWithChangeLog.get(0), MG_CHANGLOG)))
             .orderBy(STAMP.desc())
             .limit(1);
+
     // union the select for schema's in a loop
-    for (String schemaName : schemasWithChangeLog) {
+    for (int i = 1; i < schemasWithChangeLog.size(); i++) {
       query.unionAll(
           jooq.select(OPERATION, STAMP, USERID, TABLENAME)
-              .from(table(name(schemaName, MG_CHANGLOG)))
+              .from(table(name(schemasWithChangeLog.get(i), MG_CHANGLOG)))
               .orderBy(STAMP.desc())
               .limit(1));
     }
@@ -169,7 +170,7 @@ public class ChangeLogExecutor {
     // join in the schema names with the records
     List<LastUpdate> lastUpdates =
         new java.util.ArrayList<>(
-            IntStream.range(0, schemasWithChangeLog.size())
+            IntStream.range(0, lastUpdatesWithOutSchemaName.size())
                 .mapToObj(
                     i -> {
                       LastUpdate lastUpdate = lastUpdatesWithOutSchemaName.get(i);
