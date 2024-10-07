@@ -574,12 +574,6 @@ const showPopulation = computed(
         >
         </ContentBlockContact>
 
-        <ContentBlockVariables
-          id="Variables"
-          title="Variables &amp; Topics"
-          description="Explantation about variables and the functionality seen here."
-        />
-
         <ContentBlockData
           id="AvailableData"
           title="Available Data &amp; Samples"
@@ -651,6 +645,7 @@ const showPopulation = computed(
         </TableContent>
 
         <ContentBlock
+          v-if="networks.length"
           title="Networks"
           id="Networks"
           description="Part of networks"
