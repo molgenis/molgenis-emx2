@@ -1,10 +1,4 @@
-type IResourceTypeMetadata = {
-  type: string;
-  plural: string;
-  image?: string;
-  path: string;
-  description?: string;
-};
+import type { IResourceTypeMetadata } from "~/interfaces/types";
 
 export const typeMetadata: IResourceTypeMetadata[] = [
   {
@@ -49,21 +43,6 @@ export function getResourceMetadataForType(
   return (
     Object.values(typeMetadata).filter(
       (value: IResourceTypeMetadata) => value.type === type
-    )?.[0] || {
-      type: "Resource",
-      plural: "Resources",
-      image: "image-link",
-      path: "resources",
-    }
-  );
-}
-
-export function getResourceMetadataForPath(
-  path: string
-): IResourceTypeMetadata {
-  return (
-    Object.values(typeMetadata).filter(
-      (value: IResourceTypeMetadata) => value.path === path
     )?.[0] || {
       type: "Resource",
       plural: "Resources",

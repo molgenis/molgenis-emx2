@@ -5,7 +5,7 @@ const props = withDefaults(
   defineProps<{
     id: string;
     label?: string;
-    value?: string;
+    modelValue?: string;
     placeholder?: string;
     disabled?: boolean;
     required?: boolean;
@@ -20,10 +20,14 @@ const props = withDefaults(
   }
 );
 
-const emit = defineEmits(["focus", "input", "error", "update:modelValue"]);
+const emit = defineEmits([
+  "focus",
+  "blur",
+  "input",
+  "error",
+  "update:modelValue",
+]);
 defineExpose({ validate });
-
-const modelValue = ref("");
 
 function validate(value: columnValue) {
   if (props.required && value === "") {
@@ -34,14 +38,18 @@ function validate(value: columnValue) {
     emit("error", []);
   }
 }
+
+function onInput(event: Event) {
+  const inputElement = event.target as HTMLInputElement;
+  emit("update:modelValue", inputElement.value);
+  validate(inputElement.value);
+}
 </script>
 
 <template>
   <textarea
     :id="id"
     :required="required"
-    @focus="$emit('focus')"
-    @input="$emit('input')"
     :placeholder="placeholder"
     :disabled="disabled"
     class="w-full pr-16 font-sans text-black text-gray-300 outline-none rounded-textarea-input h-60 pl-3 shadow-search-input focus:shadow-search-input hover:shadow-search-input search-input-mobile border py-2"
@@ -51,6 +59,9 @@ function validate(value: columnValue) {
       'border-disabled text-disabled bg-disabled': disabled,
       'bg-white': !disabled,
     }"
-    v-model="modelValue"
+    :value="modelValue"
+    @input="onInput"
+    @focus="$emit('focus')"
+    @blur="$emit('blur')"
   />
 </template>
