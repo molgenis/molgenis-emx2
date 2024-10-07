@@ -201,7 +201,7 @@ Harmonisation procedures at the variable level are defined in the *Variable mapp
 | target \* | Name of the target CDM  | e.g. LifeCycle, LongITools, see [variable explorer](https://data-ca`talogue.molgeniscloud.org/catalogue/catalogue/#/variable-explorer) |
 | target dataset \* | Target dataset name. | Map to a [dataset](https://data-catalogue.molgeniscloud.org/catalogue/tables/#/Datasets) that is defined in a CDM |
 | target variable \* | Target variable name | Map to a [variable](https://data-catalogue.molgeniscloud.org/catalogue/catalogue/#/variable-explorer) that is defined in a CDM |
-| match \* | Whether the harmonisation is partial, complete or NA (non-existent) | Find list to choose from in CatalogueOntologies [StatusDetails] |
+| match \* | Whether the harmonisation is partial, complete or na (non-existent) | Find list to choose from in CatalogueOntologies [StatusDetails](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/StatusDetails) |
 | description | Description of the harmonisation | |
 | syntax | Syntax used for this harmonisation | |
 
