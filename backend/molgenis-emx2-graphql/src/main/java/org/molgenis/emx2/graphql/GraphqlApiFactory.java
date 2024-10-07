@@ -68,6 +68,10 @@ public class GraphqlApiFactory {
     queryBuilder.field(db.schemasQuery(database));
     queryBuilder.field(db.settingsQueryField(database));
     queryBuilder.field(db.tasksQueryField(taskService));
+    // todo need to allow for owner ? ( need to filter the query to include only owned schema's)
+    if (database.isAdmin()) {
+      queryBuilder.field(db.lastUpdateQuery(database));
+    }
 
     mutationBuilder.field(db.createMutation(database, taskService));
     mutationBuilder.field(db.deleteMutation(database));

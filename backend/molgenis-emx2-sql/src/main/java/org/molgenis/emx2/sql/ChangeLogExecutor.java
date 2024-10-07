@@ -15,16 +15,13 @@ import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.getRolePrefix;
 
 import java.sql.Timestamp;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
-import org.jooq.DSLContext;
-import org.jooq.Field;
+import java.util.stream.IntStream;
+import org.jooq.*;
 import org.jooq.Record;
-import org.jooq.Record6;
-import org.jooq.Result;
-import org.molgenis.emx2.Change;
+import org.molgenis.emx2.*;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.SchemaMetadata;
-import org.molgenis.emx2.TableMetadata;
 
 public class ChangeLogExecutor {
 
@@ -35,6 +32,9 @@ public class ChangeLogExecutor {
   private static final Field<String> TABLENAME = field(name("tablename"), VARCHAR.nullable(false));
   private static final Field<org.jooq.JSON> OLD = field(name("old"), JSON.nullable(true));
   private static final Field<org.jooq.JSON> NEW = field(name("new"), JSON.nullable(true));
+
+  private static final Field<String> SCHEMA_NAME =
+      field(name("table_schema"), VARCHAR.nullable(false));
 
   private ChangeLogExecutor() {
     // hide
@@ -125,6 +125,65 @@ public class ChangeLogExecutor {
         .toList();
   }
 
+  static List<LastUpdate> executeLastUpdates(DSLContext jooq) {
+
+    // get a list of schema's with changelogs, need due to limited support for cross schema queries
+    List<String> schemasWithChangeLog = getSchemasWithChangeLog(jooq);
+
+    // get the last updated table and details from all schema's that have a change log
+    SelectLimitPercentStep<Record4<String, Timestamp, String, String>> query =
+        jooq.select(OPERATION, STAMP, USERID, TABLENAME)
+            .from(table(name(schemasWithChangeLog.get(0), MG_CHANGLOG)))
+            .orderBy(STAMP.desc())
+            .limit(1);
+    // union the select for schema's in a loop
+    for (String schemaName : schemasWithChangeLog) {
+      query.unionAll(
+          jooq.select(OPERATION, STAMP, USERID, TABLENAME)
+              .from(table(name(schemaName, MG_CHANGLOG)))
+              .orderBy(STAMP.desc())
+              .limit(1));
+    }
+
+    // execute to query with all the unions
+    Result<Record4<String, Timestamp, String, String>> result = query.fetch();
+
+    // transform the result in to records
+    List<LastUpdate> lastUpdatesWithOutSchemaName =
+        result.stream()
+            .map(
+                r -> {
+                  char operation = r.getValue(OPERATION, char.class);
+                  Timestamp stamp = r.getValue(STAMP, Timestamp.class);
+                  String userId = r.getValue(USERID, String.class);
+                  String tableName = r.getValue(TABLENAME, String.class);
+
+                  return new LastUpdate(operation, stamp, userId, tableName, "");
+                })
+            .toList();
+
+    // join in the schema names with the records
+    List<LastUpdate> lastUpdates =
+        new java.util.ArrayList<>(
+            IntStream.range(0, schemasWithChangeLog.size())
+                .mapToObj(
+                    i -> {
+                      LastUpdate lastUpdate = lastUpdatesWithOutSchemaName.get(i);
+                      return new LastUpdate(
+                          lastUpdate.operation(),
+                          lastUpdate.stamp(),
+                          lastUpdate.userId(),
+                          lastUpdate.tableName(),
+                          schemasWithChangeLog.get(i));
+                    })
+                .toList());
+
+    // sort the final result by timestamp ( i.e. last updated )
+    lastUpdates.sort(Comparator.comparing(LastUpdate::stamp));
+
+    return lastUpdates;
+  }
+
   static Integer executeGetChangesCount(DSLContext jooq, SchemaMetadata schema) {
     if (hasChangeLogTable(jooq, schema)) {
       return jooq.fetchCount(table(name(schema.getName(), MG_CHANGLOG)));
@@ -140,5 +199,15 @@ public class ChangeLogExecutor {
             .from(table(name("information_schema", "tables")))
             .where(field("table_schema").eq(schema.getName()))
             .and(field("table_name").eq(MG_CHANGLOG)));
+  }
+
+  static List<String> getSchemasWithChangeLog(DSLContext jooq) {
+    Result<Record> result =
+        jooq.select()
+            .from(table(name("information_schema", "tables")))
+            .where(field("table_name").eq(MG_CHANGLOG))
+            .fetch();
+
+    return result.stream().map(r -> r.getValue(SCHEMA_NAME, String.class)).toList();
   }
 }

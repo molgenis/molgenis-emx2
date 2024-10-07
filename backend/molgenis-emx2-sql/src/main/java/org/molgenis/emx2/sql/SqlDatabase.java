@@ -755,4 +755,9 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     }
     return null;
   }
+
+  @Override
+  public List<LastUpdate> getLastUpdated() {
+    return ChangeLogExecutor.executeLastUpdates(jooq);
+  }
 }
