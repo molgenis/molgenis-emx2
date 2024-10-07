@@ -2,6 +2,8 @@
 const defaultSelection = ref<boolean>(false);
 const valueSelection = ref<string>("No");
 const requiredSelection = ref<string>("No");
+
+const featureSelection = ref<string[]>(["database"]);
 </script>
 
 <template>
@@ -58,15 +60,30 @@ const requiredSelection = ref<string>("No");
     </legend>
     <InputCheckboxGroup
       id="example-4"
-      :checkbox-options="[
+      v-model="featureSelection"
+      :checkboxOptions="[
         {
           value: 'database',
           label: 'Building databases from templates or importing your own',
+          checked: true,
         },
-        { value: 'scripts', label: 'Writing and executing scripts' },
-        { value: 'apps', label: 'Designing and developing custom interfaces' },
-        { value: 'users', label: 'Managing user accounts and access levels' },
+        {
+          value: 'scripts',
+          label: 'Writing and executing scripts',
+        },
+        {
+          value: 'apps',
+          label: 'Designing and developing custom interfaces',
+        },
+        {
+          value: 'users',
+          label: 'Managing user accounts and access levels',
+        },
       ]"
+      :showClearButton="true"
     />
+    <output>
+      <span>Selection: {{ featureSelection }}</span>
+    </output>
   </form>
 </template>

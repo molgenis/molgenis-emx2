@@ -10,9 +10,9 @@
       width="20"
       height="20"
       rx="3"
-      fill="none"
       class="stroke-gray-600"
       :class="{
+        'fill-none': !checked && !indeterminate,
         'fill-yellow-500 stroke-none': checked || indeterminate,
       }"
     />
