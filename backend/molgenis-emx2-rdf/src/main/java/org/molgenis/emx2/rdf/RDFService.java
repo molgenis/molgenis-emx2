@@ -7,7 +7,6 @@ import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.utils.URIUtils.*;
 
 import com.google.common.net.UrlEscapers;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
@@ -192,11 +191,11 @@ public class RDFService {
       // Adds custom RDF to model.
       if (schema.hasSetting(SETTING_CUSTOM_RDF)) {
         addModelToBuilder(
-                builder,
-                Rio.parse(
-                        IOUtils.toInputStream(
-                                schema.getSettingValue(SETTING_CUSTOM_RDF), StandardCharsets.UTF_8),
-                        RDFFormat.TURTLE));
+            builder,
+            Rio.parse(
+                IOUtils.toInputStream(
+                    schema.getSettingValue(SETTING_CUSTOM_RDF), StandardCharsets.UTF_8),
+                RDFFormat.TURTLE));
       } else {
         allIncludeCustomRdf = false;
       }
