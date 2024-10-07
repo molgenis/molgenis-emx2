@@ -201,8 +201,8 @@
     --backgroud-color-button-primary-hover: var(--white);
     --backgroud-color-button-secondary: var(--color-orange-500);
     --backgroud-color-button-secondary-hover: var(--color-orange-200);
-    --backgroud-color-button-tertiary: var(--color-umcg-dark-blue);
-    --backgroud-color-button-tertiary-hover: var(--color-umcg-dark-blue);
+    --backgroud-color-button-tertiary: var(--color-umcg-light-blue);
+    --backgroud-color-button-tertiary-hover: var(--color-umcg-light-blue);
     --backgroud-color-button-outline: var(--color-white);
     --backgroud-color-button-outline-hover: var(--color-white);
     --backgroud-color-button-disabled: var(--color-gray-100);
