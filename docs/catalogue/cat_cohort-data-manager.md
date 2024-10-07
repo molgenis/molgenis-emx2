@@ -33,7 +33,7 @@ The metadata of the cohort or of the data source are first uploaded into what ar
 catalogue. Later on the metadata are transferred to production; use of a staging area allows for review before the 
 metadata are entered in the live catalogue. 
 
-You will need credentials to log in and upload metadata. Contact us at [molgenis-support](mailto:support@molgenis.org)
+You will need credentials to log in and upload metadata. Contact us at [molgenis support](mailto:support@molgenis.org)
 to receive credentials.
 
 Cohorts in projects such as ATHLETE, IPEC and LongITools use 
@@ -57,8 +57,9 @@ When you log in, you will be able to see at least the following databases:
 
 Open your staging area, navigate to 'Tables' and open the table 'Resources'. Your resource id and name are already 
 filled out. Click on the pencil sign next to this entry to start editing your rich metadata by filling out 
-the form. For cohort studies 'Subcohorts' and 'Collection events' should also be filled out through this route. You can later refer to them from columns in the 
-dictionary templates to indicate whch variables were collected during whch collection event.
+the form. For cohort studies 'Subcohorts' and 'Collection events' should also be filled out through this route. 
+You can later refer to them from columns in the dictionary templates to indicate which variables were collected 
+during which collection event.
 
 ### Define codebooks or data dictionaries
 
@@ -96,7 +97,7 @@ Columns with an asterisk (\*) after their name are mandatory.
 
 | *Column name* | *Description* | *Remarks* |
 | --- | --- | --- |
-| resource \* | Resource that this table belongs to. Fill out your resource id | |
+| resource \* | Resource that this dataset or table belongs to. Fill out your resource id | The resource id is found in the table _Resources_ in the resource staging area |
 | name \* | Unique dataset or table name | |
 | label | Dataset label | |
 | dataset type | Type of dataset | Find list to choose from in CatalogueOntologies [Dataset types](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/DatasetTypes  |
@@ -116,7 +117,7 @@ The variables of the datasets specified in the *Datasets* sheet are defined in t
 
 | *Column name* | *Description* | *Remarks* |
 | --- | --- | --- |
-| resource \* | Resource that this variable belongs to | Fill out your resource id |
+| resource \* | Resource that this variable belongs to. Fill out your resource id | The resource id is found in the table _Resources_ in the resource staging area |
 | dataset \* | Dataset that contains the variable. | Datasets must be predefined in the _Datasets_ sheet |
 | name \* | Variable name, unique within a dataset | |
 | label | Human readable variable label | |
@@ -147,7 +148,7 @@ insightful for those that are interested.
 
 | *Column name* | *Description* | *Remarks* |
 | --- | --- | --- |
-| variable.resource \* | Resource that the variable belongs to | Fill out your resource id, e.g. cohort or databank id |
+| variable.resource \* | Resource that the variable belongs to. Fill out your resource id | The resource id is found in the table _Resources_ in the resource staging area |
 | variable.dataset \* | Dataset that contains the variable | Datasets must be predefined in the _Datasets_ sheet |
 | variable.name \* | Variable name | Variables must be predefined in the _Variables_ sheet |
 | value \* | The code or value used | e.g. 1, 2 or -99 |
@@ -177,7 +178,7 @@ is in a cohort or in a data bank.
 
 | *Column name* | *Description* | *Remarks* |
 | --- | --- | --- |
-| source \* | Databank or cohort id |  |
+| source \* | Resource id. Fill out your resource id | The resource id is found in the table _Resources_ in the resource staging area |
 | source dataset \* | Source dataset name | Datasets must be predefined in the _Datasets_ sheet in the SourceDictionary template |
 | target \* | Name of the target CDM  | e.g. LifeCycle, LongITools, see [variable explorer](https://data-catalogue.molgeniscloud.org/catalogue/catalogue/#/variable-explorer) |
 | target dataset \* | Target dataset name | Map to a [dataset](https://data-catalogue.molgeniscloud.org/catalogue/tables/#/Datasets) that is defined in a CDM |
@@ -192,7 +193,7 @@ Harmonisation procedures at the variable level are defined in the *Variable mapp
 
 | *Column name* | *Description* | *Remarks* |
 | --- | --- | --- |
-| source \* | Databank or cohort id |  |
+| source \* | Resource id. Fill out your resource id | The resource id is found in the table _Resources_ in the resource staging area |
 | source dataset \* | Source table name | Datasets must be predefined in the *Datasets* sheet in the SourceDictionary template |
 | source variables | Source variable name(s) | Variables must be predefined in the _Variables_ sheet in the SourceDictionary template; When multiple variables are mapped together use a comma-separated list, e.g. v1,v2,v3 |
 | source variables other datasets.dataset | Other source tables | When using variables from multiple other datasets, use a comma-separated list, e.g. dataset1,dataset2,dataset3<sup>1</sup> |
