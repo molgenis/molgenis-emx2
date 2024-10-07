@@ -1,6 +1,6 @@
 # Data manager of a data resource
 
-## Data Catalogue
+## MOLGENIS catalogue
 
 [MOLGENIS catalogue](https://data-catalogue.molgeniscloud.org/catalogue/catalogue/#) provides a
 framework to describe in detail: metadata of different data resources, such as cohorts and data sources; definitions of 
