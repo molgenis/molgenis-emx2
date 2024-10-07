@@ -8,10 +8,13 @@ import static org.molgenis.emx2.sql.SqlDatabaseExecutor.*;
 import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeCreateSchema;
 
 import com.zaxxer.hikari.HikariDataSource;
+
 import java.util.*;
 import java.util.function.Supplier;
 import javax.sql.DataSource;
+
 import org.jooq.DSLContext;
+import org.jooq.Record;
 import org.jooq.SQLDialect;
 import org.jooq.conf.Settings;
 import org.jooq.exception.DataAccessException;
@@ -754,5 +757,27 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       return result.get();
     }
     return null;
+  }
+
+  public List<Member> loadUserRoles() {
+    List<Member> members = new ArrayList<>();
+    String roleFilter = Constants.MG_ROLE_PREFIX;
+    String userFilter = Constants.MG_USER_PREFIX;
+    List<Record> allRoles =
+        this.getJooq()
+            .fetch(
+                "select distinct m.rolname as member, r.rolname as role"
+                    + " from pg_catalog.pg_auth_members am "
+                    + " join pg_catalog.pg_roles m on (m.oid = am.member)"
+                    + "join pg_catalog.pg_roles r on (r.oid = am.roleid)"
+                    + "where r.rolname LIKE {0} and m.rolname LIKE {1}",
+                roleFilter + "%", userFilter + "%");
+
+    for (Record record : allRoles) {
+      String memberName = record.getValue("member", String.class).substring(userFilter.length());
+      String roleName = record.getValue("role", String.class).substring(roleFilter.length());
+      members.add(new Member(memberName, roleName));
+    }
+    return members;
   }
 }

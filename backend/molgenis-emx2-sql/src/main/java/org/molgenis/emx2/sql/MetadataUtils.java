@@ -5,11 +5,10 @@ import static org.jooq.impl.SQLDataType.*;
 import static org.molgenis.emx2.Constants.MG_ROLE_PREFIX;
 
 import java.util.*;
+
 import org.jooq.*;
 import org.jooq.DSLContext;
-import org.jooq.Record;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -486,8 +485,8 @@ public class MetadataUtils {
     String refSchema =
         column.isReference()
             ? column.getRefSchemaName().equals(column.getSchemaName())
-                ? null
-                : column.getRefSchemaName()
+            ? null
+            : column.getRefSchemaName()
             : null;
     jooq.insertInto(COLUMN_METADATA)
         .columns(
@@ -679,35 +678,9 @@ public class MetadataUtils {
     if (userRecord != null) {
       User result = new User(db, userName);
       result.setSettings(userRecord.get(SETTINGS, Map.class));
-      Map<String, String> roles = userRecord.get("roles", Map.class);
-      if (roles != null) {
-        result.setRoles(roles);
-      }
       return result;
     }
     return null;
-  }
-
-  public static List<Member> loadUserRoles(SqlDatabase db) {
-    List<Member> members = new ArrayList<>();
-    String roleFilter = Constants.MG_ROLE_PREFIX;
-    String userFilter = Constants.MG_USER_PREFIX;
-    List<Record> result =
-        db.getJooq()
-            .fetch(
-                "select distinct m.rolname as member, r.rolname as role"
-                    + " from pg_catalog.pg_auth_members am "
-                    + " join pg_catalog.pg_roles m on (m.oid = am.member)"
-                    + "join pg_catalog.pg_roles r on (r.oid = am.roleid)"
-                    + "where r.rolname LIKE {0} and m.rolname LIKE {1}",
-                roleFilter + "%", userFilter + "%");
-
-    for (Record r : result) {
-      String memberName = r.getValue("member", String.class).substring(userFilter.length());
-      String roleName = r.getValue("role", String.class).substring(roleFilter.length());
-      members.add(new Member(memberName, roleName));
-    }
-    return members;
   }
 
   public static void resetVersion() {

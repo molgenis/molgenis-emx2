@@ -86,7 +86,7 @@ public class GraphlAdminFieldFactory {
     int limit = args.containsKey(LIMIT) ? (int) args.get(LIMIT) : 100;
     int offset = args.containsKey(OFFSET) ? (int) args.get(OFFSET) : 0;
     String email = args.containsKey(EMAIL) ? (String) args.get(EMAIL) : null;
-    List<Member> members = MetadataUtils.loadUserRoles((SqlDatabase) db);
+    List<Member> members = db.loadUserRoles();
 
     if (email != null) {
       return List.of(toGraphqlUser(db.getUser(email), members));
