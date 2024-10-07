@@ -101,11 +101,8 @@ public class RDFService {
   public RDFService(final String baseURL, final String rdfAPIPath, final RDFFormat format) {
     // Ensure that the base URL has a trailing "/" so we can use it easily to
     // construct URL paths.
-    if (baseURL.trim().endsWith("/")) {
-      this.baseURL = baseURL.trim();
-    } else {
-      this.baseURL = baseURL.trim() + "/";
-    }
+    String baseUrlTrim = baseURL.trim();
+    this.baseURL = baseUrlTrim.endsWith("/") ? baseUrlTrim : baseUrlTrim + "/";
     this.rdfFormat = format == null ? RDFFormat.TURTLE : format;
 
     this.config = new WriterConfig();
