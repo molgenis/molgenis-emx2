@@ -85,13 +85,14 @@ upload the metadata to the catalogue see the section [Upload metadata](cat_cohor
 
 ![MOLGENIS tables in cohort catalogue](../img/cat_tables-in-cohort-catalogue.png)
 
-<sup>*Figure 2. Tables in a cohort's database in the Data Catalogue. Note that not all tables are filled out 
+<sup>*Figure 2. Tables in a cohort's database in the MOLGENIS catalogue. Note that not all tables are filled out 
 via the templates, some are filled via an online form, see section 
 [Fill out rich metadata](cat_cohort-data-manager.md#fill-out-rich-metadata).*</sup>
 
 #### *Datasets* sheet
 
-The datasets/tables for a resource, such as a cohort or databank of a data source are defined in the *Datasets* sheet. Columns with an asterisk (\*) after their name are mandatory.
+The datasets/tables for a resource, such as a cohort or databank of a data source are defined in the *Datasets* sheet. 
+Columns with an asterisk (\*) after their name are mandatory.
 
 | *Column name* | *Description* | *Remarks* |
 | --- | --- | --- |
@@ -106,7 +107,7 @@ The datasets/tables for a resource, such as a cohort or databank of a data sourc
 | since version | Version of the data model when this dataset was introduced | e.g. 1.0.0 or 2.1 |
 | until version | Version of the data model when this dataset was deleted | e.g. 2.0.0 or 2.1 |
 
-<sup>Table 1. Description of the columns that can be filled out for Datasets. * = mandatory; 1 = contact [*molgenis-support@umcg.nl*](mailto:molgenis-support@umcg.nl) to add Keywords, Observation targets or Dataset types</sup>
+<sup>Table 1. Description of the columns that can be filled out for Datasets. * = mandatory; 1 = contact [*support@molgenis.org*](mailto:support@molgenis.org) to add Keywords, Observation targets or Dataset types</sup>
 
 
 #### *Variables* sheet
@@ -136,7 +137,7 @@ The variables of the datasets specified in the *Datasets* sheet are defined in t
 | useExternaldefinition.name | Refer to the associated variable name | When using the definitions of a harmonised variable from another CDM |
 
 <sup>Table 2. Description of the columns that can be filled out for Variables. * = mandatory; 
-1 = contact [*molgenis-support@umcg.nl*](mailto:molgenis-support@umcg.nl) to add Vocabularies, Keywords, Repeat units, or Units</sup>
+1 = contact [*support@molgenis.org*](mailto:support@molgenis.org) to add Vocabularies, Keywords, Repeat units, or Units</sup>
 
 #### *Variable values* sheet
 
@@ -209,13 +210,13 @@ for an example on how to fill this out (last line) </sup>
 
 ### Upload metadata
 
-When you have filled out the template(s) you can start uploading the metadata. When you log in to 
-[*MOLGENIS Data Catalogue*](https://data-catalogue.molgeniscloud.org/apps/central/#/) 
-you will see a listing of databases that are accessible to you. Click on your cohort's database to access it. 
+When you have filled out the template(s) you can start uploading metadata. When you log in to 
+[*MOLGENIS catalogue*](https://data-catalogue.molgeniscloud.org/apps/central/#/) 
+you will see a listing of databases that are accessible to you. Click on your resource's database to access it. 
 Go to 'Up/Download' in the menu. Use 'browse' to select a template and 'upload' to start uploading your metadata. After 
 uploading, you can view your metadata under 'Tables'.
 
-Please report any bugs or difficulties to [molgenis-support](mailto:molgenis-support@umcg.nl).
+Please report any bugs or difficulties to [*support@molgenis.org*](mailto:support@molgenis.org).
 
 #### Find harmonisations
 
@@ -225,5 +226,5 @@ once they have been transferred there.
 
 #### Request access (catalogue)
 
-If you do not have an account to upload data to the Data Catalogue yet, please
-email [molgenis-support](mailto:molgenis-support@umcg.nl) to apply for an account.
+If you do not have an account to upload data to the catalogue yet, please
+email [*support@molgenis.org*](mailto:support@molgenis.org) to apply for an account.
