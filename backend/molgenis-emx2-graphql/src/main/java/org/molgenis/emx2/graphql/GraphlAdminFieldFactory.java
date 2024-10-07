@@ -7,10 +7,12 @@ import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.*;
 
 import graphql.Scalars;
 import graphql.schema.*;
+
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.molgenis.emx2.*;
 
 public class GraphlAdminFieldFactory {
@@ -99,16 +101,16 @@ public class GraphlAdminFieldFactory {
     result.put(EMAIL, user.getUsername());
     result.put(SETTINGS, mapSettingsToGraphql(user.getSettings()));
 
-    List<Map<String, String>> roles =
-        members.stream()
-            .filter(member -> member.getUser().equals(user.getUsername()))
-            .map(
-                (member) -> {
-                  return getUserRoleMap(member);
-                })
-            .toList();
+    List<Map<String, String>> roles = getRoles(user, members);
     result.put(ROLES, roles);
     return result;
+  }
+
+  private static List<Map<String, String>> getRoles(User user, List<Member> members) {
+    return members.stream()
+        .filter(member -> member.getUser().equals(user.getUsername()))
+        .map(GraphlAdminFieldFactory::getUserRoleMap)
+        .toList();
   }
 
   private static Map<String, String> getUserRoleMap(Member member) {
