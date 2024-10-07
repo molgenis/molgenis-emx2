@@ -180,8 +180,8 @@ is in a cohort or in a data bank.
 | --- | --- | --- |
 | source \* | Resource id. Fill out your resource id | The resource id is found in the table _Resources_ in the resource staging area |
 | source dataset \* | Source dataset name | Datasets must be predefined in the _Datasets_ sheet in the SourceDictionary template |
-| target \* | Name of the target CDM  | e.g. LifeCycle, LongITools, see [variable explorer](https://data-catalogue.molgeniscloud.org/catalogue/catalogue/#/variable-explorer) |
-| target dataset \* | Target dataset name | Map to a [dataset](https://data-catalogue.molgeniscloud.org/catalogue/tables/#/Datasets) that is defined in a CDM |
+| target \* | Name of the target CDM  | e.g. LifeCycle or LongITools |
+target dataset \* | Target dataset name | Map to a dataset that is defined in a CDM |
 | description | Description of the harmonisation | |
 | syntax | Syntax used for this harmonisation | |
 
@@ -198,9 +198,9 @@ Harmonisation procedures at the variable level are defined in the *Variable mapp
 | source variables | Source variable name(s) | Variables must be predefined in the _Variables_ sheet in the SourceDictionary template; When multiple variables are mapped together use a comma-separated list, e.g. v1,v2,v3 |
 | source variables other datasets.dataset | Other source tables | When using variables from multiple other datasets, use a comma-separated list, e.g. dataset1,dataset2,dataset3<sup>1</sup> |
 | source variables other datasets.name | Source variable(s) from other datasets than filled out under source dataset | When using variables from multiple other datasets, use a comma-separated list, the order corresponding to the order of the datasets they are derived from specified under source variables from other datasets.dataset<sup>1</sup> |
-| target \* | Name of the target CDM  | e.g. LifeCycle, LongITools, see [variable explorer](https://data-ca`talogue.molgeniscloud.org/catalogue/catalogue/#/variable-explorer) |
-| target dataset \* | Target dataset name. | Map to a [dataset](https://data-catalogue.molgeniscloud.org/catalogue/tables/#/Datasets) that is defined in a CDM |
-| target variable \* | Target variable name | Map to a [variable](https://data-catalogue.molgeniscloud.org/catalogue/catalogue/#/variable-explorer) that is defined in a CDM |
+| target \* | Name of the target CDM  | e.g. LifeCycle or LongITools |
+| target dataset \* | Target dataset name. | Map to a dataset that is defined in a CDM |
+| target variable \* | Target variable name | Map to a variable that is defined in a CDM |
 | match \* | Whether the harmonisation is partial, complete or na (non-existent) | Find list to choose from in CatalogueOntologies [StatusDetails](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/StatusDetails) |
 | description | Description of the harmonisation | |
 | syntax | Syntax used for this harmonisation | |
