@@ -111,9 +111,9 @@ insightful for those that are interested.
 
 | *Column name* | *Description* | *Remarks* |
 | --- | --- | --- |
-| variable.resource \* | Resource that the variable belongs to. Fill out your resource id | The resource id is found in the table _Resources_ in the resource staging area |
-| variable.dataset \* | Dataset that contains the variable | Datasets must be predefined in the _Datasets_ sheet |
-| variable.name \* | Variable name | Variables must be predefined in the _Variables_ sheet |
+| resource \* | Resource that the variable belongs to. Fill out your resource id | The resource id is found in the table _Resources_ in the resource staging area |
+| dataset \* | Dataset that contains the variable | Datasets must be predefined in the _Datasets_ sheet |
+| name \* | Variable name | Variables must be predefined in the _Variables_ sheet |
 | value \* | The code or value used | e.g. 1, 2 or -99 |
 | label \* | The label corresponding to the value | e.g. 'yes', 'no' or 'NA' |
 | order | The order in which the code list should appear | e.g. 1 |
