@@ -100,9 +100,9 @@ Columns with an asterisk (\*) after their name are mandatory.
 | resource \* | Resource that this dataset or table belongs to. Fill out your resource id | The resource id is found in the table _Resources_ in the resource staging area |
 | name \* | Unique dataset or table name | |
 | label | Dataset label | |
-| dataset type | Type of dataset | Find list to choose from in CatalogueOntologies [Dataset types](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/DatasetTypes  |
+| dataset type | Type of dataset | Find list to choose from in CatalogueOntologies [Dataset types](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/DatasetTypes) |
 | description | Dataset description | |
-| unit of observation | Defines what each record in this dataset describes | Find list to choose from in CatalogueOntologies [Observation targets](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/ObservationTargets)|
+| unit of observation | Defines what each record in this dataset describes | Find list to choose from in CatalogueOntologies [Observation targets](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/ObservationTargets) |
 | number of rows | Count of the number of records in this dataset | |
 | keywords<sup>1</sup> | Enables grouping of datasets into topics and helps to display variables in a tree | Find list to choose from in CatalogueOntologies [Keywords](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/Keywords) |
 | since version | Version of the data model when this dataset was introduced | e.g. 1.0.0 or 2.1 |
