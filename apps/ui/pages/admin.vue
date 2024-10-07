@@ -23,10 +23,12 @@
             <TableCell>Edit/Delete/Disable buttons</TableCell>
             <!-- clickable modal for role management? What to show here, count/summary/all? -->
             <TableCell>{{ user.email }}</TableCell>
-            <TableCell>{{ user.roles }}</TableCell>
             <TableCell>
-              {{ user.settings.length ? user.settings[0].value : "No tokens" }}
+              <div v-for="role in user.roles">
+                {{ role.schemaId }} ({{ role.role }})
+              </div>
             </TableCell>
+            <TableCell> Tokens: {{ user.tokens.length }} </TableCell>
           </TableRow>
         </template>
       </Table>
@@ -70,11 +72,28 @@ async function getUsers() {
     console.log("Error loading users: ", error.value);
     // todo handle error see catalogue error page
   }
-  users.value = data.value?.data._admin.users || [];
+  const transformedUsers = buildUsers(data.value?.data._admin.users || []);
+  users.value = transformedUsers;
   userCount.value = data.value?.data._admin.userCount ?? 0;
   const divided = userCount.value / LIMIT;
   totalPages.value =
     userCount.value % LIMIT > 0 ? Math.floor(divided) + 1 : divided;
+}
+
+function buildUsers(dataUsers: IUser[]) {
+  return dataUsers.map((user) => {
+    if (user.settings.length) {
+      const tokens = user.settings.find((setting) => {
+        return setting.key === "access-tokens";
+      });
+      if (tokens) {
+        const splitTokens: string[] = tokens.value.split(",");
+        return { ...user, tokens: splitTokens };
+      }
+    }
+
+    return { ...user, tokens: [] };
+  });
 }
 
 interface IAdminResponse {
@@ -85,9 +104,11 @@ interface IAdminResponse {
     };
   };
 }
+
 interface IUser {
   email: string;
   settings: ISetting[];
-  roles: string[];
+  tokens: string[];
+  roles: { schemaId: string; role: string }[];
 }
 </script>
