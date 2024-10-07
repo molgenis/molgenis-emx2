@@ -130,6 +130,10 @@ public class ChangeLogExecutor {
     // get a list of schema's with changelogs, need due to limited support for cross schema queries
     List<String> schemasWithChangeLog = getSchemasWithChangeLog(jooq);
 
+    if (schemasWithChangeLog.isEmpty()) {
+      return Collections.emptyList();
+    }
+
     // get the last updated table and details from all schema's that have a change log
     SelectLimitPercentStep<Record4<String, Timestamp, String, String>> query =
         jooq.select(OPERATION, STAMP, USERID, TABLENAME)
