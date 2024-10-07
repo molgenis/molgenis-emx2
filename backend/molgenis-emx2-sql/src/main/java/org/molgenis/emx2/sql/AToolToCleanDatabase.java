@@ -1,4 +1,4 @@
-package org.molgenis.emx2;
+package org.molgenis.emx2.sql;
 
 import static org.jooq.impl.DSL.name;
 
@@ -7,8 +7,6 @@ import org.jooq.DSLContext;
 import org.jooq.ForeignKey;
 import org.jooq.Schema;
 import org.jooq.Table;
-import org.molgenis.emx2.sql.MetadataUtils;
-import org.molgenis.emx2.sql.SqlDatabase;
 
 public class AToolToCleanDatabase {
   private static DSLContext jooq;
