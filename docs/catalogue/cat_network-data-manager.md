@@ -1,6 +1,6 @@
 # CDM / Network data manager
 
-The Network data manager is responsible for uploading the common data model (CDM) to the Data Catalogue.
+The Network data manager is responsible for uploading the common data model (CDM) to the MOLGENIS catalogue.
 
 ## Catalogue
 
