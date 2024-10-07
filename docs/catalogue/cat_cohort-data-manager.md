@@ -100,9 +100,9 @@ Columns with an asterisk (\*) after their name are mandatory.
 | resource \* | Resource that this dataset or table belongs to. Fill out your resource id | The resource id is found in the table _Resources_ in the resource staging area |
 | name \* | Unique dataset or table name | |
 | label | Dataset label | |
-| dataset type | Type of dataset | Find list to choose from in CatalogueOntologies [Dataset types](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/DatasetTypes) |
+| dataset type<sup>1</sup>  | Type of dataset | Find list to choose from in CatalogueOntologies [Dataset types](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/DatasetTypes) |
 | description | Dataset description | |
-| unit of observation | Defines what each record in this dataset describes | Find list to choose from in CatalogueOntologies [Observation targets](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/ObservationTargets) |
+| unit of observation<sup>1</sup>  | Defines what each record in this dataset describes | Find list to choose from in CatalogueOntologies [Observation targets](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/ObservationTargets) |
 | number of rows | Count of the number of records in this dataset | |
 | keywords<sup>1</sup> | Enables grouping of datasets into topics and helps to display variables in a tree | Find list to choose from in CatalogueOntologies [Keywords](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/Keywords) |
 | since version | Version of the data model when this dataset was introduced | e.g. 1.0.0 or 2.1 |
@@ -125,7 +125,7 @@ The variables of the datasets specified in the *Datasets* sheet are defined in t
 | unit<sup>1</sup> | Unit in case of a continuous or integer format | Find list to choose from in CatalogueOntologies [Units](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/Units) |
 | description | Description of the variable | |
 | exampleValues | Examples of values in a comma separated list | Makes your data structure more insightful. E.g. 1,2,3 or TRUE,FALSE or 1.23,4.56,3.14 |
-| repeat unit | In case of repeated variables, indicate the repeat period | Find list to choose from in CatalogueOntologies [Repeat units](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/RepeatUnits) |
+| repeat unit<sup>1</sup>  | In case of repeated variables, indicate the repeat period | Find list to choose from in CatalogueOntologies [Repeat units](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/RepeatUnits) |
 | repeat min | The minimum repeat unit | E.g. 0 or 10 |
 | repeat max | The maximum repeat unit | E.g. 10 or 60 |
 | collection events | Refer to the names of collection events in a comma separated list | The collection events need to be predefined in the Collection events table in the resource staging area; e.g. y1, y2 |
@@ -148,9 +148,9 @@ insightful for those that are interested.
 
 | *Column name* | *Description* | *Remarks* |
 | --- | --- | --- |
-| variable.resource \* | Resource that the variable belongs to. Fill out your resource id | The resource id is found in the table _Resources_ in the resource staging area |
-| variable.dataset \* | Dataset that contains the variable | Datasets must be predefined in the _Datasets_ sheet |
-| variable.name \* | Variable name | Variables must be predefined in the _Variables_ sheet |
+| resource \* | Resource that the variable belongs to. Fill out your resource id | The resource id is found in the table _Resources_ in the resource staging area |
+| dataset \* | Dataset that contains the variable | Datasets must be predefined in the _Datasets_ sheet |
+| name \* | Variable name | Variables must be predefined in the _Variables_ sheet |
 | value \* | The code or value used | e.g. 1, 2 or -99 |
 | label \* | The label corresponding to the value | e.g. 'yes', 'no' or 'NA' |
 | order | The order in which the code list should appear | e.g. 1 |
@@ -202,6 +202,7 @@ Harmonisation procedures at the variable level are defined in the *Variable mapp
 | target dataset \* | Target dataset name. | Map to a dataset that is defined in a CDM |
 | target variable \* | Target variable name | Map to a variable that is defined in a CDM |
 | match \* | Whether the harmonisation is partial, complete or na (non-existent) | Find list to choose from in CatalogueOntologies [StatusDetails](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/StatusDetails) |
+| repeats | In the case of a repeated target variable, comma separated list of repeats that were mapped to | e.g. 0,1,2,6,12 |
 | description | Description of the harmonisation | |
 | syntax | Syntax used for this harmonisation | |
 
