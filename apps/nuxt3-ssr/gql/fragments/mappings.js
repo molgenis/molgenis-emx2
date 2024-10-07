@@ -17,6 +17,15 @@ export default gql`
     }
     sourceVariables {
       name
+      resource {
+        id
+      }
+      dataset {
+        name
+        resource {
+          id
+        }
+      }
     }
     sourceVariablesOtherDatasets {
       name

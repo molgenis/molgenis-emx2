@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { IMgError } from "~~/interfaces/types";
+import type { ISetting } from "../../../../../metadata-utils/src/types";
 
 const route = useRoute();
 const config = useRuntimeConfig();
@@ -65,8 +65,8 @@ const query = `query CataloguePage($networksFilter:ResourcesFilter,$variablesFil
           "CATALOGUE_LANDING_SAMPLES_TEXT"
           "CATALOGUE_LANDING_DESIGN_LABEL"
           "CATALOGUE_LANDING_DESIGN_TEXT"
-          "CATALOGUE_LANDING_SUBCOHORTS_LABEL"
-          "CATALOGUE_LANDING_SUBCOHORTS_TEXT"
+          "CATALOGUE_LANDING_SUBPOPULATIONS_LABEL"
+          "CATALOGUE_LANDING_SUBPOPULATIONS_TEXT"
         ]){
           key
           value
@@ -90,42 +90,38 @@ const resourceFilter = scoped
     }
   : undefined;
 
-const { data, error } = await useAsyncData<any, IMgError>(
-  `lading-page-${catalogueRouteParam}`,
-  async () => {
-    const variablesFilter = scoped
-      ? {
-          _or: [
-            { resource: { id: { equals: catalogueRouteParam } } },
-            //also include network of networks
-            {
-              resource: {
-                type: { name: { equals: "Network" } },
-                partOfResources: { id: { equals: catalogueRouteParam } },
+const { data, error } = await useFetch(`/${route.params.schema}/graphql`, {
+  method: "POST",
+  key: `lading-page-${catalogueRouteParam}`,
+  body: {
+    query,
+    variables: {
+      networksFilter,
+      resourceFilter,
+      variablesFilter: scoped
+        ? {
+            _or: [
+              { resource: { id: { equals: catalogueRouteParam } } },
+              //also include network of networks
+              {
+                resource: {
+                  type: { name: { equals: "Network" } },
+                  partOfResources: { id: { equals: catalogueRouteParam } },
+                },
               },
-            },
-          ],
-        }
-      : //should only include harmonised variables
-        { resource: { type: { name: { equals: "Network" } } } };
-
-    return $fetch(`/${route.params.schema}/graphql`, {
-      method: "POST",
-      body: {
-        query,
-        variables: {
-          networksFilter,
-          variablesFilter,
-          resourceFilter,
-        },
-      },
-    });
-  }
-);
+            ],
+          }
+        : //should only include harmonised variables
+          { resource: { type: { name: { equals: "Network" } } } },
+    },
+  },
+});
 
 if (error.value) {
   const contextMsg = "Error on landing-page data fetch";
-  logError(error.value, contextMsg);
+  if (error.value.data) {
+    logError(error.value.data, contextMsg);
+  }
   throw new Error(contextMsg);
 }
 
@@ -175,10 +171,21 @@ const description = computed(() => {
 });
 
 const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/networks/${catalogueRouteParam}`;
+
+const resources = computed(() => {
+  if (cohortOnly.value) {
+    return data.value.data.Resources_groupBy.filter(
+      (resource: { type: { name: string } }) =>
+        resource.type.name === "Cohort study"
+    );
+  } else {
+    return data.value.data.Resources_groupBy;
+  }
+});
 </script>
 
 <template>
-  <LayoutsLandingPage class="w-10/12 pt-8">
+  <LayoutsLandingPage>
     <PageHeader class="mx-auto lg:w-7/12 text-center" :title="title">
       <template v-if="scoped" v-slot:description
         >Welcome to the catalogue of
@@ -194,7 +201,7 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
     </PageHeader>
     <LandingPrimary>
       <LandingCardPrimary
-        v-for="resource in data.data.Resources_groupBy"
+        v-for="resource in resources"
         :image="
           getResourceMetadataForType(resource.type.name).image || 'image-link'
         "
@@ -232,7 +239,7 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
       />
 
       <LandingCardPrimary
-        v-if="network.id === 'FORCE-NEN collections'"
+        v-if="!cohortOnly && network.id === 'FORCE-NEN collections'"
         image="image-data-warehouse"
         title="Aggregates"
         callToAction="Aggregates"
@@ -308,19 +315,21 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
 
       <LandingCardSecondary
         icon="viewTable"
-        v-if="data.data.Subpopulations?.count"
+        v-if="data.data.Subpopulations_agg"
       >
         <b>
           {{ data.data.Subpopulations_agg.count }}
           {{
-            getSettingValue("CATALOGUE_LANDING_COHORTS_LABEL", settings) ||
-            "Cohorts"
+            getSettingValue(
+              "CATALOGUE_LANDING_SUBPOPULATIONS_LABEL",
+              settings
+            ) || "Subpopulations"
           }}
         </b>
         <br />
         {{
-          getSettingValue("CATALOGUE_LANDING_COHORTS_TEXT", settings) ||
-          "The total number of cohorts included"
+          getSettingValue("CATALOGUE_LANDING_SUBPOPULATIONS_TEXT", settings) ||
+          "The total number of subpopulations included"
         }}
       </LandingCardSecondary>
     </LandingSecondary>

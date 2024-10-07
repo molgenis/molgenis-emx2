@@ -27,7 +27,7 @@ function handleInput(input: string) {
   }, 500);
 }
 
-const inputId: string = useId();
+const inputId = useId();
 </script>
 <template>
   <form class="relative" @submit.prevent="submitSearch()">
