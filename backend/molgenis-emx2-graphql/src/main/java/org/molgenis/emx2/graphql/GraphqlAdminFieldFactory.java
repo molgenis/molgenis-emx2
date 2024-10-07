@@ -15,13 +15,13 @@ import java.util.Map;
 
 import org.molgenis.emx2.*;
 
-public class GraphlAdminFieldFactory {
-  private GraphlAdminFieldFactory() {
+public class GraphqlAdminFieldFactory {
+  private GraphqlAdminFieldFactory() {
     // hide constructor
   }
 
   // Output types
-  private static GraphQLOutputType userType =
+  private static final GraphQLOutputType userType =
       GraphQLObjectType.newObject()
           .name("_AdminUserType")
           .field(
@@ -109,7 +109,7 @@ public class GraphlAdminFieldFactory {
   private static List<Map<String, String>> getRoles(User user, List<Member> members) {
     return members.stream()
         .filter(member -> member.getUser().equals(user.getUsername()))
-        .map(GraphlAdminFieldFactory::getUserRoleMap)
+        .map(GraphqlAdminFieldFactory::getUserRoleMap)
         .toList();
   }
 

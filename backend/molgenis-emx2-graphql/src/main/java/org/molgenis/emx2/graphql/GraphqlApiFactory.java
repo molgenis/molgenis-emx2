@@ -60,7 +60,7 @@ public class GraphqlApiFactory {
 
     // admin operations
     if (database.isAdmin()) {
-      queryBuilder.field(GraphlAdminFieldFactory.queryAdminField(database));
+      queryBuilder.field(GraphqlAdminFieldFactory.queryAdminField(database));
     }
 
     // database operations
