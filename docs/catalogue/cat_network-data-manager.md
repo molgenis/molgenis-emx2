@@ -6,43 +6,44 @@ The Network data manager is responsible for uploading the common data model (CDM
 
 ### Define CDM metadata
 
-[MOLGENIS Data Catalogue](https://data-catalogue.molgeniscloud.org/catalogue/catalogue/#/variable-explorer/) (sometimes
-also called 'EMX2 catalogue') provides a framework to describe in detail: cohort metadata; definitions of the data
-variables collected (aka 'source variables'); and mappings to common data models (aka 'target variables). Its purpose is
-to facilitate pooled data analysis of multiple cohorts.
+[MOLGENIS catalogue](https://data-catalogue.molgeniscloud.org/catalogue/catalogue/#) provides a
+framework to describe in detail: metadata of different data resources, such as cohorts and data sources; definitions of 
+the variables collected in these resources; and mappings to common data models. Its purpose is to provide a gateway to 
+find and access health research data and to facilitate pooled data analysis of multiple cohorts 
+[Fortier et al, 2017](https://pubmed.ncbi.nlm.nih.gov/27272186/) and multi-data source studies 
+[Gini et al, 2020](https://pubmed.ncbi.nlm.nih.gov/32243569/).
 
-- The cohort metadata provides descriptive information such as contact details, name of the cohort, and high-level
+- The resource metadata provides descriptive information such as contact details, name of the cohort, and high-level
   summary of contents and cohort design.
-- The 'source variables' can be considered as a codebook or data dictionary for a cohort (e.g.
+- The 'source variables' can be considered as a codebook or data dictionary for a resource (e.g.
   ALSPAC).
 - Similarly, the common data model metadata (or 'target variables') can be considered the codebook for a network of
   cohorts working together (e.g. LifeCycle)
 - The mappings describe how source variables have been converted into target variables as basis for integrated analysis.
 
 This section explains how to submit the 'target variables' (also called the harmonised model or common data model) into
-the Data Catalogue. Expected users of this 'how to' are central data managers of networks such as LifeCycle or
-LongITools. You will need login details to upload metadata to MOLGENIS Data Catalogue.
+the catalogue. Expected users of this 'how to' are central data managers of networks such as LifeCycle or
+LongITools. You will need login details to upload metadata to MOLGENIS catalogue.
 
 #### Define common data elements
 
 We use the [*TargetDictionary* template](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/TargetDictionary.xlsx)
 to describe the common data model elements. The 
 [*TargetDictionary* template](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/TargetDictionary.xlsx)
-consists of multiple sheets. Each sheet corresponds to a table in the Data Catalogue. The columns in the sheet
+consists of multiple sheets. Each sheet corresponds to a table in catalogue. The columns in the sheet
 correspond to columns in the table concerned. This document describes how to fill out each of the sheets and their
 columns. A column with an asterisk (\*) after its name is mandatory, i.e., it should contain values for the system to
 accept a data upload. You can download this
 [*filled out example*](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/TargetDictionary_testCDM.xlsx)
-as a reference for filling out the template. Note that there is no sheet for *All variables*. This table is a generic listing of all
-variables entered for the cohort; it shows *Variables* and *Repeated variables* in one table.
+as a reference for filling out the template.
 
 It is good practice to try adding a few variables to the template first and see whether your upload succeeds. To
-upload the metadata to the Data Catalogue see the section To upload the metadata to the Data Catalogue see the
-section [Upload metadata](cat_network-data-manager.md#upload-metadata) to the Data Catalogue.
+upload the metadata to the Data Catalogue see the section To upload the metadata to the catalogue see the
+section [Upload metadata](cat_network-data-manager.md#upload-metadata).
 
-![Figure 1. Tables in a Network’s staging area in the Data Catalogue](../img/cat_tables-in-catalogue.png)
+![Figure 1. Tables in a Network’s staging area in the MOLGENIS catalogue](../img/cat_tables-in-catalogue.png)
 
-<sup>Figure 1. Tables in a Network’s staging area in the Data Catalogue.</sup>
+<sup>Figure 1. Tables in a Network’s staging area in the MOLGENIS catalogue.</sup>
 
 
 ### Fill out network rich metadata
@@ -97,7 +98,7 @@ The network's variables are defined in the *Variables* sheet.
 | since version | Version of the data model when this variable was introduced | e.g. 1.0.0 or 2.1 |
 | until version | Version of the data model when this variable was deleted | e.g. 2.0.0 or 2.1 |
 
-<sup>Table 2. Description of the columns that can be filled out for Variables. * = mandatory; 1 = contact [*molgenis-support@umcg.nl*](mailto:molgenis-support@umcg.nl) to add Vocabularies, Keywords or Units</sup>
+<sup>Table 2. Description of the columns that can be filled out for Variables. * = mandatory; 1 = contact [*molgenis support*](mailto:support@molgenis.org) to add Vocabularies, Keywords or Units</sup>
 
 #### *Variable values* sheet
 
@@ -134,8 +135,8 @@ optional.
 | dataset \* | Dataset name | e.g. core |
 | name \* | Variable name | e.g. height\_1 |
 | label | Human readable variable label | |
-| is repeat of.dataset \* | Dataset that contains the variable that is repeated | Datasets must be predefined in the _Datasets_ sheet; e.g. core |
-| is repeat of.name \* | Name of the variable that is repeated | Variables must be predefined in the _Variables_ sheet; e.g. height\_0 |
+| is repeat of.dataset \* | Dataset that contains the variable that is repeated | Datasets must be predefined in the _Datasets_ sheet |
+| is repeat of.name \* | Name of the variable that is repeated | Variables must be predefined in the _Variables_ sheet |
 | collection event.resource | Refer to the network that contains the collection event | e.g. LifeCycle |
 | collection event.name | Refer to a collection event; The collection event needs to be predefined in the Collection events table in the network staging area | e.g. y1 or y2 |
 | since version | Version of the data model when this variable was introduced | e.g. 1.0.0 or 2.1 |
@@ -145,7 +146,7 @@ optional.
 
 ### Request access
 
-Send an email to [*molgenis-support@umcg.nl*](mailto:molgenis-support@umcg.nl) to apply for an account to upload metadata to
+Send an email to [*molgenis support*](mailto:support@molgenis.org) to apply for an account to upload metadata to
 the Data Catalogue.
 
 ### Upload metadata
