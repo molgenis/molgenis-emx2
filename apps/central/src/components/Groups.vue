@@ -21,8 +21,6 @@
 
       <label>{{ count }} databases found</label>
 
-      <!-- <pre>{{ schemas }}</pre> -->
-
       <table class="table table-hover table-bordered bg-white">
         <thead>
           <th style="width: 1px">
