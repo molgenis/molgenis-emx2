@@ -63,7 +63,7 @@ async function getUsers() {
   const { data, error } = await useFetch<IAdminResponse>("/api/graphql", {
     method: "post",
     body: {
-      query: `{ _admin { users(limit: ${LIMIT}${offset.value}) { email, settings, {key, value}, roles } userCount } }`,
+      query: `{ _admin { users(limit: ${LIMIT}${offset.value}) { email, settings, {key, value}, roles { schemaId, role } } userCount } }`,
     },
   });
   if (error.value) {

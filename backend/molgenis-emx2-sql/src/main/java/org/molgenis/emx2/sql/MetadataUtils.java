@@ -5,7 +5,6 @@ import static org.jooq.impl.SQLDataType.*;
 import static org.molgenis.emx2.Constants.MG_ROLE_PREFIX;
 
 import java.util.*;
-
 import org.jooq.*;
 import org.jooq.DSLContext;
 import org.molgenis.emx2.*;
@@ -484,9 +483,9 @@ public class MetadataUtils {
   protected static void saveColumnMetadata(DSLContext jooq, Column column) {
     String refSchema =
         column.isReference()
-            ? column.getRefSchemaName().equals(column.getSchemaName())
-            ? null
-            : column.getRefSchemaName()
+            ? (column.getRefSchemaName().equals(column.getSchemaName())
+                ? null
+                : column.getRefSchemaName())
             : null;
     jooq.insertInto(COLUMN_METADATA)
         .columns(

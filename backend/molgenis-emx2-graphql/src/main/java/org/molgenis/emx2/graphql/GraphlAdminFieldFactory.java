@@ -1,18 +1,17 @@
 package org.molgenis.emx2.graphql;
 
-import static org.molgenis.emx2.Constants.MOLGENIS_JWT_SHARED_SECRET;
-import static org.molgenis.emx2.Constants.SETTINGS;
+import static org.molgenis.emx2.Constants.*;
+import static org.molgenis.emx2.Constants.KEY;
 import static org.molgenis.emx2.graphql.GraphqlConstants.*;
 import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.*;
 
 import graphql.Scalars;
 import graphql.schema.*;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.sql.MetadataUtils;
-import org.molgenis.emx2.sql.SqlDatabase;
 
 public class GraphlAdminFieldFactory {
   private GraphlAdminFieldFactory() {
@@ -36,7 +35,7 @@ public class GraphlAdminFieldFactory {
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(ROLES)
-                  .type(GraphQLList.list(Scalars.GraphQLString))
+                  .type(GraphQLList.list(outputUserRolesType))
                   .build())
           .build();
 
@@ -100,13 +99,25 @@ public class GraphlAdminFieldFactory {
     result.put(EMAIL, user.getUsername());
     result.put(SETTINGS, mapSettingsToGraphql(user.getSettings()));
 
-    List<String> roles =
+    List<Map<String, String>> roles =
         members.stream()
             .filter(member -> member.getUser().equals(user.getUsername()))
-            .map(Member::getRole)
+            .map(
+                (member) -> {
+                  return getUserRoleMap(member);
+                })
             .toList();
     result.put(ROLES, roles);
     return result;
+  }
+
+  private static Map<String, String> getUserRoleMap(Member member) {
+    String role = member.getRole();
+    String[] parts = role.split("/");
+    Map<String, String> roleMap = new HashMap<>();
+    roleMap.put(SCHEMA_ID, parts[0]);
+    roleMap.put(ROLE, parts[1]);
+    return roleMap;
   }
 
   public static Object mapSettingsToGraphql(Map<String, String> settings) {

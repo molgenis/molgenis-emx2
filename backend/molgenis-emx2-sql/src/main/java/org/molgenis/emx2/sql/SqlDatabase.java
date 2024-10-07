@@ -8,11 +8,9 @@ import static org.molgenis.emx2.sql.SqlDatabaseExecutor.*;
 import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeCreateSchema;
 
 import com.zaxxer.hikari.HikariDataSource;
-
 import java.util.*;
 import java.util.function.Supplier;
 import javax.sql.DataSource;
-
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.SQLDialect;
