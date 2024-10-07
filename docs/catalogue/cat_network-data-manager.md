@@ -38,7 +38,7 @@ accept a data upload. You can download this
 as a reference for filling out the template.
 
 It is good practice to try adding a few variables to the template first and see whether your upload succeeds. To
-upload the metadata to the Data Catalogue see the section To upload the metadata to the catalogue see the
+upload the metadata to the catalogue see the section To upload the metadata to the catalogue see the
 section [Upload metadata](cat_network-data-manager.md#upload-metadata).
 
 ![Figure 1. Tables in a Network’s staging area in the MOLGENIS catalogue](../img/cat_tables-in-catalogue.png)
