@@ -28,7 +28,7 @@ LongITools. You will need login details to upload metadata to MOLGENIS catalogue
 #### Define common data elements
 
 We use the [*TargetDictionary* template](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/TargetDictionary.xlsx)
-to describe the common data model elements. The 
+to describe common data model elements. The 
 [*TargetDictionary* template](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/TargetDictionary.xlsx)
 consists of multiple sheets. Each sheet corresponds to a table in catalogue. The columns in the sheet
 correspond to columns in the table concerned. This document describes how to fill out each of the sheets and their
@@ -48,12 +48,9 @@ section [Upload metadata](cat_network-data-manager.md#upload-metadata).
 
 ### Fill out network rich metadata
 
-Open your staging area, navigate to 'Tables' and open the table 'Networks'. Your network id and name are already 
+Open your staging area, navigate to 'Tables' and open the table 'Resources'. Your network id and name are already 
 filled out. Click on the pencil sign next to this entry to start editing your network rich metadata by filling out 
-the form. The network's common data model should also be filled out in the same manner under 'Models'.'Subcohorts' 
-and 'Collection events' are filled out through the same route, by accessing the corresponding tables. Make sure to 
-choose the right <b>model</b> id under resource when defining your 'Subcohorts' and 'Collection events', e.g. LongITools
-should select LongITools_CDM.
+the form. 'Subpopulations' and 'Collection events' are filled out through the same route, by accessing the corresponding tables.
 
 
 ### Define the common data model
@@ -64,17 +61,18 @@ The network's datasets are defined in the *Datasets* sheet. Columns with an aste
 
 | *Column name* | *Description* | *Remarks* |
 | --- | --- | --- |
-| resource \* | Id of the <b>model</b>. | e.g LifeCycle_CDM, LongITools_CDM or ATHLETE_CDM |
+| resource \* | Id of the <b>resource</b>. | e.g LifeCycle, LongITools or ATHLETE |
 | name \* | Unique dataset name | |
 | label | Dataset label | |
 | description | Dataset description | |
-| unit of observation | Defines what each record in this dataset describes | |
+| dataset type<sup>1</sup> | Type of dataset | Find list to choose from in CatalogueOntologies [Dataset types](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/DatasetTypes) |
+| unit of observation<sup>1</sup> | Defines what each record in this dataset describes | Find list to choose from in CatalogueOntologies [Observation targets](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/Observationtargets) |
 | number of rows | Count of the number of records in this dataset | |
 | keywords<sup>1</sup> | Enables grouping of datasets into topics and helps to display variables in a tree | Find list to choose from in CatalogueOntologies [Keywords](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/Keywords) |
 | since version | Version of the data model when this dataset was introduced | e.g. 1.0.0 or 2.1 |
 | until version | Version of the data model when this dataset was deleted | e.g. 2.0.0 or 2.1 |
 
-<sup>Table 1. Description of the columns that can be filled out for Datasets. * = mandatory</sup>
+<sup>Table 1. Description of the columns that can be filled out for Datasets. * = mandatory; 1 = contact [*molgenis support*](mailto:support@molgenis.org) to add Keywords, Observation targets or Dataset types</sup>
 
 #### *Variables* sheet
 
@@ -82,21 +80,28 @@ The network's variables are defined in the *Variables* sheet.
 
 | *Column name* | *Description* | *Remarks* |
 | --- | --- | --- |
-| resource \* | Id of the <b>model</b> that contains this variable | e.g LifeCycle_CDM, LongITools_CDM or ATHLETE_CDM |
-| dataset \* | Dataset that contains the variable | Datasets must be predefined in the _Datasets_ sheet |
+| resource \* | Resource (Network) that this variable belongs to. Fill out your resource id | The resource id is found in the table _Resources_ in the resource staging area |
+| dataset \* | Dataset that contains the variable. | Datasets must be predefined in the _Datasets_ sheet |
 | name \* | Variable name, unique within a dataset | |
 | label | Human readable variable label | |
 | format | The data type of the variable | Find list to choose from in CatalogueOntologies [Formats](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/Formats) |
 | unit<sup>1</sup> | Unit in case of a continuous or integer format | Find list to choose from in CatalogueOntologies [Units](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/Units) |
 | description | Description of the variable | |
-| keywords<sup>1</sup> | Enables grouping of variables into topics and displaying in a tree | Find list to choose from in CatalogueOntologies [Keywords](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/Keywords)  |
-| example values | Examples of values in a comma separated list | Makes your data more insightful; e.g. 1,2,3 or TRUE,FALSE or 1.23,4.56,3.14 |
-| mandatory | Whether this variable is required within this collection | |
+| exampleValues | Examples of values in a comma separated list | Makes your data structure more insightful. E.g. 1,2,3 or TRUE,FALSE or 1.23,4.56,3.14 |
+| repeat unit<sup>1</sup> | In case of repeated variables, indicate the repeat period | Find list to choose from in CatalogueOntologies [Repeat units](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/RepeatUnits) |
+| repeat min | The minimum repeat unit | E.g. 0 or 10 |
+| repeat max | The maximum repeat unit | E.g. 10 or 60 |
+| collection events | Refer to the names of collection events in a comma separated list | The collection events need to be predefined in the Collection events table in the resource staging area; e.g. y1, y2 |
 | vocabularies<sup>1</sup> | Refer to ontologies being used | Find list to choose from in CatalogueOntologies [Vocabularies](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/Vocabularies) |
-| collection event.resource | Refer to the resource that contains the collection event | e.g. LifeCycle |
-| collection event.name | Refer to a collection event; The collection event needs to be predefined in the Collection events table in the network staging area | e.g. y1 or y2 |
+| keywords<sup>1</sup> | Enables grouping of variables into topics and helps to display variables in a tree | Find list to choose from in Catalogue [Keywords](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/Keywords)|
 | since version | Version of the data model when this variable was introduced | e.g. 1.0.0 or 2.1 |
 | until version | Version of the data model when this variable was deleted | e.g. 2.0.0 or 2.1 |
+| useExternaldefinition.resource | Refer to the associated resource id | When using the definitions of a harmonised variable from another CDM |
+| useExternaldefinition.dataset | Refer to the associated dataset name | When using the definitions of a harmonised variable from another CDM |
+| useExternaldefinition.name | Refer to the associated variable name | When using the definitions of a harmonised variable from another CDM |
+
+<sup>Table 2. Description of the columns that can be filled out for Variables. * = mandatory; 
+1 = contact [*molgenis support*](mailto:support@molgenis.org) to add Vocabularies, Keywords, Repeat units, or Units</sup>
 
 <sup>Table 2. Description of the columns that can be filled out for Variables. * = mandatory; 1 = contact [*molgenis support*](mailto:support@molgenis.org) to add Vocabularies, Keywords or Units</sup>
 
