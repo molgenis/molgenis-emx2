@@ -107,7 +107,7 @@ Columns with an asterisk (\*) after their name are mandatory.
 | since version | Version of the data model when this dataset was introduced | e.g. 1.0.0 or 2.1 |
 | until version | Version of the data model when this dataset was deleted | e.g. 2.0.0 or 2.1 |
 
-<sup>Table 1. Description of the columns that can be filled out for Datasets. * = mandatory; 1 = contact [*support@molgenis.org*](mailto:support@molgenis.org) to add Keywords, Observation targets or Dataset types</sup>
+<sup>Table 1. Description of the columns that can be filled out for Datasets. * = mandatory; 1 = contact [*molgenis support*](mailto:support@molgenis.org) to add Keywords, Observation targets or Dataset types</sup>
 
 
 #### *Variables* sheet
@@ -137,7 +137,7 @@ The variables of the datasets specified in the *Datasets* sheet are defined in t
 | useExternaldefinition.name | Refer to the associated variable name | When using the definitions of a harmonised variable from another CDM |
 
 <sup>Table 2. Description of the columns that can be filled out for Variables. * = mandatory; 
-1 = contact [*support@molgenis.org*](mailto:support@molgenis.org) to add Vocabularies, Keywords, Repeat units, or Units</sup>
+1 = contact [*molgenis support*](mailto:support@molgenis.org) to add Vocabularies, Keywords, Repeat units, or Units</sup>
 
 #### *Variable values* sheet
 
@@ -216,7 +216,7 @@ you will see a listing of databases that are accessible to you. Click on your re
 Go to 'Up/Download' in the menu. Use 'browse' to select a template and 'upload' to start uploading your metadata. After 
 uploading, you can view your metadata under 'Tables'.
 
-Please report any bugs or difficulties to [*support@molgenis.org*](mailto:support@molgenis.org).
+Please report any bugs or difficulties to [*molgenis support*](mailto:support@molgenis.org).
 
 #### Find harmonisations
 
@@ -227,4 +227,4 @@ once they have been transferred there.
 #### Request access (catalogue)
 
 If you do not have an account to upload data to the catalogue yet, please
-email [*support@molgenis.org*](mailto:support@molgenis.org) to apply for an account.
+email [*molgenis support*](mailto:support@molgenis.org) to apply for an account.
