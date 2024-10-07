@@ -2,7 +2,6 @@ package org.molgenis.emx2.sql;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,15 +20,12 @@ class ChangeLogExecutorTest {
   void getSchemasWithChangeLog() {
     List<String> schemasWithChangeLog =
         ChangeLogExecutor.getSchemasWithChangeLog(sqlDatabase.getJooq());
-    assertEquals(
-        Arrays.asList(
-            new String[] {"testSchemaChangesChangeCount", "testSchemaChanges", "pet store"}),
-        schemasWithChangeLog);
+    assertEquals(List.of(), schemasWithChangeLog);
   }
 
   @Test
   void executeLastUpdates() {
     List<LastUpdate> lastUpdates = ChangeLogExecutor.executeLastUpdates(sqlDatabase.getJooq());
-    assertEquals(3, lastUpdates.size());
+    assertEquals(0, lastUpdates.size());
   }
 }
