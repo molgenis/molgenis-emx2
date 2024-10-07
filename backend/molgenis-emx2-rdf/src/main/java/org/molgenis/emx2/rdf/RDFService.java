@@ -143,7 +143,7 @@ public class RDFService {
     try {
       final ModelBuilder builder = new ModelBuilder();
 
-      buildNamespaces(builder, schemas);
+      buildgenericRdf(builder, schemas);
 
       if (table == null) {
         describeRoot(builder);
@@ -178,7 +178,13 @@ public class RDFService {
     }
   }
 
-  private void buildNamespaces(ModelBuilder builder, Schema[] schemas) throws IOException {
+  /**
+   * Processes all schemas for custom namespaces/RDF.
+   * @param builder
+   * @param schemas
+   * @throws IOException
+   */
+  private void buildgenericRdf(ModelBuilder builder, Schema[] schemas) throws IOException {
     // Defines if all used schemas have a custom_rdf setting.
     boolean allIncludeCustomRdf = true;
     // Define the schemas at the start of the document.
@@ -205,8 +211,8 @@ public class RDFService {
   }
 
   private void addModelToBuilder(ModelBuilder builder, Model model) {
-    model.getNamespaces().forEach(builder::setNamespace);
-    model.forEach(e -> builder.add(e.getSubject(), e.getPredicate(), e.getObject()));
+    model.getNamespaces().forEach(builder::setNamespace); // namespaces
+    model.forEach(e -> builder.add(e.getSubject(), e.getPredicate(), e.getObject())); // triples
   }
 
   public WriterConfig getConfig() {
