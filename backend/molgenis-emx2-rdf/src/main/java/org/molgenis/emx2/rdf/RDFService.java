@@ -4,7 +4,6 @@ import static org.eclipse.rdf4j.model.util.Values.*;
 import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
-import static org.molgenis.emx2.utils.URIUtils.*;
 
 import com.google.common.net.UrlEscapers;
 import java.io.IOException;
@@ -17,7 +16,6 @@ import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Namespace;
 import org.eclipse.rdf4j.model.Value;
-import org.eclipse.rdf4j.model.base.CoreDatatype;
 import org.eclipse.rdf4j.model.util.ModelBuilder;
 import org.eclipse.rdf4j.model.util.Values;
 import org.eclipse.rdf4j.model.vocabulary.*;
@@ -83,6 +81,7 @@ public class RDFService {
 
   private final WriterConfig config;
   private final RDFFormat rdfFormat;
+  private final ColumnTypeRdfMapper mapper;
 
   /**
    * The baseURL is the URL at which MOLGENIS is deployed, include protocol and port (if deviating
@@ -103,6 +102,7 @@ public class RDFService {
     // construct URL paths.
     String baseUrlTrim = baseURL.trim();
     this.baseURL = baseUrlTrim.endsWith("/") ? baseUrlTrim : baseUrlTrim + "/";
+    this.mapper = new ColumnTypeRdfMapper(this.baseURL);
     this.rdfFormat = format == null ? RDFFormat.TURTLE : format;
 
     this.config = new WriterConfig();
@@ -143,6 +143,7 @@ public class RDFService {
     try {
       final ModelBuilder builder = new ModelBuilder();
 
+      // (custom) namespaces & custom rdf
       buildgenericRdf(builder, schemas);
 
       if (table == null) {
@@ -180,6 +181,7 @@ public class RDFService {
 
   /**
    * Processes all schemas for custom namespaces/RDF.
+   *
    * @param builder
    * @param schemas
    * @throws IOException
@@ -258,7 +260,7 @@ public class RDFService {
     return Values.namespace(prefix, url);
   }
 
-  private Namespace getSchemaNamespace(final Schema schema) {
+  Namespace getSchemaNamespace(final Schema schema) {
     return getSchemaNamespace(schema.getMetadata());
   }
 
@@ -373,7 +375,7 @@ public class RDFService {
         builder.add(subject, RDF.TYPE, OWL.OBJECTPROPERTY);
       } else {
         builder.add(subject, RDF.TYPE, OWL.DATATYPEPROPERTY);
-        builder.add(subject, RDFS.RANGE, columnTypeToXSD(column.getColumnType()));
+        builder.add(subject, RDFS.RANGE, ColumnTypeRdfMapper.getCoreDataType(column));
       }
     }
     builder.add(subject, RDFS.LABEL, column.getName());
@@ -404,34 +406,6 @@ public class RDFService {
         builder.add(subject, DC.DESCRIPTION, Values.literal(entry.getValue(), entry.getKey()));
       }
     }
-  }
-
-  private CoreDatatype.XSD columnTypeToXSD(final ColumnType columnType) {
-    return switch (columnType) {
-      case BOOL, BOOL_ARRAY -> CoreDatatype.XSD.BOOLEAN;
-      case DATE, DATE_ARRAY -> CoreDatatype.XSD.DATE;
-      case DATETIME, DATETIME_ARRAY -> CoreDatatype.XSD.DATETIME;
-      case DECIMAL, DECIMAL_ARRAY -> CoreDatatype.XSD.DECIMAL;
-      case EMAIL,
-              EMAIL_ARRAY,
-              HEADING,
-              JSONB,
-              JSONB_ARRAY,
-              STRING,
-              STRING_ARRAY,
-              TEXT,
-              TEXT_ARRAY,
-              UUID,
-              UUID_ARRAY,
-              AUTO_ID ->
-          CoreDatatype.XSD.STRING;
-      case FILE, HYPERLINK, HYPERLINK_ARRAY, ONTOLOGY, ONTOLOGY_ARRAY, REF, REF_ARRAY, REFBACK ->
-          CoreDatatype.XSD.ANYURI;
-      case INT, INT_ARRAY -> CoreDatatype.XSD.INT;
-      case LONG, LONG_ARRAY -> CoreDatatype.XSD.LONG;
-      case PERIOD, PERIOD_ARRAY -> CoreDatatype.XSD.DURATION;
-      default -> throw new MolgenisException("ColumnType not mapped: " + columnType);
-    };
   }
 
   /**
@@ -474,7 +448,7 @@ public class RDFService {
           builder.add(subject, OWL.SAMEAS, Values.iri(row.getString(ONTOLOGY_TERM_URI)));
         }
         if (row.getString("parent") != null) {
-          List<IRI> parents = getIriValue(row, table.getMetadata().getColumn("parent"));
+          Set<Value> parents = mapper.retrieveValues(row, table.getMetadata().getColumn("parent"));
           for (var parent : parents) {
             builder.add(subject, RDFS.SUBCLASSOF, parent);
           }
@@ -501,7 +475,7 @@ public class RDFService {
             continue;
           }
           IRI columnIRI = getColumnIRI(column);
-          for (final Value value : formatValue(row, column)) {
+          for (final Value value : mapper.retrieveValues(row, column)) {
             if (column.getSemantics() != null) {
               for (String semantics : column.getSemantics()) {
                 builder.add(subject.stringValue(), semantics, value);
@@ -591,107 +565,5 @@ public class RDFService {
     final Namespace ns = getSchemaNamespace(metadata.getRootTable().getSchema());
     PrimaryKey key = new PrimaryKey(keyParts);
     return Values.iri(ns, rootTableName + "?" + key.getEncodedValue());
-  }
-
-  private List<IRI> getIriValue(final Row row, final Column column) {
-    final TableMetadata target = column.getRefTable();
-    final String rootTableName =
-        UrlEscapers.urlPathSegmentEscaper().escape(target.getRootTable().getIdentifier());
-    final Namespace ns = getSchemaNamespace(target.getRootTable().getSchema());
-
-    final Set<IRI> iris = new HashSet<>();
-    final Map<Integer, Map<String, String>> items = new HashMap<>();
-    for (final Reference reference : column.getReferences()) {
-      final String localColumn = reference.getName();
-      final String targetColumn = reference.getRefTo();
-      if (column.isArray()) {
-        final String[] values = row.getStringArray(localColumn);
-        if (values != null) {
-          for (int i = 0; i < values.length; i++) {
-            var keyValuePairs = items.getOrDefault(i, new LinkedHashMap<>());
-            keyValuePairs.put(targetColumn, values[i]);
-            items.put(i, keyValuePairs);
-          }
-        }
-      } else {
-        final String value = row.getString(localColumn);
-        if (value != null) {
-          var keyValuePairs = items.getOrDefault(0, new LinkedHashMap<>());
-          keyValuePairs.put(targetColumn, value);
-          items.put(0, keyValuePairs);
-        }
-      }
-    }
-
-    for (final var item : items.values()) {
-      PrimaryKey key = new PrimaryKey(item);
-      iris.add(Values.iri(ns, rootTableName + "?" + key.getEncodedValue()));
-    }
-    return List.copyOf(iris);
-  }
-
-  private List<Value> formatValue(final Row row, final Column column) {
-    final List<Value> values = new ArrayList<>();
-    final ColumnType columnType = column.getColumnType();
-    if (columnType.isReference()) {
-      values.addAll(getIriValue(row, column));
-    } else if (columnType.equals(ColumnType.FILE)) {
-      if (row.getString(column.getName() + "_id") != null) {
-        final String schemaPath =
-            UrlEscapers.urlPathSegmentEscaper().escape(column.getSchemaName());
-        final String tablePath = UrlEscapers.urlPathSegmentEscaper().escape(column.getTableName());
-        final String columnPath = UrlEscapers.urlPathSegmentEscaper().escape(column.getName());
-        values.add(Values.iri(schemaPath + "/api/file/" + tablePath + "/" + columnPath + "/"));
-      }
-    } else {
-      values.addAll(getLiteralValues(row, column));
-    }
-    return values;
-  }
-
-  private List<Value> getLiteralValues(final Row row, final Column column) {
-    CoreDatatype.XSD xsdType = columnTypeToXSD(column.getColumnType());
-    if (row.getString(column.getName()) == null) {
-      return List.of();
-    }
-    return switch (xsdType) {
-      case BOOLEAN ->
-          Arrays.stream(row.getBooleanArray(column.getName()))
-              .map(value -> (Value) literal(value))
-              .toList();
-      case DATE ->
-          Arrays.stream(row.getDateArray(column.getName()))
-              .map(value -> (Value) literal(value.toString(), xsdType))
-              .toList();
-      case DATETIME ->
-          Arrays.stream(row.getDateTimeArray(column.getName()))
-              .map(value -> (Value) literal(dateTimeFormatter.format(value), xsdType))
-              .toList();
-      case DECIMAL ->
-          Arrays.stream(row.getDecimalArray(column.getName()))
-              .map(value -> (Value) literal(value))
-              .toList();
-      case STRING ->
-          Arrays.stream(row.getStringArray(column.getName()))
-              .map(value -> (Value) literal(value))
-              .toList();
-      case ANYURI ->
-          Arrays.stream(row.getStringArray(column.getName()))
-              .map(value -> (Value) encodedIRI(value))
-              .toList();
-      case INT ->
-          Arrays.stream(row.getIntegerArray(column.getName()))
-              .map(value -> (Value) literal(value))
-              .toList();
-      case LONG ->
-          Arrays.stream(row.getLongArray(column.getName()))
-              .map(value -> (Value) literal(value))
-              .toList();
-      case DURATION ->
-          Arrays.stream(row.getPeriodArray(column.getName()))
-              .map(value -> (Value) literal(value))
-              .toList();
-      default -> throw new MolgenisException("XSD type formatting not supported for: " + xsdType);
-    };
   }
 }
