@@ -87,6 +87,13 @@ public class ColumnTypeRdfMapper {
     this.baseURI = baseURI;
   }
 
+  /**
+   * Retrieve all {@link ColumnType}{@code 's} which have a mapping available.
+   */
+  static Set<ColumnType> getMapperKeys() {
+    return mapping.keySet();
+  }
+
   public static CoreDatatype.XSD getCoreDataType(Column column) {
     return getCoreDataType(column.getColumnType());
   }
