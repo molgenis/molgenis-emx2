@@ -3,6 +3,17 @@
   <Container class="flex flex-col items-center">
     <ContentBlock class="w-full mt-3" title="User management">
       <h2>User List ({{ userCount }})</h2>
+      <div>
+        <InputString id="New user name" v-model="newUserName" />
+        <InputString id="New user password" v-model="password" />
+        <Button
+          icon="plus"
+          size="tiny"
+          @click="createUser(newUserName, password)"
+        >
+          Add user
+        </Button>
+      </div>
       <Pagination
         :currentPage="currentPage"
         :totalPages="totalPages"
@@ -20,7 +31,9 @@
         <template #body>
           <!-- Why is the first cell blue/link like? -->
           <TableRow v-for="user in users">
-            <TableCell>Edit/Delete/Disable buttons</TableCell>
+            <TableCell>
+              <Button size="tiny" icon="trash" @click="deleteUser(user)" />
+            </TableCell>
             <!-- clickable modal for role management? What to show here, count/summary/all? -->
             <TableCell>{{ user.email }}</TableCell>
             <TableCell>
@@ -28,7 +41,7 @@
                 {{ role.schemaId }} ({{ role.role }})
               </div>
             </TableCell>
-            <TableCell> Tokens: {{ user.tokens.length }} </TableCell>
+            <TableCell> Tokens: {{ user.tokens?.length }} </TableCell>
           </TableRow>
         </template>
       </Table>
@@ -52,6 +65,8 @@ const offset = computed(() => {
     : "";
 });
 
+const password = ref<string>("");
+const newUserName = ref<string>("");
 const users = ref<IUser[]>([]);
 const userCount = ref(0);
 const totalPages = ref(0);
@@ -115,7 +130,7 @@ function deleteUser(user: IUser) {
 
 function updateUser(user: IUser) {
   const userToSend = user;
-  useFetch(API_GRAPHQL, {
+  useFetch("/graphql", {
     method: "post",
     body: {
       query: `mutation change($editMember:MolgenisMembersInput){change(members:[$editMember]){message}}`,
@@ -124,6 +139,19 @@ function updateUser(user: IUser) {
   }).catch((error) => {
     handleError("Error updating user: ", error.value);
   });
+}
+
+function createUser(newUserName: string, passWord: string) {
+  useFetch("/graphql", {
+    method: "post",
+    body: {
+      query: `mutation{changePassword(email: "${newUserName}", password: "${passWord}"){status,message}}`,
+    },
+  })
+    .then(getUsers)
+    .catch((error) => {
+      handleError("Error creating/updating user: ", error.value);
+    });
 }
 
 function handleError(message: string, error: any) {
@@ -141,9 +169,10 @@ interface IAdminResponse {
 }
 
 interface IUser {
+  //TODO split into communication and internal interface
   email: string;
   settings: ISetting[];
-  tokens: string[];
-  roles: { schemaId: string; role: string }[];
+  tokens?: string[];
+  roles?: { schemaId: string; role: string }[];
 }
 </script>
