@@ -21,6 +21,7 @@ order,name,code,parent,ontologyTermURI,definition
 ,Tears,A12.200.882,Fluids and Secretions,,
 ,Feces,A12.459,Fluids and Secretions,,
 ,Breath,,Fluids and Secretions,,
+,Dialisate,,Fluids and Secretions,,
 ,Cells,A11,,,
 ,Adipocytes,A11.329.114,Cells,,
 ,"Myocytes, Cardiac",A11.620.500,Cells,,

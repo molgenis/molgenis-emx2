@@ -17,9 +17,7 @@ import dateUtils from "~/utils/dateUtils";
 const config = useRuntimeConfig();
 const route = useRoute();
 
-const resourceType = computed(() =>
-  getResourceMetadataForPath(route.params.resourceType as string)
-);
+const resourceType = usePathResourceType();
 
 const query = gql`
   query Resources($id: String) {
@@ -152,6 +150,7 @@ const query = gql`
       releaseDescription
       fundingStatement
       acknowledgements
+      linkageOptions
       prelinked
       documentation {
         name
@@ -234,7 +233,7 @@ function collectionEventMapper(item: any) {
     })(),
     numberOfParticipants: item.numberOfParticipants,
     _renderComponent: "CollectionEventDisplay",
-    _path: `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/resources/${route.params.resource}/collection-events/${item.name}`,
+    _path: `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/${route.params.resourceType}/${route.params.resource}/collection-events/${item.name}`,
   };
 }
 
@@ -256,7 +255,7 @@ function subpopulationMapper(subpopulation: any) {
     description: subpopulation.description,
     numberOfParticipants: subpopulation.numberOfParticipants,
     _renderComponent: "SubpopulationDisplay",
-    _path: `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/resources/${route.params.resource}/subpopulations/${subpopulation.name}`,
+    _path: `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/${route.params.resourceType}/${route.params.resource}/subpopulations/${subpopulation.name}`,
   };
 }
 
@@ -268,12 +267,12 @@ const networks = computed(() =>
       )
 );
 
-let tocItems = computed(() => {
+const tocItems = computed(() => {
   let tableOffContents = [
     { label: "Description", id: "Description" },
     { label: "General design", id: "GeneralDesign" },
   ];
-  if (population) {
+  if (showPopulation.value) {
     tableOffContents.push({
       label: "Population",
       id: "population",
@@ -495,19 +494,25 @@ if (route.params.catalogue) {
   ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}`;
   if (route.params.resourceType !== "about")
     crumbs[
-      resourceType.value.plural
-    ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/${resourceType.value.path}`;
+      resourceType.plural
+    ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/${resourceType.path}`;
 } else {
   crumbs["Home"] = `/${route.params.schema}/ssr-catalogue/`;
   crumbs["Browse"] = `/${route.params.schema}/ssr-catalogue/all`;
   if (route.params.resourceType !== "about")
     crumbs[
-      resourceType.value.plural
-    ] = `/${route.params.schema}/ssr-catalogue/all/${resourceType.value.path}`;
+      resourceType.plural
+    ] = `/${route.params.schema}/ssr-catalogue/all/${resourceType.path}`;
 }
 
 const contributors = computed(() => resource.value.peopleInvolved);
 const organisations = computed(() => resource.value.organisationsInvolved);
+const showPopulation = computed(
+  () =>
+    !!population.filter(
+      (item) => item.content !== undefined && item.content !== ""
+    ).length
+);
 </script>
 <template>
   <LayoutsDetailPage>
@@ -563,10 +568,8 @@ const organisations = computed(() => resource.value.organisationsInvolved);
           :resource="resource"
         />
 
-        <ContentBlock id="population" title="Population">
-          <CatalogueItemList
-            :items="population.filter((item) => item.content !== undefined)"
-          />
+        <ContentBlock v-if="showPopulation" id="population" title="Population">
+          <CatalogueItemList :items="population" />
         </ContentBlock>
 
         <ContentBlockOrganisations
@@ -583,12 +586,6 @@ const organisations = computed(() => resource.value.organisationsInvolved);
           :contributors="contributors"
         >
         </ContentBlockContact>
-
-        <ContentBlockVariables
-          id="Variables"
-          title="Variables &amp; Topics"
-          description="Explantation about variables and the functionality seen here."
-        />
 
         <ContentBlockData
           id="AvailableData"
@@ -661,6 +658,7 @@ const organisations = computed(() => resource.value.organisationsInvolved);
         </TableContent>
 
         <ContentBlock
+          v-if="networks.length"
           title="Networks"
           id="Networks"
           description="Part of networks"
@@ -683,6 +681,7 @@ const organisations = computed(() => resource.value.organisationsInvolved);
                     ]
                   : []
               "
+              target="_blank"
             />
           </ReferenceCardList>
         </ContentBlock>
