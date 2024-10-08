@@ -223,6 +223,7 @@ public class ColumnTypeRdfMapper {
       }
     },
     ONTOLOGY(CoreDatatype.XSD.ANYURI) {
+        // TODO: Implement Ontology behavior where it also returns ontologyTermURI as Value.
       @Override
       Set<Value> retrieveValues(String baseURI, Row row, Column column) {
         return RdfColumnType.REFERENCE.retrieveValues(baseURI, row, column);
@@ -242,6 +243,7 @@ public class ColumnTypeRdfMapper {
       this.coreDatatype = coreDatatype;
     }
 
+    // TODO: Fix code duplicity with RDFService.
     private static Namespace getSchemaNamespace(final String baseURL, final SchemaMetadata schema) {
       final String schemaName = UrlEscapers.urlPathSegmentEscaper().escape(schema.getName());
       final String url = baseURL + schemaName + "/api/rdf/";
