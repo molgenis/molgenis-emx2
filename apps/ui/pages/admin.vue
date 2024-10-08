@@ -82,18 +82,20 @@ async function getUsers() {
 
 function buildUsers(dataUsers: IUser[]) {
   return dataUsers.map((user) => {
-    if (user.settings.length) {
-      const tokens = user.settings.find((setting) => {
-        return setting.key === "access-tokens";
-      });
-      if (tokens) {
-        const splitTokens: string[] = tokens.value.split(",");
-        return { ...user, tokens: splitTokens };
-      }
-    }
-
-    return { ...user, tokens: [] };
+    return { ...user, tokens: getTokens(user) };
   });
+}
+
+function getTokens(user: IUser) {
+  if (user.settings.length) {
+    const tokens = user.settings.find((setting) => {
+      return setting.key === "access-tokens";
+    });
+    if (tokens) {
+      return tokens.value.split(",");
+    }
+  }
+  return [];
 }
 
 interface IAdminResponse {
