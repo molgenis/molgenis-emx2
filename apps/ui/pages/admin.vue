@@ -114,12 +114,15 @@ function deleteUser(user: IUser) {
 }
 
 function updateUser(user: IUser) {
+  const userToSend = user;
   useFetch(API_GRAPHQL, {
     method: "post",
     body: {
       query: `mutation change($editMember:MolgenisMembersInput){change(members:[$editMember]){message}}`,
-      editMember: user,
+      editMember: userToSend,
     },
+  }).catch((error) => {
+    handleError("Error updating user: ", error.value);
   });
 }
 
