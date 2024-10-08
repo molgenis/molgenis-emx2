@@ -180,7 +180,7 @@ public class ColumnTypeRdfMapper {
           final String columnPath = UrlEscapers.urlPathSegmentEscaper().escape(column.getName());
           return Set.of(Values.iri(schemaPath + "/api/file/" + tablePath + "/" + columnPath + "/"));
         }
-        return null;
+        return Set.of();
       }
     },
     REFERENCE(CoreDatatype.XSD.ANYURI) {
