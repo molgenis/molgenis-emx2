@@ -4,14 +4,21 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.sql.SqlTypeUtils.applyValidationAndComputed;
 
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.utils.generator.SnowflakeIdGenerator;
 
 class TestSqlTypeUtils {
 
+  @BeforeAll
+  static void before() {
+    if (!SnowflakeIdGenerator.hasInstance()) {
+      SnowflakeIdGenerator.init("123");
+    }
+  }
+
   @Test
-  @Disabled("Expects a database with instanceId, remove or refactor")
   void autoIdGetsGenerated() {
     TableMetadata tableMetadata = table("Test", new Column("myCol").setType(ColumnType.AUTO_ID));
 
@@ -26,7 +33,6 @@ class TestSqlTypeUtils {
   }
 
   @Test
-  @Disabled("Expects a database with instanceId, remove or refactor")
   void autoIdGetsGeneratedWithPreFix() {
     TableMetadata tableMetadata =
         table(

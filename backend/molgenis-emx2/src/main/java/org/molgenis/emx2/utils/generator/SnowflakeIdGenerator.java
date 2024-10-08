@@ -47,6 +47,10 @@ public class SnowflakeIdGenerator implements IdGenerator {
     return instance;
   }
 
+  public static boolean hasInstance() {
+    return instance != null;
+  }
+
   public synchronized String generateId() {
     long currentTimestamp = getCurrentTimestamp();
 
