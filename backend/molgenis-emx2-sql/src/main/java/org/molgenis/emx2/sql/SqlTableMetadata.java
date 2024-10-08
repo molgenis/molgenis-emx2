@@ -5,6 +5,7 @@ import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.Constants.MG_EDIT_ROLE;
 import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 import static org.molgenis.emx2.Privileges.EDITOR;
+import static org.molgenis.emx2.sql.ChangeLogExecutor.updateChangeLogTrigger;
 import static org.molgenis.emx2.sql.MetadataUtils.deleteColumn;
 import static org.molgenis.emx2.sql.MetadataUtils.saveColumnMetadata;
 import static org.molgenis.emx2.sql.SqlColumnExecutor.*;
@@ -81,6 +82,7 @@ class SqlTableMetadata extends TableMetadata {
         log(tm, start, "added column '" + newColumn.getName() + "' to table " + tm.getTableName());
       }
     }
+    updateChangeLogTrigger(tm);
     return tm;
   }
 
@@ -133,7 +135,7 @@ class SqlTableMetadata extends TableMetadata {
     for (Column column : tm.getStoredColumns()) {
       SqlColumnExecutor.executeCreateRefConstraints(tm.getJooq(), column);
     }
-
+    updateChangeLogTrigger(tm);
     return tm;
   }
 
@@ -269,6 +271,7 @@ class SqlTableMetadata extends TableMetadata {
     if (!oldColumn.getName().equals(newColumn.getName())) deleteColumn(tm.getJooq(), oldColumn);
     saveColumnMetadata(tm.getJooq(), newColumn);
 
+    updateChangeLogTrigger(tm);
     return tm;
   }
 
@@ -312,6 +315,7 @@ class SqlTableMetadata extends TableMetadata {
     DSLContext jooq = ((SqlDatabase) db).getJooq();
     SqlColumnExecutor.executeRemoveColumn(jooq, tm.getColumn(columnName));
     tm.columns.remove(columnName);
+    updateChangeLogTrigger(tm);
     return tm;
   }
 
@@ -387,6 +391,7 @@ class SqlTableMetadata extends TableMetadata {
     TableMetadata om = db.getSchema(inheritSchema).getTable(inheritedName).getMetadata();
     executeSetInherit(jooq, tm, om);
     tm.inheritName = inheritedName;
+    updateChangeLogTrigger(tm);
     MetadataUtils.saveTableMetadata(jooq, tm);
     return tm;
   }
