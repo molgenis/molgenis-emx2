@@ -126,7 +126,7 @@ const query = gql`
         }
         role ${moduleToString(ontologyFragment)}
       }
-      organisationsInvolved  {
+      organisationsInvolved(orderby: {name: ASC})  {
         id
         name
         website
@@ -505,7 +505,23 @@ if (route.params.catalogue) {
     ] = `/${route.params.schema}/ssr-catalogue/all/${resourceType.path}`;
 }
 
-const contributors = computed(() => resource.value.peopleInvolved);
+const contributors = computed(() =>
+  resource.value.peopleInvolved.sort((a, b) => {
+    const minimumOrderOfRolesA = a.role?.length
+      ? Math.min(...a.role?.map((role) => role.order ?? Infinity))
+      : Infinity;
+    const minimumOrderOfRolesB = b.role?.length
+      ? Math.min(...b.role?.map((role) => role.order ?? Infinity))
+      : Infinity;
+    if (minimumOrderOfRolesA !== minimumOrderOfRolesB) {
+      return minimumOrderOfRolesA - minimumOrderOfRolesB;
+    } else if (a.lastName !== b.lastName) {
+      return a.lastName.localeCompare(b.lastName);
+    } else {
+      return a.firstName.localeCompare(b.firstName);
+    }
+  })
+);
 const organisations = computed(() => resource.value.organisationsInvolved);
 const showPopulation = computed(
   () =>
