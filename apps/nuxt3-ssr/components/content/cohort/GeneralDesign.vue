@@ -14,7 +14,9 @@ const props = defineProps<{
 }>();
 
 const designPublications = computed(() =>
-  props.resource.publications?.filter((p) => p.isDesignPublication)
+  props.resource.publications?.filter(
+    (publication) => publication.isDesignPublication
+  )
 );
 
 const generalDesign: IDefinitionListItem[] = [
@@ -131,7 +133,13 @@ const generalDesign: IDefinitionListItem[] = [
     label: "External identifiers",
     content: props.resource.externalIdentifiers
       ? props.resource.externalIdentifiers
-          .map((id) => id.externalIdentifierType.name + ": " + id.identifier)
+          .map((externalIdentifier) => {
+            return externalIdentifier.externalIdentifierType?.name
+              ? externalIdentifier.externalIdentifierType.name +
+                  ": " +
+                  externalIdentifier.identifier
+              : externalIdentifier.identifier;
+          })
           .join(", ")
       : undefined,
   },

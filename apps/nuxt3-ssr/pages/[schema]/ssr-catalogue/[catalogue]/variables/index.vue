@@ -77,7 +77,7 @@ const pageFilterTemplate: IFilter[] = [
   {
     id: "resources",
     config: {
-      label: "Resources",
+      label: "Sources",
       type: "REF_ARRAY",
       refTableId: "Resources",
       initialCollapsed: false,
@@ -179,6 +179,9 @@ const query = computed(() => {
           id
         }
       }
+      repeatUnit {name}
+      repeatMin
+      repeatMax
       label
       description
       mappings ${moduleToString(mappingsFragment)}

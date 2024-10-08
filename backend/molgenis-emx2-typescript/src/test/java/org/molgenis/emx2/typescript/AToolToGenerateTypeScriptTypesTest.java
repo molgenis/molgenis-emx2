@@ -1,4 +1,4 @@
-package org.molgenis.emx2;
+package org.molgenis.emx2.typescript;
 
 import static org.junit.jupiter.api.Assertions.*;
 

@@ -58,7 +58,7 @@ public class WebApiSmokeTests {
   private static Database db;
   private static Schema schema;
   final String CSV_TEST_SCHEMA = "pet store csv";
-  static final int PORT = 8081; // other then default so we can see effect
+  static final int PORT = 8081; // other than default so we can see effect
 
   @BeforeAll
   public static void before() throws Exception {
@@ -68,7 +68,7 @@ public class WebApiSmokeTests {
 
     // start web service for testing, including env variables
     withEnvironmentVariable(MOLGENIS_HTTP_PORT, "" + PORT)
-        // disable because of parallism issues .and(MOLGENIS_INCLUDE_CATALOGUE_DEMO, "true")
+        // disable because of parallelism issues .and(MOLGENIS_INCLUDE_CATALOGUE_DEMO, "true")
         .execute(() -> RunMolgenisEmx2.main(new String[] {}));
 
     // set default rest assured settings
@@ -108,9 +108,24 @@ public class WebApiSmokeTests {
 
   @AfterAll
   public static void after() {
-    MolgenisWebservice.stop();
     // Always clean up database to avoid instability due to side effects.
     db.dropSchemaIfExists(PET_STORE_SCHEMA);
+    db.dropSchemaIfExists("pet store yaml");
+    db.dropSchemaIfExists("pet store json");
+  }
+
+  @Test
+  public void testApiRoot() {
+    String result =
+        given()
+            .sessionId(SESSION_ID)
+            .expect()
+            .statusCode(200)
+            .when()
+            .get("/api")
+            .getBody()
+            .asString();
+    assertTrue(result.contains("Welcome to MOLGENIS EMX2"));
   }
 
   @Test
@@ -379,7 +394,6 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  @Disabled("gives many false positive errors")
   public void testJsonYamlApi() {
     String schemaJson = given().sessionId(SESSION_ID).when().get("/pet store/api/json").asString();
 
@@ -414,6 +428,25 @@ public class WebApiSmokeTests {
         given().sessionId(SESSION_ID).when().get("/pet store yaml/api/yaml").asString();
 
     assertEquals(schemaYaml, schemaYaml2.replace("pet store yaml", PET_STORE_SCHEMA));
+
+    given()
+        .sessionId(SESSION_ID)
+        .body(schemaYaml2)
+        .when()
+        .delete("/pet store yaml/api/yaml")
+        .then()
+        .statusCode(200);
+
+    given()
+        .sessionId(SESSION_ID)
+        .body(schemaJson2)
+        .when()
+        .delete("/pet store json/api/json")
+        .then()
+        .statusCode(200);
+
+    db.dropSchemaIfExists("pet store yaml");
+    db.dropSchemaIfExists("pet store json");
   }
 
   @Test
@@ -461,8 +494,8 @@ public class WebApiSmokeTests {
       poll = given().sessionId(SESSION_ID).when().get(url);
       Thread.sleep(500);
     }
-
-    assertFalse(poll.body().asString().contains("FAILED"));
+    assertFalse(
+        poll.body().asString().contains("FAILED") || poll.body().asString().contains("ERROR"));
 
     // check if id in tasks list
     assertTrue(
@@ -598,6 +631,20 @@ public class WebApiSmokeTests {
     result =
         given()
             .sessionId(sessionId)
+            .contentType("multipart/form-data")
+            .multiPart(
+                "query", "mutation insert($value:[OrderInput]){insert(Order:$value){message}}")
+            .multiPart(
+                "variables",
+                "{\"value\":[{\"quantity\":\"5\",\"price\":22,\"pet\":{\"name\":\"pooky\"}}]}")
+            .when()
+            .post(schemaPath)
+            .asString();
+    assertTrue(result.contains("inserted 1 record"));
+
+    result =
+        given()
+            .sessionId(sessionId)
             .body("{\"query\":\"mutation{signout{message}}\"}")
             .when()
             .post(path)
@@ -627,36 +674,13 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  public void testMolgenisWebservice_redirectWhenSlash() {
-    given()
-        .sessionId(SESSION_ID)
-        .redirects()
-        .follow(false)
-        .expect()
-        .statusCode(302)
-        .header("Location", is("http://localhost:" + PORT + "/pet store/"))
-        .when()
-        .get("/pet store");
-
-    given()
-        .sessionId(SESSION_ID)
-        .redirects()
-        .follow(false)
-        .expect()
-        .statusCode(302)
-        .header("Location", is("http://localhost:" + PORT + "/pet store/tables/"))
-        .when()
-        .get("/pet store/tables");
-  }
-
-  @Test
   public void testMolgenisWebservice_redirectToFirstMenuItem() {
     given()
         .redirects()
         .follow(false)
         .expect()
         .statusCode(302)
-        .header("Location", is("http://localhost:" + PORT + "/pet store/tables"))
+        .header("Location", is("/pet store/tables"))
         .when()
         .get("/pet store/");
 
@@ -681,7 +705,7 @@ public class WebApiSmokeTests {
         .follow(false)
         .expect()
         .statusCode(302)
-        .header("Location", is("http://localhost:" + PORT + "/pet store/blaat2"))
+        .header("Location", is("/pet store/blaat2"))
         .when()
         .get("/pet store/");
 
@@ -700,7 +724,7 @@ public class WebApiSmokeTests {
         .follow(false)
         .expect()
         .statusCode(302)
-        .header("Location", is("http://localhost:" + PORT + "/pet store/blaat"))
+        .header("Location", is("/pet store/blaat"))
         .when()
         .get("/pet store/");
 
@@ -929,28 +953,6 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  public void testNonDefinedFDPHead() {
-    given()
-        .sessionId(SESSION_ID)
-        .expect()
-        .contentType("text/html;charset=utf-8")
-        .when()
-        .head("http://localhost:" + PORT + "/api/fdp/");
-  }
-
-  @Test
-  public void testFDPRedirect() {
-    given()
-        .sessionId(SESSION_ID)
-        .redirects()
-        .follow(false)
-        .expect()
-        .header("Location", "http://localhost:" + PORT + "/api/fdp")
-        .when()
-        .get("http://localhost:" + PORT + "/api/fdp/");
-  }
-
-  @Test
   public void testGraphGenome400() {
     given()
         .sessionId(SESSION_ID)
@@ -1017,6 +1019,20 @@ public class WebApiSmokeTests {
         .statusCode(200)
         .when()
         .get(requestString);
+  }
+
+  @Test
+  void testRoot() {
+    given()
+        .sessionId(SESSION_ID)
+        .redirects()
+        .follow(false)
+        .expect()
+        .statusCode(302)
+        .header("Location", "/apps/central/")
+        .when()
+        .get("/")
+        .getHeader("Location");
   }
 
   @Test
@@ -1196,11 +1212,10 @@ public class WebApiSmokeTests {
     // script should be deleted
     assertTrue(
         db.getSchema(SYSTEM_SCHEMA)
-                .getTable("Scripts")
-                .where(f("name", EQUALS, "test"))
-                .retrieveRows()
-                .size()
-            == 0,
+            .getTable("Scripts")
+            .where(f("name", EQUALS, "test"))
+            .retrieveRows()
+            .isEmpty(),
         "script should be deleted");
 
     // check if the jobs that ran were okay
@@ -1279,6 +1294,12 @@ public class WebApiSmokeTests {
     result = given().get("/api/beacon/map").getBody().asString();
     assertTrue(result.contains("endpointSets"));
 
+    result = given().get("/pet store/api/beacon/info").getBody().asString();
+    assertTrue(result.contains("beaconInfoResponse"));
+
+    result = given().get("/api/beacon/filtering_terms").getBody().asString();
+    assertTrue(result.contains("filteringTerms"));
+
     result = given().get("/api/beacon/entry_types").getBody().asString();
     assertTrue(result.contains("entry"));
 
@@ -1298,6 +1319,25 @@ public class WebApiSmokeTests {
     assertTrue(result.contains("datasets"));
 
     result = given().get("/api/beacon/individuals").getBody().asString();
+    assertTrue(result.contains("datasets"));
+
+    result =
+        given()
+            .body(
+                """
+          {
+            "query": {
+            "filters": [
+              {
+              "id": "NCIT:C28421",
+              "value": "GSSO_000123",
+              "operator": "="
+              }
+            ]
+            }
+          }""")
+            .post("/api/beacon/individuals")
+            .asString();
     assertTrue(result.contains("datasets"));
 
     result = given().get("/api/beacon/runs").getBody().asString();

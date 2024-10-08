@@ -17,6 +17,8 @@ import dateUtils from "~/utils/dateUtils";
 const config = useRuntimeConfig();
 const route = useRoute();
 
+const resourceType = usePathResourceType();
+
 const query = gql`
   query Resources($id: String) {
     Resources(filter: { id: { equals: [$id] } }) {
@@ -124,7 +126,7 @@ const query = gql`
         }
         role ${moduleToString(ontologyFragment)}
       }
-      organisationsInvolved  {
+      organisationsInvolved(orderby: {name: ASC})  {
         id
         name
         website
@@ -148,6 +150,7 @@ const query = gql`
       releaseDescription
       fundingStatement
       acknowledgements
+      linkageOptions
       prelinked
       documentation {
         name
@@ -230,7 +233,7 @@ function collectionEventMapper(item: any) {
     })(),
     numberOfParticipants: item.numberOfParticipants,
     _renderComponent: "CollectionEventDisplay",
-    _path: `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/resources/${route.params.resource}/collection-events/${item.name}`,
+    _path: `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/${route.params.resourceType}/${route.params.resource}/collection-events/${item.name}`,
   };
 }
 
@@ -252,22 +255,24 @@ function subpopulationMapper(subpopulation: any) {
     description: subpopulation.description,
     numberOfParticipants: subpopulation.numberOfParticipants,
     _renderComponent: "SubpopulationDisplay",
-    _path: `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/resources/${route.params.resource}/subpopulations/${subpopulation.name}`,
+    _path: `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/${route.params.resourceType}/${route.params.resource}/subpopulations/${subpopulation.name}`,
   };
 }
 
 const networks = computed(() =>
-  resource.value.partOfResources?.filter((c) =>
-    c.type?.find((t) => t.name == "Network")
-  )
+  !resource.value.partOfResources
+    ? []
+    : resource.value.partOfResources.filter((c) =>
+        c.type.find((t) => t.name == "Network")
+      )
 );
 
-let tocItems = computed(() => {
+const tocItems = computed(() => {
   let tableOffContents = [
     { label: "Description", id: "Description" },
     { label: "General design", id: "GeneralDesign" },
   ];
-  if (population) {
+  if (showPopulation.value) {
     tableOffContents.push({
       label: "Population",
       id: "population",
@@ -487,24 +492,58 @@ if (route.params.catalogue) {
   crumbs[
     cohortOnly.value ? "home" : (route.params.catalogue as string)
   ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}`;
-  crumbs[
-    "Resources"
-  ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/resource`;
+  if (route.params.resourceType !== "about")
+    crumbs[
+      resourceType.plural
+    ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/${resourceType.path}`;
 } else {
   crumbs["Home"] = `/${route.params.schema}/ssr-catalogue/`;
   crumbs["Browse"] = `/${route.params.schema}/ssr-catalogue/all`;
-  crumbs["Resources"] = `/${route.params.schema}/ssr-catalogue/all/resource`;
+  if (route.params.resourceType !== "about")
+    crumbs[
+      resourceType.plural
+    ] = `/${route.params.schema}/ssr-catalogue/all/${resourceType.path}`;
 }
 
-const contributors = computed(() => resource.value.peopleInvolved);
+const contributors = computed(() =>
+  resource.value.peopleInvolved.sort((a, b) => {
+    const minimumOrderOfRolesA = a.role?.length
+      ? Math.min(...a.role?.map((role) => role.order ?? Infinity))
+      : Infinity;
+    const minimumOrderOfRolesB = b.role?.length
+      ? Math.min(...b.role?.map((role) => role.order ?? Infinity))
+      : Infinity;
+    if (minimumOrderOfRolesA !== minimumOrderOfRolesB) {
+      return minimumOrderOfRolesA - minimumOrderOfRolesB;
+    } else if (a.lastName !== b.lastName) {
+      return a.lastName.localeCompare(b.lastName);
+    } else {
+      return a.firstName.localeCompare(b.firstName);
+    }
+  })
+);
 const organisations = computed(() => resource.value.organisationsInvolved);
+const showPopulation = computed(
+  () =>
+    !!population.filter(
+      (item) => item.content !== undefined && item.content !== ""
+    ).length
+);
 </script>
 <template>
   <LayoutsDetailPage>
     <template #header>
       <PageHeader
-        :title="resource?.acronym || resource.name"
-        :description="resource?.acronym ? resource.name : ''"
+        id="resource-page-header"
+        :title="
+          route.params.resourceType === 'about'
+            ? 'About '
+            : resource?.acronym || resource.name
+        "
+        :description="
+          (route.params.resourceType === 'about' ? 'About ' : '') +
+          (resource?.name ? resource.name : '')
+        "
       >
         <template #prefix>
           <BreadCrumbs :crumbs="crumbs" />
@@ -519,6 +558,7 @@ const organisations = computed(() => resource.value.organisationsInvolved);
         :title="resource?.acronym || resource?.name"
         :image="resource?.logo?.url"
         :items="tocItems"
+        header-target="#resource-page-header"
       />
     </template>
     <template #main>
@@ -544,10 +584,8 @@ const organisations = computed(() => resource.value.organisationsInvolved);
           :resource="resource"
         />
 
-        <ContentBlock id="population" title="Population">
-          <CatalogueItemList
-            :items="population.filter((item) => item.content !== undefined)"
-          />
+        <ContentBlock v-if="showPopulation" id="population" title="Population">
+          <CatalogueItemList :items="population" />
         </ContentBlock>
 
         <ContentBlockOrganisations
@@ -564,12 +602,6 @@ const organisations = computed(() => resource.value.organisationsInvolved);
           :contributors="contributors"
         >
         </ContentBlockContact>
-
-        <ContentBlockVariables
-          id="Variables"
-          title="Variables &amp; Topics"
-          description="Explantation about variables and the functionality seen here."
-        />
 
         <ContentBlockData
           id="AvailableData"
@@ -641,7 +673,12 @@ const organisations = computed(() => resource.value.organisationsInvolved);
           />
         </TableContent>
 
-        <ContentBlock title="Part of networks" id="Networks">
+        <ContentBlock
+          v-if="networks.length"
+          title="Networks"
+          id="Networks"
+          description="Part of networks"
+        >
           <ReferenceCardList>
             <ReferenceCard
               v-for="network in networks"
@@ -660,6 +697,7 @@ const organisations = computed(() => resource.value.organisationsInvolved);
                     ]
                   : []
               "
+              target="_blank"
             />
           </ReferenceCardList>
         </ContentBlock>
