@@ -1,6 +1,5 @@
 <script setup lang="ts">
 const termsAndConditionsExample = ref<string>("");
-const termsAndConditionsExampleReq = ref<string>("");
 const signupNewsletterExample = ref<boolean>(false);
 const toppingsSelection = ref<string[]>(["tomatoes", "basil"]);
 </script>
@@ -65,33 +64,6 @@ const toppingsSelection = ref<string[]>(["tomatoes", "basil"]);
       <output>
         <span>Selection: {{ termsAndConditionsExample }}</span>
       </output>
-    </div>
-    <div>
-      <h3>
-        InputCheckbox Example: Checkbox with yes and no values defined and as a
-        required input
-      </h3>
-      <InputCheckbox
-        id="checkbox-example-terms-and-conditions-required"
-        class="sr-only"
-        v-model="termsAndConditionsExampleReq"
-        true-value="Yes"
-        false-value="No"
-        checked="true"
-        required="true"
-      />
-      <InputLabel
-        class="flex flex-row gap-1"
-        for="checkbox-example-terms-and-conditions-required"
-        :required="true"
-      >
-        <InputCheckboxIcon
-          class="mr-2.5"
-          :checked="termsAndConditionsExampleReq === 'Yes'"
-        />
-        Do you aggree to the terms and conditions?
-      </InputLabel>
-      <p>Answer: {{ termsAndConditionsExampleReq }}</p>
     </div>
     <div>
       <h3>InputCheckboxGroup example</h3>
