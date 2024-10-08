@@ -148,6 +148,7 @@ const query = gql`
       releaseDescription
       fundingStatement
       acknowledgements
+      linkageOptions
       prelinked
       documentation {
         name
@@ -264,12 +265,12 @@ const networks = computed(() =>
       )
 );
 
-let tocItems = computed(() => {
+const tocItems = computed(() => {
   let tableOffContents = [
     { label: "Description", id: "Description" },
     { label: "General design", id: "GeneralDesign" },
   ];
-  if (population) {
+  if (showPopulation.value) {
     tableOffContents.push({
       label: "Population",
       id: "population",
@@ -516,6 +517,12 @@ const contributors = computed(() =>
   })
 );
 const organisations = computed(() => resource.value.organisationsInvolved);
+const showPopulation = computed(
+  () =>
+    !!population.filter(
+      (item) => item.content !== undefined && item.content !== ""
+    ).length
+);
 </script>
 <template>
   <LayoutsDetailPage>
@@ -564,10 +571,8 @@ const organisations = computed(() => resource.value.organisationsInvolved);
           :resource="resource"
         />
 
-        <ContentBlock id="population" title="Population">
-          <CatalogueItemList
-            :items="population.filter((item) => item.content !== undefined)"
-          />
+        <ContentBlock v-if="showPopulation" id="population" title="Population">
+          <CatalogueItemList :items="population" />
         </ContentBlock>
 
         <ContentBlockOrganisations
@@ -584,12 +589,6 @@ const organisations = computed(() => resource.value.organisationsInvolved);
           :contributors="contributors"
         >
         </ContentBlockContact>
-
-        <ContentBlockVariables
-          id="Variables"
-          title="Variables &amp; Topics"
-          description="Explantation about variables and the functionality seen here."
-        />
 
         <ContentBlockData
           id="AvailableData"
@@ -662,6 +661,7 @@ const organisations = computed(() => resource.value.organisationsInvolved);
         </TableContent>
 
         <ContentBlock
+          v-if="networks.length"
           title="Networks"
           id="Networks"
           description="Part of networks"
@@ -684,6 +684,7 @@ const organisations = computed(() => resource.value.organisationsInvolved);
                     ]
                   : []
               "
+              target="_blank"
             />
           </ReferenceCardList>
         </ContentBlock>
