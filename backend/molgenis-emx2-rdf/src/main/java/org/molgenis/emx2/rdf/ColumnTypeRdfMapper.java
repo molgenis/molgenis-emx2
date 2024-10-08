@@ -96,6 +96,9 @@ public class ColumnTypeRdfMapper {
   }
 
   public Set<Value> retrieveValues(final Row row, final Column column) {
+    if (row.getString(column.getName()) == null) {
+      return Set.of();
+    }
     return mapping.get(column.getColumnType()).retrieveValues(baseURI, row, column);
   }
 
