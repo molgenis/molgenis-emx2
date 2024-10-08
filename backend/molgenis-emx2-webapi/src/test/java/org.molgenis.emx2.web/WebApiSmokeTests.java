@@ -674,30 +674,6 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  @Disabled // TODO: Is redirected to /pet store/tables/ but this is exprected right?
-  public void testMolgenisWebservice_redirectWhenSlash() {
-    given()
-        .sessionId(SESSION_ID)
-        .redirects()
-        .follow(false)
-        .expect()
-        .statusCode(302)
-        .header("Location", is("/pet store/"))
-        .when()
-        .get("/pet store");
-
-    given()
-        .sessionId(SESSION_ID)
-        .redirects()
-        .follow(false)
-        .expect()
-        .statusCode(302)
-        .header("Location", is("http://localhost:" + PORT + "/pet store/tables/"))
-        .when()
-        .get("/pet store/tables");
-  }
-
-  @Test
   public void testMolgenisWebservice_redirectToFirstMenuItem() {
     given()
         .redirects()

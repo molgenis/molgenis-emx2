@@ -24,6 +24,7 @@ public class StaticFileMapper {
     app.get("/{schema}/{appname}/theme.css", BootstrapThemeService::getCss);
 
     app.get("*/docs/<asset>", StaticFileMapper::redirectDocs);
+    app.get("/{schema}/directory/<asset>", StaticFileMapper::redirectDirectory);
 
     app.get("/apps/ui/{schema}/", StaticFileMapper::returnUiAppIndex);
     app.get(
@@ -35,12 +36,18 @@ public class StaticFileMapper {
             returnUiAppIndex(ctx);
           }
         });
+
     app.get("*/{app}/assets/<asset>", StaticFileMapper::redirectAssets);
     app.get("*/{app}/img/<asset>", StaticFileMapper::redirectImg);
     app.get("/apps/{app}/<asset>", StaticFileMapper::redirectResources);
 
     app.get("*/{app}/index.html", StaticFileMapper::returnIndexFile);
     app.get("*/{app}", StaticFileMapper::returnIndexFile);
+  }
+
+  private static void redirectDirectory(Context ctx) {
+    String path = "/public_html/apps/directory/" + ctx.pathParam("asset");
+    addFileToContext(ctx, path, null);
   }
 
   private static void redirectImg(Context ctx) {
