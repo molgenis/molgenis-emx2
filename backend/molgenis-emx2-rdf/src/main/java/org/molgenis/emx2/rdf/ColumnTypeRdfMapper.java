@@ -112,7 +112,7 @@ public class ColumnTypeRdfMapper {
     STRING(CoreDatatype.XSD.STRING) {
       @Override
       Set<Value> retrieveValues(String baseURI, Row row, Column column) {
-        return basicRetrieval(row.getStringArray(column.getName()), Values::literal);
+        return basicRetrievalString(row.getStringArray(column.getName()), Values::literal);
       }
     },
     INT(CoreDatatype.XSD.INT) {
@@ -158,14 +158,13 @@ public class ColumnTypeRdfMapper {
     URI(CoreDatatype.XSD.ANYURI) {
       @Override
       Set<Value> retrieveValues(String baseURI, Row row, Column column) {
-        return basicRetrieval(
-            row.getStringArray(column.getName()), (i) -> URIUtils.encodedIRI((String) i));
+        return basicRetrievalString(row.getStringArray(column.getName()), URIUtils::encodedIRI);
       }
     },
     EMAIL(CoreDatatype.XSD.ANYURI) {
       @Override
       Set<Value> retrieveValues(String baseURI, Row row, Column column) {
-        return basicRetrieval(
+        return basicRetrievalString(
             row.getStringArray(column.getName()), (i) -> URIUtils.encodedIRI("mailto:" + i));
       }
     },
@@ -223,7 +222,7 @@ public class ColumnTypeRdfMapper {
       }
     },
     ONTOLOGY(CoreDatatype.XSD.ANYURI) {
-        // TODO: Implement Ontology behavior where it also returns ontologyTermURI as Value.
+      // TODO: Implement Ontology behavior where it also returns ontologyTermURI as Value.
       @Override
       Set<Value> retrieveValues(String baseURI, Row row, Column column) {
         return RdfColumnType.REFERENCE.retrieveValues(baseURI, row, column);
@@ -251,7 +250,27 @@ public class ColumnTypeRdfMapper {
       return Values.namespace(prefix, url);
     }
 
-    private static Set<Value> basicRetrieval(Object[] object, Function<Object, Object> function) {
+    /**
+     * Generic basic retrieval function. Can be used for {@link Values#literal(Object)} or any
+     * custom function which outputs a {@link Value}.
+     */
+    private static Set<Value> basicRetrieval(Object[] object, Function<Object, Value> function) {
+      return Arrays.stream(object)
+          .map(value -> (Value) function.apply(value))
+          .collect(Collectors.toSet());
+    }
+
+    /**
+     * Similar to {@link #basicRetrieval(Object[], Function)}, but with some changes:
+     *
+     * <ul>
+     *   <li>Enforces {@link Values#literal(String)} to be called when using it as {@code function}
+     *       parameter
+     *   <li>Removes the need for casting in custom functions that require a {@link String} as input
+     * </ul>
+     */
+    private static Set<Value> basicRetrievalString(
+        String[] object, Function<String, Value> function) {
       return Arrays.stream(object)
           .map(value -> (Value) function.apply(value))
           .collect(Collectors.toSet());
