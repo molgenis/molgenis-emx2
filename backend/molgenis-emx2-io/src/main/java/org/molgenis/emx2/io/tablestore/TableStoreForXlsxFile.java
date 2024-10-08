@@ -39,8 +39,8 @@ public class TableStoreForXlsxFile implements TableStore {
           sheetNames.add(workbook.getSheetName(i));
         }
         return sheetNames;
-      } catch (Exception e) {
-        throw new MolgenisException("Error reading excel file", e);
+      } catch (Throwable e) {
+        throw new MolgenisException("Error reading excel file", new Exception(e));
       }
     }
     return sheetNames;
