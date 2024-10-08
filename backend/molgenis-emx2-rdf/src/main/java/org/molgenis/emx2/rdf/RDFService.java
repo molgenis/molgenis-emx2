@@ -260,7 +260,7 @@ public class RDFService {
     return Values.namespace(prefix, url);
   }
 
-  Namespace getSchemaNamespace(final Schema schema) {
+  private Namespace getSchemaNamespace(final Schema schema) {
     return getSchemaNamespace(schema.getMetadata());
   }
 
