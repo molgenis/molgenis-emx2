@@ -5,6 +5,8 @@
     view-box="0 0 20 20"
     xmlns="http://www.w3.org/2000/svg"
     class="mt-1.5"
+    :data-checked="checked"
+    :data-indeterminate="indeterminate"
   >
     <rect
       width="20"
