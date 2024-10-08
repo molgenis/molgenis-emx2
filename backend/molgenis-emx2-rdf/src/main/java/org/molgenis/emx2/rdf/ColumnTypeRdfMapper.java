@@ -162,10 +162,11 @@ public class ColumnTypeRdfMapper {
     EMAIL(CoreDatatype.XSD.ANYURI) {
       @Override
       Set<Value> retrieveValues(String baseURI, Row row, Column column) {
-          return RdfColumnType.STRING.retrieveValues(baseURI, row, column);
-          // Enable after equal behavior is proven.
-//        return basicRetrieval(
-//            row.getStringArray(column.getName()), (i) -> URIUtils.encodedIRI("mailto:" + i));
+        return RdfColumnType.STRING.retrieveValues(baseURI, row, column);
+        // Enable after equal behavior is proven.
+        //        return basicRetrieval(
+        //            row.getStringArray(column.getName()), (i) -> URIUtils.encodedIRI("mailto:" +
+        // i));
       }
     },
     FILE(CoreDatatype.XSD.ANYURI) {
