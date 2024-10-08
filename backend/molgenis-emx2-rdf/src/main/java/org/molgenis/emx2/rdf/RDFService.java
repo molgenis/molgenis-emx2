@@ -415,83 +415,102 @@ public class RDFService {
    * @param table the table for which to fetch the rows
    * @param rowId optional rowId
    */
-  public void rowsToRdf(final ModelBuilder builder, Table table, final String rowId) {
+  public void rowsToRdf(final ModelBuilder builder, final Table table, final String rowId) {
     final IRI tableIRI = getTableIRI(table);
-    for (final Row row : getRows(table, rowId)) {
-      IRI subject = getIriForRow(row, table.getMetadata());
+    final List<Row> rows = getRows(table, rowId);
+    switch (table.getMetadata().getTableType()) {
+      case ONTOLOGIES ->
+          rows.forEach(
+              row -> ontologyRowToRdf(builder, table, tableIRI, row, getIriForRow(row, table)));
+      case DATA ->
+          rows.forEach(
+              row -> dataRowToRdf(builder, table, tableIRI, row, rowId, getIriForRow(row, table)));
+      default -> throw new MolgenisException("Cannot convert unsupported TableType to RDF");
+    }
+  }
 
-      if (table.getMetadata().getTableType() == TableType.ONTOLOGIES) {
-        builder.add(subject, RDF.TYPE, IRI_CODED_VALUE_DATATYPE);
-        builder.add(subject, RDF.TYPE, OWL.CLASS);
-        builder.add(subject, RDF.TYPE, SKOS.CONCEPT);
-        builder.add(subject, RDFS.SUBCLASSOF, tableIRI);
-        builder.add(subject, SKOS.IN_SCHEME, tableIRI);
-        if (row.getString("name") != null) {
-          builder.add(subject, RDFS.LABEL, Values.literal(row.getString("name")));
-          builder.add(subject, SKOS.PREF_LABEL, Values.literal(row.getString("name")));
-        }
-        if (row.getString("label") != null) {
-          builder.add(subject, RDFS.LABEL, Values.literal(row.getString("label")));
-          builder.add(subject, SKOS.ALT_LABEL, Values.literal(row.getString("name")));
-        }
-        if (row.getString("code") != null) {
-          builder.add(subject, SKOS.NOTATION, Values.literal(row.getString("code")));
-        }
-        if (row.getString("codesystem") != null) {
-          builder.add(
-              subject, IRI_CONTROLLED_VOCABULARY, Values.literal(row.getString("codesystem")));
-        }
-        if (row.getString("definition") != null) {
-          builder.add(subject, SKOS.DEFINITION, Values.literal(row.getString("definition")));
-        }
-        if (row.getString(ONTOLOGY_TERM_URI) != null) {
-          builder.add(subject, OWL.SAMEAS, Values.iri(row.getString(ONTOLOGY_TERM_URI)));
-        }
-        if (row.getString("parent") != null) {
-          Set<Value> parents = mapper.retrieveValues(row, table.getMetadata().getColumn("parent"));
-          for (var parent : parents) {
-            builder.add(subject, RDFS.SUBCLASSOF, parent);
+  private void ontologyRowToRdf(
+      final ModelBuilder builder,
+      final Table table,
+      final IRI tableIRI,
+      final Row row,
+      final IRI subject) {
+    builder.add(subject, RDF.TYPE, IRI_CODED_VALUE_DATATYPE);
+    builder.add(subject, RDF.TYPE, OWL.CLASS);
+    builder.add(subject, RDF.TYPE, SKOS.CONCEPT);
+    builder.add(subject, RDFS.SUBCLASSOF, tableIRI);
+    builder.add(subject, SKOS.IN_SCHEME, tableIRI);
+    if (row.getString("name") != null) {
+      builder.add(subject, RDFS.LABEL, Values.literal(row.getString("name")));
+      builder.add(subject, SKOS.PREF_LABEL, Values.literal(row.getString("name")));
+    }
+    if (row.getString("label") != null) {
+      builder.add(subject, RDFS.LABEL, Values.literal(row.getString("label")));
+      builder.add(subject, SKOS.ALT_LABEL, Values.literal(row.getString("name")));
+    }
+    if (row.getString("code") != null) {
+      builder.add(subject, SKOS.NOTATION, Values.literal(row.getString("code")));
+    }
+    if (row.getString("codesystem") != null) {
+      builder.add(subject, IRI_CONTROLLED_VOCABULARY, Values.literal(row.getString("codesystem")));
+    }
+    if (row.getString("definition") != null) {
+      builder.add(subject, SKOS.DEFINITION, Values.literal(row.getString("definition")));
+    }
+    if (row.getString(ONTOLOGY_TERM_URI) != null) {
+      builder.add(subject, OWL.SAMEAS, Values.iri(row.getString(ONTOLOGY_TERM_URI)));
+    }
+    if (row.getString("parent") != null) {
+      Set<Value> parents = mapper.retrieveValues(row, table.getMetadata().getColumn("parent"));
+      for (var parent : parents) {
+        builder.add(subject, RDFS.SUBCLASSOF, parent);
+      }
+    }
+  }
+
+  private void dataRowToRdf(
+      final ModelBuilder builder,
+      Table table,
+      final IRI tableIRI,
+      final Row row,
+      final String rowId,
+      final IRI subject) {
+    builder.add(subject, RDF.TYPE, tableIRI);
+    builder.add(subject, RDF.TYPE, IRI_OBSERVATION);
+    if (table.getMetadata().getSemantics() != null) {
+      for (String semantics : table.getMetadata().getSemantics()) {
+        builder.add(subject, RDF.TYPE, iri(semantics));
+      }
+    }
+    builder.add(subject, IRI_DATASET_PREDICATE, tableIRI);
+    builder.add(subject, RDFS.LABEL, Values.literal(getLabelForRow(row, table.getMetadata())));
+    // via rowId might be subclass
+    if (rowId != null) {
+      // because row IRI point to root tables we need to find actual subclass table to ensure we
+      // get all columns
+      table = getSubclassTableForRowBasedOnMgTableclass(table, row);
+    }
+    for (final Column column : table.getMetadata().getColumns()) {
+      // Exclude the system columns that refer to specific users
+      if (column.isSystemAddUpdateByUserColumn()) {
+        continue;
+      }
+      IRI columnIRI = getColumnIRI(column);
+      for (final Value value : mapper.retrieveValues(row, column)) {
+        if (column.getSemantics() != null) {
+          for (String semantics : column.getSemantics()) {
+            builder.add(subject.stringValue(), semantics, value);
+            //                builder.add(
+            //                    // subject, Values.iri(semantics), value);
+            //                    subject, Values.iri(semantics.split(":")[0],
+            // semantics.split(":")[1]), value);
           }
         }
-      } else {
-        builder.add(subject, RDF.TYPE, tableIRI);
-        builder.add(subject, RDF.TYPE, IRI_OBSERVATION);
-        if (table.getMetadata().getSemantics() != null) {
-          for (String semantics : table.getMetadata().getSemantics()) {
-            builder.add(subject, RDF.TYPE, iri(semantics));
-          }
-        }
-        builder.add(subject, IRI_DATASET_PREDICATE, tableIRI);
-        builder.add(subject, RDFS.LABEL, Values.literal(getLabelForRow(row, table.getMetadata())));
-        // via rowId might be subclass
-        if (rowId != null) {
-          // because row IRI point to root tables we need to find actual subclass table to ensure we
-          // get all columns
-          table = getSubclassTableForRowBasedOnMgTableclass(table, row);
-        }
-        for (final Column column : table.getMetadata().getColumns()) {
-          // Exclude the system columns that refer to specific users
-          if (column.isSystemAddUpdateByUserColumn()) {
-            continue;
-          }
-          IRI columnIRI = getColumnIRI(column);
-          for (final Value value : mapper.retrieveValues(row, column)) {
-            if (column.getSemantics() != null) {
-              for (String semantics : column.getSemantics()) {
-                builder.add(subject.stringValue(), semantics, value);
-                //                builder.add(
-                //                    // subject, Values.iri(semantics), value);
-                //                    subject, Values.iri(semantics.split(":")[0],
-                // semantics.split(":")[1]), value);
-              }
-            }
-            builder.add(subject, columnIRI, value);
-            if (column.getColumnType().equals(ColumnType.HYPERLINK)
-                || column.getColumnType().equals(ColumnType.HYPERLINK_ARRAY)) {
-              var resource = Values.iri(value.stringValue());
-              builder.add(resource, RDFS.LABEL, Values.literal(value.stringValue()));
-            }
-          }
+        builder.add(subject, columnIRI, value);
+        if (column.getColumnType().equals(ColumnType.HYPERLINK)
+            || column.getColumnType().equals(ColumnType.HYPERLINK_ARRAY)) {
+          var resource = Values.iri(value.stringValue());
+          builder.add(resource, RDFS.LABEL, Values.literal(value.stringValue()));
         }
       }
     }
@@ -544,6 +563,10 @@ public class RDFService {
       }
       return query.retrieveRows();
     }
+  }
+
+  private IRI getIriForRow(final Row row, final Table table) {
+    return getIriForRow(row, table.getMetadata());
   }
 
   private IRI getIriForRow(final Row row, final TableMetadata metadata) {
