@@ -2,8 +2,13 @@ package org.molgenis.emx2.sql;
 
 import static java.lang.Boolean.TRUE;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.Database;
+import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.utils.TypeUtils;
 
 public class ChangeLogUtils {
@@ -12,11 +17,39 @@ public class ChangeLogUtils {
     throw new IllegalStateException("Utility class");
   }
 
-  public static String buildProcessAuditFunction(String schemaName, String tableName) {
+  public static String buildProcessAuditFunction(TableMetadata tableMetadata) {
+    List<String> columnNames = new ArrayList<>();
+    tableMetadata
+        .getColumns()
+        .forEach(
+            column -> {
+              ColumnType type = column.getColumnType();
+              if (type.isRef() || type.isRefArray()) {
+                column
+                    .getReferences()
+                    .forEach(
+                        ref -> {
+                          columnNames.add(ref.getName());
+                        });
+              } else if (type.isFile()) {
+                columnNames.add(column.getName() + "_filename");
+                columnNames.add(column.getName() + "_size");
+              } else if (!type.isHeading()) {
+                columnNames.add(column.getName());
+              }
+            });
+
+    String columnNameArray =
+        columnNames.stream()
+            .filter(name -> !name.startsWith("mg_"))
+            .map(name -> "'" + name + "'")
+            .collect(Collectors.joining(","));
+
     return """
         CREATE OR REPLACE FUNCTION "%1$s"."process_%3$s_audit"()
         RETURNS TRIGGER AS $%3$s_audit$
         DECLARE
+            column_names varchar[] := ARRAY[%4$s];
             old_row JSONB;
             new_row JSONB;
             col_name TEXT;
@@ -28,9 +61,7 @@ public class ChangeLogUtils {
             new_row := '{}'::JSONB;
 
             -- Loop through each column in the OLD record
-            FOR col_name IN SELECT column_name
-                             FROM information_schema.columns
-                             WHERE table_name = TG_TABLE_NAME
+            FOREACH col_name IN ARRAY column_names
             LOOP
                 -- Skip columns that end with '_contents' or '_TEXT_SEARCH_COLUMN'
                 IF col_name LIKE '%%_contents' OR col_name LIKE '%%_TEXT_SEARCH_COLUMN' OR col_name LIKE 'mg_%%' THEN
@@ -67,14 +98,15 @@ public class ChangeLogUtils {
         $%3$s_audit$ LANGUAGE plpgsql;
         """
         .formatted(
-            schemaName,
-            ChangeLogUtils.buildFunctionName(schemaName),
-            ChangeLogUtils.buildFunctionName(tableName));
+            tableMetadata.getSchemaName(),
+            ChangeLogUtils.buildFunctionName(tableMetadata.getSchemaName()),
+            ChangeLogUtils.buildFunctionName(tableMetadata.getTableName()),
+            columnNameArray);
   }
 
   public static String buildAuditTrigger(String schemaName, String tableName) {
     return """
-            CREATE TRIGGER %3$s_audit
+            CREATE OR REPLACE TRIGGER %3$s_audit
             AFTER INSERT OR UPDATE OR DELETE ON "%1$s"."%2$s"
                 FOR EACH ROW EXECUTE FUNCTION "%1$s"."process_%3$s_audit"();
             """

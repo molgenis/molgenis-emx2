@@ -5,6 +5,7 @@ import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.sql.ChangeLogExecutor.disableChangeLog;
+import static org.molgenis.emx2.sql.ChangeLogExecutor.updateChangeLogTrigger;
 import static org.molgenis.emx2.sql.MetadataUtils.saveColumnMetadata;
 import static org.molgenis.emx2.sql.SqlColumnExecutor.*;
 import static org.molgenis.emx2.utils.ColumnSort.sortColumnsByDependency;
@@ -102,14 +103,7 @@ class SqlTableMetadataExecutor {
       executeAddMetaColumns(table);
     }
 
-    if (ChangeLogUtils.isChangeSchema(table.getSchema().getDatabase(), table.getSchemaName())) {
-      // setup trigger processing function
-      jooq.execute(
-          ChangeLogUtils.buildProcessAuditFunction(table.getSchemaName(), table.getTableName()));
-
-      // set audit trigger, logs insert, update and delete actions on table
-      jooq.execute(ChangeLogUtils.buildAuditTrigger(table.getSchemaName(), table.getTableName()));
-    }
+    updateChangeLogTrigger(table);
   }
 
   static void executeAlterName(DSLContext jooq, TableMetadata table, String newName) {

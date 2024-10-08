@@ -2,16 +2,31 @@ package org.molgenis.emx2.sql;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.molgenis.emx2.Database;
+import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.TableMetadata;
+import org.molgenis.emx2.datamodels.PetStoreLoader;
 
 class ChangeLogUtilsTest {
+  static Schema schema;
+
+  @BeforeAll
+  public static void setUp() {
+    Database db = TestDatabaseFactory.getTestDatabase();
+    schema = db.dropCreateSchema(ChangeLogUtilsTest.class.getName());
+    new PetStoreLoader(schema, false).run();
+  }
+
   @Test
   void testBuildProcessAuditFunction() {
     String expectedFunction =
         """
-CREATE OR REPLACE FUNCTION "pet store"."process_Pet_audit"()
-RETURNS TRIGGER AS $Pet_audit$
+CREATE OR REPLACE FUNCTION "org.molgenis.emx2.sql.ChangeLogUtilsTest"."process_User_audit"()
+RETURNS TRIGGER AS $User_audit$
 DECLARE
+    column_names varchar[] := ARRAY['username','firstName','lastName','picture_filename','picture_size','email','password','phone','userStatus','pets'];
     old_row JSONB;
     new_row JSONB;
     col_name TEXT;
@@ -23,9 +38,7 @@ BEGIN
     new_row := '{}'::JSONB;
 
     -- Loop through each column in the OLD record
-    FOR col_name IN SELECT column_name
-                     FROM information_schema.columns
-                     WHERE table_name = TG_TABLE_NAME
+    FOREACH col_name IN ARRAY column_names
     LOOP
         -- Skip columns that end with '_contents' or '_TEXT_SEARCH_COLUMN'
         IF col_name LIKE '%_contents' OR col_name LIKE '%_TEXT_SEARCH_COLUMN' OR col_name LIKE 'mg_%' THEN
@@ -47,30 +60,31 @@ BEGIN
 
     -- Log the change based on the operation
     IF TG_OP = 'DELETE' THEN
-        INSERT INTO "pet store".mg_changelog
+        INSERT INTO "org.molgenis.emx2.sql.ChangeLogUtilsTest".mg_changelog
         SELECT 'D', now(), user, TG_TABLE_NAME, old_row, new_row;
     ELSIF TG_OP = 'UPDATE' THEN
-        INSERT INTO "pet store".mg_changelog
+        INSERT INTO "org.molgenis.emx2.sql.ChangeLogUtilsTest".mg_changelog
         SELECT 'U', now(), user, TG_TABLE_NAME, old_row, new_row;
     ELSIF TG_OP = 'INSERT' THEN
-        INSERT INTO "pet store".mg_changelog
+        INSERT INTO "org.molgenis.emx2.sql.ChangeLogUtilsTest".mg_changelog
         SELECT 'I', now(), user, TG_TABLE_NAME, old_row, new_row;
     END IF;
 
     RETURN NULL; -- result is ignored since this is an AFTER trigger
 END;
-$Pet_audit$ LANGUAGE plpgsql;
+$User_audit$ LANGUAGE plpgsql;
 """;
+    TableMetadata tableMetadata = schema.getMetadata().getTableMetadata("User");
+
     assertEquals(
-        expectedFunction.strip(),
-        ChangeLogUtils.buildProcessAuditFunction("pet store", "Pet").strip());
+        expectedFunction.strip(), ChangeLogUtils.buildProcessAuditFunction(tableMetadata).strip());
   }
 
   @Test
   void testBuildAuditTrigger() {
     String expectedTrigger =
         """
-                        CREATE TRIGGER Pet_audit
+                        CREATE OR REPLACE TRIGGER Pet_audit
                         AFTER INSERT OR UPDATE OR DELETE ON "pet store"."Pet"
                             FOR EACH ROW EXECUTE FUNCTION "pet store"."process_Pet_audit"();
                           """;
@@ -82,7 +96,7 @@ $Pet_audit$ LANGUAGE plpgsql;
   void testBuildAuditTriggerWithSpaceInTableName() {
     String expectedTrigger =
         """
-                        CREATE TRIGGER My_pets_audit
+                        CREATE OR REPLACE TRIGGER My_pets_audit
                         AFTER INSERT OR UPDATE OR DELETE ON "pet store"."My pets"
                             FOR EACH ROW EXECUTE FUNCTION "pet store"."process_My_pets_audit"();
                           """;
