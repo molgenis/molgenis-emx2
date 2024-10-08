@@ -251,8 +251,8 @@ public class ColumnTypeRdfMapper {
     }
 
     /**
-     * Generic basic retrieval function. Can be used for {@link Values#literal(Object)} or any
-     * custom function which outputs a {@link Value}.
+     * Generic retrieval function. Can be used for {@link Values#literal(Object)} or any custom
+     * function which outputs a {@link Value}.
      */
     private static Set<Value> basicRetrieval(Object[] object, Function<Object, Value> function) {
       return Arrays.stream(object)
