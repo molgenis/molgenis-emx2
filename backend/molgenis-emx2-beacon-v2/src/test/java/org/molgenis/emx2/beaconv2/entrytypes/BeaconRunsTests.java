@@ -5,30 +5,28 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import io.javalin.http.Context;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.beaconv2.EntryType;
 import org.molgenis.emx2.beaconv2.QueryEntryType;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
-import spark.QueryParamsMap;
-import spark.Request;
 
 public class BeaconRunsTests extends BeaconModelEndPointTest {
 
   @Test
   public void testRunsOfIndividual_pathQuery_twoResults() {
-    Request request = mock(Request.class);
+    Context request = mock(Context.class);
     when(request.url()).thenReturn("http://localhost:8080/api/beacon");
     Map<String, String> urlParams =
         Map.of(
-            ":entry_type_id", EntryType.INDIVIDUALS.getId(),
-            ":entry_type", EntryType.RUNS.getId(),
-            ":id", "Ind001");
+            "entry_type_id", EntryType.INDIVIDUALS.getId(),
+            "entry_type", EntryType.RUNS.getId(),
+            "id", "Ind001");
 
-    when(request.params()).thenReturn(urlParams);
-    when(request.queryMap()).thenReturn(mock(QueryParamsMap.class));
-    when(request.queryMap().toMap()).thenReturn(new HashMap<>());
+    when(request.pathParamMap()).thenReturn(urlParams);
+    when(request.queryParamMap()).thenReturn(new HashMap<>());
     when(request.attribute("specification")).thenReturn("beacon");
 
     BeaconRequestBody requestBody = new BeaconRequestBody(request);
