@@ -67,7 +67,6 @@ public class ChangeLogExecutor {
   }
 
   static void updateChangeLogTrigger(TableMetadata table) {
-
     if (ChangeLogUtils.isChangeSchema(table.getSchema().getDatabase(), table.getSchemaName())) {
       DSLContext jooq = ((SqlTableMetadata) table).getJooq();
       // drop previous version
