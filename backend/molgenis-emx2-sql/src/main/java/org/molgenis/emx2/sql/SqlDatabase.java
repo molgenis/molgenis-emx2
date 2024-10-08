@@ -186,7 +186,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
         instanceId = String.valueOf(new Random().nextLong(SnowflakeIdGenerator.MAX_ID));
         this.setSetting(Constants.MOLGENIS_INSTANCE_ID, instanceId);
       }
-      SnowflakeIdGenerator.init(instanceId);
+      if (!SnowflakeIdGenerator.hasInstance()) SnowflakeIdGenerator.init(instanceId);
 
       if (getSetting(Constants.IS_PRIVACY_POLICY_ENABLED) == null) {
         this.setSetting(Constants.IS_PRIVACY_POLICY_ENABLED, String.valueOf(false));
