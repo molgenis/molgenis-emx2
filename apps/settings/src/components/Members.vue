@@ -109,13 +109,11 @@ export default {
       loading: false,
     };
   },
-
   computed: {
     canEdit() {
       return (
-        this.session !== null &&
-        (this.session.email === "admin" ||
-          this.session.roles.includes("Manager"))
+        this.session?.email === "admin" ||
+        this.session?.roles.includes("Manager")
       );
     },
   },
@@ -130,7 +128,7 @@ export default {
         `mutation drop($member:[String]){drop(members:$member){message}}`,
         { member: name }
       )
-        .then((data) => {
+        .then(() => {
           this.loadMembers();
         })
         .catch((error) => {

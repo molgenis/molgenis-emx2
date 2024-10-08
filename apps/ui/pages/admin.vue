@@ -43,6 +43,7 @@ definePageMeta({
   middleware: "admin-only",
 });
 
+const API_GRAPHQL = "/api/graphql";
 const LIMIT = 20;
 const currentPage = ref(1);
 const offset = computed(() => {
@@ -62,14 +63,14 @@ function updateCurrentPage(newPage: number) {
 }
 
 async function getUsers() {
-  const { data, error } = await useFetch<IAdminResponse>("/api/graphql", {
+  const { data, error } = await useFetch<IAdminResponse>(API_GRAPHQL, {
     method: "post",
     body: {
       query: `{ _admin { users(limit: ${LIMIT}${offset.value}) { email, settings, {key, value}, roles { schemaId, role } } userCount } }`,
     },
   });
   if (error.value) {
-    console.log("Error loading users: ", error.value);
+    handleError("Error loading users: ", error.value);
     // todo handle error see catalogue error page
   }
   const transformedUsers = buildUsers(data.value?.data._admin.users || []);
@@ -96,6 +97,35 @@ function getTokens(user: IUser) {
     }
   }
   return [];
+}
+
+function deleteUser(user: IUser) {
+  useFetch(API_GRAPHQL, {
+    method: "post",
+    body: {
+      query: `mutation drop($member:[String]){drop(members:$member){message}}`,
+      member: user.email,
+    },
+  })
+    .then(getUsers)
+    .catch((error) => {
+      handleError("Error deleting user: ", error.value);
+    });
+}
+
+function updateUser(user: IUser) {
+  useFetch(API_GRAPHQL, {
+    method: "post",
+    body: {
+      query: `mutation change($editMember:MolgenisMembersInput){change(members:[$editMember]){message}}`,
+      editMember: user,
+    },
+  });
+}
+
+function handleError(message: string, error: any) {
+  console.log(message, error);
+  //see nuxt catalogue on how to handle errors
 }
 
 interface IAdminResponse {
