@@ -159,11 +159,11 @@ public class ColumnTypeRdfMapper {
             row.getStringArray(column.getName()), (i) -> URIUtils.encodedIRI((String) i));
       }
     },
-    EMAIL(CoreDatatype.XSD.ANYURI) {
+    EMAIL(CoreDatatype.XSD.STRING) { // TODO: change to ANYURI
       @Override
       Set<Value> retrieveValues(String baseURI, Row row, Column column) {
         return RdfColumnType.STRING.retrieveValues(baseURI, row, column);
-        // Enable after equal behavior is proven.
+        // TODO: Enable with email fix implementation
         //        return basicRetrieval(
         //            row.getStringArray(column.getName()), (i) -> URIUtils.encodedIRI("mailto:" +
         // i));
