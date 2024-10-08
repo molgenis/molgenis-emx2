@@ -181,10 +181,12 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
         this.setSetting(Constants.IS_OIDC_ENABLED, String.valueOf(isOidcEnabled));
       }
 
-      if (getSetting(Constants.MOLGENIS_INSTANCE_ID) == null) {
-        long instanceId = new Random().nextLong(SnowflakeIdGenerator.MAX_ID);
-        this.setSetting(Constants.MOLGENIS_INSTANCE_ID, String.valueOf(instanceId));
+      String instanceId = getSetting(Constants.MOLGENIS_INSTANCE_ID);
+      if (instanceId == null) {
+        instanceId = String.valueOf(new Random().nextLong(SnowflakeIdGenerator.MAX_ID));
+        this.setSetting(Constants.MOLGENIS_INSTANCE_ID, instanceId);
       }
+      SnowflakeIdGenerator.init(instanceId);
 
       if (getSetting(Constants.IS_PRIVACY_POLICY_ENABLED) == null) {
         this.setSetting(Constants.IS_PRIVACY_POLICY_ENABLED, String.valueOf(false));

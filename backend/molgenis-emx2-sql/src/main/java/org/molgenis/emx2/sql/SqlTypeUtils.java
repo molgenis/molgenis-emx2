@@ -78,24 +78,13 @@ public class SqlTypeUtils extends TypeUtils {
 
   private static void applyAutoId(Column c, Row row) {
     if (row.isNull(c.getName(), c.getPrimitiveColumnType())) {
-
-      String instanceId =
-          c.getTable()
-              .getTable()
-              .getSchema()
-              .getDatabase()
-              .getSetting(Constants.MOLGENIS_INSTANCE_ID);
-
-      SnowflakeIdGenerator idGenerator = SnowflakeIdGenerator.getInstance();
+      String id = SnowflakeIdGenerator.getInstance().generateId();
       // do we use a template containing ${mg_autoid} for pre/postfixing ?
       if (c.getComputed() != null) {
-        row.set(
-            c.getName(),
-            c.getComputed()
-                .replace(Constants.COMPUTED_AUTOID_TOKEN, idGenerator.generateId(instanceId)));
+        row.set(c.getName(), c.getComputed().replace(Constants.COMPUTED_AUTOID_TOKEN, id));
       }
       // otherwise simply put the id
-      else row.set(c.getName(), idGenerator.generateId(instanceId));
+      else row.set(c.getName(), id);
     }
   }
 

@@ -4,9 +4,10 @@ import java.math.BigInteger;
 import java.time.Instant;
 import org.molgenis.emx2.MolgenisException;
 
-public class SnowflakeIdGenerator {
+public class SnowflakeIdGenerator implements IdGenerator {
 
   private static SnowflakeIdGenerator instance;
+  private final String instanceId;
 
   private static final String BASE62_CHARACTERS =
       "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -27,16 +28,26 @@ public class SnowflakeIdGenerator {
   private long lastTimestamp = -1L;
   private long sequence = 0L;
 
-  private SnowflakeIdGenerator() {}
+  private SnowflakeIdGenerator(String instanceId) {
+    this.instanceId = instanceId;
+  }
 
   public static synchronized SnowflakeIdGenerator getInstance() {
     if (instance == null) {
-      instance = new SnowflakeIdGenerator();
+      throw new MolgenisException("SnowflakeIdGenerator not initialized");
     }
     return instance;
   }
 
-  public synchronized String generateId(String instanceId) {
+  public static synchronized SnowflakeIdGenerator init(String instanceId) {
+    if (instance != null) {
+      throw new MolgenisException("SnowflakeIdGenerator is already initialized");
+    }
+    instance = new SnowflakeIdGenerator(instanceId);
+    return instance;
+  }
+
+  public synchronized String generateId() {
     long currentTimestamp = getCurrentTimestamp();
 
     if (currentTimestamp == lastTimestamp) {

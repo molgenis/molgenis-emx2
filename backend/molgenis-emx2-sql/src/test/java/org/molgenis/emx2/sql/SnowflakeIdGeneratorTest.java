@@ -13,8 +13,8 @@ import org.molgenis.emx2.utils.generator.SnowflakeIdGenerator;
 
 public class SnowflakeIdGeneratorTest {
 
-  private static final SnowflakeIdGenerator generator = SnowflakeIdGenerator.getInstance();
-  private static final String INSTANCE_ID = "3352"; // Random instance id for testing
+  private static final String INSTANCE_ID = "123"; // Random instance id for testing
+  private static final SnowflakeIdGenerator generator = SnowflakeIdGenerator.init(INSTANCE_ID);
 
   @Test
   public void testIdGenerationIsUnique() {
@@ -22,7 +22,7 @@ public class SnowflakeIdGeneratorTest {
 
     int totalIds = 100000;
     for (int i = 0; i < totalIds; i++) {
-      String id = generator.generateId(INSTANCE_ID);
+      String id = generator.generateId();
       assertFalse(generatedIds.contains(id), "Duplicate ID found: " + id);
       generatedIds.add(id);
     }
@@ -34,7 +34,7 @@ public class SnowflakeIdGeneratorTest {
     String[] generatedIds = new String[100000];
 
     for (int i = 0; i < generatedIds.length; i++) {
-      generatedIds[i] = generator.generateId(INSTANCE_ID);
+      generatedIds[i] = generator.generateId();
     }
 
     // Check if IDs are sorted
@@ -54,7 +54,7 @@ public class SnowflakeIdGeneratorTest {
     for (int i = 0; i < 100000; i++) {
       executorService.submit(
           () -> {
-            String id = generator.generateId(INSTANCE_ID);
+            String id = generator.generateId();
             synchronized (uniqueIds) {
               uniqueIds.add(id);
             }
@@ -71,7 +71,7 @@ public class SnowflakeIdGeneratorTest {
 
   @Test
   public void testExtractionInstanceIdFromSnowflake() {
-    String snowflakeId = generator.generateId(INSTANCE_ID);
+    String snowflakeId = generator.generateId();
 
     String instanceIdFromSnowflake = SnowflakeIdGenerator.extractInstanceId(snowflakeId);
     assertEquals(INSTANCE_ID, instanceIdFromSnowflake);
@@ -80,7 +80,7 @@ public class SnowflakeIdGeneratorTest {
   @Test
   public void testExtractTimestampFromSnowflake() {
     long currentTime = Instant.now().toEpochMilli();
-    String snowflakeId = generator.generateId(INSTANCE_ID);
+    String snowflakeId = generator.generateId();
 
     long snowflakeTimestamp = SnowflakeIdGenerator.extractTimestamp(snowflakeId);
     // Allow a mismatch of 1ms
