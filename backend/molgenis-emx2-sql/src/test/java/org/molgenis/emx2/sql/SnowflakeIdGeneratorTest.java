@@ -8,13 +8,22 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.utils.generator.SnowflakeIdGenerator;
 
 public class SnowflakeIdGeneratorTest {
 
-  private static final String INSTANCE_ID = "123"; // Random instance id for testing
-  private static final SnowflakeIdGenerator generator = SnowflakeIdGenerator.init(INSTANCE_ID);
+  private static SnowflakeIdGenerator generator;
+
+  @BeforeAll
+  public static void before() {
+    if (!SnowflakeIdGenerator.hasInstance()) {
+      generator = SnowflakeIdGenerator.init("123");
+    } else {
+      generator = SnowflakeIdGenerator.getInstance();
+    }
+  }
 
   @Test
   public void testIdGenerationIsUnique() {
@@ -74,7 +83,7 @@ public class SnowflakeIdGeneratorTest {
     String snowflakeId = generator.generateId();
 
     String instanceIdFromSnowflake = SnowflakeIdGenerator.extractInstanceId(snowflakeId);
-    assertEquals(INSTANCE_ID, instanceIdFromSnowflake);
+    assertEquals(generator.getInstanceId(), instanceIdFromSnowflake);
   }
 
   @Test

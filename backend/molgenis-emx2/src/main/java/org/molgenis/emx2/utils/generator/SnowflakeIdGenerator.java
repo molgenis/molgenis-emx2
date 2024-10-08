@@ -148,4 +148,8 @@ public class SnowflakeIdGenerator implements IdGenerator {
     }
     return newTimestamp;
   }
+
+  public String getInstanceId() {
+    return this.instanceId;
+  }
 }
