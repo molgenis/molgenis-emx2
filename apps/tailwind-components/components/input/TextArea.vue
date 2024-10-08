@@ -1,8 +1,11 @@
 <script setup lang="ts">
-withDefaults(
+import type { columnValue } from "../../../metadata-utils/src/types";
+
+const props = withDefaults(
   defineProps<{
     id: string;
-    value?: string;
+    label?: string;
+    modelValue?: string;
     placeholder?: string;
     disabled?: boolean;
     required?: boolean;
@@ -17,7 +20,30 @@ withDefaults(
   }
 );
 
-const modelValue = ref("");
+const emit = defineEmits([
+  "focus",
+  "blur",
+  "input",
+  "error",
+  "update:modelValue",
+]);
+defineExpose({ validate });
+
+function validate(value: columnValue) {
+  if (props.required && value === "") {
+    emit("error", [
+      { message: `${props.label || props.id} required to complete the form` },
+    ]);
+  } else {
+    emit("error", []);
+  }
+}
+
+function onInput(event: Event) {
+  const inputElement = event.target as HTMLInputElement;
+  emit("update:modelValue", inputElement.value);
+  validate(inputElement.value);
+}
 </script>
 
 <template>
@@ -33,6 +59,9 @@ const modelValue = ref("");
       'border-disabled text-disabled bg-disabled': disabled,
       'bg-white': !disabled,
     }"
-    v-model="modelValue"
+    :value="modelValue"
+    @input="onInput"
+    @focus="$emit('focus')"
+    @blur="$emit('blur')"
   />
 </template>

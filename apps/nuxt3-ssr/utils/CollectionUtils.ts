@@ -1,12 +1,6 @@
-type ICollectionTypeMetadata = {
-  type: string;
-  plural: string;
-  image?: string;
-  path: string;
-  description?: string;
-};
+import type { IResourceTypeMetadata } from "~/interfaces/types";
 
-export const typeMetadata: ICollectionTypeMetadata[] = [
+export const typeMetadata: IResourceTypeMetadata[] = [
   {
     type: "Cohort study",
     plural: "Cohort studies",
@@ -43,32 +37,17 @@ export const typeMetadata: ICollectionTypeMetadata[] = [
   { type: "Study", plural: "Studies", path: "studies" },
 ];
 
-export function getCollectionMetadataForType(
+export function getResourceMetadataForType(
   type: string
-): ICollectionTypeMetadata {
+): IResourceTypeMetadata {
   return (
     Object.values(typeMetadata).filter(
-      (value: ICollectionTypeMetadata) => value.type === type
+      (value: IResourceTypeMetadata) => value.type === type
     )?.[0] || {
-      type: "Collection",
-      plural: "Collections",
+      type: "Resource",
+      plural: "Resources",
       image: "image-link",
-      path: "collections",
-    }
-  );
-}
-
-export function getCollectionMetadataForPath(
-  path: string
-): ICollectionTypeMetadata {
-  return (
-    Object.values(typeMetadata).filter(
-      (value: ICollectionTypeMetadata) => value.path === path
-    )?.[0] || {
-      type: "Collection",
-      plural: "Collections",
-      image: "image-link",
-      path: "collections",
+      path: "resources",
     }
   );
 }

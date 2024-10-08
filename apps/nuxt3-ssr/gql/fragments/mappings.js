@@ -11,25 +11,34 @@ export default gql`
       name
     }
     sourceDataset {
-      collection {
+      resource {
         id
       }
     }
     sourceVariables {
       name
+      resource {
+        id
+      }
+      dataset {
+        name
+        resource {
+          id
+        }
+      }
     }
     sourceVariablesOtherDatasets {
       name
       dataset {
         name
-        collection {
+        resource {
           id
         }
       }
     }
     targetVariable {
       dataset {
-        collection {
+        resource {
           id
         }
         name

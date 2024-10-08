@@ -186,7 +186,11 @@ public class FAIRDataPointDataset {
           throw new Exception(
               "propertyValue should contain strings that each consist of 2 elements separated by 1 whitespace");
         }
-        builder.add(reqUrl, iri(propertyValueSplit[0]), iri(propertyValueSplit[1]));
+        if (propertyValueSplit[1].startsWith("http")) {
+          builder.add(reqUrl, iri(propertyValueSplit[0]), iri(propertyValueSplit[1]));
+        } else {
+          builder.add(reqUrl, iri(propertyValueSplit[0]), propertyValueSplit[1]);
+        }
       }
     }
     if (datasetFromJSON.get("spatialResolutionInMeters") != null) {

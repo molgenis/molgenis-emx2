@@ -232,9 +232,6 @@ class SqlTableMetadata extends TableMetadata {
     // drop referential constraints around this column
     executeRemoveRefConstraints(tm.getJooq(), oldColumn);
 
-    // remove refBacks if exist
-    executeRemoveRefback(oldColumn, newColumn);
-
     // add ontology table if needed
     if (newColumn.isOntology()) {
       createOntologyTable(newColumn);
@@ -262,9 +259,6 @@ class SqlTableMetadata extends TableMetadata {
 
     // reapply ref constrainst
     executeCreateRefConstraints(tm.getJooq(), newColumn);
-
-    // check if refBack constraints need updating
-    reapplyRefbackContraints(oldColumn, newColumn);
 
     // create/update key, if touched
     if (newColumn.getKey() != oldColumn.getKey()) {
