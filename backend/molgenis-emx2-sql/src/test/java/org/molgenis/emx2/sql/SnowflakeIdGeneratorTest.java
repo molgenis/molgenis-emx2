@@ -39,7 +39,6 @@ public class SnowflakeIdGeneratorTest {
 
   @Test
   public void testIdGenerationIsSorted() {
-    SnowflakeIdGenerator generator = SnowflakeIdGenerator.getInstance();
     String[] generatedIds = new String[100000];
 
     for (int i = 0; i < generatedIds.length; i++) {
