@@ -20,7 +20,7 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | 3 | Click on the Cohort studies button | Cohort studies overview page with a list of all cohort studies in the system | | |
 | 4 | Type "name for test cohort" in the Search field top left | See that two cohort studies are presented in the list: "acronym for test cohort 1" and "acronym for test cohort 2" | | |
 | 5 | Click on "Acronym for test cohort 2" | See that the resource detail page for Acronym for test cohort 2 is presented: "All > Cohort studies", ACRONYM FOR TEST COHORT 2, Name for test cohort 2 | | |
-| 6 | Click on Contact | pop-up with "Name of test cohort 2", Contact, Name entry field, Email entry field, Organisation entry field, Topic dropdown, Message entry field, "or contact us at: <molgenis-support@umcg.nl>", Send button | | |
+| 6 | Click on Contact | pop-up with "Name of test cohort 2", Contact, Name entry field, Email entry field, Organisation entry field, Topic dropdown, Message entry field, "or contact us at: <support@molgenis.org>", Send button | | |
 | 7 | Type in test message, fill in your own email address and press 'Send' | an email is sent to Molgenis Support | | |
 | 8 | close the notification, if any pops up | return to the detailed page for "acronym for test cohort 2" | | |
 | 9 | click on website link | go to molgenis.org in a new window | | |
