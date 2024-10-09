@@ -6,8 +6,16 @@ import argparse
 import molgenis_emx2_pyclient
 import pandas as pd
 
+def add_to_array(array: str, item: str):
+    """Add an item to an existing array in string format"""
+    if pd.isna(array) or array == '':
+        array = item
+    else:
+        array += ','
+        array += item
+    return array
 
-def map_persons_to_contacts(persons):
+def map_persons_to_contacts(persons, collections, biobanks, networks, resources):
     """Maps the BBRMI-ERIC Persons table to the flat data model's Contacts table"""
     persons.rename(columns={'first_name': 'first name',
                    'last_name': 'last name', 'role': 'role description'}, inplace=True)
@@ -30,12 +38,36 @@ def map_persons_to_contacts(persons):
     persons['role'] = persons['role description'].map(role_mapping)
     # Add role 'Other' for un-mapped roles
     persons.loc[(persons['role description'] != '') & (persons['role'].isna()), 'role'] = 'Other'
-    # Add everyone to dummy organisation for now
-    persons['resource'] = 'INMA'
-    # FIXME: make duplicate keys unique by appending id after last name
-    persons['last name'] = persons['last name'] + ' ' + persons['id']
+    # Link people to resources, create new entries
+    persons['resource'] = ''
+    persons = persons.set_index('id')
+    linked_persons = []
+    # Go through networks, biobanks, add a new entry for each link
+    for _, row in biobanks.iterrows():
+        contact = persons.loc[row['contact']].copy()
+        contact['resource'] = row['id']
+        contact['role'] = add_to_array(contact['role'], 'Primary contact')
+        if row['head']:
+            head = persons.loc[row['head']].copy()
+            # Check whether head and contact are duplicates w.r.t. first and last name, regardless of id
+            if head['first name'] == contact['first name'] and head['last name'] == contact['last name']:
+                contact['role'] = add_to_array(contact['role'], 'Biobank head')
+            else: 
+                head['resource'] = row['id']
+                head['role'] = add_to_array(head['role'], 'Biobank head')
+                linked_persons.append(head)
+        linked_persons.append(contact)
 
-    return persons
+    for _, row in networks.iterrows():
+        contact = persons.loc[row['contact']].copy()
+        contact['resource'] = row['id']
+        contact['role'] = add_to_array(contact['role'], 'Primary contact')
+        linked_persons.append(contact)
+
+    linked_persons = pd.DataFrame(linked_persons)
+    linked_persons['id'] = linked_persons.index
+
+    return linked_persons
 
 
 def map_collections_to_resources(collections):
@@ -145,16 +177,15 @@ def main():
             # Map persons to contacts
             persons = client.get('Persons', as_df=True)
             mapped_contacts = map_persons_to_contacts(
-                persons.copy())  # Unnecessary copy?
+                persons.copy(), mapped_collections, mapped_biobanks, mapped_networks, resources)  # Unnecessary copy?
             mapped_contacts = mapped_contacts.reindex(columns=['resource', 'role', 'role description', 'display name', 'first name',
                                                                'last name', 'prefix', 'initials', 'title', 'organisation', 'email',
                                                                'orcid', 'homepage', 'photo', 'photo_filename', 'expertise'])
             # Upload mapped tables
-            # catalogue_client.save_schema(
-                # table='Contacts', data=mapped_contacts)
-            catalogue_client.save_schema(table='Resources',
-                                         data=resources)
-
+            catalogue_client.save_schema(
+                table='Contacts', data=mapped_contacts)
+            catalogue_client.save_schema(
+                table='Resources', data=resources)
 
 if __name__ == "__main__":
     main()
