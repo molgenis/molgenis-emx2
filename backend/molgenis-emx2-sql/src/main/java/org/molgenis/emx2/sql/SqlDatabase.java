@@ -33,6 +33,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   public static final int TEN_SECONDS = 10;
   private static final Settings DEFAULT_JOOQ_SETTINGS =
       new Settings().withQueryTimeout(TEN_SECONDS);
+  private static final Random random = new Random();
 
   // shared between all instances
   private static DataSource source;
@@ -183,7 +184,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
 
       String instanceId = getSetting(Constants.MOLGENIS_INSTANCE_ID);
       if (instanceId == null) {
-        instanceId = String.valueOf(new Random().nextLong(SnowflakeIdGenerator.MAX_ID));
+        instanceId = String.valueOf(random.nextLong(SnowflakeIdGenerator.MAX_ID));
         this.setSetting(Constants.MOLGENIS_INSTANCE_ID, instanceId);
       }
       if (!SnowflakeIdGenerator.hasInstance()) SnowflakeIdGenerator.init(instanceId);
