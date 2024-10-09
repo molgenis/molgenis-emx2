@@ -1,9 +1,6 @@
 package org.molgenis.emx2.sql;
 
-import static org.jooq.impl.DSL.field;
-import static org.jooq.impl.DSL.name;
-import static org.jooq.impl.DSL.select;
-import static org.jooq.impl.DSL.table;
+import static org.jooq.impl.DSL.*;
 import static org.jooq.impl.SQLDataType.CHAR;
 import static org.jooq.impl.SQLDataType.JSON;
 import static org.jooq.impl.SQLDataType.TIMESTAMP;
@@ -17,7 +14,6 @@ import java.sql.Timestamp;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.IntStream;
 import org.jooq.*;
 import org.jooq.Record;
 import org.molgenis.emx2.*;
@@ -135,8 +131,13 @@ public class ChangeLogExecutor {
     }
 
     // get the last updated table and details from all schema's that have a change log
-    SelectLimitPercentStep<Record4<String, Timestamp, String, String>> query =
-        jooq.select(OPERATION, STAMP, USERID, TABLENAME)
+    SelectLimitPercentStep<Record5<String, Timestamp, String, String, String>> query =
+        jooq.select(
+                OPERATION,
+                STAMP,
+                USERID,
+                TABLENAME,
+                inline(schemasWithChangeLog.get(0)).as(SCHEMA_NAME))
             .from(table(name(schemasWithChangeLog.get(0), MG_CHANGLOG)))
             .orderBy(STAMP.desc())
             .limit(1);
@@ -144,49 +145,34 @@ public class ChangeLogExecutor {
     // union the select for schema's in a loop
     for (int i = 1; i < schemasWithChangeLog.size(); i++) {
       query.unionAll(
-          jooq.select(OPERATION, STAMP, USERID, TABLENAME)
+          jooq.select(
+                  OPERATION,
+                  STAMP,
+                  USERID,
+                  TABLENAME,
+                  inline(schemasWithChangeLog.get(1)).as(SCHEMA_NAME))
               .from(table(name(schemasWithChangeLog.get(i), MG_CHANGLOG)))
               .orderBy(STAMP.desc())
               .limit(1));
     }
 
     // execute to query with all the unions
-    Result<Record4<String, Timestamp, String, String>> result = query.fetch();
+    Result<Record5<String, Timestamp, String, String, String>> result = query.fetch();
 
     // transform the result in to records
-    List<LastUpdate> lastUpdatesWithOutSchemaName =
-        result.stream()
-            .map(
-                r -> {
-                  char operation = r.getValue(OPERATION, char.class);
-                  Timestamp stamp = r.getValue(STAMP, Timestamp.class);
-                  String userId = r.getValue(USERID, String.class);
-                  String tableName = r.getValue(TABLENAME, String.class);
+    return result.stream()
+        .map(
+            r -> {
+              char operation = r.getValue(OPERATION, char.class);
+              Timestamp stamp = r.getValue(STAMP, Timestamp.class);
+              String userId = r.getValue(USERID, String.class);
+              String tableName = r.getValue(TABLENAME, String.class);
+              String schemaName = r.getValue(SCHEMA_NAME, String.class);
 
-                  return new LastUpdate(operation, stamp, userId, tableName, "");
-                })
-            .toList();
-
-    // join in the schema names with the records
-    List<LastUpdate> lastUpdates =
-        new java.util.ArrayList<>(
-            IntStream.range(0, lastUpdatesWithOutSchemaName.size())
-                .mapToObj(
-                    i -> {
-                      LastUpdate lastUpdate = lastUpdatesWithOutSchemaName.get(i);
-                      return new LastUpdate(
-                          lastUpdate.operation(),
-                          lastUpdate.stamp(),
-                          lastUpdate.userId(),
-                          lastUpdate.tableName(),
-                          schemasWithChangeLog.get(i));
-                    })
-                .toList());
-
-    // sort the final result by timestamp ( i.e. last updated )
-    lastUpdates.sort(Comparator.comparing(LastUpdate::stamp));
-
-    return lastUpdates;
+              return new LastUpdate(operation, stamp, userId, tableName, schemaName);
+            })
+        .sorted(Comparator.comparing(LastUpdate::stamp))
+        .toList();
   }
 
   static Integer executeGetChangesCount(DSLContext jooq, SchemaMetadata schema) {
