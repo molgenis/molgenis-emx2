@@ -6,6 +6,7 @@ import static org.molgenis.emx2.utils.URIUtils.*;
 
 import graphql.ExecutionResult;
 import graphql.GraphQL;
+import io.javalin.http.Context;
 import java.io.StringWriter;
 import java.net.URI;
 import java.util.*;
@@ -21,7 +22,6 @@ import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.graphql.GraphqlApiFactory;
 import org.molgenis.emx2.utils.TypeUtils;
-import spark.Request;
 
 public class FAIRDataPointCatalog {
 
@@ -84,9 +84,9 @@ public class FAIRDataPointCatalog {
     }
   }
 
-  public FAIRDataPointCatalog(Request request, Table fdpCatalogTable) throws Exception {
+  public FAIRDataPointCatalog(Context ctx, Table fdpCatalogTable) throws Exception {
 
-    String id = request.params("id");
+    String id = ctx.pathParam("id");
     Schema schema = fdpCatalogTable.getSchema();
 
     List<Map<String, Object>> catalogsFromJSON = getFDPCatalogRecords(schema, id);
@@ -120,13 +120,13 @@ public class FAIRDataPointCatalog {
     }
 
     // reconstruct server:port URL to prevent problems with double encoding of schema/table names
-    URI requestURI = getURI(request.url());
+    URI requestURI = getURI(ctx.url());
     String host = extractHost(requestURI);
     String apiFdp = host + "/api/fdp";
     String apiFdpDataset = apiFdp + "/dataset";
     String apiFdpCatalogProfile = apiFdp + "/catalog/profile";
 
-    IRI reqUrl = iri(request.url()); // escaping/encoding seems OK
+    IRI reqUrl = iri(ctx.url()); // escaping/encoding seems OK
     IRI apiFdpEnc = encodedIRI(apiFdp);
     IRI apiFdpDatasetEnc = encodedIRI(apiFdpDataset);
     IRI apiFdpCatalogProfileEnc = encodedIRI(apiFdpCatalogProfile);

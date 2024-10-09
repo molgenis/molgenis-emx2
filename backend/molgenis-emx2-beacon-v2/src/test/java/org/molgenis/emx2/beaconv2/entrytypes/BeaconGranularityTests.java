@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.beaconv2.QueryEntryType;
@@ -46,7 +47,7 @@ public class BeaconGranularityTests extends BeaconModelEndPointTest {
 
   @Test
   public void testRequestedGranularity_getRequestCount() {
-    Map<String, String[]> params = Map.of("requestedGranularity", new String[] {"count"});
+    Map<String, List<String>> params = Map.of("requestedGranularity", List.of("count"));
     BeaconRequestBody requestBody =
         new BeaconRequestBody(mockEntryTypeRequestRegular("Individuals", params));
 

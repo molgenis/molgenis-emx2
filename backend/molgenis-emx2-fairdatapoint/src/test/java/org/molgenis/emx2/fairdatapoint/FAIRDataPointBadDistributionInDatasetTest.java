@@ -5,6 +5,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.molgenis.emx2.datamodels.DataModels.Profile.DCAT;
 
+import io.javalin.http.Context;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeAll;
@@ -13,7 +14,6 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
-import spark.Request;
 
 /**
  * FDP Dataset must have 1+ distributions, in EMX2 represented by 1 table name. The FDP
@@ -41,13 +41,13 @@ public class FAIRDataPointBadDistributionInDatasetTest {
   public void FDPBadDistribution() throws Exception {
 
     // check correct situation: distribution value matches a table, API returns as normal
-    Request request = mock(Request.class);
-    when(request.url())
+    Context ctx = mock(Context.class);
+    when(ctx.url())
         .thenReturn(
             "http://localhost:8080/api/fdp/dataset/fairDataHub_baddistribution/datasetId01");
-    when(request.params("id")).thenReturn("datasetId01");
+    when(ctx.pathParam("id")).thenReturn("datasetId01");
     FAIRDataPointDataset fairDataPointDataset =
-        new FAIRDataPointDataset(request, dcat_baddistribution.getTable("Dataset"));
+        new FAIRDataPointDataset(ctx, dcat_baddistribution.getTable("Dataset"));
     String result = fairDataPointDataset.getResult();
     assertTrue(
         result.contains(
@@ -64,15 +64,15 @@ public class FAIRDataPointBadDistributionInDatasetTest {
     distribution.save(newRow);
 
     // API should check, find that distribution value does not match a table, and throw error
-    when(request.url())
+    when(ctx.url())
         .thenReturn(
             "http://localhost:8080/api/fdp/dataset/fairDataHub_baddistribution/datasetId01");
-    when(request.params("id")).thenReturn("datasetId01");
+    when(ctx.pathParam("id")).thenReturn("datasetId01");
     Exception exception =
         assertThrows(
             Exception.class,
             () ->
-                new FAIRDataPointDataset(request, dcat_baddistribution.getTable("Dataset"))
+                new FAIRDataPointDataset(ctx, dcat_baddistribution.getTable("Dataset"))
                     .getResult());
     String expectedMessage =
         "Schema does not contain the requested table for distribution. Make sure the value of 'distribution' in your Dataset matches a table name (from the same schema) you want to publish.";
