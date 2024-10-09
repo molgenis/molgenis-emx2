@@ -4,13 +4,9 @@
     <ContentBlock class="w-full mt-3" title="User management">
       <h2>User List ({{ userCount }})</h2>
       <div>
-        <InputString id="New user name" v-model="newUserName" />
+        <InputString id="New user name" v-model="userName" />
         <InputString id="New user password" v-model="password" />
-        <Button
-          icon="plus"
-          size="tiny"
-          @click="createUser(newUserName, password)"
-        >
+        <Button icon="plus" size="tiny" @click="createUser(userName, password)">
           Add user
         </Button>
       </div>
@@ -33,8 +29,8 @@
           <TableRow v-for="user in users">
             <TableCell>
               <Button size="tiny" icon="trash" @click="deleteUser(user)" />
+              <Button size="tiny" icon="user" @click="updateUser(user)" />
             </TableCell>
-            <!-- clickable modal for role management? What to show here, count/summary/all? -->
             <TableCell>{{ user.email }}</TableCell>
             <TableCell>
               <div v-for="role in user.roles">
@@ -52,10 +48,36 @@
 <script setup lang="ts">
 import type { ISetting } from "../../metadata-utils/src/types";
 
+/**
+ * Component wishlist:
+ *  Settings icon
+ *  edit icon
+ *  buttongroup
+ *  icon button with tooltip
+ *  wider modal
+ */
+
+/**
+ *  Questions
+ *  Where to put enable/disable; behind edit or button toggle
+ *  Do certain actions need confirmation dialog?
+ *  Does password creating/changing need a double input?
+ *  Do we want a modal for creation with more options or is create into edit fine?
+ */
+
+/**
+ * Todo list
+ * make edit modal -> need wider modal -> pass data into modal, have onclose?
+ * make buttons double click safe
+ * put component in right place
+ * make stuff look better
+ */
+
 definePageMeta({
   middleware: "admin-only",
 });
 
+const GRAPHQL = "/graphql";
 const API_GRAPHQL = "/api/graphql";
 const LIMIT = 20;
 const currentPage = ref(1);
@@ -66,7 +88,7 @@ const offset = computed(() => {
 });
 
 const password = ref<string>("");
-const newUserName = ref<string>("");
+const userName = ref<string>("");
 const users = ref<IUser[]>([]);
 const userCount = ref(0);
 const totalPages = ref(0);
@@ -118,7 +140,7 @@ function deleteUser(user: IUser) {
   useFetch(API_GRAPHQL, {
     method: "post",
     body: {
-      query: `mutation drop($member:[String]){drop(members:$member){message}}`,
+      query: `mutation{removeUser(email: "${user.email}"){status,message}}`,
       member: user.email,
     },
   })
@@ -129,8 +151,10 @@ function deleteUser(user: IUser) {
 }
 
 function updateUser(user: IUser) {
+  console.log("update: ", user);
+  return; // placeholder
   const userToSend = user;
-  useFetch("/graphql", {
+  useFetch(GRAPHQL, {
     method: "post",
     body: {
       query: `mutation change($editMember:MolgenisMembersInput){change(members:[$editMember]){message}}`,
@@ -141,13 +165,19 @@ function updateUser(user: IUser) {
   });
 }
 
-function createUser(newUserName: string, passWord: string) {
-  useFetch("/graphql", {
+function createUser(newUserName: string, newPassword: string) {
+  if (!newUserName || !newPassword) return;
+
+  useFetch(GRAPHQL, {
     method: "post",
     body: {
-      query: `mutation{changePassword(email: "${newUserName}", password: "${passWord}"){status,message}}`,
+      query: `mutation{changePassword(email: "${newUserName}", password: "${newPassword}"){status,message}}`,
     },
   })
+    .then(() => {
+      userName.value = "";
+      password.value = "";
+    })
     .then(getUsers)
     .catch((error) => {
       handleError("Error creating/updating user: ", error.value);
