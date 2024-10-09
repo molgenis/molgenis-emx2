@@ -4,14 +4,24 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.sql.SqlTypeUtils.applyValidationAndComputed;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.utils.generator.SnowflakeIdGenerator;
 
 class TestSqlTypeUtils {
+
+  @BeforeAll
+  static void before() {
+    if (!SnowflakeIdGenerator.hasInstance()) {
+      SnowflakeIdGenerator.init("123");
+    }
+  }
 
   @Test
   void autoIdGetsGenerated() {
     TableMetadata tableMetadata = table("Test", new Column("myCol").setType(ColumnType.AUTO_ID));
+
     final Row row = new Row("myCol", null);
     applyValidationAndComputed(tableMetadata.getColumns(), row);
     assertNotNull(row.getString("myCol"));
