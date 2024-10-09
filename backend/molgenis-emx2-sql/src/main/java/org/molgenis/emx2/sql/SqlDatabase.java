@@ -8,6 +8,7 @@ import static org.molgenis.emx2.sql.SqlDatabaseExecutor.*;
 import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeCreateSchema;
 
 import com.zaxxer.hikari.HikariDataSource;
+import java.security.SecureRandom;
 import java.util.*;
 import java.util.function.Supplier;
 import javax.sql.DataSource;
@@ -33,7 +34,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   public static final int TEN_SECONDS = 10;
   private static final Settings DEFAULT_JOOQ_SETTINGS =
       new Settings().withQueryTimeout(TEN_SECONDS);
-  private static final Random random = new Random();
+  private static final Random random = new SecureRandom();
 
   // shared between all instances
   private static DataSource source;
