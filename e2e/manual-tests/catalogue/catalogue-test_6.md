@@ -13,7 +13,7 @@ A researcher searches for specific variables (*example: all ADHD variables*) acr
 # Steps
 
 | Step | Action | Expected result | Github bug/issue | Playwright test |
-| -----| -------| ----------------| -----------------| ----------------|
+| ---- | ------ | --------------- | ---------------- | --------------- |
 | 1 | Navigate to [https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/) | Landing page: European health research data and sample catalogue| | |
 | 2 | Hover over 'All variables' button in menu bar | Button should be underlined | | |
 | 3 | Click 'All variables' button | Should be redirected to  variable explorer (project agnostic) Variable page should be shown with variable names not truncated, where appropriate "+ nr." indicating repeated variables, variable labels and a filter panel on the left hand side of the page. Text at the top: "A complete overview of harmonised variables."| | |
