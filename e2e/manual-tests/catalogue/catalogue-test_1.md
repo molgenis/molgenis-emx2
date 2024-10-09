@@ -4,7 +4,7 @@
 
 # Role
 
-Naïve user of the data catalogue 
+Naïve user of the data catalogue
 
 # Goal
 
@@ -18,7 +18,7 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | 1 | Navigate to [https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/) | Landing page: European health research data and sample catalogue| | true |
 | 2 | In section 'Project catalogues' hover over the testNetworkofNetworks row | Row should be highlighted | | true |
 | 3 | Click on the testNetworkofNetworks row | Should be directed to the testNetworkofNetworks with 'Welcome to the catalogue of testNetworkofNetworks: name for test network of networks [etc]', and Cohort Studies (4), Data Sources (1), Databanks (3), Networks (2) and Variables (7) buttons | | true |
-| 3a | | The text under each button is as follows: Cohorts & Biobanks, Integration of multiple databanks, Databanks & Registries, Networks & Consortia, Harmonised variables
+| 3a | | The text under each button is as follows: Cohorts & Biobanks, Integration of multiple databanks, Databanks & Registries, Networks & Consortia, Harmonised variables | | |
 | 3b | | There should be 3.700 participants, 498 samples, 20% Longitudinal and 3 Subpopulations given.| | true |
 | 3c | | In the ribbon at the top of the page there should be: Left: MOLGENIS logo, Right: (L-R) Cohort studies, Data sources, Databanks, Networks, Variables, More  | [#3512](https://github.com/molgenis/molgenis-emx2/issues/3512) | true |
 | 4 | Click on the MOLGENIS logo | The page doesn't change | | true |
@@ -34,4 +34,4 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | 12 | Click on the 'Overview' button at the top | Should be directed back to the home page for testNetworkofNetworks | | true |
 | 13 | Click on More --> About | Should be directed to the detailed network page for testNetworkofNetworks (THIS IS NOT THE SAME AS THE HOME PAGE!) with website, description, partners, funding & citation requirements, list of cohorts and link to view the network's variables | | true |
 | 14 | Click on More --> Other catalogues | Should be directed to the landing page showing all thematic and project catalogues, entitled "European Health Research Data and Sample Catalogue" | | true |
-| 15 | Click on More --> Upload data | Should be directed to the 'old' interface apps/central for the user to be able to sign in and upload data
+| 15 | Click on More --> Upload data | Should be directed to the 'old' interface apps/central for the user to be able to sign in and upload data | | |
