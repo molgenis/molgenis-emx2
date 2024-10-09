@@ -493,7 +493,8 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   public void setEnabledUser(String user, Boolean enabled) {
     long start = System.currentTimeMillis();
     if (user.equals("admin")) throw new MolgenisException("You cant enable or disable admin");
-    if (user.equals("anonymous")) throw new MolgenisException("You cant enable or disable anonymous");
+    if (user.equals("anonymous"))
+      throw new MolgenisException("You cant enable or disable anonymous");
     if (!hasUser(user))
       throw new MolgenisException(
           (enabled ? "Enabling" : "Disabling")
