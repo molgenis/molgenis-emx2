@@ -7,10 +7,10 @@ The Network data manager is responsible for uploading the common data model (CDM
 ### Define CDM metadata
 
 [MOLGENIS catalogue](https://data-catalogue.molgeniscloud.org/catalogue/catalogue/#) provides a
-framework to describe in detail: metadata of different data resources, such as cohorts and data sources; definitions of 
+framework to describe in detail: metadata of different data resources (such as cohorts and data sources); definitions of 
 the variables collected in these resources; and mappings to common data models. Its purpose is to provide a gateway to 
 find and access health research data and to facilitate pooled data analysis of multiple cohorts 
-[Fortier et al, 2017](https://pubmed.ncbi.nlm.nih.gov/27272186/) and multi-data source studies 
+[Fortier et al, 2017](https://pubmed.ncbi.nlm.nih.gov/27272186/) and multi-datasource studies 
 [Gini et al, 2020](https://pubmed.ncbi.nlm.nih.gov/32243569/).
 
 - The resource metadata provides descriptive information such as contact details, name of the cohort, and high-level
@@ -22,7 +22,7 @@ find and access health research data and to facilitate pooled data analysis of m
 - The mappings describe how source variables have been converted into target variables as basis for integrated analysis.
 
 This section explains how to submit the 'target variables' (also called the harmonised model or common data model) into
-the catalogue. Expected users of this 'how to' are central data managers of networks such as LifeCycle or
+the MOLGENIS catalogue. Expected users of this 'how to' are central data managers of networks such as LifeCycle or
 LongITools. You will need login details to upload metadata to MOLGENIS catalogue.
 
 #### Define common data elements
@@ -30,7 +30,7 @@ LongITools. You will need login details to upload metadata to MOLGENIS catalogue
 We use the [*TargetDictionary* template](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/TargetDictionary.xlsx)
 to describe common data model elements. The 
 [*TargetDictionary* template](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/TargetDictionary.xlsx)
-consists of multiple sheets. Each sheet corresponds to a table in catalogue. The columns in the sheet
+consists of multiple sheets. Each sheet corresponds to a table in the catalogue. The columns in the sheet
 correspond to columns in the table concerned. This document describes how to fill out each of the sheets and their
 columns. A column with an asterisk (\*) after its name is mandatory, i.e., it should contain values for the system to
 accept a data upload. You can download this
@@ -38,8 +38,7 @@ accept a data upload. You can download this
 as a reference for filling out the template.
 
 It is good practice to try adding a few variables to the template first and see whether your upload succeeds. To
-upload the metadata to the catalogue see the section To upload the metadata to the catalogue see the
-section [Upload metadata](cat_network-data-manager.md#upload-metadata).
+upload the metadata to the catalogue see the section [Upload metadata](cat_network-data-manager.md#upload-metadata).
 
 ![Figure 1. Tables in a Network’s staging area in the MOLGENIS catalogue](../img/cat_tables-in-catalogue.png)
 
