@@ -107,6 +107,8 @@ const initialCollectionColumns = [
       "sub_collections.withdrawn",
       "collaboration_commercial",
       "collaboration_non_for_profit",
+      "study.id",
+      "study.title",
       ...ContactInfoColumns,
       ...HeadInfoColumns,
     ],
