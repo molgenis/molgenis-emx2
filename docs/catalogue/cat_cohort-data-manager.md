@@ -9,12 +9,10 @@ find and access health research data and to facilitate pooled data analysis of m
 [Fortier et al, 2017](https://pubmed.ncbi.nlm.nih.gov/27272186/) and multi-data source studies 
 [Gini et al, 2020](https://pubmed.ncbi.nlm.nih.gov/32243569/).
 
-- The metadata of cohorts include descriptive information such as contact details, name of the resource, and a high-level
-  summary of contents and design. The metadata of data sources, of the corresponding data banks and of the
-  organisations that provide access to them, include descriptive information such as contact details, reason for
-  existence of the data banks, the prompt for the records in the data bank, and lag time for updating and accessing data.
+- The metadata of data resources include descriptive information such as contact details, name of the resource, a high-level
+  summary of contents and design, and access and use conditions. 
 - The metadata of the source variables can be considered the codebook or data
-  dictionary of a cohort (e.g. ALSPAC) and of the tables which make up a data source's data bank(s) (e.g. the Danish
+  dictionary of a cohort or other data resource (e.g. ALSPAC) and of the tables which make up a data source's data bank(s) (e.g. the Danish
   Healthcare Registries).
 - Similarly, the common data models (or 'target variables') can be considered the codebook for a network of organisations
   with access to cohorts or data sources (e.g. LifeCycle or ConcePTION)
