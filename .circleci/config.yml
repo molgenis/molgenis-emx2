@@ -272,6 +272,10 @@ jobs:
                     sleep 10; 
                 done
       - run:
+          name: Install tools
+          command: yarn playwright install chrome
+          working_directory: apps/nuxt3-ssr
+      - run:
           name: Test nuxt ssr catalogue tests
           command: |
             echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
