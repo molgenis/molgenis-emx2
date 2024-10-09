@@ -282,7 +282,7 @@ jobs:
       - run:
           name: Run non ssr e2e tests
           command: |
-            - run: npx playwright install chrome
+            npx playwright install chrome
             echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
             export E2E_BASE_URL=https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/
             echo $E2E_BASE_URL
