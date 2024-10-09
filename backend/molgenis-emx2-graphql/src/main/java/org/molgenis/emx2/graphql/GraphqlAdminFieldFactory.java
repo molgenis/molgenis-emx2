@@ -2,6 +2,8 @@ package org.molgenis.emx2.graphql;
 
 import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.Constants.KEY;
+import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
+import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
 import static org.molgenis.emx2.graphql.GraphqlConstants.*;
 import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.*;
 
@@ -26,6 +28,11 @@ public class GraphqlAdminFieldFactory {
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(EMAIL)
                   .type(Scalars.GraphQLString)
+                  .build())
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(ENABLED)
+                  .type(Scalars.GraphQLBoolean)
                   .build())
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
@@ -94,9 +101,41 @@ public class GraphqlAdminFieldFactory {
     }
   }
 
+  public static GraphQLFieldDefinition removeUser(Database database) {
+    return GraphQLFieldDefinition.newFieldDefinition()
+        .name("removeUser")
+        .type(typeForMutationResult)
+        .argument(GraphQLArgument.newArgument().name(EMAIL).type(Scalars.GraphQLString))
+        .dataFetcher(
+            dataFetchingEnvironment -> {
+              String email = dataFetchingEnvironment.getArgument(EMAIL);
+              database.removeUser(email);
+              return new GraphqlApiMutationResult(SUCCESS, "User %s removed", email);
+            })
+        .build();
+  }
+
+  public static GraphQLFieldDefinition setEnabledUser(Database database) {
+    return GraphQLFieldDefinition.newFieldDefinition()
+        .name("setEnabledUser")
+        .type(typeForMutationResult)
+        .argument(GraphQLArgument.newArgument().name(EMAIL).type(Scalars.GraphQLString))
+        .argument(GraphQLArgument.newArgument().name(ENABLED).type(Scalars.GraphQLBoolean))
+        .dataFetcher(
+            dataFetchingEnvironment -> {
+              String email = dataFetchingEnvironment.getArgument(EMAIL);
+              Boolean enabled = dataFetchingEnvironment.getArgument(ENABLED);
+              database.setEnabledUser(email, enabled);
+              return new GraphqlApiMutationResult(
+                  SUCCESS, "User %s %s ", email, enabled ? "Enabled" : "Disabled");
+            })
+        .build();
+  }
+
   private static Map<String, Object> toGraphqlUser(User user, List<Member> members) {
     Map<String, Object> result = new LinkedHashMap<>();
     result.put(EMAIL, user.getUsername());
+    result.put(ENABLED, user.getEnabled());
     result.put(SETTINGS, mapSettingsToGraphql(user.getSettings()));
 
     List<Map<String, String>> roles = getRoles(user, members);
