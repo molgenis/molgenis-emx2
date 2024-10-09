@@ -14,38 +14,34 @@ const cohortOnly = computed(() => {
 
 const catalogueRouteParam = route.params.catalogue as string;
 
-const menu = [
-  {
+const menu: { label: string; link: string }[] = [];
+
+if (route.params.resourceType) {
+  menu.push({
     label: "overview",
     link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}`,
-  },
-];
-if (catalogueRouteParam === "all" || props.catalogue.collections_agg?.count > 0)
-  menu.push({
-    label: "collections",
-    link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/collections`,
   });
+}
+
+if (props.catalogue.resources_groupBy?.length) {
+  props.catalogue.resources_groupBy.forEach(
+    (sub: { type: { name: string }; count: string }) => {
+      const resourceTypeMetadata = getResourceMetadataForType(sub.type.name);
+      menu.push({
+        label: resourceTypeMetadata.plural,
+        link:
+          `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/` +
+          resourceTypeMetadata.path,
+      });
+    }
+  );
+}
+
 if (!cohortOnly.value && props.variableCount > 0)
   menu.push({
     label: "Variables",
     link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/variables`,
   });
-
-if (props.catalogue.collections_groupBy?.length) {
-  props.catalogue.collections_groupBy.forEach(
-    (sub: { type: { name: string }; count: string }) => {
-      const collectionTypeMetadata = getCollectionMetadataForType(
-        sub.type.name
-      );
-      menu.push({
-        label: collectionTypeMetadata.plural,
-        link:
-          `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/` +
-          collectionTypeMetadata.path,
-      });
-    }
-  );
-}
 
 if (cohortOnly.value) {
   menu.push({
@@ -55,7 +51,7 @@ if (cohortOnly.value) {
 } else if (catalogueRouteParam && catalogueRouteParam !== "all") {
   menu.push({
     label: "About",
-    link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/about-catalogue`,
+    link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/about/${catalogueRouteParam}`,
   });
 }
 

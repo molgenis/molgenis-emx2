@@ -263,9 +263,10 @@ export default {
       return filtered;
     },
     sortSchemas(unsorted) {
+      const unsortedCopy = unsorted.slice();
       let sorted = [];
       if (this.sortColumn === "lastUpdate") {
-        sorted = unsorted.sort((a, b) => {
+        sorted = unsortedCopy.sort((a, b) => {
           if (a.update && b.update) {
             return a.update.getTime() - b.update.getTime();
           } else if (a.update && !b.update) {
@@ -278,7 +279,7 @@ export default {
           }
         });
       } else {
-        sorted = unsorted.sort((a, b) => a.id.localeCompare(b.id));
+        sorted = unsortedCopy.sort((a, b) => a.id.localeCompare(b.id));
       }
 
       if (this.sortOrder === "DESC") {
@@ -302,7 +303,7 @@ export default {
     },
   },
   watch: {
-    showChangeColumn: (val) => {
+    showChangeColumn(val) {
       if (val) {
         this.getSchemaList();
       }

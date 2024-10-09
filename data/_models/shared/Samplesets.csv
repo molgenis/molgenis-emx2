@@ -1,0 +1,5 @@
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,visible
+Samplesets,,,,,,,,,,,,Definition of a sample set,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging",
+Samplesets,,resource,ref,1,TRUE,,Resources,,,,dcterms:isPartOf,Resouce that these samples are part of,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging",
+Samplesets,,name,,1,TRUE,,,,,,dcterms:title,Sample set name,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging",
+Samplesets,,sample types,ontology_array,,,CatalogueOntologies,Sample types,,,,,Defines the types of samples in the sample set,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging",

@@ -24,6 +24,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.Assert;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
+import io.restassured.specification.RequestSender;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -57,7 +58,7 @@ public class WebApiSmokeTests {
   private static Database db;
   private static Schema schema;
   final String CSV_TEST_SCHEMA = "pet store csv";
-  static final int PORT = 8081; // other then default so we can see effect
+  static final int PORT = 8081; // other than default so we can see effect
 
   @BeforeAll
   public static void before() throws Exception {
@@ -67,7 +68,7 @@ public class WebApiSmokeTests {
 
     // start web service for testing, including env variables
     withEnvironmentVariable(MOLGENIS_HTTP_PORT, "" + PORT)
-        // disable because of parallism issues .and(MOLGENIS_INCLUDE_CATALOGUE_DEMO, "true")
+        // disable because of parallelism issues .and(MOLGENIS_INCLUDE_CATALOGUE_DEMO, "true")
         .execute(() -> RunMolgenisEmx2.main(new String[] {}));
 
     // set default rest assured settings
@@ -107,9 +108,24 @@ public class WebApiSmokeTests {
 
   @AfterAll
   public static void after() {
-    MolgenisWebservice.stop();
     // Always clean up database to avoid instability due to side effects.
     db.dropSchemaIfExists(PET_STORE_SCHEMA);
+    db.dropSchemaIfExists("pet store yaml");
+    db.dropSchemaIfExists("pet store json");
+  }
+
+  @Test
+  public void testApiRoot() {
+    String result =
+        given()
+            .sessionId(SESSION_ID)
+            .expect()
+            .statusCode(200)
+            .when()
+            .get("/api")
+            .getBody()
+            .asString();
+    assertTrue(result.contains("Welcome to MOLGENIS EMX2"));
   }
 
   @Test
@@ -268,6 +284,8 @@ public class WebApiSmokeTests {
     byte[] contentsPetData = getContentAsByteArray(ACCEPT_CSV, "/pet store/api/csv/Pet");
     byte[] contentsUserData = getContentAsByteArray(ACCEPT_CSV, "/pet store/api/csv/User");
     byte[] contentsTagData = getContentAsByteArray(ACCEPT_CSV, "/pet store/api/csv/Tag");
+    byte[] contentsTableWithSpacesData =
+        getContentAsByteArray(ACCEPT_CSV, "/pet store/api/csv/" + TABLE_WITH_SPACES);
 
     // create tmp files for csv metadata and data
     File contentsMetaFile = createTempFile(contentsMeta, ".csv");
@@ -276,6 +294,7 @@ public class WebApiSmokeTests {
     File contentsPetDataFile = createTempFile(contentsPetData, ".csv");
     File contentsUserDataFile = createTempFile(contentsUserData, ".csv");
     File contentsTagDataFile = createTempFile(contentsTagData, ".csv");
+    File contentsTableWithSpacesDataFile = createTempFile(contentsTableWithSpacesData, ".csv");
 
     // upload csv metadata and data into the new schema
     // here we use 'body' (instead of 'multiPart' in e.g. testCsvApi_zipUploadDownload) because csv,
@@ -285,6 +304,7 @@ public class WebApiSmokeTests {
     acceptFileUpload(contentsTagDataFile, "Tag", false);
     acceptFileUpload(contentsPetDataFile, "Pet", false);
     acceptFileUpload(contentsUserDataFile, "User", false);
+    acceptFileUpload(contentsTableWithSpacesDataFile, TABLE_WITH_SPACES, false);
 
     // download csv from the new schema
     String contentsMetaNew = getContentAsString("/api/csv");
@@ -292,6 +312,9 @@ public class WebApiSmokeTests {
     String contentsPetDataNew = getContentAsString("/api/csv/Pet");
     String contentsUserDataNew = getContentAsString("/api/csv/User");
     String contentsTagDataNew = getContentAsString("/api/csv/Tag");
+    String contentsTableWithSpacesDataNew =
+        getContentAsString(
+            "/api/csv/" + TABLE_WITH_SPACES.toUpperCase()); // to test for case insensitive match
 
     // test if existing and new schema are equal
     assertArrayEquals(toSortedArray(new String(contentsMeta)), toSortedArray(contentsMetaNew));
@@ -303,6 +326,9 @@ public class WebApiSmokeTests {
         toSortedArray(new String(contentsUserData)), toSortedArray(contentsUserDataNew));
     assertArrayEquals(
         toSortedArray(new String(contentsTagData)), toSortedArray(contentsTagDataNew));
+    assertArrayEquals(
+        toSortedArray(new String(contentsTableWithSpacesData)),
+        toSortedArray(contentsTableWithSpacesDataNew));
 
     // Test async
     String response = acceptFileUpload(contentsOrderDataFile, "Order", true);
@@ -368,7 +394,6 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  @Disabled("gives many false positive errors")
   public void testJsonYamlApi() {
     String schemaJson = given().sessionId(SESSION_ID).when().get("/pet store/api/json").asString();
 
@@ -403,6 +428,25 @@ public class WebApiSmokeTests {
         given().sessionId(SESSION_ID).when().get("/pet store yaml/api/yaml").asString();
 
     assertEquals(schemaYaml, schemaYaml2.replace("pet store yaml", PET_STORE_SCHEMA));
+
+    given()
+        .sessionId(SESSION_ID)
+        .body(schemaYaml2)
+        .when()
+        .delete("/pet store yaml/api/yaml")
+        .then()
+        .statusCode(200);
+
+    given()
+        .sessionId(SESSION_ID)
+        .body(schemaJson2)
+        .when()
+        .delete("/pet store json/api/json")
+        .then()
+        .statusCode(200);
+
+    db.dropSchemaIfExists("pet store yaml");
+    db.dropSchemaIfExists("pet store json");
   }
 
   @Test
@@ -450,8 +494,8 @@ public class WebApiSmokeTests {
       poll = given().sessionId(SESSION_ID).when().get(url);
       Thread.sleep(500);
     }
-
-    assertFalse(poll.body().asString().contains("FAILED"));
+    assertFalse(
+        poll.body().asString().contains("FAILED") || poll.body().asString().contains("ERROR"));
 
     // check if id in tasks list
     assertTrue(
@@ -587,6 +631,20 @@ public class WebApiSmokeTests {
     result =
         given()
             .sessionId(sessionId)
+            .contentType("multipart/form-data")
+            .multiPart(
+                "query", "mutation insert($value:[OrderInput]){insert(Order:$value){message}}")
+            .multiPart(
+                "variables",
+                "{\"value\":[{\"quantity\":\"5\",\"price\":22,\"pet\":{\"name\":\"pooky\"}}]}")
+            .when()
+            .post(schemaPath)
+            .asString();
+    assertTrue(result.contains("inserted 1 record"));
+
+    result =
+        given()
+            .sessionId(sessionId)
             .body("{\"query\":\"mutation{signout{message}}\"}")
             .when()
             .post(path)
@@ -616,36 +674,13 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  public void testMolgenisWebservice_redirectWhenSlash() {
-    given()
-        .sessionId(SESSION_ID)
-        .redirects()
-        .follow(false)
-        .expect()
-        .statusCode(302)
-        .header("Location", is("http://localhost:" + PORT + "/pet store/"))
-        .when()
-        .get("/pet store");
-
-    given()
-        .sessionId(SESSION_ID)
-        .redirects()
-        .follow(false)
-        .expect()
-        .statusCode(302)
-        .header("Location", is("http://localhost:" + PORT + "/pet store/tables/"))
-        .when()
-        .get("/pet store/tables");
-  }
-
-  @Test
   public void testMolgenisWebservice_redirectToFirstMenuItem() {
     given()
         .redirects()
         .follow(false)
         .expect()
         .statusCode(302)
-        .header("Location", is("http://localhost:" + PORT + "/pet store/tables"))
+        .header("Location", is("/pet store/tables"))
         .when()
         .get("/pet store/");
 
@@ -670,7 +705,7 @@ public class WebApiSmokeTests {
         .follow(false)
         .expect()
         .statusCode(302)
-        .header("Location", is("http://localhost:" + PORT + "/pet store/blaat2"))
+        .header("Location", is("/pet store/blaat2"))
         .when()
         .get("/pet store/");
 
@@ -689,7 +724,7 @@ public class WebApiSmokeTests {
         .follow(false)
         .expect()
         .statusCode(302)
-        .header("Location", is("http://localhost:" + PORT + "/pet store/blaat"))
+        .header("Location", is("/pet store/blaat"))
         .when()
         .get("/pet store/");
 
@@ -788,44 +823,50 @@ public class WebApiSmokeTests {
 
   @Test
   public void testRdfApi() {
+    final String urlPrefix = "http://localhost:" + PORT;
+
+    final String defaultContentType = "text/turtle";
+    final String jsonldContentType = "application/ld+json";
+    final String ttlContentType = "text/turtle";
+
     // skip 'all schemas' test because data is way to big (i.e.
     // get("http://localhost:PORT/api/rdf");)
-    given()
-        .sessionId(SESSION_ID)
-        .expect()
-        .statusCode(200)
-        .when()
-        .get("http://localhost:" + PORT + "/pet store/api/rdf");
-    given()
-        .sessionId(SESSION_ID)
-        .expect()
-        .statusCode(200)
-        .when()
-        .get("http://localhost:" + PORT + "/pet store/api/rdf/Category");
-    given()
-        .sessionId(SESSION_ID)
-        .expect()
-        .statusCode(200)
-        .when()
-        .get("http://localhost:" + PORT + "/pet store/api/rdf/Category/column/name");
-    given()
-        .sessionId(SESSION_ID)
-        .expect()
-        .statusCode(200)
-        .when()
-        .get("http://localhost:" + PORT + "/pet store/api/rdf/Category?name=cat");
-    given()
-        .sessionId(SESSION_ID)
-        .expect()
-        .statusCode(400)
-        .when()
-        .get("http://localhost:" + PORT + "/pet store/api/rdf/doesnotexist");
-    given()
-        .sessionId(SESSION_ID)
-        .expect()
-        .statusCode(200)
-        .when()
-        .get("http://localhost:" + PORT + "/api/rdf?schemas=pet store");
+
+    // Validate individual API points for /api/rdf
+    rdfApiRequest(200, defaultContentType).get(urlPrefix + "/pet store/api/rdf");
+    rdfApiRequest(200, defaultContentType).get(urlPrefix + "/pet store/api/rdf/Category");
+    rdfApiRequest(200, defaultContentType)
+        .get(urlPrefix + "/pet store/api/rdf/Category/column/name");
+    rdfApiRequest(200, defaultContentType).get(urlPrefix + "/pet store/api/rdf/Category?name=cat");
+    rdfApiRequestMinimalExpect(400).get(urlPrefix + "/pet store/api/rdf/doesnotexist");
+    rdfApiRequest(200, defaultContentType).get(urlPrefix + "/api/rdf?schemas=pet store");
+
+    // Validate convenience API points
+    rdfApiRequest(200, jsonldContentType).get(urlPrefix + "/pet store/api/jsonld");
+    rdfApiRequest(200, ttlContentType).get(urlPrefix + "/pet store/api/ttl");
+
+    // Validate non-default content-type for /api/rdf
+    rdfApiContentTypeRequest(200, jsonldContentType).get(urlPrefix + "/pet store/api/rdf");
+
+    // Validate convenience API points with incorrect given content-type request
+    rdfApiContentTypeRequest(200, ttlContentType, jsonldContentType)
+        .get(urlPrefix + "/pet store/api/jsonld");
+    rdfApiContentTypeRequest(200, jsonldContentType, ttlContentType)
+        .get(urlPrefix + "/pet store/api/ttl");
+
+    // Validate head for API points
+    rdfApiRequest(200, defaultContentType).head(urlPrefix + "/pet store/api/rdf");
+    rdfApiContentTypeRequest(200, jsonldContentType).head(urlPrefix + "/pet store/api/rdf");
+    rdfApiRequest(200, jsonldContentType).head(urlPrefix + "/pet store/api/jsonld");
+    rdfApiRequest(200, ttlContentType).head(urlPrefix + "/pet store/api/ttl");
+
+    // Validate head for API points with incorrect given content-type for convenience API points
+    rdfApiContentTypeRequest(200, ttlContentType, jsonldContentType)
+        .head(urlPrefix + "/pet store/api/jsonld");
+    rdfApiContentTypeRequest(200, jsonldContentType, ttlContentType)
+        .head(urlPrefix + "/pet store/api/ttl");
+
+    // Validate actual output.
     String result =
         given()
             .sessionId(SESSION_ID)
@@ -834,6 +875,61 @@ public class WebApiSmokeTests {
             .getBody()
             .asString();
     assertFalse(result.contains("CatalogueOntologies"));
+  }
+
+  /**
+   * Request that does not define a content type but does validate on this.
+   *
+   * @param expectStatusCode
+   * @param contentType
+   * @return
+   */
+  private RequestSender rdfApiRequest(int expectStatusCode, String expectContentType) {
+    return given()
+        .sessionId(SESSION_ID)
+        .expect()
+        .statusCode(expectStatusCode)
+        .header("Content-Type", expectContentType)
+        .when();
+  }
+
+  /**
+   * Request that does define a content type and validates on this.
+   *
+   * @param expectStatusCode
+   * @param contentType
+   * @return
+   */
+  private RequestSender rdfApiContentTypeRequest(int expectStatusCode, String contentType) {
+    return rdfApiContentTypeRequest(expectStatusCode, contentType, contentType);
+  }
+
+  /**
+   * Request that defines given & expected content types individually and validates on this.
+   *
+   * @param expectStatusCode
+   * @param contentType
+   * @return
+   */
+  private RequestSender rdfApiContentTypeRequest(
+      int expectStatusCode, String givenContentType, String expectedContentType) {
+    return given()
+        .sessionId(SESSION_ID)
+        .header("Accept", givenContentType)
+        .expect()
+        .statusCode(expectStatusCode)
+        .header("Content-Type", expectedContentType)
+        .when();
+  }
+
+  /**
+   * Request that only validates on status code.
+   *
+   * @param expectStatusCode
+   * @return
+   */
+  private RequestSender rdfApiRequestMinimalExpect(int expectStatusCode) {
+    return given().sessionId(SESSION_ID).expect().statusCode(expectStatusCode).when();
   }
 
   @Test
@@ -854,28 +950,6 @@ public class WebApiSmokeTests {
         .contentType("text/turtle")
         .when()
         .head("http://localhost:" + PORT + "/api/fdp");
-  }
-
-  @Test
-  public void testNonDefinedFDPHead() {
-    given()
-        .sessionId(SESSION_ID)
-        .expect()
-        .contentType("text/html;charset=utf-8")
-        .when()
-        .head("http://localhost:" + PORT + "/api/fdp/");
-  }
-
-  @Test
-  public void testFDPRedirect() {
-    given()
-        .sessionId(SESSION_ID)
-        .redirects()
-        .follow(false)
-        .expect()
-        .header("Location", "http://localhost:" + PORT + "/api/fdp")
-        .when()
-        .get("http://localhost:" + PORT + "/api/fdp/");
   }
 
   @Test
@@ -945,6 +1019,20 @@ public class WebApiSmokeTests {
         .statusCode(200)
         .when()
         .get(requestString);
+  }
+
+  @Test
+  void testRoot() {
+    given()
+        .sessionId(SESSION_ID)
+        .redirects()
+        .follow(false)
+        .expect()
+        .statusCode(302)
+        .header("Location", "/apps/central/")
+        .when()
+        .get("/")
+        .getHeader("Location");
   }
 
   @Test
@@ -1124,11 +1212,10 @@ public class WebApiSmokeTests {
     // script should be deleted
     assertTrue(
         db.getSchema(SYSTEM_SCHEMA)
-                .getTable("Scripts")
-                .where(f("name", EQUALS, "test"))
-                .retrieveRows()
-                .size()
-            == 0,
+            .getTable("Scripts")
+            .where(f("name", EQUALS, "test"))
+            .retrieveRows()
+            .isEmpty(),
         "script should be deleted");
 
     // check if the jobs that ran were okay
@@ -1207,6 +1294,12 @@ public class WebApiSmokeTests {
     result = given().get("/api/beacon/map").getBody().asString();
     assertTrue(result.contains("endpointSets"));
 
+    result = given().get("/pet store/api/beacon/info").getBody().asString();
+    assertTrue(result.contains("beaconInfoResponse"));
+
+    result = given().get("/api/beacon/filtering_terms").getBody().asString();
+    assertTrue(result.contains("filteringTerms"));
+
     result = given().get("/api/beacon/entry_types").getBody().asString();
     assertTrue(result.contains("entry"));
 
@@ -1226,6 +1319,25 @@ public class WebApiSmokeTests {
     assertTrue(result.contains("datasets"));
 
     result = given().get("/api/beacon/individuals").getBody().asString();
+    assertTrue(result.contains("datasets"));
+
+    result =
+        given()
+            .body(
+                """
+          {
+            "query": {
+            "filters": [
+              {
+              "id": "NCIT:C28421",
+              "value": "GSSO_000123",
+              "operator": "="
+              }
+            ]
+            }
+          }""")
+            .post("/api/beacon/individuals")
+            .asString();
     assertTrue(result.contains("datasets"));
 
     result = given().get("/api/beacon/runs").getBody().asString();

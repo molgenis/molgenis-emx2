@@ -107,8 +107,8 @@ public class TestGraphQLCompositeKeys {
                 + "{count}}");
     System.out.println(result.toPrettyString());
     assertEquals(1, result.at("/RefTable_agg/count").asInt());
-    assertEquals("Donald", result.at("/RefTable/0/ref/1/firstName").asText());
-    assertEquals("Duck", result.at("/RefTable/0/ref/1/lastName").asText());
+    assertEquals("Katrien", result.at("/RefTable/0/ref/1/firstName").asText());
+    assertEquals("Mouse", result.at("/RefTable/0/ref/1/lastName").asText());
 
     result =
         execute(
