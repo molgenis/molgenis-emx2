@@ -17,20 +17,21 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | 0 | NB: Assumptions | This test plan assumes a 'clean' set of test data, otherwise counts for variables etc. might be off. | | |
 | 1 | Navigate to [https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/) | Landing page: European health research data and sample catalogue| | |
 | 2 | In section 'Thematic catalogues' hover over the testNetwork1 row | Row should be highlighted | | |
-| 3 | Click on the testNetwork1 logo (to be implemented, click on 'testNetwork1') | Should be directed to the testNetwork1 home page with 'Welcome to the catalogue of testNetwork1: [etc]', and Cohort studies (4), Data sources (1), Variables (8) buttons | [#3512](https://github.com/molgenis/molgenis-emx2/issues/3512) | |
+| 3 | Click on the testNetwork1 logo (to be implemented, click on 'testNetwork1') | Should be directed to the testNetwork1 home page with 'Welcome to the catalogue of testNetwork1: [etc]', and Cohort studies (4), Data sources (1), Databanks (3), Variables (8) buttons | [#3512](https://github.com/molgenis/molgenis-emx2/issues/3512) | |
 | 3a | | There should be 700 participants, 250 samples and 50% Longitudinal given. | | |
-| 3b | | In the ribbon at the top of the page there should be: Left: testnetwerk1 logo, Right: (L-R) Overview, Cohort studies, Data sources, Variables, More | | |
+| 3b | | In the ribbon at the top of the page there should be: Left: testnetwerk1 logo, Right: (L-R) Overview, Cohort studies, Data sources, Databanks, Variables, More | | |
 | 4 | Click on the testNetwork1 logo (to be implemented, now MOLGENIS logo) | The page doesn't change | | |
 | 5 | Click on the 'Overview' button| The page doesn't change | | |
 | 6 | Click on the 'Cohort studies' button at the top | Should be directed to the list of cohort studies for testNetwork1 | | |
 | 7 | Click on the testNetwork1 logo (to be implemented, now MOLGENIS logo) | Should be directed back to the home page for testNetwork1 | | |
 | 8 | Click on the 'Data Sources' button at the top | Should be directed to the list of data sources for testNetwork1 | | |
-| 9 | Click on the 'Variables' button at the top |  Should be directed to the list of variables for testNetwork1 | | |
-| 10 | Click on the 'Overview' button at the top |Should be directed back to the home page for testNetwork1 | | |
+| 8b | Click on the 'Databanks' button at the top | Should be directed to the list of databanks for testNetwork1 | | |
+| 9 | Click on the 'Variables' button at the top | Should be directed to the list of variables for testNetwork1 | | |
+| 10 | Click on the 'Overview' button at the top | Should be directed back to the home page for testNetwork1 | | |
 | 11 | Click on More --> 'About' button | Should be directed to the detailed network page for testNetwork1 with website, description, partners, funding & acknowledgements, list of cohorts, list of data sources and link to view the network's variables | | |
 | 12 | Click on More --> Other catalogues | Should be directed to the landing page showing all thematic and project catalogues, entitled "European Health Research Data and Sample Catalogue" | | |
-| 12a| Click on More --> Upload data | Should be directed to the 'old' interface apps/central for the user to be able to sign in and upload data | | |
-| 12b| Click on back in the browser | Should be directed back to the landing page showing all thematic and project catalogues | | |
+| 12a | Click on More --> Upload data | Should be directed to the 'old' interface apps/central for the user to be able to sign in and upload data | | |
+| 12b | Click on back in the browser | Should be directed back to the landing page showing all thematic and project catalogues | | |
 | 13 | Click on testNetwork1 | Should be directed to the testNetwork1 home page with 'Welcome to the catalogue of testNetwork1: [etc]', and Cohorts (4), Data sources (1), Variables (8) buttons | | |
 | 14 | Click on the underlined name of the catalogue in the "Welcome to the catalogue of..." text | ACRONYM FOR TESTNETWORK 1, name for testnetwork1 | | |
 | 15 | Menu on the left hand side | ACRONYM FOR TESTNETWORK1, Description, Partners, Funding & Acknowledgements, Cohorts, Data Sources, Variables | | |
