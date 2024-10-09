@@ -250,7 +250,6 @@ jobs:
     steps:
       - checkout
       - run: npm i -D @playwright/test
-      - run: npx playwright install chrome
       - run:
           name: Install dependencies
           command: yarn install
@@ -272,12 +271,9 @@ jobs:
                     sleep 10; 
                 done
       - run:
-          name: Install tools
-          command: yarn playwright install chrome
-          working_directory: apps/nuxt3-ssr
-      - run:
           name: Test nuxt ssr catalogue tests
           command: |
+            yarn playwright install chrome
             echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
             export E2E_BASE_URL=https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/
             echo $E2E_BASE_URL
@@ -285,7 +281,8 @@ jobs:
           working_directory: apps/nuxt3-ssr          
       - run:
           name: Run non ssr e2e tests
-          command: | 
+          command: |
+            - run: npx playwright install chrome
             echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
             export E2E_BASE_URL=https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/
             echo $E2E_BASE_URL
