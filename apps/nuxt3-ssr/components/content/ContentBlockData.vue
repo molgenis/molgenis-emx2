@@ -1,8 +1,10 @@
 <script setup lang="ts">
+import type { ICollectionEvents } from "~/interfaces/catalogue";
+
 const { collectionEvents } = defineProps<{
   title: string;
   description?: string;
-  collectionEvents?: IResourceCollectionEvent[];
+  collectionEvents?: ICollectionEvents[];
 }>();
 
 const dataCategories = collectionEvents

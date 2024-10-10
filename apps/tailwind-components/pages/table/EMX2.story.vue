@@ -1,15 +1,5 @@
 <script setup lang="ts">
-import type { ITableSettings } from "~/types/types";
-
-type Resp<T> = {
-  data: Record<string, T[]>;
-};
-
-interface Schema {
-  id: string;
-  label: string;
-  description: string;
-}
+import type { ITableSettings, Resp, Schema } from "~/types/types";
 
 const tableSettings = ref<ITableSettings>({
   page: 1,

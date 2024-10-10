@@ -9,15 +9,7 @@ interface Trigger {
   cssSelector: string;
 }
 
-interface Resp<T> {
-  data: T[];
-  error: string;
-  status: number;
-}
-
-const { data, error, status, refresh } = await useFetch<Trigger[]>(
-  `/${schema}/api/trigger`
-);
+const { data, refresh } = await useFetch<Trigger[]>(`/${schema}/api/trigger`);
 
 const triggers = computed(() => data?.value?.toReversed());
 
