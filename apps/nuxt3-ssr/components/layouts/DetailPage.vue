@@ -1,8 +1,6 @@
 <script setup lang="ts">
 const route = useRoute();
 const headerData = await useHeaderData();
-const catalogue = headerData.catalogue;
-const variableCount = headerData.variableCount;
 
 const bannerData = await useBannerData();
 const bannerHtml = computed(() => {
@@ -15,8 +13,9 @@ const bannerHtml = computed(() => {
 
   <HeaderCatalogue
     v-if="route.params.catalogue"
-    :catalogue="catalogue"
-    :variableCount="variableCount"
+    :catalogue="headerData.catalogue"
+    :variableCount="headerData.variableCount"
+    :resourceTypes="headerData.resourceTypes"
   />
 
   <HeaderGlobal v-else />

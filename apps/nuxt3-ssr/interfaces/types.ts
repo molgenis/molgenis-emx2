@@ -485,3 +485,16 @@ export type IResourceTypeMetadata = {
   path: string;
   description?: string;
 };
+
+export interface UIResourceType {
+  type: {
+    name: string;
+    definition?: string;
+  };
+  count: number;
+}
+
+export interface UIResource {
+  id: string;
+  logo: { url: string };
+}
