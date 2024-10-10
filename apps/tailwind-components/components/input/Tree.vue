@@ -152,7 +152,7 @@ function handleChildSelect(selected: string[], parent: ITreeNode) {
               modelValue.includes(node.name) &&
               node.children?.every((c) => modelValue.includes(c.name))
             "
-            class="ml-[-6px] mr-2.5 mt-0.5"
+            class="ml-[-6px] mr-2.5 mt-[-1px]"
           />
           <span>{{ node.name }}</span>
         </InputLabel>
