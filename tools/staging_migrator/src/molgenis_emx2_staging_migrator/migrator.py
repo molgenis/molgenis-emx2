@@ -1,6 +1,7 @@
 import logging
 import time
 import zipfile
+from datetime import datetime
 from io import BytesIO
 from pathlib import Path
 from typing import TypeAlias, Literal
@@ -8,7 +9,8 @@ from typing import TypeAlias, Literal
 from molgenis_emx2_pyclient import Client
 from molgenis_emx2_pyclient.exceptions import NoSuchSchemaException, NoSuchTableException
 from molgenis_emx2_pyclient.metadata import Schema, Table, Column
-from .constants import BASE_DIR
+
+from .constants import BASE_DIR, changelog_query
 from .utils import (find_cohort_references, construct_delete_variables, has_statement_of_consent,
                     process_statement, prepare_pkey, query_columns_string)
 
@@ -377,6 +379,18 @@ class StagingMigrator(Client):
             )
 
         return [resource[pkeys[0]] for resource in response_data[table_id]]
+
+    def last_change(self, staging_area: str = None) -> datetime:
+        """Retrieves the datetime of the latest change made on the staging area."""
+        staging_area = staging_area or self.staging_area
+
+        response = self.session.post(url=f"{self.url}/{staging_area}/settings/graphql",
+                                         json={"query": changelog_query}, headers=self.session.headers)
+        changelog = response.json().get('data').get('_changes')
+        change_date_str = changelog[0].get('stamp')
+        change_datetime = datetime.strptime(change_date_str, '%Y-%m-%d %H:%M:%S.%f')
+
+        return change_datetime
 
     @staticmethod
     def _cleanup():

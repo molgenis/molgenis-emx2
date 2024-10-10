@@ -7,16 +7,13 @@ Supply the cohorts to be migrated as command line arguments.
 import logging
 import os
 import sys
+from datetime import datetime
 
 from dotenv import load_dotenv
-from datetime import datetime
 
 from tools.staging_migrator.src.molgenis_emx2_staging_migrator import StagingMigrator
 
-
 CATALOGUE = 'UMCG'
-
-changelog_query = """{_changes(limit: 1) {operation, stamp, userId, tableName}}"""
 
 
 def main(staging_areas: list = None, args=None):
@@ -37,18 +34,13 @@ def main(staging_areas: list = None, args=None):
 
         for sa in staging_areas:
             migrator.set_staging_area(sa)
-            response = migrator.session.post(url=f"{migrator.url}/{sa}/settings/graphql",
-                                             json={"query": changelog_query}, headers=migrator.session.headers)
-            changelog = response.json().get('data').get('_changes')
-            change_datetime = changelog[0].get('stamp')
-            change_datetime = datetime.strptime(change_datetime, '%Y-%m-%d %H:%M:%S.%f')
 
-            if (datetime.now() - change_datetime).total_seconds() < 23 * 60 * 60:
+            if (datetime.now() - migrator.last_change()).total_seconds() < 23 * 60 * 60:
                 migrator.migrate(keep_zips=True)
             else:
                 logging.info(f"Skipping {sa}.")
 
 
 if __name__ == '__main__':
-    cohorts = 'MLPREDNEC,JOZO,TRANSPLANTLINES'.split(',')
+    cohorts = None
     main(staging_areas=cohorts, args=sys.argv)
