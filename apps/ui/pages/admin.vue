@@ -20,6 +20,7 @@
           <TableHeadRow>
             <TableHead>Control</TableHead>
             <TableHead>Name / Email</TableHead>
+            <TableHead>Enabled</TableHead>
             <TableHead>Roles</TableHead>
             <TableHead>Tokens</TableHead>
           </TableHeadRow>
@@ -28,10 +29,16 @@
           <!-- Why is the first cell blue/link like? -->
           <TableRow v-for="user in users">
             <TableCell>
-              <Button size="tiny" icon="trash" @click="deleteUser(user)" />
-              <Button size="tiny" icon="user" @click="updateUser(user)" />
+              <Button
+                v-if="user.email !== 'anonymous' && user.email !== 'admin'"
+                size="tiny"
+                icon="trash"
+                @click="deleteUser(user)"
+              />
+              <Button size="tiny" icon="user" @click="editUser(user)" />
             </TableCell>
             <TableCell>{{ user.email }}</TableCell>
+            <TableCell>{{ user.enabled }}</TableCell>
             <TableCell>
               <div v-for="role in user.roles">
                 {{ role.schemaId }} ({{ role.role }})
@@ -41,28 +48,42 @@
           </TableRow>
         </template>
       </Table>
+      <Modal ref="editUserModal" title="Edit User">
+        {{ selectedUser }}
+        <template #footer>
+          <Button @click="updateUser(selectedUser)">Save</Button>
+          <Button @click="closeEditUserModal">Close</Button>
+        </template>
+      </Modal>
     </ContentBlock>
   </Container>
 </template>
 
 <script setup lang="ts">
+import type { Modal } from "#build/components";
 import type { ISetting } from "../../metadata-utils/src/types";
 
 /**
  * Component wishlist:
  *  Settings icon
- *  edit icon
- *  buttongroup
- *  icon button with tooltip
- *  wider modal
+ *  Edit icon
+ *  Admin icon
+ *  Buttongroup
+ *  Icon button with tooltip
+ *  Wider modal
+ *  Generic table components
+ *  Password input
  */
 
 /**
- *  Questions
- *  Where to put enable/disable; behind edit or button toggle
- *  Do certain actions need confirmation dialog?
- *  Does password creating/changing need a double input?
- *  Do we want a modal for creation with more options or is create into edit fine?
+ *  Todos (might be other stories)
+ *  Where to put enable/disable; behind edit or button toggle -> doesn't really matter, so modal
+ *  Do certain actions need confirmation dialog? -> yes
+ *  Don't be able to delete admin/anonymous
+ *  Does password creating/changing need a double input? -> yes
+ *  Do we want a modal for creation with more options or is create into edit fine? -> modal
+ *  Search bar for users (100s of users)
+ *
  */
 
 /**
@@ -80,18 +101,22 @@ definePageMeta({
 const GRAPHQL = "/graphql";
 const API_GRAPHQL = "/api/graphql";
 const LIMIT = 20;
+const editUserModal = ref<InstanceType<typeof Modal>>();
+
 const currentPage = ref(1);
+const password = ref<string>("");
+const userName = ref<string>("");
+const users = ref<IUser[]>([]);
+const userCount = ref(0);
+const totalPages = ref(0);
+const selectedUser = ref<IUser>();
+
 const offset = computed(() => {
   return currentPage.value > 1
     ? `, offset: ${(currentPage.value - 1) * LIMIT}`
     : "";
 });
 
-const password = ref<string>("");
-const userName = ref<string>("");
-const users = ref<IUser[]>([]);
-const userCount = ref(0);
-const totalPages = ref(0);
 getUsers();
 
 function updateCurrentPage(newPage: number) {
@@ -103,7 +128,7 @@ async function getUsers() {
   const { data, error } = await useFetch<IAdminResponse>(API_GRAPHQL, {
     method: "post",
     body: {
-      query: `{ _admin { users(limit: ${LIMIT}${offset.value}) { email, settings, {key, value}, roles { schemaId, role } } userCount } }`,
+      query: `{ _admin { users { email, settings, {key, value}, enabled, roles { schemaId, role } } userCount } }`,
     },
   });
   if (error.value) {
@@ -150,9 +175,9 @@ function deleteUser(user: IUser) {
     });
 }
 
-function updateUser(user: IUser) {
-  console.log("update: ", user);
-  return; // placeholder
+function updateUser(user?: IUser) {
+  if (!user) return;
+
   const userToSend = user;
   useFetch(GRAPHQL, {
     method: "post",
@@ -189,6 +214,16 @@ function handleError(message: string, error: any) {
   //see nuxt catalogue on how to handle errors
 }
 
+function editUser(user: IUser) {
+  selectedUser.value = JSON.parse(JSON.stringify(user));
+  editUserModal.value?.show();
+}
+
+function closeEditUserModal() {
+  selectedUser.value = undefined;
+  editUserModal.value?.close();
+}
+
 interface IAdminResponse {
   data: {
     _admin: {
@@ -202,6 +237,7 @@ interface IUser {
   //TODO split into communication and internal interface
   email: string;
   settings: ISetting[];
+  enabled: boolean;
   tokens?: string[];
   roles?: { schemaId: string; role: string }[];
 }
