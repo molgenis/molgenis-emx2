@@ -1,13 +1,197 @@
 package org.molgenis.emx2.rdf;
 
-import java.util.Arrays;
-import java.util.Set;
-import java.util.stream.Collectors;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-import org.molgenis.emx2.ColumnType;
+import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.Row.row;
+import static org.molgenis.emx2.TableMetadata.table;
 
+import java.util.*;
+import java.util.stream.Collectors;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.base.CoreDatatype;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.eclipse.rdf4j.model.util.Values;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.molgenis.emx2.*;
+import org.molgenis.emx2.sql.TestDatabaseFactory;
+
+/**
+ * When a new {@link ColumnType} is added and/or {@link #validateAllColumnTypesCovered()} fails, be
+ * sure to add thew new {@link ColumnType} to all tests!!!
+ */
 class ColumnTypeRdfMapperTest {
+  static final String TEST_SCHEMA = "AllColumnTypes";
+  static final String TEST_TABLE = "TestTable";
+  static final String REF_TABLE = "TestRefTable";
+  static final String REFBACK_TABLE = "TestRefBackTable";
+  static final String ONT_TABLE = "TestOntology";
+  static final ClassLoader classLoader = ColumnTypeRdfMapperTest.class.getClassLoader();
+  static final SimpleValueFactory factory = SimpleValueFactory.getInstance();
+  static final String schemaIriPrefix = "http://localhost:8080/" + TEST_SCHEMA + "/api/rdf/";
+  static final ColumnTypeRdfMapper mapper = new ColumnTypeRdfMapper("http://localhost:8080/");
+
+  static Database database;
+  static Schema allColumnTypes;
+  static Row firstRow;
+
+  @BeforeAll
+  public static void setup() {
+    // Initialize schema.
+    database = TestDatabaseFactory.getTestDatabase();
+    allColumnTypes = database.dropCreateSchema(TEST_SCHEMA);
+
+    // Generates a column for each ColumnType.
+    // Filters out REFBACK so that it can be added as last step when all REFs are generated.
+    Column[] columns =
+        Arrays.stream(ColumnType.values())
+            .map((value) -> column(value.name(), value))
+            .filter((column -> !column.getColumnType().equals(ColumnType.REFBACK)))
+            .toArray(Column[]::new);
+
+    // Defines column-specific settings.
+    for (Column column : columns) {
+      switch (column.getColumnType()) {
+        case STRING -> column.setPkey();
+        case REF, REF_ARRAY -> column.setRefTable(REF_TABLE);
+        case ONTOLOGY, ONTOLOGY_ARRAY -> column.setRefTable(ONT_TABLE);
+      }
+    }
+
+    // Creates tables.
+    allColumnTypes.create(
+        // Ontology table
+        table(ONT_TABLE).setTableType(TableType.ONTOLOGIES),
+        // Table to ref towards
+        table(REF_TABLE, column("id", ColumnType.STRING).setPkey()),
+        // Table to test on
+        table(TEST_TABLE, columns),
+        // Table to get refbacks from
+        table(
+            REFBACK_TABLE,
+            column("id", ColumnType.STRING).setPkey(),
+            column("ref", ColumnType.REF).setRefTable(TEST_TABLE)));
+
+    // Adds REFBACK.
+    allColumnTypes
+        .getTable(TEST_TABLE)
+        .getMetadata()
+        .add(
+            column(ColumnType.REFBACK.name(), ColumnType.REFBACK)
+                .setRefTable(REFBACK_TABLE)
+                .setRefBack("ref"));
+
+    // Inserts table data
+    allColumnTypes
+        .getTable(ONT_TABLE)
+        .insert(
+            row("name", "aa", "ontologyTermURI", "http://example.com/aa"),
+            row("name", "bb", "ontologyTermURI", "http://example.com/bb"),
+            row("name", "cc", "ontologyTermURI", "http://example.com/cc"));
+
+    allColumnTypes.getTable(REF_TABLE).insert(row("id", "1"), row("id", "2"), row("id", "3"));
+
+    allColumnTypes
+        .getTable(TEST_TABLE)
+        .insert(
+            row(
+                // SIMPLE
+                ColumnType.BOOL.name(),
+                "true",
+                ColumnType.BOOL_ARRAY.name(),
+                "true,false",
+                ColumnType.UUID.name(),
+                "e8af409e-86f7-11ef-85b2-6b76fd707d70",
+                ColumnType.UUID_ARRAY.name(),
+                "e8af409e-86f7-11ef-85b2-6b76fd707d70,14bfb4ca-86f8-11ef-8cc0-378b59fe72e8",
+                //                ColumnType.FILE.name(),
+                //                new
+                // File(classLoader.getResource("testfiles/molgenis.png").getFile()),
+                // STRING
+                ColumnType.STRING.name(),
+                "lonelyString",
+                ColumnType.STRING_ARRAY.name(),
+                "string1,string2",
+                ColumnType.TEXT.name(),
+                "lonelyText",
+                ColumnType.TEXT_ARRAY.name(),
+                "text1,text2",
+                ColumnType.INT.name(),
+                "0",
+                ColumnType.INT_ARRAY.name(),
+                "1,2",
+                ColumnType.LONG.name(),
+                "3",
+                ColumnType.LONG_ARRAY.name(),
+                "4,5",
+                ColumnType.DECIMAL.name(),
+                "0.5",
+                ColumnType.DECIMAL_ARRAY.name(),
+                "1.5,2.5",
+                ColumnType.DATE.name(),
+                "2018-11-15",
+                ColumnType.DATE_ARRAY.name(),
+                "2018-11-15,2020-02-04",
+                ColumnType.DATETIME.name(),
+                "2018-11-15T15:22",
+                ColumnType.DATETIME_ARRAY.name(),
+                "2018-11-15T15:22,2020-02-04T22:49",
+                ColumnType.PERIOD.name(),
+                "P1D",
+                ColumnType.PERIOD_ARRAY.name(),
+                "P1M,P1Y",
+                // COMPOSITE
+                ColumnType.JSONB.name(),
+                "{\"a\":1,\"b\":2}",
+                ColumnType.JSONB_ARRAY.name(),
+                "{\"c\":3},{\"d\":4}",
+                // RELATIONSHIP
+                ColumnType.REF.name(),
+                "1",
+                ColumnType.REF_ARRAY.name(),
+                "2,3",
+                // -- no manual entry: ColumnType.REFBACK
+                // LAYOUT and other constants
+                ColumnType.HEADING.name(),
+                "heading",
+                // format flavors that extend a baseType
+                // -- no manual entry: ColumnType.AUTO_ID
+                ColumnType.ONTOLOGY.name(),
+                "aa",
+                ColumnType.ONTOLOGY_ARRAY.name(),
+                "bb,cc",
+                ColumnType.EMAIL.name(),
+                "aap@example.com",
+                //                ColumnType.EMAIL_ARRAY.name(),
+                //                "noot@example.com,mies@example.com",
+                ColumnType.HYPERLINK.name(),
+                "https://molgenis.org"
+                //                ColumnType.HYPERLINK_ARRAY.name(),
+                //                "https://molgenis.org, https://github.com/molgenis"
+                ));
+
+    allColumnTypes.getTable(REFBACK_TABLE).insert(row("id", "1", "ref", "lonelyString"));
+
+    // Describe first row for easy access.
+    firstRow = allColumnTypes.getTable(TEST_TABLE).retrieveRows().get(0);
+  }
+
+  @AfterAll
+  public static void tearDown() {
+    database = TestDatabaseFactory.getTestDatabase();
+    database.dropSchema(allColumnTypes.getName());
+  }
+
+  private Set<Value> retrieveValues(String columnName) {
+    return mapper.retrieveValues(
+        firstRow, allColumnTypes.getTable(TEST_TABLE).getMetadata().getColumn(columnName));
+  }
+
+  private Value retrieveFirstValue(String columnName) {
+    return retrieveValues(columnName).stream().findFirst().get();
+  }
+
   /**
    * If {@link ColumnTypeRdfMapper} misses any mappings for {@link ColumnType}, this test will fail.
    * Should prevent new types being added without implementing the API support as well.
@@ -18,5 +202,222 @@ class ColumnTypeRdfMapperTest {
     Set<ColumnType> columnMappings = ColumnTypeRdfMapper.getMapperKeys();
 
     Assertions.assertEquals(columnTypes, columnMappings);
+  }
+
+  /**
+   * Validates if {@link org.eclipse.rdf4j.model.Value} is of expected type. Only validates the
+   * non-array {@link ColumnType}{@code s} (as array-versions should be of identical type).
+   */
+  @Test
+  void validateValueTypes() {
+    Row row = allColumnTypes.getTable(TEST_TABLE).retrieveRows().get(0);
+
+    Assertions.assertAll(
+        // SIMPLE
+        () -> Assertions.assertTrue(retrieveFirstValue(ColumnType.BOOL.name()).isLiteral()),
+        () -> Assertions.assertTrue(retrieveFirstValue(ColumnType.UUID.name()).isIRI()),
+        () -> Assertions.assertTrue(retrieveFirstValue(ColumnType.FILE.name()).isIRI()),
+        // STRING
+        () -> Assertions.assertTrue(retrieveFirstValue(ColumnType.STRING.name()).isLiteral()),
+        () -> Assertions.assertTrue(retrieveFirstValue(ColumnType.TEXT.name()).isLiteral()),
+
+        // NUMERIC
+        () -> Assertions.assertTrue(retrieveFirstValue(ColumnType.INT.name()).isLiteral()),
+        () -> Assertions.assertTrue(retrieveFirstValue(ColumnType.LONG.name()).isLiteral()),
+        () -> Assertions.assertTrue(retrieveFirstValue(ColumnType.DECIMAL.name()).isLiteral()),
+        () -> Assertions.assertTrue(retrieveFirstValue(ColumnType.DATE.name()).isLiteral()),
+        () -> Assertions.assertTrue(retrieveFirstValue(ColumnType.DATETIME.name()).isLiteral()),
+        () -> Assertions.assertTrue(retrieveFirstValue(ColumnType.PERIOD.name()).isLiteral()),
+
+        // COMPOSITE
+        () -> Assertions.assertTrue(retrieveFirstValue(ColumnType.JSONB.name()).isLiteral()),
+
+        // RELATIONSHIP
+        () -> Assertions.assertTrue(retrieveFirstValue(ColumnType.REF.name()).isIRI()),
+        () -> Assertions.assertTrue(retrieveFirstValue(ColumnType.REFBACK.name()).isIRI()),
+
+        // LAYOUT and other constants
+        () -> Assertions.assertTrue(retrieveFirstValue(ColumnType.HEADING.name()).isLiteral()),
+
+        // format flavors that extend a baseType
+        () -> Assertions.assertTrue(retrieveFirstValue(ColumnType.AUTO_ID.name()).isIRI()),
+        () -> Assertions.assertTrue(retrieveFirstValue(ColumnType.ONTOLOGY.name()).isIRI()),
+        () -> Assertions.assertTrue(retrieveFirstValue(ColumnType.EMAIL.name()).isIRI()),
+        () -> Assertions.assertTrue(retrieveFirstValue(ColumnType.HYPERLINK.name()).isIRI()));
+  }
+
+  @Test
+  void validateValuesRetrieval() {
+    Assertions.assertAll(
+        // SIMPLE
+        () ->
+            Assertions.assertEquals(
+                Set.of(Values.literal(true)), retrieveValues(ColumnType.BOOL.name())),
+        () ->
+            Assertions.assertEquals(
+                Set.of(Values.literal(true), Values.literal(false)),
+                retrieveValues(ColumnType.BOOL_ARRAY.name())),
+        () ->
+            Assertions.assertEquals(
+                Set.of(Values.iri("urn:uuid:e8af409e-86f7-11ef-85b2-6b76fd707d70")),
+                retrieveValues(ColumnType.UUID.name())),
+        () ->
+            Assertions.assertEquals(
+                Set.of(
+                    Values.iri("urn:uuid:e8af409e-86f7-11ef-85b2-6b76fd707d70"),
+                    Values.iri("urn:uuid:14bfb4ca-86f8-11ef-8cc0-378b59fe72e8")),
+                retrieveValues(ColumnType.UUID_ARRAY.name())),
+        () ->
+            Assertions.assertEquals(
+                Set.of(
+                    Values.iri(
+                        schemaIriPrefix
+                            + TEST_SCHEMA
+                            + "api/file/"
+                            + TEST_TABLE
+                            + "/FILE")), // ColumnType == column name in test case
+                retrieveValues(ColumnType.FILE.name())),
+        // STRING
+        () ->
+            Assertions.assertEquals(
+                Set.of(Values.literal("lonelyString", CoreDatatype.XSD.STRING)),
+                retrieveValues(ColumnType.STRING.name())),
+        () ->
+            Assertions.assertEquals(
+                Set.of(
+                    Values.literal("string1", CoreDatatype.XSD.STRING),
+                    Values.literal("string2", CoreDatatype.XSD.STRING)),
+                retrieveValues(ColumnType.STRING_ARRAY.name())),
+        () ->
+            Assertions.assertEquals(
+                Set.of(Values.literal("lonelyText", CoreDatatype.XSD.STRING)),
+                retrieveValues(ColumnType.TEXT.name())),
+        () ->
+            Assertions.assertEquals(
+                Set.of(
+                    Values.literal("text1", CoreDatatype.XSD.STRING),
+                    Values.literal("text2", CoreDatatype.XSD.STRING)),
+                retrieveValues(ColumnType.TEXT_ARRAY.name())),
+        // NUMERIC
+        () ->
+            Assertions.assertEquals(
+                Set.of(Values.literal(0)), retrieveValues(ColumnType.INT.name())),
+        () ->
+            Assertions.assertEquals(
+                Set.of(Values.literal(1), Values.literal(2)),
+                retrieveValues(ColumnType.INT_ARRAY.name())),
+        () ->
+            Assertions.assertEquals(
+                Set.of(Values.literal(3L)), retrieveValues(ColumnType.LONG.name())),
+        () ->
+            Assertions.assertEquals(
+                Set.of(Values.literal(4L), Values.literal(5L)),
+                retrieveValues(ColumnType.LONG_ARRAY.name())),
+        () ->
+            Assertions.assertEquals(
+                Set.of(Values.literal(0.5F)), retrieveValues(ColumnType.DECIMAL.name())),
+        () ->
+            Assertions.assertEquals(
+                Set.of(Values.literal(1.5F), Values.literal(2.5F)),
+                retrieveValues(ColumnType.DECIMAL_ARRAY.name())),
+        () ->
+            Assertions.assertEquals(
+                Set.of(Values.literal("2018-11-15", CoreDatatype.XSD.DATE)),
+                retrieveValues(ColumnType.DATE.name())),
+        () ->
+            Assertions.assertEquals(
+                Set.of(
+                    Values.literal("2018-11-15", CoreDatatype.XSD.DATE),
+                    Values.literal("2020-02-04", CoreDatatype.XSD.DATE)),
+                retrieveValues(ColumnType.DATE_ARRAY.name())),
+        () ->
+            Assertions.assertEquals(
+                Set.of(Values.literal("2018-11-15T15:22", CoreDatatype.XSD.DATETIME)),
+                retrieveValues(ColumnType.DATETIME.name())),
+        () ->
+            Assertions.assertEquals(
+                Set.of(
+                    Values.literal("2018-11-15T15:22", CoreDatatype.XSD.DATETIME),
+                    Values.literal("2020-02-04T22:49", CoreDatatype.XSD.DATETIME)),
+                retrieveValues(ColumnType.DATETIME_ARRAY.name())),
+        () ->
+            Assertions.assertEquals(
+                Set.of(Values.literal("P1D", CoreDatatype.XSD.DURATION)),
+                retrieveValues(ColumnType.PERIOD.name())),
+        () ->
+            Assertions.assertEquals(
+                Set.of(
+                    Values.literal("P1M", CoreDatatype.XSD.DURATION),
+                    Values.literal("P1Y", CoreDatatype.XSD.DURATION)),
+                retrieveValues(ColumnType.PERIOD_ARRAY.name())),
+
+        // COMPOSITE
+        () ->
+            Assertions.assertEquals(
+                Set.of(Values.literal("{\"a\":1,\"b\":2}", CoreDatatype.XSD.STRING)),
+                retrieveValues(ColumnType.JSONB.name())),
+        () ->
+            Assertions.assertEquals(
+                Set.of(
+                    Values.literal("{\"c\":3}", CoreDatatype.XSD.STRING),
+                    Values.literal("{\"d\":4}", CoreDatatype.XSD.STRING)),
+                retrieveValues(ColumnType.JSONB_ARRAY.name())),
+        // RELATIONSHIP
+        () ->
+            Assertions.assertEquals(
+                Set.of(Values.iri(schemaIriPrefix + REF_TABLE + "?id=1")),
+                retrieveValues(ColumnType.REF.name())),
+        () ->
+            Assertions.assertEquals(
+                Set.of(
+                    Values.iri(schemaIriPrefix + REF_TABLE + "?id=2"),
+                    Values.iri(schemaIriPrefix + REF_TABLE + "?id=3")),
+                retrieveValues(ColumnType.REF_ARRAY.name())),
+        () ->
+            Assertions.assertEquals(
+                Set.of(Values.iri(schemaIriPrefix + REFBACK_TABLE + "?id=1")),
+                retrieveValues(ColumnType.REFBACK.name())),
+        // LAYOUT and other constants
+        () ->
+            Assertions.assertEquals(
+                Set.of(Values.literal("HEADING", CoreDatatype.XSD.STRING)),
+                retrieveValues(ColumnType.HEADING.name())),
+        // format flavors that extend a baseType
+        // AUTO_ID is unique so full equality check not possible.
+        () ->
+            Assertions.assertTrue(
+                retrieveValues(ColumnType.AUTO_ID.name()).stream()
+                    .findFirst()
+                    .get()
+                    .stringValue()
+                    .startsWith("urn:uuid")),
+        () ->
+            Assertions.assertEquals(
+                Set.of(Values.iri(schemaIriPrefix + ONT_TABLE + "?name=aa")),
+                retrieveValues(ColumnType.ONTOLOGY.name())),
+        () ->
+            Assertions.assertEquals(
+                Set.of(
+                    Values.iri(schemaIriPrefix + ONT_TABLE + "?name=bb"),
+                    Values.iri(schemaIriPrefix + ONT_TABLE + "?name=cc")),
+                retrieveValues(ColumnType.ONTOLOGY_ARRAY.name())),
+        () ->
+            Assertions.assertEquals(
+                Set.of(Values.iri("mailto:aap@example.com")),
+                retrieveValues(ColumnType.EMAIL.name())),
+        () ->
+            Assertions.assertEquals(
+                Set.of(
+                    Values.iri("mailto:noot@example.com"), Values.iri("mailto:mies@example.com")),
+                retrieveValues(ColumnType.EMAIL_ARRAY.name())),
+        () ->
+            Assertions.assertEquals(
+                Set.of(Values.iri("https://molgenis.org")),
+                retrieveValues(ColumnType.HYPERLINK.name())),
+        () ->
+            Assertions.assertEquals(
+                Set.of(
+                    Values.iri("https://molgenis.org"), Values.iri("https://github.com/molgenis")),
+                retrieveValues(ColumnType.HYPERLINK_ARRAY.name())));
   }
 }
