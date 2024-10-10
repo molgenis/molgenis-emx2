@@ -38,8 +38,8 @@ public class ColumnTypeRdfMapper {
           // SIMPLE
           entry(ColumnType.BOOL, RdfColumnType.BOOLEAN),
           entry(ColumnType.BOOL_ARRAY, RdfColumnType.BOOLEAN),
-          entry(ColumnType.UUID, RdfColumnType.STRING),
-          entry(ColumnType.UUID_ARRAY, RdfColumnType.STRING),
+          entry(ColumnType.UUID, RdfColumnType.UUID),
+          entry(ColumnType.UUID_ARRAY, RdfColumnType.UUID),
           entry(ColumnType.FILE, RdfColumnType.FILE),
 
           // STRING
@@ -75,7 +75,7 @@ public class ColumnTypeRdfMapper {
           entry(ColumnType.HEADING, RdfColumnType.STRING),
 
           // format flavors that extend a baseType
-          entry(ColumnType.AUTO_ID, RdfColumnType.STRING),
+          entry(ColumnType.AUTO_ID, RdfColumnType.UUID),
           entry(ColumnType.ONTOLOGY, RdfColumnType.ONTOLOGY),
           entry(ColumnType.ONTOLOGY_ARRAY, RdfColumnType.ONTOLOGY),
           entry(ColumnType.EMAIL, RdfColumnType.EMAIL),
@@ -113,6 +113,13 @@ public class ColumnTypeRdfMapper {
       @Override
       Set<Value> retrieveValues(String baseURL, Row row, Column column) {
         return basicRetrieval(row.getBooleanArray(column.getName()), Values::literal);
+      }
+    },
+    UUID(CoreDatatype.XSD.ANYURI) {
+      @Override
+      Set<Value> retrieveValues(String baseURL, Row row, Column column) {
+        return basicRetrievalString(
+            row.getStringArray(column.getName()), (i) -> URIUtils.encodedIRI("urn:uuid:" + i));
       }
     },
     STRING(CoreDatatype.XSD.STRING) {
