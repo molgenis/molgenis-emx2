@@ -99,4 +99,6 @@ public interface Database extends HasSettingsInterface<Database> {
   Database setBindings(Map<String, Supplier<Object>> bindings);
 
   Map<String, Supplier<Object>> getJavaScriptBindings();
+
+  List<LastUpdate> getLastUpdated();
 }
