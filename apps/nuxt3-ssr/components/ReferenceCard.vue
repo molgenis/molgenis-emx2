@@ -5,7 +5,7 @@ withDefaults(
     title: string;
     description: string;
     url: string;
-    links: { title: string; url: string }[];
+    links: { title: string; url: string; target?: "_self" | "_blank" }[];
     target?: "_self" | "_blank";
   }>(),
   {
@@ -50,14 +50,14 @@ withDefaults(
         </header>
 
         <p class="text-body-base my-5 hidden sm:block">
-          <ContentReadMore :value="description" />
+          <ContentReadMore :text="description" />
         </p>
 
         <a
           v-for="(link, index) in links"
           v-bind:key="index"
           :href="link.url"
-          :target="target"
+          :target="link.target || target"
           class="text-blue-500 hover:underline hover:bg-blue-50 mr-7.5 hidden sm:inline-block"
         >
           <BaseIcon name="caret-right" class="inline w-5 h-5 -ml-1.5" />{{

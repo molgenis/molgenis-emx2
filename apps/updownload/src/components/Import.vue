@@ -31,13 +31,15 @@
           </p>
           <div>
             <p>
-              Import data by uploading files in excel, zip, json or yaml format.
+              Import data by uploading files in excel, csv, zip, json or yaml
+              format.
             </p>
             <form class="form-inline">
               <InputFile v-model="file" />
               <ButtonAction @click="upload" v-if="file != undefined">
                 Import
               </ButtonAction>
+              <Spinner v-if="loading" />
             </form>
             <br />
           </div>
@@ -97,6 +99,7 @@
 import {
   ButtonAction,
   InputFile,
+  Spinner,
   MessageError,
   MessageSuccess,
   MessageWarning,
@@ -109,6 +112,7 @@ import { request } from "graphql-request";
 export default {
   components: {
     ButtonAction,
+    Spinner,
     InputFile,
     MessageError,
     MessageSuccess,
@@ -170,7 +174,7 @@ export default {
         const reader = new FileReader();
         reader.readAsText(this.file);
         reader.onload = () => {
-          const url = `/${this.schema}/api/${type}`;
+          const url = `/${this.schema}/api/${type}?async=true`;
           const options = {
             method: "POST",
             body: reader.result,
@@ -179,8 +183,14 @@ export default {
           fetch(url, options)
             .then((response) => {
               if (response.ok) {
-                response.text().then((successText) => {
-                  this.success = successText;
+                response.json().then((response) => {
+                  if (response.id) {
+                    // if identifier is present it's a task
+                    this.taskId = response.id;
+                  } else {
+                    // it's a regular response
+                    this.success = response.message;
+                  }
                   this.error = null;
                 });
               } else {

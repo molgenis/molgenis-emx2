@@ -10,3 +10,4 @@ order,name,label,parent,codesystem,code,ontologyTermURI,definition
 ,Adult,Adult (25-44 years),,,,,
 ,Infant,Infant (2-23 months),,,,,
 ,Child,Child (2-12 years),,,,,
+,*,Any,,,*,,Any age range

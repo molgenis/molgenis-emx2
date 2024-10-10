@@ -49,6 +49,7 @@ public class Constants {
   public static final String MOLGENIS_POSTGRES_PASS = "MOLGENIS_POSTGRES_PASS";
   public static final String MOLGENIS_HTTP_PORT = "MOLGENIS_HTTP_PORT";
   public static final String MOLGENIS_ADMIN_PW = "MOLGENIS_ADMIN_PW";
+  public static final String MOLGENIS_INSTANCE_ID = "MOLGENIS_INSTANCE_ID";
 
   public static final String IS_OIDC_ENABLED = "isOidcEnabled";
   public static final String MOLGENIS_OIDC_CLIENT_ID = "MOLGENIS_OIDC_CLIENT_ID";
@@ -76,6 +77,10 @@ public class Constants {
     EQUALS, NOT_EQUALS, LIKE, NOT_LIKE, TRIGRAM_SEARCH, TEXT_SEARCH
   };
   protected static final Operator[] EQUALITY_OPERATORS = {EQUALS, NOT_EQUALS};
+
+  protected static final String TABLE_NAME_REGEX = "^(?!.* _|.*_ )[a-zA-Z][a-zA-Z0-9 _]{0,30}$";
+
+  protected static final String COLUMN_NAME_REGEX = "^(?!.* _|.*_ )[a-zA-Z][a-zA-Z0-9 _]{0,62}$";
 
   // RFC 5322, see http://emailregex.com/
   protected static final String EMAIL_REGEX =
