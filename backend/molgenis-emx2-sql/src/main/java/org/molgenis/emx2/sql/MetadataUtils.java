@@ -24,7 +24,7 @@ public class MetadataUtils {
   private static final org.jooq.Table SCHEMA_METADATA = table(name(MOLGENIS, "schema_metadata"));
   private static final org.jooq.Table TABLE_METADATA = table(name(MOLGENIS, "table_metadata"));
   private static final org.jooq.Table COLUMN_METADATA = table(name(MOLGENIS, "column_metadata"));
-  private static final org.jooq.Table USERS_METADATA = table(name(MOLGENIS, "users_metadata"));
+  public static final org.jooq.Table USERS_METADATA = table(name(MOLGENIS, "users_metadata"));
   private static final org.jooq.Table SETTINGS_METADATA =
       table(name(MOLGENIS, "settings_metadata"));
 
@@ -98,8 +98,9 @@ public class MetadataUtils {
       field(name("defaultValue"), VARCHAR.nullable(true));
 
   // users
-  private static final Field<String> USER_NAME = field(name("username"), VARCHAR);
+  public static final Field<String> USER_NAME = field(name("username"), VARCHAR);
   private static final Field<String> USER_PASS = field(name("password"), VARCHAR);
+  public static final Field<Boolean> USER_ENABLED = field(name("enabled"), BOOLEAN.nullable(false));
 
   // settings field, reused by all other metadata
   static final org.jooq.Field SETTINGS = field(name(org.molgenis.emx2.Constants.SETTINGS), JSON);
@@ -256,7 +257,9 @@ public class MetadataUtils {
             }
 
             t = jooq.createTableIfNotExists(USERS_METADATA);
-            t.columns(USER_NAME, USER_PASS).constraint(primaryKey(USER_NAME)).execute();
+            t.columns(USER_NAME, USER_PASS, USER_ENABLED)
+                .constraint(primaryKey(USER_NAME))
+                .execute();
 
             t = jooq.createTableIfNotExists(SETTINGS_METADATA);
             t.columns(TABLE_SCHEMA, SETTINGS_TABLE_NAME, SETTINGS_NAME, SETTINGS_VALUE)
@@ -389,13 +392,15 @@ public class MetadataUtils {
       List<User> users = new ArrayList<>();
       for (org.jooq.Record user :
           db.getJooq()
-              .select(USER_NAME, SETTINGS)
+              .select(USER_NAME, USER_ENABLED, SETTINGS)
               .from(USERS_METADATA)
               .orderBy(USER_NAME)
               .limit(limit)
               .offset(offset)
               .fetchArray()) {
-        users.add(new User(db, user.get(USER_NAME), user.get(SETTINGS, Map.class)));
+        User newUser = new User(db, user.get(USER_NAME), user.get(SETTINGS, Map.class));
+        newUser.setEnabled(user.get(USER_ENABLED));
+        users.add(newUser);
       }
       return users;
     } catch (Exception e) {
@@ -602,10 +607,12 @@ public class MetadataUtils {
   }
 
   public static void setUserPassword(DSLContext jooq, String user, String password) {
+    // TODO BEFORE MERGE: set USER_ACTIVE to current value and not to "TRUE"
     jooq.insertInto(USERS_METADATA)
-        .columns(USER_NAME, USER_PASS)
+        .columns(USER_NAME, USER_ENABLED, USER_PASS)
         .values(
             field("{0}", String.class, user),
+            field("{0}", Boolean.class, Boolean.TRUE),
             field("crypt({0}, gen_salt('bf'))", String.class, password))
         .onConflict(USER_NAME)
         .doUpdate()
@@ -663,8 +670,8 @@ public class MetadataUtils {
   public static void saveUserMetadata(DSLContext jooq, User user) {
     // don't update password via this route
     jooq.insertInto(USERS_METADATA)
-        .columns(USER_NAME, SETTINGS)
-        .values(user.getUsername(), user.getSettings())
+        .columns(USER_NAME, USER_ENABLED, SETTINGS)
+        .values(user.getUsername(), true, user.getSettings())
         .onConflict(USER_NAME)
         .doUpdate()
         .set(SETTINGS, user.getSettings())
@@ -676,6 +683,7 @@ public class MetadataUtils {
         db.getJooq().selectFrom(USERS_METADATA).where(USER_NAME.eq(userName)).fetchOne();
     if (userRecord != null) {
       User result = new User(db, userName);
+      result.setEnabled(userRecord.get(USER_ENABLED));
       result.setSettings(userRecord.get(SETTINGS, Map.class));
       return result;
     }

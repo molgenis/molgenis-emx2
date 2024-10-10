@@ -1,6 +1,6 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,visible
 Resource counts,,,,,,,,,,,,Quantitative information on the resource,"DataCatalogueFlat,RWEStaging,StudiesStaging",
-Resource counts,,resource,ref,1,,,Resources,,,,,,"DataCatalogueFlat,RWEStaging,StudiesStaging",
+Resource counts,,resource,ref,1,,,Resources,,,,,Resource id,"DataCatalogueFlat,RWEStaging,StudiesStaging",
 Resource counts,,age group,ontology,1,,CatalogueOntologies,Age groups,,,,,Select the relevant age group for this quantitative information,"DataCatalogueFlat,RWEStaging,StudiesStaging",
 Resource counts,,population size,int,,,,,,,,,"Total number of unique individuals with records captured in the data source (most recent count). In the catalogue, this will accommodate counts per year","DataCatalogueFlat,RWEStaging,StudiesStaging",
 Resource counts,,active size,int,,,,,,,,,"Number of unique, active, or currently registered individuals with records captured in the data source (most recent count). In the catalogue, this will accommodate counts per year","DataCatalogueFlat,RWEStaging,StudiesStaging",

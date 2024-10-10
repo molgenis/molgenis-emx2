@@ -670,9 +670,9 @@ export interface IResources {
   description?: string;
   keywords?: string;
   externalIdentifiers?: IExternalIdentifiers[];
-  dateEstablished?: string;
-  startDataCollection?: string;
-  endDataCollection?: string;
+  dateLastRefresh?: string;
+  startYear?: string;
+  endYear?: string;
   timeSpanDescription?: string;
   contactEmail?: string;
   logo?: IFile;

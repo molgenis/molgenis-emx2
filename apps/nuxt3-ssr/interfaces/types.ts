@@ -30,9 +30,9 @@ export interface IResource {
       externalIdentifierType: INameObject;
     }
   ];
-  dateEstablished?: string;
-  startDataCollection?: string;
-  endDataCollection?: string;
+  dateLastRefresh?: string;
+  startYear?: string;
+  endYear?: string;
   license?: string;
   populationAgeGroups?: IOntologyNode[];
   countries: {
