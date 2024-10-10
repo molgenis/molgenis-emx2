@@ -79,8 +79,10 @@ public class GraphqlDatabaseFieldFactory {
               Schema schema = database.createSchema(name, description);
               if (template != null) {
                 Task task = DataModels.getImportTask(schema, template, includeDemoData);
-                Task parentTask = taskService.getTask(parentTaskId);
-                task.setParentTask(parentTask);
+                if (parentTaskId != null) {
+                  Task parentTask = taskService.getTask(parentTaskId);
+                  task.setParentTask(parentTask);
+                }
                 String id = taskService.submit(task);
                 result.setTaskId(id);
               } else {

@@ -1,6 +1,7 @@
 import csv
 import json
 import logging
+import sys
 import pathlib
 import time
 from functools import cache
@@ -19,6 +20,7 @@ from .exceptions import (NoSuchSchemaException, ServiceUnavailableError, SigninE
                          PermissionDeniedException, TokenSigninException, NonExistentTemplateException)
 from .metadata import Schema
 
+logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 log = logging.getLogger("Molgenis EMX2 Pyclient")
 
 
