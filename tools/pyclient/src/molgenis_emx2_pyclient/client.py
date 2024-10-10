@@ -506,7 +506,8 @@ class Client:
     async def create_schema(self, name: str = None,
                       description: str = None,
                       template: str = None,
-                      include_demo_data: bool = False):
+                      include_demo_data: bool = False,
+                      parent_job: str = None):
         """Creates a new schema on the EMX2 server.
 
         :param name: the name of the new schema
@@ -526,7 +527,7 @@ class Client:
             raise PyclientException(f"Schema with name {name!r} already exists.")
         query = queries.create_schema()
         variables = self._format_optional_params(name=name, description=description,
-                                                 template=template, include_demo_data=include_demo_data)
+                                                 template=template, include_demo_data=include_demo_data, parent_job=parent_job)
 
         response = self.session.post(
             url=self.api_graphql,
@@ -996,6 +997,8 @@ class Client:
             args['name'] = args.pop('name')
         if 'include_demo_data' in args.keys():
             args['includeDemoData'] = args.pop('include_demo_data')
+        if 'parent_job' in args.keys():
+            args['parentJob'] = args.pop('parent_job')
         return args
 
     def _table_in_schema(self, table_name: str, schema_name: str) -> bool:
