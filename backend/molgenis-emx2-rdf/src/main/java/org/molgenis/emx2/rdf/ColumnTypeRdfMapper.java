@@ -29,7 +29,7 @@ import org.molgenis.emx2.utils.URIUtils;
  */
 public class ColumnTypeRdfMapper {
   // Needed in some cases for Values retrieval.
-  private final String baseURI;
+  private final String baseURL;
 
   // All ColumnType mappings.
   // mapping.keySet() should be equal to ColumnType.values()
@@ -83,8 +83,9 @@ public class ColumnTypeRdfMapper {
           entry(ColumnType.HYPERLINK, RdfColumnType.URI),
           entry(ColumnType.HYPERLINK_ARRAY, RdfColumnType.URI));
 
-  public ColumnTypeRdfMapper(String baseURI) {
-    this.baseURI = baseURI;
+  public ColumnTypeRdfMapper(String baseURL) {
+    String baseUrlTrim = baseURL.trim();
+    this.baseURL = baseUrlTrim.endsWith("/") ? baseUrlTrim : baseUrlTrim + "/";
   }
 
   /** Retrieve all {@link ColumnType}{@code 's} which have a mapping available. */
@@ -104,50 +105,50 @@ public class ColumnTypeRdfMapper {
     if (row.getString(column.getName()) == null) {
       return Set.of();
     }
-    return mapping.get(column.getColumnType()).retrieveValues(baseURI, row, column);
+    return mapping.get(column.getColumnType()).retrieveValues(baseURL, row, column);
   }
 
   private enum RdfColumnType {
     BOOLEAN(CoreDatatype.XSD.BOOLEAN) {
       @Override
-      Set<Value> retrieveValues(String baseURI, Row row, Column column) {
+      Set<Value> retrieveValues(String baseURL, Row row, Column column) {
         return basicRetrieval(row.getBooleanArray(column.getName()), Values::literal);
       }
     },
     STRING(CoreDatatype.XSD.STRING) {
       @Override
-      Set<Value> retrieveValues(String baseURI, Row row, Column column) {
+      Set<Value> retrieveValues(String baseURL, Row row, Column column) {
         return basicRetrievalString(row.getStringArray(column.getName()), Values::literal);
       }
     },
     INT(CoreDatatype.XSD.INT) {
       @Override
-      Set<Value> retrieveValues(String baseURI, Row row, Column column) {
+      Set<Value> retrieveValues(String baseURL, Row row, Column column) {
         return basicRetrieval(row.getIntegerArray(column.getName()), Values::literal);
       }
     },
     LONG(CoreDatatype.XSD.LONG) {
       @Override
-      Set<Value> retrieveValues(String baseURI, Row row, Column column) {
+      Set<Value> retrieveValues(String baseURL, Row row, Column column) {
         return basicRetrieval(row.getLongArray(column.getName()), Values::literal);
       }
     },
     DECIMAL(CoreDatatype.XSD.DECIMAL) {
       @Override
-      Set<Value> retrieveValues(String baseURI, Row row, Column column) {
+      Set<Value> retrieveValues(String baseURL, Row row, Column column) {
         return basicRetrieval(row.getDecimalArray(column.getName()), Values::literal);
       }
     },
     DATE(CoreDatatype.XSD.DATE) {
       @Override
-      Set<Value> retrieveValues(String baseURI, Row row, Column column) {
+      Set<Value> retrieveValues(String baseURL, Row row, Column column) {
         return basicRetrieval(
             row.getDateArray(column.getName()), (i) -> literal(i.toString(), getCoreDatatype()));
       }
     },
     DATETIME(CoreDatatype.XSD.DATETIME) {
       @Override
-      Set<Value> retrieveValues(String baseURI, Row row, Column column) {
+      Set<Value> retrieveValues(String baseURL, Row row, Column column) {
         return basicRetrieval(
             row.getDateTimeArray(column.getName()),
             (i) -> literal(dateTimeFormatter.format((LocalDateTime) i), getCoreDatatype()));
@@ -155,27 +156,27 @@ public class ColumnTypeRdfMapper {
     },
     DURATION(CoreDatatype.XSD.DURATION) {
       @Override
-      Set<Value> retrieveValues(String baseURI, Row row, Column column) {
+      Set<Value> retrieveValues(String baseURL, Row row, Column column) {
         return basicRetrieval(row.getPeriodArray(column.getName()), Values::literal);
       }
     },
 
     URI(CoreDatatype.XSD.ANYURI) {
       @Override
-      Set<Value> retrieveValues(String baseURI, Row row, Column column) {
+      Set<Value> retrieveValues(String baseURL, Row row, Column column) {
         return basicRetrievalString(row.getStringArray(column.getName()), URIUtils::encodedIRI);
       }
     },
     EMAIL(CoreDatatype.XSD.ANYURI) {
       @Override
-      Set<Value> retrieveValues(String baseURI, Row row, Column column) {
+      Set<Value> retrieveValues(String baseURL, Row row, Column column) {
         return basicRetrievalString(
             row.getStringArray(column.getName()), (i) -> URIUtils.encodedIRI("mailto:" + i));
       }
     },
     FILE(CoreDatatype.XSD.ANYURI) {
       @Override
-      Set<Value> retrieveValues(String baseURI, Row row, Column column) {
+      Set<Value> retrieveValues(String baseURL, Row row, Column column) {
         if (row.getString(column.getName() + "_id") != null) {
           final String schemaPath =
               UrlEscapers.urlPathSegmentEscaper().escape(column.getSchemaName());
@@ -189,11 +190,11 @@ public class ColumnTypeRdfMapper {
     },
     REFERENCE(CoreDatatype.XSD.ANYURI) {
       @Override
-      Set<Value> retrieveValues(String baseURI, Row row, Column column) {
+      Set<Value> retrieveValues(String baseURL, Row row, Column column) {
         final TableMetadata target = column.getRefTable();
         final String rootTableName =
             UrlEscapers.urlPathSegmentEscaper().escape(target.getRootTable().getIdentifier());
-        final Namespace ns = getSchemaNamespace(baseURI, target.getRootTable().getSchema());
+        final Namespace ns = getSchemaNamespace(baseURL, target.getRootTable().getSchema());
 
         final Set<IRI> iris = new HashSet<>();
         final Map<Integer, Map<String, String>> items = new HashMap<>();
@@ -229,8 +230,8 @@ public class ColumnTypeRdfMapper {
     ONTOLOGY(CoreDatatype.XSD.ANYURI) {
       // TODO: Implement Ontology behavior where it also returns ontologyTermURI as Value.
       @Override
-      Set<Value> retrieveValues(String baseURI, Row row, Column column) {
-        return RdfColumnType.REFERENCE.retrieveValues(baseURI, row, column);
+      Set<Value> retrieveValues(String baseURL, Row row, Column column) {
+        return RdfColumnType.REFERENCE.retrieveValues(baseURL, row, column);
       }
     };
 
@@ -281,6 +282,6 @@ public class ColumnTypeRdfMapper {
           .collect(Collectors.toSet());
     }
 
-    abstract Set<Value> retrieveValues(final String baseURI, final Row row, final Column column);
+    abstract Set<Value> retrieveValues(final String baseURL, final Row row, final Column column);
   }
 }
