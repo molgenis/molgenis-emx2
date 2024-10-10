@@ -11,7 +11,6 @@
     <rect
       width="20"
       height="20"
-      rx="3"
       class="stroke-gray-600"
       :class="{
         'fill-none': !checked && !indeterminate,
