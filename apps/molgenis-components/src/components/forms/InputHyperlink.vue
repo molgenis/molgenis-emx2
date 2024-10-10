@@ -14,7 +14,7 @@
         :value="modelValue"
         @input="
           //@ts-ignore
-          emit('update:modelValue', $event.target?.value)
+          updateModelValue($event.target?.value)
         "
         type="text"
         class="form-control"
@@ -56,6 +56,10 @@ const stringError = computed(() => {
 
 function validateHyperlink(hyperlink: string) {
   return hyperlink?.match(constants.HYPERLINK_REGEX);
+}
+
+function updateModelValue(value) {
+  emit("update:modelValue", value === "" ? null : value);
 }
 </script>
 
