@@ -15,6 +15,7 @@ public class GraphqlConstants {
   public static final String FILTER_ARGUMENT = "filter";
   public static final String KEY = "key";
   public static final String PASSWORD = "password";
+  public static final String ENABLED = "enabled";
   public static final String EMAIL = "email";
   public static final String NAME = "name";
   public static final String LOCALE = "locale";
@@ -51,6 +52,7 @@ public class GraphqlConstants {
   public static final String TASK_DESCRIPTION = "description";
   public static final String TASK_SUBTASKS = "subTasks";
   public static final String TOKEN_NAME = "tokenName";
+  public static final String USER = "user";
   public static final String USERS = "users";
   public static final String ROLES = "roles";
   public static final String MESSAGE = "message";

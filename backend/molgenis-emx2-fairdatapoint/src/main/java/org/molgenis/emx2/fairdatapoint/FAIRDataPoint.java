@@ -3,8 +3,9 @@ package org.molgenis.emx2.fairdatapoint;
 import static java.util.Map.entry;
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.eclipse.rdf4j.model.util.Values.literal;
-import static org.molgenis.emx2.rdf.RDFUtils.*;
+import static org.molgenis.emx2.utils.URIUtils.*;
 
+import io.javalin.http.Context;
 import java.io.StringWriter;
 import java.net.URI;
 import java.text.SimpleDateFormat;
@@ -25,7 +26,6 @@ import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import spark.Request;
 
 public class FAIRDataPoint {
 
@@ -46,27 +46,20 @@ public class FAIRDataPoint {
           entry("r3d", "http://www.re3data.org/schema/3-0#"),
           entry("lang", "http://lexvo.org/id/iso639-3/"));
 
-  /**
-   * Constructor
-   *
-   * @param request
-   * @param schemas
-   * @throws Exception
-   */
-  public FAIRDataPoint(Request request, Schema... schemas) {
+  public FAIRDataPoint(Context ctx, Schema... schemas) {
     SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
     Date currentDateTime = new Date(System.currentTimeMillis());
     this.issued = formatter.format(currentDateTime);
     this.modified = formatter.format(currentDateTime);
     this.version = "MOLGENIS EMX2 " + Version.getVersion();
-    this.request = request;
+    this.ctx = ctx;
     this.schemas = schemas;
   }
 
   private String version;
   private String issued;
   private String modified;
-  private Request request;
+  private Context ctx;
   private Schema[] schemas;
 
   /**
@@ -122,7 +115,7 @@ public class FAIRDataPoint {
     }
 
     // reconstruct server:port URL to prevent problems with double encoding of schema/table names
-    String requestURL = request.url();
+    String requestURL = ctx.url();
     URI requestURI = getURI(requestURL);
     String host = extractHost(requestURI);
     String apiFdp = host + "/api/fdp";
@@ -250,7 +243,11 @@ public class FAIRDataPoint {
     for (String propertyValue : (List<String>) map.get("propertyValue")) {
       String[] propertyValueSplit = propertyValue.split(" ", -1);
       checkPropValSplitLength(propertyValueSplit);
-      builder.add(catalogIriEnc, iri(propertyValueSplit[0]), iri(propertyValueSplit[1]));
+      if (propertyValueSplit[1].startsWith("http")) {
+        builder.add(catalogIriEnc, iri(propertyValueSplit[0]), iri(propertyValueSplit[1]));
+      } else {
+        builder.add(catalogIriEnc, iri(propertyValueSplit[0]), propertyValueSplit[1]);
+      }
     }
   }
 

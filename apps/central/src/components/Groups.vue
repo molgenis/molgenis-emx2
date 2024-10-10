@@ -18,7 +18,23 @@
         placeholder="search in schemas"
         v-model="search"
       />
+
       <label>{{ count }} databases found</label>
+      <ButtonOutline
+        v-if="showChangeColumnButton && !showChangeColumn"
+        @click="showChangeColumn = true"
+        class="float-right"
+      >
+        Show changelog
+      </ButtonOutline>
+      <ButtonOutline
+        v-if="showChangeColumnButton && showChangeColumn"
+        @click="showChangeColumn = false"
+        class="float-right"
+      >
+        Hide changelog
+      </ButtonOutline>
+
       <table class="table table-hover table-bordered bg-white">
         <thead>
           <th style="width: 1px">
@@ -117,6 +133,7 @@ import {
   MessageWarning,
   InputSearch,
   MessageError,
+  ButtonOutline,
 } from "molgenis-components";
 import LastUpdateField from "./LastUpdateField.vue";
 
@@ -133,6 +150,7 @@ export default {
     MessageError,
     InputSearch,
     LastUpdateField,
+    ButtonOutline,
   },
   props: {
     session: Object,
@@ -150,6 +168,7 @@ export default {
       sortColumn: "name",
       sortOrder: null,
       changelogSchemas: [],
+      showChangeColumn: false,
     };
   },
   computed: {
@@ -167,8 +186,8 @@ export default {
           this.session.roles.includes("Manager"))
       );
     },
-    showChangeColumn() {
-      return this.hasManagerPermission && this.changelogSchemas.length;
+    showChangeColumnButton() {
+      return this.hasManagerPermission;
     },
   },
   created() {
@@ -204,7 +223,7 @@ export default {
         .then((data) => {
           this.schemas = data._schemas;
           this.loading = false;
-          if (this.hasManagerPermission) {
+          if (this.hasManagerPermission && this.showChangeColumn) {
             this.fetchChangelogStatus();
           }
         })
@@ -244,9 +263,10 @@ export default {
       return filtered;
     },
     sortSchemas(unsorted) {
+      const unsortedCopy = unsorted.slice();
       let sorted = [];
       if (this.sortColumn === "lastUpdate") {
-        sorted = unsorted.sort((a, b) => {
+        sorted = unsortedCopy.sort((a, b) => {
           if (a.update && b.update) {
             return a.update.getTime() - b.update.getTime();
           } else if (a.update && !b.update) {
@@ -259,7 +279,7 @@ export default {
           }
         });
       } else {
-        sorted = unsorted.sort((a, b) => a.id.localeCompare(b.id));
+        sorted = unsortedCopy.sort((a, b) => a.id.localeCompare(b.id));
       }
 
       if (this.sortOrder === "DESC") {
@@ -279,6 +299,13 @@ export default {
     handleLastUpdateChange() {
       if (this.sortColumn === "lastUpdate") {
         this.sortSchemas(this.schemasFilteredAndSorted);
+      }
+    },
+  },
+  watch: {
+    showChangeColumn(val) {
+      if (val) {
+        this.getSchemaList();
       }
     },
   },

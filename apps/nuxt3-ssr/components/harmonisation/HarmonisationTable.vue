@@ -1,16 +1,15 @@
 <script setup lang="ts">
-import type { ICohort, IVariableWithMappings } from "~/interfaces/types";
+import type { IResource, IVariableWithMappings } from "~/interfaces/types";
 import { getKey } from "~/utils/variableUtils";
-import StickyTable from "../table/StickyTable.vue";
 const route = useRoute();
 
 const props = defineProps<{
   variables: IVariableWithMappings[];
-  cohorts: ICohort[];
+  resources: IResource[];
 }>();
 
 const statusMap = computed(() =>
-  calcAggregatedHarmonisationStatus(props.variables, props.cohorts)
+  calcAggregatedHarmonisationStatus(props.variables, props.resources)
 );
 
 let activeRowIndex = ref(-1);
@@ -34,8 +33,8 @@ let activeVariablePath = computed(() =>
   <div class="mb-7 relative">
     <HarmonisationLegendMatrix size="small" />
     <div class="overflow-x-auto xl:max-w-table border-t">
-      <StickyTable
-        :columns="cohorts"
+      <TableSticky
+        :columns="resources"
         :rows="variables"
         class="h-screen overflow-auto"
       >
@@ -76,7 +75,7 @@ let activeVariablePath = computed(() =>
             @click="activeRowIndex = cell.value.rowIndex"
           ></HarmonisationTableCellAvailableIcon>
         </template>
-      </StickyTable>
+      </TableSticky>
     </div>
 
     <SideModal

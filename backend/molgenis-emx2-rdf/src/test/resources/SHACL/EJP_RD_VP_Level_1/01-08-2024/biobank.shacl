@@ -1,0 +1,33 @@
+@prefix :         <http://fairdatapoint.org/> .
+@prefix dash:     <http://datashapes.org/dash#> .
+@prefix dcat:     <http://www.w3.org/ns/dcat#> .
+@prefix sh:       <http://www.w3.org/ns/shacl#> .
+@prefix foaf:  <http://xmlns.com/foaf/0.1/> .
+@prefix ejp:   <https://w3id.org/ejp-rd/vocabulary#> .
+@prefix sio:  <http://semanticscience.org/resource/> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+:BiobankShape a sh:NodeShape ;
+  sh:targetClass ejp:Biobank ;
+  sh:property [
+    sh:path foaf:page ;
+    sh:nodeKind sh:IRI ;
+    sh:maxCount 1 ;
+    dash:editor dash:URIEditor ;
+    dash:viewer dash:LabelViewer ;
+  ] ,[
+    sh:path ejp:populationCoverage ;
+    sh:node :AnnotationShape ;
+    dash:editor dash:BlankNodeEditor ;
+  ] .  
+  
+:AnnotationShape a sh:NodeShape ;
+  sh:targetClass sio:SIO_001166;
+  sh:property [
+    sh:path rdfs:label;
+    sh:in ("National" "International" "Regional" "European");
+    sh:nodeKind sh:Literal ;
+    dash:editor dash:EnumSelectEditor;
+    dash:viewer dash:LabelViewer
+  ] . 

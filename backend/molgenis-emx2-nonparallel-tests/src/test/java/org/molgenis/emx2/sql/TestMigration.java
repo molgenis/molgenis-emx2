@@ -101,5 +101,7 @@ public class TestMigration {
     executeMigrationFile(database, "migration10.sql", "add aggregator roles for all schemas");
 
     migration5addMgTableclassUpdateTrigger(database);
+
+    executeMigrationFile(database, "migration22.sql", "test migration for deletion of refback");
   }
 }

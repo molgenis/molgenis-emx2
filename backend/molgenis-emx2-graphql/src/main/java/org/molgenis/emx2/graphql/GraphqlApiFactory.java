@@ -61,6 +61,8 @@ public class GraphqlApiFactory {
     // admin operations
     if (database.isAdmin()) {
       queryBuilder.field(GraphlAdminFieldFactory.queryAdminField(database));
+      mutationBuilder.field(GraphlAdminFieldFactory.removeUser(database));
+      mutationBuilder.field(GraphlAdminFieldFactory.setEnabledUser(database));
     }
 
     // database operations
@@ -69,7 +71,7 @@ public class GraphqlApiFactory {
     queryBuilder.field(db.settingsQueryField(database));
     queryBuilder.field(db.tasksQueryField(taskService));
 
-    mutationBuilder.field(db.createMutation(database));
+    mutationBuilder.field(db.createMutation(database, taskService));
     mutationBuilder.field(db.deleteMutation(database));
     mutationBuilder.field(db.updateMutation(database));
     mutationBuilder.field(db.dropMutation(database));

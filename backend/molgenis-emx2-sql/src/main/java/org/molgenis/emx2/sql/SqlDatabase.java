@@ -3,11 +3,15 @@ package org.molgenis.emx2.sql;
 import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.ColumnType.STRING;
 import static org.molgenis.emx2.Constants.MG_USER_PREFIX;
+import static org.molgenis.emx2.Constants.SYSTEM_SCHEMA;
+import static org.molgenis.emx2.sql.MetadataUtils.*;
 import static org.molgenis.emx2.sql.SqlDatabaseExecutor.*;
 import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeCreateSchema;
 
 import com.zaxxer.hikari.HikariDataSource;
+import java.security.SecureRandom;
 import java.util.*;
+import java.util.function.Supplier;
 import javax.sql.DataSource;
 import org.jooq.DSLContext;
 import org.jooq.SQLDialect;
@@ -17,6 +21,7 @@ import org.jooq.impl.DSL;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 import org.molgenis.emx2.utils.RandomString;
+import org.molgenis.emx2.utils.generator.SnowflakeIdGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,6 +35,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   public static final int TEN_SECONDS = 10;
   private static final Settings DEFAULT_JOOQ_SETTINGS =
       new Settings().withQueryTimeout(TEN_SECONDS);
+  private static final Random random = new SecureRandom();
 
   // shared between all instances
   private static DataSource source;
@@ -37,7 +43,8 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   private Integer databaseVersion;
   private DSLContext jooq;
   private final SqlUserAwareConnectionProvider connectionProvider;
-  private final Map<String, SqlSchemaMetadata> schemaCache = new LinkedHashMap<>(); // cache
+  private final Map<String, SqlSchemaMetadata> schemaCache = new LinkedHashMap<>();
+  private Map<String, Supplier<Object>> javaScriptBindings = new HashMap<>();
   private Collection<String> schemaNames = new ArrayList<>();
   private Collection<SchemaInfo> schemaInfos = new ArrayList<>();
   private boolean inTx;
@@ -84,6 +91,8 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     for (Map.Entry<String, SqlSchemaMetadata> schema : copy.schemaCache.entrySet()) {
       this.schemaCache.put(schema.getKey(), new SqlSchemaMetadata(this, schema.getValue()));
     }
+
+    this.javaScriptBindings.putAll(copy.javaScriptBindings);
   }
 
   private void setJooq(DSLContext ctx) {
@@ -160,6 +169,13 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
         setUserPassword(ADMIN_USER, initialAdminPassword);
       }
 
+      this.tx(
+          tdb -> {
+            if (!this.hasSchema(SYSTEM_SCHEMA)) {
+              this.createSchema(SYSTEM_SCHEMA);
+            }
+          });
+
       // get the settings
       clearCache();
 
@@ -167,6 +183,13 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
         // use environment property unless overridden in settings
         this.setSetting(Constants.IS_OIDC_ENABLED, String.valueOf(isOidcEnabled));
       }
+
+      String instanceId = getSetting(Constants.MOLGENIS_INSTANCE_ID);
+      if (instanceId == null) {
+        instanceId = String.valueOf(random.nextLong(SnowflakeIdGenerator.MAX_ID));
+        this.setSetting(Constants.MOLGENIS_INSTANCE_ID, instanceId);
+      }
+      if (!SnowflakeIdGenerator.hasInstance()) SnowflakeIdGenerator.init(instanceId);
 
       if (getSetting(Constants.IS_PRIVACY_POLICY_ENABLED) == null) {
         this.setSetting(Constants.IS_PRIVACY_POLICY_ENABLED, String.valueOf(false));
@@ -458,11 +481,45 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   @Override
   public void removeUser(String user) {
     long start = System.currentTimeMillis();
+    if (user.equals("admin")) throw new MolgenisException("You cant remove admin");
+    if (user.equals("anonymous")) throw new MolgenisException("You cant remove anonymous");
+
     if (!hasUser(user))
       throw new MolgenisException(
           "Remove user failed: User with name '" + user + "' doesn't exist");
     tx(db -> ((SqlDatabase) db).getJooq().execute("DROP ROLE {0}", name(MG_USER_PREFIX + user)));
     log(start, "removed user " + user);
+
+    tx(
+        db ->
+            ((SqlDatabase) db)
+                .getJooq()
+                .deleteFrom(USERS_METADATA)
+                .where(USER_NAME.eq(user))
+                .execute());
+    log(start, "removed metadata from user " + user);
+  }
+
+  public void setEnabledUser(String user, Boolean enabled) {
+    long start = System.currentTimeMillis();
+    if (user.equals("admin")) throw new MolgenisException("You cant enable or disable admin");
+    if (user.equals("anonymous"))
+      throw new MolgenisException("You cant enable or disable anonymous");
+    if (!hasUser(user))
+      throw new MolgenisException(
+          (enabled ? "Enabling" : "Disabling")
+              + " user failed: User with name '"
+              + user
+              + "' doesn't exist");
+    tx(
+        db ->
+            ((SqlDatabase) db)
+                .getJooq()
+                .update(USERS_METADATA)
+                .set(USER_ENABLED, enabled)
+                .where(USER_NAME.eq(user))
+                .execute());
+    log(start, (enabled ? "Enabling" : "Disabling") + " user " + user);
   }
 
   public void addRole(String role) {
@@ -714,6 +771,16 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       return user != null ? user : new User(this, userName);
     }
     return null;
+  }
+
+  public Database setBindings(Map<String, Supplier<Object>> bindings) {
+    this.javaScriptBindings = bindings;
+    return this;
+  }
+
+  @Override
+  public Map<String, Supplier<Object>> getJavaScriptBindings() {
+    return javaScriptBindings;
   }
 
   public void addTableListener(TableListener tableListener) {

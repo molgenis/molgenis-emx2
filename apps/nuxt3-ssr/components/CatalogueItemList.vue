@@ -98,13 +98,13 @@ function showAsFile(item: IDefinitionListItem) {
           </div>
         </a>
 
-        <p v-else-if="item?.content?.tooltip" class="flex items-center gap-1">
+        <div v-else-if="item?.content?.tooltip" class="flex items-center gap-1">
           {{ item.content.value }}
           <CustomTooltip label="Read more" :content="item.content.tooltip" />
-        </p>
-        <p v-else>
+        </div>
+        <div v-else>
           {{ Array.isArray(item.content) ? item.content[0] : item.content }}
-        </p>
+        </div>
       </DefinitionListDefinition>
     </template>
   </DefinitionList>

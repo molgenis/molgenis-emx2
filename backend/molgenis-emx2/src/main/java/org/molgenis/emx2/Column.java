@@ -3,8 +3,7 @@ package org.molgenis.emx2;
 import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.ColumnType.*;
-import static org.molgenis.emx2.Constants.COMPOSITE_REF_SEPARATOR;
-import static org.molgenis.emx2.Constants.SYS_COLUMN_NAME_PREFIX;
+import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.utils.TypeUtils.*;
 
 import java.util.*;
@@ -18,7 +17,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
 
   // basics
   private TableMetadata table; // table this column is part of
-  private String columnName; // short name, first character A-Za-z followed by AZ-a-z_0-1
+  private String columnName; // short name, should adhere to: Constants.COLUMN_NAME_REGEX
   private ColumnType columnType = STRING; // type of the column
 
   // transient for enabling migrations
@@ -86,15 +85,11 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   }
 
   private String validateName(String columnName, boolean skipValidation) {
-    if (!skipValidation && !columnName.matches("[a-zA-Z][a-zA-Z0-9_ ]*")) {
+    if (!skipValidation && !columnName.matches(COLUMN_NAME_REGEX)) {
       throw new MolgenisException(
           "Invalid column name '"
               + columnName
-              + "': Column must start with a letter, followed by letters, underscores, a space or numbers, i.e. [a-zA-Z][a-zA-Z0-9_]*");
-    }
-    if (!skipValidation && (columnName.contains("_ ") || columnName.contains(" _"))) {
-      throw new MolgenisException(
-          "Invalid column name '" + columnName + "': column names cannot contain '_ ' or '_ '");
+              + "': Column name must start with a letter, followed by zero or more letters, numbers, spaces or underscores. A space immediately before or after an underscore is not allowed. The character limit is 63.");
     }
     return columnName.trim();
   }
@@ -648,6 +643,10 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
 
   public boolean isSystemColumn() {
     return this.getName().startsWith(SYS_COLUMN_NAME_PREFIX);
+  }
+
+  public boolean isSystemAddUpdateByUserColumn() {
+    return this.getName().equals(MG_INSERTEDBY) || this.getName().equals(MG_UPDATEDBY);
   }
 
   public boolean isHeading() {

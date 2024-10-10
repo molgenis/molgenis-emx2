@@ -134,7 +134,7 @@ function clearAll() {
       </span>
     </button>
 
-    <Modal ref="modal" title="Search" :sub-title="filterLabel">
+    <Modal ref="modal" title="Search" :subtitle="filterLabel">
       <template #header>
         <FilterSearch v-model="optionsFilter" :inverted="true"></FilterSearch>
 

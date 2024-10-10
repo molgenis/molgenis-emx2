@@ -12,37 +12,16 @@ const { data, pending, error, refresh } = await useFetch(
         Variables_agg {
           count
         }
-        Cohorts_agg { 
+        Resources_agg {
           count
           _sum {
             numberOfParticipants
             numberOfParticipantsWithSamples 
           }
         }
-        Organisations_agg {
-          count
-        }
-        DataResources_agg {
-          count
-        }
-        DataSources_agg {
-          count
-        }
-        Datasets_agg {
-          count
-        }
-        Subcohorts_agg {
-          count
-        }
-        Networks_agg { 
-          count
-        }
-        Models_agg {
-          count
-        }
-        Cohorts_groupBy {
+        Resources_groupBy {
           count 
-          design {
+          type {
             name
           }
         }
@@ -52,10 +31,10 @@ const { data, pending, error, refresh } = await useFetch(
 );
 
 function percentageLongitudinal(
-  cohortsGroupBy: { count: number; design: { name: string } }[],
+  resourcesGroupBy: { count: number; design: { name: string } }[],
   total: number
 ) {
-  const nLongitudinal = cohortsGroupBy.reduce(
+  const nLongitudinal = resourcesGroupBy.reduce(
     (accum, group) =>
       group?.design?.name === "Longitudinal" ? accum + group.count : accum,
     0
@@ -65,7 +44,7 @@ function percentageLongitudinal(
 }
 </script>
 <template>
-  <LayoutsLandingPage class="w-10/12 pt-8">
+  <LayoutsLandingPage>
     <PageHeader
       class="mx-auto lg:w-7/12 text-center"
       title="European Health Data & Cohort Networks Catalogue"
@@ -178,8 +157,8 @@ function percentageLongitudinal(
       </LandingCardSecondary>
       <LandingCardSecondary
         icon="people"
-        title="Subcohorts"
-        :count="data.data.Subcohorts_agg.count"
+        title="Cohorts"
+        :count="data.data.Subpopopulations_agg.count"
       >
         {{ "Percentage of longitudinal datasets." }}
       </LandingCardSecondary>
