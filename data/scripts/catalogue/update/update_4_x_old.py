@@ -121,14 +121,14 @@ class Transform:
     def resources(self):
         """Transform columns in Cohorts, Networks, Studies, Data sources, Databanks
         """
-        # TODO: get date established & start data collection from other items, Cohorts, Networks
         # Cohorts to Resources
         if self.database_type in ['catalogue', 'cohort', 'cohort_UMCG']:
 
             df_cohorts = pd.read_csv(self.path + 'Cohorts.csv', dtype='object')
             df_cohorts = df_cohorts.rename(columns={'type': 'cohort type',
                                                     'type other': 'cohort type other',
-                                                    'collection type': 'data collection type'})
+                                                    'collection type': 'data collection type',
+                                                    'inclusion criteria other': 'other inclusion criteria'})
             # for UMCG data, if cohort type == 'Study', resource type = 'Clinical trial'
             df_cohorts['type'] = df_cohorts.apply(lambda c: 'Clinical trial' if c['cohort type'] == 'Study' else 'Cohort study', axis=1)
             # for UMCG data, delete cohort type == 'Study'
@@ -146,10 +146,6 @@ class Transform:
             df_networks = pd.read_csv(self.path + 'Networks.csv', dtype='object')
             df_networks = df_networks.rename(columns={'type': 'network type'})
             df_networks['type'] = 'Network'
-            # transform years to dates  # TODO: data collection dates do not fit for Networks
-            df_networks.loc[:, 'start data collection'] = df_networks['start year'] + '-01-01'
-            df_networks.loc[:, 'date established'] = df_networks['start year']
-            df_networks.loc[:, 'end data collection'] = df_networks['end year'] + '-12-31'
 
             # get resources that are part of network
             if self.database_type == 'catalogue':
@@ -176,7 +172,7 @@ class Transform:
                                             'type other': 'RWD type other',
                                             'areas of information': 'areas of information rwd',
                                             'informed consent': 'informed consent required'}, inplace=True)
-            # transform dates to years  # TODO: check date established == start data collection
+            # transform dates to years
             df_data_sources.loc[:, 'start year'] = df_data_sources['date established'][0:4]
             df_data_sources.loc[:, 'end year'] = df_data_sources['end data collection'][0:4]
 

@@ -127,7 +127,7 @@ if SERVER_TYPE in ['data_catalogue', 'cohort_catalogue']:
         # # delete and create new cohort schema
         # schema_description = session.get_database_description(database_name=cohort)
         # session.drop_database(database_name=cohort)
-        # session.create_database(database_name=cohort, database_description=schema_description)
+        # session.create_database(database_name=cohort, database_description='')  # schema_description
 
 # --------------------------------------------------------------
 if SERVER_TYPE == 'data_catalogue':
