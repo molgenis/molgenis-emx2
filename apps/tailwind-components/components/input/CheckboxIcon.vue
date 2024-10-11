@@ -4,17 +4,17 @@
     height="20"
     view-box="0 0 20 20"
     xmlns="http://www.w3.org/2000/svg"
-    class="mt-1.5"
+    class="mt-1.5 hover:cursor-pointer"
     :data-checked="checked"
     :data-indeterminate="indeterminate"
   >
     <rect
       width="20"
       height="20"
-      class="stroke-gray-600"
+      class="border-input"
       :class="{
-        'fill-none': !checked && !indeterminate,
-        'fill-yellow-500 stroke-none': checked || indeterminate,
+        'fill-input': !checked && !indeterminate,
+        'fill-input-checked stroke-none': checked || indeterminate,
       }"
     />
     <path
