@@ -10,7 +10,7 @@ from molgenis_emx2_pyclient import Client
 from molgenis_emx2_pyclient.metadata import Schema
 from tqdm.contrib.logging import logging_redirect_tqdm
 
-from update.update_4_x import Transform
+from update.update_5_x import Transform
 
 FILES_DIR = Path(__file__).parent.joinpath('files').resolve()
 

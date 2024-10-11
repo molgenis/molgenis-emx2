@@ -1,6 +1,6 @@
 from decouple import config
 from catalogue_util.client import Session
-from update.update_4_x_old import Transform
+from update.update_5_x_old import Transform
 from catalogue_util.zip_handling import Zip
 import os
 
