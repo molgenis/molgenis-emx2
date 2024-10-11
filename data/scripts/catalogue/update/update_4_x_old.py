@@ -173,8 +173,8 @@ class Transform:
                                             'areas of information': 'areas of information rwd',
                                             'informed consent': 'informed consent required'}, inplace=True)
             # transform dates to years
-            df_data_sources.loc[:, 'start year'] = df_data_sources['date established'][0:4]
-            df_data_sources.loc[:, 'end year'] = df_data_sources['end data collection'][0:4]
+            df_data_sources.loc[:, 'start year'] = df_data_sources['date established'].apply(get_year_from_date)
+            df_data_sources.loc[:, 'end year'] = df_data_sources['end data collection'].apply(get_year_from_date)
 
             df_data_sources['type'] = 'Data source'
 
@@ -186,8 +186,8 @@ class Transform:
                                          'informed consent': 'informed consent required'}, inplace=True)
 
             # transform dates to years  # TODO: check date established == start data collection
-            df_databanks.loc[:, 'start year'] = df_databanks['date established'][0:4]
-            df_databanks.loc[:, 'end year'] = df_databanks['end data collection'][0:4]
+            df_databanks.loc[:, 'start year'] = df_databanks['date established'].apply(get_year_from_date)
+            df_databanks.loc[:, 'end year'] = df_databanks['end data collection'].apply(get_year_from_date)
 
             df_databanks['type'] = 'Databank'
 
@@ -313,22 +313,25 @@ class Transform:
     def variable_values(self):
         # restructure variable values
         df_var_values = pd.read_csv(self.path + 'Variable values.csv', keep_default_na=False, dtype='object')
-        df_var_values.loc[:, 'variable.resource'] = df_var_values['resource'].apply(strip_resource)
+        df_var_values = df_var_values.rename(columns={'variable.dataset': 'dataset',
+                                                      'variable.name': 'variable'})
+
+        df_var_values.loc[:, 'resource'] = df_var_values['resource'].apply(strip_resource)
         df_repeats = pd.read_csv(self.path + 'Repeated variables.csv', dtype='object')
 
-        df_var_values_cdm = df_var_values[df_var_values['variable.resource'].isin(['LifeCycle', 'ATHLETE',
-                                                                                   'testNetwork1', 'EXPANSE'])]
+        df_var_values_cdm = df_var_values[df_var_values['resource'].isin(['LifeCycle', 'ATHLETE',
+                                                                          'testNetwork1', 'EXPANSE'])]
         # remove end digits from repeated variable names
-        df_var_values_cdm.loc[:, 'stripped_var'] = df_var_values_cdm['variable.name'].apply(remove_number)  # remove end digits from all variable names
-        df_var_values_cdm.loc[:, 'repeated'] = df_var_values_cdm['variable.name'].apply(is_repeated_variable, df_repeats=df_repeats)  # check if variable is repeated
-        df_var_values_cdm.loc[:, 'variable.name'] = df_var_values_cdm.apply(lambda x: x['stripped_var'] if x.repeated else x['variable.name'], axis=1)  # if repeated, keep stripped variable name
+        df_var_values_cdm.loc[:, 'stripped_var'] = df_var_values_cdm['variable'].apply(remove_number)  # remove end digits from all variable names
+        df_var_values_cdm.loc[:, 'repeated'] = df_var_values_cdm['variable'].apply(is_repeated_variable, df_repeats=df_repeats)  # check if variable is repeated
+        df_var_values_cdm.loc[:, 'variable'] = df_var_values_cdm.apply(lambda x: x['stripped_var'] if x.repeated else x['variable'], axis=1)  # if repeated, keep stripped variable name
 
-        df_var_values_no_cdm = df_var_values[~df_var_values['variable.resource'].isin(['LifeCycle', 'ATHLETE',
-                                                                                       'testNetwork1', 'EXPANSE'])]
+        df_var_values_no_cdm = df_var_values[~df_var_values['resource'].isin(['LifeCycle', 'ATHLETE',
+                                                                              'testNetwork1', 'EXPANSE'])]
 
         df_all_var_values = pd.concat([df_var_values_no_cdm, df_var_values_cdm])
-        df_all_var_values = df_all_var_values.drop_duplicates(subset=['variable.resource', 'variable.dataset',
-                                                                      'variable.name', 'value'])
+        df_all_var_values = df_all_var_values.drop_duplicates(subset=['resource', 'dataset',
+                                                                      'variable', 'value'])
         df_all_var_values.to_csv(self.path + 'Variable values.csv', index=False)
 
     def variables(self):
@@ -429,10 +432,7 @@ class Transform:
                                'subcohorts': 'subpopulations',
                                'collection event.name': 'collection event',
                                'network': 'resource',
-                               'main resource': 'resource',
-                               'variable.resource': 'resource',
-                               'variable.dataset': 'dataset',
-                               'variable.name': 'variable'}, inplace=True)
+                               'main resource': 'resource'}, inplace=True)
 
             # df = float_to_int(df)  # convert float back to integer
             df.to_csv(self.path + table_name + '.csv', index=False)
@@ -657,3 +657,10 @@ def get_end_day(end_month):
             '11': '30',
             '12': '31'
     }[end_month]
+
+
+def get_year_from_date(date):
+    if not pd.isna(date):
+        year = date[0:4]
+
+        return year
