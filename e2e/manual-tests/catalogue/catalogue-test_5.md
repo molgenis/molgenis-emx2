@@ -31,15 +31,15 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | 14 | DESCRIPTION | This is the Test cohort 2. It has "other" options where possible. No end year, so "ongoing". Design paper = Birth of a cohort — the first 20 years of the Raine study, publications = other papers. No to data access fee. Here we have some extra text to... | | |
 | 15 | Click on the three dots next to the description text | the text is displayed fully ("check the read less / read more functionality on the cohort detail page" is added) , and clicking on 'read less' reduces the text again | | |
 | 16 | GENERAL DESIGN | | | |
-| 17 | Cohort type | Other type | | |
-| 17b | Cohort type other | | | |
-| 18 | Design | Longitudinal | | |
-| 19 | Hover on the I next to 'Longitudinal' | hover text is 'repeated observations at different time-points' | | |
-| 20 | Design description | Description of the design used for cohort 2 | | |
-| 21 | Design schematic | Design schematic | <https://github.com/molgenis/molgenis-emx2/issues/3512> | |
-| 22 | Click on design schematic | an image (from FORCE NEN) is downloaded into the Download folder on the PC | | |
-| 23 | Collection type | Retrospective | | |
-| 24 | Start/End year | 1955 - ongoing | | |
+| 17 | Type | Cohort study | | |
+| 17b | Cohort type | Other type | | |
+| 18 | Data collection type | Retrospective | | |
+| 19 | Design | Longitudinal | | |
+| 20 | Hover on the I next to 'Longitudinal' | hover text is 'repeated observations at different time-points' | | |
+| 21 | Design description | Description of the design used for cohort 2 | | |
+| 22 | Design schematic | Design schematic | <https://github.com/molgenis/molgenis-emx2/issues/3512> | |
+| 23 | Click on design schematic | an image (from FORCE NEN) is downloaded into the Download folder on the PC | | |
+| 24 | Start/End data collection | 1955 (ongoing) | | |
 | 25 | Design paper | Birth of a cohort — the first 20 years of the Raine study | | |
 | 26a | Click on the design paper | goes to the article <https://onlinelibrary.wiley.com/doi/10.5694/mja12.10698> in a new window | | |
 | 26b | close the window or reselect the catalogue display window | | | |
