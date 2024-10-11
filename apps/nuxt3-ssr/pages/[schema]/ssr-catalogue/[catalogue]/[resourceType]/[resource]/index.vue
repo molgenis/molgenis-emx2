@@ -17,6 +17,8 @@ import dateUtils from "~/utils/dateUtils";
 const config = useRuntimeConfig();
 const route = useRoute();
 
+const resourceType = usePathResourceType();
+
 const query = gql`
   query Resources($id: String) {
     Resources(filter: { id: { equals: [$id] } }) {
@@ -54,9 +56,9 @@ const query = gql`
       populationAgeGroups {
         name order code parent { code }
       }
-      dateEstablished
-      startDataCollection
-      endDataCollection
+      dateLastRefresh
+      startYear
+      endYear
       license
       countries {
         name order
@@ -124,7 +126,7 @@ const query = gql`
         }
         role ${moduleToString(ontologyFragment)}
       }
-      organisationsInvolved  {
+      organisationsInvolved(orderby: {name: ASC})  {
         id
         name
         website
@@ -490,16 +492,36 @@ if (route.params.catalogue) {
   crumbs[
     cohortOnly.value ? "home" : (route.params.catalogue as string)
   ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}`;
-  crumbs[
-    route.params.resourceType as string
-  ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/${route.params.resourceType}`;
+  if (route.params.resourceType !== "about")
+    crumbs[
+      resourceType.plural
+    ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/${resourceType.path}`;
 } else {
   crumbs["Home"] = `/${route.params.schema}/ssr-catalogue/`;
   crumbs["Browse"] = `/${route.params.schema}/ssr-catalogue/all`;
-  crumbs["Resources"] = `/${route.params.schema}/ssr-catalogue/all/resource`;
+  if (route.params.resourceType !== "about")
+    crumbs[
+      resourceType.plural
+    ] = `/${route.params.schema}/ssr-catalogue/all/${resourceType.path}`;
 }
 
-const contributors = computed(() => resource.value.peopleInvolved);
+const contributors = computed(() =>
+  resource.value.peopleInvolved.sort((a, b) => {
+    const minimumOrderOfRolesA = a.role?.length
+      ? Math.min(...a.role?.map((role) => role.order ?? Infinity))
+      : Infinity;
+    const minimumOrderOfRolesB = b.role?.length
+      ? Math.min(...b.role?.map((role) => role.order ?? Infinity))
+      : Infinity;
+    if (minimumOrderOfRolesA !== minimumOrderOfRolesB) {
+      return minimumOrderOfRolesA - minimumOrderOfRolesB;
+    } else if (a.lastName !== b.lastName) {
+      return a.lastName.localeCompare(b.lastName);
+    } else {
+      return a.firstName.localeCompare(b.firstName);
+    }
+  })
+);
 const organisations = computed(() => resource.value.organisationsInvolved);
 const showPopulation = computed(
   () =>
@@ -513,8 +535,15 @@ const showPopulation = computed(
     <template #header>
       <PageHeader
         id="resource-page-header"
-        :title="resource?.acronym || resource.name"
-        :description="resource?.acronym ? resource.name : ''"
+        :title="
+          route.params.resourceType === 'about'
+            ? 'About '
+            : resource?.acronym || resource.name
+        "
+        :description="
+          (route.params.resourceType === 'about' ? 'About ' : '') +
+          (resource?.name ? resource.name : '')
+        "
       >
         <template #prefix>
           <BreadCrumbs :crumbs="crumbs" />

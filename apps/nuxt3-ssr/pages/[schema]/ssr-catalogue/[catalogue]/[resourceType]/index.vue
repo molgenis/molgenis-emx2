@@ -145,8 +145,8 @@ const query = computed(() => {
       description
       keywords
       numberOfParticipants
-      startDataCollection
-      endDataCollection
+      startYear
+      endYear
       type {
           name
       }
@@ -211,9 +211,9 @@ const { data } = await useFetch<any, IMgError>(
   }
 );
 
-const resources = computed(() => data.value.data.Resources || []);
+const resources = computed(() => data.value?.data.Resources || []);
 const numberOfResources = computed(
-  () => data.value.data.Resources_agg.count || 0
+  () => data.value?.data.Resources_agg.count || 0
 );
 
 async function setCurrentPage(pageNumber: number) {

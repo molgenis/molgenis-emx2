@@ -95,12 +95,7 @@ const iconStarClasses = computed(() => {
         <div>
           <dt class="flex-auto block text-gray-600">Duration</dt>
           <dd>
-            {{
-              startEndYear(
-                resource?.startDataCollection,
-                resource?.endDataCollection
-              )
-            }}
+            {{ startEndYear(resource?.startYear, resource?.endYear) }}
           </dd>
         </div>
       </dl>
