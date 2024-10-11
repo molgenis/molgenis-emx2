@@ -33,8 +33,8 @@ Resources,,data collection description,text,,,,,,,,,Describe the process of coll
 Resources,,reason sustained,text,,,,,,,,,"Description of the reason why the data bank is sustained by the organisation (e.g. for surveillance, clinical purposes, financial or administrative purposes, research purposes)","DataCatalogueFlat,RWEStaging"
 Resources,,record trigger,text,,,,,,,,,"What triggers the creation of a record in the data bank? e.g. planned collection events, hospital discharge, specialist encounter, dispensation of a medicinal product, recording of a congenital anomaly","DataCatalogueFlat,EMA,RWEStaging"
 Resources,,unit of observation,text,,,,,,,,,"Based on the record trigger or promt, what is the unit(s) of observation of a record (e.g. person, prescription)?","DataCatalogueFlat,RWEStaging"
-Resources,,subpopulations,refback,,,,Subpopulations,,resource,,,"List of cohorts or subpopulations defined in this resource, if applicable","DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging"
-Resources,,collection events,refback,,,,Collection events,,resource,,dcterms:hasPart,"List of data/sample collection events defined for this collection, if applicable","DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging"
+Resources,,subpopulations,refback,,,,Subpopulations,,resource,,,"List of cohorts or subpopulations defined in this resource, if applicable","DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,NetworksStaging"
+Resources,,collection events,refback,,,,Collection events,,resource,,dcterms:hasPart,"List of data/sample collection events defined for this collection, if applicable","DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,NetworksStaging"
 Resources,,resources,ref_array,,,,Resources,,,,dct:dataset,List of other resources included in this resource,"DataCatalogueFlat,EMA"
 Resources,,part of resources,refback,,,,Resources,,resources,,dct:dataset,List of other collections included in this resource,"DataCatalogueFlat,EMA"
 Resources,,resources,ref_array,,,catalogue,Resources,,,,,"List of other resources included in this network, e.g. cohorts, biobanks or other networks",NetworksStaging
