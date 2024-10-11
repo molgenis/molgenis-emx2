@@ -112,7 +112,7 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | 46 | Click the cross top right to close the pop-up | Come back to resource detail page | | |
 | 47 | COLLECTION EVENTS | List of collection events defined for this resource | | |
 | | | table with the following columns: Name, Description, Participants, Start end year | | |
-| | | test collection event for cohort 2, description of test collection event for cohort 2, 15000, 1956-1999, --> | | |
+| | | test collection event for cohort 2, description of test collection event for cohort 2, 15000, 1956-06-01 until 1999-12-31, --> | | |
 | 48 | Click on test collection event for cohort 2 | pop-up with information on the test collection event for cohort 2 | | |
 | | | TEST COLLECTION EVENT FOR COHORT 2 | | |
 | | | description of test collection event for cohort 2 | | |
