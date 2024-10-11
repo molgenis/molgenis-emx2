@@ -1,252 +1,267 @@
+import asyncio
+import logging
+import shutil
+from pathlib import Path
+from zipfile import ZipFile
+
+import tqdm
 from decouple import config
-from data.scripts.util.client import Session
-from data.scripts.catalogue.update.update_4_x import Transform
-from data.scripts.util.zip_handling import Zip
-import os
+from molgenis_emx2_pyclient import Client
+from molgenis_emx2_pyclient.metadata import Schema
+from tqdm.contrib.logging import logging_redirect_tqdm
 
-if not os.path.isdir('./files'):
-    os.mkdir('./files')
+from update.update_4_x import Transform
 
-os.chdir('./files')
+FILES_DIR = Path(__file__).parent.joinpath('files').resolve()
 
-# Data model details
-DATA_MODEL_VERSION = config('MG_DATA_MODEL_VERSION')
+SHAREDSTAGING = 'SharedStaging'
+ORGANISATIONS = 'Organisations'
 
-# Server details
-SERVER_URL = config('MG_SERVER_URL')
-SERVER_USERNAME = config('MG_SERVER_USERNAME')
-SERVER_PASSWORD = config('MG_SERVER_PASSWORD')
-SERVER_TYPE = config('MG_SERVER_TYPE')
 
-CATALOGUE_SCHEMA_NAME = config('MG_CATALOGUE_SCHEMA_NAME')
-ONTOLOGIES_SCHEMA_NAME = config('MG_ONTOLOGIES_SCHEMA_NAME')
-SHARED_STAGING_NAME = config('MG_SHARED_STAGING_NAME')
+class Runner:
+    """
+    Class that handles the running of the update.
+    It uses a source and target Pyclient object for handling data
+    on the source and target servers.
+    """
 
-if SERVER_TYPE == 'data_catalogue' or 'UMCG_catalogue':
-    COHORTS = config('MG_COHORTS', cast=lambda v: [s.strip() for s in v.split(',')])
+    def __init__(self, source: Client, target: Client, pattern = None, _debug: bool = False):
+        """Initializes the object."""
 
-if SERVER_TYPE == 'data_catalogue':
-    DATA_SOURCES = config('MG_DATA_SOURCES', cast=lambda v: [s.strip() for s in v.split(',')])
-    NETWORKS = config('MG_NETWORKS', cast=lambda v: [s.strip() for s in v.split(',')])
+        # Set the source and target Clients
+        self.source = source
+        self.target = target
 
-print('-----  Config variables loaded ----')
+        # Set additional attributes
+        self.server_type = config('MG_SERVER_TYPE')
+        self.catalogue = config('MG_CATALOGUE_SCHEMA_NAME')
 
-print('SERVER_URL: ' + SERVER_URL)
-print('SERVER_USERNAME: ' + SERVER_USERNAME)
-print('SERVER_PASSWORD: ******')
-print('SERVER_TYPE: ' + SERVER_TYPE)
-print('CATALOGUE_SCHEMA_NAME: ' + CATALOGUE_SCHEMA_NAME)
-print('ONTOLOGIES_SCHEMA_NAME: ' + ONTOLOGIES_SCHEMA_NAME)
-print('SHARED_STAGING_NAME: ' + SHARED_STAGING_NAME)
+        if not _debug:
+            # Set resource type names
+            stagings_by_type = self.gather_staging_types()
+            self.cohorts = stagings_by_type.get('cohorts')
+            self.data_sources = stagings_by_type.get('datasources')
+            self.networks = stagings_by_type.get('networks')
+            self.catalogues = stagings_by_type.get('catalogues')
+            self.shared_stagings = stagings_by_type.get('shared')
 
-print('-----   ----')
+        # Set the pattern
+        if pattern is not None:
+            self.pattern = pattern
+        else:
+            self.pattern = '_'
 
-print('Updating catalogue data model to version ' + DATA_MODEL_VERSION)
+    def __repr__(self):
+        return f"Runner(source={self.source!r}, target={self.target!r}, pattern={self.pattern!r})"
 
-# sign in to server
-print('Sign in to server: ' + SERVER_URL)
-session = Session(
-    url=SERVER_URL,
-    email=SERVER_USERNAME,
-    password=SERVER_PASSWORD
-)
+    def has_latest_ontologies(self) -> bool:
+        """Checks if the target server has the latest CatalogueOntologies."""
+        new_ontologies = ['Clinical study types', 'Cohort collection types']
+        server_ontologies = self.target.get_schema_metadata(name='CatalogueOntologies').tables
 
-# --------------------------------------------------------------
-# Catalogue schema update
-print('-----------------------')
-print('Catalogue schema update to data model ' + DATA_MODEL_VERSION)
+        return all(new_ont in [table.name for table in server_ontologies] for new_ont in new_ontologies)
 
-# extract data from catalogue schema
-print('Extract data from ' + CATALOGUE_SCHEMA_NAME + ': ' + CATALOGUE_SCHEMA_NAME + '_data.zip')
-session.download_zip(database_name=CATALOGUE_SCHEMA_NAME)
+    def gather_staging_types(self) -> dict[str, list[str]]:
+        """Gathers the names of staging areas with the 'CohortsStaging' data model."""
+        schemas = self.source.schema_names
+        cohort_stagings = []
+        datasource_stagings = []
+        networks_stagings = []
+        catalogues = []
+        shared_stagings = []
 
-# transform data from catalogue schema
-print('Transform data from ' + CATALOGUE_SCHEMA_NAME)
-# get instances of classes
-zip_handling = Zip(CATALOGUE_SCHEMA_NAME)
-update = Transform(CATALOGUE_SCHEMA_NAME, 'catalogue')
+        with logging_redirect_tqdm():
+            logging.info("Checking schema data models.")
+            for schema in tqdm.tqdm(schemas):
+                metadata: Schema = self.source.get_schema_metadata(schema)
+                try:
+                    table_names = [t.name for t in metadata.tables]
+                except AttributeError:
+                    logging.warning(f"Could not find tables in schema {schema!r}.")
+                    continue
+                if 'Cohorts' in table_names and 'Networks' not in table_names:
+                    cohort_stagings.append(schema)
+                elif ('Data sources' in table_names
+                        and 'Networks' not in table_names
+                        and 'Cohorts' not in table_names):
+                    datasource_stagings.append(schema)
+                elif ('Networks' in table_names
+                        and 'Cohorts' not in table_names
+                        and 'Data sources' not in table_names):
+                    networks_stagings.append(schema)
+                elif ('Networks' in table_names
+                        and 'Cohorts' in table_names
+                        and 'Data sources' in table_names):
+                    catalogues.append(schema)
+                elif (ORGANISATIONS in table_names
+                      and 'Cohorts' not in table_names):
+                    shared_stagings.append(schema)
+                else:
+                    logging.warning(f"Schema {schema!r} does not fit the models.")
 
-# run zip and transform functions
-zip_handling.unzip_data()
-update.delete_data_model_file()  # delete molgenis.csv from data folder
-update.update_data_model_file()
-update.transform_data()
-zip_handling.zip_data()
+        return {'cohorts': cohort_stagings, 'datasources': datasource_stagings, 'networks': networks_stagings,
+                'catalogues': catalogues, 'shared': shared_stagings}
 
-# --------------------------------------------------------------
-if SERVER_TYPE in ['data_catalogue', 'cohort_catalogue']:
-    # Cohorts update
-    print('-----------------------')
-    print('Cohort staging schema update to data model ' + DATA_MODEL_VERSION)
 
-    for cohort in COHORTS:
-        # sign in to server
-        print('Sign in to server: ' + SERVER_URL)
-        session = Session(
-            url=SERVER_URL,
-            email=SERVER_USERNAME,
-            password=SERVER_PASSWORD
-        )
-        # extract data
-        print('Extract data for ' + cohort + ': ' + cohort + '_data.zip')
-        session.download_zip(database_name=cohort)
+    async def update_catalogue(self):
+        """
+        Updates the data model and data in the catalogue schema.
+        """
+        logging.info(f"Starting update on {self.catalogue!r}")
+        await self._update_schema(name=self.catalogue, database_type='catalogue')
 
-        # transform data from cohorts
-        print('Transform data from ' + cohort)
-        zip_handling = Zip(cohort)
-        if SERVER_TYPE == 'data_catalogue':
-            update = Transform(cohort, 'cohort')
-        elif SERVER_TYPE == 'UMCG_catalogue':
-            update = Transform(cohort, 'cohort_UMCG')
+    async def unpack_catalogue(self):
+        """
+        Exports the catalogue zip and performs the updates without uploading the data.
+        """
+        logging.info(f"Unpacking {self.catalogue!r} data and performing data updates.")
+        await self._update_schema(name=self.catalogue, database_type='catalogue', transform_only=True)
 
-        zip_handling.remove_unzipped_data()
-        zip_handling.unzip_data()
-        update.delete_data_model_file()
-        update.transform_data()
-        update.update_data_model_file()
-        zip_handling.zip_data()
-        zip_handling.remove_unzipped_data()
 
-        # delete and create new cohort schema
-        schema_description = session.get_database_description(database_name=cohort)
-        session.drop_database(database_name=cohort)
-        session.create_database(database_name=cohort, database_description=schema_description)
 
-# --------------------------------------------------------------
-if SERVER_TYPE == 'data_catalogue':
-    # Data sources update
-    print('-----------------------')
-    print('Data source update to data model ' + DATA_MODEL_VERSION)
+    async def update_cohorts(self):
+        """Updates the cohort schemas on a server."""
+        logging.info(f"Cohorts to update: {', '.join(self.cohorts)}")
+        with logging_redirect_tqdm():
+            for cohort in tqdm.tqdm(self.cohorts):
+                logging.info(f"Updating cohort staging area {cohort!r}")
+                database_type = 'cohort_UMCG' if self.server_type == 'cohort_catalogue' else 'cohort'
+                await self._update_schema(cohort, database_type=database_type)
 
-    for data_source in DATA_SOURCES:
-        # sign in to server
-        print('Sign in to server: ' + SERVER_URL)
-        session = Session(
-            url=SERVER_URL,
-            email=SERVER_USERNAME,
-            password=SERVER_PASSWORD
-        )
-        # extract data
-        print('Extract data for ' + data_source + ': ' + data_source + '_data.zip')
-        session.download_zip(database_name=data_source)
+    async def update_data_sources(self):
+        """Updates the data sources on a schema."""
+        logging.info(f"Data sources to update: {', '.join(self.data_sources)}")
+        with logging_redirect_tqdm():
+            for ds in tqdm.tqdm(self.data_sources):
+                logging.info(f"Updating data source staging area {ds!r}")
+                await self._update_schema(name=ds, database_type='data_source')
 
-        # transform data from data sources
-        print('Transform data from ' + data_source)
-        zip_handling = Zip(data_source)
-        update = Transform(data_source, 'data_source')
+    async def update_networks(self):
+        """Updates the networks on a schema."""
+        logging.info(f"Networks to update: {', '.join(self.networks)}")
+        with logging_redirect_tqdm():
+            for network in tqdm.tqdm(self.networks):
+                logging.info(f"Updating networks staging area {network!r}")
+                await self._update_schema(name=network, database_type='network')
 
-        zip_handling.remove_unzipped_data()
-        zip_handling.unzip_data()
-        update.delete_data_model_file()
-        update.transform_data()
-        update.update_data_model_file()
-        zip_handling.zip_data()
-        zip_handling.remove_unzipped_data()
+    async def update_catalogue_organisations(self):
+        """Adds missing Organisation records from SharedStaging to catalogue schema."""
 
-        # delete and create new data source schema
-        schema_description = session.get_database_description(database_name=data_source)
-        session.drop_database(database_name=data_source)
-        session.create_database(database_name=data_source, database_description=schema_description)
+        # Skip if schema has no 'SharedStaging' schema
+        if SHAREDSTAGING not in self.source.schema_names:
+            return
+        catalogue_orgs = self.source.get(table=ORGANISATIONS, schema=self.catalogue, as_df=True)
+        shared_orgs = self.source.get(table=ORGANISATIONS, schema=SHAREDSTAGING, as_df=True)
+        # Identify the missing organisations
+        missing_orgs = shared_orgs.loc[~shared_orgs['name'].isin(catalogue_orgs['name'])]
 
-    # Networks update
-    print('-----------------------')
-    print('Networks update to data model ' + DATA_MODEL_VERSION)
+        if (len_orgs := len(missing_orgs.index)) == 0:
+            return
+        # Upload the missing organisations the catalogue's Organisations table
+        logging.info(f"Adding {len_orgs} missing organisations to {self.catalogue}::Organisations")
+        self.source.save_schema(name=self.catalogue, table=ORGANISATIONS, data=missing_orgs)
 
-    for network in NETWORKS:
-        # sign in to server
-        print('Sign in to server: ' + SERVER_URL)
-        session = Session(
-            url=SERVER_URL,
-            email=SERVER_USERNAME,
-            password=SERVER_PASSWORD
-        )
-        # extract data
-        print('Extract data for ' + network + ': ' + network + '_data.zip')
-        session.download_zip(database_name=network)
 
-        # transform data
-        print('Transform data from ' + network)
-        zip_handling = Zip(network)
-        update = Transform(network, 'network')
+    async def _update_schema(self, name: str, database_type: str, transform_only: bool = False):
+        """Updates a resource staging area. Specify the name and the type of the database."""
+        logging.info(f"Starting update on {name!r}")
+        description = {s.id: s for s in self.source.get_schemas()}[name].get('description')
 
-        zip_handling.remove_unzipped_data()
-        zip_handling.unzip_data()
-        update.delete_data_model_file()
-        update.transform_data()
-        update.update_data_model_file()
-        zip_handling.zip_data()
-        zip_handling.remove_unzipped_data()
+        # Export catalogue data to zip
+        if not FILES_DIR.exists():
+            FILES_DIR.mkdir()
+        await self.source.export(schema=name, filename=str(FILES_DIR.joinpath(f"{name}_data.zip")))
 
-        # delete and create new schema
-        schema_description = session.get_database_description(database_name=network)
-        session.drop_database(database_name=network)
-        session.create_database(database_name=network, database_description=schema_description)
+        logging.info(f"Transforming data from schema {name}")
+        schema_transform = Transform(database_name=name, database_type=database_type)
 
-# ---------------------------------------------------------------
+        # Extract the zip file
+        with ZipFile(FILES_DIR.joinpath(f"{name}_data.zip"), 'r') as zf:
+            zf.extractall(path=FILES_DIR.joinpath(f"{name}_data"))
 
-# delete and create schemas
-print('------------------------')
-print('Updating catalogue schema')
-# delete and create new catalogue schema
-schema_description = session.get_database_description(database_name=CATALOGUE_SCHEMA_NAME)
-session.drop_database(database_name=CATALOGUE_SCHEMA_NAME)
-session.create_database(database_name=CATALOGUE_SCHEMA_NAME, database_description=schema_description)
+        # Replace the data model file
+        schema_transform.delete_data_model_file()
+        schema_transform.update_data_model_file()
 
-# upload molgenis.csv to catalogue schema
-update_general = Transform(CATALOGUE_SCHEMA_NAME, 'catalogue')
-data_model_file = update_general.update_data_model_file()
-session.upload_zip(database_name=CATALOGUE_SCHEMA_NAME, data_to_upload='catalogue_data_model')
+        # Transform the data
+        schema_transform.transform_data()
 
-# upload transformed catalogue data to catalogue schema
-session.upload_zip(database_name=CATALOGUE_SCHEMA_NAME, data_to_upload=CATALOGUE_SCHEMA_NAME)
+        # Return the function if only the transformation is requested
+        if transform_only:
+            return
 
-# ----------------------------------------------------------------------
+        if f"{name}{self.pattern}" in self.target.schema_names:
+            create_schema = asyncio.create_task(self.target.recreate_schema(name=f"{name}{self.pattern}",
+                                                                     description=description))
+        else:
+            create_schema = asyncio.create_task(self.target.create_schema(name=f"{name}{self.pattern}",
+                                                                   description=description))
 
-# Cohorts upload data
-print('-----------------------')
+        # Archive the files
+        with ZipFile(FILES_DIR.joinpath(f"{name}_upload.zip"), 'w') as zf:
+            for file_path in FILES_DIR.joinpath(f"{name}_data").iterdir():
+                zf.write(file_path, arcname=file_path.name)
+            if FILES_DIR.joinpath(f"{name}_data", '_files').exists():
+                for file_path in FILES_DIR.joinpath(f"{name}_data", '_files').iterdir():
+                    zf.write(file_path, arcname=f"_files/{file_path.name}")
+            if database_type == 'catalogue':
+                zf.write(FILES_DIR.joinpath(f"{name}_data_model", 'molgenis.csv'), arcname='molgenis.csv')
 
-if SERVER_TYPE in ['data_catalogue', 'cohort_catalogue']:
-    print('Updating data for cohorts')
-    for cohort in COHORTS:
-        # sign in to server
-        print('Sign in to server: ' + SERVER_URL)
-        session = Session(
-            url=SERVER_URL,
-            email=SERVER_USERNAME,
-            password=SERVER_PASSWORD
-        )
-        print('Upload transformed data for: ' + cohort)
-        session.upload_zip(database_name=cohort, data_to_upload=cohort)
+        # Upload the updated data
+        await create_schema
+        await self.target.upload_file(file_path=FILES_DIR.joinpath(f"{name}_upload.zip"),
+                               schema=f"{name}{self.pattern}")
 
-if SERVER_TYPE == 'data_catalogue':
-    # Data sources upload data
-    print('-----------------------')
 
-    print('Updating data for data sources')
+async def main(pattern = None):
+    # Initialize the client with URL and token
+    source_server = config('MG_SOURCE_SERVER_URL')
+    source_token = config('MG_SOURCE_SERVER_TOKEN')
 
-    for data_source in DATA_SOURCES:
-        # sign in to server
-        print('Sign in to server: ' + SERVER_URL)
-        session = Session(
-            url=SERVER_URL,
-            email=SERVER_USERNAME,
-            password=SERVER_PASSWORD
-        )
-        print('Upload transformed data for: ' + data_source)
-        session.upload_zip(database_name=data_source, data_to_upload=data_source)
+    target_server = config('MG_TARGET_SERVER_URL')
+    target_token = config('MG_TARGET_SERVER_TOKEN')
 
-    # Networks upload data
-    print('-----------------------')
+    with (Client(url=source_server, token=source_token) as source,
+          Client(url=target_server, token=target_token) as target):
 
-    print('Updating data for networks')
+        # Set up the Runner
+        runner = Runner(source, target, pattern=pattern, _debug=False)
+        logging.info(f"Updating schemas on {runner.target.url!r}")
 
-    for network in NETWORKS:
-        # sign in to server
-        print('Sign in to server: ' + SERVER_URL)
-        session = Session(
-            url=SERVER_URL,
-            email=SERVER_USERNAME,
-            password=SERVER_PASSWORD
-        )
-        print('Upload transformed data for: ' + network)
-        session.upload_zip(database_name=network, data_to_upload=network)
+        if not runner.has_latest_ontologies():
+            # Trigger CatalogueOntologies update by creating a dummy catalogue
+            if not 'dummy' in target.schema_names:
+                create_dummy = asyncio.create_task(runner.target.create_schema(name='_dummy',
+                                                                                  template='DATA_CATALOGUE',
+                                                                                  include_demo_data=False))
+                await create_dummy
+            delete_dummy = asyncio.create_task(runner.target.delete_schema('_dummy'))
+
+            await delete_dummy
+
+        # Add organisations missing in catalogue from SharedStaging
+        await runner.update_catalogue_organisations()
+
+        # Unpack and transform the catalogue data without uploading
+        await runner.unpack_catalogue()
+
+        # Update the cohorts
+        await runner.update_cohorts()
+
+        if runner.server_type == 'data_catalogue':
+            await runner.update_data_sources()
+            await runner.update_networks()
+
+        # Update the catalogue
+        await runner.update_catalogue()
+
+    # Clean up
+    shutil.rmtree(FILES_DIR)
+
+
+if __name__ == '__main__':
+    logging.basicConfig(level='DEBUG', format = '%(filename)s:%(lineno)s %(levelname)s:%(message)s')
+    logging.getLogger("requests").setLevel(logging.WARNING)
+    logging.getLogger("urllib3").setLevel(logging.WARNING)
+
+    asyncio.run(main(pattern=''))

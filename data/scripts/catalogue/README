@@ -1,6 +1,19 @@
 # molgenis-py-model-update
 
-Python library to update catalogue data model from version 2.8 to 3.0.
+Python library to update catalogue data model and migrate data on catalogue servers.
+Some catalogue servers use staging where data managers fill out data for e.g. cohorts or networks.
+These staging areas have references to the main catalogue schema. Therefore, data migration has to be
+done in a particular order.
+
+1. Data from the main catalogue schema data is downloaded and transformed.
+2. Data from staging areas is downloaded and transformed, staging areas are deleted and new staging areas with the
+same name are made.
+3. The main catalogue schema is deleted
+4. CatalogueOntologies schema is deleted
+5. Updated data model is uploaded to catalogue schema
+6. CatalogueOntologies data is uploaded from repository to CatalogueOntologies
+7. Transformed data uploaded to catalogue schema
+8. Transformed data is uploaded to staging areas.
 
 ## system requirements
 
@@ -15,17 +28,18 @@ Use virtual env to get a consistent python environment.
 
     'git clone git@github.com:molgenis/molgenis-emx2'
 
-2. Create a virtual python environment at the location of the script
+2. Create a virtual python environment at the location of the scripts
 
-    'cd data\scripts\molgenis-model-update'
+    'cd data\scripts\catalogue'
 
     `python -m venv venv`
 
 3. Activate the virtual python environment
 
     `source venv/bin/activate`
+    for windows: 'venv\Scripts\activate.bat'
 
-4. Install the script dependencies from requirements.txt file
+4. Install the catalogue migration script dependencies from requirements.txt file
 
     `pip install -r requirements.txt`
 

@@ -8,8 +8,7 @@ import numpy as np
 from decouple import config
 
 CATALOGUE_SCHEMA_NAME = config('MG_CATALOGUE_SCHEMA_NAME')
-
-FILES_DIR = Path(__file__).parent.joinpath('..', 'files').resolve()
+SHARED_STAGING_NAME = config('MG_SHARED_STAGING_NAME')
 
 
 def float_to_int(df):
@@ -23,18 +22,19 @@ def float_to_int(df):
     return df
 
 
-def get_data_model(profile_path: Path, path_to_write: Path, profile: str):
+def get_data_model(profile_path, path_to_write, profile):
     # get data model from profile and write to file
     data_model = pd.DataFrame()
 
-    for file_name in profile_path.iterdir():
-        if file_name.suffix == '.csv':
-            file_path = profile_path.joinpath(file_name)
+    for file_name in os.listdir(profile_path):
+        if '.csv' in file_name:
+            file_path = Path.joinpath(profile_path, file_name)
             df = pd.read_csv(file_path, keep_default_na=False, dtype='object')
             df = df.loc[df['profiles'].apply(lambda p: profile in p.split(','))]
             data_model = pd.concat([data_model, df])
 
-    data_model.to_csv(path_to_write.joinpath('molgenis.csv'), index=False)
+    # data_model = float_to_int(data_model)
+    data_model.to_csv(path_to_write + '/molgenis.csv', index=None)
 
 
 class Transform:
@@ -44,28 +44,25 @@ class Transform:
     def __init__(self, database_name, database_type):
         self.database_name = database_name
         self.database_type = database_type
-        self.path = FILES_DIR.joinpath(f"{self.database_name}_data")
-
-    def __repr__(self):
-        return f"Transform(database_name={self.database_name!r}, database_type={self.database_type!r})"
+        self.path = self.database_name + '_data/'
 
     def delete_data_model_file(self):
         """Delete molgenis.csv
         """
-        self.path.joinpath('molgenis.csv').unlink()
+        os.remove(self.path + 'molgenis.csv')
 
     def update_data_model_file(self):
         """Get data model from profile and copy molgenis.csv to appropriate folder
         """
-        profile_path = Path(__file__).parent.joinpath('..', '..', '..', '_models', 'shared').resolve()
+        profile_path = Path().cwd().joinpath('..', '..', '..', '_models', 'shared')
         path_to_write = self.path
         if self.database_type == 'catalogue':
             profile = 'DataCatalogueFlat'
-            path_to_write = FILES_DIR.joinpath(f"{self.database_name}_data_model")
-            if not path_to_write.exists():
-                path_to_write.mkdir()
+            path_to_write = './catalogue_data_model'
+            if not os.path.isdir(path_to_write):
+                os.mkdir(path_to_write)
             get_data_model(profile_path, path_to_write, profile)
-            shutil.make_archive(str(FILES_DIR.joinpath(f"{self.database_name}_data_model_upload")), 'zip', path_to_write)
+            shutil.make_archive('./catalogue_data_model_upload', 'zip', path_to_write)
         else:
             if self.database_type == 'network':
                 profile = 'NetworksStaging'
@@ -114,19 +111,21 @@ class Transform:
         """Transform columns in Catalogues
         """
         # Cohorts to Resources
-        df_catalogues = pd.read_csv(self.path.joinpath('Catalogues.csv'), dtype='object')
+        df_catalogues = pd.read_csv(self.path + 'Catalogues.csv', dtype='object')
         df_catalogues['name'] = df_catalogues['network']
+        df_catalogues['description'] = 'to be filled out'  # TODO: data model get Resources.description
 
         # df_catalogues = float_to_int(df_catalogues)  # convert float back to integer
-        df_catalogues.to_csv(self.path.joinpath('Catalogues.csv'), index=False)
+        df_catalogues.to_csv(self.path + 'Catalogues.csv', index=False)
 
     def resources(self):
         """Transform columns in Cohorts, Networks, Studies, Data sources, Databanks
         """
+        # TODO: get date established & start data collection from other items, Cohorts, Networks
         # Cohorts to Resources
         if self.database_type in ['catalogue', 'cohort', 'cohort_UMCG']:
 
-            df_cohorts = pd.read_csv(self.path.joinpath('Cohorts.csv'), dtype='object')
+            df_cohorts = pd.read_csv(self.path + 'Cohorts.csv', dtype='object')
             df_cohorts = df_cohorts.rename(columns={'type': 'cohort type',
                                                     'type other': 'cohort type other',
                                                     'collection type': 'data collection type'})
@@ -144,7 +143,7 @@ class Transform:
 
         # Networks to Resources
         if self.database_type in ['catalogue', 'network']:
-            df_networks = pd.read_csv(self.path.joinpath('Networks.csv'), dtype='object')
+            df_networks = pd.read_csv(self.path + 'Networks.csv', dtype='object')
             df_networks = df_networks.rename(columns={'type': 'network type'})
             df_networks['type'] = 'Network'
             # transform years to dates  # TODO: data collection dates do not fit for Networks
@@ -163,7 +162,7 @@ class Transform:
 
         # Studies to Resources
         if self.database_type in ['catalogue']:
-            df_studies = pd.read_csv(self.path.joinpath('Studies.csv'), dtype='object')
+            df_studies = pd.read_csv(self.path + 'Studies.csv', dtype='object')
             df_studies.rename(columns={'study design classification': 'clinical study type',
                                        'type other': 'study type other',
                                        'number of subjects': 'number of participants',
@@ -172,12 +171,11 @@ class Transform:
 
         # Data sources to Resources
         if self.database_type in ['catalogue', 'data_source']:
-            df_data_sources = pd.read_csv(self.path.joinpath('Data sources.csv'), dtype='object')
+            df_data_sources = pd.read_csv(self.path + 'Data sources.csv', dtype='object')
             df_data_sources.rename(columns={'type': 'RWD type',
                                             'type other': 'RWD type other',
                                             'areas of information': 'areas of information rwd',
                                             'informed consent': 'informed consent required'}, inplace=True)
-
             # transform dates to years  # TODO: check date established == start data collection
             df_data_sources.loc[:, 'start year'] = df_data_sources['date established'][0:4]
             df_data_sources.loc[:, 'end year'] = df_data_sources['end data collection'][0:4]
@@ -185,7 +183,7 @@ class Transform:
             df_data_sources['type'] = 'Data source'
 
             # Databanks to Resources
-            df_databanks = pd.read_csv(self.path.joinpath('Databanks.csv'), dtype='object')
+            df_databanks = pd.read_csv(self.path + 'Databanks.csv', dtype='object')
             df_databanks.rename(columns={'type': 'RWD type',
                                          'type other': 'RWD type other',
                                          'areas of information': 'areas of information rwd',
@@ -199,7 +197,7 @@ class Transform:
 
         # Models to Resources
         if self.database_type in ['catalogue', 'network']:
-            df_models = pd.read_csv(self.path.joinpath('Models.csv'), dtype='object')
+            df_models = pd.read_csv(self.path + 'Models.csv', dtype='object')
             df_models = df_models[df_models['id'].isin(['CRC Screening CDM', 'OMOP-CDM'])]  # handles exceptions
             df_models['type'] = 'Common data model'
 
@@ -212,108 +210,99 @@ class Transform:
             df_resources = df_data_sources
         elif self.database_type == 'network':
             df_resources = pd.concat([df_networks, df_models])
-        # df_resources = float_to_int(df_resources)  # convert float back to integer
-        df_resources.to_csv(self.path.joinpath('Resources.csv'), index=False)
+
+        df_resources.to_csv(self.path + 'Resources.csv', index=False)
 
     def organisations(self):
         """ Transform columns in Organisations and alter structure
         """
-        df_all_organisations = pd.DataFrame()
-        if self.database_type == 'catalogue':
-            df_organisations = pd.read_csv(self.path.joinpath('Organisations.csv'), dtype='object')
+        if self.database_name not in ['testCohort', 'testNetwork', 'testDatasource']:
+            df_all_organisations = pd.DataFrame()
+            if self.database_type == 'catalogue':
+                df_organisations = pd.read_csv(self.path + 'Organisations.csv', dtype='object')
+            else:  # for other database types (staging areas) get Organisations from shared staging
+                df_organisations = pd.read_csv(SHARED_STAGING_NAME + '_data/' + 'Organisations.csv', dtype='object')
 
             # get lead organisations
-            df_resources = pd.read_csv(self.path.joinpath('Resources.csv'), dtype='object')
+            df_resources = pd.read_csv(self.path + 'Resources.csv', dtype='object')
             df_resources = df_resources[['id', 'lead organisation']]
             df_resources.rename(columns={'id': 'resource',
                                          'lead organisation': 'id'}, inplace=True)
             df_resources = df_resources.dropna(axis=0)
-            df_resources.loc[:, 'is lead organisation'] = 'True'
             df_resources = df_resources.reset_index()
-            df_merged = get_organisations(df_organisations, df_resources)
-            df_all_organisations = pd.concat([df_all_organisations, df_merged])
+            if len(df_resources) != 0:
+                df_resources.loc[:, 'is lead organisation'] = 'True'
+                df_merged = get_organisations(df_organisations, df_resources)
+                df_all_organisations = pd.concat([df_all_organisations, df_merged])
 
             # get additional organisations and Contacts.organisation
             for table in ['Resources', 'Contacts']:
-                df_resource = pd.read_csv(self.path.joinpath(table + '.csv'), dtype='object')
-                if not table == 'Contacts':
+                df_resource = pd.read_csv(self.path + table + '.csv', dtype='object')
+                if table == 'Resources':
                     df_resource = df_resource[['id', 'additional organisations']]
-                else:
+                elif table == 'Contacts':
                     df_resource = df_resource[['resource', 'organisation']]
+
                 df_resource.rename(columns={'organisation': 'id',
                                             'id': 'resource',
                                             'additional organisations': 'id'}, inplace=True)
-                df_resource = df_resource.replace({np.nan: ''})
-                df_resource.loc[:, 'is lead organisation'] = 'False'
-                df_resource = df_resource.reset_index()
-                df_merged = get_organisations(df_organisations, df_resource)
-                df_all_organisations = pd.concat([df_all_organisations, df_merged])
-            # df_all_organisations = float_to_int(df_all_organisations)  # convert float back to integer
+                df_resource = df_resource.dropna(axis=0)
+                if len(df_resource) != 0:
+                    df_resource = df_resource.reset_index()
+                    df_resource.loc[:, 'is lead organisation'] = 'False'
+                    df_merged = get_organisations(df_organisations, df_resource)
+                    df_all_organisations = pd.concat([df_all_organisations, df_merged])
             df_all_organisations = df_all_organisations.drop_duplicates(subset=['resource', 'id'], keep='first')  # keep first to get lead organisations
-            df_all_organisations.to_csv(self.path.joinpath('Organisations.csv'), index=False)
+            df_all_organisations.to_csv(self.path + 'Organisations.csv', index=False)
 
-        # get organisations for staging areas by making subsets on 'resource' for Organisations
         else:
-            if self.database_name not in ['testCohort', 'testDatasource']:
-                df_organisations = pd.read_csv(FILES_DIR.joinpath(f'{CATALOGUE_SCHEMA_NAME}_data/',
-                                                                  'Organisations.csv'), dtype='object')
-                df_resource = pd.read_csv(self.path.joinpath('Resources.csv'))
-                # Identify resources missing from the Organisations table
-                missing_resources = df_resource.loc[~df_resource['id'].isin(df_organisations['resource'])]
-                # Add the missing resources
-                missing_leads = missing_resources.apply(lambda row: df_organisations.loc[df_organisations['id'] == row['lead organisation']].iloc[0], axis=1)
-                missing_leads['resource'] = missing_resources['id']
-                missing_leads['is lead organisation'], missing_leads['select_resource'] = True, True
-
-                # TODO do the same for additional organisations
-
-                df_organisations['select_resource'] = df_organisations['resource'].isin(df_resource['id'])
-                df_organisations = df_organisations[df_organisations['select_resource']]
-                df_organisations = pd.concat([df_organisations, missing_leads])
-            elif self.database_name == 'testCohort':
+            # get information from test staging areas
+            if self.database_name == 'testCohort':
                 data = [['testCohort', 'UMCG', 'University Medical Center Groningen', 'Netherlands (the)',
                         'https://www.umcg.nl/']]
                 df_organisations = pd.DataFrame(data, columns=['resource', 'id', 'name', 'country', 'website'])
+                df_organisations.to_csv(self.path + 'Organisations.csv', index=False)
+
             elif self.database_name == 'testDatasource':
                 data = [['testDatasource', 'AU', 'University of Aarhus', 'Denmark']]
                 df_organisations = pd.DataFrame(data, columns=['resource', 'id', 'name', 'country'])
-
-            df_organisations.to_csv(self.path.joinpath('Organisations.csv'), index=False)
+                df_organisations.to_csv(self.path + 'Organisations.csv', index=False)
 
     def publications(self):
         """Transform Publications table
         """
-        df_resources = pd.read_csv(self.path.joinpath('Resources.csv'), dtype='object')
-        df_publications = pd.read_csv(self.path.joinpath('Publications.csv'), dtype='object')
+        df_resources = pd.read_csv(self.path + 'Resources.csv', dtype='object')
+        df_publications = pd.read_csv(self.path + 'Publications.csv', dtype='object')
 
-        if self.database_type != 'network':
-            df_design_paper = df_resources[['id', 'design paper']].copy()
-            df_design_paper.loc[:, 'is design publication'] = 'true'
-            df_design_paper = df_design_paper.rename(columns={'id': 'resource',
-                                                              'design paper': 'doi'})
-            df_design_paper = df_design_paper.dropna(axis=0)
+        if not len(df_publications) == 0:
+            if self.database_type != 'network':
+                df_design_paper = df_resources[['id', 'design paper']]
+                df_design_paper.loc[:, 'is design publication'] = 'true'
+                df_design_paper = df_design_paper.rename(columns={'id': 'resource',
+                                                                  'design paper': 'doi'})
+                df_design_paper = df_design_paper.dropna(axis=0)
 
-        if self.database_type != 'cohort_UMCG':
-            df_other_pubs = df_resources[['id', 'publications']].copy()
-            df_other_pubs.loc[:, 'is design publication'] = 'false'
-            df_other_pubs = df_other_pubs.rename(columns={'id': 'resource',
-                                                          'publications': 'doi'})
-            df_other_pubs = df_other_pubs.dropna(axis=0)
+            if self.database_type != 'cohort_UMCG':
+                df_other_pubs = df_resources[['id', 'publications']]
+                df_other_pubs.loc[:, 'is design publication'] = 'false'
+                df_other_pubs = df_other_pubs.rename(columns={'id': 'resource',
+                                                              'publications': 'doi'})
+                df_other_pubs = df_other_pubs.dropna(axis=0)
 
-        if self.database_type == 'network':
-            df_resource_pubs = get_publications(df_other_pubs, df_publications)
-        elif self.database_type == 'cohort_UMCG':
-            df_resource_pubs = get_publications(df_design_paper, df_publications)
-        else:
-            df_merged_pubs = pd.concat([df_design_paper, df_other_pubs])
-            df_merged_pubs = df_merged_pubs.reset_index()
-            df_resource_pubs = get_publications(df_merged_pubs, df_publications)
-        df_resource_pubs = df_resource_pubs.drop_duplicates(subset=['resource', 'doi'], keep='first')
-        df_resource_pubs.to_csv(self.path.joinpath('Publications.csv'), index=False)
+            if self.database_type == 'network':
+                df_resource_pubs = get_publications(df_other_pubs, df_publications)
+            elif self.database_type == 'cohort_UMCG':
+                df_resource_pubs = get_publications(df_design_paper, df_publications)
+            else:
+                df_merged_pubs = pd.concat([df_design_paper, df_other_pubs])
+                df_merged_pubs = df_merged_pubs.reset_index()
+                df_resource_pubs = get_publications(df_merged_pubs, df_publications)
+            df_resource_pubs = df_resource_pubs.drop_duplicates(subset=['resource', 'doi'], keep='first')
+            df_resource_pubs.to_csv(self.path + 'Publications.csv', index=False)
 
     def network_variables(self):
-        df = pd.read_csv(self.path.joinpath('Network variables.csv'), keep_default_na=False, dtype='object')
-        df_repeats = pd.read_csv(self.path.joinpath('Repeated variables.csv'), dtype='object')
+        df = pd.read_csv(self.path + 'Network variables.csv', keep_default_na=False, dtype='object')
+        df_repeats = pd.read_csv(self.path + 'Repeated variables.csv', dtype='object')
         df.loc[:, 'resource'] = df['network'].apply(strip_resource)
         df.loc[:, 'variable.resource'] = df['variable.resource'].apply(strip_resource)
 
@@ -321,15 +310,15 @@ class Transform:
         df.loc[:, 'stripped_var'] = df['variable.name'].apply(remove_number)  # remove end digits from all variable names
         df.loc[:, 'repeated'] = df['variable.name'].apply(is_repeated_variable, df_repeats=df_repeats)  # check if variable is repeated
         df.loc[:, 'variable.name'] = df.apply(lambda x: x['stripped_var'] if x.repeated else x['variable.name'], axis=1)  # if repeated, keep stripped variable name
-
         df = df.drop_duplicates(subset=['resource', 'variable.resource', 'variable.name'])
-        df.to_csv(self.path.joinpath('Reused variables.csv'), index=False)
+
+        df.to_csv(self.path + 'Reused variables.csv', index=False)
 
     def variable_values(self):
         # restructure variable values
-        df_var_values = pd.read_csv(self.path.joinpath('Variable values.csv'), keep_default_na=False, dtype='object')
+        df_var_values = pd.read_csv(self.path + 'Variable values.csv', keep_default_na=False, dtype='object')
         df_var_values.loc[:, 'variable.resource'] = df_var_values['resource'].apply(strip_resource)
-        df_repeats = pd.read_csv(self.path.joinpath('Repeated variables.csv'), dtype='object')
+        df_repeats = pd.read_csv(self.path + 'Repeated variables.csv', dtype='object')
 
         df_var_values_cdm = df_var_values[df_var_values['variable.resource'].isin(['LifeCycle', 'ATHLETE',
                                                                                    'testNetwork1', 'EXPANSE'])]
@@ -344,15 +333,15 @@ class Transform:
         df_all_var_values = pd.concat([df_var_values_no_cdm, df_var_values_cdm])
         df_all_var_values = df_all_var_values.drop_duplicates(subset=['variable.resource', 'variable.dataset',
                                                                       'variable.name', 'value'])
-        df_all_var_values.to_csv(self.path.joinpath('Variable values.csv'), index=False)
+        df_all_var_values.to_csv(self.path + 'Variable values.csv', index=False)
 
     def variables(self):
         # restructure Variables
-        df_variables = pd.read_csv(self.path.joinpath('Variables.csv'), keep_default_na=False, dtype='object')
+        df_variables = pd.read_csv(self.path + 'Variables.csv', keep_default_na=False, dtype='object')
         df_variables.loc[:, 'resource'] = df_variables['resource'].apply(strip_resource)
 
         # restructure repeated variables inside variables dataframe
-        df_repeats = pd.read_csv(self.path.joinpath('Repeated variables.csv'), dtype='object')
+        df_repeats = pd.read_csv(self.path + 'Repeated variables.csv', dtype='object')
         df_repeats.loc[:, 'resource'] = df_repeats['resource'].apply(strip_resource)
         df_variables.loc[:, 'is_repeated'] = df_variables['name'].apply(is_repeated, df_repeats=df_repeats)
 
@@ -382,10 +371,10 @@ class Transform:
             df_all_variables = pd.concat([df_variables_no_cdm, df_repeats_no_cdm])
 
         df_all_variables = float_to_int(df_all_variables)  # convert float back to integer
-        df_all_variables.to_csv(self.path.joinpath('Variables.csv'), index=False)
+        df_all_variables.to_csv(self.path + 'Variables.csv', index=False)
 
     def variable_mappings(self):
-        df = pd.read_csv(self.path.joinpath('Variable mappings.csv'), keep_default_na=False, dtype='object')
+        df = pd.read_csv(self.path + 'Variable mappings.csv', keep_default_na=False, dtype='object')
         if len(df) != 0:
             df.loc[:, 'target'] = df['target'].apply(strip_resource)  # delete appendix '_CDM'
             df.loc[:, 'repeat_num'] = df['target variable'].apply(get_repeat_number)  # get repeat of target variable
@@ -413,23 +402,25 @@ class Transform:
                 # get repeated mappings in comma separated string
                 df_mappings = rewrite_mappings(df_cdm_with_repeats, df_no_duplicates)
                 df_mappings = pd.concat([df_mappings, df_cdm_no_repeats])
-                df_mappings.to_csv(self.path.joinpath('Variable mappings.csv'), index=False)
+                # df_mappings = float_to_int(df_mappings)  # convert float back to integer
+                df_mappings.to_csv(self.path + 'Variable mappings.csv', index=False)
 
     def collection_events(self):
         """ Transform Collection events table
         """
-        df = pd.read_csv(self.path.joinpath('Collection events.csv'), dtype='object')
+        df = pd.read_csv(self.path + 'Collection events.csv', dtype='object')
         df.loc[:, 'start month'] = df['start month'].apply(month_to_num, start_or_end='start')
         df['start date'] = df['start year'].astype('Int64').astype('string') + '-' + df['start month'] + '-01'
         df.loc[:, 'end month'] = df['end month'].apply(month_to_num, start_or_end='end')
         df['end day'] = df['end month'].apply(get_end_day)
         df['end date'] = df['end year'].astype('Int64').astype('string') + '-' + df['end month'] + '-' + df['end day']
 
-        df.to_csv(self.path.joinpath('Collection events.csv'), index=False)
+        # df = float_to_int(df)  # convert float back to integer
+        df.to_csv(self.path + 'Collection events.csv', index=False)
 
     def transform_tables(self, table_name):
         if table_name + '.csv' in os.listdir(self.path):
-            df = pd.read_csv(self.path.joinpath(table_name + '.csv'), keep_default_na=False, dtype='object')
+            df = pd.read_csv(self.path + table_name + '.csv', keep_default_na=False, dtype='object')
             if 'resource' in df.columns:
                 df.loc[:, 'resource'] = df['resource'].apply(strip_resource)  # removes _CDM from 'model' name
             if 'target' in df.columns:
@@ -447,18 +438,19 @@ class Transform:
                                'variable.dataset': 'dataset',
                                'variable.name': 'variable'}, inplace=True)
 
-            df.to_csv(self.path.joinpath(table_name + '.csv'), index=False)
+            # df = float_to_int(df)  # convert float back to integer
+            df.to_csv(self.path + table_name + '.csv', index=False)
 
     def rename_tables(self, table_name):
         if table_name + '.csv' in os.listdir(self.path):
             if table_name == 'Subcohorts':
-                os.rename(self.path.joinpath('Subcohorts.csv'), self.path.joinpath('Subpopulations.csv'))
+                os.rename(self.path + 'Subcohorts.csv', self.path + 'Subpopulations.csv')
             elif table_name == 'Subcohort counts':
-                os.rename(self.path.joinpath('Subcohort counts.csv'), self.path.joinpath('Subpopulation counts.csv'))
+                os.rename(self.path + 'Subcohort counts.csv', self.path + 'Subpopulation counts.csv')
             elif table_name == 'Quantitative information':
-                os.rename(self.path.joinpath('Quantitative information.csv'), self.path.joinpath('Resource counts.csv'))
+                os.rename(self.path + 'Quantitative information.csv', self.path + 'Resource counts.csv')
             elif table_name == 'Linked resources':
-                os.rename(self.path.joinpath('Linked resources.csv'), self.path.joinpath('Linkages.csv'))
+                os.rename(self.path + 'Linked resources.csv', self.path + 'Linkages.csv')
 
 
 def strip_resource(resource_name):
@@ -470,7 +462,7 @@ def strip_resource(resource_name):
 
 
 def is_repeated(var_name, df_repeats):
-    # Checks whether a variable is repeated or not
+    # Checks whether a variable is repeated
     if var_name in df_repeats['is repeat of.name'].to_list():
         return True
     else:
@@ -515,6 +507,7 @@ def restructure_repeats(df_variables, df_repeats):
 
 
 def remove_number(var_name):
+    # strip digits from end of string 'var_name'
     var_name = var_name.strip(digits)
 
     return var_name
