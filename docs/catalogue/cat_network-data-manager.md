@@ -23,7 +23,7 @@ find and access health research data and to facilitate pooled data analysis of m
 
 This section explains how to submit the 'target variables' (also called the harmonised model or common data model) into
 the MOLGENIS catalogue. Expected users of this 'how to' are central data managers of networks such as LifeCycle or
-LongITools. You will need login details to upload metadata to MOLGENIS catalogue.
+LongITools. You will need login details to upload metadata to the MOLGENIS catalogue.
 
 #### Define common data elements
 
@@ -129,7 +129,7 @@ the catalogue.
 
 ### Upload metadata
 
-When you log in to MOLGENIS catalogue you will see a listing of databases that are accessible to you. Click on your
+When you log in to the MOLGENIS catalogue you will see a listing of databases that are accessible to you. Click on your
 network's database to access it. Go to 'Up/Download' in the menu. Use 'browse' to select a template and 'upload' to
 start uploading your metadata. After uploading you can view your metadata under 'Tables'. When you are finished uploading, 
 contact [*molgenis support*](mailto:support@molgenis.org) to synchronise your data to the catalogue.
