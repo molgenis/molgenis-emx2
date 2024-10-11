@@ -81,7 +81,7 @@ describe("buildTree", () => {
 });
 
 describe("sortTree", () => {
-  it("emty tree is sorted ", () => {
+  it("empty tree is sorted ", () => {
     expect(sortTree([])).toEqual([]);
   });
 
@@ -92,7 +92,7 @@ describe("sortTree", () => {
     ]);
   });
 
-  it("prevers the order ", () => {
+  it("preserve the order ", () => {
     expect(
       sortTree([
         { name: "A", order: 2 },
@@ -104,7 +104,7 @@ describe("sortTree", () => {
     ]);
   });
 
-  it("go's deep ", () => {
+  it("goes deep ", () => {
     expect(
       sortTree([{ name: "A", order: 2, children: [{ name: "B", order: 1 }] }])
     ).toEqual([{ name: "A", order: 2, children: [{ name: "B", order: 1 }] }]);
