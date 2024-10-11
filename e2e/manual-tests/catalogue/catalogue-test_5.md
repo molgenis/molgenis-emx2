@@ -57,12 +57,15 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | | | Carcinomatosis | | |
 | 37 | Inclusion criteria | Age of majority inclusion criterion | | |
 | 38 | Other inclusion criteria | Other inclusion criteria cohort 2 | | |
-| 39 | CONTRIBUTORS | | | |
-| | Lead organisation | name for test lead organisation 2 | | |
-| | 1 card per contact person with: (titles) (initials) ((first name)) (surname prefix) (surname), (email address), (description of role) in the order of PI, primary contact and then the rest | dr. A.L.T.E.R. (cohort2alternativefirst) surname prefix cohort2alternativelast --- <testemailalternative@testdomain.nl> --- test alternative contact for cohort 2 | | |
-| 40 | click on the email address of the contact person | local email system is opened and an email addressed to <testemailalternative@testdomain.nl> is started | | |
-| 41 | return to resource detail view | | | |
-| 42 | Additional organisation(s) |name for test lead organisation 2 | | |
+| 39 | ORGANISATIONS | | | |
+| | | Lead organisations | | |
+| | | 1 card with organisation: name for test lead organisation 2 (acronym for test lead organisation 2) \| Bonaire, Sint Eustatius and Saba \| Data provider | | |
+| | | Additional organisations | | |
+| | | 1 card with organisation: name for test additional organisation 2 (acronym for test additional organisation 2) \| Bosnia and Herzegovina \| Data provider, Surveillance | | |
+| 40 | CONTRIBUTORS | | | |
+| | | 1 card with contributor: dr.  A.L.T.E.R. (cohort2alternativefirst) surname prefix cohort2alternativelast \| name for test lead organisation 2 \| <testemailalternative@testdomain.nl> \| Alternative contact | | |
+| 41 | click on the email address of the contact person | local email system is opened and an email addressed to <testemailalternative@testdomain.nl> is started | | |
+| 42 | return to resource detail view | | | |
 | 43 | AVAILABLE DATA & SAMPLES | Data categories | | |
 | | | > Survey data [with hover text] | | |
 | | | Sample categories [no hover text] | | |
