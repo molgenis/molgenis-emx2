@@ -27,13 +27,14 @@ function onMoreClick() {
       >
         {{ data }}
       </div>
-      <span
+      <button
         v-if="isOverFlow"
         @click="onMoreClick"
         style="position: absolute; right: 0px; top: 0px"
         class="text-blue-500 underline"
-        >More</span
       >
+        More
+      </button>
     </div>
   </td>
 </template>
