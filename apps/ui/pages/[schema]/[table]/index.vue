@@ -112,6 +112,7 @@ function handleSettingsUpdate(settings: ITableSettings) {
       <!-- <pre v-if="data">{{ tableMetaData }}</pre> -->
       <!-- <pre>{{ tableData}}</pre> -->
       <TableEMX2
+        :table-id="tableId"
         :columns="dataColumns"
         :rows="rows"
         :count="numberOfRows"

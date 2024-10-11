@@ -4,8 +4,24 @@ defineProps<{
   metaData: IColumn;
   data: string;
 }>();
+
+const divRef = useTemplateRef("overflow-ref");
+
+const isOverFlow = computed(() => {
+  return (divRef.value?.scrollWidth ?? 0) > (divRef.value?.offsetWidth ?? 0);
+});
 </script>
 
 <template>
-  {{ data }}
+  <td
+    class="py-2.5 px-2.5 border-b border-gray-200 first:pl-0 last:pr-0 sm:first:pl-2.5 sm:last:pr-2.5 h-4"
+  >
+    <div
+      ref="overflow-ref"
+      class="overflow-ellipsis whitespace-nowrap overflow-hidden"
+    >
+      {{ data }}
+    </div>
+    <span class="text-blue-500 underline">{{ isOverFlow ? "More" : "" }}</span>
+  </td>
 </template>

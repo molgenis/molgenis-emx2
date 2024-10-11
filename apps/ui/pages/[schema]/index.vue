@@ -43,10 +43,12 @@ const ontologies = computed(
       .filter((t) => t.tableType === "ONTOLOGIES")
       .sort((a, b) => a.label.localeCompare(b.label)) ?? []
 );
+
+const pageTitle = computed(() => `Tables in ${data.value?.data._schema.label}`);
 </script>
 <template>
   <Container>
-    <PageHeader :title="`Tables in ${data?.data._schema.label}`">
+    <PageHeader :title="pageTitle">
       <template #prefix>
         <BreadCrumbs
           :crumbs="{
