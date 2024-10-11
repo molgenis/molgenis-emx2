@@ -89,17 +89,16 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | | | TEST SUBCOHORT 2A | | |
 | | | description for test subcohort 2A | | |
 | | | Number of participants 3874 | | |
-| | | Start/end year 1950 - ongoing | | |
+| | | Start/end year 1950 (ongoing) | | |
 | | | Age categories Adolescent (13-17 years) | | |
 | | | Main medical condition | | |
 | | | > H60-H62 Diseases of external ear | | |
-| | | > VIII Diseases of the ear and mastoid process | | |
 | | | > H65-H75 Diseases of middle ear and mastoid | | |
 | | | > H80-H83 Diseases of inner ear | | |
 | | | > H90-H95 Other disorders of ear | | |
+| | | > VIII Diseases of the ear and mastoid process | | |
 | | | Comorbidity | | |
 | | | > L00-L08 Infections of the skin and subcutaneous tissue | | |
-| | | > XII Diseases of the skin and subcutaneous tissue | | |
 | | | > L10-L14 Bullous disorders | | |
 | | | > L20-L30 Dermatitis and eczema | | |
 | | | > L40-L45 Papulosquamous disorders | | |
@@ -107,6 +106,7 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | | | > L55-L59 Radiation-related disorders of the skin and subcutaneous tissue | | |
 | | | > L60-L75 Disorders of skin appendages | | |
 | | | > L80-L99 Other disorders of the skin and subcutaneous tissue | | |
+| | | > XII Diseases of the skin and subcutaneous tissue | | |
 | | | Countries United Kingdom of Great Britain and Northern Ireland (the) | | |
 | | | Other inclusion criteria test inclusion criteria for subcohort 2A | | |
 | 46 | Click the cross top right to close the pop-up | Come back to resource detail page | | |
