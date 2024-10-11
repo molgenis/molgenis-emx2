@@ -1,13 +1,14 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
 Individuals,,,,,,,,,,,"http://purl.obolibrary.org/obo/NCIT_C90492,http://purl.obolibrary.org/obo/ExO_0000127","Data, facts or figures about an individual; the set of relevant items would depend on the use case. In FAIR Genomes: Personal. In RD3: Subjects.","Beacon v2, FAIR Genomes, RD3, JRC-CDE, GDI T8.2 union, DCAT examples"
 Individuals,,id,string,1,TRUE,,,,,,"http://purl.obolibrary.org/obo/NCIT_C164337,http://purl.obolibrary.org/obo/NCIT_C142495","A unique proper name or character sequence that identifies this particular person. In Beacon v2: id, in FAIR Genomes: PersonalIdentifier. In RD3: subjectID. In JRC-CDE: Pseudonym","Beacon v2, FAIR Genomes, RD3, JRC-CDE, DCAT examples"
-Individuals,,age group,ontology,,,,AgeGroups,,,,http://purl.obolibrary.org/obo/NCIT_C25150,Addition for EJP-RD Virtual Platform API. E.g. Adult 18-65 Years Old,Beacon v2 Vivify add-on
+Individuals,,age group,ontology,,,,Age groups,,,,http://purl.obolibrary.org/obo/NCIT_C25150,Addition for EJP-RD Virtual Platform API. E.g. Adult 18-65 Years Old,Beacon v2 Vivify add-on
 Individuals,,age,period,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25150,Addition for EJP-RD Virtual Platform API. E.g. P32Y6M1D,"Beacon v2 Vivify add-on, GDI T8.2 union"
 Individuals,,year of birth,int,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C83164,The year in which this person was born.,"FAIR Genomes, GDI T8.2 union, RD3"
-Individuals,,date of birth,int,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C83164,The year in which a person was born. In JRC-CDE: Date of birth,"JRC-CDE, GDI T8.2 union, RD3"
+Individuals,,month of birth,ontology,,,,Month of the year,,,,http://purl.obolibrary.org/obo/NCIT_C83164,The month in which this person was born.,"FAIR Genomes, GDI T8.2 union, RD3"
+Individuals,,date of birth,date,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C83164,The year in which a person was born. In JRC-CDE: Date of birth,"JRC-CDE, GDI T8.2 union, RD3"
 Individuals,,disease causal genes,ontology_array,,,,Genes,,,,http://purl.obolibrary.org/obo/NCIT_C16612,Addition for EJP-RD Virtual Platform API. E.g. TTN. In JRC-CDE: Genetic diagnosis,"Beacon v2 Vivify add-on, JRC-CDE"
 Individuals,,consent,refback,,,,Individual consent,,PersonConsenting,,http://purl.obolibrary.org/obo/NCIT_C16735,"Consent given by a patient to a surgical or medical procedure or participation in a study, examination or analysis after achieving an understanding of the relevant medical facts and the risks involved.",RD3
-Individuals,,has genomic variations,refback,,,,GenomicVariationsCaseLevel,,individualId,,http://purl.obolibrary.org/obo/GSSO_000660,NON-STANDARD FIELD. E.g. Var001_CLD01,Beacon v2
+Individuals,,has genomic variations,refback,,,,Genomic variations case level,,individualId,,http://purl.obolibrary.org/obo/GSSO_000660,NON-STANDARD FIELD. E.g. Var001_CLD01,Beacon v2
 Individuals,,diseases,ref_array,,,,IndividualsDiseases,,,,http://purl.obolibrary.org/obo/NCIT_C15607,E.g. Ind001_Dis001,"Beacon v2,JRC-CDE"
 Individuals,,measures,ref_array,,,,IndividualsMeasures,,,,http://purl.obolibrary.org/obo/NCIT_C25209,E.g. Ind001_Meas001,Beacon v2
 Individuals,,phenotypic features,ref_array,,,,IndividualsPhenotypicFeatures,,,,http://purl.obolibrary.org/obo/NCIT_C116555,E.g. Ind001_Phen001,"Beacon v2,JRC-CDE"
