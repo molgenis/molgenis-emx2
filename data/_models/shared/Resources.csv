@@ -14,7 +14,7 @@ Resources,,RWD type,ontology_array,,,CatalogueOntologies,Datasource types,,,,,Ty
 Resources,,network type,ontology_array,,,CatalogueOntologies,Network types,,,,,Type of network,"DataCatalogueFlat,NetworksStaging"
 Resources,,website,hyperlink,,,,,,,,dcat:landingPage,Link to the website or homepage,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging"
 Resources,,description,text,,,,,,,,dct:description,Short description,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging"
-Resources,,keywords,text,,,,,,,,dcat:keyword,Keywords to increase findability of this resource. Try to use words that are not used in the description,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,RWEStaging"
+Resources,,keywords,string_array,,,,,,,,dcat:keyword,Keywords to increase findability of this resource. Try to use words that are not used in the description,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,RWEStaging"
 Resources,,internal identifiers,refback,,,,Internal identifiers,,resource,,,Internal identifier(s) for this resource (e.g. UMCG register number),"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging"
 Resources,,external identifiers,refback,,,,External identifiers,,resource,,,External identifier(s) for this resource (e.g. EUPASS number or BBMRI persistent identifer),"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging"
 Resources,,start year,int,,,,,,,,dcat:startDate,"The year when the resource started, e.g. when data or samples started to be collected or extracted, or when the resource was established","DataCatalogueFlat,EMA,RWEStaging,CohortsStaging,UMCGCohortsStaging"
