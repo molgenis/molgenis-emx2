@@ -7,10 +7,10 @@ export const usePathResourceType = () => {
     Object.values(typeMetadata).filter(
       (value: IResourceTypeMetadata) => value.path === resourceType
     )?.[0] || {
-      type: "Resource",
-      plural: "Resources",
+      type: resourceType,
+      plural: resourceType,
       image: "image-link",
-      path: "resources",
+      path: resourceType,
     }
   );
 };
