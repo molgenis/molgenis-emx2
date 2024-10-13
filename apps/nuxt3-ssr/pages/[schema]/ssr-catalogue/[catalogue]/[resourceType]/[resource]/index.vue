@@ -506,7 +506,7 @@ if (route.params.catalogue) {
 }
 
 const contributors = computed(() =>
-  resource.value.peopleInvolved.sort((a, b) => {
+  resource.value.peopleInvolved?.sort((a, b) => {
     const minimumOrderOfRolesA = a.role?.length
       ? Math.min(...a.role?.map((role) => role.order ?? Infinity))
       : Infinity;
