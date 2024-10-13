@@ -18,7 +18,7 @@ export default defineNuxtConfig({
       cohortOnly: false,
       apiBase:
         process.env.NUXT_PUBLIC_API_BASE ||
-        "https://data-catalogue-acc.molgeniscloud.org/",
+        "https://emx2.dev.molgenis.org/",
     },
   },
   imports: {
