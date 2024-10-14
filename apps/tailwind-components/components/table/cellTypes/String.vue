@@ -1,9 +1,17 @@
 <script setup lang="ts">
 import type { IColumn } from "../../../../metadata-utils/src/types";
-defineProps<{
-  metaData: IColumn;
-  data: string;
-}>();
+const props = withDefaults(
+  defineProps<{
+    metaData: IColumn;
+    data: string;
+    isExpanded: boolean;
+  }>(),
+  {
+    isExpanded: false,
+  }
+);
+
+const emit = defineEmits(["expand", "contract"]);
 
 const divRef = useTemplateRef("overflow-ref");
 
@@ -11,12 +19,16 @@ const isOverFlow = computed(() => {
   return (divRef.value?.scrollWidth ?? 0) > (divRef.value?.offsetWidth ?? 0);
 });
 
-const actionLabel = ref("More");
+const actionLabel = computed(() => {
+  return props.isExpanded ? "Less" : "More";
+});
 
-const columnSpan = ref(1);
+const columnSpan = computed(() => {
+  return props.isExpanded ? 2 : 1;
+});
+
 function onActionClick() {
-  columnSpan.value = columnSpan.value === 1 ? 2 : 1;
-  actionLabel.value = columnSpan.value === 1 ? "More" : "Less";
+  emit(props.isExpanded ? "contract" : "expand");
 }
 </script>
 

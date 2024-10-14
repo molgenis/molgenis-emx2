@@ -1,9 +1,17 @@
 <script setup lang="ts">
 import type { IColumn } from "../../../../metadata-utils/src/types";
-defineProps<{
-  metaData: IColumn;
-  data: any;
-}>();
+withDefaults(
+  defineProps<{
+    metaData: IColumn;
+    data: any;
+    isExpanded: boolean;
+  }>(),
+  {
+    isExpanded: false,
+  }
+);
+
+const emit = defineEmits(["expand", "contract"]);
 </script>
 <template>
   <TableCellTypesEmpty v-if="data === null || data === undefined" />
@@ -13,14 +21,14 @@ defineProps<{
     :data="data"
   />
   <TableCellTypesString
-    v-else-if="metaData.columnType === 'STRING'"
+    v-else-if="
+      metaData.columnType === 'STRING' || metaData.columnType === 'TEXT'
+    "
     :metaData="metaData"
     :data="data"
-  />
-  <TableCellTypesString
-    v-else-if="metaData.columnType === 'TEXT'"
-    :metaData="metaData"
-    :data="data"
+    :isExpanded="isExpanded"
+    @expand="() => emit('expand')"
+    @contract="() => emit('contract')"
   />
   <TableCellTypesDecimal
     v-else-if="metaData.columnType === 'DECIMAL'"

@@ -53,6 +53,8 @@ function handlePagingRequest(page: number) {
     page,
   });
 }
+
+const expandedColumnIds = ref<string[]>([]);
 </script>
 <template>
   <div class="flex">
@@ -119,6 +121,15 @@ function handlePagingRequest(page: number) {
             :scope="column.key === 1 ? 'row' : null"
             :metaData="column"
             :data="row[column.id]"
+            :is-expanded="expandedColumnIds.includes(column.id)"
+            @expand="() => expandedColumnIds.push(column.id)"
+            @contract="
+              () =>
+                expandedColumnIds.splice(
+                  expandedColumnIds.indexOf(column.id),
+                  1
+                )
+            "
           />
         </tr>
       </tbody>
