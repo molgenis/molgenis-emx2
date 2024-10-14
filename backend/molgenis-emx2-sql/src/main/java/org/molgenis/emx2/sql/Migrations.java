@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 
 public class Migrations {
   // version the current software needs to work
-  private static final int SOFTWARE_DATABASE_VERSION = 23;
+  private static final int SOFTWARE_DATABASE_VERSION = 24;
   public static final int THREE_MINUTES = 180;
   private static Logger logger = LoggerFactory.getLogger(Migrations.class);
 
@@ -150,6 +150,10 @@ public class Migrations {
           }
 
           if (version < 23) {
+            executeMigrationFile(tdb, "migration23.sql", "add enable state to user metadata");
+          }
+
+          if (version < 24) {
             for (String schemaName : tdb.getSchemaNames()) {
               Schema schema = tdb.getSchema(schemaName);
               for (TableMetadata tm : schema.getMetadata().getTables()) {
@@ -157,7 +161,7 @@ public class Migrations {
               }
             }
             logger.debug(
-                "executed migration23: changelog triggers should skip system columns and file contents column");
+                "executed migration24: changelog triggers should skip system columns and file contents column");
           }
 
           // if success, update version to SOFTWARE_DATABASE_VERSION
