@@ -26,7 +26,7 @@ A researcher can filter on variables using the search filter, topics and cohorts
 | 7 | Change the search text to ‘maternal asthma’ | See that the list of variables  remains the same. | | |
 | 8 | Change the search text back to ‘asthma’| See that 15 variables are displayed. | | |
 | 9 | On the left hand side, expand Cohorts. | Long list of all the cohorts in the catalogue is displayed on the left hand side | | |
-| 10 | Select all 4 testCohorts. | See that the same list of 15 variables is displayed, with zero mappings for all four cohorts.    | | |
+| 10 | Select all 4 testCohorts. | See that the message 'No variables found with current filters' is displayed. | | |
 | 11 | Remove the filter on all 4 cohorts. | The list of variables remains at 15, and now all cohorts in the catalogue are displayed again, with their mappings. Cohorts without mappings are displayed. | | |
 | 12 | Click on the first variable, ‘asthma_0’| Pop-up with details of the variable is displayed. | | |
 | 13 | Click on More Details in the pop-up. | The overview page for the individual variable asthma_0 is displayed. | | |
