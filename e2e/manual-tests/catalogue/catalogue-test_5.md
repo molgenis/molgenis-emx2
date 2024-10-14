@@ -151,7 +151,7 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | 54 | Click on 'name of test network of networks' | go to molgenis.org in a new window | | |
 | 55 | return to resource detail view | | | |
 | 56| PUBLICATIONS | | | |
-| | | Clickable block per publication with the name of the publication as a clickable link which opens the link in a new window: test publication 2, test publication 3 | | |
+| | | Clickable block per publication with the name of the publication as a clickable link which opens the link in a new window: "Birth of a cohort--the first 20 years of the Raine study", "test publication 2", "test publication 3" | | |
 | | Click on test publication 2 | article "Maternal Dietary Glycemic Index and Glycemic Load in Pregnancy and Offspring Cord Blood DNA Methylation" opens in a new window | | |
 | 57 | ACCESS CONDITIONS | Data access conditions description text cohort 2 - no fee | | |
 | | Data access conditions | general research use | | |
