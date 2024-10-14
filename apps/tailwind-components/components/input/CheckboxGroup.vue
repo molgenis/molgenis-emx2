@@ -1,9 +1,6 @@
 <template>
   <div :id="`${id}-checkbox-group`">
-    <div
-      class="flex justify-start align-center"
-      v-for="option in checkboxOptions"
-    >
+    <div class="flex flex-row" v-for="option in checkboxOptions">
       <input
         type="checkbox"
         :id="`${id}-${option.value}`"
@@ -15,18 +12,15 @@
       />
       <InputLabel
         :for="`${id}-${option.value}`"
-        class="hover:cursor-pointer flex flex-row gap-1"
+        class="hover:cursor-pointer flex justify-start items-center"
       >
-        <InputCheckboxIcon
-          class="mr-2.5"
-          :checked="modelValue!.includes(option.value)"
-        />
-        <template v-if="option.label">
+        <InputCheckboxIcon :checked="modelValue!.includes(option.value)" />
+        <span class="block" v-if="option.label">
           {{ option.label }}
-        </template>
-        <template v-else>
+        </span>
+        <span class="block" v-else>
           {{ option.value }}
-        </template>
+        </span>
       </InputLabel>
     </div>
     <div class="mt-2" v-if="showClearButton">

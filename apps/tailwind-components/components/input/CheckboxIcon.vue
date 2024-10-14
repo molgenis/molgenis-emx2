@@ -4,7 +4,7 @@
     height="20"
     view-box="0 0 20 20"
     xmlns="http://www.w3.org/2000/svg"
-    class="mt-1.5 hover:cursor-pointer"
+    class="hover:cursor-pointer w-[20px] mr-2.5"
     :data-checked="checked"
     :data-indeterminate="indeterminate"
   >

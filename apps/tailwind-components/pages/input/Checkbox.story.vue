@@ -20,47 +20,48 @@ const toppingsSelection = ref<string[]>(["tomatoes", "basil"]);
     The following examples demonstrate the use of both input checkbox components
     with varying configurations.
   </p>
-  <form
-    class="flex flex-col gap-6 my-5 [&>div]:p-1 [&_h3]:font-semibold [&_h3]:my-2"
-  >
+  <form class="flex flex-col gap-6 my-5 [&_h3]:font-semibold [&_h3]:my-2">
     <div>
       <h3>InputCheckbox Example: Default checkbox</h3>
-      <InputCheckbox
-        id="checkbox-example-newsletter-signup"
-        class="sr-only"
-        :value="true"
-        v-model="signupNewsletterExample"
-      />
-      <InputLabel
-        class="flex flex-row gap-1"
-        for="checkbox-example-newsletter-signup"
-      >
-        <InputCheckboxIcon class="mr-2.5" :checked="signupNewsletterExample" />
-        Would you like to subscribe to our newsletter?
-      </InputLabel>
-      <p>Answer: {{ signupNewsletterExample }}</p>
+      <div class="flex justify-start items-center">
+        <InputCheckbox
+          id="checkbox-example-newsletter-signup"
+          class="sr-only"
+          :value="true"
+          v-model="signupNewsletterExample"
+        />
+        <InputLabel
+          class="flex justify-start items-center"
+          for="checkbox-example-newsletter-signup"
+        >
+          <InputCheckboxIcon :checked="signupNewsletterExample" />
+          <span>Would you like to subscribe to our newsletter?</span>
+        </InputLabel>
+      </div>
+      <output>
+        <span>Answer: {{ signupNewsletterExample }}</span>
+      </output>
     </div>
     <div>
       <h3>InputCheckbox Example: Checkbox with yes and no values defined</h3>
-      <InputCheckbox
-        id="checkbox-example-terms-and-conditions"
-        class="sr-only"
-        true-value="Yes"
-        false-value="No"
-        :value="true"
-        :checked="termsAndConditionsExample"
-        v-model="termsAndConditionsExample"
-      />
-      <InputLabel
-        class="flex flex-row gap-1"
-        for="checkbox-example-terms-and-conditions"
-      >
-        <InputCheckboxIcon
-          class="mr-2.5"
-          :checked="termsAndConditionsExample === 'Yes'"
+      <div class="flex justify-start items-center">
+        <InputCheckbox
+          id="checkbox-example-terms-and-conditions"
+          class="sr-only"
+          true-value="Yes"
+          false-value="No"
+          :value="true"
+          :checked="termsAndConditionsExample"
+          v-model="termsAndConditionsExample"
         />
-        Do you agree to the terms and conditions?
-      </InputLabel>
+        <InputLabel
+          class="flex justify-start items-center"
+          for="checkbox-example-terms-and-conditions"
+        >
+          <InputCheckboxIcon :checked="termsAndConditionsExample === 'Yes'" />
+          <span>Do you agree to the terms and conditions?</span>
+        </InputLabel>
+      </div>
       <output>
         <span>Selection: {{ termsAndConditionsExample }}</span>
       </output>
