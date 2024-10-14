@@ -51,4 +51,15 @@ class TestSqlTypeUtils {
     applyValidationAndComputed(tableMetadata.getColumns(), copy);
     assertEquals(row.getString("myCol"), row.getString("myCol"));
   }
+
+  /**
+   * Ensure the {@link ColumnType} used has a `validationRegexp` and triggers {@link ColumnType#isArray()}
+   */
+  @Test
+  void testIdenticalColumnNameAndTypeArrayWithValidationString() {
+    TableMetadata tableMetadata =
+        table("Test", new Column("EMAIL_ARRAY").setType(ColumnType.EMAIL_ARRAY));
+    final Row row = new Row("EMAIL_ARRAY", "bob@example.com,ross@example.com");
+    applyValidationAndComputed(tableMetadata.getColumns(), row);
+  }
 }
