@@ -428,13 +428,13 @@ let accessConditionsItems = computed(() => {
       content: resource.value.dataUseConditions,
     });
   }
-  if (resource.value.dataAccessFee) {
+  if (resource.value.dataAccessFee !== undefined) {
     items.push({
       label: "Data access fee",
       content: resource.value.dataAccessFee,
     });
   }
-  if (resource.value.releaseType) {
+  if (resource.value.releaseType !== undefined) {
     items.push({
       label: "Release type",
       type: "ONTOLOGY" as DefinitionListItemType,
@@ -447,7 +447,7 @@ let accessConditionsItems = computed(() => {
       content: resource.value.releaseDescription,
     });
   }
-  if (resource.value.prelinked) {
+  if (resource.value.prelinked !== undefined) {
     items.push({
       label: "Prelinked",
       content: resource.value.prelinked,
