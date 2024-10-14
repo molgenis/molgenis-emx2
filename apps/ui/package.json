@@ -15,7 +15,7 @@
   "dependencies": {
     "@pinia/nuxt": "0.5.1",
     "pinia": "2.1.7",
-    "vue": "3.4.37",
+    "vue": "3.5.6",
     "vue-router": "4.4.3"
   },
   "license": "LGPL-3.0",

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+const pageInputId = useId();
+
 const props = withDefaults(
   defineProps<{
     currentPage: number;
@@ -52,41 +54,54 @@ function changeCurrentPage(event: Event) {
 <template>
   <nav
     role="navigation"
-    aria-label="Pagination navigation"
-    class="pt-12.5 flex items-center justify-center font-display text-heading-xl -mx-2.5"
+    class="pt-12.5 font-display text-heading-xl -mx-2.5"
+    :aria-labelledby="`${pageInputId}Label`"
   >
-    <a
-      role="button"
-      :aria-label="'Goto page ' + (currentPage - 1)"
-      @click.prevent="onPrevClick"
-      class="flex justify-center transition-colors border border-pagination rounded-pagination bg-pagination text-pagination h-15 w-15"
-      :class="{
-        'hover:bg-pagination-hover hover:text-pagination-hover':
-          currentPage > 1,
-      }"
+    <span :id="`${pageInputId}Label`" class="sr-only"
+      >pagingation navigation</span
     >
-      <BaseIcon name="caret-left" :width="24" />
-    </a>
-    <div class="px-4 tracking-widest sm:px-5 text-pagination">Page</div>
-    <input
-      class="sm:px-12 px-7.5 w-32 text-center border rounded-pagination text-pagination-input h-15 flex items-center tracking-widest bg-white"
-      :value="currentPage"
-      @change="changeCurrentPage"
-    />
-    <div class="px-4 tracking-widest sm:px-5 whitespace-nowrap text-pagination">
-      OF {{ totalPages }}
-    </div>
-    <a
-      role="button"
-      :aria-label="'Goto page ' + (currentPage + 1)"
-      @click.prevent="onNextClick"
-      class="flex justify-center transition-colors border border-pagination rounded-pagination bg-pagination text-pagination h-15 w-15"
-      :class="{
-        'hover:bg-pagination-hover hover:text-pagination-hover':
-          currentPage < totalPages,
-      }"
-    >
-      <BaseIcon name="caret-right" :width="24" />
-    </a>
+    <ul class="flex items-center justify-center list-none">
+      <li>
+        <a
+          @click.prevent="onPrevClick"
+          class="flex justify-center transition-colors border border-pagination rounded-pagination bg-pagination text-pagination h-15 w-15"
+          :class="{
+            'hover:bg-pagination-hover hover:text-pagination-hover':
+              currentPage > 1,
+          }"
+        >
+          <span class="sr-only">Go to page {{ currentPage - 1 }}</span>
+          <BaseIcon name="caret-left" :width="24" />
+        </a>
+      </li>
+      <li class="flex justify-center items-center">
+        <div class="px-4 tracking-widest sm:px-5">
+          <label :for="pageInputId" class="sr-only">go to specific page</label>
+          <span class="text-pagination">Page</span>
+        </div>
+        <input
+          :id="pageInputId"
+          class="sm:px-12 px-7.5 w-32 text-center border rounded-pagination text-pagination-input h-15 flex items-center tracking-widest bg-white"
+          :value="currentPage"
+          @change="changeCurrentPage"
+        />
+        <div class="px-4 tracking-widest sm:px-5 whitespace-nowrap">
+          <span class="text-pagination">OF {{ totalPages }}</span>
+        </div>
+      </li>
+      <li>
+        <a
+          @click.prevent="onNextClick"
+          class="flex justify-center transition-colors border border-pagination rounded-pagination bg-pagination text-pagination h-15 w-15"
+          :class="{
+            'hover:bg-pagination-hover hover:text-pagination-hover':
+              currentPage < totalPages,
+          }"
+        >
+          <span class="sr-only">Go to page {{ currentPage + 1 }}</span>
+          <BaseIcon name="caret-right" :width="24" />
+        </a>
+      </li>
+    </ul>
   </nav>
 </template>

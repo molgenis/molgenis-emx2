@@ -1,13 +1,12 @@
 <script setup lang="ts">
-type Resp<T> = {
-  data: Record<string, T[]>;
-};
+import type { ITableSettings, Resp, Schema } from "~/types/types";
 
-interface Schema {
-  id: string;
-  label: string;
-  description: string;
-}
+const tableSettings = ref<ITableSettings>({
+  page: 1,
+  pageSize: 10,
+  orderby: { column: "", direction: "ASC" },
+  search: "",
+});
 
 const { data } = await useFetch<Resp<Schema>>("/graphql", {
   key: "databases",
@@ -95,11 +94,11 @@ const numberOfRows = computed(() => tableData?.value?.count ?? 0);
 </script>
 
 <template>
-  <div class="h-12 mt-4 mb-16">
+  <div class="mt-4 mb-16">
     <h3 class="text-heading-lg">Params</h3>
     <div class="m-2">
       <label for="schema-id-input">schema id: </label>
-      <select id="table-id-select" v-model="schemaId">
+      <select id="schema-id-input" v-model="schemaId">
         <option v-for="option in schemaOptions" :value="option">
           {{ option }}
         </option>
@@ -115,12 +114,15 @@ const numberOfRows = computed(() => tableData?.value?.count ?? 0);
     </div>
   </div>
 
-  <div class=" ">
+  <div>
     <TableEMX2
+      :table-id="tableId"
       :columns="tableColumns"
       :rows="dataRows"
       :count="numberOfRows"
-    ></TableEMX2>
+      @update:settings="(value: ITableSettings) => tableSettings = value"
+      :settings="tableSettings"
+    />
   </div>
 </template>
 d
