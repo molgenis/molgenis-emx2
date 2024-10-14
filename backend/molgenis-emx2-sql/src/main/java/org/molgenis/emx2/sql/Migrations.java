@@ -154,19 +154,23 @@ public class Migrations {
           }
 
           if (version < 24) {
-            for (String schemaName : tdb.getSchemaNames()) {
-              Schema schema = tdb.getSchema(schemaName);
-              for (TableMetadata tm : schema.getMetadata().getTables()) {
-                updateChangeLogTrigger(tm);
-              }
-            }
-            logger.debug(
-                "executed migration24: changelog triggers should skip system columns and file contents column");
+            executeMigration24(tdb);
           }
 
           // if success, update version to SOFTWARE_DATABASE_VERSION
           updateDatabaseVersion((SqlDatabase) tdb, SOFTWARE_DATABASE_VERSION);
         });
+  }
+
+  static void executeMigration24(Database tdb) {
+    for (String schemaName : tdb.getSchemaNames()) {
+      Schema schema = tdb.getSchema(schemaName);
+      for (TableMetadata tm : schema.getMetadata().getTables()) {
+        updateChangeLogTrigger(tm);
+      }
+    }
+    logger.debug(
+        "executed migration24: changelog triggers should skip system columns and file contents column");
   }
 
   private static void executeMigration7(SqlDatabase tdb, String message) {

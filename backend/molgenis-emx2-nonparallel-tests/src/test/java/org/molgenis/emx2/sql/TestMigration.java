@@ -5,8 +5,7 @@ import static org.jooq.impl.DSL.name;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.TableMetadata.table;
-import static org.molgenis.emx2.sql.Migrations.executeMigrationFile;
-import static org.molgenis.emx2.sql.Migrations.migration5addMgTableclassUpdateTrigger;
+import static org.molgenis.emx2.sql.Migrations.*;
 
 import java.util.Collections;
 import java.util.List;
@@ -27,7 +26,7 @@ public class TestMigration {
   @Test
   @Tag("slow")
   @Tag("windowsFail")
-  void testMigration2() {
+  void testMigrations() {
     SqlDatabase database = (SqlDatabase) TestDatabaseFactory.getTestDatabase();
     database.dropCreateSchema("TestMigrations");
 
@@ -103,5 +102,7 @@ public class TestMigration {
     migration5addMgTableclassUpdateTrigger(database);
 
     executeMigrationFile(database, "migration22.sql", "test migration for deletion of refback");
+
+    executeMigration24(database);
   }
 }
