@@ -156,10 +156,10 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | 57 | ACCESS CONDITIONS | Data access conditions description text cohort 2 - no fee | | |
 | | Data access conditions | general research use | | |
 | | Data use conditions | publication required | | |
-| | Data access fee | false (so not shown, but the question is whether we should show this)| | |
+| | Data access fee | False | | |
 | | Release type | Annually | | |
 | | Release description |Release description cohort 2 | | |
-| | Prelinked | false (so not shown, but the question is whether we should show this)| | |
+| | Prelinked | False | | |
 | | Linkage options | Linkage options cohort 2 | | |
 | 58 | FUNDING & ACKNOWLEDGEMENTS | Funding This is the funding statement for cohort 1. It's not too long but covers more than one line, I think, particularly if I fill it up with blah blah blah (check for "until now" at the end to make sure all the text has been displayed) lorem ipsum text repeated several times UNTIL NOW | | |
 | | | Acknowledgements This is the acknowledgement statement for cohort 1. It's not too long but covers more than one line, I think, particularly if I fill it up with blah blah blah (check for "until now" at the end to make sure all the text has been displayed) lorem ipsum text repeated several times UNTIL NOW | | |
