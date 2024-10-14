@@ -173,6 +173,9 @@ const query = gql`
             name
         }
         website
+        logo {
+          url
+        }
       }
     }
   }
