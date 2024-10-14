@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import type { IOntologyParentTreeItem } from "../interfaces/types";
-import { buildTree, flattenTree } from "./ontologyUtils";
+import { buildTree, flattenTree, sortTree } from "./ontologyUtils";
 
 describe("flattenTree", () => {
   it("passing an instance without parent should return a list containing only the item", () => {
@@ -77,5 +77,36 @@ describe("buildTree", () => {
     expect(tree[0].children.length).toEqual(1);
     //@ts-ignore
     expect(tree[0].children[0].name).toEqual("C1");
+  });
+});
+
+describe("sortTree", () => {
+  it("empty tree is sorted ", () => {
+    expect(sortTree([])).toEqual([]);
+  });
+
+  it("sorts ", () => {
+    expect(sortTree([{ name: "B" }, { name: "A" }])).toEqual([
+      { name: "A" },
+      { name: "B" },
+    ]);
+  });
+
+  it("preserve the order ", () => {
+    expect(
+      sortTree([
+        { name: "A", order: 2 },
+        { name: "B", order: 1 },
+      ])
+    ).toEqual([
+      { name: "B", order: 1 },
+      { name: "A", order: 2 },
+    ]);
+  });
+
+  it("goes deep ", () => {
+    expect(
+      sortTree([{ name: "A", order: 2, children: [{ name: "B", order: 1 }] }])
+    ).toEqual([{ name: "A", order: 2, children: [{ name: "B", order: 1 }] }]);
   });
 });
