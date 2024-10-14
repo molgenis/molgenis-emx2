@@ -3,13 +3,10 @@
   <Container class="flex flex-col items-center">
     <ContentBlock class="w-full mt-3" title="User management">
       <h2>User List ({{ userCount }})</h2>
-      <div>
-        <InputString id="New user name" v-model="userName" />
-        <InputString id="New user password" v-model="password" />
-        <Button icon="plus" size="tiny" @click="createUser(userName, password)">
-          Add user
-        </Button>
-      </div>
+      <Button icon="plus" @click="createUserModal?.show()">
+        Create User
+      </Button>
+
       <Pagination
         :currentPage="currentPage"
         :totalPages="totalPages"
@@ -48,6 +45,16 @@
           </TableRow>
         </template>
       </Table>
+
+      <Modal ref="createUserModal" title="Create User">
+        <InputString id="New user name" v-model="userName" />
+        <InputString id="New user password" v-model="password" />
+        <template #footer>
+          <Button @click="createUser(userName, password)"> Add user </Button>
+          <Button @click="closeCreateUserModal">Close</Button>
+        </template>
+      </Modal>
+
       <Modal ref="editUserModal" title="Edit User">
         {{ selectedUser }}
         <template #footer>
@@ -88,7 +95,7 @@ import type { ISetting } from "../../metadata-utils/src/types";
 
 /**
  * Todo list
- * make edit modal -> need wider modal -> pass data into modal, have onclose?
+ * make edit modal -> need wider modal -> pass data into modal?, have onclose?
  * make buttons double click safe
  * put component in right place
  * make stuff look better
@@ -100,8 +107,9 @@ definePageMeta({
 
 const GRAPHQL = "/graphql";
 const API_GRAPHQL = "/api/graphql";
-const LIMIT = 20;
+const LIMIT = 100;
 const editUserModal = ref<InstanceType<typeof Modal>>();
+const createUserModal = ref<InstanceType<typeof Modal>>();
 
 const currentPage = ref(1);
 const password = ref<string>("");
@@ -110,6 +118,7 @@ const users = ref<IUser[]>([]);
 const userCount = ref(0);
 const totalPages = ref(0);
 const selectedUser = ref<IUser>();
+const schemas = ref<ISchemaInfo[]>([]);
 
 const offset = computed(() => {
   return currentPage.value > 1
@@ -118,6 +127,7 @@ const offset = computed(() => {
 });
 
 getUsers();
+getSchemas();
 
 function updateCurrentPage(newPage: number) {
   currentPage.value = newPage;
@@ -199,14 +209,27 @@ function createUser(newUserName: string, newPassword: string) {
       query: `mutation{changePassword(email: "${newUserName}", password: "${newPassword}"){status,message}}`,
     },
   })
-    .then(() => {
-      userName.value = "";
-      password.value = "";
-    })
+    .then(closeCreateUserModal)
     .then(getUsers)
     .catch((error) => {
       handleError("Error creating/updating user: ", error.value);
     });
+}
+
+function closeCreateUserModal() {
+  createUserModal.value?.close();
+  userName.value = "";
+  password.value = "";
+}
+
+async function getSchemas() {
+  const { data } = await useFetch<{ _schemas: ISchemaInfo[] }>(GRAPHQL, {
+    method: "post",
+    body: {
+      query: "{_schemas{id,label}}",
+    },
+  });
+  schemas.value = data.value?._schemas || [];
 }
 
 function handleError(message: string, error: any) {
@@ -240,5 +263,10 @@ interface IUser {
   enabled: boolean;
   tokens?: string[];
   roles?: { schemaId: string; role: string }[];
+}
+
+interface ISchemaInfo {
+  id: string;
+  label: string;
 }
 </script>
