@@ -283,12 +283,12 @@ expression itself is shown. Otherwise, the return value of the expression will b
 | `if(!/^([a-z]+)$/.test(name))'name should contain only lowercase letters'` | Application of validation rule failed: name should contain only lowercase letters |
 
 Special attention needs to be paid when validating if a field is empty or not (as filled in fields that get emptied are different from never filled in fields).
-To ensure correct behaviour, use the following:
+While [required](#required) should be used to ensure a field itself is filled, when creating expressions (that include other fields), use the following:
 
-| validation                 | functioning              |
-|----------------------------|--------------------------|
-| `mustBeFilled?.length > 0` | Fails if field is empty  |
-| `!(mustBeEmpty?.length)`   | Fails if field is filled |
+| validation               | functioning                       |
+|--------------------------|-----------------------------------|
+| `columnName?.length > 0` | Field 'columnName' must be filled |
+| `!(columnName?.length)`  | Field 'columnName' must be empty  |
 
 Visible expressions must return a value that is not false or undefined, otherwise the column stays hidden in the user interface. In the event that javascript
 throws an exception, this is shown in user interface/error message. For example:
