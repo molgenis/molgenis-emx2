@@ -24,6 +24,7 @@ public class MolgenisWebservice {
   public static final String MANAGER = "Manager";
   public static final String ROLE = "role";
   public static final String VIEWER = "Viewer";
+  public static final long MAX_REQUEST_SIZE = 10_000_000L;
   static final String TEMPFILES_DELETE_ON_EXIT = "tempfiles-delete-on-exit";
   static final Logger logger = LoggerFactory.getLogger(MolgenisWebservice.class);
   private static final String ROBOTS_TXT = "robots.txt";
@@ -42,6 +43,7 @@ public class MolgenisWebservice {
     Javalin app =
         Javalin.create(
                 config -> {
+                  config.http.maxRequestSize = MAX_REQUEST_SIZE;
                   config.router.ignoreTrailingSlashes = true;
                   config.router.treatMultipleSlashesAsSingleSlash = true;
                   config.jetty.modifyServletContextHandler(
