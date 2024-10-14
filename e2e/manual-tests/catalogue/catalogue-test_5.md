@@ -141,8 +141,7 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | | Click the cross top right to close the pop-up | Come back to resource detail page | | |
 | 52 | PARTNERS | logo, Name of organisation, ">Read more" and arrow to navigate to details | | |
 | | | name of test additional organisation 2 | | |
-| 53 | NETWORKS | List of networks in which this resource is involved | | |
-| | | For each network: logo, name, > Website, and an arrow to navigate to details | | |
+| 53 | NETWORKS, subtitle: Part of networks | List of networks in which this resource is involved. For each network: logo, name, > Website, and an arrow to navigate to details. | | |
 | | | name of test network2 | | |
 | | | > Website | | |
 | | | name of test network of networks | | |
