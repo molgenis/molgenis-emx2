@@ -86,6 +86,7 @@ class Transform:
         self.resources()
         self.organisations()
         self.publications()
+        self.external_identifiers()
 
         if self.database_type != 'cohort_UMCG':
             self.variables()
@@ -295,6 +296,14 @@ class Transform:
                 df_resource_pubs = get_publications(df_merged_pubs, df_publications)
             df_resource_pubs = df_resource_pubs.drop_duplicates(subset=['resource', 'doi'], keep='first')
             df_resource_pubs.to_csv(self.path + 'Publications.csv', index=False)
+
+    def external_identifiers(self):
+        df = pd.read_csv(self.path + 'External identifiers.csv', keep_default_na=False, dtype='object')
+        df_internal = df[df['external identifier type'].isin(['UMCG register Utopia', 'UMCG PaNaMaID'])]
+        df_external = df[~df['external identifier type'].isin(['UMCG register Utopia', 'UMCG PaNaMaID'])]
+
+        df_internal.to_csv(self.path + 'Internal identifiers.csv', index=False)
+        df_external.to_csv(self.path + 'External identifiers.csv', index=False)
 
     def network_variables(self):
         df = pd.read_csv(self.path + 'Network variables.csv', keep_default_na=False, dtype='object')
