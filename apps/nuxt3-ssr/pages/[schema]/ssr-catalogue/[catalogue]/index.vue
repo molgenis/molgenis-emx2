@@ -266,7 +266,7 @@ const resources = computed(() => {
         </b>
         <br />{{
           getSettingValue("CATALOGUE_LANDING_PARTICIPANTS_TEXT", settings) ||
-          "The cumulative number of participants of all (sub)cohorts combined."
+          "The cumulative number of participants."
         }}
       </LandingCardSecondary>
 
@@ -287,7 +287,7 @@ const resources = computed(() => {
         >
         <br />{{
           getSettingValue("CATALOGUE_LANDING_SAMPLES_TEXT", settings) ||
-          "The cumulative number of participants with samples collected of all (sub)cohorts combined"
+          "The cumulative number of participants with samples"
         }}
       </LandingCardSecondary>
 
@@ -308,9 +308,8 @@ const resources = computed(() => {
           }}%</b
         ><br />{{
           getSettingValue("CATALOGUE_LANDING_DESIGN_TEXT", settings) ||
-          "Percentage of longitudinal datasets. The remaining datasets are"
+          "Percentage of longitudinal datasets."
         }}
-        cross-sectional.
       </LandingCardSecondary>
 
       <LandingCardSecondary
