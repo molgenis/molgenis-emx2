@@ -128,11 +128,10 @@ class Transform:
                                                     'type other': 'cohort type other',
                                                     'collection type': 'data collection type',
                                                     'inclusion criteria other': 'other inclusion criteria'})
-            # for UMCG data, if cohort type == 'Study', resource type = 'Clinical trial'
-            df_cohorts['type'] = df_cohorts.apply(lambda c: 'Clinical trial' if c['cohort type'] == 'Study' else 'Cohort study', axis=1)
-            # for UMCG data, delete cohort type == 'Study'
-            df_cohorts.loc[:, 'cohort type'] = df_cohorts.apply(lambda c: '' if c['type'] == 'Clinical trial' else c['cohort type'], axis=1)
-
+            # infer resource type from cohort type
+            df_cohorts['type'] = df_cohorts['cohort type'].apply(get_resource_type)
+            # delete cohort type 'Study', 'Registry', 'Clinical trial' and 'Biobank'
+            df_cohorts.loc[:, 'cohort type'] = df_cohorts['cohort type'].apply(get_cohort_type)
             # get resources that are part of network
             if self.database_type in ['cohort']:
                 cols_to_find = ['studies']
@@ -680,3 +679,33 @@ def reformat_keywords(keywords):
         keywords = keywords.replace(';', ',')
 
     return keywords
+
+
+def get_resource_type(cohort_type):
+    resource_type = []
+    if not pd.isna(cohort_type):
+        if any(c in cohort_type for c in ['Clinical trial', 'Study']):
+            resource_type.append('Clinical trial')
+        if 'Registry' in cohort_type:
+            resource_type.append('Registry')
+        if 'Biobank' in cohort_type:
+            resource_type.append('Biobank')
+        if any(c in cohort_type for c in ['Birth cohort', 'Clinical cohort', 'Case-control', 'Case only', 'Population cohort']):
+            resource_type.append('Cohort study')
+
+    resource_type = ','.join(resource_type)
+
+    return resource_type
+
+
+def get_cohort_type(cohort_type):
+    if not pd.isna(cohort_type):
+        cohort_type = cohort_type.replace('Biobank', '')
+        cohort_type = cohort_type.replace('Clinical trial', '')
+        cohort_type = cohort_type.replace('Registry', '')
+        cohort_type = cohort_type.replace('Study', '')
+        cohort_type = cohort_type.replace(',,', ',')
+        cohort_type = cohort_type.strip(',')
+
+    return cohort_type
+
