@@ -89,6 +89,7 @@ class Transform:
         self.resources()
         self.organisations()
         self.publications()
+        self.external_identifiers()
 
         if self.database_type != 'cohort_UMCG':
             self.variables()
@@ -117,7 +118,6 @@ class Transform:
         df_catalogues = pd.read_csv(self.path.joinpath('Catalogues.csv'), dtype='object')
         df_catalogues['name'] = df_catalogues['network']
 
-        # df_catalogues = float_to_int(df_catalogues)  # convert float back to integer
         df_catalogues.to_csv(self.path.joinpath('Catalogues.csv'), index=False)
 
     def resources(self):
@@ -176,8 +176,8 @@ class Transform:
                                             'informed consent': 'informed consent required'}, inplace=True)
 
             # transform dates to years
-            df_data_sources.loc[:, 'start year'] = df_data_sources['date established'][0:4]
-            df_data_sources.loc[:, 'end year'] = df_data_sources['end data collection'][0:4]
+            df_data_sources.loc[:, 'start year'] = df_data_sources['date established'].apply(get_year_from_date)
+            df_data_sources.loc[:, 'end year'] = df_data_sources['end data collection'].apply(get_year_from_date)
 
             df_data_sources['type'] = 'Data source'
 
@@ -189,8 +189,8 @@ class Transform:
                                          'informed consent': 'informed consent required'}, inplace=True)
 
             # transform dates to years
-            df_databanks.loc[:, 'start year'] = df_databanks['date established'][0:4]
-            df_databanks.loc[:, 'end year'] = df_databanks['end data collection'][0:4]
+            df_databanks.loc[:, 'start year'] = df_databanks['date established'].apply(get_year_from_date)
+            df_databanks.loc[:, 'end year'] = df_databanks['end data collection'].apply(get_year_from_date)
 
             df_databanks['type'] = 'Databank'
 
@@ -209,7 +209,9 @@ class Transform:
             df_resources = df_data_sources
         elif self.database_type == 'network':
             df_resources = pd.concat([df_networks, df_models])
-        # df_resources = float_to_int(df_resources)  # convert float back to integer
+
+        df_resources.loc[:, 'keywords'] = df_resources['keywords'].apply(reformat_keywords)
+
         df_resources.to_csv(self.path.joinpath('Resources.csv'), index=False)
 
     def organisations(self):
@@ -281,32 +283,42 @@ class Transform:
         """Transform Publications table
         """
         df_resources = pd.read_csv(self.path.joinpath('Resources.csv'), dtype='object')
+        # TODO: get publications from shared staging area here
         df_publications = pd.read_csv(self.path.joinpath('Publications.csv'), dtype='object')
 
-        if self.database_type != 'network':
-            df_design_paper = df_resources[['id', 'design paper']].copy()
-            df_design_paper.loc[:, 'is design publication'] = 'true'
-            df_design_paper = df_design_paper.rename(columns={'id': 'resource',
-                                                              'design paper': 'doi'})
-            df_design_paper = df_design_paper.dropna(axis=0)
+        if not len(df_publications) == 0:
+            if self.database_type != 'network':
+                df_design_paper = df_resources[['id', 'design paper']]
+                df_design_paper.loc[:, 'is design publication'] = 'true'
+                df_design_paper = df_design_paper.rename(columns={'id': 'resource',
+                                                                  'design paper': 'doi'})
+                df_design_paper = df_design_paper.dropna(axis=0)
 
-        if self.database_type != 'cohort_UMCG':
-            df_other_pubs = df_resources[['id', 'publications']].copy()
-            df_other_pubs.loc[:, 'is design publication'] = 'false'
-            df_other_pubs = df_other_pubs.rename(columns={'id': 'resource',
-                                                          'publications': 'doi'})
-            df_other_pubs = df_other_pubs.dropna(axis=0)
+            if self.database_type != 'cohort_UMCG':
+                df_other_pubs = df_resources[['id', 'publications']]
+                df_other_pubs.loc[:, 'is design publication'] = 'false'
+                df_other_pubs = df_other_pubs.rename(columns={'id': 'resource',
+                                                              'publications': 'doi'})
+                df_other_pubs = df_other_pubs.dropna(axis=0)
 
-        if self.database_type == 'network':
-            df_resource_pubs = get_publications(df_other_pubs, df_publications)
-        elif self.database_type == 'cohort_UMCG':
-            df_resource_pubs = get_publications(df_design_paper, df_publications)
-        else:
-            df_merged_pubs = pd.concat([df_design_paper, df_other_pubs])
-            df_merged_pubs = df_merged_pubs.reset_index()
-            df_resource_pubs = get_publications(df_merged_pubs, df_publications)
-        df_resource_pubs = df_resource_pubs.drop_duplicates(subset=['resource', 'doi'], keep='first')
-        df_resource_pubs.to_csv(self.path.joinpath('Publications.csv'), index=False)
+            if self.database_type == 'network':
+                df_resource_pubs = get_publications(df_other_pubs, df_publications)
+            elif self.database_type == 'cohort_UMCG':
+                df_resource_pubs = get_publications(df_design_paper, df_publications)
+            else:
+                df_merged_pubs = pd.concat([df_design_paper, df_other_pubs])
+                df_merged_pubs = df_merged_pubs.reset_index()
+                df_resource_pubs = get_publications(df_merged_pubs, df_publications)
+            df_resource_pubs = df_resource_pubs.drop_duplicates(subset=['resource', 'doi'], keep='first')
+            df_resource_pubs.to_csv(self.path.joinpath('Publications.csv'), index=False)
+
+    def external_identifiers(self):
+        df = pd.read_csv(self.path.joinpath('External identifiers.csv'), keep_default_na=False, dtype='object')
+        df_internal = df[df['external identifier type'].isin(['UMCG register Utopia', 'UMCG PaNaMaID'])]
+        df_external = df[~df['external identifier type'].isin(['UMCG register Utopia', 'UMCG PaNaMaID'])]
+
+        df_internal.to_csv(self.path.joinpath('Internal identifiers.csv'), index=False)
+        df_external.to_csv(self.path.joinpath('External identifiers.csv'), index=False)
 
     def network_variables(self):
         df = pd.read_csv(self.path.joinpath('Network variables.csv'), keep_default_na=False, dtype='object')
@@ -439,10 +451,7 @@ class Transform:
                                'subcohorts': 'subpopulations',
                                'collection event.name': 'collection event',
                                'network': 'resource',
-                               'main resource': 'resource',
-                               'variable.resource': 'resource',
-                               'variable.dataset': 'dataset',
-                               'variable.name': 'variable'}, inplace=True)
+                               'main resource': 'resource'}, inplace=True)
 
             df.to_csv(self.path.joinpath(table_name + '.csv'), index=False)
 
@@ -665,3 +674,17 @@ def get_end_day(end_month):
             '11': '30',
             '12': '31'
     }[end_month]
+
+
+def get_year_from_date(date):
+    if not pd.isna(date):
+        year = date[0:4]
+
+        return year
+
+
+def reformat_keywords(keywords):
+    if not pd.isna(keywords):
+        keywords = keywords.replace(';', ',')
+
+    return keywords

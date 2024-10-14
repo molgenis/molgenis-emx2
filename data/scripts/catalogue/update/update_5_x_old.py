@@ -114,9 +114,7 @@ class Transform:
         # Cohorts to Resources
         df_catalogues = pd.read_csv(self.path + 'Catalogues.csv', dtype='object')
         df_catalogues['name'] = df_catalogues['network']
-        df_catalogues['description'] = 'to be filled out'  # TODO: data model get Resources.description
 
-        # df_catalogues = float_to_int(df_catalogues)  # convert float back to integer
         df_catalogues.to_csv(self.path + 'Catalogues.csv', index=False)
 
     def resources(self):
@@ -186,7 +184,7 @@ class Transform:
                                          'areas of information': 'areas of information rwd',
                                          'informed consent': 'informed consent required'}, inplace=True)
 
-            # transform dates to years  # TODO: check date established == start data collection
+            # transform dates to years
             df_databanks.loc[:, 'start year'] = df_databanks['date established'].apply(get_year_from_date)
             df_databanks.loc[:, 'end year'] = df_databanks['end data collection'].apply(get_year_from_date)
 
