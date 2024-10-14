@@ -1,4 +1,4 @@
-// Generated (on: 2024-10-14T17:02:25.017469) from Generator.java for schema: catalogue
+// Generated (on: 2024-10-14T16:57:23.273338) from Generator.java for schema: catalogue
 
 export interface IFile {
   id?: string;
@@ -1058,7 +1058,8 @@ export interface IVariables {
   mappings?: IVariableMappings[];
 }
 
-export interface IVersion {}
+export interface IVersion {
+}
 
 export interface IVocabularies {
   order?: number;
@@ -1071,3 +1072,5 @@ export interface IVocabularies {
   definition?: string;
   children?: IVocabularies[];
 }
+
+
