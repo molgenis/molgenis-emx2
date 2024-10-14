@@ -208,6 +208,8 @@ class Transform:
         elif self.database_type == 'network':
             df_resources = pd.concat([df_networks, df_models])
 
+        df_resources.loc[:, 'keywords'] = df_resources['keywords'].apply(reformat_keywords)
+
         df_resources.to_csv(self.path + 'Resources.csv', index=False)
 
     def organisations(self):
@@ -673,3 +675,10 @@ def get_year_from_date(date):
         year = date[0:4]
 
         return year
+
+
+def reformat_keywords(keywords):
+    if not pd.isna(keywords):
+        keywords = keywords.replace(';', ',')
+
+    return keywords
