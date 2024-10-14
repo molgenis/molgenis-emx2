@@ -142,13 +142,13 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | 52 | PARTNERS | logo, Name of organisation, ">Read more" and arrow to navigate to details | | |
 | | | name of test additional organisation 2 | | |
 | 53 | NETWORKS | List of networks in which this resource is involved | | |
-| | | logo, Name of network, ">Read more? And arrow to navigate to details | | |
+| | | For each network: logo, name, > Website, and an arrow to navigate to details | | |
 | | | name of test network2 | | |
-| | | > Read more | | |
+| | | > Website | | |
 | | | name of test network of networks | | |
-| | | > Read more | | |
+| | | > Website | | |
 | | | name of test network1 | | |
-| | | > Read more | | |
+| | | > Website | | |
 | 54 | Click on 'name of test network of networks' | go to molgenis.org in a new window | | |
 | 55 | return to resource detail view | | | |
 | 56| PUBLICATIONS | | | |
