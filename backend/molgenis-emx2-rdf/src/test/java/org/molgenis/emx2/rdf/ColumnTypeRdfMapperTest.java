@@ -314,10 +314,10 @@ class ColumnTypeRdfMapperTest {
                 retrieveValues(ColumnType.LONG_ARRAY.name())),
         () ->
             Assertions.assertEquals(
-                Set.of(Values.literal(0.5F)), retrieveValues(ColumnType.DECIMAL.name())),
+                Set.of(Values.literal(0.5D)), retrieveValues(ColumnType.DECIMAL.name())),
         () ->
             Assertions.assertEquals(
-                Set.of(Values.literal(1.5F), Values.literal(2.5F)),
+                Set.of(Values.literal(1.5D), Values.literal(2.5D)),
                 retrieveValues(ColumnType.DECIMAL_ARRAY.name())),
         () ->
             Assertions.assertEquals(
