@@ -25,17 +25,21 @@ public class TaskServiceInMemory implements TaskService {
 
   @Override
   public String submit(Task task) {
-    if (task.getParentTask() != null && tasks.containsKey(task.getParentTask().getId())) {
-      Task parentTask = tasks.get(task.getParentTask().getId());
-      parentTask.addSubTask(task);
-      if (parentTask.getStatus() == RUNNING) {
-        task.run();
-      } else {
-        executorService.submit(task);
-      }
-    } else {
+    if (task.getParentTask() == null || !tasks.containsKey(task.getParentTask().getId())) {
       tasks.put(task.getId(), task);
       executorService.submit(task);
+    } else {
+      Task parentTask = tasks.get(task.getParentTask().getId());
+      parentTask.addSubTask(task);
+      if (parentTask.getStatus() != RUNNING) {
+        String errorMessage =
+            "Child task started but parent task was not running with status: "
+                + parentTask.getStatus();
+        task.setError(errorMessage);
+        parentTask.completeWithError(errorMessage);
+        throw new MolgenisException(errorMessage);
+      }
+      task.run();
     }
     return task.getId();
   }
