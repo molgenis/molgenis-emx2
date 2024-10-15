@@ -68,4 +68,11 @@ class TestSqlTypeUtils {
         () ->
             assertEquals(List.of("aa", "bb"), Arrays.asList((String[]) output.get("sTRINGArray"))));
   }
+
+  @Test
+  void testWorkingValidationForEmailArray() {
+    List<Column> columns = List.of(column("SPAM blocklist", ColumnType.EMAIL_ARRAY));
+    Row row = row("SPAM blocklist", "bob@example.com,ros@example.com");
+    assertDoesNotThrow(() -> applyValidationAndComputed(columns, row));
+  }
 }
