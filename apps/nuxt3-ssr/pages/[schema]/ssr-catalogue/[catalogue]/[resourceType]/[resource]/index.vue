@@ -287,7 +287,7 @@ const tocItems = computed(() => {
       id: "Organisations",
     });
   }
-  if (peopleInvolvedSortedByRoleAndName.value) {
+  if (peopleInvolvedSortedByRoleAndName.value.length > 0) {
     tableOffContents.push({
       label: "Contributors",
       id: "Contributors",
@@ -509,7 +509,7 @@ if (route.params.catalogue) {
 }
 
 const peopleInvolvedSortedByRoleAndName = computed(() =>
-  resource.value.peopleInvolved?.sort((a, b) => {
+  [...(resource.value.peopleInvolved ?? [])].sort((a, b) => {
     const minimumOrderOfRolesA = a.role?.length
       ? Math.min(...a.role?.map((role) => role.order ?? Infinity))
       : Infinity;
@@ -599,7 +599,7 @@ const showPopulation = computed(
         ></ContentBlockOrganisations>
 
         <ContentBlockContact
-          v-if="peopleInvolvedSortedByRoleAndName"
+          v-if="peopleInvolvedSortedByRoleAndName.length > 0"
           id="Contributors"
           title="Contributors"
           :contributors="peopleInvolvedSortedByRoleAndName"
