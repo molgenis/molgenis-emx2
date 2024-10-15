@@ -1,9 +1,13 @@
 package org.molgenis.emx2.sql;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.sql.SqlTypeUtils.applyValidationAndComputed;
+import static org.molgenis.emx2.sql.SqlTypeUtils.convertRowToMap;
 
+import java.util.*;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
@@ -52,14 +56,16 @@ class TestSqlTypeUtils {
     assertEquals(row.getString("myCol"), row.getString("myCol"));
   }
 
-  /**
-   * Ensure the {@link ColumnType} used has a `validationRegexp` and triggers {@link ColumnType#isArray()}
-   */
   @Test
-  void testIdenticalColumnNameAndTypeArrayWithValidationString() {
-    TableMetadata tableMetadata =
-        table("Test", new Column("EMAIL_ARRAY").setType(ColumnType.EMAIL_ARRAY));
-    final Row row = new Row("EMAIL_ARRAY", "bob@example.com,ross@example.com");
-    applyValidationAndComputed(tableMetadata.getColumns(), row);
+  void testArrayConversionToMap() {
+    List<Column> columns = List.of(column("string array", ColumnType.STRING_ARRAY));
+    Row row = row("string array", "aa,bb");
+
+    Map<String, Object> output = convertRowToMap(columns, row);
+
+    assertAll(
+        () -> assertEquals(1, output.size()),
+        () ->
+            assertEquals(List.of("aa", "bb"), Arrays.asList((String[]) output.get("stringArray"))));
   }
 }
