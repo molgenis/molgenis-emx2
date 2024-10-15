@@ -58,14 +58,14 @@ class TestSqlTypeUtils {
 
   @Test
   void testArrayConversionToMap() {
-    List<Column> columns = List.of(column("string array", ColumnType.STRING_ARRAY));
-    Row row = row("string array", "aa,bb");
+    List<Column> columns = List.of(column("STRING array", ColumnType.STRING_ARRAY));
+    Row row = row("STRING array", "aa,bb");
 
     Map<String, Object> output = convertRowToMap(columns, row);
 
     assertAll(
-        () -> assertEquals(1, output.size()),
+        () -> assertEquals(Set.of("sTRINGArray"), output.keySet()),
         () ->
-            assertEquals(List.of("aa", "bb"), Arrays.asList((String[]) output.get("stringArray"))));
+            assertEquals(List.of("aa", "bb"), Arrays.asList((String[]) output.get("sTRINGArray"))));
   }
 }
