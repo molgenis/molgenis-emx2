@@ -2,12 +2,13 @@
   <PageHeader title="Admin Tools" />
   <Container class="flex flex-col items-center">
     <ContentBlock class="w-full mt-3" title="User management">
-      <h2>User List ({{ userCount }})</h2>
       <Button icon="plus" @click="createUserModal?.show()">
         Create User
       </Button>
 
+      <h2>User List ({{ userCount }})</h2>
       <Pagination
+        v-if="userCount > 100"
         :currentPage="currentPage"
         :totalPages="totalPages"
         @update="updateCurrentPage"
@@ -56,7 +57,35 @@
       </Modal>
 
       <Modal ref="editUserModal" title="Edit User">
-        {{ selectedUser }}
+        Add role
+        <InputSelect
+          id="select-schema"
+          v-model="schema"
+          :options="tempSchemas"
+        />
+        <InputSelect id="select-role" v-model="role" :options="roles" />
+
+        <Button size="tiny" icon="plus" />
+
+        <Table>
+          <template #head>
+            <TableHeadRow>
+              <TableHead></TableHead>
+              <TableHead>Schema</TableHead>
+              <TableHead>Role</TableHead>
+            </TableHeadRow>
+          </template>
+          <template #body>
+            <TableRow v-for="role in selectedUser?.roles">
+              <TableCell>
+                <Button size="tiny" icon="trash" />
+              </TableCell>
+              <TableCell>{{ role.schemaId }}</TableCell>
+              <TableCell>{{ role.role }}</TableCell>
+            </TableRow>
+          </template>
+        </Table>
+
         <template #footer>
           <Button @click="updateUser(selectedUser)">Save</Button>
           <Button @click="closeEditUserModal">Close</Button>
@@ -67,7 +96,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Modal } from "#build/components";
+import { type Modal } from "#build/components";
 import type { ISetting } from "../../metadata-utils/src/types";
 
 /**
@@ -80,6 +109,7 @@ import type { ISetting } from "../../metadata-utils/src/types";
  *  Wider modal
  *  Generic table components
  *  Password input
+ *  Select with more complex objects
  */
 
 /**
@@ -119,6 +149,9 @@ const userCount = ref(0);
 const totalPages = ref(0);
 const selectedUser = ref<IUser>();
 const schemas = ref<ISchemaInfo[]>([]);
+const roles = ref<string[]>([]);
+const role = ref<string>("Viewer");
+const schema = ref<string>("");
 
 const offset = computed(() => {
   return currentPage.value > 1
@@ -126,8 +159,14 @@ const offset = computed(() => {
     : "";
 });
 
+const tempSchemas = computed(() => {
+  return schemas.value.map((schema) => schema.id);
+});
+
 getUsers();
-getSchemas();
+await getSchemas();
+await getRoles();
+console.log("bla");
 
 function updateCurrentPage(newPage: number) {
   currentPage.value = newPage;
@@ -223,13 +262,30 @@ function closeCreateUserModal() {
 }
 
 async function getSchemas() {
-  const { data } = await useFetch<{ _schemas: ISchemaInfo[] }>(GRAPHQL, {
+  const { data } = await useFetch<{ data: { _schemas: ISchemaInfo[] } }>(
+    GRAPHQL,
+    {
+      method: "post",
+      body: {
+        query: "{_schemas{id,label}}",
+      },
+    }
+  );
+  schemas.value = data.value?.data._schemas || [];
+  schema.value = schemas.value.length ? schemas.value[0].id : "";
+}
+
+async function getRoles() {
+  if (!schemas.value.length) return;
+  const { data } = await useFetch<{
+    data: { _schema: { roles: { name: string }[] } };
+  }>("../" + schemas.value[0].id + GRAPHQL, {
     method: "post",
-    body: {
-      query: "{_schemas{id,label}}",
-    },
+    body: { query: "{_schema{roles{name}}}" },
   });
-  schemas.value = data.value?._schemas || [];
+  roles.value =
+    data.value?.data._schema.roles.map((role: { name: string }) => role.name) ||
+    [];
 }
 
 function handleError(message: string, error: any) {
