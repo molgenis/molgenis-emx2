@@ -58,7 +58,7 @@ public class ColumnTypeRdfMapper {
           entry(ColumnType.DATE, RdfColumnType.DATE),
           entry(ColumnType.DATE_ARRAY, RdfColumnType.DATE),
           entry(ColumnType.DATETIME, RdfColumnType.DATETIME),
-          entry(ColumnType.DATETIME_ARRAY, RdfColumnType.DATE),
+          entry(ColumnType.DATETIME_ARRAY, RdfColumnType.DATETIME),
           entry(ColumnType.PERIOD, RdfColumnType.DURATION),
           entry(ColumnType.PERIOD_ARRAY, RdfColumnType.DURATION),
 

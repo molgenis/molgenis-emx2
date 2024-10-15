@@ -130,13 +130,13 @@ class ColumnTypeRdfMapperTest {
                 ColumnType.DECIMAL_ARRAY.name(),
                 "1.5,2.5",
                 ColumnType.DATE.name(),
-                "2018-11-15",
+                "2000-01-01",
                 ColumnType.DATE_ARRAY.name(),
-                "2018-11-15,2020-02-04",
+                "2001-01-01,2002-01-01",
                 ColumnType.DATETIME.name(),
-                "2018-11-15T15:22",
+                "3000-01-01T12:30:00",
                 ColumnType.DATETIME_ARRAY.name(),
-                "2018-11-15T15:22,2020-02-04T22:49",
+                "3001-01-01T12:30:00,3002-01-01T12:30:00",
                 ColumnType.PERIOD.name(),
                 "P1D",
                 ColumnType.PERIOD_ARRAY.name(),
@@ -321,23 +321,23 @@ class ColumnTypeRdfMapperTest {
                 retrieveValues(ColumnType.DECIMAL_ARRAY.name())),
         () ->
             Assertions.assertEquals(
-                Set.of(Values.literal("2018-11-15", CoreDatatype.XSD.DATE)),
+                Set.of(Values.literal("2000-01-01", CoreDatatype.XSD.DATE)),
                 retrieveValues(ColumnType.DATE.name())),
         () ->
             Assertions.assertEquals(
                 Set.of(
-                    Values.literal("2018-11-15", CoreDatatype.XSD.DATE),
-                    Values.literal("2020-02-04", CoreDatatype.XSD.DATE)),
+                    Values.literal("2001-01-01", CoreDatatype.XSD.DATE),
+                    Values.literal("2002-01-01", CoreDatatype.XSD.DATE)),
                 retrieveValues(ColumnType.DATE_ARRAY.name())),
         () ->
             Assertions.assertEquals(
-                Set.of(Values.literal("2018-11-15T15:22", CoreDatatype.XSD.DATETIME)),
+                Set.of(Values.literal("3000-01-01T12:30:00", CoreDatatype.XSD.DATETIME)),
                 retrieveValues(ColumnType.DATETIME.name())),
         () ->
             Assertions.assertEquals(
                 Set.of(
-                    Values.literal("2018-11-15T15:22", CoreDatatype.XSD.DATETIME),
-                    Values.literal("2020-02-04T22:49", CoreDatatype.XSD.DATETIME)),
+                    Values.literal("3001-01-01T12:30:00", CoreDatatype.XSD.DATETIME),
+                    Values.literal("3002-01-01T12:30:00", CoreDatatype.XSD.DATETIME)),
                 retrieveValues(ColumnType.DATETIME_ARRAY.name())),
         () ->
             Assertions.assertEquals(
