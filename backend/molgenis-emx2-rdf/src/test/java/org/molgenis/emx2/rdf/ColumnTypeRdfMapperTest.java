@@ -163,13 +163,12 @@ class ColumnTypeRdfMapperTest {
                 "bb,cc",
                 ColumnType.EMAIL.name(),
                 "aap@example.com",
-                //                ColumnType.EMAIL_ARRAY.name(),
-                //                "noot@example.com,mies@example.com",
+                ColumnType.EMAIL_ARRAY.name(),
+                "noot@example.com,mies@example.com",
                 ColumnType.HYPERLINK.name(),
-                "https://molgenis.org"
-                //                ColumnType.HYPERLINK_ARRAY.name(),
-                //                "https://molgenis.org, https://github.com/molgenis"
-                ));
+                "https://molgenis.org",
+                ColumnType.HYPERLINK_ARRAY.name(),
+                "https://molgenis.org, https://github.com/molgenis"));
 
     allColumnTypes.getTable(REFBACK_TABLE).insert(row("id", "1", "ref", "lonelyString"));
 
