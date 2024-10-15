@@ -17,6 +17,8 @@ import dateUtils from "~/utils/dateUtils";
 const config = useRuntimeConfig();
 const route = useRoute();
 
+const resourceType = usePathResourceType();
+
 const query = gql`
   query Resources($id: String) {
     Resources(filter: { id: { equals: [$id] } }) {
@@ -54,9 +56,9 @@ const query = gql`
       populationAgeGroups {
         name order code parent { code }
       }
-      dateEstablished
-      startDataCollection
-      endDataCollection
+      dateLastRefresh
+      startYear
+      endYear
       license
       countries {
         name order
@@ -124,7 +126,7 @@ const query = gql`
         }
         role ${moduleToString(ontologyFragment)}
       }
-      organisationsInvolved  {
+      organisationsInvolved(orderby: {name: ASC})  {
         id
         name
         website
@@ -171,6 +173,9 @@ const query = gql`
             name
         }
         website
+        logo {
+          url
+        }
       }
     }
   }
@@ -282,7 +287,7 @@ const tocItems = computed(() => {
       id: "Organisations",
     });
   }
-  if (contributors.value) {
+  if (peopleInvolvedSortedByRoleAndName.value.length > 0) {
     tableOffContents.push({
       label: "Contributors",
       id: "Contributors",
@@ -423,13 +428,13 @@ let accessConditionsItems = computed(() => {
       content: resource.value.dataUseConditions,
     });
   }
-  if (resource.value.dataAccessFee) {
+  if (resource.value.dataAccessFee !== undefined) {
     items.push({
       label: "Data access fee",
       content: resource.value.dataAccessFee,
     });
   }
-  if (resource.value.releaseType) {
+  if (resource.value.releaseType !== undefined) {
     items.push({
       label: "Release type",
       type: "ONTOLOGY" as DefinitionListItemType,
@@ -442,7 +447,7 @@ let accessConditionsItems = computed(() => {
       content: resource.value.releaseDescription,
     });
   }
-  if (resource.value.prelinked) {
+  if (resource.value.prelinked !== undefined) {
     items.push({
       label: "Prelinked",
       content: resource.value.prelinked,
@@ -490,16 +495,36 @@ if (route.params.catalogue) {
   crumbs[
     cohortOnly.value ? "home" : (route.params.catalogue as string)
   ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}`;
-  crumbs[
-    route.params.resourceType as string
-  ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/${route.params.resourceType}`;
+  if (route.params.resourceType !== "about")
+    crumbs[
+      resourceType.plural
+    ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/${resourceType.path}`;
 } else {
   crumbs["Home"] = `/${route.params.schema}/ssr-catalogue/`;
   crumbs["Browse"] = `/${route.params.schema}/ssr-catalogue/all`;
-  crumbs["Resources"] = `/${route.params.schema}/ssr-catalogue/all/resource`;
+  if (route.params.resourceType !== "about")
+    crumbs[
+      resourceType.plural
+    ] = `/${route.params.schema}/ssr-catalogue/all/${resourceType.path}`;
 }
 
-const contributors = computed(() => resource.value.peopleInvolved);
+const peopleInvolvedSortedByRoleAndName = computed(() =>
+  [...(resource.value.peopleInvolved ?? [])].sort((a, b) => {
+    const minimumOrderOfRolesA = a.role?.length
+      ? Math.min(...a.role?.map((role) => role.order ?? Infinity))
+      : Infinity;
+    const minimumOrderOfRolesB = b.role?.length
+      ? Math.min(...b.role?.map((role) => role.order ?? Infinity))
+      : Infinity;
+    if (minimumOrderOfRolesA !== minimumOrderOfRolesB) {
+      return minimumOrderOfRolesA - minimumOrderOfRolesB;
+    } else if (a.lastName !== b.lastName) {
+      return a.lastName.localeCompare(b.lastName);
+    } else {
+      return a.firstName.localeCompare(b.firstName);
+    }
+  })
+);
 const organisations = computed(() => resource.value.organisationsInvolved);
 const showPopulation = computed(
   () =>
@@ -513,8 +538,15 @@ const showPopulation = computed(
     <template #header>
       <PageHeader
         id="resource-page-header"
-        :title="resource?.acronym || resource.name"
-        :description="resource?.acronym ? resource.name : ''"
+        :title="
+          route.params.resourceType === 'about'
+            ? 'About '
+            : resource?.acronym || resource.name
+        "
+        :description="
+          (route.params.resourceType === 'about' ? 'About ' : '') +
+          (resource?.name ? resource.name : '')
+        "
       >
         <template #prefix>
           <BreadCrumbs :crumbs="crumbs" />
@@ -567,10 +599,10 @@ const showPopulation = computed(
         ></ContentBlockOrganisations>
 
         <ContentBlockContact
-          v-if="contributors"
+          v-if="peopleInvolvedSortedByRoleAndName.length > 0"
           id="Contributors"
           title="Contributors"
-          :contributors="contributors"
+          :contributors="peopleInvolvedSortedByRoleAndName"
         >
         </ContentBlockContact>
 

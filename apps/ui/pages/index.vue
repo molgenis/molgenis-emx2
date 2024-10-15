@@ -1,7 +1,5 @@
 <script setup lang="ts">
-type Resp<T> = {
-  data: Record<string, T[]>;
-};
+import type { Resp } from "../../tailwind-components/types/types";
 
 interface Schema {
   id: string;

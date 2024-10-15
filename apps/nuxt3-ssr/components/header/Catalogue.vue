@@ -1,10 +1,13 @@
 <script setup lang="ts">
+import type { UIResource, UIResourceType } from "~/interfaces/types";
+
 const route = useRoute();
 const config = useRuntimeConfig();
 
 const props = defineProps<{
-  catalogue: any;
+  catalogue?: UIResource;
   variableCount: number;
+  resourceTypes: UIResourceType[];
 }>();
 
 const cohortOnly = computed(() => {
@@ -23,18 +26,16 @@ if (route.params.resourceType) {
   });
 }
 
-if (props.catalogue.resources_groupBy?.length) {
-  props.catalogue.resources_groupBy.forEach(
-    (sub: { type: { name: string }; count: string }) => {
-      const resourceTypeMetadata = getResourceMetadataForType(sub.type.name);
-      menu.push({
-        label: resourceTypeMetadata.plural,
-        link:
-          `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/` +
-          resourceTypeMetadata.path,
-      });
-    }
-  );
+if (props.resourceTypes.length > 0) {
+  props.resourceTypes.forEach((resourceType) => {
+    const resourceTypeMetadata = getResourceMetadataForType(
+      resourceType.type.name
+    );
+    menu.push({
+      label: resourceTypeMetadata.plural,
+      link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/${resourceTypeMetadata.path}`,
+    });
+  });
 }
 
 if (!cohortOnly.value && props.variableCount > 0)
@@ -51,7 +52,7 @@ if (cohortOnly.value) {
 } else if (catalogueRouteParam && catalogueRouteParam !== "all") {
   menu.push({
     label: "About",
-    link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/about-catalogue`,
+    link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/about/${catalogueRouteParam}`,
   });
 }
 
@@ -73,7 +74,9 @@ if (!cohortOnly.value) {
       <div class="items-center justify-between hidden xl:flex h-25">
         <Logo
           :link="`/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}`"
-          :image="catalogueRouteParam === 'all' ? null : catalogue?.logo?.url"
+          :image="
+            catalogueRouteParam === 'all' ? undefined : catalogue?.logo?.url
+          "
         />
         <MainNavigation :navigation="menu" :invert="true" />
         <!--  <div class="w-[450px]">
@@ -91,7 +94,7 @@ if (!cohortOnly.value) {
             <LogoMobile
               :link="`/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}`"
               :image="
-                catalogueRouteParam === 'all' ? null : catalogue?.logo?.url
+                catalogueRouteParam === 'all' ? undefined : catalogue?.logo?.url
               "
             />
           </div>
