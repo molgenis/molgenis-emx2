@@ -24,7 +24,6 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 log = logging.getLogger("Molgenis EMX2 Pyclient")
 
 
-
 class Client:
     """
     Use the Client object to log in to a Molgenis EMX2 server

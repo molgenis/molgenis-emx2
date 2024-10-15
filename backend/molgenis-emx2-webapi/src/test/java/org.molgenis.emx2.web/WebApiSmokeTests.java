@@ -1234,6 +1234,69 @@ public class WebApiSmokeTests {
     assertTrue(result.contains("[]"), "script should be unscheduled");
   }
 
+  @Test
+  public void testExecuteSubtaskInScriptTask()
+      throws JsonProcessingException, InterruptedException {
+    String parentJobName = "parentJobTest";
+    Table jobs = db.getSchema(SYSTEM_SCHEMA).getTable("Scripts");
+    jobs.delete(row("name", parentJobName));
+    db.dropSchemaIfExists("ScriptWithFileUpload");
+    jobs.insert(
+        row(
+            "name",
+            parentJobName,
+            "type",
+            "python",
+            "script",
+            """
+import asyncio
+import logging
+import os
+from molgenis_emx2_pyclient import Client
+
+async def main():
+    logging.basicConfig(level='INFO')
+    logging.getLogger("requests").setLevel(logging.WARNING)
+    logging.getLogger("urllib3").setLevel(logging.WARNING)
+
+    async with Client('http://localhost:8081', token=os.environ['MOLGENIS_TOKEN']) as client:
+        await client.create_schema(name="ScriptWithFileUpload", description="TestFileUploadScript",
+                    template="PET_STORE", include_demo_data=False, parent_job="${jobId}")
+
+if __name__ == '__main__':
+    asyncio.run(main())
+
+""",
+            "dependencies",
+            "--extra-index-url https://test.pypi.org/simple/\n"
+                + "molgenis-emx2-pyclient>=11.20.6"));
+    String result =
+        given()
+            .sessionId(SESSION_ID)
+            .when()
+            .post("/api/scripts/" + parentJobName)
+            .getBody()
+            .asString();
+
+    String url = new ObjectMapper().readTree(result).at("/url").textValue();
+
+    result = given().sessionId(SESSION_ID).get(url).asString();
+
+    String status = "WAITING";
+    int count = 0;
+    while (!result.contains("ERROR") && !"COMPLETED".equals(status) && !"ERROR".equals(status)) {
+      if (count++ > 30) {
+        throw new MolgenisException("failed: polling took too long, result is: " + result);
+      }
+      Thread.sleep(1000);
+      result = given().sessionId(SESSION_ID).get(url).asString();
+      status = new ObjectMapper().readTree(result).at("/status").textValue();
+    }
+    if (result.contains("ERROR")) {
+      fail(result);
+    }
+  }
+
   private static String getToken(String email, String password) throws JsonProcessingException {
     String mutation =
         """

@@ -25,10 +25,7 @@ public class TaskServiceInMemory implements TaskService {
 
   @Override
   public String submit(Task task) {
-    if (task.getParentTask() == null || !tasks.containsKey(task.getParentTask().getId())) {
-      tasks.put(task.getId(), task);
-      executorService.submit(task);
-    } else {
+    if (task.getParentTask() != null && tasks.containsKey(task.getParentTask().getId())) {
       Task parentTask = tasks.get(task.getParentTask().getId());
       parentTask.addSubTask(task);
       if (parentTask.getStatus() != RUNNING) {
@@ -40,6 +37,9 @@ public class TaskServiceInMemory implements TaskService {
         throw new MolgenisException(errorMessage);
       }
       task.run();
+    } else {
+      tasks.put(task.getId(), task);
+      executorService.submit(task);
     }
     return task.getId();
   }
