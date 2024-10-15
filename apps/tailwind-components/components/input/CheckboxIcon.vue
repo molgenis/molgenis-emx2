@@ -11,7 +11,6 @@
     <rect
       width="20"
       height="20"
-      class="border-input"
       :class="{
         'fill-input': !checked && !indeterminate,
         'fill-input-checked stroke-none': checked || indeterminate,

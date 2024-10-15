@@ -223,6 +223,7 @@ module.exports = {
         "valid": "var(--border-color-valid)",
         "disabled": "var(--border-color-disabled)",
         "input": "var(--border-color-input)",
+        "input-inverted": "var(--border-color-input-inverted)",
       }),
       stroke: ({ theme }) => ({
         "input": "var(--border-color-input)",

@@ -152,9 +152,12 @@ function handleChildSelect(selected: string[], parent: ITreeNode) {
               modelValue.includes(node.name) &&
               node.children?.every((c) => modelValue.includes(c.name))
             "
-            class="w-[40px] ml-[-6px] mr-0"
+            class="w-[40px] ml-[-6px]"
+            :class="{
+              '[&>rect]:stroke-gray-400': inverted,
+            }"
           />
-          <span class="w-auto">{{ node.name }}</span>
+          <span class="w-[calc(100%-40px)]">{{ node.name }}</span>
         </InputLabel>
         <div class="inline-flex items-center whitespace-nowrap">
           <div class="inline-block pl-1">
