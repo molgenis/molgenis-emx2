@@ -24,10 +24,6 @@ You could use this script as a [cron.daily](https://en.wikipedia.org/wiki/Cron) 
 #       
 # Restore can be done by: 
 # su - postgres -c "zstdcat /var/molgenis-backup/posgresql-<<date>>.sql.zst | /usr/bin/psql"
-#
-#
-# Copyright ©  Molgenis Dick Postma  
-# All righs reserverd
 ###
 
 USER="molgenis"
