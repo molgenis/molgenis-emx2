@@ -35,8 +35,18 @@ export const typeMetadata: IResourceTypeMetadata[] = [
     description: "Networks & Consortia",
   },
   { type: "Study", plural: "Studies", path: "studies" },
-  { type: "Clinical Trial", plural: "Clinical Trials", path: "trials" },
-  { type: "Common data model", plural: "Common data models", path: "cdms" },
+  {
+    type: "Clinical trial",
+    plural: "Clinical Trials",
+    path: "trials",
+    description: "Prospective collection with intervention(s)",
+  },
+  {
+    type: "Common data model",
+    plural: "Common data models",
+    path: "cdms",
+    description: "For data harmonization",
+  },
 ];
 
 export function getResourceMetadataForType(
