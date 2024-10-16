@@ -65,11 +65,10 @@ public class OIDCController {
     return JavalinHttpActionAdapter.INSTANCE.adapt(action, context);
   }
 
-  public Object handleLoginCallback(Context ctx) {
+  public void handleLoginCallback(Context ctx) {
     final JavalinWebContext context = new JavalinWebContext(ctx);
 
-    final HttpActionAdapter adapter =
-        FindBest.httpActionAdapter(null, securityConfig, JavalinHttpActionAdapter.INSTANCE);
+    HttpActionAdapter adapter = new JavalinCustomHttpActionAdapter();
     final CallbackLogic callbackLogic =
         FindBest.callbackLogic(null, securityConfig, DefaultCallbackLogic.INSTANCE);
 
@@ -83,7 +82,7 @@ public class OIDCController {
       logger.error("OIDC sign in failed, no profile found");
       ctx.status(500);
       ctx.redirect("/");
-      return ctx.res();
+      return;
     }
 
     String user = oidcProfile.get().getAttribute("email").toString();
@@ -91,7 +90,7 @@ public class OIDCController {
       logger.error("OIDC sign in failed, email claim is empty");
       ctx.status(500);
       ctx.redirect("/");
-      return ctx.res();
+      return;
     }
 
     Database database = sessionManager.getSession(ctx.req()).getDatabase();
@@ -103,6 +102,6 @@ public class OIDCController {
     logger.info("OIDC sign in for user: {}", user);
 
     ctx.status(302);
-    return ctx.res();
+    ctx.redirect("/");
   }
 }
