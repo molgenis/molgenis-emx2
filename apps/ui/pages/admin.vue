@@ -28,10 +28,10 @@
           <TableRow v-for="user in users">
             <TableCell>
               <Button
-                v-if="user.email !== 'anonymous' && user.email !== 'admin'"
+                v-if="canDelete(user)"
                 size="tiny"
                 icon="trash"
-                @click="deleteUser(user)"
+                @click="removeUser(user)"
               />
               <Button size="tiny" icon="user" @click="editUser(user)" />
             </TableCell>
@@ -51,7 +51,7 @@
         <InputString id="New user name" v-model="userName" />
         <InputString id="New user password" v-model="password" />
         <template #footer>
-          <Button @click="createUser(userName, password)"> Add user </Button>
+          <Button @click="addUser(userName, password)"> Add user </Button>
           <Button @click="closeCreateUserModal">Close</Button>
         </template>
       </Modal>
@@ -97,6 +97,16 @@
 
 <script setup lang="ts">
 import { type Modal } from "#build/components";
+import {
+  createUser,
+  deleteUser,
+  getRoles,
+  getSchemas,
+  getUsers,
+  updateUser,
+  type ISchemaInfo,
+  type IUser,
+} from "~/util/adminUtils";
 import type { ISetting } from "../../metadata-utils/src/types";
 
 /**
@@ -135,8 +145,6 @@ definePageMeta({
   middleware: "admin-only",
 });
 
-const GRAPHQL = "/graphql";
-const API_GRAPHQL = "/api/graphql";
 const LIMIT = 100;
 const editUserModal = ref<InstanceType<typeof Modal>>();
 const createUserModal = ref<InstanceType<typeof Modal>>();
@@ -163,134 +171,40 @@ const tempSchemas = computed(() => {
   return schemas.value.map((schema) => schema.id);
 });
 
-getUsers();
-await getSchemas();
-await getRoles();
-console.log("bla");
+retrieveUsers();
+schemas.value = await getSchemas();
+schema.value = schemas.value.length ? schemas.value[0].id : "";
+roles.value = await getRoles(schemas.value);
+
+async function addUser(userName: string, password: string) {
+  await createUser(userName, password);
+  closeCreateUserModal();
+  retrieveUsers();
+}
 
 function updateCurrentPage(newPage: number) {
   currentPage.value = newPage;
-  getUsers();
+  retrieveUsers();
 }
 
-async function getUsers() {
-  const { data, error } = await useFetch<IAdminResponse>(API_GRAPHQL, {
-    method: "post",
-    body: {
-      query: `{ _admin { users { email, settings, {key, value}, enabled, roles { schemaId, role } } userCount } }`,
-    },
-  });
-  if (error.value) {
-    handleError("Error loading users: ", error.value);
-    // todo handle error see catalogue error page
-  }
-  const transformedUsers = buildUsers(data.value?.data._admin.users || []);
-  users.value = transformedUsers;
-  userCount.value = data.value?.data._admin.userCount ?? 0;
+async function retrieveUsers() {
+  const { newUsers, newUserCount } = await getUsers();
+  users.value = newUsers;
+  userCount.value = newUserCount;
   const divided = userCount.value / LIMIT;
   totalPages.value =
     userCount.value % LIMIT > 0 ? Math.floor(divided) + 1 : divided;
 }
 
-function buildUsers(dataUsers: IUser[]) {
-  return dataUsers.map((user) => {
-    return { ...user, tokens: getTokens(user) };
-  });
-}
-
-function getTokens(user: IUser) {
-  if (user.settings.length) {
-    const tokens = user.settings.find((setting) => {
-      return setting.key === "access-tokens";
-    });
-    if (tokens) {
-      return tokens.value.split(",");
-    }
-  }
-  return [];
-}
-
-function deleteUser(user: IUser) {
-  useFetch(API_GRAPHQL, {
-    method: "post",
-    body: {
-      query: `mutation{removeUser(email: "${user.email}"){status,message}}`,
-      member: user.email,
-    },
-  })
-    .then(getUsers)
-    .catch((error) => {
-      handleError("Error deleting user: ", error.value);
-    });
-}
-
-function updateUser(user?: IUser) {
-  if (!user) return;
-
-  const userToSend = user;
-  useFetch(GRAPHQL, {
-    method: "post",
-    body: {
-      query: `mutation change($editMember:MolgenisMembersInput){change(members:[$editMember]){message}}`,
-      editMember: userToSend,
-    },
-  }).catch((error) => {
-    handleError("Error updating user: ", error.value);
-  });
-}
-
-function createUser(newUserName: string, newPassword: string) {
-  if (!newUserName || !newPassword) return;
-
-  useFetch(GRAPHQL, {
-    method: "post",
-    body: {
-      query: `mutation{changePassword(email: "${newUserName}", password: "${newPassword}"){status,message}}`,
-    },
-  })
-    .then(closeCreateUserModal)
-    .then(getUsers)
-    .catch((error) => {
-      handleError("Error creating/updating user: ", error.value);
-    });
+async function removeUser(user: IUser) {
+  await deleteUser(user);
+  getUsers();
 }
 
 function closeCreateUserModal() {
   createUserModal.value?.close();
   userName.value = "";
   password.value = "";
-}
-
-async function getSchemas() {
-  const { data } = await useFetch<{ data: { _schemas: ISchemaInfo[] } }>(
-    GRAPHQL,
-    {
-      method: "post",
-      body: {
-        query: "{_schemas{id,label}}",
-      },
-    }
-  );
-  schemas.value = data.value?.data._schemas || [];
-  schema.value = schemas.value.length ? schemas.value[0].id : "";
-}
-
-async function getRoles() {
-  if (!schemas.value.length) return;
-  const { data } = await useFetch<{
-    data: { _schema: { roles: { name: string }[] } };
-  }>("../" + schemas.value[0].id + GRAPHQL, {
-    method: "post",
-    body: { query: "{_schema{roles{name}}}" },
-  });
-  roles.value =
-    data.value?.data._schema.roles.map((role: { name: string }) => role.name) ||
-    [];
-}
-
-function handleError(message: string, error: any) {
-  console.log(message, error);
-  //see nuxt catalogue on how to handle errors
 }
 
 function editUser(user: IUser) {
@@ -303,26 +217,7 @@ function closeEditUserModal() {
   editUserModal.value?.close();
 }
 
-interface IAdminResponse {
-  data: {
-    _admin: {
-      users: IUser[];
-      userCount: number;
-    };
-  };
-}
-
-interface IUser {
-  //TODO split into communication and internal interface
-  email: string;
-  settings: ISetting[];
-  enabled: boolean;
-  tokens?: string[];
-  roles?: { schemaId: string; role: string }[];
-}
-
-interface ISchemaInfo {
-  id: string;
-  label: string;
+function canDelete(user: IUser) {
+  return user.email !== "anonymous" && user.email !== "admin";
 }
 </script>
