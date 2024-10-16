@@ -13,6 +13,7 @@ A naïve visitor to the data catalogue can click around and search within 'all r
 # Steps
 
 | Step | Action | Expected result | Github bug/issue | Playwright test |
+| ---- | ------ | --------------- | ---------------- | --------------- |
 | 0 | Navigate to [the home screen](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/testNetwork1) | End up on the overview page of the testNetwork1 | | |
 | 0.5 | Check numbers at the bottom, they come straight from the db, not sure how to verify | numbers are as expected (can I asssume this testset always?) | | |
 | 1 | Click on VARIABLES in the menu | End up at[the variable screen](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/testNetwork1/variables)| | |
