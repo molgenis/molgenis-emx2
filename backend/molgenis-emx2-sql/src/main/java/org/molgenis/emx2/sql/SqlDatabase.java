@@ -9,6 +9,7 @@ import static org.molgenis.emx2.sql.SqlDatabaseExecutor.*;
 import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeCreateSchema;
 
 import com.zaxxer.hikari.HikariDataSource;
+import java.security.SecureRandom;
 import java.util.*;
 import java.util.function.Supplier;
 import javax.sql.DataSource;
@@ -20,6 +21,7 @@ import org.jooq.impl.DSL;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 import org.molgenis.emx2.utils.RandomString;
+import org.molgenis.emx2.utils.generator.SnowflakeIdGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +35,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   public static final int TEN_SECONDS = 10;
   private static final Settings DEFAULT_JOOQ_SETTINGS =
       new Settings().withQueryTimeout(TEN_SECONDS);
+  private static final Random random = new SecureRandom();
 
   // shared between all instances
   private static DataSource source;
@@ -180,6 +183,13 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
         // use environment property unless overridden in settings
         this.setSetting(Constants.IS_OIDC_ENABLED, String.valueOf(isOidcEnabled));
       }
+
+      String instanceId = getSetting(Constants.MOLGENIS_INSTANCE_ID);
+      if (instanceId == null) {
+        instanceId = String.valueOf(random.nextLong(SnowflakeIdGenerator.MAX_ID));
+        this.setSetting(Constants.MOLGENIS_INSTANCE_ID, instanceId);
+      }
+      if (!SnowflakeIdGenerator.hasInstance()) SnowflakeIdGenerator.init(instanceId);
 
       if (getSetting(Constants.IS_PRIVACY_POLICY_ENABLED) == null) {
         this.setSetting(Constants.IS_PRIVACY_POLICY_ENABLED, String.valueOf(false));
@@ -493,7 +503,8 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   public void setEnabledUser(String user, Boolean enabled) {
     long start = System.currentTimeMillis();
     if (user.equals("admin")) throw new MolgenisException("You cant enable or disable admin");
-    if (user.equals("anonymous")) throw new MolgenisException("You cant enable or disable anonymous");
+    if (user.equals("anonymous"))
+      throw new MolgenisException("You cant enable or disable anonymous");
     if (!hasUser(user))
       throw new MolgenisException(
           (enabled ? "Enabling" : "Disabling")
@@ -788,5 +799,10 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       return result.get();
     }
     return null;
+  }
+
+  @Override
+  public List<LastUpdate> getLastUpdated() {
+    return ChangeLogExecutor.executeLastUpdates(jooq);
   }
 }
