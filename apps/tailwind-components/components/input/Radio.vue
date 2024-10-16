@@ -9,7 +9,7 @@
 
 <script lang="ts" setup>
 defineProps<{
-  value: string;
+  value: string | boolean;
 }>();
 
 const modelValue = defineModel<string>();

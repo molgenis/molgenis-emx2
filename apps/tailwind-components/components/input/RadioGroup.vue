@@ -3,7 +3,7 @@
     <div
       class="flex justify-start align-center"
       v-for="option in radioOptions"
-      :key="option.value"
+      :key="JSON.stringify(option.value)"
     >
       <InputRadio
         :id="`${id}-radio-group-${option.value}`"
