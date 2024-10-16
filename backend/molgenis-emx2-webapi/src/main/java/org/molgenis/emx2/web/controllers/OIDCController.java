@@ -39,7 +39,7 @@ public class OIDCController {
     this.sessionStore = FindBest.sessionStore(null, securityConfig, JEESessionStore.INSTANCE);
   }
 
-  public Object handleLoginRequest(Context ctx) {
+  public void handleLoginRequest(Context ctx) {
     final JavalinWebContext context = new JavalinWebContext(ctx);
     sessionStore.set(context, Pac4jConstants.REQUESTED_URL, ctx.queryParams("redirect"));
     final var client =
@@ -62,7 +62,7 @@ public class OIDCController {
     } catch (final HttpAction e) {
       action = e;
     }
-    return JavalinHttpActionAdapter.INSTANCE.adapt(action, context);
+    JavalinHttpActionAdapter.INSTANCE.adapt(action, context);
   }
 
   public void handleLoginCallback(Context ctx) {
