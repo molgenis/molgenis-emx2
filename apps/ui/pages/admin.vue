@@ -57,34 +57,55 @@
       </Modal>
 
       <Modal ref="editUserModal" title="Edit User">
-        Add role
-        <InputSelect
-          id="select-schema"
-          v-model="schema"
-          :options="tempSchemas"
-        />
-        <InputSelect id="select-role" v-model="role" :options="roles" />
+        <div>
+          <h3>Roles</h3>
+          <InputSelect
+            id="select-schema"
+            v-model="schema"
+            :options="tempSchemas"
+          />
+          <InputSelect id="select-role" v-model="role" :options="roles" />
+          <Button size="tiny" icon="plus" />
 
-        <Button size="tiny" icon="plus" />
+          <Table>
+            <template #head>
+              <TableHeadRow>
+                <TableHead></TableHead>
+                <TableHead>Schema</TableHead>
+                <TableHead>Role</TableHead>
+              </TableHeadRow>
+            </template>
+            <template #body>
+              <TableRow v-for="role in selectedUser?.roles">
+                <TableCell>
+                  <Button size="tiny" icon="trash" />
+                </TableCell>
+                <TableCell>{{ role.schemaId }}</TableCell>
+                <TableCell>{{ role.role }}</TableCell>
+              </TableRow>
+            </template>
+          </Table>
+        </div>
 
-        <Table>
-          <template #head>
-            <TableHeadRow>
-              <TableHead></TableHead>
-              <TableHead>Schema</TableHead>
-              <TableHead>Role</TableHead>
-            </TableHeadRow>
-          </template>
-          <template #body>
-            <TableRow v-for="role in selectedUser?.roles">
-              <TableCell>
-                <Button size="tiny" icon="trash" />
-              </TableCell>
-              <TableCell>{{ role.schemaId }}</TableCell>
-              <TableCell>{{ role.role }}</TableCell>
-            </TableRow>
-          </template>
-        </Table>
+        <div v-if="selectedUser?.tokens?.length">
+          <h3>Tokens</h3>
+          <Table>
+            <template #head>
+              <TableHeadRow>
+                <TableHead></TableHead>
+                <TableHead>Token</TableHead>
+              </TableHeadRow>
+            </template>
+            <template #body>
+              <TableRow v-for="token in selectedUser?.tokens">
+                <TableCell>
+                  <Button size="tiny" icon="trash" />
+                </TableCell>
+                <TableCell>{{ token }}</TableCell>
+              </TableRow>
+            </template>
+          </Table>
+        </div>
 
         <template #footer>
           <Button @click="updateUser(selectedUser)">Save</Button>
@@ -107,7 +128,6 @@ import {
   type ISchemaInfo,
   type IUser,
 } from "~/util/adminUtils";
-import type { ISetting } from "../../metadata-utils/src/types";
 
 /**
  * Component wishlist:
