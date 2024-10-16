@@ -10,10 +10,13 @@ import sys
 from datetime import datetime
 
 from dotenv import load_dotenv
+from molgenis_emx2_pyclient.exceptions import NoSuchSchemaException
 
 from tools.staging_migrator.src.molgenis_emx2_staging_migrator import StagingMigrator
 
 CATALOGUE = 'UMCG'
+
+LOOKBACK_TIME = 23 * 60 * 60  # seconds
 
 
 def main(staging_areas: list = None, args=None):
@@ -33,12 +36,17 @@ def main(staging_areas: list = None, args=None):
     with StagingMigrator(url=server_url, token=token, catalogue=CATALOGUE, table='Resources') as migrator:
 
         for sa in staging_areas:
-            migrator.set_staging_area(sa)
+            try:
+                migrator.set_staging_area(sa)
+            except NoSuchSchemaException:
+                logging.warning(f"Cannot find schema {sa!r}.")
 
-            if (datetime.now() - migrator.last_change()).total_seconds() < 23 * 60 * 60:
-                migrator.migrate(keep_zips=True)
+            last_change = migrator.last_change()
+
+            if last_change is not None and (datetime.now() - last_change).total_seconds() < LOOKBACK_TIME:
+                migrator.migrate(keep_zips=False)
             else:
-                logging.info(f"Skipping {sa}.")
+                logging.info(f"Skipping {sa!r}.")
 
 
 if __name__ == '__main__':

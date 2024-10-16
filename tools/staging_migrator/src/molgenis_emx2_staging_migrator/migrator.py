@@ -17,6 +17,7 @@ from .utils import (find_cohort_references, construct_delete_variables, has_stat
 log = logging.getLogger('Molgenis EMX2 Migrator')
 
 SchemaType: TypeAlias = Literal['source', 'target']
+PUBLICATIONS = 'Publications'
 
 
 class StagingMigrator(Client):
@@ -34,6 +35,7 @@ class StagingMigrator(Client):
         self.staging_area = staging_area
         self.catalogue = catalogue
         self.table = table
+        self.extra_tables: list[str] = [PUBLICATIONS] if self.table in ['Cohorts', 'Resources'] else []
 
     def __repr__(self):
         class_name = type(self).__name__
@@ -278,7 +280,7 @@ class StagingMigrator(Client):
                 if '_files/' in file_name:
                     upload_archive.writestr(file_name, BytesIO(source_archive.read(file_name)).getvalue())
                     continue
-                elif (table_name := Path(file_name).stem) not in tables_to_sync.keys():
+                elif (table_name := Path(file_name).stem) not in [*tables_to_sync.keys(), *self.extra_tables]:
                     continue
 
                 _table = source_archive.read(file_name)
@@ -380,13 +382,17 @@ class StagingMigrator(Client):
 
         return [resource[pkeys[0]] for resource in response_data[table_id]]
 
-    def last_change(self, staging_area: str = None) -> datetime:
-        """Retrieves the datetime of the latest change made on the staging area."""
+    def last_change(self, staging_area: str = None) -> datetime | None:
+        """Retrieves the datetime of the latest change made on the staging area.
+        Returns None if the changelog is disabled or empty.
+        """
         staging_area = staging_area or self.staging_area
 
         response = self.session.post(url=f"{self.url}/{staging_area}/settings/graphql",
                                          json={"query": changelog_query}, headers=self.session.headers)
         changelog = response.json().get('data').get('_changes')
+        if len(changelog) == 0:
+            return None
         change_date_str = changelog[0].get('stamp')
         change_datetime = datetime.strptime(change_date_str, '%Y-%m-%d %H:%M:%S.%f')
 
