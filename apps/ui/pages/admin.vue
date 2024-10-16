@@ -58,6 +58,18 @@
 
       <Modal ref="editUserModal" title="Edit User">
         <div>
+          <h3>Disable user</h3>
+          <InputRadioGroup
+            id="disabledUserRadio"
+            :radioOptions="[
+              { value: true, label: `Enabled` },
+              { value: false, label: `Disabled` },
+            ]"
+            :modelValue="isEnabled"
+          />
+        </div>
+
+        <div>
           <h3>Roles</h3>
           <InputSelect
             id="select-schema"
@@ -150,7 +162,6 @@ import {
  *  Does password creating/changing need a double input? -> yes
  *  Do we want a modal for creation with more options or is create into edit fine? -> modal
  *  Search bar for users (100s of users)
- *
  */
 
 /**
@@ -159,6 +170,7 @@ import {
  * make buttons double click safe
  * put component in right place
  * make stuff look better
+ * RadioGroup: allow for not only strings
  */
 
 definePageMeta({
@@ -180,6 +192,7 @@ const schemas = ref<ISchemaInfo[]>([]);
 const roles = ref<string[]>([]);
 const role = ref<string>("Viewer");
 const schema = ref<string>("");
+const isEnabled = ref<boolean>(true);
 
 const offset = computed(() => {
   return currentPage.value > 1
