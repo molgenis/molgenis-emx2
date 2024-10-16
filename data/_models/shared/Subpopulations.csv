@@ -13,3 +13,4 @@ Subpopulations,,comorbidity,ontology_array,,,CatalogueOntologies,Diseases,,,,,"C
 Subpopulations,,countries,ontology_array,,,CatalogueOntologies,Countries,,,,dcterms:coverage,Countries where data from this subpopulation largely originate from,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,NetworksStaging",
 Subpopulations,,regions,ontology_array,,,CatalogueOntologies,Regions,,,,dcterms:coverage,Geographical regions where data from this subpopulation largely originate from,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,NetworksStaging",
 Subpopulations,,inclusion criteria,text,,,,,,,,,Inclusion criteria applied to this subpopulation,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,NetworksStaging",
+Subpopulations,,exclusion criteria,text,,,,,,,,,Exclusion criteria applied to this subpopulation,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,NetworksStaging",
