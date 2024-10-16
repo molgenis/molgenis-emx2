@@ -141,7 +141,7 @@ function handleChildSelect(selected: string[], parent: ITreeNode) {
         />
         <InputLabel
           :for="node.name"
-          class="flex justify-center items-start hover:cursor-pointer text-body-sm group"
+          class="flex justify-center items-start hover:cursor-pointer"
         >
           <InputCheckboxIcon
             :indeterminate="
@@ -152,12 +152,14 @@ function handleChildSelect(selected: string[], parent: ITreeNode) {
               modelValue.includes(node.name) &&
               node.children?.every((c) => modelValue.includes(c.name))
             "
-            class="w-[40px] ml-[-6px]"
+            class="w-[20px] ml-[-6px]"
             :class="{
               '[&>rect]:stroke-gray-400': inverted,
             }"
           />
-          <span class="w-[calc(100%-40px)]">{{ node.name }}</span>
+          <span class="block w-[calc(100%-20px)] text-body-sm leading-normal">{{
+            node.name
+          }}</span>
         </InputLabel>
         <div class="inline-flex items-center whitespace-nowrap">
           <div class="inline-block pl-1">
