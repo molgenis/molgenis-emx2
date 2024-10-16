@@ -5,6 +5,7 @@ import static java.lang.Boolean.TRUE;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.jetbrains.annotations.NotNull;
 import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.Database;
@@ -18,32 +19,7 @@ public class ChangeLogUtils {
   }
 
   public static String buildProcessAuditFunction(TableMetadata tableMetadata) {
-    List<String> columnNames = new ArrayList<>();
-    tableMetadata
-        .getColumns()
-        .forEach(
-            column -> {
-              ColumnType type = column.getColumnType();
-              if (type.isRef() || type.isRefArray()) {
-                column
-                    .getReferences()
-                    .forEach(
-                        ref -> {
-                          columnNames.add(ref.getName());
-                        });
-              } else if (type.isFile()) {
-                columnNames.add(column.getName() + "_filename");
-                columnNames.add(column.getName() + "_size");
-              } else if (!type.isHeading()) {
-                columnNames.add(column.getName());
-              }
-            });
-
-    String columnNameArray =
-        columnNames.stream()
-            .filter(name -> !name.startsWith("mg_"))
-            .map(name -> "'" + name + "'")
-            .collect(Collectors.joining(","));
+    String columnNameArray = getColumnNamesThatShouldBeIncludedInChangelog(tableMetadata);
 
     return """
         CREATE OR REPLACE FUNCTION "%1$s"."process_%3$s_audit"()
@@ -102,6 +78,40 @@ public class ChangeLogUtils {
             ChangeLogUtils.buildFunctionName(tableMetadata.getSchemaName()),
             ChangeLogUtils.buildFunctionName(tableMetadata.getTableName()),
             columnNameArray);
+  }
+
+  private static @NotNull String getColumnNamesThatShouldBeIncludedInChangelog(
+      TableMetadata tableMetadata) {
+    List<String> columnNames = new ArrayList<>();
+    tableMetadata
+        .getColumns()
+        .forEach(
+            column -> {
+              ColumnType type = column.getColumnType();
+              if (type.isRef() || type.isRefArray()) {
+                column
+                    .getReferences()
+                    .forEach(
+                        // composite keys consist of multiple column names
+                        ref -> {
+                          columnNames.add(ref.getName());
+                        });
+              } else if (type.isFile()) {
+                // for file we don't include the data
+                columnNames.add(column.getName() + "_filename");
+                columnNames.add(column.getName() + "_size");
+              } else if (!type.isHeading()) {
+                // heading don't have data
+                columnNames.add(column.getName());
+              }
+            });
+
+    String columnNameArray =
+        columnNames.stream()
+            .filter(name -> !name.startsWith("mg_"))
+            .map(name -> "'" + name + "'")
+            .collect(Collectors.joining(","));
+    return columnNameArray;
   }
 
   public static String buildAuditTrigger(String schemaName, String tableName) {
