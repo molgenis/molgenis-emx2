@@ -25,7 +25,7 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | 8 | close the notification, if any pops up | return to the detailed page for "acronym for test cohort 2" | | |
 | 9 | click on website link | go to molgenis.org in a new window | | |
 | 10 | close website and return to catalogue | return to resource detail view page | | |
-| 11 | See that the following is visible on the left hand side of the screen | (logo for resource), Description, General design, Population, Contributors, Available data & samples, Subpopulations, Collection events, Datasets, Partners, Networks, Publications, Access conditions, Funding & acknowledgements, Documentation | | |
+| 11 | See that the following is visible on the left hand side of the screen | (logo for resource), Description, General design, Population, Organisations, Contributors, Available data & samples, Subpopulations, Collection events, Datasets, Networks, Publications, Access conditions, Funding & acknowledgements, Documentation | | |
 | 12 | See that the fields are filled as follows: | | | |
 | 13 | First block: | small logo (test logo for cohort 2), <www.molgenis.org>, Contact button | | |
 | 14 | DESCRIPTION | This is the Test cohort 2. It has "other" options where possible. No end year, so "ongoing". Design paper = Birth of a cohort — the first 20 years of the Raine study, publications = other papers. No to data access fee. Here we have some extra text to... | | |
@@ -44,6 +44,7 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | 26a | Click on the design paper | goes to the article <https://onlinelibrary.wiley.com/doi/10.5694/mja12.10698> in a new window | | |
 | 26b | close the window or reselect the catalogue display window | | | |
 | 27 | PID | https://pid-for-testcohort2.org | | |
+| 27b| External identifiers| EUDRACT number: test external identifier for cohort 2 |||
 | 28 | POPULATION | | | |
 | 29 | Countries | United Kingdom of Great Britain and Northern Ireland (the) | | |
 | 30 | Regions | Bradford | | |
@@ -138,9 +139,7 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | | | Number of rows 83737 | | |
 | | | Since version 1959 | | |
 | | | Until version 1985 | | |
-| | Click the cross top right to close the pop-up | Come back to resource detail page | | |
-| 52 | PARTNERS | logo, Name of organisation, ">Read more" and arrow to navigate to details | | |
-| | | name of test additional organisation 2 | | |
+| 52 | Click the cross top right to close the pop-up | Come back to resource detail page | | |
 | 53 | NETWORKS, subtitle: Part of networks | List of networks in which this resource is involved. For each network: logo, name, > Website, and an arrow to navigate to details. | | |
 | | | name of test network2 | | |
 | | | > Website | | |
@@ -161,7 +160,7 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | | Release description |Release description cohort 2 | | |
 | | Prelinked | false | | |
 | | Linkage options | Linkage options cohort 2 | | |
-| 58 | FUNDING & ACKNOWLEDGEMENTS | Funding This is the funding statement for cohort 1. It's not too long but covers more than one line, I think, particularly if I fill it up with blah blah blah (check for "until now" at the end to make sure all the text has been displayed) lorem ipsum text repeated several times UNTIL NOW | | |
-| | | Acknowledgements This is the acknowledgement statement for cohort 1. It's not too long but covers more than one line, I think, particularly if I fill it up with blah blah blah (check for "until now" at the end to make sure all the text has been displayed) lorem ipsum text repeated several times UNTIL NOW | | |
+| 58 | FUNDING & ACKNOWLEDGEMENTS | Funding This is the funding statement for cohort 2. It's not too long but covers more than one line, I think, particularly if I fill it up with blah blah blah (check for "until now" at the end to make sure all the text has been displayed) lorem ipsum text repeated several times UNTIL NOW | | |
+| | | Acknowledgements This is the acknowledgement statement for cohort 2. It's not too long but covers more than one line, I think, particularly if I fill it up with blah blah blah (check for "until now" at the end to make sure all the text has been displayed) lorem ipsum text repeated several times UNTIL NOW | | |
 | 59 | DOCUMENTATION | | | |
 | | | Card per document, clickable so that you open the document - TEST SIGNED CODE OF CONDUCT FOR COHORT 2 is downloaded into the PC's Downloads folder if the user clicks on it | | |
