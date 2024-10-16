@@ -37,3 +37,4 @@ A researcher working in consortium X (*example: testNetwork1*) searches for spec
 | 16 | Hover over 'about statuses' | Pop up should show 'Available: source has data available for the variable'; 'No data: source does not have data available for the variable' | | |
 | 17 | Click first variable | Should show pop up/dialog with information about variable | | |
 | 18 | Click 'more details' in dialog | Should redirect to variable detailed view | | |
+| 19 | |See that the variable 'ga_lmp' (a LifeCycle variable mapped by testcohort2) is NOT shown in the list
