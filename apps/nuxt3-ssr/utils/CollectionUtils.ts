@@ -39,12 +39,14 @@ export const typeMetadata: IResourceTypeMetadata[] = [
     type: "Clinical trial",
     plural: "Clinical Trials",
     path: "trials",
+    image: "image-data-warehouse",
     description: "Prospective collection with intervention(s)",
   },
   {
     type: "Common data model",
     plural: "Common data models",
     path: "cdms",
+    image: "image-data-warehouse",
     description: "For data harmonization",
   },
 ];
@@ -60,6 +62,7 @@ export function getResourceMetadataForType(
       plural: type,
       image: "image-link",
       path: type,
+      description: "",
     }
   );
 }

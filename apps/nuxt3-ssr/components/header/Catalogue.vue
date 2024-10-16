@@ -29,7 +29,7 @@ if (route.params.resourceType) {
 if (props.resourceTypes.length > 0) {
   props.resourceTypes.forEach((resourceType) => {
     const resourceTypeMetadata = getResourceMetadataForType(
-      resourceType.type.name
+      resourceType.type?.name
     );
     menu.push({
       label: resourceTypeMetadata.plural,
