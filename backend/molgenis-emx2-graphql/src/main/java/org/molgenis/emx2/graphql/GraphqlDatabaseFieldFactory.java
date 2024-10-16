@@ -19,6 +19,27 @@ import org.molgenis.emx2.tasks.TaskService;
 
 public class GraphqlDatabaseFieldFactory {
 
+  static final GraphQLType lastUpdateMetadataType =
+      new GraphQLObjectType.Builder()
+          .name("ChangesType")
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(OPERATION)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition().name(STAMP).type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition().name(USERID).type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(TABLENAME)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(SCHEMA_NAME)
+                  .type(Scalars.GraphQLString))
+          .build();
+
   public static final GraphQLType outputSchemasType =
       new GraphQLObjectType.Builder()
           .name("SchemaInfo")
@@ -273,6 +294,13 @@ public class GraphqlDatabaseFieldFactory {
               return new GraphqlApiMutationResult(SUCCESS, messageBuilder.toString().trim());
             })
         .build();
+  }
+
+  public GraphQLFieldDefinition.Builder lastUpdateQuery(Database database) {
+    return GraphQLFieldDefinition.newFieldDefinition()
+        .name("_lastUpdate")
+        .type(GraphQLList.list(lastUpdateMetadataType))
+        .dataFetcher(dataFetchingEnvironment -> database.getLastUpdated());
   }
 
   private static void dropUsers(

@@ -173,6 +173,9 @@ const query = gql`
             name
         }
         website
+        logo {
+          url
+        }
       }
     }
   }
@@ -284,7 +287,7 @@ const tocItems = computed(() => {
       id: "Organisations",
     });
   }
-  if (contributors.value) {
+  if (peopleInvolvedSortedByRoleAndName.value.length > 0) {
     tableOffContents.push({
       label: "Contributors",
       id: "Contributors",
@@ -425,13 +428,13 @@ let accessConditionsItems = computed(() => {
       content: resource.value.dataUseConditions,
     });
   }
-  if (resource.value.dataAccessFee) {
+  if (resource.value.dataAccessFee !== undefined) {
     items.push({
       label: "Data access fee",
       content: resource.value.dataAccessFee,
     });
   }
-  if (resource.value.releaseType) {
+  if (resource.value.releaseType !== undefined) {
     items.push({
       label: "Release type",
       type: "ONTOLOGY" as DefinitionListItemType,
@@ -444,7 +447,7 @@ let accessConditionsItems = computed(() => {
       content: resource.value.releaseDescription,
     });
   }
-  if (resource.value.prelinked) {
+  if (resource.value.prelinked !== undefined) {
     items.push({
       label: "Prelinked",
       content: resource.value.prelinked,
@@ -505,8 +508,8 @@ if (route.params.catalogue) {
     ] = `/${route.params.schema}/ssr-catalogue/all/${resourceType.path}`;
 }
 
-const contributors = computed(() =>
-  resource.value.peopleInvolved.sort((a, b) => {
+const peopleInvolvedSortedByRoleAndName = computed(() =>
+  [...(resource.value.peopleInvolved ?? [])].sort((a, b) => {
     const minimumOrderOfRolesA = a.role?.length
       ? Math.min(...a.role?.map((role) => role.order ?? Infinity))
       : Infinity;
@@ -596,10 +599,10 @@ const showPopulation = computed(
         ></ContentBlockOrganisations>
 
         <ContentBlockContact
-          v-if="contributors"
+          v-if="peopleInvolvedSortedByRoleAndName.length > 0"
           id="Contributors"
           title="Contributors"
-          :contributors="contributors"
+          :contributors="peopleInvolvedSortedByRoleAndName"
         >
         </ContentBlockContact>
 

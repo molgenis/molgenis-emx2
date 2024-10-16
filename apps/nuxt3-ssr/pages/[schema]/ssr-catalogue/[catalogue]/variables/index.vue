@@ -184,7 +184,9 @@ const query = computed(() => {
       repeatMax
       label
       description
-      mappings ${moduleToString(mappingsFragment)}
+      mappings(filter:{match:{name:{equals:["complete","partial"]}}}) ${moduleToString(
+        mappingsFragment
+      )}
     }
     Resources(filter: $resourcesFilter, orderby: { id: ASC }) {
       id
@@ -231,6 +233,7 @@ const fetchData = async () => {
     ? {
         mappings: {
           source: { id: { equals: resourceConditions.map((c) => c.name) } },
+          match: { name: { equals: ["complete", "partial"] } },
         },
       }
     : undefined;
