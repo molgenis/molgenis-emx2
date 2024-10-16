@@ -28,8 +28,8 @@ A researcher can filter on variables using the search filter, topics and cohorts
 | 9 | On the left hand side, expand Sources. | Long list of all the sources in the catalogue is displayed on the left hand side | | |
 | 10 | Select all 4 testCohorts. | See that the message 'No variables found with current filters' is displayed. | | |
 | 11 | Remove the filter on all 4 cohorts. | The list of variables remains at 15, and now all sources in the catalogue are displayed again, with their mappings. Sources without mappings are displayed. | | |
-| 12 | Click on the first variable, ‘asthma_0’| Pop-up with details of the variable is displayed. | | |
-| 13 | Click on More Details in the pop-up. | The overview page for the individual variable asthma_0 is displayed. | | |
+| 12 | Click on the first variable, ‘asthma_’| Pop-up with details of the variable is displayed. | | |
+| 13 | Click on More Details in the pop-up. | The overview page for the individual variable asthma_ is displayed. | | |
 | | | Harmonisation information is given for cohort Pelagie alone. | | |
 | | | The repeated variables are displayed in the correct numerical order. | | |
 | 14 | Go back using the browser’s back button. | Asthma filter is still in place in the overview, and no sources have been selected. | | |
