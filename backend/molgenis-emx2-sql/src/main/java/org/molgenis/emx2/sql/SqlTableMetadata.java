@@ -33,31 +33,32 @@ class SqlTableMetadata extends TableMetadata {
   // static to ensure we don't touch 'this' until complete
   private static SqlTableMetadata addTransaction(
       Database db, String schemaName, String tableName, Column[] column) {
-    SqlTableMetadata tm =
+    SqlTableMetadata tableMetadata =
         (SqlTableMetadata) db.getSchema(schemaName).getMetadata().getTableMetadata(tableName);
 
     // first per-column actions, then multi-column action such as composite keys/refs
-    int position = MetadataUtils.getMaxPosition(tm.getJooq(), schemaName) + 1;
+    int position = MetadataUtils.getMaxPosition(tableMetadata.getJooq(), schemaName) + 1;
     for (Column c : column) {
-      validateColumnIdentifierIsUnique(tm, c);
+      validateColumnIdentifierIsUnique(tableMetadata, c);
       long start = System.currentTimeMillis();
-      if (tm.getLocalColumn(c.getName()) != null) {
-        tm.alterColumn(c);
+      if (tableMetadata.getLocalColumn(c.getName()) != null) {
+        tableMetadata.alterColumn(c);
       } else {
-        Column newColumn = new Column(tm, c);
-        if (tm.getInheritName() != null
-            && tm.getInheritedTable().getColumn(c.getName()) != null
+        Column newColumn = new Column(tableMetadata, c);
+        if (tableMetadata.getInheritName() != null
+            && tableMetadata.getInheritedTable().getColumn(c.getName()) != null
             // this column is replicated in all subclass tables
             && !c.getName().equals(MG_TABLECLASS)) {
           throw new MolgenisException(
               "Cannot add column "
-                  + tm.getTableName()
+                  + tableMetadata.getTableName()
                   + "."
                   + c.getName()
                   + ": column exists in inherited class "
-                  + tm.getInheritName());
+                  + tableMetadata.getInheritName());
         }
-        checkNoColumnWithSameNameExistsInSubclass(c.getName(), tm, tm.getJooq());
+        checkNoColumnWithSameNameExistsInSubclass(
+            c.getName(), tableMetadata, tableMetadata.getJooq());
 
         if (!newColumn.isHeading()) {
           validateColumn(newColumn);
@@ -65,25 +66,28 @@ class SqlTableMetadata extends TableMetadata {
             // positions are asumed to number up in a schema
             newColumn.setPosition(position++);
           }
-          executeCreateColumn(tm.getJooq(), newColumn);
-          tm.columns.put(c.getName(), newColumn);
+          executeCreateColumn(tableMetadata.getJooq(), newColumn);
+          tableMetadata.columns.put(c.getName(), newColumn);
           if (newColumn.getKey() > 0) {
             createOrReplaceKey(
-                tm.getJooq(),
+                tableMetadata.getJooq(),
                 newColumn.getTable(),
                 newColumn.getKey(),
                 newColumn.getTable().getKeyFields(newColumn.getKey()));
           }
-          executeCreateRefConstraints(tm.getJooq(), newColumn);
+          executeCreateRefConstraints(tableMetadata.getJooq(), newColumn);
         } else {
-          saveColumnMetadata(tm.getJooq(), newColumn);
-          tm.columns.put(c.getName(), newColumn);
+          saveColumnMetadata(tableMetadata.getJooq(), newColumn);
+          tableMetadata.columns.put(c.getName(), newColumn);
         }
-        log(tm, start, "added column '" + newColumn.getName() + "' to table " + tm.getTableName());
+        log(
+            tableMetadata,
+            start,
+            "added column '" + newColumn.getName() + "' to table " + tableMetadata.getTableName());
       }
     }
-    updateChangeLogTrigger(tm);
-    return tm;
+    updateChangeLogTrigger(tableMetadata);
+    return tableMetadata;
   }
 
   private static void validateColumnIdentifierIsUnique(
