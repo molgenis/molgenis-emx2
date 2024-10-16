@@ -76,12 +76,12 @@ A researcher can filter on variables using the search filter, topics and cohorts
 | | | testVarLang2, | | |
 | | | testVarLang3Vir1, | | |
 | | | testVarNoRepeats, | | |
-| | | testVarRep-with-looong-name_(+10), | | |
-| | | testVarRepeats_(+10), | | |
+| | | testVarRep-with-looong-name_(repeated for trimester 0-3), | | |
+| | | testVarRepeats_(repeated for year 0-10), | | |
 | | | testVarVir2 | | |
 | 32 | Type ‘adhd’ in search bar | 2 variables are listed. | | |
 | | | testVarNoRepeats, | | |
-| | | testVarRepeats_(+10)| | |
+| | | testVarRepeats_(repeated for year 0-10)| | |
 | 33 | Click on Harmonisations button | Harmonisation matrix is opened. See that 2 variables are displayed and all 7 sources in the network are displayed, regardless of whether or not they have mappings. | | |
 | 34 | On the left hand side, expand Topics, press Search for options | Pop-up with topics is displayed | | |
 | 35 | Type ‘bio’ in the search bar | List of topics is reduced to those including the letters ‘bio’ either in their name or in the hover text (whether in subtopics or highest-level topic itself)| | |
