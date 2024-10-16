@@ -1,4 +1,4 @@
-// Generated (on: 2024-10-14T17:02:25.017469) from Generator.java for schema: catalogue
+// Generated (on: 2024-10-16T17:35:31.049225) from Generator.java for schema: catalogue
 
 export interface IFile {
   id?: string;
@@ -382,16 +382,16 @@ export interface IICDOTopologies {
   children?: IICDOTopologies[];
 }
 
-export interface IInclusionCriteria {
+export interface IInclusionExclusionCriteria {
   order?: number;
   name: string;
   label?: string;
-  parent?: IInclusionCriteria;
+  parent?: IInclusionExclusionCriteria;
   codesystem?: string;
   code?: string;
   ontologyTermURI?: string;
   definition?: string;
-  children?: IInclusionCriteria[];
+  children?: IInclusionExclusionCriteria[];
 }
 
 export interface IInformedConsentRequired {
@@ -718,6 +718,8 @@ export interface IResources {
   populationAgeGroups?: IOntologyNode[];
   inclusionCriteria?: IOntologyNode[];
   otherInclusionCriteria?: string;
+  exclusionCriteria?: IOntologyNode[];
+  otherExclusionCriteria?: string;
   populationEntry?: IOntologyNode[];
   populationEntryOther?: string;
   populationExit?: IOntologyNode[];
@@ -968,6 +970,7 @@ export interface ISubpopulations {
   countries?: IOntologyNode[];
   regions?: IOntologyNode[];
   inclusionCriteria?: string;
+  exclusionCriteria?: string;
 }
 
 export interface ITitles {

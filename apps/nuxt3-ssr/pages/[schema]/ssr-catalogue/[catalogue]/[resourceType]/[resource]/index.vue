@@ -87,6 +87,8 @@ const query = gql`
       populationOncologyMorphology ${moduleToString(ontologyFragment)}
       inclusionCriteria ${moduleToString(ontologyFragment)}
       otherInclusionCriteria
+      exclusionCriteria ${moduleToString(ontologyFragment)}
+      otherExclusionCriteria
       publications(orderby: {title:ASC}) {
         doi
         title
@@ -402,6 +404,15 @@ const population: IDefinitionListItem[] = [
   {
     label: "Other inclusion criteria",
     content: resource.value.otherInclusionCriteria,
+  },
+  {
+    label: "Exclusion criteria",
+    type: "ONTOLOGY",
+    content: resource.value.exclusionCriteria,
+  },
+  {
+    label: "Other exclusion criteria",
+    content: resource.value.otherExclusionCriteria,
   },
 ];
 
