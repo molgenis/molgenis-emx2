@@ -14,21 +14,18 @@ A naïve visitor to the data catalogue can click around through items in the men
 
 | Step | Action | Expected result | Github bug/issue | Playwright test |
 | ---- | ------ | --------------- |----------------- | --------------- |
-| 1 | Navigate to [ssr-catalogue/](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/) | | | |
-| 1a | | Landing page: European health research data and sample catalogue | | |
-| 1b | | The ribbon reads: `MOLGENIS` logo, `HOME`, `ALL RESOURCES`, `ALL VARIABLES`, `UPLOAD DATA` | | |
-| 1 | Hover over the `MOLGENIS` logo in the top left | The logo slightly increases in size | | |
-| 2 | Click on the `MOLGENIS` logo in the top left | The page does not reload and the user stays on the same page | | |
+| 1 | Navigate to [ssr-catalogue/](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/) | Landing page: European health research data and sample catalogue. The ribbon reads: `MOLGENIS` logo, `HOME`, `ALL RESOURCES`, `ALL VARIABLES`, `UPLOAD DATA` | | |
+| 2a | Hover over the `MOLGENIS` logo in the top left | The logo slightly increases in size | | |
+| 2b | Click on the `MOLGENIS` logo in the top left | The page does not reload and the user stays on the same page | | |
 | 3 | Hover over the `HOME` button | `HOME` is underlined | | |
 | 4 | Click on the `HOME` button | The page is reloaded | | |
 | 5 | Hover over the `ALL RESOURCES` button | `ALL RESOURCES` is underlined | | |
 | 6 | Click on the `ALL RESOURCES` button | The user goes to [/ssr-catalogue/all](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/all) | | |
 | 7 | Use the browser's ⬅️ button | The user goes back to [/ssr-catalogue](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/) | | |
 | 8 | Hover over the `ALL VARIABLES` button | `ALL VARIABLES` is underlined | | |
-| 9 | Click on the `ALL_VARIABLES` button | The user goes to [/ssr-catalogue/all/variables](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/all/variables) | | |
+| 9 | Click on the `ALL VARIABLES` button | The user goes to [/ssr-catalogue/all/variables](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/all/variables) | | |
 | 10 | Use the browser's ⬅️ button | The user goes back to [/ssr-catalogue](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/) | | |
-| | | | | |
-| 11 | Navigate to [/ssr-catalogue/all](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/all) | The ribbon reads: `MOLGENIS` logo, `OVERVIEW`, `COHORTS`, `DATA SOURCES`, `VARIABLES`, `MORE` | | |
+| 11 | Navigate to [/ssr-catalogue/all](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/all) | The ribbon reads: `MOLGENIS` logo, `RESOURCES`, `COHORT STUDIES`, `DATA SOURCES`, `DATABANKS`, `MORE` | | |
 | 12 | Hover over the `MOLGENIS` logo in the top left | The logo slightly increases in size | | |
 | 13 | Click on the `MOLGENIS` logo in the top left | The page does not reload and the user stays on the same page | | |
 | 14 | Hover over the `OVERVIEW` button | `OVERVIEW` is underlined | | |
