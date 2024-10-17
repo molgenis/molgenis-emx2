@@ -177,6 +177,6 @@ public class TaskApi {
       Task parentTask = taskService.getTask(parentTaskId);
       task.setParentTask(parentTask);
     }
-    return taskService.submit(task);
+    return submit(task);
   }
 }

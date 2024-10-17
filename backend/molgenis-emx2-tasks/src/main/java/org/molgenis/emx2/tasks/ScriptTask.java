@@ -8,6 +8,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -114,6 +115,12 @@ public class ScriptTask extends Task {
             .put(
                 "OUTPUT_FILE",
                 tempOutputFile.toAbsolutePath().toString()); // in case of an output file
+
+        // TODO: remove this when new pyclient is released.
+        String projectPath = System.getProperty("user.dir");
+        String pythonPath = Paths.get(projectPath, "tools", "pyclient", "src").toString();
+
+        builder.environment().put("PYTHONPATH", pythonPath);
 
         process = builder.start();
         this.addSubTask("Script started: " + process.info().commandLine().orElse("")).complete();
