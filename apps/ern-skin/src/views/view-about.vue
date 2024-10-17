@@ -4,7 +4,7 @@
       class="project-header main-header"
       title="ERN-Skin Registry"
       subtitle="About Us"
-      imageSrc="erras-header.jpg"
+      imageSrc="img/erras-header.jpg"
     />
     <PageSection aria-labelledby="the-european-reference-networks-title">
       <h2 id="the-european-reference-networks-title">
@@ -34,7 +34,7 @@
     <PageSection aria-labelledby="creation-of-the-ern-skin-title">
       <h2 id="creation-of-the-ern-skin-title">Creation of the ERN-Skin</h2>
       <img
-        src="/ern-skin-logo.png"
+        src="/img/ern-skin-logo.png"
         alt="European Reference Network on skin disorders"
         class="ern-logo"
       />
@@ -270,6 +270,7 @@
   </Page>
 </template>
 
-<script setup>
+<script setup lang="ts">
+// @ts-ignore
 import { Page, PageHeader, PageSection } from "molgenis-viz";
 </script>

@@ -3,7 +3,7 @@
     <PageHeader
       title="Local GDI Portal"
       subtitle="Search for data and request access"
-      imageSrc="gdi-portal.jpg"
+      imageSrc="img/gdi-portal.jpg"
       height="large"
       titlePositionX="center"
     />
@@ -36,13 +36,13 @@
         Search for data
       </h2>
       <div class="link-card-container">
-        <LinkCard imageSrc="bkg-datasets.jpg">
+        <LinkCard imageSrc="img/bkg-datasets.jpg">
           <router-link :to="{ name: 'datasets' }">
             Find Datasets
             <ArrowRightCircleIcon />
           </router-link>
         </LinkCard>
-        <LinkCard imageSrc="bkg-beacon.jpg">
+        <LinkCard imageSrc="img/bkg-beacon.jpg">
           <router-link :to="{ name: 'beacon' }">
             Search with Beacon
             <ArrowRightCircleIcon />
@@ -53,7 +53,8 @@
   </Page>
 </template>
 
-<script setup>
+<script setup lang="ts">
+// @ts-ignore
 import { Page, PageHeader, PageSection, LinkCard } from "molgenis-viz";
 import { ArrowRightCircleIcon } from "@heroicons/vue/24/outline";
 </script>
