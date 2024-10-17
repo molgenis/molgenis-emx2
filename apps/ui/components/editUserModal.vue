@@ -52,7 +52,7 @@
         <template #body>
           <TableRow v-for="token in userTokens">
             <TableCell>
-              <Button size="tiny" icon="trash" />
+              <Button size="tiny" icon="trash" @click="removeToken(token)" />
             </TableCell>
             <TableCell>{{ token }}</TableCell>
           </TableRow>
@@ -71,6 +71,7 @@
 import { type Modal } from "#build/components";
 import type { IRole, ISchemaInfo, IUser } from "~/util/adminUtils";
 import { updateUser } from "~/util/adminUtils";
+import _ from "lodash";
 
 const modal = ref<InstanceType<typeof Modal>>();
 
@@ -84,7 +85,7 @@ const schema = ref<string>("");
 
 const userName = ref<string>("");
 const isEnabled = ref<boolean>(true);
-const userRoles = ref<Record<string, IRole>>([]);
+const userRoles = ref<Record<string, IRole>>({});
 const userTokens = ref<string[]>([]);
 
 const SchemaIds = computed(() => {
@@ -96,10 +97,21 @@ function closeEditUserModal() {
 }
 
 function addRole() {
-  userRoles.value[schema.value] = { schemaId: schema.value, role: role.value };
+  if (schema.value && role.value) {
+    userRoles.value[schema.value] = {
+      schemaId: schema.value,
+      role: role.value,
+    };
+  }
 }
 
-function removeRole(role: IRole) {}
+function removeRole(role: IRole) {
+  delete userRoles.value[role.schemaId];
+}
+
+function removeToken(token: string) {
+  userTokens.value = _.reject(userTokens.value, (tok) => tok === token);
+}
 
 function showModal(selectedUser: IUser) {
   if (selectedUser) {
