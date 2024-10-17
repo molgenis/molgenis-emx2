@@ -1,4 +1,4 @@
-// Generated (on: 2024-10-16T18:06:51.248322) from Generator.java for schema: catalogue
+// Generated (on: 2024-10-17T11:02:51.519317) from Generator.java for schema: catalogue2
 
 export interface IFile {
   id?: string;
@@ -678,7 +678,7 @@ export interface IResources {
   name: string;
   localName?: string;
   acronym?: string;
-  type?: IOntologyNode[];
+  type: IOntologyNode[];
   typeOther?: string;
   cohortType?: IOntologyNode[];
   clinicalStudyType?: IOntologyNode[];

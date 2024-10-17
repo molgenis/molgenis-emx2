@@ -6,7 +6,7 @@ Resources,,pid,,2,,,,,,,dct:identifier,Persistent identifier,"DataCatalogueFlat,
 Resources,,name,text,3,TRUE,,,,,,dct:title,Name used in international projects,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging"
 Resources,,local name,,,,,,,,,rdfs:label,"If different from above, name in the national language","DataCatalogueFlat,CohortsStaging,RWEStaging"
 Resources,,acronym,,,,,,,,,dct:alternative,"Acronym, if applicable","DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging"
-Resources,,type,ontology_array,,,CatalogueOntologies,Resource types,,,,,"Type of resource, e.g. registry, cohort, biobank","DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging"
+Resources,,type,ontology_array,,TRUE,CatalogueOntologies,Resource types,,,,,"Type of resource, e.g. registry, cohort, biobank","DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging"
 Resources,,type other,,,,,,,,,,"If other, describe the type of resource","DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,StudiesStaging"
 Resources,,cohort type,ontology_array,,,CatalogueOntologies,Cohort study types,,,,,Type of cohort,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging"
 Resources,,clinical study type,ontology_array,,,CatalogueOntologies,Clinical study types,,,,,Type of clinical study,"DataCatalogueFlat,EMA"
