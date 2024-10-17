@@ -45,14 +45,19 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | 21 | Inclusion criteria | Clinically relevant exposure inclusion criterion | | |
 | | | Clinically relevant lifestyle inclusion criterion | | |
 | | | Country of residence inclusion criteria | | |
-| 22 | CONTRIBUTORS | | | |
-| | Lead organisation | Name for lead organisation 1, name for test lead organisation 2 (in bullets)| | |
-| | Contributors | | | |
-| | 1 card per contact person with: (titles) (initials) ((first name)) (surname prefix) (surname), (email address), (description of role) | | | |
-| | | dr. ir. P.I.P.M. (PIPM) surname prefix last name PIPM ---- <pipm@testdomain.nl> ----- Test description of PI/PM role | | |
-| | | dr. D.M. (datamgr first name) datamgr surname prefix datamgr last name --- <test@email.nl> --- test description for data manager role | | |
-| | Additional organisations | name of test additional organisation 1, name for test additional organisation 2 (in bullets)| | |
-| | NB not all blocks are tested in this test plan | | | |
+| 22a | ORGANISATIONS | | | |
+| | | Lead organisations | | |
+| | | 1 card per organisation: | | |
+| | | Name for lead organisation 1 (ACRONYM FOR LEADORG1) \| Botswana \| Data originator, Data holder, Data provider, Researcher, Surveillance, Other | | |
+| | | name for test lead organisation 2 (acronym for test lead organisation 2) \| Bonaire, Sint Eustatius and Saba \| Data provider | | |
+| | | Additional organisations | | |
+| | | 1 card per organisation: | | |
+| | | name for test additional organisation 2 (acronym for test additional organisation 2) \| Bosnia and Herzegovina \| Data provider, Surveillance | | |
+| | | name of test additional organisation 1 (acronym for test additional organisation 1) \| Canada \| Surveillance | | |
+| 22b | CONTRIBUTORS | | | |
+| | | 1 card per contributor: | | |
+| | | dr. ir. P.I.P.M. (PIPM) surname prefix last name PIPM \| Name for lead organisation 1 \| <pipm@testdomain.nl> \| Principal Investigator, Project manager | | |
+| | | dr. D.M. (datamgr first name) datamgr surname prefix datamgr last name \| Name for lead organisation 1 \| <test@email.nl> \| Data manager | | |
 | 23 | SUBPOPULATIONS | List of subpopulations for this resource | | |
 | | | table with the following columns: Name, Description, Number of participants | | |
 | | | test subcohort 1A, description for test subcohort 1A, 956 --> | | |
