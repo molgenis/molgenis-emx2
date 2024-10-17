@@ -1,0 +1,3 @@
+resource,identifier,internal identifier type,internal identifier type other
+testCohort1,test external identifier for cohort 1,UMCG PaNaMaID,
+testCohort2,test external identifier for cohort 2,UMCG register Utopia,test internal identifier other type
