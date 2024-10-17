@@ -49,6 +49,13 @@ export const typeMetadata: IResourceTypeMetadata[] = [
     image: "image-data-warehouse",
     description: "For data harmonization",
   },
+  {
+    type: "Other type",
+    plural: "Other types",
+    path: "other-types",
+    image: "image-data-warehouse",
+    description: "Other type of resource",
+  },
 ];
 
 export function getResourceMetadataForType(
@@ -62,7 +69,7 @@ export function getResourceMetadataForType(
       plural: type,
       image: "image-link",
       path: type,
-      description: "",
+      description: type,
     }
   );
 }

@@ -11,6 +11,7 @@ export const usePathResourceType = () => {
       plural: resourceType,
       image: "image-link",
       path: resourceType,
+      description: resourceType,
     }
   );
 };
