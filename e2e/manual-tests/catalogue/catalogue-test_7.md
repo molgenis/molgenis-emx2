@@ -95,7 +95,7 @@ A researcher can filter on variables using the search filter, topics and cohorts
 | | | testVarNoRepeats. | | |
 | | | All 8 sources in the network are shown because no source filter has been applied. | | |
 | 39 | On the left hand side, expand Sources | List of all 8 sources in the network is displayed on the left hand side | | |
-| 40 | Select testCohort2. | See that the list of variables is empty. testCohort2 has no mappings to a “Language” variable and so there is nothing displayed. | | |
+| 40 | Select testCohort2. | See that the list of variables is empty. testCohort2 has no mappings to a “Language” variable, so the message 'No variables found with current filters' is displayed. | | |
 | 41 | Select the other 3 test cohorts alongside testCohort2. | 3 variables are displayed in the harmonisation matrix: | | |
 | | | testVarLang1 mapped to cohorts1 and 4, | | |
 | | | testVarLang3Vir1 mapped to cohorts 3 and 4, | | |
@@ -128,7 +128,7 @@ A researcher can filter on variables using the search filter, topics and cohorts
 | | | testVarRepeats_ with mappings to cohorts 1,3,4. | | |
 | | | testVarVir2 with mappings to cohorts 3 and 4. | | |
 | | | All 8 sources are displayed. | | |
-| 46 | Select testcohort2. | 0 variables are displayed. | | |
+| 46 | Select testcohort2. | Message 'No variables found with current filters' is displayed. | | |
 | 47 | Remove all the source filters. | 8 variables are displayed (full list for testnetwork1)| | |
 | 48 | Click on testVarRepeats_ | Pop-up with short information about the variable appears | | |
 | 49 | Click on More Details | Individual page for variable testVarRepeats_ is displayed. | | |
