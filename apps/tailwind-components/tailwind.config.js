@@ -152,6 +152,7 @@ module.exports = {
         "tab-active": "var(--backgroud-color-tab-active)",
         "disabled": "var(--background-color-disabled)",
         "invalid": "var(--background-color-invalid)",
+        "table": "var(--background-color-table)",
       }),
       textColor: ({ theme }) => ({
         "button-primary": "var(--text-color-button-primary)",
