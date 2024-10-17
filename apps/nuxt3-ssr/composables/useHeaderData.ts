@@ -22,8 +22,8 @@ export async function useHeaderData() {
       method: "POST",
       body: {
         query: `
-            query HeaderQuery($resourceFilter:ResourcesFilter, $variablesFilter:VariablesFilter) {
-              Resources(filter:$resourceFilter) {
+            query HeaderQuery($resourceFilter:ResourcesFilter, $variablesFilter:VariablesFilter, $networksFilter:ResourcesFilter) {
+              Resources(filter:$networksFilter) {
                 id,
                 logo { url }
               }
@@ -36,6 +36,9 @@ export async function useHeaderData() {
               }
             }`,
         variables: {
+          networksFilter: scoped
+            ? { id: { equals: catalogueRouteParam } }
+            : undefined,
           resourceFilter: scoped
             ? {
                 _or: [
