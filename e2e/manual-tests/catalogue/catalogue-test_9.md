@@ -22,10 +22,11 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | 6 | See that the fields are filled as follows:| | | |
 | 7 | DESCRIPTION | This is the Test cohort 1. It has multiple entries where possible. Design paper and publications are random DOIs from the EUCAN project. Yes to data access fee. The population age group is all adult options, so the population age group should be shown as "Adult 18+ years". Cohort type has both 'normal' and 'other' fields filled in --> see which is displayed | | |
 | | Click on the three dots next to the description text | the text is displayed fully, and clicking on 'read less' reduces the text again | | |
+| | GENERAL DESIGN | | | |
 | 8 | Cohort type | Clinical cohort, Clinical trial | | |
-| | NB not all fields are tested in this test plan | | | |
-| 9 | Collection type | Retrospective, Prospective | | |
-| 10 | Start/End year | 1900 - 1967 | | |
+| 9a | Data collection type | Retrospective, Prospective | | |
+| 9b | Keywords | test, cohort1, Molgenis, testing | | |
+| 10 | Start/End data collection | 1900 until 1967 | | |
 | 11 | Design paper | Cohort Profile: The French national cohort of children (ELFE): birth to 5 years | | |
 | 12 | Click on the design paper | goes to the article in a new window: <https://doi.org/10.1093/ije/dyz227> [Cohort Profile: The French national cohort of children (ELFE): birth to 5 years] | | |
 | 13 | close the window or reselect the catalogue display window | | | |
