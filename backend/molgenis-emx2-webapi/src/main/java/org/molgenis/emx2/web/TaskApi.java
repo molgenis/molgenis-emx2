@@ -171,4 +171,12 @@ public class TaskApi {
   public static String submit(Task task) {
     return taskService.submit(task);
   }
+
+  public static String submit(Task task, String parentTaskId) {
+    if (parentTaskId != null) {
+      Task parentTask = taskService.getTask(parentTaskId);
+      task.setParentTask(parentTask);
+    }
+    return taskService.submit(task);
+  }
 }
