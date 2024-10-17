@@ -287,7 +287,14 @@ public class TypeUtils {
     for (char c : jsonbArray.toCharArray()) {
       switch (c) {
         case '{' -> depth++;
-        case '}' -> depth--;
+        case '}' -> {
+          if (depth > 0) {
+            depth--;
+          } else {
+            throw new MolgenisException(
+                "Invalid JSON_ARRAY: Negative depth at position: " + currentPos);
+          }
+        }
         case ',' -> {
           if (depth == 0) {
             subStrings.add(jsonbArray.substring(lastSplitPos, currentPos));
@@ -297,6 +304,11 @@ public class TypeUtils {
       }
       currentPos++;
     }
+
+    if (depth != 0)
+      throw new MolgenisException(
+          "Invalid JSON_ARRAY: Number of opening/closing parenthesis does not match.");
+
     subStrings.add(jsonbArray.substring(lastSplitPos, currentPos));
 
     return subStrings;

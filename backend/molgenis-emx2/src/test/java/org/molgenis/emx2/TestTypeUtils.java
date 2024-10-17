@@ -73,18 +73,58 @@ public class TestTypeUtils {
 
   @Test
   public void testJsonbArrayFromStringWithMultipleItems() {
-    List<JSONB> expected = List.of(JSONB.valueOf("{\"c\":3}"), JSONB.valueOf("{\"d\":4,\"e\":5}"));
+    List<JSONB> expected = List.of(JSONB.valueOf("{\"a\":1}"), JSONB.valueOf("{\"b\":2,\"c\":3}"));
     List<JSONB> actual =
-        Arrays.stream(TypeUtils.toJsonbArray("{\"c\":3},{\"d\":4,\"e\":5}")).toList();
+        Arrays.stream(TypeUtils.toJsonbArray("{\"a\":1},  {\"b\":2,  \"c\":3}")).toList();
 
     assertEquals(expected, actual);
   }
 
   @Test
   public void testJsonbArrayFromStringWithOneItem() {
-    List<JSONB> expected = List.of(JSONB.valueOf("{\"d\":4,\"e\":5}"));
-    List<JSONB> actual = Arrays.stream(TypeUtils.toJsonbArray("{\"d\":4,\"e\":5}")).toList();
+    List<JSONB> expected = List.of(JSONB.valueOf("{\"b\":2,\"c\":3}"));
+    List<JSONB> actual = Arrays.stream(TypeUtils.toJsonbArray("{\"b\":2,\"c\":3}")).toList();
 
     assertEquals(expected, actual);
+  }
+
+  @Test
+  public void testJsonbArrayMissingOpeningBracket() {
+    MolgenisException exception =
+        assertThrows(
+            MolgenisException.class,
+            () ->
+                TypeUtils.toJsonbArray(
+                    TypeUtils.toJsonbArray("{\"a\":1}, \"b\":2}, {\"c\":3,\"d\":4}")));
+
+    // quote escapes do not count regarding position! (0-based)
+    assertEquals("Invalid JSON_ARRAY: Negative depth at position: 14", exception.getMessage());
+  }
+
+  @Test
+  public void testJsonbArrayMissingClosingBracket() {
+    MolgenisException exception =
+        assertThrows(
+            MolgenisException.class,
+            () ->
+                TypeUtils.toJsonbArray(
+                    TypeUtils.toJsonbArray("{\"a\":1}, {\"b\":2, {\"c\":3,\"d\":4}")));
+
+    assertEquals(
+        "Invalid JSON_ARRAY: Number of opening/closing parenthesis does not match.",
+        exception.getMessage());
+  }
+
+  @Test
+  public void testJsonbArrayTooManyClosingBracket() {
+    Exception exception =
+        assertThrows(
+            Exception.class,
+            () ->
+                TypeUtils.toJsonbArray(
+                    TypeUtils.toJsonbArray("{\"a\":1}, {\"b\":2}}, {\"c\":3,\"d\":4}")));
+
+    // quote escapes do not count regarding position! (0-based)
+    assertEquals("Invalid JSON_ARRAY: Negative depth at position: 16", exception.toString());
   }
 }
