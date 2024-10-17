@@ -152,6 +152,7 @@ module.exports = {
         "tab-active": "var(--backgroud-color-tab-active)",
         "disabled": "var(--background-color-disabled)",
         "invalid": "var(--background-color-invalid)",
+        "input": "var(--background-color-input)",
         "table": "var(--background-color-table)",
       }),
       textColor: ({ theme }) => ({
@@ -222,6 +223,15 @@ module.exports = {
         "invalid": "var(--border-color-invalid)",
         "valid": "var(--border-color-valid)",
         "disabled": "var(--border-color-disabled)",
+        "input": "var(--border-color-input)",
+        "input-inverted": "var(--border-color-input-inverted)",
+      }),
+      stroke: ({ theme }) => ({
+        "input": "var(--border-color-input)",
+      }),
+      fill: ({ theme }) => ({
+        "input": "var(--background-color-input)",
+        "input-checked": "var(--background-color-input-checked)",
       }),
       borderRadius: {
         "3px": "var(--border-radius-3px)",
