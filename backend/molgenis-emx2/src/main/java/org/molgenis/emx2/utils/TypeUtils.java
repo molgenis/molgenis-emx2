@@ -263,23 +263,43 @@ public class TypeUtils {
   public static JSONB[] toJsonbArray(Object v) {
     // non standard so not using the generic function
     if (v == null) return null; // NOSONAR
-    if (v instanceof String) {
+    else if (v instanceof String) {
       String value = toString(v);
       if (value != null) {
-        v = List.of(JSONB.valueOf(value));
+        v = jsonbSplitter(value);
       } else {
         return null;
       }
-    }
-    if (v instanceof String[]) {
-      v = toStringArray(v);
-    }
-    if (v instanceof Serializable[]) v = List.of((Serializable[]) v);
-    if (v instanceof Object[]) v = List.of((Object[]) v);
+    } else if (v instanceof Serializable[]) v = List.of((Serializable[]) v);
+    else if (v instanceof Object[]) v = List.of((Object[]) v);
+
     if (v instanceof List) {
       return ((List<Object>) v).stream().map(TypeUtils::toJsonb).toArray(JSONB[]::new);
     }
     return (JSONB[]) v;
+  }
+
+  private static List<String> jsonbSplitter(String jsonbArray) {
+    int depth = 0;
+    int currentPos = 0;
+    int lastSplitPos = 0;
+    List<String> subStrings = new ArrayList<>();
+    for (char c : jsonbArray.toCharArray()) {
+      switch (c) {
+        case '{' -> depth++;
+        case '}' -> depth--;
+        case ',' -> {
+          if (depth == 0) {
+            subStrings.add(jsonbArray.substring(lastSplitPos, currentPos));
+            lastSplitPos = currentPos + 1; // New split needs to exclude comma
+          }
+        }
+      }
+      currentPos++;
+    }
+    subStrings.add(jsonbArray.substring(lastSplitPos, currentPos));
+
+    return subStrings;
   }
 
   public static String toText(Object v) {

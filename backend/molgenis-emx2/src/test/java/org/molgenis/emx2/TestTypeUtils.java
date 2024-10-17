@@ -70,4 +70,21 @@ public class TestTypeUtils {
         TypeUtils.toDateTime("2023-02-24T12:08:23.46378"),
         LocalDateTime.of(2023, 02, 24, 12, 8, 23, 463780000));
   }
+
+  @Test
+  public void testJsonbArrayFromStringWithMultipleItems() {
+    List<JSONB> expected = List.of(JSONB.valueOf("{\"c\":3}"), JSONB.valueOf("{\"d\":4,\"e\":5}"));
+    List<JSONB> actual =
+        Arrays.stream(TypeUtils.toJsonbArray("{\"c\":3},{\"d\":4,\"e\":5}")).toList();
+
+    assertEquals(expected, actual);
+  }
+
+  @Test
+  public void testJsonbArrayFromStringWithOneItem() {
+    List<JSONB> expected = List.of(JSONB.valueOf("{\"d\":4,\"e\":5}"));
+    List<JSONB> actual = Arrays.stream(TypeUtils.toJsonbArray("{\"d\":4,\"e\":5}")).toList();
+
+    assertEquals(expected, actual);
+  }
 }
