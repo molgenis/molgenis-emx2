@@ -56,87 +56,20 @@
         </template>
       </Modal>
 
-      <Modal ref="editUserModal" title="Edit User">
-        <div>
-          <h3>Disable user</h3>
-          <InputRadioGroup
-            id="disabledUserRadio"
-            :radioOptions="[
-              { value: true, label: `Enabled` },
-              { value: false, label: `Disabled` },
-            ]"
-            :modelValue="isEnabled"
-          />
-        </div>
-
-        <div>
-          <h3>Roles</h3>
-          <InputSelect
-            id="select-schema"
-            v-model="schema"
-            :options="tempSchemas"
-          />
-          <InputSelect id="select-role" v-model="role" :options="roles" />
-          <Button size="tiny" icon="plus" />
-
-          <Table>
-            <template #head>
-              <TableHeadRow>
-                <TableHead></TableHead>
-                <TableHead>Schema</TableHead>
-                <TableHead>Role</TableHead>
-              </TableHeadRow>
-            </template>
-            <template #body>
-              <TableRow v-for="role in selectedUser?.roles">
-                <TableCell>
-                  <Button size="tiny" icon="trash" />
-                </TableCell>
-                <TableCell>{{ role.schemaId }}</TableCell>
-                <TableCell>{{ role.role }}</TableCell>
-              </TableRow>
-            </template>
-          </Table>
-        </div>
-
-        <div v-if="selectedUser?.tokens?.length">
-          <h3>Tokens</h3>
-          <Table>
-            <template #head>
-              <TableHeadRow>
-                <TableHead></TableHead>
-                <TableHead>Token</TableHead>
-              </TableHeadRow>
-            </template>
-            <template #body>
-              <TableRow v-for="token in selectedUser?.tokens">
-                <TableCell>
-                  <Button size="tiny" icon="trash" />
-                </TableCell>
-                <TableCell>{{ token }}</TableCell>
-              </TableRow>
-            </template>
-          </Table>
-        </div>
-
-        <template #footer>
-          <Button @click="updateUser(selectedUser)">Save</Button>
-          <Button @click="closeEditUserModal">Close</Button>
-        </template>
-      </Modal>
+      <EditUserModal ref="editUserModal" :schemas="schemas" :roles="roles" />
     </ContentBlock>
   </Container>
 </template>
 
 <script setup lang="ts">
 import { type Modal } from "#build/components";
+import type EditUserModal from "~/components/editUserModal.vue";
 import {
   createUser,
   deleteUser,
   getRoles,
   getSchemas,
   getUsers,
-  updateUser,
   type ISchemaInfo,
   type IUser,
 } from "~/util/adminUtils";
@@ -152,6 +85,7 @@ import {
  *  Generic table components
  *  Password input
  *  Select with more complex objects
+ *  RadioGroup with more complex objects
  */
 
 /**
@@ -166,11 +100,10 @@ import {
 
 /**
  * Todo list
- * make edit modal -> need wider modal -> pass data into modal?, have onclose?
  * make buttons double click safe
  * put component in right place
  * make stuff look better
- * RadioGroup: allow for not only strings
+ * save user (needs backend)
  */
 
 definePageMeta({
@@ -178,7 +111,7 @@ definePageMeta({
 });
 
 const LIMIT = 100;
-const editUserModal = ref<InstanceType<typeof Modal>>();
+const editUserModal = ref<InstanceType<typeof EditUserModal>>();
 const createUserModal = ref<InstanceType<typeof Modal>>();
 
 const currentPage = ref(1);
@@ -187,21 +120,14 @@ const userName = ref<string>("");
 const users = ref<IUser[]>([]);
 const userCount = ref(0);
 const totalPages = ref(0);
-const selectedUser = ref<IUser>();
 const schemas = ref<ISchemaInfo[]>([]);
 const roles = ref<string[]>([]);
-const role = ref<string>("Viewer");
 const schema = ref<string>("");
-const isEnabled = ref<boolean>(true);
 
 const offset = computed(() => {
   return currentPage.value > 1
     ? `, offset: ${(currentPage.value - 1) * LIMIT}`
     : "";
-});
-
-const tempSchemas = computed(() => {
-  return schemas.value.map((schema) => schema.id);
 });
 
 retrieveUsers();
@@ -241,13 +167,8 @@ function closeCreateUserModal() {
 }
 
 function editUser(user: IUser) {
-  selectedUser.value = JSON.parse(JSON.stringify(user));
-  editUserModal.value?.show();
-}
-
-function closeEditUserModal() {
-  selectedUser.value = undefined;
-  editUserModal.value?.close();
+  console.log(editUserModal.value);
+  editUserModal.value?.show(user);
 }
 
 function canDelete(user: IUser) {

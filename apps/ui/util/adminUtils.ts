@@ -53,7 +53,7 @@ export async function getRoles(schemas: ISchemaInfo[]) {
     body: { query: "{_schema{roles{name}}}" },
   });
 
-  if (error) {
+  if (error.value) {
     handleError("Error getting roles: ", error);
   }
 
