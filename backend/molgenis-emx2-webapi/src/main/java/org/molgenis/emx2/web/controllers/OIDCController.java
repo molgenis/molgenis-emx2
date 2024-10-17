@@ -69,7 +69,7 @@ public class OIDCController {
   public void handleLoginCallback(Context ctx) {
     final JavalinWebContext context = new JavalinWebContext(ctx);
 
-    HttpActionAdapter adapter = new JavalinCustomHttpActionAdapter();
+    HttpActionAdapter adapter = JavalinCustomHttpActionAdapter.INSTANCE;
     final CallbackLogic callbackLogic =
         FindBest.callbackLogic(null, securityConfig, DefaultCallbackLogic.INSTANCE);
 

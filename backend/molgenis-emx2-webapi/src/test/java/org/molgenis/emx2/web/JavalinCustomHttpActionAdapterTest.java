@@ -18,7 +18,7 @@ class JavalinCustomHttpActionAdapterTest {
 
   @Test
   void checksContextForJavalin() {
-    JavalinCustomHttpActionAdapter adapter = new JavalinCustomHttpActionAdapter();
+    JavalinCustomHttpActionAdapter adapter = JavalinCustomHttpActionAdapter.INSTANCE;
     HttpAction action = mock(HttpAction.class);
     WebContext ctx = mock(WebContext.class);
     assertThrows(RuntimeException.class, () -> adapter.adapt(action, ctx));
@@ -26,7 +26,7 @@ class JavalinCustomHttpActionAdapterTest {
 
   @Test
   void throwsUnauthorizedIfActionHas401Code() {
-    JavalinCustomHttpActionAdapter adapter = new JavalinCustomHttpActionAdapter();
+    JavalinCustomHttpActionAdapter adapter = JavalinCustomHttpActionAdapter.INSTANCE;
     HttpAction action = mock(HttpAction.class);
     when(action.getCode()).thenReturn(401);
     WebContext ctx = mock(JavalinWebContext.class);
@@ -35,7 +35,7 @@ class JavalinCustomHttpActionAdapterTest {
 
   @Test
   void throwsForbiddenIfActionHas403Code() {
-    JavalinCustomHttpActionAdapter adapter = new JavalinCustomHttpActionAdapter();
+    JavalinCustomHttpActionAdapter adapter = JavalinCustomHttpActionAdapter.INSTANCE;
     HttpAction action = mock(HttpAction.class);
     when(action.getCode()).thenReturn(403);
     WebContext ctx = mock(JavalinWebContext.class);
@@ -44,7 +44,7 @@ class JavalinCustomHttpActionAdapterTest {
 
   @Test
   void throwsBadRequestIfActionHas400Code() {
-    JavalinCustomHttpActionAdapter adapter = new JavalinCustomHttpActionAdapter();
+    JavalinCustomHttpActionAdapter adapter = JavalinCustomHttpActionAdapter.INSTANCE;
     HttpAction action = mock(HttpAction.class);
     when(action.getCode()).thenReturn(400);
     WebContext ctx = mock(JavalinWebContext.class);
@@ -53,7 +53,7 @@ class JavalinCustomHttpActionAdapterTest {
 
   @Test
   void shouldReturnAfterSettingContext() {
-    JavalinCustomHttpActionAdapter adapter = new JavalinCustomHttpActionAdapter();
+    JavalinCustomHttpActionAdapter adapter = JavalinCustomHttpActionAdapter.INSTANCE;
     HttpAction action = mock(OkAction.class);
     when(action.getCode()).thenReturn(200);
     JavalinWebContext ctx = mock(JavalinWebContext.class);
@@ -65,7 +65,7 @@ class JavalinCustomHttpActionAdapterTest {
 
   @Test
   void shouldReturnInCaseOfLocationAction() {
-    JavalinCustomHttpActionAdapter adapter = new JavalinCustomHttpActionAdapter();
+    JavalinCustomHttpActionAdapter adapter = JavalinCustomHttpActionAdapter.INSTANCE;
     HttpAction action = mock(FoundAction.class);
     when(action.getCode()).thenReturn(300);
     JavalinWebContext ctx = mock(JavalinWebContext.class);
@@ -77,7 +77,7 @@ class JavalinCustomHttpActionAdapterTest {
 
   @Test
   void shouldReturnInCaseOfUnmatchedAction() {
-    JavalinCustomHttpActionAdapter adapter = new JavalinCustomHttpActionAdapter();
+    JavalinCustomHttpActionAdapter adapter = JavalinCustomHttpActionAdapter.INSTANCE;
     HttpAction action = mock(HttpAction.class);
     when(action.getCode()).thenReturn(418);
     JavalinWebContext ctx = mock(JavalinWebContext.class);
