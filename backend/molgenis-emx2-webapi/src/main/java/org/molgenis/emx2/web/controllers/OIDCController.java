@@ -7,6 +7,7 @@ import io.javalin.http.Context;
 import java.util.Optional;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.web.JavalinCustomHttpActionAdapter;
 import org.molgenis.emx2.web.MolgenisSessionManager;
 import org.pac4j.core.config.Config;
 import org.pac4j.core.context.session.SessionStore;

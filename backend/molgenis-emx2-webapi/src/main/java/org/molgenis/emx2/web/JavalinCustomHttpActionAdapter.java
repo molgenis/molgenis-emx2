@@ -1,4 +1,4 @@
-package org.molgenis.emx2.web.controllers;
+package org.molgenis.emx2.web;
 
 import io.javalin.http.*;
 import org.pac4j.core.context.WebContext;
