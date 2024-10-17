@@ -4,7 +4,8 @@ import com.google.common.io.ByteStreams;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import java.io.InputStream;
-import java.net.URLConnection;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 /**
  * to allow for nice urls, and make it easier for 'schema' app developers we include the schema in
@@ -88,7 +89,7 @@ public class StaticFileMapper {
         return;
       }
       if (mimeType == null) {
-        mimeType = URLConnection.guessContentTypeFromName(path);
+        mimeType = Files.probeContentType(Path.of(path));
         if (mimeType == null) {
           mimeType = "application/octet-stream";
         }
