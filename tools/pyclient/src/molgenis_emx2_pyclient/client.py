@@ -30,12 +30,13 @@ class Client:
     and perform operations on the server.
     """
 
-    def __init__(self, url: str, schema: str = None, token: str = None) -> None:
+    def __init__(self, url: str, schema: str = None, token: str = None, job: str = None) -> None:
         """
         Initializes a Client object with a server url.
         """
         self._as_context_manager = False
         self._token = token
+        self._job = job
 
         self.url: str = url
         self.api_graphql = self.url + "/api/graphql"
@@ -277,6 +278,9 @@ class Client:
         else:
             raise NotImplementedError(f"Uploading files with extension {file_path.suffix!r} is not supported.")
 
+        if self._job:
+            api_url += "parentJob=" + self._job
+
         with open(file_path, 'rb') as file:
             response = self.session.post(
                 url=api_url,
@@ -296,7 +300,6 @@ class Client:
 
         # Report on task progress
         await self._report_task_progress(process_id)
-
 
     def _upload_csv(self, file_path: pathlib.Path, schema: str) -> str:
         """Uploads the CSV file from the filename to the schema. Returns the success or error message."""
@@ -503,12 +506,10 @@ class Client:
 
         return BytesIO(response.content)
 
-
     async def create_schema(self, name: str = None,
-                      description: str = None,
-                      template: str = None,
-                      include_demo_data: bool = False,
-                      parent_job: str = None):
+                            description: str = None,
+                            template: str = None,
+                            include_demo_data: bool = False):
         """Creates a new schema on the EMX2 server.
 
         :param name: the name of the new schema
@@ -528,7 +529,8 @@ class Client:
             raise PyclientException(f"Schema with name {name!r} already exists.")
         query = queries.create_schema()
         variables = self._format_optional_params(name=name, description=description,
-                                                 template=template, include_demo_data=include_demo_data, parent_job=parent_job)
+                                                 template=template, include_demo_data=include_demo_data,
+                                                 parent_job=self._job)
 
         response = self.session.post(
             url=self.api_graphql,
@@ -611,9 +613,9 @@ class Client:
         self.schemas = self.get_schemas()
 
     async def recreate_schema(self, name: str = None,
-                        description: str = None,
-                        template: str = None,
-                        include_demo_data: bool = None):
+                              description: str = None,
+                              template: str = None,
+                              include_demo_data: bool = None):
         """Recreates a schema on the EMX2 server by deleting and subsequently
         creating it without data on the EMX2 server.
 
@@ -925,7 +927,6 @@ class Client:
                 )
                 task = p_response.json().get('data').get('_tasks')[0]
         log.info(f"Completed task: {task.get('description')}")
-
 
     def _validate_graphql_response(self, response: Response, mutation: str = None, fallback_error_message: str = None):
         """Validates a GraphQL response and prints the appropriate message.
