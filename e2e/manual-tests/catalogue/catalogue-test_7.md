@@ -82,19 +82,19 @@ A researcher can filter on variables using the search filter, topics and cohorts
 | 32 | Type ‘adhd’ in search bar | 2 variables are listed. | | |
 | | | testVarNoRepeats, | | |
 | | | testVarRepeats_(repeated for year 0-10)| | |
-| 33 | Click on Harmonisations button | Harmonisation matrix is opened. See that 2 variables are displayed and all 7 sources in the network are displayed, regardless of whether or not they have mappings. | | |
+| 33 | Click on Harmonisations button | Harmonisation matrix is opened. See that 2 variables are displayed and all 8 sources in the network are displayed, regardless of whether or not they have mappings. | | |
 | 34 | On the left hand side, expand Topics, press Search for options | Pop-up with topics is displayed | | |
 | 35 | Type ‘bio’ in the search bar | List of topics is reduced to those including the letters ‘bio’ either in their name or in the hover text (whether in subtopics or highest-level topic itself)| | |
 | 36 | Having found ‘Laboratory measures’, expand that to find ‘Biochemistry’ and click on that. Press Show Results. | See that no variables at all are displayed because there are no variables in testNetwork1 which match both criteria (search bar ‘adhd’ and topic ‘biochemistry’). | | |
-| 37 | Click open the ‘Search for options’ pop-up under Topics. Remove the ‘biochemistry’ filter and add ‘Language’ as a filter (under ‘Socio-demographic and economic characteristics’)| 1 variable is displayed: only testVarNoRepeats because that is the only variable with both keywords ‘adhd’ and ‘language’. All 7 sources in the network are shown. | | |
+| 37 | Click open the ‘Search for options’ pop-up under Topics. Remove the ‘biochemistry’ filter and add ‘Language’ as a filter (under ‘Socio-demographic and economic characteristics’)| 1 variable is displayed: only testVarNoRepeats because that is the only variable with both keywords ‘adhd’ and ‘language’. All 8 sources in the network are shown. | | |
 | 38 | Delete ‘adhd’ in the search bar | List returns to 5 variables (just the filter on language now). | | |
 | | | testVarCategorical_, | | |
 | | | testVarLang1, | | |
 | | | testVarLang2, | | |
 | | | testVarLang3Vir1, | | |
 | | | testVarNoRepeats. | | |
-| | | All 7 sources in the network are shown because no source filter has been applied. | | |
-| 39 | On the left hand side, expand Sources | List of all 7 sources in the network is displayed on the left hand side | | |
+| | | All 8 sources in the network are shown because no source filter has been applied. | | |
+| 39 | On the left hand side, expand Sources | List of all 8 sources in the network is displayed on the left hand side | | |
 | 40 | Select testCohort2. | See that the list of variables is empty. testCohort2 has no mappings to a “Language” variable and so there is nothing displayed. | | |
 | 41 | Select the other 3 test cohorts alongside testCohort2. | 3 variables are displayed in the harmonisation matrix: | | |
 | | | testVarLang1 mapped to cohorts1 and 4, | | |
@@ -127,7 +127,7 @@ A researcher can filter on variables using the search filter, topics and cohorts
 | | | testVarRepeats-with-a-very-looong-name_ with no mappings. | | |
 | | | testVarRepeats_ with mappings to cohorts 1,3,4. | | |
 | | | testVarVir2 with mappings to cohorts 3 and 4. | | |
-| | | All 7 sources are displayed. | | |
+| | | All 8 sources are displayed. | | |
 | 46 | Select testcohort2. | 0 variables are displayed. | | |
 | 47 | Remove all the source filters. | 8 variables are displayed (full list for testnetwork1)| | |
 | 48 | Click on testVarRepeats_ | Pop-up with short information about the variable appears | | |
