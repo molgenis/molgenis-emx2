@@ -240,7 +240,7 @@ class ColumnTypeRdfMapperTest {
         () -> Assertions.assertTrue(retrieveFirstValue(ColumnType.REFBACK.name()).isIRI()),
 
         // LAYOUT and other constants
-        () -> Assertions.assertTrue(retrieveFirstValue(ColumnType.HEADING.name()).isLiteral()),
+        // ColumnType.HEADING.name() -> no Value should be present to validate on
 
         // format flavors that extend a baseType
         () -> Assertions.assertTrue(retrieveFirstValue(ColumnType.AUTO_ID.name()).isIRI()),
@@ -383,10 +383,7 @@ class ColumnTypeRdfMapperTest {
                 Set.of(Values.iri(rdfApiUrlPrefix + REFBACK_TABLE + "?id=1")),
                 retrieveValues(ColumnType.REFBACK.name())),
         // LAYOUT and other constants
-        () ->
-            Assertions.assertEquals(
-                Set.of(Values.literal("HEADING", CoreDatatype.XSD.STRING)),
-                retrieveValues(ColumnType.HEADING.name())),
+        () -> Assertions.assertEquals(Set.of(), retrieveValues(ColumnType.HEADING.name())),
         // format flavors that extend a baseType
         // AUTO_ID is unique so full equality check not possible.
         () ->
@@ -395,7 +392,7 @@ class ColumnTypeRdfMapperTest {
                     .findFirst()
                     .get()
                     .stringValue()
-                    .startsWith("urn:uuid")),
+                    .startsWith("urn:uuid:")),
         () ->
             Assertions.assertEquals(
                 Set.of(Values.iri(rdfApiUrlPrefix + ONT_TABLE + "?name=aa")),

@@ -72,7 +72,7 @@ public class ColumnTypeRdfMapper {
           entry(ColumnType.REFBACK, RdfColumnType.REFERENCE),
 
           // LAYOUT and other constants
-          entry(ColumnType.HEADING, RdfColumnType.STRING),
+          entry(ColumnType.HEADING, RdfColumnType.SKIP), // Should not be in RDF output.
 
           // format flavors that extend a baseType
           entry(ColumnType.AUTO_ID, RdfColumnType.UUID),
@@ -101,6 +101,15 @@ public class ColumnTypeRdfMapper {
     return mapping.get(columnType).getCoreDatatype();
   }
 
+  /**
+   * Returns the output for the defined cell:
+   *
+   * <ul>
+   *   <li>If {@link ColumnType} should not be represented in RDF, returns an empty {@link Set}
+   *   <li>If field is empty, returns an empty {@link Set}
+   *   <li>If field has value(s), returns a filled {@link Set}
+   * </ul>
+   */
   public Set<Value> retrieveValues(final Row row, final Column column) {
     if (row.getString(column.getName()) == null) {
       return Set.of();
@@ -246,6 +255,12 @@ public class ColumnTypeRdfMapper {
       @Override
       Set<Value> retrieveValues(String baseURL, Row row, Column column) {
         return RdfColumnType.REFERENCE.retrieveValues(baseURL, row, column);
+      }
+    },
+    SKIP(CoreDatatype.XSD.STRING) {
+      @Override
+      Set<Value> retrieveValues(String baseURL, Row row, Column column) {
+        return Set.of();
       }
     };
 
