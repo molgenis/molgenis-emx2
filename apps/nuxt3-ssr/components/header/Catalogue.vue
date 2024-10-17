@@ -19,7 +19,11 @@ const catalogueRouteParam = route.params.catalogue as string;
 
 const menu: { label: string; link: string }[] = [];
 
-if (route.params.resourceType) {
+// the variable route does not set the resourceType param, therefore check the route name
+if (
+  route.params.resourceType ||
+  route.name === "schema-ssr-catalogue-catalogue-variables"
+) {
   menu.push({
     label: "overview",
     link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}`,
