@@ -30,8 +30,12 @@ class ColumnTypeRdfMapperTest {
   static final String ONT_TABLE = "TestOntology";
   static final ClassLoader classLoader = ColumnTypeRdfMapperTest.class.getClassLoader();
   static final SimpleValueFactory factory = SimpleValueFactory.getInstance();
-  static final String schemaIriPrefix = "http://localhost:8080/" + TEST_SCHEMA + "/api/rdf/";
-  static final ColumnTypeRdfMapper mapper = new ColumnTypeRdfMapper("http://localhost:8080/");
+  static final String baseUrl = "http://localhost:8080/";
+  static final String rdfApiUrlPrefix = baseUrl + TEST_SCHEMA + "/api/rdf/";
+  static final String fileApiUrlPrefix = baseUrl + TEST_SCHEMA + "/api/file/";
+  static final ColumnTypeRdfMapper mapper = new ColumnTypeRdfMapper(baseUrl);
+  static final File TEST_FILE =
+      new File(classLoader.getResource("testfiles/molgenis.png").getFile());
 
   static Database database;
   static Schema allColumnTypes;
@@ -107,7 +111,7 @@ class ColumnTypeRdfMapperTest {
                 ColumnType.UUID_ARRAY.name(),
                 "e8af409e-86f7-11ef-85b2-6b76fd707d70,14bfb4ca-86f8-11ef-8cc0-378b59fe72e8",
                 ColumnType.FILE.name(),
-                new File(classLoader.getResource("testfiles/molgenis.png").getFile()),
+                TEST_FILE,
                 // STRING
                 ColumnType.STRING.name(),
                 "lonelyString",
@@ -270,11 +274,13 @@ class ColumnTypeRdfMapperTest {
             Assertions.assertEquals(
                 Set.of(
                     Values.iri(
-                        schemaIriPrefix
-                            + TEST_SCHEMA
-                            + "api/file/"
+                        fileApiUrlPrefix
                             + TEST_TABLE
-                            + "/FILE")), // ColumnType == column name in test case
+                            + "/"
+                            + ColumnType.FILE.name()
+                            + "/"
+                            // Not sure how to retrieve more directly as changes everytime
+                            + firstRow.getString(ColumnType.FILE.name()))),
                 retrieveValues(ColumnType.FILE.name())),
         // STRING
         () ->
@@ -364,17 +370,17 @@ class ColumnTypeRdfMapperTest {
         // RELATIONSHIP
         () ->
             Assertions.assertEquals(
-                Set.of(Values.iri(schemaIriPrefix + REF_TABLE + "?id=1")),
+                Set.of(Values.iri(rdfApiUrlPrefix + REF_TABLE + "?id=1")),
                 retrieveValues(ColumnType.REF.name())),
         () ->
             Assertions.assertEquals(
                 Set.of(
-                    Values.iri(schemaIriPrefix + REF_TABLE + "?id=2"),
-                    Values.iri(schemaIriPrefix + REF_TABLE + "?id=3")),
+                    Values.iri(rdfApiUrlPrefix + REF_TABLE + "?id=2"),
+                    Values.iri(rdfApiUrlPrefix + REF_TABLE + "?id=3")),
                 retrieveValues(ColumnType.REF_ARRAY.name())),
         () ->
             Assertions.assertEquals(
-                Set.of(Values.iri(schemaIriPrefix + REFBACK_TABLE + "?id=1")),
+                Set.of(Values.iri(rdfApiUrlPrefix + REFBACK_TABLE + "?id=1")),
                 retrieveValues(ColumnType.REFBACK.name())),
         // LAYOUT and other constants
         () ->
@@ -392,13 +398,13 @@ class ColumnTypeRdfMapperTest {
                     .startsWith("urn:uuid")),
         () ->
             Assertions.assertEquals(
-                Set.of(Values.iri(schemaIriPrefix + ONT_TABLE + "?name=aa")),
+                Set.of(Values.iri(rdfApiUrlPrefix + ONT_TABLE + "?name=aa")),
                 retrieveValues(ColumnType.ONTOLOGY.name())),
         () ->
             Assertions.assertEquals(
                 Set.of(
-                    Values.iri(schemaIriPrefix + ONT_TABLE + "?name=bb"),
-                    Values.iri(schemaIriPrefix + ONT_TABLE + "?name=cc")),
+                    Values.iri(rdfApiUrlPrefix + ONT_TABLE + "?name=bb"),
+                    Values.iri(rdfApiUrlPrefix + ONT_TABLE + "?name=cc")),
                 retrieveValues(ColumnType.ONTOLOGY_ARRAY.name())),
         () ->
             Assertions.assertEquals(

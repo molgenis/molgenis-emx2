@@ -184,15 +184,22 @@ public class ColumnTypeRdfMapper {
     FILE(CoreDatatype.XSD.ANYURI) {
       @Override
       Set<Value> retrieveValues(String baseURL, Row row, Column column) {
-        if (row.getString(column.getName() + "_id") != null) {
-          final String schemaPath =
-              UrlEscapers.urlPathSegmentEscaper().escape(column.getSchemaName());
-          final String tablePath =
-              UrlEscapers.urlPathSegmentEscaper().escape(column.getTableName());
-          final String columnPath = UrlEscapers.urlPathSegmentEscaper().escape(column.getName());
-          return Set.of(Values.iri(schemaPath + "/api/file/" + tablePath + "/" + columnPath + "/"));
-        }
-        return Set.of();
+        final String schemaPath =
+            UrlEscapers.urlPathSegmentEscaper().escape(column.getSchemaName());
+        final String tablePath = UrlEscapers.urlPathSegmentEscaper().escape(column.getTableName());
+        final String columnPath = UrlEscapers.urlPathSegmentEscaper().escape(column.getName());
+        final String fileName =
+            UrlEscapers.urlPathSegmentEscaper().escape(row.getString(column.getName()));
+        return Set.of(
+            Values.iri(
+                baseURL
+                    + schemaPath
+                    + "/api/file/"
+                    + tablePath
+                    + "/"
+                    + columnPath
+                    + "/"
+                    + fileName));
       }
     },
     REFERENCE(CoreDatatype.XSD.ANYURI) {
