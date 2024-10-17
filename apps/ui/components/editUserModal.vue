@@ -1,9 +1,12 @@
 <template>
-  <Modal ref="modal" title="Edit User">
-    <h2>Edit user: {{ userName }}</h2>
+  <Modal ref="modal" :title="`Edit user: ${userName}`">
+    <div>
+      <b>New password</b>
+      <InputString id="New password" v-model="password" />
+    </div>
 
     <div>
-      <h3>Disable user</h3>
+      <b>Disable user</b>
       <InputRadioGroup
         id="disabledUserRadio"
         :radioOptions="[
@@ -15,7 +18,7 @@
     </div>
 
     <div>
-      <h3>Roles</h3>
+      <b>Roles</b>
       <InputSelect id="select-schema" v-model="schema" :options="SchemaIds" />
       <InputSelect id="select-role" v-model="role" :options="roles" />
       <Button size="tiny" icon="plus" @click="addRole" />
@@ -41,7 +44,7 @@
     </div>
 
     <div v-if="userTokens.length">
-      <h3>Tokens</h3>
+      <b>Tokens</b>
       <Table>
         <template #head>
           <TableHeadRow>
@@ -81,12 +84,13 @@ const { schemas, roles } = defineProps<{
 }>();
 
 const role = ref<string>("Viewer");
-const schema = ref<string>("");
+const schema = ref<string>(schemas.length ? schemas[0].id : "");
 
 const userName = ref<string>("");
 const isEnabled = ref<boolean>(true);
 const userRoles = ref<Record<string, IRole>>({});
 const userTokens = ref<string[]>([]);
+const password = ref<string>("");
 
 const SchemaIds = computed(() => {
   return schemas.map((schema) => schema.id);
@@ -138,6 +142,9 @@ async function saveUser() {
     tokens: userTokens.value,
     roles: Object.values(userRoles.value),
   }; //TODO define update user object
+  if (password.value) {
+    edittedUser.password = password.value;
+  }
 
   await updateUser(edittedUser);
   //add emit to update user list

@@ -51,7 +51,7 @@
         <InputString id="New user name" v-model="userName" />
         <InputString id="New user password" v-model="password" />
         <template #footer>
-          <Button @click="addUser(userName, password)"> Add user </Button>
+          <Button @click="addUser(userName, password)">Add user</Button>
           <Button @click="closeCreateUserModal">Close</Button>
         </template>
       </Modal>

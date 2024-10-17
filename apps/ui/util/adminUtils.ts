@@ -122,6 +122,7 @@ export interface IUser {
   enabled: boolean;
   tokens?: string[];
   roles?: IRole[];
+  password?: string;
 }
 
 interface IAdminResponse {
