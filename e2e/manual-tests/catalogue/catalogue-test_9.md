@@ -71,10 +71,10 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | | | test dataset for testCohort1, test description for dataset 1 --> | | |
 | | | name of test dataset 2 for test cohort 1, description for test dataset 2 for test cohort 1 --> | | |
 | 26 | NETWORKS | Part of networks | | |
-| | | logo, Name of network, > Website, --> to navigate to details | | |
-| | | name for test network2, > Website, --> | | |
-| | | name for test network of networks, > Website, --> | | |
-| | | name for test network1, > Website, --> | | |
+| | | logo, Name of network, >Website, --> to navigate to details | | |
+| | | name for test network2, >Website, --> | | |
+| | | name for test network of networks, >Website, --> | | |
+| | | name for test network1, >Website, --> | | |
 | 27 | ACCESS CONDITIONS | Data access conditions description text cohort 1 - yes fee | | |
 | | Data access conditions | general research use, health or medical or biomedical research | | |
 | | Data use conditions | genetic studies only, publication required, ethics approval required | | |
@@ -83,8 +83,5 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | | Release description | Release description cohort 1 | | |
 | | Prelinked | true | | |
 | | Linkage options | Linkage options cohort 1 | | |
-| 28 | PARTNERS | logo, Name of organisation, ">Read more" and arrow to navigate to details | | |
-| | | name of test additional organisation 1 | | |
-| | | name of test additional organisation 2 | | |
-| 29 | DOCUMENTATION | Card per document, clickable so that you open the document: test doc 2 for test cohort 1 & test documentation for cohort 1 | | |
-| 30 | Click on test documentation for cohort 1 | test documentation for cohort 1 is downloaded locally | | |
+| 28 | DOCUMENTATION | Card per document, clickable so that you open the document: test doc 2 for test cohort 1 & test documentation for cohort 1 | | |
+| 29 | Click on test documentation for cohort 1 | test documentation for cohort 1 is downloaded locally | | |
