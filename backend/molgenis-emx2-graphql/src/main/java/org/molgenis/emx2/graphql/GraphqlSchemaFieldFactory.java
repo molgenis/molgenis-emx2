@@ -1,7 +1,7 @@
 package org.molgenis.emx2.graphql;
 
 import static org.molgenis.emx2.Constants.*;
-import static org.molgenis.emx2.graphql.GraphlAdminFieldFactory.mapSettingsToGraphql;
+import static org.molgenis.emx2.graphql.GraphqlAdminFieldFactory.mapSettingsToGraphql;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
 import static org.molgenis.emx2.graphql.GraphqlConstants.*;
@@ -123,6 +123,17 @@ public class GraphqlSchemaFieldFactory {
                   .name(GraphqlConstants.NAME)
                   .type(Scalars.GraphQLString))
           .build();
+
+  static final GraphQLType outputUserRolesType =
+      new GraphQLObjectType.Builder()
+          .name("MolgenisUserRolesType")
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(SCHEMA_ID)
+                  .type(Scalars.GraphQLString))
+          .field(GraphQLFieldDefinition.newFieldDefinition().name(ROLE).type(Scalars.GraphQLString))
+          .build();
+
   private static final GraphQLType outputMembersMetadataType =
       new GraphQLObjectType.Builder()
           .name("MolgenisMembersType")
