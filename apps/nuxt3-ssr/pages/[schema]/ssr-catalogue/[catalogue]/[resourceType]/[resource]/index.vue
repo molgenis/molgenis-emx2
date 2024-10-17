@@ -287,7 +287,7 @@ const tocItems = computed(() => {
       id: "Organisations",
     });
   }
-  if (contributors.value) {
+  if (peopleInvolvedSortedByRoleAndName.value.length > 0) {
     tableOffContents.push({
       label: "Contributors",
       id: "Contributors",
@@ -508,8 +508,8 @@ if (route.params.catalogue) {
     ] = `/${route.params.schema}/ssr-catalogue/all/${resourceType.path}`;
 }
 
-const contributors = computed(() =>
-  resource.value.peopleInvolved.sort((a, b) => {
+const peopleInvolvedSortedByRoleAndName = computed(() =>
+  [...(resource.value.peopleInvolved ?? [])].sort((a, b) => {
     const minimumOrderOfRolesA = a.role?.length
       ? Math.min(...a.role?.map((role) => role.order ?? Infinity))
       : Infinity;
@@ -599,10 +599,10 @@ const showPopulation = computed(
         ></ContentBlockOrganisations>
 
         <ContentBlockContact
-          v-if="contributors"
+          v-if="peopleInvolvedSortedByRoleAndName.length > 0"
           id="Contributors"
           title="Contributors"
-          :contributors="contributors"
+          :contributors="peopleInvolvedSortedByRoleAndName"
         >
         </ContentBlockContact>
 

@@ -44,14 +44,14 @@ const props = withDefaults(
           <li>
             <HarmonisationStatusIcon size="small" status="complete" />
             <span
-              >Completed: cohort was able to fully map to the harmonised
+              >Completed: source was able to fully map to the harmonised
               variables</span
             >
           </li>
           <li>
             <HarmonisationStatusIcon size="small" status="partial" />
             <span
-              >Partial: cohort was able to partially map to the harmonised
+              >Partial: source was able to partially map to the harmonised
               variable</span
             >
           </li>
