@@ -232,7 +232,10 @@ function collectionEventMapper(item: any) {
     name: item.name,
     description: item.description,
     startAndEndYear: (() => {
-      return dateUtils.startEndYear(item.startDate, item.endDate);
+      return dateUtils.startEndYear(
+        new Date(item.startDate).getFullYear().toString(),
+        new Date(item.endDate).getFullYear().toString()
+      );
     })(),
     numberOfParticipants: item.numberOfParticipants,
     _renderComponent: "CollectionEventDisplay",
@@ -638,7 +641,7 @@ const showPopulation = computed(
           description="List of collection events defined for this resource"
           :headers="[
             { id: 'name', label: 'Name' },
-            { id: 'description', label: 'Description', singleLine: true },
+            { id: 'description', label: 'Description' },
             { id: 'numberOfParticipants', label: 'Participants' },
             {
               id: 'startAndEndYear',
@@ -662,7 +665,7 @@ const showPopulation = computed(
           description="List of datasets for this resource"
           :headers="[
             { id: 'name', label: 'Name' },
-            { id: 'description', label: 'Description', singleLine: true },
+            { id: 'description', label: 'Description' },
           ]"
           type="Datasets"
           :query="datasetQuery"
