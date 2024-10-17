@@ -8,7 +8,7 @@ Naïve user of the data catalogue
 
 # Goal
 
-A naïve visitor to the data catalogue can click around in the catalogue and understand what s/he is seeing when viewing a cohort in detail. Multiple values in fields are displayed correctly. Not all fields on the page are tested (See test plan 5 for full test of this page).
+A naïve visitor to the data catalogue can click around in the catalogue and understand what they are seeing when viewing a cohort in detail. Multiple values in fields are displayed correctly. Not all fields on the page are tested (See test plan 5 for full test of this page).
 
 # Steps
 
