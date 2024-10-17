@@ -1,4 +1,4 @@
-package org.molgenis.emx2.web.controllers;
+package org.molgenis.emx2.web;
 
 import io.javalin.http.*;
 import org.pac4j.core.context.WebContext;
@@ -7,13 +7,13 @@ import org.pac4j.core.exception.http.WithContentAction;
 import org.pac4j.core.exception.http.WithLocationAction;
 import org.pac4j.core.http.adapter.HttpActionAdapter;
 import org.pac4j.core.util.CommonHelper;
-import org.pac4j.javalin.JavalinHttpActionAdapter;
 import org.pac4j.javalin.JavalinWebContext;
 
 public class JavalinCustomHttpActionAdapter implements HttpActionAdapter {
-  public static final JavalinHttpActionAdapter INSTANCE = new JavalinHttpActionAdapter();
+  public static final JavalinCustomHttpActionAdapter INSTANCE =
+      new JavalinCustomHttpActionAdapter();
 
-  public JavalinCustomHttpActionAdapter() {}
+  private JavalinCustomHttpActionAdapter() {}
 
   public Void adapt(HttpAction action, WebContext webContext) {
     CommonHelper.assertNotNull("action", action);
