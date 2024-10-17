@@ -64,8 +64,8 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | | | test subcohort 1B, description for test subcohort 1B, 23487 --> | | |
 | 24 | COLLECTION EVENTS | List of collection events defined for this resource | | |
 | | | table with the following columns: Name, Description, Participants, Start end year | | |
-| | | test collection event 1A, test description for test collection event 1A, 3500, 1958-1994 --> | | |
-| | | test collection event 1B, description for test collection event 1B, 286, 1992-2000 --> | | |
+| | | test collection event 1A, test description for test collection event 1A, 3500, 1958-04-01 until 1994-04-30 --> | | |
+| | | test collection event 1B, description for test collection event 1B, 286, 1992-03-01 until 2000-08-31 --> | | |
 | 25 | DATASETS | List of datasets for this resource | | |
 | | | Table with the following columns: Name, Description | | |
 | | | test dataset for testCohort1, test description for dataset 1 --> | | |
