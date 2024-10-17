@@ -14,12 +14,11 @@ export function deleteUser(user: IUser) {
   });
 }
 
-export function updateUser(user?: IUser) {
-  if (!user) return;
+export function updateUser(user: IUser) {
   //TODO finish function
 
   const userToSend = user;
-  useFetch(GRAPHQL, {
+  return useFetch(GRAPHQL, {
     method: "post",
     body: {
       query: `mutation change($editMember:MolgenisMembersInput){change(members:[$editMember]){message}}`,
@@ -122,7 +121,7 @@ export interface IUser {
   settings: ISetting[];
   enabled: boolean;
   tokens?: string[];
-  roles?: { schemaId: string; role: string }[];
+  roles?: IRole[];
 }
 
 interface IAdminResponse {
@@ -137,4 +136,9 @@ interface IAdminResponse {
 export interface ISchemaInfo {
   id: string;
   label: string;
+}
+
+export interface IRole {
+  schemaId: string;
+  role: string;
 }

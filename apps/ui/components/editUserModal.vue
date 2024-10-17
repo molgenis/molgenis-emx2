@@ -1,12 +1,14 @@
 <template>
   <Modal ref="modal" title="Edit User">
+    <h2>Edit user: {{ userName }}</h2>
+
     <div>
       <h3>Disable user</h3>
       <InputRadioGroup
         id="disabledUserRadio"
         :radioOptions="[
-          { value: true, label: `Enabled` },
-          { value: false, label: `Disabled` },
+          { value: true, label: 'Enabled' },
+          { value: false, label: 'Disabled' },
         ]"
         :modelValue="isEnabled"
       />
@@ -16,7 +18,7 @@
       <h3>Roles</h3>
       <InputSelect id="select-schema" v-model="schema" :options="SchemaIds" />
       <InputSelect id="select-role" v-model="role" :options="roles" />
-      <Button size="tiny" icon="plus" />
+      <Button size="tiny" icon="plus" @click="addRole" />
 
       <Table>
         <template #head>
@@ -27,9 +29,9 @@
           </TableHeadRow>
         </template>
         <template #body>
-          <TableRow v-for="role in user?.roles">
+          <TableRow v-for="role in userRoles">
             <TableCell>
-              <Button size="tiny" icon="trash" />
+              <Button size="tiny" icon="trash" @click="removeRole(role)" />
             </TableCell>
             <TableCell>{{ role.schemaId }}</TableCell>
             <TableCell>{{ role.role }}</TableCell>
@@ -38,7 +40,7 @@
       </Table>
     </div>
 
-    <div v-if="user?.tokens?.length">
+    <div v-if="userTokens.length">
       <h3>Tokens</h3>
       <Table>
         <template #head>
@@ -48,7 +50,7 @@
           </TableHeadRow>
         </template>
         <template #body>
-          <TableRow v-for="token in user?.tokens">
+          <TableRow v-for="token in userTokens">
             <TableCell>
               <Button size="tiny" icon="trash" />
             </TableCell>
@@ -59,7 +61,7 @@
     </div>
 
     <template #footer>
-      <Button @click="updateUser(user)">Save</Button>
+      <Button @click="saveUser()">Save</Button>
       <Button @click="closeEditUserModal">Close</Button>
     </template>
   </Modal>
@@ -67,7 +69,7 @@
 
 <script setup lang="ts">
 import { type Modal } from "#build/components";
-import type { ISchemaInfo, IUser } from "~/util/adminUtils";
+import type { IRole, ISchemaInfo, IUser } from "~/util/adminUtils";
 import { updateUser } from "~/util/adminUtils";
 
 const modal = ref<InstanceType<typeof Modal>>();
@@ -79,8 +81,12 @@ const { schemas, roles } = defineProps<{
 
 const role = ref<string>("Viewer");
 const schema = ref<string>("");
+
+const userName = ref<string>("");
 const isEnabled = ref<boolean>(true);
-const user = ref<IUser>();
+const userRoles = ref<Record<string, IRole>>([]);
+const userTokens = ref<string[]>([]);
+
 const SchemaIds = computed(() => {
   return schemas.map((schema) => schema.id);
 });
@@ -89,18 +95,46 @@ function closeEditUserModal() {
   modal.value?.close();
 }
 
+function addRole() {
+  userRoles.value[schema.value] = { schemaId: schema.value, role: role.value };
+}
+
+function removeRole(role: IRole) {}
+
 function showModal(selectedUser: IUser) {
-  console.log("open");
-  user.value = JSON.parse(JSON.stringify(selectedUser));
-  if (user.value) {
-    isEnabled.value = user.value.enabled;
+  if (selectedUser) {
+    userName.value = selectedUser.email;
+    isEnabled.value = selectedUser.enabled;
+    userRoles.value = getRoles(selectedUser.roles || []);
+    userTokens.value = selectedUser.tokens || ([] as string[]);
   }
   modal.value?.show();
 }
 
-const closeModal = () => {
+function getRoles(roles: IRole[]): Record<string, IRole> {
+  return roles.reduce((accum, role) => {
+    accum[role.schemaId] = role;
+    return accum;
+  }, {} as Record<string, IRole>);
+}
+
+async function saveUser() {
+  const edittedUser: IUser = {
+    email: userName.value,
+    settings: [],
+    enabled: isEnabled.value,
+    tokens: userTokens.value,
+    roles: Object.values(userRoles.value),
+  }; //TODO define update user object
+
+  await updateUser(edittedUser);
+  //add emit to update user list
   modal.value?.close();
-};
+}
+
+function closeModal() {
+  modal.value?.close();
+}
 
 defineExpose({
   show: showModal,

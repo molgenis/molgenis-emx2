@@ -167,7 +167,6 @@ function closeCreateUserModal() {
 }
 
 function editUser(user: IUser) {
-  console.log(editUserModal.value);
   editUserModal.value?.show(user);
 }
 
