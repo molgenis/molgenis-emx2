@@ -3,4 +3,3 @@ testCohort,newborns,Children aged <1 month,1000,1998,2004,"Prenatal,Infant (0-23
 testCohort,infants,Children aged between 0 and 1 years,,,,"Infant (0-23 months),Newborn (0-1 months),Infants and toddlers (2-23 months)",,,,,,,,,,
 testCohort,mothers,,,,,,,,,,,women that gave birth to a child,,,,
 testCohort,pregnant women,,,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,
