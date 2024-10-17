@@ -4,6 +4,7 @@ import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
 
+import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.eclipse.rdf4j.model.Value;
@@ -105,9 +106,8 @@ class ColumnTypeRdfMapperTest {
                 "e8af409e-86f7-11ef-85b2-6b76fd707d70",
                 ColumnType.UUID_ARRAY.name(),
                 "e8af409e-86f7-11ef-85b2-6b76fd707d70,14bfb4ca-86f8-11ef-8cc0-378b59fe72e8",
-                //                ColumnType.FILE.name(),
-                //                new
-                // File(classLoader.getResource("testfiles/molgenis.png").getFile()),
+                ColumnType.FILE.name(),
+                new File(classLoader.getResource("testfiles/molgenis.png").getFile()),
                 // STRING
                 ColumnType.STRING.name(),
                 "lonelyString",
@@ -145,7 +145,7 @@ class ColumnTypeRdfMapperTest {
                 ColumnType.JSONB.name(),
                 "{\"a\":1,\"b\":2}",
                 ColumnType.JSONB_ARRAY.name(),
-                "{\"c\":3},{\"d\":4}",
+                "{\"c\":3},{\"d\":4,\"e\":5}",
                 // RELATIONSHIP
                 ColumnType.REF.name(),
                 "1",
@@ -359,7 +359,7 @@ class ColumnTypeRdfMapperTest {
             Assertions.assertEquals(
                 Set.of(
                     Values.literal("{\"c\":3}", CoreDatatype.XSD.STRING),
-                    Values.literal("{\"d\":4}", CoreDatatype.XSD.STRING)),
+                    Values.literal("{\"d\":4,\"e\":5}", CoreDatatype.XSD.STRING)),
                 retrieveValues(ColumnType.JSONB_ARRAY.name())),
         // RELATIONSHIP
         () ->
