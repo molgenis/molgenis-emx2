@@ -385,6 +385,21 @@ public class SqlSchema implements Schema {
     for (TableMetadata mergeTable : mergeTableList) {
       // idempotent so we only drop if exists
       if (mergeTable.isDrop() && targetSchema.getTable(mergeTable.getOldName()) != null) {
+        for (Column c : mergeTable.getColumns()) {
+          if (c.isReference()) {
+            TableMetadata refTable = c.getRefTable();
+            for (Column refColumn : refTable.getColumns()) {
+              if (refColumn.isRefback()
+                  && refColumn.getRefTableName().equals(mergeTable.getTableName())) {
+                throw new MolgenisException(
+                    "Deleting column \""
+                        + c.getName()
+                        + "\" failed has refBack in table: "
+                        + refTable.getTableName());
+              }
+            }
+          }
+        }
         targetSchema.getTable(mergeTable.getOldName()).getMetadata().drop();
       }
     }
