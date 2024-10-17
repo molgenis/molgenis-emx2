@@ -94,8 +94,9 @@ class Transform:
 
         if self.database_type != 'network':
             self.variable_mappings()
-        if self.database_type not in ['data_source', 'network']:
+        if self.database_type != 'data_source':
             self.collection_events()
+            self.subcohorts()
 
         # TODO: for vac4eu BPE model is an exception, not part of a network, also other model in VAC4EU
         # TODO: move DAPs to Organisations.role = data access provider (remove all other columns)
@@ -409,7 +410,6 @@ class Transform:
                 # get repeated mappings in comma separated string
                 df_mappings = rewrite_mappings(df_cdm_with_repeats, df_no_duplicates)
                 df_mappings = pd.concat([df_mappings, df_cdm_no_repeats])
-                # df_mappings = float_to_int(df_mappings)  # convert float back to integer
                 df_mappings.to_csv(self.path + 'Variable mappings.csv', index=False)
 
     def collection_events(self):
@@ -422,8 +422,15 @@ class Transform:
         df['end day'] = df['end month'].apply(get_end_day)
         df['end date'] = df['end year'].astype('Int64').astype('string') + '-' + df['end month'] + '-' + df['end day']
 
-        # df = float_to_int(df)  # convert float back to integer
         df.to_csv(self.path + 'Collection events.csv', index=False)
+
+    def subcohorts(self):
+        """ Transform Subcohorts table
+        """
+        df = pd.read_csv(self.path + 'Subcohorts.csv', dtype='object')
+        df = df.rename(columns={'inclusion criteria': 'other inclusion criteria'})
+
+        df.to_csv(self.path + 'Subcohorts.csv', index=False)
 
     def transform_tables(self, table_name):
         if table_name + '.csv' in os.listdir(self.path):
@@ -442,7 +449,6 @@ class Transform:
                                'network': 'resource',
                                'main resource': 'resource'}, inplace=True)
 
-            # df = float_to_int(df)  # convert float back to integer
             df.to_csv(self.path + table_name + '.csv', index=False)
 
     def rename_tables(self, table_name):

@@ -97,8 +97,9 @@ class Transform:
 
         if self.database_type != 'network':
             self.variable_mappings()
-        if self.database_type not in ['data_source', 'network']:
+        if self.database_type != 'data_source':
             self.collection_events()
+            self.subcohorts()
 
         # TODO: for vac4eu BPE model is an exception, not part of a network, also other model in VAC4EU
         # TODO: move DAPs to Organisations.role = data access provider (remove all other columns)
@@ -436,6 +437,14 @@ class Transform:
         df['end date'] = df['end year'].astype('Int64').astype('string') + '-' + df['end month'] + '-' + df['end day']
 
         df.to_csv(self.path.joinpath('Collection events.csv'), index=False)
+
+    def subcohorts(self):
+        """ Transform Subcohorts table
+        """
+        df = pd.read_csv(self.path.joinpath('Subcohorts.csv'), dtype='object')
+        df = df.rename(columns={'inclusion criteria': 'other inclusion criteria'})
+
+        df.to_csv(self.path.joinpath('Subcohorts.csv'), index=False)
 
     def transform_tables(self, table_name):
         if table_name + '.csv' in os.listdir(self.path):
