@@ -1,15 +1,16 @@
-<script setup>
-defineProps({
-  crumbs: {
-    type: Object,
-    default: [],
-    required: false,
-  },
-  current: {
-    type: String,
-    required: false,
-  },
-});
+<script setup lang="ts">
+withDefaults(
+  defineProps<{
+    crumbs?: Record<string, string>;
+    current?: string | undefined;
+    align?: "left" | "center";
+  }>(),
+  {
+    crumbs: () => ({}),
+    current: undefined,
+    align: "center",
+  }
+);
 </script>
 
 <template>
@@ -24,7 +25,8 @@ defineProps({
     </a> -->
   </div>
   <nav
-    class="items-center justify-center hidden gap-3 tracking-widest xl:flex font-display text-heading-lg"
+    class="items-center hidden gap-3 tracking-widest xl:flex font-display text-heading-lg"
+    :class="{ 'justify-center': align === 'center' }"
   >
     <template v-for="(url, label, index) in crumbs" :key="label">
       <NuxtLink :to="url" class="text-breadcrumb hover:underline">{{

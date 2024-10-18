@@ -48,14 +48,9 @@ const pageTitle = computed(() => `Tables in ${data.value?.data._schema.label}`);
 </script>
 <template>
   <Container>
-    <PageHeader :title="pageTitle">
+    <PageHeader :title="`Tables in ${data?.data._schema.label}`" align="left">
       <template #prefix>
-        <BreadCrumbs
-          :crumbs="{
-            databases: '/',
-            tables: `/${schema}`,
-          }"
-        />
+        <BreadCrumbs align="left" :current="data?.data._schema.label" />
       </template>
     </PageHeader>
 
