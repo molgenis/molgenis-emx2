@@ -279,7 +279,7 @@ class Client:
             raise NotImplementedError(f"Uploading files with extension {file_path.suffix!r} is not supported.")
 
         if self._job:
-            api_url += "parentJob=" + self._job
+            api_url += "&parentJob=" + self._job
 
         with open(file_path, 'rb') as file:
             response = self.session.post(
@@ -309,6 +309,9 @@ class Client:
             return self.save_schema(table=table, name=schema, file=str(file_path))
         api_url = f"{self.url}/{schema}/api/csv"
         data = self._prep_data_or_file(file_path=str(file_path))
+
+        if self._job:
+            api_url += "?parentJob=" + self._job
 
         response = self.session.post(
             url=api_url,
