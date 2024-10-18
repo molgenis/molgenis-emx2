@@ -28,7 +28,28 @@ withDefaults(
     class="items-center hidden gap-3 tracking-widest xl:flex font-display text-heading-lg"
     :class="{ 'justify-center': align === 'center' }"
   >
-    <template v-for="(url, label, index) in crumbs" :key="label">
+    <ol>
+      <li v-for="(url, label, index) in crumbs" :key="label">
+        <NuxtLink :to="url" class="text-breadcrumb hover:underline">
+          {{ label }}
+        </NuxtLink>
+        <span
+          v-if="index < Object.keys(crumbs).length - 1"
+          class="text-breadcrumb-arrow"
+        >
+          <BaseIcon name="caret-right" :width="12" />
+        </span>
+        <template v-if="current">
+          <BaseIcon
+            v-if="Object.keys(crumbs).length > 0"
+            name="caret-right"
+            :width="12"
+            class="text-breadcrumb-arrow"
+          /><a class="text-breadcrumb"> {{ current }}</a>
+        </template>
+      </li>
+    </ol>
+    <!-- <template v-for="(url, label, index) in crumbs" :key="label">
       <NuxtLink :to="url" class="text-breadcrumb hover:underline">{{
         label
       }}</NuxtLink>
@@ -46,6 +67,6 @@ withDefaults(
         :width="12"
         class="text-breadcrumb-arrow"
       /><a class="text-breadcrumb"> {{ current }}</a>
-    </template>
+    </template> -->
   </nav>
 </template>
