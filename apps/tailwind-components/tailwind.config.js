@@ -153,6 +153,7 @@ module.exports = {
         "disabled": "var(--background-color-disabled)",
         "invalid": "var(--background-color-invalid)",
         "input": "var(--background-color-input)",
+        "table": "var(--background-color-table)",
       }),
       textColor: ({ theme }) => ({
         "button-primary": "var(--text-color-button-primary)",
