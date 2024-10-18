@@ -58,17 +58,20 @@ public class ChangeLogExecutor {
 
     // Setup trigger for each table in schema
     for (TableMetadata table : schema.getTables()) {
-      // drop previous version
-      db.getJooq()
-          .execute(ChangeLogUtils.buildAuditTriggerRemove(schema.getName(), table.getTableName()));
-      // setup trigger processing function
-      db.getJooq()
-          .execute(
-              ChangeLogUtils.buildProcessAuditFunction(schema.getName(), table.getTableName()));
+      updateChangeLogTrigger(table);
+    }
+  }
 
+  static void updateChangeLogTrigger(TableMetadata table) {
+    if (ChangeLogUtils.isChangeSchema(table.getSchema().getDatabase(), table.getSchemaName())) {
+      DSLContext jooq = ((SqlTableMetadata) table).getJooq();
+      // drop previous version
+      jooq.execute(
+          ChangeLogUtils.buildAuditTriggerRemove(table.getSchemaName(), table.getTableName()));
+      // setup trigger processing function
+      jooq.execute(ChangeLogUtils.buildProcessAuditFunction(table));
       // set audit trigger, logs insert, update and delete actions on table
-      db.getJooq()
-          .execute(ChangeLogUtils.buildAuditTrigger(schema.getName(), table.getTableName()));
+      jooq.execute(ChangeLogUtils.buildAuditTrigger(table.getSchemaName(), table.getTableName()));
     }
   }
 
