@@ -3,7 +3,7 @@
     <PageHeader
       title="GDI Local Portal"
       subtitle="Search with Beacon"
-      imageSrc="bkg-beacon.jpg"
+      imageSrc="img/bkg-beacon.jpg"
       titlePositionX="center"
       height="large"
     />

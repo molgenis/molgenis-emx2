@@ -35,7 +35,7 @@
             <li id="project-logo-link">
               <a href="https://gdi.onemilliongenomes.eu">
                 <img
-                  src="/gdi-logo.png"
+                  src="/img/gdi-logo.png"
                   class="project-logo"
                   alt="European Genomic Data Infrastructure (GDI)"
                 />
@@ -48,7 +48,7 @@
                 </span>
                 <li>
                   <img
-                    src="/molgenis-logo-blue-text.png"
+                    src="/img/molgenis-logo-blue-text.png"
                     class="molgenis-logo"
                     alt="molgenis open source data platform"
                   />
@@ -62,7 +62,8 @@
   </PageFooter>
 </template>
 
-<script setup>
+<script setup lang="ts">
+// @ts-ignore
 import { PageFooter, UnorderedList } from "molgenis-viz";
 </script>
 

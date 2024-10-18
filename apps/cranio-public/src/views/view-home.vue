@@ -4,7 +4,7 @@
       class="ern-header"
       title="ERN CRANIO"
       subtitle="ERN for rare complex craniofacial anomalies and ear, nose and throat (ENT) disorders"
-      imageSrc="banner-diagnoses.jpg"
+      imageSrc="img/banner-diagnoses.jpg"
     />
     <PageSection aria-labelledby="welcome-section-title" :verticalPadding="2">
       <h2 id="welcome-section-title">Welcome to ERN CRANIO Registry</h2>

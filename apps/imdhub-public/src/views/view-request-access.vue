@@ -3,7 +3,7 @@
     <PageHeader
       title="Recon4imd: IMD-hub"
       subtitle="Request Access"
-      imageSrc="recon4imd_header.jpg"
+      imageSrc="img/recon4imd_header.jpg"
       height="medium"
     />
     <PageSection aria-labelledby="about-section-title">
@@ -20,5 +20,6 @@
 </template>
 
 <script setup lang="ts">
+// @ts-ignore
 import { Page, PageHeader, PageSection, MessageBox } from "molgenis-viz";
 </script>
