@@ -6,7 +6,7 @@ Variables,,name,,1,TRUE,,,,,,,"Name of the variable, unique within a dataset","D
 Variables,,useExternalDefinition,ref,,,,Variables,,,,,Refer to variable definition in other datasets,"DataCatalogueFlat,RWEStaging,CohortsStaging,StudiesStaging,NetworksStaging",
 Variables,,label,,,,,,,,,,"Human readable name, if applicable","DataCatalogueFlat,RWEStaging,CohortsStaging,StudiesStaging,NetworksStaging",
 Variables,,description,text,,,,,,,,,Description of the variable,"DataCatalogueFlat,RWEStaging,CohortsStaging,StudiesStaging,NetworksStaging",
-Variables,,collection event,ref_array,,,,Collection events,resource,,,,In case of protocolised data collection this defines the moment(s) in time this variable is collected on,"DataCatalogueFlat,CohortsStaging,StudiesStaging",
+Variables,,collection event,ref_array,,,,Collection events,resource,,,,In case of protocolised data collection this defines the moment(s) in time this variable is collected on,"DataCatalogueFlat,CohortsStaging,StudiesStaging,NetworksStaging",
 Variables,,format,ontology,,,CatalogueOntologies,Formats,,,,,"Data type, e.g. string, integer, decimal, date, datetime, etc.","DataCatalogueFlat,RWEStaging,CohortsStaging,StudiesStaging,NetworksStaging",
 Variables,,unit,ontology,,,CatalogueOntologies,Units,,,,,"In case of a continuous variable, the unit that the variable values are expressed in","DataCatalogueFlat,RWEStaging,CohortsStaging,StudiesStaging,NetworksStaging",
 Variables,,since version,,,,,,,,,,When this variable was introduced,"DataCatalogueFlat,RWEStaging,CohortsStaging,StudiesStaging,NetworksStaging",

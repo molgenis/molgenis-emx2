@@ -11,7 +11,7 @@ We use:
     * `gradle run` => launches the app including user interface
     * `gradle dev` => launches only the backend (useful when developing frontend using yarn dev)
     * `gradle cleandb` => will empty your postgresql database (MAKE SURE YOU WANT IT)
-    * `gradle generateTypes <schema> <file>` => generates typescript types for schema to file
+    * `gradle generateTypes --args='<schema> <file>'` => generates typescript types for schema to file
     * `gradle test` => runs all tests.
     * `gradle testFast` => runs tests excluding those marged using @Tag("slow").
 

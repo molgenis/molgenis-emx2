@@ -32,16 +32,21 @@ public class ImportProfileTask extends Task {
   @Override
   public void run() {
     this.start();
+    Task commitTask = new Task();
     try {
       schema.tx(
           db -> {
             Schema s = db.getSchema(schema.getName());
             load(s);
+            this.addSubTask(commitTask);
+            commitTask.setDescription("Committing");
           });
     } catch (Exception e) {
+      commitTask.completeWithError("Commit failed: " + e.getMessage());
       this.completeWithError(e.getMessage());
       throw (e);
     }
+    commitTask.complete();
     this.complete();
   }
 

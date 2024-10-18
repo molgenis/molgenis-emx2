@@ -1,4 +1,4 @@
-// Generated (on: 2024-10-17T11:02:51.519317) from Generator.java for schema: catalogue2
+// Generated (on: 2024-10-14T16:57:23.273338) from Generator.java for schema: catalogue
 
 export interface IFile {
   id?: string;
@@ -382,16 +382,16 @@ export interface IICDOTopologies {
   children?: IICDOTopologies[];
 }
 
-export interface IInclusionExclusionCriteria {
+export interface IInclusionCriteria {
   order?: number;
   name: string;
   label?: string;
-  parent?: IInclusionExclusionCriteria;
+  parent?: IInclusionCriteria;
   codesystem?: string;
   code?: string;
   ontologyTermURI?: string;
   definition?: string;
-  children?: IInclusionExclusionCriteria[];
+  children?: IInclusionCriteria[];
 }
 
 export interface IInformedConsentRequired {
@@ -678,7 +678,7 @@ export interface IResources {
   name: string;
   localName?: string;
   acronym?: string;
-  type: IOntologyNode[];
+  type?: IOntologyNode[];
   typeOther?: string;
   cohortType?: IOntologyNode[];
   clinicalStudyType?: IOntologyNode[];
@@ -718,8 +718,6 @@ export interface IResources {
   populationAgeGroups?: IOntologyNode[];
   inclusionCriteria?: IOntologyNode[];
   otherInclusionCriteria?: string;
-  exclusionCriteria?: IOntologyNode[];
-  otherExclusionCriteria?: string;
   populationEntry?: IOntologyNode[];
   populationEntryOther?: string;
   populationExit?: IOntologyNode[];
@@ -970,7 +968,6 @@ export interface ISubpopulations {
   countries?: IOntologyNode[];
   regions?: IOntologyNode[];
   inclusionCriteria?: string;
-  exclusionCriteria?: string;
 }
 
 export interface ITitles {
@@ -1061,7 +1058,8 @@ export interface IVariables {
   mappings?: IVariableMappings[];
 }
 
-export interface IVersion {}
+export interface IVersion {
+}
 
 export interface IVocabularies {
   order?: number;
@@ -1074,3 +1072,5 @@ export interface IVocabularies {
   definition?: string;
   children?: IVocabularies[];
 }
+
+
