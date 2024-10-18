@@ -66,7 +66,9 @@ function handlePagingRequest(page: number) {
   </div>
 
   <div class="overflow-auto rounded-b-50px">
-    <div class="overflow-x-auto overscroll-x-contain bg-table rounded-t-3px pb-6">
+    <div
+      class="overflow-x-auto overscroll-x-contain bg-table rounded-t-3px pb-6"
+    >
       <table class="text-left table-fixed w-full">
         <thead>
           <tr>
@@ -103,7 +105,9 @@ function handlePagingRequest(page: number) {
             </th>
           </tr>
         </thead>
-        <tbody class="mb-3 [&_tr:last-child_td]:border-none [&_tr:last-child_td]:mb-5">
+        <tbody
+          class="mb-3 [&_tr:last-child_td]:border-none [&_tr:last-child_td]:mb-5"
+        >
           <tr v-for="row in rows">
             <TableCellTypesEMX2
               v-for="column in columns"
