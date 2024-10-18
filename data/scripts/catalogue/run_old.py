@@ -235,35 +235,35 @@ if SERVER_TYPE == 'data_catalogue':
 #         print('Upload transformed data for: ' + cohort)
 #         session.upload_zip(database_name=cohort, data_to_upload=cohort)
 
-if SERVER_TYPE == 'data_catalogue':
-    # Data sources upload data
-    print('-----------------------')
-
-    print('Updating data for data sources')
-
-    for data_source in DATA_SOURCES:
-        # sign in to server
-        print('Sign in to server: ' + SERVER_URL)
-        session = Session(
-            url=SERVER_URL,
-            email=SERVER_USERNAME,
-            password=SERVER_PASSWORD
-        )
-        print('Upload transformed data for: ' + data_source)
-        session.upload_zip(database_name=data_source, data_to_upload=data_source)
-
-    # Networks upload data
-    print('-----------------------')
-
-    print('Updating data for networks')
-
-    for network in NETWORKS:
-        # sign in to server
-        print('Sign in to server: ' + SERVER_URL)
-        session = Session(
-            url=SERVER_URL,
-            email=SERVER_USERNAME,
-            password=SERVER_PASSWORD
-        )
-        print('Upload transformed data for: ' + network)
-        session.upload_zip(database_name=network, data_to_upload=network)
+# if SERVER_TYPE == 'data_catalogue':
+#     # Data sources upload data
+#     print('-----------------------')
+#
+#     print('Updating data for data sources')
+#
+#     for data_source in DATA_SOURCES:
+#         # sign in to server
+#         print('Sign in to server: ' + SERVER_URL)
+#         session = Session(
+#             url=SERVER_URL,
+#             email=SERVER_USERNAME,
+#             password=SERVER_PASSWORD
+#         )
+#         print('Upload transformed data for: ' + data_source)
+#         session.upload_zip(database_name=data_source, data_to_upload=data_source)
+#
+#     # Networks upload data
+#     print('-----------------------')
+#
+#     print('Updating data for networks')
+#
+#     for network in NETWORKS:
+#         # sign in to server
+#         print('Sign in to server: ' + SERVER_URL)
+#         session = Session(
+#             url=SERVER_URL,
+#             email=SERVER_USERNAME,
+#             password=SERVER_PASSWORD
+#         )
+#         print('Upload transformed data for: ' + network)
+#         session.upload_zip(database_name=network, data_to_upload=network)

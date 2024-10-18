@@ -94,7 +94,7 @@ class Transform:
 
         if self.database_type != 'network':
             self.variable_mappings()
-        if self.database_type != 'data_source':
+        if self.database_type not in ['data_source', 'network']:
             self.collection_events()
             self.subcohorts()
 
@@ -133,6 +133,8 @@ class Transform:
             df_cohorts['type'] = df_cohorts['cohort type'].apply(get_resource_type)
             # delete cohort type 'Study', 'Registry', 'Clinical trial' and 'Biobank'
             df_cohorts.loc[:, 'cohort type'] = df_cohorts['cohort type'].apply(get_cohort_type)
+            # reformat keywords
+            df_cohorts.loc[:, 'keywords'] = df_cohorts['keywords'].apply(reformat_keywords)
             # get resources that are part of network
             if self.database_type in ['cohort']:
                 cols_to_find = ['studies']
@@ -174,7 +176,8 @@ class Transform:
             # transform dates to years
             df_data_sources.loc[:, 'start year'] = df_data_sources['date established'].apply(get_year_from_date)
             df_data_sources.loc[:, 'end year'] = df_data_sources['end data collection'].apply(get_year_from_date)
-
+            # transform keywords
+            df_data_sources.loc[:, 'keywords'] = df_data_sources['keywords'].apply(reformat_keywords)
             df_data_sources['type'] = 'Data source'
 
             # Databanks to Resources
@@ -187,7 +190,8 @@ class Transform:
             # transform dates to years
             df_databanks.loc[:, 'start year'] = df_databanks['date established'].apply(get_year_from_date)
             df_databanks.loc[:, 'end year'] = df_databanks['end data collection'].apply(get_year_from_date)
-
+            # transform keywords
+            df_databanks.loc[:, 'keywords'] = df_databanks['keywords'].apply(reformat_keywords)
             df_databanks['type'] = 'Databank'
 
         # Models to Resources
@@ -205,8 +209,6 @@ class Transform:
             df_resources = df_data_sources
         elif self.database_type == 'network':
             df_resources = pd.concat([df_networks, df_models])
-
-        df_resources.loc[:, 'keywords'] = df_resources['keywords'].apply(reformat_keywords)
 
         df_resources.to_csv(self.path + 'Resources.csv', index=False)
 
