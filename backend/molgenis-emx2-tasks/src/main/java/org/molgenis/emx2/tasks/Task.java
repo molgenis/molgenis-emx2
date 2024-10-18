@@ -42,6 +42,7 @@ public class Task implements Runnable, Iterable<Task> {
   private long startTimeMilliseconds;
   // end time to calculate run time
   private long endTimeMilliseconds;
+  private boolean includeDemoData;
   // subtasks/steps in this task
   private List<Task> subTasks = new ArrayList<>();
   // parent task
@@ -87,8 +88,12 @@ public class Task implements Runnable, Iterable<Task> {
     this.subTasks.add(task);
   }
 
-  private void setParentTask(Task parentTask) {
+  public void setParentTask(Task parentTask) {
     this.parentTask = parentTask;
+  }
+
+  public Task getParentTask() {
+    return this.parentTask;
   }
 
   public List<Task> getSubTasks() {
@@ -350,7 +355,10 @@ public class Task implements Runnable, Iterable<Task> {
     // currently we only log at setStatus changes to not overload database
     if (this.parentTask != null) {
       this.parentTask.handleChange();
-    } else if (this.changedHandler != null) {
+    }
+    if (this.changedHandler
+        != null) { // todo: do we want this? changed it because task run from scripts can have a
+      // parent and need to be updated in the db
       this.changedHandler.handleChange(this);
     }
   }
@@ -372,5 +380,13 @@ public class Task implements Runnable, Iterable<Task> {
   @JsonIgnore
   public boolean isRunning() {
     return !status.equals(ERROR) && !status.equals(COMPLETED);
+  }
+
+  public boolean isIncludeDemoData() {
+    return includeDemoData;
+  }
+
+  public void setIncludeDemoData(boolean includeDemoData) {
+    this.includeDemoData = includeDemoData;
   }
 }
