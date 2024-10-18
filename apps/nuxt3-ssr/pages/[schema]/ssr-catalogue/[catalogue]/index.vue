@@ -175,11 +175,13 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
 const resources = computed(() => {
   if (cohortOnly.value) {
     return data.value.data.Resources_groupBy.filter(
-      (resource: { type: { name: string } }) =>
-        resource.type.name === "Cohort study"
+      (resource: IResources) => resource.type.name === "Cohort study"
     );
   } else {
-    return data.value.data.Resources_groupBy;
+    //omit counts of resources without a type
+    return data.value.data.Resources_groupBy.filter(
+      (resource: IResources) => resource.type
+    );
   }
 });
 </script>
