@@ -698,6 +698,8 @@ def get_resource_type(cohort_type):
             resource_type.append('Biobank')
         if any(c in cohort_type for c in ['Birth cohort', 'Clinical cohort', 'Case-control', 'Case only', 'Population cohort']):
             resource_type.append('Cohort study')
+    else:
+        resource_type.append('Cohort study')
 
     resource_type = ','.join(resource_type)
 
