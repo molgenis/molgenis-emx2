@@ -6,8 +6,6 @@ profileTags: RD3
 
 demoData: _demodata/shared-examples
 
-settings: _settings/datacatalogue
-
 # special options
 setViewPermission: anonymous
 
