@@ -153,6 +153,7 @@ module.exports = {
         "disabled": "var(--background-color-disabled)",
         "invalid": "var(--background-color-invalid)",
         "input": "var(--background-color-input)",
+        "table": "var(--background-color-table)",
       }),
       textColor: ({ theme }) => ({
         "button-primary": "var(--text-color-button-primary)",
@@ -197,6 +198,7 @@ module.exports = {
         "pagination-input": "var(--text-color-pagination-input)",
         "pagination-hover": "var(--text-color-pagination-hover)",
         "footer-link": "var(--text-color-footer-link)",
+        "table-column-header": "var(--text-color-table-column-header)",
         "invalid": "var(--text-color-invalid)",
         "valid": "var(--text-color-valid)",
         "disabled": "var(--text-color-disabled)",
