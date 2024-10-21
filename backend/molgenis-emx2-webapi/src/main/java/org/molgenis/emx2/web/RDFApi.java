@@ -186,11 +186,7 @@ public class RDFApi {
         port = parts[1];
       }
     }
-    return scheme
-        + "://"
-        + host
-        + (port != null ? ":" + port : "")
-        + (!ctx.path().isEmpty() ? "/" + ctx.path() + "/" : "/");
+    return scheme + "://" + host + (port != null ? ":" + port : "") + "/";
   }
 
   private static boolean isWellKnownPort(String scheme, String port) {
