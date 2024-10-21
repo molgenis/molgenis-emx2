@@ -217,67 +217,58 @@ class Transform:
     def organisations(self):
         """ Transform columns in Organisations and alter structure
         """
-        df_all_organisations = pd.DataFrame()
-        if self.database_type == 'catalogue':
-            df_organisations = pd.read_csv(self.path.joinpath('Organisations.csv'), dtype='object')
+        if self.database_name not in ['testCohort', 'testNetwork', 'testDatasource']:
+            if self.database_type == 'catalogue':
+                df_organisations = pd.read_csv(self.path / 'Organisations.csv', dtype='object')
+            else:
+                df_organisations = pd.read_csv(FILES_DIR / (CATALOGUE_SCHEMA_NAME + '_data') / 'Organisations.csv',
+                                               dtype='object')
+                df_organisations = df_organisations.drop(columns=['resource', 'is lead organisation']).drop_duplicates()
 
-            # get lead organisations
-            df_resources = pd.read_csv(self.path.joinpath('Resources.csv'), dtype='object')
-            df_resources = df_resources[['id', 'lead organisation']]
-            df_resources.rename(columns={'id': 'resource',
-                                         'lead organisation': 'id'}, inplace=True)
-            df_resources = df_resources.dropna(axis=0)
-            df_resources.loc[:, 'is lead organisation'] = 'True'
-            df_resources = df_resources.reset_index()
-            df_merged = get_organisations(df_organisations, df_resources)
-            df_all_organisations = pd.concat([df_all_organisations, df_merged])
+            # Get lead and additional organisations from Resources table
+            df_resources = pd.read_csv(self.path / 'Resources.csv', dtype='object')
 
-            # get additional organisations and Contacts.organisation
-            for table in ['Resources', 'Contacts']:
-                df_resource = pd.read_csv(self.path.joinpath(table + '.csv'), dtype='object')
-                if not table == 'Contacts':
-                    df_resource = df_resource[['id', 'additional organisations']]
-                else:
-                    df_resource = df_resource[['resource', 'organisation']]
-                df_resource.rename(columns={'organisation': 'id',
-                                            'id': 'resource',
-                                            'additional organisations': 'id'}, inplace=True)
-                df_resource = df_resource.replace({np.nan: ''})
-                df_resource.loc[:, 'is lead organisation'] = 'False'
-                df_resource = df_resource.reset_index()
-                df_merged = get_organisations(df_organisations, df_resource)
-                df_all_organisations = pd.concat([df_all_organisations, df_merged])
-            # df_all_organisations = float_to_int(df_all_organisations)  # convert float back to integer
-            df_all_organisations = df_all_organisations.drop_duplicates(subset=['resource', 'id'], keep='first')  # keep first to get lead organisations
-            df_all_organisations.to_csv(self.path.joinpath('Organisations.csv'), index=False)
+            df_resources['lead organisation'] = df_resources['lead organisation'].str.split(',')
+            df_resources['additional organisations'] = df_resources['additional organisations'].str.split(',')
+            df_resources = df_resources.explode('lead organisation').explode('additional organisations')
 
-        # get organisations for staging areas by making subsets on 'resource' for Organisations
+            leads = df_resources.rename(columns={'id': 'resource', 'lead organisation': 'id'})[['id', 'resource']]
+            additional = df_resources.rename(columns={'id': 'resource', 'additional organisations': 'id'})[['id', 'resource']]
+            leads['is lead organisation'] = True
+            additional['is lead organisation'] = False
+
+            # Get contacts organisations from Contacts table
+            df_contacts = pd.read_csv(self.path / 'Contacts.csv', dtype='object')[['resource', 'organisation']]
+            df_contacts = df_contacts.rename(columns={'organisation': 'id'})
+            df_contacts['is lead organisation'] = False
+
+            # Merge the tables with the original Organisations table and concatenate them into a DataFrame containing
+            # all information about all organisations
+            df_all_organisations = pd.concat([pd.merge(df_organisations, leads, on='id', how='left'),
+                                              pd.merge(df_organisations, additional, on='id', how='left'),
+                                              pd.merge(df_organisations, df_contacts, on='id', how='left')])
+
+            # Keep only organisations referenced from the schema's Resources table
+            df_all_organisations = df_all_organisations.sort_values(by=['id', 'resource', 'is lead organisation'],
+                                                                    ascending=[True, True, False])
+            df_all_organisations = df_all_organisations.loc[df_all_organisations['resource'].isin(df_resources['id'])]
+            df_all_organisations = df_all_organisations.drop_duplicates(subset=['resource', 'id'], keep='first')
+
+            df_all_organisations.to_csv(self.path / 'Organisations.csv', index=False)
+
         else:
-            if self.database_name not in ['testCohort', 'testDatasource']:
-                df_organisations = pd.read_csv(FILES_DIR.joinpath(f'{CATALOGUE_SCHEMA_NAME}_data/',
-                                                                  'Organisations.csv'), dtype='object')
-                df_resource = pd.read_csv(self.path.joinpath('Resources.csv'))
-                # Identify resources missing from the Organisations table
-                missing_resources = df_resource.loc[~df_resource['id'].isin(df_organisations['resource'])]
-                # Add the missing resources
-                missing_leads = missing_resources.apply(lambda row: df_organisations.loc[df_organisations['id'] == row['lead organisation']].iloc[0], axis=1)
-                missing_leads['resource'] = missing_resources['id']
-                missing_leads['is lead organisation'], missing_leads['select_resource'] = True, True
-
-                # TODO do the same for additional organisations
-
-                df_organisations['select_resource'] = df_organisations['resource'].isin(df_resource['id'])
-                df_organisations = df_organisations[df_organisations['select_resource']]
-                df_organisations = pd.concat([df_organisations, missing_leads])
-            elif self.database_name == 'testCohort':
+            # get information from test staging areas
+            if self.database_name == 'testCohort':
                 data = [['testCohort', 'UMCG', 'University Medical Center Groningen', 'Netherlands (the)',
                         'https://www.umcg.nl/']]
                 df_organisations = pd.DataFrame(data, columns=['resource', 'id', 'name', 'country', 'website'])
+                df_organisations.to_csv(self.path + 'Organisations.csv', index=False)
+
             elif self.database_name == 'testDatasource':
                 data = [['testDatasource', 'AU', 'University of Aarhus', 'Denmark']]
                 df_organisations = pd.DataFrame(data, columns=['resource', 'id', 'name', 'country'])
+                df_organisations.to_csv(self.path + 'Organisations.csv', index=False)
 
-            df_organisations.to_csv(self.path.joinpath('Organisations.csv'), index=False)
 
     def publications(self):
         """Transform Publications table
@@ -340,7 +331,7 @@ class Transform:
                                                       'variable.name': 'variable'})
 
         df_var_values.loc[:, 'resource'] = df_var_values['resource'].apply(strip_resource)
-        df_repeats = pd.read_csv(self.path + 'Repeated variables.csv', dtype='object')
+        df_repeats = pd.read_csv(self.path / 'Repeated variables.csv', dtype='object')
 
         df_var_values_cdm = df_var_values[df_var_values['resource'].isin(['LifeCycle', 'ATHLETE',
                                                                           'testNetwork1', 'EXPANSE'])]
@@ -711,6 +702,8 @@ def get_resource_type(cohort_type):
             resource_type.append('Biobank')
         if any(c in cohort_type for c in ['Birth cohort', 'Clinical cohort', 'Case-control', 'Case only', 'Population cohort']):
             resource_type.append('Cohort study')
+    else:
+        resource_type.append('Cohort study')
 
     resource_type = ','.join(resource_type)
 
