@@ -105,7 +105,7 @@
                 <div
                   class="info-list"
                   v-for="(study, index) in info.studies"
-                  :key="`${study.name}-${index}`"
+                  :key="`${study.id}-${index}`"
                 >
                   <span class="font-weight-bold mr-2">Name:</span>
                   <span>{{ study.title }}</span>

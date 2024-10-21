@@ -346,8 +346,8 @@ export const collectionReportInformation = (collection) => {
     collectionReport.certifications = mapQualityStandards(collection.quality);
   }
 
-  if (collection.study) {
-    collectionReport.studies = collection.study.map((study) => {
+  if (collection.studies) {
+    collectionReport.studies = collection.studies.map((study) => {
       return {
         id: study.id,
         title: study.title,
