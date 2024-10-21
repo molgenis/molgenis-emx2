@@ -7,7 +7,6 @@ from zipfile import ZipFile
 import tqdm
 from decouple import config
 from molgenis_emx2_pyclient import Client
-from molgenis_emx2_pyclient.exceptions import NoSuchSchemaException
 from molgenis_emx2_pyclient.metadata import Schema
 from tqdm.contrib.logging import logging_redirect_tqdm
 
@@ -58,11 +57,7 @@ class Runner:
     def has_latest_ontologies(self) -> bool:
         """Checks if the target server has the latest CatalogueOntologies."""
         new_ontologies = ['Clinical study types', 'Cohort collection types', 'Inclusion Exclusion Criteria']
-        try:
-            server_ontologies = self.target.get_schema_metadata(name='CatalogueOntologies').tables
-        except NoSuchSchemaException as e:
-            logging.warning(e)
-            return False
+        server_ontologies = self.target.get_schema_metadata(name='CatalogueOntologies').tables
 
         ontologies_exist = all(new_ont in [table.name for table in server_ontologies] for new_ont in new_ontologies)
         if not ontologies_exist:
@@ -289,4 +284,4 @@ if __name__ == '__main__':
     logging.getLogger("requests").setLevel(logging.WARNING)
     logging.getLogger("urllib3").setLevel(logging.WARNING)
 
-    asyncio.run(main(pattern='', debug=False))
+    asyncio.run(main(pattern='', debug=True))
