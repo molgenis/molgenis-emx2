@@ -83,7 +83,7 @@ function handlePagingRequest(page: number) {
               scope="col"
             >
               <button
-                class="overflow-ellipsis whitespace-nowrap overflow-hidden hover:cursor-pointer"
+                class="overflow-ellipsis whitespace-nowrap overflow-hidden hover:cursor-pointer text-table-column-header text-body-base capitalize"
                 @click="handleSortRequest(column.id)"
               >
                 {{ column.label }}

@@ -198,6 +198,7 @@ module.exports = {
         "pagination-input": "var(--text-color-pagination-input)",
         "pagination-hover": "var(--text-color-pagination-hover)",
         "footer-link": "var(--text-color-footer-link)",
+        "table-column-header": "var(--text-color-table-column-header)",
         "invalid": "var(--text-color-invalid)",
         "valid": "var(--text-color-valid)",
         "disabled": "var(--text-color-disabled)",
