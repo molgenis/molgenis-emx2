@@ -4,7 +4,7 @@
       class="erras-header"
       title="ERN-Skin Registry"
       subtitle="Download Documents"
-      imageSrc="erras-header.jpg"
+      imageSrc="img/erras-header.jpg"
       height="xlarge"
       title-position-x="center"
       title-position-y="center"
@@ -23,7 +23,8 @@
   </Page>
 </template>
 
-<script setup>
+<script setup lang="ts">
+// @ts-ignore
 import { Page, PageSection, MessageBox } from "molgenis-viz";
 import CustomPageHeader from "../components/CustomPageHeader.vue";
 </script>

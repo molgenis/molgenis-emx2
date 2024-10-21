@@ -4,7 +4,7 @@
       class="genturis-header"
       title="ERN Genturis Registry"
       subtitle="Registry for Genetic Tumour Risk Syndromes"
-      imageSrc="genturis-carousel.jpg"
+      imageSrc="img/genturis-carousel.jpg"
       titlePositionX="center"
       titlePositionY="center"
     />
@@ -15,7 +15,7 @@
       width="large"
     >
       <img
-        src="/genturis-registry-logo.png"
+        src="/img/genturis-registry-logo.png"
         class="genturis-logo logo-medium logo-center"
         alt="ERN Genturis Registry - Registry for Genetic Tumour Risk Syndromes"
       />
@@ -46,12 +46,12 @@
           {
             name: 'documents',
             label: 'Documents',
-            image: 'bkg-image-documents.jpg',
+            image: 'img/bkg-image-documents.jpg',
           },
           {
             name: 'dashboard',
             label: 'Dashboard',
-            image: 'bkg-image-dashboard.jpg',
+            image: 'img/bkg-image-dashboard.jpg',
           },
         ]"
         name="name"
@@ -132,7 +132,8 @@
   </Page>
 </template>
 
-<script setup>
+<script setup lang="ts">
+// @ts-ignore
 import { Page, PageHeader, PageSection } from "molgenis-viz";
 import QuickLinks from "../components/QuickLinks.vue";
 import Address from "../components/Address.vue";

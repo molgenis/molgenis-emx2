@@ -3,7 +3,7 @@
     <PageHeader
       title="ERN Ithaca"
       subtitle="View and download documents"
-      imageSrc="ern-ithaca-header.jpg"
+      imageSrc="img/ern-ithaca-header.jpg"
     />
     <PageSection
       id="section-temp-message"
@@ -18,6 +18,7 @@
   </Page>
 </template>
 
-<script setup>
+<script setup lang="ts">
+// @ts-ignore
 import { Page, PageHeader, PageSection, MessageBox } from "molgenis-viz";
 </script>

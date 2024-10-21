@@ -74,12 +74,10 @@ export default defineConfig(({ command, mode }) => {
               assetFileNames: (assetInfo) => {
                 const extension = assetInfo.name.split('.').pop()
                 if (/png|jpg|svg/.test(extension)) {
-                  return `img/[name].[hash][extname]`
+                  return `img/[name]-[hash][extname]`
                 }
-                return `${extension}/dashboard.[hash][extname]`
-              },
-              chunkFileNames: 'js/[name].[hash].js',
-              entryFileNames: 'js/[name].[hash].js'
+                return `assets/[name]-[hash][extname]`
+              }
             }
           }
         }

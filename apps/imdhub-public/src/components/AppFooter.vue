@@ -34,7 +34,7 @@
             <li id="project-logo-link">
               <a href="http://recon4imd.org">
                 <img
-                  src="/recon4imd.png"
+                  src="/img/recon4imd.png"
                   alt="Reconstruction and Computational Modelling for Inherited Metabolic Diseases"
                 />
               </a>
@@ -57,6 +57,7 @@
 </template>
 
 <script setup lang="ts">
+// @ts-ignore
 import { PageFooter, UnorderedList, MolgenisLogo } from "molgenis-viz";
 </script>
 

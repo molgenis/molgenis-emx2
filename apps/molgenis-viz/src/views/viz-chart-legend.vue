@@ -3,7 +3,7 @@
     <PageHeader
       title="molgenis-viz"
       subtitle="Chart Legends"
-      imageSrc="legend-header.jpg"
+      imageSrc="img/legend-header.jpg"
       height="large"
     />
     <PageSection :verticalPadding="0">
