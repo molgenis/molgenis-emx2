@@ -371,10 +371,9 @@ public class SqlSchema implements Schema {
             if (!created.contains(newColumn.getTableName() + "." + newColumn.getName())) {
               oldTable.alterColumn(oldColumn.getName(), newColumn);
             }
-          } else
-          // don't forget to add the refbacks
-          if (oldColumn == null && newColumn.isRefback()) {
-            targetSchema.getTable(newTable.getTableName()).getMetadata().add(newColumn);
+            if (newColumn.isRefback()) {
+              targetSchema.getTable(newTable.getTableName()).getMetadata().add(newColumn);
+            }
           }
         }
       }
@@ -385,6 +384,22 @@ public class SqlSchema implements Schema {
     for (TableMetadata mergeTable : mergeTableList) {
       // idempotent so we only drop if exists
       if (mergeTable.isDrop() && targetSchema.getTable(mergeTable.getOldName()) != null) {
+        for (Column c : mergeTable.getColumns()) {
+          if (c.isReference()) {
+            TableMetadata refTable = c.getRefTable();
+            for (Column refColumn : refTable.getColumns()) {
+              if (refColumn.isRefback()
+                  && refColumn.getRefTableName().equals(mergeTable.getTableName())
+                  && !isDropRefback(mergeTableList, refColumn)) {
+                throw new MolgenisException(
+                    "Deleting column \""
+                        + c.getName()
+                        + "\" failed has refBack in table: "
+                        + refTable.getTableName());
+              }
+            }
+          }
+        }
         targetSchema.getTable(mergeTable.getOldName()).getMetadata().drop();
       }
     }
@@ -393,6 +408,16 @@ public class SqlSchema implements Schema {
     if (!mergeSchema.getSettings().isEmpty()) {
       targetSchema.getMetadata().setSettings(mergeSchema.getSettings());
     }
+  }
+
+  private static boolean isDropRefback(List<TableMetadata> mergeTableList, Column refColumn) {
+    String tableName = refColumn.getTable().getTableName();
+    String columnIdentifier = refColumn.getIdentifier();
+
+    return mergeTableList.stream()
+        .filter(mergeTable -> mergeTable.getTableName().equals(tableName))
+        .map(mergeTable -> mergeTable.getColumn(columnIdentifier))
+        .anyMatch(column -> column != null && column.isDrop());
   }
 
   public String getName() {
