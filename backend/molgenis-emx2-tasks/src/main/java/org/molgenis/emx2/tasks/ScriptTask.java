@@ -8,6 +8,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -74,6 +75,7 @@ public class ScriptTask extends Task {
 
         // paste the script to a file into temp dir
         Path tempScriptFile = Files.createFile(tempDir.resolve("script.py"));
+        script = script.replace("${jobId}", this.getId());
         Files.writeString(tempScriptFile, this.script);
         Path requirementsFile = Files.createFile(tempDir.resolve("requirements.txt"));
         Files.writeString(requirementsFile, this.dependencies != null ? this.dependencies : "");
@@ -113,6 +115,7 @@ public class ScriptTask extends Task {
             .put(
                 "OUTPUT_FILE",
                 tempOutputFile.toAbsolutePath().toString()); // in case of an output file
+
         process = builder.start();
         this.addSubTask("Script started: " + process.info().commandLine().orElse("")).complete();
 
@@ -164,6 +167,13 @@ public class ScriptTask extends Task {
         this.sendFailureMail();
       }
     }
+  }
+
+  private void sourceLocalPyclient(ProcessBuilder builder) {
+    String projectPath = System.getProperty("user.dir");
+    String pythonPath = Paths.get(projectPath, "tools", "pyclient", "src").toString();
+
+    builder.environment().put("PYTHONPATH", pythonPath);
   }
 
   private void sendFailureMail() {
