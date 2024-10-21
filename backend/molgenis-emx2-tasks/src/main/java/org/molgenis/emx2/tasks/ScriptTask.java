@@ -116,12 +116,6 @@ public class ScriptTask extends Task {
                 "OUTPUT_FILE",
                 tempOutputFile.toAbsolutePath().toString()); // in case of an output file
 
-        // TODO: remove this when new pyclient is released.
-        String projectPath = System.getProperty("user.dir");
-        String pythonPath = Paths.get(projectPath, "tools", "pyclient", "src").toString();
-
-        builder.environment().put("PYTHONPATH", pythonPath);
-
         process = builder.start();
         this.addSubTask("Script started: " + process.info().commandLine().orElse("")).complete();
 
@@ -173,6 +167,13 @@ public class ScriptTask extends Task {
         this.sendFailureMail();
       }
     }
+  }
+
+  private void sourceLocalPyclient(ProcessBuilder builder) {
+    String projectPath = System.getProperty("user.dir");
+    String pythonPath = Paths.get(projectPath, "tools", "pyclient", "src").toString();
+
+    builder.environment().put("PYTHONPATH", pythonPath);
   }
 
   private void sendFailureMail() {
