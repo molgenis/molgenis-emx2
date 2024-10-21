@@ -20,7 +20,7 @@ public class RDFApi {
   public static final String TTL_API_LOCATION = "/api/ttl";
   public static final String JSONLD_API_LOCATION = "/api/jsonld";
 
-  private static final List<RDFFormat> ACCEPTED_FORMATS =
+  private static final List<RDFFormat> acceptedRdfFormats =
       List.of(
           RDFFormat.TURTLE,
           RDFFormat.N3,
@@ -187,7 +187,7 @@ public class RDFApi {
         // Strip everything after a semicolon
         type = type.split(";")[0];
       }
-      for (var format : ACCEPTED_FORMATS) {
+      for (var format : acceptedRdfFormats) {
         if (format.hasDefaultMIMEType(type)) {
           return format;
         }
