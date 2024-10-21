@@ -7,6 +7,7 @@ from zipfile import ZipFile
 import tqdm
 from decouple import config
 from molgenis_emx2_pyclient import Client
+from molgenis_emx2_pyclient.exceptions import NoSuchSchemaException
 from molgenis_emx2_pyclient.metadata import Schema
 from tqdm.contrib.logging import logging_redirect_tqdm
 
@@ -56,10 +57,23 @@ class Runner:
 
     def has_latest_ontologies(self) -> bool:
         """Checks if the target server has the latest CatalogueOntologies."""
-        new_ontologies = ['Clinical study types', 'Cohort collection types']
-        server_ontologies = self.target.get_schema_metadata(name='CatalogueOntologies').tables
+        new_ontologies = ['Clinical study types', 'Cohort collection types', 'Inclusion Exclusion Criteria']
+        try:
+            server_ontologies = self.target.get_schema_metadata(name='CatalogueOntologies').tables
+        except NoSuchSchemaException as e:
+            logging.warning(e)
+            return False
 
-        return all(new_ont in [table.name for table in server_ontologies] for new_ont in new_ontologies)
+        ontologies_exist = all(new_ont in [table.name for table in server_ontologies] for new_ont in new_ontologies)
+        if not ontologies_exist:
+            return False
+        criteria_term = 'Health status inclusion criterion'
+        if criteria_term not in self.target.get(schema='CatalogueOntologies',
+                                                table='Inclusion Exclusion Criteria',
+                                                query_filter=f"name == {criteria_term}",
+                                                as_df=True)['name'].values:
+            return False
+        return True
 
     def gather_staging_types(self) -> dict[str, list[str]]:
         """Gathers the names of staging areas with the 'CohortsStaging' data model."""
@@ -117,6 +131,12 @@ class Runner:
         logging.info(f"Unpacking {self.catalogue!r} data and performing data updates.")
         await self._update_schema(name=self.catalogue, database_type='catalogue', transform_only=True)
 
+    async def unpack_shared_staging(self):
+        """
+        Exports the SharedStaging zip and performs the updates without uploading the data.
+        """
+        logging.info(f"Unpacking {SHAREDSTAGING!r} data and performing data updates.")
+        await self._update_schema(name=SHAREDSTAGING, database_type='catalogue', transform_only=True)
 
 
     async def update_cohorts(self):
@@ -213,7 +233,7 @@ class Runner:
                                schema=f"{name}{self.pattern}")
 
 
-async def main(pattern = None):
+async def main(pattern = None, debug: bool = False):
     # Initialize the client with URL and token
     source_server = config('MG_SOURCE_SERVER_URL')
     source_token = config('MG_SOURCE_SERVER_TOKEN')
@@ -225,17 +245,21 @@ async def main(pattern = None):
           Client(url=target_server, token=target_token) as target):
 
         # Set up the Runner
-        runner = Runner(source, target, pattern=pattern, _debug=False)
+        runner = Runner(source, target, pattern=pattern, _debug=debug)
         logging.info(f"Updating schemas on {runner.target.url!r}")
+
+        if debug:
+            runner.cohorts = ['AHON', 'LOFIT', 'CHROM_6_PROJ']
 
         if not runner.has_latest_ontologies():
             # Trigger CatalogueOntologies update by creating a dummy catalogue
-            if not 'dummy' in target.schema_names:
-                create_dummy = asyncio.create_task(runner.target.create_schema(name='_dummy',
+            dummy = '_dummy'
+            if not dummy in target.schema_names:
+                create_dummy = asyncio.create_task(runner.target.create_schema(name=dummy,
                                                                                   template='DATA_CATALOGUE',
                                                                                   include_demo_data=False))
                 await create_dummy
-            delete_dummy = asyncio.create_task(runner.target.delete_schema('_dummy'))
+            delete_dummy = asyncio.create_task(runner.target.delete_schema(dummy))
 
             await delete_dummy
 
@@ -244,6 +268,7 @@ async def main(pattern = None):
 
         # Unpack and transform the catalogue data without uploading
         await runner.unpack_catalogue()
+        # await runner.unpack_shared_staging()
 
         # Update the cohorts
         await runner.update_cohorts()
@@ -264,4 +289,4 @@ if __name__ == '__main__':
     logging.getLogger("requests").setLevel(logging.WARNING)
     logging.getLogger("urllib3").setLevel(logging.WARNING)
 
-    asyncio.run(main(pattern=''))
+    asyncio.run(main(pattern='', debug=False))
