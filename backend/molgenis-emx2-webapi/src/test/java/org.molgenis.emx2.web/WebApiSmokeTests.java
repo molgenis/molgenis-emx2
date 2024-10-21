@@ -822,7 +822,7 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  public void testRdfApi() {
+  public void testRdfApiRequest() {
     final String urlPrefix = "http://localhost:" + PORT;
 
     final String defaultContentType = "text/turtle";
@@ -865,16 +865,40 @@ public class WebApiSmokeTests {
         .head(urlPrefix + "/pet store/api/jsonld");
     rdfApiContentTypeRequest(200, jsonldContentType, ttlContentType)
         .head(urlPrefix + "/pet store/api/ttl");
+  }
 
-    // Validate actual output.
-    String result =
+  @Test
+  void testRdfApiContent() {
+    // Output from global API call.
+    String resultBase =
         given()
             .sessionId(SESSION_ID)
             .when()
             .get("http://localhost:" + PORT + "/api/rdf?schemas=pet store")
             .getBody()
             .asString();
-    assertFalse(result.contains("CatalogueOntologies"));
+
+    // Output schema API call.
+    String resultSchema =
+        given()
+            .sessionId(SESSION_ID)
+            .when()
+            .get("http://localhost:" + PORT + "/pet store/api/rdf")
+            .getBody()
+            .asString();
+
+    assertAll(
+        // Validate base API.
+        () -> assertFalse(resultBase.contains("CatalogueOntologies")),
+        () ->
+            assertTrue(
+                resultBase.contains(
+                    "http://localhost:" + PORT + "/pet%20store/api/rdf/Category/column/name")),
+        // Validate schema API.
+        () ->
+            assertTrue(
+                resultSchema.contains(
+                    "http://localhost:" + PORT + "/pet%20store/api/rdf/Category/column/name")));
   }
 
   /**

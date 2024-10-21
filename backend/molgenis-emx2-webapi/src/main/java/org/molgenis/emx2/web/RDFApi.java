@@ -5,10 +5,7 @@ import static org.molgenis.emx2.web.MolgenisWebservice.*;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
@@ -58,12 +55,11 @@ public class RDFApi {
     app.head("{schema}" + apiLocation + "/{table}column/{column}/", (ctx) -> rdfHead(ctx, format));
   }
 
-  private static String rdfHead(Context ctx, RDFFormat format) {
+  private static void rdfHead(Context ctx, RDFFormat format) {
     ctx.contentType(selectFormat(ctx, format).getDefaultMIMEType());
-    return "";
   }
 
-  private static int rdfForDatabase(Context ctx, RDFFormat format) throws IOException {
+  private static void rdfForDatabase(Context ctx, RDFFormat format) throws IOException {
     format = selectFormat(ctx, format); // defines format if null
 
     Database db = sessionManager.getSession(ctx.req()).getDatabase();
@@ -99,10 +95,9 @@ public class RDFApi {
 
     outputStream.flush();
     outputStream.close();
-    return 200;
   }
 
-  private static int rdfForSchema(Context ctx, RDFFormat format) throws IOException {
+  private static void rdfForSchema(Context ctx, RDFFormat format) throws IOException {
     format = selectFormat(ctx, format); // defines format if null
 
     Schema schema = getSchema(ctx);
@@ -118,10 +113,9 @@ public class RDFApi {
     rdf.describeAsRDF(outputStream, null, null, null, schema);
     outputStream.flush();
     outputStream.close();
-    return 200;
   }
 
-  private static int rdfForTable(Context ctx, RDFFormat format) throws IOException {
+  private static void rdfForTable(Context ctx, RDFFormat format) throws IOException {
     format = selectFormat(ctx, format); // defines format if null
 
     Table table = getTableByIdOrName(ctx);
@@ -138,10 +132,9 @@ public class RDFApi {
     rdf.describeAsRDF(outputStream, table, rowId, null, table.getSchema());
     outputStream.flush();
     outputStream.close();
-    return 200;
   }
 
-  private static int rdfForRow(Context ctx, RDFFormat format) throws IOException {
+  private static void rdfForRow(Context ctx, RDFFormat format) throws IOException {
     format = selectFormat(ctx, format); // defines format if null
     Table table = getTableByIdOrName(ctx);
     String rowId = sanitize(ctx.pathParam("row"));
@@ -154,10 +147,9 @@ public class RDFApi {
     rdf.describeAsRDF(outputStream, table, rowId, null, table.getSchema());
     outputStream.flush();
     outputStream.close();
-    return 200;
   }
 
-  private static int rdfForColumn(Context ctx, RDFFormat format) throws IOException {
+  private static void rdfForColumn(Context ctx, RDFFormat format) throws IOException {
     format = selectFormat(ctx, format); // defines format if null
 
     Table table = getTableByIdOrName(ctx);
@@ -172,30 +164,13 @@ public class RDFApi {
     rdf.describeAsRDF(outputStream, table, null, columnName, table.getSchema());
     outputStream.flush();
     outputStream.close();
-    return 200;
   }
 
   private static String extractBaseURL(Context ctx) {
-    // NOTE: The request.host() already includes the server port!
-    String scheme = ctx.scheme();
-    String port = null;
-    var parts = ctx.host().split(":", 2);
-    String host = parts[0];
-    if (parts.length == 2) {
-      if (!isWellKnownPort(scheme, parts[1])) {
-        port = parts[1];
-      }
-    }
-    return scheme
+    return ctx.scheme()
         + "://"
-        + host
-        + (port != null ? ":" + port : "")
-        + (!ctx.path().isEmpty() ? "/" + ctx.path() + "/" : "/");
-  }
-
-  private static boolean isWellKnownPort(String scheme, String port) {
-    return (scheme.equals("http") && port.equals("80"))
-        || (scheme.equals("https") && port.equals("443"));
+        + ctx.host()
+        + (!ctx.contextPath().isEmpty() ? "/" + ctx.contextPath() + "/" : "/");
   }
 
   private static RDFFormat selectFormat(Context ctx, RDFFormat format) {
