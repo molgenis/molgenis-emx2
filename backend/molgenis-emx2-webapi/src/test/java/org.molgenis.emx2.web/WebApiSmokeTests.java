@@ -1259,7 +1259,7 @@ async def main():
     logging.getLogger("requests").setLevel(logging.WARNING)
     logging.getLogger("urllib3").setLevel(logging.WARNING)
 
-    async with Client('http://localhost:8081', token=os.environ['MOLGENIS_TOKEN'], parent_job="${jobId}") as client:
+    async with Client('http://localhost:8081', token=os.environ['MOLGENIS_TOKEN'], job="${jobId}") as client:
         await client.create_schema(name="ScriptWithFileUpload", description="TestFileUploadScript",
                     template="PET_STORE", include_demo_data=False)
 
