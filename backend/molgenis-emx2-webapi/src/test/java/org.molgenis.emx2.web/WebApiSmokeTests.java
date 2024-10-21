@@ -1269,7 +1269,7 @@ if __name__ == '__main__':
 """,
             "dependencies",
             "--extra-index-url https://test.pypi.org/simple/\n"
-                + "molgenis-emx2-pyclient>=11.20.6"));
+                + "molgenis-emx2-pyclient>=11.22.0"));
     String result =
         given()
             .sessionId(SESSION_ID)
