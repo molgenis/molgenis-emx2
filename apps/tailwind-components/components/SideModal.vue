@@ -110,7 +110,7 @@ const bgClass = computed(() => {
               <BaseIcon name="cross" />
             </button>
 
-            <div class="overflow-auto calc-remaining-max-height pb-6">
+            <div class="overflow-auto calc-remaining-max-height pb-12">
               <slot></slot>
             </div>
           </div>

@@ -133,6 +133,7 @@ function columToColumnConfig(column: IColumn): IColumnConfig {
         type="secondary"
         size="small"
         label="Cancel"
+        class="ml-2.5"
         @click="handleCancel"
       />
     </template>
