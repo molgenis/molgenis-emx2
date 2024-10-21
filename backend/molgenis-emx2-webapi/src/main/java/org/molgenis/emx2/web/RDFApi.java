@@ -5,10 +5,7 @@ import static org.molgenis.emx2.web.MolgenisWebservice.*;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
@@ -170,26 +167,19 @@ public class RDFApi {
   }
 
   private static String extractBaseURL(Context ctx) {
-    // NOTE: The request.host() already includes the server port!
-    String scheme = ctx.scheme();
-    String port = null;
-    var parts = ctx.host().split(":", 2);
-    String host = parts[0];
-    if (parts.length == 2) {
-      if (!isWellKnownPort(scheme, parts[1])) {
-        port = parts[1];
-      }
-    }
-    return scheme
+    // NOTE: The request.host() already includes the server port! -> unsure if also case for ctx
+    String host = Objects.requireNonNull(ctx.host());
+//    if (isWellKnownPort(ctx.scheme(), ctx.port())) {
+//      host = host.split(":")[0];
+//    }
+    return ctx.scheme()
         + "://"
         + host
-        + (port != null ? ":" + port : "")
-        + (!ctx.path().isEmpty() ? "/" + ctx.path() + "/" : "/");
+        + (!ctx.contextPath().isEmpty() ? "/" + ctx.contextPath() + "/" : "/");
   }
 
-  private static boolean isWellKnownPort(String scheme, String port) {
-    return (scheme.equals("http") && port.equals("80"))
-        || (scheme.equals("https") && port.equals("443"));
+  private static boolean isWellKnownPort(String scheme, Integer port) {
+    return (scheme.equals("http") && port == 80) || (scheme.equals("https") && port == 443);
   }
 
   private static RDFFormat selectFormat(Context ctx, RDFFormat format) {
