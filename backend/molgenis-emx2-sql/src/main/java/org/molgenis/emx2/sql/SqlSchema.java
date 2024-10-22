@@ -416,16 +416,6 @@ public class SqlSchema implements Schema {
     }
   }
 
-  private static boolean isDropRefback(List<TableMetadata> mergeTableList, Column column) {
-    TableMetadata refTable = column.getRefTable();
-    String columnIdentifier = refTable.getColumn("").getIdentifier();
-
-    return mergeTableList.stream()
-        .filter(mergeTable -> mergeTable.getTableName().equals(refTable.getTableName()))
-        .map(mergeTable -> mergeTable.getColumn(columnIdentifier))
-        .anyMatch(c -> c != null && c.isDrop());
-  }
-
   public String getName() {
     return getMetadata().getName();
   }
