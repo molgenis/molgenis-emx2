@@ -1,4 +1,4 @@
-// Generated (on: 2024-09-30T14:18:30.812974) from Generator.java for schema: catalogue
+// Generated (on: 2024-10-17T11:02:51.519317) from Generator.java for schema: catalogue2
 
 export interface IFile {
   id?: string;
@@ -382,16 +382,16 @@ export interface IICDOTopologies {
   children?: IICDOTopologies[];
 }
 
-export interface IInclusionCriteria {
+export interface IInclusionExclusionCriteria {
   order?: number;
   name: string;
   label?: string;
-  parent?: IInclusionCriteria;
+  parent?: IInclusionExclusionCriteria;
   codesystem?: string;
   code?: string;
   ontologyTermURI?: string;
   definition?: string;
-  children?: IInclusionCriteria[];
+  children?: IInclusionExclusionCriteria[];
 }
 
 export interface IInformedConsentRequired {
@@ -416,6 +416,25 @@ export interface IInformedConsentTypes {
   ontologyTermURI?: string;
   definition?: string;
   children?: IInformedConsentTypes[];
+}
+
+export interface IInternalIdentifierTypes {
+  order?: number;
+  name: string;
+  label?: string;
+  parent?: IInternalIdentifierTypes;
+  codesystem?: string;
+  code?: string;
+  ontologyTermURI?: string;
+  definition?: string;
+  children?: IInternalIdentifierTypes[];
+}
+
+export interface IInternalIdentifiers {
+  resource: IResources;
+  identifier: string;
+  internalIdentifierType?: IOntologyNode;
+  internalIdentifierTypeOther?: string;
 }
 
 export interface IKeywords {
@@ -457,7 +476,6 @@ export interface ILinkageStrategies {
 export interface ILinkages {
   resource: IResources;
   linkedResource: IResources;
-  otherLinkedResource?: string;
   linkageStrategy?: IOntologyNode;
   linkageVariable?: string;
   linkageVariableUnique?: boolean;
@@ -660,7 +678,7 @@ export interface IResources {
   name: string;
   localName?: string;
   acronym?: string;
-  type?: IOntologyNode[];
+  type: IOntologyNode[];
   typeOther?: string;
   cohortType?: IOntologyNode[];
   clinicalStudyType?: IOntologyNode[];
@@ -668,11 +686,11 @@ export interface IResources {
   networkType?: IOntologyNode[];
   website?: string;
   description?: string;
-  keywords?: string;
+  keywords?: string[];
+  internalIdentifiers?: IInternalIdentifiers[];
   externalIdentifiers?: IExternalIdentifiers[];
-  dateLastRefresh?: string;
-  startYear?: string;
-  endYear?: string;
+  startYear?: number;
+  endYear?: number;
   timeSpanDescription?: string;
   contactEmail?: string;
   logo?: IFile;
@@ -684,8 +702,8 @@ export interface IResources {
   dataCollectionType?: IOntologyNode[];
   dataCollectionDescription?: string;
   reasonSustained?: string;
-  unitOfObservation?: string;
   recordTrigger?: string;
+  unitOfObservation?: string;
   subpopulations?: ISubpopulations[];
   collectionEvents?: ICollectionEvents[];
   resources?: IResources[];
@@ -700,6 +718,8 @@ export interface IResources {
   populationAgeGroups?: IOntologyNode[];
   inclusionCriteria?: IOntologyNode[];
   otherInclusionCriteria?: string;
+  exclusionCriteria?: IOntologyNode[];
+  otherExclusionCriteria?: string;
   populationEntry?: IOntologyNode[];
   populationEntryOther?: string;
   populationExit?: IOntologyNode[];
@@ -765,6 +785,7 @@ export interface IResources {
   refreshTime?: number;
   lagTime?: number;
   refreshPeriod?: IOntologyNode[];
+  dateLastRefresh?: string;
   preservation?: boolean;
   preservationDuration?: number;
   standardOperatingProcedures?: boolean;
@@ -949,6 +970,7 @@ export interface ISubpopulations {
   countries?: IOntologyNode[];
   regions?: IOntologyNode[];
   inclusionCriteria?: string;
+  exclusionCriteria?: string;
 }
 
 export interface ITitles {
@@ -1003,6 +1025,8 @@ export interface IVariableRepeatUnits {
 }
 
 export interface IVariableValues {
+  resource: IResources;
+  dataset: IDatasets;
   variable: IVariables;
   value: string;
   label: string;

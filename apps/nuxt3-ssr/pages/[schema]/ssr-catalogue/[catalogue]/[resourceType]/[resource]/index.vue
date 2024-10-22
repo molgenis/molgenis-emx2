@@ -87,6 +87,8 @@ const query = gql`
       populationOncologyMorphology ${moduleToString(ontologyFragment)}
       inclusionCriteria ${moduleToString(ontologyFragment)}
       otherInclusionCriteria
+      exclusionCriteria ${moduleToString(ontologyFragment)}
+      otherExclusionCriteria
       publications(orderby: {title:ASC}) {
         doi
         title
@@ -287,7 +289,7 @@ const tocItems = computed(() => {
       id: "Organisations",
     });
   }
-  if (contributors.value) {
+  if (peopleInvolvedSortedByRoleAndName.value.length > 0) {
     tableOffContents.push({
       label: "Contributors",
       id: "Contributors",
@@ -403,6 +405,15 @@ const population: IDefinitionListItem[] = [
     label: "Other inclusion criteria",
     content: resource.value.otherInclusionCriteria,
   },
+  {
+    label: "Exclusion criteria",
+    type: "ONTOLOGY",
+    content: resource.value.exclusionCriteria,
+  },
+  {
+    label: "Other exclusion criteria",
+    content: resource.value.otherExclusionCriteria,
+  },
 ];
 
 if (mainMedicalConditions.value && mainMedicalConditions.value.length > 0) {
@@ -508,8 +519,8 @@ if (route.params.catalogue) {
     ] = `/${route.params.schema}/ssr-catalogue/all/${resourceType.path}`;
 }
 
-const contributors = computed(() =>
-  resource.value.peopleInvolved.sort((a, b) => {
+const peopleInvolvedSortedByRoleAndName = computed(() =>
+  [...(resource.value.peopleInvolved ?? [])].sort((a, b) => {
     const minimumOrderOfRolesA = a.role?.length
       ? Math.min(...a.role?.map((role) => role.order ?? Infinity))
       : Infinity;
@@ -599,10 +610,10 @@ const showPopulation = computed(
         ></ContentBlockOrganisations>
 
         <ContentBlockContact
-          v-if="contributors"
+          v-if="peopleInvolvedSortedByRoleAndName.length > 0"
           id="Contributors"
           title="Contributors"
-          :contributors="contributors"
+          :contributors="peopleInvolvedSortedByRoleAndName"
         >
         </ContentBlockContact>
 

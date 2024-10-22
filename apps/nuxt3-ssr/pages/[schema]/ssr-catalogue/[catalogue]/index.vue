@@ -175,11 +175,13 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
 const resources = computed(() => {
   if (cohortOnly.value) {
     return data.value.data.Resources_groupBy.filter(
-      (resource: { type: { name: string } }) =>
-        resource.type.name === "Cohort study"
+      (resource: IResources) => resource.type.name === "Cohort study"
     );
   } else {
-    return data.value.data.Resources_groupBy;
+    //omit counts of resources without a type
+    return data.value.data.Resources_groupBy.filter(
+      (resource: IResources) => resource.type
+    );
   }
 });
 </script>
@@ -266,7 +268,7 @@ const resources = computed(() => {
         </b>
         <br />{{
           getSettingValue("CATALOGUE_LANDING_PARTICIPANTS_TEXT", settings) ||
-          "The cumulative number of participants of all (sub)cohorts combined."
+          "The cumulative number of participants."
         }}
       </LandingCardSecondary>
 
@@ -287,7 +289,7 @@ const resources = computed(() => {
         >
         <br />{{
           getSettingValue("CATALOGUE_LANDING_SAMPLES_TEXT", settings) ||
-          "The cumulative number of participants with samples collected of all (sub)cohorts combined"
+          "The cumulative number of participants with samples"
         }}
       </LandingCardSecondary>
 
@@ -308,9 +310,8 @@ const resources = computed(() => {
           }}%</b
         ><br />{{
           getSettingValue("CATALOGUE_LANDING_DESIGN_TEXT", settings) ||
-          "Percentage of longitudinal datasets. The remaining datasets are"
+          "Percentage of longitudinal datasets."
         }}
-        cross-sectional.
       </LandingCardSecondary>
 
       <LandingCardSecondary

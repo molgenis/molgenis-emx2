@@ -33,7 +33,7 @@ let pageFilterTemplate: IFilter[] = [
   },
 ];
 
-if (resourceType.path === "resources") {
+if (route.params.resourceType === "resources") {
   pageFilterTemplate.push({
     id: "type",
     config: {
@@ -168,7 +168,7 @@ const gqlFilter = computed(() => {
 
   result = buildQueryFilter(filters.value);
 
-  if (resourceType.path != "resources") {
+  if (route.params.resourceType != "resources") {
     result.type = { name: { equals: resourceType.type } };
   }
 

@@ -86,27 +86,25 @@ function handleSettingsUpdate(settings: ITableSettings) {
 
   router.push({ query });
 }
+
+const crumbs = computed(() => {
+  let crumb: { [key: string]: string } = {};
+  crumb[schemaId] = `/${schemaId}`;
+  return crumb;
+});
+const current = computed(
+  () => tableMetaData.value?.label ?? tableMetaData.value?.id ?? ""
+);
 </script>
 <template>
   <Container>
-    <PageHeader :title="tableMetaData?.label">
+    <PageHeader :title="tableMetaData?.label ?? ''" align="left">
       <template #prefix>
-        <BreadCrumbs
-          :crumbs="{
-            databases: '/',
-            tables: `/${schemaId}`,
-            [tableMetaData?.label ||
-            tableMetaData?.id ||
-            '']: `/${schemaId}/${tableId}`,
-          }"
-        />
+        <BreadCrumbs :align="'left'" :crumbs="crumbs" :current="current" />
       </template>
     </PageHeader>
 
-    <ContentBlock
-      :title="tableMetaData?.label || tableMetaData?.id || ''"
-      :description="tableMetaData?.description"
-    >
+    <ContentBlock>
       <div v-if="status === 'pending'">Loading...</div>
       <div v-if="error">Error: {{ error }}</div>
       <!-- <pre v-if="data">{{ tableMetaData }}</pre> -->
