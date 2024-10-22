@@ -8,6 +8,7 @@ import numpy as np
 from decouple import config
 
 CATALOGUE_SCHEMA_NAME = config('MG_CATALOGUE_SCHEMA_NAME')
+SHARED_STAGING_NAME = config('MG_SHARED_STAGING_NAME')
 
 FILES_DIR = Path(__file__).parent.joinpath('..', 'files').resolve()
 
@@ -75,21 +76,28 @@ class Transform:
                 profile = 'RWEStaging'
             elif self.database_type == 'cohort_UMCG':
                 profile = 'UMCGCohortsStaging'
+            elif self.database_type == 'shared_staging':
+                profile = 'SharedStaging'
+            else:
+                raise NotImplementedError(f"Cannot update data model for profile {self.database_type!r}.")
 
             get_data_model(profile_path, path_to_write, profile)
 
     def transform_data(self):
         """Make changes per table
         """
+        if self.database_type == 'shared_staging':
+            return
         # transformations per table
         if self.database_type == 'catalogue':
             self.catalogues()
             self.network_variables()
 
-        self.resources()
-        self.organisations()
-        self.publications()
-        self.external_identifiers()
+        if self.database_type != 'shared_staging':
+            self.resources()
+            self.organisations()
+            self.publications()
+            self.external_identifiers()
 
         if self.database_type != 'cohort_UMCG':
             self.variables()
@@ -125,6 +133,8 @@ class Transform:
         """Transform columns in Cohorts, Networks, Studies, Data sources, Databanks
         """
         # Cohorts to Resources
+        df_cohorts, df_networks, df_studies = pd.DataFrame(), pd.DataFrame(), pd.DataFrame()
+        df_databanks, df_data_sources, df_models = pd.DataFrame(), pd.DataFrame(), pd.DataFrame()
         if self.database_type in ['catalogue', 'cohort', 'cohort_UMCG']:
 
             df_cohorts = pd.read_csv(self.path.joinpath('Cohorts.csv'), dtype='object')
@@ -150,10 +160,9 @@ class Transform:
             df_networks['type'] = 'Network'
 
             # get resources that are part of network
+            cols_to_find = ['cohorts', 'data sources', 'databanks']
             if self.database_type == 'catalogue':
-                cols_to_find = ['networks', 'cohorts', 'data sources', 'databanks']
-            elif self.database_type == 'network':
-                cols_to_find = ['cohorts', 'data sources', 'databanks']
+                cols_to_find.append('networks')
             i_cols = [df_networks.columns.get_loc(col) for col in cols_to_find]
             df_networks['resources'] = df_networks[df_networks.columns[i_cols]]\
                 .apply(lambda x: ','.join(x.dropna().astype(str)), axis=1)
@@ -209,6 +218,9 @@ class Transform:
             df_resources = df_data_sources
         elif self.database_type == 'network':
             df_resources = pd.concat([df_networks, df_models])
+        else:
+            raise NotImplementedError(f"Cannot update data model for profile {self.database_type!r}.")
+
 
         df_resources.loc[:, 'keywords'] = df_resources['keywords'].apply(reformat_keywords)
 
@@ -221,9 +233,8 @@ class Transform:
             if self.database_type == 'catalogue':
                 df_organisations = pd.read_csv(self.path / 'Organisations.csv', dtype='object')
             else:
-                df_organisations = pd.read_csv(FILES_DIR / (CATALOGUE_SCHEMA_NAME + '_data') / 'Organisations.csv',
+                df_organisations = pd.read_csv(FILES_DIR / (SHARED_STAGING_NAME + '_data') / 'Organisations.csv',
                                                dtype='object')
-                df_organisations = df_organisations.drop(columns=['resource', 'is lead organisation']).drop_duplicates()
 
             # Get lead and additional organisations from Resources table
             df_resources = pd.read_csv(self.path / 'Resources.csv', dtype='object')
@@ -262,12 +273,12 @@ class Transform:
                 data = [['testCohort', 'UMCG', 'University Medical Center Groningen', 'Netherlands (the)',
                         'https://www.umcg.nl/']]
                 df_organisations = pd.DataFrame(data, columns=['resource', 'id', 'name', 'country', 'website'])
-                df_organisations.to_csv(self.path + 'Organisations.csv', index=False)
+                df_organisations.to_csv(self.path / 'Organisations.csv', index=False)
 
             elif self.database_name == 'testDatasource':
                 data = [['testDatasource', 'AU', 'University of Aarhus', 'Denmark']]
                 df_organisations = pd.DataFrame(data, columns=['resource', 'id', 'name', 'country'])
-                df_organisations.to_csv(self.path + 'Organisations.csv', index=False)
+                df_organisations.to_csv(self.path / 'Organisations.csv', index=False)
 
 
     def publications(self):
@@ -276,16 +287,18 @@ class Transform:
         df_resources = pd.read_csv(self.path.joinpath('Resources.csv'), dtype='object')
         df_publications = pd.read_csv(self.path.joinpath('Publications.csv'), dtype='object')
 
+        df_other_pubs = pd.DataFrame()
+        df_design_paper = pd.DataFrame()
         if not len(df_publications) == 0:
             if self.database_type != 'network':
-                df_design_paper = df_resources[['id', 'design paper']]
+                df_design_paper = df_resources[['id', 'design paper']].copy()
                 df_design_paper.loc[:, 'is design publication'] = 'true'
                 df_design_paper = df_design_paper.rename(columns={'id': 'resource',
                                                                   'design paper': 'doi'})
                 df_design_paper = df_design_paper.dropna(axis=0)
 
             if self.database_type != 'cohort_UMCG':
-                df_other_pubs = df_resources[['id', 'publications']]
+                df_other_pubs = df_resources[['id', 'publications']].copy()
                 df_other_pubs.loc[:, 'is design publication'] = 'false'
                 df_other_pubs = df_other_pubs.rename(columns={'id': 'resource',
                                                               'publications': 'doi'})
@@ -352,6 +365,7 @@ class Transform:
         # restructure Variables
         df_variables = pd.read_csv(self.path.joinpath('Variables.csv'), keep_default_na=False, dtype='object')
         df_variables.loc[:, 'resource'] = df_variables['resource'].apply(strip_resource)
+        df_variables_cdm = pd.DataFrame()
 
         # restructure repeated variables inside variables dataframe
         df_repeats = pd.read_csv(self.path.joinpath('Repeated variables.csv'), dtype='object')
