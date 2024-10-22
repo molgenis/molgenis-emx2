@@ -7,10 +7,7 @@ import static org.molgenis.emx2.TableMetadata.table;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.molgenis.emx2.Column;
-import org.molgenis.emx2.Database;
-import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.Table;
+import org.molgenis.emx2.*;
 
 public class TestDeleteRefback {
 
@@ -24,30 +21,26 @@ public class TestDeleteRefback {
 
   @Test
   public void testRefBackDelete() {
+    TableMetadata patients = table("Patients").add(column("id").setPkey()).add(column("patient"));
 
-    Table patients =
-        schema.create(table("Patients").add(column("id").setPkey()).add(column("patient")));
+    TableMetadata patientVisits =
+        table("Patients visits")
+            .add(column("visit id").setPkey())
+            .add(column("patient").setType(REF).setRefTable(patients.getTableName()));
 
-    Table patientVisits =
-        schema.create(
-            table("Patients visits")
-                .add(column("visit id").setPkey())
-                .add(column("patient").setType(REF).setRefTable(patients.getName())));
+    patients.add(
+        column("visits")
+            .setType(REFBACK)
+            .setRefTable(patientVisits.getTableName())
+            .setRefBack("patient"));
 
-    patients
-        .getMetadata()
-        .add(
-            column("visits")
-                .setType(REFBACK)
-                .setRefTable(patientVisits.getName())
-                .setRefBack("patient"));
+    SchemaMetadata schemaMetadata = new SchemaMetadata();
+    schemaMetadata.create(patients, patientVisits);
 
-    assertNotNull(patients.getMetadata().getColumn("visits"));
+    schema.migrate(schemaMetadata);
 
-    patients.getMetadata().dropColumn("visits");
+    schemaMetadata.getTableMetadata("Patients visits").drop();
 
-    Column column = patients.getMetadata().getColumn("visits");
-
-    assertNull(column);
+    assertThrows(SqlMolgenisException.class, () -> schema.migrate(schemaMetadata));
   }
 }
