@@ -14,19 +14,32 @@ export function deleteUser(user: IUser) {
   });
 }
 
-export function updateUser(user: IUser) {
-  //TODO finish function
-
-  const userToSend = user;
+export async function updateUser(user: IUser) {
+  const userToSend = createUpdateUser(user);
   return useFetch(GRAPHQL, {
     method: "post",
     body: {
-      query: `mutation change($editMember:MolgenisMembersInput){change(members:[$editMember]){message}}`,
+      query: `mutation updateUser($editMember){change(members:[$editMember]){message}}`,
       editMember: userToSend,
     },
   }).catch((error) => {
     handleError("Error updating user: ", error.value);
   });
+}
+
+function createUpdateUser(user: IUser) {
+  let updateUser: {
+    email: string;
+    enabled: boolean;
+    password?: string;
+    roles?: IRole[];
+  } = { email: user.email, enabled: user.enabled };
+  if (user.password) {
+    updateUser.password = user.password;
+  }
+  if (user.roles) {
+    updateUser.roles = user.roles;
+  }
 }
 
 export function createUser(newUserName: string, newPassword: string) {

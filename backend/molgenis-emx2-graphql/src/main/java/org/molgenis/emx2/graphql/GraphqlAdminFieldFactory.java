@@ -9,10 +9,12 @@ import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.*;
 
 import graphql.Scalars;
 import graphql.schema.*;
+
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.molgenis.emx2.*;
 
 public class GraphqlAdminFieldFactory {
@@ -42,7 +44,7 @@ public class GraphqlAdminFieldFactory {
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(ROLES)
-                  .type(GraphQLList.list(outputUserRolesType))
+                  .type(GraphQLList.list(userRolesType))
                   .build())
           .build();
 
@@ -164,5 +166,41 @@ public class GraphqlAdminFieldFactory {
         .filter(entry -> !MOLGENIS_JWT_SHARED_SECRET.equals(entry.getKey()))
         .map(entry -> Map.of(KEY, entry.getKey(), VALUE, entry.getValue()))
         .toList();
+  }
+
+  public static GraphQLFieldDefinition updateUser(Database database) {
+    return GraphQLFieldDefinition.newFieldDefinition()
+        .name("updateUser")
+        .type(typeForMutationResult)
+        .argument(GraphQLArgument.newArgument().name(EMAIL).type(Scalars.GraphQLString))
+        .argument(GraphQLArgument.newArgument().name(PASSWORD).type(Scalars.GraphQLString))
+        .argument(GraphQLArgument.newArgument().name(ENABLED).type(Scalars.GraphQLBoolean))
+        .argument(GraphQLArgument.newArgument().name(ROLES).type(GraphQLList.list(userRolesType)))
+        .dataFetcher(
+            dataFetchingEnvironment -> {
+              String email = dataFetchingEnvironment.getArgument(EMAIL);
+              if (email != null) {
+                User user = database.getUser(email);
+
+                String password = dataFetchingEnvironment.getArgument(PASSWORD);
+                if (password != null) {
+                  // update password
+                }
+
+                Map<String, String> roles = dataFetchingEnvironment.getArgument(ROLES);
+                if (roles != null) {
+                  // update roles
+                }
+
+                Boolean enabled = dataFetchingEnvironment.getArgument(ENABLED);
+                if (enabled != null) {
+                  user.setEnabled(enabled);
+                }
+
+                database.saveUser(user);
+              }
+              return new GraphqlApiMutationResult(SUCCESS, "User %s updated", email);
+            })
+        .build();
   }
 }

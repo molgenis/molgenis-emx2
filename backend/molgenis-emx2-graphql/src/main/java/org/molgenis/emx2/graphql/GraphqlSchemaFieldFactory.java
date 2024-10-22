@@ -26,7 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class GraphqlSchemaFieldFactory {
-  private static Logger logger = LoggerFactory.getLogger(SqlDatabase.class);
+  private static final Logger logger = LoggerFactory.getLogger(SqlDatabase.class);
 
   public static final GraphQLInputObjectType inputSettingsMetadataType =
       new GraphQLInputObjectType.Builder()
@@ -124,7 +124,7 @@ public class GraphqlSchemaFieldFactory {
                   .type(Scalars.GraphQLString))
           .build();
 
-  static final GraphQLType outputUserRolesType =
+  static final GraphQLType userRolesType =
       new GraphQLObjectType.Builder()
           .name("MolgenisUserRolesType")
           .field(
