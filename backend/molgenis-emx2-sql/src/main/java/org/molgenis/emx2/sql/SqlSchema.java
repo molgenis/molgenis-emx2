@@ -366,14 +366,14 @@ public class SqlSchema implements Schema {
               newColumn.getOldName() != null
                   ? oldTable.getColumn(newColumn.getOldName()) // when renaming
                   : oldTable.getColumn(newColumn.getName()); // when not renaming
-
           if (oldColumn != null && !newColumn.isDrop()) {
             if (!created.contains(newColumn.getTableName() + "." + newColumn.getName())) {
               oldTable.alterColumn(oldColumn.getName(), newColumn);
             }
-            if (newColumn.isRefback()) {
-              targetSchema.getTable(newTable.getTableName()).getMetadata().add(newColumn);
-            }
+          } else
+          // don't forget to add the refbacks
+          if (oldColumn == null && !newColumn.isDrop() && newColumn.isRefback()) {
+            targetSchema.getTable(newTable.getTableName()).getMetadata().add(newColumn);
           }
         }
       }
@@ -384,22 +384,7 @@ public class SqlSchema implements Schema {
     for (TableMetadata mergeTable : mergeTableList) {
       // idempotent so we only drop if exists
       if (mergeTable.isDrop() && targetSchema.getTable(mergeTable.getOldName()) != null) {
-        for (Column c : mergeTable.getColumns()) {
-          if (c.isReference()) {
-            TableMetadata refTable = c.getRefTable();
-            for (Column refColumn : refTable.getColumns()) {
-              if (refColumn.isRefback()
-                  && refColumn.getRefTableName().equals(mergeTable.getTableName())
-                  && !isDropRefback(mergeTableList, refColumn)) {
-                throw new MolgenisException(
-                    "Deleting column \""
-                        + c.getName()
-                        + "\" failed has refBack in table: "
-                        + refTable.getTableName());
-              }
-            }
-          }
-        }
+        checkRefback(mergeTable, mergeTableList);
         targetSchema.getTable(mergeTable.getOldName()).getMetadata().drop();
       }
     }
@@ -410,14 +395,35 @@ public class SqlSchema implements Schema {
     }
   }
 
-  private static boolean isDropRefback(List<TableMetadata> mergeTableList, Column refColumn) {
-    String tableName = refColumn.getTable().getTableName();
-    String columnIdentifier = refColumn.getIdentifier();
+  private static void checkRefback(TableMetadata mergeTable, List<TableMetadata> mergeTableList) {
+    for (Column column : mergeTable.getColumns()) {
+      if (!column.isReferenceWithRefback()) continue;
+
+      Column refbackColumn = column.getReferenceRefback();
+      for (TableMetadata table : mergeTableList) {
+        if (table.isDrop()) continue;
+
+        if (table.getTableName().equals(refbackColumn.getTableName())
+            && !table.getColumn(refbackColumn.getIdentifier()).isDrop()) {
+          throw new MolgenisException(
+              "Deleting column \""
+                  + column.getName()
+                  + "\" failed: has refBack in table: "
+                  + column.getRefTable().getTableName()
+                  + ", first delete the refBack before deleting this column");
+        }
+      }
+    }
+  }
+
+  private static boolean isDropRefback(List<TableMetadata> mergeTableList, Column column) {
+    TableMetadata refTable = column.getRefTable();
+    String columnIdentifier = refTable.getColumn("").getIdentifier();
 
     return mergeTableList.stream()
-        .filter(mergeTable -> mergeTable.getTableName().equals(tableName))
+        .filter(mergeTable -> mergeTable.getTableName().equals(refTable.getTableName()))
         .map(mergeTable -> mergeTable.getColumn(columnIdentifier))
-        .anyMatch(column -> column != null && column.isDrop());
+        .anyMatch(c -> c != null && c.isDrop());
   }
 
   public String getName() {

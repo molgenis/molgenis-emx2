@@ -390,6 +390,33 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     return getColumnType().isReference();
   }
 
+  public boolean isReferenceWithRefback() {
+    if (this.isReference()) {
+      for (Column c : this.getRefTable().getColumns()) {
+        if (c.isRefback()
+            && c.getRefTableName().equals(this.getTableName())
+            && this.getName().equals(c.getRefBack())) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  public Column getReferenceRefback() {
+    if (!this.isReference()) {
+      return null;
+    }
+    for (Column c : this.getRefTable().getColumns()) {
+      if (c.isRefback()
+          && c.getRefTableName().equals(this.getTableName())
+          && this.getName().equals(c.getRefBack())) {
+        return c;
+      }
+    }
+    return null;
+  }
+
   public String getSchemaName() {
     return getTable().getSchemaName();
   }
