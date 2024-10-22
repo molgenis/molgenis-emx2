@@ -18,6 +18,8 @@ FILES_DIR = Path(__file__).parent.joinpath('files').resolve()
 SHAREDSTAGING = 'SharedStaging'
 ORGANISATIONS = 'Organisations'
 
+MIN_VERSION = 'v11.22.0'
+
 
 class Runner:
     """
@@ -140,6 +142,7 @@ class Runner:
                 logging.info(f"Updating cohort staging area {cohort!r}")
                 database_type = 'cohort_UMCG' if self.server_type == 'cohort_catalogue' else 'cohort'
                 await self._update_schema(cohort, database_type=database_type)
+                await asyncio.sleep(1.5)
 
     async def update_data_sources(self):
         """Updates the data sources on a schema."""
@@ -225,10 +228,13 @@ async def main(pattern = None, debug: bool = False):
         logging.info(f"Updating schemas on {runner.target.url!r}")
 
         if debug:
-            runner.cohorts = ['RESPACT', 'LbM']
+            runner.cohorts = ['GSC', 'RESPACT', 'LbM']
 
         if not runner.has_latest_ontologies():
             # Trigger CatalogueOntologies update by creating a dummy catalogue
+            if runner.target.version < MIN_VERSION:
+                raise FileNotFoundError(f"Update software to >={MIN_VERSION} "
+                                        f"to ensure the installation of the correct ontologies.")
             dummy = '_dummy'
             if not dummy in target.schema_names:
                 create_dummy = asyncio.create_task(runner.target.create_schema(name=dummy,
@@ -261,4 +267,4 @@ if __name__ == '__main__':
     logging.getLogger("requests").setLevel(logging.WARNING)
     logging.getLogger("urllib3").setLevel(logging.WARNING)
 
-    asyncio.run(main(pattern='', debug=False))
+    asyncio.run(main(pattern='', debug=True))
