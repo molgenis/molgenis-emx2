@@ -390,12 +390,11 @@ class ColumnTypeRdfMapperTest {
             Assertions.assertEquals(
                 Set.of(Values.iri(rdfApiUrlPrefix + REFBACK_TABLE + "?id=1")),
                 retrieveValues(ColumnType.REFBACK.name())),
-        // LAYOUT and other constants
+        // LAYOUT and other constants -> should return empty sets as they should be excluded
         () -> Assertions.assertEquals(Set.of(), retrieveValues(ColumnType.HEADING.name())),
         // format flavors that extend a baseType
-        // AUTO_ID is unique so full equality check not possible.
-        () ->
-            Assertions.assertTrue(
+        () -> // AUTO_ID is unique so full equality check not possible
+        Assertions.assertTrue(
                 retrieveValues(ColumnType.AUTO_ID.name()).stream()
                     .findFirst()
                     .get()
