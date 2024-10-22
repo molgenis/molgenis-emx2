@@ -157,23 +157,6 @@ class Runner:
                 logging.info(f"Updating networks staging area {network!r}")
                 await self._update_schema(name=network, database_type='network')
 
-    async def update_catalogue_organisations(self):
-        """Adds missing Organisation records from SharedStaging to catalogue schema."""
-
-        # Skip if schema has no 'SharedStaging' schema
-        if SHAREDSTAGING not in self.source.schema_names:
-            return
-        catalogue_orgs = self.source.get(table=ORGANISATIONS, schema=self.catalogue, as_df=True)
-        shared_orgs = self.source.get(table=ORGANISATIONS, schema=SHAREDSTAGING, as_df=True)
-        # Identify the missing organisations
-        missing_orgs = shared_orgs.loc[~shared_orgs['name'].isin(catalogue_orgs['name'])]
-
-        if (len_orgs := len(missing_orgs.index)) == 0:
-            return
-        # Upload the missing organisations the catalogue's Organisations table
-        logging.info(f"Adding {len_orgs} missing organisations to {self.catalogue}::Organisations")
-        self.source.save_schema(name=self.catalogue, table=ORGANISATIONS, data=missing_orgs)
-
 
     async def _update_schema(self, name: str, database_type: str, transform_only: bool = False):
         """Updates a resource staging area. Specify the name and the type of the database."""
@@ -255,9 +238,6 @@ async def main(pattern = None, debug: bool = False):
             delete_dummy = asyncio.create_task(runner.target.delete_schema(dummy))
 
             await delete_dummy
-
-        # Add organisations missing in catalogue from SharedStaging
-        await runner.update_catalogue_organisations()
 
         # Unpack and transform the catalogue data without uploading
         await runner.unpack_shared_staging()
