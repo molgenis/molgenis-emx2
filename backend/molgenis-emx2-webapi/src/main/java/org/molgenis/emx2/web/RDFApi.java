@@ -4,14 +4,19 @@ import static org.molgenis.emx2.web.MolgenisWebservice.*;
 
 import io.javalin.Javalin;
 import io.javalin.http.Context;
-import java.io.*;
-import java.util.*;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.rdf.RDFService;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 
 public class RDFApi {
   public static final String FORMAT = "format";
