@@ -176,8 +176,16 @@ class ColumnTypeRdfMapperTest {
 
     allColumnTypes.getTable(REFBACK_TABLE).insert(row("id", "1", "ref", "lonelyString"));
 
+    // Use query to explicitly retrieve all rows as the following would exclude REFBACK values:
+    // allColumnTypes.getTable(TEST_TABLE).retrieveRows()
+    SelectColumn[] selectColumns =
+        Arrays.stream(ColumnType.values())
+            .map(i -> new SelectColumn(i.name()))
+            .toArray(SelectColumn[]::new);
+
     // Describe first row for easy access.
-    firstRow = allColumnTypes.getTable(TEST_TABLE).retrieveRows().get(0);
+    firstRow =
+        allColumnTypes.getTable(TEST_TABLE).query().select(selectColumns).retrieveRows().get(0);
   }
 
   @AfterAll
