@@ -105,7 +105,7 @@ class Transform:
 
         if self.database_type != 'network':
             self.variable_mappings()
-        if self.database_type != 'data_source':
+        if self.database_type not in ['data_source', 'network']:
             self.collection_events()
             self.subcohorts()
 
@@ -206,7 +206,7 @@ class Transform:
             df_databanks.loc[:, 'end year'] = df_databanks['end data collection'].apply(get_year_from_date)
             # transform keywords
             df_databanks.loc[:, 'keywords'] = df_databanks['keywords'].apply(reformat_keywords)
-            
+
             df_databanks['type'] = 'Databank'
 
         # Models to Resources
