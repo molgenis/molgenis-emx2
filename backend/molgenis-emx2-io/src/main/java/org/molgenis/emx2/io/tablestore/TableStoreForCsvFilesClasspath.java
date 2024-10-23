@@ -1,7 +1,7 @@
 package org.molgenis.emx2.io.tablestore;
 
 import java.io.*;
-import java.net.URL;
+import java.nio.file.*;
 import java.util.*;
 import org.molgenis.emx2.BinaryFileWrapper;
 import org.molgenis.emx2.MolgenisException;
@@ -66,19 +66,16 @@ public class TableStoreForCsvFilesClasspath implements TableAndFileStore {
 
   @Override
   public BinaryFileWrapper getBinaryFileWrapper(String name) {
-    URL url = getClass().getResource(directoryPath + "/_files");
-    String path = url.getPath();
-    List<File> result =
-        Arrays.stream(new File(path).listFiles())
-            .filter(f -> f.getName().toString().startsWith(name + "."))
-            .toList();
-    if (result.isEmpty()) {
-      throw new MolgenisException("File not found for id " + name);
-    } else if (result.size() == 1) {
-      return new BinaryFileWrapper(result.get(0));
-    } else {
-      throw new MolgenisException(
-          "File cannot be retrieved for id " + name + ": name is not unique");
+    try {
+      InputStream stream =
+          getClass().getResourceAsStream(directoryPath + "/_files/" + name + ".jpg");
+      byte[] bytes = stream.readAllBytes();
+
+      BinaryFileWrapper binaryFileWrapper = new BinaryFileWrapper("image/jpeg", name, bytes);
+      return binaryFileWrapper;
+
+    } catch (Exception ioe) {
+      throw new MolgenisException("Import '" + name + "' failed: " + ioe.getMessage(), ioe);
     }
   }
 }

@@ -1,0 +1,3 @@
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
+User,,username,,,1,true,,,,,,,ImageTest
+User,,picture,file,,,,,,,,,,ImageTest
