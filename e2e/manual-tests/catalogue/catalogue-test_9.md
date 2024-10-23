@@ -34,7 +34,7 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | | POPULATION | | | |
 | 14 | Countries | Armenia, Bermuda, Réunion | | |
 | 15 | Regions | Bradford, Lapland, Gipuzkoa | | |
-| 16 | Population age groups | Adult (18+ years) | | |
+| 16 | Population age groups | Adolescent (13-17 years), Adult (18+ years) | | |
 | 17 | Main medical condition | Displays two main items: VII Diseases of the eye and adnexa & VIII Diseases of the ear and mastoid process, with many subitems each | | |
 | 19 | Population oncology topology | BASE OF TONGUE. Consists of the following when expanded: | | |
 | | | Base of tongue, NOS | | |
