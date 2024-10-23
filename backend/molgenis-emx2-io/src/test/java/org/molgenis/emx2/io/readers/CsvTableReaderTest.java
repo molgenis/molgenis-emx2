@@ -15,11 +15,6 @@ class CsvTableReaderTest {
   void readImageMeta() throws IOException {
     File file =
         new File(getClass().getClassLoader().getResource("profile/imagetest.csv").getFile());
-    //    file =
-    //        new File(
-    //
-    // "/Users/connor/Code/emx2/molgenis-emx2/backend/molgenis-emx2-io/src/test/resources/profile/imagetest.csv");
-
     Iterable<Row> rowsIterable = CsvTableReader.read(file);
     List<Row> rows = Lists.newArrayList(rowsIterable);
     assertEquals(2, rows.size());
