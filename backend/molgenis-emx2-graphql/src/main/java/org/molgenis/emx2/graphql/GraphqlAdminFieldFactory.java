@@ -9,12 +9,10 @@ import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.*;
 
 import graphql.Scalars;
 import graphql.schema.*;
-
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.molgenis.emx2.*;
 
 public class GraphqlAdminFieldFactory {
@@ -175,7 +173,8 @@ public class GraphqlAdminFieldFactory {
         .argument(GraphQLArgument.newArgument().name(EMAIL).type(Scalars.GraphQLString))
         .argument(GraphQLArgument.newArgument().name(PASSWORD).type(Scalars.GraphQLString))
         .argument(GraphQLArgument.newArgument().name(ENABLED).type(Scalars.GraphQLBoolean))
-        .argument(GraphQLArgument.newArgument().name(ROLES).type(GraphQLList.list(userRolesType)))
+        .argument(
+            GraphQLArgument.newArgument().name(ROLES).type(GraphQLList.list(inputUserRolesType)))
         .dataFetcher(
             dataFetchingEnvironment -> {
               String email = dataFetchingEnvironment.getArgument(EMAIL);
@@ -203,4 +202,15 @@ public class GraphqlAdminFieldFactory {
             })
         .build();
   }
+
+  private static final GraphQLInputObjectType inputUserRolesType =
+      new GraphQLInputObjectType.Builder()
+          .name("InputUserRolesType")
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(SCHEMA_ID)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLInputObjectField.newInputObjectField().name(ROLE).type(Scalars.GraphQLString))
+          .build();
 }

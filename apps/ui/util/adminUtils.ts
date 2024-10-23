@@ -15,12 +15,12 @@ export function deleteUser(user: IUser) {
 }
 
 export async function updateUser(user: IUser) {
-  const userToSend = createUpdateUser(user);
+  const updateUser = createUpdateUser(user);
   return useFetch(GRAPHQL, {
     method: "post",
     body: {
-      query: `mutation updateUser($editMember){change(members:[$editMember]){message}}`,
-      editMember: userToSend,
+      query: `mutation updateUser($updateUser:updateUser){message}`,
+      updateUser: updateUser,
     },
   }).catch((error) => {
     handleError("Error updating user: ", error.value);
@@ -40,6 +40,7 @@ function createUpdateUser(user: IUser) {
   if (user.roles) {
     updateUser.roles = user.roles;
   }
+  return updateUser;
 }
 
 export function createUser(newUserName: string, newPassword: string) {
