@@ -65,7 +65,7 @@ The network's datasets are defined in the *Datasets* sheet. Columns with an aste
 | label | Dataset label | |
 | description | Dataset description | |
 | dataset type<sup>1</sup> | Type of dataset | Find list to choose from in CatalogueOntologies [Dataset types](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/DatasetTypes) |
-| unit of observation<sup>1</sup> | Defines what each record in this dataset describes | Find list to choose from in CatalogueOntologies [Observation targets](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/Observationtargets) |
+| unit of observation<sup>1</sup> | Defines what each record in this dataset describes | Find list to choose from in CatalogueOntologies [Observation targets](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/ObservationTargets) |
 | number of rows | Count of the number of records in this dataset | |
 | keywords<sup>1</sup> | Enables grouping of datasets into topics and helps to display variables in a tree | Find list to choose from in CatalogueOntologies [Keywords](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/Keywords) |
 | since version | Version of the data model when this dataset was introduced | e.g. 1.0.0 or 2.1 |
