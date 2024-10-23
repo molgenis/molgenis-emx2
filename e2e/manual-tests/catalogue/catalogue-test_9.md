@@ -49,12 +49,12 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | 22a | ORGANISATIONS | | | |
 | | | Lead organisations | | |
 | | | 1 card per organisation: | | |
-| | | Name for lead organisation 1 (ACRONYM FOR LEADORG1) \| Botswana \| Data originator, Data holder, Data provider, Researcher, Surveillance, Other | | |
-| | | name for test lead organisation 2 (acronym for test lead organisation 2) \| Bonaire, Sint Eustatius and Saba \| Data provider | | |
+| | | Name for lead organisation 1 (ACRONYM FOR LEADORG1) \| Botswana, Holy See (the) \| Data originator, Data holder, Data provider, Researcher, Surveillance, Other | | |
+| | | name for test lead organisation 2 (acronym for test lead organisation 2) \| Bonaire, Sint Eustatius and Saba, Réunion \| Data provider, Other | | |
 | | | Additional organisations | | |
 | | | 1 card per organisation: | | |
-| | | name for test additional organisation 2 (acronym for test additional organisation 2) \| Bosnia and Herzegovina \| Data provider, Surveillance | | |
-| | | name of test additional organisation 1 (acronym for test additional organisation 1) \| Canada \| Surveillance | | |
+| | | name for test additional organisation 2 (acronym for test additional organisation 2) \| Bosnia and Herzegovina, Mayotte \| Data provider, Surveillance | | |
+| | | name of test additional organisation 1 (acronym for test additional organisation 1) \| Canada, Western Sahara* \| Researcher, Surveillance | | |
 | 22b | CONTRIBUTORS | | | |
 | | | 1 card per contributor: | | |
 | | | dr. ir. P.I.P.M. (PIPM) surname prefix last name PIPM \| Name for lead organisation 1 \| <pipm@testdomain.nl> \| Principal Investigator, Project manager | | |
