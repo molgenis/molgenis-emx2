@@ -11,11 +11,18 @@ const titlePrefix =
 
 const descriptionMap = {
   collections: "Data & sample collections",
+  networks: "(Sub)projects & harmonisation",
+};
+
+const imageMap = {
+  collections: "image-diagram",
+  networks: "image-network",
 };
 
 const title = route.params.resourceType;
-const description = descriptionMap[route.params.resourceType] | "unknown";
-const image = "";
+const description =
+  descriptionMap[route.params.resourceType as string] | "unknown";
+const image = imageMap[route.params.resourceType as string] | "unknown";
 
 useHead({ title: titlePrefix + title });
 
@@ -178,6 +185,9 @@ const gqlFilter = computed(() => {
 
   if (route.params.resourceType == "collections") {
     result.type = { tags: { equals: "collection" } };
+  }
+  if (route.params.resourceType == "networks") {
+    result.type = { tags: { equals: "network" } };
   }
 
   // add hard coded page specific filters

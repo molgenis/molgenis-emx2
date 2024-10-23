@@ -8,6 +8,7 @@ const props = defineProps<{
   catalogue?: UIResource;
   variableCount: number;
   collectionCount: number;
+  networkCount: number;
 }>();
 
 const cohortOnly = computed(() => {
@@ -34,6 +35,13 @@ if (props.collectionCount > 0) {
   menu.push({
     label: "Collections",
     link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/collections`,
+  });
+}
+
+if (props.networkCount > 0) {
+  menu.push({
+    label: "Networks",
+    link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/networks`,
   });
 }
 

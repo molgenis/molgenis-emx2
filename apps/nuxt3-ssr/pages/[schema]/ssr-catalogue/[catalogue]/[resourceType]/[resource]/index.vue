@@ -506,14 +506,14 @@ if (route.params.catalogue) {
   ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}`;
   if (route.params.resourceType !== "about")
     crumbs[
-      route.params.resourceType
+      route.params.resourceType as string
     ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/${route.params.resourceType}`;
 } else {
   crumbs["Home"] = `/${route.params.schema}/ssr-catalogue/`;
   crumbs["Browse"] = `/${route.params.schema}/ssr-catalogue/all`;
   if (route.params.resourceType !== "about")
     crumbs[
-      route.params.resourceType
+      route.params.resourceType as string
     ] = `/${route.params.schema}/ssr-catalogue/all/${route.params.resourceType}`;
 }
 

@@ -16,6 +16,7 @@ const bannerHtml = computed(() => {
     :catalogue="headerData.catalogue"
     :variableCount="headerData.variableCount"
     :collectionCount="headerData.collectionCount"
+    :networkCount="headerData.networkCount"
   />
 
   <HeaderGlobal v-else />

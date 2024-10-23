@@ -9,6 +9,7 @@ interface IHeaderQuery {
   Resources: UIResource[];
   Variables_agg: { count: number };
   Collections_agg: { count: number };
+  Networks_agg: { count: number };
 }
 
 export async function useHeaderData() {
@@ -22,7 +23,7 @@ export async function useHeaderData() {
       method: "POST",
       body: {
         query: `
-            query HeaderQuery($collectionsFilter:ResourcesFilter, $variablesFilter:VariablesFilter, $networksFilter:ResourcesFilter) {
+            query HeaderQuery($collectionsFilter:ResourcesFilter, $variablesFilter:VariablesFilter, $networksFilter:ResourcesFilter,$networkFilter:ResourcesFilter) {
               Resources(filter:$networksFilter) {
                 id,
                 logo { url }
@@ -31,6 +32,9 @@ export async function useHeaderData() {
                   count
               }
               Collections_agg: Resources_agg(filter:$collectionsFilter) {
+                  count
+              }
+              Networks_agg: Resources_agg(filter:$networkFilter) {
                   count
               }
             }`,
@@ -50,7 +54,20 @@ export async function useHeaderData() {
                   },
                 ],
               }
-            : undefined,
+            : { type: { tags: { equals: "collection" } } },
+          networkFilter: scoped
+            ? {
+                type: { tags: { equals: "network" } },
+                _or: [
+                  { partOfResources: { id: { equals: catalogueRouteParam } } },
+                  {
+                    partOfResources: {
+                      partOfResources: { id: { equals: catalogueRouteParam } },
+                    },
+                  },
+                ],
+              }
+            : { type: { tags: { equals: "network" } } },
           variablesFilter: scoped
             ? {
                 _or: [
@@ -82,6 +99,6 @@ export async function useHeaderData() {
   const catalogue = data.Resources ? data.Resources[0] : undefined;
   const variableCount = data.Variables_agg.count || 0;
   const collectionCount = data.Collections_agg.count || 0;
-
-  return { catalogue, variableCount, collectionCount };
+  const networkCount = data.Networks_agg.count || 0;
+  return { catalogue, variableCount, collectionCount, networkCount };
 }

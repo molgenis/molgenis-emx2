@@ -7,7 +7,7 @@ Databank,,,collection,,,,
 Data source,,,collection,,,,
 Disease specific,,,remove?,,,,A study or biobank for which material and information is collected from subjects that have already developed a particular disease.
 Health records,,,collection,,,,
-Network,,,organisation,,,,
+Network,,,network,,,,
 Rare disease,,,remove?,,,,A collection that is focusing on rare diseases
 Registry,,,collection,,,,
 Other type,,,remove?,,,,

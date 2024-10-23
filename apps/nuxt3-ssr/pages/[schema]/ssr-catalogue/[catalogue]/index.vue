@@ -18,7 +18,7 @@ const cohortOnly = computed(() => {
 
 //networksfilter retrieves the catalogues
 //resources are within the current catalogue
-const query = `query CataloguePage($networksFilter:ResourcesFilter,$variablesFilter:VariablesFilter,$collectionsFilter:ResourcesFilter){
+const query = `query CataloguePage($networksFilter:ResourcesFilter,$variablesFilter:VariablesFilter,$collectionsFilter:ResourcesFilter,$networkFilter:ResourcesFilter){
         Resources(filter:$networksFilter) {
               id,
               acronym,
@@ -36,7 +36,10 @@ const query = `query CataloguePage($networksFilter:ResourcesFilter,$variablesFil
             numberOfParticipantsWithSamples
           }
         }
-        Design_groupBy:Resources_groupBy(filter:$collectionsFilter) {
+        Networks_agg: Resources_agg(filter:$networkFilter) {
+          count
+        }
+        Design_groupBy: Resources_groupBy(filter:$collectionsFilter) {
           design{name}
           count
         }
@@ -75,31 +78,39 @@ const networksFilter = scoped
 
 const collectionsFilter = scoped
   ? {
-      type: { tag: { equals: "collection" } },
-      _or: [
-        { partOfResources: { id: { equals: catalogueRouteParam } } },
+      _and: [
+        { type: { tags: { equals: "collection" } } },
         {
-          partOfResources: {
-            partOfResources: { id: { equals: catalogueRouteParam } },
-          },
+          _or: [
+            { partOfResources: { id: { equals: catalogueRouteParam } } },
+            {
+              partOfResources: {
+                partOfResources: { id: { equals: catalogueRouteParam } },
+              },
+            },
+          ],
         },
       ],
     }
-  : undefined;
+  : { type: { tags: { equals: "collection" } } };
 
 const networkFilter = scoped
   ? {
-      type: { name: { equals: "Network" } },
-      _or: [
-        { partOfResources: { id: { equals: catalogueRouteParam } } },
+      _and: [
+        { type: { tags: { equals: "network" } } },
         {
-          partOfResources: {
-            partOfResources: { id: { equals: catalogueRouteParam } },
-          },
+          _or: [
+            { partOfResources: { id: { equals: catalogueRouteParam } } },
+            {
+              partOfResources: {
+                partOfResources: { id: { equals: catalogueRouteParam } },
+              },
+            },
+          ],
         },
       ],
     }
-  : undefined;
+  : { type: { tags: { equals: "network" } } };
 
 const { data, error } = await useFetch(`/${route.params.schema}/graphql`, {
   method: "POST",
@@ -183,6 +194,7 @@ const description = computed(() => {
 });
 
 const collectionCount = computed(() => data.value.data?.Collections_agg?.count);
+const networkCount = computed(() => data.value.data?.Networks_agg?.count);
 
 const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/networks/${catalogueRouteParam}`;
 </script>
@@ -217,6 +229,21 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
         "
         :count="collectionCount"
         :link="`/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/collections`"
+      />
+      <LandingCardPrimary
+        v-if="networkCount"
+        image="image-diagram"
+        title="Networks"
+        :description="
+          getSettingValue('CATALOGUE_LANDING_NETWORKS_TEXT', settings) ||
+          'Networks &amp; Consortia'
+        "
+        :callToAction="
+          getSettingValue('CATALOGUE_LANDING_NETWORKS_CTA', settings) ||
+          'Networks'
+        "
+        :count="networkCount"
+        :link="`/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/networks`"
       />
       <LandingCardPrimary
         v-if="data.data.Variables_agg?.count > 0 && !cohortOnly"
