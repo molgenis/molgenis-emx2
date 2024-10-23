@@ -86,7 +86,7 @@ The network's variables are defined in the *Variables* sheet.
 | format | The data type of the variable | Find list to choose from in CatalogueOntologies [Formats](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/Formats) |
 | unit<sup>1</sup> | Unit in case of a continuous or integer format | Find list to choose from in CatalogueOntologies [Units](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/Units) |
 | description | Description of the variable | |
-| exampleValues | Examples of values in a comma separated list | Makes your data structure more insightful. E.g. 1,2,3 or TRUE,FALSE or 1.23,4.56,3.14 |
+| example values | Examples of values in a comma separated list | Makes your data structure more insightful. E.g. 1,2,3 or TRUE,FALSE or 1.23,4.56,3.14 |
 | repeat unit<sup>1</sup> | In case of repeated variables, indicate the repeat period | Find list to choose from in CatalogueOntologies [Repeat units](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/RepeatUnits) |
 | repeat min | The minimum repeat unit | E.g. 0 or 10 |
 | repeat max | The maximum repeat unit | E.g. 10 or 60 |
@@ -95,9 +95,9 @@ The network's variables are defined in the *Variables* sheet.
 | keywords<sup>1</sup> | Enables grouping of variables into topics and helps to display variables in a tree | Find list to choose from in Catalogue [Keywords](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/Keywords)|
 | since version | Version of the data model when this variable was introduced | e.g. 1.0.0 or 2.1 |
 | until version | Version of the data model when this variable was deleted | e.g. 2.0.0 or 2.1 |
-| useExternaldefinition.resource | Refer to the associated resource id | When using the definitions of a harmonised variable from another CDM |
-| useExternaldefinition.dataset | Refer to the associated dataset name | When using the definitions of a harmonised variable from another CDM |
-| useExternaldefinition.name | Refer to the associated variable name | When using the definitions of a harmonised variable from another CDM |
+| use externaldefinition.resource | Refer to the associated resource id | When using the definitions of a harmonised variable from another CDM |
+| use externaldefinition.dataset | Refer to the associated dataset name | When using the definitions of a harmonised variable from another CDM |
+| use externaldefinition.name | Refer to the associated variable name | When using the definitions of a harmonised variable from another CDM |
 
 <sup>Table 2. Description of the columns that can be filled out for Variables. * = mandatory; 
 1 = contact [*molgenis support*](mailto:support@molgenis.org) to add Vocabularies, Keywords, Repeat units, or Units</sup>
