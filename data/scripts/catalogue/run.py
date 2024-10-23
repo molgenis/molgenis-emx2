@@ -47,6 +47,9 @@ class Runner:
             self.networks = stagings_by_type.get('networks')
             self.catalogues = stagings_by_type.get('catalogues')
             self.shared_stagings = stagings_by_type.get('shared')
+            logging.info("Number of schemas per schema type: ")
+            for key, value in stagings_by_type.items():
+                logging.info(f"{key}: {len(value)}")
 
         # Set the pattern
         if pattern is not None:
@@ -123,7 +126,6 @@ class Runner:
         """
         Updates the data model and data in the catalogue schema.
         """
-        logging.info(f"Starting update on {self.catalogue!r}")
         await self._update_schema(name=self.catalogue, database_type='catalogue')
 
     async def unpack_shared_staging(self):
@@ -228,7 +230,7 @@ async def main(pattern = None, debug: bool = False):
         logging.info(f"Updating schemas on {runner.target.url!r}")
 
         if debug:
-            runner.cohorts = ['GSC', 'RESPACT', 'LbM']
+            runner.cohorts = ['STAIRS']
 
         if not runner.has_latest_ontologies():
             # Trigger CatalogueOntologies update by creating a dummy catalogue
@@ -267,4 +269,4 @@ if __name__ == '__main__':
     logging.getLogger("requests").setLevel(logging.WARNING)
     logging.getLogger("urllib3").setLevel(logging.WARNING)
 
-    asyncio.run(main(pattern='', debug=True))
+    asyncio.run(main(pattern='', debug=False))
