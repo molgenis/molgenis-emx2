@@ -18,7 +18,7 @@ const cohortOnly = computed(() => {
 
 //networksfilter retrieves the catalogues
 //resources are within the current catalogue
-const query = `query CataloguePage($networksFilter:ResourcesFilter,$variablesFilter:VariablesFilter,$resourceFilter:ResourcesFilter){
+const query = `query CataloguePage($networksFilter:ResourcesFilter,$variablesFilter:VariablesFilter,$collectionsFilter:ResourcesFilter){
         Resources(filter:$networksFilter) {
               id,
               acronym,
@@ -29,22 +29,18 @@ const query = `query CataloguePage($networksFilter:ResourcesFilter,$variablesFil
         Variables_agg(filter:$variablesFilter) {
           count
         }
-        Resources_agg(filter:$resourceFilter) {
+        Collections_agg: Resources_agg(filter:$collectionsFilter) {
           count
           _sum {
             numberOfParticipants
             numberOfParticipantsWithSamples
           }
         }
-        Resources_groupBy(filter:$resourceFilter) {
-          type{name,definition}
-          count
-        }
-        Design_groupBy:Resources_groupBy(filter:$resourceFilter) {
+        Design_groupBy:Resources_groupBy(filter:$collectionsFilter) {
           design{name}
           count
         }
-        Subpopulations_agg(filter:{resource: $resourceFilter}) {
+        Subpopulations_agg(filter:{resource: $collectionsFilter}) {
           count
         }
         _settings (keys: [
@@ -77,8 +73,23 @@ const networksFilter = scoped
   ? { id: { equals: catalogueRouteParam } }
   : undefined;
 
-const resourceFilter = scoped
+const collectionsFilter = scoped
   ? {
+      type: { tag: { equals: "collection" } },
+      _or: [
+        { partOfResources: { id: { equals: catalogueRouteParam } } },
+        {
+          partOfResources: {
+            partOfResources: { id: { equals: catalogueRouteParam } },
+          },
+        },
+      ],
+    }
+  : undefined;
+
+const networkFilter = scoped
+  ? {
+      type: { name: { equals: "Network" } },
       _or: [
         { partOfResources: { id: { equals: catalogueRouteParam } } },
         {
@@ -97,7 +108,8 @@ const { data, error } = await useFetch(`/${route.params.schema}/graphql`, {
     query,
     variables: {
       networksFilter,
-      resourceFilter,
+      collectionsFilter,
+      networkFilter,
       variablesFilter: scoped
         ? {
             _or: [
@@ -170,20 +182,9 @@ const description = computed(() => {
   }
 });
 
-const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/networks/${catalogueRouteParam}`;
+const collectionCount = computed(() => data.value.data?.Collections_agg?.count);
 
-const resources = computed(() => {
-  if (cohortOnly.value) {
-    return data.value.data.Resources_groupBy.filter(
-      (resource: IResources) => resource.type.name === "Cohort study"
-    );
-  } else {
-    //omit counts of resources without a type
-    return data.value.data.Resources_groupBy.filter(
-      (resource: IResources) => resource.type
-    );
-  }
-});
+const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/networks/${catalogueRouteParam}`;
 </script>
 
 <template>
@@ -203,27 +204,19 @@ const resources = computed(() => {
     </PageHeader>
     <LandingPrimary>
       <LandingCardPrimary
-        v-for="resource in resources"
-        :image="
-          getResourceMetadataForType(resource.type.name).image || 'image-link'
-        "
-        :title="
-          getResourceMetadataForType(resource.type.name)?.plural ||
-          resource.type.name
-        "
+        v-if="collectionCount"
+        image="image-link"
+        title="Collections"
         :description="
           getSettingValue('CATALOGUE_LANDING_COHORTS_TEXT', settings) ||
-          getResourceMetadataForType(resource.type.name).description ||
-          'Cohorts &amp; Biobanks'
+          'Data &amp; sample collections'
         "
         :callToAction="
-          getSettingValue('CATALOGUE_LANDING_COHORTS_CTA', settings)
+          getSettingValue('CATALOGUE_LANDING_COHORTS_CTA', settings) ||
+          'Collections'
         "
-        :count="resource.count"
-        :link="
-          `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/` +
-          (getResourceMetadataForType(resource.type.name).path || 'resources')
-        "
+        :count="collectionCount"
+        :link="`/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/collections`"
       />
       <LandingCardPrimary
         v-if="data.data.Variables_agg?.count > 0 && !cohortOnly"
@@ -239,7 +232,6 @@ const resources = computed(() => {
         "
         :link="`/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/variables`"
       />
-
       <LandingCardPrimary
         v-if="!cohortOnly && network.id === 'FORCE-NEN collections'"
         image="image-data-warehouse"

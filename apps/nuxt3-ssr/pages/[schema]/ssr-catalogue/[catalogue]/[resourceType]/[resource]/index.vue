@@ -17,8 +17,6 @@ import dateUtils from "~/utils/dateUtils";
 const config = useRuntimeConfig();
 const route = useRoute();
 
-const resourceType = usePathResourceType();
-
 const query = gql`
   query Resources($id: String) {
     Resources(filter: { id: { equals: [$id] } }) {
@@ -508,15 +506,15 @@ if (route.params.catalogue) {
   ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}`;
   if (route.params.resourceType !== "about")
     crumbs[
-      resourceType.plural
-    ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/${resourceType.path}`;
+      route.params.resourceType
+    ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/${route.params.resourceType}`;
 } else {
   crumbs["Home"] = `/${route.params.schema}/ssr-catalogue/`;
   crumbs["Browse"] = `/${route.params.schema}/ssr-catalogue/all`;
   if (route.params.resourceType !== "about")
     crumbs[
-      resourceType.plural
-    ] = `/${route.params.schema}/ssr-catalogue/all/${resourceType.path}`;
+      route.params.resourceType
+    ] = `/${route.params.schema}/ssr-catalogue/all/${route.params.resourceType}`;
 }
 
 const peopleInvolvedSortedByRoleAndName = computed(() =>

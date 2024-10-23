@@ -15,7 +15,7 @@ const bannerHtml = computed(() => {
     v-if="route.params.catalogue"
     :catalogue="headerData.catalogue"
     :variableCount="headerData.variableCount"
-    :resourceTypes="headerData.resourceTypes"
+    :collectionCount="headerData.collectionCount"
   />
 
   <HeaderGlobal v-else />

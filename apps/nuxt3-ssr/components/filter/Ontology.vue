@@ -6,6 +6,7 @@ import type { IFilterCondition, IOntologyRespItem } from "~/interfaces/types";
 const props = withDefaults(
   defineProps<{
     tableId: string;
+    filter: any;
     modelValue: IFilterCondition[];
     options?: IOntologyRespItem[];
     isMultiSelect?: boolean;
@@ -21,7 +22,9 @@ const props = withDefaults(
 const emit = defineEmits(["update:modelValue"]);
 
 const data = !props.options
-  ? (await fetchOntology(props.tableId)).data[props.tableId]
+  ? (await fetchOntology(props.tableId, { filter: props.filter })).data[
+      props.tableId
+    ]
   : props.options;
 
 const showSearch = computed(() => data?.length > 10);
