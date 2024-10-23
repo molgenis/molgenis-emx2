@@ -6,7 +6,7 @@ import type { IFilterCondition, IOntologyRespItem } from "~/interfaces/types";
 const props = withDefaults(
   defineProps<{
     tableId: string;
-    filter: any;
+    filter: Record<String, Filter>;
     modelValue: IFilterCondition[];
     options?: IOntologyRespItem[];
     isMultiSelect?: boolean;

@@ -371,7 +371,7 @@ export interface IOntologyFilterConfig extends IFilterConfig {
   type: "ONTOLOGY";
   ontologyTableId: string;
   ontologySchema: string;
-  filter: any;
+  filter: Record<String, Filter>;
   columnId: string;
   refFields?: filterRefField;
 }
