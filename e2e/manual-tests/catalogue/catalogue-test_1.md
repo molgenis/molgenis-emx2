@@ -8,7 +8,7 @@ Naïve user of the data catalogue
 
 # Goal
 
-A naïve visitor to the data catalogue can click around in the catalogue and understand what s/he is seeing when viewing a network of networks.
+A naïve visitor to the data catalogue can click around in the catalogue and understand what they are seeing when viewing a network of networks.
 
 # Steps
 
