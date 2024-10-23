@@ -19,7 +19,7 @@ export async function updateUser(user: IUser) {
   return useFetch(GRAPHQL, {
     method: "post",
     body: {
-      query: `mutation updateUser($updateUser:updateUser){message}`,
+      query: `mutation updateUser($updateUser:InputUpdateUser) {updateUser(updateUser:$updateUser){status, message}}`,
       updateUser: updateUser,
     },
   }).catch((error) => {

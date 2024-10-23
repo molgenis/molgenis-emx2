@@ -170,11 +170,7 @@ public class GraphqlAdminFieldFactory {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("updateUser")
         .type(typeForMutationResult)
-        .argument(GraphQLArgument.newArgument().name(EMAIL).type(Scalars.GraphQLString))
-        .argument(GraphQLArgument.newArgument().name(PASSWORD).type(Scalars.GraphQLString))
-        .argument(GraphQLArgument.newArgument().name(ENABLED).type(Scalars.GraphQLBoolean))
-        .argument(
-            GraphQLArgument.newArgument().name(ROLES).type(GraphQLList.list(inputUserRolesType)))
+        .argument(GraphQLArgument.newArgument().name("updateUser").type(updateUserType))
         .dataFetcher(
             dataFetchingEnvironment -> {
               String email = dataFetchingEnvironment.getArgument(EMAIL);
@@ -212,5 +208,19 @@ public class GraphqlAdminFieldFactory {
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField().name(ROLE).type(Scalars.GraphQLString))
+          .build();
+  private static final GraphQLInputObjectType updateUserType =
+      new GraphQLInputObjectType.Builder()
+          .name("InputUpdateUser")
+          .field(
+              GraphQLInputObjectField.newInputObjectField().name(EMAIL).type(Scalars.GraphQLString))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(ENABLED)
+                  .type(Scalars.GraphQLBoolean))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(ROLES)
+                  .type(GraphQLList.list(inputUserRolesType)))
           .build();
 }
