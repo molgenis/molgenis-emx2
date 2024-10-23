@@ -95,8 +95,8 @@ The network's variables are defined in the *Variables* sheet.
 | keywords<sup>1</sup> | Enables grouping of variables into topics and helps to display variables in a tree | Find list to choose from in Catalogue [Keywords](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/Keywords)|
 | since version | Version of the data model when this variable was introduced | e.g. 1.0.0 or 2.1 |
 | until version | Version of the data model when this variable was deleted | e.g. 2.0.0 or 2.1 |
-| use externaldefinition.resource | Refer to the associated resource id | When using the definitions of a harmonised variable from another CDM |
-| use externaldefinition.dataset | Refer to the associated dataset name | When using the definitions of a harmonised variable from another CDM |
+| useExternalDefinition.resource | Refer to the associated resource id | When using the definitions of a harmonised variable from another CDM |
+| useExternalDefinition.dataset | Refer to the associated dataset name | When using the definitions of a harmonised variable from another CDM |
 | use externaldefinition.name | Refer to the associated variable name | When using the definitions of a harmonised variable from another CDM |
 
 <sup>Table 2. Description of the columns that can be filled out for Variables. * = mandatory; 
