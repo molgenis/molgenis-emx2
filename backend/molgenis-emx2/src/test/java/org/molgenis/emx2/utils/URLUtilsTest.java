@@ -97,7 +97,7 @@ class URLUtilsTest {
         80,
         "");
   }
-  
+
   @Test
   void testBaseUrlMolgenis80() {
     runTestConfig(
