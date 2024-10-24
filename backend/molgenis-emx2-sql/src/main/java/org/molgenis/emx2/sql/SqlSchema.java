@@ -366,14 +366,13 @@ public class SqlSchema implements Schema {
               newColumn.getOldName() != null
                   ? oldTable.getColumn(newColumn.getOldName()) // when renaming
                   : oldTable.getColumn(newColumn.getName()); // when not renaming
-
           if (oldColumn != null && !newColumn.isDrop()) {
             if (!created.contains(newColumn.getTableName() + "." + newColumn.getName())) {
               oldTable.alterColumn(oldColumn.getName(), newColumn);
             }
           } else
           // don't forget to add the refbacks
-          if (oldColumn == null && newColumn.isRefback()) {
+          if (oldColumn == null && !newColumn.isDrop() && newColumn.isRefback()) {
             targetSchema.getTable(newTable.getTableName()).getMetadata().add(newColumn);
           }
         }
@@ -385,6 +384,7 @@ public class SqlSchema implements Schema {
     for (TableMetadata mergeTable : mergeTableList) {
       // idempotent so we only drop if exists
       if (mergeTable.isDrop() && targetSchema.getTable(mergeTable.getOldName()) != null) {
+        checkNoRefbackExists(mergeTable, mergeTableList);
         targetSchema.getTable(mergeTable.getOldName()).getMetadata().drop();
       }
     }
@@ -392,6 +392,28 @@ public class SqlSchema implements Schema {
     // finally, update settings if changes are provided
     if (!mergeSchema.getSettings().isEmpty()) {
       targetSchema.getMetadata().setSettings(mergeSchema.getSettings());
+    }
+  }
+
+  private static void checkNoRefbackExists(
+      TableMetadata mergeTable, List<TableMetadata> mergeTableList) {
+    for (Column column : mergeTable.getColumns()) {
+      if (!column.isReferenceWithRefback()) continue;
+
+      Column refbackColumn = column.getReferenceRefback();
+      for (TableMetadata table : mergeTableList) {
+        if (table.isDrop()) continue;
+
+        if (table.getTableName().equals(refbackColumn.getTableName())
+            && !table.getColumn(refbackColumn.getIdentifier()).isDrop()) {
+          throw new MolgenisException(
+              "Deleting column \""
+                  + column.getName()
+                  + "\" failed: has refBack in table: "
+                  + column.getRefTable().getTableName()
+                  + ", first delete the refBack before deleting this column");
+        }
+      }
     }
   }
 
