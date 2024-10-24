@@ -10,6 +10,7 @@ import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.rdf.RDFService;
+import org.molgenis.emx2.utils.URLUtils;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -85,7 +86,7 @@ public class RDFApi {
     String[] schemaNamesArr = schemaNames.toArray(new String[schemaNames.size()]);
     Schema[] schemas = new Schema[schemaNames.size()];
 
-    final String baseURL = extractBaseURL(ctx);
+    final String baseURL = URLUtils.extractBaseURL(ctx);
 
     final RDFService rdf = new RDFService(ctx.url().split("/api/")[0], baseURL, format);
     ctx.contentType(rdf.getMimeType());
@@ -109,7 +110,7 @@ public class RDFApi {
     if (schema == null) {
       throw new MolgenisException("Schema " + ctx.pathParam("schema") + " was not found");
     }
-    final String baseURL = extractBaseURL(ctx);
+    final String baseURL = URLUtils.extractBaseURL(ctx);
 
     RDFService rdf = new RDFService(baseURL, RDF_API_LOCATION, format);
     ctx.contentType(rdf.getMimeType());
@@ -128,7 +129,7 @@ public class RDFApi {
     if (ctx.queryString() != null && !ctx.queryString().isBlank()) {
       rowId = ctx.queryString();
     }
-    final String baseURL = extractBaseURL(ctx);
+    final String baseURL = URLUtils.extractBaseURL(ctx);
 
     RDFService rdf = new RDFService(baseURL, RDF_API_LOCATION, format);
     ctx.contentType(rdf.getMimeType());
@@ -144,7 +145,7 @@ public class RDFApi {
     Table table = getTableByIdOrName(ctx);
     String rowId = sanitize(ctx.pathParam("row"));
 
-    final String baseURL = extractBaseURL(ctx);
+    final String baseURL = URLUtils.extractBaseURL(ctx);
     RDFService rdf = new RDFService(baseURL, RDF_API_LOCATION, format);
     ctx.contentType(rdf.getMimeType());
 
@@ -160,7 +161,7 @@ public class RDFApi {
     Table table = getTableByIdOrName(ctx);
     String columnName = sanitize(ctx.pathParam("column"));
 
-    final String baseURL = extractBaseURL(ctx);
+    final String baseURL = URLUtils.extractBaseURL(ctx);
 
     RDFService rdf = new RDFService(baseURL, RDF_API_LOCATION, format);
     ctx.contentType(rdf.getMimeType());
@@ -169,13 +170,6 @@ public class RDFApi {
     rdf.describeAsRDF(outputStream, table, null, columnName, table.getSchema());
     outputStream.flush();
     outputStream.close();
-  }
-
-  private static String extractBaseURL(Context ctx) {
-    return ctx.scheme()
-        + "://"
-        + ctx.host()
-        + (!ctx.contextPath().isEmpty() ? "/" + ctx.contextPath() + "/" : "/");
   }
 
   private static RDFFormat selectFormat(Context ctx, RDFFormat format) {
