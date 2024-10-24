@@ -179,7 +179,7 @@ public class GraphqlAdminFieldFactory {
 
                 String password = dataFetchingEnvironment.getArgument(PASSWORD);
                 if (password != null) {
-                  // update password
+                 database.setUserPassword(email, password);
                 }
 
                 Map<String, String> roles = dataFetchingEnvironment.getArgument(ROLES);
