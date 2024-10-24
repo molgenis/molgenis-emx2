@@ -1241,14 +1241,8 @@ public class WebApiSmokeTests {
     Table jobs = db.getSchema(SYSTEM_SCHEMA).getTable("Scripts");
     jobs.delete(row("name", parentJobName));
     db.dropSchemaIfExists("ScriptWithFileUpload");
-    jobs.insert(
-        row(
-            "name",
-            parentJobName,
-            "type",
-            "python",
-            "script",
-            """
+    String script =
+        """
 import asyncio
 import logging
 import os
@@ -1266,7 +1260,15 @@ async def main():
 if __name__ == '__main__':
     asyncio.run(main())
 
-""",
+""";
+    jobs.insert(
+        row(
+            "name",
+            parentJobName,
+            "type",
+            "python",
+            "script",
+            script,
             "dependencies",
             "--extra-index-url https://test.pypi.org/simple/\n"
                 + "molgenis-emx2-pyclient>=11.22.0"));
@@ -1279,8 +1281,39 @@ if __name__ == '__main__':
             .asString();
 
     String url = new ObjectMapper().readTree(result).at("/url").textValue();
+    assertTrue(testJobSuccess(url));
 
-    result = given().sessionId(SESSION_ID).get(url).asString();
+    String failingJobName = "failingJobTest";
+    jobs.delete(row("name", failingJobName));
+    db.dropSchemaIfExists("ScriptWithFileUpload");
+    String scriptFail = script.replace("PET_STORE", "PET_STORES");
+    jobs.insert(
+        row(
+            "name",
+            failingJobName,
+            "type",
+            "python",
+            "script",
+            scriptFail,
+            "dependencies",
+            "--extra-index-url https://test.pypi.org/simple/\n"
+                + "molgenis-emx2-pyclient>=11.22.0"));
+
+    result =
+        given()
+            .sessionId(SESSION_ID)
+            .when()
+            .post("/api/scripts/" + failingJobName)
+            .getBody()
+            .asString();
+
+    url = new ObjectMapper().readTree(result).at("/url").textValue();
+    assertFalse(testJobSuccess(url));
+  }
+
+  private static boolean testJobSuccess(String url)
+      throws InterruptedException, JsonProcessingException {
+    String result = given().sessionId(SESSION_ID).get(url).asString();
 
     String status = "WAITING";
     int count = 0;
@@ -1292,9 +1325,7 @@ if __name__ == '__main__':
       result = given().sessionId(SESSION_ID).get(url).asString();
       status = new ObjectMapper().readTree(result).at("/status").textValue();
     }
-    if (result.contains("ERROR")) {
-      fail(result);
-    }
+    return !status.equals("ERROR");
   }
 
   private static String getToken(String email, String password) throws JsonProcessingException {
