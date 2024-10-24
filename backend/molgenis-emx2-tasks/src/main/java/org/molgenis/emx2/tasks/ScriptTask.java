@@ -74,6 +74,7 @@ public class ScriptTask extends Task {
 
         // paste the script to a file into temp dir
         Path tempScriptFile = Files.createFile(tempDir.resolve("script.py"));
+        script = script.replace("${jobId}", this.getId());
         Files.writeString(tempScriptFile, this.script);
         Path requirementsFile = Files.createFile(tempDir.resolve("requirements.txt"));
         Files.writeString(requirementsFile, this.dependencies != null ? this.dependencies : "");
@@ -113,6 +114,7 @@ public class ScriptTask extends Task {
             .put(
                 "OUTPUT_FILE",
                 tempOutputFile.toAbsolutePath().toString()); // in case of an output file
+
         process = builder.start();
         this.addSubTask("Script started: " + process.info().commandLine().orElse("")).complete();
 

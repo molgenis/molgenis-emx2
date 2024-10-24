@@ -13,6 +13,9 @@ pip install molgenis-emx2-pyclient
 Releases of the Molgenis EMX2 Pyclient follow the release number of the accompanying release of the Molgenis EMX2 software.
 Therefore, releases of the Pyclient are less frequent than those of EMX2 and the latest version of the Pyclient may differ from the latest version of Molgenis EMX2.
 
+#### 11.23.0
+Added: an optional `job` argument to the `Client` initialization, allowing the Pyclient to run asynchronous methods within a job in EMX2."
+
 #### 11.11.1
 Added: option to specify filename in method `export` and to return the exported data in a function
 

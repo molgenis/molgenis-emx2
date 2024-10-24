@@ -1,9 +1,11 @@
 package org.molgenis.emx2.tasks;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.molgenis.emx2.MolgenisException;
 
 @Tag("slow")
 public class TestTask {
@@ -32,6 +34,20 @@ public class TestTask {
     taskService.removeOlderThan(0);
     assertEquals(0, taskService.getJobIds().size());
 
+    taskService.shutdown();
+  }
+
+  @Test
+  public void testScheduleSubTaskForEmptyParentTask_shouldThrow() {
+    TaskService taskService = new TaskServiceInMemory();
+    Task emptyParentTask = new Task();
+    Task subTask = new Task();
+
+    taskService.submit(emptyParentTask);
+    subTask.setParentTask(emptyParentTask);
+    assertThrows(MolgenisException.class, () -> taskService.submit(subTask));
+
+    taskService.removeOlderThan(0);
     taskService.shutdown();
   }
 }
