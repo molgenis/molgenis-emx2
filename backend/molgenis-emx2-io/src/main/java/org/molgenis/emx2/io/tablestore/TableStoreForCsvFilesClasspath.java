@@ -113,9 +113,9 @@ public class TableStoreForCsvFilesClasspath implements TableAndFileStore {
     if ("jar".equals(uri.getScheme())) {
       files = safeWalkJar(path, uri);
     } else {
-      try (Stream<Path> walk = Files.walk(Paths.get(path))) {
-        files = walk.map(Path::getFileName).map(Path::toString).collect(Collectors.toList());
-      }
+      return Arrays.stream(Objects.requireNonNull(new File(url.getPath()).listFiles()))
+          .map(File::getName)
+          .toList();
     }
     return files;
   }
