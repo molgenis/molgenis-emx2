@@ -3,7 +3,7 @@
     <div
       class="flex justify-start align-center"
       v-for="option in radioOptions"
-      :key="option.value"
+      :key="JSON.stringify(option.value)"
     >
       <InputRadio
         :id="`${id}-radio-group-${option.value}`"
@@ -41,7 +41,7 @@
 
 <script lang="ts" setup>
 interface RadioOptionsDataIF {
-  value: string;
+  value: string | boolean;
   label?: string;
   checked?: boolean | undefined;
 }
@@ -57,7 +57,7 @@ withDefaults(
   }
 );
 
-const modelValue = defineModel<string>();
+const modelValue = defineModel<string | boolean>();
 
 function resetModelValue() {
   modelValue.value = "";

@@ -10,7 +10,7 @@ function showModal() {
   visible.value = true;
 }
 
-const closeModal = (returnVal?: string) => {
+const closeModal = (_returnVal?: string) => {
   visible.value = false;
 };
 
@@ -20,6 +20,7 @@ defineExpose({
   visible,
 });
 </script>
+
 <template>
   <section
     v-show="visible"

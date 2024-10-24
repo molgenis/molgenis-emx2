@@ -37,15 +37,17 @@ async function signout() {
           type="primary"
           size="medium"
           @click="signout"
-          >Sign out</Button
         >
+          Sign out
+        </Button>
         <Button
           v-else
           type="primary"
           size="medium"
           @click="navigateTo('/login')"
-          >Sign in</Button
         >
+          Sign in
+        </Button>
       </div>
 
       <div class="mt-3">{{ errorMsg }}</div>

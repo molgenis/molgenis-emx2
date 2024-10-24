@@ -22,7 +22,6 @@ const mainButtons = computed(() =>
 const subButtons = computed(() =>
   props.navigation.slice(props.maximumButtonShown)
 );
-const active = "underline";
 </script>
 
 <template>

@@ -1,27 +1,27 @@
 package org.molgenis.emx2.graphql;
 
-import static org.molgenis.emx2.Constants.MOLGENIS_JWT_SHARED_SECRET;
-import static org.molgenis.emx2.Constants.SETTINGS;
+import static org.molgenis.emx2.Constants.*;
+import static org.molgenis.emx2.Constants.KEY;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
 import static org.molgenis.emx2.graphql.GraphqlConstants.*;
-import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.outputSettingsType;
+import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.*;
 
 import graphql.Scalars;
 import graphql.schema.*;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import org.molgenis.emx2.Database;
-import org.molgenis.emx2.User;
+import org.molgenis.emx2.*;
 
-public class GraphlAdminFieldFactory {
-  private GraphlAdminFieldFactory() {
+public class GraphqlAdminFieldFactory {
+  private GraphqlAdminFieldFactory() {
     // hide constructor
   }
 
   // Output types
-  private static GraphQLOutputType userType =
+  private static final GraphQLOutputType userType =
       GraphQLObjectType.newObject()
           .name("_AdminUserType")
           .field(
@@ -38,6 +38,11 @@ public class GraphlAdminFieldFactory {
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(SETTINGS)
                   .type(GraphQLList.list(outputSettingsType))
+                  .build())
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(ROLES)
+                  .type(GraphQLList.list(userRolesType))
                   .build())
           .build();
 
@@ -87,12 +92,12 @@ public class GraphlAdminFieldFactory {
     int limit = args.containsKey(LIMIT) ? (int) args.get(LIMIT) : 100;
     int offset = args.containsKey(OFFSET) ? (int) args.get(OFFSET) : 0;
     String email = args.containsKey(EMAIL) ? (String) args.get(EMAIL) : null;
+    List<Member> members = db.loadUserRoles();
+
     if (email != null) {
-      return List.of(toGraphqlUser(db.getUser(email)));
+      return List.of(toGraphqlUser(db.getUser(email), members));
     } else {
-      return db.getUsers(limit, offset).stream()
-          .map(GraphlAdminFieldFactory::toGraphqlUser)
-          .toList();
+      return db.getUsers(limit, offset).stream().map(user -> toGraphqlUser(user, members)).toList();
     }
   }
 
@@ -127,12 +132,31 @@ public class GraphlAdminFieldFactory {
         .build();
   }
 
-  private static Map<String, Object> toGraphqlUser(User user) {
+  private static Map<String, Object> toGraphqlUser(User user, List<Member> members) {
     Map<String, Object> result = new LinkedHashMap<>();
     result.put(EMAIL, user.getUsername());
     result.put(ENABLED, user.getEnabled());
     result.put(SETTINGS, mapSettingsToGraphql(user.getSettings()));
+
+    List<Map<String, String>> roles = getRoles(user, members);
+    result.put(ROLES, roles);
     return result;
+  }
+
+  private static List<Map<String, String>> getRoles(User user, List<Member> members) {
+    return members.stream()
+        .filter(member -> member.getUser().equals(user.getUsername()))
+        .map(GraphqlAdminFieldFactory::getUserRoleMap)
+        .toList();
+  }
+
+  private static Map<String, String> getUserRoleMap(Member member) {
+    String role = member.getRole();
+    String[] parts = role.split("/");
+    Map<String, String> roleMap = new HashMap<>();
+    roleMap.put(SCHEMA_ID, parts[0]);
+    roleMap.put(ROLE, parts[1]);
+    return roleMap;
   }
 
   public static Object mapSettingsToGraphql(Map<String, String> settings) {
@@ -141,4 +165,62 @@ public class GraphlAdminFieldFactory {
         .map(entry -> Map.of(KEY, entry.getKey(), VALUE, entry.getValue()))
         .toList();
   }
+
+  public static GraphQLFieldDefinition updateUser(Database database) {
+    return GraphQLFieldDefinition.newFieldDefinition()
+        .name("updateUser")
+        .type(typeForMutationResult)
+        .argument(GraphQLArgument.newArgument().name("updateUser").type(updateUserType))
+        .dataFetcher(
+            dataFetchingEnvironment -> {
+              String email = dataFetchingEnvironment.getArgument(EMAIL);
+              if (email != null) {
+                User user = database.getUser(email);
+
+                String password = dataFetchingEnvironment.getArgument(PASSWORD);
+                if (password != null) {
+                 database.setUserPassword(email, password);
+                }
+
+                Map<String, String> roles = dataFetchingEnvironment.getArgument(ROLES);
+                if (roles != null) {
+                  // update roles
+                }
+
+                Boolean enabled = dataFetchingEnvironment.getArgument(ENABLED);
+                if (enabled != null) {
+                  user.setEnabled(enabled);
+                }
+
+                database.saveUser(user);
+              }
+              return new GraphqlApiMutationResult(SUCCESS, "User %s updated", email);
+            })
+        .build();
+  }
+
+  private static final GraphQLInputObjectType inputUserRolesType =
+      new GraphQLInputObjectType.Builder()
+          .name("InputUserRolesType")
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(SCHEMA_ID)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLInputObjectField.newInputObjectField().name(ROLE).type(Scalars.GraphQLString))
+          .build();
+  private static final GraphQLInputObjectType updateUserType =
+      new GraphQLInputObjectType.Builder()
+          .name("InputUpdateUser")
+          .field(
+              GraphQLInputObjectField.newInputObjectField().name(EMAIL).type(Scalars.GraphQLString))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(ENABLED)
+                  .type(Scalars.GraphQLBoolean))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(ROLES)
+                  .type(GraphQLList.list(inputUserRolesType)))
+          .build();
 }
