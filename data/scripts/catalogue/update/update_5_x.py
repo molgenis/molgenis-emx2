@@ -19,9 +19,6 @@ def float_to_int(df):
     """
     Cast float64 Series to Int64. Floats are not converted to integers by EMX2
     """
-    # for column in df.columns:
-    #     if df[column].dtype == 'float64':
-    #         df.loc[:, column] = df[column].astype('Int64')
     float_columns = df.dtypes[df.dtypes == 'float64'].index.values
     df[float_columns] = df[float_columns].astype('Int64')
 
@@ -344,7 +341,8 @@ class Transform:
 
         # remove end digits from repeated variable names
         df.loc[:, 'stripped_var'] = df['variable.name'].apply(remove_number)  # remove end digits from all variable names
-        df.loc[:, 'repeated'] = df['variable.name'].apply(is_repeated_variable, df_repeats=df_repeats)  # check if variable is repeated
+        # df.loc[:, 'repeated'] = df['variable.name'].apply(is_repeated_variable, df_repeats=df_repeats)  # check if variable is repeated
+        df['repeated'] = df['variable.name'].isin(df_repeats[['name', 'is repeat of.name']])  # check if variable is repeated
         df.loc[:, 'variable.name'] = df.apply(lambda x: x['stripped_var'] if x.repeated else x['variable.name'], axis=1)  # if repeated, keep stripped variable name
 
         df = df.drop_duplicates(subset=['resource', 'variable.resource', 'variable.name'])
@@ -364,8 +362,8 @@ class Transform:
 
         df_var_values_cdm = df_var_values[df_var_values['resource'].isin(['testNetwork1', *networks])].copy()
         # remove end digits from repeated variable names
-        df_var_values_cdm.loc[:, 'stripped_var'] = df_var_values_cdm['variable'].apply(remove_number)  # remove end digits from all variable names
-        df_var_values_cdm.loc[:, 'repeated'] = df_var_values_cdm['variable'].apply(is_repeated_variable, df_repeats=df_repeats)  # check if variable is repeated
+        df_var_values_cdm['stripped_var'] = df_var_values_cdm['variable'].apply(remove_number)  # remove end digits from all variable names
+        df_var_values_cdm['repeated'] = df_var_values_cdm['variable'].isin(df_repeats[['name', 'is repeat of.name']])
         df_var_values_cdm.loc[:, 'variable'] = df_var_values_cdm.apply(lambda x: x['stripped_var'] if x.repeated else x['variable'], axis=1)  # if repeated, keep stripped variable name
 
         df_var_values_no_cdm = df_var_values[~df_var_values['resource'].isin(['testNetwork1', *networks])]
@@ -388,7 +386,7 @@ class Transform:
         # restructure repeated variables inside variables dataframe
         df_repeats = pd.read_csv(self.path / 'Repeated variables.csv', dtype='object')
         df_repeats.loc[:, 'resource'] = df_repeats['resource'].apply(strip_resource)
-        df_variables.loc[:, 'is_repeated'] = df_variables['name'].apply(is_repeated, df_repeats=df_repeats)
+        df_variables['is_repeated'] = df_variables['name'].isin(df_repeats[['is repeat of.name']])
 
         # select athlete, lifecycle, expanse and testNetwork1 variables and restructure (these contain repeats)
         if self.database_type in ['catalogue', 'network'] and \
@@ -418,34 +416,38 @@ class Transform:
     def variable_mappings(self):
         logging.debug(f"Transforming 'Variable mappings'")
         df = pd.read_csv(self.path / 'Variable mappings.csv', keep_default_na=False, dtype='object')
-        if len(df) != 0:
-            df.loc[:, 'target'] = df['target'].apply(strip_resource)  # delete appendix '_CDM'
-            df.loc[:, 'repeat_num'] = df['target variable'].apply(get_repeat_number)  # get repeat of target variable
+        if len(df.index) == 0:
+            return
 
-            # divide into CDMs with repeats and CDMs without repeats
-            df_cdm_with_repeats = df[df['target'].isin(['LifeCycle', 'ATHLETE', 'testNetwork1', 'EXPANSE'])].copy()
-            df_cdm_no_repeats = df[~df['target'].isin(['LifeCycle', 'ATHLETE', 'testNetwork1', 'EXPANSE'])].copy()
+        df['target'] = df['target'].apply(strip_resource)  # delete appendix '_CDM'
+        df['repeat_num'] = df['target variable'].apply(get_repeat_number)  # get repeat of target variable
 
-            if len(df_cdm_with_repeats) != 0:
-                df_repeats = pd.read_csv(FILES_DIR / (CATALOGUE_SCHEMA_NAME + '_data/') / 'Repeated variables.csv', keep_default_na=False, dtype='object')
+        # divide into CDMs with repeats and CDMs without repeats
+        df_cdm_with_repeats = df[df['target'].isin(['LifeCycle', 'ATHLETE', 'testNetwork1', 'EXPANSE'])].copy()
+        df_cdm_no_repeats = df[~df['target'].isin(['LifeCycle', 'ATHLETE', 'testNetwork1', 'EXPANSE'])].copy()
 
-                # remove end digits from repeated variable names
-                df_cdm_with_repeats.loc[:, 'stripped_var'] = df_cdm_with_repeats['target variable'].apply(remove_number)  # remove end digits from all target var names
-                df_cdm_with_repeats.loc[:, 'repeated'] = df_cdm_with_repeats['target variable'].apply(is_repeated_variable, df_repeats=df_repeats)  # check whether target var is repeated
-                df_cdm_with_repeats.loc[:, 'target variable'] = df_cdm_with_repeats.apply(lambda x: x['stripped_var'] if x.repeated else x['target variable'], axis=1)  # if repeated, keep stripped var name               df_cdm = df_cdm.fillna('')
+        if len(df_cdm_with_repeats) == 0:
+            return
 
-                # drop duplicate mappings
-                df_no_duplicates = df_cdm_with_repeats.drop_duplicates(subset=['source', 'source dataset', 'source variables',
-                                                                               'source variables other datasets.dataset',
-                                                                               'source variables other datasets.name',
-                                                                               'target', 'target dataset', 'target variable',
-                                                                               'match', 'syntax', 'comments', 'description'])
-                df_no_duplicates = df_no_duplicates.fillna('')
+        df_repeats = pd.read_csv(FILES_DIR / (CATALOGUE_SCHEMA_NAME + '_data/') / 'Repeated variables.csv', keep_default_na=False, dtype='object')
 
-                # get repeated mappings in comma separated string
-                df_mappings = rewrite_mappings(df_cdm_with_repeats, df_no_duplicates)
-                df_mappings = pd.concat([df_mappings, df_cdm_no_repeats])
-                df_mappings.to_csv(self.path / 'Variable mappings.csv', index=False)
+        # remove end digits from repeated variable names
+        df_cdm_with_repeats['stripped_var'] = df_cdm_with_repeats['target variable'].apply(remove_number)  # remove end digits from all target var names
+        df_cdm_with_repeats['repeated'] = df_cdm_with_repeats['target variable'].isin(df_repeats[['name', 'is repeat of.name']]) # check whether target var is repeated
+        df_cdm_with_repeats['target variable'] = df_cdm_with_repeats.apply(lambda x: x['stripped_var'] if x.repeated else x['target variable'], axis=1)  # if repeated, keep stripped var name               df_cdm = df_cdm.fillna('')
+
+        # drop duplicate mappings
+        df_no_duplicates = df_cdm_with_repeats.drop_duplicates(subset=['source', 'source dataset', 'source variables',
+                                                                       'source variables other datasets.dataset',
+                                                                       'source variables other datasets.name',
+                                                                       'target', 'target dataset', 'target variable',
+                                                                       'match', 'syntax', 'comments', 'description'])
+        df_no_duplicates = df_no_duplicates.fillna('')
+
+        # get repeated mappings in comma separated string
+        df_mappings = rewrite_mappings(df_cdm_with_repeats, df_no_duplicates)
+        df_mappings = pd.concat([df_mappings, df_cdm_no_repeats])
+        df_mappings.to_csv(self.path / 'Variable mappings.csv', index=False)
 
     def collection_events(self):
         """ Transform Collection events table
@@ -502,9 +504,8 @@ class Transform:
 
 
 def strip_resource(resource_name):
-    if not pd.isna(resource_name):
-        if '_CDM' in resource_name:
-            resource_name = resource_name[:-4]
+    if str(resource_name).endswith('_CDM'):
+        return resource_name.split('_CDM')[0]
 
     return resource_name
 
@@ -519,9 +520,9 @@ def is_repeated(var_name, df_repeats):
 
 def is_repeated_variable(var_name, df_repeats):
     # Checks whether a variable is in repeated variables
-    if var_name in df_repeats['name'].to_list():
+    if var_name in df_repeats['name'].values:
         return True
-    elif var_name in df_repeats['is repeat of.name'].to_list():
+    elif var_name in df_repeats['is repeat of.name'].values:
         return True
     else:
         return False
