@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { UIResource, UIResourceType } from "~/interfaces/types";
+import type { UIResource } from "~/interfaces/types";
 
 const route = useRoute();
 const config = useRuntimeConfig();
@@ -7,7 +7,8 @@ const config = useRuntimeConfig();
 const props = defineProps<{
   catalogue?: UIResource;
   variableCount: number;
-  resourceTypes: UIResourceType[];
+  collectionCount: number;
+  networkCount: number;
 }>();
 
 const cohortOnly = computed(() => {
@@ -30,15 +31,17 @@ if (
   });
 }
 
-if (props.resourceTypes.length > 0) {
-  props.resourceTypes.forEach((resourceType) => {
-    const resourceTypeMetadata = getResourceMetadataForType(
-      resourceType.type?.name
-    );
-    menu.push({
-      label: resourceTypeMetadata.plural,
-      link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/${resourceTypeMetadata.path}`,
-    });
+if (props.collectionCount > 0) {
+  menu.push({
+    label: "Collections",
+    link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/collections`,
+  });
+}
+
+if (props.networkCount > 0) {
+  menu.push({
+    label: "Networks",
+    link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/networks`,
   });
 }
 

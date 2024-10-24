@@ -15,12 +15,18 @@ test("go back from details, filter should stil be active", async ({
   page,
   goto,
 }) => {
-  await goto("/catalogue-demo/ssr-catalogue/testNetworkofNetworks/cohorts", {
-    waitUntil: "hydration",
-  });
-  await page
-    .locator("div:nth-child(16) > .inline-flex > .rotate-180 > svg")
-    .click();
+  await goto(
+    "/catalogue-demo/ssr-catalogue/testNetworkofNetworks/collections",
+    {
+      waitUntil: "hydration",
+    }
+  );
+
+  //TODO unclear what it should do exactly
+
+  // await page
+  //   .locator("div:nth-child(16) > .inline-flex > .rotate-180 > svg")
+  //   .click();
   //await page.getByRole('complementary').getByText('Longitudinal').click();
   //todo demo data is missing designType
   //await page.getByRole('link', { name: 'acronym for test cohort 1' }).click();

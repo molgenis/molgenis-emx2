@@ -1,4 +1,4 @@
-import type { UIResource, UIResourceType } from "~/interfaces/types";
+import type { UIResource } from "~/interfaces/types";
 
 interface Resp<T> {
   data: T;
@@ -8,7 +8,8 @@ interface Resp<T> {
 interface IHeaderQuery {
   Resources: UIResource[];
   Variables_agg: { count: number };
-  Resources_groupBy: UIResourceType[];
+  Collections_agg: { count: number };
+  Networks_agg: { count: number };
 }
 
 export async function useHeaderData() {
@@ -22,7 +23,7 @@ export async function useHeaderData() {
       method: "POST",
       body: {
         query: `
-            query HeaderQuery($resourceFilter:ResourcesFilter, $variablesFilter:VariablesFilter, $networksFilter:ResourcesFilter) {
+            query HeaderQuery($collectionsFilter:ResourcesFilter, $variablesFilter:VariablesFilter, $networksFilter:ResourcesFilter,$networkFilter:ResourcesFilter) {
               Resources(filter:$networksFilter) {
                 id,
                 logo { url }
@@ -30,17 +31,20 @@ export async function useHeaderData() {
               Variables_agg(filter:$variablesFilter) {
                   count
               }
-              Resources_groupBy(filter:$resourceFilter) {
-                type { name, definition }
-                count
+              Collections_agg: Resources_agg(filter:$collectionsFilter) {
+                  count
+              }
+              Networks_agg: Resources_agg(filter:$networkFilter) {
+                  count
               }
             }`,
         variables: {
           networksFilter: scoped
             ? { id: { equals: catalogueRouteParam } }
             : undefined,
-          resourceFilter: scoped
+          collectionsFilter: scoped
             ? {
+                type: { tags: { equals: "collection" } },
                 _or: [
                   { partOfResources: { id: { equals: catalogueRouteParam } } },
                   {
@@ -50,7 +54,20 @@ export async function useHeaderData() {
                   },
                 ],
               }
-            : undefined,
+            : { type: { tags: { equals: "collection" } } },
+          networkFilter: scoped
+            ? {
+                type: { tags: { equals: "network" } },
+                _or: [
+                  { partOfResources: { id: { equals: catalogueRouteParam } } },
+                  {
+                    partOfResources: {
+                      partOfResources: { id: { equals: catalogueRouteParam } },
+                    },
+                  },
+                ],
+              }
+            : { type: { tags: { equals: "network" } } },
           variablesFilter: scoped
             ? {
                 _or: [
@@ -81,9 +98,7 @@ export async function useHeaderData() {
 
   const catalogue = data.Resources ? data.Resources[0] : undefined;
   const variableCount = data.Variables_agg.count || 0;
-  const resourceTypes = data.Resources_groupBy.filter(
-    (resourceType: { count: number }) => resourceType.count > 0
-  );
-
-  return { catalogue, variableCount, resourceTypes };
+  const collectionCount = data.Collections_agg.count || 0;
+  const networkCount = data.Networks_agg.count || 0;
+  return { catalogue, variableCount, collectionCount, networkCount };
 }

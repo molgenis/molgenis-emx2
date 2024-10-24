@@ -8,12 +8,21 @@ const menu = [
   { label: "Home", link: `/${schema}/ssr-catalogue` },
   config.public.cohortOnly
     ? { label: "Cohorts", link: `/${schema}/ssr-catalogue/all/cohorts` }
-    : { label: "All resources", link: `/${schema}/ssr-catalogue/all` },
+    : {
+        label: "All collections",
+        link: `/${schema}/ssr-catalogue/all/collections`,
+      },
   config.public.cohortOnly
     ? undefined
     : {
         label: "All variables",
         link: `/${schema}/ssr-catalogue/all/variables`,
+      },
+  config.public.cohortOnly
+    ? undefined
+    : {
+        label: "All networks",
+        link: `/${schema}/ssr-catalogue/all/networks`,
       },
   {
     label: "Upload data",

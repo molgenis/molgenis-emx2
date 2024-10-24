@@ -30,6 +30,6 @@ test("Catalogue test number 1: Athlete network manager", async ({
     .getByRole("button")
     .click();
   await expect(page.getByRole("main")).toContainText("ATHLETE");
-  await expect(page.getByRole("main")).toContainText("Cohorts");
+  await expect(page.getByRole("main")).toContainText("Collections");
   await expect(page.getByRole("main")).toContainText("Variables");
 });

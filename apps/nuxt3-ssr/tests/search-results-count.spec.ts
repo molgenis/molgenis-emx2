@@ -21,26 +21,14 @@ test.beforeEach(async ({ context, baseURL }) => {
 });
 
 const numberOfResultsPattern = new RegExp(
-  /^(([a-zA-Z]{1,})?(\s)?(([0-9]{1,})\s(cohort studie([s])?|variable([s])?|data\ssource([s])?|result([s])?|networks([s])?)))$/
+  /^(([a-zA-Z]{1,})?(\s)?(([0-9]{1,})\s(cohort studie([s])?|variable([s])?|data\ssource([s])?|result([s])?|networks([s])?|collection([s])?)))$/
 );
 
-test("validate cohort search result counts @cohort-view @search-result-counts", async ({
+test("validate collection search result counts @collection-view @search-result-counts", async ({
   page,
   goto,
 }) => {
-  await goto("/catalogue-demo/ssr-catalogue/all/cohorts", {
-    waitUntil: "hydration",
-  });
-
-  const text = await page.locator(".search-results-count").textContent();
-  await expect(text).toMatch(numberOfResultsPattern);
-});
-
-test("validate data sources search result counts @data-sources-view @search-result-counts", async ({
-  page,
-  goto,
-}) => {
-  await goto("/catalogue-demo/ssr-catalogue/all/datasources", {
+  await goto("/catalogue-demo/ssr-catalogue/all/collections", {
     waitUntil: "hydration",
   });
 
