@@ -5,9 +5,9 @@ Cohort study,,,collection,,,,Observational studies of defined populations
 Common data model,,,collection,,,,
 Databank,,,collection,,,,
 Data source,,,collection,,,,
-Disease specific,,,remove?,,,,A study or biobank for which material and information is collected from subjects that have already developed a particular disease.
+Disease specific,,,collection,,,,A study or biobank for which material and information is collected from subjects that have already developed a particular disease.
 Health records,,,collection,,,,
 Network,,,network,,,,
-Rare disease,,,remove?,,,,A collection that is focusing on rare diseases
+Rare disease,,,collection,,,,A collection that is focusing on rare diseases
 Registry,,,collection,,,,
-Other type,,,remove?,,,,
+Other type,,,collection,,,,
