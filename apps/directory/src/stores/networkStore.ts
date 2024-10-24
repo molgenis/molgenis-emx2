@@ -18,7 +18,7 @@ export const useNetworkStore = defineStore("networkStore", () => {
       .table("Biobanks")
       .select(["name", "id", "description"])
       .where("network.id")
-      .like(netWorkId);
+      .equals(netWorkId);
     const biobanksResult = await biobanksQuery.execute();
 
     const reportQuery = new QueryEMX2(graphqlEndpoint)
@@ -34,7 +34,7 @@ export const useNetworkStore = defineStore("networkStore", () => {
         ...ContactInfoColumns,
       ])
       .where("id")
-      .like(netWorkId);
+      .equals(netWorkId);
     const networkResult = await reportQuery.execute();
 
     const collectionsColumns = collectionsStore.getCollectionColumns() as any;
@@ -42,7 +42,7 @@ export const useNetworkStore = defineStore("networkStore", () => {
       .table("Collections")
       .select(collectionsColumns)
       .where("network.id")
-      .like(netWorkId);
+      .equals(netWorkId);
     const collectionsResult = await collectionsQuery.execute();
 
     networkReport.value = {
