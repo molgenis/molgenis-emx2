@@ -311,6 +311,9 @@ public class SqlColumnExecutor {
                 // constraint so we can ensure unique labels on each level
                 .setDescription("User-friendly label for this term. Should be unique in parent")
                 .setSemantics("http://purl.obolibrary.org/obo/NCIT_C45561"),
+            column("tags")
+                .setType(STRING_ARRAY)
+                .setDescription("Any tags that you might need to slice and dice the ontology"),
             column("parent")
                 // .setKey(2)  when we upgrade to psql 15 so we can allow parent == null in
                 // constraint
