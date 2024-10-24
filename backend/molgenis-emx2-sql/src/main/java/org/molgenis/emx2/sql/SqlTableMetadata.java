@@ -221,7 +221,7 @@ class SqlTableMetadata extends TableMetadata {
 
     // if changing 'ref' then check if not refBack exists
     if (!oldColumn.getColumnType().equals(newColumn.getColumnType())) {
-      checkNotRefback(oldColumn);
+      checkNoRefbackExists(oldColumn);
     }
 
     // drop old key, if touched
@@ -272,7 +272,7 @@ class SqlTableMetadata extends TableMetadata {
     return tm;
   }
 
-  public static void checkNotRefback(Column column) {
+  public static void checkNoRefbackExists(Column column) {
     if (column.isReferenceWithRefback()) {
       throw new MolgenisException(
           "Drop/alter column '"
@@ -289,7 +289,7 @@ class SqlTableMetadata extends TableMetadata {
       throw new MolgenisException("Drop column " + name + " failed: column does not exist");
     }
     // if changing 'ref' then check if not refBack exists
-    checkNotRefback(column);
+    checkNoRefbackExists(column);
 
     long start = System.currentTimeMillis();
     if (getColumn(name) == null) return; // return silently, idempotent

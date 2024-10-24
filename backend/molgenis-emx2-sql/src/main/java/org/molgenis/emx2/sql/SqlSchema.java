@@ -384,7 +384,7 @@ public class SqlSchema implements Schema {
     for (TableMetadata mergeTable : mergeTableList) {
       // idempotent so we only drop if exists
       if (mergeTable.isDrop() && targetSchema.getTable(mergeTable.getOldName()) != null) {
-        checkRefback(mergeTable, mergeTableList);
+        checkNoRefbackExists(mergeTable, mergeTableList);
         targetSchema.getTable(mergeTable.getOldName()).getMetadata().drop();
       }
     }
@@ -395,7 +395,8 @@ public class SqlSchema implements Schema {
     }
   }
 
-  private static void checkRefback(TableMetadata mergeTable, List<TableMetadata> mergeTableList) {
+  private static void checkNoRefbackExists(
+      TableMetadata mergeTable, List<TableMetadata> mergeTableList) {
     for (Column column : mergeTable.getColumns()) {
       if (!column.isReferenceWithRefback()) continue;
 
