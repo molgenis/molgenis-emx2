@@ -7,6 +7,7 @@ import io.javalin.http.Context;
 import java.util.Optional;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.web.JavalinCustomHttpActionAdapter;
 import org.molgenis.emx2.web.MolgenisSessionManager;
 import org.pac4j.core.config.Config;
 import org.pac4j.core.context.session.SessionStore;
@@ -68,7 +69,7 @@ public class OIDCController {
   public void handleLoginCallback(Context ctx) {
     final JavalinWebContext context = new JavalinWebContext(ctx);
 
-    HttpActionAdapter adapter = new JavalinCustomHttpActionAdapter();
+    HttpActionAdapter adapter = JavalinCustomHttpActionAdapter.INSTANCE;
     final CallbackLogic callbackLogic =
         FindBest.callbackLogic(null, securityConfig, DefaultCallbackLogic.INSTANCE);
 

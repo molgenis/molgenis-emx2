@@ -3,7 +3,7 @@
     <PageHeader
       title="molgenis-viz"
       subtitle="Grouped Column Chart Example"
-      imageSrc="grouped-column-chart-header.jpg"
+      imageSrc="img/grouped-column-chart-header.jpg"
       height="large"
     />
     <PageSection :verticalPadding="0">
