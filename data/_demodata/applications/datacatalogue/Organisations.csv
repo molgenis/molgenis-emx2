@@ -86,7 +86,7 @@ test address for lead org 2 line 2
 test address for lead org 2 line 3",test expertise for lead org 2,"""Bonaire, Sint Eustatius and Saba""","Research interest,ENCePP center,Experience",Data provider,,,56,testCohort2,True
 test lead organisation 2,https://pid-for-leadorg2.org,acronym for test lead organisation 2,name for test lead organisation 2,EU Institution/Body/Agency,test other type of lead organisation,test lead organisation institution,acronym for test lead organisation institution,testemailforleadorg@testdomain.nl,,,"test address for lead org 2 line 1
 test address for lead org 2 line 2
-test address for lead org 2 line 3",test expertise for lead org 2,"""Bonaire, Sint Eustatius and Saba,Réunion""","Research interest,ENCePP center,Experience","Data provider,Other",,,,testCohort1,True
+test address for lead org 2 line 3",test expertise for lead org 2,"""Bonaire, Sint Eustatius and Saba"",Réunion","Research interest,ENCePP center,Experience","Data provider,Other",,,,testCohort1,True
 Test lead organisation 1,https://pid-for-leadorg1.org,ACRONYM FOR LEADORG1,Name for lead organisation 1,Regulatory Authority,other type of lead organisation,Test lead organisation institution,TLOI,support@molgenis.org,,,"test lead organisation address line 1
 test lead organisation address line 2
 test lead organisation address line 3",test lead organisation expertise,"Botswana,Holy See (the)","Research interest,ENCePP center,Experience","Data originator,Data holder,Data provider,Researcher,Surveillance,Other",,,,testCohort1,True
