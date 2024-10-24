@@ -359,3 +359,20 @@ describe("isRequired", () => {
     expect(isRequired("someValue > 0")).toEqual(false);
   });
 });
+
+describe("isValidHyperLink", () => {
+  test("may contain '(' and or ')'", () => {
+    expect(
+      constants.HYPERLINK_REGEX.test("https://example.com/test".toLowerCase())
+    ).toBe(true);
+    expect(
+      constants.HYPERLINK_REGEX.test("https://example.com/(test".toLowerCase())
+    ).toBe(true);
+    expect(
+      constants.HYPERLINK_REGEX.test("https://example.com/test)".toLowerCase())
+    ).toBe(true);
+    expect(
+      constants.HYPERLINK_REGEX.test("https://example.com/(test)".toLowerCase())
+    ).toBe(true);
+  });
+});
