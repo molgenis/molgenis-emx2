@@ -128,6 +128,15 @@ class Runner:
         """
         await self._update_schema(name=self.catalogue, database_type='catalogue')
 
+    async def unpack_catalogue(self):
+        """
+        Exports the catalogue schema zip and performs the updates without uploading the data.
+        """
+        logging.info(f"Unpacking {self.catalogue!r} data and performing data updates.")
+        await self._update_schema(name=self.catalogue, database_type='catalogue', transform_only=True)
+
+
+
     async def unpack_shared_staging(self):
         """
         Exports the SharedStaging zip and performs the updates without uploading the data.
@@ -230,7 +239,9 @@ async def main(pattern = None, debug: bool = False):
         logging.info(f"Updating schemas on {runner.target.url!r}")
 
         if debug:
-            runner.cohorts = ['STAIRS']
+            runner.cohorts = ['ABCD']
+            runner.data_sources = []
+            runner.networks = []
 
         if not runner.has_latest_ontologies():
             # Trigger CatalogueOntologies update by creating a dummy catalogue
@@ -248,6 +259,7 @@ async def main(pattern = None, debug: bool = False):
             await delete_dummy
 
         # Unpack and transform the catalogue data without uploading
+        await runner.unpack_catalogue()
         await runner.unpack_shared_staging()
 
         # Update the cohorts
@@ -269,4 +281,4 @@ if __name__ == '__main__':
     logging.getLogger("requests").setLevel(logging.WARNING)
     logging.getLogger("urllib3").setLevel(logging.WARNING)
 
-    asyncio.run(main(pattern='', debug=False))
+    asyncio.run(main(pattern='', debug=True))
