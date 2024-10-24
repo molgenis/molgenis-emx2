@@ -83,18 +83,16 @@ public class TableStoreForCsvFilesClasspath implements TableAndFileStore {
 
   @Override
   public BinaryFileWrapper getBinaryFileWrapper(String name) {
-
-    Optional<String> fileName =
-        storefiles.stream().filter(f -> f.startsWith(name + ".")).findFirst();
-
     try {
+      String fileName =
+          storefiles.stream().filter(f -> f.startsWith(name + ".")).findFirst().orElseThrow();
       byte[] bytes;
       try (InputStream stream =
-          getClass().getResourceAsStream(directoryPath + "/_files/" + fileName.orElseThrow())) {
+          getClass().getResourceAsStream(directoryPath + "/_files/" + fileName)) {
         bytes = Objects.requireNonNull(stream).readAllBytes();
       }
-      String mimetype = URLConnection.getFileNameMap().getContentTypeFor(fileName.get());
-      return new BinaryFileWrapper(mimetype, fileName.get(), bytes);
+      String mimetype = URLConnection.getFileNameMap().getContentTypeFor(fileName);
+      return new BinaryFileWrapper(mimetype, fileName, bytes);
 
     } catch (Exception ioe) {
       throw new MolgenisException("Import '" + name + "' failed: " + ioe.getMessage(), ioe);
