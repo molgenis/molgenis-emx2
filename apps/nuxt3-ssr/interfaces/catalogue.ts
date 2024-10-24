@@ -382,16 +382,16 @@ export interface IICDOTopologies {
   children?: IICDOTopologies[];
 }
 
-export interface IInclusionCriteria {
+export interface IInclusionExclusionCriteria {
   order?: number;
   name: string;
   label?: string;
-  parent?: IInclusionCriteria;
+  parent?: IInclusionExclusionCriteria;
   codesystem?: string;
   code?: string;
   ontologyTermURI?: string;
   definition?: string;
-  children?: IInclusionCriteria[];
+  children?: IInclusionExclusionCriteria[];
 }
 
 export interface IInformedConsentRequired {
@@ -416,6 +416,25 @@ export interface IInformedConsentTypes {
   ontologyTermURI?: string;
   definition?: string;
   children?: IInformedConsentTypes[];
+}
+
+export interface IInternalIdentifierTypes {
+  order?: number;
+  name: string;
+  label?: string;
+  parent?: IInternalIdentifierTypes;
+  codesystem?: string;
+  code?: string;
+  ontologyTermURI?: string;
+  definition?: string;
+  children?: IInternalIdentifierTypes[];
+}
+
+export interface IInternalIdentifiers {
+  resource: IResources;
+  identifier: string;
+  internalIdentifierType?: IOntologyNode;
+  internalIdentifierTypeOther?: string;
 }
 
 export interface IKeywords {
@@ -667,7 +686,8 @@ export interface IResources {
   networkType?: IOntologyNode[];
   website?: string;
   description?: string;
-  keywords?: string;
+  keywords?: string[];
+  internalIdentifiers?: IInternalIdentifiers[];
   externalIdentifiers?: IExternalIdentifiers[];
   startYear?: number;
   endYear?: number;
@@ -698,6 +718,8 @@ export interface IResources {
   populationAgeGroups?: IOntologyNode[];
   inclusionCriteria?: IOntologyNode[];
   otherInclusionCriteria?: string;
+  exclusionCriteria?: IOntologyNode[];
+  otherExclusionCriteria?: string;
   populationEntry?: IOntologyNode[];
   populationEntryOther?: string;
   populationExit?: IOntologyNode[];
@@ -948,6 +970,7 @@ export interface ISubpopulations {
   countries?: IOntologyNode[];
   regions?: IOntologyNode[];
   inclusionCriteria?: string;
+  exclusionCriteria?: string;
 }
 
 export interface ITitles {
