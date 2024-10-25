@@ -86,10 +86,10 @@ test address for lead org 2 line 2
 test address for lead org 2 line 3",test expertise for lead org 2,"""Bonaire, Sint Eustatius and Saba""","Research interest,ENCePP center,Experience",Data provider,,,56,testCohort2,True
 test lead organisation 2,https://pid-for-leadorg2.org,acronym for test lead organisation 2,name for test lead organisation 2,EU Institution/Body/Agency,test other type of lead organisation,test lead organisation institution,acronym for test lead organisation institution,testemailforleadorg@testdomain.nl,,,"test address for lead org 2 line 1
 test address for lead org 2 line 2
-test address for lead org 2 line 3",test expertise for lead org 2,"""Bonaire, Sint Eustatius and Saba""","Research interest,ENCePP center,Experience",Data provider,,,,testCohort1,True
-Test lead organisation 1,https://pid-for-leadorg1.org,ACRONYM FOR LEADORG1,Name for lead organisation 1,Regulatory Authority,other type of lead organisation,Test lead organisation institution,TLOI,molgenis-support@umcg.nl,,,"test lead organisation address line 1
+test address for lead org 2 line 3",test expertise for lead org 2,"""Bonaire, Sint Eustatius and Saba"",Réunion","Research interest,ENCePP center,Experience","Data provider,Other",,,,testCohort1,True
+Test lead organisation 1,https://pid-for-leadorg1.org,ACRONYM FOR LEADORG1,Name for lead organisation 1,Regulatory Authority,other type of lead organisation,Test lead organisation institution,TLOI,support@molgenis.org,,,"test lead organisation address line 1
 test lead organisation address line 2
-test lead organisation address line 3",test lead organisation expertise,Botswana,"Research interest,ENCePP center,Experience","Data originator,Data holder,Data provider,Researcher,Surveillance,Other",,,,testCohort1,True
+test lead organisation address line 3",test lead organisation expertise,"Botswana,Holy See (the)","Research interest,ENCePP center,Experience","Data originator,Data holder,Data provider,Researcher,Surveillance,Other",,,,testCohort1,True
 AMC,,AMC,Amsterdam Medical Center ,University,,,,,,,,,Netherlands (the),,,,,,testNetwork2,
 AMC,,AMC,Amsterdam Medical Center ,University,,,,,,,,,Netherlands (the),,,,,,testNetworkofNetworks,
 AMC,,AMC,Amsterdam Medical Center ,University,,,,,,,,,Netherlands (the),,,,,,testNetwork1,
@@ -169,15 +169,15 @@ ULST,,ULST,University of Ulster,Academic institution,,,,,,,,,United Kingdom of G
 UMCG,,UMCG,University Medical Center Groningen,Academic institution,,,,,,,,,Netherlands (the),,,,The University Medical Center Groningen (UMCG) is one of 8 university medical centers in the Netherlands.,,OOM,
 LIPRE,,LIPRE,Leibniz Institute for Prevention Research and Epidemiology,Research centre,,,,,,,,,Germany,,,,,,OOM,
 LIPRE,,LIPRE,Leibniz Institute for Prevention Research and Epidemiology,Research centre,,,,,,,,,Germany,,,,,,ACCESS,
-Test additional organisation 1,https://pid-for-additionalorg1.org,acronym for test additional organisation 1,name of test additional organisation 1,"Company,Pharmaceutical company,Non-Pharmaceutical company,SME",other type of additional organisation 1,Institution for additional organisation 1,acronym for institution for additional organisation 1,molgenis-support@umcg.nl,,,"test address for additional organisation line 1
+Test additional organisation 1,https://pid-for-additionalorg1.org,acronym for test additional organisation 1,name of test additional organisation 1,"Company,Pharmaceutical company,Non-Pharmaceutical company,SME",other type of additional organisation 1,Institution for additional organisation 1,acronym for institution for additional organisation 1,support@molgenis.org,,,"test address for additional organisation line 1
 test address for additional organisation line 2
-test address for additional organisation line 3",test expertise of additional organisation,Canada,Experience,Surveillance,,,,testCohort1,
+test address for additional organisation line 3",test expertise of additional organisation,"Canada,Western Sahara*",Experience,"Researcher,Surveillance",,,,testCohort1,
 id for test additional organisation 2,https://pid-for-additionalorg2.org,acronym for test additional organisation 2,name for test additional organisation 2,Research centre,test other type of additional organisation,test institution for additional organisation 2,acronym for institution for additional organisation 2,testemailaddorg@testdomain.nl,,,"test address for additional org 2 line 1
 test address for additional org 2 line 2
 test address for additional org 2 line 3",test expertise for additional org 2,Bosnia and Herzegovina,Experience,"Data provider,Surveillance",,,56,testCohort2,
 id for test additional organisation 2,https://pid-for-additionalorg2.org,acronym for test additional organisation 2,name for test additional organisation 2,Research centre,test other type of additional organisation,test institution for additional organisation 2,acronym for institution for additional organisation 2,testemailaddorg@testdomain.nl,,,"test address for additional org 2 line 1
 test address for additional org 2 line 2
-test address for additional org 2 line 3",test expertise for additional org 2,Bosnia and Herzegovina,Experience,"Data provider,Surveillance",,,,testCohort1,
+test address for additional org 2 line 3",test expertise for additional org 2,"Bosnia and Herzegovina,Mayotte",Experience,"Data provider,Surveillance",,,,testCohort1,
 EMC,,EMC,Erasmus MC,University,,,,,,,,,Netherlands (the),,,,,28,LifeCycle,
 UOULU,,UOULU,University of Oulu,University,,,,,,,,,Finland,,,,,25,HPV,
 UOULU,,UOULU,University of Oulu,University,,,,,,,,,Finland,,,,,29,LongITools,

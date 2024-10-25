@@ -3,7 +3,7 @@
     <PageHeader
       title="Recon4imd: IMD-hub"
       subtitle="Participant recruitment dashboard"
-      imageSrc="recon4imd_header.jpg"
+      imageSrc="img/recon4imd_header.jpg"
       height="medium"
     />
     <Dashboard
@@ -57,5 +57,6 @@ import {
   DashboardRow,
   DashboardChart,
   GeoMercatorEmx,
+  // @ts-ignore
 } from "molgenis-viz";
 </script>
