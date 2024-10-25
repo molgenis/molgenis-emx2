@@ -43,7 +43,8 @@ public class SchemaMetadata extends HasSettings<SchemaMetadata> {
   }
 
   private void validateSchemaName(String name) {
-    if (!name.matches(Constants.SCHEMA_NAME_REGEX)) {
+    // we only allow _SYSTEM_
+    if (!name.matches(Constants.SCHEMA_NAME_REGEX) && !name.equals("_SYSTEM_")) {
       throw new MolgenisException("Invalid schema name '" + name + SCHEMA_NAME_MESSAGE);
     }
     if (name == null || name.isEmpty())
