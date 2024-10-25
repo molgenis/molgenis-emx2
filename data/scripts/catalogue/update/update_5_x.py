@@ -148,9 +148,9 @@ class Transform:
             # infer resource type from cohort type
             df_cohorts['type'] = df_cohorts['cohort type'].apply(get_resource_type)
             # delete cohort type 'Study', 'Registry', 'Clinical trial' and 'Biobank'
-            df_cohorts.loc[:, 'cohort type'] = df_cohorts['cohort type'].apply(get_cohort_type)
+            df_cohorts['cohort type'] = df_cohorts['cohort type'].apply(get_cohort_type)
             # reformat keywords
-            df_cohorts.loc[:, 'keywords'] = df_cohorts['keywords'].apply(reformat_keywords)
+            df_cohorts['keywords'] = df_cohorts['keywords'].apply(reformat_keywords)
             # get resources that are part of network
             if self.database_type in ['cohort']:
                 cols_to_find = ['studies']
@@ -190,10 +190,10 @@ class Transform:
                                             'informed consent': 'informed consent required'}, inplace=True)
 
             # transform dates to years
-            df_data_sources.loc[:, 'start year'] = df_data_sources['date established'].apply(get_year_from_date)
-            df_data_sources.loc[:, 'end year'] = df_data_sources['end data collection'].apply(get_year_from_date)
+            df_data_sources['start year'] = df_data_sources['date established'].apply(get_year_from_date)
+            df_data_sources['end year'] = df_data_sources['end data collection'].apply(get_year_from_date)
             # transform keywords
-            df_data_sources.loc[:, 'keywords'] = df_data_sources['keywords'].apply(reformat_keywords)
+            df_data_sources['keywords'] = df_data_sources['keywords'].apply(reformat_keywords)
 
             df_data_sources['type'] = 'Data source'
 
@@ -205,10 +205,10 @@ class Transform:
                                          'informed consent': 'informed consent required'}, inplace=True)
 
             # transform dates to years
-            df_databanks.loc[:, 'start year'] = df_databanks['date established'].apply(get_year_from_date)
-            df_databanks.loc[:, 'end year'] = df_databanks['end data collection'].apply(get_year_from_date)
+            df_databanks['start year'] = df_databanks['date established'].apply(get_year_from_date)
+            df_databanks['end year'] = df_databanks['end data collection'].apply(get_year_from_date)
             # transform keywords
-            df_databanks.loc[:, 'keywords'] = df_databanks['keywords'].apply(reformat_keywords)
+            df_databanks['keywords'] = df_databanks['keywords'].apply(reformat_keywords)
 
             df_databanks['type'] = 'Databank'
 
@@ -300,14 +300,14 @@ class Transform:
         if not len(df_publications) == 0:
             if self.database_type != 'network':
                 df_design_paper = df_resources[['id', 'design paper']].copy()
-                df_design_paper.loc[:, 'is design publication'] = 'true'
+                df_design_paper['is design publication'] = 'true'
                 df_design_paper = df_design_paper.rename(columns={'id': 'resource',
                                                                   'design paper': 'doi'})
                 df_design_paper = df_design_paper.dropna(axis=0)
 
             if self.database_type != 'cohort_UMCG':
                 df_other_pubs = df_resources[['id', 'publications']].copy()
-                df_other_pubs.loc[:, 'is design publication'] = 'false'
+                df_other_pubs['is design publication'] = 'false'
                 df_other_pubs = df_other_pubs.rename(columns={'id': 'resource',
                                                               'publications': 'doi'})
                 df_other_pubs = df_other_pubs.dropna(axis=0)
@@ -336,14 +336,14 @@ class Transform:
         logging.debug(f"Transforming 'Network variables'")
         df = pd.read_csv(self.path / 'Network variables.csv', keep_default_na=False, dtype='object')
         df_repeats = pd.read_csv(self.path / 'Repeated variables.csv', dtype='object')
-        df.loc[:, 'resource'] = df['network'].apply(strip_resource)
-        df.loc[:, 'variable.resource'] = df['variable.resource'].apply(strip_resource)
+        df['resource'] = df['network'].apply(strip_resource)
+        df['variable.resource'] = df['variable.resource'].apply(strip_resource)
 
         # remove end digits from repeated variable names
-        df.loc[:, 'stripped_var'] = df['variable.name'].apply(remove_number)  # remove end digits from all variable names
-        # df.loc[:, 'repeated'] = df['variable.name'].apply(is_repeated_variable, df_repeats=df_repeats)  # check if variable is repeated
+        df['stripped_var'] = df['variable.name'].apply(remove_number)  # remove end digits from all variable names
+        # df['repeated'] = df['variable.name'].apply(is_repeated_variable, df_repeats=df_repeats)  # check if variable is repeated
         df['repeated'] = df['variable.name'].isin(df_repeats[['name', 'is repeat of.name']])  # check if variable is repeated
-        df.loc[:, 'variable.name'] = df.apply(lambda x: x['stripped_var'] if x.repeated else x['variable.name'], axis=1)  # if repeated, keep stripped variable name
+        df['variable.name'] = df.apply(lambda x: x['stripped_var'] if x.repeated else x['variable.name'], axis=1)  # if repeated, keep stripped variable name
 
         df = df.drop_duplicates(subset=['resource', 'variable.resource', 'variable.name'])
         df.to_csv(self.path / 'Reused variables.csv', index=False)
@@ -357,14 +357,14 @@ class Transform:
         df_var_values = df_var_values.rename(columns={'variable.dataset': 'dataset',
                                                       'variable.name': 'variable'})
 
-        df_var_values.loc[:, 'resource'] = df_var_values['resource'].apply(strip_resource)
+        df_var_values['resource'] = df_var_values['resource'].apply(strip_resource)
         df_repeats = pd.read_csv(self.path / 'Repeated variables.csv', dtype='object')
 
         df_var_values_cdm = df_var_values[df_var_values['resource'].isin(['testNetwork1', *networks])].copy()
         # remove end digits from repeated variable names
         df_var_values_cdm['stripped_var'] = df_var_values_cdm['variable'].apply(remove_number)  # remove end digits from all variable names
         df_var_values_cdm['repeated'] = df_var_values_cdm['variable'].isin(df_repeats[['name', 'is repeat of.name']])
-        df_var_values_cdm.loc[:, 'variable'] = df_var_values_cdm.apply(lambda x: x['stripped_var'] if x.repeated else x['variable'], axis=1)  # if repeated, keep stripped variable name
+        df_var_values_cdm['variable'] = df_var_values_cdm.apply(lambda x: x['stripped_var'] if x.repeated else x['variable'], axis=1)  # if repeated, keep stripped variable name
 
         df_var_values_no_cdm = df_var_values[~df_var_values['resource'].isin(['testNetwork1', *networks])]
 
@@ -380,12 +380,12 @@ class Transform:
 
         # restructure Variables
         df_variables = pd.read_csv(self.path / 'Variables.csv', keep_default_na=False, dtype='object')
-        df_variables.loc[:, 'resource'] = df_variables['resource'].apply(strip_resource)
+        df_variables['resource'] = df_variables['resource'].apply(strip_resource)
         df_variables_cdm = pd.DataFrame()
 
         # restructure repeated variables inside variables dataframe
         df_repeats = pd.read_csv(self.path / 'Repeated variables.csv', dtype='object')
-        df_repeats.loc[:, 'resource'] = df_repeats['resource'].apply(strip_resource)
+        df_repeats['resource'] = df_repeats['resource'].apply(strip_resource)
         df_variables['is_repeated'] = df_variables['name'].isin(df_repeats[['is repeat of.name']])
 
         # select athlete, lifecycle, expanse and testNetwork1 variables and restructure (these contain repeats)
@@ -394,8 +394,8 @@ class Transform:
             df_variables_cdm = df_variables[df_variables['resource'].isin(['testNetwork1', *networks])].copy()
 
             # remove end digits from repeated variable names
-            df_variables_cdm.loc[:, 'stripped_name'] = df_variables_cdm['name'].apply(remove_number)  # remove end digits from all vars
-            df_variables_cdm.loc[:, 'name'] = df_variables_cdm.apply(lambda v: v.stripped_name if v.is_repeated else v['name'], axis=1)  # if repeated, keep stripped var name
+            df_variables_cdm['stripped_name'] = df_variables_cdm['name'].apply(remove_number)  # remove end digits from all vars
+            df_variables_cdm['name'] = df_variables_cdm.apply(lambda v: v.stripped_name if v.is_repeated else v['name'], axis=1)  # if repeated, keep stripped var name
             df_variables_cdm = restructure_repeats(df_variables_cdm, df_repeats)
 
         # select variables that are not in LifeCycle or ATHLETE or testNetwork1
@@ -419,44 +419,31 @@ class Transform:
         if len(df.index) == 0:
             return
 
-        df['target'] = df['target'].apply(strip_resource)  # delete appendix '_CDM'
-        df['repeat_num'] = df['target variable'].apply(get_repeat_number)  # get repeat of target variable
+        # Strip the '_CDM' suffix from the target resource
+        df['target'] = df['target'].apply(strip_resource)
+        # Split the target variable name in the base name and repeat number
+        df['repeat_num'] = df['target variable'].apply(get_repeat_number)
+        df['stripped_var'] = df['target variable'].apply(remove_number)
 
-        # divide into CDMs with repeats and CDMs without repeats
-        df_cdm_with_repeats = df[df['target'].isin(['LifeCycle', 'ATHLETE', 'testNetwork1', 'EXPANSE'])].copy()
-        df_cdm_no_repeats = df[~df['target'].isin(['LifeCycle', 'ATHLETE', 'testNetwork1', 'EXPANSE'])].copy()
+        # Aggregate the repeat numbers for the same target variables into a sorted list under the 'repeats' column
+        columns = df.columns.drop(['repeat_num', 'target variable']).to_list()
+        df_n = df.groupby(columns).agg({'repeat_num': list}).reset_index()
+        df_n['repeats'] = df_n['repeat_num'].apply(lambda x: ', '.join(sorted(x)))
 
-        if len(df_cdm_with_repeats) == 0:
-            return
+        # Correct the columns and save to file
+        df_n = df_n.drop(columns=['repeat_num'])
+        df_n = df_n.rename(columns={'stripped_var': 'target variable'})
+        df_n.to_csv(self.path / 'Variable mappings.csv', index=False)
 
-        df_repeats = pd.read_csv(FILES_DIR / (CATALOGUE_SCHEMA_NAME + '_data/') / 'Repeated variables.csv', keep_default_na=False, dtype='object')
-
-        # remove end digits from repeated variable names
-        df_cdm_with_repeats['stripped_var'] = df_cdm_with_repeats['target variable'].apply(remove_number)  # remove end digits from all target var names
-        df_cdm_with_repeats['repeated'] = df_cdm_with_repeats['target variable'].isin(df_repeats[['name', 'is repeat of.name']]) # check whether target var is repeated
-        df_cdm_with_repeats['target variable'] = df_cdm_with_repeats.apply(lambda x: x['stripped_var'] if x.repeated else x['target variable'], axis=1)  # if repeated, keep stripped var name               df_cdm = df_cdm.fillna('')
-
-        # drop duplicate mappings
-        df_no_duplicates = df_cdm_with_repeats.drop_duplicates(subset=['source', 'source dataset', 'source variables',
-                                                                       'source variables other datasets.dataset',
-                                                                       'source variables other datasets.name',
-                                                                       'target', 'target dataset', 'target variable',
-                                                                       'match', 'syntax', 'comments', 'description'])
-        df_no_duplicates = df_no_duplicates.fillna('')
-
-        # get repeated mappings in comma separated string
-        df_mappings = rewrite_mappings(df_cdm_with_repeats, df_no_duplicates)
-        df_mappings = pd.concat([df_mappings, df_cdm_no_repeats])
-        df_mappings.to_csv(self.path / 'Variable mappings.csv', index=False)
 
     def collection_events(self):
         """ Transform Collection events table
         """
         logging.debug(f"Transforming 'Collection events'")
         df = pd.read_csv(self.path / 'Collection events.csv', dtype='object')
-        df.loc[:, 'start month'] = df['start month'].apply(month_to_num, start_or_end='start')
+        df['start month'] = df['start month'].apply(month_to_num, start_or_end='start')
         df['start date'] = df['start year'].astype('Int64').astype('string') + '-' + df['start month'] + '-01'
-        df.loc[:, 'end month'] = df['end month'].apply(month_to_num, start_or_end='end')
+        df['end month'] = df['end month'].apply(month_to_num, start_or_end='end')
         df['end day'] = df['end month'].apply(get_end_day)
         df['end date'] = df['end year'].astype('Int64').astype('string') + '-' + df['end month'] + '-' + df['end day']
 
@@ -476,11 +463,11 @@ class Transform:
         if table_name + '.csv' in os.listdir(self.path):
             df = pd.read_csv(self.path / (table_name + '.csv'), keep_default_na=False, dtype='object')
             if 'resource' in df.columns:
-                df.loc[:, 'resource'] = df['resource'].apply(strip_resource)  # removes _CDM from 'model' name
+                df['resource'] = df['resource'].apply(strip_resource)  # removes _CDM from 'model' name
             if 'target' in df.columns:
-                df.loc[:, 'target'] = df['target'].apply(strip_resource)
+                df['target'] = df['target'].apply(strip_resource)
             if 'subcohorts' in df.columns:
-                df.loc[:, 'subcohorts'] = df['subcohorts'].apply(strip_resource)
+                df['subcohorts'] = df['subcohorts'].apply(strip_resource)
 
             df.rename(columns={'subcohort.resource': 'resource',
                                'subcohort.name': 'subpopulation',
@@ -540,8 +527,8 @@ def restructure_repeats(df_variables, df_repeats):
                                                      df_variables['collection event.name'])
 
     # derive repeat unit and repeat min and max
-    df_variables.loc[:, 'repeat unit'] = df_variables['name'].apply(get_repeat_unit, df=df_repeats)  # get repeat unit from repeat_num
-    df_variables.loc[:, 'repeat min'] = ''
+    df_variables['repeat unit'] = df_variables['name'].apply(get_repeat_unit, df=df_repeats)  # get repeat unit from repeat_num
+    df_variables['repeat min'] = ''
     df_variables.loc[df_variables['is_repeated'], 'repeat min'] = 0
     df_variables.loc[df_variables['repeat unit'] == 'Month', 'repeat max'] = 270
     df_variables.loc[df_variables['repeat unit'] == 'Week', 'repeat max'] = 42
@@ -560,13 +547,13 @@ def remove_number(var_name):
 
 def get_repeat_unit(var_name, df):
     # monthly (0-270), yearly (0-21 or 0-17), weekly (0-42), trimester (t1-t3)
-    if var_name + '270' in df['name'].to_list():
+    if var_name + '270' in df['name'].values:
         return 'Month'
-    elif var_name + '42' in df['name'].to_list():
+    elif var_name + '42' in df['name'].values:
         return 'Week'
-    elif var_name + '17' in df['name'].to_list():
+    elif var_name + '17' in df['name'].values:
         return 'Year'
-    elif var_name + '3' in df['name'].to_list():
+    elif var_name + '3' in df['name'].values:
         return 'Trimester'
 
 
@@ -574,48 +561,6 @@ def get_repeat_number(s):
     # get repeat number from target variable
     repeat_num = re.sub('.*?([0-9]*)$',r'\1',s)
     return repeat_num
-
-
-def rewrite_mappings(df, df_no_duplicates):
-    df_no_duplicates.loc[:, 'repeats'] = ''
-    df_mappings = pd.DataFrame()
-    # divide df_no_duplicates per source
-    list_source = df['source'].drop_duplicates().tolist()  # list all sources (e.g. cohorts)
-    for source in list_source:
-        # select unique mappings per source
-        df_no_duplicates_per_source = df_no_duplicates[df_no_duplicates['source'] == source]
-        # select original mappings per source
-        df_per_source = df[df['source'] == source]
-        df_no_duplicates_per_source = get_repeated_mappings_per_source(df_per_source, df_no_duplicates_per_source)
-        df_mappings = pd.concat([df_mappings, df_no_duplicates_per_source])
-
-    return df_mappings
-
-
-def get_repeated_mappings_per_source(df_per_source, df_no_duplicates_per_source):
-    for i in df_no_duplicates_per_source.index:
-        # select all repeats with a matching source, target, match and syntax etc.
-        df_select_repeats = df_per_source[(df_per_source['source'] == df_no_duplicates_per_source['source'][i]) &
-                                          (df_per_source['source dataset'] == df_no_duplicates_per_source['source dataset'][i]) &
-                                          (df_per_source['source variables'] == df_no_duplicates_per_source['source variables'][i]) &
-                                          (df_per_source['source variables other datasets.dataset'] == df_no_duplicates_per_source['source variables other datasets.dataset'][i]) &
-                                          (df_per_source['source variables other datasets.name'] == df_no_duplicates_per_source['source variables other datasets.name'][i]) &
-                                          (df_per_source['target'] == df_no_duplicates_per_source['target'][i]) &
-                                          (df_per_source['target dataset'] == df_no_duplicates_per_source['target dataset'][i]) &
-                                          (df_per_source['target variable'] == df_no_duplicates_per_source['target variable'][i]) &
-                                          (df_per_source['match'] == df_no_duplicates_per_source['match'][i]) &
-                                          (df_per_source['syntax'] == df_no_duplicates_per_source['syntax'][i]) &
-                                          (df_per_source['comments'] == df_no_duplicates_per_source['comments'][i]) &
-                                          (df_per_source['description'] == df_no_duplicates_per_source['description'][i])]
-        # get matching repeat numbers in repeat_num column
-        repeats = df_select_repeats['repeat_num'].to_list()  # list repeats
-        repeats = [int(x) for x in repeats if not x == '']  # cast repeats to integers
-        repeats.sort()  # sort repeat numbers
-        repeats = str(repeats)
-        repeats = repeats.translate({ord(c): None for c in "[]"})
-        df_no_duplicates_per_source.loc[i, 'repeats'] = repeats
-
-    return df_no_duplicates_per_source
 
 
 def get_organisations(df_organisations, df_resource):

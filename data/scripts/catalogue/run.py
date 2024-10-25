@@ -133,7 +133,7 @@ class Runner:
         Exports the catalogue schema zip and performs the updates without uploading the data.
         """
         logging.info(f"Unpacking {self.catalogue!r} data and performing data updates.")
-        await self._update_schema(name=self.catalogue, database_type='catalogue', transform_only=True)
+        await self._update_schema(name=self.catalogue, database_type='catalogue', transform_only=False)
 
 
 
@@ -258,8 +258,11 @@ async def main(pattern = None, debug: bool = False):
 
             await delete_dummy
 
-        # Unpack and transform the catalogue data without uploading
-        await runner.unpack_catalogue()
+
+        # Update the catalogue
+        await runner.update_catalogue()
+
+        # Unpack and transform SharedStaging data without uploading
         await runner.unpack_shared_staging()
 
         # Update the cohorts
@@ -268,9 +271,6 @@ async def main(pattern = None, debug: bool = False):
         if runner.server_type == 'data_catalogue':
             await runner.update_data_sources()
             await runner.update_networks()
-
-        # Update the catalogue
-        await runner.update_catalogue()
 
     # Clean up
     shutil.rmtree(FILES_DIR)
