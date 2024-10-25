@@ -150,7 +150,7 @@ class Transform:
 
             # get resources that are part of network
             if self.database_type == 'catalogue':
-                cols_to_find = ['networks', 'cohorts', 'data sources', 'databanks']
+                cols_to_find = ['networks', 'cohorts', 'data sources', 'databanks']  # TODO: get models?
             elif self.database_type == 'network':
                 cols_to_find = ['cohorts', 'data sources', 'databanks']
             i_cols = [df_networks.columns.get_loc(col) for col in cols_to_find]
