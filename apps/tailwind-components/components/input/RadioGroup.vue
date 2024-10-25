@@ -60,6 +60,6 @@ withDefaults(
 const modelValue = defineModel<string | boolean>();
 
 function resetModelValue() {
-  modelValue.value = "";
+  modelValue.value = undefined;
 }
 </script>

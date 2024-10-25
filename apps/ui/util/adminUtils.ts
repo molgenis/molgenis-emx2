@@ -20,7 +20,7 @@ export async function updateUser(user: IUser) {
     method: "post",
     body: {
       query: `mutation updateUser($updateUser:InputUpdateUser) {updateUser(updateUser:$updateUser){status, message}}`,
-      updateUser: updateUser,
+      variables: { updateUser },
     },
   }).catch((error) => {
     handleError("Error updating user: ", error.value);

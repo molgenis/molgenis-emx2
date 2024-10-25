@@ -82,6 +82,7 @@ import {
  *  Buttongroup
  *  Icon button with tooltip
  *  Wider modal
+ *  Modal without background scrolling
  *  Generic table components
  *  Password input
  *  Select with more complex objects
@@ -92,10 +93,9 @@ import {
  *  Todos (might be other stories)
  *  Where to put enable/disable; behind edit or button toggle -> doesn't really matter, so modal
  *  Do certain actions need confirmation dialog? -> yes
- *  Don't be able to delete admin/anonymous
  *  Does password creating/changing need a double input? -> yes
  *  Do we want a modal for creation with more options or is create into edit fine? -> modal
- *  Search bar for users (100s of users)
+ *  Search bar for users (scale: 100s of users)
  */
 
 /**

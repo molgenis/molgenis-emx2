@@ -9,10 +9,7 @@ import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.*;
 
 import graphql.Scalars;
 import graphql.schema.*;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import org.molgenis.emx2.*;
 
 public class GraphqlAdminFieldFactory {
@@ -173,21 +170,22 @@ public class GraphqlAdminFieldFactory {
         .argument(GraphQLArgument.newArgument().name("updateUser").type(updateUserType))
         .dataFetcher(
             dataFetchingEnvironment -> {
-              String email = dataFetchingEnvironment.getArgument(EMAIL);
+              LinkedHashMap updatedUser = dataFetchingEnvironment.getArgument("updateUser");
+              String email = (String) updatedUser.get(EMAIL);
               if (email != null) {
                 User user = database.getUser(email);
 
-                String password = dataFetchingEnvironment.getArgument(PASSWORD);
+                String password = (String) updatedUser.get(PASSWORD);
                 if (password != null) {
-                 database.setUserPassword(email, password);
+                  database.setUserPassword(email, password);
                 }
 
-                Map<String, String> roles = dataFetchingEnvironment.getArgument(ROLES);
+                ArrayList<Map<String, String>> roles = (ArrayList<Map<String, String>>) updatedUser.get(ROLES);
                 if (roles != null) {
                   // update roles
                 }
 
-                Boolean enabled = dataFetchingEnvironment.getArgument(ENABLED);
+                Boolean enabled = (Boolean) updatedUser.get(ENABLED);
                 if (enabled != null) {
                   user.setEnabled(enabled);
                 }

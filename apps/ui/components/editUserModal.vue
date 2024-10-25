@@ -13,7 +13,7 @@
           { value: true, label: 'Enabled' },
           { value: false, label: 'Disabled' },
         ]"
-        :modelValue="isEnabled"
+        v-model="isEnabled"
       />
     </div>
 
