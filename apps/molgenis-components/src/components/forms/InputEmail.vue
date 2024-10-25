@@ -111,7 +111,7 @@ span:hover .hoverIcon {
       id="input-email5"
       v-model="value"
       :stringLength="8"
-      label="maximum stringLength (4)"
+      label="maximum stringLength (8)"
     />
   </div>
 </template>
