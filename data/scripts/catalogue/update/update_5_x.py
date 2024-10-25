@@ -342,7 +342,7 @@ class Transform:
         # remove end digits from repeated variable names
         df['stripped_var'] = df['variable.name'].apply(remove_number)  # remove end digits from all variable names
         # df['repeated'] = df['variable.name'].apply(is_repeated_variable, df_repeats=df_repeats)  # check if variable is repeated
-        df['repeated'] = df['variable.name'].isin(df_repeats[['name', 'is repeat of.name']])  # check if variable is repeated
+        df['repeated'] = df['variable.name'].isin(df_repeats[['name', 'is repeat of.name']].stack())  # check if variable is repeated
         df['variable.name'] = df.apply(lambda x: x['stripped_var'] if x.repeated else x['variable.name'], axis=1)  # if repeated, keep stripped variable name
 
         df = df.drop_duplicates(subset=['resource', 'variable.resource', 'variable.name'])
@@ -363,7 +363,7 @@ class Transform:
         df_var_values_cdm = df_var_values[df_var_values['resource'].isin(['testNetwork1', *networks])].copy()
         # remove end digits from repeated variable names
         df_var_values_cdm['stripped_var'] = df_var_values_cdm['variable'].apply(remove_number)  # remove end digits from all variable names
-        df_var_values_cdm['repeated'] = df_var_values_cdm['variable'].isin(df_repeats[['name', 'is repeat of.name']])
+        df_var_values_cdm['repeated'] = df_var_values_cdm['variable'].isin(df_repeats[['name', 'is repeat of.name']].stack())
         df_var_values_cdm['variable'] = df_var_values_cdm.apply(lambda x: x['stripped_var'] if x.repeated else x['variable'], axis=1)  # if repeated, keep stripped variable name
 
         df_var_values_no_cdm = df_var_values[~df_var_values['resource'].isin(['testNetwork1', *networks])]
@@ -386,7 +386,7 @@ class Transform:
         # restructure repeated variables inside variables dataframe
         df_repeats = pd.read_csv(self.path / 'Repeated variables.csv', dtype='object')
         df_repeats['resource'] = df_repeats['resource'].apply(strip_resource)
-        df_variables['is_repeated'] = df_variables['name'].isin(df_repeats[['is repeat of.name']])
+        df_variables['is_repeated'] = df_variables['name'].isin(df_repeats['is repeat of.name'])
 
         # select athlete, lifecycle, expanse and testNetwork1 variables and restructure (these contain repeats)
         if self.database_type in ['catalogue', 'network'] and \
@@ -419,20 +419,31 @@ class Transform:
         if len(df.index) == 0:
             return
 
+        networks = ['testNetwork1', 'LifeCycle', 'ATHLETE', 'EXPANSE']
+
+        df_repeats = pd.read_csv(self.path / 'Repeated variables.csv', dtype='object')
+        df_repeats['resource'] = df_repeats['resource'].apply(strip_resource)
         # Strip the '_CDM' suffix from the target resource
         df['target'] = df['target'].apply(strip_resource)
+
+        df['is_repeated'] = df['target variable'].isin(df_repeats[['name', 'is repeat of.name']].stack())
+        df['in_network'] = df['target'].isin(networks)
+
         # Split the target variable name in the base name and repeat number
         df['repeat_num'] = df['target variable'].apply(get_repeat_number)
         df['stripped_var'] = df['target variable'].apply(remove_number)
 
+        df['target variable'] = df.apply(lambda row: row['stripped_var']
+                                         if (row['is_repeated'] and row['in_network'])
+                                         else row['target variable'], axis=1)
+
         # Aggregate the repeat numbers for the same target variables into a sorted list under the 'repeats' column
-        columns = df.columns.drop(['repeat_num', 'target variable']).to_list()
+        columns = df.columns.drop(['repeat_num']).to_list()
         df_n = df.groupby(columns).agg({'repeat_num': list}).reset_index()
-        df_n['repeats'] = df_n['repeat_num'].apply(lambda x: ', '.join(sorted(x)))
+        df_n['repeats'] = df_n.apply(lambda row: ', '.join(map(str, sorted(row['repeat_num']))), axis=1)
 
         # Correct the columns and save to file
-        df_n = df_n.drop(columns=['repeat_num'])
-        df_n = df_n.rename(columns={'stripped_var': 'target variable'})
+        df_n = df_n.drop(columns=['repeat_num', 'is_repeated', 'in_network', 'stripped_var'])
         df_n.to_csv(self.path / 'Variable mappings.csv', index=False)
 
 
@@ -559,8 +570,10 @@ def get_repeat_unit(var_name, df):
 
 def get_repeat_number(s):
     # get repeat number from target variable
-    repeat_num = re.sub('.*?([0-9]*)$',r'\1',s)
-    return repeat_num
+    try:
+        return int(re.sub('.*?([0-9]*)$',r'\1',s))
+    except ValueError:
+        return ''
 
 
 def get_organisations(df_organisations, df_resource):
