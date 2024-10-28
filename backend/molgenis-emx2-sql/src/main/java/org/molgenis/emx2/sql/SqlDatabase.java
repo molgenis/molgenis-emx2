@@ -52,8 +52,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   private String initialAdminPassword =
       (String)
           EnvironmentProperty.getParameter(Constants.MOLGENIS_ADMIN_PW, ADMIN_PW_DEFAULT, STRING);
-  private final Boolean isOidcEnabled =
-      EnvironmentProperty.getParameter(Constants.MOLGENIS_OIDC_CLIENT_ID, null, STRING) != null;
+  private Boolean isOidcEnabled = false;
   private static String postgresUser =
       (String)
           EnvironmentProperty.getParameter(
@@ -179,9 +178,16 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       // get the settings
       clearCache();
 
-      if (getSetting(Constants.IS_OIDC_ENABLED) == null) {
-        // use environment property unless overridden in settings
-        this.setSetting(Constants.IS_OIDC_ENABLED, String.valueOf(isOidcEnabled));
+      String isOidcEnabledSetting = getSetting(Constants.IS_OIDC_ENABLED);
+      if (isOidcEnabledSetting != null) {
+        this.isOidcEnabled = Boolean.parseBoolean(isOidcEnabledSetting);
+      } else {
+        Object envSetting =
+            EnvironmentProperty.getParameter(Constants.MOLGENIS_OIDC_CLIENT_ID, null, STRING);
+        if (envSetting != null) {
+          this.setSetting(Constants.IS_OIDC_ENABLED, "true");
+          this.isOidcEnabled = true;
+        }
       }
 
       String instanceId = getSetting(Constants.MOLGENIS_INSTANCE_ID);
