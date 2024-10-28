@@ -18,7 +18,6 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
       ": Table name must start with a letter, followed by zero or more letters, numbers, spaces or underscores. A space immediately before or after an underscore is not allowed. The character limit is 31.";
   public static final String SCHEMA_NAME_MESSAGE =
       ": Schema name must start with a letter, followed by zero or more letters, numbers, spaces, dash or underscores. A space immediately before or after an underscore is not allowed. The character limit is 31.";
-
   // if a table extends another table (optional)
   public String inheritName = null;
   // to allow indicate that a table should be dropped
