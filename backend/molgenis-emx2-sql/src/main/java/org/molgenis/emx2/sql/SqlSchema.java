@@ -384,7 +384,7 @@ public class SqlSchema implements Schema {
     for (TableMetadata mergeTable : mergeTableList) {
       // idempotent so we only drop if exists
       if (mergeTable.isDrop() && targetSchema.getTable(mergeTable.getOldName()) != null) {
-        checkNoRefbackExists(mergeTable, mergeTableList);
+        checkRefbackConstraints(mergeTable, mergeTableList);
         targetSchema.getTable(mergeTable.getOldName()).getMetadata().drop();
       }
     }
@@ -395,26 +395,36 @@ public class SqlSchema implements Schema {
     }
   }
 
-  private static void checkNoRefbackExists(
+  private static void checkRefbackConstraints(
       TableMetadata mergeTable, List<TableMetadata> mergeTableList) {
     for (Column column : mergeTable.getColumns()) {
       if (!column.isReferenceWithRefback()) continue;
 
-      Column refbackColumn = column.getReferenceRefback();
-      for (TableMetadata table : mergeTableList) {
-        if (table.isDrop()) continue;
+      if (columnHasRefbackConstraints(column, mergeTableList)) {
+        throw new MolgenisException(
+            "Deleting column \""
+                + column.getName()
+                + "\" failed: has refBack in table: "
+                + column.getRefTable().getTableName()
+                + ", first delete the refBack before deleting this column");
+      }
+    }
+  }
 
-        if (table.getTableName().equals(refbackColumn.getTableName())
-            && !table.getColumn(refbackColumn.getIdentifier()).isDrop()) {
-          throw new MolgenisException(
-              "Deleting column \""
-                  + column.getName()
-                  + "\" failed: has refBack in table: "
-                  + column.getRefTable().getTableName()
-                  + ", first delete the refBack before deleting this column");
+  private static boolean columnHasRefbackConstraints(
+      Column column, List<TableMetadata> mergeTableList) {
+    Column refbackColumn = column.getReferenceRefback();
+    boolean refbackIsInMergeTableList = false;
+    for (TableMetadata table : mergeTableList) {
+      if (table.getTableName().equals(refbackColumn.getTableName())) {
+        refbackIsInMergeTableList = true;
+        if (!table.isDrop() && !table.getColumn(refbackColumn.getIdentifier()).isDrop()) {
+          return true;
         }
       }
     }
+    return !refbackIsInMergeTableList; // if the constraint is not in the mergeTableList it's not
+    // handled
   }
 
   public String getName() {

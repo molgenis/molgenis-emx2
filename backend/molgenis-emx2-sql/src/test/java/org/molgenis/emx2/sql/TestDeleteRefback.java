@@ -36,11 +36,14 @@ public class TestDeleteRefback {
 
     SchemaMetadata schemaMetadata = new SchemaMetadata();
     schemaMetadata.create(patients, patientVisits);
-
     schema.migrate(schemaMetadata);
 
     schemaMetadata.getTableMetadata("Patients visits").drop();
-
+    // Should throw exception as Patient has a refback column (visits)
     assertThrows(SqlMolgenisException.class, () -> schema.migrate(schemaMetadata));
+
+    // Drop the refback and try again
+    schemaMetadata.getTableMetadata("Patients").dropColumn("visits");
+    schema.migrate(schemaMetadata);
   }
 }
