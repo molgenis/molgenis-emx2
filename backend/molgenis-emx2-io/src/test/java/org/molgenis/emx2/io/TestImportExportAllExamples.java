@@ -87,7 +87,7 @@ public class TestImportExportAllExamples {
 
       CompareTools.assertEquals(schema1, schema2);
 
-      Schema schema3 = db.dropCreateSchema(getClass().getSimpleName() + schema1.getName());
+      Schema schema3 = db.dropCreateSchema(schema1.getName() + "_copy");
       schema3.migrate(schema2);
       return schema3;
 
