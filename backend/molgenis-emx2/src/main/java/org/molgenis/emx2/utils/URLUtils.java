@@ -7,7 +7,7 @@ public class URLUtils {
   public static String extractBaseURL(Context ctx) {
     String host = Objects.requireNonNull(ctx.host());
     String[] hostSplit = host.split(":", 2);
-    if (hostSplit.length == 2 && isWellKnownPort(ctx.scheme(), hostSplit[1])) {
+    if (hostSplit.length == 2 && isDefaultPort(ctx.scheme(), hostSplit[1])) {
       host = hostSplit[0];
     }
 
@@ -18,7 +18,7 @@ public class URLUtils {
         + (!ctx.contextPath().isEmpty() ? ctx.contextPath() + "/" : "/");
   }
 
-  private static boolean isWellKnownPort(String scheme, String port) {
+  public static boolean isDefaultPort(String scheme, String port) {
     return (scheme.equals("http") && port.equals("80"))
         || (scheme.equals("https") && port.equals("443"));
   }

@@ -94,4 +94,13 @@ class URLUtilsTest {
         "molgenis.org:8080",
         "/subdir/");
   }
+
+  @Test
+  void testDefaultPort() {
+    assertAll(
+        () -> assertTrue(URLUtils.isDefaultPort("http", "80")),
+        () -> assertFalse(URLUtils.isDefaultPort("http", "8080")),
+        () -> assertTrue(URLUtils.isDefaultPort("https", "443")),
+        () -> assertFalse(URLUtils.isDefaultPort("https", "80")));
+  }
 }
