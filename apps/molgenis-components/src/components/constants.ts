@@ -3,7 +3,7 @@ export default {
   CODE_9: 57,
   CODE_PERIOD: 46,
   CODE_MINUS: 45,
-  SCHEMA_NAME_REGEX: /^(?!.* _|.*_ )[a-zA-Z][-a-zA-Z0-9 _]{0,30}$/,
+  SCHEMA_NAME_REGEX: /^(?!.* _|.*_ )[a-zA-Z][-a-zA-Z0-9 _]{0,62}$/,
   TABLE_NAME_REGEX: /^(?!.* _|.*_ )[a-zA-Z][a-zA-Z0-9 _]{0,30}$/,
   COLUMN_NAME_REGEX: /^(?!.* _|.*_ )[a-zA-Z][a-zA-Z0-9 _]{0,62}$/,
   EMAIL_REGEX:
