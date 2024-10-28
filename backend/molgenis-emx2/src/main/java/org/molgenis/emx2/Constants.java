@@ -25,6 +25,7 @@ public class Constants {
   public static final String IS_CHANGELOG_ENABLED = "isChangelogEnabled";
   public static final String TEMPLATE = "template";
   public static final String INCLUDE_DEMO_DATA = "includeDemoData";
+  public static final String PARENT_JOB = "parentJob";
   public static final String SEMANTICS = "semantics";
   public static final String ROLE = "role";
   public static final String KEY = "key";
