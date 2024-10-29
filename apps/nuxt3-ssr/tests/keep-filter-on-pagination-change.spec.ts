@@ -15,13 +15,13 @@ test("filter should remain active after page (pagination) change ", async ({
   page,
   goto,
 }) => {
-  await goto("/catalogue-demo/ssr-catalogue/all/cohorts", {
+  await goto("/catalogue-demo/ssr-catalogue/all/collections", {
     waitUntil: "hydration",
   });
-  await expect(page.getByRole("main")).toContainText("57 cohort studies");
+  await expect(page.getByRole("main")).toContainText("96 collections");
   await page.getByPlaceholder("Type to search..").click();
   await page.getByPlaceholder("Type to search..").fill("life");
-  await expect(page.getByRole("main")).toContainText("19 cohort studies");
+  await expect(page.getByRole("main")).toContainText("21 collections");
   await page.locator("a").filter({ hasText: "Go to page 2" }).click();
-  await expect(page.getByRole("main")).toContainText("19 cohort studies");
+  await expect(page.getByRole("main")).toContainText("21 collections");
 });
