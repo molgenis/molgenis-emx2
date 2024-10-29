@@ -100,7 +100,6 @@ public class TaskApi {
     String id = taskService.submitTaskFromName(name, parameters);
     // wait until done or timeout
     Task task = taskService.getTask(id);
-    // timeout a minute for these I would say?
     int maxTimeout = 240;
     int stepSizeInMs = 500;
     int timeout = 0;
@@ -110,7 +109,8 @@ public class TaskApi {
       Thread.sleep(stepSizeInMs);
     }
     if (task.isRunning()) {
-      throw new MolgenisException("Task timed out after " + (maxTimeout * stepSizeInMs) + "ms");
+      throw new MolgenisException(
+          "Task timed out after " + (maxTimeout * stepSizeInMs / 1000) + "s");
     }
     if (!task.getStatus().equals(TaskStatus.COMPLETED)) {
       throw new MolgenisException("Task failed with status " + task.getStatus());
