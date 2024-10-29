@@ -405,6 +405,8 @@ public class SqlSchema implements Schema {
             "Deleting column \""
                 + column.getName()
                 + "\" failed: has refBack in table: "
+                + column.getRefSchemaName()
+                + "."
                 + column.getRefTable().getTableName()
                 + ", first delete the refBack before deleting this column");
       }
