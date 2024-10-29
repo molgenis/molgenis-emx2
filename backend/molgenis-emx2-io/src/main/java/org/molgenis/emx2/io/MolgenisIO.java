@@ -96,11 +96,13 @@ public class MolgenisIO {
     new ImportExcelTask(excelFile, schema, strict).run();
   }
 
-  public static void fromStore(TableStore store, Schema schema, boolean strict) {
-    new ImportSchemaTask(store, schema, strict).run();
+  public static void fromStore(
+      TableStore store, Schema schema, boolean strict, String... includeTableNames) {
+    new ImportSchemaTask(store, schema, strict, includeTableNames).run();
   }
 
-  public static void fromClasspathDirectory(String path, Schema schema, boolean strict) {
-    fromStore(new TableStoreForCsvFilesClasspath(path), schema, strict);
+  public static void fromClasspathDirectory(
+      String path, Schema schema, boolean strict, String... includeTableNames) {
+    fromStore(new TableStoreForCsvFilesClasspath(path), schema, strict, includeTableNames);
   }
 }

@@ -1,149 +1,294 @@
 <script setup lang="ts">
-import type { ISchemaMetaData, ITableMetaData } from "meta-data-utils";
-import type { IFilter } from "~~/interfaces/types";
-import {
-  buildRecordListQueryFields,
-  extractExternalSchemas,
-  extractKeyFromRecord,
-} from "meta-data-utils";
+import type { IFilter, IMgError, activeTabType } from "~/interfaces/types";
 
-const config = useRuntimeConfig();
 const route = useRoute();
 const router = useRouter();
-
+const config = useRuntimeConfig();
 const pageSize = 10;
-const tableId: string = route.params.resourceType as string;
-const schemaId = route.params.schema.toString();
-const metadata = await fetchMetadata(schemaId);
 
-const tableMetaData = computed(() => {
-  const result = metadata.tables.find(
-    (t: ITableMetaData) => t.id.toLowerCase() === tableId.toLowerCase()
-  );
-  if (!result) {
-    throw new Error(`Table with id ${tableId} not found in schema ${schemaId}`);
-  }
-  return result;
+const titlePrefix =
+  route.params.catalogue === "all" ? "" : route.params.catalogue + " ";
+
+const descriptionMap: Record<string, string> = {
+  collections: "Data & sample collections",
+  networks: "(Sub)projects & harmonisation",
+};
+
+const imageMap: Record<string, string> = {
+  collections: "image-diagram",
+  networks: "image-network",
+};
+
+const title = route.params.resourceType;
+const description: string | undefined =
+  descriptionMap[route.params.resourceType as string];
+const image: string | undefined = imageMap[route.params.resourceType as string];
+
+useHead({ title: titlePrefix + title });
+
+const currentPage = computed(() => {
+  const queryPageNumber = Number(route.query?.page);
+  return !isNaN(queryPageNumber) && typeof queryPageNumber === "number"
+    ? Math.round(queryPageNumber)
+    : 1;
 });
+const offset = computed(() => (currentPage.value - 1) * pageSize);
 
-const resourceType = tableMetaData.value.id;
-
-const resourceAgg: string = resourceType + "_agg";
-
-const externalschemaIds: string[] = extractExternalSchemas(metadata);
-const externalSchemas = await Promise.all(externalschemaIds.map(fetchMetadata));
-const schemas = externalSchemas.reduce(
-  (acc: Record<string, ISchemaMetaData>, schema) => {
-    acc[schema.id] = schema;
-    return acc;
-  },
-  { [schemaId]: metadata }
-);
-
-const description = tableMetaData.value?.description;
-
-let activeName = ref("detailed");
-let filters: IFilter[] = reactive([
+let pageFilterTemplate: IFilter[] = [
   {
-    title: `Search in ${tableMetaData.value.name}`,
-    columnType: "_SEARCH",
+    id: "search",
+    config: {
+      label: `Search in ${title}`,
+      type: "SEARCH",
+      searchTables: ["collectionEvents", "subpopulations"],
+      initialCollapsed: false,
+    },
     search: "",
-    searchTables: [],
-    initialCollapsed: false,
+  },
+];
+
+if (route.params.resourceType === "collections") {
+  pageFilterTemplate.push({
+    id: "type",
+    config: {
+      label: "Collection type",
+      type: "ONTOLOGY",
+      ontologyTableId: "ResourceTypes",
+      ontologySchema: "CatalogueOntologies",
+      filter: { tags: { equals: "collection" } },
+      columnId: "type",
+      initialCollapsed: false,
+    },
+    conditions: [],
+  });
+}
+
+pageFilterTemplate = pageFilterTemplate.concat([
+  {
+    id: "areasOfInformation",
+    config: {
+      label: "Areas of information",
+      type: "ONTOLOGY",
+      ontologyTableId: "AreasOfInformationCohorts",
+      ontologySchema: "CatalogueOntologies",
+      columnId: "areasOfInformation",
+      filterTable: "collectionEvents",
+    },
+    conditions: [],
+  },
+  {
+    id: "dataCategories",
+    config: {
+      label: "Data categories",
+      type: "ONTOLOGY",
+      ontologyTableId: "DataCategories",
+      ontologySchema: "CatalogueOntologies",
+      columnId: "dataCategories",
+      filterTable: "collectionEvents",
+    },
+    conditions: [],
+  },
+  {
+    id: "populationAgeGroups",
+    config: {
+      label: "Population age groups",
+      type: "ONTOLOGY",
+      ontologyTableId: "AgeGroups",
+      ontologySchema: "CatalogueOntologies",
+      columnId: "ageGroups",
+      filterTable: "collectionEvents",
+    },
+    conditions: [],
+  },
+  {
+    id: "sampleCategories",
+    config: {
+      label: "Sample categories",
+      type: "ONTOLOGY",
+      ontologyTableId: "SampleCategories",
+      ontologySchema: "CatalogueOntologies",
+      columnId: "sampleCategories",
+      filterTable: "collectionEvents",
+    },
+    conditions: [],
+  },
+  {
+    id: "cohortTypes",
+    config: {
+      label: "Cohort types",
+      type: "ONTOLOGY",
+      ontologyTableId: "CohortStudyTypes",
+      ontologySchema: "CatalogueOntologies",
+      columnId: "cohortType",
+    },
+    conditions: [],
+  },
+  {
+    id: "cohortDesigns",
+    config: {
+      label: "Design",
+      type: "ONTOLOGY",
+      ontologyTableId: "CohortDesigns",
+      ontologySchema: "CatalogueOntologies",
+      columnId: "design",
+    },
+    conditions: [],
   },
 ]);
 
-const currentPage = ref(1);
+const filters = computed(() => {
+  // if there are not query conditions just use the page defaults
+  if (!route.query?.conditions) {
+    return [...pageFilterTemplate];
+  }
 
-function setCurrentPage(pageNumber: number) {
-  router.push({ path: route.path, query: { page: pageNumber } });
-  currentPage.value = pageNumber;
-}
+  // get conditions from query
+  const conditions = conditionsFromPathQuery(route.query.conditions as string);
+  // merge with page defaults
+  const filters = mergeWithPageDefaults(pageFilterTemplate, conditions);
 
-if (route.query?.page) {
-  const queryPageNumber = Number(route.query?.page);
-  currentPage.value =
-    typeof queryPageNumber === "number" ? Math.round(queryPageNumber) : 1;
-}
-let offset = computed(() => (currentPage.value - 1) * pageSize);
-
-watch(filters, () => {
-  setCurrentPage(1);
+  return filters;
 });
-
-// build resource query for cards
-
-const fields = buildRecordListQueryFields(
-  tableMetaData.value.id,
-  schemaId,
-  schemas
-);
 
 const query = computed(() => {
   return `
-  query ${resourceType}($filter:${resourceType}Filter, $orderby:${resourceType}orderby){
-    ${resourceType}(limit: ${pageSize} offset: ${offset.value} filter:$filter  orderby:$orderby) {
-      ${fields}
+  query Resources($filter:ResourcesFilter, $orderby:Resourcesorderby){
+    Resources(limit: ${pageSize} offset: ${offset.value} filter:$filter  orderby:$orderby) {
+      id
+      name
+      acronym
+      description
+      keywords
+      numberOfParticipants
+      startYear
+      endYear
+      type {
+          name
+      }
+      design {
+          name
+      }
     }
-    ${resourceType}_agg (filter:$filter){
+    Resources_agg (filter:$filter){
         count
     }
   }
   `;
 });
-const orderby = {};
-let search = computed(() => {
-  // @ts-ignore
-  return filters.find((f) => f.columnType === "_SEARCH").search;
-});
-const filter = computed(() => buildQueryFilter(filters, search.value));
 
-console.log("query: ", query.value);
-const { data, pending, error, refresh } = await useFetch(
-  `/${route.params.schema}/api/graphql`,
+const orderby = { acronym: "ASC" };
+
+const gqlFilter = computed(() => {
+  let result: any = {};
+
+  result = buildQueryFilter(filters.value);
+
+  if (!result.type) {
+    if (route.params.resourceType == "collections") {
+      result.type = { tags: { equals: "collection" } };
+    }
+    if (route.params.resourceType == "networks") {
+      result.type = { tags: { equals: "network" } };
+    }
+  }
+
+  // add hard coded page specific filters
+  if ("all" !== route.params.catalogue) {
+    result = {
+      _and: [
+        result,
+        {
+          _or: [
+            { partOfResources: { id: { equals: route.params.catalogue } } },
+            {
+              partOfResources: {
+                partOfResources: { id: { equals: route.params.catalogue } },
+              },
+            },
+          ],
+        },
+      ],
+    };
+  }
+  return result;
+});
+
+const { data } = await useFetch<any, IMgError>(
+  `/${useRoute().params.schema}/graphql`,
   {
-    key: `${tableId}-list-${offset.value}`,
-    baseURL: config.public.apiBase,
     method: "POST",
     body: {
-      query,
-      variables: { orderby, filter },
+      query: query,
+      variables: { filter: gqlFilter, orderby },
+    },
+    onResponseError(_ctx) {
+      logError({
+        message: "onResponseError fetching data from GraphQL endpoint",
+        statusCode: _ctx.response.status,
+        data: _ctx.response._data,
+      });
     },
   }
 );
 
-function buildRecordId(record: any) {
-  return extractKeyFromRecord(
-    record,
-    tableMetaData.value.id,
-    schemaId,
-    schemas
-  );
+const resources = computed(() => data.value?.data.Resources || []);
+const numberOfResources = computed(
+  () => data.value?.data.Resources_agg.count || 0
+);
+
+async function setCurrentPage(pageNumber: number) {
+  await navigateTo({
+    query: { ...route.query, page: pageNumber },
+  });
+  window.scrollTo({ top: 0 });
 }
-let crumbs: Record<string, string> = {};
-if (route.params.catalogue) {
-  crumbs[
-    route.params.catalogue.toString()
-  ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}`;
-} else {
-  crumbs = {
-    Home: `/${route.params.schema}/ssr-catalogue`,
-    Browse: `/${route.params.schema}/ssr-catalogue/all`,
-  };
+
+function onFilterChange(filters: IFilter[]) {
+  const conditions = toPathQueryConditions(filters) || undefined; // undefined is used to remove the query param from the URL;
+
+  router.push({
+    path: route.path,
+    query: { ...route.query, page: 1, conditions: conditions },
+  });
 }
+
+const activeTabName = ref((route.query.view as string) || "detailed");
+
+function onActiveTabChange(tabName: activeTabType) {
+  activeTabName.value = tabName;
+  router.push({
+    path: route.path,
+    query: { ...route.query, view: tabName },
+  });
+}
+
+const cohortOnly = computed(() => {
+  const routeSetting = route.query["cohort-only"] as string;
+  return routeSetting === "true" || config.public.cohortOnly;
+});
+
+const crumbs: any = {};
+crumbs[
+  cohortOnly.value ? "home" : (route.params.catalogue as string)
+] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}`;
 </script>
+
 <template>
   <LayoutsSearchPage>
     <template #side>
-      <FilterSidebar title="Filters" :filters="filters" />
+      <FilterSidebar
+        title="Filters"
+        :filters="filters"
+        @update:filters="onFilterChange"
+      />
     </template>
     <template #main>
       <SearchResults>
         <template #header>
           <!-- <NavigationIconsMobile :link="" /> -->
-          <PageHeader :title="tableMetaData.label" :description="description">
+          <PageHeader :title="title" :description="description" :icon="image">
             <template #prefix>
-              <BreadCrumbs :crumbs="crumbs" :current="resourceType" />
+              <BreadCrumbs :crumbs="crumbs" :current="title" />
             </template>
             <template #suffix>
               <SearchResultsViewTabs
@@ -154,12 +299,24 @@ if (route.params.catalogue) {
                 buttonRightLabel="Compact"
                 buttonRightName="compact"
                 buttonRightIcon="view-compact"
-                v-model:activeName="activeName"
+                :activeName="activeTabName"
+                @update:activeName="onActiveTabChange"
               />
-              <SearchResultsViewTabsMobile class="flex xl:hidden">
+              <SearchResultsViewTabsMobile
+                class="flex xl:hidden"
+                button-top-label="View"
+                button-top-name="detailed"
+                button-top-icon="view-normal"
+                button-bottom-label="View"
+                button-bottom-name="compact"
+                button-bottom-icon="view-compact"
+                :activeName="activeTabName"
+                @update:active-name="onActiveTabChange"
+              >
                 <FilterSidebar
                   title="Filters"
                   :filters="filters"
+                  @update:filters="onFilterChange"
                   :mobileDisplay="true"
                 />
               </SearchResultsViewTabsMobile>
@@ -168,38 +325,40 @@ if (route.params.catalogue) {
         </template>
 
         <template #search-results>
-          <FilterWell :filters="filters"></FilterWell>
+          <SearchResultsCount
+            :label="title?.toLocaleLowerCase()"
+            :value="numberOfResources"
+          />
+          <FilterWell
+            :filters="filters"
+            @update:filters="onFilterChange"
+          ></FilterWell>
           <SearchResultsList>
-            <CardList v-if="data?.data?.[resourceType]?.length > 0">
-              <CardListItem
-                v-for="resource in data?.data?.[resourceType]"
-                :key="resource.name"
-              >
+            <CardList v-if="resources.length > 0">
+              <CardListItem v-for="resource in resources" :key="resource.name">
                 <ResourceCard
                   :resource="resource"
-                  :schema="schemaId"
-                  :table-id="tableMetaData.id"
-                  :compact="activeName !== 'detailed'"
-                  :resourceId="buildRecordId(resource)"
+                  :schema="route.params.schema as string"
+                  :catalogue="route.params.catalogue as string"
+                  :compact="activeTabName !== 'detailed'"
                 />
               </CardListItem>
             </CardList>
             <div v-else class="flex justify-center pt-3">
               <span class="py-15 text-blue-500">
-                No {{ tableMetaData.name }} found with current filters
+                No resources found with current filters
               </span>
             </div>
           </SearchResultsList>
         </template>
 
-        <template v-if="data?.data?.[resourceType]?.length > 0" #pagination>
+        <template v-if="resources.length > 0" #pagination>
           <Pagination
             :current-page="currentPage"
-            :totalPages="Math.ceil(data?.data?.[resourceAgg].count / pageSize)"
+            :totalPages="Math.ceil(numberOfResources / pageSize)"
             @update="setCurrentPage($event)"
           />
         </template>
-        {{ error }}
       </SearchResults>
     </template>
   </LayoutsSearchPage>

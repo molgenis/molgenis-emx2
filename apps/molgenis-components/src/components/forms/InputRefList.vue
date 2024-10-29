@@ -32,17 +32,17 @@
       >
         <Spinner v-if="loading" />
         <div
-          v-else
+          v-else-if="data.length"
           class="form-check custom-control custom-checkbox"
           :class="showMultipleColumns ? 'col-12 col-md-6 col-lg-4' : ''"
-          v-for="(row, index) in data"
+          v-for="(keyObject, index) in data"
           :key="index"
         >
           <input
-            :id="`${id}-${row.primaryKey}`"
+            :id="`${id}-${JSON.stringify(keyObject)}`"
             :name="id"
             type="checkbox"
-            :value="row.primaryKey"
+            :value="keyObject"
             v-model="selection"
             @change="emitSelection"
             class="form-check-input"
@@ -50,36 +50,35 @@
           />
           <label
             class="form-check-label"
-            :for="`${id}-${row.primaryKey}`"
-            @click.prevent="toggle(row.primaryKey)"
+            :for="`${id}-${JSON.stringify(keyObject)}`"
+            @click.prevent="toggle(keyObject)"
           >
-            {{ applyJsTemplate(row, refLabel) }}
+            {{ applyJsTemplate(keyObject, refLabel) }}
           </label>
         </div>
+        <div v-else>No entries found for {{ label }}</div>
       </div>
-      <div v-if="canEdit">
-        <Tooltip value="New entry">
-          <RowButtonAdd
-            id="add-entry"
-            :tableId="tableId"
-            :schemaId="schemaId"
-            @update:newRow="selectNew"
-          />
-        </Tooltip>
-      </div>
-      <div>
-        <ButtonAlt
-          class="pl-0"
+      <div class="m-1">
+        <RowButtonAdd
+          id="add-entry"
+          v-if="canEdit"
+          :label="`Add new ${label}`"
+          :tableId="tableId"
+          :schemaId="schemaId"
+          @update:newRow="selectNew"
+          class="mr-1"
+        />
+        <ButtonOutline
           :class="showMultipleColumns ? 'col-12 col-md-6 col-lg-4' : ''"
           icon="fa fa-search"
           @click="openSelect"
         >
           {{
             count > maxNum
-              ? `show all ${count} options with details`
-              : "more details"
+              ? `Show all ${count} options with details `
+              : "More details "
           }}
-        </ButtonAlt>
+        </ButtonOutline>
       </div>
       <LayoutModal v-if="showSelect" :title="title" @close="closeSelect">
         <template v-slot:body>
@@ -105,6 +104,7 @@
 </template>
 
 <script lang="ts">
+import { KeyObject } from "metadata-utils";
 import { IRow } from "../../Interfaces/IRow";
 import { IQueryMetaData } from "../../client/IQueryMetaData";
 import Client from "../../client/client";
@@ -119,7 +119,7 @@ import {
   deepClone,
   deepEqual,
 } from "../utils";
-import ButtonAlt from "./ButtonAlt.vue";
+import ButtonOutline from "./ButtonOutline.vue";
 import FormGroup from "./FormGroup.vue";
 import Tooltip from "./Tooltip.vue";
 import BaseInput from "./baseInputs/BaseInput.vue";
@@ -142,7 +142,7 @@ export default {
     TableSearch,
     LayoutModal,
     FormGroup,
-    ButtonAlt,
+    ButtonOutline,
     Spinner,
     RowButtonAdd,
     Tooltip,
@@ -180,7 +180,7 @@ export default {
   },
   methods: {
     applyJsTemplate,
-    deselect(key: IRow) {
+    deselect(key: KeyObject) {
       this.selection = this.selection.filter(
         (row: IRow) => !deepEqual(row, key)
       );
@@ -190,15 +190,15 @@ export default {
       this.selection = [];
       this.emitSelection();
     },
-    handleUpdateSelection(newSelection: IRow[]) {
+    handleUpdateSelection(newSelection: KeyObject[]) {
       this.selection = [...newSelection];
       this.emitSelection();
     },
-    select(newRow: IRow) {
+    select(newRow: KeyObject) {
       this.selection = [...this.selection, newRow];
       this.emitSelection();
     },
-    async selectNew(newRow: IRow) {
+    async selectNew(newRow: KeyObject) {
       const rowKey = await convertRowToPrimaryKey(
         newRow,
         this.tableId,
@@ -214,10 +214,14 @@ export default {
     openSelect() {
       this.showSelect = true;
     },
-    toggle(value: IRow) {
-      if (this.selection?.includes(value)) {
+    toggle(value: KeyObject) {
+      if (
+        this.selection?.some((selection: KeyObject) =>
+          deepEqual(selection, value)
+        )
+      ) {
         this.selection = this.selection.filter(
-          (selectedValue: IRow) => selectedValue !== value
+          (selectedValue: KeyObject) => !deepEqual(selectedValue, value)
         );
       } else {
         this.selection = [...this.selection, value];
@@ -236,24 +240,22 @@ export default {
         orderby: this.orderby,
       };
       const response = await this.client.fetchTableData(this.tableId, options);
-      this.data = response[this.tableId];
+      const responseRows = response[this.tableId] || [];
+      const keyList = responseRows.map(async (row: IRow) =>
+        convertRowToPrimaryKey(row, this.tableId, this.schemaId)
+      );
       this.count = response[this.tableId + "_agg"].count;
-
-      await Promise.all(
-        this.data.map(async (row: IRow) => {
-          row.primaryKey = await convertRowToPrimaryKey(
-            row,
-            this.tableId,
-            this.schemaId
-          );
-        })
-      ).then(() => (this.loading = false));
+      this.data = await Promise.all(keyList);
+      this.loading = false;
       this.$emit("optionsLoaded", this.data);
     },
   },
   watch: {
-    modelValue() {
-      this.selection = deepClone(this.modelValue);
+    async modelValue() {
+      const keyList = deepClone(this.modelValue).map(async (row: IRow) =>
+        convertRowToPrimaryKey(row, this.tableId, this.schemaId)
+      );
+      this.selection = await Promise.all(keyList);
     },
     filter() {
       if (!this.loading) {
@@ -262,13 +264,21 @@ export default {
     },
   },
   async created() {
-    //should be created, not mounted, so we are before the watchers
+    this.loading = true;
     this.client = Client.newClient(this.schemaId);
     this.tableMetadata = await this.client.fetchTableMetaData(this.tableId);
     await this.loadOptions();
+    this.loading = true;
     if (!this.modelValue) {
       this.selection = [];
+    } else {
+      const keyList = deepClone(this.modelValue).map(async (row: IRow) =>
+        convertRowToPrimaryKey(row, this.tableId, this.schemaId)
+      );
+      this.selection = await Promise.all(keyList);
     }
+
+    this.loading = false;
   },
   emits: ["optionsLoaded", "update:modelValue"],
 };
@@ -307,7 +317,6 @@ export default {
         v-model="defaultValue"
         tableId="Pet"
         description="This is a default value"
-        :defaultValue="defaultValue"
         schemaId="pet store"
         :canEdit="canEdit"
         refLabel="${name}"
@@ -364,7 +373,7 @@ export default {
   data: function () {
     return {
       value: null,
-      defaultValue: [{ name: "pooky" }, { name: "spike" }],
+      defaultValue: [{ name: "pooky", someNoneKeyColumn: "foobar" }, { name: "spike" }],
       filterValue: [{ name: "spike" }],
       multiColumnValue: null,
       maxNumValue: null,

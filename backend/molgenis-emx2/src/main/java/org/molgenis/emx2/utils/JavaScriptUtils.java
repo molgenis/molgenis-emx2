@@ -1,5 +1,7 @@
 package org.molgenis.emx2.utils;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Map;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Engine;
@@ -36,19 +38,19 @@ public class JavaScriptUtils {
     try {
       final Context context =
           Context.newBuilder("js")
-              .allowHostAccess(
-                  HostAccess.newBuilder()
-                      .allowArrayAccess(true)
-                      .allowListAccess(true)
-                      .allowMapAccess(true)
-                      .allowAllClassImplementations(true)
-                      .build())
+              .allowHostAccess(HostAccess.newBuilder(HostAccess.ALL).build())
               .engine(engine)
               .build();
       Value bindings = context.getBindings("js");
       if (values != null) {
         for (Map.Entry<String, Object> entry : values.entrySet()) {
-          bindings.putMember(entry.getKey(), entry.getValue());
+          Object value = entry.getValue();
+          if (value != null
+              && (value.getClass() == LocalDateTime.class || value.getClass() == LocalDate.class)) {
+            bindings.putMember(entry.getKey(), value.toString());
+          } else {
+            bindings.putMember(entry.getKey(), value);
+          }
         }
       }
       String scriptWithFixedRegex = script.replace("\\\\", "\\");

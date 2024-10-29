@@ -4,6 +4,7 @@ import App from "./App.vue";
 import Schema from "./components/Schema.vue";
 import PrintViewTable from "./components/PrintViewTable.vue";
 import PrintViewList from "./components/PrintViewList.vue";
+import ProfileManager from "./components/ProfileManager.vue";
 import VueScrollTo from "vue-scrollto";
 import YamlEditor from "./components/YamlEditor.vue";
 
@@ -16,6 +17,7 @@ const router = createRouter({
     { path: "/print", component: PrintViewTable },
     { path: "/print-list", component: PrintViewList },
     { path: "/yaml", component: YamlEditor },
+    { path: "/profile-manager", component: ProfileManager },
   ],
 });
 

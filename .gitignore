@@ -29,7 +29,6 @@ derby.log
 .idea/*
 .idea/fileTemplates/*/
 !.idea/fileTemplates/
-.vscode/*
 **/npm-debug.log
 **/.factorypath
 **/node_modules
@@ -41,6 +40,7 @@ mvnw.cmd
 release.properties
 tls
 **/**/bin/
+.venv
 
 yarn_error.log
 .nyc_output
@@ -60,3 +60,5 @@ apps/nuxt3-ssr/utils/fingerprint.js
 #playwright
 playwright-report
 CHANGELOG.md
+e2e/.auth
+e2e/e2e/.auth

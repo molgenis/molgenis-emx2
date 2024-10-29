@@ -21,8 +21,25 @@ public class TaskServiceScheduler {
       taskService = newTaskService;
       this.quartzScheduler = new StdSchedulerFactory().getScheduler();
       this.quartzScheduler.start();
+      this.loadExistingCronTasks(taskService);
     } catch (Exception e) {
       throw new MolgenisException("Creation of task scheduler failed", e);
+    }
+  }
+
+  public void shutdown() {
+    try {
+      quartzScheduler.shutdown();
+    } catch (SchedulerException e) {
+      throw new MolgenisException("shutdown quart failed", e);
+    }
+  }
+
+  private void loadExistingCronTasks(TaskService taskService) {
+    for (ScriptTask task : taskService.getScripts()) {
+      if (task.getCronExpression() != null && !task.isDisabled()) {
+        this.schedule(task);
+      }
     }
   }
 
@@ -93,7 +110,7 @@ public class TaskServiceScheduler {
 
   public void update(ScriptTask scriptTask) {
     // if no cron we remove
-    if (scriptTask.getCronExpression() == null) {
+    if (scriptTask.getCronExpression() == null || scriptTask.isDisabled()) {
       unschedule(scriptTask.getName());
     }
     // otherwise we schedule
@@ -132,7 +149,7 @@ public class TaskServiceScheduler {
     public void stop() {
       status = TaskStatus.ERROR;
       if (molgenisTaskId != null) {
-        Task<?> task = taskService.getTask(molgenisTaskId);
+        Task task = taskService.getTask(molgenisTaskId);
         task.stop();
         task.setError("Job interupted, probably being unscheduled");
       }

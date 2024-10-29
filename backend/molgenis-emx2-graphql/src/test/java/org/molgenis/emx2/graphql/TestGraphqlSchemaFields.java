@@ -6,6 +6,7 @@ import static org.molgenis.emx2.ColumnType.REF;
 import static org.molgenis.emx2.ColumnType.REF_ARRAY;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
+import static org.molgenis.emx2.datamodels.DataModels.Regular.PET_STORE;
 import static org.molgenis.emx2.graphql.GraphqlApiFactory.convertExecutionResultToJson;
 import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 import static org.molgenis.emx2.utils.TypeUtils.convertToCamelCase;
@@ -23,7 +24,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.datamodels.PetStoreLoader;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import org.molgenis.emx2.tasks.Task;
 import org.molgenis.emx2.tasks.TaskService;
@@ -41,7 +41,7 @@ public class TestGraphqlSchemaFields {
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
     schema = database.dropCreateSchema(schemaName);
-    new PetStoreLoader().load(schema, true);
+    PET_STORE.getImportTask(schema, true).run();
     taskService = new TaskServiceInMemory();
     grapql = new GraphqlApiFactory().createGraphqlForSchema(schema, taskService);
   }
@@ -53,7 +53,7 @@ public class TestGraphqlSchemaFields {
       grapql =
           new GraphqlApiFactory()
               .createGraphqlForSchema(database.getSchema(schemaName), taskService);
-      assertEquals(2, execute("{_session{email,roles}}").at("/_session/roles").size());
+      assertEquals(5, execute("{_session{email,roles}}").at("/_session/roles").size());
       execute("mutation { signin(email: \"shopmanager\",password:\"shopmanager\") {message}}");
       grapql =
           new GraphqlApiFactory()
@@ -312,14 +312,14 @@ public class TestGraphqlSchemaFields {
     // root agg
     assertEquals(
         7,
-        execute("{Order_agg{max{quantity},min{quantity},sum{quantity},avg{quantity}}}")
+        execute("{Order_agg{max{quantity},min{quantity},_sum{quantity},avg{quantity}}}")
             .at("/Order_agg/max/quantity")
             .intValue());
 
     // nested agg
     assertEquals(
         15.7d,
-        execute("{User{pets_agg{count,max{weight},min{weight},sum{weight},avg{weight}}}}")
+        execute("{User{pets_agg{count,max{weight},min{weight},_sum{weight},avg{weight}}}}")
             .at("/User/0/pets_agg/max/weight")
             .doubleValue(),
         0.0f);
@@ -355,41 +355,46 @@ public class TestGraphqlSchemaFields {
   public void testGroupBy() throws IOException {
     // refs
     JsonNode result = execute("{Pet_groupBy{count,tags{name}}}");
-    // 1 red
-    assertEquals(null, result.at("/Pet_groupBy/0/tags/name").textValue());
+
+    assertEquals("blue", result.at("/Pet_groupBy/0/tags/name").textValue());
     assertEquals(1, result.at("/Pet_groupBy/0/count").intValue());
-    // 1 green
-    assertEquals("blue", result.at("/Pet_groupBy/1/tags/name").asText());
-    assertEquals(1, result.at("/Pet_groupBy/1/count").intValue());
-    // 1 with no tags
-    assertEquals("green", result.at("/Pet_groupBy/2/tags/name").textValue());
-    assertEquals(3, result.at("/Pet_groupBy/2/count").intValue());
+
+    assertEquals("green", result.at("/Pet_groupBy/1/tags/name").asText());
+    assertEquals(3, result.at("/Pet_groupBy/1/count").intValue());
+
+    assertEquals("purple", result.at("/Pet_groupBy/2/tags/name").textValue());
+    assertEquals(2, result.at("/Pet_groupBy/2/count").intValue());
+
+    assertEquals("red", result.at("/Pet_groupBy/3/tags/name").textValue());
+    assertEquals(4, result.at("/Pet_groupBy/3/count").intValue());
+
+    assertEquals(null, result.at("/Pet_groupBy/4/tags/name").textValue());
+    assertEquals(1, result.at("/Pet_groupBy/4/count").intValue());
 
     result = execute("{Pet_groupBy{count,category{name}}}");
     assertEquals(1, result.at("/Pet_groupBy/0/count").intValue());
     assertEquals("ant", result.at("/Pet_groupBy/0/category/name").textValue());
     assertEquals("bird", result.at("/Pet_groupBy/1/category/name").textValue());
 
-    // currently doensn't contain cat because somehow 'null' are not included
     result = execute("{Pet_groupBy{count,tags{name},category{name}}}");
-    // 1 <untagged> cat
+
     assertEquals(1, result.at("/Pet_groupBy/0/count").intValue());
-    assertEquals("cat", result.at("/Pet_groupBy/0/category/name").textValue());
-    assertEquals(null, result.at("/Pet_groupBy/0/tags/name").textValue());
-    // 1 blue mouse
+    assertEquals("mouse", result.at("/Pet_groupBy/0/category/name").textValue());
+    assertEquals("blue", result.at("/Pet_groupBy/0/tags/name").textValue());
+
     assertEquals(1, result.at("/Pet_groupBy/1/count").intValue());
-    assertEquals("mouse", result.at("/Pet_groupBy/1/category/name").textValue());
-    assertEquals("blue", result.at("/Pet_groupBy/1/tags/name").textValue());
+    assertEquals("ant", result.at("/Pet_groupBy/1/category/name").textValue());
+    assertEquals("green", result.at("/Pet_groupBy/1/tags/name").textValue());
     // 1 green ant
     assertEquals(1, result.at("/Pet_groupBy/2/count").intValue());
-    assertEquals("ant", result.at("/Pet_groupBy/2/category/name").textValue());
+    assertEquals("caterpillar", result.at("/Pet_groupBy/2/category/name").textValue());
     assertEquals("green", result.at("/Pet_groupBy/2/tags/name").textValue());
 
     // also works on refback
     result = execute("{Pet_groupBy {count,orders{orderId}}}");
     // 6 pets without order
-    assertEquals(6, result.at("/Pet_groupBy/0/count").intValue());
-    assertNull(null, result.at("/Pet_groupBy/0/orders").textValue());
+    assertEquals(6, result.at("/Pet_groupBy/2/count").intValue());
+    assertNull(null, result.at("/Pet_groupBy/2/orders").textValue());
 
     // orderId=1 has one pet
     assertEquals(1, result.at("/Pet_groupBy/1/count").intValue());
@@ -424,16 +429,17 @@ public class TestGraphqlSchemaFields {
         new GraphqlApiFactory().createGraphqlForSchema(database.getSchema(schemaName), taskService);
 
     // refs
-    JsonNode result = execute("{Pet_groupBy{count,tagsTest{nameTest}}}");
-    // 1 red
-    assertEquals(null, result.at("/Pet_groupBy/0/tagsTest/nameTest").textValue());
+    JsonNode result = execute("{Pet_groupBy{count,_sum{weight},tagsTest{nameTest}}}");
+
+    assertEquals(null, result.at("/Pet_groupBy/4/tagsTest/nameTest").textValue());
+    assertEquals(1, result.at("/Pet_groupBy/4/count").intValue());
+    assertEquals(9.4d, result.at("/Pet_groupBy/4/_sum/weight").doubleValue());
+
+    assertEquals("blue", result.at("/Pet_groupBy/0/tagsTest/nameTest").asText());
     assertEquals(1, result.at("/Pet_groupBy/0/count").intValue());
-    // 1 green
-    assertEquals("blue", result.at("/Pet_groupBy/1/tagsTest/nameTest").asText());
-    assertEquals(1, result.at("/Pet_groupBy/1/count").intValue());
-    // 1 with no tags
-    assertEquals("green", result.at("/Pet_groupBy/2/tagsTest/nameTest").textValue());
-    assertEquals(3, result.at("/Pet_groupBy/2/count").intValue());
+
+    assertEquals("green", result.at("/Pet_groupBy/1/tagsTest/nameTest").textValue());
+    assertEquals(3, result.at("/Pet_groupBy/1/count").intValue());
 
     result = execute("{Pet_groupBy{count,categoryTest{nameTest}}}");
     assertEquals(1, result.at("/Pet_groupBy/0/count").intValue());
@@ -443,17 +449,17 @@ public class TestGraphqlSchemaFields {
     // currently doensn't contain cat because somehow 'null' are not included
     result = execute("{Pet_groupBy{count,tagsTest{nameTest},categoryTest{nameTest}}}");
     // 1 <untagged> cat
-    assertEquals(1, result.at("/Pet_groupBy/0/count").intValue());
-    assertEquals("cat", result.at("/Pet_groupBy/0/categoryTest/nameTest").textValue());
-    assertEquals(null, result.at("/Pet_groupBy/0/tagsTest/nameTest").textValue());
+    assertEquals(1, result.at("/Pet_groupBy/6/count").intValue());
+    assertEquals("cat", result.at("/Pet_groupBy/6/categoryTest/nameTest").textValue());
+    assertEquals(null, result.at("/Pet_groupBy/6/tagsTest/nameTest").textValue());
     // 1 blue mouse
-    assertEquals(1, result.at("/Pet_groupBy/1/count").intValue());
-    assertEquals("mouse", result.at("/Pet_groupBy/1/categoryTest/nameTest").textValue());
-    assertEquals("blue", result.at("/Pet_groupBy/1/tagsTest/nameTest").textValue());
+    assertEquals(1, result.at("/Pet_groupBy/10/count").intValue());
+    assertEquals("mouse", result.at("/Pet_groupBy/10/categoryTest/nameTest").textValue());
+    assertEquals("blue", result.at("/Pet_groupBy/10/tagsTest/nameTest").textValue());
     // 1 green ant
-    assertEquals(1, result.at("/Pet_groupBy/2/count").intValue());
-    assertEquals("ant", result.at("/Pet_groupBy/2/categoryTest/nameTest").textValue());
-    assertEquals("green", result.at("/Pet_groupBy/2/tagsTest/nameTest").textValue());
+    assertEquals(1, result.at("/Pet_groupBy/0/count").intValue());
+    assertEquals("ant", result.at("/Pet_groupBy/0/categoryTest/nameTest").textValue());
+    assertEquals("green", result.at("/Pet_groupBy/0/tagsTest/nameTest").textValue());
 
     // N.B. in case arrays are involved total might more than count!!!
 
@@ -678,8 +684,8 @@ public class TestGraphqlSchemaFields {
       // aggregates should be working with spaces too
       JsonNode agg =
           execute(
-              "{PersonDetails_agg{sum{someNumber}avg{someNumber}min{someNumber}max{someNumber}}}");
-      assertEquals(6, agg.at("/PersonDetails_agg/sum/someNumber").asInt());
+              "{PersonDetails_agg{_sum{someNumber}avg{someNumber}min{someNumber}max{someNumber}}}");
+      assertEquals(6, agg.at("/PersonDetails_agg/_sum/someNumber").asInt());
       assertEquals(6, agg.at("/PersonDetails_agg/avg/someNumber").asInt());
       assertEquals(6, agg.at("/PersonDetails_agg/min/someNumber").asInt());
       assertEquals(6, agg.at("/PersonDetails_agg/max/someNumber").asInt());
@@ -773,7 +779,10 @@ public class TestGraphqlSchemaFields {
               .variables(Map.of("value", data))
               .build());
       assertEquals(
-          0, execute("{TestFile{image{size,extension,url}}}").at("/TestFile/0/image/size").asInt());
+          0,
+          execute("{TestFile{image{size,filename,extension,url}}}")
+              .at("/TestFile/0/image/size")
+              .asInt());
 
       // reset
     } finally {
@@ -816,13 +825,13 @@ public class TestGraphqlSchemaFields {
 
     // restore
     schema = database.dropCreateSchema(schemaName);
-    new PetStoreLoader().load(schema, true);
+    PET_STORE.getImportTask(schema, true).run();
   }
 
   @Test
   public void testReport() throws IOException {
     schema = database.dropCreateSchema(schemaName);
-    new PetStoreLoader().load(schema, true);
+    PET_STORE.getImportTask(schema, true).run();
     grapql = new GraphqlApiFactory().createGraphqlForSchema(schema, taskService);
     JsonNode result = execute("{_reports(id:0){data,count}}");
     assertTrue(result.at("/_reports/data").textValue().contains("pooky"));

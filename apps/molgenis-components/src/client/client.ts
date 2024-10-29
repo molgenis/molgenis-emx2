@@ -1,12 +1,13 @@
 import axios, { AxiosError, AxiosResponse } from "axios";
-import { IRow } from "../Interfaces/IRow";
-import {
+import type {
   IColumn,
-  ITableMetaData,
   ISchemaMetaData,
   ISetting,
-} from "meta-data-utils";
+  ITableMetaData,
+} from "metadata-utils";
+import { IRow } from "../Interfaces/IRow";
 import { deepClone } from "../components/utils";
+import type { aggFunction } from "./IClient";
 import { IClient, INewClient } from "./IClient";
 import { IQueryMetaData } from "./IQueryMetaData";
 import { getColumnIds } from "./queryBuilder";
@@ -14,7 +15,7 @@ import { getColumnIds } from "./queryBuilder";
 // application wide cache for schema meta data
 const schemaCache = new Map<string, ISchemaMetaData>();
 
-export { request };
+export { request, fetchSchemaMetaData, convertRowToPrimaryKey };
 const client: IClient = {
   newClient: (schemaId?: string): INewClient => {
     return {
@@ -57,7 +58,7 @@ const client: IClient = {
       fetchRowData: async (
         tableId: string,
         rowId: IRow,
-        expandLevel: number = 1
+        expandLevel: number = 2
       ) => {
         const schemaMetaData = await fetchSchemaMetaData(schemaId);
         const tableMetaData = schemaMetaData.tables.find(
@@ -75,9 +76,9 @@ const client: IClient = {
             tableId,
             {
               filter,
+              expandLevel,
             },
-            schemaMetaData,
-            expandLevel
+            schemaMetaData
           )
         )[tableId];
 
@@ -91,12 +92,14 @@ const client: IClient = {
         tableId: string,
         selectedColumn: { id: string; column: string }, //should these be id?
         selectedRow: { id: string; column: string }, //should these be id?
-        filter: Object
+        filter: Object,
+        aggFunction?: aggFunction,
+        aggField?: string
       ) => {
         const aggregateQuery = `
         query ${tableId}_groupBy($filter: ${tableId}Filter){
           ${tableId}_groupBy(filter: $filter) {
-            count,
+            ${aggFunction} ${aggFunction === "_sum" ? `{ ${aggField} }` : ""},
             ${selectedColumn.id} {
               ${selectedColumn.column}
             },
@@ -160,7 +163,7 @@ const client: IClient = {
 };
 export default client;
 
-const metaDataQuery = `{
+const metadataQuery = `{
   _schema {
     id,
     tables {
@@ -239,7 +242,7 @@ const fetchSchemaMetaData = async (
     return schemaCache.get(currentschemaId) as ISchemaMetaData;
   }
   return await axios
-    .post(graphqlURL(schemaId), { query: metaDataQuery })
+    .post(graphqlURL(schemaId), { query: metadataQuery })
     .then((result: AxiosResponse<{ data: { _schema: ISchemaMetaData } }>) => {
       const schema = result.data.data._schema;
       if (schemaId == null) {
@@ -257,18 +260,17 @@ const fetchSchemaMetaData = async (
 const fetchTableData = async (
   tableId: string,
   properties: IQueryMetaData,
-  metaData: ISchemaMetaData,
-  expandLevel: number = 2
+  metadata: ISchemaMetaData
 ) => {
   const limit = properties.limit ? properties.limit : 20;
   const offset = properties.offset ? properties.offset : 0;
-
+  const expandLevel = properties.expandLevel ?? 2;
   const search = properties.searchTerms
     ? ',search:"' + properties.searchTerms.trim() + '"'
     : "";
 
-  const schemaId = metaData.id;
-  const columnIds = getColumnIds(schemaId, tableId, metaData, expandLevel);
+  const schemaId = metadata.id;
+  const columnIds = await getColumnIds(schemaId, tableId, expandLevel);
   const tableDataQuery = `query ${tableId}( $filter:${tableId}Filter, $orderby:${tableId}orderby ) {
         ${tableId}(
           filter:$filter,
@@ -305,6 +307,7 @@ const fetchOntologyOptions = async (
   const tableDataQuery = `query ${tableId} {
         ${tableId}(
           limit:100000
+          orderby: { order: ASC }
           )
           {
           	order 

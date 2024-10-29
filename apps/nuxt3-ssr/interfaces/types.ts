@@ -1,30 +1,40 @@
-import type { IColumn } from "meta-data-utils";
+import type {
+  IDocumentation,
+  IFile,
+  INode,
+} from "../../tailwind-components/types/types";
+import type { ICollectionEvents, ISubpopulations } from "./catalogue";
 export interface IResource {
   id: string;
   pid: string;
-  acronym: string;
-  name: string;
-  website: string;
-  description: string;
-  contacts: IContributor[];
-  logo?: IUrlObject;
-}
-export interface ICohort {
-  id: string;
   name: string;
   acronym?: string;
   description?: string;
   website?: string;
   logo?: IUrlObject;
   contactEmail?: string;
+  organisationsInvolved?: IOrganisation[];
   institution?: {
     acronym: string;
   };
   type: INameObject[];
-  collectionType: INameObject[];
+  typeOther?: string;
+  cohortType: INameObject[];
+  networkType: INameObject[];
+  clinicalStudyType: INameObject[];
+  rWDType: INameObject[];
+  keywords?: string;
+  externalIdentifiers?: [
+    {
+      identifier: string;
+      externalIdentifierType: INameObject;
+    }
+  ];
+  dateLastRefresh?: string;
+  startYear?: string;
+  endYear?: string;
+  license?: string;
   populationAgeGroups?: IOntologyNode[];
-  startYear: number;
-  endYear: number;
   countries: {
     name: string;
     order: number;
@@ -41,24 +51,57 @@ export interface ICohort {
     definition: string;
     name: string;
   };
+  dataCollectionType?: {
+    definition: string;
+    name: string;
+  }[];
+  dataCollectionDescription?: string;
+  reasonSustained?: string;
+  unitOfObservation?: string;
+  recordTrigger?: string;
   designPaper?: {
     title: string;
     doi: string;
   }[];
   inclusionCriteria?: IOntologyNode[];
   otherInclusionCriteria?: string;
-  collectionEvents: ICollectionEvent[];
-  additionalOrganisations: IPartner[];
-  contacts: IContributor[];
+  collectionEvents: ICollectionEvents[];
+  collectionEvents_agg: { count: number };
+  peopleInvolved: IContributor[];
   networks: INetwork[];
+  publications: IPublication[];
   releaseDescription?: string;
   linkageOptions?: string;
   dataAccessConditionsDescription?: string;
   dataAccessConditions?: { name: string }[];
+  dataUseConditions?: IOntologyNode[];
+  dataAccessFee?: boolean;
+  prelinked?: boolean;
+  releaseType?: boolean;
   fundingStatement?: string;
   acknowledgements?: string;
   documentation?: IDocumentation[];
   datasets: { name: string }[];
+  populationOncologyTopology?: IOntologyNode[];
+  populationOncologyMorphology?: IOntologyNode[];
+  subpopulations: ISubpopulations[];
+  subpopulations_agg: { count: number };
+  partOfResources: IResource[];
+}
+
+export interface IPublication {
+  doi: string;
+  title?: string;
+  authors?: string[];
+  year?: number;
+  journal?: string;
+  volume?: number;
+  number?: number;
+  pagination?: number;
+  publisher?: string;
+  school?: string;
+  abstract?: string;
+  isDesignPublication: boolean;
 }
 
 export interface IVariableBase {
@@ -74,36 +117,39 @@ export interface IVariableBase {
   };
   label?: string;
   description?: string;
+  mg_tableclass?: string;
 }
 
 export interface IVariableDetails {
   unit?: IOntologyNode;
   format?: IOntologyNode;
+  repeatUnit: IOntologyItem;
+  repeatMin: number;
+  repeatMax: number;
 }
 
 export interface IVariableMappings {
   mappings?: IMapping[];
-  repeats?: {
-    name: string;
-    mappings: IMapping[];
-  }[];
 }
 
 export type IVariable = IVariableBase & IVariableDetails;
 export type IVariableWithMappings = IVariable & IVariableMappings;
 
-export interface IFile {
-  id?: string;
-  size?: number;
-  extension?: string;
-  url?: string;
-}
-
-export interface IDocumentation {
-  name: string;
-  description: string;
-  url: string;
-  file: IFile;
+export interface IOrganisation extends IPartner {
+  email: string;
+  type: {
+    name: string;
+  };
+  institution: any;
+  institutionAcronym: string;
+  typeOther: string;
+  address: string;
+  expertise: string;
+  country: {
+    name: string;
+  }[];
+  isLeadOrganisation: boolean;
+  role: IOntologyNode[];
 }
 
 export interface IPartner {
@@ -124,6 +170,7 @@ export interface IContributor {
   email: string;
   title: INameObject;
   organisation: INameObject;
+  role?: IOntologyNode[];
 }
 
 export interface INameObject {
@@ -132,23 +179,6 @@ export interface INameObject {
 
 export interface IUrlObject {
   url: string;
-}
-
-export interface ICollectionEvent {
-  name: string;
-  description: string;
-  startYear: INameObject;
-  endYear: number;
-  numberOfParticipants: number;
-  ageGroups: INameObject[];
-  definition: string;
-  dataCategories: ICollectionEventCategory[];
-  sampleCategories: ICollectionEventCategory[];
-  areasOfInformation: ICollectionEventCategory[];
-  standardizedTools: ICollectionEventCategory[];
-  standardizedToolsOther: string;
-  subcohorts: INameObject[];
-  coreVariables: string[];
 }
 
 export interface ICollectionEventCategory {
@@ -181,35 +211,22 @@ export interface IOntologyNode extends ITreeNode {
   code?: string;
   definition?: string;
   ontologyTermURI?: string;
-}
-
-interface IBaseFilter {
-  title: string;
-  initialCollapsed?: boolean;
-}
-
-interface ISearchFilter extends IBaseFilter {
-  columnType: "_SEARCH";
-  search?: string;
-}
-
-export interface IFilter extends IBaseFilter {
-  columnType: "_SEARCH" | "ONTOLOGY" | "REF_ARRAY";
-  refTableId?: string;
-  columnId?: string;
-  filterTable?: string;
-  conditions?: [] | { [key: string]: string }[];
-  searchTables?: string[];
-  search?: string;
+  order?: number;
 }
 
 export interface IFormField {
   name: string;
   label: string;
   fieldValue: string; // value is taken by vue reactivity
-  inputType: "string" | "textarea";
+  inputType: "string" | "textarea" | "select";
   hasError?: boolean;
   message?: string;
+  placeholder?: string;
+}
+
+export interface ISelectFormField extends IFormField {
+  inputType: "select";
+  options: string[] | number[];
 }
 
 export interface IContactFormData {
@@ -218,34 +235,26 @@ export interface IContactFormData {
   body: string;
 }
 
-export enum INotificationType {
-  light,
-  dark,
-  success,
-  error,
-  warning,
-  info,
-}
+export type INotificationType =
+  | "light"
+  | "dark"
+  | "success"
+  | "error"
+  | "warning"
+  | "info";
 
-export interface ISectionField {
-  meta: IColumn;
-  value: any;
-}
-
-export interface ISection {
-  meta: IColumn;
-  fields: ISectionField[];
-}
 export interface IMapping {
   syntax: string;
   description: string;
   match: {
-    name: string;
+    name: HarmonisationStatus;
   };
   source: {
     id: string;
     name: string;
+    mg_tableclass: string;
   };
+  repeats: string;
   sourceDataset: {
     resource: {
       id: string;
@@ -253,23 +262,29 @@ export interface IMapping {
     name: string;
   };
   sourceVariables: IVariableBase[] | IVariable[];
-  targetVariable: IVariableBase[] | IVariable[];
   sourceVariablesOtherDatasets: IVariableBase[] | IVariable[];
+  targetVariable: IVariableBase | IVariable;
 }
 
-export type HarmonizationStatus = "unmapped" | "partial" | "complete";
+export type HarmonisationStatus =
+  | "unmapped"
+  | "partial"
+  | "complete"
+  | "available";
 
-export type HarmonizationIconSize = "small" | "large";
+export type HarmonisationIconSize = "small" | "large";
 export interface IMgError {
   message: string;
   statusCode: number;
   data: { errors: { message: string }[] };
 }
 
+export type DefinitionListItemType = "ONTOLOGY" | "LINK" | "MAPPED";
+
 export interface IDefinitionListItem {
   label: string;
   tooltip?: string;
-  type?: string;
+  type?: DefinitionListItemType;
   content: any;
 }
 export interface IOntologyItem {
@@ -286,4 +301,168 @@ export interface IOntologyItem {
 
 export interface IOntologyParentTreeItem
   extends Omit<IOntologyItem, "children"> {}
+
+// generic emx2 graphql api response type, pass in query structure as T
+export interface GqlResp<T> {
+  data: Record<string, T[]>;
+}
+export interface IOntologyRespItem {
+  name: string;
+  definition?: string;
+  code?: string;
+  order?: number;
+  parent: {
+    name: string;
+  };
+}
+
+export type ButtonType =
+  | "primary"
+  | "secondary"
+  | "tertiary"
+  | "outline"
+  | "disabled"
+  | "filterWell";
+export type ButtonSize = "tiny" | "small" | "medium" | "large";
+export type ButtonIconPosition = "left" | "right";
+
 export interface IOntologyChildTreeItem extends Omit<IOntologyItem, "parent"> {}
+
+export interface IManifest {
+  ImplementationVersion: string;
+  SpecificationVersion: string;
+  DatabaseVersion: string;
+}
+
+export interface IManifestResponse {
+  data: {
+    _manifest: IManifest;
+  };
+}
+
+export type IFilter = ISearchFilter | IOntologyFilter | IRefArrayFilter;
+
+interface IAbstractFilter {
+  id: string;
+  search?: string;
+  config:
+    | ISearchFilterConfig
+    | IOntologyFilterConfig
+    | IRefArrayFilterDefaultConfig
+    | IRefArrayFilterCustomConfig;
+}
+export interface ISearchFilter extends IAbstractFilter {
+  search: string;
+  config: ISearchFilterConfig;
+}
+
+export interface IFilterConfig {
+  label: string;
+  initialCollapsed?: boolean;
+  filterTable?: string;
+}
+
+export interface ISearchFilterConfig extends IFilterConfig {
+  type: "SEARCH";
+  searchTables?: string[];
+}
+
+export interface IOntologyFilterConfig extends IFilterConfig {
+  type: "ONTOLOGY";
+  ontologyTableId: string;
+  ontologySchema: string;
+  filter: Record<String, Filter>;
+  columnId: string;
+  refFields?: filterRefField;
+}
+
+export interface IRefArrayFilterAbstractConfig extends IFilterConfig {
+  type: "REF_ARRAY";
+  refTableId: string;
+  refSchema?: string;
+  refFields?: filterRefField;
+  // optional function to build the filter bases on the selected options
+  // if empty the defualt builder will be used
+  buildFilterFunction?: Function;
+}
+
+export interface IRefArrayFilterDefaultConfig
+  extends IRefArrayFilterAbstractConfig {
+  columnId: string;
+}
+
+export interface IRefArrayFilterCustomConfig
+  extends IRefArrayFilterAbstractConfig {
+  // optional function to build the filter bases on the selected options
+  // if empty the defualt builder will be used
+  buildFilterFunction?: Function;
+}
+
+type filterRefField = {
+  [key: string]: string;
+};
+
+export type IFilterCondition = {
+  [id: string]: IFilterCondition | string;
+};
+
+export interface IOntologyFilter extends IAbstractFilter {
+  conditions: IFilterCondition[];
+  config: IOntologyFilterConfig;
+}
+
+export type IConditionsFilter = IOntologyFilter | IRefArrayFilter;
+
+export interface optionsFetchFn {
+  (): Promise<INode[]>;
+}
+
+export interface IRefArrayFilter extends IAbstractFilter {
+  conditions: IFilterCondition[];
+  config: IRefArrayFilterCustomConfig | IRefArrayFilterDefaultConfig;
+  options?: INode[] | optionsFetchFn;
+}
+
+export interface IPathCondition {
+  id: string;
+  search?: string;
+  conditions?: IFilterCondition[];
+}
+
+export interface IPathSearchCondition extends IPathCondition {
+  search: string;
+}
+
+export interface IPathConditionsCondition extends IPathCondition {
+  conditions: IFilterCondition[];
+}
+
+export type activeTabType = "detailed" | "compact";
+
+export interface IOrganization {
+  id: string;
+  name?: string;
+  email?: string;
+  description?: string;
+  website?: string;
+  acronym?: string;
+  type?: {
+    name: string;
+  };
+  institution?: any;
+  institutionAcronym?: string;
+  typeOther?: string;
+  address?: string;
+  expertise?: string;
+  country?: {
+    name: string;
+  };
+  logo?: IUrlObject;
+}
+
+export type linkTarget = "_self" | "_blank" | "_parent" | "_top";
+
+export interface UIResource {
+  id: string;
+  logo: { url: string };
+}

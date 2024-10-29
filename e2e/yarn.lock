@@ -2,28 +2,45 @@
 # yarn lockfile v1
 
 
-"@playwright/test@1.40.1":
-  version "1.40.1"
-  resolved "https://registry.yarnpkg.com/@playwright/test/-/test-1.40.1.tgz#9e66322d97b1d74b9f8718bacab15080f24cde65"
-  integrity sha512-EaaawMTOeEItCRvfmkI9v6rBkF1svM8wjl/YPRrg2N2Wmp+4qJYkWtJsbew1szfKKDm6fPLy4YAanBhIlf9dWw==
+"@playwright/test@1.47.1":
+  version "1.47.1"
+  resolved "https://registry.yarnpkg.com/@playwright/test/-/test-1.47.1.tgz#568a46229a5aef54b74977297a7946bb5ac4b67b"
+  integrity sha512-dbWpcNQZ5nj16m+A5UNScYx7HX5trIy7g4phrcitn+Nk83S32EBX/CLU4hiF4RGKX/yRc93AAqtfaXB7JWBd4Q==
   dependencies:
-    playwright "1.40.1"
+    playwright "1.47.1"
+
+"@types/node@22.5.5":
+  version "22.5.5"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-22.5.5.tgz#52f939dd0f65fc552a4ad0b392f3c466cc5d7a44"
+  integrity sha512-Xjs4y5UPO/CLdzpgR6GirZJx36yScjh73+2NlLlkFRSoQN8B0DpfXPdZGnvVmLRLOsqDpOfTNv7D9trgGhmOIA==
+  dependencies:
+    undici-types "~6.19.2"
 
 fsevents@2.3.2:
   version "2.3.2"
-  resolved "https://registry.yarnpkg.com/fsevents/-/fsevents-2.3.2.tgz#8a526f78b8fdf4623b709e0b975c52c24c02fd1a"
+  resolved "https://registry.npmjs.org/fsevents/-/fsevents-2.3.2.tgz"
   integrity sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA==
 
-playwright-core@1.40.1:
-  version "1.40.1"
-  resolved "https://registry.yarnpkg.com/playwright-core/-/playwright-core-1.40.1.tgz#442d15e86866a87d90d07af528e0afabe4c75c05"
-  integrity sha512-+hkOycxPiV534c4HhpfX6yrlawqVUzITRKwHAmYfmsVreltEl6fAZJ3DPfLMOODw0H3s1Itd6MDCWmP1fl/QvQ==
+install@0.13.0:
+  version "0.13.0"
+  resolved "https://registry.yarnpkg.com/install/-/install-0.13.0.tgz#6af6e9da9dd0987de2ab420f78e60d9c17260776"
+  integrity sha512-zDml/jzr2PKU9I8J/xyZBQn8rPCAY//UOYNmR01XwNwyfhEWObo2SWfSl1+0tm1u6PhxLwDnfsT/6jB7OUxqFA==
 
-playwright@1.40.1:
-  version "1.40.1"
-  resolved "https://registry.yarnpkg.com/playwright/-/playwright-1.40.1.tgz#a11bf8dca15be5a194851dbbf3df235b9f53d7ae"
-  integrity sha512-2eHI7IioIpQ0bS1Ovg/HszsN/XKNwEG1kbzSDDmADpclKc7CyqkHw7Mg2JCz/bbCxg25QUPcjksoMW7JcIFQmw==
+playwright-core@1.47.1:
+  version "1.47.1"
+  resolved "https://registry.yarnpkg.com/playwright-core/-/playwright-core-1.47.1.tgz#bb45bdfb0d48412c535501aa3805867282857df8"
+  integrity sha512-i1iyJdLftqtt51mEk6AhYFaAJCDx0xQ/O5NU8EKaWFgMjItPVma542Nh/Aq8aLCjIJSzjaiEQGW/nyqLkGF1OQ==
+
+playwright@1.47.1:
+  version "1.47.1"
+  resolved "https://registry.yarnpkg.com/playwright/-/playwright-1.47.1.tgz#cdc1116f5265b8d2ff7be0d8942d49900634dc6c"
+  integrity sha512-SUEKi6947IqYbKxRiqnbUobVZY4bF1uu+ZnZNJX9DfU1tlf2UhWfvVjLf01pQx9URsOr18bFVUKXmanYWhbfkw==
   dependencies:
-    playwright-core "1.40.1"
+    playwright-core "1.47.1"
   optionalDependencies:
     fsevents "2.3.2"
+
+undici-types@~6.19.2:
+  version "6.19.8"
+  resolved "https://registry.npmjs.org/undici-types/-/undici-types-6.19.8.tgz"
+  integrity sha512-ve2KP6f/JnbPBFyobGHuerC9g1FYGn/F8n1LWTwNxCEzd6IfqTwUQcNXgEtmmQ6DlRrC1hrSrBnCZPokRrDHjw==

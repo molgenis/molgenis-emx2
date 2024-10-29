@@ -7,7 +7,7 @@
       </span>
       <input
         @click.stop
-        @change="(e) => selectOption(e.target.checked, option)"
+        @change="(event) => selectOption(event.target?.checked, option)"
         type="checkbox"
         :ref="`${option.name}-checkbox`"
         class="mr-1"
@@ -34,18 +34,16 @@
   </ul>
 </template>
 
-<script>
+<script lang="ts">
 import { defineAsyncComponent } from "vue";
-import { useSettingsStore } from "../../../stores/settingsStore";
 import { useFiltersStore } from "../../../stores/filtersStore";
 
 /** need to lazy load because it gets toooo large quickly. Over 9000! */
 const TreeComponent = defineAsyncComponent(() => import("./TreeComponent.vue"));
 export default {
   setup() {
-    const settingsStore = useSettingsStore();
     const filtersStore = useFiltersStore();
-    return { settingsStore, filtersStore };
+    return { filtersStore };
   },
   emits: ["indeterminate-update"],
   props: {
@@ -74,7 +72,7 @@ export default {
   },
   data() {
     return {
-      open: false,
+      open: !!this.filter,
       childIsIndeterminate: false,
       selectedChildren: [],
     };
@@ -83,6 +81,9 @@ export default {
     indeterminateState(status) {
       this.signalParentOurIndeterminateStatus(status);
     },
+    filter(newFilter) {
+      this.open = !!newFilter;
+    },
   },
   computed: {
     currentFilterSelection() {
@@ -90,22 +91,28 @@ export default {
       return this.filtersStore.getFilterValue(this.facetIdentifier) || [];
     },
     selected() {
-      if (this.parentSelected) return true;
-
-      if (!this.currentFilterSelection || !this.currentFilterSelection.length)
+      if (this.parentSelected) {
+        return true;
+      } else if (!this.currentFilterSelection?.length) {
         return false;
-      else
+      } else {
         return this.currentFilterSelection.some(
-          (selectedValue) => selectedValue.name === this.option.name
+          (selectedValue: Record<string, any>) =>
+            selectedValue.name === this.option.name
         );
+      }
     },
     numberOfChildrenInSelection() {
-      if (!this.option.children) return 0;
+      if (!this.option.children) {
+        return 0;
+      }
+
       const childNames = this.option.children.map(
-        (childOption) => childOption.name
+        (childOption: Record<string, any>) => childOption.name
       );
       const selectedChildren = this.currentFilterSelection.filter(
-        (selectedOption) => childNames.includes(selectedOption.name)
+        (selectedOption: Record<string, any>) =>
+          childNames.includes(selectedOption.name)
       );
       return selectedChildren.length;
     },
@@ -122,7 +129,7 @@ export default {
   },
 
   methods: {
-    selectOption(checked, option) {
+    selectOption(checked: boolean, option: Record<string, any>) {
       /** if it is checked we add */
       this.filtersStore.updateOntologyFilter(
         this.facetIdentifier,
@@ -130,7 +137,7 @@ export default {
         checked
       );
     },
-    signalParentOurIndeterminateStatus(status) {
+    signalParentOurIndeterminateStatus(status: boolean) {
       this.childIsIndeterminate = status;
       this.$emit("indeterminate-update", status);
     },

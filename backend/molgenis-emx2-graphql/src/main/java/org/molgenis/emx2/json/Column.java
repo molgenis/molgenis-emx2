@@ -16,7 +16,7 @@ public class Column {
   private boolean drop = false; // needed in case of migrations
   private String oldName;
   private Integer key = 0;
-  private Boolean required = false;
+  private String required = null;
   private Boolean readonly = false;
   private String defaultValue;
   private String refSchemaId = null;
@@ -38,6 +38,7 @@ public class Column {
   private List<LanguageValue> descriptions = new ArrayList<>();
   private ColumnType columnType = ColumnType.STRING;
   private String[] semantics = null;
+  private String[] profiles = null;
 
   private boolean inherited = false;
 
@@ -67,27 +68,30 @@ public class Column {
       this.columnType = column.getColumnType();
     }
     if (column.isReference()) {
-      this.refSchemaId =
-          column.getRefSchemaName().equals(column.getSchemaName())
-              ? null
-              : column.getRefSchemaName();
+      if (column.getSchema().getDatabase() != null) {
+        this.refTableId = column.getRefTable().getIdentifier();
+        this.refLabelDefault = column.getRefLabelDefault();
+      }
+      this.refSchemaId = column.getRefSchemaName();
       this.refSchemaName = column.getRefSchemaName();
-      this.refTableId = column.getRefTable().getIdentifier();
       this.refTableName = column.getRefTableName();
       if (column.getRefLinkColumn() != null) {
-        this.refLinkId = column.getRefLinkColumn().getIdentifier();
+        if (column.getTable().getSchema().getDatabase() != null) {
+          this.refLinkId = column.getRefLinkColumn().getIdentifier();
+        }
         this.refLinkName = column.getRefLink();
       }
       if (column.getRefBack() != null) {
-        this.refBackId = column.getRefBackColumn().getIdentifier();
+        if (column.getTable().getSchema().getDatabase() != null) {
+          this.refBackId = column.getRefBackColumn().getIdentifier();
+        }
         this.refBackName = column.getRefBack();
       }
     }
     this.refLabel = column.getRefLabel();
-    this.refLabelDefault = column.getRefLabelDefault();
     // this.cascadeDelete = column.isCascadeDelete();
     this.validation = column.getValidation();
-    this.required = column.isRequired();
+    this.setRequired(column.getRequired());
     this.readonly = column.isReadonly();
     this.defaultValue = column.getDefaultValue();
     this.descriptions =
@@ -97,6 +101,7 @@ public class Column {
     this.semantics = column.getSemantics();
     this.visible = column.getVisible();
     this.computed = column.getComputed();
+    this.profiles = column.getProfiles();
 
     // calculated field
     if (table.getInheritName() != null)
@@ -160,12 +165,20 @@ public class Column {
     this.key = key;
   }
 
-  public Boolean getRequired() {
-    return required;
+  public boolean isRequired() {
+    return required != null && required.equals("true");
   }
 
   public void setRequired(Boolean required) {
+    this.required = required.toString();
+  }
+
+  public void setRequired(String required) {
     this.required = required;
+  }
+
+  public String getRequired() {
+    return this.required;
   }
 
   public String getRefTableId() {
@@ -382,5 +395,13 @@ public class Column {
 
   public void setDescription(String description) {
     this.description = description;
+  }
+
+  public String[] getProfiles() {
+    return profiles;
+  }
+
+  public void setProfiles(String[] profiles) {
+    this.profiles = profiles;
   }
 }

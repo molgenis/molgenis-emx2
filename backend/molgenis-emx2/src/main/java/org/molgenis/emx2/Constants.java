@@ -25,6 +25,7 @@ public class Constants {
   public static final String IS_CHANGELOG_ENABLED = "isChangelogEnabled";
   public static final String TEMPLATE = "template";
   public static final String INCLUDE_DEMO_DATA = "includeDemoData";
+  public static final String PARENT_JOB = "parentJob";
   public static final String SEMANTICS = "semantics";
   public static final String ROLE = "role";
   public static final String KEY = "key";
@@ -49,6 +50,7 @@ public class Constants {
   public static final String MOLGENIS_POSTGRES_PASS = "MOLGENIS_POSTGRES_PASS";
   public static final String MOLGENIS_HTTP_PORT = "MOLGENIS_HTTP_PORT";
   public static final String MOLGENIS_ADMIN_PW = "MOLGENIS_ADMIN_PW";
+  public static final String MOLGENIS_INSTANCE_ID = "MOLGENIS_INSTANCE_ID";
 
   public static final String IS_OIDC_ENABLED = "isOidcEnabled";
   public static final String MOLGENIS_OIDC_CLIENT_ID = "MOLGENIS_OIDC_CLIENT_ID";
@@ -56,7 +58,10 @@ public class Constants {
   public static final String MOLGENIS_OIDC_CLIENT_NAME = "MOLGENIS_OIDC_CLIENT_NAME";
   public static final String MOLGENIS_OIDC_DISCOVERY_URI = "MOLGENIS_OIDC_DISCOVERY_URI";
   public static final String MOLGENIS_OIDC_CALLBACK_URL = "MOLGENIS_OIDC_CALLBACK_URL";
+  public static final String MOLGENIS_OIDC_UNSIGNED_TOKEN = "MOLGENIS_OIDC_UNSIGNED_TOKEN";
   public static final String MOLGENIS_INCLUDE_CATALOGUE_DEMO = "MOLGENIS_INCLUDE_CATALOGUE_DEMO";
+  public static final String MOLGENIS_INCLUDE_DIRECTORY_DEMO = "MOLGENIS_INCLUDE_DIRECTORY_DEMO";
+  public static final String MOLGENIS_EXCLUDE_PETSTORE_DEMO = "MOLGENIS_EXCLUDE_PETSTORE_DEMO";
 
   public static final String MOLGENIS_JWT_SHARED_SECRET = "MOLGENIS_JWT_SHARED_SECRET";
 
@@ -73,6 +78,13 @@ public class Constants {
     EQUALS, NOT_EQUALS, LIKE, NOT_LIKE, TRIGRAM_SEARCH, TEXT_SEARCH
   };
   protected static final Operator[] EQUALITY_OPERATORS = {EQUALS, NOT_EQUALS};
+
+  // n.b. we allow _SYSTEM_
+  protected static final String SCHEMA_NAME_REGEX = "^(?!.* _|.*_ )[a-zA-Z][-a-zA-Z0-9 _]{0,62}$";
+
+  protected static final String TABLE_NAME_REGEX = "^(?!.* _|.*_ )[a-zA-Z][a-zA-Z0-9 _]{0,30}$";
+
+  protected static final String COLUMN_NAME_REGEX = "^(?!.* _|.*_ )[a-zA-Z][a-zA-Z0-9 _]{0,62}$";
 
   // RFC 5322, see http://emailregex.com/
   protected static final String EMAIL_REGEX =

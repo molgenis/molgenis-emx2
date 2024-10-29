@@ -1,45 +1,42 @@
 package org.molgenis.emx2.web;
 
-import static org.molgenis.emx2.web.BeaconApi.getTableFromAllSchemas;
-import static spark.Spark.get;
-
+import io.javalin.Javalin;
+import io.javalin.http.Context;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
+import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.graphgenome.GraphGenome;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import spark.Request;
-import spark.Response;
-import spark.utils.StringUtils;
 
 public class GraphGenomeApi {
   private static Logger logger = LoggerFactory.getLogger(GraphqlApi.class);
   private static MolgenisSessionManager sessionManager;
   public static final String GRAPH_GENOME_API_LOCATION = "/api/graphgenome";
 
-  public static void create(MolgenisSessionManager sm) {
+  public static void create(Javalin app, MolgenisSessionManager sm) {
     sessionManager = sm;
-    get(GRAPH_GENOME_API_LOCATION, GraphGenomeApi::graphGenomeForDatabase);
+    app.get(GRAPH_GENOME_API_LOCATION, GraphGenomeApi::graphGenomeForDatabase);
   }
 
-  private static int graphGenomeForDatabase(Request request, Response response) throws IOException {
-    List<Table> tables = getTableFromAllSchemas("GenomicVariations", request);
-    OutputStream outputStream = response.raw().getOutputStream();
+  private static int graphGenomeForDatabase(Context ctx) throws IOException {
 
-    String gene = request.queryParams("gene");
-    String assembly = request.queryParams("assembly");
-    String ucscgenome = request.queryParams("ucscgenome");
+    Database database = sessionManager.getSession(ctx.req()).getDatabase();
+    List<Table> tables = database.getTablesFromAllSchemas("GenomicVariations");
+    OutputStream outputStream = ctx.outputStream();
+
+    String gene = ctx.queryParam("gene");
+    String assembly = ctx.queryParam("assembly");
+    String ucscgenome = ctx.queryParam("ucscgenome");
     String baseURL =
-        request.scheme()
+        ctx.scheme()
             + "://"
-            + request.host()
-            + (request.port() > 0 ? ":" + request.port() : "")
-            + (StringUtils.isNotEmpty(request.servletPath())
-                ? "/" + request.servletPath() + "/"
-                : "/");
-    var format = RDFApi.selectFormat(request);
+            + ctx.host()
+            + (ctx.port() > 0 ? ":" + ctx.port() : "")
+            + (!ctx.path().isEmpty() ? "/" + ctx.path() + "/" : "/");
+    var format = RDFApi.selectFormat(ctx);
     new GraphGenome(baseURL, RDFApi.RDF_API_LOCATION, format)
         .graphGenomeAsRDF(
             outputStream, gene, assembly, ucscgenome, GRAPH_GENOME_API_LOCATION, tables);

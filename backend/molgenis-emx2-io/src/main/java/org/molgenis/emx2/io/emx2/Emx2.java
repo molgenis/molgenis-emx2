@@ -118,7 +118,7 @@ public class Emx2 {
           if (r.notNull(REF_TABLE)) column.setRefTable(r.getString(REF_TABLE));
           if (r.notNull(REF_LINK)) column.setRefLink(r.getString(REF_LINK));
           if (r.notNull(REF_BACK)) column.setRefBack(r.getString(REF_BACK));
-          if (r.notNull(REQUIRED)) column.setRequired(r.getBoolean(REQUIRED));
+          if (r.notNull(REQUIRED)) column.setRequired(r.getString(REQUIRED));
           if (r.notNull(DEFAULT_VALUE)) column.setDefaultValue(r.getString(DEFAULT_VALUE));
           if (r.notNull(DESCRIPTION)) column.setDescription(r.getString(DESCRIPTION));
           // description i18n
@@ -269,7 +269,7 @@ public class Emx2 {
         row.setString(COLUMN_NAME, c.getName());
         if (!c.getColumnType().equals(STRING))
           row.setString(COLUMN_TYPE, c.getColumnType().toString().toLowerCase());
-        if (c.isRequired()) row.setBool(REQUIRED, c.isRequired());
+        if (c.getRequired() != null) row.setString(REQUIRED, c.getRequired());
         if (c.getDefaultValue() != null) row.setString(DEFAULT_VALUE, c.getDefaultValue());
         if (c.getKey() > 0) row.setInt(KEY, c.getKey());
         if (c.getRefSchemaName() != null && !c.getRefSchemaName().equals(c.getSchemaName()))

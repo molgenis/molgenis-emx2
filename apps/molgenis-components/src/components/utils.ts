@@ -1,10 +1,10 @@
 import type { IRow } from "../Interfaces/IRow";
 import constants from "./constants";
 import Client from "../client/client";
-import type { IColumn } from "meta-data-utils";
+import type { IColumn, ITableMetaData } from "metadata-utils";
+import { executeExpression } from "./forms/formUtils/formUtils";
 
-const { CODE_0, CODE_9, CODE_BACKSPACE, CODE_DELETE, MIN_LONG, MAX_LONG } =
-  constants;
+const { CODE_0, CODE_9, CODE_PERIOD, MIN_LONG, MAX_LONG, AUTO_ID } = constants;
 
 export function isRefType(columnType: string): boolean {
   return ["REF", "REF_ARRAY", "REFBACK", "ONTOLOGY", "ONTOLOGY_ARRAY"].includes(
@@ -14,11 +14,7 @@ export function isRefType(columnType: string): boolean {
 
 export function isNumericKey(event: KeyboardEvent): boolean {
   const keyCode = event.which ?? event.keyCode;
-  return (
-    (keyCode >= CODE_0 && keyCode <= CODE_9) ||
-    keyCode === CODE_BACKSPACE ||
-    keyCode === CODE_DELETE
-  );
+  return (keyCode >= CODE_0 && keyCode <= CODE_9) || keyCode === CODE_PERIOD;
 }
 
 export function flattenObject(object: Record<string, any>): string {
@@ -101,15 +97,15 @@ export function filterObject(
   );
 }
 
-export function flipSign(value: string): string | null {
+export function flipSign(value: string | null): string | null {
   switch (value) {
     case "-":
-      return null;
+      return "";
     case null:
       return "-";
     default:
-      if (value.toString().charAt(0) === "-") {
-        return value.toString().substring(1);
+      if (value.charAt(0) === "-") {
+        return value.substring(1);
       } else {
         return "-" + value;
       }
@@ -136,7 +132,7 @@ export function isInvalidBigInt(value: string): boolean {
 }
 
 export function applyJsTemplate(
-  object: object,
+  object: Record<string, any>,
   labelTemplate: string
 ): string | undefined {
   if (object === undefined || object === null) {
@@ -145,8 +141,12 @@ export function applyJsTemplate(
   const ids = Object.keys(object);
   const vals = Object.values(object);
   try {
-    // @ts-ignore
-    return new Function(...ids, "return `" + labelTemplate + "`;")(...vals);
+    const label = new Function(...ids, "return `" + labelTemplate + "`;")(
+      ...vals
+    );
+    if (label) {
+      return label;
+    }
   } catch (err: any) {
     // The template is not working, lets try and fail gracefully
     console.log(
@@ -158,20 +158,19 @@ export function applyJsTemplate(
         " and template: " +
         labelTemplate
     );
-
-    if (object.hasOwnProperty("primaryKey")) {
-      return flattenObject((object as any).primaryKey);
-    }
-
-    if (object.hasOwnProperty("name")) {
-      return (object as any).name;
-    }
-
-    if (object.hasOwnProperty("id")) {
-      return (object as any).id;
-    }
-    return flattenObject(object);
   }
+  if (object.hasOwnProperty("primaryKey")) {
+    return flattenObject(object.primaryKey);
+  }
+
+  if (object.hasOwnProperty("name")) {
+    return object.name;
+  }
+
+  if (object.hasOwnProperty("id")) {
+    return object.id;
+  }
+  return flattenObject(object);
 }
 
 /** horrible that this is not standard, found this here https://dmitripavlutin.com/how-to-compare-objects-in-javascript/#4-deep-equality*/
@@ -198,6 +197,30 @@ export function deepEqual(
   return true;
 }
 
-function isObject(object: Record<string, any>): object is Object {
+function isObject(object: Record<string, any> | null): object is Object {
   return object !== null && typeof object === "object";
+}
+
+export function applyComputed(rows: IRow[], tableMetadata: ITableMetaData) {
+  return rows?.map((row) => {
+    return tableMetadata.columns.reduce((accum: IRow, column: IColumn) => {
+      if (column.computed && column.columnType !== AUTO_ID) {
+        try {
+          accum[column.id] = executeExpression(
+            column.computed,
+            row,
+            tableMetadata
+          );
+        } catch (error) {
+          console.log("Computed expression failed: ", error);
+          accum[column.id] = "error: could not compute value: " + error;
+        }
+      } else if (row.hasOwnProperty(column.id)) {
+        accum[column.id] = row[column.id];
+      } else {
+        // don't add empty property that didn't exist before
+      }
+      return accum;
+    }, {});
+  });
 }

@@ -112,7 +112,7 @@ export const useCollectionStore = defineStore("collectionStore", () => {
         "disease.label",
         "disease.name",
       ])
-      .where("id")
+      .where("collection.id")
       .like(id);
 
     const factResults = await factQuery.execute();

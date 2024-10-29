@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.molgenis.emx2.tasks.TaskStatus.COMPLETED;
 import static org.molgenis.emx2.tasks.TaskStatus.ERROR;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -44,11 +46,29 @@ print('Complete')
 
     System.out.println("\nsecond");
     ScriptTask r2 =
-        new ScriptTask("error").script("""
+        new ScriptTask("error")
+            .script(
+                """
 import sys
 print('Error message', file=sys.stderr)
 """);
     // System.out.println(r2);
     r2.run();
+  }
+
+  @Test
+  public void testPythonScript_shouldFail() throws MalformedURLException {
+    Task task =
+        new ScriptTask("error")
+            .script(
+                """
+import sys
+failureVariable = fail
+print('unreachable')
+""")
+            .setServerUrl(new URL("http://localhost:8080/"))
+            .failureAddress("test@test.com");
+    task.run();
+    assertEquals(task.getStatus(), ERROR);
   }
 }

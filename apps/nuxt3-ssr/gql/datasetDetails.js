@@ -1,15 +1,17 @@
 import gql from "graphql-tag";
 export default gql`
-  query Datasets($id: String, $name: String) {
+  query Datasets($resource: String, $name: String) {
     Datasets(
-      filter: { resource: { id: { equals: [$id] } }, name: { equals: [$name] } }
+      filter: {
+        resource: { id: { equals: [$resource] } }
+        name: { equals: [$name] }
+      }
     ) {
-      name
-      description
       resource {
         id
       }
       name
+      description
       label
       unitOfObservation {
         name
@@ -19,7 +21,6 @@ export default gql`
         name
         code
       }
-      description
       numberOfRows
       mappedTo {
         source {

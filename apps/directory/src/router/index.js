@@ -5,6 +5,7 @@ import Landingpage from "../views/Landingpage.vue";
 import BiobankReport from "../views/BiobankReport.vue";
 import NetworkReport from "../views/NetworkReport.vue";
 import CollectionReport from "../views/CollectionReport.vue";
+import StudyReport from "../views/StudyReport.vue";
 import ConfigurationScreen from "../views/ConfigurationScreen.vue";
 import { useSettingsStore } from "../stores/settingsStore";
 
@@ -33,20 +34,27 @@ const router = createRouter({
     },
     { path: "/network/:id", name: "networkdetails", component: NetworkReport },
     {
+      path: "/study/:id",
+      name: "studydetails",
+      component: StudyReport,
+    },
+    {
       path: "/configuration",
       component: ConfigurationScreen,
-      beforeEnter: async (to, from, next) => {
+      beforeEnter: async (_to, _from, next) => {
         const settingsStore = useSettingsStore();
         await settingsStore.initializeConfig();
         if (settingsStore.showSettings) {
           next();
-        } else next("/");
+        } else {
+          next("/");
+        }
       },
     },
     {
       path: "/",
       component: Landingpage,
-      beforeEnter: async (to, from, next) => {
+      beforeEnter: async (to, _from, next) => {
         const settingsStore = useSettingsStore();
         await settingsStore.initializeConfig();
         if (
@@ -60,6 +68,9 @@ const router = createRouter({
       },
     },
   ],
+  scrollBehavior() {
+    return { top: 0 };
+  },
 });
 
 export default router;

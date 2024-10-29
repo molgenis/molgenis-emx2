@@ -142,7 +142,7 @@ public class TableStoreForCsvInZipFile implements TableAndFileStore {
   }
 
   @Override
-  public Collection<String> tableNames() {
+  public Collection<String> getTableNames() {
     List<String> result = new ArrayList<>();
     try (ZipFile zf = new ZipFile(zipFilePath.toFile())) {
       zf.stream()
@@ -176,11 +176,19 @@ public class TableStoreForCsvInZipFile implements TableAndFileStore {
     }
   }
 
-  // magic function to allow file in subfolder
   private ZipEntry getEntry(ZipFile zf, String name) {
+    String nameWithoutSpaces = name.replace(" ", "").toLowerCase();
     List<? extends ZipEntry> result =
         // find all files that have name as prefix
-        zf.stream().filter(e -> new File(e.getName()).getName().startsWith(name + ".")).toList();
+        zf.stream()
+            .filter(
+                entry ->
+                    new File(entry.getName())
+                        .getName()
+                        .replace(" ", "")
+                        .toLowerCase()
+                        .startsWith(nameWithoutSpaces + "."))
+            .toList();
     if (result.size() > 1) {
       throw new MolgenisException(
           "Import failed, contains multiple files of name " + name + " in different subfolders");

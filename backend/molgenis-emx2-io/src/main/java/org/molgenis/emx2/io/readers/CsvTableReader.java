@@ -1,10 +1,9 @@
 package org.molgenis.emx2.io.readers;
 
 import java.io.*;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.apache.commons.io.input.BOMInputStream;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.simpleflatmapper.csv.CsvParser;
@@ -16,7 +15,7 @@ public class CsvTableReader {
   }
 
   public static Iterable<Row> read(File f) throws IOException {
-    return read(new FileReader(f));
+    return read(new InputStreamReader(new BOMInputStream(new FileInputStream(f))));
   }
 
   public static Iterable<Row> read(Reader in) {
@@ -76,7 +75,13 @@ public class CsvTableReader {
             }
 
             public Row next() {
-              return new Row(it.next());
+              HashMap<String, Object> next = (HashMap<String, Object>) it.next();
+              boolean isEmpty = next.values().stream().allMatch(Objects::isNull);
+              while (isEmpty && it.hasNext()) {
+                next = (HashMap<String, Object>) it.next();
+                isEmpty = next.values().stream().allMatch(Objects::isNull);
+              }
+              return new Row(next);
             }
 
             @Override

@@ -1,24 +1,31 @@
 <template>
   <Molgenis v-model="session">
+    <template v-if="banner" #banner>
+      <div v-html="banner"></div>
+    </template>
     <RouterView @click="closeAllDropdownButtons" />
+    <template #footer>
+      <Footer />
+    </template>
   </Molgenis>
 </template>
 
 <script setup>
 import { Molgenis } from "molgenis-components";
-import { computed, onMounted, watch } from "vue";
-import { applyBookmark } from "./functions/bookmarkMapper";
+import { computed, onMounted, watch, ref } from "vue";
+import { applyBookmark, createBookmark } from "./functions/bookmarkMapper";
 import { useRoute } from "vue-router";
 import { useFiltersStore } from "./stores/filtersStore";
 import { useCheckoutStore } from "./stores/checkoutStore";
 import { useSettingsStore } from "./stores/settingsStore";
+import Footer from "./components/Footer.vue";
 
 const route = useRoute();
-
 const query = computed(() => route.query);
-
 const filtersStore = useFiltersStore();
 const checkoutStore = useCheckoutStore();
+
+const banner = ref("");
 
 watch(
   query,
@@ -37,7 +44,7 @@ watch(
       newQuery &&
       Object.keys(newQuery).length === 0
     ) {
-      filtersStore.clearAllFilters();
+      createBookmark(filtersStore.filters, checkoutStore.selectedCollections);
       applyBookmark(newQuery);
     }
 
@@ -50,6 +57,10 @@ watch(
 onMounted(async () => {
   const settingsStore = useSettingsStore();
   await settingsStore.initializeConfig();
+
+  if (settingsStore.config.banner) {
+    banner.value = settingsStore.config.banner;
+  }
 });
 
 function closeAllDropdownButtons(event) {
@@ -83,40 +94,3 @@ export default {
   },
 };
 </script>
-
-<style>
-/* removing the built-in nav because it conflicts */
-nav[aria-label="breadcrumb"]:not(.directory-nav) {
-  display: none;
-}
-ol.breadcrumb {
-  margin-top: 0.25rem !important;
-  margin-bottom: 0.25rem !important;
-}
-
-/* emx2 style override */
-#app > div {
-  background-color: white !important;
-}
-nav.navbar {
-  background-color: #e9ecef !important;
-}
-nav.navbar a.nav-link,
-nav.navbar button.btn {
-  color: #495057 !important;
-  background-color: transparent;
-}
-nav.navbar a.nav-link:hover,
-nav.navbar button.btn:hover {
-  color: #ec6707 !important;
-}
-
-nav.navbar button.btn.btn-outline-light:not(.border-0) {
-  border-color: #495057 !important;
-}
-nav.navbar button.btn.btn-outline-light:not(.border-0):hover {
-  border-color: #ec6707 !important;
-  background-color: #ec6707 !important;
-  color: #dbedff !important;
-}
-</style>

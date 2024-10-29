@@ -1,11 +1,9 @@
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 
-const host = "https://beta-erncranio.molgeniscloud.org";
-const schema = "NL2";
-const opts = { changeOrigin: true, secure: false, logLevel: "debug" };
-
 export default defineConfig(() => {
+  require("dotenv").config({ path: `./.env` });
+
   return {
     css: {
       preprocessorOptions: {
@@ -22,28 +20,7 @@ export default defineConfig(() => {
     plugins: [vue()],
     base: "",
     server: {
-      proxy: {
-        "/api/graphql": {
-          target: `${host}/${schema}`,
-          ...opts,
-        },
-        "^/[a-zA-Z0-9_.%-]+/api/graphql": {
-          target: host,
-          ...opts,
-        },
-        "/api": {
-          target: `${host}/api`,
-          ...opts,
-        },
-        "/apps": {
-          target: host,
-          ...opts,
-        },
-        "/theme.css": {
-          target: `${host}/apps/central`,
-          ...opts,
-        },
-      },
+      proxy: require("../dev-proxy.config"),
     },
   };
 });

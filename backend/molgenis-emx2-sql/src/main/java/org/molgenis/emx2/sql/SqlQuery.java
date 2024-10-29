@@ -1,10 +1,9 @@
 package org.molgenis.emx2.sql;
 
 import static org.jooq.impl.DSL.*;
-import static org.molgenis.emx2.Constants.MG_TABLECLASS;
-import static org.molgenis.emx2.Constants.TEXT_SEARCH_COLUMN_NAME;
+import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.Operator.*;
-import static org.molgenis.emx2.Privileges.VIEWER;
+import static org.molgenis.emx2.Privileges.*;
 import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.searchColumnName;
 import static org.molgenis.emx2.utils.TypeUtils.*;
@@ -16,6 +15,7 @@ import org.jooq.Record;
 import org.jooq.Table;
 import org.jooq.conf.ParamType;
 import org.jooq.impl.DSL;
+import org.jooq.impl.SQLDataType;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.Operator;
 import org.molgenis.emx2.Row;
@@ -24,12 +24,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SqlQuery extends QueryBean {
+  public static int AGGREGATE_COUNT_THRESHOLD = Integer.MIN_VALUE; // threshold disabled by default
   public static final String COUNT_FIELD = "count";
-  public static final String GROUPBY_FIELD = "groupBy";
+  public static final String EXISTS_FIELD = "exists";
   public static final String MAX_FIELD = "max";
   public static final String MIN_FIELD = "min";
   public static final String AVG_FIELD = "avg";
-  public static final String SUM_FIELD = "sum";
+  public static final String SUM_FIELD = "_sum";
   public static final String UNNEST_0 = "UNNEST({0})";
 
   private static final String QUERY_FAILED = "Query failed: ";
@@ -120,7 +121,8 @@ public class SqlQuery extends QueryBean {
     // where
     Condition condition = whereConditions(table, tableAlias, filter, searchTerms);
     SelectConnectByStep<org.jooq.Record> where = condition != null ? from.where(condition) : from;
-    SelectConnectByStep<org.jooq.Record> query = limitOffsetOrderBy(table, select, where);
+    SelectConnectByStep<org.jooq.Record> query =
+        limitOffsetOrderBy(table, select, where, tableAlias);
 
     // execute
     try {
@@ -153,7 +155,7 @@ public class SqlQuery extends QueryBean {
       Column column = getColumnByName(table, select.getColumn());
       String columnAlias = prefix.equals("") ? column.getName() : prefix + "-" + column.getName();
       if (column.isFile()) {
-        // check what they want to get, contents, mimetype, size and/or extension
+        // check what they want to get, contents, mimetype, size, filename and/or extension
         if (select.getSubselect().isEmpty() || select.has("id")) {
           fields.add(field(name(column.getName())));
         }
@@ -165,6 +167,9 @@ public class SqlQuery extends QueryBean {
         }
         if (select.has("mimetype")) {
           fields.add(field(name(column.getName() + "_mimetype")));
+        }
+        if (select.has("filename")) {
+          fields.add(field(name(column.getName() + "_filename")));
         }
         if (select.has("extension")) {
           fields.add(field(name(column.getName() + "_extension")));
@@ -204,6 +209,13 @@ public class SqlQuery extends QueryBean {
       }
     }
     return fields;
+  }
+
+  private Field<String> intervalField(String tableAlias, Column column) {
+    Field<?> intervalField = field(name(alias(tableAlias), column.getName()));
+    Field<String> functionCallField =
+        function("\"MOLGENIS\".interval_to_iso8601", String.class, intervalField);
+    return functionCallField.as(name(column.getIdentifier()));
   }
 
   private SelectConditionStep<org.jooq.Record> rowBackrefSubselect(
@@ -255,15 +267,14 @@ public class SqlQuery extends QueryBean {
               + " unknown for JSON queries in schema "
               + schema.getName());
     }
+    String tableAlias = "gql_" + table.getTableName();
     if (select.getColumn().endsWith("_agg")) {
       fields.add(
-          jsonAggregateSelect(
-                  table, null, table.getTableName(), select, getFilter(), getSearchTerms())
+          jsonAggregateSelect(table, null, tableAlias, select, getFilter(), getSearchTerms())
               .as(convertToPascalCase(select.getColumn())));
     } else if (select.getColumn().endsWith("_groupBy")) {
       fields.add(
-          jsonGroupBySelect(
-                  table, null, table.getTableName(), select, getFilter(), getSearchTerms())
+          jsonGroupBySelect(table, null, tableAlias, select, getFilter(), getSearchTerms())
               .as(convertToPascalCase(select.getColumn())));
     } else {
       // select all on root level as default
@@ -275,7 +286,7 @@ public class SqlQuery extends QueryBean {
         }
       }
       fields.add(
-          jsonSubselect(table, null, table.getTableName(), select, getFilter(), getSearchTerms())
+          jsonSubselect(table, null, tableAlias, select, getFilter(), getSearchTerms())
               .as(name(convertToPascalCase(select.getColumn()))));
     }
 
@@ -316,28 +327,19 @@ public class SqlQuery extends QueryBean {
       String subAlias,
       Collection<Field<?>> selection) {
     DSLContext jooq = table.getJooq();
-    SelectJoinStep<org.jooq.Record> from =
-        jooq.select(selection).from(tableWithInheritanceJoin(table).as(alias(subAlias)));
-    from = limitOffsetOrderBy(table, select, from);
-    List<Condition> conditions = new ArrayList<>();
-    Select<org.jooq.Record> filterQuery =
-        jsonFilterQuery(table, column, tableAlias, subAlias, filters, searchTerms);
-    if (filters != null
-        || searchTerms.length > 0
-        || select.getLimit() > 0
-        || select.getOffset() > 0) {
-      List<Field<?>> pkeyFields = table.getPrimaryKeyFields();
-      if (pkeyFields.size() > 0) {
-        conditions.add(row(pkeyFields).in(filterQuery));
-      }
-    }
-    if (column != null) {
-      conditions.add(refJoinCondition(column, tableAlias, subAlias));
-    }
-    if (!conditions.isEmpty()) {
-      from = (SelectJoinStep<org.jooq.Record>) from.where(conditions);
-    }
 
+    // query without all nested joins for the json
+    // note: another optimization would be to only include fields needed instead of asterisk
+    SelectConnectByStep<org.jooq.Record> filterQuery =
+        jsonFilterQuery(
+            table, List.of(asterisk()), column, tableAlias, subAlias, filters, searchTerms);
+    filterQuery = limitOffsetOrderBy(table, select, filterQuery, subAlias);
+
+    // use filtered/sorted/limited/offsetted to produce json including only the joins needed
+    SelectConnectByStep<org.jooq.Record> from =
+        jooq.select(selection).from(filterQuery.asTable(alias(subAlias)));
+
+    // agg
     String agg =
         select.getColumn().endsWith("_agg")
                 || select.getColumn().endsWith("_groupBy")
@@ -348,6 +350,7 @@ public class SqlQuery extends QueryBean {
     return field(jooq.select(field(agg)).from(from.asTable(ITEM)));
   }
 
+  // overload for backwards compatibility with other uses of this part
   private SelectConditionStep<org.jooq.Record> jsonFilterQuery(
       SqlTableMetadata table,
       Column column,
@@ -355,26 +358,53 @@ public class SqlQuery extends QueryBean {
       String subAlias,
       Filter filters,
       String[] searchTerms) {
+    return jsonFilterQuery(
+        table,
+        table.getPrimaryKeyFields().stream().map(f -> (SelectFieldOrAsterisk) f).toList(),
+        column,
+        tableAlias,
+        subAlias,
+        filters,
+        searchTerms);
+  }
+
+  private SelectConditionStep<org.jooq.Record> jsonFilterQuery(
+      SqlTableMetadata table,
+      List<SelectFieldOrAsterisk> selection,
+      Column column,
+      String tableAlias,
+      String subAlias,
+      Filter filters,
+      String[] searchTerms) {
+
+    String filterAlias = subAlias + "_filter";
 
     List<Condition> conditions = new ArrayList<>();
     if (filters != null) {
       conditions.addAll(
-          jsonFilterQueryConditions(table, column, tableAlias, subAlias, filters, searchTerms));
+          // column should be null when nesting (is only used for refJoinCondition)
+          jsonFilterQueryConditions(table, null, tableAlias, filterAlias, filters, searchTerms));
     }
     if (searchTerms.length > 0) {
-      conditions.add(jsonSearchConditions(table, searchTerms));
+      conditions.add(jsonSearchConditions(table, filterAlias, searchTerms));
+    }
+    if (column != null) {
+      conditions.add(refJoinCondition(column, tableAlias, filterAlias));
     }
 
     // create the subquery
     if (!conditions.isEmpty()) {
       return table
           .getJooq()
-          .select(table.getPrimaryKeyFields())
-          .from(tableWithInheritanceJoin(table))
+          .select(selection)
+          .from(tableWithInheritanceJoin(table).as(alias(filterAlias)))
           .where(conditions);
     } else {
       return (SelectConditionStep<org.jooq.Record>)
-          table.getJooq().select(table.getPrimaryKeyFields()).from(tableWithInheritanceJoin(table));
+          table
+              .getJooq()
+              .select(selection)
+              .from(tableWithInheritanceJoin(table).as(alias(filterAlias)));
     }
   }
 
@@ -389,14 +419,17 @@ public class SqlQuery extends QueryBean {
     DSLContext jooq = table.getJooq();
     if (filters != null) {
       for (Filter f : filters.getSubfilters()) {
-        if (OR.equals(f.getOperator())) {
+        if (f == null) {
+          // continue
+        } else if (OR.equals(f.getOperator())) {
           conditions.add(
               or(jsonFilterQueryConditions(table, column, tableAlias, subAlias, f, searchTerms)));
         } else if (Operator.AND.equals(f.getOperator())) {
           conditions.add(
               and(jsonFilterQueryConditions(table, column, tableAlias, subAlias, f, searchTerms)));
-        } else if (TRIGRAM_SEARCH.equals(f.getOperator())) {
-          conditions.add(jsonSearchConditions(table, TypeUtils.toStringArray(f.getValues())));
+        } else if (TRIGRAM_SEARCH.equals(f.getOperator()) || TEXT_SEARCH.equals(f.getOperator())) {
+          conditions.add(
+              jsonSearchConditions(table, subAlias, TypeUtils.toStringArray(f.getValues())));
         } else {
           Column c = getColumnByName(table, f.getColumn());
           if (c.isReference()) {
@@ -474,7 +507,7 @@ public class SqlQuery extends QueryBean {
             // simple filter
             conditions.add(
                 whereCondition(
-                    c.getTableName(),
+                    subAlias,
                     c.getName(),
                     c.getColumnType().getBaseType(),
                     f.getOperator(),
@@ -486,12 +519,14 @@ public class SqlQuery extends QueryBean {
     return conditions;
   }
 
-  private static Condition jsonSearchConditions(SqlTableMetadata table, String[] searchTerms) {
+  private Condition jsonSearchConditions(
+      SqlTableMetadata table, String subAlias, String[] searchTerms) {
     // create search
-    List<Condition> search = new ArrayList<>();
+    List<Condition> searchCondition = new ArrayList<>();
     for (String term : searchTerms) {
+      List<Condition> search = new ArrayList<>();
       search.add(
-          field(name(table.getTableName(), searchColumnName(table.getTableName())))
+          field(name(alias(subAlias), searchColumnName(table.getTableName())))
               .likeIgnoreCase("%" + term + "%"));
       // also search in ontology tables linked to current table
       table.getColumns().stream()
@@ -535,12 +570,13 @@ public class SqlQuery extends QueryBean {
       TableMetadata parent = table.getInheritedTable();
       while (parent != null) {
         search.add(
-            field(name(parent.getTableName(), searchColumnName(parent.getTableName())))
+            field(name(alias(subAlias), searchColumnName(parent.getTableName())))
                 .likeIgnoreCase("%" + term + "%"));
         parent = parent.getInheritedTable();
       }
+      searchCondition.add(or(search));
     }
-    return or(search);
+    return and(searchCondition);
   }
 
   private Collection<Field<?>> jsonSubselectFields(
@@ -605,6 +641,8 @@ public class SqlQuery extends QueryBean {
          * Ignore headings, not part of rows. Fixme: must ignore to allow JSON subqueries, but
          * unsure if this can cause any problems elsewhere.
          */
+      } else if (column.getJooqType().getSQLDataType() == SQLDataType.INTERVAL) {
+        fields.add(intervalField(tableAlias, column));
       } else {
         // primitive fields
         fields.add(
@@ -618,7 +656,8 @@ public class SqlQuery extends QueryBean {
       SqlTableMetadata table, String tableAlias, SelectColumn select, Column column) {
     DSLContext jooq = table.getJooq();
     List<Field<?>> subFields = new ArrayList<>();
-    for (String ext : new String[] {"id", "contents", "size", "extension", "mimetype", "url"}) {
+    for (String ext :
+        new String[] {"id", "contents", "size", "filename", "extension", "mimetype", "url"}) {
       if (select.has(ext)) {
         if (ext.equals("id")) {
           subFields.add(field(name(alias(tableAlias), column.getName())).as(ext));
@@ -654,10 +693,10 @@ public class SqlQuery extends QueryBean {
     List<Field<?>> fields = new ArrayList<>();
     for (SelectColumn field : select.getSubselect()) {
       if (COUNT_FIELD.equals(field.getColumn())) {
-        if (schema.hasActiveUserRole(VIEWER.toString())) {
-          fields.add(count().as(COUNT_FIELD));
-        } else {
-          fields.add(field("GREATEST(COUNT(*),{0})", 10L).as(COUNT_FIELD));
+        fields.add(getCountField().as(COUNT_FIELD));
+      } else if (EXISTS_FIELD.equals(field.getColumn())) {
+        if (schema.hasActiveUserRole(EXISTS.toString())) {
+          fields.add(field("COUNT(*) > 0").as(EXISTS_FIELD));
         }
       } else if (List.of(MAX_FIELD, MIN_FIELD, AVG_FIELD, SUM_FIELD).contains(field.getColumn())) {
         checkHasViewPermission(table);
@@ -665,24 +704,40 @@ public class SqlQuery extends QueryBean {
         for (SelectColumn sub : field.getSubselect()) {
           Column c = getColumnByName(table, sub.getColumn());
           switch (field.getColumn()) {
-            case MAX_FIELD -> result.add(
-                key(c.getIdentifier()).value(max(field(name(alias(subAlias), c.getName())))));
-            case MIN_FIELD -> result.add(
-                key(c.getIdentifier()).value(min(field(name(alias(subAlias), c.getName())))));
-            case AVG_FIELD -> result.add(
-                key(c.getIdentifier())
-                    .value(avg(field(name(alias(subAlias), c.getName()), c.getJooqType()))));
-            case SUM_FIELD -> result.add(
-                key(c.getIdentifier())
-                    .value(sum(field(name(alias(subAlias), c.getName()), c.getJooqType()))));
-            default -> throw new MolgenisException(
-                "Unknown aggregate type provided: " + field.getColumn());
+            case MAX_FIELD ->
+                result.add(
+                    key(c.getIdentifier()).value(max(field(name(alias(subAlias), c.getName())))));
+            case MIN_FIELD ->
+                result.add(
+                    key(c.getIdentifier()).value(min(field(name(alias(subAlias), c.getName())))));
+            case AVG_FIELD ->
+                result.add(
+                    key(c.getIdentifier())
+                        .value(avg(field(name(alias(subAlias), c.getName()), c.getJooqType()))));
+            case SUM_FIELD ->
+                result.add(
+                    key(c.getIdentifier())
+                        .value(sum(field(name(alias(subAlias), c.getName()), c.getJooqType()))));
+            default ->
+                throw new MolgenisException(
+                    "Unknown aggregate type provided: " + field.getColumn());
           }
         }
         fields.add(jsonObject(result.toArray(new JSONEntry[result.size()])).as(field.getColumn()));
       }
     }
     return jsonField(table, column, tableAlias, select, filters, searchTerms, subAlias, fields);
+  }
+
+  private Field<Integer> getCountField() {
+    if (schema.hasActiveUserRole(COUNT.toString())) {
+      return count();
+    } else if (schema.hasActiveUserRole(AGGREGATOR.toString())) {
+      return field("GREATEST(COUNT(*),{0})", Integer.class, 10L);
+    } else if (schema.hasActiveUserRole(RANGE.toString())) {
+      return field("CEIL(COUNT(*)::numeric / {0}) * {0}", Integer.class, 10L);
+    }
+    throw new MolgenisException("Need permission >= RANGE to perform count queries");
   }
 
   private Field<Object> jsonGroupBySelect(
@@ -695,16 +750,8 @@ public class SqlQuery extends QueryBean {
     DSLContext jooq = table.getJooq();
     String subAlias = tableAlias + (column != null ? "-" + column.getName() : "");
 
-    // need to create subquery for each column, because unnesting arrays can result in multiple
-    // records for one primary key
-    // then natural join them back on the primary key
-    // then we can aggregate on the resulting table.
-    // this to allow for cases when multiple columns are of type array; if you unnest in one go you
-    // will see 'null' counts for shorter arrays
-    // i.e. the wrong counts.
-
-    if (groupBy.getSubselect(COUNT_FIELD) == null) {
-      throw new MolgenisException("Count is required when using group by");
+    if (groupBy.getSubselect(COUNT_FIELD) == null && groupBy.getSubselect(SUM_FIELD) == null) {
+      throw new MolgenisException("COUNt or SUM is required when using group by");
     }
 
     // filter conditions
@@ -715,112 +762,114 @@ public class SqlQuery extends QueryBean {
               .in(jsonFilterQuery(table, column, tableAlias, subAlias, filter, searchTerms));
     }
 
-    List<SelectConnectByStep> subQuery = new ArrayList<>();
-    List<Field> selectFields = new ArrayList<>();
-    List<Field> groupByFields = new ArrayList<>();
+    Set<Field> aggregationFields = new HashSet<>(); // sum(x), count, etc
+    Set<Field> groupByFields = new HashSet<>(); // name, ref{otherName}, etc
+    Set<Field> nonArraySourceFields = new HashSet<>(); // xo x, name, except those from ref_array
+    List<SelectConnectByStep> refArraySubqueries = new ArrayList<>(); // for the ref_array columns
+
     for (SelectColumn field : groupBy.getSubselect()) {
       if (COUNT_FIELD.equals(field.getColumn())) {
         if (schema.hasActiveUserRole(VIEWER.toString())) {
-          selectFields.add(field("COUNT(*)"));
+          aggregationFields.add(field("COUNT(*)"));
         } else {
-          selectFields.add(field("GREATEST({0},COUNT(*))", 10L).as(COUNT_FIELD));
+          aggregationFields.add(
+              field("GREATEST({0},COUNT(*))", AGGREGATE_COUNT_THRESHOLD).as(COUNT_FIELD));
         }
+      } else if (SUM_FIELD.equals(field.getColumn())) {
+        List sumFields = new ArrayList<>();
+        // sum precision depends on count
+        field
+            .getSubselect()
+            .forEach(
+                sub -> {
+                  Column col = getColumnByName(table, sub.getColumn());
+                  sumFields.add(
+                      key(col.getIdentifier())
+                          .value(
+                              field(
+                                  "SUM({0})",
+                                  field(name(alias(subAlias), col.getName())),
+                                  AGGREGATE_COUNT_THRESHOLD)));
+                  nonArraySourceFields.add(col.getJooqField());
+                });
+        aggregationFields.add(jsonObject(sumFields).as(field.getColumn()));
       } else {
         Column col = getColumnByName(table, field.getColumn());
-
-        // can only group by ontology terms because not allowed to see other values, right?
         if (!col.isOntology()) {
           checkHasViewPermission(table);
         }
-        // composite keys might have overlapping underlying columns via 'refLink'
-        // therefore we use a Set here.
-        Set<Field> subselectFields = new HashSet<>();
-
-        // need pkey to allow for joining of the subqueries
-        table
-            .getPrimaryKeyColumns()
-            .forEach(
-                pkey -> {
-                  if (pkey.isReference()) {
-                    // use reference element to cover composite keys if applicable
-                    pkey.getReferences()
-                        .forEach(
-                            pkeyRef -> {
-                              subselectFields.add(
-                                  pkeyRef
-                                      .getJooqField()
-                                      .as(name("pkey_" + convertToCamelCase(pkeyRef.getName()))));
-                            });
-                  } else {
-                    subselectFields.add(
-                        pkey.getJooqField().as(name("pkey_" + pkey.getIdentifier())));
-                  }
-                });
-
-        if (col.isReference() && col.getReferences().size() > 1) {
-          selectFields.add(field(col.getIdentifier()));
-        } else {
-          selectFields.add(col.getJooqField().as(col.getIdentifier()));
-        }
-
-        // in case of 'ref' we subselect
-        if (col.isRef()) {
-          subselectFields.add(
+        String subQueryAlias = tableAlias + "_" + col.getIdentifier();
+        // in case of 'ref' we need a subselect
+        if (col.isReference()) {
+          Column copy = new Column(col.getTable(), col);
+          copy.setType(ColumnType.REF); // ref_array should be treated as ref
+          groupByFields.add(
               jsonSubselect(
-                      (SqlTableMetadata) col.getRefTable(),
-                      col,
+                      (SqlTableMetadata) copy.getRefTable(),
+                      copy,
                       tableAlias,
                       field,
                       field.getFilter(),
                       new String[0])
-                  .as(name(field.getColumn())));
-        }
-        // in case of ref_array we must unnest the values
-        else if (col.isRefArray() || col.isRefback()) {
-          subselectFields.add(
-              // coalesce to also return the nulls
-              field(
-                      "jsonb_array_elements(coalesce(({0}),'[{}]'::jsonb))",
-                      jsonSubselect(
-                          (SqlTableMetadata) col.getRefTable(),
-                          col,
-                          tableAlias,
-                          field,
-                          field.getFilter(),
-                          new String[0]))
-                  .as(name(col.getName()))
-                  .as(name(field.getColumn())));
-        }
-        // todo decide if we want to support non-ref types for group by. E.g date (group by year of
-        // date)
-        // if array we unnest
-        else if (col.getColumnType().isArray()) {
-          subselectFields.add(field("unnest({0})", col.getJooqField()).as(col.getJooqField()));
+                  .as(convertToCamelCase(field.getColumn())));
         } else {
-          subselectFields.add(col.getJooqField());
+          groupByFields.add(col.getJooqField().as(convertToCamelCase(field.getColumn())));
         }
-        if (condition != null) {
-          subQuery.add(
-              jooq.select(subselectFields)
-                  .from(tableWithInheritanceJoin(table).as(alias(tableAlias)))
-                  .where(condition));
+
+        if (col.isRef() || !col.isArray()) {
+          nonArraySourceFields.addAll(col.getCompositeFields());
+        } else if (col.isRefback()) {
+          // convert so it looks like a ref_array
+          Set<Field> subselectFields = new HashSet<>();
+          if (col.getRefBackColumn().isRefArray()) {
+            subselectFields.addAll(
+                col.getRefBackColumn().getReferences().stream()
+                    .map(ref -> field("unnest({0})", name(ref.getName())).as(ref.getRefTo()))
+                    .toList());
+          } else {
+            subselectFields.addAll(
+                col.getRefBackColumn().getReferences().stream()
+                    .map(ref -> field(name(ref.getName())).as(ref.getRefTo()))
+                    .toList());
+          }
+          subselectFields.addAll(
+              col.getReferences().stream()
+                  .map(ref -> field(name(ref.getRefTo())).as(ref.getName()))
+                  .toList());
+
+          refArraySubqueries.add(
+              jooq.select(asterisk())
+                  .from(
+                      jooq.select(subselectFields)
+                          .from(
+                              tableWithInheritanceJoin(col.getRefTable())
+                                  .as(alias(subQueryAlias)))));
         } else {
-          subQuery.add(
+          // must be array or ref_array
+          // need subquery to unnest ref_array fields
+          Set<Field> subselectFields = new HashSet<>();
+          subselectFields.addAll(table.getPrimaryKeyFields());
+          for (Field compositeField : col.getCompositeFields()) {
+            subselectFields.add(field("unnest({0})", compositeField).as(compositeField.getName()));
+          }
+          refArraySubqueries.add(
               jooq.select(subselectFields)
-                  .from(tableWithInheritanceJoin(table).as(alias(tableAlias))));
+                  .from(tableWithInheritanceJoin(table).as(alias(subQueryAlias))));
         }
-        groupByFields.add(field(name(col.getName())));
       }
     }
 
-    if (subQuery.size() == 0) {
-      throw new MolgenisException("groupBy failed: no fields to group by on selected");
-    }
-    SelectJoinStep<org.jooq.Record> groupByQuery =
-        table.getJooq().select(selectFields).from(subQuery.get(0));
-    for (int i = 1; i < subQuery.size(); i++) {
-      // joining on primary key
-      groupByQuery = groupByQuery.naturalFullOuterJoin(subQuery.get(i));
+    // create source query for the sourceColumns
+    nonArraySourceFields.addAll(table.getPrimaryKeyFields());
+    SelectJoinStep<org.jooq.Record> sourceQuery =
+        jooq.select(asterisk())
+            .from(
+                jooq.select(nonArraySourceFields)
+                    .from(tableWithInheritanceJoin(table))
+                    .where(condition));
+    for (SelectConnectByStep unnestQuery : refArraySubqueries) {
+      // joining on primary key in natural join
+      sourceQuery = sourceQuery.naturalLeftOuterJoin(unnestQuery);
     }
 
     // sort by groupBy fields to make deterministic
@@ -828,9 +877,17 @@ public class SqlQuery extends QueryBean {
     groupByFields.forEach(field -> orderByFields.add(field.asc().nullsLast()));
 
     // aggregate into one field
+    List<Field> selectFields = new ArrayList<>();
+    selectFields.addAll(aggregationFields);
+    selectFields.addAll(groupByFields);
     return field(
             jooq.select(field(JSON_AGG_SQL))
-                .from(groupByQuery.groupBy(groupByFields).orderBy(orderByFields).asTable(ITEM)))
+                .from(
+                    jooq.select(selectFields)
+                        .from(sourceQuery.asTable(name(tableAlias)))
+                        .groupBy(groupByFields)
+                        .orderBy(orderByFields)
+                        .asTable(ITEM)))
         .as(convertToCamelCase(groupBy.getColumn()));
   }
 
@@ -1036,12 +1093,15 @@ public class SqlQuery extends QueryBean {
                   .map(f -> whereConditionsFilter(table, tableAlias, f))
                   .toList()));
     } else {
-      Column column = getColumnByName(table, filters.getColumn());
-      if (column.isReference() && column.getReferences().size() > 1) {
+      Column column =
+          getColumnByName(table, filters.getColumn(), filters.getSubfilters().isEmpty());
+      if (column.isReference()
+          && column.getReferences().size() > 1
+          && filters.getSubfilters().isEmpty()) {
         throw new MolgenisException(
             "Filter of '"
                 + column.getName()
-                + " not supported for compound key, use individual elements.");
+                + " not supported for compound key, use individual elements or nested filters.");
       }
       if (!filters.getSubfilters().isEmpty()) {
         for (Filter subfilter : filters.getSubfilters()) {
@@ -1078,55 +1138,39 @@ public class SqlQuery extends QueryBean {
       org.molgenis.emx2.Operator operator,
       Object[] values) {
     Name name = name(alias(tableAlias), columnName);
-    switch (type) {
-      case TEXT, STRING, FILE:
-        return whereConditionText(name, operator, toStringArray(values));
-      case BOOL:
-        return whereConditionEquals(name, operator, toBoolArray(values));
-      case UUID:
-        return whereConditionEquals(name, operator, toUuidArray(values));
-      case JSONB:
-        return whereConditionEquals(name, operator, toJsonbArray(values));
-      case INT:
-        return whereConditionOrdinal(name, operator, toIntArray(values));
-      case LONG:
-        return whereConditionOrdinal(name, operator, toLongArray(values));
-      case DECIMAL:
-        return whereConditionOrdinal(name, operator, toDecimalArray(values));
-      case DATE:
-        return whereConditionOrdinal(name, operator, toDateArray(values));
-      case DATETIME:
-        return whereConditionOrdinal(name, operator, toDateTimeArray(values));
-      case STRING_ARRAY, TEXT_ARRAY:
-        return whereConditionTextArray(name, operator, toStringArray(values));
-      case BOOL_ARRAY:
-        return whereConditionArrayEquals(name, operator, toBoolArray(values));
-      case UUID_ARRAY:
-        return whereConditionArrayEquals(name, operator, toUuidArray(values));
-      case INT_ARRAY:
-        return whereConditionArrayEquals(name, operator, toIntArray(values));
-      case LONG_ARRAY:
-        return whereConditionArrayEquals(name, operator, toLongArray(values));
-      case DECIMAL_ARRAY:
-        return whereConditionArrayEquals(name, operator, toDecimalArray(values));
-      case DATE_ARRAY:
-        return whereConditionArrayEquals(name, operator, toDateArray(values));
-      case DATETIME_ARRAY:
-        return whereConditionArrayEquals(name, operator, toDateTimeArray(values));
-      case JSONB_ARRAY:
-        return whereConditionArrayEquals(name, operator, toJsonbArray(values));
-      case REF:
-        return whereConditionRefEquals(name, operator, values);
-      default:
-        throw new SqlQueryException(
-            SqlQuery.QUERY_FAILED
-                + "Filter of '"
-                + name
-                + " failed: operator "
-                + operator
-                + " not supported for type "
-                + type);
-    }
+    return switch (type) {
+      case TEXT, STRING, FILE -> whereConditionText(name, operator, toStringArray(values));
+      case BOOL -> whereConditionEquals(name, operator, toBoolArray(values));
+      case UUID -> whereConditionEquals(name, operator, toUuidArray(values));
+      case JSONB -> whereConditionEquals(name, operator, toJsonbArray(values));
+      case INT -> whereConditionOrdinal(name, operator, toIntArray(values));
+      case LONG -> whereConditionOrdinal(name, operator, toLongArray(values));
+      case DECIMAL -> whereConditionOrdinal(name, operator, toDecimalArray(values));
+      case DATE -> whereConditionOrdinal(name, operator, toDateArray(values));
+      case DATETIME -> whereConditionOrdinal(name, operator, toDateTimeArray(values));
+      case PERIOD -> whereConditionOrdinal(name, operator, toYearToSecondArray(values));
+      case STRING_ARRAY, TEXT_ARRAY ->
+          whereConditionTextArray(name, operator, toStringArray(values));
+      case BOOL_ARRAY -> whereConditionArrayEquals(name, operator, toBoolArray(values));
+      case UUID_ARRAY -> whereConditionArrayEquals(name, operator, toUuidArray(values));
+      case INT_ARRAY -> whereConditionArrayEquals(name, operator, toIntArray(values));
+      case LONG_ARRAY -> whereConditionArrayEquals(name, operator, toLongArray(values));
+      case DECIMAL_ARRAY -> whereConditionArrayEquals(name, operator, toDecimalArray(values));
+      case DATE_ARRAY -> whereConditionArrayEquals(name, operator, toDateArray(values));
+      case DATETIME_ARRAY -> whereConditionArrayEquals(name, operator, toDateTimeArray(values));
+      case PERIOD_ARRAY -> whereConditionArrayEquals(name, operator, toYearToSecondArray(values));
+      case JSONB_ARRAY -> whereConditionArrayEquals(name, operator, toJsonbArray(values));
+      case REF -> whereConditionRefEquals(name, operator, values);
+      default ->
+          throw new SqlQueryException(
+              SqlQuery.QUERY_FAILED
+                  + "Filter of '"
+                  + name
+                  + " failed: operator "
+                  + operator
+                  + " not supported for type "
+                  + type);
+    };
   }
 
   private Condition whereConditionRefEquals(Name columnName, Operator operator, Object[] values) {
@@ -1360,12 +1404,15 @@ public class SqlQuery extends QueryBean {
         searchConditions.add(and(subConditions));
       }
     }
-    return searchConditions.isEmpty() ? null : or(searchConditions);
+    return searchConditions.isEmpty() ? null : and(searchConditions);
   }
 
   private static SelectJoinStep<org.jooq.Record> limitOffsetOrderBy(
-      TableMetadata table, SelectColumn select, SelectConnectByStep<org.jooq.Record> query) {
-    query = SqlQueryBuilderHelpers.orderBy(table, select, query);
+      TableMetadata table,
+      SelectColumn select,
+      SelectConnectByStep<org.jooq.Record> query,
+      String tableAlias) {
+    query = SqlQueryBuilderHelpers.orderBy(table, select, query, tableAlias);
     if (select.getLimit() > 0) {
       query = (SelectConditionStep) query.limit(select.getLimit());
     }
@@ -1376,13 +1423,18 @@ public class SqlQuery extends QueryBean {
   }
 
   private static Column getColumnByName(TableMetadata table, String columnName) {
+    return getColumnByName(table, columnName, false);
+  }
+
+  private static Column getColumnByName(
+      TableMetadata table, String columnName, boolean isRowQuery) {
     // is search?
     if (TEXT_SEARCH_COLUMN_NAME.equals(columnName)) {
       return new Column(table, searchColumnName(table.getTableName()));
     }
     // is scalar column
     Column column = table.getColumn(columnName);
-    if (column == null) {
+    if (column == null || (isRowQuery && column.isReference())) {
       // is reference?
       for (Column c : table.getColumns()) {
         if (c.isReference()) {
@@ -1400,6 +1452,7 @@ public class SqlQuery extends QueryBean {
             && columnName.startsWith(c.getName())
             && (columnName.equals(c.getName())
                 || columnName.endsWith("_mimetype")
+                || columnName.endsWith("_filename")
                 || columnName.endsWith("_extension")
                 || columnName.endsWith("_size")
                 || columnName.endsWith("_contents"))) {

@@ -5,9 +5,10 @@ import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.io.ImportDataModelTask;
 import org.molgenis.emx2.sql.SqlDatabase;
 
-public class PetStoreLoader extends AbstractDataLoader {
+public class PetStoreLoader extends ImportDataModelTask {
 
   public static final String CATEGORY = "Category";
   public static final String TAG = "Tag";
@@ -28,7 +29,21 @@ public class PetStoreLoader extends AbstractDataLoader {
   public static final String SPECIES = "species";
   public static final String MAMMALS = "mammals";
 
-  public SchemaMetadata getSchemaMetadata() {
+  public PetStoreLoader(Schema schema, Boolean includeDemoData) {
+    super(schema, includeDemoData);
+  }
+
+  @Override
+  public void run() {
+    this.start();
+    getSchema().migrate(getSchemaMetadata());
+    if (isIncludeDemoData()) {
+      loadExampleData(getSchema());
+    }
+    this.complete();
+  }
+
+  public static SchemaMetadata getSchemaMetadata() {
     SchemaMetadata schema = new SchemaMetadata();
     schema.create(table(CATEGORY).add(column(NAME).setPkey()));
 
@@ -79,18 +94,11 @@ public class PetStoreLoader extends AbstractDataLoader {
     return schema;
   }
 
-  @Override
-  void loadInternalImplementation(Schema schema, boolean includeDemoData) {
-    schema.migrate(getSchemaMetadata());
-    if (includeDemoData) {
-      loadExampleData(schema);
-    }
-  }
-
   private void loadExampleData(Schema schema) {
     final String shopviewer = "shopviewer";
     final String shopmanager = "shopmanager";
     final String shopowner = "shopowner";
+    final String costumer = "costumer";
 
     // initialize users
     if (!schema.getDatabase().hasUser(shopmanager)) {
@@ -102,9 +110,13 @@ public class PetStoreLoader extends AbstractDataLoader {
     if (!schema.getDatabase().hasUser(shopowner)) {
       schema.getDatabase().setUserPassword(shopowner, shopowner);
     }
+    if (!schema.getDatabase().hasUser(costumer)) {
+      schema.getDatabase().setUserPassword(costumer, costumer);
+    }
     schema.addMember(shopmanager, "Manager");
     schema.addMember(shopviewer, "Viewer");
     schema.addMember(shopowner, "Owner");
+    schema.addMember(costumer, "Range");
 
     schema
         .getTable(CATEGORY)

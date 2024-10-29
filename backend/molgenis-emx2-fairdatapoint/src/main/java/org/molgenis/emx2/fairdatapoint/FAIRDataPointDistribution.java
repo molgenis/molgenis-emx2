@@ -5,9 +5,9 @@ import static org.eclipse.rdf4j.model.util.Values.literal;
 import static org.molgenis.emx2.fairdatapoint.FormatMimeTypes.FORMATS;
 import static org.molgenis.emx2.fairdatapoint.FormatMimeTypes.formatToMediaType;
 import static org.molgenis.emx2.fairdatapoint.Queries.queryDistribution;
-import static org.molgenis.emx2.rdf.RDFService.*;
-import static org.molgenis.emx2.rdf.RDFUtils.*;
+import static org.molgenis.emx2.utils.URIUtils.*;
 
+import io.javalin.http.Context;
 import java.io.StringWriter;
 import java.net.URI;
 import java.util.*;
@@ -21,7 +21,6 @@ import org.eclipse.rdf4j.rio.WriterConfig;
 import org.eclipse.rdf4j.rio.helpers.BasicWriterSettings;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.TypeUtils;
-import spark.Request;
 
 public class FAIRDataPointDistribution {
 
@@ -31,19 +30,11 @@ public class FAIRDataPointDistribution {
     return result;
   }
 
-  /**
-   * Access a dataset distribution by a combination of schema, table, and format. Example:
-   * http://localhost:8080/api/fdp/distribution/rd3/Analyses/jsonld
-   *
-   * @param request
-   * @param database
-   * @throws Exception
-   */
-  public FAIRDataPointDistribution(Request request, Database database) throws Exception {
+  public FAIRDataPointDistribution(Context ctx, Database database) throws Exception {
 
-    String schemaParam = request.params("schema");
-    String distributionParam = request.params("distribution");
-    String formatParam = request.params("format");
+    String schemaParam = ctx.pathParam("schema");
+    String distributionParam = ctx.pathParam("distribution");
+    String formatParam = ctx.pathParam("format");
 
     if (schemaParam == null || distributionParam == null || formatParam == null) {
       throw new Exception(
@@ -103,9 +94,9 @@ public class FAIRDataPointDistribution {
     }
 
     // reconstruct server:port URL to prevent problems with double encoding of schema/table names
-    URI requestURI = getURI(request.url());
+    URI requestURI = getURI(ctx.url());
     String host = extractHost(requestURI);
-    IRI reqURL = iri(request.url()); // escaping/encoding seems OK
+    IRI reqURL = iri(ctx.url()); // escaping/encoding seems OK
 
     /*
     See https://www.w3.org/TR/vocab-dcat-2/#Class:Distribution
@@ -127,7 +118,6 @@ public class FAIRDataPointDistribution {
 
     if (refersToTable) {
       if (formatParam.equals("csv")
-          || formatParam.equals("jsonld")
           || formatParam.equals("ttl")
           || formatParam.equals("excel")
           || formatParam.equals("zip")) {
@@ -141,7 +131,7 @@ public class FAIRDataPointDistribution {
                 .getSchema(schemaParam)
                 .getTable(distributionParam)
                 .getMetadata()
-                .getColumnNames();
+                .getNonReferencingColumnNames();
         // GraphQL, e.g. http://localhost:8080/fdh/graphql?query={Analyses{id,etc}}
         builder.add(
             reqURL,
@@ -155,19 +145,6 @@ public class FAIRDataPointDistribution {
                     + "{"
                     + (String.join(",", columnNames))
                     + "}}"));
-      } else {
-        // all "rdf-" flavours
-        builder.add(
-            reqURL,
-            DCAT.DOWNLOAD_URL,
-            encodedIRI(
-                host
-                    + "/"
-                    + schemaParam
-                    + "/api/rdf/"
-                    + distributionParam
-                    + "?format="
-                    + formatParam.replace("rdf-", "")));
       }
       builder.add(reqURL, DCAT.MEDIA_TYPE, iri(formatToMediaType(formatParam)));
     } else {
@@ -178,6 +155,20 @@ public class FAIRDataPointDistribution {
     builder.add(reqURL, DCTERMS.FORMAT, formatParam);
 
     for (Map distribution : distributions) {
+      if (distribution.get("propertyValue") != null) {
+        for (String propertyValue : (List<String>) distribution.get("propertyValue")) {
+          String[] propertyValueSplit = propertyValue.split(" ", -1);
+          if (propertyValueSplit.length != 2) {
+            throw new Exception(
+                "propertyValue should contain strings that each consist of 2 elements separated by 1 whitespace");
+          }
+          if (propertyValueSplit[1].startsWith("http")) {
+            builder.add(reqURL, iri(propertyValueSplit[0]), iri(propertyValueSplit[1]));
+          } else {
+            builder.add(reqURL, iri(propertyValueSplit[0]), propertyValueSplit[1]);
+          }
+        }
+      }
       builder.add(
           reqURL,
           DCTERMS.ISSUED,

@@ -64,14 +64,16 @@
         </li>
       </ul>
     </nav>
-    <p id="btnSubmitPatient">
+    <a id="btnSubmitPatient" href="../tables/#/Subject">
       <span>Submit patient</span>
-    </p>
+      <ArrowUpTrayIcon />
+    </a>
   </aside>
 </template>
 
 <script setup>
 import { Accordion } from "molgenis-viz";
+import { ArrowUpTrayIcon } from "@heroicons/vue/24/outline";
 </script>
 
 <style lang="scss">
@@ -85,7 +87,7 @@ import { Accordion } from "molgenis-viz";
   nav {
     padding: 0;
     margin-top: 1em;
-    margin-bottom: 2.5em;
+    margin-bottom: 1.5em;
 
     $link-font-size: 12pt;
 
@@ -156,9 +158,22 @@ import { Accordion } from "molgenis-viz";
   @include buttonLink;
   @include textTransform;
 
+  color: $cranio-orange-050;
+  background-color: $cranio-orange;
+
+  span {
+    letter-spacing: 0.15em;
+    border-bottom: 2px solid transparent;
+  }
+  &:hover,
+  &:focus {
+    text-decoration: none;
+    filter: brightness(110%);
+  }
+
   svg {
     position: relative;
-    width: 21px;
+    width: 18px;
     margin-left: 4px;
     margin-top: -4px;
     path {

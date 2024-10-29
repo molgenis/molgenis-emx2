@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import type { ISetting } from "meta-data-utils";
-import type { IMgError } from "~~/interfaces/types";
+import type { ISetting } from "../../../../../metadata-utils/src/types";
 
 const route = useRoute();
 const config = useRuntimeConfig();
@@ -17,49 +16,35 @@ const cohortOnly = computed(() => {
   return routeSetting == "true" || config.public.cohortOnly;
 });
 
-const query = `query MyQuery($networksFilter:NetworksFilter,$variablesFilter:VariablesFilter,$cohortsFilter:CohortsFilter,$subcohortsFilter:SubcohortsFilter,$dataSourcesFilter:DataSourcesFilter){
-        Networks(filter:$networksFilter) {
+//networksfilter retrieves the catalogues
+//resources are within the current catalogue
+const query = `query CataloguePage($networksFilter:ResourcesFilter,$variablesFilter:VariablesFilter,$collectionsFilter:ResourcesFilter,$networkFilter:ResourcesFilter){
+        Resources(filter:$networksFilter) {
               id,
               acronym,
               name,
               description,
               logo {url}
-              dataSources_agg{count}
-              networks_agg{count}
        }
         Variables_agg(filter:$variablesFilter) {
           count
         }
-        Cohorts_agg(filter:$cohortsFilter) {
+        Collections_agg: Resources_agg(filter:$collectionsFilter) {
           count
-          sum {
+          _sum {
             numberOfParticipants
             numberOfParticipantsWithSamples
           }
         }
-        DataSources_agg(filter:$dataSourcesFilter) {
+        Networks_agg: Resources_agg(filter:$networkFilter) {
           count
         }
-        Datasets_agg {
+        Design_groupBy: Resources_groupBy(filter:$collectionsFilter) {
+          design{name}
           count
         }
-        Subcohorts_agg(filter:$subcohortsFilter){
+        Subpopulations_agg(filter:{resource: $collectionsFilter}) {
           count
-        }
-        Networks_agg {
-          count
-        }
-        Organisations_agg {
-          count
-        }
-        Models_agg {
-          count
-        }
-        Cohorts_groupBy(filter:$cohortsFilter) {
-          count
-          design {
-            name
-          }
         }
         _settings (keys: [
           "NOTICE_SETTING_KEY"
@@ -79,91 +64,95 @@ const query = `query MyQuery($networksFilter:NetworksFilter,$variablesFilter:Var
           "CATALOGUE_LANDING_SAMPLES_TEXT"
           "CATALOGUE_LANDING_DESIGN_LABEL"
           "CATALOGUE_LANDING_DESIGN_TEXT"
-          "CATALOGUE_LANDING_SUBCOHORTS_LABEL"
-          "CATALOGUE_LANDING_SUBCOHORTS_TEXT"
+          "CATALOGUE_LANDING_SUBPOPULATIONS_LABEL"
+          "CATALOGUE_LANDING_SUBPOPULATIONS_TEXT"
         ]){
           key
           value
         }
       }`;
 
-const modelFilter = scoped ? { id: { equals: catalogueRouteParam } } : {};
 const networksFilter = scoped
   ? { id: { equals: catalogueRouteParam } }
   : undefined;
 
-const cohortsFilter = scoped
-  ? { networks: { id: { equals: catalogueRouteParam } } }
-  : undefined;
-const subcohortsFilter = scoped
+const collectionsFilter = scoped
   ? {
-      resource: {
-        id: { equals: "cannot make a filter, todo fix data model" },
-      },
-    }
-  : undefined;
-
-const dataSourcesFilter = scoped
-  ? { networks: { id: { equals: catalogueRouteParam } } }
-  : undefined;
-
-const { data, error } = await useAsyncData<any, IMgError>(
-  `lading-page-${catalogueRouteParam}`,
-  async () => {
-    const models = await $fetch(`/${route.params.schema}/catalogue/graphql`, {
-      baseURL: config.public.apiBase,
-      method: "POST",
-      body: {
-        query: `
-            query Networks($filter:NetworksFilter) {
-              Networks(filter:$filter){models{id}}
-            }`,
-        variables: { filter: modelFilter },
-      },
-    });
-
-    const variablesFilter = scoped
-      ? {
-          resource: {
-            id: {
-              equals: models.data.Networks[0].models
-                ? models.data.Networks[0].models.map(
-                    (m: { id: string }) => m.id
-                  )
-                : "no models match so no results expected",
+      _and: [
+        { type: { tags: { equals: "collection" } } },
+        {
+          _or: [
+            { partOfResources: { id: { equals: catalogueRouteParam } } },
+            {
+              partOfResources: {
+                partOfResources: { id: { equals: catalogueRouteParam } },
+              },
             },
-          },
-        }
-      : undefined;
-
-    return $fetch(`/${route.params.schema}/catalogue/graphql`, {
-      baseURL: config.public.apiBase,
-      method: "POST",
-      body: {
-        query,
-        variables: {
-          networksFilter,
-          variablesFilter,
-          cohortsFilter,
-          subcohortsFilter,
-          dataSourcesFilter,
+          ],
         },
-      },
-    });
-  }
-);
+      ],
+    }
+  : { type: { tags: { equals: "collection" } } };
+
+const networkFilter = scoped
+  ? {
+      _and: [
+        { type: { tags: { equals: "network" } } },
+        {
+          _or: [
+            { partOfResources: { id: { equals: catalogueRouteParam } } },
+            {
+              partOfResources: {
+                partOfResources: { id: { equals: catalogueRouteParam } },
+              },
+            },
+          ],
+        },
+      ],
+    }
+  : { type: { tags: { equals: "network" } } };
+
+const { data, error } = await useFetch(`/${route.params.schema}/graphql`, {
+  method: "POST",
+  key: `lading-page-${catalogueRouteParam}`,
+  body: {
+    query,
+    variables: {
+      networksFilter,
+      collectionsFilter,
+      networkFilter,
+      variablesFilter: scoped
+        ? {
+            _or: [
+              { resource: { id: { equals: catalogueRouteParam } } },
+              //also include network of networks
+              {
+                resource: {
+                  type: { name: { equals: "Network" } },
+                  partOfResources: { id: { equals: catalogueRouteParam } },
+                },
+              },
+            ],
+          }
+        : //should only include harmonised variables
+          { resource: { type: { name: { equals: "Network" } } } },
+    },
+  },
+});
 
 if (error.value) {
   const contextMsg = "Error on landing-page data fetch";
-  logError(error.value, contextMsg);
+  if (error.value.data) {
+    logError(error.value.data, contextMsg);
+  }
   throw new Error(contextMsg);
 }
 
 function percentageLongitudinal(
-  cohortsGroupBy: { count: number; design: { name: string } }[],
+  subpopulationsGroupBy: { count: number; design: { name: string } }[],
   total: number
 ) {
-  const nLongitudinal = cohortsGroupBy.reduce(
+  const nLongitudinal = subpopulationsGroupBy.reduce(
     (accum, group) =>
       group?.design?.name === "Longitudinal" ? accum + group.count : accum,
     0
@@ -182,6 +171,10 @@ const settings = computed(() => {
   return data.value.data._settings;
 });
 
+const network = computed(() => {
+  return data.value.data?.Resources[0];
+});
+
 const title = computed(() => {
   if (catalogue) {
     return catalogue as string;
@@ -192,206 +185,171 @@ const title = computed(() => {
   }
 });
 
-let description = computed(() => {
-  if (catalogue) {
-    return catalogue as string;
-  } else if (getSettingValue("CATALOGUE_LANDING_DESCRIPTION", settings.value)) {
+const description = computed(() => {
+  if (getSettingValue("CATALOGUE_LANDING_DESCRIPTION", settings.value)) {
     return getSettingValue("CATALOGUE_LANDING_DESCRIPTION", settings.value);
   } else {
     return "Select one of the content categories listed below.";
   }
 });
 
-const numberOfNetworks = computed(() => {
-  return scoped
-    ? data.value.data.Networks[0]?.networks_agg.count
-    : data.value.data.Networks_agg?.count;
-});
+const collectionCount = computed(() => data.value.data?.Collections_agg?.count);
+const networkCount = computed(() => data.value.data?.Networks_agg?.count);
+
+const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/networks/${catalogueRouteParam}`;
 </script>
 
 <template>
-  <LayoutsLandingPage class="w-10/12 pt-8">
-    <PageHeader
-      class="mx-auto lg:w-7/12 text-center"
-      :title="title"
-      :description="description"
-    ></PageHeader>
-
+  <LayoutsLandingPage>
+    <PageHeader class="mx-auto lg:w-7/12 text-center" :title="title">
+      <template v-if="scoped" v-slot:description
+        >Welcome to the catalogue of
+        <NuxtLink class="underline hover:bg-blue-50" :to="aboutLink">{{
+          network.id
+        }}</NuxtLink
+        >{{ network.id && network.name ? ": " : "" }}{{ network.name }}. Select
+        one of the content categories listed below.</template
+      >
+      <template v-else v-slot:description>
+        <ContentReadMore :text="description" />
+      </template>
+    </PageHeader>
     <LandingPrimary>
       <LandingCardPrimary
-        v-if="data.data.Cohorts_agg.count > 0"
+        v-if="collectionCount"
         image="image-link"
-        title="Cohorts"
+        title="Collections"
         :description="
-          getSettingValue(
-            'CATALOGUE_LANDING_COHORTS_TEXT',
-            data.data._settings
-          ) ||
-          ' A complete overview of ' +
-            catalogueRouteParam +
-            ' cohorts and biobanks.'
+          getSettingValue('CATALOGUE_LANDING_COHORTS_TEXT', settings) ||
+          'Data &amp; sample collections'
         "
         :callToAction="
-          getSettingValue('CATALOGUE_LANDING_COHORTS_CTA', data.data._settings)
+          getSettingValue('CATALOGUE_LANDING_COHORTS_CTA', settings) ||
+          'Collections'
         "
-        :count="data.data.Cohorts_agg.count"
-        :link="`/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/cohorts`"
+        :count="collectionCount"
+        :link="`/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/collections`"
       />
       <LandingCardPrimary
-        v-if="data.data.DataSources_agg.count > 0 && !cohortOnly"
-        image="image-data-warehouse"
-        title="Data sources"
+        v-if="networkCount"
+        image="image-diagram"
+        title="Networks"
         :description="
-          getSettingValue(
-            'CATALOGUE_LANDING_DATASOURCES_TEXT',
-            data.data._settings
-          ) || catalogueRouteParam + ' databanks and registries'
+          getSettingValue('CATALOGUE_LANDING_NETWORKS_TEXT', settings) ||
+          'Networks &amp; Consortia'
         "
         :callToAction="
-          getSettingValue(
-            'CATALOGUE_LANDING_DATASOURCES_CTA',
-            data.data._settings
-          )
+          getSettingValue('CATALOGUE_LANDING_NETWORKS_CTA', settings) ||
+          'Networks'
         "
-        :count="data.data.DataSources_agg.count"
-        :link="`/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/datasources`"
+        :count="networkCount"
+        :link="`/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/networks`"
       />
       <LandingCardPrimary
-        v-if="data.data.Variables_agg.count > 0 && !cohortOnly"
+        v-if="data.data.Variables_agg?.count > 0 && !cohortOnly"
         image="image-diagram-2"
         title="Variables"
         :description="
-          getSettingValue(
-            'CATALOGUE_LANDING_VARIABLES_TEXT',
-            data.data._settings
-          ) || catalogueRouteParam + ' harmonized variables.'
+          getSettingValue('CATALOGUE_LANDING_VARIABLES_TEXT', settings) ||
+          'Harmonised variables'
         "
         :count="data.data.Variables_agg.count"
         :callToAction="
-          getSettingValue(
-            'CATALOGUE_LANDING_VARIABLES_CTA',
-            data.data._settings
-          )
+          getSettingValue('CATALOGUE_LANDING_VARIABLES_CTA', settings)
         "
         :link="`/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/variables`"
       />
-
       <LandingCardPrimary
-        v-if="numberOfNetworks > 0 && !cohortOnly"
-        image="image-diagram-2"
-        title="Networks"
-        :description="
-          getSettingValue(
-            'CATALOGUE_LANDING_NETWORKS_TEXT',
-            data.data._settings
-          ) || 'Networks'
-        "
-        :count="numberOfNetworks"
-        :callToAction="
-          getSettingValue('CATALOGUE_LANDING_NETWORKS_CTA', data.data._settings)
-        "
-        :link="`/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/networks`"
+        v-if="!cohortOnly && network.id === 'FORCE-NEN collections'"
+        image="image-data-warehouse"
+        title="Aggregates"
+        callToAction="Aggregates"
+        :link="`/Aggregates/aggregates/#/`"
+        :openLinkInNewTab="true"
       />
     </LandingPrimary>
 
     <LandingSecondary>
       <LandingCardSecondary
         icon="people"
-        v-if="data.data.Cohorts_agg?.sum?.numberOfParticipants"
+        v-if="data.data.Resources_agg?._sum?.numberOfParticipants"
       >
         <b>
           {{
             new Intl.NumberFormat("nl-NL").format(
-              data.data.Cohorts_agg?.sum?.numberOfParticipants
+              data.data.Resources_agg?._sum?.numberOfParticipants
             )
           }}
           {{
-            getSettingValue(
-              "CATALOGUE_LANDING_PARTICIPANTS_LABEL",
-              data.data._settings
-            ) || "Participants"
+            getSettingValue("CATALOGUE_LANDING_PARTICIPANTS_LABEL", settings) ||
+            "Participants"
           }}
         </b>
         <br />{{
-          getSettingValue(
-            "CATALOGUE_LANDING_PARTICIPANTS_TEXT",
-            data.data._settings
-          ) ||
-          "The cumulative number of participants of all (sub)cohorts combined."
+          getSettingValue("CATALOGUE_LANDING_PARTICIPANTS_TEXT", settings) ||
+          "The cumulative number of participants."
         }}
       </LandingCardSecondary>
 
       <LandingCardSecondary
         icon="colorize"
-        v-if="data.data.Cohorts_agg?.sum?.numberOfParticipantsWithSamples"
+        v-if="data.data.Resources_agg?._sum?.numberOfParticipantsWithSamples"
       >
         <b
           >{{
             new Intl.NumberFormat("nl-NL").format(
-              data.data.Cohorts_agg?.sum?.numberOfParticipantsWithSamples
+              data.data.Resources_agg?._sum?.numberOfParticipantsWithSamples
             )
           }}
           {{
-            getSettingValue(
-              "CATALOGUE_LANDING_SAMPLES_LABEL",
-              data.data._settings
-            ) || "Samples"
+            getSettingValue("CATALOGUE_LANDING_SAMPLES_LABEL", settings) ||
+            "Samples"
           }}</b
         >
         <br />{{
-          getSettingValue(
-            "CATALOGUE_LANDING_SAMPLES_TEXT",
-            data.data._settings
-          ) ||
-          "The cumulative number of participants with samples collected of all (sub)cohorts combined"
+          getSettingValue("CATALOGUE_LANDING_SAMPLES_TEXT", settings) ||
+          "The cumulative number of participants with samples"
         }}
       </LandingCardSecondary>
 
       <LandingCardSecondary
         icon="schedule"
-        v-if="data.data.Cohorts_groupBy && data.data.Cohorts_agg.count"
+        v-if="data.data.Design_groupBy && data.data.Resources_agg"
       >
         <b
           >{{
-            getSettingValue(
-              "CATALOGUE_LANDING_DESIGN_LABEL",
-              data.data._settings
-            ) || "Longitudinal"
+            getSettingValue("CATALOGUE_LANDING_DESIGN_LABEL", settings) ||
+            "Longitudinal"
           }}
           {{
             percentageLongitudinal(
-              data.data.Cohorts_groupBy,
-              data.data.Cohorts_agg.count
+              data.data.Design_groupBy,
+              data.data.Resources_agg.count
             )
           }}%</b
         ><br />{{
-          getSettingValue(
-            "CATALOGUE_LANDING_DESIGN_TEXT",
-            data.data._settings
-          ) || "Percentage of longitudinal datasets. The remaining datasets are"
+          getSettingValue("CATALOGUE_LANDING_DESIGN_TEXT", settings) ||
+          "Percentage of longitudinal datasets."
         }}
-        cross-sectional.
       </LandingCardSecondary>
 
       <LandingCardSecondary
         icon="viewTable"
-        v-if="data.data.Subcohorts_agg.count"
+        v-if="data.data.Subpopulations_agg"
       >
         <b>
-          {{ data.data.Subcohorts_agg.count }}
+          {{ data.data.Subpopulations_agg.count }}
           {{
             getSettingValue(
-              "CATALOGUE_LANDING_SUBCOHORTS_LABEL",
-              data.data._settings
-            ) || "Subcohorts"
+              "CATALOGUE_LANDING_SUBPOPULATIONS_LABEL",
+              settings
+            ) || "Subpopulations"
           }}
         </b>
         <br />
         {{
-          getSettingValue(
-            "CATALOGUE_LANDING_SUBCOHORTS_TEXT",
-            data.data._settings
-          ) || "The total number of subcohorts included"
+          getSettingValue("CATALOGUE_LANDING_SUBPOPULATIONS_TEXT", settings) ||
+          "The total number of subpopulations included"
         }}
       </LandingCardSecondary>
     </LandingSecondary>

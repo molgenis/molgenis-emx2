@@ -18,7 +18,9 @@
         placeholder="search in schemas"
         v-model="search"
       />
+
       <label>{{ count }} databases found</label>
+
       <table class="table table-hover table-bordered bg-white">
         <thead>
           <th style="width: 1px">
@@ -74,14 +76,8 @@
             </td>
             <td v-if="showChangeColumn">
               <LastUpdateField
-                v-if="changelogSchemas.includes(schema.id)"
-                :schema="schema.id"
-                @input="
-                  (i) => {
-                    schema.update = new Date(i);
-                    handleLastUpdateChange();
-                  }
-                "
+                v-if="schema.update"
+                :lastUpdate="schema.update"
               />
             </td>
           </tr>
@@ -117,6 +113,7 @@ import {
   MessageWarning,
   InputSearch,
   MessageError,
+  ButtonOutline,
 } from "molgenis-components";
 import LastUpdateField from "./LastUpdateField.vue";
 
@@ -133,6 +130,7 @@ export default {
     MessageError,
     InputSearch,
     LastUpdateField,
+    ButtonOutline,
   },
   props: {
     session: Object,
@@ -149,7 +147,7 @@ export default {
       search: null,
       sortColumn: "name",
       sortOrder: null,
-      changelogSchemas: [],
+      lastUpdates: [],
     };
   },
   computed: {
@@ -168,7 +166,7 @@ export default {
       );
     },
     showChangeColumn() {
-      return this.hasManagerPermission && this.changelogSchemas.length;
+      return this.session.email == "admin";
     },
   },
   created() {
@@ -200,34 +198,31 @@ export default {
     },
     getSchemaList() {
       this.loading = true;
-      request("graphql", "{_schemas{id,label,description}}")
+      const schemaFragment = "_schemas{id,label,description}";
+      const lastUpdateFragment =
+        "_lastUpdate{schemaName, tableName, stamp, userId, operation}";
+      request(
+        "graphql",
+        `{${schemaFragment} ${this.showChangeColumn ? lastUpdateFragment : ""}}`
+      )
         .then((data) => {
           this.schemas = data._schemas;
-          this.loading = false;
-          if (this.hasManagerPermission) {
-            this.fetchChangelogStatus();
-          }
-        })
-        .catch(
-          (error) =>
-            (this.graphqlError = "internal server graphqlError" + error)
-        );
-    },
-    fetchChangelogStatus() {
-      this.schemas.forEach((schema) => {
-        request(
-          `/${schema.id}/settings/graphql`,
-          `{_settings (keys: ["isChangelogEnabled"]){ key, value }}`
-        )
-          .then((data) => {
-            if (data._settings[0].value.toLowerCase() === "true") {
-              this.changelogSchemas.push(schema.id);
+          const lastUpdates = data._lastUpdate ?? [];
+          lastUpdates.forEach((lastUpdate) => {
+            const schemaLastUpdate = this.schemas.find(
+              (schema) => schema.id === lastUpdate.schemaName
+            );
+            if (schemaLastUpdate) {
+              schemaLastUpdate.update = lastUpdate;
             }
-          })
-          .catch((error) => {
-            console.log(error);
           });
-      });
+          this.loading = false;
+        })
+        .catch((error) => {
+          console.error("internal server error", error);
+          this.graphqlError = "internal server error" + error;
+          this.loading = false;
+        });
     },
     filterSchema(unfiltered) {
       let filtered = unfiltered;
@@ -244,11 +239,12 @@ export default {
       return filtered;
     },
     sortSchemas(unsorted) {
+      const unsortedCopy = unsorted.slice();
       let sorted = [];
       if (this.sortColumn === "lastUpdate") {
-        sorted = unsorted.sort((a, b) => {
+        sorted = unsortedCopy.sort((a, b) => {
           if (a.update && b.update) {
-            return a.update.getTime() - b.update.getTime();
+            return new Date(a.update.stamp) - new Date(b.update.stamp);
           } else if (a.update && !b.update) {
             return 1;
           } else if (!a.update && b.update) {
@@ -259,7 +255,7 @@ export default {
           }
         });
       } else {
-        sorted = unsorted.sort((a, b) => a.id.localeCompare(b.id));
+        sorted = unsortedCopy.sort((a, b) => a.id.localeCompare(b.id));
       }
 
       if (this.sortOrder === "DESC") {
@@ -279,6 +275,13 @@ export default {
     handleLastUpdateChange() {
       if (this.sortColumn === "lastUpdate") {
         this.sortSchemas(this.schemasFilteredAndSorted);
+      }
+    },
+  },
+  watch: {
+    showChangeColumn(val) {
+      if (val) {
+        this.getSchemaList();
       }
     },
   },

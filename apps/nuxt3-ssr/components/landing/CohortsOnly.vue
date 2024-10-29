@@ -3,29 +3,28 @@ const route = useRoute();
 const config = useRuntimeConfig();
 
 const { data, pending, error, refresh } = await useFetch(
-  `/${route.params.schema}/catalogue/graphql`,
+  `/${route.params.schema}/graphql`,
   {
-    baseURL: config.public.apiBase,
     method: "POST",
     body: {
       query: `{
         Variables_agg {
           count
         }
-        Cohorts_agg { 
+        Resources_agg {
           count
-          sum {
+          _sum {
             numberOfParticipants
             numberOfParticipantsWithSamples 
           }
         }
-        Subcohorts_agg {
+        Subpopulations_agg {
           count
         }
         Networks_agg { 
           count
         }
-        Cohorts_groupBy {
+        Resources_groupBy {
           count 
           design {
             name
@@ -78,7 +77,7 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
 }
 </script>
 <template>
-  <LayoutsLandingPage class="w-10/12 pt-8">
+  <LayoutsLandingPage>
     <PageHeader
       class="mx-auto lg:w-7/12 text-center"
       :title="
@@ -154,7 +153,7 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
         <b>
           {{
             new Intl.NumberFormat("nl-NL").format(
-              data.data.Cohorts_agg.sum.numberOfParticipants
+              data.data.Cohorts_agg._sum.numberOfParticipants
             )
           }}
           {{
@@ -177,7 +176,7 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
         <b
           >{{
             new Intl.NumberFormat("nl-NL").format(
-              data.data.Cohorts_agg.sum.numberOfParticipantsWithSamples
+              data.data.Cohorts_agg._sum.numberOfParticipantsWithSamples
             )
           }}
           {{
@@ -221,12 +220,12 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
 
       <LandingCardSecondary icon="viewTable">
         <b>
-          {{ data.data.Subcohorts_agg.count }}
+          {{ data.data.Subpopulations_agg.count }}
           {{
             getSettingValue(
               "CATALOGUE_LANDING_SUBCOHORTS_LABEL",
               data.data._settings
-            ) || "Subcohorts"
+            ) || "Subpopulations"
           }}
         </b>
         <br />
@@ -234,7 +233,7 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
           getSettingValue(
             "CATALOGUE_LANDING_SUBCOHORTS_TEXT",
             data.data._settings
-          ) || "The total number of subcohorts included"
+          ) || "The total number of cohorts included"
         }}
       </LandingCardSecondary>
     </div>

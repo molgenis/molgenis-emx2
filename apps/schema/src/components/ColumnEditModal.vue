@@ -9,8 +9,8 @@
         <div class="column-scroll col">
           <Spinner v-if="loading" />
           <div v-else>
-            <MessageWarning v-if="column.drop"
-              >Marked for deletion
+            <MessageWarning v-if="column.drop">
+              Marked for deletion
             </MessageWarning>
             <MessageError v-if="error">{{ error }}</MessageError>
             <div class="row">
@@ -114,11 +114,18 @@
             </div>
             <div class="row">
               <div class="col-4" v-if="isEditable(column)">
-                <InputBoolean
+                <InputRadio
+                  id="column_required_radio"
+                  label="required"
+                  :options="[true, false, 'condition']"
+                  v-model="requiredSelect"
+                  description="Will give error unless field is filled in. Is not checked if not visible"
+                  @update:modelValue="setRequired"
+                />
+                <InputString
                   id="column_required"
                   v-model="column.required"
-                  label="required"
-                  description="Will give error unless field is filled in. Is not checked if not visible"
+                  v-if="requiredSelect === 'condition'"
                 />
               </div>
               <div class="col-4" v-if="isEditable(column)">
@@ -129,7 +136,7 @@
                 />
               </div>
               <div class="col-4" v-if="isEditable(column)">
-                <InputString
+                <InputText
                   id="column_default"
                   v-model="column.defaultValue"
                   label="defaultValue"
@@ -258,34 +265,31 @@
 }
 </style>
 
-<script>
+<script lang="ts">
 import {
-  ButtonAction,
-  ButtonAlt,
-  Client,
-  IconAction,
-  InputBoolean,
-  InputSelect,
-  InputString,
-  InputText,
-  InputTextLocalized,
-  LayoutForm,
-  LayoutModal,
-  MessageError,
-  MessageWarning,
-  RowEdit,
-  Spinner,
-  deepClone,
+  constants,
+  //@ts-ignore
+  ButtonAction, //@ts-ignore
+  ButtonAlt, //@ts-ignore
+  Client, //@ts-ignore
+  IconAction, //@ts-ignore
+  InputBoolean, //@ts-ignore
+  InputRadio, //@ts-ignore
+  InputSelect, //@ts-ignore
+  InputString, //@ts-ignore
+  InputText, //@ts-ignore
+  InputTextLocalized, //@ts-ignore
+  LayoutForm, //@ts-ignore
+  LayoutModal, //@ts-ignore
+  MessageError, //@ts-ignore
+  MessageWarning, //@ts-ignore
+  RowEdit, //@ts-ignore
+  Spinner, //@ts-ignore
+  deepClone, //@ts-ignore
   getRowErrors,
 } from "molgenis-components";
 import columnTypes from "../columnTypes.js";
-import {
-  getLocalizedDescription,
-  getLocalizedLabel,
-  convertToPascalCase,
-  convertToCamelCase,
-  addTableIdsLabelsDescription,
-} from "../utils";
+import { addTableIdsLabelsDescription } from "../utils";
 
 const AUTO_ID = "AUTO_ID";
 
@@ -296,6 +300,7 @@ export default {
     InputString,
     InputBoolean,
     InputSelect,
+    InputRadio,
     IconAction,
     InputTextLocalized,
     LayoutModal,
@@ -348,24 +353,25 @@ export default {
       //if modal is visible
       modalVisible: false,
       // working value of the column (copy of the value)
-      column: null,
-      //the type options
-      columnTypes,
+      column: {} as Record<string, any>,
+      requiredSelect: false as boolean | string,
       //in case a refSchema has to be used for the table lookup
-      refSchema: undefined,
-      error: null,
-      client: null,
+      refSchema: undefined as undefined | any,
+      error: undefined,
+      client: null as any,
       loading: false,
       previewShow: false,
-      previewData: {},
-      rowErrors: {},
+      previewData: {} as Record<string, any>,
+      rowErrors: {} as Record<string, string>,
+      columnTypes,
+      AUTO_ID,
     };
   },
   computed: {
     //current table object unedited
     originalTable() {
       return this.schema.tables.find(
-        (table) =>
+        (table: Record<string, any>) =>
           table.name === this.tableName ||
           table.name === this.column.table ||
           (table.subclasses && table.subclasses.includes(this.column.table))
@@ -376,7 +382,8 @@ export default {
       const table = deepClone(this.originalTable);
       //replace column with current changes
       const index = table.columns.findIndex(
-        (c) => c.name == this.column.name || c.name == this.column.oldName
+        (c: Record<string, any>) =>
+          c.name == this.column.name || c.name == this.column.oldName
       );
       // or if new, we add it
       if (index === -1) {
@@ -394,7 +401,7 @@ export default {
     schemaWithIdsLabelsAndDescriptions() {
       const schema = deepClone(this.schema);
       schema.id = schema.name;
-      schema.tables = schema.tables.map((table) => {
+      schema.tables = schema.tables.map((table: Record<string, any>) => {
         return addTableIdsLabelsDescription(table);
       });
       return schema;
@@ -402,7 +409,9 @@ export default {
     //listing of related subclasses, used to indicate if column is part of subclass
     subclassNames() {
       if (this.table?.subclasses) {
-        return this.table?.subclasses.map((subclass) => subclass.name);
+        return this.table?.subclasses.map(
+          (subclass: Record<string, any>) => subclass.name
+        );
       } else {
         return undefined;
       }
@@ -415,21 +424,21 @@ export default {
           this.column.columnType === "ONTOLOGY_ARRAY"
         ) {
           return this.refSchema.tables
-            .filter((t) => t.tableType === "ONTOLOGIES")
-            .map((t) => t.name);
+            .filter((t: Record<string, any>) => t.tableType === "ONTOLOGIES")
+            .map((t: Record<string, any>) => t.name);
         } else {
           return this.refSchema.tables
-            .filter((t) => t.tableType !== "ONTOLOGIES")
-            .map((t) => t.name);
+            .filter((t: Record<string, any>) => t.tableType !== "ONTOLOGIES")
+            .map((t: Record<string, any>) => t.name);
         }
       } else {
         if (
           this.column.columnType === "ONTOLOGY" ||
           this.column.columnType === "ONTOLOGY_ARRAY"
         ) {
-          return this.schema.ontologies.map((t) => t.name);
+          return this.schema.ontologies.map((t: Record<string, any>) => t.name);
         } else {
-          return this.schema.tables.map((t) => t.name);
+          return this.schema.tables.map((t: Record<string, any>) => t.name);
         }
       }
     },
@@ -437,14 +446,15 @@ export default {
       if (this.column.name === undefined || this.column.name === "") {
         return "Name is required";
       }
-      if (!this.column.name.match(/^[a-zA-Z][a-zA-Z0-9_ ]+$/)) {
-        return "Name should start with letter, followed by letter, number, whitespace or underscore ([a-zA-Z][a-zA-Z0-9_ ]*)";
+      if (!this.column.name.match(constants.COLUMN_NAME_REGEX)) {
+        return "Name must start with a letter, followed by zero or more letters, numbers, spaces or underscores. A space immediately before or after an underscore is not allowed. The character limit is 63.";
       }
       if (
         (this.modelValue === undefined ||
           this.modelValue.name !== this.column.name) &&
-        this.originalTable.columns?.filter((c) => c.name === this.column.name)
-          .length > 0
+        this.originalTable.columns?.filter(
+          (c: Record<string, any>) => c.name === this.column.name
+        ).length > 0
       ) {
         return "Name should be unique";
       } else {
@@ -472,25 +482,27 @@ export default {
       this.reset();
       this.modalVisible = false;
     },
+    setRequired() {
+      this.column.required = this.requiredSelect;
+    },
     refLinkCandidates() {
       return this.table.columns
         .filter(
-          (c) =>
+          (c: Record<string, any>) =>
             (c.columnType === "REF" || c.columnType === "REF_ARRAY") &&
-            c.name !== this.modelValue.name
+            c.name !== this.modelValue?.name
         )
-        .map((c) => c.name);
+        .map((c: Record<string, any>) => c.name);
     },
-    refBackCandidates(fromTable, toTable) {
+    refBackCandidates(fromTable: string, toTable: Record<string, any>) {
       const schema =
         this.refSchema !== undefined ? this.refSchema : this.schema;
-
-      const columns = schema.tables
-        .filter((t) => t.name === fromTable)
-        .map((t) => t.columns)[0];
+      const columns = getRefTableColumns(fromTable, schema.tables);
       return columns
-        ?.filter((c) => c.refTableName === toTable)
-        .map((c) => c.name);
+        .filter(
+          (column: Record<string, any>) => column.refTableName === toTable
+        )
+        .map((column: Record<string, any>) => column.name);
     },
     async loadRefSchema() {
       this.error = undefined;
@@ -498,14 +510,29 @@ export default {
       if (this.column.refSchemaName) {
         //todo, don't use client here because we need 'names' not 'ids'
         this.client = Client.newClient(this.column.refSchemaName);
-        const schema = await this.client.fetchSchemaMetaData().catch((e) => {
-          this.error = e;
-        });
+        const schema = await this.client
+          .fetchSchemaMetaData()
+          .catch((e: any) => {
+            this.error = e;
+          });
         this.refSchema = schema;
       } else {
         this.refSchema = {};
       }
       this.loading = false;
+    },
+    setupRequiredSelect() {
+      if (this.column.required === "true" || this.column.required === true) {
+        this.requiredSelect = true;
+      } else if (
+        this.column.required === "false" ||
+        this.column.required === false ||
+        this.column.required === undefined
+      ) {
+        this.requiredSelect = false;
+      } else {
+        this.requiredSelect = "condition";
+      }
     },
     reset() {
       //deep copy so it doesn't update during edits
@@ -518,9 +545,10 @@ export default {
       if (this.column.refSchema != undefined) {
         this.loadRefSchema();
       }
+      this.setupRequiredSelect();
       this.modalVisible = false;
     },
-    isEditable(column) {
+    isEditable(column: Record<string, any>) {
       return (
         column.columnType !== "CONSTANT" &&
         !column.computed &&
@@ -536,4 +564,21 @@ export default {
   },
   emits: ["add", "update:modelValue"],
 };
+
+function getRefTableColumns(
+  fromTable: string,
+  tables: Record<string, any>[]
+): Record<string, any>[] {
+  const table = tables.find(
+    (table: Record<string, any>) => table.name === fromTable
+  );
+  if (table?.inheritName) {
+    const inheritedTable = tables.find(
+      (otherTable: Record<string, any>) => table.inheritName === otherTable.name
+    );
+    return [...inheritedTable?.columns, ...table?.columns];
+  } else {
+    return table?.columns || [];
+  }
+}
 </script>

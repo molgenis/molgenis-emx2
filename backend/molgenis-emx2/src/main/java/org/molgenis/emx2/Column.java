@@ -3,8 +3,7 @@ package org.molgenis.emx2;
 import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.ColumnType.*;
-import static org.molgenis.emx2.Constants.COMPOSITE_REF_SEPARATOR;
-import static org.molgenis.emx2.Constants.SYS_COLUMN_NAME_PREFIX;
+import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.utils.TypeUtils.*;
 
 import java.util.*;
@@ -18,7 +17,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
 
   // basics
   private TableMetadata table; // table this column is part of
-  private String columnName; // short name, first character A-Za-z followed by AZ-a-z_0-1
+  private String columnName; // short name, should adhere to: Constants.COLUMN_NAME_REGEX
   private ColumnType columnType = STRING; // type of the column
 
   // transient for enabling migrations
@@ -37,7 +36,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
       null; // column order within the table. During import/export these may change
 
   private int key = 0; // 1 is primary key 2..n is secondary keys
-  private boolean required = false;
+  private String required = null;
   private String validation = null;
   private String visible = null; // javascript expression to influence vibility
   private String computed = null; // javascript expression to compute a value, overrides updates
@@ -86,15 +85,11 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   }
 
   private String validateName(String columnName, boolean skipValidation) {
-    if (!skipValidation && !columnName.matches("[a-zA-Z][a-zA-Z0-9_ ]*")) {
+    if (!skipValidation && !columnName.matches(COLUMN_NAME_REGEX)) {
       throw new MolgenisException(
           "Invalid column name '"
               + columnName
-              + "': Column must start with a letter, followed by letters, underscores, a space or numbers, i.e. [a-zA-Z][a-zA-Z0-9_]*");
-    }
-    if (!skipValidation && (columnName.contains("_ ") || columnName.contains(" _"))) {
-      throw new MolgenisException(
-          "Invalid column name '" + columnName + "': column names cannot contain '_ ' or '_ '");
+              + "': Column name must start with a letter, followed by zero or more letters, numbers, spaces or underscores. A space immediately before or after an underscore is not allowed. The character limit is 63.");
     }
     return columnName.trim();
   }
@@ -249,12 +244,25 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   }
 
   public boolean isRequired() {
-    return required;
+    return required != null && required.equalsIgnoreCase("true");
   }
 
-  public Column setRequired(boolean required) {
+  public Column setRequired(Boolean required) {
+    this.required = required.toString();
+    return this;
+  }
+
+  public Column setRequired(String required) {
     this.required = required;
     return this;
+  }
+
+  public String getRequired() {
+    return this.required;
+  }
+
+  public boolean isConditionallyRequired() {
+    return !isRequired() && getRequired() != null && !"false".equalsIgnoreCase(getRequired());
   }
 
   public Boolean isCascadeDelete() {
@@ -362,6 +370,14 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     return field(name(getName()), getJooqType());
   }
 
+  public List<Field> getCompositeFields() {
+    if (this.isReference()) {
+      return getReferences().stream().map(ref -> ref.getJooqField()).toList();
+    } else {
+      return List.of(getJooqField());
+    }
+  }
+
   public org.jooq.Table getJooqTable() {
     return getTable().getJooqTable();
   }
@@ -400,6 +416,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     return List.of(
         field(name(getName()), SQLDataType.VARCHAR),
         field(name(getName() + "_mimetype"), SQLDataType.VARCHAR),
+        field(name(getName() + "_filename"), SQLDataType.VARCHAR),
         field(name(getName() + "_extension"), SQLDataType.VARCHAR),
         field(name(getName() + "_size"), SQLDataType.INTEGER),
         field(name(getName() + "_contents"), SQLDataType.BINARY));
@@ -628,6 +645,10 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     return this.getName().startsWith(SYS_COLUMN_NAME_PREFIX);
   }
 
+  public boolean isSystemAddUpdateByUserColumn() {
+    return this.getName().equals(MG_INSERTEDBY) || this.getName().equals(MG_UPDATEDBY);
+  }
+
   public boolean isHeading() {
     return this.getColumnType().isHeading();
   }
@@ -648,7 +669,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   }
 
   public String getRootTableName() {
-    return this.getTable().getRootTableName();
+    return this.getTable().getRootTable().getTableName();
   }
 
   @Override

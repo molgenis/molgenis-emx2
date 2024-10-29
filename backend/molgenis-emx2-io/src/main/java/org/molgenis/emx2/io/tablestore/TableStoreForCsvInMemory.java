@@ -73,11 +73,15 @@ public class TableStoreForCsvInMemory implements TableStore {
   }
 
   @Override
-  public Collection<String> tableNames() {
+  public Collection<String> getTableNames() {
     return this.store.keySet();
   }
 
   public String getCsvString(String tableName) {
     return this.store.get(tableName);
+  }
+
+  public void setCsvString(String tableName, String csvString) {
+    this.store.put(tableName, csvString);
   }
 }

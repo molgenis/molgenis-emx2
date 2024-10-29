@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import type { IFilter } from "~/interfaces/types";
+const route = useRoute();
+useHead({ title: "Health Data and Samples Catalogue" });
 
 //add redirect middleware for cohortOnly to skip this page
 definePageMeta({
   middleware: [
-    function (to, from) {
+    function (to) {
       const cohortOnly =
         to.query["cohort-only"] === "true" ||
         useRuntimeConfig().public.cohortOnly;
@@ -15,25 +16,6 @@ definePageMeta({
       }
     },
   ],
-});
-
-useHead({ title: "Health Data and Samples Catalogue" });
-
-const route = useRoute();
-const config = useRuntimeConfig();
-
-let filters: IFilter[] = reactive([
-  {
-    title: "Search in catalogues",
-    columnType: "_SEARCH",
-    search: "",
-    initialCollapsed: false,
-  },
-]);
-
-let search = computed(() => {
-  // @ts-ignore
-  return filters.find((f) => f.columnType === "_SEARCH").search;
 });
 
 const query = computed(() => {
@@ -61,19 +43,42 @@ const query = computed(() => {
   `;
 });
 
-const filter = computed(() => buildQueryFilter(filters, search.value));
+interface Catalogue {
+  network: {
+    id: string;
+    name: string;
+    acronym: string;
+    description: string;
+    logo: {
+      id: string;
+      size: number;
+      extension: string;
+      url: string;
+    };
+  };
+  type: {
+    name: string;
+  };
+}
 
-let graphqlURL = computed(() => `/${route.params.schema}/api/graphql`);
-const { data, pending, error, refresh } = await useFetch(graphqlURL.value, {
-  key: "catalogues",
-  baseURL: config.public.apiBase,
-  method: "POST",
-  body: {
-    query,
-    variables: { filter },
-  },
-});
-let activeName = ref("compact");
+interface Catalogues_agg {
+  count: number;
+}
+
+interface Resp<T, U> {
+  data: Record<string, T[]>;
+  data_agg: Record<string, U>;
+}
+
+let graphqlURL = computed(() => `/${route.params.schema}/graphql`);
+const { data } = await useFetch<Resp<Catalogue, Catalogues_agg>>(
+  graphqlURL.value,
+  {
+    key: "catalogues",
+    method: "POST",
+    body: { query },
+  }
+);
 
 const thematicCatalogues = computed(() => {
   let result = data?.value?.data?.Catalogues
@@ -119,16 +124,21 @@ const projectCatalogues = computed(() => {
       </template>
     </PageHeader>
     <ContentBlockCatalogues
-      v-if="thematicCatalogues.length > 0"
+      v-if="thematicCatalogues?.length > 0"
       title="Thematic catalogues"
       description="Catalogues focused on a particular theme, developed by a collaboration of projects, networks and/or organisations:"
       :catalogues="thematicCatalogues"
     />
     <ContentBlockCatalogues
-      v-if="projectCatalogues.length > 0"
+      v-if="projectCatalogues?.length > 0"
       title="Project catalogues"
-      description="Catalogues maintained by individual research projects or consortia, such as EC RIA."
+      description="Catalogues maintained by individual research projects or consortia:"
       :catalogues="projectCatalogues"
+    />
+    <ContentBlock
+      v-if="projectCatalogues.length === 0 && thematicCatalogues.length === 0"
+      title="No Catalogues found"
+      description="Please add catalogues via admin user interface"
     />
   </LayoutsLandingPage>
 </template>

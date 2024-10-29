@@ -1,7 +1,7 @@
 {
   "private": true,
   "workspaces": [
-    "meta-data-utils",
+    "metadata-utils",
     "catalogue",
     "directory",
     "settings",
@@ -11,6 +11,7 @@
     "updownload",
     "pages",
     "graphql-playground",
+    "tailwind-components",
     "nuxt3-ssr",
     "molgenis-components",
     "molgenis-viz",
@@ -23,10 +24,19 @@
     "helloworld",
     "reports",
     "tasks",
-    "gportal"
+    "gportal",
+    "projectmanager",
+    "aggregates",
+    "imdhub-public",
+    "aggregation-dashboard",
+    "imdhub-public",
+    "emx2-analytics",
+    "ui"
   ],
   "devDependencies": {
-    "nx": "16.10.0",
-    "nx-cloud": "latest"
+    "nuxt": "3.13.2"
+  },
+  "scripts": {
+    "build:libs": "yarn workspace molgenis-components run build && yarn workspace molgenis-viz run build"
   }
 }

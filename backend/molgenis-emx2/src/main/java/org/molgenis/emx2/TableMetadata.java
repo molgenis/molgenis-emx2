@@ -15,7 +15,9 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
     implements Comparable {
 
   public static final String TABLE_NAME_MESSAGE =
-      ": Table name must start with a letter, followed by letters, underscores, a space or numbers, i.e. [a-zA-Z][a-zA-Z0-9_ ]*. Maximum length: 31 characters (so it fits in Excel sheet names)";
+      ": Table name must start with a letter, followed by zero or more letters, numbers, spaces or underscores. A space immediately before or after an underscore is not allowed. The character limit is 31.";
+  public static final String SCHEMA_NAME_MESSAGE =
+      ": Schema name must start with a letter, followed by zero or more letters, numbers, spaces, dash or underscores. A space immediately before or after an underscore is not allowed. The character limit is 31.";
   // if a table extends another table (optional)
   public String inheritName = null;
   // to allow indicate that a table should be dropped
@@ -62,16 +64,8 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   private String validateName(String tableName) {
     // max length 31 because of Excel
     // we allow only graphql compatible names PLUS spaces
-    if (!tableName.matches("[a-zA-Z][a-zA-Z0-9_ ]*")) {
+    if (!tableName.matches(Constants.TABLE_NAME_REGEX)) {
       throw new MolgenisException("Invalid table name '" + tableName + TABLE_NAME_MESSAGE);
-    }
-    if (tableName.length() > 31) {
-      throw new MolgenisException(
-          "Table name '" + tableName + "' is too long" + TABLE_NAME_MESSAGE);
-    }
-    if (tableName.contains("_ ") || tableName.contains(" _")) {
-      throw new MolgenisException(
-          "Invalid table name '" + tableName + "': table names cannot contain '_ ' or '_ '");
     }
     return tableName.trim();
   }
@@ -147,12 +141,12 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
       // we create copies so we don't need worry on changes
       for (Column col : getInheritedTable().getColumns()) {
         if (col.isSystemColumn()) {
-          meta.put(col.getName(), new Column(getInheritedTable(), col));
+          meta.put(col.getName(), col);
           // sorting of external schema is seperate from internal schema
         } else if (!Objects.equals(col.getTable().getSchemaName(), getSchemaName())) {
-          external.put(col.getName(), new Column(getInheritedTable(), col));
+          external.put(col.getName(), col);
         } else {
-          internal.put(col.getName(), new Column(getInheritedTable(), col));
+          internal.put(col.getName(), col);
         }
       }
     }
@@ -200,11 +194,18 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   }
 
   public List<Column> getDownloadColumnNames() {
-    return getExpandedColumns(
-        getColumns().stream()
-            .filter(c -> !c.isRefback() && !c.isHeading())
-            .map(c2 -> c2.isFile() ? column(c2.getName()) : c2)
-            .collect(Collectors.toList()));
+    List<Column> list = new ArrayList<>();
+    for (Column column : getColumns()) {
+      if (!column.isRefback() && !column.isHeading()) {
+        if (column.isFile()) {
+          list.add(column(column.getName()));
+          list.add(column(column.getName() + "_filename"));
+        } else {
+          list.add(column);
+        }
+      }
+    }
+    return getExpandedColumns(list);
   }
 
   public List<Column> getMutationColumns() {
@@ -222,6 +223,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
             c.getName() + "_contents",
             new Column(c.getTable(), c.getName() + "_contents").setType(FILE));
         result.put(c.getName() + "_mimetype", new Column(c.getTable(), c.getName() + "_mimetype"));
+        result.put(c.getName() + "_filename", new Column(c.getTable(), c.getName() + "_filename"));
         result.put(
             c.getName() + "_extension", new Column(c.getTable(), c.getName() + "_extension"));
         result.put(
@@ -254,7 +256,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
 
   public List<Column> getStoredColumns() {
     return getLocalColumns().stream()
-        .filter(c -> !HEADING.equals(c.getColumnType()))
+        .filter(c -> !HEADING.equals(c.getColumnType()) && !c.isRefback())
         .collect(Collectors.toList());
   }
 
@@ -312,6 +314,16 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
           .collect(Collectors.toList());
     }
     return getColumnNames();
+  }
+
+  public List<String> getNonReferencingColumnNames() {
+    List<String> result = new ArrayList<>();
+    for (Column c : getLocalColumns()) {
+      if (!c.isReference()) {
+        result.add(c.getName());
+      }
+    }
+    return result;
   }
 
   public Column getColumn(String name) {
@@ -584,11 +596,11 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
     }
   }
 
-  public String getRootTableName() {
+  public TableMetadata getRootTable() {
     TableMetadata table = this;
     while (table.getInheritName() != null) {
       table = table.getInheritedTable();
     }
-    return table.getTableName();
+    return table;
   }
 }

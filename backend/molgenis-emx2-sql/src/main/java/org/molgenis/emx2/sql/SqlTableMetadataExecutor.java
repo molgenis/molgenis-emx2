@@ -35,7 +35,17 @@ class SqlTableMetadataExecutor {
     // grant rights to schema manager, editor and viewer role
     jooq.execute(
         "GRANT SELECT ON {0} TO {1}",
+        jooqTable, name(getRolePrefix(table) + Privileges.EXISTS.toString()));
+    // todo: Do we need to add RANGE, AGGREGATOR and VIEWER here also?
+    jooq.execute(
+        "GRANT SELECT ON {0} TO {1}",
+        jooqTable, name(getRolePrefix(table) + Privileges.RANGE.toString()));
+    jooq.execute(
+        "GRANT SELECT ON {0} TO {1}",
         jooqTable, name(getRolePrefix(table) + Privileges.AGGREGATOR.toString()));
+    jooq.execute(
+        "GRANT SELECT ON {0} TO {1}",
+        jooqTable, name(getRolePrefix(table) + Privileges.COUNT.toString()));
     jooq.execute(
         "GRANT SELECT ON {0} TO {1}",
         jooqTable, name(getRolePrefix(table) + Privileges.VIEWER.toString()));
@@ -143,13 +153,20 @@ class SqlTableMetadataExecutor {
 
     TableMetadata copyTm = new TableMetadata(table.getSchema(), table);
     copyTm.setInheritName(other.getTableName());
-    for (Column pkey : other.getPrimaryKeyColumns()) {
-      // same as parent table, except table name
-      Column copy = new Column(copyTm, pkey);
-      executeCreateColumn(jooq, copy);
-      executeSetRequired(jooq, copy);
-      copyTm.add(copy);
+    // create primary key fields based on parent
+    for (Field pkey : other.getPrimaryKeyFields()) {
+      jooq.alterTable(table.getJooqTable()).addColumn(pkey).execute();
     }
+    createOrReplaceKey(jooq, copyTm, 1, other.getPrimaryKeyFields());
+    // create foreign key to parent
+    jooq.alterTable(table.getJooqTable())
+        .add(
+            constraint("fkey_" + table.getTableName() + "_extends_" + other.getTableName())
+                .foreignKey(other.getPrimaryKeyFields())
+                .references(other.getJooqTable(), other.getPrimaryKeyFields())
+                .onUpdateCascade()
+                .onDeleteCascade())
+        .execute();
     // add column to superclass table
     if (other.getLocalColumn(MG_TABLECLASS) == null) {
       other.add(column(MG_TABLECLASS).setReadonly(true).setPosition(10005));
@@ -245,10 +262,17 @@ class SqlTableMetadataExecutor {
     //                  .map(field -> name(field.getName()).toString())
     //                  .collect(Collectors.joining(","))));
     //    } else {
-    jooq.alterTable(getJooqTable(table))
-        .add(constraint(name(uniqueName)).unique(keyFields.toArray(new Field[keyFields.size()])))
-        .execute();
-    //    }
+    if (index == 1) {
+      jooq.alterTable(getJooqTable(table))
+          .add(
+              constraint(name(uniqueName))
+                  .primaryKey(keyFields.toArray(new Field[keyFields.size()])))
+          .execute();
+    } else {
+      jooq.alterTable(getJooqTable(table))
+          .add(constraint(name(uniqueName)).unique(keyFields.toArray(new Field[keyFields.size()])))
+          .execute();
+    }
   }
 
   static void executeDropTable(DSLContext jooq, TableMetadata table) {
@@ -367,9 +391,18 @@ class SqlTableMetadataExecutor {
     // negative positions so they don't interfere with the positions of user provided columns
     table.add(column(MG_DRAFT).setType(BOOL).setPosition(-5));
     table.add(column(MG_INSERTEDBY).setPosition(-4));
-    table.add(column(MG_INSERTEDON).setType(DATETIME).setPosition(-3));
+    table.add(
+        column(MG_INSERTEDON)
+            .setType(DATETIME)
+            .setPosition(-3)
+            .setSemantics(
+                "https://w3id.org/fdp/fdp-o#metadataIssued", "http://purl.org/dc/terms/issued"));
     table.add(column(MG_UPDATEDBY).setPosition(-2));
-    table.add(column(MG_UPDATEDON).setType(DATETIME).setPosition(-1));
+    table.add(
+        column(MG_UPDATEDON)
+            .setType(DATETIME)
+            .setPosition(-1)
+            .setSemantics("https://w3id.org/fdp/fdp-o#metadataModified"));
   }
 
   private static void executeRemoveMetaColumns(DSLContext jooq, TableMetadata table) {

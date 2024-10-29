@@ -1,82 +1,115 @@
 package org.molgenis.emx2.web;
 
-import static org.molgenis.emx2.web.BeaconApi.getSchemasHavingTable;
+import static io.javalin.apibuilder.ApiBuilder.*;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
-import static spark.Spark.get;
 
+import io.javalin.Javalin;
+import io.javalin.http.Context;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.fairdatapoint.*;
-import spark.Request;
-import spark.Response;
 
 public class FAIRDataPointApi {
 
   private static MolgenisSessionManager sessionManager;
   private static final String TEXT_TURTLE_MIME_TYPE = "text/turtle";
 
-  public static void create(MolgenisSessionManager sm) {
+  public static void create(Javalin app, MolgenisSessionManager sm) {
     sessionManager = sm;
 
-    // the four FDP layers
-    get("/api/fdp", FAIRDataPointApi::getFDP);
-    get(
-        "/api/fdp/",
-        FAIRDataPointApi::getFDP); // todo ideally, pass this to get("/api/fdp",..), but how?
-    get("/api/fdp/catalog/:schema/:id", FAIRDataPointApi::getCatalog);
-    get("/api/fdp/dataset/:schema/:id", FAIRDataPointApi::getDataset);
-    get("/api/fdp/distribution/:schema/:distribution/:format", FAIRDataPointApi::getDistribution);
+    // Base routes for /api/fdp
+    app.head("/api/fdp", FAIRDataPointApi::getHead);
+    app.get("/api/fdp", FAIRDataPointApi::getFDP);
+    app.head("/api/fdp/profile", FAIRDataPointApi::getHead);
+    app.get("/api/fdp/profile", FAIRDataPointApi::getFDPProfile);
 
-    // corresponding profiles
-    get("/api/fdp/profile", FAIRDataPointApi::getFDPProfile);
-    get("/api/fdp/catalog/profile", FAIRDataPointApi::getCatalogProfile);
-    get("/api/fdp/dataset/profile", FAIRDataPointApi::getDatasetProfile);
-    get("/api/fdp/distribution/profile", FAIRDataPointApi::getDistributionProfile);
+    // Routes for /api/fdp/catalog
+    app.head("/api/fdp/catalog/{schema}/{id}", FAIRDataPointApi::getHead);
+    app.get("/api/fdp/catalog/{schema}/{id}", FAIRDataPointApi::getCatalog);
+    app.head("/api/fdp/catalog/profile", FAIRDataPointApi::getHead);
+    app.get("/api/fdp/catalog/profile", FAIRDataPointApi::getCatalogProfile);
+
+    // Routes for /api/fdp/dataset
+    app.head("/api/fdp/dataset/{schema}/{id}", FAIRDataPointApi::getHead);
+    app.get("/api/fdp/dataset/{schema}/{id}", FAIRDataPointApi::getDataset);
+    app.head("/api/fdp/dataset/profile", FAIRDataPointApi::getHead);
+    app.get("/api/fdp/dataset/profile", FAIRDataPointApi::getDatasetProfile);
+
+    // Routes for /api/fdp/distribution
+    app.head("/api/fdp/distribution/{schema}/{distribution}/{format}", FAIRDataPointApi::getHead);
+    app.get(
+        "/api/fdp/distribution/{schema}/{distribution}/{format}",
+        FAIRDataPointApi::getDistribution);
+    app.head("/api/fdp/distribution/profile", FAIRDataPointApi::getHead);
+    app.get("/api/fdp/distribution/profile", FAIRDataPointApi::getDistributionProfile);
   }
 
-  private static String getFDP(Request request, Response res) throws Exception {
-    res.type(TEXT_TURTLE_MIME_TYPE);
-    Schema[] schemas = getSchemasHavingTable("Catalog", request);
-    return new FAIRDataPoint(request, schemas).getResult();
+  private static void getHead(Context ctx) {
+    ctx.contentType(TEXT_TURTLE_MIME_TYPE);
   }
 
-  private static String getCatalog(Request request, Response res) throws Exception {
-    res.type(TEXT_TURTLE_MIME_TYPE);
-    Schema schema = getSchema(request);
+  private static void getFDP(Context ctx) throws Exception {
+    ctx.contentType(TEXT_TURTLE_MIME_TYPE);
+    Schema[] schemas = getSchemasHavingTable("Catalog", ctx);
+    ctx.result(new FAIRDataPoint(ctx, schemas).getResult());
+  }
+
+  private static void getCatalog(Context ctx) throws Exception {
+    ctx.contentType(TEXT_TURTLE_MIME_TYPE);
+    Schema schema = getSchema(ctx);
     Table table = schema.getTable("Catalog");
-    return new FAIRDataPointCatalog(request, table).getResult();
+    ctx.result(new FAIRDataPointCatalog(ctx, table).getResult());
   }
 
-  private static String getDataset(Request request, Response res) throws Exception {
-    res.type(TEXT_TURTLE_MIME_TYPE);
-    Schema schema = getSchema(request);
+  private static void getDataset(Context ctx) throws Exception {
+    ctx.contentType(TEXT_TURTLE_MIME_TYPE);
+    Schema schema = getSchema(ctx);
     Table table = schema.getTable("Dataset");
-    return new FAIRDataPointDataset(request, table).getResult();
+    ctx.result(new FAIRDataPointDataset(ctx, table).getResult());
   }
 
-  private static String getDistribution(Request request, Response res) throws Exception {
-    res.type(TEXT_TURTLE_MIME_TYPE);
-    return new FAIRDataPointDistribution(request, sessionManager.getSession(request).getDatabase())
-        .getResult();
+  private static void getDistribution(Context ctx) throws Exception {
+    ctx.contentType(TEXT_TURTLE_MIME_TYPE);
+    ctx.result(
+        new FAIRDataPointDistribution(ctx, sessionManager.getSession(ctx.req()).getDatabase())
+            .getResult());
   }
 
-  private static String getFDPProfile(Request request, Response res) {
-    res.type(TEXT_TURTLE_MIME_TYPE);
-    return FAIRDataPointProfile.FDP_SHACL;
+  private static void getFDPProfile(Context ctx) {
+    ctx.contentType(TEXT_TURTLE_MIME_TYPE);
+    ctx.result(FAIRDataPointProfile.FDP_SHACL);
   }
 
-  private static String getCatalogProfile(Request request, Response res) {
-    res.type(TEXT_TURTLE_MIME_TYPE);
-    return FAIRDataPointProfile.CATALOG_SHACL;
+  private static void getCatalogProfile(Context ctx) {
+    ctx.contentType(TEXT_TURTLE_MIME_TYPE);
+    ctx.result(FAIRDataPointProfile.CATALOG_SHACL);
   }
 
-  private static String getDatasetProfile(Request request, Response res) {
-    res.type(TEXT_TURTLE_MIME_TYPE);
-    return FAIRDataPointProfile.DATASET_SHACL;
+  private static void getDatasetProfile(Context ctx) {
+    ctx.contentType(TEXT_TURTLE_MIME_TYPE);
+    ctx.result(FAIRDataPointProfile.DATASET_SHACL);
   }
 
-  private static String getDistributionProfile(Request request, Response res) {
-    res.type(TEXT_TURTLE_MIME_TYPE);
-    return FAIRDataPointProfile.DISTRIBUTION_SHACL;
+  private static void getDistributionProfile(Context ctx) {
+    ctx.contentType(TEXT_TURTLE_MIME_TYPE);
+    ctx.result(FAIRDataPointProfile.DISTRIBUTION_SHACL);
+  }
+
+  static Schema[] getSchemasHavingTable(String tableName, Context ctx) {
+    List<Schema> schemas = new ArrayList<>();
+    Collection<String> schemaNames = MolgenisWebservice.getSchemaNames(ctx);
+    for (String sn : schemaNames) {
+      Schema schema = sessionManager.getSession(ctx.req()).getDatabase().getSchema(sn);
+      Table t = schema.getTable(tableName);
+      if (t != null) {
+        schemas.add(schema);
+      }
+    }
+    Schema[] schemaArr = new Schema[schemas.size()];
+    schemaArr = schemas.toArray(schemaArr);
+    return schemaArr;
   }
 }

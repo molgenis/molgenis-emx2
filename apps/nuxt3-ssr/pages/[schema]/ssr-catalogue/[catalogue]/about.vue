@@ -1,7 +1,7 @@
 <template>
   <LayoutsDetailPage>
     <template #header>
-      <PageHeader title="About">
+      <PageHeader id="page-header" title="About">
         <template #prefix>
           <BreadCrumbs :crumbs="[]" />
         </template>
@@ -20,6 +20,7 @@
 
           { id: 'version', label: 'Version' },
         ]"
+        header-target="#page-header"
       />
     </template>
     <template #main>
@@ -142,35 +143,35 @@
           centres ©2023. All rights reserved. Redistribution or reproduction of
           (part of) the content in any form is prohibited other than the
           following:
-          <List>
-            <ListItem>
+          <DisplayList>
+            <DisplayListItem>
               You may print or download to a local hard disk part of the content
               for your personal and non-commercial use only.
-            </ListItem>
-            <ListItem>
+            </DisplayListItem>
+            <DisplayListItem>
               You may use part of the content in grant applications or
               publications, but only if you acknowledge the website as the
               source of the material used.
-            </ListItem>
-            <ListItem>
+            </DisplayListItem>
+            <DisplayListItem>
               You may copy and transfer part of the content to individual third
               parties for their personal use, but only if you acknowledge the
               website as the source of the material transferred.
-            </ListItem>
-            <ListItem>
+            </DisplayListItem>
+            <DisplayListItem>
               You may not, except with our express written permission, transmit
               or store any of the content in another website or other form of
               electronic retrieval system.
-            </ListItem>
-            <ListItem>
+            </DisplayListItem>
+            <DisplayListItem>
               You may not distribute or commercially exploit the UMCG Research
               Data Catalogue website content.
-            </ListItem>
-          </List>
+            </DisplayListItem>
+          </DisplayList>
         </ContentBlock>
         <ContentBlock id="other" title="Other resource catalogues">
-          <List>
-            <ListItem>
+          <DisplayList>
+            <DisplayListItem>
               <a
                 href="https://catalogue.bbmri.nl/"
                 rel="noopener noreferrer"
@@ -178,8 +179,8 @@
                 class="text-blue-500 underline hover:bg-blue-50"
                 >Bbmri-NL</a
               >
-            </ListItem>
-            <ListItem>
+            </DisplayListItem>
+            <DisplayListItem>
               <a
                 href="https://directory.bbmri-eric.eu/#/"
                 rel="noopener noreferrer"
@@ -187,8 +188,8 @@
                 class="text-blue-500 underline hover:bg-blue-50"
                 >BBMRI-ERIC</a
               >
-            </ListItem>
-            <ListItem>
+            </DisplayListItem>
+            <DisplayListItem>
               <a
                 href="https://www.maelstrom-research.org/page/catalogue"
                 rel="noopener noreferrer"
@@ -196,8 +197,8 @@
                 class="text-blue-500 underline hover:bg-blue-50"
                 >Maelstrom catalogue</a
               >
-            </ListItem>
-            <ListItem>
+            </DisplayListItem>
+            <DisplayListItem>
               <a
                 href="https://www.healthinformationportal.eu/"
                 rel="noopener noreferrer"
@@ -205,8 +206,8 @@
                 class="text-blue-500 underline hover:bg-blue-50"
                 >European Health Information Portal</a
               >
-            </ListItem>
-            <ListItem>
+            </DisplayListItem>
+            <DisplayListItem>
               <a
                 href="https://dans.knaw.nl/nl/"
                 rel="noopener noreferrer"
@@ -214,8 +215,8 @@
                 class="text-blue-500 underline hover:bg-blue-50"
                 >DANS</a
               >
-            </ListItem>
-            <ListItem>
+            </DisplayListItem>
+            <DisplayListItem>
               <a
                 href="https://explore.openaire.eu/"
                 rel="noopener noreferrer"
@@ -223,8 +224,8 @@
                 class="text-blue-500 underline hover:bg-blue-50"
                 >OpenAIRE</a
               >
-            </ListItem>
-            <ListItem>
+            </DisplayListItem>
+            <DisplayListItem>
               <a
                 href="https://www.cessda.eu/Tools/Data-Catalogue"
                 rel="noopener noreferrer"
@@ -232,8 +233,8 @@
                 class="text-blue-500 underline hover:bg-blue-50"
                 >CESSDA</a
               >
-            </ListItem>
-            <ListItem>
+            </DisplayListItem>
+            <DisplayListItem>
               <a
                 href="https://lifecycle-project.eu/for-scientists/variable-catalogue/"
                 rel="noopener noreferrer"
@@ -241,8 +242,8 @@
                 class="text-blue-500 underline hover:bg-blue-50"
                 >LifeCycle</a
               >
-            </ListItem>
-            <ListItem>
+            </DisplayListItem>
+            <DisplayListItem>
               <a
                 href="https://www.clinicaltrialsregister.eu/ctr-search/search"
                 rel="noopener noreferrer"
@@ -250,8 +251,8 @@
                 class="text-blue-500 underline hover:bg-blue-50"
                 >Clinical trial register EU</a
               >
-            </ListItem>
-            <ListItem>
+            </DisplayListItem>
+            <DisplayListItem>
               <a
                 href="https://datasetsearch.research.google.com/"
                 rel="noopener noreferrer"
@@ -259,8 +260,8 @@
                 class="text-blue-500 underline hover:bg-blue-50"
                 >Google Dataset Search</a
               >
-            </ListItem>
-            <ListItem>
+            </DisplayListItem>
+            <DisplayListItem>
               <a
                 href="http://catalogue.dcvalliance.nl/"
                 rel="noopener noreferrer"
@@ -268,8 +269,8 @@
                 class="text-blue-500 underline hover:bg-blue-50"
                 >DCV Alliance</a
               >
-            </ListItem>
-          </List>
+            </DisplayListItem>
+          </DisplayList>
           <p class="clear-both pt-5">
             <em>
               We regularly check the reliability of the information on the sites
@@ -296,19 +297,10 @@
 </template>
 
 <script setup lang="ts">
-import type { IMgError } from "~~/interfaces/types";
+import type { IManifestResponse, IMgError } from "~~/interfaces/types";
 
 useHead({ title: "About" });
 
-interface IManifestResponse {
-  data: {
-    _manifest: {
-      ImplementationVersion: string;
-      SpecificationVersion: string;
-      DatabaseVersion: string;
-    };
-  };
-}
 const { data, error } = await useGqlFetch<IManifestResponse, IMgError>(
   ` 
     query manifest{

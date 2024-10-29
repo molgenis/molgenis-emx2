@@ -1,5 +1,6 @@
 package org.molgenis.emx2.web;
 
+import static org.molgenis.emx2.ColumnType.BOOL;
 import static org.molgenis.emx2.ColumnType.STRING;
 import static org.molgenis.emx2.Constants.OIDC_CALLBACK_PATH;
 
@@ -32,11 +33,16 @@ public class SecurityConfigFactory {
           EnvironmentProperty.getParameter(
               Constants.MOLGENIS_OIDC_CALLBACK_URL, "http://localhost:8080", STRING);
 
+  private Boolean unsignedToken =
+      (Boolean)
+          EnvironmentProperty.getParameter(Constants.MOLGENIS_OIDC_UNSIGNED_TOKEN, false, BOOL);
+
   public Config build() {
     final OidcConfiguration oidcConfiguration = new OidcConfiguration();
     oidcConfiguration.setClientId(oidcClientId);
     oidcConfiguration.setSecret(oidcClientSecret);
     oidcConfiguration.setDiscoveryURI(oidcDiscoveryURI);
+    oidcConfiguration.setAllowUnsignedIdTokens(unsignedToken);
 
     final OidcClient oidcClient = new OidcClient(oidcConfiguration);
     oidcClient.setName(OIDC_CLIENT_NAME);

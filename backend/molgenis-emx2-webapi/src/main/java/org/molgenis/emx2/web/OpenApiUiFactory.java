@@ -2,8 +2,7 @@ package org.molgenis.emx2.web;
 
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 
-import spark.Request;
-import spark.Response;
+import io.javalin.http.Context;
 
 public class OpenApiUiFactory {
 
@@ -17,9 +16,9 @@ public class OpenApiUiFactory {
     return String.format(
         "<html>"
             + "<head>"
-            + "    <script src=\"http://unpkg.com/swagger-ui-dist@%s/swagger-ui-bundle.js\"></script>"
-            + "    <script src=\"http://unpkg.com/swagger-ui-dist@%s/swagger-ui-standalone-preset.js\"> </script>\n"
-            + "    <link rel=\"stylesheet\" type=\"text/css\" href=\"http://unpkg.com/swagger-ui-dist@%s/swagger-ui.css\">"
+            + "    <script src=\"https://unpkg.com/swagger-ui-dist@%s/swagger-ui-bundle.js\"></script>"
+            + "    <script src=\"https://unpkg.com/swagger-ui-dist@%s/swagger-ui-standalone-preset.js\"> </script>\n"
+            + "    <link rel=\"stylesheet\" type=\"text/css\" href=\"https://unpkg.com/swagger-ui-dist@%s/swagger-ui.css\">"
             + "</head>"
             + "<body>"
             + "<div id=\"swagger\"/>"
@@ -48,8 +47,8 @@ public class OpenApiUiFactory {
         version, version, version, schemaName);
   }
 
-  static String getOpenApiUserInterface(Request request, Response response) {
-    response.status(200);
-    return createSwaggerUI(getSchema(request).getMetadata().getName());
+  static String getOpenApiUserInterface(Context context) {
+    context.status(200);
+    return createSwaggerUI(getSchema(context).getMetadata().getName());
   }
 }

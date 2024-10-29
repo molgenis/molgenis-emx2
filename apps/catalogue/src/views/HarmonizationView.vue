@@ -9,7 +9,7 @@
           </span>
           <span
             ><span class="table-light"><i class="fa fa-fw fa-percent" /></span>
-            = partially harmonized</span
+            = partially harmonised</span
           >
         </caption>
         <thead>

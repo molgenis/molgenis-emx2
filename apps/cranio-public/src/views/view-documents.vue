@@ -4,7 +4,7 @@
       class="ern-header"
       title="ERN CRANIO"
       subtitle="Documents"
-      imageSrc="banner-diagnoses.jpg"
+      imageSrc="img/banner-diagnoses.jpg"
     />
     <Breadcrumbs />
     <PageSection
@@ -16,7 +16,7 @@
     >
       <h2 id="section-documents-title">Download Documents</h2>
       <p>Download additional information about the CRANIO Registry.</p>
-      <FileList table="Files" filename="name" path="path" />
+      <FileList table="Files" labelsColumn="name" fileColumn="file" />
     </PageSection>
   </Page>
 </template>

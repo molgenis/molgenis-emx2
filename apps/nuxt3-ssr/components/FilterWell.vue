@@ -1,41 +1,54 @@
 <script setup lang="ts">
+import type {
+  IFilter,
+  IConditionsFilter,
+  ISearchFilter,
+} from "~~/interfaces/types";
+
+const ariaId = useId();
 const props = defineProps<{
-  filters: [];
+  filters: IFilter[];
 }>();
-const { filters } = toRefs(props);
 
-function clearSearch(filter) {
-  filter.search = "";
-}
+const emit = defineEmits(["update:filters"]);
 
-function clearConditions(filter) {
-  filter.conditions = [];
+function handleFilerUpdate(filter: IFilter) {
+  const index = props.filters.findIndex((f: IFilter) => f.id === filter.id);
+  const newFilters = [...props.filters];
+  newFilters[index] = filter;
+  emit("update:filters", newFilters);
 }
 
 function clearAll() {
-  filters.value.forEach((filter) => {
-    if (filter?.columnType === "_SEARCH") {
-      clearSearch(filter);
+  const cleared = props.filters.map((filter) => {
+    if (filter.config.type === "SEARCH") {
+      (filter as ISearchFilter).search = "";
     } else {
-      clearConditions(filter);
+      (filter as IConditionsFilter).conditions = [];
     }
+    return filter;
   });
+  emit("update:filters", cleared);
 }
 
-function isFilterSet(filter) {
+function isFilterSet(filter: IFilter) {
   if (
-    filter?.columnType === "_SEARCH" &&
-    (filter?.search == undefined || filter?.search == "")
+    filter.config.type === "SEARCH" &&
+    (filter?.search === undefined || filter?.search === "")
   ) {
     return false;
   }
-  if (filter?.columnType !== "_SEARCH" && filter?.conditions.length === 0) {
+  if (
+    filter.config.type !== "SEARCH" &&
+    (filter as IConditionsFilter).conditions &&
+    (filter as IConditionsFilter).conditions.length === 0
+  ) {
     return false;
   }
   return true;
 }
 
-function isAFilterSet(filters) {
+function isAFilterSet(filters: IFilter[]) {
   return filters.some((filter) => {
     return isFilterSet(filter);
   });
@@ -51,44 +64,61 @@ function isAFilterSet(filters) {
       Active filters
     </div>
     <div class="flex flex-wrap gap-3 content-around p-3">
-      <template v-for="filter in filters">
+      <template v-for="(filter, index) in filters">
         <Button
-          v-if="filter?.columnType === '_SEARCH' && isFilterSet(filter)"
-          @click="clearSearch(filter)"
+          v-if="filter.config.type === 'SEARCH' && isFilterSet(filter)"
+          @click="
+            (value) => {
+              filter.search = '';
+              handleFilerUpdate(filter);
+            }
+          "
           icon="trash"
           icon-position="right"
           size="tiny"
           type="filterWell"
         >
-          {{ `${filter?.title}: ${filter?.search}` }}
+          {{ `${filter.config.label}: ${filter?.search}` }}
         </Button>
 
         <VDropdown
+          :aria-id="ariaId + '_' + index"
           :triggers="['hover', 'focus']"
           :distance="12"
           theme="tooltip"
         >
           <Button
-            v-if="filter?.columnType !== '_SEARCH' && isFilterSet(filter)"
-            @click="clearConditions(filter)"
+            v-if="filter.config.type !== 'SEARCH' && isFilterSet(filter)"
+            @click="
+              (value) => {
+                filter.conditions = [];
+                handleFilerUpdate(filter);
+              }
+            "
             icon="trash"
             icon-position="right"
             size="tiny"
             type="filterWell"
           >
-            {{ filter?.title }}
+            {{ filter.config.label }}
             <small class="text-gray-600">
-              {{ `- ${filter?.conditions.length}` }}
+              {{ `- ${(filter as IConditionsFilter).conditions.length}` }}
             </small>
           </Button>
-          <template #popper>
+          <template
+            #popper
+            v-if="filter.config.type !== 'SEARCH' && isFilterSet(filter)"
+          >
             <ul style="list-style-type: disc" class="pl-3 min-w-95">
-              <li v-for="item in filter?.conditions">{{ item.name }}</li>
+              <li v-for="item in (filter as IConditionsFilter)?.conditions">
+                {{ item.name }}
+              </li>
             </ul>
           </template>
         </VDropdown>
       </template>
       <Button
+        id="fiter-well-clear-all"
         icon="trash"
         icon-position="right"
         size="tiny"

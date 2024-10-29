@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { INetwork } from "~/interfaces/types";
+import type { INetwork } from "~/interfaces/types";
 
 defineProps<{
   title: string;
@@ -18,6 +18,7 @@ defineProps<{
         :description="network?.description"
         :url="network.website"
         :links="[{ title: 'Read more', url: network.website }]"
+        target="_blank"
       />
     </ReferenceCardList>
   </ContentBlock>

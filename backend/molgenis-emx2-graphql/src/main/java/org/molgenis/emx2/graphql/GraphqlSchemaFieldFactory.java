@@ -178,7 +178,7 @@ public class GraphqlSchemaFieldFactory {
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(REQUIRED)
-                  .type(Scalars.GraphQLBoolean))
+                  .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(DEFAULT_VALUE)
@@ -369,7 +369,7 @@ public class GraphqlSchemaFieldFactory {
           .field(
               GraphQLInputObjectField.newInputObjectField()
                   .name(REQUIRED)
-                  .type(Scalars.GraphQLBoolean))
+                  .type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField()
                   .name(DEFAULT_VALUE)
