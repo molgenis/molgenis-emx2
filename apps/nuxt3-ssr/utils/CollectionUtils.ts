@@ -35,6 +35,27 @@ export const typeMetadata: IResourceTypeMetadata[] = [
     description: "Networks & Consortia",
   },
   { type: "Study", plural: "Studies", path: "studies" },
+  {
+    type: "Clinical trial",
+    plural: "Clinical Trials",
+    path: "trials",
+    image: "image-data-warehouse",
+    description: "Prospective collection with intervention(s)",
+  },
+  {
+    type: "Common data model",
+    plural: "Common data models",
+    path: "cdms",
+    image: "image-data-warehouse",
+    description: "For data harmonization",
+  },
+  {
+    type: "Other type",
+    plural: "Other types",
+    path: "other-types",
+    image: "image-data-warehouse",
+    description: "Other type of resource",
+  },
 ];
 
 export function getResourceMetadataForType(
@@ -44,10 +65,11 @@ export function getResourceMetadataForType(
     Object.values(typeMetadata).filter(
       (value: IResourceTypeMetadata) => value.type === type
     )?.[0] || {
-      type: "Resource",
-      plural: "Resources",
+      type: type,
+      plural: type,
       image: "image-link",
-      path: "resources",
+      path: type,
+      description: type,
     }
   );
 }
