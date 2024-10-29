@@ -200,6 +200,12 @@ public class WebApiSmokeTests {
     store = new TableStoreForXlsxFile(excelFile.toPath());
     assertTrue(store.containsTable("pet report with parameters"));
     assertTrue(excelContents.length > 0);
+
+    // test json report api
+    String jsonResults = getContentAsString("/pet store reports/api/reports/json?id=0");
+    assertTrue(jsonResults.contains("pet report"));
+    jsonResults = getContentAsString("/pet store reports/api/reports/excel?id=1&name=spike,pooky");
+    assertTrue(jsonResults.contains("pet report with parameters"));
   }
 
   @Test
