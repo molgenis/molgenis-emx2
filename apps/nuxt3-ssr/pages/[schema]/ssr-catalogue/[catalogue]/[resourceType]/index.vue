@@ -9,20 +9,20 @@ const pageSize = 10;
 const titlePrefix =
   route.params.catalogue === "all" ? "" : route.params.catalogue + " ";
 
-const descriptionMap = {
+const descriptionMap: Record<string, string> = {
   collections: "Data & sample collections",
   networks: "(Sub)projects & harmonisation",
 };
 
-const imageMap = {
+const imageMap: Record<string, string> = {
   collections: "image-diagram",
   networks: "image-network",
 };
 
 const title = route.params.resourceType;
-const description =
-  descriptionMap[route.params.resourceType as string] | "unknown";
-const image = imageMap[route.params.resourceType as string] | "unknown";
+const description: string | undefined =
+  descriptionMap[route.params.resourceType as string];
+const image: string | undefined = imageMap[route.params.resourceType as string];
 
 useHead({ title: titlePrefix + title });
 
