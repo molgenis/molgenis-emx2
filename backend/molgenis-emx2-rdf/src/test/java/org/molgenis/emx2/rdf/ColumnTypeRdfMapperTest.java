@@ -148,7 +148,7 @@ class ColumnTypeRdfMapperTest {
                 // COMPOSITE
                 ColumnType.JSONB.name(),
                 "{\"a\":1,\"b\":2}",
-                ColumnType.JSONB_ARRAY.name(),
+                ColumnType.JSONB_ARRAY.name(), // TODO: Remove if deprecated.
                 "{\"c\":3},{\"d\":4,\"e\":5}",
                 // RELATIONSHIP
                 ColumnType.REF.name(),
@@ -369,12 +369,8 @@ class ColumnTypeRdfMapperTest {
             Assertions.assertEquals(
                 Set.of(Values.literal("{\"a\":1,\"b\":2}", CoreDatatype.XSD.STRING)),
                 retrieveValues(ColumnType.JSONB.name())),
-        () ->
-            Assertions.assertEquals(
-                Set.of(
-                    Values.literal("{\"c\":3}", CoreDatatype.XSD.STRING),
-                    Values.literal("{\"d\":4,\"e\":5}", CoreDatatype.XSD.STRING)),
-                retrieveValues(ColumnType.JSONB_ARRAY.name())),
+        // TODO: Remove if deprecated.
+        () -> Assertions.assertEquals(Set.of(), retrieveValues(ColumnType.JSONB_ARRAY.name())),
         // RELATIONSHIP
         () ->
             Assertions.assertEquals(

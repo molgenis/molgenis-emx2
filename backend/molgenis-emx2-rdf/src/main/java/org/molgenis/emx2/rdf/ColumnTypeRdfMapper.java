@@ -64,7 +64,7 @@ public class ColumnTypeRdfMapper {
 
           // COMPOSITE
           entry(ColumnType.JSONB, RdfColumnType.STRING),
-          entry(ColumnType.JSONB_ARRAY, RdfColumnType.STRING),
+          entry(ColumnType.JSONB_ARRAY, RdfColumnType.SKIP), // Unsupported.
 
           // RELATIONSHIP
           entry(ColumnType.REF, RdfColumnType.REFERENCE),
