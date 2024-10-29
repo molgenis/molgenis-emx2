@@ -57,6 +57,7 @@ public class RDFTest {
   static Schema compositeKeyTest;
   static Schema ontologyTest;
   static Schema fileTest;
+  static Schema refBackTest;
 
   final Set<Namespace> DEFAULT_NAMESPACES =
       new HashSet<>() {
@@ -185,6 +186,26 @@ public class RDFTest {
                 "1",
                 "file",
                 new File(classLoader.getResource("testfiles/molgenis.png").getFile())));
+
+    // Refback test (petstore refback uses auto id)
+    refBackTest = database.dropCreateSchema("refBackTest");
+    refBackTest.create(
+        table(
+            "tableRef",
+            column("id").setType(ColumnType.STRING).setPkey(),
+            column("link").setType(ColumnType.REF).setRefTable("tableRefBack")),
+        table("tableRefBack", column("id").setType(ColumnType.STRING).setPkey()));
+    refBackTest
+        .getTable("tableRefBack")
+        .getMetadata()
+        .add(
+            column("backlink")
+                .setType(ColumnType.REFBACK)
+                .setRefTable("tableRef")
+                .setRefBack("link"));
+
+    refBackTest.getTable("tableRefBack").insert(row("id", "a"));
+    refBackTest.getTable("tableRef").insert(row("id", "1", "link", "a"));
   }
 
   @AfterAll
@@ -884,6 +905,22 @@ public class RDFTest {
             assertEquals(
                 Values.iri("http://www.iana.org/assignments/media-types/image/png"),
                 fileFormats.stream().findFirst().get()));
+  }
+
+  @Test
+  void refBackInRdf() throws IOException {
+    var handler = new InMemoryRDFHandler() {};
+    getAndParseRDF(Selection.of(refBackTest), handler);
+
+    Set<Value> refBacks =
+        handler
+            .resources
+            .get(Values.iri("http://localhost:8080/refBackTest/api/rdf/TableRefBack?id=a"))
+            .get(
+                Values.iri(
+                    "http://localhost:8080/refBackTest/api/rdf/TableRefBack/column/backlink"));
+    assertEquals(
+        Set.of(Values.iri("http://localhost:8080/refBackTest/api/rdf/TableRef?id=1")), refBacks);
   }
 
   /**
