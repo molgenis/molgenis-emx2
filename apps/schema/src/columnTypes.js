@@ -16,6 +16,7 @@ export default [
   "HYPERLINK_ARRAY",
   "INT",
   "INT_ARRAY",
+  "JSONB",
   "LONG",
   "LONG_ARRAY",
   "ONTOLOGY",

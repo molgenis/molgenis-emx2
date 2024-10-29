@@ -171,10 +171,6 @@ public class Row {
     return TypeUtils.toJsonb(values.get(name));
   }
 
-  public JSONB[] getJsonbArray(String name) {
-    return TypeUtils.toJsonbArray(values.get(name));
-  }
-
   public Row setString(String name, String value) {
     this.values.put(name, value);
     return this;
@@ -344,8 +340,6 @@ public class Row {
         return (T) getStringArray(name);
       case "JSONB":
         return (T) getJsonb(name);
-      case "JSONB[]":
-        return (T) getJsonbArray(name);
       case "Integer":
         return (T) getInteger(name);
       case "Integer[]":
