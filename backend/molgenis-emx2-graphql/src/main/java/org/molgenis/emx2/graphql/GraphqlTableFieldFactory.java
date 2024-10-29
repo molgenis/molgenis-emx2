@@ -196,7 +196,6 @@ public class GraphqlTableFieldFactory {
       case DATETIME_ARRAY:
       case PERIOD_ARRAY:
       case UUID_ARRAY:
-      case JSONB_ARRAY:
         tableBuilder.field(
             GraphQLFieldDefinition.newFieldDefinition()
                 .name(id)

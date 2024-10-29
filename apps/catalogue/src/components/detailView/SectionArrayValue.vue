@@ -48,7 +48,6 @@ export default {
         DATE_ARRAY: "StringDisplay",
         DATETIME: "StringDisplay",
         DATETIME_ARRAY: "StringDisplay",
-        JSONB_ARRAY: "ObjectDisplay",
         ONTOLOGY_ARRAY: "OntologyFieldValue",
       }[this.metadata.columnType];
     },

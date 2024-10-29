@@ -180,7 +180,6 @@ public class SqlTypeUtils extends TypeUtils {
       case PERIOD -> row.getPeriod(name);
       case PERIOD_ARRAY -> row.getPeriodArray(name);
       case JSONB -> row.getJsonb(name);
-      case JSONB_ARRAY -> row.getJsonbArray(name);
       default ->
           throw new UnsupportedOperationException(
               "Unsupported columnType found:" + c.getColumnType());

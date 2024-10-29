@@ -1,6 +1,5 @@
 package org.molgenis.emx2.utils;
 
-import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -260,28 +259,6 @@ public class TypeUtils {
     return (JSONB) v;
   }
 
-  public static JSONB[] toJsonbArray(Object v) {
-    // non standard so not using the generic function
-    if (v == null) return null; // NOSONAR
-    if (v instanceof String) {
-      String value = toString(v);
-      if (value != null) {
-        v = List.of(JSONB.valueOf(value));
-      } else {
-        return null;
-      }
-    }
-    if (v instanceof String[]) {
-      v = toStringArray(v);
-    }
-    if (v instanceof Serializable[]) v = List.of((Serializable[]) v);
-    if (v instanceof Object[]) v = List.of((Object[]) v);
-    if (v instanceof List) {
-      return ((List<Object>) v).stream().map(TypeUtils::toJsonb).toArray(JSONB[]::new);
-    }
-    return (JSONB[]) v;
-  }
-
   public static String toText(Object v) {
     if (v == null) return null;
     if (v instanceof String) {
@@ -320,7 +297,6 @@ public class TypeUtils {
       case DATE -> ColumnType.DATE_ARRAY;
       case DATETIME -> ColumnType.DATETIME_ARRAY;
       case PERIOD -> ColumnType.PERIOD_ARRAY;
-      case JSONB -> ColumnType.JSONB_ARRAY;
       default ->
           throw new UnsupportedOperationException(
               "Unsupported array columnType found:" + columnType);
@@ -422,7 +398,7 @@ public class TypeUtils {
       case PERIOD -> TypeUtils.toPeriod(v);
       case PERIOD_ARRAY -> TypeUtils.toPeriodArray(v);
       case JSONB -> TypeUtils.toJsonb(v);
-      case JSONB_ARRAY -> TypeUtils.toJsonbArray(v);
+
       default ->
           throw new UnsupportedOperationException(
               "Unsupported columnType columnType found:" + columnType);

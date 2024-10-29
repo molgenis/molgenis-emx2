@@ -1159,7 +1159,6 @@ public class SqlQuery extends QueryBean {
       case DATE_ARRAY -> whereConditionArrayEquals(name, operator, toDateArray(values));
       case DATETIME_ARRAY -> whereConditionArrayEquals(name, operator, toDateTimeArray(values));
       case PERIOD_ARRAY -> whereConditionArrayEquals(name, operator, toYearToSecondArray(values));
-      case JSONB_ARRAY -> whereConditionArrayEquals(name, operator, toJsonbArray(values));
       case REF -> whereConditionRefEquals(name, operator, values);
       default ->
           throw new SqlQueryException(

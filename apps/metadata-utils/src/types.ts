@@ -31,7 +31,6 @@ export type CellValueType =
   | "DATETIME_ARRAY"
   | "PERIOD"
   | "JSONB"
-  | "JSONB_ARRAY"
   | "REF"
   | "REF_ARRAY"
   | "REFBACK"

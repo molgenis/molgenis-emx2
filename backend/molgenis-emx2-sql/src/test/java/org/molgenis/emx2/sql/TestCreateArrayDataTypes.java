@@ -82,9 +82,7 @@ public class TestCreateArrayDataTypes {
 
   @Test
   public void testJSON() {
-    executeTest(
-        JSONB_ARRAY,
-        new String[] {"{\"key\":\"value1\"}", "{\"key\":\"value2\"}", "{\"key\":\"value3\"}"});
+    executeTest(JSONB, "[{\"key\":\"value1\"},{\"key\":\"value2\"},{\"key\":\"value3\"}]");
   }
 
   //  @Test

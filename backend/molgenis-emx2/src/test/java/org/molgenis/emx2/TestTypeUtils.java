@@ -7,7 +7,6 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
-import org.jooq.JSONB;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.utils.TypeUtils;
 
@@ -22,9 +21,6 @@ public class TestTypeUtils {
     executeTest(ColumnType.DATE_ARRAY, new LocalDate[] {LocalDate.now(), LocalDate.now()});
     executeTest(
         ColumnType.DATETIME_ARRAY, new LocalDateTime[] {LocalDateTime.now(), LocalDateTime.now()});
-    executeTest(
-        ColumnType.JSONB_ARRAY,
-        new JSONB[] {JSONB.valueOf("{name:\"blaat\"}"), JSONB.valueOf("{name2:\"blaat2\"}")});
 
     // test null string is trimmed to null correctly
     for (ColumnType type : ColumnType.values()) {

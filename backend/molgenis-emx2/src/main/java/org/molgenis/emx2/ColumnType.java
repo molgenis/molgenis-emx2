@@ -37,7 +37,6 @@ public enum ColumnType {
 
   // COMPOSITE
   JSONB(org.jooq.JSONB.class),
-  JSONB_ARRAY(org.jooq.JSONB[].class),
 
   // RELATIONSHIP
   REF(Object.class),

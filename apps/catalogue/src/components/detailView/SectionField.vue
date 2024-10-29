@@ -88,7 +88,6 @@ export default {
         DECIMAL_ARRAY: "SectionArrayValue",
         DATE_ARRAY: "SectionArrayValue",
         DATETIME_ARRAY: "SectionArrayValue",
-        JSONB_ARRAY: "SectionArrayValue",
         ONTOLOGY_ARRAY: "SectionArrayValue",
         REF_ARRAY: "RefArrayFieldValue",
         REF: "RefFieldValue",

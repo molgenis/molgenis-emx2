@@ -280,7 +280,6 @@ public class Emx1Attribute {
           INT_ARRAY,
           DATE_ARRAY,
           DATETIME_ARRAY,
-          JSONB_ARRAY,
           DECIMAL_ARRAY:
         return "array types unsupported in emx1: " + c.getColumnType();
       default:
