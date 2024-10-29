@@ -42,12 +42,9 @@ withDefaults(
         >
           <BaseIcon name="caret-right" :width="12" />
         </span>
+      </li>
+      <li v-if="current && !Object.keys(crumbs).includes(current)">
         <a
-          v-if="
-            current &&
-            !Object.keys(crumbs).includes(current) &&
-            !(index < Object.keys(crumbs).length - 1)
-          "
           href=""
           class="text-breadcrumb hover:underline"
           aria-current="page"
