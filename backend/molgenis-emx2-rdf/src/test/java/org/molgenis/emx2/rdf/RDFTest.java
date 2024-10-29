@@ -194,6 +194,7 @@ public class RDFTest {
     database.dropSchema(petStore_nr2.getName());
     database.dropSchema(compositeKeyTest.getName());
     database.dropSchema(ontologyTest.getName());
+    database.dropSchema(fileTest.getName());
   }
 
   @Test
