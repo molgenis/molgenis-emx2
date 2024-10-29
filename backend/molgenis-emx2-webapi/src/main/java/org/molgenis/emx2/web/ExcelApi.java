@@ -23,6 +23,7 @@ import org.molgenis.emx2.io.ImportExcelTask;
 import org.molgenis.emx2.io.MolgenisIO;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.io.tablestore.TableStoreForXlsxFile;
+import org.molgenis.emx2.tasks.Task;
 
 public class ExcelApi {
   private ExcelApi() {
@@ -45,7 +46,7 @@ public class ExcelApi {
   }
 
   static void postExcel(Context ctx) throws IOException, ServletException {
-    Long start = System.currentTimeMillis();
+    long start = System.currentTimeMillis();
     Schema schema = getSchema(ctx);
 
     // get uploaded file
@@ -58,8 +59,10 @@ public class ExcelApi {
       Files.copy(input, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
     }
     if (ctx.queryParam("async") != null) {
-      String id = TaskApi.submit(new ImportExcelTask(tempFile.toPath(), schema, false));
-      ctx.json(new TaskReference(id, schema));
+      Task task = new ImportExcelTask(tempFile.toPath(), schema, false);
+      String parentTaskId = ctx.queryParam("parentJob");
+      String taskId = TaskApi.submit(task, parentTaskId);
+      ctx.json(new TaskReference(taskId, schema));
     } else {
       MolgenisIO.importFromExcelFile(tempFile.toPath(), schema, false);
       ctx.status(200);
