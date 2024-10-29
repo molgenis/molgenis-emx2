@@ -72,7 +72,7 @@ public class RDFService {
   public static final IRI IRI_CODED_VALUE_DATATYPE =
       Values.iri("http://purl.obolibrary.org/obo/NCIT_C95637");
 
-  /** SIO:000750 = database */
+  /** SIO:SIO_000750 = database */
   public static final IRI IRI_DATABASE =
       Values.iri("http://semanticscience.org/resource/SIO_000750");
 
