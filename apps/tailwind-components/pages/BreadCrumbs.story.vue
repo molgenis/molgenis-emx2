@@ -1,5 +1,6 @@
 <template>
   <p class="pb-3">Default breadcrumbs, with 3 items</p>
+  {{ crumbs }}
   <div>
     <BreadCrumbs :crumbs="crumbs" />
   </div>
@@ -25,5 +26,4 @@ const crumbs = ref<Crumbs>({});
 crumbs.value["item 1"] = route.path;
 crumbs.value["item 2"] = route.path;
 crumbs.value["item 3"] = route.path;
-crumbs.value["item 4"] = route.path;
 </script>
