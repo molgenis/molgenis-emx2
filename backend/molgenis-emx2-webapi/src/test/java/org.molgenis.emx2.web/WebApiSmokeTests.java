@@ -38,6 +38,9 @@ import java.util.Map;
 import org.junit.jupiter.api.*;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.Order;
+import org.molgenis.emx2.io.tablestore.TableStore;
+import org.molgenis.emx2.io.tablestore.TableStoreForCsvInZipFile;
+import org.molgenis.emx2.io.tablestore.TableStoreForXlsxFile;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 
@@ -166,37 +169,37 @@ public class WebApiSmokeTests {
     // create a new schema for report
     Schema schema = db.dropCreateSchema("pet store reports");
     PET_STORE.getImportTask(schema, true).run();
-    //
-    //    // check if reports work
-    //    byte[] zipContents =
-    //        getContentAsByteArray(ACCEPT_ZIP, "/pet store reports/api/reports/zip?id=0");
-    //    File zipFile = createTempFile(zipContents, ".zip");
-    //    TableStore store = new TableStoreForCsvInZipFile(zipFile.toPath());
-    //    store.containsTable("pet report");
-    //
-    //    // check if reports work with parameters
-    //    zipContents =
-    //        getContentAsByteArray(
-    //            ACCEPT_ZIP, "/pet store reports/api/reports/zip?id=1&name=spike,pooky");
-    //    zipFile = createTempFile(zipContents, ".zip");
-    //    store = new TableStoreForCsvInZipFile(zipFile.toPath());
-    //    store.containsTable("pet report with parameters");
-    //
-    //    // check if reports work
-    //    byte[] excelContents =
-    //        getContentAsByteArray(ACCEPT_ZIP, "/pet store reports/api/reports/excel?id=0");
-    //    File excelFile = createTempFile(excelContents, ".xlsx");
-    //    store = new TableStoreForXlsxFile(excelFile.toPath());
-    //    assertTrue(store.containsTable("pet report"));
-    //
-    //    // check if reports work with parameters
-    //    excelContents =
-    //        getContentAsByteArray(
-    //            ACCEPT_ZIP, "/pet store reports/api/reports/excel?id=1&name=spike,pooky");
-    //    excelFile = createTempFile(excelContents, ".xlsx");
-    //    store = new TableStoreForXlsxFile(excelFile.toPath());
-    //    assertTrue(store.containsTable("pet report with parameters"));
-    //    assertTrue(excelContents.length > 0);
+
+    // check if reports work
+    byte[] zipContents =
+        getContentAsByteArray(ACCEPT_ZIP, "/pet store reports/api/reports/zip?id=0");
+    File zipFile = createTempFile(zipContents, ".zip");
+    TableStore store = new TableStoreForCsvInZipFile(zipFile.toPath());
+    store.containsTable("pet report");
+
+    // check if reports work with parameters
+    zipContents =
+        getContentAsByteArray(
+            ACCEPT_ZIP, "/pet store reports/api/reports/zip?id=1&name=spike,pooky");
+    zipFile = createTempFile(zipContents, ".zip");
+    store = new TableStoreForCsvInZipFile(zipFile.toPath());
+    store.containsTable("pet report with parameters");
+
+    // check if reports work
+    byte[] excelContents =
+        getContentAsByteArray(ACCEPT_ZIP, "/pet store reports/api/reports/excel?id=0");
+    File excelFile = createTempFile(excelContents, ".xlsx");
+    store = new TableStoreForXlsxFile(excelFile.toPath());
+    assertTrue(store.containsTable("pet report"));
+
+    // check if reports work with parameters
+    excelContents =
+        getContentAsByteArray(
+            ACCEPT_ZIP, "/pet store reports/api/reports/excel?id=1&name=spike,pooky");
+    excelFile = createTempFile(excelContents, ".xlsx");
+    store = new TableStoreForXlsxFile(excelFile.toPath());
+    assertTrue(store.containsTable("pet report with parameters"));
+    assertTrue(excelContents.length > 0);
 
     // test json report api
     String jsonResults =
