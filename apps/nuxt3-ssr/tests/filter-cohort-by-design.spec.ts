@@ -13,7 +13,7 @@ test.beforeEach(async ({ context, baseURL }) => {
 
 test("filter cohorts list page by design", async ({ page, goto }) => {
   await goto(
-    "/catalogue-demo/ssr-catalogue/all/cohorts?page=1&conditions=[{%22id%22:%22cohortDesigns%22,%22conditions%22:[{%22name%22:%22Cross-sectional%22}]}]",
+    "/catalogue-demo/ssr-catalogue/all/collections?page=1&conditions=[{%22id%22:%22cohortDesigns%22,%22conditions%22:[{%22name%22:%22Cross-sectional%22}]}]",
     { waitUntil: "networkidle" }
   );
   await expect(page.getByRole("main")).toContainText("Cross-sectional");

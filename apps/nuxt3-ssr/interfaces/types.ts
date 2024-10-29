@@ -371,6 +371,7 @@ export interface IOntologyFilterConfig extends IFilterConfig {
   type: "ONTOLOGY";
   ontologyTableId: string;
   ontologySchema: string;
+  filter: Record<String, Filter>;
   columnId: string;
   refFields?: filterRefField;
 }
@@ -460,22 +461,6 @@ export interface IOrganization {
 }
 
 export type linkTarget = "_self" | "_blank" | "_parent" | "_top";
-
-export type IResourceTypeMetadata = {
-  type: string;
-  plural: string;
-  image?: string;
-  path: string;
-  description?: string;
-};
-
-export interface UIResourceType {
-  type: {
-    name: string;
-    definition?: string;
-  };
-  count: number;
-}
 
 export interface UIResource {
   id: string;

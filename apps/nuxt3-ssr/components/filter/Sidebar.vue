@@ -67,6 +67,7 @@ function handleFilerUpdate(filter: IFilter) {
         <FilterOntology
           v-else-if="filter.config.type === 'ONTOLOGY'"
           :table-id="filter.config.ontologyTableId"
+          :filter="filter.config.filter"
           :mobileDisplay="mobileDisplay"
           :filterLabel="filter.config.label"
           :model-value="(filter as IOntologyFilter).conditions "
