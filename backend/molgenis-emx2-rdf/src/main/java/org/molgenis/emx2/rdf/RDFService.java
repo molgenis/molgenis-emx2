@@ -4,6 +4,7 @@ import static org.eclipse.rdf4j.model.util.Values.*;
 import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
+import static org.molgenis.emx2.SelectColumn.s;
 
 import com.google.common.net.UrlEscapers;
 import java.io.IOException;
@@ -75,6 +76,9 @@ public class RDFService {
   /** SIO:SIO_000750 = database */
   public static final IRI IRI_DATABASE =
       Values.iri("http://semanticscience.org/resource/SIO_000750");
+
+  /** SIO:SIO_000396 = file */
+  public static final IRI IRI_FILE = Values.iri("http://semanticscience.org/resource/SIO_000396");
 
   public static final IRI IRI_MOLGENIS = Values.iri("https://molgenis.org");
   public static final String ONTOLOGY_TERM_URI = "ontologyTermURI";
@@ -512,6 +516,21 @@ public class RDFService {
           var resource = Values.iri(value.stringValue());
           builder.add(resource, RDFS.LABEL, Values.literal(value.stringValue()));
         }
+        // Adds file metadata.
+        if (column.isFile()) {
+          IRI fileSubject = (IRI) value;
+          builder.add(fileSubject, RDF.TYPE, IRI_FILE);
+          builder.add(
+              fileSubject,
+              DCTERMS.TITLE,
+              Values.literal(row.getString(column.getName() + "_filename")));
+          builder.add(
+              fileSubject,
+              DCTERMS.FORMAT,
+              Values.iri(
+                  "http://www.iana.org/assignments/media-types/"
+                      + row.getString(column.getName() + "_mimetype")));
+        }
       }
     }
   }
@@ -545,15 +564,27 @@ public class RDFService {
 
   private List<Row> getRows(Table table, final String rowId) {
     Query query = table.query();
+
+    SelectColumn[] selectColumns =
+        table.getMetadata().getColumns().stream()
+            .map(
+                c -> {
+                  if (c.isFile()) {
+                    return s(c.getName(), s("id"), s("filename"), s("mimetype"));
+                  }
+                  return s(c.getName());
+                })
+            .toArray(SelectColumn[]::new);
+
     if (rowId != null) {
       // first find from root table
       PrimaryKey key = PrimaryKey.makePrimaryKeyFromEncodedKey(rowId);
-      List<Row> oneRow = query.where(key.getFilter()).retrieveRows();
+      List<Row> oneRow = query.select(selectColumns).where(key.getFilter()).retrieveRows();
       // if subclass
       if (oneRow.size() == 1 && oneRow.get(0).getString(MG_TABLECLASS) != null) {
         Row row = oneRow.get(0);
         table = getSubclassTableForRowBasedOnMgTableclass(table, row);
-        return table.query().where(key.getFilter()).retrieveRows();
+        return table.query().select(selectColumns).where(key.getFilter()).retrieveRows();
       }
       return oneRow;
     } else {
@@ -561,7 +592,7 @@ public class RDFService {
         var tableName = table.getSchema().getName() + "." + table.getName();
         query.where(f("mg_tableclass", EQUALS, tableName));
       }
-      return query.retrieveRows();
+      return query.select(selectColumns).retrieveRows();
     }
   }
 

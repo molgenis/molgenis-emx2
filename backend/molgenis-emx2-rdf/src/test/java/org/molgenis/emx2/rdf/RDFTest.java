@@ -7,6 +7,7 @@ import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.datamodels.DataModels.Regular.PET_STORE;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.StringReader;
@@ -14,11 +15,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Namespace;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.impl.SimpleNamespace;
 import org.eclipse.rdf4j.model.util.Values;
+import org.eclipse.rdf4j.model.vocabulary.DCTERMS;
 import org.eclipse.rdf4j.model.vocabulary.OWL;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.model.vocabulary.RDFS;
@@ -44,6 +47,8 @@ public class RDFTest {
   /** Advanced setting field for adding custom RDF to the API. */
   private static final String SETTING_CUSTOM_RDF = "custom_rdf";
 
+  static final ClassLoader classLoader = ColumnTypeRdfMapperTest.class.getClassLoader();
+
   static Database database;
   static List<Schema> petStoreSchemas;
   static final String RDF_API_LOCATION = "/api/rdf";
@@ -51,6 +56,7 @@ public class RDFTest {
   static Schema petStore_nr2;
   static Schema compositeKeyTest;
   static Schema ontologyTest;
+  static Schema fileTest;
 
   final Set<Namespace> DEFAULT_NAMESPACES =
       new HashSet<>() {
@@ -162,6 +168,23 @@ public class RDFTest {
                 "C00-C75 Malignant neoplasms, stated or presumed to be primary, of specified sites, except of lymphoid, haematopoietic and related tissue",
                 "code",
                 "C00-C14"));
+
+    // Test FILE
+    fileTest = database.dropCreateSchema("fileTest");
+    fileTest.create(
+        table(
+            "myFiles",
+            column("id").setType(ColumnType.STRING).setPkey(),
+            column("file").setType(ColumnType.FILE)));
+
+    fileTest
+        .getTable("myFiles")
+        .insert(
+            row(
+                "id",
+                "1",
+                "file",
+                new File(classLoader.getResource("testfiles/molgenis.png").getFile())));
   }
 
   @AfterAll
@@ -833,6 +856,33 @@ public class RDFTest {
 
     var handler = new InMemoryRDFHandler() {};
     validateNamespaces(handler, "RdfcustomOrEmpty", expectedNamespaces, customRdf1, customRdf2);
+  }
+
+  @Test
+  void testFileMetadataTriples() throws IOException {
+    var handler = new InMemoryRDFHandler() {};
+    getAndParseRDF(Selection.of(fileTest), handler);
+
+    Set<Value> files =
+        handler
+            .resources
+            .get(Values.iri("http://localhost:8080/fileTest/api/rdf/MyFiles?id=1"))
+            .get(Values.iri("http://localhost:8080/fileTest/api/rdf/MyFiles/column/file"));
+
+    IRI fileIRI = (IRI) files.stream().findFirst().get();
+
+    Set<Value> fileNames = handler.resources.get(fileIRI).get(DCTERMS.TITLE);
+    Set<Value> fileFormats = handler.resources.get(fileIRI).get(DCTERMS.FORMAT);
+
+    assertAll(
+        () -> assertEquals(1, files.size()),
+        () -> assertEquals(1, fileNames.size()),
+        () -> assertEquals(Values.literal("molgenis.png"), fileNames.stream().findFirst().get()),
+        () -> assertEquals(1, fileFormats.size()),
+        () ->
+            assertEquals(
+                Values.iri("http://www.iana.org/assignments/media-types/image/png"),
+                fileFormats.stream().findFirst().get()));
   }
 
   /**
