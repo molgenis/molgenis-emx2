@@ -368,7 +368,6 @@ public class TypeUtils {
       case PERIOD_ARRAY ->
           SQLDataType.INTERVAL.asConvertedDataType(new PeriodConverter()).getArrayDataType();
       case JSONB -> SQLDataType.JSONB;
-      case JSONB_ARRAY -> SQLDataType.JSONB.getArrayDataType();
       default ->
           // should never happen
           throw new IllegalArgumentException("jooqTypeOf(type) : unsupported type '" + type + "'");
