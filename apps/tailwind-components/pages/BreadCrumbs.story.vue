@@ -1,6 +1,5 @@
 <template>
   <p class="pb-3">Default breadcrumbs, with 3 items</p>
-  {{ crumbs }}
   <div>
     <BreadCrumbs :crumbs="crumbs" />
   </div>
