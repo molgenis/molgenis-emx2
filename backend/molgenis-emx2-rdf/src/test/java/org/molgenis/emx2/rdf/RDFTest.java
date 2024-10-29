@@ -216,6 +216,7 @@ public class RDFTest {
     database.dropSchema(compositeKeyTest.getName());
     database.dropSchema(ontologyTest.getName());
     database.dropSchema(fileTest.getName());
+    database.dropSchema(refBackTest.getName());
   }
 
   @Test
