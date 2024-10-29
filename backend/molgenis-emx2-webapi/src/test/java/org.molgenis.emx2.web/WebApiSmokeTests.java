@@ -202,9 +202,14 @@ public class WebApiSmokeTests {
     assertTrue(excelContents.length > 0);
 
     // test json report api
-    String jsonResults = getContentAsString("/pet store reports/api/reports/json?id=0");
+    String jsonResults =
+        given().sessionId(SESSION_ID).get("/pet store reports/api/reports/json?id=0").asString();
     assertTrue(jsonResults.contains("pet report"));
-    jsonResults = getContentAsString("/pet store reports/api/reports/excel?id=1&name=spike,pooky");
+    jsonResults =
+        given()
+            .sessionId(SESSION_ID)
+            .get("/pet store reports/api/reports/excel?id=1&name=spike,pooky")
+            .asString();
     assertTrue(jsonResults.contains("pet report with parameters"));
   }
 
