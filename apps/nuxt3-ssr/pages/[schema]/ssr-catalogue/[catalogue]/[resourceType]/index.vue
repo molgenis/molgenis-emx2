@@ -183,11 +183,13 @@ const gqlFilter = computed(() => {
 
   result = buildQueryFilter(filters.value);
 
-  if (route.params.resourceType == "collections") {
-    result.type = { tags: { equals: "collection" } };
-  }
-  if (route.params.resourceType == "networks") {
-    result.type = { tags: { equals: "network" } };
+  if (!result.type) {
+    if (route.params.resourceType == "collections") {
+      result.type = { tags: { equals: "collection" } };
+    }
+    if (route.params.resourceType == "networks") {
+      result.type = { tags: { equals: "network" } };
+    }
   }
 
   // add hard coded page specific filters
