@@ -100,7 +100,7 @@ public class TaskApi {
     String id = taskService.submitTaskFromName(name, parameters);
     // wait until done or timeout
     Task task = taskService.getTask(id);
-    int maxTimeout = 240;
+    int maxTimeout = 120;
     int stepSizeInMs = 500;
     int timeout = 0;
     while (task.isRunning() && timeout < maxTimeout) {
@@ -115,8 +115,12 @@ public class TaskApi {
     if (!task.getStatus().equals(TaskStatus.COMPLETED)) {
       throw new MolgenisException("Task failed with status " + task.getStatus());
     }
-    // get the output as bytes
-    ctx.result(((ScriptTask) task).getOutput());
+    byte[] outputFileBytes = ((ScriptTask) task).getOutput();
+    if (outputFileBytes != null) {
+      ctx.result(outputFileBytes);
+    } else {
+      ctx.result("Task succeeded with no output file");
+    }
   }
 
   private static void getTaskOutput(Context ctx) throws IOException {
