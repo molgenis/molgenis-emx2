@@ -139,7 +139,11 @@ function clearAll() {
 
     <Modal ref="modal" title="Search" :subtitle="filterLabel">
       <template #header>
-        <FilterSearch v-model="optionsFilter" :inverted="true"></FilterSearch>
+        <FilterSearch
+          v-model="optionsFilter"
+          :inverted="true"
+          placeholder="search for options"
+        ></FilterSearch>
 
         <div v-if="selectedNodesNames.length" class="py-2 text-gray-900">
           <div class="flex flex-wrap gap-3 content-around p-3">
