@@ -24,13 +24,26 @@ withDefaults(
       <BaseIcon name="star" />
     </a> -->
   </div>
-  <nav
-    class="items-center hidden gap-3 tracking-widest xl:flex font-display text-heading-lg"
-    :class="{ 'justify-center': align === 'center' }"
-  >
-    <ol>
-      <li v-for="(url, label, index) in crumbs" :key="label">
-        <NuxtLink :to="url" class="text-breadcrumb hover:underline">
+  <nav aria-label="breadcrumb">
+    <ol
+      class="items-center hidden gap-3 tracking-widest xl:flex font-display text-heading-lg"
+      :class="{ 'justify-center': align === 'center' }"
+    >
+      <li
+        v-for="(url, label, index) in crumbs"
+        :key="label"
+        class="flex justify-center items-center gap-3"
+      >
+        <a
+          href=""
+          class="text-breadcrumb"
+          v-if="current"
+          aria-current="page"
+          @click.prevent
+        >
+          {{ current }}
+        </a>
+        <NuxtLink v-else :to="url" class="text-breadcrumb hover:underline">
           {{ label }}
         </NuxtLink>
         <span
@@ -39,34 +52,7 @@ withDefaults(
         >
           <BaseIcon name="caret-right" :width="12" />
         </span>
-        <template v-if="current">
-          <BaseIcon
-            v-if="Object.keys(crumbs).length > 0"
-            name="caret-right"
-            :width="12"
-            class="text-breadcrumb-arrow"
-          /><a class="text-breadcrumb"> {{ current }}</a>
-        </template>
       </li>
     </ol>
-    <!-- <template v-for="(url, label, index) in crumbs" :key="label">
-      <NuxtLink :to="url" class="text-breadcrumb hover:underline">{{
-        label
-      }}</NuxtLink>
-      <span
-        v-if="index < Object.keys(crumbs).length - 1"
-        class="text-breadcrumb-arrow"
-      >
-        <BaseIcon name="caret-right" :width="12" />
-      </span>
-    </template>
-    <template v-if="current">
-      <BaseIcon
-        v-if="Object.keys(crumbs).length > 0"
-        name="caret-right"
-        :width="12"
-        class="text-breadcrumb-arrow"
-      /><a class="text-breadcrumb"> {{ current }}</a>
-    </template> -->
   </nav>
 </template>
