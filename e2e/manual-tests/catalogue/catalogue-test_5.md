@@ -15,11 +15,13 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | Step | Action | Expected result | Github bug/issue | Playwright test |
 | ---- | ------ | --------------- | ---------------- | --------------- |
 | 0 | NB: Assumptions | This test plan assumes that the settings are configured to display the contact form rather than just an e-mail address. | | |
-| 1 | Navigate to [MOLGENIS ACC test catalogue](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue) | Landing page: European health research data and sample catalogue | | |
+| 1 | Navigate to [testCatalogue on the acceptance server](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue) | Landing page: European health research data and sample catalogue | | |
 | 2 | Navigate to Search All | Cohort studies, Data sources, Variables and Networks buttons are shown with numbers of each under each button | | |
-| 3 | Click on the Cohort studies button | Cohort studies overview page with a list of all cohort studies in the system | | |
+| 3a | Click on the Cohort studies button | Should be directed to the list of cohort studies with: Cohort studies logo, "COHORT STUDIES", "Cohorts & Biobanks", Detailed/Compact toggle buttons ('Detailed' is selected by default), Filters on the LHS | | |
+| 3b | Click on Compact | The list of cohort studies turns into a list of cohort study acronyms and cohort study names (in full), with an arrow after each cohort study | | |
 | 4 | Type "name for test cohort" in the Search field top left | See that two cohort studies are presented in the list: "acronym for test cohort 1" and "acronym for test cohort 2" | | |
-| 5 | Click on "Acronym for test cohort 2" | See that the resource detail page for Acronym for test cohort 2 is presented: "All > Cohort studies", ACRONYM FOR TEST COHORT 2, Name for test cohort 2 | | |
+| 5a | Click on "Acronym for test cohort 2" | See that the resource detail page for Acronym for test cohort 2 is presented: "All > Cohort studies", ACRONYM FOR TEST COHORT 2, Name for test cohort 2 | | |
+| 5b | | In the ribbon at the top of the page there should be: Left: Molgenis logo, Right: (L-R) Overview, Cohort studies, Data Sources, Databanks, More (--> Variables, About, Other catalogues, Upload data) | | |
 | 6 | Click on Contact | pop-up with "Name for test cohort 2", Contact, Name entry field, Email entry field, Organisation entry field, Topic dropdown, Message entry field, "or contact us at: <support@molgenis.org>", Send button | | |
 | 7 | Type in test message, fill in your own email address and press 'Send' | an email is sent to Molgenis Support | | |
 | 8 | close the notification, if any pops up | return to the detailed page for "acronym for test cohort 2" | | |
