@@ -19,6 +19,7 @@ public class TestScriptTask {
     System.out.println("first");
     ScriptTask r1 =
         new ScriptTask("hello")
+            .type("python")
             .dependencies("numpy==1.23.4")
             // example with some characters that need escaping
             .parameters("\"netherlands & world\"")
@@ -57,9 +58,25 @@ print('Error message', file=sys.stderr)
   }
 
   @Test
+  public void testBashScript() {
+    Task bashTask =
+        new ScriptTask("bashTest")
+            .type("bash")
+            .script(
+                """
+echo "hello world"
+ls -la
+echo "bey"
+""");
+    bashTask.run();
+    assertEquals(bashTask.getStatus(), COMPLETED);
+  }
+
+  @Test
   public void testPythonScript_shouldFail() throws MalformedURLException {
     Task task =
         new ScriptTask("error")
+            .type("python")
             .script(
                 """
 import sys
