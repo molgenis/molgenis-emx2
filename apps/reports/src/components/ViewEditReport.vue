@@ -163,7 +163,7 @@ export default {
       return "../api/reports/zip?id=" + this.id + this.parametersQuery;
     },
     downloadExcel() {
-      return "../api/reports/zip?id=" + this.id + this.parametersQuery;
+      return "../api/reports/excel?id=" + this.id + this.parametersQuery;
     },
     downloadJson() {
       return "../api/reports/json?id=" + this.id + this.parametersQuery;

@@ -211,6 +211,21 @@ public class WebApiSmokeTests {
             .get("/pet store reports/api/reports/json?id=1&name=spike,pooky")
             .asString();
     assertTrue(jsonResults.contains("pet report with parameters"));
+
+    // test report using jsonb_agg
+    jsonResults =
+        given().sessionId(SESSION_ID).get("/pet store reports/api/reports/json?id=2").asString();
+    ObjectMapper objectMapper = new ObjectMapper();
+    Map<String, Object> jsonbResult = objectMapper.readValue(jsonResults, Map.class);
+    assertTrue(jsonbResult.containsKey("jsonb"));
+    assertTrue(jsonbResult.get("jsonb").toString().contains("pooky"));
+
+    // test report using jsonb rows
+    jsonResults =
+        given().sessionId(SESSION_ID).get("/pet store reports/api/reports/json?id=3").asString();
+    jsonbResult = objectMapper.readValue(jsonResults, Map.class);
+    assertTrue(jsonbResult.containsKey("jsonb rows"));
+    assertTrue(jsonbResult.get("jsonb rows").toString().contains("pooky"));
   }
 
   @Test

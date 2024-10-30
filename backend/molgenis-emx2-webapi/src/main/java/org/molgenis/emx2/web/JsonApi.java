@@ -4,6 +4,7 @@ import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 import static org.molgenis.emx2.web.ZipApi.getReportParameters;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
@@ -11,6 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.jooq.JSONB;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
 
@@ -29,11 +31,10 @@ public class JsonApi {
     Schema schema = getSchema(ctx);
     String reports = ctx.queryParam("id");
     Map<String, Object> parameters = getReportParameters(ctx);
-
     String reportsJson = schema.getMetadata().getSetting("reports");
 
-    List<Map<String, Object>> reportList = new ObjectMapper().readValue(reportsJson, List.class);
-
+    ObjectMapper mapper = new ObjectMapper();
+    List<Map<String, Object>> reportList = mapper.readValue(reportsJson, List.class);
     Map<String, Object> jsonResponse = new HashMap<>();
 
     for (String reportId : reports.split(",")) {
@@ -42,13 +43,22 @@ public class JsonApi {
       String name = (String) reportObject.get("name");
       List<Row> rows = schema.retrieveSql(sql, parameters);
 
-      List<Map<String, Object>> result = new ArrayList<>();
+      List<Object> result = new ArrayList<>();
       for (Row row : rows) {
-        result.add(row.getValueMap());
+        if (row.getValueMap().size() == 1) {
+          Object value = row.getValueMap().values().iterator().next();
+          if (value instanceof JSONB) {
+            JsonNode json = mapper.readTree(value.toString());
+            result.add(json);
+          } else {
+            result.add(row.getValueMap());
+          }
+        } else {
+          result.add(row.getValueMap());
+        }
       }
-      jsonResponse.put(name, result);
+      jsonResponse.put(name, result.size() == 1 ? result.get(0) : result);
     }
-
     ctx.json(jsonResponse);
   }
 }
