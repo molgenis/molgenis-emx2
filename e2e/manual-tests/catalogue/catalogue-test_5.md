@@ -27,7 +27,7 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | 10 | close website and return to catalogue | return to resource detail view page | | |
 | 11 | See that the following is visible on the left hand side of the screen | (logo for resource), Description, General design, Population, Organisations, Contributors, Available data & samples, Subpopulations, Collection events, Datasets, Networks, Publications, Access conditions, Funding & acknowledgements, Documentation | | |
 | 12 | See that the fields are filled as follows: | | | |
-| 13 | First block: | small logo (test logo for cohort 2), <www.molgenis.org>, Contact button | | |
+| 13 | First block: | small logo (test logo for cohort 2), <https://www.molgenis.org>, Contact button | | |
 | 14 | DESCRIPTION | This is the Test cohort 2. It has "other" options where possible. No end year, so "ongoing". Design paper = Birth of a cohort — the first 20 years of the Raine study, publications = other papers. No to data access fee. Here we have some extra text to... | | |
 | 15 | Click on the three dots next to the description text | the text is displayed fully ("check the read less / read more functionality on the cohort detail page" is added) , and clicking on 'read less' reduces the text again | | |
 | 16 | GENERAL DESIGN | | | |
@@ -43,7 +43,7 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | 25 | Design paper | Birth of a cohort — the first 20 years of the Raine study | | |
 | 26a | Click on the design paper | goes to the article <https://onlinelibrary.wiley.com/doi/10.5694/mja12.10698> in a new window | | |
 | 26b | close the window or reselect the catalogue display window | | | |
-| 27 | PID | https://pid-for-testcohort2.org | | |
+| 27 | PID | `https://pid-for-testcohort2.org` | | |
 | 27b| External identifiers| EUDRACT number: test external identifier for cohort 2 |||
 | 28 | POPULATION | | | |
 | 29 | Countries | United Kingdom of Great Britain and Northern Ireland (the) | | |
