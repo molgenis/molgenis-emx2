@@ -48,6 +48,7 @@ print('Complete')
     System.out.println("\nsecond");
     ScriptTask r2 =
         new ScriptTask("error")
+            .type("python")
             .script(
                 """
 import sys
