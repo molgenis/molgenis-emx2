@@ -28,7 +28,7 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | 8b | Click on the 'Databanks' button at the top | Should be directed to the list of databanks for testNetwork1 | | |
 | 9 | Click on 'More --> Variables' in the ribbon | Should be directed to the list of variables for testNetwork1 | | |
 | 10 | Click on the 'Overview' button at the top | Should be directed back to the home page for testNetwork1 | | |
-| 11 | Click on More --> 'About' button | Should be directed to the detailed network page for testNetwork1 with website, description, partners, funding & acknowledgements, list of cohorts, list of data sources and link to view the network's variables | | |
+| 11 | Click on More --> 'About' button | Should be directed to the detailed network page for testNetwork1 with logo, website, general design, population, partner organisations, datasets, networks, publications, funding & acknowledgements, list of cohorts, list of data sources and link to view the network's variables | | |
 | 12 | Click on More --> Other catalogues | Should be directed to the landing page showing all thematic and project catalogues, entitled "European Health Research Data and Sample Catalogue" | | |
 | 12a | Click on Upload data | Should be directed to the 'old' interface apps/central for the user to be able to sign in and upload data | | |
 | 12b | Click on back in the browser | Should be directed back to the landing page showing all thematic and project catalogues | | |
