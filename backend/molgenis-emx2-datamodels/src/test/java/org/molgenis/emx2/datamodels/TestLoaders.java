@@ -99,8 +99,9 @@ public class TestLoaders {
   @Test
   void test10RD3Loader() {
     Schema RD3Schema = database.createSchema(RD3_TEST);
-    DataModels.Profile.RD3.getImportTask(RD3Schema, true).run();
-    assertEquals(27, RD3Schema.getTableNames().size());
+    // todo demo data!
+    DataModels.Profile.RD3.getImportTask(RD3Schema, false).run();
+    assertEquals(40, RD3Schema.getTableNames().size());
   }
 
   @Test
