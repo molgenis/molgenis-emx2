@@ -190,7 +190,8 @@ public class RDFService {
         if (table == null) {
           describeSchema(builder, schema);
         }
-        final List<Table> tables = table != null ? Arrays.asList(table) : schema.getTablesSorted();
+        final List<Table> tables =
+            table != null ? tablesToDescribe(schema, table) : schema.getTablesSorted();
         for (final Table tableToDescribe : tables) {
           // for full-schema retrieval, don't print the (huge and mostly unused) ontologies
           // of course references to ontologies are still included and are fully retrievable
@@ -213,6 +214,31 @@ public class RDFService {
     } catch (Exception e) {
       throw new MolgenisException("RDF export failed due to an exception", e);
     }
+  }
+
+  private List<Table> tablesToDescribe(Schema schema, Table tableFilter) {
+    List<Table> tableList = new ArrayList<>();
+    for (Table table : schema.getTablesSorted()) {
+      processInheritedTable(tableList, schema, table, tableFilter);
+    }
+    return tableList;
+  }
+
+  private boolean processInheritedTable(
+      List<Table> tableList, Schema schema, Table table, Table tableFilter) {
+    if (table == null) {
+      return false;
+    }
+    if (table.getMetadata().equals(tableFilter.getMetadata())
+        && table.getSchema().getMetadata().equals(schema.getMetadata())) {
+      tableList.add(table);
+      return true;
+    }
+    if (processInheritedTable(tableList, schema, table.getInheritedTable(), tableFilter)) {
+      tableList.add(table);
+      return true;
+    }
+    return false;
   }
 
   private void addModelToBuilder(ModelBuilder builder, Model model) {
