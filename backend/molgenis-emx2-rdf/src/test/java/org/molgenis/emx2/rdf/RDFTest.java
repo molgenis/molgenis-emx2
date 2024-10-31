@@ -12,9 +12,10 @@ import java.io.OutputStream;
 import java.io.StringReader;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Namespace;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.impl.SimpleNamespace;
@@ -477,28 +478,21 @@ public class RDFTest {
   void testTableInheritanceRetrieveData() throws IOException {
     var handler = new InMemoryRDFHandler() {};
     getAndParseRDF(Selection.ofRow(tableInheritanceTest, "Resources", "id=demo1"), handler);
+
+    IRI subjectR =
+        Values.iri("http://localhost:8080/tableInheritanceTest/api/rdf/Resources?id=demo1");
+    IRI predicateDR =
+        Values.iri("http://localhost:8080/tableInheritanceTest/api/rdf/DataResources/column/data");
+
     assertTrue(
-        handler
-            .resources
-            .get(
-                Values.iri("http://localhost:8080/tableInheritanceTest/api/rdf/Resources?id=demo1"))
-            .containsKey(
-                Values.iri(
-                    "http://localhost:8080/tableInheritanceTest/api/rdf/DataResources/column/data")),
+        handler.resources.get(subjectR).containsKey(predicateDR),
         "should include the subclass column");
-    var dataValue =
-        ((Literal)
-                handler
-                    .resources
-                    .get(
-                        Values.iri(
-                            "http://localhost:8080/tableInheritanceTest/api/rdf/Resources?id=demo1"))
-                    .get(
-                        Values.iri(
-                            "http://localhost:8080/tableInheritanceTest/api/rdf/DataResources/column/data"))
-                    .toArray()[0])
-            .stringValue();
-    assertEquals("my data", dataValue);
+
+    Set<Value> objectsDR = handler.resources.get(subjectR).get(predicateDR);
+
+    assertAll(
+        () -> assertEquals(1, objectsDR.size()),
+        () -> assertEquals(Values.literal("my data"), objectsDR.toArray()[0]));
   }
 
   @Test
