@@ -4,7 +4,6 @@ import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 import static org.molgenis.emx2.web.ZipApi.getReportParameters;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
@@ -42,23 +41,23 @@ public class JsonApi {
       String sql = (String) reportObject.get("sql");
       String name = (String) reportObject.get("name");
       List<Row> rows = schema.retrieveSql(sql, parameters);
-
       List<Object> result = new ArrayList<>();
       for (Row row : rows) {
-        if (row.getValueMap().size() == 1) {
-          Object value = row.getValueMap().values().iterator().next();
-          if (value instanceof JSONB) {
-            JsonNode json = mapper.readTree(value.toString());
-            result.add(json);
-          } else {
-            result.add(row.getValueMap());
-          }
+        // single json object will not be put in an array
+        if (rows.get(0).getValueMap().size() == 1
+            && rows.get(0).getValueMap().values().iterator().next() instanceof JSONB) {
+          result.add(
+              mapper.readTree(rows.get(0).getValueMap().values().iterator().next().toString()));
         } else {
           result.add(row.getValueMap());
         }
+        jsonResponse.put(name, result);
       }
-      jsonResponse.put(name, result.size() == 1 ? result.get(0) : result);
     }
-    ctx.json(jsonResponse);
+    if (jsonResponse.size() == 1) {
+      ctx.json(jsonResponse.values().iterator().next());
+    } else {
+      ctx.json(jsonResponse);
+    }
   }
 }
