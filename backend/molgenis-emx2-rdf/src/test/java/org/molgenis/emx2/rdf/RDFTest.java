@@ -84,7 +84,7 @@ public class RDFTest {
       Values.iri("http://localhost:8080/tableInherTest/api/rdf/SourceResources/column/source");
 
   IRI inherTargetSubject =
-      Values.iri("http://localhost:8080/tableInherTest/api/rdf/Resources?id=e1");
+      Values.iri("http://localhost:8080/tableInherTest/api/rdf/Resources?id=t1");
   IRI inherTargetPredicate =
       Values.iri("http://localhost:8080/tableInherExtTest/api/rdf/TargetResources/column/target");
 
@@ -514,7 +514,7 @@ public class RDFTest {
                 handler.resources.containsKey(websitePredicateSR),
                 "There should not be a predicate for the column in the Source Resources table"),
         () ->
-            assertTrue(
+            assertFalse(
                 handler.resources.containsKey(websitePredicateTR),
                 "There should not be a predicate for the column in the Target Resources table"));
   }
