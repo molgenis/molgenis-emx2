@@ -51,7 +51,8 @@ public class RDFTest {
   static Schema petStore_nr2;
   static Schema compositeKeyTest;
   static Schema ontologyTest;
-  static Schema tableInheritanceTest;
+  static Schema tableInherTest;
+  static Schema tableInherExtTest;
 
   final Set<Namespace> DEFAULT_NAMESPACES =
       new HashSet<>() {
@@ -73,16 +74,19 @@ public class RDFTest {
       };
 
   // Shared IRIs for table inheritance testing.
-  IRI inherDataSubject =
-      Values.iri("http://localhost:8080/tableInheritanceTest/api/rdf/Resources?id=d1");
+  IRI inherDataSubject = Values.iri("http://localhost:8080/tableInherTest/api/rdf/Resources?id=d1");
   IRI inherDataPredicate =
-      Values.iri("http://localhost:8080/tableInheritanceTest/api/rdf/DataResources/column/data");
+      Values.iri("http://localhost:8080/tableInherTest/api/rdf/DataResources/column/data");
 
   IRI inherSourceSubject =
-      Values.iri("http://localhost:8080/tableInheritanceTest/api/rdf/Resources?id=s1");
+      Values.iri("http://localhost:8080/tableInherTest/api/rdf/Resources?id=s1");
   IRI inherSourcePredicate =
-      Values.iri(
-          "http://localhost:8080/tableInheritanceTest/api/rdf/SourceResources/column/source");
+      Values.iri("http://localhost:8080/tableInherTest/api/rdf/SourceResources/column/source");
+
+  IRI inherTargetSubject =
+      Values.iri("http://localhost:8080/tableInherTest/api/rdf/Resources?id=e1");
+  IRI inherTargetPredicate =
+      Values.iri("http://localhost:8080/tableInherExtTest/api/rdf/TargetResources/column/target");
 
   @BeforeAll
   public static void setup() {
@@ -178,21 +182,27 @@ public class RDFTest {
 
     // Test table inheritance
     // Use example from the catalogue schema since this has all the different issues.
-    tableInheritanceTest = database.dropCreateSchema("tableInheritanceTest");
-    tableInheritanceTest.create(
+    tableInherTest = database.dropCreateSchema("tableInherTest");
+    tableInherTest.create(
         table(
             "Resources",
             column("id", ColumnType.STRING).setKey(1),
             column("website", ColumnType.HYPERLINK)));
-    tableInheritanceTest.create(table("Extended Resources").setInheritName("Resources"));
-    tableInheritanceTest.create(
+    tableInherTest.create(table("Extended Resources").setInheritName("Resources"));
+    tableInherTest.create(
         table("Data Resources", column("data")).setInheritName("Extended Resources"));
-    tableInheritanceTest.create(
+    tableInherTest.create(
         table("Source Resources", column("source")).setInheritName("Extended Resources"));
-    tableInheritanceTest.getTable("Data Resources").insert(row("id", "d1", "data", "my data"));
-    tableInheritanceTest
-        .getTable("Source Resources")
-        .insert(row("id", "s1", "source", "my source"));
+    tableInherTest.getTable("Data Resources").insert(row("id", "d1", "data", "my data"));
+    tableInherTest.getTable("Source Resources").insert(row("id", "s1", "source", "my source"));
+
+    // Test for table that extends table from different schema
+    tableInherExtTest = database.createSchema("tableInherExtTest");
+    tableInherExtTest.create(
+        table("Target Resources", column("target"))
+            .setImportSchema(tableInherTest.getName())
+            .setInheritName("Extended Resources"));
+    tableInherExtTest.getTable("Target Resources").insert(row("id", "t1", "target", "my target"));
   }
 
   @AfterAll
@@ -202,7 +212,12 @@ public class RDFTest {
     database.dropSchema(petStore_nr2.getName());
     database.dropSchema(compositeKeyTest.getName());
     database.dropSchema(ontologyTest.getName());
-    database.dropSchema(tableInheritanceTest.getName());
+    // Clear cache as otherwise drop tableInherTest will fail.
+
+    //    tableInherExtTest.getTableById("Resources").getMetadata().clearCache();
+    //    tableInherExtTest.getTableById("Extended Resources").getMetadata().clearCache();
+    database.dropSchema(tableInherExtTest.getName());
+    database.dropSchema(tableInherTest.getName());
   }
 
   @Test
@@ -465,74 +480,185 @@ public class RDFTest {
   @Test
   void testTableInheritanceAlwaysSamePredicate() throws IOException {
     var handler = new InMemoryRDFHandler() {};
-    getAndParseRDF(Selection.of(tableInheritanceTest), handler);
+    getAndParseRDF(Selection.of(tableInherTest, tableInherExtTest), handler);
     // The table Data Resources extends Extended Resources, which extends Resources.
     // Resources defines the column website. There should only be one predicate for
     // Resources/column/website and the other tables should use this predicate.
     var websitePredicate =
-        Values.iri("http://localhost:8080/tableInheritanceTest/api/rdf/Resources/column/website");
+        Values.iri("http://localhost:8080/tableInherTest/api/rdf/Resources/column/website");
     var websitePredicateER =
-        Values.iri(
-            "http://localhost:8080/tableInheritanceTest/api/rdf/ExtendedResources/column/website");
+        Values.iri("http://localhost:8080/tableInherTest/api/rdf/ExtendedResources/column/website");
     var websitePredicateDR =
+        Values.iri("http://localhost:8080/tableInherTest/api/rdf/DataResources/column/website");
+    var websitePredicateSR =
+        Values.iri("http://localhost:8080/tableInherTest/api/rdf/SourceResources/column/website");
+    var websitePredicateTR =
         Values.iri(
-            "http://localhost:8080/tableInheritanceTest/api/rdf/DataResources/column/website");
+            "http://localhost:8080/tableInherExtTest/api/rdf/TargetResources/column/website");
 
-    assertTrue(
-        handler.resources.containsKey(websitePredicate),
-        "There should be a predicate for the column in the Resources (base) table");
-    assertFalse(
-        handler.resources.containsKey(websitePredicateER),
-        "There should not be a predicate for the column in the Extended Resources table");
-    assertFalse(
-        handler.resources.containsKey(websitePredicateDR),
-        "There should not be a predicate for the column in the Data Resources table");
+    assertAll(
+        () ->
+            assertTrue(
+                handler.resources.containsKey(websitePredicate),
+                "There should be a predicate for the column in the Resources (base) table"),
+        () ->
+            assertFalse(
+                handler.resources.containsKey(websitePredicateER),
+                "There should not be a predicate for the column in the Extended Resources table"),
+        () ->
+            assertFalse(
+                handler.resources.containsKey(websitePredicateDR),
+                "There should not be a predicate for the column in the Data Resources table"),
+        () ->
+            assertFalse(
+                handler.resources.containsKey(websitePredicateSR),
+                "There should not be a predicate for the column in the Source Resources table"),
+        () ->
+            assertTrue(
+                handler.resources.containsKey(websitePredicateTR),
+                "There should not be a predicate for the column in the Target Resources table"));
   }
 
   @Test
   void testTableInheritanceRetrieveData() throws IOException {
     var handler = new InMemoryRDFHandler() {};
-    getAndParseRDF(Selection.of(tableInheritanceTest), handler);
-    inheritanceValidator(handler, false);
+    getAndParseRDF(Selection.of(tableInherTest), handler);
+
+    assertAll(
+        () ->
+            assertTrue(
+                handler.resources.get(inherDataSubject).containsKey(inherDataPredicate),
+                "should include subclass column (Data Resource)"),
+        () ->
+            assertTrue(
+                handler.resources.get(inherSourceSubject).containsKey(inherSourcePredicate),
+                "should include subclass column (Source Resource)"),
+        () ->
+            assertFalse(
+                handler.resources.containsKey(inherTargetSubject),
+                "should not include subclass (Target Resource) from different schema"));
+
+    Set<Value> dataObjects = handler.resources.get(inherDataSubject).get(inherDataPredicate);
+    Set<Value> sourceObjects = handler.resources.get(inherSourceSubject).get(inherSourcePredicate);
+
+    assertAll(
+        () -> assertEquals(1, dataObjects.size()),
+        () -> assertEquals(Values.literal("my data"), dataObjects.toArray()[0]),
+        () -> assertEquals(1, sourceObjects.size()),
+        () -> assertEquals(Values.literal("my source"), sourceObjects.toArray()[0]));
   }
 
   @Test
   void testTableInheritanceRetrieveDataWithTable() throws IOException {
     var handler = new InMemoryRDFHandler() {};
-    getAndParseRDF(Selection.of(tableInheritanceTest, "Resources"), handler);
-    inheritanceValidator(handler, false);
+    getAndParseRDF(Selection.of(tableInherTest, "Resources"), handler);
+
+    assertAll(
+        () ->
+            assertTrue(
+                handler.resources.get(inherDataSubject).containsKey(inherDataPredicate),
+                "should include subclass column (Data Resource)"),
+        () ->
+            assertTrue(
+                handler.resources.get(inherSourceSubject).containsKey(inherSourcePredicate),
+                "should include subclass column (Source Resource)"),
+        () ->
+            assertFalse(
+                handler.resources.containsKey(inherTargetSubject),
+                "should not include subclass (Target Resource) from different schema"));
+
+    Set<Value> dataObjects = handler.resources.get(inherDataSubject).get(inherDataPredicate);
+    Set<Value> sourceObjects = handler.resources.get(inherSourceSubject).get(inherSourcePredicate);
+
+    assertAll(
+        () -> assertEquals(1, dataObjects.size()),
+        () -> assertEquals(Values.literal("my data"), dataObjects.toArray()[0]),
+        () -> assertEquals(1, sourceObjects.size()),
+        () -> assertEquals(Values.literal("my source"), sourceObjects.toArray()[0]));
   }
 
   @Test
   void testTableInheritanceRetrieveDataWithRowId() throws IOException {
     var handler = new InMemoryRDFHandler() {};
-    getAndParseRDF(Selection.ofRow(tableInheritanceTest, "Resources", "id=d1"), handler);
-    inheritanceValidator(handler, true);
-  }
+    getAndParseRDF(Selection.ofRow(tableInherTest, "Resources", "id=d1"), handler);
 
-  private void inheritanceValidator(InMemoryRDFHandler handler, boolean rowId) {
-    assertTrue(
-        handler.resources.get(inherDataSubject).containsKey(inherDataPredicate),
-        "should include the subclass column");
+    assertAll(
+        () ->
+            assertTrue(
+                handler.resources.get(inherDataSubject).containsKey(inherDataPredicate),
+                "should include subclass column (Data Resource)"),
+        () ->
+            assertFalse(
+                handler.resources.containsKey(inherSourceSubject),
+                "should not include row that is not selected (Source Resource)"),
+        () ->
+            assertFalse(
+                handler.resources.containsKey(inherTargetSubject),
+                "should not include subclass (Target Resource) from different schema"));
+
     Set<Value> dataObjects = handler.resources.get(inherDataSubject).get(inherDataPredicate);
 
     assertAll(
         () -> assertEquals(1, dataObjects.size()),
         () -> assertEquals(Values.literal("my data"), dataObjects.toArray()[0]));
+  }
 
-    if (rowId) {
-      assertFalse(handler.resources.containsKey(inherSourceSubject));
-    } else {
-      assertTrue(
-          handler.resources.get(inherSourceSubject).containsKey(inherSourcePredicate),
-          "should include the subclass column");
-      Set<Value> sourceObjects =
-          handler.resources.get(inherSourceSubject).get(inherSourcePredicate);
+  @Test
+  void testTableInheritanceExtendedRetrieveData() throws IOException {
+    var handler = new InMemoryRDFHandler() {};
+    getAndParseRDF(Selection.of(tableInherExtTest), handler);
 
-      assertAll(
-          () -> assertEquals(1, sourceObjects.size()),
-          () -> assertEquals(Values.literal("my source"), sourceObjects.toArray()[0]));
-    }
+    assertAll(
+        () ->
+            assertFalse(
+                handler.resources.containsKey(inherDataSubject),
+                "should not include subclass (Data Extended) from different schema"),
+        () ->
+            assertFalse(
+                handler.resources.containsKey(inherSourceSubject),
+                "should not include subclass (Source Extended) from different schema"),
+        () ->
+            assertTrue(
+                handler.resources.get(inherTargetSubject).containsKey(inherTargetPredicate),
+                "should include subclass column (External Extended)"));
+
+    Set<Value> extObjects = handler.resources.get(inherTargetSubject).get(inherTargetPredicate);
+
+    assertAll(
+        () -> assertEquals(1, extObjects.size()),
+        () -> assertEquals(Values.literal("my target"), extObjects.toArray()[0]));
+  }
+
+  @Test
+  void testTableInheritanceRetrieveDataMultiSchema() throws IOException {
+    var handler = new InMemoryRDFHandler() {};
+    getAndParseRDF(Selection.of(tableInherTest, tableInherExtTest), handler);
+
+    assertAll(
+        () ->
+            assertTrue(
+                handler.resources.get(inherDataSubject).containsKey(inherDataPredicate),
+                "should include subclass column (Data Resource)"),
+        () ->
+            assertTrue(
+                handler.resources.get(inherSourceSubject).containsKey(inherSourcePredicate),
+                "should include subclass column (Source Resource)"),
+        () ->
+            assertTrue(
+                handler.resources.get(inherTargetSubject).containsKey(inherTargetPredicate),
+                "should include subclass column (Target Resource)"));
+
+    Set<Value> dataObjects = handler.resources.get(inherDataSubject).get(inherDataPredicate);
+    Set<Value> sourceObjects = handler.resources.get(inherSourceSubject).get(inherSourcePredicate);
+    Set<Value> extObjects = handler.resources.get(inherTargetSubject).get(inherTargetPredicate);
+
+    assertAll(
+        () -> assertEquals(1, dataObjects.size()),
+        () -> assertEquals(Values.literal("my data"), dataObjects.toArray()[0]),
+        () -> assertEquals(1, sourceObjects.size()),
+        () -> assertEquals(Values.literal("my source"), sourceObjects.toArray()[0]),
+        () -> assertEquals(1, extObjects.size()),
+        () -> assertEquals(Values.literal("my target"), extObjects.toArray()[0]));
   }
 
   @Test
