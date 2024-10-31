@@ -51,6 +51,7 @@ public class RDFTest {
   static Schema petStore_nr2;
   static Schema compositeKeyTest;
   static Schema ontologyTest;
+  static Schema tableInheritanceTest;
 
   final Set<Namespace> DEFAULT_NAMESPACES =
       new HashSet<>() {
@@ -162,6 +163,20 @@ public class RDFTest {
                 "C00-C75 Malignant neoplasms, stated or presumed to be primary, of specified sites, except of lymphoid, haematopoietic and related tissue",
                 "code",
                 "C00-C14"));
+
+    // Test table inheritance
+    // Use example from the catalogue schema since this has all the different issues.
+    tableInheritanceTest = database.dropCreateSchema("tableInheritanceTest");
+    tableInheritanceTest.create(
+        table(
+            "Resources",
+            column("id", ColumnType.STRING).setKey(1),
+            column("website", ColumnType.HYPERLINK)));
+    tableInheritanceTest.create(table("Extended Resources").setInheritName("Resources"));
+    Table dataResources =
+        tableInheritanceTest.create(
+            table("Data Resources", column("data")).setInheritName("Extended Resources"));
+    tableInheritanceTest.getTable("Data Resources").insert(row("id", "demo1", "data", "my data"));
   }
 
   @AfterAll
@@ -171,6 +186,7 @@ public class RDFTest {
     database.dropSchema(petStore_nr2.getName());
     database.dropSchema(compositeKeyTest.getName());
     database.dropSchema(ontologyTest.getName());
+    database.dropSchema(tableInheritanceTest.getName());
   }
 
   @Test
@@ -431,29 +447,20 @@ public class RDFTest {
   }
 
   @Test
-  void testThatSameColumnIRIisAlwaysUsed() throws IOException {
-    // Use example from the catalogue schema since this has all the different issues.
-    var schema = database.dropCreateSchema("iriTest");
-    schema.create(
-        table(
-            "Resources",
-            column("id", ColumnType.STRING).setKey(1),
-            column("website", ColumnType.HYPERLINK)));
-    schema.create(table("Extended Resources").setInheritName("Resources"));
-    Table dataResources =
-        schema.create(table("Data Resources", column("data")).setInheritName("Extended Resources"));
-
+  void testTableInheritanceAlwaysSamePredicate() throws IOException {
     var handler = new InMemoryRDFHandler() {};
-    getAndParseRDF(Selection.of(schema), handler);
+    getAndParseRDF(Selection.of(tableInheritanceTest), handler);
     // The table Data Resources extends Extended Resources, which extends Resources.
     // Resources defines the column website. There should only be one predicate for
     // Resources/column/website and the other tables should use this predicate.
     var websitePredicate =
-        Values.iri("http://localhost:8080/iriTest/api/rdf/Resources/column/website");
+        Values.iri("http://localhost:8080/tableInheritanceTest/api/rdf/Resources/column/website");
     var websitePredicateER =
-        Values.iri("http://localhost:8080/iriTest/api/rdf/ExtendedResources/column/website");
+        Values.iri(
+            "http://localhost:8080/tableInheritanceTest/api/rdf/ExtendedResources/column/website");
     var websitePredicateDR =
-        Values.iri("http://localhost:8080/iriTest/api/rdf/DataResources/column/website");
+        Values.iri(
+            "http://localhost:8080/tableInheritanceTest/api/rdf/DataResources/column/website");
 
     assertTrue(
         handler.resources.containsKey(websitePredicate),
@@ -464,26 +471,29 @@ public class RDFTest {
     assertFalse(
         handler.resources.containsKey(websitePredicateDR),
         "There should not be a predicate for the column in the Data Resources table");
+  }
 
-    var handler2 = new InMemoryRDFHandler() {};
-    dataResources.insert(row("id", "demo1", "data", "my data"));
-    getAndParseRDF(Selection.ofRow(schema, "Resources", "id=demo1"), handler2);
+  @Test
+  void testTableInheritanceRetrieveData() throws IOException {
+    var handler = new InMemoryRDFHandler() {};
+    getAndParseRDF(Selection.ofRow(tableInheritanceTest, "Resources", "id=demo1"), handler);
     var columnPredicate =
-        Values.iri("http://localhost:8080/iriTest/api/rdf/DataResources/column/data");
+        Values.iri("http://localhost:8080/tableInheritanceTest/api/rdf/DataResources/column/data");
     assertTrue(
-        handler2.resources.containsKey(columnPredicate), "should include the subclass column");
+        handler.resources.containsKey(columnPredicate), "should include the subclass column");
     var dataValue =
         ((Literal)
-                handler2
+                handler
                     .resources
-                    .get(Values.iri("http://localhost:8080/iriTest/api/rdf/Resources?id=demo1"))
                     .get(
                         Values.iri(
-                            "http://localhost:8080/iriTest/api/rdf/DataResources/column/data"))
+                            "http://localhost:8080/tableInheritanceTest/api/rdf/Resources?id=demo1"))
+                    .get(
+                        Values.iri(
+                            "http://localhost:8080/tableInheritanceTest/api/rdf/DataResources/column/data"))
                     .toArray()[0])
             .stringValue();
     assertEquals("my data", dataValue);
-    database.dropSchema(schema.getName());
   }
 
   @Test
