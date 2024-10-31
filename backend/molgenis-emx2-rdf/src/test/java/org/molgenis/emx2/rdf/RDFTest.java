@@ -465,15 +465,16 @@ public class RDFTest {
         handler.resources.containsKey(websitePredicateDR),
         "There should not be a predicate for the column in the Data Resources table");
 
+    var handler2 = new InMemoryRDFHandler() {};
     dataResources.insert(row("id", "demo1", "data", "my data"));
-    getAndParseRDF(Selection.ofRow(schema, "Resources", "id=demo1"), handler);
+    getAndParseRDF(Selection.ofRow(schema, "Resources", "id=demo1"), handler2);
     var columnPredicate =
         Values.iri("http://localhost:8080/iriTest/api/rdf/DataResources/column/data");
     assertTrue(
-        handler.resources.containsKey(columnPredicate), "should include the subclass column");
+        handler2.resources.containsKey(columnPredicate), "should include the subclass column");
     var dataValue =
         ((Literal)
-                handler
+                handler2
                     .resources
                     .get(Values.iri("http://localhost:8080/iriTest/api/rdf/Resources?id=demo1"))
                     .get(
