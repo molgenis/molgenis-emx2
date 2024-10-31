@@ -72,6 +72,12 @@ public class RDFTest {
         }
       };
 
+  // Shared IRIs for table inheritance testing.
+  IRI subjectR =
+      Values.iri("http://localhost:8080/tableInheritanceTest/api/rdf/Resources?id=demo1");
+  IRI predicateDR =
+      Values.iri("http://localhost:8080/tableInheritanceTest/api/rdf/DataResources/column/data");
+
   @BeforeAll
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
@@ -476,13 +482,25 @@ public class RDFTest {
   @Test
   void testTableInheritanceRetrieveData() throws IOException {
     var handler = new InMemoryRDFHandler() {};
+    getAndParseRDF(Selection.of(tableInheritanceTest), handler);
+    inheritanceValidator(handler);
+  }
+
+  @Test
+  void testTableInheritanceRetrieveDataWithTable() throws IOException {
+    var handler = new InMemoryRDFHandler() {};
+    getAndParseRDF(Selection.of(tableInheritanceTest, "Resources"), handler);
+    inheritanceValidator(handler);
+  }
+
+  @Test
+  void testTableInheritanceRetrieveDataWithRowId() throws IOException {
+    var handler = new InMemoryRDFHandler() {};
     getAndParseRDF(Selection.ofRow(tableInheritanceTest, "Resources", "id=demo1"), handler);
+    inheritanceValidator(handler);
+  }
 
-    IRI subjectR =
-        Values.iri("http://localhost:8080/tableInheritanceTest/api/rdf/Resources?id=demo1");
-    IRI predicateDR =
-        Values.iri("http://localhost:8080/tableInheritanceTest/api/rdf/DataResources/column/data");
-
+  private void inheritanceValidator(InMemoryRDFHandler handler) {
     assertTrue(
         handler.resources.get(subjectR).containsKey(predicateDR),
         "should include the subclass column");
