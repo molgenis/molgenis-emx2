@@ -112,7 +112,7 @@ public class Emx2YamlLoader {
 
     List<Column> allColumnsIncludingInherited =
         table.getSchema().getTables().stream()
-            .filter(t -> t.getRootTableName().equals(table.getTableName()))
+            .filter(t -> t.getRootTable().getTableName().equals(table.getTableName()))
             .map(t -> t.getNonInheritedColumns())
             .flatMap(List::stream)
             .filter(c -> !c.getName().startsWith("mg_"))
