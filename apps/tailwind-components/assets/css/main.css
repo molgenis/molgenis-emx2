@@ -98,6 +98,9 @@
     --background-color-invalid: var(--color-red-200);
     --background-color-input: var(--color-white);
     --background-color-input-checked: var(--color-yellow-500);
+    --background-color-listbox: var(--color-white);
+    --background-color-listbox-hover: var(--color-gray-100);
+    --background-color-listbox-selected: var(--color-umcg-light-blue);
 
     --text-color-button-primary: var(--color-gray-900);
     --text-color-button-primary-hover: var(--color-gray-900);
@@ -143,6 +146,10 @@
     --text-color-pagination-input: var(--color-blue-800);
     --text-color-pagination-hover: var(--color-white);
     --text-color-footer-link: var(--color-yellow-500);
+    --text-color-listbox: var(--color-black);
+    --text-color-listbox-hover: var(--color-black);
+    --text-color-listbox-selected: var(--color-blue-50);
+    
     
     --text-color-invalid: var(--color-red-500);
     --text-color-valid: var(--color-green-800);
@@ -168,6 +175,7 @@
     --border-color-pagination: var(--color-transparent);
     --border-color-input: var(--color-transparent);
     --border-color-input-inverted: var(--color-gray-600);
+    --border-color-listbox-option: var(--color-gray-100);
 
     --border-radius-3px: 3px;
     --border-radius-50px: 50px;
