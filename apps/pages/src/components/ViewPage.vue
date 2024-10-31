@@ -3,12 +3,23 @@
     <router-link v-if="canEdit" :to="'/' + page + '/edit'">
       edit page
     </router-link>
-    <div v-html="contents"></div>
+    <ModularPage
+      v-if="contents?.version === 2"
+      :editMode="false"
+      :content="contents"
+      :page="page"
+    ></ModularPage>
+    <div v-else v-html="contents"></div>
   </div>
 </template>
 
 <script>
+import ModularPage from "./ModularPage.vue";
+
 export default {
+  components: {
+    ModularPage,
+  },
   props: {
     page: String,
     session: Object,
@@ -16,11 +27,11 @@ export default {
   computed: {
     contents() {
       if (
-        this.session &&
-        this.session.settings &&
-        this.session.settings["page." + this.page]
+        this?.session &&
+        this?.session?.settings &&
+        this?.session?.settings["page." + this.page]
       ) {
-        return this.session.settings["page." + this.page];
+        return this?.session?.settings["page." + this.page];
       }
       return "Page not found";
     },
