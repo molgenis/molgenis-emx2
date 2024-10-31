@@ -477,10 +477,15 @@ public class RDFTest {
   void testTableInheritanceRetrieveData() throws IOException {
     var handler = new InMemoryRDFHandler() {};
     getAndParseRDF(Selection.ofRow(tableInheritanceTest, "Resources", "id=demo1"), handler);
-    var columnPredicate =
-        Values.iri("http://localhost:8080/tableInheritanceTest/api/rdf/DataResources/column/data");
     assertTrue(
-        handler.resources.containsKey(columnPredicate), "should include the subclass column");
+        handler
+            .resources
+            .get(
+                Values.iri("http://localhost:8080/tableInheritanceTest/api/rdf/Resources?id=demo1"))
+            .containsKey(
+                Values.iri(
+                    "http://localhost:8080/tableInheritanceTest/api/rdf/DataResources/column/data")),
+        "should include the subclass column");
     var dataValue =
         ((Literal)
                 handler
