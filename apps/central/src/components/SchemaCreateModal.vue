@@ -168,7 +168,7 @@ export default {
   },
   methods: {
     validate(name) {
-      const simpleName = constants.TABLE_NAME_REGEX;
+      const simpleName = constants.SCHEMA_NAME_REGEX;
       if (name === null) {
         return undefined;
       }
@@ -179,7 +179,7 @@ export default {
       ) {
         return undefined;
       } else {
-        return "Table name must start with a letter, followed by zero or more letters, numbers, spaces or underscores. A space immediately before or after an underscore is not allowed. The character limit is 31.";
+        return "Table name must start with a letter, followed by zero or more letters, numbers, spaces, dash or underscores. A space immediately before or after an underscore is not allowed. The character limit is 31.";
       }
     },
     executeCreateSchema() {
