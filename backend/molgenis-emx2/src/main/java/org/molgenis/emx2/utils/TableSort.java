@@ -5,7 +5,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.molgenis.emx2.Column;
-import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.TableMetadata;
 
 public class TableSort {
@@ -61,9 +60,13 @@ public class TableSort {
       }
       // check for circular relationship
       if (size == todo.size()) {
-        throw new MolgenisException(
+        tableList.clear();
+        tableList.addAll(todo);
+        tableList.addAll(result);
+        System.out.println(
             "circular dependency error: following tables have circular dependency: "
                 + todo.stream().map(TableMetadata::getTableName).collect(Collectors.joining(",")));
+        return;
       }
     }
     tableList.clear();

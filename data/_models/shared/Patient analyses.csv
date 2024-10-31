@@ -1,0 +1,8 @@
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
+Patient analyses,,identifier,auto_id,1,,,,,,,,,RD3,
+Patient analyses,,individual analysed,ref,,,,Individuals,,,,,,RD3
+Patient analyses,,solved,bool,,,,,,,,,,RD3
+Patient analyses,,date completed,date,,,,,,,,,Date when the analysis was completed (solved or unsolved),RD3
+Patient analyses,,persons involved,ref_array,,,,ContactPersons,,,,,"Who was involved in the processing","RD3"
+Patient analyses,,files used,ref_array,,,,File access,,,,,,RD3,
+Patient analyses,,pedigree used,ref,,,,Pedigree,,,,,,RD3,

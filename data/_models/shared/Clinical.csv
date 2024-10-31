@@ -1,7 +1,7 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
 Clinical,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25398,Findings and circumstances relating to the examination and treatment of a patient.,"FAIR Genomes, JRC-CDE,RD3"
 Clinical,,Clinical identifier,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C87853,A unique proper name or character sequence that identifies this particular clinical examination.,"FAIR Genomes, JRC-CDE, RD3"
-Clinical,,Belongs to person,ref,,,,Individuals,,,,http://purl.obolibrary.org/obo/IAO_0000136,Reference to the person whom this clinical information is about.,"FAIR Genomes, JRC-CDE, RD3"
+Clinical,,Belongs to individual,ref,,,,Individuals,,,,http://purl.obolibrary.org/obo/IAO_0000136,Reference to the person whom this clinical information is about.,"FAIR Genomes, JRC-CDE, RD3"
 Clinical,,Phenotype,ontology_array,,,,Phenotypes,,,,http://purl.obolibrary.org/obo/NCIT_C16977,"The outward appearance of the individual. In medical context, these are often the symptoms caused by a disease.","FAIR Genomes, RD3"
 Clinical,,Unobserved phenotype,ontology_array,,,,Phenotypes,,,,http://purl.bioontology.org/ontology/HL7/C0442737,"Phenotypes or symptoms that were looked for but not observed, which may help in differential diagnosis or establish incomplete penetrance.","FAIR Genomes, RD3"
 Clinical,,Phenotypic data available,ontology_array,,,,DCMITypes,,,,http://purl.obolibrary.org/obo/NCIT_C15783,Types of phenotypic data collected in a clinical setting that is potentially available upon request.,FAIR Genomes

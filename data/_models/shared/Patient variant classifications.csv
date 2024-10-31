@@ -1,0 +1,11 @@
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
+Patient variant classifications,,analysis,ref,1,,,Patient analyses,,,,,,RD3
+Patient variant classifications,,hgvs,string,1,,,,,,,,,RD3
+Patient variant classifications,,chr,string,,,,,,,,,,RD3
+Patient variant classifications,,pos,int,,,,,,,,,,RD3
+Patient variant classifications,,ref,string,,,,,,,,,,RD3
+Patient variant classifications,,alt,string,,,,,,,,,,RD3
+Patient variant classifications,,gene,string,,,,,,,,,,RD3
+Patient variant classifications,,transcript,string,,,,,,,,,,RD3
+Patient variant classifications,,classifications,ontology,,,,VariationClinicalRelevance,,,,,,RD3
+Patient variant classifications,,classification summary,text,,,,,,,,,explanation on how the team concluded on the classifications,RD3

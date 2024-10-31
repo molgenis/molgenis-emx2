@@ -1,0 +1,4 @@
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
+Protocols,,identifier,auto_id,1,,,,,,,,"Automatic identifier",RD3
+Protocols,,description,text,,,,,,,,,,RD3
+Protocols,,uri,hyperlink,,,,,,,,,"Link to online database where this protocol is being defined",RD3

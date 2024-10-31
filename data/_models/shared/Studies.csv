@@ -23,6 +23,5 @@ Studies,,studyCompletionDate,date,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C14
 Studies,,currentStudyStatus,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C171103,"The status of a study or trial.",RD3
 Studies,,numberOfSubjectsEnrolled,int,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C153145,"An integer specifying the quantity of study subjects enrolled in the study at the current time.",RD3
 Studies,,samplesCollected,int,,,,,,,,,"An integer specifying the quantity of samples collected at the current time.",RD3
-Studies,,belongsToDataRelease,ref_array,,,,datareleases,,,,http://purl.obolibrary.org/obo/NCIT_C172217,"The act of making data or other structured information accessible to the public or to the user group of a database.",RD3
 Studies,,organization,string,,,,,,,,"http://xmlns.com/foaf/0.1/","The Organization class represents a kind of Agent corresponding to social instititutions such as companies, societies etc.",DCAT
 Studies,,homepage,hyperlink,,,,,,,,"http://xmlns.com/foaf/0.1/homepage","A homepage for some thing.",DCAT
