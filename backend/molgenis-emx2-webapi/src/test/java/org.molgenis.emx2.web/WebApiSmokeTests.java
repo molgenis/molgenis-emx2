@@ -31,10 +31,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import org.junit.jupiter.api.*;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.Order;
@@ -204,28 +201,34 @@ public class WebApiSmokeTests {
     // test json report api
     String jsonResults =
         given().sessionId(SESSION_ID).get("/pet store reports/api/reports/json?id=0").asString();
-    assertTrue(jsonResults.contains("pet report"));
+    assertFalse(jsonResults.contains("pet report"), "single result should not include report name");
+    jsonResults =
+        given()
+            .sessionId(SESSION_ID)
+            .get("/pet store reports/api/reports/json?id=0,1&name=pooky")
+            .asString();
+    assertTrue(
+        jsonResults.contains("pet report"),
+        "multiple results should use the report name to nest results");
     jsonResults =
         given()
             .sessionId(SESSION_ID)
             .get("/pet store reports/api/reports/json?id=1&name=spike,pooky")
             .asString();
-    assertTrue(jsonResults.contains("pet report with parameters"));
+    assertTrue(jsonResults.contains("pooky"));
 
     // test report using jsonb_agg
     jsonResults =
         given().sessionId(SESSION_ID).get("/pet store reports/api/reports/json?id=2").asString();
     ObjectMapper objectMapper = new ObjectMapper();
-    Map<String, Object> jsonbResult = objectMapper.readValue(jsonResults, Map.class);
-    assertTrue(jsonbResult.containsKey("jsonb"));
-    assertTrue(jsonbResult.get("jsonb").toString().contains("pooky"));
+    List<Object> jsonbResult = objectMapper.readValue(jsonResults, List.class);
+    assertTrue(jsonbResult.get(0).toString().contains("pooky"));
 
     // test report using jsonb rows
     jsonResults =
         given().sessionId(SESSION_ID).get("/pet store reports/api/reports/json?id=3").asString();
-    jsonbResult = objectMapper.readValue(jsonResults, Map.class);
-    assertTrue(jsonbResult.containsKey("jsonb rows"));
-    assertTrue(jsonbResult.get("jsonb rows").toString().contains("pooky"));
+    jsonbResult = objectMapper.readValue(jsonResults, List.class);
+    assertTrue(jsonbResult.get(0).toString().contains("pooky"));
   }
 
   @Test
