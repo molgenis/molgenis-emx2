@@ -73,10 +73,16 @@ public class RDFTest {
       };
 
   // Shared IRIs for table inheritance testing.
-  IRI subjectR =
-      Values.iri("http://localhost:8080/tableInheritanceTest/api/rdf/Resources?id=demo1");
-  IRI predicateDR =
+  IRI inherDataSubject =
+      Values.iri("http://localhost:8080/tableInheritanceTest/api/rdf/Resources?id=d1");
+  IRI inherDataPredicate =
       Values.iri("http://localhost:8080/tableInheritanceTest/api/rdf/DataResources/column/data");
+
+  IRI inherSourceSubject =
+      Values.iri("http://localhost:8080/tableInheritanceTest/api/rdf/Resources?id=s1");
+  IRI inherSourcePredicate =
+      Values.iri(
+          "http://localhost:8080/tableInheritanceTest/api/rdf/SourceResources/column/source");
 
   @BeforeAll
   public static void setup() {
@@ -179,10 +185,14 @@ public class RDFTest {
             column("id", ColumnType.STRING).setKey(1),
             column("website", ColumnType.HYPERLINK)));
     tableInheritanceTest.create(table("Extended Resources").setInheritName("Resources"));
-    Table dataResources =
-        tableInheritanceTest.create(
-            table("Data Resources", column("data")).setInheritName("Extended Resources"));
-    tableInheritanceTest.getTable("Data Resources").insert(row("id", "demo1", "data", "my data"));
+    tableInheritanceTest.create(
+        table("Data Resources", column("data")).setInheritName("Extended Resources"));
+    tableInheritanceTest.create(
+        table("Source Resources", column("source")).setInheritName("Extended Resources"));
+    tableInheritanceTest.getTable("Data Resources").insert(row("id", "d1", "data", "my data"));
+    tableInheritanceTest
+        .getTable("Source Resources")
+        .insert(row("id", "s1", "source", "my source"));
   }
 
   @AfterAll
@@ -483,33 +493,46 @@ public class RDFTest {
   void testTableInheritanceRetrieveData() throws IOException {
     var handler = new InMemoryRDFHandler() {};
     getAndParseRDF(Selection.of(tableInheritanceTest), handler);
-    inheritanceValidator(handler);
+    inheritanceValidator(handler, false);
   }
 
   @Test
   void testTableInheritanceRetrieveDataWithTable() throws IOException {
     var handler = new InMemoryRDFHandler() {};
     getAndParseRDF(Selection.of(tableInheritanceTest, "Resources"), handler);
-    inheritanceValidator(handler);
+    inheritanceValidator(handler, false);
   }
 
   @Test
   void testTableInheritanceRetrieveDataWithRowId() throws IOException {
     var handler = new InMemoryRDFHandler() {};
-    getAndParseRDF(Selection.ofRow(tableInheritanceTest, "Resources", "id=demo1"), handler);
-    inheritanceValidator(handler);
+    getAndParseRDF(Selection.ofRow(tableInheritanceTest, "Resources", "id=d1"), handler);
+    inheritanceValidator(handler, true);
   }
 
-  private void inheritanceValidator(InMemoryRDFHandler handler) {
+  private void inheritanceValidator(InMemoryRDFHandler handler, boolean rowId) {
     assertTrue(
-        handler.resources.get(subjectR).containsKey(predicateDR),
+        handler.resources.get(inherDataSubject).containsKey(inherDataPredicate),
         "should include the subclass column");
-
-    Set<Value> objectsDR = handler.resources.get(subjectR).get(predicateDR);
+    Set<Value> dataObjects = handler.resources.get(inherDataSubject).get(inherDataPredicate);
 
     assertAll(
-        () -> assertEquals(1, objectsDR.size()),
-        () -> assertEquals(Values.literal("my data"), objectsDR.toArray()[0]));
+        () -> assertEquals(1, dataObjects.size()),
+        () -> assertEquals(Values.literal("my data"), dataObjects.toArray()[0]));
+
+    if (rowId) {
+      assertFalse(handler.resources.containsKey(inherSourceSubject));
+    } else {
+      assertTrue(
+          handler.resources.get(inherSourceSubject).containsKey(inherSourcePredicate),
+          "should include the subclass column");
+      Set<Value> sourceObjects =
+          handler.resources.get(inherSourceSubject).get(inherSourcePredicate);
+
+      assertAll(
+          () -> assertEquals(1, sourceObjects.size()),
+          () -> assertEquals(Values.literal("my source"), sourceObjects.toArray()[0]));
+    }
   }
 
   @Test
