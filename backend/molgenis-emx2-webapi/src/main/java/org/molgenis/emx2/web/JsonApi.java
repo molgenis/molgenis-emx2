@@ -43,7 +43,7 @@ public class JsonApi {
       List<Row> rows = schema.retrieveSql(sql, parameters);
       List<Object> result = new ArrayList<>();
       for (Row row : rows) {
-        // single json object will not be put in an array
+        // single json object will not be nested in key/value
         if (rows.get(0).getValueMap().size() == 1
             && rows.get(0).getValueMap().values().iterator().next() instanceof JSONB) {
           result.add(
