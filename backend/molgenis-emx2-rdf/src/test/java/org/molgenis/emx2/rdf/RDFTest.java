@@ -523,36 +523,17 @@ public class RDFTest {
   void testTableInheritanceRetrieveData() throws IOException {
     var handler = new InMemoryRDFHandler() {};
     getAndParseRDF(Selection.of(tableInherTest), handler);
-
-    assertAll(
-        () ->
-            assertTrue(
-                handler.resources.get(inherDataSubject).containsKey(inherDataPredicate),
-                "should include subclass column (Data Resource)"),
-        () ->
-            assertTrue(
-                handler.resources.get(inherSourceSubject).containsKey(inherSourcePredicate),
-                "should include subclass column (Source Resource)"),
-        () ->
-            assertFalse(
-                handler.resources.containsKey(inherTargetSubject),
-                "should not include subclass (Target Resource) from different schema"));
-
-    Set<Value> dataObjects = handler.resources.get(inherDataSubject).get(inherDataPredicate);
-    Set<Value> sourceObjects = handler.resources.get(inherSourceSubject).get(inherSourcePredicate);
-
-    assertAll(
-        () -> assertEquals(1, dataObjects.size()),
-        () -> assertEquals(Values.literal("my data"), dataObjects.toArray()[0]),
-        () -> assertEquals(1, sourceObjects.size()),
-        () -> assertEquals(Values.literal("my source"), sourceObjects.toArray()[0]));
+    assertTableInheritanceSingleScheme(handler);
   }
 
   @Test
   void testTableInheritanceRetrieveDataWithTable() throws IOException {
     var handler = new InMemoryRDFHandler() {};
     getAndParseRDF(Selection.of(tableInherTest, "Resources"), handler);
+    assertTableInheritanceSingleScheme(handler);
+  }
 
+  private void assertTableInheritanceSingleScheme(InMemoryRDFHandler handler) {
     assertAll(
         () ->
             assertTrue(
@@ -607,7 +588,24 @@ public class RDFTest {
   void testTableInheritanceExtendedRetrieveData() throws IOException {
     var handler = new InMemoryRDFHandler() {};
     getAndParseRDF(Selection.of(tableInherExtTest), handler);
+    assertTableInheritanceExtended(handler);
+  }
 
+  @Test
+  void testTableInheritanceExtendedRetrieveDataWithTable() throws IOException {
+    var handler = new InMemoryRDFHandler() {};
+    getAndParseRDF(Selection.of(tableInherExtTest, "Resources"), handler);
+    assertTableInheritanceExtended(handler);
+  }
+
+  @Test
+  void testTableInheritanceExtendedRetrieveDataWithRowId() throws IOException {
+    var handler = new InMemoryRDFHandler() {};
+    getAndParseRDF(Selection.ofRow(tableInherExtTest, "Resources", "id=t1"), handler);
+    assertTableInheritanceExtended(handler);
+  }
+
+  private void assertTableInheritanceExtended(InMemoryRDFHandler handler) {
     assertAll(
         () ->
             assertFalse(
