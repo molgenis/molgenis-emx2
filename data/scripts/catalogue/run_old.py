@@ -233,24 +233,18 @@ if SERVER_TYPE == 'data_catalogue':
         # create network schema on target server
         session.create_database(database_name=network, database_description=schema_description)
 
-
 # ---------------------------------------------------------------
-
-# create catalogue schema
 # print('------------------------')
-# print('Updating catalogue schema')
-# # delete and create new catalogue schema
-# schema_description = session.get_database_description(database_name=CATALOGUE_SCHEMA_NAME)
-# session.drop_database(database_name=CATALOGUE_SCHEMA_NAME)
-# session.create_database(database_name=CATALOGUE_SCHEMA_NAME, database_description=schema_description)
-#
-# # upload molgenis.csv to catalogue schema
-# update_general = Transform(CATALOGUE_SCHEMA_NAME, 'catalogue')
-# data_model_file = update_general.update_data_model_file()
-# session.upload_zip(database_name=CATALOGUE_SCHEMA_NAME, data_to_upload='catalogue_data_model')
 
-# # upload transformed catalogue data to catalogue schema
-# session.upload_zip(database_name=CATALOGUE_SCHEMA_NAME, data_to_upload=CATALOGUE_SCHEMA_NAME)
+# upload catalogue data to target server
+# sign in to target server
+print('Sign in to target server: ' + TARGET_SERVER_URL)
+session = Session(
+    url=TARGET_SERVER_URL,
+    email=TARGET_SERVER_USERNAME,
+    password=TARGET_SERVER_PASSWORD
+)
+session.upload_zip(database_name=CATALOGUE_SCHEMA_NAME, data_to_upload=CATALOGUE_SCHEMA_NAME)
 
 # ----------------------------------------------------------------------
 
