@@ -1,7 +1,7 @@
 package org.molgenis.emx2.graphgenome;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.molgenis.emx2.datamodels.AbstractDataLoader.createSchema;
+import static org.molgenis.emx2.io.ImportDataModelTask.createSchema;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;

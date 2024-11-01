@@ -3,7 +3,7 @@
     <PageHeader
       title="molgenis-viz"
       subtitle="Column Chart Example"
-      imageSrc="column-chart-header.jpg"
+      imageSrc="img/column-chart-header.jpg"
       height="large"
     />
     <PageSection :verticalPadding="0">

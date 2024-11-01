@@ -75,5 +75,9 @@ include(':backend:molgenis-emx2-fairdatapoint')
 include(':backend:molgenis-emx2-graphgenome')
 include(':backend:molgenis-emx2-email')
 include(':backend:molgenis-emx2-nonparallel-tests')
+include(':backend:molgenis-emx2-analytics')
+include(':backend:molgenis-emx2-typescript')
 include(':tools:pyclient')
+
+
 

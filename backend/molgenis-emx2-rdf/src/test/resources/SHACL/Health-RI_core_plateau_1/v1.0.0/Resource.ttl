@@ -1,0 +1,192 @@
+@prefix :         <http://fairdatapoint.org/> .
+@prefix dash:     <http://datashapes.org/dash#> .
+@prefix dcat:     <http://www.w3.org/ns/dcat#> .
+@prefix dct:      <http://purl.org/dc/terms/> .
+@prefix sh:       <http://www.w3.org/ns/shacl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix : <http://coreRule-healthri.nl#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix odrl: <http://www.w3.org/ns/odrl/2/> .
+@prefix adms: <http://www.w3.org/ns/adms#> .
+
+:DcatResource_Shape
+    a sh:NodeShape ;
+    rdfs:comment "the union of Catalog, Dataset and DataService" ;
+    rdfs:label "dcat:Resource" ;
+    sh:message "The node is either a Catalog, Dataset, DataService or a foaf:Project (which is specified in Health RI core metadata model." ;
+    sh:or ([
+        sh:class dcat:Catalog
+      ]
+      [
+        sh:class dcat:Dataset
+      ]
+      [
+        sh:class dcat:DataService
+      ]
+      [
+        sh:class foaf:Project
+      ]
+    ) ;
+
+    #describe all properteis of dcat 3
+  sh:property [
+    sh:maxCount 1 ;
+    sh:path dct:accessRights ;
+    sh:severity sh:Violation
+  ] ,
+  [
+    sh:maxCount 1 ;
+    sh:path dct:conformsTo ;
+    sh:severity sh:Violation
+  ] ,
+  [
+    sh:path dcat:contactPoint ;
+    sh:nodeKind  sh:IRI;
+    sh:maxCount  1;
+    sh:severity sh:Violation
+  ] ,
+  [
+    sh:path dct:creator ;
+    sh:severity sh:Violation
+  ] ,
+  [
+    sh:path dct:description ;
+    sh:minCount 1 ;
+    sh:nodeKind sh:Literal ;
+    dash:editor dash:TextFieldEditor ;
+    dash:viewer dash:LiteralViewer ;
+    sh:severity sh:Violation
+  ] ,
+  [
+    sh:path dct:title ;
+    sh:minCount 1 ;
+    sh:nodeKind sh:Literal ;
+    dash:editor dash:TextFieldEditor ;
+    dash:viewer dash:LiteralViewer ;
+    sh:severity sh:Violation
+  ] ,
+  [
+    sh:path dct:issued ;
+    sh:maxCount 1 ;
+    sh:node :DateOrDateTimeDataType_Shape ;
+    sh:severity sh:Violation
+  ] ,
+  [
+    sh:path dct:modified ;
+    sh:severity sh:Violation ;
+    sh:maxCount 1 ;
+    sh:node :DateOrDateTimeDataType_Shape
+  ] ,
+  [
+    sh:path dct:language ;
+    sh:severity sh:Violation
+  ] ,
+  [
+    sh:path dct:publisher ;
+    sh:node      :AgentShape;
+    sh:severity sh:Violation
+  ] ,
+  [
+    sh:path dct:identifier ;
+    sh:nodeKind sh:Literal ;
+    dash:editor dash:TextFieldEditor ;
+    dash:viewer dash:LiteralViewer ;
+    sh:severity sh:Violation
+  ] ,
+  [
+    sh:path dcat:theme ;
+    sh:severity sh:Violation
+  ] ,
+  [
+    sh:path dct:type ;
+    sh:severity sh:Violation
+  ] ,
+  [
+    sh:path dcat:qualifiedRelation ;
+    sh:severity sh:Violation
+  ] ,
+  [
+    sh:path dcat:keyword ;
+    sh:nodeKind sh:Literal ;
+    dash:editor dash:TextFieldEditor ;
+    dash:viewer dash:LiteralViewer ;
+    sh:severity sh:Violation
+  ] ,
+  [
+    sh:path dcat:landingPage ;
+    sh:severity sh:Violation
+  ] , 
+  [
+    sh:path prov:qualifiedAttribution ;
+    sh:severity sh:Violation
+  ] , 
+  [
+    sh:path dct:license ;
+    sh:maxCount 1 ;
+    sh:nodeKind  sh:IRI;
+    sh:severity sh:Violation
+  ] ,
+  [
+    sh:path dct:rights ;
+    sh:maxCount 1 ;
+    sh:severity sh:Violation
+  ] ,
+  [
+    sh:path odrl:hasPolicy ;
+    sh:maxCount 1 ;
+    sh:severity sh:Violation
+  ] ,
+  [
+    sh:path dct:isReferencedBy ;
+    sh:nodeKind sh:BlankNodeOrIRI ;
+    sh:severity sh:Violation
+  ] ,
+  [
+    sh:path dct:previousVersion ;
+    sh:severity sh:Violation
+  ] ,
+  [
+    sh:path dct:hasVersion ;
+    sh:severity sh:Violation
+  ] , 
+  [
+    sh:path dcat:hasCurrentVersion ;
+    sh:severity sh:Violation
+  ] , 
+  [
+    sh:path dct:replaces ;
+    sh:severity sh:Violation
+  ] , 
+  [
+    sh:path dcat:version ;
+    sh:severity sh:Violation
+  ] ,
+  [
+    sh:path adms:versionNotes ;
+    sh:nodeKind sh:Literal ;
+    dash:editor dash:TextFieldEditor ;
+    dash:viewer dash:LiteralViewer ;
+    sh:severity sh:Violation
+  ] ,
+  [
+    sh:path adms:status ;
+    sh:maxCount 1 ;
+    sh:severity sh:Violation
+  ] ,
+  [
+    sh:path dcat:first ;
+    sh:maxCount 1 ;
+    sh:severity sh:Violation
+  ] ,
+  [
+    sh:path dcat:last ;
+    sh:maxCount 1 ;
+    sh:severity sh:Violation
+  ] ,
+  [
+    sh:path dcat:prev ;
+    sh:maxCount 1 ;
+    sh:severity sh:Violation
+  ] .

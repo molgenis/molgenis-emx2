@@ -11,6 +11,11 @@ plugins {
     id 'com.palantir.docker' version '0.35.0'
 }
 
+ext {
+    javaMainClass = "org.molgenis.emx2.RunMolgenisEmx2"
+    javaVersion = JavaVersion.VERSION_17
+}
+
 allprojects {
     if(rootProject.nyxState.releaseScope.previousVersion == rootProject.version) {
         version = rootProject.nyxState.releaseScope.previousVersion + "-SNAPSHOT"
@@ -22,9 +27,6 @@ allprojects {
 println "Corrected version checking for optional snapshot: " + rootProject.version
 
 nyxPublish.dependsOn assemble
-
-targetCompatibility = "17"
-sourceCompatibility = "17"
 
 sonarqube {
     properties {
@@ -49,6 +51,7 @@ dependencies {
 
 mainClassName = 'org.molgenis.emx2.RunMolgenisEmx2'
 shadowJar {
+    zip64 = true
     archiveBaseName = 'molgenis-emx2'
     mergeServiceFiles()
     archiveVersion = project.version.replace("v","")
@@ -100,10 +103,6 @@ String getGitHash() {
     return gitCommitHash
 }
 
-ext {
-    javaMainClass = "org.molgenis.emx2.RunMolgenisEmx2"
-}
-
 application {
     mainClass.set(javaMainClass)
 }
@@ -119,13 +118,6 @@ jar {
                 'Build-OS': "${System.properties['os.name']} ${System.properties['os.arch']} ${System.properties['os.version']}"
         )
     }
-}
-
-task cleandb(type: JavaExec) {
-    group = "Execution"
-    description = "Clean database. Carefull, will delete all MOLGENIS stuff"
-    classpath = sourceSets.main.runtimeClasspath
-    main = "org.molgenis.emx2.AToolToCleanDatabase"
 }
 
 //task to install pre-commit hook that applies formatting

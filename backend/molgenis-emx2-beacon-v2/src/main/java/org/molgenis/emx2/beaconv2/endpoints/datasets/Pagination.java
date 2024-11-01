@@ -19,4 +19,12 @@ public class Pagination {
   public int getLimit() {
     return limit;
   }
+
+  public void setSkip(int skip) {
+    this.skip = skip;
+  }
+
+  public void setLimit(int limit) {
+    this.limit = limit;
+  }
 }

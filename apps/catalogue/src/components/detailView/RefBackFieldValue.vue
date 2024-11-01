@@ -1,9 +1,9 @@
 <template>
   <RefbackTable
-    :tableId="metaData.refTableId"
-    :refBackId="metaData.refBackId"
-    :pkey="metaData.primaryTableKey"
-    :refLabel="metaData.refLabel"
+    :tableId="metadata.refTableId"
+    :refBackId="metadata.refBackId"
+    :pkey="metadata.primaryTableKey"
+    :refLabel="metadata.refLabel"
   />
 </template>
 
@@ -17,7 +17,7 @@ export default {
       type: [Object, Array],
       required: true,
     },
-    metaData: {
+    metadata: {
       type: Object,
       required: true,
     },

@@ -1,6 +1,5 @@
 <script setup>
 import { computed } from "vue";
-import BaseIcon from "./BaseIcon.vue";
 
 const props = defineProps({
   buttonLeftLabel: {

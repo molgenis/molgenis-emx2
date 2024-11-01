@@ -7,6 +7,7 @@ import initialBiobankColumns from "../property-config/initialBiobankColumns";
 import initialBiobankReportColumns from "../property-config/initialBiobankReportColumns";
 import initialLandingpage from "../property-config/initialLandingpage";
 import { QueryEMX2 } from "molgenis-components";
+import initialStudyColumns from "../property-config/initialStudyColumns";
 /**
  * Settings store is where all the configuration of the application is handled.
  * This means that user config from the database is merged with the defaults here.
@@ -23,27 +24,28 @@ export const useSettingsStore = defineStore("settingsStore", () => {
     language: "en",
     graphqlEndpoint: "graphql",
     negotiatorType: "eric-negotiator",
-    negotiatorUrl:
-      "https://negotiator.acc.bbmri-eric.eu/api/directory/create_query",
+    negotiatorUrl: "https://negotiator.acc.bbmri-eric.eu/api/v3/requests",
     biobankColumns: initialBiobankColumns,
     biobankReportColumns: initialBiobankReportColumns,
     collectionColumns: initialCollectionColumns,
+    studyColumns: initialStudyColumns,
     filterFacets: initialFilterFacets,
     filterMenuInitiallyFolded: false,
     biobankCardShowCollections: true,
     landingpage: initialLandingpage,
     pageSize: 12,
     i18n,
+    banner: undefined, //"<div style='background-color: #72f6b2; padding: 10px; text-align: center;'>I am in a banner</div>"
   });
 
   async function initializeConfig() {
-    const settingsResult = await new QueryEMX2(config.value.graphqlEndpoint)
+    const response = await new QueryEMX2(config.value.graphqlEndpoint)
       .table("_settings")
       .select(["key", "value"])
       .execute();
 
-    const savedDirectoryConfig = settingsResult._settings.find(
-      (sr) => sr.key === "directory"
+    const savedDirectoryConfig = response._settings.find(
+      (setting) => setting.key === "directory"
     );
 
     if (savedDirectoryConfig && savedDirectoryConfig.value) {

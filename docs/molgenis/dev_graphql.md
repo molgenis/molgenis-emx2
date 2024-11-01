@@ -311,7 +311,11 @@ Finally, for each table there are the following functions:
 
 ### query example
 
-Simple query, including count
+A query can be performed by referring to a table name.
+For every table, aggregate functionality is available by adding <code>_agg</code> to the table name.
+This will expose the </code>count</code> and <code>exists</code> variables.
+
+A simple query, including count:
 
 ```graphql
 {
@@ -327,7 +331,7 @@ Simple query, including count
   Pet_agg {
     count
   }
-  Pet_groupBy{
+  Pet_groupBy {
     sum{weight},
     count,
     tags{name}

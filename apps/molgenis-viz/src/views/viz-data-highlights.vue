@@ -3,7 +3,7 @@
     <PageHeader
       title="molgenis-viz"
       subtitle="Data Highlights Example"
-      imageSrc="highlights-header.jpg"
+      imageSrc="img/highlights-header.jpg"
       height="large"
     />
     <PageSection :verticalPadding="0">

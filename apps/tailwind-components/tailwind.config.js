@@ -150,6 +150,9 @@ module.exports = {
         "tab": "var(--backgroud-color-tab)",
         "tab-hover": "var(--backgroud-color-tab-hover)",
         "tab-active": "var(--backgroud-color-tab-active)",
+        "disabled": "var(--background-color-disabled)",
+        "invalid": "var(--background-color-invalid)",
+        "input": "var(--background-color-input)",
       }),
       textColor: ({ theme }) => ({
         "button-primary": "var(--text-color-button-primary)",
@@ -193,9 +196,11 @@ module.exports = {
         "pagination": "var(--text-color-pagination)",
         "pagination-input": "var(--text-color-pagination-input)",
         "pagination-hover": "var(--text-color-pagination-hover)",
-        "pagination-label-white": "var(--text-color-pagination-label-white)",
-        "pagination-label-gray": "var(--text-color-pagination-label-gray)",
         "footer-link": "var(--text-color-footer-link)",
+        "invalid": "var(--text-color-invalid)",
+        "valid": "var(--text-color-valid)",
+        "disabled": "var(--text-color-disabled)",
+        "required": "var(--text-color-required)",
       }),
       borderColor: ({ theme }) => ({
         "button-primary": "var(--border-color-button-primary)",
@@ -214,6 +219,18 @@ module.exports = {
         "search-input-mobile": "var(--border-color-search-input-mobile)",
         "pagination": "var(--border-color-pagination)",
         "checkbox": "var(--border-color-checkbox)",
+        "invalid": "var(--border-color-invalid)",
+        "valid": "var(--border-color-valid)",
+        "disabled": "var(--border-color-disabled)",
+        "input": "var(--border-color-input)",
+        "input-inverted": "var(--border-color-input-inverted)",
+      }),
+      stroke: ({ theme }) => ({
+        "input": "var(--border-color-input)",
+      }),
+      fill: ({ theme }) => ({
+        "input": "var(--background-color-input)",
+        "input-checked": "var(--background-color-input-checked)",
       }),
       borderRadius: {
         "3px": "var(--border-radius-3px)",
@@ -229,7 +246,10 @@ module.exports = {
       },
       outlineColor: {
         "select": "var(--outline-color-select)",
-      }
+      },
+      content: ({ theme }) => ({
+        "required": "var(--text-content-required)",
+      })
     },
   },
   plugins: ["@tailwindcss/typography", "@tailwindcss/forms"],

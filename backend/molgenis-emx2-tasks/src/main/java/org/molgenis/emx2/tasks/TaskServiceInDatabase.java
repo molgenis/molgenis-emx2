@@ -11,6 +11,7 @@ import static org.molgenis.emx2.utils.TypeUtils.millisecondsToLocalDateTime;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -89,7 +90,7 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
   }
 
   @Override
-  public String submitTaskFromName(final String scriptName, final String parameters) {
+  public String submitTaskFromName(String scriptName, String parameters, URL url) {
     StringBuilder result = new StringBuilder();
     String defaultUser = database.getActiveUser();
     database.tx(
@@ -98,6 +99,7 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
           Schema systemSchema = db.getSchema(this.systemSchemaName);
 
           ScriptTask scriptTask = retrieveTaskFromDatabase(systemSchema, scriptName);
+          scriptTask.setServerUrl(url);
           String user =
               scriptTask.getCronUserName() == null ? defaultUser : scriptTask.getCronUserName();
 
@@ -114,6 +116,11 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
                       .submitUser(user)));
         });
     return result.toString();
+  }
+
+  @Override
+  public String submitTaskFromName(final String scriptName, final String parameters) {
+    return submitTaskFromName(scriptName, parameters, null);
   }
 
   private ScriptTask retrieveTaskFromDatabase(Schema systemSchema, String scriptName) {
@@ -192,8 +199,15 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
             schema = db.getSchema(this.systemSchemaName);
           }
 
-          if (!schema.getTableNames().contains("Scripts")) {
-
+          if (schema.getTableNames().contains("Scripts")) {
+            TableMetadata scriptsMetadata = schema.getTable("Scripts").getMetadata();
+            if (!scriptsMetadata.getColumnNames().contains("failureAddress")) {
+              scriptsMetadata.add(
+                  column("failureAddress")
+                      .setType(ColumnType.EMAIL)
+                      .setDescription("Email address to be notified when a job fails"));
+            }
+          } else {
             Table scripTypes =
                 schema.create(table("ScriptTypes").setTableType(TableType.ONTOLOGIES));
             Table jobStatus = schema.create(table("JobStatus").setTableType(TableType.ONTOLOGIES));
@@ -217,6 +231,9 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
                             .setType(ColumnType.BOOL)
                             .setDescription(
                                 "Set true to disable the script, it will then not be executable"),
+                        column("failureAddress")
+                            .setType(ColumnType.EMAIL)
+                            .setDescription("Email address to be notified when a job fails"),
                         column("cron")
                             .setDescription(
                                 "If you want to run this script regularly you can add a cron expression. Cron expression. A cron expression is a string comprised of 6 or 7 fields separated by white space. These fields are: Seconds, Minutes, Hours, Day of month, Month, Day of week, and optionally Year. Use * for any and ? for ignore.Note you cannot set 'day of week' and 'day of month' at same time (use ? for one of them). An example input is 0 0 12 * * ? for a job that fires at noon every day. See http://www.quartz-scheduler.org/documentation/quartz-2.3.0/tutorials/tutorial-lesson-06.html")));

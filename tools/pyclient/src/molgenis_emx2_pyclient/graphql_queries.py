@@ -64,13 +64,15 @@ def create_schema():
             $name: String,
             $description: String,
             $template: String,
-            $includeDemoData: Boolean
+            $includeDemoData: Boolean,
+            $parentJob: String
         ) {
             createSchema(
                 name: $name,
                 description: $description,
                 template: $template,
-                includeDemoData: $includeDemoData
+                includeDemoData: $includeDemoData,
+                parentJob: $parentJob
               ) {
                   status
                   message
@@ -240,4 +242,27 @@ def version_number():
           }
         }
         """
+    )
+
+
+def task_status(task_id: str) -> str:
+    """GraphQL query to retrieve a task's status."""
+    return (
+        """
+        {
+          _tasks(id:"%s")
+          {
+            id, description, status, subTasks
+            {
+              id, description, status, subTasks
+              {
+                id, description, status, subTasks
+                {
+                  id, description, status
+                }
+              }
+            }
+          }
+        }
+        """ % task_id
     )
