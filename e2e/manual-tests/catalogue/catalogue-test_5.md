@@ -15,11 +15,13 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | Step | Action | Expected result | Github bug/issue | Playwright test |
 | ---- | ------ | --------------- | ---------------- | --------------- |
 | 0 | NB: Assumptions | This test plan assumes that the settings are configured to display the contact form rather than just an e-mail address. | | |
-| 1 | Navigate to [MOLGENIS ACC test catalogue](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue) | Landing page: European health research data and sample catalogue | | |
+| 1 | Navigate to [testCatalogue on the acceptance server](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue) | Landing page: European health research data and sample catalogue | | |
 | 2 | Navigate to Search All | Cohort studies, Data sources, Variables and Networks buttons are shown with numbers of each under each button | | |
-| 3 | Click on the Cohort studies button | Cohort studies overview page with a list of all cohort studies in the system | | |
+| 3a | Click on the Cohort studies button | Should be directed to the list of cohort studies with: Cohort studies logo, "COHORT STUDIES", "Cohorts & Biobanks", Detailed/Compact toggle buttons ('Detailed' is selected by default), Filters on the LHS | | |
+| 3b | Click on Compact | The list of cohort studies turns into a list of cohort study acronyms and cohort study names (in full), with an arrow after each cohort study | | |
 | 4 | Type "name for test cohort" in the Search field top left | See that two cohort studies are presented in the list: "acronym for test cohort 1" and "acronym for test cohort 2" | | |
-| 5 | Click on "Acronym for test cohort 2" | See that the resource detail page for Acronym for test cohort 2 is presented: "All > Cohort studies", ACRONYM FOR TEST COHORT 2, Name for test cohort 2 | | |
+| 5a | Click on "Acronym for test cohort 2" | See that the resource detail page for Acronym for test cohort 2 is presented: "All > Cohort studies", ACRONYM FOR TEST COHORT 2, Name for test cohort 2 | | |
+| 5b | | In the ribbon at the top of the page there should be: Left: Molgenis logo, Right: (L-R) Overview, Cohort studies, Data Sources, Databanks, More (--> Variables, About, Other catalogues, Upload data) | | |
 | 6 | Click on Contact | pop-up with "Name for test cohort 2", Contact, Name entry field, Email entry field, Organisation entry field, Topic dropdown, Message entry field, "or contact us at: <support@molgenis.org>", Send button | | |
 | 7 | Type in test message, fill in your own email address and press 'Send' | an email is sent to Molgenis Support | | |
 | 8 | close the notification, if any pops up | return to the detailed page for "acronym for test cohort 2" | | |
@@ -27,7 +29,7 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | 10 | close website and return to catalogue | return to resource detail view page | | |
 | 11 | See that the following is visible on the left hand side of the screen | (logo for resource), Description, General design, Population, Organisations, Contributors, Available data & samples, Subpopulations, Collection events, Datasets, Networks, Publications, Access conditions, Funding & acknowledgements, Documentation | | |
 | 12 | See that the fields are filled as follows: | | | |
-| 13 | First block: | small logo (test logo for cohort 2), <www.molgenis.org>, Contact button | | |
+| 13 | First block: | small logo (test logo for cohort 2), <https://www.molgenis.org>, Contact button | | |
 | 14 | DESCRIPTION | This is the Test cohort 2. It has "other" options where possible. No end year, so "ongoing". Design paper = Birth of a cohort — the first 20 years of the Raine study, publications = other papers. No to data access fee. Here we have some extra text to... | | |
 | 15 | Click on the three dots next to the description text | the text is displayed fully ("check the read less / read more functionality on the cohort detail page" is added) , and clicking on 'read less' reduces the text again | | |
 | 16 | GENERAL DESIGN | | | |
@@ -43,7 +45,7 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | 25 | Design paper | Birth of a cohort — the first 20 years of the Raine study | | |
 | 26a | Click on the design paper | goes to the article <https://onlinelibrary.wiley.com/doi/10.5694/mja12.10698> in a new window | | |
 | 26b | close the window or reselect the catalogue display window | | | |
-| 27 | PID | https://pid-for-testcohort2.org | | |
+| 27 | PID | `https://pid-for-testcohort2.org` | | |
 | 27b| External identifiers| EUDRACT number: test external identifier for cohort 2 |||
 | 28 | POPULATION | | | |
 | 29 | Countries | United Kingdom of Great Britain and Northern Ireland (the) | | |
