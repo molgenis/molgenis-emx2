@@ -1,37 +1,41 @@
 from typing import List
-from unittest.mock import MagicMock, call, patch
+from unittest.mock import AsyncMock, MagicMock, call, patch
 
 import pytest
-from molgenis.bbmri_eric.eric import Eric
-from molgenis.bbmri_eric.errors import EricError, ErrorReport
-from molgenis.bbmri_eric.model import ExternalServerNode, Node
-from molgenis.bbmri_eric.publisher import PublishingState
+
+from molgenis_emx2.directory_client.directory import Directory
+from molgenis_emx2.directory_client.errors import DirectoryError, ErrorReport
+from molgenis_emx2.directory_client.model import ExternalServerNode, Node
+from molgenis_emx2.directory_client.publisher import PublishingState
+
+pytest_plugins = ("pytest_asyncio",)
 
 
 @pytest.fixture
 def report_init():
-    with patch("molgenis.bbmri_eric.eric.ErrorReport") as report_mock:
+    with patch("molgenis_emx2.directory_client.directory.ErrorReport") as report_mock:
         yield report_mock
 
 
 @pytest.fixture
-def eric(session, printer, pid_service) -> Eric:
-    eric = Eric(session, pid_service)
+def eric(async_session, printer, pid_service) -> Directory:
+    eric = Directory(async_session, pid_service)
     eric.printer = printer
-    eric.stager = MagicMock()
+    eric.stager = AsyncMock()
     eric.preparator = MagicMock()
     eric.pid_manager = MagicMock()
-    eric.publisher = MagicMock()
+    eric.publisher = AsyncMock()
     return eric
 
 
-def test_stage_external_nodes(eric):
-    error = EricError("error")
+@pytest.mark.asyncio
+async def test_stage_external_nodes(eric):
+    error = DirectoryError("error")
     eric.stager.stage.side_effect = [None, error]
     nl = ExternalServerNode("NL", "will succeed", None, "url.nl")
-    be = ExternalServerNode("BE", "wil fail", None, "url.be")
+    be = ExternalServerNode("BE", "will fail", None, "url.be")
 
-    report = eric.stage_external_nodes([nl, be])
+    report = await eric.stage_external_nodes([nl, be])
 
     assert eric.printer.print_node_title.mock_calls == [call(nl), call(be)]
     assert eric.stager.stage.mock_calls == [call(nl), call(be)]
@@ -40,51 +44,54 @@ def test_stage_external_nodes(eric):
     eric.printer.print_summary.assert_called_once_with(report)
 
 
-def test_publish_node_staging_fails(eric, session, report_init):
+@pytest.mark.asyncio
+async def test_publish_node_staging_fails(eric, async_session, report_init):
     nl = ExternalServerNode("NL", "Netherlands", None, "url")
     state = _setup_state([nl], eric, report_init)
 
-    error = EricError("error")
+    error = DirectoryError("error")
     eric.stager.stage.side_effect = error
 
-    report = eric.publish_nodes([nl])
+    report = await eric.publish_nodes([nl])
 
     eric.printer.print_node_title.assert_called_once_with(nl)
     eric.stager.stage.assert_called_with(nl)
-    assert not session.get_published_node_data.called
+    assert not async_session.get_published_node_data.called
     assert not eric.preparator.prepare.called
-    assert eric.publisher.publish.called_with(state)
+    assert await eric.publisher.publish.called_with(state)
     assert len(state.data_to_publish.biobanks.rows_by_id) == 0
     assert report.node_errors[nl] == error
     eric.printer.print_summary.assert_called_once_with(report)
 
 
-def test_publish_node_prepare_fails(eric, report_init):
+@pytest.mark.asyncio
+async def test_publish_node_prepare_fails(eric, report_init):
     nl = ExternalServerNode("NL", "Netherlands", None, "url")
     state = _setup_state([nl], eric, report_init)
 
-    error = EricError("error")
+    error = DirectoryError("error")
     eric.preparator.prepare.side_effect = error
 
-    report = eric.publish_nodes([nl])
+    report = await eric.publish_nodes([nl])
 
     eric.printer.print_node_title.assert_called_once_with(nl)
     eric.stager.stage.assert_called_with(nl)
-    assert eric.publisher.publish.called_with(state)
+    assert await eric.publisher.publish.called_with(state)
     assert report.node_errors[nl] == error
     eric.printer.print_summary.assert_called_once_with(report)
 
 
-def test_publish_nodes(eric, report_init):
+@pytest.mark.asyncio
+async def test_publish_nodes(eric, report_init):
     no = Node("NO", "succeeds", None)
     nl = ExternalServerNode("NL", "fails during publishing", None, "url")
     state = _setup_state([no, nl], eric, report_init)
 
-    error = EricError("error")
+    error = DirectoryError("error")
     eric.publisher.publish.side_effect = error
     eric.stager.stage.return_value = []
 
-    report = eric.publish_nodes([no, nl])
+    report = await eric.publish_nodes([no, nl])
 
     assert eric.printer.print_node_title.mock_calls == [call(no), call(nl)]
     eric.stager.stage.assert_has_calls([call(nl)])
@@ -99,7 +106,7 @@ def test_publish_nodes(eric, report_init):
 
 
 # noinspection PyProtectedMember
-def _setup_state(nodes: List[Node], eric: Eric, report_init):
+def _setup_state(nodes: List[Node], eric: Directory, report_init):
     report = ErrorReport(nodes)
     report_init.return_value = report
 

@@ -1,21 +1,26 @@
 from unittest.mock import MagicMock, patch
 
 import pytest
-from molgenis.bbmri_eric.errors import EricWarning, ErrorReport
-from molgenis.bbmri_eric.model import Node
-from molgenis.bbmri_eric.publication_preparer import PublicationPreparer
+
+from molgenis_emx2.directory_client.errors import DirectoryWarning, ErrorReport
+from molgenis_emx2.directory_client.model import Node
+from molgenis_emx2.directory_client.publication_preparer import PublicationPreparer
 
 
 @pytest.fixture
 def validator_init():
-    with patch("molgenis.bbmri_eric.publication_preparer.Validator") as validator_mock:
+    with (
+        patch(
+            "molgenis_emx2.directory_client.publication_preparer.Validator"
+        ) as validator_mock
+    ):
         yield validator_mock
 
 
 @pytest.fixture
 def model_fitter_init():
     with patch(
-        "molgenis.bbmri_eric.publication_preparer.ModelFitter"
+        "molgenis_emx2.directory_client.publication_preparer.ModelFitter"
     ) as model_fitter_mock:
         yield model_fitter_mock
 
@@ -23,7 +28,7 @@ def model_fitter_init():
 @pytest.fixture
 def transformer_init():
     with patch(
-        "molgenis.bbmri_eric.publication_preparer.Transformer"
+        "molgenis_emx2.directory_client.publication_preparer.Transformer"
     ) as transformer_mock:
         yield transformer_mock
 
@@ -78,7 +83,7 @@ def test_validate(preparer: PublicationPreparer, validator_init, printer):
 def test_validate_warnings(preparer: PublicationPreparer, validator_init, printer):
     validator = MagicMock()
     validator_init.return_value = validator
-    warning = EricWarning("warning")
+    warning = DirectoryWarning("warning")
     validator.validate.return_value = [warning]
     node_data = MagicMock()
     nl = Node.of("NL")
@@ -103,7 +108,7 @@ def test_model_fitting(preparer: PublicationPreparer, model_fitter_init):
 def test_model_fitting_warnings(preparer: PublicationPreparer, model_fitter_init):
     model_fitter = MagicMock()
     model_fitter_init.return_value = model_fitter
-    warning = EricWarning("warning")
+    warning = DirectoryWarning("warning")
     model_fitter.fit_model.return_value = [warning]
     node_data = MagicMock()
     nl = Node.of("NL")
@@ -129,7 +134,7 @@ def test_transform(preparer: PublicationPreparer, transformer_init):
 def test_transform_warnings(preparer: PublicationPreparer, transformer_init, printer):
     transformer = MagicMock()
     transformer_init.return_value = transformer
-    warning = EricWarning("warning")
+    warning = DirectoryWarning("warning")
     transformer.transform.return_value = [warning]
     node_data = MagicMock()
     nl = Node.of("NL")
@@ -162,7 +167,7 @@ def test_manage_pids_warning(preparer, transformer_init, pid_manager):
     node_data.node = nl
     state = MagicMock()
     state.report = ErrorReport([nl])
-    warning = EricWarning("warning")
+    warning = DirectoryWarning("warning")
     pid_manager.assign_biobank_pids.return_value = [warning]
 
     preparer._manage_node_pids(node_data, state)

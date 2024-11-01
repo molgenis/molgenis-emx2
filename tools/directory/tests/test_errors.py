@@ -1,21 +1,22 @@
 import pytest
 import requests.exceptions
-from molgenis.bbmri_eric.errors import (
-    EricError,
-    EricWarning,
+
+from molgenis_emx2.directory_client.errors import (
+    DirectoryError,
+    DirectoryWarning,
     ErrorReport,
     requests_error_handler,
 )
-from molgenis.bbmri_eric.model import Node
+from molgenis_emx2.directory_client.model import Node
 
 
 def test_warning():
-    warning = EricWarning("test")
+    warning = DirectoryWarning("test")
     assert warning.message == "test"
 
 
 def test_error():
-    error = EricError("test")
+    error = DirectoryError("test")
     assert str(error) == "test"
 
 
@@ -23,8 +24,8 @@ def test_error_report():
     a = Node("A", "A", None)
     b = Node("B", "B", None)
     report = ErrorReport([a, b])
-    warning = EricWarning("warning")
-    error = EricError("error")
+    warning = DirectoryWarning("warning")
+    error = DirectoryError("error")
 
     assert not report.has_errors()
     assert not report.has_warnings()
@@ -47,7 +48,7 @@ def test_error_report():
 def test_error_report_global_error():
     report = ErrorReport([])
     assert not report.has_errors()
-    report.set_global_error(EricError())
+    report.set_global_error(DirectoryError())
     assert report.has_errors()
 
 
@@ -58,7 +59,39 @@ def test_requests_error_handler():
     def raising_function():
         raise exception
 
-    with pytest.raises(EricError) as exception_info:
+    with pytest.raises(DirectoryError) as exception_info:
         raising_function()
 
     assert exception_info.value.__cause__ == exception
+
+
+# def test_molgenisrequesterror(session):
+#     def get_table_meta(self, table_name: str,  schema: str = None, ):
+#         schema_meta = self.get_schema_metadata(schema)
+#         for table in schema_meta.tables:
+#             if table.name == table_name:
+#                 return table.columns
+#         raise MolgenisRequestError(f"Unknown table: {table_name}")
+#
+#
+#     with pytest.raises(DirectoryError) as e:
+#         await stager.stage(node)
+#
+#     assert str(e.value) == (
+#         "The session user has invalid permissions\n       "
+#         "Please check the token and permissions of this user"
+#     )
+
+#
+#
+#
+# exception = requests.exceptions.ConnectionError()
+#
+# @requests_error_handler
+# def raising_function():
+#     raise exception
+#
+# with pytest.raises(MolgenisRequestError) as exception_info:
+#    raise MolgenisRequestError("error")
+#
+# assert exception_info.value.__cause__ == exception

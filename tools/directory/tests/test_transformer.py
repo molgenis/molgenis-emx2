@@ -1,9 +1,10 @@
 from unittest.mock import MagicMock, call
 
 import pytest
-from molgenis.bbmri_eric.errors import EricWarning
-from molgenis.bbmri_eric.model import Node, QualityInfo, Table, TableType
-from molgenis.bbmri_eric.transformer import Transformer
+
+from molgenis_emx2.directory_client.errors import DirectoryWarning
+from molgenis_emx2.directory_client.model import Node, QualityInfo, Table, TableType
+from molgenis_emx2.directory_client.transformer import Transformer
 
 
 @pytest.fixture
@@ -141,6 +142,7 @@ def test_transformer_replace_eu_rows(transformer):
     eu_node_data = MagicMock()
 
     persons_meta = MagicMock()
+    persons_meta.id_attribute = "id"
     persons = Table.of(
         TableType.PERSONS,
         persons_meta,
@@ -152,6 +154,7 @@ def test_transformer_replace_eu_rows(transformer):
     )
 
     eu_persons_meta = MagicMock()
+    eu_persons_meta.id_attribute = "id"
     eu_persons = Table.of(
         TableType.PERSONS,
         eu_persons_meta,
@@ -170,9 +173,8 @@ def test_transformer_replace_eu_rows(transformer):
 
     assert persons.rows_by_id["bbmri-eric:contactID:EU_person2"]["name"] == "person2"
     assert transformer.warnings == [
-        EricWarning(
-            message="bbmri-eric:contactID:EU_person4 is not present in "
-            "eu_bbmri_eric_persons"
+        DirectoryWarning(
+            message="bbmri-eric:contactID:EU_person4 is not present in Persons"
         )
     ]
 

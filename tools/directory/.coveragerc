@@ -1,13 +1,13 @@
 # .coveragerc to control coverage.py
 [run]
 branch = True
-source = bbmri_eric
+source = directory_client
 data_file = reports/.coverage
 # omit = bad_file.py
 
 [paths]
 source =
-    src/
+    src
     */site-packages/
 
 [report]

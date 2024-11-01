@@ -2,8 +2,9 @@ from unittest import mock
 from unittest.mock import MagicMock
 
 import pytest
-from molgenis.bbmri_eric.errors import EricError
-from molgenis.bbmri_eric.pid_service import (
+
+from molgenis_emx2.directory_client.errors import DirectoryError
+from molgenis_emx2.directory_client.pid_service import (
     DummyPidService,
     NoOpPidService,
     PidService,
@@ -33,7 +34,7 @@ def test_reverse_lookup(pid_service, handle_client):
 def test_reverse_lookup_no_auth(pid_service, handle_client):
     handle_client.search_handle.return_value = None
 
-    with pytest.raises(EricError) as e:
+    with pytest.raises(DirectoryError) as e:
         pid_service.reverse_lookup("my_url")
 
     assert str(e.value) == "Insufficient permissions for reverse lookup"

@@ -2,9 +2,10 @@ from typing import List
 from unittest.mock import MagicMock
 
 import pytest
-from molgenis.bbmri_eric.errors import EricWarning
-from molgenis.bbmri_eric.printer import Printer
-from molgenis.bbmri_eric.validation import Validator
+
+from molgenis_emx2.directory_client.errors import DirectoryWarning
+from molgenis_emx2.directory_client.printer import Printer
+from molgenis_emx2.directory_client.validation import Validator
 
 
 @pytest.fixture
@@ -18,92 +19,92 @@ def test_validate_id(node_data):
     warnings = validator.validate()
 
     assert warnings == [
-        EricWarning(
+        DirectoryWarning(
             message="bbmri-eric:ID:NL_invalid_person_classifier in entity: "
             "eu_bbmri_eric_NL_persons does not start with "
             "bbmri-eric:contactID:NL_ or bbmri-eric:contactID:EU_"
         ),
-        EricWarning(
+        DirectoryWarning(
             message="bbmri-eric:contactID:NL_invalid_illegal_characters#$& in entity: "
             "eu_bbmri_eric_NL_persons contains invalid characters. Only "
             "alphanumerics and -_: are allowed."
         ),
-        EricWarning(
+        DirectoryWarning(
             message="bbmri-eric:ID:NL_invalid_network_classifier in entity: "
             "eu_bbmri_eric_NL_networks does not start with "
             "bbmri-eric:networkID:NL_ or bbmri-eric:networkID:EU_"
         ),
-        EricWarning(
+        DirectoryWarning(
             message="bbmri-eric:networkID:BE_invalid_node_code in entity: "
             "eu_bbmri_eric_NL_networks does not start with "
             "bbmri-eric:networkID:NL_ or bbmri-eric:networkID:EU_"
         ),
-        EricWarning(
+        DirectoryWarning(
             message="bbmri-eric:akiID:BE_invalid_node_code in entity: "
             "eu_bbmri_eric_NL_also_known_in does not start with "
             "bbmri-eric:akiID:NL_"
         ),
-        EricWarning(
+        DirectoryWarning(
             message="bbmri-eric:test:NL_invalid_biobank_classifier in entity: "
             "eu_bbmri_eric_NL_biobanks does not start with bbmri-eric:ID:NL_"
         ),
-        EricWarning(
+        DirectoryWarning(
             message="bbmri-eric:ID:BE_invalid_node_code in entity: "
             "eu_bbmri_eric_NL_biobanks does not start with bbmri-eric:ID:NL_"
         ),
-        EricWarning(
+        DirectoryWarning(
             message="Biobank bbmri-eric:ID:NL_valid:biobankID-2 has an invalid url: "
             "www.invalid@url.nl"
         ),
-        EricWarning(
+        DirectoryWarning(
             message="bbmri-eric:collection:NL_invalid_collection_classifier in entity: "
             "eu_bbmri_eric_NL_collections does not start with bbmri-eric:ID:NL_"
         ),
-        EricWarning(
+        DirectoryWarning(
             message="bbmri-eric:ID:BE_invalid_node_code:collectionID in entity: "
             "eu_bbmri_eric_NL_collections does not start with bbmri-eric:ID:NL_"
         ),
-        EricWarning(
+        DirectoryWarning(
             message="bbmri-eric:NL_invalid:factsID in entity: "
             "eu_bbmri_eric_NL_facts does not start with bbmri-eric:factID:NL_"
         ),
-        EricWarning(
+        DirectoryWarning(
             message="bbmri-eric:networkID:NL_valid:networkID-2 references invalid id: "
             "bbmri-eric:ID:NL_invalid_person_classifier"
         ),
-        EricWarning(
+        DirectoryWarning(
             message="bbmri-eric:networkID:BE_invalid_node_code references invalid id: "
             "bbmri-eric:ID:NL_invalid_network_classifier"
         ),
-        EricWarning(
+        DirectoryWarning(
             message="bbmri-eric:ID:NL_valid-biobankID-1 references invalid id: "
             "bbmri-eric:akiID:BE_invalid_node_code"
         ),
-        EricWarning(
+        DirectoryWarning(
             message="bbmri-eric:ID:NL_valid:biobankID-2 references invalid id: "
             "bbmri-eric:ID:NL_invalid_person_classifier"
         ),
-        EricWarning(
+        DirectoryWarning(
             message="bbmri-eric:ID:BE_invalid_node_code references invalid id: "
             "bbmri-eric:ID:NL_invalid_network_classifier"
         ),
-        EricWarning(
+        DirectoryWarning(
             message="bbmri-eric:ID:NL_valid-collectionID-1 references invalid id: "
             "bbmri-eric:akiID:BE_invalid_node_code"
         ),
-        EricWarning(
+        DirectoryWarning(
             message="bbmri-eric:ID:NL_valid:collectionID-2 references invalid id: "
             "bbmri-eric:ID:NL_invalid_person_classifier"
         ),
-        EricWarning(
+        DirectoryWarning(
             message="bbmri-eric:ID:NL_valid:collectionID-2 references invalid id: "
             "bbmri-eric:test:NL_invalid_biobank_classifier"
         ),
-        EricWarning(
+        DirectoryWarning(
             message="bbmri-eric:ID:NL_valid:collectionID-2 references invalid id: "
             "bbmri-eric:collection:NL_invalid_collection_classifier"
         ),
-        EricWarning(
+        DirectoryWarning(
             message="bbmri-eric:ID:BE_invalid_node_code:collectionID references "
             "invalid id: bbmri-eric:ID:NL_invalid_network_classifier"
         ),
@@ -117,12 +118,12 @@ def test_validate_id(node_data):
         ({"id": "0", "age_low": 0, "age_unit": "YEAR"}, []),
         (
             {"id": "2", "age_low": 5},
-            [EricWarning("Collection 2 has age_low/age_high without age_unit")],
+            [DirectoryWarning("Collection 2 has age_low/age_high without age_unit")],
         ),
         (
             {"id": "3", "age_low": 0, "age_high": 0, "age_unit": "YEAR"},
             [
-                EricWarning(
+                DirectoryWarning(
                     "Collection 3 has invalid ages: age_low = 0 and age_high = " "0"
                 )
             ],
@@ -130,14 +131,14 @@ def test_validate_id(node_data):
         (
             {"id": "4", "age_low": 40, "age_high": 20},
             [
-                EricWarning("Collection 4 has age_low/age_high without age_unit"),
-                EricWarning("Collection 4 has invalid ages: age_low > age_high"),
+                DirectoryWarning("Collection 4 has age_low/age_high without age_unit"),
+                DirectoryWarning("Collection 4 has invalid ages: age_low > age_high"),
             ],
         ),
     ],
 )
 def test_validate_collection_ages(
-    validator: Validator, collection: dict, expected: List[EricWarning]
+    validator: Validator, collection: dict, expected: List[DirectoryWarning]
 ):
     validator._validate_ages(collection)
     assert validator.warnings == expected

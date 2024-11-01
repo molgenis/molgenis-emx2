@@ -1,5 +1,6 @@
 import pytest
-from molgenis.bbmri_eric import utils
+
+from molgenis_emx2.directory_client import utils
 
 
 @pytest.fixture
@@ -18,6 +19,6 @@ def rows():
 
 
 def test_to_ordered_dict(rows):
-    rows_by_id = utils.to_ordered_dict(rows)
+    rows_by_id = utils.to_ordered_dict(rows, "id")
     assert rows_by_id["collA"]["parent_collection"] == "collB"
     assert rows_by_id["collB"]["sub_collections"] == ["collA"]

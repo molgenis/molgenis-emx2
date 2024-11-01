@@ -1,7 +1,8 @@
 from unittest.mock import MagicMock
 
 import pytest
-from molgenis.bbmri_eric.model_fitting import ModelFitter
+
+from molgenis_emx2.directory_client.model_fitting import ModelFitter
 
 
 @pytest.fixture

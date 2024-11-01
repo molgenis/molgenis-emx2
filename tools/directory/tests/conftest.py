@@ -1,10 +1,18 @@
 import json
+import os
 from importlib import resources
 from typing import List
-from unittest.mock import MagicMock
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
-from molgenis.bbmri_eric.model import Node, NodeData, Source, Table, TableType
+
+from molgenis_emx2.directory_client.model import (
+    Node,
+    NodeData,
+    Source,
+    Table,
+    TableType,
+)
 
 
 def get_data(table_type) -> List[dict]:
@@ -24,6 +32,7 @@ def node_data() -> NodeData:
     """
     persons_meta = MagicMock()
     persons_meta.id = "eu_bbmri_eric_NL_persons"
+    persons_meta.id_attribute = "id"
     persons = Table.of(
         TableType.PERSONS,
         persons_meta,
@@ -32,6 +41,7 @@ def node_data() -> NodeData:
 
     networks_meta = MagicMock()
     networks_meta.id = "eu_bbmri_eric_NL_networks"
+    networks_meta.id_attribute = "id"
     networks = Table.of(
         TableType.NETWORKS,
         networks_meta,
@@ -40,6 +50,7 @@ def node_data() -> NodeData:
 
     also_known_meta = MagicMock()
     also_known_meta.id = "eu_bbmri_eric_NL_also_known_in"
+    also_known_meta.id_attribute = "id"
     also_known = Table.of(
         TableType.ALSO_KNOWN,
         also_known_meta,
@@ -48,6 +59,7 @@ def node_data() -> NodeData:
 
     biobanks_meta = MagicMock()
     biobanks_meta.id = "eu_bbmri_eric_NL_biobanks"
+    biobanks_meta.id_attribute = "id"
     biobanks_meta.hyperlinks = ["url"]
     biobanks = Table.of(
         TableType.BIOBANKS,
@@ -57,6 +69,7 @@ def node_data() -> NodeData:
 
     collection_meta = MagicMock()
     collection_meta.id = "eu_bbmri_eric_NL_collections"
+    collection_meta.id_attribute = "id"
     collections = Table.of(
         TableType.COLLECTIONS,
         collection_meta,
@@ -65,6 +78,7 @@ def node_data() -> NodeData:
 
     facts_meta = MagicMock()
     facts_meta.id = "eu_bbmri_eric_NL_facts"
+    facts_meta.id_attribute = "id"
     facts = Table.of(
         TableType.FACTS,
         facts_meta,
@@ -86,6 +100,14 @@ def node_data() -> NodeData:
 
 
 @pytest.fixture
+def async_session() -> AsyncMock:
+    session = AsyncMock()
+    session.url = "url"
+    session.directory_schema = "BBMRI-ERIC"
+    return session
+
+
+@pytest.fixture
 def session() -> MagicMock:
     session = MagicMock()
     session.url = "url"
@@ -102,3 +124,6 @@ def pid_service() -> MagicMock:
     service = MagicMock()
     service.base_url = "url/"
     return service
+
+
+os.environ["SCHEMA_PREFIX"] = "BBMRI"

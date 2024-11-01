@@ -1,8 +1,12 @@
 import textwrap
 
-from molgenis.bbmri_eric.errors import EricError, EricWarning, ErrorReport
-from molgenis.bbmri_eric.model import Node
-from molgenis.bbmri_eric.printer import Printer
+from molgenis_emx2.directory_client.errors import (
+    DirectoryError,
+    DirectoryWarning,
+    ErrorReport,
+)
+from molgenis_emx2.directory_client.model import Node
+from molgenis_emx2.directory_client.printer import Printer
 
 
 def test_indentation(capsys):
@@ -71,8 +75,8 @@ def test_print_error_with_cause(capsys):
     expected = "❌ this is the message - Cause: this is the cause\n"
 
     try:
-        raise EricError("this is the message") from ValueError("this is the cause")
-    except EricError as e:
+        raise DirectoryError("this is the message") from ValueError("this is the cause")
+    except DirectoryError as e:
         Printer().print_error(e)
 
     captured = capsys.readouterr()
@@ -83,8 +87,8 @@ def test_print_error_without_cause(capsys):
     expected = "❌ this is the message\n"
 
     try:
-        raise EricError("this is the message")
-    except EricError as e:
+        raise DirectoryError("this is the message")
+    except DirectoryError as e:
         Printer().print_error(e)
 
     captured = capsys.readouterr()
@@ -93,7 +97,7 @@ def test_print_error_without_cause(capsys):
 
 def test_print_warning(capsys):
     expected = "⚠️ this is the message\n"
-    warning = EricWarning("this is the message")
+    warning = DirectoryWarning("this is the message")
 
     Printer().print_warning(warning)
 
@@ -121,8 +125,8 @@ def test_print_summary(capsys):
     d = Node("D", "success with warnings", None)
     nodes = [a, b, c, d]
     report = ErrorReport(nodes)
-    warning = EricWarning("warning")
-    error = EricError("error")
+    warning = DirectoryWarning("warning")
+    error = DirectoryError("error")
     report.add_node_warnings(c, [warning])
     report.add_node_warnings(d, [warning, warning])
     report.add_node_error(b, error)

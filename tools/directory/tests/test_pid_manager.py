@@ -2,14 +2,19 @@ from unittest import mock
 from unittest.mock import MagicMock, call
 
 import pytest
-from molgenis.bbmri_eric.model import Table, TableType
-from molgenis.bbmri_eric.pid_manager import (
+
+from molgenis_emx2.directory_client.model import Table, TableType
+from molgenis_emx2.directory_client.pid_manager import (
     NoOpPidManager,
     PidManager,
     PidManagerFactory,
 )
-from molgenis.bbmri_eric.pid_service import DummyPidService, NoOpPidService, Status
-from molgenis.bbmri_eric.printer import Printer
+from molgenis_emx2.directory_client.pid_service import (
+    DummyPidService,
+    NoOpPidService,
+    Status,
+)
+from molgenis_emx2.directory_client.printer import Printer
 
 
 @pytest.fixture
@@ -18,9 +23,11 @@ def pid_manager(pid_service, printer):
 
 
 def test_assign_biobank_pids(pid_manager, pid_service):
+    biobank_meta = MagicMock()
+    biobank_meta.id_attribute = "id"
     biobanks = Table.of(
         table_type=TableType.BIOBANKS,
-        meta=MagicMock(),
+        meta=biobank_meta,
         rows=[
             {"id": "b1", "name": "biobank1", "pid": "pid1"},
             {"id": "b2", "name": "biobank2"},
@@ -52,9 +59,11 @@ def test_assign_biobank_pids(pid_manager, pid_service):
 
 
 def test_update_biobank_pids(pid_manager, pid_service):
+    biobank_meta = MagicMock()
+    biobank_meta.id_attribute = "id"
     biobanks = Table.of(
         table_type=TableType.BIOBANKS,
-        meta=MagicMock(),
+        meta=biobank_meta,
         rows=[
             {"id": "b1", "name": "biobank1", "pid": "pid1"},
             {"id": "b2", "name": "biobank2_renamed", "pid": "pid2"},
@@ -65,7 +74,7 @@ def test_update_biobank_pids(pid_manager, pid_service):
 
     existing_biobanks = Table.of(
         table_type=TableType.BIOBANKS,
-        meta=MagicMock(),
+        meta=biobank_meta,
         rows=[
             {"id": "b1", "name": "biobank1", "pid": "pid1", "withdrawn": False},
             {"id": "b2", "name": "biobank2", "pid": "pid2", "withdrawn": False},

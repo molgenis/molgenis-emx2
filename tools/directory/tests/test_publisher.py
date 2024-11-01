@@ -2,8 +2,9 @@ from unittest import mock
 from unittest.mock import MagicMock, patch
 
 import pytest
-from molgenis.bbmri_eric.errors import EricWarning, ErrorReport
-from molgenis.bbmri_eric.model import (
+
+from molgenis_emx2.directory_client.errors import DirectoryWarning, ErrorReport
+from molgenis_emx2.directory_client.model import (
     MixedData,
     Node,
     NodeData,
@@ -12,15 +13,22 @@ from molgenis.bbmri_eric.model import (
     Table,
     TableType,
 )
-from molgenis.bbmri_eric.publisher import Publisher, PublishingState
+from molgenis_emx2.directory_client.publisher import Publisher, PublishingState
+
+pytest_plugins = ("pytest_asyncio",)
 
 
 @pytest.fixture
 def pid_manager_factory():
     with patch(
-        "molgenis.bbmri_eric.publisher.PidManagerFactory"
+        "molgenis_emx2.directory_client.publisher.PidManagerFactory"
     ) as pid_manager_factory_mock:
         yield pid_manager_factory_mock
+
+
+@pytest.fixture
+def async_publisher(async_session, printer, pid_service) -> Publisher:
+    return Publisher(async_session, printer, pid_service)
 
 
 @pytest.fixture
@@ -28,8 +36,9 @@ def publisher(session, printer, pid_service) -> Publisher:
     return Publisher(session, printer, pid_service)
 
 
-def test_publish(publisher, session):
-    publisher._delete_rows = MagicMock()
+@pytest.mark.asyncio
+async def test_publish(async_publisher, async_session):
+    async_publisher._delete_rows = MagicMock()
 
     state = PublishingState(
         nodes=[Node.of("NL"), Node.of("BE")],
@@ -48,10 +57,12 @@ def test_publish(publisher, session):
         diseases=MagicMock(),
     )
 
-    publisher.publish(state)
+    await async_publisher.publish(state)
 
-    session.upload_data.assert_called_with(state.data_to_publish)
-    assert publisher._delete_rows.mock_calls == [
+    async_session.upload_data.assert_called_with(
+        schema=async_session.directory_schema, data=state.data_to_publish
+    )
+    assert async_publisher._delete_rows.mock_calls == [
         mock.call(state.data_to_publish.facts, state.existing_data.facts, state),
         mock.call(
             state.data_to_publish.collections, state.existing_data.collections, state
@@ -68,9 +79,11 @@ def test_publish(publisher, session):
 
 
 def test_delete_rows(publisher, pid_service, node_data: NodeData, session):
+    biobank_meta = MagicMock()
+    biobank_meta.id_attribute = "id"
     existing_biobanks_table = Table.of(
         table_type=TableType.BIOBANKS,
-        meta=MagicMock(),
+        meta=biobank_meta,
         rows=[
             {
                 "id": "bbmri-eric:ID:NL_valid-biobankID-1",
@@ -92,9 +105,9 @@ def test_delete_rows(publisher, pid_service, node_data: NodeData, session):
 
     state.report = ErrorReport([node_data.node])
 
-    warning1 = EricWarning("ID delete_this_row is deleted")
+    warning1 = DirectoryWarning("ID delete_this_row is deleted")
 
-    warning2 = EricWarning(
+    warning2 = DirectoryWarning(
         "Prevented the deletion of a row that is referenced from "
         "the quality info: biobanks undeletable_id."
     )
@@ -102,8 +115,8 @@ def test_delete_rows(publisher, pid_service, node_data: NodeData, session):
     publisher._delete_rows(node_data.biobanks, existing_biobanks_table, state)
 
     publisher.pid_manager.terminate_biobanks.assert_called_with(["pid2"])
-    session.delete_list.assert_called_with(
-        "eu_bbmri_eric_biobanks", ["delete_this_row"]
+    session.delete_records.assert_called_with(
+        table="Biobanks", data=[{"id": "delete_this_row"}]
     )
 
     assert state.report.node_warnings[node_data.node] == [warning1, warning2]

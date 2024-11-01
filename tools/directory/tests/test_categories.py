@@ -2,8 +2,9 @@ from typing import List
 from unittest.mock import MagicMock
 
 import pytest
-from molgenis.bbmri_eric.categories import Category, CategoryMapper
-from molgenis.bbmri_eric.model import OntologyTable
+
+from molgenis_emx2.directory_client.categories import Category, CategoryMapper
+from molgenis_emx2.directory_client.model import OntologyTable
 
 
 @pytest.fixture
@@ -18,45 +19,70 @@ def disease_ontology() -> OntologyTable:
     return OntologyTable.of(
         meta,
         [
-            {"id": "urn:miriam:icd:T18.5"},
-            {"id": "urn:miriam:icd:II", "ontology": "ICD-10"},
+            {"id": "urn:miriam:icd:T18.5", "parent": [], "codesystem": "ICD-10"},
+            {"id": "urn:miriam:icd:II", "parent": [], "codesystem": "ICD-10"},
             {
                 "id": "urn:miriam:icd:C97",
-                "parentId": "urn:miriam:icd:II",
-                "ontology": "ICD-10",
+                "parent": ["urn:miriam:icd:II"],
+                "codesystem": "ICD-10",
                 "exact_mapping": ["ORPHA:93969"],
             },
-            {"id": "urn:miriam:icd:U09"},
+            {"id": "urn:miriam:icd:U09", "parent": [], "codesystem": "ICD-10"},
             {
                 "id": "urn:miriam:icd:U09.9",
-                "parentId": "urn:miriam:icd:U09",
+                "parent": ["urn:miriam:icd:U09"],
+                "codesystem": "ICD-10",
                 "ntbt_mapping": ["ORPHA:93969"],
             },
             {
                 "id": "urn:miriam:icd:D69.6",
-                "parentId": "urn:miriam:icd:D69",
+                "parent": ["urn:miriam:icd:D69"],
+                "codesystem": "ICD-10",
             },
             {
                 "id": "urn:miriam:icd:D69",
-                "parentId": "urn:miriam:icd:D65-D69",
+                "parent": ["urn:miriam:icd:D65-D69"],
+                "codesystem": "ICD-10",
             },
-            {"id": "urn:miriam:icd:I05-I09", "parentId": "urn:miriam:icd:IX"},
-            {"id": "urn:miriam:icd:IX"},
-            {"id": "urn:miriam:icd:U07.1"},
-            {"id": "urn:miriam:icd:I05", "parentId": "urn:miriam:icd:I05-I09"},
             {
-                "id": "urn:miriam:icd:D65-D69",
+                "id": "urn:miriam:icd:I05-I09",
+                "parent": ["urn:miriam:icd:IX"],
+                "codesystem": "ICD-10",
             },
-            {"id": "urn:miriam:icd:E43", "parentId": "urn:miriam:icd:E40-E46"},
-            {"id": "urn:miriam:icd:E40-E46"},
-            {"id": "urn:miriam:icd:G32", "parentId": "urn:miriam:icd:G30-G32"},
-            {"id": "urn:miriam:icd:G30-G32", "parentId": "urn:miriam:icd:VI"},
-            {"id": "urn:miriam:icd:VI"},
-            {"id": "urn:miriam:icd:Z00.5", "parentId": "urn:miriam:icd:Z00"},
-            {"id": "urn:miriam:icd:Z00"},
-            {"id": "ORPHA:93969", "ontology": "orphanet"},
+            {"id": "urn:miriam:icd:IX", "parent": [], "codesystem": "ICD-10"},
+            {"id": "urn:miriam:icd:U07.1", "parent": [], "codesystem": "ICD-10"},
+            {
+                "id": "urn:miriam:icd:I05",
+                "parent": ["urn:miriam:icd:I05-I09"],
+                "codesystem": "ICD-10",
+            },
+            {"id": "urn:miriam:icd:D65-D69", "parent": [], "codesystem": "ICD-10"},
+            {
+                "id": "urn:miriam:icd:E43",
+                "parent": ["urn:miriam:icd:E40-E46"],
+                "codesystem": "ICD-10",
+            },
+            {"id": "urn:miriam:icd:E40-E46", "parent": [], "codesystem": "ICD-10"},
+            {
+                "id": "urn:miriam:icd:G32",
+                "parent": ["urn:miriam:icd:G30-G32"],
+                "codesystem": "ICD-10",
+            },
+            {
+                "id": "urn:miriam:icd:G30-G32",
+                "parent": ["urn:miriam:icd:VI"],
+                "codesystem": "ICD-10",
+            },
+            {"id": "urn:miriam:icd:VI", "parent": [], "codesystem": "ICD-10"},
+            {
+                "id": "urn:miriam:icd:Z00.5",
+                "parent": ["urn:miriam:icd:Z00"],
+                "codesystem": "ICD-10",
+            },
+            {"id": "urn:miriam:icd:Z00", "parent": [], "codesystem": "ICD-10"},
+            {"id": "ORPHA:93969", "parent": [], "codesystem": "orphanet"},
         ],
-        "parentId",
+        "parent",
         ["exact_mapping", "ntbt_mapping"],
     )
 
