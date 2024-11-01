@@ -1,7 +1,10 @@
 <template>
+  <InputLabel id="pizza-toppings-label" class="block mb-3">
+    <span>Which pizza topping is you favorite?</span>
+  </InputLabel>
   <InputListbox
-    id="pizzaToppings"
-    listboxLabel="Which pizza topping is you favorite?"
+    id="pizza-toppings"
+    listboxLabelId="pizza-toppings-label"
     :listboxOptions="[
       {
         value: 'tomatoes',
