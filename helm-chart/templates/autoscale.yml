@@ -1,0 +1,22 @@
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: {{ include "emx2.fullname" . }}-scaler
+  namespace: default  # Replace with your namespace if different
+  labels:
+    app: {{template "emx2.name" .}}
+    chart: {{template "emx2.chart" .}}
+    release: {{.Release.Name | quote}}
+    heritage: {{.Release.Service | quote}
+spec:
+  scaleTargetRef:
+    name: {{ include "emx2.fullname" . }}
+  minReplicaCount: 0
+  maxReplicaCount: 1
+  cooldownPeriod: 5  # very short now so we can check
+  triggers:
+  - type: http
+    metadata:
+      endpoint: /  # we use the root to trigger awakening the preview
+      method: GET
+      threshold: "1"  # Scale up when at least one request is detected
