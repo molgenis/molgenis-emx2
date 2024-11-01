@@ -14,15 +14,15 @@ A naïve visitor to the data catalogue can click around the 'browse all catalogu
 
 | Step | Action | Expected result | Github bug/issue | Playwright test |
 | ---- | ------ | --------------- | ---------------- | --------------- |
-| 0 | Navigate to the [browse all catalogue content screen](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/all) | End up on the 'browse all catalogue contents'-screen | | |
-| 1 | Click on `VARIABLES` in the menu | End up at [the variable screen](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/all/variables) | | |
-| 2 | Go back using the browser back button | End up at [the all variables](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/all) | | |
-| 3 | Click on the word `VARIABLES` underneath the logo | End up at [the variable screen](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/all/variables) | | |
-| 4 | Go back by clicking the Molgenis logo in the top left | End up at [the all variables](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/all) | | |
-| 5 | Click on the variables CTA | End up at [the variable screen](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/all/variables) | | |
-| 6 | Check the breadcrumb | It should be "ALL > VARIABLES" | | |
-| 7 | Go back by clicking the ALL breadcrumb | End up at [the all variables](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/all) | | |
-| 8 | Check the CTA's | There should be 3, names:  `Collections`,  `Networks`, and  `Variables` | | |
+| 0 | Navigate to the [all catalogue contents screen](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/all) | End up on the 'browse all catalogue contents'-screen | | |
+| 1 | Click on `VARIABLES` in the menu | End up at [the variable explorer](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/all/variables) | | |
+| 2 | Go back using the browser back button | End up at [the all catalogue contents screen](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/all) | | |
+| 3 | Click on the word `VARIABLES` underneath the logo | End up at [the variable explorer](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/all/variables) | | |
+| 4 | Go back by clicking the Molgenis logo in the top left | End up at [the all catalogue contents screen](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/all) | | |
+| 5 | Click on the variables CTA-button | End up at [the variable explorer](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/all/variables) | | |
+| 6 | Check the breadcrumb | It should be `ALL > VARIABLES` | | |
+| 7 | Go back by clicking the `ALL` breadcrumb | End up at [the all catalogue contents screen](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/all) | | |
+| 8 | Check the CTA-buttons | There should be 3, names:  `Collections`,  `Networks`, and  `Variables` | | |
 | 9 | Check the title above each CTA | They should match the text on their respective CTA's | | |
 | 10 | Check the description of the  `Collections` CTA | It should read "Data and sample collections" | | |
 | 11 | Check the description of the  `Networks` CTA | It should read "Networks & Consortia" | | |
