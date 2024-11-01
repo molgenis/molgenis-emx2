@@ -3,14 +3,9 @@ kind: ScaledObject
 metadata:
   name: {{ include "emx2.fullname" . }}-scaler
   namespace: default  # Replace with your namespace if different
-  labels:
-    app: {{template "emx2.name" .}}
-    chart: {{template "emx2.chart" .}}
-    release: {{.Release.Name | quote}}
-    heritage: {{.Release.Service | quote}
 spec:
   scaleTargetRef:
-    name: {{ include "emx2.fullname" . }}
+    name: {{ include "emx2.fullname" .}}
   minReplicaCount: 0 # when sleeping we don't have the preview
   maxReplicaCount: 1 # maximum one preview servier
   pollingInterval: 10  # check every 10 secs if we need to scale up the preview
