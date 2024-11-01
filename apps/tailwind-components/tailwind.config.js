@@ -207,6 +207,7 @@ module.exports = {
         "listbox": "var(--text-color-listbox)",
         "listbox-hover": "var(--text-color-listbox-hover)",
         "listbox-selected": "var(--text-color-listbox-selected)",
+        "button-input-toggle": "var(--text-color-button-input-toggle)",
       }),
       borderColor: ({ theme }) => ({
         "button-primary": "var(--border-color-button-primary)",
@@ -238,6 +239,7 @@ module.exports = {
       fill: ({ theme }) => ({
         "input": "var(--background-color-input)",
         "input-checked": "var(--background-color-input-checked)",
+        "listbox-selected": "var(--text-color-listbox-selected)",
       }),
       borderRadius: {
         "3px": "var(--border-radius-3px)",
