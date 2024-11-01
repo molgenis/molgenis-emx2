@@ -1,33 +1,14 @@
 from typing import List, Optional
 
-from tools.directory.src.molgenis_emx2.directory_client.directory_client import (
-    AttributesRequest,
-    DirectorySession,
-)
-from tools.directory.src.molgenis_emx2.directory_client.errors import (
-    DirectoryError,
-    ErrorReport,
-    requests_error_handler,
-)
-from tools.directory.src.molgenis_emx2.directory_client.model import (
-    ExternalServerNode,
-    Node,
-)
-from tools.directory.src.molgenis_emx2.directory_client.pid_manager import (
-    PidManagerFactory,
-)
-from tools.directory.src.molgenis_emx2.directory_client.pid_service import (
-    BasePidService,
-)
-from tools.directory.src.molgenis_emx2.directory_client.printer import Printer
-from tools.directory.src.molgenis_emx2.directory_client.publication_preparer import (
-    PublicationPreparer,
-)
-from tools.directory.src.molgenis_emx2.directory_client.publisher import (
-    Publisher,
-    PublishingState,
-)
-from tools.directory.src.molgenis_emx2.directory_client.stager import Stager
+from .directory_client import AttributesRequest, DirectorySession
+from .errors import DirectoryError, ErrorReport, requests_error_handler
+from .model import ExternalServerNode, Node
+from .pid_manager import PidManagerFactory
+from .pid_service import BasePidService
+from .printer import Printer
+from .publication_preparer import PublicationPreparer
+from .publisher import Publisher, PublishingState
+from .stager import Stager
 
 
 class Directory:
@@ -54,7 +35,9 @@ class Directory:
             )
             self.publisher = Publisher(self.session, self.printer, self.pid_manager)
 
-    def stage_external_nodes(self, nodes: List[ExternalServerNode]) -> ErrorReport:
+    async def stage_external_nodes(
+        self, nodes: List[ExternalServerNode]
+    ) -> ErrorReport:
         """
         Stages all data from the provided external nodes in the BBMRI Biobank Directory.
 
@@ -65,7 +48,7 @@ class Directory:
         for node in nodes:
             self.printer.print_node_title(node)
             try:
-                self._stage_node(node, report)
+                await self._stage_node(node, report)
             except DirectoryError as e:
                 self.printer.print_error(e)
                 report.add_node_error(node, e)
@@ -73,7 +56,7 @@ class Directory:
         self.printer.print_summary(report)
         return report
 
-    def publish_nodes(self, nodes: List[Node]) -> ErrorReport:
+    async def publish_nodes(self, nodes: List[Node]) -> ErrorReport:
         """
         Publishes data from the provided nodes to the tables in the Directory.
 
@@ -90,8 +73,8 @@ class Directory:
             self.printer.print_error(e)
             report.set_global_error(e)
         else:
-            self._prepare_nodes(nodes, state)
-            self._publish_nodes(state)
+            await self._prepare_nodes(nodes, state)
+            await self._publish_nodes(state)
 
         self.printer.print_summary(report)
         return report
@@ -134,12 +117,12 @@ class Directory:
             report=report,
         )
 
-    def _prepare_nodes(self, nodes, state):
+    async def _prepare_nodes(self, nodes, state):
         for node in nodes:
             self.printer.print_node_title(node)
             try:
                 if isinstance(node, ExternalServerNode):
-                    self._stage_node(node, state.report)
+                    await self._stage_node(node, state.report)
                 node_data = self.preparator.prepare(node, state)
                 state.data_to_publish.merge(node_data)
             except DirectoryError as e:
@@ -147,20 +130,20 @@ class Directory:
                 state.existing_data.remove_node_rows(node)
                 state.report.add_node_error(node, e)
 
-    def _publish_nodes(self, state: PublishingState):
+    async def _publish_nodes(self, state: PublishingState):
         self.printer.print_header(
             f"🎁 Publishing node{'s' if len(state.nodes) > 1 else ''}"
         )
         try:
-            self.publisher.publish(state)
+            await self.publisher.publish(state)
         except DirectoryError as e:
             self.printer.print_error(e)
             state.report.set_global_error(e)
 
     @requests_error_handler
-    def _stage_node(self, node: ExternalServerNode, report: ErrorReport):
+    async def _stage_node(self, node: ExternalServerNode, report: ErrorReport):
         self.printer.print(f"📥 Staging data of node {node.code}")
         with self.printer.indentation():
-            warnings = self.stager.stage(node)
+            warnings = await self.stager.stage(node)
             if warnings:
                 report.add_node_warnings(node, warnings)

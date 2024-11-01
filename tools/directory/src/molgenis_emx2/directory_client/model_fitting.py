@@ -1,21 +1,18 @@
 from collections import OrderedDict
 
-from tools.directory.src.molgenis_emx2.directory_client.errors import DirectoryWarning
-from tools.directory.src.molgenis_emx2.directory_client.model import (
-    NodeData,
-    Table,
-    TableType,
-)
-from tools.directory.src.molgenis_emx2.directory_client.printer import Printer
-from tools.directory.src.molgenis_emx2.directory_client.utils import to_ordered_dict
 from unidecode import unidecode
+
+from .errors import DirectoryWarning
+from .model import NodeData, Table, TableType
+from .printer import Printer
+from .utils import to_ordered_dict
 
 
 class ModelFitter:
     """
     Sometimes, model changes are implemented in the published Directory tables, but
     can't be implemented yet in all staging areas because action
-    (adjustment of local databases, API calls, etc) from the national nodes is needed.
+    (adjustment of local databases, API calls, etc.) from the national nodes is needed.
     This class contains temporary solutions to transform the staging areas data
     according to the published model. If the models of all staging areas are equal to
     the Directory model this class shouldn't contain any methods.
@@ -166,6 +163,6 @@ class ModelFitter:
         person["email"] = "UNKNOWN@" + self.node_data.node.code
         person["country"] = data.get("country")
         person["national_node"] = self.node_data.node.code
-        self.node_data.persons.rows_by_id.update(to_ordered_dict([person]))
+        self.node_data.persons.rows_by_id.update(to_ordered_dict([person], "id"))
 
         return person["id"]

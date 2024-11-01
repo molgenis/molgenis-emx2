@@ -3,10 +3,8 @@ from dataclasses import dataclass, field
 from typing import DefaultDict, List, Optional
 
 import requests
-from tools.directory.src.molgenis_emx2.directory_client.model import Node
-from tools.directory.src.molgenis_emx2.directory_client.utils import (
-    MolgenisRequestError,
-)
+
+from .model import Node
 
 
 @dataclass(frozen=True)
@@ -57,6 +55,13 @@ class ErrorReport:
 
     def has_warnings(self) -> bool:
         return len(self.node_warnings) > 0
+
+
+class MolgenisRequestError(Exception):
+    def __init__(self, error, response=False):
+        self.message = error
+        if response:
+            self.response = response
 
 
 def requests_error_handler(func):

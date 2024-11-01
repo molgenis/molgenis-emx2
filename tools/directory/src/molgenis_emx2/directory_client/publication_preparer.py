@@ -1,19 +1,12 @@
-from tools.directory.src.molgenis_emx2.directory_client.directory_client import (
-    DirectorySession,
-)
-from tools.directory.src.molgenis_emx2.directory_client.errors import (
-    ErrorReport,
-    requests_error_handler,
-)
-from tools.directory.src.molgenis_emx2.directory_client.model import Node, NodeData
-from tools.directory.src.molgenis_emx2.directory_client.model_fitting import ModelFitter
-from tools.directory.src.molgenis_emx2.directory_client.pid_manager import (
-    BasePidManager,
-)
-from tools.directory.src.molgenis_emx2.directory_client.printer import Printer
-from tools.directory.src.molgenis_emx2.directory_client.publisher import PublishingState
-from tools.directory.src.molgenis_emx2.directory_client.transformer import Transformer
-from tools.directory.src.molgenis_emx2.directory_client.validation import Validator
+from .directory_client import DirectorySession
+from .errors import ErrorReport, requests_error_handler
+from .model import Node, NodeData
+from .model_fitting import ModelFitter
+from .pid_manager import BasePidManager
+from .printer import Printer
+from .publisher import PublishingState
+from .transformer import Transformer
+from .validation import Validator
 
 
 class PublicationPreparer:

@@ -1,35 +1,23 @@
-import json
+import csv
 from collections import OrderedDict
 from typing import List
 
 
-class MolgenisRequestError(Exception):
-    def __init__(self, error, response=False):
-        self.message = error
-        if response:
-            self.response = response
-
-
-def raise_exception(ex):
-    """Raises an exception with error message from molgenis"""
-    message = ex.args[0]
-    if ex.response.content:
-        try:
-            error = json.loads(ex.response.content.decode("utf-8"))["errors"][0][
-                "message"
-            ]
-        except ValueError:  # Cannot parse JSON
-            error = ex.response.content
-        except KeyError:  # Cannot parse JSON
-            error = json.loads(ex.response.content.decode("utf-8"))["detail"]
-        error_msg = "{}: {}".format(message, error)
-        raise MolgenisRequestError(error_msg, ex.response)
-    else:
-        raise MolgenisRequestError("{}".format(message))
-
-
-def to_ordered_dict(rows: List[dict]) -> OrderedDict:
+def to_ordered_dict(rows: List[dict], id_attribute: str) -> OrderedDict:
     rows_by_id = OrderedDict()
     for row in rows:
-        rows_by_id[row["id"]] = row
+        rows_by_id[row[id_attribute]] = row
     return rows_by_id
+
+
+def create_csv(table: List[dict], file_name: str, meta_attributes: List[str]):
+    with open(file_name, "w", encoding="utf-8") as fp:
+        writer = csv.DictWriter(
+            fp, fieldnames=meta_attributes, quoting=csv.QUOTE_ALL, extrasaction="ignore"
+        )
+        writer.writeheader()
+        for row in table:
+            for key, value in row.items():
+                if isinstance(value, list):
+                    row[key] = ",".join(value)
+            writer.writerow(row)

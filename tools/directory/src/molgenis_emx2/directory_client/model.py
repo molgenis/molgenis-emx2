@@ -1,3 +1,4 @@
+import os
 import typing
 from abc import ABC
 from collections import OrderedDict
@@ -6,7 +7,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Dict, List, Set
 
-from molgenis_emx2.directory_client.utils import to_ordered_dict
+from .utils import to_ordered_dict
 
 
 class TableType(Enum):
@@ -25,7 +26,14 @@ class TableType(Enum):
 
     @property
     def base_id(self) -> str:
-        return f"eu_bbmri_eric_{self.value}"
+        if self.value == "facts":
+            table = "collectionFacts"
+        elif self.value == "also_known_in":
+            table = "alsoKnownIn"
+        else:
+            table = self.value
+
+        return table[0].upper() + table[1:]
 
 
 @dataclass(frozen=True)
@@ -36,17 +44,17 @@ class TableMeta:
     id_attribute: str = field(init=False)
 
     def __post_init__(self):
-        for attribute in self.meta["attributes"]["items"]:
-            if attribute["data"]["idAttribute"] is True:
-                object.__setattr__(self, "id_attribute", attribute["data"]["name"])
+        for attribute in self.meta:
+            if attribute.get("key") == 1:
+                object.__setattr__(self, "id_attribute", attribute.name)
 
     @property
     def id(self):
-        return self.meta["id"]
+        return self.meta[0].get("table")
 
     @property
     def attributes(self):
-        return [attr["data"]["name"] for attr in self.meta["attributes"]["items"]]
+        return [attr.name for attr in self.meta]
 
     @property
     def one_to_manys(self) -> List[str]:
@@ -59,9 +67,9 @@ class TableMeta:
     @property
     def hyperlinks(self) -> List[str]:
         hyperlinks = []
-        for attribute in self.meta["attributes"]["items"]:
-            if attribute["data"]["type"] == "hyperlink":
-                hyperlinks.append(attribute["data"]["name"])
+        for attribute in self.meta:
+            if attribute.get("columnType") == "hyperlink":
+                hyperlinks.append(attribute.name)
         return hyperlinks
 
 
@@ -96,7 +104,11 @@ class Table(BaseTable):
     def of(table_type: TableType, meta: TableMeta, rows: List[dict]) -> "Table":
         """Factory method that takes a list of rows instead of an OrderedDict of
         ids/rows."""
-        return Table(rows_by_id=to_ordered_dict(rows), meta=meta, type=table_type)
+        return Table(
+            rows_by_id=to_ordered_dict(rows, meta.id_attribute),
+            meta=meta,
+            type=table_type,
+        )
 
     @staticmethod
     def of_empty(table_type: TableType, meta: TableMeta):
@@ -154,12 +166,15 @@ class OntologyTable(BaseTable):
         :return: True if the descendant_id is a descendant of any of the ancestor_ids
         """
         current = self.rows_by_id[descendant_id]
-        while True:
+        while True and current["codesystem"] != "orphanet":
             if current[self.meta.id_attribute] in ancestor_ids:
                 return True
-            if self.parent_attr not in current:
+            if not current[self.parent_attr]:
                 return False
-            current = self.rows_by_id[current[self.parent_attr]]
+            if len(current[self.parent_attr]) == 1:
+                current = self.rows_by_id[current[self.parent_attr][0]]
+            else:
+                raise TypeError("More than one ICD-10 parent")
 
     @staticmethod
     def of(
@@ -172,7 +187,7 @@ class OntologyTable(BaseTable):
         ids/rows."""
         matching_attrs = matching_attrs if matching_attrs else []
         return OntologyTable(
-            rows_by_id=to_ordered_dict(rows),
+            rows_by_id=to_ordered_dict(rows, meta.id_attribute),
             meta=meta,
             parent_attr=parent_attr,
             matching_attrs=matching_attrs,
@@ -196,14 +211,25 @@ class Node:
         TableType.FACTS: "factID",
     }
 
-    def get_staging_id(self, table_type: TableType) -> str:
+    def get_schema_id(self) -> str:
+        return f"{os.getenv('SCHEMA_PREFIX')}-{self.code}"
+
+    @staticmethod
+    def get_staging_id(table_type: TableType) -> str:
         """
         Returns the identifier of a node's staging table.
 
         :param TableType table_type: the table to get the staging id of
         :return: the id of the staging table
         """
-        return f"eu_bbmri_eric_{self.code}_{table_type.value}"
+        if table_type.value == "facts":
+            table = "collectionFacts"
+        elif table_type.value == "also_known_in":
+            table = "alsoKnownIn"
+        else:
+            table = table_type.value
+
+        return table[0].upper() + table[1:]
 
     def get_id_prefix(self, table_type: TableType) -> str:
         """
@@ -315,7 +341,7 @@ class NodeData(DirectoryData):
         tables = dict()
         for table in self.import_order:
             metadata = deepcopy(table.meta.meta)
-            metadata["id"] = self.node.get_staging_id(table.type)
+            # metadata["id"] = self.node.get_staging_id(table.type)
             tables[table.type.value] = Table(
                 table.rows_by_id, TableMeta(metadata), table.type
             )

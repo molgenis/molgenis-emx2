@@ -1,12 +1,21 @@
+import csv
+import io
 import os
+import tempfile
 from collections import defaultdict
 from dataclasses import asdict, dataclass
-from enum import Enum
+from pathlib import Path
 from typing import List
+from zipfile import ZipFile
 
+import pandas as pd
 from molgenis_emx2_pyclient import Client as Session
+from molgenis_emx2_pyclient.exceptions import NoSuchSchemaException
+from molgenis_emx2_pyclient.metadata import NoSuchTableException, Schema
+from molgenis_emx2_pyclient.metadata import Table as MetaTable
 
-from molgenis_emx2.directory_client.model import (
+from .errors import MolgenisRequestError
+from .model import (
     DirectoryData,
     ExternalServerNode,
     MixedData,
@@ -19,7 +28,7 @@ from molgenis_emx2.directory_client.model import (
     TableMeta,
     TableType,
 )
-from molgenis_emx2.directory_client.utils import MolgenisRequestError
+from .utils import create_csv
 
 
 @dataclass
@@ -36,24 +45,6 @@ class MolgenisImportError(MolgenisRequestError):
     pass
 
 
-class ImportDataAction(Enum):
-    """Enum of MOLGENIS import actions"""
-
-    ADD = "add"
-    ADD_UPDATE_EXISTING = "add_update_existing"
-    UPDATE = "update"
-    ADD_IGNORE_EXISTING = "add_ignore_existing"
-
-
-class ImportMetadataAction(Enum):
-    """Enum of MOLGENIS import metadata actions"""
-
-    ADD = "add"
-    UPDATE = "update"
-    UPSERT = "upsert"
-    IGNORE = "ignore"
-
-
 class DirectorySession(Session):
     """
     A session with a BBMRI Biobank Directory. Contains methods to get national nodes,
@@ -62,14 +53,94 @@ class DirectorySession(Session):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.directory_schema = self.default_schema
 
     NODES_TABLE = "NationalNodes"
+    ONTOLOGY_SCHEMA = "DirectoryOntologies"
+
+    def get(
+        self,
+        table: str,
+        query_filter: str = None,
+        schema: str = None,
+        as_df: bool = False,
+    ) -> list | pd.DataFrame:
+        # response_data = super().get(table, query_filter, schema, as_df)
+        """
+        Copy of the EMX2 pyclient get, with change in how list of dicts is returned
+        Retrieves data from a schema and returns as a list of dictionaries or as
+        a pandas DataFrame (as pandas is used to parse the response).
+
+        :param schema: name of a schema
+        :type schema: str
+        :param query_filter: the query to filter the output
+        :type query_filter: str
+        :param table: the name of the table
+        :type table: str
+        :param as_df: if True, the response will be returned as a
+                      pandas DataFrame. Otherwise, a recordset will be returned.
+        :type as_df: bool
+
+        :returns: list of dictionaries, status message or data frame
+        :rtype: list | pd.DataFrame
+        """
+        current_schema = schema
+        if current_schema is None:
+            current_schema = self.default_schema
+
+        if current_schema not in self.schema_names:
+            raise NoSuchSchemaException(f"Schema {current_schema!r} not available.")
+
+        if not self._table_in_schema(table, current_schema):
+            raise NoSuchTableException(
+                f"Table {table!r} not found " f"in schema {current_schema!r}."
+            )
+
+        schema_metadata: Schema = self.get_schema_metadata(current_schema)
+        table_id = schema_metadata.get_table(by="name", value=table).id
+
+        filter_part = self._prepare_filter(query_filter, table, schema)
+        query_url = f"{self.url}/{current_schema}/api/csv/{table_id}{filter_part}"
+        response = self.session.get(url=query_url)
+
+        self._validate_graphql_response(
+            response=response,
+            fallback_error_message=f"Failed to retrieve "
+            f"data from {current_schema}::{table!r}.\n"
+            f"Status code: {response.status_code}.",
+        )
+
+        response_data = pd.read_csv(io.BytesIO(response.content), keep_default_na=False)
+
+        if not as_df:
+            response_data = []
+            data = response.content.decode("utf-8").strip()
+            with io.StringIO(data) as infile:
+                reader = csv.DictReader(infile, quotechar='"')
+                for rec in reader:
+                    response_data.append(rec)
+
+            response_data = self._reset_data_types(
+                response_data, schema_metadata.get_table(by="name", value=table)
+            )
+        return response_data
+
+    def get_table_meta(
+        self,
+        table_name: str,
+        schema: str = None,
+    ):
+        schema_meta = self.get_schema_metadata(schema)
+        for table in schema_meta.tables:
+            if table.name == table_name:
+                return table.columns
+        raise MolgenisRequestError(f"Unknown table: {table_name}")
 
     def get_ontology(
         self,
         entity_type_id: str,
         matching_attrs: List[str] | None = None,
-        parent_attr: str = "parentId",
+        parent_attr: str = "parent",
     ) -> OntologyTable:
         """
         Retrieves an ontology table.
@@ -82,12 +153,16 @@ class DirectorySession(Session):
         matching_attrs = matching_attrs if matching_attrs else []
 
         rows = self.get(
-            entity_type_id,
-            batch_size=10000,
-            attributes=f"id,{parent_attr},ontology,{','.join(matching_attrs)}",
-            uploadable=True,
+            schema=self.ONTOLOGY_SCHEMA,
+            table=entity_type_id,
+            #   attributes=f"id,{parent_attr},ontology,{','.join(matching_attrs)}",
         )
-        meta = TableMeta(meta=self.get_meta(entity_type_id))
+
+        meta = TableMeta(
+            meta=self.get_table_meta(
+                schema=self.ONTOLOGY_SCHEMA, table_name=entity_type_id
+            )
+        )
         return OntologyTable.of(meta, rows, parent_attr, matching_attrs)
 
     def get_quality_info(self) -> QualityInfo:
@@ -97,16 +172,12 @@ class DirectorySession(Session):
         """
 
         biobank_qualities = self.get(
-            "QualityInfoBiobanks",
-            batch_size=10000,
-            attributes="id,biobank,assess_level_bio",
-            uploadable=True,
+            table="QualityInfoBiobanks",
+            #      attributes="id,biobank,assess_level_bio",
         )
         collection_qualities = self.get(
-            "QualityInfoCollections",
-            batch_size=10000,
-            attributes="id,collection,assess_level_col",
-            uploadable=True,
+            table="QualityInfoCollections",
+            #    attributes="id,collection,assess_level_col",
         )
 
         bb_qual = defaultdict(list)
@@ -133,7 +204,7 @@ class DirectorySession(Session):
         :param code: node to get by code
         :return: Node object
         """
-        nodes = self.get(self.NODES_TABLE, q=f"id=={code}")
+        nodes = self.get(table=self.NODES_TABLE, query_filter=f"id == {code}")
         self._validate_codes([code], nodes)
         return self._to_nodes(nodes)[0]
 
@@ -145,9 +216,9 @@ class DirectorySession(Session):
         :return: list of Node objects
         """
         if codes:
-            nodes = self.get(self.NODES_TABLE, q=f"id=in=({','.join(codes)})")
+            nodes = self.get(table=self.NODES_TABLE, query_filter=f"id == {codes}")
         else:
-            nodes = self.get(self.NODES_TABLE)
+            nodes = self.get(table=self.NODES_TABLE)
 
         if codes:
             self._validate_codes(codes, nodes)
@@ -159,7 +230,13 @@ class DirectorySession(Session):
         :param code: node to get by code
         :return: ExternalServerNode object
         """
-        nodes = self.get(self.NODES_TABLE, q=f"id=={code};dns!=''")
+        # Query filter on null is not yet possible therefore this workaround
+        df_nodes = self.get(
+            table=self.NODES_TABLE, query_filter=f"id == {code}", as_df=True
+        )
+        df_nodes = df_nodes.loc[df_nodes["dns"] != ""]
+        nodes = df_nodes.to_dict("records")
+
         self._validate_codes([code], nodes)
         return self._to_nodes(nodes)[0]
 
@@ -171,9 +248,14 @@ class DirectorySession(Session):
         :return: list of ExternalServerNode objects
         """
         if codes:
-            nodes = self.get(self.NODES_TABLE, q=f"id=in=({','.join(codes)});dns!=''")
+            df_nodes = self.get(
+                table=self.NODES_TABLE, query_filter=f"id == {codes}", as_df=True
+            )
         else:
-            nodes = self.get(self.NODES_TABLE, q="dns!=''")
+            df_nodes = self.get(table=self.NODES_TABLE, as_df=True)
+
+        df_nodes = df_nodes.loc[df_nodes["dns"] != ""]
+        nodes = df_nodes.to_dict("records")
 
         if codes:
             self._validate_codes(codes, nodes)
@@ -210,7 +292,35 @@ class DirectorySession(Session):
                         token=os.getenv(f"{node['id']}_user"),
                     )
                 )
+
         return result
+
+    @staticmethod
+    def _reset_data_types(data: List, meta: MetaTable):
+        for row in data:
+            bools = meta.get_columns(by="columnType", value="BOOL")
+            bools = [i.name for i in bools]
+            ints = meta.get_columns(by="columnType", value="INT")
+            ints = [column.name for column in ints]
+            arrays = meta.get_columns(by="columnType", value="REF_ARRAY")
+            arrays.extend(meta.get_columns(by="columnType", value="ONTOLOGY_ARRAY"))
+            arrays = [column.name for column in arrays]
+            for column in [column.name for column in meta.columns]:
+                if column not in row:
+                    continue
+                if column in arrays:
+                    if not row[column]:
+                        row[column] = []
+                    else:
+                        row[column] = row[column].split(",")
+                if not row[column] and type(row[column]) is not list:
+                    del row[column]
+                    continue
+                if column in ints:
+                    row[column] = int(row[column])
+                if column in bools and type(row[column]) is str:
+                    row[column] = eval(row[column].capitalize())
+        return data
 
     def get_staging_node_data(self, node: Node) -> NodeData:
         """
@@ -222,12 +332,14 @@ class DirectorySession(Session):
         tables = dict()
         for table_type in TableType.get_import_order():
             id_ = node.get_staging_id(table_type)
-            meta = TableMeta(meta=self.get_meta(id_))
+            meta = TableMeta(
+                meta=self.get_table_meta(schema=node.get_schema_id(), table_name=id_)
+            )
 
             tables[table_type.value] = Table.of(
                 table_type=table_type,
                 meta=meta,
-                rows=self.get(id_, batch_size=10000, uploadable=True),
+                rows=self.get(schema=node.get_schema_id(), table=id_),
             )
 
         return NodeData.from_dict(node=node, source=Source.STAGING, tables=tables)
@@ -240,20 +352,18 @@ class DirectorySession(Session):
         :param Node node: the node to get the published data for
         :return: a NodeData object
         """
-
         tables = dict()
         for table_type in TableType.get_import_order():
             id_ = table_type.base_id
-            meta = TableMeta(self.get_meta(id_))
+            meta = TableMeta(
+                self.get_table_meta(schema=self.directory_schema, table_name=id_)
+            )
 
             tables[table_type.value] = Table.of(
                 table_type=table_type,
                 meta=meta,
                 rows=self.get(
-                    id_,
-                    batch_size=10000,
-                    q=f"national_node=={node.code}",
-                    uploadable=True,
+                    table=id_, query_filter=f"national_node.id == {node.code}"
                 ),
             )
 
@@ -268,7 +378,7 @@ class DirectorySession(Session):
 
         :param List[Node] nodes: the node(s) to get the Directory data for
         :param AttributesRequest attributes: the attributes to get for each table
-        :return: an DirectoryData object
+        :return: a DirectoryData object
         """
 
         if len(nodes) == 0:
@@ -279,42 +389,44 @@ class DirectorySession(Session):
         tables = dict()
         for table_type in TableType.get_import_order():
             id_ = table_type.base_id
-            meta = TableMeta(self.get_meta(id_))
+            meta = TableMeta(
+                self.get_table_meta(schema=self.directory_schema, table_name=id_)
+            )
             attrs = attributes[table_type.value]
+            data = []
+            for code in codes:
+                p_code = self.get(table=id_, query_filter=f"national_node.id == {code}")
+                data.extend(p_code)
+            rows = []
+            for row in data:
+                rows.append(dict(filter(lambda x: x[0] in attrs, row.items())))
 
             tables[table_type.value] = Table.of(
-                table_type=table_type,
-                meta=meta,
-                rows=self.get(
-                    id_,
-                    batch_size=10000,
-                    q=f"national_node=in=({','.join(codes)})",
-                    attributes=",".join(attrs),
-                    uploadable=True,
-                ),
+                table_type=table_type, meta=meta, rows=rows
             )
 
         return MixedData.from_mixed_dict(source=Source.PUBLISHED, tables=tables)
 
-    def upload_data(self, data: DirectoryData):
+    async def upload_data(self, schema: str, data: DirectoryData):
         """
         Converts the six tables of a DirectoryData object to CSV, bundles them in
         a ZIP archive and imports them through the import API.
+        :param schema: database where data should be uploaded into
         :param data: a DirectoryData object
         """
+        with tempfile.TemporaryDirectory() as tmpdir:
+            archive_name = f"{tmpdir}/directory_data.zip"
+            with ZipFile(archive_name, "w") as archive:
+                for table in data.import_order:
+                    file_name = f"{table.full_name}.csv"
+                    file_path = f"{tmpdir}/{file_name}"
+                    create_csv(table.rows, file_path, table.meta.attributes)
+                    archive.write(file_path, file_name)
 
-        importable_data = dict()
-        for table in data.import_order:
-            importable_data[table.full_name] = table.rows
-
-        self.import_data(
-            importable_data,
-            data_action=ImportDataAction.ADD_UPDATE_EXISTING,
-            metadata_action=ImportMetadataAction.IGNORE,
-        )
+            await self.upload_file(schema=schema, file_path=Path(archive_name))
 
 
-class ExternalServerSession(Session):
+class ExternalServerSession(DirectorySession):
     """
     A session with a national node's external server (for example BBMRI-NL).
     """
@@ -333,15 +445,21 @@ class ExternalServerSession(Session):
         tables = dict()
         for table_type in TableType.get_import_order():
             id_ = self.node.get_staging_id(table_type)
-            if not self.get("sys_md_EntityType", q=f"id=={id_}"):
-                tables[table_type.value] = Table.of_placeholder(table_type)
-            else:
-                meta = TableMeta(self.get_meta(id_))
+            schema_meta = self.get_schema_metadata(self.node.get_schema_id())
+            try:
+                schema_meta.get_table(by="name", value=id_)
+                meta = TableMeta(
+                    self.get_table_meta(
+                        schema=self.node.get_schema_id(), table_name=id_
+                    )
+                )
                 tables[table_type.value] = Table.of(
                     table_type=table_type,
                     meta=meta,
-                    rows=self.get(id_, batch_size=10000, uploadable=True),
+                    rows=self.get(schema=self.node.get_schema_id(), table=id_),
                 )
+            except NoSuchTableException:
+                tables[table_type.value] = Table.of_placeholder(table_type)
 
         return NodeData.from_dict(
             node=self.node, source=Source.EXTERNAL_SERVER, tables=tables

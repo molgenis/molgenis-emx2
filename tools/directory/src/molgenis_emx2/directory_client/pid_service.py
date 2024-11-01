@@ -12,7 +12,8 @@ from pyhandle.handleexceptions import (
     HandleNotFoundException,
     HandleSyntaxError,
 )
-from tools.directory.src.molgenis_emx2.directory_client.errors import DirectoryError
+
+from .errors import DirectoryError
 
 
 class Status(Enum):

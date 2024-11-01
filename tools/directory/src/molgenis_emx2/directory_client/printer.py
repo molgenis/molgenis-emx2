@@ -1,11 +1,7 @@
 from contextlib import contextmanager
 
-from tools.directory.src.molgenis_emx2.directory_client.errors import (
-    DirectoryError,
-    DirectoryWarning,
-    ErrorReport,
-)
-from tools.directory.src.molgenis_emx2.directory_client.model import Node
+from .errors import DirectoryError, DirectoryWarning, ErrorReport
+from .model import Node
 
 
 class Printer:

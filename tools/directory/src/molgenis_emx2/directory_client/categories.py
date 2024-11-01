@@ -2,7 +2,7 @@ from copy import deepcopy
 from enum import Enum
 from typing import List, Set
 
-from tools.directory.src.molgenis_emx2.directory_client.model import OntologyTable
+from .model import OntologyTable
 
 
 class Category(Enum):
@@ -228,7 +228,7 @@ class CategoryMapper:
     def _contains_orphanet(self, diagnoses: List[str]) -> bool:
         for diagnosis in diagnoses:
             term = self.diseases.rows_by_id.get(diagnosis, None)
-            if term and term.get("ontology", "") == "orphanet":
+            if term and term.get("codesystem", "") == "orphanet":
                 return True
 
     def _contains_descendant_of(self, diagnoses: List[str], terms: Set[str]):

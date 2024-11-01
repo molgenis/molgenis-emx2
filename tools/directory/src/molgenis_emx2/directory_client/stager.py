@@ -1,20 +1,13 @@
 from typing import List
 
-from tools.directory.src.molgenis_emx2.directory_client.directory_client import (
+from .directory_client import (
     DirectorySession,
     ExternalServerSession,
+    NoSuchTableException,
 )
-from tools.directory.src.molgenis_emx2.directory_client.errors import (
-    DirectoryError,
-    DirectoryWarning,
-    requests_error_handler,
-)
-from tools.directory.src.molgenis_emx2.directory_client.model import (
-    ExternalServerNode,
-    NodeData,
-    TableType,
-)
-from tools.directory.src.molgenis_emx2.directory_client.printer import Printer
+from .errors import DirectoryError, DirectoryWarning, requests_error_handler
+from .model import ExternalServerNode, NodeData, TableType
+from .printer import Printer
 
 
 class Stager:
@@ -30,14 +23,14 @@ class Stager:
         self.warnings: List[DirectoryWarning] = list()
 
     @requests_error_handler
-    def stage(self, node: ExternalServerNode):
+    async def stage(self, node: ExternalServerNode):
         """
         Stages all data from the provided external node in the Directory.
         """
         self.warnings = []
         source_data = self._get_source_data(node)
         self._clear_staging_area(node)
-        self._import_node(source_data)
+        await self._import_node(source_data)
 
         return self.warnings
 
@@ -59,8 +52,9 @@ class Stager:
         """
         Check if the session has the necessary permissions
         """
-        package = f"eu_bbmri_eric_{session.node.code}"
-        if not session.get("sys_md_Package", q=f"id=={package}"):
+        # In stead of this method try except around source_session with schema parameter
+        schemas = [schema.name for schema in session.schemas]
+        if session.node.get_schema_id() not in schemas:
             raise DirectoryError(
                 "The session user has invalid permissions\n       Please check the "
                 "token and permissions of this user"
@@ -70,9 +64,12 @@ class Stager:
         """
         Check if all tables are available on the external server
         """
+        schema_meta = session.get_schema_metadata(session.node.get_schema_id())
         for table_type in TableType.get_import_order():
             id_ = session.node.get_staging_id(table_type)
-            if not session.get("sys_md_EntityType", q=f"id=={id_}"):
+            try:
+                schema_meta.get_table(by="name", value=id_)
+            except NoSuchTableException:
                 warning = DirectoryWarning(
                     f"Node {session.node.code} has no {table_type.value} table"
                 )
@@ -85,9 +82,21 @@ class Stager:
         """
         self.printer.print(f"🔥 Clearing staging area of {node.code}")
         for table_type in reversed(TableType.get_import_order()):
-            self.session.delete(node.get_staging_id(table_type))
+            # If truncate table is available this workaround can be removed
+            df_data = self.session.get(
+                schema=node.get_schema_id(),
+                table=node.get_staging_id(table_type),
+                as_df=True,
+            )
+            if len(df_data) > 0:
+                ids = df_data["id"].to_frame().to_dict("records")
+                self.session.delete_records(
+                    schema=node.get_schema_id(),
+                    table=node.get_staging_id(table_type),
+                    data=ids,
+                )
 
-    def _import_node(self, source_data: NodeData):
+    async def _import_node(self, source_data: NodeData):
         """
         Imports an external node's data to its staging area.
         """
@@ -95,4 +104,7 @@ class Stager:
             f"💾 Saving data to the staging area of {source_data.node.code}"
         )
 
-        self.session.upload_data(source_data.convert_to_staging())
+        await self.session.upload_data(
+            schema=source_data.node.get_schema_id(),
+            data=source_data.convert_to_staging(),
+        )

@@ -1,15 +1,9 @@
 from dataclasses import dataclass, field
 from typing import List
 
-from tools.directory.src.molgenis_emx2.directory_client.directory_client import (
-    DirectorySession,
-)
-from tools.directory.src.molgenis_emx2.directory_client.errors import (
-    DirectoryError,
-    DirectoryWarning,
-    ErrorReport,
-)
-from tools.directory.src.molgenis_emx2.directory_client.model import (
+from .directory_client import DirectorySession
+from .errors import DirectoryError, DirectoryWarning, ErrorReport, MolgenisRequestError
+from .model import (
     MixedData,
     Node,
     NodeData,
@@ -19,13 +13,8 @@ from tools.directory.src.molgenis_emx2.directory_client.model import (
     Table,
     TableType,
 )
-from tools.directory.src.molgenis_emx2.directory_client.pid_manager import (
-    BasePidManager,
-)
-from tools.directory.src.molgenis_emx2.directory_client.printer import Printer
-from tools.directory.src.molgenis_emx2.directory_client.utils import (
-    MolgenisRequestError,
-)
+from .pid_manager import BasePidManager
+from .printer import Printer
 
 
 @dataclass
@@ -59,7 +48,7 @@ class Publisher:
         self.printer = printer
         self.pid_manager = pid_manager
 
-    def publish(self, state: PublishingState):
+    async def publish(self, state: PublishingState):
         """
         Copies staging data to the combined tables. This happens in two phases:
         1. New/existing rows are upserted in the Directory tables
@@ -67,15 +56,17 @@ class Publisher:
         """
         self.printer.print("💾 Saving new and updated data to Directory tables")
         with self.printer.indentation():
-            self._upsert_data(state)
+            await self._upsert_data(state)
 
         self.printer.print("🧼 Cleaning up removed data in Directory tables")
         with self.printer.indentation():
             self._delete_data(state)
 
-    def _upsert_data(self, state):
+    async def _upsert_data(self, state):
         try:
-            self.session.upload_data(state.data_to_publish)
+            await self.session.upload_data(
+                schema=self.session.directory_schema, data=state.data_to_publish
+            )
         except MolgenisRequestError as e:
             raise DirectoryError("Error importing data to combined tables") from e
 
@@ -117,10 +108,11 @@ class Publisher:
 
         # Actually delete the rows in the combined table
         if deletable_ids:
+            ids_dict = [{table.meta.id_attribute: id_} for id_ in deletable_ids]
             self.printer.print(
                 f"Deleting {len(deletable_ids)} row(s) in {table.type.base_id}"
             )
-            self.session.delete_list(table.type.base_id, list(deletable_ids))
+            self.session.delete_records(table=table.type.base_id, data=ids_dict)
             for id_ in deletable_ids:
                 with self.printer.indentation():
                     code = existing_table.rows_by_id[id_]["national_node"]

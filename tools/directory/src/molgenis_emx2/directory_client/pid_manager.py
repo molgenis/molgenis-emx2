@@ -1,14 +1,10 @@
 from abc import ABC, abstractmethod
 from typing import List
 
-from tools.directory.src.molgenis_emx2.directory_client.errors import DirectoryWarning
-from tools.directory.src.molgenis_emx2.directory_client.model import Table
-from tools.directory.src.molgenis_emx2.directory_client.pid_service import (
-    BasePidService,
-    NoOpPidService,
-    Status,
-)
-from tools.directory.src.molgenis_emx2.directory_client.printer import Printer
+from .errors import DirectoryWarning
+from .model import Table
+from .pid_service import BasePidService, NoOpPidService, Status
+from .printer import Printer
 
 
 class BasePidManager(ABC):
