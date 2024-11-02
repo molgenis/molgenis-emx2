@@ -4,7 +4,7 @@
       class="genturis-header"
       title="Genturis Registry"
       subtitle="Disclaimer"
-      imageSrc="genturis-carousel.jpg"
+      imageSrc="img/genturis-carousel.jpg"
       titlePositionX="center"
       titlePositionY="center"
     />
@@ -29,6 +29,7 @@
   </Page>
 </template>
 
-<script setup>
+<script setup lang="ts">
+// @ts-ignore
 import { Page, PageHeader, PageSection } from "molgenis-viz";
 </script>

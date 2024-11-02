@@ -2,10 +2,11 @@ package org.molgenis.emx2.web;
 
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 import static org.molgenis.emx2.web.MolgenisWebservice.logger;
-import static spark.Spark.get;
 
 import de.larsgrefer.sass.embedded.SassCompiler;
 import de.larsgrefer.sass.embedded.SassCompilerFactory;
+import io.javalin.Javalin;
+import io.javalin.http.Context;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,8 +23,6 @@ import org.jetbrains.annotations.NotNull;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import sass.embedded_protocol.EmbeddedSass;
-import spark.Request;
-import spark.Response;
 
 public class BootstrapThemeService {
   private static final String HEX_WEBCOLOR_PATTERN = "^#([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$";
@@ -34,18 +33,19 @@ public class BootstrapThemeService {
     // hide constructor
   }
 
-  public static void create() {
+  public static void create(Javalin app) {
     // per schema theme.css (later we will want to use settings here, right?)
-    final String schemaPath = "/:schema/theme.css"; // NOSONAR
-    get(schemaPath, BootstrapThemeService::getCss);
+    final String schemaPath = "/{schema}/theme.css"; // NOSONAR
+    app.get(schemaPath, BootstrapThemeService::getCss);
   }
 
-  public static String getCss(Request request, Response response) {
-    response.type("text/css");
-    Map<String, String> params = getParams(request);
+  public static void getCss(Context ctx) {
+    ctx.contentType("text/css");
+    ctx.res().setCharacterEncoding(StandardCharsets.UTF_8.name());
+    Map<String, String> params = getParams(ctx);
 
     // then override with url query, if any
-    params.putAll(splitQuery(request.queryString()));
+    params.putAll(splitQuery(ctx.queryString()));
 
     // see if we have it cached, otherwise generate the css
     String key =
@@ -53,15 +53,15 @@ public class BootstrapThemeService {
             .map(entry -> entry.getKey() + "=" + entry.getValue())
             .collect(Collectors.joining("&"));
     if (cache.containsKey(key)) {
-      return cache.get(key);
+      ctx.result(cache.get(key));
     } else {
-      return generateCss(params);
+      ctx.result(generateCss(params));
     }
   }
 
   @NotNull
-  private static Map<String, String> getParams(Request request) {
-    Schema schema = getSchema(request);
+  private static Map<String, String> getParams(Context ctx) {
+    Schema schema = getSchema(ctx);
     Map<String, String> params = new LinkedHashMap<>();
     if (schema != null) {
       Optional<String> cssUrl = schema.getMetadata().findSettingValue("cssURL");

@@ -3,7 +3,7 @@ import type {
   IFile,
   INode,
 } from "../../tailwind-components/types/types";
-import type { ISubpopulations } from "./catalogue";
+import type { ICollectionEvents, ISubpopulations } from "./catalogue";
 export interface IResource {
   id: string;
   pid: string;
@@ -30,9 +30,9 @@ export interface IResource {
       externalIdentifierType: INameObject;
     }
   ];
-  dateEstablished?: string;
-  startDataCollection?: string;
-  endDataCollection?: string;
+  dateLastRefresh?: string;
+  startYear?: string;
+  endYear?: string;
   license?: string;
   populationAgeGroups?: IOntologyNode[];
   countries: {
@@ -65,7 +65,7 @@ export interface IResource {
   }[];
   inclusionCriteria?: IOntologyNode[];
   otherInclusionCriteria?: string;
-  collectionEvents: ICollectionEvent[];
+  collectionEvents: ICollectionEvents[];
   collectionEvents_agg: { count: number };
   peopleInvolved: IContributor[];
   networks: INetwork[];
@@ -179,23 +179,6 @@ export interface INameObject {
 
 export interface IUrlObject {
   url: string;
-}
-
-export interface ICollectionEvent {
-  name: string;
-  description: string;
-  startYear: INameObject;
-  endYear: number;
-  numberOfParticipants: number;
-  ageGroups: INameObject[];
-  definition: string;
-  dataCategories: ICollectionEventCategory[];
-  sampleCategories: ICollectionEventCategory[];
-  areasOfInformation: ICollectionEventCategory[];
-  standardizedTools: ICollectionEventCategory[];
-  standardizedToolsOther: string;
-  subpopulations: INameObject[];
-  coreVariables: string[];
 }
 
 export interface ICollectionEventCategory {
@@ -388,6 +371,7 @@ export interface IOntologyFilterConfig extends IFilterConfig {
   type: "ONTOLOGY";
   ontologyTableId: string;
   ontologySchema: string;
+  filter: Record<String, Filter>;
   columnId: string;
   refFields?: filterRefField;
 }
@@ -478,10 +462,7 @@ export interface IOrganization {
 
 export type linkTarget = "_self" | "_blank" | "_parent" | "_top";
 
-export type IResourceTypeMetadata = {
-  type: string;
-  plural: string;
-  image?: string;
-  path: string;
-  description?: string;
-};
+export interface UIResource {
+  id: string;
+  logo: { url: string };
+}

@@ -19,6 +19,27 @@ import org.molgenis.emx2.tasks.TaskService;
 
 public class GraphqlDatabaseFieldFactory {
 
+  static final GraphQLType lastUpdateMetadataType =
+      new GraphQLObjectType.Builder()
+          .name("ChangesType")
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(OPERATION)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition().name(STAMP).type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition().name(USERID).type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(TABLENAME)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(SCHEMA_NAME)
+                  .type(Scalars.GraphQLString))
+          .build();
+
   public static final GraphQLType outputSchemasType =
       new GraphQLObjectType.Builder()
           .name("SchemaInfo")
@@ -62,11 +83,14 @@ public class GraphqlDatabaseFieldFactory {
             GraphQLArgument.newArgument()
                 .name(Constants.INCLUDE_DEMO_DATA)
                 .type(Scalars.GraphQLBoolean))
+        .argument(
+            GraphQLArgument.newArgument().name(Constants.PARENT_JOB).type(Scalars.GraphQLString))
         .dataFetcher(
             dataFetchingEnvironment -> {
               String name = dataFetchingEnvironment.getArgument(NAME);
               String description = dataFetchingEnvironment.getArgument(DESCRIPTION);
               String template = dataFetchingEnvironment.getArgument(Constants.TEMPLATE);
+              String parentTaskId = dataFetchingEnvironment.getArgument(Constants.PARENT_JOB);
               Boolean includeDemoData =
                   dataFetchingEnvironment.getArgument(Constants.INCLUDE_DEMO_DATA);
 
@@ -76,6 +100,10 @@ public class GraphqlDatabaseFieldFactory {
               Schema schema = database.createSchema(name, description);
               if (template != null) {
                 Task task = DataModels.getImportTask(schema, template, includeDemoData);
+                if (parentTaskId != null) {
+                  Task parentTask = taskService.getTask(parentTaskId);
+                  task.setParentTask(parentTask);
+                }
                 String id = taskService.submit(task);
                 result.setTaskId(id);
               } else {
@@ -266,6 +294,13 @@ public class GraphqlDatabaseFieldFactory {
               return new GraphqlApiMutationResult(SUCCESS, messageBuilder.toString().trim());
             })
         .build();
+  }
+
+  public GraphQLFieldDefinition.Builder lastUpdateQuery(Database database) {
+    return GraphQLFieldDefinition.newFieldDefinition()
+        .name("_lastUpdate")
+        .type(GraphQLList.list(lastUpdateMetadataType))
+        .dataFetcher(dataFetchingEnvironment -> database.getLastUpdated());
   }
 
   private static void dropUsers(

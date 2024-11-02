@@ -71,14 +71,14 @@ public class TestLoaders {
   void test06DataCatalogueLoader() {
     Schema dataCatalogue = database.createSchema(DATA_CATALOGUE);
     DataModels.Profile.DATA_CATALOGUE.getImportTask(dataCatalogue, true).run();
-    assertEquals(22, dataCatalogue.getTableNames().size());
+    assertEquals(23, dataCatalogue.getTableNames().size());
   }
 
   @Test
   public void test07DataCatalogueCohortStagingLoader() {
     Schema cohortStaging = database.createSchema(COHORT_STAGING);
     DataModels.Profile.DATA_CATALOGUE_COHORT_STAGING.getImportTask(cohortStaging, true).run();
-    assertEquals(17, cohortStaging.getTableNames().size());
+    assertEquals(18, cohortStaging.getTableNames().size());
   }
 
   @Disabled
@@ -93,7 +93,7 @@ public class TestLoaders {
   public void test09DirectoryLoader() {
     Schema directory = database.createSchema(DIRECTORY_TEST);
     DataModels.Regular.BIOBANK_DIRECTORY.getImportTask(directory, true).run();
-    assertEquals(10, directory.getTableNames().size());
+    assertEquals(11, directory.getTableNames().size());
   }
 
   @Test
