@@ -314,7 +314,7 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
 
       <LandingCardSecondary
         icon="schedule"
-        v-if="data.data.Design_groupBy && data.data.Resources_agg"
+        v-if="data.data.Design_groupBy && data.data.Collections_agg"
       >
         <b
           >{{
