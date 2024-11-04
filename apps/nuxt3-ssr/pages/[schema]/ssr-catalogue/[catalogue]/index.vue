@@ -324,7 +324,7 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
           {{
             percentageLongitudinal(
               data.data.Design_groupBy,
-              data.data.Resources_agg.count
+              data.data.Collections_agg.count
             )
           }}%</b
         ><br />{{
