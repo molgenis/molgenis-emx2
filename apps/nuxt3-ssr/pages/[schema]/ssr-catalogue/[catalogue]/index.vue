@@ -272,12 +272,12 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
     <LandingSecondary>
       <LandingCardSecondary
         icon="people"
-        v-if="data.data.Resources_agg?._sum?.numberOfParticipants"
+        v-if="data.data.Collections_agg?._sum?.numberOfParticipants"
       >
         <b>
           {{
             new Intl.NumberFormat("nl-NL").format(
-              data.data.Resources_agg?._sum?.numberOfParticipants
+              data.data.Collections_agg?._sum?.numberOfParticipants
             )
           }}
           {{
@@ -293,12 +293,12 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
 
       <LandingCardSecondary
         icon="colorize"
-        v-if="data.data.Resources_agg?._sum?.numberOfParticipantsWithSamples"
+        v-if="data.data.Collections_agg?._sum?.numberOfParticipantsWithSamples"
       >
         <b
           >{{
             new Intl.NumberFormat("nl-NL").format(
-              data.data.Resources_agg?._sum?.numberOfParticipantsWithSamples
+              data.data.Collections_agg?._sum?.numberOfParticipantsWithSamples
             )
           }}
           {{
