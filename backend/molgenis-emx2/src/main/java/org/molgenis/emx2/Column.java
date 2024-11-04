@@ -199,8 +199,9 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     }
 
     if (this.refTable != null && getTable() != null) {
-      // self relation
-      if (this.refTable.equals(getTable().getTableName())) {
+      // self relation (same name, same schema)
+      if (getSchema().getName().equals(schema.getName())
+          && this.refTable.equals(getTable().getTableName())) {
         return getTable(); // this table
       }
 
