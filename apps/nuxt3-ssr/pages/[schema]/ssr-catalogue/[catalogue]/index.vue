@@ -231,7 +231,7 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
         :link="`/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/collections`"
       />
       <LandingCardPrimary
-        v-if="networkCount"
+        v-if="networkCount && !cohortOnly"
         image="image-diagram"
         title="Networks"
         :description="
