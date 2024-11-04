@@ -56,7 +56,12 @@
         </template>
       </Modal>
 
-      <EditUserModal ref="editUserModal" :schemas="schemas" :roles="roles" />
+      <EditUserModal
+        ref="editUserModal"
+        :schemas="schemas"
+        :roles="roles"
+        @userUpdated="retrieveUsers"
+      />
     </ContentBlock>
   </Container>
 </template>

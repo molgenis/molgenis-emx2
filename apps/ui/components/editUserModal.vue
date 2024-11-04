@@ -96,6 +96,8 @@ const SchemaIds = computed(() => {
   return schemas.map((schema) => schema.id);
 });
 
+const emit = defineEmits(["userUpdated"]);
+
 function closeEditUserModal() {
   modal.value?.close();
 }
@@ -142,12 +144,13 @@ async function saveUser() {
     tokens: userTokens.value,
     roles: Object.values(userRoles.value),
   }; //TODO define update user object
+
   if (password.value) {
     edittedUser.password = password.value;
   }
 
   await updateUser(edittedUser);
-  //add emit to update user list
+  emit("userUpdated");
   modal.value?.close();
 }
 

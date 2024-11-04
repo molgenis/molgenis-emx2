@@ -180,21 +180,30 @@ public class GraphqlAdminFieldFactory {
                   database.setUserPassword(email, password);
                 }
 
-                ArrayList<Map<String, String>> roles = (ArrayList<Map<String, String>>) updatedUser.get(ROLES);
+                ArrayList<Map<String, String>> roles =
+                    (ArrayList<Map<String, String>>) updatedUser.get(ROLES);
                 if (roles != null) {
-                  // update roles
+                  roles.stream().forEach((role)->{
+                    setRole(role);
+                  });
                 }
 
                 Boolean enabled = (Boolean) updatedUser.get(ENABLED);
                 if (enabled != null) {
-                  user.setEnabled(enabled);
+                  database.setEnabledUser(email, enabled);
+                  //                  user.setEnabled(enabled); wishful thinking
                 }
 
-                database.saveUser(user);
+                // this is what I would like to do, but it doesn't work
+                //                database.saveUser(user);
               }
               return new GraphqlApiMutationResult(SUCCESS, "User %s updated", email);
             })
         .build();
+  }
+
+  private static void setRole(Map<String, String> role) {
+
   }
 
   private static final GraphQLInputObjectType inputUserRolesType =
