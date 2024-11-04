@@ -29,6 +29,7 @@ import org.molgenis.emx2.io.ImportCsvZipTask;
 import org.molgenis.emx2.io.MolgenisIO;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvInZipFile;
+import org.molgenis.emx2.tasks.Task;
 
 public class ZipApi {
   private ZipApi() {
@@ -93,8 +94,10 @@ public class ZipApi {
       String fileName = ctx.req().getPart("file").getSubmittedFileName();
 
       if (fileName.endsWith(".zip")) {
+        Task task = new ImportCsvZipTask(tempFile.toPath(), schema, false);
         if (ctx.queryParam("async") != null) {
-          String id = TaskApi.submit(new ImportCsvZipTask(tempFile.toPath(), schema, false));
+          String parentTaskId = ctx.queryParam("parentJob");
+          String id = TaskApi.submit(task, parentTaskId);
           ctx.json(new TaskReference(id, schema));
           return;
         } else {

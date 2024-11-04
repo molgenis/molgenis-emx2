@@ -22,6 +22,12 @@ Your script will receive as environment variables:
 * a token via MOLGENIS_TOKEN
 * a path to OUTPUT_FILE which you can use to produce an outputFile which will then be stored in Jobs.output
 
+### Pyclient
+
+Python scripts can make use of the [Molgenis Pyclient](use_usingpyclient.md). Make sure to initialise the client as
+described [here](use_usingpyclient.md#scripts-and-jobs)
+
+
 ## Jobs
 
 Lists the previous jobs. You can see the progress on each of them. Also you can expect any output produced.
