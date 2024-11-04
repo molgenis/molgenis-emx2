@@ -1,7 +1,6 @@
 package org.molgenis.emx2.graphql;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.graphql.GraphqlApiFactory.convertExecutionResultToJson;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -59,6 +58,10 @@ public class TestGraphqlCrossSchemaRefs {
     String result =
         execute("{_schema{tables{name,id,schemaName,schemaId}}}").at("/_schema").toString();
     assertTrue(result.contains(schemaName2));
+
+    // ensure that also columns are unique when table name in schema1 and schema2 is same
+    assertDoesNotThrow(
+        () -> execute("{Parent{name,parent{name,hobby}}}").at("/Child/0/parent/name").asText());
   }
 
   private JsonNode execute(String query) throws IOException {

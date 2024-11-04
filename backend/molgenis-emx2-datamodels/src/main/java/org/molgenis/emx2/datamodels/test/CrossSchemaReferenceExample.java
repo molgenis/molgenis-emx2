@@ -44,5 +44,15 @@ public class CrossSchemaReferenceExample {
     Table cat =
         schema2.create(table("Mouse").setImportSchema(schema1.getName()).setInheritName("Pet"));
     cat.insert(row("name", "mickey", "species", "mouse"));
+
+    // enable if tables can have same name but different structure between schemas
+    schema2.create(
+        table(
+            "Parent",
+            column("name").setPkey(),
+            column("parents")
+                .setType(REF_ARRAY)
+                .setRefSchemaName(schema1.getName())
+                .setRefTable("Parent")));
   }
 }
