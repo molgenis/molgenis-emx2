@@ -195,7 +195,7 @@ jobs:
 
     steps:
     - queue/until_front_of_line:
-        limit-branch-name: master
+        limit-branch-name: main
         max-wait-time: '25'
         my-pipeline: <<pipeline.number>>
         
