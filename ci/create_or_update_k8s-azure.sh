@@ -28,7 +28,6 @@ echo ${CERTDEVMOLGENIS_PEM} | base64 --decode >> /tmp/cert_pem
 sleep 15s
 kubectl create namespace $NAME
 kubectl create secret tls "dev.molgenis.org" --key /tmp/cert_key --cert /tmp/cert_pem -n ${NAME}
-kubectl create secret 
 
 helm upgrade --install ${NAME} ./helm-chart --namespace ${NAME} \
 --set ingress.hosts[0].host=${NAME}.dev.molgenis.org \
