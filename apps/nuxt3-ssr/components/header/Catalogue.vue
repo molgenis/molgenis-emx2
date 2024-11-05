@@ -21,15 +21,10 @@ const catalogueRouteParam = route.params.catalogue as string;
 const menu: { label: string; link: string }[] = [];
 
 // the variable route does not set the resourceType param, therefore check the route name
-if (
-  route.params.resourceType ||
-  route.name === "schema-ssr-catalogue-catalogue-variables"
-) {
-  menu.push({
-    label: "overview",
-    link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}`,
-  });
-}
+menu.push({
+  label: "overview",
+  link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}`,
+});
 
 if (props.collectionCount > 0) {
   menu.push({
@@ -38,14 +33,14 @@ if (props.collectionCount > 0) {
   });
 }
 
-if (props.networkCount > 0) {
+if (props.networkCount > 0 && !cohortOnly.value) {
   menu.push({
     label: "Networks",
     link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/networks`,
   });
 }
 
-if (!cohortOnly.value && props.variableCount > 0)
+if (props.variableCount > 0 && !cohortOnly.value)
   menu.push({
     label: "Variables",
     link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/variables`,
