@@ -2,12 +2,12 @@
   <ul
     :id="id"
     role="listbox"
-    tabindex="-1"
+    tabindex="0"
     :aria-expanded="expanded"
     :aria-activedescendant="selectedElemId"
     class="absolute b-0 w-full z-10 bg-listbox"
     :class="{
-      'hidden': !expanded,
+      hidden: !expanded,
     }"
   >
     <slot></slot>
@@ -24,5 +24,4 @@ interface IListbox {
 withDefaults(defineProps<IListbox>(), {
   expanded: false,
 });
-
 </script>

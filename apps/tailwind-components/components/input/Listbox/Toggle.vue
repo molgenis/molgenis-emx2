@@ -1,6 +1,7 @@
 <template>
   <button
     :id="id"
+    aria-haspopup="listbox"
     :aria-controls="controls"
     :aria-expanded="expanded"
     :aria-required="required"
@@ -46,9 +47,8 @@ const emit = defineEmits<{
   (e: "click", value: boolean): void;
 }>();
 
-function onClick () {
+function onClick() {
   expanded.value = !expanded.value;
   emit("click", expanded.value);
 }
-
 </script>
