@@ -28,6 +28,7 @@ echo ${CERTDEVMOLGENIS_PEM} | base64 --decode >> /tmp/cert_pem
 sleep 15s
 kubectl create namespace $NAME
 kubectl create secret tls "dev.molgenis.org" --key /tmp/cert_key --cert /tmp/cert_pem -n ${NAME}
+kubectl create secret 
 
 helm upgrade --install ${NAME} ./helm-chart --namespace ${NAME} \
 --set ingress.hosts[0].host=${NAME}.dev.molgenis.org \
@@ -42,7 +43,13 @@ helm upgrade --install ${NAME} ./helm-chart --namespace ${NAME} \
 --set ssrCatalogue.environment.siteTitle="Preview Catalogue" \
 --set ssrCatalogue.environment.apiBase=https://${NAME}.dev.molgenis.org/ \
 --set catalogue.includeCatalogueDemo=true \
---set directory.includeDirectoryDemo=true
+--set directory.includeDirectoryDemo=true \
+--set oidc.enabled=true \
+--set oidc.client_id=${OIDC_CLIENTID} \
+--set oidc.client_secret=${OIDC_CLIENTSECRET} \
+--set oidc.client_name=${NAME} \
+--set oidc.discovery_url=${OIDC_DISCOVERYURL} \
+--set oidc.callback_url=https://${NAME}.dev.molgenis.org/
 
 rm /tmp/cert_key
 rm /tmp/cert_pem
