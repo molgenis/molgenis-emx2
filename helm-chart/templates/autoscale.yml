@@ -7,7 +7,7 @@ spec:
   scaleTargetRef:
     name: {{ include "emx2.fullname" .}}
   minReplicaCount: 0 # when sleeping we don't have the preview
-  maxReplicaCount: 1 # maximum one preview servier
+  maxReplicaCount: 1 # maximum one preview server
   pollingInterval: 10  # check every 10 secs if we need to scale up the preview
   cooldownPeriod: 5  # very short now so we can check
   triggers:
