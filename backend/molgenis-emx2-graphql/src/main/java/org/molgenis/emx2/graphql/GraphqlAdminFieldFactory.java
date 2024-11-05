@@ -9,7 +9,9 @@ import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.*;
 
 import graphql.Scalars;
 import graphql.schema.*;
+
 import java.util.*;
+
 import org.molgenis.emx2.*;
 
 public class GraphqlAdminFieldFactory {
@@ -173,61 +175,58 @@ public class GraphqlAdminFieldFactory {
               LinkedHashMap updatedUser = dataFetchingEnvironment.getArgument("updateUser");
               String email = (String) updatedUser.get(EMAIL);
               if (email != null) {
-                User user = database.getUser(email);
+                database.tx(db -> {
+                  User user = db.getUser(email);
 
-                String password = (String) updatedUser.get(PASSWORD);
-                if (password != null) {
-                  database.setUserPassword(email, password);
-                }
+                  String password = (String) updatedUser.get(PASSWORD);
+                  if (password != null) {
+                    db.setUserPassword(email, password);
+                  }
 
-                ArrayList<Map<String, String>> roles =
-                    (ArrayList<Map<String, String>>) updatedUser.get(ROLES);
-                if (roles != null) {
-                  roles.stream().forEach((role)->{
-                    setRole(role);
-                  });
-                }
+                  List<Member> roles = (ArrayList<Member>) updatedUser.get(ROLES);
+                  if (roles != null && roles.iterator().hasNext()) {
+                    roles.forEach(GraphqlAdminFieldFactory::setRole);
+                  }
 
-                Boolean enabled = (Boolean) updatedUser.get(ENABLED);
-                if (enabled != null) {
-                  database.setEnabledUser(email, enabled);
-                  //                  user.setEnabled(enabled); wishful thinking
-                }
+                  List<Member> revokedRoles = (ArrayList<Member>) updatedUser.get("revokedRoles");
+                  if (revokedRoles != null && revokedRoles.iterator().hasNext()) {
+                    revokedRoles.forEach(GraphqlAdminFieldFactory::revokeRole);
+                  }
 
-                // this is what I would like to do, but it doesn't work
-                //                database.saveUser(user);
+
+                  Boolean enabled = (Boolean) updatedUser.get(ENABLED);
+                  if (enabled != null) {
+                    db.setEnabledUser(email, enabled);
+                  }
+                });
+
               }
               return new GraphqlApiMutationResult(SUCCESS, "User %s updated", email);
             })
         .build();
   }
 
-  private static void setRole(Map<String, String> role) {
+  private static void revokeRole(Member member) {
+
+  }
+
+  private static void setRole(Member role) {
 
   }
 
   private static final GraphQLInputObjectType inputUserRolesType =
       new GraphQLInputObjectType.Builder()
           .name("InputUserRolesType")
-          .field(
-              GraphQLInputObjectField.newInputObjectField()
-                  .name(SCHEMA_ID)
-                  .type(Scalars.GraphQLString))
-          .field(
-              GraphQLInputObjectField.newInputObjectField().name(ROLE).type(Scalars.GraphQLString))
+          .field(GraphQLInputObjectField.newInputObjectField().name(SCHEMA_ID).type(Scalars.GraphQLString))
+          .field(GraphQLInputObjectField.newInputObjectField().name(ROLE).type(Scalars.GraphQLString))
+          .field(GraphQLInputObjectField.newInputObjectField().name(USER).type(Scalars.GraphQLString))
           .build();
   private static final GraphQLInputObjectType updateUserType =
       new GraphQLInputObjectType.Builder()
           .name("InputUpdateUser")
-          .field(
-              GraphQLInputObjectField.newInputObjectField().name(EMAIL).type(Scalars.GraphQLString))
-          .field(
-              GraphQLInputObjectField.newInputObjectField()
-                  .name(ENABLED)
-                  .type(Scalars.GraphQLBoolean))
-          .field(
-              GraphQLInputObjectField.newInputObjectField()
-                  .name(ROLES)
-                  .type(GraphQLList.list(inputUserRolesType)))
+          .field(GraphQLInputObjectField.newInputObjectField().name(EMAIL).type(Scalars.GraphQLString))
+          .field(GraphQLInputObjectField.newInputObjectField().name(ENABLED).type(Scalars.GraphQLBoolean))
+          .field(GraphQLInputObjectField.newInputObjectField().name(ROLES).type(GraphQLList.list(inputUserRolesType)))
+          .field(GraphQLInputObjectField.newInputObjectField().name("revokedRoles").type(GraphQLList.list(inputUserRolesType)))
           .build();
 }
