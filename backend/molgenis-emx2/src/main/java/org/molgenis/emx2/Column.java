@@ -199,14 +199,14 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     }
 
     if (this.refTable != null && getTable() != null) {
-      // self relation (same name, same schema)
-      if (getSchema().getName().equals(schema.getName())
+      // self relation (same name, same schema), prevent endless loop
+      if ((schema == null || getSchema().getName().equals(schema.getName()))
           && this.refTable.equals(getTable().getTableName())) {
         return getTable(); // this table
       }
 
       // other relation
-      if (schema != null) {
+      else if (schema != null) {
         return schema.getTableMetadata(this.refTable);
       }
     }
