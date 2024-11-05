@@ -277,8 +277,6 @@ class SqlTableMetadataExecutor {
 
   static void executeDropTable(DSLContext jooq, TableMetadata table) {
     try {
-      // check no foreign keys
-
       // disableChangeLog
       disableChangeLog((SqlDatabase) table.getSchema().getDatabase(), table);
 

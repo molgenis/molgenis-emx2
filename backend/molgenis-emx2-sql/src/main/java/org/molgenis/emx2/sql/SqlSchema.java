@@ -3,7 +3,7 @@ package org.molgenis.emx2.sql;
 import static org.molgenis.emx2.sql.SqlColumnExecutor.executeRemoveRefConstraints;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
 import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.*;
-import static org.molgenis.emx2.utils.TableSort.sortTableByDependency;
+import static org.molgenis.emx2.utils.TableSort.sortByInheritance;
 
 import java.util.*;
 import org.jooq.DSLContext;
@@ -30,7 +30,7 @@ public class SqlSchema implements Schema {
   @Override
   public List<Table> getTablesSorted() {
     List<TableMetadata> tableMetadata = getMetadata().getTables();
-    sortTableByDependency(tableMetadata);
+    sortByInheritance(tableMetadata);
     List<Table> result = new ArrayList<>();
     for (TableMetadata tm : tableMetadata) {
       result.add(
@@ -253,13 +253,13 @@ public class SqlSchema implements Schema {
       String targetSchemaName, SchemaMetadata mergeSchema, Database database) {
     SqlSchema targetSchema = (SqlSchema) database.getSchema(targetSchemaName);
 
-    // create list, sort dependency order
+    // create list
     List<TableMetadata> mergeTableList = new ArrayList<>();
     mergeSchema.setDatabase(database);
     for (String tableName : mergeSchema.getTableNames()) {
       mergeTableList.add(mergeSchema.getTableMetadata(tableName));
     }
-    sortTableByDependency(mergeTableList);
+    sortByInheritance(mergeTableList);
 
     // first loop
     // create, alter
@@ -284,8 +284,11 @@ public class SqlSchema implements Schema {
         Table newTable =
             targetSchema.create(
                 new TableMetadata(mergeTable.getTableName())
-                    .setTableType(mergeTable.getTableType())); // only the name and type
-        mergeTable.getPrimaryKeyColumns().forEach(c -> newTable.getMetadata().add(c));
+                    .setTableType(mergeTable.getTableType()));
+        if (mergeTable.getInheritName() == null) {
+          // create primary keys immediately to prevent foreign key dependency issues
+          mergeTable.getPrimaryKeyColumns().forEach(c -> newTable.getMetadata().add(c));
+        }
 
       } else if (oldTable != null && !oldTable.getTableName().equals(mergeTable.getTableName())) {
         targetSchema.getMetadata().renameTable(oldTable, mergeTable.getTableName());
@@ -329,10 +332,11 @@ public class SqlSchema implements Schema {
         oldTable.setTableType(mergeTable.getTableType());
         MetadataUtils.saveTableMetadata(targetSchema.getMetadata().getJooq(), oldTable);
 
-        // add missing (except refback),
+        // add missing columns (except refback),
         // remove triggers if existing column if type changed
         // drop columns marked with 'drop'
-        for (Column newColumn : mergeTable.getNonInheritedColumns()) {
+        for (Column newColumn :
+            mergeTable.getNonInheritedColumns().stream().filter(c -> !c.isPrimaryKey()).toList()) {
           Column oldColumn =
               newColumn.getOldName() != null
                   ? oldTable.getLocalColumn(newColumn.getOldName())
@@ -364,7 +368,8 @@ public class SqlSchema implements Schema {
     for (TableMetadata newTable : mergeTableList) {
       if (!newTable.isDrop()) {
         TableMetadata oldTable = targetSchema.getTable(newTable.getTableName()).getMetadata();
-        for (Column newColumn : newTable.getNonInheritedColumns()) {
+        for (Column newColumn :
+            newTable.getNonInheritedColumns().stream().filter(c -> !c.isPrimaryKey()).toList()) {
           Column oldColumn =
               newColumn.getOldName() != null
                   ? oldTable.getColumn(newColumn.getOldName()) // when renaming

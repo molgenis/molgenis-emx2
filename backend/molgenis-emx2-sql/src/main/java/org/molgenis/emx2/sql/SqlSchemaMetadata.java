@@ -9,7 +9,7 @@ import static org.molgenis.emx2.sql.SqlDatabase.*;
 import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeGetMembers;
 import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeGetRoles;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.executeCreateTable;
-import static org.molgenis.emx2.utils.TableSort.sortTableByDependency;
+import static org.molgenis.emx2.utils.TableSort.sortByInheritance;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -117,7 +117,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
               SqlSchemaMetadata sm = s.getMetadata();
               List<TableMetadata> tableList = new ArrayList<>();
               tableList.addAll(List.of(tables));
-              if (tableList.size() > 1) sortTableByDependency(tableList);
+              if (tableList.size() > 1) sortByInheritance(tableList);
               for (TableMetadata table : tableList) {
                 validateTableIdentifierIsUnique(sm, table);
                 SqlTableMetadata result = null;

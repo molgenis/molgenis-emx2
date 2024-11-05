@@ -105,7 +105,7 @@ public class GraphqlApiFactory {
 
   public GraphQL createGraphqlForSchema(Schema schema, TaskService taskService) {
     long start = System.currentTimeMillis();
-    logger.info("creating graphql for schema: {}", schema.getMetadata().getName());
+    logger.info("creating graphql for schema: {}", schema.getName());
 
     GraphQLObjectType.Builder queryBuilder = GraphQLObjectType.newObject().name("Query");
     GraphQLObjectType.Builder mutationBuilder = GraphQLObjectType.newObject().name("Save");

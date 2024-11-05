@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.molgenis.emx2.Column;
+import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.TableMetadata;
 
 public class TableSort {
@@ -13,12 +13,12 @@ public class TableSort {
     // hide constructor
   }
 
-  public static void sortTableByDependency(List<TableMetadata> tableList) {
+  public static void sortByInheritance(List<TableMetadata> tableList) {
     ArrayList<TableMetadata> result = new ArrayList<>();
     ArrayList<TableMetadata> todo = new ArrayList<>(tableList);
 
     // ensure deterministic order
-    todo.sort(
+    tableList.sort(
         new Comparator<TableMetadata>() {
           @Override
           public int compare(TableMetadata o1, TableMetadata o2) {
@@ -26,8 +26,7 @@ public class TableSort {
           }
         });
 
-    // dependency come from foreign key and from inheritance
-
+    // dependency come from inheritance
     while (!todo.isEmpty()) {
       int size = todo.size();
       for (int i = 0; i < todo.size(); i++) {
@@ -42,17 +41,6 @@ public class TableSort {
             break;
           }
         }
-        if (!depends)
-          for (Column c : current.getColumns()) {
-            if (c.getRefTableName() != null && !c.isRefback()) {
-              for (int j = 0; j < todo.size(); j++) {
-                if (i != j && (todo.get(j).getTableName().equals(c.getRefTableName()))) {
-                  depends = true;
-                  break;
-                }
-              }
-            }
-          }
         if (!depends) {
           result.add(todo.get(i));
           todo.remove(i);
@@ -60,13 +48,9 @@ public class TableSort {
       }
       // check for circular relationship
       if (size == todo.size()) {
-        tableList.clear();
-        tableList.addAll(todo);
-        tableList.addAll(result);
-        System.out.println(
-            "circular dependency error: following tables have circular dependency: "
+        throw new MolgenisException(
+            "circular inheritance error: following tables have circular inheritance relation: "
                 + todo.stream().map(TableMetadata::getTableName).collect(Collectors.joining(",")));
-        return;
       }
     }
     tableList.clear();
