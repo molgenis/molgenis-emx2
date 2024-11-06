@@ -6,10 +6,12 @@ const props = withDefaults(
     node: IOntologyItem;
     isRootNode?: boolean;
     collapseAll?: boolean;
+    inverted?: boolean;
   }>(),
   {
     collapseAll: true,
     isRootNode: false,
+    inverted: false,
   }
 );
 
@@ -20,8 +22,8 @@ const toggleCollapse = () => {
 </script>
 
 <template>
-  <li class="my-[5px]">
-    <div class="flex gap-1 items-start">
+  <li class="relative" :class="{ 'mt-2.5': !isRootNode }">
+    <div class="flex items-center">
       <span
         v-if="node.children?.length"
         @click="toggleCollapse()"
@@ -30,6 +32,7 @@ const toggleCollapse = () => {
       >
         <BaseIcon name="caret-up" :width="20" />
       </span>
+      <span v-else-if="isRootNode" />
       <span
         v-else
         class="relative"
@@ -44,19 +47,20 @@ const toggleCollapse = () => {
         />
       </span>
 
-      <div>
-        <span
-          @click="toggleCollapse()"
-          :class="{ 'cursor-pointer hover:underline': node.children?.length }"
-        >
-          {{ node.name }}
-        </span>
-        <div class="whitespace-nowrap inline-flex items-center">
-          <!-- maybe later -->
-          <!-- <span v-if="node.children?.length" class="text-gray-400 inline-block ml-1">- {{ node.children.length }}</span> -->
-          <div v-if="node.definition" class="inline-block ml-1">
-            <CustomTooltip label="Read more" :content="node.definition" />
-          </div>
+      <span
+        @click="toggleCollapse()"
+        class="flex justify-center items-start hover:cursor-pointer"
+        :class="{ 'cursor-pointer hover:underline': node.children?.length }"
+      >
+        {{ node.name }}
+      </span>
+      <div class="inline-flex items-center whitespace-nowrap">
+        <div v-if="node.definition" class="inline-block ml-1">
+          <CustomTooltip
+            label="Read more"
+            :hoverColor="inverted ? 'none' : 'white'"
+            :content="node.definition"
+          />
         </div>
       </div>
     </div>
