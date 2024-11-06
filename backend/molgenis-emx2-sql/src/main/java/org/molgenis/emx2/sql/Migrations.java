@@ -152,11 +152,6 @@ public class Migrations {
             executeMigrationFile(tdb, "migration23.sql", "add enable state to user metadata");
           }
 
-          //            if (version < 24 ) {
-          //                executeMigrationFile(tdb, "migration24.sql", "convert JSONB_ARRAY to
-          // JSOB");
-          //            }
-
           // if success, update version to SOFTWARE_DATABASE_VERSION
           updateDatabaseVersion((SqlDatabase) tdb, SOFTWARE_DATABASE_VERSION);
         });
