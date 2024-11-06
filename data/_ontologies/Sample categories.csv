@@ -251,7 +251,7 @@ order,name,code,parent,ontologyTermURI,definition
 ,Urogenital System - Tissue (Organoïds),"A05,A10.802",Tissue (Organoïds),,
 ,Kidney - Tissue (Organoïds),"A05.810.453,A10.802",Urogenital System - Tissue (Organoïds),,
 ,Ureter - Tissue (Organoïds),"A05.810.776,A10.802",Urogenital System - Tissue (Organoïds),,
-4,Immortalized Cell Lines,,,,
+,Immortalized Cell Lines,,Cells,,
 ,Urinary Bladder - Tissue (Organoïds),"A05.810.890,A10.802",Urogenital System - Tissue (Organoïds),,
 ,Urethra - Tissue (Organoïds),"A05.810.876,A10.802",Urogenital System - Tissue (Organoïds),,
 ,"Genitalia, Female - Tissue (Organoïds)","A05.360.319,A10.802",Tissue (Organoïds),,
