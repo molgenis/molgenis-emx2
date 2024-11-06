@@ -302,6 +302,8 @@ class Transform:
     def external_identifiers(self):
         df = pd.read_csv(self.path + 'External identifiers.csv', keep_default_na=False, dtype='object')
         df_internal = df[df['external identifier type'].isin(['UMCG register Utopia', 'UMCG PaNaMaID'])]
+        df_internal = df_internal.rename(columns={'external identifier type': 'internal identifier type',
+                                                  'external identifier type other': 'internal identifier type other'})
         df_external = df[~df['external identifier type'].isin(['UMCG register Utopia', 'UMCG PaNaMaID'])]
 
         df_internal.to_csv(self.path + 'Internal identifiers.csv', index=False)
