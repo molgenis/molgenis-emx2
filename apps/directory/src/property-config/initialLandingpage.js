@@ -63,7 +63,7 @@ const initialLandingpage = {
   css: {
     pageHeader: {
       backgroundStyle:
-        'background: url("https://github.com/molgenis/molgenis-emx2/blob/master/apps/directory/public/img/bacteria.jpg?raw=true");background-size: cover;height: 30rem;width: 75%;border-radius: 1rem; color: #fff;text-align: center;',
+        'background: url("/public_html/apps/directory/img/bacteria.jpg");background-size: cover;height: 30rem;width: 75%;border-radius: 1rem; color: #fff;text-align: center;',
       linkStyle: "color: #fff;",
     },
     searchBar: {
@@ -80,7 +80,7 @@ const initialLandingpage = {
     },
     biobankSpotlight: {
       backgroundStyle:
-        "background: url('https://github.com/molgenis/molgenis-emx2/blob/master/apps/directory/public/img/microscope.jpg?raw=true');background-size: cover;height: 30rem;width: 50%;border-radius: 1rem; color: #fff;",
+        "background: url('/public_html/apps/directory/img/microscope.jpg');background-size: cover;height: 30rem;width: 50%;border-radius: 1rem; color: #fff;",
       buttonClasses: "btn-primary",
       buttonStyle: "",
     },
