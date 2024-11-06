@@ -177,6 +177,7 @@ public class GraphqlTableFieldFactory {
         break;
       case STRING:
       case TEXT:
+      case JSONB:
       case LONG:
       case UUID:
       case DATE:
