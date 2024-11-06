@@ -55,7 +55,7 @@ function handlePagingRequest(page: number) {
 }
 </script>
 <template>
-  <div class="flex">
+  <div class="flex pb-[30px]">
     <FilterSearch
       class="w-2/5"
       :modelValue="settings.search"
@@ -64,67 +64,65 @@ function handlePagingRequest(page: number) {
     >
     </FilterSearch>
   </div>
-  <div class="overflow-x-auto overscroll-x-contain">
-    <table class="text-left table-fixed w-full">
-      <caption class="caption-bottom pt-8 text-left">
-        <span class="sr-only">{{ tableId }}</span>
-        Showing
-        {{
-          rows.length
-        }}
-        of
-        {{
-          count
-        }}
-      </caption>
-      <thead>
-        <tr>
-          <th
-            v-for="column in columns"
-            class="py-2.5 px-2.5 border-b border-gray-200 first:pl-0 last:pr-0 sm:first:pl-2.5 sm:last:pr-2.5 text-left w-64"
-            :ariaSort="
-              settings.orderby.column === column.id
-                ? mgAriaSortMappings[settings.orderby.direction]
-                : 'none'
-            "
-            scope="col"
-          >
-            <button
-              class="overflow-ellipsis whitespace-nowrap overflow-hidden hover:cursor-pointer"
-              @click="handleSortRequest(column.id)"
+
+  <div class="overflow-auto rounded-b-50px">
+    <div
+      class="overflow-x-auto overscroll-x-contain bg-table rounded-t-3px pb-6"
+    >
+      <table class="text-left table-fixed w-full">
+        <thead>
+          <tr>
+            <th
+              v-for="column in columns"
+              class="py-2.5 px-2.5 border-b border-gray-200 first:pl-0 last:pr-0 sm:first:pl-2.5 sm:last:pr-2.5 text-left w-64"
+              :ariaSort="
+                settings.orderby.column === column.id
+                  ? mgAriaSortMappings[settings.orderby.direction]
+                  : 'none'
+              "
+              scope="col"
             >
-              {{ column.label }}
-              <ArrowUp
-                v-if="
-                  column.id === settings.orderby.column &&
-                  settings.orderby.direction === 'ASC'
-                "
-                class="w-4 h-4 inline-block"
-              />
-              <ArrowDown
-                v-if="
-                  column.id === settings.orderby.column &&
-                  settings.orderby.direction === 'DESC'
-                "
-                class="w-4 h-4 inline-block"
-              />
-            </button>
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="row in rows">
-          <TableCellTypesEMX2
-            v-for="column in columns"
-            :scope="column.key === 1 ? 'row' : null"
-            :metaData="column"
-            :data="row[column.id]"
-          />
-        </tr>
-      </tbody>
-    </table>
+              <button
+                class="overflow-ellipsis whitespace-nowrap overflow-hidden hover:cursor-pointer text-table-column-header text-body-base capitalize"
+                @click="handleSortRequest(column.id)"
+              >
+                {{ column.label }}
+                <ArrowUp
+                  v-if="
+                    column.id === settings.orderby.column &&
+                    settings.orderby.direction === 'ASC'
+                  "
+                  class="w-4 h-4 inline-block"
+                />
+                <ArrowDown
+                  v-if="
+                    column.id === settings.orderby.column &&
+                    settings.orderby.direction === 'DESC'
+                  "
+                  class="w-4 h-4 inline-block"
+                />
+              </button>
+            </th>
+          </tr>
+        </thead>
+        <tbody
+          class="mb-3 [&_tr:last-child_td]:border-none [&_tr:last-child_td]:mb-5"
+        >
+          <tr v-for="row in rows">
+            <TableCellTypesEMX2
+              v-for="column in columns"
+              :scope="column.key === 1 ? 'row' : null"
+              :metaData="column"
+              :data="row[column.id]"
+            />
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
+
   <Pagination
+    class="pt-[30px] pb-[30px]"
     :current-page="settings.page"
     :totalPages="Math.ceil(count / settings.pageSize)"
     @update="handlePagingRequest($event)"
