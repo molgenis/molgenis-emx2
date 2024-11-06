@@ -199,7 +199,6 @@ order,name,code,parent,ontologyTermURI,definition
 ,Nervous System - Tissue (FFPE),"A08,D010232",Tissue (FFPE),,
 ,Brain - Tissue (FFPE),"A08.186.211,D010232",Nervous System - Tissue (FFPE),,
 ,Brain Stem - Tissue (FFPE),"A08.186.211.132,D010232",Nervous System - Tissue (FFPE),,
-3,Faeces,,,,
 ,Cerebellum - Tissue (FFPE),"A08.186.211.132.810.428.200,D010232",Nervous System - Tissue (FFPE),,
 ,Spinal Cord - Tissue (FFPE),"A08.186.854,D010232",Nervous System - Tissue (FFPE),,
 ,Cerebral Ventricles - Tissue (FFPE),"A08.186.211.140,D010232",Nervous System - Tissue (FFPE),,
