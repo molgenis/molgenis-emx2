@@ -1,5 +1,7 @@
 package org.molgenis.emx2.utils;
 
+import com.fasterxml.jackson.core.StreamReadFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -18,6 +20,13 @@ import org.jooq.types.YearToSecond;
 import org.molgenis.emx2.*;
 
 public class TypeUtils {
+  private static final ObjectMapper objectMapper = new ObjectMapper();
+
+  static {
+    // Enable source inclusion in error location
+    objectMapper.configure(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION.mappedFeature(), true);
+  }
+
   private static final String LOOSE_PARSER_FORMAT =
       "[yyyy-MM-dd]['T'[HHmmss][HHmm][HH:mm:ss][HH:mm][.SSSSSSSSS][.SSSSSSSS][.SSSSSSS][.SSSSSS][.SSSSS][.SSSS][.SSS][.SS][.S]][OOOO][O][z][XXXXX][XXXX]['['VV']']";
 
@@ -251,6 +260,11 @@ public class TypeUtils {
     if (v instanceof String) {
       String value = toString(v);
       if (value != null) {
+        try {
+          objectMapper.readTree(value); // validates the json
+        } catch (Exception e) {
+          throw new MolgenisException("Invalid json", e);
+        }
         return org.jooq.JSONB.valueOf(value);
       } else {
         return null;
@@ -373,7 +387,7 @@ public class TypeUtils {
       case PERIOD -> SQLDataType.INTERVAL.asConvertedDataType(new PeriodConverter());
       case PERIOD_ARRAY ->
           SQLDataType.INTERVAL.asConvertedDataType(new PeriodConverter()).getArrayDataType();
-      case JSONB -> SQLDataType.JSONB;
+      case JSON -> SQLDataType.JSONB;
       default ->
           // should never happen
           throw new IllegalArgumentException("jooqTypeOf(type) : unsupported type '" + type + "'");
@@ -402,7 +416,7 @@ public class TypeUtils {
       case DATETIME_ARRAY -> TypeUtils.toDateTimeArray(v);
       case PERIOD -> TypeUtils.toPeriod(v);
       case PERIOD_ARRAY -> TypeUtils.toPeriodArray(v);
-      case JSONB -> TypeUtils.toJsonb(v);
+      case JSON -> TypeUtils.toJsonb(v);
 
       default ->
           throw new UnsupportedOperationException(

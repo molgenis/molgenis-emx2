@@ -8,6 +8,7 @@ import static org.molgenis.emx2.graphql.GraphqlApiFactory.transform;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
 import static org.molgenis.emx2.graphql.GraphqlConstants.*;
+import static org.molgenis.emx2.graphql.GraphqlCustomTypes.GraphQLJsonAsString;
 import static org.molgenis.emx2.sql.SqlQuery.*;
 
 import graphql.Scalars;
@@ -177,7 +178,6 @@ public class GraphqlTableFieldFactory {
         break;
       case STRING:
       case TEXT:
-      case JSONB:
       case LONG:
       case UUID:
       case DATE:
@@ -187,6 +187,10 @@ public class GraphqlTableFieldFactory {
       case HYPERLINK:
         tableBuilder.field(
             GraphQLFieldDefinition.newFieldDefinition().name(id).type(Scalars.GraphQLString));
+        break;
+      case JSON:
+        tableBuilder.field(
+            GraphQLFieldDefinition.newFieldDefinition().name(id).type(GraphQLJsonAsString));
         break;
       case STRING_ARRAY:
       case EMAIL_ARRAY:
@@ -507,6 +511,8 @@ public class GraphqlTableFieldFactory {
         return GraphQLLong;
       case DECIMAL, DECIMAL_ARRAY:
         return Scalars.GraphQLFloat;
+      case JSON:
+        return GraphQLJsonAsString;
       case DATE,
           DATETIME,
           PERIOD,
@@ -908,6 +914,7 @@ public class GraphqlTableFieldFactory {
       case INT_ARRAY -> GraphQLList.list(Scalars.GraphQLInt);
       case LONG_ARRAY -> GraphQLList.list(GraphQLLong);
       case DECIMAL_ARRAY -> GraphQLList.list(Scalars.GraphQLFloat);
+      case JSON -> GraphQLJsonAsString;
       case STRING_ARRAY,
               TEXT_ARRAY,
               DATE_ARRAY,

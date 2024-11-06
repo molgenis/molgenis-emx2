@@ -43,6 +43,7 @@ const typeToInputMap = {
   HYPERLINK: InputHyperlink,
   STRING: InputString,
   TEXT: InputText,
+  JSON: InputText,
   INT: InputInt,
   LONG: InputLong,
   DECIMAL: InputDecimal,
@@ -367,6 +368,17 @@ export default {
     <DemoItem>
       <div>
         <FormInput
+            id="json-example"
+            columnType="JSON"
+            label="Example json input"
+            v-model="jsonValue"
+        />
+      </div>
+      <div>You typed: {{ jsonValue }}</div>
+    </DemoItem>
+    <DemoItem>
+      <div>
+        <FormInput
             id="long-example"
             columnType="LONG"
             label="Example long input"
@@ -536,6 +548,7 @@ export default {
         intValueArray: [5, 37],
         textValue: "example text",
         textValueArray: ["text", "more text"],
+        jsonValue: '{"name":"bofke"}',
         longValue: "1337",
         longValueArray: ["0", "101"],
         decimalValue: 3.7,

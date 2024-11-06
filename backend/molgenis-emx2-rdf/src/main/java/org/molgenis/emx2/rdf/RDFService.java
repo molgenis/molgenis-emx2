@@ -436,7 +436,7 @@ public class RDFService {
       case EMAIL,
               EMAIL_ARRAY,
               HEADING,
-              JSONB,
+              JSON,
               STRING,
               STRING_ARRAY,
               TEXT,

@@ -835,7 +835,8 @@ function graphqlFilter(
       if (conditions.length) {
         if (
           col.columnType.startsWith("STRING") ||
-          col.columnType.startsWith("TEXT")
+          col.columnType.startsWith("TEXT") ||
+          col.columnType.startsWith("JSON")
         ) {
           filter[col.id] = { like: conditions };
         } else if (col.columnType.startsWith("BOOL")) {

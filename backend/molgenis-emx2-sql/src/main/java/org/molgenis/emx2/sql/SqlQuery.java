@@ -1139,10 +1139,9 @@ public class SqlQuery extends QueryBean {
       Object[] values) {
     Name name = name(alias(tableAlias), columnName);
     return switch (type) {
-      case TEXT, STRING, FILE -> whereConditionText(name, operator, toStringArray(values));
+      case TEXT, STRING, FILE, JSON -> whereConditionText(name, operator, toStringArray(values));
       case BOOL -> whereConditionEquals(name, operator, toBoolArray(values));
       case UUID -> whereConditionEquals(name, operator, toUuidArray(values));
-      case JSONB -> whereConditionEquals(name, operator, toJsonbArray(values));
       case INT -> whereConditionOrdinal(name, operator, toIntArray(values));
       case LONG -> whereConditionOrdinal(name, operator, toLongArray(values));
       case DECIMAL -> whereConditionOrdinal(name, operator, toDecimalArray(values));

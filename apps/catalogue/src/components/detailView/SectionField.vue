@@ -76,7 +76,7 @@ export default {
         UUID: "StringDisplay",
         DATETIME: "StringDisplay",
         HEADING: "StringDisplay",
-        JSONB: "TextFieldValue",
+        JSON: "TextFieldValue",
         TEXT: "TextFieldValue",
         HYPERLINK: "HyperlinkFieldValue",
         EMAIL: "EmailFieldValue",
