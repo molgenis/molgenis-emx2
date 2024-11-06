@@ -178,6 +178,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       // get the settings
       clearCache();
 
+      // oidc settings takes priority over env variables
       String isOidcEnabledSetting = getSetting(Constants.IS_OIDC_ENABLED);
       if (isOidcEnabledSetting != null) {
         this.isOidcEnabled = Boolean.parseBoolean(isOidcEnabledSetting);
@@ -187,6 +188,25 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
         if (envSetting != null) {
           this.setSetting(Constants.IS_OIDC_ENABLED, "true");
           this.isOidcEnabled = true;
+        }
+      }
+      // check if OIDC settings are complete otherwise log error and set to false
+      if (this.isOidcEnabled) {
+        if (EnvironmentProperty.getParameter(Constants.MOLGENIS_OIDC_CLIENT_SECRET, null, STRING)
+            == null) {
+          setSetting(
+              Constants.IS_OIDC_ENABLED,
+              "error: "
+                  + Constants.MOLGENIS_OIDC_CLIENT_SECRET
+                  + " is missing. Fix and then set again to true");
+        }
+        if (EnvironmentProperty.getParameter(Constants.MOLGENIS_OIDC_CLIENT_ID, null, STRING)
+            == null) {
+          setSetting(
+              Constants.IS_OIDC_ENABLED,
+              "error: "
+                  + Constants.MOLGENIS_OIDC_CLIENT_ID
+                  + " is missing. Fix and set again to true");
         }
       }
 
