@@ -1,21 +1,21 @@
-CREATE TABLE "MOLGENIS"."schema_version" (
+CREATE TABLE "MOLGENIS"."app_version" (
+    "app" VARCHAR NOT NULL,
     "version" VARCHAR NOT NULL,
-    "schema" VARCHAR NOT NULL,
-    PRIMARY KEY ("version", "schema")
+    "previous_version" VARCHAR,
+    PRIMARY KEY ("app", "version"),
+    CONSTRAINT fk_previous_version
+        FOREIGN KEY (app, previous_version)
+            REFERENCES "MOLGENIS"."app_version" (app, version),
+    CONSTRAINT unique_app_version
+            UNIQUE (app, version)
 );
 
-ALTER TABLE "MOLGENIS"."schema_version"
-    ADD COLUMN "previous_version" VARCHAR,
-    ADD CONSTRAINT fk_previous_version
-        FOREIGN KEY ("previous_version", "schema")
-            REFERENCES "MOLGENIS"."schema_version" ("version", "schema")
-            ON DELETE SET NULL;
-
-GRANT SELECT, INSERT, UPDATE, DELETE ON "MOLGENIS"."schema_version" TO "molgenis";
+GRANT SELECT, INSERT, UPDATE, DELETE ON "MOLGENIS"."app_version" TO "molgenis";
 
 ALTER TABLE "MOLGENIS"."schema_metadata"
+    ADD COLUMN app VARCHAR,
     ADD COLUMN version VARCHAR,
     ADD CONSTRAINT fk_versions
-        FOREIGN KEY ("version", "table_schema")
-            REFERENCES "MOLGENIS"."schema_version" ("version", "schema");
+        FOREIGN KEY ("app", "version")
+            REFERENCES "MOLGENIS"."app_version" ("app", "version");
 
