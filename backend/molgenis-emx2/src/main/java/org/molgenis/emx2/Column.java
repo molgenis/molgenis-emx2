@@ -396,6 +396,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
       for (Column c : this.getRefTable().getColumns()) {
         if (c.isRefback()
             && c.getRefTableName().equals(this.getTableName())
+            && c.getRefSchemaName().equals(this.getSchemaName())
             && this.getName().equals(c.getRefBack())) {
           return true;
         }
@@ -411,6 +412,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     for (Column c : this.getRefTable().getColumns()) {
       if (c.isRefback()
           && c.getRefTableName().equals(this.getTableName())
+          && c.getRefSchemaName().equals(this.getSchemaName())
           && this.getName().equals(c.getRefBack())) {
         return c;
       }
