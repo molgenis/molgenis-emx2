@@ -84,7 +84,7 @@ public class ScriptTask extends Task {
         Path tempOutputFile = Files.createTempFile(tempDir, "output", "." + outputFileExtension);
         // start the script
         ProcessBuilder builder =
-            new ProcessBuilder("bash", "-c", command).directory(tempDir.toFile());
+            new ProcessBuilder("bash", "-c", command).directory(tempDir.toFile()); // NOSONAR
 
         if (token != null) {
           builder.environment().put("MOLGENIS_TOKEN", token); // token for security use
