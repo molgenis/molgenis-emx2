@@ -166,7 +166,7 @@ public class TestCreateBasicDataColumnTypeColumns {
   public void testJSON() {
     executeTest(
         JSON,
-        new String[] {"{\"key\":\"value1\"}", "{\"key\":\"value2\"}", "{\"key\":\"value3\"}"});
+        new String[] {"{\"key\": \"value1\"}", "{\"key\": \"value2\"}", "{\"key\": \"value3\"}"});
   }
 
   private void executeTest(ColumnType columnType, Serializable[] values) {

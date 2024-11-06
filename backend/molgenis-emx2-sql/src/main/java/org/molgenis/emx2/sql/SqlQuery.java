@@ -1,6 +1,7 @@
 package org.molgenis.emx2.sql;
 
 import static org.jooq.impl.DSL.*;
+import static org.jooq.impl.SQLDataType.VARCHAR;
 import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.Operator.*;
 import static org.molgenis.emx2.Privileges.*;
@@ -1290,7 +1291,7 @@ public class SqlQuery extends QueryBean {
     for (String value : values) {
       switch (operator) {
         case EQUALS:
-          conditions.add(field(columnName).eq(value));
+          conditions.add(field(columnName).cast(VARCHAR).eq(value)); // cast is for the json
           break;
         case NOT_EQUALS:
           not = true;
