@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 public class ScriptTask extends Task {
   private static Logger logger = LoggerFactory.getLogger(ScriptTask.class);
   private String name;
-  private String type;
+  private ScriptType type;
   private String script;
   private String outputFileExtension;
   private String parameters;
@@ -42,7 +42,7 @@ public class ScriptTask extends Task {
 
   public ScriptTask(Row scriptMetadata) {
     this(scriptMetadata.getString("name"));
-    this.type(scriptMetadata.getString("type"))
+    this.type(ScriptType.valueOf(scriptMetadata.getString("type").toUpperCase()))
         .script(scriptMetadata.getString("script"))
         .outputFileExtension(scriptMetadata.getString("outputFileExtension"))
         .dependencies(scriptMetadata.getString("dependencies"))
@@ -76,9 +76,8 @@ public class ScriptTask extends Task {
 
         String command =
             switch (type) {
-              case "python" -> createPythonScript(tempDir);
-              case "bash" -> this.script;
-              default -> throw new MolgenisException("Unknown script type: " + type);
+              case PYTHON -> createShellScriptToExecutePythonScript(tempDir);
+              case BASH -> this.script;
             };
 
         // define outputFile and inputJson
@@ -149,7 +148,7 @@ public class ScriptTask extends Task {
     }
   }
 
-  private String createPythonScript(Path tempDir) throws IOException {
+  private String createShellScriptToExecutePythonScript(Path tempDir) throws IOException {
     // paste the script to a file into temp dir
     Path tempScriptFile = Files.createFile(tempDir.resolve("script.py"));
     script = script.replace("${jobId}", this.getId());
@@ -199,12 +198,12 @@ public class ScriptTask extends Task {
     return name;
   }
 
-  public ScriptTask type(String type) {
+  public ScriptTask type(ScriptType type) {
     this.type = type;
     return this;
   }
 
-  public String getType() {
+  public ScriptType getType() {
     return type;
   }
 
