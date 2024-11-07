@@ -72,8 +72,8 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | 43 | AVAILABLE DATA & SAMPLES | Data categories | | |
 | | | > Survey data ⓘ [hover text] | | |
 | | | Sample categories [no hover text] | | |
-| | | > Isolated Pathogen | | |
-| | | > Saliva | | |
+| | | > Fluids and Secretions | | |
+| | | >> Saliva | | |
 | | | Areas of information [no hover text] | | |
 | | | > Health and community care services utilization [consisting of the following when expanded:] | | |
 | | | >> Visits to health professionals | | |
