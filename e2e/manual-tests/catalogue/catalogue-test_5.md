@@ -71,10 +71,10 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | 42 | Return to the resource information page | | | |
 | 43 | AVAILABLE DATA & SAMPLES | Data categories | | |
 | | | > Survey data ⓘ [hover text] | | |
-| | | Sample categories [no hover text] | | |
+| | | Sample categories | | |
 | | | > Fluids and Secretions | | |
 | | | >> Saliva | | |
-| | | Areas of information [no hover text] | | |
+| | | Areas of information | | |
 | | | > Health and community care services utilization [consisting of the following when expanded:] | | |
 | | | >> Visits to health professionals | | |
 | | | >> Hospitalizations | | |
