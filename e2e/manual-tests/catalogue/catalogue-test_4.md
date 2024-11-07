@@ -34,7 +34,7 @@ A researcher working in consortium X (*example: testNetwork1*) searches for spec
 | 13 | In "Harmonisation details per source", click on tab for 'testcohort3' | Tab should show information for testcohort3 | | |
 | 14 | Click first variable | Dialog should show information available for the source variable | | |
 | 15 | Click back button to return to previous page | Should be redirected to network variable explorer with previously selected filters | | |
-| 16 | Open 'Harmonisations' tab | Harmonisations tab should show only variables ('testVarNoRepeats' and 'testVarRepeats_') and cohorts/databanks/data sources/etc which are part of the network; Show correct statuses for harmonisation (testCohort1: has info; testCohort2: no info; testCohort3: has info; testCohort4: has info) | | |
+| 16 | Open 'Harmonisations' tab | Harmonisations tab should show only variables ('testVarNoRepeats' and 'testVarRepeats_') and the sources which are part of the network; Show correct statuses for harmonisation (testCohort1: has info; testCohort2: no info; testCohort3: has info; testCohort4: has info) | | |
 | 17 | Hover over 'about statuses' | Pop up should show 'Available: source has data available for the variable'; 'No data: source does not have data available for the variable' | | |
 | 18 | Click first variable | Should show pop up/dialog with information about variable | | |
 | 19 | Click 'more details' in dialog | Should redirect to variable detailed view | | |
