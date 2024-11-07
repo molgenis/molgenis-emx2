@@ -16,18 +16,18 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | ---- | ------ | --------------- | ---------------- | --------------- |
 | 0 | NB: Assumptions | This test plan assumes that the settings are configured to display the contact form rather than just an e-mail address. | | |
 | 1 | Navigate to [testCatalogue on the acceptance server](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue) | Landing page: European health research data and sample catalogue | | |
-| 2 | Navigate to Search All | Collections, Networks and Variables buttons are shown with the number of each under each button | | |
-| 3a | Click on the Collections button | Should be directed to the list of collections with: collection logo, "COLLECTIONS", "Data & sample collections", Detailed/Compact toggle buttons ('Detailed' is selected by default), Filters on the LHS | | |
-| 3b | Click on Compact | The list of collections turns into a list of collection acronyms and names (in full), with an arrow after each collection | | |
+| 2 | Navigate to Search All |  `COLLECTIONS`, `NETWORKS`, and `VARIABLES` buttons are shown with the number of each under each button | | |
+| 3a | Click on the `COLLECTIONS` button | Should be directed to the list of collections with: collection logo, "COLLECTIONS", "Data & sample collections", `DETAILED`/`COMPACT` toggle buttons (`DETAILED` is selected by default), Filters on the LHS. | | |
+| 3b | Click on `COMPACT` | The list of collections turns into a list of collection acronyms and names (in full), with an arrow after each collection | | |
 | 4 | Type "name for test cohort" in the Search field top left | See that two collections are presented in the list: "acronym for test cohort 1" and "acronym for test cohort 2" | | |
 | 5a | Click on "Acronym for test cohort 2" | See that the resource detail page for Acronym for test cohort 2 is presented: "All > Collections", ACRONYM FOR TEST COHORT 2, Name for test cohort 2 | | |
-| 5b | | In the ribbon at the top of the page there should be: Left: Molgenis logo, Right: (L-R) Overview, Collections, Networks, Variables, More (--> Other catalogues, Upload data) | | |
-| 6 | Click on Contact | pop-up with "Name for test cohort 2", Contact, Name entry field, Email entry field, Organisation entry field, Topic dropdown, Message entry field, "or contact us at: <support@molgenis.org>", Send button | | |
-| 7 | Type in test message, fill in your own email address and press 'Send' | an email is sent to Molgenis Support | | |
-| 8 | Close the notification, if any pops up | return to the detailed page for "acronym for test cohort 2" | | |
-| 9 | Click on website link | go to molgenis.org in a new window | | |
-| 10 | Close website and return to catalogue | return to resource detail view page | | |
-| 11 | See that the following is visible on the left hand side of the screen | (logo for resource), Description, General design, Population, Organisations, Contributors, Available data & samples, Subpopulations, Collection events, Datasets, Networks, Publications, Access conditions, Funding & acknowledgements, Documentation | | |
+| 5b | | In the ribbon at the top of the page there should be: Left: Molgenis logo, Right: (L-R) `OVERVIEW`, `COLLECTIONS`, `NETWORKS`, `VARIABLES`, `MORE` (-> `Other catalogues`, `Upload data`) | | |
+| 6 | Click on the `CONTACT` button | pop-up with "Name for test cohort 2", Contact, Name entry field, Email entry field, Organisation entry field, Topic dropdown, Message entry field, "or contact us at: <support@molgenis.org>", `SEND` button | | |
+| 7 | Type in test message, fill in your own email address and press `SEND` | An e-mail is sent to Molgenis Support. | | |
+| 8 | Close the notification, if any pops up | Return to the detailed page for "acronym for test cohort 2". | | |
+| 9 | Click on website link | Go to molgenis.org in a new window. | | |
+| 10 | Close website and return to catalogue | Return to resource detail view page. | | |
+| 11 | See that the following is visible on the left hand side of the screen | (logo for resource), Description, General design, Population, Organisations, Contributors, Available Data & Samples, Subpopulations, Collection events, Datasets, Networks, Publications, Access Conditions, Funding & Acknowledgements, Documentation | | |
 | 12 | See that the fields are filled as follows: | | | |
 | 13 | First block: | small logo (test logo for cohort 2), <https://www.molgenis.org>, Contact button | | |
 | 14 | DESCRIPTION | This is the Test cohort 2. It has "other" options where possible. No end year, so "ongoing". Design paper = Birth of a cohort — the first 20 years of the Raine study, publications = other papers. No to data access fee. Here we have some extra text to... | | |
@@ -36,17 +36,17 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | 17 | Type | Cohort study | | |
 | 17b | Cohort type | Other type | | |
 | 18 | Data collection type | Retrospective | | |
-| 19 | Design | Longitudinal | | |
-| 20 | Hover on the I next to 'Longitudinal' | hover text is 'repeated observations at different time-points' | | |
+| 19 | Design | Longitudinal ⓘ | | |
+| 20 | Hover on the ⓘ next to 'Longitudinal' | The hover text is 'repeated observations at different time-points'. | | |
 | 21 | Design description | Description of the design used for cohort 2 | | |
 | 22 | Design schematic | Design schematic | | |
-| 23 | Click on design schematic | an image (from FORCE NEN) is downloaded into the Download folder on the PC | | |
+| 23 | Click on Design schematic | An image (from FORCE NEN) is downloaded. | | |
 | 24 | Start/End data collection | 1955 (ongoing) | | |
-| 25 | Design paper | Birth of a cohort — the first 20 years of the Raine study | | |
-| 26a | Click on the design paper | goes to the article <https://onlinelibrary.wiley.com/doi/10.5694/mja12.10698> in a new window | | |
-| 26b | close the window or reselect the catalogue display window | | | |
+| 25 | Design paper | Birth of a cohort — the first 20 years of the Raine study. | | |
+| 26a | Click on the design paper | Opens [the article](https://onlinelibrary.wiley.com/doi/10.5694/mja12.10698) in a new window. | | |
+| 26b | Return to the catalogue display window. | | | |
 | 27 | PID | `https://pid-for-testcohort2.org` | | |
-| 27b| External identifiers| EUDRACT number: test external identifier for cohort 2 |||
+| 27b| External identifiers| EUDRACT number: test external identifier for cohort 2 | | |
 | 28 | POPULATION | | | |
 | 29 | Countries | United Kingdom of Great Britain and Northern Ireland (the) | | |
 | 30 | Regions | Bradford | | |
