@@ -1,7 +1,7 @@
 
 # Install Molgenis emx2 as a system service 
 We support Redhat and Ubuntu based installations.
-
+Before proceeding with the installation, please ensure that no instances of Tomcat or PostgreSQL are installed or running on the server, and confirm that port 8080 is free. This is essential to prevent conflicts during the installation process.
 
 ## Java 
 
@@ -127,11 +127,21 @@ EOL
 <!-- tabs:start -->
 
 #### **Ubuntu (apt)**
+
+```console
+sudo apt update
+```
+
 ```console
 sudo apt install molgenis-emx2 
 ```
 
 #### **Redhat (yum)**
+
+```console
+sudo yum check-update 
+
+```
 
 ```console
 sudo yum install molgenis-emx2 
