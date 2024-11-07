@@ -851,14 +851,14 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
             String prefixedRole = MG_ROLE_PREFIX + schemaId + "/" + role;
             String prefixedName = MG_USER_PREFIX + userName;
 
-            List<Member> list =
+            List<Member> existingUserRoles =
                 this.getSchema(schemaId).getMembers().stream()
                     .filter((mem) -> mem.getUser().equals(userName))
                     .toList();
-            if (list.iterator().hasNext()) {
-              list.forEach(
-                  (mem) -> {
-                    String oldRole = MG_ROLE_PREFIX + schemaId + "/" + mem.getRole();
+            if (existingUserRoles.iterator().hasNext()) {
+              existingUserRoles.forEach(
+                  (existingRole) -> {
+                    String oldRole = MG_ROLE_PREFIX + schemaId + "/" + existingRole.getRole();
                     jooq.execute("REVOKE {0} FROM {1}", name(oldRole), name(prefixedName));
                   });
             }
