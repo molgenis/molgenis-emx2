@@ -39,3 +39,15 @@ You can also use these reports in scripts, to directly download the results, for
 * http://myserver.com/schema/api/report/1
 * http://myserver.com/schema/api/report/1,2 (then you get result from two reports)
 * http://myserver.com/schema/api/report/1,2?name=pooky,spike (then you get result from two reports using 'name' as parameter)
+
+# Returning JSON so you can use reports as REST like 'get' API
+
+You can create queries returning JSON to create JSON results consisting of nested data. If there is only one JSON result per row that value will be used in 
+result set. For example:
+```SELECT to_jsonb("Pet") AS result FROM "Pet"```
+
+Results in something like: 
+```[{name= ...},{name=...}]```
+
+N.B. when you ask for result from multiple reports you will get a nested result using the report names as keys, i.e.
+```{report1:[{...}], report2:[{...}]}```
