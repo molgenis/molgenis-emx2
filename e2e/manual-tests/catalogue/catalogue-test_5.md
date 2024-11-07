@@ -129,12 +129,12 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | | | Data Categories Survey data ⓘ [hover text] | | |
 | | | Sample categories | | |
 | | | > Fluids and Secretions | | |
-| 49 | Click the cross top right to close the pop-up | Come back to resource detail page | | |
+| 49 | Click the cross top right to close the pop-up | Return to the resource information page. | | |
 | 50 | DATASETS | DATASETS | | |
 | | | List of datasets for this resource | | |
 | | | Table with the following columns: Name, Description | | |
 | | | test dataset for testCohort2 test description of dataset for cohort 2 | | |
-| 51 | Click on name of dataset | pop-up appears with the following information | | |
+| 51 | Click on the name of the dataset | A pop-up appears with the following information: | | |
 | | | TEST DATASET FOR TESTCOHORT2 | | |
 | | | test description of dataset for cohort 2 | | |
 | | | Label label for test dataset for cohort 2 | | |
@@ -142,7 +142,7 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | | | Number of rows 83737 | | |
 | | | Since version 1959 | | |
 | | | Until version 1985 | | |
-| 52 | Click the cross top right to close the pop-up | Come back to resource detail page | | |
+| 52 | Click the cross top right to close the pop-up | Return to resource information page. | | |
 | 53 | NETWORKS, subtitle: Part of networks | List of networks in which this resource is involved. For each network: logo, name, > Website, and an arrow to navigate to details. | | |
 | | | name of test network2 | | |
 | | | > Website | | |
