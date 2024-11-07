@@ -39,7 +39,7 @@
             <TableCell>{{ user.enabled }}</TableCell>
             <TableCell>
               <div v-for="role in user.roles">
-                {{ role.schemaId }} ({{ role.role }})
+                {{ role.schema }} ({{ role.role }})
               </div>
             </TableCell>
             <TableCell> Tokens: {{ user.tokens?.length }} </TableCell>

@@ -2,7 +2,7 @@ import type { ISetting } from "../../metadata-utils/dist";
 const GRAPHQL = "/graphql";
 const API_GRAPHQL = "/api/graphql";
 
-export function deleteUser(user: IUser) {
+export async function deleteUser(user: IUser) {
   useFetch(API_GRAPHQL, {
     method: "post",
     body: {
@@ -28,12 +28,7 @@ export async function updateUser(user: IUser) {
 }
 
 function createUpdateUser(user: IUser) {
-  let updateUser: {
-    email: string;
-    enabled: boolean;
-    password?: string;
-    roles?: IRole[];
-  } = { email: user.email, enabled: user.enabled };
+  let updateUser: IUpdateUser = { email: user.email, enabled: user.enabled };
   if (user.password) {
     updateUser.password = user.password;
   }
@@ -56,7 +51,7 @@ export function createUser(newUserName: string, newPassword: string) {
   });
 }
 
-export async function getRoles(schemas: ISchemaInfo[]) {
+export async function getRoles(schemas: ISchemaInfo[]): Promise<string[]> {
   if (!schemas.length) return [];
 
   const { data, error } = await useFetch<{
@@ -135,7 +130,7 @@ export interface IUser {
   settings: ISetting[];
   enabled: boolean;
   tokens?: string[];
-  roles?: IRole[];
+  roles?: IMember[];
   password?: string;
 }
 
@@ -153,7 +148,15 @@ export interface ISchemaInfo {
   label: string;
 }
 
-export interface IRole {
-  schemaId: string;
+export interface IMember {
+  schema: string;
   role: string;
+  user?: string;
+}
+
+interface IUpdateUser {
+  email: string;
+  enabled: boolean;
+  password?: string;
+  roles?: IMember[];
 }

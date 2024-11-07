@@ -69,7 +69,9 @@ public interface Database extends HasSettingsInterface<Database> {
 
   int countUsers();
 
-  /** for testing purposes */
+  /**
+   * for testing purposes
+   */
   String getAdminUserName();
 
   /**
@@ -100,7 +102,11 @@ public interface Database extends HasSettingsInterface<Database> {
 
   Map<String, Supplier<Object>> getJavaScriptBindings();
 
+  List<LastUpdate> getLastUpdated();
+
   List<Member> loadUserRoles();
 
-  List<LastUpdate> getLastUpdated();
+  void revokeRoles(List<Member> revokedRoles);
+
+  void updateRoles(List<Member> roles);
 }

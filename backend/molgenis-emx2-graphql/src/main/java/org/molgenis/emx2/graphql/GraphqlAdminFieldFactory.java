@@ -13,6 +13,7 @@ import graphql.schema.*;
 import java.util.*;
 
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.sql.SqlDatabase;
 
 public class GraphqlAdminFieldFactory {
   private GraphqlAdminFieldFactory() {
@@ -185,14 +186,13 @@ public class GraphqlAdminFieldFactory {
 
                   List<Member> roles = (ArrayList<Member>) updatedUser.get(ROLES);
                   if (roles != null && roles.iterator().hasNext()) {
-                    roles.forEach(GraphqlAdminFieldFactory::setRole);
+                    db.updateRoles(roles);
                   }
 
                   List<Member> revokedRoles = (ArrayList<Member>) updatedUser.get("revokedRoles");
                   if (revokedRoles != null && revokedRoles.iterator().hasNext()) {
-                    revokedRoles.forEach(GraphqlAdminFieldFactory::revokeRole);
+                    db.revokeRoles(revokedRoles);
                   }
-
 
                   Boolean enabled = (Boolean) updatedUser.get(ENABLED);
                   if (enabled != null) {
@@ -217,7 +217,7 @@ public class GraphqlAdminFieldFactory {
   private static final GraphQLInputObjectType inputUserRolesType =
       new GraphQLInputObjectType.Builder()
           .name("InputUserRolesType")
-          .field(GraphQLInputObjectField.newInputObjectField().name(SCHEMA_ID).type(Scalars.GraphQLString))
+          .field(GraphQLInputObjectField.newInputObjectField().name("schema").type(Scalars.GraphQLString))
           .field(GraphQLInputObjectField.newInputObjectField().name(ROLE).type(Scalars.GraphQLString))
           .field(GraphQLInputObjectField.newInputObjectField().name(USER).type(Scalars.GraphQLString))
           .build();

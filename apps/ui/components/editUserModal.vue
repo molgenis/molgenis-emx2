@@ -36,7 +36,7 @@
             <TableCell>
               <Button size="tiny" icon="trash" @click="removeRole(role)" />
             </TableCell>
-            <TableCell>{{ role.schemaId }}</TableCell>
+            <TableCell>{{ role.schema }}</TableCell>
             <TableCell>{{ role.role }}</TableCell>
           </TableRow>
         </template>
@@ -72,7 +72,7 @@
 
 <script setup lang="ts">
 import { type Modal } from "#build/components";
-import type { IRole, ISchemaInfo, IUser } from "~/util/adminUtils";
+import type { IMember, ISchemaInfo, IUser } from "~/util/adminUtils";
 import { updateUser } from "~/util/adminUtils";
 import _ from "lodash";
 
@@ -88,7 +88,7 @@ const schema = ref<string>(schemas.length ? schemas[0].id : "");
 
 const userName = ref<string>("");
 const isEnabled = ref<boolean>(true);
-const userRoles = ref<Record<string, IRole>>({});
+const userRoles = ref<Record<string, IMember>>({});
 const userTokens = ref<string[]>([]);
 const password = ref<string>("");
 
@@ -105,14 +105,14 @@ function closeEditUserModal() {
 function addRole() {
   if (schema.value && role.value) {
     userRoles.value[schema.value] = {
-      schemaId: schema.value,
+      schema: schema.value,
       role: role.value,
     };
   }
 }
 
-function removeRole(role: IRole) {
-  delete userRoles.value[role.schemaId];
+function removeRole(role: IMember) {
+  delete userRoles.value[role.schema];
 }
 
 function removeToken(token: string) {
@@ -129,11 +129,11 @@ function showModal(selectedUser: IUser) {
   modal.value?.show();
 }
 
-function getRoles(roles: IRole[]): Record<string, IRole> {
+function getRoles(roles: IMember[]): Record<string, IMember> {
   return roles.reduce((accum, role) => {
-    accum[role.schemaId] = role;
+    accum[role.schema] = role;
     return accum;
-  }, {} as Record<string, IRole>);
+  }, {} as Record<string, IMember>);
 }
 
 async function saveUser() {
