@@ -32,7 +32,7 @@ A researcher working in consortium X (*example: testNetwork1*) searches for spec
 | 11 | In "Harmonisation status per source", hover over 'about statuses' | Pop up should show 'completed: source was able to fully map to the harmonised variables'; 'partially: source was able to partially map to the harmonised variable'; 'No data: no harmonisation information is available'. | | |
 | 12 | In "Harmonisation details per source", look at details for testcohort 1 | See that for Year 0 to Year 10 harmonisations details are available. | | |
 | 13 | In "Harmonisation details per source", click on tab for 'testcohort3' | Tab should show information for testcohort3 | | |
-| 14 | Click first variable used | Dialog should show information available for the source variable | | |
+| 14 | Click first variable | Dialog should show information available for the source variable | | |
 | 15 | Click back button to return to previous page | Should be redirected to network variable explorer with previously selected filters | | |
 | 16 | Open 'Harmonisations' tab | Harmonisations tab should show only variables ('testVarNoRepeats' and 'testVarRepeats_') and cohorts/databanks/data sources/etc which are part of the network; Show correct statuses for harmonisation (testCohort1: has info; testCohort2: no info; testCohort3: has info; testCohort4: has info) | | |
 | 17 | Hover over 'about statuses' | Pop up should show 'Available: source has data available for the variable'; 'No data: source does not have data available for the variable' | | |
