@@ -28,7 +28,7 @@ const toggleCollapse = () => {
         v-if="node.children?.length"
         @click="toggleCollapse()"
         class="text-blue-500 mr-1 mt-0.5 rounded-full hover:bg-blue-50 hover:cursor-pointer p-0.5"
-        :class="{ 'rotate-180': collapsed }"
+        :class="{ 'rotate-180': collapsed, 'ml-[-0.5rem]': isRootNode }"
       >
         <BaseIcon name="caret-up" :width="20" />
       </span>
