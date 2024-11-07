@@ -128,7 +128,7 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | | | > Cognition, personality and psychological measures and assessments | | |
 | | | Data Categories Survey data ⓘ [hover text] | | |
 | | | Sample categories | | |
-| | | > Isolated Pathogen Saliva | | |
+| | | > Fluids and Secretions | | |
 | 49 | Click the cross top right to close the pop-up | Come back to resource detail page | | |
 | 50 | DATASETS | DATASETS | | |
 | | | List of datasets for this resource | | |
