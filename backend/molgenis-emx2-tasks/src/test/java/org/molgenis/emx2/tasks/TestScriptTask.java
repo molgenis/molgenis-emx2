@@ -2,6 +2,8 @@ package org.molgenis.emx2.tasks;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.molgenis.emx2.tasks.ScriptType.BASH;
+import static org.molgenis.emx2.tasks.ScriptType.PYTHON;
 import static org.molgenis.emx2.tasks.TaskStatus.COMPLETED;
 import static org.molgenis.emx2.tasks.TaskStatus.ERROR;
 
