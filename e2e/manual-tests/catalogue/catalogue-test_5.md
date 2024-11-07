@@ -56,8 +56,8 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | 34 | Population oncology topology | KIDNEY. Consists of the following when expanded: | | |
 | | | Kidney, NOS | | |
 | 35 | Population oncology morphology | Epithelial Neoplasms, NOS. Consists of the following when expanded: | | |
-| 36 | Main medical condition | VIII Diseases of the ear and mastoid process | | |
 | | | Carcinomatosis | | |
+| 36 | Main medical condition | VIII Diseases of the ear and mastoid process | | |
 | 37 | Inclusion criteria | Age of majority inclusion criterion | | |
 | 38 | Other inclusion criteria | Other inclusion criteria cohort 2 | | |
 | 39 | ORGANISATIONS | | | |
