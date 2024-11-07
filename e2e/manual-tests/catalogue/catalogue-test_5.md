@@ -72,7 +72,7 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | 43 | AVAILABLE DATA & SAMPLES | Data categories | | |
 | | | > Survey data ⓘ [hover text] | | |
 | | | Sample categories | | |
-| | | > Fluids and Secretions | | |
+| | | > Fluids and Secretions [consisting of the following when expanded:] | | |
 | | | >> Saliva | | |
 | | | Areas of information | | |
 | | | > Health and community care services utilization [consisting of the following when expanded:] | | |
