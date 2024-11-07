@@ -85,8 +85,8 @@ public class TestLoaders {
   @Test
   public void test08DataCatalogueNetworkStagingLoader() {
     Schema networkStaging = database.createSchema(NETWORK_STAGING);
-    DataModels.Regular.DATA_CATALOGUE_NETWORK_STAGING.getImportTask(networkStaging, true).run();
-    assertEquals(16, networkStaging.getTableNames().size());
+    DataModels.Profile.DATA_CATALOGUE_NETWORK_STAGING.getImportTask(networkStaging, true).run();
+    assertEquals(15, networkStaging.getTableNames().size());
   }
 
   @Test
