@@ -36,7 +36,7 @@
             <TableCell>
               <Button size="tiny" icon="trash" @click="removeRole(role)" />
             </TableCell>
-            <TableCell>{{ role.schema }}</TableCell>
+            <TableCell>{{ role.schemaId }}</TableCell>
             <TableCell>{{ role.role }}</TableCell>
           </TableRow>
         </template>
@@ -72,7 +72,7 @@
 
 <script setup lang="ts">
 import { type Modal } from "#build/components";
-import type { IMember, ISchemaInfo, IUser } from "~/util/adminUtils";
+import type { IRole, ISchemaInfo, IUser } from "~/util/adminUtils";
 import { updateUser } from "~/util/adminUtils";
 import _ from "lodash";
 
@@ -88,7 +88,8 @@ const schema = ref<string>(schemas.length ? schemas[0].id : "");
 
 const userName = ref<string>("");
 const isEnabled = ref<boolean>(true);
-const userRoles = ref<Record<string, IMember>>({});
+const userRoles = ref<Record<string, IRole>>({});
+const revokedRoles = ref<Record<string, IRole>>({});
 const userTokens = ref<string[]>([]);
 const password = ref<string>("");
 
@@ -104,15 +105,17 @@ function closeEditUserModal() {
 
 function addRole() {
   if (schema.value && role.value) {
+    delete revokedRoles.value[schema.value];
     userRoles.value[schema.value] = {
-      schema: schema.value,
+      schemaId: schema.value,
       role: role.value,
     };
   }
 }
 
-function removeRole(role: IMember) {
-  delete userRoles.value[role.schema];
+function removeRole(role: IRole) {
+  revokedRoles.value[role.schemaId] = role;
+  delete userRoles.value[role.schemaId];
 }
 
 function removeToken(token: string) {
@@ -129,11 +132,11 @@ function showModal(selectedUser: IUser) {
   modal.value?.show();
 }
 
-function getRoles(roles: IMember[]): Record<string, IMember> {
+function getRoles(roles: IRole[]): Record<string, IRole> {
   return roles.reduce((accum, role) => {
-    accum[role.schema] = role;
+    accum[role.schemaId] = role;
     return accum;
-  }, {} as Record<string, IMember>);
+  }, {} as Record<string, IRole>);
 }
 
 async function saveUser() {
@@ -143,6 +146,7 @@ async function saveUser() {
     enabled: isEnabled.value,
     tokens: userTokens.value,
     roles: Object.values(userRoles.value),
+    revokedRoles: Object.values(revokedRoles.value),
   }; //TODO define update user object
 
   if (password.value) {

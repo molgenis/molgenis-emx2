@@ -17,6 +17,8 @@ public class GraphqlAdminFieldFactory {
     // hide constructor
   }
 
+  static final String SCHEMA = "schema";
+
   // Output types
   private static final GraphQLOutputType userType =
       GraphQLObjectType.newObject()
@@ -171,49 +173,44 @@ public class GraphqlAdminFieldFactory {
         .dataFetcher(
             dataFetchingEnvironment -> {
               LinkedHashMap updatedUser = dataFetchingEnvironment.getArgument("updateUser");
-              String email = (String) updatedUser.get(EMAIL);
-              if (email != null) {
+              String userName = (String) updatedUser.get(EMAIL);
+              if (userName != null) {
                 database.tx(
                     db -> {
-                      User user = db.getUser(email);
-
                       String password = (String) updatedUser.get(PASSWORD);
                       if (password != null) {
-                        db.setUserPassword(email, password);
+                        db.setUserPassword(userName, password);
                       }
 
-                      List<Member> roles = (ArrayList<Member>) updatedUser.get(ROLES);
+                      List<Map<String, String>> roles =
+                          (List<Map<String, String>>) updatedUser.get(ROLES);
                       if (roles != null && roles.iterator().hasNext()) {
-                        db.updateRoles(roles);
+                        db.updateRoles(userName, roles);
                       }
 
-                      List<Member> revokedRoles =
-                          (ArrayList<Member>) updatedUser.get("revokedRoles");
+                      List<Map<String, String>> revokedRoles =
+                          (List<Map<String, String>>) updatedUser.get("revokedRoles");
                       if (revokedRoles != null && revokedRoles.iterator().hasNext()) {
-                        db.revokeRoles(revokedRoles);
+                        db.revokeRoles(userName, revokedRoles);
                       }
 
                       Boolean enabled = (Boolean) updatedUser.get(ENABLED);
                       if (enabled != null) {
-                        db.setEnabledUser(email, enabled);
+                        db.setEnabledUser(userName, enabled);
                       }
                     });
               }
-              return new GraphqlApiMutationResult(SUCCESS, "User %s updated", email);
+              return new GraphqlApiMutationResult(SUCCESS, "User %s updated", userName);
             })
         .build();
   }
-
-  private static void revokeRole(Member member) {}
-
-  private static void setRole(Member role) {}
 
   private static final GraphQLInputObjectType inputUserRolesType =
       new GraphQLInputObjectType.Builder()
           .name("InputUserRolesType")
           .field(
               GraphQLInputObjectField.newInputObjectField()
-                  .name("schema")
+                  .name(SCHEMA_ID)
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField().name(ROLE).type(Scalars.GraphQLString))

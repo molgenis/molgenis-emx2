@@ -28,7 +28,11 @@ export async function updateUser(user: IUser) {
 }
 
 function createUpdateUser(user: IUser) {
-  let updateUser: IUpdateUser = { email: user.email, enabled: user.enabled };
+  let updateUser: IUpdateUser = {
+    email: user.email,
+    enabled: user.enabled,
+    revokedRoles: user.revokedRoles || [],
+  };
   if (user.password) {
     updateUser.password = user.password;
   }
@@ -130,7 +134,8 @@ export interface IUser {
   settings: ISetting[];
   enabled: boolean;
   tokens?: string[];
-  roles?: IMember[];
+  roles?: IRole[];
+  revokedRoles?: IRole[];
   password?: string;
 }
 
@@ -148,15 +153,15 @@ export interface ISchemaInfo {
   label: string;
 }
 
-export interface IMember {
-  schema: string;
+export interface IRole {
+  schemaId: string;
   role: string;
-  user?: string;
 }
 
 interface IUpdateUser {
   email: string;
   enabled: boolean;
   password?: string;
-  roles?: IMember[];
+  roles?: IRole[];
+  revokedRoles: IRole[];
 }
