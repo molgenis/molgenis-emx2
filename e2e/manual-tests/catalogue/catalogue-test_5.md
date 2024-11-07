@@ -150,20 +150,22 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | | | > Website | | |
 | | | name for test network1 | | |
 | | | > Website | | |
-| 54 | Click on 'name of test network of networks' | go to molgenis.org in a new window | | |
-| 55 | return to resource detail view | | | |
-| 56| PUBLICATIONS | | | |
+| 54 | Click on 'name for test network of networks' | Molgenis.org opens in a new window. | | |
+| 55 | Return to the resource information page | | | |
+| 56a | PUBLICATIONS | | | |
 | | | Clickable block per publication with the name of the publication as a clickable link which opens the link in a new window: "Birth of a cohort--the first 20 years of the Raine study", "test publication 2", "test publication 3" | | |
-| | Click on test publication 2 | article "Maternal Dietary Glycemic Index and Glycemic Load in Pregnancy and Offspring Cord Blood DNA Methylation" opens in a new window | | |
+| | Click on test publication 2 | The paper "Maternal Dietary Glycemic Index and Glycemic Load in Pregnancy and Offspring Cord Blood DNA Methylation" opens in a new window. | | |
+| 56b | Return to the resource information page | | | |
 | 57 | ACCESS CONDITIONS | Data access conditions description text cohort 2 - no fee | | |
 | | Data access conditions | general research use | | |
-| | Data use conditions | publication required | | |
+| | Data use conditions | publication required ⓘ | | |
 | | Data access fee | false | | |
 | | Release type | Annually | | |
-| | Release description |Release description cohort 2 | | |
+| | Release description | Release description cohort 2 | | |
 | | Prelinked | false | | |
 | | Linkage options | Linkage options cohort 2 | | |
 | 58 | FUNDING & ACKNOWLEDGEMENTS | Funding This is the funding statement for cohort 2. It's not too long but covers more than one line, I think, particularly if I fill it up with blah blah blah (check for "until now" at the end to make sure all the text has been displayed) lorem ipsum text repeated several times UNTIL NOW | | |
 | | | Acknowledgements This is the acknowledgement statement for cohort 2. It's not too long but covers more than one line, I think, particularly if I fill it up with blah blah blah (check for "until now" at the end to make sure all the text has been displayed) lorem ipsum text repeated several times UNTIL NOW | | |
 | 59 | DOCUMENTATION | | | |
-| | | Card per document, clickable so that you open the document - TEST SIGNED CODE OF CONDUCT FOR COHORT 2 is downloaded into the PC's Downloads folder if the user clicks on it | | |
+| | | Card per document, clickable so that the document is opened in a new window. | | |
+| | | test signed code of conduct for cohort 2 | | |
