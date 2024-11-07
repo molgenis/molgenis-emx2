@@ -16,7 +16,7 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | ---- | ------ | --------------- | ---------------- | --------------- |
 | 0 | NB: Assumptions | This test plan assumes that the settings are configured to display the contact form rather than just an e-mail address. | | |
 | 1 | Navigate to [testCatalogue on the acceptance server](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue) | Landing page: European health research data and sample catalogue | | |
-| 2 | Navigate to Search All | Collections, Networks and Variables buttons are shown with numbers of each under each button | | |
+| 2 | Navigate to Search All | Collections, Networks and Variables buttons are shown with the number of each under each button | | |
 | 3a | Click on the Collections button | Should be directed to the list of collections with: collection logo, "COLLECTIONS", "Data & sample collections", Detailed/Compact toggle buttons ('Detailed' is selected by default), Filters on the LHS | | |
 | 3b | Click on Compact | The list of collections turns into a list of collection acronyms and names (in full), with an arrow after each collection | | |
 | 4 | Type "name for test cohort" in the Search field top left | See that two collections are presented in the list: "acronym for test cohort 1" and "acronym for test cohort 2" | | |
