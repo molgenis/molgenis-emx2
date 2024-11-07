@@ -144,11 +144,11 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | | | Until version 1985 | | |
 | 52 | Click the cross top right to close the pop-up | Return to resource information page. | | |
 | 53 | NETWORKS, subtitle: Part of networks | List of networks in which this resource is involved. For each network: logo, name, > Website, and an arrow to navigate to details. | | |
-| | | name of test network2 | | |
+| | | name for test network2 | | |
 | | | > Website | | |
-| | | name of test network of networks | | |
+| | | name for test network of networks | | |
 | | | > Website | | |
-| | | name of test network1 | | |
+| | | name for test network1 | | |
 | | | > Website | | |
 | 54 | Click on 'name of test network of networks' | go to molgenis.org in a new window | | |
 | 55 | return to resource detail view | | | |
