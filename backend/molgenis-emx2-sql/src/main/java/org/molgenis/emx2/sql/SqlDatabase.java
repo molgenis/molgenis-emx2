@@ -157,7 +157,6 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
           });
 
       Migrations.initOrMigrate(this);
-      SchemaMigrations.migrate(this);
 
       if (!hasUser(ANONYMOUS)) {
         addUser(ANONYMOUS); // used when not logged in
