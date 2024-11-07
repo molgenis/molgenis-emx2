@@ -119,7 +119,7 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | 48 | Click on test collection event for cohort 2 | Pop-up with information on the test collection event for cohort 2 appears | | |
 | | | TEST COLLECTION EVENT FOR COHORT 2 | | |
 | | | description of test collection event for cohort 2 | | |
-| | | Subcohorts test subcohort 2A | | |
+| | | Subpopulations test subcohort 2A | | |
 | | | Number of participants 15000 | | |
 | | | Start/end year 1956-06-01 until 1999-12-31 | | |
 | | | Age categories Prenatal All ages | | |
