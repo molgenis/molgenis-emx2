@@ -1,25 +1,3 @@
-<script setup lang="ts">
-import type { IDefinitionListItem } from "~/interfaces/types";
-
-withDefaults(
-  defineProps<{
-    item: IDefinitionListItem;
-    small?: boolean;
-  }>(),
-  {
-    small: false,
-  }
-);
-
-const isArray = (value: []) => {
-  return Array.isArray(value);
-};
-
-function showAsFile(item: IDefinitionListItem) {
-  return item.content && item.content.url && item.content.extension;
-}
-</script>
-
 <template>
   <DefinitionListTerm>
     <div class="flex items-center gap-1">
@@ -87,3 +65,25 @@ function showAsFile(item: IDefinitionListItem) {
     </div>
   </DefinitionListDefinition>
 </template>
+
+<script setup lang="ts">
+import type { IDefinitionListItem } from "~/interfaces/types";
+
+withDefaults(
+  defineProps<{
+    item: IDefinitionListItem;
+    small?: boolean;
+  }>(),
+  {
+    small: false,
+  }
+);
+
+const isArray = (value: []) => {
+  return Array.isArray(value);
+};
+
+function showAsFile(item: IDefinitionListItem) {
+  return item.content && item.content.url && item.content.extension;
+}
+</script>
