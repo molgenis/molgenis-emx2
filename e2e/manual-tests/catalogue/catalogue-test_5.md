@@ -39,7 +39,7 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | 19 | Design | Longitudinal | | |
 | 20 | Hover on the I next to 'Longitudinal' | hover text is 'repeated observations at different time-points' | | |
 | 21 | Design description | Description of the design used for cohort 2 | | |
-| 22 | Design schematic | Design schematic | <https://github.com/molgenis/molgenis-emx2/issues/3512> | |
+| 22 | Design schematic | Design schematic | | |
 | 23 | Click on design schematic | an image (from FORCE NEN) is downloaded into the Download folder on the PC | | |
 | 24 | Start/End data collection | 1955 (ongoing) | | |
 | 25 | Design paper | Birth of a cohort — the first 20 years of the Raine study | | |
