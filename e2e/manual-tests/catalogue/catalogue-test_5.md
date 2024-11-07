@@ -58,7 +58,7 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | 35 | Population oncology morphology | Epithelial Neoplasms, NOS. Consists of the following when expanded: | | |
 | | | Carcinomatosis | | |
 | 36 | Main medical condition | VIII Diseases of the ear and mastoid process | | |
-| 37 | Inclusion criteria | Age of majority inclusion criterion | | |
+| 37 | Inclusion criteria | Age of majority inclusion criterion ⓘ | | |
 | 38 | Other inclusion criteria | Other inclusion criteria cohort 2 | | |
 | 39 | ORGANISATIONS | | | |
 | | | Lead organisations | | |
@@ -67,10 +67,10 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | | | 1 card with organisation: name for test additional organisation 2 (acronym for test additional organisation 2) \| Bosnia and Herzegovina \| Data provider, Surveillance | | |
 | 40 | CONTRIBUTORS | | | |
 | | | 1 card with contributor: dr.  A.L.T.E.R. (cohort2alternativefirst) surname prefix cohort2alternativelast \| name for test lead organisation 2 \| <testemailalternative@testdomain.nl> \| Alternative contact | | |
-| 41 | click on the email address of the contact person | local email system is opened and an email addressed to <testemailalternative@testdomain.nl> is started | | |
-| 42 | return to resource detail view | | | |
+| 41 | Click on the email address of the contact person | The local email system opens and an email addressed to <testemailalternative@testdomain.nl> is opened. | | |
+| 42 | Return to the resource information page | | | |
 | 43 | AVAILABLE DATA & SAMPLES | Data categories | | |
-| | | > Survey data [with hover text] | | |
+| | | > Survey data ⓘ [hover text] | | |
 | | | Sample categories [no hover text] | | |
 | | | > Isolated Pathogen | | |
 | | | > Saliva | | |
