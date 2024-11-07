@@ -120,9 +120,7 @@ export default {
   },
   methods: {
     showColumn(column: IColumn) {
-      if (column.columnType === AUTO_ID) {
-        return this.pkey;
-      } else if (column.refLinkId) {
+      if (column.refLinkId) {
         return this.internalValues[column.refLinkId];
       } else {
         const isColumnVisible = this.visibleColumns

@@ -103,10 +103,6 @@ const generalDesign: IDefinitionListItem[] = [
     content: props.resource.unitOfObservation,
   },
   {
-    label: "Keywords",
-    content: props.resource.keywords,
-  },
-  {
     label: "Date last refresh",
     content: props.resource.dateLastRefresh,
   },

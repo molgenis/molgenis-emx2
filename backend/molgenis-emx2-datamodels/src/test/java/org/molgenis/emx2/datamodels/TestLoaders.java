@@ -85,15 +85,15 @@ public class TestLoaders {
   @Test
   public void test08DataCatalogueNetworkStagingLoader() {
     Schema networkStaging = database.createSchema(NETWORK_STAGING);
-    DataModels.Regular.DATA_CATALOGUE_NETWORK_STAGING.getImportTask(networkStaging, true).run();
-    assertEquals(16, networkStaging.getTableNames().size());
+    DataModels.Profile.DATA_CATALOGUE_NETWORK_STAGING.getImportTask(networkStaging, true).run();
+    assertEquals(15, networkStaging.getTableNames().size());
   }
 
   @Test
   public void test09DirectoryLoader() {
     Schema directory = database.createSchema(DIRECTORY_TEST);
     DataModels.Regular.BIOBANK_DIRECTORY.getImportTask(directory, true).run();
-    assertEquals(10, directory.getTableNames().size());
+    assertEquals(11, directory.getTableNames().size());
   }
 
   @Test
