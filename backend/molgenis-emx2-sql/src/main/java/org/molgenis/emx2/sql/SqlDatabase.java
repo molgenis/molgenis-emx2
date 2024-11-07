@@ -9,12 +9,10 @@ import static org.molgenis.emx2.sql.SqlDatabaseExecutor.*;
 import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeCreateSchema;
 
 import com.zaxxer.hikari.HikariDataSource;
-
 import java.security.SecureRandom;
 import java.util.*;
 import java.util.function.Supplier;
 import javax.sql.DataSource;
-
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.SQLDialect;
@@ -834,37 +832,37 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   public void revokeRoles(List<Member> members) {
     try {
 
-      members.forEach((member) -> {
-        String userPrefix = Constants.MG_USER_PREFIX;
-        String rolePrefix = Constants.MG_ROLE_PREFIX + member.getSchema() + "/";
+      members.forEach(
+          (member) -> {
+            String userPrefix = Constants.MG_USER_PREFIX;
+            String rolePrefix = Constants.MG_ROLE_PREFIX + member.getSchema() + "/";
 
-        this.getJooq().execute(
-            "REVOKE {0} FROM {1}",
-            name(rolePrefix + member.getRole()),
-            name(userPrefix + member.getUser())
-        );
-      });
+            this.getJooq()
+                .execute(
+                    "REVOKE {0} FROM {1}",
+                    name(rolePrefix + member.getRole()), name(userPrefix + member.getUser()));
+          });
     } catch (DataAccessException dae) {
       throw new SqlMolgenisException("Removal of role failed", dae);
     }
-
   }
 
   public void updateRoles(List<Member> members) {
     try {
-      members.forEach((member) -> {
-//        String userPrefix = Constants.MG_USER_PREFIX;
-//        String rolePrefix = Constants.MG_ROLE_PREFIX + member.getSchema() + "/";
-//
-//        this.getJooq().execute(
-//            "REVOKE {0} FROM {1}",
-//            name(rolePrefix + member.getRole()),
-//            name(userPrefix + member.getUser())
-//        );
-      });
+      members.forEach(
+          (member) -> {
+            System.out.println(member);
+            //        String userPrefix = Constants.MG_USER_PREFIX;
+            //        String rolePrefix = Constants.MG_ROLE_PREFIX + member.getSchema() + "/";
+            //
+            //        this.getJooq().execute(
+            //            "REVOKE {0} FROM {1}",
+            //            name(rolePrefix + member.getRole()),
+            //            name(userPrefix + member.getUser())
+            //        );
+          });
     } catch (DataAccessException dae) {
       throw new SqlMolgenisException("Updating of role failed", dae);
     }
-
   }
 }

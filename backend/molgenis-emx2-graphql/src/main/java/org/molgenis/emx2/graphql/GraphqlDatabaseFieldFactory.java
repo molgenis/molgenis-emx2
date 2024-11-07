@@ -2,7 +2,7 @@ package org.molgenis.emx2.graphql;
 
 import static org.molgenis.emx2.Constants.DESCRIPTION;
 import static org.molgenis.emx2.Constants.SETTINGS;
-import static org.molgenis.emx2.graphql.GraphlAdminFieldFactory.mapSettingsToGraphql;
+import static org.molgenis.emx2.graphql.GraphqlAdminFieldFactory.mapSettingsToGraphql;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
 import static org.molgenis.emx2.graphql.GraphqlConstants.*;
@@ -11,10 +11,8 @@ import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.*;
 
 import graphql.Scalars;
 import graphql.schema.*;
-
 import java.util.*;
 import java.util.stream.Collectors;
-
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.datamodels.DataModels;
 import org.molgenis.emx2.tasks.Task;

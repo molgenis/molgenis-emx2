@@ -69,9 +69,7 @@ public interface Database extends HasSettingsInterface<Database> {
 
   int countUsers();
 
-  /**
-   * for testing purposes
-   */
+  /** for testing purposes */
   String getAdminUserName();
 
   /**

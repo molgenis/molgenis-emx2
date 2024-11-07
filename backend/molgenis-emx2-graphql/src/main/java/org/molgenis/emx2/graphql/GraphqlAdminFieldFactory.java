@@ -9,11 +9,8 @@ import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.*;
 
 import graphql.Scalars;
 import graphql.schema.*;
-
 import java.util.*;
-
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.sql.SqlDatabase;
 
 public class GraphqlAdminFieldFactory {
   private GraphqlAdminFieldFactory() {
@@ -176,57 +173,69 @@ public class GraphqlAdminFieldFactory {
               LinkedHashMap updatedUser = dataFetchingEnvironment.getArgument("updateUser");
               String email = (String) updatedUser.get(EMAIL);
               if (email != null) {
-                database.tx(db -> {
-                  User user = db.getUser(email);
+                database.tx(
+                    db -> {
+                      User user = db.getUser(email);
 
-                  String password = (String) updatedUser.get(PASSWORD);
-                  if (password != null) {
-                    db.setUserPassword(email, password);
-                  }
+                      String password = (String) updatedUser.get(PASSWORD);
+                      if (password != null) {
+                        db.setUserPassword(email, password);
+                      }
 
-                  List<Member> roles = (ArrayList<Member>) updatedUser.get(ROLES);
-                  if (roles != null && roles.iterator().hasNext()) {
-                    db.updateRoles(roles);
-                  }
+                      List<Member> roles = (ArrayList<Member>) updatedUser.get(ROLES);
+                      if (roles != null && roles.iterator().hasNext()) {
+                        db.updateRoles(roles);
+                      }
 
-                  List<Member> revokedRoles = (ArrayList<Member>) updatedUser.get("revokedRoles");
-                  if (revokedRoles != null && revokedRoles.iterator().hasNext()) {
-                    db.revokeRoles(revokedRoles);
-                  }
+                      List<Member> revokedRoles =
+                          (ArrayList<Member>) updatedUser.get("revokedRoles");
+                      if (revokedRoles != null && revokedRoles.iterator().hasNext()) {
+                        db.revokeRoles(revokedRoles);
+                      }
 
-                  Boolean enabled = (Boolean) updatedUser.get(ENABLED);
-                  if (enabled != null) {
-                    db.setEnabledUser(email, enabled);
-                  }
-                });
-
+                      Boolean enabled = (Boolean) updatedUser.get(ENABLED);
+                      if (enabled != null) {
+                        db.setEnabledUser(email, enabled);
+                      }
+                    });
               }
               return new GraphqlApiMutationResult(SUCCESS, "User %s updated", email);
             })
         .build();
   }
 
-  private static void revokeRole(Member member) {
+  private static void revokeRole(Member member) {}
 
-  }
-
-  private static void setRole(Member role) {
-
-  }
+  private static void setRole(Member role) {}
 
   private static final GraphQLInputObjectType inputUserRolesType =
       new GraphQLInputObjectType.Builder()
           .name("InputUserRolesType")
-          .field(GraphQLInputObjectField.newInputObjectField().name("schema").type(Scalars.GraphQLString))
-          .field(GraphQLInputObjectField.newInputObjectField().name(ROLE).type(Scalars.GraphQLString))
-          .field(GraphQLInputObjectField.newInputObjectField().name(USER).type(Scalars.GraphQLString))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name("schema")
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLInputObjectField.newInputObjectField().name(ROLE).type(Scalars.GraphQLString))
+          .field(
+              GraphQLInputObjectField.newInputObjectField().name(USER).type(Scalars.GraphQLString))
           .build();
   private static final GraphQLInputObjectType updateUserType =
       new GraphQLInputObjectType.Builder()
           .name("InputUpdateUser")
-          .field(GraphQLInputObjectField.newInputObjectField().name(EMAIL).type(Scalars.GraphQLString))
-          .field(GraphQLInputObjectField.newInputObjectField().name(ENABLED).type(Scalars.GraphQLBoolean))
-          .field(GraphQLInputObjectField.newInputObjectField().name(ROLES).type(GraphQLList.list(inputUserRolesType)))
-          .field(GraphQLInputObjectField.newInputObjectField().name("revokedRoles").type(GraphQLList.list(inputUserRolesType)))
+          .field(
+              GraphQLInputObjectField.newInputObjectField().name(EMAIL).type(Scalars.GraphQLString))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(ENABLED)
+                  .type(Scalars.GraphQLBoolean))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(ROLES)
+                  .type(GraphQLList.list(inputUserRolesType)))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name("revokedRoles")
+                  .type(GraphQLList.list(inputUserRolesType)))
           .build();
 }
