@@ -181,6 +181,10 @@ jobs:
         command: psql -h 127.0.0.1 -p 5432 -U postgres < .docker/initdb.sql
 
     - run:
+        name: warm up the cache
+        command: pip install molgenis-emx2-pyclient
+
+    - run:
         name: run tests and push to sonar
         command: |
           ./gradlew test jacocoMergedReport sonar --no-daemon \
