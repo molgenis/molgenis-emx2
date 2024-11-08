@@ -182,7 +182,7 @@ jobs:
 
     - run:
         name: warm up the cache
-        command: pip install molgenis-emx2-pyclient
+        command: pip3 install molgenis-emx2-pyclient numpy==1.23.4
 
     - run:
         name: run tests and push to sonar
