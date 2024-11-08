@@ -1,46 +1,61 @@
 <template>
-  <ul class="mb-6">
-    <li>selection: {{ modelValue }}</li>
-    <li>focus index: {{ focusIndex }}</li>
-  </ul>
+  <output class="block w-full mb-6 bg-gray-100 py-2 px-2">
+    {{ focusCounter }}: {{ modelValue }}
+  </output>
 
   <div class="w-full relative">
-    <InputListboxToggle
+    <button
+      ref="listboxToggle"
       :id="`listbox-${id}-toggle`"
-      :value="modelValue?.value"
-      :label="modelValue?.label"
-      :placeholder="placeholder"
-      :controls="`listbox-${id}-options`"
-      :required="required"
-      :hasError="hasError"
+      role="combobox"
+      aria-haspopup="listbox"
+      :aria-controls="`listbox-${id}-options`"
+      :aria-required="required"
+      :aria-expanded="listboxIsExpanded"
+      class="flex justify-start items-center h-10 w-full text-left pl-10 border-input bg-input text-button-input-toggle"
       @click="openCloseListbox"
-    />
+    >
+      <span class="w-full" v-if="modelValue?.label">
+        {{ modelValue.label }}
+      </span>
+      <span class="w-full" v-else-if="modelValue?.value">
+        {{ modelValue.value }}
+      </span>
+      <span class="w-full" v-else>
+        {{ placeholder }}
+      </span>
+      <div class="w-[60px] flex flex-col">
+        <BaseIcon :width="18" name="caret-up" class="mx-auto -my-1" />
+        <BaseIcon :width="18" name="caret-down" class="mx-auto -my-1" />
+      </div>
+    </button>
 
     <ul
       :id="`listbox-${id}-options`"
       role="listbox"
-      tabindex="0"
-      ref="listboxList"
+      ref="listboxListRef"
       :aria-expanded="listboxIsExpanded"
-      :aria-activedescendant="modelValue?.elemId"
       class="absolute b-0 w-full z-10 bg-listbox"
-      :class="{
-        hidden: !listboxIsExpanded,
-      }"
-      @keydown="onKeyboardEvent"
+      :class="{ hidden: !listboxIsExpanded }"
+      tabindex="0"
+      @keydown.space.prevent
+      @keydown.up.prevent="onKeyUp"
+      @keydown.down.prevent="onKeyDown"
     >
       <li
-        v-for="(option, index) in listboxOptions"
-        :ref="listboxOptionRefs.set"
+        v-for="option in listboxOptions"
+        ref="listboxOptionsRef"
+        :id="`listbox-${id}-options-${option.index}`"
         role="option"
-        :id="`listbox-${id}-options-${index}`"
-        class="flex justify-start items-center gap-3 pl-3 py-1 text-listbox border-t-[1px] border-t-listbox-option cursor-pointer focus:bg-listbox-hover focus:text-listbox hover:bg-listbox-hover hover:text-listbox"
+        class="flex justify-start items-center gap-3 pl-3 py-1 text-listbox border-t-[1px] border-t-listbox-option hover:cursor-pointer hover:bg-listbox-hover hover:text-listbox focus:bg-listbox-selected focus:text-listbox-selected"
         :class="{
           '!bg-listbox-selected !text-listbox-selected':
             option.value === modelValue?.value,
         }"
-        @click="onListOptionClick(option)"
-        @focus="console.log(option.value, ' is focused')"
+        :aria-selected="option.value === modelValue?.value"
+        @click="(event: Event) => updateModelValue(event, option)"
+        @focus="(event: Event) => updateModelValue(event, option)"
+        @blur="(event: Event) => (event.target as HTMLOptionElement).setAttribute('tabindex', '-1')"
       >
         <BaseIcon
           name="Check"
@@ -55,37 +70,27 @@
           {{ option.value }}
         </span>
       </li>
-      <!-- <ListboxListItem
-        v-for="(option, index) in listboxOptions"
-        :key="index"
-        :ref="listboxOptionRefs.set"
-        :listbox-id="`listbox-${id}-options`"
-        :elem-id="`listbox-${id}-options-${index}`"
-        :value="option.value"
-        :label="option.label"
-        :selected="option.value === modelValue?.value"
-        @update:model-value="onSelection"
-      /> -->
     </ul>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { useTemplateRefsList } from "@vueuse/core";
-import { ref, useTemplateRef } from "vue";
+import { ref, useTemplateRef, nextTick } from "vue";
 
 interface IListboxOption {
-  elemId?: string;
-  value: string | number | boolean;
+  value: string | number | boolean | undefined | null;
   label?: string;
-  selected?: boolean;
+}
+
+interface IInternalListboxOption extends IListboxOption {
+  index: number;
 }
 
 const props = withDefaults(
   defineProps<{
     id: string;
-    listboxLabelId: string;
-    listboxOptions: IListboxOption[];
+    labelId: string;
+    options: IListboxOption[];
     required?: boolean;
     hasError?: boolean;
     placeholder?: string;
@@ -97,58 +102,74 @@ const props = withDefaults(
   }
 );
 
-const modelValue = defineModel<IListboxOption>();
+const focusCounter = ref<number>(0);
 const listboxIsExpanded = ref<boolean>(false);
-const focusIndex = ref<number>(0);
-const listboxListRef = useTemplateRef<HTMLUListElement>("listboxList");
-const listboxOptionRefs = useTemplateRefsList();
+const modelValue = defineModel<IInternalListboxOption>();
+const ulElemRef = useTemplateRef<HTMLUListElement>("listboxListRef");
+const olElemRefs = useTemplateRef<HTMLOptionElement[]>("listboxOptionsRef");
+const btnElemRef = useTemplateRef<HTMLButtonElement>("listboxToggle");
 
-function focusFirstElement() {
-  (listboxOptionRefs.value[0] as HTMLOptionElement).focus();
+const listboxOptions = computed<IInternalListboxOption[]>(() => {
+  const defaultOption: IListboxOption = {
+    value: null,
+    label: props.placeholder,
+  };
+  const data: IListboxOption[] = [defaultOption, ...props.options];
+  return data.map((option: IListboxOption, index: number) => {
+    return { ...option, index: index };
+  });
+});
+
+function counterIsInRange(value: number) {
+  return value <= listboxOptions.value.length - 1 && value >= 0;
+}
+
+function updateCounter(value: number) {
+  if (counterIsInRange(value)) {
+    focusCounter.value = value;
+  } else {
+    focusCounter.value = focusCounter.value;
+  }
+}
+
+function focusListOption() {
+  nextTick(() => {
+    if (olElemRefs.value) {
+      const targetElem = olElemRefs.value[
+        focusCounter.value
+      ] as HTMLOptionElement;
+      targetElem.setAttribute("tabindex", "0");
+      targetElem.focus();
+    }
+  });
+}
+
+function updateModelValue(event: Event, selection: IInternalListboxOption) {
+  const elemId: string = (event.target as HTMLOptionElement).id;
+  btnElemRef.value?.setAttribute("aria-activedescendant", elemId);
+  modelValue.value = selection;
+  focusCounter.value = selection.index;
+}
+
+function onKeyUp(event: Event) {
+  const newCounterValue = focusCounter.value - 1;
+  updateCounter(newCounterValue);
+  focusListOption();
+}
+
+function onKeyDown(event: Event) {
+  const newCounterValue = focusCounter.value + 1;
+  updateCounter(newCounterValue);
+  focusListOption();
 }
 
 function openCloseListbox() {
   listboxIsExpanded.value = !listboxIsExpanded.value;
-  if (listboxIsExpanded.value) {
-    console.log(listboxListRef.value);
-    listboxListRef.value?.focus();
-    focusFirstElement();
+  if (listboxIsExpanded.value && modelValue.value) {
+    updateCounter(modelValue.value.index);
+  } else {
+    updateCounter(0);
   }
-}
-
-function onListOptionClick(data: IListboxOption) {
-  modelValue.value = data;
-  openCloseListbox();
-}
-
-function onKeyboardEvent(event: KeyboardEvent) {
-  const key = event.key;
-  if (key === "ArrowDown") {
-    event.preventDefault();
-    const newIndexValue: number = focusIndex.value + 1;
-    if (newIndexValue > props.listboxOptions.length - 1) {
-      focusIndex.value = props.listboxOptions.length - 1;
-    } else {
-      focusIndex.value = newIndexValue;
-    }
-  }
-  if (key === "ArrowUp") {
-    event.preventDefault();
-    console.log("up arrow pressed");
-    const newIndexValue: number = focusIndex.value - 1;
-    if (newIndexValue < 0) {
-      focusIndex.value = 0;
-    } else {
-      focusIndex.value = newIndexValue;
-    }
-  }
-
-  if (key === "Enter") {
-    console.log("new selection");
-  }
-
-  if (key === "Spacebar" || key === "" || key === " ") {
-    event.preventDefault();
-  }
+  focusListOption();
 }
 </script>
