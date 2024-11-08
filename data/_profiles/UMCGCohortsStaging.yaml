@@ -3,11 +3,8 @@ name: Staging area for filling out UMCG cohort metadata
 
 profileTags: UMCGCohortsStaging
 
-# demoData: _demodata/applications/datacatalogue
-
-#settings: _settings/datacatalogue
+demoData: _demodata/applications/datacatalogue_cohortstaging
 
 # special options
-# setViewPermission: anonymous
 ontologiesToFixedSchema: CatalogueOntologies
 setFixedSchemaViewPermission: anonymous
