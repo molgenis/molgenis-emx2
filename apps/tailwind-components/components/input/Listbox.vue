@@ -38,25 +38,30 @@
       class="absolute b-0 w-full z-10 bg-listbox"
       :class="{ hidden: !listboxIsExpanded }"
       tabindex="0"
-      @keydown.space.prevent
-      @keydown.up.prevent="onKeyUp"
-      @keydown.down.prevent="onKeyDown"
-    >
+      @keydown="onListboxKeyDown"
+      >
+      <!-- @keydown.space.prevent
+      @keydown.up.prevent="focusPreviousOption"
+      @keydown.down.prevent="focusNextOption"
+      @keydown.escape.prevent="openCloseListbox" -->
       <li
         v-for="option in listboxOptions"
         ref="listboxOptionsRef"
-        :id="`listbox-${id}-options-${option.index}`"
+        :id="option.elemId"
         role="option"
-        class="flex justify-start items-center gap-3 pl-3 py-1 text-listbox border-t-[1px] border-t-listbox-option hover:cursor-pointer hover:bg-listbox-hover hover:text-listbox focus:bg-listbox-selected focus:text-listbox-selected"
+        class="flex justify-start items-center gap-3 pl-3 py-1 text-listbox border-t-[1px] border-t-listbox-option hover:cursor-pointer hover:bg-listbox-hover hover:text-listbox focus:bg-listbox-hover focus:text-listbox"
         :class="{
-          '!bg-listbox-selected !text-listbox-selected':
-            option.value === modelValue?.value,
+          '!bg-listbox-selected !text-listbox-selected': option.value === modelValue?.value,
         }"
         :aria-selected="option.value === modelValue?.value"
-        @click="(event: Event) => updateModelValue(event, option)"
-        @focus="(event: Event) => updateModelValue(event, option)"
+        @click="updateModelValue(option)"
         @blur="(event: Event) => (event.target as HTMLOptionElement).setAttribute('tabindex', '-1')"
-      >
+        @keydown="(event: KeyboardEvent) => onListboxOptionKeyDown(event, option)"
+        >
+        <!-- @keydown.enter.prevent="(event: Event) => updateModelValue(event, option)"
+        @keydown.space.prevent="(event: Event) => updateModelValue(event, option)"
+        @keydown.tab.prevent="(event: Event) => updateModelValue(event, option)" -->
+        <!-- @focus="(event: Event) => updateModelValue(event, option)" -->
         <BaseIcon
           name="Check"
           class="fill-listbox-selected"
@@ -84,6 +89,7 @@ interface IListboxOption {
 
 interface IInternalListboxOption extends IListboxOption {
   index: number;
+  elemId: string;
 }
 
 const props = withDefaults(
@@ -105,7 +111,6 @@ const props = withDefaults(
 const focusCounter = ref<number>(0);
 const listboxIsExpanded = ref<boolean>(false);
 const modelValue = defineModel<IInternalListboxOption>();
-const ulElemRef = useTemplateRef<HTMLUListElement>("listboxListRef");
 const olElemRefs = useTemplateRef<HTMLOptionElement[]>("listboxOptionsRef");
 const btnElemRef = useTemplateRef<HTMLButtonElement>("listboxToggle");
 
@@ -116,7 +121,11 @@ const listboxOptions = computed<IInternalListboxOption[]>(() => {
   };
   const data: IListboxOption[] = [defaultOption, ...props.options];
   return data.map((option: IListboxOption, index: number) => {
-    return { ...option, index: index };
+    return {
+      ...option,
+      index: index,
+      elemId: `listbox-${props.id}-options-${index}`
+    };
   });
 });
 
@@ -128,7 +137,11 @@ function updateCounter(value: number) {
   if (counterIsInRange(value)) {
     focusCounter.value = value;
   } else {
-    focusCounter.value = focusCounter.value;
+    if (value > listboxOptions.value.length - 1) {
+      focusCounter.value = listboxOptions.value.length - 1;
+    } else {
+      focusCounter.value = 0;
+    }
   }
 }
 
@@ -144,32 +157,102 @@ function focusListOption() {
   });
 }
 
-function updateModelValue(event: Event, selection: IInternalListboxOption) {
-  const elemId: string = (event.target as HTMLOptionElement).id;
-  btnElemRef.value?.setAttribute("aria-activedescendant", elemId);
+function updateModelValue(selection: IInternalListboxOption) {
+  btnElemRef.value?.setAttribute("aria-activedescendant", selection.elemId);
   modelValue.value = selection;
   focusCounter.value = selection.index;
+  openCloseListbox();
 }
 
-function onKeyUp(event: Event) {
-  const newCounterValue = focusCounter.value - 1;
+function focusPreviousOption(by: number=1) {
+  const newCounterValue = focusCounter.value - by;
   updateCounter(newCounterValue);
   focusListOption();
 }
 
-function onKeyDown(event: Event) {
-  const newCounterValue = focusCounter.value + 1;
+function focusNextOption(by: number=1) {
+  const newCounterValue = focusCounter.value + by;
   updateCounter(newCounterValue);
   focusListOption();
 }
 
 function openCloseListbox() {
   listboxIsExpanded.value = !listboxIsExpanded.value;
-  if (listboxIsExpanded.value && modelValue.value) {
-    updateCounter(modelValue.value.index);
-  } else {
-    updateCounter(0);
+  if (listboxIsExpanded.value) {
+    if (modelValue.value) {
+      updateCounter(modelValue.value.index);
+    } else {
+      updateCounter(0);
+    }
+    focusListOption();
   }
-  focusListOption();
 }
+
+function onListboxKeyDown (event: KeyboardEvent) {
+  const key = event.key;
+  
+  switch(key) {
+    
+    // focus
+    case "ArrowUp":
+      event.preventDefault();
+      focusPreviousOption();
+      break;
+      
+    case "ArrowDown":
+      event.preventDefault();
+      focusNextOption();
+      break;
+      
+    case "PageUp":
+        event.preventDefault();
+        focusPreviousOption(10);
+        break;
+        
+    case "PageDown":
+      event.preventDefault();
+      focusNextOption(10);
+      break;
+      
+    case "Home":
+      focusCounter.value = 0;
+      focusListOption();
+      break;
+    
+    case "End":
+      focusCounter.value = listboxOptions.value.length - 1;
+      focusListOption();
+      break;
+      
+    // 
+    case "Esc":
+      openCloseListbox();
+      break;
+  }
+}
+
+function onListboxOptionKeyDown (event: KeyboardEvent, option: IInternalListboxOption) {
+  const key: string = event.key;
+  switch (key) {
+    case "Enter":
+      updateModelValue(option);
+      break;
+      
+    case "Spacebar":
+      event.preventDefault();
+      updateModelValue(option);
+      break;
+    
+    // spacebar (for older browser support)
+    case " ":
+      event.preventDefault();
+      updateModelValue(option);
+      break;
+      
+    case "Tab":
+      updateModelValue(option);
+      break;
+  }
+}
+
 </script>
