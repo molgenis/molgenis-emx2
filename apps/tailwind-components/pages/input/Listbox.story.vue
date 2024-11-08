@@ -1,33 +1,19 @@
 <template>
-  <InputLabel id="pizza-toppings-label" class="block mb-3">
-    <span>Which pizza topping is you favorite?</span>
+  <InputLabel id="listbox-input-label" class="block mb-3">
+    <span>Select a group assignment</span>
   </InputLabel>
   <InputListbox
-    id="pizza-toppings"
-    listboxLabelId="pizza-toppings-label"
-    :listboxOptions="[
-      {
-        value: 'tomatoes',
-        label: 'Roma tomatoes',
-      },
-      {
-        value: 'pepperoni',
-        label: 'Pepperoni',
-      },
-      {
-        value: 'mozzerella',
-        label: 'Fresh mozzerella',
-      },
-      {
-        value: 'chillies',
-        label: 'Chillies',
-      },
-      {
-        value: 'basil',
-        label: 'Fresh basil',
-      },
-    ]"
+    id="listbox-input"
+    labelId="listbox-input-label"
+    :options="data"
   />
 </template>
 
-<script lang="ts" setup></script>
+<script lang="ts" setup>
+const data = [...Array(26).keys()].map((num: number) => {
+  return {
+    value: num,
+    label: 'Group ' + String.fromCharCode(num + 65)
+  }
+})
+</script>
