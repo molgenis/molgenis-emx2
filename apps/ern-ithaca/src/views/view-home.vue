@@ -3,7 +3,7 @@
     <PageHeader
       title="ERN Ithaca"
       subtitle="ILIAD rare diseases patient registry"
-      imageSrc="ern-ithaca-header.jpg"
+      imageSrc="img/ern-ithaca-header.jpg"
       height="large"
     />
     <PageSection
@@ -95,7 +95,8 @@
   </Page>
 </template>
 
-<script setup>
+<script setup lang="ts">
+// @ts-ignore
 import { Page, PageHeader, PageSection, LinkCard } from "molgenis-viz";
 import {
   PlusIcon,

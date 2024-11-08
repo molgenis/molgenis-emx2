@@ -3,7 +3,7 @@
     <PageHeader
       title="Local GDI Portal"
       subtitle="Get Started with the Local Portal"
-      imageSrc="gdi-portal.jpg"
+      imageSrc="img/gdi-portal.jpg"
       height="large"
       titlePositionX="center"
     />
@@ -106,7 +106,8 @@
   </Page>
 </template>
 
-<script setup>
+<script setup lang="ts">
+// @ts-ignore
 import { Page, PageHeader, PageSection } from "molgenis-viz";
 import { PlusIcon } from "@heroicons/vue/24/outline";
 </script>
