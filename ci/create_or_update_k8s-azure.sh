@@ -45,7 +45,7 @@ helm upgrade --install ${NAME} ./helm-chart --namespace ${NAME} \
 --set directory.includeDirectoryDemo=true \
 --set oidc.enabled=true \
 --set oidc.client_id=${OIDC_CLIENTID} \
---set oidc.client_secret=${OIDC_CLIENTSECRET} \
+--set oidc.client_secret=${OIDC_SECRET} \
 --set oidc.client_name=${NAME} \
 --set oidc.discovery_url=${OIDC_DISCOVERYURL} \
 --set oidc.callback_url=https://${NAME}.dev.molgenis.org
