@@ -39,7 +39,7 @@
       :class="{ hidden: !listboxIsExpanded }"
       tabindex="0"
       @keydown="onListboxKeyDown"
-      >
+    >
       <!-- @keydown.space.prevent
       @keydown.up.prevent="focusPreviousOption"
       @keydown.down.prevent="focusNextOption"
@@ -51,13 +51,14 @@
         role="option"
         class="flex justify-start items-center gap-3 pl-3 py-1 text-listbox border-t-[1px] border-t-listbox-option hover:cursor-pointer hover:bg-listbox-hover hover:text-listbox focus:bg-listbox-hover focus:text-listbox"
         :class="{
-          '!bg-listbox-selected !text-listbox-selected': option.value === modelValue?.value,
+          '!bg-listbox-selected !text-listbox-selected':
+            option.value === modelValue?.value,
         }"
         :aria-selected="option.value === modelValue?.value"
         @click="updateModelValue(option)"
         @blur="(event: Event) => (event.target as HTMLOptionElement).setAttribute('tabindex', '-1')"
         @keydown="(event: KeyboardEvent) => onListboxOptionKeyDown(event, option)"
-        >
+      >
         <!-- @keydown.enter.prevent="(event: Event) => updateModelValue(event, option)"
         @keydown.space.prevent="(event: Event) => updateModelValue(event, option)"
         @keydown.tab.prevent="(event: Event) => updateModelValue(event, option)" -->
@@ -124,7 +125,7 @@ const listboxOptions = computed<IInternalListboxOption[]>(() => {
     return {
       ...option,
       index: index,
-      elemId: `listbox-${props.id}-options-${index}`
+      elemId: `listbox-${props.id}-options-${index}`,
     };
   });
 });
@@ -164,13 +165,13 @@ function updateModelValue(selection: IInternalListboxOption) {
   openCloseListbox();
 }
 
-function focusPreviousOption(by: number=1) {
+function focusPreviousOption(by: number = 1) {
   const newCounterValue = focusCounter.value - by;
   updateCounter(newCounterValue);
   focusListOption();
 }
 
-function focusNextOption(by: number=1) {
+function focusNextOption(by: number = 1) {
   const newCounterValue = focusCounter.value + by;
   updateCounter(newCounterValue);
   focusListOption();
@@ -188,71 +189,72 @@ function openCloseListbox() {
   }
 }
 
-function onListboxKeyDown (event: KeyboardEvent) {
+function onListboxKeyDown(event: KeyboardEvent) {
   const key = event.key;
-  
-  switch(key) {
-    
+
+  switch (key) {
     // focus
     case "ArrowUp":
       event.preventDefault();
       focusPreviousOption();
       break;
-      
+
     case "ArrowDown":
       event.preventDefault();
       focusNextOption();
       break;
-      
+
     case "PageUp":
-        event.preventDefault();
-        focusPreviousOption(10);
-        break;
-        
+      event.preventDefault();
+      focusPreviousOption(10);
+      break;
+
     case "PageDown":
       event.preventDefault();
       focusNextOption(10);
       break;
-      
+
     case "Home":
       focusCounter.value = 0;
       focusListOption();
       break;
-    
+
     case "End":
       focusCounter.value = listboxOptions.value.length - 1;
       focusListOption();
       break;
-      
-    // 
+
+    //
     case "Esc":
       openCloseListbox();
       break;
   }
 }
 
-function onListboxOptionKeyDown (event: KeyboardEvent, option: IInternalListboxOption) {
+function onListboxOptionKeyDown(
+  event: KeyboardEvent,
+  option: IInternalListboxOption
+) {
   const key: string = event.key;
   switch (key) {
     case "Enter":
       updateModelValue(option);
       break;
-      
+
     case "Spacebar":
       event.preventDefault();
       updateModelValue(option);
       break;
-    
+
     // spacebar (for older browser support)
     case " ":
       event.preventDefault();
       updateModelValue(option);
       break;
-      
+
     case "Tab":
       updateModelValue(option);
       break;
   }
 }
-
 </script>

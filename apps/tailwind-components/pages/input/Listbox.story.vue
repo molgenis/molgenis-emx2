@@ -13,7 +13,7 @@
 const data = [...Array(26).keys()].map((num: number) => {
   return {
     value: num,
-    label: 'Group ' + String.fromCharCode(num + 65)
-  }
-})
+    label: "Group " + String.fromCharCode(num + 65),
+  };
+});
 </script>
