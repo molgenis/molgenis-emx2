@@ -1,6 +1,3 @@
-
-
-import { type ITableMetaData } from "../../meta-data-utils/src/types";
 import { type IQueryMetaData } from "../../molgenis-components/src/client/IQueryMetaData";
 
 export interface ITableDataResponse {

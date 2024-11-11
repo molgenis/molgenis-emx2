@@ -58,6 +58,7 @@
 
 <script>
 import {
+  constants,
   InputString,
   LayoutModal,
   IconAction,
@@ -143,9 +144,9 @@ export default {
       if (
         this.table.name === undefined ||
         this.table.name.trim() === "" ||
-        this.table.name.search(/^[a-zA-Z0-9 _]*$/)
+        this.table.name.search(constants.TABLE_NAME_REGEX)
       ) {
-        return "Name is required and can only contain 'azAZ_ '";
+        return "Name is required and must start with a letter, followed by zero or more letters, numbers, spaces or underscores. A space immediately before or after an underscore is not allowed. The character limit is 31.";
       }
       if (
         this.modelValue?.name !== this.table.name &&

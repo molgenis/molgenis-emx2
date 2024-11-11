@@ -98,6 +98,32 @@
               </li>
             </ul>
           </template>
+          <template v-if="info.studies && info.studies.length > 0">
+            <h5>Studies</h5>
+            <ul class="right-content-list">
+              <li>
+                <div
+                  class="info-list"
+                  v-for="(study, index) in info.studies"
+                  :key="`${study.id}-${index}`"
+                >
+                  <span class="font-weight-bold mr-2">Name:</span>
+                  <span>{{ study.title }}</span>
+                  <div>
+                    <span
+                      class="fa fa-fw fa-address-card mr-2"
+                      aria-hidden="true"
+                    />
+                    <router-link :to="study.report">
+                      <span>
+                        {{ uiText["view"] }} {{ study.title }} study
+                      </span>
+                    </router-link>
+                  </div>
+                </div>
+              </li>
+            </ul>
+          </template>
           <template v-if="info.collaboration.length > 0">
             <h5>Collaboration</h5>
             <div class="container p-0">

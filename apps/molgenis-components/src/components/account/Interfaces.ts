@@ -5,7 +5,7 @@ export interface ISession {
   locale?: string;
   roles?: string[];
   schemas?: any;
-  settings?: Record<string, string>;
+  settings?: Record<string, string | number | boolean>;
   manifest?: IManifest;
   token?: string;
 }

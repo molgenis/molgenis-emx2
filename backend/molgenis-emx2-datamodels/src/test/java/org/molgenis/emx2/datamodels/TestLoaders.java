@@ -40,7 +40,6 @@ public class TestLoaders {
     database.dropSchemaIfExists(DATA_CATALOGUE_AGGREGATES);
     database.dropSchemaIfExists(FAIR_DATA_HUB_TEST);
     database.dropSchemaIfExists(SHARED_STAGING);
-    database.dropSchemaIfExists(CATALOGUE_ONTOLOGIES);
     database.dropSchemaIfExists(DIRECTORY_TEST);
     database.dropSchemaIfExists(DIRECTORY_STAGING);
     database.dropSchemaIfExists(DIRECTORY_ONTOLOGIES);
@@ -49,9 +48,13 @@ public class TestLoaders {
     database.dropSchemaIfExists(FAIR_GENOMES);
     database.dropSchemaIfExists(DCAT);
     database.dropSchemaIfExists(DCAT_BASIC);
+    database.dropSchemaIfExists(DCAT_BASIC);
+    database.dropSchemaIfExists(PROJECT_MANAGER);
     database.dropSchemaIfExists(FAIR_DATA_POINT);
     database.dropSchemaIfExists(FAIR_DATA_HUB_TEST);
     database.dropSchemaIfExists(PROJECT_MANAGER);
+    // delete ontologies last
+    database.dropSchemaIfExists(CATALOGUE_ONTOLOGIES);
   }
 
   @Test
@@ -68,22 +71,22 @@ public class TestLoaders {
   void test06DataCatalogueLoader() {
     Schema dataCatalogue = database.createSchema(DATA_CATALOGUE);
     DataModels.Profile.DATA_CATALOGUE.getImportTask(dataCatalogue, true).run();
-    assertEquals(22, dataCatalogue.getTableNames().size());
+    assertEquals(23, dataCatalogue.getTableNames().size());
   }
 
   @Test
   public void test07DataCatalogueCohortStagingLoader() {
     Schema cohortStaging = database.createSchema(COHORT_STAGING);
     DataModels.Profile.DATA_CATALOGUE_COHORT_STAGING.getImportTask(cohortStaging, true).run();
-    assertEquals(17, cohortStaging.getTableNames().size());
+    assertEquals(18, cohortStaging.getTableNames().size());
   }
 
   @Disabled
   @Test
   public void test08DataCatalogueNetworkStagingLoader() {
     Schema networkStaging = database.createSchema(NETWORK_STAGING);
-    DataModels.Regular.DATA_CATALOGUE_NETWORK_STAGING.getImportTask(networkStaging, true).run();
-    assertEquals(16, networkStaging.getTableNames().size());
+    DataModels.Profile.DATA_CATALOGUE_NETWORK_STAGING.getImportTask(networkStaging, true).run();
+    assertEquals(15, networkStaging.getTableNames().size());
   }
 
   @Test
@@ -132,7 +135,7 @@ public class TestLoaders {
   void test15DirectoryStagingLoader() {
     Schema directoryStaging = database.createSchema(DIRECTORY_STAGING);
     DataModels.Regular.BIOBANK_DIRECTORY_STAGING.getImportTask(directoryStaging, false).run();
-    assertEquals(6, directoryStaging.getTableNames().size());
+    assertEquals(7, directoryStaging.getTableNames().size());
   }
 
   @Test

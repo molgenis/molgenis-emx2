@@ -1,11 +1,12 @@
 import csv
-import io
 import json
 import logging
+import sys
 import pathlib
 import time
 from functools import cache
-from typing import TypeAlias, Literal
+from io import BytesIO
+from typing import Literal
 
 import pandas as pd
 import requests
@@ -19,9 +20,8 @@ from .exceptions import (NoSuchSchemaException, ServiceUnavailableError, SigninE
                          PermissionDeniedException, TokenSigninException, NonExistentTemplateException)
 from .metadata import Schema
 
+logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 log = logging.getLogger("Molgenis EMX2 Pyclient")
-
-OutputFormat: TypeAlias = Literal['csv', 'xlsx']
 
 
 class Client:
@@ -30,12 +30,13 @@ class Client:
     and perform operations on the server.
     """
 
-    def __init__(self, url: str, schema: str = None, token: str = None) -> None:
+    def __init__(self, url: str, schema: str = None, token: str = None, job: str = None) -> None:
         """
         Initializes a Client object with a server url.
         """
         self._as_context_manager = False
         self._token = token
+        self._job = job
 
         self.url: str = url
         self.api_graphql = self.url + "/api/graphql"
@@ -236,7 +237,7 @@ class Client:
         response = self.session.post(
             url=f"{self.url}/{current_schema}/api/csv/{table_id}",
             headers={'Content-Type': 'text/csv'},
-            data=import_data
+            data=import_data.encode('utf-8')
         )
 
         try:
@@ -247,7 +248,7 @@ class Client:
             log.error("Failed to import data into %s::%s\n%s", current_schema, table, errors)
             raise PyclientException(errors)
 
-    def upload_file(self, file_path: str | pathlib.Path, schema: str = None):
+    async def upload_file(self, file_path: str | pathlib.Path, schema: str = None):
         """Uploads a file to a database on the EMX2 server.
 
         :param file_path: the path where the file is located.
@@ -277,6 +278,9 @@ class Client:
         else:
             raise NotImplementedError(f"Uploading files with extension {file_path.suffix!r} is not supported.")
 
+        if self._job:
+            api_url += "&parentJob=" + self._job
+
         with open(file_path, 'rb') as file:
             response = self.session.post(
                 url=api_url,
@@ -294,49 +298,8 @@ class Client:
         # Catch process URL
         process_id = response.json().get('id')
 
-        # Report subtask progress
-        p_response = self.session.post(
-            url=self.api_graphql,
-            json={'query': queries.task_status(process_id)}
-        )
-        if p_response.status_code != 200:
-            raise PyclientException("Error uploading file")
-
-        reported_tasks = []
-        task = p_response.json().get('data').get('_tasks')[0]
-        while (status := task.get('status')) != 'COMPLETED':
-            if status == 'ERROR':
-                # TODO improve error handling
-                raise PyclientException(f"Error uploading file: {task.get('description')}")
-            subtasks = task.get('subTasks', [])
-            for st in subtasks:
-                if st['id'] not in reported_tasks and st['status'] == 'RUNNING':
-                    log.info(f"Subtask: {st['description']}")
-                    reported_tasks.append(st['id'])
-                if st['id'] not in reported_tasks and st['status'] == 'SKIPPED':
-                    log.warning(f"    Subtask: {st['description']}")
-                    reported_tasks.append(st['id'])
-                for sst in st.get('subTasks', []):
-                    if sst['id'] not in reported_tasks and sst['status'] == 'COMPLETED':
-                        log.info(f"    Subsubtask: {sst['description']}")
-                        reported_tasks.append(sst['id'])
-                    if sst['id'] not in reported_tasks and sst['status'] == 'SKIPPED':
-                        log.warning(f"    Subsubtask: {sst['description']}")
-                        reported_tasks.append(sst['id'])
-            try:
-                p_response = self.session.post(
-                    url=self.api_graphql,
-                    json={'query': queries.task_status(process_id)}
-                )
-                task = p_response.json().get('data').get('_tasks')[0]
-            except AttributeError:
-                time.sleep(1)
-                p_response = self.session.post(
-                    url=self.api_graphql,
-                    json={'query': queries.task_status(process_id)}
-                )
-                task = p_response.json().get('data').get('_tasks')[0]
-        log.info(f"Completed task: {task.get('description')}")
+        # Report on task progress
+        await self._report_task_progress(process_id)
 
     def _upload_csv(self, file_path: pathlib.Path, schema: str) -> str:
         """Uploads the CSV file from the filename to the schema. Returns the success or error message."""
@@ -346,6 +309,9 @@ class Client:
             return self.save_schema(table=table, name=schema, file=str(file_path))
         api_url = f"{self.url}/{schema}/api/csv"
         data = self._prep_data_or_file(file_path=str(file_path))
+
+        if self._job:
+            api_url += "?parentJob=" + self._job
 
         response = self.session.post(
             url=api_url,
@@ -444,22 +410,25 @@ class Client:
                                         fallback_error_message=f"Failed to retrieve data from {current_schema}::"
                                                                f"{table!r}.\nStatus code: {response.status_code}.")
 
-        response_data = pd.read_csv(io.BytesIO(response.content), keep_default_na=False)
+        response_data = pd.read_csv(BytesIO(response.content), keep_default_na=False)
 
         if not as_df:
             return response_data.to_dict('records')
         return response_data
 
-    def export(self, schema: str = None, table: str = None, fmt: OutputFormat = 'csv'):
+    async def export(self, schema: str = None, table: str = None,
+                     filename: str = None, as_excel: bool = False) -> BytesIO:
         """Exports data from a schema to a file in the desired format.
 
         :param schema: the name of the schema
         :type schema: str
         :param table: the name of the table
         :type table: str
-        :param fmt: the export format of the schema and or table (csv or xlsx)
-        :type fmt: str
-
+        :param filename: the name of the file to which the data is to be exported, default None
+        :type filename: str
+        :param as_excel: specifies whether the Excel API is called for the export.
+                         Ignored when parameter filename is specified, default False
+        :type as_excel: bool
         """
         current_schema = schema if schema is not None else self.default_schema
         if current_schema not in self.schema_names:
@@ -470,6 +439,21 @@ class Client:
 
         schema_metadata: Schema = self.get_schema_metadata(current_schema)
 
+        if filename:
+            if filename.endswith('.xlsx'):
+                fmt = 'xlsx'
+            elif filename.endswith('.csv'):
+                fmt = 'csv'
+            elif filename.endswith('.zip'):
+                fmt = 'csv'
+            else:
+                raise ValueError(f"File name must end with ('csv', 'xlsx', 'zip')")
+        else:
+            if as_excel:
+                fmt = 'xlsx'
+            else:
+                fmt = 'csv'
+
         if fmt == 'xlsx':
             if table is None:
                 # Export the whole schema
@@ -477,10 +461,12 @@ class Client:
                 response = self.session.get(url=url)
                 self._validate_graphql_response(response)
 
-                filename = f"{current_schema}.xlsx"
-                with open(filename, "wb") as file:
-                    file.write(response.content)
-                log.info("Exported data from schema %s to '%s'.", current_schema, filename)
+                if filename:
+                    with open(filename, "wb") as file:
+                        file.write(response.content)
+                    log.info("Exported data from schema %s to '%s'.", current_schema, filename)
+                else:
+                    log.info("Exported data from schema %s.", current_schema)
             else:
                 # Export the single table
                 table_id = schema_metadata.get_table(by='name', value=table).id
@@ -488,21 +474,25 @@ class Client:
                 response = self.session.get(url=url)
                 self._validate_graphql_response(response)
 
-                filename = f"{table}.xlsx"
-                with open(filename, "wb") as file:
-                    file.write(response.content)
-                log.info("Exported data from table %s in schema %s to '%s'.", table, current_schema, filename)
-
-        if fmt == 'csv':
+                if filename:
+                    with open(filename, "wb") as file:
+                        file.write(response.content)
+                    log.info("Exported data from table %s in schema %s to '%s'.", table, current_schema, filename)
+                else:
+                    log.info("Exported data from table %s in schema %s.", table, current_schema)
+        else:
             if table is None:
                 url = f"{self.url}/{current_schema}/api/zip"
                 response = self.session.get(url=url)
                 self._validate_graphql_response(response)
 
-                filename = f"{current_schema}.zip"
-                with open(filename, "wb") as file:
-                    file.write(response.content)
-                log.info("Exported data from schema %s to '%s'.", current_schema, filename)
+                if filename:
+                    with open(filename, "wb") as file:
+                        file.write(response.content)
+                    log.info("Exported data from schema %s to '%s'.", current_schema, filename)
+                else:
+                    log.info("Exported data from schema %s.", current_schema)
+
             else:
                 # Export the single table
                 table_id = schema_metadata.get_table(by='name', value=table).id
@@ -510,15 +500,19 @@ class Client:
                 response = self.session.get(url=url)
                 self._validate_graphql_response(response)
 
-                filename = f"{table}.csv"
-                with open(filename, "wb") as file:
-                    file.write(response.content)
-                log.info("Exported data from table %s in schema %s to '%s'.", table, current_schema, filename)
+                if filename:
+                    with open(filename, "wb") as file:
+                        file.write(response.content)
+                    log.info("Exported data from table %s in schema %s to '%s'.", table, current_schema, filename)
+                else:
+                    log.info("Exported data from table %s in schema %s.", table, current_schema)
 
-    def create_schema(self, name: str = None,
-                      description: str = None,
-                      template: str = None,
-                      include_demo_data: bool = None):
+        return BytesIO(response.content)
+
+    async def create_schema(self, name: str = None,
+                            description: str = None,
+                            template: str = None,
+                            include_demo_data: bool = False):
         """Creates a new schema on the EMX2 server.
 
         :param name: the name of the new schema
@@ -538,7 +532,8 @@ class Client:
             raise PyclientException(f"Schema with name {name!r} already exists.")
         query = queries.create_schema()
         variables = self._format_optional_params(name=name, description=description,
-                                                 template=template, include_demo_data=include_demo_data)
+                                                 template=template, include_demo_data=include_demo_data,
+                                                 parent_job=self._job)
 
         response = self.session.post(
             url=self.api_graphql,
@@ -550,10 +545,18 @@ class Client:
             mutation='createSchema',
             fallback_error_message=f"Failed to create schema {name!r}"
         )
+
+        # Catch process URL
+        process_id = response.json().get('data').get('createSchema').get('taskId')
+
+        if process_id:
+            # Report on task progress
+            await self._report_task_progress(process_id)
+
         self.schemas = self.get_schemas()
         log.info(f"Created schema {name!r}")
 
-    def delete_schema(self, name: str = None):
+    async def delete_schema(self, name: str = None):
         """Deletes a schema from the EMX2 server.
 
         :param name: the name of the new schema
@@ -612,10 +615,10 @@ class Client:
         )
         self.schemas = self.get_schemas()
 
-    def recreate_schema(self, name: str = None,
-                        description: str = None,
-                        template: str = None,
-                        include_demo_data: bool = None):
+    async def recreate_schema(self, name: str = None,
+                              description: str = None,
+                              template: str = None,
+                              include_demo_data: bool = None):
         """Recreates a schema on the EMX2 server by deleting and subsequently
         creating it without data on the EMX2 server.
 
@@ -640,8 +643,8 @@ class Client:
         schema_description = description if description else schema_meta.get('description', None)
 
         try:
-            self.delete_schema(name=current_schema)
-            self.create_schema(
+            await self.delete_schema(name=current_schema)
+            await self.create_schema(
                 name=current_schema,
                 description=schema_description,
                 template=template,
@@ -810,7 +813,7 @@ class Client:
 
         try:
             val = json.loads(_val)
-        except json.decoder.JSONDecodeError as e:
+        except json.decoder.JSONDecodeError:
             msg = ("To filter on values between a and b, supply them as a list, [a, b]. "
                    "Ensure the values for a and b are numeric.")
             raise ValueError(msg)
@@ -839,7 +842,6 @@ class Client:
         """Prepares the data from memory or loaded from disk for addition or deletion action.
 
         :param file_path: path to the file to be prepared
-        :type file_path: str
         :type file_path: str
         :param data: data to be prepared
         :type data: list
@@ -877,6 +879,58 @@ class Client:
 
         return name
 
+    async def _report_task_progress(self, process_id: int | str):
+        """Reports on the progress of a task and its subtasks."""
+
+        # Report subtask progress
+        p_response = self.session.post(
+            url=self.api_graphql,
+            json={'query': queries.task_status(process_id)}
+        )
+
+        reported_tasks = []
+        task = p_response.json().get('data').get('_tasks')[0]
+        while (status := task.get('status')) != 'COMPLETED':
+            if status == 'ERROR':
+                raise PyclientException(f"Error uploading file: {task.get('description')}")
+            subtasks = task.get('subTasks', [])
+            for st in subtasks:
+                if st['id'] not in reported_tasks and st['status'] == 'RUNNING':
+                    log.info(f"{st['description']}")
+                    reported_tasks.append(st['id'])
+                if st['id'] not in reported_tasks and st['status'] == 'SKIPPED':
+                    log.warning(f"    {st['description']}")
+                    reported_tasks.append(st['id'])
+                for sst in st.get('subTasks', []):
+                    if sst['id'] not in reported_tasks and sst['status'] == 'COMPLETED':
+                        log.info(f"    {sst['description']}")
+                        reported_tasks.append(sst['id'])
+                    if sst['id'] not in reported_tasks and sst['status'] == 'SKIPPED':
+                        log.warning(f"    {sst['description']}")
+                        reported_tasks.append(sst['id'])
+                    for ssst in sst.get('subTasks', []):
+                        if ssst['id'] not in reported_tasks and ssst['status'] == 'COMPLETED':
+                            log.info(f"        {ssst['description']}")
+                            reported_tasks.append(ssst['id'])
+                        if ssst['id'] not in reported_tasks and ssst['status'] == 'SKIPPED':
+                            log.warning(f"        {ssst['description']}")
+                            reported_tasks.append(ssst['id'])
+            try:
+                p_response = self.session.post(
+                    url=self.api_graphql,
+                    json={'query': queries.task_status(process_id)}
+                )
+                task = p_response.json().get('data').get('_tasks')[0]
+            except AttributeError as ae:
+                log.debug(ae)
+                time.sleep(1)
+                p_response = self.session.post(
+                    url=self.api_graphql,
+                    json={'query': queries.task_status(process_id)}
+                )
+                task = p_response.json().get('data').get('_tasks')[0]
+        log.info(f"Completed task: {task.get('description')}")
+
     def _validate_graphql_response(self, response: Response, mutation: str = None, fallback_error_message: str = None):
         """Validates a GraphQL response and prints the appropriate message.
 
@@ -902,7 +956,10 @@ class Client:
                 raise PermissionDeniedException(f"Transaction failed: permission denied.")
             if 'Graphql API error' in response.text:
                 msg = response.json().get("errors", [])[0].get('message')
+                log.error(msg)
                 raise GraphQLException(msg)
+            msg = response.json().get("errors", [])[0].get('message', '')
+            log.error(msg)
             raise PyclientException("An unknown error occurred when trying to reach this server.")
 
         if response.request.method == 'GET':
@@ -945,6 +1002,8 @@ class Client:
             args['name'] = args.pop('name')
         if 'include_demo_data' in args.keys():
             args['includeDemoData'] = args.pop('include_demo_data')
+        if 'parent_job' in args.keys():
+            args['parentJob'] = args.pop('parent_job')
         return args
 
     def _table_in_schema(self, table_name: str, schema_name: str) -> bool:
@@ -981,4 +1040,3 @@ class Client:
         except requests.exceptions.MissingSchema:
             raise ServerNotFoundError(f"Invalid URL {self.url!r}. "
                                       f"Perhaps you meant 'https://{self.url}'?")
-

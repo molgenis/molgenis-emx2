@@ -17,7 +17,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
 
   // basics
   private TableMetadata table; // table this column is part of
-  private String columnName; // short name, first character A-Za-z followed by AZ-a-z_0-1
+  private String columnName; // short name, should adhere to: Constants.COLUMN_NAME_REGEX
   private ColumnType columnType = STRING; // type of the column
 
   // transient for enabling migrations
@@ -85,15 +85,11 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   }
 
   private String validateName(String columnName, boolean skipValidation) {
-    if (!skipValidation && !columnName.matches("[a-zA-Z][a-zA-Z0-9_ ]*")) {
+    if (!skipValidation && !columnName.matches(COLUMN_NAME_REGEX)) {
       throw new MolgenisException(
           "Invalid column name '"
               + columnName
-              + "': Column must start with a letter, followed by letters, underscores, a space or numbers, i.e. [a-zA-Z][a-zA-Z0-9_]*");
-    }
-    if (!skipValidation && (columnName.contains("_ ") || columnName.contains(" _"))) {
-      throw new MolgenisException(
-          "Invalid column name '" + columnName + "': column names cannot contain '_ ' or '_ '");
+              + "': Column name must start with a letter, followed by zero or more letters, numbers, spaces or underscores. A space immediately before or after an underscore is not allowed. The character limit is 63.");
     }
     return columnName.trim();
   }
@@ -203,13 +199,14 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     }
 
     if (this.refTable != null && getTable() != null) {
-      // self relation
-      if (this.refTable.equals(getTable().getTableName())) {
+      // self relation (same name, same schema), prevent endless loop
+      if ((schema == null || getSchema().getName().equals(schema.getName()))
+          && this.refTable.equals(getTable().getTableName())) {
         return getTable(); // this table
       }
 
       // other relation
-      if (schema != null) {
+      else if (schema != null) {
         return schema.getTableMetadata(this.refTable);
       }
     }

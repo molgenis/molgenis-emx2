@@ -403,7 +403,7 @@ public class TypeUtils {
     return switch (columnType.getBaseType()) {
       case UUID -> TypeUtils.toUuid(v);
       case UUID_ARRAY -> TypeUtils.toUuidArray(v);
-      case STRING, EMAIL, HYPERLINK -> TypeUtils.toString(v);
+      case STRING, EMAIL, HYPERLINK, FILE -> TypeUtils.toString(v);
       case STRING_ARRAY, EMAIL_ARRAY, HYPERLINK_ARRAY -> TypeUtils.toStringArray(v);
       case BOOL -> TypeUtils.toBool(v);
       case BOOL_ARRAY -> TypeUtils.toBoolArray(v);
@@ -488,32 +488,35 @@ public class TypeUtils {
 
   public static Iterable<Row> convertToRows(TableMetadata metadata, List<Map<String, Object>> map) {
     List<Row> rows = new ArrayList<>();
-    for (Map<String, Object> object : map) {
+    for (Map<String, Object> field : map) {
       Row row = new Row();
       for (Column column : metadata.getColumns()) {
-        if (object.containsKey(column.getIdentifier())) {
-          if (column.isRef()) {
-            convertRefToRow((Map<String, Object>) object.get(column.getIdentifier()), row, column);
-          } else if (column.isReference()) {
-            // REFBACK, REF_ARRAY
-            convertRefArrayToRow(
-                (List<Map<String, Object>>) object.get(column.getIdentifier()), row, column);
-          } else if (column.isFile()) {
-            BinaryFileWrapper bfw = (BinaryFileWrapper) object.get(column.getIdentifier());
-            if (bfw == null || !bfw.isSkip()) {
-              // also necessary in case of 'null' to ensure all file metadata fields are made empty
-              // skip is used when use submitted only metadata (that they received in query)
-              row.setBinary(
-                  column.getName(), (BinaryFileWrapper) object.get(column.getIdentifier()));
-            }
-          } else {
-            row.set(column.getName(), object.get(column.getIdentifier()));
-          }
+        if (field.containsKey(column.getIdentifier())) {
+          Object fieldValue = field.get(column.getIdentifier());
+          addFieldObjectToRow(column, fieldValue, row);
         }
       }
       rows.add(row);
     }
     return rows;
+  }
+
+  public static void addFieldObjectToRow(Column column, Object object, Row row) {
+    if (column.isRef()) {
+      convertRefToRow((Map<String, Object>) object, row, column);
+    } else if (column.isReference()) {
+      // REFBACK, REF_ARRAY
+      convertRefArrayToRow((List<Map<String, Object>>) object, row, column);
+    } else if (column.isFile()) {
+      BinaryFileWrapper bfw = (BinaryFileWrapper) object;
+      if (bfw == null || !bfw.isSkip()) {
+        // also necessary in case of 'null' to ensure all file metadata fields are made empty
+        // skip is used when use submitted only metadata (that they received in query)
+        row.setBinary(column.getName(), (BinaryFileWrapper) object);
+      }
+    } else {
+      row.set(column.getName(), object);
+    }
   }
 
   protected static void convertRefArrayToRow(

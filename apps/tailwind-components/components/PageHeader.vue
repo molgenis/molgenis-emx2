@@ -1,22 +1,21 @@
-<script setup>
+<script setup lang="ts">
 import { useSlots } from "vue";
 
 const slots = useSlots();
 
-defineProps({
-  title: {
-    type: String,
-    required: true,
-  },
-  description: { type: String },
-  icon: {
-    type: String,
-  },
-  truncate: {
-    type: Boolean,
-    default: true,
-  },
-});
+withDefaults(
+  defineProps<{
+    title: string;
+    description?: string;
+    icon?: string;
+    truncate?: boolean;
+    align?: "left" | "center";
+  }>(),
+  {
+    truncate: true,
+    align: "center",
+  }
+);
 </script>
 
 <template>
@@ -24,7 +23,10 @@ defineProps({
     <div class="mb-6" v-if="slots.prefix">
       <slot name="prefix"></slot>
     </div>
-    <div class="flex flex-col items-center text-title">
+    <div
+      class="flex flex-col text-title"
+      :class="{ 'items-center': align === 'center' }"
+    >
       <span class="mb-2 mt-2.5 xl:block hidden text-icon" v-if="icon">
         <BaseIcon :name="icon" :width="55" />
       </span>
@@ -37,16 +39,19 @@ defineProps({
           <slot name="title-suffix"></slot>
         </div>
       </div>
-      <p
+      <div
         v-if="slots['description']"
         class="mt-1 mb-0 text-center lg:mb-5 text-body-lg"
       >
         <slot name="description"></slot>
-      </p>
-      <p v-if="description" class="mt-1 mb-0 text-center lg:mb-5 text-body-lg">
+      </div>
+      <div
+        v-if="description"
+        class="mt-1 mb-0 text-center lg:mb-5 text-body-lg"
+      >
         <ContentReadMore v-if="truncate" :text="description" />
-        <span v-else>{{ description }}</span>
-      </p>
+        <p v-else>{{ description }}</p>
+      </div>
     </div>
     <slot name="suffix"></slot>
   </header>

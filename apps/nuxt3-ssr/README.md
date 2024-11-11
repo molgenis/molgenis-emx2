@@ -79,3 +79,7 @@ Runtime config options can be set via query param to test/debug options:
 - feature flag cohorts only: ```cohort-only=true``` // defaults to false
 
 for example ```.../catalogue-demo/ssr-catalogue?cohort-only=true&theme=umcg&logo=UMCGkort.woordbeeld```
+
+### generate types
+
+gradle generateTypes --args='catalogue apps/nuxt3-ssr/interfaces/catalogue.ts'

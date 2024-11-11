@@ -8,7 +8,10 @@ We use:
 * [gradle](https://gradle.org/) for build (with yarn 'workspaces' for web app)
     * `gradle build` => builds all
     * `gradle clean` => removes all build artifacts
-    * `gradle run` => launches the app
+    * `gradle run` => launches the app including user interface
+    * `gradle dev` => launches only the backend (useful when developing frontend using yarn dev)
+    * `gradle cleandb` => will empty your postgresql database (MAKE SURE YOU WANT IT)
+    * `gradle generateTypes --args='<schema> <file>'` => generates typescript types for schema to file
     * `gradle test` => runs all tests.
     * `gradle testFast` => runs tests excluding those marged using @Tag("slow").
 
@@ -81,12 +84,18 @@ gradlew         # platform independent build file
 
 ## Backend modules
 
-* emx2: interface and base classes
-* emx2-sql: implementation into postgresql
-* emx2-io: emx2 format, csv import/export of data, legacy import
-* emx2-graphql: all for generating the graphql on top of sql
-* emx2-semantics: endpoint for linked data serving in json-ld and ttl
-* emx2-webapi: ties it all together onto SparkJava embedded web server
-* emx2-exampledata: test data models and data, used in various test
-* emx2-run: packages all into one fat jar Work in step
-* emx2-taskList: toward asynchronous calls for long running transactions/queries
+* molgenis-emx2: interface and base classes
+* molgenis-emx2-sql: implementation into postgresql
+* molgenis-emx2-io: emx2 format, csv import/export of data, legacy import
+* molgenis-emx2-graphql: all for generating the graphql on top of sql
+* molgenis-emx2-semantics: endpoint for linked data serving in json-ld and ttl
+* molgenis-emx2-webapi: ties it all together onto SparkJava embedded web server
+* molgenis-emx2-datamodels: reusable data models and test data
+* molgenis-emx2-run: packages all into one fat jar Work in step
+* molgenis-emx2-tasks: toward asynchronous calls for long running transactions/queries
+* molgenis-emx2-beacon-v2: beacon services
+* molgenis-emx2-rdf: rdf exports
+* molgenis-emx2-typescript: generates typescript from schemas
+* molgenis-emx2-email: email services
+* molgenis-emx2-analytics: services for user analytics
+* molgenis-emx2-nonparallel-tests: helper module for tests that cannot be run in parallel
