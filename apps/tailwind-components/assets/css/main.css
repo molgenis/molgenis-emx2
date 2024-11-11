@@ -142,6 +142,7 @@
     --text-color-tooltip-hover-dark: var(--color-blue-500);
     --text-color-tooltip-hover-light: var(--color-white);
     --text-color-pagination: var(--color-white);
+    --text-color-pagination-inverted: var(--color-gray-400);
     --text-color-pagination-input: var(--color-blue-800);
     --text-color-pagination-hover: var(--color-white);
     --text-color-footer-link: var(--color-yellow-500);
