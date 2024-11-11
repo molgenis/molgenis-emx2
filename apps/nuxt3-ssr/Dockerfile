@@ -42,7 +42,7 @@ ENV NUXT_PUBLIC_COHORT_ONLY=$NUXT_PUBLIC_COHORT_ONLY
 # pass optional analytics key 
 ENV NUXT_PUBLIC_ANALYTICS_KEY=$NUXT_PUBLIC_ANALYTICS_KEY
 
-# pass optional name of analytics provider (for example: "google-analytics" defaults to "siteimprove") 
+# pass optional name of analytics provider (for example: "google" defaults to "siteimprove") 
 ENV NUXT_PUBLIC_ANALYTICS_PROVIDER=$NUXT_PUBLIC_ANALYTICS_PROVIDER
 
 ## Start the server
