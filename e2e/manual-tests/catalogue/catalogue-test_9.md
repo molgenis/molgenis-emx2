@@ -25,8 +25,7 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | | GENERAL DESIGN | | | |
 | 8a | Type | Cohort study | | |
 | 8b | Cohort type | Clinical cohort, Case-control | | |
-| 9a | Data collection type | Retrospective, Prospective | | |
-| 9b | Keywords | test, cohort1, Molgenis, testing | | |
+| 9 | Data collection type | Retrospective, Prospective | | |
 | 10 | Start/End data collection | 1950 until 1967 | | |
 | 11 | Design paper | Cohort Profile: The French national cohort of children (ELFE): birth to 5 years | | |
 | 11a| PID | https://pid-for-testcohort1.org | | |
