@@ -8,7 +8,7 @@ const analyticsService = computed(() => {
     if(config.public.analyticsProvider.includes("siteimprove") ) {
       return "siteimprove";
     }
-    else if(config.public.analyticsProvider === "google" ) {
+    else if(config.public.analyticsProvider === "google-analytics" ) {
       return "google-analytics";
     } else {
       return "";
