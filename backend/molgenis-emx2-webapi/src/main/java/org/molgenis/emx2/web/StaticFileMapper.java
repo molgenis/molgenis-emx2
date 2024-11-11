@@ -3,9 +3,13 @@ package org.molgenis.emx2.web;
 import com.google.common.io.ByteStreams;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * to allow for nice urls, and make it easier for 'schema' app developers we include the schema in
@@ -16,11 +20,26 @@ import java.nio.file.Path;
  */
 public class StaticFileMapper {
 
+  private static Logger logger = LoggerFactory.getLogger(StaticFileMapper.class);
+
   private StaticFileMapper() {
     // hide constructor
   }
 
   public static void create(Javalin app) {
+
+    try (InputStream is =
+        StaticFileMapper.class.getResourceAsStream("/public_html/apps/ui/index.html")) {
+      if (is != null) {
+        logger.info("Found 2migrate.py");
+        String text = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+        logger.info("2migrate.py: " + text);
+      } else {
+        logger.error("Could not find 2migrate.py");
+      }
+    } catch (IOException e) {
+      logger.error("Could not find 2migrate.py");
+    }
 
     app.get("/{schema}/{appname}/theme.css", BootstrapThemeService::getCss);
 
@@ -88,6 +107,7 @@ public class StaticFileMapper {
         ctx.status(404).result("File not found: " + ctx.path());
         return;
       }
+      logger.info("Serving file: " + path);
       if (mimeType == null) {
         mimeType = Files.probeContentType(Path.of(path));
         if (mimeType == null) {

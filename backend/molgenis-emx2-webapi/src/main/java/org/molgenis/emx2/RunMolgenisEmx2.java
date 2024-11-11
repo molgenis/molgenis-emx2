@@ -3,12 +3,16 @@ package org.molgenis.emx2;
 import static org.molgenis.emx2.ColumnType.BOOL;
 import static org.molgenis.emx2.ColumnType.INT;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import org.molgenis.emx2.datamodels.BiobankDirectoryLoader;
 import org.molgenis.emx2.datamodels.DataModels;
 import org.molgenis.emx2.datamodels.PetStoreLoader;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 import org.molgenis.emx2.web.MolgenisWebservice;
+import org.molgenis.emx2.web.StaticFileMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +32,7 @@ public class RunMolgenisEmx2 {
       (Boolean)
           EnvironmentProperty.getParameter(Constants.MOLGENIS_EXCLUDE_PETSTORE_DEMO, false, BOOL);
 
-  public static void main(String[] args) {
+  public static void main(String[] args) throws IOException {
     logger.info("Starting MOLGENIS EMX2 Software Version=" + Version.getVersion());
 
     Integer port =
@@ -64,6 +68,22 @@ public class RunMolgenisEmx2 {
         });
 
     // start
+    logger.info("Before start");
     MolgenisWebservice.start(port);
+
+    logger.info("After start");
+    // read py file from classpath
+    try (InputStream is =
+        StaticFileMapper.class.getResourceAsStream("/public_html/apps/ui/index.html")) {
+      if (is != null) {
+        logger.info("Found 3migrate.py");
+        String text = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+        logger.info("3migrate.py: " + text);
+      } else {
+        logger.error("Could not find 2migrate.py");
+      }
+    } catch (IOException e) {
+      logger.error("Could not find 3migrate.py");
+    }
   }
 }

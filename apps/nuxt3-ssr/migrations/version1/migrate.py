@@ -1,0 +1,1 @@
+print("Hello python migration script, app: nuxt3-ssr, version: 1");

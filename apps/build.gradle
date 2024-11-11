@@ -43,6 +43,11 @@ subprojects { subproject ->
         with nodeSpec
     }
 
+    task movePyFiles(type: Copy) {
+        from "migrations"
+        into "${parent.buildDir}/generated/main/resources/" + project.name + "/migration"
+    }
+
     task format(type: YarnTask, dependsOn: parent.yarn_install) {
         if (!isCI) {
             args = ['run', 'format']
