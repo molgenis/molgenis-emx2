@@ -221,7 +221,7 @@ class SqlTableMetadata extends TableMetadata {
 
     // if changing 'ref' then check if not refBack exists
     if (!oldColumn.getColumnType().equals(newColumn.getColumnType())) {
-      checkNoRefbackExists(oldColumn);
+      tm.checkNoRefbackExists(oldColumn);
     }
 
     // drop old key, if touched

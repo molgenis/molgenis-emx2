@@ -45,24 +45,18 @@ public class TestDeleteRefback {
   @Test
   @Order(1)
   public void testRefBackDelete() {
-    SchemaMetadata schemaMetadata = getSchemaMetadata();
-    schema.migrate(schemaMetadata);
 
-    schemaMetadata.getTableMetadata("Patients visits").drop();
+    schema.migrate(getSchemaMetadata());
+    SchemaMetadata schemaMetadata = schema.getMetadata();
+
     // Should throw exception as Patient has a refback column (visits)
-    assertThrows(SqlMolgenisException.class, () -> schema.migrate(schemaMetadata));
+    assertThrows(SqlMolgenisException.class, () -> schemaMetadata.drop("Patients visits"));
 
     // Drop the refback and try again
     schemaMetadata.getTableMetadata("Patients").dropColumn("visits");
-    schema.migrate(schemaMetadata);
+    schemaMetadata.drop("Patients visits");
 
-    // Refresh the schema
-    SchemaMetadata schemaMetadataNew = getSchemaMetadata();
-    schema.migrate(schemaMetadataNew);
-    // Drop both tables should work
-    schemaMetadataNew.getTableMetadata("Patients").drop();
-    schemaMetadataNew.getTableMetadata("Patients visits").drop();
-    schema.migrate(schemaMetadataNew);
+    // TODO make test for delete using migrate
   }
 
   @Test

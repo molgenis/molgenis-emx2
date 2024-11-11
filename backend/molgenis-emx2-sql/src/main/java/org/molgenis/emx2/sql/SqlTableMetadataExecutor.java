@@ -277,6 +277,13 @@ class SqlTableMetadataExecutor {
 
   static void executeDropTable(DSLContext jooq, TableMetadata table) {
     try {
+      // check if no refback exist
+      for (Column column : table.getColumns()) {
+        if (column.isReferenceWithRefback())
+          throw new MolgenisException(
+              "Cannot drop table because column '" + column.getName() + "' has refback");
+      }
+
       // disableChangeLog
       disableChangeLog((SqlDatabase) table.getSchema().getDatabase(), table);
 
