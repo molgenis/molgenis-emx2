@@ -13,6 +13,7 @@ import org.pac4j.core.config.Config;
 import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.engine.CallbackLogic;
 import org.pac4j.core.engine.DefaultCallbackLogic;
+import org.pac4j.core.exception.http.FoundAction;
 import org.pac4j.core.exception.http.HttpAction;
 import org.pac4j.core.exception.http.RedirectionAction;
 import org.pac4j.core.http.adapter.HttpActionAdapter;
@@ -42,7 +43,8 @@ public class OIDCController {
 
   public void handleLoginRequest(Context ctx) {
     final JavalinWebContext context = new JavalinWebContext(ctx);
-    sessionStore.set(context, Pac4jConstants.REQUESTED_URL, ctx.queryParams("redirect"));
+    sessionStore.set(
+        context, Pac4jConstants.REQUESTED_URL, new FoundAction(ctx.queryParams("redirect").get(0)));
     final var client =
         securityConfig
             .getClients()
