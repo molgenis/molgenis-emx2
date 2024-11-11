@@ -35,6 +35,11 @@ public class JavalinCustomHttpActionAdapter implements HttpActionAdapter {
         context.getJavalinCtx().result(((WithContentAction) action).getContent());
         return null;
       } else if (action instanceof WithLocationAction) {
+        context
+            .getJavalinCtx()
+            .redirect(
+                ((WithLocationAction) action).getLocation(),
+                HttpStatus.forStatus(action.getCode()));
         return null;
       } else {
         context.getJavalinCtx().status(action.getCode());

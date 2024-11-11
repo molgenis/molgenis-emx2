@@ -103,6 +103,5 @@ public class OIDCController {
     logger.info("OIDC sign in for user: {}", user);
 
     ctx.status(302);
-    ctx.redirect("/");
   }
 }
