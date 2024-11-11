@@ -19,7 +19,7 @@
           id="member-email"
           class="mb-2 mr-2 mr-sm-4 email-input"
           v-model="editMember['email']"
-          placeholder="email address"
+          placeholder="email or username"
           label="Email:"
         >
           <template v-slot:prepend>
