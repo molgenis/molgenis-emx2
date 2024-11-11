@@ -100,7 +100,7 @@
     --background-color-input-checked: var(--color-yellow-500);
     --background-color-listbox: var(--color-white);
     --background-color-listbox-hover: var(--color-gray-100);
-    --background-color-listbox-selected: var(--color-umcg-light-blue);
+    --background-color-listbox-selected: var(--color-blue-500);
 
     --text-color-button-primary: var(--color-gray-900);
     --text-color-button-primary-hover: var(--color-gray-900);
