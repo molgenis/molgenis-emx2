@@ -195,6 +195,7 @@ module.exports = {
         "tooltip-hover-dark": "var(--text-color-tooltip-hover-dark)",
         "tooltip-hover-light": "var(--text-color-tooltip-hover-light)",
         "pagination": "var(--text-color-pagination)",
+        "pagination-inverted": "var(--text-color-pagination-inverted)",
         "pagination-input": "var(--text-color-pagination-input)",
         "pagination-hover": "var(--text-color-pagination-hover)",
         "footer-link": "var(--text-color-footer-link)",
