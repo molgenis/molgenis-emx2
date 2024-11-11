@@ -1,16 +1,13 @@
 <script setup lang="ts">
-import type {
-  IResource,
-  INameObject,
-  IDefinitionListItem,
-} from "~/interfaces/types";
+import type { IResources } from "~/interfaces/catalogue";
+import type { INameObject, IDefinitionListItem } from "~/interfaces/types";
 
 import dateUtils from "~/utils/dateUtils";
 
 const props = defineProps<{
   title: string;
   description?: string;
-  resource: IResource;
+  resource: IResources;
 }>();
 
 const designPublications = computed(() =>
