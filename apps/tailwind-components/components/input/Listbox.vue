@@ -1,19 +1,22 @@
 <template>
   <output class="block w-full mb-6 bg-gray-100 py-2 px-2">
-    {{ focusCounter }}: {{ modelValue }}
+    <code>{{ focusCounter }}: {{ modelValue }}</code>
   </output>
 
   <div class="w-full relative">
     <button
-      ref="listboxToggle"
+      ref="listbox-button"
       :id="`listbox-${id}-toggle`"
       role="combobox"
+      :disabled="disabled"
       aria-haspopup="listbox"
       :aria-controls="`listbox-${id}-options`"
       :aria-required="required"
       :aria-expanded="listboxIsExpanded"
-      class="flex justify-start items-center h-10 w-full text-left pl-10 border-input bg-input text-button-input-toggle"
+      :aria-labelledby="labelId"
+      class="flex justify-start items-center h-10 w-full text-left pl-10 border-input bg-input text-button-input-toggle focus:ring-blue-300"
       @click="openCloseListbox"
+      @keydown="onListboxButtonKeyDown"
     >
       <span class="w-full" v-if="modelValue?.label">
         {{ modelValue.label }}
@@ -33,20 +36,19 @@
     <ul
       :id="`listbox-${id}-options`"
       role="listbox"
-      ref="listboxListRef"
+      ref="listbox-ul"
       :aria-expanded="listboxIsExpanded"
-      class="absolute b-0 w-full z-10 bg-listbox"
-      :class="{ hidden: !listboxIsExpanded }"
-      tabindex="0"
+      class="absolute b-0 w-full overflow-y-scroll z-10 bg-listbox"
+      :class="{
+        hidden: !listboxIsExpanded,
+        'h-44': listboxIsExpanded && listboxOptions.length > 5,
+        'shadow-inner': listboxIsExpanded,
+      }"
       @keydown="onListboxKeyDown"
     >
-      <!-- @keydown.space.prevent
-      @keydown.up.prevent="focusPreviousOption"
-      @keydown.down.prevent="focusNextOption"
-      @keydown.escape.prevent="openCloseListbox" -->
       <li
         v-for="option in listboxOptions"
-        ref="listboxOptionsRef"
+        ref="listbox-li"
         :id="option.elemId"
         role="option"
         class="flex justify-start items-center gap-3 pl-3 py-1 text-listbox border-t-[1px] border-t-listbox-option hover:cursor-pointer hover:bg-listbox-hover hover:text-listbox focus:bg-listbox-hover focus:text-listbox"
@@ -55,14 +57,10 @@
             option.value === modelValue?.value,
         }"
         :aria-selected="option.value === modelValue?.value"
-        @click="updateModelValue(option)"
-        @blur="(event: Event) => (event.target as HTMLOptionElement).setAttribute('tabindex', '-1')"
+        @click="onListboxOptionClick(option)"
+        @blur="blurListOption(option)"
         @keydown="(event: KeyboardEvent) => onListboxOptionKeyDown(event, option)"
       >
-        <!-- @keydown.enter.prevent="(event: Event) => updateModelValue(event, option)"
-        @keydown.space.prevent="(event: Event) => updateModelValue(event, option)"
-        @keydown.tab.prevent="(event: Event) => updateModelValue(event, option)" -->
-        <!-- @focus="(event: Event) => updateModelValue(event, option)" -->
         <BaseIcon
           name="Check"
           class="fill-listbox-selected"
@@ -101,8 +99,10 @@ const props = withDefaults(
     required?: boolean;
     hasError?: boolean;
     placeholder?: string;
+    disabled?: boolean;
   }>(),
   {
+    disabled: false,
     required: false,
     hasError: false,
     placeholder: "Select an option",
@@ -112,8 +112,9 @@ const props = withDefaults(
 const focusCounter = ref<number>(0);
 const listboxIsExpanded = ref<boolean>(false);
 const modelValue = defineModel<IInternalListboxOption>();
-const olElemRefs = useTemplateRef<HTMLOptionElement[]>("listboxOptionsRef");
-const btnElemRef = useTemplateRef<HTMLButtonElement>("listboxToggle");
+const ulElemRef = useTemplateRef<HTMLUListElement>("listbox-ul");
+const olElemRefs = useTemplateRef<HTMLOptionElement[]>("listbox-li");
+const btnElemRef = useTemplateRef<HTMLButtonElement>("listbox-button");
 
 const listboxOptions = computed<IInternalListboxOption[]>(() => {
   const defaultOption: IListboxOption = {
@@ -149,11 +150,19 @@ function updateCounter(value: number) {
 function focusListOption() {
   nextTick(() => {
     if (olElemRefs.value) {
-      const targetElem = olElemRefs.value[
-        focusCounter.value
-      ] as HTMLOptionElement;
+      const targetElem = olElemRefs.value[focusCounter.value];
       targetElem.setAttribute("tabindex", "0");
       targetElem.focus();
+    }
+  });
+}
+
+function blurListOption(option: IInternalListboxOption) {
+  nextTick(() => {
+    if (olElemRefs.value) {
+      const targetElem = olElemRefs.value[option.index];
+      targetElem.setAttribute("tabindex", "-1");
+      targetElem.blur();
     }
   });
 }
@@ -177,21 +186,63 @@ function focusNextOption(by: number = 1) {
   focusListOption();
 }
 
+function focusListboxButton() {
+  btnElemRef.value?.focus();
+}
+
 function openCloseListbox() {
   listboxIsExpanded.value = !listboxIsExpanded.value;
   if (listboxIsExpanded.value) {
+    ulElemRef.value?.setAttribute("tabindex", "0");
     if (modelValue.value) {
       updateCounter(modelValue.value.index);
     } else {
       updateCounter(0);
     }
     focusListOption();
+  } else {
+    ulElemRef.value?.setAttribute("tabindex", "-1");
+  }
+}
+
+function onListboxButtonKeyDown(event: KeyboardEvent) {
+  const key = event.key;
+  switch (key) {
+    case "ArrowUp":
+      event.preventDefault();
+      openCloseListbox();
+      focusPreviousOption();
+      break;
+
+    case "ArrowDown":
+      event.preventDefault();
+      openCloseListbox();
+      break;
+
+    case "Enter":
+      event.preventDefault();
+      openCloseListbox();
+      break;
+
+    case "Space":
+      event.preventDefault();
+      openCloseListbox();
+      break;
+
+    case "Home":
+      focusCounter.value = 0;
+      focusListOption();
+      break;
+
+    case "End":
+      focusCounter.value = listboxOptions.value.length - 1;
+      focusListOption();
+      break;
   }
 }
 
 function onListboxKeyDown(event: KeyboardEvent) {
   const key = event.key;
-
   switch (key) {
     // focus
     case "ArrowUp":
@@ -223,12 +274,12 @@ function onListboxKeyDown(event: KeyboardEvent) {
       focusCounter.value = listboxOptions.value.length - 1;
       focusListOption();
       break;
-
-    //
-    case "Esc":
-      openCloseListbox();
-      break;
   }
+}
+
+function onListboxOptionClick(option: IInternalListboxOption) {
+  updateModelValue(option);
+  focusListboxButton();
 }
 
 function onListboxOptionKeyDown(
@@ -238,22 +289,34 @@ function onListboxOptionKeyDown(
   const key: string = event.key;
   switch (key) {
     case "Enter":
+      event.preventDefault();
       updateModelValue(option);
+      focusListboxButton();
       break;
 
     case "Spacebar":
       event.preventDefault();
       updateModelValue(option);
+      focusListboxButton();
       break;
 
     // spacebar (for older browser support)
     case " ":
       event.preventDefault();
       updateModelValue(option);
+      focusListboxButton();
       break;
 
     case "Tab":
       updateModelValue(option);
+      focusListboxButton();
+      break;
+
+    case "Escape":
+      event.preventDefault();
+      blurListOption(option);
+      openCloseListbox();
+      focusListboxButton();
       break;
   }
 }
