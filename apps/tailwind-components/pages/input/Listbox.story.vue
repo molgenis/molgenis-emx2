@@ -1,5 +1,5 @@
 <template>
-  <InputLabel id="listbox-input-label" class="block mb-3">
+  <InputLabel id="listbox-input-label" for="listbox-input" class="block mb-3">
     <span>Select a group assignment</span>
   </InputLabel>
   <InputListbox

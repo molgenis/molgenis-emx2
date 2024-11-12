@@ -5,8 +5,8 @@
 
   <div class="w-full relative">
     <button
+      :id="id"
       ref="listbox-button"
-      :id="`listbox-${id}-toggle`"
       role="combobox"
       :disabled="disabled"
       aria-haspopup="listbox"
