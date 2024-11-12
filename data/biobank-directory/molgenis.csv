@@ -163,6 +163,14 @@ Persons,,biobanks,Biobanks,refback,,false,true,Biobanks the person is connected 
 Persons,,collections,Collections,refback,,false,true,Collections the person is connected to.,,Collections,contact,,,,,,
 Persons,,networks,Networks,refback,,false,true,Networks the person is connected to.,,Networks,contact,,,,,,
 Persons,,national_node,National Node,ref,,true,,The person originates from this national node.,,NationalNodes,,${description},,,,,
+QualityInfoServices,,,,,,,,Collection Quality Information,,,,,,,,,
+QualityInfoServices,,id,ID,auto_id,1,true,true,,,,,,,,,QIS-${mg_autoid},
+QualityInfoServices,,service,Collection,ref,,true,,,,Services,,${name},,,,,
+QualityInfoServices,,qualityStandard,Quality Standard,ontology,,true,,,DirectoryOntologies,QualityStandards,,${label},,,,,
+QualityInfoServices,,assessmentLevel,Assessment Level,ontology,,true,,,DirectoryOntologies,AssessmentLevels,,${label},,,,,
+QualityInfoServices,,certificationNumber,Certification Number,string,,false,,,,,,,,,,,
+QualityInfoServices,,certificationReport,Certification Report,hyperlink,,false,,,,,,,,,,,
+QualityInfoServices,,certificationImageLink,Certification Image,hyperlink,,false,,,,,,,,,,,
 Services,,,,,,,,Biobank Capabilities and Services
 Services,,id,ID,string,1,true,,"Unique ID of the service, prefixed with bbmri-eric:serviceID:"
 Services,,name,Service Name,string,2,true,,Name of the service (preferably in English).,,,,,,,,,
@@ -178,7 +186,7 @@ Services,,accessDescriptionUrl,Access Description URL,hyperlink,,false,,URL of t
 Services,,unitOfAccess,Unit of Access,string,,false,,Information about a standard unit used in calculations of costs of service provision.,,,,,,,,,
 Services,,accessDescription,Access Description,string,,true,,Description of the access policy of the service,,,,,,,,,
 Services,,unitCost,Unit Cost,string,,false,,Cost per unit.,,,,,,,,,
-Services,,qualityStandards,Quality Standards,ontology_array,,false,,The standards and/or technical specifications that the service is certified or accredited for.,DirectoryOntologies,QualityStandards,,,,,,,
+Services,,qualityStandards,Quality Standards,refback,,false,true,The standards and/or technical specifications that the service is certified or accredited for.,,QualityInfoServices,service,${quality_standard},,,,,
 Services,,contactInformation,Contact Information,ref,,false,,Contact information for the contact person or responsible person of the service ,,Persons,
 Services,,national_node,National Node,ref,,true,,The study originates from this national node.,,NationalNodes,,${description},,,,,
 Studies,,,,,,,,Table with information about the studies in which context the collection was generated,,,,,,,,,
