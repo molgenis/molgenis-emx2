@@ -12,7 +12,7 @@ Runs,,libraryStrategy,ontology,,,,SequencingMethods,,,,http://purl.obolibrary.or
 Runs,,libraryLayout,string,,,,,,,,http://purl.obolibrary.org/obo/FBcv_0003208,Either PAIRED or SINGLE,"Beacon v2"
 Runs,,platform,ontology,,,,SequencingPlatforms,,,,http://purl.obolibrary.org/obo/GENEPIO_0000071,"The used sequencing platform (i.e. brand, name of a company that produces sequencer equipment). In FAIR Genomes: SequencingPlatform.","Beacon v2, FAIR Genomes"
 Runs,,platformModel,ontology,,,,SequencingInstrumentModels,,,,http://purl.obolibrary.org/obo/GENEPIO_0001921,The used product name and model number of a manufacturer's genomic (dna) sequencer. In FAIR Genomes: SequencingInstrumentModel.,"Beacon v2, FAIR Genomes"
-Runs,,BelongsToSamplePreparation,ref,,,,SamplePreparation,,,,http://purl.obolibrary.org/obo/NCIT_C25683,"Reference to the prepared sample, i.e. the source that was sequenced.","FAIR Genomes"
+Runs,,BelongsToSamplePreparation,ref,,,,Sample preparation,,,,http://purl.obolibrary.org/obo/NCIT_C25683,"Reference to the prepared sample, i.e. the source that was sequenced.","FAIR Genomes"
 Runs,,Mean read depth,int,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C167285,The mean number of times each gene encoding an RNA transcript was fully sequenced.,"FAIR Genomes"
 Runs,,MedianReadDepth,int,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C155320,"The median number of times a particular locus (site, nucleotide, amplicon, region) was sequenced.","FAIR Genomes"
 Runs,,ObservedReadLength,int,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C153362,The number of nucleotides successfully ordered from each side of a nucleic acid fragment obtained after the completion of a sequencing process.,"FAIR Genomes"

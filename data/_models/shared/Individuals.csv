@@ -8,7 +8,7 @@ Individuals,,month of birth,ontology,,,,Month of the year,,,,http://purl.obolibr
 Individuals,,date of birth,date,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C83164,The year in which a person was born. In JRC-CDE: Date of birth,"JRC-CDE, GDI T8.2 union, RD3"
 Individuals,,disease causal genes,ontology_array,,,,Genes,,,,http://purl.obolibrary.org/obo/NCIT_C16612,Addition for EJP-RD Virtual Platform API. E.g. TTN. In JRC-CDE: Genetic diagnosis,"Beacon v2 Vivify add-on, JRC-CDE"
 Individuals,,consent,refback,,,,Individual consent,,PersonConsenting,,http://purl.obolibrary.org/obo/NCIT_C16735,"Consent given by a patient to a surgical or medical procedure or participation in a study, examination or analysis after achieving an understanding of the relevant medical facts and the risks involved.",RD3
-Individuals,,has genomic variations,refback,,,,Genomic variations case level,,individualId,,http://purl.obolibrary.org/obo/GSSO_000660,NON-STANDARD FIELD. E.g. Var001_CLD01,Beacon v2
+Individuals,,has genomic variations,refback,,,,GenomicVariationsCaseLevel,,individualId,,http://purl.obolibrary.org/obo/GSSO_000660,NON-STANDARD FIELD. E.g. Var001_CLD01,Beacon v2
 Individuals,,diseases,ref_array,,,,IndividualsDiseases,,,,http://purl.obolibrary.org/obo/NCIT_C15607,E.g. Ind001_Dis001,"Beacon v2,JRC-CDE"
 Individuals,,measures,ref_array,,,,IndividualsMeasures,,,,http://purl.obolibrary.org/obo/NCIT_C25209,E.g. Ind001_Meas001,Beacon v2
 Individuals,,phenotypic features,ref_array,,,,IndividualsPhenotypicFeatures,,,,http://purl.obolibrary.org/obo/NCIT_C116555,E.g. Ind001_Phen001,"Beacon v2,JRC-CDE"
@@ -26,7 +26,7 @@ Individuals,,consanguinity,bool,,,,,,,,http://purl.obolibrary.org/obo/OMIT_00045
 Individuals,,primary affiliated institute,ontology,,,,Organisations,,,,http://purl.obolibrary.org/obo/NCIT_C25412,The most significant institute for medical consultation and/or study inclusion in context of the genetic disease of this person.,FAIR Genomes
 Individuals,,affiliated institutions,ontology_array,,,,Organisations,,,,http://purl.obolibrary.org/obo/NCIT_C25412,One or more associations between the individual and a organisation or institution.,RD3
 Individuals,,resources in other institutes,ontology_array,,,,Organisations,,,,http://purl.obolibrary.org/obo/NCIT_C19012,Material or data related to this person that is not captured by this system though known to be available in other institutes such as biobanks or hospitals. In JRC-CDE: Link to a biobank,"FAIR Genomes, JRC-CDE"
-Individuals,,analyses,refback,,,,Patient analyses,,,,http://purl.obolibrary.org/obo/RO_0000056,Reference to the study or studies in which this person participates.,"FAIR Genomes,RD3"
+Individuals,,analyses,refback,,,,Patient analyses,,,,http://purl.obolibrary.org/obo/RO_0000056,Reference to the study or studies in which this person participates.,"RD3"
 Individuals,,pedigree,ref,,,,Pedigree,,,,http://purl.obolibrary.org/obo/NCIT_C27957,Pedigree studies in which the individual is part of.,RD3
 Individuals,,Is off study,bool,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C29851,No longer participating in a study; not being followed and will not be retreated.,RD3
 Individuals,,Off study reason,ontology,,,,Off study reasons,,,,http://purl.obolibrary.org/obo/NCIT_C93611,A coded value specifying why the subject is removed from a study.A coded value specifying why the subject is removed from a study.,RD3
@@ -43,9 +43,9 @@ IndividualsPhenotypicFeatures,,belongsToIndividual,refback,,,,Individuals,,pheno
 IndividualsDiseases,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C15607,Beacon v2 Individuals Diseases,Beacon v2
 IndividualsDiseases,,id,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C87853,E.g. Ind001_Dis001,Beacon v2
 IndividualsDiseases,,diseaseCode,ontology,,TRUE,,Diseases,,,,"http://purl.obolibrary.org/obo/NCIT_C15607,http://semanticscience.org/resource/SIO_001003",E.g. Spinocerebellar ataxia type 34,Beacon v2
-IndividualsDiseases,,ageOfOnset_ageGroup,ontology,,,,AgeGroups,,,,"http://purl.obolibrary.org/obo/HP_0003674,http://www.ebi.ac.uk/efo/EFO_0004847",E.g. Adult 18-65 Years Old,Beacon v2
+IndividualsDiseases,,ageOfOnset_ageGroup,ontology,,,,Age groups,,,,"http://purl.obolibrary.org/obo/HP_0003674,http://www.ebi.ac.uk/efo/EFO_0004847",E.g. Adult 18-65 Years Old,Beacon v2
 IndividualsDiseases,,ageOfOnset_age_iso8601duration,period,,,,,,,,"http://www.orpha.net/ORDO/Orphanet_C023,http://www.ebi.ac.uk/efo/EFO_0004847",E.g. P32Y6M1D,Beacon v2
-IndividualsDiseases,,ageAtDiagnosis_ageGroup,ontology,,,,AgeGroups,,,,http://purl.obolibrary.org/obo/NCIT_C156420,"Addition for EJP-RD Virtual Platform API. E.g. Adult 18-65 Years Old",Beacon v2 Vivify add-on
+IndividualsDiseases,,ageAtDiagnosis_ageGroup,ontology,,,,Age groups,,,,http://purl.obolibrary.org/obo/NCIT_C156420,"Addition for EJP-RD Virtual Platform API. E.g. Adult 18-65 Years Old",Beacon v2 Vivify add-on
 IndividualsDiseases,,ageAtDiagnosis_age_iso8601duration,period,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C156420,"Addition for EJP-RD Virtual Platform API. E.g. P32Y6M1D",Beacon v2 Vivify add-on
 IndividualsDiseases,,familyHistory,bool,,,,,,,,http://purl.obolibrary.org/obo/HP_0032316,E.g. false,Beacon v2
 IndividualsDiseases,,severity,ontology,,,,Severity,,,,http://purl.obolibrary.org/obo/HP_0012824,E.g. Profound,Beacon v2

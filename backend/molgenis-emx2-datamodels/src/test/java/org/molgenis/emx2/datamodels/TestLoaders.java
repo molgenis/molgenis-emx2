@@ -61,7 +61,7 @@ public class TestLoaders {
   public void test01FAIRDataHubLoader() {
     Schema fairDataHubSchema = database.createSchema(FAIR_DATA_HUB_TEST);
     DataModels.Profile.FAIR_DATA_HUB.getImportTask(fairDataHubSchema, true).run();
-    assertEquals(71, fairDataHubSchema.getTableNames().size());
+    assertEquals(73, fairDataHubSchema.getTableNames().size());
     String[] semantics = fairDataHubSchema.getTable("BiospecimenType").getMetadata().getSemantics();
     assertEquals("http://purl.obolibrary.org/obo/NCIT_C70699", semantics[0]);
     assertEquals("http://purl.obolibrary.org/obo/NCIT_C70713", semantics[1]);
