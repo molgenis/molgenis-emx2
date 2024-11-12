@@ -35,16 +35,16 @@ public class TestDeleteRefback {
                             .setRefTable(patients.getTableName())
                             .setRefSchemaName(schema.getName())));
 
-    // reload
+    // get fresh schema metadata and check
     schema
         .getMetadata()
         .getTableMetadata("Patients")
         .add(
             column("visits")
                 .setType(REFBACK)
+                .setRefSchemaName(schemaOther.getName())
                 .setRefTable(patientVisits.getTableName())
-                .setRefBack("patient")
-                .setRefSchemaName(schema.getName()));
+                .setRefBack("patient"));
   }
 
   @Test
@@ -54,8 +54,15 @@ public class TestDeleteRefback {
     loadSchemas(schema, schemaOther);
 
     // should also delete the 'visits' refback in Patients
-    schemaOther.getMetadata().drop("Patient visits");
-    assertNull(schema.getMetadata().getTableMetadata("Patient").getColumn("visits"));
+    schemaOther.getMetadata().drop("Patients visits");
+
+    // get fresh schema metadata and check
+    assertNull(
+        database
+            .getSchema(schema.getName())
+            .getMetadata()
+            .getTableMetadata("Patients")
+            .getColumn("visits"));
   }
 
   @Test
@@ -65,8 +72,15 @@ public class TestDeleteRefback {
     loadSchemas(schema, schemaOther);
 
     // should also delete the 'visits' refback in Patient
-    schema.getMetadata().getTableMetadata("Patient visits").dropColumn("patient");
-    assertNull(schema.getMetadata().getTableMetadata("Patients").getColumn("visits"));
+    schemaOther.getMetadata().getTableMetadata("Patients visits").dropColumn("patient");
+
+    // get fresh schema metadata and check
+    assertNull(
+        database
+            .getSchema(schema.getName())
+            .getMetadata()
+            .getTableMetadata("Patients")
+            .getColumn("visits"));
   }
 
   @Test
@@ -76,10 +90,15 @@ public class TestDeleteRefback {
     loadSchemas(schema, schemaOther);
 
     // refTable rename
-    schema.getMetadata().getTableMetadata("Patient visits").alterName("Patient visits2");
+    schemaOther.getMetadata().getTableMetadata("Patients visits").alterName("Patients visits2");
     assertEquals(
-        "Patient visits2",
-        schema.getMetadata().getTableMetadata("visits").getColumn("patient").getRefTableName());
+        "Patients visits2",
+        database
+            .getSchema(schema.getName())
+            .getMetadata()
+            .getTableMetadata("Patients")
+            .getColumn("visits")
+            .getRefTableName());
   }
 
   @Test
@@ -89,13 +108,46 @@ public class TestDeleteRefback {
     loadSchemas(schema, schemaOther);
 
     // refColumn rename
-    schema
-        .getMetadata()
-        .getTableMetadata("Patient visits")
-        .getColumn("patient")
-        .setName("patient2");
+    Column refColumn =
+        schemaOther
+            .getMetadata()
+            .getTableMetadata("Patients visits")
+            .getColumn("patient")
+            .setName("patient2");
+    schemaOther.getMetadata().getTableMetadata("Patients visits").alterColumn("patient", refColumn);
+
+    // get fresh schema metadata and check
     assertEquals(
         "patient2",
-        schema.getMetadata().getTableMetadata("Patient visits").getColumn("visits").getRefBack());
+        database
+            .getSchema(schema.getName())
+            .getMetadata()
+            .getTableMetadata("Patients")
+            .getColumn("visits")
+            .getRefBack());
+  }
+
+  @Test
+  public void testRefBackChangeRefToNonRef() {
+    Schema schemaOther = database.dropCreateSchema(TestRefBack.class.getSimpleName() + "Other4");
+    Schema schema = database.dropCreateSchema(TestRefBack.class.getSimpleName() + "4");
+    loadSchemas(schema, schemaOther);
+
+    // refColumn deref
+    Column refColumn =
+        schemaOther
+            .getMetadata()
+            .getTableMetadata("Patients visits")
+            .getColumn("patient")
+            .setType(STRING);
+    schemaOther.getMetadata().getTableMetadata("Patients visits").alterColumn("patient", refColumn);
+
+    // get fresh schema metadata and check
+    assertNull(
+        database
+            .getSchema(schema.getName())
+            .getMetadata()
+            .getTableMetadata("Patients")
+            .getColumn("visits"));
   }
 }

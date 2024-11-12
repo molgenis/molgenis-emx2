@@ -10,6 +10,7 @@ import static org.molgenis.emx2.sql.MetadataUtils.saveColumnMetadata;
 import static org.molgenis.emx2.sql.SqlColumnExecutor.*;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.*;
 
+import java.util.List;
 import java.util.Map;
 import org.jooq.DSLContext;
 import org.molgenis.emx2.*;
@@ -122,12 +123,27 @@ class SqlTableMetadata extends TableMetadata {
       SqlColumnExecutor.executeRemoveRefConstraints(tm.getJooq(), column);
     }
 
+    // get refbacks pointing to 'me'
+    List<Column> refbackColumns =
+        tm.getColumns().stream()
+            .filter(c -> c.getReferenceRefback() != null)
+            .map(c -> c.getReferenceRefback())
+            .toList();
+
     // rename table and triggers
     SqlTableMetadataExecutor.executeAlterName(tm.getJooq(), tm, newName);
 
     // update metadata
     MetadataUtils.alterTableName(tm.getJooq(), tm, newName);
     tm.tableName = newName;
+
+    // rename refbacks
+    refbackColumns.forEach(
+        refBack -> {
+          refBack.setRefTable(newName);
+          MetadataUtils.saveColumnMetadata(tm.getJooq(), refBack);
+          db.getListener().schemaChanged(refBack.getSchemaName());
+        });
 
     // recreate triggers for this table
     for (Column column : tm.getStoredColumns()) {
@@ -220,13 +236,17 @@ class SqlTableMetadata extends TableMetadata {
     }
 
     // if changing 'ref' then check if not refBack exists
-    if (!oldColumn.getColumnType().equals(newColumn.getColumnType())) {
-      Column reverseRefback = oldColumn.getReferenceRefback();
-      if (reverseRefback != null) {
-        // delete if changed to non ref
-        if (!newColumn.isReference()) {
-          reverseRefback.getTable().dropColumn(oldColumn.getName());
-        }
+    Column reverseRefback = oldColumn.getReferenceRefback();
+    if (reverseRefback != null) {
+      // delete if changed to non ref
+      if (!newColumn.isReference()) {
+        reverseRefback.getTable().dropColumn(reverseRefback.getName());
+      }
+      // else update refback if renamed
+      else if (!oldColumn.getName().equals(newColumn.getName())) {
+        reverseRefback
+            .getTable()
+            .alterColumn(reverseRefback.getName(), reverseRefback.setRefBack(newColumn.getName()));
       }
     }
 
