@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.molgenis.emx2.Column;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.TableMetadata;
 
@@ -26,7 +27,7 @@ public class TableSort {
           }
         });
 
-    // dependency come from inheritance
+    // dependency come from inheritance or primary key deps
     while (!todo.isEmpty()) {
       int size = todo.size();
       for (int i = 0; i < todo.size(); i++) {
@@ -41,6 +42,17 @@ public class TableSort {
             break;
           }
         }
+        if (!depends)
+          for (Column c : current.getPrimaryKeyColumns()) {
+            if (c.getRefTableName() != null && !c.isRefback()) {
+              for (int j = 0; j < todo.size(); j++) {
+                if (i != j && (todo.get(j).getTableName().equals(c.getRefTableName()))) {
+                  depends = true;
+                  break;
+                }
+              }
+            }
+          }
         if (!depends) {
           result.add(todo.get(i));
           todo.remove(i);

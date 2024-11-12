@@ -108,14 +108,14 @@ public class TestLoaders {
   void test11JRCCDELoader() {
     Schema JRCCDESchema = database.createSchema(JRC_CDE_TEST);
     DataModels.Profile.JRC_COMMON_DATA_ELEMENTS.getImportTask(JRCCDESchema, true).run();
-    assertEquals(12, JRCCDESchema.getTableNames().size());
+    assertEquals(10, JRCCDESchema.getTableNames().size());
   }
 
   @Test
   void test12FAIRGenomesLoader() {
     Schema FAIRGenomesSchema = database.createSchema(FAIR_GENOMES);
     DataModels.Profile.FAIR_GENOMES.getImportTask(FAIRGenomesSchema, true).run();
-    assertEquals(46, FAIRGenomesSchema.getTableNames().size());
+    assertEquals(48, FAIRGenomesSchema.getTableNames().size());
   }
 
   @Test
