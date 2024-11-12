@@ -27,7 +27,7 @@ Biobanks,,latitude,Latitude,string,,false,,"Latitude of the biobank in the WGS84
 Biobanks,,longitude,Longitude,string,,false,,"Longitude of the biobank in the WGS84 system (the one used by GPS), positive is to the East of Greenwich.",,,,,,,,,
 Biobanks,,head,Head of the Biobank,ref,,false,,Person in charge of the biobank.,,Persons,,${first_name} ${last_name},,,,,
 Biobanks,,contact,Contact Person,ref,,true,,Contact person of the biobank.,,Persons,,${first_name} ${last_name},,,,,
-Biobanks,,juridical_person,Juridical Person,string,,false,,Juristic person of a biobank according to MIABIS 2.0 - MIABIS-2.0-05.,,,,,,,,,
+Biobanks,,juridical_person,Juridical Person,string,,true,,Juristic person of a biobank according to MIABIS 2.0 - MIABIS-2.0-05.,,,,,,,,,
 Biobanks,,network,Networks,ref_array,,false,,"Reference to a biobank network ID, to which the biobank belongs; this attribute can also be used for biobank network, where it refers to the superior biobank network.",,Networks,,${name},,,,,
 Biobanks,,also_known,Also Known In,ref_array,,false,,The biobank also exists in …,,AlsoKnownIn,,${name_system},,,,,
 Biobanks,,collections,Collections,refback,,false,,Collections belonging to the biobank.,,Collections,biobank,,,,,,

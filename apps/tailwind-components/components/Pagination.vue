@@ -6,9 +6,11 @@ const props = withDefaults(
     currentPage: number;
     totalPages: number;
     preventDefault?: boolean;
+    inverted?: boolean;
   }>(),
   {
     preventDefault: false,
+    inverted: false,
   }
 );
 const emit = defineEmits(["update"]);
@@ -77,7 +79,10 @@ function changeCurrentPage(event: Event) {
       <li class="flex justify-center items-center">
         <div class="px-4 tracking-widest sm:px-5">
           <label :for="pageInputId" class="sr-only">go to specific page</label>
-          <span class="text-pagination">Page</span>
+          <span
+            :class="[inverted ? 'text-pagination-inverted' : 'text-pagination']"
+            >Page</span
+          >
         </div>
         <input
           :id="pageInputId"
@@ -86,7 +91,10 @@ function changeCurrentPage(event: Event) {
           @change="changeCurrentPage"
         />
         <div class="px-4 tracking-widest sm:px-5 whitespace-nowrap">
-          <span class="text-pagination">OF {{ totalPages }}</span>
+          <span
+            :class="[inverted ? 'text-pagination-inverted' : 'text-pagination']"
+            >OF {{ totalPages }}</span
+          >
         </div>
       </li>
       <li>

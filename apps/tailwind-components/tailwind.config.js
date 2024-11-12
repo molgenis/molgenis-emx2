@@ -155,7 +155,8 @@ module.exports = {
         "input": "var(--background-color-input)",
         "listbox": "var(--background-color-listbox)",
         "listbox-hover": "var(--background-color-listbox-hover)",
-        "listbox-selected": "var(--background-color-listbox-selected)"
+        "listbox-selected": "var(--background-color-listbox-selected)",
+        "table": "var(--background-color-table)",
       }),
       textColor: ({ theme }) => ({
         "button-primary": "var(--text-color-button-primary)",
@@ -197,9 +198,11 @@ module.exports = {
         "tooltip-hover-dark": "var(--text-color-tooltip-hover-dark)",
         "tooltip-hover-light": "var(--text-color-tooltip-hover-light)",
         "pagination": "var(--text-color-pagination)",
+        "pagination-inverted": "var(--text-color-pagination-inverted)",
         "pagination-input": "var(--text-color-pagination-input)",
         "pagination-hover": "var(--text-color-pagination-hover)",
         "footer-link": "var(--text-color-footer-link)",
+        "table-column-header": "var(--text-color-table-column-header)",
         "invalid": "var(--text-color-invalid)",
         "valid": "var(--text-color-valid)",
         "disabled": "var(--text-color-disabled)",
