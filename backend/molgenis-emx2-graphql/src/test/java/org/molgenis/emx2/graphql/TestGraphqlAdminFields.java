@@ -9,15 +9,19 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.ExecutionInput;
 import graphql.GraphQL;
+
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.User;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 public class TestGraphqlAdminFields {
@@ -58,6 +62,7 @@ public class TestGraphqlAdminFields {
           tdb.becomeAdmin();
         });
   }
+
   @Test
   public void testUpdateUser() {
     database.tx(
@@ -67,6 +72,8 @@ public class TestGraphqlAdminFields {
           GraphQL graphql = new GraphqlApiFactory().createGraphqlForDatabase(testDatabase, null);
 
           try {
+            // TODO: add testPersoon so we can mutate it
+
             String query =
                 "mutation updateUser($updateUser:InputUpdateUser) {updateUser(updateUser:$updateUser){status, message}}";
             Map<String, Object> variables = getUpdateUser();
@@ -77,6 +84,13 @@ public class TestGraphqlAdminFields {
             if (node.get("errors") != null) {
               throw new MolgenisException(node.get("errors").get(0).get("message").asText());
             }
+
+            User user = testDatabase.getUser("testPersoon");
+
+            //TODO: validate settings of user
+
+            //TODO: delete user
+
           } catch (Exception e) {
             throw new RuntimeException(e);
           }
@@ -88,19 +102,26 @@ public class TestGraphqlAdminFields {
     Map<String, Object> variables = new HashMap<>();
     Map<String, Object> updateUser = new HashMap<>();
     updateUser.put("email", "testPersoon");
-    updateUser.put("enabled", "true");
-    //    updateUser.put("revokedRoles", "[]");
-    //    updateUser.put("roles", "[]");
-    //            updateUser.put("password", "12345678");
+    updateUser.put("password", "12345678");
+    updateUser.put("enabled", "false");
+
+    ArrayList<Map<String, String>> revokedRoles = new ArrayList<>();
+    updateUser.put("revokedRoles", revokedRoles);
+
+    ArrayList<Map<String, String>> roles = new ArrayList<>();
+    updateUser.put("roles", roles);
+
     variables.put("updateUser", updateUser);
     return variables;
   }
 
   @Test
-  public void testDeleteUser() {}
+  public void testDeleteUser() {
+  }
 
   @Test
-  public void addUpdateUser() {}
+  public void addUpdateUser() {
+  }
 
   private JsonNode execute(String query) throws IOException {
     String result = convertExecutionResultToJson(grapql.execute(query));

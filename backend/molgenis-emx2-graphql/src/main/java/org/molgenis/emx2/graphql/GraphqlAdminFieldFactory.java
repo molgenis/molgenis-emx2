@@ -224,6 +224,10 @@ public class GraphqlAdminFieldFactory {
               GraphQLInputObjectField.newInputObjectField().name(EMAIL).type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField()
+                  .name(PASSWORD)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
                   .name(ENABLED)
                   .type(Scalars.GraphQLBoolean))
           .field(
