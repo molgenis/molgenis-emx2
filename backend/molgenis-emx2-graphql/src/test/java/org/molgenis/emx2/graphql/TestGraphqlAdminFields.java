@@ -7,8 +7,12 @@ import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import graphql.ExecutionInput;
 import graphql.GraphQL;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
@@ -25,8 +29,6 @@ public class TestGraphqlAdminFields {
   @BeforeAll
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
-    //    PetStoreExample.create(schema.getMetadata());
-    //    PetStoreExample.populate(schema);
   }
 
   @Test
@@ -56,6 +58,49 @@ public class TestGraphqlAdminFields {
           tdb.becomeAdmin();
         });
   }
+  @Test
+  public void testUpdateUser() {
+    database.tx(
+        testDatabase -> {
+          testDatabase.becomeAdmin();
+          testDatabase.dropCreateSchema(schemaName);
+          GraphQL graphql = new GraphqlApiFactory().createGraphqlForDatabase(testDatabase, null);
+
+          try {
+            String query =
+                "mutation updateUser($updateUser:InputUpdateUser) {updateUser(updateUser:$updateUser){status, message}}";
+            Map<String, Object> variables = getUpdateUser();
+            ExecutionInput build =
+                ExecutionInput.newExecutionInput().query(query).variables(variables).build();
+            String queryResult = convertExecutionResultToJson(graphql.execute(build));
+            JsonNode node = new ObjectMapper().readTree(queryResult);
+            if (node.get("errors") != null) {
+              throw new MolgenisException(node.get("errors").get(0).get("message").asText());
+            }
+          } catch (Exception e) {
+            throw new RuntimeException(e);
+          }
+        });
+  }
+
+  @NotNull
+  private static Map<String, Object> getUpdateUser() {
+    Map<String, Object> variables = new HashMap<>();
+    Map<String, Object> updateUser = new HashMap<>();
+    updateUser.put("email", "testPersoon");
+    updateUser.put("enabled", "true");
+    //    updateUser.put("revokedRoles", "[]");
+    //    updateUser.put("roles", "[]");
+    //            updateUser.put("password", "12345678");
+    variables.put("updateUser", updateUser);
+    return variables;
+  }
+
+  @Test
+  public void testDeleteUser() {}
+
+  @Test
+  public void addUpdateUser() {}
 
   private JsonNode execute(String query) throws IOException {
     String result = convertExecutionResultToJson(grapql.execute(query));
