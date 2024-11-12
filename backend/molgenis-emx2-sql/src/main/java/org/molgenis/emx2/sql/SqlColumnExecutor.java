@@ -368,6 +368,15 @@ public class SqlColumnExecutor {
               "Add column '%s.%s' failed: 'refTable' required for columns of type REF, REF_ARRAY, REFBACK (tried to find: %s:%s)",
               c.getTableName(), c.getName(), c.getRefSchemaName(), c.getRefTableName()));
     }
+    if (c.getRefTableName() != null && !c.isReference()) {
+      throw new MolgenisException(
+          "Cannot set refTable '"
+              + c.getRefTableName()
+              + "' for column '"
+              + c.getName()
+              + "': is not a reference but a "
+              + c.getColumnType());
+    }
     if (c.getRefLink() != null) {
       if (c.getTable().getColumn(c.getRefLink()) == null) {
         throw new MolgenisException(

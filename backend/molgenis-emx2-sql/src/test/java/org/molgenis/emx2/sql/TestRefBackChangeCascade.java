@@ -9,7 +9,7 @@ import org.junit.jupiter.api.*;
 import org.molgenis.emx2.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class TestDeleteRefback {
+public class TestRefBackChangeCascade {
   private static Database database;
 
   @BeforeAll
@@ -129,8 +129,8 @@ public class TestDeleteRefback {
 
   @Test
   public void testRefBackChangeRefToNonRef() {
-    Schema schemaOther = database.dropCreateSchema(TestRefBack.class.getSimpleName() + "Other4");
-    Schema schema = database.dropCreateSchema(TestRefBack.class.getSimpleName() + "4");
+    Schema schemaOther = database.dropCreateSchema(TestRefBack.class.getSimpleName() + "Other5");
+    Schema schema = database.dropCreateSchema(TestRefBack.class.getSimpleName() + "5");
     loadSchemas(schema, schemaOther);
 
     // refColumn deref
@@ -139,6 +139,7 @@ public class TestDeleteRefback {
             .getMetadata()
             .getTableMetadata("Patients visits")
             .getColumn("patient")
+            .setRefTable(null)
             .setType(STRING);
     schemaOther.getMetadata().getTableMetadata("Patients visits").alterColumn("patient", refColumn);
 
