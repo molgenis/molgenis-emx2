@@ -136,7 +136,7 @@ public class TestLoaders {
   void test15DirectoryStagingLoader() {
     Schema directoryStaging = database.createSchema(DIRECTORY_STAGING);
     DataModels.Regular.BIOBANK_DIRECTORY_STAGING.getImportTask(directoryStaging, false).run();
-    assertEquals(6, directoryStaging.getTableNames().size());
+    assertEquals(7, directoryStaging.getTableNames().size());
   }
 
   @Test

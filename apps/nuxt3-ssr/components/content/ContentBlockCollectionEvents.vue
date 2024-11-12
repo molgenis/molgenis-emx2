@@ -341,6 +341,6 @@ defineProps({
         </TableRow>
       </template>
     </Table>
-    <Pagination :currentPage="45" :totalPages="55" />
+    <Pagination :currentPage="45" :totalPages="55" :inverted="true" />
   </ContentBlock>
 </template>
