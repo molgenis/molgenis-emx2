@@ -92,6 +92,7 @@ public class MolgenisWebservice {
     ExcelApi.create(app);
     JsonApi.create(app);
     FileApi.create(app);
+    CafeVariomeApi.create(app);
     JsonYamlApi.create(app);
     TaskApi.create(app);
     GraphqlApi.createGraphQLservice(app, sessionManager);
