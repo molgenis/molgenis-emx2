@@ -71,6 +71,7 @@ public class TestGraphqlAdminFields {
 
           try {
             testDatabase.addUser(testPersoon);
+            testDatabase.setEnabledUser(testPersoon, true);
 
             String query =
                 "mutation updateUser($updateUser:InputUpdateUser) {updateUser(updateUser:$updateUser){status, message}}";
