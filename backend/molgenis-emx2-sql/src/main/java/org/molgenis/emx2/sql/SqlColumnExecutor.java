@@ -434,6 +434,10 @@ public class SqlColumnExecutor {
             .execute();
       }
     } else if (column.isRef() || column.isRefArray()) {
+      // if has refback also drop that automatically
+      if (column.getReferenceRefback() != null) {
+        SqlColumnExecutor.executeRemoveColumn(jooq, column.getReferenceRefback());
+      }
       for (Reference ref : column.getReferences()) {
         // check if reference name already exists, composite ref may reuse columns
         // either other column, or a part of a reference

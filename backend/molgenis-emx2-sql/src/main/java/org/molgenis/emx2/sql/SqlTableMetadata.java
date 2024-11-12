@@ -221,7 +221,13 @@ class SqlTableMetadata extends TableMetadata {
 
     // if changing 'ref' then check if not refBack exists
     if (!oldColumn.getColumnType().equals(newColumn.getColumnType())) {
-      tm.checkNoRefbackExists(oldColumn);
+      Column reverseRefback = oldColumn.getReferenceRefback();
+      if (reverseRefback != null) {
+        // delete if changed to non ref
+        if (!newColumn.isReference()) {
+          reverseRefback.getTable().dropColumn(oldColumn.getName());
+        }
+      }
     }
 
     // drop old key, if touched
@@ -272,24 +278,12 @@ class SqlTableMetadata extends TableMetadata {
     return tm;
   }
 
-  public static void checkNoRefbackExists(Column column) {
-    if (column.isReferenceWithRefback()) {
-      throw new MolgenisException(
-          "Drop/alter column '"
-              + column.getName()
-              + "' failed: cannot remove reference while refBack for it exists in "
-              + column.getRefTable().getTableName());
-    }
-  }
-
   @Override
   public void dropColumn(String name) {
     Column column = getColumn(name);
     if (column == null) {
       throw new MolgenisException("Drop column " + name + " failed: column does not exist");
     }
-    // if changing 'ref' then check if not refBack exists
-    checkNoRefbackExists(column);
 
     long start = System.currentTimeMillis();
     if (getColumn(name) == null) return; // return silently, idempotent

@@ -366,13 +366,14 @@ public class SqlSchema implements Schema {
               newColumn.getOldName() != null
                   ? oldTable.getColumn(newColumn.getOldName()) // when renaming
                   : oldTable.getColumn(newColumn.getName()); // when not renaming
+
           if (oldColumn != null && !newColumn.isDrop()) {
             if (!created.contains(newColumn.getTableName() + "." + newColumn.getName())) {
               oldTable.alterColumn(oldColumn.getName(), newColumn);
             }
           } else
           // don't forget to add the refbacks
-          if (oldColumn == null && !newColumn.isDrop() && newColumn.isRefback()) {
+          if (oldColumn == null && newColumn.isRefback()) {
             targetSchema.getTable(newTable.getTableName()).getMetadata().add(newColumn);
           }
         }
@@ -384,7 +385,6 @@ public class SqlSchema implements Schema {
     for (TableMetadata mergeTable : mergeTableList) {
       // idempotent so we only drop if exists
       if (mergeTable.isDrop() && targetSchema.getTable(mergeTable.getOldName()) != null) {
-        checkRefbackConstraints(mergeTable, mergeTableList);
         targetSchema.getTable(mergeTable.getOldName()).getMetadata().drop();
       }
     }
@@ -393,40 +393,6 @@ public class SqlSchema implements Schema {
     if (!mergeSchema.getSettings().isEmpty()) {
       targetSchema.getMetadata().setSettings(mergeSchema.getSettings());
     }
-  }
-
-  private static void checkRefbackConstraints(
-      TableMetadata mergeTable, List<TableMetadata> mergeTableList) {
-    for (Column column : mergeTable.getColumns()) {
-      if (!column.isReferenceWithRefback()) continue;
-
-      if (columnHasRefbackConstraints(column, mergeTableList)) {
-        throw new MolgenisException(
-            "Deleting column \""
-                + column.getName()
-                + "\" failed: has refBack in table: "
-                + column.getRefSchemaName()
-                + "."
-                + column.getRefTable().getTableName()
-                + ", first delete the refBack before deleting this column");
-      }
-    }
-  }
-
-  private static boolean columnHasRefbackConstraints(
-      Column column, List<TableMetadata> mergeTableList) {
-    Column refbackColumn = column.getReferenceRefback();
-    boolean refbackIsInMergeTableList = false;
-    for (TableMetadata table : mergeTableList) {
-      if (table.getTableName().equals(refbackColumn.getTableName())) {
-        refbackIsInMergeTableList = true;
-        if (!table.isDrop() && !table.getColumn(refbackColumn.getIdentifier()).isDrop()) {
-          return true;
-        }
-      }
-    }
-    return !refbackIsInMergeTableList; // if the constraint is not in the mergeTableList it's not
-    // handled
   }
 
   public String getName() {

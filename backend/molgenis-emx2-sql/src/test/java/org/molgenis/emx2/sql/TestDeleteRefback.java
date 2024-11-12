@@ -6,88 +6,96 @@ import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.Order;
 import org.molgenis.emx2.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class TestDeleteRefback {
-
-  private static Schema schema;
-  private static Schema schemaOther;
   private static Database database;
 
   @BeforeAll
   public static void setUp() {
     database = TestDatabaseFactory.getTestDatabase();
-    schemaOther = database.dropCreateSchema(TestRefBack.class.getSimpleName() + "Other");
-    schema = database.dropCreateSchema(TestRefBack.class.getSimpleName());
   }
 
-  private static SchemaMetadata getSchemaMetadata() {
-    TableMetadata patients = table("Patients").add(column("id").setPkey()).add(column("patient"));
+  private static void loadSchemas(Schema schema, Schema schemaOther) {
+    TableMetadata patients =
+        schema
+            .getMetadata()
+            .create(table("Patients").add(column("id").setPkey()).add(column("patient")));
 
     TableMetadata patientVisits =
-        table("Patients visits")
-            .add(column("visit id").setPkey())
-            .add(column("patient").setType(REF).setRefTable(patients.getTableName()));
+        schemaOther
+            .getMetadata()
+            .create(
+                table("Patients visits")
+                    .add(column("visit id").setPkey())
+                    .add(
+                        column("patient")
+                            .setType(REF)
+                            .setRefTable(patients.getTableName())
+                            .setRefSchemaName(schema.getName())));
 
-    patients.add(
-        column("visits")
-            .setType(REFBACK)
-            .setRefTable(patientVisits.getTableName())
-            .setRefBack("patient"));
-
-    SchemaMetadata schemaMetadata = new SchemaMetadata();
-    schemaMetadata.create(patients, patientVisits);
-    return schemaMetadata;
+    // reload
+    schema
+        .getMetadata()
+        .getTableMetadata("Patients")
+        .add(
+            column("visits")
+                .setType(REFBACK)
+                .setRefTable(patientVisits.getTableName())
+                .setRefBack("patient")
+                .setRefSchemaName(schema.getName()));
   }
 
   @Test
-  @Order(1)
-  public void testRefBackDelete() {
+  public void testRefBackDeleteRefTable() {
+    Schema schemaOther = database.dropCreateSchema(TestRefBack.class.getSimpleName() + "Other1");
+    Schema schema = database.dropCreateSchema(TestRefBack.class.getSimpleName() + "1");
+    loadSchemas(schema, schemaOther);
 
-    schema.migrate(getSchemaMetadata());
-    SchemaMetadata schemaMetadata = schema.getMetadata();
-
-    // Should throw exception as Patient has a refback column (visits)
-    assertThrows(SqlMolgenisException.class, () -> schemaMetadata.drop("Patients visits"));
-
-    // Drop the refback and try again
-    schemaMetadata.getTableMetadata("Patients").dropColumn("visits");
-    schemaMetadata.drop("Patients visits");
-
-    // TODO make test for delete using migrate
+    // should also delete the 'visits' refback in Patients
+    schemaOther.getMetadata().drop("Patient visits");
+    assertNull(schema.getMetadata().getTableMetadata("Patient").getColumn("visits"));
   }
 
   @Test
-  @Order(2)
-  public void testRefbackDeleteOtherSchema() {
-    SchemaMetadata schemaMetadata = getSchemaMetadata();
-    schema.migrate(schemaMetadata);
+  public void testRefBackDeleteRefColumn() {
+    Schema schemaOther = database.dropCreateSchema(TestRefBack.class.getSimpleName() + "Other2");
+    Schema schema = database.dropCreateSchema(TestRefBack.class.getSimpleName() + "2");
+    loadSchemas(schema, schemaOther);
 
-    // Create patient visits table on another schema
-    TableMetadata patientVisits = schemaMetadata.getTableMetadata("Patients visits");
-    Column patient = patientVisits.getColumn("patient");
-    patient.setRefSchemaName(TestRefBack.class.getSimpleName());
-    patientVisits.alterColumn(patient);
-    SchemaMetadata schemaMetadataOther = new SchemaMetadata();
-    schemaMetadataOther.create(patientVisits);
-    schemaOther.migrate(schemaMetadataOther);
-
-    // Set refback to schemaOther
-    Column visitsRefBack = schema.getTable("Patients").getMetadata().getColumn("visits");
-    visitsRefBack.setRefSchemaName(TestRefBack.class.getSimpleName() + "Other");
-    schemaMetadata.getTableMetadata("Patients").alterColumn(visitsRefBack);
-    schema.migrate(schemaMetadata);
-
-    // Delete schemaOther.visits should now fail
-    schemaMetadataOther.getTableMetadata("Patients visits").drop();
-    assertThrows(SqlMolgenisException.class, () -> schemaOther.migrate(schemaMetadataOther));
+    // should also delete the 'visits' refback in Patient
+    schema.getMetadata().getTableMetadata("Patient visits").dropColumn("patient");
+    assertNull(schema.getMetadata().getTableMetadata("Patients").getColumn("visits"));
   }
 
-  @AfterAll
-  public static void after() {
-    database.dropSchemaIfExists(TestRefBack.class.getSimpleName() + "Other");
-    database.dropSchemaIfExists(TestRefBack.class.getSimpleName());
+  @Test
+  public void testRefBackRenameRefTable() {
+    Schema schemaOther = database.dropCreateSchema(TestRefBack.class.getSimpleName() + "Other3");
+    Schema schema = database.dropCreateSchema(TestRefBack.class.getSimpleName() + "3");
+    loadSchemas(schema, schemaOther);
+
+    // refTable rename
+    schema.getMetadata().getTableMetadata("Patient visits").alterName("Patient visits2");
+    assertEquals(
+        "Patient visits2",
+        schema.getMetadata().getTableMetadata("visits").getColumn("patient").getRefTableName());
+  }
+
+  @Test
+  public void testRefBackRenameRefColumn() {
+    Schema schemaOther = database.dropCreateSchema(TestRefBack.class.getSimpleName() + "Other4");
+    Schema schema = database.dropCreateSchema(TestRefBack.class.getSimpleName() + "4");
+    loadSchemas(schema, schemaOther);
+
+    // refColumn rename
+    schema
+        .getMetadata()
+        .getTableMetadata("Patient visits")
+        .getColumn("patient")
+        .setName("patient2");
+    assertEquals(
+        "patient2",
+        schema.getMetadata().getTableMetadata("Patient visits").getColumn("visits").getRefBack());
   }
 }
