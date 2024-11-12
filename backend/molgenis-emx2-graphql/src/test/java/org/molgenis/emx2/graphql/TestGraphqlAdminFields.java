@@ -1,7 +1,6 @@
 package org.molgenis.emx2.graphql;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.graphql.GraphqlApiFactory.convertExecutionResultToJson;
 import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 
@@ -9,12 +8,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.ExecutionInput;
 import graphql.GraphQL;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -29,6 +26,7 @@ public class TestGraphqlAdminFields {
   private static GraphQL grapql;
   private static Database database;
   private static final String schemaName = TestGraphqlAdminFields.class.getSimpleName();
+  private static final String testPersoon = "testPersoon";
 
   @BeforeAll
   public static void setup() {
@@ -72,7 +70,7 @@ public class TestGraphqlAdminFields {
           GraphQL graphql = new GraphqlApiFactory().createGraphqlForDatabase(testDatabase, null);
 
           try {
-            // TODO: add testPersoon so we can mutate it
+            testDatabase.addUser(testPersoon);
 
             String query =
                 "mutation updateUser($updateUser:InputUpdateUser) {updateUser(updateUser:$updateUser){status, message}}";
@@ -85,12 +83,12 @@ public class TestGraphqlAdminFields {
               throw new MolgenisException(node.get("errors").get(0).get("message").asText());
             }
 
-            User user = testDatabase.getUser("testPersoon");
+            User user = testDatabase.getUser(testPersoon);
+            assertEquals("testPersoon", user.getUsername());
+            assertFalse(user.getEnabled());
+            // assert expected roles
 
-            //TODO: validate settings of user
-
-            //TODO: delete user
-
+            testDatabase.removeUser(testPersoon);
           } catch (Exception e) {
             throw new RuntimeException(e);
           }
@@ -101,7 +99,7 @@ public class TestGraphqlAdminFields {
   private static Map<String, Object> getUpdateUser() {
     Map<String, Object> variables = new HashMap<>();
     Map<String, Object> updateUser = new HashMap<>();
-    updateUser.put("email", "testPersoon");
+    updateUser.put("email", testPersoon);
     updateUser.put("password", "12345678");
     updateUser.put("enabled", "false");
 
@@ -116,12 +114,10 @@ public class TestGraphqlAdminFields {
   }
 
   @Test
-  public void testDeleteUser() {
-  }
+  public void testDeleteUser() {}
 
   @Test
-  public void addUpdateUser() {
-  }
+  public void addUpdateUser() {}
 
   private JsonNode execute(String query) throws IOException {
     String result = convertExecutionResultToJson(grapql.execute(query));
