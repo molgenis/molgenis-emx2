@@ -145,7 +145,7 @@ if SERVER_TYPE in ['data_catalogue', 'cohort_catalogue']:
             password=TARGET_SERVER_PASSWORD
         )
         # create cohort schema on target server
-        session.create_database(database_name=cohort, database_description='')  # schema_description)
+        session.create_database(database_name=cohort, database_description=schema_description)
 
 # --------------------------------------------------------------
 if SERVER_TYPE == 'data_catalogue':
