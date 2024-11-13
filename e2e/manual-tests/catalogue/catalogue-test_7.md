@@ -25,7 +25,7 @@ A researcher can filter on variables using the search filter, topics and cohorts
 | 6 | Add the word ‘maternal’ after the word ‘asthma’ in the search bar --> ‘asthma maternal’| See that 3 variables are displayed | | |
 | 7 | Change the search text to ‘maternal asthma’ | See that the list of variables  remains the same. | | |
 | 8 | Change the search text back to ‘asthma’| See that 15 variables are displayed. | | |
-| 9 | On the left hand side, expand Sources. | Long list of all the sources in the catalogue is displayed on the left hand side | | |
+| 9 | | On the left hand side, a long list of all the sources in the catalogue is displayed on the left hand side | | |
 | 10 | Select all 4 testCohorts. | See that the message 'No variables found with current filters' is displayed. | | |
 | 11 | Remove the filter on all 4 cohorts. | The list of variables remains at 15, and now all sources in the catalogue are displayed again, with their mappings. Sources without mappings are displayed. | | |
 | 12 | Click on the first variable, ‘asthma_’| Pop-up with details of the variable is displayed. | | |
@@ -41,7 +41,7 @@ A researcher can filter on variables using the search filter, topics and cohorts
 | 20 | Toggle back to ‘List of Variables’| The same variables are displayed in a list. | | |
 | 21 | Add ‘adhd’ in the search bar | 1 variable is displayed (only variables which match both criteria, i.e. testVarNoRepeats)| | |
 | 22 | Delete ‘adhd’ in the search bar | List returns to 12 variables (just language now – 8 + 4 test vars)| | |
-| 23 | On the left hand side, expand Sources | Long list of all the sources in the catalogue is displayed on the left hand side | | |
+| 23 | | On the left hand side, a long list of all the sources in the catalogue is displayed on the left hand side | | |
 | 24 | Select all 4 testCohorts. | See that the list of variables is reduced to: | | |
 | | | testVarLang, | | |
 | | | testVarLang3Vir, | | |

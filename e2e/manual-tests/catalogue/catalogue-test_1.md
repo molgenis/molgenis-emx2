@@ -19,7 +19,7 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | 2 | In section 'Project catalogues' hover over the testNetworkofNetworks row | Row should be highlighted | | true |
 | 3 | Click on the testNetworkofNetworks row | Should be directed to the testNetworkofNetworks with 'Welcome to the catalogue of testNetworkofNetworks: name for test network of networks [etc]', and Collections (8), Networks (2) and Variables (7) buttons | | true |
 | 3a | | The text under each button is as follows: Data & sample collections, Networks & Consortia, Harmonised variables | | |
-| 3b | | There should be 3.700 participants, 498 samples, Longitudinal 20% and 3 Subpopulations given.| | true |
+| 3b | | There should be 3,700 participants, 498 samples, Longitudinal 25% and 3 Subpopulations given.| | true |
 | 3c | | In the ribbon at the top of the page there should be: Left: MOLGENIS logo, Right: (L-R) Collections, Networks, Variables, About, More  (More --> Other catalogues, Upload data)  | | true |
 | 4 | Click on the MOLGENIS logo | The page doesn't change | | true |
 | 5 | Click on the 'Collections' button at the top | Should be directed to the list of collections for the testNetworkofNetworks | | true |
