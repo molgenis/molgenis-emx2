@@ -8,10 +8,12 @@ import static org.molgenis.emx2.sql.SqlDatabaseExecutor.*;
 import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeCreateSchema;
 
 import com.zaxxer.hikari.HikariDataSource;
+
 import java.security.SecureRandom;
 import java.util.*;
 import java.util.function.Supplier;
 import javax.sql.DataSource;
+
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.SQLDialect;
@@ -819,9 +821,9 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
                 + "where r.rolname LIKE {0} and m.rolname LIKE {1}",
             roleFilter + "%", userFilter + "%");
 
-    for (Record record : allRoles) {
-      String memberName = record.getValue("member", String.class).substring(userFilter.length());
-      String roleName = record.getValue("role", String.class).substring(roleFilter.length());
+    for (Record userRecord : allRoles) {
+      String memberName = userRecord.getValue("member", String.class).substring(userFilter.length());
+      String roleName = userRecord.getValue("role", String.class).substring(roleFilter.length());
       members.add(new Member(memberName, roleName));
     }
     return members;
@@ -830,7 +832,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   public void revokeRoles(String userName, List<Map<String, String>> members) {
     try {
       members.forEach(
-          (member) -> {
+          member -> {
             String prefixedRole =
                 Constants.MG_ROLE_PREFIX + member.get("schemaId") + "/" + member.get(ROLE);
             jooq.execute(
@@ -845,7 +847,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   public void updateRoles(String userName, List<Map<String, String>> members) {
     try {
       members.forEach(
-          (member) -> {
+          member -> {
             String schemaId = member.get("schemaId");
             String role = member.get(ROLE);
             String prefixedRole = MG_ROLE_PREFIX + schemaId + "/" + role;
@@ -853,11 +855,11 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
 
             List<Member> existingUserRoles =
                 this.getSchema(schemaId).getMembers().stream()
-                    .filter((mem) -> mem.getUser().equals(userName))
+                    .filter(mem -> mem.getUser().equals(userName))
                     .toList();
             if (existingUserRoles.iterator().hasNext()) {
               existingUserRoles.forEach(
-                  (existingRole) -> {
+                  existingRole -> {
                     String oldRole = MG_ROLE_PREFIX + schemaId + "/" + existingRole.getRole();
                     jooq.execute("REVOKE {0} FROM {1}", name(oldRole), name(prefixedName));
                   });
