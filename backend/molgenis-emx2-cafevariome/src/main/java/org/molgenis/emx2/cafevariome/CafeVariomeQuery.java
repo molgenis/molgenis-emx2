@@ -8,4 +8,5 @@ public class CafeVariomeQuery {
 
   Subject subject;
   List<HPO> hpo;
+  Advanced advanced;
 }

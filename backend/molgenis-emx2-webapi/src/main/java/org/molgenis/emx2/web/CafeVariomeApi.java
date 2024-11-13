@@ -17,7 +17,6 @@ public class CafeVariomeApi {
   }
 
   private static void postRecord(Context ctx) throws JsonProcessingException {
-
     ObjectMapper mapper = new ObjectMapper();
     CafeVariomeQuery query = mapper.readValue(ctx.body(), CafeVariomeQuery.class);
 

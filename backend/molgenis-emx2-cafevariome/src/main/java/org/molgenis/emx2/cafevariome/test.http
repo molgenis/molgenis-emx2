@@ -1,0 +1,38 @@
+POST http://localhost:8080/cvTest/api/cafevariome/record
+Content-Type: application/json
+
+{
+  "subject": {
+    "affectedOnly": false,
+    "age": {
+      "min": 18,
+      "max": 65
+    },
+    "ageFirstSymptoms": {
+      "min": 18,
+      "max": 65
+    },
+    "ageFirstDiagnosis": {
+      "min": 18,
+      "max": 65
+    },
+    "familyType": {
+      "family": false,
+      "singletons": false,
+      "trios": false
+    },
+    "gender": "female"
+  },
+  "hpo": [
+    {
+      "terms": [
+        "1955"
+      ],
+      "similarity": 1,
+      "minimumMatch": 1,
+      "useOrphaNet": true
+    }
+  ]
+}
+
+###
