@@ -11,10 +11,8 @@ import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.*;
 
 import graphql.Scalars;
 import graphql.schema.*;
-
 import java.util.*;
 import java.util.stream.Collectors;
-
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.datamodels.DataModels;
 import org.molgenis.emx2.tasks.Task;
@@ -151,6 +149,39 @@ public class GraphqlDatabaseFieldFactory {
                               selectedKeys.isEmpty() || selectedKeys.contains(setting.getKey()))
                       .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
               return mapSettingsToGraphql(selectedSettings);
+            });
+  }
+
+  public GraphQLFieldDefinition.Builder createSettingsMutation(Database database) {
+    return GraphQLFieldDefinition.newFieldDefinition()
+        .name(("createSetting"))
+        .type(typeForMutationResult)
+        .argument(
+            GraphQLArgument.newArgument().name(Constants.SETTINGS_NAME).type(Scalars.GraphQLString))
+        .argument(
+            GraphQLArgument.newArgument()
+                .name(Constants.SETTINGS_VALUE)
+                .type(Scalars.GraphQLString))
+        .dataFetcher(
+            dataFetchingEnvironment -> {
+              String key = dataFetchingEnvironment.getArgument(Constants.SETTINGS_NAME);
+              String value = dataFetchingEnvironment.getArgument(Constants.SETTINGS_VALUE);
+              database.setSetting(key, value);
+              return new GraphqlApiMutationResult(SUCCESS, "Database setting %s created", key);
+            });
+  }
+
+  public GraphQLFieldDefinition.Builder deleteSettingsMutation(Database database) {
+    return GraphQLFieldDefinition.newFieldDefinition()
+        .name(("deleteSetting"))
+        .type(typeForMutationResult)
+        .argument(
+            GraphQLArgument.newArgument().name(Constants.SETTINGS_NAME).type(Scalars.GraphQLString))
+        .dataFetcher(
+            dataFetchingEnvironment -> {
+              String key = dataFetchingEnvironment.getArgument(Constants.SETTINGS_NAME);
+              database.removeSetting(key);
+              return new GraphqlApiMutationResult(SUCCESS, "Database setting %s deleted", key);
             });
   }
 
