@@ -69,7 +69,7 @@ const iconPositionClass = computed(() => {
     class="flex items-center border rounded-full"
   >
     <span v-if="icon">
-      <BaseIcon :name="icon" />
+      <Icon :name="icon" />
     </span>
     <span>{{ label }}<slot /></span>
   </button>

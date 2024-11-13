@@ -40,7 +40,7 @@ withDefaults(
           class="text-breadcrumb"
           v-if="index < Object.keys(crumbs).length - 1 || current"
         >
-          <BaseIcon name="caret-right" :width="12" />
+          <Icon name="mg:caret-right"  />
         </span>
       </li>
       <li v-if="current && !Object.keys(crumbs).includes(current)">

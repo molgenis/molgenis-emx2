@@ -8,7 +8,7 @@ withDefaults(
     iconPosition?: "left" | "right";
   }>(),
   {
-    icon: "caret-down",
+    icon: "mg:caret-down",
     iconPosition: "right",
   }
 );

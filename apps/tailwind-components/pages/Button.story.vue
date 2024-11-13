@@ -42,19 +42,19 @@
 
     <h2 class="text-2xl">Icons</h2>
     <div class="flex gap-4">
-      <Button type="primary" size="medium" icon="filter" iconPosition="left"
-        >Filter</Button
-      >
-      <Button type="primary" size="small" icon="filter" iconPosition="right"
-        >Filter</Button
-      >
-      <Button type="secondary" size="small" icon="star" iconPosition="left"
-        >Star</Button
-      >
+      <Button type="primary" size="medium" icon="mage:filter-fill" iconPosition="left">
+        Filter
+      </Button>
+      <Button type="primary" size="small" icon="mage:filter-fill" iconPosition="right">
+        Filter
+      </Button>
+      <Button type="secondary" size="small" icon="material-symbols:kid-star-outline-sharp" iconPosition="left">
+        Star
+      </Button>
       <Button
         type="secondary"
         size="small"
-        icon="CaretDown"
+        icon="line-md:chevron-small-down"
         iconPosition="right"
         >CaretDown</Button
       >

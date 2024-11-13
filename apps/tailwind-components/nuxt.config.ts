@@ -1,7 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   devtools: { enabled: true },
-  modules: ['@nuxtjs/tailwindcss', '@nuxt/test-utils/module'],
+  modules: ['@nuxtjs/tailwindcss', '@nuxt/test-utils/module', '@nuxt/icon'],
   tailwindcss: {
     cssPath: '~/assets/css/main.css',
     configPath: '~/tailwind.config.js'
@@ -48,4 +48,13 @@ export default defineNuxtConfig({
   },
 
   compatibilityDate: '2024-08-23',
+
+  icon: {
+    customCollections: [
+      {
+        prefix: 'mg',
+        dir: './assets/icons'
+      },
+    ],
+  },
 })
