@@ -9,9 +9,7 @@ import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.*;
 
 import graphql.Scalars;
 import graphql.schema.*;
-
 import java.util.*;
-
 import org.jetbrains.annotations.NotNull;
 import org.molgenis.emx2.*;
 
@@ -19,6 +17,8 @@ public class GraphqlAdminFieldFactory {
   private GraphqlAdminFieldFactory() {
     // hide constructor
   }
+
+  private static final String UPDATE_USER = "updateUser";
 
   // Output types
   private static final GraphQLOutputType userType =
@@ -48,7 +48,7 @@ public class GraphqlAdminFieldFactory {
 
   // retrieve user list, user count
   public static GraphQLFieldDefinition queryAdminField(Database db) {
-    String USER_COUNT = "userCount";
+    String userCount = "userCount";
     GraphQLOutputType adminType =
         GraphQLObjectType.newObject()
             .name("MolgenisAdmin")
@@ -62,7 +62,7 @@ public class GraphqlAdminFieldFactory {
                     .build())
             .field(
                 GraphQLFieldDefinition.newFieldDefinition()
-                    .name(USER_COUNT)
+                    .name(userCount)
                     .type(Scalars.GraphQLInt)
                     .build())
             .build();
@@ -78,8 +78,8 @@ public class GraphqlAdminFieldFactory {
                 if (selectedField.getName().equals(USERS)) {
                   result.put(USERS, getUsers(selectedField, db));
                 }
-                if (selectedField.getName().equals(USER_COUNT)) {
-                  result.put(USER_COUNT, db.countUsers());
+                if (selectedField.getName().equals(userCount)) {
+                  result.put(userCount, db.countUsers());
                 }
               }
               return result;
@@ -168,20 +168,18 @@ public class GraphqlAdminFieldFactory {
   }
 
   public static GraphQLFieldDefinition updateUser(Database database) {
-    String UPDATE_USER = "updateUser";
     return GraphQLFieldDefinition.newFieldDefinition()
         .name(UPDATE_USER)
         .type(typeForMutationResult)
         .argument(GraphQLArgument.newArgument().name(UPDATE_USER).type(updateUserType))
         .dataFetcher(
-            dataFetchingEnvironment -> {
-              return executeUpdateUser(database, dataFetchingEnvironment, UPDATE_USER);
-            })
+            dataFetchingEnvironment -> executeUpdateUser(database, dataFetchingEnvironment))
         .build();
   }
 
   @NotNull
-  private static GraphqlApiMutationResult executeUpdateUser(Database database, DataFetchingEnvironment dataFetchingEnvironment, String UPDATE_USER) {
+  private static GraphqlApiMutationResult executeUpdateUser(
+      Database database, DataFetchingEnvironment dataFetchingEnvironment) {
     LinkedHashMap<String, Object> updatedUser = dataFetchingEnvironment.getArgument(UPDATE_USER);
     String userName = (String) updatedUser.get(EMAIL);
     if (userName != null) {
@@ -192,8 +190,7 @@ public class GraphqlAdminFieldFactory {
               db.setUserPassword(userName, password);
             }
 
-            List<Map<String, String>> roles =
-                (List<Map<String, String>>) updatedUser.get(ROLES);
+            List<Map<String, String>> roles = (List<Map<String, String>>) updatedUser.get(ROLES);
             if (roles != null && roles.iterator().hasNext()) {
               db.updateRoles(userName, roles);
             }
@@ -225,6 +222,7 @@ public class GraphqlAdminFieldFactory {
           .field(
               GraphQLInputObjectField.newInputObjectField().name(USER).type(Scalars.GraphQLString))
           .build();
+
   private static final GraphQLInputObjectType updateUserType =
       new GraphQLInputObjectType.Builder()
           .name("InputUpdateUser")

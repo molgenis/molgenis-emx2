@@ -8,12 +8,10 @@ import static org.molgenis.emx2.sql.SqlDatabaseExecutor.*;
 import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeCreateSchema;
 
 import com.zaxxer.hikari.HikariDataSource;
-
 import java.security.SecureRandom;
 import java.util.*;
 import java.util.function.Supplier;
 import javax.sql.DataSource;
-
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.SQLDialect;
@@ -822,7 +820,8 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
             roleFilter + "%", userFilter + "%");
 
     for (Record userRecord : allRoles) {
-      String memberName = userRecord.getValue("member", String.class).substring(userFilter.length());
+      String memberName =
+          userRecord.getValue("member", String.class).substring(userFilter.length());
       String roleName = userRecord.getValue("role", String.class).substring(roleFilter.length());
       members.add(new Member(memberName, roleName));
     }
