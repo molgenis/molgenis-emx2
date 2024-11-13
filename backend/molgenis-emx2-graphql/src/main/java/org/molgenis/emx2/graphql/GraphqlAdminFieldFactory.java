@@ -9,7 +9,10 @@ import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.*;
 
 import graphql.Scalars;
 import graphql.schema.*;
+
 import java.util.*;
+
+import org.jetbrains.annotations.NotNull;
 import org.molgenis.emx2.*;
 
 public class GraphqlAdminFieldFactory {
@@ -45,6 +48,7 @@ public class GraphqlAdminFieldFactory {
 
   // retrieve user list, user count
   public static GraphQLFieldDefinition queryAdminField(Database db) {
+    String USER_COUNT = "userCount";
     GraphQLOutputType adminType =
         GraphQLObjectType.newObject()
             .name("MolgenisAdmin")
@@ -58,7 +62,7 @@ public class GraphqlAdminFieldFactory {
                     .build())
             .field(
                 GraphQLFieldDefinition.newFieldDefinition()
-                    .name("userCount")
+                    .name(USER_COUNT)
                     .type(Scalars.GraphQLInt)
                     .build())
             .build();
@@ -74,8 +78,8 @@ public class GraphqlAdminFieldFactory {
                 if (selectedField.getName().equals(USERS)) {
                   result.put(USERS, getUsers(selectedField, db));
                 }
-                if (selectedField.getName().equals("userCount")) {
-                  result.put("userCount", db.countUsers());
+                if (selectedField.getName().equals(USER_COUNT)) {
+                  result.put(USER_COUNT, db.countUsers());
                 }
               }
               return result;
@@ -121,7 +125,7 @@ public class GraphqlAdminFieldFactory {
         .dataFetcher(
             dataFetchingEnvironment -> {
               String email = dataFetchingEnvironment.getArgument(EMAIL);
-              Boolean enabled = dataFetchingEnvironment.getArgument(ENABLED);
+              boolean enabled = dataFetchingEnvironment.getArgument(ENABLED);
               database.setEnabledUser(email, enabled);
               return new GraphqlApiMutationResult(
                   SUCCESS, "User %s %s ", email, enabled ? "Enabled" : "Disabled");
@@ -164,43 +168,49 @@ public class GraphqlAdminFieldFactory {
   }
 
   public static GraphQLFieldDefinition updateUser(Database database) {
+    String UPDATE_USER = "updateUser";
     return GraphQLFieldDefinition.newFieldDefinition()
-        .name("updateUser")
+        .name(UPDATE_USER)
         .type(typeForMutationResult)
-        .argument(GraphQLArgument.newArgument().name("updateUser").type(updateUserType))
+        .argument(GraphQLArgument.newArgument().name(UPDATE_USER).type(updateUserType))
         .dataFetcher(
             dataFetchingEnvironment -> {
-              LinkedHashMap updatedUser = dataFetchingEnvironment.getArgument("updateUser");
-              String userName = (String) updatedUser.get(EMAIL);
-              if (userName != null) {
-                database.tx(
-                    db -> {
-                      String password = (String) updatedUser.get(PASSWORD);
-                      if (password != null) {
-                        db.setUserPassword(userName, password);
-                      }
-
-                      List<Map<String, String>> roles =
-                          (List<Map<String, String>>) updatedUser.get(ROLES);
-                      if (roles != null && roles.iterator().hasNext()) {
-                        db.updateRoles(userName, roles);
-                      }
-
-                      List<Map<String, String>> revokedRoles =
-                          (List<Map<String, String>>) updatedUser.get("revokedRoles");
-                      if (revokedRoles != null && revokedRoles.iterator().hasNext()) {
-                        db.revokeRoles(userName, revokedRoles);
-                      }
-
-                      Boolean enabled = (Boolean) updatedUser.get(ENABLED);
-                      if (enabled != null) {
-                        db.setEnabledUser(userName, enabled);
-                      }
-                    });
-              }
-              return new GraphqlApiMutationResult(SUCCESS, "User %s updated", userName);
+              return executeUpdateUser(database, dataFetchingEnvironment, UPDATE_USER);
             })
         .build();
+  }
+
+  @NotNull
+  private static GraphqlApiMutationResult executeUpdateUser(Database database, DataFetchingEnvironment dataFetchingEnvironment, String UPDATE_USER) {
+    LinkedHashMap<String, Object> updatedUser = dataFetchingEnvironment.getArgument(UPDATE_USER);
+    String userName = (String) updatedUser.get(EMAIL);
+    if (userName != null) {
+      database.tx(
+          db -> {
+            String password = (String) updatedUser.get(PASSWORD);
+            if (password != null) {
+              db.setUserPassword(userName, password);
+            }
+
+            List<Map<String, String>> roles =
+                (List<Map<String, String>>) updatedUser.get(ROLES);
+            if (roles != null && roles.iterator().hasNext()) {
+              db.updateRoles(userName, roles);
+            }
+
+            List<Map<String, String>> revokedRoles =
+                (List<Map<String, String>>) updatedUser.get("revokedRoles");
+            if (revokedRoles != null && revokedRoles.iterator().hasNext()) {
+              db.revokeRoles(userName, revokedRoles);
+            }
+
+            Boolean enabled = (Boolean) updatedUser.get(ENABLED);
+            if (enabled != null) {
+              db.setEnabledUser(userName, enabled);
+            }
+          });
+    }
+    return new GraphqlApiMutationResult(SUCCESS, "User %s updated", userName);
   }
 
   private static final GraphQLInputObjectType inputUserRolesType =
