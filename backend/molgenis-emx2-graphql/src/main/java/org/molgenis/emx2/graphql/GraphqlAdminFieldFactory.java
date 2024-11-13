@@ -17,8 +17,6 @@ public class GraphqlAdminFieldFactory {
     // hide constructor
   }
 
-  static final String SCHEMA = "schema";
-
   // Output types
   private static final GraphQLOutputType userType =
       GraphQLObjectType.newObject()

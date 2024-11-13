@@ -74,6 +74,7 @@ public class TestGraphqlAdminFields {
             testDatabase.addUser(testPersoon);
             testDatabase.setEnabledUser(testPersoon, true);
             testDatabase.getSchema(schemaName).addMember(testPersoon, "Owner");
+            testDatabase.getSchema(anotherSchemaName).addMember(testPersoon, "Viewer");
 
             // test
             String query =
