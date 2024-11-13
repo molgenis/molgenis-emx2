@@ -61,7 +61,7 @@ public class TestGraphqlCrossSchemaRefs {
     assertTrue(result.contains(schemaName2));
 
     // test that seemingly self reference works
-    // when table name in schema1 and schema2 have same name 
+    // when table name in schema1 and schema2 have same name
     // test fix https://github.com/molgenis/molgenis-emx2/issues/4264
     execute("{Parent{name,parents{name,hobby}}}");
   }
