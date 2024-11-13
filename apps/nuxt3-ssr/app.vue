@@ -1,6 +1,20 @@
 <script setup lang="ts">
 const config = useRuntimeConfig();
 const route = useRoute();
+const { initialize } = useGtag()
+
+const analyticsService = computed(() => {
+  if( typeof config.public.analyticsProvider === "string" ) {
+    if(config.public.analyticsProvider.includes("siteimprove") ) {
+      return "siteimprove";
+    }
+    else if(config.public.analyticsProvider === "google-analytics" ) {
+      return "google-analytics";
+    } else {
+      return "";
+    }
+  }
+});
 
 const isAnalyticsAllowedCookie = useCookie("mg_allow_analytics", {
   maxAge: 34560000,
@@ -16,6 +30,10 @@ function setAnalyticsCookie(value: boolean) {
   if (value === true) {
     window.location.reload();
   }
+}
+
+if(import.meta.client && config.public.analyticsKey && isAnalyticsAllowedCookie.value && analyticsService.value === "google-analytics") {
+  initialize(config.public.analyticsKey);
 }
 
 const faviconHref = config.public.emx2Theme
@@ -40,7 +58,7 @@ useHead({
     }
   },
   script:
-    config.public.analyticsKey && isAnalyticsAllowedCookie.value
+    config.public.analyticsKey && isAnalyticsAllowedCookie.value && analyticsService.value === "siteimprove"
       ? [
           {
             src: `https://siteimproveanalytics.com/js/siteanalyze_${config.public.analyticsKey}.js`,
