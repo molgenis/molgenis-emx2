@@ -11,14 +11,12 @@ import graphql.GraphQL;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.molgenis.emx2.Database;
-import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.User;
+import org.molgenis.emx2.*;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 public class TestGraphqlAdminFields {
@@ -27,6 +25,7 @@ public class TestGraphqlAdminFields {
   private static Database database;
   private static final String schemaName = TestGraphqlAdminFields.class.getSimpleName();
   private static final String testPersoon = "testPersoon";
+  private static final String anotherSchemaName = "anotherSchemaName";
 
   @BeforeAll
   public static void setup() {
@@ -66,16 +65,20 @@ public class TestGraphqlAdminFields {
     database.tx(
         testDatabase -> {
           testDatabase.becomeAdmin();
-          testDatabase.dropCreateSchema(schemaName);
           GraphQL graphql = new GraphqlApiFactory().createGraphqlForDatabase(testDatabase, null);
 
           try {
+            // setup
+            testDatabase.dropCreateSchema(schemaName);
+            testDatabase.dropCreateSchema(anotherSchemaName);
             testDatabase.addUser(testPersoon);
             testDatabase.setEnabledUser(testPersoon, true);
+            testDatabase.getSchema(schemaName).addMember(testPersoon, "Owner");
 
+            // test
             String query =
                 "mutation updateUser($updateUser:InputUpdateUser) {updateUser(updateUser:$updateUser){status, message}}";
-            Map<String, Object> variables = getUpdateUser();
+            Map<String, Object> variables = createUpdateUserVar();
             ExecutionInput build =
                 ExecutionInput.newExecutionInput().query(query).variables(variables).build();
             String queryResult = convertExecutionResultToJson(graphql.execute(build));
@@ -84,12 +87,23 @@ public class TestGraphqlAdminFields {
               throw new MolgenisException(node.get("errors").get(0).get("message").asText());
             }
 
+            // assert results
             User user = testDatabase.getUser(testPersoon);
             assertEquals("testPersoon", user.getUsername());
             assertFalse(user.getEnabled());
-            // assert expected roles
 
+            List<Member> members = testDatabase.getSchema(schemaName).getMembers();
+            assertTrue(members.isEmpty());
+
+            Member anotherSchemaMember =
+                testDatabase.getSchema(anotherSchemaName).getMembers().stream().findFirst().get();
+            assertEquals("Owner", anotherSchemaMember.getRole());
+            assertEquals(testPersoon, anotherSchemaMember.getUser());
+
+            // clean up
             testDatabase.removeUser(testPersoon);
+            testDatabase.dropSchema(anotherSchemaName);
+            testDatabase.dropSchema(schemaName);
           } catch (Exception e) {
             throw new RuntimeException(e);
           }
@@ -97,7 +111,7 @@ public class TestGraphqlAdminFields {
   }
 
   @NotNull
-  private static Map<String, Object> getUpdateUser() {
+  private static Map<String, Object> createUpdateUserVar() {
     Map<String, Object> variables = new HashMap<>();
     Map<String, Object> updateUser = new HashMap<>();
     updateUser.put("email", testPersoon);
@@ -105,9 +119,17 @@ public class TestGraphqlAdminFields {
     updateUser.put("enabled", "false");
 
     ArrayList<Map<String, String>> revokedRoles = new ArrayList<>();
+    Map<String, String> revokedRole = new HashMap<>();
+    revokedRole.put("schemaId", schemaName);
+    revokedRole.put("role", "Owner");
+    revokedRoles.add(revokedRole);
     updateUser.put("revokedRoles", revokedRoles);
 
     ArrayList<Map<String, String>> roles = new ArrayList<>();
+    Map<String, String> role = new HashMap<>();
+    role.put("schemaId", anotherSchemaName);
+    role.put("role", "Owner");
+    roles.add(role);
     updateUser.put("roles", roles);
 
     variables.put("updateUser", updateUser);
@@ -118,7 +140,10 @@ public class TestGraphqlAdminFields {
   public void testDeleteUser() {}
 
   @Test
-  public void addUpdateUser() {}
+  public void testAddUpdateUser() {}
+
+  @Test
+  public void testGetTokens() {}
 
   private JsonNode execute(String query) throws IOException {
     String result = convertExecutionResultToJson(grapql.execute(query));
