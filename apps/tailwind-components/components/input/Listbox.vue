@@ -1,8 +1,4 @@
 <template>
-  <output class="block w-full mb-6 bg-gray-100 py-2 px-2">
-    <code>{{ focusCounter }}: {{ modelValue }}</code>
-  </output>
-
   <div class="w-full relative">
     <button
       :id="id"
@@ -14,9 +10,13 @@
       :aria-required="required"
       :aria-expanded="listboxIsExpanded"
       :aria-labelledby="labelId"
-      class="flex justify-start items-center h-10 w-full text-left pl-10 border-input bg-input text-button-input-toggle focus:ring-blue-300"
-      @click="openCloseListbox"
-      @keydown="onListboxButtonKeyDown"
+      class="flex justify-start items-center h-10 w-full text-left pl-10 border bg-input rounded-search-input text-button-input-toggle focus:ring-blue-300"
+      :class="{
+        'border-disabled text-disabled bg-disabled': disabled,
+        'border-invalid text-invalid': hasError,
+      }"
+      @click.prevent="openCloseListbox"
+      @keydown.prevent="onListboxButtonKeyDown"
     >
       <span class="w-full" v-if="modelValue?.label">
         {{ modelValue.label }}
@@ -44,7 +44,7 @@
         'h-44': listboxIsExpanded && listboxOptions.length > 5,
         'shadow-inner': listboxIsExpanded,
       }"
-      @keydown="onListboxKeyDown"
+      @keydown.prevent="onListboxKeyDown"
     >
       <li
         v-for="option in listboxOptions"
@@ -209,23 +209,19 @@ function onListboxButtonKeyDown(event: KeyboardEvent) {
   const key = event.key;
   switch (key) {
     case "ArrowUp":
-      event.preventDefault();
       openCloseListbox();
       focusPreviousOption();
       break;
 
     case "ArrowDown":
-      event.preventDefault();
       openCloseListbox();
       break;
 
     case "Enter":
-      event.preventDefault();
       openCloseListbox();
       break;
 
     case "Space":
-      event.preventDefault();
       openCloseListbox();
       break;
 
@@ -244,24 +240,19 @@ function onListboxButtonKeyDown(event: KeyboardEvent) {
 function onListboxKeyDown(event: KeyboardEvent) {
   const key = event.key;
   switch (key) {
-    // focus
     case "ArrowUp":
-      event.preventDefault();
       focusPreviousOption();
       break;
 
     case "ArrowDown":
-      event.preventDefault();
       focusNextOption();
       break;
 
     case "PageUp":
-      event.preventDefault();
       focusPreviousOption(10);
       break;
 
     case "PageDown":
-      event.preventDefault();
       focusNextOption(10);
       break;
 
@@ -289,20 +280,17 @@ function onListboxOptionKeyDown(
   const key: string = event.key;
   switch (key) {
     case "Enter":
-      event.preventDefault();
       updateModelValue(option);
       focusListboxButton();
       break;
 
     case "Spacebar":
-      event.preventDefault();
       updateModelValue(option);
       focusListboxButton();
       break;
 
     // spacebar (for older browser support)
     case " ":
-      event.preventDefault();
       updateModelValue(option);
       focusListboxButton();
       break;
@@ -313,7 +301,6 @@ function onListboxOptionKeyDown(
       break;
 
     case "Escape":
-      event.preventDefault();
       blurListOption(option);
       openCloseListbox();
       focusListboxButton();

@@ -234,6 +234,7 @@ module.exports = {
         "disabled": "var(--border-color-disabled)",
         "input": "var(--border-color-input)",
         "input-inverted": "var(--border-color-input-inverted)",
+        "listbox": "var(--border-color-search-input)",
         "listbox-option": "var(--border-color-listbox-option)"
       }),
       stroke: ({ theme }) => ({
