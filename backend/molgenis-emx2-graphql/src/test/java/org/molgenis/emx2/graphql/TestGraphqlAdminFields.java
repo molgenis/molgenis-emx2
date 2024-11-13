@@ -8,11 +8,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.ExecutionInput;
 import graphql.GraphQL;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -24,8 +26,8 @@ public class TestGraphqlAdminFields {
   private static GraphQL grapql;
   private static Database database;
   private static final String schemaName = TestGraphqlAdminFields.class.getSimpleName();
-  private static final String testPersoon = "testPersoon";
-  private static final String anotherSchemaName = "anotherSchemaName";
+  private static final String TEST_PERSOON = "testPersoon";
+  private static final String ANOTHER_SCHEMA_NAME = "anotherSchemaName";
 
   @BeforeAll
   public static void setup() {
@@ -33,7 +35,7 @@ public class TestGraphqlAdminFields {
   }
 
   @Test
-  public void testUsers() {
+  void testUsers() {
     // put in transaction so user count is not affected by other operations
     database.tx(
         tdb -> {
@@ -61,7 +63,7 @@ public class TestGraphqlAdminFields {
   }
 
   @Test
-  public void testUpdateUser() {
+  void testUpdateUser() {
     database.tx(
         testDatabase -> {
           testDatabase.becomeAdmin();
@@ -70,11 +72,11 @@ public class TestGraphqlAdminFields {
           try {
             // setup
             testDatabase.dropCreateSchema(schemaName);
-            testDatabase.dropCreateSchema(anotherSchemaName);
-            testDatabase.addUser(testPersoon);
-            testDatabase.setEnabledUser(testPersoon, true);
-            testDatabase.getSchema(schemaName).addMember(testPersoon, "Owner");
-            testDatabase.getSchema(anotherSchemaName).addMember(testPersoon, "Viewer");
+            testDatabase.dropCreateSchema(ANOTHER_SCHEMA_NAME);
+            testDatabase.addUser(TEST_PERSOON);
+            testDatabase.setEnabledUser(TEST_PERSOON, true);
+            testDatabase.getSchema(schemaName).addMember(TEST_PERSOON, "Owner");
+            testDatabase.getSchema(ANOTHER_SCHEMA_NAME).addMember(TEST_PERSOON, "Viewer");
 
             // test
             String query =
@@ -89,7 +91,7 @@ public class TestGraphqlAdminFields {
             }
 
             // assert results
-            User user = testDatabase.getUser(testPersoon);
+            User user = testDatabase.getUser(TEST_PERSOON);
             assertEquals("testPersoon", user.getUsername());
             assertFalse(user.getEnabled());
 
@@ -97,13 +99,13 @@ public class TestGraphqlAdminFields {
             assertTrue(members.isEmpty());
 
             Member anotherSchemaMember =
-                testDatabase.getSchema(anotherSchemaName).getMembers().stream().findFirst().get();
+                testDatabase.getSchema(ANOTHER_SCHEMA_NAME).getMembers().stream().findFirst().get();
             assertEquals("Owner", anotherSchemaMember.getRole());
-            assertEquals(testPersoon, anotherSchemaMember.getUser());
+            assertEquals(TEST_PERSOON, anotherSchemaMember.getUser());
 
             // clean up
-            testDatabase.removeUser(testPersoon);
-            testDatabase.dropSchema(anotherSchemaName);
+            testDatabase.removeUser(TEST_PERSOON);
+            testDatabase.dropSchema(ANOTHER_SCHEMA_NAME);
             testDatabase.dropSchema(schemaName);
           } catch (Exception e) {
             throw new RuntimeException(e);
@@ -115,7 +117,7 @@ public class TestGraphqlAdminFields {
   private static Map<String, Object> createUpdateUserVar() {
     Map<String, Object> variables = new HashMap<>();
     Map<String, Object> updateUser = new HashMap<>();
-    updateUser.put("email", testPersoon);
+    updateUser.put("email", TEST_PERSOON);
     updateUser.put("password", "12345678");
     updateUser.put("enabled", "false");
 
@@ -128,7 +130,7 @@ public class TestGraphqlAdminFields {
 
     ArrayList<Map<String, String>> roles = new ArrayList<>();
     Map<String, String> role = new HashMap<>();
-    role.put("schemaId", anotherSchemaName);
+    role.put("schemaId", ANOTHER_SCHEMA_NAME);
     role.put("role", "Owner");
     roles.add(role);
     updateUser.put("roles", roles);
@@ -136,15 +138,6 @@ public class TestGraphqlAdminFields {
     variables.put("updateUser", updateUser);
     return variables;
   }
-
-  @Test
-  public void testDeleteUser() {}
-
-  @Test
-  public void testAddUpdateUser() {}
-
-  @Test
-  public void testGetTokens() {}
 
   private JsonNode execute(String query) throws IOException {
     String result = convertExecutionResultToJson(grapql.execute(query));
