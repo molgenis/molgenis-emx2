@@ -217,7 +217,7 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
     <LandingPrimary>
       <LandingCardPrimary
         v-if="collectionCount"
-        image="image-link"
+        image="twc:image-link"
         title="Collections"
         :description="
           getSettingValue('CATALOGUE_LANDING_COHORTS_TEXT', settings) ||
@@ -232,7 +232,7 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
       />
       <LandingCardPrimary
         v-if="networkCount && !cohortOnly"
-        image="image-diagram"
+        image="twc:image-diagram"
         title="Networks"
         :description="
           getSettingValue('CATALOGUE_LANDING_NETWORKS_TEXT', settings) ||
@@ -247,7 +247,7 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
       />
       <LandingCardPrimary
         v-if="data.data.Variables_agg?.count > 0 && !cohortOnly"
-        image="image-diagram-2"
+        image="twc:image-diagram-2"
         title="Variables"
         :description="
           getSettingValue('CATALOGUE_LANDING_VARIABLES_TEXT', settings) ||
@@ -334,7 +334,7 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
       </LandingCardSecondary>
 
       <LandingCardSecondary
-        icon="twc:viewTable"
+        icon="twc:view-table"
         v-if="data.data.Subpopulations_agg"
       >
         <b>

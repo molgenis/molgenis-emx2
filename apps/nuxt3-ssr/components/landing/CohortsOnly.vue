@@ -218,7 +218,7 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
         cross-sectional.
       </LandingCardSecondary>
 
-      <LandingCardSecondary icon="twc:viewTable">
+      <LandingCardSecondary icon="twc:view-table">
         <b>
           {{ data.data.Subpopulations_agg.count }}
           {{
