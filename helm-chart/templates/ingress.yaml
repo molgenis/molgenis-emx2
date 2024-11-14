@@ -46,6 +46,13 @@ spec:
             name: ssr-catalogue
             port:
               number: 3000
+      - path: /api/_nuxt_icon/
+        pathType: Prefix
+        backend:
+          service:
+            name: ssr-catalogue
+            port:
+              number: 3000
       - path: {{ default "/" .path }}
         pathType: Prefix
         backend:
