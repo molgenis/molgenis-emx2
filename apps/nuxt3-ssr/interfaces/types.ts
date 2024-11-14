@@ -1,16 +1,10 @@
-import type { IColumn } from "meta-data-utils";
-import type { INode } from "../../tailwind-components/types/types";
+import type {
+  IDocumentation,
+  IFile,
+  INode,
+} from "../../tailwind-components/types/types";
+import type { ICollectionEvents, ISubpopulations } from "./catalogue";
 export interface IResource {
-  id: string;
-  pid: string;
-  acronym: string;
-  name: string;
-  website: string;
-  description: string;
-  contacts: IContributor[];
-  logo?: IUrlObject;
-}
-export interface ICohort {
   id: string;
   pid: string;
   name: string;
@@ -19,15 +13,28 @@ export interface ICohort {
   website?: string;
   logo?: IUrlObject;
   contactEmail?: string;
-  leadOrganisation?: IOrganisation[];
+  organisationsInvolved?: IOrganisation[];
   institution?: {
     acronym: string;
   };
   type: INameObject[];
-  collectionType: INameObject[];
+  typeOther?: string;
+  cohortType: INameObject[];
+  networkType: INameObject[];
+  clinicalStudyType: INameObject[];
+  rWDType: INameObject[];
+  keywords?: string;
+  externalIdentifiers?: [
+    {
+      identifier: string;
+      externalIdentifierType: INameObject;
+    }
+  ];
+  dateLastRefresh?: string;
+  startYear?: string;
+  endYear?: string;
+  license?: string;
   populationAgeGroups?: IOntologyNode[];
-  startYear: number;
-  endYear: number;
   countries: {
     name: string;
     order: number;
@@ -44,21 +51,31 @@ export interface ICohort {
     definition: string;
     name: string;
   };
+  dataCollectionType?: {
+    definition: string;
+    name: string;
+  }[];
+  dataCollectionDescription?: string;
+  reasonSustained?: string;
+  unitOfObservation?: string;
+  recordTrigger?: string;
   designPaper?: {
     title: string;
     doi: string;
   }[];
   inclusionCriteria?: IOntologyNode[];
   otherInclusionCriteria?: string;
-  collectionEvents: ICollectionEvent[];
-  additionalOrganisations: IOrganisation[];
-  contacts: IContributor[];
+  collectionEvents: ICollectionEvents[];
+  collectionEvents_agg: { count: number };
+  peopleInvolved: IContributor[];
   networks: INetwork[];
   publications: IPublication[];
   releaseDescription?: string;
   linkageOptions?: string;
   dataAccessConditionsDescription?: string;
   dataAccessConditions?: { name: string }[];
+  dataUseConditions?: IOntologyNode[];
+  dataAccessFee?: boolean;
   prelinked?: boolean;
   releaseType?: boolean;
   fundingStatement?: string;
@@ -67,6 +84,9 @@ export interface ICohort {
   datasets: { name: string }[];
   populationOncologyTopology?: IOntologyNode[];
   populationOncologyMorphology?: IOntologyNode[];
+  subpopulations: ISubpopulations[];
+  subpopulations_agg: { count: number };
+  partOfResources: IResource[];
 }
 
 export interface IPublication {
@@ -81,6 +101,7 @@ export interface IPublication {
   publisher?: string;
   school?: string;
   abstract?: string;
+  isDesignPublication: boolean;
 }
 
 export interface IVariableBase {
@@ -102,36 +123,17 @@ export interface IVariableBase {
 export interface IVariableDetails {
   unit?: IOntologyNode;
   format?: IOntologyNode;
-  repeats?: {
-    name: string;
-    mappings: IMapping[];
-  }[];
+  repeatUnit: IOntologyItem;
+  repeatMin: number;
+  repeatMax: number;
 }
 
 export interface IVariableMappings {
   mappings?: IMapping[];
-  repeats?: {
-    name: string;
-    mappings: IMapping[];
-  }[];
 }
 
 export type IVariable = IVariableBase & IVariableDetails;
 export type IVariableWithMappings = IVariable & IVariableMappings;
-
-export interface IFile {
-  id?: string;
-  size?: number;
-  extension?: string;
-  url?: string;
-}
-
-export interface IDocumentation {
-  name: string;
-  description: string;
-  url: string;
-  file: IFile;
-}
 
 export interface IOrganisation extends IPartner {
   email: string;
@@ -145,7 +147,9 @@ export interface IOrganisation extends IPartner {
   expertise: string;
   country: {
     name: string;
-  };
+  }[];
+  isLeadOrganisation: boolean;
+  role: IOntologyNode[];
 }
 
 export interface IPartner {
@@ -175,23 +179,6 @@ export interface INameObject {
 
 export interface IUrlObject {
   url: string;
-}
-
-export interface ICollectionEvent {
-  name: string;
-  description: string;
-  startYear: INameObject;
-  endYear: number;
-  numberOfParticipants: number;
-  ageGroups: INameObject[];
-  definition: string;
-  dataCategories: ICollectionEventCategory[];
-  sampleCategories: ICollectionEventCategory[];
-  areasOfInformation: ICollectionEventCategory[];
-  standardizedTools: ICollectionEventCategory[];
-  standardizedToolsOther: string;
-  subcohorts: INameObject[];
-  coreVariables: string[];
 }
 
 export interface ICollectionEventCategory {
@@ -256,26 +243,18 @@ export type INotificationType =
   | "warning"
   | "info";
 
-export interface ISectionField {
-  meta: IColumn;
-  value: any;
-}
-
-export interface ISection {
-  meta: IColumn;
-  fields: ISectionField[];
-}
 export interface IMapping {
   syntax: string;
   description: string;
   match: {
-    name: string;
+    name: HarmonisationStatus;
   };
   source: {
     id: string;
     name: string;
     mg_tableclass: string;
   };
+  repeats: string;
   sourceDataset: {
     resource: {
       id: string;
@@ -392,6 +371,7 @@ export interface IOntologyFilterConfig extends IFilterConfig {
   type: "ONTOLOGY";
   ontologyTableId: string;
   ontologySchema: string;
+  filter: Record<String, Filter>;
   columnId: string;
   refFields?: filterRefField;
 }
@@ -481,3 +461,8 @@ export interface IOrganization {
 }
 
 export type linkTarget = "_self" | "_blank" | "_parent" | "_top";
+
+export interface UIResource {
+  id: string;
+  logo: { url: string };
+}

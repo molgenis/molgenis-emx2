@@ -5,9 +5,9 @@ import static org.eclipse.rdf4j.model.util.Values.literal;
 import static org.molgenis.emx2.fairdatapoint.FAIRDataPointCatalog.extractItemAsIRI;
 import static org.molgenis.emx2.fairdatapoint.FormatMimeTypes.FORMATS;
 import static org.molgenis.emx2.fairdatapoint.Queries.queryDataset;
-import static org.molgenis.emx2.rdf.RDFService.*;
-import static org.molgenis.emx2.rdf.RDFUtils.*;
+import static org.molgenis.emx2.utils.URIUtils.*;
 
+import io.javalin.http.Context;
 import java.io.StringWriter;
 import java.net.URI;
 import java.util.*;
@@ -22,7 +22,6 @@ import org.eclipse.rdf4j.rio.helpers.BasicWriterSettings;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.utils.TypeUtils;
-import spark.Request;
 
 public class FAIRDataPointDataset {
 
@@ -30,14 +29,14 @@ public class FAIRDataPointDataset {
   // todo odrl:Policy object instead of String? see
   // https://www.w3.org/TR/vocab-dcat-2/#Property:distribution_has_policy
 
-  private final Request request;
+  private final Context ctx;
   private final Table fdpDataseTable;
   private String issued;
   private String modified;
 
   /** Constructor */
-  public FAIRDataPointDataset(Request request, Table fdpDataseTable) {
-    this.request = request;
+  public FAIRDataPointDataset(Context ctx, Table fdpDataseTable) {
+    this.ctx = ctx;
     this.fdpDataseTable = fdpDataseTable;
   }
 
@@ -53,7 +52,7 @@ public class FAIRDataPointDataset {
 
   /** Create and get resulting FDP */
   public String getResult() throws Exception {
-    String id = request.params("id");
+    String id = ctx.pathParam("id");
     Schema schema = fdpDataseTable.getSchema();
     List<Map<String, Object>> datasetsFromJSON = queryDataset(schema, "id", id);
     if (datasetsFromJSON == null) {
@@ -84,13 +83,13 @@ public class FAIRDataPointDataset {
     }
 
     // reconstruct server:port URL to prevent problems with double encoding of schema/table names
-    URI requestURI = getURI(request.url());
+    URI requestURI = getURI(ctx.url());
     String host = extractHost(requestURI);
     String apiFdp = host + "/api/fdp";
     String apiFdpDistribution = apiFdp + "/distribution";
     String apiRDF = host + "/" + schema.getName() + "/api/rdf";
 
-    IRI reqUrl = iri(request.url()); // escaping/encoding seems OK
+    IRI reqUrl = iri(ctx.url()); // escaping/encoding seems OK
     IRI apiFdpDistributionEnc = encodedIRI(apiFdpDistribution);
 
     builder.add(reqUrl, RDF.TYPE, DCAT.DATASET);
@@ -187,7 +186,11 @@ public class FAIRDataPointDataset {
           throw new Exception(
               "propertyValue should contain strings that each consist of 2 elements separated by 1 whitespace");
         }
-        builder.add(reqUrl, iri(propertyValueSplit[0]), iri(propertyValueSplit[1]));
+        if (propertyValueSplit[1].startsWith("http")) {
+          builder.add(reqUrl, iri(propertyValueSplit[0]), iri(propertyValueSplit[1]));
+        } else {
+          builder.add(reqUrl, iri(propertyValueSplit[0]), propertyValueSplit[1]);
+        }
       }
     }
     if (datasetFromJSON.get("spatialResolutionInMeters") != null) {

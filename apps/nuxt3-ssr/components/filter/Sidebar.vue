@@ -41,7 +41,7 @@ function handleFilerUpdate(filter: IFilter) {
       <FilterContainer
         v-for="filter in filters"
         :title="filter.config.label"
-        :conditions="filter.conditions"
+        :conditions="(filter as IOntologyFilter | IRefArrayFilter).conditions ? (filter as IOntologyFilter | IRefArrayFilter).conditions : []"
         @update:conditions="(value) => {(filter as IOntologyFilter).conditions = value; handleFilerUpdate(filter)}"
         :search="filter.search"
         @update:search="
@@ -67,6 +67,7 @@ function handleFilerUpdate(filter: IFilter) {
         <FilterOntology
           v-else-if="filter.config.type === 'ONTOLOGY'"
           :table-id="filter.config.ontologyTableId"
+          :filter="filter.config.filter"
           :mobileDisplay="mobileDisplay"
           :filterLabel="filter.config.label"
           :model-value="(filter as IOntologyFilter).conditions "

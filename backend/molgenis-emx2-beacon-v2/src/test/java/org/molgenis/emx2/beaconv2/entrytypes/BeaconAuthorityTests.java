@@ -7,6 +7,7 @@ import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import io.javalin.http.Context;
 import java.util.HashMap;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -14,7 +15,6 @@ import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.beaconv2.EntryType;
 import org.molgenis.emx2.beaconv2.QueryEntryType;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
-import spark.Request;
 
 public class BeaconAuthorityTests extends BeaconModelEndPointTest {
 
@@ -40,7 +40,7 @@ public class BeaconAuthorityTests extends BeaconModelEndPointTest {
   public void testRecordQueryAsViewerUser_fiveRecords() {
     database.setActiveUser("VIEWER_TEST_USER");
     beaconSchema = database.getSchema("fairdatahub");
-    Request request = mockEntryTypeRequestRegular(EntryType.INDIVIDUALS.getId(), new HashMap<>());
+    Context request = mockEntryTypeRequestRegular(EntryType.INDIVIDUALS.getId(), new HashMap<>());
     BeaconRequestBody requestBody = new BeaconRequestBody(request);
 
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
@@ -54,7 +54,7 @@ public class BeaconAuthorityTests extends BeaconModelEndPointTest {
   public void testRecordQueryAsAggregateUser_noRecords() {
     database.setActiveUser("AGGREGATOR_TEST_USER");
     beaconSchema = database.getSchema("fairdatahub");
-    Request request = mockEntryTypeRequestRegular(EntryType.INDIVIDUALS.getId(), new HashMap<>());
+    Context request = mockEntryTypeRequestRegular(EntryType.INDIVIDUALS.getId(), new HashMap<>());
     BeaconRequestBody requestBody = new BeaconRequestBody(request);
 
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
@@ -126,7 +126,7 @@ public class BeaconAuthorityTests extends BeaconModelEndPointTest {
   public void testRecordQueryAsExistsUser_noRecords() {
     database.setActiveUser("EXISTS_TEST_USER");
     beaconSchema = database.getSchema("fairdatahub");
-    Request request = mockEntryTypeRequestRegular(EntryType.INDIVIDUALS.getId(), new HashMap<>());
+    Context request = mockEntryTypeRequestRegular(EntryType.INDIVIDUALS.getId(), new HashMap<>());
     BeaconRequestBody requestBody = new BeaconRequestBody(request);
 
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);

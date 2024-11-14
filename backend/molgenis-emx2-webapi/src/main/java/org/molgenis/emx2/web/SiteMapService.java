@@ -1,12 +1,11 @@
 package org.molgenis.emx2.web;
 
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
-import static spark.Spark.get;
 
+import io.javalin.Javalin;
+import io.javalin.http.Context;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.web.service.CatalogueSiteMap;
-import spark.Request;
-import spark.Response;
 
 public class SiteMapService {
 
@@ -14,15 +13,15 @@ public class SiteMapService {
     // hide constructor
   }
 
-  public static void create() {
-    get("/:schema/sitemap.xml", SiteMapService::getSiteMapForSchema);
+  public static void create(Javalin app) {
+    app.get("/{schema}/sitemap.xml", SiteMapService::getSiteMapForSchema);
   }
 
-  public static String getSiteMapForSchema(Request request, Response response) {
-    response.type("text/xml, application/xml");
-    Schema schema = getSchema(request);
+  public static String getSiteMapForSchema(Context ctx) {
+    ctx.res().setContentType("application/xml");
+    Schema schema = getSchema(ctx);
 
-    final String baseUrl = request.scheme() + "://" + request.host() + "/" + schema.getName();
+    final String baseUrl = ctx.scheme() + "://" + ctx.host() + "/" + schema.getName();
 
     return new CatalogueSiteMap(schema, baseUrl).buildSiteMap();
   }

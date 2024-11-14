@@ -2,7 +2,7 @@
 # FILE: dev.py
 # AUTHOR: David Ruvolo, Ype Zijlstra
 # CREATED: 2023-05-22
-# MODIFIED: 2024-03-12
+# MODIFIED: 2024-09-11
 # PURPOSE: development script for initial testing of the py-client
 # STATUS: ongoing
 # PACKAGES: pandas, python-dotenv
@@ -18,6 +18,7 @@ import logging
 import os
 
 import numpy
+import openpyxl
 import pandas as pd
 from dotenv import load_dotenv
 
@@ -35,11 +36,29 @@ async def main():
     # Load the login details into the environment
     load_dotenv()
     token = os.environ.get('MG_TOKEN')
+
+    async with Client('https://emx2.dev.molgenis.org/', schema='catalogue') as client:
+
+        participant_range = [10_000, 20_000.5]
+        big_data = client.get(table='Collection subcohorts',
+                              query_filter=f'`numberOfParticipants` between {participant_range}', as_df=True)
+        print(big_data.head().to_string())
+
+        excluded_countries = ["Denmark", "France"]
+        collections = client.get(table='Collections',
+                             query_filter=f'subcohorts.countries.name != {excluded_countries}',
+                             as_df=True)
+        print(collections.head().to_string())
+
+        var_values = client.get(table='Variable values',
+                                query_filter='label != No and value != 1', as_df=True)
+
+        print(var_values.head().to_string())
+
     # Connect to the server and sign in
     async with Client('https://emx2.dev.molgenis.org/', token=token) as client:
         # Check sign in status
         print(client.__repr__())
-        print(client.status)
 
         # Retrieve data from a table in a schema on the server using the 'get' method
         # Passing non-existing schema name yields a NoSuchSchemaException
@@ -56,17 +75,30 @@ async def main():
         except NoSuchTableException as e:
             print(e)
 
-        # Export the entire 'pet store' schema to a .xlsx file
-        # and export the 'Cohorts' table from schema 'catalogue' to a .csv file
-        client.export(schema='pet store', fmt='xlsx')
-        client.export(schema='catalogue-demo', table='Cohorts', fmt='csv')
+        # Export the entire 'pet store' schema to memory in Excel format,
+        # print its table names and the contents of the 'Pet' table.
+        # Export the 'Collections' table from schema 'catalogue' to memory and print a sample of its contents
+        pet_store_excel = await client.export(schema='pet store', as_excel=True)
+
+        pet_store = openpyxl.load_workbook(pet_store_excel, data_only=True)
+        print(pet_store.sheetnames)
+
+        pet_sheet = pd.DataFrame((ps := pd.DataFrame(pet_store['Pet'].values)).values[1:], columns=ps.iloc[0].values)
+        print(pet_sheet.to_string())
+
+        raw_collections = await client.export(schema='catalogue', table='Collections')
+        collections = pd.read_csv(raw_collections)
+        print(collections.sample(5).to_string())
 
     # Connect to server with a default schema specified
     with Client('https://emx2.dev.molgenis.org/', schema='pet store', token=token) as client:
         print(client.__repr__())
-        client.export(fmt='csv')
-        client.export(table='Pet', fmt='csv')
-        client.export(table='Pet', fmt='xlsx')
+        # Export all data from the 'pet store' schema to zipped CSVs
+        await client.export(filename='pet store.zip')
+        # Export the 'Pet' table from the 'pet store' schema to a CSV file
+        await client.export(table='Pet', filename='Pet.csv')
+        # Export the 'Pet' table from the 'pet store' schema to an Excel file
+        await client.export(table='Pet', filename='Pet.xlsx')
 
         # Retrieving data from table Pet as a list
         data = client.get(table='Pet')  # get Pets
@@ -74,6 +106,15 @@ async def main():
 
         # Retrieving data from table Pet as a pandas DataFrame
         data = client.get(table='Pet', as_df=True)  # get Pets
+        print(data)
+
+        # Retrieving filtered data from table Order as pandas DataFrame
+        # Filter on 'complete == true' only
+        data = client.get(table='Order', query_filter="price > 9", as_df=True)
+        print(data)
+
+        # Filter on 'complete == true' and 'status == delivered'
+        data = client.get(table='Order', query_filter="complete == true and status == delivered", as_df=True)
         print(data)
 
         # ///////////////////////////////////////////////////////////////////////////////
@@ -189,13 +230,14 @@ async def main():
     with Client('https://emx2.dev.molgenis.org/', token=token) as client:
         # Create a schema
         try:
-            client.create_schema(name='myNewSchema')
+            schema_create = asyncio.create_task(client.create_schema(name='myNewSchema'))
             print(client.schema_names)
         except (GraphQLException, PermissionDeniedException) as e:
             print(e)
 
         # Update the description
         try:
+            await schema_create
             client.update_schema(name='myNewSchema', description='I forgot the description')
             print(client.schema_names)
             print(client.schemas)
@@ -204,14 +246,15 @@ async def main():
 
         # Recreate the schema: delete and create
         try:
-            client.recreate_schema(name='myNewSchema')
+            await client.recreate_schema(name='myNewSchema')
             print(client.schema_names)
         except (GraphQLException, NoSuchSchemaException) as e:
             print(e)
 
         # Delete the schema
         try:
-            client.delete_schema(name='myNewSchema')
+            await schema_create
+            await asyncio.create_task(client.delete_schema(name='myNewSchema'))
             print(client.schema_names)
         except (GraphQLException, NoSuchSchemaException) as e:
             print(e)
@@ -221,25 +264,29 @@ async def main():
     # Use the Schema, Table, and Column classes
     catalogue_schema = Client('https://emx2.dev.molgenis.org/').get_schema_metadata('catalogue')
 
-    # Find the tables inheriting from the 'Resources' table
-    resource_children = catalogue_schema.get_tables(by='inheritName', value='Resources')
+    # Find the tables inheriting from the 'Collections' table
+    resource_children = catalogue_schema.get_tables(by='inheritName', value='Collections')
 
-    print("Tables in the schema inheriting from the 'Resources' table.")
+    print("Tables in the schema inheriting from the 'Collections' table.")
     for res_chi in resource_children:
         print(f"{res_chi!s}\n{res_chi!r}")
     print("\n")
 
-    # Find the Cohorts table
-    cohorts = catalogue_schema.get_table(by='name', value='Cohorts')
+    # Find the  table
+    collections_meta = catalogue_schema.get_table(by='name', value='Collections')
+    print(collections_meta)
 
-    # Find the columns in the Cohorts table referencing the Organisations table
-    orgs_refs = cohorts.get_columns(by='refTableName', value='Organisations')
+    # Find the columns in the Collections table referencing the Organisations table
+    orgs_refs = collections_meta.get_columns(by='refTableName', value='Organisations')
+    print(orgs_refs)
 
-    # Find the columns in the Cohorts table referencing the Organisations table in a reference array
-    orgs_array_refs = cohorts.get_columns(by=['columnType', 'refTableName'], value=['REF_ARRAY', 'Organisations'])
+    # Find the columns in the Collections table referencing the Organisations table in a reference array
+    orgs_array_refs = collections_meta.get_columns(by=['columnType', 'refTableName'],
+                                                   value=['REF_ARRAY', 'Collection organisations'])
+    print(orgs_array_refs)
 
     # Print the __str__ and __repr__ representations of these columns
-    print("Columns in the Cohorts table referencing the Organisations table in an array.")
+    print("Columns in the Collections table referencing the Collection organisations table in an array.")
     for orgs_ref in orgs_array_refs:
         print(f"{orgs_ref!s}\n{orgs_ref!r}\n")
 

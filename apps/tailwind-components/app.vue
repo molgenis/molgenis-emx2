@@ -1,6 +1,9 @@
 <script setup lang="ts">
 
-const theme = ref('');
+const theme = useCookie("theme", {
+  default: () => "",
+});
+
 useHead({
   title: "Tailwind components",
   meta: [
@@ -10,96 +13,68 @@ useHead({
     },
   ],
   htmlAttrs: {
-    'data-theme': theme,
+    "data-theme": theme,
   },
-
 });
+
+const isExpanded = ref<boolean>(false);
+const isFocusLayout = ref<boolean>(false);
+
+function toggleLayout () {
+  if(isFocusLayout.value) {
+    isFocusLayout.value = false;
+    setPageLayout('default');
+    
+  } else {
+    isFocusLayout.value = true;
+    setPageLayout('focus');
+  }
+}
+
 </script>
+
+
 <template>
-  <div
-    class="overflow-x-clip min-h-screen bg-base-gradient relative after:bg-app-wrapper after:w-full after:h-[166px] after:top-0 after:absolute after:opacity-20 after:z-20 xl:after:hidden">
-    <div class="absolute top-0 left-0 z-10 w-screen h-screen overflow-hidden opacity-background-gradient">
-      <BackgroundGradient class="z-10" />
+  <nav class="fixed top-0 w-[100%] bg-white z-50 p-2 flex flex-row justify-start items-center gap-2 shadow-sm">
+    <div class="grow flex gap-4">
+      <NuxtLink class="hover:underline" to="/">
+        <img format="svg" src="~/assets/img/molgenis-logo-blue-small.svg" alt="molgenis, open source software"
+          class="w-28" />
+        <span class="sr-only">Home</span>
+      </NuxtLink>
+      <Button type="outline" size="small" @click="toggleLayout">{{ isFocusLayout ? "show side": "focus"}}</Button>
     </div>
-    <div class="z-30 relative min-h-screen flex flex-col">
-      <main class="mb-auto">
-        <Container>
-          <div id="header-place-holder"></div>
-          <div class="xl:flex">
-            <aside class="xl:min-w-95 xl:w-95 hidden xl:block">
-              <h2 class="text-2xl font-bold my-5">Components</h2>
-
-              <ul class="list-none">
-                <li class="py-2">
-                  <NuxtLink class="hover:underline" to="/">Home</NuxtLink>
-                </li>
-                <li class="py-2">
-                  <NuxtLink class="hover:underline" to="/Banner.story">Banner</NuxtLink>
-                </li>
-                <li class="py-2">
-                  <NuxtLink class="hover:underline" to="/Comp1.story">Comp 1</NuxtLink>
-                </li>
-                <li class="py-2">
-                  <NuxtLink class="hover:underline" to="/CustomTooltip.story">Custom tooltip</NuxtLink>
-                </li>
-                <li class="py-2">
-                  <NuxtLink class="hover:underline" to="/DisplayList.story">Display list</NuxtLink>
-                </li>
-                <li class="py-2">
-                  <NuxtLink class="hover:underline" to="/input/List.story">Input list</NuxtLink>
-                </li>
-                <li class="py-2">
-                  <NuxtLink class="hover:underline" to="/input/Select.story">Input select</NuxtLink>
-                </li>
-                <li class="py-2">
-                  <NuxtLink class="hover:underline" to="/input/String.story">Input string</NuxtLink>
-                </li>
-                <li class="py-2">
-                  <NuxtLink class="hover:underline" to="/input/TextArea.story">Input text area</NuxtLink>
-                </li>
-                <li class="py-2">
-                  <NuxtLink class="hover:underline" to="/input/Tree.story">Input tree</NuxtLink>
-                </li>
-                <li class="py-2">
-                  <NuxtLink class="hover:underline" to="/Modal.story">Modal</NuxtLink>
-                </li>
-                <li class="py-2">
-                  <NuxtLink class="hover:underline" to="/FilterSearch.story">Filer search</NuxtLink>
-                </li>
-                <li class="py-2">
-                  <NuxtLink class="hover:underline" to="/Icons.story">Icons</NuxtLink>
-                </li>
-              </ul>
-
-              <div class="pr-6 mt-6">
-                <hr>
-              </div>
-              <fieldset class="mt-3">
-                <legend>Theme:</legend>
-                <div>
-                  <input class="hover:cursor-pointer m-2" id="default-theme" type="radio" v-model="theme" value="" />
-                  <label class="hover:cursor-pointer" for="default-theme">Default</label>
-                </div>
-                <div>
-                  <input class="hover:cursor-pointer m-2" id="umcg-theme" type="radio" v-model="theme" value="umcg" />
-                  <label class="hover:cursor-pointer" for="umcg-theme">Umcg</label>
-                </div>
-              </fieldset>
-            </aside>
-            <div class="xl:pl-7.5 xl:max-w-[54rem] 2xl:grow 2xl:max-w-none">
-              <slot name="main">
-                <NuxtPage />
-              </slot>
-            </div>
+    
+    <div class="w-[150px] relative">
+      <button id="theme-selector-toggle" aria-controls="theme-selector" :aria-expanded="isExpanded"
+        @click="isExpanded = !isExpanded">
+        <span>Theme</span>
+        <CaretDown class="w-5 inline-block" />
+      </button>
+      <div class="absolute mt-2 z-50 bg-white py-2 px-4 rounded shadow-sm border" v-show="isExpanded">
+        <fieldset class="mb-2">
+          <legend class="text-current text-body-sm">Select a theme</legend>
+          <div class="px-1">
+            <input class="hover:cursor-pointer mr-2" id="default-theme" type="radio" v-model="theme" value="" />
+            <label class="hover:cursor-pointer" for="default-theme">
+              Default
+            </label>
           </div>
-        </Container>
-      </main>
-
-
-
-
+          <div class="px-1">
+            <input class="hover:cursor-pointer mr-2" id="umcg-theme" type="radio" v-model="theme" value="umcg" />
+            <label class="hover:cursor-pointer" for="umcg-theme"> UMCG </label>
+          </div>
+          <div class="px-1">
+            <input class="hover:cursor-pointer mr-2" id="aumc-theme" type="radio" v-model="theme" value="aumc" />
+            <label class="hover:cursor-pointer" for="aumc-theme"> AUMC </label>
+          </div>
+        </fieldset>
+      </div>
     </div>
-
-  </div>
+  </nav>
+            
+  <NuxtLayout @click="isExpanded = false">
+    <NuxtPage  />
+  </NuxtLayout>     
 
 </template>

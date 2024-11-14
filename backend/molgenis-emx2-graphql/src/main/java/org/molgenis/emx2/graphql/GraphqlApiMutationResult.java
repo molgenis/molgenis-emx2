@@ -19,9 +19,9 @@ public class GraphqlApiMutationResult {
 
   private String message;
   private Status status;
+  private String taskId;
   private Map<String, String> details = new LinkedHashMap<>();
   private String code;
-  private String taskId;
 
   public GraphqlApiMutationResult(Status status, String message, Object... formatValues) {
     this.status = status;
@@ -45,18 +45,18 @@ public class GraphqlApiMutationResult {
           .name("MolgenisResult")
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
+                  .name("taskId")
+                  .description("Optional taskid, in case of asynchronous request")
+                  .type(Scalars.GraphQLString)
+                  .build())
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
                   .name("status")
                   .type(enumMutationResultStatus)
                   .build())
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name("message")
-                  .type(Scalars.GraphQLString)
-                  .build())
-          .field(
-              GraphQLFieldDefinition.newFieldDefinition()
-                  .name("taskId")
-                  .description("Optional taskid, in case of asynchronous request")
                   .type(Scalars.GraphQLString)
                   .build())
           .build();

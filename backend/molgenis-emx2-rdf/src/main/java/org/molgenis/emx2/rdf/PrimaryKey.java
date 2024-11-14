@@ -16,6 +16,7 @@ class PrimaryKey {
   public static final String NAME_VALUE_SEPARATOR = "=";
   public static final String KEY_PARTS_SEPARATOR = "&";
   private final Map<String, String> keys;
+
   // use map instead of list<NameValuePair> to prevent duplicate entries
   // some foreign key have overlapping relationships which resulted in a bug
 

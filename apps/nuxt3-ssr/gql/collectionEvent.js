@@ -11,18 +11,8 @@ export default gql`
       }
       name
       description
-      startYear {
-        name
-      }
-      startMonth {
-        name
-      }
-      endYear {
-        name
-      }
-      endMonth {
-        name
-      }
+      startDate
+      endDate
       numberOfParticipants
       ageGroups ${moduleToString(ontologyFragment)}
       dataCategories ${moduleToString(ontologyFragment)}
@@ -30,7 +20,7 @@ export default gql`
       standardizedTools ${moduleToString(ontologyFragment)}
       standardizedToolsOther
       areasOfInformation ${moduleToString(ontologyFragment)}
-      subcohorts {
+      subpopulations {
         name
       }
       coreVariables

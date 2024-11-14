@@ -1,9 +1,6 @@
 <script setup lang="ts">
 const route = useRoute();
 const headerData = await useHeaderData();
-const catalogue = headerData.catalogue;
-const variableCount = headerData.variableCount;
-
 const bannerData = await useBannerData();
 const bannerHtml = computed(() => {
   return bannerData.data;
@@ -12,15 +9,20 @@ const bannerHtml = computed(() => {
 
 <template>
   <Banner v-if="bannerHtml.value" v-html="bannerHtml.value"> </Banner>
-
   <HeaderCatalogue
     v-if="route.params.catalogue"
-    :catalogue="catalogue"
-    :variableCount="variableCount"
+    :catalogue="headerData.catalogue"
+    :variableCount="headerData.variableCount"
+    :collectionCount="headerData.collectionCount"
+    :networkCount="headerData.networkCount"
   />
   <HeaderGlobal v-else />
   <Container>
     <slot></slot>
   </Container>
-  <FooterComponent />
+  <FooterComponent>
+    <ClientOnly>
+      <FooterVersion />
+    </ClientOnly>
+  </FooterComponent>
 </template>

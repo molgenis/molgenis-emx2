@@ -92,10 +92,10 @@ public class QueryEntryType {
       case RECORD, UNDEFINED:
         ArrayNode resultsArray = doGraphQlQuery(table, filterParser.getGraphQlFilters());
         if (hasResult(resultsArray)) {
-          numTotalResults += resultsArray.size();
-          ArrayNode paginatedResults = paginateResults(resultsArray);
-          resultSet.set("results", paginatedResults);
-          resultSet.put("count", resultsArray.size());
+          int count = doCountQuery(table, filterParser.getGraphQlFilters());
+          numTotalResults += count;
+          resultSet.set("results", resultsArray);
+          resultSet.put("count", count);
           resultSets.add(resultSet);
         } else if (includeStrategy.equals(IncludedResultsetResponses.ALL)) {
           resultSets.add(resultSet);
@@ -111,6 +111,7 @@ public class QueryEntryType {
         } else if (includeStrategy.equals(IncludedResultsetResponses.ALL)) {
           resultSets.add(resultSet);
         }
+        break;
       case BOOLEAN:
         boolean exists = doExistsQuery(table, filterParser.getGraphQlFilters());
         if (exists) {
@@ -119,6 +120,7 @@ public class QueryEntryType {
         } else if (includeStrategy.equals(IncludedResultsetResponses.ALL)) {
           resultSets.add(resultSet);
         }
+        break;
     }
 
     return numTotalResults;
@@ -168,10 +170,14 @@ public class QueryEntryType {
     GraphQL graphQL = new GraphqlApiFactory().createGraphqlForSchema(table.getSchema());
 
     String graphQlQuery =
-        new QueryBuilder(table).addAllColumns(MAX_QUERY_DEPTH).addFilters(filters).getQuery();
+        new QueryBuilder(table)
+            .addAllColumns(MAX_QUERY_DEPTH)
+            .setLimit(beaconQuery.getPagination().getLimit())
+            .setOffset(beaconQuery.getPagination().getSkip())
+            .addFilters(filters)
+            .getQuery();
     ExecutionResult result = graphQL.execute(graphQlQuery);
 
-    ObjectMapper mapper = new ObjectMapper();
     JsonNode results = mapper.valueToTree(result.getData());
     JsonNode entryTypeResult = results.get(entryType.getId());
     if (entryTypeResult == null || entryTypeResult.isNull()) return null;
@@ -197,21 +203,6 @@ public class QueryEntryType {
     JsonNode results = mapper.valueToTree(result.getData());
 
     return results.get(entryType.getId() + "_agg").get("exists").booleanValue();
-  }
-
-  private ArrayNode paginateResults(ArrayNode results) {
-    if (results == null || results.isNull()) return null;
-
-    int skip = beaconQuery.getPagination().getSkip();
-    int limit = beaconQuery.getPagination().getLimit();
-
-    if (limit == 0) limit = results.size();
-
-    ArrayNode paginatedResults = mapper.createArrayNode();
-    for (int i = skip; i < Math.min(skip + limit, results.size()); i++) {
-      paginatedResults.add(results.get(i));
-    }
-    return paginatedResults;
   }
 
   private boolean isAuthorized(List<String> roles) {

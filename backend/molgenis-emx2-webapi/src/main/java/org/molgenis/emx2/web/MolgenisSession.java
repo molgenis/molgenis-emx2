@@ -17,6 +17,7 @@ public class MolgenisSession {
   private Map<String, GraphQL> graphqlPerSchema = new LinkedHashMap<>();
 
   public MolgenisSession(Database database) {
+    database.setBindings(JavaScriptBindings.getBindingsForSession(this));
     this.database = database;
   }
 
