@@ -1,0 +1,2 @@
+resource,name,label,dataset type,unit of observation,keywords,description,number of rows,since version,until version
+testNetwork,testTable,test variables,,,,test table,,1.0.0,
