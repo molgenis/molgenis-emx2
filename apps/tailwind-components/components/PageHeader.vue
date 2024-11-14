@@ -28,7 +28,7 @@ withDefaults(
       :class="{ 'items-center': align === 'center' }"
     >
       <span class="mb-2 mt-2.5 xl:block hidden text-icon" v-if="icon">
-        <BaseIcon :name="icon" :width="55" />
+        <Icon :name="icon" :width="55" />
       </span>
       <div class="relative">
         <h1 class="font-display text-heading-6xl">{{ title }}</h1>

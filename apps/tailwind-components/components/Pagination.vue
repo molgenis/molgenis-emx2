@@ -73,7 +73,7 @@ function changeCurrentPage(event: Event) {
           }"
         >
           <span class="sr-only">Go to page {{ currentPage - 1 }}</span>
-          <BaseIcon name="caret-left" :width="24" />
+          <Icon name="caret-left" :width="24" />
         </a>
       </li>
       <li class="flex justify-center items-center">
@@ -107,7 +107,7 @@ function changeCurrentPage(event: Event) {
           }"
         >
           <span class="sr-only">Go to page {{ currentPage + 1 }}</span>
-          <BaseIcon name="caret-right" :width="24" />
+          <Icon name="caret-right" :width="24" />
         </a>
       </li>
     </ul>

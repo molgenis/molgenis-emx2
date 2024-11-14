@@ -97,7 +97,7 @@ const bgClass = computed(() => {
         <div>
           <div>
             <button @click="hide()" class="absolute top-7 right-7 z-10">
-              <BaseIcon name="cross" />
+              <Icon name="cross" />
             </button>
 
             <div class="overflow-auto calc-remaining-max-height pb-6">

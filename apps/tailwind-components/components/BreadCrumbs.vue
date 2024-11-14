@@ -19,7 +19,7 @@ withDefaults(
       <li>
         <NuxtLink :to="Object.values(crumbs).slice(-1)[0]">
           <span class="sr-only">Go back one page</span>
-          <BaseIcon name="arrow-left" />
+          <Icon name="arrow-left" />
         </NuxtLink>
       </li>
     </ol>

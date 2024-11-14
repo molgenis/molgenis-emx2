@@ -69,7 +69,7 @@ function validate(value: columnValue) {
         :id="`${column.id}-input-error`"
         class="bg-invalid text-required p-3 font-bold flex items-center gap-1"
       >
-        <BaseIcon name="info"></BaseIcon>{{ errors[0].message }}
+        <Icon name="info"></Icon>{{ errors[0].message }}
       </div>
     </div>
   </div>

@@ -1,7 +1,5 @@
 <script setup lang="ts">
 import type { ITreeNode } from "../../types/types";
-import BaseIcon from "../BaseIcon.vue";
-import CustomTooltip from "../CustomTooltip.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -103,7 +101,7 @@ function handleChildSelect(selected: string[], parent: ITreeNode) {
           :aria-expanded="expandedNodes.includes(node.name)"
           :aria-controls="node.name"
         >
-          <BaseIcon
+          <Icon
             :name="
               expandedNodes.includes(node.name) ? 'caret-down' : 'caret-right'
             "
@@ -112,13 +110,13 @@ function handleChildSelect(selected: string[], parent: ITreeNode) {
           <span class="sr-only">expand {{ node.name }}</span>
         </button>
         <template v-if="!isRoot">
-          <BaseIcon
+          <Icon
             v-if="node.children?.length"
             name="collapsible-list-item-sub"
             :width="20"
             class="text-blue-200 absolute -top-[9px]"
           />
-          <BaseIcon
+          <Icon
             v-else
             name="collapsible-list-item"
             :width="20"

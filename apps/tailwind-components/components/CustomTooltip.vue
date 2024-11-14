@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import BaseIcon from "./BaseIcon.vue";
 import "floating-vue/dist/style.css";
 const ariaId = useId();
 
@@ -36,7 +35,7 @@ const hoverColorClass = computed(() => {
         class="w-6 h-6 text-blue-200 cursor-default select-none"
         :class="hoverColorClass"
       >
-        <BaseIcon name="info" />
+        <Icon name="info" />
         <span class="sr-only" v-if="label">{{ label }}</span>
       </button>
 

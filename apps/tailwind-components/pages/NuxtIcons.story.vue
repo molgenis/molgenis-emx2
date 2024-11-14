@@ -99,20 +99,6 @@ const selectedIconsClasses = computed(
   () => selectedAnimationClass.value + " " + selectedColorClass.value
 );
 const customIcons = [...localIconNames];
-const nuxtIcons = [
-  "uil:github",
-  "line-md:arrow-left",
-  "line-md:arrow-right",
-  "line-md:arrow-up",
-  "line-md:arrow-down",
-  "line-md:chevron-left",
-  "line-md:chevron-right",
-  "line-md:chevron-up",
-  "line-md:chevron-down",
-  "ic:baseline-check",
-  "line-md:person",
-  "mg:image-diagram-2",
-  "mg:arrow-right",
-];
+const nuxtIcons = ["uil:github"];
 customIcons.push(...localIconNames);
 </script>

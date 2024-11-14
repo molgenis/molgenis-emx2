@@ -47,7 +47,7 @@ defineExpose({
           aria-label="Close modal"
           class="absolute top-7 right-8 p-1"
         >
-          <BaseIcon class="text-blue-500" name="cross" />
+          <Icon class="text-blue-500" name="cross" />
         </button>
 
         <slot name="header"></slot>

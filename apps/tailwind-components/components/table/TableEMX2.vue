@@ -88,7 +88,7 @@ function handlePagingRequest(page: number) {
               >
                 {{ column.label }}
                 <Icon
-                  name="mg:arrow-up"
+                  name="arrow-up"
                   v-if="
                     column.id === settings.orderby.column &&
                     settings.orderby.direction === 'ASC'
@@ -96,7 +96,7 @@ function handlePagingRequest(page: number) {
                   class="w-4 h-4 inline-block"
                 />
                 <Icon
-                  name="mg:arrow-down"
+                  name="arrow-down"
                   v-if="
                     column.id === settings.orderby.column &&
                     settings.orderby.direction === 'DESC'
