@@ -11,7 +11,6 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.stream.Collectors;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
@@ -223,19 +222,14 @@ public class RDFService {
 
   private Set<Table> tablesToDescribe(Set<Table> allTables, Table tableFilter) {
     Set<Table> tablesToDescribe = new HashSet<>();
-    Set<TableMetadata> allTablesMetadata =
-        allTables.stream().map(Table::getMetadata).collect(Collectors.toSet());
     for (Table currentTable : allTables) {
-      processInheritedTable(allTablesMetadata, tableFilter, tablesToDescribe, currentTable);
+      processInheritedTable(tableFilter, tablesToDescribe, currentTable);
     }
     return tablesToDescribe;
   }
 
   private boolean processInheritedTable(
-      Set<TableMetadata> allTablesMetadata,
-      Table tableFilter,
-      Set<Table> tablesToDescribe,
-      Table currentTable) {
+      Table tableFilter, Set<Table> tablesToDescribe, Table currentTable) {
     if (currentTable == null) {
       return false;
     }
@@ -244,8 +238,7 @@ public class RDFService {
       tablesToDescribe.add(currentTable);
       return true;
     }
-    if (processInheritedTable(
-        allTablesMetadata, tableFilter, tablesToDescribe, currentTable.getInheritedTable())) {
+    if (processInheritedTable(tableFilter, tablesToDescribe, currentTable.getInheritedTable())) {
       tablesToDescribe.add(currentTable);
       return true;
     }
