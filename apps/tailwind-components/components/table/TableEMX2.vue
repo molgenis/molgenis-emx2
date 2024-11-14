@@ -87,14 +87,16 @@ function handlePagingRequest(page: number) {
                 @click="handleSortRequest(column.id)"
               >
                 {{ column.label }}
-                <ArrowUp
+                <Icon
+                  name="mg:arrow-up"
                   v-if="
                     column.id === settings.orderby.column &&
                     settings.orderby.direction === 'ASC'
                   "
                   class="w-4 h-4 inline-block"
                 />
-                <ArrowDown
+                <Icon
+                  name="mg:arrow-down"
                   v-if="
                     column.id === settings.orderby.column &&
                     settings.orderby.direction === 'DESC'

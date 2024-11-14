@@ -22,29 +22,10 @@ There are a number of icons available for use. See `/components/global/icons` fo
 
 ### Using icons
 
-These are located in the `components/global/icons` folder. For convenience, use the `<BaseIcon>` component to render icons. This applies some default styling so that you don't have to.
-
-```html
-<BaseIcon name="ArrowUp" />
-```
-
-Alternatively, you can import the icons directly. Please note that the default icon width is `24`. Make sure this is added to the component.
-
-```html
-<ArrowUp width="24" />
-```
-
-**Note**: all icons are available globally. You do not need to prefix the icons with `Icons*` or `GlobalIcons*`. Simply type the name of the icon (e.g., `ArrowUp`).
 
 ### Adding new icons
 
-Before adding a new icon to the component library, make sure there isn't a similar icon in `/global/icons` folder. If an appropriate icon isn't available, download the svg from [https://fonts.google.com/icons](https://fonts.google.com/icons) and [https://www.flaticon.com/authors/special/lineal](https://www.flaticon.com/authors/special/lineal). Place the file in the `assets/icons` folder and run the parse icons command.
 
-```bash
-yarn parse-icons
-```
-
-This script uses the [sgvo](https://github.com/svg/svgo) module to clean the icons and transform them into vue components. These files are then saved in the `global/icons/` folder.
 
 ## Getting started
 
