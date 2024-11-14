@@ -43,7 +43,7 @@ const fillClass = computed(() => {
     class="absolute inset-x-0 -top-px -bottom-px justify-center items-center inline-flex"
     :class="tableClass + ' ' + fillClass"
   >
-    <BaseIcon v-if="iconName" :name="iconName" />
+    <Icon v-if="iconName" :name="iconName" />
     <span class="sr-only">{{ status }}</span>
   </div>
 </template>

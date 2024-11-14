@@ -46,7 +46,7 @@ const emit = defineEmits(["close"]);
         >
           <div class="w-full overflow-auto">
             <button @click="hide()" class="absolute top-7 right-8">
-              <BaseIcon name="cross" />
+              <Icon name="twc:cross" />
             </button>
 
             <slot></slot>

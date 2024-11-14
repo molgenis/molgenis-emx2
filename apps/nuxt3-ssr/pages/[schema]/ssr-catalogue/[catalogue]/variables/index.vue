@@ -374,7 +374,7 @@ crumbs[
               v-if="pending"
               class="mt-2 mb-0 lg:mb-3 text-body-lg flex flex-col text-title"
             >
-              <BaseIcon name="progress-activity" class="animate-spin" />
+              <Icon name="twc:progress-activity" class="animate-spin" />
             </div>
           </div>
           <FilterWell

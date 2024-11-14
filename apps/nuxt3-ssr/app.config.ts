@@ -5,7 +5,7 @@ export default defineAppConfig({
       mode: 'svg', // default <Icon> mode applied
       aliases: {
         'nuxt': 'logos:nuxt-icon',
-        'caret-right': 'mg:caret-right',
+        'caret-right': 'twc:caret-right',
       }
     }
   })

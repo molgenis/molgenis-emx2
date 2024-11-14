@@ -19,7 +19,7 @@ withDefaults(defineProps<Props>(), {
       class="flex flex-row md:flex-col self-start md:self-center items-center max-w-sm"
     >
       <span class="mb-2 mt-2.5 text-icon">
-        <BaseIcon :name="image" :width="55" />
+        <Icon :name="image" :width="55" />
       </span>
       <div class="relative">
         <NuxtLink :to="link" :target="openLinkInNewTab ? '_blank' : undefined">

@@ -295,10 +295,10 @@ crumbs[
                 class="hidden xl:flex"
                 buttonLeftLabel="Detailed"
                 buttonLeftName="detailed"
-                buttonLeftIcon="view-normal"
+                buttonLeftIcon="twc:view-normal"
                 buttonRightLabel="Compact"
                 buttonRightName="compact"
-                buttonRightIcon="view-compact"
+                buttonRightIcon="twc:view-compact"
                 :activeName="activeTabName"
                 @update:activeName="onActiveTabChange"
               />

@@ -30,7 +30,7 @@ const toggleCollapse = () => {
         class="text-blue-500 mr-1 mt-0.5 rounded-full hover:bg-blue-50 hover:cursor-pointer p-0.5"
         :class="{ 'rotate-180': collapsed, 'ml-[-0.5rem]': isRootNode }"
       >
-        <BaseIcon name="caret-up" :width="20" />
+        <Icon name="twc:caret-up" :width="20" />
       </span>
       <span v-else-if="isRootNode" />
       <span
@@ -39,8 +39,8 @@ const toggleCollapse = () => {
         style="top: -0.35rem"
         :class="{ 'mr-2': isRootNode }"
       >
-        <BaseIcon
-          name="collapsible-list-item"
+        <Icon
+          name="twc:collapsible-list-item"
           :width="20"
           class="text-gray-400"
           :class="{ invisible: isRootNode }"

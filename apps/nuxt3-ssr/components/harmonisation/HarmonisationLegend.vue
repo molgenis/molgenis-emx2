@@ -43,7 +43,7 @@ function closeModal() {
         title="About statuses"
         @click="openModal"
       >
-        <BaseIcon name="Info" class="text-blue-500" />
+        <Icon name="twc:Info" class="text-blue-500" />
         <span class="sr-only">about statuses</span>
       </button>
     </div>

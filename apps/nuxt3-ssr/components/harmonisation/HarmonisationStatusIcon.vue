@@ -58,6 +58,6 @@ const fillClass = computed(() => {
     class="p-1 justify-center items-center inline-flex"
     :class="`w-${tailwindIconSize} h-${tailwindIconSize} ${tableClass}`"
   >
-    <BaseIcon v-if="iconName" :name="iconName" :class="fillClass" />
+    <Icon v-if="iconName" :name="iconName" :class="fillClass" />
   </div>
 </template>

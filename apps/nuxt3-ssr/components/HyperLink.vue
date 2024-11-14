@@ -16,7 +16,7 @@ withDefaults(
     :target="target"
     class="text-blue-500 underline hover:bg-blue-50"
   >
-    <BaseIcon
+    <Icon
       v-if="target === '_blank'"
       name="external-link"
       class="inline mr-2"

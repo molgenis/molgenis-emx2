@@ -107,7 +107,7 @@ const links = [];
               :href="link.url"
               class="text-blue-500 hover:underline hover:bg-blue-50 mr-7.5 hidden sm:inline-block"
             >
-              <BaseIcon name="caret-right" class="inline w-5 h-5 -ml-1.5" />{{
+              <Icon name="twc:caret-right" class="inline w-5 h-5 -ml-1.5" />{{
                 link.title
               }}
             </a>
@@ -125,7 +125,7 @@ const links = [];
           :href="link.url"
           class="text-blue-500 hover:underline hover:bg-blue-50 mr-7.5 hidden sm:inline-block"
         >
-          <BaseIcon name="caret-right" class="inline w-5 h-5 -ml-1.5" />{{
+          <Icon name="twc:caret-right" class="inline w-5 h-5 -ml-1.5" />{{
             link.title
           }}
         </a>

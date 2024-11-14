@@ -76,7 +76,7 @@ function handleVariableUsedClick(variableUsed: IVariableBase) {
                 class="text-body-base text-blue-500 hover:underline hover:bg-blue-50 cursor-pointer"
                 @click="handleVariableUsedClick(variableUsed)"
               >
-                <BaseIcon
+                <Icon
                   name="caret-right"
                   class="inline"
                   style="margin-left: -8px"

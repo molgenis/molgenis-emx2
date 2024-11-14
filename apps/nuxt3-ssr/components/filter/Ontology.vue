@@ -124,8 +124,8 @@ function clearAll() {
 <template>
   <div v-if="showSearch" class="flex items-center py-1 -ml-2">
     <button class="flex items-center ml-8" @click="showModal">
-      <BaseIcon
-        name="search"
+      <Icon
+        name="twc:search"
         :class="`text-search-filter-expand${mobileDisplay ? '-mobile' : ''}`"
         :width="18"
       />

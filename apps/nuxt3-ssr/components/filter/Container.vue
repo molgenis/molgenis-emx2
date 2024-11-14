@@ -59,7 +59,7 @@ function clearSearch() {
         }"
         class="flex items-center justify-center w-8 h-8 rounded-full group-hover:bg-search-filter-group-toggle group-hover:cursor-pointer"
       >
-        <BaseIcon name="caret-up" :width="26" />
+        <Icon name="twc:caret-up" :width="26" />
       </span>
     </div>
     <div class="text-right grow">

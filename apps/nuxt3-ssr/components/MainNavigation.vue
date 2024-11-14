@@ -44,7 +44,7 @@ const active = "underline";
         :class="invert ? 'text-sub-menu' : 'text-menu'"
       >
         More
-        <BaseIcon name="caret-down" />
+        <Icon name="twc:caret-down" />
       </button>
 
       <template #popper>

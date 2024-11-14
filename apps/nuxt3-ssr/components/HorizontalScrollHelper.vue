@@ -37,7 +37,7 @@ function smoothScroll(value: number) {
         class="relative right-6 flex items-center justify-center pointer-events-auto bg-white hover:bg-gray-100 rounded-full border w-10 h-10"
         @click="smoothScroll(200)"
       >
-        <BaseIcon name="caret-left" :width="26" />
+        <Icon name="twc:caret-left" :width="26" />
       </div>
     </div>
 
@@ -49,7 +49,7 @@ function smoothScroll(value: number) {
         class="relative left-6 flex items-center justify-center pointer-events-auto bg-white hover:bg-gray-100 rounded-full border w-10 h-10"
         @click="smoothScroll(-200)"
       >
-        <BaseIcon name="caret-right" :width="26" />
+        <Icon name="twc:caret-right" :width="26" />
       </div>
     </div>
     <div class="overflow-x-auto" @scroll.passive="scroll" ref="scrollElement">

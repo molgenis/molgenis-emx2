@@ -92,7 +92,7 @@ function setActiveSideModal(value: string) {
           </option>
         </select>
         <span class="absolute right-5 top-5 pointer-events-none">
-          <BaseIcon name="caret-down" :width="20" />
+          <Icon name="twc:caret-down" :width="20" />
         </span>
       </div>
     </ButtonGroup>

@@ -92,7 +92,7 @@ function handleFilerUpdate(filter: IFilter) {
 
     <!-- <div class="flex items-center p-5">
       <button class="flex items-center">
-        <BaseIcon name="plus" class="text-search-filter-expand" :width="18" />
+        <Icon name="twc:plus" class="text-search-filter-expand" :width="18" />
         <span
           class="ml-3 text-search-filter-expand text-body-base hover:underline"
         >

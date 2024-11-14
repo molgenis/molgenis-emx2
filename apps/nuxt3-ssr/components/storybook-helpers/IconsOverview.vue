@@ -6,7 +6,7 @@
       class="flex flex-col items-center justify-between h-32 py-5 rounded-sm bg-blue-50"
     >
       <span class="text-blue-500">
-        <BaseIcon :name="iconName" :width="24" />
+        <Icon :name="iconName" :width="24" />
       </span>
       <span class="text-sm">{{ iconName }}</span>
     </div>

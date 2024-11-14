@@ -18,11 +18,7 @@ defineProps({
 <template>
   <li class="my-[5px]">
     <span class="absolute ml-7">
-      <BaseIcon
-        name="collapsible-list-item"
-        :width="18"
-        class="text-gray-400"
-      />
+      <Icon name="collapsible-list-item" :width="18" class="text-gray-400" />
     </span>
 
     <dt class="pt-1 pl-14 flex items-start">

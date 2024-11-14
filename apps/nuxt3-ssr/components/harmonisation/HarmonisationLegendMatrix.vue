@@ -32,7 +32,7 @@ const props = withDefaults(
       theme="tooltip"
     >
       <div class="flex gap-1 text-blue-500 hover:underline cursor-pointer">
-        <BaseIcon name="info" />
+        <Icon name="twc:info" />
         <span> About statuses </span>
       </div>
       <template #popper>
