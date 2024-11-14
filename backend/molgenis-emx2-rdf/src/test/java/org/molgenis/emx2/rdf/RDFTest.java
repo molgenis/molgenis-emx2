@@ -686,7 +686,7 @@ public class RDFTest {
     // Even though table root is selected, it is not in the selected schema so only its children
     // that belong to the selected schema should be shown.
     var handler = new InMemoryRDFHandler() {};
-    getAndParseRDF(Selection.of(tableInherExtTest, "AAA"), handler);
+    getAndParseRDF(Selection.of(tableInherExtTest, "Root"), handler);
     assertPresence(
         handler,
         Map.ofEntries(
