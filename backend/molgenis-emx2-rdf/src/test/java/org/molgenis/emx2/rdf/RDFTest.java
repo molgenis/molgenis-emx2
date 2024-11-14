@@ -643,6 +643,26 @@ public class RDFTest {
   }
 
   @Test
+  void testTableInheritanceRetrieveDataWithNonExistingTable() throws IOException {
+    // All subjects still use Root IRIs but offers a way to "filter out parent triples".
+    var handler = new InMemoryRDFHandler() {};
+    getAndParseRDF(Selection.of(tableInherTest, "DoesNotExist"), handler);
+    assertPresence(
+            handler,
+            Map.ofEntries(
+                    Map.entry(ValidationTriple.ID1, false), // not selected
+                    Map.entry(ValidationTriple.ID2, false), // not selected
+                    Map.entry(ValidationTriple.ID3, false), // not selected
+                    Map.entry(ValidationTriple.ID4, false), // not selected
+                    Map.entry(ValidationTriple.ID4_PARENT_FIELD, false), // not selected
+                    Map.entry(ValidationTriple.ID4_GRANDPARENT_FIELD, false), // not selected
+                    Map.entry(ValidationTriple.ID5, false), // not selected
+                    Map.entry(ValidationTriple.ID6, false), // not selected
+                    Map.entry(ValidationTriple.UNRELATED, false) // not selected
+            ));
+  }
+
+  @Test
   void testTableInheritanceRetrieveDataWithRowId() throws IOException {
     var handler = new InMemoryRDFHandler() {};
     getAndParseRDF(Selection.ofRow(tableInherTest, "Root", "id=3"), handler);
