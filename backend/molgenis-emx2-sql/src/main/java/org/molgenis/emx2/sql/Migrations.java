@@ -3,6 +3,7 @@ package org.molgenis.emx2.sql;
 import static org.jooq.impl.DSL.*;
 import static org.jooq.impl.SQLDataType.VARCHAR;
 import static org.molgenis.emx2.Constants.MG_TABLECLASS;
+import static org.molgenis.emx2.sql.ChangeLogExecutor.updateChangeLogTrigger;
 import static org.molgenis.emx2.sql.MetadataUtils.*;
 import static org.molgenis.emx2.sql.SqlDatabase.TEN_SECONDS;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.MG_TABLECLASS_UPDATE;
@@ -22,7 +23,7 @@ import org.slf4j.LoggerFactory;
 
 public class Migrations {
   // version the current software needs to work
-  private static final int SOFTWARE_DATABASE_VERSION = 23;
+  private static final int SOFTWARE_DATABASE_VERSION = 24;
   public static final int THREE_MINUTES = 180;
   private static Logger logger = LoggerFactory.getLogger(Migrations.class);
 
@@ -152,9 +153,24 @@ public class Migrations {
             executeMigrationFile(tdb, "migration23.sql", "add enable state to user metadata");
           }
 
+          if (version < 24) {
+            executeMigration24(tdb);
+          }
+
           // if success, update version to SOFTWARE_DATABASE_VERSION
           updateDatabaseVersion((SqlDatabase) tdb, SOFTWARE_DATABASE_VERSION);
         });
+  }
+
+  static void executeMigration24(Database tdb) {
+    for (String schemaName : tdb.getSchemaNames()) {
+      Schema schema = tdb.getSchema(schemaName);
+      for (TableMetadata tm : schema.getMetadata().getTables()) {
+        updateChangeLogTrigger(tm);
+      }
+    }
+    logger.debug(
+        "executed migration24: changelog triggers should skip system columns and file contents column");
   }
 
   private static void executeMigration7(SqlDatabase tdb, String message) {
@@ -220,7 +236,7 @@ public class Migrations {
       jooq.settings().setQueryTimeout(THREE_MINUTES);
       String sql = new String(Migrations.class.getResourceAsStream(sqlFile).readAllBytes());
       jooq.execute(sql);
-      logger.debug(message + "(file = " + sqlFile);
+      logger.info(message + "(file = " + sqlFile);
     } catch (IOException e) {
       throw new MolgenisException("Execute migration failed", e);
     } finally {
