@@ -681,6 +681,9 @@ public class RDFTest {
 
   @Test
   void testTableInheritanceExternalSchemaDataWithTableExternalChild() throws IOException {
+    // Note that even though the subject has an ID IRI based on table Root, this table is not part
+    // of the selected scheme so this table cannot be selected:
+    // `tableInherExtTest.getTable("Root")` == `null`
     var handler = new InMemoryRDFHandler() {};
     getAndParseRDF(Selection.of(tableInherExtTest, "ExternalChild"), handler);
     assertPresence(
@@ -699,6 +702,9 @@ public class RDFTest {
 
   @Test
   void testTableInheritanceExternalSchemaDataWithRowId() throws IOException {
+    // Note that even though the subject has an ID IRI based on table Root, this table is not part
+    // of the selected scheme so this table cannot be selected:
+    // `tableInherExtTest.getTable("Root")` == `null`
     var handler = new InMemoryRDFHandler() {};
     getAndParseRDF(Selection.ofRow(tableInherExtTest, "ExternalChild", "id=5"), handler);
     assertPresence(
@@ -732,6 +738,73 @@ public class RDFTest {
             Map.entry(ValidationTriple.ID5, true),
             Map.entry(ValidationTriple.ID6, true),
             Map.entry(ValidationTriple.UNRELATED, true)));
+  }
+
+  @Test
+  void testTableInheritanceRetrieveDataMultiSchemaWithTableRoot() throws IOException {
+    var handler = new InMemoryRDFHandler() {};
+    getAndParseRDF(
+        Selection.of(
+            new Schema[] {tableInherTest, tableInherExtTest}, tableInherTest.getTable("Root")),
+        handler);
+    assertPresence(
+        handler,
+        Map.ofEntries(
+            Map.entry(ValidationTriple.ID1, true),
+            Map.entry(ValidationTriple.ID2, true),
+            Map.entry(ValidationTriple.ID3, true),
+            Map.entry(ValidationTriple.ID4, true),
+            Map.entry(ValidationTriple.ID4_PARENT_FIELD, true),
+            Map.entry(ValidationTriple.ID4_GRANDPARENT_FIELD, true),
+            Map.entry(ValidationTriple.ID5, true),
+            Map.entry(ValidationTriple.ID6, true),
+            Map.entry(ValidationTriple.UNRELATED, false))); // not part of inheritance
+  }
+
+  @Test
+  void testTableInheritanceRetrieveDataMultiSchemaWithRowId() throws IOException {
+    var handler = new InMemoryRDFHandler() {};
+    getAndParseRDF(
+        Selection.ofRow(
+            new Schema[] {tableInherTest, tableInherExtTest},
+            tableInherTest.getTable("Root"),
+            "id=4"),
+        handler);
+    assertPresence(
+        handler,
+        Map.ofEntries(
+            Map.entry(ValidationTriple.ID1, false), // not selected
+            Map.entry(ValidationTriple.ID2, false), // not selected
+            Map.entry(ValidationTriple.ID3, false), // not selected
+            Map.entry(ValidationTriple.ID4, true),
+            Map.entry(ValidationTriple.ID4_PARENT_FIELD, true),
+            Map.entry(ValidationTriple.ID4_GRANDPARENT_FIELD, true),
+            Map.entry(ValidationTriple.ID5, false), // not selected
+            Map.entry(ValidationTriple.ID6, false), // not selected
+            Map.entry(ValidationTriple.UNRELATED, false))); // not selected
+  }
+
+  @Test
+  void testTableInheritanceRetrieveDataMultiSchemaWithExternalRowId() throws IOException {
+    var handler = new InMemoryRDFHandler() {};
+    getAndParseRDF(
+        Selection.ofRow(
+            new Schema[] {tableInherTest, tableInherExtTest},
+            tableInherTest.getTable("Root"),
+            "id=5"),
+        handler);
+    assertPresence(
+        handler,
+        Map.ofEntries(
+            Map.entry(ValidationTriple.ID1, false), // not selected
+            Map.entry(ValidationTriple.ID2, false), // not selected
+            Map.entry(ValidationTriple.ID3, false), // not selected
+            Map.entry(ValidationTriple.ID4, false), // not selected
+            Map.entry(ValidationTriple.ID4_PARENT_FIELD, false), // not selected
+            Map.entry(ValidationTriple.ID4_GRANDPARENT_FIELD, false), // not selected
+            Map.entry(ValidationTriple.ID5, true),
+            Map.entry(ValidationTriple.ID6, false), // not selected
+            Map.entry(ValidationTriple.UNRELATED, false))); // not selected
   }
 
   @Test
@@ -1149,6 +1222,12 @@ public class RDFTest {
       return selection;
     }
 
+    static Selection of(Schema[] schema, Table table) {
+      var selection = Selection.of(schema);
+      selection.table = table;
+      return selection;
+    }
+
     static Selection of(Schema schema, String table, String columnName) {
       var selection = Selection.of(schema, table);
       selection.columnName = columnName;
@@ -1156,6 +1235,12 @@ public class RDFTest {
     }
 
     static Selection ofRow(Schema schema, String table, String rowId) {
+      var selection = Selection.of(schema, table);
+      selection.rowId = rowId;
+      return selection;
+    }
+
+    static Selection ofRow(Schema[] schema, Table table, String rowId) {
       var selection = Selection.of(schema, table);
       selection.rowId = rowId;
       return selection;

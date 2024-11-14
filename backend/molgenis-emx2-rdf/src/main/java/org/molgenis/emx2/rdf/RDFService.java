@@ -11,6 +11,7 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
@@ -186,27 +187,31 @@ public class RDFService {
         describeRoot(builder);
       }
 
+      // Collect all tables present in selected schemas.
+      Set<Table> allTables = new HashSet<>();
+
       for (final Schema schema : schemas) {
         if (table == null) {
           describeSchema(builder, schema);
         }
-        final List<Table> tables =
-            table != null ? tablesToDescribe(schema, table) : schema.getTablesSorted();
-        for (final Table tableToDescribe : tables) {
-          // for full-schema retrieval, don't print the (huge and mostly unused) ontologies
-          // of course references to ontologies are still included and are fully retrievable
-          if (table == null
-              && tableToDescribe.getMetadata().getTableType().equals(TableType.ONTOLOGIES)) {
-            continue;
-          }
-          if (rowId == null) {
-            describeTable(builder, tableToDescribe);
-            describeColumns(builder, tableToDescribe, columnName);
-          }
-          // if a column name is provided then only provide column metadata, no row values
-          if (columnName == null) {
-            rowsToRdf(builder, tableToDescribe, rowId);
-          }
+        allTables.addAll(schema.getTablesSorted());
+      }
+
+      final Set<Table> tables = table != null ? tablesToDescribe(allTables, table) : allTables;
+      for (final Table tableToDescribe : tables) {
+        // for full-schema retrieval, don't print the (huge and mostly unused) ontologies
+        // of course references to ontologies are still included and are fully retrievable
+        if (table == null
+            && tableToDescribe.getMetadata().getTableType().equals(TableType.ONTOLOGIES)) {
+          continue;
+        }
+        if (rowId == null) {
+          describeTable(builder, tableToDescribe);
+          describeColumns(builder, tableToDescribe, columnName);
+        }
+        // if a column name is provided then only provide column metadata, no row values
+        if (columnName == null) {
+          rowsToRdf(builder, tableToDescribe, rowId);
         }
       }
       Rio.write(builder.build(), outputStream, rdfFormat, config);
@@ -216,26 +221,32 @@ public class RDFService {
     }
   }
 
-  private List<Table> tablesToDescribe(Schema schema, Table tableFilter) {
-    List<Table> tableList = new ArrayList<>();
-    for (Table table : schema.getTablesSorted()) {
-      processInheritedTable(tableList, schema, table, tableFilter);
+  private Set<Table> tablesToDescribe(Set<Table> allTables, Table tableFilter) {
+    Set<Table> tablesToDescribe = new HashSet<>();
+    Set<TableMetadata> allTablesMetadata =
+        allTables.stream().map(Table::getMetadata).collect(Collectors.toSet());
+    for (Table currentTable : allTables) {
+      processInheritedTable(allTablesMetadata, tableFilter, tablesToDescribe, currentTable);
     }
-    return tableList;
+    return tablesToDescribe;
   }
 
   private boolean processInheritedTable(
-      List<Table> tableList, Schema schema, Table table, Table tableFilter) {
-    if (table == null) {
+      Set<TableMetadata> allTablesMetadata,
+      Table tableFilter,
+      Set<Table> tablesToDescribe,
+      Table currentTable) {
+    if (currentTable == null) {
       return false;
     }
-    if (table.getMetadata().equals(tableFilter.getMetadata())
-        && table.getSchema().getMetadata().equals(schema.getMetadata())) {
-      tableList.add(table);
+    if (currentTable.getSchema().getName().equals(tableFilter.getSchema().getName())
+        && currentTable.getName().equals(tableFilter.getName())) {
+      tablesToDescribe.add(currentTable);
       return true;
     }
-    if (processInheritedTable(tableList, schema, table.getInheritedTable(), tableFilter)) {
-      tableList.add(table);
+    if (processInheritedTable(
+        allTablesMetadata, tableFilter, tablesToDescribe, currentTable.getInheritedTable())) {
+      tablesToDescribe.add(currentTable);
       return true;
     }
     return false;
