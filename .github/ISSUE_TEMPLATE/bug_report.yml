@@ -21,8 +21,8 @@ body:
   - type: input
     id: version
     attributes:
-      label: EMX2 version
-      description: What version of EMX2 are you using (see footer)?
+      label: Molgenis EMX2 version
+      description: What version of Molgenis EMX2 are you using (see footer)?
       placeholder: "Software version: v11.31.1. Database version: 23"
     validations:
       required: true
@@ -30,10 +30,9 @@ body:
     id: description
     attributes:
       label: Description
-      description: Please provide a clear and concise description of what the bug is. If applicable, add screenshots to help explain the issue.
+      description: Please provide a clear and concise description of what the bug is. If applicable, add screenshots/log files to help explain the issue.
       placeholder: |
-        When I try to create a new table, I get the following error message:
-        <copy-paste of error message, a screenshot, log file or alike>
+        When I try to do '...', I get the following error message: '...'
     validations:
       required: true
   - type: textarea
@@ -43,15 +42,17 @@ body:
       description: What are the exact steps to reproduce the bug?
       placeholder: |
         1. Go to 'https://emx2.dev.molgenis.org'
-        2. Scroll down to '....'
-        3. Click on '...'
+        2. Click on '....'
+        3. Scroll down to '....'
         4. See error
+    validations:
+      required: true
   - type: textarea
     id: expected
     attributes:
       label: Expected behaviour
       description: What was the behaviour your expected to see instead?
-      placeholder: "After pressing the button in step 4, the table is created instead of getting an error."
+      placeholder: "Instead of getting an error, I expected '...' instead."
     validations:
       required: true
   - type: input
