@@ -5,6 +5,13 @@ profileTags: UMCGCohortsStaging
 
 demoData: _demodata/applications/datacatalogue_cohortstaging
 
+#settings: _settings/datacatalogue
+
+
 # special options
 ontologiesToFixedSchema: CatalogueOntologies
 setFixedSchemaViewPermission: anonymous
+firstCreateSchemasIfMissing:
+  - name: UMCG
+    profile: _profiles/DataCatalogue.yaml
+    importDemoData: false
