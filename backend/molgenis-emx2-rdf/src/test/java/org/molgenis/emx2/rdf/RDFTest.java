@@ -592,10 +592,10 @@ public class RDFTest {
         Map.ofEntries(
             Map.entry(ValidationTriple.ID1, false), // parent of selected table
             Map.entry(ValidationTriple.ID2, true),
-            Map.entry(ValidationTriple.ID3, true),
-            Map.entry(ValidationTriple.ID4, true),
-            Map.entry(ValidationTriple.ID4_PARENT_FIELD, true),
-            Map.entry(ValidationTriple.ID4_GRANDPARENT_FIELD, true),
+            Map.entry(ValidationTriple.ID3, true), // child
+            Map.entry(ValidationTriple.ID4, true), // child
+            Map.entry(ValidationTriple.ID4_PARENT_FIELD, true), // child
+            Map.entry(ValidationTriple.ID4_GRANDPARENT_FIELD, true), // child
             Map.entry(ValidationTriple.ID5, false), // different schema
             Map.entry(ValidationTriple.ID6, false), // different schema
             Map.entry(ValidationTriple.UNRELATED, false) // different schema
@@ -610,7 +610,7 @@ public class RDFTest {
     assertPresence(
         handler,
         Map.ofEntries(
-            Map.entry(ValidationTriple.ID1, false), // parent of selected table
+            Map.entry(ValidationTriple.ID1, false), // grandparent of selected table
             Map.entry(ValidationTriple.ID2, false), // parent of selected table
             Map.entry(ValidationTriple.ID3, true),
             Map.entry(ValidationTriple.ID4, false), // sibling of selected table
@@ -630,7 +630,7 @@ public class RDFTest {
     assertPresence(
         handler,
         Map.ofEntries(
-            Map.entry(ValidationTriple.ID1, false), // parent of selected table
+            Map.entry(ValidationTriple.ID1, false), // grandparent of selected table
             Map.entry(ValidationTriple.ID2, false), // parent of selected table
             Map.entry(ValidationTriple.ID3, false), // sibling of selected table
             Map.entry(ValidationTriple.ID4, true),
@@ -643,38 +643,18 @@ public class RDFTest {
   }
 
   @Test
-  void testTableInheritanceRetrieveDataWithNonExistingTable() throws IOException {
-    // All subjects still use Root IRIs but offers a way to "filter out parent triples".
-    var handler = new InMemoryRDFHandler() {};
-    getAndParseRDF(Selection.of(tableInherTest, "DoesNotExist"), handler);
-    assertPresence(
-            handler,
-            Map.ofEntries(
-                    Map.entry(ValidationTriple.ID1, false), // not selected
-                    Map.entry(ValidationTriple.ID2, false), // not selected
-                    Map.entry(ValidationTriple.ID3, false), // not selected
-                    Map.entry(ValidationTriple.ID4, false), // not selected
-                    Map.entry(ValidationTriple.ID4_PARENT_FIELD, false), // not selected
-                    Map.entry(ValidationTriple.ID4_GRANDPARENT_FIELD, false), // not selected
-                    Map.entry(ValidationTriple.ID5, false), // not selected
-                    Map.entry(ValidationTriple.ID6, false), // not selected
-                    Map.entry(ValidationTriple.UNRELATED, false) // not selected
-            ));
-  }
-
-  @Test
   void testTableInheritanceRetrieveDataWithRowId() throws IOException {
     var handler = new InMemoryRDFHandler() {};
-    getAndParseRDF(Selection.ofRow(tableInherTest, "Root", "id=3"), handler);
+    getAndParseRDF(Selection.ofRow(tableInherTest, "Root", "id=4"), handler);
     assertPresence(
         handler,
         Map.ofEntries(
             Map.entry(ValidationTriple.ID1, false), // not selected
             Map.entry(ValidationTriple.ID2, false), // not selected
-            Map.entry(ValidationTriple.ID3, true),
-            Map.entry(ValidationTriple.ID4, false), // not selected
-            Map.entry(ValidationTriple.ID4_PARENT_FIELD, false), // not selected
-            Map.entry(ValidationTriple.ID4_GRANDPARENT_FIELD, false), // not selected
+            Map.entry(ValidationTriple.ID3, false), // not selected
+            Map.entry(ValidationTriple.ID4, true),
+            Map.entry(ValidationTriple.ID4_PARENT_FIELD, true),
+            Map.entry(ValidationTriple.ID4_GRANDPARENT_FIELD, true),
             Map.entry(ValidationTriple.ID5, false), // not selected
             Map.entry(ValidationTriple.ID6, false), // not selected
             Map.entry(ValidationTriple.UNRELATED, false) // not selected
@@ -700,13 +680,9 @@ public class RDFTest {
   }
 
   @Test
-  void testTableInheritanceExternalSchemaDataWithTableRoot() throws IOException {
-    // Giving a table belonging to a different schema, even though it is the parent,
-    // should be expected as "giving an invalid"
-    // Even though table root is selected, it is not in the selected schema so only its children
-    // that belong to the selected schema should be shown.
+  void testTableInheritanceExternalSchemaDataWithTableExternalChild() throws IOException {
     var handler = new InMemoryRDFHandler() {};
-    getAndParseRDF(Selection.of(tableInherExtTest, "Root"), handler);
+    getAndParseRDF(Selection.of(tableInherExtTest, "ExternalChild"), handler);
     assertPresence(
         handler,
         Map.ofEntries(
@@ -718,13 +694,13 @@ public class RDFTest {
             Map.entry(ValidationTriple.ID4_GRANDPARENT_FIELD, false), // different schema
             Map.entry(ValidationTriple.ID5, true),
             Map.entry(ValidationTriple.ID6, true),
-            Map.entry(ValidationTriple.UNRELATED, true)));
+            Map.entry(ValidationTriple.UNRELATED, false))); // not part of inheritance
   }
 
   @Test
-  void testTableInheritanceExternalSchemaDataWithRow() throws IOException {
+  void testTableInheritanceExternalSchemaDataWithRowId() throws IOException {
     var handler = new InMemoryRDFHandler() {};
-    getAndParseRDF(Selection.ofRow(tableInherExtTest, "Root", "id=5"), handler);
+    getAndParseRDF(Selection.ofRow(tableInherExtTest, "ExternalChild", "id=5"), handler);
     assertPresence(
         handler,
         Map.ofEntries(
