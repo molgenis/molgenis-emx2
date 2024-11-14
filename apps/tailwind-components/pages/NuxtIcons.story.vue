@@ -57,9 +57,8 @@
             <option value="animate-bounce ">animate-bounce</option>
           </select>
         </div>
-    
 
-      <label class="ml-1 hover:cursor-pointer" for="animation-select">
+        <label class="ml-1 hover:cursor-pointer" for="animation-select">
           Color
         </label>
         <div class="mb-2">
@@ -76,7 +75,6 @@
           </select>
         </div>
       </fieldset>
-      
     </div>
   </div>
 </template>
@@ -97,7 +95,9 @@ const localIconNames = names.map(preFixLocalIcon);
 
 const selectedAnimationClass = ref<string | null>(null);
 const selectedColorClass = ref<string | null>(null);
-const selectedIconsClasses = computed(() => selectedAnimationClass.value + ' ' +selectedColorClass.value);
+const selectedIconsClasses = computed(
+  () => selectedAnimationClass.value + " " + selectedColorClass.value
+);
 const customIcons = [...localIconNames];
 const nuxtIcons = [
   "uil:github",

@@ -93,7 +93,7 @@ public class TestLoaders {
   public void test09DirectoryLoader() {
     Schema directory = database.createSchema(DIRECTORY_TEST);
     DataModels.Regular.BIOBANK_DIRECTORY.getImportTask(directory, true).run();
-    assertEquals(11, directory.getTableNames().size());
+    assertEquals(13, directory.getTableNames().size());
   }
 
   @Test

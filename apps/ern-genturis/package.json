@@ -2,6 +2,8 @@
   "name": "ern-genturis",
   "version": "0.1.0",
   "private": true,
+  "main": "dist/index",
+  "types": "dist/index",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
