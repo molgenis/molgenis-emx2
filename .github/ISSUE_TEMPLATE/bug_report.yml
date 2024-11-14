@@ -32,7 +32,7 @@ body:
       label: Description
       description: Please provide a clear and concise description of what the bug is. If applicable, add screenshots/log files to help explain the issue.
       placeholder: |
-        When I try to do '...', I get the following error message: '...'
+        When I try to do '....', I get the following error message: '....'
     validations:
       required: true
   - type: textarea
@@ -52,7 +52,7 @@ body:
     attributes:
       label: Expected behaviour
       description: What was the behaviour your expected to see instead?
-      placeholder: "Instead of getting an error, I expected '...' instead."
+      placeholder: "Instead of getting an error, I expected '....' instead."
     validations:
       required: true
   - type: input

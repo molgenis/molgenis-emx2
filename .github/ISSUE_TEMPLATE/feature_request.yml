@@ -7,7 +7,7 @@ body:
     attributes:
       label: Issue
       description: A clear and concise description of what feature is currently missing. What issues are you currently running into?
-      placeholder: "Currently I'm missing '...' and therefore cannot use EMX2 yet in situations like '...'"
+      placeholder: "Currently I'm missing '....' and therefore cannot use EMX2 yet in situations like '....'"
     validations:
       required: true
   - type: textarea
@@ -15,7 +15,7 @@ body:
     attributes:
       label: Solution
       description: A clear and concise description of what you want to happen.
-      placeholder: "The functionalities '..' need to be implemented so that if '...' is done, the expected behaviour is '...'"
+      placeholder: "The functionalities '....' need to be implemented so that if '....' is done, the expected behaviour is '....'"
     validations:
       required: true
   - type: textarea
@@ -23,10 +23,10 @@ body:
     attributes:
       label: Alternatives
       description: A clear and concise description of any alternative solutions or features you've considered.
-      placeholder: "I have considered '...', though it has its own limitations, namely '...'"
+      placeholder: "I have considered '....', though it has its own limitations, namely '....'"
   - type: textarea
     id: context
     attributes:
       label: Additional context
       description: Add any other context or screenshots about the feature request here.
-      placeholder: "Some relevant information for this is '...'"
+      placeholder: "Some relevant information for this is '....'"
