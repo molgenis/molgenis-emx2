@@ -39,7 +39,7 @@
             }"
             :pointRadius="4"
             :tooltipTemplate="
-              (row) => {
+              (row: IOrganisations) => {
                 return `
                 <p class='title'>${row.name}</p>
                 <p class='location'>${row.city}, ${row.country}</p>
@@ -97,6 +97,7 @@
 import { ref, onMounted } from "vue";
 import gql from "graphql-tag";
 import { request } from "graphql-request";
+// @ts-ignore
 import {
   Page,
   Dashboard,
@@ -110,11 +111,17 @@ import {
   ColumnChart,
   DataTable,
   DataValueHighlights,
+  // @ts-ignore
 } from "molgenis-viz";
 
 import { seqAlongBy } from "../utils/utils";
 import { max } from "d3";
 const d3 = { max };
+
+interface IProviderInformation {
+  providerIdentifier: string;
+  hasSubmittedData: boolean;
+}
 
 interface IOrganisations {
   name: string;
@@ -123,10 +130,7 @@ interface IOrganisations {
   country: string;
   latitude: number;
   longitude: number;
-  providerInformation: {
-    providerIdentifier: string;
-    hasSubmittedData: string;
-  };
+  providerInformation: IProviderInformation[];
 }
 
 interface IStatistics {
@@ -189,12 +193,14 @@ async function getOrganisations() {
     "../api/graphql",
     query
   );
-  const data: IOrganisations[] = response.Organisations.map((row) => {
-    const status = row.providerInformation[0].hasSubmittedData
-      ? "Data Submitted"
-      : "No Data";
-    return { ...row, hasSubmittedData: status };
-  });
+  const data: IOrganisations[] = response.Organisations.map(
+    (row: IOrganisations) => {
+      const status = row.providerInformation[0].hasSubmittedData
+        ? "Data Submitted"
+        : "No Data";
+      return { ...row, hasSubmittedData: status };
+    }
+  );
   organisations.value = data;
 }
 
