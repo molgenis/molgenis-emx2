@@ -23,9 +23,9 @@ const iconName = computed(() => {
     case "unmapped":
       return "";
     case "partial":
-      return "percent";
+      return "twc:percent";
     case "complete":
-      return "check";
+      return "twc:check";
   }
 });
 

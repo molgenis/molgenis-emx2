@@ -338,10 +338,10 @@ crumbs[
                 class="hidden xl:flex"
                 buttonLeftLabel="List of variables"
                 buttonLeftName="list"
-                buttonLeftIcon="view-compact"
+                buttonLeftIcon="twc:view-compact"
                 buttonRightLabel="Harmonisations"
                 buttonRightName="harmonisation"
-                buttonRightIcon="view-table"
+                buttonRightIcon="twc:view-table"
                 :activeName="activeName"
                 @update:activeName="onViewChange"
               />
