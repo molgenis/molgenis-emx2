@@ -2,7 +2,7 @@
 const route = useRoute();
 import type { ICatalogue } from "~/interfaces/types";
 
-const props = defineProps<{
+defineProps<{
   catalogues: ICatalogue[];
   title: string;
   description: string;
@@ -60,7 +60,7 @@ const props = defineProps<{
             <NuxtLink
               :to="`/${route.params.schema}/ssr-catalogue/${catalogue.network.id}`"
             >
-              <IconButton icon="arrow-right" class="text-blue-500" />
+              <IconButton icon="twc:arrow-right" class="text-blue-500" />
             </NuxtLink>
           </TableCell>
         </TableRow>

@@ -15,8 +15,8 @@ const descriptionMap: Record<string, string> = {
 };
 
 const imageMap: Record<string, string> = {
-  collections: "image-diagram",
-  networks: "image-network",
+  collections: "twc:image-diagram",
+  networks: "twc:image-network",
 };
 
 const title = route.params.resourceType;
@@ -306,10 +306,10 @@ crumbs[
                 class="flex xl:hidden"
                 button-top-label="View"
                 button-top-name="detailed"
-                button-top-icon="view-normal"
+                button-top-icon="twc:view-normal"
                 button-bottom-label="View"
                 button-bottom-name="compact"
-                button-bottom-icon="view-compact"
+                button-bottom-icon="twc:view-compact"
                 :activeName="activeTabName"
                 @update:active-name="onActiveTabChange"
               >

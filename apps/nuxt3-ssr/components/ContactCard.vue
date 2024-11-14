@@ -14,7 +14,7 @@ defineProps<{
     <!--
     <IconButton
       label="label"
-      icon="star"
+      icon="twc:star"
       class="text-blue-500 absolute right-2 top-2"
     />
   -->

@@ -149,7 +149,7 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
     <div
       class="justify-around flex flex-col md:flex-row pt-5 pb-5 lg:pb-10 lg:px-0"
     >
-      <LandingCardSecondary icon="people">
+      <LandingCardSecondary icon="twc:people">
         <b>
           {{
             new Intl.NumberFormat("nl-NL").format(
@@ -172,7 +172,7 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
         }}
       </LandingCardSecondary>
 
-      <LandingCardSecondary icon="colorize">
+      <LandingCardSecondary icon="twc:colorize">
         <b
           >{{
             new Intl.NumberFormat("nl-NL").format(
@@ -195,7 +195,7 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
         }}
       </LandingCardSecondary>
 
-      <LandingCardSecondary icon="schedule">
+      <LandingCardSecondary icon="twc:schedule">
         <b
           >{{
             getSettingValue(
@@ -218,7 +218,7 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
         cross-sectional.
       </LandingCardSecondary>
 
-      <LandingCardSecondary icon="viewTable">
+      <LandingCardSecondary icon="twc:viewTable">
         <b>
           {{ data.data.Subpopulations_agg.count }}
           {{

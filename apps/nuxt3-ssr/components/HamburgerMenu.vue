@@ -48,8 +48,8 @@ defineProps({
     </template>
 
     <template #footer>
-      <!-- <HeaderButtonMobile label="Favorites" icon="star" />
-      <HeaderButtonMobile label="Account" icon="user" /> -->
+      <!-- <HeaderButtonMobile label="Favorites" icon="twc:star" />
+      <HeaderButtonMobile label="Account" icon="twc:user" /> -->
     </template>
   </SideModal>
 </template>

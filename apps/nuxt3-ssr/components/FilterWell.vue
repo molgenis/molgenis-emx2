@@ -73,7 +73,7 @@ function isAFilterSet(filters: IFilter[]) {
               handleFilerUpdate(filter);
             }
           "
-          icon="trash"
+          icon="twc:trash"
           icon-position="right"
           size="tiny"
           type="filterWell"
@@ -95,7 +95,7 @@ function isAFilterSet(filters: IFilter[]) {
                 handleFilerUpdate(filter);
               }
             "
-            icon="trash"
+            icon="twc:trash"
             icon-position="right"
             size="tiny"
             type="filterWell"
@@ -119,7 +119,7 @@ function isAFilterSet(filters: IFilter[]) {
       </template>
       <Button
         id="fiter-well-clear-all"
-        icon="trash"
+        icon="twc:trash"
         icon-position="right"
         size="tiny"
         type="filterWell"

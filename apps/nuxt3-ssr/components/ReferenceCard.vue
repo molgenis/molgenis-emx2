@@ -41,9 +41,9 @@ withDefaults(
           </div>
           <div class="hidden sm:block">
             <div class="flex">
-              <!-- <IconButton icon="star" class="text-blue-500" /> -->
+              <!-- <IconButton icon="twc:star" class="text-blue-500" /> -->
               <a :href="url" :target="target">
-                <IconButton icon="arrow-right" class="text-blue-500" />
+                <IconButton icon="twc:arrow-right" class="text-blue-500" />
               </a>
             </div>
           </div>

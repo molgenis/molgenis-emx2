@@ -131,7 +131,7 @@ function setActiveSideModal(value: string) {
             </div>
           </TableCell>
           <TableCell class="hidden sm:table-cell">
-            <IconButton icon="arrow-right" class="text-blue-500" />
+            <IconButton icon="twc:arrow-right" class="text-blue-500" />
           </TableCell>
 
           <SideModal

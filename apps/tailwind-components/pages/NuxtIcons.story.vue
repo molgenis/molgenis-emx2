@@ -63,29 +63,18 @@
 </template>
 
 <script setup lang="ts">
-const modules: Record<string, any> = import.meta.glob(
-  "../components/global/icons/*.vue",
-  {
-    import: "default",
-    eager: true,
-  }
-);
-
-const names = Object.keys(modules).map((key: string) => {
-  return key.split("/").reverse()[0].replace(".vue", "");
+const modules: Record<string, any> = import.meta.glob("../assets/icons/*.svg", {
+  import: "default",
+  eager: true,
 });
 
-const kebabize = (str: string) =>
-  str.replace(
-    /[A-Z]+(?![a-z])|[A-Z]/g,
-    ($, ofs) => (ofs ? "-" : "") + $.toLowerCase()
-  );
+const names = Object.keys(modules).map((key: string) => {
+  return key.split("/").reverse()[0].replace(".svg", "");
+});
+
 const preFixLocalIcon = (str: string) => `mg:${str}`;
 
-const kebabIconNames = names.map(kebabize);
-const fixOutliners = (str: string) =>
-  str.replace("mg:image-diagram2", "mg:image-diagram-2");
-const localIconNames = kebabIconNames.map(preFixLocalIcon).map(fixOutliners);
+const localIconNames = names.map(preFixLocalIcon);
 
 const selectedAnimationClass = ref<string | null>(null);
 const customIcons = [...localIconNames];
@@ -102,6 +91,7 @@ const nuxtIcons = [
   "ic:baseline-check",
   "line-md:person",
   "mg:image-diagram-2",
+  "mg:arrow-right",
 ];
 customIcons.push(...localIconNames);
 </script>

@@ -49,7 +49,7 @@ function toggleLayout () {
       <button id="theme-selector-toggle" aria-controls="theme-selector" :aria-expanded="isExpanded"
         @click="isExpanded = !isExpanded">
         <span>Theme</span>
-        <CaretDown class="w-5 inline-block" />
+        <Icon name="mg:caret-down" class="w-5 inline-block" />
       </button>
       <div class="absolute mt-2 z-50 bg-white py-2 px-4 rounded shadow-sm border" v-show="isExpanded">
         <fieldset class="mb-2">

@@ -54,7 +54,7 @@ function handleClick() {
           type="primary"
           size="small"
           label="filters"
-          icon="filter"
+          icon="twc:filter"
           iconPosition="left"
         ></Button>
       </template>

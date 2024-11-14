@@ -44,9 +44,9 @@ async function setCurrentPage(pageNumber: number) {
 const pageIcon = computed(() => {
   switch (activeName.value) {
     case "list":
-      return "image-diagram-2";
+      return "twc:image-diagram-2";
     case "harmonisation":
-      return "image-table";
+      return "twv:image-table";
   }
 });
 
@@ -349,10 +349,10 @@ crumbs[
                 class="flex xl:hidden"
                 button-top-label="Harmonisation"
                 button-top-name="list"
-                button-top-icon="view-table"
+                button-top-icon="twc:view-table"
                 button-bottom-label="Variables"
                 button-bottom-name="harmonisation"
-                button-bottom-icon="view-compact"
+                button-bottom-icon="twc:view-compact"
                 :activeName="activeName"
                 @update:activeName="onViewChange"
               >

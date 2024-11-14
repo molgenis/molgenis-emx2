@@ -25,6 +25,7 @@ const databases = computed(
 <template>
   <Container>
     <PageHeader title="SSR Catalogue DEV " />
+    <Icon name="twc:arrow-right" />
 
     <ContentBlock
       class="mt-1"

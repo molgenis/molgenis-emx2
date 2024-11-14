@@ -42,7 +42,7 @@ withDefaults(defineProps<Props>(), {
         class="md:hidden absolute right-0 mr-3 hover:text-blue-800 text-blue-500"
       >
         <NuxtLink :to="link" :target="openLinkInNewTab ? '_blank' : undefined">
-          <IconButton icon="arrow-right" />
+          <IconButton icon="twc:arrow-right" />
         </NuxtLink>
       </span>
     </div>

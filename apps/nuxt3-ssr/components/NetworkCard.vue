@@ -85,7 +85,7 @@ const links = [];
             {{ network.name }}
             <!--
         <IconButton
-          icon="star"
+          icon="twc:star"
           :class="iconStarClasses"
           class="text-blue-500 xl:justify-end"
         />
@@ -95,7 +95,7 @@ const links = [];
               :to="`/${schema}/ssr-catalogue/${catalogue}/networks/${network.id}`"
             >
               <IconButton
-                icon="arrow-right"
+                icon="twc:arrow-right"
                 class="text-blue-500 hidden xl:flex xl:justify-end"
               />
             </NuxtLink>

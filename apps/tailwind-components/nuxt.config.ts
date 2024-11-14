@@ -50,6 +50,7 @@ export default defineNuxtConfig({
   compatibilityDate: '2024-08-23',
 
   icon: {
+    // provider: process.env.NUXT_PUBLIC_IS_SSR === 'false' ? 'server' : undefined,
     customCollections: [
       {
         prefix: 'mg',

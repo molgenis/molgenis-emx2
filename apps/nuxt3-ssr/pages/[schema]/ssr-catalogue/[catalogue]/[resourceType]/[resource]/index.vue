@@ -565,7 +565,7 @@ const showPopulation = computed(
           <BreadCrumbs :crumbs="crumbs" />
         </template>
         <!-- <template #title-suffix>
-          <IconButton icon="star" label="Favorite" />
+          <IconButton icon="twc:star" label="Favorite" />
         </template> -->
       </PageHeader>
     </template>

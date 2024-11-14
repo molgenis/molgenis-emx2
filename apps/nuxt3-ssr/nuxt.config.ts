@@ -41,17 +41,21 @@ export default defineNuxtConfig({
     },
   },
   components: [
-
     {
       path: "../tailwind-components/components",
-    },
-    {
-      path: "../tailwind-components/components/global/icons",
-      global: true,
     },
   ],
   // @ts-ignore // gtag is not in the types
   gtag: {
     initMode: 'manual',
-  }
+  },
+  icon: {
+    // provider: process.env.NUXT_PUBLIC_IS_SSR === 'false' ? 'server' : undefined,
+    customCollections: [
+      {
+        prefix: 'twc',
+        dir: '../tailwind-components/assets/icons'
+      },
+    ],
+  },
 });

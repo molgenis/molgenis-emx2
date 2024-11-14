@@ -22,7 +22,11 @@ withDefaults(
         {{ title }}
       </span>
     </div>
-    <IconButton v-if="isExternal" icon="external-link" class="text-blue-500" />
-    <IconButton v-else icon="arrow-right" class="text-blue-500 rotate-90" />
+    <IconButton
+      v-if="isExternal"
+      icon="twc:external-link"
+      class="text-blue-500"
+    />
+    <IconButton v-else icon="twc:arrow-right" class="text-blue-500 rotate-90" />
   </a>
 </template>

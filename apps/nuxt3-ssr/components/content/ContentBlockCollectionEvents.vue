@@ -66,7 +66,7 @@ defineProps({
           >
           <TableCell class="hidden sm:table-cell"> 2017 - Ongoing</TableCell>
           <TableCell class="hidden sm:table-cell"
-            ><IconButton icon="arrow-right" class="text-blue-500"
+            ><IconButton icon="twc:arrow-right" class="text-blue-500"
           /></TableCell>
         </TableRow>
         <TableRow>
@@ -84,7 +84,7 @@ defineProps({
           >
           <TableCell class="hidden sm:table-cell"> 2017 - Ongoing</TableCell>
           <TableCell class="hidden sm:table-cell"
-            ><IconButton icon="arrow-right" class="text-blue-500"
+            ><IconButton icon="twc:arrow-right" class="text-blue-500"
           /></TableCell>
         </TableRow>
         <TableRow>
@@ -102,7 +102,7 @@ defineProps({
           >
           <TableCell class="hidden sm:table-cell"> 2017 - Ongoing</TableCell>
           <TableCell class="hidden sm:table-cell"
-            ><IconButton icon="arrow-right" class="text-blue-500"
+            ><IconButton icon="twc:arrow-right" class="text-blue-500"
           /></TableCell>
         </TableRow>
         <TableRow>
@@ -120,7 +120,7 @@ defineProps({
           >
           <TableCell class="hidden sm:table-cell"> 2017 - Ongoing</TableCell>
           <TableCell class="hidden sm:table-cell"
-            ><IconButton icon="arrow-right" class="text-blue-500"
+            ><IconButton icon="twc:arrow-right" class="text-blue-500"
           /></TableCell>
         </TableRow>
         <TableRow>
@@ -138,7 +138,7 @@ defineProps({
           >
           <TableCell class="hidden sm:table-cell"> 2017 - Ongoing</TableCell>
           <TableCell class="hidden sm:table-cell"
-            ><IconButton icon="arrow-right" class="text-blue-500"
+            ><IconButton icon="twc:arrow-right" class="text-blue-500"
           /></TableCell>
         </TableRow>
         <TableRow>
@@ -156,7 +156,7 @@ defineProps({
           >
           <TableCell class="hidden sm:table-cell"> 2017 - Ongoing</TableCell>
           <TableCell class="hidden sm:table-cell"
-            ><IconButton icon="arrow-right" class="text-blue-500"
+            ><IconButton icon="twc:arrow-right" class="text-blue-500"
           /></TableCell>
         </TableRow>
         <TableRow>
@@ -174,7 +174,7 @@ defineProps({
           >
           <TableCell class="hidden sm:table-cell"> 2017 - Ongoing</TableCell>
           <TableCell class="hidden sm:table-cell"
-            ><IconButton icon="arrow-right" class="text-blue-500"
+            ><IconButton icon="twc:arrow-right" class="text-blue-500"
           /></TableCell>
         </TableRow>
         <TableRow>
@@ -192,7 +192,7 @@ defineProps({
           >
           <TableCell class="hidden sm:table-cell"> 2017 - Ongoing</TableCell>
           <TableCell class="hidden sm:table-cell"
-            ><IconButton icon="arrow-right" class="text-blue-500"
+            ><IconButton icon="twc:arrow-right" class="text-blue-500"
           /></TableCell>
         </TableRow>
         <TableRow>
@@ -210,7 +210,7 @@ defineProps({
           >
           <TableCell class="hidden sm:table-cell"> 2017 - Ongoing</TableCell>
           <TableCell class="hidden sm:table-cell"
-            ><IconButton icon="arrow-right" class="text-blue-500"
+            ><IconButton icon="twc:arrow-right" class="text-blue-500"
           /></TableCell>
         </TableRow>
         <TableRow>
@@ -228,7 +228,7 @@ defineProps({
           >
           <TableCell class="hidden sm:table-cell"> 2017 - Ongoing</TableCell>
           <TableCell class="hidden sm:table-cell"
-            ><IconButton icon="arrow-right" class="text-blue-500"
+            ><IconButton icon="twc:arrow-right" class="text-blue-500"
           /></TableCell>
         </TableRow>
         <TableRow>
@@ -246,7 +246,7 @@ defineProps({
           >
           <TableCell class="hidden sm:table-cell"> 2017 - Ongoing</TableCell>
           <TableCell class="hidden sm:table-cell"
-            ><IconButton icon="arrow-right" class="text-blue-500"
+            ><IconButton icon="twc:arrow-right" class="text-blue-500"
           /></TableCell>
         </TableRow>
         <TableRow>
@@ -264,7 +264,7 @@ defineProps({
           >
           <TableCell class="hidden sm:table-cell"> 2017 - Ongoing</TableCell>
           <TableCell class="hidden sm:table-cell"
-            ><IconButton icon="arrow-right" class="text-blue-500"
+            ><IconButton icon="twc:arrow-right" class="text-blue-500"
           /></TableCell>
         </TableRow>
         <TableRow>
@@ -282,7 +282,7 @@ defineProps({
           >
           <TableCell class="hidden sm:table-cell"> 2017 - Ongoing</TableCell>
           <TableCell class="hidden sm:table-cell"
-            ><IconButton icon="arrow-right" class="text-blue-500"
+            ><IconButton icon="twc:arrow-right" class="text-blue-500"
           /></TableCell>
         </TableRow>
         <TableRow>
@@ -300,7 +300,7 @@ defineProps({
           >
           <TableCell class="hidden sm:table-cell"> 2017 - Ongoing</TableCell>
           <TableCell class="hidden sm:table-cell"
-            ><IconButton icon="arrow-right" class="text-blue-500"
+            ><IconButton icon="twc:arrow-right" class="text-blue-500"
           /></TableCell>
         </TableRow>
         <TableRow>
@@ -318,7 +318,7 @@ defineProps({
           >
           <TableCell class="hidden sm:table-cell"> 2017 - Ongoing</TableCell>
           <TableCell class="hidden sm:table-cell"
-            ><IconButton icon="arrow-right" class="text-blue-500"
+            ><IconButton icon="twc:arrow-right" class="text-blue-500"
           /></TableCell>
         </TableRow>
         <TableRow>
@@ -336,7 +336,7 @@ defineProps({
           >
           <TableCell class="hidden sm:table-cell"> 2017 - Ongoing</TableCell>
           <TableCell class="hidden sm:table-cell"
-            ><IconButton icon="arrow-right" class="text-blue-500"
+            ><IconButton icon="twc:arrow-right" class="text-blue-500"
           /></TableCell>
         </TableRow>
       </template>

@@ -48,8 +48,8 @@ const menu = [
            <SearchBar />
         </div>-->
 
-        <!-- <HeaderButton label="Favorites" icon="star" />
-        <HeaderButton label="Account" icon="user" /> -->
+        <!-- <HeaderButton label="Favorites" icon="twc:star" />
+        <HeaderButton label="Account" icon="twc:user" /> -->
       </div>
 
       <div class="pt-5 xl:hidden">
@@ -61,8 +61,8 @@ const menu = [
           </div>
 
           <div class="flex gap-3">
-            <!-- <HeaderButton label="Favorites" icon="star" />
-            <HeaderButton label="Account" icon="user" /> -->
+            <!-- <HeaderButton label="Favorites" icon="twc:star" />
+            <HeaderButton label="Account" icon="twc:user" /> -->
           </div>
         </div>
 

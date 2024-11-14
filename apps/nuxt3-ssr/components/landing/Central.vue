@@ -77,56 +77,56 @@ function percentageLongitudinal(
     </LandingPrimary>
     <LandingSecondary>
       <LandingCardSecondary
-        icon="demography"
+        icon="twc:demography"
         title="Cohort studies"
         :count="data.data.Cohorts_agg.count"
         :link="`/${route.params.schema}/ssr-catalogue/all/cohorts`"
       />
       <LandingCardSecondary
-        icon="database"
+        icon="twc:database"
         title="Data sources"
         :count="data.data.DataSources_agg.count"
         :link="`/${route.params.schema}/ssr-catalogue/all/datasources`"
       />
       <LandingCardSecondary
-        icon="hub"
+        icon="twc:hub"
         title="Networks"
         :count="data.data.Networks_agg.count"
         :link="`/${route.params.schema}/ssr-catalogue/all/networks`"
       />
       <LandingCardSecondary
-        icon="institution"
+        icon="twc:institution"
         title="Organisations"
         :count="data.data.Organisations_agg.count"
         :link="`/${route.params.schema}/ssr-catalogue/all/organisations`"
       />
       <LandingCardSecondary
-        icon="dataset"
+        icon="twc:dataset"
         title="Datasets"
         :count="data.data.Cohorts_agg.count"
         :link="`/${route.params.schema}/ssr-catalogue/all/datasets`"
       />
       <LandingCardSecondary
-        icon="list"
+        icon="twc:list"
         title="Collected variables"
         :count="data.data.Networks_agg.count"
         :link="`/${route.params.schema}/ssr-catalogue/all/variables`"
       />
       <!-- todo must split in collected and harmonised -->
       <LandingCardSecondary
-        icon="harmonized-variables"
+        icon="twc:harmonized-variables"
         title="Harmonised variables"
         :count="data.data.Organisations_agg.count"
         :link="`/${route.params.schema}/ssr-catalogue/all/variables`"
       />
       <LandingCardSecondary
-        icon="dataset-linked"
+        icon="twc:dataset-linked"
         title="Standards"
         :count="data.data.Models_agg.count"
         :link="`/${route.params.schema}/ssr-catalogue/all/models`"
       />
       <LandingCardSecondary
-        icon="person"
+        icon="twc:person"
         title="Individuals"
         :count="data.data.Cohorts_agg._sum.numberOfParticipants"
       >
@@ -135,7 +135,7 @@ function percentageLongitudinal(
         }}
       </LandingCardSecondary>
       <LandingCardSecondary
-        icon="colorize"
+        icon="twc:colorize"
         title="Samples"
         :count="data.data.Cohorts_agg._sum.numberOfParticipantsWithSamples"
       >
@@ -144,7 +144,7 @@ function percentageLongitudinal(
         }}
       </LandingCardSecondary>
       <LandingCardSecondary
-        icon="schedule"
+        icon="twc:schedule"
         title="Longitudinal"
         :count="
           percentageLongitudinal(
@@ -156,7 +156,7 @@ function percentageLongitudinal(
         {{ "Percentage of longitudinal datasets." }}
       </LandingCardSecondary>
       <LandingCardSecondary
-        icon="people"
+        icon="twc:people"
         title="Cohorts"
         :count="data.data.Subpopopulations_agg.count"
       >

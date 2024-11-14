@@ -271,7 +271,7 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
 
     <LandingSecondary>
       <LandingCardSecondary
-        icon="people"
+        icon="twc:people"
         v-if="data.data.Collections_agg?._sum?.numberOfParticipants"
       >
         <b>
@@ -292,7 +292,7 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
       </LandingCardSecondary>
 
       <LandingCardSecondary
-        icon="colorize"
+        icon="twc:colorize"
         v-if="data.data.Collections_agg?._sum?.numberOfParticipantsWithSamples"
       >
         <b
@@ -313,7 +313,7 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
       </LandingCardSecondary>
 
       <LandingCardSecondary
-        icon="schedule"
+        icon="twc:schedule"
         v-if="data.data.Design_groupBy && data.data.Collections_agg"
       >
         <b
@@ -334,7 +334,7 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
       </LandingCardSecondary>
 
       <LandingCardSecondary
-        icon="viewTable"
+        icon="twc:viewTable"
         v-if="data.data.Subpopulations_agg"
       >
         <b>

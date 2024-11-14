@@ -154,7 +154,7 @@ function clearAll() {
             <template v-if="selectedNodesNames.length > 5">
               <Button
                 @click="clearAll"
-                icon="trash"
+                icon="twc:trash"
                 icon-position="right"
                 size="tiny"
                 type="filterWell"
@@ -166,7 +166,7 @@ function clearAll() {
               <template v-for="selectedNodeName in selectedNodesNames">
                 <Button
                   @click="removeSelectedNode(selectedNodeName)"
-                  icon="trash"
+                  icon="twc:trash"
                   icon-position="right"
                   size="tiny"
                   type="filterWell"
@@ -176,7 +176,7 @@ function clearAll() {
               </template>
             </template>
             <Button
-              icon="trash"
+              icon="twc:trash"
               icon-position="right"
               size="tiny"
               type="filterWell"
