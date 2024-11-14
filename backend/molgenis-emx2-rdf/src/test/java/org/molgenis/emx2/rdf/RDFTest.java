@@ -18,6 +18,7 @@ import java.util.Objects;
 import java.util.Set;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Namespace;
+import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Triple;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.impl.SimpleNamespace;
@@ -1251,36 +1252,35 @@ public class RDFTest {
     // Tracks errors.
     List<String> errors = new ArrayList<>();
 
-    // For each defined ID to test on.
-    for (ValidationTriple id : presenceMap.keySet()) {
-      Map<IRI, Set<Value>> predicates = handler.resources.get(id.getSubject());
-      // If id should be present with its columns.
-      if (presenceMap.get(id)) {
+    for (ValidationTriple triple : presenceMap.keySet()) {
+      Map<IRI, Set<Value>> predicates = handler.resources.get(triple.getSubject());
+      // If Triple should be present in handler.
+      if (presenceMap.get(triple)) {
         if (predicates == null) {
-          errors.add("Missing predicates for subject: " + id.getSubject());
+          errors.add("Missing predicates for subject: " + triple.getSubject());
           continue;
         }
-        Set<Value> objects = predicates.get(id.getPredicate());
+        Set<Value> objects = predicates.get(triple.getPredicate());
         if (objects == null) {
-          errors.add("Missing objects for predicate: " + id.getPredicate());
+          errors.add("Missing objects for predicate: " + triple.getPredicate());
           continue;
         }
         if (objects.size() != 1) {
-          errors.add("Only 1 object should be present for: " + id.getPredicate());
+          errors.add("Only 1 object should be present for: " + triple.getPredicate());
         }
         Object firstObject = objects.toArray()[0];
-        if (!id.getObject().equals(firstObject)) {
+        if (!triple.getObject().equals(firstObject)) {
           errors.add(
               "First object not equal to expected value. Found \""
                   + firstObject
                   + "\", but should be \""
-                  + id.getObject()
+                  + triple.getObject()
                   + "\"");
         }
-      } // If id should NOT be present with its columns.
+      } // If Triple should not be present in handler.
       else {
         if (predicates != null)
-          errors.add("Found predicates while expecting none for subject: " + id.getSubject());
+          errors.add("Found predicates while expecting none for subject: " + triple.getSubject());
       }
     }
 
@@ -1328,11 +1328,11 @@ public class RDFTest {
 
     private final Triple triple;
 
-    public Value getSubject() {
+    public Resource getSubject() {
       return triple.getSubject();
     }
 
-    public Value getPredicate() {
+    public IRI getPredicate() {
       return triple.getPredicate();
     }
 
