@@ -88,7 +88,6 @@ public class StaticFileMapper {
         ctx.status(404).result("File not found: " + ctx.path());
         return;
       }
-
       if (mimeType == null) {
         mimeType = Files.probeContentType(Path.of(path));
         if (mimeType == null) {
