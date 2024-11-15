@@ -31,10 +31,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import org.junit.jupiter.api.*;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.Order;
@@ -200,6 +197,38 @@ public class WebApiSmokeTests {
     store = new TableStoreForXlsxFile(excelFile.toPath());
     assertTrue(store.containsTable("pet report with parameters"));
     assertTrue(excelContents.length > 0);
+
+    // test json report api
+    String jsonResults =
+        given().sessionId(SESSION_ID).get("/pet store reports/api/reports/json?id=0").asString();
+    assertFalse(jsonResults.contains("pet report"), "single result should not include report name");
+    jsonResults =
+        given()
+            .sessionId(SESSION_ID)
+            .get("/pet store reports/api/reports/json?id=0,1&name=pooky")
+            .asString();
+    assertTrue(
+        jsonResults.contains("pet report"),
+        "multiple results should use the report name to nest results");
+    jsonResults =
+        given()
+            .sessionId(SESSION_ID)
+            .get("/pet store reports/api/reports/json?id=1&name=spike,pooky")
+            .asString();
+    assertTrue(jsonResults.contains("pooky"));
+
+    // test report using jsonb_agg
+    jsonResults =
+        given().sessionId(SESSION_ID).get("/pet store reports/api/reports/json?id=2").asString();
+    ObjectMapper objectMapper = new ObjectMapper();
+    List<Object> jsonbResult = objectMapper.readValue(jsonResults, List.class);
+    assertTrue(jsonbResult.get(0).toString().contains("pooky"));
+
+    // test report using jsonb rows
+    jsonResults =
+        given().sessionId(SESSION_ID).get("/pet store reports/api/reports/json?id=3").asString();
+    jsonbResult = objectMapper.readValue(jsonResults, List.class);
+    assertTrue(jsonbResult.get(0).toString().contains("pooky"));
   }
 
   @Test
