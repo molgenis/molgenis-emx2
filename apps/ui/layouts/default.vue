@@ -69,7 +69,7 @@ const navigation = computed(() => {
         <template #account>
           <HeaderButton
             :label="isSignedIn ? 'Account' : 'Signin'"
-            icon="user"
+            icon="twc:user"
             @click="navigateTo({ path: isSignedIn ? '/account/' : '/login/' })"
           />
         </template>
