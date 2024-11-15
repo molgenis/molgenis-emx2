@@ -2,8 +2,10 @@ package org.molgenis.emx2.sql;
 
 import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.Privileges.*;
+import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.executeDropTable;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.jooq.DDLQuery;
@@ -221,29 +223,30 @@ class SqlSchemaMetadataExecutor {
       // remove changelog triggers + table
       ChangeLogExecutor.disableChangeLog(db, schema.getMetadata());
       ChangeLogExecutor.executeDropChangeLogTableForSchema(db, schema);
-      //
-      //      // remove tables individually to trigger foreign key error if appropriate
-      //      List<Table> tables = db.getSchema(schemaName).getTablesSorted();
-      //
-      //      // first delete all refbacks
-      //      tables.forEach(
-      //          table ->
-      //              table.getMetadata().getColumns().stream()
-      //                  .filter(column -> column.isRefback())
-      //                  .forEach(column -> table.getMetadata().dropColumn(column.getName())));
-      //
-      //      // then all refs (prevent foreign key errors)
-      //      tables.forEach(
-      //          table ->
-      //              table.getMetadata().getColumns().stream()
-      //                  .filter(column -> column.isReference())
-      //                  .forEach(column -> table.getMetadata().dropColumn(column.getName())));
-      //
-      //      // then drop the rest of the tables
-      //      tables.forEach(table -> executeDropTable(db.getJooq(), table.getMetadata()));
+
+      // remove foreign keys first to prevent foreign key errors in the schema
+      db.getSchema(schemaName)
+          .getTablesSorted()
+          .forEach(
+              table -> {
+                table
+                    .getMetadata()
+                    .getColumns()
+                    .forEach(
+                        column -> {
+                          if (column.isReference() && !column.isPrimaryKey()) {
+                            table.getMetadata().dropColumn(column.getName());
+                          }
+                        });
+              });
+
+      // remove tables individually to trigger foreign key error if appropriate
+      List<Table> tables = db.getSchema(schemaName).getTablesSorted();
+      Collections.reverse(tables);
+      tables.forEach(table -> executeDropTable(db.getJooq(), table.getMetadata()));
 
       // drop schema
-      db.getJooq().dropSchema(name(schemaName)).cascade().execute();
+      db.getJooq().dropSchema(name(schemaName)).execute();
 
       for (String role : executeGetRoles(db.getJooq(), schemaName)) {
         db.getJooq().execute("DROP ROLE IF EXISTS {0}", name(getRolePrefix(schemaName) + role));

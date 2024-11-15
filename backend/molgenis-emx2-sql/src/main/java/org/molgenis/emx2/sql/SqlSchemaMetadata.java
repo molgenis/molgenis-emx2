@@ -139,7 +139,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     return this;
   }
 
-  private static void validateTableIdentifierIsUnique(SqlSchemaMetadata sm, TableMetadata table) {
+  static void validateTableIdentifierIsUnique(SqlSchemaMetadata sm, TableMetadata table) {
     for (TableMetadata existingTable : sm.getTables()) {
       if (!existingTable.getTableName().equals(table.getTableName())
           && existingTable.getIdentifier().equals(table.getIdentifier())) {
@@ -239,25 +239,6 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   @Override
   public SqlDatabase getDatabase() {
     return (SqlDatabase) super.getDatabase();
-  }
-
-  public void renameTable(TableMetadata table, String newName) {
-    getDatabase()
-        .tx(
-            db -> {
-              sync(renameTableTransaction(db, getName(), table.getTableName(), newName));
-            });
-  }
-
-  private static SqlSchemaMetadata renameTableTransaction(
-      Database db, String schemaName, String tableName, String newName) {
-    SqlSchemaMetadata sm = (SqlSchemaMetadata) db.getSchema(schemaName).getMetadata();
-    validateTableIdentifierIsUnique(sm, new TableMetadata(newName));
-    SqlTableMetadata tm = sm.getTableMetadata(tableName);
-    tm.alterName(newName);
-    sm.tables.remove(tableName);
-    sm.tables.put(newName, tm);
-    return sm;
   }
 
   public List<String> getIneritedRolesForUser(String user) {

@@ -1,0 +1,72 @@
+name: Bug Report
+description: Create a report to help us improve
+labels: ["bug"]
+body:
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Have you checked if this issue already exists?
+      description: |
+        Before you submit a new issue, please take a moment to check if it hasn't already been reported. This helps us streamline our efforts and ensures that your concern is addressed efficiently.
+        
+        **How to Check for Existing Issues**
+        Search:
+        Use the GitHub search bar to look for keywords related to your issue. This includes error messages, feature names, or any relevant terms.
+
+        Issues Section:
+        Navigate to the "Issues" tab on our GitHub repository to see a list of reported problems and feature requests. Filter through open and closed issues to find similar cases.
+      options:
+        - label: "yes"
+          required: true
+  - type: input
+    id: version
+    attributes:
+      label: Molgenis EMX2 version
+      description: What version of Molgenis EMX2 are you using (see footer)?
+      placeholder: "Software version: v11.31.1. Database version: 23"
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Please provide a clear and concise description of what the bug is. If applicable, add screenshots/log files to help explain the issue.
+      placeholder: |
+        When I try to do '....', I get the following error message: '....'
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Reproduction steps
+      description: What are the exact steps to reproduce the bug?
+      placeholder: |
+        1. Go to 'https://emx2.dev.molgenis.org'
+        2. Click on '....'
+        3. Scroll down to '....'
+        4. See error
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behaviour
+      description: What was the behaviour your expected to see instead?
+      placeholder: "Instead of getting an error, I expected '....' instead."
+    validations:
+      required: true
+  - type: textarea
+    id: system
+    attributes:
+      label: System configuration
+      description: |
+        Under what system configuration did you experience this issue? For example:
+        - Device: iPhone SE 2022
+        - Operating system: iOS 18.1
+        - Browser: Firefox 132.0.0
+        
+        For smartphones we would appreciate filling in the exact device. For desktops/laptops, please use "Computer" instead.
+      value: |
+        - Device:
+        - Operating system:
+        - Browser:

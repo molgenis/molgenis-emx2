@@ -14,12 +14,12 @@ public class TableSort {
     // hide constructor
   }
 
-  public static void sortByInheritance(List<TableMetadata> tableList) {
+  public static void sortTableByDependency(List<TableMetadata> tableList) {
     ArrayList<TableMetadata> result = new ArrayList<>();
     ArrayList<TableMetadata> todo = new ArrayList<>(tableList);
 
     // ensure deterministic order
-    tableList.sort(
+    todo.sort(
         new Comparator<TableMetadata>() {
           @Override
           public int compare(TableMetadata o1, TableMetadata o2) {
@@ -27,7 +27,8 @@ public class TableSort {
           }
         });
 
-    // dependency come from inheritance or primary key deps
+    // dependency come from foreign key and from inheritance
+
     while (!todo.isEmpty()) {
       int size = todo.size();
       for (int i = 0; i < todo.size(); i++) {
@@ -61,7 +62,7 @@ public class TableSort {
       // check for circular relationship
       if (size == todo.size()) {
         throw new MolgenisException(
-            "circular inheritance error: following tables have circular inheritance relation: "
+            "circular dependency error: following tables have circular dependency: "
                 + todo.stream().map(TableMetadata::getTableName).collect(Collectors.joining(",")));
       }
     }
