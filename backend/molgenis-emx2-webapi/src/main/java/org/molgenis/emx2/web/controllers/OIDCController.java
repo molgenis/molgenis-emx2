@@ -4,6 +4,7 @@ import static java.util.Objects.requireNonNull;
 import static org.molgenis.emx2.web.SecurityConfigFactory.OIDC_CLIENT_NAME;
 
 import io.javalin.http.Context;
+import java.util.ArrayList;
 import java.util.Optional;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
@@ -68,7 +69,7 @@ public class OIDCController {
 
   public void handleLoginCallback(Context ctx) {
     final JavalinWebContext context = new JavalinWebContext(ctx);
-
+    Optional<Object> requestedUrlList = sessionStore.get(context, Pac4jConstants.REQUESTED_URL);
     HttpActionAdapter adapter = JavalinCustomHttpActionAdapter.INSTANCE;
     final CallbackLogic callbackLogic =
         FindBest.callbackLogic(null, securityConfig, DefaultCallbackLogic.INSTANCE);
@@ -103,6 +104,17 @@ public class OIDCController {
     logger.info("OIDC sign in for user: {}", user);
 
     ctx.status(302);
-    ctx.redirect("/");
+
+    if (requestedUrlList.isPresent()) {
+      @SuppressWarnings("unchecked")
+      ArrayList<String> requestedUrl = (ArrayList<String>) requestedUrlList.get();
+      if (requestedUrl.size() == 1) {
+        ctx.redirect(requestedUrl.get(0));
+      } else {
+        ctx.redirect("/");
+      }
+    } else {
+      ctx.redirect("/");
+    }
   }
 }
