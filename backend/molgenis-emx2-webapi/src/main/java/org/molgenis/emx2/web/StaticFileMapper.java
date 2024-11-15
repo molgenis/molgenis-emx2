@@ -6,8 +6,6 @@ import io.javalin.http.Context;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * to allow for nice urls, and make it easier for 'schema' app developers we include the schema in
@@ -17,8 +15,6 @@ import org.slf4j.LoggerFactory;
  * <p>TODO add apps proxy service
  */
 public class StaticFileMapper {
-
-  private static Logger logger = LoggerFactory.getLogger(StaticFileMapper.class);
 
   private StaticFileMapper() {
     // hide constructor
@@ -92,7 +88,7 @@ public class StaticFileMapper {
         ctx.status(404).result("File not found: " + ctx.path());
         return;
       }
-      logger.info("Serving file: " + path);
+
       if (mimeType == null) {
         mimeType = Files.probeContentType(Path.of(path));
         if (mimeType == null) {
