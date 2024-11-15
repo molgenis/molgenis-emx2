@@ -23,10 +23,9 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | 7 | DESCRIPTION | This is the Test cohort 1. It has multiple entries where possible. Design paper and publications are random DOIs from the EUCAN project. Yes to data access fee. The population age group is all adult options, so the population age group should be shown as "Adult 18+ years". Cohort type has both 'normal' and 'other' fields filled in --> see which is displayed | | |
 | | Click on the three dots next to the description text | the text is displayed fully, and clicking on 'read less' reduces the text again | | |
 | | GENERAL DESIGN | | | |
-| 8a | Type | Clinical trial, Cohort study | | |
+| 8a | Type | Cohort study | | |
 | 8b | Cohort type | Clinical cohort, Case-control | | |
-| 9a | Data collection type | Retrospective, Prospective | | |
-| 9b | Keywords | test, cohort1, Molgenis, testing | | |
+| 9 | Data collection type | Retrospective, Prospective | | |
 | 10 | Start/End data collection | 1950 until 1967 | | |
 | 11 | Design paper | Cohort Profile: The French national cohort of children (ELFE): birth to 5 years | | |
 | 11a| PID | https://pid-for-testcohort1.org | | |

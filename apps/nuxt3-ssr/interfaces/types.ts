@@ -377,3 +377,5 @@ export interface UIResource {
   id: string;
   logo: { url: string };
 }
+
+export type analyticsSericves = "siteimprove" | "google-analytics";

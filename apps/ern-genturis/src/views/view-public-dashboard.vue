@@ -39,7 +39,7 @@
             }"
             :pointRadius="4"
             :tooltipTemplate="
-              (row) => {
+              (row: IOrganisations) => {
                 return `
                 <p class='title'>${row.name}</p>
                 <p class='location'>${row.city}, ${row.country}</p>
@@ -93,10 +93,11 @@
   </Page>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted } from "vue";
 import gql from "graphql-tag";
 import { request } from "graphql-request";
+// @ts-ignore
 import {
   Page,
   Dashboard,
@@ -110,20 +111,61 @@ import {
   ColumnChart,
   DataTable,
   DataValueHighlights,
+  // @ts-ignore
 } from "molgenis-viz";
 
 import { seqAlongBy } from "../utils/utils";
 import { max } from "d3";
 const d3 = { max };
 
-let loading = ref(true);
-let error = ref(null);
-let registryHighlights = ref({});
-let sexAtBirth = ref({});
-let ageAtInclusion = ref([]);
-let ageAtInclusionTicks = ref([]);
-let enrollmentData = ref({});
-let organisations = ref([]);
+interface IProviderInformation {
+  providerIdentifier: string;
+  hasSubmittedData: boolean;
+}
+
+interface IOrganisations {
+  name: string;
+  code: string;
+  city: string;
+  country: string;
+  latitude: number;
+  longitude: number;
+  providerInformation: IProviderInformation[];
+}
+
+interface IStatistics {
+  id: string;
+  name: string;
+  label: string;
+  value: number;
+  valueOrder: number;
+}
+
+interface IComponent {
+  name: string;
+  statistics: IStatistics[];
+}
+
+interface IKeyValuePairs {
+  [key: string]: number;
+}
+
+interface IOrganisationsResponse {
+  Organisations: IOrganisations[];
+}
+
+interface IComponentsResponse {
+  Components: IComponent[];
+}
+
+const loading = ref<boolean>(true);
+const error = ref<Error | null>(null);
+const registryHighlights = ref<IKeyValuePairs>({});
+const sexAtBirth = ref<IKeyValuePairs>({});
+const ageAtInclusion = ref<IStatistics[]>([]);
+const ageAtInclusionTicks = ref<string[]>([]);
+const enrollmentData = ref<IStatistics[]>([]);
+const organisations = ref<IOrganisations[]>([]);
 
 const orgGroupMapping = {
   "Data Submitted": "#E9724C",
@@ -147,13 +189,18 @@ async function getOrganisations() {
       }
     }
   `;
-  const response = await request("../api/graphql", query);
-  const data = response.Organisations.map((row) => {
-    const status = row.providerInformation[0].hasSubmittedData
-      ? "Data Submitted"
-      : "No Data";
-    return { ...row, hasSubmittedData: status };
-  });
+  const response: IOrganisationsResponse = await request(
+    "../api/graphql",
+    query
+  );
+  const data: IOrganisations[] = response.Organisations.map(
+    (row: IOrganisations) => {
+      const status = row.providerInformation[0].hasSubmittedData
+        ? "Data Submitted"
+        : "No Data";
+      return { ...row, hasSubmittedData: status };
+    }
+  );
   organisations.value = data;
 }
 
@@ -171,35 +218,49 @@ async function getStats() {
       }
     }
   `;
-  const response = await request("../api/graphql", query);
-  const data = response.Components;
+  const response: IComponentsResponse = await request("../api/graphql", query);
+  const data: IComponent[] = response.Components;
 
-  const highlights = data.filter((row) => row.name === "data-highlights");
+  const highlights = data.filter(
+    (row: IComponent) => row.name === "data-highlights"
+  );
   registryHighlights.value = Object.fromEntries(
-    highlights[0]["statistics"].map((row) => [row.label, row.value])
+    highlights[0]["statistics"].map((row: IStatistics) => [
+      row.label,
+      row.value,
+    ])
   );
 
-  const sexData = data.filter((row) => row.name === "pie-sex-at-birth");
+  const sexData = data.filter(
+    (row: IComponent) => row.name === "pie-sex-at-birth"
+  );
   sexAtBirth.value = Object.fromEntries(
     sexData[0]["statistics"]
-      .map((row) => [row.label, row.value])
-      .sort((current, next) => (current[1] < next[1] ? 1 : -1))
+      .map((row: IStatistics) => [row.label, row.value])
+      .sort((current: any[], next: any[]) => (current[1] < next[1] ? 1 : -1))
   );
 
-  const age = data.filter((row) => row.name === "barchart-age");
+  const age = data.filter((row: IComponent) => row.name === "barchart-age");
   ageAtInclusion.value = age[0]["statistics"];
 
-  const maxValue = d3.max(ageAtInclusion.value, (row) => row.value);
-  const ymax = Math.round(maxValue / 10) * 10;
+  const maxValue: number = d3.max(
+    ageAtInclusion.value,
+    (row: IStatistics) => row.value
+  ) as number;
+  const ymax: number = Math.round(maxValue / 10) * 10;
   ageAtInclusionTicks.value = seqAlongBy(0, ymax, 25);
 
   enrollmentData.value = data
-    .filter((row) => row.name === "table-enrollment-disease-group")[0]
+    .filter(
+      (row: IComponent) => row.name === "table-enrollment-disease-group"
+    )[0]
     ["statistics"].filter(
-      (row) => row.label !== "Undetermined" && row.value !== 0
+      (row: IStatistics) => row.label !== "Undetermined" && row.value !== 0
     )
-    .sort((current, next) => (current.valueOrder < next.valueOrder ? -1 : 1))
-    .map((row) => {
+    .sort((current: IStatistics, next: IStatistics) => {
+      return current.valueOrder < next.valueOrder ? -1 : 1;
+    })
+    .map((row: IStatistics) => {
       return {
         ...row,
         "Thematic Disease Group": row.label,
