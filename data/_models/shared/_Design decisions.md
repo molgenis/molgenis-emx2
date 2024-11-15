@@ -3,7 +3,7 @@
 - table names uppercase first letter (so Patient instead of patient)
 - column names all lowercase unless meaninfull (e.g VCF file)
 
-# how to model sample -> treatment -> new sample
+# how to model sample -> treatment -> new sample?
 
 proposals:
 1. create two tables, biosamples and protocol application. 
@@ -17,7 +17,7 @@ proposals:
 2. create a list of studies
 decision: undecided. Can we have one 'off study' parameter or do we need to record this for each study?
 
-# how to capture protocol specific parameters
+# how to capture protocol specific parameters?
 
 we should have a way to add additional tables to collect these. For example 'sample preparation'
 
@@ -30,14 +30,15 @@ proposals:
 
 decision: go for option 2 try it out in demo data. (for portals you might use option 2, but probably we are then better of with a big json field or something)
 
-# how to capture disease specific clinical parameters
+# how to capture disease specific clinical parameters?
 
-see protocol specific parameters. I.e. we would need to subclass a common 'clinical' superclass.
+see protocol specific parameters. I.e. we would need to subclass a common 'Individual visit' superclass.
 E.g. ithaca disease xyz table would be then a subclass of this table. 
+N.b. we consider other name like 'Individual observation'
 
 # how to model different age representations?
 
 1. categorical age groups
 2. using iso period data type
 
-decision: keep both?
+decision: keep both.
