@@ -3,16 +3,15 @@ package org.molgenis.emx2;
 import static org.molgenis.emx2.ColumnType.BOOL;
 import static org.molgenis.emx2.ColumnType.INT;
 
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
+import java.io.InputStreamReader;
 import org.molgenis.emx2.datamodels.BiobankDirectoryLoader;
 import org.molgenis.emx2.datamodels.DataModels;
 import org.molgenis.emx2.datamodels.PetStoreLoader;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 import org.molgenis.emx2.web.MolgenisWebservice;
-import org.molgenis.emx2.web.StaticFileMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,18 +71,34 @@ public class RunMolgenisEmx2 {
     MolgenisWebservice.start(port);
 
     logger.info("After start");
-    // read py file from classpath
-    try (InputStream is =
-        StaticFileMapper.class.getResourceAsStream("/public_html/apps/ui/index.html")) {
-      if (is != null) {
-        logger.info("Found 3migrate.py");
-        String text = new String(is.readAllBytes(), StandardCharsets.UTF_8);
-        logger.info("3migrate.py: " + text);
-      } else {
-        logger.error("Could not find 2migrate.py");
+
+    String relativeMigrationFilePath = "./apps/nuxt3-ssr/migrations/version1/migrate.py";
+    String migrationFilePathString = "/nuxt3-ssr/migration/version1/migrate.py";
+
+    String runScriptCommand = "python3 -u " + relativeMigrationFilePath;
+    // String runScriptCommand = "pwd";
+    ProcessBuilder builder = new ProcessBuilder("bash", "-c", runScriptCommand);
+    builder.redirectErrorStream(true);
+    Process process = builder.start();
+
+    // Read the process output
+    try (BufferedReader reader =
+        new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+      String line;
+      while ((line = reader.readLine()) != null) {
+        // Log each line of output
+        logger.info("Process output: {}", line);
       }
-    } catch (IOException e) {
-      logger.error("Could not find 3migrate.py");
     }
+
+    // Wait for the process to complete
+    int exitCode = 0;
+    try {
+      exitCode = process.waitFor();
+    } catch (InterruptedException e) {
+      logger.error("Error waiting for migration process to complete", e);
+      throw new RuntimeException(e);
+    }
+    logger.info("Migration process exited with code: {}", exitCode);
   }
 }

@@ -3,9 +3,7 @@ package org.molgenis.emx2.web;
 import com.google.common.io.ByteStreams;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
-import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import org.slf4j.Logger;
@@ -27,19 +25,6 @@ public class StaticFileMapper {
   }
 
   public static void create(Javalin app) {
-
-    try (InputStream is =
-        StaticFileMapper.class.getResourceAsStream("/public_html/apps/ui/index.html")) {
-      if (is != null) {
-        logger.info("Found 2migrate.py");
-        String text = new String(is.readAllBytes(), StandardCharsets.UTF_8);
-        logger.info("2migrate.py: " + text);
-      } else {
-        logger.error("Could not find 2migrate.py");
-      }
-    } catch (IOException e) {
-      logger.error("Could not find 2migrate.py");
-    }
 
     app.get("/{schema}/{appname}/theme.css", BootstrapThemeService::getCss);
 
