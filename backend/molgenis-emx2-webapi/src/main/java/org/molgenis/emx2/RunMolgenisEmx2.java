@@ -73,11 +73,27 @@ public class RunMolgenisEmx2 {
     logger.info("After start");
 
     String relativeMigrationFilePath = "./apps/nuxt3-ssr/migrations/version1/migrate.py";
+    String relativeRequirementsFilePath = "./apps/nuxt3-ssr/migrations/requirements.txt";
     String migrationFilePathString = "/nuxt3-ssr/migration/version1/migrate.py";
 
+    // define commands (given tempDir as working directory)
+    String createVenvCommand = "python3 -m venv venv";
+    String activateCommand = "source venv/bin/activate";
+    String pipUpgradeCommand = "pip3 install --upgrade pip";
+    String installRequirementsCommand = "pip3 install -r " + relativeRequirementsFilePath;
     String runScriptCommand = "python3 -u " + relativeMigrationFilePath;
+    String command =
+        String.join(
+            " && ",
+            createVenvCommand,
+            activateCommand,
+            pipUpgradeCommand,
+            installRequirementsCommand,
+            runScriptCommand);
+    logger.debug("Running migration script with command: {}", command);
+
     // String runScriptCommand = "pwd";
-    ProcessBuilder builder = new ProcessBuilder("bash", "-c", runScriptCommand);
+    ProcessBuilder builder = new ProcessBuilder("bash", "-c", command);
     builder.redirectErrorStream(true);
     Process process = builder.start();
 
