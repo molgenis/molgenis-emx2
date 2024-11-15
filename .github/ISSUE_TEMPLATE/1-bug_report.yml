@@ -55,21 +55,18 @@ body:
       placeholder: "Instead of getting an error, I expected '....' instead."
     validations:
       required: true
-  - type: input
-    id: device
+  - type: textarea
+    id: system
     attributes:
-      label: Device
-      description: If using a smartphone, what is the name of the device?
-      placeholder: "iPhone SE 2022 / Samsung Galaxy A16"
-  - type: input
-    id: os
-    attributes:
-      label: Operating System
-      description: What operating system did this bug occur on?
-      placeholder: "MacOS 15.1 / Android 15"
-  - type: input
-    id: browser
-    attributes:
-      label: Browser
-      description: What browser system did this bug occur on (select multiple if tried on different operating systems)?
-      placeholder: "Firefox 132.0.2"
+      label: System configuration
+      description: |
+        Under what system configuration did you experience this issue? For example:
+        - Device: iPhone SE 2022
+        - Operating system: iOS 18.1
+        - Browser: Firefox 132.0.0
+        
+        For smartphones we would appreciate filling in the exact device. For desktops/laptops, please use "Computer" instead.
+      value: |
+        - Device:
+        - Operating system:
+        - Browser:

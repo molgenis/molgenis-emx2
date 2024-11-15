@@ -28,5 +28,5 @@ body:
     id: context
     attributes:
       label: Additional context
-      description: Add any other context or screenshots about the feature request here.
-      placeholder: "Some relevant information for this is '....'"
+      description: Add any other context or screenshots about the feature request here (such as a relevant project you're involved in).
+      placeholder: "I'm involved in project '...' where we need such a feature."
