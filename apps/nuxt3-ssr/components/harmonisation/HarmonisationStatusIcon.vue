@@ -49,7 +49,7 @@ const fillClass = computed(() => {
     case "complete":
       return "text-green-800 fill-current";
     case "available":
-      return "bg-blue-500 fill-white";
+      return "text-white";
   }
 });
 </script>
@@ -58,6 +58,6 @@ const fillClass = computed(() => {
     class="p-1 justify-center items-center inline-flex"
     :class="`w-${tailwindIconSize} h-${tailwindIconSize} ${tableClass}`"
   >
-    <Icon v-if="iconName" :name="iconName" :class="fillClass" />
+    <Icon v-if="iconName" :name="iconName" :class="fillClass" :size="20" />
   </div>
 </template>
