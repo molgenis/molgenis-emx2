@@ -18,14 +18,8 @@ In the component folder, we've arranged the components into categories. To use t
 
 ### Icons
 
-There are a number of icons available for use. See `/components/global/icons` for a complete list or visit the [Icons Showcase](https://emx2.dev.molgenis.org/apps/tailwind-components/#/Icons.story). All icons are sourced from [https://fonts.google.com/icons](https://fonts.google.com/icons) and [https://www.flaticon.com/authors/special/lineal](https://www.flaticon.com/authors/special/lineal).
-
-### Using icons
-
-
-### Adding new icons
-
-
+Icons are rendered using @nuxt/icon, for usage details and options see: https://nuxt.com/modules/icon
+The custom (default) icons used in the component library are stored in the assets/icons folder 
 
 ## Getting started
 
