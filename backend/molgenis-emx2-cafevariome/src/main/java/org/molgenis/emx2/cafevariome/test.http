@@ -32,7 +32,10 @@ Content-Type: application/json
       "minimumMatch": 1,
       "useOrphaNet": true
     }
-  ]
+  ],
+  "advanced": {
+    "granularity": "boolean"
+  }
 }
 
 ###

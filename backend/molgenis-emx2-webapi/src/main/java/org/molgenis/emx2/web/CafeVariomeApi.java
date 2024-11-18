@@ -21,7 +21,6 @@ public class CafeVariomeApi {
     CafeVariomeQuery query = mapper.readValue(ctx.body(), CafeVariomeQuery.class);
 
     Schema schema = getSchema(ctx);
-
     Object result = QueryRecord.post(schema, query);
 
     ctx.json(result);
