@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-const regexErrorMessage='Table name must start with a letter, followed by zero or more letters, numbers, spaces or underscores. A space immediately before or after an underscore is not allowed. The character limit is 31.'
+const regexErrorMessage='name (required) Table name must start with a letter, followed by zero or more letters, numbers, spaces, dashes or underscores. A space immediately before or after an underscore is not allowed. The character limit is 31.'
 
 test('database name regex validation', async ({ page }) => {
   await page.goto('/apps/central/');

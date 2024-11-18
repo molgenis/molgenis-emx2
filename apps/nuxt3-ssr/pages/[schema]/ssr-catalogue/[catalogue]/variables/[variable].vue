@@ -67,11 +67,11 @@ let tocItems = reactive([{ label: "Definition", id: "definition" }]);
 
 if (resourcesWithMapping.value.length > 0) {
   tocItems.push({
-    label: "Harmonisation status per data source",
+    label: "Harmonisation status per source",
     id: "harmonisation-per-source",
   });
   tocItems.push({
-    label: "Harmonisation details per data source",
+    label: "Harmonisation details per source",
     id: "harmonisation-details-per-source",
   });
 } else {
@@ -144,7 +144,7 @@ useHead({ title: titlePrefix + variable.value.name });
         <ContentBlock
           v-if="resourcesWithMapping.length > 0"
           id="harmonisation-per-source"
-          title="Harmonisation status per data source"
+          title="Harmonisation status per source"
         >
           <HarmonisationGridPerVariable
             v-if="isRepeating"
@@ -156,7 +156,7 @@ useHead({ title: titlePrefix + variable.value.name });
         <ContentBlock
           v-if="resourcesWithMapping.length > 0"
           id="harmonisation-details-per-cohort"
-          title="Harmonisation details per data source"
+          title="Harmonisation details per source"
           description="Select a data source to see the details of the harmonisation"
         >
           <HarmonisationVariableDetails :variable="variable" />

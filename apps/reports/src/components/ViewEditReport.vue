@@ -48,8 +48,9 @@
     <MessageError v-if="error">{{ error }}</MessageError>
     <div v-if="rows && rows.length > 0">
       <Pagination v-if="count" v-model="page" :limit="limit" :count="count" />
-      download as <a :href="downloadZip">zip</a> or
-      <a :href="downloadExcel">excel</a>
+      download as <a :href="downloadZip">zip</a>,
+      <a :href="downloadExcel">excel</a> or
+      <a :href="downloadJson">json</a>
       <TableSimple
         :columns="columns"
         :rows="rows"
@@ -162,7 +163,10 @@ export default {
       return "../api/reports/zip?id=" + this.id + this.parametersQuery;
     },
     downloadExcel() {
-      return "../api/reports/zip?id=" + this.id + this.parametersQuery;
+      return "../api/reports/excel?id=" + this.id + this.parametersQuery;
+    },
+    downloadJson() {
+      return "../api/reports/json?id=" + this.id + this.parametersQuery;
     },
   },
   methods: {

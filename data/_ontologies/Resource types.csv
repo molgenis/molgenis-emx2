@@ -1,13 +1,13 @@
-name,label,parent,codesystem,code,ontologyTermURI,definition
-Biobank,,,,,,
-Clinical trial,,,,,,
-Cohort study,,,,,,
-Common data model,,,,,,
-Databank,,,,,,
-Data source,,,,,,
-Disease specific,,,,,,A study or biobank for which material and information is collected from subjects that have already developed a particular disease.
-Health records,,,,,,
-Network,,,,,,
-Rare disease,,,,,,A collection that is focusing on rare diseases
-Registry,,,,,,
-Other type,,,,,,
+name,label,parent,tags,codesystem,code,ontologyTermURI,definition
+Biobank,,,collection,,,,Repositories of biological samples.
+Clinical trial,,,collection,,,,Studies testing medical interventions.
+Cohort study,,,collection,,,,Observational studies of defined populations
+Common data model,,,collection,,,,
+Databank,,,collection,,,,
+Data source,,,collection,,,,
+Disease specific,,,collection,,,,A study or biobank for which material and information is collected from subjects that have already developed a particular disease.
+Health records,,,collection,,,,
+Network,,,network,,,,
+Rare disease,,,collection,,,,A collection that is focusing on rare diseases
+Registry,,,collection,,,,
+Other type,,,collection,,,,
