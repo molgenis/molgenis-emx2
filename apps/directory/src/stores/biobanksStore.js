@@ -1,4 +1,4 @@
-import { QueryEMX2 } from "molgenis-components";
+import QueryEMX2 from "../../../molgenis-components/src/queryEmx2/queryEmx2.ts";
 import { defineStore } from "pinia";
 import { computed, ref } from "vue";
 import { extractValue } from "../functions/extractValue";

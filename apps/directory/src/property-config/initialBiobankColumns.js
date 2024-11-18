@@ -33,7 +33,7 @@ export const initialBiobankColumns = [
   },
   {
     label: "Biobank capabilities:",
-    column: { capabilities: ["name", "label"] },
+    column: { services: ["name"] },
     type: "array",
     showOnBiobankCard: true,
   },
