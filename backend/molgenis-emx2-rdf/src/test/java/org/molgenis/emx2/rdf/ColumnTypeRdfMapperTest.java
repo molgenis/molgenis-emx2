@@ -251,7 +251,7 @@ class ColumnTypeRdfMapperTest {
         // ColumnType.HEADING.name() -> no Value should be present to validate on
 
         // format flavors that extend a baseType
-        () -> Assertions.assertTrue(retrieveFirstValue(ColumnType.AUTO_ID.name()).isIRI()),
+        () -> Assertions.assertTrue(retrieveFirstValue(ColumnType.AUTO_ID.name()).isLiteral()),
         () -> Assertions.assertTrue(retrieveFirstValue(ColumnType.ONTOLOGY.name()).isIRI()),
         () -> Assertions.assertTrue(retrieveFirstValue(ColumnType.EMAIL.name()).isIRI()),
         () -> Assertions.assertTrue(retrieveFirstValue(ColumnType.HYPERLINK.name()).isIRI()));
@@ -395,7 +395,7 @@ class ColumnTypeRdfMapperTest {
                     .findFirst()
                     .get()
                     .stringValue()
-                    .startsWith("urn:uuid:")),
+                    .matches("[0-9a-zA-Z]+")),
         () ->
             Assertions.assertEquals(
                 Set.of(Values.iri(rdfApiUrlPrefix + ONT_TABLE + "?name=aa")),

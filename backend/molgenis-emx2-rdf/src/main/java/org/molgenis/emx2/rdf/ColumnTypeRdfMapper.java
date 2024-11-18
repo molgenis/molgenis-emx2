@@ -75,7 +75,7 @@ public class ColumnTypeRdfMapper {
           entry(ColumnType.HEADING, RdfColumnType.SKIP), // Should not be in RDF output.
 
           // format flavors that extend a baseType
-          entry(ColumnType.AUTO_ID, RdfColumnType.UUID),
+          entry(ColumnType.AUTO_ID, RdfColumnType.STRING),
           entry(ColumnType.ONTOLOGY, RdfColumnType.ONTOLOGY),
           entry(ColumnType.ONTOLOGY_ARRAY, RdfColumnType.ONTOLOGY),
           entry(ColumnType.EMAIL, RdfColumnType.EMAIL),
