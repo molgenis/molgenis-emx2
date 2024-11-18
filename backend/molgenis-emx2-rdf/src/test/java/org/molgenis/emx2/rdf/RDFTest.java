@@ -18,7 +18,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import org.eclipse.rdf4j.model.IRI;
-import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Namespace;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Triple;
@@ -232,7 +231,7 @@ public class RDFTest {
     tableInherExtTest
         .getTable("ExternalUnrelated")
         .insert(row("id", "a", "externalUnrelatedColumn", "unrelated data"));
-    
+
     // Test FILE
     fileTest = database.dropCreateSchema("fileTest");
     fileTest.create(
