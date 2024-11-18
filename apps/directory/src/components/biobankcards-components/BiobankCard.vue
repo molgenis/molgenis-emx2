@@ -10,47 +10,11 @@
   >
     <section class="d-flex flex-column align-items-center">
       <div class="d-flex flex-column h-100 align-self-stretch">
-        <header class="border-0 biobank-card-header p-1">
-          <h5 class="pt-1 pl-1 pr-1 mt-1">
-            <router-link :to="'/biobank/' + biobank.id" class="text-dark">
-              <span class="fa fa-server mr-2 text-primary" aria-hidden="true" />
-              <span class="biobank-name">{{ biobank.name }}</span>
-              <sup
-                v-if="hasBiobankQuality"
-                class="d-inline-block"
-                aria-hidden="true"
-              >
-                <info-popover
-                  faIcon="fa-regular fa-circle-check"
-                  textColor="text-success"
-                  class="ml-1 certificate-icon"
-                  popover-placement="bottom"
-                >
-                  <div
-                    class="popover-content"
-                    v-for="quality of biobankQualities"
-                    :key="quality.label"
-                  >
-                    <div v-if="quality.quality_standard">
-                      <div class="quality-standard-label">
-                        {{
-                          getQualityInfo(quality.quality_standard.name)?.label
-                        }}
-                      </div>
-                      <div class="quality-standard-definition">
-                        {{
-                          getQualityInfo(quality.quality_standard.name)
-                            ?.definition
-                        }}
-                      </div>
-                    </div>
-                  </div>
-                </info-popover>
-              </sup>
-            </router-link>
-          </h5>
-          <MatchesOn :viewmodel="biobank" />
-        </header>
+        <HeaderSection
+          :biobank="biobank"
+          :hasBiobankQuality="hasBiobankQuality"
+          :qualityInfo="qualityInfo"
+        />
 
         <template v-if="!showCollections">
           <div class="mb-1 shadow-sm" v-if="numberOfCollections">
@@ -164,6 +128,36 @@
             </div>
           </div>
         </template>
+
+        <div v-if="biobank.services?.length">
+          {{ biobank.services?.length }} services available
+          <div v-for="service in biobank.services">
+            <div class="pl-2 pt-2 d-flex">
+              <router-link
+                :to="'/services/' + service.id"
+                title="Service details"
+                class="text-dark"
+              >
+                <span
+                  class="fa fa-server fa-lg mr-2 text-primary"
+                  aria-hidden="true"
+                />
+                <span class="collection-name">
+                  {{ service.name }}
+                </span>
+              </router-link>
+              <div class="ml-auto">
+                <!-- <collection-selector
+                      class="ml-auto"
+                      :biobankData="biobank"
+                      :collectionData="collectionDetail"
+                      iconOnly
+                      bookmark
+                    /> -->
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   </article>
@@ -183,6 +177,7 @@ import { useSettingsStore } from "../../stores/settingsStore";
 import { useQualitiesStore } from "../../stores/qualitiesStore";
 import { useCheckoutStore } from "../../stores/checkoutStore";
 import { useFiltersStore } from "../../stores/filtersStore";
+import HeaderSection from "./biobackCardSections/HeaderSection.vue";
 
 export default {
   setup() {
@@ -197,6 +192,7 @@ export default {
     CollectionSelector,
     InfoPopover,
     MatchesOn,
+    HeaderSection,
   },
   props: {
     fullSize: {
@@ -204,7 +200,14 @@ export default {
       default: () => false,
     },
     biobank: {
-      type: [Object],
+      type: Object as () => {
+        services?: any;
+        collections: any;
+        label?: string;
+        collectionDetails: any;
+        id: string;
+        name: string;
+      },
       required: true,
     },
   },
@@ -234,6 +237,11 @@ export default {
     },
   },
   computed: {
+    qualityInfo() {
+      return this.biobankQualities.map((quality: Record<string, any>) => {
+        return this.getQualityInfo(quality.quality_standard.name);
+      });
+    },
     hasActiveFilters() {
       return this.filtersStore.hasActiveFilters;
     },
@@ -296,18 +304,7 @@ export default {
   position: relative;
   top: 0.25em;
   line-height: unset;
-  clip-path: inset(0% 0% 50% 0%);
-}
 
-.certificate-icon {
-  font-size: 0.8rem;
-}
-</style>
-
-<style scoped>
-.collection-icon {
-  position: relative;
-  top: 0.25em;
   clip-path: inset(-15% 0% 75% 0%);
 }
 
