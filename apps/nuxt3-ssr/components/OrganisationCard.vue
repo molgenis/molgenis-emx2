@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import type { IOrganisation } from "~/interfaces/types";
+import type { IOrganisations } from "~/interfaces/catalogue";
 
 defineProps<{
-  organisation: IOrganisation;
+  organisation: IOrganisations;
 }>();
 </script>
 

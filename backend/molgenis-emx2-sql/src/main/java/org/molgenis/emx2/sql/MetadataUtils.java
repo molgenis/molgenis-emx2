@@ -463,6 +463,31 @@ public class MetadataUtils {
     return table;
   }
 
+  public static List<Column> getReferencesToTable(
+      DSLContext jooq, String schemaName, String tableName) {
+    List<org.jooq.Record> refRecords =
+        jooq.selectFrom(COLUMN_METADATA)
+            .where(
+                coalesce(COLUMN_REF_SCHEMA, TABLE_SCHEMA)
+                    .eq(schemaName)
+                    .and(COLUMN_REF_TABLE.eq(tableName)))
+            .fetch();
+
+    // create columns including suitable table and schema metadata
+    return refRecords.stream()
+        .map(
+            record -> {
+              TableMetadata tableMetadata =
+                  loadTable(jooq, record.get(TABLE_SCHEMA), record.get(TABLE_NAME));
+              SchemaMetadata schemaMetadata = new SchemaMetadata(record.get(TABLE_SCHEMA));
+              tableMetadata.setSchema(schemaMetadata);
+              Column columnMetadata = recordToColumn(record);
+              columnMetadata.setTable(tableMetadata);
+              return columnMetadata;
+            })
+        .toList();
+  }
+
   private static TableMetadata recordToTable(org.jooq.Record r) {
     TableMetadata table = new TableMetadata(r.get(TABLE_NAME, String.class));
     table.setInheritName(r.get(TABLE_INHERITS, String.class));
@@ -488,9 +513,9 @@ public class MetadataUtils {
   protected static void saveColumnMetadata(DSLContext jooq, Column column) {
     String refSchema =
         column.isReference()
-            ? column.getRefSchemaName().equals(column.getSchemaName())
+            ? (column.getRefSchemaName().equals(column.getSchemaName())
                 ? null
-                : column.getRefSchemaName()
+                : column.getRefSchemaName())
             : null;
     jooq.insertInto(COLUMN_METADATA)
         .columns(

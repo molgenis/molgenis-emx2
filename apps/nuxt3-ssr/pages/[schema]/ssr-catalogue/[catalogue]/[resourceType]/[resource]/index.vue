@@ -6,7 +6,6 @@ import datasetQuery from "~~/gql/datasets";
 import ontologyFragment from "~~/gql/fragments/ontology";
 import fileFragment from "~~/gql/fragments/file";
 import type {
-  IResource,
   IDefinitionListItem,
   IMgError,
   IOntologyItem,
@@ -14,6 +13,7 @@ import type {
   DefinitionListItemType,
 } from "~/interfaces/types";
 import dateUtils from "~/utils/dateUtils";
+import type { IResources } from "~/interfaces/catalogue";
 const config = useRuntimeConfig();
 const route = useRoute();
 
@@ -92,7 +92,6 @@ const query = gql`
         title
         isDesignPublication
       }
-      publications_agg{count}
       collectionEvents {
         name
         description
@@ -107,9 +106,6 @@ const query = gql`
           name
         }
         coreVariables
-      }
-      collectionEvents_agg {
-         count
       }
       peopleInvolved {
         roleDescription
@@ -139,9 +135,6 @@ const query = gql`
           name
           mainMedicalCondition ${moduleToString(ontologyFragment)}
       }
-      subpopulations_agg {
-            count
-      }
       dataAccessConditions ${moduleToString(ontologyFragment)}
       dataAccessConditionsDescription
       dataUseConditions ${moduleToString(ontologyFragment)}
@@ -161,12 +154,6 @@ const query = gql`
       datasets {
         name
       }
-      collectionEvents_agg{
-        count
-      }
-      publications_agg {
-        count
-      }
       partOfResources {
         name
         type {
@@ -177,13 +164,27 @@ const query = gql`
           url
         }
       }
+      publications_agg {
+        count
+      }
+      subpopulations_agg {
+        count
+      }
+      collectionEvents_agg{
+        count
+      }
     }
   }
 `;
 const variables = { id: route.params.resource };
+interface IResourceQueryResponseValue extends IResources {
+  publications_agg: { count: number };
+  subpopulations_agg: { count: number };
+  collectionEvents_agg: { count: number };
+}
 interface IResponse {
   data: {
-    Resources: IResource[];
+    Resources: IResourceQueryResponseValue[];
   };
 }
 const { data, error } = await useFetch<IResponse, IMgError>(
@@ -198,7 +199,9 @@ if (error.value) {
   logError(error.value, "Error fetching resource metadata");
 }
 
-const resource = computed(() => data.value?.data?.Resources[0] as IResource);
+const resource = computed(
+  () => data.value?.data?.Resources[0] as IResourceQueryResponseValue
+);
 const subpopulations = computed(() => resource.value.subpopulations as any[]);
 const mainMedicalConditions = computed(() => {
   if (!subpopulations.value || !subpopulations.value.length) {
@@ -355,7 +358,7 @@ const population: IDefinitionListItem[] = [
     label: "Countries",
     content: resource.value?.countries
       ? [...resource.value?.countries]
-          .sort((a, b) => b.order - a.order)
+          .sort((a, b) => (b.order ?? 0) - (a.order ?? 0))
           .map((country) => country.name)
           .join(", ")
       : undefined,
@@ -363,7 +366,7 @@ const population: IDefinitionListItem[] = [
   {
     label: "Regions",
     content: resource.value?.regions
-      ?.sort((a, b) => b.order - a.order)
+      ?.sort((a, b) => (b.order ?? 0) - (a.order ?? 0))
       .map((r) => r.name)
       .join(", "),
   },
@@ -427,7 +430,8 @@ let accessConditionsItems = computed(() => {
   if (resource.value.dataAccessConditions?.length) {
     items.push({
       label: "Data access conditions",
-      content: resource.value.dataAccessConditions.map((c) => c.name),
+      type: "ONTOLOGY" as DefinitionListItemType,
+      content: resource.value.dataAccessConditions,
     });
   }
   if (resource.value.dataUseConditions) {
@@ -593,7 +597,7 @@ const showPopulation = computed(
         <ContentCohortGeneralDesign
           id="GeneralDesign"
           title="General Design"
-          :resource="resource"
+          :resource="resource as IResources"
         />
 
         <ContentBlock v-if="showPopulation" id="population" title="Population">
