@@ -273,12 +273,6 @@ public class TypeUtils {
     return (JSONB) v;
   }
 
-  public static JSONB[] toJsonbArray(Object[] values) {
-    // non standard so not using the generic function
-    if (values == null) return null; // NOSONAR
-    return Arrays.stream(values).map(TypeUtils::toJsonb).toArray(JSONB[]::new);
-  }
-
   public static String toText(Object v) {
     if (v == null) return null;
     if (v instanceof String) {
