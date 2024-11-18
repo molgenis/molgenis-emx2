@@ -8,11 +8,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.ExecutionInput;
 import graphql.GraphQL;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -25,8 +27,7 @@ public class TestGraphqlAdminFields {
   private static Database database;
   private static final String schemaName = TestGraphqlAdminFields.class.getSimpleName();
   private static final String TEST_PERSOON = "testPersoon";
-  private static final String ANOTHER_SCHEMA_NAME =
-      TestGraphqlAdminFields.class.getSimpleName() + "2";
+  private static final String ANOTHER_SCHEMA_NAME = TestGraphqlAdminFields.class.getSimpleName() + "2";
 
   @BeforeAll
   public static void setup() {
