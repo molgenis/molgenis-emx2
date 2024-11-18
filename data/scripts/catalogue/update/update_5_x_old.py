@@ -72,6 +72,8 @@ class Transform:
                 profile = 'RWEStaging'
             elif self.database_type == 'cohort_UMCG':
                 profile = 'UMCGCohortsStaging'
+            elif self.database_type == 'cohort_UMCU':
+                profile = 'UMCUCohorts'
 
             get_data_model(profile_path, path_to_write, profile)
 
@@ -88,12 +90,12 @@ class Transform:
         self.publications()
         self.external_identifiers()
 
-        if self.database_type != 'cohort_UMCG':
-            self.variables()
-            self.variable_values()
+        # if self.database_type != 'cohort_UMCG':
+        #     self.variables()
+        #     self.variable_values()
 
-        if self.database_type != 'network':
-            self.variable_mappings()
+        # if self.database_type != 'network':
+        #     self.variable_mappings()
         if self.database_type not in ['data_source', 'network']:
             self.collection_events()
             self.subcohorts()
@@ -280,17 +282,22 @@ class Transform:
                 df_design_paper = df_design_paper.rename(columns={'id': 'resource',
                                                                   'design paper': 'doi'})
                 df_design_paper = df_design_paper.dropna(axis=0)
+                df_design_paper = df_design_paper.reset_index()
 
             if self.database_type != 'cohort_UMCG':
                 df_other_pubs = df_resources[['id', 'publications']]
-                df_other_pubs.loc[:, 'is design publication'] = 'false'
-                df_other_pubs = df_other_pubs.rename(columns={'id': 'resource',
-                                                              'publications': 'doi'})
-                df_other_pubs = df_other_pubs.dropna(axis=0)
+                if not len(df_other_pubs) == 0:
+                    df_other_pubs.loc[:, 'is design publication'] = 'false'
+                    df_other_pubs = df_other_pubs.rename(columns={'id': 'resource',
+                                                                  'publications': 'doi'})
+                    df_other_pubs = df_other_pubs.dropna(axis=0)
+                    df_other_pubs = df_other_pubs.reset_index()
 
             if self.database_type == 'network':
                 df_resource_pubs = get_publications(df_other_pubs, df_publications)
             elif self.database_type == 'cohort_UMCG':
+                df_resource_pubs = get_publications(df_design_paper, df_publications)
+            elif len(df_other_pubs) == 0:
                 df_resource_pubs = get_publications(df_design_paper, df_publications)
             else:
                 df_merged_pubs = pd.concat([df_design_paper, df_other_pubs])
