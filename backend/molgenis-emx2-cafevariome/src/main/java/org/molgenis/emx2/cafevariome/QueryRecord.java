@@ -1,6 +1,7 @@
 package org.molgenis.emx2.cafevariome;
 
 import java.util.List;
+import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.beaconv2.QueryEntryType;
@@ -14,6 +15,19 @@ public class QueryRecord {
 
     Table table = schema.getTable(TABLE_NAME);
 
+    List<String> filters = parseFilters(query);
+    int count = QueryEntryType.doCountQuery(table, filters);
+
+    return switch (query.advanced.granularity()) {
+      case BOOLEAN -> new Response(null, null, count > 0);
+      case COUNT -> new Response(count, new Range(count, count), count > 0);
+      default ->
+          throw new MolgenisException(
+              "Not implemented granularity: " + query.advanced.granularity());
+    };
+  }
+
+  private static List<String> parseFilters(CafeVariomeQuery query) {
     String ageAtDiagFilter =
         FilterConceptVP.AGE_AT_DIAG
             .getGraphQlQuery()
@@ -24,9 +38,6 @@ public class QueryRecord {
     String diseaseTermFilter =
         FilterConceptVP.DISEASE.getGraphQlQuery().formatted(query.hpo.get(0).terms().get(0));
 
-    List<String> filters = List.of(ageAtDiagFilter, diseaseTermFilter);
-    int count = QueryEntryType.doCountQuery(table, filters);
-
-    return new Response(count, new Range(count, count), count > 0);
+    return List.of(ageAtDiagFilter, diseaseTermFilter);
   }
 }

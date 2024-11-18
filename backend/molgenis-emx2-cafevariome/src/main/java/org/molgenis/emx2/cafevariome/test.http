@@ -34,7 +34,7 @@ Content-Type: application/json
     }
   ],
   "advanced": {
-    "granularity": "boolean"
+    "granularity": "count"
   }
 }
 

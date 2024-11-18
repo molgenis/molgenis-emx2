@@ -1,3 +1,6 @@
 package org.molgenis.emx2.cafevariome;
 
-public record Response(int recordCount, Range recordRange, boolean exists) {}
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public record Response(Integer recordCount, Range recordRange, boolean exists) {}
