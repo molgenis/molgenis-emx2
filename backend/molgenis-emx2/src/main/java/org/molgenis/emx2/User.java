@@ -2,7 +2,10 @@ package org.molgenis.emx2;
 
 import static java.util.Objects.requireNonNull;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 public class User extends HasSettings<User> {
   private static final String TOKENS = "access-tokens";
