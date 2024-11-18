@@ -2,8 +2,7 @@ package org.molgenis.emx2.sql;
 
 import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.ColumnType.STRING;
-import static org.molgenis.emx2.Constants.MG_USER_PREFIX;
-import static org.molgenis.emx2.Constants.SYSTEM_SCHEMA;
+import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.sql.MetadataUtils.*;
 import static org.molgenis.emx2.sql.SqlDatabaseExecutor.*;
 import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeCreateSchema;
@@ -14,6 +13,7 @@ import java.util.*;
 import java.util.function.Supplier;
 import javax.sql.DataSource;
 import org.jooq.DSLContext;
+import org.jooq.Record;
 import org.jooq.SQLDialect;
 import org.jooq.conf.Settings;
 import org.jooq.exception.DataAccessException;
@@ -804,5 +804,69 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   @Override
   public List<LastUpdate> getLastUpdated() {
     return ChangeLogExecutor.executeLastUpdates(jooq);
+  }
+
+  public List<Member> loadUserRoles() {
+    List<Member> members = new ArrayList<>();
+    String roleFilter = Constants.MG_ROLE_PREFIX;
+    String userFilter = Constants.MG_USER_PREFIX;
+    List<Record> allRoles =
+        jooq.fetch(
+            "select distinct m.rolname as member, r.rolname as role"
+                + " from pg_catalog.pg_auth_members am "
+                + " join pg_catalog.pg_roles m on (m.oid = am.member)"
+                + "join pg_catalog.pg_roles r on (r.oid = am.roleid)"
+                + "where r.rolname LIKE {0} and m.rolname LIKE {1}",
+            roleFilter + "%", userFilter + "%");
+
+    for (Record userRecord : allRoles) {
+      String memberName =
+          userRecord.getValue("member", String.class).substring(userFilter.length());
+      String roleName = userRecord.getValue("role", String.class).substring(roleFilter.length());
+      members.add(new Member(memberName, roleName));
+    }
+    return members;
+  }
+
+  public void revokeRoles(String userName, List<Map<String, String>> members) {
+    try {
+      members.forEach(
+          member -> {
+            String prefixedRole =
+                Constants.MG_ROLE_PREFIX + member.get("schemaId") + "/" + member.get(ROLE);
+            jooq.execute(
+                "REVOKE {0} FROM {1}",
+                name(prefixedRole), name(Constants.MG_USER_PREFIX + userName));
+          });
+    } catch (DataAccessException dae) {
+      throw new SqlMolgenisException("Removal of role failed", dae);
+    }
+  }
+
+  public void updateRoles(String userName, List<Map<String, String>> members) {
+    try {
+      members.forEach(
+          member -> {
+            String schemaId = member.get("schemaId");
+            String role = member.get(ROLE);
+            String prefixedRole = MG_ROLE_PREFIX + schemaId + "/" + role;
+            String prefixedName = MG_USER_PREFIX + userName;
+
+            List<Member> existingUserRoles =
+                this.getSchema(schemaId).getMembers().stream()
+                    .filter(mem -> mem.getUser().equals(userName))
+                    .toList();
+            if (existingUserRoles.iterator().hasNext()) {
+              existingUserRoles.forEach(
+                  existingRole -> {
+                    String oldRole = MG_ROLE_PREFIX + schemaId + "/" + existingRole.getRole();
+                    jooq.execute("REVOKE {0} FROM {1}", name(oldRole), name(prefixedName));
+                  });
+            }
+            jooq.execute("GRANT {0} TO {1}", name(prefixedRole), name(prefixedName));
+          });
+    } catch (DataAccessException dae) {
+      throw new SqlMolgenisException("Updating of role failed", dae);
+    }
   }
 }
