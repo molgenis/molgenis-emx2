@@ -1,6 +1,0 @@
-tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,defaultValue
-Patient analysis consensus,,analysis,ref,1,,,Patient analyses,,,,,,RD3
-Patient analysis consensus,,comment,text,,true,,,,,,,,RD3
-Patient analysis consensus,,variant if applicable,ref,,,,Patient variant classifications,,,,,,"RD3"
-Patient analysis consensus,,persons who made the comment,ref_array,,,,ContactPersons,,,,,,"RD3"
-Patient analysis consensus,,timestamp,datetime,1,,,,,,,,,RD3,new Date().toISOString()
