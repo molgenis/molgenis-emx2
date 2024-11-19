@@ -100,5 +100,4 @@ const selectedIconsClasses = computed(
 );
 const customIcons = [...localIconNames];
 const nuxtIcons = ["uil:github"];
-customIcons.push(...localIconNames);
 </script>
