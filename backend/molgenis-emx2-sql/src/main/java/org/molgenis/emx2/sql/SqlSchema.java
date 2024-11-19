@@ -281,15 +281,17 @@ public class SqlSchema implements Schema {
 
       // create table if not exists
       if (oldTable == null && !mergeTable.isDrop()) {
-        TableMetadata newTable =
-            targetSchema.create(
-                new TableMetadata(mergeTable.getTableName())
-                    .setTableType(mergeTable.getTableType()));
+        TableMetadata table =
+            new TableMetadata(mergeTable.getTableName()).setTableType(mergeTable.getTableType());
+        if (mergeTable.getImportSchema() != null) {
+          table.setImportSchema(mergeTable.getImportSchema());
+        }
+        table.setInheritName(mergeTable.getInheritName());
+        TableMetadata newTable = targetSchema.create(table);
+        // create primary keys immediately to prevent foreign key dependency issues
         if (mergeTable.getInheritName() == null) {
-          // create primary keys immediately to prevent foreign key dependency issues
           mergeTable.getPrimaryKeyColumns().forEach(c -> newTable.add(c));
         }
-
       } else if (oldTable != null && !oldTable.getTableName().equals(mergeTable.getTableName())) {
         targetSchema.getTableMetadata(oldTable.getTableName()).alterName(mergeTable.getTableName());
       }
@@ -335,8 +337,7 @@ public class SqlSchema implements Schema {
         // add missing (except refback),
         // remove triggers if existing column if type changed
         // drop columns marked with 'drop'
-        for (Column newColumn :
-            mergeTable.getNonInheritedColumns().stream().filter(c -> !c.isPrimaryKey()).toList()) {
+        for (Column newColumn : mergeTable.getNonInheritedColumns()) {
           Column oldColumn =
               newColumn.getOldName() != null
                   ? oldTable.getLocalColumn(newColumn.getOldName())
@@ -368,8 +369,7 @@ public class SqlSchema implements Schema {
     for (TableMetadata newTable : mergeTableList) {
       if (!newTable.isDrop()) {
         TableMetadata oldTable = targetSchema.getTableMetadata(newTable.getTableName());
-        for (Column newColumn :
-            newTable.getNonInheritedColumns().stream().filter(c -> !c.isPrimaryKey()).toList()) {
+        for (Column newColumn : newTable.getNonInheritedColumns()) {
           Column oldColumn =
               newColumn.getOldName() != null
                   ? oldTable.getColumn(newColumn.getOldName()) // when renaming

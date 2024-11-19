@@ -101,7 +101,7 @@ public class TestLoaders {
     Schema RD3Schema = database.createSchema(RD3_TEST);
     // todo demo data!
     DataModels.Profile.RD3.getImportTask(RD3Schema, false).run();
-    assertEquals(40, RD3Schema.getTableNames().size());
+    assertEquals(54, RD3Schema.getTableNames().size());
   }
 
   @Test

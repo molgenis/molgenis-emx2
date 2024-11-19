@@ -88,7 +88,8 @@ public class SchemaFromProfile {
       throws URISyntaxException, IOException {
     List<Row> keepRows = new ArrayList<>();
     String[] modelsList = new ResourceListing().retrieve(directory);
-    for (String schemaLoc : modelsList) {
+    for (String schemaLoc :
+        Arrays.stream(modelsList).filter(model -> !model.endsWith(".md")).toList()) {
       Iterable<Row> rowIterable =
           CsvTableReader.read(
               new InputStreamReader(
@@ -98,7 +99,7 @@ public class SchemaFromProfile {
       for (Row row : rowIterable) {
         List<String> profiles = csvStringToList(row.getString("profiles"));
         if (profiles.isEmpty()) {
-          throw new MolgenisException("No profiles for " + row);
+          throw new MolgenisException("No profiles for " + row + " in file " + schemaLoc);
         }
         for (String profile : profiles) {
           if (!filterByProfiles || this.profiles.getProfileTagsList().contains(profile)) {
