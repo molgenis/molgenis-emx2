@@ -114,7 +114,7 @@ direction TB
     }
     if (table.subclasses) {
       table.subclasses.forEach((subclass) => {
-        graph += ` \`${subclass.inherit}\` <|-- \`${subclass.name}\` \n`;
+        graph += ` \`${subclass.inheritName}\` <|-- \`${subclass.name}\` \n`;
       });
     }
     table.columns.forEach((column) => {
