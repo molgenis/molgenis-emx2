@@ -33,7 +33,7 @@
     "ui"
   ],
   "devDependencies": {
-    "nuxt": "3.13.2"
+    "nuxt": "3.14.159"
   },
   "scripts": {
     "build:libs": "yarn workspace molgenis-components run build && yarn workspace molgenis-viz run build"

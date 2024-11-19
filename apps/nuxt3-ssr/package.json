@@ -48,6 +48,6 @@
     "metadata-utils": "*",
     "nuxt-gtag": "3.0.1",
     "vite": "5.4.6",
-    "vue": "3.5.6"
+    "vue": "3.5.13"
   }
 }

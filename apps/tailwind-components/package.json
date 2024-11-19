@@ -20,12 +20,12 @@
   "dependencies": {
     "consola": "3.2.3",
     "floating-vue": "5.2.2",
-    "vue": "3.5.6",
+    "vue": "3.5.13",
     "vue-router": "4.4.3"
   },
   "devDependencies": {
     "@iconify-json/material-symbols": "1.2.6",
-    "@nuxt/icon": "1.7.2",
+    "@nuxt/icon": "1.8.1",
     "@nuxt/test-utils": "3.12.1",
     "@nuxtjs/tailwindcss": "6.12.0",
     "@vue/test-utils": "2.4.6",
