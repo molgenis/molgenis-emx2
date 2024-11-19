@@ -776,7 +776,6 @@ public class TestGraphqlSchemaFields {
           execute("{TestJson(filter:{json:{like:\"bofke2\"}}){json}}") // more useful
               .at("/TestJson/0/json")
               .asText());
-
     } finally {
       grapql = new GraphqlApiFactory().createGraphqlForSchema(schema, taskService);
     }
