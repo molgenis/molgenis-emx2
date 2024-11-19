@@ -19,7 +19,8 @@ In the component folder, we've arranged the components into categories. To use t
 ### Icons
 
 Icons are rendered using @nuxt/icon, for usage details and options see: https://nuxt.com/modules/icon
-The custom (default) icons used in the component library are stored in the assets/icons folder 
+
+The custom icons used in the component library are stored in the assets/icons folder. When adding a new icon its suggested to use external icons libs as described in https://nuxt.com/modules/icon. Custom icons need to be added to the /assets/icons folder. Custom icons need to be svg and file name should be all lowercase kebab-case. In order to use custom icon without prefix in components library, include an alias in the app.config.ts file. 
 
 ## Getting started
 
