@@ -404,13 +404,13 @@ Open the index.html file, add update the message with the name of your app. In a
 
 By this point, you should have enough to view your app. Run the `yarn dev` command to start the dev server. The app will be served at [http://localhost:5173](http://localhost:5173).
 
-### Generating typescript types for an app
+### Generating interfaces and types for use in MOLGENIS fontend apps
 
-Throughout the EMX2 frontend, we use typescript for stronger typing and validation in our frontend components. (Note: we are currently migrating older applications. Not all applications may have typescript enabled by default.) For developers that use gradle, we've include a few shortcut for autogenerating typescript interfaces and types. To generate, follow these steps.
+Throughout the EMX2 frontend, we use typescript for stronger typing and validation in our frontend components. To make things easier for developers, we've include a command for autogenerating typescript interfaces and types from an EMX2 schema. This process is outlined in the steps below.
 
-#### 1. Start a local gradlew run
+#### 1. Start a local EMX2 instance
 
-Start your local molgenis instance. (Note: you will have to also start Postgres.)
+Start your local molgenis instance using gradlew. (Note: Postgres will also need to be started.) In the root `molgenis-emx2` directory, run the following command.
 
 ```terminal
 ./gradlew run
@@ -418,18 +418,27 @@ Start your local molgenis instance. (Note: you will have to also start Postgres.
 
 #### 2. Import your schema
 
-Once your instance is live and you have signed in, create a new database and import your EMX2 file. Optionally, import any ontologies or reference datasets.
+Once your instance is live -
+
+1. Navigate to the local emx2 instance at [http://localhost:8080/](http://localhost:8080/)
+2. Sign in as admin or as another user that can create databases
+3. Create a new database (e.g., `My new database`)
+4. Import your EMX2 file into the new database
 
 #### 3. Generate the interfaces and types
 
-In your application folder (`apps/*`), create a directory to store the types (e.g., "types", "interfaces", etc.). The syntax to generate the file is:
+In your application folder (`apps/*`), create a directory to store the types (e.g., "types", "interfaces", etc.). The command is `generateTypes`. The syntax to generate the file is described below.
 
 ```terminal
 ./gradlew generateTypes --args=[schemaName] [full-path+file-name]
 ```
 
+##### Definitions
+
 - `schemaName`: the name of the schema you would like to use to generate types and interfaces
 - `full-path+file-name`: the full system path to the output file. (Note: the command will throw an error if the output directory does not exist.)
+
+##### Notes
 
 Any changes made to this file will be overwritten when the command is run again. If you would like to keep these changes, we recommend saving them in a new file.
 
