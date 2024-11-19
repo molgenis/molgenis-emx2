@@ -51,8 +51,8 @@ public class VcfApi {
     assert schema != null;
     Table genomicVariations = schema.getTableByNameOrIdCaseInsensitive("GenomicVariations");
     Table individuals = schema.getTableByNameOrIdCaseInsensitive("Individuals");
-    File vcfTmpFile = requestBodyToTmpFile(ctx);
-    VcfImport vcfImport = new VcfImport(vcfTmpFile, genomicVariations, individuals);
+    File vcfFile = requestBodyToTmpFile(ctx);
+    VcfImport vcfImport = new VcfImport(vcfFile, genomicVariations, individuals);
     int count = vcfImport.start();
     ctx.status(200);
     ctx.contentType(ACCEPT_VCF);
@@ -92,48 +92,49 @@ public class VcfApi {
     Schema schema = getSchema(ctx);
     assert schema != null;
     Table genomicVariations = schema.getTableByNameOrIdCaseInsensitive("GenomicVariations");
+    Table caseLevelData = schema.getTableByNameOrIdCaseInsensitive("GenomicVariationsCaseLevel");
     Table individuals = schema.getTableByNameOrIdCaseInsensitive("Individuals");
-    return genomicVariations == null && individuals == null;
+    return genomicVariations == null && individuals == null && caseLevelData == null;
   }
 
   /** Check if all required tables and attributes for import are present */
   private static boolean allTablesAndAttributesPresent(Context ctx) {
     Schema schema = getSchema(ctx);
-
-    // Check GenomicVariations table and its required fields for import
     assert schema != null;
-    Table genomicVariations = schema.getTableByNameOrIdCaseInsensitive("GenomicVariations");
-    if (genomicVariations == null) {
+    if (!tableExistsAndHasColumnNames(
+        schema,
+        "GenomicVariations",
+        "position_assemblyId",
+        "position_refseqId",
+        "position_start",
+        "referenceBases",
+        "alternateBases")) {
       return false;
     }
-    for (String columnName :
-        new String[] {
-          "position_assemblyId",
-          "position_refseqId",
-          "position_start",
-          "referenceBases",
-          "alternateBases",
-          //  "individualId", TODO
-          //  "zygosity"
-        }) {
-      if (genomicVariations.getMetadata().getColumn(columnName) == null) {
+
+    if (!tableExistsAndHasColumnNames(schema, "Individuals", "id")) {
+      return false;
+    }
+
+    if (!tableExistsAndHasColumnNames(
+        schema, "GenomicVariationsCaseLevel", "id", "individualId", "zygosity")) {
+      return false;
+    }
+
+    return true;
+  }
+
+  public static boolean tableExistsAndHasColumnNames(
+      Schema schema, String tableName, String... columnNames) {
+    Table table = schema.getTableByNameOrIdCaseInsensitive(tableName);
+    if (table == null) {
+      return false;
+    }
+    for (String columnName : columnNames) {
+      if (table.getMetadata().getColumn(columnName) == null) {
         return false;
       }
     }
-    // etc!
-
-    // Check Individuals table and its required fields for import
-    Table individuals = schema.getTableByNameOrIdCaseInsensitive("Individuals");
-    if (individuals == null) {
-      return false;
-    }
-    for (String columnName : new String[] {"id"}) {
-      if (individuals.getMetadata().getColumn(columnName) == null) {
-        return false;
-      }
-    }
-    // etc!
-
     return true;
   }
 }
