@@ -46,7 +46,7 @@ public class FilteringTermsResponse {
    * @param filteringTermsSet
    * @param schemaName
    */
-  private void getFilteringTermsFromTables(
+  public void getFilteringTermsFromTables(
       Database database,
       List<String> tableNames,
       Set<FilteringTerm> filteringTermsSet,
