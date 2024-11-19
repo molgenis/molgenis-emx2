@@ -107,6 +107,7 @@ const ulElemRef = useTemplateRef<HTMLUListElement>("listbox-ul");
 const olElemRefs = useTemplateRef<HTMLOptionElement[]>("listbox-li");
 const btnElemRef = useTemplateRef<HTMLButtonElement>("listbox-button");
 const listboxDisplayText = ref<string>(props.placeholder);
+const startingCounter = ref<number>(0);
 
 function counterIsInRange(value: number) {
   return value <= listboxOptions.value.length - 1 && value >= 0;
@@ -198,6 +199,7 @@ function updateListboxDisplayText(text: string | undefined | null): string {
 function updateModelValue(selection: IInternalListboxOption) {
   btnElemRef.value?.setAttribute("aria-activedescendant", selection.elemId);
   focusCounter.value = selection.index;
+  startingCounter.value = selection.index;
 
   if (sourceDataType.value === "ListboxOptions") {
     const selectedOption: IListboxOption = { value: selection.value };
@@ -237,11 +239,7 @@ function openCloseListbox() {
   if (listboxIsExpanded.value) {
     ulElemRef.value?.setAttribute("tabindex", "0");
     if (modelValue.value) {
-      const startingOption: IInternalListboxOption[] =
-        listboxOptions.value.filter((option: IInternalListboxOption) => {
-          option.value === modelValue.value;
-        });
-      updateCounter(startingOption[0].index);
+      updateCounter(startingCounter.value);
     } else {
       updateCounter(0);
     }
