@@ -2,8 +2,7 @@ package org.molgenis.emx2.sql;
 
 import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.ColumnType.STRING;
-import static org.molgenis.emx2.Constants.MG_USER_PREFIX;
-import static org.molgenis.emx2.Constants.SYSTEM_SCHEMA;
+import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.sql.MetadataUtils.*;
 import static org.molgenis.emx2.sql.SqlDatabaseExecutor.*;
 import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeCreateSchema;
@@ -242,31 +241,20 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     if (!this.isOidcEnabled) return;
 
     // check if OIDC settings are complete otherwise log error and set to false
-    String oidcClientId = getDbOrEnvSetting(Constants.MOLGENIS_OIDC_CLIENT_ID);
-    String callBackUrl = getDbOrEnvSetting(Constants.MOLGENIS_OIDC_CALLBACK_URL);
-    Object clientSecret =
-        EnvironmentProperty.getParameter(Constants.MOLGENIS_OIDC_CLIENT_SECRET, null, STRING);
-
-    if (clientSecret == null) {
+    if (!isValidOidcSettings()) {
       setSetting(
           Constants.IS_OIDC_ENABLED,
-          "error: "
-              + Constants.MOLGENIS_OIDC_CLIENT_SECRET
-              + " is missing. Fix and then set again to true");
-    }
-    if (oidcClientId == null) {
-      setSetting(
-          Constants.IS_OIDC_ENABLED,
-          "error: " + Constants.MOLGENIS_OIDC_CLIENT_ID + " is missing. Fix and set again to true");
+          "error: Environment OIDC settings are incomplete. Fix and then set again to true");
     }
   }
 
-  private String getDbOrEnvSetting(String settingId) {
-    String setting = getSetting(settingId);
-    if (setting == null) {
-      setting = (String) EnvironmentProperty.getParameter(settingId, null, STRING);
-    }
-    return setting;
+  private boolean isValidOidcSettings() {
+    Object oidcClientId =
+        EnvironmentProperty.getParameter(Constants.MOLGENIS_OIDC_CLIENT_ID, null, STRING);
+    Object clientSecret =
+        EnvironmentProperty.getParameter(Constants.MOLGENIS_OIDC_CLIENT_SECRET, null, STRING);
+
+    return clientSecret != null && oidcClientId != null;
   }
 
   @Override
@@ -441,14 +429,21 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
 
   @Override
   public Database setSettings(Map<String, String> settings) {
-    if (isAdmin()) {
-      super.setSettings(settings);
-      MetadataUtils.saveDatabaseSettings(jooq, getSettings());
-      // force all sessions to reload
-      this.listener.afterCommit();
-    } else {
+    if (!isAdmin()) {
       throw new MolgenisException("Insufficient rights to create database level setting");
     }
+    if (settings.containsKey(Constants.IS_OIDC_ENABLED)) {
+      String isOidcEnabledSetting = settings.get(Constants.IS_OIDC_ENABLED);
+      if (Boolean.parseBoolean(isOidcEnabledSetting) && !isValidOidcSettings()) {
+        throw new MolgenisException("OIDC environment setting are incomplete");
+      }
+    }
+
+    super.setSettings(settings);
+    MetadataUtils.saveDatabaseSettings(jooq, getSettings());
+    // force all sessions to reload
+    this.listener.afterCommit();
+
     return this;
   }
 
