@@ -404,14 +404,41 @@ Open the index.html file, add update the message with the name of your app. In a
 
 By this point, you should have enough to view your app. Run the `yarn dev` command to start the dev server. The app will be served at [http://localhost:5173](http://localhost:5173).
 
-### Generate typescript types for an app
+### Generating typescript types for an app
 
-To generate the typescript interfaces for a given schema, run:
-`./gradlew generateTypes --args=[schemaName] [full-path+file-name]`
+Throughout the EMX2 frontend, we use typescript for stronger typing and validation in our frontend components. (Note: we are currently migrating older applications. Not all applications may have typescript enabled by default.) For developers that use gradle, we've include a few shortcut for autogenerating typescript interfaces and types. To generate, follow these steps.
 
-for example on unix: `./gradlew generateTypes --args='catalogue /Users/john/Code/emx2/molgenis-emx2/apps/nuxt3-ssr/interfaces/generated/types.ts'`
-"
-or on windows: `.\gradlew generateTypes --args='"catalogue" "C:\Users\john\Code\emx2\molgenis-emx2\apps\nuxt3-ssr\interfaces\generated\types.ts"' `
+#### 1. Start a local gradlew run
 
-The first param is the schema name, second param is the full path to the file the interfaces get generated into.
-Note that the file is either created or overridden, and that the folder must already exist.
+Start your local molgenis instance. (Note: you will have to also start Postgres.)
+
+```terminal
+./gradlew run
+```
+
+#### 2. Import your schema
+
+Once your instance is live and you have signed in, create a new database and import your EMX2 file. Optionally, import any ontologies or reference datasets.
+
+#### 3. Generate the interfaces and types
+
+In your application folder (`apps/*`), create a directory to store the types (e.g., "types", "interfaces", etc.). The syntax to generate the file is:
+
+```terminal
+./gradlew generateTypes --args=[schemaName] [full-path+file-name]
+```
+
+- `schemaName`: the name of the schema you would like to use to generate types and interfaces
+- `full-path+file-name`: the full system path to the output file. (Note: the command will throw an error if the output directory does not exist.)
+
+Any changes made to this file will be overwritten when the command is run again. If you would like to keep these changes, we recommend saving them in a new file.
+
+Depending on your operating system, there are some slight differences in the way it should be written. For example, if you wanted to generate types for a schema called `MySchema`, here's how it would be written.
+
+```terminal
+# unix
+./gradlew generateTypes --args='MySchema /Users/john/Code/emx2/molgenis-emx2/apps/nuxt3-ssr/interfaces/generated/types.ts'
+
+# windows
+.\gradlew generateTypes --args='"MySchema" "C:\Users\john\Code\emx2\molgenis-emx2\apps\nuxt3-ssr\interfaces\generated\types.ts"'
+```
