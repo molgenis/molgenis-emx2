@@ -1,0 +1,10 @@
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
+Data collections,,,,,,,,,,,http://www.w3.org/ns/dcat#Dataset,DCAT v2 dataset entries.,DCAT
+Data collections,,id,string,1,TRUE,,,,,,"http://purl.org/dc/terms/identifier,http://purl.allotrope.org/ontologies/result#AFR_0000919",Local database identifier of the dataset.,DCAT
+Data collections,,name,string,,TRUE,,,,,,http://purl.org/dc/terms/title,A name given to the record.,DCAT
+Data collections,,description,string,,TRUE,,,,,,http://purl.org/dc/terms/description,A free-text account of the item.,DCAT
+Data collections,,date created,date,,,,,,,,http://semanticscience.org/resource/SIO_001083,A date of database submission refers to the moment in time in which some information was submitted/received to a database system.,RD3
+Data collections,,included in collections,ref_array,,TRUE,,Catalog,,,,http://www.w3.org/ns/dcat#Catalog,Reference back to any catalogs that contain this dataset.,DCAT
+Data collections,,created by,ref,,,,ContactPersons,,,,http://purl.obolibrary.org/obo/NCIT_C42628,Indicates the person or authoritative body who brought the item into existence.,RD3
+Data collections,,data provider,ontology_array,,,,Organisations,,,,http://purl.obolibrary.org/obo/NCIT_C16493,The person or authoritative body who provided the information.,RD3
+Data collections,,release notes,text,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C115505,"A notation regarding the decisions, and/or clarification of any information pertaining to data management.",RD3
