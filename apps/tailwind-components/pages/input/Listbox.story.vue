@@ -34,73 +34,102 @@
       the various configurations that area allowed.
     </p>
   </article>
-  <form class="mb-4 bg-white rounded p-4">
-    <legend class="mb-2">Configure the listbox component</legend>
-    <div class="mb-4">
-      <InputLabel for="listbox-component-state">
-        Select the component state
-      </InputLabel>
-      <InputRadioGroup
-        id="listbox-component-state"
-        v-model="listboxState"
-        :radioOptions="[
-          {
-            value: 'disabled',
-            label: 'Component is disabled',
-          },
-          {
-            value: 'error',
-            label: 'Component has error',
-          },
-        ]"
-        :showClearButton="true"
-      />
+  <form class="mb-6 bg-white rounded p-4">
+    <legend class="mb-2 text-heading-lg">
+      Configure the listbox component
+    </legend>
+    <div class="flex flex-row flex-wrap justify-center items-start gap-4">
+      <div class="p-2 grow">
+        <InputLabel for="listbox-data-type" class="pl-0">
+          <span>Select the input data type</span>
+        </InputLabel>
+        <InputRadioGroup
+          id="listbox-data-type"
+          v-model="listboxDataType"
+          :radio-options="[
+            { value: 'string', label: 'String array' },
+            { value: 'array', label: 'Array of options' },
+          ]"
+        />
+      </div>
+      <div class="p-2 grow">
+        <InputLabel for="listbox-component-state" class="pl-0">
+          Change the component state
+        </InputLabel>
+        <InputRadioGroup
+          id="listbox-component-state"
+          v-model="listboxState"
+          :radioOptions="[
+            {
+              value: 'disabled',
+              label: 'Disabled: disable interactivity with the component',
+            },
+            {
+              value: 'error',
+              label: 'Error: simulate an instance where an error occurred',
+            },
+          ]"
+          :showClearButton="true"
+        />
+      </div>
     </div>
-    <div class="mb-4">
+    <div class="bg-white p-2 grow">
       <InputLabel for="listbox-placeholder">
         Change the default placeholder text
       </InputLabel>
       <InputString id="listbox-placeholder" v-model="listboxPlaceholder" />
     </div>
   </form>
-  <div class="mb-2 bg-white rounded p-4">
-    <InputLabel id="listbox-input-label" for="listbox-input" class="block mb-3">
+  <div class="mb-2 bg-white rounded p-6">
+    <h3 class="text-heading-lg mb-2">Listbox example</h3>
+    <InputLabel
+      id="listbox-input-label"
+      for="listbox-input"
+      class="block mb-3 pl-0"
+    >
       <span>Select a group assignment</span>
     </InputLabel>
     <InputListbox
       id="listbox-input"
       labelId="listbox-input-label"
-      :options="optionsAsValueArrays"
+      :options="listboxData"
       v-model="listboxSelection"
       :hasError="listboxState === 'error'"
       :disabled="listboxState === 'disabled'"
       :placeholder="listboxPlaceholder"
     />
-    <output class="block w-full mt-6 bg-white py-2 px-2">
-      <code>Output: {{ listboxSelection }}</code>
+    <output class="block w-full mt-6 bg-gray-100 py-3 px-2 pl-6">
+      <code
+        >Output {{ listboxDataType === "true" ? "Value" : "Object" }}:
+        {{ listboxSelection }}</code
+      >
     </output>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import type { IListboxValueArray, IListboxOption } from "../../types/listbox";
 
 // as ListboxOption
-const letters = [...Array(26).keys()].map((num) =>
+const letters: string[] = [...Array(26).keys()].map((num) =>
   String.fromCharCode(num + 65)
 );
 
-const optionsWithLabelsData = ref<IListboxOption[]>(
-  letters.map((letter: string) => {
-    return { value: letter, label: "Group" + letter };
-  })
-);
-
-// as Listbox Array
-const optionsAsValueArrays = ref<IListboxValueArray[]>(letters);
+const lettersWithLabels: IListboxOption[] = letters.map((letter: string) => {
+  return { value: letter, label: `Group ${letter}` };
+});
 
 const listboxState = ref<string>("");
 const listboxSelection = ref();
 const listboxPlaceholder = ref<string>("Select an option");
+const listboxDataType = ref<string>("string");
+
+const listboxData = computed<IListboxOption[] | IListboxValueArray[]>(() => {
+  if (listboxDataType.value === "string") {
+    return letters as IListboxValueArray[];
+  } else {
+    return lettersWithLabels as IListboxOption[];
+  }
+});
 </script>
