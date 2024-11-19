@@ -2,6 +2,7 @@ tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,ref
 Data collections,,,,,,,,,,,http://www.w3.org/ns/dcat#Dataset,DCAT v2 dataset entries.,DCAT
 Data collections,,id,string,1,TRUE,,,,,,"http://purl.org/dc/terms/identifier,http://purl.allotrope.org/ontologies/result#AFR_0000919",Local database identifier of the dataset.,DCAT
 Data collections,,name,string,,TRUE,,,,,,http://purl.org/dc/terms/title,A name given to the record.,DCAT
+Data collections,,type,ontology,,,,Collection types,,,,,,RD3
 Data collections,,description,string,,TRUE,,,,,,http://purl.org/dc/terms/description,A free-text account of the item.,DCAT
 Data collections,,date created,date,,,,,,,,http://semanticscience.org/resource/SIO_001083,A date of database submission refers to the moment in time in which some information was submitted/received to a database system.,RD3
 Data collections,,included in collections,ref_array,,TRUE,,Catalog,,,,http://www.w3.org/ns/dcat#Catalog,Reference back to any catalogs that contain this dataset.,DCAT

@@ -1,3 +1,0 @@
-tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
-Collections,,name,,1,,,,,,,,,RD3
-Collections,,type,ontology,,,,Collection types,,,,,,RD3

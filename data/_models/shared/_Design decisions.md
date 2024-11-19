@@ -1,3 +1,13 @@
+# what standards do we want to interoperate with
+
+import
+- vcf
+- phenopacket
+
+output
+- dcat/fdp (ejp flavour)
+- beacon
+
 # naming
 
 - table names uppercase first letter (so Patient instead of patient)
@@ -42,3 +52,9 @@ N.b. we consider other name like 'Individual observation'
 2. using iso period data type
 
 decision: keep both.
+
+# how to deal with cardinality differences between RD3 and standard
+
+- for data we want to import we need to have equivalent cardinality
+- for data that we want to export we can have less flexible cardinality
+- 
