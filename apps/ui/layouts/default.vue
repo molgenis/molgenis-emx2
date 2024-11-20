@@ -2,7 +2,6 @@
 const config = useRuntimeConfig();
 const route = useRoute();
 const { data: session } = await useSession();
-console.log("session form default layout: ", session.value);
 
 const faviconHref = config.public.emx2Theme
   ? `/_nuxt-styles/img/${config.public.emx2Theme}.ico`

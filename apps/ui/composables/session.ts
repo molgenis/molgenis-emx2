@@ -1,7 +1,5 @@
 export const useSession = () => {
   return useAsyncData("session", async () => {
-    console.log("init useSession");
-
     const { data, error } = await $fetch("/api/graphql", {
       method: "POST",
       body: JSON.stringify({
