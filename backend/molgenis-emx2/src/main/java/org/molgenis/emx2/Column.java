@@ -215,13 +215,6 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   }
 
   public Column setRefTable(String refTable) {
-    if (refTable != null && !getColumnType().isReference()) {
-      throw new MolgenisException(
-          "Cannot set refTable for column '"
-              + getName()
-              + "': is not a reference but a "
-              + getColumnType());
-    }
     this.refTable = refTable;
     return this;
   }
@@ -389,6 +382,25 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
 
   public boolean isReference() {
     return getColumnType().isReference();
+  }
+
+  public Column getReferenceRefback() {
+    if (!this.isReference()) {
+      return null;
+    }
+    // in complex table rename scenarios the refTable might not be available
+    // todo, never have to check if null
+    if (this.getRefTable() != null) {
+      for (Column c : this.getRefTable().getColumns()) {
+        if (c.isRefback()
+            && c.getRefTableName().equals(this.getTableName())
+            && c.getRefSchemaName().equals(this.getSchemaName())
+            && this.getName().equals(c.getRefBack())) {
+          return c;
+        }
+      }
+    }
+    return null;
   }
 
   public String getSchemaName() {
