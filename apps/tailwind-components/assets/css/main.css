@@ -98,6 +98,8 @@
     --background-color-invalid: var(--color-red-200);
     --background-color-input: var(--color-white);
     --background-color-input-checked: var(--color-yellow-500);
+    --background-color-table: var(--color-white);
+
 
     --text-color-button-primary: var(--color-gray-900);
     --text-color-button-primary-hover: var(--color-gray-900);
@@ -140,9 +142,11 @@
     --text-color-tooltip-hover-dark: var(--color-blue-500);
     --text-color-tooltip-hover-light: var(--color-white);
     --text-color-pagination: var(--color-white);
+    --text-color-pagination-inverted: var(--color-gray-400);
     --text-color-pagination-input: var(--color-blue-800);
     --text-color-pagination-hover: var(--color-white);
     --text-color-footer-link: var(--color-yellow-500);
+    --text-color-table-column-header: var(--color-gray-600);
     
     --text-color-invalid: var(--color-red-500);
     --text-color-valid: var(--color-green-800);
