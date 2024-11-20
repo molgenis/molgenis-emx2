@@ -47,14 +47,7 @@
         </template>
       </Table>
 
-      <Modal ref="createUserModal" title="Create User">
-        <InputString id="New user name" v-model="userName" />
-        <InputString id="New user password" v-model="password" />
-        <template #footer>
-          <Button @click="addUser(userName, password)">Add user</Button>
-          <Button @click="closeCreateUserModal">Close</Button>
-        </template>
-      </Modal>
+      <NewUserModal ref="createUserModal" @addUser="addUser"> </NewUserModal>
 
       <EditUserModal
         ref="editUserModal"
@@ -120,8 +113,6 @@ const editUserModal = ref<InstanceType<typeof EditUserModal>>();
 const createUserModal = ref<InstanceType<typeof Modal>>();
 
 const currentPage = ref(1);
-const password = ref<string>("");
-const userName = ref<string>("");
 const users = ref<IUser[]>([]);
 const userCount = ref(0);
 const totalPages = ref(0);
@@ -142,7 +133,6 @@ roles.value = await getRoles(schemas.value);
 
 async function addUser(userName: string, password: string) {
   await createUser(userName, password);
-  closeCreateUserModal();
   retrieveUsers();
 }
 
@@ -162,13 +152,7 @@ async function retrieveUsers() {
 
 async function removeUser(user: IUser) {
   await deleteUser(user);
-  getUsers();
-}
-
-function closeCreateUserModal() {
-  createUserModal.value?.close();
-  userName.value = "";
-  password.value = "";
+  retrieveUsers();
 }
 
 function editUser(user: IUser) {

@@ -140,7 +140,7 @@ function getRoles(roles: IRole[]): Record<string, IRole> {
 }
 
 async function saveUser() {
-  const edittedUser: IUser = {
+  const editedUser: IUser = {
     email: userName.value,
     settings: [],
     enabled: isEnabled.value,
@@ -150,10 +150,10 @@ async function saveUser() {
   }; //TODO define update user object
 
   if (password.value) {
-    edittedUser.password = password.value;
+    editedUser.password = password.value;
   }
 
-  await updateUser(edittedUser);
+  await updateUser(editedUser);
   emit("userUpdated");
   modal.value?.close();
 }
