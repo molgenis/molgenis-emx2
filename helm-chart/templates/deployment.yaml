@@ -102,7 +102,7 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           resources:
             limits:
-              memory: "128Gi"
+              memory: "128Mi"
             requests:
               memory: "64Mi"
           ports:
