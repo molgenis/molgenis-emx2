@@ -39,7 +39,7 @@ Resources,,resources,ref_array,,,,Resources,,,,dct:dataset,List of other resourc
 Resources,,part of resources,refback,,,,Resources,,resources,,dct:dataset,List of other collections included in this resource,"DataCatalogueFlat,EMA"
 Resources,,resources,ref_array,,,catalogue,Resources,,,,,"List of other resources included in this network, e.g. cohorts, biobanks or other networks",NetworksStaging
 Resources,,population,heading,,,,,,,,,Description of the population that is sampled in this resource,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,UMCGCohortsStaging,UMCUCohorts"
-Resources,,number of participants,int,,,,,,,,,Total number of individuals for which data is collected,",UMCUCohorts"
+Resources,,number of participants,int,,,,,,,,,Total number of individuals for which data is collected,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,UMCGCohortsStaging,UMCUCohorts"
 Resources,,number of participants with samples,int,,,,,,,,,Number of individuals for which samples are collected,"DataCatalogueFlat,CohortsStaging,RWEStaging,UMCGCohortsStaging"
 Resources,,underlying population,text,,,,,,,,,Provide a summary description of the underlying population from which participants are sampled,"DataCatalogueFlat,RWEStaging"
 Resources,,population description,text,,,,,,,,,A short description of the study population,EMA
