@@ -71,7 +71,8 @@
   </aside>
 </template>
 
-<script setup>
+<script setup lang="ts">
+// @ts-ignore
 import { Accordion } from "molgenis-viz";
 import { ArrowUpTrayIcon } from "@heroicons/vue/24/outline";
 </script>

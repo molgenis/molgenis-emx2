@@ -12,9 +12,9 @@
               <a :href="`/${publicSchema}/cranio-public/#/about`">About</a>
             </li>
             <li>
-              <a :href="`/${publicSchema}/cranio-public/#/dashboard`"
-                >Dashboard</a
-              >
+              <a :href="`/${publicSchema}/cranio-public/#/dashboard`">
+                Dashboard
+              </a>
             </li>
           </UnorderedList>
         </div>
@@ -22,14 +22,14 @@
           <p><strong>For Members</strong></p>
           <UnorderedList listType="none">
             <li>
-              <a :href="`/${publicSchema}/cranio-public/#/Providers`"
-                >Providers</a
-              >
+              <a :href="`/${publicSchema}/cranio-public/#/Providers`">
+                Providers
+              </a>
             </li>
             <li>
-              <a :href="`/${publicSchema}/cranio-public/#/Documents`"
-                >Documents</a
-              >
+              <a :href="`/${publicSchema}/cranio-public/#/Documents`">
+                Documents
+              </a>
             </li>
           </UnorderedList>
         </div>
@@ -65,10 +65,11 @@
 </template>
 
 <script setup lang="ts">
+// @ts-ignore
 import { PageFooter, UnorderedList } from "molgenis-viz";
 
-const props = defineProps<{
-  publicSchema: string | null;
+defineProps<{
+  publicSchema?: string;
 }>();
 </script>
 
