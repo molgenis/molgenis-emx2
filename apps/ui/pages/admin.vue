@@ -73,7 +73,7 @@ import {
 } from "~/util/adminUtils";
 
 /**
- * Component wishlist:
+ * Component wish list:
  *  Settings icon
  *  Edit icon
  *  Admin icon
@@ -92,7 +92,6 @@ import {
  *  Where to put enable/disable; behind edit or button toggle -> doesn't really matter, so modal
  *  Do certain actions need confirmation dialog? -> yes
  *  Does password creating/changing need a double input? -> yes
- *  Do we want a modal for creation with more options or is create into edit fine? -> modal
  *  Search bar for users (scale: 100s of users)
  */
 
@@ -101,7 +100,6 @@ import {
  * make buttons double click safe
  * put component in right place
  * make stuff look better
- * save user (needs backend)
  */
 
 definePageMeta({

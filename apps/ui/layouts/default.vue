@@ -21,8 +21,8 @@ useHead({
       return `${titleChunk} | ${config.public.siteTitle}`;
     } else if (titleChunk) {
       return titleChunk;
-      // } else if (config.public.siteTitle) {
-      //   return config.public.siteTitle as string;
+    } else if (config.public.siteTitle) {
+      return config.public.siteTitle as string;
     } else {
       return "Emx2";
     }
@@ -66,12 +66,14 @@ const navigation = computed(() => {
         <template #nav>
           <Navigation :navigation="navigation" />
         </template>
-        <template #account>
+        <template #admin v-if="isAdmin">
           <HeaderButton
             label="Admin"
             icon="Database"
             @click="navigateTo({ path: '/admin/' })"
           />
+        </template>
+        <template #account>
           <HeaderButton
             :label="isSignedIn ? 'Account' : 'Signin'"
             icon="user"

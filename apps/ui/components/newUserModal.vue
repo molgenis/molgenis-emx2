@@ -18,7 +18,12 @@
     />
 
     <template #footer>
-      <Button @click="addUser(userName, password, password2)">Add user</Button>
+      <Button
+        @click="addUser(userName, password, password2)"
+        :disabled="isValidUser"
+      >
+        Add user
+      </Button>
       <Button @click="closeCreateUserModal">Close</Button>
     </template>
   </Modal>
@@ -36,9 +41,8 @@ const password2 = ref<string>("");
 const emit = defineEmits(["addUser"]);
 
 function addUser(userName: string, password: string, password2: string) {
-  if (password !== password2) {
-    return;
-  }
+  if (!isValidUser()) return;
+
   emit("addUser", userName, password);
   closeCreateUserModal();
 }
@@ -48,6 +52,15 @@ function closeCreateUserModal() {
   userName.value = "";
   password.value = "";
   password2.value = "";
+}
+
+function isValidUser(): boolean {
+  return (
+    !!userName.value.length &&
+    password.value.length > 7 &&
+    password.value === password2.value
+  );
+  // check for duplicate user names
 }
 
 function showModal() {
