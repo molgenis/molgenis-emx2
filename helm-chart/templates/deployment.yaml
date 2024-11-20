@@ -74,7 +74,7 @@ spec:
             - max_locks_per_transaction=1024
           resources:
             limits:
-              memory: "512Gi"
+              memory: "512Mi"
             requests:
               memory: "128Mi"
           env:
