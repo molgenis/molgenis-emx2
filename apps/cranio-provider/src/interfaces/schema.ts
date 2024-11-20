@@ -79,4 +79,34 @@ export interface IDashboardPages {
   charts?: ICharts[];
 }
 
+export interface IDataproviders {
+  providerIdentifier: string;
+  organisation?: IOrganisations;
+  hasSubmittedData?: boolean;
+}
 
+export interface IOrganisations {
+  order?: number;
+  name: string;
+  label?: string;
+  tags?: string[];
+  parent?: IOrganisations;
+  codesystem?: string;
+  code?: string;
+  ontologyTermURI?: string;
+  definition?: string;
+  children?: IOrganisations[];
+  city?: string;
+  country?: string;
+  latitude?: number;
+  longitude?: number;
+  organisationType?: string;
+  providerInformation: IDataproviders[];
+  image?: IFile;
+  hasSchema?: boolean;
+  schemaName?: string;
+}
+
+export interface IOrganisationsResponse {
+  Organisations: IOrganisations[];
+}
