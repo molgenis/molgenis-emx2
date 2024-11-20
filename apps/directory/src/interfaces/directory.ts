@@ -556,5 +556,3 @@ export interface ITRLs {
   definition?: string;
   children?: ITRLs[];
 }
-
-
