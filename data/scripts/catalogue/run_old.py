@@ -124,7 +124,7 @@ if SERVER_TYPE in ['data_catalogue', 'cohort_catalogue']:
         if SERVER_TYPE == 'data_catalogue':
             update = Transform(database_name=cohort, database_type='cohort')
         elif SERVER_TYPE == 'cohort_catalogue':
-            update = Transform(database_name=cohort, database_type='cohort_UMCG')
+            update = Transform(database_name=cohort, database_type='cohort_UMCU')
 
         zip_handling.remove_unzipped_data()
         zip_handling.unzip_data()
@@ -179,17 +179,17 @@ if SERVER_TYPE == 'data_catalogue':
         zip_handling.remove_unzipped_data()
 
         # get data source database description from source server
-        schema_description = session.get_database_description(database_name=data_source)
+        # schema_description = session.get_database_description(database_name=data_source)
 
-        # sign in to target server
-        print('Sign in to target server: ' + TARGET_SERVER_URL)
-        session = Session(
-            url=TARGET_SERVER_URL,
-            email=TARGET_SERVER_USERNAME,
-            password=TARGET_SERVER_PASSWORD
-        )
-        # create data source schema on target server
-        session.create_database(database_name=data_source, database_description=schema_description)
+        # # sign in to target server
+        # print('Sign in to target server: ' + TARGET_SERVER_URL)
+        # session = Session(
+        #     url=TARGET_SERVER_URL,
+        #     email=TARGET_SERVER_USERNAME,
+        #     password=TARGET_SERVER_PASSWORD
+        # )
+        # # create data source schema on target server
+        # session.create_database(database_name=data_source, database_description=schema_description)
 
     # Networks update
     print('-----------------------')

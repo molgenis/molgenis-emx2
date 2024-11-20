@@ -124,7 +124,7 @@ class Transform:
         """Transform columns in Cohorts, Networks, Studies, Data sources, Databanks
         """
         # Cohorts to Resources
-        if self.database_type in ['catalogue', 'cohort', 'cohort_UMCG']:
+        if self.database_type in ['catalogue', 'cohort', 'cohort_UMCG', 'cohort_UMCU']:
 
             df_cohorts = pd.read_csv(self.path + 'Cohorts.csv', dtype='object')
             df_cohorts = df_cohorts.rename(columns={'type': 'cohort type',
@@ -205,7 +205,7 @@ class Transform:
         # merge all to Resources
         if self.database_type == 'catalogue':
             df_resources = pd.concat([df_cohorts, df_networks, df_studies, df_databanks, df_data_sources, df_models])
-        elif self.database_type in ['cohort', 'cohort_UMCG']:
+        elif self.database_type in ['cohort', 'cohort_UMCG', 'cohort_UMCU']:
             df_resources = df_cohorts
         elif self.database_type == 'data_source':
             df_resources = df_data_sources
