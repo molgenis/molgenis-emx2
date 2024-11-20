@@ -296,7 +296,8 @@ f.close()
                     "python",
                     "outputFileExtension",
                     "txt"));
-            scripTypes.insert(row("name", "python")); // lowercase by convention
+            scripTypes.insert(
+                row("name", "python"), row("name", "bash")); // lowercase by convention
             jobStatus.insert(
                 Arrays.stream(TaskStatus.values()).map(value -> row("name", value)).toList());
           } // else, migrations in the future

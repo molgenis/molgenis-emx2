@@ -186,26 +186,31 @@ public class RDFService {
         describeRoot(builder);
       }
 
+      // Collect all tables present in selected schemas.
+      Set<Table> allTables = new HashSet<>();
+
       for (final Schema schema : schemas) {
         if (table == null) {
           describeSchema(builder, schema);
         }
-        final List<Table> tables = table != null ? Arrays.asList(table) : schema.getTablesSorted();
-        for (final Table tableToDescribe : tables) {
-          // for full-schema retrieval, don't print the (huge and mostly unused) ontologies
-          // of course references to ontologies are still included and are fully retrievable
-          if (table == null
-              && tableToDescribe.getMetadata().getTableType().equals(TableType.ONTOLOGIES)) {
-            continue;
-          }
-          if (rowId == null) {
-            describeTable(builder, tableToDescribe);
-            describeColumns(builder, tableToDescribe, columnName);
-          }
-          // if a column name is provided then only provide column metadata, no row values
-          if (columnName == null) {
-            rowsToRdf(builder, tableToDescribe, rowId);
-          }
+        allTables.addAll(schema.getTablesSorted());
+      }
+
+      final Set<Table> tables = table != null ? tablesToDescribe(allTables, table) : allTables;
+      for (final Table tableToDescribe : tables) {
+        // for full-schema retrieval, don't print the (huge and mostly unused) ontologies
+        // of course references to ontologies are still included and are fully retrievable
+        if (table == null
+            && tableToDescribe.getMetadata().getTableType().equals(TableType.ONTOLOGIES)) {
+          continue;
+        }
+        if (rowId == null) {
+          describeTable(builder, tableToDescribe);
+          describeColumns(builder, tableToDescribe, columnName);
+        }
+        // if a column name is provided then only provide column metadata, no row values
+        if (columnName == null) {
+          rowsToRdf(builder, tableToDescribe, rowId);
         }
       }
       Rio.write(builder.build(), outputStream, rdfFormat, config);
@@ -213,6 +218,31 @@ public class RDFService {
     } catch (Exception e) {
       throw new MolgenisException("RDF export failed due to an exception", e);
     }
+  }
+
+  private Set<Table> tablesToDescribe(Set<Table> allTables, Table tableFilter) {
+    Set<Table> tablesToDescribe = new HashSet<>();
+    for (Table currentTable : allTables) {
+      processInheritedTable(tableFilter, tablesToDescribe, currentTable);
+    }
+    return tablesToDescribe;
+  }
+
+  private boolean processInheritedTable(
+      Table tableFilter, Set<Table> tablesToDescribe, Table currentTable) {
+    if (currentTable == null) {
+      return false;
+    }
+    if (currentTable.getSchema().getName().equals(tableFilter.getSchema().getName())
+        && currentTable.getName().equals(tableFilter.getName())) {
+      tablesToDescribe.add(currentTable);
+      return true;
+    }
+    if (processInheritedTable(tableFilter, tablesToDescribe, currentTable.getInheritedTable())) {
+      tablesToDescribe.add(currentTable);
+      return true;
+    }
+    return false;
   }
 
   private void addModelToBuilder(ModelBuilder builder, Model model) {

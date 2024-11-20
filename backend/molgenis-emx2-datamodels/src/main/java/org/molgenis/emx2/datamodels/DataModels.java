@@ -10,8 +10,10 @@ public class DataModels {
 
   public enum Profile {
     DATA_CATALOGUE_COHORT_STAGING("_profiles/CohortsStaging.yaml"),
+    DATA_CATALOGUE_NETWORK_STAGING("_profiles/NetworksStaging.yaml"),
     DATA_CATALOGUE_AGGREGATES("_profiles/DataCatalogueAggregates.yaml"),
     DATA_CATALOGUE("_profiles/DataCatalogue.yaml"),
+    UMCU_COHORTS_STAGING("_profiles/UMCUCohorts.yaml"),
     FAIR_DATA_HUB("_profiles/FAIRDataHub.yaml"),
     RD3("_profiles/RD3.yaml"),
     JRC_COMMON_DATA_ELEMENTS("_profiles/JRC-CDE.yaml"),
@@ -20,7 +22,8 @@ public class DataModels {
     FAIR_DATA_POINT("_profiles/FAIRDataPoint.yaml"),
     BEACON_V2("_profiles/BeaconV2.yaml"),
     GDI("_profiles/GDI.yaml"),
-    SHARED_STAGING("_profiles/SharedStaging.yaml");
+    SHARED_STAGING("_profiles/SharedStaging.yaml"),
+    IMAGE_TEST("_profiles/ImageTest.yaml");
 
     public static boolean hasProfile(String nameOther) {
       return Arrays.stream(values()).anyMatch(profile -> profile.name().equals(nameOther));
@@ -43,7 +46,6 @@ public class DataModels {
 
   public enum Regular {
     DIRECTORY(DirectoryLoader::new),
-    DATA_CATALOGUE_NETWORK_STAGING(DataCatalogueNetworkStagingLoader::new),
     PET_STORE(PetStoreLoader::new),
     ERN_DASHBOARD(DashboardLoader::new),
     PROJECTMANAGER(ProjectManagerLoader::new),

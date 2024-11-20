@@ -96,7 +96,7 @@ export const useCollectionStore = defineStore("collectionStore", () => {
       .select(getCollectionColumns())
       .orderBy("Collections", "id", "asc")
       .where("id")
-      .like(id);
+      .equals(id);
 
     const reportResults = await collectionReportQuery.execute();
 

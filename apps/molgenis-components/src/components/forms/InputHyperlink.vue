@@ -14,7 +14,7 @@
         :value="modelValue"
         @input="
           //@ts-ignore
-          emit('update:modelValue', $event.target?.value)
+          $emit('update:modelValue', $event.target?.value)
         "
         type="text"
         class="form-control"
@@ -27,36 +27,35 @@
   </FormGroup>
 </template>
 
-<script setup lang="ts">
-import { computed } from "vue";
+<script lang="ts">
+import BaseInput from "./baseInputs/BaseInput.vue";
 import FormGroup from "./FormGroup.vue";
 import InputGroup from "./InputGroup.vue";
-import BaseInputProps from "./baseInputs/BaseInputProps";
 import constants from "../constants";
 
-let props = defineProps({
-  ...BaseInputProps,
-  modelValue: {
-    type: String,
-    default: null,
+export default {
+  name: "InputHyperlink",
+  components: { FormGroup, InputGroup },
+  extends: BaseInput,
+  computed: {
+    stringError() {
+      if (typeof this.modelValue === "string") {
+        if (!this.validateHyperlink(this.modelValue)) {
+          return `Please enter a valid hyperlink`;
+        } else {
+          return this.errorMessage;
+        }
+      } else {
+        return this.errorMessage;
+      }
+    },
   },
-});
-
-const emit = defineEmits(["update:modelValue"]);
-
-const stringError = computed(() => {
-  if (typeof props.modelValue === "string") {
-    if (!validateHyperlink(props.modelValue)) {
-      return `Please enter a valid hyperlink`;
-    } else {
-      return props.errorMessage;
-    }
-  }
-});
-
-function validateHyperlink(hyperlink: string) {
-  return hyperlink?.match(constants.HYPERLINK_REGEX);
-}
+  methods: {
+    validateHyperlink(hyperlink: string) {
+      return hyperlink?.match(constants.HYPERLINK_REGEX);
+    },
+  },
+};
 </script>
 
 <style scoped>

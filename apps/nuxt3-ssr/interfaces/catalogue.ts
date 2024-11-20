@@ -1,4 +1,4 @@
-// Generated (on: 2024-09-30T14:18:30.812974) from Generator.java for schema: catalogue
+// Generated (on: 2024-10-23T21:40:27.204002) from Generator.java for schema: catalogue
 
 export interface IFile {
   id?: string;
@@ -26,6 +26,7 @@ export interface IAgeGroups {
   order?: number;
   name: string;
   label?: string;
+  tags?: string[];
   parent?: IAgeGroups;
   codesystem?: string;
   code?: string;
@@ -38,6 +39,7 @@ export interface IAreasOfInformationCohorts {
   order?: number;
   name: string;
   label?: string;
+  tags?: string[];
   parent?: IAreasOfInformationCohorts;
   codesystem?: string;
   code?: string;
@@ -50,6 +52,7 @@ export interface IAreasOfInformationDs {
   order?: number;
   name: string;
   label?: string;
+  tags?: string[];
   parent?: IAreasOfInformationDs;
   codesystem?: string;
   code?: string;
@@ -62,6 +65,7 @@ export interface IBiospecimens {
   order?: number;
   name: string;
   label?: string;
+  tags?: string[];
   parent?: IBiospecimens;
   codesystem?: string;
   code?: string;
@@ -74,6 +78,7 @@ export interface ICatalogueTypes {
   order?: number;
   name: string;
   label?: string;
+  tags?: string[];
   parent?: ICatalogueTypes;
   codesystem?: string;
   code?: string;
@@ -94,6 +99,7 @@ export interface IClinicalStudyTypes {
   order?: number;
   name: string;
   label?: string;
+  tags?: string[];
   parent?: IClinicalStudyTypes;
   codesystem?: string;
   code?: string;
@@ -106,6 +112,7 @@ export interface ICohortCollectionTypes {
   order?: number;
   name: string;
   label?: string;
+  tags?: string[];
   parent?: ICohortCollectionTypes;
   codesystem?: string;
   code?: string;
@@ -118,6 +125,7 @@ export interface ICohortDesigns {
   order?: number;
   name: string;
   label?: string;
+  tags?: string[];
   parent?: ICohortDesigns;
   codesystem?: string;
   code?: string;
@@ -130,6 +138,7 @@ export interface ICohortStudyTypes {
   order?: number;
   name: string;
   label?: string;
+  tags?: string[];
   parent?: ICohortStudyTypes;
   codesystem?: string;
   code?: string;
@@ -177,6 +186,7 @@ export interface IContributionTypes {
   order?: number;
   name: string;
   label?: string;
+  tags?: string[];
   parent?: IContributionTypes;
   codesystem?: string;
   code?: string;
@@ -189,6 +199,7 @@ export interface ICountries {
   order?: number;
   name: string;
   label?: string;
+  tags?: string[];
   parent?: ICountries;
   codesystem?: string;
   code?: string;
@@ -201,6 +212,7 @@ export interface IDataAccessConditions {
   order?: number;
   name: string;
   label?: string;
+  tags?: string[];
   parent?: IDataAccessConditions;
   codesystem?: string;
   code?: string;
@@ -213,6 +225,7 @@ export interface IDataCategories {
   order?: number;
   name: string;
   label?: string;
+  tags?: string[];
   parent?: IDataCategories;
   codesystem?: string;
   code?: string;
@@ -225,6 +238,7 @@ export interface IDataUseConditions {
   order?: number;
   name: string;
   label?: string;
+  tags?: string[];
   parent?: IDataUseConditions;
   codesystem?: string;
   code?: string;
@@ -247,6 +261,7 @@ export interface IDatasetTypes {
   order?: number;
   name: string;
   label?: string;
+  tags?: string[];
   parent?: IDatasetTypes;
   codesystem?: string;
   code?: string;
@@ -274,6 +289,7 @@ export interface IDatasourceTypes {
   order?: number;
   name: string;
   label?: string;
+  tags?: string[];
   parent?: IDatasourceTypes;
   codesystem?: string;
   code?: string;
@@ -286,6 +302,7 @@ export interface IDiseases {
   order?: number;
   name: string;
   label?: string;
+  tags?: string[];
   parent?: IDiseases;
   codesystem?: string;
   code?: string;
@@ -298,6 +315,7 @@ export interface IDocumentTypes {
   order?: number;
   name: string;
   label?: string;
+  tags?: string[];
   parent?: IDocumentTypes;
   codesystem?: string;
   code?: string;
@@ -319,6 +337,7 @@ export interface IExternalIdentifierTypes {
   order?: number;
   name: string;
   label?: string;
+  tags?: string[];
   parent?: IExternalIdentifierTypes;
   codesystem?: string;
   code?: string;
@@ -338,6 +357,7 @@ export interface IFormats {
   order?: number;
   name: string;
   label?: string;
+  tags?: string[];
   parent?: IFormats;
   codesystem?: string;
   code?: string;
@@ -350,6 +370,7 @@ export interface IFundingTypes {
   order?: number;
   name: string;
   label?: string;
+  tags?: string[];
   parent?: IFundingTypes;
   codesystem?: string;
   code?: string;
@@ -362,6 +383,7 @@ export interface IICDOMorphologies {
   order?: number;
   name: string;
   label?: string;
+  tags?: string[];
   parent?: IICDOMorphologies;
   codesystem?: string;
   code?: string;
@@ -374,6 +396,7 @@ export interface IICDOTopologies {
   order?: number;
   name: string;
   label?: string;
+  tags?: string[];
   parent?: IICDOTopologies;
   codesystem?: string;
   code?: string;
@@ -382,22 +405,24 @@ export interface IICDOTopologies {
   children?: IICDOTopologies[];
 }
 
-export interface IInclusionCriteria {
+export interface IInclusionExclusionCriteria {
   order?: number;
   name: string;
   label?: string;
-  parent?: IInclusionCriteria;
+  tags?: string[];
+  parent?: IInclusionExclusionCriteria;
   codesystem?: string;
   code?: string;
   ontologyTermURI?: string;
   definition?: string;
-  children?: IInclusionCriteria[];
+  children?: IInclusionExclusionCriteria[];
 }
 
 export interface IInformedConsentRequired {
   order?: number;
   name: string;
   label?: string;
+  tags?: string[];
   parent?: IInformedConsentRequired;
   codesystem?: string;
   code?: string;
@@ -410,6 +435,7 @@ export interface IInformedConsentTypes {
   order?: number;
   name: string;
   label?: string;
+  tags?: string[];
   parent?: IInformedConsentTypes;
   codesystem?: string;
   code?: string;
@@ -418,10 +444,31 @@ export interface IInformedConsentTypes {
   children?: IInformedConsentTypes[];
 }
 
+export interface IInternalIdentifierTypes {
+  order?: number;
+  name: string;
+  label?: string;
+  tags?: string[];
+  parent?: IInternalIdentifierTypes;
+  codesystem?: string;
+  code?: string;
+  ontologyTermURI?: string;
+  definition?: string;
+  children?: IInternalIdentifierTypes[];
+}
+
+export interface IInternalIdentifiers {
+  resource: IResources;
+  identifier: string;
+  internalIdentifierType?: IOntologyNode;
+  internalIdentifierTypeOther?: string;
+}
+
 export interface IKeywords {
   order?: number;
   name: string;
   label?: string;
+  tags?: string[];
   parent?: IKeywords;
   codesystem?: string;
   code?: string;
@@ -434,6 +481,7 @@ export interface ILanguages {
   order?: number;
   name: string;
   label?: string;
+  tags?: string[];
   parent?: ILanguages;
   codesystem?: string;
   code?: string;
@@ -446,6 +494,7 @@ export interface ILinkageStrategies {
   order?: number;
   name: string;
   label?: string;
+  tags?: string[];
   parent?: ILinkageStrategies;
   codesystem?: string;
   code?: string;
@@ -457,7 +506,6 @@ export interface ILinkageStrategies {
 export interface ILinkages {
   resource: IResources;
   linkedResource: IResources;
-  otherLinkedResource?: string;
   linkageStrategy?: IOntologyNode;
   linkageVariable?: string;
   linkageVariableUnique?: boolean;
@@ -469,6 +517,7 @@ export interface IMappingStatus {
   order?: number;
   name: string;
   label?: string;
+  tags?: string[];
   parent?: IMappingStatus;
   codesystem?: string;
   code?: string;
@@ -481,6 +530,7 @@ export interface IMedDRA {
   order?: number;
   name: string;
   label?: string;
+  tags?: string[];
   parent?: IMedDRA;
   codesystem?: string;
   code?: string;
@@ -493,6 +543,7 @@ export interface INetworkTypes {
   order?: number;
   name: string;
   label?: string;
+  tags?: string[];
   parent?: INetworkTypes;
   codesystem?: string;
   code?: string;
@@ -505,6 +556,7 @@ export interface IObservationTargets {
   order?: number;
   name: string;
   label?: string;
+  tags?: string[];
   parent?: IObservationTargets;
   codesystem?: string;
   code?: string;
@@ -517,6 +569,7 @@ export interface IOrganisationRoles {
   order?: number;
   name: string;
   label?: string;
+  tags?: string[];
   parent?: IOrganisationRoles;
   codesystem?: string;
   code?: string;
@@ -542,6 +595,7 @@ export interface IPopulationEntry {
   order?: number;
   name: string;
   label?: string;
+  tags?: string[];
   parent?: IPopulationEntry;
   codesystem?: string;
   code?: string;
@@ -554,6 +608,7 @@ export interface IPopulationExit {
   order?: number;
   name: string;
   label?: string;
+  tags?: string[];
   parent?: IPopulationExit;
   codesystem?: string;
   code?: string;
@@ -566,6 +621,7 @@ export interface IPopulationOfInterest {
   order?: number;
   name: string;
   label?: string;
+  tags?: string[];
   parent?: IPopulationOfInterest;
   codesystem?: string;
   code?: string;
@@ -586,6 +642,7 @@ export interface IRefreshPeriods {
   order?: number;
   name: string;
   label?: string;
+  tags?: string[];
   parent?: IRefreshPeriods;
   codesystem?: string;
   code?: string;
@@ -598,6 +655,7 @@ export interface IRegions {
   order?: number;
   name: string;
   label?: string;
+  tags?: string[];
   parent?: IRegions;
   codesystem?: string;
   code?: string;
@@ -610,6 +668,7 @@ export interface IReleaseTypes {
   order?: number;
   name: string;
   label?: string;
+  tags?: string[];
   parent?: IReleaseTypes;
   codesystem?: string;
   code?: string;
@@ -646,6 +705,7 @@ export interface IResourceTypes {
   order?: number;
   name: string;
   label?: string;
+  tags?: string[];
   parent?: IResourceTypes;
   codesystem?: string;
   code?: string;
@@ -660,7 +720,7 @@ export interface IResources {
   name: string;
   localName?: string;
   acronym?: string;
-  type?: IOntologyNode[];
+  type: IOntologyNode[];
   typeOther?: string;
   cohortType?: IOntologyNode[];
   clinicalStudyType?: IOntologyNode[];
@@ -668,11 +728,11 @@ export interface IResources {
   networkType?: IOntologyNode[];
   website?: string;
   description?: string;
-  keywords?: string;
+  keywords?: string[];
+  internalIdentifiers?: IInternalIdentifiers[];
   externalIdentifiers?: IExternalIdentifiers[];
-  dateLastRefresh?: string;
-  startYear?: string;
-  endYear?: string;
+  startYear?: number;
+  endYear?: number;
   timeSpanDescription?: string;
   contactEmail?: string;
   logo?: IFile;
@@ -684,8 +744,8 @@ export interface IResources {
   dataCollectionType?: IOntologyNode[];
   dataCollectionDescription?: string;
   reasonSustained?: string;
-  unitOfObservation?: string;
   recordTrigger?: string;
+  unitOfObservation?: string;
   subpopulations?: ISubpopulations[];
   collectionEvents?: ICollectionEvents[];
   resources?: IResources[];
@@ -700,6 +760,8 @@ export interface IResources {
   populationAgeGroups?: IOntologyNode[];
   inclusionCriteria?: IOntologyNode[];
   otherInclusionCriteria?: string;
+  exclusionCriteria?: IOntologyNode[];
+  otherExclusionCriteria?: string;
   populationEntry?: IOntologyNode[];
   populationEntryOther?: string;
   populationExit?: IOntologyNode[];
@@ -765,6 +827,7 @@ export interface IResources {
   refreshTime?: number;
   lagTime?: number;
   refreshPeriod?: IOntologyNode[];
+  dateLastRefresh?: string;
   preservation?: boolean;
   preservationDuration?: number;
   standardOperatingProcedures?: boolean;
@@ -814,6 +877,7 @@ export interface ISampleCategories {
   order?: number;
   name: string;
   label?: string;
+  tags?: string[];
   parent?: ISampleCategories;
   codesystem?: string;
   code?: string;
@@ -826,6 +890,7 @@ export interface ISampleTypes {
   order?: number;
   name: string;
   label?: string;
+  tags?: string[];
   parent?: ISampleTypes;
   codesystem?: string;
   code?: string;
@@ -844,6 +909,7 @@ export interface IStandardizedTools {
   order?: number;
   name: string;
   label?: string;
+  tags?: string[];
   parent?: IStandardizedTools;
   codesystem?: string;
   code?: string;
@@ -856,6 +922,7 @@ export interface IStatusDetails {
   order?: number;
   name: string;
   label?: string;
+  tags?: string[];
   parent?: IStatusDetails;
   codesystem?: string;
   code?: string;
@@ -868,6 +935,7 @@ export interface IStudyFunding {
   order?: number;
   name: string;
   label?: string;
+  tags?: string[];
   parent?: IStudyFunding;
   codesystem?: string;
   code?: string;
@@ -880,6 +948,7 @@ export interface IStudyStatus {
   order?: number;
   name: string;
   label?: string;
+  tags?: string[];
   parent?: IStudyStatus;
   codesystem?: string;
   code?: string;
@@ -892,6 +961,7 @@ export interface ISubmissionTypes {
   order?: number;
   name: string;
   label?: string;
+  tags?: string[];
   parent?: ISubmissionTypes;
   codesystem?: string;
   code?: string;
@@ -918,6 +988,7 @@ export interface ISubmitterRoles {
   order?: number;
   name: string;
   label?: string;
+  tags?: string[];
   parent?: ISubmitterRoles;
   codesystem?: string;
   code?: string;
@@ -948,13 +1019,17 @@ export interface ISubpopulations {
   comorbidity?: IOntologyNode[];
   countries?: IOntologyNode[];
   regions?: IOntologyNode[];
-  inclusionCriteria?: string;
+  inclusionCriteria?: IOntologyNode[];
+  otherInclusionCriteria?: string;
+  exclusionCriteria?: IOntologyNode[];
+  otherExclusionCriteria?: string;
 }
 
 export interface ITitles {
   order?: number;
   name: string;
   label?: string;
+  tags?: string[];
   parent?: ITitles;
   codesystem?: string;
   code?: string;
@@ -967,6 +1042,7 @@ export interface IUnits {
   order?: number;
   name: string;
   label?: string;
+  tags?: string[];
   parent?: IUnits;
   codesystem?: string;
   code?: string;
@@ -994,6 +1070,7 @@ export interface IVariableRepeatUnits {
   order?: number;
   name: string;
   label?: string;
+  tags?: string[];
   parent?: IVariableRepeatUnits;
   codesystem?: string;
   code?: string;
@@ -1003,6 +1080,8 @@ export interface IVariableRepeatUnits {
 }
 
 export interface IVariableValues {
+  resource: IResources;
+  dataset: IDatasets;
   variable: IVariables;
   value: string;
   label: string;
@@ -1043,6 +1122,7 @@ export interface IVocabularies {
   order?: number;
   name: string;
   label?: string;
+  tags?: string[];
   parent?: IVocabularies;
   codesystem?: string;
   code?: string;

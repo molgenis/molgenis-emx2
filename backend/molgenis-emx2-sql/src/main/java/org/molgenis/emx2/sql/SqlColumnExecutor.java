@@ -311,6 +311,9 @@ public class SqlColumnExecutor {
                 // constraint so we can ensure unique labels on each level
                 .setDescription("User-friendly label for this term. Should be unique in parent")
                 .setSemantics("http://purl.obolibrary.org/obo/NCIT_C45561"),
+            column("tags")
+                .setType(STRING_ARRAY)
+                .setDescription("Any tags that you might need to slice and dice the ontology"),
             column("parent")
                 // .setKey(2)  when we upgrade to psql 15 so we can allow parent == null in
                 // constraint
@@ -364,6 +367,15 @@ public class SqlColumnExecutor {
           String.format(
               "Add column '%s.%s' failed: 'refTable' required for columns of type REF, REF_ARRAY, REFBACK (tried to find: %s:%s)",
               c.getTableName(), c.getName(), c.getRefSchemaName(), c.getRefTableName()));
+    }
+    if (c.getRefTableName() != null && !c.isReference()) {
+      throw new MolgenisException(
+          "Cannot set refTable '"
+              + c.getRefTableName()
+              + "' for column '"
+              + c.getName()
+              + "': is not a reference but a "
+              + c.getColumnType());
     }
     if (c.getRefLink() != null) {
       if (c.getTable().getColumn(c.getRefLink()) == null) {
@@ -431,6 +443,16 @@ public class SqlColumnExecutor {
             .execute();
       }
     } else if (column.isRef() || column.isRefArray()) {
+      // if has refback also drop that automatically
+      if (column.getReferenceRefback() != null) {
+        SqlColumnExecutor.executeRemoveColumn(jooq, column.getReferenceRefback());
+        column
+            .getTable()
+            .getSchema()
+            .getDatabase()
+            .getListener()
+            .schemaChanged(column.getReferenceRefback().getSchemaName());
+      }
       for (Reference ref : column.getReferences()) {
         // check if reference name already exists, composite ref may reuse columns
         // either other column, or a part of a reference
