@@ -64,7 +64,7 @@ Resources,,population not covered,text,,,,,,,,,"Description of the population co
 Resources,,counts,refback,,,,Resource counts,,resource,,,Counts of e.g. samples defined for this resource,"DataCatalogueFlat,RWEStaging,StudiesStaging"
 Resources,,contributors,heading,,,,,,,,,List of relevant collaborations,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,UMCGCohortsStaging,UMCUCohorts"
 Resources,,people involved,refback,,,,Contacts,,resource,,dcat:contactPoint,Persons involved and their role(s),"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,UMCGCohortsStaging,UMCUCohorts"
-Resources,,organisations involved,refback,,,,Organisations,,resource,,dct:publisher,Organisations involved and their role(s),"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,UMCGCohortsStaging,NetworksStaging,UMCUCohorts"
+Resources,,organisations involved,refback,,,,Organisations,,resource,,"dct:publisher,dct:creator",Organisations involved and their role(s),"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,UMCGCohortsStaging,NetworksStaging,UMCUCohorts"
 Resources,,networks involved,refback,,,,Resources,,resources,,,The consortia or networks that this resource is part of,"DataCatalogueFlat,EMA"
 Resources,,networks other,text,,,,,,,,,List the names of any other networks that are not listed and this resource is involved in,EMA
 Resources,,available data and samples,heading,,,,,,,,,Data model and contents,"DataCatalogueFlat,EMA,RWEStaging,CohortsStaging"
