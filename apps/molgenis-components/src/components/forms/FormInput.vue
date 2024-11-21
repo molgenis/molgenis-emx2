@@ -99,6 +99,10 @@ export default {
       required: false,
       default: () => null,
     },
+    expressionData: {
+      type: Object,
+      required: false,
+    },
     refBackId: {
       type: String,
       required: false,

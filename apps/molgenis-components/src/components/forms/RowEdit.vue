@@ -5,6 +5,7 @@
       :key="JSON.stringify(column)"
       :id="`${id}-${column.id}`"
       :modelValue="internalValues[column.id]"
+      :expressionData="internalValues"
       :columnType="column.columnType"
       :description="column.description"
       :errorMessage="errorPerColumn[column.id]"
@@ -236,6 +237,11 @@ export default {
       }
     });
     this.onValuesUpdate();
+    /*
+    this.tableMetaData.columns.forEach((column: IColumn) => {
+      this.updateRefLinks(column);
+    });
+    */
   },
 };
 </script>
