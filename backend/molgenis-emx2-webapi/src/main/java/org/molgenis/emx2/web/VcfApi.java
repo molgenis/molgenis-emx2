@@ -27,6 +27,20 @@ import org.molgenis.emx2.beaconv2.vcfimport.VcfImport;
  * user's database.
  */
 public class VcfApi {
+
+  private static final String GENOMIC_VARIATIONS_TABLE_NAME = "GenomicVariations";
+  private static final String GENOMIC_VARIATIONS_POSITION_ASSEMBLYID = "position_assemblyId";
+  private static final String GENOMIC_VARIATIONS_POSITION_REFSEQID = "position_refseqId";
+  private static final String GENOMIC_VARIATIONS_POSITION_START = "position_start";
+  private static final String GENOMIC_VARIATIONS_REFERENCE_BASES = "referenceBases";
+  private static final String GENOMIC_VARIATIONS_ALTERNATE_BASES = "alternateBases";
+  private static final String INDIVIDUALS_TABLE_NAME = "Individuals";
+  private static final String INDIVIDUALS_ID = "id";
+  private static final String CASE_LEVEL_DATA_TABLE_NAME = "GenomicVariationsCaseLevel";
+  private static final String CASE_LEVEL_DATA_ID = "id";
+  private static final String CASE_LEVEL_DATA_INDIVIDUAL_ID = "individualId";
+  private static final String CASE_LEVEL_DATA_ZYGOSITY = "zygosity";
+
   private VcfApi() {
     // hide constructor
   }
@@ -49,8 +63,9 @@ public class VcfApi {
     }
     Schema schema = getSchema(ctx);
     assert schema != null;
-    Table genomicVariations = schema.getTableByNameOrIdCaseInsensitive("GenomicVariations");
-    Table individuals = schema.getTableByNameOrIdCaseInsensitive("Individuals");
+    Table genomicVariations =
+        schema.getTableByNameOrIdCaseInsensitive(GENOMIC_VARIATIONS_TABLE_NAME);
+    Table individuals = schema.getTableByNameOrIdCaseInsensitive(INDIVIDUALS_TABLE_NAME);
     File vcfFile = requestBodyToTmpFile(ctx);
     VcfImport vcfImport = new VcfImport(vcfFile, genomicVariations, individuals);
     int count = vcfImport.start();
@@ -91,9 +106,10 @@ public class VcfApi {
   private static boolean noTablesPresent(Context ctx) {
     Schema schema = getSchema(ctx);
     assert schema != null;
-    Table genomicVariations = schema.getTableByNameOrIdCaseInsensitive("GenomicVariations");
-    Table caseLevelData = schema.getTableByNameOrIdCaseInsensitive("GenomicVariationsCaseLevel");
-    Table individuals = schema.getTableByNameOrIdCaseInsensitive("Individuals");
+    Table genomicVariations =
+        schema.getTableByNameOrIdCaseInsensitive(GENOMIC_VARIATIONS_TABLE_NAME);
+    Table caseLevelData = schema.getTableByNameOrIdCaseInsensitive(CASE_LEVEL_DATA_TABLE_NAME);
+    Table individuals = schema.getTableByNameOrIdCaseInsensitive(INDIVIDUALS_TABLE_NAME);
     return genomicVariations == null && individuals == null && caseLevelData == null;
   }
 
@@ -103,25 +119,25 @@ public class VcfApi {
     assert schema != null;
     if (!tableExistsAndHasColumnNames(
         schema,
-        "GenomicVariations",
-        "position_assemblyId",
-        "position_refseqId",
-        "position_start",
-        "referenceBases",
-        "alternateBases")) {
+        GENOMIC_VARIATIONS_TABLE_NAME,
+        GENOMIC_VARIATIONS_POSITION_ASSEMBLYID,
+        GENOMIC_VARIATIONS_POSITION_REFSEQID,
+        GENOMIC_VARIATIONS_POSITION_START,
+        GENOMIC_VARIATIONS_REFERENCE_BASES,
+        GENOMIC_VARIATIONS_ALTERNATE_BASES)) {
       return false;
     }
 
-    if (!tableExistsAndHasColumnNames(schema, "Individuals", "id")) {
+    if (!tableExistsAndHasColumnNames(schema, INDIVIDUALS_TABLE_NAME, INDIVIDUALS_ID)) {
       return false;
     }
 
-    if (!tableExistsAndHasColumnNames(
-        schema, "GenomicVariationsCaseLevel", "id", "individualId", "zygosity")) {
-      return false;
-    }
-
-    return true;
+    return tableExistsAndHasColumnNames(
+        schema,
+        CASE_LEVEL_DATA_TABLE_NAME,
+        CASE_LEVEL_DATA_ID,
+        CASE_LEVEL_DATA_INDIVIDUAL_ID,
+        CASE_LEVEL_DATA_ZYGOSITY);
   }
 
   public static boolean tableExistsAndHasColumnNames(
