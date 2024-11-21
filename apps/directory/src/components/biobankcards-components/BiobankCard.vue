@@ -16,39 +16,13 @@
           :qualityInfo="qualityInfo"
         />
 
-        <template v-if="!showCollections">
-          <div class="mb-1 shadow-sm" v-if="numberOfCollections">
-            <button
-              class="btn btn-link text-info pl-2"
-              @click.prevent="showCollections = true"
-            >
-              Collections
-            </button>
-          </div>
-          <div class="p-2 pt-1 biobank-section flex-grow-1">
-            <small>
-              <ViewGenerator :viewmodel="biobankcardViewmodel" />
-              <MatchesOn :viewmodel="biobank" />
-              <router-link
-                :to="'/biobank/' + biobank.id"
-                :title="`${biobank.name} details`"
-                class="text-info ml-1"
-              >
-                <span>More details</span>
-              </router-link>
-            </small>
-          </div>
-        </template>
+        <TabsSection
+          :tabs="tabs"
+          :active-tab="activeTab"
+          @update:active-tab="changeTab"
+        />
 
-        <template v-else>
-          <div class="d-flex mb-1 shadow-sm">
-            <button
-              class="btn btn-link text-info pl-2"
-              @click.prevent="showCollections = false"
-            >
-              {{ uiText["card_biobank_details"] }}
-            </button>
-          </div>
+        <template v-if="activeTab === 'Collections'">
           <div class="collections-section flex-grow-1">
             <div class="pl-2 pt-2 d-flex" v-if="numberOfCollections">
               <h5>
@@ -68,14 +42,15 @@
                 multi
               />
             </div>
-            <hr class="mt-1" v-if="numberOfCollections" />
-            <div v-else class="pl-2">
+
+            <div v-if="!numberOfCollections" class="pl-2">
               {{
                 hasActiveFilters
                   ? "No collections found with currently active filters"
                   : "This biobank has no collections yet."
               }}
             </div>
+
             <div
               class="collection-items mx-1"
               v-for="(collectionDetail, index) of biobank.collectionDetails"
@@ -129,7 +104,7 @@
           </div>
         </template>
 
-        <div v-if="biobank.services?.length">
+        <div v-if="activeTab === 'Services'">
           {{ biobank.services?.length }} services available
           <div v-for="service in biobank.services">
             <div class="pl-2 pt-2 d-flex">
@@ -158,6 +133,11 @@
             </div>
           </div>
         </div>
+
+        <OrganizationSection
+          v-if="activeTab === 'Organization'"
+          :biobank="biobank"
+        />
       </div>
     </section>
   </article>
@@ -173,7 +153,10 @@ import { useQualitiesStore } from "../../stores/qualitiesStore";
 import { useCheckoutStore } from "../../stores/checkoutStore";
 import { useFiltersStore } from "../../stores/filtersStore";
 import HeaderSection from "./biobackCardSections/HeaderSection.vue";
+import TabsSection from "./biobackCardSections/TabsSection.vue";
+import OrganizationSection from "./biobackCardSections/OrganizationSection.vue";
 import { computed, onBeforeMount, ref } from "vue";
+import { IBiobanks } from "../../interfaces/directory";
 
 const settingsStore = useSettingsStore();
 const qualitiesStore = useQualitiesStore();
@@ -182,30 +165,28 @@ const filtersStore = useFiltersStore();
 
 const props = withDefaults(
   defineProps<{
-    fullSize: boolean;
-    biobank: {
-      services?: any;
-      collections: any;
-      label?: string;
-      collectionDetails: any;
-      id: string;
-      name: string;
-    };
+    biobank: IBiobanks;
+    fullSize?: boolean;
   }>(),
   {
     fullSize: false,
   }
 );
 
-const biobankSelected = ref(false);
+type IBiobankCardTab = "Collections" | "Services" | "Organization";
 const showCollections = ref(false);
-const activeTab = ref("Collections");
+const tabs = ["Collections", "Services", "Organization"];
+const activeTab = ref<IBiobankCardTab>("Collections");
 
 //async beforeMount
 onBeforeMount(async () => {
   await qualitiesStore.getQualityStandardInformation();
   showCollections.value = settingsStore.config.biobankCardShowCollections;
 });
+
+function changeTab(tab: IBiobankCardTab) {
+  activeTab.value = tab;
+}
 
 function collectionViewmodel(collectiondetails: Record<string, any>) {
   const attributes = [];
@@ -232,8 +213,6 @@ const qualityInfo = computed(() => {
 });
 
 const hasActiveFilters = computed(() => filtersStore.hasActiveFilters);
-
-const uiText = computed(() => settingsStore.uiText);
 
 const lastCollection = computed(
   () => props.biobank.collectionDetails.length - 1
@@ -276,7 +255,7 @@ const qualityStandardsDictionary: Record<string, any> = computed(() => {
 });
 
 const biobankInSelection = computed(() => {
-  const biobankIdentifier: string = props.biobank.label || props.biobank.name;
+  const biobankIdentifier: string = props.biobank.name;
   return (
     //@ts-ignore can be removed once checkoutStore is ts
     checkoutStore.selectedCollections[biobankIdentifier] !== undefined

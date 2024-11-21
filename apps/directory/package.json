@@ -3,7 +3,6 @@
   "version": "0.0.1",
   "description": "BBMRI Directory app, for browsing collections and biobanks in EMX2",
   "main": "index.js",
-  "author": "Jelmer Veen <https://github.com/jelmerveen>",
   "license": "LGPL3",
   "private": true,
   "scripts": {

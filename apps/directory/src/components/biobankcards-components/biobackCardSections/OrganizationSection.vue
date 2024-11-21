@@ -1,0 +1,43 @@
+<script setup lang="ts">
+import { getViewmodel } from "../../../functions/viewmodelMapper";
+import { IBiobanks } from "../../../interfaces/directory";
+import { useSettingsStore } from "../../../stores/settingsStore";
+import ViewGenerator from "../../generators/ViewGenerator.vue";
+import MatchesOn from "../MatchesOn.vue";
+import { computed } from "vue";
+
+const props = defineProps<{
+  biobank: IBiobanks;
+}>();
+
+const viewmodel = computed(() => {
+  const viewmodel = getViewmodel(
+    props.biobank,
+    useSettingsStore().config.biobankColumns
+  );
+  const columns = useSettingsStore().config.biobankColumns;
+  return columns
+    .filter((item) => item.showOnBiobankCard)
+    .map((item) =>
+      viewmodel.attributes.find(
+        (vm: { label: string | undefined }) => vm.label === item.label
+      )
+    );
+});
+</script>
+
+<template>
+  <div class="p-2 pt-1 biobank-section flex-grow-1">
+    <small>
+      <ViewGenerator :viewmodel="{ attributes: viewmodel }" />
+      <MatchesOn :viewmodel="biobank" />
+      <router-link
+        :to="'/biobank/' + biobank.id"
+        :title="`${biobank.name} details`"
+        class="text-info ml-1"
+      >
+        <span>More details</span>
+      </router-link>
+    </small>
+  </div>
+</template>
