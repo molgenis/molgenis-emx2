@@ -12,39 +12,16 @@ withDefaults(
 defineEmits(["update:activeTab"]);
 </script>
 <template>
-  <div class="tabs">
-    <button
-      v-for="tab in tabs"
-      class="tab"
-      :class="{ active: activeTab === tab }"
-      @click="() => $emit('update:activeTab', tab)"
-    >
-      {{ tab }}
-    </button>
-  </div>
+  <ul class="nav nav-tabs mb-2 mt-2 pl-2">
+    <li v-for="tab in tabs" class="nav-item">
+      <button
+        type="button"
+        class="btn btn-link nav-link"
+        :class="{ active: activeTab === tab }"
+        @click="() => $emit('update:activeTab', tab)"
+      >
+        {{ tab }}
+      </button>
+    </li>
+  </ul>
 </template>
-
-<style scoped>
-.tabs {
-  display: flex;
-  justify-content: space-between;
-  margin: 1rem;
-}
-
-.tab {
-  background-color: white;
-  border: none;
-  cursor: pointer;
-}
-
-.tab:hover {
-  cursor: pointer;
-  text-decoration: underline;
-}
-
-.tab.active {
-  color: #ec6707;
-  text-decoration: none;
-  cursor: default;
-}
-</style>
