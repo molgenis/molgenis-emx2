@@ -7,6 +7,7 @@ import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.beaconv2.QueryEntryType;
 import org.molgenis.emx2.beaconv2.filter.FilterConceptVP;
+import org.molgenis.emx2.cafevariome.response.RecordResponse;
 
 public class QueryRecord {
 
@@ -19,8 +20,8 @@ public class QueryRecord {
     int count = QueryEntryType.doCountQuery(table, filters);
 
     return switch (query.advanced().granularity()) {
-      case BOOLEAN -> new Response(null, null, count > 0);
-      case COUNT -> new Response(count, new Range(count, count), count > 0);
+      case BOOLEAN -> new RecordResponse(null, null, count > 0);
+      case COUNT -> new RecordResponse(count, new Range(count, count), count > 0);
       default ->
           throw new MolgenisException(
               "Not implemented granularity: " + query.advanced().granularity());
