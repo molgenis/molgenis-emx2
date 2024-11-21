@@ -52,8 +52,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   private String initialAdminPassword =
       (String)
           EnvironmentProperty.getParameter(Constants.MOLGENIS_ADMIN_PW, ADMIN_PW_DEFAULT, STRING);
-  private final Boolean isOidcEnabled =
-      EnvironmentProperty.getParameter(Constants.MOLGENIS_OIDC_CLIENT_ID, null, STRING) != null;
+  private Boolean isOidcEnabled = false;
   private static String postgresUser =
       (String)
           EnvironmentProperty.getParameter(
@@ -179,10 +178,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       // get the settings
       clearCache();
 
-      if (getSetting(Constants.IS_OIDC_ENABLED) == null) {
-        // use environment property unless overridden in settings
-        this.setSetting(Constants.IS_OIDC_ENABLED, String.valueOf(isOidcEnabled));
-      }
+      initOidc();
 
       String instanceId = getSetting(Constants.MOLGENIS_INSTANCE_ID);
       if (instanceId == null) {
@@ -228,6 +224,38 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
         throw e;
       }
     }
+  }
+
+  private void initOidc() {
+    // oidc settings takes priority over env variables
+    String isOidcEnabledSetting = getSetting(Constants.IS_OIDC_ENABLED);
+    if (isOidcEnabledSetting != null) {
+      this.isOidcEnabled = Boolean.parseBoolean(isOidcEnabledSetting);
+    } else {
+      Object envSetting =
+          EnvironmentProperty.getParameter(Constants.MOLGENIS_OIDC_CLIENT_ID, null, STRING);
+      if (envSetting != null) {
+        this.setSetting(Constants.IS_OIDC_ENABLED, "true");
+        this.isOidcEnabled = true;
+      }
+    }
+    if (!this.isOidcEnabled) return;
+
+    // check if OIDC settings are complete otherwise log error and set to false
+    if (!isValidOidcSettings()) {
+      setSetting(
+          Constants.IS_OIDC_ENABLED,
+          "error: Environment OIDC settings are incomplete. Fix and then set again to true");
+    }
+  }
+
+  private boolean isValidOidcSettings() {
+    Object oidcClientId =
+        EnvironmentProperty.getParameter(Constants.MOLGENIS_OIDC_CLIENT_ID, null, STRING);
+    Object clientSecret =
+        EnvironmentProperty.getParameter(Constants.MOLGENIS_OIDC_CLIENT_SECRET, null, STRING);
+
+    return clientSecret != null && oidcClientId != null;
   }
 
   @Override
@@ -402,14 +430,21 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
 
   @Override
   public Database setSettings(Map<String, String> settings) {
-    if (isAdmin()) {
-      super.setSettings(settings);
-      MetadataUtils.saveDatabaseSettings(jooq, getSettings());
-      // force all sessions to reload
-      this.listener.afterCommit();
-    } else {
+    if (!isAdmin()) {
       throw new MolgenisException("Insufficient rights to create database level setting");
     }
+    if (settings.containsKey(Constants.IS_OIDC_ENABLED)) {
+      String isOidcEnabledSetting = settings.get(Constants.IS_OIDC_ENABLED);
+      if (Boolean.parseBoolean(isOidcEnabledSetting) && !isValidOidcSettings()) {
+        throw new MolgenisException("OIDC environment setting are incomplete");
+      }
+    }
+
+    super.setSettings(settings);
+    MetadataUtils.saveDatabaseSettings(jooq, getSettings());
+    // force all sessions to reload
+    this.listener.afterCommit();
+
     return this;
   }
 

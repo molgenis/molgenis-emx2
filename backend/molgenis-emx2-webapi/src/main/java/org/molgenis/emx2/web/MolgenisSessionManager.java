@@ -1,5 +1,7 @@
 package org.molgenis.emx2.web;
 
+import static org.molgenis.emx2.web.MolgenisWebservice.oidcController;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSessionEvent;
 import jakarta.servlet.http.HttpSessionListener;
@@ -77,6 +79,7 @@ public class MolgenisSessionManager {
    * this method is used to reset cache of all sessions, necessary when for example metadata changes
    */
   public void clearAllCaches() {
+    oidcController.reloadConfig();
     for (MolgenisSession session : sessions.values()) {
       session.clearCache();
     }

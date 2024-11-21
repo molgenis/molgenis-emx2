@@ -27,7 +27,7 @@ spec:
             limits:
               memory: "2Gi"
             requests:
-              memory: "500Mi"
+              memory: "256Mi"
           ports:
             - containerPort: 8080
           env:
@@ -74,9 +74,9 @@ spec:
             - max_locks_per_transaction=1024
           resources:
             limits:
-              memory: "1Gi"
+              memory: "512Mi"
             requests:
-              memory: "256Mi"
+              memory: "128Mi"
           env:
             - name: POSTGRES_DB
               value: {{ .Values.postgres.name }}
@@ -102,9 +102,9 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           resources:
             limits:
-              memory: "1Gi"
+              memory: "128Mi"
             requests:
-              memory: "256Mi"
+              memory: "64Mi"
           ports:
             - containerPort: 3000
           env:
