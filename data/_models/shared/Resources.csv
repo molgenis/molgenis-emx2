@@ -20,7 +20,7 @@ Resources,,external identifiers,refback,,,,External identifiers,,resource,,,Exte
 Resources,,start year,int,,,,,,,,dcat:startDate,"The year when the resource started, e.g. when data or samples started to be collected or extracted, or when the resource was established","DataCatalogueFlat,EMA,RWEStaging,CohortsStaging,UMCGCohortsStaging,NetworksStaging"
 Resources,,end year,int,,,,,,,,dcat:endDate,"The year the resource ceased, e.g. when data or sample collection was stopped","DataCatalogueFlat,EMA,RWEStaging,CohortsStaging,UMCGCohortsStaging,NetworksStaging"
 Resources,,time span description,text,,,,,,,,,Description of time span,"DataCatalogueFlat,RWEStaging"
-Resources,,contact email,,,,,,,,,dcat:contactPoint,Contact e-mail address ,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging"
+Resources,,contact email,,,,,,,,,,Contact e-mail address ,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging"
 Resources,,logo,file,,,,,,,,,"Logo of the resource, for use on homepages etc.","DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts"
 Resources,,status,ontology,,,CatalogueOntologies,Study status,,,,,Status of the study,"DataCatalogueFlat,EMA,StudiesStaging"
 Resources,,license,hyperlink,,,,,,,,dct:license,A legal document under which this catalogue record is made available,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts"
