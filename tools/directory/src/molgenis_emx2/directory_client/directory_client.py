@@ -65,7 +65,6 @@ class DirectorySession(Session):
         schema: str = None,
         as_df: bool = False,
     ) -> list | pd.DataFrame:
-        # response_data = super().get(table, query_filter, schema, as_df)
         """
         Copy of the EMX2 pyclient get, with change in how list of dicts is returned
         Retrieves data from a schema and returns as a list of dictionaries or as
@@ -155,7 +154,6 @@ class DirectorySession(Session):
         rows = self.get(
             schema=self.ONTOLOGY_SCHEMA,
             table=entity_type_id,
-            #   attributes=f"id,{parent_attr},ontology,{','.join(matching_attrs)}",
         )
 
         meta = TableMeta(
@@ -173,11 +171,9 @@ class DirectorySession(Session):
 
         biobank_qualities = self.get(
             table="QualityInfoBiobanks",
-            #      attributes="id,biobank,assess_level_bio",
         )
         collection_qualities = self.get(
             table="QualityInfoCollections",
-            #    attributes="id,collection,assess_level_col",
         )
 
         bb_qual = defaultdict(list)
@@ -230,7 +226,6 @@ class DirectorySession(Session):
         :param code: node to get by code
         :return: ExternalServerNode object
         """
-        # Query filter on null is not yet possible therefore this workaround
         df_nodes = self.get(
             table=self.NODES_TABLE, query_filter=f"id == {code}", as_df=True
         )

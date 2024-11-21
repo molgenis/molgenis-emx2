@@ -18,8 +18,6 @@ class Category(Enum):
     NERVOUS_SYSTEM = "nervous_system"
     ONCOLOGY = "oncology"
     PAEDIATRICS = "paediatrics"
-    #    PAEDIATRIC = "paediatric_only"
-    #    PAEDIATRIC_INCLUDED = "paediatric_included"
     POPULATION = "population"
     RARE_DISEASE = "rare_disease"
 
