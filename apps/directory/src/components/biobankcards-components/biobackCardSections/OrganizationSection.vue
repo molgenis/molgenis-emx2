@@ -10,7 +10,7 @@ const props = defineProps<{
   biobank: IBiobanks;
 }>();
 
-const viewmodel = computed(() => {
+const attributes = computed(() => {
   const viewmodel = getViewmodel(
     props.biobank,
     useSettingsStore().config.biobankColumns
@@ -29,7 +29,7 @@ const viewmodel = computed(() => {
 <template>
   <div class="p-2 pt-1 biobank-section flex-grow-1">
     <small>
-      <ViewGenerator :viewmodel="{ attributes: viewmodel }" />
+      <ViewGenerator :viewmodel="{ attributes }" />
       <MatchesOn :viewmodel="biobank" />
       <router-link
         :to="'/biobank/' + biobank.id"

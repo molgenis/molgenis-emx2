@@ -1,11 +1,11 @@
 <template>
   <article
+    class="biobank-card"
     :class="[
       {
         'border border-secondary': biobankInSelection,
         'back-side': showCollections,
       },
-      'biobank-card',
     ]"
   >
     <section class="d-flex flex-column align-items-center">
@@ -22,120 +22,19 @@
           @update:active-tab="changeTab"
         />
 
-        <template v-if="activeTab === 'Collections'">
-          <div class="collections-section flex-grow-1">
-            <div class="pl-2 pt-2 d-flex" v-if="numberOfCollections">
-              <h5>
-                {{
-                  `${numberOfCollections} collection${
-                    numberOfCollections === 1 ? "" : "s"
-                  } ${hasActiveFilters ? "found" : "available"}`
-                }}
-              </h5>
-              <collection-selector
-                v-if="numberOfCollections > 1"
-                class="text-right mr-1 ml-auto align-self-center"
-                :biobankData="biobank"
-                :collectionData="biobank.collections"
-                bookmark
-                iconOnly
-                multi
-              />
-            </div>
+        <CollectionsSection
+          v-if="activeTab === 'Collections'"
+          :biobank="biobank"
+          :has-active-filters="filtersStore.hasActiveFilters"
+        />
 
-            <div v-if="!numberOfCollections" class="pl-2">
-              {{
-                hasActiveFilters
-                  ? "No collections found with currently active filters"
-                  : "This biobank has no collections yet."
-              }}
-            </div>
-
-            <div
-              class="collection-items mx-1"
-              v-for="(collectionDetail, index) of biobank.collectionDetails"
-              :key="collectionDetail.id"
-            >
-              <div v-if="showCollections" class="mb-2">
-                <div class="pl-2 pt-2 d-flex">
-                  <router-link
-                    :to="'/collection/' + collectionDetail.id"
-                    title="Collection details"
-                    class="text-dark"
-                  >
-                    <span
-                      class="fa fa-server collection-icon fa-lg mr-2 text-primary"
-                      aria-hidden="true"
-                    />
-                    <span class="collection-name">
-                      {{ collectionDetail.name }}
-                    </span>
-                  </router-link>
-                  <div class="ml-auto">
-                    <collection-selector
-                      class="ml-auto"
-                      :biobankData="biobank"
-                      :collectionData="collectionDetail"
-                      iconOnly
-                      bookmark
-                    />
-                  </div>
-                </div>
-
-                <small>
-                  <ViewGenerator
-                    class="p-1"
-                    :viewmodel="collectionViewmodel(collectionDetail)"
-                  />
-
-                  <MatchesOn :viewmodel="collectionDetail" class="px-1 ml-1" />
-                  <router-link
-                    :to="'/collection/' + collectionDetail.id"
-                    :title="`${collectionDetail.name} details`"
-                    class="text-info ml-1 pl-1"
-                  >
-                    <span>More details</span>
-                  </router-link>
-                </small>
-                <hr v-if="index != lastCollection" />
-                <div v-else class="pb-3"></div>
-              </div>
-            </div>
-          </div>
-        </template>
-
-        <div v-if="activeTab === 'Services'">
-          {{ biobank.services?.length }} services available
-          <div v-for="service in biobank.services">
-            <div class="pl-2 pt-2 d-flex">
-              <router-link
-                :to="'/services/' + service.id"
-                title="Service details"
-                class="text-dark"
-              >
-                <span
-                  class="fa fa-server fa-lg mr-2 text-primary"
-                  aria-hidden="true"
-                />
-                <span class="collection-name">
-                  {{ service.name }}
-                </span>
-              </router-link>
-              <div class="ml-auto">
-                <!-- <collection-selector
-                      class="ml-auto"
-                      :biobankData="biobank"
-                      :collectionData="collectionDetail"
-                      iconOnly
-                      bookmark
-                    /> -->
-              </div>
-            </div>
-          </div>
-        </div>
+        <ServiceSection
+          v-else-if="activeTab === 'Services'"
+          :services="biobank.services"
+        ></ServiceSection>
 
         <OrganizationSection
-          v-if="activeTab === 'Organization'"
+          v-else-if="activeTab === 'Organization'"
           :biobank="biobank"
         />
       </div>
@@ -145,9 +44,6 @@
 
 <script setup lang="ts">
 import { getBiobankDetails } from "../../functions/viewmodelMapper";
-import ViewGenerator from "../generators/ViewGenerator.vue";
-import CollectionSelector from "../checkout-components/CollectionSelector.vue";
-import MatchesOn from "../biobankcards-components/MatchesOn.vue";
 import { useSettingsStore } from "../../stores/settingsStore";
 import { useQualitiesStore } from "../../stores/qualitiesStore";
 import { useCheckoutStore } from "../../stores/checkoutStore";
@@ -157,6 +53,8 @@ import TabsSection from "./biobackCardSections/TabsSection.vue";
 import OrganizationSection from "./biobackCardSections/OrganizationSection.vue";
 import { computed, onBeforeMount, ref } from "vue";
 import { IBiobanks } from "../../interfaces/directory";
+import ServiceSection from "./biobackCardSections/ServiceSection.vue";
+import CollectionsSection from "./biobackCardSections/CollectionsSection.vue";
 
 const settingsStore = useSettingsStore();
 const qualitiesStore = useQualitiesStore();
@@ -178,7 +76,6 @@ const showCollections = ref(false);
 const tabs = ["Collections", "Services", "Organization"];
 const activeTab = ref<IBiobankCardTab>("Collections");
 
-//async beforeMount
 onBeforeMount(async () => {
   await qualitiesStore.getQualityStandardInformation();
   showCollections.value = settingsStore.config.biobankCardShowCollections;
@@ -186,20 +83,6 @@ onBeforeMount(async () => {
 
 function changeTab(tab: IBiobankCardTab) {
   activeTab.value = tab;
-}
-
-function collectionViewmodel(collectiondetails: Record<string, any>) {
-  const attributes = [];
-  for (const item of settingsStore.config.collectionColumns) {
-    if (item.showOnBiobankCard) {
-      attributes.push(
-        collectiondetails.viewmodel.attributes.find(
-          (vm: Record<string, any>) => vm.label === item.label
-        )
-      );
-    }
-  }
-  return { attributes };
 }
 
 function getQualityInfo(key: string) {
@@ -211,16 +94,6 @@ const qualityInfo = computed(() => {
     return getQualityInfo(quality.quality_standard.name);
   });
 });
-
-const hasActiveFilters = computed(() => filtersStore.hasActiveFilters);
-
-const lastCollection = computed(
-  () => props.biobank.collectionDetails.length - 1
-);
-
-const numberOfCollections = computed(() =>
-  props.biobank.collections ? props.biobank.collections.length : 0
-);
 
 const biobankcardViewmodel = computed(() => {
   const { viewmodel } = getBiobankDetails(props.biobank);

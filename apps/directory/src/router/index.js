@@ -3,6 +3,7 @@ import HomeView from "../views/HomeView.vue";
 import AboutView from "../views/AboutView.vue";
 import Landingpage from "../views/Landingpage.vue";
 import BiobankReport from "../views/BiobankReport.vue";
+import ServiceReport from "../views/ServiceReport.vue";
 import NetworkReport from "../views/NetworkReport.vue";
 import CollectionReport from "../views/CollectionReport.vue";
 import StudyReport from "../views/StudyReport.vue";
@@ -26,6 +27,11 @@ const router = createRouter({
       path: "/collection/:id",
       name: "collectiondetails",
       component: CollectionReport,
+    },
+    {
+      path: "/service/:id",
+      name: "servicedetails",
+      component: ServiceReport,
     },
     {
       path: "/biobank/:id",
