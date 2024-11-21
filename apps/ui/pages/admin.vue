@@ -60,8 +60,8 @@
 </template>
 
 <script setup lang="ts">
-import { type Modal } from "#build/components";
-import type EditUserModal from "~/components/editUserModal.vue";
+import { EditUserModal } from "#build/components";
+import type NewUserModal from "~/components/newUserModal.vue";
 import {
   createUser,
   deleteUser,
@@ -108,7 +108,7 @@ definePageMeta({
 
 const LIMIT = 100;
 const editUserModal = ref<InstanceType<typeof EditUserModal>>();
-const createUserModal = ref<InstanceType<typeof Modal>>();
+const createUserModal = ref<InstanceType<typeof NewUserModal>>();
 
 const currentPage = ref(1);
 const users = ref<IUser[]>([]);
