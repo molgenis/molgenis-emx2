@@ -142,6 +142,7 @@ export default {
         "DATA_CATALOGUE_COHORT_STAGING",
         "DATA_CATALOGUE_NETWORK_STAGING",
         "UMCG_COHORT_STAGING",
+        "UMCU_COHORTS_STAGING",
         "RD3",
         "JRC_COMMON_DATA_ELEMENTS",
         "FAIR_GENOMES",
@@ -180,7 +181,7 @@ export default {
       ) {
         return undefined;
       } else {
-        return "Table name must start with a letter, followed by zero or more letters, numbers, spaces, dash or underscores. A space immediately before or after an underscore is not allowed. The character limit is 31.";
+        return "Table name must start with a letter, followed by zero or more letters, numbers, spaces, dashes or underscores. A space immediately before or after an underscore is not allowed. The character limit is 31.";
       }
     },
     executeCreateSchema() {
