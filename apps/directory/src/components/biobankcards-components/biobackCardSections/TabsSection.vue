@@ -16,7 +16,7 @@ defineEmits(["update:activeTab"]);
     <li v-for="tab in tabs" class="nav-item">
       <button
         type="button"
-        class="btn btn-link nav-link"
+        class="btn btn-link nav-link shadow-none"
         :class="{ active: activeTab === tab }"
         @click="() => $emit('update:activeTab', tab)"
       >
