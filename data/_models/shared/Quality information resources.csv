@@ -1,0 +1,8 @@
+tableName,tableExtends,tableType,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,refLabel,defaultValue,validation,visible,computed,semantics,profiles,label,description
+Quality information resources,,,,,,,,,,,,,,,,,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging",,"Quality information, i.e. standards, assessments and certifications relating to a resource or sample collection"
+Quality information resources,,,resource,ref,1,TRUE,,Resources,,,,,,,,,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging",,"Resource the quality information pertains to"
+Quality information resources,,,quality standard,ontology,1,TRUE,CatalogueOntologies,Quality standards,,,,,,,,,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging",,"Quality standard"
+Quality information resources,,,assessment level,ontology,,TRUE,CatalogueOntologies,Assessment levels,,,,,,,,,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging",,"Assessment level"
+Quality information resources,,,certification number,,,FALSE,,,,,,,,,,,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging",,"Certification Number"
+Quality information resources,,,certification report,hyperlink,,FALSE,,,,,,,,,,,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging",,"Certification Report"
+Quality information resources,,,certification image url,hyperlink,,FALSE,,,,,,,,,,,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging",,"Certification Image"
