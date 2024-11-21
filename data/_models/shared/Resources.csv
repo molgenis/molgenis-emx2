@@ -35,7 +35,7 @@ Resources,,record trigger,text,,,,,,,,,"What triggers the creation of a record i
 Resources,,unit of observation,text,,,,,,,,,"Based on the record trigger or promt, what is the unit(s) of observation of a record (e.g. person, prescription)?","DataCatalogueFlat,RWEStaging"
 Resources,,subpopulations,refback,,,,Subpopulations,,resource,,,"List of cohorts or subpopulations defined in this resource, if applicable","DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,NetworksStaging,UMCUCohorts"
 Resources,,collection events,refback,,,,Collection events,,resource,,dcterms:hasPart,"List of data/sample collection events defined for this collection, if applicable","DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,NetworksStaging,UMCUCohorts"
-Resources,,resources,ref_array,,,,Resources,,,,,List of other resources included in this resource,"DataCatalogueFlat,EMA"
+Resources,,resources,ref_array,,,,Resources,,,,dcat:dataset,List of other resources included in this resource,"DataCatalogueFlat,EMA"
 Resources,,part of resources,refback,,,,Resources,,resources,,dcat:inSeries,List of other collections included in this resource,"DataCatalogueFlat,EMA"
 Resources,,resources,ref_array,,,catalogue,Resources,,,,,"List of other resources included in this network, e.g. cohorts, biobanks or other networks",NetworksStaging
 Resources,,population,heading,,,,,,,,,Description of the population that is sampled in this resource,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,UMCGCohortsStaging,UMCUCohorts"
