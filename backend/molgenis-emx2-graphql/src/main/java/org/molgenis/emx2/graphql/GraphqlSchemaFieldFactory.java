@@ -1,7 +1,7 @@
 package org.molgenis.emx2.graphql;
 
 import static org.molgenis.emx2.Constants.*;
-import static org.molgenis.emx2.graphql.GraphlAdminFieldFactory.mapSettingsToGraphql;
+import static org.molgenis.emx2.graphql.GraphqlAdminFieldFactory.mapSettingsToGraphql;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
 import static org.molgenis.emx2.graphql.GraphqlConstants.*;
@@ -27,7 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class GraphqlSchemaFieldFactory {
-  private static Logger logger = LoggerFactory.getLogger(SqlDatabase.class);
+  private static final Logger logger = LoggerFactory.getLogger(SqlDatabase.class);
 
   public static final GraphQLInputObjectType inputSettingsMetadataType =
       new GraphQLInputObjectType.Builder()
@@ -124,6 +124,17 @@ public class GraphqlSchemaFieldFactory {
                   .name(GraphqlConstants.NAME)
                   .type(Scalars.GraphQLString))
           .build();
+
+  static final GraphQLType userRolesType =
+      new GraphQLObjectType.Builder()
+          .name("MolgenisUserRolesType")
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(SCHEMA_ID)
+                  .type(Scalars.GraphQLString))
+          .field(GraphQLFieldDefinition.newFieldDefinition().name(ROLE).type(Scalars.GraphQLString))
+          .build();
+
   private static final GraphQLType outputMembersMetadataType =
       new GraphQLObjectType.Builder()
           .name("MolgenisMembersType")
