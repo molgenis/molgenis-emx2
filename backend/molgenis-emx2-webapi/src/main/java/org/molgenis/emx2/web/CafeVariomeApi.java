@@ -16,18 +16,26 @@ import org.molgenis.emx2.beaconv2.endpoints.FilteringTerms;
 import org.molgenis.emx2.beaconv2.endpoints.filteringterms.FilteringTerm;
 import org.molgenis.emx2.cafevariome.CafeVariomeQuery;
 import org.molgenis.emx2.cafevariome.QueryRecord;
+import org.molgenis.emx2.cafevariome.response.RecordIndexResponse;
+import org.molgenis.emx2.cafevariome.response.RecordResponse;
 
 public class CafeVariomeApi {
 
   public static void create(Javalin app) {
     app.post("/{schema}/api/cafevariome/record", CafeVariomeApi::postRecord);
-    app.get("/{schema}/api/cafevariome/eav-index", CafeVariomeApi::getEavIndex);
+    app.get("/{schema}/api/cafevariome/eav-index", CafeVariomeApi::getRecordIndex);
   }
 
-  private static void getEavIndex(Context ctx) {
+  private static void getRecordIndex(Context ctx) {
     Schema schema = getSchema(ctx);
 
     Database database = sessionManager.getSession(ctx.req()).getDatabase();
+
+    RecordResponse records =
+        QueryRecord.post(schema, new CafeVariomeQuery(null, null, null, null, null, null));
+    RecordIndexResponse response =
+        new RecordIndexResponse(
+            records.recordCount(), new RecordIndexResponse.EavIndex(null, null, null));
 
     Set<FilteringTerm> filteringTermsSet = new HashSet<>();
     new FilteringTerms(database)
@@ -35,7 +43,7 @@ public class CafeVariomeApi {
         .getFilteringTermsFromTables(
             database, List.of("Individuals"), filteringTermsSet, schema.getName());
 
-    ctx.json(filteringTermsSet.toArray(new FilteringTerm[0]));
+    ctx.json(response);
   }
 
   private static void postRecord(Context ctx) throws JsonProcessingException {

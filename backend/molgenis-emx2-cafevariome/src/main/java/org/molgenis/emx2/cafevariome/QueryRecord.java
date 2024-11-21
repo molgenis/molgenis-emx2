@@ -13,7 +13,7 @@ public class QueryRecord {
 
   private static final String TABLE_NAME = "Individuals";
 
-  public static Object post(Schema schema, CafeVariomeQuery query) {
+  public static RecordResponse post(Schema schema, CafeVariomeQuery query) {
     Table table = schema.getTable(TABLE_NAME);
 
     List<String> filters = parseFilters(query);
