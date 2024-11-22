@@ -57,4 +57,18 @@ decision: keep both.
 
 - for data we want to import we need to have equivalent cardinality
 - for data that we want to export we can have less flexible cardinality
-- 
+
+# Questions:
+
+solve-rd.Individual has
+-  'maternal id' and 'paternal id'
+- 'affected' status (we now have this pedigree)
+- disease
+- recontact incidental
+- retracted
+
+Solve-rd.Subject information has
+- consangiuity suspected
+
+Samples
+- anatomical location other
