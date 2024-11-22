@@ -426,6 +426,7 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
     selectedCollections,
     selectedServices,
     collectionSelectionCount,
+    serviceSelectionCount,
     addCollectionsToSelection,
     addServicesToSelection,
     removeCollectionsFromSelection,
