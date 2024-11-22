@@ -234,22 +234,25 @@ def main():
             ]
             resources = pd.DataFrame(columns=mapped_columns)
             # Map collections to resources
+            print('Get and map Collections...')
             collections = client.get("Collections", as_df=True)
             mapped_collections = map_collections_to_resources(
-                collections.copy()
-            )  # Unnecessary copy?
+                collections.copy())  # Unnecessary copy?
             resources = pd.concat([resources, mapped_collections.reindex(columns=mapped_columns)])
             # Map biobanks to resources
+            print('Get and map Biobanks...')
             biobanks = client.get("Biobanks", as_df=True)
             # Unnecessary copy?
             mapped_biobanks = map_biobanks_to_resources(biobanks.copy(), resources)
             resources = pd.concat([resources, mapped_biobanks.reindex(columns=mapped_columns)])
             # Map networks to resources
+            print('Get and map Networks...')
             networks = client.get("Networks", as_df=True)
             # Unnecessary copy?
             mapped_networks = map_networks_to_resources(networks.copy(), biobanks)
             resources = pd.concat([resources, mapped_networks.reindex(columns=mapped_columns)])
             # Create BBMRI-ERIC network, add all top-level networks as sub-networks
+            print('Networking...')
             bbmri_network = [
                 {
                     "id": "BBMRI-ERIC",
@@ -263,6 +266,7 @@ def main():
             )
             resources = pd.concat([resources, pd.DataFrame.from_records(bbmri_network)])
             # Map persons to contacts
+            print('Get and map Persons...')
             persons = client.get("Persons", as_df=True)
             mapped_contacts = map_persons_to_contacts(
                 persons.copy(), mapped_collections, mapped_biobanks, mapped_networks, resources
@@ -288,9 +292,11 @@ def main():
                 ]
             )
             # Upload mapped tables
+            print('Upload...')
             catalogue_client.save_schema(table="Resources", data=resources)
             catalogue_client.save_schema(table="Contacts", data=mapped_contacts)
 
 
 if __name__ == "__main__":
     main()
+    print('Done!')
