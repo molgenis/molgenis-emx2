@@ -221,7 +221,7 @@ def main():
         with molgenis_emx2_pyclient.Client(args.target_server) as catalogue_client:
             if args.target_password:
                 catalogue_client.signin("admin", args.target_password)
-            catalogue_client.set_schema("BBMRI-demo")
+            catalogue_client.set_schema("catalogue-BBMRI")
             # Initialise resources table
             mapped_columns = [
                 "id",
@@ -288,8 +288,8 @@ def main():
                 ]
             )
             # Upload mapped tables
-            catalogue_client.save_schema(table="Contacts", data=mapped_contacts)
             catalogue_client.save_schema(table="Resources", data=resources)
+            catalogue_client.save_schema(table="Contacts", data=mapped_contacts)
 
 
 if __name__ == "__main__":
