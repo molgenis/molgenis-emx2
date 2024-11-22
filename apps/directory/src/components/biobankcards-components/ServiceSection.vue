@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { s } from "vitest/dist/reporters-5f784f42";
 import { IServices } from "../../interfaces/directory";
 import Service from "./Service.vue";
 
