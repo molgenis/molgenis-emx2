@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { IServices } from "../../interfaces/directory";
 
-import { defineProps } from "vue";
-
 const props = withDefaults(
   defineProps<{
     service: IServices;
@@ -53,14 +51,16 @@ function handleCheckBox() {
   <div>
     <small>
       <table class="layout-table w-100">
-        <tr>
-          <th scope="row" class="pr-1 align-top text-nowrap">Type:</th>
-          <td>
-            <span>{{
-              service.serviceTypes.map((type) => type.label).join(", ")
-            }}</span>
-          </td>
-        </tr>
+        <tbody>
+          <tr>
+            <th scope="row" class="pr-1 align-top text-nowrap">Type:</th>
+            <td>
+              <span>{{
+                service.serviceTypes.map((type) => type.label).join(", ")
+              }}</span>
+            </td>
+          </tr>
+        </tbody>
       </table>
 
       <RouterLink

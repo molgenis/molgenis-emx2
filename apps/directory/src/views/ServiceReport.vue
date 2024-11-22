@@ -29,67 +29,69 @@
                   <string
                     :attribute="{ label: 'Name:', value: service.name }"
                   />
-                  <tr>
-                    <th scope="row" class="pr-1 align-top text-nowrap">
-                      Service Type:
-                    </th>
-                    <td>
-                      <div v-for="serviceType in service.serviceTypes">
-                        {{ serviceType.name }} ({{
-                          serviceType.serviceCategory.name
-                        }})
-                      </div>
-                    </td>
-                  </tr>
-                  <string
-                    :attribute="{ label: 'Acronym:', value: service.acronym }"
-                  />
-                  <string
-                    :attribute="{
-                      label: 'Description:',
-                      value: service.description,
-                    }"
-                  />
-                  <string
-                    :attribute="{
-                      label: 'Description URL:',
-                      value: service.descriptionUrl,
-                    }"
-                  />
-                  <string
-                    :attribute="{ label: 'Device:', value: service.device }"
-                  />
-                  <string
-                    :attribute="{
-                      label: 'Device System:',
-                      value: service.deviceSystem,
-                    }"
-                  />
+                  <tbody>
+                    <tr>
+                      <th scope="row" class="pr-1 align-top text-nowrap">
+                        Service Type:
+                      </th>
+                      <td>
+                        <div v-for="serviceType in service.serviceTypes">
+                          {{ serviceType.name }} ({{
+                            serviceType.serviceCategory.name
+                          }})
+                        </div>
+                      </td>
+                    </tr>
+                    <string
+                      :attribute="{ label: 'Acronym:', value: service.acronym }"
+                    />
+                    <string
+                      :attribute="{
+                        label: 'Description:',
+                        value: service.description,
+                      }"
+                    />
+                    <string
+                      :attribute="{
+                        label: 'Description URL:',
+                        value: service.descriptionUrl,
+                      }"
+                    />
+                    <string
+                      :attribute="{ label: 'Device:', value: service.device }"
+                    />
+                    <string
+                      :attribute="{
+                        label: 'Device System:',
+                        value: service.deviceSystem,
+                      }"
+                    />
 
-                  <string
-                    :attribute="{
-                      label: 'Access Description URL:',
-                      value: service.accessDescriptionUrl,
-                    }"
-                  />
-                  <string
-                    :attribute="{
-                      label: 'Unit of Access:',
-                      value: service.unitOfAccess,
-                    }"
-                  />
-                  <string
-                    :attribute="{
-                      label: 'Access Description:',
-                      value: service.accessDescription,
-                    }"
-                  />
-                  <string
-                    :attribute="{
-                      label: 'Unit Cost:',
-                      value: service.unitCost,
-                    }"
-                  />
+                    <string
+                      :attribute="{
+                        label: 'Access Description URL:',
+                        value: service.accessDescriptionUrl,
+                      }"
+                    />
+                    <string
+                      :attribute="{
+                        label: 'Unit of Access:',
+                        value: service.unitOfAccess,
+                      }"
+                    />
+                    <string
+                      :attribute="{
+                        label: 'Access Description:',
+                        value: service.accessDescription,
+                      }"
+                    />
+                    <string
+                      :attribute="{
+                        label: 'Unit Cost:',
+                        value: service.unitCost,
+                      }"
+                    />
+                  </tbody>
                 </table>
               </div>
               <!-- Right side card -->

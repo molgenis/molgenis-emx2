@@ -30,7 +30,6 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps } from "vue";
 import MatchesOn from "../biobankcards-components/MatchesOn.vue";
 //@ts-ignore
 import { InfoPopover } from "molgenis-components";

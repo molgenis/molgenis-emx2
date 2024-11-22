@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { IBiobanks } from "../../interfaces/directory";
 import { useSettingsStore } from "../../stores/settingsStore";
-import { defineProps, computed, withDefaults } from "vue";
+import { computed } from "vue";
 import CollectionSelector from "../../components/checkout-components/CollectionSelector.vue";
 import ViewGenerator from "../generators/ViewGenerator.vue";
 import MatchesOn from "./MatchesOn.vue";
