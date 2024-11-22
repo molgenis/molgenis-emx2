@@ -31,6 +31,7 @@ export async function getOrganisation(
         providerInformation {
           providerIdentifier
         }
+        schemaName
       }
     }
   `;
