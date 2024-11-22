@@ -212,7 +212,7 @@ class Node:
     }
 
     def get_schema_id(self) -> str:
-        return f"{os.getenv('SCHEMA_PREFIX')}-{self.code}"
+        return f"{os.getenv('NN_SCHEMA_PREFIX')}-{self.code}"
 
     @staticmethod
     def get_staging_id(table_type: TableType) -> str:
