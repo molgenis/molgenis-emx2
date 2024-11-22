@@ -93,6 +93,7 @@ class Directory:
                 biobanks=["id", "pid", "name", "national_node", "withdrawn"],
                 collections=["id", "national_node"],
                 facts=["id", "national_node"],
+                studies=["id", "national_node"],
             ),
         )
 
