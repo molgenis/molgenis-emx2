@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { getViewmodel } from "../../../functions/viewmodelMapper";
-import { IBiobanks } from "../../../interfaces/directory";
-import { useSettingsStore } from "../../../stores/settingsStore";
-import ViewGenerator from "../../generators/ViewGenerator.vue";
-import MatchesOn from "../MatchesOn.vue";
+import { getViewmodel } from "../../functions/viewmodelMapper";
+import { IBiobanks } from "../../interfaces/directory";
+import { useSettingsStore } from "../../stores/settingsStore";
+import ViewGenerator from "../generators/ViewGenerator.vue";
+import MatchesOn from "./MatchesOn.vue";
 import { computed } from "vue";
 
 const props = defineProps<{
@@ -28,6 +28,9 @@ const attributes = computed(() => {
 
 <template>
   <div class="p-2 pt-1 biobank-section flex-grow-1">
+    <h5>
+      {{ biobank.name }}
+    </h5>
     <small>
       <ViewGenerator :viewmodel="{ attributes }" />
       <MatchesOn :viewmodel="biobank" />

@@ -31,6 +31,7 @@
         <ServiceSection
           v-else-if="activeTab === 'Services'"
           :services="biobank.services"
+          @update:selected-services="checkoutStore.updateSelectedServices"
         ></ServiceSection>
 
         <OrganizationSection
@@ -46,15 +47,15 @@
 import { getBiobankDetails } from "../../functions/viewmodelMapper";
 import { useSettingsStore } from "../../stores/settingsStore";
 import { useQualitiesStore } from "../../stores/qualitiesStore";
-import { useCheckoutStore } from "../../stores/checkoutStore";
 import { useFiltersStore } from "../../stores/filtersStore";
-import HeaderSection from "./biobackCardSections/HeaderSection.vue";
-import TabsSection from "./biobackCardSections/TabsSection.vue";
-import OrganizationSection from "./biobackCardSections/OrganizationSection.vue";
+import HeaderSection from "./HeaderSection.vue";
+import TabsSection from "./TabsSection.vue";
+import OrganizationSection from "./OrganizationSection.vue";
 import { computed, onBeforeMount, ref } from "vue";
 import { IBiobanks } from "../../interfaces/directory";
-import ServiceSection from "./biobackCardSections/ServiceSection.vue";
-import CollectionsSection from "./biobackCardSections/CollectionsSection.vue";
+import ServiceSection from "./ServiceSection.vue";
+import CollectionsSection from "./CollectionsSection.vue";
+import { useCheckoutStore } from "../../stores/checkoutStore";
 
 const settingsStore = useSettingsStore();
 const qualitiesStore = useQualitiesStore();
