@@ -237,11 +237,6 @@ export default {
       }
     });
     this.onValuesUpdate();
-    /*
-    this.tableMetaData.columns.forEach((column: IColumn) => {
-      this.updateRefLinks(column);
-    });
-    */
   },
 };
 </script>

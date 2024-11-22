@@ -238,7 +238,7 @@ export default {
       .fetchTableMetaData(this.tableId)
       .catch((error) => (this.graphqlError = error.message));
     this.defaultValue = new Object();
-    this.defaultValue[this.refBackId] = this.expressionData; //await this.pkey; // pkey is not enough for the expressions!
+    this.defaultValue[this.refBackId] = this.expressionData;
     await this.reload();
   },
 };
