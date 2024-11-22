@@ -28,3 +28,8 @@ export interface IMgErrorResponse {
     errors: IMgError[];
   };
 }
+
+export interface ICranioSchemas {
+  CRANIO_PUBLIC_SCHEMA: string;
+  CRANIO_PROVIDER_SCHEMA: string;
+}
