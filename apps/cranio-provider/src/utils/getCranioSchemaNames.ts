@@ -1,11 +1,10 @@
 // import gql from "graphql-tag";
 import { request, gql } from "graphql-request";
-import type { ISettings, ISettingsResponse } from "../interfaces/index";
-
-export interface ICranioSchemas {
-  CRANIO_PUBLIC_SCHEMA: string;
-  CRANIO_PROVIDER_SCHEMA: string;
-}
+import type {
+  ISettings,
+  ISettingsResponse,
+  ICranioSchemas,
+} from "../interfaces/index";
 
 /**
 @name getCranioSchemas
