@@ -33,3 +33,8 @@ export interface ICranioSchemas {
   CRANIO_PUBLIC_SCHEMA: string;
   CRANIO_PROVIDER_SCHEMA: string;
 }
+
+export interface IAxisTickData {
+  limit: number;
+  ticks: number[];
+}
