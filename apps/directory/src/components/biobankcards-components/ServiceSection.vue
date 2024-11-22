@@ -14,18 +14,14 @@ const props = withDefaults(
   }
 );
 
-const emit = defineEmits(["update:selectedServices"]);
+const emit = defineEmits(["update:addServices", "update:removeServices"]);
 
 function addService(serviceId: string) {
-  console.log("add service", serviceId);
-  const selected = [props.selectedServices, serviceId].flat();
-  emit("update:selectedServices", selected);
+  emit("update:addServices", [serviceId]);
 }
 
 function removeService(serviceId: string) {
-  console.log("remove service", serviceId);
-  const selected = props.selectedServices.filter((id) => id !== serviceId);
-  emit("update:selectedServices", selected);
+  emit("update:removeServices", [serviceId]);
 }
 </script>
 

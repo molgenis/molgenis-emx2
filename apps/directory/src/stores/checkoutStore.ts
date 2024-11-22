@@ -96,7 +96,7 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
     }
   }
 
-  function addServiceToSelection({
+  function addServicesToSelection({
     biobank,
     services,
     bookmark,
@@ -195,6 +195,50 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
     }
 
     return { collections, bookmark };
+  }
+
+  function removeServicesFromSelection({
+    biobank,
+    services,
+    bookmark,
+  }: {
+    biobank: IBiobanks;
+    services: labelValuePair[];
+    bookmark: boolean;
+  }) {
+    checkoutValid.value = false;
+    const biobankIdentifier = biobank.name;
+
+    if (selectedServices.value[biobankIdentifier]) {
+      const serviceSelectionForBiobank =
+        selectedServices.value[biobankIdentifier];
+      const servicesToRemove = services.map((s) => s.value);
+      for (const serviceId of servicesToRemove) {
+        const getRemoveIdIndex = serviceSelectionForBiobank.findIndex(
+          (service) => service.value === serviceId
+        );
+
+        if (getRemoveIdIndex < 0) {
+          break;
+        } else {
+          serviceSelectionForBiobank.splice(getRemoveIdIndex, 1);
+        }
+      }
+
+      if (serviceSelectionForBiobank.length) {
+        selectedServices.value[biobankIdentifier] = serviceSelectionForBiobank;
+      } else {
+        delete selectedServices.value[biobankIdentifier];
+      }
+    }
+
+    if (bookmark) {
+      checkoutValid.value = true;
+      createBookmark(filtersStore.filters, selectedServices.value);
+    } else {
+      /** we should not refresh on a cart update, so track this */
+      cartUpdated.value = true;
+    }
   }
 
   function removeCollectionsFromSelection({
@@ -380,9 +424,12 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
     cartUpdated,
     sendToNegotiator,
     selectedCollections,
+    selectedServices,
     collectionSelectionCount,
     addCollectionsToSelection,
+    addServicesToSelection,
     removeCollectionsFromSelection,
+    removeServicesFromSelection,
     removeAllCollectionsFromSelection,
   };
 });

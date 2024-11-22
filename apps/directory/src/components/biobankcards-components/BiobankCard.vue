@@ -31,7 +31,9 @@
         <ServiceSection
           v-else-if="activeTab === 'Services'"
           :services="biobank.services"
-          @update:selected-services="checkoutStore.updateSelectedServices"
+          :selected-services="selectedServices"
+          @update:addServices="handleAddServices"
+          @update:remove-services="handleRemoveServices"
         ></ServiceSection>
 
         <OrganizationSection
@@ -84,6 +86,46 @@ onBeforeMount(async () => {
 
 function changeTab(tab: IBiobankCardTab) {
   activeTab.value = tab;
+}
+
+const selectedServices = computed(() => {
+  return (
+    checkoutStore.selectedServices[props.biobank.name]?.map(
+      (selectedService) => selectedService.value
+    ) ?? []
+  );
+});
+
+function handleAddServices(selectedServiceIds: string[]) {
+  const selectedServices =
+    props.biobank.services?.filter((service) =>
+      selectedServiceIds.includes(service.id)
+    ) ?? [];
+  const secvicesLabelValuePair = selectedServices.map((service) => {
+    return { label: service.name, value: service.id };
+  });
+
+  checkoutStore.addServicesToSelection({
+    biobank: props.biobank,
+    services: secvicesLabelValuePair,
+    bookmark: true,
+  });
+}
+
+function handleRemoveServices(selectedServiceIds: string[]) {
+  const selectedServices =
+    props.biobank.services?.filter((service) =>
+      selectedServiceIds.includes(service.id)
+    ) ?? [];
+  const secvicesLabelValuePair = selectedServices.map((service) => {
+    return { label: service.name, value: service.id };
+  });
+
+  checkoutStore.removeServicesFromSelection({
+    biobank: props.biobank,
+    services: secvicesLabelValuePair,
+    bookmark: true,
+  });
 }
 
 function getQualityInfo(key: string) {
