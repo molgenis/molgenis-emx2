@@ -1,4 +1,4 @@
-id,pathological state,sample origin type,collection moment,collection date,obtention procedure, anatomical location
-Sample0001,abnormal sample,post mortem specimen,P32Y6M1D,2023-07-11 12:00:00.0,needle biopsy,106004
-Sample0002,reference sample,tongue swab specimen,P31Y5M2D,2021-04-12,surgical biopsy,106004
-MinSample3,reference sample,post mortem specimen,,,needle biopsy,106004
+id,PathologicalState,sampleOriginType,collectionMoment,collectionDate,obtentionProcedure
+Sample0001,abnormal sample,post mortem specimen,P32Y6M1D,2023-07-11 12:00:00.0,needle biopsy
+Sample0002,reference sample,tongue swab specimen,P31Y5M2D,2021-04-12,surgical biopsy
+MinSample3,reference sample,post mortem specimen,,,needle biopsy

@@ -1,0 +1,42 @@
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
+Individual observations,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25398,Findings and circumstances relating to the examination and treatment of a patient.,"FAIR Genomes, JRC-CDE,RD3"
+Individual observations,,identifier,auto_id,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C87853,A unique proper name or character sequence that identifies this particular clinical examination.,"FAIR Genomes, JRC-CDE, RD3"
+Individual observations,,individual,ref,,,,Individuals,,,,http://purl.obolibrary.org/obo/IAO_0000136,Reference to the person whom this clinical information is about.,"FAIR Genomes, JRC-CDE, RD3"
+Individual observations,,date of observation,date,,,,,,,,,The date on which the clinical assement was made,RD3
+Individual observations,,age at observation,period,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C82517,E.g. P55Y8M12D,"Beacon v2,RD3"
+Individual observations,,visit type,ontology,,,,Visit type,,,,http://purl.obolibrary.org/obo/NCIT_C87853,A unique proper name or character sequence that identifies this particular clinical examination.,"FAIR Genomes, JRC-CDE, RD3"
+Clinical observations,Individual observations,,,,,,,,,,,This table extends observations with clinical details compatible with phenopacket,RD3
+Clinical observations,,phenotypes,refback,,,,Phenotype observations,,part of clinical observation,,http://purl.obolibrary.org/obo/NCIT_C16977,"The outward appearance of the individual. In medical context, these are often the symptoms caused by a disease.","FAIR Genomes, RD3"
+Clinical observations,,diseases,refback,,,,Disease history,,part of clinical observation,,http://purl.obolibrary.org/obo/NCIT_C16977,"The outward appearance of the individual. In medical context, these are often the symptoms caused by a disease.","FAIR Genomes, RD3"
+Clinical observations,,measurements,refback,,,,Measurements,,part of clinical observation,,http://purl.obolibrary.org/obo/NCIT_C16977,"The outward appearance of the individual. In medical context, these are often the symptoms caused by a disease.","FAIR Genomes, RD3"
+Clinical observations,,Molecular diagnosis gene,ontology_array,,,,Genes,,,,http://purl.obolibrary.org/obo/NCIT_C20826,Gene affected by pathogenic variation that is causal for disease of the patient.,FAIR Genomes
+Clinical observations,,Molecular diagnosis other,text,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C20826,Causal variant in HGVS notation with optional classification or free text explaining any other molecular mechanisms involved.,FAIR Genomes
+Clinical observations,,Is solved,bool,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25587,An indication that diagnosis is given and the case is no longer considered unsolved.,RD3
+Clinical observations,,Medication,ontology_array,,,,Medication,,,,http://purl.obolibrary.org/obo/NCIT_C459,"A drug product that contains one or more active and/or inactive ingredients used by the patient intended to treat, prevent or alleviate the symptoms of disease. Any hormone therapies, gender-related or otherwise, should also be recorded here.",FAIR Genomes
+Clinical observations,,Drug regimen,text,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C142516,"The specific way a therapeutic drug is to be taken, including formulation, route of administration, dose, dosing interval, and treatment duration.",FAIR Genomes
+Clinical observations,,Medical history,ontology_array,,,,MedicalHistory,,,,http://purl.obolibrary.org/obo/NCIT_C18772,"A record of a person's background regarding health, occurrence of disease events and surgical procedures.",FAIR Genomes
+Clinical observations,,Date of first contact,date,,,,,,,,http://purl.bioontology.org/ontology/LNC/MTHU048806,First contact of the patient with a specialised center in context of disease or study inclusion. In JRC-CDE: First contact with specialised centre,"FAIR Genomes, JRC-CDE"
+Clinical observations,,Functioning,text,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C21007,Patient's classification of functioning i.e. disability profile according to International Classification of Functioning and Disability (ICF). In JRC-CDE: Classification of functioning/disability,"FAIR Genomes, JRC-CDE"
+Clinical observations,,Material used in diagnosis,text,,,,,,,,http://semanticscience.org/resource/SIO_000641,This diagnosis c.q. clinical examination is based on one or more sampled materials.,FAIR Genomes
+Phenotype observations,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C116555,Beacon v2 Individuals PhenotypicFeatures,"Beacon v2,RD3"
+Phenotype observations,,part of clinical observation,ref,1,TRUE,,Clinical observations,,,,http://purl.obolibrary.org/obo/NCIT_C87853,E.g. Ind001_Phen001,"Beacon v2,RD3"
+Phenotype observations,,featureType,ontology,1,TRUE,,Phenotypes,,,,http://semanticscience.org/resource/SIO_010056,E.g. Abnormality of body height,"Beacon v2,RD3"
+Phenotype observations,,excluded,bool,,,,,,,,,when has not this phenotype,"Beacon v2,RD3"
+Phenotype observations,,modifiers,ontology_array,,,,Phenotypes,,,,http://purl.obolibrary.org/obo/HP_0012823,E.g. Exacerbated by tobacco use,"Beacon v2,RD3"
+Phenotype observations,,severity,ontology,,,,Severity,,,,http://purl.obolibrary.org/obo/HP_0012824,E.g. Profound,"Beacon v2,RD3"
+Disease history,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C15607,Beacon v2 Individuals Diseases,"Beacon v2,RD3"
+Disease history,,part of clinical observation,ref,1,TRUE,,Clinical observations,,,,http://purl.obolibrary.org/obo/NCIT_C87853,E.g. Ind001_Dis001,"Beacon v2,RD3"
+Disease history,,disease code,ontology,1,TRUE,,Diseases,,,,"http://purl.obolibrary.org/obo/NCIT_C15607,http://semanticscience.org/resource/SIO_001003",E.g. Spinocerebellar ataxia type 34,"Beacon v2,RD3"
+Disease history,,age of onset age group,ontology,,,,AgeGroups,,,,"http://purl.obolibrary.org/obo/HP_0003674,http://www.ebi.ac.uk/efo/EFO_0004847",E.g. Adult 18-65 Years Old,"Beacon v2,RD3"
+Disease history,,age of onset age,period,,,,,,,,"http://www.orpha.net/ORDO/Orphanet_C023,http://www.ebi.ac.uk/efo/EFO_0004847",E.g. P32Y6M1D,"Beacon v2,RD3"
+Disease history,,age at diagnosis age Group,ontology,,,,AgeGroups,,,,http://purl.obolibrary.org/obo/NCIT_C156420,"Addition for EJP-RD Virtual Platform API. E.g. Adult 18-65 Years Old","RD3,Beacon v2 Vivify add-on"
+Disease history,,age at diagnosis age,period,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C156420,"Addition for EJP-RD Virtual Platform API. E.g. P32Y6M1D","RD3,Beacon v2 Vivify add-on"
+Disease history,,family history,bool,,,,,,,,http://purl.obolibrary.org/obo/HP_0032316,E.g. false,"Beacon v2,RD3"
+Disease history,,disease severity,ontology,,,,Severity,,,,http://purl.obolibrary.org/obo/HP_0012824,E.g. Profound,"Beacon v2,RD3"
+Disease history,,disease stage,ontology,,,,DiseaseStage,,,,http://purl.obolibrary.org/obo/OBI_0000278,E.g. acute onset,"Beacon v2,RD3"
+Measurements,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25209,Beacon v2 Individuals Measures,"Beacon v2,RD3"
+Measurements,,part of clinical observation,ref,1,TRUE,,Clinical observations,,,,http://purl.allotrope.org/ontologies/result#AFR_0001121,E.g. Ind001_Meas001,"Beacon v2,RD3"
+Measurements,,assay code,ontology,1,TRUE,,AnalysesPerformed,,,,http://purl.obolibrary.org/obo/IAO_0000702,E.g. Metabolomics,"Beacon v2,RD3"
+Measurements,,measurement variable,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C54166,NON-STANDARD FIELD. E.g. Blood platelet count,"RD3,Beacon v2 EMX2 add-on"
+Measurements,,measurement value,int,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25712,E.g. 55345,"Beacon v2,RD3"
+Measurements,,measurement units,ontology,,,,Units,,,,http://purl.obolibrary.org/obo/NCIT_C25709,E.g. Per Millimeter,"Beacon v2,RD3"

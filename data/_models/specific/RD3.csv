@@ -1,0 +1,22 @@
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
+overview,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C80271,"Overview on RD3 Subjects, samples, and experiments",RD3
+overview,,subjectID,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C142495,"An individual who is the subject of personal data, persons to whom data refers, and from whom data are collected, processed, and stored.",RD3
+overview,,sex1,ontology,,,,GenderAtBirth,,,,,"Claimed Sex / Sex at birth (can be different from observed sex, see sample)",RD3
+overview,,fid,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25173,"A domestic group, or a number of domestic groups linked through descent (demonstrated or stipulated) from a common ancestor, marriage, or adoption.",RD3
+overview,,mid,ref,,,,Individuals,,,,http://purl.obolibrary.org/obo/NCIT_C89336,"Identifier indicating a reference to mother of the subject",RD3
+overview,,pid,ref,,,,Individuals,,,,http://purl.obolibrary.org/obo/NCIT_C94324,"Identifier indicating a reference to father of the subject",RD3
+overview,,partOfRelease,ref_array,,,,datareleases,,,,http://purl.obolibrary.org/obo/NCIT_C172217,"One or more Solve-RD releases that indicate when the record was first introduced into RD3 or when it was updated.",RD3
+overview,,hasOnlyNovelOmics,bool,,,,,,,,,"If true, this subject does not have data in any data freeze (1,2,3,etc.)",RD3
+overview,,organisation,ontology_array,,,,Organisations,,,,http://purl.obolibrary.org/obo/NCIT_C25412,"Name of the organisation that submitted Subject",RD3
+overview,,ERN,ontology_array,,,,Organisations,,,,http://purl.obolibrary.org/obo/NCIT_C25412,"ERN",RD3
+overview,,clinical_status,bool,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C64917,"whether it is an affected individual (main disease) Yes/No",RD3
+overview,,solved,bool,,,,,,,,,"Solved status for RD3 (True/False)",RD3
+overview,,phenotype,ontology_array,,,,Phenotypes,,,,http://purl.obolibrary.org/obo/NCIT_C16977,"Phenotype based on Human Phenotype Ontology (HPO)",RD3
+overview,,hasNotPhenotype,ontology_array,,,,Phenotypes,,,,http://purl.bioontology.org/ontology/HL7/C0442737,"Relevant Phenotype NOT present in subject",RD3
+overview,,disease,ontology_array,,,,Diseases,,,,http://purl.obolibrary.org/obo/NCIT_C15607,"if affected, which MAIN disease code(s) apply to subject",RD3
+overview,,subjectData,heading,,,,,,,,,,RD3
+overview,,numberOfSamples,int,,,,,,,,,"Number of samples derived from a subject",RD3
+overview,,samples,ref_array,,,,samples,,,,,"All samples derived from a subject",RD3
+overview,,numberOfExperiments,int,,,,,,,,,,RD3
+overview,,experiments,ref_array,,,,labinfo,,,,,"All experiments associated with a subject",RD3
+overview,,files,string,,,,,,,,,"Files associated with a subject",RD3
