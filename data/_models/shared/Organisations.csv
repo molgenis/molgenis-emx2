@@ -1,8 +1,8 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,visible
 Organisations,,,,,,,,,,,"foaf:Agent,org:Organization",Research departments and research groups. Null values will be generated from RoR,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts",
 Organisations,,resource,ref,1,TRUE,,Resources,,,,,Resource that this organisation is part of,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts",
-Organisations,,id,,1,TRUE,,,,,,dcterms:identifier,Internal identifier,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts",
-Organisations,,pid,hyperlink,,,,,,,,dcterms:identifier,"Persistent identifier, ideally from ROR","DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts",
+Organisations,,id,,1,TRUE,,,,,,org:identifier,Internal identifier,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts",
+Organisations,,pid,hyperlink,,,,,,,,org:identifier,"Persistent identifier, ideally from ROR","DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts",
 Organisations,,name,text,,TRUE,,,,,,"foaf:name,skos:prefLabel",Name used in (inter)national projects,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts",
 Organisations,,acronym,,,,,,,,,,skos:altLabel,"Acronym, if applicable","DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts",
 Organisations,,logo,file,,,,,,,,,Logo of the organisation,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging",
