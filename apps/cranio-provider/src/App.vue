@@ -36,10 +36,8 @@
         <Dashboard class="provider-dashboard-container" :horizontalPadding="5">
           <ProviderSidebar />
           <router-view
-            :providerId="
-              currentOrganisation?.providerInformation[0].providerIdentifier
-            "
-            :providerName="currentOrganisation?.name"
+            :organisation="currentOrganisation"
+            :schemaNames="cranioSchemas"
           ></router-view>
         </Dashboard>
       </div>
@@ -54,9 +52,9 @@ import { getCranioSchemaNames } from "./utils/getCranioSchemaNames";
 import { getSchemaName } from "./utils/getSchemaName";
 import { getOrganisation } from "./utils/getOrganisation";
 
-import type { IMgErrorResponse } from "./interfaces";
+import type { IMgErrorResponse, ICranioSchemas } from "./interfaces";
 import type { IOrganisations } from "./interfaces/schema";
-import type { ICranioSchemas } from "./utils/getCranioSchemaNames";
+import type { IAppPage } from "./interfaces/app";
 
 // @ts-ignore
 import { Molgenis } from "molgenis-components";
