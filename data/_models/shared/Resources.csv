@@ -133,7 +133,7 @@ Resources,,quality,heading,,,,,,,,,List of relevant studies conducted using the 
 Resources,,standard operating procedures,bool,,,,,,,,,Is there a standard operating procedure document that defines the processes and procedures for data capture and management?,"DataCatalogueFlat,RWEStaging"
 Resources,,qualification,bool,,,,,,,,,"Has the data source successfully undergone a formal qualification process (e.g. from the EMA, ISO or other certifications)?","DataCatalogueFlat,EMA,RWEStaging"
 Resources,,qualifications description,text,,,,,,,,,"Has the data source successfully undergone a qualification process (e.g. from the EMA)? If yes, describe the qualification(s) granted","DataCatalogueFlat,EMA,RWEStaging"
-Resources,,qualification information,refback,,,,Quality information resources,,,,,"Which formal qualification processes (e.g. from the EMA, ISO, or other certifications) apply to this resource?","DataCatalogueFlat"
+Resources,,qualification information,refback,,,,Resource qualities,,resource,,,"Which formal qualification processes (e.g. from the EMA, ISO, or other certifications) apply to this resource?","DataCatalogueFlat"
 Resources,,audit possible,bool,,,,,,,,,"Are external parties allowed to audit the data? For example, is it possible for an external party to audit the quality or validity of the data source?","DataCatalogueFlat,RWEStaging"
 Resources,,completeness,text,,,,,,,,,Describe the completeness of the data bank (e.g. variables with more or fewer missing values),"DataCatalogueFlat,RWEStaging"
 Resources,,completeness over time,text,,,,,,,,,Describe any changes in completeness of the data bank (e.g. variables with more or fewer missing values) that have occurred  over time,"DataCatalogueFlat,RWEStaging"
