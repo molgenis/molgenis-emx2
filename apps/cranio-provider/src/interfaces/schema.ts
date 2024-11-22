@@ -110,3 +110,11 @@ export interface IOrganisations {
 export interface IOrganisationsResponse {
   Organisations: IOrganisations[];
 }
+
+export interface IDashboardPagesResponse {
+  DashboardPages: IDashboardPages[];
+}
+
+export interface IChartsResponse {
+  Charts: ICharts[];
+}
