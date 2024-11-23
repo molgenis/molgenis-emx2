@@ -7,6 +7,7 @@ import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.datamodels.DataModels.Regular.PET_STORE;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.StringReader;
@@ -24,6 +25,7 @@ import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.impl.SimpleNamespace;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.model.util.Values;
+import org.eclipse.rdf4j.model.vocabulary.DCTERMS;
 import org.eclipse.rdf4j.model.vocabulary.OWL;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.model.vocabulary.RDFS;
@@ -49,6 +51,8 @@ public class RDFTest {
   /** Advanced setting field for adding custom RDF to the API. */
   private static final String SETTING_CUSTOM_RDF = "custom_rdf";
 
+  static final ClassLoader classLoader = ColumnTypeRdfMapperTest.class.getClassLoader();
+
   static Database database;
   static List<Schema> petStoreSchemas;
   static final String RDF_API_LOCATION = "/api/rdf";
@@ -58,6 +62,8 @@ public class RDFTest {
   static Schema ontologyTest;
   static Schema tableInherTest;
   static Schema tableInherExtTest;
+  static Schema fileTest;
+  static Schema refBackTest;
 
   final Set<Namespace> DEFAULT_NAMESPACES =
       new HashSet<>() {
@@ -225,6 +231,43 @@ public class RDFTest {
     tableInherExtTest
         .getTable("ExternalUnrelated")
         .insert(row("id", "a", "externalUnrelatedColumn", "unrelated data"));
+
+    // Test FILE
+    fileTest = database.dropCreateSchema("fileTest");
+    fileTest.create(
+        table(
+            "myFiles",
+            column("id").setType(ColumnType.STRING).setPkey(),
+            column("file").setType(ColumnType.FILE)));
+
+    fileTest
+        .getTable("myFiles")
+        .insert(
+            row(
+                "id",
+                "1",
+                "file",
+                new File(classLoader.getResource("testfiles/molgenis.png").getFile())));
+
+    // Refback test (petstore refback uses auto id)
+    refBackTest = database.dropCreateSchema("refBackTest");
+    refBackTest.create(
+        table(
+            "tableRef",
+            column("id").setType(ColumnType.STRING).setPkey(),
+            column("link").setType(ColumnType.REF).setRefTable("tableRefBack")),
+        table("tableRefBack", column("id").setType(ColumnType.STRING).setPkey()));
+    refBackTest
+        .getTable("tableRefBack")
+        .getMetadata()
+        .add(
+            column("backlink")
+                .setType(ColumnType.REFBACK)
+                .setRefTable("tableRef")
+                .setRefBack("link"));
+
+    refBackTest.getTable("tableRefBack").insert(row("id", "a"));
+    refBackTest.getTable("tableRef").insert(row("id", "1", "link", "a"));
   }
 
   @AfterAll
@@ -236,6 +279,8 @@ public class RDFTest {
     database.dropSchema(ontologyTest.getName());
     database.dropSchema(tableInherExtTest.getName());
     database.dropSchema(tableInherTest.getName());
+    database.dropSchema(fileTest.getName());
+    database.dropSchema(refBackTest.getName());
   }
 
   @Test
@@ -1156,6 +1201,49 @@ public class RDFTest {
 
     var handler = new InMemoryRDFHandler() {};
     validateNamespaces(handler, "RdfcustomOrEmpty", expectedNamespaces, customRdf1, customRdf2);
+  }
+
+  @Test
+  void testFileMetadataTriples() throws IOException {
+    var handler = new InMemoryRDFHandler() {};
+    getAndParseRDF(Selection.of(fileTest), handler);
+
+    Set<Value> files =
+        handler
+            .resources
+            .get(Values.iri("http://localhost:8080/fileTest/api/rdf/MyFiles?id=1"))
+            .get(Values.iri("http://localhost:8080/fileTest/api/rdf/MyFiles/column/file"));
+
+    IRI fileIRI = (IRI) files.stream().findFirst().get();
+
+    Set<Value> fileNames = handler.resources.get(fileIRI).get(DCTERMS.TITLE);
+    Set<Value> fileFormats = handler.resources.get(fileIRI).get(DCTERMS.FORMAT);
+
+    assertAll(
+        () -> assertEquals(1, files.size()),
+        () -> assertEquals(1, fileNames.size()),
+        () -> assertEquals(Values.literal("molgenis.png"), fileNames.stream().findFirst().get()),
+        () -> assertEquals(1, fileFormats.size()),
+        () ->
+            assertEquals(
+                Values.iri("http://www.iana.org/assignments/media-types/image/png"),
+                fileFormats.stream().findFirst().get()));
+  }
+
+  @Test
+  void refBackInRdf() throws IOException {
+    var handler = new InMemoryRDFHandler() {};
+    getAndParseRDF(Selection.of(refBackTest), handler);
+
+    Set<Value> refBacks =
+        handler
+            .resources
+            .get(Values.iri("http://localhost:8080/refBackTest/api/rdf/TableRefBack?id=a"))
+            .get(
+                Values.iri(
+                    "http://localhost:8080/refBackTest/api/rdf/TableRefBack/column/backlink"));
+    assertEquals(
+        Set.of(Values.iri("http://localhost:8080/refBackTest/api/rdf/TableRef?id=1")), refBacks);
   }
 
   /**
