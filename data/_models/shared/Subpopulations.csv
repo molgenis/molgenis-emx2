@@ -4,7 +4,7 @@ Subpopulations,,resource,ref,1,TRUE,,Resources,,,,dcterms:isPartOf,Resource this
 Subpopulations,,name,,1,TRUE,,,,,,dcterms:title,"Subpopulation name, e.g. 'mothers in first trimester','newborns'","DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,NetworksStaging,UMCUCohorts,INTEGRATE",
 Subpopulations,,description,text,,,,,,,,dcterms:description,Subpopulation description,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,NetworksStaging,UMCUCohorts,INTEGRATE",
 Subpopulations,,number of participants,int,,,,,,,,,Number of participants in this subpopulation,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",
-Subpopulations,,counts,refback,,,,Subpopulation counts,,subpopulation,,,"Total number of unique individuals per age(group), gender and year","DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",
+Subpopulations,,counts,refback,,,,Subpopulation counts,,subpopulation,,,"Total number of unique individuals per age(group), gender and year","DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,UMCUCohorts",
 Subpopulations,,inclusion start,int,,,,,,,,dcat:startDate,Year of first included participant,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",
 Subpopulations,,inclusion end,int,,,,,,,,dcat:endDate,Year of last included participant. Leave empty if data collection is ongoing,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",
 Subpopulations,,age groups,ontology_array,,,CatalogueOntologies,Age groups,,,,,Age groups within this subpopulation,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",
