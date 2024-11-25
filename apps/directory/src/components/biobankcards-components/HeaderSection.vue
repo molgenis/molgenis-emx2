@@ -4,11 +4,15 @@
       <router-link :to="'/biobank/' + biobank.id" class="text-dark">
         <span class="fa fa-server mr-2 text-primary" aria-hidden="true" />
         <span class="biobank-name">{{ biobank.name }}</span>
-        <sup v-if="hasBiobankQuality" class="d-inline-block" aria-hidden="true">
+        <span
+          v-if="hasBiobankQuality"
+          class="d-inline-block"
+          aria-hidden="true"
+        >
           <InfoPopover
             faIcon="fa-regular fa-circle-check"
             textColor="text-success"
-            class="ml-1 certificate-icon"
+            class="ml-2 certificate-icon"
             popover-placement="bottom"
           >
             <div class="popover-content" v-for="info of qualityInfo">
@@ -22,7 +26,7 @@
               </template>
             </div>
           </InfoPopover>
-        </sup>
+        </span>
       </router-link>
     </h5>
     <MatchesOn :viewmodel="biobank" />

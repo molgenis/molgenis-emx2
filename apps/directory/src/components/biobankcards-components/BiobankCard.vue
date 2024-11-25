@@ -124,14 +124,14 @@ function handleRemoveServices(selectedServiceIds: string[]) {
   );
 }
 
-function getQualityInfo(key: string) {
-  return qualityStandardsDictionary[key];
-}
-
 const qualityInfo = computed(() => {
-  return biobankQualities.value.map((quality: Record<string, any>) => {
-    return getQualityInfo(quality.quality_standard.name);
-  });
+  return biobankcardViewmodel.value.attributes
+    .find((attr) => attr.type === "quality")
+    .value.map((quality: Record<string, any>) => {
+      return (qualitiesStore.qualityStandardsDictionary as Record<string, any>)[
+        quality.quality_standard.name
+      ];
+    });
 });
 
 const biobankcardViewmodel = computed(() => {
@@ -154,16 +154,6 @@ const hasBiobankQuality = computed(() => {
   return biobankcardViewmodel.value.attributes.some(
     (attr) => attr.type === "quality" && attr.value && attr.value.length
   );
-});
-
-const biobankQualities = computed(() => {
-  return biobankcardViewmodel.value.attributes.find(
-    (attr) => attr.type === "quality"
-  ).value;
-});
-
-const qualityStandardsDictionary: Record<string, any> = computed(() => {
-  return qualitiesStore.qualityStandardsDictionary;
 });
 
 const biobankInSelection = computed(() => {
