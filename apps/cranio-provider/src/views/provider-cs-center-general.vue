@@ -7,7 +7,7 @@
         <select
           class="inputs select"
           id="yearOfBirthFilter"
-          @change="filterChartDatasets"
+          @change="updateCharts"
         >
           <option v-for="ageGroup in ageGroups" :value="ageGroup">
             {{ ageGroup }}
@@ -42,21 +42,19 @@
       </DashboardChart>
     </DashboardRow>
     <h3 class="dashboard-h3">Suture Overview</h3>
-    <p class="dashboard-text">
-      Click a category in the "Affected suture" chart to view more information.
-    </p>
     <DashboardRow :columns="2">
       <DashboardChart>
         <LoadingScreen v-if="loading" />
         <ColumnChart
           v-else
+          class="chart-axis-x-angled-text"
           :chartId="affectedSutureChart?.chartId"
           :title="affectedSutureChart?.chartTitle"
           :description="affectedSutureChart?.chartSubtitle"
-          class="chart-axis-x-angled-text"
           :chartData="affectedSutureChartData"
           xvar="dataPointName"
           yvar="dataPointValue"
+          :yMin="0"
           :yMax="affectedSutureChart?.yAxisMaxValue"
           :yTickValues="affectedSutureChart?.yAxisTicks"
           :chartHeight="275"
@@ -67,23 +65,32 @@
             bottom: affectedSutureChart?.bottomMargin,
             left: affectedSutureChart?.leftMargin,
           }"
+          @column-clicked="updateMultipeSuturesChart"
         />
-        <!-- @column-clicked="updateSutureTypes" -->
         <!-- :columnColorPalette="colors.affectedSuture" -->
       </DashboardChart>
-      <!-- <DashboardChart v-if="showSutureTypes">
+      <DashboardChart v-if="selectedSutureType">
         <ColumnChart
-          chartId="suture-types"
+          :chartId="multipleSutureChart?.chartId"
           class="chart-axis-x-angled-text"
-          title="Multiple suture synostosis"
-          :chartData="sutureTypes"
-          xvar="type"
-          yvar="count"
-          :columnColorPalette="colors.sutureType"
+          :title="`${selectedSutureType} ${multipleSutureChart?.chartTitle}`"
+          :description="multipleSutureChart?.chartSubtitle"
+          :chartData="multipleSutureChartData"
+          xvar="dataPointName"
+          yvar="dataPointValue"
+          :yMin="0"
+          :yMax="multipleSutureChart?.yAxisMaxValue"
+          :yTickValues="multipleSutureChart?.yAxisTicks"
           :chartHeight="275"
-          :chartMargins="{ top: 20, right: 10, bottom: 85, left: 60 }"
+          :chartMargins="{
+            top: multipleSutureChart?.topMargin,
+            right: multipleSutureChart?.rightMargin,
+            bottom: multipleSutureChart?.bottomMargin,
+            left: multipleSutureChart?.leftMargin,
+          }"
         />
-      </DashboardChart> -->
+        <!-- :columnColorPalette="colors.sutureType" -->
+      </DashboardChart>
     </DashboardRow>
   </ProviderDashboard>
 </template>
@@ -111,6 +118,7 @@ const loading = ref<boolean>(true);
 const error = ref<string>();
 const ageGroups = ref<string[]>();
 const selectedAgeGroup = ref<string>();
+const selectedSutureType = ref<string>();
 const cranioTypeChart = ref<ICharts>();
 const cranioTypeChartData = ref<IChartData[]>();
 const affectedSutureChart = ref<ICharts>();
@@ -140,27 +148,67 @@ async function getPageData() {
   multipleSutureChart.value = multiSutures[0];
 }
 
-async function filterChartDatasets() {
-  cranioTypeChartData.value = cranioTypeChart.value?.dataPoints?.filter(
-    (row: IChartData) => {
+function updateCranioTypesChart() {
+  cranioTypeChartData.value = cranioTypeChart.value?.dataPoints
+    ?.filter((row: IChartData) => {
       return row.dataPointPrimaryCategory === selectedAgeGroup.value;
-    }
+    })
+    .sort((current, next) => {
+      return current.dataPointOrder! - next.dataPointOrder!;
+    });
+
+  const cranioTypeTicks = generateAxisTickData(
+    cranioTypeChartData.value,
+    "dataPointValue"
   );
 
-  affectedSutureChartData.value = affectedSutureChart.value?.dataPoints?.filter(
-    (row: IChartData) => {
-      return row.dataPointPrimaryCategory === selectedAgeGroup.value;
-    }
-  );
-
-  multipleSutureChartData.value = multipleSutureChart.value?.dataPoints?.filter(
-    (row: IChartData) => {
-      return row.dataPointPrimaryCategory === selectedAgeGroup.value;
-    }
-  );
+  if (cranioTypeChart.value) {
+    cranioTypeChart.value.yAxisMaxValue = cranioTypeTicks.limit;
+    cranioTypeChart.value.yAxisTicks = cranioTypeTicks.ticks;
+  }
 }
 
-function setFilter() {
+function updateAffectedSutureChart() {
+  affectedSutureChartData.value = affectedSutureChart.value?.dataPoints
+    ?.filter((row: IChartData) => {
+      return row.dataPointPrimaryCategory === selectedAgeGroup.value;
+    })
+    .sort((current, next) => {
+      return current.dataPointOrder! - next.dataPointOrder!;
+    });
+
+  const affectedSutureTicks = generateAxisTickData(
+    affectedSutureChartData.value,
+    "dataPointValue"
+  );
+
+  if (affectedSutureChart.value) {
+    affectedSutureChart.value.yAxisMaxValue = affectedSutureTicks.limit;
+    affectedSutureChart.value.yAxisTicks = affectedSutureTicks.ticks;
+  }
+}
+
+function updateMultipeSuturesChart(value: string) {
+  selectedSutureType.value = JSON.parse(value).dataPointSecondaryCategory;
+  multipleSutureChartData.value = multipleSutureChart.value?.dataPoints
+    ?.filter((row: IChartData) => {
+      return row.dataPointPrimaryCategory === selectedAgeGroup.value;
+    })
+    .sort((current, next) => {
+      return current.dataPointOrder! - next.dataPointOrder!;
+    });
+
+  const multipleSutureTicks = generateAxisTickData(
+    multipleSutureChartData.value,
+    "dataPointValue"
+  );
+  if (multipleSutureChart.value) {
+    multipleSutureChart.value.yAxisMaxValue = multipleSutureTicks.limit;
+    multipleSutureChart.value.yAxisTicks = multipleSutureTicks.ticks;
+  }
+}
+
+function setAgeGroupFilter() {
   ageGroups.value = uniqueValues(
     cranioTypeChart.value?.dataPoints,
     "dataPointPrimaryCategory"
@@ -168,33 +216,16 @@ function setFilter() {
   selectedAgeGroup.value = ageGroups.value[0];
 }
 
-function setAxisTicks() {
-  const cranioTypeTicks = generateAxisTickData(
-    cranioTypeChartData.value,
-    "dataPointValue"
-  );
-
-  const affectedSutureTicks = generateAxisTickData(
-    affectedSutureChartData.value,
-    "dataPointValue"
-  );
-
-  // @ts-expect-error
-  cranioTypeChart.value.yAxisMaxValue = cranioTypeTicks.limit;
-  // @ts-expect-error
-  cranioTypeChart.value.yAxisTicks = cranioTypeTicks.ticks;
-  // @ts-expect-error
-  affectedSutureChart.value.yAxisMaxValue = affectedSutureTicks.limit;
-  // @ts-expect-error
-  affectedSutureChart.value.yAxisTicks = affectedSutureTicks.ticks;
+function updateCharts() {
+  updateCranioTypesChart();
+  updateAffectedSutureChart();
 }
 
 onBeforeMount(async () => {
   try {
     await getPageData();
-    setFilter();
-    filterChartDatasets();
-    setAxisTicks();
+    setAgeGroupFilter();
+    updateCharts();
   } catch (err) {
     error.value = `${err}`;
   } finally {
