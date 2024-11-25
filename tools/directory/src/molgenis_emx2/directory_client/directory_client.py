@@ -37,9 +37,9 @@ class AttributesRequest:
     networks: List[str]
     also_known_in: List[str]
     biobanks: List[str]
+    studies: List[str]
     collections: List[str]
     facts: List[str]
-    studies: List[str]
 
 
 class MolgenisImportError(MolgenisRequestError):

@@ -17,9 +17,9 @@ class TableType(Enum):
     ALSO_KNOWN = "also_known_in"
     NETWORKS = "networks"
     BIOBANKS = "biobanks"
+    STUDIES = "studies"
     COLLECTIONS = "collections"
     FACTS = "facts"
-    STUDIES = "studies"
 
     @classmethod
     def get_import_order(cls) -> List["TableType"]:
@@ -208,9 +208,9 @@ class Node:
         TableType.NETWORKS: "networkID",
         TableType.ALSO_KNOWN: "akiID",
         TableType.BIOBANKS: "ID",
+        TableType.STUDIES: "studyID",
         TableType.COLLECTIONS: "ID",
         TableType.FACTS: "factID",
-        TableType.STUDIES: "studyID",
     }
 
     def get_schema_id(self) -> str:
@@ -295,9 +295,9 @@ class DirectoryData(ABC):
     also_known_in: Table
     networks: Table
     biobanks: Table
+    studies: Table
     collections: Table
     facts: Table
-    studies: Table
     table_by_type: Dict[TableType, Table] = field(init=False)
 
     def __post_init__(self):
@@ -306,9 +306,9 @@ class DirectoryData(ABC):
             TableType.NETWORKS: self.networks,
             TableType.ALSO_KNOWN: self.also_known_in,
             TableType.BIOBANKS: self.biobanks,
+            TableType.STUDIES: self.studies,
             TableType.COLLECTIONS: self.collections,
             TableType.FACTS: self.facts,
-            TableType.STUDIES: self.studies,
         }
 
     @property
@@ -318,9 +318,9 @@ class DirectoryData(ABC):
             self.networks,
             self.also_known_in,
             self.biobanks,
+            self.studies,
             self.collections,
             self.facts,
-            self.studies,
         ]
 
 
@@ -367,9 +367,9 @@ class MixedData(DirectoryData):
         self.networks.rows_by_id.update(other_data.networks.rows_by_id)
         self.also_known_in.rows_by_id.update(other_data.also_known_in.rows_by_id)
         self.biobanks.rows_by_id.update(other_data.biobanks.rows_by_id)
+        self.studies.rows_by_id.update(other_data.studies.rows_by_id)
         self.collections.rows_by_id.update(other_data.collections.rows_by_id)
         self.facts.rows_by_id.update(other_data.facts.rows_by_id)
-        self.studies.rows_by_id.update(other_data.studies.rows_by_id)
 
     def remove_node_rows(self, node: Node):
         for table in self.import_order:
@@ -385,9 +385,9 @@ class MixedData(DirectoryData):
             networks=Table.of_empty(TableType.NETWORKS, self.networks.meta),
             also_known_in=Table.of_empty(TableType.ALSO_KNOWN, self.also_known_in.meta),
             biobanks=Table.of_empty(TableType.BIOBANKS, self.biobanks.meta),
+            studies=Table.of_empty(TableType.STUDIES, self.studies.meta),
             collections=Table.of_empty(TableType.COLLECTIONS, self.collections.meta),
             facts=Table.of_empty(TableType.FACTS, self.facts.meta),
-            studies=Table.of_empty(TableType.STUDIES, self.studies.meta),
         )
 
 
