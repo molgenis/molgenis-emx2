@@ -513,9 +513,9 @@ public class MetadataUtils {
   protected static void saveColumnMetadata(DSLContext jooq, Column column) {
     String refSchema =
         column.isReference()
-            ? column.getRefSchemaName().equals(column.getSchemaName())
+            ? (column.getRefSchemaName().equals(column.getSchemaName())
                 ? null
-                : column.getRefSchemaName()
+                : column.getRefSchemaName())
             : null;
     jooq.insertInto(COLUMN_METADATA)
         .columns(

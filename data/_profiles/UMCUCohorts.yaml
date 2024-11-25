@@ -1,0 +1,16 @@
+---
+name: Staging area for filling out UMCG cohort metadata
+
+profileTags: UMCUCohorts
+
+demoData: _demodata/applications/datacatalogue_cohortstaging
+
+settings:
+
+# special options
+ontologiesToFixedSchema: CatalogueOntologies
+setFixedSchemaViewPermission: anonymous
+firstCreateSchemasIfMissing:
+  - name: catalogue
+    profile: _profiles/DataCatalogue.yaml
+    importDemoData: false
