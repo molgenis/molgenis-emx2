@@ -24,11 +24,11 @@ export function uniqueValues(data: any, key: string): string[] {
 /**
  * @name asKeyValuePairs
  * @description Convert an array of objects to an object of key-values
- * 
+ *
  * @param data array of objects
  * @param key name of the column containing the values that will be used as keys
  * @param value name of the column containing the values to map to the new keys
- * 
+ *
  * @returns object of key-value pairs
  */
 export function asKeyValuePairs(
