@@ -71,6 +71,13 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
     return totalCount - biobankCardsSubcollectionCount.value;
   });
 
+  const biobankCardsServicesCount = computed(
+    () =>
+      biobankCards.value
+        .filter((bc) => bc.services)
+        .flatMap((biobank) => biobank.services).length
+  );
+
   function getFacetColumnDetails() {
     if (!facetBiobankColumnDetails.value.length) {
       const filterFacetProperties = [];
@@ -217,6 +224,7 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
     biobankCardsHaveResults,
     biobankCardsBiobankCount,
     biobankCardsCollectionCount,
+    biobankCardsServicesCount,
     biobankCardsSubcollectionCount,
     biobankCards,
     baseQuery,
