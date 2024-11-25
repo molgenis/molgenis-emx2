@@ -914,7 +914,7 @@ public class GraphqlTableFieldFactory {
       case INT_ARRAY -> GraphQLList.list(Scalars.GraphQLInt);
       case LONG_ARRAY -> GraphQLList.list(GraphQLLong);
       case DECIMAL_ARRAY -> GraphQLList.list(Scalars.GraphQLFloat);
-      case JSON -> GraphQLJsonAsString;
+      case JSON -> GraphqlCustomTypes.GraphQLJsonAsString;
       case STRING_ARRAY,
               TEXT_ARRAY,
               DATE_ARRAY,
