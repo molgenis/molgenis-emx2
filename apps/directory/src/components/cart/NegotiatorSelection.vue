@@ -62,7 +62,7 @@
 
     <template v-slot:modal-footer>
       <div class="bg-primary d-flex align-items-center p-2">
-        <button class="btn btn-dark mr-auto" @click="removeAllCollections">
+        <button class="btn btn-dark mr-auto" @click="removeAll">
           {{ uiText["remove_all"] }}
         </button>
         <div>
@@ -179,8 +179,8 @@ function removeCollection(biobank: IBiobankIdentifier, collectionId: string) {
   );
 }
 
-function removeAllCollections() {
-  checkoutStore.removeAllCollectionsFromSelection(props.bookmark);
+function removeAll() {
+  checkoutStore.removeAllFromSelection(props.bookmark);
   emit("update:modelValue", false);
 }
 

@@ -276,10 +276,11 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
     }
   }
 
-  function removeAllCollectionsFromSelection(bookmark: boolean) {
+  function removeAllFromSelection(bookmark: boolean) {
     checkoutValid.value = false;
 
     selectedCollections.value = {};
+    selectedServices.value = {};
 
     if (bookmark) {
       checkoutValid.value = true;
@@ -417,6 +418,6 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
     addServicesToSelection,
     removeCollectionsFromSelection,
     removeServicesFromSelection,
-    removeAllCollectionsFromSelection,
+    removeAllFromSelection,
   };
 });
