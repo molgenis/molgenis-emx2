@@ -1,13 +1,10 @@
 <script setup lang="ts">
-withDefaults(
-  defineProps<{
-    activeTab: string;
-    tabs: Record<string, string>;
-  }>(),
-  {
-    activeTab: "Collections",
-  }
-);
+defineProps<{
+  tabs: Record<
+    string,
+    { id: string; label: string; active: boolean; disabled: boolean }
+  >;
+}>();
 
 defineEmits(["update:activeTab"]);
 </script>
@@ -17,10 +14,11 @@ defineEmits(["update:activeTab"]);
       <button
         type="button"
         class="btn btn-link nav-link shadow-none"
-        :class="{ active: activeTab === tab }"
+        :disabled="tabs[tab].disabled"
+        :class="{ active: tabs[tab].active }"
         @click="() => $emit('update:activeTab', tab)"
       >
-        {{ tabs[tab] ?? tab }}
+        {{ tabs[tab].label ?? tabs[tab].id }}
       </button>
     </li>
   </ul>

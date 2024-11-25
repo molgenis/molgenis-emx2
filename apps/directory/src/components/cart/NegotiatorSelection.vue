@@ -123,15 +123,30 @@ const props = withDefaults(
 
 type ICardTab = "Collections" | "Services";
 
-const tabs = computed(() => ({
-  Collections: `Collections (${checkoutStore.collectionSelectionCount})`,
-  Services: `Services (${checkoutStore.serviceSelectionCount})`,
-}));
-const activeTab = ref<ICardTab>("Collections");
-
 const settingsStore = useSettingsStore();
 const checkoutStore = useCheckoutStore();
 const graphqlEndpoint = settingsStore.config.graphqlEndpoint;
+
+const tabs = computed(() => {
+  return {
+    Collections: {
+      id: "Collections",
+      label: `Collections (${checkoutStore.collectionSelectionCount})`,
+      active: activeTab.value === "Collections",
+      disabled: checkoutStore.collectionSelectionCount === 0,
+    },
+    Services: {
+      id: "Services",
+      label: `Services (${checkoutStore.serviceSelectionCount})`,
+      active: activeTab.value === "Services",
+      disabled: checkoutStore.serviceSelectionCount === 0,
+    },
+  };
+});
+
+const activeTab = ref<ICardTab>(
+  checkoutStore.collectionSelectionCount > 0 ? "Collections" : "Services"
+);
 
 const commercialAvailableCollections = ref<string[]>([]);
 

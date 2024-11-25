@@ -16,20 +16,16 @@
           :qualityInfo="qualityInfo"
         />
 
-        <TabsSection
-          :tabs="tabs"
-          :active-tab="activeTab"
-          @update:active-tab="changeTab"
-        />
+        <TabsSection :tabs="tabs" @update:active-tab="changeTab" />
 
         <CollectionsSection
-          v-if="activeTab === 'Collections'"
+          v-if="tabs['Collections'].active"
           :biobank="biobank"
           :has-active-filters="filtersStore.hasActiveFilters"
         />
 
         <ServiceSection
-          v-else-if="activeTab === 'Services'"
+          v-else-if="tabs['Services'].active"
           :services="biobank.services"
           :selected-services="selectedServices"
           @update:addServices="handleAddServices"
@@ -37,7 +33,7 @@
         ></ServiceSection>
 
         <OrganizationSection
-          v-else-if="activeTab === 'Organization'"
+          v-else-if="tabs['Organization'].active"
           :biobank="biobank"
         />
       </div>
@@ -76,12 +72,29 @@ const props = withDefaults(
 
 type IBiobankCardTab = "Collections" | "Services" | "Organization";
 const showCollections = ref(false);
-const tabs = {
-  Collections: "Collections",
-  Services: "Services",
-  Organization: "Organization",
-};
 const activeTab = ref<IBiobankCardTab>("Collections");
+const tabs = computed(() => {
+  return {
+    Collections: {
+      id: "Collections",
+      label: "Collections",
+      active: activeTab.value === "Collections",
+      disabled: props.biobank?.collections?.length === 0,
+    },
+    Services: {
+      id: "Services",
+      label: "Services",
+      active: activeTab.value === "Services",
+      disabled: props.biobank?.services?.length === 0,
+    },
+    Organization: {
+      id: "Organization",
+      label: "Organization",
+      active: activeTab.value === "Organization",
+      disabled: false,
+    },
+  };
+});
 
 onBeforeMount(async () => {
   await qualitiesStore.getQualityStandardInformation();
