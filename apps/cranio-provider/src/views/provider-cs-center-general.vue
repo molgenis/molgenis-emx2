@@ -30,6 +30,7 @@
           :yTickValues="cranioTypeChart?.yAxisTicks"
           :xAxisLabel="cranioTypeChart?.xAxisLabel"
           :yAxisLAbel="cranioTypeChart?.yAxisLabel"
+          :columnColorPalette="cranioTypeChartPalette"
           :chartHeight="225"
           :chartMargins="{
             top: cranioTypeChart?.topMargin,
@@ -38,7 +39,6 @@
             left: cranioTypeChart?.leftMargin,
           }"
         />
-        <!-- :columnColorPalette="" -->
       </DashboardChart>
     </DashboardRow>
     <h3 class="dashboard-h3">Suture Overview</h3>
@@ -57,6 +57,7 @@
           :yMin="0"
           :yMax="affectedSutureChart?.yAxisMaxValue"
           :yTickValues="affectedSutureChart?.yAxisTicks"
+          :columnColorPalette="affectedSutureChartPalette"
           :chartHeight="275"
           :enableClicks="true"
           :chartMargins="{
@@ -67,7 +68,6 @@
           }"
           @column-clicked="updateMultipeSuturesChart"
         />
-        <!-- :columnColorPalette="colors.affectedSuture" -->
       </DashboardChart>
       <DashboardChart v-if="selectedSutureType">
         <ColumnChart
@@ -81,6 +81,7 @@
           :yMin="0"
           :yMax="multipleSutureChart?.yAxisMaxValue"
           :yTickValues="multipleSutureChart?.yAxisTicks"
+          :columnColorPalette="multipleSuturePalette"
           :chartHeight="275"
           :chartMargins="{
             top: multipleSutureChart?.topMargin,
@@ -89,7 +90,6 @@
             left: multipleSutureChart?.leftMargin,
           }"
         />
-        <!-- :columnColorPalette="colors.sutureType" -->
       </DashboardChart>
     </DashboardRow>
   </ProviderDashboard>
@@ -108,6 +108,7 @@ import {
 } from "molgenis-viz";
 import { generateAxisTickData } from "../utils/generateAxisTicks";
 import { getDashboardChart } from "../utils/getDashboardData";
+import { generateColorPalette } from "../utils/generateColorPalette";
 import { uniqueValues } from "../utils";
 
 import type { ICharts, IChartData } from "../interfaces/schema";
@@ -121,10 +122,13 @@ const selectedAgeGroup = ref<string>();
 const selectedSutureType = ref<string>();
 const cranioTypeChart = ref<ICharts>();
 const cranioTypeChartData = ref<IChartData[]>();
+const cranioTypeChartPalette = ref<string[]>();
 const affectedSutureChart = ref<ICharts>();
 const affectedSutureChartData = ref<IChartData[]>();
+const affectedSutureChartPalette = ref<string[]>();
 const multipleSutureChart = ref<ICharts>();
 const multipleSutureChartData = ref<IChartData[]>();
+const multipleSuturePalette = ref<string[]>();
 
 async function getPageData() {
   const url: string = `/${props.organisation.schemaName}/api/graphql`;
@@ -134,18 +138,30 @@ async function getPageData() {
     "cs-provider-type-of-craniosynostosis"
   );
   cranioTypeChart.value = csTypes[0];
+  const cranioTypeGroups: string[] = uniqueValues(
+    cranioTypeChart.value.dataPoints, "dataPointName"
+  )
+  cranioTypeChartPalette.value = generateColorPalette(cranioTypeGroups);
 
   const affectedSutures = await getDashboardChart(
     url,
     "cs-provider-affected-suture"
   );
   affectedSutureChart.value = affectedSutures[0];
+  
+  const affectedSutureGroups: string[] = uniqueValues(affectedSutureChart.value.dataPoints, "dataPointName")
+  affectedSutureChartPalette.value = generateColorPalette(affectedSutureGroups);
 
   const multiSutures = await getDashboardChart(
     url,
     "cs-provider-multiple-suture-synostosis"
   );
   multipleSutureChart.value = multiSutures[0];
+  
+  const mutlipleSutureGroups = uniqueValues(
+    multipleSutureChart.value.dataPoints, "dataPointName"
+  )
+  multipleSuturePalette.value = generateColorPalette(mutlipleSutureGroups);
 }
 
 function updateCranioTypesChart() {
