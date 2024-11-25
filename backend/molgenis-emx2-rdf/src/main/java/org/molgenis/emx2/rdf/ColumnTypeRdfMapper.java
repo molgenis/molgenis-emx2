@@ -47,6 +47,7 @@ public class ColumnTypeRdfMapper {
           entry(ColumnType.STRING_ARRAY, RdfColumnType.STRING),
           entry(ColumnType.TEXT, RdfColumnType.STRING),
           entry(ColumnType.TEXT_ARRAY, RdfColumnType.STRING),
+          entry(ColumnType.JSON, RdfColumnType.STRING),
 
           // NUMERIC
           entry(ColumnType.INT, RdfColumnType.INT),
@@ -61,10 +62,6 @@ public class ColumnTypeRdfMapper {
           entry(ColumnType.DATETIME_ARRAY, RdfColumnType.DATETIME),
           entry(ColumnType.PERIOD, RdfColumnType.DURATION),
           entry(ColumnType.PERIOD_ARRAY, RdfColumnType.DURATION),
-
-          // COMPOSITE
-          entry(ColumnType.JSONB, RdfColumnType.STRING),
-          entry(ColumnType.JSONB_ARRAY, RdfColumnType.SKIP), // Unsupported.
 
           // RELATIONSHIP
           entry(ColumnType.REF, RdfColumnType.REFERENCE),
