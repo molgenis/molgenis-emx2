@@ -139,8 +139,9 @@ async function getPageData() {
   );
   cranioTypeChart.value = csTypes[0];
   const cranioTypeGroups: string[] = uniqueValues(
-    cranioTypeChart.value.dataPoints, "dataPointName"
-  )
+    cranioTypeChart.value.dataPoints,
+    "dataPointName"
+  );
   cranioTypeChartPalette.value = generateColorPalette(cranioTypeGroups);
 
   const affectedSutures = await getDashboardChart(
@@ -148,8 +149,11 @@ async function getPageData() {
     "cs-provider-affected-suture"
   );
   affectedSutureChart.value = affectedSutures[0];
-  
-  const affectedSutureGroups: string[] = uniqueValues(affectedSutureChart.value.dataPoints, "dataPointName")
+
+  const affectedSutureGroups: string[] = uniqueValues(
+    affectedSutureChart.value.dataPoints,
+    "dataPointName"
+  );
   affectedSutureChartPalette.value = generateColorPalette(affectedSutureGroups);
 
   const multiSutures = await getDashboardChart(
@@ -157,10 +161,11 @@ async function getPageData() {
     "cs-provider-multiple-suture-synostosis"
   );
   multipleSutureChart.value = multiSutures[0];
-  
+
   const mutlipleSutureGroups = uniqueValues(
-    multipleSutureChart.value.dataPoints, "dataPointName"
-  )
+    multipleSutureChart.value.dataPoints,
+    "dataPointName"
+  );
   multipleSuturePalette.value = generateColorPalette(mutlipleSutureGroups);
 }
 
