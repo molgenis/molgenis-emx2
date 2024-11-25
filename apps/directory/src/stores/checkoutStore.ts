@@ -4,6 +4,7 @@ import { createBookmark } from "../functions/bookmarkMapper";
 import { useFiltersStore } from "./filtersStore";
 import { useSettingsStore } from "./settingsStore";
 import { IBiobanks } from "../interfaces/directory";
+import { IBiobankIdentifier } from "../interfaces/interfaces";
 
 export interface labelValuePair {
   label: string;
@@ -202,7 +203,7 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
     services,
     bookmark,
   }: {
-    biobank: IBiobanks;
+    biobank: IBiobankIdentifier;
     services: labelValuePair[];
     bookmark: boolean;
   }) {
@@ -246,7 +247,7 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
     collections,
     bookmark,
   }: {
-    biobank: IBiobanks;
+    biobank: IBiobankIdentifier;
     collections: labelValuePair[];
     bookmark: boolean;
   }) {

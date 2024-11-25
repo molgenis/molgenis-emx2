@@ -5,3 +5,7 @@ export interface IOntologyItem {
   parent?: { name: string }[];
   children?: IOntologyItem[];
 }
+
+export interface IBiobankIdentifier {
+  name: string;
+}

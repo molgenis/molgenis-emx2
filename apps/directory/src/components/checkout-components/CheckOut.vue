@@ -8,7 +8,7 @@
       <span>{{ uiText["request"] }}</span
       ><span class="badge badge-light ml-2"> {{ nItemsInCart }}</span>
     </button>
-    <negotiator-selection v-model="showCart" :bookmark="bookmark" />
+    <NegotiatorSelection v-model="showCart" :bookmark="bookmark" />
   </div>
 </template>
 
