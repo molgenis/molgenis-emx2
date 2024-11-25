@@ -38,11 +38,11 @@ function collectionViewmodel(collectiondetails: Record<string, any>) {
 <template>
   <div class="collections-section flex-grow-1">
     <div class="pl-2 pt-2 d-flex" v-if="numberOfCollections">
-      <h5>
+      <h5 v-if="numberOfCollections > 1">
         {{
-          `${numberOfCollections} collection${
-            numberOfCollections === 1 ? "" : "s"
-          } ${hasActiveFilters ? "found" : "available"}`
+          `${numberOfCollections} collections ${
+            hasActiveFilters ? "found" : "available"
+          }`
         }}
       </h5>
       <collection-selector
