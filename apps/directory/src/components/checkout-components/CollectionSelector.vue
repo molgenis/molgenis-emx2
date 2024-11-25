@@ -90,17 +90,24 @@ export default {
   },
   methods: {
     handleCollectionStatus(event) {
-      const { checked } = event.target;
-      const collectionData = {
-        biobank: this.biobankData,
-        collections: JSON.parse(JSON.stringify(this.collections)),
-        bookmark: this.bookmark,
-      };
+      console.log("handleCollectionStatus", this.collections, this.bookmark);
 
+      const { checked } = event.target;
       if (checked) {
-        this.checkoutStore.addCollectionsToSelection(collectionData);
+        this.checkoutStore.addCollectionsToSelection(
+          this.biobankData,
+          this.collections.map((collection) => ({
+            label: collection.label,
+            value: collection.value,
+          })),
+          this.bookmark
+        );
       } else {
-        this.checkoutStore.removeCollectionsFromSelection(collectionData);
+        this.checkoutStore.removeCollectionsFromSelection(
+          { name: this.biobankData.name },
+          this.collections.map((collection) => collection.value),
+          this.bookmark
+        );
       }
     },
   },

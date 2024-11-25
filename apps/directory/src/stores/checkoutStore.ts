@@ -97,15 +97,11 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
     }
   }
 
-  function addServicesToSelection({
-    biobank,
-    services,
-    bookmark,
-  }: {
-    biobank: IBiobanks;
-    services: labelValuePair[];
-    bookmark: boolean;
-  }) {
+  function addServicesToSelection(
+    biobank: IBiobanks,
+    services: labelValuePair[],
+    bookmark: boolean
+  ) {
     checkoutValid.value = false;
     const biobankIdentifier = biobank.name;
     biobankIdDictionary.value[biobankIdentifier] = biobank.id;
@@ -148,15 +144,11 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
     }
   }
 
-  function addCollectionsToSelection({
-    biobank,
-    collections,
-    bookmark,
-  }: {
-    biobank: IBiobanks;
-    collections: labelValuePair[];
-    bookmark: boolean;
-  }) {
+  function addCollectionsToSelection(
+    biobank: IBiobanks,
+    collections: labelValuePair[],
+    bookmark: boolean
+  ) {
     checkoutValid.value = false;
     const biobankIdentifier = biobank.name;
     biobankIdDictionary.value[biobankIdentifier] = biobank.id;
@@ -171,7 +163,7 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
 
       setSearchHistory(
         `Selected ${newCollections
-          .map((nc) => nc.label)
+          .map((collection) => collection.label)
           .join(", ")} from ${biobankIdentifier}`
       );
 
@@ -182,7 +174,7 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
 
       setSearchHistory(
         `Selected ${collections
-          .map((nc) => nc.label)
+          .map((collection) => collection.label)
           .join(", ")} from ${biobankIdentifier}`
       );
     }
@@ -198,15 +190,11 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
     return { collections, bookmark };
   }
 
-  function removeServicesFromSelection({
-    biobank,
-    services,
-    bookmark,
-  }: {
-    biobank: IBiobankIdentifier;
-    services: labelValuePair[];
-    bookmark: boolean;
-  }) {
+  function removeServicesFromSelection(
+    biobank: IBiobankIdentifier,
+    services: labelValuePair[],
+    bookmark: boolean
+  ) {
     checkoutValid.value = false;
     const biobankIdentifier = biobank.name;
 
@@ -242,23 +230,25 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
     }
   }
 
-  function removeCollectionsFromSelection({
-    biobank,
-    collections,
-    bookmark,
-  }: {
-    biobank: IBiobankIdentifier;
-    collections: labelValuePair[];
-    bookmark: boolean;
-  }) {
+  function removeCollectionsFromSelection(
+    biobank: IBiobankIdentifier,
+    collectionIds: string[],
+    bookmark: boolean
+  ) {
+    console.log(
+      "removeCollectionsFromSelection",
+      biobank,
+      collectionIds,
+      bookmark
+    );
     checkoutValid.value = false;
     const biobankIdentifier = biobank.name;
 
     if (selectedCollections.value[biobankIdentifier]) {
       const collectionSelectionForBiobank =
         selectedCollections.value[biobankIdentifier];
-      const collectionsToRemove = collections.map((c) => c.value);
-      for (const collectionId of collectionsToRemove) {
+
+      for (const collectionId of collectionIds) {
         const getRemoveIdIndex = collectionSelectionForBiobank.findIndex(
           (collection) => collection.value === collectionId
         );
@@ -287,11 +277,7 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
     }
   }
 
-  function removeAllCollectionsFromSelection({
-    bookmark,
-  }: {
-    bookmark: boolean;
-  }) {
+  function removeAllCollectionsFromSelection(bookmark: boolean) {
     checkoutValid.value = false;
 
     selectedCollections.value = {};
@@ -408,7 +394,7 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
     });
 
     if (response.ok) {
-      removeAllCollectionsFromSelection({ bookmark: false });
+      removeAllCollectionsFromSelection(false);
     } else {
       throw new Error("Negotiator is not available. Please try again later.");
     }

@@ -16,7 +16,7 @@
 import { computed, ref } from "vue";
 import { useCheckoutStore } from "../../stores/checkoutStore";
 import { useSettingsStore } from "../../stores/settingsStore";
-import NegotiatorSelection from "../popovers/NegotiatorSelection.vue";
+import NegotiatorSelection from "../cart/NegotiatorSelection.vue";
 
 const settingsStore = useSettingsStore();
 const checkoutStore = useCheckoutStore();

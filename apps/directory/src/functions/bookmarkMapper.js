@@ -41,10 +41,11 @@ export async function applyBookmark(watchedQuery) {
       await collectionStore.getMissingCollectionInformation(cartIds);
     if (missingCollections && Object.keys(missingCollections).length) {
       for (const collection of missingCollections) {
-        checkoutStore.addCollectionsToSelection({
-          biobank: collection.biobank,
-          collections: [{ label: collection.name, value: collection.id }],
-        });
+        checkoutStore.addCollectionsToSelection(
+          collection.biobank,
+          [{ label: collection.name, value: collection.id }],
+          false
+        );
       }
     }
     /** add the beginning of history if from a link-back url */

@@ -105,11 +105,11 @@ function handleAddServices(selectedServiceIds: string[]) {
     return { label: service.name, value: service.id };
   });
 
-  checkoutStore.addServicesToSelection({
-    biobank: props.biobank,
-    services: secvicesLabelValuePair,
-    bookmark: true,
-  });
+  checkoutStore.addServicesToSelection(
+    props.biobank,
+    secvicesLabelValuePair,
+    true
+  );
 }
 
 function handleRemoveServices(selectedServiceIds: string[]) {
@@ -121,11 +121,11 @@ function handleRemoveServices(selectedServiceIds: string[]) {
     return { label: service.name, value: service.id };
   });
 
-  checkoutStore.removeServicesFromSelection({
-    biobank: props.biobank,
-    services: secvicesLabelValuePair,
-    bookmark: true,
-  });
+  checkoutStore.removeServicesFromSelection(
+    props.biobank,
+    secvicesLabelValuePair,
+    true
+  );
 }
 
 function getQualityInfo(key: string) {

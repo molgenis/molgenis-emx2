@@ -14,38 +14,15 @@
           {{ biobankName }}
         </div>
         <div class="cart-selection">
-          <div
-            class="card-body d-flex border-bottom"
-            :key="`${collection.label}-${index}`"
-            v-for="(collection, index) in collections.sort((a, b) =>
-              a.label.localeCompare(b.label)
-            )"
-          >
-            <div>
-              <span
-                v-if="!loading && isNonCommercialCollection(collection.value)"
-                class="fa-brands fa-creative-commons-nc-eu text-danger non-commercial mr-2"
-                title="Not available for commercial use"
-              ></span>
-
-              <span> {{ collection.label }}</span>
-            </div>
-            <div
-              class="pl-3 ml-auto"
-              @click="
-                removeCollectionsFromSelection({
-                  biobank: { name: biobankName },
-                  collections: [collection],
-                  bookmark: bookmark,
-                })
-              "
-            >
-              <span
-                class="fa fa-times text-bold remove-collection"
-                title="Remove collection"
-              ></span>
-            </div>
-          </div>
+          <CartItem
+            v-if="!loading && activeTab === 'Collections'"
+            v-for="collection in collections"
+            :item="collection"
+            :isNonCommercial="isNonCommercialCollection(collection.value)"
+            @removeItemFromCart="
+              removeCollection({ name: biobankName }, collection.value)
+            "
+          />
         </div>
       </div>
     </template>
@@ -109,6 +86,7 @@ import { computed, ref } from "vue";
 import { IBiobankIdentifier } from "../../interfaces/interfaces";
 import TabsSection from "../biobankcards-components/TabsSection.vue";
 import QueryEMX2 from "../../../../molgenis-components/src/queryEmx2/queryEmx2";
+import CartItem from "./CartItem.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -166,18 +144,16 @@ function isNonCommercialCollection(collectionId: string) {
   return !isCommercial;
 }
 
-function removeCollectionsFromSelection(collectionData: {
-  biobank: IBiobankIdentifier;
-  collections: { label: string; value: string }[];
-  bookmark: boolean;
-}) {
-  checkoutStore.removeCollectionsFromSelection(collectionData);
+function removeCollection(biobank: IBiobankIdentifier, collectionId: string) {
+  checkoutStore.removeCollectionsFromSelection(
+    biobank,
+    [collectionId],
+    props.bookmark
+  );
 }
 
 function removeAllCollections() {
-  checkoutStore.removeAllCollectionsFromSelection({
-    bookmark: props.bookmark,
-  });
+  checkoutStore.removeAllCollectionsFromSelection(props.bookmark);
   emit("update:modelValue", false);
 }
 
