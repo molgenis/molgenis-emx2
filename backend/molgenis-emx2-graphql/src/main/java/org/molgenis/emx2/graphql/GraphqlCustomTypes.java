@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 import org.molgenis.emx2.BinaryFileWrapper;
-import org.molgenis.emx2.MolgenisException;
 
 public class GraphqlCustomTypes {
   private static final ObjectMapper objectMapper = new ObjectMapper();
@@ -31,7 +30,7 @@ public class GraphqlCustomTypes {
                   try {
                     return objectMapper.writeValueAsString(dataFetcherResult);
                   } catch (JsonProcessingException e) {
-                    throw new MolgenisException(
+                    throw new CoercingSerializeException(
                         "Unable to serialize to JSON string: " + e.getMessage());
                   }
                 }
