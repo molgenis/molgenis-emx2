@@ -192,7 +192,7 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
 
   function removeServicesFromSelection(
     biobank: IBiobankIdentifier,
-    services: labelValuePair[],
+    serviceIds: string[],
     bookmark: boolean
   ) {
     checkoutValid.value = false;
@@ -201,8 +201,7 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
     if (selectedServices.value[biobankIdentifier]) {
       const serviceSelectionForBiobank =
         selectedServices.value[biobankIdentifier];
-      const servicesToRemove = services.map((s) => s.value);
-      for (const serviceId of servicesToRemove) {
+      for (const serviceId of serviceIds) {
         const getRemoveIdIndex = serviceSelectionForBiobank.findIndex(
           (service) => service.value === serviceId
         );

@@ -1,6 +1,6 @@
 <template>
-  <simple-modal :open="modelValue" :bodyClass="'w-50'">
-    <template v-if="selectionCount > 0">
+  <SimpleModal :open="modelValue" :bodyClass="'w-50'">
+    <template v-if="selectionCount > 0 && !loading">
       <TabsSection
         :tabs="tabs"
         :active-tab="activeTab"
@@ -8,27 +8,50 @@
       />
       <div
         class="card mb-3 border"
+        v-if="activeTab === 'Collections' && selectionCount > 0"
         v-for="(collections, biobankName) in selectedCollections"
       >
         <div class="card-header font-weight-bold">
           {{ biobankName }}
         </div>
-        <div class="cart-selection">
-          <CartItem
-            v-if="!loading && activeTab === 'Collections'"
-            v-for="collection in collections"
-            :item="collection"
-            :isNonCommercial="isNonCommercialCollection(collection.value)"
-            @removeItemFromCart="
-              removeCollection({ name: biobankName }, collection.value)
-            "
-          />
+
+        <CartItem
+          v-for="collection in collections"
+          :item="collection"
+          :isNonCommercial="isNonCommercialCollection(collection.value)"
+          @removeItemFromCart="
+            removeCollection({ name: biobankName }, collection.value)
+          "
+        />
+      </div>
+      <div
+        class="card mb-3 border"
+        v-if="
+          activeTab === 'Services' && Object.keys(selectedServices).length > 0
+        "
+        v-for="(services, biobankName) in selectedServices"
+      >
+        <div class="card-header font-weight-bold">
+          {{ biobankName }}
         </div>
+        <CartItem
+          v-for="service in services"
+          :item="service"
+          @removeItemFromCart="
+            checkoutStore.removeServicesFromSelection(
+              { name: biobankName },
+              [service.value],
+              bookmark
+            )
+          "
+        />
       </div>
     </template>
 
     <template v-else>
-      <p class="py-3 pl-1">You haven't selected any collections yet.</p>
+      <p class="py-3 pl-1">
+        You haven't selected any collections or services yet.
+      </p>
     </template>
 
     <template v-if="errorMessage">
@@ -74,7 +97,7 @@
         </div>
       </div>
     </template>
-  </simple-modal>
+  </SimpleModal>
 </template>
 
 <script setup lang="ts">
@@ -99,7 +122,11 @@ const props = withDefaults(
 );
 
 type ICardTab = "Collections" | "Services";
-const tabs = ["Collections", "Services"];
+
+const tabs = computed(() => ({
+  Collections: `Collections (${checkoutStore.collectionSelectionCount})`,
+  Services: `Services (${checkoutStore.serviceSelectionCount})`,
+}));
 const activeTab = ref<ICardTab>("Collections");
 
 const settingsStore = useSettingsStore();
@@ -176,7 +203,7 @@ const selectionCount = computed(
 );
 
 const modalFooterText = computed(
-  () => `${selectionCount.value} collection(s) selected`
+  () => `${selectionCount.value} item(s) selected`
 );
 
 const selectedCollections = computed(() => checkoutStore.selectedCollections);

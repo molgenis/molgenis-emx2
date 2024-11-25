@@ -76,7 +76,11 @@ const props = withDefaults(
 
 type IBiobankCardTab = "Collections" | "Services" | "Organization";
 const showCollections = ref(false);
-const tabs = ["Collections", "Services", "Organization"];
+const tabs = {
+  Collections: "Collections",
+  Services: "Services",
+  Organization: "Organization",
+};
 const activeTab = ref<IBiobankCardTab>("Collections");
 
 onBeforeMount(async () => {
@@ -113,17 +117,9 @@ function handleAddServices(selectedServiceIds: string[]) {
 }
 
 function handleRemoveServices(selectedServiceIds: string[]) {
-  const selectedServices =
-    props.biobank.services?.filter((service) =>
-      selectedServiceIds.includes(service.id)
-    ) ?? [];
-  const secvicesLabelValuePair = selectedServices.map((service) => {
-    return { label: service.name, value: service.id };
-  });
-
   checkoutStore.removeServicesFromSelection(
     props.biobank,
-    secvicesLabelValuePair,
+    selectedServiceIds,
     true
   );
 }
