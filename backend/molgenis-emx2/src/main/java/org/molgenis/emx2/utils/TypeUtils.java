@@ -1,6 +1,8 @@
 package org.molgenis.emx2.utils;
 
 import com.fasterxml.jackson.core.StreamReadFeature;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
@@ -25,6 +27,7 @@ public class TypeUtils {
   static {
     // Enable source inclusion in error location
     objectMapper.configure(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION.mappedFeature(), true);
+    objectMapper.configure(DeserializationFeature.FAIL_ON_TRAILING_TOKENS, true);
   }
 
   private static final String LOOSE_PARSER_FORMAT =
@@ -257,20 +260,36 @@ public class TypeUtils {
 
   public static JSONB toJsonb(Object v) {
     if (v == null) return null;
+    if (v instanceof JSONB) { // Ensures JSONB is validated
+      v = v.toString();
+    }
     if (v instanceof String) {
       String value = toString(v);
       if (value != null) {
         try {
-          objectMapper.readTree(value); // validates the json
+          v = objectMapper.readTree(value);
         } catch (Exception e) {
           throw new MolgenisException("Invalid json", e);
         }
-        return org.jooq.JSONB.valueOf(value);
       } else {
         return null;
       }
     }
-    return (JSONB) v;
+    if (v instanceof JsonNode) {
+      return org.jooq.JSONB.valueOf(validateJson((JsonNode) v).toString());
+    }
+
+    // Other input is invalid (no casting due to ensuring validateJson() is executed).
+    throw new ClassCastException("Cannot cast '" + v.toString() + "' to JSONB");
+  }
+
+  public static JsonNode validateJson(JsonNode rootNode) throws MolgenisException {
+    if (!(rootNode.isObject() || rootNode.isArray())) {
+      throw new MolgenisException(
+          "Only an object or array is allowed as root element. Found type is: "
+              + rootNode.getNodeType().name());
+    }
+    return rootNode;
   }
 
   public static String toText(Object v) {

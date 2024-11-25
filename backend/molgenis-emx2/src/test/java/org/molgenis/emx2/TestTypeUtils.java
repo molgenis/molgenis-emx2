@@ -2,11 +2,15 @@ package org.molgenis.emx2;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import org.jooq.JSONB;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.utils.TypeUtils;
 
@@ -65,5 +69,40 @@ public class TestTypeUtils {
     assertEquals(
         TypeUtils.toDateTime("2023-02-24T12:08:23.46378"),
         LocalDateTime.of(2023, 02, 24, 12, 8, 23, 463780000));
+  }
+
+  @Test
+  void testToJsonb() throws JsonProcessingException {
+    String objectString = "{\"key\":\"value\"}";
+    JsonNode objectJackson = new ObjectMapper().readTree(objectString);
+    JSONB objectJooq = JSONB.valueOf(objectString);
+
+    String arrayString = "[\"string1\",\"string2\"]";
+    JsonNode arrayJackson = new ObjectMapper().readTree(objectString);
+    JSONB arrayJooq = JSONB.valueOf(objectString);
+
+    String nullString = "null";
+    JsonNode nullJackson = new ObjectMapper().readTree(nullString);
+    JSONB nullJooq = JSONB.valueOf(nullString);
+
+    String jsonListString = "{\"key1\":\"value1\"},{\"key2\":\"value2\"}";
+
+    assertAll(
+        // validate object
+        () -> assertEquals(objectJooq, TypeUtils.toJsonb(objectString)),
+        () -> assertEquals(objectJooq, TypeUtils.toJsonb(objectJackson)),
+        () -> assertEquals(objectJooq, TypeUtils.toJsonb(objectJooq)),
+        // validate array
+        () -> assertEquals(objectJooq, TypeUtils.toJsonb(objectString)),
+        () -> assertEquals(objectJooq, TypeUtils.toJsonb(objectJackson)),
+        () -> assertEquals(objectJooq, TypeUtils.toJsonb(objectJooq)),
+        // validate primitive: null
+        () -> assertThrows(MolgenisException.class, () -> TypeUtils.toJsonb(nullString)),
+        () -> assertThrows(MolgenisException.class, () -> TypeUtils.toJsonb(nullJackson)),
+        () -> assertThrows(MolgenisException.class, () -> TypeUtils.toJsonb(nullJooq)),
+        // validate invalid: 2 objects separated by a comma
+        () -> assertThrows(MolgenisException.class, () -> TypeUtils.toJsonb(jsonListString)),
+        // validate invalid: int
+        () -> assertThrows(ClassCastException.class, () -> TypeUtils.toJsonb(1)));
   }
 }
