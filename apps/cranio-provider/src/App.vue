@@ -22,6 +22,9 @@
           <router-view
             :organisation="currentOrganisation"
             :schemaNames="cranioSchemas"
+            :api="{
+              graphql: `/${currentOrganisation?.schemaName}/api/graphql`,
+            }"
           ></router-view>
         </Dashboard>
       </div>
