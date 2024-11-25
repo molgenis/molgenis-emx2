@@ -25,7 +25,7 @@ export interface IOntologyNode extends ITreeNode {
 export interface IChartData {
   dataPointId: string;
   dataPointName?: string;
-  dataPointValue?: string;
+  dataPointValue?: number;
   dataPointValueLabel?: string;
   dataPointSeries?: string;
   dataPointPrimaryCategory?: string;
