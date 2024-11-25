@@ -17,22 +17,6 @@
               : 'img/banner-diagnoses.jpg'
           "
         />
-        <PageSection
-          class="bg-gray-050"
-          aria-labelledby="temp-message-title"
-          :verticalPadding="1"
-        >
-          <h2 id="temp-message-title" class="visually-hidden">
-            About the dashboards
-          </h2>
-          <MessageBox type="warning">
-            <p>
-              This dashboard is currently under development. All data shown in
-              the following visualisations have been randomly generated for
-              demonstration purposes.
-            </p>
-          </MessageBox>
-        </PageSection>
         <Dashboard class="provider-dashboard-container" :horizontalPadding="5">
           <ProviderSidebar />
           <router-view
