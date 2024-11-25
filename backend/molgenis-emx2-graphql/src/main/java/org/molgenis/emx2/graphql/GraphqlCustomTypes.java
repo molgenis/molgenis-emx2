@@ -1,7 +1,6 @@
 package org.molgenis.emx2.graphql;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.schema.*;
 import jakarta.servlet.http.Part;
 import java.io.ByteArrayOutputStream;
@@ -9,9 +8,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 import org.molgenis.emx2.BinaryFileWrapper;
+import org.molgenis.emx2.utils.MolgenisObjectMapper;
 
 public class GraphqlCustomTypes {
-  private static final ObjectMapper objectMapper = new ObjectMapper();
+  private static final MolgenisObjectMapper objectMapper = MolgenisObjectMapper.INTERNAL;
 
   private GraphqlCustomTypes() {
     // hide constructor
@@ -28,7 +28,7 @@ public class GraphqlCustomTypes {
                 public String serialize(Object dataFetcherResult) {
                   // Convert Java object to JSON string
                   try {
-                    return objectMapper.writeValueAsString(dataFetcherResult);
+                    return objectMapper.getWriter().writeValueAsString(dataFetcherResult);
                   } catch (JsonProcessingException e) {
                     throw new CoercingSerializeException(
                         "Unable to serialize to JSON string: " + e.getMessage());
