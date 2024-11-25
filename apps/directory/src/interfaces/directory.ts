@@ -16,6 +16,7 @@ export interface ITreeNode {
 }
 
 export interface IOntologyNode extends ITreeNode {
+  label: string;
   code?: string;
   definition?: string;
   ontologyTermURI?: string;

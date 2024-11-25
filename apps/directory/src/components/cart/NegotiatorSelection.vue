@@ -105,7 +105,7 @@ import { useCheckoutStore } from "../../stores/checkoutStore";
 import { useSettingsStore } from "../../stores/settingsStore";
 // @ts-ignore
 import { SimpleModal } from "molgenis-components";
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import { IBiobankIdentifier } from "../../interfaces/interfaces";
 import TabsSection from "../biobankcards-components/TabsSection.vue";
 import QueryEMX2 from "../../../../molgenis-components/src/queryEmx2/queryEmx2";
@@ -118,6 +118,17 @@ const props = withDefaults(
   }>(),
   {
     bookmark: true,
+  }
+);
+
+// make sure the active tab is always the one with the non empty items
+watch(
+  () => props.modelValue,
+  (newValue) => {
+    if (newValue) {
+      activeTab.value =
+        checkoutStore.collectionSelectionCount > 0 ? "Collections" : "Services";
+    }
   }
 );
 

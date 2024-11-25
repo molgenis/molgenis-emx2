@@ -25,41 +25,35 @@
             <div class="row">
               <div class="col-md-8">
                 <table class="table-layout w-100">
-                  <string :attribute="{ label: 'Id:', value: service.id }" />
-                  <string
-                    :attribute="{ label: 'Name:', value: service.name }"
-                  />
                   <tbody>
-                    <tr>
-                      <th scope="row" class="pr-1 align-top text-nowrap">
-                        Service Type:
-                      </th>
-                      <td>
-                        <div v-for="serviceType in service.serviceTypes">
-                          {{ serviceType.name }} ({{
-                            serviceType.serviceCategory.name
-                          }})
-                        </div>
-                      </td>
-                    </tr>
+                    <string :attribute="{ label: 'Id:', value: service.id }" />
+
+                    <string
+                      :attribute="{ label: 'Name:', value: service.name }"
+                    />
+
                     <string
                       :attribute="{ label: 'Acronym:', value: service.acronym }"
                     />
+
                     <string
                       :attribute="{
                         label: 'Description:',
                         value: service.description,
                       }"
                     />
+
                     <string
                       :attribute="{
                         label: 'Description URL:',
                         value: service.descriptionUrl,
                       }"
                     />
+
                     <string
                       :attribute="{ label: 'Device:', value: service.device }"
                     />
+
                     <string
                       :attribute="{
                         label: 'Device System:',
@@ -73,23 +67,53 @@
                         value: service.accessDescriptionUrl,
                       }"
                     />
+
                     <string
                       :attribute="{
                         label: 'Unit of Access:',
                         value: service.unitOfAccess,
                       }"
                     />
+
                     <string
                       :attribute="{
                         label: 'Access Description:',
                         value: service.accessDescription,
                       }"
                     />
+
                     <string
                       :attribute="{
                         label: 'Unit Cost:',
                         value: service.unitCost,
                       }"
+                    />
+
+                    <tr>
+                      <th scope="row" class="pr-1 align-top text-nowrap">
+                        Service Type:
+                      </th>
+                      <td>
+                        <div v-for="serviceType in service.serviceTypes">
+                          {{ serviceType.name }} ({{
+                            serviceType.serviceCategory.name
+                          }})
+                        </div>
+                      </td>
+                    </tr>
+
+                    <tr v-if="service.tRL">
+                      <th scope="row" class="pr-1 align-top text-nowrap">
+                        TRL:
+                      </th>
+                      <td>
+                        {{ service.tRL.label ?? service.tRL.name }}
+                      </td>
+                    </tr>
+
+                    <quality
+                      v-if="service.qualityStandards"
+                      :attribute="service.qualityStandards"
                     />
                   </tbody>
                 </table>
@@ -118,6 +142,7 @@ import ReportTitle from "../components/report-components/ReportTitle.vue";
 import ReportDescription from "../components/report-components/ReportDescription.vue";
 import CheckOut from "../components/checkout-components/CheckOut.vue";
 import string from "../components/generators/view-components/string.vue";
+import Quality from "../components/generators/view-components/quality.vue";
 
 const service = ref<IServices | null>(null);
 

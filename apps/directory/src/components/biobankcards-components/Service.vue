@@ -14,7 +14,6 @@ const props = withDefaults(
 const emit = defineEmits(["update:isAdded", "update:isRemoved"]);
 
 function handleCheckBox() {
-  console.log("handleCheckBox", props.isSelected);
   props.isSelected ? emit("update:isRemoved") : emit("update:isAdded");
 }
 </script>

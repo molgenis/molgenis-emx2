@@ -90,8 +90,6 @@ export default {
   },
   methods: {
     handleCollectionStatus(event) {
-      console.log("handleCollectionStatus", this.collections, this.bookmark);
-
       const { checked } = event.target;
       if (checked) {
         this.checkoutStore.addCollectionsToSelection(

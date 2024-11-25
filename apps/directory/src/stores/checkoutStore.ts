@@ -234,12 +234,6 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
     collectionIds: string[],
     bookmark: boolean
   ) {
-    console.log(
-      "removeCollectionsFromSelection",
-      biobank,
-      collectionIds,
-      bookmark
-    );
     checkoutValid.value = false;
     const biobankIdentifier = biobank.name;
 
