@@ -10,7 +10,8 @@ import type { IAxisTickData } from "../interfaces/index";
  * @returns an object containing the limit (i.e., max value) and ticks
  */
 export function generateAxisTickData(data: any, key: string): IAxisTickData {
-  const limit = Math.max(...data.map((row: any) => row[key]));
+  const max = Math.max(...data.map((row: any) => row[key]));
+  const limit = max < 10 ? 10 : max;
   const interval = calculateInterval(limit);
   const limitAdjusted = Math.ceil(limit / interval) * interval;
   const ticks = seqAlongBy(0, limitAdjusted, interval);
@@ -75,7 +76,7 @@ export function calculateInterval(value: number): number {
   } else if (value > 10 && value <= 50) {
     return 10;
   } else if (value > 5 && value <= 10) {
-    return 5;
+    return 2;
   } else {
     return 1;
   }
