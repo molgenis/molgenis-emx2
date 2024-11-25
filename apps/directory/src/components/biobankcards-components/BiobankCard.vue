@@ -169,8 +169,8 @@ const qualityStandardsDictionary: Record<string, any> = computed(() => {
 const biobankInSelection = computed(() => {
   const biobankIdentifier: string = props.biobank.name;
   return (
-    //@ts-ignore can be removed once checkoutStore is ts
-    checkoutStore.selectedCollections[biobankIdentifier] !== undefined
+    checkoutStore.selectedCollections[biobankIdentifier] !== undefined ||
+    checkoutStore.selectedServices[biobankIdentifier] !== undefined
   );
 });
 </script>
