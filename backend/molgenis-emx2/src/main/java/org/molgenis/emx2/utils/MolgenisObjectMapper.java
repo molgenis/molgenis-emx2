@@ -48,26 +48,22 @@ public enum MolgenisObjectMapper {
     objectMapper.configure(JsonParser.Feature.STRICT_DUPLICATE_DETECTION, true);
   }
 
-  /**
-   * Override for specific configs.
-   */
+  /** Override for specific configs. */
   void configureSpecific(ObjectMapper objectMapper) {}
 
   /**
-   * @see #validate(JsonNode) 
+   * @see #validate(JsonNode)
    */
   public String validate(String json) throws JsonProcessingException {
     return validate(reader.readTree(json)).toString();
   }
 
-  /**
-   * Validate JSON if it adheres to Molgenis EMX2 specific requirements.
-   */
+  /** Validate JSON if it adheres to Molgenis EMX2 specific requirements. */
   public JsonNode validate(JsonNode rootNode) {
     if (!(rootNode.isObject() || rootNode.isArray())) {
       throw new MolgenisException(
-              "Only an object or array is allowed as root element. Found type is: "
-                      + rootNode.getNodeType().name());
+          "Only an object or array is allowed as root element. Found type is: "
+              + rootNode.getNodeType().name());
     }
     return rootNode;
   }
