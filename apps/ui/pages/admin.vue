@@ -47,7 +47,7 @@
         </template>
       </Table>
 
-      <NewUserModal ref="createUserModal" @addUser="addUser"> </NewUserModal>
+      <NewUserModal ref="createUserModal" @addUser="addUser" />
 
       <EditUserModal
         ref="editUserModal"
@@ -60,8 +60,6 @@
 </template>
 
 <script setup lang="ts">
-import { EditUserModal } from "#build/components";
-import type NewUserModal from "~/components/newUserModal.vue";
 import {
   createUser,
   deleteUser,
