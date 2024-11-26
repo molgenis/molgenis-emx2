@@ -41,9 +41,10 @@ public class TestLoaders {
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
     // prevent previous dangling test results
+    database.dropSchemaIfExists(PORTAL_TEST);
     database.dropSchemaIfExists(COHORT_STAGING);
     database.dropSchemaIfExists(NETWORK_STAGING);
-    // database.dropSchemaIfExists(DATA_CATALOGUE);
+    database.dropSchemaIfExists(DATA_CATALOGUE);
     database.dropSchemaIfExists(DATA_CATALOGUE_AGGREGATES);
     database.dropSchemaIfExists(FAIR_DATA_HUB_TEST);
     database.dropSchemaIfExists(SHARED_STAGING);
@@ -51,7 +52,6 @@ public class TestLoaders {
     database.dropSchemaIfExists(DIRECTORY_STAGING);
     database.dropSchemaIfExists(DIRECTORY_ONTOLOGIES);
     database.dropSchemaIfExists(RD3_TEST);
-    database.dropSchemaIfExists(PORTAL_TEST);
     database.dropSchemaIfExists(JRC_CDE_TEST);
     database.dropSchemaIfExists(FAIR_GENOMES);
     database.dropSchemaIfExists(DCAT);
@@ -62,14 +62,14 @@ public class TestLoaders {
     database.dropSchemaIfExists(FAIR_DATA_HUB_TEST);
     database.dropSchemaIfExists(PROJECT_MANAGER);
     // delete ontologies last
-    // database.dropSchemaIfExists(CATALOGUE_ONTOLOGIES);
+    database.dropSchemaIfExists(CATALOGUE_ONTOLOGIES);
   }
 
   @Test
   public void test01FAIRDataHubLoader() {
     Schema fairDataHubSchema = database.createSchema(FAIR_DATA_HUB_TEST);
     DataModels.Profile.FAIR_DATA_HUB.getImportTask(fairDataHubSchema, true).run();
-    assertEquals(73, fairDataHubSchema.getTableNames().size());
+    assertEquals(71, fairDataHubSchema.getTableNames().size());
     String[] semantics = fairDataHubSchema.getTable("BiospecimenType").getMetadata().getSemantics();
     assertEquals("http://purl.obolibrary.org/obo/NCIT_C70699", semantics[0]);
     assertEquals("http://purl.obolibrary.org/obo/NCIT_C70713", semantics[1]);
@@ -107,23 +107,22 @@ public class TestLoaders {
   @Test
   void test10RD3Loader() {
     Schema RD3Schema = database.createSchema(RD3_TEST);
-    // todo demo data!
-    DataModels.Profile.RD3.getImportTask(RD3Schema, false).run();
-    assertEquals(54, RD3Schema.getTableNames().size());
+    DataModels.Profile.RD3.getImportTask(RD3Schema, true).run();
+    assertEquals(27, RD3Schema.getTableNames().size());
   }
 
   @Test
   void test11JRCCDELoader() {
     Schema JRCCDESchema = database.createSchema(JRC_CDE_TEST);
     DataModels.Profile.JRC_COMMON_DATA_ELEMENTS.getImportTask(JRCCDESchema, true).run();
-    assertEquals(10, JRCCDESchema.getTableNames().size());
+    assertEquals(12, JRCCDESchema.getTableNames().size());
   }
 
   @Test
   void test12FAIRGenomesLoader() {
     Schema FAIRGenomesSchema = database.createSchema(FAIR_GENOMES);
     DataModels.Profile.FAIR_GENOMES.getImportTask(FAIRGenomesSchema, true).run();
-    assertEquals(48, FAIRGenomesSchema.getTableNames().size());
+    assertEquals(46, FAIRGenomesSchema.getTableNames().size());
   }
 
   @Test
