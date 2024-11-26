@@ -1,4 +1,5 @@
 <template>
+  index={{ index }} id={{ id }}
   <Spinner v-if="!session" />
   <MessageWarning
     v-else-if="
@@ -16,7 +17,19 @@
       <h2>
         Edit report: {{ id }}<IconAction icon="eye" @click="edit = false" />
       </h2>
-      <InputString id="reportName" v-model="name" label="name" />
+      <InputString
+        id="reportId"
+        v-model="id"
+        label="id"
+        :required="true"
+        description="unique index"
+      />
+      <InputString
+        id="reportName"
+        v-model="name"
+        label="name"
+        description="human readible label"
+      />
       <InputText
         id="reportSql"
         v-model="sql"
@@ -96,13 +109,14 @@ export default {
   },
   props: {
     session: Object,
-    id: String,
+    index: String,
     limit: { type: Number, default: 5 },
   },
   data() {
     return {
       rows: undefined,
       count: null,
+      id: null,
       sql: 'select * from "Pet"',
       name: null,
       parameters: {},
@@ -175,7 +189,11 @@ export default {
       const offset = this.limit * (this.page - 1);
       const result = await request(
         "graphql",
-        `query report($parameters:[MolgenisSettingsInput]) {_reports(id:${this.id},parameters:$parameters,limit:${this.limit},offset:${offset}){data,count}}`,
+        `query report($parameters:[MolgenisSettingsInput]) {_reports(id:"${
+          this.id || this.index
+        }",parameters:$parameters,limit:${
+          this.limit
+        },offset:${offset}){data,count}}`,
         {
           parameters: this.parameterKeyValueMap,
         }
@@ -186,11 +204,20 @@ export default {
       this.count = result._reports.count;
     },
     async save() {
+      if (this.id == null) {
+        this.error = "id is required";
+        return;
+      }
+      if (this.sql == null) {
+        this.error = "sql is required";
+        return;
+      }
       this.succes = null;
       this.error = null;
       const reports = await this.client.fetchSettingValue("reports");
-      reports[this.id].sql = this.sql;
-      reports[this.id].name = this.name;
+      reports[this.index].id = this.id;
+      reports[this.index].sql = this.sql;
+      reports[this.index].name = this.name;
       this.client
         .saveSetting("reports", reports)
         .then((res) => {
@@ -202,8 +229,9 @@ export default {
     async reload() {
       const reports = await this.client.fetchSettingValue("reports");
       if (reports[this.id]) {
-        this.sql = reports[this.id].sql;
-        this.name = reports[this.id].name;
+        this.id = reports[this.index].id;
+        this.sql = reports[this.index].sql;
+        this.name = reports[this.index].name;
       } else {
         this.error = "report not found";
       }

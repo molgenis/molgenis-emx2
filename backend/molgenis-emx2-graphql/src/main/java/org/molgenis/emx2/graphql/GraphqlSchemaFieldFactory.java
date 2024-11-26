@@ -13,10 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.Scalars;
 import graphql.schema.*;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Stream;
 import org.jooq.JSONB;
 import org.molgenis.emx2.*;
@@ -863,7 +860,7 @@ public class GraphqlSchemaFieldFactory {
                     GraphQLFieldDefinition.newFieldDefinition()
                         .name(COUNT)
                         .type(Scalars.GraphQLInt)))
-        .argument(GraphQLArgument.newArgument().name(ID).type(Scalars.GraphQLInt))
+        .argument(GraphQLArgument.newArgument().name(ID).type(Scalars.GraphQLString))
         .argument(
             GraphQLArgument.newArgument()
                 .name(PARAMETERS)
@@ -872,20 +869,26 @@ public class GraphqlSchemaFieldFactory {
         .argument(GraphQLArgument.newArgument().name(OFFSET).type(Scalars.GraphQLInt))
         .dataFetcher(
             dataFetchingEnvironment -> {
-              Integer id = null;
               Map<String, Object> result = new LinkedHashMap<>();
               try {
                 String reportsJson = schema.getMetadata().getSetting("reports");
                 logger.info("REPORT value: " + reportsJson);
                 if (reportsJson != null) {
-                  id = dataFetchingEnvironment.getArgument(ID);
+                  final String id = dataFetchingEnvironment.getArgument(ID);
                   Integer offset = dataFetchingEnvironment.getArgumentOrDefault(OFFSET, 0);
                   Integer limit = dataFetchingEnvironment.getArgumentOrDefault(LIMIT, 10);
                   Map<String, String> parameters =
                       convertKeyValueListToMap(dataFetchingEnvironment.getArgument(PARAMETERS));
                   List<Map<String, Object>> reportList =
                       new ObjectMapper().readValue(reportsJson, List.class);
-                  Map<String, Object> report = reportList.get(id);
+                  Map<String, Object> report =
+                      reportList.stream()
+                          .filter(r -> id.equals(r.get("id")))
+                          .findFirst()
+                          .orElseGet(() -> null);
+                  if (report == null) {
+                    report = reportList.get(Integer.parseInt(id));
+                  }
                   String sql = report.get("sql") + " LIMIT " + limit + " OFFSET " + offset;
                   String countSql =
                       String.format("select count(*) from (%s) as count", report.get("sql"));
@@ -896,7 +899,9 @@ public class GraphqlSchemaFieldFactory {
                 }
                 return result;
               } catch (Exception e) {
-                throw new MolgenisException("Retrieve of report '" + id + "' failed ", e);
+                throw new MolgenisException(
+                    "Retrieve of report '" + dataFetchingEnvironment.getArgument(ID) + "' failed ",
+                    e);
               }
             })
         .build();

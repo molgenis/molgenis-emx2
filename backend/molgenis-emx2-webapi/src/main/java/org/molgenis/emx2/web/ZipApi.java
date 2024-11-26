@@ -174,16 +174,31 @@ public class ZipApi {
     }
   }
 
-  static void generateReportsToStore(Context ctx, TableStore store) throws JsonProcessingException {
+  static void generateReportsToStore(
+      @org.jetbrains.annotations.NotNull Context ctx, TableStore store)
+      throws JsonProcessingException {
     String reports = ctx.queryParam("id");
     Schema schema = getSchema(ctx);
     Map<String, ?> parameters = getReportParameters(ctx);
     String reportsJson = schema.getMetadata().getSetting("reports");
     List<Map<String, String>> reportList = new ObjectMapper().readValue(reportsJson, List.class);
     for (String reportId : reports.split(",")) {
-      Map reportObject = reportList.get(Integer.parseInt(reportId));
-      String sql = (String) reportObject.get("sql");
-      String name = (String) reportObject.get("name");
+      // first find report object based on id
+      Optional<Map<String, String>> found =
+          reportList.stream()
+              .filter(reportDefinition -> reportId.equals(reportDefinition.get("id")))
+              .findFirst();
+      Map<String, String> reportObject = null;
+      if (found.isPresent()) {
+        reportObject = found.get();
+      } else {
+        reportObject = reportList.get(Integer.parseInt(reportId));
+      }
+      if (reportObject == null) {
+        throw new MolgenisException("Cannot find report id=" + reportId);
+      }
+      String sql = reportObject.get("sql");
+      String name = reportObject.get("name");
       List<Row> rows = schema.retrieveSql(sql, parameters);
       if (rows.size() > 0) {
         store.writeTable(name, new ArrayList<>(rows.get(0).getColumnNames()), rows);
