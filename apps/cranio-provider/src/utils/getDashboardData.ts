@@ -4,7 +4,7 @@ import type {
   IChartsResponse,
   ICharts,
   IDashboardPages,
-} from "../interfaces/schema";
+} from "../types/schema";
 
 export async function getDashboardPage(
   url: string,
@@ -78,6 +78,8 @@ export async function getDashboardChart(
         }
         chartTitle
         chartSubtitle
+        xVar
+        yVar
         xAxisLabel
         xAxisMinValue
         xAxisMaxValue
