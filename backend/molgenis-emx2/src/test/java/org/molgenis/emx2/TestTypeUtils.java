@@ -73,19 +73,31 @@ public class TestTypeUtils {
 
   @Test
   void testToJsonb() throws JsonProcessingException {
+    // object
     String objectString = "{\"key\":\"value\"}";
     JsonNode objectJackson = new ObjectMapper().readTree(objectString);
     JSONB objectJooq = JSONB.valueOf(objectString);
 
+    // array
     String arrayString = "[\"string1\",\"string2\"]";
     JsonNode arrayJackson = new ObjectMapper().readTree(objectString);
     JSONB arrayJooq = JSONB.valueOf(objectString);
 
+    // string
+    String stringString = "\"string1\"";
+    JsonNode stringJackson = new ObjectMapper().readTree(stringString);
+    JSONB stringJooq = JSONB.valueOf(stringString);
+
+    // null
     String nullString = "null";
     JsonNode nullJackson = new ObjectMapper().readTree(nullString);
     JSONB nullJooq = JSONB.valueOf(nullString);
 
-    String jsonListString = "{\"key1\":\"value1\"},{\"key2\":\"value2\"}";
+    // invalid
+    String nonUniqueKey = "{\"key1\":\"value1\", \"key1\":\"value2\"}";
+    String externalComma = "{\"key1\":\"value1\"},{\"key2\":\"value2\"}";
+    String trailingData = "{\"key\":\"value\"}trailing";
+    int invalidJavaType = 1;
 
     assertAll(
         // validate object
@@ -96,13 +108,21 @@ public class TestTypeUtils {
         () -> assertEquals(objectJooq, TypeUtils.toJsonb(objectString)),
         () -> assertEquals(objectJooq, TypeUtils.toJsonb(objectJackson)),
         () -> assertEquals(objectJooq, TypeUtils.toJsonb(objectJooq)),
+        // validate primitive: int
+        () -> assertThrows(MolgenisException.class, () -> TypeUtils.toJsonb(stringString)),
+        () -> assertThrows(MolgenisException.class, () -> TypeUtils.toJsonb(stringJackson)),
+        () -> assertThrows(MolgenisException.class, () -> TypeUtils.toJsonb(stringJooq)),
         // validate primitive: null
         () -> assertThrows(MolgenisException.class, () -> TypeUtils.toJsonb(nullString)),
         () -> assertThrows(MolgenisException.class, () -> TypeUtils.toJsonb(nullJackson)),
         () -> assertThrows(MolgenisException.class, () -> TypeUtils.toJsonb(nullJooq)),
-        // validate invalid: 2 objects separated by a comma
-        () -> assertThrows(MolgenisException.class, () -> TypeUtils.toJsonb(jsonListString)),
-        // validate invalid: int
-        () -> assertThrows(ClassCastException.class, () -> TypeUtils.toJsonb(1)));
+        // invalid: non-unique key
+        () -> assertThrows(MolgenisException.class, () -> TypeUtils.toJsonb(nonUniqueKey)),
+        // validate invalid: 2 objects separated by a comma (not in an array)
+        () -> assertThrows(MolgenisException.class, () -> TypeUtils.toJsonb(externalComma)),
+        // validate invalid: trailing data
+        () -> assertThrows(MolgenisException.class, () -> TypeUtils.toJsonb(trailingData)),
+        // validate invalid: Java type int
+        () -> assertThrows(ClassCastException.class, () -> TypeUtils.toJsonb(invalidJavaType)));
   }
 }
