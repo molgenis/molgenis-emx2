@@ -3,17 +3,13 @@ package org.molgenis.emx2.datamodels;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.molgenis.emx2.datamodels.DataCatalogueCohortStagingLoader.DATA_CATALOGUE;
 import static org.molgenis.emx2.datamodels.DataCatalogueCohortStagingLoader.SHARED_STAGING;
-import static org.molgenis.emx2.datamodels.profiles.SchemaFromProfile.getProfilesFromAllModels;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.List;
 import org.junit.jupiter.api.*;
 import org.molgenis.emx2.Database;
-import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.io.ImportProfileTask;
-import org.molgenis.emx2.io.emx2.Emx2;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 @TestMethodOrder(MethodOrderer.MethodName.class)
@@ -164,8 +160,7 @@ public class TestLoaders {
   void test18PortalLoader() throws URISyntaxException, IOException {
     // depends on catalogue test above
     Schema schema = database.dropCreateSchema(PORTAL_TEST);
-    List<Row> rows = getProfilesFromAllModels("/portal", List.of());
-    schema.migrate(Emx2.fromRowList(rows));
+    DataModels.Regular.RD3v2.getImportTask(schema, false).run();
     assertEquals(96, schema.getTableNames().size());
   }
 }

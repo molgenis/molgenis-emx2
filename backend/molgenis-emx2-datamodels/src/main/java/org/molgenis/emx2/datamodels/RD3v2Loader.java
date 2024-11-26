@@ -2,8 +2,6 @@ package org.molgenis.emx2.datamodels;
 
 import static org.molgenis.emx2.datamodels.profiles.SchemaFromProfile.getProfilesFromAllModels;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.List;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.ImportDataModelTask;
@@ -34,9 +32,7 @@ public class RD3v2Loader extends ImportDataModelTask {
     try {
       rows = getProfilesFromAllModels("/portal", List.of());
       getSchema().migrate(Emx2.fromRowList(rows));
-    } catch (URISyntaxException e) {
-      throw new RuntimeException(e);
-    } catch (IOException e) {
+    } catch (Exception e) {
       throw new MolgenisException("Create profile failed", e);
     }
     this.complete();
