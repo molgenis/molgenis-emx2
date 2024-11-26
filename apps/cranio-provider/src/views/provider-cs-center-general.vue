@@ -7,7 +7,7 @@
         <select
           class="inputs select"
           id="yearOfBirthFilter"
-          @change="updateCharts"
+          @change="updateCranioTypesChart"
         >
           <option v-for="ageGroup in ageGroups" :value="ageGroup">
             {{ ageGroup }}
@@ -57,27 +57,31 @@
           :yMin="0"
           :yMax="affectedSutureChart?.yAxisMaxValue"
           :yTickValues="affectedSutureChart?.yAxisTicks"
+          :xAxisLabel="affectedSutureChart?.xAxisLabel"
+          :yAxisLabel="affectedSutureChart?.yAxisLabel"
           :columnColorPalette="affectedSutureChartPalette"
           :chartHeight="275"
-          :enableClicks="true"
           :chartMargins="{
             top: affectedSutureChart?.topMargin,
             right: affectedSutureChart?.rightMargin,
             bottom: affectedSutureChart?.bottomMargin,
             left: affectedSutureChart?.leftMargin,
           }"
-          @column-clicked="updateMultipeSuturesChart"
         />
       </DashboardChart>
-      <DashboardChart v-if="selectedSutureType">
+      <DashboardChart>
+        <LoadingScreen v-if="loading" />
         <ColumnChart
+          v-else
           :chartId="multipleSutureChart?.chartId"
           class="chart-axis-x-angled-text"
-          :title="`${selectedSutureType} ${multipleSutureChart?.chartTitle}`"
+          :title="multipleSutureChart?.chartTitle"
           :description="multipleSutureChart?.chartSubtitle"
           :chartData="multipleSutureChartData"
           xvar="dataPointName"
           yvar="dataPointValue"
+          :xAxisLabel="multipleSutureChart?.xAxisLabel"
+          :yAxisLabel="multipleSutureChart?.yAxisLabel"
           :yMin="0"
           :yMax="multipleSutureChart?.yAxisMaxValue"
           :yTickValues="multipleSutureChart?.yAxisTicks"
@@ -111,8 +115,8 @@ import { getDashboardChart } from "../utils/getDashboardData";
 import { generateColorPalette } from "../utils/generateColorPalette";
 import { uniqueValues } from "../utils";
 
-import type { ICharts, IChartData } from "../interfaces/schema";
-import type { IAppPage } from "../interfaces/app";
+import type { ICharts, IChartData } from "../types/schema";
+import type { IAppPage } from "../types/app";
 const props = defineProps<IAppPage>();
 
 const loading = ref<boolean>(true);
@@ -137,36 +141,32 @@ async function getPageData() {
     url,
     "cs-provider-type-of-craniosynostosis"
   );
-  cranioTypeChart.value = csTypes[0];
-  const cranioTypeGroups: string[] = uniqueValues(
-    cranioTypeChart.value.dataPoints,
-    "dataPointName"
-  );
-  cranioTypeChartPalette.value = generateColorPalette(cranioTypeGroups);
 
   const affectedSutures = await getDashboardChart(
     url,
     "cs-provider-affected-suture"
   );
-  affectedSutureChart.value = affectedSutures[0];
-
-  const affectedSutureGroups: string[] = uniqueValues(
-    affectedSutureChart.value.dataPoints,
-    "dataPointName"
-  );
-  affectedSutureChartPalette.value = generateColorPalette(affectedSutureGroups);
 
   const multiSutures = await getDashboardChart(
     url,
     "cs-provider-multiple-suture-synostosis"
   );
+
+  cranioTypeChart.value = csTypes[0];
+  affectedSutureChart.value = affectedSutures[0];
   multipleSutureChart.value = multiSutures[0];
 
-  const mutlipleSutureGroups = uniqueValues(
-    multipleSutureChart.value.dataPoints,
-    "dataPointName"
+  cranioTypeChartPalette.value = generateColorPalette(
+    uniqueValues(cranioTypeChart.value?.dataPoints, "dataPointName")
   );
-  multipleSuturePalette.value = generateColorPalette(mutlipleSutureGroups);
+
+  affectedSutureChartPalette.value = generateColorPalette(
+    uniqueValues(affectedSutureChart.value?.dataPoints, "dataPointName")
+  );
+
+  multipleSuturePalette.value = generateColorPalette(
+    uniqueValues(multipleSutureChart.value?.dataPoints, "dataPointName")
+  );
 }
 
 function updateCranioTypesChart() {
@@ -190,13 +190,11 @@ function updateCranioTypesChart() {
 }
 
 function updateAffectedSutureChart() {
-  affectedSutureChartData.value = affectedSutureChart.value?.dataPoints
-    ?.filter((row: IChartData) => {
-      return row.dataPointPrimaryCategory === selectedAgeGroup.value;
-    })
-    .sort((current, next) => {
+  affectedSutureChartData.value = affectedSutureChart.value?.dataPoints?.sort(
+    (current, next) => {
       return current.dataPointOrder! - next.dataPointOrder!;
-    });
+    }
+  );
 
   const affectedSutureTicks = generateAxisTickData(
     affectedSutureChartData.value,
@@ -209,15 +207,12 @@ function updateAffectedSutureChart() {
   }
 }
 
-function updateMultipeSuturesChart(value: string) {
-  selectedSutureType.value = JSON.parse(value).dataPointSecondaryCategory;
-  multipleSutureChartData.value = multipleSutureChart.value?.dataPoints
-    ?.filter((row: IChartData) => {
-      return row.dataPointPrimaryCategory === selectedAgeGroup.value;
-    })
-    .sort((current, next) => {
+function updateMultipeSuturesChart() {
+  multipleSutureChartData.value = multipleSutureChart.value?.dataPoints?.sort(
+    (current, next) => {
       return current.dataPointOrder! - next.dataPointOrder!;
-    });
+    }
+  );
 
   const multipleSutureTicks = generateAxisTickData(
     multipleSutureChartData.value,
@@ -237,111 +232,17 @@ function setAgeGroupFilter() {
   selectedAgeGroup.value = ageGroups.value[0];
 }
 
-function updateCharts() {
-  updateCranioTypesChart();
-  updateAffectedSutureChart();
-}
-
 onBeforeMount(async () => {
   try {
     await getPageData();
     setAgeGroupFilter();
-    updateCharts();
+    updateCranioTypesChart();
+    updateAffectedSutureChart();
+    updateMultipeSuturesChart();
   } catch (err) {
     error.value = `${err}`;
   } finally {
     loading.value = false;
   }
 });
-
-// const props = defineProps({
-//   user: String,
-//   organization: Object,
-// });
-
-// define random data
-// import { randomInt } from "d3";
-// import generateColors from "../utils/palette.js";
-
-// let csTotalCases = ref(0);
-// let craniosynostosisTypes = ref([]);
-// let affectedSuture = ref([]);
-// let sutureTypes = ref([]);
-// let showSutureTypes = ref(false);
-
-// let colors = ref({
-//   craniosynostosis: {},
-//   affectedSuture: {},
-//   sutureType: {},
-// });
-
-/// generate random data for craniosynostosis types
-// function setCraniosynostosisTypes() {
-//   const types = [
-//     "Familial",
-//     "Iatrogenic",
-//     "Metabolic",
-//     "Non-syndromic",
-//     "Syndromic",
-//   ];
-//   colors.value.craniosynostosis = generateColors(types);
-//   craniosynostosisTypes.value = types.map((type) => {
-//     return { type: type, count: randomInt(10, 42)() };
-//   });
-// }
-
-// // generate random data for affected suture
-// function setAffectedSuture() {
-//   const types = [
-//     "Frontosphenoidal",
-//     "Metopic",
-//     "Multiple",
-//     "Sagittal",
-//     "Unicoronal",
-//     "Unilambdoid",
-//   ];
-//   colors.value.affectedSuture = generateColors(types);
-//   affectedSuture.value = types.map((category) => {
-//     return { category: category, count: randomInt(10, 50)() };
-//   });
-// }
-
-// function setSutureTypes() {
-//   const types = [
-//     "bicoronal",
-//     "bilambdoid",
-//     "bilambdoid+sagittal",
-//     "pansynostosis",
-//     "other",
-//   ];
-//   colors.value.sutureType = generateColors(types);
-//   sutureTypes.value = types.map((type) => {
-//     return { type: type, count: randomInt(3, 27)() };
-//   });
-// }
-
-// // set update sutute type selection
-// function updateSutureTypes(value) {
-//   const total = JSON.parse(value).count;
-//   const types = sutureTypes.value.map((entry) => entry.type);
-//   let currentTotal = total;
-//   sutureTypes.value = types.map((type, i) => {
-//     const randomValue =
-//       i === types.length - 1 ? currentTotal : randomInt(1, currentTotal)();
-//     currentTotal -= randomValue;
-//     return { type: type, count: randomValue };
-//   });
-//   console.log(sutureTypes.value);
-//   showSutureTypes.value = true;
-// }
-
-// function onYearOfBirthFilter() {
-//   setCraniosynostosisTypes();
-//   setAffectedSuture();
-//   setSutureTypes();
-// }
-
-// setCraniosynostosisTypes();
-// setAffectedSuture();
-// setSutureTypes();
 </script>
