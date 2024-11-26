@@ -100,11 +100,11 @@ public class TestTypeUtils {
     int invalidJavaType = 1;
 
     assertAll(
-        // validate object
+        // valid: object
         () -> assertEquals(objectJooq, TypeUtils.toJsonb(objectString)),
         () -> assertEquals(objectJooq, TypeUtils.toJsonb(objectJackson)),
         () -> assertEquals(objectJooq, TypeUtils.toJsonb(objectJooq)),
-        // validate array
+        // valid: array
         () -> assertEquals(objectJooq, TypeUtils.toJsonb(objectString)),
         () -> assertEquals(objectJooq, TypeUtils.toJsonb(objectJackson)),
         () -> assertEquals(objectJooq, TypeUtils.toJsonb(objectJooq)),
@@ -118,11 +118,11 @@ public class TestTypeUtils {
         () -> assertThrows(MolgenisException.class, () -> TypeUtils.toJsonb(nullJooq)),
         // invalid: non-unique key
         () -> assertThrows(MolgenisException.class, () -> TypeUtils.toJsonb(nonUniqueKey)),
-        // validate invalid: 2 objects separated by a comma (not in an array)
+        // invalid: 2 objects separated by a comma (not in an array)
         () -> assertThrows(MolgenisException.class, () -> TypeUtils.toJsonb(externalComma)),
-        // validate invalid: trailing data
+        // invalid: trailing data
         () -> assertThrows(MolgenisException.class, () -> TypeUtils.toJsonb(trailingData)),
-        // validate invalid: Java type int
+        // invalid: Java type int
         () -> assertThrows(ClassCastException.class, () -> TypeUtils.toJsonb(invalidJavaType)));
   }
 }
