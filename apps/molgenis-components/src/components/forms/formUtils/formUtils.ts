@@ -85,12 +85,12 @@ function getColumnError(
     return "Invalid Period: should start with a P and should contain at least a Y(year), M(month) or D(day): e.g. 'P1Y3M14D'";
   }
   if (type === "JSON") {
-    var parsed = parseJson(value);
-    if (!parsed) {
-      return "Invalid JSON";
-    }
-    if (!isJsonObjectOrArray(parsed)) {
-      return "Invalid JSON: Root element must be object or array";
+    try {
+      if (!isJsonObjectOrArray(JSON.parse(value))) {
+        return `Root element must be an object or array`;
+      }
+    } catch {
+      return `Please enter valid JSON`;
     }
   }
   if (column.validation) {
@@ -236,16 +236,8 @@ function containsInvalidPeriod(periods: any) {
   return periods.find((period: any) => !isValidPeriod(period));
 }
 
-export function parseJson(json: string) {
-  try {
-    return JSON.parse(json);
-  } catch (error) {
-    return false;
-  }
-}
-
 export function isJsonObjectOrArray(parsedJson: any) {
-  if (typeof parsedJson === "object") {
+  if (typeof parsedJson === "object" && parsedJson !== null) {
     return true;
   }
   return false;

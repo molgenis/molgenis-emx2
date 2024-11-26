@@ -39,14 +39,14 @@ export default {
   computed: {
     stringError() {
       if (typeof this.modelValue === "string") {
-        var parsed = parseJson(this.modelValue);
-        if (!parsed) {
+        try {
+          if (!isJsonObjectOrArray(JSON.parse(this.modelValue))) {
+            return `Root element must be an object or array`;
+          }
+        } catch {
           return `Please enter valid JSON`;
-        } else if (!isJsonObjectOrArray(parsed)) {
-          return `Root element must be object or array`;
-        } else {
-          return this.errorMessage;
         }
+        return this.errorMessage;
       } else {
         return this.errorMessage;
       }
