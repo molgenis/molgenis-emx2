@@ -8,7 +8,7 @@
       aria-haspopup="listbox"
       :aria-controls="`listbox-${id}-options`"
       :aria-required="required"
-      :aria-expanded="listboxIsExpanded"
+      :aria-expanded="isExpanded"
       :aria-labelledby="labelId"
       class="flex justify-start items-center h-10 w-full text-left pl-10 border bg-input rounded-search-input text-button-input-toggle focus:ring-blue-300"
       :class="{
@@ -31,12 +31,12 @@
       :id="`listbox-${id}-options`"
       role="listbox"
       ref="listbox-ul"
-      :aria-expanded="listboxIsExpanded"
+      :aria-expanded="isExpanded"
       class="absolute b-0 w-full overflow-y-scroll z-10 bg-listbox"
       :class="{
-        hidden: !listboxIsExpanded,
-        'h-44': listboxIsExpanded && listboxOptions.length > 5,
-        'shadow-inner': listboxIsExpanded,
+        hidden: !isExpanded,
+        'h-44': isExpanded && listboxOptions.length > 5,
+        'shadow-inner': isExpanded,
       }"
       @keydown.prevent="onListboxKeyDown"
     >
@@ -101,7 +101,7 @@ const props = withDefaults(
 const sourceDataType = ref<string>("");
 const sourceData = ref<IListboxOption[]>();
 const focusCounter = ref<number>(0);
-const listboxIsExpanded = ref<boolean>(false);
+const isExpanded = ref<boolean>(false);
 const modelValue = defineModel<IListboxOption | IListboxValueArray>();
 const ulElemRef = useTemplateRef<HTMLUListElement>("listbox-ul");
 const olElemRefs = useTemplateRef<HTMLOptionElement[]>("listbox-li");
@@ -113,22 +113,32 @@ function counterIsInRange(value: number) {
   return value <= listboxOptions.value.length - 1 && value >= 0;
 }
 
-function isIListboxOption(
-  data: IListboxOption[] | IListboxValueArray[]
-): boolean {
-  const testDataValue: IListboxOption | IListboxValueArray = data[0];
-  return (
-    typeof testDataValue === "object" && Object.hasOwn(testDataValue, "value")
-  );
-}
+const listboxOptions = computed<IInternalListboxOption[]>(() => {
+  const testDataValue: IListboxOption | IListboxValueArray = props.options[0];
+  if (
+    typeof testDataValue === "object" &&
+    Object.hasOwn(testDataValue, "value")
+  ) {
+    sourceDataType.value = "ListboxOptions";
+    sourceData.value = props.options as IListboxOption[];
+  } else {
+    sourceDataType.value = "ListboxValueArray";
+    const inputData = props.options as IListboxValueArray[];
+    const processedData = inputData.map(
+      (value: IListboxValueArray): IListboxOption => {
+        return { value: value };
+      }
+    );
+    sourceData.value = processedData as IListboxOption[];
+  }
 
-function prepareIListboxOptions(): IInternalListboxOption[] {
   const defaultOption: IListboxOption = {
     value: null,
     label: props.placeholder,
   };
   const inputData = sourceData.value as IListboxOption[];
   const data: IListboxOption[] = [defaultOption, ...inputData];
+
   return data.map((option: IListboxOption, index: number) => {
     return {
       ...option,
@@ -136,25 +146,6 @@ function prepareIListboxOptions(): IInternalListboxOption[] {
       elemId: `listbox-${props.id}-options-${index}`,
     };
   });
-}
-
-function asIListboxOption(data: IListboxValueArray[]): IListboxOption[] {
-  return data.map((value: IListboxValueArray): IListboxOption => {
-    return { value: value };
-  });
-}
-
-const listboxOptions = computed<IInternalListboxOption[]>(() => {
-  if (isIListboxOption(props.options)) {
-    sourceDataType.value = "ListboxOptions";
-    sourceData.value = props.options as IListboxOption[];
-  } else {
-    sourceDataType.value = "ListboxValueArray";
-    const inputData = props.options as IListboxValueArray[];
-    const processedData = asIListboxOption(inputData);
-    sourceData.value = processedData as IListboxOption[];
-  }
-  return prepareIListboxOptions();
 });
 
 function updateCounter(value: number) {
@@ -235,8 +226,8 @@ function focusListboxButton() {
 }
 
 function openCloseListbox() {
-  listboxIsExpanded.value = !listboxIsExpanded.value;
-  if (listboxIsExpanded.value) {
+  isExpanded.value = !isExpanded.value;
+  if (isExpanded.value) {
     ulElemRef.value?.setAttribute("tabindex", "0");
     if (modelValue.value) {
       updateCounter(startingCounter.value);
