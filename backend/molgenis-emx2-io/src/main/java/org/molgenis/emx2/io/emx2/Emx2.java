@@ -51,9 +51,7 @@ public class Emx2 {
             "Parsing of sheet molgenis failed: Required column "
                 + TABLE_NAME
                 + " is empty on line "
-                + lineNo
-                + ". Row="
-                + r);
+                + lineNo);
       }
 
       if (schema.getTableMetadata(tableName) == null) {
@@ -156,8 +154,7 @@ public class Emx2 {
 
           schema.getTableMetadata(tableName).add(column);
         } catch (Exception e) {
-          throw new MolgenisException(
-              "Error on line " + lineNo + ":" + e.getMessage() + ". Row=" + r);
+          throw new MolgenisException("Error on line " + lineNo + ":" + e.getMessage());
         }
       }
       lineNo++;

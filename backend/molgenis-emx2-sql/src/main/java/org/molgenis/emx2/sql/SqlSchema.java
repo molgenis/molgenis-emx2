@@ -290,7 +290,9 @@ public class SqlSchema implements Schema {
         TableMetadata newTable = targetSchema.create(table);
         // create primary keys immediately to prevent foreign key dependency issues
         if (mergeTable.getInheritName() == null) {
-          mergeTable.getPrimaryKeyColumns().forEach(c -> newTable.add(c));
+          mergeTable.getColumns().stream()
+              .filter(c -> c.isPrimaryKey())
+              .forEach(c -> newTable.add(c));
         }
       } else if (oldTable != null && !oldTable.getTableName().equals(mergeTable.getTableName())) {
         targetSchema.getTableMetadata(oldTable.getTableName()).alterName(mergeTable.getTableName());
