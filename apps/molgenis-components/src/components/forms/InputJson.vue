@@ -30,12 +30,18 @@
 import FormGroup from "./FormGroup.vue";
 import InputGroup from "./InputGroup.vue";
 import BaseInput from "./baseInputs/BaseInput.vue";
-import { parseJson, isJsonObjectOrArray } from "./formUtils/formUtils";
+import { isJsonObjectOrArray } from "./formUtils/formUtils";
 
 export default {
   name: "InputJson",
   components: { FormGroup, InputGroup },
   extends: BaseInput,
+  props: {
+    modelValue: {
+      type: [String, null],
+      default: null,
+    },
+  },
   computed: {
     stringError() {
       if (typeof this.modelValue === "string") {
