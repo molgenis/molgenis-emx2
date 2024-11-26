@@ -32,6 +32,7 @@ export const fieldTypes = () => {
     "TEXT_ARRAY",
     "UUID",
     "UUID_ARRAY",
+    "JSON",
   ];
 };
 

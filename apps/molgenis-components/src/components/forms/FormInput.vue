@@ -34,6 +34,7 @@ import InputText from "../forms/InputText.vue";
 import BaseInput from "../forms/baseInputs/BaseInput.vue";
 import InputEmail from "./InputEmail.vue";
 import InputHyperlink from "./InputHyperlink.vue";
+import InputJson from "./InputJson.vue";
 import InputRefList from "./InputRefList.vue";
 
 const typeToInputMap = {
@@ -43,7 +44,7 @@ const typeToInputMap = {
   HYPERLINK: InputHyperlink,
   STRING: InputString,
   TEXT: InputText,
-  JSON: InputText,
+  JSON: InputJson,
   INT: InputInt,
   LONG: InputLong,
   DECIMAL: InputDecimal,
