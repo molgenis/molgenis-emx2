@@ -108,11 +108,11 @@ public class TestTypeUtils {
         () -> assertEquals(objectJooq, TypeUtils.toJsonb(objectString)),
         () -> assertEquals(objectJooq, TypeUtils.toJsonb(objectJackson)),
         () -> assertEquals(objectJooq, TypeUtils.toJsonb(objectJooq)),
-        // validate primitive: int
+        // invalid: primitive - string
         () -> assertThrows(MolgenisException.class, () -> TypeUtils.toJsonb(stringString)),
         () -> assertThrows(MolgenisException.class, () -> TypeUtils.toJsonb(stringJackson)),
         () -> assertThrows(MolgenisException.class, () -> TypeUtils.toJsonb(stringJooq)),
-        // validate primitive: null
+        // invalid: primitive - null
         () -> assertThrows(MolgenisException.class, () -> TypeUtils.toJsonb(nullString)),
         () -> assertThrows(MolgenisException.class, () -> TypeUtils.toJsonb(nullJackson)),
         () -> assertThrows(MolgenisException.class, () -> TypeUtils.toJsonb(nullJooq)),
