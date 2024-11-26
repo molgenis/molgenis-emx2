@@ -80,7 +80,7 @@
       <InputString id="listbox-placeholder" v-model="listboxPlaceholder" />
     </div>
   </form>
-  <div class="mb-2 bg-white rounded p-6">
+  <div class="mb-6 bg-white rounded p-6">
     <h3 class="text-heading-lg mb-2">Listbox example</h3>
     <InputLabel
       id="listbox-input-label"
@@ -103,6 +103,17 @@
         >Output {{ listboxDataType === "true" ? "Value" : "Object" }}:
         {{ listboxSelection }}</code
       >
+    </output>
+  </div>
+  <div class="mb-2 bg-white rounded p-6">
+    <h3 class="text-heading-lg mb-2">Input data structure</h3>
+    <p>Based on the selection above, the input data is shown below.</p>
+    <output
+      class="block w-full mt-6 bg-gray-100 py-3 px-2 pl-6 h-60 overflow-y-scroll shadow-inner"
+    >
+      <pre class="indent-[-5em]">
+        {{ listboxData }}
+      </pre>
     </output>
   </div>
 </template>
