@@ -3,11 +3,17 @@ package org.molgenis.emx2.datamodels;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.molgenis.emx2.datamodels.DataCatalogueCohortStagingLoader.DATA_CATALOGUE;
 import static org.molgenis.emx2.datamodels.DataCatalogueCohortStagingLoader.SHARED_STAGING;
+import static org.molgenis.emx2.datamodels.profiles.SchemaFromProfile.getProfilesFromAllModels;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.List;
 import org.junit.jupiter.api.*;
 import org.molgenis.emx2.Database;
+import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.io.ImportProfileTask;
+import org.molgenis.emx2.io.emx2.Emx2;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 @TestMethodOrder(MethodOrderer.MethodName.class)
@@ -23,6 +29,7 @@ public class TestLoaders {
   public static final String JRC_CDE_TEST = "JRCCDETest";
   public static final String FAIR_GENOMES = "FAIRGenomesTest";
   public static final String DCAT = "DCATTest";
+  public static final String PORTAL_TEST = "PortalTest";
   public static final String FAIR_DATA_POINT = "FAIRDataPointTest";
   public static final String DCAT_BASIC = "DCATBasicTest";
   public static final String PROJECT_MANAGER = "ProjectManager";
@@ -36,7 +43,7 @@ public class TestLoaders {
     // prevent previous dangling test results
     database.dropSchemaIfExists(COHORT_STAGING);
     database.dropSchemaIfExists(NETWORK_STAGING);
-    database.dropSchemaIfExists(DATA_CATALOGUE);
+    // database.dropSchemaIfExists(DATA_CATALOGUE);
     database.dropSchemaIfExists(DATA_CATALOGUE_AGGREGATES);
     database.dropSchemaIfExists(FAIR_DATA_HUB_TEST);
     database.dropSchemaIfExists(SHARED_STAGING);
@@ -44,6 +51,7 @@ public class TestLoaders {
     database.dropSchemaIfExists(DIRECTORY_STAGING);
     database.dropSchemaIfExists(DIRECTORY_ONTOLOGIES);
     database.dropSchemaIfExists(RD3_TEST);
+    database.dropSchemaIfExists(PORTAL_TEST);
     database.dropSchemaIfExists(JRC_CDE_TEST);
     database.dropSchemaIfExists(FAIR_GENOMES);
     database.dropSchemaIfExists(DCAT);
@@ -54,7 +62,7 @@ public class TestLoaders {
     database.dropSchemaIfExists(FAIR_DATA_HUB_TEST);
     database.dropSchemaIfExists(PROJECT_MANAGER);
     // delete ontologies last
-    database.dropSchemaIfExists(CATALOGUE_ONTOLOGIES);
+    // database.dropSchemaIfExists(CATALOGUE_ONTOLOGIES);
   }
 
   @Test
@@ -151,5 +159,14 @@ public class TestLoaders {
     Schema FDPSchema = database.createSchema(FAIR_DATA_POINT);
     DataModels.Profile.FAIR_DATA_POINT.getImportTask(FDPSchema, true).run();
     assertEquals(25, FDPSchema.getTableNames().size());
+  }
+
+  @Test
+  void test18PortalLoader() throws URISyntaxException, IOException {
+    // depends on catalogue test above
+    Schema schema = database.dropCreateSchema(PORTAL_TEST);
+    List<Row> rows = getProfilesFromAllModels("/portal", List.of());
+    schema.migrate(Emx2.fromRowList(rows));
+    assertEquals(96, schema.getTableNames().size());
   }
 }

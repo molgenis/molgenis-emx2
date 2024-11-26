@@ -1,0 +1,22 @@
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,defaultValue
+Analyses,,identifier,auto_id,1,,,,,,,,,RD3,
+Individual analyses,Analyses,,,,,,,,,,,Patient level analysis,RD3
+Individual analyses,,patient,ref,,,,Individuals,,,,,,RD3
+Individual analyses,,solved,bool,,,,,,,,,,RD3
+Analyses,,date completed,date,,,,,,,,,Date when the analysis was completed (solved or unsolved),RD3
+Analyses,,persons involved,ref_array,,,,ContactPersons,,,,,"Who was involved in the processing","RD3"
+Analyses,,files used,ref_array,,,,Files,,,,,,RD3,
+Individual analyses,,pedigree used,ref,,,,Pedigree,,,,,,RD3,
+Individual variant analysis,,analysis,ref,1,,,Individual analyses,,,,,,RD3
+Individual variant analysis,,individual,ref,1,,,Individuals,,,,,,RD3
+Individual variant analysis,,variant id,ref,,,,Genomic variants,,,,http://purl.obolibrary.org/obo/OMIABIS_0001047,E.g. 20:2447955..2447958c>g,RD3
+Individual variant analysis,,allele origin,ontology,,,,Variant Origin,,,,http://purl.obolibrary.org/obo/OMIABIS_0001047,E.g. maternal,RD3
+Individual variant analysis,,classification,ontology,,,,VariationClinicalRelevance,,,,,Classification of clinical relevance,RD3
+Individual variant analysis,,classification summary,text,,,,,,,,,explanation on how the team concluded on the classifications,RD3
+Individual variant analysis,,effect,ontology,,,,Diseases,,,,http://purl.obolibrary.org/obo/NCIT_C15607,E.g. Spinocerebellar ataxia type 34,"Beacon v2,RD3"
+Individual variant analysis,,category,ontology,,,,VariationCategory,,,,http://purl.obolibrary.org/obo/NCIT_C25372,E.g. disease or disorder,"Beacon v2,RD3"
+Individual analysis consensus,,analysis,ref,1,,,Individual analyses,,,,,,RD3
+Individual analysis consensus,,comment,text,,true,,,,,,,,RD3
+Individual analysis consensus,,variant if applicable,ref,,,,Individual variant analysis,,,,,,"RD3"
+Individual analysis consensus,,persons who made the comment,ref_array,,,,ContactPersons,,,,,,"RD3"
+Individual analysis consensus,,timestamp,datetime,1,,,,,,,,,RD3,new Date().toISOString()

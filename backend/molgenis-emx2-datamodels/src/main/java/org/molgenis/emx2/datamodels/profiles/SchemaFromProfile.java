@@ -75,8 +75,10 @@ public class SchemaFromProfile {
   public List<Row> createRows(boolean filterByProfiles) throws MolgenisException {
     List<Row> keepRows = new ArrayList<>();
     try {
-      keepRows.addAll(getProfilesFromAllModels(SHARED_MODELS_DIR, filterByProfiles));
-      keepRows.addAll(getProfilesFromAllModels(SPECIFIC_MODELS_DIR, filterByProfiles));
+      keepRows.addAll(
+          getProfilesFromAllModels(SHARED_MODELS_DIR, this.profiles.getProfileTagsList()));
+      keepRows.addAll(
+          getProfilesFromAllModels(SPECIFIC_MODELS_DIR, this.profiles.getProfileTagsList()));
     } catch (Exception e) {
       throw new MolgenisException(e.getMessage());
     }
@@ -84,7 +86,7 @@ public class SchemaFromProfile {
   }
 
   /** From a classpath dir, get all EMX2 model files and optionally slice for profiles */
-  public List<Row> getProfilesFromAllModels(String directory, boolean filterByProfiles)
+  public static List<Row> getProfilesFromAllModels(String directory, List<String> profilesSelected)
       throws URISyntaxException, IOException {
     List<Row> keepRows = new ArrayList<>();
     String[] modelsList = new ResourceListing().retrieve(directory);
@@ -94,17 +96,21 @@ public class SchemaFromProfile {
           CsvTableReader.read(
               new InputStreamReader(
                   Objects.requireNonNull(
-                      getClass().getResourceAsStream(directory + "/" + schemaLoc))));
+                      SchemaFromProfile.class.getResourceAsStream(directory + "/" + schemaLoc))));
 
       for (Row row : rowIterable) {
-        List<String> profiles = csvStringToList(row.getString("profiles"));
-        if (profiles.isEmpty()) {
-          throw new MolgenisException("No profiles for " + row + " in file " + schemaLoc);
-        }
-        for (String profile : profiles) {
-          if (!filterByProfiles || this.profiles.getProfileTagsList().contains(profile)) {
-            keepRows.add(row);
-            break;
+        if (profilesSelected.size() == 0) {
+          keepRows.add(row);
+        } else {
+          List<String> profiles = csvStringToList(row.getString("profiles"));
+          if (profiles.isEmpty()) {
+            throw new MolgenisException("No profiles for " + row + " in file " + schemaLoc);
+          }
+          for (String profile : profiles) {
+            if (profilesSelected.contains(profile)) {
+              keepRows.add(row);
+              break;
+            }
           }
         }
       }

@@ -1,13 +1,4 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
-Patient variant classifications,,,,,,,,,,,http://purl.obolibrary.org/obo/GSSO_00066,Beacon v2 GenomicVariations Case Level Data,RD3
-Patient variant classifications,,analysis,ref,1,,,Patient analyses,,,,,,RD3
-Patient variant classifications,,individual,ref,1,,,Individual,analysis,,,,,RD3
-Patient variant classifications,,variant id,ref,,,,Genomic variants,,,,http://purl.obolibrary.org/obo/OMIABIS_0001047,E.g. 20:2447955..2447958c>g,RD3
-Patient variant classifications,,allele origin,ontology,,,,Variant Origin,,,,http://purl.obolibrary.org/obo/OMIABIS_0001047,E.g. maternal,RD3
-Patient variant classifications,,classification,ontology,,,,VariationClinicalRelevance,,,,,Classification of clinical relevance,RD3
-Patient variant classifications,,classification summary,text,,,,,,,,,explanation on how the team concluded on the classifications,RD3
-Patient variant classifications,,effect,ontology,,,,Diseases,,,,http://purl.obolibrary.org/obo/NCIT_C15607,E.g. Spinocerebellar ataxia type 34,"Beacon v2,RD3"
-Patient variant classifications,,category,ontology,,,,VariationCategory,,,,http://purl.obolibrary.org/obo/NCIT_C25372,E.g. disease or disorder,"Beacon v2,RD3"
 Genomic variants,,,,,,,,,,,"http://purl.obolibrary.org/obo/NCIT_C17248",Beacon v2  GenomicVariation see also https://www.ga4gh.org/product/categorical-variation-catvar/,"Beacon v2,RD3"
 Genomic variants,,variant id,string,1,TRUE,,,,,,"http://purl.obolibrary.org/obo/NCIT_C164813,bc2:variantInternalId",E.g. 20:2447955..2447958c>g,"Beacon v2,RD3"
 Genomic variants,,variant type,string,,,,,,,,http://purl.obolibrary.org/obo/GENO_0000773,E.g. SNP,"Beacon v2,RD3"
@@ -22,11 +13,11 @@ Genomic variants,,chrom,string,,,,,,,,, An identifier from the reference genome 
 Genomic variants,,pos,long,,,,,,,,http://purl.obolibrary.org/obo/GENO_0000894,Start position of the variant. E.g. 2447955,"RD3,Beacon v2"
 Genomic variants,,ref,string,,,,,,,,http://purl.obolibrary.org/obo/GENO_0000036,Reference allele. E.g. c,"Beacon v2,RD3"
 Genomic variants,,alt,string,,,,,,,,http://purl.obolibrary.org/obo/GENO_0000002,Alternate allele. E.g. g,"Beacon v2,RD3"
-Genomic variants,,cases,refback,,,,Patient variant classifications,,variant id,,,Cases where the variant was observed in,"Beacon v2,RD3"
+Genomic variants,,cases,refback,,,,Individual variant analysis,,variant id,,,Cases where the variant was observed in,"Beacon v2,RD3"
 Genomic variants observed,,,,,,,,,,,,Ability to store complete VCF,
 Genomic variants observed,,sampleId
-Genomic variants observed,,variant,ref,,,,Genomics Variants
+Genomic variants observed,,variant,ref,,,,Genomic variants
 Genomic variants observed,,VCFfile,ref,,,,Files
-Genomic variants per cohort,,cohort,ref,,,,Cohorts
-Genomic variants observed,,variant,ref,,,,Genomics Variants
+Genomic variants per cohort,,cohort,ref,,,,Subpopulations
+Genomic variants observed,,variant,ref,,,,Genomic variants
 Genomic variants observed,,count,int,,,,
