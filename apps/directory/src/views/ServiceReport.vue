@@ -119,7 +119,22 @@
                 </table>
               </div>
               <!-- Right side card -->
-              <div></div>
+              <div class="col-md-4">
+                <div class="card">
+                  <div class="card-body">
+                    <div class="card-text">
+                      <h5>Contact Information</h5>
+                      <ul class="right-content-list">
+                        <li v-if="service.contactInformation">
+                          <ContactInformation
+                            :contactInformation="service.contactInformation"
+                          />
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -143,6 +158,7 @@ import ReportDescription from "../components/report-components/ReportDescription
 import CheckOut from "../components/checkout-components/CheckOut.vue";
 import string from "../components/generators/view-components/string.vue";
 import Quality from "../components/generators/view-components/quality.vue";
+import ContactInformation from "../components/report-components/ContactInformation.vue";
 
 const service = ref<IServices | null>(null);
 
