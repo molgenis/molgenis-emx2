@@ -56,9 +56,6 @@ export interface ICharts {
   chartType?: IOntologyNode;
   chartTitle?: string;
   chartSubtitle?: string;
-  xVar?: string;
-  yVar?: string;
-  groupingVar?: string;
   xAxisLabel?: string;
   xAxisMinValue?: number;
   xAxisMaxValue?: number;

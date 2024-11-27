@@ -78,8 +78,6 @@ export async function getDashboardChart(
         }
         chartTitle
         chartSubtitle
-        xVar
-        yVar
         xAxisLabel
         xAxisMinValue
         xAxisMaxValue

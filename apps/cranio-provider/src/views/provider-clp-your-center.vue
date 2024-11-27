@@ -72,10 +72,7 @@
       </DashboardChart>
     </DashboardRow>
     <DashboardRow :columns="1">
-      <DashboardChart
-        id="clp-cleft-q-completed"
-        v-if="currentVisibleMeter === 'cleftq'"
-      >
+      <DashboardChart v-if="!loading && currentVisibleMeter === 'cleftq'">
         <ProgressMeter
           :chartId="cleftqCompletionChart?.chartId"
           :title="`% of patients that completed the CLEFT-Q (${selectedAgeGroup})`"
@@ -85,7 +82,7 @@
           barFill="#66c2a4"
         />
       </DashboardChart>
-      <DashboardChart id="clp-ics-completed" v-else>
+      <DashboardChart v-if="!loading && currentVisibleMeter === 'ics'">
         <ProgressMeter
           :chartId="icsCompletionChart?.chartId"
           :title="`% of patients that completed the ICS (${selectedAgeGroup})`"
@@ -114,7 +111,7 @@ import {
 import ProviderDashboard from "../components/ProviderDashboard.vue";
 
 import { generateAxisTickData } from "../utils/generateAxisTicks";
-import { asKeyValuePairs, uniqueValues } from "../utils";
+import { asKeyValuePairs, sum, uniqueValues } from "../utils";
 import { generateColorPalette } from "../utils/generateColorPalette";
 import { getDashboardChart } from "../utils/getDashboardData";
 
@@ -131,7 +128,7 @@ const patientsByPhenotypeChart = ref<ICharts>();
 const patientsByPhenotypeChartData = ref<IChartData[]>();
 const patientsByPhenotypePalette = ref<IChartData[]>();
 const patientsByGenderChart = ref<ICharts>();
-const patientsByGenderChartData = ref<IChartData[]>();
+const patientsByGenderChartData = ref<IKeyValuePair>();
 const patientsByGenderPalette = ref<IKeyValuePair>();
 const icsCompletionChart = ref<ICharts>();
 const cleftqCompletionChart = ref<ICharts>();
@@ -146,22 +143,22 @@ const currentVisibleMeter = computed<string>(() => {
 
 async function getPageData() {
   const phenotypesResponse = await getDashboardChart(
-    props.api.graphql,
+    props.api.graphql.current,
     "clp-provider-patients-by-phenotype"
   );
 
   const genderResponse = await getDashboardChart(
-    props.api.graphql,
+    props.api.graphql.current,
     "clp-provider-patients-by-gender"
   );
 
   const icsResponse = await getDashboardChart(
-    props.api.graphql,
+    props.api.graphql.current,
     "clp-provider-ics-completed"
   );
 
   const cleftqResponse = await getDashboardChart(
-    props.api.graphql,
+    props.api.graphql.current,
     "clp-provider-cleft-q-completed"
   );
 
@@ -186,9 +183,9 @@ function updatePhenotypesChart() {
     patientsByPhenotypeChart.value.yAxisTicks = chartTicks.ticks;
   }
 
-  totalNumberOfPatients.value = patientsByPhenotypeChartData.value!.reduce(
-    (sum: number, row: IChartData) => sum + row.dataPointValue!,
-    0
+  totalNumberOfPatients.value = sum(
+    patientsByPhenotypeChartData.value,
+    "dataPointValue"
   );
 }
 
@@ -197,7 +194,9 @@ function updateGenderChart() {
     ?.filter((row: IChartData) => {
       return row.dataPointPrimaryCategory === selectedAgeGroup.value;
     })
-    .sort((a, b) => b.dataPointValue! - a.dataPointValue!);
+    .sort((a: IChartData, b: IChartData): number => {
+      return (b.dataPointValue as number) - (a.dataPointValue as number);
+    });
 
   patientsByGenderChartData.value = asKeyValuePairs(
     filteredData,
