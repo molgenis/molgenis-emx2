@@ -98,6 +98,7 @@ def map_collections_to_samples(collections):
     collections.rename(columns={"type": "design",
                                 "biobank": "resource",
                                 "data_categories": "dataset type",
+                                "size": "number of samples"
                                 }, inplace=True)
     collections["parent sample collection.name"] = ""
     collections["parent sample collection.resource"] = ""
@@ -276,6 +277,7 @@ def main():
                     "parent sample collection.resource",
                     "design",
                     "dataset type",
+                    "number of samples",
                 ]
             )
             # Map Networks to Resources
