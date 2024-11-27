@@ -31,8 +31,7 @@ public class QueryRecord {
   private static List<String> parseFilters(CafeVariomeQuery query) {
     List<String> filters = new ArrayList<>();
 
-    if (query.subject().ageFirstDiagnosis().min() != null
-        && query.subject().ageFirstDiagnosis().max() != null) {
+    if (query.subject().ageFirstDiagnosis() != null) {
       String ageAtDiagFilter =
           FilterConceptVP.AGE_AT_DIAG
               .getGraphQlQuery()

@@ -1,6 +1,7 @@
 package org.molgenis.emx2.cafevariome;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import java.util.ArrayList;
 import java.util.List;
 import org.molgenis.emx2.beaconv2.filter.Filter;
 
@@ -12,6 +13,15 @@ public record CafeVariomeQuery(
     List<Gene> genes,
     List<Variant> variant,
     Advanced advanced) {
+  public CafeVariomeQuery() {
+    this(
+        new Subject(),
+        new ArrayList<>(),
+        new ArrayList<>(),
+        null,
+        null,
+        new Advanced(Granularity.COUNT, null));
+  }
 
   public record Subject(
       boolean affectedOnly,
@@ -19,7 +29,11 @@ public record CafeVariomeQuery(
       Range ageFirstSymptoms,
       Range ageFirstDiagnosis,
       String gender,
-      FamilyType familyType) {}
+      FamilyType familyType) {
+    public Subject() {
+      this(false, null, null, null, null, null);
+    }
+  }
 
   public record FamilyType(boolean family, boolean singletons, boolean trios) {}
 

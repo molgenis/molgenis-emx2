@@ -7,9 +7,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.beaconv2.endpoints.FilteringTerms;
@@ -31,17 +29,35 @@ public class CafeVariomeApi {
 
     Database database = sessionManager.getSession(ctx.req()).getDatabase();
 
-    RecordResponse records =
-        QueryRecord.post(schema, new CafeVariomeQuery(null, null, null, null, null, null));
-    RecordIndexResponse response =
-        new RecordIndexResponse(
-            records.recordCount(), new RecordIndexResponse.EavIndex(null, null, null));
+    Map<String, String> attributes = new HashMap<>();
+    Map<String, String> values = new HashMap<>();
+    Map<String, List<String>> mappings = new HashMap<>();
 
     Set<FilteringTerm> filteringTermsSet = new HashSet<>();
     new FilteringTerms(database)
         .getResponse()
         .getFilteringTermsFromTables(
             database, List.of("Individuals"), filteringTermsSet, schema.getName());
+
+    for (FilteringTerm filteringTerm : filteringTermsSet) {
+      if (filteringTerm.getType().equals("ontology")) {
+        attributes.put(filteringTerm.getLabel(), filteringTerm.getLabel());
+        values.put(filteringTerm.getId(), filteringTerm.getLabel());
+        if (mappings.containsKey(filteringTerm.getId())) {
+          List<String> terms = mappings.get(filteringTerm.getId());
+          terms.add(filteringTerm.getLabel());
+        } else {
+          mappings.put(filteringTerm.getId(), List.of(filteringTerm.getLabel()));
+        }
+      } else if (filteringTerm.getType().equals("alphanumeric")) {
+        attributes.put(filteringTerm.getId(), filteringTerm.getId());
+      }
+    }
+
+    RecordResponse records = QueryRecord.post(schema, new CafeVariomeQuery());
+    RecordIndexResponse response =
+        new RecordIndexResponse(
+            records.recordCount(), new RecordIndexResponse.EavIndex(attributes, values, mappings));
 
     ctx.json(response);
   }
