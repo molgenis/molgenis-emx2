@@ -93,12 +93,15 @@ def map_persons_to_contacts(persons, collections, biobanks, networks, resources)
 
 def map_collections_to_samples(collections):
     """Maps the BBMRI-ERIC Collections table to the flat data model's Sample collections table"""
+    # TODO: columns to map: head, contact
     # Rename and create columns
     collections.rename(columns={"type": "design",
                                 "biobank": "resource",
                                 }, inplace=True)
     collections["parent sample collection.name"] = ""
     collections["parent sample collection.resource"] = ""
+    # Remove withdrawn collections
+    collections = collections.loc[~collections['withdrawn']]
     # Create a unique name
     collections["name"] = (
         collections["name"]
