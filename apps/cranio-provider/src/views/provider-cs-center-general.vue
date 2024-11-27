@@ -123,7 +123,6 @@ const loading = ref<boolean>(true);
 const error = ref<string>();
 const ageGroups = ref<string[]>();
 const selectedAgeGroup = ref<string>();
-const selectedSutureType = ref<string>();
 const cranioTypeChart = ref<ICharts>();
 const cranioTypeChartData = ref<IChartData[]>();
 const cranioTypeChartPalette = ref<string[]>();
@@ -135,20 +134,18 @@ const multipleSutureChartData = ref<IChartData[]>();
 const multipleSuturePalette = ref<string[]>();
 
 async function getPageData() {
-  const url: string = `/${props.organisation.schemaName}/api/graphql`;
-
   const csTypes = await getDashboardChart(
-    url,
+    props.api.graphql.current,
     "cs-provider-type-of-craniosynostosis"
   );
 
   const affectedSutures = await getDashboardChart(
-    url,
+    props.api.graphql.current,
     "cs-provider-affected-suture"
   );
 
   const multiSutures = await getDashboardChart(
-    url,
+    props.api.graphql.current,
     "cs-provider-multiple-suture-synostosis"
   );
 

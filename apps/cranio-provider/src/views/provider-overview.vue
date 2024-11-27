@@ -107,7 +107,7 @@ const selectedWorkstream = ref<string>();
 
 async function getSubmissionData() {
   const patientSubmissions = await getDashboardChart(
-    props.api.graphql,
+    props.api.graphql.current,
     "patients-total"
   );
   const data = patientSubmissions[0];
@@ -118,7 +118,7 @@ async function getSubmissionData() {
 
 async function getAverageData() {
   const avgData = await getDashboardChart(
-    props.api.graphql,
+    props.api.graphql.current,
     "patients-per-month"
   );
 
@@ -130,7 +130,7 @@ async function getAverageData() {
 
 async function getPatientsByWorkstream() {
   const data = await getDashboardChart(
-    props.api.graphql,
+    props.api.graphql.current,
     "patients-by-workstream"
   );
   patientsByWorkstreamChart.value = data[0];
@@ -157,7 +157,7 @@ async function getPatientsByWorkstream() {
 
 async function getSexByWorksteam() {
   const data = await getDashboardChart(
-    props.api.graphql,
+    props.api.graphql.current,
     "patients-by-sex-at-birth-and-workstream"
   );
   sexByWorkstreamChart.value = data[0];

@@ -8,7 +8,7 @@
         </MessageBox>
       </div>
       <div v-else>
-        <PageHeader
+        <!-- <PageHeader
           title="ERN CRANIO Registry"
           :subtitle="currentOrganisation?.name"
           :imageSrc="
@@ -16,14 +16,18 @@
               ? `${currentOrganisation?.image?.url}`
               : 'img/banner-diagnoses.jpg'
           "
-        />
+        /> -->
         <Dashboard class="provider-dashboard-container" :horizontalPadding="5">
           <ProviderSidebar />
           <router-view
             :organisation="currentOrganisation"
             :schemaNames="cranioSchemas"
             :api="{
-              graphql: `/${currentOrganisation?.schemaName}/api/graphql`,
+              graphql: {
+                current: `/${currentOrganisation?.schemaName}/api/graphql`,
+                public: `/${cranioSchemas?.CRANIO_PUBLIC_SCHEMA}/api/graphql`,
+                providers: `/${cranioSchemas?.CRANIO_PROVIDER_SCHEMA}/api/graphql`,
+              },
             }"
           ></router-view>
         </Dashboard>
@@ -39,9 +43,8 @@ import { getCranioSchemaNames } from "./utils/getCranioSchemaNames";
 import { getSchemaName } from "./utils/getSchemaName";
 import { getOrganisation } from "./utils/getOrganisation";
 
-import type { IMgErrorResponse, ICranioSchemas } from "./interfaces";
-import type { IOrganisations } from "./interfaces/schema";
-import type { IAppPage } from "./interfaces/app";
+import type { IMgErrorResponse, ICranioSchemas } from "./types";
+import type { IOrganisations } from "./types/schema";
 
 // @ts-ignore
 import { Molgenis } from "molgenis-components";

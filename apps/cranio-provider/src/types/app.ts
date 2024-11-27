@@ -5,6 +5,10 @@ export interface IAppPage {
   organisation: IOrganisations;
   schemaNames: ICranioSchemas;
   api: {
-    graphql: string;
+    graphql: {
+      current: string;
+      public: string;
+      providers: string;
+    };
   };
 }
