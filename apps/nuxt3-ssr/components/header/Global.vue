@@ -20,7 +20,7 @@ const menu = [
     link: "/apps/central/#/",
   },
   {
-    label: "Manual",
+    label: "Manuals",
     link: "/apps/docs/#/catalogue/",
   },
 
