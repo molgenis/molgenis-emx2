@@ -94,7 +94,7 @@ def map_persons_to_contacts(persons, collections, biobanks, networks, resources)
 def map_collections_to_samples(collections, resources):
     """Maps the BBMRI-ERIC Collections table to the flat data model's Sample collections table"""
     # Rename and create columns
-    collections.rename(columns={"url": "website", "type": "design",
+    collections.rename(columns={"type": "design",
                                 "parent_collection": "parent sample collection",
                                 "biobank": "resource",
                                 }, inplace=True)
@@ -110,6 +110,7 @@ def map_collections_to_samples(collections, resources):
     )
     collections["name"] = collections["name"].str.slice(stop=255)
     # Add collection-to-subcollection links
+    # FIXME: not working
     collections.index = collections["id"]
     for idx, row in collections.iterrows():
         p_c = row["parent sample collection"]
