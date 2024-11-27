@@ -244,6 +244,8 @@ def main():
                 columns = [
                     "resource",
                     "name",
+                    "acronym",
+                    "description",
                     "url",
                     "design",
                     "parent sample collection.name",
