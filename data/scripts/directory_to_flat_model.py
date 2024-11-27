@@ -91,14 +91,14 @@ def map_persons_to_contacts(persons, collections, biobanks, networks, resources)
     return linked_persons
 
 
-def map_collections_to_samples(collections, resources):
+def map_collections_to_samples(collections):
     """Maps the BBMRI-ERIC Collections table to the flat data model's Sample collections table"""
     # Rename and create columns
     collections.rename(columns={"type": "design",
-                                "parent_collection": "parent sample collection",
                                 "biobank": "resource",
                                 }, inplace=True)
-    collections["child sample collections"] = ""
+    collections["parent sample collection.name"] = ""
+    collections["parent sample collection.resource"] = ""
     # Create a unique name
     collections["name"] = (
         collections["name"]
@@ -109,15 +109,14 @@ def map_collections_to_samples(collections, resources):
         + ")"
     )
     collections["name"] = collections["name"].str.slice(stop=255)
-    # Add collection-to-subcollection links
-    # FIXME: not working
+    # Update reference to parent collection to use resource + name instead of id
     collections.index = collections["id"]
     for idx, row in collections.iterrows():
-        p_c = row["parent sample collection"]
-        if p_c:
-            if collections.loc[p_c, "child sample collections"] != "":
-                collections.loc[p_c, "child sample collections"] += ","
-            collections.loc[p_c, "child sample collections"] += idx
+        p_c_id = row["parent_collection"]
+        if p_c_id:
+            p_c = collections.loc[p_c_id]
+            collections.loc[idx, 'parent sample collection.name'] = p_c['name']
+            collections.loc[idx, 'parent sample collection.resource'] = p_c['resource']
     # Map MIABIS-V2-based CollectionTypes to MIABIS-V3-based Sample collection designs
     # TODO: perhaps some currently mapped to other fit in a different attribute?
     design_mapping = {
@@ -240,15 +239,15 @@ def main():
             print('Get and map Collections...')
             collections = client.get("Collections", as_df=True)
             mapped_collections = map_collections_to_samples(
-                collections.copy(), resources)  # Unnecessary copy?
+                collections.copy())  # Unnecessary copy?
             mapped_collections = mapped_collections.reindex(
                 columns = [
                     "resource",
                     "name",
                     "url",
                     "design",
-                    "parent sample collection",
-                    "child sample collections",
+                    "parent sample collection.name",
+                    "parent sample collection.resource",
                 ]
             )
             # Map Networks to Resources
