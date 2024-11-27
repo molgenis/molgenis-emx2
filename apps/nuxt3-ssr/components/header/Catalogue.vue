@@ -1,10 +1,14 @@
 <script setup lang="ts">
+import type { UIResource } from "~/interfaces/types";
+
 const route = useRoute();
 const config = useRuntimeConfig();
 
 const props = defineProps<{
-  catalogue: any;
+  catalogue?: UIResource;
   variableCount: number;
+  collectionCount: number;
+  networkCount: number;
 }>();
 
 const cohortOnly = computed(() => {
@@ -16,28 +20,32 @@ const catalogueRouteParam = route.params.catalogue as string;
 
 const menu: { label: string; link: string }[] = [];
 
-if (route.params.resourceType) {
+// the variable route does not set the resourceType param, therefore check the route name
+if (
+  route.params.resourceType ||
+  route.name === "schema-ssr-catalogue-catalogue-variables"
+) {
   menu.push({
     label: "overview",
     link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}`,
   });
 }
 
-if (props.catalogue.resources_groupBy?.length) {
-  props.catalogue.resources_groupBy.forEach(
-    (sub: { type: { name: string }; count: string }) => {
-      const resourceTypeMetadata = getResourceMetadataForType(sub.type.name);
-      menu.push({
-        label: resourceTypeMetadata.plural,
-        link:
-          `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/` +
-          resourceTypeMetadata.path,
-      });
-    }
-  );
+if (props.collectionCount > 0) {
+  menu.push({
+    label: "Collections",
+    link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/collections`,
+  });
 }
 
-if (!cohortOnly.value && props.variableCount > 0)
+if (props.networkCount > 0 && !cohortOnly.value) {
+  menu.push({
+    label: "Networks",
+    link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/networks`,
+  });
+}
+
+if (props.variableCount > 0 && !cohortOnly.value)
   menu.push({
     label: "Variables",
     link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/variables`,
@@ -51,7 +59,7 @@ if (cohortOnly.value) {
 } else if (catalogueRouteParam && catalogueRouteParam !== "all") {
   menu.push({
     label: "About",
-    link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/about-catalogue`,
+    link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/about/${catalogueRouteParam}`,
   });
 }
 
@@ -77,7 +85,9 @@ if (!cohortOnly.value) {
       <div class="items-center justify-between hidden xl:flex h-25">
         <Logo
           :link="`/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}`"
-          :image="catalogueRouteParam === 'all' ? null : catalogue?.logo?.url"
+          :image="
+            catalogueRouteParam === 'all' ? undefined : catalogue?.logo?.url
+          "
         />
         <MainNavigation :navigation="menu" :invert="true" />
         <!--  <div class="w-[450px]">
@@ -95,7 +105,7 @@ if (!cohortOnly.value) {
             <LogoMobile
               :link="`/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}`"
               :image="
-                catalogueRouteParam === 'all' ? null : catalogue?.logo?.url
+                catalogueRouteParam === 'all' ? undefined : catalogue?.logo?.url
               "
             />
           </div>

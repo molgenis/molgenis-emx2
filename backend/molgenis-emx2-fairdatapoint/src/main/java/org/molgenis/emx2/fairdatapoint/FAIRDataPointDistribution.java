@@ -7,6 +7,7 @@ import static org.molgenis.emx2.fairdatapoint.FormatMimeTypes.formatToMediaType;
 import static org.molgenis.emx2.fairdatapoint.Queries.queryDistribution;
 import static org.molgenis.emx2.utils.URIUtils.*;
 
+import io.javalin.http.Context;
 import java.io.StringWriter;
 import java.net.URI;
 import java.util.*;
@@ -20,7 +21,6 @@ import org.eclipse.rdf4j.rio.WriterConfig;
 import org.eclipse.rdf4j.rio.helpers.BasicWriterSettings;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.TypeUtils;
-import spark.Request;
 
 public class FAIRDataPointDistribution {
 
@@ -30,19 +30,11 @@ public class FAIRDataPointDistribution {
     return result;
   }
 
-  /**
-   * Access a dataset distribution by a combination of schema, table, and format. Example:
-   * http://localhost:8080/api/fdp/distribution/rd3/Analyses/jsonld
-   *
-   * @param request
-   * @param database
-   * @throws Exception
-   */
-  public FAIRDataPointDistribution(Request request, Database database) throws Exception {
+  public FAIRDataPointDistribution(Context ctx, Database database) throws Exception {
 
-    String schemaParam = request.params("schema");
-    String distributionParam = request.params("distribution");
-    String formatParam = request.params("format");
+    String schemaParam = ctx.pathParam("schema");
+    String distributionParam = ctx.pathParam("distribution");
+    String formatParam = ctx.pathParam("format");
 
     if (schemaParam == null || distributionParam == null || formatParam == null) {
       throw new Exception(
@@ -102,9 +94,9 @@ public class FAIRDataPointDistribution {
     }
 
     // reconstruct server:port URL to prevent problems with double encoding of schema/table names
-    URI requestURI = getURI(request.url());
+    URI requestURI = getURI(ctx.url());
     String host = extractHost(requestURI);
-    IRI reqURL = iri(request.url()); // escaping/encoding seems OK
+    IRI reqURL = iri(ctx.url()); // escaping/encoding seems OK
 
     /*
     See https://www.w3.org/TR/vocab-dcat-2/#Class:Distribution

@@ -403,7 +403,7 @@ public class TypeUtils {
     return switch (columnType.getBaseType()) {
       case UUID -> TypeUtils.toUuid(v);
       case UUID_ARRAY -> TypeUtils.toUuidArray(v);
-      case STRING, EMAIL, HYPERLINK -> TypeUtils.toString(v);
+      case STRING, EMAIL, HYPERLINK, FILE -> TypeUtils.toString(v);
       case STRING_ARRAY, EMAIL_ARRAY, HYPERLINK_ARRAY -> TypeUtils.toStringArray(v);
       case BOOL -> TypeUtils.toBool(v);
       case BOOL_ARRAY -> TypeUtils.toBoolArray(v);

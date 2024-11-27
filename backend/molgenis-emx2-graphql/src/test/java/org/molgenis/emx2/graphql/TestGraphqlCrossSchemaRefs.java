@@ -59,6 +59,11 @@ public class TestGraphqlCrossSchemaRefs {
     String result =
         execute("{_schema{tables{name,id,schemaName,schemaId}}}").at("/_schema").toString();
     assertTrue(result.contains(schemaName2));
+
+    // test that seemingly self reference works
+    // when table name in schema1 and schema2 have same name
+    // test fix https://github.com/molgenis/molgenis-emx2/issues/4264
+    execute("{Parent{name,parents{name,hobby}}}");
   }
 
   private JsonNode execute(String query) throws IOException {

@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import type { IContributor } from "~/interfaces/types";
+import type { IContacts } from "~/interfaces/catalogue";
 
 defineProps<{
-  contact: IContributor;
+  contact: IContacts;
 }>();
 </script>
 
@@ -33,6 +33,7 @@ defineProps<{
         <span v-if="contact?.prefix"> {{ contact?.prefix }}&nbsp;</span>
         <span v-if="contact?.lastName"> {{ contact?.lastName }} </span>
       </span>
+      <span v-if="contact.organisation">{{ contact.organisation?.name }}</span>
       <a
         class="text-blue-500 block hover:underline"
         v-if="contact?.email"

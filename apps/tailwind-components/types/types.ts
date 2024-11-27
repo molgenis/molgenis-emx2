@@ -1,4 +1,14 @@
 import type { IColumn } from "../../metadata-utils/dist";
+
+export type Resp<T> = {
+  data: Record<string, T[]>;
+};
+
+export interface Schema {
+  id: string;
+  label: string;
+  description: string;
+}
 export interface INode {
   name: string;
   description?: string;

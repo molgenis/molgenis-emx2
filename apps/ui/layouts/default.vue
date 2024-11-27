@@ -11,16 +11,18 @@ const faviconHref = config.public.emx2Theme
 useHead({
   htmlAttrs: {
     "data-theme":
-      (route.query.theme as string) || config.public.emx2Theme || "",
+      (route.query.theme as string) ||
+      (config.public.emx2Theme as string) ||
+      "",
   },
   link: [{ rel: "icon", href: faviconHref }],
-  titleTemplate: (titleChunk) => {
+  titleTemplate: (titleChunk: string | undefined): string | null => {
     if (titleChunk && config.public.siteTitle) {
       return `${titleChunk} | ${config.public.siteTitle}`;
     } else if (titleChunk) {
       return titleChunk;
     } else if (config.public.siteTitle) {
-      return config.public.siteTitle;
+      return config.public.siteTitle as string;
     } else {
       return "Emx2";
     }

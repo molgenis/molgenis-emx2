@@ -1,0 +1,19 @@
+[
+  {
+    "id": "bbmri-eric:networkID:NL_valid-networkID-1",
+    "contact": "bbmri-eric:contactID:NL_valid-personID-1"
+  },
+  {
+    "id": "bbmri-eric:networkID:NL_valid:networkID-2",
+    "contact": "bbmri-eric:ID:NL_invalid_person_classifier",
+    "parent_network": ["bbmri-eric:network:NL_valid-networkID-1"]
+  },
+  {"id": "bbmri-eric:ID:NL_invalid_network_classifier"},
+  {
+    "id": "bbmri-eric:networkID:BE_invalid_node_code",
+    "parent_network": [
+      "bbmri-eric:network:NL_valid-networkID-1",
+      "bbmri-eric:ID:NL_invalid_network_classifier"
+    ]
+  }
+]

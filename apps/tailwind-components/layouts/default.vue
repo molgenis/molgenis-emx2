@@ -39,6 +39,10 @@ const stories = Object.keys(modules)
         <div id="header-place-holder"></div>
         <div class="xl:flex">
           <aside class="xl:min-w-95 xl:w-95 hidden xl:block pl-6">
+            <h2 class="text-2xl font-bold my-5">Theme Styles</h2>
+            <NuxtLink class="hover:underline" to="/Styles.other"
+              >Theme styles</NuxtLink
+            >
             <h2 class="text-2xl font-bold my-5">Components</h2>
             <ul class="list-none">
               <li class="py-2" v-for="story in stories">

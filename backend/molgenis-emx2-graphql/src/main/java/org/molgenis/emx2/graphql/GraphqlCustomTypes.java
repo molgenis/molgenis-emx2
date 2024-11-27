@@ -1,11 +1,11 @@
 package org.molgenis.emx2.graphql;
 
 import graphql.schema.*;
+import jakarta.servlet.http.Part;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
-import javax.servlet.http.Part;
 import org.molgenis.emx2.BinaryFileWrapper;
 
 public class GraphqlCustomTypes {

@@ -37,8 +37,8 @@ const expandSelected = ref(true);
 </script>
 
 <template>
-  <div class="flex mb-4">
-    <div class="flex-1">
+  <div class="flex flex-row gap-2 mb-4">
+    <div class="basis-3/5">
       <InputTree
         :nodes="nodes"
         v-model="selectedNodesNames"
@@ -49,7 +49,7 @@ const expandSelected = ref(true);
       />
     </div>
 
-    <div class="ml-4 mt-2">
+    <div class="basis-2/5 p-2">
       <fieldset class="border border-gray-900 mb-2">
         <legend class="m-2 px-2">Props</legend>
         <div class="mb-2">

@@ -4,7 +4,7 @@
       class="genturis-header"
       title="ERN Genturis Registry"
       subtitle="Registry for Genetic Tumour Risk Syndromes"
-      imageSrc="genturis-carousel.jpg"
+      imageSrc="img/genturis-carousel.jpg"
       titlePositionX="center"
       titlePositionY="center"
     />
@@ -71,7 +71,7 @@
       </ul>
       <img
         id="img-genturis-disease-groups"
-        src="/genturis-disease-groups.png"
+        src="/img/genturis-disease-groups.png"
         alt="thematic disease groups included in the genturis registry"
       />
       <p>
@@ -145,7 +145,8 @@
   </Page>
 </template>
 
-<script setup>
+<script setup lang="ts">
+// @ts-ignore
 import { Page, PageHeader, PageSection } from "molgenis-viz";
 </script>
 

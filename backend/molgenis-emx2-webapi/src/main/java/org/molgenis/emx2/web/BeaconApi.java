@@ -1,94 +1,88 @@
 package org.molgenis.emx2.web;
 
-import static org.molgenis.emx2.json.JsonUtil.getWriter;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
-import static spark.Spark.*;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.javalin.Javalin;
+import io.javalin.http.Context;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.beaconv2.QueryEntryType;
 import org.molgenis.emx2.beaconv2.endpoints.*;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
-import spark.Request;
-import spark.Response;
 
 public class BeaconApi {
 
   private static MolgenisSessionManager sessionManager;
 
-  public static void create(MolgenisSessionManager sm) {
+  public static void create(Javalin app, MolgenisSessionManager sm) {
     sessionManager = sm;
-    defaultResponseTransformer(o -> getWriter().writeValueAsString(o));
-    defineRoutes("/:schema/api/beacon");
-    defineRoutes("/:schema/api/beacon_vp");
-    defineRoutes("/api/beacon");
-    defineRoutes("/api/beacon_vp");
-    defaultResponseTransformer(null);
+    defineRoutes(app, "/{schema}/api/beacon");
+    defineRoutes(app, "/{schema}/api/beacon_vp");
+    defineRoutes(app, "/api/beacon");
+    defineRoutes(app, "/api/beacon_vp");
   }
 
-  private static void defineRoutes(String basePath) {
-    path(
-        basePath,
-        () -> {
-          before("/*", BeaconApi::processRequest);
-          get("", BeaconApi::getInfo);
-          get("/", BeaconApi::getInfo);
-          get("/info", BeaconApi::getInfo);
-          get("/service-info", BeaconApi::getInfo);
-          get("/configuration", new Configuration()::getResponse);
-          get("/map", new Map()::getResponse);
-          get("/entry_types", new EntryTypes()::getResponse);
-          get("/filtering_terms", BeaconApi::getFilteringTerms);
-          get("/:entry_type", BeaconApi::getEntryType);
-          get("/:entry_type/:id", BeaconApi::getEntryType);
-          get("/:entry_type_id/:id/:entry_type", BeaconApi::getEntryType);
-          post("/:entry_type", BeaconApi::postEntryType);
-        });
+  private static void defineRoutes(Javalin app, String basePath) {
+    app.before(basePath + "/*", BeaconApi::processRequest);
+
+    app.get(basePath, BeaconApi::getInfo);
+    app.get(basePath + "/", BeaconApi::getInfo);
+    app.get(basePath + "/info", BeaconApi::getInfo);
+    app.get(basePath + "/service-info", BeaconApi::getInfo);
+    app.get(basePath + "/configuration", new Configuration()::getResponse);
+    app.get(basePath + "/map", new Map()::getResponse);
+    app.get(basePath + "/entry_types", new EntryTypes()::getResponse);
+    app.get(basePath + "/filtering_terms", BeaconApi::getFilteringTerms);
+    app.get(basePath + "/{entry_type}", BeaconApi::getEntryType);
+    app.get(basePath + "/{entry_type}/{id}", BeaconApi::getEntryType);
+    app.get(basePath + "/{entry_type_id}/{id}/{entry_type}", BeaconApi::getEntryType);
+    app.post(basePath + "/{entry_type}", BeaconApi::postEntryType);
   }
 
-  private static void processRequest(Request request, Response response) {
-    extractSpecification(request);
-    response.type(Constants.ACCEPT_JSON);
+  private static void processRequest(Context ctx) {
+    extractSpecification(ctx);
+    ctx.contentType(Constants.ACCEPT_JSON);
   }
 
-  private static void extractSpecification(Request request) {
-    String specification = request.matchedPath().split("/api/")[1].split("/")[0];
-    request.attribute("specification", specification);
+  private static void extractSpecification(Context ctx) {
+    String specification = ctx.matchedPath().split("/api/")[1].split("/")[0];
+    ctx.attribute("specification", specification);
   }
 
-  private static JsonNode getEntryType(Request request, Response response) {
-    return entryTypeRequest(request, new BeaconRequestBody(request));
+  private static void getEntryType(Context ctx) {
+    entryTypeRequest(ctx, new BeaconRequestBody(ctx));
   }
 
-  private static JsonNode postEntryType(Request request, Response response) throws Exception {
+  private static void postEntryType(Context ctx) throws Exception {
     ObjectMapper mapper = new ObjectMapper();
-    BeaconRequestBody beaconRequest = mapper.readValue(request.body(), BeaconRequestBody.class);
-    beaconRequest.addRequestParameters(request);
-    return entryTypeRequest(request, beaconRequest);
+    BeaconRequestBody beaconRequest = mapper.readValue(ctx.body(), BeaconRequestBody.class);
+    beaconRequest.addRequestParameters(ctx);
+    entryTypeRequest(ctx, beaconRequest);
   }
 
-  private static JsonNode entryTypeRequest(Request request, BeaconRequestBody requestBody) {
+  private static void entryTypeRequest(Context ctx, BeaconRequestBody requestBody) {
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
 
-    Schema schema = getSchema(request);
-    if (schema != null) return queryEntryType.query(schema);
-
-    Database database = sessionManager.getSession(request).getDatabase();
-    return queryEntryType.query(database);
+    Schema schema = getSchema(ctx);
+    if (schema != null) {
+      ctx.json(queryEntryType.query(schema));
+    } else {
+      Database database = sessionManager.getSession(ctx.req()).getDatabase();
+      ctx.json(queryEntryType.query(database));
+    }
   }
 
-  private static Object getFilteringTerms(Request request, Response response) {
-    Database database = sessionManager.getSession(request).getDatabase();
-    return new FilteringTerms(database);
+  private static void getFilteringTerms(Context ctx) {
+    Database database = sessionManager.getSession(ctx.req()).getDatabase();
+    ctx.json(new FilteringTerms(database));
   }
 
-  private static Object getInfo(Request request, Response response) {
-    response.type(Constants.ACCEPT_JSON);
-    Schema schema = getSchema(request);
+  private static void getInfo(Context ctx) {
+    ctx.contentType(Constants.ACCEPT_JSON);
+    Schema schema = getSchema(ctx);
 
-    Database database = sessionManager.getSession(request).getDatabase();
-    return new Info(database).getResponse(schema);
+    Database database = sessionManager.getSession(ctx.req()).getDatabase();
+    ctx.json(new Info(database).getResponse(schema));
   }
 }

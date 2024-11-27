@@ -142,7 +142,7 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
       .orderBy("Biobanks", "name", "asc")
       .orderBy("collections", "id", "asc")
       .where("id")
-      .like(id);
+      .equals(id);
 
     return await biobankReportQuery.execute();
   }

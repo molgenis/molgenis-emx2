@@ -14,7 +14,7 @@
           :imageSrc="
             Object.hasOwn(provider.image, 'id')
               ? `${provider.image.url}`
-              : 'banner-diagnoses.jpg'
+              : 'img/banner-diagnoses.jpg'
           "
         />
         <PageSection

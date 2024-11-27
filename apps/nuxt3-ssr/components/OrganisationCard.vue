@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import type { IOrganisation } from "~/interfaces/types";
+import type { IOrganisations } from "~/interfaces/catalogue";
 
 defineProps<{
-  organisation: IOrganisation;
+  organisation: IOrganisations;
 }>();
 </script>
 
@@ -11,20 +11,16 @@ defineProps<{
     class="border lg:even:border-l-0 p-11 relative -mb-[1px]"
     data-component-name="name"
   >
-    <div class="flex items-start justify-center flex-col h-full">
-      <div
-        v-if="organisation.isLeadOrganisation"
-        class="font-bold text-body-base uppercase py-3"
-      >
-        Lead organisation
-      </div>
-
-      <span class="font-bold block">
+    <div class="flex items-start flex-col h-full">
+      <span class="block">
         <span class="font-bold" v-if="organisation?.name">
           {{ organisation?.name }}&nbsp;<template v-if="organisation.acronym"
             >({{ organisation.acronym }})</template
           >
         </span>
+        <div v-if="organisation.country">
+          {{ organisation.country.map((r) => r.name).join(", ") }}
+        </div>
       </span>
       <a
         class="text-blue-500 block hover:underline"
@@ -40,17 +36,11 @@ defineProps<{
         </p>
       </div>
 
-      <div v-if="organisation.country" class="mt-3">
-        <p>
-          <i>{{ organisation.country.map((r) => r.name).join(", ") }}</i>
-        </p>
-      </div>
-
-      <img
+      <!-- todo: decide how we will bring back logo <img
         v-if="organisation.logo"
         class="max-h-11"
         :src="organisation.logo.url"
-      />
+      /-->
     </div>
   </li>
 </template>

@@ -152,6 +152,8 @@ module.exports = {
         "tab-active": "var(--backgroud-color-tab-active)",
         "disabled": "var(--background-color-disabled)",
         "invalid": "var(--background-color-invalid)",
+        "input": "var(--background-color-input)",
+        "table": "var(--background-color-table)",
       }),
       textColor: ({ theme }) => ({
         "button-primary": "var(--text-color-button-primary)",
@@ -193,9 +195,11 @@ module.exports = {
         "tooltip-hover-dark": "var(--text-color-tooltip-hover-dark)",
         "tooltip-hover-light": "var(--text-color-tooltip-hover-light)",
         "pagination": "var(--text-color-pagination)",
+        "pagination-inverted": "var(--text-color-pagination-inverted)",
         "pagination-input": "var(--text-color-pagination-input)",
         "pagination-hover": "var(--text-color-pagination-hover)",
         "footer-link": "var(--text-color-footer-link)",
+        "table-column-header": "var(--text-color-table-column-header)",
         "invalid": "var(--text-color-invalid)",
         "valid": "var(--text-color-valid)",
         "disabled": "var(--text-color-disabled)",
@@ -221,6 +225,15 @@ module.exports = {
         "invalid": "var(--border-color-invalid)",
         "valid": "var(--border-color-valid)",
         "disabled": "var(--border-color-disabled)",
+        "input": "var(--border-color-input)",
+        "input-inverted": "var(--border-color-input-inverted)",
+      }),
+      stroke: ({ theme }) => ({
+        "input": "var(--border-color-input)",
+      }),
+      fill: ({ theme }) => ({
+        "input": "var(--background-color-input)",
+        "input-checked": "var(--background-color-input-checked)",
       }),
       borderRadius: {
         "3px": "var(--border-radius-3px)",

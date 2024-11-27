@@ -7,3 +7,4 @@ MOLGENIS EMX2 can be run via
 * [cloud deploy on kubernetes + helm](run_helm.md)
 * [by compiling the source code (for developers)](run_source.md)
 * [OIDC integration](use_permissions.md)
+* [Backup](run_backup.md)

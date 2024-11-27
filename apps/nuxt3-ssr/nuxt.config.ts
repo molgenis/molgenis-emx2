@@ -4,7 +4,7 @@ import { defineNuxtConfig } from "nuxt/config";
 export default defineNuxtConfig({
   extends: ["../tailwind-components"],
   devtools: { enabled: true },
-  modules: ["@nuxt/image", "@nuxt/test-utils/module"],
+  modules: ["@nuxt/image", "@nuxt/test-utils/module", "nuxt-gtag"],
   tailwindcss: {
     cssPath: "../tailwind-components/assets/css/main.css",
     configPath: "../tailwind-components/tailwind.config.js",
@@ -15,6 +15,7 @@ export default defineNuxtConfig({
       emx2Logo: "",
       siteTitle: "MOLGENIS",
       analyticsKey: "",
+      analyticsProvider: "siteimprove",
       cohortOnly: false,
       apiBase:
         process.env.NUXT_PUBLIC_API_BASE ||
@@ -49,4 +50,8 @@ export default defineNuxtConfig({
       global: true,
     },
   ],
+  // @ts-ignore // gtag is not in the types
+  gtag: {
+    initMode: 'manual',
+  }
 });

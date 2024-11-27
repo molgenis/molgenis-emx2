@@ -3,7 +3,7 @@
     <PageHeader
       title="ERN ReCONNET"
       subtitle="European Reference Network on Rare and Complex Connective Tissue and Musculoskeletal Diseases"
-      :imageSrc="ProjectBannerImage"
+      imageSrc="img/ern-reconnet-header.jpg"
     />
     <PageSection aria-labelledby="welcome-title">
       <h2 id="welcome-title">ERN ReCONNET registry dashboard</h2>
@@ -14,7 +14,7 @@
   </Page>
 </template>
 
-<script setup>
+<script setup lang="ts">
+// @ts-ignore
 import { Page, PageHeader, PageSection, MessageBox } from "molgenis-viz";
-import ProjectBannerImage from "../assets/ern-reconnet-header.jpg";
 </script>

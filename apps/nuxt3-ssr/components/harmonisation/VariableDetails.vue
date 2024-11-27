@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type {
-  IResource,
   IVariable,
   IVariableBase,
   IVariableMappings,

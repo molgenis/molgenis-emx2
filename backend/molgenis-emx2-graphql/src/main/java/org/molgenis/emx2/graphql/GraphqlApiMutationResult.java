@@ -21,7 +21,6 @@ public class GraphqlApiMutationResult {
   private Status status;
   private String taskId;
   private Map<String, String> details = new LinkedHashMap<>();
-  private String code;
 
   public GraphqlApiMutationResult(Status status, String message, Object... formatValues) {
     this.status = status;

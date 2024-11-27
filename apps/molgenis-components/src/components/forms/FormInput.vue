@@ -99,6 +99,10 @@ export default {
       required: false,
       default: () => null,
     },
+    expressionData: {
+      type: Object,
+      required: false,
+    },
     refBackId: {
       type: String,
       required: false,
@@ -523,9 +527,9 @@ export default {
         emailValue: "bla@molgenis.org",
         emailValueInplace: "bla@molgenis.org",
         emailValueArray: ["bla@molgenis.org", "asd@molgenis.org"],
-        hyperlinkValue: "www.molgenis.org",
-        hyperlinkValueInplace: "www.molgenis.org",
-        hyperlinkValueArray: ["www.molgenis.org", "molgenis.org"],
+        hyperlinkValue: "https://molgenis.org",
+        hyperlinkValueInplace: "https://molgenis.org",
+        hyperlinkValueArray: ["https://molgenis.org", "https://www.molgenis.org"],
         ontologyValue: null,
         ontologyArrayValue: [],
         dateValue: null,

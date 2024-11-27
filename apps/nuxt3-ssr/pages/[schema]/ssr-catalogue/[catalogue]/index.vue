@@ -18,7 +18,7 @@ const cohortOnly = computed(() => {
 
 //networksfilter retrieves the catalogues
 //resources are within the current catalogue
-const query = `query CataloguePage($networksFilter:ResourcesFilter,$variablesFilter:VariablesFilter,$resourceFilter:ResourcesFilter){
+const query = `query CataloguePage($networksFilter:ResourcesFilter,$variablesFilter:VariablesFilter,$collectionsFilter:ResourcesFilter,$networkFilter:ResourcesFilter){
         Resources(filter:$networksFilter) {
               id,
               acronym,
@@ -29,22 +29,21 @@ const query = `query CataloguePage($networksFilter:ResourcesFilter,$variablesFil
         Variables_agg(filter:$variablesFilter) {
           count
         }
-        Resources_agg(filter:$resourceFilter) {
+        Collections_agg: Resources_agg(filter:$collectionsFilter) {
           count
           _sum {
             numberOfParticipants
             numberOfParticipantsWithSamples
           }
         }
-        Resources_groupBy(filter:$resourceFilter) {
-          type{name,definition}
+        Networks_agg: Resources_agg(filter:$networkFilter) {
           count
         }
-        Design_groupBy:Resources_groupBy(filter:$resourceFilter) {
+        Design_groupBy: Resources_groupBy(filter:$collectionsFilter) {
           design{name}
           count
         }
-        Subpopulations_agg(filter:{resource: $resourceFilter}) {
+        Subpopulations_agg(filter:{resource: $collectionsFilter}) {
           count
         }
         _settings (keys: [
@@ -77,18 +76,41 @@ const networksFilter = scoped
   ? { id: { equals: catalogueRouteParam } }
   : undefined;
 
-const resourceFilter = scoped
+const collectionsFilter = scoped
   ? {
-      _or: [
-        { partOfResources: { id: { equals: catalogueRouteParam } } },
+      _and: [
+        { type: { tags: { equals: "collection" } } },
         {
-          partOfResources: {
-            partOfResources: { id: { equals: catalogueRouteParam } },
-          },
+          _or: [
+            { partOfResources: { id: { equals: catalogueRouteParam } } },
+            {
+              partOfResources: {
+                partOfResources: { id: { equals: catalogueRouteParam } },
+              },
+            },
+          ],
         },
       ],
     }
-  : undefined;
+  : { type: { tags: { equals: "collection" } } };
+
+const networkFilter = scoped
+  ? {
+      _and: [
+        { type: { tags: { equals: "network" } } },
+        {
+          _or: [
+            { partOfResources: { id: { equals: catalogueRouteParam } } },
+            {
+              partOfResources: {
+                partOfResources: { id: { equals: catalogueRouteParam } },
+              },
+            },
+          ],
+        },
+      ],
+    }
+  : { type: { tags: { equals: "network" } } };
 
 const { data, error } = await useFetch(`/${route.params.schema}/graphql`, {
   method: "POST",
@@ -97,7 +119,8 @@ const { data, error } = await useFetch(`/${route.params.schema}/graphql`, {
     query,
     variables: {
       networksFilter,
-      resourceFilter,
+      collectionsFilter,
+      networkFilter,
       variablesFilter: scoped
         ? {
             _or: [
@@ -170,18 +193,10 @@ const description = computed(() => {
   }
 });
 
-const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/networks/${catalogueRouteParam}`;
+const collectionCount = computed(() => data.value.data?.Collections_agg?.count);
+const networkCount = computed(() => data.value.data?.Networks_agg?.count);
 
-const resources = computed(() => {
-  if (cohortOnly.value) {
-    return data.value.data.Resources_groupBy.filter(
-      (resource: { type: { name: string } }) =>
-        resource.type.name === "Cohort study"
-    );
-  } else {
-    return data.value.data.Resources_groupBy;
-  }
-});
+const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/networks/${catalogueRouteParam}`;
 </script>
 
 <template>
@@ -201,27 +216,34 @@ const resources = computed(() => {
     </PageHeader>
     <LandingPrimary>
       <LandingCardPrimary
-        v-for="resource in resources"
-        :image="
-          getResourceMetadataForType(resource.type.name).image || 'image-link'
-        "
-        :title="
-          getResourceMetadataForType(resource.type.name)?.plural ||
-          resource.type.name
-        "
+        v-if="collectionCount"
+        image="image-link"
+        title="Collections"
         :description="
           getSettingValue('CATALOGUE_LANDING_COHORTS_TEXT', settings) ||
-          getResourceMetadataForType(resource.type.name).description ||
-          'Cohorts &amp; Biobanks'
+          'Data &amp; sample collections'
         "
         :callToAction="
-          getSettingValue('CATALOGUE_LANDING_COHORTS_CTA', settings)
+          getSettingValue('CATALOGUE_LANDING_COHORTS_CTA', settings) ||
+          'Collections'
         "
-        :count="resource.count"
-        :link="
-          `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/` +
-          (getResourceMetadataForType(resource.type.name).path || 'resources')
+        :count="collectionCount"
+        :link="`/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/collections`"
+      />
+      <LandingCardPrimary
+        v-if="networkCount && !cohortOnly"
+        image="image-diagram"
+        title="Networks"
+        :description="
+          getSettingValue('CATALOGUE_LANDING_NETWORKS_TEXT', settings) ||
+          'Networks &amp; Consortia'
         "
+        :callToAction="
+          getSettingValue('CATALOGUE_LANDING_NETWORKS_CTA', settings) ||
+          'Networks'
+        "
+        :count="networkCount"
+        :link="`/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/networks`"
       />
       <LandingCardPrimary
         v-if="data.data.Variables_agg?.count > 0 && !cohortOnly"
@@ -237,7 +259,6 @@ const resources = computed(() => {
         "
         :link="`/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/variables`"
       />
-
       <LandingCardPrimary
         v-if="!cohortOnly && network.id === 'FORCE-NEN collections'"
         image="image-data-warehouse"
@@ -251,12 +272,12 @@ const resources = computed(() => {
     <LandingSecondary>
       <LandingCardSecondary
         icon="people"
-        v-if="data.data.Resources_agg?._sum?.numberOfParticipants"
+        v-if="data.data.Collections_agg?._sum?.numberOfParticipants"
       >
         <b>
           {{
             new Intl.NumberFormat("nl-NL").format(
-              data.data.Resources_agg?._sum?.numberOfParticipants
+              data.data.Collections_agg?._sum?.numberOfParticipants
             )
           }}
           {{
@@ -266,18 +287,18 @@ const resources = computed(() => {
         </b>
         <br />{{
           getSettingValue("CATALOGUE_LANDING_PARTICIPANTS_TEXT", settings) ||
-          "The cumulative number of participants of all (sub)cohorts combined."
+          "The cumulative number of participants."
         }}
       </LandingCardSecondary>
 
       <LandingCardSecondary
         icon="colorize"
-        v-if="data.data.Resources_agg?._sum?.numberOfParticipantsWithSamples"
+        v-if="data.data.Collections_agg?._sum?.numberOfParticipantsWithSamples"
       >
         <b
           >{{
             new Intl.NumberFormat("nl-NL").format(
-              data.data.Resources_agg?._sum?.numberOfParticipantsWithSamples
+              data.data.Collections_agg?._sum?.numberOfParticipantsWithSamples
             )
           }}
           {{
@@ -287,13 +308,13 @@ const resources = computed(() => {
         >
         <br />{{
           getSettingValue("CATALOGUE_LANDING_SAMPLES_TEXT", settings) ||
-          "The cumulative number of participants with samples collected of all (sub)cohorts combined"
+          "The cumulative number of participants with samples"
         }}
       </LandingCardSecondary>
 
       <LandingCardSecondary
         icon="schedule"
-        v-if="data.data.Design_groupBy && data.data.Resources_agg"
+        v-if="data.data.Design_groupBy && data.data.Collections_agg"
       >
         <b
           >{{
@@ -303,14 +324,13 @@ const resources = computed(() => {
           {{
             percentageLongitudinal(
               data.data.Design_groupBy,
-              data.data.Resources_agg.count
+              data.data.Collections_agg.count
             )
           }}%</b
         ><br />{{
           getSettingValue("CATALOGUE_LANDING_DESIGN_TEXT", settings) ||
-          "Percentage of longitudinal datasets. The remaining datasets are"
+          "Percentage of longitudinal datasets."
         }}
-        cross-sectional.
       </LandingCardSecondary>
 
       <LandingCardSecondary

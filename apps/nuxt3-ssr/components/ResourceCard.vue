@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import dateUtils from "~/utils/dateUtils";
-import type { IResource } from "~/interfaces/types";
+import type { IResources } from "~/interfaces/catalogue";
 const cutoff = 250;
 
 const route = useRoute();
 
 const props = withDefaults(
   defineProps<{
-    resource: IResource;
+    resource: IResources;
     schema: string;
     compact?: boolean;
     catalogue?: string;
@@ -97,8 +97,8 @@ const iconStarClasses = computed(() => {
           <dd>
             {{
               startEndYear(
-                resource?.startDataCollection,
-                resource?.endDataCollection
+                resource?.startYear?.toString(),
+                resource?.endYear?.toString()
               )
             }}
           </dd>

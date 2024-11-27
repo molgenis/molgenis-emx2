@@ -7,6 +7,16 @@
     :preventDefault="true"
     @update="updatePage"
   />
+
+  <hr class="my-3" />
+
+  <span>inverted = true:</span>
+  <Pagination
+    :currentPage="1"
+    :totalPages="10"
+    :inverted="true"
+    @update="updatePage"
+  />
 </template>
 
 <script setup lang="ts">

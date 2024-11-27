@@ -246,11 +246,10 @@ jobs:
     - post_steps
   e2e-test:
     docker:
-      - image: mcr.microsoft.com/playwright:v1.47.0-jammy
+      - image: mcr.microsoft.com/playwright:v1.49.0-jammy
     steps:
       - checkout
       - run: npm i -D @playwright/test
-      - run: npx playwright install chrome
       - run:
           name: Install dependencies
           command: yarn install
@@ -274,6 +273,7 @@ jobs:
       - run:
           name: Test nuxt ssr catalogue tests
           command: |
+            yarn playwright install chrome
             echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
             export E2E_BASE_URL=https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/
             echo $E2E_BASE_URL
@@ -281,7 +281,8 @@ jobs:
           working_directory: apps/nuxt3-ssr          
       - run:
           name: Run non ssr e2e tests
-          command: | 
+          command: |
+            npx playwright install chrome
             echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
             export E2E_BASE_URL=https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/
             echo $E2E_BASE_URL

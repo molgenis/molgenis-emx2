@@ -45,7 +45,8 @@ export const buildTree = (
   }
 
   const roots = uniqueItems.filter((item) => !item.parent);
-  return roots;
+  const sorted = sortTree(roots);
+  return sorted;
 };
 
 export const flattenTree = (
@@ -58,6 +59,25 @@ export const flattenTree = (
   } else {
     return [ontologyItem, ...flattenTree(ontologyItem.parent)];
   }
+};
+
+export const sortTree = (tree: IOntologyItem[]): IOntologyItem[] => {
+  const sortBy = tree.every((item) => item.order !== undefined)
+    ? "order"
+    : "name";
+  tree.sort((a, b) => {
+    return sortBy === "order" && a.order !== undefined && b.order !== undefined
+      ? a.order - b.order
+      : a.name.localeCompare(b.name);
+  });
+
+  for (const item of tree) {
+    if (item.children) {
+      item.children = sortTree(item.children as IOntologyItem[]);
+    }
+  }
+
+  return tree;
 };
 
 const equals = (a: IOntologyItem, b: IOntologyItem) => a.name === b.name;

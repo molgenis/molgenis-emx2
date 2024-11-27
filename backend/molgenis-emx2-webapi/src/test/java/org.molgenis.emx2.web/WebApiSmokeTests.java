@@ -31,10 +31,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import org.junit.jupiter.api.*;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.Order;
@@ -58,7 +55,7 @@ public class WebApiSmokeTests {
   private static Database db;
   private static Schema schema;
   final String CSV_TEST_SCHEMA = "pet store csv";
-  static final int PORT = 8081; // other then default so we can see effect
+  static final int PORT = 8081; // other than default so we can see effect
 
   @BeforeAll
   public static void before() throws Exception {
@@ -68,7 +65,7 @@ public class WebApiSmokeTests {
 
     // start web service for testing, including env variables
     withEnvironmentVariable(MOLGENIS_HTTP_PORT, "" + PORT)
-        // disable because of parallism issues .and(MOLGENIS_INCLUDE_CATALOGUE_DEMO, "true")
+        // disable because of parallelism issues .and(MOLGENIS_INCLUDE_CATALOGUE_DEMO, "true")
         .execute(() -> RunMolgenisEmx2.main(new String[] {}));
 
     // set default rest assured settings
@@ -108,9 +105,24 @@ public class WebApiSmokeTests {
 
   @AfterAll
   public static void after() {
-    MolgenisWebservice.stop();
     // Always clean up database to avoid instability due to side effects.
     db.dropSchemaIfExists(PET_STORE_SCHEMA);
+    db.dropSchemaIfExists("pet store yaml");
+    db.dropSchemaIfExists("pet store json");
+  }
+
+  @Test
+  public void testApiRoot() {
+    String result =
+        given()
+            .sessionId(SESSION_ID)
+            .expect()
+            .statusCode(200)
+            .when()
+            .get("/api")
+            .getBody()
+            .asString();
+    assertTrue(result.contains("Welcome to MOLGENIS EMX2"));
   }
 
   @Test
@@ -185,6 +197,38 @@ public class WebApiSmokeTests {
     store = new TableStoreForXlsxFile(excelFile.toPath());
     assertTrue(store.containsTable("pet report with parameters"));
     assertTrue(excelContents.length > 0);
+
+    // test json report api
+    String jsonResults =
+        given().sessionId(SESSION_ID).get("/pet store reports/api/reports/json?id=0").asString();
+    assertFalse(jsonResults.contains("pet report"), "single result should not include report name");
+    jsonResults =
+        given()
+            .sessionId(SESSION_ID)
+            .get("/pet store reports/api/reports/json?id=0,1&name=pooky")
+            .asString();
+    assertTrue(
+        jsonResults.contains("pet report"),
+        "multiple results should use the report name to nest results");
+    jsonResults =
+        given()
+            .sessionId(SESSION_ID)
+            .get("/pet store reports/api/reports/json?id=1&name=spike,pooky")
+            .asString();
+    assertTrue(jsonResults.contains("pooky"));
+
+    // test report using jsonb_agg
+    jsonResults =
+        given().sessionId(SESSION_ID).get("/pet store reports/api/reports/json?id=2").asString();
+    ObjectMapper objectMapper = new ObjectMapper();
+    List<Object> jsonbResult = objectMapper.readValue(jsonResults, List.class);
+    assertTrue(jsonbResult.get(0).toString().contains("pooky"));
+
+    // test report using jsonb rows
+    jsonResults =
+        given().sessionId(SESSION_ID).get("/pet store reports/api/reports/json?id=3").asString();
+    jsonbResult = objectMapper.readValue(jsonResults, List.class);
+    assertTrue(jsonbResult.get(0).toString().contains("pooky"));
   }
 
   @Test
@@ -379,7 +423,6 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  @Disabled("gives many false positive errors")
   public void testJsonYamlApi() {
     String schemaJson = given().sessionId(SESSION_ID).when().get("/pet store/api/json").asString();
 
@@ -414,6 +457,25 @@ public class WebApiSmokeTests {
         given().sessionId(SESSION_ID).when().get("/pet store yaml/api/yaml").asString();
 
     assertEquals(schemaYaml, schemaYaml2.replace("pet store yaml", PET_STORE_SCHEMA));
+
+    given()
+        .sessionId(SESSION_ID)
+        .body(schemaYaml2)
+        .when()
+        .delete("/pet store yaml/api/yaml")
+        .then()
+        .statusCode(200);
+
+    given()
+        .sessionId(SESSION_ID)
+        .body(schemaJson2)
+        .when()
+        .delete("/pet store json/api/json")
+        .then()
+        .statusCode(200);
+
+    db.dropSchemaIfExists("pet store yaml");
+    db.dropSchemaIfExists("pet store json");
   }
 
   @Test
@@ -461,8 +523,8 @@ public class WebApiSmokeTests {
       poll = given().sessionId(SESSION_ID).when().get(url);
       Thread.sleep(500);
     }
-
-    assertFalse(poll.body().asString().contains("FAILED"));
+    assertFalse(
+        poll.body().asString().contains("FAILED") || poll.body().asString().contains("ERROR"));
 
     // check if id in tasks list
     assertTrue(
@@ -505,7 +567,7 @@ public class WebApiSmokeTests {
     String path = "/pet store/api/csv/Tag";
 
     String result = given().sessionId(SESSION_ID).accept(ACCEPT_CSV).when().get(path).asString();
-    assertTrue(result.contains("green,,colors"));
+    assertTrue(result.contains("green,,,colors"));
 
     String update = "name,parent\r\nyellow,colors\r\n";
     given().sessionId(SESSION_ID).body(update).when().post(path).then().statusCode(200);
@@ -516,7 +578,7 @@ public class WebApiSmokeTests {
     given().sessionId(SESSION_ID).body(update).when().delete(path).then().statusCode(200);
 
     result = given().sessionId(SESSION_ID).accept(ACCEPT_CSV).when().get(path).asString();
-    assertTrue(result.contains("green,,colors"));
+    assertTrue(result.contains("green,,,colors"));
   }
 
   @Test
@@ -598,6 +660,20 @@ public class WebApiSmokeTests {
     result =
         given()
             .sessionId(sessionId)
+            .contentType("multipart/form-data")
+            .multiPart(
+                "query", "mutation insert($value:[OrderInput]){insert(Order:$value){message}}")
+            .multiPart(
+                "variables",
+                "{\"value\":[{\"quantity\":\"5\",\"price\":22,\"pet\":{\"name\":\"pooky\"}}]}")
+            .when()
+            .post(schemaPath)
+            .asString();
+    assertTrue(result.contains("inserted 1 record"));
+
+    result =
+        given()
+            .sessionId(sessionId)
             .body("{\"query\":\"mutation{signout{message}}\"}")
             .when()
             .post(path)
@@ -627,36 +703,13 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  public void testMolgenisWebservice_redirectWhenSlash() {
-    given()
-        .sessionId(SESSION_ID)
-        .redirects()
-        .follow(false)
-        .expect()
-        .statusCode(302)
-        .header("Location", is("http://localhost:" + PORT + "/pet store/"))
-        .when()
-        .get("/pet store");
-
-    given()
-        .sessionId(SESSION_ID)
-        .redirects()
-        .follow(false)
-        .expect()
-        .statusCode(302)
-        .header("Location", is("http://localhost:" + PORT + "/pet store/tables/"))
-        .when()
-        .get("/pet store/tables");
-  }
-
-  @Test
   public void testMolgenisWebservice_redirectToFirstMenuItem() {
     given()
         .redirects()
         .follow(false)
         .expect()
         .statusCode(302)
-        .header("Location", is("http://localhost:" + PORT + "/pet store/tables"))
+        .header("Location", is("/pet store/tables"))
         .when()
         .get("/pet store/");
 
@@ -681,7 +734,7 @@ public class WebApiSmokeTests {
         .follow(false)
         .expect()
         .statusCode(302)
-        .header("Location", is("http://localhost:" + PORT + "/pet store/blaat2"))
+        .header("Location", is("/pet store/blaat2"))
         .when()
         .get("/pet store/");
 
@@ -700,7 +753,7 @@ public class WebApiSmokeTests {
         .follow(false)
         .expect()
         .statusCode(302)
-        .header("Location", is("http://localhost:" + PORT + "/pet store/blaat"))
+        .header("Location", is("/pet store/blaat"))
         .when()
         .get("/pet store/");
 
@@ -798,7 +851,7 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  public void testRdfApi() {
+  public void testRdfApiRequest() {
     final String urlPrefix = "http://localhost:" + PORT;
 
     final String defaultContentType = "text/turtle";
@@ -841,16 +894,40 @@ public class WebApiSmokeTests {
         .head(urlPrefix + "/pet store/api/jsonld");
     rdfApiContentTypeRequest(200, jsonldContentType, ttlContentType)
         .head(urlPrefix + "/pet store/api/ttl");
+  }
 
-    // Validate actual output.
-    String result =
+  @Test
+  void testRdfApiContent() {
+    // Output from global API call.
+    String resultBase =
         given()
             .sessionId(SESSION_ID)
             .when()
             .get("http://localhost:" + PORT + "/api/rdf?schemas=pet store")
             .getBody()
             .asString();
-    assertFalse(result.contains("CatalogueOntologies"));
+
+    // Output schema API call.
+    String resultSchema =
+        given()
+            .sessionId(SESSION_ID)
+            .when()
+            .get("http://localhost:" + PORT + "/pet store/api/rdf")
+            .getBody()
+            .asString();
+
+    assertAll(
+        // Validate base API.
+        () -> assertFalse(resultBase.contains("CatalogueOntologies")),
+        () ->
+            assertTrue(
+                resultBase.contains(
+                    "http://localhost:" + PORT + "/pet%20store/api/rdf/Category/column/name")),
+        // Validate schema API.
+        () ->
+            assertTrue(
+                resultSchema.contains(
+                    "http://localhost:" + PORT + "/pet%20store/api/rdf/Category/column/name")));
   }
 
   /**
@@ -929,28 +1006,6 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  public void testNonDefinedFDPHead() {
-    given()
-        .sessionId(SESSION_ID)
-        .expect()
-        .contentType("text/html;charset=utf-8")
-        .when()
-        .head("http://localhost:" + PORT + "/api/fdp/");
-  }
-
-  @Test
-  public void testFDPRedirect() {
-    given()
-        .sessionId(SESSION_ID)
-        .redirects()
-        .follow(false)
-        .expect()
-        .header("Location", "http://localhost:" + PORT + "/api/fdp")
-        .when()
-        .get("http://localhost:" + PORT + "/api/fdp/");
-  }
-
-  @Test
   public void testGraphGenome400() {
     given()
         .sessionId(SESSION_ID)
@@ -1017,6 +1072,20 @@ public class WebApiSmokeTests {
         .statusCode(200)
         .when()
         .get(requestString);
+  }
+
+  @Test
+  void testRoot() {
+    given()
+        .sessionId(SESSION_ID)
+        .redirects()
+        .follow(false)
+        .expect()
+        .statusCode(302)
+        .header("Location", "/apps/central/")
+        .when()
+        .get("/")
+        .getHeader("Location");
   }
 
   @Test
@@ -1196,11 +1265,10 @@ public class WebApiSmokeTests {
     // script should be deleted
     assertTrue(
         db.getSchema(SYSTEM_SCHEMA)
-                .getTable("Scripts")
-                .where(f("name", EQUALS, "test"))
-                .retrieveRows()
-                .size()
-            == 0,
+            .getTable("Scripts")
+            .where(f("name", EQUALS, "test"))
+            .retrieveRows()
+            .isEmpty(),
         "script should be deleted");
 
     // check if the jobs that ran were okay
@@ -1217,6 +1285,100 @@ public class WebApiSmokeTests {
             .getBody()
             .asString();
     assertTrue(result.contains("[]"), "script should be unscheduled");
+  }
+
+  @Test
+  public void testExecuteSubtaskInScriptTask()
+      throws JsonProcessingException, InterruptedException {
+    String parentJobName = "parentJobTest";
+    Table jobs = db.getSchema(SYSTEM_SCHEMA).getTable("Scripts");
+    jobs.delete(row("name", parentJobName));
+    db.dropSchemaIfExists("ScriptWithFileUpload");
+    String script =
+        """
+import asyncio
+import logging
+import os
+from molgenis_emx2_pyclient import Client
+
+async def main():
+    logging.basicConfig(level='INFO')
+    logging.getLogger("requests").setLevel(logging.WARNING)
+    logging.getLogger("urllib3").setLevel(logging.WARNING)
+
+    async with Client('http://localhost:8081', token=os.environ['MOLGENIS_TOKEN'], job="${jobId}") as client:
+        await client.create_schema(name="ScriptWithFileUpload", description="TestFileUploadScript",
+                    template="PET_STORE", include_demo_data=False)
+
+if __name__ == '__main__':
+    asyncio.run(main())
+
+""";
+    jobs.insert(
+        row(
+            "name",
+            parentJobName,
+            "type",
+            "python",
+            "script",
+            script,
+            "dependencies",
+            "--extra-index-url https://test.pypi.org/simple/\n"
+                + "molgenis-emx2-pyclient>=11.22.0"));
+    String result =
+        given()
+            .sessionId(SESSION_ID)
+            .when()
+            .post("/api/scripts/" + parentJobName)
+            .getBody()
+            .asString();
+
+    String url = new ObjectMapper().readTree(result).at("/url").textValue();
+    assertTrue(testJobSuccess(url));
+
+    String failingJobName = "failingJobTest";
+    jobs.delete(row("name", failingJobName));
+    db.dropSchemaIfExists("ScriptWithFileUpload");
+    String scriptFail = script.replace("PET_STORE", "PET_STORES");
+    jobs.insert(
+        row(
+            "name",
+            failingJobName,
+            "type",
+            "python",
+            "script",
+            scriptFail,
+            "dependencies",
+            "--extra-index-url https://test.pypi.org/simple/\n"
+                + "molgenis-emx2-pyclient>=11.22.0"));
+
+    result =
+        given()
+            .sessionId(SESSION_ID)
+            .when()
+            .post("/api/scripts/" + failingJobName)
+            .getBody()
+            .asString();
+
+    url = new ObjectMapper().readTree(result).at("/url").textValue();
+    assertFalse(testJobSuccess(url));
+  }
+
+  private static boolean testJobSuccess(String url)
+      throws InterruptedException, JsonProcessingException {
+    String result = given().sessionId(SESSION_ID).get(url).asString();
+
+    String status = "WAITING";
+    int count = 0;
+    while (!result.contains("ERROR") && !"COMPLETED".equals(status) && !"ERROR".equals(status)) {
+      if (count++ > 30) {
+        throw new MolgenisException("failed: polling took too long, result is: " + result);
+      }
+      Thread.sleep(1000);
+      result = given().sessionId(SESSION_ID).get(url).asString();
+      status = new ObjectMapper().readTree(result).at("/status").textValue();
+    }
+    return !status.equals("ERROR");
   }
 
   private static String getToken(String email, String password) throws JsonProcessingException {
@@ -1279,6 +1441,12 @@ public class WebApiSmokeTests {
     result = given().get("/api/beacon/map").getBody().asString();
     assertTrue(result.contains("endpointSets"));
 
+    result = given().get("/pet store/api/beacon/info").getBody().asString();
+    assertTrue(result.contains("beaconInfoResponse"));
+
+    result = given().get("/api/beacon/filtering_terms").getBody().asString();
+    assertTrue(result.contains("filteringTerms"));
+
     result = given().get("/api/beacon/entry_types").getBody().asString();
     assertTrue(result.contains("entry"));
 
@@ -1298,6 +1466,25 @@ public class WebApiSmokeTests {
     assertTrue(result.contains("datasets"));
 
     result = given().get("/api/beacon/individuals").getBody().asString();
+    assertTrue(result.contains("datasets"));
+
+    result =
+        given()
+            .body(
+                """
+          {
+            "query": {
+            "filters": [
+              {
+              "id": "NCIT:C28421",
+              "value": "GSSO_000123",
+              "operator": "="
+              }
+            ]
+            }
+          }""")
+            .post("/api/beacon/individuals")
+            .asString();
     assertTrue(result.contains("datasets"));
 
     result = given().get("/api/beacon/runs").getBody().asString();

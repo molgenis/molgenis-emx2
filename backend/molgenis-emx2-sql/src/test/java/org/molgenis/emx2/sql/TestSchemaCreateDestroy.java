@@ -16,7 +16,7 @@ import org.molgenis.emx2.SchemaInfo;
 
 public class TestSchemaCreateDestroy {
   private static Database db;
-  private static final String name = TestSchemaCreateDestroy.class.getName() + "Desc";
+  private static final String name = TestSchemaCreateDestroy.class.getSimpleName() + "Desc";
 
   @BeforeAll
   public static void setUp() {

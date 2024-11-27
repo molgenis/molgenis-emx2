@@ -6,7 +6,6 @@ import datasetQuery from "~~/gql/datasets";
 import ontologyFragment from "~~/gql/fragments/ontology";
 import fileFragment from "~~/gql/fragments/file";
 import type {
-  IResource,
   IDefinitionListItem,
   IMgError,
   IOntologyItem,
@@ -14,6 +13,7 @@ import type {
   DefinitionListItemType,
 } from "~/interfaces/types";
 import dateUtils from "~/utils/dateUtils";
+import type { IResources } from "~/interfaces/catalogue";
 const config = useRuntimeConfig();
 const route = useRoute();
 
@@ -54,9 +54,9 @@ const query = gql`
       populationAgeGroups {
         name order code parent { code }
       }
-      dateEstablished
-      startDataCollection
-      endDataCollection
+      dateLastRefresh
+      startYear
+      endYear
       license
       countries {
         name order
@@ -85,12 +85,13 @@ const query = gql`
       populationOncologyMorphology ${moduleToString(ontologyFragment)}
       inclusionCriteria ${moduleToString(ontologyFragment)}
       otherInclusionCriteria
+      exclusionCriteria ${moduleToString(ontologyFragment)}
+      otherExclusionCriteria
       publications(orderby: {title:ASC}) {
         doi
         title
         isDesignPublication
       }
-      publications_agg{count}
       collectionEvents {
         name
         description
@@ -105,9 +106,6 @@ const query = gql`
           name
         }
         coreVariables
-      }
-      collectionEvents_agg {
-         count
       }
       peopleInvolved {
         roleDescription
@@ -124,7 +122,7 @@ const query = gql`
         }
         role ${moduleToString(ontologyFragment)}
       }
-      organisationsInvolved  {
+      organisationsInvolved(orderby: {name: ASC})  {
         id
         name
         website
@@ -136,9 +134,6 @@ const query = gql`
       subpopulations {
           name
           mainMedicalCondition ${moduleToString(ontologyFragment)}
-      }
-      subpopulations_agg {
-            count
       }
       dataAccessConditions ${moduleToString(ontologyFragment)}
       dataAccessConditionsDescription
@@ -159,26 +154,37 @@ const query = gql`
       datasets {
         name
       }
-      collectionEvents_agg{
-        count
-      }
-      publications_agg {
-        count
-      }
       partOfResources {
         name
         type {
             name
         }
         website
+        logo {
+          url
+        }
+      }
+      publications_agg {
+        count
+      }
+      subpopulations_agg {
+        count
+      }
+      collectionEvents_agg{
+        count
       }
     }
   }
 `;
 const variables = { id: route.params.resource };
+interface IResourceQueryResponseValue extends IResources {
+  publications_agg: { count: number };
+  subpopulations_agg: { count: number };
+  collectionEvents_agg: { count: number };
+}
 interface IResponse {
   data: {
-    Resources: IResource[];
+    Resources: IResourceQueryResponseValue[];
   };
 }
 const { data, error } = await useFetch<IResponse, IMgError>(
@@ -193,7 +199,9 @@ if (error.value) {
   logError(error.value, "Error fetching resource metadata");
 }
 
-const resource = computed(() => data.value?.data?.Resources[0] as IResource);
+const resource = computed(
+  () => data.value?.data?.Resources[0] as IResourceQueryResponseValue
+);
 const subpopulations = computed(() => resource.value.subpopulations as any[]);
 const mainMedicalConditions = computed(() => {
   if (!subpopulations.value || !subpopulations.value.length) {
@@ -282,7 +290,7 @@ const tocItems = computed(() => {
       id: "Organisations",
     });
   }
-  if (contributors.value) {
+  if (peopleInvolvedSortedByRoleAndName.value.length > 0) {
     tableOffContents.push({
       label: "Contributors",
       id: "Contributors",
@@ -350,7 +358,7 @@ const population: IDefinitionListItem[] = [
     label: "Countries",
     content: resource.value?.countries
       ? [...resource.value?.countries]
-          .sort((a, b) => b.order - a.order)
+          .sort((a, b) => (b.order ?? 0) - (a.order ?? 0))
           .map((country) => country.name)
           .join(", ")
       : undefined,
@@ -358,7 +366,7 @@ const population: IDefinitionListItem[] = [
   {
     label: "Regions",
     content: resource.value?.regions
-      ?.sort((a, b) => b.order - a.order)
+      ?.sort((a, b) => (b.order ?? 0) - (a.order ?? 0))
       .map((r) => r.name)
       .join(", "),
   },
@@ -398,6 +406,15 @@ const population: IDefinitionListItem[] = [
     label: "Other inclusion criteria",
     content: resource.value.otherInclusionCriteria,
   },
+  {
+    label: "Exclusion criteria",
+    type: "ONTOLOGY",
+    content: resource.value.exclusionCriteria,
+  },
+  {
+    label: "Other exclusion criteria",
+    content: resource.value.otherExclusionCriteria,
+  },
 ];
 
 if (mainMedicalConditions.value && mainMedicalConditions.value.length > 0) {
@@ -413,7 +430,8 @@ let accessConditionsItems = computed(() => {
   if (resource.value.dataAccessConditions?.length) {
     items.push({
       label: "Data access conditions",
-      content: resource.value.dataAccessConditions.map((c) => c.name),
+      type: "ONTOLOGY" as DefinitionListItemType,
+      content: resource.value.dataAccessConditions,
     });
   }
   if (resource.value.dataUseConditions) {
@@ -423,13 +441,13 @@ let accessConditionsItems = computed(() => {
       content: resource.value.dataUseConditions,
     });
   }
-  if (resource.value.dataAccessFee) {
+  if (resource.value.dataAccessFee !== undefined) {
     items.push({
       label: "Data access fee",
       content: resource.value.dataAccessFee,
     });
   }
-  if (resource.value.releaseType) {
+  if (resource.value.releaseType !== undefined) {
     items.push({
       label: "Release type",
       type: "ONTOLOGY" as DefinitionListItemType,
@@ -442,7 +460,7 @@ let accessConditionsItems = computed(() => {
       content: resource.value.releaseDescription,
     });
   }
-  if (resource.value.prelinked) {
+  if (resource.value.prelinked !== undefined) {
     items.push({
       label: "Prelinked",
       content: resource.value.prelinked,
@@ -490,16 +508,36 @@ if (route.params.catalogue) {
   crumbs[
     cohortOnly.value ? "home" : (route.params.catalogue as string)
   ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}`;
-  crumbs[
-    route.params.resourceType as string
-  ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/${route.params.resourceType}`;
+  if (route.params.resourceType !== "about")
+    crumbs[
+      route.params.resourceType as string
+    ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/${route.params.resourceType}`;
 } else {
   crumbs["Home"] = `/${route.params.schema}/ssr-catalogue/`;
   crumbs["Browse"] = `/${route.params.schema}/ssr-catalogue/all`;
-  crumbs["Resources"] = `/${route.params.schema}/ssr-catalogue/all/resource`;
+  if (route.params.resourceType !== "about")
+    crumbs[
+      route.params.resourceType as string
+    ] = `/${route.params.schema}/ssr-catalogue/all/${route.params.resourceType}`;
 }
 
-const contributors = computed(() => resource.value.peopleInvolved);
+const peopleInvolvedSortedByRoleAndName = computed(() =>
+  [...(resource.value.peopleInvolved ?? [])].sort((a, b) => {
+    const minimumOrderOfRolesA = a.role?.length
+      ? Math.min(...a.role?.map((role) => role.order ?? Infinity))
+      : Infinity;
+    const minimumOrderOfRolesB = b.role?.length
+      ? Math.min(...b.role?.map((role) => role.order ?? Infinity))
+      : Infinity;
+    if (minimumOrderOfRolesA !== minimumOrderOfRolesB) {
+      return minimumOrderOfRolesA - minimumOrderOfRolesB;
+    } else if (a.lastName !== b.lastName) {
+      return a.lastName.localeCompare(b.lastName);
+    } else {
+      return a.firstName.localeCompare(b.firstName);
+    }
+  })
+);
 const organisations = computed(() => resource.value.organisationsInvolved);
 const showPopulation = computed(
   () =>
@@ -513,8 +551,15 @@ const showPopulation = computed(
     <template #header>
       <PageHeader
         id="resource-page-header"
-        :title="resource?.acronym || resource.name"
-        :description="resource?.acronym ? resource.name : ''"
+        :title="
+          route.params.resourceType === 'about'
+            ? 'About '
+            : resource?.acronym || resource.name
+        "
+        :description="
+          (route.params.resourceType === 'about' ? 'About ' : '') +
+          (resource?.name ? resource.name : '')
+        "
       >
         <template #prefix>
           <BreadCrumbs :crumbs="crumbs" />
@@ -552,7 +597,7 @@ const showPopulation = computed(
         <ContentCohortGeneralDesign
           id="GeneralDesign"
           title="General Design"
-          :resource="resource"
+          :resource="resource as IResources"
         />
 
         <ContentBlock v-if="showPopulation" id="population" title="Population">
@@ -567,18 +612,12 @@ const showPopulation = computed(
         ></ContentBlockOrganisations>
 
         <ContentBlockContact
-          v-if="contributors"
+          v-if="peopleInvolvedSortedByRoleAndName.length > 0"
           id="Contributors"
           title="Contributors"
-          :contributors="contributors"
+          :contributors="peopleInvolvedSortedByRoleAndName"
         >
         </ContentBlockContact>
-
-        <ContentBlockVariables
-          id="Variables"
-          title="Variables &amp; Topics"
-          description="Explantation about variables and the functionality seen here."
-        />
 
         <ContentBlockData
           id="AvailableData"
@@ -651,6 +690,7 @@ const showPopulation = computed(
         </TableContent>
 
         <ContentBlock
+          v-if="networks.length"
           title="Networks"
           id="Networks"
           description="Part of networks"

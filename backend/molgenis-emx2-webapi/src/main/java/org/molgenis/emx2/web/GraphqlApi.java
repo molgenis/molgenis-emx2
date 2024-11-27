@@ -3,8 +3,6 @@ package org.molgenis.emx2.web;
 import static org.molgenis.emx2.web.Constants.ACCEPT_JSON;
 import static org.molgenis.emx2.web.Constants.CONTENT_TYPE;
 import static org.molgenis.emx2.web.MolgenisWebservice.*;
-import static spark.Spark.get;
-import static spark.Spark.post;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -12,21 +10,22 @@ import graphql.ExecutionInput;
 import graphql.ExecutionResult;
 import graphql.GraphQL;
 import graphql.GraphQLError;
+import io.javalin.Javalin;
+import io.javalin.http.Context;
+import io.javalin.http.HandlerType;
+import jakarta.servlet.MultipartConfigElement;
+import jakarta.servlet.http.Part;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import javax.servlet.MultipartConfigElement;
-import javax.servlet.http.Part;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.graphql.GraphqlApiFactory;
 import org.molgenis.emx2.graphql.GraphqlException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import spark.Request;
-import spark.Response;
 
 /**
  * Benchmarks show the api part adds about 10-30ms overhead on top of the underlying database call
@@ -41,54 +40,65 @@ public class GraphqlApi {
     // hide constructor
   }
 
-  public static void createGraphQLservice(MolgenisSessionManager sm) {
+  public static void createGraphQLservice(Javalin app, MolgenisSessionManager sm) {
     sessionManager = sm;
 
     // per schema graphql calls from app
-    final String appGqlPath = "apps/:app/:schema/graphql"; // NOSONAR
-    get(appGqlPath, GraphqlApi::handleSchemaRequests);
-    post(appGqlPath, GraphqlApi::handleSchemaRequests);
+    final String appSchemaGqlPath = "apps/{app}/{schema}/graphql"; // NOSONAR
+    app.get(appSchemaGqlPath, GraphqlApi::handleSchemaRequests);
+    app.post(appSchemaGqlPath, GraphqlApi::handleSchemaRequests);
+
+    // per schema graphql calls from app
+    final String appGqlPath = "apps/{app}/graphql"; // NOSONAR
+    app.get(appGqlPath, GraphqlApi::handleDatabaseRequests);
+    app.post(appGqlPath, GraphqlApi::handleDatabaseRequests);
 
     // per database graphql
     final String databasePath = "/api/graphql";
-    get(databasePath, GraphqlApi::handleDatabaseRequests);
-    post(databasePath, GraphqlApi::handleDatabaseRequests);
+    app.get(databasePath, GraphqlApi::handleDatabaseRequests);
+    app.post(databasePath, GraphqlApi::handleDatabaseRequests);
 
     // per schema graphql
-    final String schemaPath = "/:schema/graphql"; // NOSONAR
-    get(schemaPath, GraphqlApi::handleSchemaRequests);
-    post(schemaPath, GraphqlApi::handleSchemaRequests);
+    final String schemaPath = "/{schema}/graphql"; // NOSONAR
+    app.get(schemaPath, GraphqlApi::handleSchemaRequests);
+    app.post(schemaPath, GraphqlApi::handleSchemaRequests);
+
+    // per schema graphql
+    final String schemaAppPath = "/{schema}/{app}/graphql"; // NOSONAR
+    app.get(schemaAppPath, GraphqlApi::handleSchemaRequests);
+    app.post(schemaAppPath, GraphqlApi::handleSchemaRequests);
   }
 
-  private static String handleDatabaseRequests(Request request, Response response)
-      throws IOException {
-    MolgenisSession session = sessionManager.getSession(request);
-    response.header(CONTENT_TYPE, ACCEPT_JSON);
-    return executeQuery(session.getGraphqlForDatabase(), request);
+  private static void handleDatabaseRequests(Context ctx) throws IOException {
+    MolgenisSession session = sessionManager.getSession(ctx.req());
+    ctx.header(CONTENT_TYPE, ACCEPT_JSON);
+    String result = executeQuery(session.getGraphqlForDatabase(), ctx);
+    ctx.json(result);
   }
 
-  public static String handleSchemaRequests(Request request, Response response) throws IOException {
-    MolgenisSession session = sessionManager.getSession(request);
-    String schemaName = sanitize(request.params(SCHEMA));
+  public static void handleSchemaRequests(Context ctx) throws IOException {
+    MolgenisSession session = sessionManager.getSession(ctx.req());
+    String schemaName = sanitize(ctx.pathParam(SCHEMA));
 
     // apps and api is not a schema but a resource
     if ("apps".equals(schemaName) || "api".equals(schemaName)) {
-      return handleDatabaseRequests(request, response);
+      handleDatabaseRequests(ctx);
+      return;
     }
 
     // todo, really check permissions
-    if (getSchema(request) == null) {
+    if (getSchema(ctx) == null) {
       throw new GraphqlException(
           "Schema '" + schemaName + "' unknown. Might you need to sign in or ask permission?");
     }
     GraphQL graphqlForSchema = session.getGraphqlForSchema(schemaName);
-    response.header(CONTENT_TYPE, ACCEPT_JSON);
-    return executeQuery(graphqlForSchema, request);
+    ctx.header(CONTENT_TYPE, ACCEPT_JSON);
+    ctx.json(executeQuery(graphqlForSchema, ctx));
   }
 
-  private static String executeQuery(GraphQL g, Request request) throws IOException {
-    String query = getQueryFromRequest(request);
-    Map<String, Object> variables = getVariablesFromRequest(request);
+  private static String executeQuery(GraphQL g, Context ctx) throws IOException {
+    String query = getQueryFromRequest(ctx);
+    Map<String, Object> variables = getVariablesFromRequest(ctx);
 
     long start = System.currentTimeMillis();
 
@@ -126,51 +136,47 @@ public class GraphqlApi {
     return result;
   }
 
-  private static String getQueryFromRequest(Request request) throws IOException {
-    String query = null;
-    if ("POST".equals(request.requestMethod())) {
-      if (request.headers("Content-Type").startsWith("multipart/form-data")) {
+  private static String getQueryFromRequest(Context ctx) throws IOException {
+    String query;
+    if (HandlerType.POST.equals(ctx.method())) {
+      if (ctx.header("Content-Type").startsWith("multipart/form-data")) {
         File tempFile = File.createTempFile(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT, ".tmp");
         tempFile.deleteOnExit();
-        request.attribute(
+        ctx.attribute(
             "org.eclipse.jetty.multipartConfig",
             new MultipartConfigElement(tempFile.getAbsolutePath()));
-        query = request.queryParams(QUERY);
+        query = ctx.formParam(QUERY);
       } else {
-        ObjectNode node = new ObjectMapper().readValue(request.body(), ObjectNode.class);
+        ObjectNode node = new ObjectMapper().readValue(ctx.body(), ObjectNode.class);
         query = node.get(QUERY).asText();
       }
     } else {
-      query =
-          request.queryParamOrDefault(
-              QUERY,
-              "{\n"
-                  + "  __schema {\n"
-                  + "    types {\n"
-                  + "      name\n"
-                  + "    }\n"
-                  + "  }\n"
-                  + "}");
+      if (ctx.queryParam(QUERY) != null) {
+        query = ctx.queryParam(QUERY);
+      } else {
+        query =
+            "{\n" + "  __schema {\n" + "    types {\n" + "      name\n" + "    }\n" + "  }\n" + "}";
+      }
     }
     return query;
   }
 
-  private static Map<String, Object> getVariablesFromRequest(Request request) {
-    if ("POST".equals(request.requestMethod())) {
+  private static Map<String, Object> getVariablesFromRequest(Context ctx) {
+    if (HandlerType.POST.equals(ctx.method())) {
       try {
-        if (request.headers("Content-Type").startsWith("multipart/form-data")) {
-          Map<String, Object> variables =
-              new ObjectMapper().readValue(request.queryParams(VARIABLES), Map.class);
+        if (ctx.header("Content-Type").startsWith("multipart/form-data")) {
+          String variableString = ctx.formParam(VARIABLES);
+          Map<String, Object> variables = new ObjectMapper().readValue(variableString, Map.class);
           // now replace each part id with the part
           putPartsIntoMap(
               variables,
-              request.raw().getParts().stream()
+              ctx.req().getParts().stream()
                   .filter(p -> !p.getName().equals(VARIABLES) && !p.getName().equals(QUERY))
                   .collect(Collectors.toList()));
           //
           return variables;
         } else {
-          Map<String, Object> node = new ObjectMapper().readValue(request.body(), Map.class);
+          Map<String, Object> node = new ObjectMapper().readValue(ctx.body(), Map.class);
           return (Map<String, Object>) node.get(VARIABLES);
         }
       } catch (Exception e) {

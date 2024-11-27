@@ -96,6 +96,10 @@
     --backgroud-color-tab-active: var(--color-blue-500);
     --background-color-disabled: var(--color-gray-200);
     --background-color-invalid: var(--color-red-200);
+    --background-color-input: var(--color-white);
+    --background-color-input-checked: var(--color-yellow-500);
+    --background-color-table: var(--color-white);
+
 
     --text-color-button-primary: var(--color-gray-900);
     --text-color-button-primary-hover: var(--color-gray-900);
@@ -138,9 +142,11 @@
     --text-color-tooltip-hover-dark: var(--color-blue-500);
     --text-color-tooltip-hover-light: var(--color-white);
     --text-color-pagination: var(--color-white);
+    --text-color-pagination-inverted: var(--color-gray-400);
     --text-color-pagination-input: var(--color-blue-800);
     --text-color-pagination-hover: var(--color-white);
     --text-color-footer-link: var(--color-yellow-500);
+    --text-color-table-column-header: var(--color-gray-600);
     
     --text-color-invalid: var(--color-red-500);
     --text-color-valid: var(--color-green-800);
@@ -164,6 +170,8 @@
     --border-color-search-input: var(--color-white);
     --border-color-search-input-mobile: var(--color-gray-100);
     --border-color-pagination: var(--color-transparent);
+    --border-color-input: var(--color-transparent);
+    --border-color-input-inverted: var(--color-gray-600);
 
     --border-radius-3px: 3px;
     --border-radius-50px: 50px;
@@ -201,8 +209,8 @@
     --backgroud-color-button-primary-hover: var(--white);
     --backgroud-color-button-secondary: var(--color-orange-500);
     --backgroud-color-button-secondary-hover: var(--color-orange-200);
-    --backgroud-color-button-tertiary: var(--color-umcg-dark-blue);
-    --backgroud-color-button-tertiary-hover: var(--color-umcg-dark-blue);
+    --backgroud-color-button-tertiary: var(--color-umcg-light-blue);
+    --backgroud-color-button-tertiary-hover: var(--color-umcg-light-blue);
     --backgroud-color-button-outline: var(--color-white);
     --backgroud-color-button-outline-hover: var(--color-white);
     --backgroud-color-button-disabled: var(--color-gray-100);
@@ -313,31 +321,6 @@
     --text-color-button-primary-hover: var(--color-black);
     --backgroud-color-button-primary: var(--color-orange-500);
     --backgroud-color-button-primary-hover: var(--color-orange-200);
-  }
-
-  [type="checkbox"]:checked {
-    background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='%23262626' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3e%3c/svg%3e");
-  }
-
-  [type="radio"]:checked {
-    background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='%23262626' xmlns='http://www.w3.org/2000/svg'%3e%3ccircle cx='8' cy='8' r='3'/%3e%3c/svg%3e");
-  }
-
-  [type="checkbox"],
-  [type="radio"] {
-    @apply focus:ring-0 focus:ring-offset-0;
-  }
-
-  [type="checkbox"],
-  [type="checkbox"]:checked,
-  [type="checkbox"]:checked:hover,
-  [type="checkbox"]:checked:focus,
-  [type="checkbox"]:indeterminate:hover,
-  [type="radio"],
-  [type="radio"]:checked,
-  [type="radio"]:checked:hover,
-  [type="radio"]:checked:focus {
-    @apply border-white;
   }
 
   .v-popper--theme-tooltip {
