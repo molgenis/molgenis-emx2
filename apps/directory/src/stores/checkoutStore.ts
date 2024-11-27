@@ -388,7 +388,7 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
     });
 
     if (response.ok) {
-      removeAllCollectionsFromSelection(false);
+      removeAllFromSelection(false);
     } else {
       throw new Error("Negotiator is not available. Please try again later.");
     }
