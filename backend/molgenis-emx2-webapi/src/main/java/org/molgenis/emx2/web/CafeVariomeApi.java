@@ -51,15 +51,16 @@ public class CafeVariomeApi {
 
     for (FilteringTerm filteringTerm : filteringTermsSet) {
       if (filteringTerm.getType().equals("ontology")) {
-        attributes.put(filteringTerm.getColumn(), filteringTerm.getColumn());
+        String filteringTermName = filteringTerm.getColumn().getName();
+        attributes.put(filteringTermName, filteringTermName);
         values.put(filteringTerm.getId(), filteringTerm.getLabel());
-        if (mappings.containsKey(filteringTerm.getColumn())) {
-          List<String> terms = mappings.get(filteringTerm.getColumn());
-          terms.add(filteringTerm.getLabel());
+        if (mappings.containsKey(filteringTermName)) {
+          List<String> terms = mappings.get(filteringTermName);
+          terms.add(filteringTerm.getId());
         } else {
           List<String> terms = new ArrayList<>();
-          terms.add(filteringTerm.getLabel());
-          mappings.put(filteringTerm.getColumn(), terms);
+          terms.add(filteringTerm.getId());
+          mappings.put(filteringTermName, terms);
         }
       } else if (filteringTerm.getType().equals("alphanumeric")) {
         attributes.put(filteringTerm.getId(), filteringTerm.getId());

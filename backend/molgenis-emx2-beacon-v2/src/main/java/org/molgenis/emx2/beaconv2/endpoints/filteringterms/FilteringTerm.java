@@ -2,6 +2,7 @@ package org.molgenis.emx2.beaconv2.endpoints.filteringterms;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import java.util.Objects;
+import org.molgenis.emx2.Column;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class FilteringTerm {
@@ -10,9 +11,9 @@ public class FilteringTerm {
   private String id;
   private String label;
   private String scope;
-  private String column;
+  private Column column;
 
-  public FilteringTerm(String column, String type, String id, String label, String scope) {
+  public FilteringTerm(Column column, String type, String id, String label, String scope) {
     this.column = column;
     this.type = type;
     this.id = id;
@@ -58,11 +59,11 @@ public class FilteringTerm {
     this.scope = scope;
   }
 
-  public String getColumn() {
+  public Column getColumn() {
     return column;
   }
 
-  public void setColumn(String column) {
+  public void setColumn(Column column) {
     this.column = column;
   }
 
