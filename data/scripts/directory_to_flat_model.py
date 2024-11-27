@@ -97,6 +97,7 @@ def map_collections_to_samples(collections):
     # Rename and create columns
     collections.rename(columns={"type": "design",
                                 "biobank": "resource",
+                                "data_categories": "dataset type",
                                 }, inplace=True)
     collections["parent sample collection.name"] = ""
     collections["parent sample collection.resource"] = ""
@@ -141,7 +142,28 @@ def map_collections_to_samples(collections):
         "LONGITUDINAL": "Longitudinal cohort",
     }
     collections["design"] = collections["design"].map(
-        lambda l: ",".join(set([design_mapping[t] for t in l.split(",")]))
+        lambda l: ",".join({design_mapping[t] for t in l.split(",")})
+    )
+    # Map DataCategories (partly MIABIS v2) to Dataset types (MIABIS v3)
+    data_category_mapping = {
+        "ANTIBODIES": "Other",
+        "BIOLOGICAL_SAMPLES": "Other",
+        "BLOOD": "Other",
+        "CLINICAL_SYMPTOMS": "Other",
+        "CT": "Other",
+        "DiseaseDuration": "Other",
+        "GENEALOGICAL_RECORDS": "Other",
+        "IMAGING_DATA": "Other",
+        "MEDICAL_RECORDS": "Other",
+        "NATIONAL_REGISTRIES": "Other",
+        "NAV": "Other",
+        "OTHER": "Other",
+        "PHYSIOLOGICAL_BIOCHEMICAL_MEASUREMENTS": "Other",
+        "SURVEY_DATA": "Other",
+        "TREATMENT_PROTOCOL": "Other",
+    }
+    collections["dataset type"] = collections["dataset type"].map(
+        lambda l: ",".join({data_category_mapping[t] for t in l.split(",")})
     )
     return collections
 
@@ -253,6 +275,7 @@ def main():
                     "parent sample collection.name",
                     "parent sample collection.resource",
                     "design",
+                    "dataset type",
                 ]
             )
             # Map Networks to Resources
