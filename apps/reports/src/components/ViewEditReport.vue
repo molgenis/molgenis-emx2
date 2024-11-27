@@ -1,5 +1,4 @@
 <template>
-  index={{ index }} id={{ id }}
   <Spinner v-if="!session" />
   <MessageWarning
     v-else-if="
@@ -228,7 +227,7 @@ export default {
     },
     async reload() {
       const reports = await this.client.fetchSettingValue("reports");
-      if (reports[this.id]) {
+      if (reports[this.index]) {
         this.id = reports[this.index].id;
         this.sql = reports[this.index].sql;
         this.name = reports[this.index].name;

@@ -42,7 +42,6 @@
           <IconAction v-if="canEdit" icon="plus" @click="add" />
         </template>
         <template v-slot:rowheader="slotProps">
-          {{ slotProps.row }}
           <IconAction
             v-if="canEdit"
             icon="pencil-alt"
@@ -133,7 +132,7 @@ export default {
       this.reload();
     },
     open(row) {
-      this.$router.push({ name: "edit", params: { id: row.id } });
+      this.$router.push({ name: "edit", params: { index: row.index } });
     },
     downloadSelected() {
       window.open(

@@ -198,12 +198,11 @@ public class ZipApi {
         throw new MolgenisException("Cannot find report id=" + reportId);
       }
       String sql = reportObject.get("sql");
-      String name = reportObject.get("name");
       List<Row> rows = schema.retrieveSql(sql, parameters);
       if (rows.size() > 0) {
-        store.writeTable(name, new ArrayList<>(rows.get(0).getColumnNames()), rows);
+        store.writeTable(reportId, new ArrayList<>(rows.get(0).getColumnNames()), rows);
       } else {
-        store.writeTable(name, new ArrayList<>(), rows);
+        store.writeTable(reportId, new ArrayList<>(), rows);
       }
     }
   }

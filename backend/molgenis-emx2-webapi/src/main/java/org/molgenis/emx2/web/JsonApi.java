@@ -37,9 +37,16 @@ public class JsonApi {
     Map<String, Object> jsonResponse = new HashMap<>();
 
     for (String reportId : reports.split(",")) {
-      Map<String, Object> reportObject = reportList.get(Integer.parseInt(reportId.trim()));
+
+      Map<String, Object> reportObject =
+          reportList.stream()
+              .filter(r -> reportId.equals(r.get("id")))
+              .findFirst()
+              .orElseGet(() -> null);
+      if (reportObject == null) {
+        reportObject = reportList.get(Integer.parseInt(reportId.trim()));
+      }
       String sql = (String) reportObject.get("sql");
-      String name = (String) reportObject.get("name");
       List<Row> rows = schema.retrieveSql(sql, parameters);
       List<Object> result = new ArrayList<>();
       for (Row row : rows) {
@@ -51,7 +58,7 @@ public class JsonApi {
         } else {
           result.add(row.getValueMap());
         }
-        jsonResponse.put(name, result);
+        jsonResponse.put(reportId, result);
       }
     }
     if (jsonResponse.size() == 1) {
