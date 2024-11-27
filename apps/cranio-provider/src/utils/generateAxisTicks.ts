@@ -1,4 +1,4 @@
-import type { IAxisTickData } from "../interfaces/index";
+import type { IAxisTickData } from "../types/index";
 
 /**
  * @name generateAxisTicks
