@@ -145,23 +145,22 @@ def map_collections_to_samples(collections):
         lambda l: ",".join({design_mapping[t] for t in l.split(",")})
     )
     # Map DataCategories (partly MIABIS v2) to Dataset types (MIABIS v3)
-    # TODO: add actual mapping
     data_category_mapping = {
         "ANTIBODIES": "Other",
         "BIOLOGICAL_SAMPLES": "Other",
-        "BLOOD": "Other",
-        "CLINICAL_SYMPTOMS": "Other",
-        "CT": "Other",
-        "DiseaseDuration": "Other",
-        "GENEALOGICAL_RECORDS": "Other",
-        "IMAGING_DATA": "Other",
-        "MEDICAL_RECORDS": "Other",
-        "NATIONAL_REGISTRIES": "Other",
-        "NAV": "Other",
+        "BLOOD": "Physiological dataset",
+        "CLINICAL_SYMPTOMS": "Clinical dataset",
+        "CT": "Body (Radiological) image",
+        "DiseaseDuration": "Clinical dataset",
+        "GENEALOGICAL_RECORDS": "Genealogical records",
+        "IMAGING_DATA": "Body (Radiological) image",
+        "MEDICAL_RECORDS": "Clinical dataset",
+        "NATIONAL_REGISTRIES": "Clinical dataset",
+        "NAV": "",
         "OTHER": "Other",
-        "PHYSIOLOGICAL_BIOCHEMICAL_MEASUREMENTS": "Other",
+        "PHYSIOLOGICAL_BIOCHEMICAL_MEASUREMENTS": "Physiological dataset,Biochemical dataset",
         "SURVEY_DATA": "Other",
-        "TREATMENT_PROTOCOL": "Other",
+        "TREATMENT_PROTOCOL": "Clinical dataset",
     }
     collections["dataset type"] = collections["dataset type"].map(
         lambda l: ",".join({data_category_mapping[t] for t in l.split(",")})
