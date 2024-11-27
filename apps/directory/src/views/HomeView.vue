@@ -12,7 +12,11 @@ const filtersStore = useFiltersStore();
 onMounted(() => {
   /** mutated cart on another page */
   if (!checkoutStore.checkoutValid) {
-    createBookmark(filtersStore.filters, checkoutStore.selectedCollections);
+    createBookmark(
+      filtersStore.filters,
+      checkoutStore.selectedCollections,
+      checkoutStore.selectedServices
+    );
     checkoutStore.checkoutValid = true;
   }
 });

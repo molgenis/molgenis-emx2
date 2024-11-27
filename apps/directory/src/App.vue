@@ -44,7 +44,11 @@ watch(
       newQuery &&
       Object.keys(newQuery).length === 0
     ) {
-      createBookmark(filtersStore.filters, checkoutStore.selectedCollections);
+      createBookmark(
+        filtersStore.filters,
+        checkoutStore.selectedCollections,
+        checkoutStore.selectedServices
+      );
       applyBookmark(newQuery);
     }
 

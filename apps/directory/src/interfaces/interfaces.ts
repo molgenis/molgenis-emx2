@@ -9,3 +9,8 @@ export interface IOntologyItem {
 export interface IBiobankIdentifier {
   name: string;
 }
+
+export interface IFilterOption {
+  text: string;
+  value: string;
+}

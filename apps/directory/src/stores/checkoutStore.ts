@@ -134,7 +134,11 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
       if (bookmark) {
         checkoutValid.value = true;
         // todo need to add service stuff to the bookmark
-        createBookmark(filtersStore.filters, selectedServices.value);
+        createBookmark(
+          filtersStore.filters,
+          selectedCollections.value,
+          selectedServices.value
+        );
       } else {
         /** we should not refresh on a cart update, so track this */
         cartUpdated.value = true;
@@ -181,7 +185,11 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
 
     if (bookmark) {
       checkoutValid.value = true;
-      createBookmark(filtersStore.filters, selectedCollections.value);
+      createBookmark(
+        filtersStore.filters,
+        selectedCollections.value,
+        selectedServices.value
+      );
     } else {
       /** we should not refresh on a cart update, so track this */
       cartUpdated.value = true;
@@ -222,7 +230,11 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
 
     if (bookmark) {
       checkoutValid.value = true;
-      createBookmark(filtersStore.filters, selectedServices.value);
+      createBookmark(
+        filtersStore.filters,
+        selectedCollections.value,
+        selectedServices.value
+      );
     } else {
       /** we should not refresh on a cart update, so track this */
       cartUpdated.value = true;
@@ -263,7 +275,11 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
 
     if (bookmark) {
       checkoutValid.value = true;
-      createBookmark(filtersStore.filters, selectedCollections.value);
+      createBookmark(
+        filtersStore.filters,
+        selectedCollections.value,
+        selectedServices.value
+      );
     } else {
       /** we should not refresh on a cart update, so track this */
       cartUpdated.value = true;
@@ -278,7 +294,11 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
 
     if (bookmark) {
       checkoutValid.value = true;
-      createBookmark(filtersStore.filters, selectedCollections.value);
+      createBookmark(
+        filtersStore.filters,
+        selectedCollections.value,
+        selectedServices.value
+      );
     }
   }
 
