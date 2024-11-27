@@ -13,7 +13,6 @@
           label="Year of birth"
           description="Limit the results by year of birth"
         />
-        <!-- @change="onYearOfBirthFilter" -->
         <select
           class="inputs select"
           id="yearOfBirthFilter"
@@ -73,7 +72,10 @@
       </DashboardChart>
     </DashboardRow>
     <DashboardRow :columns="1">
-      <DashboardChart id="clp-cleft-q-completed" v-if="currentVisibleMeter === 'cleftq'">
+      <DashboardChart
+        id="clp-cleft-q-completed"
+        v-if="currentVisibleMeter === 'cleftq'"
+      >
         <ProgressMeter
           :chartId="cleftqCompletionChart?.chartId"
           :title="`% of patients that completed the CLEFT-Q (${selectedAgeGroup})`"
@@ -83,7 +85,7 @@
           barFill="#66c2a4"
         />
       </DashboardChart>
-      <DashboardChart id="clp-ics-completed" v-else>        
+      <DashboardChart id="clp-ics-completed" v-else>
         <ProgressMeter
           :chartId="icsCompletionChart?.chartId"
           :title="`% of patients that completed the ICS (${selectedAgeGroup})`"
@@ -136,12 +138,11 @@ const cleftqCompletionChart = ref<ICharts>();
 
 const currentVisibleMeter = computed<string>(() => {
   if (["3-4 years", "5-6 years"].includes(selectedAgeGroup.value as string)) {
-    return "ics"
+    return "ics";
   } else {
-    return "cleftq"
+    return "cleftq";
   }
 });
-
 
 async function getPageData() {
   const phenotypesResponse = await getDashboardChart(
@@ -184,10 +185,11 @@ function updatePhenotypesChart() {
     patientsByPhenotypeChart.value.yAxisMaxValue = chartTicks.limit;
     patientsByPhenotypeChart.value.yAxisTicks = chartTicks.ticks;
   }
-  
+
   totalNumberOfPatients.value = patientsByPhenotypeChartData.value!.reduce(
-    (sum: number, row: IChartData) => sum + row.dataPointValue!, 0
-  )
+    (sum: number, row: IChartData) => sum + row.dataPointValue!,
+    0
+  );
 }
 
 function updateGenderChart() {
@@ -204,7 +206,7 @@ function updateGenderChart() {
   );
 }
 
-function updateCharts () {
+function updateCharts() {
   updatePhenotypesChart();
   updateGenderChart();
 }
@@ -238,7 +240,7 @@ onBeforeMount(async () => {
     patientsByGenderChart.value?.dataPoints,
     "dataPointName"
   );
-  patientsByGenderPalette.value = generateColorPalette(genderCategories); 
+  patientsByGenderPalette.value = generateColorPalette(genderCategories);
 
   updateCharts();
 
