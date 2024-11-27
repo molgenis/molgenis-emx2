@@ -145,6 +145,7 @@ def map_collections_to_samples(collections):
         lambda l: ",".join({design_mapping[t] for t in l.split(",")})
     )
     # Map DataCategories (partly MIABIS v2) to Dataset types (MIABIS v3)
+    # TODO: add actual mapping
     data_category_mapping = {
         "ANTIBODIES": "Other",
         "BIOLOGICAL_SAMPLES": "Other",
