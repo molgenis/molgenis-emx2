@@ -3,7 +3,7 @@ name: INTEGRATECohorts
 
 description: Staging area for filling out INTEGRATE cohort metadata
 
-profileTags: INTEGRATECohorts
+profileTags: INTEGRATE
 
 demoData: _demodata/applications/datacatalogue_cohortstaging
 
