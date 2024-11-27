@@ -122,7 +122,11 @@ public class FilteringTermsResponse {
             code = code == null || code.isBlank() ? "NULL" : code;
             FilteringTerm filteringTerm =
                 new FilteringTerm(
-                    "ontology", codesystem + ":" + code, row.getString("name"), tableToQuery);
+                    column.getName(),
+                    "ontology",
+                    codesystem + ":" + code,
+                    row.getString("name"),
+                    tableToQuery);
             filteringTermsSet.add(filteringTerm);
           }
         } else {

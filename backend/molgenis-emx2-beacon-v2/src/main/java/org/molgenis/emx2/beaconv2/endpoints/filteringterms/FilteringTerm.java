@@ -10,8 +10,10 @@ public class FilteringTerm {
   private String id;
   private String label;
   private String scope;
+  private String column;
 
-  public FilteringTerm(String type, String id, String label, String scope) {
+  public FilteringTerm(String column, String type, String id, String label, String scope) {
+    this.column = column;
     this.type = type;
     this.id = id;
     this.label = label;
@@ -54,6 +56,14 @@ public class FilteringTerm {
 
   public void setScope(String scope) {
     this.scope = scope;
+  }
+
+  public String getColumn() {
+    return column;
+  }
+
+  public void setColumn(String column) {
+    this.column = column;
   }
 
   @Override
