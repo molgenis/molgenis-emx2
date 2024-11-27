@@ -65,7 +65,7 @@ if (!cohortOnly.value) {
     link: "/apps/central/#/",
   });
   menu.push({
-    label: "Manual",
+    label: "Manuals",
     link: "/apps/docs/#/catalogue/",
   });
 }
