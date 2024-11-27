@@ -225,9 +225,9 @@ public class PetStoreLoader extends ImportDataModelTask {
         .getMetadata()
         .setSetting(
             "reports",
-            "[{\"id\":0,\"name\":\"pet report\",\"sql\":\"select * from \\\"Pet\\\"\"},"
-                + "{\"id\":1,\"name\":\"pet report with parameters\",\"sql\":\"select * from \\\"Pet\\\" p where p.name=ANY(${name:string_array})\"},"
-                + "{\"id\":2,\"name\":\"jsonb\",\"sql\":\"SELECT jsonb_agg(to_jsonb(\\\"Pet\\\")) AS result FROM \\\"Pet\\\"\"},"
-                + "{\"id\":3,\"name\":\"jsonb rows\",\"sql\":\"SELECT to_jsonb(\\\"Pet\\\") AS result FROM \\\"Pet\\\"\"}]");
+            "[{\"id\":\"report1\",\"name\":\"pet report\",\"sql\":\"select * from \\\"Pet\\\"\"},"
+                + "{\"id\":\"report2\",\"name\":\"pet report with parameters\",\"sql\":\"select * from \\\"Pet\\\" p where p.name=ANY(${name:string_array})\"},"
+                + "{\"id\":\"report3\",\"name\":\"jsonb\",\"sql\":\"SELECT jsonb_agg(to_jsonb(\\\"Pet\\\")) AS result FROM \\\"Pet\\\"\"},"
+                + "{\"id\":\"report4\",\"name\":\"jsonb rows\",\"sql\":\"SELECT to_jsonb(\\\"Pet\\\") AS result FROM \\\"Pet\\\"\"}]");
   }
 }

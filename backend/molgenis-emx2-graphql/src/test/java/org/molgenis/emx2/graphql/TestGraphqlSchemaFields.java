@@ -833,12 +833,21 @@ public class TestGraphqlSchemaFields {
     schema = database.dropCreateSchema(schemaName);
     PET_STORE.getImportTask(schema, true).run();
     grapql = new GraphqlApiFactory().createGraphqlForSchema(schema, taskService);
-    JsonNode result = execute("{_reports(id:0){data,count}}");
+
+    // by index = 0
+    JsonNode result = execute("{_reports(id:\"0\"){data,count}}");
     assertTrue(result.at("/_reports/data").textValue().contains("pooky"));
     assertEquals(8, result.at("/_reports/count").intValue());
 
     // report 1 has parameters
-    result = execute("{_reports(id:1,parameters:{key:\"name\", value:\"spike\"}){data,count}}");
+    result = execute("{_reports(id:\"1\",parameters:{key:\"name\", value:\"spike\"}){data,count}}");
+    assertTrue(result.at("/_reports/data").textValue().contains("spike"));
+    assertEquals(1, result.at("/_reports/count").intValue());
+
+    // report by id=report1
+    result =
+        execute(
+            "{_reports(id:\"report2\",parameters:{key:\"name\", value:\"spike\"}){data,count}}");
     assertTrue(result.at("/_reports/data").textValue().contains("spike"));
     assertEquals(1, result.at("/_reports/count").intValue());
   }

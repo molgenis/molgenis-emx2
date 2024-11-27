@@ -174,6 +174,13 @@ public class WebApiSmokeTests {
     TableStore store = new TableStoreForCsvInZipFile(zipFile.toPath());
     store.containsTable("pet report");
 
+    // check if 'id' also works
+    zipContents =
+        getContentAsByteArray(ACCEPT_ZIP, "/pet store reports/api/reports/zip?id=report1");
+    zipFile = createTempFile(zipContents, ".zip");
+    store = new TableStoreForCsvInZipFile(zipFile.toPath());
+    store.containsTable("pet report");
+
     // check if reports work with parameters
     zipContents =
         getContentAsByteArray(
@@ -187,29 +194,50 @@ public class WebApiSmokeTests {
         getContentAsByteArray(ACCEPT_ZIP, "/pet store reports/api/reports/excel?id=0");
     File excelFile = createTempFile(excelContents, ".xlsx");
     store = new TableStoreForXlsxFile(excelFile.toPath());
-    assertTrue(store.containsTable("pet report"));
+    assertTrue(store.containsTable("0"));
+
+    // check if excel by id also works
+    excelContents =
+        getContentAsByteArray(ACCEPT_ZIP, "/pet store reports/api/reports/excel?id=report1");
+    excelFile = createTempFile(excelContents, ".xlsx");
+    store = new TableStoreForXlsxFile(excelFile.toPath());
+    assertTrue(store.containsTable("report1"));
 
     // check if reports work with parameters
     excelContents =
         getContentAsByteArray(
-            ACCEPT_ZIP, "/pet store reports/api/reports/excel?id=1&name=spike,pooky");
+            ACCEPT_ZIP, "/pet store reports/api/reports/excel?id=report2&name=spike,pooky");
     excelFile = createTempFile(excelContents, ".xlsx");
     store = new TableStoreForXlsxFile(excelFile.toPath());
-    assertTrue(store.containsTable("pet report with parameters"));
+    assertTrue(store.containsTable("report2"));
     assertTrue(excelContents.length > 0);
 
     // test json report api
     String jsonResults =
-        given().sessionId(SESSION_ID).get("/pet store reports/api/reports/json?id=0").asString();
-    assertFalse(jsonResults.contains("pet report"), "single result should not include report name");
+        given()
+            .sessionId(SESSION_ID)
+            .get("/pet store reports/api/reports/json?id=report1")
+            .asString();
+    assertFalse(
+        jsonResults.contains("report1"),
+        "single result should not include report name"); // are we sure about this?
     jsonResults =
         given()
             .sessionId(SESSION_ID)
-            .get("/pet store reports/api/reports/json?id=0,1&name=pooky")
+            .get("/pet store reports/api/reports/json?id=report1,report2&name=pooky")
             .asString();
     assertTrue(
-        jsonResults.contains("pet report"),
+        jsonResults.contains("report1"),
         "multiple results should use the report name to nest results");
+    // check that id is for keys
+    jsonResults =
+        given()
+            .sessionId(SESSION_ID)
+            .get("/pet store reports/api/reports/json?id=report1,report2&name=pooky")
+            .asString();
+    assertTrue(jsonResults.contains("report1"), "should use report id as key");
+    assertTrue(jsonResults.contains("report2"), "should use report id as key");
+
     jsonResults =
         given()
             .sessionId(SESSION_ID)
