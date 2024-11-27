@@ -63,7 +63,7 @@ specific job execution.
 The job identifier can be passed into the script using `${jobId}`. To initialize the client with the job identifier,
 the code should be structured as follows:
 ```python
-Client('https://example.molgeniscloud.org', schema='My Schema', job=${jobId})
+Client('https://example.molgeniscloud.org', schema='My Schema', job='${jobId}')
 ```
 
 ## Methods and properties
