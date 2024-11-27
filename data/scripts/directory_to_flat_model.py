@@ -91,12 +91,14 @@ def map_persons_to_contacts(persons, collections, biobanks, networks, resources)
     return linked_persons
 
 
-def map_collections_to_resources(collections):
-    """Maps the BBMRI-ERIC Collections table to the flat data model's Resources table"""
-    # TODO: Collections will be mapped to Samplesets instead
+def map_collections_to_samples(collections, resources):
+    """Maps the BBMRI-ERIC Collections table to the flat data model's Sample collections table"""
     # Rename and create columns
-    collections.rename(columns={"url": "website"}, inplace=True)
-    collections["resources"] = ""
+    collections.rename(columns={"url": "website", "type": "design",
+                                "parent_collection": "parent sample collection",
+                                "biobank": "resource",
+                                }, inplace=True)
+    collections["child sample collections"] = ""
     # Create a unique name
     collections["name"] = (
         collections["name"]
@@ -106,45 +108,42 @@ def map_collections_to_resources(collections):
         + collections["id"]
         + ")"
     )
+    collections["name"] = collections["name"].str.slice(stop=255)
     # Add collection-to-subcollection links
     collections.index = collections["id"]
     for idx, row in collections.iterrows():
-        p_c = row["parent_collection"]
+        p_c = row["parent sample collection"]
         if p_c:
-            if collections.loc[p_c, "resources"] != "":
-                collections.loc[p_c, "resources"] += ","
-            collections.loc[p_c, "resources"] += idx
-    # Map types from different ontologies, map to 'Other'
-    # if no suitable candidate exists in the target ontology
-    # TODO: if there are still unmapped types ultimately,
-    # add the original type description in the type_other column
-    type_mapping = {
-        "QUALITY_CONTROL": "Other",
-        "BIRTH_COHORT": "Cohort study",
-        "POPULATION_BASED": "Cohort study",
-        "DISEASE_SPECIFIC": "Disease specific",
+            if collections.loc[p_c, "child sample collections"] != "":
+                collections.loc[p_c, "child sample collections"] += ","
+            collections.loc[p_c, "child sample collections"] += idx
+    # Map MIABIS-V2-based CollectionTypes to MIABIS-V3-based Sample collection designs
+    # TODO: perhaps some currently mapped to other fit in a different attribute?
+    design_mapping = {
+        "QUALITY_CONTROL": "Quality control study",
+        "BIRTH_COHORT": "Birth cohort",
+        "POPULATION_BASED": "Population-based cohort",
+        "DISEASE_SPECIFIC": "Disease-specific cohort",
         "NON_HUMAN": "Other",
-        "CASE_CONTROL": "Other",
+        "CASE_CONTROL": "Case-control",
         "OTHER": "Other",
         "SAMPLE": "Other",
-        "RD": "Rare disease",
+        "RD": "Rare disease collection",
         "IMAGE": "Other",
-        "PROSPECTIVE_COLLECTION": "Study",
-        "HOSPITAL": "Registry",
-        "CROSS_SECTIONAL": "Cohort study",
-        "COHORT": "Cohort study",
-        "TWIN_STUDY": "Other",
-        "LONGITUDINAL": "Cohort study",
+        "PROSPECTIVE_COLLECTION": "Other",
+        "HOSPITAL": "Other",
+        "CROSS_SECTIONAL": "Cross-sectional",
+        "COHORT": "Other",
+        "TWIN_STUDY": "Twin-study",
+        "LONGITUDINAL": "Longitudinal cohort",
     }
-    collections["type"] = collections["type"].map(
-        lambda l: ",".join(set([type_mapping[t] for t in l.split(",")]))
+    collections["design"] = collections["design"].map(
+        lambda l: ",".join(set([design_mapping[t] for t in l.split(",")]))
     )
-    # Add default type 'Sample collection'
-    collections["type"] += ",Sample collection"
     return collections
 
 
-def map_biobanks_to_resources(biobanks, resources):
+def map_biobanks_to_resources(biobanks):
     """Maps the BBMRI-ERIC Biobanks table to the flat data model's Resources table"""
     # Rename and create columns
     biobanks = biobanks.rename(columns={"url": "website"})
@@ -153,9 +152,6 @@ def map_biobanks_to_resources(biobanks, resources):
     biobanks["name"] = biobanks["name"] + " (id: " + biobanks["id"] + ")"
     # Add default type 'Biobank
     biobanks["type"] = "Biobank"
-    # TODO: link biobank to all its component sample collections
-    # TODO: collections will be samplesets, so change to use samplesets column,
-    # which has reverse reference direction
     return biobanks
 
 
@@ -222,7 +218,7 @@ def main():
             if args.target_password:
                 catalogue_client.signin("admin", args.target_password)
             catalogue_client.set_schema("catalogue-BBMRI")
-            # Initialise resources table
+            # Initialise Resources table
             mapped_columns = [
                 "id",
                 "name",
@@ -233,19 +229,28 @@ def main():
                 "type",
             ]
             resources = pd.DataFrame(columns=mapped_columns)
-            # Map collections to resources
-            print('Get and map Collections...')
-            collections = client.get("Collections", as_df=True)
-            mapped_collections = map_collections_to_resources(
-                collections.copy())  # Unnecessary copy?
-            resources = pd.concat([resources, mapped_collections.reindex(columns=mapped_columns)])
-            # Map biobanks to resources
+            # Map Biobanks to Resources
             print('Get and map Biobanks...')
             biobanks = client.get("Biobanks", as_df=True)
             # Unnecessary copy?
-            mapped_biobanks = map_biobanks_to_resources(biobanks.copy(), resources)
+            mapped_biobanks = map_biobanks_to_resources(biobanks.copy())
             resources = pd.concat([resources, mapped_biobanks.reindex(columns=mapped_columns)])
-            # Map networks to resources
+            # Map Collections to Sample cesources
+            print('Get and map Collections...')
+            collections = client.get("Collections", as_df=True)
+            mapped_collections = map_collections_to_samples(
+                collections.copy(), resources)  # Unnecessary copy?
+            mapped_collections = mapped_collections.reindex(
+                columns = [
+                    "resource",
+                    "name",
+                    "url",
+                    "design",
+                    "parent sample collection",
+                    "child sample collections",
+                ]
+            )
+            # Map Networks to Resources
             print('Get and map Networks...')
             networks = client.get("Networks", as_df=True)
             # Unnecessary copy?
@@ -265,7 +270,7 @@ def main():
                 mapped_networks.loc[mapped_networks["parent_network"] == "", "id"]
             )
             resources = pd.concat([resources, pd.DataFrame.from_records(bbmri_network)])
-            # Map persons to contacts
+            # Map Persons to Contacts
             print('Get and map Persons...')
             persons = client.get("Persons", as_df=True)
             mapped_contacts = map_persons_to_contacts(
@@ -294,6 +299,7 @@ def main():
             # Upload mapped tables
             print('Upload...')
             catalogue_client.save_schema(table="Resources", data=resources)
+            catalogue_client.save_schema(table="Sample collections", data=mapped_collections)
             catalogue_client.save_schema(table="Contacts", data=mapped_contacts)
 
 
