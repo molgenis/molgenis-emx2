@@ -167,6 +167,21 @@ def map_collections_to_samples(collections):
     collections["dataset type"] = collections["dataset type"].map(
         lambda l: ",".join({data_category_mapping[t] for t in l.split(",")})
     )
+    # Map SexTypes (partly MIABIS v2) to Sex types (MIABIS v3)
+    sex_mapping = {
+        "*": "*",
+        "FEMALE": "Female",
+        "MALE": "Male",
+        "NASK": "Unknown",
+        "NAV": "Unknown",
+        "NEUTERED_FEMALE": "Not applicable",
+        "NEUTERED_MALE": "Not applicable",
+        "UNDIFFERENTIAL": "Undifferentiated",
+        "UNKNOWN": "Unknown",
+    }
+    collections["sex"] = collections["sex"].map(
+        lambda l: ",".join({sex_mapping[t] for t in l.split(",") if l})
+    )
     return collections
 
 
@@ -280,6 +295,7 @@ def main():
                     "dataset type",
                     "number of donors",
                     "number of samples",
+                    "sex",
                 ]
             )
             # Map Networks to Resources
