@@ -1,8 +1,8 @@
 package org.molgenis.emx2.web;
 
+import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.getReportById;
 import static org.molgenis.emx2.web.Constants.TABLE;
 import static org.molgenis.emx2.web.DownloadApiUtils.includeSystemColumns;
-import static org.molgenis.emx2.web.JsonApi.getReportById;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -182,9 +182,8 @@ public class ZipApi {
     String reportsJson = schema.getMetadata().getSetting("reports");
     List<Map<String, String>> reportList = new ObjectMapper().readValue(reportsJson, List.class);
     for (String reportId : reports.split(",")) {
-      Map<String, String> reportObject = getReportById(reportId, reportList);
-      String sql = reportObject.get("sql");
-      List<Row> rows = schema.retrieveSql(sql, parameters);
+      Map<String, String> report = getReportById(reportId, schema);
+      List<Row> rows = schema.retrieveSql(report.get("sql"), parameters);
       if (rows.size() > 0) {
         store.writeTable(reportId, new ArrayList<>(rows.get(0).getColumnNames()), rows);
       } else {

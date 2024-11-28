@@ -1,5 +1,6 @@
 package org.molgenis.emx2.web;
 
+import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.getReportById;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 import static org.molgenis.emx2.web.ZipApi.getReportParameters;
 
@@ -9,7 +10,6 @@ import io.javalin.Javalin;
 import io.javalin.http.Context;
 import java.util.*;
 import org.jooq.JSONB;
-import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
 
@@ -28,14 +28,11 @@ public class JsonApi {
     Schema schema = getSchema(ctx);
     String reports = ctx.queryParam("id");
     Map<String, Object> parameters = getReportParameters(ctx);
-    String reportsJson = schema.getMetadata().getSetting("reports");
     ObjectMapper mapper = new ObjectMapper();
-    List<Map<String, String>> reportList = mapper.readValue(reportsJson, List.class);
     Map<String, Object> jsonResponse = new HashMap<>();
     for (String reportId : reports.split(",")) {
-      Map<String, String> reportObject = getReportById(reportId, reportList);
-      String sql = reportObject.get("sql");
-      List<Row> rows = schema.retrieveSql(sql, parameters);
+      Map<String, String> report = getReportById(reportId, schema);
+      List<Row> rows = schema.retrieveSql(report.get("sql"), parameters);
       List<Object> result = new ArrayList<>();
       for (Row row : rows) {
         // single json object will not be nested in key/value
@@ -54,14 +51,5 @@ public class JsonApi {
     } else {
       ctx.json(jsonResponse);
     }
-  }
-
-  static Map<String, String> getReportById(String reportId, List<Map<String, String>> reportList) {
-    Optional<Map<String, String>> reportOptional =
-        reportList.stream().filter(r -> reportId.equals(r.get("id"))).findFirst();
-    if (!reportOptional.isPresent()) {
-      throw new MolgenisException("Report not found id=" + reportId);
-    }
-    return reportOptional.get();
   }
 }
