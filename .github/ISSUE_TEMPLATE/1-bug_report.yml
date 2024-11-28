@@ -69,4 +69,8 @@ body:
       value: |
         - Device: 
         - Operating system: 
-        - Browser: 
+        - Browser:
+      placeholder: |
+        - Device: '....'
+        - Operating system: '....'
+        - Browser: '....'
