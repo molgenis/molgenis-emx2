@@ -1,10 +1,12 @@
 <template>
   <ProviderDashboard>
-    <h2 class="dashboard-h2">
-      Overview of patients {{ selectedAgeGroup }} of age (n={{
-        totalNumberOfPatients
-      }})
-    </h2>
+    <LoadingBlock :loading="loading">
+      <h2 class="dashboard-h2">
+        Overview of patients {{ selectedAgeGroup }} of age (n={{
+          totalNumberOfPatients
+        }})
+      </h2>
+    </LoadingBlock>
     <DashboardRow :columns="1">
       <DashboardChart>
         <h3>Options</h3>
@@ -27,7 +29,7 @@
     </DashboardRow>
     <DashboardRow :columns="2">
       <DashboardChart id="clp-patients-by-phenotype">
-        <LoadingScreen v-if="loading" />
+        <LoadingScreen v-if="loading" style="height: 250px" />
         <ColumnChart
           v-else
           :chartId="patientsByPhenotypeChart?.chartId"
@@ -53,7 +55,7 @@
         />
       </DashboardChart>
       <DashboardChart>
-        <LoadingScreen v-if="loading" />
+        <LoadingScreen v-if="loading" style="height: 250px" />
         <PieChart2
           v-else
           :chartId="patientsByGenderChart?.chartId"
@@ -108,6 +110,7 @@ import {
   LoadingScreen,
   // @ts-expect-error
 } from "molgenis-viz";
+import LoadingBlock from "../components/LoadingBlock.vue";
 import ProviderDashboard from "../components/ProviderDashboard.vue";
 
 import { generateAxisTickData } from "../utils/generateAxisTicks";
@@ -210,39 +213,44 @@ function updateCharts() {
   updateGenderChart();
 }
 
-onBeforeMount(async () => {
-  await getPageData();
+onBeforeMount(() => {
+  getPageData()
+    .then(() => {
+      const distinctAgeRanges = uniqueValues(
+        patientsByPhenotypeChart.value?.dataPoints,
+        "dataPointPrimaryCategory"
+      );
+      const ageRanges = distinctAgeRanges
+        .map((value: string) => {
+          return {
+            num: parseInt(value.split(/(-)/)[0] as string),
+            label: value,
+          };
+        })
+        .sort((a, b) => a.num - b.num);
 
-  const distinctAgeRanges = uniqueValues(
-    patientsByPhenotypeChart.value?.dataPoints,
-    "dataPointPrimaryCategory"
-  );
-  const ageRanges = distinctAgeRanges
-    .map((value: string) => {
-      return {
-        num: parseInt(value.split(/(-)/)[0] as string),
-        label: value,
-      };
+      ageGroups.value = ageRanges.map((row) => row.label);
+      selectedAgeGroup.value = ageGroups.value[0];
+
+      const phenotypeCategories = uniqueValues(
+        patientsByPhenotypeChart.value?.dataPoints,
+        "dataPointName"
+      );
+      patientsByPhenotypePalette.value =
+        generateColorPalette(phenotypeCategories);
+
+      const genderCategories = uniqueValues(
+        patientsByGenderChart.value?.dataPoints,
+        "dataPointName"
+      );
+      patientsByGenderPalette.value = generateColorPalette(genderCategories);
     })
-    .sort((a, b) => a.num - b.num);
-
-  ageGroups.value = ageRanges.map((row) => row.label);
-  selectedAgeGroup.value = ageGroups.value[0];
-
-  const phenotypeCategories = uniqueValues(
-    patientsByPhenotypeChart.value?.dataPoints,
-    "dataPointName"
-  );
-  patientsByPhenotypePalette.value = generateColorPalette(phenotypeCategories);
-
-  const genderCategories = uniqueValues(
-    patientsByGenderChart.value?.dataPoints,
-    "dataPointName"
-  );
-  patientsByGenderPalette.value = generateColorPalette(genderCategories);
-
-  updateCharts();
-
-  loading.value = false;
+    .then(() => {
+      updateCharts();
+    })
+    .catch((err) => {})
+    .finally(() => {
+      loading.value = false;
+    });
 });
 </script>
