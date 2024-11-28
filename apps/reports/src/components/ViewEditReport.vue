@@ -42,10 +42,10 @@
       </div>
     </div>
     <h2 v-else>
-      Report: {{ id }}
+      View report id={{ id }}
       <IconAction v-if="canEdit" icon="pencil-alt" @click="edit = true" />
     </h2>
-    <p>{{ description }}</p>
+    <p v-if="description">Description: {{ description }}</p>
     <div v-if="parameterInputs">
       Please provide parameters:
       <FormInput
