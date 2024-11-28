@@ -101,6 +101,7 @@ export default {
       if (this.reports) {
         let index = 0;
         return this.reports.map((report) => {
+          report.index = index++;
           return report;
         });
       }

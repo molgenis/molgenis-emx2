@@ -189,7 +189,7 @@ export default {
       const offset = this.limit * (this.page - 1);
       const result = await request(
         "graphql",
-        `query report($parameters:[MolgenisSettingsInput]) {_reports(id:${this.id},parameters:$parameters,limit:${this.limit},offset:${offset}){data,count}}`,
+        `query report($parameters:[MolgenisSettingsInput]) {_reports(id:"${this.id}",parameters:$parameters,limit:${this.limit},offset:${offset}){data,count}}`,
         {
           parameters: this.parameterKeyValueMap,
         }
