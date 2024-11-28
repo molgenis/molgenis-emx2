@@ -23,7 +23,7 @@ body:
     attributes:
       label: Molgenis EMX2 version
       description: What version of Molgenis EMX2 are you using (see footer)?
-      placeholder: "Software version: '...'. Database version: '...'"
+      placeholder: "Software version: '....'. Database version: '....'"
     validations:
       required: true
   - type: textarea
