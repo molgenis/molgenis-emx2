@@ -1,5 +1,6 @@
 <template>
   <div>
+    <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
     <h3>Manage system settings</h3>
 
     <table class="table table-hover table-bordered bg-white">
@@ -74,6 +75,7 @@ import {
   InputText,
   ButtonAlt,
   ButtonAction,
+  MessageError,
 } from "molgenis-components";
 
 export default {
@@ -87,6 +89,7 @@ export default {
     InputText,
     ButtonAlt,
     ButtonAction,
+    MessageError,
   },
   data() {
     return {
@@ -138,6 +141,7 @@ export default {
       this.showModal = true;
     },
     async createSetting() {
+      this.graphqlError = null;
       const createMutation = gql`
         mutation change($settings: [MolgenisSettingsInput]) {
           change(settings: $settings) {
@@ -153,11 +157,14 @@ export default {
         },
       };
 
-      await request("graphql", createMutation, variables).catch((e) => {
-        console.error(e);
-      });
-      this.fetchSettings();
-      this.showModal = false;
+      try {
+        await request("graphql", createMutation, variables);
+        this.fetchSettings();
+        this.showModal = false;
+      } catch (e) {
+        this.graphqlError =
+          e.response?.errors?.[0]?.message || "An error occurred.";
+      }
     },
     async deleteSetting() {
       const deleteMutation = gql`

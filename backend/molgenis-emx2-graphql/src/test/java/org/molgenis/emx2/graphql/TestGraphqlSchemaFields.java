@@ -740,6 +740,48 @@ public class TestGraphqlSchemaFields {
   }
 
   @Test
+  public void testJsonType() throws IOException {
+    try {
+      Schema myschema = database.dropCreateSchema("testJsonType");
+      myschema.create(
+          table("TestJson", column("name").setPkey(), column("json").setType(ColumnType.JSON)));
+
+      grapql = new GraphqlApiFactory().createGraphqlForSchema(myschema, taskService);
+
+      Table table = myschema.getTable("TestJson");
+      String value = "{\"name\":\"bofke\"}";
+      table.insert(row("name", "test", "json", value));
+
+      assertEquals(value, execute("{TestJson{json}}").at("/TestJson/0/json").asText());
+
+      String value2 = "{\"name\":\"bofke2\"}";
+      Map data = new LinkedHashMap();
+      data.put("name", "test");
+      data.put("json", value2);
+      grapql.execute(
+          new ExecutionInput.Builder()
+              .query("mutation update($value:[TestJsonInput]){update(TestJson:$value){message}}")
+              .variables(Map.of("value", data))
+              .build());
+
+      assertEquals(value2, execute("{TestJson{json}}").at("/TestJson/0/json").asText());
+      assertEquals(
+          value2,
+          execute(
+                  "{TestJson(filter:{json:{equals:\"{\\\"name\\\": \\\"bofke2\\\"}\"}}){json}}") // notice the extra space!
+              .at("/TestJson/0/json")
+              .asText());
+      assertEquals(
+          value2,
+          execute("{TestJson(filter:{json:{like:\"bofke2\"}}){json}}") // more useful
+              .at("/TestJson/0/json")
+              .asText());
+    } finally {
+      grapql = new GraphqlApiFactory().createGraphqlForSchema(schema, taskService);
+    }
+  }
+
+  @Test
   public void testFileType() throws IOException {
     try {
       Schema myschema = database.dropCreateSchema("testFileType");

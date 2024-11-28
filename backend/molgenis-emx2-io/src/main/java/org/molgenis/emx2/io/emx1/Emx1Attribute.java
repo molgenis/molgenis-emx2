@@ -257,7 +257,7 @@ public class Emx1Attribute {
         return "file";
       case STRING, UUID:
         return "varchar";
-      case TEXT, JSONB:
+      case TEXT, JSON:
         return "text";
       case INT:
         return "int";
@@ -280,7 +280,6 @@ public class Emx1Attribute {
           INT_ARRAY,
           DATE_ARRAY,
           DATETIME_ARRAY,
-          JSONB_ARRAY,
           DECIMAL_ARRAY:
         return "array types unsupported in emx1: " + c.getColumnType();
       default:
