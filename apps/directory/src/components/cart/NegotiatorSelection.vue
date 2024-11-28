@@ -107,7 +107,7 @@ import { useSettingsStore } from "../../stores/settingsStore";
 import { SimpleModal } from "molgenis-components";
 import { computed, ref, watch } from "vue";
 import { IBiobankIdentifier } from "../../interfaces/interfaces";
-import TabsSection from "../biobankcards-components/TabsSection.vue";
+import TabsSection from "../Tabs.vue";
 import QueryEMX2 from "../../../../molgenis-components/src/queryEmx2/queryEmx2";
 import CartItem from "./CartItem.vue";
 

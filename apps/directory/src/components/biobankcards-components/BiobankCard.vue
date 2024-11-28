@@ -1,5 +1,5 @@
 <template>
-  <article
+  <Card
     class="biobank-card"
     :class="[
       {
@@ -7,38 +7,36 @@
         'back-side': showCollections,
       },
     ]"
+    :tabs="tabs"
+    @update:active-tab="changeTab"
   >
-    <section class="d-flex flex-column align-items-center">
-      <div class="d-flex flex-column h-100 align-self-stretch">
-        <HeaderSection
-          :biobank="biobank"
-          :hasBiobankQuality="hasBiobankQuality"
-          :qualityInfo="qualityInfo"
-        />
+    <template #header>
+      <HeaderSection
+        :biobank="biobank"
+        :hasBiobankQuality="hasBiobankQuality"
+        :qualityInfo="qualityInfo"
+      />
+    </template>
 
-        <TabsSection :tabs="tabs" @update:active-tab="changeTab" />
+    <CollectionsSection
+      v-if="tabs['Collections'].active"
+      :biobank="biobank"
+      :has-active-filters="filtersStore.hasActiveFilters"
+    />
 
-        <CollectionsSection
-          v-if="tabs['Collections'].active"
-          :biobank="biobank"
-          :has-active-filters="filtersStore.hasActiveFilters"
-        />
+    <ServiceSection
+      v-else-if="tabs['Services'].active"
+      :services="biobank.services"
+      :selected-services="selectedServices"
+      @update:addServices="handleAddServices"
+      @update:remove-services="handleRemoveServices"
+    ></ServiceSection>
 
-        <ServiceSection
-          v-else-if="tabs['Services'].active"
-          :services="biobank.services"
-          :selected-services="selectedServices"
-          @update:addServices="handleAddServices"
-          @update:remove-services="handleRemoveServices"
-        ></ServiceSection>
-
-        <OrganizationSection
-          v-else-if="tabs['Organization'].active"
-          :biobank="biobank"
-        />
-      </div>
-    </section>
-  </article>
+    <OrganizationSection
+      v-else-if="tabs['Organization'].active"
+      :biobank="biobank"
+    />
+  </Card>
 </template>
 
 <script setup lang="ts">
@@ -47,8 +45,9 @@ import { useSettingsStore } from "../../stores/settingsStore";
 import { useQualitiesStore } from "../../stores/qualitiesStore";
 import { useFiltersStore } from "../../stores/filtersStore";
 import HeaderSection from "./HeaderSection.vue";
-import TabsSection from "./TabsSection.vue";
+import TabsSection from "../Tabs.vue";
 import OrganizationSection from "./OrganizationSection.vue";
+import Card from "../Card.vue";
 import { computed, onBeforeMount, ref } from "vue";
 import { IBiobanks } from "../../interfaces/directory";
 import ServiceSection from "./ServiceSection.vue";
@@ -220,11 +219,6 @@ const biobankInSelection = computed(() => {
   min-height: 3rem;
   flex-direction: column;
   justify-content: center;
-}
-
-/* TODO put in theme */
-.biobank-card-header {
-  background-color: #efefef;
 }
 
 article {
