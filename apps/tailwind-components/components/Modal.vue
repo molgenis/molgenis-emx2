@@ -10,7 +10,7 @@ function showModal() {
   visible.value = true;
 }
 
-const closeModal = (_returnVal?: string) => {
+const closeModal = () => {
   visible.value = false;
 };
 
@@ -30,11 +30,12 @@ defineExpose({
     class="fixed min-h-lvh w-full top-0 left-0 flex z-20"
   >
     <a
-      @click="closeModal('close from backdrop')"
+      id="backdrop"
+      @click="closeModal()"
       class="w-full h-full absolute left-0 bg-black/60"
       href="#"
       tabindex="-1"
-    ></a>
+    />
 
     <div class="bg-white w-3/4 relative m-auto h-3/4 rounded-50px max-w-xl">
       <header class="pt-[36px] px-[50px] overflow-y-auto">
@@ -44,18 +45,18 @@ defineExpose({
         </h2>
 
         <button
-          @click="closeModal('close from btn')"
+          @click="closeModal()"
           aria-label="Close modal"
           class="absolute top-7 right-8 p-1"
         >
           <BaseIcon class="text-blue-500" name="cross" />
         </button>
 
-        <slot name="header"></slot>
+        <slot name="header" />
       </header>
 
       <div class="px-[50px] overflow-y-auto py-4 max-h-[calc(80vh-232px)]">
-        <slot></slot>
+        <slot />
       </div>
 
       <footer class="bg-modal-footer px-[50px] rounded-b-50px">
