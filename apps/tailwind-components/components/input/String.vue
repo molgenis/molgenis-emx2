@@ -21,6 +21,7 @@
 
 <script setup lang="ts">
 import type { columnValue } from "../../../metadata-utils/src/types";
+type possibleInputTypes = "password";
 
 const props = withDefaults(
   defineProps<{
@@ -32,14 +33,13 @@ const props = withDefaults(
     required?: boolean;
     valid?: boolean;
     hasError?: boolean;
-    type?: string;
+    type?: possibleInputTypes;
   }>(),
   {
     disabled: false,
     required: false,
     hasError: false,
     valid: false,
-    type: "",
   }
 );
 
