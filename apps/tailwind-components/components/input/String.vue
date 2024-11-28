@@ -54,7 +54,6 @@ function onInput(event: Event) {
       'bg-white': !disabled,
     }"
     :value="modelValue"
-    :type="type"
     @input="onInput"
     @focus="$emit('focus')"
     @blur="$emit('blur')"
