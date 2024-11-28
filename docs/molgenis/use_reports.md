@@ -28,12 +28,12 @@ settings under key 'reports', for example:
 [
    {
       "id":"report1",
-      "label":"pet report",
+      "description":"pet report",
       "sql":"select * from \"Pet\""
    },
    {
       "id":"report2",
-      "label":"pet report with parameters",
+      "description":"pet report with parameters",
       "sql":"select * from \"Pet\" p where p.name=ANY(${name:string_array})"
    },
 ]
