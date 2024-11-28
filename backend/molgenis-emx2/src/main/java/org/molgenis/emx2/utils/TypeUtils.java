@@ -1,6 +1,6 @@
 package org.molgenis.emx2.utils;
 
-import java.io.Serializable;
+import com.fasterxml.jackson.databind.JsonNode;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -19,6 +19,8 @@ import org.jooq.types.YearToSecond;
 import org.molgenis.emx2.*;
 
 public class TypeUtils {
+  private static final MolgenisObjectMapper objectMapper = MolgenisObjectMapper.INTERNAL;
+
   private static final String LOOSE_PARSER_FORMAT =
       "[yyyy-MM-dd]['T'[HHmmss][HHmm][HH:mm:ss][HH:mm][.SSSSSSSSS][.SSSSSSSS][.SSSSSSS][.SSSSSS][.SSSSS][.SSSS][.SSS][.SS][.S]][OOOO][O][z][XXXXX][XXXX]['['VV']']";
 
@@ -249,37 +251,27 @@ public class TypeUtils {
 
   public static JSONB toJsonb(Object v) {
     if (v == null) return null;
+    if (v instanceof JSONB) { // Ensures JSONB is validated
+      v = v.toString();
+    }
     if (v instanceof String) {
       String value = toString(v);
       if (value != null) {
-        return org.jooq.JSONB.valueOf(value);
+        try {
+          v = objectMapper.getReader().readTree(value);
+        } catch (Exception e) {
+          throw new MolgenisException("Invalid json", e);
+        }
       } else {
         return null;
       }
     }
-    return (JSONB) v;
-  }
+    if (v instanceof JsonNode) {
+      return org.jooq.JSONB.valueOf(objectMapper.validate((JsonNode) v).toString());
+    }
 
-  public static JSONB[] toJsonbArray(Object v) {
-    // non standard so not using the generic function
-    if (v == null) return null; // NOSONAR
-    if (v instanceof String) {
-      String value = toString(v);
-      if (value != null) {
-        v = List.of(JSONB.valueOf(value));
-      } else {
-        return null;
-      }
-    }
-    if (v instanceof String[]) {
-      v = toStringArray(v);
-    }
-    if (v instanceof Serializable[]) v = List.of((Serializable[]) v);
-    if (v instanceof Object[]) v = List.of((Object[]) v);
-    if (v instanceof List) {
-      return ((List<Object>) v).stream().map(TypeUtils::toJsonb).toArray(JSONB[]::new);
-    }
-    return (JSONB[]) v;
+    // Other input is invalid (no casting due to ensuring validateJson() is executed).
+    throw new ClassCastException("Cannot cast '" + v.toString() + "' to JSONB");
   }
 
   public static String toText(Object v) {
@@ -320,7 +312,6 @@ public class TypeUtils {
       case DATE -> ColumnType.DATE_ARRAY;
       case DATETIME -> ColumnType.DATETIME_ARRAY;
       case PERIOD -> ColumnType.PERIOD_ARRAY;
-      case JSONB -> ColumnType.JSONB_ARRAY;
       default ->
           throw new UnsupportedOperationException(
               "Unsupported array columnType found:" + columnType);
@@ -391,8 +382,7 @@ public class TypeUtils {
       case PERIOD -> SQLDataType.INTERVAL.asConvertedDataType(new PeriodConverter());
       case PERIOD_ARRAY ->
           SQLDataType.INTERVAL.asConvertedDataType(new PeriodConverter()).getArrayDataType();
-      case JSONB -> SQLDataType.JSONB;
-      case JSONB_ARRAY -> SQLDataType.JSONB.getArrayDataType();
+      case JSON -> SQLDataType.JSONB;
       default ->
           // should never happen
           throw new IllegalArgumentException("jooqTypeOf(type) : unsupported type '" + type + "'");
@@ -421,8 +411,8 @@ public class TypeUtils {
       case DATETIME_ARRAY -> TypeUtils.toDateTimeArray(v);
       case PERIOD -> TypeUtils.toPeriod(v);
       case PERIOD_ARRAY -> TypeUtils.toPeriodArray(v);
-      case JSONB -> TypeUtils.toJsonb(v);
-      case JSONB_ARRAY -> TypeUtils.toJsonbArray(v);
+      case JSON -> TypeUtils.toJsonb(v);
+
       default ->
           throw new UnsupportedOperationException(
               "Unsupported columnType columnType found:" + columnType);

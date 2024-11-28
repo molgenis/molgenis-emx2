@@ -67,13 +67,6 @@ public class TestCreateForeignKeysArrays {
         });
   }
 
-  @Test
-  public void testJSONRef() {
-    executeTest(
-        ColumnType.JSONB,
-        new String[] {"{\"key\": \"value1\"}", "{\"key\": \"value2\"}", "{\"key\": \"value3\"}"});
-  }
-
   private void executeTest(ColumnType columnType, Object[] testValues) {
 
     Schema schema = db.dropCreateSchema("TestRefArray" + columnType.toString().toUpperCase());

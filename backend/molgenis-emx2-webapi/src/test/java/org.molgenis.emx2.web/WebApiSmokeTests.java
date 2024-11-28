@@ -1316,6 +1316,8 @@ public class WebApiSmokeTests {
   }
 
   @Test
+  @Disabled("unstable; fails on CI around 50% of the time")
+  // todo update / rewrite test to be more stable in CI env
   public void testExecuteSubtaskInScriptTask()
       throws JsonProcessingException, InterruptedException {
     String parentJobName = "parentJobTest";
