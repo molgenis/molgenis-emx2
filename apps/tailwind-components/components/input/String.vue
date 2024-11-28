@@ -1,3 +1,24 @@
+<template>
+  <input
+    :id="id"
+    :required="required"
+    :placeholder="placeholder"
+    :disabled="disabled"
+    class="w-full pr-4 font-sans text-black text-gray-300 outline-none rounded-search-input h-10 ring-red-500 pl-3 shadow-search-input focus:shadow-search-input hover:shadow-search-input search-input-mobile border"
+    :class="{
+      'border-invalid text-invalid': hasError,
+      'border-valid text-valid': valid,
+      'border-disabled text-disabled bg-disabled': disabled,
+      'bg-white': !disabled,
+    }"
+    :value="modelValue"
+    :type="type"
+    @input="onInput"
+    @focus="$emit('focus')"
+    @blur="$emit('blur')"
+  />
+</template>
+
 <script setup lang="ts">
 import type { columnValue } from "../../../metadata-utils/src/types";
 
@@ -11,12 +32,14 @@ const props = withDefaults(
     required?: boolean;
     valid?: boolean;
     hasError?: boolean;
+    type?: string;
   }>(),
   {
     disabled: false,
     required: false,
     hasError: false,
     valid: false,
+    type: "",
   }
 );
 
@@ -39,23 +62,3 @@ function onInput(event: Event) {
   validate(inputElement.value);
 }
 </script>
-
-<template>
-  <input
-    :id="id"
-    :required="required"
-    :placeholder="placeholder"
-    :disabled="disabled"
-    class="w-full pr-4 font-sans text-black text-gray-300 outline-none rounded-search-input h-10 ring-red-500 pl-3 shadow-search-input focus:shadow-search-input hover:shadow-search-input search-input-mobile border"
-    :class="{
-      'border-invalid text-invalid': hasError,
-      'border-valid text-valid': valid,
-      'border-disabled text-disabled bg-disabled': disabled,
-      'bg-white': !disabled,
-    }"
-    :value="modelValue"
-    @input="onInput"
-    @focus="$emit('focus')"
-    @blur="$emit('blur')"
-  />
-</template>
