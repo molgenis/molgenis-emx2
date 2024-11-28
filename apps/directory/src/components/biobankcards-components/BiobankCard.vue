@@ -20,12 +20,14 @@
 
     <CollectionsSection
       v-if="tabs['Collections'].active"
+      class="px-3 py-1"
       :biobank="biobank"
       :has-active-filters="filtersStore.hasActiveFilters"
     />
 
     <ServiceSection
       v-else-if="tabs['Services'].active"
+      class="px-3 py-1"
       :services="biobank.services"
       :selected-services="selectedServices"
       @update:addServices="handleAddServices"
@@ -34,6 +36,7 @@
 
     <OrganizationSection
       v-else-if="tabs['Organization'].active"
+      class="px-3 py-1"
       :biobank="biobank"
     />
   </Card>
@@ -45,7 +48,6 @@ import { useSettingsStore } from "../../stores/settingsStore";
 import { useQualitiesStore } from "../../stores/qualitiesStore";
 import { useFiltersStore } from "../../stores/filtersStore";
 import HeaderSection from "./HeaderSection.vue";
-import TabsSection from "../Tabs.vue";
 import OrganizationSection from "./OrganizationSection.vue";
 import Card from "../Card.vue";
 import { computed, onBeforeMount, ref } from "vue";
@@ -199,14 +201,6 @@ const biobankInSelection = computed(() => {
 .biobank-section,
 .collections-section {
   overflow: auto;
-}
-
-.collection-items {
-  word-break: break-word;
-}
-
-.collection-items th {
-  width: 25%;
 }
 
 .biobank-card {

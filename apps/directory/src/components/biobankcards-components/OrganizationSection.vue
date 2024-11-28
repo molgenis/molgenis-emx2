@@ -2,6 +2,7 @@
 import { getViewmodel } from "../../functions/viewmodelMapper";
 import { IBiobanks } from "../../interfaces/directory";
 import { useSettingsStore } from "../../stores/settingsStore";
+import CardItem from "../CardItem.vue";
 import ViewGenerator from "../generators/ViewGenerator.vue";
 import MatchesOn from "./MatchesOn.vue";
 import { computed } from "vue";
@@ -27,10 +28,11 @@ const attributes = computed(() => {
 </script>
 
 <template>
-  <div class="p-2 pt-1 biobank-section flex-grow-1">
-    <h5>
-      {{ biobank.name }}
-    </h5>
+  <CardItem>
+    <template #title>
+      <h5>{{ biobank.name }}</h5>
+    </template>
+
     <small>
       <ViewGenerator :viewmodel="{ attributes }" />
       <MatchesOn :viewmodel="biobank" />
@@ -42,5 +44,5 @@ const attributes = computed(() => {
         <span>More details</span>
       </router-link>
     </small>
-  </div>
+  </CardItem>
 </template>
