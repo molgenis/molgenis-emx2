@@ -11,14 +11,12 @@ const props = withDefaults(
     required?: boolean;
     valid?: boolean;
     hasError?: boolean;
-    type?: string;
   }>(),
   {
     disabled: false,
     required: false,
     hasError: false,
     valid: false,
-    type: "",
   }
 );
 
