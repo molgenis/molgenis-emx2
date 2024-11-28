@@ -871,20 +871,14 @@ public class GraphqlSchemaFieldFactory {
         .dataFetcher(
             dataFetchingEnvironment -> {
               Map<String, Object> result = new LinkedHashMap<>();
-              try {
-                final String id = dataFetchingEnvironment.getArgument(ID);
-                Integer offset = dataFetchingEnvironment.getArgumentOrDefault(OFFSET, 0);
-                Integer limit = dataFetchingEnvironment.getArgumentOrDefault(LIMIT, 10);
-                Map<String, String> parameters =
-                    convertKeyValueListToMap(dataFetchingEnvironment.getArgument(PARAMETERS));
-                result.put(DATA, getReportAsJson(id, schema, parameters, limit, offset));
-                result.put(COUNT, getReportCount(id, schema, parameters));
-                return result;
-              } catch (Exception e) {
-                throw new MolgenisException(
-                    "Retrieve of report '" + dataFetchingEnvironment.getArgument(ID) + "' failed ",
-                    e);
-              }
+              final String id = dataFetchingEnvironment.getArgument(ID);
+              Integer offset = dataFetchingEnvironment.getArgumentOrDefault(OFFSET, 0);
+              Integer limit = dataFetchingEnvironment.getArgumentOrDefault(LIMIT, 10);
+              Map<String, String> parameters =
+                  convertKeyValueListToMap(dataFetchingEnvironment.getArgument(PARAMETERS));
+              result.put(DATA, getReportAsJson(id, schema, parameters, limit, offset));
+              result.put(COUNT, getReportCount(id, schema, parameters));
+              return result;
             })
         .build();
   }
