@@ -175,9 +175,7 @@ public class ZipApi {
     }
   }
 
-  static void generateReportsToStore(
-      @org.jetbrains.annotations.NotNull Context ctx, TableStore store)
-      throws JsonProcessingException {
+  static void generateReportsToStore(Context ctx, TableStore store) throws JsonProcessingException {
     String reports = ctx.queryParam("id");
     Schema schema = getSchema(ctx);
     Map<String, ?> parameters = getReportParameters(ctx);
