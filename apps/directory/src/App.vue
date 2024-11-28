@@ -1,5 +1,5 @@
 <template>
-  <Molgenis v-model="session">
+  <Molgenis v-model="session" style="background-color: white">
     <template v-if="banner" #banner>
       <div v-html="banner"></div>
     </template>
