@@ -118,7 +118,7 @@ export default {
       count: null,
       id: null,
       sql: 'select * from "Pet"',
-      label: null,
+      description: null,
       parameters: {},
       error: null,
       success: null,
@@ -213,7 +213,7 @@ export default {
       const reports = await this.client.fetchSettingValue("reports");
       reports[this.index].id = this.id;
       reports[this.index].sql = this.sql;
-      reports[this.index].label = this.label;
+      reports[this.index].description = this.description;
       this.client
         .saveSetting("reports", reports)
         .then((res) => {
@@ -227,7 +227,7 @@ export default {
       if (reports[this.index]) {
         this.id = reports[this.index].id;
         this.sql = reports[this.index].sql;
-        this.label = reports[this.index].label;
+        this.description = reports[this.index].description;
       } else {
         this.error = "report not found";
       }
