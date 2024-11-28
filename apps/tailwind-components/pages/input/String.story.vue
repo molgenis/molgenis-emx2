@@ -90,5 +90,17 @@ const demoValue = ref("");
         v-model="demoValue"
       />
     </div>
+    <div>
+      <h3>Input String: password (model value: {{ demoValue }})</h3>
+      <InputLabel for="input-string-default">
+        {{ label }}
+      </InputLabel>
+      <InputString
+        id="input-string-default"
+        :placeholder="placeholder"
+        v-model="demoValue"
+        type="password"
+      />
+    </div>
   </div>
 </template>
