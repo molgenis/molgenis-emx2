@@ -23,7 +23,7 @@ body:
     attributes:
       label: Molgenis EMX2 version
       description: What version of Molgenis EMX2 are you using (see footer)?
-      placeholder: "Software version: v11.31.1. Database version: 23"
+      placeholder: "Software version: '...'. Database version: '...'"
     validations:
       required: true
   - type: textarea
@@ -67,6 +67,6 @@ body:
         
         For smartphones we would appreciate filling in the exact device. For desktops/laptops, please use "Computer" instead.
       value: |
-        - Device:
-        - Operating system:
-        - Browser:
+        - Device: 
+        - Operating system: 
+        - Browser: 
