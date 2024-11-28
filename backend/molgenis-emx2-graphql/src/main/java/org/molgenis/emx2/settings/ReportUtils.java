@@ -19,7 +19,6 @@ public class ReportUtils {
         Optional<Map<String, String>> reportOptional =
             reportList.stream().filter(r -> reportId.equals(r.get("id"))).findFirst();
         if (reportOptional.isPresent()) {
-
           return reportOptional.get();
         }
       }
