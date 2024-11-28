@@ -113,7 +113,7 @@
 
                     <quality
                       v-if="service.qualityStandards"
-                      :attribute="service.qualityStandards"
+                      :attribute="qualityProps"
                     />
                   </tbody>
                 </table>
@@ -140,13 +140,13 @@
         </div>
       </div>
 
-      <pre>{{ service }}</pre>
+      <!-- <pre>{{ service }}</pre> -->
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import QueryEMX2 from "../../../molgenis-components/src/queryEmx2/queryEmx2";
 // @ts-ignore
 import { Breadcrumb } from "molgenis-components";
@@ -223,4 +223,18 @@ new QueryEMX2(useSettingsStore().config.graphqlEndpoint)
     // @ts-ignore
     service.value = data.Services[0];
   });
+
+const qualityProps = computed(() => {
+  return {
+    label: "Quality labels",
+    value: service.value?.qualityStandards?.map((quality) => {
+      return {
+        label: quality.qualityStandard.label,
+        certification_report: quality.certificationReport,
+        certification_image_link: quality.certificationImageLink,
+        quality_standard: quality.qualityStandard,
+      };
+    }),
+  };
+});
 </script>
