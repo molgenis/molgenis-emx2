@@ -873,25 +873,19 @@ public class GraphqlSchemaFieldFactory {
               try {
                 String reportsJson = schema.getMetadata().getSetting("reports");
                 logger.info("REPORT value: " + reportsJson);
+                final String id = dataFetchingEnvironment.getArgument(ID);
                 if (reportsJson != null) {
-                  final String id = dataFetchingEnvironment.getArgument(ID);
                   Integer offset = dataFetchingEnvironment.getArgumentOrDefault(OFFSET, 0);
                   Integer limit = dataFetchingEnvironment.getArgumentOrDefault(LIMIT, 10);
                   Map<String, String> parameters =
                       convertKeyValueListToMap(dataFetchingEnvironment.getArgument(PARAMETERS));
                   List<Map<String, Object>> reportList =
                       new ObjectMapper().readValue(reportsJson, List.class);
-                  Map<String, Object> report =
-                      reportList.stream()
-                          .filter(r -> id.equals(r.get("id")))
-                          .findFirst()
-                          .orElseGet(() -> null);
-                  if (report == null) {
-                    report = reportList.get(Integer.parseInt(id));
-                  }
-                  String sql = report.get("sql") + " LIMIT " + limit + " OFFSET " + offset;
+                  Optional<Map<String, Object>> report =
+                      reportList.stream().filter(r -> id.equals(r.get("id"))).findFirst();
+                  String sql = report.get().get("sql") + " LIMIT " + limit + " OFFSET " + offset;
                   String countSql =
-                      String.format("select count(*) from (%s) as count", report.get("sql"));
+                      String.format("select count(*) from (%s) as count", report.get().get("sql"));
                   result.put(DATA, convertToJson(schema.retrieveSql(sql, parameters)));
                   result.put(
                       COUNT,

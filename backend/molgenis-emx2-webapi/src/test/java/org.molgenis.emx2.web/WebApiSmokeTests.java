@@ -169,37 +169,23 @@ public class WebApiSmokeTests {
 
     // check if reports work
     byte[] zipContents =
-        getContentAsByteArray(ACCEPT_ZIP, "/pet store reports/api/reports/zip?id=0");
+        getContentAsByteArray(ACCEPT_ZIP, "/pet store reports/api/reports/zip?id=report1");
     File zipFile = createTempFile(zipContents, ".zip");
     TableStore store = new TableStoreForCsvInZipFile(zipFile.toPath());
-    store.containsTable("pet report");
-
-    // check if 'id' also works
-    zipContents =
-        getContentAsByteArray(ACCEPT_ZIP, "/pet store reports/api/reports/zip?id=report1");
-    zipFile = createTempFile(zipContents, ".zip");
-    store = new TableStoreForCsvInZipFile(zipFile.toPath());
     store.containsTable("pet report");
 
     // check if reports work with parameters
     zipContents =
         getContentAsByteArray(
-            ACCEPT_ZIP, "/pet store reports/api/reports/zip?id=1&name=spike,pooky");
+            ACCEPT_ZIP, "/pet store reports/api/reports/zip?id=report2&name=spike,pooky");
     zipFile = createTempFile(zipContents, ".zip");
     store = new TableStoreForCsvInZipFile(zipFile.toPath());
     store.containsTable("pet report with parameters");
 
     // check if reports work
     byte[] excelContents =
-        getContentAsByteArray(ACCEPT_ZIP, "/pet store reports/api/reports/excel?id=0");
-    File excelFile = createTempFile(excelContents, ".xlsx");
-    store = new TableStoreForXlsxFile(excelFile.toPath());
-    assertTrue(store.containsTable("0"));
-
-    // check if excel by id also works
-    excelContents =
         getContentAsByteArray(ACCEPT_ZIP, "/pet store reports/api/reports/excel?id=report1");
-    excelFile = createTempFile(excelContents, ".xlsx");
+    File excelFile = createTempFile(excelContents, ".xlsx");
     store = new TableStoreForXlsxFile(excelFile.toPath());
     assertTrue(store.containsTable("report1"));
 
@@ -241,20 +227,26 @@ public class WebApiSmokeTests {
     jsonResults =
         given()
             .sessionId(SESSION_ID)
-            .get("/pet store reports/api/reports/json?id=1&name=spike,pooky")
+            .get("/pet store reports/api/reports/json?id=report2&name=spike,pooky")
             .asString();
     assertTrue(jsonResults.contains("pooky"));
 
     // test report using jsonb_agg
     jsonResults =
-        given().sessionId(SESSION_ID).get("/pet store reports/api/reports/json?id=2").asString();
+        given()
+            .sessionId(SESSION_ID)
+            .get("/pet store reports/api/reports/json?id=report3")
+            .asString();
     ObjectMapper objectMapper = new ObjectMapper();
     List<Object> jsonbResult = objectMapper.readValue(jsonResults, List.class);
     assertTrue(jsonbResult.get(0).toString().contains("pooky"));
 
     // test report using jsonb rows
     jsonResults =
-        given().sessionId(SESSION_ID).get("/pet store reports/api/reports/json?id=3").asString();
+        given()
+            .sessionId(SESSION_ID)
+            .get("/pet store reports/api/reports/json?id=report4")
+            .asString();
     jsonbResult = objectMapper.readValue(jsonResults, List.class);
     assertTrue(jsonbResult.get(0).toString().contains("pooky"));
   }

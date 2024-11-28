@@ -24,10 +24,10 @@
         description="unique index"
       />
       <InputString
-        id="reportName"
-        v-model="name"
-        label="name"
-        description="human-readable label"
+        id="reportDescription"
+        v-model="description"
+        label="description"
+        description="human-readable description"
       />
       <InputText
         id="reportSql"
@@ -42,9 +42,10 @@
       </div>
     </div>
     <h2 v-else>
-      Report: {{ name
-      }}<IconAction v-if="canEdit" icon="pencil-alt" @click="edit = true" />
+      Report: {{ id }}
+      <IconAction v-if="canEdit" icon="pencil-alt" @click="edit = true" />
     </h2>
+    <p>{{ description }}</p>
     <div v-if="parameterInputs">
       Please provide parameters:
       <FormInput
@@ -117,7 +118,7 @@ export default {
       count: null,
       id: null,
       sql: 'select * from "Pet"',
-      name: null,
+      label: null,
       parameters: {},
       error: null,
       success: null,
@@ -188,11 +189,7 @@ export default {
       const offset = this.limit * (this.page - 1);
       const result = await request(
         "graphql",
-        `query report($parameters:[MolgenisSettingsInput]) {_reports(id:"${
-          this.id || this.index
-        }",parameters:$parameters,limit:${
-          this.limit
-        },offset:${offset}){data,count}}`,
+        `query report($parameters:[MolgenisSettingsInput]) {_reports(id:${this.id},parameters:$parameters,limit:${this.limit},offset:${offset}){data,count}}`,
         {
           parameters: this.parameterKeyValueMap,
         }
@@ -216,7 +213,7 @@ export default {
       const reports = await this.client.fetchSettingValue("reports");
       reports[this.index].id = this.id;
       reports[this.index].sql = this.sql;
-      reports[this.index].name = this.name;
+      reports[this.index].label = this.label;
       this.client
         .saveSetting("reports", reports)
         .then((res) => {
@@ -230,7 +227,7 @@ export default {
       if (reports[this.index]) {
         this.id = reports[this.index].id;
         this.sql = reports[this.index].sql;
-        this.name = reports[this.index].name;
+        this.label = reports[this.index].label;
       } else {
         this.error = "report not found";
       }

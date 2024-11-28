@@ -7,11 +7,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import org.jooq.JSONB;
+import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
 
@@ -31,22 +29,12 @@ public class JsonApi {
     String reports = ctx.queryParam("id");
     Map<String, Object> parameters = getReportParameters(ctx);
     String reportsJson = schema.getMetadata().getSetting("reports");
-
     ObjectMapper mapper = new ObjectMapper();
-    List<Map<String, Object>> reportList = mapper.readValue(reportsJson, List.class);
+    List<Map<String, String>> reportList = mapper.readValue(reportsJson, List.class);
     Map<String, Object> jsonResponse = new HashMap<>();
-
     for (String reportId : reports.split(",")) {
-
-      Map<String, Object> reportObject =
-          reportList.stream()
-              .filter(r -> reportId.equals(r.get("id")))
-              .findFirst()
-              .orElseGet(() -> null);
-      if (reportObject == null) {
-        reportObject = reportList.get(Integer.parseInt(reportId.trim()));
-      }
-      String sql = (String) reportObject.get("sql");
+      Map<String, String> reportObject = getReportById(reportId, reportList);
+      String sql = reportObject.get("sql");
       List<Row> rows = schema.retrieveSql(sql, parameters);
       List<Object> result = new ArrayList<>();
       for (Row row : rows) {
@@ -66,5 +54,14 @@ public class JsonApi {
     } else {
       ctx.json(jsonResponse);
     }
+  }
+
+  static Map<String, String> getReportById(String reportId, List<Map<String, String>> reportList) {
+    Optional<Map<String, String>> reportOptional =
+        reportList.stream().filter(r -> reportId.equals(r.get("id"))).findFirst();
+    if (!reportOptional.isPresent()) {
+      throw new MolgenisException("Report not found id=" + reportId);
+    }
+    return reportOptional.get();
   }
 }

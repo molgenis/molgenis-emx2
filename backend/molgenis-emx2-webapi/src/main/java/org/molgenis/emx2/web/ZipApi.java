@@ -2,6 +2,7 @@ package org.molgenis.emx2.web;
 
 import static org.molgenis.emx2.web.Constants.TABLE;
 import static org.molgenis.emx2.web.DownloadApiUtils.includeSystemColumns;
+import static org.molgenis.emx2.web.JsonApi.getReportById;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -183,20 +184,7 @@ public class ZipApi {
     String reportsJson = schema.getMetadata().getSetting("reports");
     List<Map<String, String>> reportList = new ObjectMapper().readValue(reportsJson, List.class);
     for (String reportId : reports.split(",")) {
-      // first find report object based on id
-      Optional<Map<String, String>> found =
-          reportList.stream()
-              .filter(reportDefinition -> reportId.equals(reportDefinition.get("id")))
-              .findFirst();
-      Map<String, String> reportObject = null;
-      if (found.isPresent()) {
-        reportObject = found.get();
-      } else {
-        reportObject = reportList.get(Integer.parseInt(reportId));
-      }
-      if (reportObject == null) {
-        throw new MolgenisException("Cannot find report id=" + reportId);
-      }
+      Map<String, String> reportObject = getReportById(reportId, reportList);
       String sql = reportObject.get("sql");
       List<Row> rows = schema.retrieveSql(sql, parameters);
       if (rows.size() > 0) {
