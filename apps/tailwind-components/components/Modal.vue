@@ -60,22 +60,7 @@ defineExpose({
 
       <footer class="bg-modal-footer px-[50px] rounded-b-50px">
         <menu class="flex items-center justify-left h-[116px]">
-          <slot name="footer">
-            <div class="flex flex-wrap gap-5">
-              <button
-                @click="closeModal('close from btn')"
-                class="flex items-center border rounded-full h-10.5 px-5 text-heading-lg gap-3 tracking-widest uppercase font-display bg-button-primary text-button-primary border-button-primary hover:bg-button-primary-hover hover:text-button-primary-hover hover:border-button-primary-hover"
-              >
-                Primary
-              </button>
-              <button
-                @click="closeModal('close from btn')"
-                class="flex items-center border rounded-full h-10.5 px-5 text-heading-lg gap-3 tracking-widest uppercase font-display bg-button-secondary text-button-secondary border-button-secondary hover:bg-button-secondary-hover hover:text-button-secondary-hover hover:border-button-secondary-hover"
-              >
-                Secondary
-              </button>
-            </div>
-          </slot>
+          <slot name="footer" />
         </menu>
       </footer>
     </div>

@@ -2,18 +2,20 @@
   <Modal ref="modal" :title="`Edit user: ${userName}`">
     <div>
       <b>New password</b>
-      <InputPassword
+      <InputString
         id="New password"
         v-model="password"
         :valid="password.length >= 8"
         :hasError="password.length < 8"
+        type="password"
       />
       <b>Repeat new password</b>
-      <InputPassword
+      <InputString
         id="New password"
         v-model="password2"
         :valid="password === password2 && password2 !== ''"
         :hasError="password !== password2"
+        type="password"
       />
     </div>
 

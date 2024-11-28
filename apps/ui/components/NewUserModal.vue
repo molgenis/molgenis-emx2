@@ -1,20 +1,26 @@
 <template>
   <Modal ref="modal" title="Create User">
     <label>Username</label>
-    <InputString id="New username" v-model="username" />
+    <InputString
+      id="New username"
+      v-model="username"
+      :hasError="isDuplicateName"
+    />
     <label>Password</label>
-    <InputPassword
+    <InputString
       id="New user password"
       v-model="password"
       :valid="password.length >= 8"
       :hasError="password.length < 8"
+      type="password"
     />
     <label>Repeat password</label>
-    <InputPassword
+    <InputString
       id="New user password"
       v-model="password2"
       :valid="password === password2 && password2 !== ''"
       :hasError="password !== password2"
+      type="password"
     />
     <template #footer>
       <Button
@@ -23,7 +29,7 @@
       >
         Add user
       </Button>
-      <Button @click="closeCreateUserModal">Close</Button>
+      <Button @click="closeModal">Close</Button>
     </template>
   </Modal>
 </template>
@@ -42,28 +48,21 @@ const password2 = ref<string>("");
 
 const emit = defineEmits(["addUser"]);
 
+const isDuplicateName = computed(() => usernames.includes(username.value));
+
 function addUser(userName: string, password: string, password2: string) {
   if (!isValidUser()) return;
 
   emit("addUser", userName, password);
-  closeCreateUserModal();
-}
-
-function closeCreateUserModal() {
-  modal.value?.close();
-  username.value = "";
-  password.value = "";
-  password2.value = "";
+  closeModal();
 }
 
 function isValidUser(): boolean {
-  console.log(!usernames.includes(username.value));
   return (
-    !usernames.includes(username.value) &&
+    !isDuplicateName.value &&
     !!username.value.length &&
     isValidPassword(password.value, password2.value)
   );
-  // check for duplicate usernames
 }
 
 function showModal() {
@@ -71,6 +70,9 @@ function showModal() {
 }
 
 function closeModal() {
+  username.value = "";
+  password.value = "";
+  password2.value = "";
   modal.value?.close();
 }
 

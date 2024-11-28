@@ -11,12 +11,14 @@ const props = withDefaults(
     required?: boolean;
     valid?: boolean;
     hasError?: boolean;
+    type?: string;
   }>(),
   {
     disabled: false,
     required: false,
     hasError: false,
     valid: false,
+    type: "",
   }
 );
 
@@ -54,6 +56,7 @@ function onInput(event: Event) {
       'bg-white': !disabled,
     }"
     :value="modelValue"
+    :type="type"
     @input="onInput"
     @focus="$emit('focus')"
     @blur="$emit('blur')"

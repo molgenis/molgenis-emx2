@@ -85,6 +85,7 @@ import {
  *  Icon button with tooltip
  *  Wider modal
  *  Modal without background scrolling
+ *  Modal where I can set the close function as a prop
  *  Generic table components
  *  Password input
  *  Select with more complex objects
