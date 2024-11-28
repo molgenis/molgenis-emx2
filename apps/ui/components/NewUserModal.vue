@@ -1,25 +1,24 @@
 <template>
   <Modal ref="modal" title="Create User">
-    <label>User name</label>
-    <InputString id="New user name" v-model="userName" />
+    <label>Username</label>
+    <InputString id="New username" v-model="username" />
     <label>Password</label>
-    <InputString
+    <InputPassword
       id="New user password"
       v-model="password"
       :valid="password.length >= 8"
       :hasError="password.length < 8"
     />
     <label>Repeat password</label>
-    <InputString
+    <InputPassword
       id="New user password"
       v-model="password2"
       :valid="password === password2 && password2 !== ''"
       :hasError="password !== password2"
     />
-
     <template #footer>
       <Button
-        @click="addUser(userName, password, password2)"
+        @click="addUser(username, password, password2)"
         :disabled="isValidUser()"
       >
         Add user
@@ -31,10 +30,13 @@
 
 <script setup lang="ts">
 import type { Modal } from "#build/components";
+import { isValidPassword } from "~/util/adminUtils";
 
 const modal = ref<InstanceType<typeof Modal>>();
 
-const userName = ref<string>("");
+const { usernames } = defineProps<{ usernames: string[] }>();
+
+const username = ref<string>("");
 const password = ref<string>("");
 const password2 = ref<string>("");
 
@@ -49,18 +51,19 @@ function addUser(userName: string, password: string, password2: string) {
 
 function closeCreateUserModal() {
   modal.value?.close();
-  userName.value = "";
+  username.value = "";
   password.value = "";
   password2.value = "";
 }
 
 function isValidUser(): boolean {
+  console.log(!usernames.includes(username.value));
   return (
-    !!userName.value.length &&
-    password.value.length > 7 &&
-    password.value === password2.value
+    !usernames.includes(username.value) &&
+    !!username.value.length &&
+    isValidPassword(password.value, password2.value)
   );
-  // check for duplicate user names
+  // check for duplicate usernames
 }
 
 function showModal() {

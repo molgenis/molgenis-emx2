@@ -128,6 +128,10 @@ function handleError(message: string, error: any) {
   //see nuxt catalogue on how to handle errors
 }
 
+export function isValidPassword(password1: string, password2: string) {
+  return password1.length > 7 && password1 === password2;
+}
+
 export interface IUser {
   //TODO split into communication and internal interface
   email: string;

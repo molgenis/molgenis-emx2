@@ -1,4 +1,4 @@
-export default defineNuxtRouteMiddleware(async (_to, _from) => {
+export default defineNuxtRouteMiddleware(async () => {
   const { data: session } = await useSession();
   const isAdmin = computed(() => session.value.email === "admin");
   if (!isAdmin.value) {

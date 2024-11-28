@@ -47,7 +47,11 @@
         </template>
       </Table>
 
-      <NewUserModal ref="createUserModal" @addUser="addUser" />
+      <NewUserModal
+        ref="createUserModal"
+        :usernames="usernames"
+        @addUser="addUser"
+      />
 
       <EditUserModal
         ref="editUserModal"
@@ -60,6 +64,7 @@
 </template>
 
 <script setup lang="ts">
+import type { EditUserModal, NewUserModal } from "#build/components";
 import {
   createUser,
   deleteUser,
@@ -76,6 +81,7 @@ import {
  *  Edit icon
  *  Admin icon
  *  Buttongroup
+ *  Disabled buttons are not greyed out
  *  Icon button with tooltip
  *  Wider modal
  *  Modal without background scrolling
@@ -87,7 +93,6 @@ import {
 
 /**
  *  Todos (might be other stories)
- *  Where to put enable/disable; behind edit or button toggle -> doesn't really matter, so modal
  *  Do certain actions need confirmation dialog? -> yes
  *  Does password creating/changing need a double input? -> yes
  *  Search bar for users (scale: 100s of users)
@@ -117,6 +122,7 @@ const roles = ref<string[]>([]);
 const schema = ref<string>("");
 
 const offset = computed(() => {
+  // todo: use offset
   return currentPage.value > 1
     ? `, offset: ${(currentPage.value - 1) * LIMIT}`
     : "";
@@ -126,6 +132,10 @@ retrieveUsers();
 schemas.value = await getSchemas();
 schema.value = schemas.value.length ? schemas.value[0].id : "";
 roles.value = await getRoles(schemas.value);
+
+const usernames = computed(() => {
+  return users.value.map((user) => user.email);
+});
 
 async function addUser(userName: string, password: string) {
   await createUser(userName, password);

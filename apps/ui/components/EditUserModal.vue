@@ -2,7 +2,19 @@
   <Modal ref="modal" :title="`Edit user: ${userName}`">
     <div>
       <b>New password</b>
-      <InputString id="New password" v-model="password" />
+      <InputPassword
+        id="New password"
+        v-model="password"
+        :valid="password.length >= 8"
+        :hasError="password.length < 8"
+      />
+      <b>Repeat new password</b>
+      <InputPassword
+        id="New password"
+        v-model="password2"
+        :valid="password === password2 && password2 !== ''"
+        :hasError="password !== password2"
+      />
     </div>
 
     <div>
@@ -64,7 +76,7 @@
     </div>
 
     <template #footer>
-      <Button @click="saveUser()">Save</Button>
+      <Button @click="saveUser()" :disabled="isValidUser()">Save</Button>
       <Button @click="closeEditUserModal">Close</Button>
     </template>
   </Modal>
@@ -73,7 +85,7 @@
 <script setup lang="ts">
 import { type Modal } from "#build/components";
 import type { IRole, ISchemaInfo, IUser } from "~/util/adminUtils";
-import { updateUser } from "~/util/adminUtils";
+import { isValidPassword, updateUser } from "~/util/adminUtils";
 import _ from "lodash";
 
 const modal = ref<InstanceType<typeof Modal>>();
@@ -92,6 +104,7 @@ const userRoles = ref<Record<string, IRole>>({});
 const revokedRoles = ref<Record<string, IRole>>({});
 const userTokens = ref<string[]>([]);
 const password = ref<string>("");
+const password2 = ref<string>("");
 
 const SchemaIds = computed(() => {
   return schemas.map((schema) => schema.id);
@@ -137,6 +150,12 @@ function getRoles(roles: IRole[]): Record<string, IRole> {
     accum[role.schemaId] = role;
     return accum;
   }, {} as Record<string, IRole>);
+}
+
+function isValidUser(): boolean {
+  return password.value
+    ? isValidPassword(password.value, password2.value)
+    : true;
 }
 
 async function saveUser() {
