@@ -247,8 +247,8 @@ public class WebApiSmokeTests {
             .sessionId(SESSION_ID)
             .get("/pet store reports/api/reports/json?id=report4")
             .asString();
-    jsonbResult = objectMapper.readValue(jsonResults, List.class);
-    assertTrue(jsonbResult.get(0).toString().contains("pooky"));
+    Object result = objectMapper.readValue(jsonResults, Object.class);
+    assertTrue(result.toString().contains("pooky"));
   }
 
   @Test

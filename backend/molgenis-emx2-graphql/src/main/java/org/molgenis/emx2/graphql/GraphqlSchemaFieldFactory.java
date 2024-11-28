@@ -8,6 +8,8 @@ import static org.molgenis.emx2.graphql.GraphqlConstants.*;
 import static org.molgenis.emx2.graphql.GraphqlConstants.INHERITED;
 import static org.molgenis.emx2.graphql.GraphqlConstants.KEY;
 import static org.molgenis.emx2.json.JsonUtil.jsonToSchema;
+import static org.molgenis.emx2.settings.ReportUtils.getReportAsJson;
+import static org.molgenis.emx2.settings.ReportUtils.getReportCount;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.Scalars;
@@ -15,7 +17,6 @@ import graphql.schema.*;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Stream;
-import org.jooq.JSONB;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.json.JsonUtil;
 import org.molgenis.emx2.sql.SqlDatabase;
@@ -872,19 +873,12 @@ public class GraphqlSchemaFieldFactory {
               Map<String, Object> result = new LinkedHashMap<>();
               try {
                 final String id = dataFetchingEnvironment.getArgument(ID);
-
                 Integer offset = dataFetchingEnvironment.getArgumentOrDefault(OFFSET, 0);
                 Integer limit = dataFetchingEnvironment.getArgumentOrDefault(LIMIT, 10);
                 Map<String, String> parameters =
                     convertKeyValueListToMap(dataFetchingEnvironment.getArgument(PARAMETERS));
-                Map<String, String> report = getReportById(id, schema);
-                String sql = report.get("sql") + " LIMIT " + limit + " OFFSET " + offset;
-                String countSql =
-                    String.format("select count(*) from (%s) as count", report.get("sql"));
-                result.put(DATA, convertToJson(schema.retrieveSql(sql, parameters)));
-                result.put(
-                    COUNT,
-                    schema.retrieveSql(countSql, parameters).get(0).get("count", Integer.class));
+                result.put(DATA, getReportAsJson(id, schema, parameters, limit, offset));
+                result.put(COUNT, getReportCount(id, schema, parameters));
                 return result;
               } catch (Exception e) {
                 throw new MolgenisException(
@@ -893,42 +887,5 @@ public class GraphqlSchemaFieldFactory {
               }
             })
         .build();
-  }
-
-  public static Map<String, String> getReportById(String reportId, Schema schema) {
-    try {
-      String reportsJson = schema.getMetadata().getSetting("reports");
-      List<Map<String, String>> reportList = new ObjectMapper().readValue(reportsJson, List.class);
-      if (reportsJson != null) {
-        Optional<Map<String, String>> reportOptional =
-            reportList.stream().filter(r -> reportId.equals(r.get("id"))).findFirst();
-        if (reportOptional.isPresent()) {
-
-          return reportOptional.get();
-        }
-      }
-    } catch (Exception e) {
-      // nothing to do, error will be handled below
-    }
-    throw new MolgenisException("Report not found id=" + reportId);
-  }
-
-  private String convertToJson(List<Row> rows) {
-    ObjectMapper objectMapper = new ObjectMapper();
-    try {
-      List<Map<String, Object>> result = new ArrayList<>();
-      for (Row row : rows) {
-        if (row.getValueMap().size() == 1) {
-          Object value = row.getValueMap().values().iterator().next();
-          if (value instanceof JSONB) {
-            return value.toString();
-          }
-        }
-        result.add(row.getValueMap());
-      }
-      return objectMapper.writeValueAsString(result);
-    } catch (Exception e) {
-      throw new MolgenisException("Cannot convert sql result set to json", e);
-    }
   }
 }
