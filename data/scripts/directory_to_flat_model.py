@@ -16,6 +16,34 @@ def add_to_array(array: str, item: str):
         array += item
     return array
 
+def map_disease_types_to_diseases(disease_types, diseases):
+    """Maps the BBMRI-ERIC DiseaseTypes table to the flat data model's Diseases table"""
+    mapping = {}
+    disease_types = pd.merge(disease_types, diseases, how='left', left_on='label', right_on='name', suffixes=['_dt', '_d'])
+    for _, row in disease_types.iterrows():
+        source = row['name_dt']
+        target = 'NO_MAPPING'
+        # Already mapped on identical label/name
+        if pd.notna(row['name_d']):
+            target = row['name_d']
+        # Don't map null value
+        elif source == '*':
+            target = ''
+        # Use ORPHAnet or ICD-10 code
+        elif source.startswith('ORPHA:') or source.startswith('urn:miriam:icd:'):
+            # Don't map obsolete ORPHAnet values
+            if source.startswith('ORPHA:') and row['label_dt'].startswith('OBSOLETE:'):
+                target = ''
+            else:
+                code_dt = source.split(':')[-1]
+                result = diseases.loc[diseases['code'] == code_dt, 'name']
+                if not result.empty:
+                    target = result.item()
+        mapping[source] = target
+    # Report unmapped types
+    count_unmapped = len([x for x in mapping.values() if x == 'NO_MAPPING'])
+    print(f"WARNING: {count_unmapped} of {len(mapping)} diseases were not mapped")
+    return mapping
 
 def map_persons_to_contacts(persons, collections, biobanks, networks, resources):
     """Maps the BBRMI-ERIC Persons table to the flat data model's Contacts table"""
@@ -91,7 +119,7 @@ def map_persons_to_contacts(persons, collections, biobanks, networks, resources)
     return linked_persons
 
 
-def map_collections_to_samples(collections):
+def map_collections_to_samples(collections, disease_mapping):
     """Maps the BBMRI-ERIC Collections table to the flat data model's Sample collections table"""
     # TODO: columns to map: head, contact, also_known, categories, quality, combined_quality
     # Rename and create columns
@@ -100,6 +128,7 @@ def map_collections_to_samples(collections):
                                 "data_categories": "dataset type",
                                 "size": "number of samples",
                                 "number_of_donors": "number of donors",
+                                "diagnosis_available": "main medical condition",
                                 }, inplace=True)
     collections["parent sample collection.name"] = ""
     collections["parent sample collection.resource"] = ""
@@ -182,6 +211,15 @@ def map_collections_to_samples(collections):
     collections["sex"] = collections["sex"].map(
         lambda l: ",".join({sex_mapping[t] for t in l.split(",") if l})
     )
+    # Map DiseaseTypes to Diseases
+    collections['main medical condition'] = collections['main medical condition'].map(
+        lambda l: ",".join({f'"{disease_mapping[t]}"' for t in l.split(",") if l})
+    )
+    no_mapping = collections['main medical condition'].str.contains('NO_MAPPING')
+    if sum(no_mapping) > 0:
+        print(f'WARNING: {sum(no_mapping)} main medical conditions could not be mapped')
+    collections['main medical condition'] = collections['main medical condition'].str.replace(r'"NO_MAPPING",?', '', regex=True)
+    collections['main medical condition'] = collections['main medical condition'].str.replace(r',$', '', regex=True)
     return collections
 
 
@@ -277,11 +315,16 @@ def main():
             # Unnecessary copy?
             mapped_biobanks = map_biobanks_to_resources(biobanks.copy())
             resources = pd.concat([resources, mapped_biobanks.reindex(columns=mapped_columns)])
-            # Map Collections to Sample cesources
+            # Map DiseaseTypes to Diseases
+            print('Get and map DiseaseTypes...')
+            disease_types = client.get("DiseaseTypes", schema="DirectoryOntologies", as_df=True)
+            diseases = catalogue_client.get("Diseases", schema="CatalogueOntologies", as_df=True)
+            disease_mapping = map_disease_types_to_diseases(disease_types, diseases)
+            # Map Collections to Sample resources
             print('Get and map Collections...')
             collections = client.get("Collections", as_df=True)
             mapped_collections = map_collections_to_samples(
-                collections.copy())  # Unnecessary copy?
+                collections.copy(), disease_mapping)  # Unnecessary copy?
             mapped_collections = mapped_collections.reindex(
                 columns = [
                     "resource",
@@ -296,6 +339,7 @@ def main():
                     "number of donors",
                     "number of samples",
                     "sex",
+                    "main medical condition",
                 ]
             )
             # Map Networks to Resources
