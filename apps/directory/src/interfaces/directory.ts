@@ -502,6 +502,7 @@ export interface IServices {
   qualityStandards?: IQualityInfoServices[];
   contactInformation?: IPersons;
   national_node: INationalNodes;
+  biobank: IBiobanks;
 }
 
 export interface ISexTypes {

@@ -7,7 +7,7 @@
             class="directory-nav"
             :crumbs="{
               ['Back to catalogue']: '../#/',
-              // [service.biobank.name]: `../biobank/${service.biobank.id}`,
+              [service.biobank.name]: `../biobank/${service.biobank.id}`,
               [service.name]: `../#/service/${service.id}`,
             }"
             useRouterLink
@@ -166,6 +166,7 @@ new QueryEMX2(useSettingsStore().config.graphqlEndpoint)
   .table("Services")
   .select([
     "id",
+    { biobank: ["id", "name"] },
     "name",
     { serviceTypes: ["name", "label", { serviceCategory: ["name"] }] },
     "acronym",
