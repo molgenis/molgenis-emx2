@@ -27,7 +27,7 @@
         id="reportName"
         v-model="name"
         label="name"
-        description="human readible label"
+        description="human readable label"
       />
       <InputText
         id="reportSql"
