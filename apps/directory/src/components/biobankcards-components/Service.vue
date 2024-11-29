@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { IServices } from "../../interfaces/directory";
+import CheckBox from "../CheckBox.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -13,8 +14,8 @@ const props = withDefaults(
 
 const emit = defineEmits(["update:isAdded", "update:isRemoved"]);
 
-function handleCheckBox() {
-  props.isSelected ? emit("update:isRemoved") : emit("update:isAdded");
+function handleCheckBox(isChecked: boolean) {
+  isChecked ? emit("update:isAdded") : emit("update:isRemoved");
 }
 </script>
 <template>
@@ -29,22 +30,11 @@ function handleCheckBox() {
       </h5>
     </router-link>
     <div class="ml-auto">
-      <input
-        type="checkbox"
+      <CheckBox
         :id="service.id"
-        class="add-to-cart"
+        :is-checked="isSelected"
         @change="handleCheckBox"
-        :checked="isSelected"
-        hidden
       />
-      <label class="btn" :for="service.id">
-        <span v-show="!isSelected"
-          ><i class="fa-regular fa-lg fa-square"></i
-        ></span>
-        <span v-show="isSelected"
-          ><i class="fa-regular fa-lg fa-check-square"></i
-        ></span>
-      </label>
     </div>
   </div>
   <div>
