@@ -1,8 +1,10 @@
 package org.molgenis.emx2.sql;
 
 import static org.jooq.impl.DSL.name;
+import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.STRING;
 import static org.molgenis.emx2.Constants.*;
+import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.sql.MetadataUtils.*;
 import static org.molgenis.emx2.sql.SqlDatabaseExecutor.*;
 import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeCreateSchema;
@@ -173,6 +175,23 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
           tdb -> {
             if (!this.hasSchema(SYSTEM_SCHEMA)) {
               this.createSchema(SYSTEM_SCHEMA);
+            }
+
+            Schema schema = null;
+            if (!this.hasSchema(SYSTEM_SCHEMA)) {
+              schema = this.createSchema(SYSTEM_SCHEMA);
+            } else {
+              schema = this.getSchema(SYSTEM_SCHEMA);
+            }
+
+            if (!schema.getTableNames().contains("Templates")) {
+              Table templates =
+                  schema.create(
+                      table(
+                          "Templates",
+                          column("endpoint").setPkey(),
+                          column("schema"),
+                          column("template").setType(ColumnType.TEXT)));
             }
           });
 

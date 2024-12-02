@@ -1,5 +1,6 @@
 package org.molgenis.emx2.beaconv2;
 
+import static org.molgenis.emx2.Constants.SYSTEM_SCHEMA;
 import static org.molgenis.emx2.Privileges.*;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -12,9 +13,7 @@ import com.schibsted.spt.data.jslt.Parser;
 import graphql.ExecutionResult;
 import graphql.GraphQL;
 import java.util.List;
-import org.molgenis.emx2.Database;
-import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.Table;
+import org.molgenis.emx2.*;
 import org.molgenis.emx2.beaconv2.common.misc.Granularity;
 import org.molgenis.emx2.beaconv2.common.misc.IncludedResultsetResponses;
 import org.molgenis.emx2.beaconv2.filter.FilterParser;
@@ -34,6 +33,8 @@ public class QueryEntryType {
   private final IncludedResultsetResponses includeStrategy;
 
   private final ObjectMapper mapper = new ObjectMapper();
+  private Database database;
+  private Schema schema;
 
   public QueryEntryType(BeaconRequestBody request) {
     this.request = request;
@@ -44,6 +45,8 @@ public class QueryEntryType {
   }
 
   public JsonNode query(Schema schema) {
+    this.database = schema.getDatabase();
+    this.schema = schema;
     ObjectNode response = mapper.createObjectNode();
     response.set("requestBody", mapper.valueToTree(request));
     FilterParser filterParser = parseFilters(response);
@@ -63,6 +66,7 @@ public class QueryEntryType {
   }
 
   public JsonNode query(Database database) throws JsltException {
+    this.database = database;
     ObjectNode response = mapper.createObjectNode();
     response.set("requestBody", mapper.valueToTree(request));
     FilterParser filterParser = parseFilters(response);
@@ -129,8 +133,29 @@ public class QueryEntryType {
   private ObjectNode getJsltResponse(ObjectNode response) {
     ArrayNode resultSets = response.withArray("resultSets");
 
-    String jsltPath = "entry-types/" + entryType.getName().toLowerCase() + ".jslt";
-    Expression jslt = Parser.compileResource(jsltPath);
+    database.becomeAdmin();
+    Schema systemSchema = database.getSchema(SYSTEM_SCHEMA);
+    Table templatesTable = systemSchema.getTable("Templates");
+    List<Row> templates = templatesTable.retrieveRows();
+    String template =
+        templates.stream()
+            .filter(
+                r ->
+                    r.get("schema", ColumnType.STRING).equals(schema.getName())
+                        && r.get("endpoint", ColumnType.STRING)
+                            .equals("beacon_" + entryType.getName()))
+            .map(r -> r.get("template", String.class))
+            .findFirst()
+            .orElse(null);
+
+    Expression jslt;
+    if (template != null) {
+      jslt = Parser.compileString(template);
+    } else {
+      String jsltPath = "entry-types/" + entryType.getName().toLowerCase() + ".jslt";
+      jslt = Parser.compileResource(jsltPath);
+    }
+
     ObjectNode jsltResponse = (ObjectNode) jslt.apply(response);
 
     if (granularity.equals(Granularity.RECORD) && resultSets.isEmpty()) {
