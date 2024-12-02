@@ -100,7 +100,7 @@ export const initialFilterFacets = [
     sourceTable: "ServiceTypes",
     applyToColumn: "services.serviceTypes.name",
     filterValueAttribute: "name",
-    filterLabelAttribute: "name",
+    filterLabelAttribute: "label",
     negotiatorRequestString: "Biobank services:",
     sortColumn: "name",
     sortDirection: "asc",
