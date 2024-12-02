@@ -39,13 +39,13 @@ function collectionViewmodel(collectiondetails: Record<string, any>) {
 <template>
   <div class="collections-section flex-grow-1">
     <div class="pl-2 pt-2 d-flex" v-if="numberOfCollections > 1">
-      <h6 v-if="numberOfCollections > 1">
+      <h5 v-if="numberOfCollections > 1" class="font-weight-light">
         {{
           `${numberOfCollections} collections ${
             hasActiveFilters ? "found" : "available"
           }`
         }}
-      </h6>
+      </h5>
       <collection-selector
         class="text-right mr-1 ml-auto align-self-center"
         :biobankData="biobank"

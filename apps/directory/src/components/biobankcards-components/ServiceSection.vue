@@ -49,16 +49,26 @@ function handleSelectAll(isChecked: boolean) {
 
 <template>
   <div>
-    <div v-if="services.length > 1" class="pl-2 pt-2 d-flex">
-      <h6>{{ services.length }} services available</h6>
-      <div class="ml-auto">
-        <CheckBox
-          id="all"
-          :is-checked="isAllSelected"
-          @change="handleSelectAll"
-        ></CheckBox>
+    <CardItem v-if="services.length > 1">
+      <div class="d-flex">
+        <router-link
+          :to="'/service/'"
+          title="Service details"
+          class="text-dark"
+        >
+          <h5 class="font-weight-light">
+            {{ services.length }} collections available
+          </h5>
+        </router-link>
+        <div class="ml-auto">
+          <CheckBox
+            id="ds"
+            :is-checked="isAllSelected"
+            @change="handleSelectAll"
+          />
+        </div>
       </div>
-    </div>
+    </CardItem>
 
     <CardItem v-for="(service, index) in services">
       <Service

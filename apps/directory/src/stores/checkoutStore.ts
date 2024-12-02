@@ -385,6 +385,12 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
           toRaw({
             id: service.value,
             name: service.label,
+            // todo: is this needed?
+            // organization: {
+            //   id: biobank.value,
+            //   externalId: biobank.id,
+            //   name: biobank.label,
+            // },
           })
         );
       }
