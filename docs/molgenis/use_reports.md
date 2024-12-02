@@ -56,9 +56,10 @@ it into SQL.
 
 You can also use these reports in scripts, to directly download the results, for example:
 
-* http://myserver.com/schema/api/report/report1
-* http://myserver.com/schema/api/report/report1,report2 (then you get result from two reports)
-* http://myserver.com/schema/api/report/report2,report3?name=pooky,spike (then you get result from two reports using 'name' as parameter)
+* http://<host>/<schema>api/reports/report1
+* http://<host>/<schema>/api/reports/report1,report2 (then you get result from two reports)
+* http://<host>/<schema>/api/reports/report2,report3?name=pooky,spike (then you get result from two reports using 'name' as parameter)
+* https://<host>/<schema>/api/reports/json?id=report3
 
 # Returning JSON so you can use reports as REST like 'get' API
 
