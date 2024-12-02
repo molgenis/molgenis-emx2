@@ -47,17 +47,10 @@
       </button>
       <button>contact page</button>
     </div>
-    <ModularPage
-      :editMode="true"
-      :content="content"
-      @save="savePage($event)"
-      :page="page"
-    ></ModularPage>
   </div>
 </template>
 
 <script>
-import ModularPage from "./ModularPage.vue";
 import { request } from "graphql-request";
 
 export default {

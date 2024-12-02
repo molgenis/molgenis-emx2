@@ -3,19 +3,11 @@
     <router-link v-if="canEdit" :to="'/' + page + '/edit'">
       edit page
     </router-link>
-    <ModularPage
-      v-if="contents?.version === 2"
-      :editMode="false"
-      :content="contents"
-      :page="page"
-    ></ModularPage>
     <div v-else v-html="contents"></div>
   </div>
 </template>
 
 <script>
-import ModularPage from "./ModularPage.vue";
-
 export default {
   components: {
     ModularPage,

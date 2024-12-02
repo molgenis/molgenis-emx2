@@ -1,12 +1,15 @@
 <template>
   <Page>
-    <Module
-      v-for="(module, index) in localContent?.modules"
-      @save="save($event, index)"
-      :content="module"
-      :editMode="editMode"
-      :page="page"
-    ></Module>
+    <div v-if="content?.version === 2" >
+      <Module
+        v-for="(module, index) in localContent?.modules"
+        @save="save($event, index)"
+        :content="module"
+        :editMode="editMode"
+        :page="page"
+      />
+    </div>
+    <div v-else v-html="localContent"></div>
   </Page>
 </template>
 
@@ -29,7 +32,7 @@ let props = withDefaults(
 const emit = defineEmits();
 
 let localContent = ref(props.content);
-
+console.log("localContent",localContent)
 function save(value, index) {
   emit("save", localContent.value);
 }
