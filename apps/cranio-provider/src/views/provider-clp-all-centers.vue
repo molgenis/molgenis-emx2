@@ -118,12 +118,12 @@ const currentVisibleChart = computed<string>(() => {
 async function getPageData() {
   const icsCenterResponse = await getDashboardChart(
     props.api.graphql.current,
-    "clp-all-centeres-ics-results"
+    "clp-all-centers-ics-results"
   );
 
   const icsErnResponse = await getDashboardChart(
     props.api.graphql.providers,
-    "clp-all-centeres-ics-results"
+    "clp-all-centers-ics-results"
   );
 
   const cleftqCenterResponse = await getDashboardChart(

@@ -8,7 +8,7 @@
         </MessageBox>
       </div>
       <div v-else>
-        <!-- <PageHeader
+        <PageHeader
           title="ERN CRANIO Registry"
           :subtitle="currentOrganisation?.name"
           :imageSrc="
@@ -16,7 +16,7 @@
               ? `${currentOrganisation?.image?.url}`
               : 'img/banner-diagnoses.jpg'
           "
-        /> -->
+        />
         <Dashboard class="provider-dashboard-container" :horizontalPadding="5">
           <ProviderSidebar />
           <router-view

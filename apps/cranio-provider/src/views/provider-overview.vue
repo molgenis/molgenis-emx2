@@ -19,7 +19,7 @@
         id="provider-overview-patients-submitted"
         class="center-showcase"
       >
-        <LoadingScreen v-if="loading" />
+        <LoadingScreen v-if="loading" style="height: auto" />
         <ValueShowcase
           v-else
           :title="`${numberOfPatientsSubmitted} patients submitted`"
