@@ -6,6 +6,82 @@ import argparse
 import molgenis_emx2_pyclient
 import pandas as pd
 
+# Map SexTypes (partly MIABIS v2) to Sex types (MIABIS v3)
+sex_mapping = {
+    "*": "*",
+    "FEMALE": "Female",
+    "MALE": "Male",
+    "NASK": "Unknown",
+    "NAV": "Unknown",
+    "NEUTERED_FEMALE": "Not applicable",
+    "NEUTERED_MALE": "Not applicable",
+    "UNDIFFERENTIAL": "Undifferentiated",
+    "UNKNOWN": "Unknown",
+}
+
+# Map MIABIS-V2-based CollectionTypes to MIABIS-V3-based Sample collection designs
+# TODO: perhaps some currently mapped to other fit in a different attribute?
+design_mapping = {
+    "QUALITY_CONTROL": "Quality control study",
+    "BIRTH_COHORT": "Birth cohort",
+    "POPULATION_BASED": "Population-based cohort",
+    "DISEASE_SPECIFIC": "Disease-specific cohort",
+    "NON_HUMAN": "Other",
+    "CASE_CONTROL": "Case-control",
+    "OTHER": "Other",
+    "SAMPLE": "Other",
+    "RD": "Rare disease collection",
+    "IMAGE": "Other",
+    "PROSPECTIVE_COLLECTION": "Other",
+    "HOSPITAL": "Other",
+    "CROSS_SECTIONAL": "Cross-sectional",
+    "COHORT": "Other",
+    "TWIN_STUDY": "Twin-study",
+    "LONGITUDINAL": "Longitudinal cohort",
+}
+
+# Map DataCategories (partly MIABIS v2) to Dataset types (MIABIS v3)
+data_category_mapping = {
+    "ANTIBODIES": "Other",
+    "BIOLOGICAL_SAMPLES": "Other",
+    "BLOOD": "Physiological dataset",
+    "CLINICAL_SYMPTOMS": "Clinical dataset",
+    "CT": "Body (Radiological) image",
+    "DiseaseDuration": "Clinical dataset",
+    "GENEALOGICAL_RECORDS": "Genealogical records",
+    "IMAGING_DATA": "Body (Radiological) image",
+    "MEDICAL_RECORDS": "Clinical dataset",
+    "NATIONAL_REGISTRIES": "Clinical dataset",
+    "NAV": "",
+    "OTHER": "Other",
+    "PHYSIOLOGICAL_BIOCHEMICAL_MEASUREMENTS": "Physiological dataset,Biochemical dataset",
+    "SURVEY_DATA": "Other",
+    "TREATMENT_PROTOCOL": "Clinical dataset",
+}
+
+# Partial mappings of manually entered roles to pre-defined roles
+role_mapping = {
+    "PI": "Principal Investigator",
+    "Principal Investigator": "Principal Investigator",
+    "Principal Investigators": "Principal Investigator",
+    "Principle Investigator": "Principal Investigator",
+    "Project coordinator": "Project manager",
+    "Project Co-ordinator": "Project manager",
+    "Project Coordinator": "Project manager",
+}
+
+# Do partial mappings of title_before_name to pre-defined titles
+# TODO: update when flat data model supports post-nominal titles
+title_mapping = {
+    "dr": "dr.",
+    "profdr": "prof. dr.",
+    "prof": "prof.",
+    "mwdr": "dr.",
+    "profdrmed": "prof. dr.",
+    "pddr": "dr.",
+    "drrernat": "dr.",
+    "drmed": "dr.",
+}
 
 def add_to_array(array: str, item: str):
     """Add an item to an existing array in string format"""
@@ -55,32 +131,11 @@ def map_persons_to_contacts(persons, collections, biobanks, networks, resources)
     # Add dummy values for missing first and last names
     persons["first name"] = persons["first name"].replace(r"^$", "FirstName", regex=True)
     persons["last name"] = persons["last name"].replace(r"^$", "LastName", regex=True)
-    # Do partial mappings of title_before_name to pre-defined titles
-    # TODO: update when flat data model supports post-nominal titles
+    # Map titles and roles
     persons["title_before_name"] = (
         persons["title_before_name"].str.lower().str.replace("[^a-z]", "", regex=True)
     )
-    title_mapping = {
-        "dr": "dr.",
-        "profdr": "prof. dr.",
-        "prof": "prof.",
-        "mwdr": "dr.",
-        "profdrmed": "prof. dr.",
-        "pddr": "dr.",
-        "drrernat": "dr.",
-        "drmed": "dr.",
-    }
     persons["title"] = persons["title_before_name"].map(title_mapping)
-    # Partial mappings of manually entered roles to pre-defined roles
-    role_mapping = {
-        "PI": "Principal Investigator",
-        "Principal Investigator": "Principal Investigator",
-        "Principal Investigators": "Principal Investigator",
-        "Principle Investigator": "Principal Investigator",
-        "Project coordinator": "Project manager",
-        "Project Co-ordinator": "Project manager",
-        "Project Coordinator": "Project manager",
-    }
     persons["role"] = persons["role description"].map(role_mapping)
     # Add role 'Other' for un-mapped roles
     persons.loc[(persons["role description"] != "") & (persons["role"].isna()), "role"] = "Other"
@@ -153,66 +208,16 @@ def map_collections_to_samples(collections, disease_mapping):
             p_c = collections.loc[p_c_id]
             collections.loc[idx, 'parent sample collection.name'] = p_c['name']
             collections.loc[idx, 'parent sample collection.resource'] = p_c['resource']
-    # Map MIABIS-V2-based CollectionTypes to MIABIS-V3-based Sample collection designs
-    # TODO: perhaps some currently mapped to other fit in a different attribute?
-    design_mapping = {
-        "QUALITY_CONTROL": "Quality control study",
-        "BIRTH_COHORT": "Birth cohort",
-        "POPULATION_BASED": "Population-based cohort",
-        "DISEASE_SPECIFIC": "Disease-specific cohort",
-        "NON_HUMAN": "Other",
-        "CASE_CONTROL": "Case-control",
-        "OTHER": "Other",
-        "SAMPLE": "Other",
-        "RD": "Rare disease collection",
-        "IMAGE": "Other",
-        "PROSPECTIVE_COLLECTION": "Other",
-        "HOSPITAL": "Other",
-        "CROSS_SECTIONAL": "Cross-sectional",
-        "COHORT": "Other",
-        "TWIN_STUDY": "Twin-study",
-        "LONGITUDINAL": "Longitudinal cohort",
-    }
+    # Apply mappings to attributes which need it
     collections["design"] = collections["design"].map(
         lambda l: ",".join({design_mapping[t] for t in l.split(",")})
     )
-    # Map DataCategories (partly MIABIS v2) to Dataset types (MIABIS v3)
-    data_category_mapping = {
-        "ANTIBODIES": "Other",
-        "BIOLOGICAL_SAMPLES": "Other",
-        "BLOOD": "Physiological dataset",
-        "CLINICAL_SYMPTOMS": "Clinical dataset",
-        "CT": "Body (Radiological) image",
-        "DiseaseDuration": "Clinical dataset",
-        "GENEALOGICAL_RECORDS": "Genealogical records",
-        "IMAGING_DATA": "Body (Radiological) image",
-        "MEDICAL_RECORDS": "Clinical dataset",
-        "NATIONAL_REGISTRIES": "Clinical dataset",
-        "NAV": "",
-        "OTHER": "Other",
-        "PHYSIOLOGICAL_BIOCHEMICAL_MEASUREMENTS": "Physiological dataset,Biochemical dataset",
-        "SURVEY_DATA": "Other",
-        "TREATMENT_PROTOCOL": "Clinical dataset",
-    }
     collections["dataset type"] = collections["dataset type"].map(
         lambda l: ",".join({data_category_mapping[t] for t in l.split(",")})
     )
-    # Map SexTypes (partly MIABIS v2) to Sex types (MIABIS v3)
-    sex_mapping = {
-        "*": "*",
-        "FEMALE": "Female",
-        "MALE": "Male",
-        "NASK": "Unknown",
-        "NAV": "Unknown",
-        "NEUTERED_FEMALE": "Not applicable",
-        "NEUTERED_MALE": "Not applicable",
-        "UNDIFFERENTIAL": "Undifferentiated",
-        "UNKNOWN": "Unknown",
-    }
     collections["sex"] = collections["sex"].map(
         lambda l: ",".join({sex_mapping[t] for t in l.split(",") if l})
     )
-    # Map DiseaseTypes to Diseases
     collections['main medical condition'] = collections['main medical condition'].map(
         lambda l: ",".join({f'"{disease_mapping[t]}"' for t in l.split(",") if l})
     )
