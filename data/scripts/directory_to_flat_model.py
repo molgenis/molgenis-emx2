@@ -143,33 +143,54 @@ def map_age_to_age_groups(age_columns):
         age_groups = ''
         if row['age_unit']:
             # Normalise all ages to years
-            divider = 1.0
+            divider = 1
             match row['age_unit']:
                 case 'DAY':
-                    divider = 365.0
+                    divider = 365
                 case 'WEEK':
-                    divider = 52.0
+                    divider = 52
                 case 'MONTH':
-                    divider = 12.0
+                    divider = 12
                 case 'YEAR':
-                    divider = 1.0
+                    divider = 1
             if row['age_low']:
-                row['age_low'] = float(row['age_low'])/divider
+                age_low = float(row['age_low'])/divider
             if row['age_high']:
-                row['age_high'] = float(row['age_high'])/divider
+                age_high = float(row['age_high'])/divider
             # Add groups based on normalised age range
             if row['age_low']:
-                if row['age_low'] < 0:
-                    age_groups = add_to_array(age_groups, 'Prenatal')
                 # All values filled in
                 if row['age_high']:
-                    pass
+                    if age_low < 0:
+                        age_groups = add_to_array(age_groups, 'Prenatal')
+                    if age_high >= 80:
+                        age_groups = add_to_array(age_groups, 'Aged (80+ years)')
                 # Only age low filled in, assume single data point of that age
                 else:
-                    pass
+                    if age_low < 0:
+                        age_groups = add_to_array(age_groups, 'Prenatal')
+                    elif age_low < 2/12:
+                        age_groups = add_to_array(age_groups, 'Newborn (0-1 months)')
+                    elif age_low < 2:
+                        age_groups = add_to_array(age_groups, 'Infants and toddlers (2-23 months)')
+                    elif age_low < 13:
+                        age_groups = add_to_array(age_groups, 'Child (2-12 years)')
+                    elif age_low < 18:
+                        age_groups = add_to_array(age_groups, 'Adolescent (13-17 years)')
+                    elif age_low < 25:
+                        age_groups = add_to_array(age_groups, 'Young adult (18-24 years)')
+                    elif age_low < 45:
+                        age_groups = add_to_array(age_groups, 'Adult (25-44 years)')
+                    elif age_low < 65:
+                        age_groups = add_to_array(age_groups, 'Middle-aged (45-64 years)')
+                    elif age_low < 80:
+                        age_groups = add_to_array(age_groups, 'Aged (65-79 years)')
+                    else:
+                        age_groups = add_to_array(age_groups, 'Aged (80+ years)')
             # Only age high filled in, assume single data point of that age
             elif row['age_high']:
-                pass
+                if age_high >= 80:
+                    age_groups = add_to_array(age_groups, 'Aged (80+ years)')
             else:
                 row['age_groups'] = ''
         else:
