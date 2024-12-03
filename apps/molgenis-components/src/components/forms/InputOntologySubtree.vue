@@ -14,6 +14,7 @@
       </span>
       <span @click.stop="toggleSelect(term)">
         <i
+          v-if="enableSelectNodes || countVisibleChildren(term) == 0"
           class="fa-fw text-primary pl-2 pt-1"
           :class="getSelectState(term)"
           role="button"
@@ -58,6 +59,7 @@ export default {
       default: () => [],
     },
     isMultiSelect: { type: Boolean, default: false },
+    enableSelectNodes: { type: Boolean, default: true },
   },
   methods: {
     countVisibleChildren(term) {
