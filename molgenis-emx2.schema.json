@@ -65,7 +65,8 @@
           "$ref": "#/defs/columns"
         },
         "profiles": {
-          "$ref": "#/defs/profiles"
+          "description": "profile tags, comma seperated for compactness",
+          "type": "string"
         },
         "ref_label": {
           "description": "label for rows in this table when shown in a lookup",
@@ -75,12 +76,6 @@
     }
   ],
   "defs": {
-    "profiles": {
-      "type": "array",
-      "items": {
-        "type": "string"
-      }
-    },
     "license": {
       "type": "object",
       "required": [
@@ -133,19 +128,9 @@
       "description": "subclass definition",
       "additionalProperties": false,
       "properties": {
-        "subclasses": {
-          "type": "object",
-          "description": "indicating subclasses of this subclass",
-          "additionalProperties": {
-            "anyOf": [
-              {
-                "$ref": "#/defs/subclass"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          }
+        "extends":{
+          "type": "string",
+          "description": "Table it extends from. When left empty we assume it extends from root class. Otherwise whould be refering to another subclass"
         },
         "description": {
           "type": "string",
@@ -208,7 +193,8 @@
             "uuid",
             "uuid_array",
             "file",
-            "file_array"
+            "file_array",
+            "json"
           ],
           "description": "primitive type of the column. For relationships use 'ref' or 'ref_array' or 'ontology' or 'ontology_array' or 'ref_back' properties"
         },
@@ -289,7 +275,8 @@
           "type": ["string","boolean"]
         },
         "profiles": {
-          "$ref": "#/defs/profiles"
+          "description": "profile tags, comma seperated for compactness",
+          "type": "string"
         }
       }
     }

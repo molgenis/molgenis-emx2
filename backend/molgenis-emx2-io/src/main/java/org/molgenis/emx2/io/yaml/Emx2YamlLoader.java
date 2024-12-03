@@ -70,10 +70,10 @@ public class Emx2YamlLoader {
                 table.getTableName(),
                 null, // todo uri
                 table.getDescription(),
-                getYamlSubclassMapRecursively(table),
+                getYamlSubclassMap(table),
                 getYamlColumnMap(table),
                 table.getSettings(),
-                table.getProfiles() == null ? null : Arrays.asList(table.getProfiles()),
+                table.getProfiles() == null ? null : String.join(",", table.getProfiles()),
                 null // todo ref_label
                 );
         builder.append("\n---\n\n" + mapper.writeValueAsString(yamlTable));
@@ -84,7 +84,8 @@ public class Emx2YamlLoader {
     return builder.toString().replace(": null\n", ":\n");
   }
 
-  private Map<String, YamlSubclass> getYamlSubclassMapRecursively(TableMetadata table) {
+  private Map<String, YamlSubclass> getYamlSubclassMap(TableMetadata table) {
+    // todo, could in theory be cross schema!
     List<TableMetadata> subclasses =
         table.getSchema().getTables().stream()
             .filter(
@@ -94,11 +95,7 @@ public class Emx2YamlLoader {
       Map<String, YamlSubclass> result = new HashMap<>();
       for (TableMetadata subclass : subclasses) {
         YamlSubclass yamlSubclass =
-            new YamlSubclass(
-                subclass.getDescription(),
-                null, // todo uri,
-                getYamlSubclassMapRecursively(subclass));
-
+            new YamlSubclass(subclass.getDescription(), null, subclass.getInheritName());
         result.put(subclass.getTableName(), nullIfEmpty(yamlSubclass));
       }
       return result;
@@ -142,7 +139,7 @@ public class Emx2YamlLoader {
                 column.getTableName().equals(table.getTableName()) ? null : column.getTableName(),
                 // todo uri
                 // todo create getDescription()
-                column.getProfiles() == null ? null : Arrays.asList(column.getProfiles()));
+                column.getProfiles() == null ? null : String.join(",", column.getProfiles()));
 
         result.put(column.getName(), nullIfEmpty(yamlColumn));
       }
@@ -199,11 +196,11 @@ public class Emx2YamlLoader {
 
     // subclass table
     if (yamlTable.subclasses != null) {
-      setSubclassMetadataRecursively(yamlTable, yamlTable.subclasses, schema, tableMetadata);
+      setSubclassMetadata(yamlTable, yamlTable.subclasses, schema, tableMetadata);
     }
   }
 
-  private static void setSubclassMetadataRecursively(
+  private static void setSubclassMetadata(
       YamlTable yamlTable,
       Map<String, YamlSubclass> subclasses,
       SchemaMetadata schema,
@@ -211,15 +208,10 @@ public class Emx2YamlLoader {
     for (Map.Entry<String, YamlSubclass> entry : subclasses.entrySet()) {
       YamlSubclass yamlSubclass = entry.getValue();
       TableMetadata subclassMetadata = new TableMetadata(entry.getKey());
-      subclassMetadata.setInheritName(tableMetadata.getTableName());
-      if (yamlSubclass != null) {
-        subclassMetadata.setDescription(yamlSubclass.description);
-        subclassMetadata.setSemantics(yamlSubclass.uri);
-        if (yamlSubclass.subclasses != null) {
-          setSubclassMetadataRecursively(
-              yamlTable, yamlSubclass.subclasses, schema, subclassMetadata);
-        }
-      }
+      subclassMetadata.setInheritName(
+          yamlSubclass != null && yamlSubclass.extend() != null
+              ? yamlSubclass.extend()
+              : tableMetadata.getTableName());
       setColumnMetadata(yamlTable, subclassMetadata);
       schema.create(subclassMetadata);
     }
@@ -245,7 +237,7 @@ public class Emx2YamlLoader {
           column.setValidation(yamlColumn.validIf);
           column.setVisible(yamlColumn.visibleIf);
           if (yamlColumn.profiles != null) {
-            column.setProfiles(yamlColumn.profiles.toArray(new String[0]));
+            column.setProfiles(yamlColumn.profiles.split(","));
           }
 
           if (yamlColumn.ontology != null) {
@@ -329,7 +321,7 @@ public class Emx2YamlLoader {
       @JsonInclude(JsonInclude.Include.NON_EMPTY) Map<String, YamlSubclass> subclasses,
       @JsonInclude(JsonInclude.Include.NON_EMPTY) Map<String, YamlColumn> columns,
       Map<String, String> settings,
-      List<String> profiles,
+      String profiles,
       String ref_label) {}
 
   private record YamlColumn(
@@ -349,14 +341,13 @@ public class Emx2YamlLoader {
       String validIf,
       String uri,
       String subclass,
-      List<String> profiles) {}
+      String profiles) {}
 
   private record YamlAuthor(String email, String orcid) {}
 
   private record YamlLicense(String name, String uri) {}
 
-  private record YamlSubclass(
-      String description, String uri, Map<String, YamlSubclass> subclasses) {}
+  private record YamlSubclass(String description, String uri, String extend) {}
 
   private static <R extends Record> R nullIfEmpty(R aRecord) {
     for (Field field : aRecord.getClass().getDeclaredFields()) {

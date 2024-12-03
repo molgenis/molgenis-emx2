@@ -20,12 +20,11 @@ description: my first table
 uri: foaf:Person
 ref_label:  ${firstName} ${lastName}
 # MEGA BIG ISSUE: this yaml schema design doesn't allow table inheritance across schemas!
-# however, we could also add an 'extends' to table level to allow cross schema extends
 subclasses:
   Employee:
-    subclasses:
-      Manager:
-        description: so this means we now have a Person > Employee > Manager class hierarchy
+  Manager:
+      extend: Employee
+      description: so this means we now have a Person > Employee > Manager class hierarchy
 columns:
   id:
     type: auto_id
@@ -54,8 +53,7 @@ columns:
     required: true
     visibleIf: id
     validIf: birthday < Date.now()
-    profiles:
-    - test
+    profiles: test,test2
   parent:
     ref: Person
     ref_label: ${id}
