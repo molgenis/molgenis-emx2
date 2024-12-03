@@ -134,6 +134,10 @@ export default {
       type: [Object, null],
       required: true,
     },
+    expressionData: {
+      type: Object,
+      required: false,
+    },
     schemaId: {
       type: String,
       required: false,
@@ -234,7 +238,7 @@ export default {
       .fetchTableMetaData(this.tableId)
       .catch((error) => (this.graphqlError = error.message));
     this.defaultValue = new Object();
-    this.defaultValue[this.refBackId] = await this.pkey;
+    this.defaultValue[this.refBackId] = this.expressionData;
     await this.reload();
   },
 };

@@ -13,7 +13,7 @@ Scripts can have the following:
 * the script type
 * the script
 * outputFileExtension, optional, for returning output files. E.g. 'txt'
-* disabled, when true scripts cannot be run
+* disabled, when set to true the script will not run if a cron schedule is set
 * cron, will schedule the script to run at planned intervals
 * failureAddress, when set, will send a message to this email address, if a job fails
 

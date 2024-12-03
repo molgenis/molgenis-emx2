@@ -231,7 +231,7 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
         :link="`/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/collections`"
       />
       <LandingCardPrimary
-        v-if="networkCount"
+        v-if="networkCount && !cohortOnly"
         image="image-diagram"
         title="Networks"
         :description="
@@ -272,12 +272,12 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
     <LandingSecondary>
       <LandingCardSecondary
         icon="people"
-        v-if="data.data.Resources_agg?._sum?.numberOfParticipants"
+        v-if="data.data.Collections_agg?._sum?.numberOfParticipants"
       >
         <b>
           {{
             new Intl.NumberFormat("nl-NL").format(
-              data.data.Resources_agg?._sum?.numberOfParticipants
+              data.data.Collections_agg?._sum?.numberOfParticipants
             )
           }}
           {{
@@ -287,18 +287,18 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
         </b>
         <br />{{
           getSettingValue("CATALOGUE_LANDING_PARTICIPANTS_TEXT", settings) ||
-          "The cumulative number of participants."
+          "The cumulative number of participants"
         }}
       </LandingCardSecondary>
 
       <LandingCardSecondary
         icon="colorize"
-        v-if="data.data.Resources_agg?._sum?.numberOfParticipantsWithSamples"
+        v-if="data.data.Collections_agg?._sum?.numberOfParticipantsWithSamples"
       >
         <b
           >{{
             new Intl.NumberFormat("nl-NL").format(
-              data.data.Resources_agg?._sum?.numberOfParticipantsWithSamples
+              data.data.Collections_agg?._sum?.numberOfParticipantsWithSamples
             )
           }}
           {{
@@ -314,7 +314,7 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
 
       <LandingCardSecondary
         icon="schedule"
-        v-if="data.data.Design_groupBy && data.data.Resources_agg"
+        v-if="data.data.Design_groupBy && data.data.Collections_agg"
       >
         <b
           >{{
@@ -324,12 +324,12 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
           {{
             percentageLongitudinal(
               data.data.Design_groupBy,
-              data.data.Resources_agg.count
+              data.data.Collections_agg.count
             )
           }}%</b
         ><br />{{
           getSettingValue("CATALOGUE_LANDING_DESIGN_TEXT", settings) ||
-          "Percentage of longitudinal datasets."
+          "Percentage of longitudinal datasets"
         }}
       </LandingCardSecondary>
 

@@ -1,93 +1,4 @@
-import type {
-  IDocumentation,
-  IFile,
-  INode,
-} from "../../tailwind-components/types/types";
-import type { ICollectionEvents, ISubpopulations } from "./catalogue";
-export interface IResource {
-  id: string;
-  pid: string;
-  name: string;
-  acronym?: string;
-  description?: string;
-  website?: string;
-  logo?: IUrlObject;
-  contactEmail?: string;
-  organisationsInvolved?: IOrganisation[];
-  institution?: {
-    acronym: string;
-  };
-  type: INameObject[];
-  typeOther?: string;
-  cohortType: INameObject[];
-  networkType: INameObject[];
-  clinicalStudyType: INameObject[];
-  rWDType: INameObject[];
-  keywords?: string;
-  externalIdentifiers?: [
-    {
-      identifier: string;
-      externalIdentifierType: INameObject;
-    }
-  ];
-  dateLastRefresh?: string;
-  startYear?: string;
-  endYear?: string;
-  license?: string;
-  populationAgeGroups?: IOntologyNode[];
-  countries: {
-    name: string;
-    order: number;
-  }[];
-  regions: {
-    name: string;
-    order: number;
-  }[];
-  numberOfParticipants: number;
-  numberOfParticipantsWithSamples?: number;
-  designDescription: string;
-  designSchematic: IFile;
-  design: {
-    definition: string;
-    name: string;
-  };
-  dataCollectionType?: {
-    definition: string;
-    name: string;
-  }[];
-  dataCollectionDescription?: string;
-  reasonSustained?: string;
-  unitOfObservation?: string;
-  recordTrigger?: string;
-  designPaper?: {
-    title: string;
-    doi: string;
-  }[];
-  inclusionCriteria?: IOntologyNode[];
-  otherInclusionCriteria?: string;
-  collectionEvents: ICollectionEvents[];
-  collectionEvents_agg: { count: number };
-  peopleInvolved: IContributor[];
-  networks: INetwork[];
-  publications: IPublication[];
-  releaseDescription?: string;
-  linkageOptions?: string;
-  dataAccessConditionsDescription?: string;
-  dataAccessConditions?: { name: string }[];
-  dataUseConditions?: IOntologyNode[];
-  dataAccessFee?: boolean;
-  prelinked?: boolean;
-  releaseType?: boolean;
-  fundingStatement?: string;
-  acknowledgements?: string;
-  documentation?: IDocumentation[];
-  datasets: { name: string }[];
-  populationOncologyTopology?: IOntologyNode[];
-  populationOncologyMorphology?: IOntologyNode[];
-  subpopulations: ISubpopulations[];
-  subpopulations_agg: { count: number };
-  partOfResources: IResource[];
-}
+import type { INode } from "../../tailwind-components/types/types";
 
 export interface IPublication {
   doi: string;
@@ -371,7 +282,7 @@ export interface IOntologyFilterConfig extends IFilterConfig {
   type: "ONTOLOGY";
   ontologyTableId: string;
   ontologySchema: string;
-  filter: Record<String, Filter>;
+  filter: Record<string, IFilter>;
   columnId: string;
   refFields?: filterRefField;
 }
@@ -466,3 +377,5 @@ export interface UIResource {
   id: string;
   logo: { url: string };
 }
+
+export type analyticsSericves = "siteimprove" | "google-analytics";

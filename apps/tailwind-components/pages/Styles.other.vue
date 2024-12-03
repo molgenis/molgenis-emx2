@@ -314,6 +314,9 @@
       <ColorTile color="footer-link" type="text" />
     </li>
     <li>
+      <ColorTile color="table-column-header" type="text" />
+    </li>
+    <li>
       <ColorTile color="invalid" type="text" />
     </li>
     <li>

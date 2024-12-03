@@ -29,8 +29,8 @@ public class MolgenisWebservice {
   static final Logger logger = LoggerFactory.getLogger(MolgenisWebservice.class);
   private static final String ROBOTS_TXT = "robots.txt";
   private static final String USER_AGENT_ALLOW = "User-agent: *\nAllow: /";
-  static MolgenisSessionManager sessionManager;
-  static OIDCController oidcController;
+  public static MolgenisSessionManager sessionManager;
+  public static OIDCController oidcController;
 
   private MolgenisWebservice() {
     // hide constructor
@@ -39,7 +39,7 @@ public class MolgenisWebservice {
   public static void start(int port) {
 
     sessionManager = new MolgenisSessionManager();
-    oidcController = new OIDCController(sessionManager, new SecurityConfigFactory().build());
+    oidcController = new OIDCController();
     Javalin app =
         Javalin.create(
                 config -> {
@@ -90,6 +90,7 @@ public class MolgenisWebservice {
     CsvApi.create(app);
     ZipApi.create(app);
     ExcelApi.create(app);
+    JsonApi.create(app);
     FileApi.create(app);
     JsonYamlApi.create(app);
     TaskApi.create(app);

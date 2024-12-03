@@ -8,27 +8,28 @@ Naïve user of the data catalogue
 
 # Goal
 
-A naïve visitor to the data catalogue can click around in the catalogue and understand what they are seeing when viewing a resource in detail. Multiple values in fields are displayed correctly. Not all fields on the page are tested (See test plan 5 for full test of this page).
+A naïve visitor to the data catalogue can click around in the catalogue and understand what they are seeing when viewing a resource in detail. Multiple values in fields are displayed correctly. Not all fields on the page are tested (see test plan 5 for full test of this page).
 
 # Steps
 
 | Step | Action | Expected result | Github bug/issue | Playwright test |
 | -----| -------| ----------------| -----------------| ----------------|
-| 1 | Navigate to [MOLGENIS ACC test catalogue](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue) | Landing page: European health research data and sample catalogue | | |
-| 2 | Navigate to Search All | Cohort studies, Data sources, Variables and Networks buttons are shown with numbers of each under each button | | |
-| 3 | Click on the Cohort studies button | Cohort studies overview page with a list of all cohort studies in the system | | |
+| 1 | Navigate to [testCatalogue on the acceptance server](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue) | Landing page: European health research data and sample catalogue | | |
+| 2 | Click the `SEARCH ALL` button | `COLLECTIONS`, `NETWORKS` and `VARIABLES` buttons are with the number of each under the button | | |
+| 3 | Click on the `COLLECTIONS` button | Collections overview page with a list of all collections in the system | | |
 | 4 | Type "Name for test cohort" in the Search field top left | See that two cohorts are presented in the list: "acronym for test cohort 1" and "acronym for test cohort 2" | | |
-| 5 | Click on "acronym for test cohort 1" | See that the resource information page for test cohort 1 is presented: "All > cohort studies", acronym for test cohort 1, Name for test cohort 1 | | |
+| 5 | Click on "acronym for test cohort 1" | See that the resource information page for test cohort 1 is presented: "All > Collections", acronym for test cohort 1, Name for test cohort 1 | | |
 | 6 | See that the fields are filled as follows:| | | |
 | 7 | DESCRIPTION | This is the Test cohort 1. It has multiple entries where possible. Design paper and publications are random DOIs from the EUCAN project. Yes to data access fee. The population age group is all adult options, so the population age group should be shown as "Adult 18+ years". Cohort type has both 'normal' and 'other' fields filled in --> see which is displayed | | |
 | | Click on the three dots next to the description text | the text is displayed fully, and clicking on 'read less' reduces the text again | | |
 | | GENERAL DESIGN | | | |
-| 8a | Type | Clinical trial, Cohort study | | |
+| 8a | Type | Cohort study | | |
 | 8b | Cohort type | Clinical cohort, Case-control | | |
-| 9a | Data collection type | Retrospective, Prospective | | |
-| 9b | Keywords | test, cohort1, Molgenis, testing | | |
-| 10 | Start/End data collection | 1900 until 1967 | | |
+| 9 | Data collection type | Retrospective, Prospective | | |
+| 10 | Start/End data collection | 1950 until 1967 | | |
 | 11 | Design paper | Cohort Profile: The French national cohort of children (ELFE): birth to 5 years | | |
+| 11a| PID | https://pid-for-testcohort1.org | | |
+| 11b| External identifiers | Clinical Trials.gov: test external identifier for cohort 1 | | |
 | 12 | Click on the design paper | goes to the article in a new window: <https://doi.org/10.1093/ije/dyz227> [Cohort Profile: The French national cohort of children (ELFE): birth to 5 years] | | |
 | 13 | close the window or reselect the catalogue display window | | | |
 | | POPULATION | | | |

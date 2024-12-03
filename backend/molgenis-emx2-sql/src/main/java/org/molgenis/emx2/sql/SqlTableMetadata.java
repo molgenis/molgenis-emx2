@@ -8,8 +8,10 @@ import static org.molgenis.emx2.Privileges.EDITOR;
 import static org.molgenis.emx2.sql.MetadataUtils.deleteColumn;
 import static org.molgenis.emx2.sql.MetadataUtils.saveColumnMetadata;
 import static org.molgenis.emx2.sql.SqlColumnExecutor.*;
+import static org.molgenis.emx2.sql.SqlSchemaMetadata.validateTableIdentifierIsUnique;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.*;
 
+import java.util.List;
 import java.util.Map;
 import org.jooq.DSLContext;
 import org.molgenis.emx2.*;
@@ -105,6 +107,7 @@ class SqlTableMetadata extends TableMetadata {
     if (!getTableName().equals(newName)) {
       getDatabase()
           .tx(db -> sync(alterNameTransaction(db, getSchemaName(), getTableName(), newName)));
+      ((SqlSchemaMetadata) getSchema()).reload();
       getDatabase().getListener().schemaChanged(getSchemaName());
       log(start, "altered table from '" + oldName + "' to  " + getTableName());
     }
@@ -114,13 +117,26 @@ class SqlTableMetadata extends TableMetadata {
   // ensure the transaction has no side effects on 'this' until completed
   private static SqlTableMetadata alterNameTransaction(
       Database db, String schemaName, String tableName, String newName) {
-    SqlTableMetadata tm =
-        (SqlTableMetadata) db.getSchema(schemaName).getMetadata().getTableMetadata(tableName);
+    SqlSchemaMetadata sm = (SqlSchemaMetadata) db.getSchema(schemaName).getMetadata();
+    SqlTableMetadata tm = sm.getTableMetadata(tableName);
+
+    validateTableIdentifierIsUnique(sm, new TableMetadata(newName));
 
     // drop triggers for this table
     for (Column column : tm.getStoredColumns()) {
       SqlColumnExecutor.executeRemoveRefConstraints(tm.getJooq(), column);
     }
+
+    // get references pointing to 'me'
+    List<Column> refColumns =
+        MetadataUtils.getReferencesToTable(tm.getJooq(), schemaName, tableName);
+
+    // get refbacks pointing to 'me'
+    List<Column> refbackColumns =
+        tm.getColumns().stream()
+            .filter(c -> c.getReferenceRefback() != null)
+            .map(c -> c.getReferenceRefback())
+            .toList();
 
     // rename table and triggers
     SqlTableMetadataExecutor.executeAlterName(tm.getJooq(), tm, newName);
@@ -128,6 +144,22 @@ class SqlTableMetadata extends TableMetadata {
     // update metadata
     MetadataUtils.alterTableName(tm.getJooq(), tm, newName);
     tm.tableName = newName;
+
+    // rename refs.refTable
+    refColumns.forEach(
+        ref -> {
+          ref.setRefTable(newName);
+          MetadataUtils.saveColumnMetadata(tm.getJooq(), ref);
+          db.getListener().schemaChanged(ref.getSchemaName());
+        });
+
+    // rename refbacks.refTable
+    refbackColumns.forEach(
+        refBack -> {
+          refBack.setRefTable(newName);
+          MetadataUtils.saveColumnMetadata(tm.getJooq(), refBack);
+          db.getListener().schemaChanged(refBack.getSchemaName());
+        });
 
     // recreate triggers for this table
     for (Column column : tm.getStoredColumns()) {
@@ -220,8 +252,19 @@ class SqlTableMetadata extends TableMetadata {
     }
 
     // if changing 'ref' then check if not refBack exists
-    if (!oldColumn.getColumnType().equals(newColumn.getColumnType())) {
-      tm.checkNotRefback(columnName, oldColumn);
+    Column referenceRefBack = oldColumn.getReferenceRefback();
+    if (referenceRefBack != null) {
+      // delete if changed to non ref
+      if (!newColumn.isReference()) {
+        referenceRefBack.getTable().dropColumn(referenceRefBack.getName());
+      }
+      // else update refback if renamed
+      else if (!oldColumn.getName().equals(newColumn.getName())) {
+        referenceRefBack
+            .getTable()
+            .alterColumn(
+                referenceRefBack.getName(), referenceRefBack.setRefBack(newColumn.getName()));
+      }
     }
 
     // drop old key, if touched
@@ -272,32 +315,12 @@ class SqlTableMetadata extends TableMetadata {
     return tm;
   }
 
-  private void checkNotRefback(String name, Column oldColumn) {
-    if (oldColumn.isReference()) {
-      for (Column c : oldColumn.getRefTable().getColumns()) {
-        if (c.isRefback()
-            && c.getRefTableName().equals(oldColumn.getTableName())
-            && oldColumn.getName().equals(c.getRefBack())) {
-          throw new MolgenisException(
-              "Drop/alter column '"
-                  + name
-                  + "' failed: cannot remove reference while refBack for it exists ("
-                  + c.getTableName()
-                  + "."
-                  + c.getRefBackColumn());
-        }
-      }
-    }
-  }
-
   @Override
   public void dropColumn(String name) {
     Column column = getColumn(name);
     if (column == null) {
       throw new MolgenisException("Drop column " + name + " failed: column does not exist");
     }
-    // if changing 'ref' then check if not refBack exists
-    checkNotRefback(name, column);
 
     long start = System.currentTimeMillis();
     if (getColumn(name) == null) return; // return silently, idempotent

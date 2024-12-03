@@ -29,7 +29,7 @@ export const useStudyStore = defineStore("studyStore", () => {
       .select(getStudyColumns())
       .orderBy("Studies", "id", "asc")
       .where("id")
-      .like(id);
+      .equals(id);
     const reportResults = await studyReportQuery.execute();
 
     return reportResults;
