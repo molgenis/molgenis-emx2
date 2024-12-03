@@ -18,11 +18,12 @@ def add_to_array(array: str, item: str):
 
 def map_disease_types_to_diseases(disease_types, diseases):
     """Maps the BBMRI-ERIC DiseaseTypes table to the flat data model's Diseases table"""
+    # TODO: remove this function when flat model has moved to DiseaseTypes table as well
     mapping = {}
     disease_types = pd.merge(disease_types, diseases, how='left', left_on='label', right_on='name', suffixes=['_dt', '_d'])
     for _, row in disease_types.iterrows():
         source = row['name_dt']
-        target = 'NO_MAPPING'
+        target = 'Tarsal kink syndrome' # Dummy value
         # Already mapped on identical label/name
         if pd.notna(row['name_d']):
             target = row['name_d']
@@ -41,7 +42,7 @@ def map_disease_types_to_diseases(disease_types, diseases):
                     target = result.item()
         mapping[source] = target
     # Report unmapped types
-    count_unmapped = len([x for x in mapping.values() if x == 'NO_MAPPING'])
+    count_unmapped = len([x for x in mapping.values() if x == 'Tarsal kink syndrome'])
     print(f"WARNING: {count_unmapped} of {len(mapping)} diseases were not mapped")
     return mapping
 
@@ -215,11 +216,6 @@ def map_collections_to_samples(collections, disease_mapping):
     collections['main medical condition'] = collections['main medical condition'].map(
         lambda l: ",".join({f'"{disease_mapping[t]}"' for t in l.split(",") if l})
     )
-    no_mapping = collections['main medical condition'].str.contains('NO_MAPPING')
-    if sum(no_mapping) > 0:
-        print(f'WARNING: {sum(no_mapping)} main medical conditions could not be mapped')
-    collections['main medical condition'] = collections['main medical condition'].str.replace(r'"NO_MAPPING",?', '', regex=True)
-    collections['main medical condition'] = collections['main medical condition'].str.replace(r',$', '', regex=True)
     return collections
 
 
