@@ -121,6 +121,61 @@ def map_disease_types_to_diseases(disease_types, diseases):
     count_unmapped = len([x for x in mapping.values() if x == 'Tarsal kink syndrome'])
     print(f"WARNING: {count_unmapped} of {len(mapping)} diseases were not mapped")
     return mapping
+# Prenatal
+# All ages (4)
+
+#     Infant (0-23 months) (2)
+#         Newborn (0-1 months)
+#         Infants and toddlers (2-23 months) 
+#     Child (2-12 years)
+#     Adolescent (13-17 years)
+#     Adult (18+ years) (4)
+#         Young adult (18-24 years)
+#         Adult (25-44 years)
+#         Middle-aged (45-64 years)
+#         Aged (65+ years) (2)
+#             Aged (65-79 years)
+#             Aged (80+ years) 
+# *
+def map_age_to_age_groups(age_columns):
+    """Maps the BBMRI-ERIC attributes age low, age high, age unit to the flat data model's age groups"""
+    for idx, row in age_columns.iterrows():
+        age_groups = ''
+        if row['age_unit']:
+            # Normalise all ages to years
+            divider = 1.0
+            match row['age_unit']:
+                case 'DAY':
+                    divider = 365.0
+                case 'WEEK':
+                    divider = 52.0
+                case 'MONTH':
+                    divider = 12.0
+                case 'YEAR':
+                    divider = 1.0
+            if row['age_low']:
+                row['age_low'] = float(row['age_low'])/divider
+            if row['age_high']:
+                row['age_high'] = float(row['age_high'])/divider
+            # Add groups based on normalised age range
+            if row['age_low']:
+                if row['age_low'] < 0:
+                    age_groups = add_to_array(age_groups, 'Prenatal')
+                # All values filled in
+                if row['age_high']:
+                    pass
+                # Only age low filled in, assume single data point of that age
+                else:
+                    pass
+            # Only age high filled in, assume single data point of that age
+            elif row['age_high']:
+                pass
+            else:
+                row['age_groups'] = ''
+        else:
+            row['age_groups'] = ''
+        age_columns.loc[idx, 'age groups'] = age_groups
+    return age_columns['age groups']
 
 def map_persons_to_contacts(persons, collections, biobanks, networks, resources):
     """Maps the BBRMI-ERIC Persons table to the flat data model's Contacts table"""
@@ -188,6 +243,7 @@ def map_collections_to_samples(collections, disease_mapping):
                                 }, inplace=True)
     collections["parent sample collection.name"] = ""
     collections["parent sample collection.resource"] = ""
+    collections["age groups"] = ""
     # Remove withdrawn collections
     collections = collections.loc[~collections['withdrawn']]
     # Create a unique name
@@ -221,6 +277,7 @@ def map_collections_to_samples(collections, disease_mapping):
     collections['main medical condition'] = collections['main medical condition'].map(
         lambda l: ",".join({f'"{disease_mapping[t]}"' for t in l.split(",") if l})
     )
+    collections['age groups'] = map_age_to_age_groups(collections[['age_low', 'age_high', 'age_unit', 'age groups']])
     return collections
 
 
@@ -341,6 +398,7 @@ def main():
                     "number of samples",
                     "sex",
                     "main medical condition",
+                    "age groups",
                 ]
             )
             # Map Networks to Resources
