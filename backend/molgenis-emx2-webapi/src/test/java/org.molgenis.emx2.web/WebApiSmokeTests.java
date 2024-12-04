@@ -169,7 +169,7 @@ public class WebApiSmokeTests {
 
     // check if reports work
     byte[] zipContents =
-        getContentAsByteArray(ACCEPT_ZIP, "/pet store reports/api/reports/zip?id=0");
+        getContentAsByteArray(ACCEPT_ZIP, "/pet store reports/api/reports/zip?id=report1");
     File zipFile = createTempFile(zipContents, ".zip");
     TableStore store = new TableStoreForCsvInZipFile(zipFile.toPath());
     store.containsTable("pet report");
@@ -177,58 +177,78 @@ public class WebApiSmokeTests {
     // check if reports work with parameters
     zipContents =
         getContentAsByteArray(
-            ACCEPT_ZIP, "/pet store reports/api/reports/zip?id=1&name=spike,pooky");
+            ACCEPT_ZIP, "/pet store reports/api/reports/zip?id=report2&name=spike,pooky");
     zipFile = createTempFile(zipContents, ".zip");
     store = new TableStoreForCsvInZipFile(zipFile.toPath());
     store.containsTable("pet report with parameters");
 
     // check if reports work
     byte[] excelContents =
-        getContentAsByteArray(ACCEPT_ZIP, "/pet store reports/api/reports/excel?id=0");
+        getContentAsByteArray(ACCEPT_ZIP, "/pet store reports/api/reports/excel?id=report1");
     File excelFile = createTempFile(excelContents, ".xlsx");
     store = new TableStoreForXlsxFile(excelFile.toPath());
-    assertTrue(store.containsTable("pet report"));
+    assertTrue(store.containsTable("report1"));
 
     // check if reports work with parameters
     excelContents =
         getContentAsByteArray(
-            ACCEPT_ZIP, "/pet store reports/api/reports/excel?id=1&name=spike,pooky");
+            ACCEPT_ZIP, "/pet store reports/api/reports/excel?id=report2&name=spike,pooky");
     excelFile = createTempFile(excelContents, ".xlsx");
     store = new TableStoreForXlsxFile(excelFile.toPath());
-    assertTrue(store.containsTable("pet report with parameters"));
+    assertTrue(store.containsTable("report2"));
     assertTrue(excelContents.length > 0);
 
     // test json report api
     String jsonResults =
-        given().sessionId(SESSION_ID).get("/pet store reports/api/reports/json?id=0").asString();
-    assertFalse(jsonResults.contains("pet report"), "single result should not include report name");
+        given()
+            .sessionId(SESSION_ID)
+            .get("/pet store reports/api/reports/json?id=report1")
+            .asString();
+    assertFalse(
+        jsonResults.contains("report1"),
+        "single result should not include report name"); // are we sure about this?
     jsonResults =
         given()
             .sessionId(SESSION_ID)
-            .get("/pet store reports/api/reports/json?id=0,1&name=pooky")
+            .get("/pet store reports/api/reports/json?id=report1,report2&name=pooky")
             .asString();
     assertTrue(
-        jsonResults.contains("pet report"),
+        jsonResults.contains("report1"),
         "multiple results should use the report name to nest results");
+    // check that id is for keys
     jsonResults =
         given()
             .sessionId(SESSION_ID)
-            .get("/pet store reports/api/reports/json?id=1&name=spike,pooky")
+            .get("/pet store reports/api/reports/json?id=report1,report2&name=pooky")
+            .asString();
+    assertTrue(jsonResults.contains("report1"), "should use report id as key");
+    assertTrue(jsonResults.contains("report2"), "should use report id as key");
+
+    jsonResults =
+        given()
+            .sessionId(SESSION_ID)
+            .get("/pet store reports/api/reports/json?id=report2&name=spike,pooky")
             .asString();
     assertTrue(jsonResults.contains("pooky"));
 
     // test report using jsonb_agg
     jsonResults =
-        given().sessionId(SESSION_ID).get("/pet store reports/api/reports/json?id=2").asString();
+        given()
+            .sessionId(SESSION_ID)
+            .get("/pet store reports/api/reports/json?id=report3")
+            .asString();
     ObjectMapper objectMapper = new ObjectMapper();
     List<Object> jsonbResult = objectMapper.readValue(jsonResults, List.class);
     assertTrue(jsonbResult.get(0).toString().contains("pooky"));
 
     // test report using jsonb rows
     jsonResults =
-        given().sessionId(SESSION_ID).get("/pet store reports/api/reports/json?id=3").asString();
-    jsonbResult = objectMapper.readValue(jsonResults, List.class);
-    assertTrue(jsonbResult.get(0).toString().contains("pooky"));
+        given()
+            .sessionId(SESSION_ID)
+            .get("/pet store reports/api/reports/json?id=report4")
+            .asString();
+    Object result = objectMapper.readValue(jsonResults, Object.class);
+    assertTrue(result.toString().contains("pooky"));
   }
 
   @Test
@@ -1288,6 +1308,8 @@ public class WebApiSmokeTests {
   }
 
   @Test
+  @Disabled("unstable; fails on CI around 50% of the time")
+  // todo update / rewrite test to be more stable in CI env
   public void testExecuteSubtaskInScriptTask()
       throws JsonProcessingException, InterruptedException {
     String parentJobName = "parentJobTest";

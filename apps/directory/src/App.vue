@@ -1,5 +1,5 @@
 <template>
-  <Molgenis v-model="session">
+  <Molgenis v-model="session" style="background-color: white">
     <template v-if="banner" #banner>
       <div v-html="banner"></div>
     </template>
@@ -44,7 +44,11 @@ watch(
       newQuery &&
       Object.keys(newQuery).length === 0
     ) {
-      createBookmark(filtersStore.filters, checkoutStore.selectedCollections);
+      createBookmark(
+        filtersStore.filters,
+        checkoutStore.selectedCollections,
+        checkoutStore.selectedServices
+      );
       applyBookmark(newQuery);
     }
 

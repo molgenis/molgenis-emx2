@@ -15,6 +15,7 @@ public class DataModels {
     DATA_CATALOGUE_AGGREGATES("_profiles/DataCatalogueAggregates.yaml"),
     UMCG_COHORT_STAGING("_profiles/UMCGCohortsStaging.yaml"),
     UMCU_COHORTS_STAGING("_profiles/UMCUCohorts.yaml"),
+    INTEGRATE_COHORTS_STAGING("_profiles/INTEGRATECohorts.yaml"),
     FAIR_DATA_HUB("_profiles/FAIRDataHub.yaml"),
     RD3("_profiles/RD3.yaml"),
     JRC_COMMON_DATA_ELEMENTS("_profiles/JRC-CDE.yaml"),

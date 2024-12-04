@@ -143,6 +143,7 @@ export default {
         "DATA_CATALOGUE_NETWORK_STAGING",
         "UMCG_COHORT_STAGING",
         "UMCU_COHORTS_STAGING",
+        "INTEGRATE_COHORTS_STAGING",
         "RD3",
         "RD3v2",
         "JRC_COMMON_DATA_ELEMENTS",
