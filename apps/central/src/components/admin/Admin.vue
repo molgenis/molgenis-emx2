@@ -19,6 +19,7 @@
               users: 'Users',
               settings: 'Settings',
               privacyPolicy: 'Privacy policy',
+              templates: 'Templates',
             }"
             :key="key"
           >
