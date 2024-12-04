@@ -304,7 +304,7 @@ jobs:
             echo $E2E_BASE_URL
             yarn e2e
           working_directory: apps/nuxt3-ssr
-                             - run:
+      - run:
             name: Run non ssr e2e tests
             command: |
               npx playwright install chrome
