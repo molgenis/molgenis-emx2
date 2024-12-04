@@ -59,6 +59,32 @@ data_category_mapping = {
     "TREATMENT_PROTOCOL": "Clinical dataset",
 }
 
+# Map MaterialTypes (partly MIABIS v2) to BiospecimenType (MIABIS v3 + NCIT)
+sample_type_mapping = {
+    "*": '',
+    "BUFFY_COAT": 'Buffy Coat',
+    "CDNA": 'cDNA', # Added to BiospecimenType
+    "CELL_LINES": 'Cell Line',
+    "DNA": 'DNA',
+    "FECES": 'Faeces',
+    'MICRO_RNA': 'MicroRNA', # Added to BiospecimenType
+    "NASAL_SWAB": 'Nasal Swab or Nose Specimen',
+    "NAV": '',
+    "OTHER": 'Other',
+    "PATHOGEN": 'Isolated Pathogen',
+    "PERIPHERAL_BLOOD_CELLS": 'Peripheral Blood',
+    "PLASMA": 'Plasma',
+    "RNA": 'RNA',
+    "SALIVA": 'Saliva',
+    "SERUM": 'Serum',
+    "THROAT_SWAB": 'Oropharyngeal Swab Specimen',
+    "TISSUE_FROZEN": 'Frozen Tissue',
+    "TISSUE_PARAFFIN_EMBEDDED": 'Paraffin Embedded Tissue',
+    "TISSUE_STAINED": 'Stained Specimen',
+    "URINE": 'Urine',
+    "WHOLE_BLOOD": 'Whole Blood',
+}
+
 # Partial mappings of manually entered roles to pre-defined roles
 role_mapping = {
     "PI": "Principal Investigator",
@@ -269,10 +295,9 @@ def map_persons_to_contacts(persons, collections, biobanks, networks, resources)
 
     return linked_persons
 
-
 def map_collections_to_samples(collections, disease_mapping):
     """Maps the BBMRI-ERIC Collections table to the flat data model's Sample collections table"""
-    # TODO: columns to map: head, contact, also_known, categories, quality, combined_quality
+    # TODO: columns to map: head, contact, also_known, categories, quality, combined_quality, facts
     # Rename and create columns
     collections.rename(columns={"type": "design",
                                 "biobank": "resource",
@@ -280,6 +305,7 @@ def map_collections_to_samples(collections, disease_mapping):
                                 "size": "number of samples",
                                 "number_of_donors": "number of donors",
                                 "diagnosis_available": "main medical condition",
+                                "materials": "sample type"
                                 }, inplace=True)
     collections["parent sample collection.name"] = ""
     collections["parent sample collection.resource"] = ""
@@ -318,6 +344,9 @@ def map_collections_to_samples(collections, disease_mapping):
         lambda l: ",".join({f'"{disease_mapping[t]}"' for t in l.split(",") if l})
     )
     collections['age groups'] = map_age_to_age_groups(collections[['age_low', 'age_high', 'age_unit', 'age groups']])
+    collections['sample type'] = collections['sample type'].map(
+        lambda l: ",".join({f'"{sample_type_mapping[t]}"' for t in l.split(",") if l})
+    )
     return collections
 
 
@@ -439,6 +468,7 @@ def main():
                     "sex",
                     "main medical condition",
                     "age groups",
+                    "sample type",
                 ]
             )
             # Map Networks to Resources
