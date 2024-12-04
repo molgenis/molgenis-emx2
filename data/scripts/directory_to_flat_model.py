@@ -121,22 +121,7 @@ def map_disease_types_to_diseases(disease_types, diseases):
     count_unmapped = len([x for x in mapping.values() if x == 'Tarsal kink syndrome'])
     print(f"WARNING: {count_unmapped} of {len(mapping)} diseases were not mapped")
     return mapping
-# Prenatal
-# All ages (4)
 
-#     Infant (0-23 months) (2)
-#         Newborn (0-1 months)
-#         Infants and toddlers (2-23 months) 
-#     Child (2-12 years)
-#     Adolescent (13-17 years)
-#     Adult (18+ years) (4)
-#         Young adult (18-24 years)
-#         Adult (25-44 years)
-#         Middle-aged (45-64 years)
-#         Aged (65+ years) (2)
-#             Aged (65-79 years)
-#             Aged (80+ years) 
-# *
 def map_age_to_age_groups(age_columns):
     """Maps the BBMRI-ERIC attributes age low, age high, age unit to the flat data model's age groups"""
     for idx, row in age_columns.iterrows():
@@ -163,6 +148,22 @@ def map_age_to_age_groups(age_columns):
                 if row['age_high']:
                     if age_low < 0:
                         age_groups = add_to_array(age_groups, 'Prenatal')
+                    if age_low < 2/12 and age_high >= 0:
+                        age_groups = add_to_array(age_groups, 'Newborn (0-1 months)')
+                    if age_low < 2 and age_high >= 2/12:
+                        age_groups = add_to_array(age_groups, 'Infants and toddlers (2-23 months)')
+                    if age_low < 13 and age_high >= 2:
+                        age_groups = add_to_array(age_groups, 'Child (2-12 years)')
+                    if age_low < 18 and age_high >= 13:
+                        age_groups = add_to_array(age_groups, 'Adolescent (13-17 years)')
+                    if age_low < 25 and age_high >= 18:
+                        age_groups = add_to_array(age_groups, 'Young adult (18-24 years)')
+                    if age_low < 45 and age_high >= 25:
+                        age_groups = add_to_array(age_groups, 'Adult (25-44 years)')
+                    if age_low < 65 and age_high >= 45:
+                        age_groups = add_to_array(age_groups, 'Middle-aged (45-64 years)')
+                    if age_low < 80 and age_high >= 65:
+                        age_groups = add_to_array(age_groups, 'Aged (65-79 years)')
                     if age_high >= 80:
                         age_groups = add_to_array(age_groups, 'Aged (80+ years)')
                 # Only age low filled in, assume single data point of that age
