@@ -1,4 +1,4 @@
-import { QueryEMX2 } from "molgenis-components";
+import QueryEMX2 from "../../../molgenis-components/src/queryEmx2/queryEmx2.ts";
 import { defineStore } from "pinia";
 import { computed, ref } from "vue";
 import { extractValue } from "../functions/extractValue";
@@ -70,6 +70,13 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
       ).length;
     return totalCount - biobankCardsSubcollectionCount.value;
   });
+
+  const biobankCardsServicesCount = computed(
+    () =>
+      biobankCards.value
+        .filter((bc) => bc.services)
+        .flatMap((biobank) => biobank.services).length
+  );
 
   function getFacetColumnDetails() {
     if (!facetBiobankColumnDetails.value.length) {
@@ -217,6 +224,7 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
     biobankCardsHaveResults,
     biobankCardsBiobankCount,
     biobankCardsCollectionCount,
+    biobankCardsServicesCount,
     biobankCardsSubcollectionCount,
     biobankCards,
     baseQuery,
