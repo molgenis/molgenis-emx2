@@ -366,6 +366,15 @@ public class SqlColumnExecutor {
       throw new MolgenisException(
           "Refback is null for column " + c.getTableName() + "." + c.getName());
     }
+    if (c.isRefback() && c.getRefBackColumn() == null) {
+      throw new MolgenisException(
+          "Refback '"
+              + c.getRefBack()
+              + "' could not be found for column "
+              + c.getTableName()
+              + "."
+              + c.getName());
+    }
     if (c.isReference() && !c.isOntology() && c.getRefTable() == null) {
       throw new MolgenisException(
           String.format(
