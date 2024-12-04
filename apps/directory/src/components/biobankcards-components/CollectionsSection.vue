@@ -1,41 +1,3 @@
-<script setup lang="ts">
-import { IBiobanks } from "../../interfaces/directory";
-import { useSettingsStore } from "../../stores/settingsStore";
-import { computed } from "vue";
-import CollectionSelector from "../../components/checkout-components/CollectionSelector.vue";
-import ViewGenerator from "../generators/ViewGenerator.vue";
-import MatchesOn from "./MatchesOn.vue";
-import CardItem from "../CardItem.vue";
-
-const props = withDefaults(
-  defineProps<{
-    biobank: IBiobanks;
-    hasActiveFilters?: boolean;
-  }>(),
-  {
-    hasActiveFilters: false,
-  }
-);
-
-const numberOfCollections = computed(() =>
-  props.biobank.collections ? props.biobank.collections.length : 0
-);
-
-function collectionViewmodel(collectiondetails: Record<string, any>) {
-  const attributes = [];
-  for (const item of useSettingsStore().config.collectionColumns) {
-    if (item.showOnBiobankCard) {
-      attributes.push(
-        collectiondetails.viewmodel.attributes.find(
-          (vm: Record<string, any>) => vm.label === item.label
-        )
-      );
-    }
-  }
-  return { attributes };
-}
-</script>
-
 <template>
   <div class="collections-section flex-grow-1">
     <div class="pl-2 pt-2 d-flex" v-if="numberOfCollections > 1">
@@ -111,3 +73,41 @@ function collectionViewmodel(collectiondetails: Record<string, any>) {
     </CardItem>
   </div>
 </template>
+
+<script setup lang="ts">
+import { IBiobanks } from "../../interfaces/directory";
+import { useSettingsStore } from "../../stores/settingsStore";
+import { computed } from "vue";
+import CollectionSelector from "../../components/checkout-components/CollectionSelector.vue";
+import ViewGenerator from "../generators/ViewGenerator.vue";
+import MatchesOn from "./MatchesOn.vue";
+import CardItem from "../CardItem.vue";
+
+const props = withDefaults(
+  defineProps<{
+    biobank: IBiobanks;
+    hasActiveFilters?: boolean;
+  }>(),
+  {
+    hasActiveFilters: false,
+  }
+);
+
+const numberOfCollections = computed(() =>
+  props.biobank.collections ? props.biobank.collections.length : 0
+);
+
+function collectionViewmodel(collectiondetails: Record<string, any>) {
+  const attributes = [];
+  for (const item of useSettingsStore().config.collectionColumns) {
+    if (item.showOnBiobankCard) {
+      attributes.push(
+        collectiondetails.viewmodel.attributes.find(
+          (vm: Record<string, any>) => vm.label === item.label
+        )
+      );
+    }
+  }
+  return { attributes };
+}
+</script>

@@ -1,3 +1,23 @@
+<template>
+  <CardItem>
+    <template #title>
+      <h5>{{ biobank.name }}</h5>
+    </template>
+
+    <small>
+      <ViewGenerator :viewmodel="{ attributes }" />
+      <MatchesOn :viewmodel="biobank" />
+      <router-link
+        :to="'/biobank/' + biobank.id"
+        :title="`${biobank.name} details`"
+        class="text-info ml-1"
+      >
+        <span>More details</span>
+      </router-link>
+    </small>
+  </CardItem>
+</template>
+
 <script setup lang="ts">
 import { getViewmodel } from "../../functions/viewmodelMapper";
 import { IBiobanks } from "../../interfaces/directory";
@@ -26,23 +46,3 @@ const attributes = computed(() => {
     );
 });
 </script>
-
-<template>
-  <CardItem>
-    <template #title>
-      <h5>{{ biobank.name }}</h5>
-    </template>
-
-    <small>
-      <ViewGenerator :viewmodel="{ attributes }" />
-      <MatchesOn :viewmodel="biobank" />
-      <router-link
-        :to="'/biobank/' + biobank.id"
-        :title="`${biobank.name} details`"
-        class="text-info ml-1"
-      >
-        <span>More details</span>
-      </router-link>
-    </small>
-  </CardItem>
-</template>

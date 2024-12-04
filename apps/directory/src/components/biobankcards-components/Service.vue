@@ -1,23 +1,3 @@
-<script setup lang="ts">
-import { IServices } from "../../interfaces/directory";
-import CheckBox from "../CheckBox.vue";
-
-const props = withDefaults(
-  defineProps<{
-    service: IServices;
-    isSelected?: boolean;
-  }>(),
-  {
-    isSelected: false,
-  }
-);
-
-const emit = defineEmits(["update:isAdded", "update:isRemoved"]);
-
-function handleCheckBox(isChecked: boolean) {
-  isChecked ? emit("update:isAdded") : emit("update:isRemoved");
-}
-</script>
 <template>
   <div class="d-flex">
     <router-link
@@ -61,3 +41,24 @@ function handleCheckBox(isChecked: boolean) {
     </small>
   </div>
 </template>
+
+<script setup lang="ts">
+import { IServices } from "../../interfaces/directory";
+import CheckBox from "../CheckBox.vue";
+
+const props = withDefaults(
+  defineProps<{
+    service: IServices;
+    isSelected?: boolean;
+  }>(),
+  {
+    isSelected: false,
+  }
+);
+
+const emit = defineEmits(["update:isAdded", "update:isRemoved"]);
+
+function handleCheckBox(isChecked: boolean) {
+  isChecked ? emit("update:isAdded") : emit("update:isRemoved");
+}
+</script>

@@ -1,17 +1,3 @@
-<script setup lang="ts">
-withDefaults(
-  defineProps<{
-    item: { label: string; value: string };
-    isNonCommercial?: boolean;
-  }>(),
-  {
-    isNonCommercial: false,
-  }
-);
-
-const emit = defineEmits(["removeItemFromCart"]);
-</script>
-
 <template>
   <div class="card-body d-flex border-bottom">
     <div>
@@ -34,3 +20,17 @@ const emit = defineEmits(["removeItemFromCart"]);
   cursor: pointer;
 }
 </style>
+
+<script setup lang="ts">
+withDefaults(
+  defineProps<{
+    item: { label: string; value: string };
+    isNonCommercial?: boolean;
+  }>(),
+  {
+    isNonCommercial: false,
+  }
+);
+
+const emit = defineEmits(["removeItemFromCart"]);
+</script>

@@ -1,3 +1,39 @@
+<template>
+  <div>
+    <CardItem v-if="services.length > 1">
+      <div class="d-flex">
+        <router-link
+          :to="'/service/'"
+          title="Service details"
+          class="text-dark"
+        >
+          <h5 class="font-weight-light">
+            {{ services.length }} collections available
+          </h5>
+        </router-link>
+        <div class="ml-auto">
+          <CheckBox
+            id="ds"
+            :is-checked="isAllSelected"
+            @change="handleSelectAll"
+          />
+        </div>
+      </div>
+    </CardItem>
+
+    <CardItem v-for="(service, index) in services">
+      <Service
+        :service="service"
+        :is-selected="selectedServices?.includes(service.id)"
+        @update:is-added="() => addService(service.id)"
+        @update:is-removed="() => removeService(service.id)"
+      />
+      <hr v-if="index != services.length - 1" />
+      <div v-else class="pb-3"></div>
+    </CardItem>
+  </div>
+</template>
+
 <script setup lang="ts">
 import { computed } from "vue";
 import { IServices } from "../../interfaces/directory";
@@ -46,39 +82,3 @@ function handleSelectAll(isChecked: boolean) {
   }
 }
 </script>
-
-<template>
-  <div>
-    <CardItem v-if="services.length > 1">
-      <div class="d-flex">
-        <router-link
-          :to="'/service/'"
-          title="Service details"
-          class="text-dark"
-        >
-          <h5 class="font-weight-light">
-            {{ services.length }} collections available
-          </h5>
-        </router-link>
-        <div class="ml-auto">
-          <CheckBox
-            id="ds"
-            :is-checked="isAllSelected"
-            @change="handleSelectAll"
-          />
-        </div>
-      </div>
-    </CardItem>
-
-    <CardItem v-for="(service, index) in services">
-      <Service
-        :service="service"
-        :is-selected="selectedServices?.includes(service.id)"
-        @update:is-added="() => addService(service.id)"
-        @update:is-removed="() => removeService(service.id)"
-      />
-      <hr v-if="index != services.length - 1" />
-      <div v-else class="pb-3"></div>
-    </CardItem>
-  </div>
-</template>
