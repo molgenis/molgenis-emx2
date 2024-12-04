@@ -16,7 +16,8 @@ public enum Privileges {
   // extends Editor to create, alter, drop, implies Editor
   MANAGER("Manager"),
   // can add/remove users to schema
-  OWNER("Owner");
+  OWNER("Owner"),
+  SELECT("SELECT");
 
   private String name;
 

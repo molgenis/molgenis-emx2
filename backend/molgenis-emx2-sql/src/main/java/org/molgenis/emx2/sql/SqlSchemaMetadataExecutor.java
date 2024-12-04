@@ -145,6 +145,10 @@ class SqlSchemaMetadataExecutor {
     return Constants.MG_ROLE_PREFIX + name + "/";
   }
 
+  static String getPermissionPrefix(String name) {
+    return Constants.MG_PERM_PREFIX + name + "/";
+  }
+
   static List<String> getInheritedRoleForUser(DSLContext jooq, String schemaName, String user) {
     String roleFilter = getRolePrefix(schemaName);
     List<Record> roles =
