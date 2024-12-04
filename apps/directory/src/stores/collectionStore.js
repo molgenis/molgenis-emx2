@@ -1,7 +1,6 @@
 import { defineStore } from "pinia";
 import { QueryEMX2 } from "molgenis-components";
 import { useSettingsStore } from "./settingsStore";
-import { ref } from "vue";
 import { useCheckoutStore } from "./checkoutStore";
 
 export const useCollectionStore = defineStore("collectionStore", () => {
@@ -9,8 +8,6 @@ export const useCollectionStore = defineStore("collectionStore", () => {
 
   const collectionColumns = settingsStore.config.collectionColumns;
   const graphqlEndpoint = settingsStore.config.graphqlEndpoint;
-
-  const commercialAvailableCollections = ref([]);
 
   function getCollectionColumns() {
     const properties = collectionColumns
@@ -67,29 +64,6 @@ export const useCollectionStore = defineStore("collectionStore", () => {
     }
   }
 
-  async function getCommercialAvailableCollections() {
-    if (!commercialAvailableCollections.value.length) {
-      const commercialCollectionQuery = new QueryEMX2(graphqlEndpoint)
-        .table("Collections")
-        .select("id")
-        .where("commercial_use")
-        .equals(true);
-      const commercialAvailableCollectionsResponse =
-        await commercialCollectionQuery.execute();
-      if (
-        commercialAvailableCollectionsResponse.Collections &&
-        commercialAvailableCollectionsResponse.Collections.length
-      ) {
-        commercialAvailableCollections.value =
-          commercialAvailableCollectionsResponse.Collections.map(
-            (collection) => collection.id
-          );
-      }
-    }
-
-    return commercialAvailableCollections.value;
-  }
-
   async function getCollectionReport(id) {
     const collectionReportQuery = new QueryEMX2(graphqlEndpoint)
       .table("Collections")
@@ -124,6 +98,5 @@ export const useCollectionStore = defineStore("collectionStore", () => {
     getCollectionColumns,
     getMissingCollectionInformation,
     getCollectionReport,
-    getCommercialAvailableCollections,
   };
 });
