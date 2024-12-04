@@ -9642,7 +9642,7 @@ body .select2-drop-active {
   content: "";
   display: inline-block;
   margin-left: 4px;
-  margin-top: 24px;
+  margin-top: 0.75rem;
 }
 .pincode-input-container {
   display: inline-block;

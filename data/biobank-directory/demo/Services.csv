@@ -1,3 +1,3 @@
-id,name,serviceTypes,acronym,description,descriptionUrl,device,deviceSystem,tRL,accessDescriptionUrl,unitOfAccess,accessDescription,unitCost,contactInformation,national_node
-bbmri-eric:serviceID:DE_1234,Biobank Service,"microbiome-analysis, sample-storage",,Service provided by this biobank,,,,TRL-4,,,https://myservice-access.de,,bbmri-eric:contactID:contact_bb1,DE
-bbmri-eric:serviceID:NL_541,Dutch Biobank Service,"PET-Scans, TrainingResourceLabProtocols",,Services provided by Biobank2,,,,TRL-2,,,https://biobank2-service-access.nl,,,NL
+id,name,serviceTypes,acronym,description,descriptionUrl,device,deviceSystem,tRL,accessDescriptionUrl,unitOfAccess,accessDescription,unitCost,contactInformation,national_node,biobank
+bbmri-eric:serviceID:DE_1234,Biobank Service,"microbiome-analysis, sample-storage",,Service provided by this biobank,,,,TRL-4,,,https://myservice-access.de,,bbmri-eric:contactID:contact_bb1,DE,bbmri-eric:ID:DE_biobank1
+bbmri-eric:serviceID:NL_541,Dutch Biobank Service,"PET-Scans, TrainingResourceLabProtocols",,Services provided by Biobank2,,,,TRL-2,,,https://biobank2-service-access.nl,,,NL,bbmri-eric:ID:NL_biobank2
