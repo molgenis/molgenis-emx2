@@ -54,7 +54,7 @@ data_category_mapping = {
     "NATIONAL_REGISTRIES": "Clinical dataset",
     "NAV": "",
     "OTHER": "Other",
-    "PHYSIOLOGICAL_BIOCHEMICAL_MEASUREMENTS": "Physiological dataset,Biochemical dataset",
+    "PHYSIOLOGICAL_BIOCHEMICAL_MEASUREMENTS": 'Physiological dataset","Biochemical dataset', # Hack
     "SURVEY_DATA": "Other",
     "TREATMENT_PROTOCOL": "Clinical dataset",
 }
@@ -127,6 +127,12 @@ def add_to_array(array: str, item: str):
         array += ","
         array += item
     return array
+
+def apply_mapping(column, mapping):
+    """Apply the given mapping to the given column containing arrays in string format"""
+    return column.map(
+        lambda l: ",".join({f'"{mapping[x]}"' for x in l.split(",") if l})
+    )
 
 def map_disease_types_to_diseases(disease_types, diseases):
     """Maps the BBMRI-ERIC DiseaseTypes table to the flat data model's Diseases table"""
@@ -342,25 +348,13 @@ def map_collections_to_samples(collections, disease_mapping):
             collections.loc[idx, 'parent sample collection.name'] = p_c['name']
             collections.loc[idx, 'parent sample collection.resource'] = p_c['resource']
     # Apply mappings to attributes which need it
-    collections["design"] = collections["design"].map(
-        lambda l: ",".join({design_mapping[t] for t in l.split(",")})
-    )
-    collections["dataset type"] = collections["dataset type"].map(
-        lambda l: ",".join({data_category_mapping[t] for t in l.split(",")})
-    )
-    collections["sex"] = collections["sex"].map(
-        lambda l: ",".join({sex_mapping[t] for t in l.split(",") if l})
-    )
-    collections['main medical condition'] = collections['main medical condition'].map(
-        lambda l: ",".join({f'"{disease_mapping[t]}"' for t in l.split(",") if l})
-    )
+    collections["design"] = apply_mapping(collections["design"], design_mapping)
+    collections["dataset type"] = apply_mapping(collections["dataset type"], data_category_mapping)
+    collections["sex"] = apply_mapping(collections["sex"], sex_mapping)
+    collections['main medical condition'] = apply_mapping(collections['main medical condition'], disease_mapping)
     collections['age groups'] = map_age_to_age_groups(collections[['age_low', 'age_high', 'age_unit', 'age groups']])
-    collections['sample type'] = collections['sample type'].map(
-        lambda l: ",".join({f'"{sample_type_mapping[t]}"' for t in l.split(",") if l})
-    )
-    collections['storage temperature'] = collections['storage temperature'].map(
-        lambda l: ",".join({f'"{temperature_mapping[t]}"' for t in l.split(",") if l})
-    )
+    collections['sample type'] = apply_mapping(collections['sample type'], sample_type_mapping)
+    collections['storage temperature'] = apply_mapping(collections['storage temperature'], temperature_mapping)
     return collections
 
 
