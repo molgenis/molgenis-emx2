@@ -303,7 +303,7 @@ jobs:
             export E2E_BASE_URL=https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/
             echo $E2E_BASE_URL
             yarn e2e
-          working_directory: apps/nuxt3-ssr
+          working_directory: apps/directory
       - run:
             name: Run non ssr e2e tests
             command: |
