@@ -1,10 +1,7 @@
 import { test, expect } from '@playwright/test';
+import { getSchemaName } from './getSchemaName';
 
-const baseURL = process.env.E2E_BASE_URL;
-let schemaName = 'directory-demo';
-if (!baseURL) {
-  schemaName = 'directory';
-} 
+const schemaName = getSchemaName();
 
 test('should run playwright', async ({ page }) => {
   await page.goto('https://molgenis.org/');
