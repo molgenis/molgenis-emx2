@@ -314,7 +314,6 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     value?: IFilterOption[] | string | boolean,
     fromBookmark?: boolean
   ) {
-    console.log("updateFilter", unref(value));
     bookmarkTriggeredFilter.value = fromBookmark ?? false;
 
     if (typeof value === "string" || typeof value === "boolean") {

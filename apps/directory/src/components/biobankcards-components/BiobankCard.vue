@@ -119,13 +119,13 @@ function handleAddServices(selectedServiceIds: string[]) {
     props.biobank.services?.filter((service) =>
       selectedServiceIds.includes(service.id)
     ) ?? [];
-  const secvicesLabelValuePair = selectedServices.map((service) => {
+  const servicesLabelValuePair = selectedServices.map((service) => {
     return { label: service.name, value: service.id };
   });
 
   checkoutStore.addServicesToSelection(
     props.biobank,
-    secvicesLabelValuePair,
+    servicesLabelValuePair,
     true
   );
 }

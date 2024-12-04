@@ -139,8 +139,6 @@
           </div>
         </div>
       </div>
-
-      <!-- <pre>{{ service }}</pre> -->
     </div>
   </div>
 </template>

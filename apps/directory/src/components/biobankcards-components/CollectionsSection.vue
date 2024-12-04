@@ -34,11 +34,6 @@
           class="text-dark"
         >
           <h5>
-            <!-- do we need a icon, is its meaning clear arross types ? -->
-            <!-- <span
-              class="fa fa-server collection-icon fa-lg mr-2 text-primary"
-              aria-hidden="true"
-            /> -->
             {{ collectionDetail.name }}
           </h5>
         </router-link>

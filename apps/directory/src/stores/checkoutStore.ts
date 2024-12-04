@@ -366,7 +366,7 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
           toRaw({
             id: collection.value,
             name: collection.label,
-            // todo: is this needed?
+            // todo: This expects an organization object, but its inclear how the organization is supposed to be mapped to the biobank
             // organization: {
             //   id: biobank.value,
             //   externalId: biobank.id,
@@ -385,7 +385,7 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
           toRaw({
             id: service.value,
             name: service.label,
-            // todo: is this needed?
+            // todo: This expects an organization object, but its inclear how the organization is supposed to be mapped to the biobank
             // organization: {
             //   id: biobank.value,
             //   externalId: biobank.id,

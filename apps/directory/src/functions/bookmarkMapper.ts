@@ -6,18 +6,18 @@ import { labelValuePair, useCheckoutStore } from "../stores/checkoutStore";
 let bookmarkApplied = false;
 
 export async function applyBookmark(watchedQuery: Record<string, string>) {
-  console.log("applying bookmark", watchedQuery);
   if (bookmarkApplied) {
     bookmarkApplied = false;
     return;
   }
-  const checkoutStore = useCheckoutStore();
-  const collectionStore = useCollectionStore();
-  const filtersStore = useFiltersStore();
 
   if (!watchedQuery || !(Object.keys(watchedQuery).length > 0)) {
     return;
   }
+
+  const checkoutStore = useCheckoutStore();
+  const collectionStore = useCollectionStore();
+  const filtersStore = useFiltersStore();
 
   /**  negotiator token */
   if (watchedQuery.nToken) {

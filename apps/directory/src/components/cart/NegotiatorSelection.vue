@@ -211,7 +211,7 @@ function removeAll() {
 }
 
 async function sendRequest() {
-  errorMessage.value = ""; // Reset error message before request
+  errorMessage.value = "";
   try {
     await checkoutStore.sendToNegotiator();
     emit("update:modelValue", false);
