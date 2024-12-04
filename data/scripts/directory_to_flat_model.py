@@ -191,6 +191,24 @@ def map_age_to_age_groups(age_columns):
             elif row['age_high']:
                 if age_high >= 80:
                     age_groups = add_to_array(age_groups, 'Aged (80+ years)')
+                elif age_high >= 65:
+                    age_groups = add_to_array(age_groups, 'Aged (65-79 years)')
+                elif age_high >= 45:
+                    age_groups = add_to_array(age_groups, 'Middle-aged (45-64 years)')
+                elif age_high >= 25:
+                    age_groups = add_to_array(age_groups, 'Adult (25-44 years)')
+                elif age_high >= 18:
+                    age_groups = add_to_array(age_groups, 'Young adult (18-24 years)')
+                elif age_high >= 13:
+                    age_groups = add_to_array(age_groups, 'Adolescent (13-17 years)')
+                elif age_high >= 2:
+                    age_groups = add_to_array(age_groups, 'Child (2-12 years)')
+                elif age_high >= 2/12:
+                    age_groups = add_to_array(age_groups, 'Infants and toddlers (2-23 months)')
+                elif age_high >= 0:
+                    age_groups = add_to_array(age_groups, 'Newborn (0-1 months)')
+                else:
+                    age_groups = add_to_array(age_groups, 'Prenatal')
             else:
                 row['age_groups'] = ''
         else:
