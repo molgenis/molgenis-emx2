@@ -8,6 +8,7 @@ Datasets,,unit of observation,ontology,,,CatalogueOntologies,Observation targets
 Datasets,,keywords,ontology_array,,,CatalogueOntologies,Keywords,,,,dct:theme,Enables grouping of table list by topic and to display tables in a tree,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging",
 Datasets,,description,text,,,,,,,,dct:descriptions,Description of the role/function of this table,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging",
 Datasets,,number of rows,int,,,,,,,,,Count of the number of records in this table,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging",
+Datasets,,number of rows,int,,,,,,,,,Count of the number of records in this table,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging",
 Datasets,,mapped to,refback,,,,Dataset mappings,,source dataset,,,Common dataset models this dataset has been mapped into,"DataCatalogueFlat,CohortsStaging,RWEStaging,StudiesStaging",
 Datasets,,mapped from,refback,,,,Dataset mappings,,target dataset,,,Source datasets that have been mapped to this harmonised dataset,"DataCatalogueFlat,CohortsStaging,RWEStaging,StudiesStaging",
 Datasets,,since version,,,,,,,,,,"When this dataset was introduced, if applicable","DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging",
