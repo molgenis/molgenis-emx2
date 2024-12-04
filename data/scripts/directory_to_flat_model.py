@@ -85,6 +85,16 @@ sample_type_mapping = {
     "WHOLE_BLOOD": 'Whole Blood',
 }
 
+# Map StorageTemperatureTypes (MIABIS v2) to Storage temperatures (MIABIS v3)
+temperature_mapping = {
+    "temperature-18to-35": "-18 °C to -35 °C",
+    "temperature-60to-85": "-60 °C to -85 °C",
+    "temperatureOther": "Other",
+    "temperatureRoom": "RT (Room temperature)",
+    "temperature2to10": "2 °C to 10°C",
+    "temperatureLN": "Liquid nitrogen liquid-phase",
+}
+
 # Partial mappings of manually entered roles to pre-defined roles
 role_mapping = {
     "PI": "Principal Investigator",
@@ -305,7 +315,8 @@ def map_collections_to_samples(collections, disease_mapping):
                                 "size": "number of samples",
                                 "number_of_donors": "number of donors",
                                 "diagnosis_available": "main medical condition",
-                                "materials": "sample type"
+                                "materials": "sample type",
+                                "storage_temperatures": "storage temperature",
                                 }, inplace=True)
     collections["parent sample collection.name"] = ""
     collections["parent sample collection.resource"] = ""
@@ -346,6 +357,9 @@ def map_collections_to_samples(collections, disease_mapping):
     collections['age groups'] = map_age_to_age_groups(collections[['age_low', 'age_high', 'age_unit', 'age groups']])
     collections['sample type'] = collections['sample type'].map(
         lambda l: ",".join({f'"{sample_type_mapping[t]}"' for t in l.split(",") if l})
+    )
+    collections['storage temperature'] = collections['storage temperature'].map(
+        lambda l: ",".join({f'"{temperature_mapping[t]}"' for t in l.split(",") if l})
     )
     return collections
 
@@ -469,6 +483,7 @@ def main():
                     "main medical condition",
                     "age groups",
                     "sample type",
+                    "storage temperature",
                 ]
             )
             # Map Networks to Resources
