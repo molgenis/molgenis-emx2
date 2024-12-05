@@ -9,7 +9,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.base.CoreDatatype;
-import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.model.util.Values;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
@@ -28,12 +27,14 @@ class ColumnTypeRdfMapperTest {
   static final String REF_TABLE = "TestRefTable";
   static final String REFBACK_TABLE = "TestRefBackTable";
   static final String ONT_TABLE = "TestOntology";
+
+  static final String BASE_URL = "http://localhost:8080/";
+  static final String RDF_API_URL_PREFIX = BASE_URL + TEST_SCHEMA + "/api/rdf/";
+  static final String FILE_API_URL_PREFIX = BASE_URL + TEST_SCHEMA + "/api/file/";
+
+  static final ColumnTypeRdfMapper mapper = new ColumnTypeRdfMapper(BASE_URL);
+
   static final ClassLoader classLoader = ColumnTypeRdfMapperTest.class.getClassLoader();
-  static final SimpleValueFactory factory = SimpleValueFactory.getInstance();
-  static final String baseUrl = "http://localhost:8080/";
-  static final String rdfApiUrlPrefix = baseUrl + TEST_SCHEMA + "/api/rdf/";
-  static final String fileApiUrlPrefix = baseUrl + TEST_SCHEMA + "/api/file/";
-  static final ColumnTypeRdfMapper mapper = new ColumnTypeRdfMapper(baseUrl);
   static final File TEST_FILE =
       new File(classLoader.getResource("testfiles/molgenis.png").getFile());
 
@@ -278,7 +279,7 @@ class ColumnTypeRdfMapperTest {
             Assertions.assertEquals(
                 Set.of(
                     Values.iri(
-                        fileApiUrlPrefix
+                        FILE_API_URL_PREFIX
                             + TEST_TABLE
                             + "/"
                             + ColumnType.FILE.name()
@@ -369,17 +370,17 @@ class ColumnTypeRdfMapperTest {
         // RELATIONSHIP
         () ->
             Assertions.assertEquals(
-                Set.of(Values.iri(rdfApiUrlPrefix + REF_TABLE + "?id=1")),
+                Set.of(Values.iri(RDF_API_URL_PREFIX + REF_TABLE + "?id=1")),
                 retrieveValues(ColumnType.REF.name())),
         () ->
             Assertions.assertEquals(
                 Set.of(
-                    Values.iri(rdfApiUrlPrefix + REF_TABLE + "?id=2"),
-                    Values.iri(rdfApiUrlPrefix + REF_TABLE + "?id=3")),
+                    Values.iri(RDF_API_URL_PREFIX + REF_TABLE + "?id=2"),
+                    Values.iri(RDF_API_URL_PREFIX + REF_TABLE + "?id=3")),
                 retrieveValues(ColumnType.REF_ARRAY.name())),
         () ->
             Assertions.assertEquals(
-                Set.of(Values.iri(rdfApiUrlPrefix + REFBACK_TABLE + "?id=1")),
+                Set.of(Values.iri(RDF_API_URL_PREFIX + REFBACK_TABLE + "?id=1")),
                 retrieveValues(ColumnType.REFBACK.name())),
 
         // LAYOUT and other constants -> should return empty sets as they should be excluded
