@@ -101,4 +101,10 @@ public interface Database extends HasSettingsInterface<Database> {
   Map<String, Supplier<Object>> getJavaScriptBindings();
 
   List<LastUpdate> getLastUpdated();
+
+  List<Member> loadUserRoles();
+
+  void revokeRoles(String userName, List<Map<String, String>> revokedRoles);
+
+  void updateRoles(String userName, List<Map<String, String>> roles);
 }

@@ -15,7 +15,7 @@ const router = createRouter({
       props: true,
     },
     {
-      path: "/:id",
+      path: "/:index",
       name: "edit",
       component: ViewReport,
       props: true,

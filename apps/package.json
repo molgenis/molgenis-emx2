@@ -2,7 +2,6 @@
   "private": true,
   "workspaces": [
     "metadata-utils",
-    "catalogue",
     "directory",
     "settings",
     "central",

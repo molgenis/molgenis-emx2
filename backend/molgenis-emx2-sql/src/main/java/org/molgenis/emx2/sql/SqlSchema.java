@@ -251,7 +251,8 @@ public class SqlSchema implements Schema {
 
   private static void migrateTransaction(
       String targetSchemaName, SchemaMetadata mergeSchema, Database database) {
-    SqlSchema targetSchema = (SqlSchema) database.getSchema(targetSchemaName);
+    SqlSchemaMetadata targetSchema =
+        (SqlSchemaMetadata) database.getSchema(targetSchemaName).getMetadata();
 
     // create list, sort dependency order
     List<TableMetadata> mergeTableList = new ArrayList<>();
@@ -268,11 +269,10 @@ public class SqlSchema implements Schema {
     for (TableMetadata mergeTable : mergeTableList) {
 
       // get the old table, if exists
-      Table oldTableSource =
+      TableMetadata oldTable =
           mergeTable.getOldName() == null
-              ? targetSchema.getTable(mergeTable.getTableName())
-              : targetSchema.getTable(mergeTable.getOldName());
-      TableMetadata oldTable = oldTableSource != null ? oldTableSource.getMetadata() : null;
+              ? targetSchema.getTableMetadata(mergeTable.getTableName())
+              : targetSchema.getTableMetadata(mergeTable.getOldName());
 
       // set oldName in case table does exist, and oldName was not provided
       if (mergeTable.getOldName() == null && oldTable != null) {
@@ -285,7 +285,7 @@ public class SqlSchema implements Schema {
             new TableMetadata(mergeTable.getTableName())
                 .setTableType(mergeTable.getTableType())); // only the name and type
       } else if (oldTable != null && !oldTable.getTableName().equals(mergeTable.getTableName())) {
-        targetSchema.getMetadata().renameTable(oldTable, mergeTable.getTableName());
+        targetSchema.getTableMetadata(oldTable.getTableName()).alterName(mergeTable.getTableName());
       }
     }
 
@@ -297,7 +297,7 @@ public class SqlSchema implements Schema {
     for (TableMetadata mergeTable : mergeTableList) {
 
       if (!mergeTable.isDrop()) {
-        TableMetadata oldTable = targetSchema.getTable(mergeTable.getTableName()).getMetadata();
+        TableMetadata oldTable = targetSchema.getTableMetadata(mergeTable.getTableName());
 
         // set inheritance
         if (mergeTable.getInheritName() != null) {
@@ -324,7 +324,7 @@ public class SqlSchema implements Schema {
         }
         // TableType is DATA by default and therefore never null
         oldTable.setTableType(mergeTable.getTableType());
-        MetadataUtils.saveTableMetadata(targetSchema.getMetadata().getJooq(), oldTable);
+        MetadataUtils.saveTableMetadata(targetSchema.getJooq(), oldTable);
 
         // add missing (except refback),
         // remove triggers if existing column if type changed
@@ -350,7 +350,7 @@ public class SqlSchema implements Schema {
                   .getColumnType()
                   .getBaseType()
                   .equals(oldColumn.getColumnType().getBaseType())) {
-            executeRemoveRefConstraints(targetSchema.getMetadata().getJooq(), oldColumn);
+            executeRemoveRefConstraints(targetSchema.getJooq(), oldColumn);
           }
         }
       }
@@ -360,7 +360,7 @@ public class SqlSchema implements Schema {
     // update existing columns to the new types, and new names, reconnect refback
     for (TableMetadata newTable : mergeTableList) {
       if (!newTable.isDrop()) {
-        TableMetadata oldTable = targetSchema.getTable(newTable.getTableName()).getMetadata();
+        TableMetadata oldTable = targetSchema.getTableMetadata(newTable.getTableName());
         for (Column newColumn : newTable.getNonInheritedColumns()) {
           Column oldColumn =
               newColumn.getOldName() != null
@@ -374,7 +374,7 @@ public class SqlSchema implements Schema {
           } else
           // don't forget to add the refbacks
           if (oldColumn == null && newColumn.isRefback()) {
-            targetSchema.getTable(newTable.getTableName()).getMetadata().add(newColumn);
+            targetSchema.getTableMetadata(newTable.getTableName()).add(newColumn);
           }
         }
       }
@@ -384,14 +384,14 @@ public class SqlSchema implements Schema {
     Collections.reverse(mergeTableList);
     for (TableMetadata mergeTable : mergeTableList) {
       // idempotent so we only drop if exists
-      if (mergeTable.isDrop() && targetSchema.getTable(mergeTable.getOldName()) != null) {
-        targetSchema.getTable(mergeTable.getOldName()).getMetadata().drop();
+      if (mergeTable.isDrop() && targetSchema.getTableMetadata(mergeTable.getOldName()) != null) {
+        targetSchema.getTableMetadata(mergeTable.getOldName()).drop();
       }
     }
 
     // finally, update settings if changes are provided
     if (!mergeSchema.getSettings().isEmpty()) {
-      targetSchema.getMetadata().setSettings(mergeSchema.getSettings());
+      targetSchema.setSettings(mergeSchema.getSettings());
     }
   }
 

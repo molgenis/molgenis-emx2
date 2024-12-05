@@ -1,12 +1,14 @@
 <template>
   <div>
     <table class="layout-table w-100">
-      <component
-        v-for="attribute in attributes"
-        :is="component(attribute.type)"
-        :attribute="attribute"
-        :key="attribute.id"
-      />
+      <tbody>
+        <component
+          v-for="attribute in attributes"
+          :is="component(attribute.type)"
+          :attribute="attribute"
+          :key="attribute.id"
+        />
+      </tbody>
     </table>
 
     <component
@@ -96,6 +98,7 @@ export default {
 
 <style>
 .layout-table {
-  border-collapse: unset; /* override theme */
+  border-collapse: unset;
+  /* override theme */
 }
 </style>
