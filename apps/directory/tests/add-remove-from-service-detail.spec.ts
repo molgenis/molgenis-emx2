@@ -5,7 +5,6 @@ const schemaName = getSchemaName();
 
 test('add/remove service from service detaill page', async ({ page }) => {
   await page.goto(`/${schemaName}/directory/`);
-  await page.goto('http://localhost:5173/#/catalogue');
   await page.getByRole('button', { name: 'Services' }).first().click();
   await page.getByRole('link', { name: 'Biobank Service' }).click();
   await expect(page.locator('h1')).toContainText('Biobank Service');
