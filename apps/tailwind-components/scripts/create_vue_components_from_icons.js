@@ -1,7 +1,7 @@
-/* eslint-disable no-undef */
-var fs = require("fs");
-var path = require("path");
-var process = require("process");
+
+import fs  from "fs";
+import path from "path";
+import process from "process";
 
 var moveFrom = "./assets/minified-icons";
 var moveTo = "./components/global/icons";
