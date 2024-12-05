@@ -156,7 +156,7 @@ useHead({ title: titlePrefix + variable.value.name });
         <ContentBlock
           v-if="resourcesWithMapping.length > 0"
           id="harmonisation-details-per-cohort"
-          title="Harmonisation details per data source"
+          title="Harmonisation details per source"
           description="Select a data source to see the details of the harmonisation"
         >
           <HarmonisationVariableDetails :variable="variable" />

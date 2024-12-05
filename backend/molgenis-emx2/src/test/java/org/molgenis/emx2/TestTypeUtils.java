@@ -2,6 +2,9 @@ package org.molgenis.emx2;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -22,9 +25,6 @@ public class TestTypeUtils {
     executeTest(ColumnType.DATE_ARRAY, new LocalDate[] {LocalDate.now(), LocalDate.now()});
     executeTest(
         ColumnType.DATETIME_ARRAY, new LocalDateTime[] {LocalDateTime.now(), LocalDateTime.now()});
-    executeTest(
-        ColumnType.JSONB_ARRAY,
-        new JSONB[] {JSONB.valueOf("{name:\"blaat\"}"), JSONB.valueOf("{name2:\"blaat2\"}")});
 
     // test null string is trimmed to null correctly
     for (ColumnType type : ColumnType.values()) {
@@ -69,5 +69,60 @@ public class TestTypeUtils {
     assertEquals(
         TypeUtils.toDateTime("2023-02-24T12:08:23.46378"),
         LocalDateTime.of(2023, 02, 24, 12, 8, 23, 463780000));
+  }
+
+  @Test
+  void testToJsonb() throws JsonProcessingException {
+    // object
+    String objectString = "{\"key\":\"value\"}";
+    JsonNode objectJackson = new ObjectMapper().readTree(objectString);
+    JSONB objectJooq = JSONB.valueOf(objectString);
+
+    // array
+    String arrayString = "[\"string1\",\"string2\"]";
+    JsonNode arrayJackson = new ObjectMapper().readTree(objectString);
+    JSONB arrayJooq = JSONB.valueOf(objectString);
+
+    // string
+    String stringString = "\"string1\"";
+    JsonNode stringJackson = new ObjectMapper().readTree(stringString);
+    JSONB stringJooq = JSONB.valueOf(stringString);
+
+    // null
+    String nullString = "null";
+    JsonNode nullJackson = new ObjectMapper().readTree(nullString);
+    JSONB nullJooq = JSONB.valueOf(nullString);
+
+    // invalid
+    String nonUniqueKey = "{\"key1\":\"value1\", \"key1\":\"value2\"}";
+    String externalComma = "{\"key1\":\"value1\"},{\"key2\":\"value2\"}";
+    String trailingData = "{\"key\":\"value\"}trailing";
+    int invalidJavaType = 1;
+
+    assertAll(
+        // valid: object
+        () -> assertEquals(objectJooq, TypeUtils.toJsonb(objectString)),
+        () -> assertEquals(objectJooq, TypeUtils.toJsonb(objectJackson)),
+        () -> assertEquals(objectJooq, TypeUtils.toJsonb(objectJooq)),
+        // valid: array
+        () -> assertEquals(objectJooq, TypeUtils.toJsonb(objectString)),
+        () -> assertEquals(objectJooq, TypeUtils.toJsonb(objectJackson)),
+        () -> assertEquals(objectJooq, TypeUtils.toJsonb(objectJooq)),
+        // invalid: primitive - string
+        () -> assertThrows(MolgenisException.class, () -> TypeUtils.toJsonb(stringString)),
+        () -> assertThrows(MolgenisException.class, () -> TypeUtils.toJsonb(stringJackson)),
+        () -> assertThrows(MolgenisException.class, () -> TypeUtils.toJsonb(stringJooq)),
+        // invalid: primitive - null
+        () -> assertThrows(MolgenisException.class, () -> TypeUtils.toJsonb(nullString)),
+        () -> assertThrows(MolgenisException.class, () -> TypeUtils.toJsonb(nullJackson)),
+        () -> assertThrows(MolgenisException.class, () -> TypeUtils.toJsonb(nullJooq)),
+        // invalid: non-unique key
+        () -> assertThrows(MolgenisException.class, () -> TypeUtils.toJsonb(nonUniqueKey)),
+        // invalid: 2 objects separated by a comma (not in an array)
+        () -> assertThrows(MolgenisException.class, () -> TypeUtils.toJsonb(externalComma)),
+        // invalid: trailing data
+        () -> assertThrows(MolgenisException.class, () -> TypeUtils.toJsonb(trailingData)),
+        // invalid: Java type int
+        () -> assertThrows(ClassCastException.class, () -> TypeUtils.toJsonb(invalidJavaType)));
   }
 }
