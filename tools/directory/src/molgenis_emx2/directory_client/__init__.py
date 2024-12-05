@@ -15,4 +15,4 @@ except PackageNotFoundError:  # pragma: no cover
 finally:
     del version, PackageNotFoundError
 
-__version__ = '1.0.0'
+__version__ = "1.1.0"

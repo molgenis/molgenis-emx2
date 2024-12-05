@@ -10,9 +10,7 @@ from setuptools import setup
 
 if __name__ == "__main__":
     try:
-        setup(
-            version='1.0.0',
-            use_scm_version={"version_scheme": "no-guess-dev"})
+        setup(version="1.1.0", use_scm_version={"version_scheme": "no-guess-dev"})
     except:  # noqa
         print(
             "\n\nAn error occurred while building the project, "
@@ -21,4 +19,3 @@ if __name__ == "__main__":
             "   pip install -U setuptools setuptools_scm wheel\n\n"
         )
         raise
-
