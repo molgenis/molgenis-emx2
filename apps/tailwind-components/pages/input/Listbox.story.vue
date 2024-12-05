@@ -21,7 +21,7 @@
     </p>
     <ul class="pl-6 mb-4 list-disc">
       <li>
-        <code>IListboxValueArray</code>: an array of values (as strings, or
+        <code>IListboxValue</code>: an array of values (as strings, or
         string[]). For now, this component only supports string arrays.
       </li>
       <li>
@@ -80,12 +80,14 @@
       <InputString id="listbox-placeholder" v-model="listboxPlaceholder" />
     </div>
   </form>
-  <div class="mb-6 bg-white rounded p-6">
+  <div class="mb-6 bg-white rounded px-6 py-8">
     <h3 class="text-heading-lg mb-2">Listbox example</h3>
     <InputLabel
       id="listbox-input-label"
       for="listbox-input"
       class="block mb-3 pl-0"
+      :disabled="listboxState === 'disabled'"
+      :has-error="listboxState === 'error'"
     >
       <span>Select a group assignment</span>
     </InputLabel>
@@ -120,9 +122,8 @@
 
 <script lang="ts" setup>
 import { ref, computed } from "vue";
-import type { IListboxValueArray, IListboxOption } from "../../types/listbox";
+import type { IListboxValue, IListboxOption } from "../../types/listbox";
 
-// as ListboxOption
 const letters: string[] = [...Array(26).keys()].map((num) =>
   String.fromCharCode(num + 65)
 );
@@ -136,9 +137,9 @@ const listboxSelection = ref();
 const listboxPlaceholder = ref<string>("Select an option");
 const listboxDataType = ref<string>("string");
 
-const listboxData = computed<IListboxOption[] | IListboxValueArray[]>(() => {
+const listboxData = computed<IListboxOption[] | IListboxValue[]>(() => {
   if (listboxDataType.value === "string") {
-    return letters as IListboxValueArray[];
+    return letters as IListboxValue[];
   } else {
     return lettersWithLabels as IListboxOption[];
   }

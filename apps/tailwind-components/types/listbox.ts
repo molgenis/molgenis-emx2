@@ -1,8 +1,8 @@
 
-export type IListboxValueArray = string;
+export type IListboxValue = string | number | boolean | undefined | null;
 
 export interface IListboxOption {
-  value: string | undefined | null;
+  value: IListboxValue;
   label?: string;
 }
 

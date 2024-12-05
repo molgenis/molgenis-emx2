@@ -19,7 +19,7 @@
       @keydown.prevent="onListboxButtonKeyDown"
     >
       <span class="w-full">
-        {{ listboxDisplayText }}
+        {{ displayText }}
       </span>
       <div class="w-[60px] flex flex-col">
         <BaseIcon :width="18" name="caret-up" class="mx-auto -my-1" />
@@ -47,10 +47,11 @@
         role="option"
         class="flex justify-start items-center gap-3 pl-3 py-1 text-listbox border-t-[1px] border-t-listbox-option hover:cursor-pointer hover:bg-listbox-hover hover:text-listbox focus:bg-listbox-hover focus:text-listbox"
         :class="{
-          '!bg-listbox-selected !text-listbox-selected':
-            option.value === (modelValue as IListboxOption)?.value || option.value === modelValue,
+          '!bg-listbox-selected !text-listbox-selected': isSelected(
+            option.value
+          ),
         }"
-        :aria-selected="option.value === (modelValue as IListboxOption)?.value || option.value === modelValue"
+        :aria-selected="isSelected(option.value)"
         @click="onListboxOptionClick(option)"
         @blur="blurListOption(option)"
         @keydown="(event: KeyboardEvent) => onListboxOptionKeyDown(event, option)"
@@ -58,7 +59,7 @@
         <BaseIcon
           name="Check"
           class="fill-listbox-selected"
-          :class="option.value === (modelValue as IListboxOption)?.value || option.value === modelValue ? 'visible' : 'invisible'"
+          :class="isSelected(option.value) ? 'visible' : 'invisible'"
           :width="18"
         />
         <span v-if="option.label">
@@ -73,9 +74,9 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, useTemplateRef, nextTick } from "vue";
+import { ref, useTemplateRef, nextTick, watch } from "vue";
 import type {
-  IListboxValueArray,
+  IListboxValue,
   IListboxOption,
   IInternalListboxOption,
 } from "../../types/listbox";
@@ -84,7 +85,7 @@ const props = withDefaults(
   defineProps<{
     id: string;
     labelId: string;
-    options: IListboxOption[] | IListboxValueArray[];
+    options: IListboxOption[] | IListboxValue[];
     required?: boolean;
     hasError?: boolean;
     placeholder?: string;
@@ -102,11 +103,11 @@ const sourceDataType = ref<string>("");
 const sourceData = ref<IListboxOption[]>();
 const focusCounter = ref<number>(0);
 const isExpanded = ref<boolean>(false);
-const modelValue = defineModel<IListboxOption | IListboxValueArray>();
+const modelValue = defineModel<IListboxOption | IListboxValue>();
 const ulElemRef = useTemplateRef<HTMLUListElement>("listbox-ul");
 const olElemRefs = useTemplateRef<HTMLOptionElement[]>("listbox-li");
 const btnElemRef = useTemplateRef<HTMLButtonElement>("listbox-button");
-const listboxDisplayText = ref<string>(props.placeholder);
+const displayText = ref<string>(props.placeholder);
 const startingCounter = ref<number>(0);
 
 function counterIsInRange(value: number) {
@@ -114,18 +115,18 @@ function counterIsInRange(value: number) {
 }
 
 const listboxOptions = computed<IInternalListboxOption[]>(() => {
-  const testDataValue: IListboxOption | IListboxValueArray = props.options[0];
+  const testDataValue: IListboxOption | IListboxValue = props.options[0];
   if (
     typeof testDataValue === "object" &&
-    Object.hasOwn(testDataValue, "value")
+    Object.hasOwn(testDataValue as IListboxOption, "value")
   ) {
     sourceDataType.value = "ListboxOptions";
     sourceData.value = props.options as IListboxOption[];
   } else {
     sourceDataType.value = "ListboxValueArray";
-    const inputData = props.options as IListboxValueArray[];
+    const inputData = props.options as IListboxValue[];
     const processedData = inputData.map(
-      (value: IListboxValueArray): IListboxOption => {
+      (value: IListboxValue): IListboxOption => {
         return { value: value };
       }
     );
@@ -180,11 +181,11 @@ function blurListOption(option: IInternalListboxOption) {
   });
 }
 
-function updateListboxDisplayText(text: string | undefined | null): string {
-  if (typeof text === "undefined") {
+function updateDisplayText(text: string | undefined | null): string {
+  if (typeof text === "undefined" || text === null) {
     return props.placeholder;
   }
-  return text as string;
+  return text;
 }
 
 function updateModelValue(selection: IInternalListboxOption) {
@@ -196,17 +197,21 @@ function updateModelValue(selection: IInternalListboxOption) {
     const selectedOption: IListboxOption = { value: selection.value };
     if (Object.hasOwn(selection, "label")) {
       selectedOption.label = selection.label;
-      listboxDisplayText.value = updateListboxDisplayText(selectedOption.label);
+      displayText.value = updateDisplayText(selectedOption.label);
     } else {
-      listboxDisplayText.value = updateListboxDisplayText(selectedOption.value);
+      displayText.value = updateDisplayText(selectedOption.value as string);
     }
 
     modelValue.value = selectedOption;
   } else {
-    modelValue.value = selection.value as IListboxValueArray;
-    listboxDisplayText.value = selection.value as string;
+    modelValue.value = selection.value as IListboxValue;
+    displayText.value = updateDisplayText(selection.value as string);
   }
   openCloseListbox();
+}
+
+function isSelected(value: IListboxValue): boolean {
+  return value === modelValue.value || value === modelValue.value;
 }
 
 function focusPreviousOption(by: number = 1) {
@@ -342,4 +347,11 @@ function onListboxOptionKeyDown(
       break;
   }
 }
+
+watch(
+  () => props.placeholder,
+  () => {
+    displayText.value = props.placeholder;
+  }
+);
 </script>
