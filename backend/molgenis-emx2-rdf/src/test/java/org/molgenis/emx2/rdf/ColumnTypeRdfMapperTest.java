@@ -26,6 +26,8 @@ class ColumnTypeRdfMapperTest {
   static final String TEST_TABLE = "TestTable";
   static final String REF_TABLE = "TestRefTable";
   static final String REFBACK_TABLE = "TestRefBackTable";
+  static final String COMPOSITE_REF_TABLE = "TestCompositeRefTable";
+  static final String COMPOSITE_REFBACK_TABLE = "TestCompositeRefbackTable";
   static final String ONT_TABLE = "TestOntology";
 
   static final String BASE_URL = "http://localhost:8080/";
@@ -37,6 +39,10 @@ class ColumnTypeRdfMapperTest {
   static final ClassLoader classLoader = ColumnTypeRdfMapperTest.class.getClassLoader();
   static final File TEST_FILE =
       new File(classLoader.getResource("testfiles/molgenis.png").getFile());
+
+  static final String COLUMN_COMPOSITE_REF = "composite_ref";
+  static final String COLUMN_COMPOSITE_REF_ARRAY = "composite_ref_array";
+  static final String COLUMN_COMPOSITE_REFBACK = "composite_refback";
 
   static Database database;
   static Schema allColumnTypes;
@@ -50,20 +56,25 @@ class ColumnTypeRdfMapperTest {
 
     // Generates a column for each ColumnType.
     // Filters out REFBACK so that it can be added as last step when all REFs are generated.
-    Column[] columns =
+    List<Column> columnList =
         Arrays.stream(ColumnType.values())
             .map((value) -> column(value.name(), value))
             .filter((column -> !column.getColumnType().equals(ColumnType.REFBACK)))
-            .toArray(Column[]::new);
+            .collect(Collectors.toList());
 
     // Defines column-specific settings.
-    for (Column column : columns) {
+    for (Column column : columnList) {
       switch (column.getColumnType()) {
         case STRING -> column.setPkey();
         case REF, REF_ARRAY -> column.setRefTable(REF_TABLE);
         case ONTOLOGY, ONTOLOGY_ARRAY -> column.setRefTable(ONT_TABLE);
       }
     }
+
+    // Add extra custom columns for additional tests.
+    columnList.add(column(COLUMN_COMPOSITE_REF, ColumnType.REF).setRefTable(COMPOSITE_REF_TABLE));
+    columnList.add(
+        column(COLUMN_COMPOSITE_REF_ARRAY, ColumnType.REF).setRefTable(COMPOSITE_REF_TABLE));
 
     // Creates tables.
     allColumnTypes.create(
@@ -72,11 +83,22 @@ class ColumnTypeRdfMapperTest {
         // Table to ref towards
         table(REF_TABLE, column("id", ColumnType.STRING).setPkey()),
         // Table to test on
-        table(TEST_TABLE, columns),
+        table(TEST_TABLE, columnList.toArray(Column[]::new)),
         // Table to get refbacks from
         table(
             REFBACK_TABLE,
             column("id", ColumnType.STRING).setPkey(),
+            column("ref", ColumnType.REF).setRefTable(TEST_TABLE)),
+        // Table containing composite primary key to ref towards
+        table(
+            COMPOSITE_REF_TABLE,
+            column("ids", ColumnType.STRING).setPkey(),
+            column("idi", ColumnType.INT).setPkey()),
+        // Table containing composite primary key to get refback from
+        table(
+            COMPOSITE_REFBACK_TABLE,
+            column("id1", ColumnType.STRING).setPkey(),
+            column("id2", ColumnType.STRING).setPkey(),
             column("ref", ColumnType.REF).setRefTable(TEST_TABLE)));
 
     // Adds REFBACK.
@@ -86,6 +108,9 @@ class ColumnTypeRdfMapperTest {
         .add(
             column(ColumnType.REFBACK.name(), ColumnType.REFBACK)
                 .setRefTable(REFBACK_TABLE)
+                .setRefBack("ref"),
+            column(COLUMN_COMPOSITE_REFBACK, ColumnType.REFBACK)
+                .setRefTable(COMPOSITE_REFBACK_TABLE)
                 .setRefBack("ref"));
 
     // Inserts table data
@@ -97,6 +122,11 @@ class ColumnTypeRdfMapperTest {
             row("name", "cc", "ontologyTermURI", "http://example.com/cc"));
 
     allColumnTypes.getTable(REF_TABLE).insert(row("id", "1"), row("id", "2"), row("id", "3"));
+
+    allColumnTypes
+        .getTable(COMPOSITE_REF_TABLE)
+        .insert(
+            row("ids", "a", "idi", "1"), row("ids", "b", "idi", "2"), row("ids", "c", "idi", "3"));
 
     allColumnTypes
         .getTable(TEST_TABLE)
@@ -171,9 +201,25 @@ class ColumnTypeRdfMapperTest {
                 ColumnType.HYPERLINK.name(),
                 "https://molgenis.org",
                 ColumnType.HYPERLINK_ARRAY.name(),
-                "https://molgenis.org, https://github.com/molgenis"));
+                "https://molgenis.org, https://github.com/molgenis",
+                // Extra columns for composite key testing
+                // -- no manual entry: COLUMN_COMPOSITE_REFBACK
+                COLUMN_COMPOSITE_REF + ".ids",
+                "a",
+                COLUMN_COMPOSITE_REF + ".idi",
+                "1",
+                COLUMN_COMPOSITE_REF_ARRAY + ".id1",
+                "b,c",
+                COLUMN_COMPOSITE_REF_ARRAY + ".id2",
+                "2,3"),
+            row(ColumnType.STRING.name(), "secondRowKey"));
 
     allColumnTypes.getTable(REFBACK_TABLE).insert(row("id", "1", "ref", "lonelyString"));
+    allColumnTypes
+        .getTable(COMPOSITE_REFBACK_TABLE)
+        .insert(
+            row("id1", "a", "id2", "b", "ref", "lonelyString"),
+            row("id1", "c", "id2", "d", "ref", "secondRowKey"));
 
     // Use query to explicitly retrieve all rows as the following would exclude REFBACK values:
     // allColumnTypes.getTable(TEST_TABLE).retrieveRows()
@@ -251,7 +297,11 @@ class ColumnTypeRdfMapperTest {
         () -> Assertions.assertTrue(retrieveFirstValue(ColumnType.AUTO_ID.name()).isLiteral()),
         () -> Assertions.assertTrue(retrieveFirstValue(ColumnType.ONTOLOGY.name()).isIRI()),
         () -> Assertions.assertTrue(retrieveFirstValue(ColumnType.EMAIL.name()).isIRI()),
-        () -> Assertions.assertTrue(retrieveFirstValue(ColumnType.HYPERLINK.name()).isIRI()));
+        () -> Assertions.assertTrue(retrieveFirstValue(ColumnType.HYPERLINK.name()).isIRI()),
+
+        // Composite keys
+        () -> Assertions.assertTrue(retrieveFirstValue(COMPOSITE_REF_TABLE).isIRI()),
+        () -> Assertions.assertTrue(retrieveFirstValue(COMPOSITE_REFBACK_TABLE).isIRI()));
   }
 
   @Test
@@ -395,13 +445,13 @@ class ColumnTypeRdfMapperTest {
                     .matches("[0-9a-zA-Z]+")),
         () ->
             Assertions.assertEquals(
-                Set.of(Values.iri(rdfApiUrlPrefix + ONT_TABLE + "?name=aa")),
+                Set.of(Values.iri(RDF_API_URL_PREFIX + ONT_TABLE + "?name=aa")),
                 retrieveValues(ColumnType.ONTOLOGY.name())),
         () ->
             Assertions.assertEquals(
                 Set.of(
-                    Values.iri(rdfApiUrlPrefix + ONT_TABLE + "?name=bb"),
-                    Values.iri(rdfApiUrlPrefix + ONT_TABLE + "?name=cc")),
+                    Values.iri(RDF_API_URL_PREFIX + ONT_TABLE + "?name=bb"),
+                    Values.iri(RDF_API_URL_PREFIX + ONT_TABLE + "?name=cc")),
                 retrieveValues(ColumnType.ONTOLOGY_ARRAY.name())),
         () ->
             Assertions.assertEquals(
@@ -420,6 +470,23 @@ class ColumnTypeRdfMapperTest {
             Assertions.assertEquals(
                 Set.of(
                     Values.iri("https://molgenis.org"), Values.iri("https://github.com/molgenis")),
-                retrieveValues(ColumnType.HYPERLINK_ARRAY.name())));
+                retrieveValues(ColumnType.HYPERLINK_ARRAY.name())),
+        // Composite reference / refback
+        () ->
+            Assertions.assertEquals(
+                Set.of(Values.iri(RDF_API_URL_PREFIX + COMPOSITE_REF_TABLE + "?ids=a&idi=1")),
+                retrieveValues(COLUMN_COMPOSITE_REF)),
+        () ->
+            Assertions.assertEquals(
+                Set.of(
+                    Values.iri(RDF_API_URL_PREFIX + COMPOSITE_REF_TABLE + "?ids=b&idi=2"),
+                    Values.iri(RDF_API_URL_PREFIX + COMPOSITE_REF_TABLE + "?ids=c&idi=3")),
+                retrieveValues(COLUMN_COMPOSITE_REF_ARRAY)),
+        () ->
+            Assertions.assertEquals(
+                Set.of(
+                    Values.iri(RDF_API_URL_PREFIX + COMPOSITE_REFBACK_TABLE + "?id1=a&id2=b"),
+                    Values.iri(RDF_API_URL_PREFIX + COMPOSITE_REFBACK_TABLE + "?id1=c&id2=d")),
+                retrieveValues(COLUMN_COMPOSITE_REFBACK)));
   }
 }
