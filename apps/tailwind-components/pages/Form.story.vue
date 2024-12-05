@@ -5,15 +5,21 @@ import type {
   ISchemaMetaData,
   ITableMetaData,
 } from "../../metadata-utils/src/types";
+import type { IListboxOption } from "../types/listbox";
 
-const sampleType = ref("simple");
+const exampleForms: IListboxOption[] = [
+  { value: "simple", label: "Simple form example" },
+  { value: "complex", label: "Complex form example" },
+];
+
+const formType = ref<IListboxOption>(exampleForms[0]);
 
 // just assuming that the table is there for the demo
 const schemaId = computed(() =>
-  sampleType.value === "simple" ? "pet store" : "catalogue-demo"
+  formType.value.value === "simple" ? "pet store" : "catalogue-demo"
 );
 const tableId = computed(() =>
-  sampleType.value === "simple" ? "Pet" : "Resources"
+  formType.value.value === "simple" ? "Pet" : "Resources"
 );
 
 const {
@@ -30,6 +36,7 @@ const tableMeta = computed(
 );
 
 function refetch() {
+  console.log("refetching...");
   refetchMetadata();
 }
 
@@ -42,14 +49,17 @@ const formFields = ref<InstanceType<typeof FormFields>>();
   <div>Demo controles:</div>
 
   <div class="p-4 border-2 mb-2">
-    <select
-      @change="refetch()"
-      v-model="sampleType"
-      class="border-1 border-black"
-    >
-      <option value="simple">Simple form example</option>
-      <option value="complex">Complex form example</option>
-    </select>
+    <InputLabel for="form-example" id="form-example-title">
+      Select a form to display
+    </InputLabel>
+    <InputListbox
+      id="form-example"
+      label-id="form-example-title"
+      @change="refetch"
+      v-model="formType"
+      :options="exampleForms"
+      placeholder="Select a form type"
+    />
 
     <div>schema id = {{ schemaId }}</div>
     <div>table id = {{ tableId }}</div>

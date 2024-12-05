@@ -74,7 +74,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, useTemplateRef, nextTick, watch } from "vue";
+import { ref, useTemplateRef, nextTick, watch, onMounted } from "vue";
 import type {
   IListboxValue,
   IListboxOption,
@@ -98,6 +98,10 @@ const props = withDefaults(
     placeholder: "Select an option",
   }
 );
+
+const emit = defineEmits<{
+  (e: "change", value: IListboxOption | IListboxValue): void;
+}>();
 
 const sourceDataType = ref<string>("");
 const sourceData = ref<IListboxOption[]>();
@@ -188,7 +192,10 @@ function updateDisplayText(text: string | undefined | null): string {
   return text;
 }
 
-function updateModelValue(selection: IInternalListboxOption) {
+function updateModelValue(
+  selection: IInternalListboxOption,
+  enableToggling: boolean = false
+) {
   btnElemRef.value?.setAttribute("aria-activedescendant", selection.elemId);
   focusCounter.value = selection.index;
   startingCounter.value = selection.index;
@@ -207,11 +214,16 @@ function updateModelValue(selection: IInternalListboxOption) {
     modelValue.value = selection.value as IListboxValue;
     displayText.value = updateDisplayText(selection.value as string);
   }
-  openCloseListbox();
+
+  emit("change", modelValue.value);
+
+  if (enableToggling) {
+    openCloseListbox();
+  }
 }
 
 function isSelected(value: IListboxValue): boolean {
-  return value === modelValue.value || value === modelValue.value;
+  return value === (modelValue.value as IInternalListboxOption).value;
 }
 
 function focusPreviousOption(by: number = 1) {
@@ -347,6 +359,22 @@ function onListboxOptionKeyDown(
       break;
   }
 }
+
+onMounted(() => {
+  if (modelValue.value && listboxOptions.value) {
+    const initalValue: IInternalListboxOption[] = listboxOptions.value.filter(
+      (row: IInternalListboxOption) => {
+        return (
+          row.value === (modelValue.value as IListboxOption).value ||
+          row.value === (modelValue.value as IListboxValue)
+        );
+      }
+    );
+    if (initalValue) {
+      updateModelValue(initalValue[0], false);
+    }
+  }
+});
 
 watch(
   () => props.placeholder,

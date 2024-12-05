@@ -133,7 +133,7 @@ const lettersWithLabels: IListboxOption[] = letters.map((letter: string) => {
 });
 
 const listboxState = ref<string>("");
-const listboxSelection = ref();
+const listboxSelection = ref("");
 const listboxPlaceholder = ref<string>("Select an option");
 const listboxDataType = ref<string>("string");
 
