@@ -92,7 +92,6 @@ export function createBookmark(
   collectionCart: Record<string, labelValuePair[]>,
   serviceCart: Record<string, labelValuePair[]>
 ) {
-  console.log("createBookmark", filters, collectionCart, serviceCart);
   const filtersStore = useFiltersStore();
   const bookmark: Record<string, string> = {};
   const matchAll = [];
