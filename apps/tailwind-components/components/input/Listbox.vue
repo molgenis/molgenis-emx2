@@ -194,7 +194,7 @@ function updateDisplayText(text: string | undefined | null): string {
 
 function updateModelValue(
   selection: IInternalListboxOption,
-  enableToggling: boolean = false
+  enableToggling: boolean = true
 ) {
   btnElemRef.value?.setAttribute("aria-activedescendant", selection.elemId);
   focusCounter.value = selection.index;
@@ -223,7 +223,10 @@ function updateModelValue(
 }
 
 function isSelected(value: IListboxValue): boolean {
-  return value === (modelValue.value as IInternalListboxOption).value;
+  return (
+    value === (modelValue.value as IInternalListboxOption).value ||
+    value === (modelValue.value as IListboxValue)
+  );
 }
 
 function focusPreviousOption(by: number = 1) {
