@@ -5,10 +5,12 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.molgenis.emx2.Column;
-import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.TableMetadata;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TableSort {
+  private static Logger logger = LoggerFactory.getLogger(TableSort.class);
 
   private TableSort() {
     // hide constructor
@@ -61,9 +63,11 @@ public class TableSort {
       }
       // check for circular relationship
       if (size == todo.size()) {
-        throw new MolgenisException(
-            "circular dependency error: following tables have circular dependency: "
+        logger.warn(
+            "Following tables have circular dependency which might lead to errors: "
                 + todo.stream().map(TableMetadata::getTableName).collect(Collectors.joining(",")));
+        result.addAll(todo);
+        break;
       }
     }
     tableList.clear();
