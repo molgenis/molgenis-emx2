@@ -1,7 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { getSchemaName } from './getSchemaName';
-
-const schemaName = getSchemaName();
+import { getAppRoute } from './getAppRoute';
 
 test('should run playwright', async ({ page }) => {
   await page.goto('https://molgenis.org/');
@@ -9,6 +7,6 @@ test('should run playwright', async ({ page }) => {
 });
 
 test("directory page should load", async ({ page }) => {
-  await page.goto(`/${schemaName}/directory/`);
+  await page.goto(getAppRoute());
   await expect(page.getByRole('paragraph')).toContainText('© 2024 BBMRI-ERIC');
 });

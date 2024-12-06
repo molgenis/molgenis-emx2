@@ -10,7 +10,7 @@ export default defineConfig<PlaywrightTestConfig>({
   ['junit', { outputFile: 'results.xml' }]
   ] : 'html',
   use: {
-    baseURL: process.env.E2E_BASE_URL || "https://emx2.dev.molgenis.org/", // change to specific http://localhost:*/, preview, etc.
+    baseURL: process.env.E2E_BASE_URL || "http://localhost:5173/", // change to specific http://localhost:*/, preview, etc.
     trace: 'on-first-retry',
   },
 

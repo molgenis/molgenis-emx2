@@ -1,10 +1,8 @@
 import { test, expect } from '@playwright/test';
-import { getSchemaName } from './getSchemaName';
-
-const schemaName = getSchemaName();
+import { getAppRoute } from './getAppRoute';
 
 test('add/remove service from service detaill page', async ({ page }) => {
-  await page.goto(`/${schemaName}/directory/`);
+  await page.goto(getAppRoute());
   await page.getByRole('button', { name: 'Services' }).first().click();
   await page.getByRole('link', { name: 'Biobank Service' }).click();
   await expect(page.locator('h1')).toContainText('Biobank Service');
