@@ -18,12 +18,21 @@
 
       <div class="row">
         <div class="col p-0">
-          <ReportTitle type="Service" :name="service.name" />
-          <ReportDescription :description="service.description" />
-
           <div class="container p-0">
             <div class="row">
               <div class="col-md-8">
+                <div class="d-flex flex-row justify-content-between">
+                  <ReportTitle type="Service" :name="service.name" />
+                  <div>
+                    <Button
+                      type="outline"
+                      :label="isInCart ? 'Remove' : 'Add'"
+                      size="sm"
+                      @click="toggleSelection"
+                    />
+                  </div>
+                </div>
+
                 <table class="table-layout w-100">
                   <tbody>
                     <string :attribute="{ label: 'Id:', value: service.id }" />
@@ -148,15 +157,16 @@ import { computed, ref } from "vue";
 import QueryEMX2 from "../../../molgenis-components/src/queryEmx2/queryEmx2";
 // @ts-ignore
 import { Breadcrumb } from "molgenis-components";
-import { IServices } from "../interfaces/directory";
+import { IBiobanks, IServices } from "../interfaces/directory";
 import { useSettingsStore } from "../stores/settingsStore";
 import { useRoute } from "vue-router";
 import ReportTitle from "../components/report-components/ReportTitle.vue";
-import ReportDescription from "../components/report-components/ReportDescription.vue";
 import CheckOut from "../components/checkout-components/CheckOut.vue";
 import string from "../components/generators/view-components/string.vue";
 import Quality from "../components/generators/view-components/quality.vue";
 import ContactInformation from "../components/report-components/ContactInformation.vue";
+import Button from "../components/Button.vue";
+import { useCheckoutStore } from "../stores/checkoutStore";
 
 const service = ref<IServices | null>(null);
 
@@ -235,4 +245,32 @@ const qualityProps = computed(() => {
     }),
   };
 });
+
+const isInCart = computed(() =>
+  useCheckoutStore().isInCart(service.value?.id ?? "")
+);
+
+function toggleSelection() {
+  if (!service.value) {
+    throw new Error("Service is not loaded yet");
+  }
+  const bookmark = false;
+
+  if (isInCart.value) {
+    useCheckoutStore().removeServicesFromSelection(
+      { name: service.value.biobank.name },
+      [service.value.id],
+      bookmark
+    );
+  } else {
+    useCheckoutStore().addServicesToSelection(
+      {
+        id: service.value.biobank.id,
+        name: service.value.biobank.name,
+      } as IBiobanks,
+      [{ label: service.value.name, value: service.value.id }],
+      bookmark
+    );
+  }
+}
 </script>
