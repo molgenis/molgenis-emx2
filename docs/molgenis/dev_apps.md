@@ -415,3 +415,25 @@ or on windows: `.\gradlew generateTypes --args='"catalogue" "C:\Users\john\Code\
 
 The first param is the schema name, second param is the full path to the file the interfaces get generated into.
 Note that the file is either created or overridden, and that the folder must already exist.
+
+### Binding a versioned app to a schema
+
+An app may expect a certain schema(model) for the app to function. 
+
+*For expample the 'nuxt3-ssr' app expects a schema with certain fields to be present.*
+
+A schema can be bound to an app by setting a nonnull value in the app column of the schema_metadata table. 
+This step requires a migration ( todo make some admin ui to manage this).
+
+Any changes to the app code that require a schema change should be accompanied by a migration script that updates the schemas bound to the app.
+
+The version for the app stored in the org.molgenis.emx2.sql.AppSchemaMigrations class should be updated to reflect the new version.
+
+Migration steps are java code ( that can call the db) that are added to the org.molgenis.emx2.sql.appmigrations.[app-name] package.
+Each step should be names as: Step[version].java , where version is the step number ( 0, 1, 2, 3, ...)
+
+*For expample the 'nuxt3-ssr' app gets extend with a request service, this service expects a 'requests' table to be part of the schema*
+*The version of the app is updated by incrementing the version number in the AppSchemaMigrations class*
+*A java class containing the migration code is added to the org.molgenis.emx2.sql.appmigrations.[app-name] package *
+*On startup the service will check if the schema is bound to an app and up to date with the version set in AppSchemaMigrations*
+*If the app is bound but not up to date the migration steps are run untill the app is up to date*
