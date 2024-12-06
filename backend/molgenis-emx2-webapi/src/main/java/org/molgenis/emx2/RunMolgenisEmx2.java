@@ -63,6 +63,12 @@ public class RunMolgenisEmx2 {
           }
         });
 
+    database.tx(
+        db -> {
+          db.becomeAdmin();
+          SchemaMigrations.migrate((SqlDatabase) db);
+        });
+
     // start
     MolgenisWebservice.start(port);
   }
