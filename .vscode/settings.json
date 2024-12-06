@@ -29,5 +29,8 @@
   ],
   "cSpell.enabledLanguageIds": [
     "markdown"
-  ]
+  ],
+  "files.associations": {
+    "*.csv": "csv"
+  }
 }

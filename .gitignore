@@ -60,5 +60,10 @@ apps/nuxt3-ssr/utils/fingerprint.js
 #playwright
 playwright-report
 CHANGELOG.md
+e2e/.auth/
+
+# python
+venv
+requirements.txt
 e2e/.auth
 e2e/e2e/.auth

@@ -49,11 +49,12 @@ class ColumnTypeRdfMapperTest {
 
     // Generates a column for each ColumnType.
     // Filters out REFBACK so that it can be added as last step when all REFs are generated.
-    Column[] columns =
-        Arrays.stream(ColumnType.values())
-            .map((value) -> column(value.name(), value))
-            .filter((column -> !column.getColumnType().equals(ColumnType.REFBACK)))
-            .toArray(Column[]::new);
+    List<Column> columns =
+        new ArrayList<>(
+            Arrays.stream(ColumnType.values())
+                .map((value) -> column(value.name(), value))
+                .filter((column -> !column.getColumnType().equals(ColumnType.REFBACK)))
+                .toList());
 
     // Defines column-specific settings.
     for (Column column : columns) {
@@ -63,6 +64,11 @@ class ColumnTypeRdfMapperTest {
         case ONTOLOGY, ONTOLOGY_ARRAY -> column.setRefTable(ONT_TABLE);
       }
     }
+    // refback is possible in one go since 26 nov 2024 :-)
+    columns.add(
+        column(ColumnType.REFBACK.name(), ColumnType.REFBACK)
+            .setRefTable(REFBACK_TABLE)
+            .setRefBack("ref"));
 
     // Creates tables.
     allColumnTypes.create(
@@ -71,21 +77,12 @@ class ColumnTypeRdfMapperTest {
         // Table to ref towards
         table(REF_TABLE, column("id", ColumnType.STRING).setPkey()),
         // Table to test on
-        table(TEST_TABLE, columns),
+        table(TEST_TABLE, columns.toArray(new Column[0])),
         // Table to get refbacks from
         table(
             REFBACK_TABLE,
             column("id", ColumnType.STRING).setPkey(),
             column("ref", ColumnType.REF).setRefTable(TEST_TABLE)));
-
-    // Adds REFBACK.
-    allColumnTypes
-        .getTable(TEST_TABLE)
-        .getMetadata()
-        .add(
-            column(ColumnType.REFBACK.name(), ColumnType.REFBACK)
-                .setRefTable(REFBACK_TABLE)
-                .setRefBack("ref"));
 
     // Inserts table data
     allColumnTypes
