@@ -6,6 +6,7 @@ import static org.molgenis.emx2.ColumnType.INT;
 import org.molgenis.emx2.datamodels.BiobankDirectoryLoader;
 import org.molgenis.emx2.datamodels.DataModels;
 import org.molgenis.emx2.datamodels.PetStoreLoader;
+import org.molgenis.emx2.sql.AppSchemaMigrations;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 import org.molgenis.emx2.web.MolgenisWebservice;
@@ -41,7 +42,7 @@ public class RunMolgenisEmx2 {
             + " (change either via java properties or via ENV variables)");
 
     // setup database
-    Database database = new SqlDatabase(true);
+    SqlDatabase database = new SqlDatabase(true);
 
     // elevate privileges for init
     database.tx(
@@ -62,6 +63,9 @@ public class RunMolgenisEmx2 {
             new BiobankDirectoryLoader(schema, true).setStaging(false).run();
           }
         });
+
+    // check if schemas connected to apps need to be migrated, and if so, do it
+    new AppSchemaMigrations().runAppSchemaMigrations(database);
 
     // start
     MolgenisWebservice.start(port);
