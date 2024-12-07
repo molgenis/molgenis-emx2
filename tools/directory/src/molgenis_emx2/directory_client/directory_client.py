@@ -37,6 +37,7 @@ class AttributesRequest:
     networks: List[str]
     also_known_in: List[str]
     biobanks: List[str]
+    studies: List[str]
     collections: List[str]
     facts: List[str]
 
@@ -319,7 +320,7 @@ class DirectorySession(Session):
 
     def get_staging_node_data(self, node: Node) -> NodeData:
         """
-        Gets the six tables that belong to a single node's staging area.
+        Gets the tables that belong to a single node's staging area.
 
         :param Node node: the node to get the staging data for
         :return: a NodeData object
@@ -341,7 +342,7 @@ class DirectorySession(Session):
 
     def get_published_node_data(self, node: Node) -> NodeData:
         """
-        Gets the six tables that belong to a single node from the published tables.
+        Gets the tables that belong to a single node from the published tables.
         Filters the rows based on the national_node field.
 
         :param Node node: the node to get the published data for
@@ -368,7 +369,7 @@ class DirectorySession(Session):
         self, nodes: List[Node], attributes: AttributesRequest
     ) -> MixedData:
         """
-        Gets the six tables that belong to one or more nodes from the Directory tables.
+        Gets the tables that belong to one or more nodes from the Directory tables.
         Filters the rows based on the national_node field.
 
         :param List[Node] nodes: the node(s) to get the Directory data for
@@ -404,7 +405,7 @@ class DirectorySession(Session):
 
     async def upload_data(self, schema: str, data: DirectoryData):
         """
-        Converts the six tables of a DirectoryData object to CSV, bundles them in
+        Converts the tables of a DirectoryData object to CSV, bundles them in
         a ZIP archive and imports them through the import API.
         :param schema: database where data should be uploaded into
         :param data: a DirectoryData object

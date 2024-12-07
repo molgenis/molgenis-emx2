@@ -1,6 +1,6 @@
 <template>
-  <small class="d-inline">
-    <table class="text-right">
+  <small>
+    <table class="table table-sm table-borderless">
       <thead>
         <tr>
           <th colspan="2">Search results</th>
@@ -8,16 +8,20 @@
       </thead>
       <tbody>
         <tr>
-          <td class="pr-1">Organisations:</td>
-          <td>{{ biobanksStore.biobankCardsBiobankCount }}</td>
+          <td class="text-nowrap">
+            Organisation(s): {{ biobanksStore.biobankCardsBiobankCount }}
+          </td>
+          <td class="text-nowrap">
+            Collection(s): {{ biobanksStore.biobankCardsCollectionCount }}
+          </td>
         </tr>
         <tr>
-          <td class="pr-1">Collection(s):</td>
-          <td>{{ biobanksStore.biobankCardsCollectionCount }}</td>
-        </tr>
-        <tr v-if="biobanksStore.biobankCardsSubcollectionCount > 0">
-          <td class="pr-1">Subcollection(s):</td>
-          <td>{{ biobanksStore.biobankCardsSubcollectionCount }}</td>
+          <td class="text-nowrap">
+            Service(s): {{ biobanksStore.biobankCardsServicesCount }}
+          </td>
+          <td class="text-nowrap">
+            Subcollection(s): {{ biobanksStore.biobankCardsSubcollectionCount }}
+          </td>
         </tr>
       </tbody>
     </table>
