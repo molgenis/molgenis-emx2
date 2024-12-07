@@ -7,6 +7,7 @@ const props = withDefaults(
   defineProps<{
     tableId: string;
     filter: Record<String, Filter>;
+    enableSelectNodes: boolean;
     modelValue: IFilterCondition[];
     options?: IOntologyRespItem[];
     isMultiSelect?: boolean;
@@ -16,6 +17,7 @@ const props = withDefaults(
   {
     isMultiSelect: true,
     descriptionField: undefined,
+    enableSelectNodes: true,
   }
 );
 
@@ -192,6 +194,7 @@ function clearAll() {
           v-if="filteredTree.length"
           :nodes="filteredTree"
           v-model="selectedNodesNames"
+          :enableSelectNodes="!optionsFilter"
           :isMultiSelect="true"
           :inverted="true"
           :expandSelected="true"

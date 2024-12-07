@@ -87,6 +87,7 @@
           :key="key"
           :terms="rootTerms"
           :isMultiSelect="isMultiSelect"
+          :enableSelectNodes="!search"
           @select="select"
           @deselect="deselect"
           @toggleExpand="toggleExpand"
