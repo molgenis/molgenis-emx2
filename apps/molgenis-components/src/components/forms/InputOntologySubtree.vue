@@ -39,6 +39,7 @@
       </span>
       <InputOntologySubtree
         v-if="term.expanded"
+        :enableSelectNodes="enableSelectNodes"
         :terms="term.children"
         :isMultiSelect="isMultiSelect"
         @select="$emit('select', $event)"
