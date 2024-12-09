@@ -4,7 +4,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 
@@ -15,7 +15,7 @@ onMounted(() => {
   const links = document.querySelectorAll(".navlinks li a");
   links.forEach((link) => {
     if (link.getAttribute("href") === path.value) {
-      link.parentElement.classList.add("link-selected");
+      (link as HTMLAnchorElement).parentElement.classList.add("link-selected");
     } else {
       link.parentElement.classList.remove("link-selected");
     }
