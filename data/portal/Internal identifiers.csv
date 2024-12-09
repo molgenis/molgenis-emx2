@@ -1,0 +1,6 @@
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,visible
+Internal identifiers,,,,,,,,,,,,Internal identifier(s) for this resource,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts",
+Internal identifiers,,resource,ref,1,TRUE,,Resources,,,,,Resource that this internal identifier belongs to,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts",
+Internal identifiers,,identifier,text,1,TRUE,,,,,,,Internal identifier,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts",
+Internal identifiers,,internal identifier type,ontology,,,CatalogueOntologies,Internal identifier types,,,,,Internal identifier type,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts",
+Internal identifiers,,internal identifier type other,text,,,,,,,,,"If 'other', enter internal identifier type","DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts",

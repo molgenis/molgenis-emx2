@@ -1,0 +1,2 @@
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,visible
+Version,,,,,,,,,,,,5.5,"DataCatalogueFlat,EMA,RWEStaging,CohortsStaging,StudiesStaging,UMCGCohortsStaging,NetworksStaging,UMCUCohorts",

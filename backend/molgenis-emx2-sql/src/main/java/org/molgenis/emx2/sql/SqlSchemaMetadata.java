@@ -9,7 +9,6 @@ import static org.molgenis.emx2.sql.SqlDatabase.*;
 import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeGetMembers;
 import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeGetRoles;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.executeCreateTable;
-import static org.molgenis.emx2.utils.TableSort.sortTableByDependency;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -114,11 +113,14 @@ public class SqlSchemaMetadata extends SchemaMetadata {
         .tx(
             database -> {
               SqlSchema s = (SqlSchema) database.getSchema(getName());
-              SqlSchemaMetadata sm = s.getMetadata();
-              List<TableMetadata> tableList = new ArrayList<>();
-              tableList.addAll(List.of(tables));
-              if (tableList.size() > 1) sortTableByDependency(tableList);
-              for (TableMetadata table : tableList) {
+              if (tables.length > 1) {
+                // make use of dependency sorting etc
+                s.migrate(new SchemaMetadata().create(tables));
+              } else {
+                TableMetadata table = tables[0];
+                SqlSchemaMetadata sm = s.getMetadata();
+                List<TableMetadata> tableList = new ArrayList<>();
+                tableList.addAll(List.of(tables));
                 validateTableIdentifierIsUnique(sm, table);
                 SqlTableMetadata result = null;
                 if (TableType.ONTOLOGIES.equals(table.getTableType())) {
@@ -132,8 +134,8 @@ public class SqlSchemaMetadata extends SchemaMetadata {
                 }
                 sm.tables.put(table.getTableName(), result);
                 executeCreateTable(((SqlDatabase) database).getJooq(), result);
+                sync(sm);
               }
-              sync(sm);
             });
     getDatabase().getListener().schemaChanged(getName());
     return this;

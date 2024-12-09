@@ -281,9 +281,19 @@ public class SqlSchema implements Schema {
 
       // create table if not exists
       if (oldTable == null && !mergeTable.isDrop()) {
-        targetSchema.create(
-            new TableMetadata(mergeTable.getTableName())
-                .setTableType(mergeTable.getTableType())); // only the name and type
+        TableMetadata table =
+            new TableMetadata(mergeTable.getTableName()).setTableType(mergeTable.getTableType());
+        if (mergeTable.getImportSchema() != null) {
+          table.setImportSchema(mergeTable.getImportSchema());
+        }
+        table.setInheritName(mergeTable.getInheritName());
+        TableMetadata newTable = targetSchema.create(table);
+        // create primary keys immediately to prevent foreign key dependency issues
+        if (mergeTable.getInheritName() == null) {
+          mergeTable.getColumns().stream()
+              .filter(c -> c.isPrimaryKey())
+              .forEach(c -> newTable.add(c));
+        }
       } else if (oldTable != null && !oldTable.getTableName().equals(mergeTable.getTableName())) {
         targetSchema.getTableMetadata(oldTable.getTableName()).alterName(mergeTable.getTableName());
       }

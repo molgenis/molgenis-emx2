@@ -26,7 +26,7 @@ public class ProfilesApi {
     if (profilesJson == null) {
       List<Row> rows =
           new SchemaFromProfile()
-              .getProfilesFromAllModels(SchemaFromProfile.SHARED_MODELS_DIR, false);
+              .getProfilesFromAllModels(SchemaFromProfile.SHARED_MODELS_DIR, List.of());
       SchemaMetadata schema = Emx2.fromRowList(rows);
       profilesJson = JsonUtil.schemaToJson(schema);
     }

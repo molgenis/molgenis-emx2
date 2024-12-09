@@ -1,0 +1,15 @@
+﻿name,definition,codesystem,code,ontologyTermURI
+informed consent form,"A document that explains all relevant information to assist a human being in understanding the expectations and requirements of participation in a process, and is an instrument in obtaining consent and, after having obtained consent, is a record that such a consent has occurred.",ICO,ICO:0000001,http://purl.obolibrary.org/obo/ICO_0000001
+informed consent form containing questionnaire,An informed consent form that contains a questionnaire section.,ICO,ICO:0000104,http://purl.obolibrary.org/obo/ICO_0000104
+informed consent form for clinical research involving children,An informed consent form for clinical study that involves children.,ICO,ICO:0000034,http://purl.obolibrary.org/obo/ICO_0000034
+informed consent form for clinical study,An informed consent form that is used for a clinical study.,ICO,ICO:0000029,http://purl.obolibrary.org/obo/ICO_0000029
+informed consent form for genetic study,An informed consent form that is designed for use in genetic studies.,ICO,ICO:0000061,http://purl.obolibrary.org/obo/ICO_0000061
+informed consent form for human biospecimen collection,An informed consent form that documents a voluntary decision to deposit a human biospecimen.,ICO,ICO:0000013,http://purl.obolibrary.org/obo/ICO_0000013
+informed consent form for human blood sample collection,An informed consent form that is specifically for human blood sample collection.,ICO,ICO:0000014,http://purl.obolibrary.org/obo/ICO_0000014
+informed consent form for human saliva sample collection,An informed consent form for human sample collection that is specifically for human saliva sample collection.,ICO,ICO:0000129,http://purl.obolibrary.org/obo/ICO_0000129
+informed consent form for human urine biospecimen collection,An informed consent form designed for use in human urine collection.,ICO,ICO:0000099,http://purl.obolibrary.org/obo/ICO_0000099
+informed consent form for qualitative research involving children,An informed consent form for qualitative study that involves children.,ICO,ICO:0000033,http://purl.obolibrary.org/obo/ICO_0000033
+informed consent form for qualitative study,An informed consent form that is used for a qualitative study.,ICO,ICO:0000031,http://purl.obolibrary.org/obo/ICO_0000031
+informed consent form for storage and future use of unused samples,An informed consent form that is used for a storage and future use of unused samples.,ICO,ICO:0000030,http://purl.obolibrary.org/obo/ICO_0000030
+informed consent form for vaccination,An informed consent form that contains sections specific to procedures in vaccination.,ICO,ICO:0000138,http://purl.obolibrary.org/obo/ICO_0000138
+Clinical Trial Subject Information Form,Documentation given to a subject to provide instructions or information related to the trial.,NCIT,NCIT:C115517,http://purl.obolibrary.org/obo/NCIT_C115517
