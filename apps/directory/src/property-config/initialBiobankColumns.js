@@ -33,9 +33,40 @@ export const initialBiobankColumns = [
   },
   {
     label: "Biobank capabilities:",
-    column: { services: ["name"] },
+    column: {
+      services: [
+        "id",
+        "name",
+        { biobank: ["id", "name"] },
+        { serviceTypes: ["name", "label", { serviceCategory: ["name"] }] },
+        "acronym",
+        "description",
+        "descriptionUrl",
+        "device",
+        "deviceSystem",
+        { tRL: ["order", "name", "label", "code", "definition"] },
+        "accessDescriptionUrl",
+        "unitOfAccess",
+        "accessDescription",
+        "unitCost",
+        {
+          qualityStandards: [
+            "id",
+            {
+              qualityStandard: ["order", "name", "label", "code", "definition"],
+            },
+            {
+              assessmentLevel: ["order", "name", "label", "code", "definition"],
+            },
+            "certificationNumber",
+            "certificationReport",
+            "certificationImageLink",
+          ],
+        },
+      ],
+    },
     type: "array",
-    showOnBiobankCard: true,
+    showOnBiobankCard: false,
   },
   /** properties that are required but should not be rendered as attributes */
   {
