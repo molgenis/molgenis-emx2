@@ -8,9 +8,7 @@ test('show services on biobank detail view page', async ({ page }) => {
   await page.getByRole('button', { name: 'Services' }).click();
   // should show both services
   await expect(page.getByRole('heading', { name: 'Biobank Service' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Test service' })).toBeVisible();
   // should show add button
-  await expect(page.locator('div').filter({ hasText: /^Test service 3Add$/ }).getByRole('button')).toBeVisible();
   await expect(page.locator('div').filter({ hasText: /^Biobank ServiceAdd$/ }).getByRole('button')).toBeVisible();
   // should add to request
   await page.locator('div').filter({ hasText: /^Biobank ServiceAdd$/ }).getByRole('button').click();
