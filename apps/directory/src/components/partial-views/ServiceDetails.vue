@@ -13,82 +13,86 @@
         />
       </div>
     </div>
-    <table class="table-layout w-100">
-      <tbody>
-        <string :attribute="{ label: 'Id:', value: service.id }" />
+    <CollapseComponent>
+      <table class="table-layout w-100">
+        <tbody>
+          <string :attribute="{ label: 'Id:', value: service.id }" />
 
-        <string :attribute="{ label: 'Acronym:', value: service.acronym }" />
+          <string :attribute="{ label: 'Acronym:', value: service.acronym }" />
 
-        <string
-          :attribute="{
-            label: 'Description:',
-            value: service.description,
-          }"
-        />
+          <string
+            :attribute="{
+              label: 'Description:',
+              value: service.description,
+            }"
+          />
 
-        <string
-          :attribute="{
-            label: 'Description URL:',
-            value: service.descriptionUrl,
-          }"
-        />
+          <string
+            :attribute="{
+              label: 'Description URL:',
+              value: service.descriptionUrl,
+            }"
+          />
 
-        <string :attribute="{ label: 'Device:', value: service.device }" />
+          <string :attribute="{ label: 'Device:', value: service.device }" />
 
-        <string
-          :attribute="{
-            label: 'Device System:',
-            value: service.deviceSystem,
-          }"
-        />
+          <string
+            :attribute="{
+              label: 'Device System:',
+              value: service.deviceSystem,
+            }"
+          />
 
-        <string
-          :attribute="{
-            label: 'Access Description URL:',
-            value: service.accessDescriptionUrl,
-          }"
-        />
+          <string
+            :attribute="{
+              label: 'Access Description URL:',
+              value: service.accessDescriptionUrl,
+            }"
+          />
 
-        <string
-          :attribute="{
-            label: 'Unit of Access:',
-            value: service.unitOfAccess,
-          }"
-        />
+          <string
+            :attribute="{
+              label: 'Unit of Access:',
+              value: service.unitOfAccess,
+            }"
+          />
 
-        <string
-          :attribute="{
-            label: 'Access Description:',
-            value: service.accessDescription,
-          }"
-        />
+          <string
+            :attribute="{
+              label: 'Access Description:',
+              value: service.accessDescription,
+            }"
+          />
 
-        <string
-          :attribute="{
-            label: 'Unit Cost:',
-            value: service.unitCost,
-          }"
-        />
+          <string
+            :attribute="{
+              label: 'Unit Cost:',
+              value: service.unitCost,
+            }"
+          />
 
-        <tr>
-          <th scope="row" class="pr-1 align-top text-nowrap">Service Type:</th>
-          <td>
-            <div v-for="serviceType in service.serviceTypes">
-              {{ serviceType.name }} ({{ serviceType.serviceCategory.name }})
-            </div>
-          </td>
-        </tr>
+          <tr>
+            <th scope="row" class="pr-1 align-top text-nowrap">
+              Service Type:
+            </th>
+            <td>
+              <div v-for="serviceType in service.serviceTypes">
+                {{ serviceType.name }} ({{ serviceType.serviceCategory.name }})
+              </div>
+            </td>
+          </tr>
 
-        <tr v-if="service.tRL">
-          <th scope="row" class="pr-1 align-top text-nowrap">TRL:</th>
-          <td>
-            {{ service.tRL.label ?? service.tRL.name }}
-          </td>
-        </tr>
+          <tr v-if="service.tRL">
+            <th scope="row" class="pr-1 align-top text-nowrap">TRL:</th>
+            <td>
+              {{ service.tRL.label ?? service.tRL.name }}
+            </td>
+          </tr>
 
-        <quality v-if="service.qualityStandards" :attribute="qualityProps" />
-      </tbody>
-    </table>
+          <quality v-if="service.qualityStandards" :attribute="qualityProps" />
+        </tbody>
+      </table>
+    </CollapseComponent>
   </div>
 </template>
 
@@ -99,6 +103,7 @@ import quality from "../../components/generators/view-components/quality.vue";
 import string from "../../components/generators/view-components/string.vue";
 import { useCheckoutStore } from "../../stores/checkoutStore";
 import Button from "../../components/Button.vue";
+import CollapseComponent from "../../components/report-components/CollapseComponent.vue";
 
 const props = defineProps<{
   service: IServices;
