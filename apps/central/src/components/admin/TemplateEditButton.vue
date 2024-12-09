@@ -56,13 +56,7 @@ export default {
   methods: {
     getSchemaList() {
       this.loading = true;
-      const schemaFragment = "_schemas{id,label,description}";
-      const lastUpdateFragment =
-        "_lastUpdate{schemaName, tableName, stamp, userId, operation}";
-      request(
-        "graphql",
-        `{${schemaFragment} ${this.showChangeColumn ? lastUpdateFragment : ""}}`
-      )
+      request("graphql", `{_schemas{id,label,description}}`)
         .then((data) => {
           this.schemas = data._schemas;
           this.loading = false;
