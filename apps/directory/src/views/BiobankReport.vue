@@ -43,40 +43,70 @@
               <div class="col-md-8" v-if="biobankDataAvailable">
                 <ViewGenerator :viewmodel="biobank.viewmodel" />
 
-                <!-- Collection Part -->
-                <h3 class="mt-4">
-                  <CollectionsHeader
-                    :collectionCount="collectionsData.length"
-                    :subcollectionCount="subcollectionCount"
-                  />
-                </h3>
-                <div v-if="!collectionsData.length">
-                  This biobank does not contain any collections.
+                <div class="d-flex mt-4 justify-content-between">
+                  <small class="w-25">
+                    <table class="table table-sm table-borderless">
+                      <tbody>
+                        <tr>
+                          <td class="text-nowrap">
+                            Collections(s): {{ collectionsData.length }}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class="text-nowrap">
+                            SubCollections(s): {{ subcollectionCount }}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class="text-nowrap">
+                            Service(s): {{ biobank.services.length }}
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </small>
                 </div>
-                <div
-                  v-for="(collection, index) in collectionsData"
-                  :key="collection.id"
-                >
-                  <hr v-if="index" />
-                  <div class="d-flex align-items-center">
-                    <CollectionTitle
-                      :title="collection.name"
-                      :id="collection.id"
-                    />
-                    <CollectionSelector
-                      :disabled="biobank.withdrawn"
-                      class="pl-4 ml-auto"
-                      :biobankData="biobank"
-                      :collectionData="collection"
-                    />
+
+                <Tabs
+                  :tabs="tabs"
+                  @update:active-tab="changeTab"
+                  class="mt-1"
+                />
+
+                <div v-if="activeTab === 'Collections'">
+                  <div
+                    v-for="(collection, index) in collectionsData"
+                    :key="collection.id"
+                  >
+                    <hr v-if="index" />
+                    <div class="d-flex align-items-center">
+                      <CollectionTitle
+                        :title="collection.name"
+                        :id="collection.id"
+                      />
+                      <CollectionSelector
+                        :disabled="biobank.withdrawn"
+                        class="pl-4 ml-auto"
+                        :biobankData="biobank"
+                        :collectionData="collection"
+                      />
+                    </div>
+                    <CollapseComponent>
+                      <ViewGenerator
+                        class="collection-view"
+                        :viewmodel="collection.viewmodel"
+                      />
+                    </CollapseComponent>
                   </div>
-                  <CollapseComponent>
-                    <ViewGenerator
-                      class="collection-view"
-                      :viewmodel="collection.viewmodel"
-                    />
-                  </CollapseComponent>
                 </div>
+
+                <ServiceDetails
+                  v-else-if="activeTab === 'Services'"
+                  v-for="service in biobank.services"
+                  class="ml-4 mt-2 mb-4"
+                  :service="service"
+                  :quality-props="{ label: 'mylabel', value: 'myvalue' }"
+                />
               </div>
               <!-- Right side card -->
               <div class="col-md-4">
@@ -126,7 +156,6 @@ import { useRoute } from "vue-router";
 //@ts-ignore
 import { Breadcrumb, Spinner } from "molgenis-components";
 import CheckOut from "../components/checkout-components/CheckOut.vue";
-import CollectionsHeader from "../components/report-components/CollectionsHeader.vue";
 import CollectionSelector from "../components/checkout-components/CollectionSelector.vue";
 import CollapseComponent from "../components/report-components/CollapseComponent.vue";
 import CollectionTitle from "../components/report-components/CollectionTitle.vue";
@@ -145,6 +174,8 @@ import {
 import { useBiobanksStore } from "../stores/biobanksStore";
 import { useQualitiesStore } from "../stores/qualitiesStore";
 import { useSettingsStore } from "../stores/settingsStore";
+import Tabs from "../components/Tabs.vue";
+import ServiceDetails from "../components/partial-views/ServiceDetails.vue";
 
 const settingsStore = useSettingsStore();
 const biobanksStore = useBiobanksStore();
@@ -155,13 +186,33 @@ const route = useRoute();
 
 qualitiesStore.getQualityStandardInformation();
 
-biobanksStore
-  .getBiobank(route.params.id)
-  .then((result: Record<string, any>) => {
-    biobank.value = result.Biobanks.length
-      ? getBiobankDetails(result.Biobanks[0])
-      : {};
-  });
+biobanksStore.getBiobank(route.params.id).then((result: any) => {
+  biobank.value = result.Biobanks.length
+    ? getBiobankDetails(result.Biobanks[0])
+    : {};
+});
+
+type TBiobankDetailTab = "Collections" | "Services";
+const activeTab = ref<TBiobankDetailTab>("Collections");
+const tabs = computed(() => {
+  return {
+    Collections: {
+      id: "Collections",
+      label: `Collections`,
+      active: activeTab.value === "Collections",
+      disabled: biobank?.collections?.length === 0,
+    },
+    Services: {
+      id: "Services",
+      label: "Services",
+      active: activeTab.value === "Services",
+      disabled: biobank?.services?.length === 0,
+    },
+  };
+});
+function changeTab(tab: TBiobankDetailTab) {
+  activeTab.value = tab;
+}
 
 const uiText = computed(() => {
   return settingsStore.uiText;
@@ -244,5 +295,9 @@ function filterAndSortCollectionsData(collections: Record<string, any>[]) {
 sup {
   vertical-align: super;
   font-size: small;
+}
+
+.layout-table {
+  border-collapse: unset;
 }
 </style>
