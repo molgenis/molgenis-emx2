@@ -71,7 +71,7 @@ Requires postgresql, gradle and [yarn 1.x](https://yarnpkg.com/)
 
 * Build the app workspace as a whole (once)
   ```console
-  cd apps
+  cd molgenis-emx2/apps
   yarn install
   ```
 * Start molgenis 'headless' (i.e. without apps) using gradle (restart on java changes)
@@ -82,8 +82,8 @@ Requires postgresql, gradle and [yarn 1.x](https://yarnpkg.com/)
   You can verify that it's running by looking at http://localhost:8080
 * Serve only the app you want to look at
   ```console
-  cd <yourapp>
-  yarn serve
+  cd molgenis-emx2/apps/<yourapp>
+  yarn dev
   ```
   Typically the app is then served at http://localhost:9090 (look at the console to see actual port number)
 

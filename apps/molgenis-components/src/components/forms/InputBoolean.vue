@@ -13,10 +13,10 @@
     v-else
     v-bind="$props"
     :id="id"
-    :modelValue="modelValue"
-    :options="[true, false]"
+    :modelValue="modelValue ? 'Yes' : 'No'"
+    :options="['Yes', 'No']"
     :isClearable="isClearable"
-    @update:modelValue="$emit('update:modelValue', $event)"
+    @update:modelValue="$emit('update:modelValue', returnValue($event))"
   />
 </template>
 
@@ -31,6 +31,17 @@ export default {
   props: {
     inplace: { type: Boolean, default: false },
     isClearable: { type: Boolean, default: true },
+  },
+  methods: {
+    returnValue(value) {
+      if (value === "Yes") {
+        return true;
+      }
+      if (value === "No") {
+        return false;
+      }
+      return null;
+    },
   },
 };
 </script>
