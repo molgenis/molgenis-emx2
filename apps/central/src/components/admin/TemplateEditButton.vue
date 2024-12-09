@@ -1,9 +1,14 @@
 <template>
   <div>
     <IconAction v-if="!isModalShown" icon="search" @click="open" />
-    <LayoutModal v-else title="Job details" :show="isModalShown" @close="close">
+    <LayoutModal
+      v-else
+      title="Edit template"
+      :show="isModalShown"
+      @close="close"
+    >
       <template #body>
-        <Task v-if="taskId" :taskId="taskId" />
+        <InputSelect :options="schemas"></InputSelect>
       </template>
       <template #footer>
         <ButtonAlt @click="close">Close</ButtonAlt>
@@ -17,8 +22,9 @@ import {
   ButtonAlt,
   IconAction,
   LayoutModal,
-  Task,
+  InputSelect,
 } from "molgenis-components";
+import { request } from "graphql-request";
 
 export default {
   components: {
@@ -26,7 +32,7 @@ export default {
     LayoutModal,
     ButtonAction,
     ButtonAlt,
-    Task,
+    InputSelect,
   },
   props: {
     taskId: {
@@ -40,9 +46,33 @@ export default {
       success: null,
       loading: false,
       isModalShown: false,
+      schemas: [],
+      graphqlError: null,
     };
   },
+  created() {
+    this.getSchemaList();
+  },
   methods: {
+    getSchemaList() {
+      this.loading = true;
+      const schemaFragment = "_schemas{id,label,description}";
+      const lastUpdateFragment =
+        "_lastUpdate{schemaName, tableName, stamp, userId, operation}";
+      request(
+        "graphql",
+        `{${schemaFragment} ${this.showChangeColumn ? lastUpdateFragment : ""}}`
+      )
+        .then((data) => {
+          this.schemas = data._schemas;
+          this.loading = false;
+        })
+        .catch((error) => {
+          console.error("internal server error", error);
+          this.graphqlError = "internal server error" + error;
+          this.loading = false;
+        });
+    },
     open() {
       this.isModalShown = true;
     },
