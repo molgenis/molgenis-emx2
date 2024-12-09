@@ -9,12 +9,14 @@ const props = withDefaults(
     modelValue: string[];
     isMultiSelect?: boolean;
     expandSelected?: boolean;
+    enableSelectNodes: boolean;
     isRoot?: boolean;
     inverted?: boolean;
   }>(),
   {
     isMultiSelect: true,
     expandSelected: false,
+    enableSelectNodes: true,
     isRoot: true,
     inverted: false,
   }
@@ -144,6 +146,7 @@ function handleChildSelect(selected: string[], parent: ITreeNode) {
           class="flex justify-center items-start hover:cursor-pointer"
         >
           <InputCheckboxIcon
+            v-if="enableSelectNodes || node.children?.length == 0"
             :indeterminate="
               node.children?.some((c) => modelValue.includes(c.name)) &&
               !node.children?.every((c) => modelValue.includes(c.name))
@@ -176,6 +179,7 @@ function handleChildSelect(selected: string[], parent: ITreeNode) {
         v-if="node.children.length"
         v-show="expandedNodes.includes(node.name)"
         class="ml-[31px]"
+        :enableSelectNodes="enableSelectNodes"
         :nodes="node.children"
         :modelValue="modelValue"
         :expandSelected="expandSelected"
