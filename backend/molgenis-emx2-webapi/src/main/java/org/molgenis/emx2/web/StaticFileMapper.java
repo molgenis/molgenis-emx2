@@ -90,6 +90,9 @@ public class StaticFileMapper {
       }
       if (mimeType == null) {
         mimeType = Files.probeContentType(Path.of(path));
+        if (mimeType.equals("text/plain") && path.endsWith(".js")) {
+          mimeType = "text/javascript";
+        }
         if (mimeType == null) {
           mimeType = "application/octet-stream";
         }
