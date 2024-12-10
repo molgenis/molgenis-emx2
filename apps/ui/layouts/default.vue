@@ -2,7 +2,6 @@
 const config = useRuntimeConfig();
 const route = useRoute();
 const { data: session } = await useSession();
-console.log("session form defaiult layout: ", session.value);
 
 const faviconHref = config.public.emx2Theme
   ? `/_nuxt-styles/img/${config.public.emx2Theme}.ico`
@@ -65,6 +64,13 @@ const navigation = computed(() => {
         </template>
         <template #nav>
           <Navigation :navigation="navigation" />
+        </template>
+        <template #admin v-if="isAdmin">
+          <HeaderButton
+            label="Admin"
+            icon="Database"
+            @click="navigateTo({ path: '/admin/' })"
+          />
         </template>
         <template #account>
           <HeaderButton

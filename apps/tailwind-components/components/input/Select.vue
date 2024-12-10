@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import type { N } from "vitest/dist/reporters-MmQN-57K.js";
-
 withDefaults(
   defineProps<{
     id: string;
