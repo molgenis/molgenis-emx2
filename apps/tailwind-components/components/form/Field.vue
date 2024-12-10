@@ -35,6 +35,18 @@ function validate(value: columnValue) {
 
   formFieldInput.value.validate(value);
 }
+
+const refData = ref();
+
+onMounted(async () => {
+  if (["ONTOLOGY", "ONTOLOGY_ARRAY"].includes(props.column.columnType)) {
+    const response = await fetchTableData(
+      props.column.refSchemaId as string,
+      props.column.refTableId as string
+    );
+    refData.value = response.rows.map((row) => row.name);
+  }
+});
 </script>
 
 <template>
@@ -49,11 +61,13 @@ function validate(value: columnValue) {
       {{ column.description }}
     </div>
     <div>
+      {{ column }}
       <FormFieldInput
         :type="column.columnType"
         :id="column.id"
         :label="column.label"
         :data="data"
+        :options="refData ? refData : null"
         :required="!!column.required"
         :aria-invalid="hasError"
         :aria-desribedBy="`${column.id}-input-error`"
