@@ -8,5 +8,7 @@ files
 .idea
 venv
 .env
+.venv
+.vscode
 *catalogue_data_model*
 External identifiers.csv
