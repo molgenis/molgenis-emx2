@@ -52,16 +52,22 @@ onMounted(async () => {
 <template>
   <div class="flex flex-col gap-1">
     <div>
-      <label :for="column.id" class="capitalize text-title font-bold">{{
-        column.label
-      }}</label>
+      <label
+        :id="`${column.id}-label`"
+        :for="column.id"
+        class="capitalize text-title font-bold"
+        >{{ column.label }}</label
+      >
       <span class="text-disabled ml-3" v-show="column.required">Required</span>
     </div>
-    <div class="text-title" v-if="column.description">
+    <span
+      :id="`${column.id}-description`"
+      class="text-title"
+      v-if="column.description"
+    >
       {{ column.description }}
-    </div>
+    </span>
     <div>
-      {{ column }}
       <FormFieldInput
         :type="column.columnType"
         :id="column.id"
@@ -70,7 +76,11 @@ onMounted(async () => {
         :options="refData ? refData : null"
         :required="!!column.required"
         :aria-invalid="hasError"
-        :aria-desribedBy="`${column.id}-input-error`"
+        :aria-desribedBy="
+          column.description
+            ? `${column.id}-description ${column.id}-input-error`
+            : `${column.id}-input-error`
+        "
         @focus="touched = true"
         @input="pristine = false"
         @update:modelValue="$emit('update:modelValue', $event)"

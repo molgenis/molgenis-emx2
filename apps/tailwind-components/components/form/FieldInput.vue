@@ -67,17 +67,18 @@ function validate(value: columnValue) {
     @update:modelValue="$emit('update:modelValue', $event)"
     @error="$emit('error', $event)"
   ></LazyInputTextArea>
-  <template
+  <LazyInputListbox
     v-else-if="['ONTOLOGY', 'ONTOLOGY_ARRAY'].includes(type) && options"
-  >
-    <LazyInputListbox
-      ref="input"
-      :id="id"
-      :label-id="id"
-      :required="required"
-      :options="options"
-      :placeholder="`Select a ${id}`"
-    />
-  </template>
+    ref="input"
+    :id="id"
+    :label-id="`${id}-label`"
+    :required="required"
+    :options="options"
+    :placeholder="`Select a ${id}`"
+    :value="(data as string)"
+    @focus="$emit('focus')"
+    @update:modelValue="$emit('update:modelValue', $event)"
+    @error="$emit('error', $event)"
+  />
   <LazyInputPlaceHolder v-else ref="input" :type="type" />
 </template>
