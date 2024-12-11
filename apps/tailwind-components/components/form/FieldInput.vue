@@ -69,7 +69,10 @@ function validate(value: columnValue) {
     @error="$emit('error', $event)"
   ></LazyInputTextArea>
   <LazyInputListbox
-    v-else-if="['ONTOLOGY', 'ONTOLOGY_ARRAY'].includes(type) && options"
+    v-else-if="
+      ['ONTOLOGY', 'ONTOLOGY_ARRAY', 'REF', 'REF_ARRAY'].includes(type) &&
+      options
+    "
     ref="input"
     :id="id"
     :label-id="`${id}-label`"

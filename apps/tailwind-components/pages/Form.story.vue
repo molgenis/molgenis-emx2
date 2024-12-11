@@ -5,7 +5,7 @@ import type {
   ISchemaMetaData,
   ITableMetaData,
 } from "../../metadata-utils/src/types";
-import type { IListboxOption } from "../types/listbox";
+import type { IListboxOption, IListboxValue } from "../types/listbox";
 
 const exampleForms: IListboxOption[] = [
   { value: "simple", label: "Simple form example" },
@@ -35,7 +35,8 @@ const tableMeta = computed(
     ) as ITableMetaData
 );
 
-function refetch() {
+function refetch(value: IListboxOption) {
+  formType.value = value;
   refetchMetadata();
 }
 
@@ -54,8 +55,7 @@ const formFields = ref<InstanceType<typeof FormFields>>();
     <InputListbox
       id="form-example"
       label-id="form-example-title"
-      @change="refetch"
-      v-model="formType"
+      @update:modelValue="(value) => refetch(value as IListboxOption)"
       :options="exampleForms"
       placeholder="Select a form type"
     />
