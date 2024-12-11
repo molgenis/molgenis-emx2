@@ -1,8 +1,10 @@
 <template>
   <div>
-    <div class="d-flex flex-row justify-content-between">
-      <div>
-        <h3>{{ service.name }}</h3>
+    <div class="d-flex flex-row justify-content-between align-items-center">
+      <div class="py-2">
+        <router-link :to="'/service/' + service.id">
+          <h4>{{ service.name }}</h4>
+        </router-link>
       </div>
       <div>
         <Button

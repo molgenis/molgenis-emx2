@@ -59,7 +59,7 @@
                         </tr>
                         <tr>
                           <td class="text-nowrap">
-                            Service(s): {{ biobank.services.length }}
+                            Service(s): {{ biobank.services?.length || 0 }}
                           </td>
                         </tr>
                       </tbody>
@@ -68,6 +68,7 @@
                 </div>
 
                 <Tabs
+                  v-if="biobank.collections?.length || biobank.services?.length"
                   :tabs="tabs"
                   @update:active-tab="changeTab"
                   class="mt-1"
@@ -103,7 +104,7 @@
                 <ServiceDetails
                   v-else-if="activeTab === 'Services'"
                   v-for="service in biobank.services"
-                  class="ml-4 mt-2 mb-4"
+                  class="ml-2 mt-2 mb-4"
                   :service="service"
                   :quality-props="{ label: 'mylabel', value: 'myvalue' }"
                 />
