@@ -106,7 +106,7 @@ const props = withDefaults(
 
 const emit = defineEmits<{
   (e: "update:modelValue", value: IListboxOption | IListboxValue | null): void;
-  (e: "error", value: IFieldError[] | null): void;
+  (e: "error", value: IFieldError[]): void;
   (e: "blur", value: null): void;
   (e: "focus", value: null): void;
 }>();
@@ -406,7 +406,7 @@ function validate(value: columnValue) {
   if (props.required && value === "") {
     emit("error", [{ message: `${props.id} required to complete the form` }]);
   } else {
-    emit("error", null);
+    emit("error", []);
   }
 }
 </script>
