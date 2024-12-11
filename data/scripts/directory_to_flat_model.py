@@ -323,6 +323,9 @@ def map_collections_to_samples(collections, disease_mapping):
                                 "diagnosis_available": "main medical condition",
                                 "materials": "sample type",
                                 "storage_temperatures": "storage temperature",
+                                "body_part_examined": "body part examined",
+                                "imaging_modality": "imaging modality",
+                                "image_dataset_type": "image types",
                                 }, inplace=True)
     collections["parent sample collection.name"] = ""
     collections["parent sample collection.resource"] = ""
@@ -377,6 +380,8 @@ def map_networks_to_resources(networks, biobanks):
     networks["resources"] = ""
     # Add default type 'Network'
     networks["type"] = "Network"
+    # Create a unique name
+    networks["name"] = networks["name"] + " (id: " + networks["id"] + ")"
     # Link network to its parent network
     networks.index = networks["id"]
     for idx, row in networks.iterrows():
@@ -388,7 +393,6 @@ def map_networks_to_resources(networks, biobanks):
     # Link network to its component biobanks
 
     return networks
-
 
 def main():
     """Main function doing the conversion"""
@@ -478,6 +482,9 @@ def main():
                     "age groups",
                     "sample type",
                     "storage temperature",
+                    "body part examined",
+                    "imaging modality",
+                    "image types",
                 ]
             )
             # Map Networks to Resources
