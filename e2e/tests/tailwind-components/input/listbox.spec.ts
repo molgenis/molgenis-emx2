@@ -65,7 +65,11 @@ test(
     combobox.click();
     await expect(combobox).toHaveAttribute("aria-expanded", "true");
     for (const option of await page.getByRole("option").all()) { 
-      await expect(option).toHaveAttribute("aria-selected", "false");
+      if (await option.innerText() === "Select an option") {
+        await expect(option).toHaveAttribute("aria-selected", "true");
+      } else {
+        await expect(option).toHaveAttribute("aria-selected", "false");
+      }
     }
   }
 )
