@@ -2,15 +2,10 @@
   <div>
     <CardItem v-if="services.length > 1">
       <div class="d-flex">
-        <router-link
-          :to="'/service/'"
-          title="Service details"
-          class="text-dark"
-        >
-          <h5 class="font-weight-light">
-            {{ services.length }} collections available
-          </h5>
-        </router-link>
+        <h5 class="font-weight-light">
+          {{ services.length }} collections available
+        </h5>
+
         <div class="ml-auto">
           <CheckBox
             id="ds"
