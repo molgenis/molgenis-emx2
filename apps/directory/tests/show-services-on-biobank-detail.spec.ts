@@ -1,17 +1,28 @@
-import { test, expect } from '@playwright/test';
-import { getAppRoute } from './getAppRoute';
+import { test, expect } from "@playwright/test";
+import { getAppRoute } from "./getAppRoute";
 
-test('show services on biobank detail view page', async ({ page }) => {
+test("show services on biobank detail view page", async ({ page }) => {
   await page.goto(getAppRoute());
-  await page.getByRole('link', { name: 'Biobank1', exact: true }).click();
-  await expect(page.getByRole('button', { name: 'Services' })).toBeVisible();
-  await page.getByRole('button', { name: 'Services' }).click();
+  await page.getByRole("link", { name: "Biobank1", exact: true }).click();
+  await expect(page.getByRole("button", { name: "Services" })).toBeVisible();
+  await page.getByRole("button", { name: "Services" }).click();
   // should show both services
-  await expect(page.getByRole('heading', { name: 'Biobank Service' })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Biobank Service" })
+  ).toBeVisible();
   // should show add button
-  await expect(page.locator('div').filter({ hasText: /^Biobank ServiceAdd$/ }).getByRole('button')).toBeVisible();
+  await expect(
+    page
+      .locator("div")
+      .filter({ hasText: /^Biobank ServiceAdd$/ })
+      .getByRole("button")
+  ).toBeVisible();
   // should add to request
-  await page.locator('div').filter({ hasText: /^Biobank ServiceAdd$/ }).getByRole('button').click();
-  await expect(page.getByRole('button', { name: 'Request' })).toBeVisible();
-  await expect(page.getByRole('main')).toContainText('1');
+  await page
+    .locator("div")
+    .filter({ hasText: /^Biobank ServiceAdd$/ })
+    .getByRole("button")
+    .click();
+  await expect(page.getByRole("button", { name: "Request" })).toBeVisible();
+  await expect(page.getByRole("main")).toContainText("1");
 });
