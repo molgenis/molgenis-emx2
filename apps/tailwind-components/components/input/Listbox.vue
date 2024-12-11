@@ -32,7 +32,7 @@
       role="listbox"
       ref="listbox-ul"
       :aria-expanded="isExpanded"
-      class="absolute b-0 w-full overflow-y-scroll z-10 bg-listbox"
+      class="absolute b-0 w-full overflow-y-scroll z-10"
       :class="{
         hidden: !isExpanded,
         'h-44': isExpanded && listboxOptions.length > 5,
@@ -45,7 +45,7 @@
         ref="listbox-li"
         :id="option.elemId"
         role="option"
-        class="flex justify-start items-center gap-3 pl-3 py-1 text-listbox border-t-[1px] border-t-listbox-option hover:cursor-pointer hover:bg-listbox-hover hover:text-listbox focus:bg-listbox-hover focus:text-listbox"
+        class="flex justify-start items-center gap-3 pl-3 py-1 bg-listbox text-listbox border-t-[1px] border-t-listbox-option hover:cursor-pointer hover:bg-listbox-hover hover:text-listbox focus:bg-listbox-hover focus:text-listbox"
         :class="{
           '!bg-listbox-selected !text-listbox-selected': isSelected(
             option.value
@@ -76,6 +76,10 @@
 <script lang="ts" setup>
 import { ref, useTemplateRef, nextTick, watch, onMounted } from "vue";
 import type {
+  columnValue,
+  IFieldError,
+} from "../../../metadata-utils/src/types";
+import type {
   IListboxValue,
   IListboxOption,
   IInternalListboxOption,
@@ -86,6 +90,7 @@ const props = withDefaults(
     id: string;
     labelId: string;
     options: IListboxOption[] | IListboxValue[];
+    value?: IListboxOption | IListboxValue;
     required?: boolean;
     hasError?: boolean;
     placeholder?: string;
@@ -100,14 +105,21 @@ const props = withDefaults(
 );
 
 const emit = defineEmits<{
-  (e: "change", value: IListboxOption | IListboxValue): void;
+  (e: "update:modelValue", value: IListboxOption | IListboxValue | null): void;
+  (e: "error", value: IFieldError[] | null): void;
+  (e: "blur", value: null): void;
+  (e: "focus", value: null): void;
 }>();
+
+defineExpose({
+  validate,
+});
 
 const sourceDataType = ref<string>("");
 const sourceData = ref<IListboxOption[]>();
 const focusCounter = ref<number>(0);
 const isExpanded = ref<boolean>(false);
-const modelValue = defineModel<IListboxOption | IListboxValue>();
+const modelValue = defineModel<IListboxOption | IListboxValue | null>();
 const ulElemRef = useTemplateRef<HTMLUListElement>("listbox-ul");
 const olElemRefs = useTemplateRef<HTMLOptionElement[]>("listbox-li");
 const btnElemRef = useTemplateRef<HTMLButtonElement>("listbox-button");
@@ -127,7 +139,7 @@ const listboxOptions = computed<IInternalListboxOption[]>(() => {
     sourceDataType.value = "ListboxOptions";
     sourceData.value = props.options as IListboxOption[];
   } else {
-    sourceDataType.value = "ListboxValueArray";
+    sourceDataType.value = "ListboxValue";
     const inputData = props.options as IListboxValue[];
     const processedData = inputData.map(
       (value: IListboxValue): IListboxOption => {
@@ -215,7 +227,7 @@ function updateModelValue(
     displayText.value = updateDisplayText(selection.value as string);
   }
 
-  emit("change", modelValue.value);
+  emit("update:modelValue", modelValue.value);
 
   if (enableToggling) {
     openCloseListbox();
@@ -223,10 +235,14 @@ function updateModelValue(
 }
 
 function isSelected(value: IListboxValue): boolean {
-  return (
-    value === (modelValue.value as IInternalListboxOption).value ||
-    value === (modelValue.value as IListboxValue)
-  );
+  if (modelValue.value) {
+    return (
+      value === (modelValue.value as IInternalListboxOption).value ||
+      value === (modelValue.value as IListboxValue)
+    );
+  } else {
+    return value === null;
+  }
 }
 
 function focusPreviousOption(by: number = 1) {
@@ -363,13 +379,21 @@ function onListboxOptionKeyDown(
   }
 }
 
+function validate(value: columnValue) {
+  if (props.required && value === "") {
+    emit("error", [{ message: `${props.id} required to complete the form` }]);
+  } else {
+    emit("error", null);
+  }
+}
+
 onMounted(() => {
-  if (modelValue.value && listboxOptions.value) {
+  if (props.value && listboxOptions.value) {
     const initalValue: IInternalListboxOption[] = listboxOptions.value.filter(
       (row: IInternalListboxOption) => {
         return (
-          row.value === (modelValue.value as IListboxOption).value ||
-          row.value === (modelValue.value as IListboxValue)
+          row.value === (props.value as IListboxOption).value ||
+          row.value === (props.value as IListboxValue)
         );
       }
     );

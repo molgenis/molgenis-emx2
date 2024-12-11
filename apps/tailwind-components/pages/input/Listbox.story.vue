@@ -95,10 +95,10 @@
       id="listbox-input"
       labelId="listbox-input-label"
       :options="listboxData"
-      v-model="listboxSelection"
       :hasError="listboxState === 'error'"
       :disabled="listboxState === 'disabled'"
       :placeholder="listboxPlaceholder"
+      @update:model-value="(value) => (listboxSelection = value)"
     />
     <output class="block w-full mt-6 bg-gray-100 py-3 px-2 pl-6">
       <code
@@ -133,7 +133,7 @@ const lettersWithLabels: IListboxOption[] = letters.map((letter: string) => {
 });
 
 const listboxState = ref<string>("");
-const listboxSelection = ref("");
+const listboxSelection = ref<IListboxValue | IListboxOption>("");
 const listboxPlaceholder = ref<string>("Select an option");
 const listboxDataType = ref<string>("string");
 
