@@ -12,7 +12,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import org.molgenis.emx2.*;
@@ -23,10 +22,11 @@ import org.molgenis.emx2.tasks.*;
 public class TaskApi {
 
   // todo, make jobs private to the user?
-  public static TaskService taskService = new TaskServiceInDatabase(SYSTEM_SCHEMA, hostUrl);
+  public static final TaskService taskService = new TaskServiceInDatabase(SYSTEM_SCHEMA, hostUrl);
   // to schedule jobs, see MolgenisSessionManager how we keep this in sync with Database using a
   // TableListener
-  public static TaskServiceScheduler taskSchedulerService = new TaskServiceScheduler(taskService);
+  public static final TaskServiceScheduler taskSchedulerService =
+      new TaskServiceScheduler(taskService);
 
   public static void create(Javalin app) {
     app.get("/api/tasks", TaskApi::listTasks);
@@ -71,7 +71,7 @@ public class TaskApi {
     ctx.json(new ObjectMapper().writeValueAsString(taskSchedulerService.scheduledTaskNames()));
   }
 
-  private static void postScript(Context ctx) throws MalformedURLException {
+  private static void postScript(Context ctx) {
     MolgenisSession session = sessionManager.getSession(ctx.req());
     String user = session.getSessionUser();
     if (!"admin".equals(user)) {
