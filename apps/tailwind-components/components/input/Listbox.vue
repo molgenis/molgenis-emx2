@@ -126,6 +126,29 @@ const btnElemRef = useTemplateRef<HTMLButtonElement>("listbox-button");
 const displayText = ref<string>(props.placeholder);
 const startingCounter = ref<number>(0);
 
+onMounted(() => {
+  if (props.value && listboxOptions.value) {
+    const initalValue: IInternalListboxOption[] = listboxOptions.value.filter(
+      (row: IInternalListboxOption) => {
+        return (
+          row.value === (props.value as IListboxOption).value ||
+          row.value === (props.value as IListboxValue)
+        );
+      }
+    );
+    if (initalValue) {
+      updateModelValue(initalValue[0], false);
+    }
+  }
+});
+
+watch(
+  () => props.placeholder,
+  () => {
+    displayText.value = props.placeholder;
+  }
+);
+
 function counterIsInRange(value: number) {
   return value <= listboxOptions.value.length - 1 && value >= 0;
 }
@@ -386,27 +409,4 @@ function validate(value: columnValue) {
     emit("error", null);
   }
 }
-
-onMounted(() => {
-  if (props.value && listboxOptions.value) {
-    const initalValue: IInternalListboxOption[] = listboxOptions.value.filter(
-      (row: IInternalListboxOption) => {
-        return (
-          row.value === (props.value as IListboxOption).value ||
-          row.value === (props.value as IListboxValue)
-        );
-      }
-    );
-    if (initalValue) {
-      updateModelValue(initalValue[0], false);
-    }
-  }
-});
-
-watch(
-  () => props.placeholder,
-  () => {
-    displayText.value = props.placeholder;
-  }
-);
 </script>

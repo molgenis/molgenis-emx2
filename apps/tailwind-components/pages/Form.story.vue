@@ -36,7 +36,6 @@ const tableMeta = computed(
 );
 
 function refetch() {
-  console.log("refetching...");
   refetchMetadata();
 }
 

@@ -16,7 +16,8 @@ import type { IListboxValue } from "~/types/listbox";
 type inputComponent =
   | InstanceType<typeof InputString>
   | InstanceType<typeof InputTextArea>
-  | InstanceType<typeof InputPlaceHolder>;
+  | InstanceType<typeof InputPlaceHolder>
+  | InstanceType<typeof InputListbox>;
 
 defineProps<{
   type: CellValueType;
