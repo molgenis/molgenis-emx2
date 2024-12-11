@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.molgenis.emx2.ColumnType;
-import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.TableMetadata;
 
 public class Column {
@@ -84,11 +83,7 @@ public class Column {
       }
       if (column.getRefBack() != null) {
         if (column.getTable().getSchema().getDatabase() != null) {
-          org.molgenis.emx2.Column refBackColumn = column.getRefBackColumn();
-          if (refBackColumn == null)
-            throw new MolgenisException(
-                "Cannot find refback for " + column.getTableName() + "." + column.getName());
-          this.refBackId = refBackColumn.getIdentifier();
+          this.refBackId = column.getRefBackColumn().getIdentifier();
         }
         this.refBackName = column.getRefBack();
       }
