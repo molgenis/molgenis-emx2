@@ -423,6 +423,30 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
     window.location.href = body.redirectUrl;
   }
 
+  function isInCart(identifier: string) {
+    for (const biobank in selectedCollections.value) {
+      const collectionSelection = selectedCollections.value[biobank];
+
+      for (const collection of collectionSelection) {
+        if (collection.value === identifier) {
+          return true;
+        }
+      }
+    }
+
+    for (const biobank in selectedServices.value) {
+      const serviceSelection = selectedServices.value[biobank];
+
+      for (const service of serviceSelection) {
+        if (service.value === identifier) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+
   return {
     nToken,
     setSearchHistory,
@@ -439,5 +463,6 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
     removeCollectionsFromSelection,
     removeServicesFromSelection,
     removeAllFromSelection,
+    isInCart,
   };
 });
