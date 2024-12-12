@@ -1,8 +1,8 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,visible
 Datasets,,,,,,,,,,,dct:Dataset,Definition of a dataset,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging",
 Datasets,,resource,ref,1,TRUE,,Resources,,,,"dct:isPartOf,dct:inSeries",Resource of which the dataset is part,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging",
-Datasets,,name,,1,TRUE,,,,,,"dct:title,dct:identifier",Unique dataset name in the model,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging",
-Datasets,,label,,,,,,,,,,Short human readable description,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging",
+Datasets,,name,string,1,TRUE,,,,,,"dct:title,dct:identifier",Unique dataset name in the model,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging",
+Datasets,,label,string,,,,,,,,,Short human readable description,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging",
 Datasets,,dataset type,ontology_array,,,CatalogueOntologies,Dataset types,,,,dct:type,"Defines the type of dataset, e.g. genomic","DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging",
 Datasets,,unit of observation,ontology,,,CatalogueOntologies,Observation targets,,,,,Defines what each record in this table describes,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging",
 Datasets,,keywords,ontology_array,,,CatalogueOntologies,Keywords,,,,dct:theme,Enables grouping of table list by topic and to display tables in a tree,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging",
@@ -13,3 +13,5 @@ Datasets,,mapped to,refback,,,,Dataset mappings,,source dataset,,,Common dataset
 Datasets,,mapped from,refback,,,,Dataset mappings,,target dataset,,,Source datasets that have been mapped to this harmonised dataset,"DataCatalogueFlat,CohortsStaging,RWEStaging,StudiesStaging",
 Datasets,,since version,,,,,,,,,,"When this dataset was introduced, if applicable","DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging",
 Datasets,,until version,,,,,,,,,,"When this dataset was removed, if applicable","DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging",
+Datasets,,date created,date,,,,,,,,,The date on which a dataset was created in the database,,
+Datasets,,created by,ref,,,,Contacts,,,,,,,
