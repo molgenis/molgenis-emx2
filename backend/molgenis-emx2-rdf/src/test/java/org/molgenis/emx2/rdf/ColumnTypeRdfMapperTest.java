@@ -46,7 +46,7 @@ class ColumnTypeRdfMapperTest {
 
   static Database database;
   static Schema allColumnTypes;
-  static Row firstRow;
+  static List<Row> testRows;
 
   @BeforeAll
   public static void setup() {
@@ -212,14 +212,14 @@ class ColumnTypeRdfMapperTest {
                 "b,c",
                 COLUMN_COMPOSITE_REF_ARRAY + ".id2",
                 "2,3"),
-            row(ColumnType.STRING.name(), "secondRowKey"));
+            row(ColumnType.STRING.name(), "emptyValuesRow"));
 
     allColumnTypes.getTable(REFBACK_TABLE).insert(row("id", "1", "ref", "lonelyString"));
     allColumnTypes
         .getTable(COMPOSITE_REFBACK_TABLE)
         .insert(
             row("id1", "a", "id2", "b", "ref", "lonelyString"),
-            row("id1", "c", "id2", "d", "ref", "secondRowKey"));
+            row("id1", "c", "id2", "d", "ref", "lonelyString"));
 
     // Use query to explicitly retrieve all rows as the following would exclude REFBACK values:
     // allColumnTypes.getTable(TEST_TABLE).retrieveRows()
@@ -228,9 +228,8 @@ class ColumnTypeRdfMapperTest {
             .map(i -> new SelectColumn(i.name()))
             .toArray(SelectColumn[]::new);
 
-    // Describe first row for easy access.
-    firstRow =
-        allColumnTypes.getTable(TEST_TABLE).query().select(selectColumns).retrieveRows().get(0);
+    // Describes rows for easy access.
+    testRows = allColumnTypes.getTable(TEST_TABLE).query().select(selectColumns).retrieveRows();
   }
 
   @AfterAll
@@ -240,8 +239,17 @@ class ColumnTypeRdfMapperTest {
   }
 
   private Set<Value> retrieveValues(String columnName) {
+    return retrieveValues(columnName, 0);
+  }
+
+  /** Only primary key is filled. */
+  private Set<Value> retrieveEmptyValues(String columnName) {
+    return retrieveValues(columnName, 1);
+  }
+
+  private Set<Value> retrieveValues(String columnName, int row) {
     return mapper.retrieveValues(
-        firstRow, allColumnTypes.getTable(TEST_TABLE).getMetadata().getColumn(columnName));
+        testRows.get(row), allColumnTypes.getTable(TEST_TABLE).getMetadata().getColumn(columnName));
   }
 
   private Value retrieveFirstValue(String columnName) {
@@ -335,7 +343,7 @@ class ColumnTypeRdfMapperTest {
                             + ColumnType.FILE.name()
                             + "/"
                             // Not sure how to retrieve more directly as changes everytime
-                            + firstRow.getString(ColumnType.FILE.name()))),
+                            + testRows.get(0).getString(ColumnType.FILE.name()))),
                 retrieveValues(ColumnType.FILE.name())),
 
         // STRING
@@ -488,5 +496,14 @@ class ColumnTypeRdfMapperTest {
                     Values.iri(RDF_API_URL_PREFIX + COMPOSITE_REFBACK_TABLE + "?id1=a&id2=b"),
                     Values.iri(RDF_API_URL_PREFIX + COMPOSITE_REFBACK_TABLE + "?id1=c&id2=d")),
                 retrieveValues(COLUMN_COMPOSITE_REFBACK)));
+  }
+
+  @Test
+  void validateEmptyValuesRetrieval() {
+    HashSet<Value> emptySet = new HashSet<>();
+    allColumnTypes.getTable(TEST_TABLE).getMetadata().getColumns().stream()
+        // Primary key and AUTO_ID are filled so skipped.
+        .filter(c -> !(c.isPrimaryKey() || c.getColumnType().equals(ColumnType.AUTO_ID)))
+        .forEach(c -> Assertions.assertEquals(emptySet, retrieveEmptyValues(c.getName())));
   }
 }
