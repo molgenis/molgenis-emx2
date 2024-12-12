@@ -216,35 +216,28 @@ public class ColumnTypeRdfMapper {
             UrlEscapers.urlPathSegmentEscaper().escape(target.getRootTable().getIdentifier());
         final Namespace ns = getSchemaNamespace(baseURL, target.getRootTable().getSchema());
 
-        final Set<IRI> iris = new HashSet<>();
         final Map<Integer, Map<String, String>> items = new HashMap<>();
         for (final Reference reference : column.getReferences()) {
-          final String localColumn = reference.getName();
-          final String targetColumn = reference.getRefTo();
-          if (column.isArray()) {
-            final String[] values = row.getStringArray(localColumn);
-            if (values != null) {
-              for (int i = 0; i < values.length; i++) {
-                var keyValuePairs = items.getOrDefault(i, new LinkedHashMap<>());
-                keyValuePairs.put(targetColumn, values[i]);
-                items.put(i, keyValuePairs);
-              }
-            }
-          } else {
-            final String value = row.getString(localColumn);
-            if (value != null) {
-              var keyValuePairs = items.getOrDefault(0, new LinkedHashMap<>());
-              keyValuePairs.put(targetColumn, value);
-              items.put(0, keyValuePairs);
-            }
+          final String[] values =
+                  (column.isArray()
+                          ? row.getStringArray(reference.getName())
+                          : new String[] {row.getString(reference.getName())});
+
+          if (values == null) continue;
+
+          for (int i = 0; i < values.length; i++) {
+            Map<String, String> keyValuePairs = items.getOrDefault(i, new LinkedHashMap<>());
+            keyValuePairs.put(reference.getRefTo(), values[i]);
+            items.put(i, keyValuePairs);
           }
         }
 
-        for (final var item : items.values()) {
+        final Set<Value> values = new HashSet<>();
+        for (final Map<String, String> item : items.values()) {
           PrimaryKey key = new PrimaryKey(item);
-          iris.add(Values.iri(ns, rootTableName + "?" + key.getEncodedValue()));
+          values.add(Values.iri(ns, rootTableName + "?" + key.getEncodedValue()));
         }
-        return Set.copyOf(iris);
+        return values;
       }
     },
     ONTOLOGY(CoreDatatype.XSD.ANYURI) {
