@@ -76,6 +76,8 @@ class ColumnTypeRdfMapperTest {
     columnList.add(column(COLUMN_COMPOSITE_REF, ColumnType.REF).setRefTable(COMPOSITE_REF_TABLE));
     columnList.add(
         column(COLUMN_COMPOSITE_REF_ARRAY, ColumnType.REF_ARRAY).setRefTable(COMPOSITE_REF_TABLE));
+    columnList.add(
+        column(COLUMN_COMPOSITE_REFBACK, ColumnType.REFBACK).setRefTable(COMPOSITE_REF_TABLE));
 
     // Creates tables.
     allColumnTypes.create(
@@ -233,8 +235,8 @@ class ColumnTypeRdfMapperTest {
     selectColumnList.add(s(COLUMN_COMPOSITE_REF + ".idi"));
     selectColumnList.add(s(COLUMN_COMPOSITE_REF_ARRAY + ".ids"));
     selectColumnList.add(s(COLUMN_COMPOSITE_REF_ARRAY + ".idi"));
-    //    selectColumnList.add(s(COLUMN_COMPOSITE_REFBACK + ".id1"));
-    //    selectColumnList.add(s(COLUMN_COMPOSITE_REFBACK + ".id2"));
+    // TODO: Add composite REFBACK validation, though this creates an extra row...
+    //    selectColumnList.add(s(COLUMN_COMPOSITE_REFBACK, s("id1"), s("id2")));
     SelectColumn[] selectColumns = selectColumnList.toArray(SelectColumn[]::new);
 
     // Describes rows for easy access.
@@ -278,8 +280,8 @@ class ColumnTypeRdfMapperTest {
   }
 
   /**
-   * Validates if {@link org.eclipse.rdf4j.model.Value} is of expected type. Only validates the
-   * non-array {@link ColumnType}{@code s} (as array-versions should be of identical type).
+   * Validates if {@link Value} is of expected type. Only validates the non-array {@link
+   * ColumnType}{@code s} (as array-versions should be of identical type).
    */
   @Test
   void validateValueTypes() {
@@ -511,9 +513,18 @@ class ColumnTypeRdfMapperTest {
   @Test
   void validateEmptyValuesRetrieval() {
     HashSet<Value> emptySet = new HashSet<>();
-    allColumnTypes.getTable(TEST_TABLE).getMetadata().getColumns().stream()
-        // Primary key and AUTO_ID are filled so skipped.
-        .filter(c -> !(c.isPrimaryKey() || c.getColumnType().equals(ColumnType.AUTO_ID)))
-        .forEach(c -> Assertions.assertEquals(emptySet, retrieveEmptyValues(c.getName())));
+    Column[] columns =
+        allColumnTypes.getTable(TEST_TABLE).getMetadata().getColumns().stream()
+            // Primary key and AUTO_ID are filled so skipped.
+            .filter(c -> !(c.isPrimaryKey() || c.getColumnType().equals(ColumnType.AUTO_ID)))
+            .toArray(Column[]::new);
+
+    for (Column column : columns) {
+      Set<Value> actual = retrieveEmptyValues(column.getName());
+      Assertions.assertEquals(
+          emptySet,
+          actual,
+          column.getName() + " has a value while it should be empty: " + actual.toString());
+    }
   }
 }
