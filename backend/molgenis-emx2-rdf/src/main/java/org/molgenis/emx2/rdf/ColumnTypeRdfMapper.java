@@ -107,10 +107,8 @@ public class ColumnTypeRdfMapper {
    * </ul>
    */
   public Set<Value> retrieveValues(final Row row, final Column column) {
-    if (row.getString(column.getName()) == null) {
-      return Set.of();
-    }
-    return mapping.get(column.getColumnType()).retrieveValues(baseURL, row, column);
+    RdfColumnType mapper = mapping.get(column.getColumnType());
+    return (mapper.isEmpty(row, column) ? Set.of() : mapper.retrieveValues(baseURL, row, column));
   }
 
   private enum RdfColumnType {
@@ -238,6 +236,12 @@ public class ColumnTypeRdfMapper {
         }
         return values;
       }
+
+      @Override
+      boolean isEmpty(Row row, Column column) {
+        // Composite key requires all fields to be filled. If one is null, all should be null.
+        return row.getString(column.getReferences().get(0).getName()) == null;
+      }
     },
     ONTOLOGY(CoreDatatype.XSD.ANYURI) {
       // TODO: Implement Ontology behavior where it also returns ontologyTermURI as Value.
@@ -301,5 +305,9 @@ public class ColumnTypeRdfMapper {
     }
 
     abstract Set<Value> retrieveValues(final String baseURL, final Row row, final Column column);
+
+    boolean isEmpty(final Row row, final Column column) {
+      return row.getString(column.getName()) == null;
+    }
   }
 }
