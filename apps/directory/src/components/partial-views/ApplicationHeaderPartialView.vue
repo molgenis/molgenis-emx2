@@ -7,18 +7,20 @@
         </div>
       </div>
 
-        <div class="col d-flex filterbar justify-content-end">
-          <div>
-            <button
+      <div class="col d-flex filterbar justify-content-end">
+        <div>
+          <button
             v-if="
-              hasActiveFilters && biobanksStore.biobankCardsCollectionCount > 0
+              hasActiveFilters && (biobanksStore.biobankCardsCollectionCount + biobanksStore.biobankCardsSubcollectionCount) > 0
             "
             @click="selectAllCollections"
             type="button"
             class="btn btn-secondary mb-3 text-nowrap"
           >
-            Select all collections 
-            <span class="badge badge-light ml-2"> {{ biobanksStore.biobankCardsCollectionCount }}</span>
+            Select all collections
+            <span class="badge badge-light ml-2">
+              {{ (biobanksStore.biobankCardsCollectionCount + biobanksStore.biobankCardsSubcollectionCount) }}</span
+            >
           </button>
         </div>
         <div>
@@ -31,7 +33,9 @@
             class="btn btn-secondary mb-3 text-nowrap"
           >
             Select all services
-            <span class="badge badge-light ml-2"> {{ biobanksStore.biobankCardsServicesCount }}</span>
+            <span class="badge badge-light ml-2">
+              {{ biobanksStore.biobankCardsServicesCount }}</span
+            >
           </button>
         </div>
         <router-link
@@ -163,8 +167,38 @@ export default {
     clearAllFilters() {
       this.filtersStore.clearAllFilters();
     },
-    selectAllServices() {},
-    selectAllCollections() {},
+    selectAllServices() {
+      const allSelections = this.biobanksStore.biobankCards.map((biobank) => ({
+        biobank: { id: biobank.id, name: biobank.name },
+        services: biobank.services.map((service) => ({
+          label: service.name,
+          value: service.id,
+        })),
+      }));
+      allSelections.forEach((item) => {
+        this.checkoutStore.addServicesToSelection(
+          item.biobank,
+          item.services,
+          true
+        );
+      });
+    },
+    selectAllCollections() {
+      const allSelections = this.biobanksStore.biobankCards.map((biobank) => ({
+        biobank: { id: biobank.id, name: biobank.name },
+        collections: biobank.collections.map((collection) => ({
+          label: collection.name,
+          value: collection.id,
+        })),
+      }));
+      allSelections.forEach((item) => {
+        this.checkoutStore.addCollectionsToSelection(
+          item.biobank,
+          item.collections,
+          true
+        );
+      });
+    },
     filterSelectionCount(facetIdentifier) {
       const options = this.filtersStore.filters[facetIdentifier];
       if (!options || !options.length) {
