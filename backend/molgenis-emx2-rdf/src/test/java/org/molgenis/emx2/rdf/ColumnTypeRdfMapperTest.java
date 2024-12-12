@@ -75,7 +75,7 @@ class ColumnTypeRdfMapperTest {
     // Add extra custom columns for additional tests.
     columnList.add(column(COLUMN_COMPOSITE_REF, ColumnType.REF).setRefTable(COMPOSITE_REF_TABLE));
     columnList.add(
-        column(COLUMN_COMPOSITE_REF_ARRAY, ColumnType.REF).setRefTable(COMPOSITE_REF_TABLE));
+        column(COLUMN_COMPOSITE_REF_ARRAY, ColumnType.REF_ARRAY).setRefTable(COMPOSITE_REF_TABLE));
 
     // Creates tables.
     allColumnTypes.create(
@@ -208,11 +208,11 @@ class ColumnTypeRdfMapperTest {
                 COLUMN_COMPOSITE_REF + ".ids",
                 "a",
                 COLUMN_COMPOSITE_REF + ".idi",
-                "1"),
-            //                COLUMN_COMPOSITE_REF_ARRAY + ".ids",
-            //                "b,c",
-            //                COLUMN_COMPOSITE_REF_ARRAY + ".idi",
-            //                "2,3"),
+                "1",
+                COLUMN_COMPOSITE_REF_ARRAY + ".ids",
+                "b,c",
+                COLUMN_COMPOSITE_REF_ARRAY + ".idi",
+                "2,3"),
             row(ColumnType.STRING.name(), "emptyValuesRow"));
 
     allColumnTypes.getTable(REFBACK_TABLE).insert(row("id", "1", "ref", "lonelyString"));
@@ -231,8 +231,8 @@ class ColumnTypeRdfMapperTest {
     // Add Composite columns.
     selectColumnList.add(s(COLUMN_COMPOSITE_REF + ".ids"));
     selectColumnList.add(s(COLUMN_COMPOSITE_REF + ".idi"));
-    //    selectColumnList.add(s(COLUMN_COMPOSITE_REF_ARRAY + ".ids"));
-    //    selectColumnList.add(s(COLUMN_COMPOSITE_REF_ARRAY + ".idi"));
+    selectColumnList.add(s(COLUMN_COMPOSITE_REF_ARRAY + ".ids"));
+    selectColumnList.add(s(COLUMN_COMPOSITE_REF_ARRAY + ".idi"));
     //    selectColumnList.add(s(COLUMN_COMPOSITE_REFBACK + ".id1"));
     //    selectColumnList.add(s(COLUMN_COMPOSITE_REFBACK + ".id2"));
     SelectColumn[] selectColumns = selectColumnList.toArray(SelectColumn[]::new);
@@ -492,14 +492,13 @@ class ColumnTypeRdfMapperTest {
         () ->
             Assertions.assertEquals(
                 Set.of(Values.iri(RDF_API_URL_PREFIX + COMPOSITE_REF_TABLE + "?idi=1&ids=a")),
-                retrieveValues(COLUMN_COMPOSITE_REF)));
-    //        () ->
-    //            Assertions.assertEquals(
-    //                Set.of(
-    //                    Values.iri(RDF_API_URL_PREFIX + COMPOSITE_REF_TABLE + "?idi=2&ids=b"),
-    //                    Values.iri(RDF_API_URL_PREFIX + COMPOSITE_REF_TABLE +
-    // "?idi=3&ids=c")),
-    //                retrieveValues(COLUMN_COMPOSITE_REF_ARRAY)),
+                retrieveValues(COLUMN_COMPOSITE_REF)),
+        () ->
+            Assertions.assertEquals(
+                Set.of(
+                    Values.iri(RDF_API_URL_PREFIX + COMPOSITE_REF_TABLE + "?idi=2&ids=b"),
+                    Values.iri(RDF_API_URL_PREFIX + COMPOSITE_REF_TABLE + "?idi=3&ids=c")),
+                retrieveValues(COLUMN_COMPOSITE_REF_ARRAY)));
     //        () ->
     //            Assertions.assertEquals(
     //                Set.of(
