@@ -8,7 +8,7 @@ defineProps<{
 
 <template>
   <li
-    class="border lg:even:border-l-0 p-11 relative -mb-[1px]"
+    class="organisation-card border lg:even:border-l-0 p-11 relative -mb-[1px]"
     data-component-name="name"
   >
     <div class="flex items-start flex-col h-full">

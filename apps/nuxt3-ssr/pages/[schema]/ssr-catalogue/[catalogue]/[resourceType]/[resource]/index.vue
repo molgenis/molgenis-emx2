@@ -580,6 +580,7 @@ const showPopulation = computed(
     <template #main>
       <ContentBlocks v-if="resource">
         <ContentBlockIntro
+          :class="`${route.params.resourceType}-block-intro`"
           :image="resource?.logo?.url"
           :link="resource?.website as linkTarget"
           :contact="resource?.contactEmail"
@@ -590,17 +591,24 @@ const showPopulation = computed(
 
         <ContentBlockDescription
           id="Description"
+          :class="`${route.params.resourceType}-block-description`"
           title="Description"
           :description="resource?.description"
         />
 
         <ContentCohortGeneralDesign
           id="GeneralDesign"
+          :class="`${route.params.resourceType}-block-general-design`"
           title="General Design"
           :resource="resource as IResources"
         />
 
-        <ContentBlock v-if="showPopulation" id="population" title="Population">
+        <ContentBlock
+          v-if="showPopulation"
+          id="population"
+          title="Population"
+          :class="`${route.params.resourceType}-block-population`"
+        >
           <CatalogueItemList :items="population" />
         </ContentBlock>
 
@@ -614,6 +622,7 @@ const showPopulation = computed(
         <ContentBlockContact
           v-if="peopleInvolvedSortedByRoleAndName.length > 0"
           id="Contributors"
+          :class="`${route.params.resourceType}-block-contributors`"
           title="Contributors"
           :contributors="peopleInvolvedSortedByRoleAndName"
         >
