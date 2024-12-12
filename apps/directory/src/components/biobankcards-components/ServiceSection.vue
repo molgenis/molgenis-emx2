@@ -1,5 +1,9 @@
 <template>
   <div>
+    <div v-if="services.length === 0" class="pl-2">
+      This biobank has no services yet.
+    </div>
+
     <CardItem v-if="services.length > 1">
       <div class="d-flex">
         <h5 class="font-weight-light">
