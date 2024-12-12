@@ -10,13 +10,13 @@
       :aria-required="required"
       :aria-expanded="isExpanded"
       :aria-labelledby="labelId"
-      class="flex justify-start items-center h-10 w-full text-left pl-10 border bg-input rounded-search-input text-button-input-toggle focus:ring-blue-300"
+      class="flex justify-start items-center h-10 w-full text-left pl-11 border bg-input rounded-search-input text-button-input-toggle focus:ring-blue-300"
       :class="{
         'border-disabled text-disabled bg-disabled': disabled,
         'border-invalid text-invalid': hasError,
       }"
       @click.prevent="openCloseListbox"
-      @keydown.prevent="onListboxButtonKeyDown"
+      @keydown="onListboxButtonKeyDown"
     >
       <span class="w-full">
         {{ displayText }}
@@ -32,7 +32,7 @@
       role="listbox"
       ref="listbox-ul"
       :aria-expanded="isExpanded"
-      class="absolute b-0 w-full overflow-y-scroll z-10"
+      class="absolute b-0 w-full overflow-y-scroll z-10 bg-listbox border"
       :class="{
         hidden: !isExpanded,
         'h-44': isExpanded && listboxOptions.length > 5,
@@ -45,11 +45,9 @@
         ref="listbox-li"
         :id="option.elemId"
         role="option"
-        class="flex justify-start items-center gap-3 pl-3 py-1 bg-listbox text-listbox border-t-[1px] border-t-listbox-option hover:cursor-pointer hover:bg-listbox-hover hover:text-listbox focus:bg-listbox-hover focus:text-listbox"
+        class="flex justify-start items-center gap-3 pl-3 py-1 text-listbox border-t-[1px] border-t-listbox-option hover:cursor-pointer hover:bg-listbox-hover hover:text-listbox focus:bg-listbox-hover focus:text-listbox focus:ring-blue-300"
         :class="{
-          '!bg-listbox-selected !text-listbox-selected': isSelected(
-            option.value
-          ),
+          '!border-2 !border-blue-300': isSelected(option.value),
         }"
         :aria-selected="isSelected(option.value)"
         @click="onListboxOptionClick(option)"
@@ -58,7 +56,7 @@
       >
         <BaseIcon
           name="Check"
-          class="fill-listbox-selected"
+          class="text-listbox"
           :class="isSelected(option.value) ? 'visible' : 'invisible'"
           :width="18"
         />
@@ -296,6 +294,7 @@ function openCloseListbox() {
     focusListOption();
   } else {
     ulElemRef.value?.setAttribute("tabindex", "-1");
+    focusListboxButton();
   }
 }
 
@@ -362,11 +361,6 @@ function onListboxKeyDown(event: KeyboardEvent) {
   }
 }
 
-function onListboxOptionClick(option: IInternalListboxOption) {
-  updateModelValue(option);
-  focusListboxButton();
-}
-
 function onListboxOptionKeyDown(
   event: KeyboardEvent,
   option: IInternalListboxOption
@@ -375,31 +369,30 @@ function onListboxOptionKeyDown(
   switch (key) {
     case "Enter":
       updateModelValue(option);
-      focusListboxButton();
       break;
 
     case "Spacebar":
       updateModelValue(option);
-      focusListboxButton();
       break;
 
     // spacebar (for older browser support)
     case " ":
       updateModelValue(option);
-      focusListboxButton();
       break;
 
     case "Tab":
       updateModelValue(option);
-      focusListboxButton();
       break;
 
     case "Escape":
       blurListOption(option);
       openCloseListbox();
-      focusListboxButton();
       break;
   }
+}
+
+function onListboxOptionClick(option: IInternalListboxOption) {
+  updateModelValue(option);
 }
 
 function validate(value: columnValue) {
