@@ -9,42 +9,42 @@
         <div class="col-sm-2">
           <ImageCard
             label="Autoimmune Diseases"
-            image-src="/img/bacterial-blue.png"
+            image-src="img/bacterial-blue.png"
             alt-text="bacterial"
           />
         </div>
         <div class="col-sm-2">
           <ImageCard
             label="Cardiovascular Deseases"
-            image-src="/img/heart-blue.png"
+            image-src="img/heart-blue.png"
             alt-text="bacterial"
           />
         </div>
         <div class="col-sm-2">
           <ImageCard
             label="COVID 19"
-            image-src="/img/coronavirus-blue.png"
+            image-src="img/coronavirus-blue.png"
             alt-text="coronavirus"
           />
         </div>
         <div class="col-sm-2">
           <ImageCard
             label="Infectious Diseases"
-            image-src="/img/infected-blue.png"
+            image-src="img/infected-blue.png"
             alt-text="infected"
           />
         </div>
         <div class="col-sm-2">
           <ImageCard
             label="Metabolic Disorders"
-            image-src="/img/metabolism-blue.png"
+            image-src="img/metabolism-blue.png"
             alt-text="metabolism"
           />
         </div>
         <div class="col-sm-2">
           <ImageCard
             label="Nervous System Disorders"
-            image-src="/img/brain-blue.png"
+            image-src="img/brain-blue.png"
             alt-text="brain"
           />
         </div>
@@ -53,28 +53,28 @@
         <div class="col-sm-2">
           <ImageCard
             label="Oncology"
-            image-src="/img/ribbon-blue.png"
+            image-src="img/ribbon-blue.png"
             alt-text="Oncology"
           />
         </div>
         <div class="col-sm-2">
           <ImageCard
             label="Pediatrics"
-            image-src="/img/pediatrics-blue.png"
+            image-src="img/pediatrics-blue.png"
             alt-text="pediatrics"
           />
         </div>
         <div class="col-sm-2">
           <ImageCard
             label="Population Reference"
-            image-src="/img/blood-sample-blue.png"
+            image-src="img/blood-sample-blue.png"
             alt-text="Population Reference"
           />
         </div>
         <div class="col-sm-2">
           <ImageCard
             label="Rare Diseases"
-            image-src="/img/statistics-blue.png"
+            image-src="img/statistics-blue.png"
             alt-text="Rare Diseases"
           />
         </div>
