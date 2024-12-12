@@ -9,7 +9,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Namespace;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.base.CoreDatatype;
@@ -219,9 +218,9 @@ public class ColumnTypeRdfMapper {
         final Map<Integer, Map<String, String>> items = new HashMap<>();
         for (final Reference reference : column.getReferences()) {
           final String[] values =
-                  (column.isArray()
-                          ? row.getStringArray(reference.getName())
-                          : new String[] {row.getString(reference.getName())});
+              (column.isArray()
+                  ? row.getStringArray(reference.getName())
+                  : new String[] {row.getString(reference.getName())});
 
           if (values == null) continue;
 
