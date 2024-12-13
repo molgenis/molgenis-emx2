@@ -20,9 +20,9 @@ const sourceIds = computed(() => [
   ...new Set(relevantMappings.value?.map((mapping) => mapping.source.id)),
 ]);
 const repeats = computed(() => {
-  const min = props.variable.repeatMin | 1;
-  const max = props.variable.repeatMax | 1;
-  return Array.from({ length: max - min }, (_, i) => min + i);
+  const min = props.variable.repeatMin | 0;
+  const max = props.variable.repeatMax | 0;
+  return Array.from({ length: max - min + 1 }, (_, i) => min + i);
 });
 </script>
 <template>
@@ -62,7 +62,7 @@ const repeats = computed(() => {
               variable.mappings?.find(
                 (m) =>
                   m.source.id === cell.value.column &&
-                  m.repeats.includes('' + cell.value.row)
+                  m.repeats.split(',').includes('' + cell.value.row)
               )?.match.name || 'unmapped'
             "
           />
