@@ -315,7 +315,7 @@ jobs:
       - run:
             name: Save test results for stats
             command: |
-                find . -type f -regex ".*/e2e/test-results/.*xml" -exec cp {} /root/project/e2e/ \;
+                find . -type f -regex ".*/e2e/test-results/.*xml" -exec cp {} /root/project/e2e \;
       - store_test_results:
          path: /root/project/e2e
       - store_artifacts:
