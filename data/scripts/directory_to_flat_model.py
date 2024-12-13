@@ -61,7 +61,7 @@ data_category_mapping = {
 
 # Map MaterialTypes (partly MIABIS v2) to BiospecimenType (MIABIS v3 + NCIT)
 sample_type_mapping = {
-    "*": '',
+    "*": '*',
     "BUFFY_COAT": 'Buffy Coat',
     "CDNA": 'cDNA', # Added to BiospecimenType
     "CELL_LINES": 'Cell Line',
@@ -69,7 +69,7 @@ sample_type_mapping = {
     "FECES": 'Faeces',
     'MICRO_RNA': 'MicroRNA', # Added to BiospecimenType
     "NASAL_SWAB": 'Nasal Swab or Nose Specimen',
-    "NAV": '',
+    "NAV": '*',
     "OTHER": 'Other',
     "PATHOGEN": 'Isolated Pathogen',
     "PERIPHERAL_BLOOD_CELLS": 'Peripheral Blood',
@@ -94,6 +94,9 @@ temperature_mapping = {
     "temperature2to10": "2 °C to 10°C",
     "temperatureLN": "Liquid nitrogen liquid-phase",
 }
+
+# Map AgeRanges to Age groups
+age_mapping = {}
 
 # Partial mappings of manually entered roles to pre-defined roles
 role_mapping = {
@@ -145,14 +148,14 @@ def map_disease_types_to_diseases(disease_types, diseases):
         # Already mapped on identical label/name
         if pd.notna(row['name_d']):
             target = row['name_d']
-        # Don't map null value
+        # Map null value
         elif source == '*':
-            target = ''
+            target = 'No main medical condition'
         # Use ORPHAnet or ICD-10 code
         elif source.startswith('ORPHA:') or source.startswith('urn:miriam:icd:'):
-            # Don't map obsolete ORPHAnet values
+            # Map obsolete ORPHAnet values to dummy value
             if source.startswith('ORPHA:') and row['label_dt'].startswith('OBSOLETE:'):
-                target = ''
+                target = 'Tarsal kink syndrome'
             else:
                 code_dt = source.split(':')[-1]
                 result = diseases.loc[diseases['code'] == code_dt, 'name']
@@ -313,7 +316,9 @@ def map_persons_to_contacts(persons, collections, biobanks, networks, resources)
 
 def map_collections_to_samples(collections, disease_mapping):
     """Maps the BBMRI-ERIC Collections table to the flat data model's Sample collections table"""
-    # TODO: columns to map: head, contact, also_known, quality, combined_quality, facts
+    # TODO: columns to map: head, contact, also_known, quality, combined_quality, facts,
+    # collaboration_commercial, collaboration_non_for_profit, data_use, commercial_use,
+    # access_fee, access_joint_project, access_description, access_uri, sop
     # Rename and create columns
     collections.rename(columns={"type": "design",
                                 "biobank": "resource",
@@ -361,6 +366,35 @@ def map_collections_to_samples(collections, disease_mapping):
     collections['storage temperature'] = apply_mapping(collections['storage temperature'], temperature_mapping)
     return collections
 
+def map_facts_to_counts(facts, collections, disease_mapping):
+    """Maps the BBMRI-ERIC CollectionFacts table to the flat data model's Sample collection counts table"""
+    facts.rename(columns={"age_range": "age group",
+                        "sample_type": "sample type",
+                        "disease": "main medical condition",
+                        "number_of_samples": "number of samples",
+                        "number_of_donors": "number of donors",
+                        }, inplace=True)
+    # Filter out facts without numbers
+    facts = facts.loc[(facts['number of donors'] != '') | (facts['number of samples'] != '')]
+    # Resource is resource of Sample collection
+    facts["resource"] = facts['collection'].map(collections.set_index('id')['resource'])
+    # Primary key of Sample collections is name instead of id
+    facts['sample collection'] = facts['collection'].map(collections.set_index('id')['name'])
+    # Apply mappings to attributes which need it
+    facts.loc[facts['age group'] == 'Unknown', 'age group'] = '*'
+    facts.loc[facts['age group'] == 'Undefined', 'age group'] = '*'
+    facts.loc[facts['age group'] == '', 'age group'] = '*'
+    facts['sex'] = apply_mapping(facts['sex'], sex_mapping)
+    facts.loc[facts['sex'] == '', 'sex'] = '*'
+    facts["main medical condition"] = apply_mapping(facts["main medical condition"], disease_mapping)
+    facts.loc[facts['main medical condition'] == '', 'main medical condition'] = 'No main medical condition'
+    facts['sample type'] = apply_mapping(facts['sample type'], sample_type_mapping)
+    facts.loc[facts['sample type'] == '', 'sample type'] = '*'
+    # Sum duplicate facts
+    # FIXME: numbers are strings so summing is incorrect, cast to int first
+    # BUT: how to deal with empty values? ''
+    facts.groupby(['resource', 'sample collection', 'sex', 'age group', 'main medical condition', 'sample type'])[['number of samples', 'number of donors']].sum().reset_index()
+    return facts
 
 def map_biobanks_to_resources(biobanks):
     """Maps the BBMRI-ERIC Biobanks table to the flat data model's Resources table"""
@@ -460,33 +494,25 @@ def main():
             disease_types = client.get("DiseaseTypes", schema="DirectoryOntologies", as_df=True)
             diseases = catalogue_client.get("Diseases", schema="CatalogueOntologies", as_df=True)
             disease_mapping = map_disease_types_to_diseases(disease_types, diseases)
-            # Map Collections to Sample resources
+            # Map Collections to Sample collections
             print('Get and map Collections...')
             collections = client.get("Collections", as_df=True)
             mapped_collections = map_collections_to_samples(
                 collections.copy(), disease_mapping)  # Unnecessary copy?
-            mapped_collections = mapped_collections.reindex(
+            # Map CollectionFacts to Sample collection counts
+            print('Get and map CollectionFacts...')
+            facts = client.get("CollectionFacts", as_df=True)
+            mapped_facts = map_facts_to_counts(facts.copy(), mapped_collections, disease_mapping) # Unnecessary copy?
+            mapped_facts = mapped_facts.reindex(
                 columns = [
                     "resource",
-                    "name",
-                    "acronym",
-                    "description",
-                    "url",
-                    "parent sample collection.name",
-                    "parent sample collection.resource",
-                    "design",
-                    "dataset type",
-                    "number of donors",
-                    "number of samples",
+                    "sample collection",
                     "sex",
-                    "main medical condition",
-                    "research domain",
-                    "age groups",
+                    "age group",
                     "sample type",
-                    "storage temperature",
-                    "body part examined",
-                    "imaging modality",
-                    "image types",
+                    "main medical condition",
+                    "number of samples",
+                    "number of donors",
                 ]
             )
             # Map Networks to Resources
@@ -535,10 +561,36 @@ def main():
                     "expertise",
                 ]
             )
+            # Select columns for upload
+            mapped_collections = mapped_collections.reindex(
+                columns = [
+                    "resource",
+                    "name",
+                    "acronym",
+                    "description",
+                    "url",
+                    "parent sample collection.name",
+                    "parent sample collection.resource",
+                    "design",
+                    "dataset type",
+                    "number of donors",
+                    "number of samples",
+                    "sex",
+                    "main medical condition",
+                    "research domain",
+                    "age groups",
+                    "sample type",
+                    "storage temperature",
+                    "body part examined",
+                    "imaging modality",
+                    "image types",
+                ]
+            )
             # Upload mapped tables
             print('Upload...')
             catalogue_client.save_schema(table="Resources", data=resources)
             catalogue_client.save_schema(table="Sample collections", data=mapped_collections)
+            catalogue_client.save_schema(table="Sample collection counts", data=mapped_facts)
             catalogue_client.save_schema(table="Contacts", data=mapped_contacts)
 
 
