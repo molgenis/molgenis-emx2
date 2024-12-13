@@ -1,4 +1,4 @@
-package org.molgenis.emx2.sql.appmigrations;
+package org.molgenis.emx2;
 
 public enum Profile {
   DATA_CATALOGUE,

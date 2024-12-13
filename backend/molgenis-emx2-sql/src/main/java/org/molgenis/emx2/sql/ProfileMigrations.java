@@ -2,7 +2,7 @@ package org.molgenis.emx2.sql;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
-import org.molgenis.emx2.sql.appmigrations.Profile;
+import org.molgenis.emx2.Profile;
 import org.molgenis.emx2.sql.appmigrations.ProfileMigrationStep;
 import org.molgenis.emx2.sql.model.ProfileSchema;
 import org.slf4j.Logger;

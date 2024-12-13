@@ -77,6 +77,6 @@ public class TestSchemaCreateDestroy {
     }
     db.createSchema(name, desc);
     assertEquals(name, db.getSchema(name).getName());
-    assertTrue(db.getSchemaInfos().contains(new SchemaInfo(name, desc)));
+    assertTrue(db.getSchemaInfos().contains(new SchemaInfo(name, desc, null, null)));
   }
 }

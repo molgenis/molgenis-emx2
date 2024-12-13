@@ -44,6 +44,10 @@ public class MetadataUtils {
       field(name("table_schema"), VARCHAR.nullable(false));
   private static final Field<String> SCHEMA_DESCRIPTION =
       field(name("description"), VARCHAR.nullable(true));
+  private static final Field<String> SCHEMA_PROFILE =
+      field(name("profile"), VARCHAR.nullable(true));
+  private static final Field<Integer> SCHEMA_MIGRATION_STEP =
+      field(name("profile_migration_step"), INTEGER.nullable(true));
   static final Field<String> TABLE_NAME = field(name("table_name"), VARCHAR.nullable(false));
   private static final Field<String> TABLE_INHERITS =
       field(name("table_inherits"), VARCHAR.nullable(true));
@@ -321,7 +325,9 @@ public class MetadataUtils {
       schemaInfos.add(
           new SchemaInfo(
               record.get(TABLE_SCHEMA, String.class),
-              record.get(SCHEMA_DESCRIPTION, String.class)));
+              record.get(SCHEMA_DESCRIPTION, String.class),
+              record.get(SCHEMA_PROFILE, Profile.class),
+              record.get(SCHEMA_MIGRATION_STEP, Integer.class)));
     }
     return schemaInfos;
   }

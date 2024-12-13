@@ -47,6 +47,8 @@ public class GraphqlConstants {
   public static final String DESCRIPTION = "description";
   public static final String COUNT = "count";
   public static final String SCHEMAS = "schemas";
+  public static final String PROFILE = "profile";
+  public static final String PROFILE_MIGRATION_STEP = "profileMigrationStep";
   public static final String TASK_ID = "id";
   public static final String TASK_STATUS = "status";
   public static final String TASK_DESCRIPTION = "description";

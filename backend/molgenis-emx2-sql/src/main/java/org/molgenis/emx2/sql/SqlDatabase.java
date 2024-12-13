@@ -19,7 +19,7 @@ import org.jooq.conf.Settings;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.sql.appmigrations.Profile;
+import org.molgenis.emx2.Profile;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 import org.molgenis.emx2.utils.RandomString;
 import org.molgenis.emx2.utils.generator.SnowflakeIdGenerator;
@@ -427,14 +427,10 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
 
   @Override
   public SchemaInfo getSchemaInfo(String schemaName) {
-    Optional<SchemaInfo> result =
-        this.getSchemaInfos().stream()
-            .filter(schemaInfo -> schemaInfo.tableSchema().equals(schemaName))
-            .findFirst();
-    if (result.isPresent()) {
-      return result.get();
-    }
-    return null;
+    return this.getSchemaInfos().stream()
+        .filter(schemaInfo -> schemaInfo.tableSchema().equals(schemaName))
+        .findFirst()
+        .orElse(null);
   }
 
   @Override

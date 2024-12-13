@@ -71,7 +71,6 @@ public class Constants {
   public static final String ANONYMOUS = "anonymous";
   public static final String LOCALES = "locales";
   public static final String LOCALES_DEFAULT = "[\"en\"]";
-
   protected static final Operator[] EXISTS_OPERATIONS = {};
   protected static final Operator[] ORDINAL_OPERATORS = {EQUALS, NOT_EQUALS, BETWEEN, NOT_BETWEEN};
   protected static final Operator[] STRING_OPERATORS = {

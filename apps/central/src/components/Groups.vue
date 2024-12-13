@@ -40,7 +40,7 @@
           </th>
           <th>description</th>
           <th
-            v-if="showChangeColumn"
+            v-if="showAdminColumns"
             @click="changeSortOrder('lastUpdate')"
             class="sort-col"
           >
@@ -51,6 +51,7 @@
               class="d-inline p-0 hide-icon"
             />
           </th>
+          <th v-if="showAdminColumns">profile</th>
         </thead>
         <tbody>
           <tr v-for="schema in schemasFilteredAndSorted" :key="schema.id">
@@ -74,11 +75,14 @@
             <td>
               {{ schema.description }}
             </td>
-            <td v-if="showChangeColumn">
+            <td v-if="showAdminColumns">
               <LastUpdateField
                 v-if="schema.update"
                 :lastUpdate="schema.update"
               />
+            </td>
+            <td v-if="showAdminColumns">
+              {{ schema.profile }} (v-{{ schema.profileMigrationStep }})
             </td>
           </tr>
         </tbody>
@@ -165,7 +169,7 @@ export default {
           this.session.roles.includes("Manager"))
       );
     },
-    showChangeColumn() {
+    showAdminColumns() {
       return this.session.email == "admin";
     },
   },
@@ -198,12 +202,13 @@ export default {
     },
     getSchemaList() {
       this.loading = true;
-      const schemaFragment = "_schemas{id,label,description}";
+      const schemaFragment =
+        "_schemas{id,label,description, profile, profileMigrationStep}";
       const lastUpdateFragment =
         "_lastUpdate{schemaName, tableName, stamp, userId, operation}";
       request(
         "graphql",
-        `{${schemaFragment} ${this.showChangeColumn ? lastUpdateFragment : ""}}`
+        `{${schemaFragment} ${this.showAdminColumns ? lastUpdateFragment : ""}}`
       )
         .then((data) => {
           this.schemas = data._schemas;
@@ -279,7 +284,7 @@ export default {
     },
   },
   watch: {
-    showChangeColumn(val) {
+    showAdminColumns(val) {
       if (val) {
         this.getSchemaList();
       }
