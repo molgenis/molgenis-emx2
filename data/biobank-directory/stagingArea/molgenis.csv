@@ -131,7 +131,7 @@ Studies,,number_of_subjects,Number of subjects,int,,false,,"The number of subjec
 Studies,,also_known,Also Known In,ref_array,,false,,The study also exists in …,,AlsoKnownIn,,${name_system},,,,,
 Studies,,collections,Collections,refback,,false,true,,,Collections,studies,,,,,,
 Services,,,,,,,,Biobank Capabilities and Services,,,,,,,,,
-Services,,id,ID,string,1,true,,"Unique ID of the service, prefixed with bbmri-eric:serviceID:",,,,,,,,,
+Services,,id,ID,string,1,true,,"Unique ID of the service, prefixed with bbmri-eric:serviceID:",,,,,,if(!/^bbmri-eric:serviceID:[\\w]+_[\\w-:]+$/.test(id))'ID should start with bbmri-eric:serviceID:{NationalNodeCode}_',,,
 Services,,name,Service Name,string,2,true,,Name of the service (preferably in English).,,,,,,,,,
 Services,,serviceTypes,Service Types,ref_array,,true,,Related service types,DirectoryOntologies,ServiceTypes,,${label},,,,,
 Services,,acronym,Acronym,string,,false,,Short name in use for the service. If applicable.,,,,,,,,,
