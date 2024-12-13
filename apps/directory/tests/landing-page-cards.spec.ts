@@ -1,8 +1,9 @@
 import { test, expect } from "@playwright/test";
 import { signin } from "./signin";
+import { getAppRoute } from "./getAppRoute";
 
 test("landing page cards set filter", async ({ page }) => {
-  await page.goto("http://localhost:5173/#/catalogue");
+  await page.goto(getAppRoute());
   await signin(page);
   await expect(
     page.getByRole("main").getByRole("link", { name: "Settings" })
