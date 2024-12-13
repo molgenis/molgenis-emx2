@@ -11,8 +11,8 @@
     "preview": "vite preview",
     "test": "vitest",
     "test-ci": "vitest run",
-    "format": "prettier src  --write --config ../.prettierrc.js",
-    "checkFormat": "prettier src  --check --config ../.prettierrc.js",
+    "format": "prettier src tests  --write --config ../.prettierrc.js",
+    "checkFormat": "prettier src tests  --check --config ../.prettierrc.js",
     "e2e": "playwright test"
   },
   "dependencies": {
