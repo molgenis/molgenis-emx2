@@ -126,7 +126,7 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
 
       let biobankResult = [];
       try {
-        await baseQuery.execute();
+        biobankResult = await baseQuery.execute();
       } catch (error) {
         setError(error);
       }
