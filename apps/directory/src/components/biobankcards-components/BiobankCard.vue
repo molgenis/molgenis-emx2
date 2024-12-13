@@ -139,13 +139,16 @@ function handleRemoveServices(selectedServiceIds: string[]) {
 }
 
 const qualityInfo = computed(() => {
-  return biobankcardViewmodel.value.attributes
-    .find((attr) => attr.type === "quality")
-    .value.map((quality: Record<string, any>) => {
-      return (qualitiesStore.qualityStandardsDictionary as Record<string, any>)[
-        quality.quality_standard.name
-      ];
-    });
+  const qualityAttributes = biobankcardViewmodel.value.attributes.find(
+    (attr) => attr.type === "quality"
+  );
+  return qualityAttributes.value
+    ? qualityAttributes.value.map((quality: Record<string, any>) => {
+        return (
+          qualitiesStore.qualityStandardsDictionary as Record<string, any>
+        )[quality.quality_standard.name];
+      })
+    : [];
 });
 
 const biobankcardViewmodel = computed(() => {
