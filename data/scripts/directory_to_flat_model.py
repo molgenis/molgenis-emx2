@@ -313,7 +313,7 @@ def map_persons_to_contacts(persons, collections, biobanks, networks, resources)
 
 def map_collections_to_samples(collections, disease_mapping):
     """Maps the BBMRI-ERIC Collections table to the flat data model's Sample collections table"""
-    # TODO: columns to map: head, contact, also_known, categories, quality, combined_quality, facts
+    # TODO: columns to map: head, contact, also_known, quality, combined_quality, facts
     # Rename and create columns
     collections.rename(columns={"type": "design",
                                 "biobank": "resource",
@@ -321,6 +321,7 @@ def map_collections_to_samples(collections, disease_mapping):
                                 "size": "number of samples",
                                 "number_of_donors": "number of donors",
                                 "diagnosis_available": "main medical condition",
+                                "categories": "research domain",
                                 "materials": "sample type",
                                 "storage_temperatures": "storage temperature",
                                 "body_part_examined": "body part examined",
@@ -479,6 +480,7 @@ def main():
                     "number of samples",
                     "sex",
                     "main medical condition",
+                    "research domain",
                     "age groups",
                     "sample type",
                     "storage temperature",
