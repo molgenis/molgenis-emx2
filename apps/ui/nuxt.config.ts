@@ -5,6 +5,9 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   runtimeConfig: {
     logLevel: 4,
+    public: {
+      apiBase: "http://localhost:8080/",
+    },
   },
   tailwindcss: {
     cssPath: '../tailwind-components/assets/css/main.css',
