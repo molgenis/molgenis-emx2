@@ -1,7 +1,7 @@
-CREATE TYPE "MOLGENIS".app AS ENUM ('CATALOGUE', 'DIRECTORY');
+CREATE TYPE "MOLGENIS".profile AS ENUM ('DATA_CATALOGUE', 'DCAT');
 
 ALTER TABLE "MOLGENIS"."schema_metadata"
-    ADD COLUMN IF NOT EXISTS app "MOLGENIS".app;
+    ADD COLUMN IF NOT EXISTS profile "MOLGENIS".profile;
 
 ALTER TABLE "MOLGENIS"."schema_metadata"
-    ADD COLUMN IF NOT EXISTS app_migration_version int;
+    ADD COLUMN IF NOT EXISTS profile_migration_step int;

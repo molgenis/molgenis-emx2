@@ -1,4 +1,4 @@
-package org.molgenis.emx2.sql.appmigrations.catalogue;
+package org.molgenis.emx2.sql.appmigrations.datacatalogue;
 
 import org.molgenis.emx2.Database;
 

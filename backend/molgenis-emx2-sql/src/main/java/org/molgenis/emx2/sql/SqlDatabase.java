@@ -19,7 +19,7 @@ import org.jooq.conf.Settings;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.sql.appmigrations.App;
+import org.molgenis.emx2.sql.appmigrations.Profile;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 import org.molgenis.emx2.utils.RandomString;
 import org.molgenis.emx2.utils.generator.SnowflakeIdGenerator;
@@ -304,10 +304,10 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     return getSchema(name);
   }
 
-  public void setSchemaAppVersion(Schema schema, App app, int version) {
+  public void setSchemaProfileVersion(Schema schema, Profile profile, int step) {
     jooq.execute(
-        "update \"MOLGENIS\".\"schema_metadata\" set app = '%s'::\"MOLGENIS\".app, app_migration_version = %d where table_schema = '%s'"
-            .formatted(app.name(), version, schema.getName()));
+        "update \"MOLGENIS\".\"schema_metadata\" set profile = '%s'::\"MOLGENIS\".profile, profile_migration_step = %d where table_schema = '%s'"
+            .formatted(profile.name(), step, schema.getName()));
   }
 
   private static void validateSchemaIdentifierIsUnique(SchemaMetadata metadata, Database db) {

@@ -6,7 +6,7 @@ import static org.molgenis.emx2.ColumnType.INT;
 import org.molgenis.emx2.datamodels.BiobankDirectoryLoader;
 import org.molgenis.emx2.datamodels.DataModels;
 import org.molgenis.emx2.datamodels.PetStoreLoader;
-import org.molgenis.emx2.sql.AppSchemaMigrations;
+import org.molgenis.emx2.sql.ProfileMigrations;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 import org.molgenis.emx2.web.MolgenisWebservice;
@@ -64,8 +64,8 @@ public class RunMolgenisEmx2 {
           }
         });
 
-    // check if schemas connected to apps need to be migrated, and if so, do it
-    new AppSchemaMigrations().runAppSchemaMigrations(database);
+    // check if schemas connected to profiles need to be migrated, and if so, do it
+    new ProfileMigrations().runAppSchemaMigrations(database);
 
     // start
     MolgenisWebservice.start(port);

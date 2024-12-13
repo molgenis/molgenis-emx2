@@ -5,7 +5,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.sql.appmigrations.App;
+import org.molgenis.emx2.sql.appmigrations.Profile;
 
 public class TestSchemaMigrations {
 
@@ -27,7 +27,7 @@ public class TestSchemaMigrations {
   @Test
   void testSchemaMigrations() {
     Schema schema = db.createSchema(SCHEMA_NAME);
-    ((SqlDatabase) db).setSchemaAppVersion(schema, App.CATALOGUE, 0);
-    new AppSchemaMigrations().runAppSchemaMigrations((SqlDatabase) db);
+    ((SqlDatabase) db).setSchemaProfileVersion(schema, Profile.CATALOGUE, 0);
+    new ProfileMigrations().runAppSchemaMigrations((SqlDatabase) db);
   }
 }

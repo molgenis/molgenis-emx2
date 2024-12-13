@@ -1,8 +1,8 @@
-package org.molgenis.emx2.sql.appmigrations.directory;
+package org.molgenis.emx2.sql.appmigrations.dcat;
 
 import org.molgenis.emx2.Database;
 
-public class Step0 extends DirectoryMigrationStep {
+public class Step0 extends DCATMigrationStep {
 
   @Override
   public void execute(Database database, String schemaName) {
