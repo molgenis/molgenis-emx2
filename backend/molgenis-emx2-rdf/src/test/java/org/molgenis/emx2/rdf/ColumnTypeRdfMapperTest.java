@@ -121,6 +121,9 @@ class ColumnTypeRdfMapperTest {
                 "lonelyText",
                 ColumnType.TEXT_ARRAY.name(),
                 "text1,text2",
+                ColumnType.JSON.name(),
+                "{\"a\":1,\"b\":2}",
+                // NUMERIC
                 ColumnType.INT.name(),
                 "0",
                 ColumnType.INT_ARRAY.name(),
@@ -145,11 +148,6 @@ class ColumnTypeRdfMapperTest {
                 "P1D",
                 ColumnType.PERIOD_ARRAY.name(),
                 "P1M,P1Y",
-                // COMPOSITE
-                ColumnType.JSONB.name(),
-                "{\"a\":1,\"b\":2}",
-                ColumnType.JSONB_ARRAY.name(), // TODO: Remove if deprecated.
-                "{\"c\":3},{\"d\":4,\"e\":5}",
                 // RELATIONSHIP
                 ColumnType.REF.name(),
                 "1",
@@ -231,6 +229,7 @@ class ColumnTypeRdfMapperTest {
         // STRING
         () -> Assertions.assertTrue(retrieveFirstValue(ColumnType.STRING.name()).isLiteral()),
         () -> Assertions.assertTrue(retrieveFirstValue(ColumnType.TEXT.name()).isLiteral()),
+        () -> Assertions.assertTrue(retrieveFirstValue(ColumnType.JSON.name()).isLiteral()),
 
         // NUMERIC
         () -> Assertions.assertTrue(retrieveFirstValue(ColumnType.INT.name()).isLiteral()),
@@ -239,9 +238,6 @@ class ColumnTypeRdfMapperTest {
         () -> Assertions.assertTrue(retrieveFirstValue(ColumnType.DATE.name()).isLiteral()),
         () -> Assertions.assertTrue(retrieveFirstValue(ColumnType.DATETIME.name()).isLiteral()),
         () -> Assertions.assertTrue(retrieveFirstValue(ColumnType.PERIOD.name()).isLiteral()),
-
-        // COMPOSITE
-        () -> Assertions.assertTrue(retrieveFirstValue(ColumnType.JSONB.name()).isLiteral()),
 
         // RELATIONSHIP
         () -> Assertions.assertTrue(retrieveFirstValue(ColumnType.REF.name()).isIRI()),
@@ -290,6 +286,7 @@ class ColumnTypeRdfMapperTest {
                             // Not sure how to retrieve more directly as changes everytime
                             + firstRow.getString(ColumnType.FILE.name()))),
                 retrieveValues(ColumnType.FILE.name())),
+
         // STRING
         () ->
             Assertions.assertEquals(
@@ -311,6 +308,11 @@ class ColumnTypeRdfMapperTest {
                     Values.literal("text1", CoreDatatype.XSD.STRING),
                     Values.literal("text2", CoreDatatype.XSD.STRING)),
                 retrieveValues(ColumnType.TEXT_ARRAY.name())),
+        () ->
+            Assertions.assertEquals(
+                Set.of(Values.literal("{\"a\":1,\"b\":2}", CoreDatatype.XSD.STRING)),
+                retrieveValues(ColumnType.JSON.name())),
+
         // NUMERIC
         () ->
             Assertions.assertEquals(
@@ -364,13 +366,6 @@ class ColumnTypeRdfMapperTest {
                     Values.literal("P1Y", CoreDatatype.XSD.DURATION)),
                 retrieveValues(ColumnType.PERIOD_ARRAY.name())),
 
-        // COMPOSITE
-        () ->
-            Assertions.assertEquals(
-                Set.of(Values.literal("{\"a\":1,\"b\":2}", CoreDatatype.XSD.STRING)),
-                retrieveValues(ColumnType.JSONB.name())),
-        // TODO: Remove if deprecated.
-        () -> Assertions.assertEquals(Set.of(), retrieveValues(ColumnType.JSONB_ARRAY.name())),
         // RELATIONSHIP
         () ->
             Assertions.assertEquals(
@@ -386,6 +381,7 @@ class ColumnTypeRdfMapperTest {
             Assertions.assertEquals(
                 Set.of(Values.iri(rdfApiUrlPrefix + REFBACK_TABLE + "?id=1")),
                 retrieveValues(ColumnType.REFBACK.name())),
+
         // LAYOUT and other constants -> should return empty sets as they should be excluded
         () -> Assertions.assertEquals(Set.of(), retrieveValues(ColumnType.HEADING.name())),
         // format flavors that extend a baseType

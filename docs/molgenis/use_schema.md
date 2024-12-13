@@ -60,7 +60,7 @@ Basic type:
 - datetime
 - period : string as a ISO 8601 duration containing Years, Months and/or Days. (P2Y4M30D)
 - uuid
-- jsonb : validates json format
+- json : validates json format (must be an array or object!)
 - file
 - text : string that displays as text area
 
