@@ -44,14 +44,16 @@
             >
           </button>
         </div>
-        <router-link
-          v-if="showSettings"
-          class="btn btn-light border mr-2 align-self-start"
-          to="/configuration"
-        >
-          <span class="mr-2">Settings</span>
-          <span class="fa-solid fa-gear" />
-        </router-link>
+        <div>
+          <router-link
+            v-if="showSettings"
+            class="btn btn-light border mr-2 mb-3 text-nowrap"
+            to="/configuration"
+          >
+            <span class="mr-2">Settings</span>
+            <span class="fa-solid fa-gear" />
+          </router-link>
+        </div>
         <check-out :bookmark="true" />
       </div>
     </div>
