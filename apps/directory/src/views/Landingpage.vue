@@ -4,13 +4,13 @@
       <h1 class="text-center py-5">
         Search the BBMRI-Eric Directory by biobank, samples and collections
       </h1>
-
       <div class="row">
         <div class="col-sm-2">
           <ImageCard
             label="Autoimmune Diseases"
             image-src="img/bacterial-blue.png"
             alt-text="bacterial"
+            :to="{ name: 'catalogue', query: { Categories: 'autoimmune' } }"
           />
         </div>
         <div class="col-sm-2">
@@ -18,6 +18,7 @@
             label="Cardiovascular Deseases"
             image-src="img/heart-blue.png"
             alt-text="bacterial"
+            :to="{ name: 'catalogue', query: { Categories: 'cardiovascular' } }"
           />
         </div>
         <div class="col-sm-2">
@@ -25,6 +26,7 @@
             label="COVID 19"
             image-src="img/coronavirus-blue.png"
             alt-text="coronavirus"
+            :to="{ name: 'catalogue', query: { Categories: 'covid19' } }"
           />
         </div>
         <div class="col-sm-2">
@@ -32,6 +34,7 @@
             label="Infectious Diseases"
             image-src="img/infected-blue.png"
             alt-text="infected"
+            :to="{ name: 'catalogue', query: { Categories: 'infectious' } }"
           />
         </div>
         <div class="col-sm-2">
@@ -39,6 +42,7 @@
             label="Metabolic Disorders"
             image-src="img/metabolism-blue.png"
             alt-text="metabolism"
+            :to="{ name: 'catalogue', query: { Categories: 'metabolic' } }"
           />
         </div>
         <div class="col-sm-2">
@@ -46,6 +50,7 @@
             label="Nervous System Disorders"
             image-src="img/brain-blue.png"
             alt-text="brain"
+            :to="{ name: 'catalogue', query: { Categories: 'nervous_system' } }"
           />
         </div>
       </div>
@@ -55,6 +60,7 @@
             label="Oncology"
             image-src="img/ribbon-blue.png"
             alt-text="Oncology"
+            :to="{ name: 'catalogue', query: { Categories: 'oncology' } }"
           />
         </div>
         <div class="col-sm-2">
@@ -62,6 +68,7 @@
             label="Pediatrics"
             image-src="img/pediatrics-blue.png"
             alt-text="pediatrics"
+            :to="{ name: 'catalogue', query: { Categories: 'paediatrics' } }"
           />
         </div>
         <div class="col-sm-2">
@@ -69,6 +76,7 @@
             label="Population Reference"
             image-src="img/blood-sample-blue.png"
             alt-text="Population Reference"
+            :to="{ name: 'catalogue', query: { Categories: 'population' } }"
           />
         </div>
         <div class="col-sm-2">
@@ -76,11 +84,14 @@
             label="Rare Diseases"
             image-src="img/statistics-blue.png"
             alt-text="Rare Diseases"
+            :to="{ name: 'catalogue', query: { Categories: 'rare_disease' } }"
           />
         </div>
         <div class="col-sm-4 cards-section-other">
           <p>pr proceed to the directory without any selection</p>
-          <Button label="Directory" size="lg" type="outline" />
+          <router-link class="btn btn-lg btn-outline-secondary" to="/catalogue"
+            >Directory</router-link
+          >
         </div>
       </div>
     </section>
@@ -143,6 +154,7 @@ import { useSettingsStore } from "../stores/settingsStore";
 import ImageCard from "../components/ImageCard.vue";
 import Button from "../components/Button.vue";
 import { computed } from "vue";
+import router from "../router";
 
 const settingsStore = useSettingsStore();
 

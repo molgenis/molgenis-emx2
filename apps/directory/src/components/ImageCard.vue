@@ -13,16 +13,22 @@
     </div>
 
     <div class="card-body" style="padding: 10px 10px">
-      <h6 class="card-title">{{ label }}</h6>
+      <router-link v-if="to" :to="to" class="stretched-link"
+        ><h6 class="card-title">{{ label }}</h6></router-link
+      >
+      <h6 class="card-title" v-else>{{ label }}</h6>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { RouteLocationRaw } from "vue-router";
+
 defineProps<{
   imageSrc: string;
   altText: string;
   label: string;
+  to?: RouteLocationRaw;
 }>();
 </script>
 
