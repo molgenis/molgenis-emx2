@@ -23,7 +23,7 @@ public class ProfileMigrations {
     select
       table_schema,
       profile,
-      app_migration_version
+      profile_migration_step
     from
       "MOLGENIS"."schema_metadata"
     where
