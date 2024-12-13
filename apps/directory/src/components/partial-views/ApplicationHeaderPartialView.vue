@@ -11,7 +11,10 @@
         <div>
           <button
             v-if="
-              hasActiveFilters && (biobanksStore.biobankCardsCollectionCount + biobanksStore.biobankCardsSubcollectionCount) > 0
+              hasActiveFilters &&
+              biobanksStore.biobankCardsCollectionCount +
+                biobanksStore.biobankCardsSubcollectionCount >
+                0
             "
             @click="selectAllCollections"
             type="button"
@@ -19,7 +22,10 @@
           >
             Select all collections
             <span class="badge badge-light ml-2">
-              {{ (biobanksStore.biobankCardsCollectionCount + biobanksStore.biobankCardsSubcollectionCount) }}</span
+              {{
+                biobanksStore.biobankCardsCollectionCount +
+                biobanksStore.biobankCardsSubcollectionCount
+              }}</span
             >
           </button>
         </div>
