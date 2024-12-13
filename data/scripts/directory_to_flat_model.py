@@ -393,6 +393,7 @@ def map_facts_to_counts(facts, collections, disease_mapping):
     # Sum duplicate facts
     # FIXME: numbers are strings so summing is incorrect, cast to int first
     # BUT: how to deal with empty values? ''
+    # Perhaps, set aside all rows with empty values, then do summing, and add those rows back in after
     facts.groupby(['resource', 'sample collection', 'sex', 'age group', 'main medical condition', 'sample type'])[['number of samples', 'number of donors']].sum().reset_index()
     return facts
 
