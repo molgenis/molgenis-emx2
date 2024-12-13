@@ -17,7 +17,7 @@ const bannerHtml = computed(() => {
     :networkCount="headerData.networkCount"
   />
   <HeaderGlobal v-else />
-  <Container>
+  <Container :class="$attrs.class">
     <slot></slot>
   </Container>
   <FooterComponent>
