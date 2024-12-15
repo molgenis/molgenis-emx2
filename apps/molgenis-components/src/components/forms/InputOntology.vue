@@ -87,7 +87,6 @@
           :key="key"
           :terms="rootTerms"
           :isMultiSelect="isMultiSelect"
-          :enableSelectNodes="!search"
           @select="select"
           @deselect="deselect"
           @toggleExpand="toggleExpand"
@@ -395,7 +394,10 @@ export default {
       this.searchResultCount = 0;
       if (this.search) {
         //first hide all
-        Object.values(this.terms).forEach((t: any) => (t.visible = false));
+        Object.values(this.terms).forEach((t: any) => {
+          t.visible = false;
+          t.selectable = false;
+        });
         //split and sanitize search terms
         let searchTerms = this.search
           .trim()
@@ -415,6 +417,7 @@ export default {
             )
           ) {
             term.visible = true;
+            term.selectable = true;
             this.searchResultCount++;
 
             //also make parents visible
@@ -427,12 +430,19 @@ export default {
                 }
               }
             }
+
+            //also make children selectable and visible
+            this.getAllChildren(term).forEach((t) => {
+              t.visible = true;
+              t.selectable = true;
+            });
           }
         });
       } else {
-        //no search  = all visible
+        //no search  = all visible and selectable
         Object.values(this.terms).forEach((t: any) => {
           t.visible = true;
+          t.selectable = true;
           this.searchResultCount++;
         });
       }
@@ -474,6 +484,7 @@ export default {
             terms[term.name] = {
               name: term.name,
               visible: true,
+              selectable: true,
               selected: "unselected",
               definition: term.definition,
               code: term.code,
@@ -489,6 +500,7 @@ export default {
               terms[term.parent.name] = {
                 name: term.parent.name,
                 visible: true,
+                selectable: true,
                 selected: "unselected",
               };
             }

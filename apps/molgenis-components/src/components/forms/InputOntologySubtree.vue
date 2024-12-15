@@ -14,7 +14,7 @@
       </span>
       <span @click.stop="toggleSelect(term)">
         <i
-          v-if="enableSelectNodes || countVisibleChildren(term) == 0"
+          v-if="term.selectable"
           class="fa-fw text-primary pl-2 pt-1"
           :class="getSelectState(term)"
           role="button"
@@ -39,7 +39,6 @@
       </span>
       <InputOntologySubtree
         v-if="term.expanded"
-        :enableSelectNodes="enableSelectNodes"
         :terms="term.children"
         :isMultiSelect="isMultiSelect"
         @select="$emit('select', $event)"
@@ -60,7 +59,6 @@ export default {
       default: () => [],
     },
     isMultiSelect: { type: Boolean, default: false },
-    enableSelectNodes: { type: Boolean, default: true },
   },
   methods: {
     countVisibleChildren(term) {
