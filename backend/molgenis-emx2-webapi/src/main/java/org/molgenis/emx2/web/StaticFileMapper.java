@@ -4,6 +4,7 @@ import com.google.common.io.ByteStreams;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import java.io.InputStream;
+import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -89,7 +90,12 @@ public class StaticFileMapper {
         return;
       }
       if (mimeType == null) {
-        mimeType = Files.probeContentType(Path.of(path));
+        mimeType = URLConnection.guessContentTypeFromName(path);
+
+        if (mimeType == null) {
+          mimeType = Files.probeContentType(Path.of(path));
+        }
+
         if (mimeType == null) {
           mimeType = "application/octet-stream";
         }
