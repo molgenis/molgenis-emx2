@@ -5,7 +5,9 @@
         Search the BBMRI-Eric Directory by biobank, samples and collections
       </h1>
       <div class="row">
-        <div class="col-sm-2">
+        <div
+          class="col-sm-6 col-md-4 col-xl-2 d-flex justify-content-center pb-5"
+        >
           <ImageCard
             label="Autoimmune Diseases"
             image-src="img/bacterial-blue.png"
@@ -13,7 +15,9 @@
             :to="{ name: 'catalogue', query: { Categories: 'autoimmune' } }"
           />
         </div>
-        <div class="col-sm-2">
+        <div
+          class="col-sm-6 col-md-4 col-xl-2 d-flex justify-content-center pb-5"
+        >
           <ImageCard
             label="Cardiovascular Deseases"
             image-src="img/heart-blue.png"
@@ -21,7 +25,9 @@
             :to="{ name: 'catalogue', query: { Categories: 'cardiovascular' } }"
           />
         </div>
-        <div class="col-sm-2">
+        <div
+          class="col-sm-6 col-md-4 col-xl-2 d-flex justify-content-center pb-5"
+        >
           <ImageCard
             label="COVID 19"
             image-src="img/coronavirus-blue.png"
@@ -29,7 +35,9 @@
             :to="{ name: 'catalogue', query: { Categories: 'covid19' } }"
           />
         </div>
-        <div class="col-sm-2">
+        <div
+          class="col-sm-6 col-md-4 col-xl-2 d-flex justify-content-center pb-5"
+        >
           <ImageCard
             label="Infectious Diseases"
             image-src="img/infected-blue.png"
@@ -37,7 +45,9 @@
             :to="{ name: 'catalogue', query: { Categories: 'infectious' } }"
           />
         </div>
-        <div class="col-sm-2">
+        <div
+          class="col-sm-6 col-md-4 col-xl-2 d-flex justify-content-center pb-5"
+        >
           <ImageCard
             label="Metabolic Disorders"
             image-src="img/metabolism-blue.png"
@@ -45,7 +55,9 @@
             :to="{ name: 'catalogue', query: { Categories: 'metabolic' } }"
           />
         </div>
-        <div class="col-sm-2">
+        <div
+          class="col-sm-6 col-md-4 col-xl-2 d-flex justify-content-center pb-5"
+        >
           <ImageCard
             label="Nervous System Disorders"
             image-src="img/brain-blue.png"
@@ -53,9 +65,9 @@
             :to="{ name: 'catalogue', query: { Categories: 'nervous_system' } }"
           />
         </div>
-      </div>
-      <div class="row" style="padding-top: 30px">
-        <div class="col-sm-2">
+        <div
+          class="col-sm-6 col-md-4 col-xl-2 d-flex justify-content-center pb-5"
+        >
           <ImageCard
             label="Oncology"
             image-src="img/ribbon-blue.png"
@@ -63,7 +75,9 @@
             :to="{ name: 'catalogue', query: { Categories: 'oncology' } }"
           />
         </div>
-        <div class="col-sm-2">
+        <div
+          class="col-sm-6 col-md-4 col-xl-2 d-flex justify-content-center pb-5"
+        >
           <ImageCard
             label="Pediatrics"
             image-src="img/pediatrics-blue.png"
@@ -71,7 +85,9 @@
             :to="{ name: 'catalogue', query: { Categories: 'paediatrics' } }"
           />
         </div>
-        <div class="col-sm-2">
+        <div
+          class="col-sm-6 col-md-4 col-xl-2 d-flex justify-content-center pb-5"
+        >
           <ImageCard
             label="Population Reference"
             image-src="img/blood-sample-blue.png"
@@ -79,7 +95,9 @@
             :to="{ name: 'catalogue', query: { Categories: 'population' } }"
           />
         </div>
-        <div class="col-sm-2">
+        <div
+          class="col-sm-6 col-md-4 col-xl-2 d-flex justify-content-center pb-5"
+        >
           <ImageCard
             label="Rare Diseases"
             image-src="img/statistics-blue.png"
@@ -87,7 +105,7 @@
             :to="{ name: 'catalogue', query: { Categories: 'rare_disease' } }"
           />
         </div>
-        <div class="col-sm-4 cards-section-other">
+        <div class="col-sm-12 col-md-8 col-xl-4 cards-section-other">
           <p>pr proceed to the directory without any selection</p>
           <router-link class="btn btn-lg btn-outline-secondary" to="/catalogue"
             >Directory</router-link

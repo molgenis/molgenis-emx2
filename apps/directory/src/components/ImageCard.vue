@@ -1,7 +1,7 @@
 <template>
   <div
     class="card text-center img-thumbnail"
-    style="width: 10rem; height: 10rem"
+    style="width: 10rem; height: 10rem; min-width: 10rem"
   >
     <div class="p-2">
       <img
