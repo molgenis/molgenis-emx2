@@ -329,7 +329,7 @@ def map_persons_to_contacts(persons, collections, biobanks, networks, resources)
 
 def map_collections_to_samples(collections, disease_mapping):
     """Maps the BBMRI-ERIC Collections table to the flat data model's Sample collections table"""
-    # TODO: columns to map: head, contact, also_known, quality, combined_quality, facts,
+    # TODO: columns to map: head, contact, also_known, quality, combined_quality,
     # collaboration_commercial, collaboration_non_for_profit, data_use, commercial_use,
     # access_fee, access_joint_project, access_description, access_uri, sop
     # Rename and create columns
