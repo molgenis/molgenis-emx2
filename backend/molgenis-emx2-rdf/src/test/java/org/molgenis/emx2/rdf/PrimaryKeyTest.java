@@ -27,13 +27,7 @@ public class PrimaryKeyTest {
 
   @Test
   void testThatAPrimaryKeyMustHaveAtLeastOneComponent() {
-    var pairs = new HashMap<String, String>();
-    try {
-      var key = new PrimaryKey(pairs);
-      assertNull(key, "Should have thrown an exception during initialisation");
-    } catch (Exception e) {
-      // Expected
-    }
+    assertThrows(IllegalArgumentException.class, () -> new PrimaryKey(Map.of()));
   }
 
   @Test
@@ -78,5 +72,16 @@ public class PrimaryKeyTest {
     }
     assertTrue(filterFirst, "The filter should contain a sub filter for the first key.");
     assertTrue(filterLast, "The filter should contain a sub filter for the last key.");
+  }
+
+  @Test
+  void testEncodedValues() {
+    assertAll(
+        () -> assertEquals("a=1", new PrimaryKey(Map.of("a", "1")).getEncodedValue()),
+        () -> assertEquals("a=1&b=2", new PrimaryKey(Map.of("a", "1", "b", "2")).getEncodedValue()),
+        () ->
+            assertEquals(
+                "a=1&b=2&c=3",
+                new PrimaryKey(Map.of("a", "1", "b", "2", "c", "3")).getEncodedValue()));
   }
 }
