@@ -62,6 +62,15 @@ public class TestLoaders {
   }
 
   @Test
+  void test00PortalLoader() throws URISyntaxException, IOException {
+    // depends on catalogue test above
+    Schema schema = databa
+    se.dropCreateSchema(PORTAL_TEST);
+    DataModels.Regular.RD3_V2.getImportTask(schema, false).run();
+    assertEquals(94, schema.getTableNames().size());
+  }
+
+  @Test
   public void test01FAIRDataHubLoader() {
     Schema fairDataHubSchema = database.createSchema(FAIR_DATA_HUB_TEST);
     DataModels.Profile.FAIR_DATA_HUB.getImportTask(fairDataHubSchema, true).run();
@@ -154,13 +163,5 @@ public class TestLoaders {
     Schema FDPSchema = database.createSchema(FAIR_DATA_POINT);
     DataModels.Profile.FAIR_DATA_POINT.getImportTask(FDPSchema, true).run();
     assertEquals(25, FDPSchema.getTableNames().size());
-  }
-
-  @Test
-  void test18PortalLoader() throws URISyntaxException, IOException {
-    // depends on catalogue test above
-    Schema schema = database.dropCreateSchema(PORTAL_TEST);
-    DataModels.Regular.RD3v2.getImportTask(schema, false).run();
-    assertEquals(94, schema.getTableNames().size());
   }
 }

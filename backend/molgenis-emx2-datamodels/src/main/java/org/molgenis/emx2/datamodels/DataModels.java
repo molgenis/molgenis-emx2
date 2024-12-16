@@ -52,7 +52,7 @@ public class DataModels {
     ERN_DASHBOARD(DashboardLoader::new),
     PROJECTMANAGER(ProjectManagerLoader::new),
     BIOBANK_DIRECTORY(BiobankDirectoryLoader::new),
-    RD3v2(RD3v2Loader::new),
+    RD3_V2(RD3v2Loader::new),
     BIOBANK_DIRECTORY_STAGING(
         ((schema, includeDemoData) ->
             new BiobankDirectoryLoader(schema, includeDemoData).setStaging(true)));
