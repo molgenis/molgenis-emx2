@@ -64,8 +64,7 @@ public class TestLoaders {
   @Test
   void test00PortalLoader() throws URISyntaxException, IOException {
     // depends on catalogue test above
-    Schema schema = databa
-    se.dropCreateSchema(PORTAL_TEST);
+    Schema schema = database.dropCreateSchema(PORTAL_TEST);
     DataModels.Regular.RD3_V2.getImportTask(schema, false).run();
     assertEquals(94, schema.getTableNames().size());
   }
