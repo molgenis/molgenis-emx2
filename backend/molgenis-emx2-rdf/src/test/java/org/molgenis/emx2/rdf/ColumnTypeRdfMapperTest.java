@@ -76,17 +76,15 @@ class ColumnTypeRdfMapperTest {
     columnList.add(column(COLUMN_COMPOSITE_REF, ColumnType.REF).setRefTable(COMPOSITE_REF_TABLE));
     columnList.add(
         column(COLUMN_COMPOSITE_REF_ARRAY, ColumnType.REF_ARRAY).setRefTable(COMPOSITE_REF_TABLE));
-    columnList.add(
-        column(COLUMN_COMPOSITE_REFBACK, ColumnType.REFBACK).setRefTable(COMPOSITE_REF_TABLE));
 
     // Creates tables.
     allColumnTypes.create(
         // Ontology table
         table(ONT_TABLE).setTableType(TableType.ONTOLOGIES),
-        // Table to ref towards
-        table(REF_TABLE, column("id", ColumnType.STRING).setPkey()),
         // Table to test on
         table(TEST_TABLE, columnList.toArray(Column[]::new)),
+        // Table to ref towards
+        table(REF_TABLE, column("id", ColumnType.STRING).setPkey()),
         // Table to get refbacks from
         table(
             REFBACK_TABLE,
@@ -104,7 +102,7 @@ class ColumnTypeRdfMapperTest {
             column("id2", ColumnType.STRING).setPkey(),
             column("ref", ColumnType.REF).setRefTable(TEST_TABLE)));
 
-    // Adds REFBACK.
+    // Adds REFBACK columns.
     allColumnTypes
         .getTable(TEST_TABLE)
         .getMetadata()
@@ -215,6 +213,7 @@ class ColumnTypeRdfMapperTest {
                 "b,c",
                 COLUMN_COMPOSITE_REF_ARRAY + ".idi",
                 "2,3"),
+            // Empty row for validating correct empty behaviour (only primary key & AUTO_ID present)
             row(ColumnType.STRING.name(), "emptyValuesRow"));
 
     allColumnTypes.getTable(REFBACK_TABLE).insert(row("id", "1", "ref", "lonelyString"));
@@ -230,13 +229,12 @@ class ColumnTypeRdfMapperTest {
         Arrays.stream(ColumnType.values())
             .map(i -> new SelectColumn(i.name()))
             .collect(Collectors.toList());
-    // Add Composite columns.
+    // Add Composite columns manually.
     selectColumnList.add(s(COLUMN_COMPOSITE_REF + ".ids"));
     selectColumnList.add(s(COLUMN_COMPOSITE_REF + ".idi"));
     selectColumnList.add(s(COLUMN_COMPOSITE_REF_ARRAY + ".ids"));
     selectColumnList.add(s(COLUMN_COMPOSITE_REF_ARRAY + ".idi"));
-    // TODO: Add composite REFBACK validation, though this creates an extra row...
-    //    selectColumnList.add(s(COLUMN_COMPOSITE_REFBACK, s("id1"), s("id2")));
+    selectColumnList.add(s(COLUMN_COMPOSITE_REFBACK, s("id1"), s("id2")));
     SelectColumn[] selectColumns = selectColumnList.toArray(SelectColumn[]::new);
 
     // Describes rows for easy access.
@@ -253,9 +251,11 @@ class ColumnTypeRdfMapperTest {
     return retrieveValues(columnName, 0);
   }
 
-  /** Only primary key is filled. */
+  /** Only primary key & AUTO_ID is filled. */
   private Set<Value> retrieveEmptyValues(String columnName) {
-    return retrieveValues(columnName, 1);
+    // REFBACK causes duplicate row (with only REFBACK values being different).
+    // Therefore, 3rd row is empty one.
+    return retrieveValues(columnName, 2);
   }
 
   private Set<Value> retrieveValues(String columnName, int row) {
@@ -319,12 +319,20 @@ class ColumnTypeRdfMapperTest {
         () -> Assertions.assertTrue(retrieveFirstValue(ColumnType.HYPERLINK.name()).isIRI()),
 
         // Composite keys
-        () -> Assertions.assertTrue(retrieveFirstValue(COLUMN_COMPOSITE_REF).isIRI()));
-    //        () -> Assertions.assertTrue(retrieveFirstValue(COMPOSITE_REFBACK_TABLE).isIRI()));
+        () -> Assertions.assertTrue(retrieveFirstValue(COLUMN_COMPOSITE_REF).isIRI()),
+        () -> Assertions.assertTrue(retrieveFirstValue(COLUMN_COMPOSITE_REFBACK).isIRI()));
   }
 
   @Test
   void validateValuesRetrieval() {
+    // REFBACK is special usecase that returns multiple rows if multiple matches are found where
+    // all columns are identical except the REFBACK.
+    HashSet<Value> actualRefback = new HashSet<>();
+    for (int i = 0; i < testRows.size() - 1; i++) { // Last row is empty row.
+      actualRefback.addAll(retrieveValues(COLUMN_COMPOSITE_REFBACK, i));
+    }
+
+    // Validation
     Assertions.assertAll(
         // SIMPLE
         () ->
@@ -500,14 +508,13 @@ class ColumnTypeRdfMapperTest {
                 Set.of(
                     Values.iri(RDF_API_URL_PREFIX + COMPOSITE_REF_TABLE + "?idi=2&ids=b"),
                     Values.iri(RDF_API_URL_PREFIX + COMPOSITE_REF_TABLE + "?idi=3&ids=c")),
-                retrieveValues(COLUMN_COMPOSITE_REF_ARRAY)));
-    //        () ->
-    //            Assertions.assertEquals(
-    //                Set.of(
-    //                    Values.iri(RDF_API_URL_PREFIX + COMPOSITE_REFBACK_TABLE + "?id1=a&id2=b"),
-    //                    Values.iri(RDF_API_URL_PREFIX + COMPOSITE_REFBACK_TABLE +
-    // "?id1=c&id2=d")),
-    //                retrieveValues(COLUMN_COMPOSITE_REFBACK)));
+                retrieveValues(COLUMN_COMPOSITE_REF_ARRAY)),
+        () ->
+            Assertions.assertEquals(
+                Set.of(
+                    Values.iri(RDF_API_URL_PREFIX + COMPOSITE_REFBACK_TABLE + "?id1=a&id2=b"),
+                    Values.iri(RDF_API_URL_PREFIX + COMPOSITE_REFBACK_TABLE + "?id1=c&id2=d")),
+                actualRefback));
   }
 
   @Test
