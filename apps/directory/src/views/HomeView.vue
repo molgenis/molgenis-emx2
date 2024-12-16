@@ -1,15 +1,12 @@
 <template>
-  <Error>
-    <div class="main-view">
-      <ApplicationHeaderPartialView />
-      <BiobankCardsPartialView />
-    </div>
-  </Error>
+  <div class="main-view">
+    <ApplicationHeaderPartialView />
+    <BiobankCardsPartialView />
+  </div>
 </template>
 
 <script setup lang="ts">
 import { onMounted } from "vue";
-import Error from "../components/Error.vue";
 import ApplicationHeaderPartialView from "../components/partial-views/ApplicationHeaderPartialView.vue";
 import BiobankCardsPartialView from "../components/partial-views/BiobankCardsPartialView.vue";
 import { createBookmark } from "../functions/bookmarkMapper";

@@ -1,9 +1,16 @@
 <template>
   <div>
-    <div v-if="error" style="color: red">
-      An Error has occurred loading the Directory app, see the dev console for
-      more information.
-      <button type="button" class="btn" @click="clearError">X</button>
+    <div
+      v-if="error"
+      class="d-flex border border-danger justify-content-between"
+    >
+      <span style="color: red">
+        An error occurred while loading the data. Please, try a different
+        search. If this error persists, please contact our helpdesk.
+      </span>
+      <span>
+        <button type="button" class="btn" @click="clearError">X</button>
+      </span>
     </div>
     <slot />
   </div>

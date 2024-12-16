@@ -3,7 +3,7 @@ import { ref } from "vue";
 const error = ref<null | any>(null);
 export default function useErrorHandler() {
   const setError = (newError: any) => {
-    console.error("An error occured: ", newError);
+    console.error("An error occurred: ", newError);
     error.value = newError;
   };
 

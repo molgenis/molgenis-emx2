@@ -3,7 +3,9 @@
     <template v-if="banner" #banner>
       <div v-html="banner"></div>
     </template>
-    <RouterView @click="closeAllDropdownButtons" />
+    <Error>
+      <RouterView @click="closeAllDropdownButtons" />
+    </Error>
     <template #footer>
       <Footer />
     </template>
@@ -12,13 +14,14 @@
 
 <script setup>
 import { Molgenis } from "molgenis-components";
-import { computed, onMounted, watch, ref } from "vue";
-import { applyBookmark, createBookmark } from "./functions/bookmarkMapper";
+import { computed, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
-import { useFiltersStore } from "./stores/filtersStore";
-import { useCheckoutStore } from "./stores/checkoutStore";
-import { useSettingsStore } from "./stores/settingsStore";
+import Error from "./components/Error.vue";
 import Footer from "./components/Footer.vue";
+import { applyBookmark, createBookmark } from "./functions/bookmarkMapper";
+import { useCheckoutStore } from "./stores/checkoutStore";
+import { useFiltersStore } from "./stores/filtersStore";
+import { useSettingsStore } from "./stores/settingsStore";
 
 const route = useRoute();
 const query = computed(() => route.query);

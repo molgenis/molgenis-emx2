@@ -157,8 +157,12 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
       .orderBy("collections", "id", "asc")
       .where("id")
       .equals(id);
-
-    return await biobankReportQuery.execute();
+    try {
+      return await biobankReportQuery.execute();
+    } catch (error) {
+      setError(error);
+      return null;
+    }
   }
 
   function getPresentFilterOptions(facetIdentifier) {

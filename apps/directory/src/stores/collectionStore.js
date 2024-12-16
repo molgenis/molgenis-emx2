@@ -1,8 +1,10 @@
-import { defineStore } from "pinia";
 import { QueryEMX2 } from "molgenis-components";
-import { useSettingsStore } from "./settingsStore";
+import { defineStore } from "pinia";
+import useErrorHandler from "../composables/errorHandler";
 import { useCheckoutStore } from "./checkoutStore";
+import { useSettingsStore } from "./settingsStore";
 
+const { setError } = useErrorHandler();
 export const useCollectionStore = defineStore("collectionStore", () => {
   const settingsStore = useSettingsStore();
 
@@ -56,9 +58,14 @@ export const useCollectionStore = defineStore("collectionStore", () => {
         .select(["id", "name", "biobank.name", "also_known.url"])
         .where("id")
         .orLike(idsMissing);
-      const result = await missingCollectionQuery.execute();
 
-      return result.Collections;
+      try {
+        const result = await missingCollectionQuery.execute();
+        return result.Collections;
+      } catch (error) {
+        setError(error);
+        return {};
+      }
     } else {
       return {};
     }
