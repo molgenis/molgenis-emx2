@@ -12,7 +12,7 @@
       />
     </div>
 
-    <div class="card-body" style="padding: 10px 10px">
+    <div class="card-body" style="padding: 5px 5px">
       <router-link v-if="to" :to="to" class="stretched-link"
         ><h6 class="card-title">{{ label }}</h6></router-link
       >
@@ -43,8 +43,8 @@ defineProps<{
 .card:hover {
   background-color: #f8f9fa;
   cursor: pointer;
-  box-shadow: 8px 8px 8px #003675;
-  transform: scale(1.2);
+  box-shadow: 4px 4px 4px #003675;
+  transform: scale(1.1);
 }
 
 .card-title {

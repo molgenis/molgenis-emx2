@@ -6,7 +6,7 @@
       </h1>
       <div class="row">
         <div
-          class="col-sm-6 col-md-4 col-xl-2 d-flex justify-content-center pb-5"
+          class="col-sm-6 col-md-4 col-xl-3 d-flex justify-content-center pb-3"
         >
           <ImageCard
             label="Autoimmune Diseases"
@@ -16,7 +16,7 @@
           />
         </div>
         <div
-          class="col-sm-6 col-md-4 col-xl-2 d-flex justify-content-center pb-5"
+          class="col-sm-6 col-md-4 col-xl-3 d-flex justify-content-center pb-3"
         >
           <ImageCard
             label="Cardiovascular Deseases"
@@ -26,7 +26,7 @@
           />
         </div>
         <div
-          class="col-sm-6 col-md-4 col-xl-2 d-flex justify-content-center pb-5"
+          class="col-sm-6 col-md-4 col-xl-3 d-flex justify-content-center pb-3"
         >
           <ImageCard
             label="COVID 19"
@@ -36,7 +36,7 @@
           />
         </div>
         <div
-          class="col-sm-6 col-md-4 col-xl-2 d-flex justify-content-center pb-5"
+          class="col-sm-6 col-md-4 col-xl-3 d-flex justify-content-center pb-3"
         >
           <ImageCard
             label="Infectious Diseases"
@@ -46,7 +46,7 @@
           />
         </div>
         <div
-          class="col-sm-6 col-md-4 col-xl-2 d-flex justify-content-center pb-5"
+          class="col-sm-6 col-md-4 col-xl-3 d-flex justify-content-center pb-3"
         >
           <ImageCard
             label="Metabolic Disorders"
@@ -56,7 +56,7 @@
           />
         </div>
         <div
-          class="col-sm-6 col-md-4 col-xl-2 d-flex justify-content-center pb-5"
+          class="col-sm-6 col-md-4 col-xl-3 d-flex justify-content-center pb-3"
         >
           <ImageCard
             label="Nervous System Disorders"
@@ -66,7 +66,7 @@
           />
         </div>
         <div
-          class="col-sm-6 col-md-4 col-xl-2 d-flex justify-content-center pb-5"
+          class="col-sm-6 col-md-4 col-xl-3 d-flex justify-content-center pb-3"
         >
           <ImageCard
             label="Oncology"
@@ -76,7 +76,7 @@
           />
         </div>
         <div
-          class="col-sm-6 col-md-4 col-xl-2 d-flex justify-content-center pb-5"
+          class="col-sm-6 col-md-4 col-xl-3 d-flex justify-content-center pb-3"
         >
           <ImageCard
             label="Pediatrics"
@@ -86,7 +86,7 @@
           />
         </div>
         <div
-          class="col-sm-6 col-md-4 col-xl-2 d-flex justify-content-center pb-5"
+          class="col-sm-6 col-md-4 col-xl-3 d-flex justify-content-center pb-3"
         >
           <ImageCard
             label="Population Reference"
@@ -96,7 +96,7 @@
           />
         </div>
         <div
-          class="col-sm-6 col-md-4 col-xl-2 d-flex justify-content-center pb-5"
+          class="col-sm-6 col-md-4 col-xl-3 d-flex justify-content-center pb-3"
         >
           <ImageCard
             label="Rare Diseases"
@@ -105,11 +105,17 @@
             :to="{ name: 'catalogue', query: { Categories: 'rare_disease' } }"
           />
         </div>
-        <div class="col-sm-12 col-md-8 col-xl-4 cards-section-other">
-          <p>pr proceed to the directory without any selection</p>
-          <router-link class="btn btn-lg btn-outline-secondary" to="/catalogue"
-            >Directory</router-link
-          >
+        <div
+          class="col-sm-12 col-md-8 col-xl-6 cards-section-other d-flex justify-content-center"
+        >
+          <div class="">
+            <p>or proceed to the directory without any selection</p>
+            <router-link
+              class="btn btn-lg btn-outline-secondary btn-block"
+              to="/catalogue"
+              >Directory</router-link
+            >
+          </div>
         </div>
       </div>
     </section>
