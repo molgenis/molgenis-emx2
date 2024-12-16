@@ -96,7 +96,20 @@ temperature_mapping = {
 }
 
 # Map AgeRanges to Age groups
-age_mapping = {}
+age_mapping = {
+    "Adolescent": "Adolescent (13-17 years)",
+    "Adult": "Adult (25-44 years)",
+    "Aged (>80 years)": "Aged (80+ years)",
+    "Aged (65-79 years)": "Aged (65-79 years)",
+    "*": "*",
+    "Child": "Child (2-12 years)",
+    "Infant": "Infants and toddlers (2-23 months)",
+    "Middle-aged": "Middle-aged (45-64 years)",
+    "Newborn": "Newborn (0-1 months)",
+    "Undefined": "*",
+    "Unknown": "*",
+    "Young Adult": "Young adult (18-24 years)",
+}
 
 # Partial mappings of manually entered roles to pre-defined roles
 role_mapping = {
@@ -381,20 +394,28 @@ def map_facts_to_counts(facts, collections, disease_mapping):
     # Primary key of Sample collections is name instead of id
     facts['sample collection'] = facts['collection'].map(collections.set_index('id')['name'])
     # Apply mappings to attributes which need it
-    facts.loc[facts['age group'] == 'Unknown', 'age group'] = '*'
-    facts.loc[facts['age group'] == 'Undefined', 'age group'] = '*'
-    facts.loc[facts['age group'] == '', 'age group'] = '*'
+    facts['age group'] = apply_mapping(facts['age group'], age_mapping)
+    facts.loc[facts['age group'] == '', 'age group'] = '"*"'
     facts['sex'] = apply_mapping(facts['sex'], sex_mapping)
-    facts.loc[facts['sex'] == '', 'sex'] = '*'
+    facts.loc[facts['sex'] == '', 'sex'] = '"*"'
     facts["main medical condition"] = apply_mapping(facts["main medical condition"], disease_mapping)
     facts.loc[facts['main medical condition'] == '', 'main medical condition'] = 'No main medical condition'
     facts['sample type'] = apply_mapping(facts['sample type'], sample_type_mapping)
     facts.loc[facts['sample type'] == '', 'sample type'] = '*'
     # Sum duplicate facts
-    # FIXME: numbers are strings so summing is incorrect, cast to int first
-    # BUT: how to deal with empty values? ''
-    # Perhaps, set aside all rows with empty values, then do summing, and add those rows back in after
-    facts.groupby(['resource', 'sample collection', 'sex', 'age group', 'main medical condition', 'sample type'])[['number of samples', 'number of donors']].sum().reset_index()
+    # Set aside all rows with empty values, sum separately, add everything back together after
+    empty_donor = facts.loc[facts['number of donors'] == '']
+    empty_sample = facts.loc[facts['number of samples'] == '']
+    facts_non_empty = facts.loc[(facts['number of donors'] != '') & (facts['number of samples'] != '')]
+    empty_donor.loc[:, 'number of samples'] = empty_donor.loc[:,'number of samples'].astype(int)
+    empty_sample.loc[:, 'number of donors'] = empty_sample.loc[:, 'number of donors'].astype(int)
+    facts_non_empty.loc[:,['number of samples', 'number of donors']] = facts_non_empty.loc[:, ['number of samples', 'number of donors']].astype(int)
+    grouping_columns = ['resource', 'sample collection', 'sex', 'age group', 'main medical condition', 'sample type']
+    empty_donor = empty_donor.groupby(grouping_columns)[['number of samples', 'number of donors']].sum().reset_index()
+    empty_sample = empty_sample.groupby(grouping_columns)[['number of samples', 'number of donors']].sum().reset_index()
+    facts_non_empty = facts_non_empty.groupby(grouping_columns)[['number of samples', 'number of donors']].sum().reset_index()
+    facts = pd.concat([facts_non_empty, empty_donor, empty_sample])
+
     return facts
 
 def map_biobanks_to_resources(biobanks):
@@ -591,6 +612,7 @@ def main():
             print('Upload...')
             catalogue_client.save_schema(table="Resources", data=resources)
             catalogue_client.save_schema(table="Sample collections", data=mapped_collections)
+            mapped_facts = mapped_facts.replace('"', '', regex=True) # Workaround for issue #4567
             catalogue_client.save_schema(table="Sample collection counts", data=mapped_facts)
             catalogue_client.save_schema(table="Contacts", data=mapped_contacts)
 
