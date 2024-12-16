@@ -1,52 +1,45 @@
 import router from "../router";
 import { useFiltersStore } from "../stores/filtersStore";
 import { useCollectionStore } from "../stores/collectionStore";
-import { useCheckoutStore } from "../stores/checkoutStore";
+import { labelValuePair, useCheckoutStore } from "../stores/checkoutStore";
 
 let bookmarkApplied = false;
 
-function setBookmark(bookmark) {
-  bookmarkApplied = true;
-
-  router.push({
-    name: router.currentRoute.name,
-    query: bookmark,
-  });
-}
-
-export async function applyBookmark(watchedQuery) {
+export async function applyBookmark(watchedQuery: Record<string, string>) {
   if (bookmarkApplied) {
     bookmarkApplied = false;
     return;
   }
+
+  if (!watchedQuery || !(Object.keys(watchedQuery).length > 0)) {
+    return;
+  }
+
   const checkoutStore = useCheckoutStore();
   const collectionStore = useCollectionStore();
   const filtersStore = useFiltersStore();
-  let query = watchedQuery;
-  if (!query) {
-    const route = router.currentRoute.value;
-    if (!route.query) return;
-    query = route.query;
-  }
-  if (!query || !Object.keys(query).length > 0) return;
+
   /**  negotiator token */
-  if (query.nToken) {
-    checkoutStore.nToken = query.nToken;
+  if (watchedQuery.nToken) {
+    checkoutStore.nToken = watchedQuery.nToken;
   }
-  if (query.cart) {
-    const decoded = decodeURIComponent(query.cart);
+
+  if (watchedQuery.cart) {
+    const decoded = decodeURIComponent(watchedQuery.cart);
     const cartIdString = atob(decoded);
     const cartIds = cartIdString.split(",");
     const missingCollections =
       await collectionStore.getMissingCollectionInformation(cartIds);
     if (missingCollections && Object.keys(missingCollections).length) {
       for (const collection of missingCollections) {
-        checkoutStore.addCollectionsToSelection({
-          biobank: collection.biobank,
-          collections: [{ label: collection.name, value: collection.id }],
-        });
+        checkoutStore.addCollectionsToSelection(
+          collection.biobank,
+          [{ label: collection.name, value: collection.id }],
+          false
+        );
       }
     }
+
     /** add the beginning of history if from a link-back url */
     if (checkoutStore.searchHistory.length === 0) {
       checkoutStore.searchHistory.push(
@@ -56,16 +49,19 @@ export async function applyBookmark(watchedQuery) {
   }
   /** we load the filters, grab the names, so we can loop over it to map the selections */
   const filters = Object.keys(filtersStore.facetDetails);
-  if (query.matchAll) {
-    const matchAllFilters = decodeURIComponent(query.matchAll).split(",");
+  if (watchedQuery.matchAll) {
+    const matchAllFilters = decodeURIComponent(watchedQuery.matchAll).split(
+      ","
+    );
     for (const filterName of matchAllFilters) {
       filtersStore.updateFilterType(filterName, "all", true);
     }
   }
 
   for (const filterName of filters) {
-    if (query[filterName]) {
-      let filtersToAdd = decodeURIComponent(query[filterName]);
+    if (watchedQuery[filterName]) {
+      const filtersToAdd: string = decodeURIComponent(watchedQuery[filterName]);
+
       if (filterName === "Diagnosisavailable") {
         const diagnosisFacetDetails = filtersStore.facetDetails[filterName];
         /** the diagnosis available has been encoded, to discourage messing with the tree and breaking stuff. */
@@ -80,22 +76,24 @@ export async function applyBookmark(watchedQuery) {
         const filterOptions = filtersStore.filterOptionsCache[filterName];
         if (filterOptions) {
           const queryValues = filtersToAdd.split(",");
-          filtersToAdd = filterOptions.filter((fo) =>
-            queryValues.includes(fo.value)
+          const activeFilters = filterOptions.filter((filterOption) =>
+            queryValues.includes(filterOption.value)
           );
-        } else {
-          filtersToAdd = filtersToAdd === "true" ? true : filtersToAdd;
+          filtersStore.updateFilter(filterName, activeFilters, true);
         }
-        filtersStore.updateFilter(filterName, filtersToAdd, true);
       }
     }
   }
   filtersStore.bookmarkWaitingForApplication = false;
 }
 
-export function createBookmark(filters, collectionCart) {
+export function createBookmark(
+  filters: Record<string, any>,
+  collectionCart: Record<string, labelValuePair[]>,
+  serviceCart: Record<string, labelValuePair[]>
+) {
   const filtersStore = useFiltersStore();
-  const bookmark = {};
+  const bookmark: Record<string, string> = {};
   const matchAll = [];
 
   if (filters) {
@@ -142,7 +140,7 @@ export function createBookmark(filters, collectionCart) {
           bookmarkValue = btoa(bookmarkValue);
         }
 
-        bookmark[filterName] = encodeURI();
+        bookmark[filterName] = encodeURI(value);
       } else {
         let bookmarkValue = value;
         if (filterName === "Diagnosisavailable") {
@@ -154,23 +152,38 @@ export function createBookmark(filters, collectionCart) {
     }
   }
 
+  if (matchAll.length) {
+    bookmark.matchAll = encodeURI(matchAll.join(","));
+  }
+
   /** This manages the selection in the cart */
   if (collectionCart && Object.keys(collectionCart).length) {
     const bookmarkIds = [];
     for (const biobank in collectionCart) {
-      bookmarkIds.push(collectionCart[biobank].map((s) => s.value));
+      bookmarkIds.push(
+        collectionCart[biobank].map((collection) => collection.value)
+      );
     }
 
     const encodedCart = btoa(bookmarkIds.join(","));
     bookmark.cart = encodeURI(encodedCart);
   }
 
-  if (matchAll.length) {
-    bookmark.matchAll = encodeURI(matchAll.join(","));
+  if (serviceCart && Object.keys(serviceCart).length) {
+    const bookmarkIds = [];
+    for (const service in serviceCart) {
+      bookmarkIds.push(serviceCart[service].map((service) => service.value));
+    }
+
+    const encodedCart = btoa(bookmarkIds.join(","));
+    bookmark.serviceCart = encodeURI(encodedCart);
   }
 
   if (!filtersStore.bookmarkWaitingForApplication) {
-    setBookmark(bookmark);
+    router.push({
+      name: router.currentRoute.value.name,
+      query: bookmark,
+    });
   }
 }
 
