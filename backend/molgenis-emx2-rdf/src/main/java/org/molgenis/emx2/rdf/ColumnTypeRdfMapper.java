@@ -234,7 +234,7 @@ public class ColumnTypeRdfMapper {
           PrimaryKey key = new PrimaryKey(item);
           values.add(Values.iri(ns, rootTableName + "?" + key.getEncodedValue()));
         }
-        return values;
+        return Set.copyOf(values);
       }
 
       @Override
@@ -285,7 +285,7 @@ public class ColumnTypeRdfMapper {
     private static Set<Value> basicRetrieval(Object[] object, Function<Object, Value> function) {
       return Arrays.stream(object)
           .map(value -> (Value) function.apply(value))
-          .collect(Collectors.toSet());
+          .collect(Collectors.toUnmodifiableSet());
     }
 
     /**
@@ -301,7 +301,7 @@ public class ColumnTypeRdfMapper {
         String[] object, Function<String, Value> function) {
       return Arrays.stream(object)
           .map(value -> (Value) function.apply(value))
-          .collect(Collectors.toSet());
+          .collect(Collectors.toUnmodifiableSet());
     }
 
     abstract Set<Value> retrieveValues(final String baseURL, final Row row, final Column column);

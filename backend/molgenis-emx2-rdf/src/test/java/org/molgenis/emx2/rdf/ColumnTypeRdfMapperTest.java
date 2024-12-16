@@ -534,4 +534,16 @@ class ColumnTypeRdfMapperTest {
           column.getName() + " has a value while it should be empty: " + actual.toString());
     }
   }
+
+  @Test
+  void validateUnmodifiable() {
+    allColumnTypes.getTable(TEST_TABLE).getMetadata().getColumns().stream()
+        .forEach(
+            c -> {
+              Assertions.assertThrows(
+                  UnsupportedOperationException.class,
+                  () -> retrieveValues(c.getName()).clear(),
+                  c.getName() + " returns a modifiable set while it should be unmodifiable");
+            });
+  }
 }
