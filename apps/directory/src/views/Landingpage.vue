@@ -106,7 +106,7 @@
           />
         </div>
         <div class="col-sm-12 col-md-8 col-xl-4 cards-section-other">
-          <p>pr proceed to the directory without any selection</p>
+          <p>or proceed to the directory without any selection</p>
           <router-link class="btn btn-lg btn-outline-secondary" to="/catalogue"
             >Directory</router-link
           >
