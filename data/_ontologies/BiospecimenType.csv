@@ -417,3 +417,4 @@ Serum,The clear portion of the blood that remains after the removal of the blood
 Tissue (FFPE),"Tissue, formalin fixated and paraffin preserved or equivalent.",MIABIS-2.0-17,TISSUE (FFPE),https://github.com/MIABIS/miabis/wiki/Structured-data-and-lists#material-type
 Tissue (Frozen),"An anatomical structure consisting of similarly specialized cells and intercellular matrix, aggregated according to genetically determined spatial relationships, performing a specific function.",MIABIS-2.0-17,TISSUE (FROZEN),https://github.com/MIABIS/miabis/wiki/Structured-data-and-lists#material-type
 Urine,The fluid that is excreted by the kidneys. It is stored in the bladder and discharged through the urethra.,MIABIS-2.0-17,URINE,https://github.com/MIABIS/miabis/wiki/Structured-data-and-lists#material-type
+*,Any type of biospecimen,,Any,
