@@ -1,5 +1,9 @@
 package org.molgenis.emx2.rdf;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.SelectColumn.s;
@@ -12,7 +16,6 @@ import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.base.CoreDatatype;
 import org.eclipse.rdf4j.model.util.Values;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
@@ -276,7 +279,7 @@ class ColumnTypeRdfMapperTest {
     Set<ColumnType> columnTypes = Arrays.stream(ColumnType.values()).collect(Collectors.toSet());
     Set<ColumnType> columnMappings = ColumnTypeRdfMapper.getMapperKeys();
 
-    Assertions.assertEquals(columnTypes, columnMappings);
+    assertEquals(columnTypes, columnMappings);
   }
 
   /**
@@ -287,40 +290,40 @@ class ColumnTypeRdfMapperTest {
   void validateValueTypes() {
     Row row = allColumnTypes.getTable(TEST_TABLE).retrieveRows().get(0);
 
-    Assertions.assertAll(
+    assertAll(
         // SIMPLE
-        () -> Assertions.assertTrue(retrieveFirstValue(ColumnType.BOOL.name()).isLiteral()),
-        () -> Assertions.assertTrue(retrieveFirstValue(ColumnType.UUID.name()).isIRI()),
-        () -> Assertions.assertTrue(retrieveFirstValue(ColumnType.FILE.name()).isIRI()),
+        () -> assertTrue(retrieveFirstValue(ColumnType.BOOL.name()).isLiteral()),
+        () -> assertTrue(retrieveFirstValue(ColumnType.UUID.name()).isIRI()),
+        () -> assertTrue(retrieveFirstValue(ColumnType.FILE.name()).isIRI()),
         // STRING
-        () -> Assertions.assertTrue(retrieveFirstValue(ColumnType.STRING.name()).isLiteral()),
-        () -> Assertions.assertTrue(retrieveFirstValue(ColumnType.TEXT.name()).isLiteral()),
-        () -> Assertions.assertTrue(retrieveFirstValue(ColumnType.JSON.name()).isLiteral()),
+        () -> assertTrue(retrieveFirstValue(ColumnType.STRING.name()).isLiteral()),
+        () -> assertTrue(retrieveFirstValue(ColumnType.TEXT.name()).isLiteral()),
+        () -> assertTrue(retrieveFirstValue(ColumnType.JSON.name()).isLiteral()),
 
         // NUMERIC
-        () -> Assertions.assertTrue(retrieveFirstValue(ColumnType.INT.name()).isLiteral()),
-        () -> Assertions.assertTrue(retrieveFirstValue(ColumnType.LONG.name()).isLiteral()),
-        () -> Assertions.assertTrue(retrieveFirstValue(ColumnType.DECIMAL.name()).isLiteral()),
-        () -> Assertions.assertTrue(retrieveFirstValue(ColumnType.DATE.name()).isLiteral()),
-        () -> Assertions.assertTrue(retrieveFirstValue(ColumnType.DATETIME.name()).isLiteral()),
-        () -> Assertions.assertTrue(retrieveFirstValue(ColumnType.PERIOD.name()).isLiteral()),
+        () -> assertTrue(retrieveFirstValue(ColumnType.INT.name()).isLiteral()),
+        () -> assertTrue(retrieveFirstValue(ColumnType.LONG.name()).isLiteral()),
+        () -> assertTrue(retrieveFirstValue(ColumnType.DECIMAL.name()).isLiteral()),
+        () -> assertTrue(retrieveFirstValue(ColumnType.DATE.name()).isLiteral()),
+        () -> assertTrue(retrieveFirstValue(ColumnType.DATETIME.name()).isLiteral()),
+        () -> assertTrue(retrieveFirstValue(ColumnType.PERIOD.name()).isLiteral()),
 
         // RELATIONSHIP
-        () -> Assertions.assertTrue(retrieveFirstValue(ColumnType.REF.name()).isIRI()),
-        () -> Assertions.assertTrue(retrieveFirstValue(ColumnType.REFBACK.name()).isIRI()),
+        () -> assertTrue(retrieveFirstValue(ColumnType.REF.name()).isIRI()),
+        () -> assertTrue(retrieveFirstValue(ColumnType.REFBACK.name()).isIRI()),
 
         // LAYOUT and other constants
         // ColumnType.HEADING.name() -> no Value should be present to validate on
 
         // format flavors that extend a baseType
-        () -> Assertions.assertTrue(retrieveFirstValue(ColumnType.AUTO_ID.name()).isLiteral()),
-        () -> Assertions.assertTrue(retrieveFirstValue(ColumnType.ONTOLOGY.name()).isIRI()),
-        () -> Assertions.assertTrue(retrieveFirstValue(ColumnType.EMAIL.name()).isIRI()),
-        () -> Assertions.assertTrue(retrieveFirstValue(ColumnType.HYPERLINK.name()).isIRI()),
+        () -> assertTrue(retrieveFirstValue(ColumnType.AUTO_ID.name()).isLiteral()),
+        () -> assertTrue(retrieveFirstValue(ColumnType.ONTOLOGY.name()).isIRI()),
+        () -> assertTrue(retrieveFirstValue(ColumnType.EMAIL.name()).isIRI()),
+        () -> assertTrue(retrieveFirstValue(ColumnType.HYPERLINK.name()).isIRI()),
 
         // Composite keys
-        () -> Assertions.assertTrue(retrieveFirstValue(COLUMN_COMPOSITE_REF).isIRI()),
-        () -> Assertions.assertTrue(retrieveFirstValue(COLUMN_COMPOSITE_REFBACK).isIRI()));
+        () -> assertTrue(retrieveFirstValue(COLUMN_COMPOSITE_REF).isIRI()),
+        () -> assertTrue(retrieveFirstValue(COLUMN_COMPOSITE_REFBACK).isIRI()));
   }
 
   @Test
@@ -333,27 +336,27 @@ class ColumnTypeRdfMapperTest {
     }
 
     // Validation
-    Assertions.assertAll(
+    assertAll(
         // SIMPLE
         () ->
-            Assertions.assertEquals(
+            assertEquals(
                 Set.of(Values.literal(true)), retrieveValues(ColumnType.BOOL.name())),
         () ->
-            Assertions.assertEquals(
+            assertEquals(
                 Set.of(Values.literal(true), Values.literal(false)),
                 retrieveValues(ColumnType.BOOL_ARRAY.name())),
         () ->
-            Assertions.assertEquals(
+            assertEquals(
                 Set.of(Values.iri("urn:uuid:e8af409e-86f7-11ef-85b2-6b76fd707d70")),
                 retrieveValues(ColumnType.UUID.name())),
         () ->
-            Assertions.assertEquals(
+            assertEquals(
                 Set.of(
                     Values.iri("urn:uuid:e8af409e-86f7-11ef-85b2-6b76fd707d70"),
                     Values.iri("urn:uuid:14bfb4ca-86f8-11ef-8cc0-378b59fe72e8")),
                 retrieveValues(ColumnType.UUID_ARRAY.name())),
         () ->
-            Assertions.assertEquals(
+            assertEquals(
                 Set.of(
                     Values.iri(
                         FILE_API_URL_PREFIX
@@ -367,78 +370,78 @@ class ColumnTypeRdfMapperTest {
 
         // STRING
         () ->
-            Assertions.assertEquals(
+            assertEquals(
                 Set.of(Values.literal("lonelyString", CoreDatatype.XSD.STRING)),
                 retrieveValues(ColumnType.STRING.name())),
         () ->
-            Assertions.assertEquals(
+            assertEquals(
                 Set.of(
                     Values.literal("string1", CoreDatatype.XSD.STRING),
                     Values.literal("string2", CoreDatatype.XSD.STRING)),
                 retrieveValues(ColumnType.STRING_ARRAY.name())),
         () ->
-            Assertions.assertEquals(
+            assertEquals(
                 Set.of(Values.literal("lonelyText", CoreDatatype.XSD.STRING)),
                 retrieveValues(ColumnType.TEXT.name())),
         () ->
-            Assertions.assertEquals(
+            assertEquals(
                 Set.of(
                     Values.literal("text1", CoreDatatype.XSD.STRING),
                     Values.literal("text2", CoreDatatype.XSD.STRING)),
                 retrieveValues(ColumnType.TEXT_ARRAY.name())),
         () ->
-            Assertions.assertEquals(
+            assertEquals(
                 Set.of(Values.literal("{\"a\":1,\"b\":2}", CoreDatatype.XSD.STRING)),
                 retrieveValues(ColumnType.JSON.name())),
 
         // NUMERIC
         () ->
-            Assertions.assertEquals(
+            assertEquals(
                 Set.of(Values.literal(0)), retrieveValues(ColumnType.INT.name())),
         () ->
-            Assertions.assertEquals(
+            assertEquals(
                 Set.of(Values.literal(1), Values.literal(2)),
                 retrieveValues(ColumnType.INT_ARRAY.name())),
         () ->
-            Assertions.assertEquals(
+            assertEquals(
                 Set.of(Values.literal(3L)), retrieveValues(ColumnType.LONG.name())),
         () ->
-            Assertions.assertEquals(
+            assertEquals(
                 Set.of(Values.literal(4L), Values.literal(5L)),
                 retrieveValues(ColumnType.LONG_ARRAY.name())),
         () ->
-            Assertions.assertEquals(
+            assertEquals(
                 Set.of(Values.literal(0.5D)), retrieveValues(ColumnType.DECIMAL.name())),
         () ->
-            Assertions.assertEquals(
+            assertEquals(
                 Set.of(Values.literal(1.5D), Values.literal(2.5D)),
                 retrieveValues(ColumnType.DECIMAL_ARRAY.name())),
         () ->
-            Assertions.assertEquals(
+            assertEquals(
                 Set.of(Values.literal("2000-01-01", CoreDatatype.XSD.DATE)),
                 retrieveValues(ColumnType.DATE.name())),
         () ->
-            Assertions.assertEquals(
+            assertEquals(
                 Set.of(
                     Values.literal("2001-01-01", CoreDatatype.XSD.DATE),
                     Values.literal("2002-01-01", CoreDatatype.XSD.DATE)),
                 retrieveValues(ColumnType.DATE_ARRAY.name())),
         () ->
-            Assertions.assertEquals(
+            assertEquals(
                 Set.of(Values.literal("3000-01-01T12:30:00", CoreDatatype.XSD.DATETIME)),
                 retrieveValues(ColumnType.DATETIME.name())),
         () ->
-            Assertions.assertEquals(
+            assertEquals(
                 Set.of(
                     Values.literal("3001-01-01T12:30:00", CoreDatatype.XSD.DATETIME),
                     Values.literal("3002-01-01T12:30:00", CoreDatatype.XSD.DATETIME)),
                 retrieveValues(ColumnType.DATETIME_ARRAY.name())),
         () ->
-            Assertions.assertEquals(
+            assertEquals(
                 Set.of(Values.literal("P1D", CoreDatatype.XSD.DURATION)),
                 retrieveValues(ColumnType.PERIOD.name())),
         () ->
-            Assertions.assertEquals(
+            assertEquals(
                 Set.of(
                     Values.literal("P1M", CoreDatatype.XSD.DURATION),
                     Values.literal("P1Y", CoreDatatype.XSD.DURATION)),
@@ -446,71 +449,71 @@ class ColumnTypeRdfMapperTest {
 
         // RELATIONSHIP
         () ->
-            Assertions.assertEquals(
+            assertEquals(
                 Set.of(Values.iri(RDF_API_URL_PREFIX + REF_TABLE + "?id=1")),
                 retrieveValues(ColumnType.REF.name())),
         () ->
-            Assertions.assertEquals(
+            assertEquals(
                 Set.of(
                     Values.iri(RDF_API_URL_PREFIX + REF_TABLE + "?id=2"),
                     Values.iri(RDF_API_URL_PREFIX + REF_TABLE + "?id=3")),
                 retrieveValues(ColumnType.REF_ARRAY.name())),
         () ->
-            Assertions.assertEquals(
+            assertEquals(
                 Set.of(Values.iri(RDF_API_URL_PREFIX + REFBACK_TABLE + "?id=1")),
                 retrieveValues(ColumnType.REFBACK.name())),
 
         // LAYOUT and other constants -> should return empty sets as they should be excluded
-        () -> Assertions.assertEquals(Set.of(), retrieveValues(ColumnType.HEADING.name())),
+        () -> assertEquals(Set.of(), retrieveValues(ColumnType.HEADING.name())),
         // format flavors that extend a baseType
         () -> // AUTO_ID is unique so full equality check not possible
-        Assertions.assertTrue(
+        assertTrue(
                 retrieveValues(ColumnType.AUTO_ID.name()).stream()
                     .findFirst()
                     .get()
                     .stringValue()
                     .matches("[0-9a-zA-Z]+")),
         () ->
-            Assertions.assertEquals(
+            assertEquals(
                 Set.of(Values.iri(RDF_API_URL_PREFIX + ONT_TABLE + "?name=aa")),
                 retrieveValues(ColumnType.ONTOLOGY.name())),
         () ->
-            Assertions.assertEquals(
+            assertEquals(
                 Set.of(
                     Values.iri(RDF_API_URL_PREFIX + ONT_TABLE + "?name=bb"),
                     Values.iri(RDF_API_URL_PREFIX + ONT_TABLE + "?name=cc")),
                 retrieveValues(ColumnType.ONTOLOGY_ARRAY.name())),
         () ->
-            Assertions.assertEquals(
+            assertEquals(
                 Set.of(Values.iri("mailto:aap@example.com")),
                 retrieveValues(ColumnType.EMAIL.name())),
         () ->
-            Assertions.assertEquals(
+            assertEquals(
                 Set.of(
                     Values.iri("mailto:noot@example.com"), Values.iri("mailto:mies@example.com")),
                 retrieveValues(ColumnType.EMAIL_ARRAY.name())),
         () ->
-            Assertions.assertEquals(
+            assertEquals(
                 Set.of(Values.iri("https://molgenis.org")),
                 retrieveValues(ColumnType.HYPERLINK.name())),
         () ->
-            Assertions.assertEquals(
+            assertEquals(
                 Set.of(
                     Values.iri("https://molgenis.org"), Values.iri("https://github.com/molgenis")),
                 retrieveValues(ColumnType.HYPERLINK_ARRAY.name())),
         // Composite reference / refback
         () ->
-            Assertions.assertEquals(
+            assertEquals(
                 Set.of(Values.iri(RDF_API_URL_PREFIX + COMPOSITE_REF_TABLE + "?idi=1&ids=a")),
                 retrieveValues(COLUMN_COMPOSITE_REF)),
         () ->
-            Assertions.assertEquals(
+            assertEquals(
                 Set.of(
                     Values.iri(RDF_API_URL_PREFIX + COMPOSITE_REF_TABLE + "?idi=2&ids=b"),
                     Values.iri(RDF_API_URL_PREFIX + COMPOSITE_REF_TABLE + "?idi=3&ids=c")),
                 retrieveValues(COLUMN_COMPOSITE_REF_ARRAY)),
         () ->
-            Assertions.assertEquals(
+            assertEquals(
                 Set.of(
                     Values.iri(RDF_API_URL_PREFIX + COMPOSITE_REFBACK_TABLE + "?id1=a&id2=b"),
                     Values.iri(RDF_API_URL_PREFIX + COMPOSITE_REFBACK_TABLE + "?id1=c&id2=d")),
@@ -528,7 +531,7 @@ class ColumnTypeRdfMapperTest {
 
     for (Column column : columns) {
       Set<Value> actual = retrieveEmptyValues(column.getName());
-      Assertions.assertEquals(
+      assertEquals(
           emptySet,
           actual,
           column.getName() + " has a value while it should be empty: " + actual.toString());
@@ -540,7 +543,7 @@ class ColumnTypeRdfMapperTest {
     allColumnTypes.getTable(TEST_TABLE).getMetadata().getColumns().stream()
         .forEach(
             c -> {
-              Assertions.assertThrows(
+              assertThrows(
                   UnsupportedOperationException.class,
                   () -> retrieveValues(c.getName()).clear(),
                   c.getName() + " returns a modifiable set while it should be unmodifiable");
