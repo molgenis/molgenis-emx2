@@ -79,7 +79,12 @@ export const useCollectionStore = defineStore("collectionStore", () => {
       .where("id")
       .equals(id);
 
-    const reportResults = await collectionReportQuery.execute();
+    let reportResults = [];
+    try {
+      reportResults = await collectionReportQuery.execute();
+    } catch (error) {
+      setError(error);
+    }
 
     const factQuery = new QueryEMX2(graphqlEndpoint)
       .table("CollectionFacts")
@@ -96,7 +101,13 @@ export const useCollectionStore = defineStore("collectionStore", () => {
       .where("collection.id")
       .like(id);
 
-    const factResults = await factQuery.execute();
+    let factResults = [];
+    try {
+      factResults = await factQuery.execute();
+    } catch (error) {
+      setError(error);
+    }
+
     reportResults.CollectionFacts = factResults.CollectionFacts;
     return reportResults;
   }
