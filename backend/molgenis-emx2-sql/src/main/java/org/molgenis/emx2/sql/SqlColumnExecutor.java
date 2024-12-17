@@ -362,6 +362,19 @@ public class SqlColumnExecutor {
               + c.getName()
               + "' failed: When key spans multiple columns, none of the columns can be nullable");
     }
+    if (c.isRefback() && c.getRefBack() == null) {
+      throw new MolgenisException(
+          "Refback is null for column " + c.getTableName() + "." + c.getName());
+    }
+    if (c.isRefback() && c.getRefBackColumn() == null) {
+      throw new MolgenisException(
+          "Refback '"
+              + c.getRefBack()
+              + "' could not be found for column "
+              + c.getTableName()
+              + "."
+              + c.getName());
+    }
     if (c.isReference() && !c.isOntology() && c.getRefTable() == null) {
       throw new MolgenisException(
           String.format(
