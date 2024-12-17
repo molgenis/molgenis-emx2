@@ -17,7 +17,7 @@
             description="Schema to connect template to"
             v-model="selectedSchema"
             :options="schemas"
-            :readonly="type === 'update'"
+            :readonly="action === 'update'"
           ></InputSelect>
           <InputSelect
             id="template-create-api"
@@ -25,7 +25,7 @@
             description="API to connect template to"
             v-model="selectedApi"
             :options="apis"
-            :readonly="type === 'update'"
+            :readonly="action === 'update'"
           ></InputSelect>
           <InputText
             id="template-jslt"
@@ -97,16 +97,32 @@ export default {
       error: null,
       success: null,
       loading: false,
+      action: this.type,
       isModalShown: false,
       selectedSchema: this.schema,
       schemas: [],
       selectedApi: this.api,
-      apis: ["beacon_individuals", "beacon_biosamples", "VCF"],
+      apis: [
+        "beacon_individuals",
+        "beacon_biosamples",
+        "beacon_biosamples",
+        "beacon_catalogs",
+        "beacon_g_variants",
+        "beacon_datasets",
+        "beacon_analyses",
+        "beacon_cohorts",
+        "beacon_runs",
+        "beacon_individuals",
+        "VCF",
+      ],
       jsltTemplate: this.template,
     };
   },
   created() {
     this.getSchemaList();
+    if (this.selectedSchema === "default") {
+      this.action = "insert";
+    }
   },
   methods: {
     doEditTemplate() {
@@ -114,9 +130,9 @@ export default {
       request(
         "_SYSTEM_/graphql",
         "mutation " +
-          this.type +
+          this.action +
           "($endpoint:String, $schema:String, $template:String) { " +
-          this.type +
+          this.action +
           "(Templates: { endpoint: $endpoint, schema: $schema, template: $template }) { message } }",
         {
           endpoint: this.selectedApi,
@@ -126,7 +142,9 @@ export default {
       )
         .then((data) => {
           this.success =
-            this.type === "insert" ? data.insert.message : data.update.message;
+            this.action === "insert"
+              ? data.insert.message
+              : data.update.message;
           this.loading = false;
         })
         .catch((error) => {
