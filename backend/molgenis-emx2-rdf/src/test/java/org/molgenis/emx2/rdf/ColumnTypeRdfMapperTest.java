@@ -63,7 +63,6 @@ class ColumnTypeRdfMapperTest {
     List<Column> columnList =
         Arrays.stream(ColumnType.values())
             .map((value) -> column(value.name(), value))
-            .filter((column -> !column.getColumnType().equals(ColumnType.REFBACK)))
             .collect(Collectors.toList());
 
     // Defines column-specific settings.
@@ -71,23 +70,19 @@ class ColumnTypeRdfMapperTest {
       switch (column.getColumnType()) {
         case STRING -> column.setPkey();
         case REF, REF_ARRAY -> column.setRefTable(REF_TABLE);
+        case REFBACK -> column.setRefTable(REFBACK_TABLE).setRefBack("ref");
         case ONTOLOGY, ONTOLOGY_ARRAY -> column.setRefTable(ONT_TABLE);
       }
     }
-    // refback is possible in one go since 26 nov 2024 :-)
-    columns.add(
-        column(ColumnType.REFBACK.name(), ColumnType.REFBACK)
-            .setRefTable(REFBACK_TABLE)
-            .setRefBack("ref"));
-    columns.add(
-        column(COLUMN_COMPOSITE_REFBACK, ColumnType.REFBACK)
-            .setRefTable(COMPOSITE_REFBACK_TABLE)
-            .setRefBack("ref"));
 
     // Add extra custom columns for additional tests.
     columnList.add(column(COLUMN_COMPOSITE_REF, ColumnType.REF).setRefTable(COMPOSITE_REF_TABLE));
     columnList.add(
         column(COLUMN_COMPOSITE_REF_ARRAY, ColumnType.REF_ARRAY).setRefTable(COMPOSITE_REF_TABLE));
+    columnList.add(
+        column(COLUMN_COMPOSITE_REFBACK, ColumnType.REFBACK)
+            .setRefTable(COMPOSITE_REFBACK_TABLE)
+            .setRefBack("ref"));
 
     // Creates tables.
     allColumnTypes.create(
@@ -335,9 +330,7 @@ class ColumnTypeRdfMapperTest {
     // Validation
     assertAll(
         // SIMPLE
-        () ->
-            assertEquals(
-                Set.of(Values.literal(true)), retrieveValues(ColumnType.BOOL.name())),
+        () -> assertEquals(Set.of(Values.literal(true)), retrieveValues(ColumnType.BOOL.name())),
         () ->
             assertEquals(
                 Set.of(Values.literal(true), Values.literal(false)),
@@ -392,23 +385,17 @@ class ColumnTypeRdfMapperTest {
                 retrieveValues(ColumnType.JSON.name())),
 
         // NUMERIC
-        () ->
-            assertEquals(
-                Set.of(Values.literal(0)), retrieveValues(ColumnType.INT.name())),
+        () -> assertEquals(Set.of(Values.literal(0)), retrieveValues(ColumnType.INT.name())),
         () ->
             assertEquals(
                 Set.of(Values.literal(1), Values.literal(2)),
                 retrieveValues(ColumnType.INT_ARRAY.name())),
-        () ->
-            assertEquals(
-                Set.of(Values.literal(3L)), retrieveValues(ColumnType.LONG.name())),
+        () -> assertEquals(Set.of(Values.literal(3L)), retrieveValues(ColumnType.LONG.name())),
         () ->
             assertEquals(
                 Set.of(Values.literal(4L), Values.literal(5L)),
                 retrieveValues(ColumnType.LONG_ARRAY.name())),
-        () ->
-            assertEquals(
-                Set.of(Values.literal(0.5D)), retrieveValues(ColumnType.DECIMAL.name())),
+        () -> assertEquals(Set.of(Values.literal(0.5D)), retrieveValues(ColumnType.DECIMAL.name())),
         () ->
             assertEquals(
                 Set.of(Values.literal(1.5D), Values.literal(2.5D)),
