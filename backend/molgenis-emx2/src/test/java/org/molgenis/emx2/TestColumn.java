@@ -54,7 +54,7 @@ public class TestColumn {
   }
 
   @Test
-  void testUsedSeparator() {
+  void testCompositeKeySeparator() {
     Column pk1 = new Column("id1").setType(ColumnType.STRING);
     Column pk2 = new Column("id2").setType(ColumnType.STRING);
     List<Column> primaryKeys = List.of(pk1, pk2);
