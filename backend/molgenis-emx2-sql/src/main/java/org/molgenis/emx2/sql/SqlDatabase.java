@@ -4,7 +4,6 @@ import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.STRING;
 import static org.molgenis.emx2.Constants.*;
-import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.sql.MetadataUtils.*;
 import static org.molgenis.emx2.sql.SqlDatabaseExecutor.*;
@@ -171,37 +170,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
         setUserPassword(ADMIN_USER, initialAdminPassword);
       }
 
-      this.tx(
-          tdb -> {
-            if (!this.hasSchema(SYSTEM_SCHEMA)) {
-              this.createSchema(SYSTEM_SCHEMA);
-            }
-
-            Schema schema;
-            if (!this.hasSchema(SYSTEM_SCHEMA)) {
-              schema = this.createSchema(SYSTEM_SCHEMA);
-            } else {
-              schema = this.getSchema(SYSTEM_SCHEMA);
-            }
-
-            if (!schema.getTableNames().contains("Templates")) {
-              Table templates =
-                  schema.create(
-                      table(
-                          "Templates",
-                          column("endpoint").setPkey(),
-                          column("schema").setPkey(),
-                          column("template").setType(ColumnType.TEXT)));
-              templates.insert(
-                  row(
-                      "endpoint",
-                      "beacon_individuals",
-                      "schema",
-                      "fdh",
-                      "template",
-                      "{ \"meta\": \"test\", \"responseSummary\": \"test\", \"info\": \"test\", \"response\": { \"resultSets\": [{ \"id\": .id, \"type\": \"dataset\", \"setType\": \"individuals\", \"exists\": true, \"resultsCount\": .count, \"info\": \"info\", \"results\": [for (.resultSets) { \"id\": .id, \"sex\": .sex.id, \"age\": { \"ageGroup\": .age_ageGroup.id, \"age\": { \"iso8601duration\": .age_age_iso8601duration.id } }, \"ethnicity\": .ethnicity.id, \"geographicOrigin\": .geographicOrigin.id, }] }] } }"));
-            }
-          });
+      initSystemSchema();
 
       // get the settings
       clearCache();
@@ -252,6 +221,31 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
         throw e;
       }
     }
+  }
+
+  private void initSystemSchema() {
+    this.tx(
+        tdb -> {
+          if (!this.hasSchema(SYSTEM_SCHEMA)) {
+            this.createSchema(SYSTEM_SCHEMA);
+          }
+
+          Schema schema;
+          if (!this.hasSchema(SYSTEM_SCHEMA)) {
+            schema = this.createSchema(SYSTEM_SCHEMA);
+          } else {
+            schema = this.getSchema(SYSTEM_SCHEMA);
+          }
+
+          if (!schema.getTableNames().contains("Templates")) {
+            schema.create(
+                table(
+                    "Templates",
+                    column("endpoint").setPkey(),
+                    column("schema").setPkey(),
+                    column("template").setType(ColumnType.TEXT)));
+          }
+        });
   }
 
   private void initOidc() {
