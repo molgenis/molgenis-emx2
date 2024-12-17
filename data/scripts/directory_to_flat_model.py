@@ -5,6 +5,7 @@ Script to convert the BBMRI-ERIC directory data to the flat model
 import argparse
 import molgenis_emx2_pyclient
 import pandas as pd
+import difflib
 
 # Map SexTypes (partly MIABIS v2) to Sex types (MIABIS v3)
 sex_mapping = {
@@ -418,6 +419,43 @@ def map_facts_to_counts(facts, collections, disease_mapping):
 
     return facts
 
+def map_subcollections_to_counts(collections, counts):
+    """Map low-information subcollections to Sample collection counts"""
+    count_array = 0
+    count_no_array = 0
+    top_level = collections.loc[collections['parent sample collection.name'] == '']
+    # Columns with information to match againts parent
+    info_columns = ["design", "dataset type", "research domain", "storage temperature", "body part examined", "imaging modality", "image types"]
+    count_columns = ["sex", "age groups", "sample type", "main medical condition"]
+    # TODO: check for number of donors/samples? What to do in case of no numbers?
+    collections_with_counts = set(counts['sample collection'])
+    for _, row in top_level.iterrows():
+        subcollections = collections.loc[(collections['parent sample collection.name'] == row['name'])]
+        if not subcollections.empty:
+            for _, subcollection in subcollections.iterrows():
+                # No counts, no subcollections
+                if subcollection['name'] not in collections_with_counts and subcollection['id'] not in top_level['id']:
+                    # Sanity check on names being similar, value to be adjusted
+                    similarity = difflib.SequenceMatcher(None, row['name'].split(' (id: ')[0], subcollection['name'].split(' (id: ')[0]).ratio()
+                    if similarity > 0.5:
+                        # if info columns of subcollection are identical or subset of info columns of parent, move to counts
+                        if ( 
+                            (not subcollection["design"] or set(subcollection["design"].split(',')).issubset(row["design"].split(',')))
+                            and (not subcollection["dataset type"] or set(subcollection["dataset type"].split(',')).issubset(row["dataset type"].split(',')))
+                            and (not subcollection["research domain"] or set(subcollection["research domain"].split(',')).issubset(row["research domain"].split(',')))
+                            and (not subcollection["storage temperature"] or set(subcollection["storage temperature"].split(',')).issubset(row["storage temperature"].split(',')))
+                            and (not subcollection["body part examined"] or set(subcollection["body part examined"].split(',')).issubset(row["body part examined"].split(',')))
+                            and (not subcollection["imaging modality"] or set(subcollection["imaging modality"].split(',')).issubset(row["imaging modality"].split(',')))
+                            and (not subcollection["image types"] or set(subcollection["image types"].split(',')).issubset(row["image types"].split(',')))
+                        ):
+                            # Count, don't do anything yet
+                            if '","' in subcollection['sex'] or ',' in subcollection['age groups'] or '","' in subcollection['sample type'] or '","' in subcollection['main medical condition']:
+                                count_array += 1
+                            else:
+                                count_no_array += 1
+    print(count_array, count_no_array)
+    return collections, counts
+
 def map_biobanks_to_resources(biobanks):
     """Maps the BBMRI-ERIC Biobanks table to the flat data model's Resources table"""
     # Rename and create columns
@@ -428,7 +466,6 @@ def map_biobanks_to_resources(biobanks):
     # Add default type 'Biobank
     biobanks["type"] = "Biobank"
     return biobanks
-
 
 def map_networks_to_resources(networks, biobanks):
     """Maps the BBMRI-ERIC Networks table to the flat data model's Resources table"""
@@ -537,6 +574,9 @@ def main():
                     "number of donors",
                 ]
             )
+            # Map Sample collections to Sample collection counts
+            print('Map Sample collections to counts...')
+            mapped_collections, mapped_facts = map_subcollections_to_counts(mapped_collections, mapped_facts)
             # Map Networks to Resources
             print('Get and map Networks...')
             networks = client.get("Networks", as_df=True)
