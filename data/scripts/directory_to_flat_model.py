@@ -449,10 +449,11 @@ def map_subcollections_to_counts(collections, counts):
                             and (not subcollection["image types"] or set(subcollection["image types"].split(',')).issubset(row["image types"].split(',')))
                         ):
                             # Count, don't do anything yet
-                            if '","' in subcollection['sex'] or ',' in subcollection['age groups'] or '","' in subcollection['sample type'] or '","' in subcollection['main medical condition']:
-                                count_array += 1
-                            else:
-                                count_no_array += 1
+                            if subcollection['number of samples'] != '' or subcollection['number of donors'] != '':
+                                if '","' in subcollection['sex'] or ',' in subcollection['age groups'] or '","' in subcollection['sample type'] or '","' in subcollection['main medical condition']:
+                                    count_array += 1
+                                else:
+                                    count_no_array += 1
     print(count_array, count_no_array)
     return collections, counts
 
