@@ -74,6 +74,15 @@ class ColumnTypeRdfMapperTest {
         case ONTOLOGY, ONTOLOGY_ARRAY -> column.setRefTable(ONT_TABLE);
       }
     }
+    // refback is possible in one go since 26 nov 2024 :-)
+    columns.add(
+        column(ColumnType.REFBACK.name(), ColumnType.REFBACK)
+            .setRefTable(REFBACK_TABLE)
+            .setRefBack("ref"));
+    columns.add(
+        column(COLUMN_COMPOSITE_REFBACK, ColumnType.REFBACK)
+            .setRefTable(COMPOSITE_REFBACK_TABLE)
+            .setRefBack("ref"));
 
     // Add extra custom columns for additional tests.
     columnList.add(column(COLUMN_COMPOSITE_REF, ColumnType.REF).setRefTable(COMPOSITE_REF_TABLE));
@@ -104,18 +113,6 @@ class ColumnTypeRdfMapperTest {
             column("id1", ColumnType.STRING).setPkey(),
             column("id2", ColumnType.STRING).setPkey(),
             column("ref", ColumnType.REF).setRefTable(TEST_TABLE)));
-
-    // Adds REFBACK columns.
-    allColumnTypes
-        .getTable(TEST_TABLE)
-        .getMetadata()
-        .add(
-            column(ColumnType.REFBACK.name(), ColumnType.REFBACK)
-                .setRefTable(REFBACK_TABLE)
-                .setRefBack("ref"),
-            column(COLUMN_COMPOSITE_REFBACK, ColumnType.REFBACK)
-                .setRefTable(COMPOSITE_REFBACK_TABLE)
-                .setRefBack("ref"));
 
     // Inserts table data
     allColumnTypes
