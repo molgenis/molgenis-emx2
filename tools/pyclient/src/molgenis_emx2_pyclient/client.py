@@ -1,12 +1,11 @@
 import csv
 import json
 import logging
-import sys
 import pathlib
+import sys
 import time
 from functools import cache
 from io import BytesIO
-from typing import Literal
 
 import pandas as pd
 import requests
@@ -14,11 +13,12 @@ from requests import Response
 
 from . import graphql_queries as queries
 from . import utils
+from .constants import HEADING, LOGO, NONREFS
 from .exceptions import (NoSuchSchemaException, ServiceUnavailableError, SigninError,
                          ServerNotFoundError, PyclientException, NoSuchTableException,
                          NoContextManagerException, GraphQLException, InvalidTokenException,
                          PermissionDeniedException, TokenSigninException, NonExistentTemplateException)
-from .metadata import Schema
+from .metadata import Schema, Table
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 log = logging.getLogger("Molgenis EMX2 Pyclient")
@@ -403,17 +403,25 @@ class Client:
         table_id = schema_metadata.get_table(by='name', value=table).id
 
         filter_part = self._prepare_filter(query_filter, table, schema)
-        query_url = f"{self.url}/{current_schema}/api/csv/{table_id}{filter_part}"
-        response = self.session.get(url=query_url)
 
-        self._validate_graphql_response(response=response,
-                                        fallback_error_message=f"Failed to retrieve data from {current_schema}::"
-                                                               f"{table!r}.\nStatus code: {response.status_code}.")
+        if as_df:
+            query_url = f"{self.url}/{current_schema}/api/csv/{table_id}{filter_part}"
+            response = self.session.get(url=query_url)
 
-        response_data = pd.read_csv(BytesIO(response.content), keep_default_na=False)
+            self._validate_graphql_response(response=response,
+                                            fallback_error_message=f"Failed to retrieve data from {current_schema}::"
+                                                                   f"{table!r}.\nStatus code: {response.status_code}.")
+
+            response_data = pd.read_csv(BytesIO(response.content), keep_default_na=False)
+        else:
+            query_url = f"{self.url}/{current_schema}/graphql"
+            query = self._parse_get_table_query(table_id)
+            response = self.session.post(url=query_url,
+                                        json={"query": query})
+            response_data = response.json().get('data')
 
         if not as_df:
-            return response_data.to_dict('records')
+            return response_data
         return response_data
 
     async def export(self, schema: str = None, table: str = None,
@@ -1040,3 +1048,36 @@ class Client:
         except requests.exceptions.MissingSchema:
             raise ServerNotFoundError(f"Invalid URL {self.url!r}. "
                                       f"Perhaps you meant 'https://{self.url}'?")
+
+    def _parse_get_table_query(self, table_id) -> str:
+        """Gathers a table's metadata and parses it to a GraphQL query
+        for querying the table's contents.
+        """
+        schema_metadata: Schema = self.get_schema_metadata()
+        table_metadata: Table = schema_metadata.get_table('id', table_id)
+
+        meta_columns = ["id", "columnType", "refSchemaId", "refTableId"]
+
+        query = f"{{\n  {table_id} {{\n"
+        for col in table_metadata.columns:
+            if col.get('columnType') in [HEADING, LOGO]:
+                continue
+            if col.get('columnType') in NONREFS:
+                query += f"    {col.get('id')}\n"
+            if col.get('columnType').startswith('ONTOLOGY'):
+                query += f"    {col.get('id')} {{name}}\n"
+            if col.get('columnType').startswith('REF'):
+                query += f"    {col.get('id')} {{"
+                pkeys = schema_metadata.get_pkeys(col.get('refTableId'))
+                for pk in pkeys:
+                    if isinstance(pk, str):
+                        query += f"{pk}}}"
+                    if isinstance(pk, dict):
+                        for (key, value) in pk.items():
+                            query += f" {key} {{{value}}} "
+                query += "\n"
+        query += "  }\n"
+        query += "}"
+
+        return query
+
