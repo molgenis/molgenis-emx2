@@ -441,7 +441,6 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
 
   /** will return self in case of single, and multiple in case of composite key wrapper */
   public List<Reference> getReferences() {
-
     // no ref
     if (getRefTableName() == null) {
       throw new MolgenisException(
@@ -460,6 +459,13 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
               + getRefTableName()
               + " fails because that table has no primary key");
     }
+
+    // Defines separator to be used.
+    // Default is COMPOSITE_REF_SEPARATOR, though REFBACK requires use of a subselect so to ensure
+    // function returns valid column name for a basic REFBACK to a composite key, overrides default
+    // behavior.
+    String separator =
+        (getColumnType().isRefback() ? SUBSELECT_SEPARATOR : COMPOSITE_REF_SEPARATOR);
 
     // create the refs
     Column refLink = getRefLinkColumn();
@@ -484,7 +490,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
           if (name == null) {
             name = getName();
             if (pkeys.size() > 1) {
-              name += COMPOSITE_REF_SEPARATOR + ref.getName();
+              name += separator + ref.getName();
             }
           }
           refColumns.add(
@@ -511,7 +517,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
         // create the ref
         String name = getName();
         if (pkeys.size() > 1) {
-          name += COMPOSITE_REF_SEPARATOR + keyPart.getName();
+          name += separator + keyPart.getName();
         }
         refColumns.add(
             new Reference(

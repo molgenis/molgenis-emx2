@@ -63,7 +63,7 @@ public class SqlQuery extends QueryBean {
 
   /** Create alias that is short enough for postgresql to not complain */
   public String alias(String label) {
-    if (!label.contains("-")) {
+    if (!label.contains(SUBSELECT_SEPARATOR)) {
       // we only need aliases for subquery tables
       return label;
     }
@@ -154,7 +154,7 @@ public class SqlQuery extends QueryBean {
     List<Field<?>> fields = new ArrayList<>();
     for (SelectColumn select : selection.getSubselect()) {
       Column column = getColumnByName(table, select.getColumn());
-      String columnAlias = prefix.equals("") ? column.getName() : prefix + "-" + column.getName();
+      String columnAlias = prefix.equals("") ? column.getName() : prefix + SUBSELECT_SEPARATOR + column.getName();
       if (column.isFile()) {
         // check what they want to get, contents, mimetype, size, filename and/or extension
         if (select.getSubselect().isEmpty() || select.has("id")) {
@@ -181,7 +181,7 @@ public class SqlQuery extends QueryBean {
         fields.addAll(
             rowSelectFields(
                 column.getRefTable(),
-                tableAlias + "-" + column.getName(),
+                tableAlias + SUBSELECT_SEPARATOR + column.getName(),
                 columnAlias,
                 selection.getSubselect(column.getName())));
       } else if (column.isRefback()) {
@@ -312,7 +312,7 @@ public class SqlQuery extends QueryBean {
       Filter filters,
       String[] searchTerms) {
     checkHasViewPermission(table);
-    String subAlias = tableAlias + (parentColumn != null ? "-" + parentColumn.getName() : "");
+    String subAlias = tableAlias + (parentColumn != null ? SUBSELECT_SEPARATOR + parentColumn.getName() : "");
     Collection<Field<?>> selection = jsonSubselectFields(table, subAlias, select);
     return jsonField(
         table, parentColumn, tableAlias, select, filters, searchTerms, subAlias, selection);
@@ -690,7 +690,7 @@ public class SqlQuery extends QueryBean {
       SelectColumn select,
       Filter filters,
       String[] searchTerms) {
-    String subAlias = tableAlias + (column != null ? "-" + column.getName() : "");
+    String subAlias = tableAlias + (column != null ? SUBSELECT_SEPARATOR + column.getName() : "");
     List<Field<?>> fields = new ArrayList<>();
     for (SelectColumn field : select.getSubselect()) {
       if (COUNT_FIELD.equals(field.getColumn())) {
@@ -749,7 +749,7 @@ public class SqlQuery extends QueryBean {
       Filter filter,
       String[] searchTerms) {
     DSLContext jooq = table.getJooq();
-    String subAlias = tableAlias + (column != null ? "-" + column.getName() : "");
+    String subAlias = tableAlias + (column != null ? SUBSELECT_SEPARATOR + column.getName() : "");
 
     if (groupBy.getSubselect(COUNT_FIELD) == null && groupBy.getSubselect(SUM_FIELD) == null) {
       throw new MolgenisException("COUNt or SUM is required when using group by");
@@ -928,7 +928,7 @@ public class SqlQuery extends QueryBean {
         } else {
           Column column = getColumnByName(table, filter.getColumn());
           if (column.isReference() && !filter.getSubfilters().isEmpty()) {
-            String subAlias = tableAlias + "-" + column.getName();
+            String subAlias = tableAlias + SUBSELECT_SEPARATOR + column.getName();
             if (!aliasList.contains(subAlias)) {
               // to ensure only join once
               aliasList.add(subAlias);
@@ -955,7 +955,7 @@ public class SqlQuery extends QueryBean {
         // then do same as above
         Column column = getColumnByName(table, select.getColumn());
         if (column.isReference()) {
-          String subAlias = tableAlias + "-" + column.getName();
+          String subAlias = tableAlias + SUBSELECT_SEPARATOR + column.getName();
           // only join if subselection extists
           if (!aliasList.contains(subAlias) && !select.getSubselect().isEmpty()) {
             aliasList.add(subAlias);
@@ -1109,7 +1109,7 @@ public class SqlQuery extends QueryBean {
           if (column.isReference()) {
             conditions.add(
                 whereConditionsFilter(
-                    column.getRefTable(), tableAlias + "-" + column.getName(), subfilter));
+                    column.getRefTable(), tableAlias + SUBSELECT_SEPARATOR + column.getName(), subfilter));
           } else if (column.isFile()) {
             Filter sub = filters.getSubfilter("id");
             if (sub != null && EQUALS.equals(sub.getOperator())) {

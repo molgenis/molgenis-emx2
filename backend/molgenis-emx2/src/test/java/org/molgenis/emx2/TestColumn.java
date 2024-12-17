@@ -1,7 +1,10 @@
 package org.molgenis.emx2;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+import java.util.List;
 import org.junit.jupiter.api.Test;
 
 public class TestColumn {
@@ -48,5 +51,31 @@ public class TestColumn {
                 () ->
                     new Column(
                         "a234567890123456789012345678901234567890123456789012345678901234")));
+  }
+
+  @Test
+  void testUsedSeparator() {
+    Column pk1 = new Column("id1").setType(ColumnType.STRING);
+    Column pk2 = new Column("id2").setType(ColumnType.STRING);
+    List<Column> primaryKeys = List.of(pk1, pk2);
+
+    TableMetadata tableMetadata = mock(TableMetadata.class);
+    when(tableMetadata.getPrimaryKeyColumns()).thenReturn(primaryKeys);
+
+    Column column = mock(Column.class);
+    when(column.getReferences()).thenCallRealMethod();
+    when(column.getRefTableName()).thenReturn("MyRefTable");
+    when(column.getRefTable()).thenReturn(tableMetadata);
+    when(column.getRefLinkColumn()).thenReturn(null);
+    when(column.getName()).thenReturn("MyColname");
+
+    when(column.getColumnType()).thenReturn(ColumnType.REF);
+    List<String> actualRefs = column.getReferences().stream().map(Reference::getName).toList();
+    when(column.getColumnType()).thenReturn(ColumnType.REFBACK);
+    List<String> actualRefbacks = column.getReferences().stream().map(Reference::getName).toList();
+
+    assertAll(
+        () -> assertEquals(List.of("MyColname.id1", "MyColname.id2"), actualRefs),
+        () -> assertEquals(List.of("MyColname-id1", "MyColname-id2"), actualRefbacks));
   }
 }
