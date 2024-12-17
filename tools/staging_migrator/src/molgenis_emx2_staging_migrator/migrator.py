@@ -8,7 +8,7 @@ from typing import TypeAlias, Literal
 
 from molgenis_emx2_pyclient import Client
 from molgenis_emx2_pyclient.exceptions import NoSuchSchemaException, NoSuchTableException
-from molgenis_emx2_pyclient.metadata import Schema, Table, Column
+from molgenis_emx2_pyclient.metadata import Schema, Table
 
 from .constants import BASE_DIR, changelog_query
 from .utils import (find_cohort_references, construct_delete_variables, has_statement_of_consent,
@@ -17,7 +17,8 @@ from .utils import (find_cohort_references, construct_delete_variables, has_stat
 log = logging.getLogger('Molgenis EMX2 Migrator')
 
 SchemaType: TypeAlias = Literal['source', 'target']
-PUBLICATIONS = 'Publications'
+PUBLICATIONS = "Publications"
+SHAREDSTAGING= "SharedStaging"
 
 
 class StagingMigrator(Client):
@@ -65,10 +66,6 @@ class StagingMigrator(Client):
         # Delete the source tables from the target database
         log.info("Deleting staging area resource from the catalogue.")
         self._delete_staging_from_catalogue()
-
-        # Synchronize the organisations with SharedStaging
-        log.info("Synchronizing staging area with SharedStaging and catalogue.")
-        self.sync_shared_staging()
 
         # Create zipfile for uploading
         zip_stream = self._create_upload_zip()
@@ -132,67 +129,6 @@ class StagingMigrator(Client):
             else:
                 log.debug(f"Updating row(s) with primary keys {delete_rows.get(table_id)}"
                           f"\n in table {table_name}. (Not yet implemented)")
-
-    def sync_shared_staging(self):
-        """Synchronizes the records in the SharedStaging schema that are referenced
-        from the staging area with the relevant records in the catalogue.
-        """
-        staging_schema = self.get_schema_metadata(self.staging_area)
-        # Collect the tables in which a column references a table in the SharedStaging schema
-        ss_ref_tables: list[Table] = [_t for _t in staging_schema.get_tables(by='schemaName', value=self.staging_area)
-                                      if len(_t.get_columns(by='refSchemaName', value='SharedStaging'))]
-        if len(ss_ref_tables) == 0:
-            return
-
-        organisations = set()
-        for table in ss_ref_tables:
-            ref_cols: list[Column] = table.get_columns(by='refSchemaName', value='SharedStaging')
-            ref_col_strs = [f"{rc.id} {{\n      id\n    }}" for rc in ref_cols]
-            query = """{{\n  {} {{\n    {}\n  }}\n}}""".format(
-                table.id, "    \n    ".join(ref_col_strs))
-            response = self.session.post(url=f"{self.url}/{self.staging_area}/graphql",
-                                         json={"query": query},
-                                         headers={'x-molgenis-token': self.token})
-            data_response = response.json().get('data')
-            if len(data_response) > 0:
-                for record in data_response.values():
-                    for rec in record:
-                        for column in list(rec.values()):
-                            if len(column) == 0:
-                                continue
-                            if isinstance(column, list):
-                                for entry in column:
-                                    organisations.add(list(entry.values())[0])
-                            elif isinstance(column, dict):
-                                for entry in column.values():
-                                    organisations.add(entry)
-
-        organisations = list(organisations)
-        if len(organisations) < 1:
-            return
-
-        shared_schema = self.get_schema_metadata('SharedStaging')
-        search_query = self.__construct_pkey_query(shared_schema, 'Organisations', all_columns=True)
-        search_variables = construct_delete_variables(shared_schema, organisations, 'Organisations', 'id')
-        search_response = self.session.post(url=f"{self.url}/SharedStaging/graphql",
-                                            json={"query": search_query, "variables": search_variables},
-                                            headers={'x-molgenis-token': self.token})
-
-        mutation_query = "mutation insert($value: [OrganisationsInput]){insert(Organisations:$value){message}}"
-        for org in search_response.json().get('data').get('Organisations'):
-            mutation_variables = {"value": org}
-
-            mutation_response = self.session.post(url=f"{self.url}/{self.catalogue}/graphql",
-                                                  json={"query": mutation_query, "variables": mutation_variables},
-                                                  headers={'x-molgenis-token': self.token})
-
-            if mutation_response.status_code != 200:
-                if f"Key (id)=({org.get('id')}) already exists." in mutation_response.text:
-                    log.debug(f"Organisation {org.get('id')!r} already present.")
-                else:
-                    log.error(f"Unable to synchronize {org.get('id')!r} to {self.catalogue!r}.")
-            else:
-                log.debug(f"Successfully migrated organisation {org.get('id')!r} to {self.catalogue!r}.")
 
     def _query_delete_rows(self, table_name: str, ref_cols: str | list,
                            cohort_ids: list) -> dict:
