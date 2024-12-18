@@ -13,7 +13,8 @@
     "test-ci": "vitest run",
     "format": "prettier src tests  --write --config ../.prettierrc.js",
     "checkFormat": "prettier src tests  --check --config ../.prettierrc.js",
-    "e2e": "playwright test"
+    "e2e": "playwright test",
+    "codegen": "playwright codegen"
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "6.5.2",
