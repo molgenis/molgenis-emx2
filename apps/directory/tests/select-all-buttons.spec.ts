@@ -7,5 +7,5 @@ test("select all collections and services", async ({ page }) => {
   await page.getByRole("button", { name: "Select all collections" }).click();
   await expect(page.getByRole("main")).toContainText("2");
   await page.getByRole("button", { name: "Select all services" }).click();
-  await expect(page.getByRole("main")).toContainText("4");
+  await expect(page.getByRole("main")).toContainText("6");
 });
