@@ -1,10 +1,17 @@
-<script setup>
+<template>
+  <div class="main-view">
+    <ApplicationHeaderPartialView />
+    <BiobankCardsPartialView />
+  </div>
+</template>
+
+<script setup lang="ts">
 import { onMounted } from "vue";
 import ApplicationHeaderPartialView from "../components/partial-views/ApplicationHeaderPartialView.vue";
 import BiobankCardsPartialView from "../components/partial-views/BiobankCardsPartialView.vue";
+import { createBookmark } from "../functions/bookmarkMapper";
 import { useCheckoutStore } from "../stores/checkoutStore";
 import { useFiltersStore } from "../stores/filtersStore";
-import { createBookmark } from "../functions/bookmarkMapper";
 
 const checkoutStore = useCheckoutStore();
 const filtersStore = useFiltersStore();
@@ -20,23 +27,6 @@ onMounted(() => {
     checkoutStore.checkoutValid = true;
   }
 });
-</script>
-
-<template>
-  <div class="main-view">
-    <application-header-partial-view />
-    <biobank-cards-partial-view />
-  </div>
-</template>
-
-<script>
-export default {
-  name: "biobank-explorer",
-  components: {
-    ApplicationHeaderPartialView,
-    BiobankCardsPartialView,
-  },
-};
 </script>
 
 <style>

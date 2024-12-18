@@ -6,7 +6,7 @@ import monacoEditorPlugin from "vite-plugin-monaco-editor";
 
 const HOST =
   process.env.MOLGENIS_APPS_HOST || "https://emx2.dev.molgenis.org/";
-const SCHEMA = process.env.MOLGENIS_APPS_SCHEMA || "directory";
+const SCHEMA = process.env.MOLGENIS_APPS_SCHEMA || "directory-demo";
 
 const opts = { changeOrigin: true, secure: false, logLevel: "debug" };
 
