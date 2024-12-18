@@ -251,22 +251,6 @@ class SqlTableMetadata extends TableMetadata {
               + newColumn.getRefTableName());
     }
 
-    // if changing 'ref' then check if not refBack exists
-    Column referenceRefBack = oldColumn.getReferenceRefback();
-    if (referenceRefBack != null) {
-      // delete if changed to non ref
-      if (!newColumn.isReference()) {
-        referenceRefBack.getTable().dropColumn(referenceRefBack.getName());
-      }
-      // else update refback if renamed
-      else if (!oldColumn.getName().equals(newColumn.getName())) {
-        referenceRefBack
-            .getTable()
-            .alterColumn(
-                referenceRefBack.getName(), referenceRefBack.setRefBack(newColumn.getName()));
-      }
-    }
-
     // drop old key, if touched
     if (oldColumn.getKey() > 0 && newColumn.getKey() != oldColumn.getKey()) {
       executeDropKey(tm.getJooq(), oldColumn.getTable(), oldColumn.getKey());
@@ -299,6 +283,22 @@ class SqlTableMetadata extends TableMetadata {
     tm.columns.remove(columnName);
     // add the new
     tm.columns.put(column.getName(), newColumn);
+
+    // if changing 'ref' then check if not refBack exists
+    Column referenceRefBack = oldColumn.getReferenceRefback();
+    if (referenceRefBack != null) {
+      // delete if changed to non ref
+      if (!newColumn.isReference()) {
+        referenceRefBack.getTable().dropColumn(referenceRefBack.getName());
+      }
+      // else update refback if renamed
+      else if (!oldColumn.getName().equals(newColumn.getName())) {
+        referenceRefBack
+            .getTable()
+            .alterColumn(
+                referenceRefBack.getName(), referenceRefBack.setRefBack(newColumn.getName()));
+      }
+    }
 
     // reapply ref constrainst
     executeCreateRefConstraints(tm.getJooq(), newColumn);
