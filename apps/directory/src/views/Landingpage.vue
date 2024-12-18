@@ -2,7 +2,7 @@
   <main>
     <section class="w-75 mx-auto">
       <h1 class="text-center py-5">
-        Search the BBMRI-Eric Directory by biobank, samples and collections
+        {{ headerText }}
       </h1>
       <div class="row">
         <div
@@ -192,6 +192,7 @@ withDefaults(
 );
 
 interface ILandingpageConfig {
+  headerText?: string;
   page_biobank_spotlight?: {
     header?: string;
     biobankName?: string;
@@ -218,6 +219,12 @@ const collectionSpotlight = computed(
 );
 const callToActions = computed(() => landingpage.value.page_call_to_actions);
 const landingpageCss = computed(() => landingpage.value.css);
+
+const headerText = computed(
+  () =>
+    landingpage.value.headerText ??
+    "Search the BBMRI-ERIC Directory by category"
+);
 </script>
 
 <style scoped>
