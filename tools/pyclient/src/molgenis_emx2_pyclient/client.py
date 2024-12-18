@@ -9,6 +9,7 @@ from io import BytesIO
 
 import pandas as pd
 import requests
+from molgenis_emx2_pyclient.exceptions import NoSuchColumnException
 from requests import Response
 
 from . import graphql_queries as queries
@@ -373,7 +374,12 @@ class Client:
             errors = '\n'.join([err['message'] for err in response.json().get('errors')])
             log.error("Failed to delete data from %s::%s\n%s.", current_schema, table, errors)
 
-    def get(self, table: str, query_filter: str = None, schema: str = None, as_df: bool = False) -> list | pd.DataFrame:
+    def get(self,
+            table: str,
+            columns: list = None,
+            query_filter: str = None,
+            schema: str = None,
+            as_df: bool = False) -> list | pd.DataFrame:
         """Retrieves data from a schema and returns as a list of dictionaries or as
         a pandas DataFrame (as pandas is used to parse the response).
 
@@ -408,17 +414,28 @@ class Client:
         if as_df:
             query_url = f"{self.url}/{current_schema}/api/csv/{table_id}{filter_part}"
             response = self.session.get(url=query_url)
-
             self._validate_graphql_response(response=response,
                                             fallback_error_message=f"Failed to retrieve data from {current_schema}::"
                                                                    f"{table!r}.\nStatus code: {response.status_code}.")
 
             response_data = pd.read_csv(BytesIO(response.content), keep_default_na=False)
+            if columns:
+                try:
+                    response_data = response_data[columns]
+                except KeyError as e:
+                    if "not in index" in e.args[0]:
+                        raise NoSuchColumnException(f"Columns {e.args[0]}")
+                    else:
+                        raise NoSuchColumnException(f"Columns {e.args[0].split('Index(')[1].split(', dtype')}"
+                                                    f" not in index.")
         else:
             query_url = f"{self.url}/{current_schema}/graphql"
-            query = self._parse_get_table_query(table_id)
+            query = self._parse_get_table_query(table_id, columns)
             response = self.session.post(url=query_url,
                                         json={"query": query})
+            self._validate_graphql_response(response=response,
+                                            fallback_error_message=f"Failed to retrieve data from {current_schema}::"
+                                                                   f"{table!r}.\nStatus code: {response.status_code}.")
             response_data = response.json().get('data').get(table_id)
 
         return response_data
@@ -1048,7 +1065,7 @@ class Client:
             raise ServerNotFoundError(f"Invalid URL {self.url!r}. "
                                       f"Perhaps you meant 'https://{self.url}'?")
 
-    def _parse_get_table_query(self, table_id) -> str:
+    def _parse_get_table_query(self, table_id: str, columns: list = None) -> str:
         """Gathers a table's metadata and parses it to a GraphQL query
         for querying the table's contents.
         """
@@ -1057,6 +1074,8 @@ class Client:
 
         query = f"{{\n  {table_id} {{\n"
         for col in table_metadata.columns:
+            if col.id not in columns and col.name not in columns:
+                continue
             if col.get('columnType') in [HEADING, LOGO]:
                 continue
             elif col.get('columnType') in NONREFS:

@@ -13,7 +13,7 @@ def get_data() -> list:
     """Fetches data."""
 
     with Client(url=URL, schema=SCHEMA) as client:
-        resources = client.get(table='Resources')
+        resources = client.get(table='Resources', columns=['name', 'external identifiers'], as_df=True)
 
 
     return resources
@@ -22,4 +22,7 @@ def get_data() -> list:
 
 if __name__ == '__main__':
     data = get_data()
-    pprint(data)
+    if isinstance(data, list):
+        pprint(data)
+    else:
+        print(data)
