@@ -136,7 +136,7 @@ public class QueryEntryType {
     ArrayNode resultSets = response.withArray("resultSets");
 
     String template = null;
-    if (database != null) {
+    if (database != null && schema != null) {
       database.becomeAdmin();
       Schema systemSchema = database.getSchema(SYSTEM_SCHEMA);
       Table templatesTable = systemSchema.getTable("Templates");
