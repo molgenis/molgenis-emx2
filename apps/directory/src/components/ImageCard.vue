@@ -37,13 +37,13 @@ defineProps<{
   border-radius: 1rem;
   border: #003675 2px solid;
   transition: 0.3s;
-  box-shadow: 2px 2px 2px #003675;
+  box-shadow: 0px 2px 0px #003675;
 }
 
 .card:hover {
   background-color: #f8f9fa;
   cursor: pointer;
-  box-shadow: 4px 4px 4px #003675;
+  box-shadow: 0px 4px 0px #003675;
   transform: scale(1.1);
 }
 

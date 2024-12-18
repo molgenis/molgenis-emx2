@@ -106,9 +106,9 @@
           />
         </div>
         <div
-          class="col-sm-12 col-md-8 col-xl-6 cards-section-other d-flex justify-content-center"
+          class="col-sm-12 col-md-8 col-xl-6 cards-section-other d-flex justify-content-center align-items-center"
         >
-          <div class="">
+          <div>
             <p>or proceed to the directory without any selection</p>
             <router-link
               class="btn btn-lg btn-outline-secondary btn-block"
