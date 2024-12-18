@@ -6,6 +6,7 @@ import monacoEditorPlugin from "vite-plugin-monaco-editor";
 
 const HOST =
   process.env.MOLGENIS_APPS_HOST || "https://bbmri-emx2-test.molgeniscloud.org";
+// const HOST = "http://localhost:8080";
 const SCHEMA = process.env.MOLGENIS_APPS_SCHEMA || "directory";
 
 const opts = { changeOrigin: true, secure: false, logLevel: "debug" };
