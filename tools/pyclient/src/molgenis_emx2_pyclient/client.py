@@ -19,6 +19,7 @@ from .exceptions import (NoSuchSchemaException, ServiceUnavailableError, SigninE
                          NoContextManagerException, GraphQLException, InvalidTokenException,
                          PermissionDeniedException, TokenSigninException, NonExistentTemplateException)
 from .metadata import Schema, Table
+from .utils import parse_nested_pkeys
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 log = logging.getLogger("Molgenis EMX2 Pyclient")
@@ -418,10 +419,8 @@ class Client:
             query = self._parse_get_table_query(table_id)
             response = self.session.post(url=query_url,
                                         json={"query": query})
-            response_data = response.json().get('data')
+            response_data = response.json().get('data').get(table_id)
 
-        if not as_df:
-            return response_data
         return response_data
 
     async def export(self, schema: str = None, table: str = None,
@@ -1056,26 +1055,21 @@ class Client:
         schema_metadata: Schema = self.get_schema_metadata()
         table_metadata: Table = schema_metadata.get_table('id', table_id)
 
-        meta_columns = ["id", "columnType", "refSchemaId", "refTableId"]
-
         query = f"{{\n  {table_id} {{\n"
         for col in table_metadata.columns:
             if col.get('columnType') in [HEADING, LOGO]:
                 continue
-            if col.get('columnType') in NONREFS:
+            elif col.get('columnType') in NONREFS:
                 query += f"    {col.get('id')}\n"
-            if col.get('columnType').startswith('ONTOLOGY'):
+            elif col.get('columnType').startswith('ONTOLOGY'):
                 query += f"    {col.get('id')} {{name}}\n"
-            if col.get('columnType').startswith('REF'):
+            elif col.get('columnType').startswith('REF'):
                 query += f"    {col.get('id')} {{"
                 pkeys = schema_metadata.get_pkeys(col.get('refTableId'))
-                for pk in pkeys:
-                    if isinstance(pk, str):
-                        query += f"{pk}}}"
-                    if isinstance(pk, dict):
-                        for (key, value) in pk.items():
-                            query += f" {key} {{{value}}} "
-                query += "\n"
+                query += parse_nested_pkeys(pkeys)
+                query += "}\n"
+            else:
+                log.warning(f"Caught column type {col.get('columnType')!r}.")
         query += "  }\n"
         query += "}"
 
