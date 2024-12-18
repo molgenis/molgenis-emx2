@@ -3,7 +3,8 @@
     <IconAction v-if="!isModalShown" :icon="icon" @click="open" />
     <LayoutModal
       v-else
-      title="Edit template"
+      ref="templateEditModal"
+      :title="modalTitle"
       :show="isModalShown"
       @close="close"
     >
@@ -36,7 +37,7 @@
       </template>
       <template v-slot:footer>
         <ButtonAlt @click="close">Close</ButtonAlt>
-        <ButtonAction @click="doEditTemplate"> Edit</ButtonAction>
+        <ButtonAction @click="doEditTemplate">{{ buttonTitle }}</ButtonAction>
       </template>
     </LayoutModal>
   </div>
@@ -117,6 +118,14 @@ export default {
       ],
       jsltTemplate: this.template,
     };
+  },
+  computed: {
+    modalTitle() {
+      return this.action === "update" ? "Edit template" : "Add template";
+    },
+    buttonTitle() {
+      return this.action === "update" ? "Edit" : "Add";
+    },
   },
   created() {
     this.getSchemaList();
