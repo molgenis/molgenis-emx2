@@ -3,9 +3,8 @@
     <template v-if="banner" #banner>
       <div v-html="banner"></div>
     </template>
-    <Error>
-      <RouterView @click="closeAllDropdownButtons" />
-    </Error>
+    <Error />
+    <RouterView @click="closeAllDropdownButtons" />
     <template #footer>
       <Footer />
     </template>
