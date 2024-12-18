@@ -9,8 +9,6 @@
       @close="close"
     >
       <template #body>
-        <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
-        <MessageError v-if="error">{{ error }}</MessageError>
         <LayoutForm>
           <InputSelect
             id="template-create-schema"
@@ -36,6 +34,8 @@
         </LayoutForm>
       </template>
       <template v-slot:footer>
+        <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
+        <MessageError v-if="error">{{ error }}</MessageError>
         <ButtonAlt @click="close">Close</ButtonAlt>
         <ButtonAction @click="doEditTemplate">{{ buttonTitle }}</ButtonAction>
       </template>
@@ -136,6 +136,8 @@ export default {
   methods: {
     doEditTemplate() {
       this.loading = true;
+      this.error = null;
+      this.success = null;
       request(
         "_SYSTEM_/graphql",
         "mutation " +
@@ -182,6 +184,8 @@ export default {
       this.isModalShown = true;
     },
     close() {
+      this.error = null;
+      this.success = null;
       this.isModalShown = false;
     },
   },
