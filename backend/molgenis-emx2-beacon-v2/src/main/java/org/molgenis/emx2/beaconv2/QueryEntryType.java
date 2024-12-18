@@ -45,8 +45,10 @@ public class QueryEntryType {
   }
 
   public JsonNode query(Schema schema) {
-    this.database = schema.getDatabase();
-    this.schema = schema;
+    if (schema != null) {
+      this.database = schema.getDatabase();
+      this.schema = schema;
+    }
     ObjectNode response = mapper.createObjectNode();
     response.set("requestBody", mapper.valueToTree(request));
     FilterParser filterParser = parseFilters(response);
