@@ -135,20 +135,22 @@ public class QueryEntryType {
   private ObjectNode getJsltResponse(ObjectNode response) {
     ArrayNode resultSets = response.withArray("resultSets");
 
-    database.becomeAdmin();
-    Schema systemSchema = database.getSchema(SYSTEM_SCHEMA);
-    Table templatesTable = systemSchema.getTable("Templates");
-    List<Row> templates = templatesTable.retrieveRows();
-    String template =
-        templates.stream()
-            .filter(
-                r ->
-                    r.get("schema", ColumnType.STRING).equals(schema.getName())
-                        && r.get("endpoint", ColumnType.STRING)
-                            .equals("beacon_" + entryType.getName()))
-            .map(r -> r.get("template", String.class))
-            .findFirst()
-            .orElse(null);
+    String template = null;
+    if (database != null) {
+      database.becomeAdmin();
+      Schema systemSchema = database.getSchema(SYSTEM_SCHEMA);
+      Table templatesTable = systemSchema.getTable("Templates");
+      List<Row> templates = templatesTable.retrieveRows();
+      template =
+          templates.stream()
+              .filter(
+                  r ->
+                      r.getString("schema").equals(schema.getName())
+                          && r.getString("endpoint").equals("beacon_" + entryType.getName()))
+              .map(r -> r.get("template", String.class))
+              .findFirst()
+              .orElse(null);
+    }
 
     Expression jslt;
     if (template != null) {
