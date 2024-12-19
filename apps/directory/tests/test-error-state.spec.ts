@@ -1,10 +1,6 @@
 import test, { expect } from "@playwright/test";
 import { getAppRoute } from "./getAppRoute";
 
-test.afterAll(async ({ page }) => {
-  await page.close();
-});
-
 test("should show an error when navigating to an unknown biobank", async ({
   page,
 }) => {
