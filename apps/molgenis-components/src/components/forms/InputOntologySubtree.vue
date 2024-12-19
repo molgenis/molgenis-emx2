@@ -14,6 +14,7 @@
       </span>
       <span @click.stop="toggleSelect(term)">
         <i
+          v-if="term.selectable"
           class="fa-fw text-primary pl-2 pt-1"
           :class="getSelectState(term)"
           role="button"
