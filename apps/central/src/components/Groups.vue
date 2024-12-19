@@ -23,35 +23,37 @@
 
       <table class="table table-hover table-bordered bg-white">
         <thead>
-          <th style="width: 1px">
-            <IconAction
-              v-if="session && session.email == 'admin'"
-              icon="plus"
-              @click="openCreateSchema"
-            />
-          </th>
-          <th @click="changeSortOrder('label')" class="sort-col">
-            label
-            <IconAction
-              v-if="sortOrder && sortColumn === 'label'"
-              :icon="sortOrder == 'ASC' ? 'sort-alpha-down' : 'sort-alpha-up'"
-              class="d-inline p-0 hide-icon"
-            />
-          </th>
-          <th>description</th>
-          <th
-            v-if="showAdminColumns"
-            @click="changeSortOrder('lastUpdate')"
-            class="sort-col"
-          >
-            last update
-            <IconAction
-              v-if="sortOrder && sortColumn === 'lastUpdate'"
-              :icon="sortOrder == 'ASC' ? 'sort-alpha-down' : 'sort-alpha-up'"
-              class="d-inline p-0 hide-icon"
-            />
-          </th>
-          <th v-if="showAdminColumns">profile</th>
+          <tr>
+            <th style="width: 1px">
+              <IconAction
+                v-if="session && session.email == 'admin'"
+                icon="plus"
+                @click="openCreateSchema"
+              />
+            </th>
+            <th @click="changeSortOrder('label')" class="sort-col">
+              label
+              <IconAction
+                v-if="sortOrder && sortColumn === 'label'"
+                :icon="sortOrder == 'ASC' ? 'sort-alpha-down' : 'sort-alpha-up'"
+                class="d-inline p-0 hide-icon"
+              />
+            </th>
+            <th>description</th>
+            <th
+              v-if="showAdminColumns"
+              @click="changeSortOrder('lastUpdate')"
+              class="sort-col"
+            >
+              last update
+              <IconAction
+                v-if="sortOrder && sortColumn === 'lastUpdate'"
+                :icon="sortOrder == 'ASC' ? 'sort-alpha-down' : 'sort-alpha-up'"
+                class="d-inline p-0 hide-icon"
+              />
+            </th>
+            <th v-if="showAdminColumns">profile</th>
+          </tr>
         </thead>
         <tbody>
           <tr v-for="schema in schemasFilteredAndSorted" :key="schema.id">
@@ -82,7 +84,11 @@
               />
             </td>
             <td v-if="showAdminColumns">
-              {{ schema.profile }} (v-{{ schema.profileMigrationStep }})
+              <span v-if="schema.profile && schema.profileMigrationStep"
+                >{{ schema.profile }} (v-{{
+                  schema.profileMigrationStep
+                }})</span
+              >
             </td>
           </tr>
         </tbody>
