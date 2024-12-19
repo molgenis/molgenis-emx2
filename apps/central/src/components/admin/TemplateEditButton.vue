@@ -2,11 +2,11 @@
   <div>
     <IconAction v-if="!isModalShown" :icon="icon" @click="open" />
     <LayoutModal
-      v-else
       ref="templateEditModal"
       :title="modalTitle"
       :show="isModalShown"
       @close="close"
+      @open="initializeMonaco"
     >
       <template #body>
         <LayoutForm>
@@ -26,11 +26,14 @@
             :options="apis"
             :readonly="action === 'update'"
           ></InputSelect>
-          <InputText
-            id="template-jslt"
-            v-model="jsltTemplate"
-            label="JSLT template"
-          />
+          <FormGroup label="Template">
+            <div
+              class="border rounded"
+              id="monaco-container"
+              ref="monacoEditor"
+              style="height: 500px"
+            ></div>
+          </FormGroup>
         </LayoutForm>
       </template>
       <template v-slot:footer>
@@ -51,10 +54,13 @@ import {
   InputSelect,
   InputText,
   LayoutForm,
+  FormGroup,
   MessageSuccess,
   MessageError,
 } from "molgenis-components";
 import { request } from "graphql-request";
+import { toRaw } from "vue";
+import { editor } from "monaco-editor";
 
 export default {
   components: {
@@ -65,6 +71,7 @@ export default {
     InputSelect,
     InputText,
     LayoutForm,
+    FormGroup,
     MessageSuccess,
     MessageError,
   },
@@ -95,6 +102,7 @@ export default {
   },
   data() {
     return {
+      editor: null,
       error: null,
       success: null,
       loading: false,
@@ -138,6 +146,7 @@ export default {
       this.loading = true;
       this.error = null;
       this.success = null;
+      this.jsltTemplate = toRaw(this.editor).getValue(0);
       request(
         "_SYSTEM_/graphql",
         "mutation " +
@@ -180,13 +189,32 @@ export default {
           this.loading = false;
         });
     },
-    open() {
-      this.isModalShown = true;
+    initializeMonaco() {
+      this.editor = editor.create(this.$refs.monacoEditor, {
+        value: this.jsltTemplate,
+        language: "json",
+        automaticLayout: true,
+        scrollBeyondLastLine: false,
+        minimap: { enabled: false },
+        quickSuggestions: false,
+      });
     },
     close() {
       this.error = null;
       this.success = null;
       this.isModalShown = false;
+    },
+    open() {
+      this.isModalShown = true;
+    },
+  },
+  watch: {
+    isModalShown(newVal) {
+      if (newVal) {
+        this.$nextTick(() => {
+          this.initializeMonaco();
+        });
+      }
     },
   },
 };
