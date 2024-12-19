@@ -260,11 +260,14 @@ public class ScriptTask extends Task {
   }
 
   private String getJobUrl() {
-    return this.serverUrl.toExternalForm()
-        + "/"
-        + Constants.SYSTEM_SCHEMA
-        + "/tasks/#/jobs?id="
-        + this.getId();
+    if (serverUrl != null) {
+      return this.serverUrl.toExternalForm()
+          + "/"
+          + Constants.SYSTEM_SCHEMA
+          + "/tasks/#/jobs?id="
+          + this.getId();
+    }
+    return null;
   }
 
   public ScriptTask setServerUrl(URL url) {

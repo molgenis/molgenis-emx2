@@ -23,7 +23,7 @@ public class TestTaskServiceDatabaseBacked {
     // we don't use 'ADMIN' schema
     Schema testSchema =
         database.dropCreateSchema(TestTaskServiceDatabaseBacked.class.getSimpleName());
-    TaskServiceInDatabase taskService = new TaskServiceInDatabase(testSchema.getName());
+    TaskServiceInDatabase taskService = new TaskServiceInDatabase(testSchema.getName(), null);
     DummyTask dummyTask = new DummyTask();
     String id = taskService.submit(dummyTask);
 

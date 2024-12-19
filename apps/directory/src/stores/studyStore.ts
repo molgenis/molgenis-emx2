@@ -1,7 +1,10 @@
 import { defineStore } from "pinia";
 //@ts-ignore
 import { QueryEMX2 } from "molgenis-components";
+import useErrorHandler from "../composables/errorHandler";
 import { useSettingsStore } from "./settingsStore";
+
+const { setError } = useErrorHandler();
 
 export const useStudyStore = defineStore("studyStore", () => {
   const settingsStore = useSettingsStore();
@@ -30,9 +33,12 @@ export const useStudyStore = defineStore("studyStore", () => {
       .orderBy("Studies", "id", "asc")
       .where("id")
       .equals(id);
-    const reportResults = await studyReportQuery.execute();
 
-    return reportResults;
+    try {
+      return await studyReportQuery.execute();
+    } catch (error) {
+      setError(error);
+    }
   }
 
   return {
