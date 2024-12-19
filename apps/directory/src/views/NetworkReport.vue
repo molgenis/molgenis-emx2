@@ -6,7 +6,7 @@
     >
       <Spinner />
     </div>
-    <div v-else class="container-fluid">
+    <div v-else-if="network" class="container-fluid">
       <div class="row">
         <div class="col my-3 shadow-sm d-flex p-2 align-items-center bg-white">
           <Breadcrumb
@@ -123,12 +123,13 @@ import { Breadcrumb, Spinner, Tabs } from "molgenis-components";
 import { computed, ref } from "vue";
 import { useRoute } from "vue-router";
 import ViewGenerator from "../components/generators/ViewGenerator.vue";
+import CollectionsHeader from "../components/report-components/CollectionsHeader.vue";
 import CollectionTitle from "../components/report-components/CollectionTitle.vue";
 import ContactInformation from "../components/report-components/ContactInformation.vue";
-import CollectionsHeader from "../components/report-components/CollectionsHeader.vue";
 import ReportDescription from "../components/report-components/ReportDescription.vue";
 import ReportDetailsList from "../components/report-components/ReportDetailsList.vue";
 import ReportTitle from "../components/report-components/ReportTitle.vue";
+import useErrorHandler from "../composables/errorHandler";
 import {
   getCollectionDetails,
   mapAlsoKnownIn,
