@@ -5,6 +5,7 @@ import static org.molgenis.emx2.datamodels.profiles.SchemaFromProfile.getProfile
 import java.util.List;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.ImportDataModelTask;
+import org.molgenis.emx2.io.MolgenisIO;
 import org.molgenis.emx2.io.emx2.Emx2;
 import org.molgenis.emx2.tasks.Task;
 
@@ -32,6 +33,7 @@ public class RD3v2Loader extends ImportDataModelTask {
       }
       List<Row> rows = getProfilesFromAllModels("/portal", List.of());
       getSchema().migrate(Emx2.fromRowList(rows));
+      MolgenisIO.fromClasspathDirectory("/_ontologies", getSchema(), false);
       this.complete();
     } catch (Exception e) {
       this.completeWithError(e.getMessage());
