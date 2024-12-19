@@ -5,11 +5,13 @@
 
     <table class="table table-hover table-bordered bg-white">
       <thead>
-        <th style="width: 1px">
-          <IconAction icon="plus" @click="handleCreateRequest" />
-        </th>
-        <th>key</th>
-        <th>value</th>
+        <tr>
+          <th style="width: 1px">
+            <IconAction icon="plus" @click="handleCreateRequest" />
+          </th>
+          <th>key</th>
+          <th>value</th>
+        </tr>
       </thead>
       <tbody v-if="settings">
         <tr v-for="setting in settings" :key="setting.key">

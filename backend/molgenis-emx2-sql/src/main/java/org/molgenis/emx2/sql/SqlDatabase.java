@@ -19,6 +19,7 @@ import org.jooq.conf.Settings;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.Profile;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 import org.molgenis.emx2.utils.RandomString;
 import org.molgenis.emx2.utils.generator.SnowflakeIdGenerator;
@@ -185,7 +186,9 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
         instanceId = String.valueOf(random.nextLong(SnowflakeIdGenerator.MAX_ID));
         this.setSetting(Constants.MOLGENIS_INSTANCE_ID, instanceId);
       }
-      if (!SnowflakeIdGenerator.hasInstance()) SnowflakeIdGenerator.init(instanceId);
+      if (!SnowflakeIdGenerator.hasInstance()) {
+        SnowflakeIdGenerator.init(instanceId);
+      }
 
       if (getSetting(Constants.IS_PRIVACY_POLICY_ENABLED) == null) {
         this.setSetting(Constants.IS_PRIVACY_POLICY_ENABLED, String.valueOf(false));
@@ -299,6 +302,12 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     getListener().schemaChanged(name);
     this.log(start, "created schema " + name);
     return getSchema(name);
+  }
+
+  public void setSchemaProfileVersion(Schema schema, Profile profile, int step) {
+    jooq.execute(
+        "update \"MOLGENIS\".\"schema_metadata\" set profile = '%s'::\"MOLGENIS\".profile, profile_migration_step = %d where table_schema = '%s'"
+            .formatted(profile.name(), step, schema.getName()));
   }
 
   private static void validateSchemaIdentifierIsUnique(SchemaMetadata metadata, Database db) {
@@ -418,14 +427,10 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
 
   @Override
   public SchemaInfo getSchemaInfo(String schemaName) {
-    Optional<SchemaInfo> result =
-        this.getSchemaInfos().stream()
-            .filter(schemaInfo -> schemaInfo.tableSchema().equals(schemaName))
-            .findFirst();
-    if (result.isPresent()) {
-      return result.get();
-    }
-    return null;
+    return this.getSchemaInfos().stream()
+        .filter(schemaInfo -> schemaInfo.tableSchema().equals(schemaName))
+        .findFirst()
+        .orElse(null);
   }
 
   @Override
