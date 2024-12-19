@@ -9,7 +9,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Namespace;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.base.CoreDatatype;
@@ -108,10 +107,8 @@ public class ColumnTypeRdfMapper {
    * </ul>
    */
   public Set<Value> retrieveValues(final Row row, final Column column) {
-    if (row.getString(column.getName()) == null) {
-      return Set.of();
-    }
-    return mapping.get(column.getColumnType()).retrieveValues(baseURL, row, column);
+    RdfColumnType mapper = mapping.get(column.getColumnType());
+    return (mapper.isEmpty(row, column) ? Set.of() : mapper.retrieveValues(baseURL, row, column));
   }
 
   private enum RdfColumnType {
@@ -216,35 +213,34 @@ public class ColumnTypeRdfMapper {
             UrlEscapers.urlPathSegmentEscaper().escape(target.getRootTable().getIdentifier());
         final Namespace ns = getSchemaNamespace(baseURL, target.getRootTable().getSchema());
 
-        final Set<IRI> iris = new HashSet<>();
         final Map<Integer, Map<String, String>> items = new HashMap<>();
         for (final Reference reference : column.getReferences()) {
-          final String localColumn = reference.getName();
-          final String targetColumn = reference.getRefTo();
-          if (column.isArray()) {
-            final String[] values = row.getStringArray(localColumn);
-            if (values != null) {
-              for (int i = 0; i < values.length; i++) {
-                var keyValuePairs = items.getOrDefault(i, new LinkedHashMap<>());
-                keyValuePairs.put(targetColumn, values[i]);
-                items.put(i, keyValuePairs);
-              }
-            }
-          } else {
-            final String value = row.getString(localColumn);
-            if (value != null) {
-              var keyValuePairs = items.getOrDefault(0, new LinkedHashMap<>());
-              keyValuePairs.put(targetColumn, value);
-              items.put(0, keyValuePairs);
-            }
+          final String[] values =
+              (column.isArray()
+                  ? row.getStringArray(reference.getName())
+                  : new String[] {row.getString(reference.getName())});
+
+          if (values == null) continue;
+
+          for (int i = 0; i < values.length; i++) {
+            Map<String, String> keyValuePairs = items.getOrDefault(i, new LinkedHashMap<>());
+            keyValuePairs.put(reference.getRefTo(), values[i]);
+            items.put(i, keyValuePairs);
           }
         }
 
-        for (final var item : items.values()) {
+        final Set<Value> values = new HashSet<>();
+        for (final Map<String, String> item : items.values()) {
           PrimaryKey key = new PrimaryKey(item);
-          iris.add(Values.iri(ns, rootTableName + "?" + key.getEncodedValue()));
+          values.add(Values.iri(ns, rootTableName + "?" + key.getEncodedValue()));
         }
-        return Set.copyOf(iris);
+        return Set.copyOf(values);
+      }
+
+      @Override
+      boolean isEmpty(Row row, Column column) {
+        // Composite key requires all fields to be filled. If one is null, all should be null.
+        return row.getString(column.getReferences().get(0).getName()) == null;
       }
     },
     ONTOLOGY(CoreDatatype.XSD.ANYURI) {
@@ -289,7 +285,7 @@ public class ColumnTypeRdfMapper {
     private static Set<Value> basicRetrieval(Object[] object, Function<Object, Value> function) {
       return Arrays.stream(object)
           .map(value -> (Value) function.apply(value))
-          .collect(Collectors.toSet());
+          .collect(Collectors.toUnmodifiableSet());
     }
 
     /**
@@ -305,9 +301,13 @@ public class ColumnTypeRdfMapper {
         String[] object, Function<String, Value> function) {
       return Arrays.stream(object)
           .map(value -> (Value) function.apply(value))
-          .collect(Collectors.toSet());
+          .collect(Collectors.toUnmodifiableSet());
     }
 
     abstract Set<Value> retrieveValues(final String baseURL, final Row row, final Column column);
+
+    boolean isEmpty(final Row row, final Column column) {
+      return row.getString(column.getName()) == null;
+    }
   }
 }
