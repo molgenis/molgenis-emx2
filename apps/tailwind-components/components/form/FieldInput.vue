@@ -3,6 +3,7 @@ import type {
   InputString,
   InputTextArea,
   InputPlaceHolder,
+  InputListbox,
 } from "#build/components";
 import type {
   columnId,
@@ -10,10 +11,13 @@ import type {
   CellValueType,
 } from "../../../metadata-utils/src/types";
 
+import type { IListboxValue } from "~/types/listbox";
+
 type inputComponent =
   | InstanceType<typeof InputString>
   | InstanceType<typeof InputTextArea>
-  | InstanceType<typeof InputPlaceHolder>;
+  | InstanceType<typeof InputPlaceHolder>
+  | InstanceType<typeof InputListbox>;
 
 defineProps<{
   type: CellValueType;
@@ -21,6 +25,7 @@ defineProps<{
   label: string;
   required: boolean;
   data: columnValue;
+  options?: IListboxValue[];
 }>();
 
 defineEmits(["focus", "error", "update:modelValue"]);
@@ -47,7 +52,7 @@ function validate(value: columnValue) {
     :id="id"
     :label="label"
     :required="required"
-    :value="data as string"
+    :value="(data as string)"
     @focus="$emit('focus')"
     @update:modelValue="$emit('update:modelValue', $event)"
     @error="$emit('error', $event)"
@@ -58,10 +63,26 @@ function validate(value: columnValue) {
     :id="id"
     :label="label"
     :required="required"
-    :value="data as string"
+    :value="(data as string)"
     @focus="$emit('focus')"
     @update:modelValue="$emit('update:modelValue', $event)"
     @error="$emit('error', $event)"
   ></LazyInputTextArea>
+  <LazyInputListbox
+    v-else-if="
+      ['ONTOLOGY', 'ONTOLOGY_ARRAY', 'REF', 'REF_ARRAY'].includes(type) &&
+      options
+    "
+    ref="input"
+    :id="id"
+    :label-id="`${id}-label`"
+    :required="required"
+    :options="options"
+    :placeholder="`Select a ${id}`"
+    :value="(data as string)"
+    @focus="$emit('focus')"
+    @update:modelValue="$emit('update:modelValue', $event)"
+    @error="$emit('error', $event)"
+  />
   <LazyInputPlaceHolder v-else ref="input" :type="type" />
 </template>
