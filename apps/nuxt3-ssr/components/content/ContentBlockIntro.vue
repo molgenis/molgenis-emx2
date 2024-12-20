@@ -190,7 +190,7 @@ const submitForm = async () => {
           <template v-else>
             <div class="font-bold text-body-base">E-mail</div>
             <a
-              class="text-blue-500 hover:underline"
+              class="contact-alt-email text-blue-500 hover:underline"
               :href="`mailto:${contact}`"
             >
               {{ contact }}
@@ -203,6 +203,7 @@ const submitForm = async () => {
 
         <template #footer>
           <Button
+            class="contact-send-button"
             v-if="contactMessageFilter && useEmailService"
             type="primary"
             size="small"
@@ -213,6 +214,7 @@ const submitForm = async () => {
 
           <Button
             v-else
+            class="contact-cancel-button"
             type="secondary"
             size="small"
             label="Close"
