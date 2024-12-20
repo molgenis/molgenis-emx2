@@ -167,8 +167,10 @@ import Quality from "../components/generators/view-components/quality.vue";
 import ContactInformation from "../components/report-components/ContactInformation.vue";
 import Button from "../components/Button.vue";
 import { useCheckoutStore } from "../stores/checkoutStore";
+import useErrorHandler from "../composables/errorHandler";
 
 const service = ref<IServices | null>(null);
+const { setError } = useErrorHandler();
 
 new QueryEMX2(useSettingsStore().config.graphqlEndpoint)
   .table("Services")
@@ -227,9 +229,15 @@ new QueryEMX2(useSettingsStore().config.graphqlEndpoint)
   .where("id")
   .equals(useRoute().params.id)
   .execute()
-  .then((data) => {
-    // @ts-ignore
-    service.value = data.Services[0];
+  .then((data: any) => {
+    if (data.Services?.length) {
+      service.value = data.Services[0];
+    } else {
+      setError("Service not found");
+    }
+  })
+  .catch((error) => {
+    setError(error);
   });
 
 const qualityProps = computed(() => {
