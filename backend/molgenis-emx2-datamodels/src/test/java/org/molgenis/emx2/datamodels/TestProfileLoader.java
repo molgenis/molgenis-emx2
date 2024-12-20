@@ -59,6 +59,7 @@ public class TestProfileLoader {
 
   @Test
   void testProfileLoaderWithError() {
+    database.dropSchemaIfExists(TEST_PROFILE);
     Schema testProfileSchema = database.createSchema(TEST_PROFILE);
     var task = new ImportProfileTask(testProfileSchema, "TestProfileWithError.yaml", true);
     assertThrows(MolgenisException.class, task::run);
