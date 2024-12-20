@@ -38,7 +38,7 @@ public class ImportTableTask extends Task {
     try {
       source.processTable(table.getName(), new ImportRowProcesssor(table, this));
     } catch (Exception e) {
-      this.setError("Import failed: " + e.getMessage());
+      this.setError("Import table (%s) failed: %s".formatted(table.getName(), e.getMessage()));
       throw e;
     }
 
