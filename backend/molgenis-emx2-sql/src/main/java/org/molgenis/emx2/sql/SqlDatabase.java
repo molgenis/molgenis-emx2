@@ -435,9 +435,11 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     }
     if (settings.containsKey(Constants.IS_OIDC_ENABLED)) {
       String isOidcEnabledSetting = settings.get(Constants.IS_OIDC_ENABLED);
-      if (Boolean.parseBoolean(isOidcEnabledSetting) && !isValidOidcSettings()) {
+      boolean isOidcEnabled = Boolean.parseBoolean(isOidcEnabledSetting);
+      if (isOidcEnabled && !isValidOidcSettings()) {
         throw new MolgenisException("OIDC environment setting are incomplete");
       }
+      this.isOidcEnabled = isOidcEnabled;
     }
 
     super.setSettings(settings);
