@@ -1,0 +1,12 @@
+boolarray,date,name,category,photoUrls,tags,weight,autoid
+,,pooky,cat,,,9.4,
+,,tom,cat,,red,3.14,
+,,sylvester,cat,,purple,1.337,
+,,jerry,mouse,,blue,0.18,
+,,tweety,bird,,red,0.1,
+,,the very hungry caterpillar,caterpillar,,green,0.5,
+,,test,mouse,,,3.0,
+,,test2,dog,,,5.0,
+"true,false,true",,srdgf,mouse,,,5.0,31Sz9UdLOK
+,,spike,dog,,"red,green,species,mammals,carnivorous mammals,herbivorous mammals,birds,insect",15.7,34hWutiTjM
+,,fire ant,ant,,"red,green,purple",0.01,

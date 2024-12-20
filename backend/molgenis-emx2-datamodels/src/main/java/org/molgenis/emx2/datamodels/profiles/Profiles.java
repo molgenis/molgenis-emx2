@@ -2,6 +2,7 @@ package org.molgenis.emx2.datamodels.profiles;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.util.List;
+import org.molgenis.emx2.Profile;
 
 @JsonDeserialize(converter = PostProcessProfiles.class) // invoked after class is fully deserialized
 public class Profiles {
@@ -26,6 +27,8 @@ public class Profiles {
   private String setFixedSchemaViewPermission;
   private String setFixedSchemaEditPermission;
   private List<CreateSchemas> firstCreateSchemasIfMissing;
+  private Profile migrationProfile;
+  private Integer profileMigrationStep;
 
   public String getSetFixedSchemaViewPermission() {
     return setFixedSchemaViewPermission;
@@ -137,5 +140,21 @@ public class Profiles {
 
   public void setSetViewPermission(String setViewPermission) {
     this.setViewPermission = setViewPermission;
+  }
+
+  public Profile getMigrationProfile() {
+    return migrationProfile;
+  }
+
+  public void setMigrationProfile(Profile migrationProfile) {
+    this.migrationProfile = migrationProfile;
+  }
+
+  public Integer getProfileMigrationStep() {
+    return profileMigrationStep;
+  }
+
+  public void setProfileMigrationStep(Integer profileMigrationStep) {
+    this.profileMigrationStep = profileMigrationStep;
   }
 }

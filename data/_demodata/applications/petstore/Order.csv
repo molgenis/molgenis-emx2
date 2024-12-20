@@ -1,0 +1,8 @@
+orderId,pet,quantity,price,complete,status
+ORDER:6fe7a528-2e97-48cc-91e6-a94c689b4919,pooky,1,9.99,true,delivered
+ORDER:e27c852c-29e2-4459-bcf1-98d8907ff77b,spike,7,14.99,false,approved
+ORDER:vffiZx9oe,,55,,,hallo
+ORDER:vfhmX4R5k,,66,,,hallo
+ORDER:vfib0GP0y,,77,,,hallo
+ORDER:vfjKHZFR2,,88,,,hallo
+ORDER:3shwyU2yW0,pooky,1,80.0,true,resold

@@ -1,0 +1,9 @@
+user,role
+anonymous,Viewer
+costumer,Range
+gdftest,Count
+shopmanager,Manager
+shopowner,Owner
+shopviewer,Viewer
+test,Exists
+testpersoon,Range

@@ -11,11 +11,16 @@ import org.slf4j.LoggerFactory;
 public class ProfileMigrations {
   private static final int DATA_CATALOGUE_CURRENT_PROFILE_STEP = 2;
   private static final int DCAT_CURRENT_PROFILE_STEP = 0;
+  private static final int PET_STORE_CURRENT_PROFILE_STEP = 0;
 
   private static final Map<Profile, Integer> profileVersions =
       Map.of(
-          Profile.DATA_CATALOGUE, DATA_CATALOGUE_CURRENT_PROFILE_STEP,
-          Profile.DCAT, DCAT_CURRENT_PROFILE_STEP);
+          Profile.DATA_CATALOGUE,
+          DATA_CATALOGUE_CURRENT_PROFILE_STEP,
+          Profile.DCAT,
+          DCAT_CURRENT_PROFILE_STEP,
+          Profile.PET_STORE,
+          PET_STORE_CURRENT_PROFILE_STEP);
   private static final Logger log = LoggerFactory.getLogger(ProfileMigrations.class);
 
   private static final String QUERY =
