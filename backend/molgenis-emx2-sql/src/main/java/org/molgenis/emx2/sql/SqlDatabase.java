@@ -48,7 +48,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   private Collection<String> schemaNames = new ArrayList<>();
   private Collection<SchemaInfo> schemaInfos = new ArrayList<>();
   private boolean inTx;
-  private static Logger logger = LoggerFactory.getLogger(SqlDatabase.class);
+  private static final Logger logger = LoggerFactory.getLogger(SqlDatabase.class);
   private String initialAdminPassword =
       (String)
           EnvironmentProperty.getParameter(Constants.MOLGENIS_ADMIN_PW, ADMIN_PW_DEFAULT, STRING);
@@ -434,12 +434,10 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       throw new MolgenisException("Insufficient rights to create database level setting");
     }
     if (settings.containsKey(Constants.IS_OIDC_ENABLED)) {
-      String isOidcEnabledSetting = settings.get(Constants.IS_OIDC_ENABLED);
-      boolean isOidcEnabled = Boolean.parseBoolean(isOidcEnabledSetting);
-      if (isOidcEnabled && !isValidOidcSettings()) {
+      if (Boolean.parseBoolean(settings.get(Constants.IS_OIDC_ENABLED)) && !isValidOidcSettings()) {
         throw new MolgenisException("OIDC environment setting are incomplete");
       }
-      this.isOidcEnabled = isOidcEnabled;
+      this.isOidcEnabled = Boolean.parseBoolean(settings.get(Constants.IS_OIDC_ENABLED));
     }
 
     super.setSettings(settings);
