@@ -384,7 +384,7 @@ public class SqlQuery extends QueryBean {
     if (filters != null) {
       conditions.addAll(
           // column should be null when nesting (is only used for refJoinCondition)
-          jsonFilterQueryConditions(table, null, tableAlias, filterAlias, filters, searchTerms));
+          jsonFilterQueryConditions(table, column, tableAlias, filterAlias, filters, searchTerms));
     }
     if (searchTerms.length > 0) {
       conditions.add(jsonSearchConditions(table, filterAlias, searchTerms));
@@ -434,14 +434,27 @@ public class SqlQuery extends QueryBean {
         } else {
           Column c = getColumnByName(table, f.getColumn());
           if (c.isReference()) {
-            SelectConditionStep<org.jooq.Record> subQuery =
-                jsonFilterQuery(
-                    (SqlTableMetadata) c.getRefTable(),
-                    column,
-                    tableAlias,
-                    subAlias,
-                    f,
-                    new String[0]);
+            SelectSelectStep<?> subQuery = null;
+            if (MATCH_ANY_IN_SUBTREE.equals(f.getOperator())) {
+              // for future refactoring, try to apply this to the ref instead of ontology pkey
+              subQuery =
+                  DSL.select(
+                      field(
+                          "\"MOLGENIS\".get_expanded_ontology_terms({0},{1},{2})",
+                          c.getRefTable().getSchemaName(),
+                          c.getRefTable().getTableName(),
+                          TypeUtils.toStringArray(f.getValues())));
+            } else {
+              subQuery =
+                  (SelectSelectStep<?>)
+                      jsonFilterQuery(
+                          (SqlTableMetadata) c.getRefTable(),
+                          column,
+                          tableAlias,
+                          subAlias,
+                          f,
+                          new String[0]);
+            }
             if (subQuery != null) {
               if (c.isRefArray()) {
                 // if not composite it is simple array overlap

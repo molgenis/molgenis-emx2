@@ -124,6 +124,7 @@ public class CsvApi {
       // expressions
       q.where(
           convertMapToFilterArray(
+              null,
               table.getMetadata(),
               new ObjectMapper()
                   .readValue(ctx.queryParam(GraphqlConstants.FILTER_ARGUMENT), Map.class)));

@@ -428,6 +428,11 @@ public class GraphqlTableFieldFactory {
       }
       filterBuilder.field(
           GraphQLInputObjectField.newInputObjectField()
+              .name(MATCH_ANY_IN_SUBTREE)
+              .type(GraphQLList.list(Scalars.GraphQLString))
+              .build());
+      filterBuilder.field(
+          GraphQLInputObjectField.newInputObjectField()
               .name(FILTER_SEARCH)
               .type(Scalars.GraphQLString)
               .build());
@@ -535,13 +540,13 @@ public class GraphqlTableFieldFactory {
   }
 
   public static FilterBean[] convertMapToFilterArray(
-      TableMetadata table, Map<String, Object> filter) {
+      Column parentColumn, TableMetadata table, Map<String, Object> filter) {
     List<Filter> subFilters = new ArrayList<>();
     for (Map.Entry<String, Object> entry : filter.entrySet()) {
       if (entry.getKey().equals(FILTER_OR) || entry.getKey().equals(FILTER_AND)) {
         List<Map<String, Object>> nested = (List<Map<String, Object>>) entry.getValue();
         List<Filter> nestedFilters =
-            nested.stream().map(m -> and(convertMapToFilterArray(table, m))).toList();
+            nested.stream().map(m -> and(convertMapToFilterArray(null, table, m))).toList();
         if (entry.getKey().equals(FILTER_OR)) {
           subFilters.add(or(nestedFilters.toArray(new Filter[nestedFilters.size()])));
         } else {
@@ -564,6 +569,8 @@ public class GraphqlTableFieldFactory {
                   ((List<Map<String, Object>>) entry.getValue())
                       .stream().map(v -> createKeyFilter(table, v)).collect(Collectors.toList())));
         }
+      } else if (entry.getKey().equals(MATCH_ANY_IN_SUBTREE)) {
+        subFilters.add((f(entry.getKey(), Operator.MATCH_ANY_IN_SUBTREE, entry.getValue())));
       } else {
         // find column by escaped name
         Optional<Column> optional =
@@ -582,6 +589,7 @@ public class GraphqlTableFieldFactory {
               f(
                   c.getName(),
                   convertMapToFilterArray(
+                      c,
                       table
                           .getSchema()
                           .getDatabase()
@@ -666,6 +674,7 @@ public class GraphqlTableFieldFactory {
             if (args.containsKey(GraphqlConstants.FILTER_ARGUMENT)) {
               sc.where(
                   convertMapToFilterArray(
+                      null,
                       column.get().getRefTable(),
                       (Map<String, Object>) args.get(GraphqlConstants.FILTER_ARGUMENT)));
             }
@@ -720,6 +729,7 @@ public class GraphqlTableFieldFactory {
       if (dataFetchingEnvironment.getArgument(GraphqlConstants.FILTER_ARGUMENT) != null) {
         q.where(
             convertMapToFilterArray(
+                null,
                 table.getMetadata(),
                 dataFetchingEnvironment.getArgument(GraphqlConstants.FILTER_ARGUMENT)));
       }

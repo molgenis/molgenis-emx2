@@ -37,6 +37,7 @@ public class GraphqlConstants {
   public static final String FILTER_SEARCH = "_search";
   public static final String FILTER_OR = "_or";
   public static final String FILTER_AND = "_and";
+  public static final String MATCH_ANY_IN_SUBTREE = "_match_any_in_subtree";
   public static final String DETAIL = "detail";
   public static final String LIMIT = "limit";
   public static final String OFFSET = "offset";

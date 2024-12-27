@@ -14,7 +14,11 @@ public enum Operator {
   LIKE("like", "Uses ILIKE '%value%'"),
   NOT_LIKE("not_like", "Uses column NOT ILIKE '%value%' OR column IS NULL"), // ilike
   TEXT_SEARCH("text_search", "Uses to_tsquery('value:*') text search operator"), // text search
-  TRIGRAM_SEARCH("trigram_search", "Uses WORD_SIMILARITY operator based on trigram matches");
+  TRIGRAM_SEARCH("trigram_search", "Uses WORD_SIMILARITY operator based on trigram matches"),
+  // ontology
+  MATCH_ANY_IN_SUBTREE(
+      "match_any_in_subtree",
+      "Can be used for ontology(array) to find if (any of) the term exists in ontology subtree including itself");
 
   private String name;
   private String description;

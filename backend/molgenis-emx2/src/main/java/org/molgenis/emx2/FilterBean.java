@@ -41,6 +41,9 @@ public class FilterBean implements Filter {
   }
 
   public static Filter f(Operator operator, Object... values) {
+    if (Operator.MATCH_ANY_IN_SUBTREE.equals(operator)) {
+      return new FilterBean(operator.getName(), operator, values);
+    }
     // this will translate to search
     if (!Operator.TEXT_SEARCH.equals(operator)
         && !Operator.TRIGRAM_SEARCH.equals(operator)
