@@ -30,12 +30,12 @@
 import { computed } from "vue";
 import { getName } from "../../functions/viewmodelMapper";
 import { useSettingsStore } from "../../stores/settingsStore";
-import { IContactInformation } from "./reportInterfaces";
+import { IPersons } from "../../interfaces/directory";
 
 const settingsStore = useSettingsStore();
 
 const { contactInformation } = defineProps<{
-  contactInformation: IContactInformation;
+  contactInformation: IPersons;
   website?: string;
 }>();
 
