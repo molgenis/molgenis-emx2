@@ -173,8 +173,7 @@ function handleChildSelect(selected: string[], parent: ITreeNode) {
         </div>
       </div>
       <Tree
-        v-if="node.children.length"
-        v-show="expandedNodes.includes(node.name)"
+        v-if="node.children?.length && expandedNodes.includes(node.name)"
         class="ml-[31px]"
         :nodes="node.children"
         :modelValue="modelValue"

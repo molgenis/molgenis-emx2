@@ -141,7 +141,7 @@ pageFilterTemplate = pageFilterTemplate.concat([
       type: "ONTOLOGY",
       ontologyTableId: "Diseases",
       ontologySchema: "CatalogueOntologies",
-      columnId: "populationDiseases",
+      columnId: "populationDisease",
     },
     conditions: [],
   },
