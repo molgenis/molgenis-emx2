@@ -5,6 +5,7 @@
     :required="required"
     :description="description"
     :errorMessage="errorMessage"
+    :key="key"
   >
     <MessageError v-if="error">{{ error }}</MessageError>
     <div
@@ -329,6 +330,12 @@ export default {
     emitValue() {
       let selectedTerms = Object.values(this.terms)
         .filter((term: any) => term.selected === "complete")
+        //remove the children that have selected parent
+        .filter(
+          (term: any) =>
+            !term.parent?.name ||
+            this.terms[term.parent.name].selected !== "complete"
+        )
         .map((term: any) => {
           return { name: term.name };
         });
@@ -350,25 +357,22 @@ export default {
           let term = this.terms[v.name];
           if (term) {
             //select if doesn't have children
-            if (this.getAllChildren(term).length == 0) {
-              term.selected = "complete";
-            }
+            term.selected = "complete";
             if (this.isMultiSelect) {
               //if list also select its children
               this.getAllChildren(term).forEach(
                 (childTerm: Record<string, any>) =>
                   (childTerm.selected = "complete")
               );
-              //select parent(s) if all siblings are selected
+              //select parent(s) if a sibling is selected
               this.getParents(term).forEach((parent: Record<string, any>) => {
                 if (
+                  parent.selected !== "complete" &&
                   parent.children.every(
                     (childTerm: Record<string, any>) =>
                       childTerm.selected === "complete"
                   )
                 ) {
-                  parent.selected = "complete";
-                } else {
                   parent.selected = "partial";
                 }
               });
@@ -396,7 +400,7 @@ export default {
         //first hide all
         Object.values(this.terms).forEach((t: any) => (t.visible = false));
         //split and sanitize search terms
-        let searchTerms = this.search
+        let searchTerms = (this.search as string)
           .trim()
           .split(/[\s,:]+/)
           .filter((s: string) => s.trim().length > 0)

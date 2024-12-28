@@ -36,6 +36,17 @@ public class TestOntologyQueries {
             .fetch();
     assertTrue(result.toString().contains("green"));
 
+    // check that the function works
+    result =
+        schema
+            .getJooq()
+            .select(
+                field(
+                    "\"MOLGENIS\".get_expanded_ontology_terms({0},{1},{2})",
+                    schema.getName(), "Tag", new String[] {"green", "blue"}))
+            .fetch();
+    assertTrue(result.toString().contains("green"));
+
     // expect 'colors' to return all colors
     String jsonResult =
         schema.query("Pet").where(f("tags", MATCH_ANY_IN_SUBTREE, "colors")).retrieveJSON();
@@ -48,5 +59,12 @@ public class TestOntologyQueries {
     assertTrue(jsonResult.contains("sylvester")); // is 'purple'
     assertTrue(jsonResult.contains("jerry")); // is 'blue'
     assertFalse(jsonResult.contains("tom")); // is 'red'
+
+    // gave error elsewhere
+    jsonResult =
+        schema
+            .query("Pet")
+            .where(f("tags", MATCH_ANY_IN_SUBTREE, new String[] {"green", "blue"}))
+            .retrieveJSON();
   }
 }

@@ -426,11 +426,13 @@ public class GraphqlTableFieldFactory {
                 .type(GraphQLList.list(getPrimaryKeyInput(table)))
                 .build());
       }
-      filterBuilder.field(
-          GraphQLInputObjectField.newInputObjectField()
-              .name(MATCH_ANY_IN_SUBTREE)
-              .type(GraphQLList.list(Scalars.GraphQLString))
-              .build());
+      if (TableType.ONTOLOGIES.equals(table.getTableType())) {
+        filterBuilder.field(
+            GraphQLInputObjectField.newInputObjectField()
+                .name(MATCH_ANY_IN_SUBTREE)
+                .type(GraphQLList.list(Scalars.GraphQLString))
+                .build());
+      }
       filterBuilder.field(
           GraphQLInputObjectField.newInputObjectField()
               .name(FILTER_SEARCH)
@@ -540,13 +542,13 @@ public class GraphqlTableFieldFactory {
   }
 
   public static FilterBean[] convertMapToFilterArray(
-      Column parentColumn, TableMetadata table, Map<String, Object> filter) {
+      TableMetadata table, Map<String, Object> filter) {
     List<Filter> subFilters = new ArrayList<>();
     for (Map.Entry<String, Object> entry : filter.entrySet()) {
       if (entry.getKey().equals(FILTER_OR) || entry.getKey().equals(FILTER_AND)) {
         List<Map<String, Object>> nested = (List<Map<String, Object>>) entry.getValue();
         List<Filter> nestedFilters =
-            nested.stream().map(m -> and(convertMapToFilterArray(null, table, m))).toList();
+            nested.stream().map(m -> and(convertMapToFilterArray(table, m))).toList();
         if (entry.getKey().equals(FILTER_OR)) {
           subFilters.add(or(nestedFilters.toArray(new Filter[nestedFilters.size()])));
         } else {
@@ -570,7 +572,7 @@ public class GraphqlTableFieldFactory {
                       .stream().map(v -> createKeyFilter(table, v)).collect(Collectors.toList())));
         }
       } else if (entry.getKey().equals(MATCH_ANY_IN_SUBTREE)) {
-        subFilters.add((f(entry.getKey(), Operator.MATCH_ANY_IN_SUBTREE, entry.getValue())));
+        // skip, handled on parent column. Need re-architecture in next major release.
       } else {
         // find column by escaped name
         Optional<Column> optional =
@@ -584,19 +586,29 @@ public class GraphqlTableFieldFactory {
                   + " unknown in table "
                   + table.getTableName());
         Column c = optional.get();
+        Map value = (Map) entry.getValue();
+        // although nested, this should apply on this level, not sublevel
+        if (value.containsKey(MATCH_ANY_IN_SUBTREE)) {
+          subFilters.add(
+              f(
+                  c.getName(),
+                  Operator.MATCH_ANY_IN_SUBTREE,
+                  ((List) value.get(MATCH_ANY_IN_SUBTREE)).toArray(new String[0])));
+          value.remove(MATCH_ANY_IN_SUBTREE);
+        }
+        if (value.size() == 0) continue;
         if (c.isReference()) {
           subFilters.add(
               f(
                   c.getName(),
                   convertMapToFilterArray(
-                      c,
                       table
                           .getSchema()
                           .getDatabase()
                           .getSchema(c.getRefTable().getSchemaName())
                           .getTable(c.getRefTableName())
                           .getMetadata(),
-                      (Map) entry.getValue())));
+                      value)));
         } else {
           subFilters.add(convertMapToFilter(c.getName(), (Map<String, Object>) entry.getValue()));
         }
@@ -674,7 +686,6 @@ public class GraphqlTableFieldFactory {
             if (args.containsKey(GraphqlConstants.FILTER_ARGUMENT)) {
               sc.where(
                   convertMapToFilterArray(
-                      null,
                       column.get().getRefTable(),
                       (Map<String, Object>) args.get(GraphqlConstants.FILTER_ARGUMENT)));
             }
@@ -729,7 +740,6 @@ public class GraphqlTableFieldFactory {
       if (dataFetchingEnvironment.getArgument(GraphqlConstants.FILTER_ARGUMENT) != null) {
         q.where(
             convertMapToFilterArray(
-                null,
                 table.getMetadata(),
                 dataFetchingEnvironment.getArgument(GraphqlConstants.FILTER_ARGUMENT)));
       }
