@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import type { Modal } from "#build/components";
 import type { ITreeNode } from "../../../tailwind-components/types/types";
-import type { IFilterCondition, IOntologyRespItem } from "~/interfaces/types";
+import type {
+  IFilterCondition,
+  IOntologyNode,
+  IOntologyRespItem,
+} from "~/interfaces/types";
 
 const props = withDefaults(
   defineProps<{
@@ -30,8 +34,10 @@ const data = !props.options
 const showSearch = computed(() => data?.length > 10);
 
 function listToTree(list: IOntologyRespItem[]): ITreeNode[] {
-  const allNodes = list.map((repsElement: IOntologyRespItem) => {
-    return {
+  //create hash map so we don't need to use 'of 'find', much faster
+  const allNodes = {} as Record<string, ITreeNode>;
+  list.forEach((repsElement: IOntologyRespItem) => {
+    allNodes[repsElement.name] = {
       name: repsElement.name,
       description: repsElement.definition,
       parent: repsElement.parent?.name,
@@ -39,17 +45,17 @@ function listToTree(list: IOntologyRespItem[]): ITreeNode[] {
     };
   });
 
-  for (let i = 0; i < allNodes.length; i++) {
-    const node = allNodes[i];
+  //get all children connected
+  Object.values(allNodes).forEach((node) => {
     if (node.parent) {
-      const parent = allNodes.find((n) => n.name === node.parent);
+      const parent = allNodes[node.parent];
       if (parent) {
         parent.children.push(node);
       }
     }
-  }
+  });
 
-  return allNodes.filter((n) => !n.parent);
+  return Object.values(allNodes).filter((n) => !n.parent);
 }
 
 const rootNodes = computed(() => listToTree(data));
@@ -68,20 +74,11 @@ const selectedNodesNames = computed({
 const optionsFilter = ref("");
 
 const filteredNodes = computed(() => {
-  function addParents(
-    node: IOntologyRespItem,
-    parents: Set<IOntologyRespItem>
-  ) {
-    if (node.parent) {
-      const parentName = node.parent.name;
-      const parent = data.find((n) => n.name === parentName);
-      if (parent) {
-        parents.add(parent);
-        addParents(parent, parents);
-      }
-    }
-  }
-
+  //convert into hash map first, much faster than using 'find'
+  const map = {} as Record<string, IOntologyRespItem>;
+  data.forEach((term) => {
+    map[term.name] = term;
+  });
   const parents: Set<IOntologyRespItem> = new Set();
 
   const filteredNodes = data.filter((node) => {
@@ -91,7 +88,10 @@ const filteredNodes = computed(() => {
       node.name.toLowerCase().includes(searchValue) ||
       node.definition?.toLowerCase().includes(searchValue)
     ) {
-      addParents(node, parents);
+      if (node.parent) {
+        //get also the parents
+        parents.add(map[node.parent.name]);
+      }
       return true;
     }
   });

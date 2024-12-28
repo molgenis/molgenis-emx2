@@ -15,8 +15,8 @@ export interface INode {
 }
 
 export interface ITreeNode extends INode {
-  children: 
-  ITreeNode[];
+  children: ITreeNode[];
+  parent?: string;
 }
 
 export type ButtonType =

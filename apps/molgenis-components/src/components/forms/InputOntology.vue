@@ -364,7 +364,7 @@ export default {
                 (childTerm: Record<string, any>) =>
                   (childTerm.selected = "complete")
               );
-              //select parent(s) if a sibling is selected
+              //select parent(s) partial if a sibling is selected
               this.getParents(term).forEach((parent: Record<string, any>) => {
                 if (
                   parent.selected !== "complete" &&

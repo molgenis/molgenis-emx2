@@ -134,6 +134,17 @@ pageFilterTemplate = pageFilterTemplate.concat([
     },
     conditions: [],
   },
+  {
+    id: "disease",
+    config: {
+      label: "Diseases",
+      type: "ONTOLOGY",
+      ontologyTableId: "Diseases",
+      ontologySchema: "CatalogueOntologies",
+      columnId: "populationDisease",
+    },
+    conditions: [],
+  },
 ]);
 
 const filters = computed(() => {
