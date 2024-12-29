@@ -15,8 +15,21 @@ export interface INode {
 }
 
 export interface ITreeNode extends INode {
-  children: ITreeNode[];
+  children:
+  ITreeNode[];
+}
+
+export interface ITreeNodeState extends ITreeNode {
+  /* if a node should be shown, used for search filter */
+  visible?: boolean;
+  /* if a node is selected, intermediate or unselected*/
+  selected?: string; //'unselected','selected','intermediate'
+  /* if a node should be shown expanded */
+  expanded?: boolean;
+  /* helper to quickly navigate to parent node */
   parent?: string;
+  /* extension of children */
+  children: ITreeNodeState[];
 }
 
 export type ButtonType =
