@@ -20,7 +20,7 @@ const width = 2;
 const depth = 3;
 const nodes = generateTreeData(width, depth);
 
-const selectedNodesNames: Ref<string[]> = ref([]);
+const selectedNodesNames: Ref<string[]> = ref(["Node 0"]);
 
 const clearSelection = () => {
   selectedNodesNames.value = [];
@@ -46,6 +46,7 @@ const expandSelected = ref(true);
         class="p-4"
         :class="inverted ? 'bg-white' : 'bg-sidebar-gradient'"
         :inverted="inverted"
+        :omitSelectedChildren="true"
       />
     </div>
 
