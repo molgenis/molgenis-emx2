@@ -2,7 +2,6 @@
 import type { Modal } from "#build/components";
 import type { ITreeNode } from "../../../tailwind-components/types/types";
 import type { IFilterCondition, IOntologyRespItem } from "~/interfaces/types";
-import { nodeArray } from "happy-dom/lib/PropertySymbol.d.ts.js";
 
 const props = withDefaults(
   defineProps<{
@@ -28,8 +27,6 @@ const data = !props.options
     ]
   : props.options;
 
-const showSearch = computed(() => data?.length > 10);
-
 function listToTree(list: IOntologyRespItem[]): ITreeNode[] {
   //create hash map so we don't need to use 'of 'find', much faster
   const allNodes = {} as Record<string, ITreeNode>;
@@ -51,8 +48,6 @@ function listToTree(list: IOntologyRespItem[]): ITreeNode[] {
       }
     }
   });
-
-  console.log("listToTree");
   return Object.values(allNodes).filter((n) => !n.parent);
 }
 
@@ -69,61 +64,12 @@ const selectedNodesNames = computed({
     emit("update:modelValue", newConditions);
   },
 });
-
-const optionsFilter = ref("");
-
-const filteredNodes = computed(() => {
-  //convert into hash map first, much faster than using 'find'
-  const map = {} as Record<string, IOntologyRespItem>;
-  data.forEach((term) => {
-    map[term.name] = term;
-  });
-  const parents: Set<IOntologyRespItem> = new Set();
-
-  const filteredNodes = data.filter((node) => {
-    const searchValue = optionsFilter.value.toLowerCase();
-
-    if (
-      node.name.toLowerCase().includes(searchValue) ||
-      node.definition?.toLowerCase().includes(searchValue)
-    ) {
-      if (node.parent) {
-        //get also the parents
-        parents.add(map[node.parent.name]);
-      }
-      return true;
-    }
-  });
-
-  return Array.from(new Set([...parents, ...filteredNodes]));
-});
-
-const filteredTree = computed(() => listToTree(filteredNodes.value));
-
-const modal = ref<InstanceType<typeof Modal>>();
-
-function showModal() {
-  modal.value?.show();
-}
-
-function closeModal() {
-  optionsFilter.value = "";
-  modal.value?.close();
-}
-
-function removeSelectedNode(node: string) {
-  selectedNodesNames.value = selectedNodesNames.value.filter((n) => n !== node);
-}
-
-function clearAll() {
-  selectedNodesNames.value = [];
-}
 </script>
 
 <template>
   <InputTree
     :nodes="rootNodes"
-    v-model="selectedNodesNames as string[]"
+    v-model="selectedNodesNames"
     :mobile-display="mobileDisplay"
     :isMultiSelect="true"
     :inverted="mobileDisplay"
