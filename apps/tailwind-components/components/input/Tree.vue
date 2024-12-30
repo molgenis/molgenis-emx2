@@ -19,8 +19,7 @@ const props = withDefaults(
     expandSelected: false,
     isRoot: true,
     inverted: false,
-    emitSelectedChildren: false,
-    mobileDisplay: false,
+    emitSelectedChildren: true,
   }
 );
 
