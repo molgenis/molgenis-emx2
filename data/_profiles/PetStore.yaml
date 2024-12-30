@@ -6,7 +6,7 @@ profileTags: Petstore
 
 demoData: _demodata/applications/petstore
 
-settings:
+settings: _settings/petstore
 
 # special options
 setViewPermission: anonymous
