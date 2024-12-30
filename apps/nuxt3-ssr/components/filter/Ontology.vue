@@ -70,10 +70,10 @@ const selectedNodesNames = computed({
   <InputTree
     :nodes="rootNodes"
     v-model="selectedNodesNames"
-    :mobile-display="mobileDisplay"
     :isMultiSelect="true"
     :inverted="mobileDisplay"
     :expandSelected="true"
+    :emitSelectedChildren="true"
   >
   </InputTree>
 </template>
