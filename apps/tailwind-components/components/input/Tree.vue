@@ -4,12 +4,14 @@ import TreeNode from "./TreeNode.vue";
 
 const props = withDefaults(
   defineProps<{
+    /* tree model to be rendered */
     nodes: ITreeNode[];
     modelValue: string[];
+    /* single vs multi select */
     isMultiSelect?: boolean;
     /* whether nodes should expand when selected */
     expandSelected?: boolean;
-    isRoot?: boolean;
+    /* whether colors should be inverted */
     inverted?: boolean;
     /* whether to include/exclude children of selected nodes in emit */
     emitSelectedChildren: boolean;
@@ -17,7 +19,6 @@ const props = withDefaults(
   {
     isMultiSelect: true,
     expandSelected: false,
-    isRoot: true,
     inverted: false,
     emitSelectedChildren: true,
   }
