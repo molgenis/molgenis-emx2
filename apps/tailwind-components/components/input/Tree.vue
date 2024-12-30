@@ -7,38 +7,43 @@ const props = withDefaults(
     nodes: ITreeNode[];
     modelValue: string[];
     isMultiSelect?: boolean;
+    /* whether nodes should expand when selected */
     expandSelected?: boolean;
     isRoot?: boolean;
     inverted?: boolean;
-    /* if when a node is selected also its children should be included in the emit*/
-    emitSelectedChildren?: boolean;
-    /* change layout to fit mobile layout*/
-    mobileDisplay: boolean;
+    /* whether to include/exclude children of selected nodes in emit */
+    emitSelectedChildren: boolean;
   }>(),
   {
     isMultiSelect: true,
     expandSelected: false,
     isRoot: true,
     inverted: false,
-    includeSelectedChildren: false,
+    emitSelectedChildren: false,
     mobileDisplay: false,
   }
 );
 
-//internal nodeMap for rapid manipulations of the nodes in the tree
+const emit = defineEmits(["update:modelValue"]);
+
+/* create node map for fast internal state management from props.nodes */
 const nodeMap = ref({} as Record<string, ITreeNodeState>);
+createNodeMap(props.nodes);
+watch(
+  () => props.nodes,
+  (newValue) => {
+    nodeMap.value = {};
+    createNodeMap(newValue);
+  }
+);
 
-const getAllChildren = (child: ITreeNodeState): ITreeNodeState[] => [
-  child,
-  ...(child.children || []).flatMap(getAllChildren),
-];
+function createNodeMap(nodes: ITreeNode[]) {
+  nodes.forEach((node) => {
+    nodeMap.value[node.name] = clone(node);
+  });
+}
 
-const getAllParents = (node: ITreeNodeState): ITreeNodeState[] =>
-  node.parent
-    ? [nodeMap.value[node.parent], ...getAllParents(nodeMap.value[node.parent])]
-    : [];
-
-const clone = (node: ITreeNode): ITreeNodeState => {
+function clone(node: ITreeNode) {
   const result = {
     name: node.name,
     description: node.description,
@@ -53,26 +58,37 @@ const clone = (node: ITreeNode): ITreeNodeState => {
     result.children.push(copy);
   });
   return result;
-};
-
-props.nodes.forEach((node) => {
-  nodeMap.value[node.name] = clone(node);
-});
-
-const emit = defineEmits(["update:modelValue"]);
-
-function toggleExpand(name: string) {
-  nodeMap.value[name].expanded = nodeMap.value[name].expanded !== true;
 }
 
-function updateParentsAndChildrenSelection(node: ITreeNodeState) {
+/* manage selection */
+
+applyModelValueChangeToSelection(props.modelValue);
+watch(
+  () => props.modelValue,
+  (newValue) => {
+    applyModelValueChangeToSelection(newValue);
+  }
+);
+
+function applyModelValueChangeToSelection(selection: string[]) {
+  Object.values(nodeMap.value).forEach(
+    (node) => (node.selected = "unselected")
+  );
+  selection.forEach((name) => {
+    const node = nodeMap.value[name];
+    node.selected = "selected";
+    processSelectionChangeToParentAndChildNodes(node);
+  });
+}
+
+function processSelectionChangeToParentAndChildNodes(node: ITreeNodeState) {
   //make child selection match selection state
   getAllChildren(node).forEach((child) => {
     child.selected = node.selected;
     child.visible = true; //in search you want to see effect of selecting
   });
 
-  //update parents
+  //update parents selection state to either selected, unselected, intermediate
   getAllParents(node).forEach((parent) => {
     const allSelected = parent.children?.every(
       (child) => child.selected === "selected"
@@ -90,6 +106,16 @@ function updateParentsAndChildrenSelection(node: ITreeNodeState) {
   });
 }
 
+function getAllChildren(node: ITreeNodeState): ITreeNodeState[] {
+  return [node, ...(node.children || []).flatMap(getAllChildren)];
+}
+
+function getAllParents(node: ITreeNodeState): ITreeNodeState[] {
+  return node.parent
+    ? [nodeMap.value[node.parent], ...getAllParents(nodeMap.value[node.parent])]
+    : [];
+}
+
 function toggleSelect(name: string) {
   //toggle select of the named node
   const node = nodeMap.value[name];
@@ -102,7 +128,7 @@ function toggleSelect(name: string) {
     }
   }
 
-  updateParentsAndChildrenSelection(node);
+  processSelectionChangeToParentAndChildNodes(node);
 
   //expand selected
   if (props.expandSelected && node.selected === "selected") {
@@ -125,49 +151,14 @@ function toggleSelect(name: string) {
   );
 }
 
-//apply modelValue
-function applySelection(selection: string[]) {
-  Object.values(nodeMap.value).forEach(
-    (node) => (node.selected = "unselected")
-  );
-  selection.forEach((name) => {
-    const node = nodeMap.value[name];
-    node.selected = "selected";
-    updateParentsAndChildrenSelection(node);
-  });
+/* manage expand */
+function toggleExpand(name: string) {
+  nodeMap.value[name].expanded = nodeMap.value[name].expanded !== true;
 }
 
-watch(
-  () => props.modelValue,
-  (newValue) => {
-    applySelection(newValue);
-  }
-);
-
-onMounted(() => {
-  applySelection(props.modelValue);
-});
-
-const rootNodes = computed(() => {
-  return Object.values(nodeMap.value).filter((node) => !node.parent);
-});
-
-const showOptionsSearch = ref(false);
-const optionsSearch = ref("");
-function applySearch(searchValue: string, node: ITreeNodeState) {
-  if (
-    node.name.toLowerCase().includes(searchValue) ||
-    node.description?.toLowerCase().includes(searchValue)
-  ) {
-    node.visible = true;
-    getAllChildren(node).forEach((child) => (child.visible = true));
-    getAllParents(node).forEach((parent) => {
-      parent.visible = true;
-    });
-  } else {
-    node.children.forEach((child) => applySearch(searchValue, child));
-  }
-}
+/* manage search */
+const showOptionsSearch = ref(false); //if the search for options input should be shown
+const optionsSearch = ref(""); //to store the value of the search
 watch(optionsSearch, (newValue, oldValue) => {
   if (newValue !== oldValue) {
     if (newValue) {
@@ -197,17 +188,37 @@ watch(optionsSearch, (newValue, oldValue) => {
   }
 });
 
+function applySearch(searchValue: string, node: ITreeNodeState) {
+  if (
+    node.name.toLowerCase().includes(searchValue) ||
+    node.description?.toLowerCase().includes(searchValue)
+  ) {
+    node.visible = true;
+    getAllChildren(node).forEach((child) => (child.visible = true));
+    getAllParents(node).forEach((parent) => {
+      parent.visible = true;
+    });
+  } else {
+    node.children.forEach((child) => applySearch(searchValue, child));
+  }
+}
+
+function toggleSearch() {
+  showOptionsSearch.value = !showOptionsSearch.value;
+}
+
 let timeoutID: number | NodeJS.Timeout | undefined = undefined;
-function handleInput(input: string) {
+function handleSearchInput(input: string) {
   clearTimeout(timeoutID);
   timeoutID = setTimeout(() => {
     optionsSearch.value = input;
   }, 500);
 }
 
-function toggleSearch() {
-  showOptionsSearch.value = !showOptionsSearch.value;
-}
+/* provide root nodes to be rendered */
+const rootNodes = computed(() => {
+  return Object.values(nodeMap.value).filter((node) => !node.parent);
+});
 </script>
 
 <template>
@@ -218,12 +229,12 @@ function toggleSearch() {
   >
     <BaseIcon
       name="search"
-      :class="`text-search-filter-expand${mobileDisplay ? '-mobile' : ''}`"
+      :class="`text-search-filter-expand${inverted ? '-mobile' : ''}`"
       :width="18"
     />
     <span
       class="ml-2 text-body-sm hover:underline"
-      :class="`text-search-filter-expand${mobileDisplay ? '-mobile' : ''}`"
+      :class="`text-search-filter-expand${inverted ? '-mobile' : ''}`"
     >
       Search for options
     </span>
@@ -231,7 +242,7 @@ function toggleSearch() {
   <input
     v-else
     :value="optionsSearch"
-    @input="(event) => handleInput((event.target as HTMLInputElement).value)"
+    @input="(event) => handleSearchInput((event.target as HTMLInputElement).value)"
     type="search"
     class="w-full pr-4 font-sans text-black text-gray-300 outline-none rounded-search-input h-10 ring-red-500 pl-3 shadow-search-input focus:shadow-search-input hover:shadow-search-input search-input-mobile border"
     placeholder="Type to search in options..."
