@@ -1,0 +1,12 @@
+---
+name: Pet store
+description: "a demo schema"
+
+profileTags: Petstore
+
+demoData: _demodata/applications/petstore
+
+settings:
+
+# special options
+setViewPermission: anonymous
