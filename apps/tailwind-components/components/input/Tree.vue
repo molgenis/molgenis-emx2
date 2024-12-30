@@ -10,7 +10,9 @@ const props = withDefaults(
     expandSelected?: boolean;
     isRoot?: boolean;
     inverted?: boolean;
-    includeSelectedChildren?: boolean;
+    /* if when a node is selected also its children should be included in the emit*/
+    emitSelectedChildren?: boolean;
+    /* change layout to fit mobile layout*/
     mobileDisplay: boolean;
   }>(),
   {
@@ -26,7 +28,6 @@ const props = withDefaults(
 //internal nodeMap for rapid manipulations of the nodes in the tree
 const nodeMap = ref({} as Record<string, ITreeNodeState>);
 
-//helper functions
 const getAllChildren = (child: ITreeNodeState): ITreeNodeState[] => [
   child,
   ...(child.children || []).flatMap(getAllChildren),
@@ -37,7 +38,7 @@ const getAllParents = (node: ITreeNodeState): ITreeNodeState[] =>
     ? [nodeMap.value[node.parent], ...getAllParents(nodeMap.value[node.parent])]
     : [];
 
-const cloneNode = (node: ITreeNode): ITreeNodeState => {
+const clone = (node: ITreeNode): ITreeNodeState => {
   const result = {
     name: node.name,
     description: node.description,
@@ -46,7 +47,7 @@ const cloneNode = (node: ITreeNode): ITreeNodeState => {
     expanded: false,
   };
   node.children?.forEach((child) => {
-    const copy = cloneNode(child);
+    const copy = clone(child);
     copy.parent = node.name;
     nodeMap.value[child.name] = copy;
     result.children.push(copy);
@@ -55,7 +56,7 @@ const cloneNode = (node: ITreeNode): ITreeNodeState => {
 };
 
 props.nodes.forEach((node) => {
-  nodeMap.value[node.name] = cloneNode(node);
+  nodeMap.value[node.name] = clone(node);
 });
 
 const emit = defineEmits(["update:modelValue"]);
@@ -116,7 +117,7 @@ function toggleSelect(name: string) {
       .filter(
         (node) =>
           node.selected === "selected" &&
-          (props.includeSelectedChildren ||
+          (props.emitSelectedChildren ||
             !node.parent ||
             nodeMap.value[node.parent].selected !== "selected")
       )
