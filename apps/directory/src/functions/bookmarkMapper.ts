@@ -2,8 +2,10 @@ import router from "../router";
 import { useFiltersStore } from "../stores/filtersStore";
 import { useCollectionStore } from "../stores/collectionStore";
 import { labelValuePair, useCheckoutStore } from "../stores/checkoutStore";
-
+import useErrorHandler from "../composables/errorHandler";
 let bookmarkApplied = false;
+
+const { setError } = useErrorHandler();
 
 export async function applyBookmark(watchedQuery: Record<string, string>) {
   if (bookmarkApplied) {
@@ -92,7 +94,6 @@ export function createBookmark(
   collectionCart: Record<string, labelValuePair[]>,
   serviceCart: Record<string, labelValuePair[]>
 ) {
-  console.log("createBookmark", filters, collectionCart, serviceCart);
   const filtersStore = useFiltersStore();
   const bookmark: Record<string, string> = {};
   const matchAll = [];
@@ -181,10 +182,14 @@ export function createBookmark(
   }
 
   if (!filtersStore.bookmarkWaitingForApplication) {
-    router.push({
-      name: router.currentRoute.value.name,
-      query: bookmark,
-    });
+    try {
+      router.push({
+        name: router.currentRoute.value.name,
+        query: bookmark,
+      });
+    } catch (error) {
+      setError(error);
+    }
   }
 }
 
