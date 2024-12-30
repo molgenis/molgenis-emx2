@@ -42,12 +42,13 @@ function createNodeMap(nodes: ITreeNode[]) {
   });
 }
 
-function clone(node: ITreeNode) {
+function clone(node: ITreeNode): ITreeNodeState {
   const result = {
     name: node.name,
     description: node.description,
     visible: true,
     children: [] as ITreeNodeState[],
+    selection: "unselected",
     expanded: false,
   };
   node.children?.forEach((child) => {
