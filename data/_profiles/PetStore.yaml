@@ -10,4 +10,3 @@ settings:
 
 # special options
 setViewPermission: anonymous
-ontologiesToFixedSchema: Tags
