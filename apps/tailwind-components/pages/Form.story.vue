@@ -13,7 +13,7 @@ const schemaId = computed(() =>
   sampleType.value === "simple" ? "pet store" : "catalogue-demo"
 );
 const tableId = computed(() =>
-  sampleType.value === "simple" ? "Pet" : "Resources"
+  sampleType.value === "simple" ? "User" : "Resources"
 );
 
 const {

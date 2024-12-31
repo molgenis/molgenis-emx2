@@ -2,7 +2,7 @@
   <div :id="`${id}-radio-group`">
     <div
       class="flex justify-start align-center"
-      v-for="option in radioOptions"
+      v-for="option in options"
       :key="option.value"
     >
       <InputRadio
@@ -11,6 +11,7 @@
         :name="id"
         :value="option.value"
         v-model="modelValue"
+        @input="toggleSelect"
         :checked="option.value === modelValue"
       />
       <InputLabel
@@ -40,26 +41,31 @@
 </template>
 
 <script lang="ts" setup>
-interface RadioOptionsDataIF {
-  value: string;
-  label?: string;
-  checked?: boolean | undefined;
-}
+import type { SelectOption } from "~/types/types";
 
 withDefaults(
   defineProps<{
     id: string;
-    radioOptions: RadioOptionsDataIF[];
+    options: SelectOption[];
     showClearButton?: boolean;
   }>(),
   {
     showClearButton: false,
   }
 );
-
 const modelValue = defineModel<string>();
+const emit = defineEmits(["update:modelValue", "select", "deselect"]);
+
+function toggleSelect(event: Event) {
+  const target = event.target as HTMLInputElement;
+  if (target.checked) {
+    emit("select", target.value);
+  } else {
+    emit("deselect", target.value);
+  }
+}
 
 function resetModelValue() {
-  modelValue.value = "";
+  modelValue.value = undefined;
 }
 </script>

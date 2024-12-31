@@ -93,8 +93,14 @@ export interface IFieldError {
 }
 
 export type columnId = string;
-export type columnValue = string | number | boolean | columnValueObject;
 
-interface columnValueObject {
+export type columnValue =
+  | string
+  | number
+  | boolean
+  | columnValueObject
+  | columnValueObject[];
+
+export interface columnValueObject {
   [x: string]: columnValue;
 }

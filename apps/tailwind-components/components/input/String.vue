@@ -4,7 +4,7 @@ import type { columnValue } from "../../../metadata-utils/src/types";
 const props = withDefaults(
   defineProps<{
     id: string;
-    label?: string;
+    label?: string; //todo: remove?
     modelValue?: string;
     placeholder?: string;
     disabled?: boolean;
