@@ -8,14 +8,19 @@
       titlePositionY="center"
     />
     <EditBlock v-if="editMode" type="Header">
+      <InputLabel for="header-title-input-string">
+        Title
+      </InputLabel>
       <InputString
-        id="title"
-        ß
+        id="header-title-input-string"
         :modelValue="localContent.title"
         @update:modelValue="save('title', $event)"
       />
+      <InputLabel for="header-subtitle-input-string">
+        Subtitle
+      </InputLabel>
       <InputString
-        id="subtitle"
+        id="header-subtitle-input-string"
         :modelValue="localContent.subtitle"
         @update:modelValue="save('subtitle', $event)"
       />
@@ -26,10 +31,6 @@
 <script setup lang="ts">
 // @ts-ignore
 import { PageHeader } from "molgenis-viz";
-// @ts-ignore
-import { InputString } from "molgenis-components";
-import EditBlock from "../EditBlock.vue";
-
 import { ref, watch } from "vue";
 
 let props = withDefaults(

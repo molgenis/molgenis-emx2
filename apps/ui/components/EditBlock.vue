@@ -7,13 +7,12 @@
         style="margin: 0"
         :modelValue="type"
         :options="['Html', 'Header', 'Section', 'PieChart']"
+        :required="true"
       />
-      <ButtonAction> move up</ButtonAction>
-      <ButtonAction> move down</ButtonAction>
-      <ButtonAction> add new module below</ButtonAction>
-      <ButtonDanger icon="times" style="margin-left: auto">
-        remove</ButtonDanger
-      >
+      <Button type="primary" size="tiny"><BaseIcon name="ArrowUp"/></Button>
+      <Button type="primary" size="tiny"><BaseIcon name="ArrowDown"/></Button>
+      <Button type="primary" size="tiny"><BaseIcon name="Plus"/></Button>
+      <Button type="primary" size="tiny"><BaseIcon name="Trash"/></Button>
     </div>
     <hr />
     <slot></slot>
@@ -21,7 +20,6 @@
 </template>
 
 <script setup lang="ts">
-import { InputSelect, ButtonDanger, ButtonAction } from "molgenis-components";
 let props = defineProps<{
   type?: string;
 }>();

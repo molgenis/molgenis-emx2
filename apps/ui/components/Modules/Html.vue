@@ -2,18 +2,17 @@
   <div>
     <div v-html="localContent.html"></div>
     <EditBlock v-if="editMode" type="Html">
-      <InputText
+      <InputTextArea
+        id="html input"
         :modelValue="localContent.html"
         @update:modelValue="save($event)"
         placeholder="Add your HTML here"
-      ></InputText>
+      ></InputTextArea>
     </EditBlock>
   </div>
 </template>
 
 <script setup lang="ts">
-import EditBlock from "../EditBlock.vue";
-import { InputText } from "molgenis-components";
 import { ref, watch } from "vue";
 
 let props = withDefaults(
