@@ -90,12 +90,12 @@ class Transform:
         self.publications()
         self.external_identifiers()
 
-        # if self.database_type != 'cohort_UMCG':
-        #     self.variables()
-        #     self.variable_values()
+        if self.database_type != 'cohort_UMCG':
+            self.variables()
+            self.variable_values()
 
-        # if self.database_type != 'network':
-        #     self.variable_mappings()
+        if self.database_type != 'network':
+            self.variable_mappings()
         if self.database_type not in ['data_source', 'network']:
             self.collection_events()
             self.subcohorts()
@@ -421,6 +421,9 @@ class Transform:
                 # get repeated mappings in comma separated string
                 df_mappings = rewrite_mappings(df_cdm_with_repeats, df_no_duplicates)
                 df_mappings = pd.concat([df_mappings, df_cdm_no_repeats])
+                df_mappings.to_csv(self.path + 'Variable mappings.csv', index=False)
+            else:
+                df_mappings = df_cdm_no_repeats
                 df_mappings.to_csv(self.path + 'Variable mappings.csv', index=False)
 
     def collection_events(self):

@@ -23,7 +23,7 @@ TARGET_SERVER_URL = config('MG_TARGET_SERVER_URL')
 TARGET_SERVER_USERNAME = config('MG_TARGET_SERVER_USERNAME')
 TARGET_SERVER_PASSWORD = config('MG_TARGET_SERVER_PASSWORD')
 
-CATALOGUE_SCHEMA_NAME = config('MG_CATALOGUE_SCHEMA_NAME')
+CATALOGUES = config('MG_CATALOGUE_SCHEMA_NAME', cast=lambda v: [s.strip() for s in v.split(',')])
 ONTOLOGIES_SCHEMA_NAME = config('MG_ONTOLOGIES_SCHEMA_NAME')
 SHARED_STAGING_NAME = config('MG_SHARED_STAGING_NAME')
 
@@ -46,7 +46,7 @@ print('TARGET_SERVER_URL: ' + TARGET_SERVER_URL)
 print('TARGET_USERNAME: ' + TARGET_SERVER_USERNAME)
 print('TARGET_PASSWORD: ******')
 
-print('CATALOGUE_SCHEMA_NAME: ' + CATALOGUE_SCHEMA_NAME)
+print('CATALOGUE_SCHEMA_NAME: ' + str(CATALOGUES))
 print('ONTOLOGIES_SCHEMA_NAME: ' + ONTOLOGIES_SCHEMA_NAME)
 print('SHARED_STAGING_NAME: ' + SHARED_STAGING_NAME)
 
@@ -67,22 +67,32 @@ session = Session(
 print('-----------------------')
 print('Catalogue schema update to data model ' + DATA_MODEL_VERSION)
 
-# extract data from catalogue schema
-print('Extract data from ' + CATALOGUE_SCHEMA_NAME + ': ' + CATALOGUE_SCHEMA_NAME + '_data.zip')
-session.download_zip(database_name=CATALOGUE_SCHEMA_NAME)
+# extract data from catalogue schema(s)
+for catalogue in CATALOGUES:
+    print(catalogue)
+    # sign in to source server
+    print('Sign in to source server: ' + SOURCE_SERVER_URL)
+    session = Session(
+        url=SOURCE_SERVER_URL,
+        email=SOURCE_SERVER_USERNAME,
+        password=SOURCE_SERVER_PASSWORD
+    )
+    # extract data
+    print('Extract data from ' + catalogue + ': ' + catalogue + '_data.zip')
+    session.download_zip(database_name=catalogue)
 
-# transform data from catalogue schema
-print('Transform data from ' + CATALOGUE_SCHEMA_NAME)
-# get instances of classes
-zip_handling = Zip(CATALOGUE_SCHEMA_NAME)
-update = Transform(database_name=CATALOGUE_SCHEMA_NAME, database_type='catalogue')
+    # transform data from catalogue schema
+    print('Transform data from ' + catalogue)
+    # get instances of classes
+    zip_handling = Zip(catalogue)
+    update = Transform(database_name=catalogue, database_type='catalogue')
 
-# run zip and transform functions
-zip_handling.unzip_data()
-update.delete_data_model_file()  # delete molgenis.csv from data folder
-update.update_data_model_file()
-update.transform_data()
-zip_handling.zip_data()
+    # run zip and transform functions
+    zip_handling.unzip_data()
+    update.delete_data_model_file()  # delete molgenis.csv from data folder
+    update.update_data_model_file()
+    update.transform_data()
+    zip_handling.zip_data()
 
 # ---------------------------------------------------------------------------------------
 
@@ -179,17 +189,17 @@ if SERVER_TYPE == 'data_catalogue':
         zip_handling.remove_unzipped_data()
 
         # get data source database description from source server
-        # schema_description = session.get_database_description(database_name=data_source)
+        schema_description = session.get_database_description(database_name=data_source)
 
-        # # sign in to target server
-        # print('Sign in to target server: ' + TARGET_SERVER_URL)
-        # session = Session(
-        #     url=TARGET_SERVER_URL,
-        #     email=TARGET_SERVER_USERNAME,
-        #     password=TARGET_SERVER_PASSWORD
-        # )
-        # # create data source schema on target server
-        # session.create_database(database_name=data_source, database_description=schema_description)
+        # sign in to target server
+        print('Sign in to target server: ' + TARGET_SERVER_URL)
+        session = Session(
+            url=TARGET_SERVER_URL,
+            email=TARGET_SERVER_USERNAME,
+            password=TARGET_SERVER_PASSWORD
+        )
+        # create data source schema on target server
+        session.create_database(database_name=data_source, database_description=schema_description)
 
     # Networks update
     print('-----------------------')
@@ -233,18 +243,19 @@ if SERVER_TYPE == 'data_catalogue':
         # create network schema on target server
         session.create_database(database_name=network, database_description=schema_description)
 
-# ---------------------------------------------------------------
-# print('------------------------')
-
-# upload catalogue data to target server
-# sign in to target server
-print('Sign in to target server: ' + TARGET_SERVER_URL)
-session = Session(
-    url=TARGET_SERVER_URL,
-    email=TARGET_SERVER_USERNAME,
-    password=TARGET_SERVER_PASSWORD
-)
-session.upload_zip(database_name=CATALOGUE_SCHEMA_NAME, data_to_upload=CATALOGUE_SCHEMA_NAME)
+# # ---------------------------------------------------------------
+# # print('------------------------')
+#
+# # upload catalogue data to target server
+# # sign in to target server
+# for catalogue in CATALOGUES:
+#     print('Sign in to target server: ' + TARGET_SERVER_URL)
+#     session = Session(
+#         url=TARGET_SERVER_URL,
+#         email=TARGET_SERVER_USERNAME,
+#         password=TARGET_SERVER_PASSWORD
+#     )
+#     session.upload_zip(database_name=catalogue, data_to_upload=catalogue)
 
 # ----------------------------------------------------------------------
 
