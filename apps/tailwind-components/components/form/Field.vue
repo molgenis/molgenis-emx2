@@ -21,7 +21,7 @@ const dirty = computed(() => !pristine.value);
 const touched = ref(false);
 const untouched = computed(() => !touched.value);
 
-const hasError = computed(() => props.errors.length > 0);
+const hasError = computed(() => props.errors?.length > 0);
 
 const formFieldInput = ref<InstanceType<typeof FormFieldInput>>();
 

@@ -26,10 +26,11 @@ const props = withDefaults(
     inverted: false,
   }
 );
-const modelValue = defineModel<columnValueObject[] | columnValueObject>();
+const modelValue = defineModel<columnValueObject[] | columnValueObject | "">(); //empty string might happen
 const emit = defineEmits(["update:modelValue"]);
 const optionMap: Ref<Record<string, columnValueObject>> = ref({});
 const selectionMap: Ref<Record<string, columnValueObject>> = ref({});
+const initialCount = ref(0);
 const count = ref(0);
 const offset = ref(0);
 const showSearch = ref(false);
@@ -50,7 +51,7 @@ const selection = computed(() =>
 onMounted(async () => {
   //first we need to retrieve all selected items so are sure we have all for the template
   if (
-    Array.isArray(modelValue.value)
+    modelValue.value && Array.isArray(modelValue.value)
       ? modelValue.value.length > 0
       : modelValue.value
   ) {
@@ -66,7 +67,7 @@ onMounted(async () => {
 
   //then we load the options for the first time
   await loadOptions({ limit: props.limit });
-  const initialCount = count.value;
+  initialCount.value = count.value;
 });
 
 function applyTemplate(template: string, row: Record<string, any>): string {
