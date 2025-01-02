@@ -13,7 +13,7 @@
     v-else
     v-bind="$props"
     :id="id"
-    :modelValue="modelValue ? 'Yes' : 'No'"
+    :modelValue="insertValue(modelValue)"
     :options="['Yes', 'No']"
     :isClearable="isClearable"
     @update:modelValue="$emit('update:modelValue', returnValue($event))"
@@ -33,6 +33,15 @@ export default {
     isClearable: { type: Boolean, default: true },
   },
   methods: {
+    insertValue(value) {
+      if (value === true) {
+        return "Yes";
+      }
+      if (value === false) {
+        return "No";
+      }
+      return null;
+    },
     returnValue(value) {
       if (value === "Yes") {
         return true;
