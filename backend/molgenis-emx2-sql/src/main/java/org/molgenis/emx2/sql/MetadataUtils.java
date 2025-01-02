@@ -302,12 +302,20 @@ public class MetadataUtils {
     try {
       String description = Objects.isNull(schema.getDescription()) ? "" : schema.getDescription();
       sql.insertInto(SCHEMA_METADATA)
-          .columns(TABLE_SCHEMA, SCHEMA_DESCRIPTION, SETTINGS)
-          .values(schema.getName(), description, schema.getSettings())
+          .columns(
+              TABLE_SCHEMA, SCHEMA_DESCRIPTION, SETTINGS, SCHEMA_PROFILE, SCHEMA_MIGRATION_STEP)
+          .values(
+              schema.getName(),
+              description,
+              schema.getSettings(),
+              schema.getProfile(),
+              schema.getProfileMigrationStep())
           .onConflict(TABLE_SCHEMA)
           .doUpdate()
           .set(SCHEMA_DESCRIPTION, schema.getDescription())
           .set(SETTINGS, schema.getSettings())
+          .set(SCHEMA_PROFILE, schema.getProfile())
+          .set(SCHEMA_MIGRATION_STEP, schema.getProfileMigrationStep())
           .execute();
     } catch (Exception e) {
       throw new SqlMolgenisException("save of schema metadata failed", e);
@@ -340,6 +348,8 @@ public class MetadataUtils {
     } else {
       schema.setDescription(schemaRecord.get(SCHEMA_DESCRIPTION, String.class));
       schema.setSettingsWithoutReload(schemaRecord.get(SETTINGS, Map.class));
+      schema.setProfile(schemaRecord.get(SCHEMA_PROFILE, Profile.class));
+      schema.setProfileMigrationStep(schemaRecord.get(SCHEMA_MIGRATION_STEP, Integer.class));
     }
     return schema;
   }

@@ -306,7 +306,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
 
   public void setSchemaProfileVersion(Schema schema, Profile profile, int step) {
     jooq.execute(
-        "update \"MOLGENIS\".\"schema_metadata\" set profile = '%s'::\"MOLGENIS\".profile, profile_migration_step = %d where table_schema = '%s'"
+        "update \"MOLGENIS\".\"schema_metadata\" set profile = '%s', profile_migration_step = %d where table_schema = '%s'"
             .formatted(profile.name(), step, schema.getName()));
   }
 

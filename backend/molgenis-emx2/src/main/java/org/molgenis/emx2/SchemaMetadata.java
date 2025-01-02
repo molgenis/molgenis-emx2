@@ -16,6 +16,11 @@ public class SchemaMetadata extends HasSettings<SchemaMetadata> {
   // optional
   protected Database database;
 
+  // optional profile for this schema
+  protected Profile profile;
+  // optional profile migration step, used to determine if migration steps are needed
+  protected Integer profileMigrationStep;
+
   public SchemaMetadata() {}
 
   public SchemaMetadata(String name) {
@@ -186,5 +191,21 @@ public class SchemaMetadata extends HasSettings<SchemaMetadata> {
                       });
             });
     return result;
+  }
+
+  public Profile getProfile() {
+    return profile;
+  }
+
+  public void setProfile(Profile profile) {
+    this.profile = profile;
+  }
+
+  public Integer getProfileMigrationStep() {
+    return profileMigrationStep;
+  }
+
+  public void setProfileMigrationStep(Integer profileMigrationStep) {
+    this.profileMigrationStep = profileMigrationStep;
   }
 }

@@ -1,7 +1,5 @@
-CREATE TYPE "MOLGENIS".profile AS ENUM ('DATA_CATALOGUE', 'DCAT');
-
 ALTER TABLE "MOLGENIS"."schema_metadata"
-    ADD COLUMN profile "MOLGENIS".profile;
+    ADD COLUMN profile varchar;
 
 ALTER TABLE "MOLGENIS"."schema_metadata"
     ADD COLUMN profile_migration_step int;

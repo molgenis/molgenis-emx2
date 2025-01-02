@@ -6,6 +6,7 @@ import java.net.URL;
 import java.util.*;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.datamodels.profiles.CreateSchemas;
+import org.molgenis.emx2.datamodels.profiles.ProfileMigration;
 import org.molgenis.emx2.datamodels.profiles.Profiles;
 import org.molgenis.emx2.datamodels.profiles.SchemaFromProfile;
 import org.molgenis.emx2.io.emx2.Emx2;
@@ -69,6 +70,13 @@ public class ImportProfileTask extends Task {
       throw new MolgenisException("Failed to create schema from profile: " + e.getMessage(), e);
     }
 
+    final ProfileMigration profileMigration = profiles.getProfileMigration();
+
+    if (profileMigration != null) {
+      schemaMetadata.setProfile(profileMigration.getProfile());
+      schemaMetadata.setProfileMigrationStep(profileMigration.getStep());
+    }
+
     // special option: fixed schema import location for ontologies (not schema or data)
     Schema ontologySchema;
     if (profiles.getOntologiesToFixedSchema() != null) {
@@ -130,6 +138,14 @@ public class ImportProfileTask extends Task {
     // this requires special parsing, because we must only update ontology tables used in the schema
     // to prevent adding additional unused tables
     SchemaMetadata ontologySemantics = getOntologySemantics(ontologySchema);
+
+    // if the ontologySchema is the same as the schema, set the profile and migration step to
+    // avoid override on migration
+    if (profileMigration != null && ontologySchema.getName().equals(schema.getName())) {
+      ontologySemantics.setProfile(schema.getMetadata().getProfile());
+      ontologySemantics.setProfileMigrationStep(schema.getMetadata().getProfileMigrationStep());
+    }
+
     ontologySchema.migrate(ontologySemantics);
   }
 

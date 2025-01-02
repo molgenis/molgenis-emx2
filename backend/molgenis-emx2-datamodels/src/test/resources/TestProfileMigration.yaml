@@ -1,12 +1,8 @@
 ---
-name: Pet store
-description: "a demo schema"
+name: Test Profile Migration
+description: "a demo profile for testing migration"
 
 profileTags: Petstore
-
-demoData: _demodata/applications/petstore
-
-settings:
 
 # special options
 setViewPermission: anonymous
