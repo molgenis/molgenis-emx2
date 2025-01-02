@@ -21,7 +21,7 @@ const dirty = computed(() => !pristine.value);
 const touched = ref(false);
 const untouched = computed(() => !touched.value);
 
-const hasError = computed(() => props.errors.length > 0);
+const hasError = computed(() => props.errors?.length > 0);
 
 const formFieldInput = ref<InstanceType<typeof FormFieldInput>>();
 
@@ -53,6 +53,9 @@ function validate(value: columnValue) {
         :type="column.columnType"
         :id="column.id"
         :label="column.label"
+        :refSchemaId="column.refSchemaId"
+        :refTableId="column.refTableId"
+        :refLabel="column.refLabel || column.refLabelDefault"
         :data="data"
         :required="!!column.required"
         :aria-invalid="hasError"

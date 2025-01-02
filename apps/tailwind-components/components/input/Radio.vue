@@ -9,8 +9,8 @@
 
 <script lang="ts" setup>
 defineProps<{
-  value: string;
+  value: any;
 }>();
 
-const modelValue = defineModel<string>();
+const modelValue = defineModel<any>();
 </script>

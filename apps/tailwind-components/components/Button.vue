@@ -44,6 +44,12 @@ const SIZE_MAPPING = {
   medium: "h-14 px-7.5 text-heading-xl gap-4",
   large: "h-18 px-8.75 text-heading-xl gap-5",
 };
+const ICON_SIZE_MAPPING = {
+  tiny: 12,
+  small: 18,
+  medium: 24,
+  large: 36,
+};
 
 const ICON_POSITION_MAPPING = {
   left: "",
@@ -61,6 +67,10 @@ const sizeClasses = computed(() => {
 const iconPositionClass = computed(() => {
   return ICON_POSITION_MAPPING[props.iconPosition];
 });
+
+const iconSize = computed(() => {
+  return ICON_SIZE_MAPPING[props.size];
+});
 </script>
 
 <template>
@@ -69,7 +79,7 @@ const iconPositionClass = computed(() => {
     class="flex items-center border rounded-full"
   >
     <span v-if="icon">
-      <BaseIcon :name="icon" />
+      <BaseIcon :name="icon" :width="iconSize" />
     </span>
     <span>{{ label }}<slot /></span>
   </button>
