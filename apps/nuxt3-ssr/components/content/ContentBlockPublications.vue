@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import type { IPublication } from "~/interfaces/types";
+import type { IPublications } from "~/interfaces/catalogue";
 
 defineProps<{
   title: string;
   description?: string;
-  publications: IPublication[];
+  publications: IPublications[];
 }>();
 </script>
 

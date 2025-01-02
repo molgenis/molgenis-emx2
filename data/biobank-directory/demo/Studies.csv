@@ -1,0 +1,2 @@
+id,title,description,type,sex,age_high,age_low,age_unit,also_known,national_node
+bbmri-eric:studyID:DE_112233,Dummy study,This is just a fake study with demo data,Interventional,"FEMALE,MALE",10,50,YEAR,bbmri-eric:akiID:DE_00002,EXT

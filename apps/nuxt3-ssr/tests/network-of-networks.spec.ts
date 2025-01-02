@@ -15,10 +15,11 @@ test("show network of networks", async ({ page, goto }) => {
   await goto("/catalogue-demo/ssr-catalogue/testNetworkofNetworks", {
     waitUntil: "hydration",
   });
-  await expect(page.getByText("7", { exact: true })).toBeVisible();
-  await expect(page.getByText("4", { exact: true })).toBeVisible();
-  await page.getByRole("button", { name: "Cohort studies" }).click();
-  await expect(page.getByText("4 cohort studies")).toBeVisible();
+  await expect(page.getByText("8", { exact: true })).toBeVisible();
+  await expect(page.getByText("2", { exact: true })).toBeVisible();
+  await expect(page.getByText("2", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Collections" }).click();
+  await expect(page.getByText("8 collections")).toBeVisible();
   await goto("/catalogue-demo/ssr-catalogue/testNetworkofNetworks", {
     waitUntil: "hydration",
   });

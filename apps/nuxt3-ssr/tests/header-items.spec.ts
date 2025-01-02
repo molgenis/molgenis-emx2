@@ -16,10 +16,9 @@ test("should show variables in menu if there are variables", async ({
   goto,
 }) => {
   await goto("/catalogue-demo/ssr-catalogue/all", { waitUntil: "hydration" });
-  await expect(page.getByRole("navigation")).toContainText("Cohort studies");
-  await expect(page.getByRole("navigation")).toContainText("Data sources");
-  await expect(page.getByRole("navigation")).toContainText("Databanks");
+  await expect(page.getByRole("navigation")).toContainText("Collections");
   await expect(page.getByRole("navigation")).toContainText("Networks");
+  await expect(page.getByRole("navigation")).toContainText("Variables");
   await expect(page.getByRole("navigation")).toContainText("More");
   await page.getByRole("button", { name: "More" }).hover();
   await page.locator("li").filter({ hasText: "Variables" });

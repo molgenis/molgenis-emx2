@@ -63,6 +63,45 @@ import Breadcrumb from "./Breadcrumb.vue";
 import CookieWall from "./CookieWall.vue";
 import { request, gql } from "graphql-request";
 
+const defaultSchemaMenuItems = [
+  { label: "Tables", href: "tables", role: "Viewer" },
+  {
+    label: "Schema",
+    href: "schema",
+    role: "Viewer",
+  },
+  {
+    label: "Up/Download",
+    href: "updownload",
+    role: "Viewer",
+  },
+  {
+    label: "Reports",
+    href: "reports",
+    role: "Viewer",
+  },
+  {
+    label: "Jobs & Scripts",
+    href: "tasks",
+    role: "Manager",
+  },
+  {
+    label: "Graphql",
+    href: "graphql-playground",
+    role: "Viewer",
+  },
+  {
+    label: "Settings",
+    href: "settings",
+    role: "Manager",
+  },
+  {
+    label: "Help",
+    href: "docs",
+    role: "Viewer",
+  },
+];
+
 /**
  Provides wrapper for your apps, including a little bit of contextual state, most notably 'account' that can be reacted to using v-model.
  */
@@ -77,44 +116,6 @@ export default {
   props: {
     menuItems: {
       type: Array,
-      default: () => [
-        { label: "Tables", href: "tables", role: "Viewer" },
-        {
-          label: "Schema",
-          href: "schema",
-          role: "Viewer",
-        },
-        {
-          label: "Up/Download",
-          href: "updownload",
-          role: "Viewer",
-        },
-        {
-          label: "Reports",
-          href: "reports",
-          role: "Viewer",
-        },
-        {
-          label: "Jobs & Scripts",
-          href: "tasks",
-          role: "Manager",
-        },
-        {
-          label: "Graphql",
-          href: "graphql-playground",
-          role: "Viewer",
-        },
-        {
-          label: "Settings",
-          href: "settings",
-          role: "Manager",
-        },
-        {
-          label: "Help",
-          href: "docs",
-          role: "Viewer",
-        },
-      ],
     },
     title: String,
     showCrumbs: {
@@ -180,10 +181,12 @@ export default {
       );
     },
     menu() {
-      if (this.session?.settings?.menu) {
+      if (this.menuItems) {
+        return this.menuItems;
+      } else if (this.session?.settings?.menu) {
         return this.session.settings.menu;
       } else {
-        return this.menuItems;
+        return defaultSchemaMenuItems;
       }
     },
   },

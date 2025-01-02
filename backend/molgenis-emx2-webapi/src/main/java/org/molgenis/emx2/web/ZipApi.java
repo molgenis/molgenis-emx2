@@ -1,11 +1,10 @@
 package org.molgenis.emx2.web;
 
+import static org.molgenis.emx2.settings.ReportUtils.getReportAsRows;
 import static org.molgenis.emx2.web.Constants.TABLE;
 import static org.molgenis.emx2.web.DownloadApiUtils.includeSystemColumns;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import jakarta.servlet.MultipartConfigElement;
@@ -29,6 +28,7 @@ import org.molgenis.emx2.io.ImportCsvZipTask;
 import org.molgenis.emx2.io.MolgenisIO;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvInZipFile;
+import org.molgenis.emx2.tasks.Task;
 
 public class ZipApi {
   private ZipApi() {
@@ -93,8 +93,10 @@ public class ZipApi {
       String fileName = ctx.req().getPart("file").getSubmittedFileName();
 
       if (fileName.endsWith(".zip")) {
+        Task task = new ImportCsvZipTask(tempFile.toPath(), schema, false);
         if (ctx.queryParam("async") != null) {
-          String id = TaskApi.submit(new ImportCsvZipTask(tempFile.toPath(), schema, false));
+          String parentTaskId = ctx.queryParam("parentJob");
+          String id = TaskApi.submit(task, parentTaskId);
           ctx.json(new TaskReference(id, schema));
           return;
         } else {
@@ -171,21 +173,16 @@ public class ZipApi {
     }
   }
 
-  static void generateReportsToStore(Context ctx, TableStore store) throws JsonProcessingException {
+  static void generateReportsToStore(Context ctx, TableStore store) {
     String reports = ctx.queryParam("id");
     Schema schema = getSchema(ctx);
     Map<String, ?> parameters = getReportParameters(ctx);
-    String reportsJson = schema.getMetadata().getSetting("reports");
-    List<Map<String, String>> reportList = new ObjectMapper().readValue(reportsJson, List.class);
     for (String reportId : reports.split(",")) {
-      Map reportObject = reportList.get(Integer.parseInt(reportId));
-      String sql = (String) reportObject.get("sql");
-      String name = (String) reportObject.get("name");
-      List<Row> rows = schema.retrieveSql(sql, parameters);
+      List<Row> rows = getReportAsRows(reportId, schema, parameters);
       if (rows.size() > 0) {
-        store.writeTable(name, new ArrayList<>(rows.get(0).getColumnNames()), rows);
+        store.writeTable(reportId, new ArrayList<>(rows.get(0).getColumnNames()), rows);
       } else {
-        store.writeTable(name, new ArrayList<>(), rows);
+        store.writeTable(reportId, new ArrayList<>(), rows);
       }
     }
   }

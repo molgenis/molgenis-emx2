@@ -224,6 +224,22 @@ class SqlSchemaMetadataExecutor {
       ChangeLogExecutor.disableChangeLog(db, schema.getMetadata());
       ChangeLogExecutor.executeDropChangeLogTableForSchema(db, schema);
 
+      // remove foreign keys first to prevent foreign key errors in the schema
+      db.getSchema(schemaName)
+          .getTablesSorted()
+          .forEach(
+              table -> {
+                table
+                    .getMetadata()
+                    .getColumns()
+                    .forEach(
+                        column -> {
+                          if (column.isReference() && !column.isPrimaryKey()) {
+                            table.getMetadata().dropColumn(column.getName());
+                          }
+                        });
+              });
+
       // remove tables individually to trigger foreign key error if appropriate
       List<Table> tables = db.getSchema(schemaName).getTablesSorted();
       Collections.reverse(tables);

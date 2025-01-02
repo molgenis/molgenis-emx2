@@ -1,14 +1,15 @@
 package org.molgenis.emx2.web.controllers;
 
-import static java.util.Objects.requireNonNull;
+import static org.molgenis.emx2.web.MolgenisWebservice.sessionManager;
 import static org.molgenis.emx2.web.SecurityConfigFactory.OIDC_CLIENT_NAME;
 
 import io.javalin.http.Context;
+import java.util.ArrayList;
 import java.util.Optional;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.web.JavalinCustomHttpActionAdapter;
-import org.molgenis.emx2.web.MolgenisSessionManager;
+import org.molgenis.emx2.web.SecurityConfigFactory;
 import org.pac4j.core.config.Config;
 import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.engine.CallbackLogic;
@@ -30,14 +31,16 @@ public class OIDCController {
 
   private static final Logger logger = LoggerFactory.getLogger(OIDCController.class);
 
-  private final MolgenisSessionManager sessionManager;
-  private final Config securityConfig;
+  private Config securityConfig;
   private final SessionStore sessionStore;
 
-  public OIDCController(MolgenisSessionManager sessionManager, Config securityConfig) {
-    this.sessionManager = requireNonNull(sessionManager);
-    this.securityConfig = requireNonNull(securityConfig);
+  public OIDCController() {
+    this.securityConfig = new SecurityConfigFactory().build();
     this.sessionStore = FindBest.sessionStore(null, securityConfig, JEESessionStore.INSTANCE);
+  }
+
+  public void reloadConfig() {
+    this.securityConfig = new SecurityConfigFactory().build();
   }
 
   public void handleLoginRequest(Context ctx) {
@@ -68,7 +71,7 @@ public class OIDCController {
 
   public void handleLoginCallback(Context ctx) {
     final JavalinWebContext context = new JavalinWebContext(ctx);
-
+    Optional<Object> requestedUrlList = sessionStore.get(context, Pac4jConstants.REQUESTED_URL);
     HttpActionAdapter adapter = JavalinCustomHttpActionAdapter.INSTANCE;
     final CallbackLogic callbackLogic =
         FindBest.callbackLogic(null, securityConfig, DefaultCallbackLogic.INSTANCE);
@@ -103,6 +106,17 @@ public class OIDCController {
     logger.info("OIDC sign in for user: {}", user);
 
     ctx.status(302);
-    ctx.redirect("/");
+
+    if (requestedUrlList.isPresent()) {
+      @SuppressWarnings("unchecked")
+      ArrayList<String> requestedUrl = (ArrayList<String>) requestedUrlList.get();
+      if (requestedUrl.size() == 1) {
+        ctx.redirect(requestedUrl.get(0));
+      } else {
+        ctx.redirect("/");
+      }
+    } else {
+      ctx.redirect("/");
+    }
   }
 }

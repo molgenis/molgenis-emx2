@@ -9,12 +9,12 @@ const bannerHtml = computed(() => {
 
 <template>
   <Banner v-if="bannerHtml.value" v-html="bannerHtml.value"> </Banner>
-
   <HeaderCatalogue
     v-if="route.params.catalogue"
     :catalogue="headerData.catalogue"
     :variableCount="headerData.variableCount"
-    :resourceTypes="headerData.resourceTypes"
+    :collectionCount="headerData.collectionCount"
+    :networkCount="headerData.networkCount"
   />
   <HeaderGlobal v-else />
   <Container>

@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import type { IContributor } from "~/interfaces/types";
+import type { IContacts } from "~/interfaces/catalogue";
 
 const props = defineProps<{
   title: string;
   description?: string;
-  contributors: IContributor[];
+  contributors: IContacts[];
 }>();
 
 const orderedRoles = computed(() => {

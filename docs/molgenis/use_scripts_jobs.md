@@ -13,7 +13,7 @@ Scripts can have the following:
 * the script type
 * the script
 * outputFileExtension, optional, for returning output files. E.g. 'txt'
-* disabled, when true scripts cannot be run
+* disabled, when set to true the script will not run if a cron schedule is set
 * cron, will schedule the script to run at planned intervals
 * failureAddress, when set, will send a message to this email address, if a job fails
 
@@ -21,6 +21,12 @@ Your script will receive as environment variables:
 
 * a token via MOLGENIS_TOKEN
 * a path to OUTPUT_FILE which you can use to produce an outputFile which will then be stored in Jobs.output
+
+### Pyclient
+
+Python scripts can make use of the [Molgenis Pyclient](use_usingpyclient.md). Make sure to initialise the client as
+described [here](use_usingpyclient.md#scripts-and-jobs)
+
 
 ## Jobs
 

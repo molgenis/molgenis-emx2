@@ -24,6 +24,7 @@ import org.molgenis.emx2.io.emx2.Emx2;
 import org.molgenis.emx2.io.readers.CsvTableReader;
 import org.molgenis.emx2.io.readers.CsvTableWriter;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvInMemory;
+import org.molgenis.emx2.tasks.Task;
 
 public class CsvApi {
   private CsvApi() {
@@ -61,7 +62,9 @@ public class CsvApi {
       if (ctx.queryParam("async") != null) {
         TableStoreForCsvInMemory tableStore = new TableStoreForCsvInMemory();
         tableStore.setCsvString(table.getName(), ctx.body());
-        String id = TaskApi.submit(new ImportTableTask(tableStore, table, false));
+        Task task = new ImportTableTask(tableStore, table, false);
+        String parentTaskId = ctx.queryParam("parentJob");
+        String id = TaskApi.submit(task, parentTaskId);
         ctx.result(new TaskReference(id, table.getSchema()).toString());
       } else {
         int count = table.save(getRowList(ctx));

@@ -8,9 +8,23 @@ const pageSize = 10;
 
 const titlePrefix =
   route.params.catalogue === "all" ? "" : route.params.catalogue + " ";
-const resourceType = usePathResourceType();
 
-useHead({ title: titlePrefix + resourceType.plural });
+const descriptionMap: Record<string, string> = {
+  collections: "Data & sample collections",
+  networks: "(Sub)projects & harmonisation",
+};
+
+const imageMap: Record<string, string> = {
+  collections: "image-diagram",
+  networks: "image-network",
+};
+
+const title = route.params.resourceType;
+const description: string | undefined =
+  descriptionMap[route.params.resourceType as string];
+const image: string | undefined = imageMap[route.params.resourceType as string];
+
+useHead({ title: titlePrefix + title });
 
 const currentPage = computed(() => {
   const queryPageNumber = Number(route.query?.page);
@@ -24,7 +38,7 @@ let pageFilterTemplate: IFilter[] = [
   {
     id: "search",
     config: {
-      label: `Search in ${resourceType.plural.toLowerCase()}`,
+      label: `Search in ${title}`,
       type: "SEARCH",
       searchTables: ["collectionEvents", "subpopulations"],
       initialCollapsed: false,
@@ -33,14 +47,15 @@ let pageFilterTemplate: IFilter[] = [
   },
 ];
 
-if (route.params.resourceType === "resources") {
+if (route.params.resourceType === "collections") {
   pageFilterTemplate.push({
     id: "type",
     config: {
-      label: "Type",
+      label: "Collection type",
       type: "ONTOLOGY",
-      ontologyTableId: "CollectionTypesFLAT",
+      ontologyTableId: "ResourceTypes",
       ontologySchema: "CatalogueOntologies",
+      filter: { tags: { equals: "collection" } },
       columnId: "type",
       initialCollapsed: false,
     },
@@ -168,8 +183,13 @@ const gqlFilter = computed(() => {
 
   result = buildQueryFilter(filters.value);
 
-  if (route.params.resourceType != "resources") {
-    result.type = { name: { equals: resourceType.type } };
+  if (!result.type) {
+    if (route.params.resourceType == "collections") {
+      result.type = { tags: { equals: "collection" } };
+    }
+    if (route.params.resourceType == "networks") {
+      result.type = { tags: { equals: "network" } };
+    }
   }
 
   // add hard coded page specific filters
@@ -266,13 +286,9 @@ crumbs[
       <SearchResults>
         <template #header>
           <!-- <NavigationIconsMobile :link="" /> -->
-          <PageHeader
-            :title="resourceType.plural"
-            :description="resourceType.description"
-            :icon="resourceType.image"
-          >
+          <PageHeader :title="title" :description="description" :icon="image">
             <template #prefix>
-              <BreadCrumbs :crumbs="crumbs" :current="resourceType.plural" />
+              <BreadCrumbs :crumbs="crumbs" :current="title" />
             </template>
             <template #suffix>
               <SearchResultsViewTabs
@@ -310,7 +326,7 @@ crumbs[
 
         <template #search-results>
           <SearchResultsCount
-            :label="resourceType.plural?.toLocaleLowerCase()"
+            :label="title?.toLocaleLowerCase()"
             :value="numberOfResources"
           />
           <FilterWell

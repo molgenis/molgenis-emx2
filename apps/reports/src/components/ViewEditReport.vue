@@ -16,7 +16,19 @@
       <h2>
         Edit report: {{ id }}<IconAction icon="eye" @click="edit = false" />
       </h2>
-      <InputString id="reportName" v-model="name" label="name" />
+      <InputString
+        id="reportId"
+        v-model="id"
+        label="id"
+        :required="true"
+        description="unique index"
+      />
+      <InputString
+        id="reportDescription"
+        v-model="description"
+        label="description"
+        description="human-readable description"
+      />
       <InputText
         id="reportSql"
         v-model="sql"
@@ -30,9 +42,10 @@
       </div>
     </div>
     <h2 v-else>
-      Report: {{ name
-      }}<IconAction v-if="canEdit" icon="pencil-alt" @click="edit = true" />
+      View report id={{ id }}
+      <IconAction v-if="canEdit" icon="pencil-alt" @click="edit = true" />
     </h2>
+    <p v-if="description">Description: {{ description }}</p>
     <div v-if="parameterInputs">
       Please provide parameters:
       <FormInput
@@ -48,8 +61,9 @@
     <MessageError v-if="error">{{ error }}</MessageError>
     <div v-if="rows && rows.length > 0">
       <Pagination v-if="count" v-model="page" :limit="limit" :count="count" />
-      download as <a :href="downloadZip">zip</a> or
-      <a :href="downloadExcel">excel</a>
+      download as <a :href="downloadZip">zip</a>,
+      <a :href="downloadExcel">excel</a> or
+      <a :href="downloadJson">json</a>
       <TableSimple
         :columns="columns"
         :rows="rows"
@@ -95,15 +109,16 @@ export default {
   },
   props: {
     session: Object,
-    id: String,
+    index: String,
     limit: { type: Number, default: 5 },
   },
   data() {
     return {
       rows: undefined,
       count: null,
+      id: null,
       sql: 'select * from "Pet"',
-      name: null,
+      description: null,
       parameters: {},
       error: null,
       success: null,
@@ -162,7 +177,10 @@ export default {
       return "../api/reports/zip?id=" + this.id + this.parametersQuery;
     },
     downloadExcel() {
-      return "../api/reports/zip?id=" + this.id + this.parametersQuery;
+      return "../api/reports/excel?id=" + this.id + this.parametersQuery;
+    },
+    downloadJson() {
+      return "../api/reports/json?id=" + this.id + this.parametersQuery;
     },
   },
   methods: {
@@ -171,7 +189,7 @@ export default {
       const offset = this.limit * (this.page - 1);
       const result = await request(
         "graphql",
-        `query report($parameters:[MolgenisSettingsInput]) {_reports(id:${this.id},parameters:$parameters,limit:${this.limit},offset:${offset}){data,count}}`,
+        `query report($parameters:[MolgenisSettingsInput]) {_reports(id:"${this.id}",parameters:$parameters,limit:${this.limit},offset:${offset}){data,count}}`,
         {
           parameters: this.parameterKeyValueMap,
         }
@@ -182,11 +200,20 @@ export default {
       this.count = result._reports.count;
     },
     async save() {
+      if (this.id == null) {
+        this.error = "id is required";
+        return;
+      }
+      if (this.sql == null) {
+        this.error = "sql is required";
+        return;
+      }
       this.succes = null;
       this.error = null;
       const reports = await this.client.fetchSettingValue("reports");
-      reports[this.id].sql = this.sql;
-      reports[this.id].name = this.name;
+      reports[this.index].id = this.id;
+      reports[this.index].sql = this.sql;
+      reports[this.index].description = this.description;
       this.client
         .saveSetting("reports", reports)
         .then((res) => {
@@ -197,9 +224,10 @@ export default {
     },
     async reload() {
       const reports = await this.client.fetchSettingValue("reports");
-      if (reports[this.id]) {
-        this.sql = reports[this.id].sql;
-        this.name = reports[this.id].name;
+      if (reports[this.index]) {
+        this.id = reports[this.index].id;
+        this.sql = reports[this.index].sql;
+        this.description = reports[this.index].description;
       } else {
         this.error = "report not found";
       }

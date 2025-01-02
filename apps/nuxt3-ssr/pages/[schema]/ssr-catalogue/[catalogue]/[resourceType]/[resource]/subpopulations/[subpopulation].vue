@@ -37,14 +37,12 @@ const cohortOnly = computed(() => {
 });
 const pageCrumbs: any = {};
 
-const resourceType = usePathResourceType();
-
 pageCrumbs[
   cohortOnly.value ? "home" : (route.params.catalogue as string)
 ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}`;
 
 pageCrumbs[
-  resourceType.plural
+  route.params.resourceType as string
 ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/${route.params.resourceType}`;
 
 pageCrumbs[
