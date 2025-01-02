@@ -1,0 +1,6 @@
+user,role
+anonymous,Viewer
+costumer,Range
+shopmanager,Manager
+shopowner,Owner
+shopviewer,Viewer
