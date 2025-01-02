@@ -1,5 +1,5 @@
 <template>
-  <div class="mg-report-title">
+  <div>
     <h4>
       <span class="badge badge-secondary">{{ type }}</span>
     </h4>

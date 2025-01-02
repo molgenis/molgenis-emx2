@@ -38,7 +38,7 @@ public class ImportTableTask extends Task {
     try {
       source.processTable(table.getName(), new ImportRowProcesssor(table, this));
     } catch (Exception e) {
-      this.setError("Import failed: " + e.getMessage());
+      this.setError("Import table (%s) failed: %s".formatted(table.getName(), e.getMessage()));
       throw e;
     }
 
@@ -176,12 +176,19 @@ public class ImportTableTask extends Task {
           if (c.isFile()
               && source instanceof TableAndFileStore
               && row.getValueMap().get(c.getName()) != null) {
-            BinaryFileWrapper wrapper =
-                ((TableAndFileStore) source).getBinaryFileWrapper(row.getString(c.getName()));
-            if (row.containsName(c.getName() + "_filename")) {
-              wrapper.setFileName(row.getString(c.getName() + "_filename"));
+            try {
+              BinaryFileWrapper wrapper =
+                  ((TableAndFileStore) source).getBinaryFileWrapper(row.getString(c.getName()));
+              if (row.containsName(c.getName() + "_filename")) {
+                wrapper.setFileName(row.getString(c.getName() + "_filename"));
+              }
+              row.setBinary(c.getName(), wrapper);
+            } catch (Exception e) {
+              throw new MolgenisException(
+                  "Failed to read file attachment for column %s row %d"
+                      .formatted(c.getName(), index),
+                  e);
             }
-            row.setBinary(c.getName(), wrapper);
           }
         }
         batch.add(row);
