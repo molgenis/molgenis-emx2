@@ -60,13 +60,29 @@ export const useNetworkStore = defineStore("networkStore", () => {
       .select(collectionsColumns)
       .where("network.id")
       .equals(netWorkId);
-    const collectionsResult = await collectionsQuery.execute();
 
-    networkReport.value = {
-      network: networkResult.Networks[0],
-      biobanks: biobanksResult.Biobanks,
-      collections: collectionsResult.Collections,
-    };
+    let collectionsResult;
+    try {
+      collectionsResult = await collectionsQuery.execute();
+    } catch (error) {
+      setError(error);
+      return;
+    }
+
+    if (networkResult?.Networks?.length) {
+      networkReport.value = {
+        network: networkResult?.Networks[0],
+        biobanks: biobanksResult?.Biobanks,
+        collections: collectionsResult?.Collections,
+      };
+    } else {
+      setError("Network not found");
+      networkReport.value = {
+        network: undefined,
+        biobanks: biobanksResult?.Biobanks,
+        collections: collectionsResult?.Collections,
+      };
+    }
   }
 
   return {

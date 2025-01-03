@@ -156,14 +156,17 @@ import { computed, ref } from "vue";
 import { useRoute } from "vue-router";
 //@ts-ignore
 import { Breadcrumb, Spinner } from "molgenis-components";
+import Tabs from "../components/Tabs.vue";
 import CheckOut from "../components/checkout-components/CheckOut.vue";
 import CollectionSelector from "../components/checkout-components/CollectionSelector.vue";
+import ViewGenerator from "../components/generators/ViewGenerator.vue";
+import ServiceDetails from "../components/partial-views/ServiceDetails.vue";
 import CollapseComponent from "../components/report-components/CollapseComponent.vue";
 import CollectionTitle from "../components/report-components/CollectionTitle.vue";
 import ContactInformation from "../components/report-components/ContactInformation.vue";
 import ReportDetailsList from "../components/report-components/ReportDetailsList.vue";
 import ReportTitle from "../components/report-components/ReportTitle.vue";
-import ViewGenerator from "../components/generators/ViewGenerator.vue";
+import useErrorHandler from "../composables/errorHandler";
 import { mapBiobankToBioschemas } from "../functions/bioschemasMapper";
 import {
   getBiobankDetails,
@@ -175,39 +178,42 @@ import {
 import { useBiobanksStore } from "../stores/biobanksStore";
 import { useQualitiesStore } from "../stores/qualitiesStore";
 import { useSettingsStore } from "../stores/settingsStore";
-import Tabs from "../components/Tabs.vue";
-import ServiceDetails from "../components/partial-views/ServiceDetails.vue";
+import { IBiobanks } from "../interfaces/directory";
 
 const settingsStore = useSettingsStore();
 const biobanksStore = useBiobanksStore();
 const qualitiesStore = useQualitiesStore();
 
-const biobank: Record<string, any> = ref({});
+const biobank = ref<IBiobanks>({} as IBiobanks);
 const route = useRoute();
+const { setError } = useErrorHandler();
 
 qualitiesStore.getQualityStandardInformation();
 
 biobanksStore.getBiobank(route.params.id).then((result: any) => {
-  biobank.value = result.Biobanks.length
-    ? getBiobankDetails(result.Biobanks[0])
-    : {};
+  if (result.Biobanks?.length) {
+    biobank.value = getBiobankDetails(result.Biobanks[0]);
+  } else {
+    setError("Biobank not found");
+  }
 });
 
 type TBiobankDetailTab = "Collections" | "Services";
 const activeTab = ref<TBiobankDetailTab>("Collections");
+
 const tabs = computed(() => {
   return {
     Collections: {
       id: "Collections",
       label: `Collections`,
       active: activeTab.value === "Collections",
-      disabled: biobank?.collections?.length === 0,
+      disabled: biobank.value?.collections?.length === 0,
     },
     Services: {
       id: "Services",
       label: "Services",
       active: activeTab.value === "Services",
-      disabled: biobank?.services?.length === 0,
+      disabled: biobank.value?.services?.length === 0,
     },
   };
 });
@@ -238,7 +244,7 @@ const subcollectionCount = computed<number>(() => {
 });
 
 const networks = computed(() => {
-  return biobankDataAvailable.value && biobank.value.network
+  return biobankDataAvailable.value && biobank.value?.network
     ? mapNetworkInfo(biobank.value)
     : [];
 });
@@ -252,7 +258,7 @@ const contact = computed(() => {
 });
 
 const alsoKnownIn = computed(() => {
-  return biobankDataAvailable.value && biobank.value.also_known
+  return biobankDataAvailable.value && biobank.value?.also_known
     ? mapAlsoKnownIn(biobank.value)
     : [];
 });
