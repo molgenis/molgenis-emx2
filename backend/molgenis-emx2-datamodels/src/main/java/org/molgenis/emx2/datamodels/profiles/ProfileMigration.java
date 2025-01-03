@@ -12,11 +12,7 @@ public class ProfileMigration {
   }
 
   public void setProfile(String profile) {
-    String inSnakeCase =
-        profile
-            .replaceAll("([A-Z]+)([A-Z][a-z])", "$1_$2")
-            .replaceAll("([a-z])([A-Z])", "$1_$2")
-            .toUpperCase();
+    String inSnakeCase = convertToSnakeCase(profile);
     this.profile = Profile.valueOf(inSnakeCase);
   }
 
@@ -26,5 +22,26 @@ public class ProfileMigration {
 
   public void setStep(String step) {
     this.step = Integer.valueOf(step);
+  }
+
+  private String convertToSnakeCase(String camelCaseString) {
+    if (camelCaseString == null || camelCaseString.isEmpty()) {
+      return camelCaseString;
+    }
+
+    StringBuilder snakeCaseString = new StringBuilder();
+    for (char c : camelCaseString.toCharArray()) {
+      if (Character.isUpperCase(c) && !snakeCaseString.isEmpty()) {
+        // Add an underscore before the uppercase character
+        snakeCaseString.append('_');
+        // Convert the uppercase character to lowercase
+        snakeCaseString.append(Character.toLowerCase(c));
+      } else {
+        // Add the lowercase character directly
+        snakeCaseString.append(c);
+      }
+    }
+
+    return snakeCaseString.toString().toUpperCase();
   }
 }
