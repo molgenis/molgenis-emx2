@@ -8,6 +8,7 @@ import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutation
 import static org.molgenis.emx2.graphql.GraphqlConstants.*;
 import static org.molgenis.emx2.graphql.GraphqlConstants.KEY;
 import static org.molgenis.emx2.graphql.GraphqlConstants.TASK_ID;
+import static org.molgenis.emx2.graphql.GraphqlCustomTypes.GraphQLProfileType;
 import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.*;
 
 import graphql.Scalars;
@@ -53,8 +54,7 @@ public class GraphqlDatabaseFieldFactory {
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(DESCRIPTION)
                   .type(Scalars.GraphQLString))
-          .field(
-              GraphQLFieldDefinition.newFieldDefinition().name(PROFILE).type(Scalars.GraphQLString))
+          .field(GraphQLFieldDefinition.newFieldDefinition().name(PROFILE).type(GraphQLProfileType))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(PROFILE_MIGRATION_STEP)

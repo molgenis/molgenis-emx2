@@ -147,6 +147,10 @@ public class GraphqlApiFactory {
       queryBuilder.field(schemaFields.changeLogCountQuery(schema));
     }
 
+    if (schema.getDatabase().isAdmin()) {
+      mutationBuilder.field(schemaFields.migrationMutation(schema));
+    }
+
     // table
     GraphqlTableFieldFactory tableField = new GraphqlTableFieldFactory(schema);
     for (TableMetadata table : schema.getMetadata().getTables()) {

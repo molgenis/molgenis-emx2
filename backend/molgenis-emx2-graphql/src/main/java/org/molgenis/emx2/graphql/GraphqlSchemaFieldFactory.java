@@ -7,6 +7,7 @@ import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutation
 import static org.molgenis.emx2.graphql.GraphqlConstants.*;
 import static org.molgenis.emx2.graphql.GraphqlConstants.INHERITED;
 import static org.molgenis.emx2.graphql.GraphqlConstants.KEY;
+import static org.molgenis.emx2.graphql.GraphqlCustomTypes.GraphQLProfileType;
 import static org.molgenis.emx2.json.JsonUtil.jsonToSchema;
 import static org.molgenis.emx2.settings.ReportUtils.getReportAsJson;
 import static org.molgenis.emx2.settings.ReportUtils.getReportCount;
@@ -16,6 +17,7 @@ import graphql.Scalars;
 import graphql.schema.*;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.json.JsonUtil;
@@ -653,6 +655,42 @@ public class GraphqlSchemaFieldFactory {
         .name("_changesCount")
         .type(Scalars.GraphQLInt)
         .dataFetcher(dataFetchingEnvironment -> schema.getChangesCount());
+  }
+
+  public GraphQLFieldDefinition.Builder migrationMutation(Schema schema) {
+    return GraphQLFieldDefinition.newFieldDefinition()
+        .name("setMigration")
+        .type(typeForMutationResult)
+        .argument(GraphQLArgument.newArgument().name(PROFILE).type(GraphQLProfileType))
+        .argument(
+            GraphQLArgument.newArgument().name(PROFILE_MIGRATION_STEP).type(Scalars.GraphQLInt))
+        .dataFetcher(
+            dataFetchingEnvironment -> {
+              AtomicReference<String> successMessage = new AtomicReference<>("Migration success");
+              schema
+                  .getDatabase()
+                  .tx(
+                      db -> {
+                        try {
+                          Profile newProfile = dataFetchingEnvironment.getArgument(PROFILE);
+                          Integer newStep =
+                              dataFetchingEnvironment.getArgument(PROFILE_MIGRATION_STEP);
+
+                          ((SqlDatabase) db).setSchemaProfileVersion(schema, newProfile, newStep);
+                          successMessage.set(
+                              successMessage
+                                  .get()
+                                  .concat(
+                                      " Set migration to, profile: "
+                                          + newProfile
+                                          + " step: "
+                                          + newStep));
+                        } catch (Exception e) {
+                          throw new GraphqlException("Migration failed", e);
+                        }
+                      });
+              return new GraphqlApiMutationResult(SUCCESS, successMessage.get());
+            });
   }
 
   public GraphQLFieldDefinition.Builder settingsQuery(Schema schema) {
