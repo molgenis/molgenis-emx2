@@ -1,11 +1,16 @@
 package org.molgenis.emx2.sql;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Profile;
 import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.SchemaMetadata;
+import org.molgenis.emx2.sql.model.ProfileSchema;
 
 public class TestSchemaMigrations {
 
@@ -28,6 +33,14 @@ public class TestSchemaMigrations {
   void testSchemaMigrations() {
     Schema schema = db.createSchema(SCHEMA_NAME);
     ((SqlDatabase) db).setSchemaProfileVersion(schema, Profile.DATA_CATALOGUE, 0);
-    new ProfileMigrations().runAppSchemaMigrations((SqlDatabase) db);
+    List<ProfileSchema> migrated = new ProfileMigrations().runAppSchemaMigrations((SqlDatabase) db);
+
+    SchemaMetadata schemaMetadata = db.getSchema(SCHEMA_NAME).getMetadata();
+
+    assertEquals(
+        ProfileMigrations.profileVersions.get(Profile.DATA_CATALOGUE),
+        schemaMetadata.getProfileMigrationStep());
+    assertEquals(1, migrated.size());
+    assertEquals(new ProfileSchema(SCHEMA_NAME, Profile.DATA_CATALOGUE, 2), migrated.get(0));
   }
 }

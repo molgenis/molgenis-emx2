@@ -304,10 +304,17 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     return getSchema(name);
   }
 
-  public void setSchemaProfileVersion(Schema schema, Profile profile, int step) {
-    jooq.execute(
-        "update \"MOLGENIS\".\"schema_metadata\" set profile = '%s', profile_migration_step = %d where table_schema = '%s'"
-            .formatted(profile.name(), step, schema.getName()));
+  public Schema setSchemaProfileVersion(Schema schema, Profile profile, int step) {
+    SchemaMetadata schemaMetadata = schema.getMetadata();
+    schemaMetadata.setProfile(profile);
+    schemaMetadata.setProfileMigrationStep(step);
+    this.tx(
+        db -> {
+          MetadataUtils.saveSchemaMetadata(((SqlDatabase) db).getJooq(), schemaMetadata);
+          db.clearCache();
+        });
+    getListener().schemaChanged(schemaMetadata.getName());
+    return getSchema(schemaMetadata.getName());
   }
 
   private static void validateSchemaIdentifierIsUnique(SchemaMetadata metadata, Database db) {

@@ -44,9 +44,8 @@ public class MetadataUtils {
       field(name("table_schema"), VARCHAR.nullable(false));
   private static final Field<String> SCHEMA_DESCRIPTION =
       field(name("description"), VARCHAR.nullable(true));
-  private static final Field<String> SCHEMA_PROFILE =
-      field(name("profile"), VARCHAR.nullable(true));
-  private static final Field<Integer> SCHEMA_MIGRATION_STEP =
+  static final Field<String> SCHEMA_PROFILE = field(name("profile"), VARCHAR.nullable(true));
+  static final Field<Integer> SCHEMA_MIGRATION_STEP =
       field(name("profile_migration_step"), INTEGER.nullable(true));
   static final Field<String> TABLE_NAME = field(name("table_name"), VARCHAR.nullable(false));
   private static final Field<String> TABLE_INHERITS =
