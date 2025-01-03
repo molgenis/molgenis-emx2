@@ -1,24 +1,26 @@
 import csv
 import json
 import logging
-import sys
 import pathlib
+import sys
 import time
 from functools import cache
 from io import BytesIO
-from typing import Literal
 
 import pandas as pd
 import requests
+from molgenis_emx2_pyclient.exceptions import NoSuchColumnException
 from requests import Response
 
 from . import graphql_queries as queries
 from . import utils
+from .constants import HEADING, LOGO, NONREFS
 from .exceptions import (NoSuchSchemaException, ServiceUnavailableError, SigninError,
                          ServerNotFoundError, PyclientException, NoSuchTableException,
                          NoContextManagerException, GraphQLException, InvalidTokenException,
                          PermissionDeniedException, TokenSigninException, NonExistentTemplateException)
-from .metadata import Schema
+from .metadata import Schema, Table
+from .utils import parse_nested_pkeys
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 log = logging.getLogger("Molgenis EMX2 Pyclient")
@@ -372,7 +374,12 @@ class Client:
             errors = '\n'.join([err['message'] for err in response.json().get('errors')])
             log.error("Failed to delete data from %s::%s\n%s.", current_schema, table, errors)
 
-    def get(self, table: str, query_filter: str = None, schema: str = None, as_df: bool = False) -> list | pd.DataFrame:
+    def get(self,
+            table: str,
+            columns: list = None,
+            query_filter: str = None,
+            schema: str = None,
+            as_df: bool = False) -> list | pd.DataFrame:
         """Retrieves data from a schema and returns as a list of dictionaries or as
         a pandas DataFrame (as pandas is used to parse the response).
 
@@ -403,17 +410,34 @@ class Client:
         table_id = schema_metadata.get_table(by='name', value=table).id
 
         filter_part = self._prepare_filter(query_filter, table, schema)
-        query_url = f"{self.url}/{current_schema}/api/csv/{table_id}{filter_part}"
-        response = self.session.get(url=query_url)
 
-        self._validate_graphql_response(response=response,
-                                        fallback_error_message=f"Failed to retrieve data from {current_schema}::"
-                                                               f"{table!r}.\nStatus code: {response.status_code}.")
+        if as_df:
+            query_url = f"{self.url}/{current_schema}/api/csv/{table_id}{filter_part}"
+            response = self.session.get(url=query_url)
+            self._validate_graphql_response(response=response,
+                                            fallback_error_message=f"Failed to retrieve data from {current_schema}::"
+                                                                   f"{table!r}.\nStatus code: {response.status_code}.")
 
-        response_data = pd.read_csv(BytesIO(response.content), keep_default_na=False)
+            response_data = pd.read_csv(BytesIO(response.content), keep_default_na=False)
+            if columns:
+                try:
+                    response_data = response_data[columns]
+                except KeyError as e:
+                    if "not in index" in e.args[0]:
+                        raise NoSuchColumnException(f"Columns {e.args[0]}")
+                    else:
+                        raise NoSuchColumnException(f"Columns {e.args[0].split('Index(')[1].split(', dtype')}"
+                                                    f" not in index.")
+        else:
+            query_url = f"{self.url}/{current_schema}/graphql"
+            query = self._parse_get_table_query(table_id, columns)
+            response = self.session.post(url=query_url,
+                                        json={"query": query})
+            self._validate_graphql_response(response=response,
+                                            fallback_error_message=f"Failed to retrieve data from {current_schema}::"
+                                                                   f"{table!r}.\nStatus code: {response.status_code}.")
+            response_data = response.json().get('data').get(table_id)
 
-        if not as_df:
-            return response_data.to_dict('records')
         return response_data
 
     async def export(self, schema: str = None, table: str = None,
@@ -1040,3 +1064,33 @@ class Client:
         except requests.exceptions.MissingSchema:
             raise ServerNotFoundError(f"Invalid URL {self.url!r}. "
                                       f"Perhaps you meant 'https://{self.url}'?")
+
+    def _parse_get_table_query(self, table_id: str, columns: list = None) -> str:
+        """Gathers a table's metadata and parses it to a GraphQL query
+        for querying the table's contents.
+        """
+        schema_metadata: Schema = self.get_schema_metadata()
+        table_metadata: Table = schema_metadata.get_table('id', table_id)
+
+        query = f"{{\n  {table_id} {{\n"
+        for col in table_metadata.columns:
+            if col.id not in columns and col.name not in columns:
+                continue
+            if col.get('columnType') in [HEADING, LOGO]:
+                continue
+            elif col.get('columnType') in NONREFS:
+                query += f"    {col.get('id')}\n"
+            elif col.get('columnType').startswith('ONTOLOGY'):
+                query += f"    {col.get('id')} {{name}}\n"
+            elif col.get('columnType').startswith('REF'):
+                query += f"    {col.get('id')} {{"
+                pkeys = schema_metadata.get_pkeys(col.get('refTableId'))
+                query += parse_nested_pkeys(pkeys)
+                query += "}\n"
+            else:
+                log.warning(f"Caught column type {col.get('columnType')!r}.")
+        query += "  }\n"
+        query += "}"
+
+        return query
+
