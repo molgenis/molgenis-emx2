@@ -26,6 +26,7 @@ public class Profiles {
   private String setFixedSchemaViewPermission;
   private String setFixedSchemaEditPermission;
   private List<CreateSchemas> firstCreateSchemasIfMissing;
+  private ProfileMigration profileMigration;
 
   public String getSetFixedSchemaViewPermission() {
     return setFixedSchemaViewPermission;
@@ -137,5 +138,13 @@ public class Profiles {
 
   public void setSetViewPermission(String setViewPermission) {
     this.setViewPermission = setViewPermission;
+  }
+
+  public ProfileMigration getProfileMigration() {
+    return profileMigration;
+  }
+
+  public void setProfileMigration(ProfileMigration profileMigration) {
+    this.profileMigration = profileMigration;
   }
 }

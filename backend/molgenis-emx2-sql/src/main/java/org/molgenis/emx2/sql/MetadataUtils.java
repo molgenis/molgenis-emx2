@@ -44,6 +44,9 @@ public class MetadataUtils {
       field(name("table_schema"), VARCHAR.nullable(false));
   private static final Field<String> SCHEMA_DESCRIPTION =
       field(name("description"), VARCHAR.nullable(true));
+  static final Field<String> SCHEMA_PROFILE = field(name("profile"), VARCHAR.nullable(true));
+  static final Field<Integer> SCHEMA_MIGRATION_STEP =
+      field(name("profile_migration_step"), INTEGER.nullable(true));
   static final Field<String> TABLE_NAME = field(name("table_name"), VARCHAR.nullable(false));
   private static final Field<String> TABLE_INHERITS =
       field(name("table_inherits"), VARCHAR.nullable(true));
@@ -298,12 +301,20 @@ public class MetadataUtils {
     try {
       String description = Objects.isNull(schema.getDescription()) ? "" : schema.getDescription();
       sql.insertInto(SCHEMA_METADATA)
-          .columns(TABLE_SCHEMA, SCHEMA_DESCRIPTION, SETTINGS)
-          .values(schema.getName(), description, schema.getSettings())
+          .columns(
+              TABLE_SCHEMA, SCHEMA_DESCRIPTION, SETTINGS, SCHEMA_PROFILE, SCHEMA_MIGRATION_STEP)
+          .values(
+              schema.getName(),
+              description,
+              schema.getSettings(),
+              schema.getProfile(),
+              schema.getProfileMigrationStep())
           .onConflict(TABLE_SCHEMA)
           .doUpdate()
           .set(SCHEMA_DESCRIPTION, schema.getDescription())
           .set(SETTINGS, schema.getSettings())
+          .set(SCHEMA_PROFILE, schema.getProfile())
+          .set(SCHEMA_MIGRATION_STEP, schema.getProfileMigrationStep())
           .execute();
     } catch (Exception e) {
       throw new SqlMolgenisException("save of schema metadata failed", e);
@@ -321,7 +332,9 @@ public class MetadataUtils {
       schemaInfos.add(
           new SchemaInfo(
               record.get(TABLE_SCHEMA, String.class),
-              record.get(SCHEMA_DESCRIPTION, String.class)));
+              record.get(SCHEMA_DESCRIPTION, String.class),
+              record.get(SCHEMA_PROFILE, Profile.class),
+              record.get(SCHEMA_MIGRATION_STEP, Integer.class)));
     }
     return schemaInfos;
   }
@@ -334,6 +347,8 @@ public class MetadataUtils {
     } else {
       schema.setDescription(schemaRecord.get(SCHEMA_DESCRIPTION, String.class));
       schema.setSettingsWithoutReload(schemaRecord.get(SETTINGS, Map.class));
+      schema.setProfile(schemaRecord.get(SCHEMA_PROFILE, Profile.class));
+      schema.setProfileMigrationStep(schemaRecord.get(SCHEMA_MIGRATION_STEP, Integer.class));
     }
     return schema;
   }

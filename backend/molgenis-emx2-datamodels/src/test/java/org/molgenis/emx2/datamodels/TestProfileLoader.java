@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.*;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.Profile;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.datamodels.profiles.Profiles;
 import org.molgenis.emx2.datamodels.profiles.SchemaFromProfile;
@@ -64,5 +65,15 @@ public class TestProfileLoader {
     var task = new ImportProfileTask(testProfileSchema, "TestProfileWithError.yaml", true);
     assertThrows(MolgenisException.class, task::run);
     assertEquals(TaskStatus.ERROR, task.getStatus());
+  }
+
+  @Test
+  void testProfileLoaderWithDemoData() {
+    database.dropSchemaIfExists(TEST_PROFILE);
+    Schema testProfileSchema = database.createSchema(TEST_PROFILE);
+    var task = new ImportProfileTask(testProfileSchema, "TestProfileMigration.yaml", true);
+    task.run();
+    assertEquals(TaskStatus.COMPLETED, task.getStatus());
+    assertEquals(Profile.PET_STORE, database.getSchema(TEST_PROFILE).getMetadata().getProfile());
   }
 }

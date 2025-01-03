@@ -23,34 +23,37 @@
 
       <table class="table table-hover table-bordered bg-white">
         <thead>
-          <th style="width: 1px">
-            <IconAction
-              v-if="session && session.email == 'admin'"
-              icon="plus"
-              @click="openCreateSchema"
-            />
-          </th>
-          <th @click="changeSortOrder('label')" class="sort-col">
-            label
-            <IconAction
-              v-if="sortOrder && sortColumn === 'label'"
-              :icon="sortOrder == 'ASC' ? 'sort-alpha-down' : 'sort-alpha-up'"
-              class="d-inline p-0 hide-icon"
-            />
-          </th>
-          <th>description</th>
-          <th
-            v-if="showChangeColumn"
-            @click="changeSortOrder('lastUpdate')"
-            class="sort-col"
-          >
-            last update
-            <IconAction
-              v-if="sortOrder && sortColumn === 'lastUpdate'"
-              :icon="sortOrder == 'ASC' ? 'sort-alpha-down' : 'sort-alpha-up'"
-              class="d-inline p-0 hide-icon"
-            />
-          </th>
+          <tr>
+            <th style="width: 1px">
+              <IconAction
+                v-if="session && session.email == 'admin'"
+                icon="plus"
+                @click="openCreateSchema"
+              />
+            </th>
+            <th @click="changeSortOrder('label')" class="sort-col">
+              label
+              <IconAction
+                v-if="sortOrder && sortColumn === 'label'"
+                :icon="sortOrder == 'ASC' ? 'sort-alpha-down' : 'sort-alpha-up'"
+                class="d-inline p-0 hide-icon"
+              />
+            </th>
+            <th>description</th>
+            <th
+              v-if="showAdminColumns"
+              @click="changeSortOrder('lastUpdate')"
+              class="sort-col"
+            >
+              last update
+              <IconAction
+                v-if="sortOrder && sortColumn === 'lastUpdate'"
+                :icon="sortOrder == 'ASC' ? 'sort-alpha-down' : 'sort-alpha-up'"
+                class="d-inline p-0 hide-icon"
+              />
+            </th>
+            <th v-if="showAdminColumns">profile</th>
+          </tr>
         </thead>
         <tbody>
           <tr v-for="schema in schemasFilteredAndSorted" :key="schema.id">
@@ -74,11 +77,18 @@
             <td>
               {{ schema.description }}
             </td>
-            <td v-if="showChangeColumn">
+            <td v-if="showAdminColumns">
               <LastUpdateField
                 v-if="schema.update"
                 :lastUpdate="schema.update"
               />
+            </td>
+            <td v-if="showAdminColumns">
+              <span v-if="schema.profile && schema.profileMigrationStep"
+                >{{ schema.profile }} (v-{{
+                  schema.profileMigrationStep
+                }})</span
+              >
             </td>
           </tr>
         </tbody>
@@ -165,7 +175,7 @@ export default {
           this.session.roles.includes("Manager"))
       );
     },
-    showChangeColumn() {
+    showAdminColumns() {
       return this.session.email == "admin";
     },
   },
@@ -198,12 +208,13 @@ export default {
     },
     getSchemaList() {
       this.loading = true;
-      const schemaFragment = "_schemas{id,label,description}";
+      const schemaFragment =
+        "_schemas{id,label,description, profile, profileMigrationStep}";
       const lastUpdateFragment =
         "_lastUpdate{schemaName, tableName, stamp, userId, operation}";
       request(
         "graphql",
-        `{${schemaFragment} ${this.showChangeColumn ? lastUpdateFragment : ""}}`
+        `{${schemaFragment} ${this.showAdminColumns ? lastUpdateFragment : ""}}`
       )
         .then((data) => {
           this.schemas = data._schemas;
@@ -279,7 +290,7 @@ export default {
     },
   },
   watch: {
-    showChangeColumn(val) {
+    showAdminColumns(val) {
       if (val) {
         this.getSchemaList();
       }

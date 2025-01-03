@@ -403,6 +403,10 @@ public class SqlSchema implements Schema {
     if (!mergeSchema.getSettings().isEmpty()) {
       targetSchema.setSettings(mergeSchema.getSettings());
     }
+
+    targetSchema.setProfile(mergeSchema.getProfile());
+    targetSchema.setProfileMigrationStep(mergeSchema.getProfileMigrationStep());
+    MetadataUtils.saveSchemaMetadata(targetSchema.getJooq(), targetSchema);
   }
 
   public String getName() {

@@ -1,0 +1,11 @@
+---
+name: Test Profile Migration
+description: "a demo profile for testing migration"
+
+profileTags: Petstore
+
+# special options
+setViewPermission: anonymous
+profileMigration:
+  profile: PetStore
+  step: 3
