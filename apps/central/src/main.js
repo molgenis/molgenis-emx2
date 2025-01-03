@@ -6,6 +6,7 @@ import Admin from "./components/admin/Admin.vue";
 import ManageSettings from "./components/admin/ManageSettings.vue";
 import ManageUsers from "./components/admin/ManageUsers.vue";
 import ManagePrivacyPolicy from "./components/admin/ManagePrivacyPolicy.vue";
+import ManageTemplates from "./components/admin/ManageTemplates.vue";
 import "molgenis-components/dist/style.css";
 
 const router = createRouter({
@@ -25,6 +26,7 @@ const router = createRouter({
           path: "privacyPolicy",
           component: ManagePrivacyPolicy,
         },
+        { name: "templates", path: "templates", component: ManageTemplates },
       ],
     },
   ],
