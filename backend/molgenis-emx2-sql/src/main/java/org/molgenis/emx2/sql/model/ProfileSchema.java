@@ -4,10 +4,10 @@ import org.jooq.Record;
 import org.molgenis.emx2.Profile;
 
 public record ProfileSchema(String schemaName, Profile profile, int appMigrationVersion) {
-  public ProfileSchema(Record record) {
+  public ProfileSchema(Record jooqRecord) {
     this(
-        record.get("table_schema", String.class),
-        Profile.valueOf(record.get("profile", String.class)),
-        record.get("profile_migration_step", Integer.class));
+        jooqRecord.get("table_schema", String.class),
+        Profile.valueOf(jooqRecord.get("profile", String.class)),
+        jooqRecord.get("profile_migration_step", Integer.class));
   }
 }

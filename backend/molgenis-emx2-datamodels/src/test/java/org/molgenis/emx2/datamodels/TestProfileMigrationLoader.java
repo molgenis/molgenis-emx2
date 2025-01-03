@@ -1,6 +1,5 @@
 package org.molgenis.emx2.datamodels;
 
-import static org.jooq.impl.DSL.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.BeforeAll;

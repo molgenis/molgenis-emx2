@@ -12,7 +12,7 @@ import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.sql.model.ProfileSchema;
 
-public class TestSchemaMigrations {
+class TestSchemaMigrations {
 
   private static Database db;
   private static final String SCHEMA_NAME = "schemaMigrationTest";

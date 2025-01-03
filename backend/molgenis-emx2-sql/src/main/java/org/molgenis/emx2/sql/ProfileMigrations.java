@@ -65,7 +65,6 @@ public class ProfileMigrations {
                   setProfileMigrationStep(db, profileSchema, currentSchemaVersion);
               updatedProfileSchemas.add(updated);
             } catch (MolgenisException e) {
-              log.error("Error migrating profile schema: {}", profileSchema, e);
               throw new MolgenisException(
                   "Error migrating profile schema: " + profileSchema + " " + e.getMessage(), e);
             }
@@ -88,19 +87,17 @@ public class ProfileMigrations {
   }
 
   private ProfileMigrationStep loadMigration(Profile profile, int step) {
-    String folderName = profile.name().toLowerCase().replaceAll("_", "");
+    String folderName = profile.name().toLowerCase().replace("_", "");
     Class<?> aClass;
     try {
       aClass =
           Class.forName("org.molgenis.emx2.sql.profilemigrations." + folderName + ".Step" + step);
     } catch (ClassNotFoundException e) {
-      log.error("No migration found for profile {} step {}", profile, step);
       throw new MolgenisException("No migration found for profile " + profile + " step " + step, e);
     }
     try {
       return (ProfileMigrationStep) aClass.getConstructors()[0].newInstance();
     } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-      log.error("Error instantiating migration for profile {} step {}", profile, step, e);
       throw new MolgenisException(
           "Error instantiating migration for profile " + profile + " step " + step, e);
     }
