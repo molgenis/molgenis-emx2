@@ -426,6 +426,13 @@ public class GraphqlTableFieldFactory {
                 .type(GraphQLList.list(getPrimaryKeyInput(table)))
                 .build());
       }
+      if (TableType.ONTOLOGIES.equals(table.getTableType())) {
+        filterBuilder.field(
+            GraphQLInputObjectField.newInputObjectField()
+                .name(MATCH_ANY_IN_SUBTREE)
+                .type(GraphQLList.list(Scalars.GraphQLString))
+                .build());
+      }
       filterBuilder.field(
           GraphQLInputObjectField.newInputObjectField()
               .name(FILTER_SEARCH)
@@ -564,6 +571,8 @@ public class GraphqlTableFieldFactory {
                   ((List<Map<String, Object>>) entry.getValue())
                       .stream().map(v -> createKeyFilter(table, v)).collect(Collectors.toList())));
         }
+      } else if (entry.getKey().equals(MATCH_ANY_IN_SUBTREE)) {
+        // skip, handled on parent column. Need re-architecture in next major release.
       } else {
         // find column by escaped name
         Optional<Column> optional =
@@ -577,6 +586,17 @@ public class GraphqlTableFieldFactory {
                   + " unknown in table "
                   + table.getTableName());
         Column c = optional.get();
+        Map value = (Map) entry.getValue();
+        // although nested, this should apply on this level, not sublevel
+        if (value.containsKey(MATCH_ANY_IN_SUBTREE)) {
+          subFilters.add(
+              f(
+                  c.getName(),
+                  Operator.MATCH_ANY_IN_SUBTREE,
+                  ((List) value.get(MATCH_ANY_IN_SUBTREE)).toArray(new String[0])));
+          value.remove(MATCH_ANY_IN_SUBTREE);
+        }
+        if (value.size() == 0) continue;
         if (c.isReference()) {
           subFilters.add(
               f(
@@ -588,7 +608,7 @@ public class GraphqlTableFieldFactory {
                           .getSchema(c.getRefTable().getSchemaName())
                           .getTable(c.getRefTableName())
                           .getMetadata(),
-                      (Map) entry.getValue())));
+                      value)));
         } else {
           subFilters.add(convertMapToFilter(c.getName(), (Map<String, Object>) entry.getValue()));
         }

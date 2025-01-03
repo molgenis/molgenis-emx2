@@ -841,11 +841,12 @@ function graphqlFilter(
           filter[col.id] = { like: conditions };
         } else if (col.columnType.startsWith("BOOL")) {
           filter[col.id] = { equals: conditions };
-        } else if (
-          col.columnType.startsWith("REF") ||
-          col.columnType.startsWith("ONTOLOGY")
-        ) {
+        } else if (col.columnType.startsWith("REF")) {
           filter[col.id] = { equals: conditions };
+        } else if (col.columnType.startsWith("ONTOLOGY")) {
+          filter[col.id] = {
+            match_any_in_subtree: conditions.map((term) => term.name),
+          };
         } else if (
           [
             "LONG",

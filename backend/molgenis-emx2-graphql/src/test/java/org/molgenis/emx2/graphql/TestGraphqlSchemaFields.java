@@ -47,6 +47,21 @@ public class TestGraphqlSchemaFields {
   }
 
   @Test
+  void testMatchAnyInSubtree() throws IOException {
+    String result =
+        execute("{Pet(filter:{tags:{match_any_in_subtree:\"colors\"}}){name}}").toString();
+    assertTrue(result.contains("tom"));
+    assertFalse(result.contains("pooky")); // poor pooky has no color
+
+    result =
+        execute("{Pet(filter:{tags:{match_any_in_subtree:[\"green\",\"blue\"]}}){name}}")
+            .toString();
+    assertTrue(result.contains("jerry"));
+    assertTrue(result.contains("spike"));
+    assertFalse(result.contains("tom")); // tom is red
+  }
+
+  @Test
   public void testSession() throws IOException {
     try {
       database.setActiveUser(ANONYMOUS);

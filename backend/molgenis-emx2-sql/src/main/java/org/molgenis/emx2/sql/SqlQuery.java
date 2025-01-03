@@ -434,14 +434,27 @@ public class SqlQuery extends QueryBean {
         } else {
           Column c = getColumnByName(table, f.getColumn());
           if (c.isReference()) {
-            SelectConditionStep<org.jooq.Record> subQuery =
-                jsonFilterQuery(
-                    (SqlTableMetadata) c.getRefTable(),
-                    column,
-                    tableAlias,
-                    subAlias,
-                    f,
-                    new String[0]);
+            SelectSelectStep<?> subQuery = null;
+            if (MATCH_ANY_IN_SUBTREE.equals(f.getOperator())) {
+              // for future refactoring, try to apply this to the ref instead of ontology pkey
+              subQuery =
+                  DSL.select(
+                      field(
+                          "\"MOLGENIS\".get_expanded_ontology_terms({0},{1},{2})",
+                          c.getRefTable().getSchemaName(),
+                          c.getRefTable().getTableName(),
+                          TypeUtils.toStringArray(f.getValues())));
+            } else {
+              subQuery =
+                  (SelectSelectStep<?>)
+                      jsonFilterQuery(
+                          (SqlTableMetadata) c.getRefTable(),
+                          column,
+                          tableAlias,
+                          subAlias,
+                          f,
+                          new String[0]);
+            }
             if (subQuery != null) {
               if (c.isRefArray()) {
                 // if not composite it is simple array overlap
