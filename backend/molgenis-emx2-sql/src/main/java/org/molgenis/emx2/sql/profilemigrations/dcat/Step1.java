@@ -1,4 +1,4 @@
-package org.molgenis.emx2.sql.appmigrations.dcat;
+package org.molgenis.emx2.sql.profilemigrations.dcat;
 
 import org.molgenis.emx2.Database;
 

@@ -11,8 +11,8 @@ import java.util.List;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Profile;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.sql.appmigrations.ProfileMigrationStep;
 import org.molgenis.emx2.sql.model.ProfileSchema;
+import org.molgenis.emx2.sql.profilemigrations.ProfileMigrationStep;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -91,7 +91,8 @@ public class ProfileMigrations {
     String folderName = profile.name().toLowerCase().replaceAll("_", "");
     Class<?> aClass;
     try {
-      aClass = Class.forName("org.molgenis.emx2.sql.appmigrations." + folderName + ".Step" + step);
+      aClass =
+          Class.forName("org.molgenis.emx2.sql.profilemigrations." + folderName + ".Step" + step);
     } catch (ClassNotFoundException e) {
       log.error("No migration found for profile {} step {}", profile, step);
       throw new MolgenisException("No migration found for profile " + profile + " step " + step, e);
