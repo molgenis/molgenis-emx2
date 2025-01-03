@@ -9,10 +9,10 @@
         :options="['Html', 'Header', 'Section', 'PieChart']"
         :required="true"
       />
-      <Button type="primary" size="tiny"><BaseIcon name="ArrowUp"/></Button>
-      <Button type="primary" size="tiny"><BaseIcon name="ArrowDown"/></Button>
-      <Button type="primary" size="tiny"><BaseIcon name="Plus"/></Button>
-      <Button type="primary" size="tiny"><BaseIcon name="Trash"/></Button>
+      <Button type="primary" size="tiny" @click="$emit('action', 'up')"><BaseIcon name="ArrowUp"/></Button>
+      <Button type="primary" size="tiny" @click="$emit('action', 'down')"><BaseIcon name="ArrowDown"/></Button>
+      <Button type="primary" size="tiny" @click="$emit('action', 'add')"><BaseIcon name="Plus"/></Button>
+      <Button type="primary" size="tiny" @click="$emit('action', 'delete')"><BaseIcon name="Trash"/></Button>
     </div>
     <hr />
     <slot></slot>
@@ -23,6 +23,8 @@
 let props = defineProps<{
   type?: string;
 }>();
+defineEmits(['action']);
+
 </script>
 
 <style lang="css">

@@ -4,6 +4,7 @@
       <ModulesModule
         v-for="(module, index) in localContent?.modules"
         @save="save($event, index)"
+        @action="action($event, index)"
         :content="module"
         :editMode="editMode"
         :page="page"
@@ -31,9 +32,43 @@ let props = withDefaults(
 const emit = defineEmits();
 
 let localContent = ref(props.content);
-console.log("localContent",localContent)
+console.log("localContent",localContent.value);
 function save(value, index) {
+  console.log("save", value, index);
   emit("save", localContent.value);
+}
+
+function action(value, index) {
+  console.log("action", value, index);
+  const from = Math.max( 0, Math.min(index, localContent.value?.modules.length) );
+  let to = 0;
+  switch(value){
+    case "up":
+      if(from>0){
+        to = from -1;
+        var element = localContent.value?.modules[from];
+        localContent.value?.modules.splice(from, 1);
+        localContent.value?.modules.splice(to, 0, element);
+      }
+      break;
+    case "down":
+      to = from +1;
+      var element = localContent.value?.modules[from];
+      localContent.value?.modules.splice(from, 1);
+      localContent.value?.modules.splice(to, 0, element);
+      break;
+    case "add":
+      localContent.value?.modules.splice(from,0,{type:"Section", html:'', title:''});
+      console.log("localContent",localContent.value);
+
+      break;
+    case "delete":
+      if(localContent.value?.modules.length>1){
+        localContent.value?.modules.splice(from,1);
+      }   
+      break;
+  }
+//  emit("action", value, index);
 }
 
 watch(

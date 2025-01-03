@@ -7,7 +7,7 @@
       titlePositionX="center"
       titlePositionY="center"
     />
-    <EditBlock v-if="editMode" type="Header">
+    <EditBlock v-if="editMode" type="Header" @action="$emit('action', $event)">
       <InputLabel for="header-title-input-string">
         Title
       </InputLabel>
@@ -43,7 +43,7 @@ let props = withDefaults(
   }
 );
 
-const emit = defineEmits();
+const emit = defineEmits(["save", "action"]);
 
 let localContent = ref(props.content);
 

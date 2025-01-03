@@ -9,7 +9,7 @@
       :chartHeight="250"
       :asDonutChart="true"
     />
-    <EditBlock v-if="editMode" type="PieChart">
+    <EditBlock v-if="editMode" type="PieChart" @action="$emit('action', $event)">
       <InputLabel for="database-input-string">
         Database
       </InputLabel>
@@ -33,4 +33,6 @@ withDefaults(
     editMode: false,
   }
 );
+const emit = defineEmits(["save", "action"]);
+
 </script>

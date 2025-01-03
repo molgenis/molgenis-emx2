@@ -11,7 +11,7 @@
       </h2>
       <div v-html="localContent.html"></div>
     </PageSection>
-    <EditBlock v-if="editMode" type="Section">
+    <EditBlock v-if="editMode" type="Section" @action="$emit('action', $event)">
       <InputLabel for="input-title">
         Title
       </InputLabel>
@@ -53,7 +53,7 @@ let props = withDefaults(
   }
 );
 
-const emit = defineEmits();
+const emit = defineEmits(["save", "action"]);
 
 let localContent = ref(props.content);
 

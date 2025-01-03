@@ -1,7 +1,7 @@
 <template>
   <div>
     <div v-html="localContent.html"></div>
-    <EditBlock v-if="editMode" type="Html">
+    <EditBlock v-if="editMode" type="Html" @action="$emit('action', $event)">
       <InputTextArea
         id="html input"
         :modelValue="localContent.html"
@@ -25,7 +25,7 @@ let props = withDefaults(
   }
 );
 
-const emit = defineEmits();
+const emit = defineEmits(["save", "action"]);
 
 let localContent = ref(props.content);
 

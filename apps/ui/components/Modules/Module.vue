@@ -4,6 +4,7 @@
       :is="modules[content?.type]"
       :content="content"
       @save="save($event)"
+      @action="$emit('action', $event)"
       :editMode="editMode"
       :page="page"
     ></component>
@@ -34,7 +35,7 @@ let props = withDefaults(
   }
 );
 
-const emit = defineEmits();
+const emit = defineEmits(["save", "action"]);
 
 let localContent = ref(props.content);
 
