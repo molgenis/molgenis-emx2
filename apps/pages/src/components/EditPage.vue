@@ -1,71 +1,101 @@
 <template>
-  <div>
-    {{ page }}
+  <div v-if="canEdit && getContent">
     <router-link :to="'/' + page">view page</router-link>
-    <h1>{{ title }}</h1>
-    <Spinner v-if="loading" />
-    <div v-else>
-      <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
-      <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
-      <QuillEditor
-        v-model:content="draft"
-        toolbar="full"
-        class="bg-white"
-        contentType="html"
-      />
-      <div class="mt-2 float-right">
-        <ButtonAction @click="savePage">Save '{{ page }}'</ButtonAction>
-      </div>
+    <div v-if="!content?.modules">
+      select page layout
+      <button
+        @click="
+          content = {
+            version: 2,
+            modules: [{ type: 'Html', html: '<h1>html</h1>' }],
+          }
+        "
+      >
+        html page
+      </button>
+      <button
+        @click="
+          content = {
+            version: 2,
+            modules: [
+              {
+                type: 'Header',
+                title: 'ERN Genturis Registry',
+                subtitle: 'Registry for Genetic Tumour Risk Syndromes',
+              },
+              {
+                type: 'Section',
+                title: 'Welcome to the GENTURIS registry',
+                html: '<p>The <strong>GENTURIS</strong> registry is the European registry for patients with one of the genetic tumour risk syndromes (genturis). The registry is affiliated to the European Reference Network for all patients with one of the genetic tumour risk syndromes (ERN GENTURIS) </p>',
+              },
+              { type: 'Section' },
+            ],
+          }
+        "
+      >
+        ern frontpage
+      </button>
+      <button
+        @click="
+          content = {
+            version: 2,
+            modules: [{ type: 'Header' }, { type: 'PieChart' }],
+          }
+        "
+      >
+        simple dashboard
+      </button>
+      <button>contact page</button>
     </div>
   </div>
 </template>
 
 <script>
-import {
-  ButtonAction,
-  ButtonAlt,
-  MessageError,
-  MessageSuccess,
-  Spinner,
-} from "molgenis-components";
 import { request } from "graphql-request";
-import { QuillEditor } from "@vueup/vue-quill";
-import "@vueup/vue-quill/dist/vue-quill.snow.css";
 
 export default {
   components: {
-    ButtonAction,
-    ButtonAlt,
-    MessageError,
-    MessageSuccess,
-    Spinner,
-    QuillEditor,
-  },
-  data() {
-    return {
-      graphqlError: null,
-      success: null,
-      loading: false,
-      draft: "<h1>New page</h1><p>Add your contents here</p>",
-    };
+    ModularPage,
   },
   props: {
     page: String,
     session: Object,
   },
+  data() {
+    return {
+      content: this.getContent,
+    };
+  },
   computed: {
-    title() {
-      if (
+    getContent() {
+      console.log(this?.session);
+      if (this?.session && this?.session?.settings) {
+        if (this?.session?.settings["page." + this.page].version == 2) {
+          return this?.session?.settings["page." + this.page];
+        }
+        return {
+          version: 2,
+        };
+      } else {
+        return {
+          version: 2,
+        };
+      }
+    },
+    canEdit() {
+      /*
+      return (
         this.session &&
-        this.session.settings &&
-        this.session.settings["page." + this.page]
-      )
-        return "Edit page '" + this.page + "'";
-      else return "Create new page '" + this.page + "'";
+        (this.session.email == "admin" ||
+          (this.session.roles && this.session.roles.includes("Manager")))
+      );
+      */
+      return true;
     },
   },
   methods: {
-    savePage() {
+    savePage(value) {
+      console.log("savePage", value);
       this.loading = true;
       this.graphqlError = null;
       this.success = null;
@@ -75,41 +105,30 @@ export default {
         {
           settings: {
             key: "page." + this.page,
-            value: this.draft.trim(),
+            value: JSON.stringify(value),
           },
         }
       )
         .then((data) => {
           this.success = data.change.message;
-          this.session.settings["page." + this.page] = this.draft;
+          this.session.settings["page." + this.page] = value;
+          //          this.content = value;
         })
         .catch((graphqlError) => {
-          this.graphqlError = graphqlError.response.errors[0].message;
+          console.log(graphqlError);
+          //          this.graphqlError = graphqlError.response.errors[0].message;
         })
         .finally((this.loading = false));
-    },
-    reload() {
-      if (
-        this.session &&
-        this.session.settings &&
-        this.session.settings["page." + this.page]
-      ) {
-        this.draft = this.session.settings["page." + this.page];
-      } else {
-        return "New page, edit here";
-      }
     },
   },
   watch: {
     session: {
       deep: true,
       handler() {
-        this.reload();
+        this.content = this.getContent;
+        console.log("handler", this.content);
       },
     },
-  },
-  created() {
-    this.reload();
   },
 };
 </script>

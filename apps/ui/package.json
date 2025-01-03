@@ -13,6 +13,8 @@
     "checkFormat": "prettier app.vue layouts pages composables  --check --config ../.prettierrc.js"
   },
   "dependencies": {
+    "@vueup/vue-quill": "^1.0.0",
+    "molgenis-viz": "*",
     "@pinia/nuxt": "0.5.1",
     "pinia": "2.1.7",
     "vue": "3.5.6",
