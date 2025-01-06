@@ -402,6 +402,9 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
 
   @Override
   public Database setSettings(Map<String, String> settings) {
+    if (!isAdmin()) {
+      throw new MolgenisException("Insufficient rights to create database level setting");
+    }
     super.setSettings(settings);
     MetadataUtils.saveDatabaseSettings(jooq, getSettings());
     // force all sessions to reload
