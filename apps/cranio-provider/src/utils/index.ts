@@ -56,3 +56,8 @@ export function uniqueValues(data: any, key: string): string[] {
   const values = data.map((row: Record<string, any>) => row[key]);
   return Array.from(new Set(values)).sort() as string[];
 }
+
+export const ernCenterPalette: IKeyValuePair = {
+  ERN: "#66c2a4",
+  "Your center": "#3f6597",
+};

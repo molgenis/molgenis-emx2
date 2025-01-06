@@ -28,6 +28,7 @@
           xvar="dataPointSecondaryCategory"
           yvar="dataPointValue"
           group="dataPointName"
+          :columnColorPalette="ernCenterPalette"
           :xAxisLabel="complicationsChart?.xAxisLabel"
           :yAxisLabel="complicationsChart?.yAxisLabel"
           :yMin="0"
@@ -41,18 +42,17 @@
             left: complicationsChart?.leftMargin,
           }"
         />
-        <!-- :columnColorPalette="palette" -->
       </DashboardChart>
     </DashboardRow>
     <h2 class="dashboard-h2">Surgical interventions by diagnosis</h2>
-    <DashboardRow :columns="2">
+    <DashboardRow :columns="1">
       <DashboardChart>
         <InputLabel id="diagnosisInput" label="Select a diagnosis" />
         <select
           id="diagnosisInput"
           v-model="selectedDiagnosis"
           @change="
-            updateInterventionsChart;
+            updateInterventionsChart();
             updateSurgeryAgeChart();
           "
         >
@@ -65,12 +65,23 @@
     <DashboardRow :columns="1">
       <DashboardChart>
         <LoadingScreen v-if="loading" style="height: 215px" />
+        <MessageBox
+          v-else-if="!loading && !hasInterventionsData"
+          type="warning"
+        >
+          <span>Not enough data to show chart</span>
+        </MessageBox>
         <PieChart2
           v-else
           :chartId="interventionsChart?.chartId"
           :title="interventionsChart?.chartTitle"
           :description="interventionsChart?.chartSubtitle"
           :chartData="interventionsChartData"
+          :chartColors="{
+            'First surgery': '#4e79a7',
+            'Additional planned surgery according to protocol': '#f28e2c',
+            'Unwanted reoperation due to complications': '#e15759',
+          }"
           :valuesArePercents="false"
           :asDonutChart="true"
           :enableLegendHovering="true"
@@ -80,7 +91,6 @@
           :chartHeight="215"
           :chartScale="0.85"
         />
-        <!-- :chartColors="surgicalInterventionColors" -->
       </DashboardChart>
     </DashboardRow>
     <DashboardRow :columns="1">
@@ -95,6 +105,7 @@
           xvar="dataPointSecondaryCategory"
           yvar="dataPointValue"
           group="dataPointTime"
+          :columnColorPalette="ernCenterPalette"
           :xAxisLabel="surgeryAgeChart?.xAxisLabel"
           :yAxisLabel="surgeryAgeChart?.yAxisLabel"
           :yMin="0"
@@ -110,8 +121,6 @@
             left: surgeryAgeChart?.leftMargin,
           }"
         />
-        <!-- :chartMargins="{ top: 10, right: 0, bottom: 60, left: 30 }" -->
-        <!-- :columnFillPalette="palette" -->
       </DashboardChart>
     </DashboardRow>
   </ProviderDashboard>
@@ -126,14 +135,13 @@ import {
   InputLabel,
   PieChart2,
   LoadingScreen,
+  MessageBox,
   // @ts-expect-error
 } from "molgenis-viz";
-import LoadingBlock from "../components/LoadingBlock.vue";
 import ProviderDashboard from "../components/ProviderDashboard.vue";
 
 import { generateAxisTickData } from "../utils/generateAxisTicks";
-import { asKeyValuePairs, sum, uniqueValues } from "../utils";
-import { generateColorPalette } from "../utils/generateColorPalette";
+import { asKeyValuePairs, uniqueValues, ernCenterPalette } from "../utils";
 import { getDashboardChart } from "../utils/getDashboardData";
 
 import type { ICharts, IChartData } from "../types/schema";
@@ -148,13 +156,11 @@ const diagnoses = ref<string[]>();
 const selectedDiagnosis = ref<string>();
 const complicationsChart = ref<ICharts>();
 const complicationsChartData = ref<IChartData[]>();
-const complicationsChartPalette = ref<IKeyValuePair>();
 const interventionsChart = ref<ICharts>();
 const interventionsChartData = ref<IKeyValuePair>();
-const interventionsChartPalette = ref<IKeyValuePair>();
+const hasInterventionsData = ref<boolean>(false);
 const surgeryAgeChart = ref<ICharts>();
 const surgeryAgeChartData = ref<IChartData[]>();
-const surgeryAgeChartPalette = ref<IKeyValuePair>();
 
 async function getPageData() {
   const centerComplicationsResponse = await getDashboardChart(
@@ -232,14 +238,22 @@ function updateInterventionsChart() {
     "dataPointValueLabel",
     "dataPointValue"
   );
+
+  const values: number[] = Object.keys(interventionsChartData.value).map(
+    (key: string) => parseInt(interventionsChartData.value![key])
+  );
+  const sum: number = values.reduce((acc, value) => acc + value, 0);
+  hasInterventionsData.value = sum > 0;
 }
 
 function updateSurgeryAgeChart() {
-  surgeryAgeChartData.value = surgeryAgeChart.value?.dataPoints?.filter(
-    (row: IChartData) => {
+  surgeryAgeChartData.value = surgeryAgeChart.value?.dataPoints
+    ?.filter((row: IChartData) => {
       return row.dataPointPrimaryCategory === selectedDiagnosis.value;
-    }
-  );
+    })
+    .sort((a: IChartData, b: IChartData) => {
+      return (a.dataPointTime as number) - (b.dataPointTime as number);
+    });
   const chartAxis = generateAxisTickData(
     surgeryAgeChartData.value,
     "dataPointValue"
@@ -288,91 +302,11 @@ onMounted(() => {
       updateInterventionsChart();
       updateSurgeryAgeChart();
     })
-    .catch((err) => {})
+    .catch((err) => {
+      throw new Error(err);
+    })
     .finally(() => {
       loading.value = false;
     });
 });
-
-// const props = defineProps({
-//   user: String,
-//   organization: Object,
-// });
-
-// // create random datasets for demo purposes
-// import { randomInt } from "d3";
-// import generateColors from "../utils/palette.js";
-// import { randomGroupDataset, seq } from "../utils/devtools";
-
-// let totalCases = ref(0);
-// let complicationsByGroup = ref([]);
-// let ageByGroup = ref([]);
-// let surgicalInterventions = ref({
-//   "Additional planned surgery according to protocol": 0,
-//   "First surgery": 0,
-//   "Unwanted reoperation due to complications": 0,
-// });
-
-// const surgicalInterventionColors = generateColors(
-//   Object.keys(surgicalInterventions.value)
-// );
-
-// const palette = {
-//   "Your center": "#3f6597",
-//   ERN: "#66c2a4",
-// };
-
-// function setComplicationsByGroup() {
-//   complicationsByGroup.value = randomGroupDataset(
-//     ["Your center", "ERN"],
-//     ["Complications", "No complications"],
-//     0,
-//     100
-//   ).sort((a, b) => (a.group > b.group ? -1 : 1));
-
-//   totalCases.value = complicationsByGroup.value
-//     .map((row) => row.value)
-//     .reduce((sum, value) => sum + value, 0);
-// }
-
-// function setSurgicalInterventions() {
-//   const types = Object.keys(surgicalInterventions.value);
-//   let currentTotal = totalCases.value;
-//   const data = types
-//     .map((type, i) => {
-//       const randomValue =
-//         i === types.length - 1
-//           ? currentTotal
-//           : i === 1
-//           ? Math.round(currentTotal * 0.45)
-//           : randomInt(1, currentTotal)();
-//       const row = [type, randomValue];
-//       currentTotal -= randomValue;
-//       return row;
-//     })
-//     .sort((current, next) => (current[1] < next[1] ? 1 : -1));
-//   surgicalInterventions.value = Object.fromEntries(data);
-// }
-
-// function setAgeByGroup() {
-//   ageByGroup.value = randomGroupDataset(
-//     ["Your center", "ERN"],
-//     seq(0, 14, 1),
-//     0,
-//     18
-//   );
-// }
-
-// function onSurgeryTypeInput() {
-//   setComplicationsByGroup();
-// }
-
-// function onDiagnosisInput() {
-//   setSurgicalInterventions();
-//   setAgeByGroup();
-// }
-
-// setComplicationsByGroup();
-// setSurgicalInterventions();
-// setAgeByGroup();
 </script>
