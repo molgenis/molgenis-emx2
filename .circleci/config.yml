@@ -34,7 +34,7 @@ definitions:
       environment:
         MOLGENIS_OIDC_CLIENT_ID: "emx2-previews"
         MOLGENIS_OIDC_CLIENT_SECRET: ${KV_OIDC_CLIENT_SECRET}
-        MOLGENIS_OIDC_DISCOVERY_URI: "http://keycloakserver/realms/myrealm/.well-known/openid-configuration"
+        MOLGENIS_OIDC_DISCOVERY_URI: "https://auth1.molgenis.net/realms/myrealm/.well-known/openid-configuration"
     - image: postgres:15-alpine
       environment:
         POSTGRES_USER: postgres
