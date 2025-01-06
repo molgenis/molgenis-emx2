@@ -7,7 +7,11 @@
           <router-link :to="{ name: 'home' }"> Your center </router-link>
         </li>
         <li>
-          <Accordion id="cranio-nav" title="Craniosynostosis">
+          <Accordion
+            id="cranio-nav"
+            title="Craniosynostosis"
+            :isOpenByDefault="true"
+          >
             <p>All Centers</p>
             <ul>
               <li>
@@ -37,7 +41,11 @@
           </Accordion>
         </li>
         <li>
-          <Accordion id="clp-nav" title="Cleft lip and palate">
+          <Accordion
+            id="clp-nav"
+            title="Cleft lip and palate"
+            :isOpenByDefault="true"
+          >
             <ul>
               <li>
                 <router-link :to="{ name: 'provider-clp-your-center' }">
