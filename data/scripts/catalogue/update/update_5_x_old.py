@@ -181,6 +181,10 @@ class Transform:
             # transform keywords
             df_data_sources.loc[:, 'keywords'] = df_data_sources['keywords'].apply(reformat_keywords)
             df_data_sources['type'] = 'Data source'
+            # transform regions
+            df_data_sources.loc[:, 'regions'] = df_data_sources['regions'].apply(remove_all_regions)
+            # transform datasource types
+            df_data_sources.loc[:, 'RWD type'] = df_data_sources['RWD type'].apply(transform_datasource_types)
 
             # Databanks to Resources
             df_databanks = pd.read_csv(self.path + 'Databanks.csv', dtype='object')
@@ -195,11 +199,16 @@ class Transform:
             # transform keywords
             df_databanks.loc[:, 'keywords'] = df_databanks['keywords'].apply(reformat_keywords)
             df_databanks['type'] = 'Databank'
+            # transform regions
+            df_databanks.loc[:, 'regions'] = df_databanks['regions'].apply(remove_all_regions)
+            # transform datasource types
+            df_databanks.loc[:, 'RWD type'] = df_databanks['RWD type'].apply(transform_datasource_types)
 
         # Models to Resources
         if self.database_type in ['catalogue', 'network']:
             df_models = pd.read_csv(self.path + 'Models.csv', dtype='object')
-            df_models = df_models[df_models['id'].isin(['CRC Screening CDM', 'OMOP-CDM'])]  # handles exceptions
+            df_models = df_models[df_models['id'].isin(['CRC Screening CDM', 'OMOP-CDM', 'ConcePTION_WP2',
+                                                        'BPE Data Model', 'ConcePTION Pregnancy Algorithm Output'])]  # handles exceptions
             df_models['type'] = 'Common data model'
 
         # merge all to Resources
@@ -424,6 +433,7 @@ class Transform:
                 df_mappings.to_csv(self.path + 'Variable mappings.csv', index=False)
             else:
                 df_mappings = df_cdm_no_repeats
+                df_mappings.loc[:, 'repeats'] = ''
                 df_mappings.to_csv(self.path + 'Variable mappings.csv', index=False)
 
     def collection_events(self):
@@ -731,3 +741,17 @@ def get_cohort_type(cohort_type):
 
     return cohort_type
 
+
+def remove_all_regions(regions):
+    if not pd.isna(regions):
+        regions = regions.replace('All', '')
+        regions = regions.strip(',')
+
+    return regions
+
+
+def transform_datasource_types(datasource_types):
+    if not pd.isna(datasource_types):
+        datasource_types = datasource_types.replace('Pharmacy dispensation records', 'Pharmacy dispensing records')
+
+    return datasource_types
