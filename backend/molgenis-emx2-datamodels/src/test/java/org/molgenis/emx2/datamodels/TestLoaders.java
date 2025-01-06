@@ -163,4 +163,11 @@ public class TestLoaders {
     DataModels.Regular.RD3_V2.getImportTask(schema, false).run();
     assertEquals(94, schema.getTableNames().size());
   }
+
+    @Test
+    void test19MigrationTestLoader() {
+        Schema schema = database.dropCreateSchema("MigrationTest");
+        DataModels.Profile.TEST_PROFILE_MIGRATION.getImportTask(schema, true).run();
+        assertEquals(1, schema.getTableNames().size());
+    }
 }
