@@ -99,6 +99,5 @@ export default {
 <style>
 .layout-table {
   border-collapse: unset;
-  /* override theme */
 }
 </style>
