@@ -148,6 +148,8 @@ public class GraphqlDatabaseFieldFactory {
                           setting ->
                               selectedKeys.isEmpty() || selectedKeys.contains(setting.getKey()))
                       .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+              selectedSettings.put(
+                  Constants.IS_OIDC_ENABLED, String.valueOf(database.isOidcEnabled()));
               return mapSettingsToGraphql(selectedSettings);
             });
   }
