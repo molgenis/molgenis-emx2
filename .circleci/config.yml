@@ -31,6 +31,10 @@ definitions:
   test_config: &test_config
     docker:
     - image: molgenis/ci-build:1.2.4
+      environment:
+        MOLGENIS_OIDC_CLIENT_ID: f09db035-c961-485a-b186-aa496a2fff65
+        MOLGENIS_OIDC_CLIENT_SECRET: g37c-acHNUdsLaMgIhzeNsJphWXczJy7VbLlthQBKJ4
+        POSTGRES_DB: postgres
     - image: postgres:15-alpine
       environment:
         POSTGRES_USER: postgres
