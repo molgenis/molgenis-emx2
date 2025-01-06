@@ -32,8 +32,9 @@ definitions:
     docker:
     - image: molgenis/ci-build:1.2.4
       environment:
-        MOLGENIS_OIDC_CLIENT_ID: f09db035-c961-485a-b186-aa496a2fff65
-        MOLGENIS_OIDC_CLIENT_SECRET: g37c-acHNUdsLaMgIhzeNsJphWXczJy7VbLlthQBKJ4
+        MOLGENIS_OIDC_CLIENT_ID: "emx2-previews"
+        MOLGENIS_OIDC_CLIENT_SECRET: ${KV_OIDC_CLIENT_SECRET}
+        MOLGENIS_OIDC_DISCOVERY_URI: "http://keycloakserver/realms/myrealm/.well-known/openid-configuration"
     - image: postgres:15-alpine
       environment:
         POSTGRES_USER: postgres
