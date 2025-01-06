@@ -32,9 +32,9 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   public static final String ANONYMOUS = "anonymous";
   public static final String USER = "user";
   public static final String WITH = "with {} = {} ";
-  public static final int TEN_SECONDS = 10;
+  public static final int MAX_EXECUTION_TIME_IN_SECONDS = 10;
   private static final Settings DEFAULT_JOOQ_SETTINGS =
-      new Settings().withQueryTimeout(TEN_SECONDS);
+      new Settings().withQueryTimeout(MAX_EXECUTION_TIME_IN_SECONDS);
   private static final Random random = new SecureRandom();
 
   // shared between all instances
@@ -739,7 +739,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
         connectionProvider.setActiveUser(user);
       }
     } else {
-      final Settings settings = new Settings().withQueryTimeout(TEN_SECONDS);
+      final Settings settings = new Settings().withQueryTimeout(MAX_EXECUTION_TIME_IN_SECONDS);
       SqlUserAwareConnectionProvider adminProvider = new SqlUserAwareConnectionProvider(source);
       adminProvider.setActiveUser(ADMIN_USER);
       DSLContext adminJooq = DSL.using(adminProvider, SQLDialect.POSTGRES, settings);
