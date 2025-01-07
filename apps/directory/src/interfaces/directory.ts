@@ -107,6 +107,7 @@ export interface IBiobanks {
   collaboration_non_for_profit?: boolean;
   national_node: INationalNodes;
   withdrawn: boolean;
+  viewmodel?: Record<string, any>;
 }
 
 export interface IBodyParts {
