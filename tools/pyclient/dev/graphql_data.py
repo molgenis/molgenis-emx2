@@ -13,7 +13,8 @@ def get_data() -> list:
     """Fetches data."""
 
     with Client(url=URL, schema=SCHEMA) as client:
-        resources = client.get(table='Resources', columns=['name', 'external identifiers'], as_df=True)
+        resources = client.get(table='Resources', columns=['name', 'description', 'subpopulations'], as_df=False)
+
 
 
     return resources

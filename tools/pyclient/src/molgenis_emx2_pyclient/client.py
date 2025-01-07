@@ -1074,7 +1074,7 @@ class Client:
 
         query = f"{{\n  {table_id} {{\n"
         for col in table_metadata.columns:
-            if col.id not in columns and col.name not in columns:
+            if columns is not None and (col.id not in columns and col.name not in columns):
                 continue
             if col.get('columnType') in [HEADING, LOGO]:
                 continue

@@ -40,8 +40,8 @@ async def main():
     async with Client('https://emx2.dev.molgenis.org/', schema='catalogue') as client:
 
         participant_range = [10_000, 20_000.5]
-        big_data = client.get(table='Collection subcohorts',
-                              query_filter=f'`numberOfParticipants` between {participant_range}', as_df=True)
+        big_data = client.get(table='Subpopulations',
+                              query_filter=f'`numberOfParticipants` between {participant_range}', as_df=False)
         print(big_data.head().to_string())
 
         excluded_countries = ["Denmark", "France"]
