@@ -32,9 +32,9 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   public static final String ANONYMOUS = "anonymous";
   public static final String USER = "user";
   public static final String WITH = "with {} = {} ";
-  public static final int TEN_SECONDS = 10;
+  public static final int MAX_EXECUTION_TIME_IN_SECONDS = 10;
   private static final Settings DEFAULT_JOOQ_SETTINGS =
-      new Settings().withQueryTimeout(TEN_SECONDS);
+      new Settings().withQueryTimeout(MAX_EXECUTION_TIME_IN_SECONDS);
   private static final Random random = new SecureRandom();
 
   // shared between all instances
@@ -48,7 +48,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   private Collection<String> schemaNames = new ArrayList<>();
   private Collection<SchemaInfo> schemaInfos = new ArrayList<>();
   private boolean inTx;
-  private static Logger logger = LoggerFactory.getLogger(SqlDatabase.class);
+  private static final Logger logger = LoggerFactory.getLogger(SqlDatabase.class);
   private String initialAdminPassword =
       (String)
           EnvironmentProperty.getParameter(Constants.MOLGENIS_ADMIN_PW, ADMIN_PW_DEFAULT, STRING);
@@ -434,10 +434,10 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       throw new MolgenisException("Insufficient rights to create database level setting");
     }
     if (settings.containsKey(Constants.IS_OIDC_ENABLED)) {
-      String isOidcEnabledSetting = settings.get(Constants.IS_OIDC_ENABLED);
-      if (Boolean.parseBoolean(isOidcEnabledSetting) && !isValidOidcSettings()) {
+      if (Boolean.parseBoolean(settings.get(Constants.IS_OIDC_ENABLED)) && !isValidOidcSettings()) {
         throw new MolgenisException("OIDC environment setting are incomplete");
       }
+      this.isOidcEnabled = Boolean.parseBoolean(settings.get(Constants.IS_OIDC_ENABLED));
     }
 
     super.setSettings(settings);
@@ -739,7 +739,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
         connectionProvider.setActiveUser(user);
       }
     } else {
-      final Settings settings = new Settings().withQueryTimeout(TEN_SECONDS);
+      final Settings settings = new Settings().withQueryTimeout(MAX_EXECUTION_TIME_IN_SECONDS);
       SqlUserAwareConnectionProvider adminProvider = new SqlUserAwareConnectionProvider(source);
       adminProvider.setActiveUser(ADMIN_USER);
       DSLContext adminJooq = DSL.using(adminProvider, SQLDialect.POSTGRES, settings);

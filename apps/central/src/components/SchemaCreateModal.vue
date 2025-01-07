@@ -145,6 +145,7 @@ export default {
         "UMCU_COHORTS_STAGING",
         "INTEGRATE_COHORTS_STAGING",
         "RD3",
+        "RD3_V2",
         "JRC_COMMON_DATA_ELEMENTS",
         "FAIR_GENOMES",
         "DCAT",
